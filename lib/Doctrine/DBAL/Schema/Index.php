@@ -20,12 +20,6 @@
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use function array_keys;
-use function array_map;
-use function array_search;
-use function count;
-use function is_string;
-use function strtolower;
 
 class Index extends AbstractAsset implements Constraint
 {

@@ -19,8 +19,6 @@
 
 namespace Doctrine\DBAL\Schema;
 
-use function implode;
-use function sprintf;
 
 class SchemaException extends \Doctrine\DBAL\DBALException
 {

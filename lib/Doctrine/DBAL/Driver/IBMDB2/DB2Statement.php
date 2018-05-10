@@ -23,30 +23,6 @@ use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
-use const DB2_CHAR;
-use const DB2_LONG;
-use const DB2_PARAM_IN;
-use function array_change_key_case;
-use function call_user_func_array;
-use function db2_bind_param;
-use function db2_execute;
-use function db2_fetch_array;
-use function db2_fetch_assoc;
-use function db2_fetch_both;
-use function db2_fetch_object;
-use function db2_free_result;
-use function db2_num_fields;
-use function db2_num_rows;
-use function db2_stmt_error;
-use function db2_stmt_errormsg;
-use function func_get_args;
-use function func_num_args;
-use function gettype;
-use function is_object;
-use function is_string;
-use function ksort;
-use function sprintf;
-use function strtolower;
 
 class DB2Statement implements \IteratorAggregate, Statement
 {

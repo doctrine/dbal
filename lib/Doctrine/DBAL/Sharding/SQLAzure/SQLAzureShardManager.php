@@ -23,9 +23,6 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Sharding\ShardingException;
 use Doctrine\DBAL\Sharding\ShardManager;
 use Doctrine\DBAL\Types\Type;
-use function is_bool;
-use function is_scalar;
-use function sprintf;
 
 /**
  * Sharding using the SQL Azure Federations support.

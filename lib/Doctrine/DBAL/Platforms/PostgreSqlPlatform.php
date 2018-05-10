@@ -30,22 +30,6 @@ use Doctrine\DBAL\Types\BigIntType;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\IntegerType;
 use Doctrine\DBAL\Types\Type;
-use function array_diff;
-use function array_merge;
-use function array_unique;
-use function array_values;
-use function count;
-use function explode;
-use function implode;
-use function in_array;
-use function is_array;
-use function is_bool;
-use function is_numeric;
-use function is_string;
-use function str_replace;
-use function strpos;
-use function strtolower;
-use function trim;
 
 /**
  * PostgreSqlPlatform.

@@ -23,7 +23,6 @@ use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\AbstractSQLiteDriver;
 use Doctrine\DBAL\Driver\PDOConnection;
 use PDOException;
-use function array_merge;
 
 /**
  * The PDO Sqlite driver.

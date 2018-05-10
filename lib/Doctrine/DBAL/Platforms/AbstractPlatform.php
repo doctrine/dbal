@@ -42,32 +42,6 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Type;
-use function addcslashes;
-use function array_map;
-use function array_merge;
-use function array_unique;
-use function array_values;
-use function count;
-use function explode;
-use function func_get_arg;
-use function func_get_args;
-use function func_num_args;
-use function get_class;
-use function implode;
-use function in_array;
-use function is_array;
-use function is_bool;
-use function is_int;
-use function is_string;
-use function join;
-use function preg_quote;
-use function preg_replace;
-use function sprintf;
-use function str_replace;
-use function strlen;
-use function strpos;
-use function strtolower;
-use function strtoupper;
 
 /**
  * Base class for all DatabasePlatforms. The DatabasePlatforms are the central

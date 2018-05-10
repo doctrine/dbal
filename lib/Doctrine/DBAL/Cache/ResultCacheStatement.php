@@ -23,9 +23,6 @@ use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\Common\Cache\Cache;
 use Doctrine\DBAL\FetchMode;
-use function array_merge;
-use function array_values;
-use function reset;
 
 /**
  * Cache statement for SQL results.

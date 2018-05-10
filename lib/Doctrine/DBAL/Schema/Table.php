@@ -22,15 +22,6 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Schema\Visitor\Visitor;
 use Doctrine\DBAL\DBALException;
-use const ARRAY_FILTER_USE_KEY;
-use function array_filter;
-use function array_merge;
-use function in_array;
-use function is_numeric;
-use function is_string;
-use function preg_match;
-use function strlen;
-use function strtolower;
 
 /**
  * Object Representation of a table.

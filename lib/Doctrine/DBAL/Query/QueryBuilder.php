@@ -22,18 +22,6 @@ namespace Doctrine\DBAL\Query;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use Doctrine\DBAL\Connection;
-use function array_key_exists;
-use function array_keys;
-use function array_unshift;
-use function func_get_args;
-use function func_num_args;
-use function implode;
-use function is_array;
-use function is_null;
-use function is_object;
-use function key;
-use function strtoupper;
-use function substr;
 
 /**
  * QueryBuilder class is responsible to dynamically create SQL queries.

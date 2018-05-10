@@ -24,7 +24,6 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\SchemaException;
-use function strlen;
 
 /**
  * Gathers SQL statements that allow to completely drop the current schema.

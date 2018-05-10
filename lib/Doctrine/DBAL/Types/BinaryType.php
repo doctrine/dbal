@@ -21,11 +21,6 @@ namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use function fopen;
-use function fseek;
-use function fwrite;
-use function is_resource;
-use function is_string;
 
 /**
  * Type that maps ab SQL BINARY/VARBINARY to a PHP resource stream.

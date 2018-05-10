@@ -23,11 +23,6 @@ use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
-use function array_combine;
-use function array_fill;
-use function call_user_func_array;
-use function count;
-use function str_repeat;
 
 /**
  * @author Kim Hemsø Rasmussen <kimhemsoe@gmail.com>

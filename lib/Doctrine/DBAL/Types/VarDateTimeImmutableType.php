@@ -20,7 +20,6 @@
 namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use function date_create_immutable;
 
 /**
  * Immutable type of {@see VarDateTimeType}.

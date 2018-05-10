@@ -26,8 +26,6 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Index;
-use function implode;
-use function str_replace;
 
 class ReservedKeywordsValidator implements Visitor
 {

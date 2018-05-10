@@ -24,31 +24,6 @@ use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use IteratorAggregate;
-use const SASQL_BOTH;
-use function array_key_exists;
-use function call_user_func_array;
-use function func_get_args;
-use function func_num_args;
-use function gettype;
-use function is_array;
-use function is_numeric;
-use function is_object;
-use function is_resource;
-use function is_string;
-use function sasql_fetch_array;
-use function sasql_fetch_assoc;
-use function sasql_fetch_object;
-use function sasql_fetch_row;
-use function sasql_prepare;
-use function sasql_stmt_affected_rows;
-use function sasql_stmt_bind_param_ex;
-use function sasql_stmt_errno;
-use function sasql_stmt_error;
-use function sasql_stmt_execute;
-use function sasql_stmt_field_count;
-use function sasql_stmt_reset;
-use function sasql_stmt_result_metadata;
-use function sprintf;
 
 /**
  * SAP SQL Anywhere implementation of the Statement interface.

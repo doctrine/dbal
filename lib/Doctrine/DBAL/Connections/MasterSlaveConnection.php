@@ -25,9 +25,6 @@ use Doctrine\DBAL\Configuration;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Event\ConnectionEventArgs;
 use Doctrine\DBAL\Events;
-use function array_rand;
-use function count;
-use function func_get_args;
 
 /**
  * Master-Slave Connection
