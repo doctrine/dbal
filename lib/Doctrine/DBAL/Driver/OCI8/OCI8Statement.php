@@ -24,36 +24,6 @@ use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use IteratorAggregate;
-use const OCI_ASSOC;
-use const OCI_B_BLOB;
-use const OCI_BOTH;
-use const OCI_D_LOB;
-use const OCI_FETCHSTATEMENT_BY_COLUMN;
-use const OCI_FETCHSTATEMENT_BY_ROW;
-use const OCI_NUM;
-use const OCI_RETURN_LOBS;
-use const OCI_RETURN_NULLS;
-use const OCI_TEMP_BLOB;
-use const PREG_OFFSET_CAPTURE;
-use function array_key_exists;
-use function count;
-use function implode;
-use function is_numeric;
-use function oci_bind_by_name;
-use function oci_cancel;
-use function oci_error;
-use function oci_execute;
-use function oci_fetch_all;
-use function oci_fetch_array;
-use function oci_fetch_object;
-use function oci_new_descriptor;
-use function oci_num_fields;
-use function oci_num_rows;
-use function oci_parse;
-use function preg_match;
-use function preg_quote;
-use function sprintf;
-use function substr;
 
 /**
  * The OCI8 implementation of the Statement interface.

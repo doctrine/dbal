@@ -24,9 +24,6 @@ use Doctrine\DBAL\Schema\Visitor\DropSchemaSqlCollector;
 use Doctrine\DBAL\Schema\Visitor\NamespaceVisitor;
 use Doctrine\DBAL\Schema\Visitor\Visitor;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use function array_keys;
-use function strpos;
-use function strtolower;
 
 /**
  * Object representation of a database schema.

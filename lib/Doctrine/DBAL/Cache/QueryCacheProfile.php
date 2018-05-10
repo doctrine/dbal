@@ -20,9 +20,6 @@
 namespace Doctrine\DBAL\Cache;
 
 use Doctrine\Common\Cache\Cache;
-use function hash;
-use function serialize;
-use function sha1;
 
 /**
  * Query Cache Profile handles the data relevant for query caching.

@@ -22,10 +22,6 @@ namespace Doctrine\DBAL\Types;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\DBALException;
-use function end;
-use function explode;
-use function get_class;
-use function str_replace;
 
 /**
  * The base class for so-called Doctrine mapping types.

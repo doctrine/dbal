@@ -19,7 +19,6 @@
 
 namespace Doctrine\DBAL\Platforms\Keywords;
 
-use function array_merge;
 
 /**
  * SAP Sybase SQL Anywhere 16 reserved keywords list.

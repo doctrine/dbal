@@ -26,21 +26,6 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\TextType;
-use function array_diff_key;
-use function array_merge;
-use function array_unique;
-use function array_values;
-use function count;
-use function func_get_args;
-use function implode;
-use function in_array;
-use function is_numeric;
-use function is_string;
-use function join;
-use function sprintf;
-use function str_replace;
-use function strtoupper;
-use function trim;
 
 /**
  * The MySqlPlatform provides the behavior, features and SQL dialect of the

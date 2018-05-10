@@ -22,10 +22,6 @@ namespace Doctrine\DBAL\Portability;
 use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
-use function array_change_key_case;
-use function is_null;
-use function is_string;
-use function rtrim;
 
 /**
  * Portability wrapper for a Statement.

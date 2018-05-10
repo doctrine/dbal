@@ -20,7 +20,6 @@
 namespace Doctrine\DBAL\Query;
 
 use Doctrine\DBAL\DBALException;
-use function implode;
 
 /**
  * @since 2.1.4

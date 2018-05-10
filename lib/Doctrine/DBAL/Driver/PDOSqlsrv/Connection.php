@@ -21,8 +21,6 @@ namespace Doctrine\DBAL\Driver\PDOSqlsrv;
 
 use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\ParameterType;
-use function strpos;
-use function substr;
 
 /**
  * Sqlsrv Connection implementation.

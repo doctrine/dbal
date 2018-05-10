@@ -21,7 +21,6 @@
 
 namespace Doctrine\DBAL;
 
-use function sprintf;
 
 /**
  * Doctrine\DBAL\ConnectionException

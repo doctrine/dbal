@@ -19,8 +19,6 @@
 
 namespace Doctrine\DBAL\Query\Expression;
 
-use function count;
-use function implode;
 
 /**
  * Composite expression is responsible to build a group of similar expression.

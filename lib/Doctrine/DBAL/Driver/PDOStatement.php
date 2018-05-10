@@ -22,9 +22,6 @@ namespace Doctrine\DBAL\Driver;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use PDO;
-use const E_USER_DEPRECATED;
-use function sprintf;
-use function trigger_error;
 
 /**
  * The PDO implementation of the Statement interface.

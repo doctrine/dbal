@@ -26,9 +26,6 @@ use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Event\ConnectionEventArgs;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Sharding\ShardChoser\ShardChoser;
-use function array_merge;
-use function is_numeric;
-use function is_string;
 
 /**
  * Sharding implementation that pools many different connections

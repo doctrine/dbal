@@ -30,20 +30,6 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
-use function array_merge;
-use function array_unique;
-use function array_values;
-use function count;
-use function explode;
-use function func_get_args;
-use function get_class;
-use function implode;
-use function is_string;
-use function preg_replace;
-use function strlen;
-use function strpos;
-use function strtoupper;
-use function substr;
 
 /**
  * The SQLAnywherePlatform provides the behavior, features and SQL dialect of the

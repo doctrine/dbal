@@ -19,9 +19,6 @@
 
 namespace Doctrine\DBAL;
 
-use function str_replace;
-use function strtolower;
-use function version_compare;
 
 /**
  * Class to store and retrieve the version of Doctrine.

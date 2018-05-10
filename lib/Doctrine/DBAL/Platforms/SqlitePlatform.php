@@ -29,17 +29,6 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
-use function array_merge;
-use function array_unique;
-use function array_values;
-use function implode;
-use function is_numeric;
-use function sprintf;
-use function sqrt;
-use function str_replace;
-use function strlen;
-use function strpos;
-use function strtolower;
 
 /**
  * The SqlitePlatform class describes the specifics and dialects of the SQLite

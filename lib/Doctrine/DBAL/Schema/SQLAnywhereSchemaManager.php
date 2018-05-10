@@ -20,7 +20,6 @@
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Types\Type;
-use function preg_replace;
 
 /**
  * SAP Sybase SQL Anywhere schema manager.

@@ -3,7 +3,6 @@
 namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use function substr;
 
 /**
  * Type that maps interval string to a PHP DateInterval Object.

@@ -20,14 +20,6 @@
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use function array_combine;
-use function array_keys;
-use function array_map;
-use function end;
-use function explode;
-use function in_array;
-use function strtolower;
-use function strtoupper;
 
 /**
  * An abstraction class for a foreign key constraint.

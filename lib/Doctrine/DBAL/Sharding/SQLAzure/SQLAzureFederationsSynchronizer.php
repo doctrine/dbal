@@ -26,7 +26,6 @@ use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Schema\Synchronizer\AbstractSchemaSynchronizer;
 use Doctrine\DBAL\Schema\Synchronizer\SingleDatabaseSynchronizer;
 use Doctrine\DBAL\Schema\Synchronizer\SchemaSynchronizer;
-use function array_merge;
 
 /**
  * SQL Azure Schema Synchronizer.
