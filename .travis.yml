@@ -46,8 +46,8 @@ script:
 after_script:
   - |
     if [ "x$COVERAGE" == "xyes" ]; then
-      wget https://github.com/scrutinizer-ci/ocular/releases/download/1.5.2/ocular.phar
-      php ocular.phar code-coverage:upload --format=php-clover clover.xml
+      travis_retry wget https://github.com/scrutinizer-ci/ocular/releases/download/1.5.2/ocular.phar
+      travis_retry php ocular.phar code-coverage:upload --format=php-clover clover.xml
     fi
 
 jobs:

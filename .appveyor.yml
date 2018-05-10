@@ -10,11 +10,10 @@ cache:
   - C:\ProgramData\chocolatey\bin -> .appveyor.yml
   - C:\ProgramData\chocolatey\lib -> .appveyor.yml
   - C:\tools\php -> .appveyor.yml
-  - composer.phar
-  - ocular.phar
-  - cacert.pem
-  - '%LOCALAPPDATA%\Composer\files'
-  #- vendor
+  - C:\tools\cacert -> .appveyor.yml
+  - C:\tools\composer -> .appveyor.yml
+  - C:\tools\ocular -> .appveyor.yml
+  - '%LOCALAPPDATA%\Composer\files -> composer.json'
 
 ## Build matrix for lowest and highest possible targets
 environment:
@@ -41,7 +40,7 @@ environment:
     coverage: yes
 
 init:
-  - SET PATH=C:\Program Files\OpenSSL;c:\tools\php;%PATH%
+  - SET PATH=C:\Program Files\OpenSSL;c:\tools\php;C:\tools\composer;C:\tools\ocular;%PATH%
   - SET COMPOSER_NO_INTERACTION=1
   - SET ANSICON=121x90 (121x90)
 
@@ -60,12 +59,14 @@ install:
           copy php.ini-production php.ini
           Add-Content php.ini "`n date.timezone=UTC"
           Add-Content php.ini "`n extension_dir=ext"
+          Add-Content php.ini "`n memory_limit=1G"
           Add-Content php.ini "`n extension=php_openssl.dll"
           Add-Content php.ini "`n extension=php_mbstring.dll"
           Add-Content php.ini "`n extension=php_fileinfo.dll"
           Add-Content php.ini "`n extension=php_pdo_sqlite.dll"
           Add-Content php.ini "`n extension=php_sqlite3.dll"
           Add-Content php.ini "`n extension=php_curl.dll"
+          Add-Content php.ini "`n curl.cainfo=C:\tools\cacert\bundle.pem"
 
           # Get and install the MSSQL DLL's
           $DLLVersion = "5.2.0rc1"
@@ -89,24 +90,37 @@ install:
           Add-Content php.ini "`nzend_extension=php_xdebug.dll"
           Add-Content php.ini "`n"
 
-          cd c:\projects\dbal
-
-          if (!(Test-Path c:\projects\dbal\composer.phar)) {
-            appveyor-retry appveyor DownloadFile https://getcomposer.org/composer.phar
+          # download Composer
+          if (!(Test-Path C:\tools\composer)) {
+            New-Item -path c:\tools -name composer -itemtype directory
+          }
+          if (!(Test-Path c:\tools\composer\composer.phar)) {
+            appveyor-retry appveyor DownloadFile https://getcomposer.org/composer.phar -Filename C:\tools\composer\composer.phar
+            Set-Content -path 'C:\tools\composer\composer.bat' -Value ('@php C:\tools\composer\composer.phar %*')
           }
 
-          if (!(Test-Path c:\projects\dbal\ocular.phar)) {
-            appveyor-retry appveyor DownloadFile https://github.com/scrutinizer-ci/ocular/releases/download/1.5.2/ocular.phar
+          # download Scrutinizer's Ocular
+          if (!(Test-Path C:\tools\ocular)) {
+            New-Item -path c:\tools -name ocular -itemtype directory
+          }
+          if (!(Test-Path c:\tools\ocular\ocular.phar)) {
+            appveyor-retry appveyor DownloadFile https://github.com/scrutinizer-ci/ocular/releases/download/1.5.2/ocular.phar -Filename C:\tools\ocular\ocular.phar
+            Set-Content -path 'C:\tools\ocular\ocular.bat' -Value ('@php C:\tools\ocular\ocular.phar %*')
           }
 
-          if (!(Test-Path c:\projects\dbal\cacert.pem)) {
-              appveyor-retry appveyor DownloadFile https://curl.haxx.se/ca/cacert.pem
+          # download CA bundle
+          if (!(Test-Path C:\tools\cacert)) {
+            New-Item -path c:\tools\ -name cacert -itemtype directory
+          }
+          if (!(Test-Path c:\tools\cacert\bundle.pem)) {
+            appveyor-retry appveyor DownloadFile https://curl.haxx.se/ca/cacert.pem -Filename C:\tools\cacert\bundle.pem
           }
         }
     # install composer dependencies
+    - cd C:\projects\dbal
     - rm composer.lock
-    - appveyor-retry php composer.phar self-update
-    - appveyor-retry php composer.phar install --no-progress --profile
+    - appveyor-retry composer self-update
+    - appveyor-retry composer install --no-progress --prefer-dist
 
 before_test:
 # Selectively start the services
@@ -127,7 +141,7 @@ test_script:
   - ps: >-
       if ($env:coverage -eq "yes") {
         vendor\bin\phpunit -c $($env:phpunit_config) --coverage-clover clover.xml
-        php.exe -d curl.cainfo=c:\projects\dbal\cacert.pem ocular.phar code-coverage:upload --format=php-clover clover.xml
+        appveyor-retry ocular code-coverage:upload --format=php-clover clover.xml
       } else {
         vendor\bin\phpunit -c $($env:phpunit_config)
       }
