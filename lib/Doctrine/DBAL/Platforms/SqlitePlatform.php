@@ -343,13 +343,7 @@ class SqlitePlatform extends AbstractPlatform
             }
         }
 
-        if (isset($options['primary']) && ! empty($options['primary'])) {
-            $keyColumns = array_unique(array_values($options['primary']));
-            // the primary key is already defined in the column definition for auto increment fields
-            if (count($keyColumns) > 1 || !$columns[$keyColumns[0]]['autoincrement']) {
-                $queryFields .= ', PRIMARY KEY(' . implode(', ', $keyColumns) . ')';
-            }
-        }
+        $queryFields .= $this->getNonAutoincrementPrimaryKeyDefinition($columns, $options);
 
         if (isset($options['foreignKeys'])) {
             foreach ($options['foreignKeys'] as $foreignKey) {
@@ -376,6 +370,29 @@ class SqlitePlatform extends AbstractPlatform
         }
 
         return $query;
+    }
+
+    /**
+     * Generate a PRIMARY KEY definition if no autoincrement value is used
+     *
+     * @param string[] $columns
+     * @param mixed[]  $options
+     */
+    private function getNonAutoincrementPrimaryKeyDefinition(array $columns, array $options) : string
+    {
+        if (empty($options['primary'])) {
+            return '';
+        }
+
+        $keyColumns = array_unique(array_values($options['primary']));
+
+        foreach ($keyColumns as $keyColumn) {
+            if (isset($columns[$keyColumn]['autoincrement']) && ! empty($columns[$keyColumn]['autoincrement'])) {
+                return '';
+            }
+        }
+
+        return ', PRIMARY KEY(' . implode(', ', $keyColumns) . ')';
     }
 
     /**
