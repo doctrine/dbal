@@ -92,6 +92,15 @@ class IndexTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($another->isFullfilledBy($partial));
     }
 
+    public function testFulfilledByCompounded()
+    {
+        $compounded = new Index('compounded', array('col1', 'col2'), true, false, array(), array());
+        $single = new Index('single', array('col1'), true, false, array(), array());
+
+        self::assertTrue($single->isFullfilledBy($compounded));
+        self::assertFalse($compounded->isFullfilledBy($single));
+    }
+
     public function testOverrulesWithPartial()
     {
         $without = new Index('without', array('col1', 'col2'), true, false, array(), array());

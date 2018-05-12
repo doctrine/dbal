@@ -400,8 +400,8 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
         $table->addColumn('bar', 'integer');
         $table->addColumn('baz', 'string');
         $table->addColumn('bloo', 'string');
+        $table->addIndex(array('bar'), 'bar_idx');
         $table->addIndex(array('baz', 'bar'), 'composite_idx');
-        $table->addIndex(array('bar', 'baz', 'bloo'), 'full_idx');
 
         $foreignTable = new Table('bar');
         $foreignTable->addColumn('foo', 'integer');
@@ -409,13 +409,53 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
 
         $table->addForeignKeyConstraint($foreignTable, array('bar', 'baz'), array('foo', 'baz'));
 
-        $this->assertCount(3, $table->getIndexes());
-        $this->assertTrue($table->hasIndex('composite_idx'));
-        $this->assertTrue($table->hasIndex('full_idx'));
-        $this->assertTrue($table->hasIndex('idx_8c73652176ff8caa78240498'));
-        $this->assertSame(array('baz', 'bar'), $table->getIndex('composite_idx')->getColumns());
-        $this->assertSame(array('bar', 'baz', 'bloo'), $table->getIndex('full_idx')->getColumns());
-        $this->assertSame(array('bar', 'baz'), $table->getIndex('idx_8c73652176ff8caa78240498')->getColumns());
+        self::assertCount(3, $table->getIndexes());
+        self::assertTrue($table->hasIndex('composite_idx'));
+        self::assertTrue($table->hasIndex('bar_idx'));
+        self::assertTrue($table->hasIndex('idx_8c73652176ff8caa78240498'));
+        self::assertSame(array('bar'), $table->getIndex('bar_idx')->getColumns());
+        self::assertSame(array('baz', 'bar'), $table->getIndex('composite_idx')->getColumns());
+        self::assertSame(array('bar', 'baz'), $table->getIndex('idx_8c73652176ff8caa78240498')->getColumns());
+    }
+
+    public function testAddForeignKeyDoesNotAddImplicitIndexIfIndexColumnsSpan()
+    {
+        $table = new Table('foo');
+        $table->addColumn('bar', 'integer');
+        $table->addColumn('baz', 'string');
+        $table->addColumn('bloo', 'string');
+        $table->addIndex(array('baz', 'bar'), 'composite_idx');
+
+        $foreignTable = new Table('bar');
+        $foreignTable->addColumn('foo', 'integer');
+        $foreignTable->addColumn('baz', 'string');
+
+        $table->addForeignKeyConstraint($foreignTable, array('baz', 'bar'), array('foo', 'baz'));
+
+        self::assertCount(1, $table->getIndexes());
+        self::assertTrue($table->hasIndex('composite_idx'));
+        self::assertFalse($table->hasIndex('idx_8c73652176ff8caa78240498'));
+        self::assertSame(array('baz', 'bar'), $table->getIndex('composite_idx')->getColumns());
+    }
+
+    public function testAddForeignKeyDoesNotAddImplicitIndexIfLongerIndexColumnsSpan()
+    {
+        $table = new Table('foo');
+        $table->addColumn('bar', 'integer');
+        $table->addColumn('baz', 'string');
+        $table->addColumn('bloo', 'string');
+        $table->addIndex(array('baz', 'bar', 'bloo'), 'composite_idx');
+
+        $foreignTable = new Table('bar');
+        $foreignTable->addColumn('foo', 'integer');
+        $foreignTable->addColumn('baz', 'string');
+
+        $table->addForeignKeyConstraint($foreignTable, array('baz', 'bar'), array('foo', 'baz'));
+
+        self::assertCount(1, $table->getIndexes());
+        self::assertTrue($table->hasIndex('composite_idx'));
+        self::assertFalse($table->hasIndex('idx_8c73652176ff8caa78240498'));
+        self::assertSame(array('baz', 'bar', 'bloo'), $table->getIndex('composite_idx')->getColumns());
     }
 
     /**
