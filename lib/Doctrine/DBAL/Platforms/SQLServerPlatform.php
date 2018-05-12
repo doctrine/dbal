@@ -304,7 +304,7 @@ class SQLServerPlatform extends AbstractPlatform
         }
         $query .= ')';
 
-        $sql[] = $query;
+        $sql = [$query];
 
         if (isset($options['indexes']) && !empty($options['indexes'])) {
             foreach ($options['indexes'] as $index) {
