@@ -434,7 +434,6 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
 
         self::assertCount(1, $table->getIndexes());
         self::assertTrue($table->hasIndex('composite_idx'));
-        self::assertFalse($table->hasIndex('idx_8c73652176ff8caa78240498'));
         self::assertSame(array('baz', 'bar'), $table->getIndex('composite_idx')->getColumns());
     }
 
@@ -454,7 +453,6 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
 
         self::assertCount(1, $table->getIndexes());
         self::assertTrue($table->hasIndex('composite_idx'));
-        self::assertFalse($table->hasIndex('idx_8c73652176ff8caa78240498'));
         self::assertSame(array('baz', 'bar', 'bloo'), $table->getIndex('composite_idx')->getColumns());
     }
 
@@ -529,6 +527,22 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
 
         $this->assertTrue($table->hasPrimaryKey());
         $this->assertTrue($table->hasIndex('idx_unique'));
+    }
+
+    public function testCompoundedPrimaryKeyOverrulingSingleUniqueIndexDoesNotDropUniqueIndex()
+    {
+        $table = new Table("bar");
+        $table->addColumn('baz', 'integer', array());
+        $table->addColumn('bar', 'integer', array());
+        $table->addUniqueIndex(array('baz'), 'idx_unique');
+
+        $table->setPrimaryKey(array('baz', 'bar'));
+
+        $indexes = $table->getIndexes();
+        self::assertCount(2, $indexes);
+
+        self::assertTrue($table->hasPrimaryKey());
+        self::assertTrue($table->hasIndex('idx_unique'));
     }
 
     public function testAddingFulfillingRegularIndexOverridesImplicitForeignKeyConstraintIndex()

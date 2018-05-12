@@ -77,6 +77,15 @@ class IndexTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($idx1->isFullfilledBy($uniq));
     }
 
+    public function testCompoundedPrimaryKeyDoesNotFullfillSingleUniqueIndex()
+    {
+        $primary = new Index("the_primary", array("foo", "bar"), true, true);
+        $unique = new Index("uniq_foo", array("foo"), true, false);
+
+        self::assertFalse($primary->isFullfilledBy($unique));
+        self::assertFalse($unique->isFullfilledBy($primary));
+    }
+
     public function testFulfilledWithPartial()
     {
         $without = new Index('without', array('col1', 'col2'), true, false, array(), array());

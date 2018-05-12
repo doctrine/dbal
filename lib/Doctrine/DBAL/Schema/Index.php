@@ -200,10 +200,18 @@ class Index extends AbstractAsset implements Constraint
      */
     public function isFullfilledBy(Index $other)
     {
-        // allow the other index to be equally large only. It being larger is an option
-        // but it creates a problem with scenarios of the kind PRIMARY KEY(foo,bar) UNIQUE(foo)
+        // allow the other index to be longer or equally large.
         if (count($other->getColumns()) < count($this->getColumns())) {
             return false;
+        }
+
+        if (count($other->getColumns()) != count($this->getColumns())) {
+            // A special case where an index won't be fullffiled by a longer one:
+            //    PRIMARY KEY(foo, bar)
+            //    UNIQUE(foo)
+            if ( ! $this->isPrimary() && $this->isUnique() && $other->isPrimary()) {
+                return false;
+            }
         }
 
         // Check if columns are the same, and even in the same order
