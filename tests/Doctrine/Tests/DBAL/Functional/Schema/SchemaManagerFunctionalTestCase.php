@@ -1489,4 +1489,32 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
 
         self::assertFalse($tableDiff);
     }
+
+    /**
+     * @group DBAL-2921
+     */
+    public function testPrimaryKeyAutoIncrement()
+    {
+        $table = new Table('test_pk_auto_increment');
+        $table->addColumn('id', 'integer', ['autoincrement' => true]);
+        $table->addColumn('text', 'string');
+        $table->setPrimaryKey(['id']);
+        $this->_sm->dropAndCreateTable($table);
+
+        $this->_conn->insert('test_pk_auto_increment', ['text' => '1']);
+
+        $query = $this->_conn->query('SELECT id FROM test_pk_auto_increment WHERE text = \'1\'');
+        $query->execute();
+        $lastUsedIdBeforeDelete = (int) $query->fetchColumn();
+
+        $this->_conn->query('DELETE FROM test_pk_auto_increment');
+
+        $this->_conn->insert('test_pk_auto_increment', ['text' => '2']);
+
+        $query = $this->_conn->query('SELECT id FROM test_pk_auto_increment WHERE text = \'2\'');
+        $query->execute();
+        $lastUsedIdAfterDelete = (int) $query->fetchColumn();
+
+        $this->assertGreaterThan($lastUsedIdBeforeDelete, $lastUsedIdAfterDelete);
+    }
 }
