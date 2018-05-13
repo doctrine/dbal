@@ -51,6 +51,8 @@ final class ParameterType
 
     /**
      * This class cannot be instantiated.
+     *
+     * @codeCoverageIgnore
      */
     private function __construct()
     {

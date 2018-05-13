@@ -14,6 +14,9 @@ final class TrimMode
 
     public const BOTH = 3;
 
+    /**
+     * @codeCoverageIgnore
+     */
     private function __construct()
     {
     }
