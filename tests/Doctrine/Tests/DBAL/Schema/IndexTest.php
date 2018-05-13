@@ -77,6 +77,14 @@ class IndexTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($idx1->isFullfilledBy($uniq));
     }
 
+    public function testFulfilledByCompoundIndex()
+    {
+        $idx1 = new Index('foo', array('col1', 'col2'), false, false, array(), array());
+        $idx2 = new Index('bar', array('col1'), false, false, array(), array());
+
+        $this->assertTrue($idx2->isFullfilledBy($idx1));
+    }
+
     public function testFulfilledWithPartial()
     {
         $without = new Index('without', array('col1', 'col2'), true, false, array(), array());
