@@ -357,6 +357,24 @@ jobs:
         - bash ./tests/travis/install-mssql.sh
 
     - stage: Test
+      env: DB=ibm_db2 COVERAGE=yes
+      sudo: required
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-db2.sh
+        - bash ./tests/travis/install-db2-$DB.sh
+    - stage: Test
+      php: 7.2
+      env: DB=ibm_db2
+      sudo: required
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-db2.sh
+        - bash ./tests/travis/install-db2-$DB.sh
+
+    - stage: Test
       php: 7.1
       env: DB=sqlite DEPENDENCIES=low
       install:
