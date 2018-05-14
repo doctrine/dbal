@@ -569,7 +569,7 @@ class SQLServerPlatform extends AbstractPlatform
 
             $oldColumnName = new Identifier($oldColumnName);
 
-            $sql[] = "sp_RENAME '" .
+            $sql[] = "sp_rename '" .
                 $diff->getName($this)->getQuotedName($this) . "." . $oldColumnName->getQuotedName($this) .
                 "', '" . $column->getQuotedName($this) . "', 'COLUMN'";
 
@@ -596,7 +596,7 @@ class SQLServerPlatform extends AbstractPlatform
         $sql = array_merge($sql, $commentsSql);
 
         if ($diff->newName !== false) {
-            $sql[] = "sp_RENAME '" . $diff->getName($this)->getQuotedName($this) . "', '" . $diff->getNewName()->getName() . "'";
+            $sql[] = "sp_rename '" . $diff->getName($this)->getQuotedName($this) . "', '" . $diff->getNewName()->getName() . "'";
 
             /**
              * Rename table's default constraints names
@@ -776,7 +776,7 @@ class SQLServerPlatform extends AbstractPlatform
     {
         return [
             sprintf(
-                "EXEC sp_RENAME N'%s.%s', N'%s', N'INDEX'",
+                "EXEC sp_rename N'%s.%s', N'%s', N'INDEX'",
                 $tableName,
                 $oldIndexName,
                 $index->getQuotedName($this)
