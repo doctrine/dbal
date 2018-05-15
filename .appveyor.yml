@@ -9,6 +9,7 @@ clone_depth: 2
 cache:
   - C:\ProgramData\chocolatey\bin -> .appveyor.yml
   - C:\ProgramData\chocolatey\lib -> .appveyor.yml
+  - '%ProgramFiles%\WindowsPowerShell\Modules\PhpManager -> .appveyor.yml'
   - C:\tools\php -> .appveyor.yml
   - C:\tools\composer -> .appveyor.yml
   - C:\tools\ocular -> .appveyor.yml
@@ -46,16 +47,16 @@ init:
 ## Install PHP and composer, and run the appropriate composer command
 install:
     - ps: |
-        # Check if installation is cached
-        if (!(Test-Path c:\tools\php)) {
-
-          # install PhpManager
+        # install PhpManager
+        if (-Not(Get-Module -Name PhpManager -ListAvailable)) {
           if (-Not(Get-PackageProvider -Name NuGet -ErrorAction SilentlyContinue | Where-Object { $_.Version -ge '2.8.5.201'})) {
             Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force | Out-Null
           }
-          if (-Not(Get-Module -ListAvailable | Where-Object { $_.Name -eq 'PhpManager' })) {
-            Install-Module -Name PhpManager -Force -SkipPublisherCheck
-          }
+          Install-Module -Name PhpManager -Force -SkipPublisherCheck
+        }
+
+        # Check if installation is cached
+        if (!(Test-Path c:\tools\php)) {
 
           # install PHP
           Install-Php -Version $env:php -Architecture $env:platform -ThreadSafe $false -Path c:\tools\php -TimeZone UTC -AddToPath System -InitialPhpIni Production
@@ -79,7 +80,7 @@ install:
           Write-Host "sqlsrv version: $((Get-PhpExtension | Where-Object { $_.Handle -eq 'sqlsrv' }).Version)"
           Install-PhpExtension -Extension pdo_sqlsrv
           Write-Host "pdo_sqlsrv version: $((Get-PhpExtension | Where-Object { $_.Handle -eq 'pdo_sqlsrv' }).Version)"
-          Install-PhpExtension -Extension xdebug
+          Install-PhpExtension -Extension xdebug -DontEnable
           Write-Host "xdebug version: $((Get-PhpExtension | Where-Object { $_.Handle -eq 'xdebug' }).Version)"
 
           # install sqlite
@@ -127,7 +128,9 @@ test_script:
       }
   - ps: >-
       if ($env:coverage -eq "yes") {
+        Enable-PhpExtension -Extension xdebug
         vendor\bin\phpunit -c $($env:phpunit_config) --coverage-clover clover.xml
+        Disable-PhpExtension -Extension xdebug
         appveyor-retry ocular code-coverage:upload --format=php-clover clover.xml
       } else {
         vendor\bin\phpunit -c $($env:phpunit_config)
