@@ -83,9 +83,6 @@ install:
           Install-PhpExtension -Extension xdebug -DontEnable
           Write-Host "xdebug version: $((Get-PhpExtension | Where-Object { $_.Handle -eq 'xdebug' }).Version)"
 
-          # install sqlite
-          appveyor-retry cinst -y sqlite
-
           # download Composer
           if (!(Test-Path C:\tools\composer)) {
             New-Item -Path c:\tools -Name composer -ItemType Directory | Out-Null
