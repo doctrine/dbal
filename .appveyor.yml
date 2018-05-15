@@ -9,8 +9,8 @@ clone_depth: 2
 cache:
   - C:\ProgramData\chocolatey\bin -> .appveyor.yml
   - C:\ProgramData\chocolatey\lib -> .appveyor.yml
+  - '%ProgramFiles%\WindowsPowerShell\Modules\PhpManager -> .appveyor.yml'
   - C:\tools\php -> .appveyor.yml
-  - C:\tools\cacert -> .appveyor.yml
   - C:\tools\composer -> .appveyor.yml
   - C:\tools\ocular -> .appveyor.yml
   - '%LOCALAPPDATA%\Composer\files -> composer.json'
@@ -47,74 +47,59 @@ init:
 ## Install PHP and composer, and run the appropriate composer command
 install:
     - ps: |
+        # install PhpManager
+        if (-Not(Get-Module -Name PhpManager -ListAvailable)) {
+          if (-Not(Get-PackageProvider -Name NuGet -ErrorAction SilentlyContinue | Where-Object { $_.Version -ge '2.8.5.201'})) {
+            Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force | Out-Null
+          }
+          Install-Module -Name PhpManager -Force -SkipPublisherCheck
+        }
+
         # Check if installation is cached
         if (!(Test-Path c:\tools\php)) {
-          appveyor-retry cinst --params '""/InstallDir:C:\tools\php""' --ignore-checksums -y php --version ((choco search php --exact --all-versions -r | select-string -pattern $env:php | sort { [version]($_ -split '\|' | select -last 1) } -Descending | Select-Object -first 1) -replace '[php|]','')
-          # install sqlite
-          appveyor-retry cinst -y sqlite
-          Get-ChildItem -Path c:\tools\php
-          cd c:\tools\php
 
-          # Set PHP environment items that are always needed
-          copy php.ini-production php.ini
-          Add-Content php.ini "`n date.timezone=UTC"
-          Add-Content php.ini "`n extension_dir=ext"
-          Add-Content php.ini "`n memory_limit=1G"
-          Add-Content php.ini "`n extension=php_openssl.dll"
-          Add-Content php.ini "`n extension=php_mbstring.dll"
-          Add-Content php.ini "`n extension=php_fileinfo.dll"
-          Add-Content php.ini "`n extension=php_pdo_sqlite.dll"
-          Add-Content php.ini "`n extension=php_sqlite3.dll"
-          Add-Content php.ini "`n extension=php_curl.dll"
-          Add-Content php.ini "`n curl.cainfo=C:\tools\cacert\bundle.pem"
+          # install PHP
+          Install-Php -Version $env:php -Architecture $env:platform -ThreadSafe $false -Path c:\tools\php -TimeZone UTC -AddToPath System -InitialPhpIni Production
 
-          # Get and install the MSSQL DLL's
-          $DLLVersion = "5.2.0rc1"
-          cd c:\tools\php\ext
-          $source = "https://windows.php.net/downloads/pecl/releases/sqlsrv/$($DLLVersion)/php_sqlsrv-$($DLLVersion)-$($env:php)-nts-vc15-x64.zip"
-          $destination = "c:\tools\php\ext\php_sqlsrv-$($DLLVersion)-$($env:php)-nts-vc15-x64.zip"
-          Invoke-WebRequest $source -OutFile $destination
-          7z x -y php_sqlsrv-$($DLLVersion)-$($env:php)-nts-vc15-x64.zip > $null
-          $source = "https://windows.php.net/downloads/pecl/releases/pdo_sqlsrv/$($DLLVersion)/php_pdo_sqlsrv-$($DLLVersion)-$($env:php)-nts-vc15-x64.zip"
-          $destination = "c:\tools\php\ext\php_pdo_sqlsrv-$($DLLVersion)-$($env:php)-nts-vc15-x64.zip"
-          Invoke-WebRequest $source -OutFile $destination
-          7z x -y php_pdo_sqlsrv-$($DLLVersion)-$($env:php)-nts-vc15-x64.zip > $null
-          $DLLVersion = "2.6.0"
-          $source = "https://xdebug.org/files/php_xdebug-$($DLLVersion)-$($env:php)-vc15-nts-x86_64.dll"
-          $destination = "c:\tools\php\ext\php_xdebug.dll"
-          Invoke-WebRequest $source -OutFile $destination
-          Remove-Item c:\tools\php\* -include .zip
-          cd c:\tools\php
-          Add-Content php.ini "`nextension=php_sqlsrv.dll"
-          Add-Content php.ini "`nextension=php_pdo_sqlsrv.dll"
-          Add-Content php.ini "`nzend_extension=php_xdebug.dll"
-          Add-Content php.ini "`n"
+          # download and configure CA bundle
+          Update-PhpCAInfo
 
-          # download Composer
-          if (!(Test-Path C:\tools\composer)) {
-            New-Item -path c:\tools -name composer -itemtype directory
-          }
-          if (!(Test-Path c:\tools\composer\composer.phar)) {
-            appveyor-retry appveyor DownloadFile https://getcomposer.org/composer.phar -Filename C:\tools\composer\composer.phar
-            Set-Content -path 'C:\tools\composer\composer.bat' -Value ('@php C:\tools\composer\composer.phar %*')
-          }
+          # configure PHP
+          Set-PhpIniKey -Key memory_limit -Value 1G
 
-          # download Scrutinizer's Ocular
-          if (!(Test-Path C:\tools\ocular)) {
-            New-Item -path c:\tools -name ocular -itemtype directory
-          }
-          if (!(Test-Path c:\tools\ocular\ocular.phar)) {
-            appveyor-retry appveyor DownloadFile https://github.com/scrutinizer-ci/ocular/releases/download/1.5.2/ocular.phar -Filename C:\tools\ocular\ocular.phar
-            Set-Content -path 'C:\tools\ocular\ocular.bat' -Value ('@php C:\tools\ocular\ocular.phar %*')
-          }
+          # enable PHP extensions
+          Enable-PhpExtension -Extension openssl
+          Enable-PhpExtension -Extension mbstring
+          Enable-PhpExtension -Extension fileinfo
+          Enable-PhpExtension -Extension pdo_sqlite
+          Enable-PhpExtension -Extension sqlite3
+          Enable-PhpExtension -Extension curl
 
-          # download CA bundle
-          if (!(Test-Path C:\tools\cacert)) {
-            New-Item -path c:\tools\ -name cacert -itemtype directory
-          }
-          if (!(Test-Path c:\tools\cacert\bundle.pem)) {
-            appveyor-retry appveyor DownloadFile https://curl.haxx.se/ca/cacert.pem -Filename C:\tools\cacert\bundle.pem
-          }
+          # download and enable PHP extensions
+          Install-PhpExtension -Extension sqlsrv
+          Write-Host "sqlsrv version: $((Get-PhpExtension | Where-Object { $_.Handle -eq 'sqlsrv' }).Version)"
+          Install-PhpExtension -Extension pdo_sqlsrv
+          Write-Host "pdo_sqlsrv version: $((Get-PhpExtension | Where-Object { $_.Handle -eq 'pdo_sqlsrv' }).Version)"
+          Install-PhpExtension -Extension xdebug -DontEnable
+          Write-Host "xdebug version: $((Get-PhpExtension | Where-Object { $_.Handle -eq 'xdebug' }).Version)"
+        }
+
+        # download Composer
+        if (!(Test-Path C:\tools\composer)) {
+          New-Item -Path c:\tools -Name composer -ItemType Directory | Out-Null
+        }
+        if (!(Test-Path c:\tools\composer\composer.phar)) {
+          appveyor-retry appveyor DownloadFile https://getcomposer.org/composer.phar -Filename C:\tools\composer\composer.phar
+          Set-Content -path 'C:\tools\composer\composer.bat' -Value ('@php C:\tools\composer\composer.phar %*')
+        }
+
+        # download Scrutinizer's Ocular
+        if (!(Test-Path C:\tools\ocular)) {
+          New-Item -Path c:\tools -Name ocular -ItemType Directory | Out-Null
+        }
+        if (!(Test-Path c:\tools\ocular\ocular.phar)) {
+          appveyor-retry appveyor DownloadFile https://github.com/scrutinizer-ci/ocular/releases/download/1.5.2/ocular.phar -Filename C:\tools\ocular\ocular.phar
+          Set-Content -path 'C:\tools\ocular\ocular.bat' -Value ('@php C:\tools\ocular\ocular.phar %*')
         }
     # install composer dependencies
     - cd C:\projects\dbal
@@ -140,7 +125,9 @@ test_script:
       }
   - ps: >-
       if ($env:coverage -eq "yes") {
+        Enable-PhpExtension -Extension xdebug
         vendor\bin\phpunit -c $($env:phpunit_config) --coverage-clover clover.xml
+        Disable-PhpExtension -Extension xdebug
         appveyor-retry ocular code-coverage:upload --format=php-clover clover.xml
       } else {
         vendor\bin\phpunit -c $($env:phpunit_config)
