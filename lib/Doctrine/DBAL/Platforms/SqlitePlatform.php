@@ -351,7 +351,7 @@ class SqlitePlatform extends AbstractPlatform
             }
         }
 
-        $query[] = 'CREATE TABLE ' . $name . ' (' . $queryFields . ')';
+        $query = ['CREATE TABLE ' . $name . ' (' . $queryFields . ')'];
 
         if (isset($options['alter']) && true === $options['alter']) {
             return $query;

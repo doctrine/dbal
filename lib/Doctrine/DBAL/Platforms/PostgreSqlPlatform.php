@@ -782,7 +782,7 @@ class PostgreSqlPlatform extends AbstractPlatform
 
         $query = 'CREATE TABLE ' . $tableName . ' (' . $queryFields . ')';
 
-        $sql[] = $query;
+        $sql = [$query];
 
         if (isset($options['indexes']) && ! empty($options['indexes'])) {
             foreach ($options['indexes'] as $index) {

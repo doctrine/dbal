@@ -457,7 +457,7 @@ class MySqlPlatform extends AbstractPlatform
         $query .= $this->buildTableOptions($options);
         $query .= $this->buildPartitionOptions($options);
 
-        $sql[]  = $query;
+        $sql    = [$query];
         $engine = 'INNODB';
 
         if (isset($options['engine'])) {
