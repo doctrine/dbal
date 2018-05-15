@@ -82,24 +82,24 @@ install:
           Write-Host "pdo_sqlsrv version: $((Get-PhpExtension | Where-Object { $_.Handle -eq 'pdo_sqlsrv' }).Version)"
           Install-PhpExtension -Extension xdebug -DontEnable
           Write-Host "xdebug version: $((Get-PhpExtension | Where-Object { $_.Handle -eq 'xdebug' }).Version)"
+        }
 
-          # download Composer
-          if (!(Test-Path C:\tools\composer)) {
-            New-Item -Path c:\tools -Name composer -ItemType Directory | Out-Null
-          }
-          if (!(Test-Path c:\tools\composer\composer.phar)) {
-            appveyor-retry appveyor DownloadFile https://getcomposer.org/composer.phar -Filename C:\tools\composer\composer.phar
-            Set-Content -path 'C:\tools\composer\composer.bat' -Value ('@php C:\tools\composer\composer.phar %*')
-          }
+        # download Composer
+        if (!(Test-Path C:\tools\composer)) {
+          New-Item -Path c:\tools -Name composer -ItemType Directory | Out-Null
+        }
+        if (!(Test-Path c:\tools\composer\composer.phar)) {
+          appveyor-retry appveyor DownloadFile https://getcomposer.org/composer.phar -Filename C:\tools\composer\composer.phar
+          Set-Content -path 'C:\tools\composer\composer.bat' -Value ('@php C:\tools\composer\composer.phar %*')
+        }
 
-          # download Scrutinizer's Ocular
-          if (!(Test-Path C:\tools\ocular)) {
-            New-Item -Path c:\tools -Name ocular -ItemType Directory | Out-Null
-          }
-          if (!(Test-Path c:\tools\ocular\ocular.phar)) {
-            appveyor-retry appveyor DownloadFile https://github.com/scrutinizer-ci/ocular/releases/download/1.5.2/ocular.phar -Filename C:\tools\ocular\ocular.phar
-            Set-Content -path 'C:\tools\ocular\ocular.bat' -Value ('@php C:\tools\ocular\ocular.phar %*')
-          }
+        # download Scrutinizer's Ocular
+        if (!(Test-Path C:\tools\ocular)) {
+          New-Item -Path c:\tools -Name ocular -ItemType Directory | Out-Null
+        }
+        if (!(Test-Path c:\tools\ocular\ocular.phar)) {
+          appveyor-retry appveyor DownloadFile https://github.com/scrutinizer-ci/ocular/releases/download/1.5.2/ocular.phar -Filename C:\tools\ocular\ocular.phar
+          Set-Content -path 'C:\tools\ocular\ocular.bat' -Value ('@php C:\tools\ocular\ocular.phar %*')
         }
     # install composer dependencies
     - cd C:\projects\dbal
