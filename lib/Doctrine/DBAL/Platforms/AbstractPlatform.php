@@ -3394,22 +3394,27 @@ abstract class AbstractPlatform
             $limit = (int) $limit;
         }
 
-        if ($offset !== null) {
-            $offset = (int) $offset;
+        $offset = (int) $offset;
 
-            if ($offset < 0) {
-                throw new DBALException("LIMIT argument offset=$offset is not valid");
-            }
-            if ($offset > 0 && ! $this->supportsLimitOffset()) {
-                throw new DBALException(sprintf("Platform %s does not support offset values in limit queries.", $this->getName()));
-            }
+        if ($offset < 0) {
+            throw new DBALException(sprintf(
+                'Offset must be a positive integer of zero, %d given',
+                $offset
+            ));
+        }
+
+        if ($offset > 0 && ! $this->supportsLimitOffset()) {
+            throw new DBALException(sprintf(
+                'Platform %s does not support offset values in limit queries.',
+                $this->getName()
+            ));
         }
 
         return $this->doModifyLimitQuery($query, $limit, $offset);
     }
 
     /**
-     * Adds an driver-specific LIMIT clause to the query.
+     * Adds an platform-specific LIMIT clause to the query.
      *
      * @param string   $query
      * @param int|null $limit
@@ -3423,7 +3428,7 @@ abstract class AbstractPlatform
             $query .= ' LIMIT ' . $limit;
         }
 
-        if ($offset !== null) {
+        if ($offset > 0) {
             $query .= ' OFFSET ' . $offset;
         }
 

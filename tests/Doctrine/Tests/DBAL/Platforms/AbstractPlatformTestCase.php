@@ -1480,4 +1480,14 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
             $this->_platform->escapeStringForLike('_25% off_ your next purchase \o/', '\\')
         );
     }
+
+    public function testZeroOffsetWithoutLimitIsIgnored() : void
+    {
+        $query = 'SELECT * FROM user';
+
+        self::assertSame(
+            $query,
+            $this->_platform->modifyLimitQuery($query, null, 0)
+        );
+    }
 }
