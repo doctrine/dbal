@@ -63,23 +63,18 @@ class MySqlPlatform extends AbstractPlatform
     const LENGTH_LIMIT_MEDIUMBLOB = 16777215;
 
     /**
-     * Adds MySQL-specific LIMIT clause to the query
-     * 18446744073709551615 is 2^64-1 maximum of unsigned BIGINT the biggest limit possible
-     *
-     * @param string $query
-     * @param int    $limit
-     * @param int    $offset
-     *
-     * @return string
+     * {@inheritDoc}
      */
     protected function doModifyLimitQuery($query, $limit, $offset)
     {
         if ($limit !== null) {
             $query .= ' LIMIT ' . $limit;
-            if ($offset !== null) {
+
+            if ($offset > 0) {
                 $query .= ' OFFSET ' . $offset;
             }
-        } elseif ($offset !== null) {
+        } elseif ($offset > 0) {
+            // 2^64-1 is the maximum of unsigned BIGINT, the biggest limit possible
             $query .= ' LIMIT 18446744073709551615 OFFSET ' . $offset;
         }
 

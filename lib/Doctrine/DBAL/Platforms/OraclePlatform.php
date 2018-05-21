@@ -987,7 +987,7 @@ END;';
      */
     protected function doModifyLimitQuery($query, $limit, $offset = null)
     {
-        if ($limit === null && $offset === null) {
+        if ($limit === null && $offset <= 0) {
             return $query;
         }
 
