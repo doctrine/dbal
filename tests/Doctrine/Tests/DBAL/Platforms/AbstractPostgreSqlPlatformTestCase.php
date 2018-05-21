@@ -854,6 +854,29 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     }
 
     /**
+     * @group 3158
+     */
+    public function testAltersTableColumnCommentIfRequiredByType()
+    {
+        $table1 = new Table('"foo"', [new Column('"bar"', Type::getType('datetime'))]);
+        $table2 = new Table('"foo"', [new Column('"bar"', Type::getType('datetime_immutable'))]);
+
+        $comparator = new Comparator();
+
+        $tableDiff = $comparator->diffTable($table1, $table2);
+
+        $this->assertInstanceOf('Doctrine\DBAL\Schema\TableDiff', $tableDiff);
+        $this->assertSame(
+            [
+                'ALTER TABLE "foo" ALTER "bar" TYPE TIMESTAMP(0) WITHOUT TIME ZONE',
+                'ALTER TABLE "foo" ALTER "bar" DROP DEFAULT',
+                'COMMENT ON COLUMN "foo"."bar" IS \'(DC2Type:datetime_immutable)\'',
+            ],
+            $this->_platform->getAlterTableSQL($tableDiff)
+        );
+    }
+
+    /**
      * {@inheritdoc}
      */
     protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL()

@@ -591,11 +591,17 @@ class PostgreSqlPlatform extends AbstractPlatform
                 }
             }
 
-            if ($columnDiff->hasChanged('comment')) {
+            $oldComment = null;
+            $newComment = $this->getColumnComment($column);
+            if (null !== $columnDiff->fromColumn) {
+                $oldComment = $this->getColumnComment($columnDiff->fromColumn);
+            }
+
+            if ($columnDiff->hasChanged('comment') || ($columnDiff->fromColumn !== null && $oldComment !== $newComment)) {
                 $commentsSQL[] = $this->getCommentOnColumnSQL(
                     $diff->getName($this)->getQuotedName($this),
                     $column->getQuotedName($this),
-                    $this->getColumnComment($column)
+                    $newComment
                 );
             }
 
