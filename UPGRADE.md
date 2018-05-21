@@ -1,3 +1,11 @@
+# Upgrade to 2.8
+
+## Deprecated logger implementations
+
+With the introduction of the [PSR-3](https://www.php-fig.org/psr/psr-3/) logger interface standard, we can focus on implementing DBAL-specific features and delegate to [other libraries](https://packagist.org/providers/psr/log-implementation).
+
+`Doctrine\DBAL\Logging\EchoSQLLogger` has been deprecated. Please use `Doctrine\DBAL\Logging\PsrAdapter` and a PSR-3 compatible implementation instead.
+
 # Upgrade to 2.7
 
 ## Doctrine\DBAL\Platforms\AbstractPlatform::DATE_INTERVAL_UNIT_* constants deprecated
