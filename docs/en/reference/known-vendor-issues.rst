@@ -107,6 +107,26 @@ DateTimeTz
 Sqlite does not support saving timezones or offsets. The DateTimeTz
 type therefore behaves like the DateTime type.
 
+Date
+~~~~
+
+The Doctrine DBAL ``date`` type is represented in PHP as a ``\DateTime`` object
+with the time set to ``00:00:00``. During serialization DBAL converts this object
+to a string in the appropriate date format, with no time specified. Unlike other
+databases Sqlite stores this string literally as explained above.
+
+Meanwhile the ORM QueryBuilder is not aware of mapped types and by default will
+assume any ``\DateTime`` object is a ``datetime`` and serialize it accordingly.
+Sqlite will attempt to compare this to the plain date string it has stored, causing
+any queries against ``date`` fields to fail.
+
+A workaround is to explicitly specify the ``date`` type when binding a query
+parameter:
+
+.. code-block:: php
+
+    $qb->setParameter('dateField', $dateValue, \Doctrine\DBAL\Types\Type::DATE);
+
 Reverse engineering primary key order
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 SQLite versions < 3.7.16 only return that a column is part of the primary key,
