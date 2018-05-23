@@ -54,6 +54,7 @@ jobs:
   allow_failures:
     - php: nightly
     - stage: Coding standard
+    - env: DB=pgsql POSTGRESQL_VERSION=11.0
 
   exclude:
     - php: 7.1
@@ -318,6 +319,31 @@ jobs:
         postgresql: "9.6"
       before_script:
         - bash ./tests/travis/install-postgres-10.sh
+
+    - stage: Test
+      php: 7.1
+      env: DB=pgsql POSTGRESQL_VERSION=11.0
+      sudo: required
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-postgres-11.sh
+    - stage: Test
+      php: 7.2
+      env: DB=pgsql POSTGRESQL_VERSION=11.0
+      sudo: required
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-postgres-11.sh
+    - stage: Test
+      php: nightly
+      env: DB=pgsql POSTGRESQL_VERSION=11.0
+      sudo: required
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-postgres-11.sh
 
     - stage: Test
       env: DB=sqlsrv COVERAGE=yes
