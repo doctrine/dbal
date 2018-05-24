@@ -132,6 +132,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
 
             case ParameterType::NULL:
             case ParameterType::STRING:
+            case ParameterType::BINARY:
                 $type = 's';
                 break;
 

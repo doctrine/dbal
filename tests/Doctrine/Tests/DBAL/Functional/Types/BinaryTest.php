@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Doctrine\Tests\DBAL\Functional\Types;
 
 use Doctrine\DBAL\Driver\IBMDB2\DB2Driver;
-use Doctrine\DBAL\Driver\OCI8\Driver as OCI8Driver;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\Tests\DbalFunctionalTestCase;
@@ -19,11 +18,6 @@ class BinaryTest extends DbalFunctionalTestCase
     protected function setUp()
     {
         parent::setUp();
-
-        /** @see https://github.com/doctrine/dbal/issues/2787 */
-        if ($this->_conn->getDriver() instanceof OCI8Driver) {
-            $this->markTestSkipped('Filtering by binary fields is currently not supported on Oracle');
-        }
 
         $table = new Table('binary_table');
         $table->addColumn('id', 'binary', [
@@ -64,8 +58,8 @@ class BinaryTest extends DbalFunctionalTestCase
             'id'  => $id,
             'val' => $value,
         ], [
-            ParameterType::LARGE_OBJECT,
-            ParameterType::LARGE_OBJECT,
+            ParameterType::BINARY,
+            ParameterType::BINARY,
         ]);
 
         self::assertSame(1, $result);
@@ -77,7 +71,7 @@ class BinaryTest extends DbalFunctionalTestCase
             'SELECT val FROM binary_table WHERE id = ?',
             [$id],
             0,
-            [ParameterType::LARGE_OBJECT]
+            [ParameterType::BINARY]
         );
 
         // Currently, `BinaryType` mistakenly converts string values fetched from the DB to a stream.
