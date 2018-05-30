@@ -169,7 +169,7 @@ class Statement implements \IteratorAggregate, DriverStatement
             $stmt = $this->stmt->execute($params);
         } catch (\Exception $ex) {
             if ($logger) {
-                $logger->stopQuery();
+                $logger->stopQuery($ex);
             }
             throw DBALException::driverExceptionDuringQuery(
                 $this->conn->getDriver(),

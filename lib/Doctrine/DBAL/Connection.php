@@ -935,6 +935,10 @@ class Connection implements DriverConnection
                 $stmt = $this->_conn->query($query);
             }
         } catch (Exception $ex) {
+            if ($logger) {
+                $logger->stopQuery($ex);
+            }
+
             throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $query, $this->resolveParams($params, $types));
         }
 
@@ -1034,6 +1038,10 @@ class Connection implements DriverConnection
         try {
             $statement = $this->_conn->query(...$args);
         } catch (Exception $ex) {
+            if ($logger) {
+                $logger->stopQuery($ex);
+            }
+
             throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $args[0]);
         }
 
@@ -1085,6 +1093,10 @@ class Connection implements DriverConnection
                 $result = $this->_conn->exec($query);
             }
         } catch (Exception $ex) {
+            if ($logger) {
+                $logger->stopQuery($ex);
+            }
+
             throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $query, $this->resolveParams($params, $types));
         }
 
@@ -1116,6 +1128,10 @@ class Connection implements DriverConnection
         try {
             $result = $this->_conn->exec($statement);
         } catch (Exception $ex) {
+            if ($logger) {
+                $logger->stopQuery($ex);
+            }
+
             throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $statement);
         }
 
