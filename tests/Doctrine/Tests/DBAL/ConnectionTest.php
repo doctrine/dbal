@@ -196,6 +196,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
      * Pretty dumb test, however we want to check that the EchoSQLLogger correctly implements the interface.
      *
      * @group DBAL-11
+     * @group legacy
      */
     public function testEchoSQLLogger()
     {

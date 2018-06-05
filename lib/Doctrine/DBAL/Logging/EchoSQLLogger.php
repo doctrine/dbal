@@ -31,6 +31,8 @@ use function var_dump;
  * @author Guilherme Blanco <guilhermeblanco@hotmail.com>
  * @author Jonathan Wage <jonwage@gmail.com>
  * @author Roman Borschel <roman@code-factory.org>
+ *
+ * @deprecated
  */
 class EchoSQLLogger implements SQLLogger
 {
