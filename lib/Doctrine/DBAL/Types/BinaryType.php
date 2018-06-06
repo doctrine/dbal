@@ -4,11 +4,9 @@ namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use function fopen;
-use function fseek;
-use function fwrite;
 use function is_resource;
 use function is_string;
+use function stream_get_contents;
 
 /**
  * Type that maps ab SQL BINARY/VARBINARY to a PHP resource stream.
@@ -32,14 +30,11 @@ class BinaryType extends Type
             return null;
         }
 
-        if (is_string($value)) {
-            $fp = fopen('php://temp', 'rb+');
-            fwrite($fp, $value);
-            fseek($fp, 0);
-            $value = $fp;
+        if (is_resource($value)) {
+            $value = stream_get_contents($value);
         }
 
-        if (! is_resource($value)) {
+        if (! is_string($value)) {
             throw ConversionException::conversionFailed($value, self::BINARY);
         }
 
