@@ -26,7 +26,6 @@ use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Type;
-use const E_USER_DEPRECATED;
 use function addcslashes;
 use function array_map;
 use function array_merge;
@@ -310,20 +309,6 @@ abstract class AbstractPlatform
         }
 
         $fixed = $field['fixed'] ?? false;
-
-        $maxLength = $this->getBinaryMaxLength();
-
-        if ($field['length'] > $maxLength) {
-            if ($maxLength > 0) {
-                @trigger_error(sprintf(
-                    'Binary field length %d is greater than supported by the platform (%d). Reduce the field length or use a BLOB field instead.',
-                    $field['length'],
-                    $maxLength
-                ), E_USER_DEPRECATED);
-            }
-
-            return $this->getBlobTypeDeclarationSQL($field);
-        }
 
         return $this->getBinaryTypeDeclarationSQLSnippet($field['length'], $fixed);
     }

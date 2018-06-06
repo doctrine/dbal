@@ -5,9 +5,11 @@ namespace Doctrine\Tests\DBAL\Types;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DBAL\Mocks\MockPlatform;
+use function array_map;
 use function base64_encode;
 use function fopen;
-use function stream_get_contents;
+use function implode;
+use function range;
 
 class BinaryTest extends \Doctrine\Tests\DbalTestCase
 {
@@ -52,11 +54,10 @@ class BinaryTest extends \Doctrine\Tests\DbalTestCase
 
     public function testBinaryStringConvertsToPHPValue()
     {
-        $databaseValue = 'binary string';
+        $databaseValue = $this->getBinaryString();
         $phpValue      = $this->type->convertToPHPValue($databaseValue, $this->platform);
 
-        self::assertInternalType('resource', $phpValue);
-        self::assertEquals($databaseValue, stream_get_contents($phpValue));
+        self::assertSame($databaseValue, $phpValue);
     }
 
     public function testBinaryResourceConvertsToPHPValue()
@@ -64,7 +65,15 @@ class BinaryTest extends \Doctrine\Tests\DbalTestCase
         $databaseValue = fopen('data://text/plain;base64,' . base64_encode('binary string'), 'r');
         $phpValue      = $this->type->convertToPHPValue($databaseValue, $this->platform);
 
-        self::assertSame($databaseValue, $phpValue);
+        self::assertSame('binary string', $phpValue);
+    }
+
+    /**
+     * Creates a binary string containing all possible byte values.
+     */
+    private function getBinaryString() : string
+    {
+        return implode(array_map('chr', range(0, 255)));
     }
 
     /**
