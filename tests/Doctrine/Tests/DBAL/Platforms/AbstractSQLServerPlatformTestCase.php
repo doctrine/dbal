@@ -978,15 +978,24 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
 
     public function testReturnsBinaryTypeDeclarationSQL()
     {
-        self::assertSame('VARBINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(array()));
-        self::assertSame('VARBINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 0)));
-        self::assertSame('VARBINARY(8000)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 8000)));
-        self::assertSame('VARBINARY(MAX)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 8001)));
+        self::assertSame('VARBINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL([]));
+        self::assertSame('VARBINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(['length' => 0]));
+        self::assertSame('VARBINARY(8000)', $this->_platform->getBinaryTypeDeclarationSQL(['length' => 8000]));
+        self::assertSame('VARBINARY(8001)', $this->_platform->getBinaryTypeDeclarationSQL(['length' => 8001]));
 
-        self::assertSame('BINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true)));
-        self::assertSame('BINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 0)));
-        self::assertSame('BINARY(8000)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 8000)));
-        self::assertSame('VARBINARY(MAX)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 8001)));
+        self::assertSame('BINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(['fixed' => true]));
+        self::assertSame('BINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL([
+            'fixed' => true,
+            'length' => 0,
+        ]));
+        self::assertSame('BINARY(8000)', $this->_platform->getBinaryTypeDeclarationSQL([
+            'fixed' => true,
+            'length' => 8000,
+        ]));
+        self::assertSame('BINARY(8001)', $this->_platform->getBinaryTypeDeclarationSQL([
+            'fixed' => true,
+            'length' => 8001,
+        ]));
     }
 
     /**

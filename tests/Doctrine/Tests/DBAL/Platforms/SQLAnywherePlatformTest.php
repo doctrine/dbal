@@ -935,15 +935,24 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
     public function testReturnsBinaryTypeDeclarationSQL()
     {
-        self::assertSame('VARBINARY(1)', $this->_platform->getBinaryTypeDeclarationSQL(array()));
-        self::assertSame('VARBINARY(1)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 0)));
-        self::assertSame('VARBINARY(32767)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 32767)));
-        self::assertSame('LONG BINARY', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 32768)));
+        self::assertSame('VARBINARY(1)', $this->_platform->getBinaryTypeDeclarationSQL([]));
+        self::assertSame('VARBINARY(1)', $this->_platform->getBinaryTypeDeclarationSQL(['length' => 0]));
+        self::assertSame('VARBINARY(32767)', $this->_platform->getBinaryTypeDeclarationSQL(['length' => 32767]));
+        self::assertSame('VARBINARY(32768)', $this->_platform->getBinaryTypeDeclarationSQL(['length' => 32768]));
 
-        self::assertSame('BINARY(1)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true)));
-        self::assertSame('BINARY(1)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 0)));
-        self::assertSame('BINARY(32767)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 32767)));
-        self::assertSame('LONG BINARY', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 32768)));
+        self::assertSame('BINARY(1)', $this->_platform->getBinaryTypeDeclarationSQL(['fixed' => true]));
+        self::assertSame('BINARY(1)', $this->_platform->getBinaryTypeDeclarationSQL([
+            'fixed' => true,
+            'length' => 0,
+        ]));
+        self::assertSame('BINARY(32767)', $this->_platform->getBinaryTypeDeclarationSQL([
+            'fixed' => true,
+            'length' => 32767,
+        ]));
+        self::assertSame('BINARY(32768)', $this->_platform->getBinaryTypeDeclarationSQL([
+            'fixed' => true,
+            'length' => 32768,
+        ]));
     }
 
     /**

@@ -443,15 +443,24 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 
     public function testReturnsBinaryTypeDeclarationSQL()
     {
-        self::assertSame('RAW(255)', $this->_platform->getBinaryTypeDeclarationSQL(array()));
-        self::assertSame('RAW(2000)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 0)));
-        self::assertSame('RAW(2000)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 2000)));
-        self::assertSame('BLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 2001)));
+        self::assertSame('RAW(255)', $this->_platform->getBinaryTypeDeclarationSQL([]));
+        self::assertSame('RAW(2000)', $this->_platform->getBinaryTypeDeclarationSQL(['length' => 0]));
+        self::assertSame('RAW(2000)', $this->_platform->getBinaryTypeDeclarationSQL(['length' => 2000]));
+        self::assertSame('RAW(2001)', $this->_platform->getBinaryTypeDeclarationSQL(['length' => 2001]));
 
-        self::assertSame('RAW(255)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true)));
-        self::assertSame('RAW(2000)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 0)));
-        self::assertSame('RAW(2000)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 2000)));
-        self::assertSame('BLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 2001)));
+        self::assertSame('RAW(255)', $this->_platform->getBinaryTypeDeclarationSQL(['fixed' => true]));
+        self::assertSame('RAW(2000)', $this->_platform->getBinaryTypeDeclarationSQL([
+            'fixed' => true,
+            'length' => 0,
+        ]));
+        self::assertSame('RAW(2000)', $this->_platform->getBinaryTypeDeclarationSQL([
+            'fixed' => true,
+            'length' => 2000,
+        ]));
+        self::assertSame('RAW(2001)', $this->_platform->getBinaryTypeDeclarationSQL([
+            'fixed' => true,
+            'length' => 2001,
+        ]));
     }
 
     public function testDoesNotPropagateUnnecessaryTableAlterationOnBinaryType()

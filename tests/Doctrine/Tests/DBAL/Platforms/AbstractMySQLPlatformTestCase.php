@@ -516,19 +516,24 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
     public function testReturnsBinaryTypeDeclarationSQL()
     {
-        self::assertSame('VARBINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(array()));
-        self::assertSame('VARBINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 0)));
-        self::assertSame('VARBINARY(65535)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 65535)));
-        self::assertSame('MEDIUMBLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 65536)));
-        self::assertSame('MEDIUMBLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 16777215)));
-        self::assertSame('LONGBLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 16777216)));
+        self::assertSame('VARBINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL([]));
+        self::assertSame('VARBINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(['length' => 0]));
+        self::assertSame('VARBINARY(65535)', $this->_platform->getBinaryTypeDeclarationSQL(['length' => 65535]));
+        self::assertSame('VARBINARY(65536)', $this->_platform->getBinaryTypeDeclarationSQL(['length' => 65536]));
 
-        self::assertSame('BINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true)));
-        self::assertSame('BINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 0)));
-        self::assertSame('BINARY(65535)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 65535)));
-        self::assertSame('MEDIUMBLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 65536)));
-        self::assertSame('MEDIUMBLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 16777215)));
-        self::assertSame('LONGBLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 16777216)));
+        self::assertSame('BINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(['fixed' => true]));
+        self::assertSame('BINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL([
+            'fixed' => true,
+            'length' => 0,
+        ]));
+        self::assertSame('BINARY(65535)', $this->_platform->getBinaryTypeDeclarationSQL([
+            'fixed' => true,
+            'length' => 65535,
+        ]));
+        self::assertSame('BINARY(65536)', $this->_platform->getBinaryTypeDeclarationSQL([
+            'fixed' => true,
+            'length' => 65536,
+        ]));
     }
 
     public function testDoesNotPropagateForeignKeyCreationForNonSupportingEngines()

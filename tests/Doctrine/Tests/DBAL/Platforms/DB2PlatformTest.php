@@ -422,11 +422,12 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         self::assertSame('VARCHAR(1) FOR BIT DATA', $this->_platform->getBinaryTypeDeclarationSQL([]));
         self::assertSame('VARCHAR(255) FOR BIT DATA', $this->_platform->getBinaryTypeDeclarationSQL(['length' => 0]));
         self::assertSame('VARCHAR(32704) FOR BIT DATA', $this->_platform->getBinaryTypeDeclarationSQL(['length' => 32704]));
-        self::assertSame('BLOB(1M)', $this->_platform->getBinaryTypeDeclarationSQL(['length' => 32705]));
+        self::assertSame('VARCHAR(32705) FOR BIT DATA', $this->_platform->getBinaryTypeDeclarationSQL(['length' => 32705]));
 
         self::assertSame('CHAR(1) FOR BIT DATA', $this->_platform->getBinaryTypeDeclarationSQL(['fixed' => true]));
         self::assertSame('CHAR(254) FOR BIT DATA', $this->_platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 0]));
-        self::assertSame('BLOB(1M)', $this->_platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 32705]));
+        self::assertSame('CHAR(254) FOR BIT DATA', $this->_platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 254]));
+        self::assertSame('CHAR(255) FOR BIT DATA', $this->_platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 255]));
     }
 
     /**

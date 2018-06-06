@@ -102,6 +102,12 @@ The Drizzle project is abandoned and is therefore not supported by Doctrine DBAL
 - `Configuration::getSQLLogger()` does not return `null` anymore, but a `NullLogger` implementation.
 - `Configuration::setSQLLogger()` does not allow `null` anymore.
 
+## BC BREAK: Changes to handling binary fields
+
+- Binary fields whose length exceeds the maximum field size on a given platform are no longer represented as `BLOB`s.
+  Use binary fields of a size which fits all target platforms, or use blob explicitly instead.
+- Binary fields are no longer represented as streams in PHP. They are represented as strings.
+
 # Upgrade to 2.7
 
 ## Doctrine\DBAL\Platforms\AbstractPlatform::DATE_INTERVAL_UNIT_* constants deprecated

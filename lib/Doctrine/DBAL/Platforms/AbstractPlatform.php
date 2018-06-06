@@ -309,10 +309,6 @@ abstract class AbstractPlatform
 
         $fixed = $field['fixed'] ?? false;
 
-        if ($field['length'] > $this->getBinaryMaxLength()) {
-            return $this->getBlobTypeDeclarationSQL($field);
-        }
-
         return $this->getBinaryTypeDeclarationSQLSnippet($field['length'], $fixed);
     }
 
