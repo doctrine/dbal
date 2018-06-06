@@ -479,18 +479,14 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         self::assertSame('RAW(2000)', $this->platform->getBinaryTypeDeclarationSQL(['length' => 2000]));
 
         self::assertSame('RAW(255)', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true]));
-        self::assertSame('RAW(2000)', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 0]));
-        self::assertSame('RAW(2000)', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 2000]));
-    }
-
-    /**
-     * @group legacy
-     * @expectedDeprecation Binary field length 2001 is greater than supported by the platform (2000). Reduce the field length or use a BLOB field instead.
-     */
-    public function testReturnsBinaryTypeLongerThanMaxDeclarationSQL()
-    {
-        self::assertSame('BLOB', $this->platform->getBinaryTypeDeclarationSQL(['length' => 2001]));
-        self::assertSame('BLOB', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 2001]));
+        self::assertSame('RAW(2000)', $this->platform->getBinaryTypeDeclarationSQL([
+            'fixed' => true,
+            'length' => 0,
+        ]));
+        self::assertSame('RAW(2000)', $this->platform->getBinaryTypeDeclarationSQL([
+            'fixed' => true,
+            'length' => 2000,
+        ]));
     }
 
     public function testDoesNotPropagateUnnecessaryTableAlterationOnBinaryType()
