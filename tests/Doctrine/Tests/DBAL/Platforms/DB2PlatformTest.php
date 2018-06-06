@@ -416,16 +416,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * @group legacy
-     * @expectedDeprecation Binary field length 32705 is greater than supported by the platform (32704). Reduce the field length or use a BLOB field instead.
-     */
-    public function testReturnsBinaryTypeLongerThanMaxDeclarationSQL()
-    {
-        self::assertSame('BLOB(1M)', $this->platform->getBinaryTypeDeclarationSQL(['length' => 32705]));
-        self::assertSame('BLOB(1M)', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 32705]));
-    }
-
-    /**
      * @group DBAL-234
      */
     protected function getAlterTableRenameIndexSQL()
