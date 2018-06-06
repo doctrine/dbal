@@ -509,27 +509,21 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         self::assertSame('VARBINARY(255)', $this->platform->getBinaryTypeDeclarationSQL([]));
         self::assertSame('VARBINARY(255)', $this->platform->getBinaryTypeDeclarationSQL(['length' => 0]));
         self::assertSame('VARBINARY(65535)', $this->platform->getBinaryTypeDeclarationSQL(['length' => 65535]));
+        self::assertSame('VARBINARY(65536)', $this->platform->getBinaryTypeDeclarationSQL(['length' => 65536]));
 
         self::assertSame('BINARY(255)', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true]));
-        self::assertSame('BINARY(255)', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 0]));
-        self::assertSame('BINARY(65535)', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 65535]));
-    }
-
-    /**
-     * @group legacy
-     * @expectedDeprecation Binary field length 65536 is greater than supported by the platform (65535). Reduce the field length or use a BLOB field instead.
-     * @expectedDeprecation Binary field length 16777215 is greater than supported by the platform (65535). Reduce the field length or use a BLOB field instead.
-     * @expectedDeprecation Binary field length 16777216 is greater than supported by the platform (65535). Reduce the field length or use a BLOB field instead.
-     */
-    public function testReturnsBinaryTypeLongerThanMaxDeclarationSQL()
-    {
-        self::assertSame('MEDIUMBLOB', $this->platform->getBinaryTypeDeclarationSQL(['length' => 65536]));
-        self::assertSame('MEDIUMBLOB', $this->platform->getBinaryTypeDeclarationSQL(['length' => 16777215]));
-        self::assertSame('LONGBLOB', $this->platform->getBinaryTypeDeclarationSQL(['length' => 16777216]));
-
-        self::assertSame('MEDIUMBLOB', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 65536]));
-        self::assertSame('MEDIUMBLOB', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 16777215]));
-        self::assertSame('LONGBLOB', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 16777216]));
+        self::assertSame('BINARY(255)', $this->platform->getBinaryTypeDeclarationSQL([
+            'fixed' => true,
+            'length' => 0,
+        ]));
+        self::assertSame('BINARY(65535)', $this->platform->getBinaryTypeDeclarationSQL([
+            'fixed' => true,
+            'length' => 65535,
+        ]));
+        self::assertSame('BINARY(65536)', $this->platform->getBinaryTypeDeclarationSQL([
+            'fixed' => true,
+            'length' => 65536,
+        ]));
     }
 
     public function testDoesNotPropagateForeignKeyCreationForNonSupportingEngines()
