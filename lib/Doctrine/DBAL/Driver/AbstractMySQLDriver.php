@@ -24,6 +24,7 @@ use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
 use Doctrine\DBAL\Platforms\MySQL57Platform;
+use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Schema\MySqlSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
@@ -137,8 +138,14 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
             return new MariaDb1027Platform();
         }
 
-        if ( ! $mariadb && version_compare($this->getOracleMysqlVersionNumber($version), '5.7.9', '>=')) {
-            return new MySQL57Platform();
+        if (! $mariadb) {
+            $oracleMysqlVersion = $this->getOracleMysqlVersionNumber($version);
+            if (version_compare($oracleMysqlVersion, '8', '>=')) {
+                return new MySQL80Platform();
+            }
+            if (version_compare($oracleMysqlVersion, '5.7.9', '>=')) {
+                return new MySQL57Platform();
+            }
         }
 
         return $this->getDatabasePlatform();
