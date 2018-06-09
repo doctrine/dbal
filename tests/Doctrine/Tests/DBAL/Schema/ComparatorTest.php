@@ -1052,6 +1052,28 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
         self::assertEquals($expected, Comparator::compareSchemas($oldSchema, $newSchema));
     }
 
+    public function testCompareChangedTextColumn()
+    {
+        $oldSchema = new Schema();
+
+        $tableFoo = $oldSchema->createTable('foo');
+        $tableFoo->addColumn('id', 'text');
+
+        $newSchema = new Schema();
+        $table = $newSchema->createTable('foo');
+        $table->addColumn('id', 'text', array('length' => 16777215 + 1));
+
+        $expected = new SchemaDiff();
+        $expected->fromSchema = $oldSchema;
+        $tableDiff = $expected->changedTables['foo'] = new TableDiff('foo');
+        $tableDiff->fromTable = $tableFoo;
+        $columnDiff = $tableDiff->changedColumns['id'] = new ColumnDiff('id', $table->getColumn('id'));
+        $columnDiff->fromColumn = $tableFoo->getColumn('id');
+        $columnDiff->changedProperties = array('length');
+
+        self::assertEquals($expected, Comparator::compareSchemas($oldSchema, $newSchema));
+    }
+
     /**
      * @group DBAL-617
      */
