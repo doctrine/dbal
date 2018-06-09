@@ -469,7 +469,7 @@ class Comparator
             }
         } elseif ($properties1['type'] instanceof Types\TextType) {
             // check if values of length match. There is no default value for all adapters.
-            if ($properties1['length'] !== $properties2['length']) {
+            if ($properties1['length'] != $properties2['length']) {
                 $changedProperties[] = 'length';
             }
         } elseif ($properties1['type'] instanceof Types\DecimalType) {
