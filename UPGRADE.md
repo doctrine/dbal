@@ -1,5 +1,12 @@
 # Upgrade to 2.8
 
+## Removed dependency on doctrine/common
+
+The dependency on doctrine/common package has been removed.
+DBAL now depends on doctrine/cache and doctrine/event-manager instead.
+If you are using any other component from doctrine/common package,
+you will have to add an explicit dependency to your composer.json.
+
 ## Corrected exception thrown by ``Doctrine\DBAL\Platforms\SQLAnywhere16Platform::getAdvancedIndexOptionsSQL()``
 
 This method now throws SPL ``UnexpectedValueException`` instead of accidentally throwing ``Doctrine\Common\Proxy\Exception\UnexpectedValueException``.

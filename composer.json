@@ -14,7 +14,8 @@
     "require": {
         "php": "^7.1",
         "ext-pdo": "*",
-        "doctrine/common": "^2.7.1"
+        "doctrine/cache": "^1.0",
+        "doctrine/event-manager": "^1.0"
     },
     "require-dev": {
         "doctrine/coding-standard": "^4.0",
