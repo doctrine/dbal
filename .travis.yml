@@ -117,6 +117,56 @@ jobs:
 
     - stage: Test
       php: 7.1
+      env: DB=mysql.docker MYSQL_VERSION=8.0 COVERAGE=yes
+      sudo: required
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-mysql-8.0.sh
+    - stage: Test
+      php: 7.2
+      env: DB=mysql.docker MYSQL_VERSION=8.0
+      sudo: required
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-mysql-8.0.sh
+    - stage: Test
+      php: nightly
+      env: DB=mysql.docker MYSQL_VERSION=8.0
+      sudo: required
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-mysql-8.0.sh
+
+    - stage: Test
+      php: 7.1
+      env: DB=mysqli.docker MYSQL_VERSION=8.0
+      sudo: required
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-mysql-8.0.sh
+    - stage: Test
+      php: 7.2
+      env: DB=mysqli.docker MYSQL_VERSION=8.0
+      sudo: required
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-mysql-8.0.sh
+    - stage: Test
+      php: nightly
+      env: DB=mysqli.docker MYSQL_VERSION=8.0
+      sudo: required
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-mysql-8.0.sh
+
+    - stage: Test
+      php: 7.1
       env: DB=mariadb MARIADB_VERSION=10.0 COVERAGE=yes
       addons:
         mariadb: 10.0
