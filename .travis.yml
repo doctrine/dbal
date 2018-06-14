@@ -56,9 +56,10 @@ jobs:
         - bash ./tests/travis/install-mysql-5.7.sh
     - stage: Test
       php: 7.2
-      env: DB=mysql MYSQL_VERSION=8.0 COVERAGE=yes
-      dist: xenial
+      env: DB=mysql.docker MYSQL_VERSION=8.0 COVERAGE=yes
       sudo: required
+      services:
+        - docker
       before_script:
         - bash ./tests/travis/install-mysql-8.0.sh
     - stage: Test
@@ -72,9 +73,10 @@ jobs:
         - bash ./tests/travis/install-mysql-5.7.sh
     - stage: Test
       php: 7.2
-      env: DB=mysqli MYSQL_VERSION=8.0 COVERAGE=yes
-      dist: xenial
+      env: DB=mysqli.docker MYSQL_VERSION=8.0 COVERAGE=yes
       sudo: required
+      services:
+        - docker
       before_script:
         - bash ./tests/travis/install-mysql-8.0.sh
     - stage: Test
@@ -207,16 +209,18 @@ jobs:
         - travis_retry composer update --prefer-dist --prefer-lowest
     - stage: Test
       php: 7.3
-      env: DB=mysql MYSQL_VERSION=8.0
-      dist: xenial
+      env: DB=mysql.docker MYSQL_VERSION=8.0
       sudo: required
+      services:
+        - docker
       before_script:
         - bash ./tests/travis/install-mysql-8.0.sh
     - stage: Test
       php: 7.3
-      env: DB=mysqli MYSQL_VERSION=8.0
-      dist: xenial
+      env: DB=mysqli.docker MYSQL_VERSION=8.0
       sudo: required
+      services:
+        - docker
       before_script:
         - bash ./tests/travis/install-mysql-8.0.sh
     - stage: Test
@@ -260,16 +264,18 @@ jobs:
         - bash ./tests/travis/install-mssql.sh
     - stage: Test
       php: nightly
-      env: DB=mysql MYSQL_VERSION=8.0
-      dist: xenial
+      env: DB=mysql.docker MYSQL_VERSION=8.0
       sudo: required
+      services:
+        - docker
       before_script:
         - bash ./tests/travis/install-mysql-8.0.sh
     - stage: Test
       php: nightly
-      env: DB=mysqli MYSQL_VERSION=8.0
-      dist: xenial
+      env: DB=mysqli.docker MYSQL_VERSION=8.0
       sudo: required
+      services:
+        - docker
       before_script:
         - bash ./tests/travis/install-mysql-8.0.sh
     - stage: Test
