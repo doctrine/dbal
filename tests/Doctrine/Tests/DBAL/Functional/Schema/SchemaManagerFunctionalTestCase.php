@@ -1517,4 +1517,30 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
 
         $this->assertGreaterThan($lastUsedIdBeforeDelete, $lastUsedIdAfterDelete);
     }
+
+    /**
+     * @group 2925
+     */
+    public function testAlterTableChangePrimaryKey(): void
+    {
+        $tableFrom = new Table('primary_key_id');
+        $column    = $tableFrom->addColumn('user_id', 'integer');
+        $column->setAutoincrement(true);
+        $tableFrom->setPrimaryKey(['user_id']);
+        $this->_sm->dropAndCreateTable($tableFrom);
+
+        $tableFrom = $this->_sm->listTableDetails('primary_key_id');
+        self::assertEquals(['USER_ID'], array_map('strtoupper', $tableFrom->getPrimaryKey()->getColumns()));
+
+        $tableTo = new Table('primary_key_id');
+        $column  = $tableTo->addColumn('id', 'integer');
+        $column->setAutoincrement(true);
+        $tableTo->setPrimaryKey(['id']);
+
+        $c    = new Comparator();
+        $diff = $c->diffTable($tableFrom, $tableTo);
+        $this->_sm->alterTable($diff);
+        $tableFinal = $this->_sm->listTableDetails('primary_key_id');
+        self::assertEquals(['ID'], array_map('strtoupper', $tableFinal->getPrimaryKey()->getColumns()));
+    }
 }
