@@ -580,11 +580,8 @@ SQL
                 }
             }
 
-            $oldComment = null;
             $newComment = $this->getColumnComment($column);
-            if (null !== $columnDiff->fromColumn) {
-                $oldComment = $this->getColumnComment($columnDiff->fromColumn);
-            }
+            $oldComment = $this->getOldColumnComment($columnDiff);
 
             if ($columnDiff->hasChanged('comment') || ($columnDiff->fromColumn !== null && $oldComment !== $newComment)) {
                 $commentsSQL[] = $this->getCommentOnColumnSQL(
@@ -1253,5 +1250,10 @@ SQL
     private function isNumericType(Type $type) : bool
     {
         return $type instanceof IntegerType || $type instanceof BigIntType;
+    }
+
+    private function getOldColumnComment(ColumnDiff $columnDiff) : ?string
+    {
+        return $columnDiff->fromColumn ? $this->getColumnComment($columnDiff->fromColumn) : null;
     }
 }
