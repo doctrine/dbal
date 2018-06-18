@@ -5,7 +5,7 @@ namespace Doctrine\Tests\DBAL\Driver\IBMDB2;
 use Doctrine\DBAL\Driver\IBMDB2\DB2Driver;
 use Doctrine\Tests\DBAL\Driver\AbstractDB2DriverTest;
 
-class DriverTest extends AbstractDB2DriverTest
+class DB2DriverTest extends AbstractDB2DriverTest
 {
     public function testReturnsName()
     {

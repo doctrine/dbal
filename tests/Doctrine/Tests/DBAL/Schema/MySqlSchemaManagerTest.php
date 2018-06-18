@@ -4,16 +4,19 @@ namespace Doctrine\Tests\DBAL\Schema;
 
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Configuration;
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\MySqlSchemaManager;
 use function array_map;
 
 class MySqlSchemaManagerTest extends \PHPUnit\Framework\TestCase
 {
     /**
-     *
      * @var \Doctrine\DBAL\Schema\AbstractSchemaManager
      */
     private $manager;
+
+    /** @var Connection */
+    private $conn;
 
     protected function setUp()
     {
