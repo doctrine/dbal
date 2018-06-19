@@ -42,6 +42,7 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Type;
+use const E_USER_DEPRECATED;
 use function addcslashes;
 use function array_map;
 use function array_merge;
@@ -68,6 +69,7 @@ use function strlen;
 use function strpos;
 use function strtolower;
 use function strtoupper;
+use function trigger_error;
 
 /**
  * Base class for all DatabasePlatforms. The DatabasePlatforms are the central
@@ -325,7 +327,17 @@ abstract class AbstractPlatform
 
         $fixed = $field['fixed'] ?? false;
 
-        if ($field['length'] > $this->getBinaryMaxLength()) {
+        $maxLength = $this->getBinaryMaxLength();
+
+        if ($field['length'] > $maxLength) {
+            if ($maxLength > 0) {
+                @trigger_error(sprintf(
+                    'Binary field length %d is greater than supported by the platform (%d)',
+                    $field['length'],
+                    $maxLength
+                ), E_USER_DEPRECATED);
+            }
+
             return $this->getBlobTypeDeclarationSQL($field);
         }
 

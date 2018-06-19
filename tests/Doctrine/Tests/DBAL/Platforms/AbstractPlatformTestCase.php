@@ -830,6 +830,11 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         $this->_platform->getBinaryTypeDeclarationSQL(array());
     }
 
+    public function testReturnsBinaryTypeLongerThanMaxDeclarationSQL()
+    {
+        $this->markTestSkipped('Not applicable to the platform');
+    }
+
     /**
      * @group DBAL-553
      */
