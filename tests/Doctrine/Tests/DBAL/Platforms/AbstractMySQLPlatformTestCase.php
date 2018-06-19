@@ -527,9 +527,9 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
     /**
      * @group legacy
-     * @expectedDeprecation Binary field length 65536 is greater than supported by the platform (65535)
-     * @expectedDeprecation Binary field length 16777215 is greater than supported by the platform (65535)
-     * @expectedDeprecation Binary field length 16777216 is greater than supported by the platform (65535)
+     * @expectedDeprecation Binary field length 65536 is greater than supported by the platform (65535). Reduce the field length or use a BLOB field instead.
+     * @expectedDeprecation Binary field length 16777215 is greater than supported by the platform (65535). Reduce the field length or use a BLOB field instead.
+     * @expectedDeprecation Binary field length 16777216 is greater than supported by the platform (65535). Reduce the field length or use a BLOB field instead.
      */
     public function testReturnsBinaryTypeLongerThanMaxDeclarationSQL()
     {

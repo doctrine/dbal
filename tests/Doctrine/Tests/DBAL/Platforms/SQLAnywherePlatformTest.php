@@ -799,7 +799,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
     /**
      * @group legacy
-     * @expectedDeprecation Binary field length 32768 is greater than supported by the platform (32767)
+     * @expectedDeprecation Binary field length 32768 is greater than supported by the platform (32767). Reduce the field length or use a BLOB field instead.
      */
     public function testReturnsBinaryTypeLongerThanMaxDeclarationSQL()
     {
