@@ -168,7 +168,12 @@ class MySqlSchemaManager extends AbstractSchemaManager
         if ($this->_platform instanceof MariaDb1027Platform) {
             $columnDefault = $this->getMariaDb1027ColumnDefault($this->_platform, $tableColumn['default']);
         } else {
-            $columnDefault = $tableColumn['default'];
+            if ($dbType === 'text' || $dbType === 'blob') {
+                // MySQL (all versions) and MariaDB (<10.2.1) does not support default value for TEXT and BLOB types
+                $columnDefault = null;
+            } else {
+                $columnDefault = $tableColumn['default'];
+            }
         }
 
         $options = [
