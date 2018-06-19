@@ -1,5 +1,10 @@
 # Upgrade to 2.8
 
+## Deprecated usage of binary fields whose length exceeds the platform maximum
+
+- The usage of binary fields whose length exceeds the maximum field size on a given platform is deprecated.
+  Use binary fields of a size which fits all target platforms, or use blob explicitly instead.
+
 ## Removed dependency on doctrine/common
 
 The dependency on doctrine/common package has been removed.
