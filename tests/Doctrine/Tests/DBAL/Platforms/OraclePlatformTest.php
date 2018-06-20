@@ -454,7 +454,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 
     /**
      * @group legacy
-     * @expectedDeprecation Binary field length 2001 is greater than supported by the platform (2000)
+     * @expectedDeprecation Binary field length 2001 is greater than supported by the platform (2000). Reduce the field length or use a BLOB field instead.
      */
     public function testReturnsBinaryTypeLongerThanMaxDeclarationSQL()
     {

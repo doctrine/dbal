@@ -989,7 +989,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
 
     /**
      * @group legacy
-     * @expectedDeprecation Binary field length 8001 is greater than supported by the platform (8000)
+     * @expectedDeprecation Binary field length 8001 is greater than supported by the platform (8000). Reduce the field length or use a BLOB field instead.
      */
     public function testReturnsBinaryTypeLongerThanMaxDeclarationSQL()
     {

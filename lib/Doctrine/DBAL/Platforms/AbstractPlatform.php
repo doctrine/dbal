@@ -332,7 +332,7 @@ abstract class AbstractPlatform
         if ($field['length'] > $maxLength) {
             if ($maxLength > 0) {
                 @trigger_error(sprintf(
-                    'Binary field length %d is greater than supported by the platform (%d)',
+                    'Binary field length %d is greater than supported by the platform (%d). Reduce the field length or use a BLOB field instead.',
                     $field['length'],
                     $maxLength
                 ), E_USER_DEPRECATED);
