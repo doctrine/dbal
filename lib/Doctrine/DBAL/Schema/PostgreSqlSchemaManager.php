@@ -21,6 +21,7 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 /**
  * PostgreSQL Schema Manager.
