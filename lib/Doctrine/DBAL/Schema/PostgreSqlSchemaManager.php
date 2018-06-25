@@ -38,6 +38,16 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     private $existingSchemaPaths;
 
     /**
+     * @var double
+     */
+    private $versionNumber;
+
+    function __construct(\Doctrine\DBAL\Connection $conn, AbstractPlatform $platform = null) {
+        parent::__construct($conn, $platform);
+        $this->versionNumber = (double)$this->_conn->fetchColumn("SHOW server_version");
+    }
+
+    /**
      * Gets all the existing schema names.
      *
      * @return array
@@ -289,7 +299,11 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             $sequenceName = $sequence['relname'];
         }
 
-        $data = $this->_conn->fetchAll('SELECT min_value, increment_by FROM ' . $this->_platform->quoteIdentifier($sequenceName));
+        if($this->versionNumber >= 10) {
+            $data      = $this->_conn->fetchAll('SELECT min_value, increment_by FROM pg_sequences WHERE sequencename=\'' . $sequenceName . '\'');
+        } else {
+            $data      = $this->_conn->fetchAll('SELECT min_value, increment_by FROM ' . $this->_platform->quoteIdentifier($sequenceName));
+        }
 
         return new Sequence($sequenceName, $data[0]['increment_by'], $data[0]['min_value']);
     }
