@@ -21,6 +21,7 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 /**
  * PostgreSQL Schema Manager.
@@ -36,6 +37,16 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
      * @var array
      */
     private $existingSchemaPaths;
+
+    /**
+     * @var double
+     */
+    private $versionNumber;
+
+    function __construct(\Doctrine\DBAL\Connection $conn, AbstractPlatform $platform = null) {
+        parent::__construct($conn, $platform);
+        $this->versionNumber = (double)$this->_conn->fetchColumn("SHOW server_version");
+    }
 
     /**
      * Gets all the existing schema names.
@@ -289,7 +300,11 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             $sequenceName = $sequence['relname'];
         }
 
-        $data = $this->_conn->fetchAll('SELECT min_value, increment_by FROM ' . $this->_platform->quoteIdentifier($sequenceName));
+        if($this->versionNumber >= 10) {
+            $data      = $this->_conn->fetchAll('SELECT min_value, increment_by FROM pg_sequences WHERE sequencename=\'' . $sequenceName . '\'');
+        } else {
+            $data      = $this->_conn->fetchAll('SELECT min_value, increment_by FROM ' . $this->_platform->quoteIdentifier($sequenceName));
+        }
 
         return new Sequence($sequenceName, $data[0]['increment_by'], $data[0]['min_value']);
     }
