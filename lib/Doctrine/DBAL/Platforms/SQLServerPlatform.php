@@ -1306,7 +1306,7 @@ class SQLServerPlatform extends AbstractPlatform
      * Remove ORDER BY clauses in subqueries - they're not supported by SQL Server.
      * Caveat: will leave ORDER BY in TOP N subqueries.
      *
-     * @param $query
+     * @param string $query
      * @return string
      */
     private function scrubInnerOrderBy($query)

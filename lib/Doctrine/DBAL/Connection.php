@@ -19,12 +19,14 @@
 
 namespace Doctrine\DBAL;
 
+use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Closure;
 use Exception;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
+use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Cache\ResultCacheStatement;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
@@ -32,6 +34,7 @@ use Doctrine\DBAL\Cache\ArrayStatement;
 use Doctrine\DBAL\Cache\CacheException;
 use Doctrine\DBAL\Driver\PingableConnection;
 use Throwable;
+use function assert;
 use function array_key_exists;
 use function array_merge;
 use function func_get_args;
@@ -108,7 +111,7 @@ class Connection implements DriverConnection
     /**
      * The wrapped driver connection.
      *
-     * @var \Doctrine\DBAL\Driver\Connection
+     * @var \Doctrine\DBAL\Driver\Connection|null
      */
     protected $_conn;
 
@@ -409,7 +412,9 @@ class Connection implements DriverConnection
     {
         $version = $this->getDatabasePlatformVersion();
 
-        if (null !== $version) {
+        if ($version !== null) {
+            assert($this->_driver instanceof VersionAwarePlatformDriver);
+
             $this->platform = $this->_driver->createDatabasePlatformForVersion($version);
         } else {
             $this->platform = $this->_driver->getDatabasePlatform();
@@ -875,7 +880,7 @@ class Connection implements DriverConnection
      *
      * @param string $statement The SQL statement to prepare.
      *
-     * @return \Doctrine\DBAL\Statement The prepared statement.
+     * @return DriverStatement The prepared statement.
      *
      * @throws \Doctrine\DBAL\DBALException
      */
@@ -903,7 +908,7 @@ class Connection implements DriverConnection
      * @param array                                       $types  The types the previous parameters are in.
      * @param \Doctrine\DBAL\Cache\QueryCacheProfile|null $qcp    The query cache profile, optional.
      *
-     * @return \Doctrine\DBAL\Driver\Statement The executed statement.
+     * @return ResultStatement The executed statement.
      *
      * @throws \Doctrine\DBAL\DBALException
      */
@@ -955,7 +960,7 @@ class Connection implements DriverConnection
      * @param array                                  $types  The types the previous parameters are in.
      * @param \Doctrine\DBAL\Cache\QueryCacheProfile $qcp    The query cache profile.
      *
-     * @return \Doctrine\DBAL\Driver\ResultStatement
+     * @return ResultStatement
      *
      * @throws \Doctrine\DBAL\Cache\CacheException
      */
@@ -1139,7 +1144,7 @@ class Connection implements DriverConnection
     /**
      * Fetches the SQLSTATE associated with the last database operation.
      *
-     * @return int The last error code.
+     * @return string|null The last error code.
      */
     public function errorCode()
     {

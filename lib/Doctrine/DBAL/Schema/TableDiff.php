@@ -99,7 +99,7 @@ class TableDiff
     /**
      * All added foreign key definitions
      *
-     * @var \Doctrine\DBAL\Schema\ForeignKeyConstraint[]
+     * @var ForeignKeyConstraint[]
      */
     public $addedForeignKeys = [];
 
@@ -113,7 +113,7 @@ class TableDiff
     /**
      * All removed foreign keys
      *
-     * @var \Doctrine\DBAL\Schema\ForeignKeyConstraint[]
+     * @var ForeignKeyConstraint[]|string[]
      */
     public $removedForeignKeys = [];
 
@@ -161,7 +161,7 @@ class TableDiff
     }
 
     /**
-     * @return \Doctrine\DBAL\Schema\Identifier|boolean
+     * @return Identifier|string|bool
      */
     public function getNewName()
     {

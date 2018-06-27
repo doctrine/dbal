@@ -21,10 +21,12 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\DriverException;
+use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Types\Type;
 use const CASE_LOWER;
 use function array_change_key_case;
 use function array_values;
+use function assert;
 use function is_null;
 use function preg_match;
 use function sprintf;
@@ -116,6 +118,7 @@ class OracleSchemaManager extends AbstractSchemaManager
             $tableIndex = \array_change_key_case($tableIndex, CASE_LOWER);
 
             $keyName = strtolower($tableIndex['name']);
+            $buffer  = [];
 
             if (strtolower($tableIndex['is_primary']) == "p") {
                 $keyName = 'primary';
@@ -346,8 +349,6 @@ class OracleSchemaManager extends AbstractSchemaManager
 
         $query = 'GRANT DBA TO ' . $username;
         $this->_conn->executeUpdate($query);
-
-        return true;
     }
 
     /**
@@ -357,6 +358,8 @@ class OracleSchemaManager extends AbstractSchemaManager
      */
     public function dropAutoincrement($table)
     {
+        assert($this->_platform instanceof OraclePlatform);
+
         $sql = $this->_platform->getDropAutoincrementSql($table);
         foreach ($sql as $query) {
             $this->_conn->executeUpdate($query);

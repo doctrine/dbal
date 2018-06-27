@@ -22,6 +22,7 @@ namespace Doctrine\DBAL\Driver\IBMDB2;
 use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\ParameterType;
+use stdClass;
 use const DB2_AUTOCOMMIT_OFF;
 use const DB2_AUTOCOMMIT_ON;
 use function db2_autocommit;
@@ -74,6 +75,7 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
      */
     public function getServerVersion()
     {
+        /** @var stdClass $serverInfo */
         $serverInfo = db2_server_info($this->_conn);
 
         return $serverInfo->DBMS_VER;

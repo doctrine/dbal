@@ -21,6 +21,7 @@ namespace Doctrine\DBAL\Connections;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
+use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Configuration;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Event\ConnectionEventArgs;
@@ -88,7 +89,7 @@ class MasterSlaveConnection extends Connection
     /**
      * Master and slave connection (one of the randomly picked slaves).
      *
-     * @var \Doctrine\DBAL\Driver\Connection[]
+     * @var DriverConnection[]|null[]
      */
     protected $connections = ['master' => null, 'slave' => null];
 
@@ -199,7 +200,7 @@ class MasterSlaveConnection extends Connection
      *
      * @param string $connectionName
      *
-     * @return \Doctrine\DBAL\Driver
+     * @return DriverConnection
      */
     protected function connectTo($connectionName)
     {

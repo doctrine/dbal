@@ -70,7 +70,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
     private $defaultFetchClass = '\stdClass';
 
     /**
-     * @var string Constructor arguments for the default class to instantiate when fetching class instances.
+     * @var mixed[] Constructor arguments for the default class to instantiate when fetching class instances.
      */
     private $defaultFetchClassCtorArgs = [];
 

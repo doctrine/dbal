@@ -211,7 +211,7 @@ class Statement implements \IteratorAggregate, DriverStatement
     /**
      * Fetches the SQLSTATE associated with the last operation on the statement.
      *
-     * @return string
+     * @return string|int|bool
      */
     public function errorCode()
     {

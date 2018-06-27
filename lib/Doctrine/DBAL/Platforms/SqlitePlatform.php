@@ -934,7 +934,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * @param \Doctrine\DBAL\Schema\TableDiff $diff
      *
-     * @return array|bool
+     * @return string[]|false
      */
     private function getSimpleAlterTableSQL(TableDiff $diff)
     {
