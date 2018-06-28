@@ -252,7 +252,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
     }
 
     /**
-     * @return bool|array
+     * @return mixed[]|false
      */
     private function _fetch()
     {

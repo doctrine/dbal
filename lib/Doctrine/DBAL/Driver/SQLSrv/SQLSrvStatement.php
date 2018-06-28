@@ -75,7 +75,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     /**
      * The SQLSRV statement resource.
      *
-     * @var resource
+     * @var resource|null
      */
     private $stmt;
 
@@ -114,7 +114,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     /**
      * The constructor arguments for the default class to instantiate when fetching class instances.
      *
-     * @var string
+     * @var mixed[]
      */
     private $defaultFetchClassCtorArgs = [];
 

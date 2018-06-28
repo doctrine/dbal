@@ -402,7 +402,7 @@ class OraclePlatform extends AbstractPlatform
 
         foreach ($columns as $name => $column) {
             if (isset($column['sequence'])) {
-                $sql[] = $this->getCreateSequenceSQL($column['sequence'], 1);
+                $sql[] = $this->getCreateSequenceSQL($column['sequence']);
             }
 
             if (isset($column['autoincrement']) && $column['autoincrement'] ||
