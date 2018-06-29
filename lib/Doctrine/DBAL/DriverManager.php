@@ -155,6 +155,28 @@ final class DriverManager
 
         $params = self::parseDatabaseUrl($params);
 
+        // URL support for MasterSlaveConnection
+        if (isset($params['master'])) {
+            $params['master'] = self::parseDatabaseUrl($params['master']);
+        }
+
+        if (isset($params['slaves'])) {
+            foreach ($params['slaves'] as $key => $slaveParams) {
+                $params['slaves'][$key] = self::parseDatabaseUrl($slaveParams);
+            }
+        }
+
+        // URL support for PoolingShardConnection
+        if (isset($params['global'])) {
+            $params['global'] = self::parseDatabaseUrl($params['global']);
+        }
+
+        if (isset($params['shards'])) {
+            foreach ($params['shards'] as $key => $shardParams) {
+                $params['shards'][$key] = self::parseDatabaseUrl($shardParams);
+            }
+        }
+
         // check for existing pdo object
         if (isset($params['pdo']) && ! $params['pdo'] instanceof \PDO) {
             throw DBALException::invalidPdoInstance();
