@@ -5,19 +5,17 @@ namespace Doctrine\Tests\DBAL\Types;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
-use Doctrine\DBAL\Types\VarDateTimeImmutableType;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\VarDateTimeImmutableType;
+use PHPUnit\Framework\TestCase;
+use Prophecy\Prophecy\ObjectProphecy;
 
-class VarDateTimeImmutableTypeTest extends \PHPUnit\Framework\TestCase
+class VarDateTimeImmutableTypeTest extends TestCase
 {
-    /**
-     * @var \Doctrine\DBAL\Platforms\AbstractPlatform|\Prophecy\Prophecy\ObjectProphecy
-     */
+    /** @var AbstractPlatform|ObjectProphecy */
     private $platform;
 
-    /**
-     * @var VarDateTimeImmutableType
-     */
+    /** @var Type */
     private $type;
 
     protected function setUp()
@@ -26,7 +24,7 @@ class VarDateTimeImmutableTypeTest extends \PHPUnit\Framework\TestCase
             Type::addType('vardatetime_immutable', VarDateTimeImmutableType::class);
         }
 
-        $this->type = Type::getType('vardatetime_immutable');
+        $this->type     = Type::getType('vardatetime_immutable');
         $this->platform = $this->prophesize(AbstractPlatform::class);
     }
 
@@ -42,6 +40,7 @@ class VarDateTimeImmutableTypeTest extends \PHPUnit\Framework\TestCase
 
     public function testConvertsDateTimeImmutableInstanceToDatabaseValue()
     {
+        /** @var \DateTimeImmutable|ObjectProphecy $date */
         $date = $this->prophesize(\DateTimeImmutable::class);
 
         $this->platform->getDateTimeFormatString()->willReturn('Y-m-d H:i:s')->shouldBeCalled();

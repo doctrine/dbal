@@ -10,14 +10,10 @@ use Doctrine\Tests\DbalTestCase;
 
 final class DateIntervalTest extends DbalTestCase
 {
-    /**
-     * @var MockPlatform
-     */
+    /** @var MockPlatform */
     private $platform;
 
-    /**
-     * @var \Doctrine\DBAL\Types\DateIntervalType
-     */
+    /** @var Type */
     private $type;
 
     /**
@@ -36,7 +32,7 @@ final class DateIntervalTest extends DbalTestCase
         $interval = new \DateInterval('P2Y1DT1H2M3S');
 
         $expected = '+P02Y00M01DT01H02M03S';
-        $actual = $this->type->convertToDatabaseValue($interval, $this->platform);
+        $actual   = $this->type->convertToDatabaseValue($interval, $this->platform);
 
         self::assertEquals($expected, $actual);
     }

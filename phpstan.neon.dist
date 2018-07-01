@@ -1,7 +1,11 @@
+includes:
+    - vendor/phpstan/phpstan-phpunit/extension.neon
+
 parameters:
     level: 3
     paths:
         - %currentWorkingDirectory%/lib
+        - %currentWorkingDirectory%/tests
     autoload_files:
         - %currentWorkingDirectory%/tests/phpstan-polyfill.php
     reportUnmatchedIgnoredErrors: false
@@ -44,3 +48,10 @@ parameters:
 
         # weird class name, doesn't exist in stubs either
         - '~unknown class OCI-(Lob|Collection)~'
+
+        # magic stuff
+        - '~^Access to property \$\w+ on an unknown class Doctrine\\MyFetchClass\.\z~'
+
+    excludes_analyse:
+        # legacy remnants from doctrine/common
+        - tests/Doctrine/Tests/Mocks/TaskMock.php

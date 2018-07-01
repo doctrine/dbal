@@ -7,23 +7,21 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\DateImmutableType;
 use Doctrine\DBAL\Types\Type;
+use PHPUnit\Framework\TestCase;
+use Prophecy\Prophecy\ObjectProphecy;
 use function get_class;
 
-class DateImmutableTypeTest extends \PHPUnit\Framework\TestCase
+class DateImmutableTypeTest extends TestCase
 {
-    /**
-     * @var \Doctrine\DBAL\Platforms\AbstractPlatform|\Prophecy\Prophecy\ObjectProphecy
-     */
+    /** @var AbstractPlatform|ObjectProphecy */
     private $platform;
 
-    /**
-     * @var DateImmutableType
-     */
+    /** @var Type */
     private $type;
 
     protected function setUp()
     {
-        $this->type = Type::getType('date_immutable');
+        $this->type     = Type::getType('date_immutable');
         $this->platform = $this->prophesize(AbstractPlatform::class);
     }
 
@@ -44,6 +42,7 @@ class DateImmutableTypeTest extends \PHPUnit\Framework\TestCase
 
     public function testConvertsDateTimeImmutableInstanceToDatabaseValue()
     {
+        /** @var \DateTimeImmutable|ObjectProphecy $date */
         $date = $this->prophesize(\DateTimeImmutable::class);
 
         $this->platform->getDateFormatString()->willReturn('Y-m-d')->shouldBeCalled();
