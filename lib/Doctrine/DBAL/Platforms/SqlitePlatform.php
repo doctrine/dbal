@@ -803,7 +803,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getCreateTableSQL(Table $table, $createFlags = null)
     {
-        $createFlags = null === $createFlags ? self::CREATE_INDEXES | self::CREATE_FOREIGNKEYS : $createFlags;
+        $createFlags = $createFlags ?? self::CREATE_INDEXES | self::CREATE_FOREIGNKEYS;
 
         return parent::getCreateTableSQL($table, $createFlags);
     }

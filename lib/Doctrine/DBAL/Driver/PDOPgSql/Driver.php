@@ -59,7 +59,7 @@ class Driver extends AbstractPostgreSQLDriver
              * - passing client_encoding via the 'options' param breaks pgbouncer support
              */
             if (isset($params['charset'])) {
-              $pdo->query('SET NAMES \''.$params['charset'].'\'');
+                $pdo->exec('SET NAMES \'' . $params['charset'] . '\'');
             }
 
             return $pdo;

@@ -93,11 +93,11 @@ class PoolingShardConnection extends Connection
      */
     public function __construct(array $params, Driver $driver, Configuration $config = null, EventManager $eventManager = null)
     {
-        if ( !isset($params['global']) || !isset($params['shards'])) {
+        if (! isset($params['global'], $params['shards'])) {
             throw new \InvalidArgumentException("Connection Parameters require 'global' and 'shards' configurations.");
         }
 
-        if ( !isset($params['shardChoser'])) {
+        if (! isset($params['shardChoser'])) {
             throw new \InvalidArgumentException("Missing Shard Choser configuration 'shardChoser'");
         }
 
