@@ -211,7 +211,7 @@ class MySqlPlatform extends AbstractPlatform
                "  c.constraint_name = k.constraint_name AND ".
                "  c.table_name = $table */ WHERE k.table_name = $table";
 
-        $databaseNameSql = null === $database ? 'DATABASE()' : $database;
+        $databaseNameSql = $database ?? 'DATABASE()';
 
         $sql .= " AND k.table_schema = $databaseNameSql /*!50116 AND c.constraint_schema = $databaseNameSql */";
         $sql .= " AND k.`REFERENCED_COLUMN_NAME` is not NULL";

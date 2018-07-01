@@ -215,7 +215,7 @@ class DB2Statement implements \IteratorAggregate, Statement
     public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
     {
         $this->_defaultFetchMode         = $fetchMode;
-        $this->defaultFetchClass         = $arg2 ? $arg2 : $this->defaultFetchClass;
+        $this->defaultFetchClass         = $arg2 ?: $this->defaultFetchClass;
         $this->defaultFetchClassCtorArgs = $arg3 ? (array) $arg3 : $this->defaultFetchClassCtorArgs;
 
         return true;

@@ -113,7 +113,7 @@ class MasterSlaveConnection extends Connection
      */
     public function __construct(array $params, Driver $driver, Configuration $config = null, EventManager $eventManager = null)
     {
-        if ( !isset($params['slaves']) || !isset($params['master'])) {
+        if (! isset($params['slaves'], $params['master'])) {
             throw new \InvalidArgumentException('master or slaves configuration missing');
         }
         if (count($params['slaves']) == 0) {

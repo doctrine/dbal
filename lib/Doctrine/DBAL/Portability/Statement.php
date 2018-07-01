@@ -153,7 +153,7 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
         $row = $this->stmt->fetch($fetchMode);
 
         $iterateRow = $this->portability & (Connection::PORTABILITY_EMPTY_TO_NULL|Connection::PORTABILITY_RTRIM);
-        $fixCase    = ! is_null($this->case)
+        $fixCase    = $this->case !== null
             && ($fetchMode === FetchMode::ASSOCIATIVE || $fetchMode === FetchMode::MIXED)
             && ($this->portability & Connection::PORTABILITY_FIX_CASE);
 
@@ -176,7 +176,7 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
         }
 
         $iterateRow = $this->portability & (Connection::PORTABILITY_EMPTY_TO_NULL|Connection::PORTABILITY_RTRIM);
-        $fixCase    = ! is_null($this->case)
+        $fixCase    = $this->case !== null
             && ($fetchMode === FetchMode::ASSOCIATIVE || $fetchMode === FetchMode::MIXED)
             && ($this->portability & Connection::PORTABILITY_FIX_CASE);
 

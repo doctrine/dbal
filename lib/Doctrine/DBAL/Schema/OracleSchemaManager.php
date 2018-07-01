@@ -126,7 +126,7 @@ class OracleSchemaManager extends AbstractSchemaManager
                 $buffer['non_unique'] = false;
             } else {
                 $buffer['primary'] = false;
-                $buffer['non_unique'] = ($tableIndex['is_unique'] == 0) ? true : false;
+                $buffer['non_unique'] = ! $tableIndex['is_unique'];
             }
             $buffer['key_name'] = $keyName;
             $buffer['column_name'] = $this->getQuotedIdentifierName($tableIndex['column_name']);
@@ -336,7 +336,7 @@ class OracleSchemaManager extends AbstractSchemaManager
      */
     public function createDatabase($database = null)
     {
-        if (is_null($database)) {
+        if ($database === null) {
             $database = $this->_conn->getDatabase();
         }
 
