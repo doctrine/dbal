@@ -3410,7 +3410,7 @@ abstract class AbstractPlatform
 
         if ($offset < 0) {
             throw new DBALException(sprintf(
-                'Offset must be a positive integer of zero, %d given',
+                'Offset must be a positive integer or zero, %d given',
                 $offset
             ));
         }
