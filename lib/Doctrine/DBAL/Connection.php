@@ -22,6 +22,7 @@ namespace Doctrine\DBAL;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Closure;
+use Doctrine\DBAL\Logging\SQLLogger2;
 use Exception;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
@@ -935,8 +936,8 @@ class Connection implements DriverConnection
                 $stmt = $this->_conn->query($query);
             }
         } catch (Exception $ex) {
-            if ($logger) {
-                $logger->stopQuery($ex);
+            if ($logger && ($logger instanceof SQLLogger2)) {
+                $logger->fail($ex);
             }
 
             throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $query, $this->resolveParams($params, $types));
@@ -1038,8 +1039,8 @@ class Connection implements DriverConnection
         try {
             $statement = $this->_conn->query(...$args);
         } catch (Exception $ex) {
-            if ($logger) {
-                $logger->stopQuery($ex);
+            if ($logger && ($logger instanceof SQLLogger2)) {
+                $logger->fail($ex);
             }
 
             throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $args[0]);
@@ -1093,8 +1094,8 @@ class Connection implements DriverConnection
                 $result = $this->_conn->exec($query);
             }
         } catch (Exception $ex) {
-            if ($logger) {
-                $logger->stopQuery($ex);
+            if ($logger && ($logger instanceof SQLLogger2)) {
+                $logger->fail($ex);
             }
 
             throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $query, $this->resolveParams($params, $types));
@@ -1128,14 +1129,18 @@ class Connection implements DriverConnection
         try {
             $result = $this->_conn->exec($statement);
         } catch (Exception $ex) {
-            if ($logger) {
-                $logger->stopQuery($ex);
+            if ($logger && ($logger instanceof SQLLogger2)) {
+                $logger->fail($ex);
             }
 
             throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $statement);
         }
 
         if ($logger) {
+            if ($logger instanceof SQLLogger2) {
+                $logger->countAffectedRows($result);
+            }
+
             $logger->stopQuery();
         }
 
