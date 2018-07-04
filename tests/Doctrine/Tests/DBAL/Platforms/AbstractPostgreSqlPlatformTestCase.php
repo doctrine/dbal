@@ -840,7 +840,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
      */
     protected function getQuotesReservedKeywordInTruncateTableSQL()
     {
-        return 'TRUNCATE "select"';
+        return 'TRUNCATE "select" RESTART IDENTITY';
     }
 
     /**
