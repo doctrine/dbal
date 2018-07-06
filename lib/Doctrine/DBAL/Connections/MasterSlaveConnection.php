@@ -19,12 +19,11 @@
 
 namespace Doctrine\DBAL\Connections;
 
-use Doctrine\DBAL\Connection;
-use Exception;
-use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Configuration;
 use Doctrine\Common\EventManager;
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Event\ConnectionEventArgs;
 use Doctrine\DBAL\Events;
 use function array_rand;
@@ -111,7 +110,7 @@ class MasterSlaveConnection extends Connection
      * @param \Doctrine\Common\EventManager|null $eventManager
      *
      * @throws \InvalidArgumentException
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
     public function __construct(array $params, Driver $driver, Configuration $config = null, EventManager $eventManager = null)
     {
@@ -378,7 +377,7 @@ class MasterSlaveConnection extends Connection
 
         try {
             $statement = $this->_conn->query(...$args);
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $args[0]);
         }
 
