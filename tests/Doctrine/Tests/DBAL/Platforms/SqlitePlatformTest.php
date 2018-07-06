@@ -683,7 +683,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
      */
     protected function getQuotesReservedKeywordInTruncateTableSQL()
     {
-        return 'DELETE FROM "select"; DELETE FROM sqlite_sequence WHERE name = "select"';
+        return 'DELETE FROM "select"; DELETE FROM sqlite_sequence WHERE name = \'select\'';
     }
 
     /**

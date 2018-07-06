@@ -554,10 +554,10 @@ class SqlitePlatform extends AbstractPlatform
     public function getTruncateTableSQL($tableName, $cascade = false)
     {
         $tableIdentifier = new Identifier($tableName);
-        $tableName = str_replace('.', '__', $tableIdentifier->getQuotedName($this));
+        $quotedTableName = str_replace('.', '__', $tableIdentifier->getQuotedName($this));
 
-        $deleteSql        = 'DELETE FROM ' . $tableName;
-        $resetSequenceSql = 'DELETE FROM sqlite_sequence WHERE name = ' . $tableName;
+        $deleteSql        = 'DELETE FROM ' . $quotedTableName;
+        $resetSequenceSql = 'DELETE FROM sqlite_sequence WHERE name = ' . $this->quoteStringLiteral($tableName);
 
         return $deleteSql . '; ' . $resetSequenceSql;
     }
