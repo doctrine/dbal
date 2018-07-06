@@ -21,10 +21,12 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\DriverException;
+use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Types\Type;
 use const CASE_LOWER;
 use function array_change_key_case;
 use function array_values;
+use function assert;
 use function is_null;
 use function preg_match;
 use function sprintf;
@@ -116,6 +118,7 @@ class OracleSchemaManager extends AbstractSchemaManager
             $tableIndex = \array_change_key_case($tableIndex, CASE_LOWER);
 
             $keyName = strtolower($tableIndex['name']);
+            $buffer  = [];
 
             if (strtolower($tableIndex['is_primary']) == "p") {
                 $keyName = 'primary';
@@ -123,7 +126,7 @@ class OracleSchemaManager extends AbstractSchemaManager
                 $buffer['non_unique'] = false;
             } else {
                 $buffer['primary'] = false;
-                $buffer['non_unique'] = ($tableIndex['is_unique'] == 0) ? true : false;
+                $buffer['non_unique'] = ! $tableIndex['is_unique'];
             }
             $buffer['key_name'] = $keyName;
             $buffer['column_name'] = $this->getQuotedIdentifierName($tableIndex['column_name']);
@@ -303,8 +306,8 @@ class OracleSchemaManager extends AbstractSchemaManager
 
         return new Sequence(
             $this->getQuotedIdentifierName($sequence['sequence_name']),
-            $sequence['increment_by'],
-            $sequence['min_value']
+            (int) $sequence['increment_by'],
+            (int) $sequence['min_value']
         );
     }
 
@@ -333,7 +336,7 @@ class OracleSchemaManager extends AbstractSchemaManager
      */
     public function createDatabase($database = null)
     {
-        if (is_null($database)) {
+        if ($database === null) {
             $database = $this->_conn->getDatabase();
         }
 
@@ -346,8 +349,6 @@ class OracleSchemaManager extends AbstractSchemaManager
 
         $query = 'GRANT DBA TO ' . $username;
         $this->_conn->executeUpdate($query);
-
-        return true;
     }
 
     /**
@@ -357,6 +358,8 @@ class OracleSchemaManager extends AbstractSchemaManager
      */
     public function dropAutoincrement($table)
     {
+        assert($this->_platform instanceof OraclePlatform);
+
         $sql = $this->_platform->getDropAutoincrementSql($table);
         foreach ($sql as $query) {
             $this->_conn->executeUpdate($query);

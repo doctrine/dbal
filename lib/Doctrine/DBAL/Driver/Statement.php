@@ -85,7 +85,7 @@ interface Statement extends ResultStatement
      *
      * @see Doctrine_Adapter_Interface::errorCode()
      *
-     * @return string The error code string.
+     * @return string|int|bool The error code string.
      */
     public function errorCode();
 

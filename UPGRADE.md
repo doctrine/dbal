@@ -1,3 +1,21 @@
+# Upgrade to 2.8
+
+## Deprecated usage of binary fields whose length exceeds the platform maximum
+
+- The usage of binary fields whose length exceeds the maximum field size on a given platform is deprecated.
+  Use binary fields of a size which fits all target platforms, or use blob explicitly instead.
+
+## Removed dependency on doctrine/common
+
+The dependency on doctrine/common package has been removed.
+DBAL now depends on doctrine/cache and doctrine/event-manager instead.
+If you are using any other component from doctrine/common package,
+you will have to add an explicit dependency to your composer.json.
+
+## Corrected exception thrown by ``Doctrine\DBAL\Platforms\SQLAnywhere16Platform::getAdvancedIndexOptionsSQL()``
+
+This method now throws SPL ``UnexpectedValueException`` instead of accidentally throwing ``Doctrine\Common\Proxy\Exception\UnexpectedValueException``.
+
 # Upgrade to 2.7
 
 ## Doctrine\DBAL\Platforms\AbstractPlatform::DATE_INTERVAL_UNIT_* constants deprecated

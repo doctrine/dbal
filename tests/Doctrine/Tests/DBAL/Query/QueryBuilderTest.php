@@ -565,7 +565,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
         $qb->setMaxResults(10);
 
         self::assertEquals(QueryBuilder::STATE_DIRTY, $qb->getState());
-        self::assertEQuals(10, $qb->getMaxResults());
+        self::assertEquals(10, $qb->getMaxResults());
     }
 
     public function testSetFirstResult()
@@ -574,7 +574,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
         $qb->setFirstResult(10);
 
         self::assertEquals(QueryBuilder::STATE_DIRTY, $qb->getState());
-        self::assertEQuals(10, $qb->getFirstResult());
+        self::assertEquals(10, $qb->getFirstResult());
     }
 
     public function testResetQueryPart()
@@ -652,7 +652,8 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
             ->innerJoin('nt', 'node', 'n', 'nt.node = n.id')
             ->where('nt.lang = :lang AND n.deleted != 1');
 
-        $this->expectException('Doctrine\DBAL\Query\QueryException', "The given alias 'invalid' is not part of any FROM or JOIN clause table. The currently registered aliases are: news, nv.");
+        $this->expectException('Doctrine\DBAL\Query\QueryException');
+        $this->expectExceptionMessage("The given alias 'invalid' is not part of any FROM or JOIN clause table. The currently registered aliases are: news, nv.");
         self::assertEquals('', $qb->getSQL());
     }
 
@@ -894,10 +895,8 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
             ->from('table_a', 'a')
             ->join('a', 'table_b', 'a', 'a.fk_b = a.id');
 
-        $this->expectException(
-            'Doctrine\DBAL\Query\QueryException',
-            "The given alias 'a' is not unique in FROM and JOIN clause table. The currently registered aliases are: a."
-        );
+        $this->expectException('Doctrine\DBAL\Query\QueryException');
+        $this->expectExceptionMessage("The given alias 'a' is not unique in FROM and JOIN clause table. The currently registered aliases are: a.");
 
         $qb->getSQL();
     }

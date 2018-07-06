@@ -22,10 +22,12 @@ namespace Doctrine\DBAL\Driver\SQLAnywhere;
 use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\ParameterType;
+use function assert;
 use function func_get_args;
 use function is_float;
 use function is_int;
 use function is_resource;
+use function is_string;
 use function sasql_affected_rows;
 use function sasql_commit;
 use function sasql_connect;
@@ -149,7 +151,11 @@ class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
      */
     public function getServerVersion()
     {
-        return $this->query("SELECT PROPERTY('ProductVersion')")->fetchColumn();
+        $version = $this->query("SELECT PROPERTY('ProductVersion')")->fetchColumn();
+
+        assert(is_string($version));
+
+        return $version;
     }
 
     /**

@@ -232,4 +232,29 @@ SQL;
             array('bigint', true, true),
         );
     }
+
+    /**
+     * @group DBAL-2921
+     */
+    public function testPrimaryKeyNoAutoIncrement()
+    {
+        $table = new Schema\Table('test_pk_auto_increment');
+        $table->addColumn('id', 'integer');
+        $table->addColumn('text', 'text');
+        $table->setPrimaryKey(['id']);
+        $this->_sm->dropAndCreateTable($table);
+
+        $this->_conn->insert('test_pk_auto_increment', ['text' => '1']);
+
+        $this->_conn->query('DELETE FROM test_pk_auto_increment');
+
+        $this->_conn->insert('test_pk_auto_increment', ['text' => '2']);
+
+        $query = $this->_conn->query('SELECT id FROM test_pk_auto_increment WHERE text = "2"');
+        $query->execute();
+        $lastUsedIdAfterDelete = (int) $query->fetchColumn();
+
+        // with an empty table, non autoincrement rowid is always 1
+        $this->assertEquals(1, $lastUsedIdAfterDelete);
+    }
 }

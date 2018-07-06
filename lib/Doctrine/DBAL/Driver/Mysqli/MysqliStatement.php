@@ -39,6 +39,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
      */
     protected static $_paramTypeMap = [
         ParameterType::STRING       => 's',
+        ParameterType::BINARY       => 's',
         ParameterType::BOOLEAN      => 'i',
         ParameterType::NULL         => 's',
         ParameterType::INTEGER      => 'i',
@@ -251,7 +252,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
     }
 
     /**
-     * @return bool|array
+     * @return mixed[]|false
      */
     private function _fetch()
     {

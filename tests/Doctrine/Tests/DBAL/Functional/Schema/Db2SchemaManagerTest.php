@@ -25,4 +25,9 @@ class Db2SchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertNull($columns['bool']->getComment());
         self::assertSame("That's a comment", $columns['bool_commented']->getComment());
     }
+
+    public function testListTableWithBinary()
+    {
+        self::markTestSkipped('Binary data type is currently not supported on DB2 LUW');
+    }
 }

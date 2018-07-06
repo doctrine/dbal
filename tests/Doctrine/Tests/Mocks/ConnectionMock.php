@@ -25,9 +25,6 @@ class ConnectionMock extends \Doctrine\DBAL\Connection
         $this->_platformMock = new DatabasePlatformMock();
 
         parent::__construct($params, $driver, $config, $eventManager);
-
-        // Override possible assignment of platform to database platform mock
-        $this->_platform = $this->_platformMock;
     }
 
     /**

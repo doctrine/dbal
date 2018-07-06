@@ -42,6 +42,7 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Type;
+use const E_USER_DEPRECATED;
 use function addcslashes;
 use function array_map;
 use function array_merge;
@@ -49,7 +50,9 @@ use function array_unique;
 use function array_values;
 use function count;
 use function explode;
+use function func_get_arg;
 use function func_get_args;
+use function func_num_args;
 use function get_class;
 use function implode;
 use function in_array;
@@ -66,6 +69,7 @@ use function strlen;
 use function strpos;
 use function strtolower;
 use function strtoupper;
+use function trigger_error;
 
 /**
  * Base class for all DatabasePlatforms. The DatabasePlatforms are the central
@@ -297,7 +301,11 @@ abstract class AbstractPlatform
 
         $fixed = $field['fixed'] ?? false;
 
-        if ($field['length'] > $this->getVarcharMaxLength()) {
+        $maxLength = $fixed
+            ? $this->getCharMaxLength()
+            : $this->getVarcharMaxLength();
+
+        if ($field['length'] > $maxLength) {
             return $this->getClobTypeDeclarationSQL($field);
         }
 
@@ -319,7 +327,17 @@ abstract class AbstractPlatform
 
         $fixed = $field['fixed'] ?? false;
 
-        if ($field['length'] > $this->getBinaryMaxLength()) {
+        $maxLength = $this->getBinaryMaxLength();
+
+        if ($field['length'] > $maxLength) {
+            if ($maxLength > 0) {
+                @trigger_error(sprintf(
+                    'Binary field length %d is greater than supported by the platform (%d). Reduce the field length or use a BLOB field instead.',
+                    $field['length'],
+                    $maxLength
+                ), E_USER_DEPRECATED);
+            }
+
             return $this->getBlobTypeDeclarationSQL($field);
         }
 
@@ -590,6 +608,14 @@ abstract class AbstractPlatform
     public function getSqlCommentEndString()
     {
         return "\n";
+    }
+
+    /**
+     * Gets the maximum length of a char field.
+     */
+    public function getCharMaxLength() : int
+    {
+        return $this->getVarcharMaxLength();
     }
 
     /**
@@ -3380,22 +3406,27 @@ abstract class AbstractPlatform
             $limit = (int) $limit;
         }
 
-        if ($offset !== null) {
-            $offset = (int) $offset;
+        $offset = (int) $offset;
 
-            if ($offset < 0) {
-                throw new DBALException("LIMIT argument offset=$offset is not valid");
-            }
-            if ($offset > 0 && ! $this->supportsLimitOffset()) {
-                throw new DBALException(sprintf("Platform %s does not support offset values in limit queries.", $this->getName()));
-            }
+        if ($offset < 0) {
+            throw new DBALException(sprintf(
+                'Offset must be a positive integer or zero, %d given',
+                $offset
+            ));
+        }
+
+        if ($offset > 0 && ! $this->supportsLimitOffset()) {
+            throw new DBALException(sprintf(
+                'Platform %s does not support offset values in limit queries.',
+                $this->getName()
+            ));
         }
 
         return $this->doModifyLimitQuery($query, $limit, $offset);
     }
 
     /**
-     * Adds an driver-specific LIMIT clause to the query.
+     * Adds an platform-specific LIMIT clause to the query.
      *
      * @param string   $query
      * @param int|null $limit
@@ -3409,7 +3440,7 @@ abstract class AbstractPlatform
             $query .= ' LIMIT ' . $limit;
         }
 
-        if ($offset !== null) {
+        if ($offset > 0) {
             $query .= ' OFFSET ' . $offset;
         }
 
@@ -3499,7 +3530,9 @@ abstract class AbstractPlatform
      */
     public function getDummySelectSQL()
     {
-        return 'SELECT 1';
+        $expression = func_num_args() > 0 ? func_get_arg(0) : '1';
+
+        return sprintf('SELECT %s', $expression);
     }
 
     /**

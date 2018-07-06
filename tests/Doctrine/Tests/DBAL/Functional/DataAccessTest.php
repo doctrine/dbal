@@ -5,8 +5,9 @@ namespace Doctrine\Tests\DBAL\Functional;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
-use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Platforms\TrimMode;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
 use const CASE_LOWER;
 use const PHP_EOL;
@@ -531,7 +532,6 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         $p = $this->_conn->getDatabasePlatform();
         $sql = 'SELECT ';
-        $sql .= $p->getDateDiffExpression('test_datetime', $p->getCurrentTimestampSQL()) .' AS diff, ';
         $sql .= $p->getDateAddSecondsExpression('test_datetime', 1) .' AS add_seconds, ';
         $sql .= $p->getDateSubSecondsExpression('test_datetime', 1) .' AS sub_seconds, ';
         $sql .= $p->getDateAddMinutesExpression('test_datetime', 5) .' AS add_minutes, ';
@@ -553,8 +553,6 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $row = $this->_conn->fetchAssoc($sql);
         $row = array_change_key_case($row, CASE_LOWER);
 
-        $diff = (strtotime('2010-01-01') - strtotime(date('Y-m-d'))) / 3600 / 24;
-        self::assertEquals($diff, $row['diff'], "Date difference should be approx. ".$diff." days.", 1);
         self::assertEquals('2010-01-01 10:10:11', date('Y-m-d H:i:s', strtotime($row['add_seconds'])), "Adding second should end up on 2010-01-01 10:10:11");
         self::assertEquals('2010-01-01 10:10:09', date('Y-m-d H:i:s', strtotime($row['sub_seconds'])), "Subtracting second should end up on 2010-01-01 10:10:09");
         self::assertEquals('2010-01-01 10:15:10', date('Y-m-d H:i:s', strtotime($row['add_minutes'])), "Adding minutes should end up on 2010-01-01 10:15:10");
@@ -571,6 +569,34 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         self::assertEquals('2009-04-01', date('Y-m-d', strtotime($row['sub_quarters'])), "Subtracting quarters should end up on 2009-10-01");
         self::assertEquals('2016-01-01', date('Y-m-d', strtotime($row['add_years'])), "Adding years should end up on 2016-01-01");
         self::assertEquals('2004-01-01', date('Y-m-d', strtotime($row['sub_years'])), "Subtracting years should end up on 2004-01-01");
+    }
+
+    public function testSqliteDateArithmeticWithDynamicInterval()
+    {
+        $platform = $this->_conn->getDatabasePlatform();
+
+        if (! $platform instanceof SqlitePlatform) {
+            $this->markTestSkipped('test is for sqlite only');
+        }
+
+        $table = new Table('fetch_table_date_math');
+        $table->addColumn('test_date', 'date');
+        $table->addColumn('test_days', 'integer');
+        $table->setPrimaryKey(['test_date']);
+
+        /* @var $sm \Doctrine\DBAL\Schema\AbstractSchemaManager */
+        $sm = $this->_conn->getSchemaManager();
+        $sm->createTable($table);
+
+        $this->_conn->insert('fetch_table_date_math', ['test_date' => '2010-01-01', 'test_days' => 10]);
+        $this->_conn->insert('fetch_table_date_math', ['test_date' => '2010-06-01', 'test_days' => 20]);
+
+        $sql  = 'SELECT COUNT(*) FROM fetch_table_date_math WHERE ';
+        $sql .= $platform->getDateSubDaysExpression('test_date', 'test_days') . " < '2010-05-12'";
+
+        $rowCount = $this->_conn->fetchColumn($sql, [], 0);
+
+        $this->assertEquals(1, $rowCount);
     }
 
     public function testLocateExpression()

@@ -148,7 +148,7 @@ abstract class AbstractSchemaManager
      */
     public function listSequences($database = null)
     {
-        if (is_null($database)) {
+        if ($database === null) {
             $database = $this->_conn->getDatabase();
         }
         $sql = $this->_platform->getListSequencesSQL($database);
@@ -323,7 +323,7 @@ abstract class AbstractSchemaManager
      */
     public function listTableForeignKeys($table, $database = null)
     {
-        if (is_null($database)) {
+        if ($database === null) {
             $database = $this->_conn->getDatabase();
         }
         $sql = $this->_platform->getListTableForeignKeysSQL($table, $database);

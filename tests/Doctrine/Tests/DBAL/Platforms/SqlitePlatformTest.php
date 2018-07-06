@@ -19,7 +19,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
 
     public function getGenerateTableSql()
     {
-        return 'CREATE TABLE test (id INTEGER NOT NULL, test VARCHAR(255) DEFAULT NULL, PRIMARY KEY(id))';
+        return 'CREATE TABLE test (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, test VARCHAR(255) DEFAULT NULL)';
     }
 
     public function getGenerateTableWithMultiColumnUniqueIndexSql()
@@ -65,7 +65,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     public function testIgnoresUnsignedIntegerDeclarationForAutoIncrementalIntegers()
     {
         self::assertSame(
-            'INTEGER',
+            'INTEGER PRIMARY KEY AUTOINCREMENT',
             $this->_platform->getIntegerTypeDeclarationSQL(array('autoincrement' => true, 'unsigned' => true))
         );
     }
@@ -81,11 +81,11 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
             $this->_platform->getTinyIntTypeDeclarationSQL(array())
         );
         self::assertEquals(
-            'INTEGER',
+            'INTEGER PRIMARY KEY AUTOINCREMENT',
             $this->_platform->getTinyIntTypeDeclarationSQL(array('autoincrement' => true))
         );
         self::assertEquals(
-            'INTEGER',
+            'INTEGER PRIMARY KEY AUTOINCREMENT',
             $this->_platform->getTinyIntTypeDeclarationSQL(
                 array('autoincrement' => true, 'primary' => true))
         );
@@ -110,15 +110,15 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
             $this->_platform->getSmallIntTypeDeclarationSQL(array())
         );
         self::assertEquals(
-            'INTEGER',
+            'INTEGER PRIMARY KEY AUTOINCREMENT',
             $this->_platform->getSmallIntTypeDeclarationSQL(array('autoincrement' => true))
         );
         self::assertEquals(
-            'INTEGER',
+            'INTEGER PRIMARY KEY AUTOINCREMENT',
             $this->_platform->getTinyIntTypeDeclarationSQL(array('autoincrement' => true, 'unsigned' => true))
         );
         self::assertEquals(
-            'INTEGER',
+            'INTEGER PRIMARY KEY AUTOINCREMENT',
             $this->_platform->getSmallIntTypeDeclarationSQL(
                 array('autoincrement' => true, 'primary' => true))
         );
@@ -143,15 +143,15 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
             $this->_platform->getMediumIntTypeDeclarationSQL(array())
         );
         self::assertEquals(
-            'INTEGER',
+            'INTEGER PRIMARY KEY AUTOINCREMENT',
             $this->_platform->getMediumIntTypeDeclarationSQL(array('autoincrement' => true))
         );
         self::assertEquals(
-            'INTEGER',
+            'INTEGER PRIMARY KEY AUTOINCREMENT',
             $this->_platform->getMediumIntTypeDeclarationSQL(array('autoincrement' => true, 'unsigned' => true))
         );
         self::assertEquals(
-            'INTEGER',
+            'INTEGER PRIMARY KEY AUTOINCREMENT',
             $this->_platform->getMediumIntTypeDeclarationSQL(
                 array('autoincrement' => true, 'primary' => true))
         );
@@ -172,15 +172,15 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
             $this->_platform->getIntegerTypeDeclarationSQL(array())
         );
         self::assertEquals(
-            'INTEGER',
+            'INTEGER PRIMARY KEY AUTOINCREMENT',
             $this->_platform->getIntegerTypeDeclarationSQL(array('autoincrement' => true))
         );
         self::assertEquals(
-            'INTEGER',
+            'INTEGER PRIMARY KEY AUTOINCREMENT',
             $this->_platform->getIntegerTypeDeclarationSQL(array('autoincrement' => true, 'unsigned' => true))
         );
         self::assertEquals(
-            'INTEGER',
+            'INTEGER PRIMARY KEY AUTOINCREMENT',
             $this->_platform->getIntegerTypeDeclarationSQL(
                 array('autoincrement' => true, 'primary' => true))
         );
@@ -205,15 +205,15 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
             $this->_platform->getBigIntTypeDeclarationSQL(array())
         );
         self::assertEquals(
-            'INTEGER',
+            'INTEGER PRIMARY KEY AUTOINCREMENT',
             $this->_platform->getBigIntTypeDeclarationSQL(array('autoincrement' => true))
         );
         self::assertEquals(
-            'INTEGER',
+            'INTEGER PRIMARY KEY AUTOINCREMENT',
             $this->_platform->getBigIntTypeDeclarationSQL(array('autoincrement' => true, 'unsigned' => true))
         );
         self::assertEquals(
-            'INTEGER',
+            'INTEGER PRIMARY KEY AUTOINCREMENT',
             $this->_platform->getBigIntTypeDeclarationSQL(
                 array('autoincrement' => true, 'primary' => true))
         );
@@ -280,7 +280,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     public function testModifyLimitQuery()
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user', 10, 0);
-        self::assertEquals('SELECT * FROM user LIMIT 10 OFFSET 0', $sql);
+        self::assertEquals('SELECT * FROM user LIMIT 10', $sql);
     }
 
     public function testModifyLimitQueryWithEmptyOffset()
@@ -300,7 +300,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         return array(
             "CREATE TEMPORARY TABLE __temp__mytable AS SELECT id, bar, bloo FROM mytable",
             "DROP TABLE mytable",
-            "CREATE TABLE mytable (id INTEGER NOT NULL, baz VARCHAR(255) DEFAULT 'def' NOT NULL, bloo BOOLEAN DEFAULT '0' NOT NULL, quota INTEGER DEFAULT NULL, PRIMARY KEY(id))",
+            "CREATE TABLE mytable (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, baz VARCHAR(255) DEFAULT 'def' NOT NULL, bloo BOOLEAN DEFAULT '0' NOT NULL, quota INTEGER DEFAULT NULL)",
             "INSERT INTO mytable (id, baz, bloo) SELECT id, bar, bloo FROM __temp__mytable",
             "DROP TABLE __temp__mytable",
             "ALTER TABLE mytable RENAME TO userlist",
@@ -318,7 +318,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
 
         $createTableSQL = $this->_platform->getCreateTableSQL($table);
         self::assertEquals(
-            'CREATE TABLE test ("like" INTEGER NOT NULL, PRIMARY KEY("like"))',
+            'CREATE TABLE test ("like" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)',
             $createTableSQL[0]
         );
     }

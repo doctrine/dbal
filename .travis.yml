@@ -46,14 +46,15 @@ script:
 after_script:
   - |
     if [ "x$COVERAGE" == "xyes" ]; then
-      wget https://github.com/scrutinizer-ci/ocular/releases/download/1.5.2/ocular.phar
-      php ocular.phar code-coverage:upload --format=php-clover clover.xml
+      travis_retry wget https://github.com/scrutinizer-ci/ocular/releases/download/1.5.2/ocular.phar
+      travis_retry php ocular.phar code-coverage:upload --format=php-clover clover.xml
     fi
 
 jobs:
   allow_failures:
     - php: nightly
     - stage: Coding standard
+    - env: DB=pgsql POSTGRESQL_VERSION=11.0
 
   exclude:
     - php: 7.1
@@ -320,6 +321,31 @@ jobs:
         - bash ./tests/travis/install-postgres-10.sh
 
     - stage: Test
+      php: 7.1
+      env: DB=pgsql POSTGRESQL_VERSION=11.0
+      sudo: required
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-postgres-11.sh
+    - stage: Test
+      php: 7.2
+      env: DB=pgsql POSTGRESQL_VERSION=11.0
+      sudo: required
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-postgres-11.sh
+    - stage: Test
+      php: nightly
+      env: DB=pgsql POSTGRESQL_VERSION=11.0
+      sudo: required
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-postgres-11.sh
+
+    - stage: Test
       env: DB=sqlsrv COVERAGE=yes
       sudo: required
       services:
@@ -357,6 +383,24 @@ jobs:
         - bash ./tests/travis/install-mssql.sh
 
     - stage: Test
+      env: DB=ibm_db2 COVERAGE=yes
+      sudo: required
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-db2.sh
+        - bash ./tests/travis/install-db2-$DB.sh
+    - stage: Test
+      php: 7.2
+      env: DB=ibm_db2
+      sudo: required
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-db2.sh
+        - bash ./tests/travis/install-db2-$DB.sh
+
+    - stage: Test
       php: 7.1
       env: DB=sqlite DEPENDENCIES=low
       install:
@@ -369,6 +413,11 @@ jobs:
       install:
         - composer config minimum-stability dev
         - travis_retry composer update --prefer-dist
+
+    - stage: Code Quality
+      env: DB=none STATIC_ANALYSIS
+      install: travis_retry composer update --prefer-dist
+      script: vendor/bin/phpstan analyse
 
     - stage: Pull request coding standard
       if: type = pull_request

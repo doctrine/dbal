@@ -25,6 +25,7 @@ use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use IteratorAggregate;
 use const OCI_ASSOC;
+use const OCI_B_BIN;
 use const OCI_B_BLOB;
 use const OCI_BOTH;
 use const OCI_D_LOB;
@@ -35,6 +36,7 @@ use const OCI_RETURN_LOBS;
 use const OCI_RETURN_NULLS;
 use const OCI_TEMP_BLOB;
 use const PREG_OFFSET_CAPTURE;
+use const SQLT_CHR;
 use function array_key_exists;
 use function count;
 use function implode;
@@ -301,18 +303,35 @@ class OCI8Statement implements IteratorAggregate, Statement
             $lob = oci_new_descriptor($this->_dbh, OCI_D_LOB);
             $lob->writeTemporary($variable, OCI_TEMP_BLOB);
 
-            $this->boundValues[$column] =& $lob;
-
-            return oci_bind_by_name($this->_sth, $column, $lob, -1, OCI_B_BLOB);
-        } elseif ($length !== null) {
-            $this->boundValues[$column] =& $variable;
-
-            return oci_bind_by_name($this->_sth, $column, $variable, $length);
+            $variable =& $lob;
         }
 
         $this->boundValues[$column] =& $variable;
 
-        return oci_bind_by_name($this->_sth, $column, $variable);
+        return oci_bind_by_name(
+            $this->_sth,
+            $column,
+            $variable,
+            $length ?? -1,
+            $this->convertParameterType($type)
+        );
+    }
+
+    /**
+     * Converts DBAL parameter type to oci8 parameter type
+     */
+    private function convertParameterType(int $type) : int
+    {
+        switch ($type) {
+            case ParameterType::BINARY:
+                return OCI_B_BIN;
+
+            case ParameterType::LARGE_OBJECT:
+                return OCI_B_BLOB;
+
+            default:
+                return SQLT_CHR;
+        }
     }
 
     /**

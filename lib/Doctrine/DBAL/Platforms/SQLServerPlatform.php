@@ -304,7 +304,7 @@ class SQLServerPlatform extends AbstractPlatform
         }
         $query .= ')';
 
-        $sql[] = $query;
+        $sql = [$query];
 
         if (isset($options['indexes']) && !empty($options['indexes'])) {
             foreach ($options['indexes'] as $index) {
@@ -1127,7 +1127,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function getSubstringExpression($value, $from, $length = null)
     {
-        if (!is_null($length)) {
+        if ($length !== null) {
             return 'SUBSTRING(' . $value . ', ' . $from . ', ' . $length . ')';
         }
 
@@ -1306,7 +1306,7 @@ class SQLServerPlatform extends AbstractPlatform
      * Remove ORDER BY clauses in subqueries - they're not supported by SQL Server.
      * Caveat: will leave ORDER BY in TOP N subqueries.
      *
-     * @param $query
+     * @param string $query
      * @return string
      */
     private function scrubInnerOrderBy($query)

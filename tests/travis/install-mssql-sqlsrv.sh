@@ -3,4 +3,4 @@
 set -ex
 
 echo "Installing extension"
-pecl install sqlsrv-5.2.0RC1
+pecl install sqlsrv-5.2.0

@@ -782,7 +782,7 @@ class PostgreSqlPlatform extends AbstractPlatform
 
         $query = 'CREATE TABLE ' . $tableName . ' (' . $queryFields . ')';
 
-        $sql[] = $query;
+        $sql = [$query];
 
         if (isset($options['indexes']) && ! empty($options['indexes'])) {
             foreach ($options['indexes'] as $index) {
@@ -829,11 +829,11 @@ class PostgreSqlPlatform extends AbstractPlatform
         /**
          * Better safe than sorry: http://php.net/in_array#106319
          */
-        if (in_array(trim(strtolower($value)), $this->booleanLiterals['false'], true)) {
+        if (in_array(strtolower(trim($value)), $this->booleanLiterals['false'], true)) {
             return $callback(false);
         }
 
-        if (in_array(trim(strtolower($value)), $this->booleanLiterals['true'], true)) {
+        if (in_array(strtolower(trim($value)), $this->booleanLiterals['true'], true)) {
             return $callback(true);
         }
 
