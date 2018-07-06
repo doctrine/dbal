@@ -556,7 +556,10 @@ class SqlitePlatform extends AbstractPlatform
         $tableIdentifier = new Identifier($tableName);
         $tableName = str_replace('.', '__', $tableIdentifier->getQuotedName($this));
 
-        return 'DELETE FROM ' . $tableName;
+        $deleteSql        = 'DELETE FROM ' . $tableName;
+        $resetSequenceSql = 'DELETE FROM sqlite_sequence WHERE name = ' . $tableName;
+
+        return $deleteSql . '; ' . $resetSequenceSql;
     }
 
     /**
