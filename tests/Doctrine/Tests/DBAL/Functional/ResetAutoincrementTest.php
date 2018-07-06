@@ -2,6 +2,8 @@
 
 namespace Doctrine\Tests\DBAL\Functional;
 
+use const CASE_LOWER;
+
 class ResetAutoincrementTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
     public function testAutoincrementResetsOnTruncate()
@@ -33,6 +35,7 @@ class ResetAutoincrementTest extends \Doctrine\Tests\DbalFunctionalTestCase
     protected function getIdByTestInt(int $whereTestInt)
     {
         $row = $this->_conn->fetchAssoc('SELECT id FROM autoincremented_table WHERE test_int = ?', [$whereTestInt]);
+        $row = array_change_key_case($row, CASE_LOWER);
 
         return $row['id'];
     }

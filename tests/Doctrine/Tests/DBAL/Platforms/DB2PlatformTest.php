@@ -301,8 +301,8 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         self::assertEquals("CREATE DATABASE foobar", $this->_platform->getCreateDatabaseSQL('foobar'));
         self::assertEquals("DROP DATABASE foobar", $this->_platform->getDropDatabaseSQL('foobar'));
         self::assertEquals('DECLARE GLOBAL TEMPORARY TABLE', $this->_platform->getCreateTemporaryTableSnippetSQL());
-        self::assertEquals('TRUNCATE foobar IMMEDIATE', $this->_platform->getTruncateTableSQL('foobar'));
-        self::assertEquals('TRUNCATE foobar IMMEDIATE', $this->_platform->getTruncateTableSQL('foobar'), true);
+        self::assertEquals('TRUNCATE foobar RESTART IDENTITY IMMEDIATE', $this->_platform->getTruncateTableSQL('foobar'));
+        self::assertEquals('TRUNCATE foobar RESTART IDENTITY IMMEDIATE', $this->_platform->getTruncateTableSQL('foobar'), true);
 
         $viewSql = 'SELECT * FROM footable';
         self::assertEquals('CREATE VIEW fooview AS ' . $viewSql, $this->_platform->getCreateViewSQL('fooview', $viewSql));
@@ -663,7 +663,7 @@ class DB2PlatformTest extends AbstractPlatformTestCase
      */
     protected function getQuotesReservedKeywordInTruncateTableSQL()
     {
-        return 'TRUNCATE "select" IMMEDIATE';
+        return 'TRUNCATE "select" RESTART IDENTITY IMMEDIATE';
     }
 
     /**

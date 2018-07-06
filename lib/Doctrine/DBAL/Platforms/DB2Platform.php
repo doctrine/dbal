@@ -281,7 +281,7 @@ class DB2Platform extends AbstractPlatform
     {
         $tableIdentifier = new Identifier($tableName);
 
-        return 'TRUNCATE ' . $tableIdentifier->getQuotedName($this) . ' IMMEDIATE';
+        return 'TRUNCATE ' . $tableIdentifier->getQuotedName($this) . ' RESTART IDENTITY IMMEDIATE';
     }
 
     /**
