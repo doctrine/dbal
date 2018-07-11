@@ -664,16 +664,6 @@ class SQLAnywherePlatform extends AbstractPlatform
 
     /**
      * {@inheritdoc}
-     *
-     * @deprecated Use application-generated UUIDs instead
-     */
-    public function getGuidExpression()
-    {
-        return 'NEWID()';
-    }
-
-    /**
-     * {@inheritdoc}
      */
     public function getGuidTypeDeclarationSQL(array $field)
     {

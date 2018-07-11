@@ -635,7 +635,6 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         self::assertEquals('Y-m-d H:i:s.u', $this->platform->getDateTimeFormatString());
         self::assertEquals('H:i:s.u', $this->platform->getTimeFormatString());
         self::assertEquals('', $this->platform->getForUpdateSQL());
-        self::assertEquals('NEWID()', $this->platform->getGuidExpression());
         self::assertEquals('LOCATE(string_column, substring_column)', $this->platform->getLocateExpression('string_column', 'substring_column'));
         self::assertEquals('LOCATE(string_column, substring_column, 1)', $this->platform->getLocateExpression('string_column', 'substring_column', 1));
         self::assertEquals("HASH(column, 'MD5')", $this->platform->getMd5Expression('column'));
