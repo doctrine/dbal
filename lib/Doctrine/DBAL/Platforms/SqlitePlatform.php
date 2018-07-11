@@ -42,19 +42,6 @@ class SqlitePlatform extends AbstractPlatform
 
     /**
      * {@inheritDoc}
-     *
-     * @deprecated Use application-generated UUIDs instead
-     */
-    public function getGuidExpression()
-    {
-        return "HEX(RANDOMBLOB(4)) || '-' || HEX(RANDOMBLOB(2)) || '-4' || "
-            . "SUBSTR(HEX(RANDOMBLOB(2)), 2) || '-' || "
-            . "SUBSTR('89AB', 1 + (ABS(RANDOM()) % 4), 1) || "
-            . "SUBSTR(HEX(RANDOMBLOB(2)), 2) || '-' || HEX(RANDOMBLOB(6))";
-    }
-
-    /**
-     * {@inheritDoc}
      */
     public function getNowExpression($type = 'timestamp')
     {
