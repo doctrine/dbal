@@ -28,7 +28,7 @@ use Exception;
  * @since  2.0
  * @author José Carlos Chávez <jcchavezs@gmail.com>
  */
-interface SQLLogger2 extends SLQLogger
+interface SQLLoggerExtended extends SQLLogger
 {
     /**
      * Marks the last started query as failed. This can be used for timing of queries and
@@ -42,7 +42,7 @@ interface SQLLogger2 extends SLQLogger
     /**
      * Counts the affected rows in the last started query before it is stopped.
      *
-     * @param $result
+     * @param int $result
      * @return void
      */
     public function countAffectedRows($result);

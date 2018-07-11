@@ -156,4 +156,34 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
         $statement = new Statement("", $this->conn);
         $statement->execute();
     }
+
+    /**
+     * @expectedException \Doctrine\DBAL\DBALException
+     */
+    public function testExecuteCallsLoggerExtendedFailsOnException()
+    {
+        $logger = $this->createMock('\Doctrine\DBAL\Logging\SQLLoggerExtended');
+
+        $this->configuration->expects($this->once())
+            ->method('getSQLLogger')
+            ->will($this->returnValue($logger));
+
+        // Needed to satisfy construction of DBALException
+        $this->conn->expects($this->any())
+            ->method('resolveParams')
+            ->will($this->returnValue(array()));
+
+        $logger->expects($this->once())
+            ->method('startQuery');
+
+        $logger->expects($this->once())
+            ->method('fail');
+
+        $this->pdoStatement->expects($this->once())
+            ->method('execute')
+            ->will($this->throwException(new \Exception("Mock test exception")));
+
+        $statement = new Statement("", $this->conn);
+        $statement->execute();
+    }
 }

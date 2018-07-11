@@ -22,8 +22,8 @@ namespace Doctrine\DBAL;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Closure;
-use Doctrine\DBAL\Logging\SQLLogger2;
 use Exception;
+use Doctrine\DBAL\Logging\SQLLoggerExtended;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\Common\EventManager;
@@ -936,7 +936,7 @@ class Connection implements DriverConnection
                 $stmt = $this->_conn->query($query);
             }
         } catch (Exception $ex) {
-            if ($logger && ($logger instanceof SQLLogger2)) {
+            if ($logger && ($logger instanceof SQLLoggerExtended)) {
                 $logger->fail($ex);
             }
 
@@ -1039,7 +1039,7 @@ class Connection implements DriverConnection
         try {
             $statement = $this->_conn->query(...$args);
         } catch (Exception $ex) {
-            if ($logger && ($logger instanceof SQLLogger2)) {
+            if ($logger && ($logger instanceof SQLLoggerExtended)) {
                 $logger->fail($ex);
             }
 
@@ -1094,7 +1094,7 @@ class Connection implements DriverConnection
                 $result = $this->_conn->exec($query);
             }
         } catch (Exception $ex) {
-            if ($logger && ($logger instanceof SQLLogger2)) {
+            if ($logger && ($logger instanceof SQLLoggerExtended)) {
                 $logger->fail($ex);
             }
 
@@ -1129,7 +1129,7 @@ class Connection implements DriverConnection
         try {
             $result = $this->_conn->exec($statement);
         } catch (Exception $ex) {
-            if ($logger && ($logger instanceof SQLLogger2)) {
+            if ($logger && ($logger instanceof SQLLoggerExtended)) {
                 $logger->fail($ex);
             }
 
@@ -1137,7 +1137,7 @@ class Connection implements DriverConnection
         }
 
         if ($logger) {
-            if ($logger instanceof SQLLogger2) {
+            if ($logger instanceof SQLLoggerExtended) {
                 $logger->countAffectedRows($result);
             }
 

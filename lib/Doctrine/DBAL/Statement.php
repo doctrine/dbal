@@ -19,7 +19,7 @@
 
 namespace Doctrine\DBAL;
 
-use Doctrine\DBAL\Logging\SQLLogger2;
+use Doctrine\DBAL\Logging\SQLLoggerExtended;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use function is_array;
@@ -169,8 +169,12 @@ class Statement implements \IteratorAggregate, DriverStatement
         try {
             $stmt = $this->stmt->execute($params);
         } catch (\Exception $ex) {
-            if ($logger && ($logger instanceof SQLLogger2)) {
-                $logger->fail($ex);
+            if ($logger) {
+                if ($logger instanceof SQLLoggerExtended) {
+                    $logger->fail($ex);
+                } else {
+                    $logger->stopQuery();
+                }
             }
             throw DBALException::driverExceptionDuringQuery(
                 $this->conn->getDriver(),
