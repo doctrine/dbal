@@ -20,13 +20,12 @@
 namespace Doctrine\DBAL\Logging;
 
 use Exception;
+use Throwable;
 
 /**
  * Interface for SQL loggers.
  *
  * @link   www.doctrine-project.org
- * @since  2.0
- * @author José Carlos Chávez <jcchavezs@gmail.com>
  */
 interface SQLLoggerExtended extends SQLLogger
 {
@@ -34,10 +33,9 @@ interface SQLLoggerExtended extends SQLLogger
      * Marks the last started query as failed. This can be used for timing of queries and
      * register errors.
      *
-     * @param Exception $e
-     * @return void
+     * @return Throwable|Exception void
      */
-    public function fail(Exception $e);
+    public function fail($e);
 
     /**
      * Counts the affected rows in the last started query before it is stopped.

@@ -171,7 +171,7 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
         // Needed to satisfy construction of DBALException
         $this->conn->expects($this->any())
             ->method('resolveParams')
-            ->will($this->returnValue(array()));
+            ->will($this->returnValue([]));
 
         $logger->expects($this->once())
             ->method('startQuery');
@@ -181,9 +181,9 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
 
         $this->pdoStatement->expects($this->once())
             ->method('execute')
-            ->will($this->throwException(new \Exception("Mock test exception")));
+            ->will($this->throwException(new \Exception('Mock test exception')));
 
-        $statement = new Statement("", $this->conn);
+        $statement = new Statement('', $this->conn);
         $statement->execute();
     }
 }
