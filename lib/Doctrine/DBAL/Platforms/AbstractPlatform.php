@@ -686,6 +686,8 @@ abstract class AbstractPlatform
      * @return string
      *
      * @throws \Doctrine\DBAL\DBALException If not supported on this platform.
+     *
+     * @deprecated Use application-generated UUIDs instead
      */
     public function getGuidExpression()
     {
