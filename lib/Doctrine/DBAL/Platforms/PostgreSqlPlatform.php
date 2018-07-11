@@ -1004,16 +1004,6 @@ class PostgreSqlPlatform extends AbstractPlatform
 
     /**
      * {@inheritDoc}
-     *
-     * @deprecated Use application-generated UUIDs instead
-     */
-    public function getGuidExpression()
-    {
-        return 'UUID_GENERATE_V4()';
-    }
-
-    /**
-     * {@inheritDoc}
      */
     protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef)
     {
