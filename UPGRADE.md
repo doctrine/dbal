@@ -1,5 +1,13 @@
 # Upgrade to 2.8
 
+## Deprecated usage of DB-generated UUIDs
+
+The format of DB-generated UUIDs is inconsistent across supported platforms and therefore is not portable. Some of the platforms produce UUIDv1, some produce UUIDv4, some produce the values which are not even UUID.
+
+Unless UUIDs are used in stored procedures which DBAL doesn't support, there's no real benefit of DB-generated UUIDs comparing to the application-generated ones.
+
+Use a PHP library (e.g. [ramsey/uuid](https://packagist.org/packages/ramsey/uuid)) to generate UUIDs on the application side.
+
 ## Deprecated usage of binary fields whose length exceeds the platform maximum
 
 - The usage of binary fields whose length exceeds the maximum field size on a given platform is deprecated.

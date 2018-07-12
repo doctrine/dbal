@@ -39,7 +39,6 @@ use function func_get_args;
 use function implode;
 use function is_array;
 use function is_bool;
-use function is_null;
 use function is_numeric;
 use function is_string;
 use function preg_match;
@@ -1026,6 +1025,8 @@ class SQLServerPlatform extends AbstractPlatform
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated Use application-generated UUIDs instead
      */
     public function getGuidExpression()
     {
