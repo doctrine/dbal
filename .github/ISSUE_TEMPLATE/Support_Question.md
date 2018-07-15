@@ -10,7 +10,7 @@ about: Have a problem that you can't figure out? 🤔
 | Version     | x.y.z
 
 <!--
-Before asking question here, please try asking on Gitter or Slack first.
+Before asking a question here, please try asking on Gitter or Slack first.
 Find out more about Doctrine support channels here: https://www.doctrine-project.org/community/
 Keep in mind that GitHub is primarily an issue tracker.
 -->

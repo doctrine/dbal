@@ -1,6 +1,6 @@
 ---
 name: 💥 BC Break
-about: Have you encountered an issue during upgrade? 💣
+about: Have you encountered an issue during an upgrade? 💣
 ---
 
 <!--
@@ -18,15 +18,15 @@ Before reporting a BC break, please consult the upgrading document to make sure 
 
 #### Summary
 
-<!-- Provide a summary desciribing the problem you are experiencing. -->
+<!-- Provide a summary describing the problem you are experiencing. -->
 
-#### Previous behavior
+#### Previous behaviour
 
-<!-- What was the previous (working) behavior? -->
+<!-- What was the previous (working) behaviour? -->
 
 #### Current behavior
 
-<!-- What is the current (broken) behavior? -->
+<!-- What is the current (broken) behaviour? -->
 
 #### How to reproduce
 
