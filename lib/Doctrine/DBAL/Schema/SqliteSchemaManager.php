@@ -320,7 +320,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
 
         $fixed   = false;
         $type    = $this->_platform->getDoctrineTypeMapping($dbType);
-        $default = $tableColumn['dflt_value'];
+        $default = $this->removeDoctrineTypeFromDefault($tableColumn['dflt_value']);
         if ($default === 'NULL') {
             $default = null;
         }
@@ -502,5 +502,14 @@ SQL
             ,
             [$table]
         ) ?: null;
+    }
+
+    private function removeDoctrineTypeFromDefault(?string $default) : ?string
+    {
+        if (preg_match('/^(.*)(?:--\(DC2Type:.*\))/', (string) $default, $match)) {
+            $default = trim($match[1]);
+        }
+
+        return $default === '' ? null : $default;
     }
 }

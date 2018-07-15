@@ -273,4 +273,31 @@ class SqliteSchemaManagerTest extends TestCase
             ],
         ];
     }
+
+    /**
+     * @dataProvider getDoctrineTypeDefault
+     * @group 2865
+     */
+    public function testRemoveDoctrineTypeFromDefault(?string $default, string $sql) : void
+    {
+        $conn = $this->createMock(Connection::class);
+        $conn->method('getDatabasePlatform')->willReturn(new SqlitePlatform());
+
+        $manager = new SqliteSchemaManager($conn);
+        $ref     = new ReflectionMethod($manager, 'removeDoctrineTypeFromDefault');
+        $ref->setAccessible(true);
+
+        self::assertSame($default, $ref->invoke($manager, $sql));
+    }
+
+    /**
+     * @return mixed[][]
+     */
+    public function getDoctrineTypeDefault() : array
+    {
+        return [
+            'No default'   => [null, '--(DC2Type:x)'],
+            'Null default' => ['NULL', 'NULL --(DC2Type:x)'],
+        ];
+    }
 }
