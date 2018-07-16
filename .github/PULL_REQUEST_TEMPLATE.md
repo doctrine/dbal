@@ -8,4 +8,4 @@
 
 #### Summary
 
-<!-- Provide a summary your change. -->
+<!-- Provide a summary of your change. -->
