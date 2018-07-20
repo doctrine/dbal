@@ -370,10 +370,6 @@ abstract class AbstractSchemaManager
      */
     public function dropIndex($index, $table)
     {
-        if ($index instanceof Index) {
-            $index = $index->getQuotedName($this->_platform);
-        }
-
         $this->_execSql($this->_platform->getDropIndexSQL($index, $table));
     }
 
@@ -548,7 +544,7 @@ abstract class AbstractSchemaManager
      */
     public function dropAndCreateIndex(Index $index, $table)
     {
-        $this->tryMethod('dropIndex', $index->getQuotedName($this->_platform), $table);
+        $this->tryMethod('dropIndex', $index, $table);
         $this->createIndex($index, $table);
     }
 

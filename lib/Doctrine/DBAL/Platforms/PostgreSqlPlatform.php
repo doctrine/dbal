@@ -24,6 +24,7 @@ use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Sequence;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\BigIntType;
@@ -42,6 +43,7 @@ use function is_array;
 use function is_bool;
 use function is_numeric;
 use function is_string;
+use function sprintf;
 use function str_replace;
 use function strpos;
 use function strtolower;
@@ -1272,51 +1274,66 @@ class PostgreSqlPlatform extends AbstractPlatform
             }
         }
 
+        $indicesToDropSqls = [];
         foreach ($diff->removedIndexes as $index) {
-            $sql = array_merge($sql, $this->getDropIndexSQL($index, $tableName));
+            $indicesToDropSqls[] = $this->getDropIndexSQL($index, $tableName);
         }
+
         foreach ($diff->changedIndexes as $index) {
-            $sql = array_merge($sql, $this->getDropIndexSQL($index, $tableName));
+            $indicesToDropSqls[] = $this->getDropIndexSQL($index, $tableName);
         }
+
+        $sql = array_merge($sql, ...$indicesToDropSqls);
 
         return $sql;
     }
 
     /**
-     * {@inheritDoc}
+     * @param Index|string $index
+     * @param Table|string $table
+     *
+     * @return string[]
      */
     public function getDropIndexSQL($index, $table = null)
     {
         $isUnique = false;
         if ($index instanceof Index) {
             $isUnique = $index->isUnique();
-            $index = $index->getQuotedName($this);
-        } elseif (!is_string($index)) {
-            throw new \InvalidArgumentException('AbstractPlatform::getDropIndexSQL() expects $index parameter to be string or \Doctrine\DBAL\Schema\Index.');
+            $index    = $index->getQuotedName($this);
+        }
+
+        if ($table instanceof Table) {
+            $table = $table->getQuotedName($this);
+        }
+
+        if (! is_string($index)) {
+            throw new \InvalidArgumentException(
+                'AbstractPlatform::getDropIndexSQL() expects $index parameter to be string or \Doctrine\DBAL\Schema\Index.'
+            );
         }
 
         if ($isUnique && $table) {
             return [
                 sprintf('ALTER TABLE %s DROP CONSTRAINT IF EXISTS %s', $table, $index),
-                'DROP INDEX IF EXISTS ' . $index
+                'DROP INDEX IF EXISTS ' . $index,
             ];
-        } else {
-            return [ 'DROP INDEX ' . $index ];
         }
+
+        return ['DROP INDEX ' . $index];
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getCreateIndexSQL(Index $index, $table)
+    public function getCreateIndexSQL(Index $index, $table) : string
     {
         if ($table instanceof Table) {
             $table = $table->getQuotedName($this);
         }
-        $name = $index->getQuotedName($this);
+        $name    = $index->getQuotedName($this);
         $columns = $index->getQuotedColumns($this);
 
-        if (count($columns) == 0) {
+        if (count($columns) === 0) {
             throw new \InvalidArgumentException("Incomplete definition. 'columns' required.");
         }
 
@@ -1324,13 +1341,14 @@ class PostgreSqlPlatform extends AbstractPlatform
             return $this->getCreatePrimaryKeySQL($index, $table);
         }
 
-        if ($index->isUnique()) {
-            $query = 'ALTER TABLE ' . $table . ' ADD CONSTRAINT ' . $name . ' '  . $this->getCreateIndexSQLFlags($index);
+        $createIndexSQLFlags = $this->getCreateIndexSQLFlags($index);
+        if ($index->isUnique() && $this->getPartialIndexSQL($index) === '') {
+            $query  = sprintf('ALTER TABLE %s ADD CONSTRAINT %s %s', $table, $name, $createIndexSQLFlags);
+            $query .= sprintf('(%s)', $this->getIndexFieldDeclarationListSQL($columns));
         } else {
-            $query = 'CREATE ' . $this->getCreateIndexSQLFlags($index) . 'INDEX ' . $name . ' ON ' . $table;
+            $query  = 'CREATE ' . $createIndexSQLFlags . 'INDEX ' . $name . ' ON ' . $table;
+            $query .= ' (' . $this->getIndexFieldDeclarationListSQL($columns) . ')' . $this->getPartialIndexSQL($index);
         }
-
-        $query .= ' (' . $this->getIndexFieldDeclarationListSQL($columns) . ')' . $this->getPartialIndexSQL($index);
 
         return $query;
     }

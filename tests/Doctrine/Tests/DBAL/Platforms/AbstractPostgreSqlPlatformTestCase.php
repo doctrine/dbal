@@ -20,7 +20,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     {
         return array(
             'CREATE TABLE test (foo VARCHAR(255) DEFAULT NULL, bar VARCHAR(255) DEFAULT NULL)',
-            'ALTER TABLE test ADD CONSTRAINT UNIQ_D87F7E0C8C73652176FF8CAA UNIQUE  (foo, bar)'
+            'ALTER TABLE test ADD CONSTRAINT UNIQ_D87F7E0C8C73652176FF8CAA UNIQUE (foo, bar)'
         );
     }
 
@@ -240,7 +240,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
 
     public function getGenerateUniqueIndexSql()
     {
-        return 'CREATE UNIQUE INDEX index_name ON test (test, test2)';
+        return 'ALTER TABLE test ADD CONSTRAINT index_name UNIQUE (test, test2)';
     }
 
     public function testGeneratesSequenceSqlCommands()
