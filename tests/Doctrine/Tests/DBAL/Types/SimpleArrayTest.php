@@ -15,26 +15,21 @@ class SimpleArrayTest extends \Doctrine\Tests\DbalTestCase
     /**
      * @var AbstractPlatform
      */
-    protected $_platform;
+    private $platform;
 
     /**
      * @var Type
      */
-    protected $_type;
+    private $type;
 
     protected function setUp()
     {
-        $this->_platform = new MockPlatform();
-        $this->_type = Type::getType('simple_array');
-    }
-
-    protected function tearDown()
-    {
-        error_reporting(-1); // reactive all error levels
+        $this->platform = new MockPlatform();
+        $this->type = Type::getType('simple_array');
     }
 
     public function testNullConversion()
     {
-        self::assertEquals([], $this->_type->convertToPHPValue("", $this->_platform));
+        self::assertEquals([], $this->type->convertToPHPValue("", $this->platform));
     }
 }
