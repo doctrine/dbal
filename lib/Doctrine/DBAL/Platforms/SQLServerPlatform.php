@@ -996,16 +996,6 @@ class SQLServerPlatform extends AbstractPlatform
 
     /**
      * {@inheritDoc}
-     *
-     * @deprecated Use application-generated UUIDs instead
-     */
-    public function getGuidExpression()
-    {
-        return 'NEWID()';
-    }
-
-    /**
-     * {@inheritDoc}
      */
     public function getLocateExpression($str, $substr, $startPos = false)
     {
