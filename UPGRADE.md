@@ -1,5 +1,10 @@
 # Upgrade to 3.0
 
+## BC BREAK: Removed support for DB-generated UUIDs
+
+The support for DB-generated UUIDs was removed as non-portable.
+Please generate UUIDs on the application side (e.g. using [ramsey/uuid](https://packagist.org/packages/ramsey/uuid)).
+
 ## BC BREAK: Removed MsSQLKeywords class
 
 The `Doctrine\DBAL\Platforms\MsSQLKeywords` has been removed.
