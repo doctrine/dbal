@@ -623,20 +623,6 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Returns the global unique identifier expression.
-     *
-     * @deprecated Use application-generated UUIDs instead
-     *
-     * @return string
-     *
-     * @throws DBALException If not supported on this platform.
-     */
-    public function getGuidExpression()
-    {
-        throw DBALException::notSupported(__METHOD__);
-    }
-
-    /**
      * Returns the SQL snippet to get the average value of a column.
      *
      * @param string $column The column to use.
