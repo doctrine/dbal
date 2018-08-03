@@ -28,9 +28,9 @@ interface ResultStatement extends Traversable
     /**
      * Sets the fetch mode to use while iterating this statement.
      *
-     * @param int $fetchMode Controls how the next row will be returned to the caller.
-     *                       The value must be one of the {@link \Doctrine\DBAL\FetchMode} constants.
-     * @param array $args    Optional mode-specific arguments (see {@link self::fetchAll()}).
+     * @param int     $fetchMode Controls how the next row will be returned to the caller.
+     *                           The value must be one of the {@link \Doctrine\DBAL\FetchMode} constants.
+     * @param mixed[] ...$args   Optional mode-specific arguments (see {@link self::fetchAll()}).
      *
      * @return bool
      */
@@ -42,7 +42,7 @@ interface ResultStatement extends Traversable
      * @param int|null $fetchMode Controls how the next row will be returned to the caller.
      *                            The value must be one of the {@link \Doctrine\DBAL\FetchMode} constants,
      *                            defaulting to {@link \Doctrine\DBAL\FetchMode::MIXED}.
-     * @param array    $args      Optional mode-specific arguments (see {@link self::fetchAll()}).
+     * @param mixed[]  ...$args   Optional mode-specific arguments (see {@link self::fetchAll()}).
      *
      * @return mixed The return value of this method on success depends on the fetch mode. In all cases, FALSE is
      *               returned on failure.
@@ -55,7 +55,7 @@ interface ResultStatement extends Traversable
      * @param int|null $fetchMode Controls how the next row will be returned to the caller.
      *                            The value must be one of the {@link \Doctrine\DBAL\FetchMode} constants,
      *                            defaulting to {@link \Doctrine\DBAL\FetchMode::MIXED}.
-     * @param array    $args      Optional mode-specific arguments. Supported modes:
+     * @param mixed[]  ...$args   Optional mode-specific arguments. Supported modes:
      *                            * {@link \Doctrine\DBAL\FetchMode::COLUMN}
      *                              1. The 0-indexed column to be returned.
      *                            * {@link \Doctrine\DBAL\FetchMode::CUSTOM_OBJECT}
