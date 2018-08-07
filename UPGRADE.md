@@ -1,3 +1,14 @@
+# Upgrade to 3.0
+
+## BC BREAK: Removed dbal:import CLI command
+
+The `dbal:import` CLI command has been removed since it only worked with PDO-based drivers by relying on a non-documented behavior of the extension, and it was impossible to make it work with other drivers.
+Please use other database client applications for import, e.g.:
+
+ * For MySQL and MariaDB: `mysql [dbname] < data.sql`.
+ * For PostgreSQL: `psql [dbname] < data.sql`.
+ * For SQLite: `sqlite3 /path/to/file.db < data.sql`.
+
 # Upgrade to 2.10
 
 ## Deprecated `Doctrine\DBAL\Event\ConnectionEventArgs` methods
