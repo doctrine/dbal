@@ -558,7 +558,7 @@ class SqlitePlatform extends AbstractPlatform
         $tableIdentifier = new Identifier($tableName);
         $tableName = str_replace('.', '__', $tableIdentifier->getQuotedName($this));
 
-        return 'DELETE FROM ' . $tableName;
+        return 'DELETE FROM ' . $tableName . '; UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME="' . $tableName . '";';
     }
 
     /**
