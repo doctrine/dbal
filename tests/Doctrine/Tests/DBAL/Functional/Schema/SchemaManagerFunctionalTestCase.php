@@ -1517,4 +1517,58 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
 
         $this->assertGreaterThan($lastUsedIdBeforeDelete, $lastUsedIdAfterDelete);
     }
+
+    /**
+     * @group DBAL-2921
+     */
+    public function testTruncatePrimaryKeyNoAutoIncrement()
+    {
+        $table = new Table('test_pk_auto_increment');
+        $table->addColumn('id', 'integer');
+        $table->addColumn('text', 'text');
+        $table->setPrimaryKey(['id']);
+        $this->_sm->dropAndCreateTable($table);
+
+        $this->_conn->insert('test_pk_auto_increment', ['text' => '1']);
+
+        // Get platform parameters
+        $platform = $this->_conn->getDatabasePlatform();
+        $this->_conn->executeUpdate($platform->getTruncateTableSQL($table->getName(), true));
+
+        $this->_conn->insert('test_pk_auto_increment', ['text' => '2']);
+
+        $query = $this->_conn->query('SELECT id FROM test_pk_auto_increment WHERE text = "2"');
+        $query->execute();
+        $lastUsedIdAfterTruncate = (int) $query->fetchColumn();
+
+        // after truncate sequence must always be reset
+        $this->assertEquals(1, $lastUsedIdAfterTruncate);
+    }
+
+    /**
+     * @group DBAL-2921
+     */
+    public function testTruncatePrimaryKeyAutoIncrement()
+    {
+        $table = new Table('test_pk_auto_increment');
+        $table->addColumn('id', 'integer', ['autoincrement' => true]);
+        $table->addColumn('text', 'text');
+        $table->setPrimaryKey(['id']);
+        $this->_sm->dropAndCreateTable($table);
+
+        $this->_conn->insert('test_pk_auto_increment', ['text' => '1']);
+
+        // Get platform parameters
+        $platform = $this->_conn->getDatabasePlatform();
+        $this->_conn->executeUpdate($platform->getTruncateTableSQL($table->getName(), true));
+
+        $this->_conn->insert('test_pk_auto_increment', ['text' => '2']);
+
+        $query = $this->_conn->query('SELECT id FROM test_pk_auto_increment WHERE text = "2"');
+        $query->execute();
+        $lastUsedIdAfterTruncate = (int) $query->fetchColumn();
+
+        // after truncate sequence must always be reset
+        $this->assertEquals(1, $lastUsedIdAfterTruncate);
+    }
 }
