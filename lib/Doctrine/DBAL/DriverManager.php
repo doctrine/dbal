@@ -153,7 +153,17 @@ final class DriverManager
             $eventManager = new EventManager();
         }
 
-        $params = self::parseDatabaseUrl($params);
+        if (isset($params['master'])) {
+            $params['master'] = self::parseDatabaseUrl($params['master']);
+
+            if (isset($params['slaves'])) {
+                foreach ($params['slaves'] as $slaveName => $slaveParams) {
+                    $params['slaves'][$slaveName] = self::parseDatabaseUrl($slaveParams);
+                }
+            }
+        } else {
+            $params = self::parseDatabaseUrl($params);
+        }
 
         // check for existing pdo object
         if (isset($params['pdo']) && ! $params['pdo'] instanceof \PDO) {
