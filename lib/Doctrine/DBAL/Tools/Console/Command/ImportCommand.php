@@ -42,6 +42,7 @@ use function sprintf;
  * @author Guilherme Blanco <guilhermeblanco@hotmail.com>
  * @author Jonathan Wage <jonwage@gmail.com>
  * @author Roman Borschel <roman@code-factory.org>
+ * @deprecated Use a database client application instead
  */
 class ImportCommand extends Command
 {

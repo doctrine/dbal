@@ -1,3 +1,14 @@
+# Upgrade to 2.9
+
+## Deprecated dbal:import CLI command
+
+The `dbal:import` CLI command has been deprecated since it only works with PDO-based drivers by relying on a non-documented behavior of the extension, and it's impossible to make it work with other drivers.
+Please use other database client applications for import, e.g.:
+
+ * For MySQL and MariaDB: `mysql [dbname] < data.sql`.
+ * For PostgreSQL: `psql [dbname] < data.sql`.
+ * For SQLite: `sqlite3 /path/to/file.db < data.sql`.
+
 # Upgrade to 2.8
 
 ## Deprecated usage of DB-generated UUIDs
