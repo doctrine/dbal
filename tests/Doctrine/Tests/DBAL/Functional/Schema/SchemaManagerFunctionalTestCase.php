@@ -1523,21 +1523,21 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
      */
     public function testTruncatePrimaryKeyNoAutoIncrement()
     {
-        $table = new Table('test_pk_auto_increment');
+        $table = new Table('test_pk_no_auto_increment');
         $table->addColumn('id', 'integer');
         $table->addColumn('text', 'text');
         $table->setPrimaryKey(['id']);
         $this->_sm->dropAndCreateTable($table);
 
-        $this->_conn->insert('test_pk_auto_increment', ['text' => '1']);
+        $this->_conn->insert('test_pk_no_auto_increment', ['text' => '1']);
 
         // Get platform parameters
         $platform = $this->_conn->getDatabasePlatform();
         $this->_conn->executeUpdate($platform->getTruncateTableSQL($table->getName(), true));
 
-        $this->_conn->insert('test_pk_auto_increment', ['text' => '2']);
+        $this->_conn->insert('test_pk_no_auto_increment', ['text' => '2']);
 
-        $query = $this->_conn->query('SELECT id FROM test_pk_auto_increment WHERE text = "2"');
+        $query = $this->_conn->query('SELECT id FROM test_pk_no_auto_increment WHERE text = "2"');
         $query->execute();
         $lastUsedIdAfterTruncate = (int) $query->fetchColumn();
 
