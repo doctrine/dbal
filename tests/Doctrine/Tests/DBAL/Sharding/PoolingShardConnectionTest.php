@@ -20,25 +20,28 @@
 namespace Doctrine\Tests\DBAL\Sharding;
 
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Sharding\PoolingShardConnection;
 use Doctrine\DBAL\Sharding\ShardChoser\MultiTenantShardChoser;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @requires extension pdo_sqlite
  */
-class PoolingShardConnectionTest extends \PHPUnit\Framework\TestCase
+class PoolingShardConnectionTest extends TestCase
 {
     public function testConnect()
     {
-        $conn = DriverManager::getConnection(array(
-            'wrapperClass' => 'Doctrine\DBAL\Sharding\PoolingShardConnection',
+        /** @var PoolingShardConnection $conn */
+        $conn = DriverManager::getConnection([
+            'wrapperClass' => PoolingShardConnection::class,
             'driver' => 'pdo_sqlite',
-            'global' => array('memory' => true),
-            'shards' => array(
-                array('id' => 1, 'memory' => true),
-                array('id' => 2, 'memory' => true),
-            ),
+            'global' => ['memory' => true],
+            'shards' => [
+                ['id' => 1, 'memory' => true],
+                ['id' => 2, 'memory' => true],
+            ],
             'shardChoser' => 'Doctrine\DBAL\Sharding\ShardChoser\MultiTenantShardChoser',
-        ));
+        ]);
 
         self::assertFalse($conn->isConnected(0));
         $conn->connect(0);
@@ -66,15 +69,15 @@ class PoolingShardConnectionTest extends \PHPUnit\Framework\TestCase
         $this->expectException('InvalidArgumentException');
         $this->expectExceptionMessage("Connection Parameters require 'global' and 'shards' configurations.");
 
-        DriverManager::getConnection(array(
-            'wrapperClass' => 'Doctrine\DBAL\Sharding\PoolingShardConnection',
+        DriverManager::getConnection([
+            'wrapperClass' => PoolingShardConnection::class,
             'driver' => 'pdo_sqlite',
-            'shards' => array(
-                array('id' => 1, 'memory' => true),
-                array('id' => 2, 'memory' => true),
-            ),
+            'shards' => [
+                ['id' => 1, 'memory' => true],
+                ['id' => 2, 'memory' => true],
+            ],
             'shardChoser' => 'Doctrine\DBAL\Sharding\ShardChoser\MultiTenantShardChoser',
-        ));
+        ]);
     }
 
     public function testNoShardsServersException()
@@ -82,12 +85,12 @@ class PoolingShardConnectionTest extends \PHPUnit\Framework\TestCase
         $this->expectException('InvalidArgumentException');
         $this->expectExceptionMessage("Connection Parameters require 'global' and 'shards' configurations.");
 
-        DriverManager::getConnection(array(
-            'wrapperClass' => 'Doctrine\DBAL\Sharding\PoolingShardConnection',
+        DriverManager::getConnection([
+            'wrapperClass' => PoolingShardConnection::class,
             'driver' => 'pdo_sqlite',
-            'global' => array('memory' => true),
+            'global' => ['memory' => true],
             'shardChoser' => 'Doctrine\DBAL\Sharding\ShardChoser\MultiTenantShardChoser',
-        ));
+        ]);
     }
 
     public function testNoShardsChoserException()
@@ -95,15 +98,15 @@ class PoolingShardConnectionTest extends \PHPUnit\Framework\TestCase
         $this->expectException('InvalidArgumentException');
         $this->expectExceptionMessage("Missing Shard Choser configuration 'shardChoser'");
 
-        DriverManager::getConnection(array(
-            'wrapperClass' => 'Doctrine\DBAL\Sharding\PoolingShardConnection',
+        DriverManager::getConnection([
+            'wrapperClass' => PoolingShardConnection::class,
             'driver' => 'pdo_sqlite',
-            'global' => array('memory' => true),
-            'shards' => array(
-                array('id' => 1, 'memory' => true),
-                array('id' => 2, 'memory' => true),
-            ),
-        ));
+            'global' => ['memory' => true],
+            'shards' => [
+                ['id' => 1, 'memory' => true],
+                ['id' => 2, 'memory' => true],
+            ],
+        ]);
     }
 
     public function testShardChoserWrongInstance()
@@ -111,16 +114,16 @@ class PoolingShardConnectionTest extends \PHPUnit\Framework\TestCase
         $this->expectException('InvalidArgumentException');
         $this->expectExceptionMessage("The 'shardChoser' configuration is not a valid instance of Doctrine\DBAL\Sharding\ShardChoser\ShardChoser");
 
-        DriverManager::getConnection(array(
-            'wrapperClass' => 'Doctrine\DBAL\Sharding\PoolingShardConnection',
+        DriverManager::getConnection([
+            'wrapperClass' => PoolingShardConnection::class,
             'driver' => 'pdo_sqlite',
-            'global' => array('memory' => true),
-            'shards' => array(
-                array('id' => 1, 'memory' => true),
-                array('id' => 2, 'memory' => true),
-            ),
-            'shardChoser' => new \stdClass,
-        ));
+            'global' => ['memory' => true],
+            'shards' => [
+                ['id' => 1, 'memory' => true],
+                ['id' => 2, 'memory' => true],
+            ],
+            'shardChoser' => new \stdClass(),
+        ]);
     }
 
     public function testShardNonNumericId()
@@ -128,15 +131,15 @@ class PoolingShardConnectionTest extends \PHPUnit\Framework\TestCase
         $this->expectException('InvalidArgumentException');
         $this->expectExceptionMessage('Shard Id has to be a non-negative number.');
 
-        DriverManager::getConnection(array(
-            'wrapperClass' => 'Doctrine\DBAL\Sharding\PoolingShardConnection',
+        DriverManager::getConnection([
+            'wrapperClass' => PoolingShardConnection::class,
             'driver' => 'pdo_sqlite',
-            'global' => array('memory' => true),
-            'shards' => array(
-                array('id' => 'foo', 'memory' => true),
-            ),
+            'global' => ['memory' => true],
+            'shards' => [
+                ['id' => 'foo', 'memory' => true],
+            ],
             'shardChoser' => 'Doctrine\DBAL\Sharding\ShardChoser\MultiTenantShardChoser',
-        ));
+        ]);
     }
 
     public function testShardMissingId()
@@ -144,15 +147,15 @@ class PoolingShardConnectionTest extends \PHPUnit\Framework\TestCase
         $this->expectException('InvalidArgumentException');
         $this->expectExceptionMessage("Missing 'id' for one configured shard. Please specify a unique shard-id.");
 
-        DriverManager::getConnection(array(
-            'wrapperClass' => 'Doctrine\DBAL\Sharding\PoolingShardConnection',
+        DriverManager::getConnection([
+            'wrapperClass' => PoolingShardConnection::class,
             'driver' => 'pdo_sqlite',
-            'global' => array('memory' => true),
-            'shards' => array(
-                array('memory' => true),
-            ),
+            'global' => ['memory' => true],
+            'shards' => [
+                ['memory' => true],
+            ],
             'shardChoser' => 'Doctrine\DBAL\Sharding\ShardChoser\MultiTenantShardChoser',
-        ));
+        ]);
     }
 
     public function testDuplicateShardId()
@@ -160,29 +163,30 @@ class PoolingShardConnectionTest extends \PHPUnit\Framework\TestCase
         $this->expectException('InvalidArgumentException');
         $this->expectExceptionMessage('Shard 1 is duplicated in the configuration.');
 
-        DriverManager::getConnection(array(
-            'wrapperClass' => 'Doctrine\DBAL\Sharding\PoolingShardConnection',
+        DriverManager::getConnection([
+            'wrapperClass' => PoolingShardConnection::class,
             'driver' => 'pdo_sqlite',
-            'global' => array('memory' => true),
-            'shards' => array(
-                array('id' => 1, 'memory' => true),
-                array('id' => 1, 'memory' => true),
-            ),
+            'global' => ['memory' => true],
+            'shards' => [
+                ['id' => 1, 'memory' => true],
+                ['id' => 1, 'memory' => true],
+            ],
             'shardChoser' => 'Doctrine\DBAL\Sharding\ShardChoser\MultiTenantShardChoser',
-        ));
+        ]);
     }
 
     public function testSwitchShardWithOpenTransactionException()
     {
-        $conn = DriverManager::getConnection(array(
-            'wrapperClass' => 'Doctrine\DBAL\Sharding\PoolingShardConnection',
+        /** @var PoolingShardConnection $conn */
+        $conn = DriverManager::getConnection([
+            'wrapperClass' => PoolingShardConnection::class,
             'driver' => 'pdo_sqlite',
-            'global' => array('memory' => true),
-            'shards' => array(
-                array('id' => 1, 'memory' => true),
-            ),
+            'global' => ['memory' => true],
+            'shards' => [
+                ['id' => 1, 'memory' => true],
+            ],
             'shardChoser' => 'Doctrine\DBAL\Sharding\ShardChoser\MultiTenantShardChoser',
-        ));
+        ]);
 
         $conn->beginTransaction();
 
@@ -193,15 +197,16 @@ class PoolingShardConnectionTest extends \PHPUnit\Framework\TestCase
 
     public function testGetActiveShardId()
     {
-        $conn = DriverManager::getConnection(array(
-            'wrapperClass' => 'Doctrine\DBAL\Sharding\PoolingShardConnection',
+        /** @var PoolingShardConnection $conn */
+        $conn = DriverManager::getConnection([
+            'wrapperClass' => PoolingShardConnection::class,
             'driver' => 'pdo_sqlite',
-            'global' => array('memory' => true),
-            'shards' => array(
-                array('id' => 1, 'memory' => true),
-            ),
+            'global' => ['memory' => true],
+            'shards' => [
+                ['id' => 1, 'memory' => true],
+            ],
             'shardChoser' => 'Doctrine\DBAL\Sharding\ShardChoser\MultiTenantShardChoser',
-        ));
+        ]);
 
         self::assertNull($conn->getActiveShardId());
 
@@ -217,55 +222,57 @@ class PoolingShardConnectionTest extends \PHPUnit\Framework\TestCase
 
     public function testGetParamsOverride()
     {
-        $conn = DriverManager::getConnection(array(
-            'wrapperClass' => 'Doctrine\DBAL\Sharding\PoolingShardConnection',
+        /** @var PoolingShardConnection $conn */
+        $conn = DriverManager::getConnection([
+            'wrapperClass' => PoolingShardConnection::class,
             'driver' => 'pdo_sqlite',
-            'global' => array('memory' => true, 'host' => 'localhost'),
-            'shards' => array(
-                array('id' => 1, 'memory' => true, 'host' => 'foo'),
-            ),
+            'global' => ['memory' => true, 'host' => 'localhost'],
+            'shards' => [
+                ['id' => 1, 'memory' => true, 'host' => 'foo'],
+            ],
             'shardChoser' => 'Doctrine\DBAL\Sharding\ShardChoser\MultiTenantShardChoser',
-        ));
+        ]);
 
-        self::assertEquals(array(
-            'wrapperClass' => 'Doctrine\DBAL\Sharding\PoolingShardConnection',
+        self::assertEquals([
+            'wrapperClass' => PoolingShardConnection::class,
             'driver' => 'pdo_sqlite',
-            'global' => array('memory' => true, 'host' => 'localhost'),
-            'shards' => array(
-                array('id' => 1, 'memory' => true, 'host' => 'foo'),
-            ),
+            'global' => ['memory' => true, 'host' => 'localhost'],
+            'shards' => [
+                ['id' => 1, 'memory' => true, 'host' => 'foo'],
+            ],
             'shardChoser' => new MultiTenantShardChoser(),
             'memory' => true,
             'host' => 'localhost',
-        ), $conn->getParams());
+        ], $conn->getParams());
 
         $conn->connect(1);
-        self::assertEquals(array(
-            'wrapperClass' => 'Doctrine\DBAL\Sharding\PoolingShardConnection',
+        self::assertEquals([
+            'wrapperClass' => PoolingShardConnection::class,
             'driver' => 'pdo_sqlite',
-            'global' => array('memory' => true, 'host' => 'localhost'),
-            'shards' => array(
-                array('id' => 1, 'memory' => true, 'host' => 'foo'),
-            ),
+            'global' => ['memory' => true, 'host' => 'localhost'],
+            'shards' => [
+                ['id' => 1, 'memory' => true, 'host' => 'foo'],
+            ],
             'shardChoser' => new MultiTenantShardChoser(),
             'id' => 1,
             'memory' => true,
             'host' => 'foo',
-        ), $conn->getParams());
+        ], $conn->getParams());
     }
 
     public function testGetHostOverride()
     {
-        $conn = DriverManager::getConnection(array(
-            'wrapperClass' => 'Doctrine\DBAL\Sharding\PoolingShardConnection',
+        /** @var PoolingShardConnection $conn */
+        $conn = DriverManager::getConnection([
+            'wrapperClass' => PoolingShardConnection::class,
             'driver' => 'pdo_sqlite',
             'host' => 'localhost',
-            'global' => array('memory' => true),
-            'shards' => array(
-                array('id' => 1, 'memory' => true, 'host' => 'foo'),
-            ),
+            'global' => ['memory' => true],
+            'shards' => [
+                ['id' => 1, 'memory' => true, 'host' => 'foo'],
+            ],
             'shardChoser' => 'Doctrine\DBAL\Sharding\ShardChoser\MultiTenantShardChoser',
-        ));
+        ]);
 
         self::assertEquals('localhost', $conn->getHost());
 
@@ -275,16 +282,17 @@ class PoolingShardConnectionTest extends \PHPUnit\Framework\TestCase
 
     public function testGetPortOverride()
     {
-        $conn = DriverManager::getConnection(array(
-            'wrapperClass' => 'Doctrine\DBAL\Sharding\PoolingShardConnection',
+        /** @var PoolingShardConnection $conn */
+        $conn = DriverManager::getConnection([
+            'wrapperClass' => PoolingShardConnection::class,
             'driver' => 'pdo_sqlite',
             'port' => 3306,
-            'global' => array('memory' => true),
-            'shards' => array(
-                array('id' => 1, 'memory' => true, 'port' => 3307),
-            ),
+            'global' => ['memory' => true],
+            'shards' => [
+                ['id' => 1, 'memory' => true, 'port' => 3307],
+            ],
             'shardChoser' => 'Doctrine\DBAL\Sharding\ShardChoser\MultiTenantShardChoser',
-        ));
+        ]);
 
         self::assertEquals(3306, $conn->getPort());
 
@@ -294,16 +302,17 @@ class PoolingShardConnectionTest extends \PHPUnit\Framework\TestCase
 
     public function testGetUsernameOverride()
     {
-        $conn = DriverManager::getConnection(array(
-            'wrapperClass' => 'Doctrine\DBAL\Sharding\PoolingShardConnection',
+        /** @var PoolingShardConnection $conn */
+        $conn = DriverManager::getConnection([
+            'wrapperClass' => PoolingShardConnection::class,
             'driver' => 'pdo_sqlite',
             'user' => 'foo',
-            'global' => array('memory' => true),
-            'shards' => array(
-                array('id' => 1, 'memory' => true, 'user' => 'bar'),
-            ),
+            'global' => ['memory' => true],
+            'shards' => [
+                ['id' => 1, 'memory' => true, 'user' => 'bar'],
+            ],
             'shardChoser' => 'Doctrine\DBAL\Sharding\ShardChoser\MultiTenantShardChoser',
-        ));
+        ]);
 
         self::assertEquals('foo', $conn->getUsername());
 
@@ -313,16 +322,17 @@ class PoolingShardConnectionTest extends \PHPUnit\Framework\TestCase
 
     public function testGetPasswordOverride()
     {
-        $conn = DriverManager::getConnection(array(
-            'wrapperClass' => 'Doctrine\DBAL\Sharding\PoolingShardConnection',
+        /** @var PoolingShardConnection $conn */
+        $conn = DriverManager::getConnection([
+            'wrapperClass' => PoolingShardConnection::class,
             'driver' => 'pdo_sqlite',
             'password' => 'foo',
-            'global' => array('memory' => true),
-            'shards' => array(
-                array('id' => 1, 'memory' => true, 'password' => 'bar'),
-            ),
+            'global' => ['memory' => true],
+            'shards' => [
+                ['id' => 1, 'memory' => true, 'password' => 'bar'],
+            ],
             'shardChoser' => 'Doctrine\DBAL\Sharding\ShardChoser\MultiTenantShardChoser',
-        ));
+        ]);
 
         self::assertEquals('foo', $conn->getPassword());
 

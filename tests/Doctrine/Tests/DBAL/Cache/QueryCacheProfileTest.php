@@ -12,29 +12,19 @@ class QueryCacheProfileTest extends DbalTestCase
     private const LIFETIME  = 3600;
     private const CACHE_KEY = 'user_specified_cache_key';
 
-    /**
-     * @var QueryCacheProfile
-     */
+    /** @var QueryCacheProfile */
     private $queryCacheProfile;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $query = 'SELECT * FROM foo WHERE bar = ?';
 
-    /**
-     * @var int[]
-     */
+    /** @var int[] */
     private $params = [666];
 
-    /**
-     * @var string[]
-     */
+    /** @var int[] */
     private $types = [ParameterType::INTEGER];
 
-    /**
-     * @var string[]
-     */
+    /** @var string[] */
     private $connectionParams = [
             'dbname'   => 'database_name',
             'user'     => 'database_user',

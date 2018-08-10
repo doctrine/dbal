@@ -7,10 +7,11 @@ use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Tests\DbalFunctionalTestCase;
 use function base64_decode;
 use function stream_get_contents;
 
-class StatementTest extends \Doctrine\Tests\DbalFunctionalTestCase
+class StatementTest extends DbalFunctionalTestCase
 {
     protected function setUp()
     {
@@ -18,14 +19,14 @@ class StatementTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $table = new Table('stmt_test');
         $table->addColumn('id', 'integer');
-        $table->addColumn('name', 'text', array('notnull' => false));
+        $table->addColumn('name', 'text', ['notnull' => false]);
         $this->_conn->getSchemaManager()->dropAndCreateTable($table);
     }
 
     public function testStatementIsReusableAfterClosingCursor()
     {
-        $this->_conn->insert('stmt_test', array('id' => 1));
-        $this->_conn->insert('stmt_test', array('id' => 2));
+        $this->_conn->insert('stmt_test', ['id' => 1]);
+        $this->_conn->insert('stmt_test', ['id' => 2]);
 
         $stmt = $this->_conn->prepare('SELECT id FROM stmt_test ORDER BY id');
 
@@ -45,35 +46,35 @@ class StatementTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testReuseStatementWithLongerResults()
     {
-        $sm = $this->_conn->getSchemaManager();
+        $sm    = $this->_conn->getSchemaManager();
         $table = new Table('stmt_longer_results');
         $table->addColumn('param', 'string');
         $table->addColumn('val', 'text');
         $sm->createTable($table);
 
-        $row1 = array(
+        $row1 = [
             'param' => 'param1',
             'val' => 'X',
-        );
+        ];
         $this->_conn->insert('stmt_longer_results', $row1);
 
         $stmt = $this->_conn->prepare('SELECT param, val FROM stmt_longer_results ORDER BY param');
         $stmt->execute();
-        self::assertArraySubset(array(
-            array('param1', 'X'),
-        ), $stmt->fetchAll(FetchMode::NUMERIC));
+        self::assertArraySubset([
+            ['param1', 'X'],
+        ], $stmt->fetchAll(FetchMode::NUMERIC));
 
-        $row2 = array(
+        $row2 = [
             'param' => 'param2',
             'val' => 'A bit longer value',
-        );
+        ];
         $this->_conn->insert('stmt_longer_results', $row2);
 
         $stmt->execute();
-        self::assertArraySubset(array(
-            array('param1', 'X'),
-            array('param2', 'A bit longer value'),
-        ), $stmt->fetchAll(FetchMode::NUMERIC));
+        self::assertArraySubset([
+            ['param1', 'X'],
+            ['param2', 'A bit longer value'],
+        ], $stmt->fetchAll(FetchMode::NUMERIC));
     }
 
     public function testFetchLongBlob()
@@ -82,11 +83,9 @@ class StatementTest extends \Doctrine\Tests\DbalFunctionalTestCase
         // but is still not enough to store a LONGBLOB of the max possible size
         $this->iniSet('memory_limit', '4G');
 
-        $sm = $this->_conn->getSchemaManager();
+        $sm    = $this->_conn->getSchemaManager();
         $table = new Table('stmt_long_blob');
-        $table->addColumn('contents', 'blob', array(
-            'length' => 0xFFFFFFFF,
-        ));
+        $table->addColumn('contents', 'blob', ['length' => 0xFFFFFFFF]);
         $sm->createTable($table);
 
         $contents = base64_decode(<<<EOF
@@ -104,7 +103,7 @@ sneNxmNb/POO1pRXc7vnF2nc13Rq0cFWiyXkuHmzxuOtzUYfC7fEmK/3mx4QZd5u4E7XJWz6+dey
 Za4tXHUiPyB8Vm781oaT+3fN6Y/eUFDfPkcNWetNxb+tlxEZsPqPdZMOzS4rxwJ8CDC+ABj1+Tu0
 d+N0hqezcjblboJ3Bj8ARJilHX4FAAA=
 EOF
-    );
+        );
 
         $this->_conn->insert('stmt_long_blob', ['contents' => $contents], [ParameterType::LARGE_OBJECT]);
 
@@ -122,8 +121,8 @@ EOF
 
     public function testIncompletelyFetchedStatementDoesNotBlockConnection()
     {
-        $this->_conn->insert('stmt_test', array('id' => 1));
-        $this->_conn->insert('stmt_test', array('id' => 2));
+        $this->_conn->insert('stmt_test', ['id' => 1]);
+        $this->_conn->insert('stmt_test', ['id' => 2]);
 
         $stmt1 = $this->_conn->prepare('SELECT id FROM stmt_test');
         $stmt1->execute();
@@ -133,37 +132,37 @@ EOF
         $stmt1->fetch();
 
         $stmt2 = $this->_conn->prepare('SELECT id FROM stmt_test WHERE id = ?');
-        $stmt2->execute(array(1));
+        $stmt2->execute([1]);
         self::assertEquals(1, $stmt2->fetchColumn());
     }
 
     public function testReuseStatementAfterClosingCursor()
     {
-        $this->_conn->insert('stmt_test', array('id' => 1));
-        $this->_conn->insert('stmt_test', array('id' => 2));
+        $this->_conn->insert('stmt_test', ['id' => 1]);
+        $this->_conn->insert('stmt_test', ['id' => 2]);
 
         $stmt = $this->_conn->prepare('SELECT id FROM stmt_test WHERE id = ?');
 
-        $stmt->execute(array(1));
+        $stmt->execute([1]);
         $id = $stmt->fetchColumn();
         self::assertEquals(1, $id);
 
         $stmt->closeCursor();
 
-        $stmt->execute(array(2));
+        $stmt->execute([2]);
         $id = $stmt->fetchColumn();
         self::assertEquals(2, $id);
     }
 
     public function testReuseStatementWithParameterBoundByReference()
     {
-        $this->_conn->insert('stmt_test', array('id' => 1));
-        $this->_conn->insert('stmt_test', array('id' => 2));
+        $this->_conn->insert('stmt_test', ['id' => 1]);
+        $this->_conn->insert('stmt_test', ['id' => 2]);
 
+        $id   = 1;
         $stmt = $this->_conn->prepare('SELECT id FROM stmt_test WHERE id = ?');
         $stmt->bindParam(1, $id);
 
-        $id = 1;
         $stmt->execute();
         self::assertEquals(1, $stmt->fetchColumn());
 
@@ -174,8 +173,8 @@ EOF
 
     public function testReuseStatementWithReboundValue()
     {
-        $this->_conn->insert('stmt_test', array('id' => 1));
-        $this->_conn->insert('stmt_test', array('id' => 2));
+        $this->_conn->insert('stmt_test', ['id' => 1]);
+        $this->_conn->insert('stmt_test', ['id' => 2]);
 
         $stmt = $this->_conn->prepare('SELECT id FROM stmt_test WHERE id = ?');
 
@@ -190,8 +189,8 @@ EOF
 
     public function testReuseStatementWithReboundParam()
     {
-        $this->_conn->insert('stmt_test', array('id' => 1));
-        $this->_conn->insert('stmt_test', array('id' => 2));
+        $this->_conn->insert('stmt_test', ['id' => 1]);
+        $this->_conn->insert('stmt_test', ['id' => 2]);
 
         $stmt = $this->_conn->prepare('SELECT id FROM stmt_test WHERE id = ?');
 
@@ -252,7 +251,7 @@ EOF
      */
     public function testFetchFromExecutedStatementWithClosedCursor(callable $fetch, $expected)
     {
-        $this->_conn->insert('stmt_test', array('id' => 1));
+        $this->_conn->insert('stmt_test', ['id' => 1]);
 
         $stmt = $this->_conn->prepare('SELECT id FROM stmt_test');
         $stmt->execute();
@@ -263,26 +262,26 @@ EOF
 
     public static function emptyFetchProvider()
     {
-        return array(
-            'fetch' => array(
+        return [
+            'fetch' => [
                 function (Statement $stmt) {
                     return $stmt->fetch();
                 },
                 false,
-            ),
-            'fetch-column' => array(
+            ],
+            'fetch-column' => [
                 function (Statement $stmt) {
                     return $stmt->fetchColumn();
                 },
                 false,
-            ),
-            'fetch-all' => array(
+            ],
+            'fetch-all' => [
                 function (Statement $stmt) {
                     return $stmt->fetchAll();
                 },
-                array(),
-            ),
-        );
+                [],
+            ],
+        ];
     }
 
     public function testFetchInColumnMode() : void

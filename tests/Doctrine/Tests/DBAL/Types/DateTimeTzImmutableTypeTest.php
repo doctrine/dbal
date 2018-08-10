@@ -7,23 +7,21 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\DateTimeTzImmutableType;
 use Doctrine\DBAL\Types\Type;
+use PHPUnit\Framework\TestCase;
+use Prophecy\Prophecy\ObjectProphecy;
 use function get_class;
 
-class DateTimeTzImmutableTypeTest extends \PHPUnit\Framework\TestCase
+class DateTimeTzImmutableTypeTest extends TestCase
 {
-    /**
-     * @var \Doctrine\DBAL\Platforms\AbstractPlatform|\Prophecy\Prophecy\ObjectProphecy
-     */
+    /** @var AbstractPlatform|ObjectProphecy */
     private $platform;
 
-    /**
-     * @var DateTimeTzImmutableType
-     */
+    /** @var Type */
     private $type;
 
     protected function setUp()
     {
-        $this->type = Type::getType('datetimetz_immutable');
+        $this->type     = Type::getType('datetimetz_immutable');
         $this->platform = $this->prophesize(AbstractPlatform::class);
     }
 
@@ -44,6 +42,7 @@ class DateTimeTzImmutableTypeTest extends \PHPUnit\Framework\TestCase
 
     public function testConvertsDateTimeImmutableInstanceToDatabaseValue()
     {
+        /** @var \DateTimeImmutable|ObjectProphecy $date */
         $date = $this->prophesize(\DateTimeImmutable::class);
 
         $this->platform->getDateTimeTzFormatString()->willReturn('Y-m-d H:i:s T')->shouldBeCalled();

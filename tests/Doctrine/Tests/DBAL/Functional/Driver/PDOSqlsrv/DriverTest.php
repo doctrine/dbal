@@ -2,7 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Functional\Driver\PDOSqlsrv;
 
-use Doctrine\DBAL\Driver\Connection as Connection;
+use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\PDOSqlsrv\Driver;
 use Doctrine\Tests\DBAL\Functional\Driver\AbstractDriverTest;
 use PDO;
@@ -67,6 +67,7 @@ class DriverTest extends AbstractDriverTest
 
     public function testDriverOptions() : void
     {
+        /** @var \PDO $connection */
         $connection = $this->getConnection([PDO::ATTR_CASE => PDO::CASE_UPPER]);
 
         self::assertSame(PDO::CASE_UPPER, $connection->getAttribute(PDO::ATTR_CASE));
