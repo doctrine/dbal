@@ -979,7 +979,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    protected function doModifyLimitQuery($query, $limit, $offset = null)
+    protected function doModifyLimitQuery(string $query, ?int $limit, int $offset) : string
     {
         if ($limit === null && $offset <= 0) {
             return $query;
