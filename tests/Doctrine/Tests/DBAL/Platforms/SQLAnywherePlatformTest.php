@@ -760,7 +760,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         );
         self::assertEquals(
             'SELECT TOP ALL START AT 6 * FROM user',
-            $this->platform->modifyLimitQuery('SELECT * FROM user', 0, 5)
+            $this->platform->modifyLimitQuery('SELECT * FROM user', null, 5)
         );
     }
 

@@ -689,10 +689,10 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function doModifyLimitQuery($query, $limit, $offset)
+    protected function doModifyLimitQuery(string $query, ?int $limit, int $offset) : string
     {
         if ($limit === null && $offset > 0) {
-            return $query . ' LIMIT -1 OFFSET ' . $offset;
+            $limit = -1;
         }
 
         return parent::doModifyLimitQuery($query, $limit, $offset);
