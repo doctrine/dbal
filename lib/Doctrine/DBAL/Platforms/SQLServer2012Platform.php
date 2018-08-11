@@ -6,6 +6,7 @@ use Doctrine\DBAL\Schema\Sequence;
 use const PREG_OFFSET_CAPTURE;
 use function preg_match;
 use function preg_match_all;
+use function sprintf;
 use function substr_count;
 
 /**
@@ -92,7 +93,7 @@ class SQLServer2012Platform extends SQLServerPlatform
     /**
      * {@inheritdoc}
      */
-    protected function doModifyLimitQuery($query, $limit, $offset = null)
+    protected function doModifyLimitQuery(string $query, ?int $limit, int $offset) : string
     {
         if ($limit === null && $offset <= 0) {
             return $query;
@@ -125,17 +126,13 @@ class SQLServer2012Platform extends SQLServerPlatform
             }
         }
 
-        if ($offset === null) {
-            $offset = 0;
-        }
-
         // This looks somewhat like MYSQL, but limit/offset are in inverse positions
         // Supposedly SQL:2008 core standard.
         // Per TSQL spec, FETCH NEXT n ROWS ONLY is not valid without OFFSET n ROWS.
-        $query .= ' OFFSET ' . (int) $offset . ' ROWS';
+        $query .= sprintf(' OFFSET %d ROWS', $offset);
 
         if ($limit !== null) {
-            $query .= ' FETCH NEXT ' . (int) $limit . ' ROWS ONLY';
+            $query .= sprintf(' FETCH NEXT %d ROWS ONLY', $limit);
         }
 
         return $query;
