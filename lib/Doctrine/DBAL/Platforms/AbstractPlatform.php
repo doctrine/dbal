@@ -3340,22 +3340,10 @@ abstract class AbstractPlatform
     /**
      * Adds an driver-specific LIMIT clause to the query.
      *
-     * @param string   $query
-     * @param int|null $limit
-     * @param int|null $offset
-     *
-     * @return string
-     *
      * @throws DBALException
      */
-    final public function modifyLimitQuery($query, $limit, $offset = null)
+    final public function modifyLimitQuery(string $query, ?int $limit, int $offset = 0) : string
     {
-        if ($limit !== null) {
-            $limit = (int) $limit;
-        }
-
-        $offset = (int) $offset;
-
         if ($offset < 0) {
             throw new DBALException(sprintf(
                 'Offset must be a positive integer or zero, %d given',
@@ -3375,21 +3363,15 @@ abstract class AbstractPlatform
 
     /**
      * Adds an platform-specific LIMIT clause to the query.
-     *
-     * @param string   $query
-     * @param int|null $limit
-     * @param int|null $offset
-     *
-     * @return string
      */
-    protected function doModifyLimitQuery($query, $limit, $offset)
+    protected function doModifyLimitQuery(string $query, ?int $limit, int $offset) : string
     {
         if ($limit !== null) {
-            $query .= ' LIMIT ' . $limit;
+            $query .= sprintf(' LIMIT %d', $limit);
         }
 
         if ($offset > 0) {
-            $query .= ' OFFSET ' . $offset;
+            $query .= sprintf(' OFFSET %d', $offset);
         }
 
         return $query;
