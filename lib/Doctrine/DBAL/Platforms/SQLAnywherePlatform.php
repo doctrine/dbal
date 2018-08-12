@@ -1351,7 +1351,7 @@ SQL
     /**
      * {@inheritdoc}
      */
-    protected function doModifyLimitQuery($query, $limit, $offset)
+    protected function doModifyLimitQuery(string $query, ?int $limit, int $offset) : string
     {
         $limitOffsetClause = $this->getTopClauseSQL($limit, $offset);
 
