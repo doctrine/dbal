@@ -354,7 +354,7 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     {
         self::assertEquals(
             'SELECT * FROM user',
-            $this->_platform->modifyLimitQuery('SELECT * FROM user', null, null)
+            $this->_platform->modifyLimitQuery('SELECT * FROM user', null, 0)
         );
 
         self::assertEquals(
