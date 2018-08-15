@@ -26,7 +26,6 @@ use Doctrine\DBAL\ParameterType;
 use IteratorAggregate;
 use const SASQL_BOTH;
 use function array_key_exists;
-use function call_user_func_array;
 use function func_get_args;
 use function func_num_args;
 use function gettype;
@@ -280,7 +279,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
 
         switch ($fetchMode) {
             case FetchMode::CUSTOM_OBJECT:
-                while ($row = call_user_func_array([$this, 'fetch'], func_get_args())) {
+                while ($row = $this->fetch(...func_get_args())) {
                     $rows[] = $row;
                 }
                 break;
