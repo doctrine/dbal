@@ -27,7 +27,6 @@ use const DB2_CHAR;
 use const DB2_LONG;
 use const DB2_PARAM_IN;
 use function array_change_key_case;
-use function call_user_func_array;
 use function db2_bind_param;
 use function db2_execute;
 use function db2_fetch_array;
