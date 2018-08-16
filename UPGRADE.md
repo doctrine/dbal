@@ -1,5 +1,9 @@
 # Upgrade to 2.9
 
+## Deprecated `NULL` value of `$offset` in LIMIT queries
+
+The `NULL` value of the `$offset` argument in `AbstractPlatform::(do)?ModifyLimitQuery()` methods is deprecated. If explicitly used in the method call, the absence of the offset should be indicated with a `0`.
+
 ## Deprecated dbal:import CLI command
 
 The `dbal:import` CLI command has been deprecated since it only works with PDO-based drivers by relying on a non-documented behavior of the extension, and it's impossible to make it work with other drivers.
