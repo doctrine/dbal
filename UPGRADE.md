@@ -1,5 +1,9 @@
 # Upgrade to 2.9
 
+## Deprecated `Doctrine\DBAL\Types\Type::__toString()`
+
+Relying on string representation is discouraged and will be removed in DBAL 3.0.
+
 ## Deprecated `NULL` value of `$offset` in LIMIT queries
 
 The `NULL` value of the `$offset` argument in `AbstractPlatform::(do)?ModifyLimitQuery()` methods is deprecated. If explicitly used in the method call, the absence of the offset should be indicated with a `0`.
