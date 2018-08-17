@@ -123,20 +123,6 @@ abstract class Type
     }
 
     /**
-     * Gets the default length of this type.
-     *
-     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform
-     *
-     * @return int|null
-     *
-     * @deprecated Rely on information provided by the platform instead.
-     */
-    public function getDefaultLength(AbstractPlatform $platform)
-    {
-        return null;
-    }
-
-    /**
      * Gets the SQL declaration snippet for a field of this type.
      *
      * @param array                                     $fieldDeclaration The field declaration.
