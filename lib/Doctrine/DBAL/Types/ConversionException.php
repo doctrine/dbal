@@ -120,4 +120,13 @@ class ConversionException extends \Doctrine\DBAL\DBALException
             $error
         ));
     }
+
+    public static function conversionFailedUnserialization(string $format, string $error) : self
+    {
+        return new self(sprintf(
+            "Could not convert database value to '%s' as an error was triggered by the unserialization: '%s'",
+            $format,
+            $error
+        ));
+    }
 }

@@ -4,9 +4,6 @@ namespace Doctrine\Tests\DBAL\Types;
 
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DBAL\Mocks\MockPlatform;
-use const E_ALL;
-use const E_STRICT;
-use function error_reporting;
 use function serialize;
 
 class ObjectTest extends \Doctrine\Tests\DbalTestCase
@@ -27,11 +24,6 @@ class ObjectTest extends \Doctrine\Tests\DbalTestCase
         $this->_type = Type::getType('object');
     }
 
-    protected function tearDown()
-    {
-        error_reporting(-1); // reactive all error levels
-    }
-
     public function testObjectConvertsToDatabaseValue()
     {
         self::assertInternalType('string', $this->_type->convertToDatabaseValue(new \stdClass(), $this->_platform));
@@ -44,8 +36,8 @@ class ObjectTest extends \Doctrine\Tests\DbalTestCase
 
     public function testConversionFailure()
     {
-        error_reporting( (E_ALL | E_STRICT) - \E_NOTICE );
         $this->expectException('Doctrine\DBAL\Types\ConversionException');
+        $this->expectExceptionMessage("Could not convert database value to 'object' as an error was triggered by the unserialization: 'unserialize(): Error at offset 0 of 7 bytes'");
         $this->_type->convertToPHPValue('abcdefg', $this->_platform);
     }
 
