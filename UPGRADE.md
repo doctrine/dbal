@@ -1,5 +1,9 @@
 # Upgrade to 3.0
 
+## BC BREAK: `Doctrine\DBAL\Types\Type::__toString()` removed
+
+Relying on string representation was discouraged and has been removed.
+
 ## BC BREAK: Changes in the `Doctrine\DBAL\Schema` API
 
 - Removed unused method `Doctrine\DBAL\Schema\AbstractSchemaManager::_getPortableFunctionsList()`

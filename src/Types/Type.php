@@ -8,9 +8,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 use function array_map;
 use function get_class;
-use function str_replace;
-use function strrpos;
-use function substr;
 
 /**
  * The base class for so-called Doctrine mapping types.
@@ -225,23 +222,6 @@ abstract class Type
             },
             self::getTypeRegistry()->getMap()
         );
-    }
-
-    /**
-     * @deprecated Relying on string representation is discouraged and will be removed in DBAL 3.0.
-     *
-     * @return string
-     */
-    public function __toString()
-    {
-        $type     = static::class;
-        $position = strrpos($type, '\\');
-
-        if ($position !== false) {
-            $type = substr($type, $position);
-        }
-
-        return str_replace('Type', '', $type);
     }
 
     /**
