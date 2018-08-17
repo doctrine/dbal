@@ -115,18 +115,6 @@ abstract class Type
     }
 
     /**
-     * Gets the default length of this type.
-     *
-     * @deprecated Rely on information provided by the platform instead.
-     *
-     * @return int|null
-     */
-    public function getDefaultLength(AbstractPlatform $platform)
-    {
-        return null;
-    }
-
-    /**
      * Gets the SQL declaration snippet for a field of this type.
      *
      * @param mixed[]          $fieldDeclaration The field declaration.
