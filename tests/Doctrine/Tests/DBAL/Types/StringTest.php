@@ -25,11 +25,6 @@ class StringTest extends DbalTestCase
         self::assertEquals('DUMMYVARCHAR()', $this->type->getSqlDeclaration([], $this->platform));
     }
 
-    public function testReturnsDefaultLengthFromPlatformVarchar()
-    {
-        self::assertEquals(255, $this->type->getDefaultLength($this->platform));
-    }
-
     public function testConvertToPHPValue()
     {
         self::assertInternalType('string', $this->type->convertToPHPValue('foo', $this->platform));
