@@ -1,5 +1,9 @@
 # Upgrade to 3.0
 
+## BC BREAK: `Doctrine\DBAL\Types\Type::__toString()` removed
+
+Relying on string representation was discouraged and has been removed.
+
 ## BC BREAK: The `NULL` value of `$offset` in LIMIT queries is not allowed
 
 The `NULL` value of the `$offset` argument in `AbstractPlatform::(do)?ModifyLimitQuery()` methods is no longer allowed. The absence of the offset should be indicated with a `0` which is now the default value.
