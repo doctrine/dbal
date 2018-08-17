@@ -20,14 +20,6 @@ class StringType extends Type
     /**
      * {@inheritdoc}
      */
-    public function getDefaultLength(AbstractPlatform $platform)
-    {
-        return $platform->getVarcharDefaultLength();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getName()
     {
         return Type::STRING;
