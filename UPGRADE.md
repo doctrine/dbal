@@ -1,5 +1,9 @@
 # Upgrade to 3.0
 
+## BC BREAK: `Doctrine\DBAL\Types\Type::getDefaultLength()` removed
+
+The `Doctrine\DBAL\Types\Type::getDefaultLength()` method has been removed as it served no purpose.
+
 ## BC BREAK: `Doctrine\DBAL\Types\Type::__toString()` removed
 
 Relying on string representation was discouraged and has been removed.
