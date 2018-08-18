@@ -256,18 +256,6 @@ abstract class Type
     }
 
     /**
-     * @return string
-     *
-     * @deprecated Relying on string representation is discouraged and will be removed in DBAL 3.0.
-     */
-    public function __toString()
-    {
-        $e = explode('\\', get_class($this));
-
-        return str_replace('Type', '', end($e));
-    }
-
-    /**
      * Does working with this column require SQL conversion functions?
      *
      * This is a metadata function that is required for example in the ORM.
