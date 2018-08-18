@@ -9,7 +9,6 @@ use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use Throwable;
 use function array_filter;
@@ -33,18 +32,6 @@ class WriteTest extends DbalFunctionalTestCase
         $this->connection->getSchemaManager()->dropAndCreateTable($table);
 
         $this->connection->executeUpdate('DELETE FROM write_table');
-    }
-
-    /**
-     * @group DBAL-80
-     */
-    public function testExecuteUpdateFirstTypeIsNull() : void
-    {
-        $sql = 'INSERT INTO write_table (test_string, test_int) VALUES (?, ?)';
-        $this->connection->executeUpdate($sql, ['text', 1111], [null, ParameterType::INTEGER]);
-
-        $sql = 'SELECT * FROM write_table WHERE test_string = ? AND test_int = ?';
-        self::assertTrue((bool) $this->connection->fetchColumn($sql, ['text', 1111]));
     }
 
     public function testExecuteUpdate() : void
@@ -96,8 +83,8 @@ class WriteTest extends DbalFunctionalTestCase
         $sql  = 'INSERT INTO write_table (test_int, test_string) VALUES (?, ?)';
         $stmt = $this->connection->prepare($sql);
 
-        $stmt->bindValue(1, 1, Type::getType('integer'));
-        $stmt->bindValue(2, 'foo', Type::getType('string'));
+        $stmt->bindValue(1, 1, ParameterType::INTEGER);
+        $stmt->bindValue(2, 'foo', ParameterType::STRING);
         $stmt->execute();
 
         self::assertEquals(1, $stmt->rowCount());
@@ -108,8 +95,8 @@ class WriteTest extends DbalFunctionalTestCase
         $sql  = 'INSERT INTO write_table (test_int, test_string) VALUES (?, ?)';
         $stmt = $this->connection->prepare($sql);
 
-        $stmt->bindValue(1, 1, 'integer');
-        $stmt->bindValue(2, 'foo', 'string');
+        $stmt->bindValue(1, 1, ParameterType::INTEGER);
+        $stmt->bindValue(2, 'foo', ParameterType::STRING);
         $stmt->execute();
 
         self::assertEquals(1, $stmt->rowCount());

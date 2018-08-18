@@ -26,7 +26,7 @@ class DateImmutableTypeTest extends TestCase
     protected function setUp() : void
     {
         $this->type     = Type::getType('date_immutable');
-        $this->platform = $this->getMockForAbstractClass(AbstractPlatform::class);
+        $this->platform = $this->createMock(AbstractPlatform::class);
     }
 
     public function testFactoryCreatesCorrectType() : void
@@ -46,13 +46,19 @@ class DateImmutableTypeTest extends TestCase
 
     public function testConvertsDateTimeImmutableInstanceToDatabaseValue() : void
     {
-        $date = $this->prophesize(DateTimeImmutable::class);
+        $date = $this->createMock(DateTimeImmutable::class);
 
-        $date->format('Y-m-d')->willReturn('2016-01-01')->shouldBeCalled();
+        $this->platform->expects($this->once())
+            ->method('getDateFormatString')
+            ->willReturn('Y-m-d');
+        $date->expects($this->once())
+            ->method('format')
+            ->with('Y-m-d')
+            ->willReturn('2016-01-01');
 
         self::assertSame(
             '2016-01-01',
-            $this->type->convertToDatabaseValue($date->reveal(), $this->platform)
+            $this->type->convertToDatabaseValue($date, $this->platform)
         );
     }
 
@@ -82,6 +88,10 @@ class DateImmutableTypeTest extends TestCase
 
     public function testConvertsDateStringToPHPValue() : void
     {
+        $this->platform->expects($this->once())
+            ->method('getDateFormatString')
+            ->willReturn('Y-m-d');
+
         $date = $this->type->convertToPHPValue('2016-01-01', $this->platform);
 
         self::assertInstanceOf(DateTimeImmutable::class, $date);
@@ -90,6 +100,10 @@ class DateImmutableTypeTest extends TestCase
 
     public function testResetTimeFractionsWhenConvertingToPHPValue() : void
     {
+        $this->platform->expects($this->any())
+            ->method('getDateFormatString')
+            ->willReturn('Y-m-d');
+
         $date = $this->type->convertToPHPValue('2016-01-01', $this->platform);
 
         self::assertSame('2016-01-01 00:00:00.000000', $date->format('Y-m-d H:i:s.u'));

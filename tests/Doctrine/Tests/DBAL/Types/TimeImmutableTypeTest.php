@@ -11,12 +11,13 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\TimeImmutableType;
 use Doctrine\DBAL\Types\Type;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use function get_class;
 
 class TimeImmutableTypeTest extends TestCase
 {
-    /** @var AbstractPlatform|ObjectProphecy */
+    /** @var AbstractPlatform|MockObject */
     private $platform;
 
     /** @var TimeImmutableType */
@@ -25,7 +26,7 @@ class TimeImmutableTypeTest extends TestCase
     protected function setUp() : void
     {
         $this->type     = Type::getType('time_immutable');
-        $this->platform = $this->getMockForAbstractClass(AbstractPlatform::class);
+        $this->platform = $this->getMockBuilder(AbstractPlatform::class)->getMock();
     }
 
     public function testFactoryCreatesCorrectType() : void
@@ -45,13 +46,19 @@ class TimeImmutableTypeTest extends TestCase
 
     public function testConvertsDateTimeImmutableInstanceToDatabaseValue() : void
     {
-        $date = $this->prophesize(DateTimeImmutable::class);
+        $date = $this->getMockBuilder(DateTimeImmutable::class)->getMock();
 
-        $date->format('H:i:s')->willReturn('15:58:59')->shouldBeCalled();
+        $this->platform->expects($this->once())
+            ->method('getTimeFormatString')
+            ->willReturn('H:i:s');
+        $date->expects($this->once())
+            ->method('format')
+            ->with('H:i:s')
+            ->willReturn('15:58:59');
 
         self::assertSame(
             '15:58:59',
-            $this->type->convertToDatabaseValue($date->reveal(), $this->platform)
+            $this->type->convertToDatabaseValue($date, $this->platform)
         );
     }
 
@@ -81,6 +88,10 @@ class TimeImmutableTypeTest extends TestCase
 
     public function testConvertsTimeStringToPHPValue() : void
     {
+        $this->platform->expects($this->once())
+            ->method('getTimeFormatString')
+            ->willReturn('H:i:s');
+
         $date = $this->type->convertToPHPValue('15:58:59', $this->platform);
 
         self::assertInstanceOf(DateTimeImmutable::class, $date);
@@ -89,6 +100,10 @@ class TimeImmutableTypeTest extends TestCase
 
     public function testResetDateFractionsWhenConvertingToPHPValue() : void
     {
+        $this->platform->expects($this->any())
+            ->method('getTimeFormatString')
+            ->willReturn('H:i:s');
+
         $date = $this->type->convertToPHPValue('15:58:59', $this->platform);
 
         self::assertSame('1970-01-01 15:58:59', $date->format('Y-m-d H:i:s'));
