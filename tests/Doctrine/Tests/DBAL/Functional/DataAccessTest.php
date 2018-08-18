@@ -28,9 +28,11 @@ use const PHP_EOL;
 use function array_change_key_case;
 use function array_filter;
 use function array_keys;
+use function assert;
 use function count;
 use function date;
 use function implode;
+use function is_array;
 use function is_numeric;
 use function json_encode;
 use function property_exists;
@@ -521,6 +523,8 @@ class DataAccessTest extends DbalFunctionalTestCase
             'FROM fetch_table';
 
         $row = $this->connection->fetchAssoc($sql);
+        self::assertIsArray($row);
+
         $row = array_change_key_case($row, CASE_LOWER);
 
         self::assertEquals($expectedResult, $row['trimmed']);
@@ -931,6 +935,8 @@ class DataAccessTest extends DbalFunctionalTestCase
         $sql .= 'FROM fetch_table';
 
         $row = $this->connection->fetchAssoc($sql);
+        assert(is_array($row));
+
         $row = array_change_key_case($row, CASE_LOWER);
 
         self::assertEquals(2, $row['locate1']);

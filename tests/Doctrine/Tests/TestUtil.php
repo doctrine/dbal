@@ -6,6 +6,7 @@ namespace Doctrine\Tests;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
+use InvalidArgumentException;
 use PHPUnit\Framework\Assert;
 use function explode;
 use function extension_loaded;
@@ -100,6 +101,12 @@ class TestUtil
         if ($platform->supportsCreateDropDatabase()) {
             $dbname = $realConn->getDatabase();
             $realConn->close();
+
+            if ($dbname === null) {
+                throw new InvalidArgumentException(
+                    'You must have a database configured in your connection.'
+                );
+            }
 
             $tmpConn->getSchemaManager()->dropAndCreateDatabase($dbname);
 

@@ -44,7 +44,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $tables = $this->schemaManager->listTables();
 
-        self::assertHasTable($tables, 'list_tables_test_new_name');
+        self::assertHasTable($tables);
     }
 
     public function testListTableWithBinary() : void
@@ -98,7 +98,11 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $diffTable->changeColumn('foo', ['notnull' => false]);
         $diffTable->changeColumn('bar', ['length' => 1024]);
 
-        $this->schemaManager->alterTable($comparator->diffTable($table, $diffTable));
+        $diff = $comparator->diffTable($table, $diffTable);
+
+        self::assertNotNull($diff);
+
+        $this->schemaManager->alterTable($diff);
 
         $columns = $this->schemaManager->listTableColumns($tableName);
 

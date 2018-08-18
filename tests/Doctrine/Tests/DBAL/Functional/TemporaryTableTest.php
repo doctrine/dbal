@@ -22,12 +22,10 @@ class TemporaryTableTest extends DbalFunctionalTestCase
 
     protected function tearDown() : void
     {
-        if ($this->connection) {
-            try {
-                $tempTable = $this->connection->getDatabasePlatform()->getTemporaryTableName('my_temporary');
-                $this->connection->exec($this->connection->getDatabasePlatform()->getDropTemporaryTableSQL($tempTable));
-            } catch (Throwable $e) {
-            }
+        try {
+            $tempTable = $this->connection->getDatabasePlatform()->getTemporaryTableName('my_temporary');
+            $this->connection->exec($this->connection->getDatabasePlatform()->getDropTemporaryTableSQL($tempTable));
+        } catch (Throwable $e) {
         }
 
         parent::tearDown();

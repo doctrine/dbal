@@ -18,6 +18,7 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
 use function array_walk;
+use function assert;
 use function preg_replace;
 use function sprintf;
 use function strtoupper;
@@ -48,8 +49,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
      */
     public function testValidIdentifiers(string $identifier) : void
     {
-        $platform = $this->createPlatform();
-        $platform->assertValidIdentifier($identifier);
+        OraclePlatform::assertValidIdentifier($identifier);
 
         $this->addToAssertionCount(1);
     }
@@ -75,8 +75,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     {
         $this->expectException(DBALException::class);
 
-        $platform = $this->createPlatform();
-        $platform->assertValidIdentifier($identifier);
+        OraclePlatform::assertValidIdentifier($identifier);
     }
 
     public function createPlatform() : AbstractPlatform
@@ -547,9 +546,13 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 
         $comparator = new Comparator();
 
+        $diff = $comparator->diffTable($table1, $table2);
+
+        self::assertNotNull($diff);
+
         // VARBINARY -> BINARY
         // BINARY    -> VARBINARY
-        self::assertEmpty($this->platform->getAlterTableSQL($comparator->diffTable($table1, $table2)));
+        self::assertEmpty($this->platform->getAlterTableSQL($diff));
     }
 
     /**
@@ -695,6 +698,8 @@ class OraclePlatformTest extends AbstractPlatformTestCase
      */
     public function testReturnsDropAutoincrementSQL(string $table, array $expectedSql) : void
     {
+        assert($this->platform instanceof OraclePlatform);
+
         self::assertSame($expectedSql, $this->platform->getDropAutoincrementSql($table));
     }
 

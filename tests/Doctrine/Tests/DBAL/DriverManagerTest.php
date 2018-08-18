@@ -196,7 +196,7 @@ class DriverManagerTest extends DbalTestCase
     }
 
     /**
-     * @return array<string, array<int, mixed>>
+     * @return array<string, mixed>
      */
     public function databaseUrls() : iterable
     {
