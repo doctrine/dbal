@@ -5,6 +5,8 @@ namespace Doctrine\DBAL\Types;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use function array_map;
+use function get_class;
 use function str_replace;
 use function strrpos;
 use function substr;
@@ -16,76 +18,70 @@ use function substr;
  */
 abstract class Type
 {
-    public const TARRAY               = 'array';
-    public const SIMPLE_ARRAY         = 'simple_array';
-    public const JSON_ARRAY           = 'json_array';
-    public const JSON                 = 'json';
     public const BIGINT               = 'bigint';
+    public const BINARY               = 'binary';
+    public const BLOB                 = 'blob';
     public const BOOLEAN              = 'boolean';
+    public const DATE                 = 'date';
+    public const DATE_IMMUTABLE       = 'date_immutable';
+    public const DATEINTERVAL         = 'dateinterval';
     public const DATETIME             = 'datetime';
     public const DATETIME_IMMUTABLE   = 'datetime_immutable';
     public const DATETIMETZ           = 'datetimetz';
     public const DATETIMETZ_IMMUTABLE = 'datetimetz_immutable';
-    public const DATE                 = 'date';
-    public const DATE_IMMUTABLE       = 'date_immutable';
-    public const TIME                 = 'time';
-    public const TIME_IMMUTABLE       = 'time_immutable';
     public const DECIMAL              = 'decimal';
-    public const INTEGER              = 'integer';
-    public const OBJECT               = 'object';
-    public const SMALLINT             = 'smallint';
-    public const STRING               = 'string';
-    public const TEXT                 = 'text';
-    public const BINARY               = 'binary';
-    public const BLOB                 = 'blob';
     public const FLOAT                = 'float';
     public const GUID                 = 'guid';
-    public const DATEINTERVAL         = 'dateinterval';
-
-    /**
-     * Map of already instantiated type objects. One instance per type (flyweight).
-     *
-     * @var self[]
-     */
-    private static $_typeObjects = [];
+    public const INTEGER              = 'integer';
+    public const JSON                 = 'json';
+    public const JSON_ARRAY           = 'json_array';
+    public const OBJECT               = 'object';
+    public const SIMPLE_ARRAY         = 'simple_array';
+    public const SMALLINT             = 'smallint';
+    public const STRING               = 'string';
+    public const TARRAY               = 'array';
+    public const TEXT                 = 'text';
+    public const TIME                 = 'time';
+    public const TIME_IMMUTABLE       = 'time_immutable';
 
     /**
      * The map of supported doctrine mapping types.
-     *
-     * @var string[]
      */
-    private static $_typesMap = [
-        self::TARRAY => ArrayType::class,
-        self::SIMPLE_ARRAY => SimpleArrayType::class,
-        self::JSON_ARRAY => JsonArrayType::class,
-        self::JSON => JsonType::class,
-        self::OBJECT => ObjectType::class,
-        self::BOOLEAN => BooleanType::class,
-        self::INTEGER => IntegerType::class,
-        self::SMALLINT => SmallIntType::class,
-        self::BIGINT => BigIntType::class,
-        self::STRING => StringType::class,
-        self::TEXT => TextType::class,
-        self::DATETIME => DateTimeType::class,
-        self::DATETIME_IMMUTABLE => DateTimeImmutableType::class,
-        self::DATETIMETZ => DateTimeTzType::class,
+    private const BUILTIN_TYPES_MAP = [
+        self::BIGINT               => BigIntType::class,
+        self::BINARY               => BinaryType::class,
+        self::BLOB                 => BlobType::class,
+        self::BOOLEAN              => BooleanType::class,
+        self::DATE                 => DateType::class,
+        self::DATE_IMMUTABLE       => DateImmutableType::class,
+        self::DATEINTERVAL         => DateIntervalType::class,
+        self::DATETIME             => DateTimeType::class,
+        self::DATETIME_IMMUTABLE   => DateTimeImmutableType::class,
+        self::DATETIMETZ           => DateTimeTzType::class,
         self::DATETIMETZ_IMMUTABLE => DateTimeTzImmutableType::class,
-        self::DATE => DateType::class,
-        self::DATE_IMMUTABLE => DateImmutableType::class,
-        self::TIME => TimeType::class,
-        self::TIME_IMMUTABLE => TimeImmutableType::class,
-        self::DECIMAL => DecimalType::class,
-        self::FLOAT => FloatType::class,
-        self::BINARY => BinaryType::class,
-        self::BLOB => BlobType::class,
-        self::GUID => GuidType::class,
-        self::DATEINTERVAL => DateIntervalType::class,
+        self::DECIMAL              => DecimalType::class,
+        self::FLOAT                => FloatType::class,
+        self::GUID                 => GuidType::class,
+        self::INTEGER              => IntegerType::class,
+        self::JSON                 => JsonType::class,
+        self::JSON_ARRAY           => JsonArrayType::class,
+        self::OBJECT               => ObjectType::class,
+        self::SIMPLE_ARRAY         => SimpleArrayType::class,
+        self::SMALLINT             => SmallIntType::class,
+        self::STRING               => StringType::class,
+        self::TARRAY               => ArrayType::class,
+        self::TEXT                 => TextType::class,
+        self::TIME                 => TimeType::class,
+        self::TIME_IMMUTABLE       => TimeImmutableType::class,
     ];
 
+    /** @var TypeRegistry|null */
+    private static $typeRegistry;
+
     /**
-     * Prevents instantiation and forces use of the factory method.
+     * @internal Do not instantiate directly - use {@see Type::addType()} method instead.
      */
-    final private function __construct()
+    final public function __construct()
     {
     }
 
@@ -149,6 +145,29 @@ abstract class Type
     abstract public function getName();
 
     /**
+     * @internal This method is only to be used within DBAL for forward compatibility purposes. Do not use directly.
+     */
+    final public static function getTypeRegistry() : TypeRegistry
+    {
+        if (self::$typeRegistry === null) {
+            self::$typeRegistry = self::createTypeRegistry();
+        }
+
+        return self::$typeRegistry;
+    }
+
+    private static function createTypeRegistry() : TypeRegistry
+    {
+        $registry = new TypeRegistry();
+
+        foreach (self::BUILTIN_TYPES_MAP as $name => $class) {
+            $registry->register($name, new $class());
+        }
+
+        return $registry;
+    }
+
+    /**
      * Factory method to create type instances.
      * Type instances are implemented as flyweights.
      *
@@ -160,14 +179,7 @@ abstract class Type
      */
     public static function getType($name)
     {
-        if (! isset(self::$_typeObjects[$name])) {
-            if (! isset(self::$_typesMap[$name])) {
-                throw DBALException::unknownColumnType($name);
-            }
-            self::$_typeObjects[$name] = new self::$_typesMap[$name]();
-        }
-
-        return self::$_typeObjects[$name];
+        return self::getTypeRegistry()->get($name);
     }
 
     /**
@@ -182,11 +194,7 @@ abstract class Type
      */
     public static function addType($name, $className)
     {
-        if (isset(self::$_typesMap[$name])) {
-            throw DBALException::typeExists($name);
-        }
-
-        self::$_typesMap[$name] = $className;
+        self::getTypeRegistry()->register($name, new $className());
     }
 
     /**
@@ -198,7 +206,7 @@ abstract class Type
      */
     public static function hasType($name)
     {
-        return isset(self::$_typesMap[$name]);
+        return self::getTypeRegistry()->has($name);
     }
 
     /**
@@ -213,15 +221,7 @@ abstract class Type
      */
     public static function overrideType($name, $className)
     {
-        if (! isset(self::$_typesMap[$name])) {
-            throw DBALException::typeNotFound($name);
-        }
-
-        if (isset(self::$_typeObjects[$name])) {
-            unset(self::$_typeObjects[$name]);
-        }
-
-        self::$_typesMap[$name] = $className;
+        self::getTypeRegistry()->override($name, new $className());
     }
 
     /**
@@ -245,7 +245,12 @@ abstract class Type
      */
     public static function getTypesMap()
     {
-        return self::$_typesMap;
+        return array_map(
+            static function (Type $type) : string {
+                return get_class($type);
+            },
+            self::getTypeRegistry()->getMap()
+        );
     }
 
     /**
