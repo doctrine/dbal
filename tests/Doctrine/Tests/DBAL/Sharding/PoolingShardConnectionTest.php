@@ -10,6 +10,7 @@ use Doctrine\DBAL\Sharding\ShardChoser\MultiTenantShardChoser;
 use Doctrine\DBAL\Sharding\ShardingException;
 use PHPUnit\Framework\TestCase;
 use stdClass;
+use function assert;
 
 /**
  * @requires extension pdo_sqlite
@@ -28,6 +29,8 @@ class PoolingShardConnectionTest extends TestCase
             ],
             'shardChoser' => MultiTenantShardChoser::class,
         ]);
+
+        assert($conn instanceof PoolingShardConnection);
 
         self::assertFalse($conn->isConnected(0));
         $conn->connect(0);
@@ -173,6 +176,8 @@ class PoolingShardConnectionTest extends TestCase
             'shardChoser' => MultiTenantShardChoser::class,
         ]);
 
+        assert($conn instanceof PoolingShardConnection);
+
         $conn->beginTransaction();
 
         $this->expectException(ShardingException::class);
@@ -191,6 +196,8 @@ class PoolingShardConnectionTest extends TestCase
             ],
             'shardChoser' => MultiTenantShardChoser::class,
         ]);
+
+        assert($conn instanceof PoolingShardConnection);
 
         self::assertNull($conn->getActiveShardId());
 
@@ -215,6 +222,8 @@ class PoolingShardConnectionTest extends TestCase
             ],
             'shardChoser' => MultiTenantShardChoser::class,
         ]);
+
+        assert($conn instanceof PoolingShardConnection);
 
         self::assertEquals([
             'wrapperClass' => PoolingShardConnection::class,
@@ -256,6 +265,8 @@ class PoolingShardConnectionTest extends TestCase
             'shardChoser' => MultiTenantShardChoser::class,
         ]);
 
+        assert($conn instanceof PoolingShardConnection);
+
         self::assertEquals('localhost', $conn->getHost());
 
         $conn->connect(1);
@@ -274,6 +285,8 @@ class PoolingShardConnectionTest extends TestCase
             ],
             'shardChoser' => MultiTenantShardChoser::class,
         ]);
+
+        assert($conn instanceof PoolingShardConnection);
 
         self::assertEquals(3306, $conn->getPort());
 
@@ -294,6 +307,8 @@ class PoolingShardConnectionTest extends TestCase
             'shardChoser' => MultiTenantShardChoser::class,
         ]);
 
+        assert($conn instanceof PoolingShardConnection);
+
         self::assertEquals('foo', $conn->getUsername());
 
         $conn->connect(1);
@@ -312,6 +327,8 @@ class PoolingShardConnectionTest extends TestCase
             ],
             'shardChoser' => MultiTenantShardChoser::class,
         ]);
+
+        assert($conn instanceof PoolingShardConnection);
 
         self::assertEquals('foo', $conn->getPassword());
 

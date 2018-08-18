@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
+use function assert;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\Connection;
+use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\BlobType;
@@ -274,6 +276,8 @@ SQL;
         $this->connection->insert('test_pk_auto_increment', ['text' => '2']);
 
         $query = $this->connection->query('SELECT id FROM test_pk_auto_increment WHERE text = "2"');
+        assert($query instanceof Statement);
+
         $query->execute();
         $lastUsedIdAfterDelete = (int) $query->fetchColumn();
 

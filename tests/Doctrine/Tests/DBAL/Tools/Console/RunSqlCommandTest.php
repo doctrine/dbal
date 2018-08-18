@@ -10,6 +10,7 @@ use Doctrine\DBAL\Tools\Console\ConsoleRunner;
 use LogicException;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -20,7 +21,7 @@ class RunSqlCommandTest extends TestCase
     /** @var RunSqlCommand */
     private $command;
 
-    /** @var Connection */
+    /** @var Connection|MockObject */
     private $connectionMock;
 
     protected function setUp() : void

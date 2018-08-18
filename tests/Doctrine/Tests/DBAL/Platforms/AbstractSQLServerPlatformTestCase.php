@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Index;
@@ -12,6 +13,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
+use function assert;
 use function sprintf;
 
 abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCase
@@ -1118,6 +1120,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     public function testGeneratesIdentifierNamesInDefaultConstraintDeclarationSQL($table, $column, $expectedSql)
     {
+        assert($this->platform instanceof SQLServerPlatform);
         self::assertSame($expectedSql, $this->platform->getDefaultConstraintDeclarationSQL($table, $column));
     }
 

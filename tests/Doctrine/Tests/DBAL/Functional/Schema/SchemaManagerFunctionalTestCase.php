@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
+use function assert;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\Connection;
+use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\AbstractAsset;
@@ -1547,6 +1549,8 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         $this->connection->insert('test_pk_auto_increment', ['text' => '1']);
 
         $query = $this->connection->query('SELECT id FROM test_pk_auto_increment WHERE text = \'1\'');
+        assert($query instanceof Statement);
+
         $query->execute();
         $lastUsedIdBeforeDelete = (int) $query->fetchColumn();
 
@@ -1555,6 +1559,8 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         $this->connection->insert('test_pk_auto_increment', ['text' => '2']);
 
         $query = $this->connection->query('SELECT id FROM test_pk_auto_increment WHERE text = \'2\'');
+        assert($query instanceof Statement);
+
         $query->execute();
         $lastUsedIdAfterDelete = (int) $query->fetchColumn();
 

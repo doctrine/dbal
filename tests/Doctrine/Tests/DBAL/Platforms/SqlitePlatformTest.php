@@ -11,6 +11,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
+use function assert;
 
 class SqlitePlatformTest extends AbstractPlatformTestCase
 {
@@ -78,6 +79,8 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
      */
     public function testGeneratesTypeDeclarationForTinyIntegers()
     {
+        assert($this->platform instanceof SqlitePlatform);
+
         self::assertEquals(
             'TINYINT',
             $this->platform->getTinyIntTypeDeclarationSQL([])
@@ -108,6 +111,8 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
      */
     public function testGeneratesTypeDeclarationForSmallIntegers()
     {
+        assert($this->platform instanceof SqlitePlatform);
+
         self::assertEquals(
             'SMALLINT',
             $this->platform->getSmallIntTypeDeclarationSQL([])
@@ -142,6 +147,8 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
      */
     public function testGeneratesTypeDeclarationForMediumIntegers()
     {
+        assert($this->platform instanceof SqlitePlatform);
+
         self::assertEquals(
             'MEDIUMINT',
             $this->platform->getMediumIntTypeDeclarationSQL([])

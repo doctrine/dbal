@@ -16,6 +16,7 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
 use function array_walk;
+use function assert;
 use function preg_replace;
 use function sprintf;
 use function strtoupper;
@@ -638,6 +639,8 @@ class OraclePlatformTest extends AbstractPlatformTestCase
      */
     public function testReturnsDropAutoincrementSQL($table, $expectedSql)
     {
+        assert($this->platform instanceof OraclePlatform);
+
         self::assertSame($expectedSql, $this->platform->getDropAutoincrementSql($table));
     }
 

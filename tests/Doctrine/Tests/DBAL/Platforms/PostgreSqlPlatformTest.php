@@ -6,6 +6,7 @@ namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
 use Doctrine\DBAL\Types\Type;
+use function assert;
 
 class PostgreSqlPlatformTest extends AbstractPostgreSqlPlatformTestCase
 {
@@ -75,6 +76,8 @@ class PostgreSqlPlatformTest extends AbstractPostgreSqlPlatformTestCase
      */
     public function testReturnsCloseActiveDatabaseConnectionsSQL()
     {
+        assert($this->platform instanceof PostgreSqlPlatform);
+
         self::assertSame(
             "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'foo'",
             $this->platform->getCloseActiveDatabaseConnectionsSQL('foo')

@@ -9,7 +9,7 @@ use Doctrine\DBAL\Driver\PDOPgSql\Driver;
 use Doctrine\Tests\DBAL\Driver\AbstractPostgreSQLDriverTest;
 use PDO;
 use PDOException;
-use PHPUnit_Framework_SkippedTestError;
+use PHPUnit\Framework\SkippedTestError;
 use function defined;
 
 class DriverTest extends AbstractPostgreSQLDriverTest
@@ -111,7 +111,7 @@ class DriverTest extends AbstractPostgreSQLDriverTest
     }
 
     /**
-     * @throws PHPUnit_Framework_SkippedTestError
+     * @throws SkippedTestError
      */
     private function skipWhenNotUsingPhp56AndPdoPgsql()
     {

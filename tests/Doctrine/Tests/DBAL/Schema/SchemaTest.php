@@ -401,7 +401,9 @@ class SchemaTest extends TestCase
         $visitor->expects($this->exactly(2))
             ->method('acceptSequence');
 
-        self::assertNull($schema->visit($visitor));
+        $schema->visit($visitor);
+
+        self::doesNotPerformAssertions(); // FIXME
     }
 
     /**
@@ -462,6 +464,8 @@ class SchemaTest extends TestCase
         $visitor->expects($this->exactly(2))
             ->method('acceptSequence');
 
-        self::assertNull($schema->visit($visitor));
+        $schema->visit($visitor);
+
+        self::doesNotPerformAssertions(); // FIXME
     }
 }

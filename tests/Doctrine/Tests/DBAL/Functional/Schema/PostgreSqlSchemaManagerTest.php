@@ -17,6 +17,7 @@ use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use function array_map;
 use function array_pop;
+use function assert;
 use function count;
 use function strtolower;
 
@@ -49,6 +50,8 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
      */
     public function testGetSchemaNames()
     {
+        assert($this->schemaManager instanceof Schema\PostgreSqlSchemaManager);
+
         $names = $this->schemaManager->getSchemaNames();
 
         self::assertIsArray($names);

@@ -27,7 +27,7 @@ class PDOExceptionTest extends DbalTestCase
     /**
      * The wrapped PDO exception mock.
      *
-     * @var \PDOException|MockObject
+     * @var \PDOException
      */
     private $wrappedException;
 

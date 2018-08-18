@@ -108,7 +108,7 @@ abstract class AbstractDriverTest extends DbalTestCase
         $message = 'DBAL exception message';
 
         foreach ($data as $item) {
-            /** @var $driverException \Doctrine\DBAL\Driver\DriverException */
+            /** @var DriverException $driverException */
             [$driverException, $convertedExceptionClassName] = $item;
 
             $convertedException = $this->driver->convertException($message, $driverException);

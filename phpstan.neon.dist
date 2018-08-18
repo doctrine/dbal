@@ -2,6 +2,7 @@ parameters:
     level: 7
     paths:
         - %currentWorkingDirectory%/lib
+        - %currentWorkingDirectory%/tests
     autoload_files:
         - %currentWorkingDirectory%/tests/phpstan-polyfill.php
     reportUnmatchedIgnoredErrors: false
@@ -69,3 +70,21 @@ parameters:
         -
             message: '~^Strict comparison using === between string|false and null will always evaluate to false\.~'
             path: %currentWorkingDirectory%/lib/Doctrine/DBAL/Driver/PDOStatement.php
+
+        # impossible inference for covariance
+        - '~^Property Doctrine\\Tests\\DBAL\\Types\\\S+Test::\$type \(Doctrine\\DBAL\\Types\\\S+Type\) does not accept Doctrine\\DBAL\\Types\\Type\.\z~'
+        - '~^Property Doctrine\\Tests\\DBAL\\Tools\\Console\\RunSqlCommandTest::\$command \(Doctrine\\DBAL\\Tools\\Console\\Command\\RunSqlCommand\) does not accept Symfony\\Component\\Console\\Command\\Command\.\z~'
+
+        # https://github.com/phpstan/phpstan-phpunit/pull/28
+        -
+            message: '~Call to method expects\(\) on an unknown class \S+~'
+            path: %currentWorkingDirectory%/tests/Doctrine/Tests/DBAL/Platforms/AbstractPlatformTestCase.php
+        -
+            message: '~Call to method expects\(\) on an unknown class \S+~'
+            path: %currentWorkingDirectory%/tests/Doctrine/Tests/DBAL/ConnectionTest.php
+        -
+            message: '~Call to method expects\(\) on an unknown class \S+~'
+            path: %currentWorkingDirectory%/tests/Doctrine/Tests/DBAL/Functional/Schema/SchemaManagerFunctionalTestCase.php
+includes:
+    - vendor/phpstan/phpstan-phpunit/extension.neon
+    - vendor/phpstan/phpstan-phpunit/rules.neon
