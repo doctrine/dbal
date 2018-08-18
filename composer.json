@@ -44,8 +44,5 @@
             "dev-master": "2.9.x-dev",
             "dev-develop": "3.0.x-dev"
         }
-    },
-    "archive": {
-        "exclude": ["!vendor", "tests", "*phpunit.xml", ".appveyor.yml", ".travis.yml", "build.xml", "build.properties", "composer.phar"]
     }
 }
