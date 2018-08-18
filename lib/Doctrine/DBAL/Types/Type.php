@@ -5,9 +5,6 @@ namespace Doctrine\DBAL\Types;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use function end;
-use function explode;
-use function str_replace;
 
 /**
  * The base class for so-called Doctrine mapping types.
@@ -246,18 +243,6 @@ abstract class Type
     public static function getTypesMap()
     {
         return self::$_typesMap;
-    }
-
-    /**
-     * @deprecated Relying on string representation is discouraged and will be removed in DBAL 3.0.
-     *
-     * @return string
-     */
-    public function __toString()
-    {
-        $e = explode('\\', static::class);
-
-        return str_replace('Type', '', end($e));
     }
 
     /**
