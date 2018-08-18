@@ -274,6 +274,8 @@ abstract class Type
 
     /**
      * @return string
+     *
+     * @deprecated Relying on string representation is discouraged and will be removed in DBAL 3.0.
      */
     public function __toString()
     {
