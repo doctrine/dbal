@@ -8,6 +8,7 @@ use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use PDO;
+use function assert;
 use function in_array;
 
 /**
@@ -39,9 +40,10 @@ class DBAL630Test extends DbalFunctionalTestCase
     protected function tearDown() : void
     {
         if ($this->running) {
-            $this->connection->getWrappedConnection()
-                ->getWrappedConnection()
-                ->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+            $wrappedConnection = $this->connection->getWrappedConnection();
+            assert($wrappedConnection instanceof PDO);
+
+            $wrappedConnection->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
         }
 
         parent::tearDown();
@@ -75,9 +77,10 @@ class DBAL630Test extends DbalFunctionalTestCase
 
     public function testBooleanConversionBoolParamEmulatedPrepares() : void
     {
-        $this->connection->getWrappedConnection()
-            ->getWrappedConnection()
-            ->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
+        $wrappedConnection = $this->connection->getWrappedConnection();
+        assert($wrappedConnection instanceof PDO);
+
+        $wrappedConnection->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
 
         $platform = $this->connection->getDatabasePlatform();
 
@@ -101,9 +104,10 @@ class DBAL630Test extends DbalFunctionalTestCase
         ?bool $statementValue,
         ?bool $databaseConvertedValue
     ) : void {
-        $this->connection->getWrappedConnection()
-            ->getWrappedConnection()
-            ->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
+        $wrappedConnection = $this->connection->getWrappedConnection();
+        assert($wrappedConnection instanceof PDO);
+
+        $wrappedConnection->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
 
         $platform = $this->connection->getDatabasePlatform();
 
@@ -127,9 +131,10 @@ class DBAL630Test extends DbalFunctionalTestCase
         ?bool $statementValue,
         bool $databaseConvertedValue
     ) : void {
-        $this->connection->getWrappedConnection()
-            ->getWrappedConnection()
-            ->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
+        $wrappedConnection = $this->connection->getWrappedConnection();
+        assert($wrappedConnection instanceof PDO);
+
+        $wrappedConnection->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
 
         $platform = $this->connection->getDatabasePlatform();
 

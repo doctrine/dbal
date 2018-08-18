@@ -7,6 +7,7 @@ namespace Doctrine\Tests\DBAL\Functional\Schema;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\Connection;
+use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\AbstractAsset;
@@ -38,11 +39,13 @@ use function array_keys;
 use function array_map;
 use function array_search;
 use function array_values;
+use function assert;
 use function count;
 use function current;
 use function end;
 use function explode;
 use function in_array;
+use function is_string;
 use function sprintf;
 use function str_replace;
 use function strcasecmp;
@@ -60,8 +63,9 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         $class     = static::class;
         $e         = explode('\\', $class);
         $testClass = end($e);
+        assert(is_string($testClass));
 
-        return strtolower(str_replace('SchemaManagerTest', null, $testClass));
+        return strtolower(str_replace('SchemaManagerTest', '', $testClass));
     }
 
     protected function setUp() : void
@@ -379,6 +383,7 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
             ->method('onSchemaColumnDefinition');
 
         $oldEventManager = $this->schemaManager->getDatabasePlatform()->getEventManager();
+        assert($oldEventManager instanceof EventManager);
 
         $eventManager = new EventManager();
         $eventManager->addEventListener([Events::onSchemaColumnDefinition], $listenerMock);
@@ -406,6 +411,7 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
             ->method('onSchemaIndexDefinition');
 
         $oldEventManager = $this->schemaManager->getDatabasePlatform()->getEventManager();
+        assert($oldEventManager instanceof EventManager);
 
         $eventManager = new EventManager();
         $eventManager->addEventListener([Events::onSchemaIndexDefinition], $listenerMock);
@@ -580,9 +586,9 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         self::assertFalse($table->hasColumn('test'));
         self::assertTrue($table->hasColumn('foo'));
 
-        $tableDiff                 = new TableDiff('alter_table');
-        $tableDiff->fromTable      = $table;
-        $tableDiff->addedIndexes[] = new Index('foo_idx', ['foo']);
+        $tableDiff                          = new TableDiff('alter_table');
+        $tableDiff->fromTable               = $table;
+        $tableDiff->addedIndexes['foo_idx'] = new Index('foo_idx', ['foo']);
 
         $this->schemaManager->alterTable($tableDiff);
 
@@ -593,9 +599,9 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         self::assertFalse($table->getIndex('foo_idx')->isPrimary());
         self::assertFalse($table->getIndex('foo_idx')->isUnique());
 
-        $tableDiff                   = new TableDiff('alter_table');
-        $tableDiff->fromTable        = $table;
-        $tableDiff->changedIndexes[] = new Index('foo_idx', ['foo', 'foreign_key_test']);
+        $tableDiff                            = new TableDiff('alter_table');
+        $tableDiff->fromTable                 = $table;
+        $tableDiff->changedIndexes['foo_idx'] = new Index('foo_idx', ['foo', 'foreign_key_test']);
 
         $this->schemaManager->alterTable($tableDiff);
 
@@ -618,11 +624,11 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         self::assertFalse($table->getIndex('bar_idx')->isPrimary());
         self::assertFalse($table->getIndex('bar_idx')->isUnique());
 
-        $tableDiff                     = new TableDiff('alter_table');
-        $tableDiff->fromTable          = $table;
-        $tableDiff->removedIndexes[]   = new Index('bar_idx', ['foo', 'foreign_key_test']);
-        $fk                            = new ForeignKeyConstraint(['foreign_key_test'], 'alter_table_foreign', ['id']);
-        $tableDiff->addedForeignKeys[] = $fk;
+        $tableDiff                            = new TableDiff('alter_table');
+        $tableDiff->fromTable                 = $table;
+        $tableDiff->removedIndexes['bar_idx'] = new Index('bar_idx', ['foo', 'foreign_key_test']);
+        $fk                                   = new ForeignKeyConstraint(['foreign_key_test'], 'alter_table_foreign', ['id']);
+        $tableDiff->addedForeignKeys[]        = $fk;
 
         $this->schemaManager->alterTable($tableDiff);
         $table = $this->schemaManager->listTableDetails('alter_table');
@@ -649,8 +655,8 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         }
 
         //create schema
-        $diff                  = new SchemaDiff();
-        $diff->newNamespaces[] = 'testschema';
+        $diff                              = new SchemaDiff();
+        $diff->newNamespaces['testschema'] = 'testschema';
 
         foreach ($diff->toSql($this->schemaManager->getDatabasePlatform()) as $sql) {
             $this->connection->exec($sql);
@@ -759,6 +765,8 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         $c         = new Comparator();
         $tableDiff = $c->diffTable($tableFK, $tableFKNew);
 
+        self::assertNotNull($tableDiff);
+
         $this->schemaManager->alterTable($tableDiff);
 
         $table       = $this->schemaManager->listTableDetails('test_fk_rename');
@@ -801,7 +809,11 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
 
         $comparator = new Comparator();
 
-        $this->schemaManager->alterTable($comparator->diffTable($foreignTable, $foreignTable2));
+        $diff = $comparator->diffTable($foreignTable, $foreignTable2);
+
+        self::assertNotNull($diff);
+
+        $this->schemaManager->alterTable($diff);
 
         $foreignTable = $this->schemaManager->listTableDetails('test_rename_index_foreign');
 
@@ -1108,7 +1120,11 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
 
         $comparator = new Comparator();
 
-        $this->schemaManager->alterTable($comparator->diffTable($table, $diffTable));
+        $diff = $comparator->diffTable($table, $diffTable);
+
+        self::assertNotNull($diff);
+
+        $this->schemaManager->alterTable($diff);
 
         $columns = $this->schemaManager->listTableColumns('col_def_lifecycle');
 
@@ -1452,6 +1468,8 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         $this->connection->insert('test_pk_auto_increment', ['text' => '1']);
 
         $query = $this->connection->query('SELECT id FROM test_pk_auto_increment WHERE text = \'1\'');
+        assert($query instanceof Statement);
+
         $query->execute();
         $lastUsedIdBeforeDelete = (int) $query->fetchColumn();
 
@@ -1460,6 +1478,8 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         $this->connection->insert('test_pk_auto_increment', ['text' => '2']);
 
         $query = $this->connection->query('SELECT id FROM test_pk_auto_increment WHERE text = \'2\'');
+        assert($query instanceof Statement);
+
         $query->execute();
         $lastUsedIdAfterDelete = (int) $query->fetchColumn();
 
