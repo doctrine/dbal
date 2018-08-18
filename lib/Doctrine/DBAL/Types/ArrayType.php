@@ -21,7 +21,9 @@ namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use function is_resource;
+use function restore_error_handler;
 use function serialize;
+use function set_error_handler;
 use function stream_get_contents;
 use function unserialize;
 
@@ -59,12 +61,16 @@ class ArrayType extends Type
         }
 
         $value = (is_resource($value)) ? stream_get_contents($value) : $value;
-        $val = unserialize($value);
-        if ($val === false && $value != 'b:0;') {
-            throw ConversionException::conversionFailed($value, $this->getName());
-        }
 
-        return $val;
+        set_error_handler(function (int $code, string $message) : void {
+            throw ConversionException::conversionFailedUnserialization($this->getName(), $message);
+        });
+
+        try {
+            return unserialize($value);
+        } finally {
+            restore_error_handler();
+        }
     }
 
     /**
