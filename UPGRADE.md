@@ -1,5 +1,9 @@
 # Upgrade to 2.9
 
+## Deprecated `Doctrine\DBAL\Types\Type::getDefaultLength()`
+
+This method was never used by DBAL internally. It is now deprecated and will be removed in DBAL 3.0.
+
 ## Deprecated `Doctrine\DBAL\Types\Type::__toString()`
 
 Relying on string representation is discouraged and will be removed in DBAL 3.0.

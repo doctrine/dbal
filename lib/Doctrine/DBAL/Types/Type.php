@@ -146,7 +146,7 @@ abstract class Type
      *
      * @return int|null
      *
-     * @todo Needed?
+     * @deprecated Rely on information provided by the platform instead.
      */
     public function getDefaultLength(AbstractPlatform $platform)
     {
