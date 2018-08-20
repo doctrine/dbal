@@ -260,26 +260,6 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         );
     }
 
-    public function testGeneratesTypeDeclarationForStrings() : void
-    {
-        self::assertEquals(
-            'CHAR(10)',
-            $this->platform->getVarcharTypeDeclarationSQL(
-                ['length' => 10, 'fixed' => true]
-            )
-        );
-        self::assertEquals(
-            'VARCHAR(50)',
-            $this->platform->getVarcharTypeDeclarationSQL(['length' => 50]),
-            'Variable string declaration is not correct'
-        );
-        self::assertEquals(
-            'VARCHAR(255)',
-            $this->platform->getVarcharTypeDeclarationSQL([]),
-            'Long string declaration is not correct'
-        );
-    }
-
     public function getGenerateUniqueIndexSql() : string
     {
         return 'CREATE UNIQUE INDEX index_name ON test (test, test2)';
@@ -631,25 +611,24 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         ];
     }
 
-    protected function getBinaryDefaultLength() : int
+    public function getExpectedFixedLengthBinaryTypeDeclarationSQLNoLength() : string
     {
-        return 0;
+        return 'BYTEA';
     }
 
-    protected function getBinaryMaxLength() : int
+    public function getExpectedFixedLengthBinaryTypeDeclarationSQLWithLength() : string
     {
-        return 0;
+        return 'BYTEA';
     }
 
-    public function testReturnsBinaryTypeDeclarationSQL() : void
+    public function getExpectedVariableLengthBinaryTypeDeclarationSQLNoLength() : string
     {
-        self::assertSame('BYTEA', $this->platform->getBinaryTypeDeclarationSQL([]));
-        self::assertSame('BYTEA', $this->platform->getBinaryTypeDeclarationSQL(['length' => 0]));
-        self::assertSame('BYTEA', $this->platform->getBinaryTypeDeclarationSQL(['length' => 9999999]));
+        return 'BYTEA';
+    }
 
-        self::assertSame('BYTEA', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true]));
-        self::assertSame('BYTEA', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 0]));
-        self::assertSame('BYTEA', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 9999999]));
+    public function getExpectedVariableLengthBinaryTypeDeclarationSQLWithLength() : string
+    {
+        return 'BYTEA';
     }
 
     public function testDoesNotPropagateUnnecessaryTableAlterationOnBinaryType() : void

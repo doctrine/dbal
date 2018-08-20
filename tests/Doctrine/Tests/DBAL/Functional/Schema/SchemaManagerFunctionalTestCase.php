@@ -916,7 +916,10 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         $table     = new Table($tableName);
 
         $table->addColumn('col_int', 'smallint', ['default' => 666]);
-        $table->addColumn('col_string', 'string', ['default' => 'foo']);
+        $table->addColumn('col_string', 'string', [
+            'length' => 3,
+            'default' => 'foo',
+        ]);
 
         $this->schemaManager->dropAndCreateTable($table);
 
@@ -931,9 +934,16 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
 
         $tableDiff->changedColumns['col_string'] = new ColumnDiff(
             'col_string',
-            new Column('col_string', Type::getType('string'), ['default' => 'foo', 'fixed' => true]),
+            new Column('col_string', Type::getType('string'), [
+                'length' => 3,
+                'fixed' => true,
+                'default' => 'foo',
+            ]),
             ['fixed'],
-            new Column('col_string', Type::getType('string'), ['default' => 'foo'])
+            new Column('col_string', Type::getType('string'), [
+                'length' => 3,
+                'default' => 'foo',
+            ])
         );
 
         $this->schemaManager->alterTable($tableDiff);
@@ -1061,10 +1071,22 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
     {
         $table = new Table('col_def_lifecycle');
         $table->addColumn('id', 'integer', ['autoincrement' => true]);
-        $table->addColumn('column1', 'string', ['default' => null]);
-        $table->addColumn('column2', 'string', ['default' => '']);
-        $table->addColumn('column3', 'string', ['default' => 'default1']);
-        $table->addColumn('column4', 'integer', ['default' => 0]);
+        $table->addColumn('column1', 'string', [
+            'length' => 1,
+            'default' => null,
+        ]);
+        $table->addColumn('column2', 'string', [
+            'length' => 1,
+            'default' => '',
+        ]);
+        $table->addColumn('column3', 'string', [
+            'length' => 8,
+            'default' => 'default1',
+        ]);
+        $table->addColumn('column4', 'integer', [
+            'length' => 1,
+            'default' => 0,
+        ]);
         $table->setPrimaryKey(['id']);
 
         $this->schemaManager->dropAndCreateTable($table);
@@ -1102,7 +1124,7 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
 
         $table = new Table($tableName);
         $table->addColumn('id', 'integer');
-        $table->addColumn('column_varbinary', 'binary', []);
+        $table->addColumn('column_varbinary', 'binary', ['length' => 16]);
         $table->addColumn('column_binary', 'binary', ['fixed' => true]);
         $table->setPrimaryKey(['id']);
 
@@ -1136,7 +1158,7 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         $table = new Table($primaryTableName);
         $table->addColumn('id', 'integer', ['autoincrement' => true]);
         $table->addColumn('foo', 'integer');
-        $table->addColumn('bar', 'string');
+        $table->addColumn('bar', 'string', ['length' => 32]);
         $table->addForeignKeyConstraint($foreignTableName, ['foo'], ['id']);
         $table->addIndex(['bar']);
         $table->setPrimaryKey(['id']);
@@ -1423,7 +1445,7 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
     {
         $table = new Table('test_pk_auto_increment');
         $table->addColumn('id', 'integer', ['autoincrement' => true]);
-        $table->addColumn('text', 'string');
+        $table->addColumn('text', 'string', ['length' => 1]);
         $table->setPrimaryKey(['id']);
         $this->schemaManager->dropAndCreateTable($table);
 
