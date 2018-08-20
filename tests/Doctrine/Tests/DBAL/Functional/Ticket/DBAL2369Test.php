@@ -2,44 +2,50 @@
 
 namespace Doctrine\Tests\DBAL\Functional\Ticket;
 
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\ParameterType;
+use Doctrine\DBAL\Schema\Table;
+use Doctrine\Tests\DbalFunctionalTestCase;
+use function in_array;
 
 /**
  * @group DBAL-2369
  */
-class DBAL2369Test extends \Doctrine\Tests\DbalFunctionalTestCase
+class DBAL2369Test extends DbalFunctionalTestCase
 {
-    protected function setUp()
+    /**
+     * @throws DBALException
+     */
+    protected function setUp(): void
     {
-
         parent::setUp();
 
         $platform = $this->_conn->getDatabasePlatform()->getName();
 
-        if (!in_array($platform, ['sqlsrv', 'mssql'])) {
+        if (! in_array($platform, ['sqlsrv', 'mssql'])) {
             $this->markTestSkipped('Related to SQLSRV only');
         }
 
-        try {
-            /* @var $sm \Doctrine\DBAL\Schema\AbstractSchemaManager */
-            $table = new \Doctrine\DBAL\Schema\Table('interger_string_table');
-            $table->addColumn('id', 'integer');
-            $table->addColumn('textfield', 'string');
-            $table->addColumn('number_as_string_field', 'string');
-            $table->setPrimaryKey(['id']);
+        $table = new Table('integer_string_table');
+        $table->addColumn('id', 'integer');
+        $table->addColumn('textfield', 'string');
+        $table->addColumn('number_as_string_field', 'string');
+        $table->setPrimaryKey(['id']);
 
-            $sm = $this->_conn->getSchemaManager();
-            $sm->createTable($table);
-        } catch (\Exception $e) {
+        /* @var $sm \Doctrine\DBAL\Schema\AbstractSchemaManager */
+        $sm = $this->_conn->getSchemaManager();
+        $sm->createTable($table);
 
-        }
-        $this->_conn->exec($this->_conn->getDatabasePlatform()->getTruncateTableSQL('interger_string_table'));
+        $this->_conn->exec($this->_conn->getDatabasePlatform()->getTruncateTableSQL('integer_string_table'));
     }
 
-    public function testInsert()
+    /**
+     * @throws DBALException
+     */
+    public function testInsert(): void
     {
         $ret = $this->_conn->insert(
-            'interger_string_table',
+            'integer_string_table',
             [
                 'id'                     => 1,
                 'textfield'              => 'test',
@@ -55,10 +61,13 @@ class DBAL2369Test extends \Doctrine\Tests\DbalFunctionalTestCase
         self::assertEquals(1, $ret);
     }
 
-    public function testSelectOnId()
+    /**
+     * @throws DBALException
+     */
+    public function testSelectOnId(): void
     {
         $this->_conn->insert(
-            'interger_string_table',
+            'integer_string_table',
             [
                 'id'                     => 1,
                 'textfield'              => 'test',
@@ -71,7 +80,7 @@ class DBAL2369Test extends \Doctrine\Tests\DbalFunctionalTestCase
             ]
         );
 
-        $query = 'SELECT id, textfield, number_as_string_field FROM interger_string_table WHERE id = ?';
+        $query = 'SELECT id, textfield, number_as_string_field FROM integer_string_table WHERE id = ?';
         $stmt  = $this->_conn->prepare($query);
         $stmt->bindValue(1, 1, ParameterType::STRING);
         $stmt->execute();
@@ -86,10 +95,13 @@ class DBAL2369Test extends \Doctrine\Tests\DbalFunctionalTestCase
         self::assertEquals($ret['number_as_string_field'], '2');
     }
 
-    public function testSelectOnParameter()
+    /**
+     * @throws DBALException
+     */
+    public function testSelectOnParameter(): void
     {
         $this->_conn->insert(
-            'interger_string_table',
+            'integer_string_table',
             [
                 'id'                     => 2,
                 'textfield'              => 'test2',
@@ -102,14 +114,12 @@ class DBAL2369Test extends \Doctrine\Tests\DbalFunctionalTestCase
             ]
         );
 
-        $query = 'SELECT id, textfield, number_as_string_field FROM interger_string_table WHERE number_as_string_field = ?';
+        $query = 'SELECT id, textfield, number_as_string_field FROM integer_string_table WHERE number_as_string_field = ?';
         $stmt  = $this->_conn->prepare($query);
-        $stmt->bindValue(1, (int) 3, ParameterType::STRING);
+        $stmt->bindValue(1, 3, ParameterType::STRING);
         $stmt->execute();
 
         $ret = $stmt->fetch();
-
-//        var_dump($ret);
 
         self::assertArrayHasKey('id', $ret);
         self::assertEquals($ret['id'], 2);

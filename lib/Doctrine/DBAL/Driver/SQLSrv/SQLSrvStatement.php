@@ -30,6 +30,7 @@ use const SQLSRV_FETCH_ASSOC;
 use const SQLSRV_FETCH_BOTH;
 use const SQLSRV_FETCH_NUMERIC;
 use const SQLSRV_PARAM_IN;
+use const SQLSRV_ENC_CHAR;
 use function array_key_exists;
 use function count;
 use function func_get_args;
@@ -49,6 +50,7 @@ use function sqlsrv_prepare;
 use function sqlsrv_rows_affected;
 use function SQLSRV_SQLTYPE_VARBINARY;
 use function stripos;
+use function SQLSRV_SQLTYPE_VARCHAR;
 
 /**
  * SQL Server Statement.
