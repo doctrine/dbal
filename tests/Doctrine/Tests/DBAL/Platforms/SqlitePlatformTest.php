@@ -238,26 +238,6 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    public function testGeneratesTypeDeclarationForStrings() : void
-    {
-        self::assertEquals(
-            'CHAR(10)',
-            $this->platform->getVarcharTypeDeclarationSQL(
-                ['length' => 10, 'fixed' => true]
-            )
-        );
-        self::assertEquals(
-            'VARCHAR(50)',
-            $this->platform->getVarcharTypeDeclarationSQL(['length' => 50]),
-            'Variable string declaration is not correct'
-        );
-        self::assertEquals(
-            'VARCHAR(255)',
-            $this->platform->getVarcharTypeDeclarationSQL([]),
-            'Long string declaration is not correct'
-        );
-    }
-
     public function getGenerateIndexSql() : string
     {
         return 'CREATE INDEX my_idx ON mytable (user_name, last_login)';
@@ -493,25 +473,24 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    protected function getBinaryDefaultLength() : int
+    public function getExpectedFixedLengthBinaryTypeDeclarationSQLNoLength() : string
     {
-        return 0;
+        return 'BLOB';
     }
 
-    protected function getBinaryMaxLength() : int
+    public function getExpectedFixedLengthBinaryTypeDeclarationSQLWithLength() : string
     {
-        return 0;
+        return 'BLOB';
     }
 
-    public function testReturnsBinaryTypeDeclarationSQL() : void
+    public function getExpectedVariableLengthBinaryTypeDeclarationSQLNoLength() : string
     {
-        self::assertSame('BLOB', $this->platform->getBinaryTypeDeclarationSQL([]));
-        self::assertSame('BLOB', $this->platform->getBinaryTypeDeclarationSQL(['length' => 0]));
-        self::assertSame('BLOB', $this->platform->getBinaryTypeDeclarationSQL(['length' => 9999999]));
+        return 'BLOB';
+    }
 
-        self::assertSame('BLOB', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true]));
-        self::assertSame('BLOB', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 0]));
-        self::assertSame('BLOB', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 9999999]));
+    public function getExpectedVariableLengthBinaryTypeDeclarationSQLWithLength() : string
+    {
+        return 'BLOB';
     }
 
     /**
@@ -817,8 +796,8 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     public function testGetCreateTableSQLWithColumnCollation() : void
     {
         $table = new Table('foo');
-        $table->addColumn('no_collation', 'string');
-        $table->addColumn('column_collation', 'string')->setPlatformOption('collation', 'NOCASE');
+        $table->addColumn('no_collation', 'string', ['length' => 255]);
+        $table->addColumn('column_collation', 'string', ['length' => 255])->setPlatformOption('collation', 'NOCASE');
 
         self::assertSame(
             ['CREATE TABLE foo (no_collation VARCHAR(255) NOT NULL, column_collation VARCHAR(255) NOT NULL COLLATE NOCASE)'],

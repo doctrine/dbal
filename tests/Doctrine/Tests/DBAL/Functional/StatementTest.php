@@ -67,7 +67,7 @@ class StatementTest extends DbalFunctionalTestCase
 
         $sm    = $this->connection->getSchemaManager();
         $table = new Table('stmt_longer_results');
-        $table->addColumn('param', 'string');
+        $table->addColumn('param', 'string', ['length' => 24]);
         $table->addColumn('val', 'text');
         $sm->createTable($table);
 

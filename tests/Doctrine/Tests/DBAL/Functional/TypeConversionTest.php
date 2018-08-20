@@ -23,7 +23,10 @@ class TypeConversionTest extends DbalFunctionalTestCase
 
         $table = new Table('type_conversion');
         $table->addColumn('id', 'integer', ['notnull' => false]);
-        $table->addColumn('test_string', 'string', ['notnull' => false]);
+        $table->addColumn('test_string', 'string', [
+            'length' => 16,
+            'notnull' => false,
+        ]);
         $table->addColumn('test_boolean', 'boolean', ['notnull' => false]);
         $table->addColumn('test_bigint', 'bigint', ['notnull' => false]);
         $table->addColumn('test_smallint', 'bigint', ['notnull' => false]);

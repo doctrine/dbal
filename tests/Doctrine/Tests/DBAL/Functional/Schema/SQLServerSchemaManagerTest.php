@@ -39,30 +39,42 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testColumnCollation() : void
     {
         $table  = new Table($tableName = 'test_collation');
-        $column = $table->addColumn($columnName = 'test', 'string');
+        $column = $table->addColumn('test', 'string', ['length' => 32]);
 
         $this->schemaManager->dropAndCreateTable($table);
         $columns = $this->schemaManager->listTableColumns($tableName);
 
-        self::assertTrue($columns[$columnName]->hasPlatformOption('collation')); // SQL Server should report a default collation on the column
+        self::assertTrue($columns['test']->hasPlatformOption('collation')); // SQL Server should report a default collation on the column
 
         $column->setPlatformOption('collation', $collation = 'Icelandic_CS_AS');
 
         $this->schemaManager->dropAndCreateTable($table);
         $columns = $this->schemaManager->listTableColumns($tableName);
 
-        self::assertEquals($collation, $columns[$columnName]->getPlatformOption('collation'));
+        self::assertEquals($collation, $columns['test']->getPlatformOption('collation'));
     }
 
     public function testDefaultConstraints() : void
     {
         $table = new Table('sqlsrv_default_constraints');
-        $table->addColumn('no_default', 'string');
+        $table->addColumn('no_default', 'string', ['length' => 32]);
         $table->addColumn('df_integer', 'integer', ['default' => 666]);
-        $table->addColumn('df_string_1', 'string', ['default' => 'foobar']);
-        $table->addColumn('df_string_2', 'string', ['default' => 'Doctrine rocks!!!']);
-        $table->addColumn('df_string_3', 'string', ['default' => 'another default value']);
-        $table->addColumn('df_string_4', 'string', ['default' => 'column to rename']);
+        $table->addColumn('df_string_1', 'string', [
+            'length' => 32,
+            'default' => 'foobar',
+        ]);
+        $table->addColumn('df_string_2', 'string', [
+            'length' => 32,
+            'default' => 'Doctrine rocks!!!',
+        ]);
+        $table->addColumn('df_string_3', 'string', [
+            'length' => 32,
+            'default' => 'another default value',
+        ]);
+        $table->addColumn('df_string_4', 'string', [
+            'length' => 32,
+            'default' => 'column to rename',
+        ]);
         $table->addColumn('df_boolean', 'boolean', ['default' => true]);
 
         $this->schemaManager->createTable($table);
@@ -87,9 +99,12 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
                 ),
                 'df_string_2' => new ColumnDiff(
                     'df_string_2',
-                    new Column('df_string_2', Type::getType('string')),
+                    new Column('df_string_2', Type::getType('string'), ['length' => 32]),
                     ['default'],
-                    new Column('df_string_2', Type::getType('string'), ['default' => 'Doctrine rocks!!!'])
+                    new Column('df_string_2', Type::getType('string'), [
+                        'length' => 32,
+                        'default' => 'Doctrine rocks!!!',
+                    ])
                 ),
                 'df_string_3' => new ColumnDiff(
                     'df_string_3',
@@ -105,7 +120,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
                 ),
             ],
             [
-                'df_string_1' => new Column('df_string_1', Type::getType('string')),
+                'df_string_1' => new Column('df_string_1', Type::getType('string'), ['length' => 32]),
             ],
             [],
             [],
@@ -210,9 +225,12 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         // Remove comment from null-commented column.
         $tableDiff->changedColumns['comment_null'] = new ColumnDiff(
             'comment_null',
-            new Column('comment_null', Type::getType('string')),
+            new Column('comment_null', Type::getType('string'), ['length' => 255]),
             ['type'],
-            new Column('comment_null', Type::getType('integer'), ['comment' => null])
+            new Column('comment_null', Type::getType('integer'), [
+                'length' => 255,
+                'comment' => null,
+            ])
         );
 
         // Change type to custom type from empty string commented column.

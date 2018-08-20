@@ -1,5 +1,11 @@
 # Upgrade to 3.0
 
+## BC BREAK: Changes in handling string and binary columns
+
+- When generating schema DDL, DBAL no longer provides the default length for string and binary columns. The application may need to provide the column length if required by the target platform.
+- The `\DBAL\Platforms\AbstractPlatform::getVarcharTypeDeclarationSQL()` method has been renamed to `::getStringTypeDeclarationSQL()`.
+- The following `AbstractPlatform` methods have been removed as no longer relevant: `::getCharMaxLength()`, `::getVarcharMaxLength()`, `::getVarcharDefaultLength()`, `::getBinaryMaxLength()`, `::getBinaryDefaultLength()`. 
+
 ## BC BREAK: Changes in `Doctrine\DBAL\Event\SchemaCreateTableEventArgs`
 
 Table columns are no longer indexed by column name. Use the `name` attribute of the column instead.

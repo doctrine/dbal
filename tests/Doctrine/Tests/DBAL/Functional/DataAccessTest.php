@@ -52,7 +52,7 @@ class DataAccessTest extends DbalFunctionalTestCase
 
         $table = new Table('fetch_table');
         $table->addColumn('test_int', 'integer');
-        $table->addColumn('test_string', 'string');
+        $table->addColumn('test_string', 'string', ['length' => 32]);
         $table->addColumn('test_datetime', 'datetime', ['notnull' => false]);
         $table->setPrimaryKey(['test_int']);
 

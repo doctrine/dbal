@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception\ColumnLengthRequired;
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLAnywherePlatform;
@@ -42,7 +43,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
     public function getGenerateAlterTableSql() : array
     {
         return [
-            "ALTER TABLE mytable ADD quota INT DEFAULT NULL, DROP foo, ALTER baz VARCHAR(1) DEFAULT 'def' NOT NULL, ALTER bloo BIT DEFAULT '0' NOT NULL",
+            "ALTER TABLE mytable ADD quota INT DEFAULT NULL, DROP foo, ALTER baz VARCHAR(255) DEFAULT 'def' NOT NULL, ALTER bloo BIT DEFAULT '0' NOT NULL",
             'ALTER TABLE mytable RENAME userlist',
         ];
     }
@@ -310,9 +311,6 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         self::assertEquals('DATETIME', $this->platform->getDateTimeTypeDeclarationSQL($fullColumnDef));
         self::assertEquals('TIME', $this->platform->getTimeTypeDeclarationSQL($fullColumnDef));
         self::assertEquals('UNIQUEIDENTIFIER', $this->platform->getGuidTypeDeclarationSQL($fullColumnDef));
-
-        self::assertEquals(1, $this->platform->getVarcharDefaultLength());
-        self::assertEquals(32767, $this->platform->getVarcharMaxLength());
     }
 
     public function testHasNativeGuidType() : void
@@ -929,31 +927,18 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         self::assertSame('binary', $this->platform->getDoctrineTypeMapping('varbinary'));
     }
 
-    protected function getBinaryDefaultLength() : int
+    public function testGetVariableLengthStringTypeDeclarationSQLNoLength() : void
     {
-        return 1;
+        $this->expectException(ColumnLengthRequired::class);
+
+        parent::testGetVariableLengthStringTypeDeclarationSQLNoLength();
     }
 
-    protected function getBinaryMaxLength() : int
+    public function testGetVariableLengthBinaryTypeDeclarationSQLNoLength() : void
     {
-        return 32767;
-    }
+        $this->expectException(ColumnLengthRequired::class);
 
-    public function testReturnsBinaryTypeDeclarationSQL() : void
-    {
-        self::assertSame('VARBINARY(1)', $this->platform->getBinaryTypeDeclarationSQL([]));
-        self::assertSame('VARBINARY(1)', $this->platform->getBinaryTypeDeclarationSQL(['length' => 0]));
-        self::assertSame('VARBINARY(32767)', $this->platform->getBinaryTypeDeclarationSQL(['length' => 32767]));
-
-        self::assertSame('BINARY(1)', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true]));
-        self::assertSame('BINARY(1)', $this->platform->getBinaryTypeDeclarationSQL([
-            'fixed' => true,
-            'length' => 0,
-        ]));
-        self::assertSame('BINARY(32767)', $this->platform->getBinaryTypeDeclarationSQL([
-            'fixed' => true,
-            'length' => 32767,
-        ]));
+        parent::testGetVariableLengthBinaryTypeDeclarationSQLNoLength();
     }
 
     /**
