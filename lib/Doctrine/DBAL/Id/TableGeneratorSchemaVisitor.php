@@ -28,7 +28,8 @@ class TableGeneratorSchemaVisitor implements Visitor
     public function acceptSchema(Schema $schema) : void
     {
         $table = $schema->createTable($this->generatorTableName);
-        $table->addColumn('sequence_name', 'string');
+
+        $table->addColumn('sequence_name', 'string', ['length' => 255]);
         $table->addColumn('sequence_value', 'integer', ['default' => 1]);
         $table->addColumn('sequence_increment_by', 'integer', ['default' => 1]);
     }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Platforms;
 
+use Doctrine\DBAL\Exception\ColumnLengthRequired;
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
@@ -1131,7 +1132,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getGuidTypeDeclarationSQL(array $field) : string
+    public function getGuidTypeDeclarationSQL(array $column) : string
     {
         return 'UNIQUEIDENTIFIER';
     }
@@ -1147,25 +1148,27 @@ SQL
     /**
      * {@inheritDoc}
      */
-    protected function getVarcharTypeDeclarationSQLSnippet(int $length, bool $fixed) : string
+    protected function getCharTypeDeclarationSQLSnippet(?int $length) : string
     {
-        return $fixed ? ($length ? 'NCHAR(' . $length . ')' : 'CHAR(255)') : ($length ? 'NVARCHAR(' . $length . ')' : 'NVARCHAR(255)');
+        $sql = 'NCHAR';
+
+        if ($length !== null) {
+            $sql .= sprintf('(%d)', $length);
+        }
+
+        return $sql;
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
-    protected function getBinaryTypeDeclarationSQLSnippet(int $length, bool $fixed) : string
+    protected function getVarcharTypeDeclarationSQLSnippet(?int $length) : string
     {
-        return $fixed ? 'BINARY(' . ($length ?: 255) . ')' : 'VARBINARY(' . ($length ?: 255) . ')';
-    }
+        if ($length === null) {
+            throw ColumnLengthRequired::new($this, 'NVARCHAR');
+        }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getBinaryMaxLength() : int
-    {
-        return 8000;
+        return sprintf('NVARCHAR(%d)', $length);
     }
 
     /**
