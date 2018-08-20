@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception\ColumnLengthRequired;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
@@ -309,26 +310,33 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function getVarcharTypeDeclarationSQLSnippet(int $length, bool $fixed) : string
+    protected function getVarcharTypeDeclarationSQLSnippet(?int $length) : string
     {
-        return $fixed ? ($length ? 'CHAR(' . $length . ')' : 'CHAR(2000)')
-                : ($length ? 'VARCHAR2(' . $length . ')' : 'VARCHAR2(4000)');
+        if ($length === null) {
+            throw ColumnLengthRequired::new($this, 'VARCHAR2');
+        }
+
+        return sprintf('VARCHAR2(%d)', $length);
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
-    protected function getBinaryTypeDeclarationSQLSnippet(int $length, bool $fixed) : string
+    protected function getBinaryTypeDeclarationSQLSnippet(?int $length) : string
     {
-        return 'RAW(' . ($length ?: $this->getBinaryMaxLength()) . ')';
+        if ($length === null) {
+            throw ColumnLengthRequired::new($this, 'RAW');
+        }
+
+        return sprintf('RAW(%d)', $length);
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
-    public function getBinaryMaxLength() : int
+    protected function getVarbinaryTypeDeclarationSQLSnippet(?int $length) : string
     {
-        return 2000;
+        return $this->getBinaryTypeDeclarationSQLSnippet($length);
     }
 
     /**

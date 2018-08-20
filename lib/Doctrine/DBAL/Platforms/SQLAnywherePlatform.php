@@ -298,22 +298,6 @@ class SQLAnywherePlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    public function getBinaryDefaultLength() : int
-    {
-        return 1;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getBinaryMaxLength() : int
-    {
-        return 32767;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getBlobTypeDeclarationSQL(array $field) : string
     {
         return 'LONG BINARY';
@@ -658,7 +642,7 @@ class SQLAnywherePlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    public function getGuidTypeDeclarationSQL(array $field) : string
+    public function getGuidTypeDeclarationSQL(array $column) : string
     {
         return 'UNIQUEIDENTIFIER';
     }
@@ -1217,22 +1201,6 @@ SQL
     /**
      * {@inheritdoc}
      */
-    public function getVarcharDefaultLength() : int
-    {
-        return 1;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getVarcharMaxLength() : int
-    {
-        return 32767;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function hasNativeGuidType() : bool
     {
         return true;
@@ -1400,16 +1368,6 @@ SQL
     }
 
     /**
-     * {@inheritdoc}
-     */
-    protected function getBinaryTypeDeclarationSQLSnippet(int $length, bool $fixed) : string
-    {
-        return $fixed
-            ? 'BINARY(' . ($length ?: $this->getBinaryDefaultLength()) . ')'
-            : 'VARBINARY(' . ($length ?: $this->getBinaryDefaultLength()) . ')';
-    }
-
-    /**
      * Returns the SQL snippet for creating a table constraint.
      *
      * @param Constraint  $constraint The table constraint to create the SQL snippet for.
@@ -1494,16 +1452,6 @@ SQL
     protected function getReservedKeywordsClass() : string
     {
         return Keywords\SQLAnywhereKeywords::class;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function getVarcharTypeDeclarationSQLSnippet(int $length, bool $fixed) : string
-    {
-        return $fixed
-            ? ($length ? 'CHAR(' . $length . ')' : 'CHAR(' . $this->getVarcharDefaultLength() . ')')
-            : ($length ? 'VARCHAR(' . $length . ')' : 'VARCHAR(' . $this->getVarcharDefaultLength() . ')');
     }
 
     /**
