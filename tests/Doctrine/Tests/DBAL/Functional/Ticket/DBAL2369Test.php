@@ -26,15 +26,17 @@ class DBAL2369Test extends DbalFunctionalTestCase
             $this->markTestSkipped('Related to SQLSRV only');
         }
 
-        $table = new Table('integer_string_table');
-        $table->addColumn('id', 'integer');
-        $table->addColumn('textfield', 'string');
-        $table->addColumn('number_as_string_field', 'string');
-        $table->setPrimaryKey(['id']);
-
         /* @var $sm \Doctrine\DBAL\Schema\AbstractSchemaManager */
         $sm = $this->_conn->getSchemaManager();
-        $sm->createTable($table);
+        if (! $sm->tablesExist(['integer_string_table'])) {
+            $table = new Table('integer_string_table');
+            $table->addColumn('id', 'integer');
+            $table->addColumn('textfield', 'string');
+            $table->addColumn('number_as_string_field', 'string');
+            $table->setPrimaryKey(['id']);
+
+            $sm->createTable($table);
+        }
 
         $this->_conn->exec($this->_conn->getDatabasePlatform()->getTruncateTableSQL('integer_string_table'));
     }
