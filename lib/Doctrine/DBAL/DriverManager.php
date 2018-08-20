@@ -20,6 +20,18 @@
 namespace Doctrine\DBAL;
 
 use Doctrine\Common\EventManager;
+use function array_keys;
+use function array_map;
+use function array_merge;
+use function class_implements;
+use function in_array;
+use function is_subclass_of;
+use function parse_str;
+use function parse_url;
+use function preg_replace;
+use function str_replace;
+use function strpos;
+use function substr;
 
 /**
  * Factory for creating Doctrine\DBAL\Connection instances.
@@ -142,6 +154,28 @@ final class DriverManager
         }
 
         $params = self::parseDatabaseUrl($params);
+
+        // URL support for MasterSlaveConnection
+        if (isset($params['master'])) {
+            $params['master'] = self::parseDatabaseUrl($params['master']);
+        }
+
+        if (isset($params['slaves'])) {
+            foreach ($params['slaves'] as $key => $slaveParams) {
+                $params['slaves'][$key] = self::parseDatabaseUrl($slaveParams);
+            }
+        }
+
+        // URL support for PoolingShardConnection
+        if (isset($params['global'])) {
+            $params['global'] = self::parseDatabaseUrl($params['global']);
+        }
+
+        if (isset($params['shards'])) {
+            foreach ($params['shards'] as $key => $shardParams) {
+                $params['shards'][$key] = self::parseDatabaseUrl($shardParams);
+            }
+        }
 
         // check for existing pdo object
         if (isset($params['pdo']) && ! $params['pdo'] instanceof \PDO) {

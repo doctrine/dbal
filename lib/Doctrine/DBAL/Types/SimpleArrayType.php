@@ -20,6 +20,10 @@
 namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use function explode;
+use function implode;
+use function is_resource;
+use function stream_get_contents;
 
 /**
  * Array Type which can be used for simple values.

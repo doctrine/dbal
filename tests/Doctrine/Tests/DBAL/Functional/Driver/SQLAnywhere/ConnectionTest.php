@@ -4,6 +4,7 @@ namespace Doctrine\Tests\DBAL\Functional\Driver\SQLAnywhere;
 
 use Doctrine\DBAL\Driver\SQLAnywhere\Driver;
 use Doctrine\DBAL\DriverManager;
+use function extension_loaded;
 
 class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {

@@ -20,6 +20,10 @@
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Schema\Sequence;
+use const PREG_OFFSET_CAPTURE;
+use function preg_match;
+use function preg_match_all;
+use function substr_count;
 
 /**
  * Platform to ensure compatibility of Doctrine with Microsoft SQL Server 2012 version.
@@ -109,7 +113,7 @@ class SQLServer2012Platform extends SQLServer2008Platform
      */
     protected function doModifyLimitQuery($query, $limit, $offset = null)
     {
-        if ($limit === null && $offset === null) {
+        if ($limit === null && $offset <= 0) {
             return $query;
         }
 

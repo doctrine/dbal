@@ -19,6 +19,8 @@
 
 namespace Doctrine\DBAL\Schema;
 
+use function in_array;
+
 /**
  * Represents the change of a column.
  *

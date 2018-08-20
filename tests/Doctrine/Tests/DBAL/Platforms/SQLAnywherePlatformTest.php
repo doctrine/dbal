@@ -16,6 +16,9 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
+use function mt_rand;
+use function strlen;
+use function substr;
 
 class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 {
@@ -788,12 +791,20 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         self::assertSame('VARBINARY(1)', $this->_platform->getBinaryTypeDeclarationSQL(array()));
         self::assertSame('VARBINARY(1)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 0)));
         self::assertSame('VARBINARY(32767)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 32767)));
-        self::assertSame('LONG BINARY', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 32768)));
 
         self::assertSame('BINARY(1)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true)));
         self::assertSame('BINARY(1)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 0)));
         self::assertSame('BINARY(32767)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 32767)));
-        self::assertSame('LONG BINARY', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 32768)));
+    }
+
+    /**
+     * @group legacy
+     * @expectedDeprecation Binary field length 32768 is greater than supported by the platform (32767). Reduce the field length or use a BLOB field instead.
+     */
+    public function testReturnsBinaryTypeLongerThanMaxDeclarationSQL()
+    {
+        self::assertSame('LONG BINARY', $this->_platform->getBinaryTypeDeclarationSQL(['length' => 32768]));
+        self::assertSame('LONG BINARY', $this->_platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 32768]));
     }
 
     /**

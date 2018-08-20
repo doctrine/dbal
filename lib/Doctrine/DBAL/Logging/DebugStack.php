@@ -19,6 +19,8 @@
 
 namespace Doctrine\DBAL\Logging;
 
+use function microtime;
+
 /**
  * Includes executed SQLs in a Debug Stack.
  *

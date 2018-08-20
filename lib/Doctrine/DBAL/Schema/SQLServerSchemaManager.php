@@ -22,6 +22,14 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Types\Type;
+use function count;
+use function in_array;
+use function preg_replace;
+use function sprintf;
+use function str_replace;
+use function strpos;
+use function strtok;
+use function trim;
 
 /**
  * SQL Server Schema Manager.
@@ -68,7 +76,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableSequenceDefinition($sequence)
     {
-        return new Sequence($sequence['name'], $sequence['increment'], $sequence['start_value']);
+        return new Sequence($sequence['name'], (int) $sequence['increment'], (int) $sequence['start_value']);
     }
 
     /**
@@ -198,6 +206,10 @@ class SQLServerSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableTableDefinition($table)
     {
+        if (isset($table['schema_name']) && $table['schema_name'] !== 'dbo') {
+            return $table['schema_name'] . '.' . $table['name'];
+        }
+
         return $table['name'];
     }
 

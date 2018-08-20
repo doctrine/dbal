@@ -26,6 +26,7 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Index;
+use function in_array;
 
 /**
  * Converts a single tenant schema into a multi-tenant schema for SQL Azure

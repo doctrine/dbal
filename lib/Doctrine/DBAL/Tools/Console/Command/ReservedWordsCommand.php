@@ -24,6 +24,9 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use function array_keys;
+use function count;
+use function implode;
 
 class ReservedWordsCommand extends Command
 {
@@ -33,6 +36,7 @@ class ReservedWordsCommand extends Command
     private $keywordListClasses = [
         'mysql'         => 'Doctrine\DBAL\Platforms\Keywords\MySQLKeywords',
         'mysql57'       => 'Doctrine\DBAL\Platforms\Keywords\MySQL57Keywords',
+        'mysql80'       => 'Doctrine\DBAL\Platforms\Keywords\MySQL80Keywords',
         'sqlserver'     => 'Doctrine\DBAL\Platforms\Keywords\SQLServerKeywords',
         'sqlserver2005' => 'Doctrine\DBAL\Platforms\Keywords\SQLServer2005Keywords',
         'sqlserver2008' => 'Doctrine\DBAL\Platforms\Keywords\SQLServer2008Keywords',
@@ -93,6 +97,7 @@ The following keyword lists are currently shipped with Doctrine:
 
     * mysql
     * mysql57
+    * mysql80
     * pgsql
     * pgsql92
     * sqlite
@@ -123,6 +128,7 @@ EOT
             $keywordLists = [
                 'mysql',
                 'mysql57',
+                'mysql80',
                 'pgsql',
                 'pgsql92',
                 'sqlite',

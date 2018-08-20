@@ -18,25 +18,68 @@ env:
   - DB=mysqli
 
 before_install:
-  - mv ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini{,.disabled} || echo "xdebug not available"
+  - |
+    if [ "x$COVERAGE" != "xyes" ]; then
+      mv ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini{,.disabled} || true
+    fi
 
 before_script:
   - if [[ "$DB" == "mysql" || "$DB" == "mysqli" || "$DB" == *"mariadb"* ]]; then mysql < tests/travis/create-mysql-schema.sql; fi;
+  - |
+    if [ "x$COVERAGE" == "xyes" ] && [[ ! $(php -m | grep -si xdebug) ]]; then
+      echo "xdebug is required for coverage"
+      exit 1
+    fi
 
 install:
-  - travis_retry composer -n install
+  - rm composer.lock
+  - travis_retry composer -n update --prefer-dist
 
-script: ./vendor/bin/phpunit --configuration tests/travis/$DB.travis.xml
+script:
+  - |
+    if [ "x$COVERAGE" == "xyes" ]; then
+       ./vendor/bin/phpunit --configuration tests/travis/$DB.travis.xml --coverage-clover clover.xml
+    else
+       ./vendor/bin/phpunit --configuration tests/travis/$DB.travis.xml
+    fi
+
+after_script:
+  - |
+    if [ "x$COVERAGE" == "xyes" ]; then
+      travis_retry wget https://github.com/scrutinizer-ci/ocular/releases/download/1.5.2/ocular.phar
+      travis_retry php ocular.phar code-coverage:upload --format=php-clover clover.xml
+    fi
 
 jobs:
   allow_failures:
     - php: nightly
     - stage: Coding standard
+    - env: DB=pgsql POSTGRESQL_VERSION=11.0
+
+  exclude:
+    - php: 7.1
+      env: DB=sqlite
+    - php: 7.1
+      env: DB=mysql
+    - php: 7.1
+      env: DB=mysqli
 
   include:
     - stage: Test
       php: 7.1
-      env: DB=mysql MYSQL_VERSION=5.7
+      env: DB=sqlite COVERAGE=yes
+
+    - stage: Test
+      php: 7.1
+      env: DB=mysql COVERAGE=yes
+
+    - stage: Test
+      php: 7.1
+      env: DB=mysqli COVERAGE=yes
+
+    - stage: Test
+      php: 7.1
+      env: DB=mysql MYSQL_VERSION=5.7 COVERAGE=yes
       sudo: required
       before_script:
         - bash ./tests/travis/install-mysql-5.7.sh
@@ -55,7 +98,7 @@ jobs:
 
     - stage: Test
       php: 7.1
-      env: DB=mysqli MYSQL_VERSION=5.7
+      env: DB=mysqli MYSQL_VERSION=5.7 COVERAGE=yes
       sudo: required
       before_script:
         - bash ./tests/travis/install-mysql-5.7.sh
@@ -74,7 +117,7 @@ jobs:
 
     - stage: Test
       php: 7.1
-      env: DB=mariadb MARIADB_VERSION=10.0
+      env: DB=mariadb MARIADB_VERSION=10.0 COVERAGE=yes
       addons:
         mariadb: 10.0
     - stage: Test
@@ -90,7 +133,7 @@ jobs:
 
     - stage: Test
       php: 7.1
-      env: DB=mariadb MARIADB_VERSION=10.1
+      env: DB=mariadb MARIADB_VERSION=10.1 COVERAGE=yes
       addons:
         mariadb: 10.1
     - stage: Test
@@ -106,7 +149,7 @@ jobs:
 
     - stage: Test
       php: 7.1
-      env: DB=mariadb MARIADB_VERSION=10.2
+      env: DB=mariadb MARIADB_VERSION=10.2 COVERAGE=yes
       addons:
         mariadb: 10.2
     - stage: Test
@@ -122,7 +165,7 @@ jobs:
 
     - stage: Test
       php: 7.1
-      env: DB=mariadb.mysqli MARIADB_VERSION=10.2
+      env: DB=mariadb.mysqli MARIADB_VERSION=10.2 COVERAGE=yes
       addons:
         mariadb: 10.2
     - stage: Test
@@ -138,7 +181,7 @@ jobs:
 
     - stage: Test
       php: 7.1
-      env: DB=pgsql POSTGRESQL_VERSION=9.2
+      env: DB=pgsql POSTGRESQL_VERSION=9.2 COVERAGE=yes
       services:
         - postgresql
       addons:
@@ -160,7 +203,7 @@ jobs:
 
     - stage: Test
       php: 7.1
-      env: DB=pgsql POSTGRESQL_VERSION=9.3
+      env: DB=pgsql POSTGRESQL_VERSION=9.3 COVERAGE=yes
       services:
         - postgresql
       addons:
@@ -182,7 +225,7 @@ jobs:
 
     - stage: Test
       php: 7.1
-      env: DB=pgsql POSTGRESQL_VERSION=9.4
+      env: DB=pgsql POSTGRESQL_VERSION=9.4 COVERAGE=yes
       services:
         - postgresql
       addons:
@@ -204,7 +247,7 @@ jobs:
 
     - stage: Test
       php: 7.1
-      env: DB=pgsql POSTGRESQL_VERSION=9.5
+      env: DB=pgsql POSTGRESQL_VERSION=9.5 COVERAGE=yes
       services:
         - postgresql
       addons:
@@ -226,7 +269,7 @@ jobs:
 
     - stage: Test
       php: 7.1
-      env: DB=pgsql POSTGRESQL_VERSION=9.6
+      env: DB=pgsql POSTGRESQL_VERSION=9.6 COVERAGE=yes
       services:
         - postgresql
       addons:
@@ -248,7 +291,7 @@ jobs:
 
     - stage: Test
       php: 7.1
-      env: DB=pgsql POSTGRESQL_VERSION=10.0
+      env: DB=pgsql POSTGRESQL_VERSION=10.0 COVERAGE=yes
       sudo: required
       services:
         - postgresql
@@ -278,6 +321,40 @@ jobs:
         - bash ./tests/travis/install-postgres-10.sh
 
     - stage: Test
+      php: 7.1
+      env: DB=pgsql POSTGRESQL_VERSION=11.0
+      sudo: required
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-postgres-11.sh
+    - stage: Test
+      php: 7.2
+      env: DB=pgsql POSTGRESQL_VERSION=11.0
+      sudo: required
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-postgres-11.sh
+    - stage: Test
+      php: nightly
+      env: DB=pgsql POSTGRESQL_VERSION=11.0
+      sudo: required
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-postgres-11.sh
+
+    - stage: Test
+      env: DB=sqlsrv COVERAGE=yes
+      sudo: required
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-mssql-$DB.sh
+        - bash ./tests/travis/install-mssql.sh
+    - stage: Test
+      php: 7.2
       env: DB=sqlsrv
       sudo: required
       services:
@@ -285,9 +362,19 @@ jobs:
       before_script:
         - bash ./tests/travis/install-mssql-$DB.sh
         - bash ./tests/travis/install-mssql.sh
+
+    - stage: Test
+      php: 7.1
+      env: DB=pdo_sqlsrv COVERAGE=yes
+      sudo: required
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-mssql-$DB.sh
+        - bash ./tests/travis/install-mssql.sh
     - stage: Test
       php: 7.2
-      env: DB=sqlsrv
+      env: DB=pdo_sqlsrv
       sudo: required
       services:
         - docker
@@ -296,23 +383,22 @@ jobs:
         - bash ./tests/travis/install-mssql.sh
 
     - stage: Test
-      php: 7.1
-      env: DB=pdo_sqlsrv
+      env: DB=ibm_db2 COVERAGE=yes
       sudo: required
       services:
         - docker
       before_script:
-        - bash ./tests/travis/install-mssql-$DB.sh
-        - bash ./tests/travis/install-mssql.sh
+        - bash ./tests/travis/install-db2.sh
+        - bash ./tests/travis/install-db2-$DB.sh
     - stage: Test
       php: 7.2
-      env: DB=pdo_sqlsrv
+      env: DB=ibm_db2
       sudo: required
       services:
         - docker
       before_script:
-        - bash ./tests/travis/install-mssql-$DB.sh
-        - bash ./tests/travis/install-mssql.sh
+        - bash ./tests/travis/install-db2.sh
+        - bash ./tests/travis/install-db2-$DB.sh
 
     - stage: Test
       php: 7.1
@@ -328,21 +414,15 @@ jobs:
         - composer config minimum-stability dev
         - travis_retry composer update --prefer-dist
 
-    - stage: Coverage
-      php: 7.1
-      env: DB=sqlite
-      before_script:
-        - mv ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini{.disabled,}
-        - if [[ ! $(php -m | grep -si xdebug) ]]; then echo "xdebug required for coverage"; exit 1; fi
-      script:
-        - ./vendor/bin/phpunit --configuration tests/travis/$DB.travis.xml --coverage-clover clover.xml
-      after_script:
-        - wget https://scrutinizer-ci.com/ocular.phar
-        - php ocular.phar code-coverage:upload --format=php-clover clover.xml
+    - stage: Code Quality
+      env: DB=none STATIC_ANALYSIS
+      install: travis_retry composer update --prefer-dist
+      script: vendor/bin/phpstan analyse
 
     - stage: Pull request coding standard
       if: type = pull_request
       php: 7.1
+      install: travis_retry composer install --prefer-dist
       script:
         - |
           if [ $TRAVIS_BRANCH != "master" ]; then
@@ -356,5 +436,6 @@ jobs:
     - stage: Coding standard
       if: NOT type = pull_request
       php: 7.1
+      install: travis_retry composer install --prefer-dist
       script:
         - ./vendor/bin/phpcs

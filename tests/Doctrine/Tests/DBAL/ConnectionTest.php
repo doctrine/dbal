@@ -19,6 +19,7 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\Tests\Mocks\DriverMock;
 use Doctrine\Tests\Mocks\VersionAwarePlatformDriverMock;
+use function call_user_func_array;
 
 /**
  * @requires extension pdo_mysql

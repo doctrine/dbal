@@ -19,6 +19,22 @@
 
 namespace Doctrine\DBAL;
 
+use const PREG_OFFSET_CAPTURE;
+use function array_fill;
+use function array_key_exists;
+use function array_merge;
+use function array_slice;
+use function array_values;
+use function count;
+use function implode;
+use function is_int;
+use function key;
+use function ksort;
+use function preg_match_all;
+use function strlen;
+use function strpos;
+use function substr;
+
 /**
  * Utility class that parses sql statements with regard to types and parameters.
  *

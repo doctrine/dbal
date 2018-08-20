@@ -1,22 +1,23 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Functional\Driver\PDOSqlsrv;
+namespace Doctrine\Tests\DBAL\Functional\Driver\SQLSrv;
 
-use Doctrine\DBAL\Driver\PDOSqlsrv\Driver;
+use Doctrine\DBAL\Driver\SQLSrv\Driver;
 use Doctrine\Tests\DBAL\Functional\Driver\AbstractDriverTest;
+use function extension_loaded;
 
 class DriverTest extends AbstractDriverTest
 {
     protected function setUp()
     {
-        if (! extension_loaded('pdo_sqlsrv')) {
-            $this->markTestSkipped('pdo_sqlsrv is not installed.');
+        if (! extension_loaded('sqlsrv')) {
+            $this->markTestSkipped('sqlsrv is not installed.');
         }
 
         parent::setUp();
 
         if (! $this->_conn->getDriver() instanceof Driver) {
-            $this->markTestSkipped('pdo_sqlsrv only test.');
+            $this->markTestSkipped('sqlsrv only test.');
         }
     }
 

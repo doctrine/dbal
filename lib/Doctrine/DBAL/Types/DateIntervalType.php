@@ -3,12 +3,15 @@
 namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use function substr;
 
 /**
  * Type that maps interval string to a PHP DateInterval Object.
  */
 class DateIntervalType extends Type
 {
+    public const FORMAT = '%RP%YY%MM%DDT%HH%IM%SS';
+
     /**
      * {@inheritdoc}
      */
@@ -23,7 +26,6 @@ class DateIntervalType extends Type
     public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
     {
         $fieldDeclaration['length'] = 255;
-        $fieldDeclaration['fixed']  = true;
 
         return $platform->getVarcharTypeDeclarationSQL($fieldDeclaration);
     }
@@ -38,7 +40,7 @@ class DateIntervalType extends Type
         }
 
         if ($value instanceof \DateInterval) {
-            return $value->format('P%YY%MM%DDT%HH%IM%SS');
+            return $value->format(self::FORMAT);
         }
 
         throw ConversionException::conversionFailedInvalidType($value, $this->getName(), ['null', 'DateInterval']);
@@ -53,10 +55,23 @@ class DateIntervalType extends Type
             return $value;
         }
 
+        $negative = false;
+
+        if (isset($value[0]) && ($value[0] === '+' || $value[0] === '-')) {
+            $negative = $value[0] === '-';
+            $value    = substr($value, 1);
+        }
+
         try {
-            return new \DateInterval($value);
+            $interval = new \DateInterval($value);
+
+            if ($negative) {
+                $interval->invert = 1;
+            }
+
+            return $interval;
         } catch (\Exception $exception) {
-            throw ConversionException::conversionFailedFormat($value, $this->getName(), 'P%YY%MM%DDT%HH%IM%SS', $exception);
+            throw ConversionException::conversionFailedFormat($value, $this->getName(), self::FORMAT, $exception);
         }
     }
 

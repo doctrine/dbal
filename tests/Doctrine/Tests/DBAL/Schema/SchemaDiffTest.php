@@ -57,12 +57,12 @@ class SchemaDiffTest extends \PHPUnit\Framework\TestCase
         if ($unsafe) {
             $platform->expects($this->exactly(1))
                      ->method('getDropTableSql')
-                     ->with($this->isInstanceof('Doctrine\DBAL\Schema\Table'))
+                     ->with($this->isInstanceOf('Doctrine\DBAL\Schema\Table'))
                      ->will($this->returnValue('drop_table'));
         }
         $platform->expects($this->exactly(1))
                  ->method('getCreateTableSql')
-                 ->with($this->isInstanceof('Doctrine\DBAL\Schema\Table'))
+                 ->with($this->isInstanceOf('Doctrine\DBAL\Schema\Table'))
                  ->will($this->returnValue(array('create_table')));
         $platform->expects($this->exactly(1))
                  ->method('getCreateForeignKeySQL')
@@ -76,7 +76,7 @@ class SchemaDiffTest extends \PHPUnit\Framework\TestCase
             $platform->expects($this->exactly(1))
                      ->method('getDropForeignKeySql')
                      ->with(
-                         $this->isInstanceof('Doctrine\DBAL\Schema\ForeignKeyConstraint'),
+                         $this->isInstanceOf('Doctrine\DBAL\Schema\ForeignKeyConstraint'),
                          $this->isInstanceOf('Doctrine\DBAL\Schema\Table')
                      )
                      ->will($this->returnValue('drop_orphan_fk'));

@@ -29,7 +29,7 @@ full representation:
 Using the DateTime, DateTimeTz or Time type (and immutable variants) with microseconds
 enabled columns can lead to errors because internally types expect
 the exact format 'Y-m-d H:i:s' in combination with
-``DateTime::createFromFormat()``. This method is twice a fast as
+``DateTime::createFromFormat()``. This method is twice as fast as
 passing the date to the constructor of ``DateTime``.
 
 This is why Doctrine always wants to create the time related types

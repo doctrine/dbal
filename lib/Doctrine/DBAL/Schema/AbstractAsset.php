@@ -20,6 +20,16 @@
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use function array_map;
+use function crc32;
+use function dechex;
+use function explode;
+use function implode;
+use function str_replace;
+use function strpos;
+use function strtolower;
+use function strtoupper;
+use function substr;
 
 /**
  * The abstract asset allows to reset the name of all assets without publishing this to the public userland.
@@ -222,6 +232,6 @@ abstract class AbstractAsset
             return dechex(crc32($column));
         }, $columnNames));
 
-        return substr(strtoupper($prefix . "_" . $hash), 0, $maxSize);
+        return strtoupper(substr($prefix . '_' . $hash, 0, $maxSize));
     }
 }

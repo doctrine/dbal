@@ -2,17 +2,23 @@
 
 namespace Doctrine\Tests\DBAL;
 
+use Doctrine\DBAL\Connections\MasterSlaveConnection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\DrizzlePDOMySql\Driver as DrizzlePDOMySqlDriver;
-use Doctrine\DBAL\Driver\PDOMySQL\Driver as PDOMySQLDriver;
+use Doctrine\DBAL\Driver\PDOMySql\Driver as PDOMySQLDriver;
 use Doctrine\DBAL\Driver\PDOSqlite\Driver as PDOSqliteDriver;
 use Doctrine\DBAL\Driver\SQLSrv\Driver as SQLSrvDriver;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Sharding\PoolingShardConnection;
+use Doctrine\DBAL\Sharding\ShardChoser\MultiTenantShardChoser;
 use Doctrine\Tests\DBAL\Mocks\MockPlatform;
 use Doctrine\Tests\DbalTestCase;
 use Doctrine\Tests\Mocks\ConnectionMock;
 use Doctrine\Tests\Mocks\DriverMock;
 use stdClass;
+use function extension_loaded;
+use function in_array;
+use function is_array;
 
 class DriverManagerTest extends DbalTestCase
 {
@@ -128,6 +134,74 @@ class DriverManagerTest extends DbalTestCase
 
         $conn = DriverManager::getConnection($options);
         self::assertInstanceOf(PDOMySQLDriver::class, $conn->getDriver());
+    }
+
+    public function testDatabaseUrlMasterSlave()
+    {
+        $options = [
+            'driver' => 'pdo_mysql',
+            'master' => ['url' => 'mysql://foo:bar@localhost:11211/baz'],
+            'slaves' => [
+                'slave1' => ['url' => 'mysql://foo:bar@localhost:11211/baz_slave'],
+            ],
+            'wrapperClass' => MasterSlaveConnection::class,
+        ];
+
+        $conn = DriverManager::getConnection($options);
+
+        $params = $conn->getParams();
+        self::assertInstanceOf(PDOMySQLDriver::class, $conn->getDriver());
+
+        $expected = [
+            'user'     => 'foo',
+            'password' => 'bar',
+            'host'     => 'localhost',
+            'port'     => 11211,
+        ];
+
+        foreach ($expected as $key => $value) {
+            self::assertEquals($value, $params['master'][$key]);
+            self::assertEquals($value, $params['slaves']['slave1'][$key]);
+        }
+
+        self::assertEquals('baz', $params['master']['dbname']);
+        self::assertEquals('baz_slave', $params['slaves']['slave1']['dbname']);
+    }
+
+    public function testDatabaseUrlShard()
+    {
+        $options = [
+            'driver' => 'pdo_mysql',
+            'shardChoser' => MultiTenantShardChoser::class,
+            'global' => ['url' => 'mysql://foo:bar@localhost:11211/baz'],
+            'shards' => [
+                [
+                    'id' => 1,
+                    'url' => 'mysql://foo:bar@localhost:11211/baz_slave',
+                ],
+            ],
+            'wrapperClass' => PoolingShardConnection::class,
+        ];
+
+        $conn = DriverManager::getConnection($options);
+
+        $params = $conn->getParams();
+        self::assertInstanceOf(PDOMySQLDriver::class, $conn->getDriver());
+
+        $expected = [
+            'user'     => 'foo',
+            'password' => 'bar',
+            'host'     => 'localhost',
+            'port'     => 11211,
+        ];
+
+        foreach ($expected as $key => $value) {
+            self::assertEquals($value, $params['global'][$key]);
+            self::assertEquals($value, $params['shards'][0][$key]);
+        }
+
+        self::assertEquals('baz', $params['global']['dbname']);
+        self::assertEquals('baz_slave', $params['shards'][0]['dbname']);
     }
 
     /**

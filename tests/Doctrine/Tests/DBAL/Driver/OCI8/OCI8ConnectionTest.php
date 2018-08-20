@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\DBAL\Driver\OCI8;
 
 use Doctrine\Tests\DbalTestCase;
+use function extension_loaded;
 
 class OCI8ConnectionTest extends DbalTestCase
 {

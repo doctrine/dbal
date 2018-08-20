@@ -23,6 +23,10 @@ use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
+use function array_combine;
+use function array_fill;
+use function count;
+use function str_repeat;
 
 /**
  * @author Kim Hemsø Rasmussen <kimhemsoe@gmail.com>
@@ -34,6 +38,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
      */
     protected static $_paramTypeMap = [
         ParameterType::STRING       => 's',
+        ParameterType::BINARY       => 's',
         ParameterType::BOOLEAN      => 'i',
         ParameterType::NULL         => 's',
         ParameterType::INTEGER      => 'i',
@@ -166,7 +171,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
                     throw new MysqliException($this->_stmt->error, $this->_stmt->errno);
                 }
             } else {
-                if (!call_user_func_array([$this->_stmt, 'bind_param'], [$this->types] + $this->_bindedValues)) {
+                if (! $this->_stmt->bind_param($this->types, ...$this->_bindedValues)) {
                     throw new MysqliException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
                 }
             }
@@ -215,7 +220,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
                 $refs[$key] =& $value;
             }
 
-            if (!call_user_func_array([$this->_stmt, 'bind_result'], $refs)) {
+            if (! $this->_stmt->bind_result(...$refs)) {
                 throw new MysqliException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
             }
         }
@@ -236,17 +241,16 @@ class MysqliStatement implements \IteratorAggregate, Statement
     {
         $params = [];
         $types = str_repeat('s', count($values));
-        $params[0] = $types;
 
         foreach ($values as &$v) {
             $params[] =& $v;
         }
 
-        return call_user_func_array([$this->_stmt, 'bind_param'], $params);
+        return $this->_stmt->bind_param($types, ...$params);
     }
 
     /**
-     * @return bool|array
+     * @return mixed[]|false
      */
     private function _fetch()
     {

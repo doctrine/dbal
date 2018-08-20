@@ -24,6 +24,30 @@ use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use IteratorAggregate;
+use const SASQL_BOTH;
+use function array_key_exists;
+use function func_get_args;
+use function func_num_args;
+use function gettype;
+use function is_array;
+use function is_numeric;
+use function is_object;
+use function is_resource;
+use function is_string;
+use function sasql_fetch_array;
+use function sasql_fetch_assoc;
+use function sasql_fetch_object;
+use function sasql_fetch_row;
+use function sasql_prepare;
+use function sasql_stmt_affected_rows;
+use function sasql_stmt_bind_param_ex;
+use function sasql_stmt_errno;
+use function sasql_stmt_error;
+use function sasql_stmt_execute;
+use function sasql_stmt_field_count;
+use function sasql_stmt_reset;
+use function sasql_stmt_result_metadata;
+use function sprintf;
 
 /**
  * SAP SQL Anywhere implementation of the Statement interface.
@@ -45,7 +69,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
     private $defaultFetchClass = '\stdClass';
 
     /**
-     * @var string Constructor arguments for the default class to instantiate when fetching class instances.
+     * @var mixed[] Constructor arguments for the default class to instantiate when fetching class instances.
      */
     private $defaultFetchClassCtorArgs = [];
 
@@ -107,6 +131,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
 
             case ParameterType::NULL:
             case ParameterType::STRING:
+            case ParameterType::BINARY:
                 $type = 's';
                 break;
 
@@ -254,7 +279,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
 
         switch ($fetchMode) {
             case FetchMode::CUSTOM_OBJECT:
-                while ($row = call_user_func_array([$this, 'fetch'], func_get_args())) {
+                while ($row = $this->fetch(...func_get_args())) {
                     $rows[] = $row;
                 }
                 break;
@@ -310,7 +335,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
     public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
     {
         $this->defaultFetchMode          = $fetchMode;
-        $this->defaultFetchClass         = $arg2 ? $arg2 : $this->defaultFetchClass;
+        $this->defaultFetchClass         = $arg2 ?: $this->defaultFetchClass;
         $this->defaultFetchClassCtorArgs = $arg3 ? (array) $arg3 : $this->defaultFetchClassCtorArgs;
     }
 

@@ -216,7 +216,7 @@ class DB2PlatformTest extends AbstractPlatformTestCase
 
         self::assertEquals('VARCHAR(255)', $this->_platform->getVarcharTypeDeclarationSQL(array()));
         self::assertEquals('VARCHAR(10)', $this->_platform->getVarcharTypeDeclarationSQL(array('length' => 10)));
-        self::assertEquals('CHAR(255)', $this->_platform->getVarcharTypeDeclarationSQL(array('fixed' => true)));
+        self::assertEquals('CHAR(254)', $this->_platform->getVarcharTypeDeclarationSQL(['fixed' => true]));
         self::assertEquals('CHAR(10)', $this->_platform->getVarcharTypeDeclarationSQL($fullColumnDef));
 
         self::assertEquals('SMALLINT', $this->_platform->getSmallIntTypeDeclarationSQL(array()));
@@ -419,15 +419,22 @@ class DB2PlatformTest extends AbstractPlatformTestCase
 
     public function testReturnsBinaryTypeDeclarationSQL()
     {
-        self::assertSame('VARBINARY(1)', $this->_platform->getBinaryTypeDeclarationSQL(array()));
-        self::assertSame('VARBINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 0)));
-        self::assertSame('VARBINARY(32704)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 32704)));
-        self::assertSame('BLOB(1M)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 32705)));
+        self::assertSame('VARCHAR(1) FOR BIT DATA', $this->_platform->getBinaryTypeDeclarationSQL([]));
+        self::assertSame('VARCHAR(255) FOR BIT DATA', $this->_platform->getBinaryTypeDeclarationSQL(['length' => 0]));
+        self::assertSame('VARCHAR(32704) FOR BIT DATA', $this->_platform->getBinaryTypeDeclarationSQL(['length' => 32704]));
 
-        self::assertSame('BINARY(1)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true)));
-        self::assertSame('BINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 0)));
-        self::assertSame('BINARY(32704)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 32704)));
-        self::assertSame('BLOB(1M)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 32705)));
+        self::assertSame('CHAR(1) FOR BIT DATA', $this->_platform->getBinaryTypeDeclarationSQL(['fixed' => true]));
+        self::assertSame('CHAR(254) FOR BIT DATA', $this->_platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 0]));
+    }
+
+    /**
+     * @group legacy
+     * @expectedDeprecation Binary field length 32705 is greater than supported by the platform (32704). Reduce the field length or use a BLOB field instead.
+     */
+    public function testReturnsBinaryTypeLongerThanMaxDeclarationSQL()
+    {
+        self::assertSame('BLOB(1M)', $this->_platform->getBinaryTypeDeclarationSQL(['length' => 32705]));
+        self::assertSame('BLOB(1M)', $this->_platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 32705]));
     }
 
     /**

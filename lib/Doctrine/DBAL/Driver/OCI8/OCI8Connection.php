@@ -22,6 +22,24 @@ namespace Doctrine\DBAL\Driver\OCI8;
 use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\ParameterType;
+use const OCI_COMMIT_ON_SUCCESS;
+use const OCI_DEFAULT;
+use const OCI_NO_AUTO_COMMIT;
+use function addcslashes;
+use function define;
+use function defined;
+use function func_get_args;
+use function is_float;
+use function is_int;
+use function oci_commit;
+use function oci_connect;
+use function oci_error;
+use function oci_pconnect;
+use function oci_rollback;
+use function oci_server_version;
+use function preg_match;
+use function sprintf;
+use function str_replace;
 
 /**
  * OCI8 implementation of the Connection interface.

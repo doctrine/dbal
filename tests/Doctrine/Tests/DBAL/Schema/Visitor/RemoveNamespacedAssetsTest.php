@@ -6,6 +6,7 @@ use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\SchemaConfig;
 use Doctrine\DBAL\Schema\Visitor\RemoveNamespacedAssets;
+use function array_keys;
 
 class RemoveNamespacedAssetsTest extends \PHPUnit\Framework\TestCase
 {

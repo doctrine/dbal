@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\Types\Type;
+use function str_repeat;
 
 class TypeConversionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {

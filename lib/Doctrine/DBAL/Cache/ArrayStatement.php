@@ -21,6 +21,10 @@ namespace Doctrine\DBAL\Cache;
 
 use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\FetchMode;
+use function array_merge;
+use function array_values;
+use function count;
+use function reset;
 
 class ArrayStatement implements \IteratorAggregate, ResultStatement
 {

@@ -24,6 +24,17 @@ use Doctrine\DBAL\Event\SchemaColumnDefinitionEventArgs;
 use Doctrine\DBAL\Event\SchemaIndexDefinitionEventArgs;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use function array_filter;
+use function array_map;
+use function array_values;
+use function call_user_func_array;
+use function count;
+use function func_get_args;
+use function is_array;
+use function is_null;
+use function preg_match;
+use function str_replace;
+use function strtolower;
 
 /**
  * Base class for schema managers. Schema managers are used to inspect and/or
@@ -137,7 +148,7 @@ abstract class AbstractSchemaManager
      */
     public function listSequences($database = null)
     {
-        if (is_null($database)) {
+        if ($database === null) {
             $database = $this->_conn->getDatabase();
         }
         $sql = $this->_platform->getListSequencesSQL($database);
@@ -312,7 +323,7 @@ abstract class AbstractSchemaManager
      */
     public function listTableForeignKeys($table, $database = null)
     {
-        if (is_null($database)) {
+        if ($database === null) {
             $database = $this->_conn->getDatabase();
         }
         $sql = $this->_platform->getListTableForeignKeysSQL($table, $database);

@@ -7,6 +7,8 @@ use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Driver\ExceptionConverterDriver;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
 use Doctrine\Tests\DbalTestCase;
+use function get_class;
+use function sprintf;
 
 abstract class AbstractDriverTest extends DbalTestCase
 {

@@ -5,14 +5,43 @@ namespace Doctrine\Tests\DBAL\Cache;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\Tests\DbalTestCase;
+use function parse_str;
 
 class QueryCacheProfileTest extends DbalTestCase
 {
-    const LIFETIME = 3600;
-    const CACHE_KEY = 'user_specified_cache_key';
+    private const LIFETIME  = 3600;
+    private const CACHE_KEY = 'user_specified_cache_key';
 
-    /** @var QueryCacheProfile */
+    /**
+     * @var QueryCacheProfile
+     */
     private $queryCacheProfile;
+
+    /**
+     * @var string
+     */
+    private $query = 'SELECT * FROM foo WHERE bar = ?';
+
+    /**
+     * @var int[]
+     */
+    private $params = [666];
+
+    /**
+     * @var string[]
+     */
+    private $types = [ParameterType::INTEGER];
+
+    /**
+     * @var string[]
+     */
+    private $connectionParams = [
+            'dbname'   => 'database_name',
+            'user'     => 'database_user',
+            'password' => 'database_password',
+            'host'     => 'database_host',
+            'driver'   => 'database_driver',
+        ];
 
     protected function setUp()
     {
@@ -21,23 +50,11 @@ class QueryCacheProfileTest extends DbalTestCase
 
     public function testShouldUseTheGivenCacheKeyIfPresent()
     {
-        $query  = 'SELECT * FROM foo WHERE bar = ?';
-        $params = [666];
-        $types  = [ParameterType::INTEGER];
-
-        $connectionParams = array(
-            'dbname'   => 'database_name',
-            'user'     => 'database_user',
-            'password' => 'database_password',
-            'host'     => 'database_host',
-            'driver'   => 'database_driver'
-        );
-
         list($cacheKey) = $this->queryCacheProfile->generateCacheKeys(
-            $query,
-            $params,
-            $types,
-            $connectionParams
+            $this->query,
+            $this->params,
+            $this->types,
+            $this->connectionParams
         );
 
         self::assertEquals(self::CACHE_KEY, $cacheKey, 'The returned cache key should match the given one');
@@ -45,25 +62,13 @@ class QueryCacheProfileTest extends DbalTestCase
 
     public function testShouldGenerateAnAutomaticKeyIfNoKeyHasBeenGiven()
     {
-        $query  = 'SELECT * FROM foo WHERE bar = ?';
-        $params = [666];
-        $types  = [ParameterType::INTEGER];
-
-        $connectionParams = array(
-            'dbname'   => 'database_name',
-            'user'     => 'database_user',
-            'password' => 'database_password',
-            'host'     => 'database_host',
-            'driver'   => 'database_driver'
-        );
-
         $this->queryCacheProfile = $this->queryCacheProfile->setCacheKey(null);
 
         list($cacheKey) = $this->queryCacheProfile->generateCacheKeys(
-            $query,
-            $params,
-            $types,
-            $connectionParams
+            $this->query,
+            $this->params,
+            $this->types,
+            $this->connectionParams
         );
 
         self::assertNotEquals(
@@ -77,67 +82,64 @@ class QueryCacheProfileTest extends DbalTestCase
 
     public function testShouldGenerateDifferentKeysForSameQueryAndParamsAndDifferentConnections()
     {
-        $query  = 'SELECT * FROM foo WHERE bar = ?';
-        $params = [666];
-        $types  = [ParameterType::INTEGER];
-
-        $connectionParams = array(
-            'dbname'   => 'database_name',
-            'user'     => 'database_user',
-            'password' => 'database_password',
-            'host'     => 'database_host',
-            'driver'   => 'database_driver'
-        );
-
         $this->queryCacheProfile = $this->queryCacheProfile->setCacheKey(null);
 
         list($firstCacheKey) = $this->queryCacheProfile->generateCacheKeys(
-            $query,
-            $params,
-            $types,
-            $connectionParams
+            $this->query,
+            $this->params,
+            $this->types,
+            $this->connectionParams
         );
 
-        $connectionParams['host'] = 'a_different_host';
+        $this->connectionParams['host'] = 'a_different_host';
 
         list($secondCacheKey) = $this->queryCacheProfile->generateCacheKeys(
-            $query,
-            $params,
-            $types,
-            $connectionParams
+            $this->query,
+            $this->params,
+            $this->types,
+            $this->connectionParams
         );
 
         self::assertNotEquals($firstCacheKey, $secondCacheKey, 'Cache keys should be different');
     }
 
-    public function testShouldGenerateSameKeysIfNoneOfTheParamsChanges()
+    public function testConnectionParamsShouldBeHashed()
     {
-        $query  = 'SELECT * FROM foo WHERE bar = ?';
-        $params = [666];
-        $types  = [ParameterType::INTEGER];
+        $this->queryCacheProfile = $this->queryCacheProfile->setCacheKey(null);
 
-        $connectionParams = array(
-            'dbname'   => 'database_name',
-            'user'     => 'database_user',
-            'password' => 'database_password',
-            'host'     => 'database_host',
-            'driver'   => 'database_driver'
+        list($cacheKey, $queryString) = $this->queryCacheProfile->generateCacheKeys(
+            $this->query,
+            $this->params,
+            $this->types,
+            $this->connectionParams
         );
 
+        $params = [];
+        parse_str($queryString, $params);
+
+        self::assertArrayHasKey('connectionParams', $params);
+
+        foreach ($this->connectionParams as $param) {
+            self::assertNotContains($param, $params['connectionParams']);
+        }
+    }
+
+    public function testShouldGenerateSameKeysIfNoneOfTheParamsChanges()
+    {
         $this->queryCacheProfile = $this->queryCacheProfile->setCacheKey(null);
 
         list($firstCacheKey) = $this->queryCacheProfile->generateCacheKeys(
-            $query,
-            $params,
-            $types,
-            $connectionParams
+            $this->query,
+            $this->params,
+            $this->types,
+            $this->connectionParams
         );
 
         list($secondCacheKey) = $this->queryCacheProfile->generateCacheKeys(
-            $query,
-            $params,
-            $types,
-            $connectionParams
+            $this->query,
+            $this->params,
+            $this->types,
+            $this->connectionParams
         );
 
         self::assertEquals($firstCacheKey, $secondCacheKey, 'Cache keys should be the same');

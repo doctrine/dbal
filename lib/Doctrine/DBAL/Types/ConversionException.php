@@ -29,6 +29,15 @@
  */
 namespace Doctrine\DBAL\Types;
 
+use function get_class;
+use function gettype;
+use function implode;
+use function is_object;
+use function is_scalar;
+use function sprintf;
+use function strlen;
+use function substr;
+
 class ConversionException extends \Doctrine\DBAL\DBALException
 {
     /**
@@ -107,6 +116,15 @@ class ConversionException extends \Doctrine\DBAL\DBALException
         return new self(sprintf(
             "Could not convert PHP type '%s' to '%s', as an '%s' error was triggered by the serialization",
             $actualType,
+            $format,
+            $error
+        ));
+    }
+
+    public static function conversionFailedUnserialization(string $format, string $error) : self
+    {
+        return new self(sprintf(
+            "Could not convert database value to '%s' as an error was triggered by the unserialization: '%s'",
             $format,
             $error
         ));

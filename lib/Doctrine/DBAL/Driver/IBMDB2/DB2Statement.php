@@ -23,6 +23,29 @@ use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
+use const DB2_CHAR;
+use const DB2_LONG;
+use const DB2_PARAM_IN;
+use function array_change_key_case;
+use function db2_bind_param;
+use function db2_execute;
+use function db2_fetch_array;
+use function db2_fetch_assoc;
+use function db2_fetch_both;
+use function db2_fetch_object;
+use function db2_free_result;
+use function db2_num_fields;
+use function db2_num_rows;
+use function db2_stmt_error;
+use function db2_stmt_errormsg;
+use function func_get_args;
+use function func_num_args;
+use function gettype;
+use function is_object;
+use function is_string;
+use function ksort;
+use function sprintf;
+use function strtolower;
 
 class DB2Statement implements \IteratorAggregate, Statement
 {
@@ -42,7 +65,7 @@ class DB2Statement implements \IteratorAggregate, Statement
     private $defaultFetchClass = '\stdClass';
 
     /**
-     * @var string Constructor arguments for the default class to instantiate when fetching class instances.
+     * @var mixed[] Constructor arguments for the default class to instantiate when fetching class instances.
      */
     private $defaultFetchClassCtorArgs = [];
 
@@ -191,7 +214,7 @@ class DB2Statement implements \IteratorAggregate, Statement
     public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
     {
         $this->_defaultFetchMode         = $fetchMode;
-        $this->defaultFetchClass         = $arg2 ? $arg2 : $this->defaultFetchClass;
+        $this->defaultFetchClass         = $arg2 ?: $this->defaultFetchClass;
         $this->defaultFetchClassCtorArgs = $arg3 ? (array) $arg3 : $this->defaultFetchClassCtorArgs;
 
         return true;
@@ -265,17 +288,17 @@ class DB2Statement implements \IteratorAggregate, Statement
 
         switch ($fetchMode) {
             case FetchMode::CUSTOM_OBJECT:
-                while ($row = call_user_func_array([$this, 'fetch'], func_get_args())) {
+                while (($row = $this->fetch(...func_get_args())) !== false) {
                     $rows[] = $row;
                 }
                 break;
             case FetchMode::COLUMN:
-                while ($row = $this->fetchColumn()) {
+                while (($row = $this->fetchColumn()) !== false) {
                     $rows[] = $row;
                 }
                 break;
             default:
-                while ($row = $this->fetch($fetchMode)) {
+                while (($row = $this->fetch($fetchMode)) !== false) {
                     $rows[] = $row;
                 }
         }

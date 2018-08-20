@@ -6,6 +6,7 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
 use Doctrine\Tests\DbalFunctionalTestCase;
+use function extension_loaded;
 
 class PDOPgsqlConnectionTest extends DbalFunctionalTestCase
 {

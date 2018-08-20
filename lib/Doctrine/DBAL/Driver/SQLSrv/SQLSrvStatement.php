@@ -24,7 +24,31 @@ use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use IteratorAggregate;
 use Doctrine\DBAL\Driver\Statement;
+use const SQLSRV_ENC_BINARY;
+use const SQLSRV_ERR_ERRORS;
+use const SQLSRV_FETCH_ASSOC;
+use const SQLSRV_FETCH_BOTH;
+use const SQLSRV_FETCH_NUMERIC;
+use const SQLSRV_PARAM_IN;
+use function array_key_exists;
+use function count;
 use function func_get_args;
+use function in_array;
+use function is_numeric;
+use function sqlsrv_errors;
+use function sqlsrv_execute;
+use function sqlsrv_fetch;
+use function sqlsrv_fetch_array;
+use function sqlsrv_fetch_object;
+use function sqlsrv_get_field;
+use function sqlsrv_next_result;
+use function sqlsrv_num_fields;
+use function SQLSRV_PHPTYPE_STREAM;
+use function SQLSRV_PHPTYPE_STRING;
+use function sqlsrv_prepare;
+use function sqlsrv_rows_affected;
+use function SQLSRV_SQLTYPE_VARBINARY;
+use function stripos;
 
 /**
  * SQL Server Statement.
@@ -51,7 +75,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     /**
      * The SQLSRV statement resource.
      *
-     * @var resource
+     * @var resource|null
      */
     private $stmt;
 
@@ -90,7 +114,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     /**
      * The constructor arguments for the default class to instantiate when fetching class instances.
      *
-     * @var string
+     * @var mixed[]
      */
     private $defaultFetchClassCtorArgs = [];
 
@@ -260,22 +284,36 @@ class SQLSrvStatement implements IteratorAggregate, Statement
         $params = [];
 
         foreach ($this->variables as $column => &$variable) {
-            if ($this->types[$column] === ParameterType::LARGE_OBJECT) {
-                $params[$column - 1] = [
-                    &$variable,
-                    SQLSRV_PARAM_IN,
-                    SQLSRV_PHPTYPE_STREAM(SQLSRV_ENC_BINARY),
-                    SQLSRV_SQLTYPE_VARBINARY('max'),
-                ];
-            } elseif ($this->types[$column] === ParameterType::STRING) {
-                $params[$column - 1] = [
-                    &$variable,
-                    SQLSRV_PARAM_IN,
-                    SQLSRV_PHPTYPE_STRING(SQLSRV_ENC_CHAR),
-                    SQLSRV_SQLTYPE_VARCHAR('max'),
-                ];
-            } else {
-                $params[$column - 1] =& $variable;
+            switch ($this->types[$column]) {
+                case ParameterType::LARGE_OBJECT:
+                    $params[$column - 1] = [
+                        &$variable,
+                        SQLSRV_PARAM_IN,
+                        SQLSRV_PHPTYPE_STREAM(SQLSRV_ENC_BINARY),
+                        SQLSRV_SQLTYPE_VARBINARY('max'),
+                    ];
+                    break;
+
+                case ParameterType::STRING) {
+                    $params[$column - 1] = [
+                        &$variable,
+                        SQLSRV_PARAM_IN,
+                        SQLSRV_PHPTYPE_STRING(SQLSRV_ENC_CHAR),
+                        SQLSRV_SQLTYPE_VARCHAR('max'),
+                    ];
+                    break;
+
+                case ParameterType::BINARY:
+                    $params[$column - 1] = [
+                        &$variable,
+                        SQLSRV_PARAM_IN,
+                        SQLSRV_PHPTYPE_STRING(SQLSRV_ENC_BINARY),
+                    ];
+                    break;
+
+                default:
+                    $params[$column - 1] =& $variable;
+                    break;
             }
         }
 

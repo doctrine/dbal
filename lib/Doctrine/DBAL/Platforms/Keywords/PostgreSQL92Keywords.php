@@ -19,6 +19,8 @@
 
 namespace Doctrine\DBAL\Platforms\Keywords;
 
+use function array_merge;
+
 /**
  * PostgreSQL 9.2 reserved keywords list.
  *

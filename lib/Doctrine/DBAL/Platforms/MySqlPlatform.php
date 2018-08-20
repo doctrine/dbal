@@ -26,6 +26,21 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\TextType;
+use function array_diff_key;
+use function array_merge;
+use function array_unique;
+use function array_values;
+use function count;
+use function func_get_args;
+use function implode;
+use function in_array;
+use function is_numeric;
+use function is_string;
+use function join;
+use function sprintf;
+use function str_replace;
+use function strtoupper;
+use function trim;
 
 /**
  * The MySqlPlatform provides the behavior, features and SQL dialect of the
@@ -48,23 +63,18 @@ class MySqlPlatform extends AbstractPlatform
     const LENGTH_LIMIT_MEDIUMBLOB = 16777215;
 
     /**
-     * Adds MySQL-specific LIMIT clause to the query
-     * 18446744073709551615 is 2^64-1 maximum of unsigned BIGINT the biggest limit possible
-     *
-     * @param string $query
-     * @param int    $limit
-     * @param int    $offset
-     *
-     * @return string
+     * {@inheritDoc}
      */
     protected function doModifyLimitQuery($query, $limit, $offset)
     {
         if ($limit !== null) {
             $query .= ' LIMIT ' . $limit;
-            if ($offset !== null) {
+
+            if ($offset > 0) {
                 $query .= ' OFFSET ' . $offset;
             }
-        } elseif ($offset !== null) {
+        } elseif ($offset > 0) {
+            // 2^64-1 is the maximum of unsigned BIGINT, the biggest limit possible
             $query .= ' LIMIT 18446744073709551615 OFFSET ' . $offset;
         }
 
@@ -89,6 +99,8 @@ class MySqlPlatform extends AbstractPlatform
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated Use application-generated UUIDs instead
      */
     public function getGuidExpression()
     {
@@ -201,7 +213,7 @@ class MySqlPlatform extends AbstractPlatform
                "  c.constraint_name = k.constraint_name AND ".
                "  c.table_name = $table */ WHERE k.table_name = $table";
 
-        $databaseNameSql = null === $database ? 'DATABASE()' : $database;
+        $databaseNameSql = $database ?? 'DATABASE()';
 
         $sql .= " AND k.table_schema = $databaseNameSql /*!50116 AND c.constraint_schema = $databaseNameSql */";
         $sql .= " AND k.`REFERENCED_COLUMN_NAME` is not NULL";
@@ -442,7 +454,7 @@ class MySqlPlatform extends AbstractPlatform
         $query .= $this->buildTableOptions($options);
         $query .= $this->buildPartitionOptions($options);
 
-        $sql[]  = $query;
+        $sql    = [$query];
         $engine = 'INNODB';
 
         if (isset($options['engine'])) {

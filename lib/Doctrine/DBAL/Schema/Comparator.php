@@ -20,6 +20,15 @@
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Types;
+use function array_intersect_key;
+use function array_key_exists;
+use function array_keys;
+use function array_map;
+use function array_merge;
+use function array_shift;
+use function array_unique;
+use function count;
+use function strtolower;
 
 /**
  * Compares two Schemas and return an instance of SchemaDiff.
@@ -195,7 +204,7 @@ class Comparator
      * @param \Doctrine\DBAL\Schema\Table $table1
      * @param \Doctrine\DBAL\Schema\Table $table2
      *
-     * @return bool|\Doctrine\DBAL\Schema\TableDiff
+     * @return TableDiff|false
      */
     public function diffTable(Table $table1, Table $table2)
     {
@@ -303,8 +312,6 @@ class Comparator
      * Try to find columns that only changed their name, rename operations maybe cheaper than add/drop
      * however ambiguities between different possibilities should not lead to renaming at all.
      *
-     * @param \Doctrine\DBAL\Schema\TableDiff $tableDifferences
-     *
      * @return void
      */
     private function detectColumnRenamings(TableDiff $tableDifferences)
@@ -338,8 +345,6 @@ class Comparator
     /**
      * Try to find indexes that only changed their name, rename operations maybe cheaper than add/drop
      * however ambiguities between different possibilities should not lead to renaming at all.
-     *
-     * @param \Doctrine\DBAL\Schema\TableDiff $tableDifferences
      *
      * @return void
      */

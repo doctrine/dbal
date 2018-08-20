@@ -19,6 +19,13 @@
 
 namespace Doctrine\DBAL\Schema;
 
+use function array_change_key_case;
+use function is_resource;
+use function strpos;
+use function strtolower;
+use function substr;
+use function trim;
+
 /**
  * IBM Db2 Schema Manager.
  *

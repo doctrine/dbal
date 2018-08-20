@@ -22,6 +22,18 @@ namespace Doctrine\DBAL\Query;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use Doctrine\DBAL\Connection;
+use function array_key_exists;
+use function array_keys;
+use function array_unshift;
+use function func_get_args;
+use function func_num_args;
+use function implode;
+use function is_array;
+use function is_null;
+use function is_object;
+use function key;
+use function strtoupper;
+use function substr;
 
 /**
  * QueryBuilder class is responsible to dynamically create SQL queries.
@@ -540,9 +552,9 @@ class QueryBuilder
      *
      * <code>
      *     $qb = $conn->createQueryBuilder()
-     *         ->update('users', 'u')
-     *         ->set('u.last_login', 'NOW()')
-     *         ->where('u.id = ?');
+     *         ->update('counters', 'c')
+     *         ->set('c.value', 'c.value + 1')
+     *         ->where('c.id = ?');
      * </code>
      *
      * @param string $update The table whose rows are subject to the update.
@@ -733,9 +745,9 @@ class QueryBuilder
      *
      * <code>
      *     $qb = $conn->createQueryBuilder()
-     *         ->update('users', 'u')
-     *         ->set('u.last_login', 'NOW()')
-     *         ->where('u.id = ?');
+     *         ->update('counters', 'c')
+     *         ->set('c.value', 'c.value + 1')
+     *         ->where('c.id = ?');
      * </code>
      *
      * @param string $key   The column to set.
@@ -754,19 +766,19 @@ class QueryBuilder
      *
      * <code>
      *     $qb = $conn->createQueryBuilder()
-     *         ->select('u.name')
-     *         ->from('users', 'u')
-     *         ->where('u.id = ?');
+     *         ->select('c.value')
+     *         ->from('counters', 'c')
+     *         ->where('c.id = ?');
      *
      *     // You can optionally programatically build and/or expressions
      *     $qb = $conn->createQueryBuilder();
      *
      *     $or = $qb->expr()->orx();
-     *     $or->add($qb->expr()->eq('u.id', 1));
-     *     $or->add($qb->expr()->eq('u.id', 2));
+     *     $or->add($qb->expr()->eq('c.id', 1));
+     *     $or->add($qb->expr()->eq('c.id', 2));
      *
-     *     $qb->update('users', 'u')
-     *         ->set('u.last_login', 'NOW()')
+     *     $qb->update('counters', 'c')
+     *         ->set('c.value', 'c.value + 1')
      *         ->where($or);
      * </code>
      *
@@ -1073,7 +1085,7 @@ class QueryBuilder
      */
     public function resetQueryParts($queryPartNames = null)
     {
-        if (is_null($queryPartNames)) {
+        if ($queryPartNames === null) {
             $queryPartNames = array_keys($this->sqlParts);
         }
 

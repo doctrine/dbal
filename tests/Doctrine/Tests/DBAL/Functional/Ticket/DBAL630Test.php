@@ -5,6 +5,7 @@ namespace Doctrine\Tests\DBAL\Functional\Ticket;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\ParameterType;
 use PDO;
+use function in_array;
 
 /**
  * @group DBAL-630

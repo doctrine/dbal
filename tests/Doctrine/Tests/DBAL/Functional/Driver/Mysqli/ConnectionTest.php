@@ -1,5 +1,6 @@
 <?php
 namespace Doctrine\Tests\DBAL\Functional\Driver\Mysqli;
+use function extension_loaded;
 
 class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {

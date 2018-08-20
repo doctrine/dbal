@@ -21,6 +21,8 @@ namespace Doctrine\DBAL;
 
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
+use function is_array;
+use function is_string;
 
 /**
  * A thin wrapper around a Doctrine\DBAL\Driver\Statement that adds support
@@ -209,7 +211,7 @@ class Statement implements \IteratorAggregate, DriverStatement
     /**
      * Fetches the SQLSTATE associated with the last operation on the statement.
      *
-     * @return string
+     * @return string|int|bool
      */
     public function errorCode()
     {

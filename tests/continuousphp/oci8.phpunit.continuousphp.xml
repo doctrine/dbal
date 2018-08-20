@@ -2,10 +2,11 @@
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="../../vendor/phpunit/phpunit/phpunit.xsd"
          colors="true"
-         verbose="true"
          beStrictAboutOutputDuringTests="true"
          beStrictAboutTodoAnnotatedTests="true"
          failOnRisky="true"
+         failOnWarning="true"
+         bootstrap="bootstrap.php"
 >
   <php>
     <ini name="error_reporting" value="-1" />
@@ -31,6 +32,12 @@
       <directory>../Doctrine/Tests/DBAL</directory>
     </testsuite>
   </testsuites>
+
+  <filter>
+    <whitelist>
+      <directory suffix=".php">../../lib/Doctrine</directory>
+    </whitelist>
+  </filter>
 
   <listeners>
       <listener class="Symfony\Bridge\PhpUnit\SymfonyTestsListener" />

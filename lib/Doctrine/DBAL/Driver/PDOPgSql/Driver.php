@@ -24,6 +24,7 @@ use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\DBALException;
 use PDOException;
 use PDO;
+use function defined;
 
 /**
  * Driver that connects through pdo_pgsql.
@@ -58,7 +59,7 @@ class Driver extends AbstractPostgreSQLDriver
              * - passing client_encoding via the 'options' param breaks pgbouncer support
              */
             if (isset($params['charset'])) {
-              $pdo->query('SET NAMES \''.$params['charset'].'\'');
+                $pdo->exec('SET NAMES \'' . $params['charset'] . '\'');
             }
 
             return $pdo;

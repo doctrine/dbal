@@ -14,6 +14,10 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\Types\CommentedType;
+use function get_class;
+use function implode;
+use function sprintf;
+use function str_repeat;
 
 abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
 {
@@ -826,6 +830,11 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         $this->_platform->getBinaryTypeDeclarationSQL(array());
     }
 
+    public function testReturnsBinaryTypeLongerThanMaxDeclarationSQL()
+    {
+        $this->markTestSkipped('Not applicable to the platform');
+    }
+
     /**
      * @group DBAL-553
      */
@@ -1248,11 +1257,9 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
             $this->markTestSkipped(sprintf('%s supports inline column comments.', get_class($this->_platform)));
         }
 
-        $this->expectException(
-            'Doctrine\DBAL\DBALException',
-            "Operation 'Doctrine\\DBAL\\Platforms\\AbstractPlatform::getInlineColumnCommentSQL' is not supported by platform.",
-            0
-        );
+        $this->expectException('Doctrine\DBAL\DBALException');
+        $this->expectExceptionMessage("Operation 'Doctrine\\DBAL\\Platforms\\AbstractPlatform::getInlineColumnCommentSQL' is not supported by platform.");
+        $this->expectExceptionCode(0);
 
         $this->_platform->getInlineColumnCommentSQL('unsupported');
     }
@@ -1474,6 +1481,16 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         self::assertSame(
             '\_25\% off\_ your next purchase \\\\o/',
             $this->_platform->escapeStringForLike('_25% off_ your next purchase \o/', '\\')
+        );
+    }
+
+    public function testZeroOffsetWithoutLimitIsIgnored() : void
+    {
+        $query = 'SELECT * FROM user';
+
+        self::assertSame(
+            $query,
+            $this->_platform->modifyLimitQuery($query, null, 0)
         );
     }
 }

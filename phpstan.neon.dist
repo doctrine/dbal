@@ -1,0 +1,46 @@
+parameters:
+    level: 3
+    paths:
+        - %currentWorkingDirectory%/lib
+    autoload_files:
+        - %currentWorkingDirectory%/tests/phpstan-polyfill.php
+    reportUnmatchedIgnoredErrors: false
+    ignoreErrors:
+        # extension not available
+        - '~^(Used )?(Function|Constant) sasql_\S+ not found\.\z~i'
+
+        # removing it would be BC break
+        - '~^Constructor of class Doctrine\\DBAL\\Schema\\Table has an unused parameter \$idGeneratorType\.\z~'
+
+        # changing these would be a BC break, to be done in next major
+        - '~^Method Doctrine\\DBAL\\Driver\\IBMDB2\\DB2Connection::exec\(\) should return int but returns bool\.\z~'
+        - '~^Method Doctrine\\DBAL\\Query\\QueryBuilder::execute\(\) should return Doctrine\\DBAL\\Driver\\Statement\|int but returns Doctrine\\DBAL\\Driver\\ResultStatement\.\z~'
+        - '~^Property Doctrine\\DBAL\\Schema\\Table::\$_primaryKeyName \(string\) does not accept (default value of type )?false\.\z~'
+        - '~^Property Doctrine\\DBAL\\Schema\\Schema::\$_schemaConfig \(Doctrine\\DBAL\\Schema\\SchemaConfig\) does not accept default value of type false\.\z~'
+        - '~^Method Doctrine\\DBAL\\Schema\\ForeignKeyConstraint::onEvent\(\) should return string\|null but returns false\.\z~'
+        - '~^Method Doctrine\\DBAL\\Schema\\(Oracle|PostgreSql|SQLServer)SchemaManager::_getPortableTableDefinition\(\) should return array but returns string\.\z~'
+        - '~^Method Doctrine\\DBAL\\Platforms\\(|SQLAnywhere|Sqlite)Platform::_getTransactionIsolationLevelSQL\(\) should return string but returns int\.\z~'
+        - '~^Method Doctrine\\DBAL\\Driver\\OCI8\\OCI8Connection::lastInsertId\(\) should return string but returns (int|false)\.\z~'
+        - '~^Method Doctrine\\DBAL\\Driver\\SQLSrv\\SQLSrvConnection::errorCode\(\) should return string\|null but returns false\.\z~'
+
+        # http://php.net/manual/en/pdo.sqlitecreatefunction.php
+        - '~^Call to an undefined method Doctrine\\DBAL\\Driver\\PDOConnection::sqliteCreateFunction\(\)\.\z~'
+
+        # legacy variadic-like signature
+        - '~^Method Doctrine\\DBAL\\Driver\\Connection::query\(\) invoked with \d+ parameters?, 0 required\.\z~'
+
+        # some drivers actually do accept 2nd parameter...
+        - '~^Method Doctrine\\DBAL\\Platforms\\AbstractPlatform::getListTableForeignKeysSQL\(\) invoked with \d+ parameters, 1 required\.\z~'
+
+        # legacy remnants from doctrine/common
+        - '~^Class Doctrine\\Common\\(Collections\\Collection|Persistence\\Proxy) not found\.\z~'
+        - '~^.+ on an unknown class Doctrine\\Common\\(Collections\\Collection|Persistence\\Proxy)\.\z~'
+
+        # inheritance variance inference issue
+        - '~^Method Doctrine\\DBAL\\Driver\\PDOConnection::\w+\(\) should return Doctrine\\DBAL\\Driver\\Statement but returns PDOStatement\.\z~'
+
+        # may not exist when pdo_sqlsrv is not loaded
+        - '~^Access to undefined constant PDO::SQLSRV_ENCODING_BINARY\.\z~'
+
+        # weird class name, doesn't exist in stubs either
+        - '~unknown class OCI-(Lob|Collection)~'

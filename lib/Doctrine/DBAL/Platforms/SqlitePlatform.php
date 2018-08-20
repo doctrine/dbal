@@ -29,6 +29,17 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
+use function array_merge;
+use function array_unique;
+use function array_values;
+use function implode;
+use function is_numeric;
+use function sprintf;
+use function sqrt;
+use function str_replace;
+use function strlen;
+use function strpos;
+use function strtolower;
 
 /**
  * The SqlitePlatform class describes the specifics and dialects of the SQLite
@@ -52,6 +63,8 @@ class SqlitePlatform extends AbstractPlatform
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated Use application-generated UUIDs instead
      */
     public function getGuidExpression()
     {
@@ -150,6 +163,10 @@ class SqlitePlatform extends AbstractPlatform
                         break;
                 }
 
+                if (! is_numeric($interval)) {
+                    $interval = "' || " . $interval . " || '";
+                }
+
                 return "DATE(" . $date . ",'" . $operator . $interval . " " . $unit . "')";
         }
     }
@@ -159,7 +176,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getDateDiffExpression($date1, $date2)
     {
-        return 'ROUND(JULIANDAY('.$date1 . ')-JULIANDAY('.$date2.'))';
+        return sprintf("JULIANDAY(%s, 'start of day') - JULIANDAY(%s, 'start of day')", $date1, $date2);
     }
 
     /**
@@ -292,9 +309,9 @@ class SqlitePlatform extends AbstractPlatform
      */
     protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef)
     {
-        // sqlite autoincrement is implicit for integer PKs, but not when the field is unsigned
+        // sqlite autoincrement is only possible for the primary key
         if ( ! empty($columnDef['autoincrement'])) {
-            return '';
+            return ' PRIMARY KEY AUTOINCREMENT';
         }
 
         return ! empty($columnDef['unsigned']) ? ' UNSIGNED' : '';
@@ -328,10 +345,7 @@ class SqlitePlatform extends AbstractPlatform
             }
         }
 
-        if (isset($options['primary']) && ! empty($options['primary'])) {
-            $keyColumns = array_unique(array_values($options['primary']));
-            $queryFields.= ', PRIMARY KEY('.implode(', ', $keyColumns).')';
-        }
+        $queryFields .= $this->getNonAutoincrementPrimaryKeyDefinition($columns, $options);
 
         if (isset($options['foreignKeys'])) {
             foreach ($options['foreignKeys'] as $foreignKey) {
@@ -339,7 +353,7 @@ class SqlitePlatform extends AbstractPlatform
             }
         }
 
-        $query[] = 'CREATE TABLE ' . $name . ' (' . $queryFields . ')';
+        $query = ['CREATE TABLE ' . $name . ' (' . $queryFields . ')'];
 
         if (isset($options['alter']) && true === $options['alter']) {
             return $query;
@@ -358,6 +372,29 @@ class SqlitePlatform extends AbstractPlatform
         }
 
         return $query;
+    }
+
+    /**
+     * Generate a PRIMARY KEY definition if no autoincrement value is used
+     *
+     * @param string[] $columns
+     * @param mixed[]  $options
+     */
+    private function getNonAutoincrementPrimaryKeyDefinition(array $columns, array $options) : string
+    {
+        if (empty($options['primary'])) {
+            return '';
+        }
+
+        $keyColumns = array_unique(array_values($options['primary']));
+
+        foreach ($keyColumns as $keyColumn) {
+            if (isset($columns[$keyColumn]['autoincrement']) && ! empty($columns[$keyColumn]['autoincrement'])) {
+                return '';
+            }
+        }
+
+        return ', PRIMARY KEY(' . implode(', ', $keyColumns) . ')';
     }
 
     /**
@@ -684,7 +721,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     protected function doModifyLimitQuery($query, $limit, $offset)
     {
-        if (null === $limit && null !== $offset) {
+        if ($limit === null && $offset > 0) {
             return $query . ' LIMIT -1 OFFSET ' . $offset;
         }
 
@@ -768,7 +805,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getCreateTableSQL(Table $table, $createFlags = null)
     {
-        $createFlags = null === $createFlags ? self::CREATE_INDEXES | self::CREATE_FOREIGNKEYS : $createFlags;
+        $createFlags = $createFlags ?? self::CREATE_INDEXES | self::CREATE_FOREIGNKEYS;
 
         return parent::getCreateTableSQL($table, $createFlags);
     }
@@ -899,7 +936,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * @param \Doctrine\DBAL\Schema\TableDiff $diff
      *
-     * @return array|bool
+     * @return string[]|false
      */
     private function getSimpleAlterTableSQL(TableDiff $diff)
     {

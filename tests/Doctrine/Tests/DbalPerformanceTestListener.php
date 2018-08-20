@@ -5,6 +5,9 @@ namespace Doctrine\Tests;
 use PHPUnit\Framework\Test;
 use PHPUnit\Framework\TestListener;
 use PHPUnit\Framework\TestListenerDefaultImplementation;
+use function get_class;
+use function printf;
+use function str_replace;
 
 /**
  * Listener for collecting and reporting results of performance tests

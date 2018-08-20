@@ -2,6 +2,7 @@
 namespace Doctrine\Tests\DBAL\Sharding\SQLAzure;
 
 use Doctrine\DBAL\Sharding\SQLAzure\SQLAzureFederationsSynchronizer;
+use function count;
 
 class FunctionalTest extends AbstractTestCase
 {

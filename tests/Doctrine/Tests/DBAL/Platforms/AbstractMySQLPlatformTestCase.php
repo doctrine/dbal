@@ -9,6 +9,7 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
+use function array_shift;
 
 abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 {
@@ -178,7 +179,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     public function testModifyLimitQuery()
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user', 10, 0);
-        self::assertEquals('SELECT * FROM user LIMIT 10 OFFSET 0', $sql);
+        self::assertEquals('SELECT * FROM user LIMIT 10', $sql);
     }
 
     public function testModifyLimitQueryWithEmptyOffset()
@@ -474,7 +475,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
             "ALTER TABLE mytable ADD PRIMARY KEY (foo)",
         ), $sql);
     }
-    
+
     public function testAlterPrimaryKeyWithNewColumn()
     {
         $table = new Table("yolo");
@@ -484,7 +485,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
         $comparator = new Comparator();
         $diffTable = clone $table;
-        
+
         $diffTable->addColumn('pkc2', 'integer');
         $diffTable->dropPrimaryKey();
         $diffTable->setPrimaryKey(array('pkc1', 'pkc2'));
@@ -496,7 +497,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
                 'ALTER TABLE yolo ADD PRIMARY KEY (pkc1, pkc2)',
             ),
             $this->_platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
-        );      
+        );
     }
 
     public function testInitializesDoctrineTypeMappings()
@@ -518,16 +519,27 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         self::assertSame('VARBINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(array()));
         self::assertSame('VARBINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 0)));
         self::assertSame('VARBINARY(65535)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 65535)));
-        self::assertSame('MEDIUMBLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 65536)));
-        self::assertSame('MEDIUMBLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 16777215)));
-        self::assertSame('LONGBLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 16777216)));
 
         self::assertSame('BINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true)));
         self::assertSame('BINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 0)));
         self::assertSame('BINARY(65535)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 65535)));
-        self::assertSame('MEDIUMBLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 65536)));
-        self::assertSame('MEDIUMBLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 16777215)));
-        self::assertSame('LONGBLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 16777216)));
+    }
+
+    /**
+     * @group legacy
+     * @expectedDeprecation Binary field length 65536 is greater than supported by the platform (65535). Reduce the field length or use a BLOB field instead.
+     * @expectedDeprecation Binary field length 16777215 is greater than supported by the platform (65535). Reduce the field length or use a BLOB field instead.
+     * @expectedDeprecation Binary field length 16777216 is greater than supported by the platform (65535). Reduce the field length or use a BLOB field instead.
+     */
+    public function testReturnsBinaryTypeLongerThanMaxDeclarationSQL()
+    {
+        self::assertSame('MEDIUMBLOB', $this->_platform->getBinaryTypeDeclarationSQL(['length' => 65536]));
+        self::assertSame('MEDIUMBLOB', $this->_platform->getBinaryTypeDeclarationSQL(['length' => 16777215]));
+        self::assertSame('LONGBLOB', $this->_platform->getBinaryTypeDeclarationSQL(['length' => 16777216]));
+
+        self::assertSame('MEDIUMBLOB', $this->_platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 65536]));
+        self::assertSame('MEDIUMBLOB', $this->_platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 16777215]));
+        self::assertSame('LONGBLOB', $this->_platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 16777216]));
     }
 
     public function testDoesNotPropagateForeignKeyCreationForNonSupportingEngines()
@@ -907,5 +919,31 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
         self::assertContains('bar', $sql);
         self::assertNotContains('DATABASE()', $sql);
+    }
+
+    public function testSupportsColumnCollation() : void
+    {
+        self::assertTrue($this->_platform->supportsColumnCollation());
+    }
+
+    public function testColumnCollationDeclarationSQL() : void
+    {
+        self::assertSame(
+            'COLLATE ascii_general_ci',
+            $this->_platform->getColumnCollationDeclarationSQL('ascii_general_ci')
+        );
+    }
+
+    public function testGetCreateTableSQLWithColumnCollation() : void
+    {
+        $table = new Table('foo');
+        $table->addColumn('no_collation', 'string');
+        $table->addColumn('column_collation', 'string')->setPlatformOption('collation', 'ascii_general_ci');
+
+        self::assertSame(
+            ['CREATE TABLE foo (no_collation VARCHAR(255) NOT NULL, column_collation VARCHAR(255) NOT NULL COLLATE ascii_general_ci) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB'],
+            $this->_platform->getCreateTableSQL($table),
+            'Column "no_collation" will use the default collation from the table/database and "column_collation" overwrites the collation on this column'
+        );
     }
 }

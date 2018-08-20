@@ -2,14 +2,14 @@
 
 namespace Doctrine\Tests\DBAL\Schema\Platforms;
 
+use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Table;
 
 class MySQLSchemaTest extends \PHPUnit\Framework\TestCase
 {
-    /**
-     * @var Comparator
-     */
+    /** @var Comparator */
     private $comparator;
+
     /**
      *
      * @var \Doctrine\DBAL\Platforms\AbstractPlatform
@@ -18,7 +18,7 @@ class MySQLSchemaTest extends \PHPUnit\Framework\TestCase
 
     protected function setUp()
     {
-        $this->comparator = new \Doctrine\DBAL\Schema\Comparator;
+        $this->comparator = new Comparator();
         $this->platform = new \Doctrine\DBAL\Platforms\MySqlPlatform;
     }
 

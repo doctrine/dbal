@@ -22,6 +22,10 @@ namespace Doctrine\DBAL\Event\Listeners;
 use Doctrine\DBAL\Event\ConnectionEventArgs;
 use Doctrine\DBAL\Events;
 use Doctrine\Common\EventSubscriber;
+use function array_change_key_case;
+use function array_merge;
+use function count;
+use function implode;
 
 /**
  * Should be used when Oracle Server default environment does not match the Doctrine requirements.

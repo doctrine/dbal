@@ -21,10 +21,14 @@ namespace Doctrine\DBAL\Connections;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
+use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Configuration;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Event\ConnectionEventArgs;
 use Doctrine\DBAL\Events;
+use function array_rand;
+use function count;
+use function func_get_args;
 
 /**
  * Master-Slave Connection
@@ -85,7 +89,7 @@ class MasterSlaveConnection extends Connection
     /**
      * Master and slave connection (one of the randomly picked slaves).
      *
-     * @var \Doctrine\DBAL\Driver\Connection[]
+     * @var DriverConnection[]|null[]
      */
     protected $connections = ['master' => null, 'slave' => null];
 
@@ -109,7 +113,7 @@ class MasterSlaveConnection extends Connection
      */
     public function __construct(array $params, Driver $driver, Configuration $config = null, EventManager $eventManager = null)
     {
-        if ( !isset($params['slaves']) || !isset($params['master'])) {
+        if (! isset($params['slaves'], $params['master'])) {
             throw new \InvalidArgumentException('master or slaves configuration missing');
         }
         if (count($params['slaves']) == 0) {
@@ -196,7 +200,7 @@ class MasterSlaveConnection extends Connection
      *
      * @param string $connectionName
      *
-     * @return \Doctrine\DBAL\Driver
+     * @return DriverConnection
      */
     protected function connectTo($connectionName)
     {

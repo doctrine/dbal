@@ -6,6 +6,7 @@ use Doctrine\DBAL\Driver\PDOPgSql\Driver;
 use Doctrine\Tests\DBAL\Driver\AbstractPostgreSQLDriverTest;
 use PDO;
 use PDOException;
+use function defined;
 
 class DriverTest extends AbstractPostgreSQLDriverTest
 {

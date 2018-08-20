@@ -5,6 +5,12 @@ namespace Doctrine\Tests\DBAL\Functional;
 use Doctrine\DBAL\Connections\MasterSlaveConnection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\Tests\DbalFunctionalTestCase;
+use const CASE_LOWER;
+use function array_change_key_case;
+use function sprintf;
+use function strlen;
+use function strtolower;
+use function substr;
 
 /**
  * @group DBAL-20

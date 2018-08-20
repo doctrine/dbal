@@ -22,6 +22,10 @@ namespace Doctrine\DBAL\Types;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\DBALException;
+use function end;
+use function explode;
+use function get_class;
+use function str_replace;
 
 /**
  * The base class for so-called Doctrine mapping types.
@@ -142,7 +146,7 @@ abstract class Type
      *
      * @return int|null
      *
-     * @todo Needed?
+     * @deprecated Rely on information provided by the platform instead.
      */
     public function getDefaultLength(AbstractPlatform $platform)
     {
@@ -270,6 +274,8 @@ abstract class Type
 
     /**
      * @return string
+     *
+     * @deprecated Relying on string representation is discouraged and will be removed in DBAL 3.0.
      */
     public function __toString()
     {

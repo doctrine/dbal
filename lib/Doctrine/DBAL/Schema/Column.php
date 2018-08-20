@@ -20,6 +20,12 @@
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Types\Type;
+use const E_USER_DEPRECATED;
+use function array_merge;
+use function is_numeric;
+use function method_exists;
+use function sprintf;
+use function trigger_error;
 
 /**
  * Object representation of a database column.
@@ -126,7 +132,7 @@ class Column extends AbstractAsset
                     $name
                 ), E_USER_DEPRECATED);
 
-                return $this;
+                continue;
             }
             $this->$method($value);
         }

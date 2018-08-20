@@ -4,6 +4,7 @@ namespace Doctrine\Tests\DBAL\Functional\Driver\Mysqli;
 
 use Doctrine\DBAL\Driver\Mysqli\Driver;
 use Doctrine\Tests\DBAL\Functional\Driver\AbstractDriverTest;
+use function extension_loaded;
 
 class DriverTest extends AbstractDriverTest
 {

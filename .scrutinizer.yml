@@ -21,6 +21,7 @@ before_commands:
 tools:
     external_code_coverage:
         timeout: 3600
+        runs: 22 # 18x Travis (jobs with COVERAGE=yes) + 3x AppVeyor (jobs with coverage=yes) + 1x ContinuousPHP
 
 filter:
     excluded_paths:
