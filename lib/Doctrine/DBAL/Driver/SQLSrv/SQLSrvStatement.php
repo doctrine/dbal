@@ -294,7 +294,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
                     ];
                     break;
 
-                case ParameterType::STRING) {
+                case ParameterType::STRING:
                     $params[$column - 1] = [
                         &$variable,
                         SQLSRV_PARAM_IN,
