@@ -20,47 +20,32 @@ class DBAL2369Test extends DbalFunctionalTestCase
     {
         parent::setUp();
 
-        $platform = $this->_conn->getDatabasePlatform()->getName();
-
-        if (! in_array($platform, ['sqlsrv', 'mssql'])) {
+        if ($this->_conn->getDatabasePlatform()->getName() !== 'mssql') {
             $this->markTestSkipped('Related to SQLSRV only');
         }
 
         /* @var $sm \Doctrine\DBAL\Schema\AbstractSchemaManager */
         $sm = $this->_conn->getSchemaManager();
-        if (! $sm->tablesExist(['integer_string_table'])) {
-            $table = new Table('integer_string_table');
+        if (! $sm->tablesExist(['dbal2369'])) {
+            $table = new Table('dbal2369');
             $table->addColumn('id', 'integer');
             $table->addColumn('textfield', 'string');
-            $table->addColumn('number_as_string_field', 'string');
             $table->setPrimaryKey(['id']);
 
             $sm->createTable($table);
+
+            $this->_conn->insert(
+                'dbal2369',
+                [
+                    'id'        => 1,
+                    'textfield' => 'test',
+                ],
+                [
+                    ParameterType::INTEGER,
+                    ParameterType::STRING,
+                ]
+            );
         }
-
-        $this->_conn->exec($this->_conn->getDatabasePlatform()->getTruncateTableSQL('integer_string_table'));
-    }
-
-    /**
-     * @throws DBALException
-     */
-    public function testInsert() : void
-    {
-        $ret = $this->_conn->insert(
-            'integer_string_table',
-            [
-                'id'                     => 1,
-                'textfield'              => 'test',
-                'number_as_string_field' => '2',
-            ],
-            [
-                ParameterType::INTEGER,
-                ParameterType::STRING,
-                ParameterType::STRING,
-            ]
-        );
-
-        self::assertEquals(1, $ret);
     }
 
     /**
@@ -68,23 +53,9 @@ class DBAL2369Test extends DbalFunctionalTestCase
      */
     public function testSelectOnId() : void
     {
-        $this->_conn->insert(
-            'integer_string_table',
-            [
-                'id'                     => 1,
-                'textfield'              => 'test',
-                'number_as_string_field' => '2',
-            ],
-            [
-                ParameterType::INTEGER,
-                ParameterType::STRING,
-                ParameterType::STRING,
-            ]
-        );
-
-        $query = 'SELECT id, textfield, number_as_string_field FROM integer_string_table WHERE id = ?';
+        $query = 'SELECT id, textfield FROM dbal2369 WHERE id = ?';
         $stmt  = $this->_conn->prepare($query);
-        $stmt->bindValue(1, 1, ParameterType::STRING);
+        $stmt->bindValue(1, 1, ParameterType::INTEGER);
         $stmt->execute();
 
         $ret = $stmt->fetch();
@@ -93,41 +64,51 @@ class DBAL2369Test extends DbalFunctionalTestCase
         self::assertEquals($ret['id'], 1);
         self::assertArrayHasKey('textfield', $ret);
         self::assertEquals($ret['textfield'], 'test');
-        self::assertArrayHasKey('number_as_string_field', $ret);
-        self::assertEquals($ret['number_as_string_field'], '2');
     }
 
     /**
      * @throws DBALException
      */
-    public function testSelectOnParameter() : void
+    public function testSelectOnParameterSuccess() : void
     {
-        $this->_conn->insert(
-            'integer_string_table',
-            [
-                'id'                     => 2,
-                'textfield'              => 'test2',
-                'number_as_string_field' => '3',
-            ],
-            [
-                ParameterType::INTEGER,
-                ParameterType::STRING,
-                ParameterType::STRING,
-            ]
-        );
-
-        $query = 'SELECT id, textfield, number_as_string_field FROM integer_string_table WHERE number_as_string_field = ?';
+        $query = 'SELECT id, textfield FROM dbal2369 WHERE textfield = ?';
         $stmt  = $this->_conn->prepare($query);
-        $stmt->bindValue(1, 3, ParameterType::STRING);
+        $stmt->bindValue(1, 'test', ParameterType::STRING);
         $stmt->execute();
 
         $ret = $stmt->fetch();
 
         self::assertArrayHasKey('id', $ret);
-        self::assertEquals($ret['id'], 2);
+        self::assertEquals($ret['id'], 1);
         self::assertArrayHasKey('textfield', $ret);
-        self::assertEquals($ret['textfield'], 'test2');
-        self::assertArrayHasKey('number_as_string_field', $ret);
-        self::assertEquals($ret['number_as_string_field'], '3');
+        self::assertEquals($ret['textfield'], 'test');
+    }
+
+    /**
+     * This case triggers the exception of string to int conversion error on SQL Server
+     *
+     * @throws DBALException
+     */
+    public function testSelectOnParameterFails() : void
+    {
+        self::expectException(DBALException::class);
+
+        $query = 'SELECT id, textfield FROM dbal2369 WHERE textfield = ?';
+        $stmt  = $this->_conn->prepare($query);
+        $stmt->bindValue(1, 3, ParameterType::INTEGER);
+        $stmt->execute();
+    }
+
+    /**
+     * @throws DBALException
+     */
+    public function testSelectOnParameterWithOtherType() : void
+    {
+        $query = 'SELECT id, textfield FROM dbal2369 WHERE textfield = ?';
+        $stmt  = $this->_conn->prepare($query);
+        $stmt->bindValue(1, '3', ParameterType::INTEGER);
+        $stmt->execute();
+
+        self::assertFalse($stmt->fetch());
     }
 }
