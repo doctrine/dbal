@@ -6,7 +6,6 @@ use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\Tests\DbalFunctionalTestCase;
-use function in_array;
 
 /**
  * @group DBAL-2369
@@ -26,26 +25,28 @@ class DBAL2369Test extends DbalFunctionalTestCase
 
         /* @var $sm \Doctrine\DBAL\Schema\AbstractSchemaManager */
         $sm = $this->_conn->getSchemaManager();
-        if (! $sm->tablesExist(['dbal2369'])) {
-            $table = new Table('dbal2369');
-            $table->addColumn('id', 'integer');
-            $table->addColumn('textfield', 'string');
-            $table->setPrimaryKey(['id']);
-
-            $sm->createTable($table);
-
-            $this->_conn->insert(
-                'dbal2369',
-                [
-                    'id'        => 1,
-                    'textfield' => 'test',
-                ],
-                [
-                    ParameterType::INTEGER,
-                    ParameterType::STRING,
-                ]
-            );
+        if ($sm->tablesExist(['dbal2369'])) {
+            return;
         }
+
+        $table = new Table('dbal2369');
+        $table->addColumn('id', 'integer');
+        $table->addColumn('textfield', 'string');
+        $table->setPrimaryKey(['id']);
+
+        $sm->createTable($table);
+
+        $this->_conn->insert(
+            'dbal2369',
+            [
+                'id'        => 1,
+                'textfield' => 'test',
+            ],
+            [
+                ParameterType::INTEGER,
+                ParameterType::STRING,
+            ]
+        );
     }
 
     /**
