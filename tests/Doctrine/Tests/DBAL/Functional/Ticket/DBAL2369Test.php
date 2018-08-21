@@ -16,7 +16,7 @@ class DBAL2369Test extends DbalFunctionalTestCase
     /**
      * @throws DBALException
      */
-    protected function setUp(): void
+    protected function setUp() : void
     {
         parent::setUp();
 
@@ -44,7 +44,7 @@ class DBAL2369Test extends DbalFunctionalTestCase
     /**
      * @throws DBALException
      */
-    public function testInsert(): void
+    public function testInsert() : void
     {
         $ret = $this->_conn->insert(
             'integer_string_table',
@@ -66,7 +66,7 @@ class DBAL2369Test extends DbalFunctionalTestCase
     /**
      * @throws DBALException
      */
-    public function testSelectOnId(): void
+    public function testSelectOnId() : void
     {
         $this->_conn->insert(
             'integer_string_table',
@@ -100,7 +100,7 @@ class DBAL2369Test extends DbalFunctionalTestCase
     /**
      * @throws DBALException
      */
-    public function testSelectOnParameter(): void
+    public function testSelectOnParameter() : void
     {
         $this->_conn->insert(
             'integer_string_table',
