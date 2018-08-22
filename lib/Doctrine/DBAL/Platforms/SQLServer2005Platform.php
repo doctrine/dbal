@@ -48,7 +48,13 @@ class SQLServer2005Platform extends SQLServerPlatform
      */
     public function getClobTypeDeclarationSQL(array $field)
     {
-        return 'VARCHAR(MAX)';
+        $fixed = $field['fixed'] ?? false;
+
+        if ($fixed) {
+            return 'NCHAR(MAX)';
+        }
+
+        return 'NVARCHAR(MAX)';
     }
 
     /**
