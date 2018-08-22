@@ -1281,6 +1281,26 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
     }
 
     /**
+     * @group ????
+     */
+    public function testComparatorShouldReturnFalseWhenLegacyJsonArrayColumnHasCommentAndHasBeenRemoved() : void
+    {
+        $table = new Table('json_array_test');
+        $table->addColumn('parameters', 'json_array');
+
+        $this->_sm->createTable($table);
+
+        $table->changeColumn('parameters', [
+            'type' => Type::STRING
+        ]);
+
+        $comparator = new Comparator();
+        $tableDiff  = $comparator->diffTable($this->_sm->listTableDetails('json_array_test'), $table);
+
+        self::assertFalse($tableDiff);
+    }
+
+    /**
      * @group 2782
      * @group 6654
      */
