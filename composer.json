@@ -1,8 +1,17 @@
 {
     "name": "doctrine/dbal",
     "type": "library",
-    "description": "Database Abstraction Layer",
-    "keywords": ["dbal", "database", "persistence", "queryobject"],
+    "description": "Powerful PHP database abstraction layer (DBAL) with many features for database schema introspection and management.",
+    "keywords": [
+        "php",
+        "mysql",
+        "pgsql",
+        "dbal",
+        "database",
+        "abstraction",
+        "persistence",
+        "queryobject"
+    ],
     "homepage": "http://www.doctrine-project.org",
     "license": "MIT",
     "authors": [
