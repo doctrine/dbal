@@ -55,7 +55,8 @@ class SQLParserUtilsTest extends \Doctrine\Tests\DbalTestCase
             array('SELECT foo::date as date FROM Foo WHERE bar > :start_date AND baz > :start_date', false, array(46 => 'start_date', 68 =>  'start_date')), // Ticket GH-259
             array('SELECT `d.ns:col_name` FROM my_table d WHERE `d.date` >= :param1', false, array(57 => 'param1')), // Ticket DBAL-552
             array('SELECT [d.ns:col_name] FROM my_table d WHERE [d.date] >= :param1', false, array(57 => 'param1')), // Ticket DBAL-552
-            array('SELECT * FROM foo WHERE jsonb_exists_any(foo.bar, ARRAY[:foo])', false, array(56 => 'foo')), // Ticket GH-2295
+            ['SELECT * FROM foo WHERE jsonb_exists_any(foo.bar, ARRAY[:foo])', false, [56 => 'foo']], // Ticket GH-2295
+            ['SELECT * FROM foo WHERE jsonb_exists_any(foo.bar, array[:foo])', false, [56 => 'foo']],
             array(
 <<<'SQLDATA'
 SELECT * FROM foo WHERE 
