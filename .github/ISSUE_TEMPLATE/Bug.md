@@ -16,7 +16,7 @@ about: Something is broken? 🔨
 
 <!-- Provide a summary describing the problem you are experiencing. -->
 
-#### Current behavior
+#### Current behaviour
 
 <!-- What is the current (buggy) behaviour? -->
 
