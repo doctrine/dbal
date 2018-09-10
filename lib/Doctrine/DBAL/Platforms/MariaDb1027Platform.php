@@ -24,21 +24,13 @@ use Doctrine\DBAL\Types\Type;
 /**
  * Provides the behavior, features and SQL dialect of the MariaDB 10.2 (10.2.7 GA) database platform.
  *
- * Note: Should not be used with versions prior ro 10.2.7.
+ * Note: Should not be used with versions prior to 10.2.7.
  *
  * @author Vanvelthem Sébastien
  * @link   www.doctrine-project.org
  */
 final class MariaDb1027Platform extends MySqlPlatform
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function hasNativeJsonType() : bool
-    {
-        return false;
-    }
-
     /**
      * {@inheritdoc}
      *

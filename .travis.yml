@@ -180,6 +180,18 @@ jobs:
         mariadb: 10.2
 
     - stage: Test
+      php: 7.2
+      env: DB=mariadb MARIADB_VERSION=10.3
+      addons:
+          mariadb: 10.3
+
+    - stage: Test
+      php: 7.2
+      env: DB=mariadb.mysqli MARIADB_VERSION=10.3
+      addons:
+          mariadb: 10.3
+
+    - stage: Test
       php: 7.1
       env: DB=pgsql POSTGRESQL_VERSION=9.2 COVERAGE=yes
       services:
