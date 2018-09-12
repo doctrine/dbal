@@ -42,8 +42,6 @@ class MysqliStatement implements \IteratorAggregate, Statement
         ParameterType::BOOLEAN      => 'i',
         ParameterType::NULL         => 's',
         ParameterType::INTEGER      => 'i',
-
-        // TODO Support LOB bigger then max package size
         ParameterType::LARGE_OBJECT => 's',
     ];
 
