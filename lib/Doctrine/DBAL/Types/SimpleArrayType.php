@@ -48,9 +48,7 @@ class SimpleArrayType extends Type
             return null;
         }
         
-        if (!is_array($value)) {
-            throw ConversionException::conversionFailedInvalidType($value, $this->getName(), ['null', 'array']);
-        }
+        assert(is_array($value), ConversionException::conversionFailedInvalidType($value, $this->getName(), ['null', 'array']));
 
         return implode(',', $value);
     }
