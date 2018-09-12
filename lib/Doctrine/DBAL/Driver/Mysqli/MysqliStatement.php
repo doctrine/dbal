@@ -21,11 +21,16 @@ namespace Doctrine\DBAL\Driver\Mysqli;
 
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\StatementIterator;
+use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use function array_combine;
 use function array_fill;
 use function count;
+use function feof;
+use function fread;
+use function get_resource_type;
+use function is_resource;
 use function str_repeat;
 
 /**
@@ -42,7 +47,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
         ParameterType::BOOLEAN      => 'i',
         ParameterType::NULL         => 's',
         ParameterType::INTEGER      => 'i',
-        ParameterType::LARGE_OBJECT => 's',
+        ParameterType::LARGE_OBJECT => 'b',
     ];
 
     /**
@@ -169,9 +174,11 @@ class MysqliStatement implements \IteratorAggregate, Statement
                     throw new MysqliException($this->_stmt->error, $this->_stmt->errno);
                 }
             } else {
-                if (! $this->_stmt->bind_param($this->types, ...$this->_bindedValues)) {
+                list($types, $values, $streams) = $this->separateBoundValues();
+                if (! $this->_stmt->bind_param($types, ...$values)) {
                     throw new MysqliException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
                 }
+                $this->sendLongData($streams);
             }
         }
 
@@ -226,6 +233,63 @@ class MysqliStatement implements \IteratorAggregate, Statement
         $this->result = true;
 
         return true;
+    }
+
+    /**
+     * Split $this->_bindedValues into those values that need to be sent using mysqli::send_long_data()
+     * and those that can be bound the usual way.
+     *
+     * @return array<int, array<int|string, mixed>|string>
+     */
+    private function separateBoundValues()
+    {
+        $streams = $values = [];
+        $types   = $this->types;
+
+        foreach ($this->_bindedValues as $parameter => $value) {
+            if (! isset($types[$parameter - 1])) {
+                $types[$parameter - 1] = static::$_paramTypeMap[ParameterType::STRING];
+            }
+
+            if ($types[$parameter - 1] === static::$_paramTypeMap[ParameterType::LARGE_OBJECT]) {
+                if (is_resource($value)) {
+                    if (get_resource_type($value) !== 'stream') {
+                        throw new InvalidArgumentException('Resources passed with the LARGE_OBJECT parameter type must be stream resources.');
+                    }
+                    $streams[$parameter] = $value;
+                    $values[$parameter]  = null;
+                    continue;
+                } else {
+                    $types[$parameter - 1] = static::$_paramTypeMap[ParameterType::STRING];
+                }
+            }
+
+            $values[$parameter] = $value;
+        }
+
+        return [$types, $values, $streams];
+    }
+
+    /**
+     * Handle $this->_longData after regular query parameters have been bound
+     *
+     * @throws MysqliException
+     */
+    private function sendLongData($streams)
+    {
+        foreach ($streams as $paramNr => $stream) {
+            while (! feof($stream)) {
+                $chunk = fread($stream, 8192);
+
+                if ($chunk === false) {
+                    throw new MysqliException("Failed reading the stream resource for parameter offset ${paramNr}.");
+                }
+
+                if (! $this->_stmt->send_long_data($paramNr - 1, $chunk)) {
+                    throw new MysqliException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
+                }
+            }
+        }
     }
 
     /**
