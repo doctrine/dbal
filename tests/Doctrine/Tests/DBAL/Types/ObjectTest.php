@@ -33,6 +33,11 @@ class ObjectTest extends DbalTestCase
         self::assertInternalType('object', $this->type->convertToPHPValue(serialize(new stdClass()), $this->platform));
     }
 
+    public function testExistingObjectPassesThroughForConvertToPHPValue()
+    {
+        self::assertInternalType('object', $this->type->convertToPHPValue(new \stdClass(), $this->_platform));
+    }
+
     public function testConversionFailure()
     {
         $this->expectException(ConversionException::class);

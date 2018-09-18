@@ -63,6 +63,14 @@ class JsonTest extends DbalTestCase
         self::assertEquals($value, $phpValue);
     }
 
+    public function testJsonArrayPassesThroughForConvertToPHPValue()
+    {
+        $value    = ['foo' => 'bar', 'bar' => 'foo'];
+        $phpValue = $this->type->convertToPHPValue($value, $this->platform);
+
+        self::assertEquals($value, $phpValue);
+    }
+
     /** @dataProvider providerFailure */
     public function testConversionFailure($data)
     {

@@ -71,6 +71,14 @@ class JsonArrayTest extends DbalTestCase
         self::assertSame($value, $phpValue);
     }
 
+    public function testJsonArrayPassesThroughForConvertToPHPValue()
+    {
+        $value    = ['foo' => 'bar', 'bar' => 'foo'];
+        $phpValue = $this->type->convertToPHPValue($value, $this->platform);
+
+        self::assertEquals($value, $phpValue);
+    }
+
     public function testRequiresSQLCommentHint()
     {
         self::assertTrue($this->type->requiresSQLCommentHint($this->platform));
