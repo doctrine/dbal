@@ -25,7 +25,7 @@ class CreateSchemaSqlCollectorTest extends TestCase
     {
         parent::setUp();
 
-        $this->platformMock = $this->getMockBuilder('Doctrine\DBAL\Platforms\AbstractPlatform')
+        $this->platformMock = $this->getMockBuilder(AbstractPlatform::class)
             ->setMethods(
                 [
                     'getCreateForeignKeySQL',
@@ -134,7 +134,7 @@ class CreateSchemaSqlCollectorTest extends TestCase
      */
     private function createForeignKeyConstraintMock()
     {
-        return $this->getMockBuilder('Doctrine\DBAL\Schema\ForeignKeyConstraint')
+        return $this->getMockBuilder(ForeignKeyConstraint::class)
             ->disableOriginalConstructor()
             ->getMock();
     }
@@ -144,7 +144,7 @@ class CreateSchemaSqlCollectorTest extends TestCase
      */
     private function createSequenceMock()
     {
-        return $this->getMockBuilder('Doctrine\DBAL\Schema\Sequence')
+        return $this->getMockBuilder(Sequence::class)
             ->disableOriginalConstructor()
             ->getMock();
     }
@@ -154,7 +154,7 @@ class CreateSchemaSqlCollectorTest extends TestCase
      */
     private function createTableMock()
     {
-        return $this->getMockBuilder('Doctrine\DBAL\Schema\Table')
+        return $this->getMockBuilder(Table::class)
             ->disableOriginalConstructor()
             ->getMock();
     }

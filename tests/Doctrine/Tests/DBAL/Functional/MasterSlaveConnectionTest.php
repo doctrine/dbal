@@ -24,7 +24,7 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
     {
         parent::setUp();
 
-        $platformName = $this->_conn->getDatabasePlatform()->getName();
+        $platformName = $this->connection->getDatabasePlatform()->getName();
 
         // This is a MySQL specific test, skip other vendors.
         if ($platformName !== 'mysql') {
@@ -37,13 +37,13 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
             $table->addColumn('test_int', 'integer');
             $table->setPrimaryKey(['test_int']);
 
-            $sm = $this->_conn->getSchemaManager();
+            $sm = $this->connection->getSchemaManager();
             $sm->createTable($table);
         } catch (Throwable $e) {
         }
 
-        $this->_conn->executeUpdate('DELETE FROM master_slave_table');
-        $this->_conn->insert('master_slave_table', ['test_int' => 1]);
+        $this->connection->executeUpdate('DELETE FROM master_slave_table');
+        $this->connection->insert('master_slave_table', ['test_int' => 1]);
     }
 
     private function createMasterSlaveConnection(bool $keepSlave = false) : MasterSlaveConnection
@@ -51,9 +51,12 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
         return DriverManager::getConnection($this->createMasterSlaveConnectionParams($keepSlave));
     }
 
+    /**
+     * @return mixed[]
+     */
     private function createMasterSlaveConnectionParams(bool $keepSlave = false) : array
     {
-        $params                 = $this->_conn->getParams();
+        $params                 = $this->connection->getParams();
         $params['master']       = $params;
         $params['slaves']       = [$params, $params];
         $params['keepSlave']    = $keepSlave;

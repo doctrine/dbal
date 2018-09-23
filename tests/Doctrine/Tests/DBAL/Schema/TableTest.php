@@ -8,6 +8,7 @@ use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\SchemaException;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DbalTestCase;
@@ -41,8 +42,8 @@ class TableTest extends DbalTestCase
         self::assertTrue($table->hasColumn('bar'));
         self::assertFalse($table->hasColumn('baz'));
 
-        self::assertInstanceOf('Doctrine\DBAL\Schema\Column', $table->getColumn('foo'));
-        self::assertInstanceOf('Doctrine\DBAL\Schema\Column', $table->getColumn('bar'));
+        self::assertInstanceOf(Column::class, $table->getColumn('foo'));
+        self::assertInstanceOf(Column::class, $table->getColumn('bar'));
 
         self::assertCount(2, $table->getColumns());
     }
@@ -92,7 +93,7 @@ class TableTest extends DbalTestCase
 
     public function testGetUnknownColumnThrowsException()
     {
-        $this->expectException('Doctrine\DBAL\Schema\SchemaException');
+        $this->expectException(SchemaException::class);
 
         $table = new Table('foo', [], [], []);
         $table->getColumn('unknown');
@@ -100,7 +101,7 @@ class TableTest extends DbalTestCase
 
     public function testAddColumnTwiceThrowsException()
     {
-        $this->expectException('Doctrine\DBAL\Schema\SchemaException');
+        $this->expectException(SchemaException::class);
 
         $type      = Type::getType('integer');
         $columns   = [];
@@ -156,14 +157,14 @@ class TableTest extends DbalTestCase
         self::assertTrue($table->hasIndex('bar_idx'));
         self::assertFalse($table->hasIndex('some_idx'));
 
-        self::assertInstanceOf('Doctrine\DBAL\Schema\Index', $table->getPrimaryKey());
-        self::assertInstanceOf('Doctrine\DBAL\Schema\Index', $table->getIndex('the_primary'));
-        self::assertInstanceOf('Doctrine\DBAL\Schema\Index', $table->getIndex('bar_idx'));
+        self::assertInstanceOf(Index::class, $table->getPrimaryKey());
+        self::assertInstanceOf(Index::class, $table->getIndex('the_primary'));
+        self::assertInstanceOf(Index::class, $table->getIndex('bar_idx'));
     }
 
     public function testGetUnknownIndexThrowsException()
     {
-        $this->expectException('Doctrine\DBAL\Schema\SchemaException');
+        $this->expectException(SchemaException::class);
 
         $table = new Table('foo', [], [], []);
         $table->getIndex('unknownIndex');
@@ -171,7 +172,7 @@ class TableTest extends DbalTestCase
 
     public function testAddTwoPrimaryThrowsException()
     {
-        $this->expectException('Doctrine\DBAL\Schema\SchemaException');
+        $this->expectException(SchemaException::class);
 
         $type    = Type::getType('integer');
         $columns = [new Column('foo', $type), new Column('bar', $type)];
@@ -184,7 +185,7 @@ class TableTest extends DbalTestCase
 
     public function testAddTwoIndexesWithSameNameThrowsException()
     {
-        $this->expectException('Doctrine\DBAL\Schema\SchemaException');
+        $this->expectException(SchemaException::class);
 
         $type    = Type::getType('integer');
         $columns = [new Column('foo', $type), new Column('bar', $type)];
@@ -222,7 +223,7 @@ class TableTest extends DbalTestCase
         $table->setPrimaryKey(['bar']);
 
         self::assertTrue($table->hasIndex('primary'));
-        self::assertInstanceOf('Doctrine\DBAL\Schema\Index', $table->getPrimaryKey());
+        self::assertInstanceOf(Index::class, $table->getPrimaryKey());
         self::assertTrue($table->getIndex('primary')->isUnique());
         self::assertTrue($table->getIndex('primary')->isPrimary());
     }
@@ -253,7 +254,7 @@ class TableTest extends DbalTestCase
 
     public function testBuilderAddIndexWithInvalidNameThrowsException()
     {
-        $this->expectException('Doctrine\DBAL\Schema\SchemaException');
+        $this->expectException(SchemaException::class);
 
         $table = new Table('foo');
         $table->addColumn('bar', 'integer');
@@ -262,7 +263,7 @@ class TableTest extends DbalTestCase
 
     public function testBuilderAddIndexWithUnknownColumnThrowsException()
     {
-        $this->expectException('Doctrine\DBAL\Schema\SchemaException');
+        $this->expectException(SchemaException::class);
 
         $table = new Table('foo');
         $table->addIndex(['bar'], 'invalidName');
@@ -276,9 +277,9 @@ class TableTest extends DbalTestCase
         self::assertEquals('bar', $table->getOption('foo'));
     }
 
-    public function testAddForeignKeyConstraint_UnknownLocalColumn_ThrowsException()
+    public function testAddForeignKeyConstraintUnknownLocalColumnThrowsException()
     {
-        $this->expectException('Doctrine\DBAL\Schema\SchemaException');
+        $this->expectException(SchemaException::class);
 
         $table = new Table('foo');
         $table->addColumn('id', 'integer');
@@ -289,9 +290,9 @@ class TableTest extends DbalTestCase
         $table->addForeignKeyConstraint($foreignTable, ['foo'], ['id']);
     }
 
-    public function testAddForeignKeyConstraint_UnknownForeignColumn_ThrowsException()
+    public function testAddForeignKeyConstraintUnknownForeignColumnThrowsException()
     {
-        $this->expectException('Doctrine\DBAL\Schema\SchemaException');
+        $this->expectException(SchemaException::class);
 
         $table = new Table('foo');
         $table->addColumn('id', 'integer');
@@ -316,7 +317,7 @@ class TableTest extends DbalTestCase
         self::assertCount(1, $constraints);
         $constraint = current($constraints);
 
-        self::assertInstanceOf('Doctrine\DBAL\Schema\ForeignKeyConstraint', $constraint);
+        self::assertInstanceOf(ForeignKeyConstraint::class, $constraint);
 
         self::assertTrue($constraint->hasOption('foo'));
         self::assertEquals('bar', $constraint->getOption('foo'));
@@ -334,7 +335,7 @@ class TableTest extends DbalTestCase
         self::assertTrue($table->getIndex('my_idx')->spansColumns(['id']));
     }
 
-    public function testAddPrimaryKey_ColumnsAreExplicitlySetToNotNull()
+    public function testAddPrimaryKeyColumnsAreExplicitlySetToNotNull()
     {
         $table  = new Table('foo');
         $column = $table->addColumn('id', 'integer', ['notnull' => false]);
@@ -822,18 +823,18 @@ class TableTest extends DbalTestCase
 
         self::assertTrue($table->hasColumn($assetName));
         self::assertTrue($table->hasColumn('foo'));
-        self::assertInstanceOf('Doctrine\DBAL\Schema\Column', $table->getColumn($assetName));
-        self::assertInstanceOf('Doctrine\DBAL\Schema\Column', $table->getColumn('foo'));
+        self::assertInstanceOf(Column::class, $table->getColumn($assetName));
+        self::assertInstanceOf(Column::class, $table->getColumn('foo'));
 
         self::assertTrue($table->hasIndex($assetName));
         self::assertTrue($table->hasIndex('foo'));
-        self::assertInstanceOf('Doctrine\DBAL\Schema\Index', $table->getIndex($assetName));
-        self::assertInstanceOf('Doctrine\DBAL\Schema\Index', $table->getIndex('foo'));
+        self::assertInstanceOf(Index::class, $table->getIndex($assetName));
+        self::assertInstanceOf(Index::class, $table->getIndex('foo'));
 
         self::assertTrue($table->hasForeignKey($assetName));
         self::assertTrue($table->hasForeignKey('foo'));
-        self::assertInstanceOf('Doctrine\DBAL\Schema\ForeignKeyConstraint', $table->getForeignKey($assetName));
-        self::assertInstanceOf('Doctrine\DBAL\Schema\ForeignKeyConstraint', $table->getForeignKey('foo'));
+        self::assertInstanceOf(ForeignKeyConstraint::class, $table->getForeignKey($assetName));
+        self::assertInstanceOf(ForeignKeyConstraint::class, $table->getForeignKey('foo'));
 
         $table->renameIndex($assetName, $assetName);
         self::assertTrue($table->hasIndex($assetName));

@@ -24,7 +24,7 @@ class SQLSrvConnectionTest extends DbalTestCase
 
         parent::setUp();
 
-        $this->connectionMock = $this->getMockBuilder('Doctrine\DBAL\Driver\SQLSrv\SQLSrvConnection')
+        $this->connectionMock = $this->getMockBuilder(SQLSrvConnection::class)
             ->disableOriginalConstructor()
             ->getMockForAbstractClass();
     }

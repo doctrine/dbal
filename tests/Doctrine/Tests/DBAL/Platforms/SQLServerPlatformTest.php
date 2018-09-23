@@ -21,7 +21,7 @@ class SQLServerPlatformTest extends AbstractSQLServerPlatformTestCase
         $fromClause     = 'FROM users';
         $expectedResult = $fromClause . $lockHint;
 
-        self::assertSame($expectedResult, $this->_platform->appendLockHint($fromClause, $lockMode));
+        self::assertSame($expectedResult, $this->platform->appendLockHint($fromClause, $lockMode));
     }
 
     /**
@@ -30,7 +30,7 @@ class SQLServerPlatformTest extends AbstractSQLServerPlatformTestCase
      */
     public function testScrubInnerOrderBy($query, $limit, $offset, $expectedResult)
     {
-        self::assertSame($expectedResult, $this->_platform->modifyLimitQuery($query, $limit, $offset));
+        self::assertSame($expectedResult, $this->platform->modifyLimitQuery($query, $limit, $offset));
     }
 
     public function getLockHints()

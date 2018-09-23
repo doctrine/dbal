@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder;
+use Doctrine\DBAL\Query\QueryException;
 use Doctrine\Tests\DbalTestCase;
 
 /**
@@ -18,7 +19,7 @@ class QueryBuilderTest extends DbalTestCase
 
     protected function setUp()
     {
-        $this->conn = $this->createMock('Doctrine\DBAL\Connection');
+        $this->conn = $this->createMock(Connection::class);
 
         $expressionBuilder = new ExpressionBuilder($this->conn);
 
@@ -650,7 +651,7 @@ class QueryBuilderTest extends DbalTestCase
             ->innerJoin('nt', 'node', 'n', 'nt.node = n.id')
             ->where('nt.lang = :lang AND n.deleted != 1');
 
-        $this->expectException('Doctrine\DBAL\Query\QueryException');
+        $this->expectException(QueryException::class);
         $this->expectExceptionMessage("The given alias 'invalid' is not part of any FROM or JOIN clause table. The currently registered aliases are: news, nv.");
         self::assertEquals('', $qb->getSQL());
     }
@@ -893,7 +894,7 @@ class QueryBuilderTest extends DbalTestCase
             ->from('table_a', 'a')
             ->join('a', 'table_b', 'a', 'a.fk_b = a.id');
 
-        $this->expectException('Doctrine\DBAL\Query\QueryException');
+        $this->expectException(QueryException::class);
         $this->expectExceptionMessage("The given alias 'a' is not unique in FROM and JOIN clause table. The currently registered aliases are: a.");
 
         $qb->getSQL();

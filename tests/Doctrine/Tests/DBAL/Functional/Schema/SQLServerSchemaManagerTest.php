@@ -25,12 +25,12 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('id', 'integer');
         $table->addColumn('todrop', 'decimal', ['default' => 10.2]);
 
-        $this->_sm->createTable($table);
+        $this->schemaManager->createTable($table);
 
         $diff = new TableDiff('sqlsrv_drop_column', [], [], [new Column('todrop', Type::getType('decimal'))]);
-        $this->_sm->alterTable($diff);
+        $this->schemaManager->alterTable($diff);
 
-        $columns = $this->_sm->listTableColumns('sqlsrv_drop_column');
+        $columns = $this->schemaManager->listTableColumns('sqlsrv_drop_column');
         self::assertCount(1, $columns);
     }
 
@@ -39,22 +39,22 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table  = new Table($tableName = 'test_collation');
         $column = $table->addColumn($columnName = 'test', 'string');
 
-        $this->_sm->dropAndCreateTable($table);
-        $columns = $this->_sm->listTableColumns($tableName);
+        $this->schemaManager->dropAndCreateTable($table);
+        $columns = $this->schemaManager->listTableColumns($tableName);
 
         self::assertTrue($columns[$columnName]->hasPlatformOption('collation')); // SQL Server should report a default collation on the column
 
         $column->setPlatformOption('collation', $collation = 'Icelandic_CS_AS');
 
-        $this->_sm->dropAndCreateTable($table);
-        $columns = $this->_sm->listTableColumns($tableName);
+        $this->schemaManager->dropAndCreateTable($table);
+        $columns = $this->schemaManager->listTableColumns($tableName);
 
         self::assertEquals($collation, $columns[$columnName]->getPlatformOption('collation'));
     }
 
     public function testDefaultConstraints()
     {
-        $platform = $this->_sm->getDatabasePlatform();
+        $platform = $this->schemaManager->getDatabasePlatform();
         $table    = new Table('sqlsrv_default_constraints');
         $table->addColumn('no_default', 'string');
         $table->addColumn('df_integer', 'integer', ['default' => 666]);
@@ -66,8 +66,8 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('df_current_date', 'date', ['default' => $platform->getCurrentDateSQL()]);
         $table->addColumn('df_current_time', 'time', ['default' => $platform->getCurrentTimeSQL()]);
 
-        $this->_sm->createTable($table);
-        $columns = $this->_sm->listTableColumns('sqlsrv_default_constraints');
+        $this->schemaManager->createTable($table);
+        $columns = $this->schemaManager->listTableColumns('sqlsrv_default_constraints');
 
         self::assertNull($columns['no_default']->getDefault());
         self::assertEquals(666, $columns['df_integer']->getDefault());
@@ -122,8 +122,8 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
             ['default' => 'column to rename']
         );
 
-        $this->_sm->alterTable($diff);
-        $columns = $this->_sm->listTableColumns('sqlsrv_default_constraints');
+        $this->schemaManager->alterTable($diff);
+        $columns = $this->schemaManager->listTableColumns('sqlsrv_default_constraints');
 
         self::assertNull($columns['no_default']->getDefault());
         self::assertEquals('CURRENT_TIMESTAMP', $columns['df_current_timestamp']->getDefault());
@@ -160,8 +160,8 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
             $table
         );
 
-        $this->_sm->alterTable($diff);
-        $columns = $this->_sm->listTableColumns('sqlsrv_default_constraints');
+        $this->schemaManager->alterTable($diff);
+        $columns = $this->schemaManager->listTableColumns('sqlsrv_default_constraints');
 
         self::assertNull($columns['df_current_timestamp']->getDefault());
         self::assertEquals(666, $columns['df_integer']->getDefault());
@@ -187,9 +187,9 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('commented_type_with_comment', 'array', ['comment' => 'Doctrine array type.']);
         $table->setPrimaryKey(['id']);
 
-        $this->_sm->createTable($table);
+        $this->schemaManager->createTable($table);
 
-        $columns = $this->_sm->listTableColumns('sqlsrv_column_comment');
+        $columns = $this->schemaManager->listTableColumns('sqlsrv_column_comment');
         self::assertCount(12, $columns);
         self::assertNull($columns['id']->getComment());
         self::assertNull($columns['comment_null']->getComment());
@@ -303,9 +303,9 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $tableDiff->removedColumns['comment_integer_0'] = new Column('comment_integer_0', Type::getType('integer'), ['comment' => 0]);
 
-        $this->_sm->alterTable($tableDiff);
+        $this->schemaManager->alterTable($tableDiff);
 
-        $columns = $this->_sm->listTableColumns('sqlsrv_column_comment');
+        $columns = $this->schemaManager->listTableColumns('sqlsrv_column_comment');
         self::assertCount(23, $columns);
         self::assertEquals('primary', $columns['id']->getComment());
         self::assertNull($columns['comment_null']->getComment());
@@ -345,9 +345,9 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('colA', 'integer', ['notnull' => true]);
         $table->addColumn('colB', 'integer', ['notnull' => true]);
         $table->setPrimaryKey(['colB', 'colA']);
-        $this->_sm->createTable($table);
+        $this->schemaManager->createTable($table);
 
-        $indexes = $this->_sm->listTableIndexes('sqlsrv_pk_ordering');
+        $indexes = $this->schemaManager->listTableIndexes('sqlsrv_pk_ordering');
 
         self::assertCount(1, $indexes);
 

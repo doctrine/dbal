@@ -15,7 +15,7 @@ class DBAL510Test extends DbalFunctionalTestCase
     {
         parent::setUp();
 
-        if ($this->_conn->getDatabasePlatform()->getName() === 'postgresql') {
+        if ($this->connection->getDatabasePlatform()->getName() === 'postgresql') {
             return;
         }
 
@@ -28,9 +28,9 @@ class DBAL510Test extends DbalFunctionalTestCase
         $table->addColumn('id', 'integer');
         $table->setPrimaryKey(['id']);
 
-        $this->_conn->getSchemaManager()->createTable($table);
+        $this->connection->getSchemaManager()->createTable($table);
 
-        $onlineTable = $this->_conn->getSchemaManager()->listTableDetails('dbal510tbl');
+        $onlineTable = $this->connection->getSchemaManager()->listTableDetails('dbal510tbl');
 
         $comparator = new Comparator();
         $diff       = $comparator->diffTable($onlineTable, $table);

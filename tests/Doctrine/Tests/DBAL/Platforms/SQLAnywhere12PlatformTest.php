@@ -9,7 +9,7 @@ use Doctrine\DBAL\Schema\Sequence;
 class SQLAnywhere12PlatformTest extends SQLAnywhere11PlatformTest
 {
     /** @var SQLAnywhere12Platform */
-    protected $_platform;
+    protected $platform;
 
     public function createPlatform()
     {
@@ -23,7 +23,7 @@ class SQLAnywhere12PlatformTest extends SQLAnywhere11PlatformTest
 
     public function testSupportsSequences()
     {
-        self::assertTrue($this->_platform->supportsSequences());
+        self::assertTrue($this->platform->supportsSequences());
     }
 
     public function testGeneratesSequenceSqlCommands()
@@ -31,27 +31,27 @@ class SQLAnywhere12PlatformTest extends SQLAnywhere11PlatformTest
         $sequence = new Sequence('myseq', 20, 1);
         self::assertEquals(
             'CREATE SEQUENCE myseq INCREMENT BY 20 START WITH 1 MINVALUE 1',
-            $this->_platform->getCreateSequenceSQL($sequence)
+            $this->platform->getCreateSequenceSQL($sequence)
         );
         self::assertEquals(
             'ALTER SEQUENCE myseq INCREMENT BY 20',
-            $this->_platform->getAlterSequenceSQL($sequence)
+            $this->platform->getAlterSequenceSQL($sequence)
         );
         self::assertEquals(
             'DROP SEQUENCE myseq',
-            $this->_platform->getDropSequenceSQL('myseq')
+            $this->platform->getDropSequenceSQL('myseq')
         );
         self::assertEquals(
             'DROP SEQUENCE myseq',
-            $this->_platform->getDropSequenceSQL($sequence)
+            $this->platform->getDropSequenceSQL($sequence)
         );
         self::assertEquals(
             'SELECT myseq.NEXTVAL',
-            $this->_platform->getSequenceNextValSQL('myseq')
+            $this->platform->getSequenceNextValSQL('myseq')
         );
         self::assertEquals(
             'SELECT sequence_name, increment_by, start_with, min_value FROM SYS.SYSSEQUENCE',
-            $this->_platform->getListSequencesSQL(null)
+            $this->platform->getListSequencesSQL(null)
         );
     }
 
@@ -59,7 +59,7 @@ class SQLAnywhere12PlatformTest extends SQLAnywhere11PlatformTest
     {
         self::assertEquals(
             'TIMESTAMP WITH TIME ZONE',
-            $this->_platform->getDateTimeTzTypeDeclarationSQL([
+            $this->platform->getDateTimeTzTypeDeclarationSQL([
                 'length' => 10,
                 'fixed' => true,
                 'unsigned' => true,
@@ -70,20 +70,20 @@ class SQLAnywhere12PlatformTest extends SQLAnywhere11PlatformTest
 
     public function testHasCorrectDateTimeTzFormatString()
     {
-        self::assertEquals('Y-m-d H:i:s.uP', $this->_platform->getDateTimeTzFormatString());
+        self::assertEquals('Y-m-d H:i:s.uP', $this->platform->getDateTimeTzFormatString());
     }
 
     public function testInitializesDateTimeTzTypeMapping()
     {
-        self::assertTrue($this->_platform->hasDoctrineTypeMappingFor('timestamp with time zone'));
-        self::assertEquals('datetime', $this->_platform->getDoctrineTypeMapping('timestamp with time zone'));
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('timestamp with time zone'));
+        self::assertEquals('datetime', $this->platform->getDoctrineTypeMapping('timestamp with time zone'));
     }
 
     public function testGeneratesCreateIndexWithAdvancedPlatformOptionsSQL()
     {
         self::assertEquals(
             'CREATE VIRTUAL UNIQUE CLUSTERED INDEX fooindex ON footable (a, b) WITH NULLS NOT DISTINCT FOR OLAP WORKLOAD',
-            $this->_platform->getCreateIndexSQL(
+            $this->platform->getCreateIndexSQL(
                 new Index(
                     'fooindex',
                     ['a', 'b'],
@@ -96,7 +96,7 @@ class SQLAnywhere12PlatformTest extends SQLAnywhere11PlatformTest
         );
         self::assertEquals(
             'CREATE VIRTUAL CLUSTERED INDEX fooindex ON footable (a, b) FOR OLAP WORKLOAD',
-            $this->_platform->getCreateIndexSQL(
+            $this->platform->getCreateIndexSQL(
                 new Index(
                     'fooindex',
                     ['a', 'b'],
@@ -111,7 +111,7 @@ class SQLAnywhere12PlatformTest extends SQLAnywhere11PlatformTest
         // WITH NULLS NOT DISTINCT clause not available on primary indexes.
         self::assertEquals(
             'ALTER TABLE footable ADD PRIMARY KEY (a, b)',
-            $this->_platform->getCreateIndexSQL(
+            $this->platform->getCreateIndexSQL(
                 new Index(
                     'fooindex',
                     ['a', 'b'],
@@ -126,7 +126,7 @@ class SQLAnywhere12PlatformTest extends SQLAnywhere11PlatformTest
         // WITH NULLS NOT DISTINCT clause not available on non-unique indexes.
         self::assertEquals(
             'CREATE INDEX fooindex ON footable (a, b)',
-            $this->_platform->getCreateIndexSQL(
+            $this->platform->getCreateIndexSQL(
                 new Index(
                     'fooindex',
                     ['a', 'b'],

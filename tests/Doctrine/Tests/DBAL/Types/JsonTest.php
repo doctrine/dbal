@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\DBAL\Types;
 
 use Doctrine\DBAL\ParameterType;
+use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\JsonType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DBAL\Mocks\MockPlatform;
@@ -65,7 +66,7 @@ class JsonTest extends DbalTestCase
     /** @dataProvider providerFailure */
     public function testConversionFailure($data)
     {
-        $this->expectException('Doctrine\DBAL\Types\ConversionException');
+        $this->expectException(ConversionException::class);
         $this->type->convertToPHPValue($data, $this->platform);
     }
 

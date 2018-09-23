@@ -12,7 +12,7 @@ class DBAL168Test extends DbalFunctionalTestCase
 {
     public function testDomainsTable()
     {
-        if ($this->_conn->getDatabasePlatform()->getName() !== 'postgresql') {
+        if ($this->connection->getDatabasePlatform()->getName() !== 'postgresql') {
             $this->markTestSkipped('PostgreSQL only test');
         }
 
@@ -22,8 +22,8 @@ class DBAL168Test extends DbalFunctionalTestCase
         $table->setPrimaryKey(['id']);
         $table->addForeignKeyConstraint('domains', ['parent_id'], ['id']);
 
-        $this->_conn->getSchemaManager()->createTable($table);
-        $table = $this->_conn->getSchemaManager()->listTableDetails('domains');
+        $this->connection->getSchemaManager()->createTable($table);
+        $table = $this->connection->getSchemaManager()->listTableDetails('domains');
 
         self::assertEquals('domains', $table->getName());
     }

@@ -1,21 +1,4 @@
 <?php
-/*
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
- * <http://www.doctrine-project.org>.
- */
 
 namespace Doctrine\Tests\DBAL\Schema;
 
@@ -203,7 +186,7 @@ class ComparatorTest extends TestCase
         self::assertEquals($expected, Comparator::compareSchemas($schema1, $schema2));
     }
 
-    public function testCompareChangedColumns_ChangeType()
+    public function testCompareChangedColumnsChangeType()
     {
         $column1 = new Column('charfield1', Type::getType('string'));
         $column2 = new Column('charfield1', Type::getType('integer'));
@@ -213,7 +196,7 @@ class ComparatorTest extends TestCase
         self::assertEquals([], $c->diffColumn($column1, $column1));
     }
 
-    public function testCompareChangedColumns_ChangeCustomSchemaOption()
+    public function testCompareChangedColumnsChangeCustomSchemaOption()
     {
         $column1 = new Column('charfield1', Type::getType('string'));
         $column2 = new Column('charfield1', Type::getType('string'));
@@ -229,7 +212,7 @@ class ComparatorTest extends TestCase
         self::assertEquals([], $c->diffColumn($column1, $column1));
     }
 
-    public function testCompareChangeColumns_MultipleNewColumnsRename()
+    public function testCompareChangeColumnsMultipleNewColumnsRename()
     {
         $tableA = new Table('foo');
         $tableA->addColumn('datefield1', 'datetime');
@@ -523,7 +506,7 @@ class ComparatorTest extends TestCase
         $c         = new Comparator();
         $tableDiff = $c->diffTable($table1, $table2);
 
-        self::assertInstanceOf('Doctrine\DBAL\Schema\TableDiff', $tableDiff);
+        self::assertInstanceOf(TableDiff::class, $tableDiff);
         self::assertCount(1, $tableDiff->addedForeignKeys);
     }
 
@@ -542,7 +525,7 @@ class ComparatorTest extends TestCase
         $c         = new Comparator();
         $tableDiff = $c->diffTable($table2, $table1);
 
-        self::assertInstanceOf('Doctrine\DBAL\Schema\TableDiff', $tableDiff);
+        self::assertInstanceOf(TableDiff::class, $tableDiff);
         self::assertCount(1, $tableDiff->removedForeignKeys);
     }
 
@@ -562,7 +545,7 @@ class ComparatorTest extends TestCase
         $c         = new Comparator();
         $tableDiff = $c->diffTable($table1, $table2);
 
-        self::assertInstanceOf('Doctrine\DBAL\Schema\TableDiff', $tableDiff);
+        self::assertInstanceOf(TableDiff::class, $tableDiff);
         self::assertCount(1, $tableDiff->changedForeignKeys);
     }
 
@@ -585,7 +568,7 @@ class ComparatorTest extends TestCase
         $c         = new Comparator();
         $tableDiff = $c->diffTable($table1, $table2);
 
-        self::assertInstanceOf('Doctrine\DBAL\Schema\TableDiff', $tableDiff);
+        self::assertInstanceOf(TableDiff::class, $tableDiff);
         self::assertCount(1, $tableDiff->changedForeignKeys);
     }
 
@@ -680,7 +663,7 @@ class ComparatorTest extends TestCase
         self::assertFalse($tableDiff);
     }
 
-    public function testCompareForeignKey_RestrictNoAction_AreTheSame()
+    public function testCompareForeignKeyRestrictNoActionAreTheSame()
     {
         $fk1 = new ForeignKeyConstraint(['foo'], 'bar', ['baz'], 'fk1', ['onDelete' => 'NO ACTION']);
         $fk2 = new ForeignKeyConstraint(['foo'], 'bar', ['baz'], 'fk1', ['onDelete' => 'RESTRICT']);
@@ -692,7 +675,7 @@ class ComparatorTest extends TestCase
     /**
      * @group DBAL-492
      */
-    public function testCompareForeignKeyNamesUnqualified_AsNoSchemaInformationIsAvailable()
+    public function testCompareForeignKeyNamesUnqualifiedAsNoSchemaInformationIsAvailable()
     {
         $fk1 = new ForeignKeyConstraint(['foo'], 'foo.bar', ['baz'], 'fk1');
         $fk2 = new ForeignKeyConstraint(['foo'], 'baz.bar', ['baz'], 'fk1');
@@ -811,7 +794,7 @@ class ComparatorTest extends TestCase
         $c         = new Comparator();
         $tableDiff = $c->diffTable($tableA, $tableB);
 
-        self::assertInstanceOf('Doctrine\DBAL\Schema\TableDiff', $tableDiff);
+        self::assertInstanceOf(TableDiff::class, $tableDiff);
         self::assertArrayHasKey('id', $tableDiff->changedColumns);
     }
 
@@ -837,7 +820,7 @@ class ComparatorTest extends TestCase
         $c         = new Comparator();
         $tableDiff = $c->diffTable($table, $newtable);
 
-        self::assertInstanceOf('Doctrine\DBAL\Schema\TableDiff', $tableDiff);
+        self::assertInstanceOf(TableDiff::class, $tableDiff);
         self::assertEquals(['twitterid', 'displayname'], array_keys($tableDiff->renamedColumns));
         self::assertEquals(['logged_in_at'], array_keys($tableDiff->addedColumns));
         self::assertCount(0, $tableDiff->removedColumns);
@@ -853,7 +836,7 @@ class ComparatorTest extends TestCase
         $sequence = $schema->createSequence('baz');
 
         $schemaNew = clone $schema;
-        /* @var $schemaNew Schema */
+        /** @var Schema $schemaNew */
         $schemaNew->getSequence('baz')->setAllocationSize(20);
 
         $c    = new Comparator();
@@ -987,6 +970,7 @@ class ComparatorTest extends TestCase
 
     /**
      * Check that added autoincrement sequence is not populated in newSequences
+     *
      * @group DBAL-562
      */
     public function testAutoIncrementNoSequences()
@@ -1170,10 +1154,10 @@ class ComparatorTest extends TestCase
     public function testComparesNamespaces()
     {
         $comparator = new Comparator();
-        $fromSchema = $this->getMockBuilder('Doctrine\DBAL\Schema\Schema')
+        $fromSchema = $this->getMockBuilder(Schema::class)
             ->setMethods(['getNamespaces', 'hasNamespace'])
             ->getMock();
-        $toSchema   = $this->getMockBuilder('Doctrine\DBAL\Schema\Schema')
+        $toSchema   = $this->getMockBuilder(Schema::class)
             ->setMethods(['getNamespaces', 'hasNamespace'])
             ->getMock();
 
@@ -1230,7 +1214,6 @@ class ComparatorTest extends TestCase
 
     /**
      * @group DBAL-1009
-     *
      * @dataProvider getCompareColumnComments
      */
     public function testCompareColumnComments($comment1, $comment2, $equals)

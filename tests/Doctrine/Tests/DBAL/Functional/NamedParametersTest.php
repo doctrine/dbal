@@ -151,7 +151,7 @@ class NamedParametersTest extends DbalFunctionalTestCase
     {
         parent::setUp();
 
-        if ($this->_conn->getSchemaManager()->tablesExist('ddc1372_foobar')) {
+        if ($this->connection->getSchemaManager()->tablesExist('ddc1372_foobar')) {
             return;
         }
 
@@ -162,35 +162,35 @@ class NamedParametersTest extends DbalFunctionalTestCase
             $table->addColumn('bar', 'string');
             $table->setPrimaryKey(['id']);
 
-            $sm = $this->_conn->getSchemaManager();
+            $sm = $this->connection->getSchemaManager();
             $sm->createTable($table);
 
-            $this->_conn->insert('ddc1372_foobar', [
+            $this->connection->insert('ddc1372_foobar', [
                 'id'  => 1,
                 'foo' => 1,
                 'bar' => 1,
             ]);
-            $this->_conn->insert('ddc1372_foobar', [
+            $this->connection->insert('ddc1372_foobar', [
                 'id'  => 2,
                 'foo' => 1,
                 'bar' => 2,
             ]);
-            $this->_conn->insert('ddc1372_foobar', [
+            $this->connection->insert('ddc1372_foobar', [
                 'id'  => 3,
                 'foo' => 1,
                 'bar' => 3,
             ]);
-            $this->_conn->insert('ddc1372_foobar', [
+            $this->connection->insert('ddc1372_foobar', [
                 'id'  => 4,
                 'foo' => 1,
                 'bar' => 4,
             ]);
-            $this->_conn->insert('ddc1372_foobar', [
+            $this->connection->insert('ddc1372_foobar', [
                 'id'  => 5,
                 'foo' => 2,
                 'bar' => 1,
             ]);
-            $this->_conn->insert('ddc1372_foobar', [
+            $this->connection->insert('ddc1372_foobar', [
                 'id'  => 6,
                 'foo' => 2,
                 'bar' => 2,
@@ -201,16 +201,16 @@ class NamedParametersTest extends DbalFunctionalTestCase
     }
 
     /**
-     * @param string $query
-     * @param array  $params
-     * @param array  $types
-     * @param array  $expected
+     * @param string  $query
+     * @param mixed[] $params
+     * @param int[]   $types
+     * @param int[]   $expected
      *
      * @dataProvider ticketProvider
      */
     public function testTicket($query, $params, $types, $expected)
     {
-        $stmt   = $this->_conn->executeQuery($query, $params, $types);
+        $stmt   = $this->connection->executeQuery($query, $params, $types);
         $result = $stmt->fetchAll(FetchMode::ASSOCIATIVE);
 
         foreach ($result as $k => $v) {

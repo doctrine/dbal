@@ -24,7 +24,7 @@ class DB2ConnectionTest extends DbalTestCase
 
         parent::setUp();
 
-        $this->connectionMock = $this->getMockBuilder('Doctrine\DBAL\Driver\IBMDB2\DB2Connection')
+        $this->connectionMock = $this->getMockBuilder(DB2Connection::class)
             ->disableOriginalConstructor()
             ->getMockForAbstractClass();
     }

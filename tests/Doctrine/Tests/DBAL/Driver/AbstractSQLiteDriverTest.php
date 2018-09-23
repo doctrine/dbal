@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\AbstractSQLiteDriver;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\SqliteSchemaManager;
 
@@ -28,7 +29,7 @@ class AbstractSQLiteDriverTest extends AbstractDriverTest
 
     protected function createDriver()
     {
-        return $this->getMockForAbstractClass('Doctrine\DBAL\Driver\AbstractSQLiteDriver');
+        return $this->getMockForAbstractClass(AbstractSQLiteDriver::class);
     }
 
     protected function createPlatform()

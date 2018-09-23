@@ -28,7 +28,7 @@ class MysqliConnectionTest extends DbalFunctionalTestCase
 
         parent::setUp();
 
-        if (! $this->_conn->getDatabasePlatform() instanceof MySqlPlatform) {
+        if (! $this->connection->getDatabasePlatform() instanceof MySqlPlatform) {
             $this->markTestSkipped('MySQL only test.');
         }
 

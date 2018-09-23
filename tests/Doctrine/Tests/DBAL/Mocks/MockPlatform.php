@@ -8,34 +8,59 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 class MockPlatform extends AbstractPlatform
 {
     /**
-     * Gets the SQL Snippet used to declare a BLOB column type.
+     * {@inheritDoc}
      */
     public function getBlobTypeDeclarationSQL(array $field)
     {
         throw DBALException::notSupported(__METHOD__);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getBooleanTypeDeclarationSQL(array $columnDef)
     {
     }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getIntegerTypeDeclarationSQL(array $columnDef)
     {
     }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getBigIntTypeDeclarationSQL(array $columnDef)
     {
     }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getSmallIntTypeDeclarationSQL(array $columnDef)
     {
     }
+
+    /**
+     * {@inheritDoc}
+     */
     public function _getCommonIntegerTypeDeclarationSQL(array $columnDef)
     {
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getVarcharTypeDeclarationSQL(array $field)
     {
         return 'DUMMYVARCHAR()';
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getClobTypeDeclarationSQL(array $field)
     {
         return 'DUMMYCLOB';

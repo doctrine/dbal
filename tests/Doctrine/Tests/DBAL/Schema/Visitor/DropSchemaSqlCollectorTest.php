@@ -2,6 +2,10 @@
 
 namespace Doctrine\Tests\DBAL\Schema\Visitor;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\SchemaException;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\Visitor\DropSchemaSqlCollector;
 use PHPUnit\Framework\TestCase;
 
@@ -18,7 +22,7 @@ class DropSchemaSqlCollectorTest extends TestCase
         $keyConstraintOne = $this->getStubKeyConstraint('first');
         $keyConstraintTwo = $this->getStubKeyConstraint('second');
 
-        $platform = $this->getMockBuilder('Doctrine\DBAL\Platforms\AbstractPlatform')
+        $platform = $this->getMockBuilder(AbstractPlatform::class)
             ->setMethods(['getDropForeignKeySQL'])
             ->getMockForAbstractClass();
 
@@ -43,7 +47,7 @@ class DropSchemaSqlCollectorTest extends TestCase
 
     private function getTableMock()
     {
-        return $this->getMockWithoutArguments('Doctrine\DBAL\Schema\Table');
+        return $this->getMockWithoutArguments(Table::class);
     }
 
     private function getMockWithoutArguments($className)
@@ -53,7 +57,7 @@ class DropSchemaSqlCollectorTest extends TestCase
 
     private function getStubKeyConstraint($name)
     {
-        $constraint = $this->getMockWithoutArguments('Doctrine\DBAL\Schema\ForeignKeyConstraint');
+        $constraint = $this->getMockWithoutArguments(ForeignKeyConstraint::class);
 
         $constraint->expects($this->any())
             ->method('getName')
@@ -70,13 +74,13 @@ class DropSchemaSqlCollectorTest extends TestCase
         return $constraint;
     }
 
-    public function testGivenForeignKeyWithZeroLength_acceptForeignKeyThrowsException()
+    public function testGivenForeignKeyWithZeroLengthAcceptForeignKeyThrowsException()
     {
         $collector = new DropSchemaSqlCollector(
-            $this->getMockForAbstractClass('Doctrine\DBAL\Platforms\AbstractPlatform')
+            $this->getMockForAbstractClass(AbstractPlatform::class)
         );
 
-        $this->expectException('Doctrine\DBAL\Schema\SchemaException');
+        $this->expectException(SchemaException::class);
         $collector->acceptForeignKey($this->getTableMock(), $this->getStubKeyConstraint(''));
     }
 }

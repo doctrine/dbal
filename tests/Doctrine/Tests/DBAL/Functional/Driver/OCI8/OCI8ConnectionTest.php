@@ -21,11 +21,11 @@ class OCI8ConnectionTest extends DbalFunctionalTestCase
 
         parent::setUp();
 
-        if (! $this->_conn->getDriver() instanceof Driver) {
+        if (! $this->connection->getDriver() instanceof Driver) {
             $this->markTestSkipped('oci8 only test.');
         }
 
-        $this->driverConnection = $this->_conn->getWrappedConnection();
+        $this->driverConnection = $this->connection->getWrappedConnection();
     }
 
     /**
@@ -33,8 +33,8 @@ class OCI8ConnectionTest extends DbalFunctionalTestCase
      */
     public function testLastInsertIdAcceptsFqn()
     {
-        $platform      = $this->_conn->getDatabasePlatform();
-        $schemaManager = $this->_conn->getSchemaManager();
+        $platform      = $this->connection->getDatabasePlatform();
+        $schemaManager = $this->connection->getSchemaManager();
 
         $table = new Table('DBAL2595');
         $table->addColumn('id', 'integer', ['autoincrement' => true]);
@@ -42,9 +42,9 @@ class OCI8ConnectionTest extends DbalFunctionalTestCase
 
         $schemaManager->dropAndCreateTable($table);
 
-        $this->_conn->executeUpdate('INSERT INTO DBAL2595 (foo) VALUES (1)');
+        $this->connection->executeUpdate('INSERT INTO DBAL2595 (foo) VALUES (1)');
 
-        $schema   = $this->_conn->getDatabase();
+        $schema   = $this->connection->getDatabase();
         $sequence = $platform->getIdentitySequenceName($schema . '.DBAL2595', 'id');
 
         self::assertSame(1, $this->driverConnection->lastInsertId($sequence));

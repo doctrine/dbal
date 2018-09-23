@@ -24,7 +24,7 @@ class SQLAnywhereConnectionTest extends DbalTestCase
 
         parent::setUp();
 
-        $this->connectionMock = $this->getMockBuilder('Doctrine\DBAL\Driver\SQLAnywhere\SQLAnywhereConnection')
+        $this->connectionMock = $this->getMockBuilder(SQLAnywhereConnection::class)
             ->disableOriginalConstructor()
             ->getMockForAbstractClass();
     }

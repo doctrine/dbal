@@ -18,7 +18,7 @@ class PDOPgsqlConnectionTest extends DbalFunctionalTestCase
 
         parent::setUp();
 
-        if ($this->_conn->getDatabasePlatform() instanceof PostgreSqlPlatform) {
+        if ($this->connection->getDatabasePlatform() instanceof PostgreSqlPlatform) {
             return;
         }
 
@@ -34,13 +34,13 @@ class PDOPgsqlConnectionTest extends DbalFunctionalTestCase
      */
     public function testConnectsWithValidCharsetOption($charset)
     {
-        $params            = $this->_conn->getParams();
+        $params            = $this->connection->getParams();
         $params['charset'] = $charset;
 
         $connection = DriverManager::getConnection(
             $params,
-            $this->_conn->getConfiguration(),
-            $this->_conn->getEventManager()
+            $this->connection->getConfiguration(),
+            $this->connection->getEventManager()
         );
 
         self::assertEquals(
@@ -51,7 +51,7 @@ class PDOPgsqlConnectionTest extends DbalFunctionalTestCase
     }
 
     /**
-     * @return array
+     * @return mixed[][]
      */
     public function getValidCharsets()
     {

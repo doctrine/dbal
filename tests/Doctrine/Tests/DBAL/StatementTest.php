@@ -4,6 +4,8 @@ namespace Doctrine\Tests\DBAL;
 
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver;
+use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Logging\SQLLogger;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Statement;
@@ -25,28 +27,28 @@ class StatementTest extends DbalTestCase
 
     protected function setUp()
     {
-        $this->pdoStatement = $this->getMockBuilder('\PDOStatement')
+        $this->pdoStatement = $this->getMockBuilder(PDOStatement::class)
             ->setMethods(['execute', 'bindParam', 'bindValue'])
             ->getMock();
         $platform           = new MockPlatform();
-        $driverConnection   = $this->createMock('\Doctrine\DBAL\Driver\Connection');
+        $driverConnection   = $this->createMock(DriverConnection::class);
         $driverConnection->expects($this->any())
                 ->method('prepare')
                 ->will($this->returnValue($this->pdoStatement));
 
-        $driver          = $this->createMock('\Doctrine\DBAL\Driver');
+        $driver          = $this->createMock(Driver::class);
         $constructorArgs = [
             ['platform' => $platform],
             $driver,
         ];
-        $this->conn      = $this->getMockBuilder('\Doctrine\DBAL\Connection')
+        $this->conn      = $this->getMockBuilder(Connection::class)
             ->setConstructorArgs($constructorArgs)
             ->getMock();
         $this->conn->expects($this->atLeastOnce())
                 ->method('getWrappedConnection')
                 ->will($this->returnValue($driverConnection));
 
-        $this->configuration = $this->createMock('\Doctrine\DBAL\Configuration');
+        $this->configuration = $this->createMock(Configuration::class);
         $this->conn->expects($this->any())
                 ->method('getConfiguration')
                 ->will($this->returnValue($this->configuration));
@@ -65,7 +67,7 @@ class StatementTest extends DbalTestCase
         $types  = [$name => $type];
         $sql    = '';
 
-        $logger = $this->createMock('\Doctrine\DBAL\Logging\SQLLogger');
+        $logger = $this->createMock(SQLLogger::class);
         $logger->expects($this->once())
                 ->method('startQuery')
                 ->with($this->equalTo($sql), $this->equalTo($values), $this->equalTo($types));
@@ -87,7 +89,7 @@ class StatementTest extends DbalTestCase
         $types  = [];
         $sql    = '';
 
-        $logger = $this->createMock('\Doctrine\DBAL\Logging\SQLLogger');
+        $logger = $this->createMock(SQLLogger::class);
         $logger->expects($this->once())
                 ->method('startQuery')
                 ->with($this->equalTo($sql), $this->equalTo($values), $this->equalTo($types));
@@ -127,7 +129,7 @@ class StatementTest extends DbalTestCase
      */
     public function testExecuteCallsLoggerStopQueryOnException()
     {
-        $logger = $this->createMock('\Doctrine\DBAL\Logging\SQLLogger');
+        $logger = $this->createMock(SQLLogger::class);
 
         $this->configuration->expects($this->once())
             ->method('getSQLLogger')

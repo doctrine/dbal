@@ -18,14 +18,16 @@
  */
 namespace Doctrine\Tests\DBAL\Sharding;
 
+use Doctrine\DBAL\Sharding\PoolingShardConnection;
 use Doctrine\DBAL\Sharding\PoolingShardManager;
+use Doctrine\DBAL\Sharding\ShardChoser\ShardChoser;
 use PHPUnit\Framework\TestCase;
 
 class PoolingShardManagerTest extends TestCase
 {
     private function createConnectionMock()
     {
-        return $this->getMockBuilder('Doctrine\DBAL\Sharding\PoolingShardConnection')
+        return $this->getMockBuilder(PoolingShardConnection::class)
             ->setMethods(['connect', 'getParams', 'fetchAll'])
             ->disableOriginalConstructor()
             ->getMock();
@@ -33,7 +35,7 @@ class PoolingShardManagerTest extends TestCase
 
     private function createPassthroughShardChoser()
     {
-        $mock = $this->createMock('Doctrine\DBAL\Sharding\ShardChoser\ShardChoser');
+        $mock = $this->createMock(ShardChoser::class);
         $mock->expects($this->any())
              ->method('pickShard')
              ->will($this->returnCallback(static function ($value) {
@@ -42,14 +44,12 @@ class PoolingShardManagerTest extends TestCase
         return $mock;
     }
 
-    private function createStaticShardChoser()
+    private function createStaticShardChooser()
     {
-        $mock = $this->createMock('Doctrine\DBAL\Sharding\ShardChoser\ShardChoser');
+        $mock = $this->createMock(ShardChoser::class);
         $mock->expects($this->any())
             ->method('pickShard')
-            ->will($this->returnCallback(static function ($value) {
-                return 1;
-            }));
+            ->willReturn(1);
         return $mock;
     }
 
@@ -130,10 +130,10 @@ class PoolingShardManagerTest extends TestCase
 
         $conn = $this->createConnectionMock();
         $conn->expects($this->at(0))->method('getParams')->will($this->returnValue(
-            ['shards' => [ ['id' => 1], ['id' => 2] ], 'shardChoser' => $this->createStaticShardChoser()]
+            ['shards' => [ ['id' => 1], ['id' => 2] ], 'shardChoser' => $this->createStaticShardChooser()]
         ));
         $conn->expects($this->at(1))->method('getParams')->will($this->returnValue(
-            ['shards' => [ ['id' => 1], ['id' => 2] ], 'shardChoser' => $this->createStaticShardChoser()]
+            ['shards' => [ ['id' => 1], ['id' => 2] ], 'shardChoser' => $this->createStaticShardChooser()]
         ));
         $conn->expects($this->at(2))->method('connect')->with($this->equalTo(1));
         $conn->expects($this->at(3))

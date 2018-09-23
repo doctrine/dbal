@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Query\Expression;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\Tests\DbalTestCase;
@@ -16,7 +17,7 @@ class ExpressionBuilderTest extends DbalTestCase
 
     protected function setUp()
     {
-        $conn = $this->createMock('Doctrine\DBAL\Connection');
+        $conn = $this->createMock(Connection::class);
 
         $this->expr = new ExpressionBuilder($conn);
 

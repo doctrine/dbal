@@ -19,7 +19,7 @@ class DB2StatementTest extends DbalFunctionalTestCase
 
         parent::setUp();
 
-        if ($this->_conn->getDriver() instanceof DB2Driver) {
+        if ($this->connection->getDriver() instanceof DB2Driver) {
             return;
         }
 
@@ -28,7 +28,7 @@ class DB2StatementTest extends DbalFunctionalTestCase
 
     public function testExecutionErrorsAreNotSuppressed()
     {
-        $stmt = $this->_conn->prepare('SELECT * FROM SYSIBM.SYSDUMMY1 WHERE \'foo\' = ?');
+        $stmt = $this->connection->prepare('SELECT * FROM SYSIBM.SYSDUMMY1 WHERE \'foo\' = ?');
 
         // unwrap the statement to prevent the wrapper from handling the PHPUnit-originated exception
         $wrappedStmt = $stmt->getWrappedStatement();

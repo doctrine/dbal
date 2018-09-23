@@ -24,7 +24,7 @@ class OCI8ConnectionTest extends DbalTestCase
 
         parent::setUp();
 
-        $this->connectionMock = $this->getMockBuilder('Doctrine\DBAL\Driver\OCI8\OCI8Connection')
+        $this->connectionMock = $this->getMockBuilder(OCI8Connection::class)
             ->disableOriginalConstructor()
             ->getMockForAbstractClass();
     }

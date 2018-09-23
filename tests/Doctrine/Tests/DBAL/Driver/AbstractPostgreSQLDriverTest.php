@@ -3,9 +3,14 @@
 namespace Doctrine\Tests\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\AbstractPostgreSQLDriver;
 use Doctrine\DBAL\Platforms\PostgreSQL100Platform;
+use Doctrine\DBAL\Platforms\PostgreSQL91Platform;
+use Doctrine\DBAL\Platforms\PostgreSQL92Platform;
+use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
 use Doctrine\DBAL\Schema\PostgreSqlSchemaManager;
+use Doctrine\Tests\Mocks\DriverResultStatementMock;
 
 class AbstractPostgreSQLDriverTest extends AbstractDriverTest
 {
@@ -19,7 +24,7 @@ class AbstractPostgreSQLDriverTest extends AbstractDriverTest
             'password' => 'bar',
         ];
 
-        $statement = $this->createMock('Doctrine\Tests\Mocks\DriverResultStatementMock');
+        $statement = $this->createMock(DriverResultStatementMock::class);
 
         $statement->expects($this->once())
             ->method('fetchColumn')
@@ -40,7 +45,7 @@ class AbstractPostgreSQLDriverTest extends AbstractDriverTest
 
     protected function createDriver()
     {
-        return $this->getMockForAbstractClass('Doctrine\DBAL\Driver\AbstractPostgreSQLDriver');
+        return $this->getMockForAbstractClass(AbstractPostgreSQLDriver::class);
     }
 
     protected function createPlatform()
@@ -56,18 +61,18 @@ class AbstractPostgreSQLDriverTest extends AbstractDriverTest
     protected function getDatabasePlatformsForVersions()
     {
         return [
-            ['9.0.9', 'Doctrine\DBAL\Platforms\PostgreSqlPlatform'],
-            ['9.1', 'Doctrine\DBAL\Platforms\PostgreSQL91Platform'],
-            ['9.1.0', 'Doctrine\DBAL\Platforms\PostgreSQL91Platform'],
-            ['9.1.1', 'Doctrine\DBAL\Platforms\PostgreSQL91Platform'],
-            ['9.1.9', 'Doctrine\DBAL\Platforms\PostgreSQL91Platform'],
-            ['9.2', 'Doctrine\DBAL\Platforms\PostgreSQL92Platform'],
-            ['9.2.0', 'Doctrine\DBAL\Platforms\PostgreSQL92Platform'],
-            ['9.2.1', 'Doctrine\DBAL\Platforms\PostgreSQL92Platform'],
-            ['9.3.6', 'Doctrine\DBAL\Platforms\PostgreSQL92Platform'],
-            ['9.4', 'Doctrine\DBAL\Platforms\PostgreSQL94Platform'],
-            ['9.4.0', 'Doctrine\DBAL\Platforms\PostgreSQL94Platform'],
-            ['9.4.1', 'Doctrine\DBAL\Platforms\PostgreSQL94Platform'],
+            ['9.0.9', PostgreSqlPlatform::class],
+            ['9.1', PostgreSQL91Platform::class],
+            ['9.1.0', PostgreSQL91Platform::class],
+            ['9.1.1', PostgreSQL91Platform::class],
+            ['9.1.9', PostgreSQL91Platform::class],
+            ['9.2', PostgreSQL92Platform::class],
+            ['9.2.0', PostgreSQL92Platform::class],
+            ['9.2.1', PostgreSQL92Platform::class],
+            ['9.3.6', PostgreSQL92Platform::class],
+            ['9.4', PostgreSQL94Platform::class],
+            ['9.4.0', PostgreSQL94Platform::class],
+            ['9.4.1', PostgreSQL94Platform::class],
             ['10', PostgreSQL100Platform::class],
         ];
     }

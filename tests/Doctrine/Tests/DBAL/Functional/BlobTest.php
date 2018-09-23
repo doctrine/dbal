@@ -23,7 +23,7 @@ class BlobTest extends DbalFunctionalTestCase
     {
         parent::setUp();
 
-        if ($this->_conn->getDriver() instanceof PDOSQLSrvDriver) {
+        if ($this->connection->getDriver() instanceof PDOSQLSrvDriver) {
             $this->markTestSkipped('This test does not work on pdo_sqlsrv driver due to a bug. See: http://social.msdn.microsoft.com/Forums/sqlserver/en-US/5a755bdd-41e9-45cb-9166-c9da4475bb94/how-to-set-null-for-varbinarymax-using-bindvalue-using-pdosqlsrv?forum=sqldriverforphp');
         }
 
@@ -34,13 +34,13 @@ class BlobTest extends DbalFunctionalTestCase
         $table->addColumn('blobfield', 'blob');
         $table->setPrimaryKey(['id']);
 
-        $sm = $this->_conn->getSchemaManager();
+        $sm = $this->connection->getSchemaManager();
         $sm->dropAndCreateTable($table);
     }
 
     public function testInsert()
     {
-        $ret = $this->_conn->insert('blob_table', [
+        $ret = $this->connection->insert('blob_table', [
             'id'          => 1,
             'clobfield'   => 'test',
             'blobfield'   => 'test',
@@ -55,14 +55,14 @@ class BlobTest extends DbalFunctionalTestCase
 
     public function testInsertProcessesStream()
     {
-        if (in_array($this->_conn->getDatabasePlatform()->getName(), ['oracle', 'db2'], true)) {
+        if (in_array($this->connection->getDatabasePlatform()->getName(), ['oracle', 'db2'], true)) {
             // https://github.com/doctrine/dbal/issues/3288 for DB2
             // https://github.com/doctrine/dbal/issues/3290 for Oracle
             $this->markTestIncomplete('Platform does not support stream resources as parameters');
         }
 
         $longBlob = str_repeat('x', 4 * 8192); // send 4 chunks
-        $this->_conn->insert('blob_table', [
+        $this->connection->insert('blob_table', [
             'id'        => 1,
             'clobfield' => 'ignored',
             'blobfield' => fopen('data://text/plain,' . $longBlob, 'r'),
@@ -77,7 +77,7 @@ class BlobTest extends DbalFunctionalTestCase
 
     public function testSelect()
     {
-        $this->_conn->insert('blob_table', [
+        $this->connection->insert('blob_table', [
             'id'          => 1,
             'clobfield'   => 'test',
             'blobfield'   => 'test',
@@ -92,7 +92,7 @@ class BlobTest extends DbalFunctionalTestCase
 
     public function testUpdate()
     {
-        $this->_conn->insert('blob_table', [
+        $this->connection->insert('blob_table', [
             'id' => 1,
             'clobfield' => 'test',
             'blobfield' => 'test',
@@ -102,7 +102,7 @@ class BlobTest extends DbalFunctionalTestCase
             ParameterType::LARGE_OBJECT,
         ]);
 
-        $this->_conn->update('blob_table', ['blobfield' => 'test2'], ['id' => 1], [
+        $this->connection->update('blob_table', ['blobfield' => 'test2'], ['id' => 1], [
             ParameterType::LARGE_OBJECT,
             ParameterType::INTEGER,
         ]);
@@ -112,13 +112,13 @@ class BlobTest extends DbalFunctionalTestCase
 
     public function testUpdateProcessesStream()
     {
-        if (in_array($this->_conn->getDatabasePlatform()->getName(), ['oracle', 'db2'], true)) {
+        if (in_array($this->connection->getDatabasePlatform()->getName(), ['oracle', 'db2'], true)) {
             // https://github.com/doctrine/dbal/issues/3288 for DB2
             // https://github.com/doctrine/dbal/issues/3290 for Oracle
             $this->markTestIncomplete('Platform does not support stream resources as parameters');
         }
 
-        $this->_conn->insert('blob_table', [
+        $this->connection->insert('blob_table', [
             'id'          => 1,
             'clobfield'   => 'ignored',
             'blobfield'   => 'test',
@@ -128,7 +128,7 @@ class BlobTest extends DbalFunctionalTestCase
             ParameterType::LARGE_OBJECT,
         ]);
 
-        $this->_conn->update('blob_table', [
+        $this->connection->update('blob_table', [
             'id'          => 1,
             'blobfield'   => fopen('data://text/plain,test2', 'r'),
         ], ['id' => 1], [
@@ -141,13 +141,13 @@ class BlobTest extends DbalFunctionalTestCase
 
     public function testBindParamProcessesStream()
     {
-        if (in_array($this->_conn->getDatabasePlatform()->getName(), ['oracle', 'db2'], true)) {
+        if (in_array($this->connection->getDatabasePlatform()->getName(), ['oracle', 'db2'], true)) {
             // https://github.com/doctrine/dbal/issues/3288 for DB2
             // https://github.com/doctrine/dbal/issues/3290 for Oracle
             $this->markTestIncomplete('Platform does not support stream resources as parameters');
         }
 
-        $stmt = $this->_conn->prepare("INSERT INTO blob_table(id, clobfield, blobfield) VALUES (1, 'ignored', ?)");
+        $stmt = $this->connection->prepare("INSERT INTO blob_table(id, clobfield, blobfield) VALUES (1, 'ignored', ?)");
 
         $stream = null;
         $stmt->bindParam(1, $stream, ParameterType::LARGE_OBJECT);
@@ -162,11 +162,11 @@ class BlobTest extends DbalFunctionalTestCase
 
     private function assertBlobContains($text)
     {
-        $rows = $this->_conn->query('SELECT blobfield FROM blob_table')->fetchAll(FetchMode::COLUMN);
+        $rows = $this->connection->query('SELECT blobfield FROM blob_table')->fetchAll(FetchMode::COLUMN);
 
         self::assertCount(1, $rows);
 
-        $blobValue = Type::getType('blob')->convertToPHPValue($rows[0], $this->_conn->getDatabasePlatform());
+        $blobValue = Type::getType('blob')->convertToPHPValue($rows[0], $this->connection->getDatabasePlatform());
 
         self::assertInternalType('resource', $blobValue);
         self::assertEquals($text, stream_get_contents($blobValue));

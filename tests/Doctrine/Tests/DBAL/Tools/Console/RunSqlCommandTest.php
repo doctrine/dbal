@@ -29,7 +29,7 @@ class RunSqlCommandTest extends TestCase
         $this->command       = $application->find('dbal:run-sql');
         $this->commandTester = new CommandTester($this->command);
 
-        $this->connectionMock = $this->createMock('\Doctrine\DBAL\Connection');
+        $this->connectionMock = $this->createMock(Connection::class);
         $this->connectionMock->method('fetchAll')
             ->willReturn([[1]]);
         $this->connectionMock->method('executeUpdate')

@@ -24,7 +24,7 @@ class ExceptionTest extends DbalFunctionalTestCase
     {
         parent::setUp();
 
-        if ($this->_conn->getDriver() instanceof ExceptionConverterDriver) {
+        if ($this->connection->getDriver() instanceof ExceptionConverterDriver) {
             return;
         }
 
@@ -37,12 +37,12 @@ class ExceptionTest extends DbalFunctionalTestCase
         $table->addColumn('id', 'integer', []);
         $table->setPrimaryKey(['id']);
 
-        $this->_conn->getSchemaManager()->createTable($table);
+        $this->connection->getSchemaManager()->createTable($table);
 
-        $this->_conn->insert('duplicatekey_table', ['id' => 1]);
+        $this->connection->insert('duplicatekey_table', ['id' => 1]);
 
         $this->expectException(Exception\UniqueConstraintViolationException::class);
-        $this->_conn->insert('duplicatekey_table', ['id' => 1]);
+        $this->connection->insert('duplicatekey_table', ['id' => 1]);
     }
 
     public function testTableNotFoundException()
@@ -50,12 +50,12 @@ class ExceptionTest extends DbalFunctionalTestCase
         $sql = 'SELECT * FROM unknown_table';
 
         $this->expectException(Exception\TableNotFoundException::class);
-        $this->_conn->executeQuery($sql);
+        $this->connection->executeQuery($sql);
     }
 
     public function testTableExistsException()
     {
-        $schemaManager = $this->_conn->getSchemaManager();
+        $schemaManager = $this->connection->getSchemaManager();
         $table         = new Table('alreadyexist_table');
         $table->addColumn('id', 'integer', []);
         $table->setPrimaryKey(['id']);
@@ -67,15 +67,15 @@ class ExceptionTest extends DbalFunctionalTestCase
 
     public function testForeignKeyConstraintViolationExceptionOnInsert()
     {
-        if (! $this->_conn->getDatabasePlatform()->supportsForeignKeyConstraints()) {
+        if (! $this->connection->getDatabasePlatform()->supportsForeignKeyConstraints()) {
             $this->markTestSkipped('Only fails on platforms with foreign key constraints.');
         }
 
         $this->setUpForeignKeyConstraintViolationExceptionTest();
 
         try {
-            $this->_conn->insert('constraint_error_table', ['id' => 1]);
-            $this->_conn->insert('owning_table', ['id' => 1, 'constraint_id' => 1]);
+            $this->connection->insert('constraint_error_table', ['id' => 1]);
+            $this->connection->insert('owning_table', ['id' => 1, 'constraint_id' => 1]);
         } catch (Throwable $exception) {
             $this->tearDownForeignKeyConstraintViolationExceptionTest();
 
@@ -85,7 +85,7 @@ class ExceptionTest extends DbalFunctionalTestCase
         $this->expectException(Exception\ForeignKeyConstraintViolationException::class);
 
         try {
-            $this->_conn->insert('owning_table', ['id' => 2, 'constraint_id' => 2]);
+            $this->connection->insert('owning_table', ['id' => 2, 'constraint_id' => 2]);
         } catch (Exception\ForeignKeyConstraintViolationException $exception) {
             $this->tearDownForeignKeyConstraintViolationExceptionTest();
 
@@ -101,15 +101,15 @@ class ExceptionTest extends DbalFunctionalTestCase
 
     public function testForeignKeyConstraintViolationExceptionOnUpdate()
     {
-        if (! $this->_conn->getDatabasePlatform()->supportsForeignKeyConstraints()) {
+        if (! $this->connection->getDatabasePlatform()->supportsForeignKeyConstraints()) {
             $this->markTestSkipped('Only fails on platforms with foreign key constraints.');
         }
 
         $this->setUpForeignKeyConstraintViolationExceptionTest();
 
         try {
-            $this->_conn->insert('constraint_error_table', ['id' => 1]);
-            $this->_conn->insert('owning_table', ['id' => 1, 'constraint_id' => 1]);
+            $this->connection->insert('constraint_error_table', ['id' => 1]);
+            $this->connection->insert('owning_table', ['id' => 1, 'constraint_id' => 1]);
         } catch (Throwable $exception) {
             $this->tearDownForeignKeyConstraintViolationExceptionTest();
 
@@ -119,7 +119,7 @@ class ExceptionTest extends DbalFunctionalTestCase
         $this->expectException(Exception\ForeignKeyConstraintViolationException::class);
 
         try {
-            $this->_conn->update('constraint_error_table', ['id' => 2], ['id' => 1]);
+            $this->connection->update('constraint_error_table', ['id' => 2], ['id' => 1]);
         } catch (Exception\ForeignKeyConstraintViolationException $exception) {
             $this->tearDownForeignKeyConstraintViolationExceptionTest();
 
@@ -135,15 +135,15 @@ class ExceptionTest extends DbalFunctionalTestCase
 
     public function testForeignKeyConstraintViolationExceptionOnDelete()
     {
-        if (! $this->_conn->getDatabasePlatform()->supportsForeignKeyConstraints()) {
+        if (! $this->connection->getDatabasePlatform()->supportsForeignKeyConstraints()) {
             $this->markTestSkipped('Only fails on platforms with foreign key constraints.');
         }
 
         $this->setUpForeignKeyConstraintViolationExceptionTest();
 
         try {
-            $this->_conn->insert('constraint_error_table', ['id' => 1]);
-            $this->_conn->insert('owning_table', ['id' => 1, 'constraint_id' => 1]);
+            $this->connection->insert('constraint_error_table', ['id' => 1]);
+            $this->connection->insert('owning_table', ['id' => 1, 'constraint_id' => 1]);
         } catch (Throwable $exception) {
             $this->tearDownForeignKeyConstraintViolationExceptionTest();
 
@@ -153,7 +153,7 @@ class ExceptionTest extends DbalFunctionalTestCase
         $this->expectException(Exception\ForeignKeyConstraintViolationException::class);
 
         try {
-            $this->_conn->delete('constraint_error_table', ['id' => 1]);
+            $this->connection->delete('constraint_error_table', ['id' => 1]);
         } catch (Exception\ForeignKeyConstraintViolationException $exception) {
             $this->tearDownForeignKeyConstraintViolationExceptionTest();
 
@@ -169,7 +169,7 @@ class ExceptionTest extends DbalFunctionalTestCase
 
     public function testForeignKeyConstraintViolationExceptionOnTruncate()
     {
-        $platform = $this->_conn->getDatabasePlatform();
+        $platform = $this->connection->getDatabasePlatform();
 
         if (! $platform->supportsForeignKeyConstraints()) {
             $this->markTestSkipped('Only fails on platforms with foreign key constraints.');
@@ -178,8 +178,8 @@ class ExceptionTest extends DbalFunctionalTestCase
         $this->setUpForeignKeyConstraintViolationExceptionTest();
 
         try {
-            $this->_conn->insert('constraint_error_table', ['id' => 1]);
-            $this->_conn->insert('owning_table', ['id' => 1, 'constraint_id' => 1]);
+            $this->connection->insert('constraint_error_table', ['id' => 1]);
+            $this->connection->insert('owning_table', ['id' => 1, 'constraint_id' => 1]);
         } catch (Throwable $exception) {
             $this->tearDownForeignKeyConstraintViolationExceptionTest();
 
@@ -189,7 +189,7 @@ class ExceptionTest extends DbalFunctionalTestCase
         $this->expectException(Exception\ForeignKeyConstraintViolationException::class);
 
         try {
-            $this->_conn->executeUpdate($platform->getTruncateTableSQL('constraint_error_table'));
+            $this->connection->executeUpdate($platform->getTruncateTableSQL('constraint_error_table'));
         } catch (Exception\ForeignKeyConstraintViolationException $exception) {
             $this->tearDownForeignKeyConstraintViolationExceptionTest();
 
@@ -212,12 +212,12 @@ class ExceptionTest extends DbalFunctionalTestCase
         $table->addColumn('value', 'integer', ['notnull' => true]);
         $table->setPrimaryKey(['id']);
 
-        foreach ($schema->toSql($this->_conn->getDatabasePlatform()) as $sql) {
-            $this->_conn->exec($sql);
+        foreach ($schema->toSql($this->connection->getDatabasePlatform()) as $sql) {
+            $this->connection->exec($sql);
         }
 
         $this->expectException(Exception\NotNullConstraintViolationException::class);
-        $this->_conn->insert('notnull_table', ['id' => 1, 'value' => null]);
+        $this->connection->insert('notnull_table', ['id' => 1, 'value' => null]);
     }
 
     public function testInvalidFieldNameException()
@@ -227,12 +227,12 @@ class ExceptionTest extends DbalFunctionalTestCase
         $table = $schema->createTable('bad_fieldname_table');
         $table->addColumn('id', 'integer', []);
 
-        foreach ($schema->toSql($this->_conn->getDatabasePlatform()) as $sql) {
-            $this->_conn->exec($sql);
+        foreach ($schema->toSql($this->connection->getDatabasePlatform()) as $sql) {
+            $this->connection->exec($sql);
         }
 
         $this->expectException(Exception\InvalidFieldNameException::class);
-        $this->_conn->insert('bad_fieldname_table', ['name' => 5]);
+        $this->connection->insert('bad_fieldname_table', ['name' => 5]);
     }
 
     public function testNonUniqueFieldNameException()
@@ -245,13 +245,13 @@ class ExceptionTest extends DbalFunctionalTestCase
         $table2 = $schema->createTable('ambiguous_list_table_2');
         $table2->addColumn('id', 'integer');
 
-        foreach ($schema->toSql($this->_conn->getDatabasePlatform()) as $sql) {
-            $this->_conn->exec($sql);
+        foreach ($schema->toSql($this->connection->getDatabasePlatform()) as $sql) {
+            $this->connection->exec($sql);
         }
 
         $sql = 'SELECT id FROM ambiguous_list_table, ambiguous_list_table_2';
         $this->expectException(Exception\NonUniqueFieldNameException::class);
-        $this->_conn->executeQuery($sql);
+        $this->connection->executeQuery($sql);
     }
 
     public function testUniqueConstraintViolationException()
@@ -262,13 +262,13 @@ class ExceptionTest extends DbalFunctionalTestCase
         $table->addColumn('id', 'integer');
         $table->addUniqueIndex(['id']);
 
-        foreach ($schema->toSql($this->_conn->getDatabasePlatform()) as $sql) {
-            $this->_conn->exec($sql);
+        foreach ($schema->toSql($this->connection->getDatabasePlatform()) as $sql) {
+            $this->connection->exec($sql);
         }
 
-        $this->_conn->insert('unique_field_table', ['id' => 5]);
+        $this->connection->insert('unique_field_table', ['id' => 5]);
         $this->expectException(Exception\UniqueConstraintViolationException::class);
-        $this->_conn->insert('unique_field_table', ['id' => 5]);
+        $this->connection->insert('unique_field_table', ['id' => 5]);
     }
 
     public function testSyntaxErrorException()
@@ -277,11 +277,11 @@ class ExceptionTest extends DbalFunctionalTestCase
         $table->addColumn('id', 'integer', []);
         $table->setPrimaryKey(['id']);
 
-        $this->_conn->getSchemaManager()->createTable($table);
+        $this->connection->getSchemaManager()->createTable($table);
 
         $sql = 'SELECT id FRO syntax_error_table';
         $this->expectException(Exception\SyntaxErrorException::class);
-        $this->_conn->executeQuery($sql);
+        $this->connection->executeQuery($sql);
     }
 
     /**
@@ -289,7 +289,7 @@ class ExceptionTest extends DbalFunctionalTestCase
      */
     public function testConnectionExceptionSqLite($mode, $exceptionClass)
     {
-        if ($this->_conn->getDatabasePlatform()->getName() !== 'sqlite') {
+        if ($this->connection->getDatabasePlatform()->getName() !== 'sqlite') {
             $this->markTestSkipped('Only fails this way on sqlite');
         }
 
@@ -333,19 +333,19 @@ class ExceptionTest extends DbalFunctionalTestCase
      */
     public function testConnectionException($params)
     {
-        if ($this->_conn->getDatabasePlatform()->getName() === 'sqlite') {
+        if ($this->connection->getDatabasePlatform()->getName() === 'sqlite') {
             $this->markTestSkipped('Only skipped if platform is not sqlite');
         }
 
-        if ($this->_conn->getDatabasePlatform()->getName() === 'drizzle') {
+        if ($this->connection->getDatabasePlatform()->getName() === 'drizzle') {
             $this->markTestSkipped('Drizzle does not always support authentication');
         }
 
-        if ($this->_conn->getDatabasePlatform()->getName() === 'postgresql' && isset($params['password'])) {
+        if ($this->connection->getDatabasePlatform()->getName() === 'postgresql' && isset($params['password'])) {
             $this->markTestSkipped('Does not work on Travis');
         }
 
-        $defaultParams = $this->_conn->getParams();
+        $defaultParams = $this->connection->getParams();
         $params        = array_merge($defaultParams, $params);
 
         $conn = DriverManager::getConnection($params);
@@ -372,7 +372,7 @@ class ExceptionTest extends DbalFunctionalTestCase
 
     private function setUpForeignKeyConstraintViolationExceptionTest()
     {
-        $schemaManager = $this->_conn->getSchemaManager();
+        $schemaManager = $this->connection->getSchemaManager();
 
         $table = new Table('constraint_error_table');
         $table->addColumn('id', 'integer', []);
@@ -390,7 +390,7 @@ class ExceptionTest extends DbalFunctionalTestCase
 
     private function tearDownForeignKeyConstraintViolationExceptionTest()
     {
-        $schemaManager = $this->_conn->getSchemaManager();
+        $schemaManager = $this->connection->getSchemaManager();
 
         $schemaManager->dropTable('owning_table');
         $schemaManager->dropTable('constraint_error_table');

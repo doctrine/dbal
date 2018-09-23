@@ -16,7 +16,7 @@ class DriverTest extends AbstractDriverTest
 
         parent::setUp();
 
-        if ($this->_conn->getDriver() instanceof Driver) {
+        if ($this->connection->getDriver() instanceof Driver) {
             return;
         }
 

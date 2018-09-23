@@ -7,6 +7,7 @@ use Doctrine\DBAL\Schema\SchemaDiff;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\Tests\DBAL\Mocks\MockPlatform;
 use PHPUnit\Framework\TestCase;
 
 class SchemaDiffTest extends TestCase
@@ -37,7 +38,7 @@ class SchemaDiffTest extends TestCase
 
     public function createPlatform($unsafe = false)
     {
-        $platform = $this->createMock('Doctrine\Tests\DBAL\Mocks\MockPlatform');
+        $platform = $this->createMock(MockPlatform::class);
         $platform->expects($this->exactly(1))
             ->method('getCreateSchemaSQL')
             ->with('foo_ns')
@@ -45,41 +46,41 @@ class SchemaDiffTest extends TestCase
         if ($unsafe) {
             $platform->expects($this->exactly(1))
                  ->method('getDropSequenceSql')
-                 ->with($this->isInstanceOf('Doctrine\DBAL\Schema\Sequence'))
+                 ->with($this->isInstanceOf(Sequence::class))
                  ->will($this->returnValue('drop_seq'));
         }
         $platform->expects($this->exactly(1))
                  ->method('getAlterSequenceSql')
-                 ->with($this->isInstanceOf('Doctrine\DBAL\Schema\Sequence'))
+                 ->with($this->isInstanceOf(Sequence::class))
                  ->will($this->returnValue('alter_seq'));
         $platform->expects($this->exactly(1))
                  ->method('getCreateSequenceSql')
-                 ->with($this->isInstanceOf('Doctrine\DBAL\Schema\Sequence'))
+                 ->with($this->isInstanceOf(Sequence::class))
                  ->will($this->returnValue('create_seq'));
         if ($unsafe) {
             $platform->expects($this->exactly(1))
                      ->method('getDropTableSql')
-                     ->with($this->isInstanceOf('Doctrine\DBAL\Schema\Table'))
+                     ->with($this->isInstanceOf(Table::class))
                      ->will($this->returnValue('drop_table'));
         }
         $platform->expects($this->exactly(1))
                  ->method('getCreateTableSql')
-                 ->with($this->isInstanceOf('Doctrine\DBAL\Schema\Table'))
+                 ->with($this->isInstanceOf(Table::class))
                  ->will($this->returnValue(['create_table']));
         $platform->expects($this->exactly(1))
                  ->method('getCreateForeignKeySQL')
-                 ->with($this->isInstanceOf('Doctrine\DBAL\Schema\ForeignKeyConstraint'))
+                 ->with($this->isInstanceOf(ForeignKeyConstraint::class))
                  ->will($this->returnValue('create_foreign_key'));
         $platform->expects($this->exactly(1))
                  ->method('getAlterTableSql')
-                 ->with($this->isInstanceOf('Doctrine\DBAL\Schema\TableDiff'))
+                 ->with($this->isInstanceOf(TableDiff::class))
                  ->will($this->returnValue(['alter_table']));
         if ($unsafe) {
             $platform->expects($this->exactly(1))
                      ->method('getDropForeignKeySql')
                      ->with(
-                         $this->isInstanceOf('Doctrine\DBAL\Schema\ForeignKeyConstraint'),
-                         $this->isInstanceOf('Doctrine\DBAL\Schema\Table')
+                         $this->isInstanceOf(ForeignKeyConstraint::class),
+                         $this->isInstanceOf(Table::class)
                      )
                      ->will($this->returnValue('drop_orphan_fk'));
         }

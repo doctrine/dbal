@@ -14,14 +14,14 @@ class PostgreSQL91PlatformTest extends PostgreSqlPlatformTest
 
     public function testSupportsColumnCollation() : void
     {
-        self::assertTrue($this->_platform->supportsColumnCollation());
+        self::assertTrue($this->platform->supportsColumnCollation());
     }
 
     public function testColumnCollationDeclarationSQL() : void
     {
         self::assertSame(
             'COLLATE "en_US.UTF-8"',
-            $this->_platform->getColumnCollationDeclarationSQL('en_US.UTF-8')
+            $this->platform->getColumnCollationDeclarationSQL('en_US.UTF-8')
         );
     }
 
@@ -33,7 +33,7 @@ class PostgreSQL91PlatformTest extends PostgreSqlPlatformTest
 
         self::assertSame(
             ['CREATE TABLE foo (no_collation VARCHAR(255) NOT NULL, column_collation VARCHAR(255) NOT NULL COLLATE "en_US.UTF-8")'],
-            $this->_platform->getCreateTableSQL($table),
+            $this->platform->getCreateTableSQL($table),
             'Column "no_collation" will use the default collation from the table/database and "column_collation" overwrites the collation on this column'
         );
     }

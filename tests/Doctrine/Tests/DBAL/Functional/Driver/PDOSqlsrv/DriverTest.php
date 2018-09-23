@@ -18,7 +18,7 @@ class DriverTest extends AbstractDriverTest
 
         parent::setUp();
 
-        if ($this->_conn->getDriver() instanceof Driver) {
+        if ($this->connection->getDriver() instanceof Driver) {
             return;
         }
 
@@ -46,7 +46,7 @@ class DriverTest extends AbstractDriverTest
      */
     protected function getConnection(array $driverOptions) : Connection
     {
-        return $this->_conn->getDriver()->connect(
+        return $this->connection->getDriver()->connect(
             [
                 'host' => $GLOBALS['db_host'],
                 'port' => $GLOBALS['db_port'],

@@ -8,34 +8,40 @@ use function is_string;
 class ConnectionMock extends Connection
 {
     /** @var DatabasePlatformMock */
-    private $_platformMock;
+    private $platformMock;
 
     /** @var int */
-    private $_lastInsertId = 0;
+    private $lastInsertId = 0;
 
     /** @var string[][] */
-    private $_inserts = array();
+    private $inserts = [];
 
+    /**
+     * {@inheritDoc}
+     */
     public function __construct(array $params, $driver, $config = null, $eventManager = null)
     {
-        $this->_platformMock = new DatabasePlatformMock();
+        $this->platformMock = new DatabasePlatformMock();
 
         parent::__construct($params, $driver, $config, $eventManager);
     }
 
     public function getDatabasePlatform()
     {
-        return $this->_platformMock;
+        return $this->platformMock;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function insert($tableName, array $data, array $types = [])
     {
-        $this->_inserts[$tableName][] = $data;
+        $this->inserts[$tableName][] = $data;
     }
 
     public function lastInsertId($seqName = null)
     {
-        return $this->_lastInsertId;
+        return $this->lastInsertId;
     }
 
     public function quote($input, $type = null)
@@ -48,17 +54,17 @@ class ConnectionMock extends Connection
 
     public function setLastInsertId($id)
     {
-        $this->_lastInsertId = $id;
+        $this->lastInsertId = $id;
     }
 
     public function getInserts()
     {
-        return $this->_inserts;
+        return $this->inserts;
     }
 
     public function reset()
     {
-        $this->_inserts      = [];
-        $this->_lastInsertId = 0;
+        $this->inserts      = [];
+        $this->lastInsertId = 0;
     }
 }

@@ -18,7 +18,7 @@ class ConnectionTest extends DbalFunctionalTestCase
 
         parent::setUp();
 
-        if ($this->_conn->getDriver() instanceof Driver) {
+        if ($this->connection->getDriver() instanceof Driver) {
             return;
         }
 
@@ -35,7 +35,7 @@ class ConnectionTest extends DbalFunctionalTestCase
         $driverOptions = [MYSQLI_OPT_CONNECT_TIMEOUT => 1];
 
         $connection = $this->getConnection($driverOptions);
-        self::assertInstanceOf('\Doctrine\DBAL\Driver\Mysqli\MysqliConnection', $connection);
+        self::assertInstanceOf(MysqliConnection::class, $connection);
     }
 
     /**
@@ -52,6 +52,9 @@ class ConnectionTest extends DbalFunctionalTestCase
         self::assertTrue($conn->ping());
     }
 
+    /**
+     * @param mixed[] $driverOptions
+     */
     private function getConnection(array $driverOptions)
     {
         return new MysqliConnection(

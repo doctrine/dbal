@@ -4,6 +4,7 @@ namespace Doctrine\Tests\DBAL\Types;
 
 use DateTime;
 use DateTimeImmutable;
+use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DBAL\Mocks\MockPlatform;
 use PHPUnit\Framework\TestCase;
@@ -30,7 +31,7 @@ abstract class BaseDateTypeTestCase extends TestCase
         $this->platform        = new MockPlatform();
         $this->currentTimezone = date_default_timezone_get();
 
-        self::assertInstanceOf('Doctrine\DBAL\Types\Type', $this->type);
+        self::assertInstanceOf(Type::class, $this->type);
     }
 
     /**
@@ -53,7 +54,7 @@ abstract class BaseDateTypeTestCase extends TestCase
      */
     public function testInvalidTypeConversionToDatabaseValue($value)
     {
-        $this->expectException('Doctrine\DBAL\Types\ConversionException');
+        $this->expectException(ConversionException::class);
 
         $this->type->convertToDatabaseValue($value, $this->platform);
     }

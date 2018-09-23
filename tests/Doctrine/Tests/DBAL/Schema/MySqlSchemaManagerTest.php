@@ -5,7 +5,10 @@ namespace Doctrine\Tests\DBAL\Schema;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver;
+use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
+use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\MySqlSchemaManager;
 use PHPUnit\Framework\TestCase;
 use function array_map;
@@ -21,9 +24,9 @@ class MySqlSchemaManagerTest extends TestCase
     protected function setUp()
     {
         $eventManager  = new EventManager();
-        $driverMock    = $this->createMock('Doctrine\DBAL\Driver');
-        $platform      = $this->createMock('Doctrine\DBAL\Platforms\MySqlPlatform');
-        $this->conn    = $this->getMockBuilder('Doctrine\DBAL\Connection')
+        $driverMock    = $this->createMock(Driver::class);
+        $platform      = $this->createMock(MySqlPlatform::class);
+        $this->conn    = $this->getMockBuilder(Connection::class)
             ->setMethods(['fetchAll'])
             ->setConstructorArgs([['platform' => $platform], $driverMock, new Configuration(), $eventManager])
             ->getMock();
@@ -36,7 +39,7 @@ class MySqlSchemaManagerTest extends TestCase
         $fkeys = $this->manager->listTableForeignKeys('dummy');
         self::assertCount(1, $fkeys, 'Table has to have one foreign key.');
 
-        self::assertInstanceOf('Doctrine\DBAL\Schema\ForeignKeyConstraint', $fkeys[0]);
+        self::assertInstanceOf(ForeignKeyConstraint::class, $fkeys[0]);
         self::assertEquals(['column_1', 'column_2', 'column_3'], array_map('strtolower', $fkeys[0]->getLocalColumns()));
         self::assertEquals(['column_1', 'column_2', 'column_3'], array_map('strtolower', $fkeys[0]->getForeignColumns()));
     }

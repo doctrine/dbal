@@ -17,7 +17,7 @@ class ConnectionTest extends DbalFunctionalTestCase
 
         parent::setUp();
 
-        if ($this->_conn->getDriver() instanceof Driver) {
+        if ($this->connection->getDriver() instanceof Driver) {
             return;
         }
 
@@ -26,7 +26,7 @@ class ConnectionTest extends DbalFunctionalTestCase
 
     public function testNonPersistentConnection()
     {
-        $params               = $this->_conn->getParams();
+        $params               = $this->connection->getParams();
         $params['persistent'] = false;
 
         $conn = DriverManager::getConnection($params);
@@ -38,7 +38,7 @@ class ConnectionTest extends DbalFunctionalTestCase
 
     public function testPersistentConnection()
     {
-        $params               = $this->_conn->getParams();
+        $params               = $this->connection->getParams();
         $params['persistent'] = true;
 
         $conn = DriverManager::getConnection($params);

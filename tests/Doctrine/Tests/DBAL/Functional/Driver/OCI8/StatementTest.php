@@ -16,7 +16,7 @@ class StatementTest extends DbalFunctionalTestCase
 
         parent::setUp();
 
-        if ($this->_conn->getDriver() instanceof Driver) {
+        if ($this->connection->getDriver() instanceof Driver) {
             return;
         }
 
@@ -24,13 +24,16 @@ class StatementTest extends DbalFunctionalTestCase
     }
 
     /**
+     * @param mixed[] $params
+     * @param mixed[] $expected
+     *
      * @dataProvider queryConversionProvider
      */
     public function testQueryConversion($query, array $params, array $expected)
     {
         self::assertEquals(
             $expected,
-            $this->_conn->executeQuery($query, $params)->fetch()
+            $this->connection->executeQuery($query, $params)->fetch()
         );
     }
 

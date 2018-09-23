@@ -3,11 +3,14 @@
 namespace Doctrine\Tests\DBAL\Schema;
 
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\Index;
 use PHPUnit\Framework\TestCase;
 
 class ForeignKeyConstraintTest extends TestCase
 {
     /**
+     * @param string[] $indexColumns
+     *
      * @group DBAL-1062
      * @dataProvider getIntersectsIndexColumnsData
      */
@@ -15,7 +18,7 @@ class ForeignKeyConstraintTest extends TestCase
     {
         $foreignKey = new ForeignKeyConstraint(['foo', 'bar'], 'foreign_table', ['fk_foo', 'fk_bar']);
 
-        $index = $this->getMockBuilder('Doctrine\DBAL\Schema\Index')
+        $index = $this->getMockBuilder(Index::class)
             ->disableOriginalConstructor()
             ->getMock();
         $index->expects($this->once())
@@ -26,7 +29,7 @@ class ForeignKeyConstraintTest extends TestCase
     }
 
     /**
-     * @return array
+     * @return mixed[]
      */
     public function getIntersectsIndexColumnsData()
     {

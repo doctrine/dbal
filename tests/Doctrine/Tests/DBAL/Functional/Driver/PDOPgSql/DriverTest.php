@@ -21,7 +21,7 @@ class DriverTest extends AbstractDriverTest
 
         parent::setUp();
 
-        if ($this->_conn->getDriver() instanceof Driver) {
+        if ($this->connection->getDriver() instanceof Driver) {
             return;
         }
 
@@ -33,15 +33,15 @@ class DriverTest extends AbstractDriverTest
      */
     public function testDatabaseParameters($databaseName, $defaultDatabaseName, $expectedDatabaseName)
     {
-        $params                   = $this->_conn->getParams();
+        $params                   = $this->connection->getParams();
         $params['dbname']         = $databaseName;
         $params['default_dbname'] = $defaultDatabaseName;
 
         $connection = new Connection(
             $params,
-            $this->_conn->getDriver(),
-            $this->_conn->getConfiguration(),
-            $this->_conn->getEventManager()
+            $this->connection->getDriver(),
+            $this->connection->getConfiguration(),
+            $this->connection->getEventManager()
         );
 
         self::assertSame(
@@ -70,7 +70,7 @@ class DriverTest extends AbstractDriverTest
      */
     public function testConnectsWithApplicationNameParameter()
     {
-        $parameters                     = $this->_conn->getParams();
+        $parameters                     = $this->connection->getParams();
         $parameters['application_name'] = 'doctrine';
 
         $user     = $parameters['user'] ?? null;

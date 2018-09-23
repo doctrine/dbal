@@ -7,6 +7,7 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Portability\Connection;
 use Doctrine\DBAL\Portability\Statement;
 use Doctrine\Tests\DbalTestCase;
+use Doctrine\Tests\Mocks\DriverStatementMock;
 use PHPUnit_Framework_MockObject_MockObject;
 use function iterator_to_array;
 
@@ -161,7 +162,7 @@ class StatementTest extends DbalTestCase
      */
     protected function createConnection()
     {
-        return $this->getMockBuilder('Doctrine\DBAL\Portability\Connection')
+        return $this->getMockBuilder(Connection::class)
             ->disableOriginalConstructor()
             ->getMock();
     }
@@ -179,6 +180,6 @@ class StatementTest extends DbalTestCase
      */
     protected function createWrappedStatement()
     {
-        return $this->createMock('Doctrine\Tests\Mocks\DriverStatementMock');
+        return $this->createMock(DriverStatementMock::class);
     }
 }

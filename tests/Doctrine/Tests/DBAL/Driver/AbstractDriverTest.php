@@ -4,8 +4,25 @@ namespace Doctrine\Tests\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
-use Doctrine\DBAL\Driver\DriverException;
+use Doctrine\DBAL\Driver\DriverException as DriverExceptionInterface;
 use Doctrine\DBAL\Driver\ExceptionConverterDriver;
+use Doctrine\DBAL\Exception\ConnectionException;
+use Doctrine\DBAL\Exception\ConstraintViolationException;
+use Doctrine\DBAL\Exception\DatabaseObjectExistsException;
+use Doctrine\DBAL\Exception\DatabaseObjectNotFoundException;
+use Doctrine\DBAL\Exception\DeadlockException;
+use Doctrine\DBAL\Exception\DriverException;
+use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
+use Doctrine\DBAL\Exception\InvalidFieldNameException;
+use Doctrine\DBAL\Exception\LockWaitTimeoutException;
+use Doctrine\DBAL\Exception\NonUniqueFieldNameException;
+use Doctrine\DBAL\Exception\NotNullConstraintViolationException;
+use Doctrine\DBAL\Exception\ReadOnlyException;
+use Doctrine\DBAL\Exception\ServerException;
+use Doctrine\DBAL\Exception\SyntaxErrorException;
+use Doctrine\DBAL\Exception\TableExistsException;
+use Doctrine\DBAL\Exception\TableNotFoundException;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
@@ -16,23 +33,23 @@ use function sprintf;
 
 abstract class AbstractDriverTest extends DbalTestCase
 {
-    public const EXCEPTION_CONNECTION                       = 'Doctrine\DBAL\Exception\ConnectionException';
-    public const EXCEPTION_CONSTRAINT_VIOLATION             = 'Doctrine\DBAL\Exception\ConstraintViolationException';
-    public const EXCEPTION_DATABASE_OBJECT_EXISTS           = 'Doctrine\DBAL\Exception\DatabaseObjectExistsException';
-    public const EXCEPTION_DATABASE_OBJECT_NOT_FOUND        = 'Doctrine\DBAL\Exception\DatabaseObjectNotFoundException';
-    public const EXCEPTION_DRIVER                           = 'Doctrine\DBAL\Exception\DriverException';
-    public const EXCEPTION_FOREIGN_KEY_CONSTRAINT_VIOLATION = 'Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException';
-    public const EXCEPTION_INVALID_FIELD_NAME               = 'Doctrine\DBAL\Exception\InvalidFieldNameException';
-    public const EXCEPTION_NON_UNIQUE_FIELD_NAME            = 'Doctrine\DBAL\Exception\NonUniqueFieldNameException';
-    public const EXCEPTION_NOT_NULL_CONSTRAINT_VIOLATION    = 'Doctrine\DBAL\Exception\NotNullConstraintViolationException';
-    public const EXCEPTION_READ_ONLY                        = 'Doctrine\DBAL\Exception\ReadOnlyException';
-    public const EXCEPTION_SERVER                           = 'Doctrine\DBAL\Exception\ServerException';
-    public const EXCEPTION_SYNTAX_ERROR                     = 'Doctrine\DBAL\Exception\SyntaxErrorException';
-    public const EXCEPTION_TABLE_EXISTS                     = 'Doctrine\DBAL\Exception\TableExistsException';
-    public const EXCEPTION_TABLE_NOT_FOUND                  = 'Doctrine\DBAL\Exception\TableNotFoundException';
-    public const EXCEPTION_UNIQUE_CONSTRAINT_VIOLATION      = 'Doctrine\DBAL\Exception\UniqueConstraintViolationException';
-    public const EXCEPTION_DEADLOCK                         = 'Doctrine\DBAL\Exception\DeadlockException';
-    public const EXCEPTION_LOCK_WAIT_TIMEOUT                = 'Doctrine\DBAL\Exception\LockWaitTimeoutException';
+    public const EXCEPTION_CONNECTION                       = ConnectionException::class;
+    public const EXCEPTION_CONSTRAINT_VIOLATION             = ConstraintViolationException::class;
+    public const EXCEPTION_DATABASE_OBJECT_EXISTS           = DatabaseObjectExistsException::class;
+    public const EXCEPTION_DATABASE_OBJECT_NOT_FOUND        = DatabaseObjectNotFoundException::class;
+    public const EXCEPTION_DRIVER                           = DriverException::class;
+    public const EXCEPTION_FOREIGN_KEY_CONSTRAINT_VIOLATION = ForeignKeyConstraintViolationException::class;
+    public const EXCEPTION_INVALID_FIELD_NAME               = InvalidFieldNameException::class;
+    public const EXCEPTION_NON_UNIQUE_FIELD_NAME            = NonUniqueFieldNameException::class;
+    public const EXCEPTION_NOT_NULL_CONSTRAINT_VIOLATION    = NotNullConstraintViolationException::class;
+    public const EXCEPTION_READ_ONLY                        = ReadOnlyException::class;
+    public const EXCEPTION_SERVER                           = ServerException::class;
+    public const EXCEPTION_SYNTAX_ERROR                     = SyntaxErrorException::class;
+    public const EXCEPTION_TABLE_EXISTS                     = TableExistsException::class;
+    public const EXCEPTION_TABLE_NOT_FOUND                  = TableNotFoundException::class;
+    public const EXCEPTION_UNIQUE_CONSTRAINT_VIOLATION      = UniqueConstraintViolationException::class;
+    public const EXCEPTION_DEADLOCK                         = DeadlockException::class;
+    public const EXCEPTION_LOCK_WAIT_TIMEOUT                = LockWaitTimeoutException::class;
 
     /**
      * The driver mock under test.
@@ -66,7 +83,7 @@ abstract class AbstractDriverTest extends DbalTestCase
             );
         }
 
-        $driverException = new class extends Exception implements DriverException
+        $driverException = new class extends Exception implements DriverExceptionInterface
         {
             public function __construct()
             {
@@ -215,7 +232,7 @@ abstract class AbstractDriverTest extends DbalTestCase
 
     protected function getConnectionMock()
     {
-        return $this->getMockBuilder('Doctrine\DBAL\Connection')
+        return $this->getMockBuilder(Connection::class)
             ->disableOriginalConstructor()
             ->getMock();
     }
@@ -238,7 +255,7 @@ abstract class AbstractDriverTest extends DbalTestCase
             foreach ($errors as $error) {
                 $driverException = new class ($error[0], $error[1], $error[2])
                     extends Exception
-                    implements DriverException
+                    implements DriverExceptionInterface
                 {
                     /** @var mixed */
                     private $errorCode;

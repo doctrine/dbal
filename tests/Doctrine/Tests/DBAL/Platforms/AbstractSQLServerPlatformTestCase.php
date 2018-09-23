@@ -52,35 +52,35 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     public function testDoesNotSupportRegexp()
     {
-        $this->_platform->getRegexpExpression();
+        $this->platform->getRegexpExpression();
     }
 
     public function testGeneratesSqlSnippets()
     {
-        self::assertEquals('CONVERT(date, GETDATE())', $this->_platform->getCurrentDateSQL());
-        self::assertEquals('CONVERT(time, GETDATE())', $this->_platform->getCurrentTimeSQL());
-        self::assertEquals('CURRENT_TIMESTAMP', $this->_platform->getCurrentTimestampSQL());
-        self::assertEquals('"', $this->_platform->getIdentifierQuoteCharacter(), 'Identifier quote character is not correct');
-        self::assertEquals('(column1 + column2 + column3)', $this->_platform->getConcatExpression('column1', 'column2', 'column3'), 'Concatenation expression is not correct');
+        self::assertEquals('CONVERT(date, GETDATE())', $this->platform->getCurrentDateSQL());
+        self::assertEquals('CONVERT(time, GETDATE())', $this->platform->getCurrentTimeSQL());
+        self::assertEquals('CURRENT_TIMESTAMP', $this->platform->getCurrentTimestampSQL());
+        self::assertEquals('"', $this->platform->getIdentifierQuoteCharacter(), 'Identifier quote character is not correct');
+        self::assertEquals('(column1 + column2 + column3)', $this->platform->getConcatExpression('column1', 'column2', 'column3'), 'Concatenation expression is not correct');
     }
 
     public function testGeneratesTransactionsCommands()
     {
         self::assertEquals(
             'SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED',
-            $this->_platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::READ_UNCOMMITTED)
+            $this->platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::READ_UNCOMMITTED)
         );
         self::assertEquals(
             'SET TRANSACTION ISOLATION LEVEL READ COMMITTED',
-            $this->_platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::READ_COMMITTED)
+            $this->platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::READ_COMMITTED)
         );
         self::assertEquals(
             'SET TRANSACTION ISOLATION LEVEL REPEATABLE READ',
-            $this->_platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::REPEATABLE_READ)
+            $this->platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::REPEATABLE_READ)
         );
         self::assertEquals(
             'SET TRANSACTION ISOLATION LEVEL SERIALIZABLE',
-            $this->_platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::SERIALIZABLE)
+            $this->platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::SERIALIZABLE)
         );
     }
 
@@ -88,25 +88,25 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     {
         $dropDatabaseExpectation = 'DROP DATABASE foobar';
 
-        self::assertEquals('SELECT * FROM sys.databases', $this->_platform->getListDatabasesSQL());
-        self::assertEquals('CREATE DATABASE foobar', $this->_platform->getCreateDatabaseSQL('foobar'));
-        self::assertEquals($dropDatabaseExpectation, $this->_platform->getDropDatabaseSQL('foobar'));
-        self::assertEquals('DROP TABLE foobar', $this->_platform->getDropTableSQL('foobar'));
+        self::assertEquals('SELECT * FROM sys.databases', $this->platform->getListDatabasesSQL());
+        self::assertEquals('CREATE DATABASE foobar', $this->platform->getCreateDatabaseSQL('foobar'));
+        self::assertEquals($dropDatabaseExpectation, $this->platform->getDropDatabaseSQL('foobar'));
+        self::assertEquals('DROP TABLE foobar', $this->platform->getDropTableSQL('foobar'));
     }
 
     public function testGeneratesTypeDeclarationForIntegers()
     {
         self::assertEquals(
             'INT',
-            $this->_platform->getIntegerTypeDeclarationSQL([])
+            $this->platform->getIntegerTypeDeclarationSQL([])
         );
         self::assertEquals(
             'INT IDENTITY',
-            $this->_platform->getIntegerTypeDeclarationSQL(['autoincrement' => true])
+            $this->platform->getIntegerTypeDeclarationSQL(['autoincrement' => true])
         );
         self::assertEquals(
             'INT IDENTITY',
-            $this->_platform->getIntegerTypeDeclarationSQL(
+            $this->platform->getIntegerTypeDeclarationSQL(
                 ['autoincrement' => true, 'primary' => true]
             )
         );
@@ -116,50 +116,50 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     {
         self::assertEquals(
             'NCHAR(10)',
-            $this->_platform->getVarcharTypeDeclarationSQL(
+            $this->platform->getVarcharTypeDeclarationSQL(
                 ['length' => 10, 'fixed' => true]
             )
         );
         self::assertEquals(
             'NVARCHAR(50)',
-            $this->_platform->getVarcharTypeDeclarationSQL(['length' => 50]),
+            $this->platform->getVarcharTypeDeclarationSQL(['length' => 50]),
             'Variable string declaration is not correct'
         );
         self::assertEquals(
             'NVARCHAR(255)',
-            $this->_platform->getVarcharTypeDeclarationSQL([]),
+            $this->platform->getVarcharTypeDeclarationSQL([]),
             'Long string declaration is not correct'
         );
-        self::assertSame('VARCHAR(MAX)', $this->_platform->getClobTypeDeclarationSQL([]));
+        self::assertSame('VARCHAR(MAX)', $this->platform->getClobTypeDeclarationSQL([]));
         self::assertSame(
             'VARCHAR(MAX)',
-            $this->_platform->getClobTypeDeclarationSQL(['length' => 5, 'fixed' => true])
+            $this->platform->getClobTypeDeclarationSQL(['length' => 5, 'fixed' => true])
         );
     }
 
     public function testPrefersIdentityColumns()
     {
-        self::assertTrue($this->_platform->prefersIdentityColumns());
+        self::assertTrue($this->platform->prefersIdentityColumns());
     }
 
     public function testSupportsIdentityColumns()
     {
-        self::assertTrue($this->_platform->supportsIdentityColumns());
+        self::assertTrue($this->platform->supportsIdentityColumns());
     }
 
     public function testSupportsCreateDropDatabase()
     {
-        self::assertTrue($this->_platform->supportsCreateDropDatabase());
+        self::assertTrue($this->platform->supportsCreateDropDatabase());
     }
 
     public function testSupportsSchemas()
     {
-        self::assertTrue($this->_platform->supportsSchemas());
+        self::assertTrue($this->platform->supportsSchemas());
     }
 
     public function testDoesNotSupportSavePoints()
     {
-        self::assertTrue($this->_platform->supportsSavepoints());
+        self::assertTrue($this->platform->supportsSavepoints());
     }
 
     public function getGenerateIndexSql()
@@ -181,7 +181,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     {
         $querySql   = 'SELECT * FROM user';
         $alteredSql = 'SELECT TOP 10 * FROM user';
-        $sql        = $this->_platform->modifyLimitQuery($querySql, 10, 0);
+        $sql        = $this->platform->modifyLimitQuery($querySql, 10, 0);
         $this->expectCteWithMaxRowNum($alteredSql, 10, $sql);
     }
 
@@ -189,19 +189,19 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     {
         $querySql   = 'SELECT * FROM user';
         $alteredSql = 'SELECT TOP 10 * FROM user';
-        $sql        = $this->_platform->modifyLimitQuery($querySql, 10);
+        $sql        = $this->platform->modifyLimitQuery($querySql, 10);
         $this->expectCteWithMaxRowNum($alteredSql, 10, $sql);
     }
 
     public function testModifyLimitQueryWithOffset()
     {
-        if (! $this->_platform->supportsLimitOffset()) {
-            $this->markTestSkipped(sprintf('Platform "%s" does not support offsets in result limiting.', $this->_platform->getName()));
+        if (! $this->platform->supportsLimitOffset()) {
+            $this->markTestSkipped(sprintf('Platform "%s" does not support offsets in result limiting.', $this->platform->getName()));
         }
 
         $querySql   = 'SELECT * FROM user ORDER BY username DESC';
         $alteredSql = 'SELECT TOP 15 * FROM user ORDER BY username DESC';
-        $sql        = $this->_platform->modifyLimitQuery($querySql, 10, 5);
+        $sql        = $this->platform->modifyLimitQuery($querySql, 10, 5);
 
         $this->expectCteWithMinAndMaxRowNums($alteredSql, 6, 15, $sql);
     }
@@ -210,7 +210,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     {
         $querySql   = 'SELECT * FROM user ORDER BY username ASC';
         $alteredSql = 'SELECT TOP 10 * FROM user ORDER BY username ASC';
-        $sql        = $this->_platform->modifyLimitQuery($querySql, 10);
+        $sql        = $this->platform->modifyLimitQuery($querySql, 10);
 
         $this->expectCteWithMaxRowNum($alteredSql, 10, $sql);
     }
@@ -219,7 +219,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     {
         $querySql   = 'SELECT * FROM user order by username';
         $alteredSql = 'SELECT TOP 10 * FROM user order by username';
-        $sql        = $this->_platform->modifyLimitQuery($querySql, 10);
+        $sql        = $this->platform->modifyLimitQuery($querySql, 10);
         $this->expectCteWithMaxRowNum($alteredSql, 10, $sql);
     }
 
@@ -227,7 +227,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     {
         $querySql   = 'SELECT * FROM user ORDER BY username DESC';
         $alteredSql = 'SELECT TOP 10 * FROM user ORDER BY username DESC';
-        $sql        = $this->_platform->modifyLimitQuery($querySql, 10);
+        $sql        = $this->platform->modifyLimitQuery($querySql, 10);
         $this->expectCteWithMaxRowNum($alteredSql, 10, $sql);
     }
 
@@ -235,7 +235,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     {
         $querySql   = 'SELECT * FROM user ORDER BY username DESC, usereamil ASC';
         $alteredSql = 'SELECT TOP 10 * FROM user ORDER BY username DESC, usereamil ASC';
-        $sql        = $this->_platform->modifyLimitQuery($querySql, 10);
+        $sql        = $this->platform->modifyLimitQuery($querySql, 10);
         $this->expectCteWithMaxRowNum($alteredSql, 10, $sql);
     }
 
@@ -243,7 +243,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     {
         $querySql   = 'SELECT * FROM (SELECT u.id as uid, u.name as uname) dctrn_result';
         $alteredSql = 'SELECT TOP 10 * FROM (SELECT u.id as uid, u.name as uname) dctrn_result';
-        $sql        = $this->_platform->modifyLimitQuery($querySql, 10);
+        $sql        = $this->platform->modifyLimitQuery($querySql, 10);
         $this->expectCteWithMaxRowNum($alteredSql, 10, $sql);
     }
 
@@ -251,34 +251,34 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     {
         $querySql   = 'SELECT * FROM (SELECT u.id as uid, u.name as uname ORDER BY u.name DESC) dctrn_result';
         $alteredSql = 'SELECT TOP 10 * FROM (SELECT u.id as uid, u.name as uname) dctrn_result';
-        $sql        = $this->_platform->modifyLimitQuery($querySql, 10);
+        $sql        = $this->platform->modifyLimitQuery($querySql, 10);
         $this->expectCteWithMaxRowNum($alteredSql, 10, $sql);
 
         $querySql   = 'SELECT * FROM (SELECT u.id, u.name ORDER BY u.name DESC) dctrn_result';
         $alteredSql = 'SELECT TOP 10 * FROM (SELECT u.id, u.name) dctrn_result';
-        $sql        = $this->_platform->modifyLimitQuery($querySql, 10);
+        $sql        = $this->platform->modifyLimitQuery($querySql, 10);
         $this->expectCteWithMaxRowNum($alteredSql, 10, $sql);
     }
 
     public function testModifyLimitQueryWithSubSelectAndMultipleOrder()
     {
-        if (! $this->_platform->supportsLimitOffset()) {
-            $this->markTestSkipped(sprintf('Platform "%s" does not support offsets in result limiting.', $this->_platform->getName()));
+        if (! $this->platform->supportsLimitOffset()) {
+            $this->markTestSkipped(sprintf('Platform "%s" does not support offsets in result limiting.', $this->platform->getName()));
         }
 
         $querySql   = 'SELECT * FROM (SELECT u.id as uid, u.name as uname ORDER BY u.name DESC, id ASC) dctrn_result';
         $alteredSql = 'SELECT TOP 15 * FROM (SELECT u.id as uid, u.name as uname) dctrn_result';
-        $sql        = $this->_platform->modifyLimitQuery($querySql, 10, 5);
+        $sql        = $this->platform->modifyLimitQuery($querySql, 10, 5);
         $this->expectCteWithMinAndMaxRowNums($alteredSql, 6, 15, $sql);
 
         $querySql   = 'SELECT * FROM (SELECT u.id uid, u.name uname ORDER BY u.name DESC, id ASC) dctrn_result';
         $alteredSql = 'SELECT TOP 15 * FROM (SELECT u.id uid, u.name uname) dctrn_result';
-        $sql        = $this->_platform->modifyLimitQuery($querySql, 10, 5);
+        $sql        = $this->platform->modifyLimitQuery($querySql, 10, 5);
         $this->expectCteWithMinAndMaxRowNums($alteredSql, 6, 15, $sql);
 
         $querySql   = 'SELECT * FROM (SELECT u.id, u.name ORDER BY u.name DESC, id ASC) dctrn_result';
         $alteredSql = 'SELECT TOP 15 * FROM (SELECT u.id, u.name) dctrn_result';
-        $sql        = $this->_platform->modifyLimitQuery($querySql, 10, 5);
+        $sql        = $this->platform->modifyLimitQuery($querySql, 10, 5);
         $this->expectCteWithMinAndMaxRowNums($alteredSql, 6, 15, $sql);
     }
 
@@ -286,7 +286,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     {
         $querySql   = 'SELECT a.fromFoo, fromBar FROM foo';
         $alteredSql = 'SELECT TOP 10 a.fromFoo, fromBar FROM foo';
-        $sql        = $this->_platform->modifyLimitQuery($querySql, 10);
+        $sql        = $this->platform->modifyLimitQuery($querySql, 10);
         $this->expectCteWithMaxRowNum($alteredSql, 10, $sql);
     }
 
@@ -305,7 +305,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $alteredSql .= 'AND (table2.column2 = table7.column7) AND (table2.column2 = table8.column8) AND (table3.column3 = table4.column4) AND (table3.column3 = table5.column5) AND (table3.column3 = table6.column6) AND (table3.column3 = table7.column7) AND (table3.column3 = table8.column8) AND (table4.column4 = table5.column5) AND (table4.column4 = table6.column6) AND (table4.column4 = table7.column7) AND (table4.column4 = table8.column8) ';
         $alteredSql .= 'AND (table5.column5 = table6.column6) AND (table5.column5 = table7.column7) AND (table5.column5 = table8.column8) AND (table6.column6 = table7.column7) AND (table6.column6 = table8.column8) AND (table7.column7 = table8.column8)';
 
-        $sql = $this->_platform->modifyLimitQuery($query, 10);
+        $sql = $this->platform->modifyLimitQuery($query, 10);
         $this->expectCteWithMaxRowNum($alteredSql, 10, $sql);
     }
 
@@ -314,13 +314,13 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     public function testModifyLimitQueryWithOrderByClause()
     {
-        if (! $this->_platform->supportsLimitOffset()) {
-            $this->markTestSkipped(sprintf('Platform "%s" does not support offsets in result limiting.', $this->_platform->getName()));
+        if (! $this->platform->supportsLimitOffset()) {
+            $this->markTestSkipped(sprintf('Platform "%s" does not support offsets in result limiting.', $this->platform->getName()));
         }
 
         $sql        = 'SELECT m0_.NOMBRE AS NOMBRE0, m0_.FECHAINICIO AS FECHAINICIO1, m0_.FECHAFIN AS FECHAFIN2 FROM MEDICION m0_ WITH (NOLOCK) INNER JOIN ESTUDIO e1_ ON m0_.ESTUDIO_ID = e1_.ID INNER JOIN CLIENTE c2_ ON e1_.CLIENTE_ID = c2_.ID INNER JOIN USUARIO u3_ ON c2_.ID = u3_.CLIENTE_ID WHERE u3_.ID = ? ORDER BY m0_.FECHAINICIO DESC';
         $alteredSql = 'SELECT TOP 15 m0_.NOMBRE AS NOMBRE0, m0_.FECHAINICIO AS FECHAINICIO1, m0_.FECHAFIN AS FECHAFIN2 FROM MEDICION m0_ WITH (NOLOCK) INNER JOIN ESTUDIO e1_ ON m0_.ESTUDIO_ID = e1_.ID INNER JOIN CLIENTE c2_ ON e1_.CLIENTE_ID = c2_.ID INNER JOIN USUARIO u3_ ON c2_.ID = u3_.CLIENTE_ID WHERE u3_.ID = ? ORDER BY m0_.FECHAINICIO DESC';
-        $actual     = $this->_platform->modifyLimitQuery($sql, 10, 5);
+        $actual     = $this->platform->modifyLimitQuery($sql, 10, 5);
 
         $this->expectCteWithMinAndMaxRowNums($alteredSql, 6, 15, $actual);
     }
@@ -344,7 +344,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             '(SELECT (SELECT COUNT(*) FROM login l WHERE l.profile_id = p.id) FROM profile p WHERE p.user_id = u.id) login_count ' .
             'FROM user u ' .
             "WHERE u.status = 'disabled'";
-        $sql        = $this->_platform->modifyLimitQuery($querySql, 10);
+        $sql        = $this->platform->modifyLimitQuery($querySql, 10);
 
         $this->expectCteWithMaxRowNum($alteredSql, 10, $sql);
     }
@@ -354,8 +354,8 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     public function testModifyLimitQueryWithSubSelectInSelectListAndOrderByClause()
     {
-        if (! $this->_platform->supportsLimitOffset()) {
-            $this->markTestSkipped(sprintf('Platform "%s" does not support offsets in result limiting.', $this->_platform->getName()));
+        if (! $this->platform->supportsLimitOffset()) {
+            $this->markTestSkipped(sprintf('Platform "%s" does not support offsets in result limiting.', $this->platform->getName()));
         }
 
         $querySql   = 'SELECT ' .
@@ -374,7 +374,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             'FROM user u ' .
             "WHERE u.status = 'disabled' " .
             'ORDER BY u.username DESC';
-        $sql        = $this->_platform->modifyLimitQuery($querySql, 10, 5);
+        $sql        = $this->platform->modifyLimitQuery($querySql, 10, 5);
         $this->expectCteWithMinAndMaxRowNums($alteredSql, 6, 15, $sql);
     }
 
@@ -395,7 +395,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             'FROM operator_model_operator ' .
             'GROUP BY code ' .
             'ORDER BY MAX(heading_id) DESC';
-        $sql        = $this->_platform->modifyLimitQuery($querySql, 1, 0);
+        $sql        = $this->platform->modifyLimitQuery($querySql, 1, 0);
         $this->expectCteWithMaxRowNum($alteredSql, 1, $sql);
     }
 
@@ -419,7 +419,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             . 'LEFT JOIN join_table t2 ON t1.id = t2.table_id'
             . ') dctrn_result '
             . 'ORDER BY id_0 ASC';
-        $sql        = $this->_platform->modifyLimitQuery($querySql, 5);
+        $sql        = $this->platform->modifyLimitQuery($querySql, 5);
         $this->expectCteWithMaxRowNum($alteredSql, 5, $sql);
     }
 
@@ -443,7 +443,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             . 'LEFT JOIN join_table t2 ON t1.id = t2.table_id'
             . ') dctrn_result '
             . 'ORDER BY name_1 ASC';
-        $sql        = $this->_platform->modifyLimitQuery($querySql, 5);
+        $sql        = $this->platform->modifyLimitQuery($querySql, 5);
         $this->expectCteWithMaxRowNum($alteredSql, 5, $sql);
     }
 
@@ -467,7 +467,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             . 'LEFT JOIN join_table t2 ON t1.id = t2.table_id'
             . ') dctrn_result '
             . 'ORDER BY name_1 ASC, foo_2 DESC';
-        $sql        = $this->_platform->modifyLimitQuery($querySql, 5);
+        $sql        = $this->platform->modifyLimitQuery($querySql, 5);
         $this->expectCteWithMaxRowNum($alteredSql, 5, $sql);
     }
 
@@ -478,7 +478,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             . 'FROM key_table k0_ WHERE (k0_.where_field IN (1))) dctrn_result';
         $alteredSql = 'SELECT DISTINCT TOP 20 id_0 FROM (SELECT k0_.id AS id_0, k0_.field AS field_1 '
             . 'FROM key_table k0_ WHERE (k0_.where_field IN (1))) dctrn_result';
-        $sql        = $this->_platform->modifyLimitQuery($querySql, 20);
+        $sql        = $this->platform->modifyLimitQuery($querySql, 20);
         $this->expectCteWithMaxRowNum($alteredSql, 20, $sql);
     }
 
@@ -487,9 +487,9 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     public function testQuoteIdentifier()
     {
-        self::assertEquals('[fo][o]', $this->_platform->quoteIdentifier('fo]o'));
-        self::assertEquals('[test]', $this->_platform->quoteIdentifier('test'));
-        self::assertEquals('[test].[test]', $this->_platform->quoteIdentifier('test.test'));
+        self::assertEquals('[fo][o]', $this->platform->quoteIdentifier('fo]o'));
+        self::assertEquals('[test]', $this->platform->quoteIdentifier('test'));
+        self::assertEquals('[test].[test]', $this->platform->quoteIdentifier('test.test'));
     }
 
     /**
@@ -497,9 +497,9 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     public function testQuoteSingleIdentifier()
     {
-        self::assertEquals('[fo][o]', $this->_platform->quoteSingleIdentifier('fo]o'));
-        self::assertEquals('[test]', $this->_platform->quoteSingleIdentifier('test'));
-        self::assertEquals('[test.test]', $this->_platform->quoteSingleIdentifier('test.test'));
+        self::assertEquals('[fo][o]', $this->platform->quoteSingleIdentifier('fo]o'));
+        self::assertEquals('[test]', $this->platform->quoteSingleIdentifier('test'));
+        self::assertEquals('[test.test]', $this->platform->quoteSingleIdentifier('test.test'));
     }
 
     /**
@@ -509,7 +509,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     {
         $idx = new Index('idx', ['id']);
         $idx->addFlag('clustered');
-        self::assertEquals('CREATE CLUSTERED INDEX idx ON tbl (id)', $this->_platform->getCreateIndexSQL($idx, 'tbl'));
+        self::assertEquals('CREATE CLUSTERED INDEX idx ON tbl (id)', $this->platform->getCreateIndexSQL($idx, 'tbl'));
     }
 
     /**
@@ -522,7 +522,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $table->setPrimaryKey(['id']);
         $table->getIndex('primary')->addFlag('nonclustered');
 
-        self::assertEquals(['CREATE TABLE tbl (id INT NOT NULL, PRIMARY KEY NONCLUSTERED (id))'], $this->_platform->getCreateTableSQL($table));
+        self::assertEquals(['CREATE TABLE tbl (id INT NOT NULL, PRIMARY KEY NONCLUSTERED (id))'], $this->platform->getCreateTableSQL($table));
     }
 
     /**
@@ -532,13 +532,13 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     {
         $idx = new Index('idx', ['id'], false, true);
         $idx->addFlag('nonclustered');
-        self::assertEquals('ALTER TABLE tbl ADD PRIMARY KEY NONCLUSTERED (id)', $this->_platform->getCreatePrimaryKeySQL($idx, 'tbl'));
+        self::assertEquals('ALTER TABLE tbl ADD PRIMARY KEY NONCLUSTERED (id)', $this->platform->getCreatePrimaryKeySQL($idx, 'tbl'));
     }
 
     public function testAlterAddPrimaryKey()
     {
         $idx = new Index('idx', ['id'], false, true);
-        self::assertEquals('ALTER TABLE tbl ADD PRIMARY KEY (id)', $this->_platform->getCreateIndexSQL($idx, 'tbl'));
+        self::assertEquals('ALTER TABLE tbl ADD PRIMARY KEY (id)', $this->platform->getCreateIndexSQL($idx, 'tbl'));
     }
 
     protected function getQuotedColumnInPrimaryKeySQL()
@@ -575,7 +575,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     public function testGetCreateSchemaSQL()
     {
         $schemaName = 'schema';
-        $sql        = $this->_platform->getCreateSchemaSQL($schemaName);
+        $sql        = $this->platform->getCreateSchemaSQL($schemaName);
         self::assertEquals('CREATE SCHEMA ' . $schemaName, $sql);
     }
 
@@ -590,7 +590,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             "EXEC sp_addextendedproperty N'MS_Description', N'This is a comment', N'SCHEMA', 'testschema', N'TABLE', 'test', N'COLUMN', id",
         ];
 
-        self::assertEquals($expectedSql, $this->_platform->getCreateTableSQL($table));
+        self::assertEquals($expectedSql, $this->platform->getCreateTableSQL($table));
     }
 
     public function testAlterTableWithSchemaColumnComments()
@@ -603,7 +603,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             "EXEC sp_addextendedproperty N'MS_Description', N'A comment', N'SCHEMA', 'testschema', N'TABLE', 'mytable', N'COLUMN', quota",
         ];
 
-        self::assertEquals($expectedSql, $this->_platform->getAlterTableSQL($tableDiff));
+        self::assertEquals($expectedSql, $this->platform->getAlterTableSQL($tableDiff));
     }
 
     public function testAlterTableWithSchemaDropColumnComments()
@@ -618,7 +618,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
 
         $expectedSql = ["EXEC sp_dropextendedproperty N'MS_Description', N'SCHEMA', 'testschema', N'TABLE', 'mytable', N'COLUMN', quota"];
 
-        self::assertEquals($expectedSql, $this->_platform->getAlterTableSQL($tableDiff));
+        self::assertEquals($expectedSql, $this->platform->getAlterTableSQL($tableDiff));
     }
 
     public function testAlterTableWithSchemaUpdateColumnComments()
@@ -633,7 +633,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
 
         $expectedSql = ["EXEC sp_updateextendedproperty N'MS_Description', N'B comment', N'SCHEMA', 'testschema', N'TABLE', 'mytable', N'COLUMN', quota"];
 
-        self::assertEquals($expectedSql, $this->_platform->getAlterTableSQL($tableDiff));
+        self::assertEquals($expectedSql, $this->platform->getAlterTableSQL($tableDiff));
     }
 
     /**
@@ -705,7 +705,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
                 "EXEC sp_addextendedproperty N'MS_Description', N'Doctrine array type.(DC2Type:array)', N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', commented_type_with_comment",
                 "EXEC sp_addextendedproperty N'MS_Description', N'O''Reilly', N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', comment_with_string_literal_char",
             ],
-            $this->_platform->getCreateTableSQL($table)
+            $this->platform->getCreateTableSQL($table)
         );
     }
 
@@ -888,7 +888,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
                 "EXEC sp_updateextendedproperty N'MS_Description', N'(DC2Type:array)', N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', commented_type_with_comment",
                 "EXEC sp_updateextendedproperty N'MS_Description', N'''', N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', comment_with_string_literal_char",
             ],
-            $this->_platform->getAlterTableSQL($tableDiff)
+            $this->platform->getAlterTableSQL($tableDiff)
         );
     }
 
@@ -897,80 +897,80 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     public function testInitializesDoctrineTypeMappings()
     {
-        self::assertTrue($this->_platform->hasDoctrineTypeMappingFor('bigint'));
-        self::assertSame('bigint', $this->_platform->getDoctrineTypeMapping('bigint'));
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('bigint'));
+        self::assertSame('bigint', $this->platform->getDoctrineTypeMapping('bigint'));
 
-        self::assertTrue($this->_platform->hasDoctrineTypeMappingFor('numeric'));
-        self::assertSame('decimal', $this->_platform->getDoctrineTypeMapping('numeric'));
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('numeric'));
+        self::assertSame('decimal', $this->platform->getDoctrineTypeMapping('numeric'));
 
-        self::assertTrue($this->_platform->hasDoctrineTypeMappingFor('bit'));
-        self::assertSame('boolean', $this->_platform->getDoctrineTypeMapping('bit'));
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('bit'));
+        self::assertSame('boolean', $this->platform->getDoctrineTypeMapping('bit'));
 
-        self::assertTrue($this->_platform->hasDoctrineTypeMappingFor('smallint'));
-        self::assertSame('smallint', $this->_platform->getDoctrineTypeMapping('smallint'));
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('smallint'));
+        self::assertSame('smallint', $this->platform->getDoctrineTypeMapping('smallint'));
 
-        self::assertTrue($this->_platform->hasDoctrineTypeMappingFor('decimal'));
-        self::assertSame('decimal', $this->_platform->getDoctrineTypeMapping('decimal'));
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('decimal'));
+        self::assertSame('decimal', $this->platform->getDoctrineTypeMapping('decimal'));
 
-        self::assertTrue($this->_platform->hasDoctrineTypeMappingFor('smallmoney'));
-        self::assertSame('integer', $this->_platform->getDoctrineTypeMapping('smallmoney'));
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('smallmoney'));
+        self::assertSame('integer', $this->platform->getDoctrineTypeMapping('smallmoney'));
 
-        self::assertTrue($this->_platform->hasDoctrineTypeMappingFor('int'));
-        self::assertSame('integer', $this->_platform->getDoctrineTypeMapping('int'));
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('int'));
+        self::assertSame('integer', $this->platform->getDoctrineTypeMapping('int'));
 
-        self::assertTrue($this->_platform->hasDoctrineTypeMappingFor('tinyint'));
-        self::assertSame('smallint', $this->_platform->getDoctrineTypeMapping('tinyint'));
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('tinyint'));
+        self::assertSame('smallint', $this->platform->getDoctrineTypeMapping('tinyint'));
 
-        self::assertTrue($this->_platform->hasDoctrineTypeMappingFor('money'));
-        self::assertSame('integer', $this->_platform->getDoctrineTypeMapping('money'));
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('money'));
+        self::assertSame('integer', $this->platform->getDoctrineTypeMapping('money'));
 
-        self::assertTrue($this->_platform->hasDoctrineTypeMappingFor('float'));
-        self::assertSame('float', $this->_platform->getDoctrineTypeMapping('float'));
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('float'));
+        self::assertSame('float', $this->platform->getDoctrineTypeMapping('float'));
 
-        self::assertTrue($this->_platform->hasDoctrineTypeMappingFor('real'));
-        self::assertSame('float', $this->_platform->getDoctrineTypeMapping('real'));
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('real'));
+        self::assertSame('float', $this->platform->getDoctrineTypeMapping('real'));
 
-        self::assertTrue($this->_platform->hasDoctrineTypeMappingFor('double'));
-        self::assertSame('float', $this->_platform->getDoctrineTypeMapping('double'));
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('double'));
+        self::assertSame('float', $this->platform->getDoctrineTypeMapping('double'));
 
-        self::assertTrue($this->_platform->hasDoctrineTypeMappingFor('double precision'));
-        self::assertSame('float', $this->_platform->getDoctrineTypeMapping('double precision'));
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('double precision'));
+        self::assertSame('float', $this->platform->getDoctrineTypeMapping('double precision'));
 
-        self::assertTrue($this->_platform->hasDoctrineTypeMappingFor('smalldatetime'));
-        self::assertSame('datetime', $this->_platform->getDoctrineTypeMapping('smalldatetime'));
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('smalldatetime'));
+        self::assertSame('datetime', $this->platform->getDoctrineTypeMapping('smalldatetime'));
 
-        self::assertTrue($this->_platform->hasDoctrineTypeMappingFor('datetime'));
-        self::assertSame('datetime', $this->_platform->getDoctrineTypeMapping('datetime'));
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('datetime'));
+        self::assertSame('datetime', $this->platform->getDoctrineTypeMapping('datetime'));
 
-        self::assertTrue($this->_platform->hasDoctrineTypeMappingFor('char'));
-        self::assertSame('string', $this->_platform->getDoctrineTypeMapping('char'));
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('char'));
+        self::assertSame('string', $this->platform->getDoctrineTypeMapping('char'));
 
-        self::assertTrue($this->_platform->hasDoctrineTypeMappingFor('varchar'));
-        self::assertSame('string', $this->_platform->getDoctrineTypeMapping('varchar'));
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('varchar'));
+        self::assertSame('string', $this->platform->getDoctrineTypeMapping('varchar'));
 
-        self::assertTrue($this->_platform->hasDoctrineTypeMappingFor('text'));
-        self::assertSame('text', $this->_platform->getDoctrineTypeMapping('text'));
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('text'));
+        self::assertSame('text', $this->platform->getDoctrineTypeMapping('text'));
 
-        self::assertTrue($this->_platform->hasDoctrineTypeMappingFor('nchar'));
-        self::assertSame('string', $this->_platform->getDoctrineTypeMapping('nchar'));
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('nchar'));
+        self::assertSame('string', $this->platform->getDoctrineTypeMapping('nchar'));
 
-        self::assertTrue($this->_platform->hasDoctrineTypeMappingFor('nvarchar'));
-        self::assertSame('string', $this->_platform->getDoctrineTypeMapping('nvarchar'));
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('nvarchar'));
+        self::assertSame('string', $this->platform->getDoctrineTypeMapping('nvarchar'));
 
-        self::assertTrue($this->_platform->hasDoctrineTypeMappingFor('ntext'));
-        self::assertSame('text', $this->_platform->getDoctrineTypeMapping('ntext'));
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('ntext'));
+        self::assertSame('text', $this->platform->getDoctrineTypeMapping('ntext'));
 
-        self::assertTrue($this->_platform->hasDoctrineTypeMappingFor('binary'));
-        self::assertSame('binary', $this->_platform->getDoctrineTypeMapping('binary'));
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('binary'));
+        self::assertSame('binary', $this->platform->getDoctrineTypeMapping('binary'));
 
-        self::assertTrue($this->_platform->hasDoctrineTypeMappingFor('varbinary'));
-        self::assertSame('binary', $this->_platform->getDoctrineTypeMapping('varbinary'));
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('varbinary'));
+        self::assertSame('binary', $this->platform->getDoctrineTypeMapping('varbinary'));
 
-        self::assertTrue($this->_platform->hasDoctrineTypeMappingFor('image'));
-        self::assertSame('blob', $this->_platform->getDoctrineTypeMapping('image'));
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('image'));
+        self::assertSame('blob', $this->platform->getDoctrineTypeMapping('image'));
 
-        self::assertTrue($this->_platform->hasDoctrineTypeMappingFor('uniqueidentifier'));
-        self::assertSame('guid', $this->_platform->getDoctrineTypeMapping('uniqueidentifier'));
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('uniqueidentifier'));
+        self::assertSame('guid', $this->platform->getDoctrineTypeMapping('uniqueidentifier'));
     }
 
     protected function getBinaryMaxLength()
@@ -980,13 +980,13 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
 
     public function testReturnsBinaryTypeDeclarationSQL()
     {
-        self::assertSame('VARBINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL([]));
-        self::assertSame('VARBINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(['length' => 0]));
-        self::assertSame('VARBINARY(8000)', $this->_platform->getBinaryTypeDeclarationSQL(['length' => 8000]));
+        self::assertSame('VARBINARY(255)', $this->platform->getBinaryTypeDeclarationSQL([]));
+        self::assertSame('VARBINARY(255)', $this->platform->getBinaryTypeDeclarationSQL(['length' => 0]));
+        self::assertSame('VARBINARY(8000)', $this->platform->getBinaryTypeDeclarationSQL(['length' => 8000]));
 
-        self::assertSame('BINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(['fixed' => true]));
-        self::assertSame('BINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 0]));
-        self::assertSame('BINARY(8000)', $this->_platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 8000]));
+        self::assertSame('BINARY(255)', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true]));
+        self::assertSame('BINARY(255)', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 0]));
+        self::assertSame('BINARY(8000)', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 8000]));
     }
 
     /**
@@ -995,8 +995,8 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     public function testReturnsBinaryTypeLongerThanMaxDeclarationSQL()
     {
-        self::assertSame('VARBINARY(MAX)', $this->_platform->getBinaryTypeDeclarationSQL(['length' => 8001]));
-        self::assertSame('VARBINARY(MAX)', $this->_platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 8001]));
+        self::assertSame('VARBINARY(MAX)', $this->platform->getBinaryTypeDeclarationSQL(['length' => 8001]));
+        self::assertSame('VARBINARY(MAX)', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 8001]));
     }
 
     /**
@@ -1045,7 +1045,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             new Column('col_string', Type::getType('string'), ['default' => 666])
         );
 
-        $expected = $this->_platform->getAlterTableSQL($tableDiff);
+        $expected = $this->platform->getAlterTableSQL($tableDiff);
 
         self::assertSame(
             $expected,
@@ -1121,7 +1121,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     public function testGeneratesIdentifierNamesInDefaultConstraintDeclarationSQL($table, $column, $expectedSql)
     {
-        self::assertSame($expectedSql, $this->_platform->getDefaultConstraintDeclarationSQL($table, $column));
+        self::assertSame($expectedSql, $this->platform->getDefaultConstraintDeclarationSQL($table, $column));
     }
 
     public function getGeneratesIdentifierNamesInDefaultConstraintDeclarationSQL()
@@ -1144,7 +1144,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     public function testGeneratesIdentifierNamesInCreateTableSQL($table, $expectedSql)
     {
-        self::assertSame($expectedSql, $this->_platform->getCreateTableSQL($table));
+        self::assertSame($expectedSql, $this->platform->getCreateTableSQL($table));
     }
 
     public function getGeneratesIdentifierNamesInCreateTableSQL()
@@ -1191,7 +1191,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     public function testGeneratesIdentifierNamesInAlterTableSQL($tableDiff, $expectedSql)
     {
-        self::assertSame($expectedSql, $this->_platform->getAlterTableSQL($tableDiff));
+        self::assertSame($expectedSql, $this->platform->getAlterTableSQL($tableDiff));
     }
 
     public function getGeneratesIdentifierNamesInAlterTableSQL()
@@ -1301,7 +1301,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     public function testReturnsGuidTypeDeclarationSQL()
     {
-        self::assertSame('UNIQUEIDENTIFIER', $this->_platform->getGuidTypeDeclarationSQL([]));
+        self::assertSame('UNIQUEIDENTIFIER', $this->platform->getGuidTypeDeclarationSQL([]));
     }
 
     /**
@@ -1409,12 +1409,12 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     {
         $querySql   = 'SELECT * FROM test t WHERE t.id = (SELECT TOP 1 t2.id FROM test t2 ORDER BY t2.data DESC)';
         $alteredSql = 'SELECT TOP 10 * FROM test t WHERE t.id = (SELECT TOP 1 t2.id FROM test t2 ORDER BY t2.data DESC)';
-        $sql        = $this->_platform->modifyLimitQuery($querySql, 10);
+        $sql        = $this->platform->modifyLimitQuery($querySql, 10);
         $this->expectCteWithMaxRowNum($alteredSql, 10, $sql);
 
         $querySql   = 'SELECT * FROM test t WHERE t.id = (SELECT TOP 1 t2.id FROM test t2 ORDER BY t2.data DESC) ORDER BY t.data2 DESC';
         $alteredSql = 'SELECT TOP 10 * FROM test t WHERE t.id = (SELECT TOP 1 t2.id FROM test t2 ORDER BY t2.data DESC) ORDER BY t.data2 DESC';
-        $sql        = $this->_platform->modifyLimitQuery($querySql, 10);
+        $sql        = $this->platform->modifyLimitQuery($querySql, 10);
         $this->expectCteWithMaxRowNum($alteredSql, 10, $sql);
     }
 
@@ -1423,7 +1423,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     public function testQuotesTableNameInListTableColumnsSQL()
     {
-        self::assertContains("'Foo''Bar\\'", $this->_platform->getListTableColumnsSQL("Foo'Bar\\"), '', true);
+        self::assertContains("'Foo''Bar\\'", $this->platform->getListTableColumnsSQL("Foo'Bar\\"), '', true);
     }
 
     /**
@@ -1433,7 +1433,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     {
         self::assertContains(
             "'Foo''Bar\\'",
-            $this->_platform->getListTableColumnsSQL("Foo'Bar\\.baz_table"),
+            $this->platform->getListTableColumnsSQL("Foo'Bar\\.baz_table"),
             '',
             true
         );
@@ -1444,7 +1444,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     public function testQuotesTableNameInListTableForeignKeysSQL()
     {
-        self::assertContains("'Foo''Bar\\'", $this->_platform->getListTableForeignKeysSQL("Foo'Bar\\"), '', true);
+        self::assertContains("'Foo''Bar\\'", $this->platform->getListTableForeignKeysSQL("Foo'Bar\\"), '', true);
     }
 
     /**
@@ -1454,7 +1454,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     {
         self::assertContains(
             "'Foo''Bar\\'",
-            $this->_platform->getListTableForeignKeysSQL("Foo'Bar\\.baz_table"),
+            $this->platform->getListTableForeignKeysSQL("Foo'Bar\\.baz_table"),
             '',
             true
         );
@@ -1465,7 +1465,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     public function testQuotesTableNameInListTableIndexesSQL()
     {
-        self::assertContains("'Foo''Bar\\'", $this->_platform->getListTableIndexesSQL("Foo'Bar\\"), '', true);
+        self::assertContains("'Foo''Bar\\'", $this->platform->getListTableIndexesSQL("Foo'Bar\\"), '', true);
     }
 
     /**
@@ -1475,7 +1475,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     {
         self::assertContains(
             "'Foo''Bar\\'",
-            $this->_platform->getListTableIndexesSQL("Foo'Bar\\.baz_table"),
+            $this->platform->getListTableIndexesSQL("Foo'Bar\\.baz_table"),
             '',
             true
         );
@@ -1486,7 +1486,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     public function testGetDefaultValueDeclarationSQLForDateType() : void
     {
-        $currentDateSql = $this->_platform->getCurrentDateSQL();
+        $currentDateSql = $this->platform->getCurrentDateSQL();
         foreach (['date', 'date_immutable'] as $type) {
             $field = [
                 'type' => Type::getType($type),
@@ -1495,21 +1495,21 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
 
             self::assertSame(
                 " DEFAULT '" . $currentDateSql . "'",
-                $this->_platform->getDefaultValueDeclarationSQL($field)
+                $this->platform->getDefaultValueDeclarationSQL($field)
             );
         }
     }
 
     public function testSupportsColumnCollation() : void
     {
-        self::assertTrue($this->_platform->supportsColumnCollation());
+        self::assertTrue($this->platform->supportsColumnCollation());
     }
 
     public function testColumnCollationDeclarationSQL() : void
     {
         self::assertSame(
             'COLLATE Latin1_General_CS_AS_KS_WS',
-            $this->_platform->getColumnCollationDeclarationSQL('Latin1_General_CS_AS_KS_WS')
+            $this->platform->getColumnCollationDeclarationSQL('Latin1_General_CS_AS_KS_WS')
         );
     }
 
@@ -1521,7 +1521,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
 
         self::assertSame(
             ['CREATE TABLE foo (no_collation NVARCHAR(255) NOT NULL, column_collation NVARCHAR(255) COLLATE Latin1_General_CS_AS_KS_WS NOT NULL)'],
-            $this->_platform->getCreateTableSQL($table),
+            $this->platform->getCreateTableSQL($table),
             'Column "no_collation" will use the default collation from the table/database and "column_collation" overwrites the collation on this column'
         );
     }

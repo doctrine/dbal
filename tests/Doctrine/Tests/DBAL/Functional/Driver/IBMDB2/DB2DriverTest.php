@@ -16,7 +16,7 @@ class DB2DriverTest extends AbstractDriverTest
 
         parent::setUp();
 
-        if ($this->_conn->getDriver() instanceof DB2Driver) {
+        if ($this->connection->getDriver() instanceof DB2Driver) {
             return;
         }
 

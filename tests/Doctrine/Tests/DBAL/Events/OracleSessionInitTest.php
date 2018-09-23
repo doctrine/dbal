@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Events;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Event\ConnectionEventArgs;
 use Doctrine\DBAL\Event\Listeners\OracleSessionInit;
 use Doctrine\DBAL\Events;
@@ -12,7 +13,7 @@ class OracleSessionInitTest extends DbalTestCase
 {
     public function testPostConnect()
     {
-        $connectionMock = $this->createMock('Doctrine\DBAL\Connection');
+        $connectionMock = $this->createMock(Connection::class);
         $connectionMock->expects($this->once())
                        ->method('executeUpdate')
                        ->with($this->isType('string'));
@@ -29,7 +30,7 @@ class OracleSessionInitTest extends DbalTestCase
      */
     public function testPostConnectQuotesSessionParameterValues($name, $value)
     {
-        $connectionMock = $this->getMockBuilder('Doctrine\DBAL\Connection')
+        $connectionMock = $this->getMockBuilder(Connection::class)
             ->disableOriginalConstructor()
             ->getMock();
         $connectionMock->expects($this->once())

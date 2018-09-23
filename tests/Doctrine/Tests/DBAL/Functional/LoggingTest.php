@@ -2,53 +2,54 @@
 
 namespace Doctrine\Tests\DBAL\Functional;
 
+use Doctrine\DBAL\Logging\SQLLogger;
 use Doctrine\Tests\DbalFunctionalTestCase;
 
 class LoggingTest extends DbalFunctionalTestCase
 {
     public function testLogExecuteQuery()
     {
-        $sql = $this->_conn->getDatabasePlatform()->getDummySelectSQL();
+        $sql = $this->connection->getDatabasePlatform()->getDummySelectSQL();
 
-        $logMock = $this->createMock('Doctrine\DBAL\Logging\SQLLogger');
+        $logMock = $this->createMock(SQLLogger::class);
         $logMock->expects($this->at(0))
                 ->method('startQuery')
                 ->with($this->equalTo($sql), $this->equalTo([]), $this->equalTo([]));
         $logMock->expects($this->at(1))
                 ->method('stopQuery');
-        $this->_conn->getConfiguration()->setSQLLogger($logMock);
-        $this->_conn->executeQuery($sql, []);
+        $this->connection->getConfiguration()->setSQLLogger($logMock);
+        $this->connection->executeQuery($sql, []);
     }
 
     public function testLogExecuteUpdate()
     {
         $this->markTestSkipped('Test breaks MySQL but works on all other platforms (Unbuffered Queries stuff).');
 
-        $sql = $this->_conn->getDatabasePlatform()->getDummySelectSQL();
+        $sql = $this->connection->getDatabasePlatform()->getDummySelectSQL();
 
-        $logMock = $this->createMock('Doctrine\DBAL\Logging\SQLLogger');
+        $logMock = $this->createMock(SQLLogger::class);
         $logMock->expects($this->at(0))
                 ->method('startQuery')
                 ->with($this->equalTo($sql), $this->equalTo([]), $this->equalTo([]));
         $logMock->expects($this->at(1))
                 ->method('stopQuery');
-        $this->_conn->getConfiguration()->setSQLLogger($logMock);
-        $this->_conn->executeUpdate($sql, []);
+        $this->connection->getConfiguration()->setSQLLogger($logMock);
+        $this->connection->executeUpdate($sql, []);
     }
 
     public function testLogPrepareExecute()
     {
-        $sql = $this->_conn->getDatabasePlatform()->getDummySelectSQL();
+        $sql = $this->connection->getDatabasePlatform()->getDummySelectSQL();
 
-        $logMock = $this->createMock('Doctrine\DBAL\Logging\SQLLogger');
+        $logMock = $this->createMock(SQLLogger::class);
         $logMock->expects($this->once())
                 ->method('startQuery')
                 ->with($this->equalTo($sql), $this->equalTo([]));
         $logMock->expects($this->at(1))
                 ->method('stopQuery');
-        $this->_conn->getConfiguration()->setSQLLogger($logMock);
+        $this->connection->getConfiguration()->setSQLLogger($logMock);
 
-        $stmt = $this->_conn->prepare($sql);
+        $stmt = $this->connection->prepare($sql);
         $stmt->execute();
     }
 }

@@ -3,11 +3,13 @@
 namespace Doctrine\Tests\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\AbstractMySQLDriver;
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
 use Doctrine\DBAL\Platforms\MySQL57Platform;
 use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Schema\MySqlSchemaManager;
+use Doctrine\Tests\Mocks\DriverResultStatementMock;
 
 class AbstractMySQLDriverTest extends AbstractDriverTest
 {
@@ -21,7 +23,7 @@ class AbstractMySQLDriverTest extends AbstractDriverTest
             'password' => 'bar',
         ];
 
-        $statement = $this->createMock('Doctrine\Tests\Mocks\DriverResultStatementMock');
+        $statement = $this->createMock(DriverResultStatementMock::class);
 
         $statement->expects($this->once())
             ->method('fetchColumn')
@@ -42,7 +44,7 @@ class AbstractMySQLDriverTest extends AbstractDriverTest
 
     protected function createDriver()
     {
-        return $this->getMockForAbstractClass('Doctrine\DBAL\Driver\AbstractMySQLDriver');
+        return $this->getMockForAbstractClass(AbstractMySQLDriver::class);
     }
 
     protected function createPlatform()
@@ -55,6 +57,9 @@ class AbstractMySQLDriverTest extends AbstractDriverTest
         return new MySqlSchemaManager($connection);
     }
 
+    /**
+     * @return mixed[][]
+     */
     protected function getDatabasePlatformsForVersions() : array
     {
         return [

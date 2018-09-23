@@ -12,6 +12,8 @@ use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
+use Doctrine\DBAL\Driver\Statement;
+use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\FetchMode;
@@ -21,6 +23,7 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\Tests\DbalTestCase;
 use Doctrine\Tests\Mocks\DriverMock;
+use Doctrine\Tests\Mocks\DriverStatementMock;
 use Doctrine\Tests\Mocks\ServerInfoAwareConnectionMock;
 use Doctrine\Tests\Mocks\VersionAwarePlatformDriverMock;
 use Exception;
@@ -35,7 +38,7 @@ use function call_user_func_array;
 class ConnectionTest extends DbalTestCase
 {
     /** @var Connection */
-    protected $_conn = null;
+    private $connection;
 
     /** @var string[] */
     protected $params = [
@@ -48,7 +51,7 @@ class ConnectionTest extends DbalTestCase
 
     protected function setUp()
     {
-        $this->_conn = \Doctrine\DBAL\DriverManager::getConnection($this->params);
+        $this->connection = DriverManager::getConnection($this->params);
     }
 
     public function getExecuteUpdateMockConnection()
@@ -69,73 +72,73 @@ class ConnectionTest extends DbalTestCase
 
     public function testIsConnected()
     {
-        self::assertFalse($this->_conn->isConnected());
+        self::assertFalse($this->connection->isConnected());
     }
 
     public function testNoTransactionActiveByDefault()
     {
-        self::assertFalse($this->_conn->isTransactionActive());
+        self::assertFalse($this->connection->isTransactionActive());
     }
 
-    public function testCommitWithNoActiveTransaction_ThrowsException()
+    public function testCommitWithNoActiveTransactionThrowsException()
     {
         $this->expectException(ConnectionException::class);
-        $this->_conn->commit();
+        $this->connection->commit();
     }
 
-    public function testRollbackWithNoActiveTransaction_ThrowsException()
+    public function testRollbackWithNoActiveTransactionThrowsException()
     {
         $this->expectException(ConnectionException::class);
-        $this->_conn->rollBack();
+        $this->connection->rollBack();
     }
 
-    public function testSetRollbackOnlyNoActiveTransaction_ThrowsException()
+    public function testSetRollbackOnlyNoActiveTransactionThrowsException()
     {
         $this->expectException(ConnectionException::class);
-        $this->_conn->setRollbackOnly();
+        $this->connection->setRollbackOnly();
     }
 
-    public function testIsRollbackOnlyNoActiveTransaction_ThrowsException()
+    public function testIsRollbackOnlyNoActiveTransactionThrowsException()
     {
         $this->expectException(ConnectionException::class);
-        $this->_conn->isRollbackOnly();
+        $this->connection->isRollbackOnly();
     }
 
     public function testGetConfiguration()
     {
-        $config = $this->_conn->getConfiguration();
+        $config = $this->connection->getConfiguration();
 
-        self::assertInstanceOf('Doctrine\DBAL\Configuration', $config);
+        self::assertInstanceOf(Configuration::class, $config);
     }
 
     public function testGetHost()
     {
-        self::assertEquals('localhost', $this->_conn->getHost());
+        self::assertEquals('localhost', $this->connection->getHost());
     }
 
     public function testGetPort()
     {
-        self::assertEquals('1234', $this->_conn->getPort());
+        self::assertEquals('1234', $this->connection->getPort());
     }
 
     public function testGetUsername()
     {
-        self::assertEquals('root', $this->_conn->getUsername());
+        self::assertEquals('root', $this->connection->getUsername());
     }
 
     public function testGetPassword()
     {
-        self::assertEquals('password', $this->_conn->getPassword());
+        self::assertEquals('password', $this->connection->getPassword());
     }
 
     public function testGetDriver()
     {
-        self::assertInstanceOf('Doctrine\DBAL\Driver\PDOMySql\Driver', $this->_conn->getDriver());
+        self::assertInstanceOf(\Doctrine\DBAL\Driver\PDOMySql\Driver::class, $this->connection->getDriver());
     }
 
     public function testGetEventManager()
     {
-        self::assertInstanceOf('Doctrine\Common\EventManager', $this->_conn->getEventManager());
+        self::assertInstanceOf(EventManager::class, $this->connection->getEventManager());
     }
 
     public function testConnectDispatchEvent()
@@ -148,7 +151,7 @@ class ConnectionTest extends DbalTestCase
         $eventManager = new EventManager();
         $eventManager->addEventListener([Events::postConnect], $listenerMock);
 
-        $driverMock = $this->createMock('Doctrine\DBAL\Driver');
+        $driverMock = $this->createMock(Driver::class);
         $driverMock->expects($this->at(0))
                    ->method('connect');
         $platform = new Mocks\MockPlatform();
@@ -161,7 +164,7 @@ class ConnectionTest extends DbalTestCase
     {
         $driverMock = new DriverMock();
         $connection = new Connection($this->params, $driverMock);
-        self::assertInstanceOf('Doctrine\Common\EventManager', $connection->getDatabasePlatform()->getEventManager());
+        self::assertInstanceOf(EventManager::class, $connection->getDatabasePlatform()->getEventManager());
         self::assertSame($connection->getEventManager(), $connection->getDatabasePlatform()->getEventManager());
     }
 
@@ -175,12 +178,12 @@ class ConnectionTest extends DbalTestCase
         $this->expectException(DBALException::class);
         $this->expectExceptionMessage("An exception occurred while executing 'MUUHAAAAHAAAA':\n\nSQLSTATE[HY000]: General error: 1 near \"MUUHAAAAHAAAA\"");
 
-        $con = \Doctrine\DBAL\DriverManager::getConnection(array(
+        $connection = DriverManager::getConnection([
             'driver' => 'pdo_sqlite',
             'memory' => true,
-        ));
+        ]);
 
-        $con->$method('MUUHAAAAHAAAA');
+        $connection->$method('MUUHAAAAHAAAA');
     }
 
     public function getQueryMethods()
@@ -202,8 +205,8 @@ class ConnectionTest extends DbalTestCase
     public function testEchoSQLLogger()
     {
         $logger = new EchoSQLLogger();
-        $this->_conn->getConfiguration()->setSQLLogger($logger);
-        self::assertSame($logger, $this->_conn->getConfiguration()->getSQLLogger());
+        $this->connection->getConfiguration()->setSQLLogger($logger);
+        self::assertSame($logger, $this->connection->getConfiguration()->getSQLLogger());
     }
 
     /**
@@ -214,8 +217,8 @@ class ConnectionTest extends DbalTestCase
     public function testDebugSQLStack()
     {
         $logger = new DebugStack();
-        $this->_conn->getConfiguration()->setSQLLogger($logger);
-        self::assertSame($logger, $this->_conn->getConfiguration()->getSQLLogger());
+        $this->connection->getConfiguration()->setSQLLogger($logger);
+        self::assertSame($logger, $this->connection->getConfiguration()->getSQLLogger());
     }
 
     /**
@@ -223,7 +226,7 @@ class ConnectionTest extends DbalTestCase
      */
     public function testIsAutoCommit()
     {
-        self::assertTrue($this->_conn->isAutoCommit());
+        self::assertTrue($this->connection->isAutoCommit());
     }
 
     /**
@@ -231,10 +234,10 @@ class ConnectionTest extends DbalTestCase
      */
     public function testSetAutoCommit()
     {
-        $this->_conn->setAutoCommit(false);
-        self::assertFalse($this->_conn->isAutoCommit());
-        $this->_conn->setAutoCommit(0);
-        self::assertFalse($this->_conn->isAutoCommit());
+        $this->connection->setAutoCommit(false);
+        self::assertFalse($this->connection->isAutoCommit());
+        $this->connection->setAutoCommit(0);
+        self::assertFalse($this->connection->isAutoCommit());
     }
 
     /**
@@ -242,7 +245,7 @@ class ConnectionTest extends DbalTestCase
      */
     public function testConnectStartsTransactionInNoAutoCommitMode()
     {
-        $driverMock = $this->createMock('Doctrine\DBAL\Driver');
+        $driverMock = $this->createMock(Driver::class);
         $driverMock->expects($this->any())
             ->method('connect')
             ->will($this->returnValue(
@@ -264,7 +267,7 @@ class ConnectionTest extends DbalTestCase
      */
     public function testCommitStartsTransactionInNoAutoCommitMode()
     {
-        $driverMock = $this->createMock('Doctrine\DBAL\Driver');
+        $driverMock = $this->createMock(Driver::class);
         $driverMock->expects($this->any())
             ->method('connect')
             ->will($this->returnValue(
@@ -284,7 +287,7 @@ class ConnectionTest extends DbalTestCase
      */
     public function testRollBackStartsTransactionInNoAutoCommitMode()
     {
-        $driverMock = $this->createMock('Doctrine\DBAL\Driver');
+        $driverMock = $this->createMock(Driver::class);
         $driverMock->expects($this->any())
             ->method('connect')
             ->will($this->returnValue(
@@ -304,7 +307,7 @@ class ConnectionTest extends DbalTestCase
      */
     public function testSwitchingAutoCommitModeCommitsAllCurrentTransactions()
     {
-        $driverMock = $this->createMock('Doctrine\DBAL\Driver');
+        $driverMock = $this->createMock(Driver::class);
         $driverMock->expects($this->any())
             ->method('connect')
             ->will($this->returnValue(
@@ -501,7 +504,7 @@ class ConnectionTest extends DbalTestCase
         $types     = [ParameterType::INTEGER];
         $result    = [];
 
-        $driverMock = $this->createMock('Doctrine\DBAL\Driver');
+        $driverMock = $this->createMock(Driver::class);
 
         $driverMock->expects($this->any())
             ->method('connect')
@@ -509,7 +512,7 @@ class ConnectionTest extends DbalTestCase
                 $this->createMock(DriverConnection::class)
             ));
 
-        $driverStatementMock = $this->createMock('Doctrine\Tests\Mocks\DriverStatementMock');
+        $driverStatementMock = $this->createMock(DriverStatementMock::class);
 
         $driverStatementMock->expects($this->once())
             ->method('fetch')
@@ -517,7 +520,7 @@ class ConnectionTest extends DbalTestCase
             ->will($this->returnValue($result));
 
         /** @var PHPUnit_Framework_MockObject_MockObject|Connection $conn */
-        $conn = $this->getMockBuilder('Doctrine\DBAL\Connection')
+        $conn = $this->getMockBuilder(Connection::class)
             ->setMethods(['executeQuery'])
             ->setConstructorArgs([['platform' => new Mocks\MockPlatform()], $driverMock])
             ->getMock();
@@ -537,7 +540,7 @@ class ConnectionTest extends DbalTestCase
         $types     = [ParameterType::INTEGER];
         $result    = [];
 
-        $driverMock = $this->createMock('Doctrine\DBAL\Driver');
+        $driverMock = $this->createMock(Driver::class);
 
         $driverMock->expects($this->any())
             ->method('connect')
@@ -545,7 +548,7 @@ class ConnectionTest extends DbalTestCase
                 $this->createMock(DriverConnection::class)
             ));
 
-        $driverStatementMock = $this->createMock('Doctrine\Tests\Mocks\DriverStatementMock');
+        $driverStatementMock = $this->createMock(DriverStatementMock::class);
 
         $driverStatementMock->expects($this->once())
             ->method('fetch')
@@ -553,7 +556,7 @@ class ConnectionTest extends DbalTestCase
             ->will($this->returnValue($result));
 
         /** @var PHPUnit_Framework_MockObject_MockObject|Connection $conn */
-        $conn = $this->getMockBuilder('Doctrine\DBAL\Connection')
+        $conn = $this->getMockBuilder(Connection::class)
             ->setMethods(['executeQuery'])
             ->setConstructorArgs([['platform' => new Mocks\MockPlatform()], $driverMock])
             ->getMock();
@@ -574,7 +577,7 @@ class ConnectionTest extends DbalTestCase
         $column    = 0;
         $result    = [];
 
-        $driverMock = $this->createMock('Doctrine\DBAL\Driver');
+        $driverMock = $this->createMock(Driver::class);
 
         $driverMock->expects($this->any())
             ->method('connect')
@@ -582,7 +585,7 @@ class ConnectionTest extends DbalTestCase
                 $this->createMock(DriverConnection::class)
             ));
 
-        $driverStatementMock = $this->createMock('Doctrine\Tests\Mocks\DriverStatementMock');
+        $driverStatementMock = $this->createMock(DriverStatementMock::class);
 
         $driverStatementMock->expects($this->once())
             ->method('fetchColumn')
@@ -590,7 +593,7 @@ class ConnectionTest extends DbalTestCase
             ->will($this->returnValue($result));
 
         /** @var PHPUnit_Framework_MockObject_MockObject|Connection $conn */
-        $conn = $this->getMockBuilder('Doctrine\DBAL\Connection')
+        $conn = $this->getMockBuilder(Connection::class)
             ->setMethods(['executeQuery'])
             ->setConstructorArgs([['platform' => new Mocks\MockPlatform()], $driverMock])
             ->getMock();
@@ -606,7 +609,7 @@ class ConnectionTest extends DbalTestCase
     public function testConnectionIsClosedButNotUnset()
     {
         // mock Connection, and make connect() purposefully do nothing
-        $connection = $this->getMockBuilder('Doctrine\DBAL\Connection')
+        $connection = $this->getMockBuilder(Connection::class)
             ->disableOriginalConstructor()
             ->setMethods(['connect'])
             ->getMock();
@@ -633,7 +636,7 @@ class ConnectionTest extends DbalTestCase
         $types     = [ParameterType::INTEGER];
         $result    = [];
 
-        $driverMock = $this->createMock('Doctrine\DBAL\Driver');
+        $driverMock = $this->createMock(Driver::class);
 
         $driverMock->expects($this->any())
             ->method('connect')
@@ -641,14 +644,14 @@ class ConnectionTest extends DbalTestCase
                 $this->createMock(DriverConnection::class)
             ));
 
-        $driverStatementMock = $this->createMock('Doctrine\Tests\Mocks\DriverStatementMock');
+        $driverStatementMock = $this->createMock(DriverStatementMock::class);
 
         $driverStatementMock->expects($this->once())
             ->method('fetchAll')
             ->will($this->returnValue($result));
 
         /** @var PHPUnit_Framework_MockObject_MockObject|Connection $conn */
-        $conn = $this->getMockBuilder('Doctrine\DBAL\Connection')
+        $conn = $this->getMockBuilder(Connection::class)
             ->setMethods(['executeQuery'])
             ->setConstructorArgs([['platform' => new Mocks\MockPlatform()], $driverMock])
             ->getMock();
@@ -665,7 +668,7 @@ class ConnectionTest extends DbalTestCase
     {
         $params['pdo'] = new stdClass();
 
-        $driverMock = $this->createMock('Doctrine\DBAL\Driver');
+        $driverMock = $this->createMock(Driver::class);
 
         $conn = new Connection($params, $driverMock);
 
@@ -676,7 +679,7 @@ class ConnectionTest extends DbalTestCase
     {
         $params['pdo'] = new stdClass();
 
-        $driverMock = $this->createMock('Doctrine\DBAL\Driver');
+        $driverMock = $this->createMock(Driver::class);
 
         $conn = new Connection($params, $driverMock);
 
@@ -686,8 +689,8 @@ class ConnectionTest extends DbalTestCase
     public function testCallingDeleteWithNoDeletionCriteriaResultsInInvalidArgumentException()
     {
         /** @var Driver $driver */
-        $driver  = $this->createMock('Doctrine\DBAL\Driver');
-        $pdoMock = $this->createMock('Doctrine\DBAL\Driver\Connection');
+        $driver  = $this->createMock(Driver::class);
+        $pdoMock = $this->createMock(\Doctrine\DBAL\Driver\Connection::class);
 
         // should never execute queries with invalid arguments
         $pdoMock->expects($this->never())->method('exec');
@@ -715,16 +718,16 @@ class ConnectionTest extends DbalTestCase
      */
     public function testCallConnectOnce($method, $params)
     {
-        $driverMock   = $this->createMock('Doctrine\DBAL\Driver');
-        $pdoMock      = $this->createMock('Doctrine\DBAL\Driver\Connection');
+        $driverMock   = $this->createMock(Driver::class);
+        $pdoMock      = $this->createMock(\Doctrine\DBAL\Driver\Connection::class);
         $platformMock = new Mocks\MockPlatform();
-        $stmtMock     = $this->createMock('Doctrine\DBAL\Driver\Statement');
+        $stmtMock     = $this->createMock(Statement::class);
 
         $pdoMock->expects($this->any())
             ->method('prepare')
             ->will($this->returnValue($stmtMock));
 
-        $conn = $this->getMockBuilder('Doctrine\DBAL\Connection')
+        $conn = $this->getMockBuilder(Connection::class)
             ->setConstructorArgs([['pdo' => $pdoMock, 'platform' => $platformMock], $driverMock])
             ->setMethods(['connect'])
             ->getMock();
@@ -740,13 +743,13 @@ class ConnectionTest extends DbalTestCase
     public function testPlatformDetectionIsTriggerOnlyOnceOnRetrievingPlatform()
     {
         /** @var VersionAwarePlatformDriverMock|PHPUnit_Framework_MockObject_MockObject $driverMock */
-        $driverMock = $this->createMock('Doctrine\Tests\Mocks\VersionAwarePlatformDriverMock');
+        $driverMock = $this->createMock(VersionAwarePlatformDriverMock::class);
 
         /** @var ServerInfoAwareConnectionMock|PHPUnit_Framework_MockObject_MockObject $driverConnectionMock */
-        $driverConnectionMock = $this->createMock('Doctrine\Tests\Mocks\ServerInfoAwareConnectionMock');
+        $driverConnectionMock = $this->createMock(ServerInfoAwareConnectionMock::class);
 
         /** @var AbstractPlatform|PHPUnit_Framework_MockObject_MockObject $platformMock */
-        $platformMock = $this->getMockForAbstractClass('Doctrine\DBAL\Platforms\AbstractPlatform');
+        $platformMock = $this->getMockForAbstractClass(AbstractPlatform::class);
 
         $connection = new Connection([], $driverMock);
 

@@ -30,7 +30,7 @@ class DbalPerformanceTestListener implements TestListener
         }
 
         // we identify perf tests by class, method, and dataset
-        $class = str_replace('Doctrine\Tests\DBAL\Performance\\', '', get_class($test));
+        $class = str_replace('\\Doctrine\\Tests\\DBAL\\Performance\\', '', get_class($test));
 
         if (! isset($this->timings[$class])) {
             $this->timings[$class] = [];

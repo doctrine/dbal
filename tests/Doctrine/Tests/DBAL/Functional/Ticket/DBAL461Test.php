@@ -2,6 +2,8 @@
 
 namespace Doctrine\Tests\DBAL\Functional\Ticket;
 
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\SQLServerSchemaManager;
 use Doctrine\DBAL\Types\DecimalType;
 use PHPUnit\Framework\TestCase;
@@ -14,8 +16,8 @@ class DBAL461Test extends TestCase
 {
     public function testIssue()
     {
-        $conn     = $this->createMock('Doctrine\DBAL\Connection');
-        $platform = $this->getMockForAbstractClass('Doctrine\DBAL\Platforms\AbstractPlatform');
+        $conn     = $this->createMock(Connection::class);
+        $platform = $this->getMockForAbstractClass(AbstractPlatform::class);
         $platform->registerDoctrineTypeMapping('numeric', 'decimal');
 
         $schemaManager = new SQLServerSchemaManager($conn, $platform);

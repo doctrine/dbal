@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DBAL\Mocks\MockPlatform;
 use Doctrine\Tests\DbalTestCase;
@@ -11,22 +12,22 @@ use function serialize;
 class ArrayTest extends DbalTestCase
 {
     /** @var AbstractPlatform */
-    protected $_platform;
+    private $platform;
 
     /** @var Type */
-    protected $_type;
+    private $type;
 
     protected function setUp()
     {
-        $this->_platform = new MockPlatform();
-        $this->_type     = Type::getType('array');
+        $this->platform = new MockPlatform();
+        $this->type     = Type::getType('array');
     }
 
     public function testArrayConvertsToDatabaseValue()
     {
         self::assertInternalType(
             'string',
-            $this->_type->convertToDatabaseValue([], $this->_platform)
+            $this->type->convertToDatabaseValue([], $this->platform)
         );
     }
 
@@ -34,20 +35,20 @@ class ArrayTest extends DbalTestCase
     {
         self::assertInternalType(
             'array',
-            $this->_type->convertToPHPValue(serialize([]), $this->_platform)
+            $this->type->convertToPHPValue(serialize([]), $this->platform)
         );
     }
 
     public function testConversionFailure()
     {
-        $this->expectException('Doctrine\DBAL\Types\ConversionException');
+        $this->expectException(ConversionException::class);
         $this->expectExceptionMessage("Could not convert database value to 'array' as an error was triggered by the unserialization: 'unserialize(): Error at offset 0 of 7 bytes'");
-        $this->_type->convertToPHPValue('abcdefg', $this->_platform);
+        $this->type->convertToPHPValue('abcdefg', $this->platform);
     }
 
     public function testNullConversion()
     {
-        self::assertNull($this->_type->convertToPHPValue(null, $this->_platform));
+        self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }
 
     /**
@@ -55,6 +56,6 @@ class ArrayTest extends DbalTestCase
      */
     public function testFalseConversion()
     {
-        self::assertFalse($this->_type->convertToPHPValue(serialize(false), $this->_platform));
+        self::assertFalse($this->type->convertToPHPValue(serialize(false), $this->platform));
     }
 }

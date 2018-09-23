@@ -5,6 +5,7 @@ namespace Doctrine\Tests\DBAL;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\SQLParserUtils;
+use Doctrine\DBAL\SQLParserUtilsException;
 use Doctrine\Tests\DbalTestCase;
 
 /**
@@ -460,7 +461,7 @@ SQLDATA
      */
     public function testExceptionIsThrownForMissingParam($query, $params, $types = [])
     {
-        $this->expectException('Doctrine\DBAL\SQLParserUtilsException');
+        $this->expectException(SQLParserUtilsException::class);
         $this->expectExceptionMessage('Value for :param not found in params array. Params array key should be "param"');
 
         SQLParserUtils::expandListParameters($query, $params, $types);

@@ -3,8 +3,10 @@
 namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\Common\EventManager;
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Comparator;
@@ -23,13 +25,13 @@ use function str_repeat;
 abstract class AbstractPlatformTestCase extends DbalTestCase
 {
     /** @var AbstractPlatform */
-    protected $_platform;
+    protected $platform;
 
     abstract public function createPlatform();
 
     protected function setUp()
     {
-        $this->_platform = $this->createPlatform();
+        $this->platform = $this->createPlatform();
     }
 
     /**
@@ -37,14 +39,14 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
      */
     public function testQuoteIdentifier()
     {
-        if ($this->_platform->getName() === 'mssql') {
+        if ($this->platform->getName() === 'mssql') {
             $this->markTestSkipped('Not working this way on mssql.');
         }
 
-        $c = $this->_platform->getIdentifierQuoteCharacter();
-        self::assertEquals($c . 'test' . $c, $this->_platform->quoteIdentifier('test'));
-        self::assertEquals($c . 'test' . $c . '.' . $c . 'test' . $c, $this->_platform->quoteIdentifier('test.test'));
-        self::assertEquals(str_repeat($c, 4), $this->_platform->quoteIdentifier($c));
+        $c = $this->platform->getIdentifierQuoteCharacter();
+        self::assertEquals($c . 'test' . $c, $this->platform->quoteIdentifier('test'));
+        self::assertEquals($c . 'test' . $c . '.' . $c . 'test' . $c, $this->platform->quoteIdentifier('test.test'));
+        self::assertEquals(str_repeat($c, 4), $this->platform->quoteIdentifier($c));
     }
 
     /**
@@ -52,14 +54,14 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
      */
     public function testQuoteSingleIdentifier()
     {
-        if ($this->_platform->getName() === 'mssql') {
+        if ($this->platform->getName() === 'mssql') {
             $this->markTestSkipped('Not working this way on mssql.');
         }
 
-        $c = $this->_platform->getIdentifierQuoteCharacter();
-        self::assertEquals($c . 'test' . $c, $this->_platform->quoteSingleIdentifier('test'));
-        self::assertEquals($c . 'test.test' . $c, $this->_platform->quoteSingleIdentifier('test.test'));
-        self::assertEquals(str_repeat($c, 4), $this->_platform->quoteSingleIdentifier($c));
+        $c = $this->platform->getIdentifierQuoteCharacter();
+        self::assertEquals($c . 'test' . $c, $this->platform->quoteSingleIdentifier('test'));
+        self::assertEquals($c . 'test.test' . $c, $this->platform->quoteSingleIdentifier('test.test'));
+        self::assertEquals(str_repeat($c, 4), $this->platform->quoteSingleIdentifier($c));
     }
 
     /**
@@ -68,11 +70,11 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
      */
     public function testReturnsForeignKeyReferentialActionSQL($action, $expectedSQL)
     {
-        self::assertSame($expectedSQL, $this->_platform->getForeignKeyReferentialActionSQL($action));
+        self::assertSame($expectedSQL, $this->platform->getForeignKeyReferentialActionSQL($action));
     }
 
     /**
-     * @return array
+     * @return string[][]
      */
     public function getReturnsForeignKeyReferentialActionSQL()
     {
@@ -89,25 +91,25 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
     public function testGetInvalidForeignKeyReferentialActionSQL()
     {
         $this->expectException('InvalidArgumentException');
-        $this->_platform->getForeignKeyReferentialActionSQL('unknown');
+        $this->platform->getForeignKeyReferentialActionSQL('unknown');
     }
 
     public function testGetUnknownDoctrineMappingType()
     {
-        $this->expectException('Doctrine\DBAL\DBALException');
-        $this->_platform->getDoctrineTypeMapping('foobar');
+        $this->expectException(DBALException::class);
+        $this->platform->getDoctrineTypeMapping('foobar');
     }
 
     public function testRegisterDoctrineMappingType()
     {
-        $this->_platform->registerDoctrineTypeMapping('foo', 'integer');
-        self::assertEquals('integer', $this->_platform->getDoctrineTypeMapping('foo'));
+        $this->platform->registerDoctrineTypeMapping('foo', 'integer');
+        self::assertEquals('integer', $this->platform->getDoctrineTypeMapping('foo'));
     }
 
     public function testRegisterUnknownDoctrineMappingType()
     {
-        $this->expectException('Doctrine\DBAL\DBALException');
-        $this->_platform->registerDoctrineTypeMapping('foo', 'bar');
+        $this->expectException(DBALException::class);
+        $this->platform->registerDoctrineTypeMapping('foo', 'bar');
     }
 
     /**
@@ -120,9 +122,9 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         }
 
         $type = Type::getType('my_commented');
-        $this->_platform->registerDoctrineTypeMapping('foo', 'my_commented');
+        $this->platform->registerDoctrineTypeMapping('foo', 'my_commented');
 
-        self::assertTrue($this->_platform->isCommentedDoctrineType($type));
+        self::assertTrue($this->platform->isCommentedDoctrineType($type));
     }
 
     /**
@@ -131,7 +133,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
      */
     public function testIsCommentedDoctrineType(Type $type, $commented)
     {
-        self::assertSame($commented, $this->_platform->isCommentedDoctrineType($type));
+        self::assertSame($commented, $this->platform->isCommentedDoctrineType($type));
     }
 
     public function getIsCommentedDoctrineType()
@@ -145,7 +147,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
 
             $data[$typeName] = [
                 $type,
-                $type->requiresSQLCommentHint($this->_platform),
+                $type->requiresSQLCommentHint($this->platform),
             ];
         }
 
@@ -156,8 +158,8 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
     {
         $table = new Table('test');
 
-        $this->expectException('Doctrine\DBAL\DBALException');
-        $sql = $this->_platform->getCreateTableSQL($table);
+        $this->expectException(DBALException::class);
+        $sql = $this->platform->getCreateTableSQL($table);
     }
 
     public function testGeneratesTableCreationSql()
@@ -167,7 +169,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         $table->addColumn('test', 'string', ['notnull' => false, 'length' => 255]);
         $table->setPrimaryKey(['id']);
 
-        $sql = $this->_platform->getCreateTableSQL($table);
+        $sql = $this->platform->getCreateTableSQL($table);
         self::assertEquals($this->getGenerateTableSql(), $sql[0]);
     }
 
@@ -180,7 +182,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         $table->addColumn('bar', 'string', ['notnull' => false, 'length' => 255]);
         $table->addUniqueIndex(['foo', 'bar']);
 
-        $sql = $this->_platform->getCreateTableSQL($table);
+        $sql = $this->platform->getCreateTableSQL($table);
         self::assertEquals($this->getGenerateTableWithMultiColumnUniqueIndexSql(), $sql);
     }
 
@@ -192,7 +194,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
 
         self::assertEquals(
             $this->getGenerateIndexSql(),
-            $this->_platform->getCreateIndexSQL($indexDef, 'mytable')
+            $this->platform->getCreateIndexSQL($indexDef, 'mytable')
         );
     }
 
@@ -202,7 +204,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
     {
         $indexDef = new Index('index_name', ['test', 'test2'], true);
 
-        $sql = $this->_platform->getCreateIndexSQL($indexDef, 'test');
+        $sql = $this->platform->getCreateIndexSQL($indexDef, 'test');
         self::assertEquals($this->getGenerateUniqueIndexSql(), $sql);
     }
 
@@ -219,14 +221,14 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         $actuals = [];
 
         if ($this->supportsInlineIndexDeclaration()) {
-            $actuals[] = $this->_platform->getIndexDeclarationSQL('name', $indexDef);
+            $actuals[] = $this->platform->getIndexDeclarationSQL('name', $indexDef);
         }
 
-        $actuals[] = $this->_platform->getUniqueConstraintDeclarationSQL('name', $uniqueIndex);
-        $actuals[] = $this->_platform->getCreateIndexSQL($indexDef, 'table');
+        $actuals[] = $this->platform->getUniqueConstraintDeclarationSQL('name', $uniqueIndex);
+        $actuals[] = $this->platform->getCreateIndexSQL($indexDef, 'table');
 
         foreach ($actuals as $actual) {
-            if ($this->_platform->supportsPartialIndexes()) {
+            if ($this->platform->supportsPartialIndexes()) {
                 self::assertStringEndsWith($expected, $actual, 'WHERE clause should be present');
             } else {
                 self::assertStringEndsNotWith($expected, $actual, 'WHERE clause should NOT be present');
@@ -238,7 +240,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
     {
         $fk = new ForeignKeyConstraint(['fk_name_id'], 'other_table', ['id'], '');
 
-        $sql = $this->_platform->getCreateForeignKeySQL($fk, 'test');
+        $sql = $this->platform->getCreateForeignKeySQL($fk, 'test');
         self::assertEquals($sql, $this->getGenerateForeignKeySql());
     }
 
@@ -247,15 +249,15 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
     public function testGeneratesConstraintCreationSql()
     {
         $idx = new Index('constraint_name', ['test'], true, false);
-        $sql = $this->_platform->getCreateConstraintSQL($idx, 'test');
+        $sql = $this->platform->getCreateConstraintSQL($idx, 'test');
         self::assertEquals($this->getGenerateConstraintUniqueIndexSql(), $sql);
 
         $pk  = new Index('constraint_name', ['test'], true, true);
-        $sql = $this->_platform->getCreateConstraintSQL($pk, 'test');
+        $sql = $this->platform->getCreateConstraintSQL($pk, 'test');
         self::assertEquals($this->getGenerateConstraintPrimaryIndexSql(), $sql);
 
         $fk  = new ForeignKeyConstraint(['fk_name'], 'foreign', ['id'], 'constraint_fk');
-        $sql = $this->_platform->getCreateConstraintSQL($fk, 'test');
+        $sql = $this->platform->getCreateConstraintSQL($fk, 'test');
         self::assertEquals($this->getGenerateConstraintForeignKeySql($fk), $sql);
     }
 
@@ -263,14 +265,14 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
     {
         $fk = new ForeignKeyConstraint(['fk_name'], 'foreign', ['id'], 'constraint_fk');
 
-        if ($this->_platform->supportsForeignKeyConstraints()) {
+        if ($this->platform->supportsForeignKeyConstraints()) {
             self::assertInternalType(
                 'string',
-                $this->_platform->getCreateForeignKeySQL($fk, 'test')
+                $this->platform->getCreateForeignKeySQL($fk, 'test')
             );
         } else {
-            $this->expectException('Doctrine\DBAL\DBALException');
-            $this->_platform->getCreateForeignKeySQL($fk, 'test');
+            $this->expectException(DBALException::class);
+            $this->platform->getCreateForeignKeySQL($fk, 'test');
         }
     }
 
@@ -284,7 +286,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
      */
     public function testGeneratesBitAndComparisonExpressionSql()
     {
-        $sql = $this->_platform->getBitAndComparisonExpression(2, 4);
+        $sql = $this->platform->getBitAndComparisonExpression(2, 4);
         self::assertEquals($this->getBitAndComparisonExpressionSql(2, 4), $sql);
     }
 
@@ -298,7 +300,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
      */
     public function testGeneratesBitOrComparisonExpressionSql()
     {
-        $sql = $this->_platform->getBitOrComparisonExpression(2, 4);
+        $sql = $this->platform->getBitOrComparisonExpression(2, 4);
         self::assertEquals($this->getBitOrComparisonExpressionSql(2, 4), $sql);
     }
 
@@ -314,9 +316,12 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
 
     public function getGenerateConstraintForeignKeySql(ForeignKeyConstraint $fk)
     {
-        $quotedForeignTable = $fk->getQuotedForeignTableName($this->_platform);
+        $quotedForeignTable = $fk->getQuotedForeignTableName($this->platform);
 
-        return "ALTER TABLE test ADD CONSTRAINT constraint_fk FOREIGN KEY (fk_name) REFERENCES $quotedForeignTable (id)";
+        return sprintf(
+            'ALTER TABLE test ADD CONSTRAINT constraint_fk FOREIGN KEY (fk_name) REFERENCES %s (id)',
+            $quotedForeignTable
+        );
     }
 
     abstract public function getGenerateAlterTableSql();
@@ -356,7 +361,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
             ['type', 'notnull', 'default']
         );
 
-        $sql = $this->_platform->getAlterTableSQL($tableDiff);
+        $sql = $this->platform->getAlterTableSQL($tableDiff);
 
         self::assertEquals($expectedSql, $sql);
     }
@@ -364,7 +369,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
     public function testGetCustomColumnDeclarationSql()
     {
         $field = ['columnDefinition' => 'MEDIUMINT(6) UNSIGNED'];
-        self::assertEquals('foo MEDIUMINT(6) UNSIGNED', $this->_platform->getColumnDeclarationSQL('foo', $field));
+        self::assertEquals('foo MEDIUMINT(6) UNSIGNED', $this->platform->getColumnDeclarationSQL('foo', $field));
     }
 
     public function testGetCreateTableSqlDispatchEvent()
@@ -382,13 +387,13 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         $eventManager = new EventManager();
         $eventManager->addEventListener([Events::onSchemaCreateTable, Events::onSchemaCreateTableColumn], $listenerMock);
 
-        $this->_platform->setEventManager($eventManager);
+        $this->platform->setEventManager($eventManager);
 
         $table = new Table('test');
         $table->addColumn('foo', 'string', ['notnull' => false, 'length' => 255]);
         $table->addColumn('bar', 'string', ['notnull' => false, 'length' => 255]);
 
-        $this->_platform->getCreateTableSQL($table);
+        $this->platform->getCreateTableSQL($table);
     }
 
     public function testGetDropTableSqlDispatchEvent()
@@ -403,9 +408,9 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         $eventManager = new EventManager();
         $eventManager->addEventListener([Events::onSchemaDropTable], $listenerMock);
 
-        $this->_platform->setEventManager($eventManager);
+        $this->platform->setEventManager($eventManager);
 
-        $this->_platform->getDropTableSQL('TABLE');
+        $this->platform->getDropTableSQL('TABLE');
     }
 
     public function testGetAlterTableSqlDispatchEvent()
@@ -447,7 +452,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         ];
         $eventManager->addEventListener($events, $listenerMock);
 
-        $this->_platform->setEventManager($eventManager);
+        $this->platform->setEventManager($eventManager);
 
         $table = new Table('mytable');
         $table->addColumn('removed', 'integer');
@@ -469,7 +474,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         );
         $tableDiff->renamedColumns['renamed'] = new Column('renamed2', Type::getType('integer'), []);
 
-        $this->_platform->getAlterTableSQL($tableDiff);
+        $this->platform->getAlterTableSQL($tableDiff);
     }
 
     /**
@@ -481,7 +486,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         $table->addColumn('id', 'integer', ['comment' => 'This is a comment']);
         $table->setPrimaryKey(['id']);
 
-        self::assertEquals($this->getCreateTableColumnCommentsSQL(), $this->_platform->getCreateTableSQL($table));
+        self::assertEquals($this->getCreateTableColumnCommentsSQL(), $this->platform->getCreateTableSQL($table));
     }
 
     /**
@@ -509,7 +514,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
             ['comment']
         );
 
-        self::assertEquals($this->getAlterTableColumnCommentsSQL(), $this->_platform->getAlterTableSQL($tableDiff));
+        self::assertEquals($this->getAlterTableColumnCommentsSQL(), $this->platform->getAlterTableSQL($tableDiff));
     }
 
     public function testCreateTableColumnTypeComments()
@@ -519,7 +524,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         $table->addColumn('data', 'array');
         $table->setPrimaryKey(['id']);
 
-        self::assertEquals($this->getCreateTableColumnTypeCommentsSQL(), $this->_platform->getCreateTableSQL($table));
+        self::assertEquals($this->getCreateTableColumnTypeCommentsSQL(), $this->platform->getCreateTableSQL($table));
     }
 
     public function getCreateTableColumnCommentsSQL()
@@ -545,7 +550,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
             'default' => 'non_timestamp',
         ];
 
-        self::assertEquals(" DEFAULT 'non_timestamp'", $this->_platform->getDefaultValueDeclarationSQL($field));
+        self::assertEquals(" DEFAULT 'non_timestamp'", $this->platform->getDefaultValueDeclarationSQL($field));
     }
 
     /**
@@ -557,12 +562,12 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         foreach (['datetime', 'datetimetz', 'datetime_immutable', 'datetimetz_immutable'] as $type) {
             $field = [
                 'type'    => Type::getType($type),
-                'default' => $this->_platform->getCurrentTimestampSQL(),
+                'default' => $this->platform->getCurrentTimestampSQL(),
             ];
 
             self::assertSame(
-                ' DEFAULT ' . $this->_platform->getCurrentTimestampSQL(),
-                $this->_platform->getDefaultValueDeclarationSQL($field)
+                ' DEFAULT ' . $this->platform->getCurrentTimestampSQL(),
+                $this->platform->getDefaultValueDeclarationSQL($field)
             );
         }
     }
@@ -577,7 +582,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
 
             self::assertEquals(
                 ' DEFAULT 1',
-                $this->_platform->getDefaultValueDeclarationSQL($field)
+                $this->platform->getDefaultValueDeclarationSQL($field)
             );
         }
     }
@@ -587,7 +592,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
      */
     public function testGetDefaultValueDeclarationSQLForDateType() : void
     {
-        $currentDateSql = $this->_platform->getCurrentDateSQL();
+        $currentDateSql = $this->platform->getCurrentDateSQL();
         foreach (['date', 'date_immutable'] as $type) {
             $field = [
                 'type'    => Type::getType($type),
@@ -596,7 +601,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
 
             self::assertSame(
                 ' DEFAULT ' . $currentDateSql,
-                $this->_platform->getDefaultValueDeclarationSQL($field)
+                $this->platform->getDefaultValueDeclarationSQL($field)
             );
         }
     }
@@ -606,8 +611,8 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
      */
     public function testKeywordList()
     {
-        $keywordList = $this->_platform->getReservedKeywordsList();
-        self::assertInstanceOf('Doctrine\DBAL\Platforms\Keywords\KeywordList', $keywordList);
+        $keywordList = $this->platform->getReservedKeywordsList();
+        self::assertInstanceOf(KeywordList::class, $keywordList);
 
         self::assertTrue($keywordList->isKeyword('table'));
     }
@@ -621,7 +626,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         $table->addColumn('create', 'string');
         $table->setPrimaryKey(['create']);
 
-        $sql = $this->_platform->getCreateTableSQL($table);
+        $sql = $this->platform->getCreateTableSQL($table);
         self::assertEquals($this->getQuotedColumnInPrimaryKeySQL(), $sql);
     }
 
@@ -639,7 +644,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         $table->addColumn('create', 'string');
         $table->addIndex(['create']);
 
-        $sql = $this->_platform->getCreateTableSQL($table);
+        $sql = $this->platform->getCreateTableSQL($table);
         self::assertEquals($this->getQuotedColumnInIndexSQL(), $sql);
     }
 
@@ -649,7 +654,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         $table->addColumn('column1', 'string');
         $table->addIndex(['column1'], '`key`');
 
-        $sql = $this->_platform->getCreateTableSQL($table);
+        $sql = $this->platform->getCreateTableSQL($table);
         self::assertEquals($this->getQuotedNameInIndexSQL(), $sql);
     }
 
@@ -687,7 +692,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
 
         $table->addForeignKeyConstraint($foreignTable, ['create', 'foo', '`bar`'], ['create', 'bar', '`foo-bar`'], [], 'FK_WITH_INTENDED_QUOTATION');
 
-        $sql = $this->_platform->getCreateTableSQL($table, AbstractPlatform::CREATE_FOREIGNKEYS);
+        $sql = $this->platform->getCreateTableSQL($table, AbstractPlatform::CREATE_FOREIGNKEYS);
         self::assertEquals($this->getQuotedColumnInForeignKeySQL(), $sql);
     }
 
@@ -700,7 +705,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
 
         self::assertSame(
             $this->getQuotesReservedKeywordInUniqueConstraintDeclarationSQL(),
-            $this->_platform->getUniqueConstraintDeclarationSQL('select', $index)
+            $this->platform->getUniqueConstraintDeclarationSQL('select', $index)
         );
     }
 
@@ -716,7 +721,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
     {
         self::assertSame(
             $this->getQuotesReservedKeywordInTruncateTableSQL(),
-            $this->_platform->getTruncateTableSQL('select')
+            $this->platform->getTruncateTableSQL('select')
         );
     }
 
@@ -733,12 +738,12 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         $index = new Index('select', ['foo']);
 
         if (! $this->supportsInlineIndexDeclaration()) {
-            $this->expectException('Doctrine\DBAL\DBALException');
+            $this->expectException(DBALException::class);
         }
 
         self::assertSame(
             $this->getQuotesReservedKeywordInIndexDeclarationSQL(),
-            $this->_platform->getIndexDeclarationSQL('select', $index)
+            $this->platform->getIndexDeclarationSQL('select', $index)
         );
     }
 
@@ -757,7 +762,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
 
     public function testSupportsCommentOnStatement()
     {
-        self::assertSame($this->supportsCommentOnStatement(), $this->_platform->supportsCommentOnStatement());
+        self::assertSame($this->supportsCommentOnStatement(), $this->platform->supportsCommentOnStatement());
     }
 
     /**
@@ -773,7 +778,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
      */
     public function testGetCreateSchemaSQL()
     {
-        $this->_platform->getCreateSchemaSQL('schema');
+        $this->platform->getCreateSchemaSQL('schema');
     }
 
     /**
@@ -793,8 +798,8 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         );
 
         self::assertContains(
-            $this->_platform->quoteIdentifier('select'),
-            implode(';', $this->_platform->getAlterTableSQL($tableDiff))
+            $this->platform->quoteIdentifier('select'),
+            implode(';', $this->platform->getAlterTableSQL($tableDiff))
         );
     }
 
@@ -803,7 +808,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
      */
     public function testUsesSequenceEmulatedIdentityColumns()
     {
-        self::assertFalse($this->_platform->usesSequenceEmulatedIdentityColumns());
+        self::assertFalse($this->platform->usesSequenceEmulatedIdentityColumns());
     }
 
     /**
@@ -812,12 +817,12 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
      */
     public function testReturnsIdentitySequenceName()
     {
-        $this->_platform->getIdentitySequenceName('mytable', 'mycolumn');
+        $this->platform->getIdentitySequenceName('mytable', 'mycolumn');
     }
 
     public function testReturnsBinaryDefaultLength()
     {
-        self::assertSame($this->getBinaryDefaultLength(), $this->_platform->getBinaryDefaultLength());
+        self::assertSame($this->getBinaryDefaultLength(), $this->platform->getBinaryDefaultLength());
     }
 
     protected function getBinaryDefaultLength()
@@ -827,7 +832,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
 
     public function testReturnsBinaryMaxLength()
     {
-        self::assertSame($this->getBinaryMaxLength(), $this->_platform->getBinaryMaxLength());
+        self::assertSame($this->getBinaryMaxLength(), $this->platform->getBinaryMaxLength());
     }
 
     protected function getBinaryMaxLength()
@@ -840,7 +845,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
      */
     public function testReturnsBinaryTypeDeclarationSQL()
     {
-        $this->_platform->getBinaryTypeDeclarationSQL([]);
+        $this->platform->getBinaryTypeDeclarationSQL([]);
     }
 
     public function testReturnsBinaryTypeLongerThanMaxDeclarationSQL()
@@ -853,7 +858,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
      */
     public function hasNativeJsonType()
     {
-        self::assertFalse($this->_platform->hasNativeJsonType());
+        self::assertFalse($this->platform->hasNativeJsonType());
     }
 
     /**
@@ -868,8 +873,8 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         ];
 
         self::assertSame(
-            $this->_platform->getClobTypeDeclarationSQL($column),
-            $this->_platform->getJsonTypeDeclarationSQL($column)
+            $this->platform->getClobTypeDeclarationSQL($column),
+            $this->platform->getJsonTypeDeclarationSQL($column)
         );
     }
 
@@ -888,7 +893,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
 
         self::assertSame(
             $this->getAlterTableRenameIndexSQL(),
-            $this->_platform->getAlterTableSQL($tableDiff)
+            $this->platform->getAlterTableSQL($tableDiff)
         );
     }
 
@@ -919,7 +924,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
 
         self::assertSame(
             $this->getQuotedAlterTableRenameIndexSQL(),
-            $this->_platform->getAlterTableSQL($tableDiff)
+            $this->platform->getAlterTableSQL($tableDiff)
         );
     }
 
@@ -973,14 +978,14 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
 
         self::assertEquals(
             $this->getQuotedAlterTableRenameColumnSQL(),
-            $this->_platform->getAlterTableSQL($comparator->diffTable($fromTable, $toTable))
+            $this->platform->getAlterTableSQL($comparator->diffTable($fromTable, $toTable))
         );
     }
 
     /**
      * Returns SQL statements for {@link testQuotesAlterTableRenameColumn}.
      *
-     * @return array
+     * @return string[]
      *
      * @group DBAL-835
      */
@@ -1015,14 +1020,14 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
 
         self::assertEquals(
             $this->getQuotedAlterTableChangeColumnLengthSQL(),
-            $this->_platform->getAlterTableSQL($comparator->diffTable($fromTable, $toTable))
+            $this->platform->getAlterTableSQL($comparator->diffTable($fromTable, $toTable))
         );
     }
 
     /**
      * Returns SQL statements for {@link testQuotesAlterTableChangeColumnLength}.
      *
-     * @return array
+     * @return string[]
      *
      * @group DBAL-835
      */
@@ -1043,7 +1048,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
 
         self::assertSame(
             $this->getAlterTableRenameIndexInSchemaSQL(),
-            $this->_platform->getAlterTableSQL($tableDiff)
+            $this->platform->getAlterTableSQL($tableDiff)
         );
     }
 
@@ -1074,7 +1079,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
 
         self::assertSame(
             $this->getQuotedAlterTableRenameIndexInSchemaSQL(),
-            $this->_platform->getAlterTableSQL($tableDiff)
+            $this->platform->getAlterTableSQL($tableDiff)
         );
     }
 
@@ -1096,9 +1101,9 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
      */
     public function testQuotesDropForeignKeySQL()
     {
-        if (! $this->_platform->supportsForeignKeyConstraints()) {
+        if (! $this->platform->supportsForeignKeyConstraints()) {
             $this->markTestSkipped(
-                sprintf('%s does not support foreign key constraints.', get_class($this->_platform))
+                sprintf('%s does not support foreign key constraints.', get_class($this->platform))
             );
         }
 
@@ -1108,8 +1113,8 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         $foreignKey     = new ForeignKeyConstraint([], 'foo', [], 'select');
         $expectedSql    = $this->getQuotesDropForeignKeySQL();
 
-        self::assertSame($expectedSql, $this->_platform->getDropForeignKeySQL($foreignKeyName, $tableName));
-        self::assertSame($expectedSql, $this->_platform->getDropForeignKeySQL($foreignKey, $table));
+        self::assertSame($expectedSql, $this->platform->getDropForeignKeySQL($foreignKeyName, $tableName));
+        self::assertSame($expectedSql, $this->platform->getDropForeignKeySQL($foreignKey, $table));
     }
 
     protected function getQuotesDropForeignKeySQL()
@@ -1128,8 +1133,8 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         $constraint     = new ForeignKeyConstraint([], 'foo', [], 'select');
         $expectedSql    = $this->getQuotesDropConstraintSQL();
 
-        self::assertSame($expectedSql, $this->_platform->getDropConstraintSQL($constraintName, $tableName));
-        self::assertSame($expectedSql, $this->_platform->getDropConstraintSQL($constraint, $table));
+        self::assertSame($expectedSql, $this->platform->getDropConstraintSQL($constraintName, $tableName));
+        self::assertSame($expectedSql, $this->platform->getDropConstraintSQL($constraint, $table));
     }
 
     protected function getQuotesDropConstraintSQL()
@@ -1144,7 +1149,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
 
     public function testGetStringLiteralQuoteCharacter()
     {
-        self::assertSame($this->getStringLiteralQuoteCharacter(), $this->_platform->getStringLiteralQuoteCharacter());
+        self::assertSame($this->getStringLiteralQuoteCharacter(), $this->platform->getStringLiteralQuoteCharacter());
     }
 
     protected function getQuotedCommentOnColumnSQLWithoutQuoteCharacter()
@@ -1156,7 +1161,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
     {
         self::assertEquals(
             $this->getQuotedCommentOnColumnSQLWithoutQuoteCharacter(),
-            $this->_platform->getCommentOnColumnSQL('mytable', 'id', 'This is a comment')
+            $this->platform->getCommentOnColumnSQL('mytable', 'id', 'This is a comment')
         );
     }
 
@@ -1171,14 +1176,14 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
 
         self::assertEquals(
             $this->getQuotedCommentOnColumnSQLWithQuoteCharacter(),
-            $this->_platform->getCommentOnColumnSQL('mytable', 'id', 'It' . $c . 's a quote !')
+            $this->platform->getCommentOnColumnSQL('mytable', 'id', 'It' . $c . 's a quote !')
         );
     }
 
     /**
      * @see testGetCommentOnColumnSQL
      *
-     * @return array
+     * @return string[]
      */
     abstract protected function getCommentOnColumnSQL();
 
@@ -1190,9 +1195,9 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         self::assertSame(
             $this->getCommentOnColumnSQL(),
             [
-                $this->_platform->getCommentOnColumnSQL('foo', 'bar', 'comment'), // regular identifiers
-                $this->_platform->getCommentOnColumnSQL('`Foo`', '`BAR`', 'comment'), // explicitly quoted identifiers
-                $this->_platform->getCommentOnColumnSQL('select', 'from', 'comment'), // reserved keyword identifiers
+                $this->platform->getCommentOnColumnSQL('foo', 'bar', 'comment'), // regular identifiers
+                $this->platform->getCommentOnColumnSQL('`Foo`', '`BAR`', 'comment'), // explicitly quoted identifiers
+                $this->platform->getCommentOnColumnSQL('select', 'from', 'comment'), // reserved keyword identifiers
             ]
         );
     }
@@ -1203,11 +1208,11 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
      */
     public function testGeneratesInlineColumnCommentSQL($comment, $expectedSql)
     {
-        if (! $this->_platform->supportsInlineColumnComments()) {
-            $this->markTestSkipped(sprintf('%s does not support inline column comments.', get_class($this->_platform)));
+        if (! $this->platform->supportsInlineColumnComments()) {
+            $this->markTestSkipped(sprintf('%s does not support inline column comments.', get_class($this->platform)));
         }
 
-        self::assertSame($expectedSql, $this->_platform->getInlineColumnCommentSQL($comment));
+        self::assertSame($expectedSql, $this->platform->getInlineColumnCommentSQL($comment));
     }
 
     public function getGeneratesInlineColumnCommentSQL()
@@ -1265,15 +1270,15 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
      */
     public function testThrowsExceptionOnGeneratingInlineColumnCommentSQLIfUnsupported()
     {
-        if ($this->_platform->supportsInlineColumnComments()) {
-            $this->markTestSkipped(sprintf('%s supports inline column comments.', get_class($this->_platform)));
+        if ($this->platform->supportsInlineColumnComments()) {
+            $this->markTestSkipped(sprintf('%s supports inline column comments.', get_class($this->platform)));
         }
 
-        $this->expectException('Doctrine\DBAL\DBALException');
+        $this->expectException(DBALException::class);
         $this->expectExceptionMessage("Operation 'Doctrine\\DBAL\\Platforms\\AbstractPlatform::getInlineColumnCommentSQL' is not supported by platform.");
         $this->expectExceptionCode(0);
 
-        $this->_platform->getInlineColumnCommentSQL('unsupported');
+        $this->platform->getInlineColumnCommentSQL('unsupported');
     }
 
     public function testQuoteStringLiteral()
@@ -1282,15 +1287,15 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
 
         self::assertEquals(
             $this->getQuotedStringLiteralWithoutQuoteCharacter(),
-            $this->_platform->quoteStringLiteral('No quote')
+            $this->platform->quoteStringLiteral('No quote')
         );
         self::assertEquals(
             $this->getQuotedStringLiteralWithQuoteCharacter(),
-            $this->_platform->quoteStringLiteral('It' . $c . 's a quote')
+            $this->platform->quoteStringLiteral('It' . $c . 's a quote')
         );
         self::assertEquals(
             $this->getQuotedStringLiteralQuoteCharacter(),
-            $this->_platform->quoteStringLiteral($c)
+            $this->platform->quoteStringLiteral($c)
         );
     }
 
@@ -1300,7 +1305,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
      */
     public function testReturnsGuidTypeDeclarationSQL()
     {
-        $this->_platform->getGuidTypeDeclarationSQL([]);
+        $this->platform->getGuidTypeDeclarationSQL([]);
     }
 
     /**
@@ -1323,11 +1328,11 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
             ['notnull' => true, 'default' => 666, 'comment' => 'rename test']
         );
 
-        self::assertSame($this->getAlterTableRenameColumnSQL(), $this->_platform->getAlterTableSQL($tableDiff));
+        self::assertSame($this->getAlterTableRenameColumnSQL(), $this->platform->getAlterTableSQL($tableDiff));
     }
 
     /**
-     * @return array
+     * @return string[]
      */
     abstract public function getAlterTableRenameColumnSQL();
 
@@ -1364,12 +1369,12 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
 
         self::assertSame(
             $this->getQuotesTableIdentifiersInAlterTableSQL(),
-            $this->_platform->getAlterTableSQL($tableDiff)
+            $this->platform->getAlterTableSQL($tableDiff)
         );
     }
 
     /**
-     * @return array
+     * @return string[]
      */
     abstract protected function getQuotesTableIdentifiersInAlterTableSQL();
 
@@ -1394,7 +1399,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
             ['fixed']
         );
 
-        $sql = $this->_platform->getAlterTableSQL($tableDiff);
+        $sql = $this->platform->getAlterTableSQL($tableDiff);
 
         $expectedSql = $this->getAlterStringToFixedStringSQL();
 
@@ -1402,7 +1407,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
     }
 
     /**
-     * @return array
+     * @return string[]
      */
     abstract protected function getAlterStringToFixedStringSQL();
 
@@ -1430,26 +1435,28 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
 
         self::assertSame(
             $this->getGeneratesAlterTableRenameIndexUsedByForeignKeySQL(),
-            $this->_platform->getAlterTableSQL($tableDiff)
+            $this->platform->getAlterTableSQL($tableDiff)
         );
     }
 
     /**
-     * @return array
+     * @return string[]
      */
     abstract protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL();
 
     /**
+     * @param mixed[] $column
+     *
      * @group DBAL-1082
      * @dataProvider getGeneratesDecimalTypeDeclarationSQL
      */
     public function testGeneratesDecimalTypeDeclarationSQL(array $column, $expectedSql)
     {
-        self::assertSame($expectedSql, $this->_platform->getDecimalTypeDeclarationSQL($column));
+        self::assertSame($expectedSql, $this->platform->getDecimalTypeDeclarationSQL($column));
     }
 
     /**
-     * @return array
+     * @return mixed[]
      */
     public function getGeneratesDecimalTypeDeclarationSQL()
     {
@@ -1464,16 +1471,18 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
     }
 
     /**
+     * @param mixed[] $column
+     *
      * @group DBAL-1082
      * @dataProvider getGeneratesFloatDeclarationSQL
      */
     public function testGeneratesFloatDeclarationSQL(array $column, $expectedSql)
     {
-        self::assertSame($expectedSql, $this->_platform->getFloatDeclarationSQL($column));
+        self::assertSame($expectedSql, $this->platform->getFloatDeclarationSQL($column));
     }
 
     /**
-     * @return array
+     * @return mixed[]
      */
     public function getGeneratesFloatDeclarationSQL()
     {
@@ -1491,7 +1500,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
     {
         self::assertSame(
             '\_25\% off\_ your next purchase \\\\o/',
-            $this->_platform->escapeStringForLike('_25% off_ your next purchase \o/', '\\')
+            $this->platform->escapeStringForLike('_25% off_ your next purchase \o/', '\\')
         );
     }
 
@@ -1501,7 +1510,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
 
         self::assertSame(
             $query,
-            $this->_platform->modifyLimitQuery($query, null, 0)
+            $this->platform->modifyLimitQuery($query, null, 0)
         );
     }
 }

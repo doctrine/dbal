@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Types\BinaryType;
 
 class DrizzleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
@@ -16,14 +17,14 @@ class DrizzleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('column_binary', 'binary', ['fixed' => true]);
         $table->setPrimaryKey(['id']);
 
-        $this->_sm->createTable($table);
+        $this->schemaManager->createTable($table);
 
-        $table = $this->_sm->listTableDetails($tableName);
+        $table = $this->schemaManager->listTableDetails($tableName);
 
-        self::assertInstanceOf('Doctrine\DBAL\Types\BinaryType', $table->getColumn('column_varbinary')->getType());
+        self::assertInstanceOf(BinaryType::class, $table->getColumn('column_varbinary')->getType());
         self::assertFalse($table->getColumn('column_varbinary')->getFixed());
 
-        self::assertInstanceOf('Doctrine\DBAL\Types\BinaryType', $table->getColumn('column_binary')->getType());
+        self::assertInstanceOf(BinaryType::class, $table->getColumn('column_binary')->getType());
         self::assertFalse($table->getColumn('column_binary')->getFixed());
     }
 
@@ -35,9 +36,9 @@ class DrizzleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('text', 'text');
         $table->addColumn('foo', 'text')->setPlatformOption('collation', 'utf8_swedish_ci');
         $table->addColumn('bar', 'text')->setPlatformOption('collation', 'utf8_general_ci');
-        $this->_sm->dropAndCreateTable($table);
+        $this->schemaManager->dropAndCreateTable($table);
 
-        $columns = $this->_sm->listTableColumns('test_collation');
+        $columns = $this->schemaManager->listTableColumns('test_collation');
 
         self::assertArrayNotHasKey('collation', $columns['id']->getPlatformOptions());
         self::assertEquals('utf8_unicode_ci', $columns['text']->getPlatformOption('collation'));

@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Driver\PDOPgSql;
 
+use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\Driver\PDOPgSql\Driver;
 use Doctrine\Tests\DBAL\Driver\AbstractPostgreSQLDriverTest;
 use PDO;
@@ -32,7 +33,7 @@ class DriverTest extends AbstractPostgreSQLDriverTest
             $GLOBALS['db_password']
         );
 
-        self::assertInstanceOf('Doctrine\DBAL\Driver\PDOConnection', $connection);
+        self::assertInstanceOf(PDOConnection::class, $connection);
 
         try {
             self::assertTrue($connection->getAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES));
@@ -59,7 +60,7 @@ class DriverTest extends AbstractPostgreSQLDriverTest
             [PDO::PGSQL_ATTR_DISABLE_PREPARES => false]
         );
 
-        self::assertInstanceOf('Doctrine\DBAL\Driver\PDOConnection', $connection);
+        self::assertInstanceOf(PDOConnection::class, $connection);
 
         try {
             self::assertNotSame(true, $connection->getAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES));
@@ -86,7 +87,7 @@ class DriverTest extends AbstractPostgreSQLDriverTest
             [PDO::PGSQL_ATTR_DISABLE_PREPARES => true]
         );
 
-        self::assertInstanceOf('Doctrine\DBAL\Driver\PDOConnection', $connection);
+        self::assertInstanceOf(PDOConnection::class, $connection);
 
         try {
             self::assertTrue($connection->getAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES));

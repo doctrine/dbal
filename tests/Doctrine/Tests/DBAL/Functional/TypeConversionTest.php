@@ -21,7 +21,7 @@ class TypeConversionTest extends DbalFunctionalTestCase
         parent::setUp();
 
         /** @var AbstractSchemaManager $sm */
-        $sm = $this->_conn->getSchemaManager();
+        $sm = $this->connection->getSchemaManager();
 
         $table = new Table('type_conversion');
         $table->addColumn('id', 'integer', ['notnull' => false]);
@@ -42,7 +42,7 @@ class TypeConversionTest extends DbalFunctionalTestCase
         $table->setPrimaryKey(['id']);
 
         try {
-            $this->_conn->getSchemaManager()->createTable($table);
+            $this->connection->getSchemaManager()->createTable($table);
         } catch (Throwable $e) {
         }
     }
@@ -83,12 +83,12 @@ class TypeConversionTest extends DbalFunctionalTestCase
     {
         $columnName     = 'test_' . $type;
         $typeInstance   = Type::getType($type);
-        $insertionValue = $typeInstance->convertToDatabaseValue($originalValue, $this->_conn->getDatabasePlatform());
+        $insertionValue = $typeInstance->convertToDatabaseValue($originalValue, $this->connection->getDatabasePlatform());
 
-        $this->_conn->insert('type_conversion', ['id' => ++self::$typeCounter, $columnName => $insertionValue]);
+        $this->connection->insert('type_conversion', ['id' => ++self::$typeCounter, $columnName => $insertionValue]);
 
         $sql           = 'SELECT ' . $columnName . ' FROM type_conversion WHERE id = ' . self::$typeCounter;
-        $actualDbValue = $typeInstance->convertToPHPValue($this->_conn->fetchColumn($sql), $this->_conn->getDatabasePlatform());
+        $actualDbValue = $typeInstance->convertToPHPValue($this->connection->fetchColumn($sql), $this->connection->getDatabasePlatform());
 
         if ($originalValue instanceof DateTime) {
             self::assertInstanceOf($expectedPhpType, $actualDbValue, 'The expected type from the conversion to and back from the database should be ' . $expectedPhpType);

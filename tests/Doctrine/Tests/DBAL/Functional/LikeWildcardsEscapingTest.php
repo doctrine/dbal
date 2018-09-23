@@ -11,8 +11,8 @@ final class LikeWildcardsEscapingTest extends DbalFunctionalTestCase
     {
         $string           = '_25% off_ your next purchase \o/ [$̲̅(̲̅5̲̅)̲̅$̲̅] (^̮^)';
         $escapeChar       = '!';
-        $databasePlatform = $this->_conn->getDatabasePlatform();
-        $stmt             = $this->_conn->prepare(
+        $databasePlatform = $this->connection->getDatabasePlatform();
+        $stmt             = $this->connection->prepare(
             $databasePlatform->getDummySelectSQL(
                 sprintf(
                     "(CASE WHEN '%s' LIKE '%s' ESCAPE '%s' THEN 1 ELSE 0 END)",

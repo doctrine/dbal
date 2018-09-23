@@ -29,21 +29,21 @@ class ModifyLimitQueryTest extends DbalFunctionalTestCase
             $table2->addColumn('test_int', 'integer');
             $table2->setPrimaryKey(['id']);
 
-            $sm = $this->_conn->getSchemaManager();
+            $sm = $this->connection->getSchemaManager();
             $sm->createTable($table);
             $sm->createTable($table2);
             self::$tableCreated = true;
         }
-        $this->_conn->exec($this->_conn->getDatabasePlatform()->getTruncateTableSQL('modify_limit_table'));
-        $this->_conn->exec($this->_conn->getDatabasePlatform()->getTruncateTableSQL('modify_limit_table2'));
+        $this->connection->exec($this->connection->getDatabasePlatform()->getTruncateTableSQL('modify_limit_table'));
+        $this->connection->exec($this->connection->getDatabasePlatform()->getTruncateTableSQL('modify_limit_table2'));
     }
 
     public function testModifyLimitQuerySimpleQuery()
     {
-        $this->_conn->insert('modify_limit_table', ['test_int' => 1]);
-        $this->_conn->insert('modify_limit_table', ['test_int' => 2]);
-        $this->_conn->insert('modify_limit_table', ['test_int' => 3]);
-        $this->_conn->insert('modify_limit_table', ['test_int' => 4]);
+        $this->connection->insert('modify_limit_table', ['test_int' => 1]);
+        $this->connection->insert('modify_limit_table', ['test_int' => 2]);
+        $this->connection->insert('modify_limit_table', ['test_int' => 3]);
+        $this->connection->insert('modify_limit_table', ['test_int' => 4]);
 
         $sql = 'SELECT * FROM modify_limit_table ORDER BY test_int ASC';
 
@@ -55,14 +55,14 @@ class ModifyLimitQueryTest extends DbalFunctionalTestCase
 
     public function testModifyLimitQueryJoinQuery()
     {
-        $this->_conn->insert('modify_limit_table', ['test_int' => 1]);
-        $this->_conn->insert('modify_limit_table', ['test_int' => 2]);
+        $this->connection->insert('modify_limit_table', ['test_int' => 1]);
+        $this->connection->insert('modify_limit_table', ['test_int' => 2]);
 
-        $this->_conn->insert('modify_limit_table2', ['test_int' => 1]);
-        $this->_conn->insert('modify_limit_table2', ['test_int' => 1]);
-        $this->_conn->insert('modify_limit_table2', ['test_int' => 1]);
-        $this->_conn->insert('modify_limit_table2', ['test_int' => 2]);
-        $this->_conn->insert('modify_limit_table2', ['test_int' => 2]);
+        $this->connection->insert('modify_limit_table2', ['test_int' => 1]);
+        $this->connection->insert('modify_limit_table2', ['test_int' => 1]);
+        $this->connection->insert('modify_limit_table2', ['test_int' => 1]);
+        $this->connection->insert('modify_limit_table2', ['test_int' => 2]);
+        $this->connection->insert('modify_limit_table2', ['test_int' => 2]);
 
         $sql = 'SELECT modify_limit_table.test_int FROM modify_limit_table INNER JOIN modify_limit_table2 ON modify_limit_table.test_int = modify_limit_table2.test_int ORDER BY modify_limit_table.test_int DESC';
 
@@ -73,10 +73,10 @@ class ModifyLimitQueryTest extends DbalFunctionalTestCase
 
     public function testModifyLimitQueryNonDeterministic()
     {
-        $this->_conn->insert('modify_limit_table', ['test_int' => 1]);
-        $this->_conn->insert('modify_limit_table', ['test_int' => 2]);
-        $this->_conn->insert('modify_limit_table', ['test_int' => 3]);
-        $this->_conn->insert('modify_limit_table', ['test_int' => 4]);
+        $this->connection->insert('modify_limit_table', ['test_int' => 1]);
+        $this->connection->insert('modify_limit_table', ['test_int' => 2]);
+        $this->connection->insert('modify_limit_table', ['test_int' => 3]);
+        $this->connection->insert('modify_limit_table', ['test_int' => 4]);
 
         $sql = 'SELECT * FROM modify_limit_table';
 
@@ -87,14 +87,14 @@ class ModifyLimitQueryTest extends DbalFunctionalTestCase
 
     public function testModifyLimitQueryGroupBy()
     {
-        $this->_conn->insert('modify_limit_table', ['test_int' => 1]);
-        $this->_conn->insert('modify_limit_table', ['test_int' => 2]);
+        $this->connection->insert('modify_limit_table', ['test_int' => 1]);
+        $this->connection->insert('modify_limit_table', ['test_int' => 2]);
 
-        $this->_conn->insert('modify_limit_table2', ['test_int' => 1]);
-        $this->_conn->insert('modify_limit_table2', ['test_int' => 1]);
-        $this->_conn->insert('modify_limit_table2', ['test_int' => 1]);
-        $this->_conn->insert('modify_limit_table2', ['test_int' => 2]);
-        $this->_conn->insert('modify_limit_table2', ['test_int' => 2]);
+        $this->connection->insert('modify_limit_table2', ['test_int' => 1]);
+        $this->connection->insert('modify_limit_table2', ['test_int' => 1]);
+        $this->connection->insert('modify_limit_table2', ['test_int' => 1]);
+        $this->connection->insert('modify_limit_table2', ['test_int' => 2]);
+        $this->connection->insert('modify_limit_table2', ['test_int' => 2]);
 
         $sql = 'SELECT modify_limit_table.test_int FROM modify_limit_table ' .
                'INNER JOIN modify_limit_table2 ON modify_limit_table.test_int = modify_limit_table2.test_int ' .
@@ -107,10 +107,10 @@ class ModifyLimitQueryTest extends DbalFunctionalTestCase
 
     public function testModifyLimitQuerySubSelect()
     {
-        $this->_conn->insert('modify_limit_table', ['test_int' => 1]);
-        $this->_conn->insert('modify_limit_table', ['test_int' => 2]);
-        $this->_conn->insert('modify_limit_table', ['test_int' => 3]);
-        $this->_conn->insert('modify_limit_table', ['test_int' => 4]);
+        $this->connection->insert('modify_limit_table', ['test_int' => 1]);
+        $this->connection->insert('modify_limit_table', ['test_int' => 2]);
+        $this->connection->insert('modify_limit_table', ['test_int' => 3]);
+        $this->connection->insert('modify_limit_table', ['test_int' => 4]);
 
         $sql = 'SELECT modify_limit_table.*, (SELECT COUNT(*) FROM modify_limit_table) AS cnt FROM modify_limit_table ORDER BY test_int DESC';
 
@@ -121,10 +121,10 @@ class ModifyLimitQueryTest extends DbalFunctionalTestCase
 
     public function testModifyLimitQueryFromSubSelect()
     {
-        $this->_conn->insert('modify_limit_table', ['test_int' => 1]);
-        $this->_conn->insert('modify_limit_table', ['test_int' => 2]);
-        $this->_conn->insert('modify_limit_table', ['test_int' => 3]);
-        $this->_conn->insert('modify_limit_table', ['test_int' => 4]);
+        $this->connection->insert('modify_limit_table', ['test_int' => 1]);
+        $this->connection->insert('modify_limit_table', ['test_int' => 2]);
+        $this->connection->insert('modify_limit_table', ['test_int' => 3]);
+        $this->connection->insert('modify_limit_table', ['test_int' => 4]);
 
         $sql = 'SELECT * FROM (SELECT * FROM modify_limit_table) sub ORDER BY test_int DESC';
 
@@ -135,9 +135,9 @@ class ModifyLimitQueryTest extends DbalFunctionalTestCase
 
     public function testModifyLimitQueryLineBreaks()
     {
-        $this->_conn->insert('modify_limit_table', ['test_int' => 1]);
-        $this->_conn->insert('modify_limit_table', ['test_int' => 2]);
-        $this->_conn->insert('modify_limit_table', ['test_int' => 3]);
+        $this->connection->insert('modify_limit_table', ['test_int' => 1]);
+        $this->connection->insert('modify_limit_table', ['test_int' => 2]);
+        $this->connection->insert('modify_limit_table', ['test_int' => 3]);
 
         $sql = <<<SQL
 SELECT
@@ -155,8 +155,8 @@ SQL;
 
     public function testModifyLimitQueryZeroOffsetNoLimit()
     {
-        $this->_conn->insert('modify_limit_table', ['test_int' => 1]);
-        $this->_conn->insert('modify_limit_table', ['test_int' => 2]);
+        $this->connection->insert('modify_limit_table', ['test_int' => 1]);
+        $this->connection->insert('modify_limit_table', ['test_int' => 2]);
 
         $sql = 'SELECT test_int FROM modify_limit_table ORDER BY test_int ASC';
 
@@ -165,9 +165,9 @@ SQL;
 
     public function assertLimitResult($expectedResults, $sql, $limit, $offset, $deterministic = true)
     {
-        $p    = $this->_conn->getDatabasePlatform();
+        $p    = $this->connection->getDatabasePlatform();
         $data = [];
-        foreach ($this->_conn->fetchAll($p->modifyLimitQuery($sql, $limit, $offset)) as $row) {
+        foreach ($this->connection->fetchAll($p->modifyLimitQuery($sql, $limit, $offset)) as $row) {
             $row    = array_change_key_case($row, CASE_LOWER);
             $data[] = $row['test_int'];
         }

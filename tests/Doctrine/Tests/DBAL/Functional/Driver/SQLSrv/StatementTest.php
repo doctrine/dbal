@@ -17,7 +17,7 @@ class StatementTest extends DbalFunctionalTestCase
 
         parent::setUp();
 
-        if ($this->_conn->getDriver() instanceof Driver) {
+        if ($this->connection->getDriver() instanceof Driver) {
             return;
         }
 
@@ -27,7 +27,7 @@ class StatementTest extends DbalFunctionalTestCase
     public function testFailureToPrepareResultsInException()
     {
         // use the driver connection directly to avoid having exception wrapped
-        $stmt = $this->_conn->getWrappedConnection()->prepare(null);
+        $stmt = $this->connection->getWrappedConnection()->prepare(null);
 
         // it's impossible to prepare the statement without bound variables for SQL Server,
         // so the preparation happens before the first execution when variables are already in place

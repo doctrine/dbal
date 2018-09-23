@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\AbstractOracleDriver;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\OracleSchemaManager;
 
@@ -46,7 +47,7 @@ class AbstractOracleDriverTest extends AbstractDriverTest
 
     protected function createDriver()
     {
-        return $this->getMockForAbstractClass('Doctrine\DBAL\Driver\AbstractOracleDriver');
+        return $this->getMockForAbstractClass(AbstractOracleDriver::class);
     }
 
     protected function createPlatform()

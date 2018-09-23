@@ -4,8 +4,11 @@ namespace Doctrine\Tests\DBAL\Schema;
 
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\SchemaConfig;
+use Doctrine\DBAL\Schema\SchemaException;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\Visitor\AbstractVisitor;
+use Doctrine\DBAL\Schema\Visitor\Visitor;
 use PHPUnit\Framework\TestCase;
 use function current;
 use function strlen;
@@ -43,7 +46,7 @@ class SchemaTest extends TestCase
 
     public function testGetUnknownTableThrowsException()
     {
-        $this->expectException('Doctrine\DBAL\Schema\SchemaException');
+        $this->expectException(SchemaException::class);
 
         $schema = new Schema();
         $schema->getTable('unknown');
@@ -51,7 +54,7 @@ class SchemaTest extends TestCase
 
     public function testCreateTableTwiceThrowsException()
     {
-        $this->expectException('Doctrine\DBAL\Schema\SchemaException');
+        $this->expectException(SchemaException::class);
 
         $tableName = 'foo';
         $table     = new Table($tableName);
@@ -94,7 +97,7 @@ class SchemaTest extends TestCase
 
         $table = $schema->createTable('foo');
 
-        self::assertInstanceOf('Doctrine\DBAL\Schema\Table', $table);
+        self::assertInstanceOf(Table::class, $table);
         self::assertEquals('foo', $table->getName());
         self::assertTrue($schema->hasTable('foo'));
     }
@@ -106,7 +109,7 @@ class SchemaTest extends TestCase
         $schema = new Schema([], [$sequence]);
 
         self::assertTrue($schema->hasSequence('a_seq'));
-        self::assertInstanceOf('Doctrine\DBAL\Schema\Sequence', $schema->getSequence('a_seq'));
+        self::assertInstanceOf(Sequence::class, $schema->getSequence('a_seq'));
 
         $sequences = $schema->getSequences();
         self::assertArrayHasKey('public.a_seq', $sequences);
@@ -128,7 +131,7 @@ class SchemaTest extends TestCase
 
     public function testGetUnknownSequenceThrowsException()
     {
-        $this->expectException('Doctrine\DBAL\Schema\SchemaException');
+        $this->expectException(SchemaException::class);
 
         $schema = new Schema();
         $schema->getSequence('unknown');
@@ -144,7 +147,7 @@ class SchemaTest extends TestCase
         self::assertEquals(20, $sequence->getInitialValue());
 
         self::assertTrue($schema->hasSequence('a_seq'));
-        self::assertInstanceOf('Doctrine\DBAL\Schema\Sequence', $schema->getSequence('a_seq'));
+        self::assertInstanceOf(Sequence::class, $schema->getSequence('a_seq'));
 
         $sequences = $schema->getSequences();
         self::assertArrayHasKey('public.a_seq', $sequences);
@@ -162,7 +165,7 @@ class SchemaTest extends TestCase
 
     public function testAddSequenceTwiceThrowsException()
     {
-        $this->expectException('Doctrine\DBAL\Schema\SchemaException');
+        $this->expectException(SchemaException::class);
 
         $sequence = new Sequence('a_seq', 1, 1);
 
@@ -352,7 +355,7 @@ class SchemaTest extends TestCase
     public function testVisitsVisitor()
     {
         $schema  = new Schema();
-        $visitor = $this->createMock('Doctrine\DBAL\Schema\Visitor\Visitor');
+        $visitor = $this->createMock(Visitor::class);
 
         $schema->createNamespace('foo');
         $schema->createNamespace('bar');
@@ -398,7 +401,7 @@ class SchemaTest extends TestCase
     public function testVisitsNamespaceVisitor()
     {
         $schema  = new Schema();
-        $visitor = $this->createMock('Doctrine\DBAL\Schema\Visitor\AbstractVisitor');
+        $visitor = $this->createMock(AbstractVisitor::class);
 
         $schema->createNamespace('foo');
         $schema->createNamespace('bar');

@@ -4,6 +4,7 @@ namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\ColumnCase;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\PDOSqlsrv\Driver;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Portability\Connection as ConnectionPortability;
@@ -41,13 +42,13 @@ class PortabilityTest extends DbalFunctionalTestCase
         $case = ColumnCase::LOWER
     ) {
         if (! $this->portableConnection) {
-            $params = $this->_conn->getParams();
+            $params = $this->connection->getParams();
 
             $params['wrapperClass'] = ConnectionPortability::class;
             $params['portability']  = $portabilityMode;
             $params['fetch_case']   = $case;
 
-            $this->portableConnection = DriverManager::getConnection($params, $this->_conn->getConfiguration(), $this->_conn->getEventManager());
+            $this->portableConnection = DriverManager::getConnection($params, $this->connection->getConfiguration(), $this->connection->getEventManager());
 
             try {
                 /** @var AbstractSchemaManager $sm */
@@ -145,7 +146,7 @@ class PortabilityTest extends DbalFunctionalTestCase
         $portability = ConnectionPortability::PORTABILITY_SQLSRV;
         $params      = ['portability' => $portability];
 
-        $driverMock = $this->getMockBuilder('Doctrine\\DBAL\\Driver\\PDOSqlsrv\\Driver')
+        $driverMock = $this->getMockBuilder(Driver::class)
             ->setMethods(['connect'])
             ->getMock();
 
@@ -161,6 +162,9 @@ class PortabilityTest extends DbalFunctionalTestCase
     }
 
     /**
+     * @param string  $field
+     * @param mixed[] $expected
+     *
      * @dataProvider fetchAllColumnProvider
      */
     public function testFetchAllColumn($field, array $expected)

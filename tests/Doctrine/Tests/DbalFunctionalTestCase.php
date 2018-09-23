@@ -25,39 +25,39 @@ class DbalFunctionalTestCase extends DbalTestCase
      *
      * @var Connection
      */
-    private static $_sharedConn;
+    private static $sharedConnection;
 
     /** @var Connection */
-    protected $_conn;
+    protected $connection;
 
     /** @var DebugStack */
-    protected $_sqlLoggerStack;
+    protected $sqlLoggerStack;
 
     protected function resetSharedConn()
     {
-        if (! self::$_sharedConn) {
+        if (! self::$sharedConnection) {
             return;
         }
 
-        self::$_sharedConn->close();
-        self::$_sharedConn = null;
+        self::$sharedConnection->close();
+        self::$sharedConnection = null;
     }
 
     protected function setUp()
     {
-        if (! isset(self::$_sharedConn)) {
-            self::$_sharedConn = TestUtil::getConnection();
+        if (! isset(self::$sharedConnection)) {
+            self::$sharedConnection = TestUtil::getConnection();
         }
-        $this->_conn = self::$_sharedConn;
+        $this->connection = self::$sharedConnection;
 
-        $this->_sqlLoggerStack = new DebugStack();
-        $this->_conn->getConfiguration()->setSQLLogger($this->_sqlLoggerStack);
+        $this->sqlLoggerStack = new DebugStack();
+        $this->connection->getConfiguration()->setSQLLogger($this->sqlLoggerStack);
     }
 
     protected function tearDown()
     {
-        while ($this->_conn->isTransactionActive()) {
-            $this->_conn->rollBack();
+        while ($this->connection->isTransactionActive()) {
+            $this->connection->rollBack();
         }
     }
 
@@ -67,10 +67,10 @@ class DbalFunctionalTestCase extends DbalTestCase
             throw $t;
         }
 
-        if (isset($this->_sqlLoggerStack->queries) && count($this->_sqlLoggerStack->queries)) {
+        if (isset($this->sqlLoggerStack->queries) && count($this->sqlLoggerStack->queries)) {
             $queries = '';
-            $i       = count($this->_sqlLoggerStack->queries);
-            foreach (array_reverse($this->_sqlLoggerStack->queries) as $query) {
+            $i       = count($this->sqlLoggerStack->queries);
+            foreach (array_reverse($this->sqlLoggerStack->queries) as $query) {
                 $params   = array_map(static function ($p) {
                     if (is_object($p)) {
                         return get_class($p);

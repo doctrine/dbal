@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Driver\OCI8;
 
+use Doctrine\DBAL\Driver\OCI8\OCI8Connection;
 use Doctrine\DBAL\Driver\OCI8\OCI8Exception;
 use Doctrine\DBAL\Driver\OCI8\OCI8Statement;
 use Doctrine\Tests\DbalTestCase;
@@ -28,12 +29,14 @@ class OCI8StatementTest extends DbalTestCase
      *
      * The expected exception is due to oci_execute failing due to no valid connection.
      *
+     * @param mixed[] $params
+     *
      * @dataProvider executeDataProvider
      * @expectedException \Doctrine\DBAL\Driver\OCI8\OCI8Exception
      */
     public function testExecute(array $params)
     {
-        $statement = $this->getMockBuilder('\Doctrine\DBAL\Driver\OCI8\OCI8Statement')
+        $statement = $this->getMockBuilder(OCI8Statement::class)
             ->setMethods(['bindValue', 'errorInfo'])
             ->disableOriginalConstructor()
             ->getMock();
@@ -59,7 +62,7 @@ class OCI8StatementTest extends DbalTestCase
 
         // can't pass to constructor since we don't have a real database handle,
         // but execute must check the connection for the executeMode
-        $conn = $this->getMockBuilder('\Doctrine\DBAL\Driver\OCI8\OCI8Connection')
+        $conn = $this->getMockBuilder(OCI8Connection::class)
             ->setMethods(['getExecuteMode'])
             ->disableOriginalConstructor()
             ->getMock();

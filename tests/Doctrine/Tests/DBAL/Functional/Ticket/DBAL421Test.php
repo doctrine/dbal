@@ -15,7 +15,7 @@ class DBAL421Test extends DbalFunctionalTestCase
     {
         parent::setUp();
 
-        $platform = $this->_conn->getDatabasePlatform()->getName();
+        $platform = $this->connection->getDatabasePlatform()->getName();
         if (in_array($platform, ['mysql', 'sqlite'])) {
             return;
         }
@@ -25,7 +25,7 @@ class DBAL421Test extends DbalFunctionalTestCase
 
     public function testGuidShouldMatchPattern()
     {
-        $guid    = $this->_conn->query($this->getSelectGuidSql())->fetchColumn();
+        $guid    = $this->connection->query($this->getSelectGuidSql())->fetchColumn();
         $pattern = '/[0-9A-F]{8}\-[0-9A-F]{4}\-[0-9A-F]{4}\-[8-9A-B][0-9A-F]{3}\-[0-9A-F]{12}/i';
         self::assertEquals(1, preg_match($pattern, $guid), 'GUID does not match pattern');
     }
@@ -36,7 +36,7 @@ class DBAL421Test extends DbalFunctionalTestCase
      */
     public function testGuidShouldBeRandom()
     {
-        $statement = $this->_conn->prepare($this->getSelectGuidSql());
+        $statement = $this->connection->prepare($this->getSelectGuidSql());
         $guids     = [];
 
         for ($i = 0; $i < 99; $i++) {
@@ -51,6 +51,6 @@ class DBAL421Test extends DbalFunctionalTestCase
 
     private function getSelectGuidSql()
     {
-        return 'SELECT ' . $this->_conn->getDatabasePlatform()->getGuidExpression();
+        return 'SELECT ' . $this->connection->getDatabasePlatform()->getGuidExpression();
     }
 }

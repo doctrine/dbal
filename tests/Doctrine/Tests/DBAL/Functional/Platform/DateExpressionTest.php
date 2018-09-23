@@ -17,16 +17,16 @@ class DateExpressionTest extends DbalFunctionalTestCase
         $table = new Table('date_expr_test');
         $table->addColumn('date1', 'datetime');
         $table->addColumn('date2', 'datetime');
-        $this->_conn->getSchemaManager()->dropAndCreateTable($table);
-        $this->_conn->insert('date_expr_test', [
+        $this->connection->getSchemaManager()->dropAndCreateTable($table);
+        $this->connection->insert('date_expr_test', [
             'date1' => $date1,
             'date2' => $date2,
         ]);
 
-        $platform = $this->_conn->getDatabasePlatform();
+        $platform = $this->connection->getDatabasePlatform();
 
         $sql  = sprintf('SELECT %s FROM date_expr_test', $platform->getDateDiffExpression('date1', 'date2'));
-        $diff = $this->_conn->query($sql)->fetchColumn();
+        $diff = $this->connection->query($sql)->fetchColumn();
 
         self::assertEquals($expected, $diff);
     }

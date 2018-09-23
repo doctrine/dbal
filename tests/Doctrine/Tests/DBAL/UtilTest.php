@@ -64,9 +64,9 @@ class UtilTest extends DbalTestCase
     }
 
     /**
-     * @param string $inputSQL
-     * @param string $expectedOutputSQL
-     * @param array  $expectedOutputParamsMap
+     * @param string  $inputSQL
+     * @param string  $expectedOutputSQL
+     * @param mixed[] $expectedOutputParamsMap
      *
      * @dataProvider dataConvertPositionalToNamedParameters
      */
