@@ -20,6 +20,7 @@
 namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\Driver;
+use Doctrine\DBAL\Driver\AbstractOracleDriver\EasyConnectString;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\OracleSchemaManager;
@@ -108,48 +109,9 @@ abstract class AbstractOracleDriver implements Driver, ExceptionConverterDriver
      * @param array $params The connection parameters to return the Easy Connect STring for.
      *
      * @return string
-     *
-     * @link https://docs.oracle.com/database/121/NETAG/naming.htm
      */
     protected function getEasyConnectString(array $params)
     {
-        if ( ! empty($params['connectstring'])) {
-            return $params['connectstring'];
-        }
-
-        if ( ! empty($params['host'])) {
-            if ( ! isset($params['port'])) {
-                $params['port'] = 1521;
-            }
-
-            $serviceName = $params['dbname'];
-
-            if ( ! empty($params['servicename'])) {
-                $serviceName = $params['servicename'];
-            }
-
-            $service = 'SID=' . $serviceName;
-            $pooled  = '';
-            $instance = '';
-
-            if (isset($params['service']) && $params['service'] == true) {
-                $service = 'SERVICE_NAME=' . $serviceName;
-            }
-
-            if (isset($params['instancename']) && ! empty($params['instancename'])) {
-                $instance = '(INSTANCE_NAME = ' . $params['instancename'] . ')';
-            }
-
-            if (isset($params['pooled']) && $params['pooled'] == true) {
-                $pooled = '(SERVER=POOLED)';
-            }
-
-            return '(DESCRIPTION=' .
-                     '(ADDRESS=(PROTOCOL=TCP)(HOST=' . $params['host'] . ')(PORT=' . $params['port'] . '))' .
-                     '(CONNECT_DATA=(' . $service . ')' . $instance . $pooled . '))';
-
-        }
-
-        return $params['dbname'] ?? '';
+        return (string) EasyConnectString::fromConnectionParameters($params);
     }
 }
