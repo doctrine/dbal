@@ -8,7 +8,7 @@ class SQLServer2008PlatformTest extends AbstractSQLServerPlatformTestCase
 {
     public function createPlatform()
     {
-        return new SQLServer2008Platform;
+        return new SQLServer2008Platform();
     }
 
     public function testGeneratesTypeDeclarationForDateTimeTz()

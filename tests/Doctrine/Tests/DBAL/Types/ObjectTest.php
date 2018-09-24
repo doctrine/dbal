@@ -4,34 +4,32 @@ namespace Doctrine\Tests\DBAL\Types;
 
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DBAL\Mocks\MockPlatform;
+use Doctrine\Tests\DbalTestCase;
+use stdClass;
 use function serialize;
 
-class ObjectTest extends \Doctrine\Tests\DbalTestCase
+class ObjectTest extends DbalTestCase
 {
-    /**
-     * @var MockPlatform
-     */
+    /** @var MockPlatform */
     protected $_platform;
 
-    /**
-     * @var Type
-     */
+    /** @var Type */
     protected $_type;
 
     protected function setUp()
     {
         $this->_platform = new MockPlatform();
-        $this->_type = Type::getType('object');
+        $this->_type     = Type::getType('object');
     }
 
     public function testObjectConvertsToDatabaseValue()
     {
-        self::assertInternalType('string', $this->_type->convertToDatabaseValue(new \stdClass(), $this->_platform));
+        self::assertInternalType('string', $this->_type->convertToDatabaseValue(new stdClass(), $this->_platform));
     }
 
     public function testObjectConvertsToPHPValue()
     {
-        self::assertInternalType('object', $this->_type->convertToPHPValue(serialize(new \stdClass), $this->_platform));
+        self::assertInternalType('object', $this->_type->convertToPHPValue(serialize(new stdClass()), $this->_platform));
     }
 
     public function testConversionFailure()

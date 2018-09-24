@@ -9,6 +9,7 @@ class EasyConnectStringTest extends TestCase
 {
     /**
      * @param mixed[] $params
+     *
      * @dataProvider connectionParametersProvider
      */
     public function testFromConnectionParameters(array $params, string $expected) : void

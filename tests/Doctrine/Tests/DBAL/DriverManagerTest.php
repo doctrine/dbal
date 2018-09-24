@@ -15,6 +15,7 @@ use Doctrine\Tests\DBAL\Mocks\MockPlatform;
 use Doctrine\Tests\DbalTestCase;
 use Doctrine\Tests\Mocks\ConnectionMock;
 use Doctrine\Tests\Mocks\DriverMock;
+use PDO;
 use stdClass;
 use function extension_loaded;
 use function in_array;
@@ -37,7 +38,7 @@ class DriverManagerTest extends DbalTestCase
     public function testValidPdoInstance()
     {
         $conn = DriverManager::getConnection([
-            'pdo' => new \PDO('sqlite::memory:'),
+            'pdo' => new PDO('sqlite::memory:'),
         ]);
 
         self::assertEquals('sqlite', $conn->getDatabasePlatform()->getName());
@@ -49,12 +50,12 @@ class DriverManagerTest extends DbalTestCase
      */
     public function testPdoInstanceSetErrorMode()
     {
-        $pdo = new \PDO('sqlite::memory:');
-        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_SILENT);
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_SILENT);
         $options = ['pdo' => $pdo];
 
         DriverManager::getConnection($options);
-        self::assertEquals(\PDO::ERRMODE_EXCEPTION, $pdo->getAttribute(\PDO::ATTR_ERRMODE));
+        self::assertEquals(PDO::ERRMODE_EXCEPTION, $pdo->getAttribute(PDO::ATTR_ERRMODE));
     }
 
     /**
@@ -80,7 +81,7 @@ class DriverManagerTest extends DbalTestCase
     {
         $mockPlatform = new MockPlatform();
         $options      = [
-            'pdo'      => new \PDO('sqlite::memory:'),
+            'pdo'      => new PDO('sqlite::memory:'),
             'platform' => $mockPlatform,
         ];
 
@@ -96,7 +97,7 @@ class DriverManagerTest extends DbalTestCase
         $wrapperClass = ConnectionMock::class;
 
         $options = [
-            'pdo' => new \PDO('sqlite::memory:'),
+            'pdo' => new PDO('sqlite::memory:'),
             'wrapperClass' => $wrapperClass,
         ];
 
@@ -112,7 +113,7 @@ class DriverManagerTest extends DbalTestCase
         $this->expectException(DBALException::class);
 
         $options = [
-            'pdo' => new \PDO('sqlite::memory:'),
+            'pdo' => new PDO('sqlite::memory:'),
             'wrapperClass' => stdClass::class,
         ];
 
@@ -216,7 +217,7 @@ class DriverManagerTest extends DbalTestCase
                 $this->markTestSkipped('PDO is not installed');
             }
 
-            $options['pdo'] = $this->createMock(\PDO::class);
+            $options['pdo'] = $this->createMock(PDO::class);
         }
 
         $options = is_array($url) ? $url : ['url' => $url];

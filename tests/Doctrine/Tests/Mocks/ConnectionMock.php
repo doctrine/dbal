@@ -1,23 +1,19 @@
 <?php
 
 namespace Doctrine\Tests\Mocks;
+
+use Doctrine\DBAL\Connection;
 use function is_string;
 
-class ConnectionMock extends \Doctrine\DBAL\Connection
+class ConnectionMock extends Connection
 {
-    /**
-     * @var DatabasePlatformMock
-     */
+    /** @var DatabasePlatformMock */
     private $_platformMock;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $_lastInsertId = 0;
 
-    /**
-     * @var string[][]
-     */
+    /** @var string[][] */
     private $_inserts = array();
 
     public function __construct(array $params, $driver, $config = null, $eventManager = null)
@@ -27,33 +23,21 @@ class ConnectionMock extends \Doctrine\DBAL\Connection
         parent::__construct($params, $driver, $config, $eventManager);
     }
 
-    /**
-     * @override
-     */
     public function getDatabasePlatform()
     {
         return $this->_platformMock;
     }
 
-    /**
-     * @override
-     */
-    public function insert($tableName, array $data, array $types = array())
+    public function insert($tableName, array $data, array $types = [])
     {
         $this->_inserts[$tableName][] = $data;
     }
 
-    /**
-     * @override
-     */
     public function lastInsertId($seqName = null)
     {
         return $this->_lastInsertId;
     }
 
-    /**
-     * @override
-     */
     public function quote($input, $type = null)
     {
         if (is_string($input)) {
@@ -74,7 +58,7 @@ class ConnectionMock extends \Doctrine\DBAL\Connection
 
     public function reset()
     {
-        $this->_inserts = array();
+        $this->_inserts      = [];
         $this->_lastInsertId = 0;
     }
 }

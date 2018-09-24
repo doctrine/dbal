@@ -20,6 +20,6 @@ class MySqlPointType extends Type
 
     public function getMappedDatabaseTypes(AbstractPlatform $platform)
     {
-        return array('point');
+        return ['point'];
     }
 }

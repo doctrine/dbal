@@ -4,23 +4,20 @@ namespace Doctrine\Tests\DBAL\Types;
 
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DBAL\Mocks\MockPlatform;
+use Doctrine\Tests\DbalTestCase;
 
-class FloatTest extends \Doctrine\Tests\DbalTestCase
+class FloatTest extends DbalTestCase
 {
-    /**
-     * @var MockPlatform
-     */
+    /** @var MockPlatform */
     protected $_platform;
 
-    /**
-     * @var Type
-     */
+    /** @var Type */
     protected $_type;
 
     protected function setUp()
     {
         $this->_platform = new MockPlatform();
-        $this->_type = Type::getType('float');
+        $this->_type     = Type::getType('float');
     }
 
     public function testFloatConvertsToPHPValue()

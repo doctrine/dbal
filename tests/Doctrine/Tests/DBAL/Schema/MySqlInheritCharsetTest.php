@@ -38,7 +38,7 @@ class MySqlInheritCharsetTest extends TestCase
     {
         $eventManager = new EventManager();
         $driverMock   = $this->createMock('Doctrine\DBAL\Driver');
-        $platform     = new \Doctrine\DBAL\Platforms\MySqlPlatform();
+        $platform     = new MySqlPlatform();
 
         // default, no overrides
         $table = new Table('foobar', [new Column('aa', Type::getType('integer'))]);

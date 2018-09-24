@@ -24,15 +24,13 @@ use Doctrine\Tests\DbalTestCase;
 
 /**
  * Unit tests for the configuration container.
- *
- * @author Steve Müller <st.mueller@dzh-online.de>
  */
 class ConfigurationTest extends DbalTestCase
 {
     /**
      * The configuration container instance under test.
      *
-     * @var \Doctrine\DBAL\Configuration
+     * @var Configuration
      */
     protected $config;
 

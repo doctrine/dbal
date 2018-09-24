@@ -4,7 +4,10 @@ namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\Connections\MasterSlaveConnection;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Schema\AbstractSchemaManager;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\Tests\DbalFunctionalTestCase;
+use Throwable;
 use const CASE_LOWER;
 use function array_change_key_case;
 use function sprintf;
@@ -24,25 +27,23 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
         $platformName = $this->_conn->getDatabasePlatform()->getName();
 
         // This is a MySQL specific test, skip other vendors.
-        if ($platformName != 'mysql') {
+        if ($platformName !== 'mysql') {
             $this->markTestSkipped(sprintf('Test does not work on %s.', $platformName));
         }
 
         try {
-            /* @var $sm \Doctrine\DBAL\Schema\AbstractSchemaManager */
-            $table = new \Doctrine\DBAL\Schema\Table("master_slave_table");
+            /** @var AbstractSchemaManager $sm */
+            $table = new Table('master_slave_table');
             $table->addColumn('test_int', 'integer');
-            $table->setPrimaryKey(array('test_int'));
+            $table->setPrimaryKey(['test_int']);
 
             $sm = $this->_conn->getSchemaManager();
             $sm->createTable($table);
-
-
-        } catch(\Exception $e) {
+        } catch (Throwable $e) {
         }
 
         $this->_conn->executeUpdate('DELETE FROM master_slave_table');
-        $this->_conn->insert('master_slave_table', array('test_int' => 1));
+        $this->_conn->insert('master_slave_table', ['test_int' => 1]);
     }
 
     private function createMasterSlaveConnection(bool $keepSlave = false) : MasterSlaveConnection
@@ -52,9 +53,9 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
 
     private function createMasterSlaveConnectionParams(bool $keepSlave = false) : array
     {
-        $params = $this->_conn->getParams();
+        $params                 = $this->_conn->getParams();
         $params['master']       = $params;
-        $params['slaves']       = array($params, $params);
+        $params['slaves']       = [$params, $params];
         $params['keepSlave']    = $keepSlave;
         $params['wrapperClass'] = MasterSlaveConnection::class;
 
@@ -65,17 +66,19 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
     {
         $charsets = [
             'utf8',
-            'latin1'
+            'latin1',
         ];
 
         foreach ($charsets as $charset) {
-            $params = $this->createMasterSlaveConnectionParams();
+            $params                      = $this->createMasterSlaveConnectionParams();
             $params['master']['charset'] = $charset;
 
             foreach ($params['slaves'] as $index => $slaveParams) {
-                if (isset($slaveParams['charset'])) {
-                    unset($params['slaves'][$index]['charset']);
+                if (! isset($slaveParams['charset'])) {
+                    continue;
                 }
+
+                unset($params['slaves'][$index]['charset']);
             }
 
             /** @var MasterSlaveConnection $conn */
@@ -108,8 +111,8 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
     {
         $conn = $this->createMasterSlaveConnection();
 
-        $sql = "SELECT count(*) as num FROM master_slave_table";
-        $data = $conn->fetchAll($sql);
+        $sql     = 'SELECT count(*) as num FROM master_slave_table';
+        $data    = $conn->fetchAll($sql);
         $data[0] = array_change_key_case($data[0], CASE_LOWER);
 
         self::assertEquals(1, $data[0]['num']);
@@ -119,12 +122,12 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
     public function testMasterOnWriteOperation()
     {
         $conn = $this->createMasterSlaveConnection();
-        $conn->insert('master_slave_table', array('test_int' => 30));
+        $conn->insert('master_slave_table', ['test_int' => 30]);
 
         self::assertTrue($conn->isConnectedToMaster());
 
-        $sql = "SELECT count(*) as num FROM master_slave_table";
-        $data = $conn->fetchAll($sql);
+        $sql     = 'SELECT count(*) as num FROM master_slave_table';
+        $data    = $conn->fetchAll($sql);
         $data[0] = array_change_key_case($data[0], CASE_LOWER);
 
         self::assertEquals(2, $data[0]['num']);
@@ -140,7 +143,7 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
         $conn->connect('slave');
 
         $conn->beginTransaction();
-        $conn->insert('master_slave_table', array('test_int' => 30));
+        $conn->insert('master_slave_table', ['test_int' => 30]);
         $conn->commit();
 
         self::assertTrue($conn->isConnectedToMaster());
@@ -160,7 +163,7 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
         $conn = $this->createMasterSlaveConnection($keepSlave = true);
         $conn->connect('slave');
 
-        $conn->insert('master_slave_table', array('test_int' => 30));
+        $conn->insert('master_slave_table', ['test_int' => 30]);
 
         self::assertTrue($conn->isConnectedToMaster());
 

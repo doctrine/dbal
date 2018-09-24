@@ -2,25 +2,23 @@
 
 namespace Doctrine\Tests\DBAL\Types;
 
+use DateTime;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DBAL\Mocks\MockPlatform;
+use Doctrine\Tests\DbalTestCase;
 
-class VarDateTimeTest extends \Doctrine\Tests\DbalTestCase
+class VarDateTimeTest extends DbalTestCase
 {
-    /**
-     * @var MockPlatform
-     */
+    /** @var MockPlatform */
     protected $_platform;
 
-    /**
-     * @var Type
-     */
+    /** @var Type */
     protected $_type;
 
     protected function setUp()
     {
         $this->_platform = new MockPlatform();
-        if (!Type::hasType('vardatetime')) {
+        if (! Type::hasType('vardatetime')) {
             Type::addType('vardatetime', 'Doctrine\DBAL\Types\VarDateTimeType');
         }
         $this->_type = Type::getType('vardatetime');
@@ -28,10 +26,10 @@ class VarDateTimeTest extends \Doctrine\Tests\DbalTestCase
 
     public function testDateTimeConvertsToDatabaseValue()
     {
-        $date = new \DateTime('1985-09-01 10:10:10');
+        $date = new DateTime('1985-09-01 10:10:10');
 
         $expected = $date->format($this->_platform->getDateTimeTzFormatString());
-        $actual = $this->_type->convertToDatabaseValue($date, $this->_platform);
+        $actual   = $this->_type->convertToDatabaseValue($date, $this->_platform);
 
         self::assertEquals($expected, $actual);
     }
@@ -66,7 +64,7 @@ class VarDateTimeTest extends \Doctrine\Tests\DbalTestCase
 
     public function testConvertDateTimeToPHPValue()
     {
-        $date = new \DateTime("now");
+        $date = new DateTime('now');
         self::assertSame($date, $this->_type->convertToPHPValue($date, $this->_platform));
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
+use DateTime;
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Schema\Comparator;
@@ -17,23 +18,25 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     {
         parent::setUp();
 
-        if ( ! Type::hasType('point')) {
-            Type::addType('point', MySqlPointType::class);
+        if (Type::hasType('point')) {
+            return;
         }
+
+        Type::addType('point', MySqlPointType::class);
     }
 
     public function testSwitchPrimaryKeyColumns()
     {
-        $tableOld = new Table("switch_primary_key_columns");
+        $tableOld = new Table('switch_primary_key_columns');
         $tableOld->addColumn('foo_id', 'integer');
         $tableOld->addColumn('bar_id', 'integer');
 
         $this->_sm->createTable($tableOld);
-        $tableFetched = $this->_sm->listTableDetails("switch_primary_key_columns");
-        $tableNew = clone $tableFetched;
-        $tableNew->setPrimaryKey(array('bar_id', 'foo_id'));
+        $tableFetched = $this->_sm->listTableDetails('switch_primary_key_columns');
+        $tableNew     = clone $tableFetched;
+        $tableNew->setPrimaryKey(['bar_id', 'foo_id']);
 
-        $comparator = new Comparator;
+        $comparator = new Comparator();
         $this->_sm->alterTable($comparator->diffTable($tableFetched, $tableNew));
 
         $table      = $this->_sm->listTableDetails('switch_primary_key_columns');
@@ -47,31 +50,31 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testDiffTableBug()
     {
         $schema = new Schema();
-        $table = $schema->createTable('diffbug_routing_translations');
+        $table  = $schema->createTable('diffbug_routing_translations');
         $table->addColumn('id', 'integer');
         $table->addColumn('route', 'string');
         $table->addColumn('locale', 'string');
         $table->addColumn('attribute', 'string');
         $table->addColumn('localized_value', 'string');
         $table->addColumn('original_value', 'string');
-        $table->setPrimaryKey(array('id'));
-        $table->addUniqueIndex(array('route', 'locale', 'attribute'));
-        $table->addIndex(array('localized_value')); // this is much more selective than the unique index
+        $table->setPrimaryKey(['id']);
+        $table->addUniqueIndex(['route', 'locale', 'attribute']);
+        $table->addIndex(['localized_value']); // this is much more selective than the unique index
 
         $this->_sm->createTable($table);
-        $tableFetched = $this->_sm->listTableDetails("diffbug_routing_translations");
+        $tableFetched = $this->_sm->listTableDetails('diffbug_routing_translations');
 
-        $comparator = new Comparator;
-        $diff = $comparator->diffTable($tableFetched, $table);
+        $comparator = new Comparator();
+        $diff       = $comparator->diffTable($tableFetched, $table);
 
-        self::assertFalse($diff, "no changes expected.");
+        self::assertFalse($diff, 'no changes expected.');
     }
 
     public function testFulltextIndex()
     {
         $table = new Table('fulltext_index');
         $table->addColumn('text', 'text');
-        $table->addIndex(array('text'), 'f_index');
+        $table->addIndex(['text'], 'f_index');
         $table->addOption('engine', 'MyISAM');
 
         $index = $table->getIndex('f_index');
@@ -88,7 +91,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     {
         $table = new Table('spatial_index');
         $table->addColumn('point', 'point');
-        $table->addIndex(array('point'), 's_index');
+        $table->addIndex(['point'], 's_index');
         $table->addOption('engine', 'MyISAM');
 
         $index = $table->getIndex('s_index');
@@ -109,7 +112,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table = new Table('alter_table_add_pk');
         $table->addColumn('id', 'integer');
         $table->addColumn('foo', 'integer');
-        $table->addIndex(array('id'), 'idx_id');
+        $table->addIndex(['id'], 'idx_id');
 
         $this->_sm->createTable($table);
 
@@ -117,11 +120,11 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $diffTable  = clone $table;
 
         $diffTable->dropIndex('idx_id');
-        $diffTable->setPrimaryKey(array('id'));
+        $diffTable->setPrimaryKey(['id']);
 
         $this->_sm->alterTable($comparator->diffTable($table, $diffTable));
 
-        $table = $this->_sm->listTableDetails("alter_table_add_pk");
+        $table = $this->_sm->listTableDetails('alter_table_add_pk');
 
         self::assertFalse($table->hasIndex('idx_id'));
         self::assertTrue($table->hasPrimaryKey());
@@ -132,10 +135,10 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
      */
     public function testDropPrimaryKeyWithAutoincrementColumn()
     {
-        $table = new Table("drop_primary_key");
-        $table->addColumn('id', 'integer', array('autoincrement' => true));
+        $table = new Table('drop_primary_key');
+        $table->addColumn('id', 'integer', ['autoincrement' => true]);
         $table->addColumn('foo', 'integer');
-        $table->setPrimaryKey(array('id', 'foo'));
+        $table->setPrimaryKey(['id', 'foo']);
 
         $this->_sm->dropAndCreateTable($table);
 
@@ -147,7 +150,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->_sm->alterTable($comparator->diffTable($table, $diffTable));
 
-        $table = $this->_sm->listTableDetails("drop_primary_key");
+        $table = $this->_sm->listTableDetails('drop_primary_key');
 
         self::assertFalse($table->hasPrimaryKey());
         self::assertFalse($table->getColumn('id')->getAutoincrement());
@@ -164,7 +167,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
             );
         }
 
-        $table = new Table("text_blob_default_value");
+        $table = new Table('text_blob_default_value');
         $table->addColumn('def_text', 'text', ['default' => 'def']);
         $table->addColumn('def_text_null', 'text', ['notnull' => false, 'default' => 'def']);
         $table->addColumn('def_blob', 'blob', ['default' => 'def']);
@@ -172,7 +175,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->_sm->dropAndCreateTable($table);
 
-        $onlineTable = $this->_sm->listTableDetails("text_blob_default_value");
+        $onlineTable = $this->_sm->listTableDetails('text_blob_default_value');
 
         self::assertNull($onlineTable->getColumn('def_text')->getDefault());
         self::assertNull($onlineTable->getColumn('def_text_null')->getDefault());
@@ -185,7 +188,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->_sm->alterTable($comparator->diffTable($table, $onlineTable));
 
-        $onlineTable = $this->_sm->listTableDetails("text_blob_default_value");
+        $onlineTable = $this->_sm->listTableDetails('text_blob_default_value');
 
         self::assertNull($onlineTable->getColumn('def_text')->getDefault());
         self::assertNull($onlineTable->getColumn('def_text_null')->getDefault());
@@ -197,7 +200,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testColumnCollation()
     {
-        $table = new Table('test_collation');
+        $table                                  = new Table('test_collation');
         $table->addOption('collate', $collation = 'latin1_swedish_ci');
         $table->addOption('charset', 'latin1');
         $table->addColumn('id', 'integer');
@@ -220,23 +223,23 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testListLobTypeColumns()
     {
         $tableName = 'lob_type_columns';
-        $table = new Table($tableName);
+        $table     = new Table($tableName);
 
-        $table->addColumn('col_tinytext', 'text', array('length' => MySqlPlatform::LENGTH_LIMIT_TINYTEXT));
-        $table->addColumn('col_text', 'text', array('length' => MySqlPlatform::LENGTH_LIMIT_TEXT));
-        $table->addColumn('col_mediumtext', 'text', array('length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMTEXT));
+        $table->addColumn('col_tinytext', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_TINYTEXT]);
+        $table->addColumn('col_text', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_TEXT]);
+        $table->addColumn('col_mediumtext', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMTEXT]);
         $table->addColumn('col_longtext', 'text');
 
-        $table->addColumn('col_tinyblob', 'text', array('length' => MySqlPlatform::LENGTH_LIMIT_TINYBLOB));
-        $table->addColumn('col_blob', 'blob', array('length' => MySqlPlatform::LENGTH_LIMIT_BLOB));
-        $table->addColumn('col_mediumblob', 'blob', array('length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMBLOB));
+        $table->addColumn('col_tinyblob', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_TINYBLOB]);
+        $table->addColumn('col_blob', 'blob', ['length' => MySqlPlatform::LENGTH_LIMIT_BLOB]);
+        $table->addColumn('col_mediumblob', 'blob', ['length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMBLOB]);
         $table->addColumn('col_longblob', 'blob');
 
         $this->_sm->dropAndCreateTable($table);
 
-        $platform = $this->_sm->getDatabasePlatform();
+        $platform       = $this->_sm->getDatabasePlatform();
         $offlineColumns = $table->getColumns();
-        $onlineColumns = $this->_sm->listTableColumns($tableName);
+        $onlineColumns  = $this->_sm->listTableColumns($tableName);
 
         self::assertSame(
             $platform->getClobTypeDeclarationSQL($offlineColumns['col_tinytext']->toArray()),
@@ -289,7 +292,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         self::assertFalse(
             $comparator->diffTable($offlineTable, $onlineTable),
-            "No differences should be detected with the offline vs online schema."
+            'No differences should be detected with the offline vs online schema.'
         );
     }
 
@@ -299,10 +302,10 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testListDecimalTypeColumns()
     {
         $tableName = 'test_list_decimal_columns';
-        $table = new Table($tableName);
+        $table     = new Table($tableName);
 
         $table->addColumn('col', 'decimal');
-        $table->addColumn('col_unsigned', 'decimal', array('unsigned' => true));
+        $table->addColumn('col_unsigned', 'decimal', ['unsigned' => true]);
 
         $this->_sm->dropAndCreateTable($table);
 
@@ -320,10 +323,10 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testListFloatTypeColumns()
     {
         $tableName = 'test_list_float_columns';
-        $table = new Table($tableName);
+        $table     = new Table($tableName);
 
         $table->addColumn('col', 'float');
-        $table->addColumn('col_unsigned', 'float', array('unsigned' => true));
+        $table->addColumn('col_unsigned', 'float', ['unsigned' => true]);
 
         $this->_sm->dropAndCreateTable($table);
 
@@ -350,7 +353,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     {
         $platform = $this->_sm->getDatabasePlatform();
 
-        $table = new Table("test_column_defaults_current_timestamp");
+        $table = new Table('test_column_defaults_current_timestamp');
 
         $currentTimeStampSql = $platform->getCurrentTimestampSQL();
 
@@ -359,19 +362,19 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->_sm->dropAndCreateTable($table);
 
-        $onlineTable = $this->_sm->listTableDetails("test_column_defaults_current_timestamp");
+        $onlineTable = $this->_sm->listTableDetails('test_column_defaults_current_timestamp');
         self::assertSame($currentTimeStampSql, $onlineTable->getColumn('col_datetime')->getDefault());
         self::assertSame($currentTimeStampSql, $onlineTable->getColumn('col_datetime_nullable')->getDefault());
 
         $comparator = new Comparator();
 
         $diff = $comparator->diffTable($table, $onlineTable);
-        self::assertFalse($diff, "Tables should be identical with column defaults.");
+        self::assertFalse($diff, 'Tables should be identical with column defaults.');
     }
 
     public function testColumnDefaultsAreValid()
     {
-        $table = new Table("test_column_defaults_are_valid");
+        $table = new Table('test_column_defaults_are_valid');
 
         $currentTimeStampSql = $this->_sm->getDatabasePlatform()->getCurrentTimestampSQL();
         $table->addColumn('col_datetime', 'datetime', ['default' => $currentTimeStampSql]);
@@ -385,14 +388,14 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->_sm->dropAndCreateTable($table);
 
         $this->_conn->executeUpdate(
-            "INSERT INTO test_column_defaults_are_valid () VALUES()"
+            'INSERT INTO test_column_defaults_are_valid () VALUES()'
         );
 
         $row = $this->_conn->fetchAssoc(
             'SELECT *, DATEDIFF(CURRENT_TIMESTAMP(), col_datetime) as diff_seconds FROM test_column_defaults_are_valid'
         );
 
-        self::assertInstanceOf(\DateTime::class, \DateTime::createFromFormat('Y-m-d H:i:s', $row['col_datetime']));
+        self::assertInstanceOf(DateTime::class, DateTime::createFromFormat('Y-m-d H:i:s', $row['col_datetime']));
         self::assertNull($row['col_datetime_null']);
         self::assertSame('2012-12-12', $row['col_date']);
         self::assertSame('A', $row['col_string']);
@@ -414,13 +417,13 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
      */
     public function testColumnDefaultValuesCurrentTimeAndDate() : void
     {
-        if ( ! $this->_sm->getDatabasePlatform() instanceof MariaDb1027Platform) {
+        if (! $this->_sm->getDatabasePlatform() instanceof MariaDb1027Platform) {
             $this->markTestSkipped('Only relevant for MariaDb102Platform.');
         }
 
         $platform = $this->_sm->getDatabasePlatform();
 
-        $table = new Table("test_column_defaults_current_time_and_date");
+        $table = new Table('test_column_defaults_current_time_and_date');
 
         $currentTimestampSql = $platform->getCurrentTimestampSQL();
         $currentTimeSql      = $platform->getCurrentTimeSQL();
@@ -432,7 +435,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->_sm->dropAndCreateTable($table);
 
-        $onlineTable = $this->_sm->listTableDetails("test_column_defaults_current_time_and_date");
+        $onlineTable = $this->_sm->listTableDetails('test_column_defaults_current_time_and_date');
 
         self::assertSame($currentTimestampSql, $onlineTable->getColumn('col_datetime')->getDefault());
         self::assertSame($currentDateSql, $onlineTable->getColumn('col_date')->getDefault());
@@ -441,13 +444,14 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $comparator = new Comparator();
 
         $diff = $comparator->diffTable($table, $onlineTable);
-        self::assertFalse($diff, "Tables should be identical with column defauts time and date.");
+        self::assertFalse($diff, 'Tables should be identical with column defauts time and date.');
     }
 
     /**
      * Ensure default values (un-)escaping is properly done by mysql platforms.
      * The test is voluntarily relying on schema introspection due to current
      * doctrine limitations. Once #2850 is landed, this test can be removed.
+     *
      * @see https://dev.mysql.com/doc/refman/5.7/en/string-literals.html
      */
     public function testEnsureDefaultsAreUnescapedFromSchemaIntrospection() : void
@@ -457,8 +461,10 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $escapeSequences = [
             "\\0",          // An ASCII NUL (X'00') character
-            "\\'", "''",    // Single quote
-            '\\"', '""',    // Double quote
+            "\\'",
+            "''",    // Single quote
+            '\\"',
+            '""',    // Double quote
             '\\b',          // A backspace character
             '\\n',          // A new-line character
             '\\r',          // A carriage return character
@@ -475,7 +481,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
                     col1 VARCHAR(255) NULL DEFAULT {$platform->quoteStringLiteral($default)} 
                 )";
         $this->_conn->query($sql);
-        $onlineTable = $this->_sm->listTableDetails("test_column_defaults_with_create");
+        $onlineTable = $this->_sm->listTableDetails('test_column_defaults_with_create');
         self::assertSame($default, $onlineTable->getColumn('col1')->getDefault());
     }
 }

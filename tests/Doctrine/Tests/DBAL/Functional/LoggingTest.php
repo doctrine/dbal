@@ -2,7 +2,9 @@
 
 namespace Doctrine\Tests\DBAL\Functional;
 
-class LoggingTest extends \Doctrine\Tests\DbalFunctionalTestCase
+use Doctrine\Tests\DbalFunctionalTestCase;
+
+class LoggingTest extends DbalFunctionalTestCase
 {
     public function testLogExecuteQuery()
     {
@@ -11,11 +13,11 @@ class LoggingTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $logMock = $this->createMock('Doctrine\DBAL\Logging\SQLLogger');
         $logMock->expects($this->at(0))
                 ->method('startQuery')
-                ->with($this->equalTo($sql), $this->equalTo(array()), $this->equalTo(array()));
+                ->with($this->equalTo($sql), $this->equalTo([]), $this->equalTo([]));
         $logMock->expects($this->at(1))
                 ->method('stopQuery');
         $this->_conn->getConfiguration()->setSQLLogger($logMock);
-        $this->_conn->executeQuery($sql, array());
+        $this->_conn->executeQuery($sql, []);
     }
 
     public function testLogExecuteUpdate()
@@ -27,11 +29,11 @@ class LoggingTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $logMock = $this->createMock('Doctrine\DBAL\Logging\SQLLogger');
         $logMock->expects($this->at(0))
                 ->method('startQuery')
-                ->with($this->equalTo($sql), $this->equalTo(array()), $this->equalTo(array()));
+                ->with($this->equalTo($sql), $this->equalTo([]), $this->equalTo([]));
         $logMock->expects($this->at(1))
                 ->method('stopQuery');
         $this->_conn->getConfiguration()->setSQLLogger($logMock);
-        $this->_conn->executeUpdate($sql, array());
+        $this->_conn->executeUpdate($sql, []);
     }
 
     public function testLogPrepareExecute()
@@ -41,7 +43,7 @@ class LoggingTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $logMock = $this->createMock('Doctrine\DBAL\Logging\SQLLogger');
         $logMock->expects($this->once())
                 ->method('startQuery')
-                ->with($this->equalTo($sql), $this->equalTo(array()));
+                ->with($this->equalTo($sql), $this->equalTo([]));
         $logMock->expects($this->at(1))
                 ->method('stopQuery');
         $this->_conn->getConfiguration()->setSQLLogger($logMock);

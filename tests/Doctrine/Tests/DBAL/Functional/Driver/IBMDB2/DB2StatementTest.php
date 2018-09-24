@@ -13,15 +13,17 @@ class DB2StatementTest extends DbalFunctionalTestCase
 {
     protected function setUp()
     {
-        if ( ! extension_loaded('ibm_db2')) {
+        if (! extension_loaded('ibm_db2')) {
             $this->markTestSkipped('ibm_db2 is not installed.');
         }
 
         parent::setUp();
 
-        if ( ! $this->_conn->getDriver() instanceof DB2Driver) {
-            $this->markTestSkipped('ibm_db2 only test.');
+        if ($this->_conn->getDriver() instanceof DB2Driver) {
+            return;
         }
+
+        $this->markTestSkipped('ibm_db2 only test.');
     }
 
     public function testExecutionErrorsAreNotSuppressed()

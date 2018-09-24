@@ -12,36 +12,26 @@ class QueryCacheProfileTest extends DbalTestCase
     private const LIFETIME  = 3600;
     private const CACHE_KEY = 'user_specified_cache_key';
 
-    /**
-     * @var QueryCacheProfile
-     */
+    /** @var QueryCacheProfile */
     private $queryCacheProfile;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $query = 'SELECT * FROM foo WHERE bar = ?';
 
-    /**
-     * @var int[]
-     */
+    /** @var int[] */
     private $params = [666];
 
-    /**
-     * @var string[]
-     */
+    /** @var string[] */
     private $types = [ParameterType::INTEGER];
 
-    /**
-     * @var string[]
-     */
+    /** @var string[] */
     private $connectionParams = [
-            'dbname'   => 'database_name',
-            'user'     => 'database_user',
-            'password' => 'database_password',
-            'host'     => 'database_host',
-            'driver'   => 'database_driver',
-        ];
+        'dbname'   => 'database_name',
+        'user'     => 'database_user',
+        'password' => 'database_password',
+        'host'     => 'database_host',
+        'driver'   => 'database_driver',
+    ];
 
     protected function setUp()
     {
@@ -50,7 +40,7 @@ class QueryCacheProfileTest extends DbalTestCase
 
     public function testShouldUseTheGivenCacheKeyIfPresent()
     {
-        list($cacheKey) = $this->queryCacheProfile->generateCacheKeys(
+        [$cacheKey] = $this->queryCacheProfile->generateCacheKeys(
             $this->query,
             $this->params,
             $this->types,
@@ -64,7 +54,7 @@ class QueryCacheProfileTest extends DbalTestCase
     {
         $this->queryCacheProfile = $this->queryCacheProfile->setCacheKey(null);
 
-        list($cacheKey) = $this->queryCacheProfile->generateCacheKeys(
+        [$cacheKey] = $this->queryCacheProfile->generateCacheKeys(
             $this->query,
             $this->params,
             $this->types,
@@ -84,7 +74,7 @@ class QueryCacheProfileTest extends DbalTestCase
     {
         $this->queryCacheProfile = $this->queryCacheProfile->setCacheKey(null);
 
-        list($firstCacheKey) = $this->queryCacheProfile->generateCacheKeys(
+        [$firstCacheKey] = $this->queryCacheProfile->generateCacheKeys(
             $this->query,
             $this->params,
             $this->types,
@@ -93,7 +83,7 @@ class QueryCacheProfileTest extends DbalTestCase
 
         $this->connectionParams['host'] = 'a_different_host';
 
-        list($secondCacheKey) = $this->queryCacheProfile->generateCacheKeys(
+        [$secondCacheKey] = $this->queryCacheProfile->generateCacheKeys(
             $this->query,
             $this->params,
             $this->types,
@@ -107,7 +97,7 @@ class QueryCacheProfileTest extends DbalTestCase
     {
         $this->queryCacheProfile = $this->queryCacheProfile->setCacheKey(null);
 
-        list($cacheKey, $queryString) = $this->queryCacheProfile->generateCacheKeys(
+        [$cacheKey, $queryString] = $this->queryCacheProfile->generateCacheKeys(
             $this->query,
             $this->params,
             $this->types,
@@ -128,14 +118,14 @@ class QueryCacheProfileTest extends DbalTestCase
     {
         $this->queryCacheProfile = $this->queryCacheProfile->setCacheKey(null);
 
-        list($firstCacheKey) = $this->queryCacheProfile->generateCacheKeys(
+        [$firstCacheKey] = $this->queryCacheProfile->generateCacheKeys(
             $this->query,
             $this->params,
             $this->types,
             $this->connectionParams
         );
 
-        list($secondCacheKey) = $this->queryCacheProfile->generateCacheKeys(
+        [$secondCacheKey] = $this->queryCacheProfile->generateCacheKeys(
             $this->query,
             $this->params,
             $this->types,

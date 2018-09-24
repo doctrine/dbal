@@ -4,7 +4,6 @@ namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\Tests\DbalFunctionalTestCase;
 use function sprintf;
-use function str_replace;
 
 final class LikeWildcardsEscapingTest extends DbalFunctionalTestCase
 {

@@ -17,9 +17,11 @@ class DriverTest extends AbstractDriverTest
 
         parent::setUp();
 
-        if (! $this->_conn->getDriver() instanceof Driver) {
-            $this->markTestSkipped('sqlanywhere only test.');
+        if ($this->_conn->getDriver() instanceof Driver) {
+            return;
         }
+
+        $this->markTestSkipped('sqlanywhere only test.');
     }
 
     public function testReturnsDatabaseNameWithoutDatabaseNameParameter()

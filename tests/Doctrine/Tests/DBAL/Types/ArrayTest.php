@@ -5,31 +5,28 @@ namespace Doctrine\Tests\DBAL\Types;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DBAL\Mocks\MockPlatform;
+use Doctrine\Tests\DbalTestCase;
 use function serialize;
 
-class ArrayTest extends \Doctrine\Tests\DbalTestCase
+class ArrayTest extends DbalTestCase
 {
-    /**
-     * @var AbstractPlatform
-     */
+    /** @var AbstractPlatform */
     protected $_platform;
 
-    /**
-     * @var Type
-     */
+    /** @var Type */
     protected $_type;
 
     protected function setUp()
     {
         $this->_platform = new MockPlatform();
-        $this->_type = Type::getType('array');
+        $this->_type     = Type::getType('array');
     }
 
     public function testArrayConvertsToDatabaseValue()
     {
         self::assertInternalType(
             'string',
-            $this->_type->convertToDatabaseValue(array(), $this->_platform)
+            $this->_type->convertToDatabaseValue([], $this->_platform)
         );
     }
 
@@ -37,7 +34,7 @@ class ArrayTest extends \Doctrine\Tests\DbalTestCase
     {
         self::assertInternalType(
             'array',
-            $this->_type->convertToPHPValue(serialize(array()), $this->_platform)
+            $this->_type->convertToPHPValue(serialize([]), $this->_platform)
         );
     }
 

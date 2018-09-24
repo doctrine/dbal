@@ -3,66 +3,61 @@
 namespace Doctrine\Tests\Mocks;
 
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 
-class DatabasePlatformMock extends \Doctrine\DBAL\Platforms\AbstractPlatform
+class DatabasePlatformMock extends AbstractPlatform
 {
-    /**
-     * @var string
-     */
-    private $_sequenceNextValSql = "";
+    /** @var string */
+    private $_sequenceNextValSql = '';
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     private $_prefersIdentityColumns = true;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     private $_prefersSequences = false;
 
-    /**
-     * @override
-     */
     public function prefersIdentityColumns()
     {
         return $this->_prefersIdentityColumns;
     }
 
-    /**
-     * @override
-     */
     public function prefersSequences()
     {
         return $this->_prefersSequences;
     }
 
-    /** @override */
     public function getSequenceNextValSQL($sequenceName)
     {
         return $this->_sequenceNextValSql;
     }
 
-    /** @override */
-    public function getBooleanTypeDeclarationSQL(array $field) {}
+    public function getBooleanTypeDeclarationSQL(array $field)
+    {
+    }
 
-    /** @override */
-    public function getIntegerTypeDeclarationSQL(array $field) {}
+    public function getIntegerTypeDeclarationSQL(array $field)
+    {
+    }
 
-    /** @override */
-    public function getBigIntTypeDeclarationSQL(array $field) {}
+    public function getBigIntTypeDeclarationSQL(array $field)
+    {
+    }
 
-    /** @override */
-    public function getSmallIntTypeDeclarationSQL(array $field) {}
+    public function getSmallIntTypeDeclarationSQL(array $field)
+    {
+    }
 
-    /** @override */
-    protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef) {}
+    protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef)
+    {
+    }
 
-    /** @override */
-    public function getVarcharTypeDeclarationSQL(array $field) {}
+    public function getVarcharTypeDeclarationSQL(array $field)
+    {
+    }
 
-    /** @override */
-    public function getClobTypeDeclarationSQL(array $field) {}
+    public function getClobTypeDeclarationSQL(array $field)
+    {
+    }
 
     /* MOCK API */
 
@@ -85,11 +80,11 @@ class DatabasePlatformMock extends \Doctrine\DBAL\Platforms\AbstractPlatform
     {
         return 'mock';
     }
-    protected function initializeDoctrineTypeMappings() {
+    protected function initializeDoctrineTypeMappings()
+    {
     }
     protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)
     {
-
     }
     /**
      * Gets the SQL Snippet used to declare a BLOB column type.

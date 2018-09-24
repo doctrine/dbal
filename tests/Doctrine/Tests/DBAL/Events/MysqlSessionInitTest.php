@@ -14,10 +14,9 @@ class MysqlSessionInitTest extends DbalTestCase
         $connectionMock = $this->createMock('Doctrine\DBAL\Connection');
         $connectionMock->expects($this->once())
                        ->method('executeUpdate')
-                       ->with($this->equalTo("SET NAMES foo COLLATE bar"));
+                       ->with($this->equalTo('SET NAMES foo COLLATE bar'));
 
         $eventArgs = new ConnectionEventArgs($connectionMock);
-
 
         $listener = new MysqlSessionInit('foo', 'bar');
         $listener->postConnect($eventArgs);
@@ -26,6 +25,6 @@ class MysqlSessionInitTest extends DbalTestCase
     public function testGetSubscribedEvents()
     {
         $listener = new MysqlSessionInit();
-        self::assertEquals(array(Events::postConnect), $listener->getSubscribedEvents());
+        self::assertEquals([Events::postConnect], $listener->getSubscribedEvents());
     }
 }

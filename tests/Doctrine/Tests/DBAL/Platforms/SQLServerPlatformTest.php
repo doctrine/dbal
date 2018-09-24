@@ -7,10 +7,9 @@ use Doctrine\DBAL\Platforms\SQLServerPlatform;
 
 class SQLServerPlatformTest extends AbstractSQLServerPlatformTestCase
 {
-
     public function createPlatform()
     {
-        return new SQLServerPlatform;
+        return new SQLServerPlatform();
     }
 
     /**
@@ -36,15 +35,15 @@ class SQLServerPlatformTest extends AbstractSQLServerPlatformTestCase
 
     public function getLockHints()
     {
-        return array(
-            array(null, ''),
-            array(false, ''),
-            array(true, ''),
-            array(LockMode::NONE, ' WITH (NOLOCK)'),
-            array(LockMode::OPTIMISTIC, ''),
-            array(LockMode::PESSIMISTIC_READ, ' WITH (HOLDLOCK, ROWLOCK)'),
-            array(LockMode::PESSIMISTIC_WRITE, ' WITH (UPDLOCK, ROWLOCK)'),
-        );
+        return [
+            [null, ''],
+            [false, ''],
+            [true, ''],
+            [LockMode::NONE, ' WITH (NOLOCK)'],
+            [LockMode::OPTIMISTIC, ''],
+            [LockMode::PESSIMISTIC_READ, ' WITH (HOLDLOCK, ROWLOCK)'],
+            [LockMode::PESSIMISTIC_WRITE, ' WITH (UPDLOCK, ROWLOCK)'],
+        ];
     }
 
     public function getModifyLimitQueries()

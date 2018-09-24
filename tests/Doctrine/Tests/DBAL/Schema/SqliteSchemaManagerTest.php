@@ -5,12 +5,13 @@ namespace Doctrine\Tests\DBAL\Schema;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\SqliteSchemaManager;
+use PHPUnit\Framework\TestCase;
+use ReflectionMethod;
 
-class SqliteSchemaManagerTest extends \PHPUnit\Framework\TestCase
+class SqliteSchemaManagerTest extends TestCase
 {
     /**
      * @dataProvider getDataColumnCollation
-     *
      * @group 2865
      */
     public function testParseColumnCollation(?string $collation, string $column, string $sql) : void
@@ -19,7 +20,7 @@ class SqliteSchemaManagerTest extends \PHPUnit\Framework\TestCase
         $conn->method('getDatabasePlatform')->willReturn(new SqlitePlatform());
 
         $manager = new SqliteSchemaManager($conn);
-        $ref     = new \ReflectionMethod($manager, 'parseColumnCollationFromSQL');
+        $ref     = new ReflectionMethod($manager, 'parseColumnCollationFromSQL');
         $ref->setAccessible(true);
 
         self::assertSame($collation, $ref->invoke($manager, $column, $sql));
@@ -49,7 +50,6 @@ class SqliteSchemaManagerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @dataProvider getDataColumnComment
-     *
      * @group 2865
      */
     public function testParseColumnCommentFromSQL(?string $comment, string $column, string $sql) : void
@@ -58,7 +58,7 @@ class SqliteSchemaManagerTest extends \PHPUnit\Framework\TestCase
         $conn->method('getDatabasePlatform')->willReturn(new SqlitePlatform());
 
         $manager = new SqliteSchemaManager($conn);
-        $ref     = new \ReflectionMethod($manager, 'parseColumnCommentFromSQL');
+        $ref     = new ReflectionMethod($manager, 'parseColumnCommentFromSQL');
         $ref->setAccessible(true);
 
         self::assertSame($comment, $ref->invoke($manager, $column, $sql));
@@ -68,40 +68,58 @@ class SqliteSchemaManagerTest extends \PHPUnit\Framework\TestCase
     {
         return [
             'Single column with no comment' => [
-                null, 'a', 'CREATE TABLE "a" ("a" TEXT DEFAULT "a" COLLATE RTRIM)',
+                null,
+                'a',
+                'CREATE TABLE "a" ("a" TEXT DEFAULT "a" COLLATE RTRIM)',
             ],
             'Single column with type comment' => [
-                '(DC2Type:x)', 'a', 'CREATE TABLE "a" ("a" CLOB DEFAULT NULL COLLATE BINARY --(DC2Type:x)
+                '(DC2Type:x)',
+                'a',
+                'CREATE TABLE "a" ("a" CLOB DEFAULT NULL COLLATE BINARY --(DC2Type:x)
 )',
             ],
             'Multiple similar columns with type comment 1' => [
-                null, 'b', 'CREATE TABLE "a" (a TEXT COLLATE RTRIM, "b" TEXT DEFAULT "a" COLLATE RTRIM, "bb" CLOB DEFAULT NULL COLLATE BINARY --(DC2Type:x)
+                null,
+                'b',
+                'CREATE TABLE "a" (a TEXT COLLATE RTRIM, "b" TEXT DEFAULT "a" COLLATE RTRIM, "bb" CLOB DEFAULT NULL COLLATE BINARY --(DC2Type:x)
 )',
             ],
             'Multiple similar columns with type comment 2' => [
-                '(DC2Type:x)', 'b', 'CREATE TABLE "a" (a TEXT COLLATE RTRIM, "bb" TEXT DEFAULT "a" COLLATE RTRIM, "b" CLOB DEFAULT NULL COLLATE BINARY --(DC2Type:x)
+                '(DC2Type:x)',
+                'b',
+                'CREATE TABLE "a" (a TEXT COLLATE RTRIM, "bb" TEXT DEFAULT "a" COLLATE RTRIM, "b" CLOB DEFAULT NULL COLLATE BINARY --(DC2Type:x)
 )',
             ],
             'Multiple similar columns on different lines, with type comment 1' => [
-                null, 'bb', 'CREATE TABLE "a" (a TEXT COLLATE RTRIM, "b" CLOB DEFAULT NULL COLLATE BINARY --(DC2Type:x)
+                null,
+                'bb',
+                'CREATE TABLE "a" (a TEXT COLLATE RTRIM, "b" CLOB DEFAULT NULL COLLATE BINARY --(DC2Type:x)
 , "bb" TEXT DEFAULT "a" COLLATE RTRIM',
             ],
             'Multiple similar columns on different lines, with type comment 2' => [
-                '(DC2Type:x)', 'bb', 'CREATE TABLE "a" (a TEXT COLLATE RTRIM, "bb" CLOB DEFAULT NULL COLLATE BINARY --(DC2Type:x)
+                '(DC2Type:x)',
+                'bb',
+                'CREATE TABLE "a" (a TEXT COLLATE RTRIM, "bb" CLOB DEFAULT NULL COLLATE BINARY --(DC2Type:x)
 , "b" TEXT DEFAULT "a" COLLATE RTRIM',
             ],
             'Column with numeric but no comment 1' => [
-                null, 'a', 'CREATE TABLE "a" ("a" NUMERIC(10, 0) NOT NULL, "b" CLOB NOT NULL --(DC2Type:array)
+                null,
+                'a',
+                'CREATE TABLE "a" ("a" NUMERIC(10, 0) NOT NULL, "b" CLOB NOT NULL --(DC2Type:array)
 , "c" CHAR(36) NOT NULL --(DC2Type:guid)
 )',
             ],
             'Column with numeric but no comment 2' => [
-                null, 'a', 'CREATE TABLE "b" ("a" NUMERIC(10, 0) NOT NULL, "b" CLOB NOT NULL --(DC2Type:array)
+                null,
+                'a',
+                'CREATE TABLE "b" ("a" NUMERIC(10, 0) NOT NULL, "b" CLOB NOT NULL --(DC2Type:array)
 , "c" CHAR(36) NOT NULL --(DC2Type:guid)
 )',
             ],
             'Column with numeric but no comment 3' => [
-                '(DC2Type:guid)', 'c', 'CREATE TABLE "b" ("a" NUMERIC(10, 0) NOT NULL, "b" CLOB NOT NULL --(DC2Type:array)
+                '(DC2Type:guid)',
+                'c',
+                'CREATE TABLE "b" ("a" NUMERIC(10, 0) NOT NULL, "b" CLOB NOT NULL --(DC2Type:array)
 , "c" CHAR(36) NOT NULL --(DC2Type:guid)
 )',
             ],

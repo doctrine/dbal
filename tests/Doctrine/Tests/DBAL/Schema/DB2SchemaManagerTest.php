@@ -8,28 +8,26 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Schema\DB2SchemaManager;
+use PHPUnit\Framework\TestCase;
+use PHPUnit_Framework_MockObject_MockObject;
 
 /**
  * @covers \Doctrine\DBAL\Schema\DB2SchemaManager
  */
-final class DB2SchemaManagerTest extends \PHPUnit\Framework\TestCase
+final class DB2SchemaManagerTest extends TestCase
 {
-    /**
-     * @var Connection|\PHPUnit_Framework_MockObject_MockObject
-     */
+    /** @var Connection|PHPUnit_Framework_MockObject_MockObject */
     private $conn;
 
-    /**
-     * @var DB2SchemaManager
-     */
+    /** @var DB2SchemaManager */
     private $manager;
 
     protected function setUp()
     {
-        $eventManager = new EventManager();
-        $driverMock = $this->createMock(Driver::class);
-        $platform = $this->createMock(DB2Platform::class);
-        $this->conn = $this
+        $eventManager  = new EventManager();
+        $driverMock    = $this->createMock(Driver::class);
+        $platform      = $this->createMock(DB2Platform::class);
+        $this->conn    = $this
             ->getMockBuilder(Connection::class)
             ->setMethods(['fetchAll'])
             ->setConstructorArgs([['platform' => $platform], $driverMock, new Configuration(), $eventManager])
@@ -38,26 +36,20 @@ final class DB2SchemaManagerTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @group DBAL-2701
      * @see https://github.com/doctrine/dbal/issues/2701
+     *
      * @return void
+     *
+     * @group DBAL-2701
      */
     public function testListTableNamesFiltersAssetNamesCorrectly()
     {
         $this->conn->getConfiguration()->setFilterSchemaAssetsExpression('/^(?!T_)/');
         $this->conn->expects($this->once())->method('fetchAll')->will($this->returnValue([
-            [
-                'name' => 'FOO',
-            ],
-            [
-                'name' => 'T_FOO',
-            ],
-            [
-                'name' => 'BAR',
-            ],
-            [
-                'name' => 'T_BAR',
-            ],
+            ['name' => 'FOO'],
+            ['name' => 'T_FOO'],
+            ['name' => 'BAR'],
+            ['name' => 'T_BAR'],
         ]));
 
         self::assertSame(

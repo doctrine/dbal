@@ -3,11 +3,12 @@
 namespace Doctrine\Tests\DBAL\Schema\Visitor;
 
 use Doctrine\DBAL\Schema\Visitor\DropSchemaSqlCollector;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @covers Doctrine\DBAL\Schema\Visitor\DropSchemaSqlCollector
  */
-class DropSchemaSqlCollectorTest extends \PHPUnit\Framework\TestCase
+class DropSchemaSqlCollectorTest extends TestCase
 {
     public function testGetQueriesUsesAcceptedForeignKeys()
     {
@@ -18,7 +19,7 @@ class DropSchemaSqlCollectorTest extends \PHPUnit\Framework\TestCase
         $keyConstraintTwo = $this->getStubKeyConstraint('second');
 
         $platform = $this->getMockBuilder('Doctrine\DBAL\Platforms\AbstractPlatform')
-            ->setMethods(array('getDropForeignKeySQL'))
+            ->setMethods(['getDropForeignKeySQL'])
             ->getMockForAbstractClass();
 
         $collector = new DropSchemaSqlCollector($platform);
@@ -60,11 +61,11 @@ class DropSchemaSqlCollectorTest extends \PHPUnit\Framework\TestCase
 
         $constraint->expects($this->any())
             ->method('getForeignColumns')
-            ->will($this->returnValue(array()));
+            ->will($this->returnValue([]));
 
         $constraint->expects($this->any())
             ->method('getColumns')
-            ->will($this->returnValue(array()));
+            ->will($this->returnValue([]));
 
         return $constraint;
     }
@@ -75,7 +76,7 @@ class DropSchemaSqlCollectorTest extends \PHPUnit\Framework\TestCase
             $this->getMockForAbstractClass('Doctrine\DBAL\Platforms\AbstractPlatform')
         );
 
-        $this->expectException( 'Doctrine\DBAL\Schema\SchemaException' );
+        $this->expectException('Doctrine\DBAL\Schema\SchemaException');
         $collector->acceptForeignKey($this->getTableMock(), $this->getStubKeyConstraint(''));
     }
 }

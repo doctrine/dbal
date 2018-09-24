@@ -12,28 +12,29 @@ class PDOPgsqlConnectionTest extends DbalFunctionalTestCase
 {
     protected function setUp()
     {
-        if ( ! extension_loaded('pdo_pgsql')) {
+        if (! extension_loaded('pdo_pgsql')) {
             $this->markTestSkipped('pdo_pgsql is not loaded.');
         }
 
         parent::setUp();
 
-        if ( ! $this->_conn->getDatabasePlatform() instanceof PostgreSqlPlatform) {
-            $this->markTestSkipped('PDOPgsql only test.');
+        if ($this->_conn->getDatabasePlatform() instanceof PostgreSqlPlatform) {
+            return;
         }
+
+        $this->markTestSkipped('PDOPgsql only test.');
     }
 
     /**
+     * @param string $charset
+     *
      * @group DBAL-1183
      * @group DBAL-1189
-     *
      * @dataProvider getValidCharsets
-     *
-     * @param string $charset
      */
     public function testConnectsWithValidCharsetOption($charset)
     {
-        $params = $this->_conn->getParams();
+        $params            = $this->_conn->getParams();
         $params['charset'] = $charset;
 
         $connection = DriverManager::getConnection(
@@ -54,9 +55,9 @@ class PDOPgsqlConnectionTest extends DbalFunctionalTestCase
      */
     public function getValidCharsets()
     {
-        return array(
-           array("UTF8"),
-           array("LATIN1")
-        );
+        return [
+            ['UTF8'],
+            ['LATIN1'],
+        ];
     }
 }

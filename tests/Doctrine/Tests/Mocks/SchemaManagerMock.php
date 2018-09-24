@@ -2,12 +2,17 @@
 
 namespace Doctrine\Tests\Mocks;
 
-class SchemaManagerMock extends \Doctrine\DBAL\Schema\AbstractSchemaManager
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Schema\AbstractSchemaManager;
+
+class SchemaManagerMock extends AbstractSchemaManager
 {
-    public function __construct(\Doctrine\DBAL\Connection $conn)
+    public function __construct(Connection $conn)
     {
         parent::__construct($conn);
     }
 
-    protected function _getPortableTableColumnDefinition($tableColumn) {}
+    protected function _getPortableTableColumnDefinition($tableColumn)
+    {
+    }
 }

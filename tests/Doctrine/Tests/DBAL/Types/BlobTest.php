@@ -2,23 +2,21 @@
 
 namespace Doctrine\Tests\DBAL\Types;
 
+use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DBAL\Mocks\MockPlatform;
+use Doctrine\Tests\DbalTestCase;
 use function base64_encode;
 use function chr;
 use function fopen;
 use function stream_get_contents;
 
-class BlobTest extends \Doctrine\Tests\DbalTestCase
+class BlobTest extends DbalTestCase
 {
-    /**
-     * @var \Doctrine\Tests\DBAL\Mocks\MockPlatform
-     */
+    /** @var MockPlatform */
     protected $platform;
 
-    /**
-     * @var \Doctrine\DBAL\Types\BlobType
-     */
+    /** @var BlobType */
     protected $type;
 
     /**
@@ -27,7 +25,7 @@ class BlobTest extends \Doctrine\Tests\DbalTestCase
     protected function setUp()
     {
         $this->platform = new MockPlatform();
-        $this->type = Type::getType('blob');
+        $this->type     = Type::getType('blob');
     }
 
     public function testBlobNullConvertsToPHPValue()

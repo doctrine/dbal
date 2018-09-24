@@ -9,26 +9,22 @@ use function get_class;
 
 class GuidTypeTest extends DbalTestCase
 {
-    /**
-     * @var MockPlatform
-     */
+    /** @var MockPlatform */
     protected $_platform;
 
-    /**
-     * @var Type
-     */
+    /** @var Type */
     protected $_type;
 
     protected function setUp()
     {
         $this->_platform = new MockPlatform();
-        $this->_type = Type::getType('guid');
+        $this->_type     = Type::getType('guid');
     }
 
     public function testConvertToPHPValue()
     {
-        self::assertInternalType("string", $this->_type->convertToPHPValue("foo", $this->_platform));
-        self::assertInternalType("string", $this->_type->convertToPHPValue("", $this->_platform));
+        self::assertInternalType('string', $this->_type->convertToPHPValue('foo', $this->_platform));
+        self::assertInternalType('string', $this->_type->convertToPHPValue('', $this->_platform));
     }
 
     public function testNullConversion()

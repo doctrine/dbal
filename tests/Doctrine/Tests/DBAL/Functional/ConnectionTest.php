@@ -2,14 +2,20 @@
 
 namespace Doctrine\Tests\DBAL\Functional;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Tests\DbalFunctionalTestCase;
+use Error;
+use Exception;
+use RuntimeException;
+use Throwable;
 use function in_array;
 
-class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
+class ConnectionTest extends DbalFunctionalTestCase
 {
     protected function setUp()
     {
@@ -46,9 +52,9 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             try {
                 $this->_conn->beginTransaction();
                 self::assertEquals(2, $this->_conn->getTransactionNestingLevel());
-                throw new \Exception;
+                throw new Exception();
                 $this->_conn->commit(); // never reached
-            } catch (\Exception $e) {
+            } catch (Throwable $e) {
                 $this->_conn->rollBack();
                 self::assertEquals(1, $this->_conn->getTransactionNestingLevel());
                 //no rethrow
@@ -82,9 +88,9 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
                 self::assertEquals(3, $this->_conn->getTransactionNestingLevel());
                 $this->_conn->commit();
                 self::assertEquals(2, $this->_conn->getTransactionNestingLevel());
-                throw new \Exception;
+                throw new Exception();
                 $this->_conn->commit(); // never reached
-            } catch (\Exception $e) {
+            } catch (Throwable $e) {
                 $this->_conn->rollBack();
                 self::assertEquals(1, $this->_conn->getTransactionNestingLevel());
                 //no rethrow
@@ -121,7 +127,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
 
         $this->expectException(ConnectionException::class);
-        $this->expectExceptionMessage("Savepoints are not supported by this driver.");
+        $this->expectExceptionMessage('Savepoints are not supported by this driver.');
 
         $this->_conn->setNestTransactionsWithSavepoints(true);
     }
@@ -133,7 +139,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
 
         $this->expectException(ConnectionException::class);
-        $this->expectExceptionMessage("Savepoints are not supported by this driver.");
+        $this->expectExceptionMessage('Savepoints are not supported by this driver.');
 
         $this->_conn->createSavepoint('foo');
     }
@@ -145,7 +151,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
 
         $this->expectException(ConnectionException::class);
-        $this->expectExceptionMessage("Savepoints are not supported by this driver.");
+        $this->expectExceptionMessage('Savepoints are not supported by this driver.');
 
         $this->_conn->releaseSavepoint('foo');
     }
@@ -157,7 +163,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
 
         $this->expectException(ConnectionException::class);
-        $this->expectExceptionMessage("Savepoints are not supported by this driver.");
+        $this->expectExceptionMessage('Savepoints are not supported by this driver.');
 
         $this->_conn->rollbackSavepoint('foo');
     }
@@ -168,10 +174,10 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $this->_conn->beginTransaction();
             self::assertEquals(1, $this->_conn->getTransactionNestingLevel());
 
-            throw new \Exception;
+            throw new Exception();
 
             $this->_conn->commit(); // never reached
-        } catch (\Exception $e) {
+        } catch (Throwable $e) {
             self::assertEquals(1, $this->_conn->getTransactionNestingLevel());
             $this->_conn->rollBack();
             self::assertEquals(0, $this->_conn->getTransactionNestingLevel());
@@ -184,7 +190,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $this->_conn->beginTransaction();
             self::assertEquals(1, $this->_conn->getTransactionNestingLevel());
             $this->_conn->commit();
-        } catch (\Exception $e) {
+        } catch (Throwable $e) {
             $this->_conn->rollBack();
             self::assertEquals(0, $this->_conn->getTransactionNestingLevel());
         }
@@ -195,13 +201,13 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function testTransactionalWithException()
     {
         try {
-            $this->_conn->transactional(function($conn) {
-                /* @var $conn \Doctrine\DBAL\Connection */
+            $this->_conn->transactional(static function($conn) {
+                /** @var Connection $conn */
                 $conn->executeQuery($conn->getDatabasePlatform()->getDummySelectSQL());
-                throw new \RuntimeException("Ooops!");
+                throw new RuntimeException('Ooops!');
             });
             $this->fail('Expected exception');
-        } catch (\RuntimeException $expected) {
+        } catch (RuntimeException $expected) {
             self::assertEquals(0, $this->_conn->getTransactionNestingLevel());
         }
     }
@@ -209,21 +215,21 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function testTransactionalWithThrowable()
     {
         try {
-            $this->_conn->transactional(function($conn) {
-                /* @var $conn \Doctrine\DBAL\Connection */
+            $this->_conn->transactional(static function($conn) {
+                /** @var Connection $conn */
                 $conn->executeQuery($conn->getDatabasePlatform()->getDummySelectSQL());
-                throw new \Error("Ooops!");
+                throw new Error('Ooops!');
             });
             $this->fail('Expected exception');
-        } catch (\Error $expected) {
+        } catch (Error $expected) {
             self::assertEquals(0, $this->_conn->getTransactionNestingLevel());
         }
     }
 
     public function testTransactional()
     {
-        $res = $this->_conn->transactional(function($conn) {
-            /* @var $conn \Doctrine\DBAL\Connection */
+        $res = $this->_conn->transactional(static function($conn) {
+            /** @var Connection $conn */
             $conn->executeQuery($conn->getDatabasePlatform()->getDummySelectSQL());
         });
 
@@ -232,7 +238,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testTransactionalReturnValue()
     {
-        $res = $this->_conn->transactional(function() {
+        $res = $this->_conn->transactional(static function() {
             return 42;
         });
 

@@ -2,25 +2,28 @@
 
 namespace Doctrine\Tests\DBAL\Functional\Ticket;
 
+use Doctrine\DBAL\Schema\Table;
+use Doctrine\Tests\DbalFunctionalTestCase;
+
 /**
  * @group DBAL-202
  */
-class DBAL202Test extends \Doctrine\Tests\DbalFunctionalTestCase
+class DBAL202Test extends DbalFunctionalTestCase
 {
     protected function setUp()
     {
         parent::setUp();
 
-        if ($this->_conn->getDatabasePlatform()->getName() != 'oracle') {
+        if ($this->_conn->getDatabasePlatform()->getName() !== 'oracle') {
             $this->markTestSkipped('OCI8 only test');
         }
 
         if ($this->_conn->getSchemaManager()->tablesExist('DBAL202')) {
             $this->_conn->exec('DELETE FROM DBAL202');
         } else {
-            $table = new \Doctrine\DBAL\Schema\Table('DBAL202');
+            $table = new Table('DBAL202');
             $table->addColumn('id', 'integer');
-            $table->setPrimaryKey(array('id'));
+            $table->setPrimaryKey(['id']);
 
             $this->_conn->getSchemaManager()->createTable($table);
         }

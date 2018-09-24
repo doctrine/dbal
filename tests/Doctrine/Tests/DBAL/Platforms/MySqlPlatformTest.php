@@ -9,7 +9,7 @@ class MySqlPlatformTest extends AbstractMySQLPlatformTestCase
 {
     public function createPlatform()
     {
-        return new MysqlPlatform;
+        return new MysqlPlatform();
     }
 
     public function testHasCorrectDefaultTransactionIsolationLevel()

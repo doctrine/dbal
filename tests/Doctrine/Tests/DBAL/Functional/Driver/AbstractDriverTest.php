@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\DBAL\Functional\Driver;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver;
 use Doctrine\Tests\DbalFunctionalTestCase;
 
 abstract class AbstractDriverTest extends DbalFunctionalTestCase
@@ -10,7 +11,7 @@ abstract class AbstractDriverTest extends DbalFunctionalTestCase
     /**
      * The driver instance under test.
      *
-     * @var \Doctrine\DBAL\Driver
+     * @var Driver
      */
     protected $driver;
 
@@ -29,7 +30,7 @@ abstract class AbstractDriverTest extends DbalFunctionalTestCase
         $params = $this->_conn->getParams();
         unset($params['dbname']);
 
-        $user = $params['user'] ?? null;
+        $user     = $params['user'] ?? null;
         $password = $params['password'] ?? null;
 
         $connection = $this->driver->connect($params, $user, $password);
@@ -59,7 +60,7 @@ abstract class AbstractDriverTest extends DbalFunctionalTestCase
     }
 
     /**
-     * @return \Doctrine\DBAL\Driver
+     * @return Driver
      */
     abstract protected function createDriver();
 

@@ -22,6 +22,7 @@ class MariaDb1027PlatformTest extends AbstractMySQLPlatformTestCase
 
     /**
      * From MariaDB 10.2.7, JSON type is an alias to LONGTEXT
+     *
      * @link https://mariadb.com/kb/en/library/json-data-type/
      */
     public function testReturnsJsonTypeDeclarationSQL() : void

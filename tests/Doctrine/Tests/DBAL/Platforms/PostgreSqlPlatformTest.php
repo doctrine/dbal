@@ -8,7 +8,7 @@ class PostgreSqlPlatformTest extends AbstractPostgreSqlPlatformTestCase
 {
     public function createPlatform()
     {
-        return new PostgreSqlPlatform;
+        return new PostgreSqlPlatform();
     }
 
     public function testSupportsPartialIndexes()

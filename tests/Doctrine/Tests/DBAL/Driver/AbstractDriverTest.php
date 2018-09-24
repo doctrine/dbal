@@ -3,37 +3,41 @@
 namespace Doctrine\Tests\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Driver\ExceptionConverterDriver;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
 use Doctrine\Tests\DbalTestCase;
+use Exception;
 use function get_class;
 use function sprintf;
 
 abstract class AbstractDriverTest extends DbalTestCase
 {
-    const EXCEPTION_CONNECTION = 'Doctrine\DBAL\Exception\ConnectionException';
-    const EXCEPTION_CONSTRAINT_VIOLATION = 'Doctrine\DBAL\Exception\ConstraintViolationException';
-    const EXCEPTION_DATABASE_OBJECT_EXISTS = 'Doctrine\DBAL\Exception\DatabaseObjectExistsException';
-    const EXCEPTION_DATABASE_OBJECT_NOT_FOUND = 'Doctrine\DBAL\Exception\DatabaseObjectNotFoundException';
-    const EXCEPTION_DRIVER = 'Doctrine\DBAL\Exception\DriverException';
-    const EXCEPTION_FOREIGN_KEY_CONSTRAINT_VIOLATION = 'Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException';
-    const EXCEPTION_INVALID_FIELD_NAME = 'Doctrine\DBAL\Exception\InvalidFieldNameException';
-    const EXCEPTION_NON_UNIQUE_FIELD_NAME = 'Doctrine\DBAL\Exception\NonUniqueFieldNameException';
-    const EXCEPTION_NOT_NULL_CONSTRAINT_VIOLATION = 'Doctrine\DBAL\Exception\NotNullConstraintViolationException';
-    const EXCEPTION_READ_ONLY = 'Doctrine\DBAL\Exception\ReadOnlyException';
-    const EXCEPTION_SERVER = 'Doctrine\DBAL\Exception\ServerException';
-    const EXCEPTION_SYNTAX_ERROR = 'Doctrine\DBAL\Exception\SyntaxErrorException';
-    const EXCEPTION_TABLE_EXISTS = 'Doctrine\DBAL\Exception\TableExistsException';
-    const EXCEPTION_TABLE_NOT_FOUND = 'Doctrine\DBAL\Exception\TableNotFoundException';
-    const EXCEPTION_UNIQUE_CONSTRAINT_VIOLATION = 'Doctrine\DBAL\Exception\UniqueConstraintViolationException';
-    const EXCEPTION_DEADLOCK = 'Doctrine\DBAL\Exception\DeadlockException';
-    const EXCEPTION_LOCK_WAIT_TIMEOUT = 'Doctrine\DBAL\Exception\LockWaitTimeoutException';
+    public const EXCEPTION_CONNECTION                       = 'Doctrine\DBAL\Exception\ConnectionException';
+    public const EXCEPTION_CONSTRAINT_VIOLATION             = 'Doctrine\DBAL\Exception\ConstraintViolationException';
+    public const EXCEPTION_DATABASE_OBJECT_EXISTS           = 'Doctrine\DBAL\Exception\DatabaseObjectExistsException';
+    public const EXCEPTION_DATABASE_OBJECT_NOT_FOUND        = 'Doctrine\DBAL\Exception\DatabaseObjectNotFoundException';
+    public const EXCEPTION_DRIVER                           = 'Doctrine\DBAL\Exception\DriverException';
+    public const EXCEPTION_FOREIGN_KEY_CONSTRAINT_VIOLATION = 'Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException';
+    public const EXCEPTION_INVALID_FIELD_NAME               = 'Doctrine\DBAL\Exception\InvalidFieldNameException';
+    public const EXCEPTION_NON_UNIQUE_FIELD_NAME            = 'Doctrine\DBAL\Exception\NonUniqueFieldNameException';
+    public const EXCEPTION_NOT_NULL_CONSTRAINT_VIOLATION    = 'Doctrine\DBAL\Exception\NotNullConstraintViolationException';
+    public const EXCEPTION_READ_ONLY                        = 'Doctrine\DBAL\Exception\ReadOnlyException';
+    public const EXCEPTION_SERVER                           = 'Doctrine\DBAL\Exception\ServerException';
+    public const EXCEPTION_SYNTAX_ERROR                     = 'Doctrine\DBAL\Exception\SyntaxErrorException';
+    public const EXCEPTION_TABLE_EXISTS                     = 'Doctrine\DBAL\Exception\TableExistsException';
+    public const EXCEPTION_TABLE_NOT_FOUND                  = 'Doctrine\DBAL\Exception\TableNotFoundException';
+    public const EXCEPTION_UNIQUE_CONSTRAINT_VIOLATION      = 'Doctrine\DBAL\Exception\UniqueConstraintViolationException';
+    public const EXCEPTION_DEADLOCK                         = 'Doctrine\DBAL\Exception\DeadlockException';
+    public const EXCEPTION_LOCK_WAIT_TIMEOUT                = 'Doctrine\DBAL\Exception\LockWaitTimeoutException';
 
     /**
      * The driver mock under test.
      *
-     * @var \Doctrine\DBAL\Driver
+     * @var Driver
      */
     protected $driver;
 
@@ -46,7 +50,7 @@ abstract class AbstractDriverTest extends DbalTestCase
 
     public function testConvertsException()
     {
-        if ( ! $this->driver instanceof ExceptionConverterDriver) {
+        if (! $this->driver instanceof ExceptionConverterDriver) {
             $this->markTestSkipped('This test is only intended for exception converter drivers.');
         }
 
@@ -56,13 +60,13 @@ abstract class AbstractDriverTest extends DbalTestCase
             $this->fail(
                 sprintf(
                     'No test data found for test %s. You have to return test data from %s.',
-                    get_class($this) . '::' . __FUNCTION__,
-                    get_class($this) . '::getExceptionConversionData'
+                    static::class . '::' . __FUNCTION__,
+                    static::class . '::getExceptionConversionData'
                 )
             );
         }
 
-        $driverException = new class extends \Exception implements DriverException
+        $driverException = new class extends Exception implements DriverException
         {
             public function __construct()
             {
@@ -86,13 +90,13 @@ abstract class AbstractDriverTest extends DbalTestCase
             }
         };
 
-        $data[] = array($driverException, self::EXCEPTION_DRIVER);
+        $data[] = [$driverException, self::EXCEPTION_DRIVER];
 
         $message = 'DBAL exception message';
 
         foreach ($data as $item) {
             /** @var $driverException \Doctrine\DBAL\Driver\DriverException */
-            list($driverException, $convertedExceptionClassName) = $item;
+            [$driverException, $convertedExceptionClassName] = $item;
 
             $convertedException = $this->driver->convertException($message, $driverException);
 
@@ -106,7 +110,7 @@ abstract class AbstractDriverTest extends DbalTestCase
 
     public function testCreatesDatabasePlatformForVersion()
     {
-        if ( ! $this->driver instanceof VersionAwarePlatformDriver) {
+        if (! $this->driver instanceof VersionAwarePlatformDriver) {
             $this->markTestSkipped('This test is only intended for version aware platform drivers.');
         }
 
@@ -116,8 +120,8 @@ abstract class AbstractDriverTest extends DbalTestCase
             $data,
             sprintf(
                 'No test data found for test %s. You have to return test data from %s.',
-                get_class($this) . '::' . __FUNCTION__,
-                get_class($this) . '::getDatabasePlatformsForVersions'
+                static::class . '::' . __FUNCTION__,
+                static::class . '::getDatabasePlatformsForVersions'
             )
         );
 
@@ -142,7 +146,7 @@ abstract class AbstractDriverTest extends DbalTestCase
      */
     public function testThrowsExceptionOnCreatingDatabasePlatformsForInvalidVersion()
     {
-        if ( ! $this->driver instanceof VersionAwarePlatformDriver) {
+        if (! $this->driver instanceof VersionAwarePlatformDriver) {
             $this->markTestSkipped('This test is only intended for version aware platform drivers.');
         }
 
@@ -151,11 +155,11 @@ abstract class AbstractDriverTest extends DbalTestCase
 
     public function testReturnsDatabaseName()
     {
-        $params = array(
+        $params = [
             'user'     => 'foo',
             'password' => 'bar',
             'dbname'   => 'baz',
-        );
+        ];
 
         $connection = $this->getConnectionMock();
 
@@ -183,7 +187,7 @@ abstract class AbstractDriverTest extends DbalTestCase
     /**
      * Factory method for creating the driver instance under test.
      *
-     * @return \Doctrine\DBAL\Driver
+     * @return Driver
      */
     abstract protected function createDriver();
 
@@ -193,7 +197,7 @@ abstract class AbstractDriverTest extends DbalTestCase
      * The platform instance returned by this method must be the same as returned by
      * the driver's getDatabasePlatform() method.
      *
-     * @return \Doctrine\DBAL\Platforms\AbstractPlatform
+     * @return AbstractPlatform
      */
     abstract protected function createPlatform();
 
@@ -205,7 +209,7 @@ abstract class AbstractDriverTest extends DbalTestCase
      *
      * @param Connection $connection The underlying connection to use.
      *
-     * @return \Doctrine\DBAL\Schema\AbstractSchemaManager
+     * @return AbstractSchemaManager
      */
     abstract protected function createSchemaManager(Connection $connection);
 
@@ -218,32 +222,28 @@ abstract class AbstractDriverTest extends DbalTestCase
 
     protected function getDatabasePlatformsForVersions()
     {
-        return array();
+        return [];
     }
 
     protected function getExceptionConversionData()
     {
-        return array();
+        return [];
     }
 
     private function getExceptionConversions()
     {
-        $data = array();
+        $data = [];
 
         foreach ($this->getExceptionConversionData() as $convertedExceptionClassName => $errors) {
             foreach ($errors as $error) {
                 $driverException = new class ($error[0], $error[1], $error[2])
-                    extends \Exception
+                    extends Exception
                     implements DriverException
                 {
-                    /**
-                     * @var mixed
-                     */
+                    /** @var mixed */
                     private $errorCode;
 
-                    /**
-                     * @var mixed
-                     */
+                    /** @var mixed */
                     private $sqlState;
 
                     public function __construct($errorCode, $sqlState, $message)
@@ -271,7 +271,7 @@ abstract class AbstractDriverTest extends DbalTestCase
                     }
                 };
 
-                $data[] = array($driverException, $convertedExceptionClassName);
+                $data[] = [$driverException, $convertedExceptionClassName];
             }
         }
 

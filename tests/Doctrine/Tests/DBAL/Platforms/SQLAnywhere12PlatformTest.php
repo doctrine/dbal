@@ -8,14 +8,12 @@ use Doctrine\DBAL\Schema\Sequence;
 
 class SQLAnywhere12PlatformTest extends SQLAnywhere11PlatformTest
 {
-    /**
-     * @var \Doctrine\DBAL\Platforms\SQLAnywhere12Platform
-     */
+    /** @var SQLAnywhere12Platform */
     protected $_platform;
 
     public function createPlatform()
     {
-        return new SQLAnywhere12Platform;
+        return new SQLAnywhere12Platform();
     }
 
     public function testDoesNotSupportSequences()
@@ -48,7 +46,7 @@ class SQLAnywhere12PlatformTest extends SQLAnywhere11PlatformTest
             $this->_platform->getDropSequenceSQL($sequence)
         );
         self::assertEquals(
-            "SELECT myseq.NEXTVAL",
+            'SELECT myseq.NEXTVAL',
             $this->_platform->getSequenceNextValSQL('myseq')
         );
         self::assertEquals(
@@ -61,12 +59,12 @@ class SQLAnywhere12PlatformTest extends SQLAnywhere11PlatformTest
     {
         self::assertEquals(
             'TIMESTAMP WITH TIME ZONE',
-            $this->_platform->getDateTimeTzTypeDeclarationSQL(array(
+            $this->_platform->getDateTimeTzTypeDeclarationSQL([
                 'length' => 10,
                 'fixed' => true,
                 'unsigned' => true,
-                'autoincrement' => true
-            ))
+                'autoincrement' => true,
+            ])
         );
     }
 
@@ -88,10 +86,10 @@ class SQLAnywhere12PlatformTest extends SQLAnywhere11PlatformTest
             $this->_platform->getCreateIndexSQL(
                 new Index(
                     'fooindex',
-                    array('a', 'b'),
+                    ['a', 'b'],
                     true,
                     false,
-                    array('virtual', 'clustered', 'with_nulls_not_distinct', 'for_olap_workload')
+                    ['virtual', 'clustered', 'with_nulls_not_distinct', 'for_olap_workload']
                 ),
                 'footable'
             )
@@ -101,10 +99,10 @@ class SQLAnywhere12PlatformTest extends SQLAnywhere11PlatformTest
             $this->_platform->getCreateIndexSQL(
                 new Index(
                     'fooindex',
-                    array('a', 'b'),
+                    ['a', 'b'],
                     false,
                     false,
-                    array('virtual', 'clustered', 'with_nulls_not_distinct', 'for_olap_workload')
+                    ['virtual', 'clustered', 'with_nulls_not_distinct', 'for_olap_workload']
                 ),
                 'footable'
             )
@@ -116,10 +114,10 @@ class SQLAnywhere12PlatformTest extends SQLAnywhere11PlatformTest
             $this->_platform->getCreateIndexSQL(
                 new Index(
                     'fooindex',
-                    array('a', 'b'),
+                    ['a', 'b'],
                     false,
                     true,
-                    array('with_nulls_not_distinct')
+                    ['with_nulls_not_distinct']
                 ),
                 'footable'
             )
@@ -131,10 +129,10 @@ class SQLAnywhere12PlatformTest extends SQLAnywhere11PlatformTest
             $this->_platform->getCreateIndexSQL(
                 new Index(
                     'fooindex',
-                    array('a', 'b'),
+                    ['a', 'b'],
                     false,
                     false,
-                    array('with_nulls_not_distinct')
+                    ['with_nulls_not_distinct']
                 ),
                 'footable'
             )

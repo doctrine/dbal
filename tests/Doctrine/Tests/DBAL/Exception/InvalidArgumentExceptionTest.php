@@ -20,15 +20,14 @@
 namespace Doctrine\Tests\DBAL\Exception;
 
 use Doctrine\DBAL\Exception\InvalidArgumentException;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Tests for {@see \Doctrine\DBAL\Exception\InvalidArgumentException}
  *
  * @covers \Doctrine\DBAL\Exception\InvalidArgumentException
- *
- * @author Marco Pivetta <ocramius@gmail.com>
  */
-class InvalidArgumentExceptionTest extends \PHPUnit\Framework\TestCase
+class InvalidArgumentExceptionTest extends TestCase
 {
     public function testFromEmptyCriteria()
     {

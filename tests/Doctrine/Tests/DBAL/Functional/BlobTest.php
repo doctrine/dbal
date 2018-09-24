@@ -5,8 +5,10 @@ namespace Doctrine\Tests\DBAL\Functional;
 use Doctrine\DBAL\Driver\PDOSqlsrv\Driver as PDOSQLSrvDriver;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
+use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Tests\DbalFunctionalTestCase;
 use function fopen;
 use function in_array;
 use function str_repeat;
@@ -15,7 +17,7 @@ use function stream_get_contents;
 /**
  * @group DBAL-6
  */
-class BlobTest extends \Doctrine\Tests\DbalFunctionalTestCase
+class BlobTest extends DbalFunctionalTestCase
 {
     protected function setUp()
     {
@@ -25,7 +27,7 @@ class BlobTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $this->markTestSkipped('This test does not work on pdo_sqlsrv driver due to a bug. See: http://social.msdn.microsoft.com/Forums/sqlserver/en-US/5a755bdd-41e9-45cb-9166-c9da4475bb94/how-to-set-null-for-varbinarymax-using-bindvalue-using-pdosqlsrv?forum=sqldriverforphp');
         }
 
-        /* @var $sm \Doctrine\DBAL\Schema\AbstractSchemaManager */
+        /** @var AbstractSchemaManager $sm */
         $table = new Table('blob_table');
         $table->addColumn('id', 'integer');
         $table->addColumn('clobfield', 'text');
@@ -100,9 +102,7 @@ class BlobTest extends \Doctrine\Tests\DbalFunctionalTestCase
             ParameterType::LARGE_OBJECT,
         ]);
 
-        $this->_conn->update('blob_table', [
-            'blobfield' => 'test2',
-        ], ['id' => 1], [
+        $this->_conn->update('blob_table', ['blobfield' => 'test2'], ['id' => 1], [
             ParameterType::LARGE_OBJECT,
             ParameterType::INTEGER,
         ]);

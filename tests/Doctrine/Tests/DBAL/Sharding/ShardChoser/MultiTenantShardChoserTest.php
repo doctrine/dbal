@@ -20,13 +20,14 @@
 namespace Doctrine\Tests\DBAL\Sharding\ShardChoser;
 
 use Doctrine\DBAL\Sharding\ShardChoser\MultiTenantShardChoser;
+use PHPUnit\Framework\TestCase;
 
-class MultiTenantShardChoserTest extends \PHPUnit\Framework\TestCase
+class MultiTenantShardChoserTest extends TestCase
 {
     public function testPickShard()
     {
         $choser = new MultiTenantShardChoser();
-        $conn = $this->createConnectionMock();
+        $conn   = $this->createConnectionMock();
 
         self::assertEquals(1, $choser->pickShard(1, $conn));
         self::assertEquals(2, $choser->pickShard(2, $conn));
@@ -35,9 +36,8 @@ class MultiTenantShardChoserTest extends \PHPUnit\Framework\TestCase
     private function createConnectionMock()
     {
         return $this->getMockBuilder('Doctrine\DBAL\Sharding\PoolingShardConnection')
-            ->setMethods(array('connect', 'getParams', 'fetchAll'))
+            ->setMethods(['connect', 'getParams', 'fetchAll'])
             ->disableOriginalConstructor()
             ->getMock();
     }
 }
-
