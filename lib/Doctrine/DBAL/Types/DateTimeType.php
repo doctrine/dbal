@@ -66,7 +66,7 @@ class DateTimeType extends Type implements PhpDateTimeMappingType
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
-        if ($value === null || $value instanceof \DateTimeInterface) {
+        if ($value === null) {
             return $value;
         }
 
@@ -82,4 +82,16 @@ class DateTimeType extends Type implements PhpDateTimeMappingType
 
         return $val;
     }
+
+    /**
+     * {@inheritdoc}
+     */
+     public function handleTypeConversion($value, AbstractPlatform $platform)
+     {
+        if ($value instanceof \DateTimeInterface) {
+            return $value;
+        }
+
+        return $this->convertToPHPValue($value, $platform);
+     }
 }
