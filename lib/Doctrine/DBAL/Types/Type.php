@@ -118,6 +118,27 @@ abstract class Type
     }
 
     /**
+     * Converts a given value from a database reprentation or flexibly from an existing
+     * value to a value which will be used to hydrate an object.
+     *
+     * If $param is of type DateTime and convertToPHPValue returns a DateTime this function
+     * should return the original DateTime.  If the return value should be an integer and
+     * a string is passed then the value should be typecast to an integer.  This function
+     * may be implemented differently for each field type.
+     *
+     * This also allows custom field types to render uniquely.
+     *
+     * @param mixed                                     $value    The value to convert.
+     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform The currently used database platform.
+     *
+     * @return mixed The type specific representation of the value.
+    */
+    public function handleTypeConversion($value, AbstractPlatform $platform)
+    {
+        return $this->convertToPHPValue($value, $platform);
+    }
+
+    /**
      * Gets the default length of this type.
      *
      * @deprecated Rely on information provided by the platform instead.
