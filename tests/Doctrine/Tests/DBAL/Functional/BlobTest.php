@@ -3,11 +3,13 @@
 namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\Driver\PDOSqlsrv\Driver as PDOSQLSrvDriver;
+use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
-use const CASE_LOWER;
-use function array_change_key_case;
+use function fopen;
+use function in_array;
+use function str_repeat;
 use function stream_get_contents;
 
 /**
@@ -49,6 +51,28 @@ class BlobTest extends \Doctrine\Tests\DbalFunctionalTestCase
         self::assertEquals(1, $ret);
     }
 
+    public function testInsertProcessesStream()
+    {
+        if (in_array($this->_conn->getDatabasePlatform()->getName(), ['oracle', 'db2'], true)) {
+            // https://github.com/doctrine/dbal/issues/3288 for DB2
+            // https://github.com/doctrine/dbal/issues/3290 for Oracle
+            $this->markTestIncomplete('Platform does not support stream resources as parameters');
+        }
+
+        $longBlob = str_repeat('x', 4 * 8192); // send 4 chunks
+        $this->_conn->insert('blob_table', [
+            'id'        => 1,
+            'clobfield' => 'ignored',
+            'blobfield' => fopen('data://text/plain,' . $longBlob, 'r'),
+        ], [
+            ParameterType::INTEGER,
+            ParameterType::STRING,
+            ParameterType::LARGE_OBJECT,
+        ]);
+
+        $this->assertBlobContains($longBlob);
+    }
+
     public function testSelect()
     {
         $this->_conn->insert('blob_table', [
@@ -86,14 +110,63 @@ class BlobTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->assertBlobContains('test2');
     }
 
+    public function testUpdateProcessesStream()
+    {
+        if (in_array($this->_conn->getDatabasePlatform()->getName(), ['oracle', 'db2'], true)) {
+            // https://github.com/doctrine/dbal/issues/3288 for DB2
+            // https://github.com/doctrine/dbal/issues/3290 for Oracle
+            $this->markTestIncomplete('Platform does not support stream resources as parameters');
+        }
+
+        $this->_conn->insert('blob_table', [
+            'id'          => 1,
+            'clobfield'   => 'ignored',
+            'blobfield'   => 'test',
+        ], [
+            ParameterType::INTEGER,
+            ParameterType::STRING,
+            ParameterType::LARGE_OBJECT,
+        ]);
+
+        $this->_conn->update('blob_table', [
+            'id'          => 1,
+            'blobfield'   => fopen('data://text/plain,test2', 'r'),
+        ], ['id' => 1], [
+            ParameterType::INTEGER,
+            ParameterType::LARGE_OBJECT,
+        ]);
+
+        $this->assertBlobContains('test2');
+    }
+
+    public function testBindParamProcessesStream()
+    {
+        if (in_array($this->_conn->getDatabasePlatform()->getName(), ['oracle', 'db2'], true)) {
+            // https://github.com/doctrine/dbal/issues/3288 for DB2
+            // https://github.com/doctrine/dbal/issues/3290 for Oracle
+            $this->markTestIncomplete('Platform does not support stream resources as parameters');
+        }
+
+        $stmt = $this->_conn->prepare("INSERT INTO blob_table(id, clobfield, blobfield) VALUES (1, 'ignored', ?)");
+
+        $stream = null;
+        $stmt->bindParam(1, $stream, ParameterType::LARGE_OBJECT);
+
+        // Bind param does late binding (bind by reference), so create the stream only now:
+        $stream = fopen('data://text/plain,test', 'r');
+
+        $stmt->execute();
+
+        $this->assertBlobContains('test');
+    }
+
     private function assertBlobContains($text)
     {
-        $rows = $this->_conn->fetchAll('SELECT * FROM blob_table');
+        $rows = $this->_conn->query('SELECT blobfield FROM blob_table')->fetchAll(FetchMode::COLUMN);
 
         self::assertCount(1, $rows);
-        $row = array_change_key_case($rows[0], CASE_LOWER);
 
-        $blobValue = Type::getType('blob')->convertToPHPValue($row['blobfield'], $this->_conn->getDatabasePlatform());
+        $blobValue = Type::getType('blob')->convertToPHPValue($rows[0], $this->_conn->getDatabasePlatform());
 
         self::assertInternalType('resource', $blobValue);
         self::assertEquals($text, stream_get_contents($blobValue));
