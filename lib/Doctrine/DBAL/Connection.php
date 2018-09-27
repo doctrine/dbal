@@ -785,7 +785,7 @@ class Connection implements DriverConnection
     public function insert($tableExpression, array $data, array $types = [])
     {
         if (empty($data)) {
-            return $this->executeUpdate('INSERT INTO ' . $tableExpression . ' ()' . ' VALUES ()');
+            return 0;
         }
 
         $columns = [];
