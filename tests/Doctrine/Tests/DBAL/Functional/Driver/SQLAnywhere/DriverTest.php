@@ -17,21 +17,23 @@ class DriverTest extends AbstractDriverTest
 
         parent::setUp();
 
-        if (! $this->_conn->getDriver() instanceof Driver) {
-            $this->markTestSkipped('sqlanywhere only test.');
+        if ($this->connection->getDriver() instanceof Driver) {
+            return;
         }
+
+        $this->markTestSkipped('sqlanywhere only test.');
     }
 
     public function testReturnsDatabaseNameWithoutDatabaseNameParameter()
     {
-        $params = $this->_conn->getParams();
+        $params = $this->connection->getParams();
         unset($params['dbname']);
 
         $connection = new Connection(
             $params,
-            $this->_conn->getDriver(),
-            $this->_conn->getConfiguration(),
-            $this->_conn->getEventManager()
+            $this->connection->getDriver(),
+            $this->connection->getConfiguration(),
+            $this->connection->getEventManager()
         );
 
         // SQL Anywhere has no "default" database. The name of the default database

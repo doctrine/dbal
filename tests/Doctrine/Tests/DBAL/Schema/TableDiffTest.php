@@ -3,10 +3,12 @@
 namespace Doctrine\Tests\DBAL\Schema;
 
 use Doctrine\DBAL\Schema\Identifier;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\Tests\DBAL\Mocks\MockPlatform;
+use PHPUnit\Framework\TestCase;
 
-class TableDiffTest extends \PHPUnit\Framework\TestCase
+class TableDiffTest extends TestCase
 {
     /**
      * @group DBAL-1013
@@ -24,11 +26,11 @@ class TableDiffTest extends \PHPUnit\Framework\TestCase
     public function testPrefersNameFromTableObject()
     {
         $platformMock = new MockPlatform();
-        $tableMock = $this->getMockBuilder('Doctrine\DBAL\Schema\Table')
+        $tableMock    = $this->getMockBuilder(Table::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $tableDiff = new TableDiff('foo');
+        $tableDiff            = new TableDiff('foo');
         $tableDiff->fromTable = $tableMock;
 
         $tableMock->expects($this->once())

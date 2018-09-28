@@ -8,11 +8,11 @@ class PostgreSqlPlatformTest extends AbstractPostgreSqlPlatformTestCase
 {
     public function createPlatform()
     {
-        return new PostgreSqlPlatform;
+        return new PostgreSqlPlatform();
     }
 
     public function testSupportsPartialIndexes()
     {
-        self::assertTrue($this->_platform->supportsPartialIndexes());
+        self::assertTrue($this->platform->supportsPartialIndexes());
     }
 }

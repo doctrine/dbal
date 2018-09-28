@@ -2,6 +2,8 @@
 
 namespace Doctrine\Tests\DBAL\Types;
 
+use DateTime;
+use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\Type;
 
 class DateTimeTzTest extends BaseDateTypeTestCase
@@ -18,10 +20,10 @@ class DateTimeTzTest extends BaseDateTypeTestCase
 
     public function testDateTimeConvertsToDatabaseValue()
     {
-        $date = new \DateTime('1985-09-01 10:10:10');
+        $date = new DateTime('1985-09-01 10:10:10');
 
         $expected = $date->format($this->platform->getDateTimeTzFormatString());
-        $actual = $this->type->convertToDatabaseValue($date, $this->platform);
+        $actual   = $this->type->convertToDatabaseValue($date, $this->platform);
 
         self::assertEquals($expected, $actual);
     }
@@ -36,7 +38,7 @@ class DateTimeTzTest extends BaseDateTypeTestCase
 
     public function testInvalidDateFormatConversion()
     {
-        $this->expectException('Doctrine\DBAL\Types\ConversionException');
+        $this->expectException(ConversionException::class);
         $this->type->convertToPHPValue('abcdefg', $this->platform);
     }
 }

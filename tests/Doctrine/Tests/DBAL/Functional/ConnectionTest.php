@@ -2,14 +2,21 @@
 
 namespace Doctrine\Tests\DBAL\Functional;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
+use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Tests\DbalFunctionalTestCase;
+use Error;
+use Exception;
+use RuntimeException;
+use Throwable;
 use function in_array;
 
-class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
+class ConnectionTest extends DbalFunctionalTestCase
 {
     protected function setUp()
     {
@@ -25,205 +32,205 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testGetWrappedConnection()
     {
-        self::assertInstanceOf('Doctrine\DBAL\Driver\Connection', $this->_conn->getWrappedConnection());
+        self::assertInstanceOf(DriverConnection::class, $this->connection->getWrappedConnection());
     }
 
     public function testCommitWithRollbackOnlyThrowsException()
     {
-        $this->_conn->beginTransaction();
-        $this->_conn->setRollbackOnly();
+        $this->connection->beginTransaction();
+        $this->connection->setRollbackOnly();
 
         $this->expectException(ConnectionException::class);
-        $this->_conn->commit();
+        $this->connection->commit();
     }
 
     public function testTransactionNestingBehavior()
     {
         try {
-            $this->_conn->beginTransaction();
-            self::assertEquals(1, $this->_conn->getTransactionNestingLevel());
+            $this->connection->beginTransaction();
+            self::assertEquals(1, $this->connection->getTransactionNestingLevel());
 
             try {
-                $this->_conn->beginTransaction();
-                self::assertEquals(2, $this->_conn->getTransactionNestingLevel());
-                throw new \Exception;
-                $this->_conn->commit(); // never reached
-            } catch (\Exception $e) {
-                $this->_conn->rollBack();
-                self::assertEquals(1, $this->_conn->getTransactionNestingLevel());
+                $this->connection->beginTransaction();
+                self::assertEquals(2, $this->connection->getTransactionNestingLevel());
+                throw new Exception();
+                $this->connection->commit(); // never reached
+            } catch (Throwable $e) {
+                $this->connection->rollBack();
+                self::assertEquals(1, $this->connection->getTransactionNestingLevel());
                 //no rethrow
             }
-            self::assertTrue($this->_conn->isRollbackOnly());
+            self::assertTrue($this->connection->isRollbackOnly());
 
-            $this->_conn->commit(); // should throw exception
+            $this->connection->commit(); // should throw exception
             $this->fail('Transaction commit after failed nested transaction should fail.');
         } catch (ConnectionException $e) {
-            self::assertEquals(1, $this->_conn->getTransactionNestingLevel());
-            $this->_conn->rollBack();
-            self::assertEquals(0, $this->_conn->getTransactionNestingLevel());
+            self::assertEquals(1, $this->connection->getTransactionNestingLevel());
+            $this->connection->rollBack();
+            self::assertEquals(0, $this->connection->getTransactionNestingLevel());
         }
     }
 
     public function testTransactionNestingBehaviorWithSavepoints()
     {
-        if (!$this->_conn->getDatabasePlatform()->supportsSavepoints()) {
+        if (! $this->connection->getDatabasePlatform()->supportsSavepoints()) {
             $this->markTestSkipped('This test requires the platform to support savepoints.');
         }
 
-        $this->_conn->setNestTransactionsWithSavepoints(true);
+        $this->connection->setNestTransactionsWithSavepoints(true);
         try {
-            $this->_conn->beginTransaction();
-            self::assertEquals(1, $this->_conn->getTransactionNestingLevel());
+            $this->connection->beginTransaction();
+            self::assertEquals(1, $this->connection->getTransactionNestingLevel());
 
             try {
-                $this->_conn->beginTransaction();
-                self::assertEquals(2, $this->_conn->getTransactionNestingLevel());
-                $this->_conn->beginTransaction();
-                self::assertEquals(3, $this->_conn->getTransactionNestingLevel());
-                $this->_conn->commit();
-                self::assertEquals(2, $this->_conn->getTransactionNestingLevel());
-                throw new \Exception;
-                $this->_conn->commit(); // never reached
-            } catch (\Exception $e) {
-                $this->_conn->rollBack();
-                self::assertEquals(1, $this->_conn->getTransactionNestingLevel());
+                $this->connection->beginTransaction();
+                self::assertEquals(2, $this->connection->getTransactionNestingLevel());
+                $this->connection->beginTransaction();
+                self::assertEquals(3, $this->connection->getTransactionNestingLevel());
+                $this->connection->commit();
+                self::assertEquals(2, $this->connection->getTransactionNestingLevel());
+                throw new Exception();
+                $this->connection->commit(); // never reached
+            } catch (Throwable $e) {
+                $this->connection->rollBack();
+                self::assertEquals(1, $this->connection->getTransactionNestingLevel());
                 //no rethrow
             }
-            self::assertFalse($this->_conn->isRollbackOnly());
+            self::assertFalse($this->connection->isRollbackOnly());
             try {
-                $this->_conn->setNestTransactionsWithSavepoints(false);
+                $this->connection->setNestTransactionsWithSavepoints(false);
                 $this->fail('Should not be able to disable savepoints in usage for nested transactions inside an open transaction.');
             } catch (ConnectionException $e) {
-                self::assertTrue($this->_conn->getNestTransactionsWithSavepoints());
+                self::assertTrue($this->connection->getNestTransactionsWithSavepoints());
             }
-            $this->_conn->commit(); // should not throw exception
+            $this->connection->commit(); // should not throw exception
         } catch (ConnectionException $e) {
             $this->fail('Transaction commit after failed nested transaction should not fail when using savepoints.');
-            $this->_conn->rollBack();
+            $this->connection->rollBack();
         }
     }
 
     public function testTransactionNestingBehaviorCantBeChangedInActiveTransaction()
     {
-        if (!$this->_conn->getDatabasePlatform()->supportsSavepoints()) {
+        if (! $this->connection->getDatabasePlatform()->supportsSavepoints()) {
             $this->markTestSkipped('This test requires the platform to support savepoints.');
         }
 
-        $this->_conn->beginTransaction();
+        $this->connection->beginTransaction();
         $this->expectException(ConnectionException::class);
-        $this->_conn->setNestTransactionsWithSavepoints(true);
+        $this->connection->setNestTransactionsWithSavepoints(true);
     }
 
     public function testSetNestedTransactionsThroughSavepointsNotSupportedThrowsException()
     {
-        if ($this->_conn->getDatabasePlatform()->supportsSavepoints()) {
+        if ($this->connection->getDatabasePlatform()->supportsSavepoints()) {
             $this->markTestSkipped('This test requires the platform not to support savepoints.');
         }
 
         $this->expectException(ConnectionException::class);
-        $this->expectExceptionMessage("Savepoints are not supported by this driver.");
+        $this->expectExceptionMessage('Savepoints are not supported by this driver.');
 
-        $this->_conn->setNestTransactionsWithSavepoints(true);
+        $this->connection->setNestTransactionsWithSavepoints(true);
     }
 
     public function testCreateSavepointsNotSupportedThrowsException()
     {
-        if ($this->_conn->getDatabasePlatform()->supportsSavepoints()) {
+        if ($this->connection->getDatabasePlatform()->supportsSavepoints()) {
             $this->markTestSkipped('This test requires the platform not to support savepoints.');
         }
 
         $this->expectException(ConnectionException::class);
-        $this->expectExceptionMessage("Savepoints are not supported by this driver.");
+        $this->expectExceptionMessage('Savepoints are not supported by this driver.');
 
-        $this->_conn->createSavepoint('foo');
+        $this->connection->createSavepoint('foo');
     }
 
     public function testReleaseSavepointsNotSupportedThrowsException()
     {
-        if ($this->_conn->getDatabasePlatform()->supportsSavepoints()) {
+        if ($this->connection->getDatabasePlatform()->supportsSavepoints()) {
             $this->markTestSkipped('This test requires the platform not to support savepoints.');
         }
 
         $this->expectException(ConnectionException::class);
-        $this->expectExceptionMessage("Savepoints are not supported by this driver.");
+        $this->expectExceptionMessage('Savepoints are not supported by this driver.');
 
-        $this->_conn->releaseSavepoint('foo');
+        $this->connection->releaseSavepoint('foo');
     }
 
     public function testRollbackSavepointsNotSupportedThrowsException()
     {
-        if ($this->_conn->getDatabasePlatform()->supportsSavepoints()) {
+        if ($this->connection->getDatabasePlatform()->supportsSavepoints()) {
             $this->markTestSkipped('This test requires the platform not to support savepoints.');
         }
 
         $this->expectException(ConnectionException::class);
-        $this->expectExceptionMessage("Savepoints are not supported by this driver.");
+        $this->expectExceptionMessage('Savepoints are not supported by this driver.');
 
-        $this->_conn->rollbackSavepoint('foo');
+        $this->connection->rollbackSavepoint('foo');
     }
 
     public function testTransactionBehaviorWithRollback()
     {
         try {
-            $this->_conn->beginTransaction();
-            self::assertEquals(1, $this->_conn->getTransactionNestingLevel());
+            $this->connection->beginTransaction();
+            self::assertEquals(1, $this->connection->getTransactionNestingLevel());
 
-            throw new \Exception;
+            throw new Exception();
 
-            $this->_conn->commit(); // never reached
-        } catch (\Exception $e) {
-            self::assertEquals(1, $this->_conn->getTransactionNestingLevel());
-            $this->_conn->rollBack();
-            self::assertEquals(0, $this->_conn->getTransactionNestingLevel());
+            $this->connection->commit(); // never reached
+        } catch (Throwable $e) {
+            self::assertEquals(1, $this->connection->getTransactionNestingLevel());
+            $this->connection->rollBack();
+            self::assertEquals(0, $this->connection->getTransactionNestingLevel());
         }
     }
 
     public function testTransactionBehaviour()
     {
         try {
-            $this->_conn->beginTransaction();
-            self::assertEquals(1, $this->_conn->getTransactionNestingLevel());
-            $this->_conn->commit();
-        } catch (\Exception $e) {
-            $this->_conn->rollBack();
-            self::assertEquals(0, $this->_conn->getTransactionNestingLevel());
+            $this->connection->beginTransaction();
+            self::assertEquals(1, $this->connection->getTransactionNestingLevel());
+            $this->connection->commit();
+        } catch (Throwable $e) {
+            $this->connection->rollBack();
+            self::assertEquals(0, $this->connection->getTransactionNestingLevel());
         }
 
-        self::assertEquals(0, $this->_conn->getTransactionNestingLevel());
+        self::assertEquals(0, $this->connection->getTransactionNestingLevel());
     }
 
     public function testTransactionalWithException()
     {
         try {
-            $this->_conn->transactional(function($conn) {
-                /* @var $conn \Doctrine\DBAL\Connection */
+            $this->connection->transactional(static function ($conn) {
+                /** @var Connection $conn */
                 $conn->executeQuery($conn->getDatabasePlatform()->getDummySelectSQL());
-                throw new \RuntimeException("Ooops!");
+                throw new RuntimeException('Ooops!');
             });
             $this->fail('Expected exception');
-        } catch (\RuntimeException $expected) {
-            self::assertEquals(0, $this->_conn->getTransactionNestingLevel());
+        } catch (RuntimeException $expected) {
+            self::assertEquals(0, $this->connection->getTransactionNestingLevel());
         }
     }
 
     public function testTransactionalWithThrowable()
     {
         try {
-            $this->_conn->transactional(function($conn) {
-                /* @var $conn \Doctrine\DBAL\Connection */
+            $this->connection->transactional(static function ($conn) {
+                /** @var Connection $conn */
                 $conn->executeQuery($conn->getDatabasePlatform()->getDummySelectSQL());
-                throw new \Error("Ooops!");
+                throw new Error('Ooops!');
             });
             $this->fail('Expected exception');
-        } catch (\Error $expected) {
-            self::assertEquals(0, $this->_conn->getTransactionNestingLevel());
+        } catch (Error $expected) {
+            self::assertEquals(0, $this->connection->getTransactionNestingLevel());
         }
     }
 
     public function testTransactional()
     {
-        $res = $this->_conn->transactional(function($conn) {
-            /* @var $conn \Doctrine\DBAL\Connection */
+        $res = $this->connection->transactional(static function ($conn) {
+            /** @var Connection $conn */
             $conn->executeQuery($conn->getDatabasePlatform()->getDummySelectSQL());
         });
 
@@ -232,7 +239,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testTransactionalReturnValue()
     {
-        $res = $this->_conn->transactional(function() {
+        $res = $this->connection->transactional(static function () {
             return 42;
         });
 
@@ -245,15 +252,15 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function testQuote()
     {
         self::assertEquals(
-            $this->_conn->quote('foo', Type::STRING),
-            $this->_conn->quote('foo', ParameterType::STRING)
+            $this->connection->quote('foo', Type::STRING),
+            $this->connection->quote('foo', ParameterType::STRING)
         );
     }
 
     public function testPingDoesTriggersConnect()
     {
-        self::assertTrue($this->_conn->ping());
-        self::assertTrue($this->_conn->isConnected());
+        self::assertTrue($this->connection->ping());
+        self::assertTrue($this->connection->isConnected());
     }
 
     /**
@@ -261,17 +268,17 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
      */
     public function testConnectWithoutExplicitDatabaseName()
     {
-        if (in_array($this->_conn->getDatabasePlatform()->getName(), array('oracle', 'db2'), true)) {
+        if (in_array($this->connection->getDatabasePlatform()->getName(), ['oracle', 'db2'], true)) {
             $this->markTestSkipped('Platform does not support connecting without database name.');
         }
 
-        $params = $this->_conn->getParams();
+        $params = $this->connection->getParams();
         unset($params['dbname']);
 
         $connection = DriverManager::getConnection(
             $params,
-            $this->_conn->getConfiguration(),
-            $this->_conn->getEventManager()
+            $this->connection->getConfiguration(),
+            $this->connection->getEventManager()
         );
 
         self::assertTrue($connection->connect());
@@ -284,17 +291,18 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
      */
     public function testDeterminesDatabasePlatformWhenConnectingToNonExistentDatabase()
     {
-        if (in_array($this->_conn->getDatabasePlatform()->getName(), ['oracle', 'db2'], true)) {
+        if (in_array($this->connection->getDatabasePlatform()->getName(), ['oracle', 'db2'], true)) {
             $this->markTestSkipped('Platform does not support connecting without database name.');
         }
 
-        $params = $this->_conn->getParams();
+        $params = $this->connection->getParams();
+
         $params['dbname'] = 'foo_bar';
 
         $connection = DriverManager::getConnection(
             $params,
-            $this->_conn->getConfiguration(),
-            $this->_conn->getEventManager()
+            $this->connection->getConfiguration(),
+            $this->connection->getEventManager()
         );
 
         self::assertInstanceOf(AbstractPlatform::class, $connection->getDatabasePlatform());

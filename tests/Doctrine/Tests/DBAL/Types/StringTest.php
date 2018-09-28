@@ -4,50 +4,47 @@ namespace Doctrine\Tests\DBAL\Types;
 
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DBAL\Mocks\MockPlatform;
+use Doctrine\Tests\DbalTestCase;
 
-class StringTest extends \Doctrine\Tests\DbalTestCase
+class StringTest extends DbalTestCase
 {
-    /**
-     * @var MockPlatform
-     */
-    protected $_platform;
+    /** @var MockPlatform */
+    private $platform;
 
-    /**
-     * @var Type
-     */
-    protected $_type;
+    /** @var Type */
+    private $type;
 
     protected function setUp()
     {
-        $this->_platform = new MockPlatform();
-        $this->_type = Type::getType('string');
+        $this->platform = new MockPlatform();
+        $this->type     = Type::getType('string');
     }
 
     public function testReturnsSqlDeclarationFromPlatformVarchar()
     {
-        self::assertEquals("DUMMYVARCHAR()", $this->_type->getSqlDeclaration(array(), $this->_platform));
+        self::assertEquals('DUMMYVARCHAR()', $this->type->getSqlDeclaration([], $this->platform));
     }
 
     public function testReturnsDefaultLengthFromPlatformVarchar()
     {
-        self::assertEquals(255, $this->_type->getDefaultLength($this->_platform));
+        self::assertEquals(255, $this->type->getDefaultLength($this->platform));
     }
 
     public function testConvertToPHPValue()
     {
-        self::assertInternalType("string", $this->_type->convertToPHPValue("foo", $this->_platform));
-        self::assertInternalType("string", $this->_type->convertToPHPValue("", $this->_platform));
+        self::assertInternalType('string', $this->type->convertToPHPValue('foo', $this->platform));
+        self::assertInternalType('string', $this->type->convertToPHPValue('', $this->platform));
     }
 
     public function testNullConversion()
     {
-        self::assertNull($this->_type->convertToPHPValue(null, $this->_platform));
+        self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }
 
     public function testSQLConversion()
     {
-        self::assertFalse($this->_type->canRequireSQLConversion(), "String type can never require SQL conversion to work.");
-        self::assertEquals('t.foo', $this->_type->convertToDatabaseValueSQL('t.foo', $this->_platform));
-        self::assertEquals('t.foo', $this->_type->convertToPHPValueSQL('t.foo', $this->_platform));
+        self::assertFalse($this->type->canRequireSQLConversion(), 'String type can never require SQL conversion to work.');
+        self::assertEquals('t.foo', $this->type->convertToDatabaseValueSQL('t.foo', $this->platform));
+        self::assertEquals('t.foo', $this->type->convertToPHPValueSQL('t.foo', $this->platform));
     }
 }

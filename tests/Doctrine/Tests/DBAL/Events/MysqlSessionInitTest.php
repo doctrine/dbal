@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Events;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Event\ConnectionEventArgs;
 use Doctrine\DBAL\Event\Listeners\MysqlSessionInit;
 use Doctrine\DBAL\Events;
@@ -11,13 +12,12 @@ class MysqlSessionInitTest extends DbalTestCase
 {
     public function testPostConnect()
     {
-        $connectionMock = $this->createMock('Doctrine\DBAL\Connection');
+        $connectionMock = $this->createMock(Connection::class);
         $connectionMock->expects($this->once())
                        ->method('executeUpdate')
-                       ->with($this->equalTo("SET NAMES foo COLLATE bar"));
+                       ->with($this->equalTo('SET NAMES foo COLLATE bar'));
 
         $eventArgs = new ConnectionEventArgs($connectionMock);
-
 
         $listener = new MysqlSessionInit('foo', 'bar');
         $listener->postConnect($eventArgs);
@@ -26,6 +26,6 @@ class MysqlSessionInitTest extends DbalTestCase
     public function testGetSubscribedEvents()
     {
         $listener = new MysqlSessionInit();
-        self::assertEquals(array(Events::postConnect), $listener->getSubscribedEvents());
+        self::assertEquals([Events::postConnect], $listener->getSubscribedEvents());
     }
 }

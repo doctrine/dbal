@@ -8,25 +8,59 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 class MockPlatform extends AbstractPlatform
 {
     /**
-     * Gets the SQL Snippet used to declare a BLOB column type.
+     * {@inheritDoc}
      */
     public function getBlobTypeDeclarationSQL(array $field)
     {
         throw DBALException::notSupported(__METHOD__);
     }
 
-    public function getBooleanTypeDeclarationSQL(array $columnDef) {}
-    public function getIntegerTypeDeclarationSQL(array $columnDef) {}
-    public function getBigIntTypeDeclarationSQL(array $columnDef) {}
-    public function getSmallIntTypeDeclarationSQL(array $columnDef) {}
-    public function _getCommonIntegerTypeDeclarationSQL(array $columnDef) {}
-
-    public function getVarcharTypeDeclarationSQL(array $field)
+    /**
+     * {@inheritDoc}
+     */
+    public function getBooleanTypeDeclarationSQL(array $columnDef)
     {
-        return "DUMMYVARCHAR()";
     }
 
-    /** @override */
+    /**
+     * {@inheritDoc}
+     */
+    public function getIntegerTypeDeclarationSQL(array $columnDef)
+    {
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getBigIntTypeDeclarationSQL(array $columnDef)
+    {
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getSmallIntTypeDeclarationSQL(array $columnDef)
+    {
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function _getCommonIntegerTypeDeclarationSQL(array $columnDef)
+    {
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getVarcharTypeDeclarationSQL(array $field)
+    {
+        return 'DUMMYVARCHAR()';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getClobTypeDeclarationSQL(array $field)
     {
         return 'DUMMYCLOB';
@@ -57,10 +91,10 @@ class MockPlatform extends AbstractPlatform
     {
         return 'mock';
     }
-    protected function initializeDoctrineTypeMappings() {
+    protected function initializeDoctrineTypeMappings()
+    {
     }
     protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)
     {
-
     }
 }

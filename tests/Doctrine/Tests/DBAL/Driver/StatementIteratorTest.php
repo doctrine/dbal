@@ -10,12 +10,13 @@ use Doctrine\DBAL\Driver\SQLSrv\SQLSrvStatement;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\Portability\Statement as PortabilityStatement;
+use Doctrine\Tests\DbalTestCase;
 use IteratorAggregate;
 use PHPUnit\Framework\MockObject\MockObject;
 use Traversable;
 use function extension_loaded;
 
-class StatementIteratorTest extends \Doctrine\Tests\DbalTestCase
+class StatementIteratorTest extends DbalTestCase
 {
     /**
      * @dataProvider statementProvider()
@@ -58,11 +59,11 @@ class StatementIteratorTest extends \Doctrine\Tests\DbalTestCase
     private function configureStatement(MockObject $stmt, int &$calls) : void
     {
         $values = ['foo', '', 'bar', '0', 'baz', 0, 'qux', null, 'quz', false, 'impossible'];
-        $calls = 0;
+        $calls  = 0;
 
         $stmt->expects($this->exactly(10))
             ->method('fetch')
-            ->willReturnCallback(function() use ($values, &$calls) {
+            ->willReturnCallback(static function () use ($values, &$calls) {
                 $value = $values[$calls];
                 $calls++;
 

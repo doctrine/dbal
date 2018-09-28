@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Types;
 
+use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\Type;
 
 class TimeTest extends BaseDateTypeTestCase
@@ -31,7 +32,7 @@ class TimeTest extends BaseDateTypeTestCase
 
     public function testInvalidTimeFormatConversion()
     {
-        $this->expectException('Doctrine\DBAL\Types\ConversionException');
+        $this->expectException(ConversionException::class);
         $this->type->convertToPHPValue('abcdefg', $this->platform);
     }
 }

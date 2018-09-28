@@ -1,4 +1,5 @@
 <?php
+
 namespace Doctrine\Tests\DBAL\Sharding\SQLAzure;
 
 use Doctrine\DBAL\Sharding\SQLAzure\SQLAzureFederationsSynchronizer;
@@ -16,29 +17,29 @@ class FunctionalTest extends AbstractTestCase
 
         $this->sm->selectShard(0);
 
-        $this->conn->insert("Products", array(
-            "ProductID" => 1,
-            "SupplierID" => 2,
-            "ProductName" => "Test",
-            "Price" => 10.45
-        ));
+        $this->conn->insert('Products', [
+            'ProductID' => 1,
+            'SupplierID' => 2,
+            'ProductName' => 'Test',
+            'Price' => 10.45,
+        ]);
 
-        $this->conn->insert("Customers", array(
-            "CustomerID" => 1,
-            "CompanyName" => "Foo",
-            "FirstName" => "Benjamin",
-            "LastName" => "E.",
-        ));
+        $this->conn->insert('Customers', [
+            'CustomerID' => 1,
+            'CompanyName' => 'Foo',
+            'FirstName' => 'Benjamin',
+            'LastName' => 'E.',
+        ]);
 
-        $query = "SELECT * FROM Products";
-        $data = $this->conn->fetchAll($query);
+        $query = 'SELECT * FROM Products';
+        $data  = $this->conn->fetchAll($query);
         self::assertGreaterThan(0, count($data));
 
-        $query = "SELECT * FROM Customers";
-        $data = $this->conn->fetchAll($query);
+        $query = 'SELECT * FROM Customers';
+        $data  = $this->conn->fetchAll($query);
         self::assertGreaterThan(0, count($data));
 
-        $data = $this->sm->queryAll("SELECT * FROM Customers");
+        $data = $this->sm->queryAll('SELECT * FROM Customers');
         self::assertGreaterThan(0, count($data));
     }
 }

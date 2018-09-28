@@ -6,23 +6,20 @@ use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Portability\Connection;
 use Doctrine\DBAL\Portability\Statement;
+use Doctrine\Tests\DbalTestCase;
+use Doctrine\Tests\Mocks\DriverStatementMock;
+use PHPUnit_Framework_MockObject_MockObject;
 use function iterator_to_array;
 
-class StatementTest extends \Doctrine\Tests\DbalTestCase
+class StatementTest extends DbalTestCase
 {
-    /**
-     * @var \Doctrine\DBAL\Portability\Connection|\PHPUnit_Framework_MockObject_MockObject
-     */
+    /** @var Connection|PHPUnit_Framework_MockObject_MockObject */
     protected $conn;
 
-    /**
-     * @var \Doctrine\DBAL\Portability\Statement
-     */
+    /** @var Statement */
     protected $stmt;
 
-    /**
-     * @var \Doctrine\DBAL\Driver\Statement|\PHPUnit_Framework_MockObject_MockObject
-     */
+    /** @var \Doctrine\DBAL\Driver\Statement|PHPUnit_Framework_MockObject_MockObject */
     protected $wrappedStmt;
 
     /**
@@ -100,7 +97,7 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
 
     public function testErrorInfo()
     {
-        $errorInfo = array('666', 'Evil error.');
+        $errorInfo = ['666', 'Evil error.'];
 
         $this->wrappedStmt->expects($this->once())
             ->method('errorInfo')
@@ -111,10 +108,10 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
 
     public function testExecute()
     {
-        $params = array(
+        $params = [
             'foo',
-            'bar'
-        );
+            'bar',
+        ];
 
         $this->wrappedStmt->expects($this->once())
             ->method('execute')
@@ -128,7 +125,7 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
     {
         $fetchMode = FetchMode::CUSTOM_OBJECT;
         $arg1      = 'MyClass';
-        $arg2      = array(1, 2);
+        $arg2      = [1, 2];
 
         $this->wrappedStmt->expects($this->once())
             ->method('setFetchMode')
@@ -161,20 +158,17 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
     }
 
     /**
-     * @return \Doctrine\DBAL\Portability\Connection|\PHPUnit_Framework_MockObject_MockObject
+     * @return Connection|PHPUnit_Framework_MockObject_MockObject
      */
     protected function createConnection()
     {
-        return $this->getMockBuilder('Doctrine\DBAL\Portability\Connection')
+        return $this->getMockBuilder(Connection::class)
             ->disableOriginalConstructor()
             ->getMock();
     }
 
     /**
-     * @param \Doctrine\DBAL\Driver\Statement       $wrappedStatement
-     * @param \Doctrine\DBAL\Portability\Connection $connection
-     *
-     * @return \Doctrine\DBAL\Portability\Statement
+     * @return Statement
      */
     protected function createStatement(\Doctrine\DBAL\Driver\Statement $wrappedStatement, Connection $connection)
     {
@@ -182,10 +176,10 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
     }
 
     /**
-     * @return \Doctrine\DBAL\Driver\Statement|\PHPUnit_Framework_MockObject_MockObject
+     * @return \Doctrine\DBAL\Driver\Statement|PHPUnit_Framework_MockObject_MockObject
      */
     protected function createWrappedStatement()
     {
-        return $this->createMock('Doctrine\Tests\Mocks\DriverStatementMock');
+        return $this->createMock(DriverStatementMock::class);
     }
 }

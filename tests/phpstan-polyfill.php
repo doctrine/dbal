@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-(function () : void {
+(static function () : void {
     foreach (['ibm_db2', 'mysqli', 'oci8', 'sqlsrv', 'pgsql'] as $extension) {
         if (extension_loaded($extension)) {
             continue;

@@ -2,26 +2,28 @@
 
 namespace Doctrine\Tests\DBAL\Performance;
 
+use DateTime;
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DbalPerformanceTestCase;
 
 /**
  * Class TypeConversionPerformanceTest
- * @package Doctrine\Tests\DBAL\Performance
- * @author Bill Schaller
+ *
  * @group performance
  */
 class TypeConversionPerformanceTest extends DbalPerformanceTestCase
 {
     /**
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
+     *
      * @dataProvider itemCountProvider
      */
     public function testDateTimeTypeConversionPerformance($count)
     {
-        $value = new \DateTime;
-        $type = Type::getType("datetime");
-        $platform = $this->_conn->getDatabasePlatform();
+        $value    = new DateTime();
+        $type     = Type::getType('datetime');
+        $platform = $this->connection->getDatabasePlatform();
         $this->startTiming();
         for ($i = 0; $i < $count; $i++) {
             $type->convertToDatabaseValue($value, $platform);

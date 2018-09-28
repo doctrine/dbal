@@ -7,6 +7,7 @@ namespace Doctrine\Tests\DBAL\Schema;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\MySqlSchemaManager;
@@ -37,8 +38,8 @@ class MySqlInheritCharsetTest extends TestCase
     public function testTableOptions() : void
     {
         $eventManager = new EventManager();
-        $driverMock   = $this->createMock('Doctrine\DBAL\Driver');
-        $platform     = new \Doctrine\DBAL\Platforms\MySqlPlatform();
+        $driverMock   = $this->createMock(Driver::class);
+        $platform     = new MySqlPlatform();
 
         // default, no overrides
         $table = new Table('foobar', [new Column('aa', Type::getType('integer'))]);
@@ -72,7 +73,7 @@ class MySqlInheritCharsetTest extends TestCase
     private function getTableOptionsForOverride(array $overrideOptions = []) : array
     {
         $eventManager = new EventManager();
-        $driverMock   = $this->createMock('Doctrine\DBAL\Driver');
+        $driverMock   = $this->createMock(Driver::class);
         $platform     = new MySqlPlatform();
         $connOptions  = array_merge(['platform' => $platform], $overrideOptions);
         $conn         = new Connection($connOptions, $driverMock, new Configuration(), $eventManager);
