@@ -35,4 +35,9 @@
     <rule ref="SlevomatCodingStandard.Classes.UnusedPrivateElements.UnusedProperty">
         <exclude-pattern>tests/Doctrine/Tests/DBAL/Tools/TestAsset/*</exclude-pattern>
     </rule>
+
+    <!-- see https://github.com/squizlabs/PHP_CodeSniffer/issues/2165 -->
+    <rule ref="Squiz.Arrays.ArrayDeclaration.SpaceBeforeComma">
+        <exclude-pattern>tests/Doctrine/Tests/DBAL/SQLParserUtilsTest.php</exclude-pattern>
+    </rule>
 </ruleset>
