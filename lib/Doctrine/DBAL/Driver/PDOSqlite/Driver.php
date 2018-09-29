@@ -10,14 +10,10 @@ use function array_merge;
 
 /**
  * The PDO Sqlite driver.
- *
- * @since 2.0
  */
 class Driver extends AbstractSQLiteDriver
 {
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $_userDefinedFunctions = [
         'sqrt' => ['callback' => ['Doctrine\DBAL\Platforms\SqlitePlatform', 'udfSqrt'], 'numArgs' => 1],
         'mod'  => ['callback' => ['Doctrine\DBAL\Platforms\SqlitePlatform', 'udfMod'], 'numArgs' => 2],
@@ -31,7 +27,9 @@ class Driver extends AbstractSQLiteDriver
     {
         if (isset($driverOptions['userDefinedFunctions'])) {
             $this->_userDefinedFunctions = array_merge(
-                $this->_userDefinedFunctions, $driverOptions['userDefinedFunctions']);
+                $this->_userDefinedFunctions,
+                $driverOptions['userDefinedFunctions']
+            );
             unset($driverOptions['userDefinedFunctions']);
         }
 

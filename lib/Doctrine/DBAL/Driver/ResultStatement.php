@@ -2,12 +2,13 @@
 
 namespace Doctrine\DBAL\Driver;
 
+use PDO;
+use Traversable;
+
 /**
  * Interface for the reading part of a prepare statement only.
- *
- * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
-interface ResultStatement extends \Traversable
+interface ResultStatement extends Traversable
 {
     /**
      * Closes the cursor, enabling the statement to be executed again.
@@ -61,7 +62,7 @@ interface ResultStatement extends \Traversable
      * @return mixed The return value of this method on success depends on the fetch mode. In all cases, FALSE is
      *               returned on failure.
      */
-    public function fetch($fetchMode = null, $cursorOrientation = \PDO::FETCH_ORI_NEXT, $cursorOffset = 0);
+    public function fetch($fetchMode = null, $cursorOrientation = PDO::FETCH_ORI_NEXT, $cursorOffset = 0);
 
     /**
      * Returns an array containing all of the result set rows.
@@ -92,7 +93,7 @@ interface ResultStatement extends \Traversable
      *                         If no value is supplied, PDOStatement->fetchColumn()
      *                         fetches the first column.
      *
-     * @return string|boolean A single column in the next row of a result set, or FALSE if there are no more rows.
+     * @return string|bool A single column in the next row of a result set, or FALSE if there are no more rows.
      */
     public function fetchColumn($columnIndex = 0);
 }

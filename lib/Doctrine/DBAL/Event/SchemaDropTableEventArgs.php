@@ -4,42 +4,34 @@ namespace Doctrine\DBAL\Event;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Table;
+use InvalidArgumentException;
 use function is_string;
 
 /**
  * Event Arguments used when the SQL query for dropping tables are generated inside Doctrine\DBAL\Platform\AbstractPlatform.
  *
  * @link   www.doctrine-project.org
- * @since  2.2
- * @author Jan Sorgalla <jsorgalla@googlemail.com>
  */
 class SchemaDropTableEventArgs extends SchemaEventArgs
 {
-    /**
-     * @var string|\Doctrine\DBAL\Schema\Table
-     */
+    /** @var string|Table */
     private $_table;
 
-    /**
-     * @var \Doctrine\DBAL\Platforms\AbstractPlatform
-     */
+    /** @var AbstractPlatform */
     private $_platform;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $_sql = null;
 
     /**
-     * @param string|\Doctrine\DBAL\Schema\Table        $table
-     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform
+     * @param string|Table $table
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function __construct($table, AbstractPlatform $platform)
     {
-        if ( ! $table instanceof Table && !is_string($table)) {
-            throw new \InvalidArgumentException('SchemaDropTableEventArgs expects $table parameter to be string or \Doctrine\DBAL\Schema\Table.');
+        if (! $table instanceof Table && ! is_string($table)) {
+            throw new InvalidArgumentException('SchemaDropTableEventArgs expects $table parameter to be string or \Doctrine\DBAL\Schema\Table.');
         }
 
         $this->_table    = $table;
@@ -47,7 +39,7 @@ class SchemaDropTableEventArgs extends SchemaEventArgs
     }
 
     /**
-     * @return string|\Doctrine\DBAL\Schema\Table
+     * @return string|Table
      */
     public function getTable()
     {
@@ -55,7 +47,7 @@ class SchemaDropTableEventArgs extends SchemaEventArgs
     }
 
     /**
-     * @return \Doctrine\DBAL\Platforms\AbstractPlatform
+     * @return AbstractPlatform
      */
     public function getPlatform()
     {

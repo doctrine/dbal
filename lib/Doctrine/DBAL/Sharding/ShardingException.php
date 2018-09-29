@@ -6,8 +6,6 @@ use Doctrine\DBAL\DBALException;
 
 /**
  * Sharding related Exceptions
- *
- * @since 2.3
  */
 class ShardingException extends DBALException
 {
@@ -16,7 +14,7 @@ class ShardingException extends DBALException
      */
     public static function notImplemented()
     {
-        return new self("This functionality is not implemented with this sharding provider.", 1331557937);
+        return new self('This functionality is not implemented with this sharding provider.', 1331557937);
     }
 
     /**
@@ -24,7 +22,7 @@ class ShardingException extends DBALException
      */
     public static function missingDefaultFederationName()
     {
-        return new self("SQLAzure requires a federation name to be set during sharding configuration.", 1332141280);
+        return new self('SQLAzure requires a federation name to be set during sharding configuration.', 1332141280);
     }
 
     /**
@@ -32,7 +30,7 @@ class ShardingException extends DBALException
      */
     public static function missingDefaultDistributionKey()
     {
-        return new self("SQLAzure requires a distribution key to be set during sharding configuration.", 1332141329);
+        return new self('SQLAzure requires a distribution key to be set during sharding configuration.', 1332141329);
     }
 
     /**
@@ -40,7 +38,7 @@ class ShardingException extends DBALException
      */
     public static function activeTransaction()
     {
-        return new self("Cannot switch shard during an active transaction.", 1332141766);
+        return new self('Cannot switch shard during an active transaction.', 1332141766);
     }
 
     /**
@@ -48,7 +46,7 @@ class ShardingException extends DBALException
      */
     public static function noShardDistributionValue()
     {
-        return new self("You have to specify a string or integer as shard distribution value.", 1332142103);
+        return new self('You have to specify a string or integer as shard distribution value.', 1332142103);
     }
 
     /**

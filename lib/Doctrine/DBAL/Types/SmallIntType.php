@@ -7,8 +7,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 /**
  * Type that maps a database SMALLINT to a PHP integer.
- *
- * @author robo
  */
 class SmallIntType extends Type implements PhpIntegerMappingType
 {
@@ -33,7 +31,7 @@ class SmallIntType extends Type implements PhpIntegerMappingType
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
-        return (null === $value) ? null : (int) $value;
+        return $value === null ? null : (int) $value;
     }
 
     /**

@@ -10,8 +10,6 @@ use function func_get_args;
 /**
  * PDO implementation of the Connection interface.
  * Used by all PDO-based drivers.
- *
- * @since 2.0
  */
 class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
 {
@@ -23,7 +21,7 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
      *
      * @throws PDOException in case of an error.
      */
-    public function __construct($dsn, $user = null, $password = null, array $options = null)
+    public function __construct($dsn, $user = null, $password = null, ?array $options = null)
     {
         try {
             parent::__construct($dsn, $user, $password, $options);
@@ -71,19 +69,19 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
      */
     public function query()
     {
-        $args = func_get_args();
+        $args      = func_get_args();
         $argsCount = count($args);
 
         try {
-            if ($argsCount == 4) {
+            if ($argsCount === 4) {
                 return parent::query($args[0], $args[1], $args[2], $args[3]);
             }
 
-            if ($argsCount == 3) {
+            if ($argsCount === 3) {
                 return parent::query($args[0], $args[1], $args[2]);
             }
 
-            if ($argsCount == 2) {
+            if ($argsCount === 2) {
                 return parent::query($args[0], $args[1]);
             }
 

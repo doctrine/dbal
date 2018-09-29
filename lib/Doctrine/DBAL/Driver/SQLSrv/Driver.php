@@ -14,7 +14,7 @@ class Driver extends AbstractSQLServerDriver
      */
     public function connect(array $params, $username = null, $password = null, array $driverOptions = [])
     {
-        if (!isset($params['host'])) {
+        if (! isset($params['host'])) {
             throw new SQLSrvException("Missing 'host' in configuration for sqlsrv driver.");
         }
 
@@ -26,7 +26,7 @@ class Driver extends AbstractSQLServerDriver
         if (isset($params['dbname'])) {
             $driverOptions['Database'] = $params['dbname'];
         }
-        
+
         if (isset($params['charset'])) {
             $driverOptions['CharacterSet'] = $params['charset'];
         }
@@ -34,7 +34,7 @@ class Driver extends AbstractSQLServerDriver
         $driverOptions['UID'] = $username;
         $driverOptions['PWD'] = $password;
 
-        if (!isset($driverOptions['ReturnDatesAsStrings'])) {
+        if (! isset($driverOptions['ReturnDatesAsStrings'])) {
             $driverOptions['ReturnDatesAsStrings'] = 1;
         }
 

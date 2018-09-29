@@ -5,9 +5,7 @@ namespace Doctrine\DBAL\Driver;
 /**
  * Tiny wrapper for PDOException instances to implement the {@link DriverException} interface.
  *
- * @author Steve Müller <st.mueller@dzh-online.de>
  * @link   www.doctrine-project.org
- * @since  2.5
  */
 class PDOException extends \PDOException implements DriverException
 {
@@ -26,8 +24,6 @@ class PDOException extends \PDOException implements DriverException
     private $sqlState;
 
     /**
-     * Constructor.
-     *
      * @param \PDOException $exception The PDO exception to wrap.
      */
     public function __construct(\PDOException $exception)

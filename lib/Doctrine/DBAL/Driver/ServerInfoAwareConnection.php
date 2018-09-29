@@ -5,9 +5,7 @@ namespace Doctrine\DBAL\Driver;
 /**
  * Contract for a connection that is able to provide information about the server it is connected to.
  *
- * @author Steve Müller <st.mueller@dzh-online.de>
  * @link   www.doctrine-project.org
- * @since  2.5
  */
 interface ServerInfoAwareConnection
 {

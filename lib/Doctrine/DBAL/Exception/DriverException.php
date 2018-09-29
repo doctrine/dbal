@@ -3,13 +3,12 @@
 namespace Doctrine\DBAL\Exception;
 
 use Doctrine\DBAL\DBALException;
+use Exception;
 
 /**
  * Base class for all errors detected in the driver.
  *
- * @author Steve Müller <st.mueller@dzh-online.de>
  * @link   www.doctrine-project.org
- * @since  2.5
  */
 class DriverException extends DBALException
 {
@@ -21,8 +20,6 @@ class DriverException extends DBALException
     private $driverException;
 
     /**
-     * Constructor.
-     *
      * @param string                                $message         The exception message.
      * @param \Doctrine\DBAL\Driver\DriverException $driverException The DBAL driver exception to chain.
      */
@@ -30,7 +27,7 @@ class DriverException extends DBALException
     {
         $exception = null;
 
-        if ($driverException instanceof \Exception) {
+        if ($driverException instanceof Exception) {
             $exception = $driverException;
         }
 

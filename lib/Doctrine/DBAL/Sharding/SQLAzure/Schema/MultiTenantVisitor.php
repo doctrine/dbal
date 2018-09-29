@@ -2,13 +2,14 @@
 
 namespace Doctrine\DBAL\Sharding\SQLAzure\Schema;
 
-use Doctrine\DBAL\Schema\Visitor\Visitor;
-use Doctrine\DBAL\Schema\Table;
-use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
-use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Sequence;
+use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\Visitor\Visitor;
+use RuntimeException;
 use function in_array;
 
 /**
@@ -29,24 +30,16 @@ use function in_array;
  *   (otherwise they will affect the same-id rows from other tenants as well).
  *   SQLAzure throws errors when you try to create IDENTIY columns on federated
  *   tables.
- *
- * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
 class MultiTenantVisitor implements Visitor
 {
-    /**
-     * @var array
-     */
+    /** @var array */
     private $excludedTables = [];
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $tenantColumnName;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $tenantColumnType = 'integer';
 
     /**
@@ -64,7 +57,7 @@ class MultiTenantVisitor implements Visitor
      */
     public function __construct(array $excludedTables = [], $tenantColumnName = 'tenant_id', $distributionName = null)
     {
-        $this->excludedTables = $excludedTables;
+        $this->excludedTables   = $excludedTables;
         $this->tenantColumnName = $tenantColumnName;
         $this->distributionName = $distributionName ?: $tenantColumnName;
     }
@@ -79,12 +72,12 @@ class MultiTenantVisitor implements Visitor
         }
 
         $table->addColumn($this->tenantColumnName, $this->tenantColumnType, [
-            'default' => "federation_filtering_value('". $this->distributionName ."')",
+            'default' => "federation_filtering_value('" . $this->distributionName . "')",
         ]);
 
         $clusteredIndex = $this->getClusteredIndex($table);
 
-        $indexColumns = $clusteredIndex->getColumns();
+        $indexColumns   = $clusteredIndex->getColumns();
         $indexColumns[] = $this->tenantColumnName;
 
         if ($clusteredIndex->isPrimary()) {
@@ -98,22 +91,24 @@ class MultiTenantVisitor implements Visitor
     }
 
     /**
-     * @param \Doctrine\DBAL\Schema\Table $table
+     * @param Table $table
      *
-     * @return \Doctrine\DBAL\Schema\Index
+     * @return Index
      *
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     private function getClusteredIndex($table)
     {
         foreach ($table->getIndexes() as $index) {
             if ($index->isPrimary() && ! $index->hasFlag('nonclustered')) {
                 return $index;
-            } elseif ($index->hasFlag('clustered')) {
+            }
+
+            if ($index->hasFlag('clustered')) {
                 return $index;
             }
         }
-        throw new \RuntimeException("No clustered index found on table " . $table->getName());
+        throw new RuntimeException('No clustered index found on table ' . $table->getName());
     }
 
     /**

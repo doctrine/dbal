@@ -9,9 +9,7 @@ use Doctrine\DBAL\Schema\Sequence;
  * The SQLAnywhere12Platform provides the behavior, features and SQL dialect of the
  * SAP Sybase SQL Anywhere 12 database platform.
  *
- * @author Steve Müller <st.mueller@dzh-online.de>
  * @link   www.doctrine-project.org
- * @since  2.5
  */
 class SQLAnywhere12Platform extends SQLAnywhere11Platform
 {
@@ -92,7 +90,7 @@ class SQLAnywhere12Platform extends SQLAnywhere11Platform
      */
     protected function getAdvancedIndexOptionsSQL(Index $index)
     {
-        if ( ! $index->isPrimary() && $index->isUnique() && $index->hasFlag('with_nulls_not_distinct')) {
+        if (! $index->isPrimary() && $index->isUnique() && $index->hasFlag('with_nulls_not_distinct')) {
             return ' WITH NULLS NOT DISTINCT' . parent::getAdvancedIndexOptionsSQL($index);
         }
 

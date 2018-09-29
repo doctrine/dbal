@@ -10,9 +10,7 @@ use function stream_get_contents;
 /**
  * Array Type which can be used to generate json arrays.
  *
- * @since  2.3
  * @deprecated Use JsonType instead
- * @author Johannes M. Schmitt <schmittjoh@gmail.com>
  */
 class JsonArrayType extends JsonType
 {
@@ -25,7 +23,7 @@ class JsonArrayType extends JsonType
             return [];
         }
 
-        $value = (is_resource($value)) ? stream_get_contents($value) : $value;
+        $value = is_resource($value) ? stream_get_contents($value) : $value;
 
         return json_decode($value, true);
     }

@@ -7,8 +7,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 /**
  * Type that maps an SQL boolean to a PHP boolean.
- *
- * @since 2.0
  */
 class BooleanType extends Type
 {

@@ -11,16 +11,14 @@ use function implode;
 /**
  * A Doctrine DBAL driver for the SAP Sybase SQL Anywhere PHP extension.
  *
- * @author Steve Müller <st.mueller@dzh-online.de>
  * @link   www.doctrine-project.org
- * @since  2.5
  */
 class Driver extends AbstractSQLAnywhereDriver
 {
     /**
      * {@inheritdoc}
      *
-     * @throws \Doctrine\DBAL\DBALException if there was a problem establishing the connection.
+     * @throws DBALException if there was a problem establishing the connection.
      */
     public function connect(array $params, $username = null, $password = null, array $driverOptions = [])
     {
@@ -74,15 +72,14 @@ class Driver extends AbstractSQLAnywhereDriver
             $server = ';ServerName=' . $server;
         }
 
-        return
-            'HOST=' . $host . ':' . $port .
+        return 'HOST=' . $host . ':' . $port .
             $server .
             ';DBN=' . $dbname .
             ';UID=' . $username .
             ';PWD=' . $password .
             ';' . implode(
                 ';',
-                array_map(function ($key, $value) {
+                array_map(static function ($key, $value) {
                     return $key . '=' . $value;
                 }, array_keys($driverOptions), $driverOptions)
             );

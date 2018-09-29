@@ -6,29 +6,19 @@ namespace Doctrine\DBAL\Schema;
  * Configuration for a Schema.
  *
  * @link   www.doctrine-project.org
- * @since  2.0
- * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
 class SchemaConfig
 {
-    /**
-     * @var bool
-     */
+    /** @var bool */
     protected $hasExplicitForeignKeyIndexes = false;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     protected $maxIdentifierLength = 63;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $name;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $defaultTableOptions = [];
 
     /**

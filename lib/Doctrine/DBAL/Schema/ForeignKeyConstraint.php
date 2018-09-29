@@ -15,17 +15,14 @@ use function strtoupper;
 /**
  * An abstraction class for a foreign key constraint.
  *
- * @author Benjamin Eberlei <kontakt@beberlei.de>
- * @author Steve Müller <st.mueller@dzh-online.de>
  * @link   www.doctrine-project.org
- * @since  2.0
  */
 class ForeignKeyConstraint extends AbstractAsset implements Constraint
 {
     /**
      * Instance of the referencing table the foreign key constraint is associated with.
      *
-     * @var \Doctrine\DBAL\Schema\Table
+     * @var Table
      */
     protected $_localTable;
 
@@ -52,9 +49,7 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
      */
     protected $_foreignColumnNames;
 
-    /**
-     * @var array Options associated with the foreign key constraint.
-     */
+    /** @var array Options associated with the foreign key constraint. */
     protected $_options;
 
     /**
@@ -69,10 +64,10 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
     public function __construct(array $localColumnNames, $foreignTableName, array $foreignColumnNames, $name = null, array $options = [])
     {
         $this->_setName($name);
-        $identifierConstructorCallback = function ($column) {
+        $identifierConstructorCallback = static function ($column) {
             return new Identifier($column);
         };
-        $this->_localColumnNames = $localColumnNames
+        $this->_localColumnNames       = $localColumnNames
             ? array_combine($localColumnNames, array_map($identifierConstructorCallback, $localColumnNames))
             : [];
 
@@ -85,7 +80,7 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
         $this->_foreignColumnNames = $foreignColumnNames
             ? array_combine($foreignColumnNames, array_map($identifierConstructorCallback, $foreignColumnNames))
             : [];
-        $this->_options = $options;
+        $this->_options            = $options;
     }
 
     /**
@@ -103,7 +98,7 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
      * Sets the Table instance of the referencing table
      * the foreign key constraint is associated with.
      *
-     * @param \Doctrine\DBAL\Schema\Table $table Instance of the referencing table.
+     * @param Table $table Instance of the referencing table.
      *
      * @return void
      */
@@ -139,7 +134,7 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
      * is a keyword reserved by the platform.
      * Otherwise the plain unquoted value as inserted is returned.
      *
-     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform The platform to use for quotation.
+     * @param AbstractPlatform $platform The platform to use for quotation.
      *
      * @return array
      */
@@ -192,9 +187,9 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
      * is a keyword reserved by the platform.
      * Otherwise the plain unquoted value as inserted is returned.
      *
-     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform The platform to use for quotation.
-     *
      * @see getQuotedLocalColumns
+     *
+     * @param AbstractPlatform $platform The platform to use for quotation.
      *
      * @return array
      */
@@ -221,7 +216,7 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
      */
     public function getUnqualifiedForeignTableName()
     {
-        $parts = explode(".", $this->_foreignTableName->getName());
+        $parts = explode('.', $this->_foreignTableName->getName());
 
         return strtolower(end($parts));
     }
@@ -234,7 +229,7 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
      * is a keyword reserved by the platform.
      * Otherwise the plain unquoted value as inserted is returned.
      *
-     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform The platform to use for quotation.
+     * @param AbstractPlatform $platform The platform to use for quotation.
      *
      * @return string
      */
@@ -262,7 +257,7 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
      * is a keyword reserved by the platform.
      * Otherwise the plain unquoted value as inserted is returned.
      *
-     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform The platform to use for quotation.
+     * @param AbstractPlatform $platform The platform to use for quotation.
      *
      * @return array
      */
@@ -347,7 +342,7 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
         if (isset($this->_options[$event])) {
             $onEvent = strtoupper($this->_options[$event]);
 
-            if ( ! in_array($onEvent, ['NO ACTION', 'RESTRICT'])) {
+            if (! in_array($onEvent, ['NO ACTION', 'RESTRICT'])) {
                 return $onEvent;
             }
         }

@@ -2,23 +2,17 @@
 
 namespace Doctrine\DBAL\Schema;
 
-use \Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use function array_merge;
 
 /**
  * Schema Diff.
  *
  * @link      www.doctrine-project.org
- * @copyright Copyright (C) 2005-2009 eZ Systems AS. All rights reserved.
- * @license   http://ez.no/licenses/new_bsd New BSD License
- * @since     2.0
- * @author    Benjamin Eberlei <kontakt@beberlei.de>
  */
 class SchemaDiff
 {
-    /**
-     * @var \Doctrine\DBAL\Schema\Schema
-     */
+    /** @var Schema */
     public $fromSchema;
 
     /**
@@ -38,53 +32,44 @@ class SchemaDiff
     /**
      * All added tables.
      *
-     * @var \Doctrine\DBAL\Schema\Table[]
+     * @var Table[]
      */
     public $newTables = [];
 
     /**
      * All changed tables.
      *
-     * @var \Doctrine\DBAL\Schema\TableDiff[]
+     * @var TableDiff[]
      */
     public $changedTables = [];
 
     /**
      * All removed tables.
      *
-     * @var \Doctrine\DBAL\Schema\Table[]
+     * @var Table[]
      */
     public $removedTables = [];
 
-    /**
-     * @var \Doctrine\DBAL\Schema\Sequence[]
-     */
+    /** @var Sequence[] */
     public $newSequences = [];
 
-    /**
-     * @var \Doctrine\DBAL\Schema\Sequence[]
-     */
+    /** @var Sequence[] */
     public $changedSequences = [];
 
-    /**
-     * @var \Doctrine\DBAL\Schema\Sequence[]
-     */
+    /** @var Sequence[] */
     public $removedSequences = [];
 
-    /**
-     * @var \Doctrine\DBAL\Schema\ForeignKeyConstraint[]
-     */
+    /** @var ForeignKeyConstraint[] */
     public $orphanedForeignKeys = [];
 
     /**
      * Constructs an SchemaDiff object.
      *
-     * @param \Doctrine\DBAL\Schema\Table[]     $newTables
-     * @param \Doctrine\DBAL\Schema\TableDiff[] $changedTables
-     * @param \Doctrine\DBAL\Schema\Table[]     $removedTables
-     * @param \Doctrine\DBAL\Schema\Schema|null $fromSchema
+     * @param Table[]     $newTables
+     * @param TableDiff[] $changedTables
+     * @param Table[]     $removedTables
      */
-    public function __construct($newTables = [], $changedTables = [], $removedTables = [], Schema $fromSchema = null)
+    public function __construct($newTables = [], $changedTables = [], $removedTables = [], ?Schema $fromSchema = null)
     {
         $this->newTables     = $newTables;
         $this->changedTables = $changedTables;
@@ -101,8 +86,6 @@ class SchemaDiff
      *
      * This way it is ensured that assets are deleted which might not be relevant to the metadata schema at all.
      *
-     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform
-     *
      * @return array
      */
     public function toSaveSql(AbstractPlatform $platform)
@@ -111,8 +94,6 @@ class SchemaDiff
     }
 
     /**
-     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform
-     *
      * @return array
      */
     public function toSql(AbstractPlatform $platform)
@@ -121,8 +102,7 @@ class SchemaDiff
     }
 
     /**
-     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform
-     * @param bool                                      $saveMode
+     * @param bool $saveMode
      *
      * @return array
      */
@@ -136,13 +116,13 @@ class SchemaDiff
             }
         }
 
-        if ($platform->supportsForeignKeyConstraints() && $saveMode == false) {
+        if ($platform->supportsForeignKeyConstraints() && $saveMode === false) {
             foreach ($this->orphanedForeignKeys as $orphanedForeignKey) {
                 $sql[] = $platform->getDropForeignKeySQL($orphanedForeignKey, $orphanedForeignKey->getLocalTable());
             }
         }
 
-        if ($platform->supportsSequences() == true) {
+        if ($platform->supportsSequences() === true) {
             foreach ($this->changedSequences as $sequence) {
                 $sql[] = $platform->getAlterSequenceSQL($sequence);
             }
@@ -165,10 +145,12 @@ class SchemaDiff
                 $platform->getCreateTableSQL($table, AbstractPlatform::CREATE_INDEXES)
             );
 
-            if ($platform->supportsForeignKeyConstraints()) {
-                foreach ($table->getForeignKeys() as $foreignKey) {
-                    $foreignKeySql[] = $platform->getCreateForeignKeySQL($foreignKey, $table);
-                }
+            if (! $platform->supportsForeignKeyConstraints()) {
+                continue;
+            }
+
+            foreach ($table->getForeignKeys() as $foreignKey) {
+                $foreignKeySql[] = $platform->getCreateForeignKeySQL($foreignKey, $table);
             }
         }
         $sql = array_merge($sql, $foreignKeySql);

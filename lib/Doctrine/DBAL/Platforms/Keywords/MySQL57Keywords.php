@@ -5,9 +5,7 @@ namespace Doctrine\DBAL\Platforms\Keywords;
 /**
  * MySQL 5.7 reserved keywords list.
  *
- * @author Steve Müller <st.mueller@dzh-online.de>
  * @link   www.doctrine-project.org
- * @since  2.5
  */
 class MySQL57Keywords extends MySQLKeywords
 {

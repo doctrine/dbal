@@ -3,11 +3,13 @@
 namespace Doctrine\DBAL\Tools\Console\Command;
 
 use Doctrine\DBAL\Tools\Dumper;
+use LogicException;
+use RuntimeException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
 use function is_numeric;
 use function stripos;
 
@@ -16,11 +18,6 @@ use function stripos;
  * the command line.
  *
  * @link   www.doctrine-project.org
- * @since  2.0
- * @author Benjamin Eberlei <kontakt@beberlei.de>
- * @author Guilherme Blanco <guilhermeblanco@hotmail.com>
- * @author Jonathan Wage <jonwage@gmail.com>
- * @author Roman Borschel <roman@code-factory.org>
  */
 class RunSqlCommand extends Command
 {
@@ -51,13 +48,13 @@ EOT
         $conn = $this->getHelper('db')->getConnection();
 
         if (($sql = $input->getArgument('sql')) === null) {
-            throw new \RuntimeException("Argument 'SQL' is required in order to execute this command correctly.");
+            throw new RuntimeException("Argument 'SQL' is required in order to execute this command correctly.");
         }
 
         $depth = $input->getOption('depth');
 
-        if ( ! is_numeric($depth)) {
-            throw new \LogicException("Option 'depth' must contains an integer value");
+        if (! is_numeric($depth)) {
+            throw new LogicException("Option 'depth' must contains an integer value");
         }
 
         if (stripos($sql, 'select') === 0 || $input->getOption('force-fetch')) {

@@ -10,14 +10,10 @@ use function strtoupper;
  * Abstract interface for a SQL reserved keyword dictionary.
  *
  * @link    www.doctrine-project.org
- * @since   2.0
- * @author  Benjamin Eberlei <kontakt@beberlei.de>
  */
 abstract class KeywordList
 {
-    /**
-     * @var array|null
-     */
+    /** @var array|null */
     private $keywords = null;
 
     /**

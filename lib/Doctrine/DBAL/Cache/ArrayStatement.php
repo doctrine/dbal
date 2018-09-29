@@ -2,33 +2,29 @@
 
 namespace Doctrine\DBAL\Cache;
 
+use ArrayIterator;
 use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\FetchMode;
+use InvalidArgumentException;
+use IteratorAggregate;
+use PDO;
 use function array_merge;
 use function array_values;
 use function count;
 use function reset;
 
-class ArrayStatement implements \IteratorAggregate, ResultStatement
+class ArrayStatement implements IteratorAggregate, ResultStatement
 {
-    /**
-     * @var array
-     */
+    /** @var array */
     private $data;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $columnCount = 0;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $num = 0;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $defaultFetchMode = FetchMode::MIXED;
 
     /**
@@ -37,9 +33,11 @@ class ArrayStatement implements \IteratorAggregate, ResultStatement
     public function __construct(array $data)
     {
         $this->data = $data;
-        if (count($data)) {
-            $this->columnCount = count($data[0]);
+        if (! count($data)) {
+            return;
         }
+
+        $this->columnCount = count($data[0]);
     }
 
     /**
@@ -47,7 +45,7 @@ class ArrayStatement implements \IteratorAggregate, ResultStatement
      */
     public function closeCursor()
     {
-        unset ($this->data);
+        unset($this->data);
     }
 
     /**
@@ -64,7 +62,7 @@ class ArrayStatement implements \IteratorAggregate, ResultStatement
     public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
     {
         if ($arg2 !== null || $arg3 !== null) {
-            throw new \InvalidArgumentException("Caching layer does not support 2nd/3rd argument to setFetchMode()");
+            throw new InvalidArgumentException('Caching layer does not support 2nd/3rd argument to setFetchMode()');
         }
 
         $this->defaultFetchMode = $fetchMode;
@@ -79,13 +77,13 @@ class ArrayStatement implements \IteratorAggregate, ResultStatement
     {
         $data = $this->fetchAll();
 
-        return new \ArrayIterator($data);
+        return new ArrayIterator($data);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null, $cursorOrientation = \PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
+    public function fetch($fetchMode = null, $cursorOrientation = PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
     {
         if (! isset($this->data[$this->num])) {
             return false;
@@ -110,7 +108,7 @@ class ArrayStatement implements \IteratorAggregate, ResultStatement
             return reset($row);
         }
 
-        throw new \InvalidArgumentException('Invalid fetch-style given for fetching result.');
+        throw new InvalidArgumentException('Invalid fetch-style given for fetching result.');
     }
 
     /**

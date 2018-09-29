@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Query\Expression;
 
+use Countable;
 use function count;
 use function implode;
 
@@ -9,21 +10,18 @@ use function implode;
  * Composite expression is responsible to build a group of similar expression.
  *
  * @link   www.doctrine-project.org
- * @since  2.1
- * @author Guilherme Blanco <guilhermeblanco@hotmail.com>
- * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
-class CompositeExpression implements \Countable
+class CompositeExpression implements Countable
 {
     /**
      * Constant that represents an AND composite expression.
      */
-    const TYPE_AND = 'AND';
+    public const TYPE_AND = 'AND';
 
     /**
      * Constant that represents an OR composite expression.
      */
-    const TYPE_OR  = 'OR';
+    public const TYPE_OR = 'OR';
 
     /**
      * The instance type of composite expression.
@@ -40,8 +38,6 @@ class CompositeExpression implements \Countable
     private $parts = [];
 
     /**
-     * Constructor.
-     *
      * @param string $type  Instance type of composite expression.
      * @param array  $parts Composition of expressions to be joined on composite expression.
      */
@@ -81,7 +77,7 @@ class CompositeExpression implements \Countable
             return $this;
         }
 
-        if ($part instanceof self && 0 === count($part)) {
+        if ($part instanceof self && count($part) === 0) {
             return $this;
         }
 

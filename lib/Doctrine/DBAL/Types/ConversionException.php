@@ -4,14 +4,12 @@
  * Conversion Exception is thrown when the database to PHP conversion fails.
  *
  * @link   www.doctrine-project.org
- * @since  2.0
- * @author Benjamin Eberlei <kontakt@beberlei.de>
- * @author Guilherme Blanco <guilhermeblanco@hotmail.com>
- * @author Jonathan Wage <jonwage@gmail.com>
- * @author Roman Borschel <roman@code-factory.org>
  */
+
 namespace Doctrine\DBAL\Types;
 
+use Doctrine\DBAL\DBALException;
+use Throwable;
 use function get_class;
 use function gettype;
 use function implode;
@@ -21,7 +19,7 @@ use function sprintf;
 use function strlen;
 use function substr;
 
-class ConversionException extends \Doctrine\DBAL\DBALException
+class ConversionException extends DBALException
 {
     /**
      * Thrown when a Database to Doctrine Type Conversion fails.
@@ -33,7 +31,7 @@ class ConversionException extends \Doctrine\DBAL\DBALException
      */
     public static function conversionFailed($value, $toType)
     {
-        $value = (strlen($value) > 32) ? substr($value, 0, 20) . '...' : $value;
+        $value = strlen($value) > 32 ? substr($value, 0, 20) . '...' : $value;
 
         return new self('Could not convert database value "' . $value . '" to Doctrine Type ' . $toType);
     }
@@ -42,16 +40,15 @@ class ConversionException extends \Doctrine\DBAL\DBALException
      * Thrown when a Database to Doctrine Type Conversion fails and we can make a statement
      * about the expected format.
      *
-     * @param string          $value
-     * @param string          $toType
-     * @param string          $expectedFormat
-     * @param \Exception|null $previous
+     * @param string $value
+     * @param string $toType
+     * @param string $expectedFormat
      *
      * @return \Doctrine\DBAL\Types\ConversionException
      */
-    public static function conversionFailedFormat($value, $toType, $expectedFormat, \Exception $previous = null)
+    public static function conversionFailedFormat($value, $toType, $expectedFormat, ?Throwable $previous = null)
     {
-        $value = (strlen($value) > 32) ? substr($value, 0, 20) . '...' : $value;
+        $value = strlen($value) > 32 ? substr($value, 0, 20) . '...' : $value;
 
         return new self(
             'Could not convert database value "' . $value . '" to Doctrine Type ' .

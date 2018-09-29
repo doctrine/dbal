@@ -2,7 +2,11 @@
 
 namespace Doctrine\DBAL\Tools\Console\Command;
 
+use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\Driver\PDOStatement;
+use InvalidArgumentException;
+use PDOException;
+use RuntimeException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -19,13 +23,9 @@ use function sprintf;
  * Task for executing arbitrary SQL that can come from a file or directly from
  * the command line.
  *
- * @link   www.doctrine-project.org
- * @since  2.0
- * @author Benjamin Eberlei <kontakt@beberlei.de>
- * @author Guilherme Blanco <guilhermeblanco@hotmail.com>
- * @author Jonathan Wage <jonwage@gmail.com>
- * @author Roman Borschel <roman@code-factory.org>
  * @deprecated Use a database client application instead
+ *
+ * @link   www.doctrine-project.org
  */
 class ImportCommand extends Command
 {
@@ -37,10 +37,11 @@ class ImportCommand extends Command
         $this
         ->setName('dbal:import')
         ->setDescription('Import SQL file(s) directly to Database.')
-        ->setDefinition([
-            new InputArgument(
-                'file', InputArgument::REQUIRED | InputArgument::IS_ARRAY, 'File path(s) of SQL to be executed.'
-            )
+        ->setDefinition([new InputArgument(
+            'file',
+            InputArgument::REQUIRED | InputArgument::IS_ARRAY,
+            'File path(s) of SQL to be executed.'
+        ),
         ])
         ->setHelp(<<<EOT
 Import SQL file(s) directly to Database.
@@ -55,69 +56,71 @@ EOT
     {
         $conn = $this->getHelper('db')->getConnection();
 
-        if (($fileNames = $input->getArgument('file')) !== null) {
-            foreach ((array) $fileNames as $fileName) {
-                $filePath = realpath($fileName);
+        if (($fileNames = $input->getArgument('file')) === null) {
+            return;
+        }
 
-                // Phar compatibility.
-                if (false === $filePath) {
-                    $filePath = $fileName;
-                }
+        foreach ((array) $fileNames as $fileName) {
+            $filePath = realpath($fileName);
 
-                if ( ! file_exists($filePath)) {
-                    throw new \InvalidArgumentException(
-                        sprintf("SQL file '<info>%s</info>' does not exist.", $filePath)
-                    );
-                } elseif ( ! is_readable($filePath)) {
-                    throw new \InvalidArgumentException(
-                        sprintf("SQL file '<info>%s</info>' does not have read permissions.", $filePath)
-                    );
-                }
+            // Phar compatibility.
+            if ($filePath === false) {
+                $filePath = $fileName;
+            }
 
-                $output->write(sprintf("Processing file '<info>%s</info>'... ", $filePath));
-                $sql = file_get_contents($filePath);
+            if (! file_exists($filePath)) {
+                throw new InvalidArgumentException(
+                    sprintf("SQL file '<info>%s</info>' does not exist.", $filePath)
+                );
+            } elseif (! is_readable($filePath)) {
+                throw new InvalidArgumentException(
+                    sprintf("SQL file '<info>%s</info>' does not have read permissions.", $filePath)
+                );
+            }
 
-                if ($conn instanceof \Doctrine\DBAL\Driver\PDOConnection) {
-                    // PDO Drivers
-                    try {
-                        $lines = 0;
+            $output->write(sprintf("Processing file '<info>%s</info>'... ", $filePath));
+            $sql = file_get_contents($filePath);
 
-                        $stmt = $conn->prepare($sql);
-                        assert($stmt instanceof PDOStatement);
+            if ($conn instanceof PDOConnection) {
+                // PDO Drivers
+                try {
+                    $lines = 0;
 
-                        $stmt->execute();
-
-                        do {
-                            // Required due to "MySQL has gone away!" issue
-                            $stmt->fetch();
-                            $stmt->closeCursor();
-
-                            $lines++;
-                        } while ($stmt->nextRowset());
-
-                        $output->write(sprintf('%d statements executed!', $lines) . PHP_EOL);
-                    } catch (\PDOException $e) {
-                        $output->write('error!' . PHP_EOL);
-
-                        throw new \RuntimeException($e->getMessage(), $e->getCode(), $e);
-                    }
-                } else {
-                    // Non-PDO Drivers (ie. OCI8 driver)
                     $stmt = $conn->prepare($sql);
-                    $rs = $stmt->execute();
+                    assert($stmt instanceof PDOStatement);
 
-                    if ($rs) {
-                        $output->writeln('OK!' . PHP_EOL);
-                    } else {
-                        $error = $stmt->errorInfo();
+                    $stmt->execute();
 
-                        $output->write('error!' . PHP_EOL);
+                    do {
+                        // Required due to "MySQL has gone away!" issue
+                        $stmt->fetch();
+                        $stmt->closeCursor();
 
-                        throw new \RuntimeException($error[2], $error[0]);
-                    }
+                        $lines++;
+                    } while ($stmt->nextRowset());
 
-                    $stmt->closeCursor();
+                    $output->write(sprintf('%d statements executed!', $lines) . PHP_EOL);
+                } catch (PDOException $e) {
+                    $output->write('error!' . PHP_EOL);
+
+                    throw new RuntimeException($e->getMessage(), $e->getCode(), $e);
                 }
+            } else {
+                // Non-PDO Drivers (ie. OCI8 driver)
+                $stmt = $conn->prepare($sql);
+                $rs   = $stmt->execute();
+
+                if (! $rs) {
+                    $error = $stmt->errorInfo();
+
+                    $output->write('error!' . PHP_EOL);
+
+                    throw new RuntimeException($error[2], $error[0]);
+                }
+
+                $output->writeln('OK!' . PHP_EOL);
+
+                $stmt->closeCursor();
             }
         }
     }

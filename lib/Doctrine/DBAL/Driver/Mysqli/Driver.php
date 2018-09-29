@@ -2,12 +2,9 @@
 
 namespace Doctrine\DBAL\Driver\Mysqli;
 
-use Doctrine\DBAL\Driver\AbstractMySQLDriver;
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver\AbstractMySQLDriver;
 
-/**
- * @author Kim Hemsø Rasmussen <kimhemsoe@gmail.com>
- */
 class Driver extends AbstractMySQLDriver
 {
     /**

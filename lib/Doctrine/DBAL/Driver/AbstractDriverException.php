@@ -2,14 +2,14 @@
 
 namespace Doctrine\DBAL\Driver;
 
+use Exception;
+
 /**
  * Abstract base implementation of the {@link DriverException} interface.
  *
- * @author Steve Müller <st.mueller@dzh-online.de>
  * @link   www.doctrine-project.org
- * @since  2.5
  */
-abstract class AbstractDriverException extends \Exception implements DriverException
+abstract class AbstractDriverException extends Exception implements DriverException
 {
     /**
      * The driver specific error code.
@@ -26,8 +26,6 @@ abstract class AbstractDriverException extends \Exception implements DriverExcep
     private $sqlState;
 
     /**
-     * Constructor.
-     *
      * @param string          $message   The driver error message.
      * @param string|null     $sqlState  The SQLSTATE the driver is in at the time the error occurred, if any.
      * @param int|string|null $errorCode The driver specific error code if any.

@@ -14,19 +14,13 @@ use function sha1;
  */
 class QueryCacheProfile
 {
-    /**
-     * @var Cache|null
-     */
+    /** @var Cache|null */
     private $resultCacheDriver;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $lifetime = 0;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $cacheKey;
 
     /**
@@ -98,7 +92,6 @@ class QueryCacheProfile
     }
 
     /**
-     *
      * @return \Doctrine\DBAL\Cache\QueryCacheProfile
      */
     public function setResultCacheDriver(Cache $cache)

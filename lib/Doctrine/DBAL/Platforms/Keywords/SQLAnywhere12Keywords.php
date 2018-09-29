@@ -7,8 +7,6 @@ use function array_merge;
 
 /**
  * SAP Sybase SQL Anywhere 12 reserved keywords list.
- *
- * @author Steve Müller <st.mueller@dzh-online.de>
  */
 class SQLAnywhere12Keywords extends SQLAnywhere11Keywords
 {
@@ -35,7 +33,7 @@ class SQLAnywhere12Keywords extends SQLAnywhere11Keywords
                     'SYNTAX_ERROR',
                     'WITH_CUBE',
                     'WITH_LPAREN',
-                    'WITH_ROLLUP'
+                    'WITH_ROLLUP',
                 ]
             ),
             [
@@ -43,7 +41,7 @@ class SQLAnywhere12Keywords extends SQLAnywhere11Keywords
                 'LIMIT',
                 'OPENXML',
                 'SPATIAL',
-                'TREAT'
+                'TREAT',
             ]
         );
     }

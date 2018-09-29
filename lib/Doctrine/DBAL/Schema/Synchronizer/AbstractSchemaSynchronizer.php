@@ -3,20 +3,16 @@
 namespace Doctrine\DBAL\Schema\Synchronizer;
 
 use Doctrine\DBAL\Connection;
+use Throwable;
 
 /**
  * Abstract schema synchronizer with methods for executing batches of SQL.
  */
 abstract class AbstractSchemaSynchronizer implements SchemaSynchronizer
 {
-    /**
-     * @var \Doctrine\DBAL\Connection
-     */
+    /** @var Connection */
     protected $conn;
 
-    /**
-     * @param \Doctrine\DBAL\Connection $conn
-     */
     public function __construct(Connection $conn)
     {
         $this->conn = $conn;
@@ -30,8 +26,7 @@ abstract class AbstractSchemaSynchronizer implements SchemaSynchronizer
         foreach ($sql as $s) {
             try {
                 $this->conn->exec($s);
-            } catch (\Exception $e) {
-
+            } catch (Throwable $e) {
             }
         }
     }

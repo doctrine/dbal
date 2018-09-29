@@ -5,8 +5,9 @@ namespace Doctrine\DBAL\Portability;
 use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
+use IteratorAggregate;
+use PDO;
 use function array_change_key_case;
-use function is_null;
 use function is_string;
 use function rtrim;
 
@@ -14,42 +15,31 @@ use function rtrim;
  * Portability wrapper for a Statement.
  *
  * @link   www.doctrine-project.org
- * @since  2.0
- * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
-class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
+class Statement implements IteratorAggregate, \Doctrine\DBAL\Driver\Statement
 {
-    /**
-     * @var int
-     */
+    /** @var int */
     private $portability;
 
-    /**
-     * @var \Doctrine\DBAL\Driver\Statement
-     */
+    /** @var \Doctrine\DBAL\Driver\Statement */
     private $stmt;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $case;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $defaultFetchMode = FetchMode::MIXED;
 
     /**
      * Wraps <tt>Statement</tt> and applies portability measures.
      *
-     * @param \Doctrine\DBAL\Driver\Statement       $stmt
-     * @param \Doctrine\DBAL\Portability\Connection $conn
+     * @param \Doctrine\DBAL\Driver\Statement $stmt
      */
     public function __construct($stmt, Connection $conn)
     {
-        $this->stmt = $stmt;
+        $this->stmt        = $stmt;
         $this->portability = $conn->getPortability();
-        $this->case = $conn->getFetchCase();
+        $this->case        = $conn->getFetchCase();
     }
 
     /**
@@ -129,7 +119,7 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null, $cursorOrientation = \PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
+    public function fetch($fetchMode = null, $cursorOrientation = PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
     {
         $fetchMode = $fetchMode ?: $this->defaultFetchMode;
 
@@ -163,7 +153,7 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
             && ($fetchMode === FetchMode::ASSOCIATIVE || $fetchMode === FetchMode::MIXED)
             && ($this->portability & Connection::PORTABILITY_FIX_CASE);
 
-        if ( ! $iterateRow && !$fixCase) {
+        if (! $iterateRow && ! $fixCase) {
             return $rows;
         }
 
@@ -195,7 +185,7 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
      */
     protected function fixRow($row, $iterateRow, $fixCase)
     {
-        if ( ! $row) {
+        if (! $row) {
             return $row;
         }
 

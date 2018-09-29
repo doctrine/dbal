@@ -10,11 +10,6 @@ use function version_compare;
  * Class to store and retrieve the version of Doctrine.
  *
  * @link   www.doctrine-project.org
- * @since  2.0
- * @author Benjamin Eberlei <kontakt@beberlei.de>
- * @author Guilherme Blanco <guilhermeblanco@hotmail.com>
- * @author Jonathan Wage <jonwage@gmail.com>
- * @author Roman Borschel <roman@code-factory.org>
  */
 class Version
 {
@@ -33,7 +28,7 @@ class Version
     public static function compare($version)
     {
         $currentVersion = str_replace(' ', '', strtolower(self::VERSION));
-        $version = str_replace(' ', '', $version);
+        $version        = str_replace(' ', '', $version);
 
         return version_compare($version, $currentVersion);
     }

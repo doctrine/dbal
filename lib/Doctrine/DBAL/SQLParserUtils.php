@@ -22,18 +22,16 @@ use function substr;
  * Utility class that parses sql statements with regard to types and parameters.
  *
  * @link   www.doctrine-project.org
- * @since  2.0
- * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
 class SQLParserUtils
 {
-    const POSITIONAL_TOKEN = '\?';
-    const NAMED_TOKEN      = '(?<!:):[a-zA-Z_][a-zA-Z0-9_]*';
+    public const POSITIONAL_TOKEN = '\?';
+    public const NAMED_TOKEN      = '(?<!:):[a-zA-Z_][a-zA-Z0-9_]*';
 
     // Quote characters within string literals can be preceded by a backslash.
-    const ESCAPED_SINGLE_QUOTED_TEXT = "(?:'(?:\\\\\\\\)+'|'(?:[^'\\\\]|\\\\'?|'')*')";
-    const ESCAPED_DOUBLE_QUOTED_TEXT = '(?:"(?:\\\\\\\\)+"|"(?:[^"\\\\]|\\\\"?)*")';
-    const ESCAPED_BACKTICK_QUOTED_TEXT = '(?:`(?:\\\\\\\\)+`|`(?:[^`\\\\]|\\\\`?)*`)';
+    public const ESCAPED_SINGLE_QUOTED_TEXT   = "(?:'(?:\\\\\\\\)+'|'(?:[^'\\\\]|\\\\'?|'')*')";
+    public const ESCAPED_DOUBLE_QUOTED_TEXT   = '(?:"(?:\\\\\\\\)+"|"(?:[^"\\\\]|\\\\"?)*")';
+    public const ESCAPED_BACKTICK_QUOTED_TEXT = '(?:`(?:\\\\\\\\)+`|`(?:[^`\\\\]|\\\\`?)*`)';
     private const ESCAPED_BRACKET_QUOTED_TEXT = '(?<!\b(?i:ARRAY))\[(?:[^\]])*\]';
 
     /**
@@ -49,12 +47,12 @@ class SQLParserUtils
      */
     public static function getPlaceholderPositions($statement, $isPositional = true)
     {
-        $match = ($isPositional) ? '?' : ':';
+        $match = $isPositional ? '?' : ':';
         if (strpos($statement, $match) === false) {
             return [];
         }
 
-        $token = ($isPositional) ? self::POSITIONAL_TOKEN : self::NAMED_TOKEN;
+        $token    = $isPositional ? self::POSITIONAL_TOKEN : self::NAMED_TOKEN;
         $paramMap = [];
 
         foreach (self::getUnquotedStatementFragments($statement) as $fragment) {
@@ -63,7 +61,7 @@ class SQLParserUtils
                 if ($isPositional) {
                     $paramMap[] = $placeholder[1] + $fragment[1];
                 } else {
-                    $pos = $placeholder[1] + $fragment[1];
+                    $pos            = $placeholder[1] + $fragment[1];
                     $paramMap[$pos] = substr($placeholder[0], 1, strlen($placeholder[0]));
                 }
             }
@@ -121,7 +119,7 @@ class SQLParserUtils
             $types       = array_values($types);
 
             foreach ($paramPos as $needle => $needlePos) {
-                if ( ! isset($arrayPositions[$needle])) {
+                if (! isset($arrayPositions[$needle])) {
                     continue;
                 }
 
@@ -145,8 +143,8 @@ class SQLParserUtils
                     array_slice($types, $needle + 1)
                 );
 
-                $expandStr  = $count ? implode(", ", array_fill(0, $count, "?")) : 'NULL';
-                $query      = substr($query, 0, $needlePos) . $expandStr . substr($query, $needlePos + 1);
+                $expandStr = $count ? implode(', ', array_fill(0, $count, '?')) : 'NULL';
+                $query     = substr($query, 0, $needlePos) . $expandStr . substr($query, $needlePos + 1);
 
                 $paramOffset += ($count - 1); // Grows larger by number of parameters minus the replaced needle.
                 $queryOffset += (strlen($expandStr) - 1);
@@ -163,7 +161,7 @@ class SQLParserUtils
             $paramLen = strlen($paramName) + 1;
             $value    = static::extractParam($paramName, $params, true);
 
-            if ( ! isset($arrayPositions[$paramName]) && ! isset($arrayPositions[':' . $paramName])) {
+            if (! isset($arrayPositions[$paramName]) && ! isset($arrayPositions[':' . $paramName])) {
                 $pos         += $queryOffset;
                 $queryOffset -= ($paramLen - 1);
                 $paramsOrd[]  = $value;
@@ -173,8 +171,8 @@ class SQLParserUtils
                 continue;
             }
 
-            $count      = count($value);
-            $expandStr  = $count > 0 ? implode(', ', array_fill(0, $count, '?')) : 'NULL';
+            $count     = count($value);
+            $expandStr = $count > 0 ? implode(', ', array_fill(0, $count, '?')) : 'NULL';
 
             foreach ($value as $val) {
                 $paramsOrd[] = $val;
@@ -198,6 +196,7 @@ class SQLParserUtils
      * 1 => offset of fragment in $statement
      *
      * @param string $statement
+     *
      * @return array
      */
     private static function getUnquotedStatementFragments($statement)
@@ -217,8 +216,9 @@ class SQLParserUtils
      * @param bool   $isParam
      * @param mixed  $defaultValue  An optional default value. If omitted, an exception is thrown
      *
-     * @throws SQLParserUtilsException
      * @return mixed
+     *
+     * @throws SQLParserUtilsException
      */
     private static function extractParam($paramName, $paramsOrTypes, $isParam, $defaultValue = null)
     {
@@ -231,7 +231,7 @@ class SQLParserUtils
             return $paramsOrTypes[':' . $paramName];
         }
 
-        if (null !== $defaultValue) {
+        if ($defaultValue !== null) {
             return $defaultValue;
         }
 

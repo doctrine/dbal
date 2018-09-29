@@ -2,7 +2,10 @@
 
 namespace Doctrine\DBAL\Tools\Console\Command;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\Keywords\ReservedKeywordsValidator;
+use Doctrine\DBAL\Schema\Schema;
+use InvalidArgumentException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -13,9 +16,7 @@ use function implode;
 
 class ReservedWordsCommand extends Command
 {
-    /**
-     * @var array
-     */
+    /** @var array */
     private $keywordListClasses = [
         'mysql'         => 'Doctrine\DBAL\Platforms\Keywords\MySQLKeywords',
         'mysql57'       => 'Doctrine\DBAL\Platforms\Keywords\MySQL57Keywords',
@@ -57,10 +58,12 @@ class ReservedWordsCommand extends Command
         $this
         ->setName('dbal:reserved-words')
         ->setDescription('Checks if the current database contains identifiers that are reserved.')
-        ->setDefinition([
-            new InputOption(
-                'list', 'l', InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, 'Keyword-List name.'
-            )
+        ->setDefinition([new InputOption(
+            'list',
+            'l',
+            InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY,
+            'Keyword-List name.'
+        ),
         ])
         ->setHelp(<<<EOT
 Checks if the current database contains tables and columns
@@ -103,11 +106,11 @@ EOT
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        /* @var $conn \Doctrine\DBAL\Connection */
+        /** @var Connection $conn */
         $conn = $this->getHelper('db')->getConnection();
 
         $keywordLists = (array) $input->getOption('list');
-        if ( ! $keywordLists) {
+        if (! $keywordLists) {
             $keywordLists = [
                 'mysql',
                 'mysql57',
@@ -129,27 +132,25 @@ EOT
 
         $keywords = [];
         foreach ($keywordLists as $keywordList) {
-            if (!isset($this->keywordListClasses[$keywordList])) {
-                throw new \InvalidArgumentException(
-                    "There exists no keyword list with name '" . $keywordList . "'. ".
-                    "Known lists: " . implode(", ", array_keys($this->keywordListClasses))
+            if (! isset($this->keywordListClasses[$keywordList])) {
+                throw new InvalidArgumentException(
+                    "There exists no keyword list with name '" . $keywordList . "'. " .
+                    'Known lists: ' . implode(', ', array_keys($this->keywordListClasses))
                 );
             }
-            $class = $this->keywordListClasses[$keywordList];
-            $keywords[] = new $class;
+            $class      = $this->keywordListClasses[$keywordList];
+            $keywords[] = new $class();
         }
 
-        $output->write('Checking keyword violations for <comment>' . implode(", ", $keywordLists) . "</comment>...", true);
+        $output->write('Checking keyword violations for <comment>' . implode(', ', $keywordLists) . '</comment>...', true);
 
-        /* @var $schema \Doctrine\DBAL\Schema\Schema */
-        $schema = $conn->getSchemaManager()->createSchema();
+        /** @var Schema $schema */
+        $schema  = $conn->getSchemaManager()->createSchema();
         $visitor = new ReservedKeywordsValidator($keywords);
         $schema->visit($visitor);
 
         $violations = $visitor->getViolations();
-        if (count($violations) == 0) {
-            $output->write("No reserved keywords violations have been found!", true);
-        } else {
+        if (count($violations) !== 0) {
             $output->write('There are <error>' . count($violations) . '</error> reserved keyword violations in your database schema:', true);
             foreach ($violations as $violation) {
                 $output->write('  - ' . $violation, true);
@@ -157,6 +158,8 @@ EOT
 
             return 1;
         }
+
+        $output->write('No reserved keywords violations have been found!', true);
 
         return 0;
     }

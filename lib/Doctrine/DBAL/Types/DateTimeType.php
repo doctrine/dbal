@@ -2,13 +2,13 @@
 
 namespace Doctrine\DBAL\Types;
 
+use DateTime;
+use DateTimeInterface;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use function date_create;
 
 /**
  * Type that maps an SQL DATETIME/TIMESTAMP to a PHP DateTime object.
- *
- * @since 2.0
  */
 class DateTimeType extends Type implements PhpDateTimeMappingType
 {
@@ -33,11 +33,11 @@ class DateTimeType extends Type implements PhpDateTimeMappingType
      */
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
-        if (null === $value) {
+        if ($value === null) {
             return $value;
         }
 
-        if ($value instanceof \DateTimeInterface) {
+        if ($value instanceof DateTimeInterface) {
             return $value->format($platform->getDateTimeFormatString());
         }
 
@@ -49,17 +49,17 @@ class DateTimeType extends Type implements PhpDateTimeMappingType
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
-        if ($value === null || $value instanceof \DateTimeInterface) {
+        if ($value === null || $value instanceof DateTimeInterface) {
             return $value;
         }
 
-        $val = \DateTime::createFromFormat($platform->getDateTimeFormatString(), $value);
+        $val = DateTime::createFromFormat($platform->getDateTimeFormatString(), $value);
 
-        if ( ! $val) {
+        if (! $val) {
             $val = date_create($value);
         }
 
-        if ( ! $val) {
+        if (! $val) {
             throw ConversionException::conversionFailedFormat($value, $this->getName(), $platform->getDateTimeFormatString());
         }
 

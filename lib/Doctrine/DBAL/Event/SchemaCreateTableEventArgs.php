@@ -11,41 +11,27 @@ use function is_array;
  * Event Arguments used when SQL queries for creating tables are generated inside Doctrine\DBAL\Platform\AbstractPlatform.
  *
  * @link   www.doctrine-project.org
- * @since  2.2
- * @author Jan Sorgalla <jsorgalla@googlemail.com>
  */
 class SchemaCreateTableEventArgs extends SchemaEventArgs
 {
-    /**
-     * @var \Doctrine\DBAL\Schema\Table
-     */
+    /** @var Table */
     private $_table;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private $_columns;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private $_options;
 
-    /**
-     * @var \Doctrine\DBAL\Platforms\AbstractPlatform
-     */
+    /** @var AbstractPlatform */
     private $_platform;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private $_sql = [];
 
     /**
-     * @param \Doctrine\DBAL\Schema\Table               $table
-     * @param array                                     $columns
-     * @param array                                     $options
-     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform
+     * @param array $columns
+     * @param array $options
      */
     public function __construct(Table $table, array $columns, array $options, AbstractPlatform $platform)
     {
@@ -56,7 +42,7 @@ class SchemaCreateTableEventArgs extends SchemaEventArgs
     }
 
     /**
-     * @return \Doctrine\DBAL\Schema\Table
+     * @return Table
      */
     public function getTable()
     {
@@ -80,7 +66,7 @@ class SchemaCreateTableEventArgs extends SchemaEventArgs
     }
 
     /**
-     * @return \Doctrine\DBAL\Platforms\AbstractPlatform
+     * @return AbstractPlatform
      */
     public function getPlatform()
     {

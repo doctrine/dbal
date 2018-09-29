@@ -6,6 +6,13 @@ use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
+use IteratorAggregate;
+use PDO;
+use ReflectionClass;
+use ReflectionObject;
+use ReflectionProperty;
+use stdClass;
+use const CASE_LOWER;
 use const DB2_CHAR;
 use const DB2_LONG;
 use const DB2_PARAM_IN;
@@ -30,31 +37,21 @@ use function ksort;
 use function sprintf;
 use function strtolower;
 
-class DB2Statement implements \IteratorAggregate, Statement
+class DB2Statement implements IteratorAggregate, Statement
 {
-    /**
-     * @var resource
-     */
+    /** @var resource */
     private $_stmt;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private $_bindParam = [];
 
-    /**
-     * @var string Name of the default class to instantiate when fetching class instances.
-     */
+    /** @var string Name of the default class to instantiate when fetching class instances. */
     private $defaultFetchClass = '\stdClass';
 
-    /**
-     * @var mixed[] Constructor arguments for the default class to instantiate when fetching class instances.
-     */
+    /** @var mixed[] Constructor arguments for the default class to instantiate when fetching class instances. */
     private $defaultFetchClassCtorArgs = [];
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $_defaultFetchMode = FetchMode::MIXED;
 
     /**
@@ -103,7 +100,7 @@ class DB2Statement implements \IteratorAggregate, Statement
             $type = DB2_CHAR;
         }
 
-        if (!db2_bind_param($this->_stmt, $column, "variable", DB2_PARAM_IN, $type)) {
+        if (! db2_bind_param($this->_stmt, $column, 'variable', DB2_PARAM_IN, $type)) {
             throw new DB2Exception(db2_stmt_errormsg());
         }
 
@@ -115,13 +112,13 @@ class DB2Statement implements \IteratorAggregate, Statement
      */
     public function closeCursor()
     {
-        if ( ! $this->_stmt) {
+        if (! $this->_stmt) {
             return false;
         }
 
         $this->_bindParam = [];
 
-        if (!db2_free_result($this->_stmt)) {
+        if (! db2_free_result($this->_stmt)) {
             return false;
         }
 
@@ -135,7 +132,7 @@ class DB2Statement implements \IteratorAggregate, Statement
      */
     public function columnCount()
     {
-        if ( ! $this->_stmt) {
+        if (! $this->_stmt) {
             return false;
         }
 
@@ -166,7 +163,7 @@ class DB2Statement implements \IteratorAggregate, Statement
      */
     public function execute($params = null)
     {
-        if ( ! $this->_stmt) {
+        if (! $this->_stmt) {
             return false;
         }
 
@@ -214,11 +211,11 @@ class DB2Statement implements \IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null, $cursorOrientation = \PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
+    public function fetch($fetchMode = null, $cursorOrientation = PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
     {
         // do not try fetching from the statement if it's not expected to contain result
         // in order to prevent exceptional situation
-        if (!$this->result) {
+        if (! $this->result) {
             return false;
         }
 
@@ -245,7 +242,7 @@ class DB2Statement implements \IteratorAggregate, Statement
 
                 $result = db2_fetch_object($this->_stmt);
 
-                if ($result instanceof \stdClass) {
+                if ($result instanceof stdClass) {
                     $result = $this->castObject($result, $className, $ctorArgs);
                 }
 
@@ -296,7 +293,7 @@ class DB2Statement implements \IteratorAggregate, Statement
     {
         $row = $this->fetch(FetchMode::NUMERIC);
 
-        if (false === $row) {
+        if ($row === false) {
             return false;
         }
 
@@ -308,13 +305,13 @@ class DB2Statement implements \IteratorAggregate, Statement
      */
     public function rowCount()
     {
-        return (@db2_num_rows($this->_stmt)) ? : 0;
+        return @db2_num_rows($this->_stmt) ? : 0;
     }
 
     /**
      * Casts a stdClass object to the given class name mapping its' properties.
      *
-     * @param \stdClass     $sourceObject     Object to cast from.
+     * @param stdClass      $sourceObject     Object to cast from.
      * @param string|object $destinationClass Name of the class or class instance to cast to.
      * @param array         $ctorArgs         Arguments to use for constructing the destination class instance.
      *
@@ -322,23 +319,24 @@ class DB2Statement implements \IteratorAggregate, Statement
      *
      * @throws DB2Exception
      */
-    private function castObject(\stdClass $sourceObject, $destinationClass, array $ctorArgs = [])
+    private function castObject(stdClass $sourceObject, $destinationClass, array $ctorArgs = [])
     {
-        if ( ! is_string($destinationClass)) {
-            if ( ! is_object($destinationClass)) {
+        if (! is_string($destinationClass)) {
+            if (! is_object($destinationClass)) {
                 throw new DB2Exception(sprintf(
-                    'Destination class has to be of type string or object, %s given.', gettype($destinationClass)
+                    'Destination class has to be of type string or object, %s given.',
+                    gettype($destinationClass)
                 ));
             }
         } else {
-            $destinationClass = new \ReflectionClass($destinationClass);
+            $destinationClass = new ReflectionClass($destinationClass);
             $destinationClass = $destinationClass->newInstanceArgs($ctorArgs);
         }
 
-        $sourceReflection           = new \ReflectionObject($sourceObject);
-        $destinationClassReflection = new \ReflectionObject($destinationClass);
-        /** @var \ReflectionProperty[] $destinationProperties */
-        $destinationProperties      = array_change_key_case($destinationClassReflection->getProperties(), \CASE_LOWER);
+        $sourceReflection           = new ReflectionObject($sourceObject);
+        $destinationClassReflection = new ReflectionObject($destinationClass);
+        /** @var ReflectionProperty[] $destinationProperties */
+        $destinationProperties = array_change_key_case($destinationClassReflection->getProperties(), CASE_LOWER);
 
         foreach ($sourceReflection->getProperties() as $sourceProperty) {
             $sourceProperty->setAccessible(true);

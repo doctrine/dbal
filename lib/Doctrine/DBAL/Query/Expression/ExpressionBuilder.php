@@ -13,30 +13,27 @@ use function sprintf;
  * ExpressionBuilder class is responsible to dynamically create SQL query parts.
  *
  * @link   www.doctrine-project.org
- * @since  2.1
- * @author Guilherme Blanco <guilhermeblanco@hotmail.com>
- * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
 class ExpressionBuilder
 {
-    const EQ  = '=';
-    const NEQ = '<>';
-    const LT  = '<';
-    const LTE = '<=';
-    const GT  = '>';
-    const GTE = '>=';
+    public const EQ  = '=';
+    public const NEQ = '<>';
+    public const LT  = '<';
+    public const LTE = '<=';
+    public const GT  = '>';
+    public const GTE = '>=';
 
     /**
      * The DBAL Connection.
      *
-     * @var \Doctrine\DBAL\Connection
+     * @var Connection
      */
     private $connection;
 
     /**
      * Initializes a new <tt>ExpressionBuilder</tt>.
      *
-     * @param \Doctrine\DBAL\Connection $connection The DBAL Connection.
+     * @param Connection $connection The DBAL Connection.
      */
     public function __construct(Connection $connection)
     {
@@ -55,7 +52,7 @@ class ExpressionBuilder
      * @param mixed $x Optional clause. Defaults = null, but requires
      *                 at least one defined when converting to string.
      *
-     * @return \Doctrine\DBAL\Query\Expression\CompositeExpression
+     * @return CompositeExpression
      */
     public function andX($x = null)
     {
@@ -74,7 +71,7 @@ class ExpressionBuilder
      * @param mixed $x Optional clause. Defaults = null, but requires
      *                 at least one defined when converting to string.
      *
-     * @return \Doctrine\DBAL\Query\Expression\CompositeExpression
+     * @return CompositeExpression
      */
     public function orX($x = null)
     {
@@ -272,7 +269,7 @@ class ExpressionBuilder
      */
     public function in($x, $y)
     {
-        return $this->comparison($x, 'IN', '('.implode(', ', (array) $y).')');
+        return $this->comparison($x, 'IN', '(' . implode(', ', (array) $y) . ')');
     }
 
     /**
@@ -285,7 +282,7 @@ class ExpressionBuilder
      */
     public function notIn($x, $y)
     {
-        return $this->comparison($x, 'NOT IN', '('.implode(', ', (array) $y).')');
+        return $this->comparison($x, 'NOT IN', '(' . implode(', ', (array) $y) . ')');
     }
 
     /**

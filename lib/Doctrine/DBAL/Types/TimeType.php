@@ -2,12 +2,12 @@
 
 namespace Doctrine\DBAL\Types;
 
+use DateTime;
+use DateTimeInterface;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 /**
  * Type that maps an SQL TIME to a PHP DateTime object.
- *
- * @since 2.0
  */
 class TimeType extends Type
 {
@@ -32,11 +32,11 @@ class TimeType extends Type
      */
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
-        if (null === $value) {
+        if ($value === null) {
             return $value;
         }
 
-        if ($value instanceof \DateTimeInterface) {
+        if ($value instanceof DateTimeInterface) {
             return $value->format($platform->getTimeFormatString());
         }
 
@@ -48,12 +48,12 @@ class TimeType extends Type
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
-        if ($value === null || $value instanceof \DateTimeInterface) {
+        if ($value === null || $value instanceof DateTimeInterface) {
             return $value;
         }
 
-        $val = \DateTime::createFromFormat('!' . $platform->getTimeFormatString(), $value);
-        if ( ! $val) {
+        $val = DateTime::createFromFormat('!' . $platform->getTimeFormatString(), $value);
+        if (! $val) {
             throw ConversionException::conversionFailedFormat($value, $this->getName(), $platform->getTimeFormatString());
         }
 

@@ -8,8 +8,6 @@ use function stream_get_contents;
 
 /**
  * Type that maps an SQL CLOB to a PHP string.
- *
- * @since 2.0
  */
 class TextType extends Type
 {
@@ -26,7 +24,7 @@ class TextType extends Type
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
-        return (is_resource($value)) ? stream_get_contents($value) : $value;
+        return is_resource($value) ? stream_get_contents($value) : $value;
     }
 
     /**

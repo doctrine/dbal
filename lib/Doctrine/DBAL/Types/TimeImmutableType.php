@@ -2,13 +2,11 @@
 
 namespace Doctrine\DBAL\Types;
 
+use DateTimeImmutable;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 /**
  * Immutable type of {@see TimeType}.
- *
- * @since  2.6
- * @author Steve Müller <deeky666@googlemail.com>
  */
 class TimeImmutableType extends TimeType
 {
@@ -25,18 +23,18 @@ class TimeImmutableType extends TimeType
      */
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
-        if (null === $value) {
+        if ($value === null) {
             return $value;
         }
 
-        if ($value instanceof \DateTimeImmutable) {
+        if ($value instanceof DateTimeImmutable) {
             return $value->format($platform->getTimeFormatString());
         }
 
         throw ConversionException::conversionFailedInvalidType(
             $value,
             $this->getName(),
-            ['null', \DateTimeImmutable::class]
+            ['null', DateTimeImmutable::class]
         );
     }
 
@@ -45,11 +43,11 @@ class TimeImmutableType extends TimeType
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
-        if ($value === null || $value instanceof \DateTimeImmutable) {
+        if ($value === null || $value instanceof DateTimeImmutable) {
             return $value;
         }
 
-        $dateTime = \DateTimeImmutable::createFromFormat('!' . $platform->getTimeFormatString(), $value);
+        $dateTime = DateTimeImmutable::createFromFormat('!' . $platform->getTimeFormatString(), $value);
 
         if (! $dateTime) {
             throw ConversionException::conversionFailedFormat(

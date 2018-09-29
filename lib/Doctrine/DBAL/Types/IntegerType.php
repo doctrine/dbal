@@ -7,9 +7,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 /**
  * Type that maps an SQL INT to a PHP integer.
- *
- * @author Roman Borschel <roman@code-factory.org>
- * @since 2.0
  */
 class IntegerType extends Type implements PhpIntegerMappingType
 {
@@ -34,7 +31,7 @@ class IntegerType extends Type implements PhpIntegerMappingType
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
-        return (null === $value) ? null : (int) $value;
+        return $value === null ? null : (int) $value;
     }
 
     /**

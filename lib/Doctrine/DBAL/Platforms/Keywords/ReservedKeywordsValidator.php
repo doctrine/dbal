@@ -2,30 +2,26 @@
 
 namespace Doctrine\DBAL\Platforms\Keywords;
 
-use Doctrine\DBAL\Schema\Visitor\Visitor;
-use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Sequence;
-use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\Visitor\Visitor;
 use function implode;
 use function str_replace;
 
 class ReservedKeywordsValidator implements Visitor
 {
-    /**
-     * @var KeywordList[]
-     */
+    /** @var KeywordList[] */
     private $keywordLists = [];
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private $violations = [];
 
     /**
-     * @param \Doctrine\DBAL\Platforms\Keywords\KeywordList[] $keywordLists
+     * @param KeywordList[] $keywordLists
      */
     public function __construct(array $keywordLists)
     {
@@ -47,15 +43,17 @@ class ReservedKeywordsValidator implements Visitor
      */
     private function isReservedWord($word)
     {
-        if ($word[0] == "`") {
+        if ($word[0] === '`') {
             $word = str_replace('`', '', $word);
         }
 
         $keywordLists = [];
         foreach ($this->keywordLists as $keywordList) {
-            if ($keywordList->isKeyword($word)) {
-                $keywordLists[] = $keywordList->getName();
+            if (! $keywordList->isKeyword($word)) {
+                continue;
             }
+
+            $keywordLists[] = $keywordList->getName();
         }
 
         return $keywordLists;
@@ -69,7 +67,7 @@ class ReservedKeywordsValidator implements Visitor
      */
     private function addViolation($asset, $violatedPlatforms)
     {
-        if ( ! $violatedPlatforms) {
+        if (! $violatedPlatforms) {
             return;
         }
 

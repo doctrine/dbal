@@ -9,11 +9,6 @@ use Doctrine\DBAL\Driver\PDOConnection;
  * Driver for the PDO IBM extension.
  *
  * @link   www.doctrine-project.org
- * @since  1.0
- * @author Benjamin Eberlei <kontakt@beberlei.de>
- * @author Guilherme Blanco <guilhermeblanco@hotmail.com>
- * @author Jonathan Wage <jonwage@gmail.com>
- * @author Roman Borschel <roman@code-factory.org>
  */
 class Driver extends AbstractDB2Driver
 {
@@ -22,14 +17,12 @@ class Driver extends AbstractDB2Driver
      */
     public function connect(array $params, $username = null, $password = null, array $driverOptions = [])
     {
-        $conn = new PDOConnection(
+        return new PDOConnection(
             $this->_constructPdoDsn($params),
             $username,
             $password,
             $driverOptions
         );
-
-        return $conn;
     }
 
     /**

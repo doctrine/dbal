@@ -6,8 +6,6 @@ use function array_merge;
 
 /**
  * SAP Sybase SQL Anywhere 16 reserved keywords list.
- *
- * @author Steve Müller <st.mueller@dzh-online.de>
  */
 class SQLAnywhere16Keywords extends SQLAnywhere12Keywords
 {
@@ -34,7 +32,7 @@ class SQLAnywhere16Keywords extends SQLAnywhere12Keywords
                 'ROW',
                 'ROWTYPE',
                 'UNNEST',
-                'VARRAY'
+                'VARRAY',
             ]
         );
     }

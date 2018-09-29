@@ -3,42 +3,28 @@
 namespace Doctrine\DBAL\Schema\Visitor;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Sequence;
+use Doctrine\DBAL\Schema\Table;
 use function array_merge;
 
 class CreateSchemaSqlCollector extends AbstractVisitor
 {
-    /**
-     * @var array
-     */
+    /** @var array */
     private $createNamespaceQueries = [];
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private $createTableQueries = [];
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private $createSequenceQueries = [];
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private $createFkConstraintQueries = [];
 
-    /**
-     *
-     * @var \Doctrine\DBAL\Platforms\AbstractPlatform
-     */
+    /** @var AbstractPlatform */
     private $platform = null;
 
-    /**
-     * @param AbstractPlatform $platform
-     */
     public function __construct(AbstractPlatform $platform)
     {
         $this->platform = $platform;
@@ -49,9 +35,11 @@ class CreateSchemaSqlCollector extends AbstractVisitor
      */
     public function acceptNamespace($namespaceName)
     {
-        if ($this->platform->supportsSchemas()) {
-            $this->createNamespaceQueries[] = $this->platform->getCreateSchemaSQL($namespaceName);
+        if (! $this->platform->supportsSchemas()) {
+            return;
         }
+
+        $this->createNamespaceQueries[] = $this->platform->getCreateSchemaSQL($namespaceName);
     }
 
     /**
@@ -67,9 +55,11 @@ class CreateSchemaSqlCollector extends AbstractVisitor
      */
     public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint)
     {
-        if ($this->platform->supportsForeignKeyConstraints()) {
-            $this->createFkConstraintQueries[] = $this->platform->getCreateForeignKeySQL($fkConstraint, $localTable);
+        if (! $this->platform->supportsForeignKeyConstraints()) {
+            return;
         }
+
+        $this->createFkConstraintQueries[] = $this->platform->getCreateForeignKeySQL($fkConstraint, $localTable);
     }
 
     /**
@@ -85,9 +75,9 @@ class CreateSchemaSqlCollector extends AbstractVisitor
      */
     public function resetQueries()
     {
-        $this->createNamespaceQueries = [];
-        $this->createTableQueries = [];
-        $this->createSequenceQueries = [];
+        $this->createNamespaceQueries    = [];
+        $this->createTableQueries        = [];
+        $this->createSequenceQueries     = [];
         $this->createFkConstraintQueries = [];
     }
 

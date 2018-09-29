@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Types\Type;
+use PDOException;
 use function count;
 use function in_array;
 use function preg_replace;
@@ -16,13 +17,6 @@ use function trim;
 
 /**
  * SQL Server Schema Manager.
- *
- * @license http://www.opensource.org/licenses/mit-license.php MIT
- * @author  Konsta Vesterinen <kvesteri@cc.hut.fi>
- * @author  Lukas Smith <smith@pooteeweet.org> (PEAR MDB2 library)
- * @author  Juozas Kaziukenas <juozas@juokaz.com>
- * @author  Steve Müller <st.mueller@dzh-online.de>
- * @since   2.0
  */
 class SQLServerSchemaManager extends AbstractSchemaManager
 {
@@ -67,21 +61,23 @@ class SQLServerSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableTableColumnDefinition($tableColumn)
     {
-        $dbType = strtok($tableColumn['type'], '(), ');
-        $fixed = null;
-        $length = (int) $tableColumn['length'];
+        $dbType  = strtok($tableColumn['type'], '(), ');
+        $fixed   = null;
+        $length  = (int) $tableColumn['length'];
         $default = $tableColumn['default'];
 
-        if (!isset($tableColumn['name'])) {
+        if (! isset($tableColumn['name'])) {
             $tableColumn['name'] = '';
         }
 
-        while ($default != ($default2 = preg_replace("/^\((.*)\)$/", '$1', $default))) {
+        while ($default !== ($default2 = preg_replace('/^\((.*)\)$/', '$1', $default))) {
             $default = trim($default2, "'");
 
-            if ($default == 'getdate()') {
-                $default = $this->_platform->getCurrentTimestampSQL();
+            if ($default !== 'getdate()') {
+                continue;
             }
+
+            $default = $this->_platform->getCurrentTimestampSQL();
         }
 
         switch ($dbType) {
@@ -89,17 +85,17 @@ class SQLServerSchemaManager extends AbstractSchemaManager
             case 'nvarchar':
             case 'ntext':
                 // Unicode data requires 2 bytes per character
-                $length = $length / 2;
+                $length /= 2;
                 break;
             case 'varchar':
                 // TEXT type is returned as VARCHAR(MAX) with a length of -1
-                if ($length == -1) {
+                if ($length === -1) {
                     $dbType = 'text';
                 }
                 break;
         }
 
-        if ('char' === $dbType || 'nchar' === $dbType || 'binary' === $dbType) {
+        if ($dbType === 'char' || $dbType === 'nchar' || $dbType === 'binary') {
             $fixed = true;
         }
 
@@ -108,7 +104,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
         $tableColumn['comment'] = $this->removeDoctrineTypeFromComment($tableColumn['comment'], $type);
 
         $options = [
-            'length'        => ($length == 0 || !in_array($type, ['text', 'string'])) ? null : $length,
+            'length'        => $length === 0 || ! in_array($type, ['text', 'string']) ? null : $length,
             'unsigned'      => false,
             'fixed'         => (bool) $fixed,
             'default'       => $default !== 'NULL' ? $default : null,
@@ -136,7 +132,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
         $foreignKeys = [];
 
         foreach ($tableForeignKeys as $tableForeignKey) {
-            if ( ! isset($foreignKeys[$tableForeignKey['ForeignKey']])) {
+            if (! isset($foreignKeys[$tableForeignKey['ForeignKey']])) {
                 $foreignKeys[$tableForeignKey['ForeignKey']] = [
                     'local_columns' => [$tableForeignKey['ColumnName']],
                     'foreign_table' => $tableForeignKey['ReferenceTableName'],
@@ -144,11 +140,11 @@ class SQLServerSchemaManager extends AbstractSchemaManager
                     'name' => $tableForeignKey['ForeignKey'],
                     'options' => [
                         'onUpdate' => str_replace('_', ' ', $tableForeignKey['update_referential_action_desc']),
-                        'onDelete' => str_replace('_', ' ', $tableForeignKey['delete_referential_action_desc'])
-                    ]
+                        'onDelete' => str_replace('_', ' ', $tableForeignKey['delete_referential_action_desc']),
+                    ],
                 ];
             } else {
-                $foreignKeys[$tableForeignKey['ForeignKey']]['local_columns'][] = $tableForeignKey['ColumnName'];
+                $foreignKeys[$tableForeignKey['ForeignKey']]['local_columns'][]   = $tableForeignKey['ColumnName'];
                 $foreignKeys[$tableForeignKey['ForeignKey']]['foreign_columns'][] = $tableForeignKey['ReferenceColumnName'];
             }
         }
@@ -159,12 +155,12 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableIndexesList($tableIndexRows, $tableName=null)
+    protected function _getPortableTableIndexesList($tableIndexRows, $tableName = null)
     {
         foreach ($tableIndexRows as &$tableIndex) {
-            $tableIndex['non_unique'] = (boolean) $tableIndex['non_unique'];
-            $tableIndex['primary'] = (boolean) $tableIndex['primary'];
-            $tableIndex['flags'] = $tableIndex['flags'] ? [$tableIndex['flags']] : null;
+            $tableIndex['non_unique'] = (bool) $tableIndex['non_unique'];
+            $tableIndex['primary']    = (bool) $tableIndex['primary'];
+            $tableIndex['flags']      = $tableIndex['flags'] ? [$tableIndex['flags']] : null;
         }
 
         return parent::_getPortableTableIndexesList($tableIndexRows, $tableName);
@@ -230,18 +226,18 @@ class SQLServerSchemaManager extends AbstractSchemaManager
 
         try {
             $tableIndexes = $this->_conn->fetchAll($sql);
-        } catch (\PDOException $e) {
-            if ($e->getCode() == "IMSSP") {
+        } catch (PDOException $e) {
+            if ($e->getCode() === 'IMSSP') {
                 return [];
-            } else {
-                throw $e;
             }
+
+            throw $e;
         } catch (DBALException $e) {
             if (strpos($e->getMessage(), 'SQLSTATE [01000, 15472]') === 0) {
                 return [];
-            } else {
-                throw $e;
             }
+
+            throw $e;
         }
 
         return $this->_getPortableTableIndexesList($tableIndexes, $table);
@@ -279,8 +275,8 @@ class SQLServerSchemaManager extends AbstractSchemaManager
             ON Tab.[ID] = Sysobjects.[Parent_Obj]
             INNER JOIN sys.default_constraints DefCons ON DefCons.[object_id] = Sysobjects.[ID]
             INNER JOIN SysColumns Col ON Col.[ColID] = DefCons.[parent_column_id] AND Col.[ID] = Tab.[ID]
-            WHERE Col.[Name] = " . $this->_conn->quote($column) ." AND Tab.[Name] = " . $this->_conn->quote($table) . "
-            ORDER BY Col.[Name]";
+            WHERE Col.[Name] = " . $this->_conn->quote($column) . ' AND Tab.[Name] = ' . $this->_conn->quote($table) . '
+            ORDER BY Col.[Name]';
     }
 
     /**

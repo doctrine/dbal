@@ -4,8 +4,6 @@ namespace Doctrine\DBAL\Platforms\Keywords;
 
 /**
  * SAP Sybase SQL Anywhere 10 reserved keywords list.
- *
- * @author Steve Müller <st.mueller@dzh-online.de>
  */
 class SQLAnywhereKeywords extends KeywordList
 {
@@ -258,7 +256,7 @@ class SQLAnywhereKeywords extends KeywordList
             'WITHIN',
             'WORK',
             'WRITETEXT',
-            'XML'
+            'XML',
         ];
     }
 }

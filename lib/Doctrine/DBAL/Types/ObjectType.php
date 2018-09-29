@@ -12,8 +12,6 @@ use function unserialize;
 
 /**
  * Type that maps a PHP object to a clob SQL type.
- *
- * @since 2.0
  */
 class ObjectType extends Type
 {
@@ -42,7 +40,7 @@ class ObjectType extends Type
             return null;
         }
 
-        $value = (is_resource($value)) ? stream_get_contents($value) : $value;
+        $value = is_resource($value) ? stream_get_contents($value) : $value;
 
         set_error_handler(function (int $code, string $message) : void {
             throw ConversionException::conversionFailedUnserialization($this->getName(), $message);

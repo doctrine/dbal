@@ -12,36 +12,21 @@ use function is_array;
  * Event Arguments used when SQL queries for changing table columns are generated inside Doctrine\DBAL\Platform\*Platform.
  *
  * @link   www.doctrine-project.org
- * @since  2.2
- * @author Jan Sorgalla <jsorgalla@googlemail.com>
  */
 class SchemaAlterTableChangeColumnEventArgs extends SchemaEventArgs
 {
-    /**
-     * @var \Doctrine\DBAL\Schema\ColumnDiff
-     */
+    /** @var ColumnDiff */
     private $_columnDiff;
 
-    /**
-     * @var \Doctrine\DBAL\Schema\TableDiff
-     */
+    /** @var TableDiff */
     private $_tableDiff;
 
-    /**
-     * @var \Doctrine\DBAL\Platforms\AbstractPlatform
-     */
+    /** @var AbstractPlatform */
     private $_platform;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private $_sql = [];
 
-    /**
-     * @param \Doctrine\DBAL\Schema\ColumnDiff          $columnDiff
-     * @param \Doctrine\DBAL\Schema\TableDiff           $tableDiff
-     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform
-     */
     public function __construct(ColumnDiff $columnDiff, TableDiff $tableDiff, AbstractPlatform $platform)
     {
         $this->_columnDiff = $columnDiff;
@@ -50,7 +35,7 @@ class SchemaAlterTableChangeColumnEventArgs extends SchemaEventArgs
     }
 
     /**
-     * @return \Doctrine\DBAL\Schema\ColumnDiff
+     * @return ColumnDiff
      */
     public function getColumnDiff()
     {
@@ -58,7 +43,7 @@ class SchemaAlterTableChangeColumnEventArgs extends SchemaEventArgs
     }
 
     /**
-     * @return \Doctrine\DBAL\Schema\TableDiff
+     * @return TableDiff
      */
     public function getTableDiff()
     {
@@ -66,7 +51,7 @@ class SchemaAlterTableChangeColumnEventArgs extends SchemaEventArgs
     }
 
     /**
-     * @return \Doctrine\DBAL\Platforms\AbstractPlatform
+     * @return AbstractPlatform
      */
     public function getPlatform()
     {

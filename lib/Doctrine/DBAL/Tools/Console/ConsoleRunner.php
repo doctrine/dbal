@@ -9,6 +9,7 @@ use Doctrine\DBAL\Tools\Console\Command\RunSqlCommand;
 use Doctrine\DBAL\Tools\Console\Helper\ConnectionHelper;
 use Doctrine\DBAL\Version;
 use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\HelperSet;
 
 /**
@@ -19,22 +20,19 @@ class ConsoleRunner
     /**
      * Create a Symfony Console HelperSet
      *
-     * @param Connection $connection
-     *
      * @return HelperSet
      */
     public static function createHelperSet(Connection $connection)
     {
         return new HelperSet([
-            'db' => new ConnectionHelper($connection)
+            'db' => new ConnectionHelper($connection),
         ]);
     }
 
     /**
      * Runs console with the given helperset.
      *
-     * @param \Symfony\Component\Console\Helper\HelperSet  $helperSet
-     * @param \Symfony\Component\Console\Command\Command[] $commands
+     * @param Command[] $commands
      *
      * @return void
      */
@@ -52,8 +50,6 @@ class ConsoleRunner
     }
 
     /**
-     * @param Application $cli
-     *
      * @return void
      */
     public static function addCommands(Application $cli)

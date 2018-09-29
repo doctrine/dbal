@@ -2,7 +2,9 @@
 
 namespace Doctrine\DBAL\Types;
 
+use DateInterval;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Throwable;
 use function substr;
 
 /**
@@ -35,11 +37,11 @@ class DateIntervalType extends Type
      */
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
-        if (null === $value) {
+        if ($value === null) {
             return null;
         }
 
-        if ($value instanceof \DateInterval) {
+        if ($value instanceof DateInterval) {
             return $value->format(self::FORMAT);
         }
 
@@ -51,7 +53,7 @@ class DateIntervalType extends Type
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
-        if ($value === null || $value instanceof \DateInterval) {
+        if ($value === null || $value instanceof DateInterval) {
             return $value;
         }
 
@@ -63,14 +65,14 @@ class DateIntervalType extends Type
         }
 
         try {
-            $interval = new \DateInterval($value);
+            $interval = new DateInterval($value);
 
             if ($negative) {
                 $interval->invert = 1;
             }
 
             return $interval;
-        } catch (\Exception $exception) {
+        } catch (Throwable $exception) {
             throw ConversionException::conversionFailedFormat($value, $this->getName(), self::FORMAT, $exception);
         }
     }

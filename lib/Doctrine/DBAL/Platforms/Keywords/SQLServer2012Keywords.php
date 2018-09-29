@@ -7,10 +7,7 @@ use function array_merge;
 /**
  * Microsoft SQL Server 2012 reserved keyword dictionary.
  *
- * @license BSD http://www.opensource.org/licenses/bsd-license.php
  * @link    www.doctrine-project.com
- * @since   2.3
- * @author  Steve Müller <st.mueller@dzh-online.de>
  */
 class SQLServer2012Keywords extends SQLServer2008Keywords
 {
@@ -34,7 +31,7 @@ class SQLServer2012Keywords extends SQLServer2008Keywords
             'SEMANTICSIMILARITYDETAILSTABLE',
             'SEMANTICSIMILARITYTABLE',
             'TRY_CONVERT',
-            'WITHIN GROUP'
+            'WITHIN GROUP',
         ]);
     }
 }

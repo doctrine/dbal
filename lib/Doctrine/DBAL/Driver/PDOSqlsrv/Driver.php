@@ -8,8 +8,6 @@ use function sprintf;
 
 /**
  * The PDO-based Sqlsrv driver.
- *
- * @since 2.0
  */
 class Driver extends AbstractSQLServerDriver
 {
@@ -31,7 +29,7 @@ class Driver extends AbstractSQLServerDriver
     /**
      * Constructs the Sqlsrv PDO DSN.
      *
-     * @param array $params
+     * @param array    $params
      * @param string[] $connectionOptions
      *
      * @return string The DSN.
@@ -44,7 +42,7 @@ class Driver extends AbstractSQLServerDriver
             $dsn .= $params['host'];
         }
 
-        if (isset($params['port']) && !empty($params['port'])) {
+        if (isset($params['port']) && ! empty($params['port'])) {
             $dsn .= ',' . $params['port'];
         }
 
@@ -65,6 +63,7 @@ class Driver extends AbstractSQLServerDriver
      * Separates a connection options from a driver options
      *
      * @param int[]|string[] $options
+     *
      * @return int[][]|string[][]
      */
     private function splitOptions(array $options) : array

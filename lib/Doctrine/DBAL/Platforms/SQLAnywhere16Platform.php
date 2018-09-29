@@ -9,9 +9,7 @@ use UnexpectedValueException;
  * The SQLAnywhere16Platform provides the behavior, features and SQL dialect of the
  * SAP Sybase SQL Anywhere 16 database platform.
  *
- * @author Steve Müller <st.mueller@dzh-online.de>
  * @link   www.doctrine-project.org
- * @since  2.5
  */
 class SQLAnywhere16Platform extends SQLAnywhere12Platform
 {
@@ -26,7 +24,7 @@ class SQLAnywhere16Platform extends SQLAnywhere12Platform
             );
         }
 
-        if ( ! $index->isPrimary() && $index->isUnique() && $index->hasFlag('with_nulls_distinct')) {
+        if (! $index->isPrimary() && $index->isUnique() && $index->hasFlag('with_nulls_distinct')) {
             return ' WITH NULLS DISTINCT' . parent::getAdvancedIndexOptionsSQL($index);
         }
 

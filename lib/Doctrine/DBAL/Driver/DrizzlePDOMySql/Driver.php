@@ -7,8 +7,6 @@ use Doctrine\DBAL\Schema\DrizzleSchemaManager;
 
 /**
  * Drizzle driver using PDO MySql.
- *
- * @author Kim Hemsø Rasmussen <kimhemsoe@gmail.com>
  */
 class Driver extends \Doctrine\DBAL\Driver\PDOMySql\Driver
 {
@@ -17,14 +15,12 @@ class Driver extends \Doctrine\DBAL\Driver\PDOMySql\Driver
      */
     public function connect(array $params, $username = null, $password = null, array $driverOptions = [])
     {
-        $conn = new Connection(
+        return new Connection(
             $this->constructPdoDsn($params),
             $username,
             $password,
             $driverOptions
         );
-
-        return $conn;
     }
 
     /**

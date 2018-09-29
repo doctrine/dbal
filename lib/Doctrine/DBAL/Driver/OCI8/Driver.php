@@ -8,9 +8,6 @@ use const OCI_DEFAULT;
 
 /**
  * A Doctrine DBAL driver for the Oracle OCI8 PHP extensions.
- *
- * @author Roman Borschel <roman@code-factory.org>
- * @since 2.0
  */
 class Driver extends AbstractOracleDriver
 {

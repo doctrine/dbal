@@ -23,36 +23,29 @@ use function str_replace;
 
 /**
  * SQL Server implementation for the Connection interface.
- *
- * @since 2.3
- * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
 class SQLSrvConnection implements Connection, ServerInfoAwareConnection
 {
-    /**
-     * @var resource
-     */
+    /** @var resource */
     protected $conn;
 
-    /**
-     * @var \Doctrine\DBAL\Driver\SQLSrv\LastInsertId
-     */
+    /** @var LastInsertId */
     protected $lastInsertId;
 
     /**
      * @param string $serverName
      * @param array  $connectionOptions
      *
-     * @throws \Doctrine\DBAL\Driver\SQLSrv\SQLSrvException
+     * @throws SQLSrvException
      */
     public function __construct($serverName, $connectionOptions)
     {
-        if ( ! sqlsrv_configure('WarningsReturnAsErrors', 0)) {
+        if (! sqlsrv_configure('WarningsReturnAsErrors', 0)) {
             throw SQLSrvException::fromSqlSrvErrors();
         }
 
         $this->conn = sqlsrv_connect($serverName, $connectionOptions);
-        if ( ! $this->conn) {
+        if (! $this->conn) {
             throw SQLSrvException::fromSqlSrvErrors();
         }
         $this->lastInsertId = new LastInsertId();
@@ -90,7 +83,7 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
     public function query()
     {
         $args = func_get_args();
-        $sql = $args[0];
+        $sql  = $args[0];
         $stmt = $this->prepare($sql);
         $stmt->execute();
 
@@ -99,7 +92,6 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
 
     /**
      * {@inheritDoc}
-     * @license New BSD, code from Zend Framework
      */
     public function quote($value, $type = ParameterType::STRING)
     {
@@ -119,7 +111,7 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
     {
         $stmt = sqlsrv_query($this->conn, $statement);
 
-        if (false === $stmt) {
+        if ($stmt === false) {
             throw SQLSrvException::fromSqlSrvErrors();
         }
 
@@ -146,7 +138,7 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
      */
     public function beginTransaction()
     {
-        if ( ! sqlsrv_begin_transaction($this->conn)) {
+        if (! sqlsrv_begin_transaction($this->conn)) {
             throw SQLSrvException::fromSqlSrvErrors();
         }
     }
@@ -156,7 +148,7 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
      */
     public function commit()
     {
-        if ( ! sqlsrv_commit($this->conn)) {
+        if (! sqlsrv_commit($this->conn)) {
             throw SQLSrvException::fromSqlSrvErrors();
         }
     }
@@ -166,7 +158,7 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
      */
     public function rollBack()
     {
-        if ( ! sqlsrv_rollback($this->conn)) {
+        if (! sqlsrv_rollback($this->conn)) {
             throw SQLSrvException::fromSqlSrvErrors();
         }
     }

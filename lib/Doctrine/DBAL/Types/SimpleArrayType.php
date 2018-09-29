@@ -12,9 +12,6 @@ use function stream_get_contents;
  * Array Type which can be used for simple values.
  *
  * Only use this type if you are sure that your values cannot contain a ",".
- *
- * @since  2.3
- * @author Johannes M. Schmitt <schmittjoh@gmail.com>
  */
 class SimpleArrayType extends Type
 {
@@ -31,7 +28,7 @@ class SimpleArrayType extends Type
      */
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
-        if (!$value) {
+        if (! $value) {
             return null;
         }
 
@@ -47,7 +44,7 @@ class SimpleArrayType extends Type
             return [];
         }
 
-        $value = (is_resource($value)) ? stream_get_contents($value) : $value;
+        $value = is_resource($value) ? stream_get_contents($value) : $value;
 
         return explode(',', $value);
     }

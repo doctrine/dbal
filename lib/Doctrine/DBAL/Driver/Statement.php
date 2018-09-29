@@ -10,10 +10,7 @@ use Doctrine\DBAL\ParameterType;
  *
  * This resembles (a subset of) the PDOStatement interface.
  *
- * @author Konsta Vesterinen <kvesteri@cc.hut.fi>
- * @author Roman Borschel <roman@code-factory.org>
  * @link   www.doctrine-project.org
- * @since  2.0
  */
 interface Statement extends ResultStatement
 {
@@ -89,7 +86,6 @@ interface Statement extends ResultStatement
      * bound variables pass their value as input and receive the output value,
      * if any, of their associated parameter markers or pass an array of input-only
      * parameter values.
-     *
      *
      * @param array|null $params An array of values with as many elements as there are
      *                           bound parameters in the SQL statement being executed.

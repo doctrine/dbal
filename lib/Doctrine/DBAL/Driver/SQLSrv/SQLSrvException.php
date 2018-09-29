@@ -2,7 +2,6 @@
 
 namespace Doctrine\DBAL\Driver\SQLSrv;
 
-
 use Doctrine\DBAL\Driver\AbstractDriverException;
 use const SQLSRV_ERR_ERRORS;
 use function rtrim;
@@ -17,24 +16,26 @@ class SQLSrvException extends AbstractDriverException
      */
     public static function fromSqlSrvErrors()
     {
-        $errors = sqlsrv_errors(SQLSRV_ERR_ERRORS);
-        $message = "";
-        $sqlState = null;
+        $errors    = sqlsrv_errors(SQLSRV_ERR_ERRORS);
+        $message   = '';
+        $sqlState  = null;
         $errorCode = null;
 
         foreach ($errors as $error) {
-            $message .= "SQLSTATE [".$error['SQLSTATE'].", ".$error['code']."]: ". $error['message']."\n";
+            $message .= 'SQLSTATE [' . $error['SQLSTATE'] . ', ' . $error['code'] . ']: ' . $error['message'] . "\n";
 
-            if (null === $sqlState) {
+            if ($sqlState === null) {
                 $sqlState = $error['SQLSTATE'];
             }
 
-            if (null === $errorCode) {
-                $errorCode = $error['code'];
+            if ($errorCode !== null) {
+                continue;
             }
+
+            $errorCode = $error['code'];
         }
-        if ( ! $message) {
-            $message = "SQL Server error occurred but no error message was retrieved from driver.";
+        if (! $message) {
+            $message = 'SQL Server error occurred but no error message was retrieved from driver.';
         }
 
         return new self(rtrim($message), $sqlState, $errorCode);

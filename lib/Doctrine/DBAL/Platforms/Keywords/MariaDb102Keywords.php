@@ -4,6 +4,7 @@ namespace Doctrine\DBAL\Platforms\Keywords;
 
 /**
  * MariaDb reserved keywords list.
+ *
  * @link https://mariadb.com/kb/en/the-mariadb-library/reserved-words/
  */
 final class MariaDb102Keywords extends MySQLKeywords

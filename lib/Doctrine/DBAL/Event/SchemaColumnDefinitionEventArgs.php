@@ -3,20 +3,17 @@
 namespace Doctrine\DBAL\Event;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Column;
 
 /**
  * Event Arguments used when the portable column definition is generated inside Doctrine\DBAL\Schema\AbstractSchemaManager.
  *
  * @link   www.doctrine-project.org
- * @since  2.2
- * @author Jan Sorgalla <jsorgalla@googlemail.com>
  */
 class SchemaColumnDefinitionEventArgs extends SchemaEventArgs
 {
-    /**
-     * @var \Doctrine\DBAL\Schema\Column|null
-     */
+    /** @var Column|null */
     private $_column = null;
 
     /**
@@ -26,26 +23,19 @@ class SchemaColumnDefinitionEventArgs extends SchemaEventArgs
      */
     private $_tableColumn;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $_table;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $_database;
 
-    /**
-     * @var \Doctrine\DBAL\Connection
-     */
+    /** @var Connection */
     private $_connection;
 
     /**
-     * @param array                     $tableColumn
-     * @param string                    $table
-     * @param string                    $database
-     * @param \Doctrine\DBAL\Connection $connection
+     * @param array  $tableColumn
+     * @param string $table
+     * @param string $database
      */
     public function __construct(array $tableColumn, $table, $database, Connection $connection)
     {
@@ -59,11 +49,9 @@ class SchemaColumnDefinitionEventArgs extends SchemaEventArgs
      * Allows to clear the column which means the column will be excluded from
      * tables column list.
      *
-     * @param null|\Doctrine\DBAL\Schema\Column $column
-     *
      * @return \Doctrine\DBAL\Event\SchemaColumnDefinitionEventArgs
      */
-    public function setColumn(Column $column = null)
+    public function setColumn(?Column $column = null)
     {
         $this->_column = $column;
 
@@ -71,7 +59,7 @@ class SchemaColumnDefinitionEventArgs extends SchemaEventArgs
     }
 
     /**
-     * @return \Doctrine\DBAL\Schema\Column|null
+     * @return Column|null
      */
     public function getColumn()
     {
@@ -103,7 +91,7 @@ class SchemaColumnDefinitionEventArgs extends SchemaEventArgs
     }
 
     /**
-     * @return \Doctrine\DBAL\Connection
+     * @return Connection
      */
     public function getConnection()
     {
@@ -111,7 +99,7 @@ class SchemaColumnDefinitionEventArgs extends SchemaEventArgs
     }
 
     /**
-     * @return \Doctrine\DBAL\Platforms\AbstractPlatform
+     * @return AbstractPlatform
      */
     public function getDatabasePlatform()
     {

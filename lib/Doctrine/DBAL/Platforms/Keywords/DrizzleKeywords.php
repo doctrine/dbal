@@ -4,8 +4,6 @@ namespace Doctrine\DBAL\Platforms\Keywords;
 
 /**
  * Drizzle Keywordlist.
- *
- * @author Kim Hemsø Rasmussen <kimhemsoe@gmail.com>
  */
 class DrizzleKeywords extends KeywordList
 {

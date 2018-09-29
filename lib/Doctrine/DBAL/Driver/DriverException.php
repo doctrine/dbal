@@ -2,17 +2,17 @@
 
 namespace Doctrine\DBAL\Driver;
 
+use Throwable;
+
 /**
  * Contract for a driver exception.
  *
  * Driver exceptions provide the SQLSTATE of the driver
  * and the driver specific error code at the time the error occurred.
  *
- * @author Steve Müller <st.mueller@dzh-online.de>
  * @link   www.doctrine-project.org
- * @since  2.5
  */
-interface DriverException extends \Throwable
+interface DriverException extends Throwable
 {
     /**
      * Returns the driver specific error code if available.

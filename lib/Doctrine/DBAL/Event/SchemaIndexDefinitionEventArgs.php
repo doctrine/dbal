@@ -3,20 +3,17 @@
 namespace Doctrine\DBAL\Event;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Index;
 
 /**
  * Event Arguments used when the portable index definition is generated inside Doctrine\DBAL\Schema\AbstractSchemaManager.
  *
  * @link   www.doctrine-project.org
- * @since  2.2
- * @author Jan Sorgalla <jsorgalla@googlemail.com>
  */
 class SchemaIndexDefinitionEventArgs extends SchemaEventArgs
 {
-    /**
-     * @var \Doctrine\DBAL\Schema\Index|null
-     */
+    /** @var Index|null */
     private $_index = null;
 
     /**
@@ -26,20 +23,15 @@ class SchemaIndexDefinitionEventArgs extends SchemaEventArgs
      */
     private $_tableIndex;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $_table;
 
-    /**
-     * @var \Doctrine\DBAL\Connection
-     */
+    /** @var Connection */
     private $_connection;
 
     /**
-     * @param array                     $tableIndex
-     * @param string                    $table
-     * @param \Doctrine\DBAL\Connection $connection
+     * @param array  $tableIndex
+     * @param string $table
      */
     public function __construct(array $tableIndex, $table, Connection $connection)
     {
@@ -51,11 +43,9 @@ class SchemaIndexDefinitionEventArgs extends SchemaEventArgs
     /**
      * Allows to clear the index which means the index will be excluded from tables index list.
      *
-     * @param null|\Doctrine\DBAL\Schema\Index $index
-     *
      * @return SchemaIndexDefinitionEventArgs
      */
-    public function setIndex(Index $index = null)
+    public function setIndex(?Index $index = null)
     {
         $this->_index = $index;
 
@@ -63,7 +53,7 @@ class SchemaIndexDefinitionEventArgs extends SchemaEventArgs
     }
 
     /**
-     * @return \Doctrine\DBAL\Schema\Index|null
+     * @return Index|null
      */
     public function getIndex()
     {
@@ -87,7 +77,7 @@ class SchemaIndexDefinitionEventArgs extends SchemaEventArgs
     }
 
     /**
-     * @return \Doctrine\DBAL\Connection
+     * @return Connection
      */
     public function getConnection()
     {
@@ -95,7 +85,7 @@ class SchemaIndexDefinitionEventArgs extends SchemaEventArgs
     }
 
     /**
-     * @return \Doctrine\DBAL\Platforms\AbstractPlatform
+     * @return AbstractPlatform
      */
     public function getDatabasePlatform()
     {

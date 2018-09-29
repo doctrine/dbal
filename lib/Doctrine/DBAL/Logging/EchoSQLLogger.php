@@ -9,18 +9,13 @@ use function var_dump;
  * A SQL logger that logs to the standard output using echo/var_dump.
  *
  * @link   www.doctrine-project.org
- * @since  2.0
- * @author Benjamin Eberlei <kontakt@beberlei.de>
- * @author Guilherme Blanco <guilhermeblanco@hotmail.com>
- * @author Jonathan Wage <jonwage@gmail.com>
- * @author Roman Borschel <roman@code-factory.org>
  */
 class EchoSQLLogger implements SQLLogger
 {
     /**
      * {@inheritdoc}
      */
-    public function startQuery($sql, array $params = null, array $types = null)
+    public function startQuery($sql, ?array $params = null, ?array $types = null)
     {
         echo $sql . PHP_EOL;
 
@@ -28,9 +23,11 @@ class EchoSQLLogger implements SQLLogger
             var_dump($params);
         }
 
-        if ($types) {
-            var_dump($types);
+        if (! $types) {
+            return;
         }
+
+        var_dump($types);
     }
 
     /**
