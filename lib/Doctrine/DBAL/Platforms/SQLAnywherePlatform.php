@@ -24,6 +24,7 @@ use function get_class;
 use function implode;
 use function is_string;
 use function preg_replace;
+use function sprintf;
 use function strlen;
 use function strpos;
 use function strtoupper;
@@ -361,8 +362,12 @@ class SQLAnywherePlatform extends AbstractPlatform
         $columnName = new Identifier($columnName);
         $comment    = $comment === null ? 'NULL' : $this->quoteStringLiteral($comment);
 
-        return 'COMMENT ON COLUMN ' . $tableName->getQuotedName($this) . '.' . $columnName->getQuotedName($this) .
-            " IS $comment";
+        return sprintf(
+            'COMMENT ON COLUMN %s.%s IS %s',
+            $tableName->getQuotedName($this),
+            $columnName->getQuotedName($this),
+            $comment
+        );
     }
 
     /**
@@ -620,7 +625,7 @@ class SQLAnywherePlatform extends AbstractPlatform
      *
      * @return string
      *
-     * @throws InvalidArgumentException if unknown match type given
+     * @throws InvalidArgumentException If unknown match type given.
      */
     public function getForeignKeyMatchClauseSQL($type)
     {
@@ -719,22 +724,29 @@ class SQLAnywherePlatform extends AbstractPlatform
             $user           = $this->quoteStringLiteral($user);
         }
 
-        return "SELECT    col.column_name,
-                          COALESCE(def.user_type_name, def.domain_name) AS 'type',
-                          def.declared_width AS 'length',
-                          def.scale,
-                          CHARINDEX('unsigned', def.domain_name) AS 'unsigned',
-                          IF col.nulls = 'Y' THEN 0 ELSE 1 ENDIF AS 'notnull',
-                          col.\"default\",
-                          def.is_autoincrement AS 'autoincrement',
-                          rem.remarks AS 'comment'
-                FROM      sa_describe_query('SELECT * FROM \"$table\"') AS def
-                JOIN      SYS.SYSTABCOL AS col
-                ON        col.table_id = def.base_table_id AND col.column_id = def.base_column_id
-                LEFT JOIN SYS.SYSREMARK AS rem
-                ON        col.object_id = rem.object_id
-                WHERE     def.base_owner_name = $user
-                ORDER BY  def.base_column_id ASC";
+        return sprintf(
+            <<<'SQL'
+SELECT    col.column_name,
+          COALESCE(def.user_type_name, def.domain_name) AS 'type',
+          def.declared_width AS 'length',
+          def.scale,
+          CHARINDEX('unsigned', def.domain_name) AS 'unsigned',
+          IF col.nulls = 'Y' THEN 0 ELSE 1 ENDIF AS 'notnull',
+          col."default",
+          def.is_autoincrement AS 'autoincrement',
+          rem.remarks AS 'comment'
+FROM      sa_describe_query('SELECT * FROM "%s"') AS def
+JOIN      SYS.SYSTABCOL AS col
+ON        col.table_id = def.base_table_id AND col.column_id = def.base_column_id
+LEFT JOIN SYS.SYSREMARK AS rem
+ON        col.object_id = rem.object_id
+WHERE     def.base_owner_name = %s
+ORDER BY  def.base_column_id ASC
+SQL
+            ,
+            $table,
+            $user
+        );
     }
 
     /**
@@ -754,11 +766,18 @@ class SQLAnywherePlatform extends AbstractPlatform
             $table = $this->quoteStringLiteral($table);
         }
 
-        return "SELECT con.*
-                FROM   SYS.SYSCONSTRAINT AS con
-                JOIN   SYS.SYSTAB AS tab ON con.table_object_id = tab.object_id
-                WHERE  tab.table_name = $table
-                AND    tab.creator = USER_ID($user)";
+        return sprintf(
+            <<<'SQL'
+SELECT con.*
+FROM   SYS.SYSCONSTRAINT AS con
+JOIN   SYS.SYSTAB AS tab ON con.table_object_id = tab.object_id
+WHERE  tab.table_name = %s
+AND    tab.creator = USER_ID(%s)
+SQL
+            ,
+            $table,
+            $user
+        );
     }
 
     /**
@@ -776,75 +795,82 @@ class SQLAnywherePlatform extends AbstractPlatform
             $table = $this->quoteStringLiteral($table);
         }
 
-        return "SELECT    fcol.column_name AS local_column,
-                          ptbl.table_name AS foreign_table,
-                          pcol.column_name AS foreign_column,
-                          idx.index_name,
-                          IF fk.nulls = 'N'
-                              THEN 1
-                              ELSE NULL
-                          ENDIF AS notnull,
-                          CASE ut.referential_action
-                              WHEN 'C' THEN 'CASCADE'
-                              WHEN 'D' THEN 'SET DEFAULT'
-                              WHEN 'N' THEN 'SET NULL'
-                              WHEN 'R' THEN 'RESTRICT'
-                              ELSE NULL
-                          END AS  on_update,
-                          CASE dt.referential_action
-                              WHEN 'C' THEN 'CASCADE'
-                              WHEN 'D' THEN 'SET DEFAULT'
-                              WHEN 'N' THEN 'SET NULL'
-                              WHEN 'R' THEN 'RESTRICT'
-                              ELSE NULL
-                          END AS on_delete,
-                          IF fk.check_on_commit = 'Y'
-                              THEN 1
-                              ELSE NULL
-                          ENDIF AS check_on_commit, -- check_on_commit flag
-                          IF ftbl.clustered_index_id = idx.index_id
-                              THEN 1
-                              ELSE NULL
-                          ENDIF AS 'clustered', -- clustered flag
-                          IF fk.match_type = 0
-                              THEN NULL
-                              ELSE fk.match_type
-                          ENDIF AS 'match', -- match option
-                          IF pidx.max_key_distance = 1
-                              THEN 1
-                              ELSE NULL
-                          ENDIF AS for_olap_workload -- for_olap_workload flag
-                FROM      SYS.SYSFKEY AS fk
-                JOIN      SYS.SYSIDX AS idx
-                ON        fk.foreign_table_id = idx.table_id
-                AND       fk.foreign_index_id = idx.index_id
-                JOIN      SYS.SYSPHYSIDX pidx
-                ON        idx.table_id = pidx.table_id
-                AND       idx.phys_index_id = pidx.phys_index_id
-                JOIN      SYS.SYSTAB AS ptbl
-                ON        fk.primary_table_id = ptbl.table_id
-                JOIN      SYS.SYSTAB AS ftbl
-                ON        fk.foreign_table_id = ftbl.table_id
-                JOIN      SYS.SYSIDXCOL AS idxcol
-                ON        idx.table_id = idxcol.table_id
-                AND       idx.index_id = idxcol.index_id
-                JOIN      SYS.SYSTABCOL AS pcol
-                ON        ptbl.table_id = pcol.table_id
-                AND       idxcol.primary_column_id = pcol.column_id
-                JOIN      SYS.SYSTABCOL AS fcol
-                ON        ftbl.table_id = fcol.table_id
-                AND       idxcol.column_id = fcol.column_id
-                LEFT JOIN SYS.SYSTRIGGER ut
-                ON        fk.foreign_table_id = ut.foreign_table_id
-                AND       fk.foreign_index_id = ut.foreign_key_id
-                AND       ut.event = 'C'
-                LEFT JOIN SYS.SYSTRIGGER dt
-                ON        fk.foreign_table_id = dt.foreign_table_id
-                AND       fk.foreign_index_id = dt.foreign_key_id
-                AND       dt.event = 'D'
-                WHERE     ftbl.table_name = $table
-                AND       ftbl.creator = USER_ID($user)
-                ORDER BY  fk.foreign_index_id ASC, idxcol.sequence ASC";
+        return sprintf(
+            <<<'SQL'
+SELECT    fcol.column_name AS local_column,
+          ptbl.table_name AS foreign_table,
+          pcol.column_name AS foreign_column,
+          idx.index_name,
+          IF fk.nulls = 'N'
+              THEN 1
+              ELSE NULL
+          ENDIF AS notnull,
+          CASE ut.referential_action
+              WHEN 'C' THEN 'CASCADE'
+              WHEN 'D' THEN 'SET DEFAULT'
+              WHEN 'N' THEN 'SET NULL'
+              WHEN 'R' THEN 'RESTRICT'
+              ELSE NULL
+          END AS  on_update,
+          CASE dt.referential_action
+              WHEN 'C' THEN 'CASCADE'
+              WHEN 'D' THEN 'SET DEFAULT'
+              WHEN 'N' THEN 'SET NULL'
+              WHEN 'R' THEN 'RESTRICT'
+              ELSE NULL
+          END AS on_delete,
+          IF fk.check_on_commit = 'Y'
+              THEN 1
+              ELSE NULL
+          ENDIF AS check_on_commit, -- check_on_commit flag
+          IF ftbl.clustered_index_id = idx.index_id
+              THEN 1
+              ELSE NULL
+          ENDIF AS 'clustered', -- clustered flag
+          IF fk.match_type = 0
+              THEN NULL
+              ELSE fk.match_type
+          ENDIF AS 'match', -- match option
+          IF pidx.max_key_distance = 1
+              THEN 1
+              ELSE NULL
+          ENDIF AS for_olap_workload -- for_olap_workload flag
+FROM      SYS.SYSFKEY AS fk
+JOIN      SYS.SYSIDX AS idx
+ON        fk.foreign_table_id = idx.table_id
+AND       fk.foreign_index_id = idx.index_id
+JOIN      SYS.SYSPHYSIDX pidx
+ON        idx.table_id = pidx.table_id
+AND       idx.phys_index_id = pidx.phys_index_id
+JOIN      SYS.SYSTAB AS ptbl
+ON        fk.primary_table_id = ptbl.table_id
+JOIN      SYS.SYSTAB AS ftbl
+ON        fk.foreign_table_id = ftbl.table_id
+JOIN      SYS.SYSIDXCOL AS idxcol
+ON        idx.table_id = idxcol.table_id
+AND       idx.index_id = idxcol.index_id
+JOIN      SYS.SYSTABCOL AS pcol
+ON        ptbl.table_id = pcol.table_id
+AND       idxcol.primary_column_id = pcol.column_id
+JOIN      SYS.SYSTABCOL AS fcol
+ON        ftbl.table_id = fcol.table_id
+AND       idxcol.column_id = fcol.column_id
+LEFT JOIN SYS.SYSTRIGGER ut
+ON        fk.foreign_table_id = ut.foreign_table_id
+AND       fk.foreign_index_id = ut.foreign_key_id
+AND       ut.event = 'C'
+LEFT JOIN SYS.SYSTRIGGER dt
+ON        fk.foreign_table_id = dt.foreign_table_id
+AND       fk.foreign_index_id = dt.foreign_key_id
+AND       dt.event = 'D'
+WHERE     ftbl.table_name = %s
+AND       ftbl.creator = USER_ID(%s)
+ORDER BY  fk.foreign_index_id ASC, idxcol.sequence ASC
+SQL
+            ,
+            $table,
+            $user
+        );
     }
 
     /**
@@ -862,42 +888,49 @@ class SQLAnywherePlatform extends AbstractPlatform
             $table = $this->quoteStringLiteral($table);
         }
 
-        return "SELECT   idx.index_name AS key_name,
-                         IF idx.index_category = 1
-                             THEN 1
-                             ELSE 0
-                         ENDIF AS 'primary',
-                         col.column_name,
-                         IF idx.\"unique\" IN(1, 2, 5)
-                             THEN 0
-                             ELSE 1
-                         ENDIF AS non_unique,
-                         IF tbl.clustered_index_id = idx.index_id
-                             THEN 1
-                             ELSE NULL
-                         ENDIF AS 'clustered', -- clustered flag
-                         IF idx.\"unique\" = 5
-                             THEN 1
-                             ELSE NULL
-                         ENDIF AS with_nulls_not_distinct, -- with_nulls_not_distinct flag
-                         IF pidx.max_key_distance = 1
-                              THEN 1
-                              ELSE NULL
-                          ENDIF AS for_olap_workload -- for_olap_workload flag
-                FROM     SYS.SYSIDX AS idx
-                JOIN     SYS.SYSPHYSIDX pidx
-                ON       idx.table_id = pidx.table_id
-                AND      idx.phys_index_id = pidx.phys_index_id
-                JOIN     SYS.SYSIDXCOL AS idxcol
-                ON       idx.table_id = idxcol.table_id AND idx.index_id = idxcol.index_id
-                JOIN     SYS.SYSTABCOL AS col
-                ON       idxcol.table_id = col.table_id AND idxcol.column_id = col.column_id
-                JOIN     SYS.SYSTAB AS tbl
-                ON       idx.table_id = tbl.table_id
-                WHERE    tbl.table_name = $table
-                AND      tbl.creator = USER_ID($user)
-                AND      idx.index_category != 2 -- exclude indexes implicitly created by foreign key constraints
-                ORDER BY idx.index_id ASC, idxcol.sequence ASC";
+        return sprintf(
+            <<<'SQL'
+SELECT   idx.index_name AS key_name,
+         IF idx.index_category = 1
+             THEN 1
+             ELSE 0
+         ENDIF AS 'primary',
+         col.column_name,
+         IF idx."unique" IN(1, 2, 5)
+             THEN 0
+             ELSE 1
+         ENDIF AS non_unique,
+         IF tbl.clustered_index_id = idx.index_id
+             THEN 1
+             ELSE NULL
+         ENDIF AS 'clustered', -- clustered flag
+         IF idx."unique" = 5
+             THEN 1
+             ELSE NULL
+         ENDIF AS with_nulls_not_distinct, -- with_nulls_not_distinct flag
+         IF pidx.max_key_distance = 1
+              THEN 1
+              ELSE NULL
+          ENDIF AS for_olap_workload -- for_olap_workload flag
+FROM     SYS.SYSIDX AS idx
+JOIN     SYS.SYSPHYSIDX pidx
+ON       idx.table_id = pidx.table_id
+AND      idx.phys_index_id = pidx.phys_index_id
+JOIN     SYS.SYSIDXCOL AS idxcol
+ON       idx.table_id = idxcol.table_id AND idx.index_id = idxcol.index_id
+JOIN     SYS.SYSTABCOL AS col
+ON       idxcol.table_id = col.table_id AND idxcol.column_id = col.column_id
+JOIN     SYS.SYSTAB AS tbl
+ON       idx.table_id = tbl.table_id
+WHERE    tbl.table_name = %s
+AND      tbl.creator = USER_ID(%s)
+AND      idx.index_category != 2 -- exclude indexes implicitly created by foreign key constraints
+ORDER BY idx.index_id ASC, idxcol.sequence ASC
+SQL
+            ,
+            $table,
+            $user
+        );
     }
 
     /**
@@ -984,7 +1017,7 @@ class SQLAnywherePlatform extends AbstractPlatform
      *
      * @return string DBMS specific SQL code portion needed to set a primary key
      *
-     * @throws InvalidArgumentException if the given index is not a primary key.
+     * @throws InvalidArgumentException If the given index is not a primary key.
      */
     public function getPrimaryKeyDeclarationSQL(Index $index, $name = null)
     {
@@ -1106,7 +1139,7 @@ class SQLAnywherePlatform extends AbstractPlatform
             }
         }
 
-        $pattern = "'%[^' + $char + ']%'";
+        $pattern = "'%[^' + " . $char . " + ']%'";
 
         switch ($pos) {
             case TrimMode::LEADING:
@@ -1340,7 +1373,7 @@ class SQLAnywherePlatform extends AbstractPlatform
      *
      * @return string
      *
-     * @throws InvalidArgumentException if the given table constraint type is not supported by this method.
+     * @throws InvalidArgumentException If the given table constraint type is not supported by this method.
      */
     protected function getTableConstraintDeclarationSQL(Constraint $constraint, $name = null)
     {
@@ -1458,9 +1491,9 @@ class SQLAnywherePlatform extends AbstractPlatform
             'unsigned int' => 'integer',
             'numeric' => 'decimal',
             'smallint' => 'smallint',
-            'unsigned smallint', 'smallint',
+            'unsigned smallint' => 'smallint',
             'tinyint' => 'smallint',
-            'unsigned tinyint', 'smallint',
+            'unsigned tinyint' => 'smallint',
             'money' => 'decimal',
             'smallmoney' => 'decimal',
             'long varbit' => 'text',

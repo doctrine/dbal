@@ -25,7 +25,7 @@ use function implode;
  */
 class OracleSessionInit implements EventSubscriber
 {
-    /** @var array */
+    /** @var string[] */
     protected $_defaultSessionVars = [
         'NLS_TIME_FORMAT' => 'HH24:MI:SS',
         'NLS_DATE_FORMAT' => 'YYYY-MM-DD HH24:MI:SS',
@@ -35,7 +35,7 @@ class OracleSessionInit implements EventSubscriber
     ];
 
     /**
-     * @param array $oracleSessionVars
+     * @param string[] $oracleSessionVars
      */
     public function __construct(array $oracleSessionVars = [])
     {

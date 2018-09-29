@@ -8,8 +8,8 @@ use function implode;
 class QueryException extends DBALException
 {
     /**
-     * @param string $alias
-     * @param array  $registeredAliases
+     * @param string   $alias
+     * @param string[] $registeredAliases
      *
      * @return \Doctrine\DBAL\Query\QueryException
      */
@@ -21,8 +21,8 @@ class QueryException extends DBALException
     }
 
     /**
-     * @param string $alias
-     * @param array  $registeredAliases
+     * @param string   $alias
+     * @param string[] $registeredAliases
      *
      * @return \Doctrine\DBAL\Query\QueryException
      */

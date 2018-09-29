@@ -410,7 +410,7 @@ class Comparator
      * If there are differences this method returns $field2, otherwise the
      * boolean false.
      *
-     * @return array
+     * @return string[]
      */
     public function diffColumn(Column $column1, Column $column2)
     {

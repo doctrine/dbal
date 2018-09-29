@@ -72,9 +72,7 @@ interface Statement extends ResultStatement
     /**
      * Fetches extended error information associated with the last operation on the statement handle.
      *
-     * @see Doctrine_Adapter_Interface::errorInfo()
-     *
-     * @return array The error info array.
+     * @return mixed[] The error info array.
      */
     public function errorInfo();
 
@@ -87,8 +85,8 @@ interface Statement extends ResultStatement
      * if any, of their associated parameter markers or pass an array of input-only
      * parameter values.
      *
-     * @param array|null $params An array of values with as many elements as there are
-     *                           bound parameters in the SQL statement being executed.
+     * @param mixed[]|null $params An array of values with as many elements as there are
+     *                             bound parameters in the SQL statement being executed.
      *
      * @return bool TRUE on success or FALSE on failure.
      */

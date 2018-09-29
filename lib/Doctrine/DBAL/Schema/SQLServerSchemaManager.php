@@ -254,7 +254,13 @@ class SQLServerSchemaManager extends AbstractSchemaManager
             foreach ($tableDiff->removedColumns as $col) {
                 $columnConstraintSql = $this->getColumnConstraintSQL($tableDiff->name, $col->getName());
                 foreach ($this->_conn->fetchAll($columnConstraintSql) as $constraint) {
-                    $this->_conn->exec("ALTER TABLE $tableDiff->name DROP CONSTRAINT " . $constraint['Name']);
+                    $this->_conn->exec(
+                        sprintf(
+                            'ALTER TABLE %s DROP CONSTRAINT %s',
+                            $tableDiff->name,
+                            $constraint['Name']
+                        )
+                    );
                 }
             }
         }

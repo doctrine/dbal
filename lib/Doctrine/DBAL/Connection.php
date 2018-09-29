@@ -136,7 +136,7 @@ class Connection implements DriverConnection
     /**
      * The parameters used during creation of the Connection instance.
      *
-     * @var array
+     * @var mixed[]
      */
     private $_params = [];
 
@@ -175,7 +175,7 @@ class Connection implements DriverConnection
     /**
      * Initializes a new instance of the Connection class.
      *
-     * @param array              $params       The connection parameters.
+     * @param mixed[]            $params       The connection parameters.
      * @param Driver             $driver       The driver to use.
      * @param Configuration|null $config       The configuration, optional.
      * @param EventManager|null  $eventManager The event manager, optional.
@@ -226,7 +226,7 @@ class Connection implements DriverConnection
     /**
      * Gets the parameters used during instantiation.
      *
-     * @return array
+     * @return mixed[]
      */
     public function getParams()
     {
@@ -375,7 +375,7 @@ class Connection implements DriverConnection
      *
      * Evaluates custom platform class and version in order to set the correct platform.
      *
-     * @throws DBALException if an invalid platform was specified for this connection.
+     * @throws DBALException If an invalid platform was specified for this connection.
      */
     private function detectDatabasePlatform()
     {
@@ -534,11 +534,11 @@ class Connection implements DriverConnection
      * Prepares and executes an SQL query and returns the first row of the result
      * as an associative array.
      *
-     * @param string $statement The SQL query.
-     * @param array  $params    The query parameters.
-     * @param array  $types     The query parameter types.
+     * @param string         $statement The SQL query.
+     * @param mixed[]        $params    The query parameters.
+     * @param int[]|string[] $types     The query parameter types.
      *
-     * @return array|bool False is returned if no rows are found.
+     * @return mixed[]|false False is returned if no rows are found.
      *
      * @throws DBALException
      */
@@ -551,11 +551,11 @@ class Connection implements DriverConnection
      * Prepares and executes an SQL query and returns the first row of the result
      * as a numerically indexed array.
      *
-     * @param string $statement The SQL query to be executed.
-     * @param array  $params    The prepared statement params.
-     * @param array  $types     The query parameter types.
+     * @param string         $statement The SQL query to be executed.
+     * @param mixed[]        $params    The prepared statement params.
+     * @param int[]|string[] $types     The query parameter types.
      *
-     * @return array|bool False is returned if no rows are found.
+     * @return mixed[]|false False is returned if no rows are found.
      */
     public function fetchArray($statement, array $params = [], array $types = [])
     {
@@ -566,12 +566,12 @@ class Connection implements DriverConnection
      * Prepares and executes an SQL query and returns the value of a single column
      * of the first row of the result.
      *
-     * @param string $statement The SQL query to be executed.
-     * @param array  $params    The prepared statement params.
-     * @param int    $column    The 0-indexed column number to retrieve.
-     * @param array  $types     The query parameter types.
+     * @param string         $statement The SQL query to be executed.
+     * @param mixed[]        $params    The prepared statement params.
+     * @param int            $column    The 0-indexed column number to retrieve.
+     * @param int[]|string[] $types     The query parameter types.
      *
-     * @return mixed|bool False is returned if no rows are found.
+     * @return mixed|false False is returned if no rows are found.
      *
      * @throws DBALException
      */
@@ -603,7 +603,7 @@ class Connection implements DriverConnection
     /**
      * Gathers conditions for an update or delete call.
      *
-     * @param array $identifiers Input array of columns to values
+     * @param mixed[] $identifiers Input array of columns to values
      *
      * @return string[][] a triplet with:
      *                    - the first key being the columns
@@ -635,9 +635,9 @@ class Connection implements DriverConnection
      *
      * Table expression and columns are not escaped and are not safe for user-input.
      *
-     * @param string $tableExpression The expression of the table on which to delete.
-     * @param array  $identifier      The deletion criteria. An associative array containing column-value pairs.
-     * @param array  $types           The types of identifiers.
+     * @param string         $tableExpression The expression of the table on which to delete.
+     * @param mixed[]        $identifier      The deletion criteria. An associative array containing column-value pairs.
+     * @param int[]|string[] $types           The types of identifiers.
      *
      * @return int The number of affected rows.
      *
@@ -704,10 +704,10 @@ class Connection implements DriverConnection
      *
      * Table expression and columns are not escaped and are not safe for user-input.
      *
-     * @param string $tableExpression The expression of the table to update quoted or unquoted.
-     * @param array  $data            An associative array containing column-value pairs.
-     * @param array  $identifier      The update criteria. An associative array containing column-value pairs.
-     * @param array  $types           Types of the merged $data and $identifier arrays in that order.
+     * @param string         $tableExpression The expression of the table to update quoted or unquoted.
+     * @param mixed[]        $data            An associative array containing column-value pairs.
+     * @param mixed[]        $identifier      The update criteria. An associative array containing column-value pairs.
+     * @param int[]|string[] $types           Types of the merged $data and $identifier arrays in that order.
      *
      * @return int The number of affected rows.
      *
@@ -744,9 +744,9 @@ class Connection implements DriverConnection
      *
      * Table expression and columns are not escaped and are not safe for user-input.
      *
-     * @param string $tableExpression The expression of the table to insert data into, quoted or unquoted.
-     * @param array  $data            An associative array containing column-value pairs.
-     * @param array  $types           Types of the inserted data.
+     * @param string         $tableExpression The expression of the table to insert data into, quoted or unquoted.
+     * @param mixed[]        $data            An associative array containing column-value pairs.
+     * @param int[]|string[] $types           Types of the inserted data.
      *
      * @return int The number of affected rows.
      *
@@ -755,7 +755,7 @@ class Connection implements DriverConnection
     public function insert($tableExpression, array $data, array $types = [])
     {
         if (empty($data)) {
-            return $this->executeUpdate('INSERT INTO ' . $tableExpression . ' ()' . ' VALUES ()');
+            return $this->executeUpdate('INSERT INTO ' . $tableExpression . ' () VALUES ()');
         }
 
         $columns = [];
@@ -779,10 +779,10 @@ class Connection implements DriverConnection
     /**
      * Extract ordered type list from an ordered column list and type map.
      *
-     * @param array $columnList
-     * @param array $types
+     * @param string[]       $columnList
+     * @param int[]|string[] $types
      *
-     * @return array
+     * @return int[]|string[]
      */
     private function extractTypeValues(array $columnList, array $types)
     {
@@ -834,11 +834,11 @@ class Connection implements DriverConnection
     /**
      * Prepares and executes an SQL query and returns the result as an associative array.
      *
-     * @param string $sql    The SQL query.
-     * @param array  $params The query parameters.
-     * @param array  $types  The query parameter types.
+     * @param string         $sql    The SQL query.
+     * @param mixed[]        $params The query parameters.
+     * @param int[]|string[] $types  The query parameter types.
      *
-     * @return array
+     * @return mixed[]
      */
     public function fetchAll($sql, array $params = [], $types = [])
     {
@@ -874,8 +874,8 @@ class Connection implements DriverConnection
      * If an SQLLogger is configured, the execution is logged.
      *
      * @param string                 $query  The SQL query to execute.
-     * @param array                  $params The parameters to bind to the query, if any.
-     * @param array                  $types  The types the previous parameters are in.
+     * @param mixed[]                $params The parameters to bind to the query, if any.
+     * @param int[]|string[]         $types  The types the previous parameters are in.
      * @param QueryCacheProfile|null $qcp    The query cache profile, optional.
      *
      * @return ResultStatement The executed statement.
@@ -926,8 +926,8 @@ class Connection implements DriverConnection
      * Executes a caching query.
      *
      * @param string            $query  The SQL query to execute.
-     * @param array             $params The parameters to bind to the query, if any.
-     * @param array             $types  The types the previous parameters are in.
+     * @param mixed[]           $params The parameters to bind to the query, if any.
+     * @param int[]|string[]    $types  The types the previous parameters are in.
      * @param QueryCacheProfile $qcp    The query cache profile.
      *
      * @return ResultStatement
@@ -944,7 +944,9 @@ class Connection implements DriverConnection
         [$cacheKey, $realKey] = $qcp->generateCacheKeys($query, $params, $types, $this->getParams());
 
         // fetch the row pointers entry
-        if ($data = $resultCache->fetch($cacheKey)) {
+        $data = $resultCache->fetch($cacheKey);
+
+        if ($data !== false) {
             // is the real key part of this row pointers map or is the cache only pointing to other cache keys?
             if (isset($data[$realKey])) {
                 $stmt = new ArrayStatement($data[$realKey]);
@@ -967,12 +969,12 @@ class Connection implements DriverConnection
      * applying a given projection/transformation function on each row of the result.
      *
      * @param string  $query    The SQL query to execute.
-     * @param array   $params   The parameters, if any.
+     * @param mixed[] $params   The parameters, if any.
      * @param Closure $function The transformation function that is applied on each row.
      *                           The function receives a single parameter, an array, that
      *                           represents a row of the result set.
      *
-     * @return array The projected result of the query.
+     * @return mixed[] The projected result of the query.
      */
     public function project($query, array $params, Closure $function)
     {
@@ -1027,9 +1029,9 @@ class Connection implements DriverConnection
      *
      * This method supports PDO binding types as well as DBAL mapping types.
      *
-     * @param string $query  The SQL query.
-     * @param array  $params The query parameters.
-     * @param array  $types  The parameter types.
+     * @param string         $query  The SQL query.
+     * @param mixed[]        $params The query parameters.
+     * @param int[]|string[] $types  The parameter types.
      *
      * @return int The number of affected rows.
      *
@@ -1124,9 +1126,7 @@ class Connection implements DriverConnection
     }
 
     /**
-     * Fetches extended error information associated with the last database operation.
-     *
-     * @return array The last error information.
+     * {@inheritDoc}
      */
     public function errorInfo()
     {
@@ -1523,8 +1523,8 @@ class Connection implements DriverConnection
      *           raw PDOStatement instances.
      *
      * @param \Doctrine\DBAL\Driver\Statement $stmt   The statement to bind the values to.
-     * @param array                           $params The map/list of named/positional parameters.
-     * @param array                           $types  The parameter types (PDO binding types or DBAL mapping types).
+     * @param mixed[]                         $params The map/list of named/positional parameters.
+     * @param int[]|string[]                  $types  The parameter types (PDO binding types or DBAL mapping types).
      *
      * @return void
      */
@@ -1563,10 +1563,10 @@ class Connection implements DriverConnection
     /**
      * Gets the binding type of a given type. The given type can be a PDO or DBAL mapping type.
      *
-     * @param mixed $value The value to bind.
-     * @param mixed $type  The type to bind (PDO or DBAL).
+     * @param mixed      $value The value to bind.
+     * @param int|string $type  The type to bind (PDO or DBAL).
      *
-     * @return array [0] => the (escaped) value, [1] => the binding type.
+     * @return mixed[] [0] => the (escaped) value, [1] => the binding type.
      */
     private function getBindingInfo($value, $type)
     {
@@ -1589,10 +1589,10 @@ class Connection implements DriverConnection
      * @internal This is a purely internal method. If you rely on this method, you are advised to
      *           copy/paste the code as this method may change, or be removed without prior notice.
      *
-     * @param array $params
-     * @param array $types
+     * @param mixed[]        $params
+     * @param int[]|string[] $types
      *
-     * @return array
+     * @return mixed[]
      */
     public function resolveParams(array $params, array $types)
     {

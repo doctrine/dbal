@@ -17,7 +17,7 @@ class ReservedKeywordsValidator implements Visitor
     /** @var KeywordList[] */
     private $keywordLists = [];
 
-    /** @var array */
+    /** @var string[] */
     private $violations = [];
 
     /**
@@ -29,7 +29,7 @@ class ReservedKeywordsValidator implements Visitor
     }
 
     /**
-     * @return array
+     * @return string[]
      */
     public function getViolations()
     {
@@ -39,7 +39,7 @@ class ReservedKeywordsValidator implements Visitor
     /**
      * @param string $word
      *
-     * @return array
+     * @return string[]
      */
     private function isReservedWord($word)
     {
@@ -60,8 +60,8 @@ class ReservedKeywordsValidator implements Visitor
     }
 
     /**
-     * @param string $asset
-     * @param array  $violatedPlatforms
+     * @param string   $asset
+     * @param string[] $violatedPlatforms
      *
      * @return void
      */

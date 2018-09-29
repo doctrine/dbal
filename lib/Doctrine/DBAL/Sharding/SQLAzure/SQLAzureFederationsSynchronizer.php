@@ -153,7 +153,7 @@ class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
     }
 
     /**
-     * @return array
+     * @return Schema[]
      */
     private function partitionSchema(Schema $schema)
     {
@@ -199,7 +199,7 @@ class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
      * perform the given operation on the underlying schema synchronizer given
      * the different partitioned schema instances.
      *
-     * @return array
+     * @return string[]
      */
     private function work(Schema $schema, Closure $operation)
     {

@@ -16,7 +16,7 @@ use function implode;
 
 class ReservedWordsCommand extends Command
 {
-    /** @var array */
+    /** @var string[] */
     private $keywordListClasses = [
         'mysql'         => 'Doctrine\DBAL\Platforms\Keywords\MySQLKeywords',
         'mysql57'       => 'Doctrine\DBAL\Platforms\Keywords\MySQL57Keywords',

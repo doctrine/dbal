@@ -54,10 +54,10 @@ class OraclePlatform extends AbstractPlatform
     public function getSubstringExpression($value, $position, $length = null)
     {
         if ($length !== null) {
-            return "SUBSTR($value, $position, $length)";
+            return sprintf('SUBSTR(%s, %d, %d)', $value, $position, $length);
         }
 
-        return "SUBSTR($value, $position)";
+        return sprintf('SUBSTR(%s, %d)', $value, $position);
     }
 
     /**
@@ -478,7 +478,7 @@ class OraclePlatform extends AbstractPlatform
      * @param string $table
      * @param int    $start
      *
-     * @return array
+     * @return string[]
      */
     public function getCreateAutoincrementSql($name, $table, $start = 1)
     {
@@ -542,7 +542,7 @@ END;';
      *
      * @param string $table The table name to drop the autoincrement for.
      *
-     * @return array
+     * @return string[]
      */
     public function getDropAutoincrementSql($table)
     {
@@ -657,20 +657,30 @@ END;';
             $database                  = $this->quoteStringLiteral($database->getName());
             $tabColumnsTableName       = 'all_tab_columns';
             $colCommentsTableName      = 'all_col_comments';
-            $tabColumnsOwnerCondition  = 'AND c.owner = ' . $database;
-            $colCommentsOwnerCondition = 'AND d.OWNER = c.OWNER';
+            $tabColumnsOwnerCondition  = ' AND c.owner = ' . $database;
+            $colCommentsOwnerCondition = ' AND d.OWNER = c.OWNER';
         }
 
-        return "SELECT   c.*,
-                         (
-                             SELECT d.comments
-                             FROM   $colCommentsTableName d
-                             WHERE  d.TABLE_NAME = c.TABLE_NAME " . $colCommentsOwnerCondition . "
-                             AND    d.COLUMN_NAME = c.COLUMN_NAME
-                         ) AS comments
-                FROM     $tabColumnsTableName c
-                WHERE    c.table_name = " . $table . " $tabColumnsOwnerCondition
-                ORDER BY c.column_id";
+        return sprintf(
+            <<<'SQL'
+SELECT   c.*,
+         (
+             SELECT d.comments
+             FROM   %s d
+             WHERE  d.TABLE_NAME = c.TABLE_NAME%s
+             AND    d.COLUMN_NAME = c.COLUMN_NAME
+         ) AS comments
+FROM     %s c
+WHERE    c.table_name = %s%s
+ORDER BY c.column_id
+SQL
+            ,
+            $colCommentsTableName,
+            $colCommentsOwnerCondition,
+            $tabColumnsTableName,
+            $table,
+            $tabColumnsOwnerCondition
+        );
     }
 
     /**
@@ -767,7 +777,9 @@ END;';
             }
 
             $fields[] = $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
-            if (! $comment = $this->getColumnComment($column)) {
+            $comment  = $this->getColumnComment($column);
+
+            if (! $comment) {
                 continue;
             }
 

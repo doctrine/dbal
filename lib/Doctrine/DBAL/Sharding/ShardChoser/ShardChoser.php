@@ -17,5 +17,5 @@ interface ShardChoser
      *
      * @return string|int
      */
-    function pickShard($distributionValue, PoolingShardConnection $conn);
+    public function pickShard($distributionValue, PoolingShardConnection $conn);
 }

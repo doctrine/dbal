@@ -15,7 +15,7 @@ use function reset;
 
 class ArrayStatement implements IteratorAggregate, ResultStatement
 {
-    /** @var array */
+    /** @var mixed[] */
     private $data;
 
     /** @var int */
@@ -28,7 +28,7 @@ class ArrayStatement implements IteratorAggregate, ResultStatement
     private $defaultFetchMode = FetchMode::MIXED;
 
     /**
-     * @param array $data
+     * @param mixed[] $data
      */
     public function __construct(array $data)
     {

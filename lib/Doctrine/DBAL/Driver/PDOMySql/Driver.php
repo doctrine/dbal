@@ -34,7 +34,7 @@ class Driver extends AbstractMySQLDriver
     /**
      * Constructs the MySql PDO DSN.
      *
-     * @param array $params
+     * @param mixed[] $params
      *
      * @return string The DSN.
      */

@@ -33,7 +33,7 @@ class Driver extends AbstractOracleDriver
     /**
      * Constructs the Oracle DSN.
      *
-     * @param array $params
+     * @param mixed[] $params
      *
      * @return string The DSN.
      */

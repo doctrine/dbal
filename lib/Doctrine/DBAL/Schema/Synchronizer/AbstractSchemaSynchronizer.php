@@ -19,7 +19,7 @@ abstract class AbstractSchemaSynchronizer implements SchemaSynchronizer
     }
 
     /**
-     * @param array $sql
+     * @param string[] $sql
      */
     protected function processSqlSafely(array $sql)
     {
@@ -32,7 +32,7 @@ abstract class AbstractSchemaSynchronizer implements SchemaSynchronizer
     }
 
     /**
-     * @param array $sql
+     * @param string[] $sql
      */
     protected function processSql(array $sql)
     {

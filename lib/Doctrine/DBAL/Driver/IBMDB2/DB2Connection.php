@@ -30,10 +30,10 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
     private $_conn = null;
 
     /**
-     * @param array  $params
-     * @param string $username
-     * @param string $password
-     * @param array  $driverOptions
+     * @param mixed[] $params
+     * @param string  $username
+     * @param string  $password
+     * @param mixed[] $driverOptions
      *
      * @throws DB2Exception
      */

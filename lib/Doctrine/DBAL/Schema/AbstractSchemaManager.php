@@ -90,7 +90,7 @@ abstract class AbstractSchemaManager
     /**
      * Lists the available databases for this connection.
      *
-     * @return array
+     * @return string[]
      */
     public function listDatabases()
     {
@@ -104,7 +104,7 @@ abstract class AbstractSchemaManager
     /**
      * Returns a list of all namespaces in the current database.
      *
-     * @return array
+     * @return string[]
      */
     public function listNamespaceNames()
     {
@@ -183,7 +183,7 @@ abstract class AbstractSchemaManager
     /**
      * Returns true if all the given tables exist.
      *
-     * @param array $tableNames
+     * @param string[] $tableNames
      *
      * @return bool
      */
@@ -197,7 +197,7 @@ abstract class AbstractSchemaManager
     /**
      * Returns a list of all tables in the current database.
      *
-     * @return array
+     * @return string[]
      */
     public function listTableNames()
     {
@@ -213,9 +213,9 @@ abstract class AbstractSchemaManager
      * Filters asset names if they are configured to return only a subset of all
      * the found elements.
      *
-     * @param array $assetNames
+     * @param mixed[] $assetNames
      *
-     * @return array
+     * @return mixed[]
      */
     protected function filterAssetNames($assetNames)
     {
@@ -621,15 +621,17 @@ abstract class AbstractSchemaManager
      */
 
     /**
-     * @param array $databases
+     * @param mixed[] $databases
      *
-     * @return array
+     * @return string[]
      */
     protected function _getPortableDatabasesList($databases)
     {
         $list = [];
         foreach ($databases as $value) {
-            if (! $value = $this->_getPortableDatabaseDefinition($value)) {
+            $value = $this->_getPortableDatabaseDefinition($value);
+
+            if (! $value) {
                 continue;
             }
 
@@ -642,9 +644,9 @@ abstract class AbstractSchemaManager
     /**
      * Converts a list of namespace names from the native DBMS data definition to a portable Doctrine definition.
      *
-     * @param array $namespaces The list of namespace names in the native DBMS data definition.
+     * @param mixed[][] $namespaces The list of namespace names in the native DBMS data definition.
      *
-     * @return array
+     * @return string[]
      */
     protected function getPortableNamespacesList(array $namespaces)
     {
@@ -658,7 +660,7 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * @param array $database
+     * @param mixed $database
      *
      * @return mixed
      */
@@ -670,7 +672,7 @@ abstract class AbstractSchemaManager
     /**
      * Converts a namespace definition from the native DBMS data definition to a portable Doctrine definition.
      *
-     * @param array $namespace The native DBMS namespace definition.
+     * @param mixed[] $namespace The native DBMS namespace definition.
      *
      * @return mixed
      */
@@ -680,15 +682,17 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * @param array $functions
+     * @param mixed[][] $functions
      *
-     * @return array
+     * @return mixed[][]
      */
     protected function _getPortableFunctionsList($functions)
     {
         $list = [];
         foreach ($functions as $value) {
-            if (! $value = $this->_getPortableFunctionDefinition($value)) {
+            $value = $this->_getPortableFunctionDefinition($value);
+
+            if (! $value) {
                 continue;
             }
 
@@ -699,7 +703,7 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * @param array $function
+     * @param mixed[] $function
      *
      * @return mixed
      */
@@ -709,15 +713,17 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * @param array $triggers
+     * @param mixed[][] $triggers
      *
-     * @return array
+     * @return mixed[][]
      */
     protected function _getPortableTriggersList($triggers)
     {
         $list = [];
         foreach ($triggers as $value) {
-            if (! $value = $this->_getPortableTriggerDefinition($value)) {
+            $value = $this->_getPortableTriggerDefinition($value);
+
+            if (! $value) {
                 continue;
             }
 
@@ -728,7 +734,7 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * @param array $trigger
+     * @param mixed[] $trigger
      *
      * @return mixed
      */
@@ -738,15 +744,17 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * @param array $sequences
+     * @param mixed[][] $sequences
      *
-     * @return array
+     * @return Sequence[]
      */
     protected function _getPortableSequencesList($sequences)
     {
         $list = [];
         foreach ($sequences as $value) {
-            if (! $value = $this->_getPortableSequenceDefinition($value)) {
+            $value = $this->_getPortableSequenceDefinition($value);
+
+            if (! $value) {
                 continue;
             }
 
@@ -757,7 +765,7 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * @param array $sequence
+     * @param mixed[] $sequence
      *
      * @return Sequence
      *
@@ -773,11 +781,11 @@ abstract class AbstractSchemaManager
      *
      * The name of the created column instance however is kept in its case.
      *
-     * @param string $table        The name of the table.
-     * @param string $database
-     * @param array  $tableColumns
+     * @param string    $table        The name of the table.
+     * @param string    $database
+     * @param mixed[][] $tableColumns
      *
-     * @return array
+     * @return Column[]
      */
     protected function _getPortableTableColumnList($table, $database, $tableColumns)
     {
@@ -814,7 +822,7 @@ abstract class AbstractSchemaManager
     /**
      * Gets Table Column Definition.
      *
-     * @param array $tableColumn
+     * @param mixed[] $tableColumn
      *
      * @return Column
      */
@@ -823,10 +831,10 @@ abstract class AbstractSchemaManager
     /**
      * Aggregates and groups the index results according to the required data result.
      *
-     * @param array       $tableIndexRows
+     * @param mixed[][]   $tableIndexRows
      * @param string|null $tableName
      *
-     * @return array
+     * @return Index[]
      */
     protected function _getPortableTableIndexesList($tableIndexRows, $tableName = null)
     {
@@ -882,15 +890,17 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * @param array $tables
+     * @param mixed[][] $tables
      *
-     * @return array
+     * @return string[]
      */
     protected function _getPortableTablesList($tables)
     {
         $list = [];
         foreach ($tables as $value) {
-            if (! $value = $this->_getPortableTableDefinition($value)) {
+            $value = $this->_getPortableTableDefinition($value);
+
+            if (! $value) {
                 continue;
             }
 
@@ -901,9 +911,9 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * @param array $table
+     * @param mixed $table
      *
-     * @return array
+     * @return string
      */
     protected function _getPortableTableDefinition($table)
     {
@@ -911,15 +921,17 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * @param array $users
+     * @param mixed[][] $users
      *
-     * @return array
+     * @return string[][]
      */
     protected function _getPortableUsersList($users)
     {
         $list = [];
         foreach ($users as $value) {
-            if (! $value = $this->_getPortableUserDefinition($value)) {
+            $value = $this->_getPortableUserDefinition($value);
+
+            if (! $value) {
                 continue;
             }
 
@@ -930,9 +942,9 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * @param array $user
+     * @param mixed[] $user
      *
-     * @return mixed
+     * @return mixed[]
      */
     protected function _getPortableUserDefinition($user)
     {
@@ -940,15 +952,17 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * @param array $views
+     * @param mixed[][] $views
      *
-     * @return array
+     * @return View[]
      */
     protected function _getPortableViewsList($views)
     {
         $list = [];
         foreach ($views as $value) {
-            if (! $view = $this->_getPortableViewDefinition($value)) {
+            $view = $this->_getPortableViewDefinition($value);
+
+            if (! $view) {
                 continue;
             }
 
@@ -960,9 +974,9 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * @param array $view
+     * @param mixed[] $view
      *
-     * @return mixed
+     * @return View|false
      */
     protected function _getPortableViewDefinition($view)
     {
@@ -970,15 +984,17 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * @param array $tableForeignKeys
+     * @param mixed[][] $tableForeignKeys
      *
-     * @return array
+     * @return ForeignKeyConstraint[]
      */
     protected function _getPortableTableForeignKeysList($tableForeignKeys)
     {
         $list = [];
         foreach ($tableForeignKeys as $value) {
-            if (! $value = $this->_getPortableTableForeignKeyDefinition($value)) {
+            $value = $this->_getPortableTableForeignKeyDefinition($value);
+
+            if (! $value) {
                 continue;
             }
 
@@ -989,9 +1005,9 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * @param array $tableForeignKey
+     * @param mixed $tableForeignKey
      *
-     * @return mixed
+     * @return ForeignKeyConstraint
      */
     protected function _getPortableTableForeignKeyDefinition($tableForeignKey)
     {
@@ -999,7 +1015,7 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * @param array|string $sql
+     * @param string[]|string $sql
      *
      * @return void
      */
@@ -1071,7 +1087,7 @@ abstract class AbstractSchemaManager
      * For databases that don't support subschema/namespaces this method
      * returns the name of the currently connected database.
      *
-     * @return array
+     * @return string[]
      */
     public function getSchemaSearchPaths()
     {

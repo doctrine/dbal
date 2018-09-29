@@ -54,7 +54,11 @@ class QueryBuilder
      */
     private $connection;
 
-    /** @var array The array of SQL parts collected. */
+    /**
+     * The array of SQL parts collected.
+     *
+     * @var mixed[]
+     */
     private $sqlParts = [
         'select'  => [],
         'from'    => [],
@@ -77,14 +81,14 @@ class QueryBuilder
     /**
      * The query parameters.
      *
-     * @var array
+     * @var mixed[]
      */
     private $params = [];
 
     /**
      * The parameter type map of this query.
      *
-     * @var array
+     * @var int[]|string[]
      */
     private $paramTypes = [];
 
@@ -285,8 +289,8 @@ class QueryBuilder
      *         ));
      * </code>
      *
-     * @param array $params The query parameters to set.
-     * @param array $types  The query parameters types to set.
+     * @param mixed[]        $params The query parameters to set.
+     * @param int[]|string[] $types  The query parameters types to set.
      *
      * @return $this This QueryBuilder instance.
      */
@@ -301,7 +305,7 @@ class QueryBuilder
     /**
      * Gets all defined query parameters for the query being constructed indexed by parameter index or name.
      *
-     * @return array The currently defined query parameters indexed by parameter index or name.
+     * @return mixed[] The currently defined query parameters indexed by parameter index or name.
      */
     public function getParameters()
     {
@@ -323,7 +327,7 @@ class QueryBuilder
     /**
      * Gets all defined query parameter types for the query being constructed indexed by parameter index or name.
      *
-     * @return array The currently defined query parameter types indexed by parameter index or name.
+     * @return int[]|string[] The currently defined query parameter types indexed by parameter index or name.
      */
     public function getParameterTypes()
     {
@@ -582,9 +586,7 @@ class QueryBuilder
             return $this;
         }
 
-        return $this->add('from', [
-            'table' => $insert,
-        ]);
+        return $this->add('from', ['table' => $insert]);
     }
 
     /**
@@ -934,7 +936,7 @@ class QueryBuilder
      *         );
      * </code>
      *
-     * @param array $values The values to specify for the insert query indexed by column names.
+     * @param mixed[] $values The values to specify for the insert query indexed by column names.
      *
      * @return $this This QueryBuilder instance.
      */
@@ -1048,7 +1050,7 @@ class QueryBuilder
     /**
      * Gets all query parts.
      *
-     * @return array
+     * @return mixed[]
      */
     public function getQueryParts()
     {
@@ -1058,7 +1060,7 @@ class QueryBuilder
     /**
      * Resets SQL parts.
      *
-     * @param array|null $queryPartNames
+     * @param string[]|null $queryPartNames
      *
      * @return $this This QueryBuilder instance.
      */
@@ -1147,7 +1149,7 @@ class QueryBuilder
     }
 
     /**
-     * @param array $knownAliases
+     * @param string[] $knownAliases
      *
      * @throws QueryException
      */
@@ -1285,8 +1287,8 @@ class QueryBuilder
     }
 
     /**
-     * @param string $fromAlias
-     * @param array  $knownAliases
+     * @param string   $fromAlias
+     * @param string[] $knownAliases
      *
      * @return string
      *

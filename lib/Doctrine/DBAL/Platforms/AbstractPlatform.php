@@ -44,7 +44,6 @@ use function is_array;
 use function is_bool;
 use function is_int;
 use function is_string;
-use function join;
 use function preg_quote;
 use function preg_replace;
 use function sprintf;
@@ -130,14 +129,14 @@ abstract class AbstractPlatform
      */
     public const TRIM_BOTH = TrimMode::BOTH;
 
-    /** @var array|null */
+    /** @var string[]|null */
     protected $doctrineTypeMapping = null;
 
     /**
      * Contains a list of all columns that should generate parseable column comments for type-detection
      * in reverse engineering scenarios.
      *
-     * @var array|null
+     * @var string[]|null
      */
     protected $doctrineTypeComments = null;
 
@@ -176,7 +175,7 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL snippet that declares a boolean column.
      *
-     * @param array $columnDef
+     * @param mixed[] $columnDef
      *
      * @return string
      */
@@ -185,7 +184,7 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL snippet that declares a 4 byte integer column.
      *
-     * @param array $columnDef
+     * @param mixed[] $columnDef
      *
      * @return string
      */
@@ -194,7 +193,7 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL snippet that declares an 8 byte integer column.
      *
-     * @param array $columnDef
+     * @param mixed[] $columnDef
      *
      * @return string
      */
@@ -203,7 +202,7 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL snippet that declares a 2 byte integer column.
      *
-     * @param array $columnDef
+     * @param mixed[] $columnDef
      *
      * @return string
      */
@@ -212,7 +211,7 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL snippet that declares common properties of an integer column.
      *
-     * @param array $columnDef
+     * @param mixed[] $columnDef
      *
      * @return string
      */
@@ -245,7 +244,7 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL snippet used to declare a VARCHAR column type.
      *
-     * @param array $field
+     * @param mixed[] $field
      *
      * @return string
      */
@@ -271,7 +270,7 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL snippet used to declare a BINARY/VARBINARY column type.
      *
-     * @param array $field The column definition.
+     * @param mixed[] $field The column definition.
      *
      * @return string
      */
@@ -306,7 +305,7 @@ abstract class AbstractPlatform
      * By default this maps directly to a CHAR(36) and only maps to more
      * special datatypes when the underlying databases support this datatype.
      *
-     * @param array $field
+     * @param mixed[] $field
      *
      * @return string
      */
@@ -324,7 +323,7 @@ abstract class AbstractPlatform
      * By default this maps directly to a CLOB and only maps to more
      * special datatypes when the underlying databases support this datatype.
      *
-     * @param array $field
+     * @param mixed[] $field
      *
      * @return string
      */
@@ -364,7 +363,7 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL snippet used to declare a CLOB column type.
      *
-     * @param array $field
+     * @param mixed[] $field
      *
      * @return string
      */
@@ -373,7 +372,7 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL Snippet used to declare a BLOB column type.
      *
-     * @param array $field
+     * @param mixed[] $field
      *
      * @return string
      */
@@ -615,7 +614,7 @@ abstract class AbstractPlatform
     /**
      * Gets all SQL wildcard characters of the platform.
      *
-     * @return array
+     * @return string[]
      */
     public function getWildcards()
     {
@@ -921,7 +920,7 @@ abstract class AbstractPlatform
      */
     public function getConcatExpression()
     {
-        return join(' || ', func_get_args());
+        return implode(' || ', func_get_args());
     }
 
     /**
@@ -1514,7 +1513,7 @@ abstract class AbstractPlatform
      *
      * @param int $createFlags
      *
-     * @return array The sequence of SQL statements.
+     * @return string[] The sequence of SQL statements.
      *
      * @throws DBALException
      * @throws InvalidArgumentException
@@ -1625,8 +1624,12 @@ abstract class AbstractPlatform
         $columnName = new Identifier($columnName);
         $comment    = $this->quoteStringLiteral($comment);
 
-        return 'COMMENT ON COLUMN ' . $tableName->getQuotedName($this) . '.' . $columnName->getQuotedName($this) .
-            ' IS ' . $comment;
+        return sprintf(
+            'COMMENT ON COLUMN %s.%s IS %s',
+            $tableName->getQuotedName($this),
+            $columnName->getQuotedName($this),
+            $comment
+        );
     }
 
     /**
@@ -1650,11 +1653,11 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL used to create a table.
      *
-     * @param string $tableName
-     * @param array  $columns
-     * @param array  $options
+     * @param string    $tableName
+     * @param mixed[][] $columns
+     * @param mixed[]   $options
      *
-     * @return array
+     * @return string[]
      */
     protected function _getCreateTableSQL($tableName, array $columns, array $options = [])
     {
@@ -1901,9 +1904,7 @@ abstract class AbstractPlatform
             $table = $table->getQuotedName($this);
         }
 
-        $query = 'ALTER TABLE ' . $table . ' ADD ' . $this->getForeignKeyDeclarationSQL($foreignKey);
-
-        return $query;
+        return 'ALTER TABLE ' . $table . ' ADD ' . $this->getForeignKeyDeclarationSQL($foreignKey);
     }
 
     /**
@@ -1911,7 +1912,7 @@ abstract class AbstractPlatform
      *
      * This method returns an array of SQL statements, since some platforms need several statements.
      *
-     * @return array
+     * @return string[]
      *
      * @throws DBALException If not supported on this platform.
      */
@@ -1921,7 +1922,7 @@ abstract class AbstractPlatform
     }
 
     /**
-     * @param array $columnSql
+     * @param mixed[] $columnSql
      *
      * @return bool
      */
@@ -1944,7 +1945,7 @@ abstract class AbstractPlatform
     }
 
     /**
-     * @param array $columnSql
+     * @param string[] $columnSql
      *
      * @return bool
      */
@@ -1967,7 +1968,7 @@ abstract class AbstractPlatform
     }
 
     /**
-     * @param array $columnSql
+     * @param string[] $columnSql
      *
      * @return bool
      */
@@ -1990,8 +1991,8 @@ abstract class AbstractPlatform
     }
 
     /**
-     * @param string $oldColumnName
-     * @param array  $columnSql
+     * @param string   $oldColumnName
+     * @param string[] $columnSql
      *
      * @return bool
      */
@@ -2014,7 +2015,7 @@ abstract class AbstractPlatform
     }
 
     /**
-     * @param array $sql
+     * @param string[] $sql
      *
      * @return bool
      */
@@ -2037,7 +2038,7 @@ abstract class AbstractPlatform
     }
 
     /**
-     * @return array
+     * @return string[]
      */
     protected function getPreAlterTableIndexForeignKeySQL(TableDiff $diff)
     {
@@ -2064,7 +2065,7 @@ abstract class AbstractPlatform
     }
 
     /**
-     * @return array
+     * @return string[]
      */
     protected function getPostAlterTableIndexForeignKeySQL(TableDiff $diff)
     {
@@ -2110,7 +2111,7 @@ abstract class AbstractPlatform
      * @param Index  $index        The definition of the index to rename to.
      * @param string $tableName    The table to rename the given index on.
      *
-     * @return array The sequence of SQL statements for renaming the given index.
+     * @return string[] The sequence of SQL statements for renaming the given index.
      */
     protected function getRenameIndexSQL($oldIndexName, Index $index, $tableName)
     {
@@ -2123,7 +2124,7 @@ abstract class AbstractPlatform
     /**
      * Common code for alter table statement generation that updates the changed Index and Foreign Key definitions.
      *
-     * @return array
+     * @return string[]
      */
     protected function _getAlterTableIndexForeignKeySQL(TableDiff $diff)
     {
@@ -2133,11 +2134,11 @@ abstract class AbstractPlatform
     /**
      * Gets declaration of a number of fields in bulk.
      *
-     * @param array $fields A multidimensional associative array.
-     *                      The first dimension determines the field name, while the second
-     *                      dimension is keyed with the name of the properties
-     *                      of the field being declared as array indexes. Currently, the types
-     *                      of supported field properties are as follows:
+     * @param mixed[][] $fields A multidimensional associative array.
+     *                          The first dimension determines the field name, while the second
+     *                          dimension is keyed with the name of the properties
+     *                          of the field being declared as array indexes. Currently, the types
+     *                          of supported field properties are as follows:
      *
      *      length
      *          Integer value that determines the maximum length of the text
@@ -2174,10 +2175,10 @@ abstract class AbstractPlatform
      * Obtains DBMS specific SQL code portion needed to declare a generic type
      * field to be used in statements like CREATE TABLE.
      *
-     * @param string $name  The name the field to be declared.
-     * @param array  $field An associative array with the name of the properties
-     *                      of the field being declared as array indexes. Currently, the types
-     *                      of supported field properties are as follows:
+     * @param string  $name  The name the field to be declared.
+     * @param mixed[] $field An associative array with the name of the properties
+     *                       of the field being declared as array indexes. Currently, the types
+     *                       of supported field properties are as follows:
      *
      *      length
      *          Integer value that determines the maximum length of the text
@@ -2238,7 +2239,7 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL snippet that declares a floating point column of arbitrary precision.
      *
-     * @param array $columnDef
+     * @param mixed[] $columnDef
      *
      * @return string
      */
@@ -2256,7 +2257,7 @@ abstract class AbstractPlatform
      * Obtains DBMS specific SQL code portion needed to set a default value
      * declaration to be used in statements like CREATE TABLE.
      *
-     * @param array $field The field definition array.
+     * @param mixed[] $field The field definition array.
      *
      * @return string DBMS specific SQL code portion needed to set a default value.
      */
@@ -2301,7 +2302,7 @@ abstract class AbstractPlatform
      * Obtains DBMS specific SQL code portion needed to set a CHECK constraint
      * declaration to be used in statements like CREATE TABLE.
      *
-     * @param array $definition The check definition.
+     * @param mixed[][] $definition The check definition.
      *
      * @return string DBMS specific SQL code portion needed to set a CHECK constraint.
      */
@@ -2380,7 +2381,7 @@ abstract class AbstractPlatform
      * e.g. when a field has the "columnDefinition" keyword.
      * Only "AUTOINCREMENT" and "PRIMARY KEY" are added if appropriate.
      *
-     * @param array $columnDef
+     * @param mixed[] $columnDef
      *
      * @return string
      */
@@ -2393,7 +2394,7 @@ abstract class AbstractPlatform
      * Obtains DBMS specific SQL code portion needed to set an index
      * declaration to be used in statements like CREATE TABLE.
      *
-     * @param array $fields
+     * @param mixed[][] $fields
      *
      * @return string
      */
@@ -2486,7 +2487,7 @@ abstract class AbstractPlatform
      *
      * @return string
      *
-     * @throws InvalidArgumentException if unknown referential action given
+     * @throws InvalidArgumentException If unknown referential action given.
      */
     public function getForeignKeyReferentialActionSQL($action)
     {
@@ -2529,12 +2530,10 @@ abstract class AbstractPlatform
             throw new InvalidArgumentException("Incomplete definition. 'foreignTable' required.");
         }
 
-        $sql .= implode(', ', $foreignKey->getQuotedLocalColumns($this))
+        return $sql . implode(', ', $foreignKey->getQuotedLocalColumns($this))
             . ') REFERENCES '
             . $foreignKey->getQuotedForeignTableName($this) . ' ('
             . implode(', ', $foreignKey->getQuotedForeignColumns($this)) . ')';
-
-        return $sql;
     }
 
     /**
@@ -2924,7 +2923,7 @@ abstract class AbstractPlatform
      * Obtains DBMS specific SQL to be used to create datetime fields in
      * statements like CREATE TABLE.
      *
-     * @param array $fieldDeclaration
+     * @param mixed[] $fieldDeclaration
      *
      * @return string
      *
@@ -2938,7 +2937,7 @@ abstract class AbstractPlatform
     /**
      * Obtains DBMS specific SQL to be used to create datetime with timezone offset fields.
      *
-     * @param array $fieldDeclaration
+     * @param mixed[] $fieldDeclaration
      *
      * @return string
      */
@@ -2952,7 +2951,7 @@ abstract class AbstractPlatform
      * Obtains DBMS specific SQL to be used to create date fields in statements
      * like CREATE TABLE.
      *
-     * @param array $fieldDeclaration
+     * @param mixed[] $fieldDeclaration
      *
      * @return string
      *
@@ -2967,7 +2966,7 @@ abstract class AbstractPlatform
      * Obtains DBMS specific SQL to be used to create time fields in statements
      * like CREATE TABLE.
      *
-     * @param array $fieldDeclaration
+     * @param mixed[] $fieldDeclaration
      *
      * @return string
      *
@@ -2979,7 +2978,7 @@ abstract class AbstractPlatform
     }
 
     /**
-     * @param array $fieldDeclaration
+     * @param mixed[] $fieldDeclaration
      *
      * @return string
      */

@@ -33,7 +33,7 @@ use function in_array;
  */
 class MultiTenantVisitor implements Visitor
 {
-    /** @var array */
+    /** @var string[] */
     private $excludedTables = [];
 
     /** @var string */
@@ -51,7 +51,7 @@ class MultiTenantVisitor implements Visitor
     private $distributionName;
 
     /**
-     * @param array       $excludedTables
+     * @param string[]    $excludedTables
      * @param string      $tenantColumnName
      * @param string|null $distributionName
      */

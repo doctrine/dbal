@@ -87,7 +87,7 @@ interface Connection
     /**
      * Returns extended error information associated with the last operation on the database handle.
      *
-     * @return array
+     * @return mixed[]
      */
     public function errorInfo();
 }

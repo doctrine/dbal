@@ -88,7 +88,7 @@ abstract class AbstractOracleDriver implements Driver, ExceptionConverterDriver
     /**
      * Returns an appropriate Easy Connect String for the given parameters.
      *
-     * @param array $params The connection parameters to return the Easy Connect STring for.
+     * @param mixed[] $params The connection parameters to return the Easy Connect String for.
      *
      * @return string
      */

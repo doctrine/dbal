@@ -44,7 +44,7 @@ class Column extends AbstractAsset
     /** @var bool */
     protected $_autoincrement = false;
 
-    /** @var array */
+    /** @var mixed[] */
     protected $_platformOptions = [];
 
     /** @var string|null */
@@ -53,14 +53,14 @@ class Column extends AbstractAsset
     /** @var string|null */
     protected $_comment = null;
 
-    /** @var array */
+    /** @var mixed[] */
     protected $_customSchemaOptions = [];
 
     /**
      * Creates a new Column.
      *
-     * @param string $columnName
-     * @param array  $options
+     * @param string  $columnName
+     * @param mixed[] $options
      */
     public function __construct($columnName, Type $type, array $options = [])
     {
@@ -70,7 +70,7 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @param array $options
+     * @param mixed[] $options
      *
      * @return Column
      */
@@ -201,7 +201,7 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @param array $platformOptions
+     * @param mixed[] $platformOptions
      *
      * @return Column
      */
@@ -302,7 +302,7 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @return array
+     * @return mixed[]
      */
     public function getPlatformOptions()
     {
@@ -411,7 +411,7 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @param array $customSchemaOptions
+     * @param mixed[] $customSchemaOptions
      *
      * @return Column
      */
@@ -423,7 +423,7 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @return array
+     * @return mixed[]
      */
     public function getCustomSchemaOptions()
     {
@@ -431,7 +431,7 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @return array
+     * @return mixed[]
      */
     public function toArray()
     {

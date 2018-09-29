@@ -181,7 +181,7 @@ class Statement implements IteratorAggregate, \Doctrine\DBAL\Driver\Statement
      * @param int   $iterateRow
      * @param bool  $fixCase
      *
-     * @return array
+     * @return mixed
      */
     protected function fixRow($row, $iterateRow, $fixCase)
     {

@@ -85,7 +85,7 @@ class MasterSlaveConnection extends Connection
     /**
      * Creates Master Slave Connection.
      *
-     * @param array $params
+     * @param mixed[] $params
      *
      * @throws InvalidArgumentException
      */
@@ -195,8 +195,8 @@ class MasterSlaveConnection extends Connection
     }
 
     /**
-     * @param string $connectionName
-     * @param array  $params
+     * @param string  $connectionName
+     * @param mixed[] $params
      *
      * @return mixed
      */

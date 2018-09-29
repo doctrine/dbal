@@ -66,8 +66,8 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      *
-     * @throws UnexpectedValueException if the version string returned by the database server
-     *                                   does not contain a parsable version number.
+     * @throws UnexpectedValueException If the version string returned by the database server
+     *                                  does not contain a parsable version number.
      */
     public function getServerVersion()
     {

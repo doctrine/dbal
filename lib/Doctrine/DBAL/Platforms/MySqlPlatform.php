@@ -22,7 +22,6 @@ use function implode;
 use function in_array;
 use function is_numeric;
 use function is_string;
-use function join;
 use function sprintf;
 use function str_replace;
 use function strtoupper;
@@ -107,9 +106,7 @@ class MySqlPlatform extends AbstractPlatform
      */
     public function getConcatExpression()
     {
-        $args = func_get_args();
-
-        return 'CONCAT(' . join(', ', (array) $args) . ')';
+        return sprintf('CONCAT(%s)', implode(', ', func_get_args()));
     }
 
     /**
@@ -194,11 +191,11 @@ class MySqlPlatform extends AbstractPlatform
                'FROM information_schema.key_column_usage k /*!50116 ' .
                'INNER JOIN information_schema.referential_constraints c ON ' .
                '  c.constraint_name = k.constraint_name AND ' .
-               "  c.table_name = $table */ WHERE k.table_name = $table";
+               '  c.table_name = ' . $table . ' */ WHERE k.table_name = ' . $table;
 
         $databaseNameSql = $database ?? 'DATABASE()';
 
-        $sql .= " AND k.table_schema = $databaseNameSql /*!50116 AND c.constraint_schema = $databaseNameSql */";
+        $sql .= ' AND k.table_schema = ' . $databaseNameSql . ' /*!50116 AND c.constraint_schema = ' . $databaseNameSql . ' */';
         $sql .= ' AND k.`REFERENCED_COLUMN_NAME` is not NULL';
 
         return $sql;
@@ -244,9 +241,7 @@ class MySqlPlatform extends AbstractPlatform
      *     MEDIUMTEXT : 2 ^ 24 - 1 = 16777215
      *     LONGTEXT   : 2 ^ 32 - 1 = 4294967295
      *
-     * @param array $field
-     *
-     * @return string
+     * {@inheritDoc}
      */
     public function getClobTypeDeclarationSQL(array $field)
     {
@@ -470,7 +465,7 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * Build SQL for table options
      *
-     * @param array $options
+     * @param mixed[] $options
      *
      * @return string
      */
@@ -526,7 +521,7 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * Build SQL for partition options.
      *
-     * @param array $options
+     * @param mixed[] $options
      *
      * @return string
      */
@@ -724,7 +719,7 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * @param TableDiff $diff The table diff to gather the SQL for.
      *
-     * @return array
+     * @return string[]
      */
     private function getPreAlterTableAlterIndexForeignKeySQL(TableDiff $diff)
     {
@@ -764,7 +759,7 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * @param TableDiff $diff The table diff to gather the SQL for.
      *
-     * @return array
+     * @return string[]
      */
     protected function getPreAlterTableRenameIndexForeignKeySQL(TableDiff $diff)
     {
@@ -790,7 +785,7 @@ class MySqlPlatform extends AbstractPlatform
      *
      * @param TableDiff $diff The table diff to evaluate.
      *
-     * @return array
+     * @return ForeignKeyConstraint[]
      */
     private function getRemainingForeignKeyConstraintsRequiringRenamedIndexes(TableDiff $diff)
     {
@@ -832,7 +827,7 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * @param TableDiff $diff The table diff to gather the SQL for.
      *
-     * @return array
+     * @return string[]
      */
     protected function getPostAlterTableRenameIndexForeignKeySQL(TableDiff $diff)
     {
@@ -912,7 +907,7 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * Get unsigned declaration for a column.
      *
-     * @param array $columnDef
+     * @param mixed[] $columnDef
      *
      * @return string
      */
@@ -1097,9 +1092,7 @@ class MySqlPlatform extends AbstractPlatform
      *     MEDIUMBLOB : 2 ^ 24 - 1 = 16777215
      *     LONGBLOB   : 2 ^ 32 - 1 = 4294967295
      *
-     * @param array $field
-     *
-     * @return string
+     * {@inheritDoc}
      */
     public function getBlobTypeDeclarationSQL(array $field)
     {

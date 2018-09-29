@@ -27,14 +27,14 @@ class Statement implements IteratorAggregate, DriverStatement
     /**
      * The bound parameters.
      *
-     * @var array
+     * @var mixed[]
      */
     protected $params = [];
 
     /**
      * The parameter types.
      *
-     * @var array
+     * @var int[]|string[]
      */
     protected $types = [];
 
@@ -132,7 +132,7 @@ class Statement implements IteratorAggregate, DriverStatement
     /**
      * Executes the statement with the currently bound parameters.
      *
-     * @param array|null $params
+     * @param mixed[]|null $params
      *
      * @return bool TRUE on success, FALSE on failure.
      *
@@ -203,9 +203,7 @@ class Statement implements IteratorAggregate, DriverStatement
     }
 
     /**
-     * Fetches extended error information associated with the last operation on the statement.
-     *
-     * @return array
+     * {@inheritDoc}
      */
     public function errorInfo()
     {
@@ -257,11 +255,7 @@ class Statement implements IteratorAggregate, DriverStatement
     }
 
     /**
-     * Returns a single column from the next row of a result set.
-     *
-     * @param int $columnIndex
-     *
-     * @return mixed A single column from the next row of a result set or FALSE if there are no more rows.
+     * {@inheritDoc}
      */
     public function fetchColumn($columnIndex = 0)
     {

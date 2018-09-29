@@ -14,10 +14,11 @@ use function array_map;
 use function array_shift;
 use function assert;
 use function explode;
+use function implode;
 use function in_array;
-use function join;
 use function preg_match;
 use function preg_replace;
+use function sprintf;
 use function str_replace;
 use function stripos;
 use function strlen;
@@ -30,13 +31,13 @@ use function trim;
  */
 class PostgreSqlSchemaManager extends AbstractSchemaManager
 {
-    /** @var array */
+    /** @var string[] */
     private $existingSchemaPaths;
 
     /**
      * Gets all the existing schema names.
      *
-     * @return array
+     * @return string[]
      */
     public function getSchemaNames()
     {
@@ -50,7 +51,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
      *
      * This is a PostgreSQL only function.
      *
-     * @return array
+     * @return string[]
      */
     public function getSchemaSearchPaths()
     {
@@ -69,7 +70,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
      *
      * This is a PostgreSQL only function.
      *
-     * @return array
+     * @return string[]
      */
     public function getExistingSchemaSearchPaths()
     {
@@ -213,9 +214,11 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         $buffer = [];
         foreach ($tableIndexes as $row) {
             $colNumbers    = array_map('intval', explode(' ', $row['indkey']));
-            $colNumbersSql = 'IN (' . join(' ,', $colNumbers) . ' )';
-            $columnNameSql = "SELECT attnum, attname FROM pg_attribute
-                WHERE attrelid={$row['indrelid']} AND attnum $colNumbersSql ORDER BY attnum ASC;";
+            $columnNameSql = sprintf(
+                'SELECT attnum, attname FROM pg_attribute WHERE attrelid=%d AND attnum IN (%s) ORDER BY attnum ASC',
+                $row['indrelid'],
+                implode(' ,', $colNumbers)
+            );
 
             $stmt         = $this->_conn->executeQuery($columnNameSql);
             $indexColumns = $stmt->fetchAll();

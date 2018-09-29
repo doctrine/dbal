@@ -19,7 +19,7 @@ class SchemaColumnDefinitionEventArgs extends SchemaEventArgs
     /**
      * Raw column data as fetched from the database.
      *
-     * @var array
+     * @var mixed[]
      */
     private $_tableColumn;
 
@@ -33,9 +33,9 @@ class SchemaColumnDefinitionEventArgs extends SchemaEventArgs
     private $_connection;
 
     /**
-     * @param array  $tableColumn
-     * @param string $table
-     * @param string $database
+     * @param mixed[] $tableColumn
+     * @param string  $table
+     * @param string  $database
      */
     public function __construct(array $tableColumn, $table, $database, Connection $connection)
     {
@@ -67,7 +67,7 @@ class SchemaColumnDefinitionEventArgs extends SchemaEventArgs
     }
 
     /**
-     * @return array
+     * @return mixed[]
      */
     public function getTableColumn()
     {

@@ -19,11 +19,12 @@ use function feof;
 use function fread;
 use function get_resource_type;
 use function is_resource;
+use function sprintf;
 use function str_repeat;
 
 class MysqliStatement implements IteratorAggregate, Statement
 {
-    /** @var array */
+    /** @var string[] */
     protected static $_paramTypeMap = [
         ParameterType::STRING       => 's',
         ParameterType::BINARY       => 's',
@@ -39,13 +40,13 @@ class MysqliStatement implements IteratorAggregate, Statement
     /** @var mysqli_stmt */
     protected $_stmt;
 
-    /** @var bool|array|null */
+    /** @var string[]|bool|null */
     protected $_columnNames;
 
-    /** @var array|null */
+    /** @var mixed[]|null */
     protected $_rowBindedValues;
 
-    /** @var array */
+    /** @var mixed[] */
     protected $_bindedValues;
 
     /** @var string */
@@ -54,7 +55,7 @@ class MysqliStatement implements IteratorAggregate, Statement
     /**
      * Contains ref values for bindValue().
      *
-     * @var array
+     * @var mixed[]
      */
     protected $_values = [];
 
@@ -99,7 +100,7 @@ class MysqliStatement implements IteratorAggregate, Statement
             $type = 's';
         } else {
             if (! isset(self::$_paramTypeMap[$type])) {
-                throw new MysqliException("Unknown type: '{$type}'");
+                throw new MysqliException(sprintf("Unknown type: '%s'", $type));
             }
 
             $type = self::$_paramTypeMap[$type];
@@ -120,7 +121,7 @@ class MysqliStatement implements IteratorAggregate, Statement
             $type = 's';
         } else {
             if (! isset(self::$_paramTypeMap[$type])) {
-                throw new MysqliException("Unknown type: '{$type}'");
+                throw new MysqliException(sprintf("Unknown type: '%s'", $type));
             }
 
             $type = self::$_paramTypeMap[$type];
@@ -265,7 +266,7 @@ class MysqliStatement implements IteratorAggregate, Statement
     /**
      * Binds a array of values to bound parameters.
      *
-     * @param array $values
+     * @param mixed[] $values
      *
      * @return bool
      */
@@ -350,7 +351,7 @@ class MysqliStatement implements IteratorAggregate, Statement
                 return $ret;
 
             default:
-                throw new MysqliException("Unknown fetch type '{$fetchMode}'");
+                throw new MysqliException(sprintf("Unknown fetch type '%s'", $fetchMode));
         }
     }
 

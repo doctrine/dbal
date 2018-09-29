@@ -52,7 +52,7 @@ class Driver extends AbstractPostgreSQLDriver
     /**
      * Constructs the Postgres PDO DSN.
      *
-     * @param array $params
+     * @param mixed[] $params
      *
      * @return string The DSN.
      */
@@ -76,7 +76,7 @@ class Driver extends AbstractPostgreSQLDriver
             // Used for temporary connections to allow operations like dropping the database currently connected to.
             // Connecting without an explicit database does not work, therefore "postgres" database is used
             // as it is mostly present in every server setup.
-            $dsn .= 'dbname=postgres' . ';';
+            $dsn .= 'dbname=postgres;';
         }
 
         if (isset($params['sslmode'])) {

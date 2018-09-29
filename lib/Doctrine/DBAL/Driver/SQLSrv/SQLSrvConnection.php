@@ -33,8 +33,8 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
     protected $lastInsertId;
 
     /**
-     * @param string $serverName
-     * @param array  $connectionOptions
+     * @param string  $serverName
+     * @param mixed[] $connectionOptions
      *
      * @throws SQLSrvException
      */

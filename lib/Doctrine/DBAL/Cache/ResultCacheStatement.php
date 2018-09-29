@@ -51,7 +51,7 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
      */
     private $emptied = false;
 
-    /** @var array */
+    /** @var mixed[] */
     private $data;
 
     /** @var int */
@@ -78,7 +78,7 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
     {
         $this->statement->closeCursor();
         if (! $this->emptied || $this->data === null) {
-            return;
+            return true;
         }
 
         $data = $this->resultCache->fetch($this->cacheKey);
@@ -89,6 +89,8 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
 
         $this->resultCache->save($this->cacheKey, $data, $this->lifetime);
         unset($this->data);
+
+        return true;
     }
 
     /**

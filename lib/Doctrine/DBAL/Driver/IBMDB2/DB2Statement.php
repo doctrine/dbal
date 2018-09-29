@@ -42,7 +42,7 @@ class DB2Statement implements IteratorAggregate, Statement
     /** @var resource */
     private $_stmt;
 
-    /** @var array */
+    /** @var mixed[] */
     private $_bindParam = [];
 
     /** @var string Name of the default class to instantiate when fetching class instances. */
@@ -64,7 +64,7 @@ class DB2Statement implements IteratorAggregate, Statement
     /**
      * DB2_BINARY, DB2_CHAR, DB2_DOUBLE, or DB2_LONG
      *
-     * @var array
+     * @var int[]
      */
     static private $_typeMap = [
         ParameterType::INTEGER => DB2_LONG,
@@ -313,7 +313,7 @@ class DB2Statement implements IteratorAggregate, Statement
      *
      * @param stdClass      $sourceObject     Object to cast from.
      * @param string|object $destinationClass Name of the class or class instance to cast to.
-     * @param array         $ctorArgs         Arguments to use for constructing the destination class instance.
+     * @param mixed[]       $ctorArgs         Arguments to use for constructing the destination class instance.
      *
      * @return object
      *

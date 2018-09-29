@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Types\Type;
+use function sprintf;
 
 /**
  * Provides the behavior, features and SQL dialect of the PostgreSQL 9.2 database platform.
@@ -62,8 +63,9 @@ class PostgreSQL92Platform extends PostgreSQL91Platform
      */
     public function getCloseActiveDatabaseConnectionsSQL($database)
     {
-        $database = $this->quoteStringLiteral($database);
-
-        return "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = $database";
+        return sprintf(
+            'SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = %s',
+            $this->quoteStringLiteral($database)
+        );
     }
 }

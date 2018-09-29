@@ -28,7 +28,7 @@ class Driver extends AbstractDB2Driver
     /**
      * Constructs the IBM PDO DSN.
      *
-     * @param array $params
+     * @param mixed[] $params
      *
      * @return string The DSN.
      */

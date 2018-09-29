@@ -59,7 +59,7 @@ class OCI8Statement implements IteratorAggregate, Statement
     /** @var string */
     protected static $_PARAM = ':param';
 
-    /** @var array */
+    /** @var int[] */
     protected static $fetchModeMap = [
         FetchMode::MIXED       => OCI_BOTH,
         FetchMode::ASSOCIATIVE => OCI_ASSOC,
@@ -70,7 +70,7 @@ class OCI8Statement implements IteratorAggregate, Statement
     /** @var int */
     protected $_defaultFetchMode = FetchMode::MIXED;
 
-    /** @var array */
+    /** @var string[] */
     protected $_paramMap = [];
 
     /**
@@ -78,7 +78,7 @@ class OCI8Statement implements IteratorAggregate, Statement
      *
      * This is a new requirement for PHP7's oci8 extension that prevents bound values from being garbage collected.
      *
-     * @var array
+     * @var mixed[]
      */
     private $boundValues = [];
 
@@ -118,7 +118,7 @@ class OCI8Statement implements IteratorAggregate, Statement
      *
      * @param string $statement The SQL statement to convert.
      *
-     * @return array [0] => the statement value (string), [1] => the paramMap value (array).
+     * @return mixed[] [0] => the statement value (string), [1] => the paramMap value (array).
      *
      * @throws OCI8Exception
      *

@@ -19,7 +19,6 @@ use function is_array;
 use function is_bool;
 use function is_numeric;
 use function is_string;
-use function join;
 use function sprintf;
 use function trim;
 
@@ -51,7 +50,7 @@ class DrizzlePlatform extends AbstractPlatform
     {
         $args = func_get_args();
 
-        return 'CONCAT(' . join(', ', (array) $args) . ')';
+        return 'CONCAT(' . implode(', ', (array) $args) . ')';
     }
 
     /**
@@ -237,7 +236,7 @@ class DrizzlePlatform extends AbstractPlatform
     /**
      * Build SQL for table options
      *
-     * @param array $options
+     * @param mixed[] $options
      *
      * @return string
      */
@@ -286,7 +285,7 @@ class DrizzlePlatform extends AbstractPlatform
     /**
      * Build SQL for partition options.
      *
-     * @param array $options
+     * @param mixed[] $options
      *
      * @return string
      */

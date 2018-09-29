@@ -225,10 +225,20 @@ class SQLServerPlatform extends AbstractPlatform
             $table = $table->getQuotedName($this);
         }
 
-        return "IF EXISTS (SELECT * FROM sysobjects WHERE name = '$index')
-                    ALTER TABLE " . $table . ' DROP CONSTRAINT ' . $index . '
-                ELSE
-                    DROP INDEX ' . $index . ' ON ' . $table;
+        return sprintf(
+            <<<SQL
+IF EXISTS (SELECT * FROM sysobjects WHERE name = '%s')
+    ALTER TABLE %s DROP CONSTRAINT %s
+ELSE
+    DROP INDEX %s ON %s
+SQL
+            ,
+            $index,
+            $table,
+            $index,
+            $index,
+            $table
+        );
     }
 
     /**
@@ -356,8 +366,8 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * Returns the SQL snippet for declaring a default constraint.
      *
-     * @param string $table  Name of the table to return the default constraint declaration for.
-     * @param array  $column Column definition.
+     * @param string  $table  Name of the table to return the default constraint declaration for.
+     * @param mixed[] $column Column definition.
      *
      * @return string
      *
@@ -513,8 +523,6 @@ class SQLServerPlatform extends AbstractPlatform
                         $comment
                     );
                 }
-            } else {
-                // todo: Original comment cannot be determined. What to do? Add, update, drop or skip?
             }
 
             // Do not add query part if only comment has changed.
@@ -995,7 +1003,7 @@ class SQLServerPlatform extends AbstractPlatform
             $table  = $this->quoteStringLiteral($table);
         }
 
-        return "({$tableColumn} = {$table} AND {$schemaColumn} = {$schema})";
+        return sprintf('(%s = %s AND %s = %s)', $tableColumn, $table, $schemaColumn, $schema);
     }
 
     /**
@@ -1067,7 +1075,7 @@ class SQLServerPlatform extends AbstractPlatform
           , reverse(stuff(reverse(@c), 1, patindex(@pat, reverse(@c)) - 1, null)) as trim_trailing
           , reverse(stuff(reverse(stuff(@c, 1, patindex(@pat, @c) - 1, null)), 1, patindex(@pat, reverse(stuff(@c, 1, patindex(@pat, @c) - 1, null))) - 1, null)) as trim_both;
          */
-        $pattern = "'%[^' + $char + ']%'";
+        $pattern = "'%[^' + " . $char . " + ']%'";
 
         if ($pos === TrimMode::LEADING) {
             return 'stuff(' . $str . ', 1, patindex(' . $pattern . ', ' . $str . ') - 1, null)';

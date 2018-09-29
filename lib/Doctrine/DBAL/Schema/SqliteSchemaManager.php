@@ -117,7 +117,12 @@ class SqliteSchemaManager extends AbstractSchemaManager
         $tableForeignKeys = $this->_conn->fetchAll($sql);
 
         if (! empty($tableForeignKeys)) {
-            $createSql = $this->_conn->fetchAll("SELECT sql FROM (SELECT * FROM sqlite_master UNION ALL SELECT * FROM sqlite_temp_master) WHERE type = 'table' AND name = '$table'");
+            $createSql = $this->_conn->fetchAll(
+                sprintf(
+                    "SELECT sql FROM (SELECT * FROM sqlite_master UNION ALL SELECT * FROM sqlite_temp_master) WHERE type = 'table' AND name = '%s'",
+                    $table
+                )
+            );
             $createSql = $createSql[0]['sql'] ?? '';
 
             if (preg_match_all(
@@ -169,7 +174,9 @@ class SqliteSchemaManager extends AbstractSchemaManager
         $indexBuffer = [];
 
         // fetch primary
-        $stmt       = $this->_conn->executeQuery("PRAGMA TABLE_INFO ('$tableName')");
+        $stmt       = $this->_conn->executeQuery(
+            sprintf("PRAGMA TABLE_INFO ('%s')", $tableName)
+        );
         $indexArray = $stmt->fetchAll(FetchMode::ASSOCIATIVE);
 
         usort($indexArray, static function ($a, $b) {
@@ -205,7 +212,9 @@ class SqliteSchemaManager extends AbstractSchemaManager
             $idx['primary']    = false;
             $idx['non_unique'] = $tableIndex['unique']?false:true;
 
-            $stmt       = $this->_conn->executeQuery("PRAGMA INDEX_INFO ('{$keyName}')");
+            $stmt       = $this->_conn->executeQuery(
+                sprintf("PRAGMA INDEX_INFO ('%s')", $keyName)
+            );
             $indexArray = $stmt->fetchAll(FetchMode::ASSOCIATIVE);
 
             foreach ($indexArray as $indexColumnRow) {
@@ -263,7 +272,12 @@ class SqliteSchemaManager extends AbstractSchemaManager
         }
 
         // inspect column collation and comments
-        $createSql = $this->_conn->fetchAll("SELECT sql FROM (SELECT * FROM sqlite_master UNION ALL SELECT * FROM sqlite_temp_master) WHERE type = 'table' AND name = '$table'");
+        $createSql = $this->_conn->fetchAll(
+            sprintf(
+                "SELECT sql FROM (SELECT * FROM sqlite_master UNION ALL SELECT * FROM sqlite_temp_master) WHERE type = 'table' AND name = '%s'",
+                $table
+            )
+        );
         $createSql = $createSql[0]['sql'] ?? '';
 
         foreach ($list as $columnName => $column) {

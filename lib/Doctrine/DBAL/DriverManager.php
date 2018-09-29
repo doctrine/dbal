@@ -28,7 +28,7 @@ final class DriverManager
      * To add your own driver use the 'driverClass' parameter to
      * {@link DriverManager::getConnection()}.
      *
-     * @var array
+     * @var string[]
      */
     private static $_driverMap = [
         'pdo_mysql'          => 'Doctrine\DBAL\Driver\PDOMySql\Driver',
@@ -46,6 +46,8 @@ final class DriverManager
 
     /**
      * List of URL schemes from a database URL and their mappings to driver.
+     *
+     * @var string[]
      */
     private static $driverSchemeAliases = [
         'db2'        => 'ibm_db2',
@@ -113,7 +115,7 @@ final class DriverManager
      * <b>driverClass</b>:
      * The driver class to use.
      *
-     * @param array              $params       The parameters.
+     * @param mixed[]            $params       The parameters.
      * @param Configuration|null $config       The configuration to use.
      * @param EventManager|null  $eventManager The event manager to use.
      *
@@ -185,7 +187,7 @@ final class DriverManager
     /**
      * Returns the list of supported drivers.
      *
-     * @return array
+     * @return string[]
      */
     public static function getAvailableDrivers() : array
     {
@@ -195,7 +197,7 @@ final class DriverManager
     /**
      * Checks the list of parameters.
      *
-     * @param array $params The list of parameters.
+     * @param mixed[] $params The list of parameters.
      *
      * @throws DBALException
      */
@@ -235,10 +237,10 @@ final class DriverManager
      * Extracts parts from a database URL, if present, and returns an
      * updated list of parameters.
      *
-     * @param array $params The list of parameters.
+     * @param mixed[] $params The list of parameters.
      *
-     * @return array A modified list of parameters with info from a database
-     *               URL extracted into indidivual parameter parts.
+     * @return mixed[] A modified list of parameters with info from a database
+     *                 URL extracted into indidivual parameter parts.
      *
      * @throws DBALException
      */
@@ -291,10 +293,10 @@ final class DriverManager
      *
      * @see parseDatabaseUrlScheme
      *
-     * @param array $url    The URL parts to evaluate.
-     * @param array $params The connection parameters to resolve.
+     * @param mixed[] $url    The URL parts to evaluate.
+     * @param mixed[] $params The connection parameters to resolve.
      *
-     * @return array The resolved connection parameters.
+     * @return mixed[] The resolved connection parameters.
      */
     private static function parseDatabaseUrlPath(array $url, array $params) : array
     {
@@ -320,10 +322,10 @@ final class DriverManager
     /**
      * Parses the query part of the given connection URL and resolves the given connection parameters.
      *
-     * @param array $url    The connection URL parts to evaluate.
-     * @param array $params The connection parameters to resolve.
+     * @param mixed[] $url    The connection URL parts to evaluate.
+     * @param mixed[] $params The connection parameters to resolve.
      *
-     * @return array The resolved connection parameters.
+     * @return mixed[] The resolved connection parameters.
      */
     private static function parseDatabaseUrlQuery(array $url, array $params) : array
     {
@@ -345,10 +347,10 @@ final class DriverManager
      *
      * @see normalizeDatabaseUrlPath
      *
-     * @param array $url    The regular connection URL parts to evaluate.
-     * @param array $params The connection parameters to resolve.
+     * @param mixed[] $url    The regular connection URL parts to evaluate.
+     * @param mixed[] $params The connection parameters to resolve.
      *
-     * @return array The resolved connection parameters.
+     * @return mixed[] The resolved connection parameters.
      */
     private static function parseRegularDatabaseUrlPath(array $url, array $params) : array
     {
@@ -364,10 +366,10 @@ final class DriverManager
      *
      * @see normalizeDatabaseUrlPath
      *
-     * @param array $url    The SQLite connection URL parts to evaluate.
-     * @param array $params The connection parameters to resolve.
+     * @param mixed[] $url    The SQLite connection URL parts to evaluate.
+     * @param mixed[] $params The connection parameters to resolve.
      *
-     * @return array The resolved connection parameters.
+     * @return mixed[] The resolved connection parameters.
      */
     private static function parseSqliteDatabaseUrlPath(array $url, array $params) : array
     {
@@ -385,12 +387,12 @@ final class DriverManager
     /**
      * Parses the scheme part from given connection URL and resolves the given connection parameters.
      *
-     * @param array $url    The connection URL parts to evaluate.
-     * @param array $params The connection parameters to resolve.
+     * @param mixed[] $url    The connection URL parts to evaluate.
+     * @param mixed[] $params The connection parameters to resolve.
      *
-     * @return array The resolved connection parameters.
+     * @return mixed[] The resolved connection parameters.
      *
-     * @throws DBALException if parsing failed or resolution is not possible.
+     * @throws DBALException If parsing failed or resolution is not possible.
      */
     private static function parseDatabaseUrlScheme(array $url, array $params) : array
     {

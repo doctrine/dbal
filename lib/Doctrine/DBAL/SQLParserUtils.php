@@ -43,7 +43,7 @@ class SQLParserUtils
      * @param string $statement
      * @param bool   $isPositional
      *
-     * @return array
+     * @return int[]
      */
     public static function getPlaceholderPositions($statement, $isPositional = true)
     {
@@ -56,7 +56,7 @@ class SQLParserUtils
         $paramMap = [];
 
         foreach (self::getUnquotedStatementFragments($statement) as $fragment) {
-            preg_match_all("/$token/", $fragment[0], $matches, PREG_OFFSET_CAPTURE);
+            preg_match_all('/' . $token . '/', $fragment[0], $matches, PREG_OFFSET_CAPTURE);
             foreach ($matches[0] as $placeholder) {
                 if ($isPositional) {
                     $paramMap[] = $placeholder[1] + $fragment[1];
@@ -73,11 +73,11 @@ class SQLParserUtils
     /**
      * For a positional query this method can rewrite the sql statement with regard to array parameters.
      *
-     * @param string $query  The SQL query to execute.
-     * @param array  $params The parameters to bind to the query.
-     * @param array  $types  The types the previous parameters are in.
+     * @param string         $query  The SQL query to execute.
+     * @param mixed[]        $params The parameters to bind to the query.
+     * @param int[]|string[] $types  The types the previous parameters are in.
      *
-     * @return array
+     * @return mixed[]
      *
      * @throws SQLParserUtilsException
      */
@@ -197,7 +197,7 @@ class SQLParserUtils
      *
      * @param string $statement
      *
-     * @return array
+     * @return mixed[][]
      */
     private static function getUnquotedStatementFragments($statement)
     {
@@ -205,14 +205,14 @@ class SQLParserUtils
                    self::ESCAPED_DOUBLE_QUOTED_TEXT . '|' .
                    self::ESCAPED_BACKTICK_QUOTED_TEXT . '|' .
                    self::ESCAPED_BRACKET_QUOTED_TEXT;
-        preg_match_all("/([^'\"`\[]+)(?:$literal)?/s", $statement, $fragments, PREG_OFFSET_CAPTURE);
+        preg_match_all('/([^\'"`\[]+)(?:' . $literal . ')?/s', $statement, $fragments, PREG_OFFSET_CAPTURE);
 
         return $fragments[1];
     }
 
     /**
      * @param string $paramName     The name of the parameter (without a colon in front)
-     * @param array  $paramsOrTypes A hash of parameters or types
+     * @param mixed  $paramsOrTypes A hash of parameters or types
      * @param bool   $isParam
      * @param mixed  $defaultValue  An optional default value. If omitted, an exception is thrown
      *

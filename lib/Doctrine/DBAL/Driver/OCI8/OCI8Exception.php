@@ -7,7 +7,7 @@ use Doctrine\DBAL\Driver\AbstractDriverException;
 class OCI8Exception extends AbstractDriverException
 {
     /**
-     * @param array $error
+     * @param mixed[] $error
      *
      * @return \Doctrine\DBAL\Driver\OCI8\OCI8Exception
      */

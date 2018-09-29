@@ -423,9 +423,11 @@ class SqlitePlatform extends AbstractPlatform
     public function getListTableConstraintsSQL($table)
     {
         $table = str_replace('.', '__', $table);
-        $table = $this->quoteStringLiteral($table);
 
-        return "SELECT sql FROM sqlite_master WHERE type='index' AND tbl_name = $table AND sql NOT NULL ORDER BY name";
+        return sprintf(
+            "SELECT sql FROM sqlite_master WHERE type='index' AND tbl_name = %s AND sql NOT NULL ORDER BY name",
+            $this->quoteStringLiteral($table)
+        );
     }
 
     /**
@@ -434,9 +436,8 @@ class SqlitePlatform extends AbstractPlatform
     public function getListTableColumnsSQL($table, $currentDatabase = null)
     {
         $table = str_replace('.', '__', $table);
-        $table = $this->quoteStringLiteral($table);
 
-        return "PRAGMA table_info($table)";
+        return sprintf('PRAGMA table_info(%s)', $this->quoteStringLiteral($table));
     }
 
     /**
@@ -445,9 +446,8 @@ class SqlitePlatform extends AbstractPlatform
     public function getListTableIndexesSQL($table, $currentDatabase = null)
     {
         $table = str_replace('.', '__', $table);
-        $table = $this->quoteStringLiteral($table);
 
-        return "PRAGMA index_list($table)";
+        return sprintf('PRAGMA index_list(%s)', $this->quoteStringLiteral($table));
     }
 
     /**
@@ -797,9 +797,8 @@ class SqlitePlatform extends AbstractPlatform
     public function getListTableForeignKeysSQL($table, $database = null)
     {
         $table = str_replace('.', '__', $table);
-        $table = $this->quoteStringLiteral($table);
 
-        return "PRAGMA foreign_key_list($table)";
+        return sprintf('PRAGMA foreign_key_list(%s)', $this->quoteStringLiteral($table));
     }
 
     /**
@@ -998,7 +997,7 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
-     * @return array
+     * @return string[]
      */
     private function getColumnNamesInAlteredTable(TableDiff $diff)
     {
@@ -1097,7 +1096,7 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
-     * @return array
+     * @return ForeignKeyConstraint[]
      */
     private function getForeignKeysInAlteredTable(TableDiff $diff)
     {
@@ -1149,7 +1148,7 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
-     * @return array
+     * @return Index[]
      */
     private function getPrimaryIndexInAlteredTable(TableDiff $diff)
     {

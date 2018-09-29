@@ -12,9 +12,9 @@ interface SQLLogger
     /**
      * Logs a SQL statement somewhere.
      *
-     * @param string     $sql    The SQL to be executed.
-     * @param array|null $params The SQL parameters.
-     * @param array|null $types  The SQL parameter types.
+     * @param string              $sql    The SQL to be executed.
+     * @param mixed[]|null        $params The SQL parameters.
+     * @param int[]|string[]|null $types  The SQL parameter types.
      *
      * @return void
      */

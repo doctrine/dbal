@@ -40,7 +40,7 @@ class Table extends AbstractAsset
     /** @var ForeignKeyConstraint[] */
     protected $_fkConstraints = [];
 
-    /** @var array */
+    /** @var mixed[] */
     protected $_options = [];
 
     /** @var SchemaConfig|null */
@@ -52,7 +52,7 @@ class Table extends AbstractAsset
      * @param Index[]                $indexes
      * @param ForeignKeyConstraint[] $fkConstraints
      * @param int                    $idGeneratorType
-     * @param array                  $options
+     * @param mixed[]                $options
      *
      * @throws DBALException
      */
@@ -102,7 +102,7 @@ class Table extends AbstractAsset
     /**
      * Sets the Primary Key.
      *
-     * @param array       $columns
+     * @param mixed[][]   $columns
      * @param string|bool $indexName
      *
      * @return self
@@ -120,10 +120,10 @@ class Table extends AbstractAsset
     }
 
     /**
-     * @param array       $columnNames
+     * @param mixed[][]   $columnNames
      * @param string|null $indexName
-     * @param array       $flags
-     * @param array       $options
+     * @param string[]    $flags
+     * @param mixed[]     $options
      *
      * @return self
      */
@@ -170,9 +170,9 @@ class Table extends AbstractAsset
     }
 
     /**
-     * @param array       $columnNames
+     * @param mixed[][]   $columnNames
      * @param string|null $indexName
-     * @param array       $options
+     * @param mixed[]     $options
      *
      * @return self
      */
@@ -198,7 +198,7 @@ class Table extends AbstractAsset
      *
      * @return self This table instance.
      *
-     * @throws SchemaException if no index exists for the given current name
+     * @throws SchemaException If no index exists for the given current name
      *                         or if an index with the given new name already exists on this table.
      */
     public function renameIndex($oldIndexName, $newIndexName = null)
@@ -238,7 +238,7 @@ class Table extends AbstractAsset
     /**
      * Checks if an index begins in the order of the given columns.
      *
-     * @param array $columnsNames
+     * @param mixed[][] $columnsNames
      *
      * @return bool
      */
@@ -255,12 +255,12 @@ class Table extends AbstractAsset
     }
 
     /**
-     * @param array  $columnNames
-     * @param string $indexName
-     * @param bool   $isUnique
-     * @param bool   $isPrimary
-     * @param array  $flags
-     * @param array  $options
+     * @param mixed[][] $columnNames
+     * @param string    $indexName
+     * @param bool      $isUnique
+     * @param bool      $isPrimary
+     * @param string[]  $flags
+     * @param mixed[]   $options
      *
      * @return Index
      *
@@ -286,9 +286,9 @@ class Table extends AbstractAsset
     }
 
     /**
-     * @param string $columnName
-     * @param string $typeName
-     * @param array  $options
+     * @param string  $columnName
+     * @param string  $typeName
+     * @param mixed[] $options
      *
      * @return Column
      */
@@ -321,8 +321,8 @@ class Table extends AbstractAsset
     /**
      * Change Column Details.
      *
-     * @param string $columnName
-     * @param array  $options
+     * @param string  $columnName
+     * @param mixed[] $options
      *
      * @return self
      */
@@ -355,9 +355,9 @@ class Table extends AbstractAsset
      * Name is inferred from the local columns.
      *
      * @param Table|string $foreignTable       Table schema instance or table name
-     * @param array        $localColumnNames
-     * @param array        $foreignColumnNames
-     * @param array        $options
+     * @param string[]     $localColumnNames
+     * @param string[]     $foreignColumnNames
+     * @param mixed[]      $options
      * @param string|null  $constraintName
      *
      * @return self
@@ -377,9 +377,9 @@ class Table extends AbstractAsset
      * @deprecated Use {@link addForeignKeyConstraint}
      *
      * @param Table|string $foreignTable       Table schema instance or table name
-     * @param array        $localColumnNames
-     * @param array        $foreignColumnNames
-     * @param array        $options
+     * @param string[]     $localColumnNames
+     * @param string[]     $foreignColumnNames
+     * @param mixed[]      $options
      *
      * @return self
      */
@@ -395,9 +395,9 @@ class Table extends AbstractAsset
      *
      * @param string       $name
      * @param Table|string $foreignTable       Table schema instance or table name
-     * @param array        $localColumnNames
-     * @param array        $foreignColumnNames
-     * @param array        $options
+     * @param string[]     $localColumnNames
+     * @param string[]     $foreignColumnNames
+     * @param mixed[]      $options
      *
      * @return self
      *
@@ -626,7 +626,7 @@ class Table extends AbstractAsset
     /**
      * Returns only columns that have specified names
      *
-     * @param array $columnNames
+     * @param string[] $columnNames
      *
      * @return Column[]
      */
@@ -687,7 +687,7 @@ class Table extends AbstractAsset
     /**
      * Returns the primary key columns.
      *
-     * @return array
+     * @return string[]
      *
      * @throws DBALException
      */
@@ -781,7 +781,7 @@ class Table extends AbstractAsset
     }
 
     /**
-     * @return array
+     * @return mixed[]
      */
     public function getOptions()
     {

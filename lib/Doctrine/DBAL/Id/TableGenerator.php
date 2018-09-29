@@ -56,7 +56,7 @@ class TableGenerator
     /** @var string */
     private $generatorTableName;
 
-    /** @var array */
+    /** @var mixed[][] */
     private $sequences = [];
 
     /**

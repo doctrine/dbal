@@ -42,7 +42,7 @@ class Schema extends AbstractAsset
     /**
      * The namespaces in this schema.
      *
-     * @var array
+     * @var string[]
      */
     private $namespaces = [];
 
@@ -58,7 +58,7 @@ class Schema extends AbstractAsset
     /**
      * @param Table[]    $tables
      * @param Sequence[] $sequences
-     * @param array      $namespaces
+     * @param string[]   $namespaces
      */
     public function __construct(
         array $tables = [],
@@ -139,7 +139,7 @@ class Schema extends AbstractAsset
     /**
      * Returns the namespaces of this schema.
      *
-     * @return array A list of namespace names.
+     * @return string[] A list of namespace names.
      */
     public function getNamespaces()
     {
@@ -236,7 +236,7 @@ class Schema extends AbstractAsset
     /**
      * Gets all table names, prefixed with a schema name, even the default one if present.
      *
-     * @return array
+     * @return string[]
      */
     public function getTableNames()
     {
@@ -389,7 +389,7 @@ class Schema extends AbstractAsset
     /**
      * Returns an array of necessary SQL queries to create the schema on the given platform.
      *
-     * @return array
+     * @return string[]
      */
     public function toSql(AbstractPlatform $platform)
     {
@@ -402,7 +402,7 @@ class Schema extends AbstractAsset
     /**
      * Return an array of necessary SQL queries to drop the schema on the given platform.
      *
-     * @return array
+     * @return string[]
      */
     public function toDropSql(AbstractPlatform $platform)
     {
@@ -413,7 +413,7 @@ class Schema extends AbstractAsset
     }
 
     /**
-     * @return array
+     * @return string[]
      */
     public function getMigrateToSql(Schema $toSchema, AbstractPlatform $platform)
     {
@@ -424,7 +424,7 @@ class Schema extends AbstractAsset
     }
 
     /**
-     * @return array
+     * @return string[]
      */
     public function getMigrateFromSql(Schema $fromSchema, AbstractPlatform $platform)
     {

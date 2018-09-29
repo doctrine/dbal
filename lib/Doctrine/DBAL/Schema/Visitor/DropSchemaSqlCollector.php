@@ -74,7 +74,7 @@ class DropSchemaSqlCollector extends AbstractVisitor
     }
 
     /**
-     * @return array
+     * @return string[]
      */
     public function getQueries()
     {

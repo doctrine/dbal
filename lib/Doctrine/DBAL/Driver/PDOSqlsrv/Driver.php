@@ -29,7 +29,7 @@ class Driver extends AbstractSQLServerDriver
     /**
      * Constructs the Sqlsrv PDO DSN.
      *
-     * @param array    $params
+     * @param mixed[]  $params
      * @param string[] $connectionOptions
      *
      * @return string The DSN.
@@ -54,9 +54,7 @@ class Driver extends AbstractSQLServerDriver
             $connectionOptions['MultipleActiveResultSets'] = $params['MultipleActiveResultSets'] ? 'true' : 'false';
         }
 
-        $dsn .= $this->getConnectionOptionsDsn($connectionOptions);
-
-        return $dsn;
+        return $dsn . $this->getConnectionOptionsDsn($connectionOptions);
     }
 
     /**

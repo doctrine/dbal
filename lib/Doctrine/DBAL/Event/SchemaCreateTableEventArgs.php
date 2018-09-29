@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Event;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Table;
 use function array_merge;
 use function is_array;
@@ -17,21 +18,21 @@ class SchemaCreateTableEventArgs extends SchemaEventArgs
     /** @var Table */
     private $_table;
 
-    /** @var array */
+    /** @var Column[] */
     private $_columns;
 
-    /** @var array */
+    /** @var mixed[] */
     private $_options;
 
     /** @var AbstractPlatform */
     private $_platform;
 
-    /** @var array */
+    /** @var string[] */
     private $_sql = [];
 
     /**
-     * @param array $columns
-     * @param array $options
+     * @param Column[] $columns
+     * @param mixed[]  $options
      */
     public function __construct(Table $table, array $columns, array $options, AbstractPlatform $platform)
     {
@@ -50,7 +51,7 @@ class SchemaCreateTableEventArgs extends SchemaEventArgs
     }
 
     /**
-     * @return array
+     * @return Column[]
      */
     public function getColumns()
     {
@@ -58,7 +59,7 @@ class SchemaCreateTableEventArgs extends SchemaEventArgs
     }
 
     /**
-     * @return array
+     * @return mixed[]
      */
     public function getOptions()
     {
@@ -74,7 +75,7 @@ class SchemaCreateTableEventArgs extends SchemaEventArgs
     }
 
     /**
-     * @param string|array $sql
+     * @param string|string[] $sql
      *
      * @return \Doctrine\DBAL\Event\SchemaCreateTableEventArgs
      */
@@ -90,7 +91,7 @@ class SchemaCreateTableEventArgs extends SchemaEventArgs
     }
 
     /**
-     * @return array
+     * @return string[]
      */
     public function getSql()
     {

@@ -49,17 +49,21 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
      */
     protected $_foreignColumnNames;
 
-    /** @var array Options associated with the foreign key constraint. */
+    /**
+     * Options associated with the foreign key constraint.
+     *
+     * @var mixed[]
+     */
     protected $_options;
 
     /**
      * Initializes the foreign key constraint.
      *
-     * @param array        $localColumnNames   Names of the referencing table columns.
+     * @param string[]     $localColumnNames   Names of the referencing table columns.
      * @param Table|string $foreignTableName   Referenced table.
-     * @param array        $foreignColumnNames Names of the referenced table columns.
+     * @param string[]     $foreignColumnNames Names of the referenced table columns.
      * @param string|null  $name               Name of the foreign key constraint.
-     * @param array        $options            Options associated with the foreign key constraint.
+     * @param mixed[]      $options            Options associated with the foreign key constraint.
      */
     public function __construct(array $localColumnNames, $foreignTableName, array $foreignColumnNames, $name = null, array $options = [])
     {
@@ -119,7 +123,7 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
      * Returns the names of the referencing table columns
      * the foreign key constraint is associated with.
      *
-     * @return array
+     * @return string[]
      */
     public function getLocalColumns()
     {
@@ -136,7 +140,7 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
      *
      * @param AbstractPlatform $platform The platform to use for quotation.
      *
-     * @return array
+     * @return string[]
      */
     public function getQuotedLocalColumns(AbstractPlatform $platform)
     {
@@ -152,7 +156,7 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
     /**
      * Returns unquoted representation of local table column names for comparison with other FK
      *
-     * @return array
+     * @return string[]
      */
     public function getUnquotedLocalColumns()
     {
@@ -162,7 +166,7 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
     /**
      * Returns unquoted representation of foreign table column names for comparison with other FK
      *
-     * @return array
+     * @return string[]
      */
     public function getUnquotedForeignColumns()
     {
@@ -191,7 +195,7 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
      *
      * @param AbstractPlatform $platform The platform to use for quotation.
      *
-     * @return array
+     * @return string[]
      */
     public function getQuotedColumns(AbstractPlatform $platform)
     {
@@ -242,7 +246,7 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
      * Returns the names of the referenced table columns
      * the foreign key constraint is associated with.
      *
-     * @return array
+     * @return string[]
      */
     public function getForeignColumns()
     {
@@ -259,7 +263,7 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
      *
      * @param AbstractPlatform $platform The platform to use for quotation.
      *
-     * @return array
+     * @return string[]
      */
     public function getQuotedForeignColumns(AbstractPlatform $platform)
     {
@@ -300,7 +304,7 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
     /**
      * Returns the options associated with the foreign key constraint.
      *
-     * @return array
+     * @return mixed[]
      */
     public function getOptions()
     {

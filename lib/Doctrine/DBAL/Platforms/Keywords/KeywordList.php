@@ -13,7 +13,7 @@ use function strtoupper;
  */
 abstract class KeywordList
 {
-    /** @var array|null */
+    /** @var string[]|null */
     private $keywords = null;
 
     /**
@@ -43,7 +43,7 @@ abstract class KeywordList
     /**
      * Returns the list of keywords.
      *
-     * @return array
+     * @return string[]
      */
     abstract protected function getKeywords();
 

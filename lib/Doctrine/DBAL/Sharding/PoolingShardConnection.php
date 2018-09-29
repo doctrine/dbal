@@ -60,7 +60,7 @@ class PoolingShardConnection extends Connection
     private $connectionParameters = [];
 
     /**
-     * @param array $params
+     * {@inheritDoc}
      *
      * @throws InvalidArgumentException
      */

@@ -27,6 +27,7 @@ use function is_array;
 use function is_bool;
 use function is_numeric;
 use function is_string;
+use function sprintf;
 use function str_replace;
 use function strpos;
 use function strtolower;
@@ -42,7 +43,7 @@ class PostgreSqlPlatform extends AbstractPlatform
     /** @var bool */
     private $useBooleanTrueFalseStrings = true;
 
-    /** @var array PostgreSQL booleans literals */
+    /** @var string[][] PostgreSQL booleans literals */
     private $booleanLiterals = [
         'true' => [
             't',
@@ -316,17 +317,23 @@ class PostgreSqlPlatform extends AbstractPlatform
         $table = new Identifier($table);
         $table = $this->quoteStringLiteral($table->getName());
 
-        return "SELECT
-                    quote_ident(relname) as relname
-                FROM
-                    pg_class
-                WHERE oid IN (
-                    SELECT indexrelid
-                    FROM pg_index, pg_class
-                    WHERE pg_class.relname = $table
-                        AND pg_class.oid = pg_index.indrelid
-                        AND (indisunique = 't' OR indisprimary = 't')
-                        )";
+        return sprintf(
+            <<<'SQL'
+SELECT
+    quote_ident(relname) as relname
+FROM
+    pg_class
+WHERE oid IN (
+    SELECT indexrelid
+    FROM pg_index, pg_class
+    WHERE pg_class.relname = %s
+        AND pg_class.oid = pg_index.indrelid
+        AND (indisunique = 't' OR indisprimary = 't')
+    )
+SQL
+            ,
+            $table
+        );
     }
 
     /**
@@ -366,7 +373,14 @@ class PostgreSqlPlatform extends AbstractPlatform
 
         $table = new Identifier($table);
         $table = $this->quoteStringLiteral($table->getName());
-        return $whereClause . "$classAlias.relname = " . $table . " AND $namespaceAlias.nspname = $schema";
+
+        return $whereClause . sprintf(
+            '%s.relname = %s AND %s.nspname = %s',
+            $classAlias,
+            $table,
+            $namespaceAlias,
+            $schema
+        );
     }
 
     /**
@@ -425,7 +439,7 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getDisallowDatabaseConnectionsSQL($database)
     {
-        return "UPDATE pg_database SET datallowconn = 'false' WHERE datname = '$database'";
+        return "UPDATE pg_database SET datallowconn = 'false' WHERE datname = '" . $database . "'";
     }
 
     /**
@@ -439,9 +453,8 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getCloseActiveDatabaseConnectionsSQL($database)
     {
-        $database = $this->quoteStringLiteral($database);
-
-        return "SELECT pg_terminate_backend(procpid) FROM pg_stat_activity WHERE datname = $database";
+        return 'SELECT pg_terminate_backend(procpid) FROM pg_stat_activity WHERE datname = '
+            . $this->quoteStringLiteral($database);
     }
 
     /**
@@ -562,7 +575,7 @@ class PostgreSqlPlatform extends AbstractPlatform
                     $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
                 } else {
                     // Drop autoincrement, but do NOT drop the sequence. It might be re-used by other tables or have
-                    $query = 'ALTER ' . $oldColumnName . ' ' . 'DROP DEFAULT';
+                    $query = 'ALTER ' . $oldColumnName . ' DROP DEFAULT';
                     $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
                 }
             }
@@ -676,8 +689,12 @@ class PostgreSqlPlatform extends AbstractPlatform
         $columnName = new Identifier($columnName);
         $comment    = $comment === null ? 'NULL' : $this->quoteStringLiteral($comment);
 
-        return 'COMMENT ON COLUMN ' . $tableName->getQuotedName($this) . '.' . $columnName->getQuotedName($this) .
-            " IS $comment";
+        return sprintf(
+            'COMMENT ON COLUMN %s.%s IS %s',
+            $tableName->getQuotedName($this),
+            $columnName->getQuotedName($this),
+            $comment
+        );
     }
 
     /**
@@ -1201,6 +1218,9 @@ class PostgreSqlPlatform extends AbstractPlatform
         return parent::getDefaultValueDeclarationSQL($field);
     }
 
+    /**
+     * @param mixed[] $field
+     */
     private function isSerialField(array $field) : bool
     {
         return $field['autoincrement'] ?? false === true && isset($field['type'])

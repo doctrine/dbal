@@ -63,21 +63,21 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     /**
      * References to the variables bound as statement parameters.
      *
-     * @var array
+     * @var mixed
      */
     private $variables = [];
 
     /**
      * Bound parameter types.
      *
-     * @var array
+     * @var int[]
      */
     private $types = [];
 
     /**
      * Translations.
      *
-     * @var array
+     * @var int[]
      */
     private static $fetchMap = [
         FetchMode::MIXED       => SQLSRV_FETCH_BOTH,
@@ -271,8 +271,8 @@ class SQLSrvStatement implements IteratorAggregate, Statement
                     $params[$column - 1] = [
                         &$variable,
                         SQLSRV_PARAM_IN,
-                        sqlsrv_phptype_stream(SQLSRV_ENC_BINARY),
-                        sqlsrv_sqltype_varbinary('max'),
+                        SQLSRV_PHPTYPE_STREAM(SQLSRV_ENC_BINARY),
+                        SQLSRV_SQLTYPE_VARBINARY('max'),
                     ];
                     break;
 
@@ -280,7 +280,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
                     $params[$column - 1] = [
                         &$variable,
                         SQLSRV_PARAM_IN,
-                        sqlsrv_phptype_string(SQLSRV_ENC_BINARY),
+                        SQLSRV_PHPTYPE_STRING(SQLSRV_ENC_BINARY),
                     ];
                     break;
 

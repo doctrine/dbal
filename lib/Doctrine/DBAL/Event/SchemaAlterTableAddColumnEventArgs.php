@@ -24,7 +24,7 @@ class SchemaAlterTableAddColumnEventArgs extends SchemaEventArgs
     /** @var AbstractPlatform */
     private $_platform;
 
-    /** @var array */
+    /** @var string[] */
     private $_sql = [];
 
     public function __construct(Column $column, TableDiff $tableDiff, AbstractPlatform $platform)
@@ -59,7 +59,7 @@ class SchemaAlterTableAddColumnEventArgs extends SchemaEventArgs
     }
 
     /**
-     * @param string|array $sql
+     * @param string|string[] $sql
      *
      * @return \Doctrine\DBAL\Event\SchemaAlterTableAddColumnEventArgs
      */
@@ -75,7 +75,7 @@ class SchemaAlterTableAddColumnEventArgs extends SchemaEventArgs
     }
 
     /**
-     * @return array
+     * @return string[]
      */
     public function getSql()
     {

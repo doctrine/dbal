@@ -17,25 +17,25 @@ interface SchemaDiffVisitor
     /**
      * Visit an orphaned foreign key whose table was deleted.
      */
-    function visitOrphanedForeignKey(ForeignKeyConstraint $foreignKey);
+    public function visitOrphanedForeignKey(ForeignKeyConstraint $foreignKey);
 
     /**
      * Visit a sequence that has changed.
      */
-    function visitChangedSequence(Sequence $sequence);
+    public function visitChangedSequence(Sequence $sequence);
 
     /**
      * Visit a sequence that has been removed.
      */
-    function visitRemovedSequence(Sequence $sequence);
+    public function visitRemovedSequence(Sequence $sequence);
 
-    function visitNewSequence(Sequence $sequence);
+    public function visitNewSequence(Sequence $sequence);
 
-    function visitNewTable(Table $table);
+    public function visitNewTable(Table $table);
 
-    function visitNewTableForeignKey(Table $table, ForeignKeyConstraint $foreignKey);
+    public function visitNewTableForeignKey(Table $table, ForeignKeyConstraint $foreignKey);
 
-    function visitRemovedTable(Table $table);
+    public function visitRemovedTable(Table $table);
 
-    function visitChangedTable(TableDiff $tableDiff);
+    public function visitChangedTable(TableDiff $tableDiff);
 }

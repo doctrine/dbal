@@ -31,7 +31,7 @@ class Index extends AbstractAsset implements Constraint
      * Platform specific flags for indexes.
      * array($flagName => true)
      *
-     * @var array
+     * @var true[]
      */
     protected $_flags = [];
 
@@ -39,7 +39,7 @@ class Index extends AbstractAsset implements Constraint
      * Platform specific options
      *
      * @todo $_flags should eventually be refactored into options
-     * @var array
+     * @var mixed[]
      */
     private $options = [];
 
@@ -49,7 +49,7 @@ class Index extends AbstractAsset implements Constraint
      * @param bool     $isUnique
      * @param bool     $isPrimary
      * @param string[] $flags
-     * @param array    $options
+     * @param mixed[]  $options
      */
     public function __construct($indexName, array $columns, $isUnique = false, $isPrimary = false, array $flags = [], array $options = [])
     {
@@ -157,7 +157,7 @@ class Index extends AbstractAsset implements Constraint
     /**
      * Checks if this index exactly spans the given column names in the correct order.
      *
-     * @param array $columnNames
+     * @param string[] $columnNames
      *
      * @return bool
      */
@@ -304,7 +304,7 @@ class Index extends AbstractAsset implements Constraint
     }
 
     /**
-     * @return array
+     * @return mixed[]
      */
     public function getOptions()
     {

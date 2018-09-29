@@ -13,7 +13,7 @@ use function array_merge;
  */
 class Driver extends AbstractSQLiteDriver
 {
-    /** @var array */
+    /** @var mixed[] */
     protected $_userDefinedFunctions = [
         'sqrt' => ['callback' => ['Doctrine\DBAL\Platforms\SqlitePlatform', 'udfSqrt'], 'numArgs' => 1],
         'mod'  => ['callback' => ['Doctrine\DBAL\Platforms\SqlitePlatform', 'udfMod'], 'numArgs' => 2],
@@ -54,7 +54,7 @@ class Driver extends AbstractSQLiteDriver
     /**
      * Constructs the Sqlite PDO DSN.
      *
-     * @param array $params
+     * @param mixed[] $params
      *
      * @return string The DSN.
      */

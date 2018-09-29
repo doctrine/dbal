@@ -195,9 +195,9 @@ abstract class AbstractAsset
      * however building idents automatically for foreign keys, composite keys or such can easily create
      * very long names.
      *
-     * @param array  $columnNames
-     * @param string $prefix
-     * @param int    $maxSize
+     * @param string[] $columnNames
+     * @param string   $prefix
+     * @param int      $maxSize
      *
      * @return string
      */

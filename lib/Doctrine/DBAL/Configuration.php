@@ -17,7 +17,7 @@ class Configuration
      * The attributes that are contained in the configuration.
      * Values are default values.
      *
-     * @var array
+     * @var mixed[]
      */
     protected $_attributes = [];
 

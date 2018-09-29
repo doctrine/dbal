@@ -37,7 +37,10 @@ class SchemaException extends DBALException
      */
     public static function indexNameInvalid($indexName)
     {
-        return new self("Invalid index-name $indexName given, has to be [a-zA-Z0-9_]", self::INDEX_INVALID_NAME);
+        return new self(
+            sprintf('Invalid index-name %s given, has to be [a-zA-Z0-9_]', $indexName),
+            self::INDEX_INVALID_NAME
+        );
     }
 
     /**
@@ -48,7 +51,10 @@ class SchemaException extends DBALException
      */
     public static function indexDoesNotExist($indexName, $table)
     {
-        return new self("Index '$indexName' does not exist on table '$table'.", self::INDEX_DOESNT_EXIST);
+        return new self(
+            sprintf("Index '%s' does not exist on table '%s'.", $indexName, $table),
+            self::INDEX_DOESNT_EXIST
+        );
     }
 
     /**
@@ -59,7 +65,10 @@ class SchemaException extends DBALException
      */
     public static function indexAlreadyExists($indexName, $table)
     {
-        return new self("An index with name '$indexName' was already defined on table '$table'.", self::INDEX_ALREADY_EXISTS);
+        return new self(
+            sprintf("An index with name '%s' was already defined on table '%s'.", $indexName, $table),
+            self::INDEX_ALREADY_EXISTS
+        );
     }
 
     /**
@@ -70,7 +79,10 @@ class SchemaException extends DBALException
      */
     public static function columnDoesNotExist($columnName, $table)
     {
-        return new self("There is no column with name '$columnName' on table '$table'.", self::COLUMN_DOESNT_EXIST);
+        return new self(
+            sprintf("There is no column with name '%s' on table '%s'.", $columnName, $table),
+            self::COLUMN_DOESNT_EXIST
+        );
     }
 
     /**
@@ -138,7 +150,10 @@ class SchemaException extends DBALException
      */
     public static function foreignKeyDoesNotExist($fkName, $table)
     {
-        return new self("There exists no foreign key with the name '$fkName' on table '$table'.", self::FOREIGNKEY_DOESNT_EXIST);
+        return new self(
+            sprintf("There exists no foreign key with the name '%s' on table '%s'.", $fkName, $table),
+            self::FOREIGNKEY_DOESNT_EXIST
+        );
     }
 
     /**
@@ -161,6 +176,8 @@ class SchemaException extends DBALException
      */
     public static function alterTableChangeNotSupported($changeName)
     {
-        return new self("Alter table change not supported, given '$changeName'");
+        return new self(
+            sprintf("Alter table change not supported, given '%s'", $changeName)
+        );
     }
 }

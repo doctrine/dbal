@@ -33,13 +33,13 @@ class CompositeExpression implements Countable
     /**
      * Each expression part of the composite expression.
      *
-     * @var array
+     * @var self[]|string[]
      */
     private $parts = [];
 
     /**
-     * @param string $type  Instance type of composite expression.
-     * @param array  $parts Composition of expressions to be joined on composite expression.
+     * @param string          $type  Instance type of composite expression.
+     * @param self[]|string[] $parts Composition of expressions to be joined on composite expression.
      */
     public function __construct($type, array $parts = [])
     {
@@ -51,7 +51,7 @@ class CompositeExpression implements Countable
     /**
      * Adds multiple parts to composite expression.
      *
-     * @param array $parts
+     * @param self[]|string[] $parts
      *
      * @return \Doctrine\DBAL\Query\Expression\CompositeExpression
      */

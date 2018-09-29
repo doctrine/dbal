@@ -19,7 +19,7 @@ class SchemaIndexDefinitionEventArgs extends SchemaEventArgs
     /**
      * Raw index data as fetched from the database.
      *
-     * @var array
+     * @var mixed[]
      */
     private $_tableIndex;
 
@@ -30,8 +30,8 @@ class SchemaIndexDefinitionEventArgs extends SchemaEventArgs
     private $_connection;
 
     /**
-     * @param array  $tableIndex
-     * @param string $table
+     * @param mixed[] $tableIndex
+     * @param string  $table
      */
     public function __construct(array $tableIndex, $table, Connection $connection)
     {
@@ -61,7 +61,7 @@ class SchemaIndexDefinitionEventArgs extends SchemaEventArgs
     }
 
     /**
-     * @return array
+     * @return mixed[]
      */
     public function getTableIndex()
     {

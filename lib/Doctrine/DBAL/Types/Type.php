@@ -45,14 +45,14 @@ abstract class Type
     /**
      * Map of already instantiated type objects. One instance per type (flyweight).
      *
-     * @var array
+     * @var self[]
      */
     private static $_typeObjects = [];
 
     /**
      * The map of supported doctrine mapping types.
      *
-     * @var array
+     * @var string[]
      */
     private static $_typesMap = [
         self::TARRAY => ArrayType::class,
@@ -132,7 +132,7 @@ abstract class Type
     /**
      * Gets the SQL declaration snippet for a field of this type.
      *
-     * @param array            $fieldDeclaration The field declaration.
+     * @param mixed[]          $fieldDeclaration The field declaration.
      * @param AbstractPlatform $platform         The currently used database platform.
      *
      * @return string
@@ -241,7 +241,7 @@ abstract class Type
      * Gets the types array map which holds all registered types and the corresponding
      * type class
      *
-     * @return array
+     * @return string[]
      */
     public static function getTypesMap()
     {
@@ -303,7 +303,7 @@ abstract class Type
     /**
      * Gets an array of database types that map to this Doctrine type.
      *
-     * @return array
+     * @return string[]
      */
     public function getMappedDatabaseTypes(AbstractPlatform $platform)
     {

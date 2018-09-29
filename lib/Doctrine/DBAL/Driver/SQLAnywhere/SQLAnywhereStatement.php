@@ -315,7 +315,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
      *
      * @param stdClass      $sourceObject     Object to cast from.
      * @param string|object $destinationClass Name of the class or class instance to cast to.
-     * @param array         $ctorArgs         Arguments to use for constructing the destination class instance.
+     * @param mixed[]       $ctorArgs         Arguments to use for constructing the destination class instance.
      *
      * @return object
      *

@@ -18,7 +18,7 @@ class SchemaConfig
     /** @var string */
     protected $name;
 
-    /** @var array */
+    /** @var mixed[] */
     protected $defaultTableOptions = [];
 
     /**
@@ -83,7 +83,7 @@ class SchemaConfig
      * Gets the default options that are passed to Table instances created with
      * Schema#createTable().
      *
-     * @return array
+     * @return mixed[]
      */
     public function getDefaultTableOptions()
     {
@@ -91,7 +91,7 @@ class SchemaConfig
     }
 
     /**
-     * @param array $defaultTableOptions
+     * @param mixed[] $defaultTableOptions
      *
      * @return void
      */

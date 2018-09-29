@@ -47,7 +47,9 @@ EOT
     {
         $conn = $this->getHelper('db')->getConnection();
 
-        if (($sql = $input->getArgument('sql')) === null) {
+        $sql = $input->getArgument('sql');
+
+        if ($sql === null) {
             throw new RuntimeException("Argument 'SQL' is required in order to execute this command correctly.");
         }
 

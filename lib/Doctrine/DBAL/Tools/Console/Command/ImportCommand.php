@@ -56,8 +56,10 @@ EOT
     {
         $conn = $this->getHelper('db')->getConnection();
 
-        if (($fileNames = $input->getArgument('file')) === null) {
-            return;
+        $fileNames = $input->getArgument('file');
+
+        if ($fileNames === null) {
+            return null;
         }
 
         foreach ((array) $fileNames as $fileName) {
@@ -123,5 +125,7 @@ EOT
                 $stmt->closeCursor();
             }
         }
+
+        return null;
     }
 }

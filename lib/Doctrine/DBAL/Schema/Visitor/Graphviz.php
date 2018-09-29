@@ -96,8 +96,8 @@ class Graphviz extends AbstractVisitor
     }
 
     /**
-     * @param string $name
-     * @param array  $options
+     * @param string   $name
+     * @param string[] $options
      *
      * @return string
      */
@@ -113,9 +113,9 @@ class Graphviz extends AbstractVisitor
     }
 
     /**
-     * @param string $node1
-     * @param string $node2
-     * @param array  $options
+     * @param string   $node1
+     * @param string   $node2
+     * @param string[] $options
      *
      * @return string
      */

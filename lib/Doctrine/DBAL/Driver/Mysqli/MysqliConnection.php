@@ -38,10 +38,10 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
     private $_conn;
 
     /**
-     * @param array  $params
-     * @param string $username
-     * @param string $password
-     * @param array  $driverOptions
+     * @param mixed[] $params
+     * @param string  $username
+     * @param string  $password
+     * @param mixed[] $driverOptions
      *
      * @throws MysqliException
      */
@@ -217,7 +217,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
     /**
      * Apply the driver options to the connection.
      *
-     * @param array $driverOptions
+     * @param mixed[] $driverOptions
      *
      * @throws MysqliException When one of of the options is not supported.
      * @throws MysqliException When applying doesn't work - e.g. due to incorrect value.
@@ -277,7 +277,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
     /**
      * Establish a secure connection
      *
-     * @param array $params
+     * @param mixed[] $params
      *
      * @throws MysqliException
      */

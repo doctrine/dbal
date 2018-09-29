@@ -69,11 +69,7 @@ class PoolingShardManager implements ShardManager
     }
 
     /**
-     * @param string $sql
-     * @param array  $params
-     * @param array  $types
-     *
-     * @return array
+     * {@inheritDoc}
      *
      * @throws RuntimeException
      */

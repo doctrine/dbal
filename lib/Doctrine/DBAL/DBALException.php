@@ -29,7 +29,7 @@ class DBALException extends Exception
      */
     public static function notSupported($method)
     {
-        return new self("Operation '$method' is not supported by platform.");
+        return new self(sprintf("Operation '%s' is not supported by platform.", $method));
     }
 
     public static function invalidPlatformSpecified() : self
@@ -117,8 +117,8 @@ class DBALException extends Exception
     }
 
     /**
-     * @param string $unknownDriverName
-     * @param array  $knownDrivers
+     * @param string   $unknownDriverName
+     * @param string[] $knownDrivers
      *
      * @return \Doctrine\DBAL\DBALException
      */
@@ -131,7 +131,7 @@ class DBALException extends Exception
     /**
      * @param Exception $driverEx
      * @param string    $sql
-     * @param array     $params
+     * @param mixed[]   $params
      *
      * @return \Doctrine\DBAL\DBALException
      */
@@ -177,7 +177,7 @@ class DBALException extends Exception
      * Returns a human-readable representation of an array of parameters.
      * This properly handles binary data by returning a hex representation.
      *
-     * @param array $params
+     * @param mixed[] $params
      *
      * @return string
      */

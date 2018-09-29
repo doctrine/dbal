@@ -14,12 +14,12 @@ use function func_get_args;
 class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
 {
     /**
-     * @param string      $dsn
-     * @param string|null $user
-     * @param string|null $password
-     * @param array|null  $options
+     * @param string       $dsn
+     * @param string|null  $user
+     * @param string|null  $password
+     * @param mixed[]|null $options
      *
-     * @throws PDOException in case of an error.
+     * @throws PDOException In case of an error.
      */
     public function __construct($dsn, $user = null, $password = null, ?array $options = null)
     {
