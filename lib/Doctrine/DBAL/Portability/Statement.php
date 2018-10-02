@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Portability;
 
+use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
@@ -16,12 +17,12 @@ use function rtrim;
  *
  * @link   www.doctrine-project.org
  */
-class Statement implements IteratorAggregate, \Doctrine\DBAL\Driver\Statement
+class Statement implements IteratorAggregate, DriverStatement
 {
     /** @var int */
     private $portability;
 
-    /** @var \Doctrine\DBAL\Driver\Statement */
+    /** @var DriverStatement */
     private $stmt;
 
     /** @var int */
@@ -33,7 +34,7 @@ class Statement implements IteratorAggregate, \Doctrine\DBAL\Driver\Statement
     /**
      * Wraps <tt>Statement</tt> and applies portability measures.
      *
-     * @param \Doctrine\DBAL\Driver\Statement $stmt
+     * @param DriverStatement $stmt
      */
     public function __construct($stmt, Connection $conn)
     {

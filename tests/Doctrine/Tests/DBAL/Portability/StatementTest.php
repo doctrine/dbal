@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Portability;
 
+use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Portability\Connection;
@@ -19,7 +20,7 @@ class StatementTest extends DbalTestCase
     /** @var Statement */
     protected $stmt;
 
-    /** @var \Doctrine\DBAL\Driver\Statement|PHPUnit_Framework_MockObject_MockObject */
+    /** @var DriverStatement|PHPUnit_Framework_MockObject_MockObject */
     protected $wrappedStmt;
 
     /**
@@ -170,13 +171,13 @@ class StatementTest extends DbalTestCase
     /**
      * @return Statement
      */
-    protected function createStatement(\Doctrine\DBAL\Driver\Statement $wrappedStatement, Connection $connection)
+    protected function createStatement(DriverStatement $wrappedStatement, Connection $connection)
     {
         return new Statement($wrappedStatement, $connection);
     }
 
     /**
-     * @return \Doctrine\DBAL\Driver\Statement|PHPUnit_Framework_MockObject_MockObject
+     * @return DriverStatement|PHPUnit_Framework_MockObject_MockObject
      */
     protected function createWrappedStatement()
     {

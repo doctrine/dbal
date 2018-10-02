@@ -3,6 +3,17 @@
 namespace Doctrine\DBAL;
 
 use Doctrine\Common\EventManager;
+use Doctrine\DBAL\Driver\DrizzlePDOMySql\Driver as DrizzlePDOMySQLDriver;
+use Doctrine\DBAL\Driver\IBMDB2\DB2Driver;
+use Doctrine\DBAL\Driver\Mysqli\Driver as MySQLiDriver;
+use Doctrine\DBAL\Driver\OCI8\Driver as OCI8Driver;
+use Doctrine\DBAL\Driver\PDOMySql\Driver as PDOMySQLDriver;
+use Doctrine\DBAL\Driver\PDOOracle\Driver as PDOOCIDriver;
+use Doctrine\DBAL\Driver\PDOPgSql\Driver as PDOPgSQLDriver;
+use Doctrine\DBAL\Driver\PDOSqlite\Driver as PDOSQLiteDriver;
+use Doctrine\DBAL\Driver\PDOSqlsrv\Driver as PDOSQLSrvDriver;
+use Doctrine\DBAL\Driver\SQLAnywhere\Driver as SQLAnywhereDriver;
+use Doctrine\DBAL\Driver\SQLSrv\Driver as SQLSrvDriver;
 use PDO;
 use function array_keys;
 use function array_map;
@@ -31,17 +42,17 @@ final class DriverManager
      * @var string[]
      */
     private static $_driverMap = [
-        'pdo_mysql'          => 'Doctrine\DBAL\Driver\PDOMySql\Driver',
-        'pdo_sqlite'         => 'Doctrine\DBAL\Driver\PDOSqlite\Driver',
-        'pdo_pgsql'          => 'Doctrine\DBAL\Driver\PDOPgSql\Driver',
-        'pdo_oci'            => 'Doctrine\DBAL\Driver\PDOOracle\Driver',
-        'oci8'               => 'Doctrine\DBAL\Driver\OCI8\Driver',
-        'ibm_db2'            => 'Doctrine\DBAL\Driver\IBMDB2\DB2Driver',
-        'pdo_sqlsrv'         => 'Doctrine\DBAL\Driver\PDOSqlsrv\Driver',
-        'mysqli'             => 'Doctrine\DBAL\Driver\Mysqli\Driver',
-        'drizzle_pdo_mysql'  => 'Doctrine\DBAL\Driver\DrizzlePDOMySql\Driver',
-        'sqlanywhere'        => 'Doctrine\DBAL\Driver\SQLAnywhere\Driver',
-        'sqlsrv'             => 'Doctrine\DBAL\Driver\SQLSrv\Driver',
+        'pdo_mysql'          => PDOMySQLDriver::class,
+        'pdo_sqlite'         => PDOSQLiteDriver::class,
+        'pdo_pgsql'          => PDOPgSQLDriver::class,
+        'pdo_oci'            => PDOOCIDriver::class,
+        'oci8'               => OCI8Driver::class,
+        'ibm_db2'            => DB2Driver::class,
+        'pdo_sqlsrv'         => PDOSQLSrvDriver::class,
+        'mysqli'             => MySQLiDriver::class,
+        'drizzle_pdo_mysql'  => DrizzlePDOMySQLDriver::class,
+        'sqlanywhere'        => SQLAnywhereDriver::class,
+        'sqlsrv'             => SQLSrvDriver::class,
     ];
 
     /**
@@ -172,7 +183,7 @@ final class DriverManager
 
         $driver = new $className();
 
-        $wrapperClass = 'Doctrine\DBAL\Connection';
+        $wrapperClass = Connection::class;
         if (isset($params['wrapperClass'])) {
             if (! is_subclass_of($params['wrapperClass'], $wrapperClass)) {
                 throw DBALException::invalidWrapperClass($params['wrapperClass']);
@@ -217,7 +228,7 @@ final class DriverManager
             throw DBALException::unknownDriver($params['driver'], array_keys(self::$_driverMap));
         }
 
-        if (isset($params['driverClass']) && ! in_array('Doctrine\DBAL\Driver', class_implements($params['driverClass'], true))) {
+        if (isset($params['driverClass']) && ! in_array(Driver::class, class_implements($params['driverClass'], true))) {
             throw DBALException::invalidDriverClass($params['driverClass']);
         }
     }

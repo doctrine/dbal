@@ -35,8 +35,7 @@ class DBALException extends Exception
     public static function invalidPlatformSpecified() : self
     {
         return new self(
-            "Invalid 'platform' option specified, need to give an instance of " .
-            '\Doctrine\DBAL\Platforms\AbstractPlatform.'
+            "Invalid 'platform' option specified, need to give an instance of " . AbstractPlatform::class . '.'
         );
     }
 
@@ -217,8 +216,7 @@ class DBALException extends Exception
      */
     public static function invalidDriverClass($driverClass)
     {
-        return new self("The given 'driverClass' " . $driverClass . ' has to implement the ' .
-            '\Doctrine\DBAL\Driver interface.');
+        return new self("The given 'driverClass' " . $driverClass . ' has to implement the ' . Driver::class . ' interface.');
     }
 
     /**
