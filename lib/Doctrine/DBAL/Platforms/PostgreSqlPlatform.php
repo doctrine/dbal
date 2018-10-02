@@ -439,7 +439,7 @@ SQL
      */
     public function getDisallowDatabaseConnectionsSQL($database)
     {
-        return "UPDATE pg_database SET datallowconn = 'false' WHERE datname = '" . $database . "'";
+        return "UPDATE pg_database SET datallowconn = 'false' WHERE datname = " . $this->quoteStringLiteral($database);
     }
 
     /**

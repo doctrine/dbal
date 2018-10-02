@@ -117,15 +117,9 @@ class SqliteSchemaManager extends AbstractSchemaManager
         $tableForeignKeys = $this->_conn->fetchAll($sql);
 
         if (! empty($tableForeignKeys)) {
-            $createSql = $this->_conn->fetchAll(
-                sprintf(
-                    "SELECT sql FROM (SELECT * FROM sqlite_master UNION ALL SELECT * FROM sqlite_temp_master) WHERE type = 'table' AND name = '%s'",
-                    $table
-                )
-            );
-            $createSql = $createSql[0]['sql'] ?? '';
+            $createSql = $this->getCreateTableSQL($table);
 
-            if (preg_match_all(
+            if ($createSql !== null && preg_match_all(
                 '#
                     (?:CONSTRAINT\s+([^\s]+)\s+)?
                     (?:FOREIGN\s+KEY[^\)]+\)\s*)?
@@ -174,9 +168,10 @@ class SqliteSchemaManager extends AbstractSchemaManager
         $indexBuffer = [];
 
         // fetch primary
-        $stmt       = $this->_conn->executeQuery(
-            sprintf("PRAGMA TABLE_INFO ('%s')", $tableName)
-        );
+        $stmt       = $this->_conn->executeQuery(sprintf(
+            'PRAGMA TABLE_INFO (%s)',
+            $this->_conn->quote($tableName)
+        ));
         $indexArray = $stmt->fetchAll(FetchMode::ASSOCIATIVE);
 
         usort($indexArray, static function ($a, $b) {
@@ -212,10 +207,11 @@ class SqliteSchemaManager extends AbstractSchemaManager
             $idx['primary']    = false;
             $idx['non_unique'] = $tableIndex['unique']?false:true;
 
-            $stmt       = $this->_conn->executeQuery(
-                sprintf("PRAGMA INDEX_INFO ('%s')", $keyName)
-            );
-            $indexArray = $stmt->fetchAll(FetchMode::ASSOCIATIVE);
+                $stmt       = $this->_conn->executeQuery(sprintf(
+                    'PRAGMA INDEX_INFO (%s)',
+                    $this->_conn->quote($keyName)
+                ));
+                $indexArray = $stmt->fetchAll(FetchMode::ASSOCIATIVE);
 
             foreach ($indexArray as $indexColumnRow) {
                 $idx['column_name'] = $indexColumnRow['name'];
@@ -272,13 +268,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
         }
 
         // inspect column collation and comments
-        $createSql = $this->_conn->fetchAll(
-            sprintf(
-                "SELECT sql FROM (SELECT * FROM sqlite_master UNION ALL SELECT * FROM sqlite_temp_master) WHERE type = 'table' AND name = '%s'",
-                $table
-            )
-        );
-        $createSql = $createSql[0]['sql'] ?? '';
+        $createSql = $this->getCreateTableSQL($table) ?? '';
 
         foreach ($list as $columnName => $column) {
             $type = $column->getType();
@@ -487,5 +477,25 @@ class SqliteSchemaManager extends AbstractSchemaManager
         $comment = preg_replace('{^\s*--}m', '', rtrim($match[1], "\n"));
 
         return $comment === '' ? null : $comment;
+    }
+
+    private function getCreateTableSQL(string $table) : ?string
+    {
+        return $this->_conn->fetchColumn(
+            <<<'SQL'
+SELECT sql
+  FROM (
+      SELECT *
+        FROM sqlite_master
+   UNION ALL
+      SELECT *
+        FROM sqlite_temp_master
+  )
+WHERE type = 'table'
+AND name = ?
+SQL
+            ,
+            [$table]
+        ) ?: null;
     }
 }
