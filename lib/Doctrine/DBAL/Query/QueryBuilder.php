@@ -1,27 +1,12 @@
 <?php
-/*
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
- * <http://www.doctrine-project.org>.
- */
 
 namespace Doctrine\DBAL\Query;
 
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
-use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use function array_key_exists;
 use function array_keys;
 use function array_unshift;
@@ -29,7 +14,6 @@ use function func_get_args;
 use function func_num_args;
 use function implode;
 use function is_array;
-use function is_null;
 use function is_object;
 use function key;
 use function strtoupper;
@@ -46,35 +30,34 @@ use function substr;
  * even if some vendors such as MySQL support it.
  *
  * @link   www.doctrine-project.org
- * @since  2.1
- * @author Guilherme Blanco <guilhermeblanco@hotmail.com>
- * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
 class QueryBuilder
 {
     /*
      * The query types.
      */
-    const SELECT = 0;
-    const DELETE = 1;
-    const UPDATE = 2;
-    const INSERT = 3;
+    public const SELECT = 0;
+    public const DELETE = 1;
+    public const UPDATE = 2;
+    public const INSERT = 3;
 
     /*
      * The builder states.
      */
-    const STATE_DIRTY = 0;
-    const STATE_CLEAN = 1;
+    public const STATE_DIRTY = 0;
+    public const STATE_CLEAN = 1;
 
     /**
      * The DBAL Connection.
      *
-     * @var \Doctrine\DBAL\Connection
+     * @var Connection
      */
     private $connection;
 
     /**
-     * @var array The array of SQL parts collected.
+     * The array of SQL parts collected.
+     *
+     * @var mixed[]
      */
     private $sqlParts = [
         'select'  => [],
@@ -98,14 +81,14 @@ class QueryBuilder
     /**
      * The query parameters.
      *
-     * @var array
+     * @var mixed[]
      */
     private $params = [];
 
     /**
      * The parameter type map of this query.
      *
-     * @var array
+     * @var int[]|string[]
      */
     private $paramTypes = [];
 
@@ -147,7 +130,7 @@ class QueryBuilder
     /**
      * Initializes a new <tt>QueryBuilder</tt>.
      *
-     * @param \Doctrine\DBAL\Connection $connection The DBAL Connection.
+     * @param Connection $connection The DBAL Connection.
      */
     public function __construct(Connection $connection)
     {
@@ -168,7 +151,7 @@ class QueryBuilder
      * For more complex expression construction, consider storing the expression
      * builder object in a local variable.
      *
-     * @return \Doctrine\DBAL\Query\Expression\ExpressionBuilder
+     * @return ExpressionBuilder
      */
     public function expr()
     {
@@ -188,7 +171,7 @@ class QueryBuilder
     /**
      * Gets the associated DBAL Connection for this query builder.
      *
-     * @return \Doctrine\DBAL\Connection
+     * @return Connection
      */
     public function getConnection()
     {
@@ -211,11 +194,11 @@ class QueryBuilder
      * Uses {@see Connection::executeQuery} for select statements and {@see Connection::executeUpdate}
      * for insert, update and delete statements.
      *
-     * @return \Doctrine\DBAL\Driver\Statement|int
+     * @return Statement|int
      */
     public function execute()
     {
-        if ($this->type == self::SELECT) {
+        if ($this->type === self::SELECT) {
             return $this->connection->executeQuery($this->getSQL(), $this->params, $this->paramTypes);
         }
 
@@ -259,7 +242,7 @@ class QueryBuilder
         }
 
         $this->state = self::STATE_CLEAN;
-        $this->sql = $sql;
+        $this->sql   = $sql;
 
         return $sql;
     }
@@ -306,15 +289,15 @@ class QueryBuilder
      *         ));
      * </code>
      *
-     * @param array $params The query parameters to set.
-     * @param array $types  The query parameters types to set.
+     * @param mixed[]        $params The query parameters to set.
+     * @param int[]|string[] $types  The query parameters types to set.
      *
      * @return $this This QueryBuilder instance.
      */
     public function setParameters(array $params, array $types = [])
     {
         $this->paramTypes = $types;
-        $this->params = $params;
+        $this->params     = $params;
 
         return $this;
     }
@@ -322,7 +305,7 @@ class QueryBuilder
     /**
      * Gets all defined query parameters for the query being constructed indexed by parameter index or name.
      *
-     * @return array The currently defined query parameters indexed by parameter index or name.
+     * @return mixed[] The currently defined query parameters indexed by parameter index or name.
      */
     public function getParameters()
     {
@@ -344,7 +327,7 @@ class QueryBuilder
     /**
      * Gets all defined query parameter types for the query being constructed indexed by parameter index or name.
      *
-     * @return array The currently defined query parameter types indexed by parameter index or name.
+     * @return int[]|string[] The currently defined query parameter types indexed by parameter index or name.
      */
     public function getParameterTypes()
     {
@@ -372,7 +355,7 @@ class QueryBuilder
      */
     public function setFirstResult($firstResult)
     {
-        $this->state = self::STATE_DIRTY;
+        $this->state       = self::STATE_DIRTY;
         $this->firstResult = $firstResult;
 
         return $this;
@@ -398,7 +381,7 @@ class QueryBuilder
      */
     public function setMaxResults($maxResults)
     {
-        $this->state = self::STATE_DIRTY;
+        $this->state      = self::STATE_DIRTY;
         $this->maxResults = $maxResults;
 
         return $this;
@@ -429,22 +412,22 @@ class QueryBuilder
      */
     public function add($sqlPartName, $sqlPart, $append = false)
     {
-        $isArray = is_array($sqlPart);
+        $isArray    = is_array($sqlPart);
         $isMultiple = is_array($this->sqlParts[$sqlPartName]);
 
-        if ($isMultiple && !$isArray) {
+        if ($isMultiple && ! $isArray) {
             $sqlPart = [$sqlPart];
         }
 
         $this->state = self::STATE_DIRTY;
 
         if ($append) {
-            if ($sqlPartName == "orderBy" || $sqlPartName == "groupBy" || $sqlPartName == "select" || $sqlPartName == "set") {
+            if ($sqlPartName === 'orderBy' || $sqlPartName === 'groupBy' || $sqlPartName === 'select' || $sqlPartName === 'set') {
                 foreach ($sqlPart as $part) {
                     $this->sqlParts[$sqlPartName][] = $part;
                 }
             } elseif ($isArray && is_array($sqlPart[key($sqlPart)])) {
-                $key = key($sqlPart);
+                $key                                  = key($sqlPart);
                 $this->sqlParts[$sqlPartName][$key][] = $sqlPart[$key];
             } elseif ($isMultiple) {
                 $this->sqlParts[$sqlPartName][] = $sqlPart;
@@ -536,13 +519,13 @@ class QueryBuilder
     {
         $this->type = self::DELETE;
 
-        if ( ! $delete) {
+        if (! $delete) {
             return $this;
         }
 
         return $this->add('from', [
             'table' => $delete,
-            'alias' => $alias
+            'alias' => $alias,
         ]);
     }
 
@@ -566,13 +549,13 @@ class QueryBuilder
     {
         $this->type = self::UPDATE;
 
-        if ( ! $update) {
+        if (! $update) {
             return $this;
         }
 
         return $this->add('from', [
             'table' => $update,
-            'alias' => $alias
+            'alias' => $alias,
         ]);
     }
 
@@ -599,13 +582,11 @@ class QueryBuilder
     {
         $this->type = self::INSERT;
 
-        if ( ! $insert) {
+        if (! $insert) {
             return $this;
         }
 
-        return $this->add('from', [
-            'table' => $insert
-        ]);
+        return $this->add('from', ['table' => $insert]);
     }
 
     /**
@@ -627,7 +608,7 @@ class QueryBuilder
     {
         return $this->add('from', [
             'table' => $from,
-            'alias' => $alias
+            'alias' => $alias,
         ], true);
     }
 
@@ -677,8 +658,8 @@ class QueryBuilder
                 'joinType'      => 'inner',
                 'joinTable'     => $join,
                 'joinAlias'     => $alias,
-                'joinCondition' => $condition
-            ]
+                'joinCondition' => $condition,
+            ],
         ], true);
     }
 
@@ -706,8 +687,8 @@ class QueryBuilder
                 'joinType'      => 'left',
                 'joinTable'     => $join,
                 'joinAlias'     => $alias,
-                'joinCondition' => $condition
-            ]
+                'joinCondition' => $condition,
+            ],
         ], true);
     }
 
@@ -735,8 +716,8 @@ class QueryBuilder
                 'joinType'      => 'right',
                 'joinTable'     => $join,
                 'joinAlias'     => $alias,
-                'joinCondition' => $condition
-            ]
+                'joinCondition' => $condition,
+            ],
         ], true);
     }
 
@@ -757,7 +738,7 @@ class QueryBuilder
      */
     public function set($key, $value)
     {
-        return $this->add('set', $key .' = ' . $value, true);
+        return $this->add('set', $key . ' = ' . $value, true);
     }
 
     /**
@@ -788,7 +769,7 @@ class QueryBuilder
      */
     public function where($predicates)
     {
-        if ( ! (func_num_args() == 1 && $predicates instanceof CompositeExpression)) {
+        if (! (func_num_args() === 1 && $predicates instanceof CompositeExpression)) {
             $predicates = new CompositeExpression(CompositeExpression::TYPE_AND, func_get_args());
         }
 
@@ -807,15 +788,15 @@ class QueryBuilder
      *         ->andWhere('u.is_active = 1');
      * </code>
      *
+     * @see where()
+     *
      * @param mixed $where The query restrictions.
      *
      * @return $this This QueryBuilder instance.
-     *
-     * @see where()
      */
     public function andWhere($where)
     {
-        $args = func_get_args();
+        $args  = func_get_args();
         $where = $this->getQueryPart('where');
 
         if ($where instanceof CompositeExpression && $where->getType() === CompositeExpression::TYPE_AND) {
@@ -840,15 +821,15 @@ class QueryBuilder
      *         ->orWhere('u.id = 2');
      * </code>
      *
+     * @see where()
+     *
      * @param mixed $where The WHERE statement.
      *
      * @return $this This QueryBuilder instance.
-     *
-     * @see where()
      */
     public function orWhere($where)
     {
-        $args = func_get_args();
+        $args  = func_get_args();
         $where = $this->getQueryPart('where');
 
         if ($where instanceof CompositeExpression && $where->getType() === CompositeExpression::TYPE_OR) {
@@ -955,7 +936,7 @@ class QueryBuilder
      *         );
      * </code>
      *
-     * @param array $values The values to specify for the insert query indexed by column names.
+     * @param mixed[] $values The values to specify for the insert query indexed by column names.
      *
      * @return $this This QueryBuilder instance.
      */
@@ -974,7 +955,7 @@ class QueryBuilder
      */
     public function having($having)
     {
-        if ( ! (func_num_args() == 1 && $having instanceof CompositeExpression)) {
+        if (! (func_num_args() === 1 && $having instanceof CompositeExpression)) {
             $having = new CompositeExpression(CompositeExpression::TYPE_AND, func_get_args());
         }
 
@@ -991,7 +972,7 @@ class QueryBuilder
      */
     public function andHaving($having)
     {
-        $args = func_get_args();
+        $args   = func_get_args();
         $having = $this->getQueryPart('having');
 
         if ($having instanceof CompositeExpression && $having->getType() === CompositeExpression::TYPE_AND) {
@@ -1014,7 +995,7 @@ class QueryBuilder
      */
     public function orHaving($having)
     {
-        $args = func_get_args();
+        $args   = func_get_args();
         $having = $this->getQueryPart('having');
 
         if ($having instanceof CompositeExpression && $having->getType() === CompositeExpression::TYPE_OR) {
@@ -1069,7 +1050,7 @@ class QueryBuilder
     /**
      * Gets all query parts.
      *
-     * @return array
+     * @return mixed[]
      */
     public function getQueryParts()
     {
@@ -1079,7 +1060,7 @@ class QueryBuilder
     /**
      * Resets SQL parts.
      *
-     * @param array|null $queryPartNames
+     * @param string[]|null $queryPartNames
      *
      * @return $this This QueryBuilder instance.
      */
@@ -1116,7 +1097,7 @@ class QueryBuilder
     /**
      * @return string
      *
-     * @throws \Doctrine\DBAL\Query\QueryException
+     * @throws QueryException
      */
     private function getSQLForSelect()
     {
@@ -1144,16 +1125,16 @@ class QueryBuilder
      */
     private function getFromClauses()
     {
-        $fromClauses = [];
+        $fromClauses  = [];
         $knownAliases = [];
 
         // Loop through all FROM clauses
         foreach ($this->sqlParts['from'] as $from) {
             if ($from['alias'] === null) {
-                $tableSql = $from['table'];
+                $tableSql       = $from['table'];
                 $tableReference = $from['table'];
             } else {
-                $tableSql = $from['table'] . ' ' . $from['alias'];
+                $tableSql       = $from['table'] . ' ' . $from['alias'];
                 $tableReference = $from['alias'];
             }
 
@@ -1168,14 +1149,14 @@ class QueryBuilder
     }
 
     /**
-     * @param array $knownAliases
+     * @param string[] $knownAliases
      *
      * @throws QueryException
      */
     private function verifyAllAliasesAreKnown(array $knownAliases)
     {
         foreach ($this->sqlParts['join'] as $fromAlias => $joins) {
-            if ( ! isset($knownAliases[$fromAlias])) {
+            if (! isset($knownAliases[$fromAlias])) {
                 throw QueryException::unknownAlias($fromAlias, array_keys($knownAliases));
             }
         }
@@ -1209,11 +1190,9 @@ class QueryBuilder
     private function getSQLForUpdate()
     {
         $table = $this->sqlParts['from']['table'] . ($this->sqlParts['from']['alias'] ? ' ' . $this->sqlParts['from']['alias'] : '');
-        $query = 'UPDATE ' . $table
-            . ' SET ' . implode(", ", $this->sqlParts['set'])
+        return 'UPDATE ' . $table
+            . ' SET ' . implode(', ', $this->sqlParts['set'])
             . ($this->sqlParts['where'] !== null ? ' WHERE ' . ((string) $this->sqlParts['where']) : '');
-
-        return $query;
     }
 
     /**
@@ -1224,9 +1203,7 @@ class QueryBuilder
     private function getSQLForDelete()
     {
         $table = $this->sqlParts['from']['table'] . ($this->sqlParts['from']['alias'] ? ' ' . $this->sqlParts['from']['alias'] : '');
-        $query = 'DELETE FROM ' . $table . ($this->sqlParts['where'] !== null ? ' WHERE ' . ((string) $this->sqlParts['where']) : '');
-
-        return $query;
+        return 'DELETE FROM ' . $table . ($this->sqlParts['where'] !== null ? ' WHERE ' . ((string) $this->sqlParts['where']) : '');
     }
 
     /**
@@ -1260,7 +1237,6 @@ class QueryBuilder
      * $stmt = $q->executeQuery(); // executed with 'id = 2'
      * </code>
      *
-     * @license New BSD License
      * @link http://www.zetacomponents.org
      *
      * @param mixed  $value
@@ -1273,7 +1249,7 @@ class QueryBuilder
     {
         if ($placeHolder === null) {
             $this->boundCounter++;
-            $placeHolder = ":dcValue" . $this->boundCounter;
+            $placeHolder = ':dcValue' . $this->boundCounter;
         }
         $this->setParameter(substr($placeHolder, 1), $value, $type);
 
@@ -1307,12 +1283,12 @@ class QueryBuilder
         $this->boundCounter++;
         $this->setParameter($this->boundCounter, $value, $type);
 
-        return "?";
+        return '?';
     }
 
     /**
-     * @param string $fromAlias
-     * @param array  $knownAliases
+     * @param string   $fromAlias
+     * @param string[] $knownAliases
      *
      * @return string
      *
@@ -1327,7 +1303,7 @@ class QueryBuilder
                 if (array_key_exists($join['joinAlias'], $knownAliases)) {
                     throw QueryException::nonUniqueAlias($join['joinAlias'], array_keys($knownAliases));
                 }
-                $sql .= ' ' . strtoupper($join['joinType'])
+                $sql                             .= ' ' . strtoupper($join['joinType'])
                     . ' JOIN ' . $join['joinTable'] . ' ' . $join['joinAlias']
                     . ' ON ' . ((string) $join['joinCondition']);
                 $knownAliases[$join['joinAlias']] = true;
@@ -1351,9 +1327,11 @@ class QueryBuilder
         foreach ($this->sqlParts as $part => $elements) {
             if (is_array($this->sqlParts[$part])) {
                 foreach ($this->sqlParts[$part] as $idx => $element) {
-                    if (is_object($element)) {
-                        $this->sqlParts[$part][$idx] = clone $element;
+                    if (! is_object($element)) {
+                        continue;
                     }
+
+                    $this->sqlParts[$part][$idx] = clone $element;
                 }
             } elseif (is_object($elements)) {
                 $this->sqlParts[$part] = clone $elements;
@@ -1361,9 +1339,11 @@ class QueryBuilder
         }
 
         foreach ($this->params as $name => $param) {
-            if (is_object($param)) {
-                $this->params[$name] = clone $param;
+            if (! is_object($param)) {
+                continue;
             }
+
+            $this->params[$name] = clone $param;
         }
     }
 }

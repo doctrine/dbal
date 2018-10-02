@@ -781,42 +781,51 @@ EOD;
         return [
             [
                 null,
-                "SELECT   c.*,
-                         (
-                             SELECT d.comments
-                             FROM   user_col_comments d
-                             WHERE  d.TABLE_NAME = c.TABLE_NAME 
-                             AND    d.COLUMN_NAME = c.COLUMN_NAME
-                         ) AS comments
-                FROM     user_tab_columns c
-                WHERE    c.table_name = 'test' 
-                ORDER BY c.column_id",
+                <<<'SQL'
+SELECT   c.*,
+         (
+             SELECT d.comments
+             FROM   user_col_comments d
+             WHERE  d.TABLE_NAME = c.TABLE_NAME
+             AND    d.COLUMN_NAME = c.COLUMN_NAME
+         ) AS comments
+FROM     user_tab_columns c
+WHERE    c.table_name = 'test'
+ORDER BY c.column_id
+SQL
+                ,
             ],
             [
                 '/',
-                "SELECT   c.*,
-                         (
-                             SELECT d.comments
-                             FROM   user_col_comments d
-                             WHERE  d.TABLE_NAME = c.TABLE_NAME 
-                             AND    d.COLUMN_NAME = c.COLUMN_NAME
-                         ) AS comments
-                FROM     user_tab_columns c
-                WHERE    c.table_name = 'test' 
-                ORDER BY c.column_id",
+                <<<'SQL'
+SELECT   c.*,
+         (
+             SELECT d.comments
+             FROM   user_col_comments d
+             WHERE  d.TABLE_NAME = c.TABLE_NAME
+             AND    d.COLUMN_NAME = c.COLUMN_NAME
+         ) AS comments
+FROM     user_tab_columns c
+WHERE    c.table_name = 'test'
+ORDER BY c.column_id
+SQL
+                ,
             ],
             [
                 'scott',
-                "SELECT   c.*,
-                         (
-                             SELECT d.comments
-                             FROM   all_col_comments d
-                             WHERE  d.TABLE_NAME = c.TABLE_NAME AND d.OWNER = c.OWNER
-                             AND    d.COLUMN_NAME = c.COLUMN_NAME
-                         ) AS comments
-                FROM     all_tab_columns c
-                WHERE    c.table_name = 'test' AND c.owner = 'SCOTT'
-                ORDER BY c.column_id",
+                <<<'SQL'
+SELECT   c.*,
+         (
+             SELECT d.comments
+             FROM   all_col_comments d
+             WHERE  d.TABLE_NAME = c.TABLE_NAME AND d.OWNER = c.OWNER
+             AND    d.COLUMN_NAME = c.COLUMN_NAME
+         ) AS comments
+FROM     all_tab_columns c
+WHERE    c.table_name = 'test' AND c.owner = 'SCOTT'
+ORDER BY c.column_id
+SQL
+                ,
             ],
         ];
     }

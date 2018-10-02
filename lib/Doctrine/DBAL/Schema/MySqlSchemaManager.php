@@ -1,21 +1,4 @@
 <?php
-/*
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
- * <http://www.doctrine-project.org>.
- */
 
 namespace Doctrine\DBAL\Schema;
 
@@ -37,12 +20,6 @@ use function strtolower;
 
 /**
  * Schema manager for the MySql RDBMS.
- *
- * @author Konsta Vesterinen <kvesteri@cc.hut.fi>
- * @author Lukas Smith <smith@pooteeweet.org> (PEAR MDB2 library)
- * @author Roman Borschel <roman@code-factory.org>
- * @author Benjamin Eberlei <kontakt@beberlei.de>
- * @since  2.0
  */
 class MySqlSchemaManager extends AbstractSchemaManager
 {
@@ -125,7 +102,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
 
         $fixed = null;
 
-        if ( ! isset($tableColumn['name'])) {
+        if (! isset($tableColumn['name'])) {
             $tableColumn['name'] = '';
         }
 
@@ -233,7 +210,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
      * @link https://mariadb.com/kb/en/library/information-schema-columns-table/
      * @link https://jira.mariadb.org/browse/MDEV-13132
      *
-     * @param null|string $columnDefault default value as stored in information_schema for MariaDB >= 10.2.7
+     * @param string|null $columnDefault default value as stored in information_schema for MariaDB >= 10.2.7
      */
     private function getMariaDb1027ColumnDefault(MariaDb1027Platform $platform, ?string $columnDefault) : ?string
     {
@@ -242,7 +219,9 @@ class MySqlSchemaManager extends AbstractSchemaManager
         }
         if ($columnDefault[0] === "'") {
             return stripslashes(
-                str_replace("''", "'",
+                str_replace(
+                    "''",
+                    "'",
                     preg_replace('/^\'(.*)\'$/', '$1', $columnDefault)
                 )
             );
@@ -266,11 +245,11 @@ class MySqlSchemaManager extends AbstractSchemaManager
         $list = [];
         foreach ($tableForeignKeys as $value) {
             $value = array_change_key_case($value, CASE_LOWER);
-            if ( ! isset($list[$value['constraint_name']])) {
-                if ( ! isset($value['delete_rule']) || $value['delete_rule'] === "RESTRICT") {
+            if (! isset($list[$value['constraint_name']])) {
+                if (! isset($value['delete_rule']) || $value['delete_rule'] === 'RESTRICT') {
                     $value['delete_rule'] = null;
                 }
-                if ( ! isset($value['update_rule']) || $value['update_rule'] === "RESTRICT") {
+                if (! isset($value['update_rule']) || $value['update_rule'] === 'RESTRICT') {
                     $value['update_rule'] = null;
                 }
 

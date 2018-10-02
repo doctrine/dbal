@@ -1,21 +1,4 @@
 <?php
-/*
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
- * <http://www.doctrine-project.org>.
- */
 
 namespace Doctrine\DBAL\Driver\PDOSqlsrv;
 
@@ -25,8 +8,6 @@ use function sprintf;
 
 /**
  * The PDO-based Sqlsrv driver.
- *
- * @since 2.0
  */
 class Driver extends AbstractSQLServerDriver
 {
@@ -48,7 +29,7 @@ class Driver extends AbstractSQLServerDriver
     /**
      * Constructs the Sqlsrv PDO DSN.
      *
-     * @param array $params
+     * @param mixed[]  $params
      * @param string[] $connectionOptions
      *
      * @return string The DSN.
@@ -61,7 +42,7 @@ class Driver extends AbstractSQLServerDriver
             $dsn .= $params['host'];
         }
 
-        if (isset($params['port']) && !empty($params['port'])) {
+        if (isset($params['port']) && ! empty($params['port'])) {
             $dsn .= ',' . $params['port'];
         }
 
@@ -73,15 +54,14 @@ class Driver extends AbstractSQLServerDriver
             $connectionOptions['MultipleActiveResultSets'] = $params['MultipleActiveResultSets'] ? 'true' : 'false';
         }
 
-        $dsn .= $this->getConnectionOptionsDsn($connectionOptions);
-
-        return $dsn;
+        return $dsn . $this->getConnectionOptionsDsn($connectionOptions);
     }
 
     /**
      * Separates a connection options from a driver options
      *
      * @param int[]|string[] $options
+     *
      * @return int[][]|string[][]
      */
     private function splitOptions(array $options) : array

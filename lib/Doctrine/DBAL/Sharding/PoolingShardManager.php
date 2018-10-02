@@ -1,51 +1,24 @@
 <?php
-/*
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
- * <http://www.doctrine-project.org>.
- */
 
 namespace Doctrine\DBAL\Sharding;
 
 use Doctrine\DBAL\Sharding\ShardChoser\ShardChoser;
+use RuntimeException;
 
 /**
  * Shard Manager for the Connection Pooling Shard Strategy
- *
- * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
 class PoolingShardManager implements ShardManager
 {
-    /**
-     * @var PoolingShardConnection
-     */
+    /** @var PoolingShardConnection */
     private $conn;
 
-    /**
-     * @var ShardChoser
-     */
+    /** @var ShardChoser */
     private $choser;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $currentDistributionValue;
 
-    /**
-     * @param PoolingShardConnection $conn
-     */
     public function __construct(PoolingShardConnection $conn)
     {
         $params       = $conn->getParams();
@@ -96,22 +69,18 @@ class PoolingShardManager implements ShardManager
     }
 
     /**
-     * @param string $sql
-     * @param array  $params
-     * @param array  $types
+     * {@inheritDoc}
      *
-     * @return array
-     *
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function queryAll($sql, array $params, array $types)
     {
         $shards = $this->getShards();
-        if (!$shards) {
-            throw new \RuntimeException("No shards found.");
+        if (! $shards) {
+            throw new RuntimeException('No shards found.');
         }
 
-        $result = [];
+        $result          = [];
         $oldDistribution = $this->getCurrentDistributionValue();
 
         foreach ($shards as $shard) {

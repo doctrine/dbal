@@ -1,27 +1,10 @@
 <?php
-/*
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
- * <http://www.doctrine-project.org>.
- */
 
 namespace Doctrine\DBAL\Schema\Visitor;
 
-use Doctrine\DBAL\Schema\Table;
-use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use function current;
 use function file_put_contents;
 use function in_array;
@@ -34,9 +17,7 @@ use function strtolower;
  */
 class Graphviz extends AbstractVisitor
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     private $output = '';
 
     /**
@@ -45,8 +26,8 @@ class Graphviz extends AbstractVisitor
     public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint)
     {
         $this->output .= $this->createNodeRelation(
-            $fkConstraint->getLocalTableName() . ":col" . current($fkConstraint->getLocalColumns()).":se",
-            $fkConstraint->getForeignTableName() . ":col" . current($fkConstraint->getForeignColumns()).":se",
+            $fkConstraint->getLocalTableName() . ':col' . current($fkConstraint->getLocalColumns()) . ':se',
+            $fkConstraint->getForeignTableName() . ':col' . current($fkConstraint->getForeignColumns()) . ':se',
             [
                 'dir'       => 'back',
                 'arrowtail' => 'dot',
@@ -63,7 +44,7 @@ class Graphviz extends AbstractVisitor
         $this->output  = 'digraph "' . sha1(mt_rand()) . '" {' . "\n";
         $this->output .= 'splines = true;' . "\n";
         $this->output .= 'overlap = false;' . "\n";
-        $this->output .= 'outputorder=edgesfirst;'."\n";
+        $this->output .= 'outputorder=edgesfirst;' . "\n";
         $this->output .= 'mindist = 0.6;' . "\n";
         $this->output .= 'sep = .2;' . "\n";
     }
@@ -83,8 +64,6 @@ class Graphviz extends AbstractVisitor
     }
 
     /**
-     * @param \Doctrine\DBAL\Schema\Table $table
-     *
      * @return string
      */
     private function createTableLabel(Table $table)
@@ -103,7 +82,7 @@ class Graphviz extends AbstractVisitor
             $label .= '<TD BORDER="0" ALIGN="LEFT" BGCOLOR="#eeeeec">';
             $label .= '<FONT COLOR="#2e3436" FACE="Helvetica" POINT-SIZE="12">' . $columnLabel . '</FONT>';
             $label .= '</TD><TD BORDER="0" ALIGN="LEFT" BGCOLOR="#eeeeec"><FONT COLOR="#2e3436" FACE="Helvetica" POINT-SIZE="10">' . strtolower($column->getType()) . '</FONT></TD>';
-            $label .= '<TD BORDER="0" ALIGN="RIGHT" BGCOLOR="#eeeeec" PORT="col'.$column->getName().'">';
+            $label .= '<TD BORDER="0" ALIGN="RIGHT" BGCOLOR="#eeeeec" PORT="col' . $column->getName() . '">';
             if ($table->hasPrimaryKey() && in_array($column->getName(), $table->getPrimaryKey()->getColumns())) {
                 $label .= "\xe2\x9c\xb7";
             }
@@ -117,14 +96,14 @@ class Graphviz extends AbstractVisitor
     }
 
     /**
-     * @param string $name
-     * @param array  $options
+     * @param string   $name
+     * @param string[] $options
      *
      * @return string
      */
     private function createNode($name, $options)
     {
-        $node = $name . " [";
+        $node = $name . ' [';
         foreach ($options as $key => $value) {
             $node .= $key . '=' . $value . ' ';
         }
@@ -134,9 +113,9 @@ class Graphviz extends AbstractVisitor
     }
 
     /**
-     * @param string $node1
-     * @param string $node2
-     * @param array  $options
+     * @param string   $node1
+     * @param string   $node2
+     * @param string[] $options
      *
      * @return string
      */
@@ -158,7 +137,7 @@ class Graphviz extends AbstractVisitor
      */
     public function getOutput()
     {
-        return $this->output . "}";
+        return $this->output . '}';
     }
 
     /**
