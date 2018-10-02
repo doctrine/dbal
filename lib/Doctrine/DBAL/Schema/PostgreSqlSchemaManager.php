@@ -212,7 +212,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     {
         $buffer = [];
         foreach ($tableIndexes as $row) {
-            $colNumbers    = explode(' ', $row['indkey']);
+            $colNumbers    = array_map('intval', explode(' ', $row['indkey']));
             $colNumbersSql = 'IN (' . join(' ,', $colNumbers) . ' )';
             $columnNameSql = "SELECT attnum, attname FROM pg_attribute
                 WHERE attrelid={$row['indrelid']} AND attnum $colNumbersSql ORDER BY attnum ASC;";

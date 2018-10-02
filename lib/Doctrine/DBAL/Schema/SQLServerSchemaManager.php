@@ -70,14 +70,16 @@ class SQLServerSchemaManager extends AbstractSchemaManager
             $tableColumn['name'] = '';
         }
 
-        while ($default !== ($default2 = preg_replace('/^\((.*)\)$/', '$1', $default))) {
-            $default = trim($default2, "'");
+        if ($default !== null) {
+            while ($default !== ($default2 = preg_replace('/^\((.*)\)$/', '$1', $default))) {
+                $default = trim($default2, "'");
 
-            if ($default !== 'getdate()') {
-                continue;
+                if ($default !== 'getdate()') {
+                    continue;
+                }
+
+                $default = $this->_platform->getCurrentTimestampSQL();
             }
-
-            $default = $this->_platform->getCurrentTimestampSQL();
         }
 
         switch ($dbType) {
