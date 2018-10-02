@@ -40,10 +40,10 @@ use function strtolower;
 class DB2Statement implements IteratorAggregate, Statement
 {
     /** @var resource */
-    private $_stmt;
+    private $stmt;
 
     /** @var mixed[] */
-    private $_bindParam = [];
+    private $bindParam = [];
 
     /** @var string Name of the default class to instantiate when fetching class instances. */
     private $defaultFetchClass = '\stdClass';
@@ -52,7 +52,7 @@ class DB2Statement implements IteratorAggregate, Statement
     private $defaultFetchClassCtorArgs = [];
 
     /** @var int */
-    private $_defaultFetchMode = FetchMode::MIXED;
+    private $defaultFetchMode = FetchMode::MIXED;
 
     /**
      * Indicates whether the statement is in the state when fetching results is possible
@@ -66,7 +66,7 @@ class DB2Statement implements IteratorAggregate, Statement
      *
      * @var int[]
      */
-    static private $_typeMap = [
+    static private $typeMap = [
         ParameterType::INTEGER => DB2_LONG,
         ParameterType::STRING  => DB2_CHAR,
     ];
@@ -76,7 +76,7 @@ class DB2Statement implements IteratorAggregate, Statement
      */
     public function __construct($stmt)
     {
-        $this->_stmt = $stmt;
+        $this->stmt = $stmt;
     }
 
     /**
@@ -92,15 +92,15 @@ class DB2Statement implements IteratorAggregate, Statement
      */
     public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null)
     {
-        $this->_bindParam[$column] =& $variable;
+        $this->bindParam[$column] =& $variable;
 
-        if ($type && isset(self::$_typeMap[$type])) {
-            $type = self::$_typeMap[$type];
+        if ($type && isset(self::$typeMap[$type])) {
+            $type = self::$typeMap[$type];
         } else {
             $type = DB2_CHAR;
         }
 
-        if (! db2_bind_param($this->_stmt, $column, 'variable', DB2_PARAM_IN, $type)) {
+        if (! db2_bind_param($this->stmt, $column, 'variable', DB2_PARAM_IN, $type)) {
             throw new DB2Exception(db2_stmt_errormsg());
         }
 
@@ -112,13 +112,13 @@ class DB2Statement implements IteratorAggregate, Statement
      */
     public function closeCursor()
     {
-        if (! $this->_stmt) {
+        if (! $this->stmt) {
             return false;
         }
 
-        $this->_bindParam = [];
+        $this->bindParam = [];
 
-        if (! db2_free_result($this->_stmt)) {
+        if (! db2_free_result($this->stmt)) {
             return false;
         }
 
@@ -132,11 +132,11 @@ class DB2Statement implements IteratorAggregate, Statement
      */
     public function columnCount()
     {
-        if (! $this->_stmt) {
+        if (! $this->stmt) {
             return false;
         }
 
-        return db2_num_fields($this->_stmt);
+        return db2_num_fields($this->stmt);
     }
 
     /**
@@ -163,21 +163,21 @@ class DB2Statement implements IteratorAggregate, Statement
      */
     public function execute($params = null)
     {
-        if (! $this->_stmt) {
+        if (! $this->stmt) {
             return false;
         }
 
         if ($params === null) {
-            ksort($this->_bindParam);
+            ksort($this->bindParam);
 
             $params = [];
 
-            foreach ($this->_bindParam as $column => $value) {
+            foreach ($this->bindParam as $column => $value) {
                 $params[] = $value;
             }
         }
 
-        $retval = db2_execute($this->_stmt, $params);
+        $retval = db2_execute($this->stmt, $params);
 
         if ($retval === false) {
             throw new DB2Exception(db2_stmt_errormsg());
@@ -193,7 +193,7 @@ class DB2Statement implements IteratorAggregate, Statement
      */
     public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
     {
-        $this->_defaultFetchMode         = $fetchMode;
+        $this->defaultFetchMode          = $fetchMode;
         $this->defaultFetchClass         = $arg2 ?: $this->defaultFetchClass;
         $this->defaultFetchClassCtorArgs = $arg3 ? (array) $arg3 : $this->defaultFetchClassCtorArgs;
 
@@ -219,16 +219,16 @@ class DB2Statement implements IteratorAggregate, Statement
             return false;
         }
 
-        $fetchMode = $fetchMode ?: $this->_defaultFetchMode;
+        $fetchMode = $fetchMode ?: $this->defaultFetchMode;
         switch ($fetchMode) {
             case FetchMode::COLUMN:
                 return $this->fetchColumn();
 
             case FetchMode::MIXED:
-                return db2_fetch_both($this->_stmt);
+                return db2_fetch_both($this->stmt);
 
             case FetchMode::ASSOCIATIVE:
-                return db2_fetch_assoc($this->_stmt);
+                return db2_fetch_assoc($this->stmt);
 
             case FetchMode::CUSTOM_OBJECT:
                 $className = $this->defaultFetchClass;
@@ -240,7 +240,7 @@ class DB2Statement implements IteratorAggregate, Statement
                     $ctorArgs  = $args[2] ?? [];
                 }
 
-                $result = db2_fetch_object($this->_stmt);
+                $result = db2_fetch_object($this->stmt);
 
                 if ($result instanceof stdClass) {
                     $result = $this->castObject($result, $className, $ctorArgs);
@@ -249,10 +249,10 @@ class DB2Statement implements IteratorAggregate, Statement
                 return $result;
 
             case FetchMode::NUMERIC:
-                return db2_fetch_array($this->_stmt);
+                return db2_fetch_array($this->stmt);
 
             case FetchMode::STANDARD_OBJECT:
-                return db2_fetch_object($this->_stmt);
+                return db2_fetch_object($this->stmt);
 
             default:
                 throw new DB2Exception('Given Fetch-Style ' . $fetchMode . ' is not supported.');
@@ -305,7 +305,7 @@ class DB2Statement implements IteratorAggregate, Statement
      */
     public function rowCount()
     {
-        return @db2_num_rows($this->_stmt) ? : 0;
+        return @db2_num_rows($this->stmt) ? : 0;
     }
 
     /**

@@ -14,23 +14,23 @@ use Doctrine\DBAL\Schema\Column;
 class SchemaColumnDefinitionEventArgs extends SchemaEventArgs
 {
     /** @var Column|null */
-    private $_column = null;
+    private $column = null;
 
     /**
      * Raw column data as fetched from the database.
      *
      * @var mixed[]
      */
-    private $_tableColumn;
+    private $tableColumn;
 
     /** @var string */
-    private $_table;
+    private $table;
 
     /** @var string */
-    private $_database;
+    private $database;
 
     /** @var Connection */
-    private $_connection;
+    private $connection;
 
     /**
      * @param mixed[] $tableColumn
@@ -39,10 +39,10 @@ class SchemaColumnDefinitionEventArgs extends SchemaEventArgs
      */
     public function __construct(array $tableColumn, $table, $database, Connection $connection)
     {
-        $this->_tableColumn = $tableColumn;
-        $this->_table       = $table;
-        $this->_database    = $database;
-        $this->_connection  = $connection;
+        $this->tableColumn = $tableColumn;
+        $this->table       = $table;
+        $this->database    = $database;
+        $this->connection  = $connection;
     }
 
     /**
@@ -53,7 +53,7 @@ class SchemaColumnDefinitionEventArgs extends SchemaEventArgs
      */
     public function setColumn(?Column $column = null)
     {
-        $this->_column = $column;
+        $this->column = $column;
 
         return $this;
     }
@@ -63,7 +63,7 @@ class SchemaColumnDefinitionEventArgs extends SchemaEventArgs
      */
     public function getColumn()
     {
-        return $this->_column;
+        return $this->column;
     }
 
     /**
@@ -71,7 +71,7 @@ class SchemaColumnDefinitionEventArgs extends SchemaEventArgs
      */
     public function getTableColumn()
     {
-        return $this->_tableColumn;
+        return $this->tableColumn;
     }
 
     /**
@@ -79,7 +79,7 @@ class SchemaColumnDefinitionEventArgs extends SchemaEventArgs
      */
     public function getTable()
     {
-        return $this->_table;
+        return $this->table;
     }
 
     /**
@@ -87,7 +87,7 @@ class SchemaColumnDefinitionEventArgs extends SchemaEventArgs
      */
     public function getDatabase()
     {
-        return $this->_database;
+        return $this->database;
     }
 
     /**
@@ -95,7 +95,7 @@ class SchemaColumnDefinitionEventArgs extends SchemaEventArgs
      */
     public function getConnection()
     {
-        return $this->_connection;
+        return $this->connection;
     }
 
     /**
@@ -103,6 +103,6 @@ class SchemaColumnDefinitionEventArgs extends SchemaEventArgs
      */
     public function getDatabasePlatform()
     {
-        return $this->_connection->getDatabasePlatform();
+        return $this->connection->getDatabasePlatform();
     }
 }

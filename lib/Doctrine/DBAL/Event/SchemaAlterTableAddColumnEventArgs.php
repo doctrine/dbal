@@ -16,22 +16,22 @@ use function is_array;
 class SchemaAlterTableAddColumnEventArgs extends SchemaEventArgs
 {
     /** @var Column */
-    private $_column;
+    private $column;
 
     /** @var TableDiff */
-    private $_tableDiff;
+    private $tableDiff;
 
     /** @var AbstractPlatform */
-    private $_platform;
+    private $platform;
 
     /** @var string[] */
-    private $_sql = [];
+    private $sql = [];
 
     public function __construct(Column $column, TableDiff $tableDiff, AbstractPlatform $platform)
     {
-        $this->_column    = $column;
-        $this->_tableDiff = $tableDiff;
-        $this->_platform  = $platform;
+        $this->column    = $column;
+        $this->tableDiff = $tableDiff;
+        $this->platform  = $platform;
     }
 
     /**
@@ -39,7 +39,7 @@ class SchemaAlterTableAddColumnEventArgs extends SchemaEventArgs
      */
     public function getColumn()
     {
-        return $this->_column;
+        return $this->column;
     }
 
     /**
@@ -47,7 +47,7 @@ class SchemaAlterTableAddColumnEventArgs extends SchemaEventArgs
      */
     public function getTableDiff()
     {
-        return $this->_tableDiff;
+        return $this->tableDiff;
     }
 
     /**
@@ -55,7 +55,7 @@ class SchemaAlterTableAddColumnEventArgs extends SchemaEventArgs
      */
     public function getPlatform()
     {
-        return $this->_platform;
+        return $this->platform;
     }
 
     /**
@@ -66,9 +66,9 @@ class SchemaAlterTableAddColumnEventArgs extends SchemaEventArgs
     public function addSql($sql)
     {
         if (is_array($sql)) {
-            $this->_sql = array_merge($this->_sql, $sql);
+            $this->sql = array_merge($this->sql, $sql);
         } else {
-            $this->_sql[] = $sql;
+            $this->sql[] = $sql;
         }
 
         return $this;
@@ -79,6 +79,6 @@ class SchemaAlterTableAddColumnEventArgs extends SchemaEventArgs
      */
     public function getSql()
     {
-        return $this->_sql;
+        return $this->sql;
     }
 }

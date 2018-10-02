@@ -14,20 +14,20 @@ use Doctrine\DBAL\Schema\Index;
 class SchemaIndexDefinitionEventArgs extends SchemaEventArgs
 {
     /** @var Index|null */
-    private $_index = null;
+    private $index = null;
 
     /**
      * Raw index data as fetched from the database.
      *
      * @var mixed[]
      */
-    private $_tableIndex;
+    private $tableIndex;
 
     /** @var string */
-    private $_table;
+    private $table;
 
     /** @var Connection */
-    private $_connection;
+    private $connection;
 
     /**
      * @param mixed[] $tableIndex
@@ -35,9 +35,9 @@ class SchemaIndexDefinitionEventArgs extends SchemaEventArgs
      */
     public function __construct(array $tableIndex, $table, Connection $connection)
     {
-        $this->_tableIndex = $tableIndex;
-        $this->_table      = $table;
-        $this->_connection = $connection;
+        $this->tableIndex = $tableIndex;
+        $this->table      = $table;
+        $this->connection = $connection;
     }
 
     /**
@@ -47,7 +47,7 @@ class SchemaIndexDefinitionEventArgs extends SchemaEventArgs
      */
     public function setIndex(?Index $index = null)
     {
-        $this->_index = $index;
+        $this->index = $index;
 
         return $this;
     }
@@ -57,7 +57,7 @@ class SchemaIndexDefinitionEventArgs extends SchemaEventArgs
      */
     public function getIndex()
     {
-        return $this->_index;
+        return $this->index;
     }
 
     /**
@@ -65,7 +65,7 @@ class SchemaIndexDefinitionEventArgs extends SchemaEventArgs
      */
     public function getTableIndex()
     {
-        return $this->_tableIndex;
+        return $this->tableIndex;
     }
 
     /**
@@ -73,7 +73,7 @@ class SchemaIndexDefinitionEventArgs extends SchemaEventArgs
      */
     public function getTable()
     {
-        return $this->_table;
+        return $this->table;
     }
 
     /**
@@ -81,7 +81,7 @@ class SchemaIndexDefinitionEventArgs extends SchemaEventArgs
      */
     public function getConnection()
     {
-        return $this->_connection;
+        return $this->connection;
     }
 
     /**
@@ -89,6 +89,6 @@ class SchemaIndexDefinitionEventArgs extends SchemaEventArgs
      */
     public function getDatabasePlatform()
     {
-        return $this->_connection->getDatabasePlatform();
+        return $this->connection->getDatabasePlatform();
     }
 }

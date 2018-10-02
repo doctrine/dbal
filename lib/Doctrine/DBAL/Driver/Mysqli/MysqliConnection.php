@@ -35,7 +35,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
     public const OPTION_FLAGS = 'flags';
 
     /** @var mysqli */
-    private $_conn;
+    private $conn;
 
     /**
      * @param mixed[] $params
@@ -59,7 +59,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
 
         $flags = $driverOptions[static::OPTION_FLAGS] ?? null;
 
-        $this->_conn = mysqli_init();
+        $this->conn = mysqli_init();
 
         $this->setSecureConnection($params);
         $this->setDriverOptions($driverOptions);
@@ -67,8 +67,8 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
         set_error_handler(static function () {
         });
         try {
-            if (! $this->_conn->real_connect($params['host'], $username, $password, $dbname, $port, $socket, $flags)) {
-                throw new MysqliException($this->_conn->connect_error, $this->_conn->sqlstate ?? 'HY000', $this->_conn->connect_errno);
+            if (! $this->conn->real_connect($params['host'], $username, $password, $dbname, $port, $socket, $flags)) {
+                throw new MysqliException($this->conn->connect_error, $this->conn->sqlstate ?? 'HY000', $this->conn->connect_errno);
             }
         } finally {
             restore_error_handler();
@@ -78,7 +78,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
             return;
         }
 
-        $this->_conn->set_charset($params['charset']);
+        $this->conn->set_charset($params['charset']);
     }
 
     /**
@@ -90,7 +90,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
      */
     public function getWrappedResourceHandle()
     {
-        return $this->_conn;
+        return $this->conn;
     }
 
     /**
@@ -103,14 +103,14 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
      */
     public function getServerVersion()
     {
-        $serverInfos = $this->_conn->get_server_info();
+        $serverInfos = $this->conn->get_server_info();
         if (stripos($serverInfos, 'mariadb') !== false) {
             return $serverInfos;
         }
 
-        $majorVersion = floor($this->_conn->server_version / 10000);
-        $minorVersion = floor(($this->_conn->server_version - $majorVersion * 10000) / 100);
-        $patchVersion = floor($this->_conn->server_version - $majorVersion * 10000 - $minorVersion * 100);
+        $majorVersion = floor($this->conn->server_version / 10000);
+        $minorVersion = floor(($this->conn->server_version - $majorVersion * 10000) / 100);
+        $patchVersion = floor($this->conn->server_version - $majorVersion * 10000 - $minorVersion * 100);
 
         return $majorVersion . '.' . $minorVersion . '.' . $patchVersion;
     }
@@ -128,7 +128,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
      */
     public function prepare($prepareString)
     {
-        return new MysqliStatement($this->_conn, $prepareString);
+        return new MysqliStatement($this->conn, $prepareString);
     }
 
     /**
@@ -149,7 +149,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
      */
     public function quote($input, $type = ParameterType::STRING)
     {
-        return "'" . $this->_conn->escape_string($input) . "'";
+        return "'" . $this->conn->escape_string($input) . "'";
     }
 
     /**
@@ -157,11 +157,11 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
      */
     public function exec($statement)
     {
-        if ($this->_conn->query($statement) === false) {
-            throw new MysqliException($this->_conn->error, $this->_conn->sqlstate, $this->_conn->errno);
+        if ($this->conn->query($statement) === false) {
+            throw new MysqliException($this->conn->error, $this->conn->sqlstate, $this->conn->errno);
         }
 
-        return $this->_conn->affected_rows;
+        return $this->conn->affected_rows;
     }
 
     /**
@@ -169,7 +169,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
      */
     public function lastInsertId($name = null)
     {
-        return $this->_conn->insert_id;
+        return $this->conn->insert_id;
     }
 
     /**
@@ -177,7 +177,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
      */
     public function beginTransaction()
     {
-        $this->_conn->query('START TRANSACTION');
+        $this->conn->query('START TRANSACTION');
 
         return true;
     }
@@ -187,7 +187,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
      */
     public function commit()
     {
-        return $this->_conn->commit();
+        return $this->conn->commit();
     }
 
     /**
@@ -195,7 +195,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
      */
     public function rollBack()
     {
-        return $this->_conn->rollback();
+        return $this->conn->rollback();
     }
 
     /**
@@ -203,7 +203,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
      */
     public function errorCode()
     {
-        return $this->_conn->errno;
+        return $this->conn->errno;
     }
 
     /**
@@ -211,7 +211,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
      */
     public function errorInfo()
     {
-        return $this->_conn->error;
+        return $this->conn->error;
     }
 
     /**
@@ -249,17 +249,17 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
                 );
             }
 
-            if (@mysqli_options($this->_conn, $option, $value)) {
+            if (@mysqli_options($this->conn, $option, $value)) {
                 continue;
             }
 
             $msg  = sprintf($exceptionMsg, 'Failed to set', $option, $value);
-            $msg .= sprintf(', error: %s (%d)', mysqli_error($this->_conn), mysqli_errno($this->_conn));
+            $msg .= sprintf(', error: %s (%d)', mysqli_error($this->conn), mysqli_errno($this->conn));
 
             throw new MysqliException(
                 $msg,
-                $this->_conn->sqlstate,
-                $this->_conn->errno
+                $this->conn->sqlstate,
+                $this->conn->errno
             );
         }
     }
@@ -271,7 +271,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
      */
     public function ping()
     {
-        return $this->_conn->ping();
+        return $this->conn->ping();
     }
 
     /**
@@ -292,7 +292,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
             return;
         }
 
-        $this->_conn->ssl_set(
+        $this->conn->ssl_set(
             $params['ssl_key']    ?? null,
             $params['ssl_cert']   ?? null,
             $params['ssl_ca']     ?? null,

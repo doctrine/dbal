@@ -103,7 +103,7 @@ class Connection implements DriverConnection
      *
      * @var bool
      */
-    private $_isConnected = false;
+    private $isConnected = false;
 
     /**
      * The current auto-commit mode of this connection.
@@ -117,28 +117,28 @@ class Connection implements DriverConnection
      *
      * @var int
      */
-    private $_transactionNestingLevel = 0;
+    private $transactionNestingLevel = 0;
 
     /**
      * The currently active transaction isolation level.
      *
      * @var int
      */
-    private $_transactionIsolationLevel;
+    private $transactionIsolationLevel;
 
     /**
      * If nested transactions should use savepoints.
      *
      * @var bool
      */
-    private $_nestTransactionsWithSavepoints = false;
+    private $nestTransactionsWithSavepoints = false;
 
     /**
      * The parameters used during creation of the Connection instance.
      *
      * @var mixed[]
      */
-    private $_params = [];
+    private $params = [];
 
     /**
      * The DatabasePlatform object that provides information about the
@@ -167,7 +167,7 @@ class Connection implements DriverConnection
      *
      * @var bool
      */
-    private $_isRollbackOnly = false;
+    private $isRollbackOnly = false;
 
     /** @var int */
     protected $defaultFetchMode = FetchMode::ASSOCIATIVE;
@@ -189,12 +189,12 @@ class Connection implements DriverConnection
         ?EventManager $eventManager = null
     ) {
         $this->_driver = $driver;
-        $this->_params = $params;
+        $this->params  = $params;
 
         if (isset($params['pdo'])) {
-            $this->_conn        = $params['pdo'];
-            $this->_isConnected = true;
-            unset($this->_params['pdo']);
+            $this->_conn       = $params['pdo'];
+            $this->isConnected = true;
+            unset($this->params['pdo']);
         }
 
         if (isset($params['platform'])) {
@@ -203,7 +203,7 @@ class Connection implements DriverConnection
             }
 
             $this->platform = $params['platform'];
-            unset($this->_params['platform']);
+            unset($this->params['platform']);
         }
 
         // Create default config and event manager if none given
@@ -230,7 +230,7 @@ class Connection implements DriverConnection
      */
     public function getParams()
     {
-        return $this->_params;
+        return $this->params;
     }
 
     /**
@@ -250,7 +250,7 @@ class Connection implements DriverConnection
      */
     public function getHost()
     {
-        return $this->_params['host'] ?? null;
+        return $this->params['host'] ?? null;
     }
 
     /**
@@ -260,7 +260,7 @@ class Connection implements DriverConnection
      */
     public function getPort()
     {
-        return $this->_params['port'] ?? null;
+        return $this->params['port'] ?? null;
     }
 
     /**
@@ -270,7 +270,7 @@ class Connection implements DriverConnection
      */
     public function getUsername()
     {
-        return $this->_params['user'] ?? null;
+        return $this->params['user'] ?? null;
     }
 
     /**
@@ -280,7 +280,7 @@ class Connection implements DriverConnection
      */
     public function getPassword()
     {
-        return $this->_params['password'] ?? null;
+        return $this->params['password'] ?? null;
     }
 
     /**
@@ -347,16 +347,16 @@ class Connection implements DriverConnection
      */
     public function connect()
     {
-        if ($this->_isConnected) {
+        if ($this->isConnected) {
             return false;
         }
 
-        $driverOptions = $this->_params['driverOptions'] ?? [];
-        $user          = $this->_params['user'] ?? null;
-        $password      = $this->_params['password'] ?? null;
+        $driverOptions = $this->params['driverOptions'] ?? [];
+        $user          = $this->params['user'] ?? null;
+        $password      = $this->params['password'] ?? null;
 
-        $this->_conn        = $this->_driver->connect($this->_params, $user, $password, $driverOptions);
-        $this->_isConnected = true;
+        $this->_conn       = $this->_driver->connect($this->params, $user, $password, $driverOptions);
+        $this->isConnected = true;
 
         if ($this->autoCommit === false) {
             $this->beginTransaction();
@@ -412,8 +412,8 @@ class Connection implements DriverConnection
         }
 
         // Explicit platform version requested (supersedes auto-detection).
-        if (isset($this->_params['serverVersion'])) {
-            return $this->_params['serverVersion'];
+        if (isset($this->params['serverVersion'])) {
+            return $this->params['serverVersion'];
         }
 
         // If not connected, we need to connect now to determine the platform version.
@@ -421,14 +421,14 @@ class Connection implements DriverConnection
             try {
                 $this->connect();
             } catch (Throwable $originalException) {
-                if (empty($this->_params['dbname'])) {
+                if (empty($this->params['dbname'])) {
                     throw $originalException;
                 }
 
                 // The database to connect to might not yet exist.
                 // Retry detection without database name connection parameter.
-                $databaseName            = $this->_params['dbname'];
-                $this->_params['dbname'] = null;
+                $databaseName           = $this->params['dbname'];
+                $this->params['dbname'] = null;
 
                 try {
                     $this->connect();
@@ -436,14 +436,14 @@ class Connection implements DriverConnection
                     // Either the platform does not support database-less connections
                     // or something else went wrong.
                     // Reset connection parameters and rethrow the original exception.
-                    $this->_params['dbname'] = $databaseName;
+                    $this->params['dbname'] = $databaseName;
 
                     throw $originalException;
                 }
 
                 // Reset connection parameters.
-                $this->_params['dbname'] = $databaseName;
-                $serverVersion           = $this->getServerVersion();
+                $this->params['dbname'] = $databaseName;
+                $serverVersion          = $this->getServerVersion();
 
                 // Close "temporary" connection to allow connecting to the real database again.
                 $this->close();
@@ -511,7 +511,7 @@ class Connection implements DriverConnection
         $this->autoCommit = $autoCommit;
 
         // Commit all currently active transactions if any when switching auto-commit mode.
-        if ($this->_isConnected !== true || $this->_transactionNestingLevel === 0) {
+        if ($this->isConnected !== true || $this->transactionNestingLevel === 0) {
             return;
         }
 
@@ -587,7 +587,7 @@ class Connection implements DriverConnection
      */
     public function isConnected()
     {
-        return $this->_isConnected;
+        return $this->isConnected;
     }
 
     /**
@@ -597,7 +597,7 @@ class Connection implements DriverConnection
      */
     public function isTransactionActive()
     {
-        return $this->_transactionNestingLevel > 0;
+        return $this->transactionNestingLevel > 0;
     }
 
     /**
@@ -668,7 +668,7 @@ class Connection implements DriverConnection
     {
         $this->_conn = null;
 
-        $this->_isConnected = false;
+        $this->isConnected = false;
     }
 
     /**
@@ -680,7 +680,7 @@ class Connection implements DriverConnection
      */
     public function setTransactionIsolation($level)
     {
-        $this->_transactionIsolationLevel = $level;
+        $this->transactionIsolationLevel = $level;
 
         return $this->executeUpdate($this->getDatabasePlatform()->getSetTransactionIsolationSQL($level));
     }
@@ -692,11 +692,11 @@ class Connection implements DriverConnection
      */
     public function getTransactionIsolation()
     {
-        if ($this->_transactionIsolationLevel === null) {
-            $this->_transactionIsolationLevel = $this->getDatabasePlatform()->getDefaultTransactionIsolationLevel();
+        if ($this->transactionIsolationLevel === null) {
+            $this->transactionIsolationLevel = $this->getDatabasePlatform()->getDefaultTransactionIsolationLevel();
         }
 
-        return $this->_transactionIsolationLevel;
+        return $this->transactionIsolationLevel;
     }
 
     /**
@@ -1110,7 +1110,7 @@ class Connection implements DriverConnection
      */
     public function getTransactionNestingLevel()
     {
-        return $this->_transactionNestingLevel;
+        return $this->transactionNestingLevel;
     }
 
     /**
@@ -1196,7 +1196,7 @@ class Connection implements DriverConnection
      */
     public function setNestTransactionsWithSavepoints($nestTransactionsWithSavepoints)
     {
-        if ($this->_transactionNestingLevel > 0) {
+        if ($this->transactionNestingLevel > 0) {
             throw ConnectionException::mayNotAlterNestedTransactionWithSavepointsInTransaction();
         }
 
@@ -1204,7 +1204,7 @@ class Connection implements DriverConnection
             throw ConnectionException::savepointsNotSupported();
         }
 
-        $this->_nestTransactionsWithSavepoints = (bool) $nestTransactionsWithSavepoints;
+        $this->nestTransactionsWithSavepoints = (bool) $nestTransactionsWithSavepoints;
     }
 
     /**
@@ -1214,7 +1214,7 @@ class Connection implements DriverConnection
      */
     public function getNestTransactionsWithSavepoints()
     {
-        return $this->_nestTransactionsWithSavepoints;
+        return $this->nestTransactionsWithSavepoints;
     }
 
     /**
@@ -1225,7 +1225,7 @@ class Connection implements DriverConnection
      */
     protected function _getNestedTransactionSavePointName()
     {
-        return 'DOCTRINE2_SAVEPOINT_' . $this->_transactionNestingLevel;
+        return 'DOCTRINE2_SAVEPOINT_' . $this->transactionNestingLevel;
     }
 
     /**
@@ -1237,11 +1237,11 @@ class Connection implements DriverConnection
     {
         $this->connect();
 
-        ++$this->_transactionNestingLevel;
+        ++$this->transactionNestingLevel;
 
         $logger = $this->_config->getSQLLogger();
 
-        if ($this->_transactionNestingLevel === 1) {
+        if ($this->transactionNestingLevel === 1) {
             if ($logger) {
                 $logger->startQuery('"START TRANSACTION"');
             }
@@ -1249,7 +1249,7 @@ class Connection implements DriverConnection
             if ($logger) {
                 $logger->stopQuery();
             }
-        } elseif ($this->_nestTransactionsWithSavepoints) {
+        } elseif ($this->nestTransactionsWithSavepoints) {
             if ($logger) {
                 $logger->startQuery('"SAVEPOINT"');
             }
@@ -1270,10 +1270,10 @@ class Connection implements DriverConnection
      */
     public function commit()
     {
-        if ($this->_transactionNestingLevel === 0) {
+        if ($this->transactionNestingLevel === 0) {
             throw ConnectionException::noActiveTransaction();
         }
-        if ($this->_isRollbackOnly) {
+        if ($this->isRollbackOnly) {
             throw ConnectionException::commitFailedRollbackOnly();
         }
 
@@ -1281,7 +1281,7 @@ class Connection implements DriverConnection
 
         $logger = $this->_config->getSQLLogger();
 
-        if ($this->_transactionNestingLevel === 1) {
+        if ($this->transactionNestingLevel === 1) {
             if ($logger) {
                 $logger->startQuery('"COMMIT"');
             }
@@ -1289,7 +1289,7 @@ class Connection implements DriverConnection
             if ($logger) {
                 $logger->stopQuery();
             }
-        } elseif ($this->_nestTransactionsWithSavepoints) {
+        } elseif ($this->nestTransactionsWithSavepoints) {
             if ($logger) {
                 $logger->startQuery('"RELEASE SAVEPOINT"');
             }
@@ -1299,9 +1299,9 @@ class Connection implements DriverConnection
             }
         }
 
-        --$this->_transactionNestingLevel;
+        --$this->transactionNestingLevel;
 
-        if ($this->autoCommit !== false || $this->_transactionNestingLevel !== 0) {
+        if ($this->autoCommit !== false || $this->transactionNestingLevel !== 0) {
             return;
         }
 
@@ -1313,8 +1313,8 @@ class Connection implements DriverConnection
      */
     private function commitAll()
     {
-        while ($this->_transactionNestingLevel !== 0) {
-            if ($this->autoCommit === false && $this->_transactionNestingLevel === 1) {
+        while ($this->transactionNestingLevel !== 0) {
+            if ($this->autoCommit === false && $this->transactionNestingLevel === 1) {
                 // When in no auto-commit mode, the last nesting commit immediately starts a new transaction.
                 // Therefore we need to do the final commit here and then leave to avoid an infinite loop.
                 $this->commit();
@@ -1333,7 +1333,7 @@ class Connection implements DriverConnection
      */
     public function rollBack()
     {
-        if ($this->_transactionNestingLevel === 0) {
+        if ($this->transactionNestingLevel === 0) {
             throw ConnectionException::noActiveTransaction();
         }
 
@@ -1341,13 +1341,13 @@ class Connection implements DriverConnection
 
         $logger = $this->_config->getSQLLogger();
 
-        if ($this->_transactionNestingLevel === 1) {
+        if ($this->transactionNestingLevel === 1) {
             if ($logger) {
                 $logger->startQuery('"ROLLBACK"');
             }
-            $this->_transactionNestingLevel = 0;
+            $this->transactionNestingLevel = 0;
             $this->_conn->rollBack();
-            $this->_isRollbackOnly = false;
+            $this->isRollbackOnly = false;
             if ($logger) {
                 $logger->stopQuery();
             }
@@ -1355,18 +1355,18 @@ class Connection implements DriverConnection
             if ($this->autoCommit === false) {
                 $this->beginTransaction();
             }
-        } elseif ($this->_nestTransactionsWithSavepoints) {
+        } elseif ($this->nestTransactionsWithSavepoints) {
             if ($logger) {
                 $logger->startQuery('"ROLLBACK TO SAVEPOINT"');
             }
             $this->rollbackSavepoint($this->_getNestedTransactionSavePointName());
-            --$this->_transactionNestingLevel;
+            --$this->transactionNestingLevel;
             if ($logger) {
                 $logger->stopQuery();
             }
         } else {
-            $this->_isRollbackOnly = true;
-            --$this->_transactionNestingLevel;
+            $this->isRollbackOnly = true;
+            --$this->transactionNestingLevel;
         }
     }
 
@@ -1465,10 +1465,10 @@ class Connection implements DriverConnection
      */
     public function setRollbackOnly()
     {
-        if ($this->_transactionNestingLevel === 0) {
+        if ($this->transactionNestingLevel === 0) {
             throw ConnectionException::noActiveTransaction();
         }
-        $this->_isRollbackOnly = true;
+        $this->isRollbackOnly = true;
     }
 
     /**
@@ -1480,11 +1480,11 @@ class Connection implements DriverConnection
      */
     public function isRollbackOnly()
     {
-        if ($this->_transactionNestingLevel === 0) {
+        if ($this->transactionNestingLevel === 0) {
             throw ConnectionException::noActiveTransaction();
         }
 
-        return $this->_isRollbackOnly;
+        return $this->isRollbackOnly;
     }
 
     /**
