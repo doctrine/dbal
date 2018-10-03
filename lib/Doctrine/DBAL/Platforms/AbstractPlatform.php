@@ -750,6 +750,18 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Returns the SQL to get the powered value of a column.
+     *
+     * @param string $value
+     *
+     * @return string
+     */
+    public function getPowerExpression($value)
+    {
+        return 'POWER(' . $value . ')';
+    }
+
+    /**
      * Returns the SQL snippet to round a numeric field to the number of decimals specified.
      *
      * @param string $column
@@ -1012,6 +1024,18 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Returns the SQL to get the arc-sine of a value.
+     *
+     * @param string $value
+     *
+     * @return string
+     */
+    public function getAsinExpression($value)
+    {
+        return 'ASIN(' . $value . ')';
+    }
+
+    /**
      * Returns the SQL to get the PI value.
      *
      * @return string
@@ -1031,6 +1055,54 @@ abstract class AbstractPlatform
     public function getCosExpression($value)
     {
         return 'COS(' . $value . ')';
+    }
+
+    /**
+     * Returns the SQL to get the tangent of a value.
+     *
+     * @param string $value
+     *
+     * @return string
+     */
+    public function getTanExpression($value)
+    {
+        return 'TAN(' . $value . ')';
+    }
+
+    /**
+     * Returns the SQL to get the arc-tangent of a value.
+     *
+     * @param string $value
+     *
+     * @return string
+     */
+    public function getAtanExpression($value)
+    {
+        return 'ATAN(' . $value . ')';
+    }
+
+    /**
+     * Returns the SQL to get the radians of a value.
+     *
+     * @param string $value
+     *
+     * @return string
+     */
+    public function getRadiansExpression($value)
+    {
+        return 'RADIANS(' . $value . ')';
+    }
+
+    /**
+     * Returns the SQL to get the degrees of a value.
+     *
+     * @param string $value
+     *
+     * @return string
+     */
+    public function getDegreesExpression($value)
+    {
+        return 'DEGREES(' . $value . ')';
     }
 
     /**
