@@ -6,8 +6,11 @@ use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\Tests\DbalFunctionalTestCase;
 
-final class DBALxxxTest extends DbalFunctionalTestCase
+final class DBAL2807Test extends DbalFunctionalTestCase
 {
+    /**
+     * {@inheritDoc}
+     */
     public function setUp()
     {
         parent::setUp();
@@ -20,6 +23,13 @@ final class DBALxxxTest extends DbalFunctionalTestCase
         }
     }
 
+    /**
+     * Ensures that the primary key is created within the same "alter table" statement that an auto-increment column
+     * is added to the table as part of the new primary key.
+     *
+     * Before the fix for this problem this resulted in a database error:
+     * SQLSTATE[42000]: Syntax error or access violation: 1075 Incorrect table definition; there can be only one auto column and it must be defined as a key
+     */
     public function testAlterPrimaryKeyToAutoIncrementColumn()
     {
         $table = new Table('my_table');
