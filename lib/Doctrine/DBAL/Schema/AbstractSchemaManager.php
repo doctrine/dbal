@@ -219,18 +219,12 @@ abstract class AbstractSchemaManager
      */
     protected function filterAssetNames($assetNames)
     {
-        $filterExpr = $this->getFilterSchemaAssetsExpression();
-        if (! $filterExpr) {
+        $filter = $this->_conn->getConfiguration()->getSchemaAssetsFilter();
+        if (! $filter) {
             return $assetNames;
         }
 
-        return array_values(
-            array_filter($assetNames, static function ($assetName) use ($filterExpr) {
-                $assetName = $assetName instanceof AbstractAsset ? $assetName->getName() : $assetName;
-
-                return preg_match($filterExpr, $assetName);
-            })
-        );
+        return array_values(array_filter($assetNames, $filter));
     }
 
     /**

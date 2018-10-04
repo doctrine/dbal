@@ -4,6 +4,8 @@ namespace Doctrine\DBAL;
 
 use Doctrine\Common\Cache\Cache;
 use Doctrine\DBAL\Logging\SQLLogger;
+use Doctrine\DBAL\Schema\AbstractAsset;
+use function preg_match;
 
 /**
  * Configuration container for the Doctrine DBAL.
@@ -75,6 +77,11 @@ class Configuration
     public function setFilterSchemaAssetsExpression($filterExpression)
     {
         $this->_attributes['filterSchemaAssetsExpression'] = $filterExpression;
+        if ($filterExpression) {
+            $this->_attributes['filterSchemaAssetsExpressionCallable'] = $this->buildSchemaAssetsFilterFromExpression($filterExpression);
+        } else {
+            $this->_attributes['filterSchemaAssetsExpressionCallable'] = null;
+        }
     }
 
     /**
@@ -85,6 +92,36 @@ class Configuration
     public function getFilterSchemaAssetsExpression()
     {
         return $this->_attributes['filterSchemaAssetsExpression'] ?? null;
+    }
+
+    /**
+     * @param string $filterExpression
+     */
+    private function buildSchemaAssetsFilterFromExpression($filterExpression) : callable
+    {
+        return static function ($assetName) use ($filterExpression) {
+            if ($assetName instanceof AbstractAsset) {
+                $assetName = $assetName->getName();
+            }
+            return preg_match($filterExpression, $assetName);
+        };
+    }
+
+    /**
+     * Sets the callable to use to filter schema assets.
+     */
+    public function setSchemaAssetsFilter(?callable $callable = null) : ?callable
+    {
+        $this->_attributes['filterSchemaAssetsExpression']                = null;
+        return $this->_attributes['filterSchemaAssetsExpressionCallable'] = $callable;
+    }
+
+    /**
+     * Returns the callable to use to filter schema assets.
+     */
+    public function getSchemaAssetsFilter() : ?callable
+    {
+        return $this->_attributes['filterSchemaAssetsExpressionCallable'] ?? null;
     }
 
     /**
