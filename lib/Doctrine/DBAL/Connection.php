@@ -9,6 +9,7 @@ use Doctrine\DBAL\Cache\CacheException;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Cache\ResultCacheStatement;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
+use Doctrine\DBAL\Driver\PDOException;
 use Doctrine\DBAL\Driver\PingableConnection;
 use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
@@ -1671,7 +1672,7 @@ class Connection implements DriverConnection
             $this->query($this->getDatabasePlatform()->getDummySelectSQL());
 
             return true;
-        } catch (DBALException $e) {
+        } catch (PDOException | DBALException $e) {
             return false;
         }
     }

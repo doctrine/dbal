@@ -189,4 +189,14 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
         $conn->connect('master');
         self::assertTrue($conn->isConnectedToMaster());
     }
+
+    public function testPingDoesTriggersConnect()
+    {
+        $conn = $this->createMasterSlaveConnection();
+
+        $conn->connect('master');
+
+        self::assertTrue($conn->ping());
+        self::assertTrue($conn->isConnectedToMaster());
+    }
 }
