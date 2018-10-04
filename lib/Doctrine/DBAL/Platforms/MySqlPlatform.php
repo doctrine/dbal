@@ -622,6 +622,18 @@ class MySqlPlatform extends AbstractPlatform
             $queryParts[] = 'ADD PRIMARY KEY (' . implode(', ', $keyColumns) . ')';
             unset($diff->addedIndexes['primary']);
         }
+        // Necessary in case the new primary key includes a new auto_increment column
+        elseif (isset($diff->changedIndexes['primary'])) {
+            foreach ($diff->changedIndexes['primary']->getColumns() as $columnName) {
+                if (isset($diff->addedColumns[$columnName]) && $diff->addedColumns[$columnName]->getAutoincrement()) {
+                    $keyColumns = array_unique(array_values($diff->changedIndexes['primary']->getColumns()));
+                    $queryParts[] = 'DROP PRIMARY KEY';
+                    $queryParts[] = 'ADD PRIMARY KEY (' . implode(', ', $keyColumns) . ')';
+                    unset($diff->changedIndexes['primary']);
+                    break;
+                }
+            }
+        }
 
         $sql = [];
         $tableSql = [];
