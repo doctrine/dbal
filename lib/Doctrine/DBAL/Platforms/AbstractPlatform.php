@@ -3500,13 +3500,9 @@ abstract class AbstractPlatform
 
     /**
      * This is for test reasons, many vendors have special requirements for dummy statements.
-     *
-     * @return string
      */
-    public function getDummySelectSQL()
+    public function getDummySelectSQL(string $expression = '1') : string
     {
-        $expression = func_num_args() > 0 ? func_get_arg(0) : '1';
-
         return sprintf('SELECT %s', $expression);
     }
 
