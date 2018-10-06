@@ -70,6 +70,8 @@ class Configuration
      * schema instances generated for the active connection when calling
      * {AbstractSchemaManager#createSchema()}.
      *
+     * @deprecated Use Configuration::setSchemaAssetsFilter() instead
+     *
      * @param string $filterExpression
      *
      * @return void
@@ -86,6 +88,8 @@ class Configuration
 
     /**
      * Returns filter schema assets expression.
+     *
+     * @deprecated Use Configuration::getSchemaAssetsFilter() instead
      *
      * @return string|null
      */

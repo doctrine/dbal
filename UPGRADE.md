@@ -1,5 +1,9 @@
 # Upgrade to 2.9
 
+## Deprecated `Configuration::getFilterSchemaAssetsExpression()`, `::setFilterSchemaAssetsExpression()` and `AbstractSchemaManager::getFilterSchemaAssetsExpression()`.
+
+Regular expression-based filters are hard to extend by combining together. Instead, you may use callback-based filers via `::getSchemaAssetsFilter()` and `::getSchemaAssetsFilter()`. Callbacks can use regular expressions internally.
+
 ## Deprecated `Doctrine\DBAL\Types\Type::getDefaultLength()`
 
 This method was never used by DBAL internally. It is now deprecated and will be removed in DBAL 3.0.
