@@ -15,8 +15,6 @@ use InvalidArgumentException;
 use function array_merge;
 use function count;
 use function explode;
-use function func_get_arg;
-use function func_num_args;
 use function implode;
 use function preg_match;
 use function sprintf;
@@ -1106,10 +1104,8 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getDummySelectSQL()
+    public function getDummySelectSQL(string $expression = '1') : string
     {
-        $expression = func_num_args() > 0 ? func_get_arg(0) : '1';
-
         return sprintf('SELECT %s FROM DUAL', $expression);
     }
 
