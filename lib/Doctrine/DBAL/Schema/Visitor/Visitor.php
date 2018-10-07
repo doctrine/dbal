@@ -11,8 +11,6 @@ use Doctrine\DBAL\Schema\Table;
 
 /**
  * Schema Visitor used for Validation or Generation purposes.
- *
- * @link   www.doctrine-project.org
  */
 interface Visitor
 {

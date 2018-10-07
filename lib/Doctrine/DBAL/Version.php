@@ -8,8 +8,6 @@ use function version_compare;
 
 /**
  * Class to store and retrieve the version of Doctrine.
- *
- * @link   www.doctrine-project.org
  */
 class Version
 {

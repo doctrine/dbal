@@ -10,8 +10,6 @@ use function implode;
 
 /**
  * A Doctrine DBAL driver for the SAP Sybase SQL Anywhere PHP extension.
- *
- * @link   www.doctrine-project.org
  */
 class Driver extends AbstractSQLAnywhereDriver
 {

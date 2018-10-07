@@ -8,8 +8,6 @@ use function strtoupper;
 
 /**
  * Abstract interface for a SQL reserved keyword dictionary.
- *
- * @link    www.doctrine-project.org
  */
 abstract class KeywordList
 {

@@ -4,8 +4,6 @@ namespace Doctrine\DBAL\Platforms\Keywords;
 
 /**
  * SQLite Keywordlist.
- *
- * @link   www.doctrine-project.org
  */
 class SQLiteKeywords extends KeywordList
 {

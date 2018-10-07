@@ -6,8 +6,6 @@ use function sprintf;
 
 /**
  * Doctrine\DBAL\ConnectionException
- *
- * @link    www.doctrine-project.org
  */
 class SQLParserUtilsException extends DBALException
 {

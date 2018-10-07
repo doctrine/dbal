@@ -11,8 +11,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
  * support the correct features and SQL syntax of each version.
  * This interface should be implemented by drivers that are capable to do this
  * distinction.
- *
- * @link   www.doctrine-project.org
  */
 interface VersionAwarePlatformDriver
 {

@@ -1,11 +1,5 @@
 <?php
 
-/**
- * Conversion Exception is thrown when the database to PHP conversion fails.
- *
- * @link   www.doctrine-project.org
- */
-
 namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\DBALException;
@@ -19,6 +13,9 @@ use function sprintf;
 use function strlen;
 use function substr;
 
+/**
+ * Conversion Exception is thrown when the database to PHP conversion fails.
+ */
 class ConversionException extends DBALException
 {
     /**

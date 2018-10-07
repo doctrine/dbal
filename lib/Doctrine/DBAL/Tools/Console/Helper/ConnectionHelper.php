@@ -7,8 +7,6 @@ use Symfony\Component\Console\Helper\Helper;
 
 /**
  * Doctrine CLI Connection Helper.
- *
- * @link   www.doctrine-project.org
  */
 class ConnectionHelper extends Helper
 {

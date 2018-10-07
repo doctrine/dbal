@@ -6,8 +6,6 @@ use function in_array;
 
 /**
  * Represents the change of a column.
- *
- * @link   www.doctrine-project.org
  */
 class ColumnDiff
 {

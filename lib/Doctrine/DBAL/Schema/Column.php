@@ -12,8 +12,6 @@ use function trigger_error;
 
 /**
  * Object representation of a database column.
- *
- * @link   www.doctrine-project.org
  */
 class Column extends AbstractAsset
 {

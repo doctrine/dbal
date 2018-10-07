@@ -6,8 +6,6 @@ use Doctrine\Common\EventArgs;
 
 /**
  * Base class for schema related events.
- *
- * @link   www.doctrine-project.org
  */
 class SchemaEventArgs extends EventArgs
 {

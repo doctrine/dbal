@@ -24,8 +24,6 @@ use function sprintf;
  * the command line.
  *
  * @deprecated Use a database client application instead
- *
- * @link   www.doctrine-project.org
  */
 class ImportCommand extends Command
 {

@@ -16,8 +16,6 @@ use function version_compare;
 
 /**
  * Abstract base implementation of the {@link Doctrine\DBAL\Driver} interface for Microsoft SQL Server based drivers.
- *
- * @link   www.doctrine-project.org
  */
 abstract class AbstractSQLServerDriver implements Driver, VersionAwarePlatformDriver
 {

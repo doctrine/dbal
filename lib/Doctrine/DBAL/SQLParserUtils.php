@@ -20,8 +20,6 @@ use function substr;
 
 /**
  * Utility class that parses sql statements with regard to types and parameters.
- *
- * @link   www.doctrine-project.org
  */
 class SQLParserUtils
 {

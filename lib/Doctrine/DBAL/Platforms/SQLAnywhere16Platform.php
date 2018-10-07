@@ -8,8 +8,6 @@ use UnexpectedValueException;
 /**
  * The SQLAnywhere16Platform provides the behavior, features and SQL dialect of the
  * SAP Sybase SQL Anywhere 16 database platform.
- *
- * @link   www.doctrine-project.org
  */
 class SQLAnywhere16Platform extends SQLAnywhere12Platform
 {

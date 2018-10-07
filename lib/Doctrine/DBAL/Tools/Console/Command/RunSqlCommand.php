@@ -16,8 +16,6 @@ use function stripos;
 /**
  * Task for executing arbitrary SQL that can come from a file or directly from
  * the command line.
- *
- * @link   www.doctrine-project.org
  */
 class RunSqlCommand extends Command
 {

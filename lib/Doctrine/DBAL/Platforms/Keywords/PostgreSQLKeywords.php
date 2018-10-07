@@ -4,8 +4,6 @@ namespace Doctrine\DBAL\Platforms\Keywords;
 
 /**
  * PostgreSQL Keywordlist.
- *
- * @link   www.doctrine-project.org
  */
 class PostgreSQLKeywords extends KeywordList
 {

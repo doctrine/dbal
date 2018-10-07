@@ -4,8 +4,6 @@ namespace Doctrine\DBAL\Platforms\Keywords;
 
 /**
  * Oracle Keywordlist.
- *
- * @link   www.doctrine-project.org
  */
 class OracleKeywords extends KeywordList
 {

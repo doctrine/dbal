@@ -11,8 +11,6 @@ use Doctrine\DBAL\Schema\OracleSchemaManager;
 
 /**
  * Abstract base implementation of the {@link Doctrine\DBAL\Driver} interface for Oracle based drivers.
- *
- * @link   www.doctrine-project.org
  */
 abstract class AbstractOracleDriver implements Driver, ExceptionConverterDriver
 {

@@ -8,8 +8,6 @@ use Doctrine\DBAL\Events;
 
 /**
  * Session init listener for executing a single SQL statement right after a connection is opened.
- *
- * @link    www.doctrine-project.org
  */
 class SQLSessionInit implements EventSubscriber
 {

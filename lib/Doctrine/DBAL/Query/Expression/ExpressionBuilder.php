@@ -11,8 +11,6 @@ use function sprintf;
 
 /**
  * ExpressionBuilder class is responsible to dynamically create SQL query parts.
- *
- * @link   www.doctrine-project.org
  */
 class ExpressionBuilder
 {

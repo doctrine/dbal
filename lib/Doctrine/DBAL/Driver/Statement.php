@@ -9,8 +9,6 @@ use Doctrine\DBAL\ParameterType;
  * Drivers must implement this interface.
  *
  * This resembles (a subset of) the PDOStatement interface.
- *
- * @link   www.doctrine-project.org
  */
 interface Statement extends ResultStatement
 {

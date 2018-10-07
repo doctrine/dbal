@@ -4,8 +4,6 @@ namespace Doctrine\DBAL;
 
 /**
  * Contains all DBAL LockModes.
- *
- * @link   www.doctrine-project.org
  */
 class LockMode
 {

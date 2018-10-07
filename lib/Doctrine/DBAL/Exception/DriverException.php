@@ -7,8 +7,6 @@ use Exception;
 
 /**
  * Base class for all errors detected in the driver.
- *
- * @link   www.doctrine-project.org
  */
 class DriverException extends DBALException
 {

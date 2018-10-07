@@ -6,8 +6,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 /**
  * Marker interface for constraints.
- *
- * @link   www.doctrine-project.org
  */
 interface Constraint
 {

@@ -38,8 +38,6 @@ use function sprintf;
 
 /**
  * SAP SQL Anywhere implementation of the Statement interface.
- *
- * @link   www.doctrine-project.org
  */
 class SQLAnywhereStatement implements IteratorAggregate, Statement
 {

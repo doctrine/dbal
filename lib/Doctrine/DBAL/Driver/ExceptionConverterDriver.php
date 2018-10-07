@@ -4,8 +4,6 @@ namespace Doctrine\DBAL\Driver;
 
 /**
  * Contract for a driver that is capable of converting DBAL driver exceptions into standardized DBAL driver exceptions.
- *
- * @link   www.doctrine-project.org
  */
 interface ExceptionConverterDriver
 {

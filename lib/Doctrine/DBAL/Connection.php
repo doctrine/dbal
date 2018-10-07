@@ -34,8 +34,6 @@ use function key;
  * A wrapper around a Doctrine\DBAL\Driver\Connection that adds features like
  * events, transaction isolation levels, configuration, emulated transaction nesting,
  * lazy connecting and more.
- *
- * @link   www.doctrine-project.org
  */
 class Connection implements DriverConnection
 {

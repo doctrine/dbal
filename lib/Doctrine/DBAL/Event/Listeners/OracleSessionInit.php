@@ -20,8 +20,6 @@ use function implode;
  * NLS_DATE_FORMAT="YYYY-MM-DD HH24:MI:SS"
  * NLS_TIMESTAMP_FORMAT="YYYY-MM-DD HH24:MI:SS"
  * NLS_TIMESTAMP_TZ_FORMAT="YYYY-MM-DD HH24:MI:SS TZH:TZM"
- *
- * @link   www.doctrine-project.org
  */
 class OracleSessionInit implements EventSubscriber
 {

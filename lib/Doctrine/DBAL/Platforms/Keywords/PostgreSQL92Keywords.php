@@ -6,8 +6,6 @@ use function array_merge;
 
 /**
  * PostgreSQL 9.2 reserved keywords list.
- *
- * @link   www.doctrine-project.org
  */
 class PostgreSQL92Keywords extends PostgreSQL91Keywords
 {

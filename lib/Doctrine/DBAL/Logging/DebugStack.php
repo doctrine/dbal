@@ -6,8 +6,6 @@ use function microtime;
 
 /**
  * Includes executed SQLs in a Debug Stack.
- *
- * @link   www.doctrine-project.org
  */
 class DebugStack implements SQLLogger
 {

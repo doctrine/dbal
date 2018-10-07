@@ -4,8 +4,6 @@ namespace Doctrine\DBAL\Platforms\Keywords;
 
 /**
  * PostgreSQL 9.1 reserved keywords list.
- *
- * @link   www.doctrine-project.org
  */
 class PostgreSQL91Keywords extends PostgreSQLKeywords
 {

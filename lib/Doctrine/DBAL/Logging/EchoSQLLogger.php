@@ -7,8 +7,6 @@ use function var_dump;
 
 /**
  * A SQL logger that logs to the standard output using echo/var_dump.
- *
- * @link   www.doctrine-project.org
  */
 class EchoSQLLogger implements SQLLogger
 {
