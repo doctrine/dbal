@@ -10,8 +10,6 @@ use Doctrine\DBAL\Events;
  * MySQL Session Init Event Subscriber which allows to set the Client Encoding of the Connection.
  *
  * @deprecated Use "charset" option to PDO MySQL Connection instead.
- *
- * @link       www.doctrine-project.org
  */
 class MysqlSessionInit implements EventSubscriber
 {

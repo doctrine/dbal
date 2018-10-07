@@ -6,8 +6,6 @@ use function array_merge;
 
 /**
  * MySQL 8.0 reserved keywords list.
- *
- * @link   www.doctrine-project.org
  */
 class MySQL80Keywords extends MySQL57Keywords
 {

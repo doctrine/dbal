@@ -8,8 +8,6 @@ use Doctrine\DBAL\Types\Type;
 
 /**
  * Provides the behavior, features and SQL dialect of the MySQL 5.7 (5.7.9 GA) database platform.
- *
- * @link   www.doctrine-project.org
  */
 class MySQL57Platform extends MySqlPlatform
 {

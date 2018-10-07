@@ -14,8 +14,6 @@ use function rtrim;
 
 /**
  * Portability wrapper for a Statement.
- *
- * @link   www.doctrine-project.org
  */
 class Statement implements IteratorAggregate, DriverStatement
 {

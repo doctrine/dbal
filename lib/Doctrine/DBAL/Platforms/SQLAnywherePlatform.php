@@ -33,8 +33,6 @@ use function substr;
 /**
  * The SQLAnywherePlatform provides the behavior, features and SQL dialect of the
  * SAP Sybase SQL Anywhere 10 database platform.
- *
- * @link   www.doctrine-project.org
  */
 class SQLAnywherePlatform extends AbstractPlatform
 {

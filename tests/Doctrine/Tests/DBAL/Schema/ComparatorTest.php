@@ -17,9 +17,6 @@ use Doctrine\DBAL\Types\Type;
 use PHPUnit\Framework\TestCase;
 use function array_keys;
 
-/**
- * @link    www.doctrine-project.org
- */
 class ComparatorTest extends TestCase
 {
     public function testCompareSame1()

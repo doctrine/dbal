@@ -12,8 +12,6 @@ use function strlen;
 
 /**
  * Gathers SQL statements that allow to completely drop the current schema.
- *
- * @link   www.doctrine-project.org
  */
 class DropSchemaSqlCollector extends AbstractVisitor
 {

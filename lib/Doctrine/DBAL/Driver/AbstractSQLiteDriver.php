@@ -11,8 +11,6 @@ use function strpos;
 
 /**
  * Abstract base implementation of the {@link Doctrine\DBAL\Driver} interface for SQLite based drivers.
- *
- * @link   www.doctrine-project.org
  */
 abstract class AbstractSQLiteDriver implements Driver, ExceptionConverterDriver
 {

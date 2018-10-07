@@ -4,8 +4,6 @@ namespace Doctrine\DBAL\Schema;
 
 /**
  * Representation of a Database View.
- *
- * @link   www.doctrine-project.org
  */
 class View extends AbstractAsset
 {

@@ -28,8 +28,6 @@ use function substr;
  * The query builder does no validation whatsoever if certain features even work with the
  * underlying database vendor. Limit queries and joins are NOT applied to UPDATE and DELETE statements
  * even if some vendors such as MySQL support it.
- *
- * @link   www.doctrine-project.org
  */
 class QueryBuilder
 {

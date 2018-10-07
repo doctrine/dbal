@@ -9,8 +9,6 @@ use function sprintf;
 
 /**
  * Sequence structure.
- *
- * @link   www.doctrine-project.org
  */
 class Sequence extends AbstractAsset
 {

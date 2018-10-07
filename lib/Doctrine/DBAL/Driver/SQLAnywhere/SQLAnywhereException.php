@@ -13,8 +13,6 @@ use function sasql_stmt_error;
 
 /**
  * SAP Sybase SQL Anywhere driver exception.
- *
- * @link   www.doctrine-project.org
  */
 class SQLAnywhereException extends AbstractDriverException
 {

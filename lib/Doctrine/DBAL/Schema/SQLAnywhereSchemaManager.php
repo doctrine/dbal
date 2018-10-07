@@ -9,8 +9,6 @@ use function preg_replace;
 
 /**
  * SAP Sybase SQL Anywhere schema manager.
- *
- * @link   www.doctrine-project.org
  */
 class SQLAnywhereSchemaManager extends AbstractSchemaManager
 {

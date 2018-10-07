@@ -12,8 +12,6 @@ use function func_get_args;
 
 /**
  * Portability wrapper for a Connection.
- *
- * @link   www.doctrine-project.org
  */
 class Connection extends \Doctrine\DBAL\Connection
 {

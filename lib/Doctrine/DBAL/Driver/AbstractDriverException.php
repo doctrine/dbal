@@ -6,8 +6,6 @@ use Exception;
 
 /**
  * Abstract base implementation of the {@link DriverException} interface.
- *
- * @link   www.doctrine-project.org
  */
 abstract class AbstractDriverException extends Exception implements DriverException
 {

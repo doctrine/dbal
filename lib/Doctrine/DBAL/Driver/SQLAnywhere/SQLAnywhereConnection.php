@@ -25,8 +25,6 @@ use function sasql_set_option;
 
 /**
  * SAP Sybase SQL Anywhere implementation of the Connection interface.
- *
- * @link   www.doctrine-project.org
  */
 class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
 {

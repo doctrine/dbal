@@ -9,8 +9,6 @@ use function is_string;
 
 /**
  * Event Arguments used when the SQL query for dropping tables are generated inside Doctrine\DBAL\Platform\AbstractPlatform.
- *
- * @link   www.doctrine-project.org
  */
 class SchemaDropTableEventArgs extends SchemaEventArgs
 {

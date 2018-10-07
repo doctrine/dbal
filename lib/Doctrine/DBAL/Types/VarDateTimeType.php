@@ -12,8 +12,6 @@ use function date_create;
  * This type has performance implications as it runs twice as long as the regular
  * {@see DateTimeType}, however in certain PostgreSQL configurations with
  * TIMESTAMP(n) columns where n > 0 it is necessary to use this type.
- *
- * @link   www.doctrine-project.org
  */
 class VarDateTimeType extends DateTimeType
 {

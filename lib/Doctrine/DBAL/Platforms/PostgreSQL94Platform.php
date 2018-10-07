@@ -6,8 +6,6 @@ use Doctrine\DBAL\Types\Type;
 
 /**
  * Provides the behavior, features and SQL dialect of the PostgreSQL 9.4 database platform.
- *
- * @link   www.doctrine-project.org
  */
 class PostgreSQL94Platform extends PostgreSQL92Platform
 {

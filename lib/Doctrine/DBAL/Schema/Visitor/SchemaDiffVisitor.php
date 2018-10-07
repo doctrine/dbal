@@ -9,8 +9,6 @@ use Doctrine\DBAL\Schema\TableDiff;
 
 /**
  * Visit a SchemaDiff.
- *
- * @link    www.doctrine-project.org
  */
 interface SchemaDiffVisitor
 {

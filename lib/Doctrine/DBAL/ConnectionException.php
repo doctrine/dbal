@@ -2,9 +2,6 @@
 
 namespace Doctrine\DBAL;
 
-/**
- * @link   www.doctrine-project.org
- */
 class ConnectionException extends DBALException
 {
     /**

@@ -14,8 +14,6 @@ use function strtoupper;
 
 /**
  * An abstraction class for a foreign key constraint.
- *
- * @link   www.doctrine-project.org
  */
 class ForeignKeyConstraint extends AbstractAsset implements Constraint
 {

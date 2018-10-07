@@ -6,8 +6,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 /**
  * Table Diff.
- *
- * @link   www.doctrine-project.org
  */
 class TableDiff
 {

@@ -10,8 +10,6 @@ use function is_array;
 
 /**
  * Event Arguments used when SQL queries for changing table columns are generated inside Doctrine\DBAL\Platform\*Platform.
- *
- * @link   www.doctrine-project.org
  */
 class SchemaAlterTableChangeColumnEventArgs extends SchemaEventArgs
 {

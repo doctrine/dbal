@@ -7,8 +7,6 @@ use function array_merge;
 
 /**
  * Schema Diff.
- *
- * @link      www.doctrine-project.org
  */
 class SchemaDiff
 {

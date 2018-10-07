@@ -17,8 +17,6 @@ use function strtolower;
 
 /**
  * Object Representation of a table.
- *
- * @link   www.doctrine-project.org
  */
 class Table extends AbstractAsset
 {

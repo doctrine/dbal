@@ -4,8 +4,6 @@ namespace Doctrine\DBAL\Platforms\Keywords;
 
 /**
  * MySQL Keywordlist.
- *
- * @link   www.doctrine-project.org
  */
 class MySQLKeywords extends KeywordList
 {

@@ -59,9 +59,7 @@ use function trigger_error;
  * point of abstraction of platform-specific behaviors, features and SQL dialects.
  * They are a passive source of information.
  *
- * @link   www.doctrine-project.org
- *
- * @todo   Remove any unnecessary methods.
+ * @todo Remove any unnecessary methods.
  */
 abstract class AbstractPlatform
 {

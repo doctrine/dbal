@@ -8,8 +8,6 @@ use function implode;
 
 /**
  * Composite expression is responsible to build a group of similar expression.
- *
- * @link   www.doctrine-project.org
  */
 class CompositeExpression implements Countable
 {

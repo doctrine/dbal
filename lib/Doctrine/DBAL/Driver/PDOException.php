@@ -4,8 +4,6 @@ namespace Doctrine\DBAL\Driver;
 
 /**
  * Tiny wrapper for PDOException instances to implement the {@link DriverException} interface.
- *
- * @link   www.doctrine-project.org
  */
 class PDOException extends \PDOException implements DriverException
 {

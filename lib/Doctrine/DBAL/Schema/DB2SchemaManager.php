@@ -13,8 +13,6 @@ use function trim;
 
 /**
  * IBM Db2 Schema Manager.
- *
- * @link   www.doctrine-project.org
  */
 class DB2SchemaManager extends AbstractSchemaManager
 {

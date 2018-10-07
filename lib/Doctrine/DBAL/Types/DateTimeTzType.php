@@ -21,8 +21,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
  * attached with a timezone such as Europe/Berlin gets saved into the database with
  * the offset and re-created from persistence with only the offset, not the original timezone
  * attached.
- *
- * @link   www.doctrine-project.org
  */
 class DateTimeTzType extends Type implements PhpDateTimeMappingType
 {

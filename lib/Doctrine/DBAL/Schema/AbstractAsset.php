@@ -19,8 +19,6 @@ use function substr;
  *
  * This encapsulation hack is necessary to keep a consistent state of the database schema. Say we have a list of tables
  * array($tableName => Table($tableName)); if you want to rename the table, you have to make sure
- *
- * @link   www.doctrine-project.org
  */
 abstract class AbstractAsset
 {

@@ -10,8 +10,6 @@ use Doctrine\DBAL\Schema\AbstractSchemaManager;
 
 /**
  * Event Arguments used when a Driver connection is established inside Doctrine\DBAL\Connection.
- *
- * @link   www.doctrine-project.org
  */
 class ConnectionEventArgs extends EventArgs
 {

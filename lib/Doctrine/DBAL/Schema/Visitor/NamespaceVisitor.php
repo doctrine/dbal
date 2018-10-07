@@ -4,8 +4,6 @@ namespace Doctrine\DBAL\Schema\Visitor;
 
 /**
  * Visitor that can visit schema namespaces.
- *
- * @link   www.doctrine-project.org
  */
 interface NamespaceVisitor
 {

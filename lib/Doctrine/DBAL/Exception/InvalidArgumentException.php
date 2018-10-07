@@ -6,8 +6,6 @@ use Doctrine\DBAL\DBALException;
 
 /**
  * Exception to be thrown when invalid arguments are passed to any DBAL API
- *
- * @link   www.doctrine-project.org
  */
 class InvalidArgumentException extends DBALException
 {

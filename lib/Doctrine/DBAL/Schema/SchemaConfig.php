@@ -4,8 +4,6 @@ namespace Doctrine\DBAL\Schema;
 
 /**
  * Configuration for a Schema.
- *
- * @link   www.doctrine-project.org
  */
 class SchemaConfig
 {

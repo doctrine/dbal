@@ -7,8 +7,6 @@ use function sprintf;
 
 /**
  * Provides the behavior, features and SQL dialect of the PostgreSQL 9.2 database platform.
- *
- * @link   www.doctrine-project.org
  */
 class PostgreSQL92Platform extends PostgreSQL91Platform
 {

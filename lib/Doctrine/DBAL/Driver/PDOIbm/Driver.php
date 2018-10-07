@@ -7,8 +7,6 @@ use Doctrine\DBAL\Driver\PDOConnection;
 
 /**
  * Driver for the PDO IBM extension.
- *
- * @link   www.doctrine-project.org
  */
 class Driver extends AbstractDB2Driver
 {

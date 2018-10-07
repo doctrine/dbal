@@ -17,8 +17,6 @@ use function version_compare;
 
 /**
  * Abstract base implementation of the {@link Doctrine\DBAL\Driver} interface for SAP Sybase SQL Anywhere based drivers.
- *
- * @link   www.doctrine-project.org
  */
 abstract class AbstractSQLAnywhereDriver implements Driver, ExceptionConverterDriver, VersionAwarePlatformDriver
 {

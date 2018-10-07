@@ -5,8 +5,6 @@ namespace Doctrine\DBAL\Platforms;
 /**
  * The SQLAnywhere11Platform provides the behavior, features and SQL dialect of the
  * SAP Sybase SQL Anywhere 11 database platform.
- *
- * @link   www.doctrine-project.org
  */
 class SQLAnywhere11Platform extends SQLAnywherePlatform
 {

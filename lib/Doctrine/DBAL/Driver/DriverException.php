@@ -9,8 +9,6 @@ use Throwable;
  *
  * Driver exceptions provide the SQLSTATE of the driver
  * and the driver specific error code at the time the error occurred.
- *
- * @link   www.doctrine-project.org
  */
 interface DriverException extends Throwable
 {

@@ -15,8 +15,6 @@ use function strtolower;
 
 /**
  * Compares two Schemas and return an instance of SchemaDiff.
- *
- * @link   www.doctrine-project.org
  */
 class Comparator
 {

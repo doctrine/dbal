@@ -8,8 +8,6 @@ use Doctrine\DBAL\Types\Type;
  * Provides the behavior, features and SQL dialect of the MariaDB 10.2 (10.2.7 GA) database platform.
  *
  * Note: Should not be used with versions prior to 10.2.7.
- *
- * @link   www.doctrine-project.org
  */
 final class MariaDb1027Platform extends MySqlPlatform
 {
