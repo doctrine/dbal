@@ -25,19 +25,13 @@ The following database vendors are currently supported:
 
 The Doctrine 2 database layer can be used independently of the
 object-relational mapper. In order to use the DBAL all you need is
-the ``Doctrine\Common`` and ``Doctrine\DBAL`` namespaces. Once you
-have the Common and DBAL namespaces you must setup a class loader
-to be able to autoload the classes:
+the class loader provided by Composer, to be able to autoload the classes:
 
 .. code-block:: php
 
     <?php
-    use Doctrine\Common\ClassLoader;
-
-    require '/path/to/doctrine/lib/Doctrine/Common/ClassLoader.php';
-
-    $classLoader = new ClassLoader('Doctrine', '/path/to/doctrine');
-    $classLoader->register();
+    
+    require_once 'vendor/autoload.php';
 
 Now you are able to load classes that are in the
 ``/path/to/doctrine`` directory like
