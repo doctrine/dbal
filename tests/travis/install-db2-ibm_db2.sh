@@ -4,6 +4,8 @@ set -ex
 
 echo "Installing extension"
 (
+    # updating APT packages as per support recommendation
+    sudo apt -y -q update
     sudo apt install ksh
 
     cd /tmp
