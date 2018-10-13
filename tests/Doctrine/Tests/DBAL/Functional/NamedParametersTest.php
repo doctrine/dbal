@@ -6,13 +6,15 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\Tests\DbalFunctionalTestCase;
+use Throwable;
 use const CASE_LOWER;
 use function array_change_key_case;
 
 /**
  * @group DDC-1372
  */
-class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
+class NamedParametersTest extends DbalFunctionalTestCase
 {
     public function ticketProvider()
     {
@@ -149,63 +151,66 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         parent::setUp();
 
-        if (! $this->_conn->getSchemaManager()->tablesExist('ddc1372_foobar')) {
-            try {
-                $table = new Table('ddc1372_foobar');
-                $table->addColumn('id', 'integer');
-                $table->addColumn('foo', 'string');
-                $table->addColumn('bar', 'string');
-                $table->setPrimaryKey(['id']);
+        if ($this->connection->getSchemaManager()->tablesExist('ddc1372_foobar')) {
+            return;
+        }
 
-                $sm = $this->_conn->getSchemaManager();
-                $sm->createTable($table);
+        try {
+            $table = new Table('ddc1372_foobar');
+            $table->addColumn('id', 'integer');
+            $table->addColumn('foo', 'string');
+            $table->addColumn('bar', 'string');
+            $table->setPrimaryKey(['id']);
 
-                $this->_conn->insert('ddc1372_foobar', [
-                    'id'  => 1,
-                    'foo' => 1,
-                    'bar' => 1,
-                ]);
-                $this->_conn->insert('ddc1372_foobar', [
-                    'id'  => 2,
-                    'foo' => 1,
-                    'bar' => 2,
-                ]);
-                $this->_conn->insert('ddc1372_foobar', [
-                    'id'  => 3,
-                    'foo' => 1,
-                    'bar' => 3,
-                ]);
-                $this->_conn->insert('ddc1372_foobar', [
-                    'id'  => 4,
-                    'foo' => 1,
-                    'bar' => 4,
-                ]);
-                $this->_conn->insert('ddc1372_foobar', [
-                    'id'  => 5,
-                    'foo' => 2,
-                    'bar' => 1,
-                ]);
-                $this->_conn->insert('ddc1372_foobar', [
-                    'id'  => 6,
-                    'foo' => 2,
-                    'bar' => 2,
-                ]);
-            } catch(\Exception $e) {
-                $this->fail($e->getMessage());
-            }
+            $sm = $this->connection->getSchemaManager();
+            $sm->createTable($table);
+
+            $this->connection->insert('ddc1372_foobar', [
+                'id'  => 1,
+                'foo' => 1,
+                'bar' => 1,
+            ]);
+            $this->connection->insert('ddc1372_foobar', [
+                'id'  => 2,
+                'foo' => 1,
+                'bar' => 2,
+            ]);
+            $this->connection->insert('ddc1372_foobar', [
+                'id'  => 3,
+                'foo' => 1,
+                'bar' => 3,
+            ]);
+            $this->connection->insert('ddc1372_foobar', [
+                'id'  => 4,
+                'foo' => 1,
+                'bar' => 4,
+            ]);
+            $this->connection->insert('ddc1372_foobar', [
+                'id'  => 5,
+                'foo' => 2,
+                'bar' => 1,
+            ]);
+            $this->connection->insert('ddc1372_foobar', [
+                'id'  => 6,
+                'foo' => 2,
+                'bar' => 2,
+            ]);
+        } catch (Throwable $e) {
+            $this->fail($e->getMessage());
         }
     }
 
     /**
+     * @param string  $query
+     * @param mixed[] $params
+     * @param int[]   $types
+     * @param int[]   $expected
+     *
      * @dataProvider ticketProvider
-     * @param string $query
-     * @param array  $params
-     * @param array  $types
-     * @param array  $expected
      */
-    public function testTicket($query,$params,$types,$expected)
+    public function testTicket($query, $params, $types, $expected)
     {
-        $stmt   = $this->_conn->executeQuery($query, $params, $types);
+        $stmt   = $this->connection->executeQuery($query, $params, $types);
         $result = $stmt->fetchAll(FetchMode::ASSOCIATIVE);
 
         foreach ($result as $k => $v) {

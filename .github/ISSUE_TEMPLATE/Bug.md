@@ -14,11 +14,11 @@ about: Something is broken? 🔨
 
 #### Summary
 
-<!-- Provide a summary desciribing the problem you are experiencing. -->
+<!-- Provide a summary describing the problem you are experiencing. -->
 
-#### Current behavior
+#### Current behaviour
 
-<!-- What is the current (buggy) behavior? -->
+<!-- What is the current (buggy) behaviour? -->
 
 #### How to reproduce
 
@@ -28,7 +28,7 @@ If possible, also add a code snippet with relevant configuration, driver/platfor
 Adding a failing Unit or Functional Test would help us a lot - you can submit one in a Pull Request separately, referencing this bug report.
 -->
 
-#### Expected behavior
+#### Expected behaviour
 
-<!-- What was the expected (correct) behavior? -->
+<!-- What was the expected (correct) behaviour? -->
 

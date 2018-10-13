@@ -1,29 +1,12 @@
 <?php
-/*
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
- * <http://www.doctrine-project.org>.
- */
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Visitor\CreateSchemaSqlCollector;
 use Doctrine\DBAL\Schema\Visitor\DropSchemaSqlCollector;
 use Doctrine\DBAL\Schema\Visitor\NamespaceVisitor;
 use Doctrine\DBAL\Schema\Visitor\Visitor;
-use Doctrine\DBAL\Platforms\AbstractPlatform;
 use function array_keys;
 use function strpos;
 use function strtolower;
@@ -51,48 +34,37 @@ use function strtolower;
  * the CREATE/DROP SQL visitors will just filter this queries and do not
  * execute them. Only the queries for the currently connected database are
  * executed.
- *
- * @link   www.doctrine-project.org
- * @since  2.0
- * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
 class Schema extends AbstractAsset
 {
     /**
      * The namespaces in this schema.
      *
-     * @var array
+     * @var string[]
      */
     private $namespaces = [];
 
-    /**
-     * @var \Doctrine\DBAL\Schema\Table[]
-     */
+    /** @var Table[] */
     protected $_tables = [];
 
-    /**
-     * @var \Doctrine\DBAL\Schema\Sequence[]
-     */
+    /** @var Sequence[] */
     protected $_sequences = [];
 
-    /**
-     * @var SchemaConfig
-     */
+    /** @var SchemaConfig */
     protected $_schemaConfig = false;
 
     /**
-     * @param \Doctrine\DBAL\Schema\Table[]      $tables
-     * @param \Doctrine\DBAL\Schema\Sequence[]   $sequences
-     * @param \Doctrine\DBAL\Schema\SchemaConfig $schemaConfig
-     * @param array                              $namespaces
+     * @param Table[]    $tables
+     * @param Sequence[] $sequences
+     * @param string[]   $namespaces
      */
     public function __construct(
         array $tables = [],
         array $sequences = [],
-        SchemaConfig $schemaConfig = null,
+        ?SchemaConfig $schemaConfig = null,
         array $namespaces = []
     ) {
-        if ($schemaConfig == null) {
+        if ($schemaConfig === null) {
             $schemaConfig = new SchemaConfig();
         }
         $this->_schemaConfig = $schemaConfig;
@@ -120,22 +92,20 @@ class Schema extends AbstractAsset
     }
 
     /**
-     * @param \Doctrine\DBAL\Schema\Table $table
-     *
      * @return void
      *
-     * @throws \Doctrine\DBAL\Schema\SchemaException
+     * @throws SchemaException
      */
     protected function _addTable(Table $table)
     {
         $namespaceName = $table->getNamespaceName();
-        $tableName = $table->getFullQualifiedName($this->getName());
+        $tableName     = $table->getFullQualifiedName($this->getName());
 
         if (isset($this->_tables[$tableName])) {
             throw SchemaException::tableAlreadyExists($tableName);
         }
 
-        if ( ! $table->isInDefaultNamespace($this->getName()) && ! $this->hasNamespace($namespaceName)) {
+        if (! $table->isInDefaultNamespace($this->getName()) && ! $this->hasNamespace($namespaceName)) {
             $this->createNamespace($namespaceName);
         }
 
@@ -144,22 +114,20 @@ class Schema extends AbstractAsset
     }
 
     /**
-     * @param \Doctrine\DBAL\Schema\Sequence $sequence
-     *
      * @return void
      *
-     * @throws \Doctrine\DBAL\Schema\SchemaException
+     * @throws SchemaException
      */
     protected function _addSequence(Sequence $sequence)
     {
         $namespaceName = $sequence->getNamespaceName();
-        $seqName = $sequence->getFullQualifiedName($this->getName());
+        $seqName       = $sequence->getFullQualifiedName($this->getName());
 
         if (isset($this->_sequences[$seqName])) {
             throw SchemaException::sequenceAlreadyExists($seqName);
         }
 
-        if ( ! $sequence->isInDefaultNamespace($this->getName()) && ! $this->hasNamespace($namespaceName)) {
+        if (! $sequence->isInDefaultNamespace($this->getName()) && ! $this->hasNamespace($namespaceName)) {
             $this->createNamespace($namespaceName);
         }
 
@@ -169,7 +137,7 @@ class Schema extends AbstractAsset
     /**
      * Returns the namespaces of this schema.
      *
-     * @return array A list of namespace names.
+     * @return string[] A list of namespace names.
      */
     public function getNamespaces()
     {
@@ -179,7 +147,7 @@ class Schema extends AbstractAsset
     /**
      * Gets all tables of this schema.
      *
-     * @return \Doctrine\DBAL\Schema\Table[]
+     * @return Table[]
      */
     public function getTables()
     {
@@ -189,14 +157,14 @@ class Schema extends AbstractAsset
     /**
      * @param string $tableName
      *
-     * @return \Doctrine\DBAL\Schema\Table
+     * @return Table
      *
-     * @throws \Doctrine\DBAL\Schema\SchemaException
+     * @throws SchemaException
      */
     public function getTable($tableName)
     {
         $tableName = $this->getFullQualifiedAssetName($tableName);
-        if (!isset($this->_tables[$tableName])) {
+        if (! isset($this->_tables[$tableName])) {
             throw SchemaException::tableDoesNotExist($tableName);
         }
 
@@ -212,8 +180,8 @@ class Schema extends AbstractAsset
     {
         $name = $this->getUnquotedAssetName($name);
 
-        if (strpos($name, ".") === false) {
-            $name = $this->getName() . "." . $name;
+        if (strpos($name, '.') === false) {
+            $name = $this->getName() . '.' . $name;
         }
 
         return strtolower($name);
@@ -266,7 +234,7 @@ class Schema extends AbstractAsset
     /**
      * Gets all table names, prefixed with a schema name, even the default one if present.
      *
-     * @return array
+     * @return string[]
      */
     public function getTableNames()
     {
@@ -288,14 +256,14 @@ class Schema extends AbstractAsset
     /**
      * @param string $sequenceName
      *
-     * @return \Doctrine\DBAL\Schema\Sequence
+     * @return Sequence
      *
-     * @throws \Doctrine\DBAL\Schema\SchemaException
+     * @throws SchemaException
      */
     public function getSequence($sequenceName)
     {
         $sequenceName = $this->getFullQualifiedAssetName($sequenceName);
-        if (!$this->hasSequence($sequenceName)) {
+        if (! $this->hasSequence($sequenceName)) {
             throw SchemaException::sequenceDoesNotExist($sequenceName);
         }
 
@@ -303,7 +271,7 @@ class Schema extends AbstractAsset
     }
 
     /**
-     * @return \Doctrine\DBAL\Schema\Sequence[]
+     * @return Sequence[]
      */
     public function getSequences()
     {
@@ -337,7 +305,7 @@ class Schema extends AbstractAsset
      *
      * @param string $tableName
      *
-     * @return \Doctrine\DBAL\Schema\Table
+     * @return Table
      */
     public function createTable($tableName)
     {
@@ -393,9 +361,9 @@ class Schema extends AbstractAsset
      * @param int    $allocationSize
      * @param int    $initialValue
      *
-     * @return \Doctrine\DBAL\Schema\Sequence
+     * @return Sequence
      */
-    public function createSequence($sequenceName, $allocationSize=1, $initialValue=1)
+    public function createSequence($sequenceName, $allocationSize = 1, $initialValue = 1)
     {
         $seq = new Sequence($sequenceName, $allocationSize, $initialValue);
         $this->_addSequence($seq);
@@ -419,9 +387,7 @@ class Schema extends AbstractAsset
     /**
      * Returns an array of necessary SQL queries to create the schema on the given platform.
      *
-     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform
-     *
-     * @return array
+     * @return string[]
      */
     public function toSql(AbstractPlatform $platform)
     {
@@ -434,9 +400,7 @@ class Schema extends AbstractAsset
     /**
      * Return an array of necessary SQL queries to drop the schema on the given platform.
      *
-     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform
-     *
-     * @return array
+     * @return string[]
      */
     public function toDropSql(AbstractPlatform $platform)
     {
@@ -447,10 +411,7 @@ class Schema extends AbstractAsset
     }
 
     /**
-     * @param \Doctrine\DBAL\Schema\Schema              $toSchema
-     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform
-     *
-     * @return array
+     * @return string[]
      */
     public function getMigrateToSql(Schema $toSchema, AbstractPlatform $platform)
     {
@@ -461,10 +422,7 @@ class Schema extends AbstractAsset
     }
 
     /**
-     * @param \Doctrine\DBAL\Schema\Schema              $fromSchema
-     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform
-     *
-     * @return array
+     * @return string[]
      */
     public function getMigrateFromSql(Schema $fromSchema, AbstractPlatform $platform)
     {
@@ -475,8 +433,6 @@ class Schema extends AbstractAsset
     }
 
     /**
-     * @param \Doctrine\DBAL\Schema\Visitor\Visitor $visitor
-     *
      * @return void
      */
     public function visit(Visitor $visitor)

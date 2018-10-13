@@ -2,69 +2,53 @@
 
 namespace Doctrine\Tests\Mocks;
 
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
+use Throwable;
 
-class DriverMock implements \Doctrine\DBAL\Driver
+class DriverMock implements Driver
 {
-    /**
-     * @var DatabasePlatformMock
-     */
-    private $_platformMock;
+    /** @var DatabasePlatformMock */
+    private $platformMock;
+
+    /** @var AbstractSchemaManager */
+    private $schemaManagerMock;
 
     /**
-     * @var AbstractSchemaManager
+     * {@inheritDoc}
      */
-    private $_schemaManagerMock;
-
-    public function connect(array $params, $username = null, $password = null, array $driverOptions = array())
+    public function connect(array $params, $username = null, $password = null, array $driverOptions = [])
     {
         return new DriverConnectionMock();
     }
 
-    /**
-     * Constructs the Sqlite PDO DSN.
-     *
-     * @return string  The DSN.
-     * @override
-     */
-    protected function _constructPdoDsn(array $params)
-    {
-        return "";
-    }
-
-    /**
-     * @override
-     */
     public function getDatabasePlatform()
     {
-        if ( ! $this->_platformMock) {
-            $this->_platformMock = new DatabasePlatformMock;
+        if (! $this->platformMock) {
+            $this->platformMock = new DatabasePlatformMock();
         }
-        return $this->_platformMock;
+        return $this->platformMock;
     }
 
-    /**
-     * @override
-     */
-    public function getSchemaManager(\Doctrine\DBAL\Connection $conn)
+    public function getSchemaManager(Connection $conn)
     {
-        if($this->_schemaManagerMock == null) {
+        if ($this->schemaManagerMock === null) {
             return new SchemaManagerMock($conn);
         }
 
-        return $this->_schemaManagerMock;
+        return $this->schemaManagerMock;
     }
 
-    /* MOCK API */
-
-    public function setDatabasePlatform(\Doctrine\DBAL\Platforms\AbstractPlatform $platform)
+    public function setDatabasePlatform(AbstractPlatform $platform)
     {
-        $this->_platformMock = $platform;
+        $this->platformMock = $platform;
     }
 
     public function setSchemaManager(AbstractSchemaManager $sm)
     {
-        $this->_schemaManagerMock = $sm;
+        $this->schemaManagerMock = $sm;
     }
 
     public function getName()
@@ -72,12 +56,12 @@ class DriverMock implements \Doctrine\DBAL\Driver
         return 'mock';
     }
 
-    public function getDatabase(\Doctrine\DBAL\Connection $conn)
+    public function getDatabase(Connection $conn)
     {
         return;
     }
 
-    public function convertExceptionCode(\Exception $exception)
+    public function convertExceptionCode(Throwable $exception)
     {
         return 0;
     }

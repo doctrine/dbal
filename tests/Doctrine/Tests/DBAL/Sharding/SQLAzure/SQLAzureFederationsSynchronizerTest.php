@@ -1,4 +1,5 @@
 <?php
+
 namespace Doctrine\Tests\DBAL\Sharding\SQLAzure;
 
 use Doctrine\DBAL\Sharding\SQLAzure\SQLAzureFederationsSynchronizer;
@@ -10,16 +11,16 @@ class SQLAzureFederationsSynchronizerTest extends AbstractTestCase
         $schema = $this->createShopSchema();
 
         $synchronizer = new SQLAzureFederationsSynchronizer($this->conn, $this->sm);
-        $sql = $synchronizer->getCreateSchema($schema);
+        $sql          = $synchronizer->getCreateSchema($schema);
 
-        self::assertEquals(array (
+        self::assertEquals([
             "--Create Federation\nCREATE FEDERATION Orders_Federation (CustID INT  RANGE)",
-            "USE FEDERATION Orders_Federation (CustID = 0) WITH RESET, FILTERING = OFF;",
-            "CREATE TABLE Products (ProductID INT NOT NULL, SupplierID INT NOT NULL, ProductName NVARCHAR(255) NOT NULL, Price NUMERIC(12, 2) NOT NULL, PRIMARY KEY (ProductID))",
-            "CREATE TABLE Customers (CustomerID INT NOT NULL, CompanyName NVARCHAR(255) NOT NULL, FirstName NVARCHAR(255) NOT NULL, LastName NVARCHAR(255) NOT NULL, PRIMARY KEY (CustomerID))",
-            "CREATE TABLE Orders (CustomerID INT NOT NULL, OrderID INT NOT NULL, OrderDate DATETIME2(6) NOT NULL, PRIMARY KEY (CustomerID, OrderID))",
-            "CREATE TABLE OrderItems (CustomerID INT NOT NULL, OrderID INT NOT NULL, ProductID INT NOT NULL, Quantity INT NOT NULL, PRIMARY KEY (CustomerID, OrderID, ProductID))",
-        ), $sql);
+            'USE FEDERATION Orders_Federation (CustID = 0) WITH RESET, FILTERING = OFF;',
+            'CREATE TABLE Products (ProductID INT NOT NULL, SupplierID INT NOT NULL, ProductName NVARCHAR(255) NOT NULL, Price NUMERIC(12, 2) NOT NULL, PRIMARY KEY (ProductID))',
+            'CREATE TABLE Customers (CustomerID INT NOT NULL, CompanyName NVARCHAR(255) NOT NULL, FirstName NVARCHAR(255) NOT NULL, LastName NVARCHAR(255) NOT NULL, PRIMARY KEY (CustomerID))',
+            'CREATE TABLE Orders (CustomerID INT NOT NULL, OrderID INT NOT NULL, OrderDate DATETIME2(6) NOT NULL, PRIMARY KEY (CustomerID, OrderID))',
+            'CREATE TABLE OrderItems (CustomerID INT NOT NULL, OrderID INT NOT NULL, ProductID INT NOT NULL, Quantity INT NOT NULL, PRIMARY KEY (CustomerID, OrderID, ProductID))',
+        ], $sql);
     }
 
     public function testUpdateSchema()
@@ -31,7 +32,7 @@ class SQLAzureFederationsSynchronizerTest extends AbstractTestCase
 
         $sql = $synchronizer->getUpdateSchema($schema);
 
-        self::assertEquals(array(), $sql);
+        self::assertEquals([], $sql);
     }
 
     public function testDropSchema()

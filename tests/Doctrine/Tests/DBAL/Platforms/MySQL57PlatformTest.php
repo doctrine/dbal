@@ -17,18 +17,18 @@ class MySQL57PlatformTest extends AbstractMySQLPlatformTestCase
 
     public function testHasNativeJsonType()
     {
-        self::assertTrue($this->_platform->hasNativeJsonType());
+        self::assertTrue($this->platform->hasNativeJsonType());
     }
 
     public function testReturnsJsonTypeDeclarationSQL()
     {
-        self::assertSame('JSON', $this->_platform->getJsonTypeDeclarationSQL(array()));
+        self::assertSame('JSON', $this->platform->getJsonTypeDeclarationSQL([]));
     }
 
     public function testInitializesJsonTypeMapping()
     {
-        self::assertTrue($this->_platform->hasDoctrineTypeMappingFor('json'));
-        self::assertSame(Type::JSON, $this->_platform->getDoctrineTypeMapping('json'));
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('json'));
+        self::assertSame(Type::JSON, $this->platform->getDoctrineTypeMapping('json'));
     }
 
     /**
@@ -36,9 +36,7 @@ class MySQL57PlatformTest extends AbstractMySQLPlatformTestCase
      */
     protected function getAlterTableRenameIndexSQL()
     {
-        return array(
-            'ALTER TABLE mytable RENAME INDEX idx_foo TO idx_bar',
-        );
+        return ['ALTER TABLE mytable RENAME INDEX idx_foo TO idx_bar'];
     }
 
     /**
@@ -46,10 +44,10 @@ class MySQL57PlatformTest extends AbstractMySQLPlatformTestCase
      */
     protected function getQuotedAlterTableRenameIndexSQL()
     {
-        return array(
+        return [
             'ALTER TABLE `table` RENAME INDEX `create` TO `select`',
             'ALTER TABLE `table` RENAME INDEX `foo` TO `bar`',
-        );
+        ];
     }
 
     /**
@@ -57,9 +55,7 @@ class MySQL57PlatformTest extends AbstractMySQLPlatformTestCase
      */
     protected function getAlterTableRenameIndexInSchemaSQL()
     {
-        return array(
-            'ALTER TABLE myschema.mytable RENAME INDEX idx_foo TO idx_bar',
-        );
+        return ['ALTER TABLE myschema.mytable RENAME INDEX idx_foo TO idx_bar'];
     }
 
     /**
@@ -67,10 +63,10 @@ class MySQL57PlatformTest extends AbstractMySQLPlatformTestCase
      */
     protected function getQuotedAlterTableRenameIndexInSchemaSQL()
     {
-        return array(
+        return [
             'ALTER TABLE `schema`.`table` RENAME INDEX `create` TO `select`',
             'ALTER TABLE `schema`.`table` RENAME INDEX `foo` TO `bar`',
-        );
+        ];
     }
 
     /**
@@ -78,8 +74,6 @@ class MySQL57PlatformTest extends AbstractMySQLPlatformTestCase
      */
     protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL()
     {
-        return array(
-            'ALTER TABLE mytable RENAME INDEX idx_foo TO idx_foo_renamed',
-        );
+        return ['ALTER TABLE mytable RENAME INDEX idx_foo TO idx_foo_renamed'];
     }
 }

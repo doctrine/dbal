@@ -4,37 +4,34 @@ namespace Doctrine\Tests\DBAL\Types;
 
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DBAL\Mocks\MockPlatform;
+use Doctrine\Tests\DbalTestCase;
 
-class BooleanTest extends \Doctrine\Tests\DbalTestCase
+class BooleanTest extends DbalTestCase
 {
-    /**
-     * @var MockPlatform
-     */
-    protected $_platform;
+    /** @var MockPlatform */
+    private $platform;
 
-    /**
-     * @var Type
-     */
-    protected $_type;
+    /** @var Type */
+    private $type;
 
     protected function setUp()
     {
-        $this->_platform = new MockPlatform();
-        $this->_type = Type::getType('boolean');
+        $this->platform = new MockPlatform();
+        $this->type     = Type::getType('boolean');
     }
 
     public function testBooleanConvertsToDatabaseValue()
     {
-        self::assertInternalType('integer', $this->_type->convertToDatabaseValue(1, $this->_platform));
+        self::assertInternalType('integer', $this->type->convertToDatabaseValue(1, $this->platform));
     }
 
     public function testBooleanConvertsToPHPValue()
     {
-        self::assertInternalType('bool', $this->_type->convertToPHPValue(0, $this->_platform));
+        self::assertInternalType('bool', $this->type->convertToPHPValue(0, $this->platform));
     }
 
     public function testBooleanNullConvertsToPHPValue()
     {
-        self::assertNull($this->_type->convertToPHPValue(null, $this->_platform));
+        self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }
 }

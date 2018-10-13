@@ -1,27 +1,31 @@
 <?php
 
 namespace Doctrine\Tests\DBAL\Functional\Ticket;
+
+use Doctrine\Tests\DbalFunctionalTestCase;
 use function in_array;
 
 /**
  * @group DBAL-752
  */
-class DBAL752Test extends \Doctrine\Tests\DbalFunctionalTestCase
+class DBAL752Test extends DbalFunctionalTestCase
 {
     protected function setUp()
     {
         parent::setUp();
 
-        $platform = $this->_conn->getDatabasePlatform()->getName();
+        $platform = $this->connection->getDatabasePlatform()->getName();
 
-        if (!in_array($platform, array('sqlite'))) {
-            $this->markTestSkipped('Related to SQLite only');
+        if (in_array($platform, ['sqlite'])) {
+            return;
         }
+
+        $this->markTestSkipped('Related to SQLite only');
     }
 
     public function testUnsignedIntegerDetection()
     {
-        $this->_conn->exec(<<<SQL
+        $this->connection->exec(<<<SQL
 CREATE TABLE dbal752_unsigneds (
     small SMALLINT,
     small_unsigned SMALLINT UNSIGNED,
@@ -35,7 +39,7 @@ CREATE TABLE dbal752_unsigneds (
 SQL
         );
 
-        $schemaManager = $this->_conn->getSchemaManager();
+        $schemaManager = $this->connection->getSchemaManager();
 
         $fetchedTable = $schemaManager->listTableDetails('dbal752_unsigneds');
 

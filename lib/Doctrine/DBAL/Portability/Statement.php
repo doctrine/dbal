@@ -1,72 +1,44 @@
 <?php
-/*
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
- * <http://www.doctrine-project.org>.
- */
 
 namespace Doctrine\DBAL\Portability;
 
+use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
+use IteratorAggregate;
+use PDO;
 use function array_change_key_case;
-use function is_null;
 use function is_string;
 use function rtrim;
 
 /**
  * Portability wrapper for a Statement.
- *
- * @link   www.doctrine-project.org
- * @since  2.0
- * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
-class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
+class Statement implements IteratorAggregate, DriverStatement
 {
-    /**
-     * @var int
-     */
+    /** @var int */
     private $portability;
 
-    /**
-     * @var \Doctrine\DBAL\Driver\Statement
-     */
+    /** @var DriverStatement */
     private $stmt;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $case;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $defaultFetchMode = FetchMode::MIXED;
 
     /**
      * Wraps <tt>Statement</tt> and applies portability measures.
      *
-     * @param \Doctrine\DBAL\Driver\Statement       $stmt
-     * @param \Doctrine\DBAL\Portability\Connection $conn
+     * @param DriverStatement $stmt
      */
     public function __construct($stmt, Connection $conn)
     {
-        $this->stmt = $stmt;
+        $this->stmt        = $stmt;
         $this->portability = $conn->getPortability();
-        $this->case = $conn->getFetchCase();
+        $this->case        = $conn->getFetchCase();
     }
 
     /**
@@ -146,7 +118,7 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null, $cursorOrientation = \PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
+    public function fetch($fetchMode = null, $cursorOrientation = PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
     {
         $fetchMode = $fetchMode ?: $this->defaultFetchMode;
 
@@ -180,7 +152,7 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
             && ($fetchMode === FetchMode::ASSOCIATIVE || $fetchMode === FetchMode::MIXED)
             && ($this->portability & Connection::PORTABILITY_FIX_CASE);
 
-        if ( ! $iterateRow && !$fixCase) {
+        if (! $iterateRow && ! $fixCase) {
             return $rows;
         }
 
@@ -208,11 +180,11 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
      * @param int   $iterateRow
      * @param bool  $fixCase
      *
-     * @return array
+     * @return mixed
      */
     protected function fixRow($row, $iterateRow, $fixCase)
     {
-        if ( ! $row) {
+        if (! $row) {
             return $row;
         }
 

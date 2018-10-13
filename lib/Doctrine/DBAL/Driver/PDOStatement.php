@@ -1,21 +1,4 @@
 <?php
-/*
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
- * <http://www.doctrine-project.org>.
- */
 
 namespace Doctrine\DBAL\Driver;
 
@@ -29,14 +12,9 @@ use function trigger_error;
 /**
  * The PDO implementation of the Statement interface.
  * Used by all PDO-based drivers.
- *
- * @since 2.0
  */
 class PDOStatement extends \PDOStatement implements Statement
 {
-    /**
-     * @var int[]
-     */
     private const PARAM_TYPE_MAP = [
         ParameterType::NULL         => PDO::PARAM_NULL,
         ParameterType::INTEGER      => PDO::PARAM_INT,
@@ -46,9 +24,6 @@ class PDOStatement extends \PDOStatement implements Statement
         ParameterType::BOOLEAN      => PDO::PARAM_BOOL,
     ];
 
-    /**
-     * @var int[]
-     */
     private const FETCH_MODE_MAP = [
         FetchMode::ASSOCIATIVE     => PDO::FETCH_ASSOC,
         FetchMode::NUMERIC         => PDO::FETCH_NUM,
@@ -148,20 +123,20 @@ class PDOStatement extends \PDOStatement implements Statement
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null, $cursorOrientation = \PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
+    public function fetch($fetchMode = null, $cursorOrientation = PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
     {
         $fetchMode = $this->convertFetchMode($fetchMode);
 
         try {
-            if ($fetchMode === null && \PDO::FETCH_ORI_NEXT === $cursorOrientation && 0 === $cursorOffset) {
+            if ($fetchMode === null && $cursorOrientation === PDO::FETCH_ORI_NEXT && $cursorOffset === 0) {
                 return parent::fetch();
             }
 
-            if (\PDO::FETCH_ORI_NEXT === $cursorOrientation && 0 === $cursorOffset) {
+            if ($cursorOrientation === PDO::FETCH_ORI_NEXT && $cursorOffset === 0) {
                 return parent::fetch($fetchMode);
             }
 
-            if (0 === $cursorOffset) {
+            if ($cursorOffset === 0) {
                 return parent::fetch($fetchMode, $cursorOrientation);
             }
 
@@ -179,15 +154,15 @@ class PDOStatement extends \PDOStatement implements Statement
         $fetchMode = $this->convertFetchMode($fetchMode);
 
         try {
-            if ($fetchMode === null && null === $fetchArgument && null === $ctorArgs) {
+            if ($fetchMode === null && $fetchArgument === null && $ctorArgs === null) {
                 return parent::fetchAll();
             }
 
-            if (null === $fetchArgument && null === $ctorArgs) {
+            if ($fetchArgument === null && $ctorArgs === null) {
                 return parent::fetchAll($fetchMode);
             }
 
-            if (null === $ctorArgs) {
+            if ($ctorArgs === null) {
                 return parent::fetchAll($fetchMode, $fetchArgument);
             }
 

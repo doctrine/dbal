@@ -2,6 +2,8 @@
 
 namespace Doctrine\Tests\DBAL\Types;
 
+use DateTime;
+use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\Type;
 use function date_default_timezone_set;
 
@@ -21,7 +23,7 @@ class DateTest extends BaseDateTypeTestCase
     {
         // Birthday of jwage and also birthday of Doctrine. Send him a present ;)
         self::assertInstanceOf(
-            \DateTime::class,
+            DateTime::class,
             $this->type->convertToPHPValue('1985-09-01', $this->platform)
         );
     }
@@ -33,7 +35,7 @@ class DateTest extends BaseDateTypeTestCase
         self::assertEquals('00:00:00', $date->format('H:i:s'));
     }
 
-    public function testDateRests_SummerTimeAffection()
+    public function testDateRestsSummerTimeAffection()
     {
         date_default_timezone_set('Europe/Berlin');
 
@@ -48,7 +50,7 @@ class DateTest extends BaseDateTypeTestCase
 
     public function testInvalidDateFormatConversion()
     {
-        $this->expectException('Doctrine\DBAL\Types\ConversionException');
+        $this->expectException(ConversionException::class);
         $this->type->convertToPHPValue('abcdefg', $this->platform);
     }
 }

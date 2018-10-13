@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Types\BooleanType;
 
 class Db2SchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
@@ -13,14 +14,14 @@ class Db2SchemaManagerTest extends SchemaManagerFunctionalTestCase
     {
         $table = new Table('boolean_column_test');
         $table->addColumn('bool', 'boolean');
-        $table->addColumn('bool_commented', 'boolean', array('comment' => "That's a comment"));
+        $table->addColumn('bool_commented', 'boolean', ['comment' => "That's a comment"]);
 
-        $this->_sm->createTable($table);
+        $this->schemaManager->createTable($table);
 
-        $columns = $this->_sm->listTableColumns('boolean_column_test');
+        $columns = $this->schemaManager->listTableColumns('boolean_column_test');
 
-        self::assertInstanceOf('Doctrine\DBAL\Types\BooleanType', $columns['bool']->getType());
-        self::assertInstanceOf('Doctrine\DBAL\Types\BooleanType', $columns['bool_commented']->getType());
+        self::assertInstanceOf(BooleanType::class, $columns['bool']->getType());
+        self::assertInstanceOf(BooleanType::class, $columns['bool_commented']->getType());
 
         self::assertNull($columns['bool']->getComment());
         self::assertSame("That's a comment", $columns['bool_commented']->getComment());

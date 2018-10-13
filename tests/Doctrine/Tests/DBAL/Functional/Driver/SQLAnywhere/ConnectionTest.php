@@ -4,9 +4,10 @@ namespace Doctrine\Tests\DBAL\Functional\Driver\SQLAnywhere;
 
 use Doctrine\DBAL\Driver\SQLAnywhere\Driver;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\Tests\DbalFunctionalTestCase;
 use function extension_loaded;
 
-class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
+class ConnectionTest extends DbalFunctionalTestCase
 {
     protected function setUp()
     {
@@ -16,14 +17,16 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         parent::setUp();
 
-        if (! $this->_conn->getDriver() instanceof Driver) {
-            $this->markTestSkipped('sqlanywhere only test.');
+        if ($this->connection->getDriver() instanceof Driver) {
+            return;
         }
+
+        $this->markTestSkipped('sqlanywhere only test.');
     }
 
     public function testNonPersistentConnection()
     {
-        $params = $this->_conn->getParams();
+        $params               = $this->connection->getParams();
         $params['persistent'] = false;
 
         $conn = DriverManager::getConnection($params);
@@ -35,7 +38,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testPersistentConnection()
     {
-        $params = $this->_conn->getParams();
+        $params               = $this->connection->getParams();
         $params['persistent'] = true;
 
         $conn = DriverManager::getConnection($params);

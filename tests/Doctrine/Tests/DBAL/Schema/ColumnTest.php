@@ -2,17 +2,20 @@
 
 namespace Doctrine\Tests\DBAL\Schema;
 
-use Doctrine\DBAL\Exception\InvalidArgumentException;
+use Doctrine\DBAL\Platforms\MySqlPlatform;
+use Doctrine\DBAL\Platforms\SqlitePlatform;
+use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Types\Type;
+use PHPUnit\Framework\TestCase;
 
-class ColumnTest extends \PHPUnit\Framework\TestCase
+class ColumnTest extends TestCase
 {
     public function testGet()
     {
         $column = $this->createColumn();
 
-        self::assertEquals("foo", $column->getName());
+        self::assertEquals('foo', $column->getName());
         self::assertSame(Type::getType('string'), $column->getType());
 
         self::assertEquals(200, $column->getLength());
@@ -21,14 +24,14 @@ class ColumnTest extends \PHPUnit\Framework\TestCase
         self::assertTrue($column->getUnsigned());
         self::assertFalse($column->getNotNull());
         self::assertTrue($column->getFixed());
-        self::assertEquals("baz", $column->getDefault());
+        self::assertEquals('baz', $column->getDefault());
 
-        self::assertEquals(array('foo' => 'bar'), $column->getPlatformOptions());
+        self::assertEquals(['foo' => 'bar'], $column->getPlatformOptions());
         self::assertTrue($column->hasPlatformOption('foo'));
         self::assertEquals('bar', $column->getPlatformOption('foo'));
         self::assertFalse($column->hasPlatformOption('bar'));
 
-        self::assertEquals(array('bar' => 'baz'), $column->getCustomSchemaOptions());
+        self::assertEquals(['bar' => 'baz'], $column->getCustomSchemaOptions());
         self::assertTrue($column->hasCustomSchemaOption('bar'));
         self::assertEquals('baz', $column->getCustomSchemaOption('bar'));
         self::assertFalse($column->hasCustomSchemaOption('foo'));
@@ -36,7 +39,7 @@ class ColumnTest extends \PHPUnit\Framework\TestCase
 
     public function testToArray()
     {
-        $expected = array(
+        $expected = [
             'name' => 'foo',
             'type' => Type::getType('string'),
             'default' => 'baz',
@@ -50,8 +53,8 @@ class ColumnTest extends \PHPUnit\Framework\TestCase
             'columnDefinition' => null,
             'comment' => null,
             'foo' => 'bar',
-            'bar' => 'baz'
-        );
+            'bar' => 'baz',
+        ];
 
         self::assertEquals($expected, $this->createColumn()->toArray());
     }
@@ -83,7 +86,7 @@ class ColumnTest extends \PHPUnit\Framework\TestCase
      */
     public function createColumn()
     {
-        $options = array(
+        $options = [
             'length' => 200,
             'precision' => 5,
             'scale' => 2,
@@ -91,12 +94,12 @@ class ColumnTest extends \PHPUnit\Framework\TestCase
             'notnull' => false,
             'fixed' => true,
             'default' => 'baz',
-            'platformOptions' => array('foo' => 'bar'),
-            'customSchemaOptions' => array('bar' => 'baz'),
-        );
+            'platformOptions' => ['foo' => 'bar'],
+            'customSchemaOptions' => ['bar' => 'baz'],
+        ];
 
         $string = Type::getType('string');
-        return new Column("foo", $string, $options);
+        return new Column('foo', $string, $options);
     }
 
     /**
@@ -106,18 +109,18 @@ class ColumnTest extends \PHPUnit\Framework\TestCase
     public function testQuotedColumnName()
     {
         $string = Type::getType('string');
-        $column = new Column("`bar`", $string, array());
+        $column = new Column('`bar`', $string, []);
 
-        $mysqlPlatform = new \Doctrine\DBAL\Platforms\MySqlPlatform();
-        $sqlitePlatform = new \Doctrine\DBAL\Platforms\SqlitePlatform();
+        $mysqlPlatform  = new MySqlPlatform();
+        $sqlitePlatform = new SqlitePlatform();
 
         self::assertEquals('bar', $column->getName());
         self::assertEquals('`bar`', $column->getQuotedName($mysqlPlatform));
         self::assertEquals('"bar"', $column->getQuotedName($sqlitePlatform));
 
-        $column = new Column("[bar]", $string);
+        $column = new Column('[bar]', $string);
 
-        $sqlServerPlatform = new \Doctrine\DBAL\Platforms\SQLServerPlatform();
+        $sqlServerPlatform = new SQLServerPlatform();
 
         self::assertEquals('bar', $column->getName());
         self::assertEquals('[bar]', $column->getQuotedName($sqlServerPlatform));
@@ -129,7 +132,7 @@ class ColumnTest extends \PHPUnit\Framework\TestCase
      */
     public function testIsQuoted($columnName, $isQuoted)
     {
-        $type = Type::getType('string');
+        $type   = Type::getType('string');
         $column = new Column($columnName, $type);
 
         self::assertSame($isQuoted, $column->isQuoted());
@@ -137,12 +140,12 @@ class ColumnTest extends \PHPUnit\Framework\TestCase
 
     public function getIsQuoted()
     {
-        return array(
-            array('bar', false),
-            array('`bar`', true),
-            array('"bar"', true),
-            array('[bar]', true),
-        );
+        return [
+            ['bar', false],
+            ['`bar`', true],
+            ['"bar"', true],
+            ['[bar]', true],
+        ];
     }
 
     /**
@@ -150,11 +153,11 @@ class ColumnTest extends \PHPUnit\Framework\TestCase
      */
     public function testColumnComment()
     {
-        $column = new Column("bar", Type::getType('string'));
+        $column = new Column('bar', Type::getType('string'));
         self::assertNull($column->getComment());
 
-        $column->setComment("foo");
-        self::assertEquals("foo", $column->getComment());
+        $column->setComment('foo');
+        self::assertEquals('foo', $column->getComment());
 
         $columnArray = $column->toArray();
         self::assertArrayHasKey('comment', $columnArray);

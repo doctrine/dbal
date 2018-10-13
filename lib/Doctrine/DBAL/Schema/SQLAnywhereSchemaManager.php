@@ -1,21 +1,4 @@
 <?php
-/*
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
- * <http://www.doctrine-project.org>.
- */
 
 namespace Doctrine\DBAL\Schema;
 
@@ -26,10 +9,6 @@ use function preg_replace;
 
 /**
  * SAP Sybase SQL Anywhere schema manager.
- *
- * @author Steve Müller <st.mueller@dzh-online.de>
- * @link   www.doctrine-project.org
- * @since  2.5
  */
 class SQLAnywhereSchemaManager extends AbstractSchemaManager
 {
@@ -114,11 +93,11 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
         $fixed                  = false;
         $default                = null;
 
-        if (null !== $tableColumn['default']) {
+        if ($tableColumn['default'] !== null) {
             // Strip quotes from default value.
-            $default = preg_replace(["/^'(.*)'$/", "/''/"], ["$1", "'"], $tableColumn['default']);
+            $default = preg_replace(["/^'(.*)'$/", "/''/"], ['$1', "'"], $tableColumn['default']);
 
-            if ('autoincrement' == $default) {
+            if ($default === 'autoincrement') {
                 $default = null;
             }
         }
@@ -134,14 +113,14 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
             case 'decimal':
             case 'float':
                 $precision = $tableColumn['length'];
-                $scale = $tableColumn['scale'];
+                $scale     = $tableColumn['scale'];
         }
 
         return new Column(
             $tableColumn['column_name'],
             Type::getType($type),
             [
-                'length'        => $type == 'string' ? $tableColumn['length'] : null,
+                'length'        => $type === 'string' ? $tableColumn['length'] : null,
                 'precision'     => $precision,
                 'scale'         => $scale,
                 'unsigned'      => (bool) $tableColumn['unsigned'],
@@ -149,7 +128,7 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
                 'notnull'       => (bool) $tableColumn['notnull'],
                 'default'       => $default,
                 'autoincrement' => (bool) $tableColumn['autoincrement'],
-                'comment'       => isset($tableColumn['comment']) && '' !== $tableColumn['comment']
+                'comment'       => isset($tableColumn['comment']) && $tableColumn['comment'] !== ''
                     ? $tableColumn['comment']
                     : null,
             ]
@@ -186,7 +165,7 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
         $foreignKeys = [];
 
         foreach ($tableForeignKeys as $tableForeignKey) {
-            if (!isset($foreignKeys[$tableForeignKey['index_name']])) {
+            if (! isset($foreignKeys[$tableForeignKey['index_name']])) {
                 $foreignKeys[$tableForeignKey['index_name']] = [
                     'local_columns'   => [$tableForeignKey['local_column']],
                     'foreign_table'   => $tableForeignKey['foreign_table'],
@@ -199,11 +178,11 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
                         'onDelete'          => $tableForeignKey['on_delete'],
                         'check_on_commit'   => $tableForeignKey['check_on_commit'],
                         'clustered'         => $tableForeignKey['clustered'],
-                        'for_olap_workload' => $tableForeignKey['for_olap_workload']
-                    ]
+                        'for_olap_workload' => $tableForeignKey['for_olap_workload'],
+                    ],
                 ];
             } else {
-                $foreignKeys[$tableForeignKey['index_name']]['local_columns'][] = $tableForeignKey['local_column'];
+                $foreignKeys[$tableForeignKey['index_name']]['local_columns'][]   = $tableForeignKey['local_column'];
                 $foreignKeys[$tableForeignKey['index_name']]['foreign_columns'][] = $tableForeignKey['foreign_column'];
             }
         }
@@ -217,8 +196,8 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
     protected function _getPortableTableIndexesList($tableIndexRows, $tableName = null)
     {
         foreach ($tableIndexRows as &$tableIndex) {
-            $tableIndex['primary'] = (boolean) $tableIndex['primary'];
-            $tableIndex['flags'] = [];
+            $tableIndex['primary'] = (bool) $tableIndex['primary'];
+            $tableIndex['flags']   = [];
 
             if ($tableIndex['clustered']) {
                 $tableIndex['flags'][] = 'clustered';
@@ -228,9 +207,11 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
                 $tableIndex['flags'][] = 'with_nulls_not_distinct';
             }
 
-            if ($tableIndex['for_olap_workload']) {
-                $tableIndex['flags'][] = 'for_olap_workload';
+            if (! $tableIndex['for_olap_workload']) {
+                continue;
             }
+
+            $tableIndex['flags'][] = 'for_olap_workload';
         }
 
         return parent::_getPortableTableIndexesList($tableIndexRows, $tableName);
@@ -243,7 +224,7 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
     {
         return new View(
             $view['table_name'],
-            preg_replace('/^.*\s+as\s+SELECT(.*)/i', "SELECT$1", $view['view_def'])
+            preg_replace('/^.*\s+as\s+SELECT(.*)/i', 'SELECT$1', $view['view_def'])
         );
     }
 }

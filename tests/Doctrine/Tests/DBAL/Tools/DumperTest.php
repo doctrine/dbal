@@ -9,6 +9,7 @@ use DateTimeImmutable;
 use DateTimeZone;
 use Doctrine\DBAL\Tools\Dumper;
 use Doctrine\Tests\DbalTestCase;
+use stdClass;
 use function print_r;
 use function strpos;
 use function substr;
@@ -17,7 +18,7 @@ class DumperTest extends DbalTestCase
 {
     public function testExportObject()
     {
-        $obj      = new \stdClass();
+        $obj      = new stdClass();
         $obj->foo = 'bar';
         $obj->bar = 1234;
 

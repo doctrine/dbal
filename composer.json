@@ -1,9 +1,18 @@
 {
     "name": "doctrine/dbal",
     "type": "library",
-    "description": "Database Abstraction Layer",
-    "keywords": ["dbal", "database", "persistence", "queryobject"],
-    "homepage": "http://www.doctrine-project.org",
+    "description": "Powerful PHP database abstraction layer (DBAL) with many features for database schema introspection and management.",
+    "keywords": [
+        "php",
+        "mysql",
+        "pgsql",
+        "dbal",
+        "database",
+        "abstraction",
+        "persistence",
+        "queryobject"
+    ],
+    "homepage": "https://www.doctrine-project.org/projects/dbal.html",
     "license": "MIT",
     "authors": [
         {"name": "Guilherme Blanco", "email": "guilhermeblanco@gmail.com"},
@@ -18,7 +27,7 @@
         "doctrine/event-manager": "^1.0"
     },
     "require-dev": {
-        "doctrine/coding-standard": "^4.0",
+        "doctrine/coding-standard": "^5.0",
         "jetbrains/phpstorm-stubs": "^2018.1.2",
         "phpstan/phpstan": "^0.10.1",
         "phpunit/phpunit": "^7.1.2",
@@ -34,18 +43,15 @@
         "sort-packages": true
     },
     "autoload": {
-        "psr-0": { "Doctrine\\DBAL\\": "lib/" }
+        "psr-4": { "Doctrine\\DBAL\\": "lib/Doctrine/DBAL" }
     },
     "autoload-dev": {
-        "psr-0": { "Doctrine\\Tests\\": "tests/" }
+        "psr-4": { "Doctrine\\Tests\\": "tests/Doctrine/Tests" }
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "2.8.x-dev",
+            "dev-master": "2.9.x-dev",
             "dev-develop": "3.0.x-dev"
         }
-    },
-    "archive": {
-        "exclude": ["!vendor", "tests", "*phpunit.xml", ".appveyor.yml", ".travis.yml", "build.xml", "build.properties", "composer.phar"]
     }
 }

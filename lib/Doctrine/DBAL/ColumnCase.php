@@ -2,6 +2,8 @@
 
 namespace Doctrine\DBAL;
 
+use PDO;
+
 /**
  * Contains portable column case conversions.
  */
@@ -12,14 +14,14 @@ final class ColumnCase
      *
      * @see \PDO::CASE_UPPER
      */
-    public const UPPER = \PDO::CASE_UPPER;
+    public const UPPER = PDO::CASE_UPPER;
 
     /**
      * Convert column names to lower case.
      *
      * @see \PDO::CASE_LOWER
      */
-    public const LOWER = \PDO::CASE_LOWER;
+    public const LOWER = PDO::CASE_LOWER;
 
     /**
      * This class cannot be instantiated.

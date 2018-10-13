@@ -1,48 +1,27 @@
 <?php
-/*
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
- * <http://www.doctrine-project.org>.
- */
 
 namespace Doctrine\DBAL\Platforms\Keywords;
 
-use Doctrine\DBAL\Schema\Visitor\Visitor;
-use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Sequence;
-use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\Visitor\Visitor;
 use function implode;
 use function str_replace;
 
 class ReservedKeywordsValidator implements Visitor
 {
-    /**
-     * @var KeywordList[]
-     */
+    /** @var KeywordList[] */
     private $keywordLists = [];
 
-    /**
-     * @var array
-     */
+    /** @var string[] */
     private $violations = [];
 
     /**
-     * @param \Doctrine\DBAL\Platforms\Keywords\KeywordList[] $keywordLists
+     * @param KeywordList[] $keywordLists
      */
     public function __construct(array $keywordLists)
     {
@@ -50,7 +29,7 @@ class ReservedKeywordsValidator implements Visitor
     }
 
     /**
-     * @return array
+     * @return string[]
      */
     public function getViolations()
     {
@@ -60,33 +39,35 @@ class ReservedKeywordsValidator implements Visitor
     /**
      * @param string $word
      *
-     * @return array
+     * @return string[]
      */
     private function isReservedWord($word)
     {
-        if ($word[0] == "`") {
+        if ($word[0] === '`') {
             $word = str_replace('`', '', $word);
         }
 
         $keywordLists = [];
         foreach ($this->keywordLists as $keywordList) {
-            if ($keywordList->isKeyword($word)) {
-                $keywordLists[] = $keywordList->getName();
+            if (! $keywordList->isKeyword($word)) {
+                continue;
             }
+
+            $keywordLists[] = $keywordList->getName();
         }
 
         return $keywordLists;
     }
 
     /**
-     * @param string $asset
-     * @param array  $violatedPlatforms
+     * @param string   $asset
+     * @param string[] $violatedPlatforms
      *
      * @return void
      */
     private function addViolation($asset, $violatedPlatforms)
     {
-        if ( ! $violatedPlatforms) {
+        if (! $violatedPlatforms) {
             return;
         }
 

@@ -2,23 +2,24 @@
 
 namespace Doctrine\Tests\DBAL\Query;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder;
+use Doctrine\DBAL\Query\QueryException;
+use Doctrine\Tests\DbalTestCase;
 
 /**
  * @group DBAL-12
  */
-class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
+class QueryBuilderTest extends DbalTestCase
 {
-    /**
-     * @var \Doctrine\DBAL\Connection
-     */
+    /** @var Connection */
     protected $conn;
 
     protected function setUp()
     {
-        $this->conn = $this->createMock('Doctrine\DBAL\Connection');
+        $this->conn = $this->createMock(Connection::class);
 
         $expressionBuilder = new ExpressionBuilder($this->conn);
 
@@ -58,7 +59,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
            ->from('users', 'u')
            ->where($expr->andX($expr->eq('u.nickname', '?')));
 
-        self::assertEquals("SELECT u.id FROM users u WHERE u.nickname = ?", (string) $qb);
+        self::assertEquals('SELECT u.id FROM users u WHERE u.nickname = ?', (string) $qb);
     }
 
     public function testSelectWithLeftJoin()
@@ -181,7 +182,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
         $expr = $qb->expr();
 
         $qb->select('u.*', 'p.*')
-           ->groupBy(array())
+           ->groupBy([])
            ->from('users', 'u');
 
         self::assertEquals('SELECT u.*, p.* FROM users u', (string) $qb);
@@ -193,7 +194,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
         $expr = $qb->expr();
 
         $qb->select('u.*', 'p.*')
-           ->addGroupBy(array())
+           ->addGroupBy([])
            ->from('users', 'u');
 
         self::assertEquals('SELECT u.*, p.* FROM users u', (string) $qb);
@@ -348,7 +349,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 
     public function testEmptySelect()
     {
-        $qb   = new QueryBuilder($this->conn);
+        $qb  = new QueryBuilder($this->conn);
         $qb2 = $qb->select();
 
         self::assertSame($qb, $qb2);
@@ -369,7 +370,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 
     public function testEmptyAddSelect()
     {
-        $qb   = new QueryBuilder($this->conn);
+        $qb  = new QueryBuilder($this->conn);
         $qb2 = $qb->addSelect();
 
         self::assertSame($qb, $qb2);
@@ -391,7 +392,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 
     public function testUpdate()
     {
-        $qb   = new QueryBuilder($this->conn);
+        $qb = new QueryBuilder($this->conn);
         $qb->update('users', 'u')
            ->set('u.foo', '?')
            ->set('u.bar', '?');
@@ -402,7 +403,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 
     public function testUpdateWithoutAlias()
     {
-        $qb   = new QueryBuilder($this->conn);
+        $qb = new QueryBuilder($this->conn);
         $qb->update('users')
            ->set('foo', '?')
            ->set('bar', '?');
@@ -412,7 +413,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 
     public function testUpdateWhere()
     {
-        $qb   = new QueryBuilder($this->conn);
+        $qb = new QueryBuilder($this->conn);
         $qb->update('users', 'u')
            ->set('u.foo', '?')
            ->where('u.foo = ?');
@@ -422,7 +423,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 
     public function testEmptyUpdate()
     {
-        $qb   = new QueryBuilder($this->conn);
+        $qb  = new QueryBuilder($this->conn);
         $qb2 = $qb->update();
 
         self::assertEquals(QueryBuilder::UPDATE, $qb->getType());
@@ -431,7 +432,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 
     public function testDelete()
     {
-        $qb   = new QueryBuilder($this->conn);
+        $qb = new QueryBuilder($this->conn);
         $qb->delete('users', 'u');
 
         self::assertEquals(QueryBuilder::DELETE, $qb->getType());
@@ -440,7 +441,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 
     public function testDeleteWithoutAlias()
     {
-        $qb   = new QueryBuilder($this->conn);
+        $qb = new QueryBuilder($this->conn);
         $qb->delete('users');
 
         self::assertEquals(QueryBuilder::DELETE, $qb->getType());
@@ -449,7 +450,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 
     public function testDeleteWhere()
     {
-        $qb   = new QueryBuilder($this->conn);
+        $qb = new QueryBuilder($this->conn);
         $qb->delete('users', 'u')
            ->where('u.foo = ?');
 
@@ -458,7 +459,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 
     public function testEmptyDelete()
     {
-        $qb   = new QueryBuilder($this->conn);
+        $qb  = new QueryBuilder($this->conn);
         $qb2 = $qb->delete();
 
         self::assertEquals(QueryBuilder::DELETE, $qb->getType());
@@ -470,10 +471,10 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
         $qb = new QueryBuilder($this->conn);
         $qb->insert('users')
             ->values(
-                array(
+                [
                     'foo' => '?',
-                    'bar' => '?'
-                )
+                    'bar' => '?',
+                ]
             );
 
         self::assertEquals(QueryBuilder::INSERT, $qb->getType());
@@ -485,16 +486,16 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
         $qb = new QueryBuilder($this->conn);
         $qb->insert('users')
             ->values(
-                array(
+                [
                     'foo' => '?',
-                    'bar' => '?'
-                )
+                    'bar' => '?',
+                ]
             )
             ->values(
-                array(
+                [
                     'bar' => '?',
-                    'foo' => '?'
-                )
+                    'foo' => '?',
+                ]
             );
 
         self::assertEquals(QueryBuilder::INSERT, $qb->getType());
@@ -518,9 +519,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
         $qb = new QueryBuilder($this->conn);
         $qb->insert('users')
             ->values(
-                array(
-                    'foo' => '?'
-                )
+                ['foo' => '?']
             )
             ->setValue('bar', '?');
 
@@ -530,7 +529,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 
     public function testEmptyInsert()
     {
-        $qb = new QueryBuilder($this->conn);
+        $qb  = new QueryBuilder($this->conn);
         $qb2 = $qb->insert();
 
         self::assertEquals(QueryBuilder::INSERT, $qb->getType());
@@ -539,13 +538,13 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 
     public function testGetConnection()
     {
-        $qb   = new QueryBuilder($this->conn);
+        $qb = new QueryBuilder($this->conn);
         self::assertSame($this->conn, $qb->getConnection());
     }
 
     public function testGetState()
     {
-        $qb   = new QueryBuilder($this->conn);
+        $qb = new QueryBuilder($this->conn);
 
         self::assertEquals(QueryBuilder::STATE_CLEAN, $qb->getState());
 
@@ -561,7 +560,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 
     public function testSetMaxResults()
     {
-        $qb   = new QueryBuilder($this->conn);
+        $qb = new QueryBuilder($this->conn);
         $qb->setMaxResults(10);
 
         self::assertEquals(QueryBuilder::STATE_DIRTY, $qb->getState());
@@ -570,7 +569,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 
     public function testSetFirstResult()
     {
-        $qb   = new QueryBuilder($this->conn);
+        $qb = new QueryBuilder($this->conn);
         $qb->setFirstResult(10);
 
         self::assertEquals(QueryBuilder::STATE_DIRTY, $qb->getState());
@@ -579,7 +578,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 
     public function testResetQueryPart()
     {
-        $qb   = new QueryBuilder($this->conn);
+        $qb = new QueryBuilder($this->conn);
 
         $qb->select('u.*')->from('users', 'u')->where('u.name = ?');
 
@@ -590,18 +589,18 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 
     public function testResetQueryParts()
     {
-        $qb   = new QueryBuilder($this->conn);
+        $qb = new QueryBuilder($this->conn);
 
         $qb->select('u.*')->from('users', 'u')->where('u.name = ?')->orderBy('u.name');
 
         self::assertEquals('SELECT u.* FROM users u WHERE u.name = ? ORDER BY u.name ASC', (string) $qb);
-        $qb->resetQueryParts(array('where', 'orderBy'));
+        $qb->resetQueryParts(['where', 'orderBy']);
         self::assertEquals('SELECT u.* FROM users u', (string) $qb);
     }
 
     public function testCreateNamedParameter()
     {
-        $qb   = new QueryBuilder($this->conn);
+        $qb = new QueryBuilder($this->conn);
 
         $qb->select('u.*')->from('users', 'u')->where(
             $qb->expr()->eq('u.name', $qb->createNamedParameter(10, ParameterType::INTEGER))
@@ -614,7 +613,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 
     public function testCreateNamedParameterCustomPlaceholder()
     {
-        $qb   = new QueryBuilder($this->conn);
+        $qb = new QueryBuilder($this->conn);
 
         $qb->select('u.*')->from('users', 'u')->where(
             $qb->expr()->eq('u.name', $qb->createNamedParameter(10, ParameterType::INTEGER, ':test'))
@@ -627,7 +626,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 
     public function testCreatePositionalParameter()
     {
-        $qb   = new QueryBuilder($this->conn);
+        $qb = new QueryBuilder($this->conn);
 
         $qb->select('u.*')->from('users', 'u')->where(
             $qb->expr()->eq('u.name', $qb->createPositionalParameter(10, ParameterType::INTEGER))
@@ -652,7 +651,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
             ->innerJoin('nt', 'node', 'n', 'nt.node = n.id')
             ->where('nt.lang = :lang AND n.deleted != 1');
 
-        $this->expectException('Doctrine\DBAL\Query\QueryException');
+        $this->expectException(QueryException::class);
         $this->expectExceptionMessage("The given alias 'invalid' is not part of any FROM or JOIN clause table. The currently registered aliases are: news, nv.");
         self::assertEquals('', $qb->getSQL());
     }
@@ -785,7 +784,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
             ->from('users')
             ->where('awesome=9001');
 
-        self::assertEquals("SELECT id, name FROM users WHERE awesome=9001", (string) $qb);
+        self::assertEquals('SELECT id, name FROM users WHERE awesome=9001', (string) $qb);
     }
 
     public function testComplexSelectWithoutTableAliases()
@@ -823,7 +822,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
         $qb->select('users.*')
             ->from('users');
 
-        self::assertEquals("SELECT users.* FROM users", (string) $qb);
+        self::assertEquals('SELECT users.* FROM users', (string) $qb);
     }
 
     public function testSelectAllWithoutTableAlias()
@@ -833,7 +832,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
         $qb->select('*')
             ->from('users');
 
-        self::assertEquals("SELECT * FROM users", (string) $qb);
+        self::assertEquals('SELECT * FROM users', (string) $qb);
     }
 
     /**
@@ -866,12 +865,12 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 
         $qb->select('*')->from('users');
 
-        self::assertSame(array(), $qb->getParameterTypes());
+        self::assertSame([], $qb->getParameterTypes());
 
         $qb->where('name = :name');
         $qb->setParameter('name', 'foo');
 
-        self::assertSame(array(), $qb->getParameterTypes());
+        self::assertSame([], $qb->getParameterTypes());
 
         $qb->setParameter('name', 'foo', ParameterType::STRING);
 
@@ -895,7 +894,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
             ->from('table_a', 'a')
             ->join('a', 'table_b', 'a', 'a.fk_b = a.id');
 
-        $this->expectException('Doctrine\DBAL\Query\QueryException');
+        $this->expectException(QueryException::class);
         $this->expectExceptionMessage("The given alias 'a' is not unique in FROM and JOIN clause table. The currently registered aliases are: a.");
 
         $qb->getSQL();

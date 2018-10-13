@@ -1,25 +1,28 @@
 <?php
-/*
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
- * <http://www.doctrine-project.org>.
- */
 
 namespace Doctrine\DBAL\Tools\Console\Command;
 
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Platforms\Keywords\DB2Keywords;
+use Doctrine\DBAL\Platforms\Keywords\MySQL57Keywords;
+use Doctrine\DBAL\Platforms\Keywords\MySQL80Keywords;
+use Doctrine\DBAL\Platforms\Keywords\MySQLKeywords;
+use Doctrine\DBAL\Platforms\Keywords\OracleKeywords;
+use Doctrine\DBAL\Platforms\Keywords\PostgreSQL91Keywords;
+use Doctrine\DBAL\Platforms\Keywords\PostgreSQL92Keywords;
+use Doctrine\DBAL\Platforms\Keywords\PostgreSQLKeywords;
 use Doctrine\DBAL\Platforms\Keywords\ReservedKeywordsValidator;
+use Doctrine\DBAL\Platforms\Keywords\SQLAnywhere11Keywords;
+use Doctrine\DBAL\Platforms\Keywords\SQLAnywhere12Keywords;
+use Doctrine\DBAL\Platforms\Keywords\SQLAnywhere16Keywords;
+use Doctrine\DBAL\Platforms\Keywords\SQLAnywhereKeywords;
+use Doctrine\DBAL\Platforms\Keywords\SQLiteKeywords;
+use Doctrine\DBAL\Platforms\Keywords\SQLServer2005Keywords;
+use Doctrine\DBAL\Platforms\Keywords\SQLServer2008Keywords;
+use Doctrine\DBAL\Platforms\Keywords\SQLServer2012Keywords;
+use Doctrine\DBAL\Platforms\Keywords\SQLServerKeywords;
+use Doctrine\DBAL\Schema\Schema;
+use InvalidArgumentException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -30,27 +33,25 @@ use function implode;
 
 class ReservedWordsCommand extends Command
 {
-    /**
-     * @var array
-     */
+    /** @var string[] */
     private $keywordListClasses = [
-        'mysql'         => 'Doctrine\DBAL\Platforms\Keywords\MySQLKeywords',
-        'mysql57'       => 'Doctrine\DBAL\Platforms\Keywords\MySQL57Keywords',
-        'mysql80'       => 'Doctrine\DBAL\Platforms\Keywords\MySQL80Keywords',
-        'sqlserver'     => 'Doctrine\DBAL\Platforms\Keywords\SQLServerKeywords',
-        'sqlserver2005' => 'Doctrine\DBAL\Platforms\Keywords\SQLServer2005Keywords',
-        'sqlserver2008' => 'Doctrine\DBAL\Platforms\Keywords\SQLServer2008Keywords',
-        'sqlserver2012' => 'Doctrine\DBAL\Platforms\Keywords\SQLServer2012Keywords',
-        'sqlite'        => 'Doctrine\DBAL\Platforms\Keywords\SQLiteKeywords',
-        'pgsql'         => 'Doctrine\DBAL\Platforms\Keywords\PostgreSQLKeywords',
-        'pgsql91'       => 'Doctrine\DBAL\Platforms\Keywords\PostgreSQL91Keywords',
-        'pgsql92'       => 'Doctrine\DBAL\Platforms\Keywords\PostgreSQL92Keywords',
-        'oracle'        => 'Doctrine\DBAL\Platforms\Keywords\OracleKeywords',
-        'db2'           => 'Doctrine\DBAL\Platforms\Keywords\DB2Keywords',
-        'sqlanywhere'   => 'Doctrine\DBAL\Platforms\Keywords\SQLAnywhereKeywords',
-        'sqlanywhere11' => 'Doctrine\DBAL\Platforms\Keywords\SQLAnywhere11Keywords',
-        'sqlanywhere12' => 'Doctrine\DBAL\Platforms\Keywords\SQLAnywhere12Keywords',
-        'sqlanywhere16' => 'Doctrine\DBAL\Platforms\Keywords\SQLAnywhere16Keywords',
+        'mysql'         => MySQLKeywords::class,
+        'mysql57'       => MySQL57Keywords::class,
+        'mysql80'       => MySQL80Keywords::class,
+        'sqlserver'     => SQLServerKeywords::class,
+        'sqlserver2005' => SQLServer2005Keywords::class,
+        'sqlserver2008' => SQLServer2008Keywords::class,
+        'sqlserver2012' => SQLServer2012Keywords::class,
+        'sqlite'        => SQLiteKeywords::class,
+        'pgsql'         => PostgreSQLKeywords::class,
+        'pgsql91'       => PostgreSQL91Keywords::class,
+        'pgsql92'       => PostgreSQL92Keywords::class,
+        'oracle'        => OracleKeywords::class,
+        'db2'           => DB2Keywords::class,
+        'sqlanywhere'   => SQLAnywhereKeywords::class,
+        'sqlanywhere11' => SQLAnywhere11Keywords::class,
+        'sqlanywhere12' => SQLAnywhere12Keywords::class,
+        'sqlanywhere16' => SQLAnywhere16Keywords::class,
     ];
 
     /**
@@ -74,10 +75,12 @@ class ReservedWordsCommand extends Command
         $this
         ->setName('dbal:reserved-words')
         ->setDescription('Checks if the current database contains identifiers that are reserved.')
-        ->setDefinition([
-            new InputOption(
-                'list', 'l', InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, 'Keyword-List name.'
-            )
+        ->setDefinition([new InputOption(
+            'list',
+            'l',
+            InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY,
+            'Keyword-List name.'
+        ),
         ])
         ->setHelp(<<<EOT
 Checks if the current database contains tables and columns
@@ -120,11 +123,11 @@ EOT
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        /* @var $conn \Doctrine\DBAL\Connection */
+        /** @var Connection $conn */
         $conn = $this->getHelper('db')->getConnection();
 
         $keywordLists = (array) $input->getOption('list');
-        if ( ! $keywordLists) {
+        if (! $keywordLists) {
             $keywordLists = [
                 'mysql',
                 'mysql57',
@@ -146,27 +149,25 @@ EOT
 
         $keywords = [];
         foreach ($keywordLists as $keywordList) {
-            if (!isset($this->keywordListClasses[$keywordList])) {
-                throw new \InvalidArgumentException(
-                    "There exists no keyword list with name '" . $keywordList . "'. ".
-                    "Known lists: " . implode(", ", array_keys($this->keywordListClasses))
+            if (! isset($this->keywordListClasses[$keywordList])) {
+                throw new InvalidArgumentException(
+                    "There exists no keyword list with name '" . $keywordList . "'. " .
+                    'Known lists: ' . implode(', ', array_keys($this->keywordListClasses))
                 );
             }
-            $class = $this->keywordListClasses[$keywordList];
-            $keywords[] = new $class;
+            $class      = $this->keywordListClasses[$keywordList];
+            $keywords[] = new $class();
         }
 
-        $output->write('Checking keyword violations for <comment>' . implode(", ", $keywordLists) . "</comment>...", true);
+        $output->write('Checking keyword violations for <comment>' . implode(', ', $keywordLists) . '</comment>...', true);
 
-        /* @var $schema \Doctrine\DBAL\Schema\Schema */
-        $schema = $conn->getSchemaManager()->createSchema();
+        /** @var Schema $schema */
+        $schema  = $conn->getSchemaManager()->createSchema();
         $visitor = new ReservedKeywordsValidator($keywords);
         $schema->visit($visitor);
 
         $violations = $visitor->getViolations();
-        if (count($violations) == 0) {
-            $output->write("No reserved keywords violations have been found!", true);
-        } else {
+        if (count($violations) !== 0) {
             $output->write('There are <error>' . count($violations) . '</error> reserved keyword violations in your database schema:', true);
             foreach ($violations as $violation) {
                 $output->write('  - ' . $violation, true);
@@ -174,6 +175,8 @@ EOT
 
             return 1;
         }
+
+        $output->write('No reserved keywords violations have been found!', true);
 
         return 0;
     }

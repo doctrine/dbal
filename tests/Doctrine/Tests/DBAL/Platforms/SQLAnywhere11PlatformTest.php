@@ -6,14 +6,12 @@ use Doctrine\DBAL\Platforms\SQLAnywhere11Platform;
 
 class SQLAnywhere11PlatformTest extends SQLAnywherePlatformTest
 {
-    /**
-     * @var \Doctrine\DBAL\Platforms\SQLAnywhere11Platform
-     */
-    protected $_platform;
+    /** @var SQLAnywhere11Platform */
+    protected $platform;
 
     public function createPlatform()
     {
-        return new SQLAnywhere11Platform;
+        return new SQLAnywhere11Platform();
     }
 
     public function testDoesNotSupportRegexp()
@@ -23,6 +21,6 @@ class SQLAnywhere11PlatformTest extends SQLAnywherePlatformTest
 
     public function testGeneratesRegularExpressionSQLSnippet()
     {
-        self::assertEquals('REGEXP', $this->_platform->getRegexpExpression());
+        self::assertEquals('REGEXP', $this->platform->getRegexpExpression());
     }
 }

@@ -1,59 +1,49 @@
 <?php
 
 namespace Doctrine\Tests\Mocks;
+
+use Doctrine\DBAL\Connection;
 use function is_string;
 
-class ConnectionMock extends \Doctrine\DBAL\Connection
+class ConnectionMock extends Connection
 {
-    /**
-     * @var DatabasePlatformMock
-     */
-    private $_platformMock;
+    /** @var DatabasePlatformMock */
+    private $platformMock;
+
+    /** @var int */
+    private $lastInsertId = 0;
+
+    /** @var string[][] */
+    private $inserts = [];
 
     /**
-     * @var int
+     * {@inheritDoc}
      */
-    private $_lastInsertId = 0;
-
-    /**
-     * @var string[][]
-     */
-    private $_inserts = array();
-
     public function __construct(array $params, $driver, $config = null, $eventManager = null)
     {
-        $this->_platformMock = new DatabasePlatformMock();
+        $this->platformMock = new DatabasePlatformMock();
 
         parent::__construct($params, $driver, $config, $eventManager);
     }
 
-    /**
-     * @override
-     */
     public function getDatabasePlatform()
     {
-        return $this->_platformMock;
+        return $this->platformMock;
     }
 
     /**
-     * @override
+     * {@inheritDoc}
      */
-    public function insert($tableName, array $data, array $types = array())
+    public function insert($tableName, array $data, array $types = [])
     {
-        $this->_inserts[$tableName][] = $data;
+        $this->inserts[$tableName][] = $data;
     }
 
-    /**
-     * @override
-     */
     public function lastInsertId($seqName = null)
     {
-        return $this->_lastInsertId;
+        return $this->lastInsertId;
     }
 
-    /**
-     * @override
-     */
     public function quote($input, $type = null)
     {
         if (is_string($input)) {
@@ -64,17 +54,17 @@ class ConnectionMock extends \Doctrine\DBAL\Connection
 
     public function setLastInsertId($id)
     {
-        $this->_lastInsertId = $id;
+        $this->lastInsertId = $id;
     }
 
     public function getInserts()
     {
-        return $this->_inserts;
+        return $this->inserts;
     }
 
     public function reset()
     {
-        $this->_inserts = array();
-        $this->_lastInsertId = 0;
+        $this->inserts      = [];
+        $this->lastInsertId = 0;
     }
 }

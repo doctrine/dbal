@@ -18,14 +18,14 @@ class PDOStatementTest extends DbalFunctionalTestCase
 
         parent::setUp();
 
-        if (! $this->_conn->getWrappedConnection() instanceof PDOConnection) {
+        if (! $this->connection->getWrappedConnection() instanceof PDOConnection) {
             $this->markTestSkipped('PDO-only test');
         }
 
         $table = new Table('stmt_test');
         $table->addColumn('id', 'integer');
         $table->addColumn('name', 'text');
-        $this->_conn->getSchemaManager()->dropAndCreateTable($table);
+        $this->connection->getSchemaManager()->dropAndCreateTable($table);
     }
 
     /**
@@ -34,16 +34,16 @@ class PDOStatementTest extends DbalFunctionalTestCase
      */
     public function testPDOSpecificModeIsAccepted()
     {
-        $this->_conn->insert('stmt_test', [
+        $this->connection->insert('stmt_test', [
             'id' => 1,
             'name' => 'Alice',
         ]);
-        $this->_conn->insert('stmt_test', [
+        $this->connection->insert('stmt_test', [
             'id' => 2,
             'name' => 'Bob',
         ]);
 
-        $data = $this->_conn->query('SELECT id, name FROM stmt_test ORDER BY id')
+        $data = $this->connection->query('SELECT id, name FROM stmt_test ORDER BY id')
             ->fetchAll(PDO::FETCH_KEY_PAIR);
 
         self::assertSame([

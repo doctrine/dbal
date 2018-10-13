@@ -2,22 +2,22 @@
 
 namespace Doctrine\Tests\DBAL\Query\Expression;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
+use Doctrine\Tests\DbalTestCase;
 
 /**
  * @group DBAL-12
  */
-class ExpressionBuilderTest extends \Doctrine\Tests\DbalTestCase
+class ExpressionBuilderTest extends DbalTestCase
 {
-    /**
-     * @var ExpressionBuilder
-     */
+    /** @var ExpressionBuilder */
     protected $expr;
 
     protected function setUp()
     {
-        $conn = $this->createMock('Doctrine\DBAL\Connection');
+        $conn = $this->createMock(Connection::class);
 
         $this->expr = new ExpressionBuilder($conn);
 
@@ -42,44 +42,44 @@ class ExpressionBuilderTest extends \Doctrine\Tests\DbalTestCase
 
     public function provideDataForAndX()
     {
-        return array(
-            array(
-                array('u.user = 1'),
-                'u.user = 1'
-            ),
-            array(
-                array('u.user = 1', 'u.group_id = 1'),
-                '(u.user = 1) AND (u.group_id = 1)'
-            ),
-            array(
-                array('u.user = 1'),
-                'u.user = 1'
-            ),
-            array(
-                array('u.group_id = 1', 'u.group_id = 2'),
-                '(u.group_id = 1) AND (u.group_id = 2)'
-            ),
-            array(
-                array(
+        return [
+            [
+                ['u.user = 1'],
+                'u.user = 1',
+            ],
+            [
+                ['u.user = 1', 'u.group_id = 1'],
+                '(u.user = 1) AND (u.group_id = 1)',
+            ],
+            [
+                ['u.user = 1'],
+                'u.user = 1',
+            ],
+            [
+                ['u.group_id = 1', 'u.group_id = 2'],
+                '(u.group_id = 1) AND (u.group_id = 2)',
+            ],
+            [
+                [
                     'u.user = 1',
                     new CompositeExpression(
                         CompositeExpression::TYPE_OR,
-                        array('u.group_id = 1', 'u.group_id = 2')
-                    )
-                ),
-                '(u.user = 1) AND ((u.group_id = 1) OR (u.group_id = 2))'
-            ),
-            array(
-                array(
+                        ['u.group_id = 1', 'u.group_id = 2']
+                    ),
+                ],
+                '(u.user = 1) AND ((u.group_id = 1) OR (u.group_id = 2))',
+            ],
+            [
+                [
                     'u.group_id = 1',
                     new CompositeExpression(
                         CompositeExpression::TYPE_AND,
-                        array('u.user = 1', 'u.group_id = 2')
-                    )
-                ),
-                '(u.group_id = 1) AND ((u.user = 1) AND (u.group_id = 2))'
-            ),
-        );
+                        ['u.user = 1', 'u.group_id = 2']
+                    ),
+                ],
+                '(u.group_id = 1) AND ((u.user = 1) AND (u.group_id = 2))',
+            ],
+        ];
     }
 
     /**
@@ -98,44 +98,44 @@ class ExpressionBuilderTest extends \Doctrine\Tests\DbalTestCase
 
     public function provideDataForOrX()
     {
-        return array(
-            array(
-                array('u.user = 1'),
-                'u.user = 1'
-            ),
-            array(
-                array('u.user = 1', 'u.group_id = 1'),
-                '(u.user = 1) OR (u.group_id = 1)'
-            ),
-            array(
-                array('u.user = 1'),
-                'u.user = 1'
-            ),
-            array(
-                array('u.group_id = 1', 'u.group_id = 2'),
-                '(u.group_id = 1) OR (u.group_id = 2)'
-            ),
-            array(
-                array(
+        return [
+            [
+                ['u.user = 1'],
+                'u.user = 1',
+            ],
+            [
+                ['u.user = 1', 'u.group_id = 1'],
+                '(u.user = 1) OR (u.group_id = 1)',
+            ],
+            [
+                ['u.user = 1'],
+                'u.user = 1',
+            ],
+            [
+                ['u.group_id = 1', 'u.group_id = 2'],
+                '(u.group_id = 1) OR (u.group_id = 2)',
+            ],
+            [
+                [
                     'u.user = 1',
                     new CompositeExpression(
                         CompositeExpression::TYPE_OR,
-                        array('u.group_id = 1', 'u.group_id = 2')
-                    )
-                ),
-                '(u.user = 1) OR ((u.group_id = 1) OR (u.group_id = 2))'
-            ),
-            array(
-                array(
+                        ['u.group_id = 1', 'u.group_id = 2']
+                    ),
+                ],
+                '(u.user = 1) OR ((u.group_id = 1) OR (u.group_id = 2))',
+            ],
+            [
+                [
                     'u.group_id = 1',
                     new CompositeExpression(
                         CompositeExpression::TYPE_AND,
-                        array('u.user = 1', 'u.group_id = 2')
-                    )
-                ),
-                '(u.group_id = 1) OR ((u.user = 1) AND (u.group_id = 2))'
-            ),
-        );
+                        ['u.user = 1', 'u.group_id = 2']
+                    ),
+                ],
+                '(u.group_id = 1) OR ((u.user = 1) AND (u.group_id = 2))',
+            ],
+        ];
     }
 
     /**
@@ -150,14 +150,14 @@ class ExpressionBuilderTest extends \Doctrine\Tests\DbalTestCase
 
     public function provideDataForComparison()
     {
-        return array(
-            array('u.user_id', ExpressionBuilder::EQ, '1', 'u.user_id = 1'),
-            array('u.user_id', ExpressionBuilder::NEQ, '1', 'u.user_id <> 1'),
-            array('u.salary', ExpressionBuilder::LT, '10000', 'u.salary < 10000'),
-            array('u.salary', ExpressionBuilder::LTE, '10000', 'u.salary <= 10000'),
-            array('u.salary', ExpressionBuilder::GT, '10000', 'u.salary > 10000'),
-            array('u.salary', ExpressionBuilder::GTE, '10000', 'u.salary >= 10000'),
-        );
+        return [
+            ['u.user_id', ExpressionBuilder::EQ, '1', 'u.user_id = 1'],
+            ['u.user_id', ExpressionBuilder::NEQ, '1', 'u.user_id <> 1'],
+            ['u.salary', ExpressionBuilder::LT, '10000', 'u.salary < 10000'],
+            ['u.salary', ExpressionBuilder::LTE, '10000', 'u.salary <= 10000'],
+            ['u.salary', ExpressionBuilder::GT, '10000', 'u.salary > 10000'],
+            ['u.salary', ExpressionBuilder::GTE, '10000', 'u.salary >= 10000'],
+        ];
     }
 
     public function testEq()
@@ -202,7 +202,7 @@ class ExpressionBuilderTest extends \Doctrine\Tests\DbalTestCase
 
     public function testIn()
     {
-        self::assertEquals('u.groups IN (1, 3, 4, 7)', $this->expr->in('u.groups', array(1,3,4,7)));
+        self::assertEquals('u.groups IN (1, 3, 4, 7)', $this->expr->in('u.groups', [1, 3, 4, 7]));
     }
 
     public function testInWithPlaceholder()
@@ -212,7 +212,7 @@ class ExpressionBuilderTest extends \Doctrine\Tests\DbalTestCase
 
     public function testNotIn()
     {
-        self::assertEquals('u.groups NOT IN (1, 3, 4, 7)', $this->expr->notIn('u.groups', array(1,3,4,7)));
+        self::assertEquals('u.groups NOT IN (1, 3, 4, 7)', $this->expr->notIn('u.groups', [1, 3, 4, 7]));
     }
 
     public function testNotInWithPlaceholder()

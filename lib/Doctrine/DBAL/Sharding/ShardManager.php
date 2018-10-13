@@ -1,21 +1,4 @@
 <?php
-/*
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
- * <http://www.doctrine-project.org>.
- */
 
 namespace Doctrine\DBAL\Sharding;
 
@@ -34,8 +17,6 @@ namespace Doctrine\DBAL\Sharding;
  * executed against the last shard that was selected. If a query is created for
  * a shard Y but then a shard X is selected when its actually executed you
  * will hit the wrong shard.
- *
- * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
 interface ShardManager
 {
@@ -47,7 +28,7 @@ interface ShardManager
      *
      * @return void
      */
-    function selectGlobal();
+    public function selectGlobal();
 
     /**
      * Selects the shard against which the queries after this statement will be issued.
@@ -56,16 +37,16 @@ interface ShardManager
      *
      * @return void
      *
-     * @throws \Doctrine\DBAL\Sharding\ShardingException If no value is passed as shard identifier.
+     * @throws ShardingException If no value is passed as shard identifier.
      */
-    function selectShard($distributionValue);
+    public function selectShard($distributionValue);
 
     /**
      * Gets the distribution value currently used for sharding.
      *
      * @return string|null
      */
-    function getCurrentDistributionValue();
+    public function getCurrentDistributionValue();
 
     /**
      * Gets information about the amount of shards and other details.
@@ -73,9 +54,9 @@ interface ShardManager
      * Format is implementation specific, each shard is one element and has an
      * 'id' attribute at least.
      *
-     * @return array
+     * @return mixed[][]
      */
-    function getShards();
+    public function getShards();
 
     /**
      * Queries all shards in undefined order and return the results appended to
@@ -83,11 +64,11 @@ interface ShardManager
      *
      * Using {@link \Doctrine\DBAL\Connection::fetchAll} to retrieve rows internally.
      *
-     * @param string $sql
-     * @param array  $params
-     * @param array  $types
+     * @param string         $sql
+     * @param mixed[]        $params
+     * @param int[]|string[] $types
      *
-     * @return array
+     * @return mixed[]
      */
-    function queryAll($sql, array $params, array $types);
+    public function queryAll($sql, array $params, array $types);
 }

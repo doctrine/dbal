@@ -2,25 +2,28 @@
 
 namespace Doctrine\Tests\DBAL\Functional\Ticket;
 
+use Doctrine\DBAL\Schema\Table;
+use Doctrine\Tests\DbalFunctionalTestCase;
+
 /**
  * @group DBAL-168
  */
-class DBAL168Test extends \Doctrine\Tests\DbalFunctionalTestCase
+class DBAL168Test extends DbalFunctionalTestCase
 {
     public function testDomainsTable()
     {
-        if ($this->_conn->getDatabasePlatform()->getName() != "postgresql") {
+        if ($this->connection->getDatabasePlatform()->getName() !== 'postgresql') {
             $this->markTestSkipped('PostgreSQL only test');
         }
 
-        $table = new \Doctrine\DBAL\Schema\Table("domains");
+        $table = new Table('domains');
         $table->addColumn('id', 'integer');
         $table->addColumn('parent_id', 'integer');
-        $table->setPrimaryKey(array('id'));
-        $table->addForeignKeyConstraint('domains', array('parent_id'), array('id'));
+        $table->setPrimaryKey(['id']);
+        $table->addForeignKeyConstraint('domains', ['parent_id'], ['id']);
 
-        $this->_conn->getSchemaManager()->createTable($table);
-        $table = $this->_conn->getSchemaManager()->listTableDetails('domains');
+        $this->connection->getSchemaManager()->createTable($table);
+        $table = $this->connection->getSchemaManager()->listTableDetails('domains');
 
         self::assertEquals('domains', $table->getName());
     }

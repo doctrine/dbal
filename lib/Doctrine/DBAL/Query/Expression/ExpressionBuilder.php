@@ -1,21 +1,4 @@
 <?php
-/*
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
- * <http://www.doctrine-project.org>.
- */
 
 namespace Doctrine\DBAL\Query\Expression;
 
@@ -28,32 +11,27 @@ use function sprintf;
 
 /**
  * ExpressionBuilder class is responsible to dynamically create SQL query parts.
- *
- * @link   www.doctrine-project.org
- * @since  2.1
- * @author Guilherme Blanco <guilhermeblanco@hotmail.com>
- * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
 class ExpressionBuilder
 {
-    const EQ  = '=';
-    const NEQ = '<>';
-    const LT  = '<';
-    const LTE = '<=';
-    const GT  = '>';
-    const GTE = '>=';
+    public const EQ  = '=';
+    public const NEQ = '<>';
+    public const LT  = '<';
+    public const LTE = '<=';
+    public const GT  = '>';
+    public const GTE = '>=';
 
     /**
      * The DBAL Connection.
      *
-     * @var \Doctrine\DBAL\Connection
+     * @var Connection
      */
     private $connection;
 
     /**
      * Initializes a new <tt>ExpressionBuilder</tt>.
      *
-     * @param \Doctrine\DBAL\Connection $connection The DBAL Connection.
+     * @param Connection $connection The DBAL Connection.
      */
     public function __construct(Connection $connection)
     {
@@ -72,7 +50,7 @@ class ExpressionBuilder
      * @param mixed $x Optional clause. Defaults = null, but requires
      *                 at least one defined when converting to string.
      *
-     * @return \Doctrine\DBAL\Query\Expression\CompositeExpression
+     * @return CompositeExpression
      */
     public function andX($x = null)
     {
@@ -91,7 +69,7 @@ class ExpressionBuilder
      * @param mixed $x Optional clause. Defaults = null, but requires
      *                 at least one defined when converting to string.
      *
-     * @return \Doctrine\DBAL\Query\Expression\CompositeExpression
+     * @return CompositeExpression
      */
     public function orX($x = null)
     {
@@ -282,27 +260,27 @@ class ExpressionBuilder
     /**
      * Creates a IN () comparison expression with the given arguments.
      *
-     * @param string       $x The field in string format to be inspected by IN() comparison.
-     * @param string|array $y The placeholder or the array of values to be used by IN() comparison.
+     * @param string          $x The field in string format to be inspected by IN() comparison.
+     * @param string|string[] $y The placeholder or the array of values to be used by IN() comparison.
      *
      * @return string
      */
     public function in($x, $y)
     {
-        return $this->comparison($x, 'IN', '('.implode(', ', (array) $y).')');
+        return $this->comparison($x, 'IN', '(' . implode(', ', (array) $y) . ')');
     }
 
     /**
      * Creates a NOT IN () comparison expression with the given arguments.
      *
-     * @param string       $x The field in string format to be inspected by NOT IN() comparison.
-     * @param string|array $y The placeholder or the array of values to be used by NOT IN() comparison.
+     * @param string          $x The field in string format to be inspected by NOT IN() comparison.
+     * @param string|string[] $y The placeholder or the array of values to be used by NOT IN() comparison.
      *
      * @return string
      */
     public function notIn($x, $y)
     {
-        return $this->comparison($x, 'NOT IN', '('.implode(', ', (array) $y).')');
+        return $this->comparison($x, 'NOT IN', '(' . implode(', ', (array) $y) . ')');
     }
 
     /**

@@ -9,42 +9,38 @@ use function get_class;
 
 class GuidTypeTest extends DbalTestCase
 {
-    /**
-     * @var MockPlatform
-     */
-    protected $_platform;
+    /** @var MockPlatform */
+    private $platform;
 
-    /**
-     * @var Type
-     */
-    protected $_type;
+    /** @var Type */
+    private $type;
 
     protected function setUp()
     {
-        $this->_platform = new MockPlatform();
-        $this->_type = Type::getType('guid');
+        $this->platform = new MockPlatform();
+        $this->type     = Type::getType('guid');
     }
 
     public function testConvertToPHPValue()
     {
-        self::assertInternalType("string", $this->_type->convertToPHPValue("foo", $this->_platform));
-        self::assertInternalType("string", $this->_type->convertToPHPValue("", $this->_platform));
+        self::assertInternalType('string', $this->type->convertToPHPValue('foo', $this->platform));
+        self::assertInternalType('string', $this->type->convertToPHPValue('', $this->platform));
     }
 
     public function testNullConversion()
     {
-        self::assertNull($this->_type->convertToPHPValue(null, $this->_platform));
+        self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }
 
     public function testNativeGuidSupport()
     {
-        self::assertTrue($this->_type->requiresSQLCommentHint($this->_platform));
+        self::assertTrue($this->type->requiresSQLCommentHint($this->platform));
 
-        $mock = $this->createMock(get_class($this->_platform));
+        $mock = $this->createMock(get_class($this->platform));
         $mock->expects($this->any())
              ->method('hasNativeGuidType')
              ->will($this->returnValue(true));
 
-        self::assertFalse($this->_type->requiresSQLCommentHint($mock));
+        self::assertFalse($this->type->requiresSQLCommentHint($mock));
     }
 }

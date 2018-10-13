@@ -2,47 +2,50 @@
 
 namespace Doctrine\Tests\DBAL\Functional\Ticket;
 
+use Doctrine\DBAL\Schema\Table;
+use Doctrine\Tests\DbalFunctionalTestCase;
+
 /**
  * @group DBAL-202
  */
-class DBAL202Test extends \Doctrine\Tests\DbalFunctionalTestCase
+class DBAL202Test extends DbalFunctionalTestCase
 {
     protected function setUp()
     {
         parent::setUp();
 
-        if ($this->_conn->getDatabasePlatform()->getName() != 'oracle') {
+        if ($this->connection->getDatabasePlatform()->getName() !== 'oracle') {
             $this->markTestSkipped('OCI8 only test');
         }
 
-        if ($this->_conn->getSchemaManager()->tablesExist('DBAL202')) {
-            $this->_conn->exec('DELETE FROM DBAL202');
+        if ($this->connection->getSchemaManager()->tablesExist('DBAL202')) {
+            $this->connection->exec('DELETE FROM DBAL202');
         } else {
-            $table = new \Doctrine\DBAL\Schema\Table('DBAL202');
+            $table = new Table('DBAL202');
             $table->addColumn('id', 'integer');
-            $table->setPrimaryKey(array('id'));
+            $table->setPrimaryKey(['id']);
 
-            $this->_conn->getSchemaManager()->createTable($table);
+            $this->connection->getSchemaManager()->createTable($table);
         }
     }
 
     public function testStatementRollback()
     {
-        $stmt = $this->_conn->prepare('INSERT INTO DBAL202 VALUES (8)');
-        $this->_conn->beginTransaction();
+        $stmt = $this->connection->prepare('INSERT INTO DBAL202 VALUES (8)');
+        $this->connection->beginTransaction();
         $stmt->execute();
-        $this->_conn->rollBack();
+        $this->connection->rollBack();
 
-        self::assertEquals(0, $this->_conn->query('SELECT COUNT(1) FROM DBAL202')->fetchColumn());
+        self::assertEquals(0, $this->connection->query('SELECT COUNT(1) FROM DBAL202')->fetchColumn());
     }
 
     public function testStatementCommit()
     {
-        $stmt = $this->_conn->prepare('INSERT INTO DBAL202 VALUES (8)');
-        $this->_conn->beginTransaction();
+        $stmt = $this->connection->prepare('INSERT INTO DBAL202 VALUES (8)');
+        $this->connection->beginTransaction();
         $stmt->execute();
-        $this->_conn->commit();
+        $this->connection->commit();
 
-        self::assertEquals(1, $this->_conn->query('SELECT COUNT(1) FROM DBAL202')->fetchColumn());
+        self::assertEquals(1, $this->connection->query('SELECT COUNT(1) FROM DBAL202')->fetchColumn());
     }
 }

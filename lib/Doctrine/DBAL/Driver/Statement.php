@@ -1,21 +1,4 @@
 <?php
-/*
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
- * <http://www.doctrine-project.org>.
- */
 
 namespace Doctrine\DBAL\Driver;
 
@@ -26,11 +9,6 @@ use Doctrine\DBAL\ParameterType;
  * Drivers must implement this interface.
  *
  * This resembles (a subset of) the PDOStatement interface.
- *
- * @author Konsta Vesterinen <kvesteri@cc.hut.fi>
- * @author Roman Borschel <roman@code-factory.org>
- * @link   www.doctrine-project.org
- * @since  2.0
  */
 interface Statement extends ResultStatement
 {
@@ -92,9 +70,7 @@ interface Statement extends ResultStatement
     /**
      * Fetches extended error information associated with the last operation on the statement handle.
      *
-     * @see Doctrine_Adapter_Interface::errorInfo()
-     *
-     * @return array The error info array.
+     * @return mixed[] The error info array.
      */
     public function errorInfo();
 
@@ -107,9 +83,8 @@ interface Statement extends ResultStatement
      * if any, of their associated parameter markers or pass an array of input-only
      * parameter values.
      *
-     *
-     * @param array|null $params An array of values with as many elements as there are
-     *                           bound parameters in the SQL statement being executed.
+     * @param mixed[]|null $params An array of values with as many elements as there are
+     *                             bound parameters in the SQL statement being executed.
      *
      * @return bool TRUE on success or FALSE on failure.
      */

@@ -2,40 +2,41 @@
 
 namespace Doctrine\Tests\DBAL\Functional;
 
-use const CASE_LOWER;
+use Doctrine\DBAL\Schema\AbstractSchemaManager;
+use Doctrine\DBAL\Schema\Table;
 
 class ResetAutoincrementTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
     public function testAutoincrementResetsOnTruncate()
     {
-        $table = new \Doctrine\DBAL\Schema\Table('autoincremented_table');
+        $table = new Table('autoincremented_table');
         $table->addColumn('id', 'integer', ['autoincrement' => true]);
         $table->addColumn('test_int', 'integer');
         $table->setPrimaryKey(['id']);
 
-        /* @var $sm \Doctrine\DBAL\Schema\AbstractSchemaManager */
-        $sm = $this->_conn->getSchemaManager();
+        /* @var $sm AbstractSchemaManager */
+        $sm = $this->connection->getSchemaManager();
         $sm->createTable($table);
 
-        $this->_conn->insert('autoincremented_table', ['test_int' => 1]);
-        $this->_conn->insert('autoincremented_table', ['test_int' => 2]);
-        $this->_conn->insert('autoincremented_table', ['test_int' => 3]);
+        $this->connection->insert('autoincremented_table', ['test_int' => 1]);
+        $this->connection->insert('autoincremented_table', ['test_int' => 2]);
+        $this->connection->insert('autoincremented_table', ['test_int' => 3]);
 
         $lastId = $this->getIdByTestInt(3);
 
         $this->assertEquals(3, $lastId);
 
-        $this->_conn->exec($this->_conn->getDatabasePlatform()->getTruncateTableSQL('autoincremented_table'));
+        $this->connection->exec($this->connection->getDatabasePlatform()->getTruncateTableSQL('autoincremented_table'));
 
-        $this->_conn->insert('autoincremented_table', ['test_int' => 4]);
+        $this->connection->insert('autoincremented_table', ['test_int' => 4]);
         $lastId = $this->getIdByTestInt(4);
         $this->assertEquals(1, $lastId);
     }
 
     protected function getIdByTestInt(int $whereTestInt)
     {
-        $row = $this->_conn->fetchAssoc('SELECT id FROM autoincremented_table WHERE test_int = ?', [$whereTestInt]);
-        $row = array_change_key_case($row, CASE_LOWER);
+        $row = $this->connection->fetchAssoc('SELECT id FROM autoincremented_table WHERE test_int = ?', [$whereTestInt]);
+        $row = array_change_key_case($row, \CASE_LOWER);
 
         return $row['id'];
     }

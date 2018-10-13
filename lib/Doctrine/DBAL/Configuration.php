@@ -1,34 +1,15 @@
 <?php
-/*
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
- * <http://www.doctrine-project.org>.
- */
 
 namespace Doctrine\DBAL;
 
-use Doctrine\DBAL\Logging\SQLLogger;
 use Doctrine\Common\Cache\Cache;
+use Doctrine\DBAL\Logging\SQLLogger;
+use Doctrine\DBAL\Schema\AbstractAsset;
+use function preg_match;
 
 /**
  * Configuration container for the Doctrine DBAL.
  *
- * @since    2.0
- * @author   Guilherme Blanco <guilhermeblanco@hotmail.com>
- * @author   Jonathan Wage <jonwage@gmail.com>
- * @author   Roman Borschel <roman@code-factory.org>
  * @internal When adding a new configuration option just write a getter/setter
  *           pair and add the option to the _attributes array with a proper default value.
  */
@@ -38,18 +19,16 @@ class Configuration
      * The attributes that are contained in the configuration.
      * Values are default values.
      *
-     * @var array
+     * @var mixed[]
      */
     protected $_attributes = [];
 
     /**
      * Sets the SQL logger to use. Defaults to NULL which means SQL logging is disabled.
      *
-     * @param \Doctrine\DBAL\Logging\SQLLogger|null $logger
-     *
      * @return void
      */
-    public function setSQLLogger(SQLLogger $logger = null)
+    public function setSQLLogger(?SQLLogger $logger = null)
     {
         $this->_attributes['sqlLogger'] = $logger;
     }
@@ -57,7 +36,7 @@ class Configuration
     /**
      * Gets the SQL logger that is used.
      *
-     * @return \Doctrine\DBAL\Logging\SQLLogger|null
+     * @return SQLLogger|null
      */
     public function getSQLLogger()
     {
@@ -67,7 +46,7 @@ class Configuration
     /**
      * Gets the cache driver implementation that is used for query result caching.
      *
-     * @return \Doctrine\Common\Cache\Cache|null
+     * @return Cache|null
      */
     public function getResultCacheImpl()
     {
@@ -76,8 +55,6 @@ class Configuration
 
     /**
      * Sets the cache driver implementation that is used for query result caching.
-     *
-     * @param \Doctrine\Common\Cache\Cache $cacheImpl
      *
      * @return void
      */
@@ -93,6 +70,8 @@ class Configuration
      * schema instances generated for the active connection when calling
      * {AbstractSchemaManager#createSchema()}.
      *
+     * @deprecated Use Configuration::setSchemaAssetsFilter() instead
+     *
      * @param string $filterExpression
      *
      * @return void
@@ -100,10 +79,17 @@ class Configuration
     public function setFilterSchemaAssetsExpression($filterExpression)
     {
         $this->_attributes['filterSchemaAssetsExpression'] = $filterExpression;
+        if ($filterExpression) {
+            $this->_attributes['filterSchemaAssetsExpressionCallable'] = $this->buildSchemaAssetsFilterFromExpression($filterExpression);
+        } else {
+            $this->_attributes['filterSchemaAssetsExpressionCallable'] = null;
+        }
     }
 
     /**
      * Returns filter schema assets expression.
+     *
+     * @deprecated Use Configuration::getSchemaAssetsFilter() instead
      *
      * @return string|null
      */
@@ -113,27 +99,57 @@ class Configuration
     }
 
     /**
+     * @param string $filterExpression
+     */
+    private function buildSchemaAssetsFilterFromExpression($filterExpression) : callable
+    {
+        return static function ($assetName) use ($filterExpression) {
+            if ($assetName instanceof AbstractAsset) {
+                $assetName = $assetName->getName();
+            }
+            return preg_match($filterExpression, $assetName);
+        };
+    }
+
+    /**
+     * Sets the callable to use to filter schema assets.
+     */
+    public function setSchemaAssetsFilter(?callable $callable = null) : ?callable
+    {
+        $this->_attributes['filterSchemaAssetsExpression']                = null;
+        return $this->_attributes['filterSchemaAssetsExpressionCallable'] = $callable;
+    }
+
+    /**
+     * Returns the callable to use to filter schema assets.
+     */
+    public function getSchemaAssetsFilter() : ?callable
+    {
+        return $this->_attributes['filterSchemaAssetsExpressionCallable'] ?? null;
+    }
+
+    /**
      * Sets the default auto-commit mode for connections.
      *
      * If a connection is in auto-commit mode, then all its SQL statements will be executed and committed as individual
      * transactions. Otherwise, its SQL statements are grouped into transactions that are terminated by a call to either
      * the method commit or the method rollback. By default, new connections are in auto-commit mode.
      *
-     * @param bool $autoCommit True to enable auto-commit mode; false to disable it.
-     *
      * @see   getAutoCommit
+     *
+     * @param bool $autoCommit True to enable auto-commit mode; false to disable it.
      */
     public function setAutoCommit($autoCommit)
     {
-        $this->_attributes['autoCommit'] = (boolean) $autoCommit;
+        $this->_attributes['autoCommit'] = (bool) $autoCommit;
     }
 
     /**
      * Returns the default auto-commit mode for connections.
      *
-     * @return bool True if auto-commit mode is enabled by default for connections, false otherwise.
-     *
      * @see    setAutoCommit
+     *
+     * @return bool True if auto-commit mode is enabled by default for connections, false otherwise.
      */
     public function getAutoCommit()
     {

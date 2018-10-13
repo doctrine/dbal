@@ -2,22 +2,21 @@
 
 namespace Doctrine\Tests\DBAL\Types;
 
+use DateInterval;
+use DateTime;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\DateIntervalType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DBAL\Mocks\MockPlatform;
 use Doctrine\Tests\DbalTestCase;
+use stdClass;
 
 final class DateIntervalTest extends DbalTestCase
 {
-    /**
-     * @var MockPlatform
-     */
+    /** @var MockPlatform */
     private $platform;
 
-    /**
-     * @var \Doctrine\DBAL\Types\DateIntervalType
-     */
+    /** @var DateIntervalType */
     private $type;
 
     /**
@@ -33,10 +32,10 @@ final class DateIntervalTest extends DbalTestCase
 
     public function testDateIntervalConvertsToDatabaseValue() : void
     {
-        $interval = new \DateInterval('P2Y1DT1H2M3S');
+        $interval = new DateInterval('P2Y1DT1H2M3S');
 
         $expected = '+P02Y00M01DT01H02M03S';
-        $actual = $this->type->convertToDatabaseValue($interval, $this->platform);
+        $actual   = $this->type->convertToDatabaseValue($interval, $this->platform);
 
         self::assertEquals($expected, $actual);
     }
@@ -45,13 +44,13 @@ final class DateIntervalTest extends DbalTestCase
     {
         $interval = $this->type->convertToPHPValue('+P02Y00M01DT01H02M03S', $this->platform);
 
-        self::assertInstanceOf(\DateInterval::class, $interval);
+        self::assertInstanceOf(DateInterval::class, $interval);
         self::assertEquals('+P02Y00M01DT01H02M03S', $interval->format(DateIntervalType::FORMAT));
     }
 
     public function testNegativeDateIntervalConvertsToDatabaseValue() : void
     {
-        $interval         = new \DateInterval('P2Y1DT1H2M3S');
+        $interval         = new DateInterval('P2Y1DT1H2M3S');
         $interval->invert = 1;
 
         $actual = $this->type->convertToDatabaseValue($interval, $this->platform);
@@ -63,7 +62,7 @@ final class DateIntervalTest extends DbalTestCase
     {
         $interval = $this->type->convertToPHPValue('-P02Y00M01DT01H02M03S', $this->platform);
 
-        self::assertInstanceOf(\DateInterval::class, $interval);
+        self::assertInstanceOf(DateInterval::class, $interval);
         self::assertEquals('-P02Y00M01DT01H02M03S', $interval->format(DateIntervalType::FORMAT));
     }
 
@@ -71,7 +70,7 @@ final class DateIntervalTest extends DbalTestCase
     {
         $interval = $this->type->convertToPHPValue('P02Y00M01DT01H02M03S', $this->platform);
 
-        self::assertInstanceOf(\DateInterval::class, $interval);
+        self::assertInstanceOf(DateInterval::class, $interval);
         self::assertEquals('+P02Y00M01DT01H02M03S', $interval->format(DateIntervalType::FORMAT));
     }
 
@@ -124,14 +123,14 @@ final class DateIntervalTest extends DbalTestCase
             ['10:11:12'],
             ['2015-01-31'],
             ['2015-01-31 10:11:12'],
-            [new \stdClass()],
+            [new stdClass()],
             [$this],
             [27],
             [-1],
             [1.2],
             [[]],
             [['an array']],
-            [new \DateTime()],
+            [new DateTime()],
         ];
     }
 }

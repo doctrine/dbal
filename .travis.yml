@@ -53,7 +53,6 @@ after_script:
 jobs:
   allow_failures:
     - php: nightly
-    - stage: Coding standard
     - env: DB=pgsql POSTGRESQL_VERSION=11.0
 
   exclude:
@@ -178,6 +177,18 @@ jobs:
       env: DB=mariadb.mysqli MARIADB_VERSION=10.2
       addons:
         mariadb: 10.2
+
+    - stage: Test
+      php: 7.2
+      env: DB=mariadb MARIADB_VERSION=10.3
+      addons:
+          mariadb: 10.3
+
+    - stage: Test
+      php: 7.2
+      env: DB=mariadb.mysqli MARIADB_VERSION=10.3
+      addons:
+          mariadb: 10.3
 
     - stage: Test
       php: 7.1
@@ -419,22 +430,7 @@ jobs:
       install: travis_retry composer update --prefer-dist
       script: vendor/bin/phpstan analyse
 
-    - stage: Pull request coding standard
-      if: type = pull_request
-      php: 7.1
-      install: travis_retry composer install --prefer-dist
-      script:
-        - |
-          if [ $TRAVIS_BRANCH != "master" ]; then
-            git remote set-branches --add origin $TRAVIS_BRANCH;
-            git fetch origin $TRAVIS_BRANCH;
-          fi
-        - git merge-base origin/$TRAVIS_BRANCH $TRAVIS_PULL_REQUEST_SHA || git fetch origin +refs/pull/$TRAVIS_PULL_REQUEST/merge --unshallow
-        - wget https://github.com/diff-sniffer/git/releases/download/0.1.0/git-phpcs.phar
-        - php git-phpcs.phar origin/$TRAVIS_BRANCH...$TRAVIS_PULL_REQUEST_SHA
-
     - stage: Coding standard
-      if: NOT type = pull_request
       php: 7.1
       install: travis_retry composer install --prefer-dist
       script:
