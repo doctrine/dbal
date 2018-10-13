@@ -13,8 +13,10 @@ use ReflectionObject;
 use ReflectionProperty;
 use stdClass;
 use const CASE_LOWER;
+use const DB2_BINARY;
 use const DB2_CHAR;
 use const DB2_LONG;
+use const DB2_PARAM_FILE;
 use const DB2_PARAM_IN;
 use function array_change_key_case;
 use function db2_bind_param;
@@ -28,14 +30,21 @@ use function db2_num_fields;
 use function db2_num_rows;
 use function db2_stmt_error;
 use function db2_stmt_errormsg;
+use function error_get_last;
+use function fclose;
 use function func_get_args;
 use function func_num_args;
+use function fwrite;
 use function gettype;
 use function is_object;
+use function is_resource;
 use function is_string;
 use function ksort;
 use function sprintf;
+use function stream_copy_to_stream;
+use function stream_get_meta_data;
 use function strtolower;
+use function tmpfile;
 
 class DB2Statement implements IteratorAggregate, Statement
 {
@@ -44,6 +53,14 @@ class DB2Statement implements IteratorAggregate, Statement
 
     /** @var mixed[] */
     private $bindParam = [];
+
+    /**
+     * Map of LOB parameter positions to the tuples containing reference to the variable bound to the driver statement
+     * and the temporary file handle bound to the underlying statement
+     *
+     * @var mixed[][]
+     */
+    private $lobs = [];
 
     /** @var string Name of the default class to instantiate when fetching class instances. */
     private $defaultFetchClass = '\stdClass';
@@ -60,16 +77,6 @@ class DB2Statement implements IteratorAggregate, Statement
      * @var bool
      */
     private $result = false;
-
-    /**
-     * DB2_BINARY, DB2_CHAR, DB2_DOUBLE, or DB2_LONG
-     *
-     * @var int[]
-     */
-    static private $typeMap = [
-        ParameterType::INTEGER => DB2_LONG,
-        ParameterType::STRING  => DB2_CHAR,
-    ];
 
     /**
      * @param resource $stmt
@@ -92,19 +99,46 @@ class DB2Statement implements IteratorAggregate, Statement
      */
     public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null)
     {
-        $this->bindParam[$column] =& $variable;
+        switch ($type) {
+            case ParameterType::INTEGER:
+                $this->bind($column, $variable, DB2_PARAM_IN, DB2_LONG);
+                break;
 
-        if ($type && isset(self::$typeMap[$type])) {
-            $type = self::$typeMap[$type];
-        } else {
-            $type = DB2_CHAR;
-        }
+            case ParameterType::LARGE_OBJECT:
+                if (isset($this->lobs[$column])) {
+                    [, $handle] = $this->lobs[$column];
+                    fclose($handle);
+                }
 
-        if (! db2_bind_param($this->stmt, $column, 'variable', DB2_PARAM_IN, $type)) {
-            throw new DB2Exception(db2_stmt_errormsg());
+                $handle = $this->createTemporaryFile();
+                $path   = stream_get_meta_data($handle)['uri'];
+
+                $this->bind($column, $path, DB2_PARAM_FILE, DB2_BINARY);
+
+                $this->lobs[$column] = [&$variable, $handle];
+                break;
+
+            default:
+                $this->bind($column, $variable, DB2_PARAM_IN, DB2_CHAR);
+                break;
         }
 
         return true;
+    }
+
+    /**
+     * @param int|string $parameter Parameter position or name
+     * @param mixed      $variable
+     *
+     * @throws DB2Exception
+     */
+    private function bind($parameter, &$variable, int $parameterType, int $dataType) : void
+    {
+        $this->bindParam[$parameter] =& $variable;
+
+        if (! db2_bind_param($this->stmt, $parameter, 'variable', $parameterType, $dataType)) {
+            throw new DB2Exception(db2_stmt_errormsg());
+        }
     }
 
     /**
@@ -177,7 +211,23 @@ class DB2Statement implements IteratorAggregate, Statement
             }
         }
 
+        foreach ($this->lobs as [$source, $target]) {
+            if (is_resource($source)) {
+                $this->copyStreamToStream($source, $target);
+
+                continue;
+            }
+
+            $this->writeStringToStream($source, $target);
+        }
+
         $retval = db2_execute($this->stmt, $params);
+
+        foreach ($this->lobs as [, $handle]) {
+            fclose($handle);
+        }
+
+        $this->lobs = [];
 
         if ($retval === false) {
             throw new DB2Exception(db2_stmt_errormsg());
@@ -371,5 +421,46 @@ class DB2Statement implements IteratorAggregate, Statement
         }
 
         return $destinationClass;
+    }
+
+    /**
+     * @return resource
+     *
+     * @throws DB2Exception
+     */
+    private function createTemporaryFile()
+    {
+        $handle = @tmpfile();
+
+        if ($handle === false) {
+            throw new DB2Exception('Could not create temporary file: ' . error_get_last()['message']);
+        }
+
+        return $handle;
+    }
+
+    /**
+     * @param resource $source
+     * @param resource $target
+     *
+     * @throws DB2Exception
+     */
+    private function copyStreamToStream($source, $target) : void
+    {
+        if (@stream_copy_to_stream($source, $target) === false) {
+            throw new DB2Exception('Could not copy source stream to temporary file: ' . error_get_last()['message']);
+        }
+    }
+
+    /**
+     * @param resource $target
+     *
+     * @throws DB2Exception
+     */
+    private function writeStringToStream(string $string, $target) : void
+    {
+        if (@fwrite($target, $string) === false) {
+            throw new DB2Exception('Could not write string to temporary file: ' . error_get_last()['message']);
+        }
     }
 }
