@@ -4,7 +4,6 @@ namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use const JSON_ERROR_NONE;
-use function is_array;
 use function is_resource;
 use function json_decode;
 use function json_encode;
@@ -50,10 +49,6 @@ class JsonType extends Type
     {
         if ($value === null || $value === '') {
             return null;
-        }
-
-        if (is_array($value)) {
-            return $value;
         }
 
         if (is_resource($value)) {

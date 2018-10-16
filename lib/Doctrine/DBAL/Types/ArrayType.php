@@ -3,7 +3,6 @@
 namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use function is_array;
 use function is_resource;
 use function restore_error_handler;
 use function serialize;

@@ -40,22 +40,22 @@ class JsonArrayTest extends DbalTestCase
 
     public function testReturnsSQLDeclaration()
     {
-        self::assertSame('DUMMYJSON', $this->type->getSQLDeclaration([], $this->platform));
+        self::assertSame('DUMMYJSON', $this->type->getSQLDeclaration(array(), $this->platform));
     }
 
     public function testJsonNullConvertsToPHPValue()
     {
-        self::assertSame([], $this->type->convertToPHPValue(null, $this->platform));
+        self::assertSame(array(), $this->type->convertToPHPValue(null, $this->platform));
     }
 
     public function testJsonEmptyStringConvertsToPHPValue()
     {
-        self::assertSame([], $this->type->convertToPHPValue('', $this->platform));
+        self::assertSame(array(), $this->type->convertToPHPValue('', $this->platform));
     }
 
     public function testJsonStringConvertsToPHPValue()
     {
-        $value         = ['foo' => 'bar', 'bar' => 'foo'];
+        $value         = array('foo' => 'bar', 'bar' => 'foo');
         $databaseValue = json_encode($value);
         $phpValue      = $this->type->convertToPHPValue($databaseValue, $this->platform);
 
@@ -64,19 +64,11 @@ class JsonArrayTest extends DbalTestCase
 
     public function testJsonResourceConvertsToPHPValue()
     {
-        $value         = ['foo' => 'bar', 'bar' => 'foo'];
+        $value         = array('foo' => 'bar', 'bar' => 'foo');
         $databaseValue = fopen('data://text/plain;base64,' . base64_encode(json_encode($value)), 'r');
         $phpValue      = $this->type->convertToPHPValue($databaseValue, $this->platform);
 
         self::assertSame($value, $phpValue);
-    }
-
-    public function testJsonArrayPassesThroughForConvertToPHPValue()
-    {
-        $value    = ['foo' => 'bar', 'bar' => 'foo'];
-        $phpValue = $this->type->convertToPHPValue($value, $this->platform);
-
-        self::assertEquals($value, $phpValue);
     }
 
     public function testRequiresSQLCommentHint()
