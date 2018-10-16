@@ -580,11 +580,14 @@ SQL
                 }
             }
 
-            if ($columnDiff->hasChanged('comment')) {
+            $newComment = $this->getColumnComment($column);
+            $oldComment = $this->getOldColumnComment($columnDiff);
+
+            if ($columnDiff->hasChanged('comment') || ($columnDiff->fromColumn !== null && $oldComment !== $newComment)) {
                 $commentsSQL[] = $this->getCommentOnColumnSQL(
                     $diff->getName($this)->getQuotedName($this),
                     $column->getQuotedName($this),
-                    $this->getColumnComment($column)
+                    $newComment
                 );
             }
 
@@ -1247,5 +1250,10 @@ SQL
     private function isNumericType(Type $type) : bool
     {
         return $type instanceof IntegerType || $type instanceof BigIntType;
+    }
+
+    private function getOldColumnComment(ColumnDiff $columnDiff) : ?string
+    {
+        return $columnDiff->fromColumn ? $this->getColumnComment($columnDiff->fromColumn) : null;
     }
 }
