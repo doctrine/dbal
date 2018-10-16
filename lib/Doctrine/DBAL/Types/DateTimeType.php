@@ -69,9 +69,9 @@ class DateTimeType extends Type implements PhpDateTimeMappingType
     /**
      * {@inheritdoc}
      */
-     public function handleTypeConversion($value, AbstractPlatform $platform)
+     public function normalizeToPHPValue($value, AbstractPlatform $platform)
      {
-        if ($value instanceof \DateTimeInterface) {
+        if ($value instanceof DateTimeInterface) {
             return $value;
         }
 
