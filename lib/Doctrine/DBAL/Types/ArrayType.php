@@ -57,6 +57,18 @@ class ArrayType extends Type
     /**
      * {@inheritdoc}
      */
+    public function normalizeToPHPValue($value, AbstractPlatform $platform)
+    {
+        if (is_array($value)) {
+            return $value;
+        }
+
+        return $this->convertToPHPValue($value, $platform);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getName()
     {
         return Type::TARRAY;
