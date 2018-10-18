@@ -43,7 +43,7 @@ class ArrayTest extends DbalTestCase
     {
         self::assertInternalType(
             'array',
-            $this->type->convertToPHPValue(serialize([]), $this->_platform)
+            $this->type->convertToPHPValue(serialize([]), $this->platform)
         );
     }
 
