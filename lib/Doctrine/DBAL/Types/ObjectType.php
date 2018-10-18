@@ -68,6 +68,18 @@ class ObjectType extends Type
     /**
      * {@inheritdoc}
      */
+    public function normalizeToPHPValue($value, AbstractPlatform $platform)
+    {
+        if (is_object($value)) {
+            return $value;
+        }
+
+        return $this->convertToPHPValue($value, $platform);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getName()
     {
         return Type::OBJECT;
