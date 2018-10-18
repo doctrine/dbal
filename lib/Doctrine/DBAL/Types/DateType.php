@@ -48,15 +48,27 @@ class DateType extends Type
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
-        if ($value === null || $value instanceof DateTimeInterface) {
-            return $value;
+        if ($value === null) {
+            return null;
         }
 
-        $val = DateTime::createFromFormat('!' . $platform->getDateFormatString(), $value);
-        if (! $val) {
+        $val = DateTime::createFromFormat('!'.$platform->getDateFormatString(), $value);
+        if ( ! $val) {
             throw ConversionException::conversionFailedFormat($value, $this->getName(), $platform->getDateFormatString());
         }
 
         return $val;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function normalizeToPHPValue($value, AbstractPlatform $platform)
+    {
+        if ($value instanceof DateTimeInterface) {
+            return $value;
+        }
+
+        return $this->convertToPHPValue($value, $platform);
     }
 }
