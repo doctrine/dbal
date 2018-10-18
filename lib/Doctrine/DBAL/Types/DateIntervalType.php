@@ -53,8 +53,8 @@ class DateIntervalType extends Type
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
-        if ($value === null || $value instanceof DateInterval) {
-            return $value;
+        if ($value === null) {
+            return null;
         }
 
         $negative = false;
@@ -75,6 +75,18 @@ class DateIntervalType extends Type
         } catch (Throwable $exception) {
             throw ConversionException::conversionFailedFormat($value, $this->getName(), self::FORMAT, $exception);
         }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function normalizeToPHPValue($value, AbstractPlatform $platform)
+    {
+        if ($value instanceof DateInterval) {
+            return $value;
+        }
+
+        return $this->convertToPHPValue($value, $platform);
     }
 
     /**
