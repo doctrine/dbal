@@ -48,15 +48,27 @@ class TimeType extends Type
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
-        if ($value === null || $value instanceof DateTimeInterface) {
-            return $value;
+        if ($value === null) {
+            return null;
         }
 
         $val = DateTime::createFromFormat('!' . $platform->getTimeFormatString(), $value);
-        if (! $val) {
+        if ( ! $val) {
             throw ConversionException::conversionFailedFormat($value, $this->getName(), $platform->getTimeFormatString());
         }
 
         return $val;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function normalizeToPHPValue($value, AbstractPlatform $platform)
+    {
+        if ($value instanceof DateTimeInterface) {
+            return $value;
+        }
+
+        return $this->convertToPHPValue($value, $platform);
     }
 }
