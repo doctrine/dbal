@@ -68,19 +68,6 @@ class JsonType extends Type
     /**
      * {@inheritdoc}
      */
-    public function normalizeToPHPValue($value, AbstractPlatform $platform)
-    {
-        throw new \Exception('Need to correct for empty $value');
-        if ($value === '') {
-            return [];
-        }
-
-        return $this->convertToPHPValue($value, $platform);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getName()
     {
         return Type::JSON;
