@@ -44,8 +44,8 @@ class VarDateTimeImmutableType extends VarDateTimeType
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
-        if ($value === null || $value instanceof DateTimeImmutable) {
-            return $value;
+        if ($value === null) {
+            return null;
         }
 
         $dateTime = date_create_immutable($value);
@@ -55,6 +55,18 @@ class VarDateTimeImmutableType extends VarDateTimeType
         }
 
         return $dateTime;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function normalizeToPHPValue($value, AbstractPlatform $platform)
+    {
+        if ($value instanceof DateTimeImmutable) {
+            return $value;
+        }
+
+        return $this->convertToPHPValue($value, $platform);
     }
 
     /**

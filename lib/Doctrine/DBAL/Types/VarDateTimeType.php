@@ -20,8 +20,8 @@ class VarDateTimeType extends DateTimeType
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
-        if ($value === null || $value instanceof DateTime) {
-            return $value;
+        if ($value === null) {
+            return null;
         }
 
         $val = date_create($value);
@@ -30,5 +30,17 @@ class VarDateTimeType extends DateTimeType
         }
 
         return $val;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function normalizeToPHPValue($value, AbstractPlatform $platform)
+    {
+        if ($value instanceof DateTime) {
+            return $value;
+        }
+
+        return $this->convertToPHPValue($value, $platform);
     }
 }
