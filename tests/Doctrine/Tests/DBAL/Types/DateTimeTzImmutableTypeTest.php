@@ -67,11 +67,11 @@ class DateTimeTzImmutableTypeTest extends TestCase
         $this->type->convertToDatabaseValue(new DateTime(), $this->platform->reveal());
     }
 
-    public function testConvertsDateTimeImmutableInstanceToPHPValue()
+    public function testNormalizesDateTimeImmutableInstanceToPHPValue()
     {
         $date = new DateTimeImmutable();
 
-        self::assertSame($date, $this->type->convertToPHPValue($date, $this->platform->reveal()));
+        self::assertSame($date, $this->type->normalizeToPHPValue($date, $this->platform->reveal()));
     }
 
     public function testConvertsNullToPHPValue()

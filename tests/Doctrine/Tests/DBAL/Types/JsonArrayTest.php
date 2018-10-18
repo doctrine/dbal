@@ -45,12 +45,12 @@ class JsonArrayTest extends DbalTestCase
 
     public function testJsonNullConvertsToPHPValue()
     {
-        self::assertSame(array(), $this->type->convertToPHPValue(null, $this->platform));
+        self::assertSame(null, $this->type->convertToPHPValue(null, $this->platform));
     }
 
-    public function testJsonEmptyStringConvertsToPHPValue()
+    public function testJsonEmptyStringNormalizesToPHPValue()
     {
-        self::assertSame(array(), $this->type->convertToPHPValue('', $this->platform));
+        self::assertSame(array(), $this->type->normalizeToPHPValue('', $this->platform));
     }
 
     public function testJsonStringConvertsToPHPValue()
