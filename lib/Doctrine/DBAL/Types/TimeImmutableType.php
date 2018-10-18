@@ -43,8 +43,8 @@ class TimeImmutableType extends TimeType
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
-        if ($value === null || $value instanceof DateTimeImmutable) {
-            return $value;
+        if ($value === null) {
+            return null;
         }
 
         $dateTime = DateTimeImmutable::createFromFormat('!' . $platform->getTimeFormatString(), $value);
@@ -58,6 +58,18 @@ class TimeImmutableType extends TimeType
         }
 
         return $dateTime;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function normalizeToPHPValue($value, AbstractPlatform $platform)
+    {
+        if ($value instanceof DateTimeImmutable) {
+            return $value;
+        }
+
+        return $this->convertToPHPValue($value, $platform);
     }
 
     /**
