@@ -19,13 +19,25 @@ class JsonArrayType extends JsonType
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
-        if ($value === null || $value === '') {
-            return [];
+        if ($value === null) {
+            return null;
         }
 
         $value = is_resource($value) ? stream_get_contents($value) : $value;
 
         return json_decode($value, true);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function normalizeToPHPValue($value, AbstractPlatform $platform)
+    {
+        if ($value === '') {
+            return [];
+        }
+
+        return $this->convertToPHPValue($value, $platform);
     }
 
     /**
