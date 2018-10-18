@@ -43,8 +43,8 @@ class DateTimeTzImmutableType extends DateTimeTzType
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
-        if ($value === null || $value instanceof DateTimeImmutable) {
-            return $value;
+        if ($value === null) {
+            return null;
         }
 
         $dateTime = DateTimeImmutable::createFromFormat($platform->getDateTimeTzFormatString(), $value);
@@ -58,6 +58,18 @@ class DateTimeTzImmutableType extends DateTimeTzType
         }
 
         return $dateTime;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function normalizeToPHPValue($value, AbstractPlatform $platform)
+    {
+        if ($value instanceof DateTimeImmutable) {
+            return $value;
+        }
+
+        return $this->convertToPHPValue($value, $platform);
     }
 
     /**
