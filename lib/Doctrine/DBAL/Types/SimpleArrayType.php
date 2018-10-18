@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Types;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use function explode;
 use function implode;
+use function is_array;
 use function is_resource;
 use function stream_get_contents;
 
@@ -41,12 +42,24 @@ class SimpleArrayType extends Type
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
         if ($value === null) {
-            return [];
+            return null;
         }
 
         $value = is_resource($value) ? stream_get_contents($value) : $value;
 
         return explode(',', $value);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function normalizeToPHPValue($value, AbstractPlatform $platform)
+    {
+        if (is_array($value)) {
+            return $value;
+        }
+
+        return $this->convertToPHPValue($value, $platform);
     }
 
     /**
