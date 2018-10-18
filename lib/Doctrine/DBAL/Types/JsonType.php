@@ -47,6 +47,7 @@ class JsonType extends Type
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
+        // An empty value will return null from json_decode so shortcut the parsing here.
         if ($value === null || $value === '') {
             return null;
         }
@@ -62,19 +63,6 @@ class JsonType extends Type
         }
 
         return $val;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function normalizeToPHPValue($value, AbstractPlatform $platform)
-    {
-        throw new \Exception('Need to correct for empty $value');
-        if ($value === '') {
-            return [];
-        }
-
-        return $this->convertToPHPValue($value, $platform);
     }
 
     /**
