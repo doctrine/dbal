@@ -427,7 +427,7 @@ jobs:
 
     - stage: Code Quality
       env: DB=none STATIC_ANALYSIS
-      install: travis_retry composer update --prefer-dist
+      install: travis_retry composer install --prefer-dist
       script: vendor/bin/phpstan analyse
 
     - stage: Coding standard
