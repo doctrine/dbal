@@ -845,7 +845,7 @@ EOD;
      */
     public function testQuotesDatabaseNameInListSequencesSQL()
     {
-        self::assertContains("'Foo''Bar\\\\'", $this->_platform->getListSequencesSQL("Foo'Bar\\"), '', true);
+        self::assertContains("'Foo''Bar\\'", $this->_platform->getListSequencesSQL("Foo'Bar\\"), '', true);
     }
 
     /**
@@ -853,7 +853,7 @@ EOD;
      */
     public function testQuotesTableNameInListTableIndexesSQL()
     {
-        self::assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableIndexesSQL("Foo'Bar\\"), '', true);
+        self::assertContains("'Foo''Bar\\'", $this->_platform->getListTableIndexesSQL("Foo'Bar\\"), '', true);
     }
 
     /**
@@ -861,7 +861,7 @@ EOD;
      */
     public function testQuotesTableNameInListTableForeignKeysSQL()
     {
-        self::assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableForeignKeysSQL("Foo'Bar\\"), '', true);
+        self::assertContains("'Foo''Bar\\'", $this->_platform->getListTableForeignKeysSQL("Foo'Bar\\"), '', true);
     }
 
     /**
@@ -869,7 +869,7 @@ EOD;
      */
     public function testQuotesTableNameInListTableConstraintsSQL()
     {
-        self::assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableConstraintsSQL("Foo'Bar\\"), '', true);
+        self::assertContains("'Foo''Bar\\'", $this->_platform->getListTableConstraintsSQL("Foo'Bar\\"), '', true);
     }
 
     /**
@@ -877,7 +877,7 @@ EOD;
      */
     public function testQuotesTableNameInListTableColumnsSQL()
     {
-        self::assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableColumnsSQL("Foo'Bar\\"), '', true);
+        self::assertContains("'Foo''Bar\\'", $this->_platform->getListTableColumnsSQL("Foo'Bar\\"), '', true);
     }
 
     /**
@@ -885,6 +885,6 @@ EOD;
      */
     public function testQuotesDatabaseNameInListTableColumnsSQL()
     {
-        self::assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableColumnsSQL('foo_table', "Foo'Bar\\"), '', true);
+        self::assertContains("'Foo''Bar\\'", $this->_platform->getListTableColumnsSQL('foo_table', "Foo'Bar\\"), '', true);
     }
 }
