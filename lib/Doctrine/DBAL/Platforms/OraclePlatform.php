@@ -21,7 +21,6 @@ use function func_num_args;
 use function implode;
 use function preg_match;
 use function sprintf;
-use function str_replace;
 use function strlen;
 use function strpos;
 use function strtoupper;
@@ -1174,15 +1173,5 @@ SQL
     public function getBlobTypeDeclarationSQL(array $field)
     {
         return 'BLOB';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function quoteStringLiteral($str)
-    {
-        $str = str_replace('\\', '\\\\', $str); // Oracle requires backslashes to be escaped aswell.
-
-        return parent::quoteStringLiteral($str);
     }
 }
