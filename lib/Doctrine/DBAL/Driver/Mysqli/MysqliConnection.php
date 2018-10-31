@@ -146,7 +146,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
     /**
      * {@inheritdoc}
      */
-    public function quote($input, $type = ParameterType::STRING)
+    public function quote($input, $type = ParameterType::STRING) : string
     {
         return "'" . $this->conn->escape_string($input) . "'";
     }
@@ -166,7 +166,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
     /**
      * {@inheritdoc}
      */
-    public function lastInsertId($name = null)
+    public function lastInsertId(string $name = null) : string
     {
         return $this->conn->insert_id;
     }

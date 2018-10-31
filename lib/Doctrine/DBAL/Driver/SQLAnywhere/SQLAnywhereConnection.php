@@ -133,7 +133,7 @@ class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function lastInsertId($name = null)
+    public function lastInsertId(string $name = null) : string
     {
         if ($name === null) {
             return sasql_insert_id($this->connection);
@@ -164,7 +164,7 @@ class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function quote($input, $type = ParameterType::STRING)
+    public function quote($input, $type = ParameterType::STRING) : string
     {
         if (is_int($input) || is_float($input)) {
             return $input;

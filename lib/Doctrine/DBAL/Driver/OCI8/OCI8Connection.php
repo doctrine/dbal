@@ -115,7 +115,7 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function quote($value, $type = ParameterType::STRING)
+    public function quote($value, $type = ParameterType::STRING) : string
     {
         if (is_int($value) || is_float($value)) {
             return $value;
@@ -139,7 +139,7 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function lastInsertId($name = null)
+    public function lastInsertId(string $name = null) : string
     {
         if ($name === null) {
             return false;

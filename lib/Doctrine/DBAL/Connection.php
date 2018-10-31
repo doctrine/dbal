@@ -814,12 +814,12 @@ class Connection implements DriverConnection
     /**
      * Quotes a given input parameter.
      *
-     * @param mixed    $input The parameter to be quoted.
-     * @param int|null $type  The type of the parameter.
+     * @param mixed $input The parameter to be quoted.
+     * @param int   $type  The type of the parameter.
      *
      * @return string The quoted parameter.
      */
-    public function quote($input, $type = null)
+    public function quote($input, $type = ParameterType::STRING) : string
     {
         $this->connect();
 
@@ -1110,7 +1110,7 @@ class Connection implements DriverConnection
      *
      * @return string A string representation of the last inserted ID.
      */
-    public function lastInsertId($seqName = null)
+    public function lastInsertId(string $seqName = null) : string
     {
         $this->connect();
 

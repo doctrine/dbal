@@ -98,7 +98,7 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function quote($input, $type = ParameterType::STRING)
+    public function quote($input, $type = ParameterType::STRING) : string
     {
         $input = db2_escape_string($input);
 
@@ -126,7 +126,7 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function lastInsertId($name = null)
+    public function lastInsertId(string $name = null) : string
     {
         return db2_last_insert_id($this->conn);
     }

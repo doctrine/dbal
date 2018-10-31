@@ -28,12 +28,14 @@ interface Connection
     /**
      * Quotes a string for use in a query.
      *
+     * If the driver does not support quoting, an exception is thrown.
+     *
      * @param mixed $input
      * @param int   $type
      *
-     * @return mixed
+     * @return string
      */
-    public function quote($input, $type = ParameterType::STRING);
+    public function quote($input, $type = ParameterType::STRING) : string;
 
     /**
      * Executes an SQL statement and return the number of affected rows.
@@ -49,7 +51,7 @@ interface Connection
      *
      * @return string
      */
-    public function lastInsertId($name = null);
+    public function lastInsertId(string $name = null) : string;
 
     /**
      * Initiates a transaction.

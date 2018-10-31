@@ -16,7 +16,7 @@ class Connection extends PDOConnection implements \Doctrine\DBAL\Driver\Connecti
     /**
      * {@inheritDoc}
      */
-    public function lastInsertId($name = null)
+    public function lastInsertId(string $name = null) : string
     {
         if ($name === null) {
             return parent::lastInsertId($name);
@@ -31,7 +31,7 @@ class Connection extends PDOConnection implements \Doctrine\DBAL\Driver\Connecti
     /**
      * {@inheritDoc}
      */
-    public function quote($value, $type = ParameterType::STRING)
+    public function quote($value, $type = ParameterType::STRING) : string
     {
         $val = parent::quote($value, $type);
 
