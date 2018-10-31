@@ -34,7 +34,7 @@ class Driver extends AbstractSQLServerDriver
         if ($username !== null) {
             $driverOptions['UID'] = $username;
         }
-        
+
         if ($password !== null) {
             $driverOptions['PWD'] = $password;
         }
