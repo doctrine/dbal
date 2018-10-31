@@ -15,11 +15,19 @@ interface Connection
 {
     /**
      * Prepares a statement for execution and returns a Statement object.
+     *
+     * @param string $sql
+     *
+     * @return Statement
      */
     public function prepare(string $sql) : Statement;
 
     /**
      * Executes an SQL statement, returning a result set as a Statement object.
+     *
+     * @param string $sql
+     *
+     * @return ResultStatement
      *
      * @throws DBALException
      */
@@ -39,6 +47,10 @@ interface Connection
 
     /**
      * Executes an SQL statement and return the number of affected rows.
+     *
+     * @param string $statement
+     *
+     * @return int
      *
      * @throws DBALException
      */
