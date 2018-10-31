@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\Mocks;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
 use function is_string;
 
 class ConnectionMock extends Connection
@@ -39,12 +40,12 @@ class ConnectionMock extends Connection
         $this->inserts[$tableName][] = $data;
     }
 
-    public function lastInsertId($seqName = null)
+    public function lastInsertId(string $seqName = null) : string
     {
         return $this->lastInsertId;
     }
 
-    public function quote($input, $type = null)
+    public function quote($input, $type = ParameterType::STRING) : string
     {
         if (is_string($input)) {
             return "'" . $input . "'";
