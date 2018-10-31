@@ -31,8 +31,13 @@ class Driver extends AbstractSQLServerDriver
             $driverOptions['CharacterSet'] = $params['charset'];
         }
 
-        $driverOptions['UID'] = $username;
-        $driverOptions['PWD'] = $password;
+        if ($username !== null) {
+            $driverOptions['UID'] = $username;
+        }
+        
+        if ($password !== null) {
+            $driverOptions['PWD'] = $password;
+        }
 
         if (! isset($driverOptions['ReturnDatesAsStrings'])) {
             $driverOptions['ReturnDatesAsStrings'] = 1;
