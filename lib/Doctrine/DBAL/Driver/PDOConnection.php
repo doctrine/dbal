@@ -116,25 +116,25 @@ class PDOConnection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritDoc}
      */
-    public function beginTransaction()
+    public function beginTransaction() : void
     {
-        return $this->connection->beginTransaction();
+        $this->connection->beginTransaction();
     }
 
     /**
      * {@inheritDoc}
      */
-    public function commit()
+    public function commit() : void
     {
-        return $this->connection->commit();
+        $this->connection->commit();
     }
 
     /**
      * {@inheritDoc}
      */
-    public function rollBack()
+    public function rollBack() : void
     {
-        return $this->connection->rollBack();
+        $this->connection->rollBack();
     }
 
     /**

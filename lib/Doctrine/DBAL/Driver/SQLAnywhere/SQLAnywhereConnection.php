@@ -69,13 +69,11 @@ class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
      *
      * @throws SQLAnywhereException
      */
-    public function beginTransaction()
+    public function beginTransaction() : void
     {
         if (! sasql_set_option($this->connection, 'auto_commit', 'off')) {
             throw SQLAnywhereException::fromSQLAnywhereError($this->connection);
         }
-
-        return true;
     }
 
     /**
@@ -83,15 +81,13 @@ class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
      *
      * @throws SQLAnywhereException
      */
-    public function commit()
+    public function commit() : void
     {
         if (! sasql_commit($this->connection)) {
             throw SQLAnywhereException::fromSQLAnywhereError($this->connection);
         }
 
         $this->endTransaction();
-
-        return true;
     }
 
     /**
@@ -190,15 +186,13 @@ class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
      *
      * @throws SQLAnywhereException
      */
-    public function rollBack()
+    public function rollBack() : void
     {
         if (! sasql_rollback($this->connection)) {
             throw SQLAnywhereException::fromSQLAnywhereError($this->connection);
         }
 
         $this->endTransaction();
-
-        return true;
     }
 
     /**

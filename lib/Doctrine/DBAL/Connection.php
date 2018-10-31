@@ -1192,7 +1192,7 @@ class Connection implements DriverConnection
      *
      * @return void
      */
-    public function beginTransaction()
+    public function beginTransaction() : void
     {
         $this->connect();
 
@@ -1219,7 +1219,7 @@ class Connection implements DriverConnection
      * @throws ConnectionException If the commit failed due to no active transaction or
      *                                            because the transaction was marked for rollback only.
      */
-    public function commit()
+    public function commit() : void
     {
         if ($this->transactionNestingLevel === 0) {
             throw ConnectionException::noActiveTransaction();
@@ -1274,7 +1274,7 @@ class Connection implements DriverConnection
      *
      * @throws ConnectionException If the rollback operation failed.
      */
-    public function rollBack()
+    public function rollBack() : void
     {
         if ($this->transactionNestingLevel === 0) {
             throw ConnectionException::noActiveTransaction();

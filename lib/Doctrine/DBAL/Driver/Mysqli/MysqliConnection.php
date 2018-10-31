@@ -174,27 +174,25 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
     /**
      * {@inheritdoc}
      */
-    public function beginTransaction()
+    public function beginTransaction() : void
     {
         $this->conn->query('START TRANSACTION');
-
-        return true;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function commit()
+    public function commit() : void
     {
-        return $this->conn->commit();
+        $this->conn->commit();
     }
 
     /**
      * {@inheritdoc}non-PHPdoc)
      */
-    public function rollBack()
+    public function rollBack() : void
     {
-        return $this->conn->rollback();
+        $this->conn->rollback();
     }
 
     /**
