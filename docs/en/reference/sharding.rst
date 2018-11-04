@@ -84,8 +84,7 @@ Use GUID/UUIDs
 The most simple ID-generation mechanism for sharding are
 universally unique identifiers. These are 16-byte
 (128-bit) numbers that are guaranteed to be unique across different servers.
-You can `read up on UUIDs on Wikipedia
-<http://en.wikipedia.org/wiki/Universally_unique_identifier>`_.
+You can `read up on UUIDs on Wikipedia <http://en.wikipedia.org/wiki/Universally_unique_identifier>`_.
 
 The drawback of UUIDs is the segmentation they cause on indexes. Because UUIDs
 are not sequentially generated, they can have negative impact on index access
@@ -128,8 +127,7 @@ In your application you should hide this details in Id-Generation services:
     }
 
 A good starting point to read up on GUIDs (vs numerical ids) is this blog post
-`Coding Horror: Primary Keys: IDs vs GUIDs
-<http://www.codinghorror.com/blog/2007/03/primary-keys-ids-versus-guids.html>`_.
+`Coding Horror: Primary Keys: IDs vs GUIDs <http://www.codinghorror.com/blog/2007/03/primary-keys-ids-versus-guids.html>`_.
 
 Table Generator
 ~~~~~~~~~~~~~~~
