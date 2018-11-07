@@ -406,12 +406,14 @@ class QueryBuilder
     /**
      * Sets the flag to only retrieve distinct results
      *
+     * @param bool $isDistinct Set true to add the distinct flag, set to false to remove it
+     *
      * @return $this This QueryBuilder instance.
      */
-    public function distinct()
+    public function distinct($isDistinct = true)
     {
         $this->state      = self::STATE_DIRTY;
-        $this->isDistinct = true;
+        $this->isDistinct = $isDistinct;
 
         return $this;
     }
@@ -421,7 +423,7 @@ class QueryBuilder
      *
      * @return bool
      */
-    public function getDistinct()
+    public function isDistinct()
     {
         return $this->isDistinct;
     }

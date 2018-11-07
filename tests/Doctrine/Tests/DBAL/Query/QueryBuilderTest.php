@@ -593,7 +593,17 @@ class QueryBuilderTest extends DbalTestCase
         $qb->distinct();
 
         self::assertEquals(QueryBuilder::STATE_DIRTY, $qb->getState());
-        self::assertEquals(10, $qb->getDistinct());
+        self::assertTrue($qb->isDistinct());
+    }
+
+    public function testSetDistinctFalse()
+    {
+        $qb = new QueryBuilder($this->conn);
+        $qb->distinct(true);
+        $qb->distinct(false);
+
+        self::assertEquals(QueryBuilder::STATE_DIRTY, $qb->getState());
+        self::assertFalse($qb->isDistinct());
     }
 
     public function testResetQueryPart()
