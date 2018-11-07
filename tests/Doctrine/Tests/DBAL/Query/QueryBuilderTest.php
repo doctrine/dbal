@@ -64,7 +64,6 @@ class QueryBuilderTest extends DbalTestCase
 
     public function testSelectWithDistinct()
     {
-
         $qb = new QueryBuilder($this->conn);
 
         $qb->select('u.id')
