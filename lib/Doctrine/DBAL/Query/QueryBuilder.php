@@ -410,7 +410,7 @@ class QueryBuilder
      */
     public function distinct()
     {
-        $this->state = self::STATE_DIRTY;
+        $this->state      = self::STATE_DIRTY;
         $this->isDistinct = true;
 
         return $this;
