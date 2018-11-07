@@ -62,6 +62,18 @@ class QueryBuilderTest extends DbalTestCase
         self::assertEquals('SELECT u.id FROM users u WHERE u.nickname = ?', (string) $qb);
     }
 
+    public function testSelectWithDistinct()
+    {
+
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('u.id')
+           ->from('users', 'u')
+           ->distinct();
+
+        self::assertEquals('SELECT DISTINCT u.id FROM users u', (string) $qb);
+    }
+
     public function testSelectWithLeftJoin()
     {
         $qb   = new QueryBuilder($this->conn);
@@ -574,6 +586,15 @@ class QueryBuilderTest extends DbalTestCase
 
         self::assertEquals(QueryBuilder::STATE_DIRTY, $qb->getState());
         self::assertEquals(10, $qb->getFirstResult());
+    }
+
+    public function testSetDistinct()
+    {
+        $qb = new QueryBuilder($this->conn);
+        $qb->distinct();
+
+        self::assertEquals(QueryBuilder::STATE_DIRTY, $qb->getState());
+        self::assertEquals(10, $qb->getDistinct());
     }
 
     public function testResetQueryPart()
