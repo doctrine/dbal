@@ -126,6 +126,13 @@ class QueryBuilder
     private $boundCounter = 0;
 
     /**
+     * Whether or not to include a distinct flag in the SELECT clause
+     *
+     * @var bool
+     */
+    private $isDistinct = false;
+
+    /**
      * Initializes a new <tt>QueryBuilder</tt>.
      *
      * @param Connection $connection The DBAL Connection.
@@ -394,6 +401,29 @@ class QueryBuilder
     public function getMaxResults()
     {
         return $this->maxResults;
+    }
+
+    /**
+     * Sets the flag to only retrieve distinct results
+     *
+     * @return $this This QueryBuilder instance.
+     */
+    public function distinct()
+    {
+        $this->state = self::STATE_DIRTY;
+        $this->isDistinct = true;
+
+        return $this;
+    }
+
+    /**
+     * Returns whether or not the query object is set to return only distinct results
+     *
+     * @return bool
+     */
+    public function getDistinct()
+    {
+        return $this->isDistinct;
     }
 
     /**
@@ -1099,7 +1129,7 @@ class QueryBuilder
      */
     private function getSQLForSelect()
     {
-        $query = 'SELECT ' . implode(', ', $this->sqlParts['select']);
+        $query = 'SELECT' . ($this->isDistinct ? ' DISTINCT ' : ' ') . implode(', ', $this->sqlParts['select']);
 
         $query .= ($this->sqlParts['from'] ? ' FROM ' . implode(', ', $this->getFromClauses()) : '')
             . ($this->sqlParts['where'] !== null ? ' WHERE ' . ((string) $this->sqlParts['where']) : '')
