@@ -645,7 +645,7 @@ class MySqlPlatform extends AbstractPlatform
 
                     $query  = 'ALTER TABLE ' . $table . ' DROP INDEX ' . $remIndex->getName() . ', ';
                     $query .= 'ADD ' . $indexClause;
-                    $query .= ' (' . $this->getIndexFieldDeclarationListSQL($addIndex->getQuotedColumns($this)) . ')';
+                    $query .= ' (' . $this->getIndexFieldDeclarationListSQL($addIndex) . ')';
 
                     $sql[] = $query;
 
@@ -1131,5 +1131,13 @@ class MySqlPlatform extends AbstractPlatform
     public function getDefaultTransactionIsolationLevel()
     {
         return TransactionIsolationLevel::REPEATABLE_READ;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function supportsColumnLengthIndexes() : bool
+    {
+        return true;
     }
 }

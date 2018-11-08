@@ -7,6 +7,7 @@ use InvalidArgumentException;
 use function array_keys;
 use function array_map;
 use function array_search;
+use function array_shift;
 use function count;
 use function is_string;
 use function strtolower;
@@ -97,10 +98,21 @@ class Index extends AbstractAsset implements Constraint
      */
     public function getQuotedColumns(AbstractPlatform $platform)
     {
+        $subParts = $platform->supportsColumnLengthIndexes() && $this->hasOption('lengths')
+            ? $this->getOption('lengths') : [];
+
         $columns = [];
 
         foreach ($this->_columns as $column) {
-            $columns[] = $column->getQuotedName($platform);
+            $length = array_shift($subParts);
+
+            $quotedColumn = $column->getQuotedName($platform);
+
+            if ($length !== null) {
+                $quotedColumn .= '(' . $length . ')';
+            }
+
+            $columns[] = $quotedColumn;
         }
 
         return $columns;

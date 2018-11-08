@@ -843,17 +843,26 @@ abstract class AbstractSchemaManager
             $keyName = strtolower($keyName);
 
             if (! isset($result[$keyName])) {
+                $options = [
+                    'lengths' => [],
+                ];
+
+                if (isset($tableIndex['where'])) {
+                    $options['where'] = $tableIndex['where'];
+                }
+
                 $result[$keyName] = [
                     'name' => $indexName,
-                    'columns' => [$tableIndex['column_name']],
+                    'columns' => [],
                     'unique' => $tableIndex['non_unique'] ? false : true,
                     'primary' => $tableIndex['primary'],
                     'flags' => $tableIndex['flags'] ?? [],
-                    'options' => isset($tableIndex['where']) ? ['where' => $tableIndex['where']] : [],
+                    'options' => $options,
                 ];
-            } else {
-                $result[$keyName]['columns'][] = $tableIndex['column_name'];
             }
+
+            $result[$keyName]['columns'][]            = $tableIndex['column_name'];
+            $result[$keyName]['options']['lengths'][] = $tableIndex['length'] ?? null;
         }
 
         $eventManager = $this->_platform->getEventManager();

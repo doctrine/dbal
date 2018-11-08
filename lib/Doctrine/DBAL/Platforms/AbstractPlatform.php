@@ -1408,7 +1408,9 @@ abstract class AbstractPlatform
 
         if ($table instanceof Table) {
             $table = $table->getQuotedName($this);
-        } elseif (! is_string($table)) {
+        }
+
+        if (! is_string($table)) {
             throw new InvalidArgumentException('getDropTableSQL() expects $table parameter to be string or \Doctrine\DBAL\Schema\Table.');
         }
 
@@ -1784,7 +1786,7 @@ abstract class AbstractPlatform
             $table = $table->getQuotedName($this);
         }
         $name    = $index->getQuotedName($this);
-        $columns = $index->getQuotedColumns($this);
+        $columns = $index->getColumns();
 
         if (count($columns) === 0) {
             throw new InvalidArgumentException("Incomplete definition. 'columns' required.");
@@ -1795,7 +1797,7 @@ abstract class AbstractPlatform
         }
 
         $query  = 'CREATE ' . $this->getCreateIndexSQLFlags($index) . 'INDEX ' . $name . ' ON ' . $table;
-        $query .= ' (' . $this->getIndexFieldDeclarationListSQL($columns) . ')' . $this->getPartialIndexSQL($index);
+        $query .= ' (' . $this->getIndexFieldDeclarationListSQL($index) . ')' . $this->getPartialIndexSQL($index);
 
         return $query;
     }
@@ -1833,7 +1835,7 @@ abstract class AbstractPlatform
      */
     public function getCreatePrimaryKeySQL(Index $index, $table)
     {
-        return 'ALTER TABLE ' . $table . ' ADD PRIMARY KEY (' . $this->getIndexFieldDeclarationListSQL($index->getQuotedColumns($this)) . ')';
+        return 'ALTER TABLE ' . $table . ' ADD PRIMARY KEY (' . $this->getIndexFieldDeclarationListSQL($index) . ')';
     }
 
     /**
@@ -2337,7 +2339,7 @@ abstract class AbstractPlatform
      */
     public function getUniqueConstraintDeclarationSQL($name, Index $index)
     {
-        $columns = $index->getQuotedColumns($this);
+        $columns = $index->getColumns();
         $name    = new Identifier($name);
 
         if (count($columns) === 0) {
@@ -2345,7 +2347,7 @@ abstract class AbstractPlatform
         }
 
         return 'CONSTRAINT ' . $name->getQuotedName($this) . ' UNIQUE ('
-            . $this->getIndexFieldDeclarationListSQL($columns)
+            . $this->getIndexFieldDeclarationListSQL($index)
             . ')' . $this->getPartialIndexSQL($index);
     }
 
@@ -2362,7 +2364,7 @@ abstract class AbstractPlatform
      */
     public function getIndexDeclarationSQL($name, Index $index)
     {
-        $columns = $index->getQuotedColumns($this);
+        $columns = $index->getColumns();
         $name    = new Identifier($name);
 
         if (count($columns) === 0) {
@@ -2370,7 +2372,7 @@ abstract class AbstractPlatform
         }
 
         return $this->getCreateIndexSQLFlags($index) . 'INDEX ' . $name->getQuotedName($this) . ' ('
-            . $this->getIndexFieldDeclarationListSQL($columns)
+            . $this->getIndexFieldDeclarationListSQL($index)
             . ')' . $this->getPartialIndexSQL($index);
     }
 
@@ -2392,17 +2394,23 @@ abstract class AbstractPlatform
      * Obtains DBMS specific SQL code portion needed to set an index
      * declaration to be used in statements like CREATE TABLE.
      *
-     * @param mixed[][] $fields
-     *
-     * @return string
+     * @param mixed[]|Index $columnsOrIndex array declaration is deprecated, prefer passing Index to this method
      */
-    public function getIndexFieldDeclarationListSQL(array $fields)
+    public function getIndexFieldDeclarationListSQL($columnsOrIndex) : string
     {
+        if ($columnsOrIndex instanceof Index) {
+            return implode(', ', $columnsOrIndex->getQuotedColumns($this));
+        }
+
+        if (! is_array($columnsOrIndex)) {
+            throw new InvalidArgumentException('Fields argument should be an Index or array.');
+        }
+
         $ret = [];
 
-        foreach ($fields as $field => $definition) {
+        foreach ($columnsOrIndex as $column => $definition) {
             if (is_array($definition)) {
-                $ret[] = $field;
+                $ret[] = $column;
             } else {
                 $ret[] = $definition;
             }
@@ -3069,6 +3077,14 @@ abstract class AbstractPlatform
      * @return bool
      */
     public function supportsPartialIndexes()
+    {
+        return false;
+    }
+
+    /**
+     * Whether the platform supports indexes with column length definitions.
+     */
+    public function supportsColumnLengthIndexes() : bool
     {
         return false;
     }
