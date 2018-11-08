@@ -1555,4 +1555,24 @@ class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
 
         $this->assertGreaterThan($lastUsedIdBeforeDelete, $lastUsedIdAfterDelete);
     }
+
+    public function testGenerateAnIndexWithPartialColumnLength() : void
+    {
+        if (! $this->schemaManager->getDatabasePlatform()->supportsColumnLengthIndexes()) {
+            self::markTestSkipped('This test is only supported on platforms that support indexes with column length definitions.');
+        }
+
+        $table = new Table('test_partial_column_index');
+        $table->addColumn('long_column', 'string', ['length' => 40]);
+        $table->addColumn('standard_column', 'integer');
+        $table->addIndex(['long_column'], 'partial_long_column_idx', [], ['lengths' => [4]]);
+        $table->addIndex(['standard_column', 'long_column'], 'standard_and_partial_idx', [], ['lengths' => [null, 2]]);
+
+        $expected = $table->getIndexes();
+
+        $this->schemaManager->dropAndCreateTable($table);
+
+        $onlineTable = $this->schemaManager->listTableDetails('test_partial_column_index');
+        self::assertEquals($expected, $onlineTable->getIndexes());
+    }
 }
