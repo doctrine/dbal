@@ -28,7 +28,6 @@ use function is_bool;
 use function is_numeric;
 use function is_string;
 use function sprintf;
-use function str_replace;
 use function strpos;
 use function strtolower;
 use function trim;
@@ -1197,16 +1196,6 @@ SQL
     public function getBlobTypeDeclarationSQL(array $field)
     {
         return 'BYTEA';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function quoteStringLiteral($str)
-    {
-        $str = str_replace('\\', '\\\\', $str); // PostgreSQL requires backslashes to be escaped aswell.
-
-        return parent::quoteStringLiteral($str);
     }
 
     /**

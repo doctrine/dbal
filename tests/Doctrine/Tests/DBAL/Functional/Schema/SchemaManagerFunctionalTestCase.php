@@ -6,6 +6,7 @@ use Doctrine\Common\EventManager;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Events;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\AbstractAsset;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
@@ -1574,5 +1575,41 @@ class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
 
         $onlineTable = $this->schemaManager->listTableDetails('test_partial_column_index');
         self::assertEquals($expected, $onlineTable->getIndexes());
+    }
+
+    /**
+     * @group DBAL-2926
+     * @doesNotPerformAssertions
+     */
+    public function testCanCreateAndRetrieveInfoAboutTypeWithBackslashes()
+    {
+        Type::addType('Foo\\Bar', BackSlashType::class);
+
+        $table = new Table('test_escaping');
+        $table->addColumn('column', 'Foo\\Bar');
+
+        $this->schemaManager->dropAndCreateTable($table);
+        $this->schemaManager->listTableColumns('test_escaping');
+    }
+}
+
+class BackSlashType extends Type
+{
+    /**
+     * @param mixed[] $fieldDeclaration
+     */
+    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
+    {
+        return $platform->getVarcharTypeDeclarationSQL($fieldDeclaration);
+    }
+
+    public function getName()
+    {
+        return 'Foo\\Bar';
+    }
+
+    public function requiresSQLCommentHint(AbstractPlatform $platform)
+    {
+        return true;
     }
 }
