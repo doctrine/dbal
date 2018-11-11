@@ -1584,6 +1584,7 @@ class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
     public function testCanCreateAndRetrieveInfoAboutTypeWithBackslashes()
     {
         Type::addType('Foo\\Bar', BackSlashType::class);
+        $this->connection->getDatabasePlatform()->markDoctrineTypeCommented('Foo\\Bar');
 
         $table = new Table('test_escaping');
         $table->addColumn('column', 'Foo\\Bar');
