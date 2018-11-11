@@ -13,28 +13,18 @@ class View extends AbstractAsset
     /** @var string */
     private $sql;
 
-    /**
-     * @param string $name
-     * @param string $sql
-     */
-    public function __construct($name, $sql)
+    public function __construct(string $name, string $sql)
     {
         $this->_setName($name);
         $this->sql = $sql;
     }
 
-    /**
-     * @return string
-     */
-    public function getSql()
+    public function getSql(): string
     {
         return $this->sql;
     }
 
-    /**
-     * @return void
-     */
-    public function visit(Visitor $visitor)
+    public function visit(Visitor $visitor): void
     {
         if (! ($visitor instanceof ViewVisitor)) {
             return;
@@ -43,7 +33,7 @@ class View extends AbstractAsset
         $visitor->acceptView($this);
     }
 
-    public function isSameAs(View $anotherView)
+    public function isSameAs(View $anotherView): bool
     {
         return $anotherView->getSql() === $this->getSql();
     }

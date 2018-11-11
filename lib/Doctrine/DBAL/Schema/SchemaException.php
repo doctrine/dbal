@@ -183,22 +183,12 @@ class SchemaException extends DBALException
         );
     }
 
-    /**
-     * @param string $viewName
-     *
-     * @return \Doctrine\DBAL\Schema\SchemaException
-     */
-    public static function viewAlreadyExists($viewName)
+    public static function viewAlreadyExists(string $viewName)
     {
         return new self("The view '" . $viewName . "' already exists.", self::VIEW_ALREADY_EXISTS);
     }
 
-    /**
-     * @param string $viewName
-     *
-     * @return \Doctrine\DBAL\Schema\SchemaException
-     */
-    public static function viewDoesNotExist($viewName)
+    public static function viewDoesNotExist(string $viewName)
     {
         return new self("There exists no view with the name '" . $viewName . "'.", self::VIEW_DOENST_EXIST);
     }

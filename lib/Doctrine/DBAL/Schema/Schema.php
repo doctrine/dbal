@@ -415,12 +415,7 @@ class Schema extends AbstractAsset
         return $this;
     }
 
-    /**
-     * @param string $viewName
-     *
-     * @return bool
-     */
-    public function hasView($viewName)
+    public function hasView(string $viewName): bool
     {
         $viewName = $this->getFullQualifiedAssetName($viewName);
 
@@ -428,13 +423,9 @@ class Schema extends AbstractAsset
     }
 
     /**
-     * @param string $viewName
-     *
-     * @return View
-     *
      * @throws SchemaException
      */
-    public function getView($viewName)
+    public function getView(string $viewName) : View
     {
         $viewName = $this->getFullQualifiedAssetName($viewName);
         if (! isset($this->_views[$viewName])) {
@@ -445,24 +436,14 @@ class Schema extends AbstractAsset
     }
 
     /**
-     * Gets all views of this schema.
-     *
      * @return View[]
      */
-    public function getViews()
+    public function getViews() : array
     {
         return $this->_views;
     }
 
-    /**
-     * Creates a new view.
-     *
-     * @param string $viewName
-     * @param string $sql
-     *
-     * @return View
-     */
-    public function createView($viewName, $sql)
+    public function createView(string $viewName, string $sql) : View
     {
         $view = new View($viewName, $sql);
         $this->_addView($view);
@@ -470,19 +451,10 @@ class Schema extends AbstractAsset
         return $view;
     }
 
-    /**
-     * Drops a view from the schema.
-     *
-     * @param string $viewName
-     *
-     * @return Schema
-     */
-    public function dropView($viewName)
+    public function dropView(string $viewName) : self
     {
         $viewName = $this->getFullQualifiedAssetName($viewName);
-        if ($this->hasView($viewName)) {
-            unset($this->_views[$viewName]);
-        }
+        unset($this->_views[$viewName]);
 
         return $this;
     }

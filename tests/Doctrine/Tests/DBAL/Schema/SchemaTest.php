@@ -396,7 +396,7 @@ class SchemaTest extends TestCase
         $visitor->expects($this->exactly(2))
             ->method('acceptSequence');
 
-        $this->assertNull($schema->visit($visitor));
+        self::assertNull($schema->visit($visitor));
     }
 
     /**
@@ -473,12 +473,12 @@ class SchemaTest extends TestCase
 
         $schema = new Schema([], [], null, [], [$view]);
 
-        $this->assertTrue($schema->hasView($viewName));
+        self::assertTrue($schema->hasView($viewName));
 
         $views = $schema->getViews();
-        $this->assertTrue(isset($views[$viewName]));
-        $this->assertSame($view, $views[$viewName]);
-        $this->assertSame($view, $schema->getView($viewName));
+        self::assertArrayHasKey($viewName, $views);
+        self::assertSame($view, $views[$viewName]);
+        self::assertSame($view, $schema->getView($viewName));
     }
 
     public function testViewMatchingCaseInsensitive()
@@ -486,12 +486,12 @@ class SchemaTest extends TestCase
         $view = new View('Foo', 'SELECT * FROM `bar`');
 
         $schema = new Schema([], [], null, [], [$view]);
-        $this->assertTrue($schema->hasView('foo'));
-        $this->assertTrue($schema->hasView('FOO'));
+        self::assertTrue($schema->hasView('foo'));
+        self::assertTrue($schema->hasView('FOO'));
 
-        $this->assertSame($view, $schema->getView('FOO'));
-        $this->assertSame($view, $schema->getView('foo'));
-        $this->assertSame($view, $schema->getView('Foo'));
+        self::assertSame($view, $schema->getView('FOO'));
+        self::assertSame($view, $schema->getView('foo'));
+        self::assertSame($view, $schema->getView('Foo'));
     }
 
     /**
@@ -512,32 +512,32 @@ class SchemaTest extends TestCase
         $view     = new View($viewName, 'SELECT * FROM `bar`');
         $views    = [$view, $view];
 
-        $schema = new Schema([], [], null, [], $views);
+        new Schema([], [], null, [], $views);
     }
 
     public function testHasView()
     {
         $schema = new Schema();
 
-        $this->assertFalse($schema->hasView('foo'));
+        self::assertFalse($schema->hasView('foo'));
 
         $schema->createView('foo', 'SELECT * FROM `bar`');
 
-        $this->assertTrue($schema->hasView('foo'));
+        self::assertTrue($schema->hasView('foo'));
     }
 
     public function testCreatesView()
     {
         $schema = new Schema();
 
-        $this->assertFalse($schema->hasView('foo'));
+        self::assertFalse($schema->hasView('foo'));
 
         $view = $schema->createView('foo', 'SELECT * FROM `bar`');
 
-        $this->assertInstanceOf('Doctrine\DBAL\Schema\View', $view);
-        $this->assertEquals('foo', $view->getName());
-        $this->assertEquals('SELECT * FROM `bar`', $view->getSql());
-        $this->assertTrue($schema->hasView('foo'));
+        self::assertInstanceOf('Doctrine\DBAL\Schema\View', $view);
+        self::assertEquals('foo', $view->getName());
+        self::assertEquals('SELECT * FROM `bar`', $view->getSql());
+        self::assertTrue($schema->hasView('foo'));
     }
 
     public function testDropView()
@@ -545,11 +545,11 @@ class SchemaTest extends TestCase
         $schema = new Schema();
 
         $schema->dropView('foo');
-        $this->assertFalse($schema->hasView('foo'));
+        self::assertFalse($schema->hasView('foo'));
 
         $schema->createView('foo', 'SELECT * FROM `bar`');
 
         $schema->dropView('foo');
-        $this->assertFalse($schema->hasView('foo'));
+        self::assertFalse($schema->hasView('foo'));
     }
 }
