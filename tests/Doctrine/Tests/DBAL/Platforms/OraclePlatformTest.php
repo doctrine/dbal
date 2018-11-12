@@ -875,7 +875,7 @@ SQL
      */
     public function testQuotesDatabaseNameInListSequencesSQL()
     {
-        self::assertContains("'Foo''Bar\\\\'", $this->platform->getListSequencesSQL("Foo'Bar\\"), '', true);
+        self::assertContains("'Foo''Bar\\'", $this->platform->getListSequencesSQL("Foo'Bar\\"), '', true);
     }
 
     /**
@@ -883,7 +883,7 @@ SQL
      */
     public function testQuotesTableNameInListTableIndexesSQL()
     {
-        self::assertContains("'Foo''Bar\\\\'", $this->platform->getListTableIndexesSQL("Foo'Bar\\"), '', true);
+        self::assertContains("'Foo''Bar\\'", $this->platform->getListTableIndexesSQL("Foo'Bar\\"), '', true);
     }
 
     /**
@@ -891,7 +891,7 @@ SQL
      */
     public function testQuotesTableNameInListTableForeignKeysSQL()
     {
-        self::assertContains("'Foo''Bar\\\\'", $this->platform->getListTableForeignKeysSQL("Foo'Bar\\"), '', true);
+        self::assertContains("'Foo''Bar\\'", $this->platform->getListTableForeignKeysSQL("Foo'Bar\\"), '', true);
     }
 
     /**
@@ -899,7 +899,7 @@ SQL
      */
     public function testQuotesTableNameInListTableConstraintsSQL()
     {
-        self::assertContains("'Foo''Bar\\\\'", $this->platform->getListTableConstraintsSQL("Foo'Bar\\"), '', true);
+        self::assertContains("'Foo''Bar\\'", $this->platform->getListTableConstraintsSQL("Foo'Bar\\"), '', true);
     }
 
     /**
@@ -907,7 +907,7 @@ SQL
      */
     public function testQuotesTableNameInListTableColumnsSQL()
     {
-        self::assertContains("'Foo''Bar\\\\'", $this->platform->getListTableColumnsSQL("Foo'Bar\\"), '', true);
+        self::assertContains("'Foo''Bar\\'", $this->platform->getListTableColumnsSQL("Foo'Bar\\"), '', true);
     }
 
     /**
@@ -915,6 +915,6 @@ SQL
      */
     public function testQuotesDatabaseNameInListTableColumnsSQL()
     {
-        self::assertContains("'Foo''Bar\\\\'", $this->platform->getListTableColumnsSQL('foo_table', "Foo'Bar\\"), '', true);
+        self::assertContains("'Foo''Bar\\'", $this->platform->getListTableColumnsSQL('foo_table', "Foo'Bar\\"), '', true);
     }
 }
