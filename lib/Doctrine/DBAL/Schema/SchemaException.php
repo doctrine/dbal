@@ -185,11 +185,17 @@ class SchemaException extends DBALException
 
     public static function viewAlreadyExists(string $viewName)
     {
-        return new self("The view '" . $viewName . "' already exists.", self::VIEW_ALREADY_EXISTS);
+        return new self(
+            sprintf('The view "%s" already exists.', $viewName),
+            self::VIEW_ALREADY_EXISTS
+        );
     }
 
     public static function viewDoesNotExist(string $viewName)
     {
-        return new self("There exists no view with the name '" . $viewName . "'.", self::VIEW_DOENST_EXIST);
+        return new self(
+            sprintf('There exists no view with the name "%s".', $viewName),
+            self::VIEW_DOENST_EXIST
+        );
     }
 }

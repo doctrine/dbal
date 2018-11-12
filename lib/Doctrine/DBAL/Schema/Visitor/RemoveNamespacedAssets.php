@@ -59,7 +59,7 @@ class RemoveNamespacedAssets extends AbstractVisitor
     /**
      * {@inheritdoc}
      */
-    public function acceptView(View $view)
+    public function acceptView(View $view) : void
     {
         if ($view->isInDefaultNamespace($this->schema->getName())) {
             return;

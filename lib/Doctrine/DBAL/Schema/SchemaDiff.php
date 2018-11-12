@@ -145,8 +145,8 @@ class SchemaDiff
             }
         }
 
-        if ($platform->supportsViews() === true) {
-            if ($saveMode === false) {
+        if ($platform->supportsViews()) {
+            if (! $saveMode) {
                 foreach ($this->removedViews as $view) {
                     $sql[] = $platform->getDropViewSQL($view->getName());
                 }

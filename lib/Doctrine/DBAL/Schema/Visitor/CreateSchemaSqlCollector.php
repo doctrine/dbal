@@ -77,7 +77,7 @@ class CreateSchemaSqlCollector extends AbstractVisitor
     /**
      * {@inheritdoc}
      */
-    public function acceptView(View $view)
+    public function acceptView(View $view) : void
     {
         $this->createViewQueries[] = $this->platform->getCreateViewSQL($view->getName(), $view->getSql());
     }

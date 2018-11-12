@@ -68,7 +68,7 @@ class DropSchemaSqlCollector extends AbstractVisitor
     /**
      * {@inheritdoc}
      */
-    public function acceptView(View $view)
+    public function acceptView(View $view) : void
     {
         $this->views->attach($view);
     }

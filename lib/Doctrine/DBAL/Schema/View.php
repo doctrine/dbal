@@ -19,21 +19,21 @@ class View extends AbstractAsset
         $this->sql = $sql;
     }
 
-    public function getSql(): string
+    public function getSql() : string
     {
         return $this->sql;
     }
 
-    public function visit(Visitor $visitor): void
+    public function visit(Visitor $visitor) : void
     {
-        if (! ($visitor instanceof ViewVisitor)) {
+        if (! $visitor instanceof ViewVisitor) {
             return;
         }
 
         $visitor->acceptView($this);
     }
 
-    public function isSameAs(View $anotherView): bool
+    public function isSameAs(View $anotherView) : bool
     {
         return $anotherView->getSql() === $this->getSql();
     }

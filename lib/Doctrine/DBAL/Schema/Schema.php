@@ -51,7 +51,7 @@ class Schema extends AbstractAsset
     protected $_sequences = [];
 
     /** @var View[]  */
-    protected $_views = [];
+    private $views = [];
 
     /** @var SchemaConfig */
     protected $_schemaConfig = false;
@@ -89,7 +89,7 @@ class Schema extends AbstractAsset
         }
 
         foreach ($views as $view) {
-            $this->_addView($view);
+            $this->addView($view);
         }
     }
 
@@ -145,16 +145,14 @@ class Schema extends AbstractAsset
     }
 
     /**
-     * @return void
-     *
      * @throws SchemaException
      */
-    protected function _addView(View $view)
+    private function addView(View $view) : void
     {
         $namespaceName = $view->getNamespaceName();
         $viewName      = $view->getFullQualifiedName($this->getName());
 
-        if (isset($this->_views[$viewName])) {
+        if (isset($this->views[$viewName])) {
             throw SchemaException::viewAlreadyExists($viewName);
         }
 
@@ -162,7 +160,7 @@ class Schema extends AbstractAsset
             $this->createNamespace($namespaceName);
         }
 
-        $this->_views[$viewName] = $view;
+        $this->views[$viewName] = $view;
     }
 
     /**
@@ -415,11 +413,11 @@ class Schema extends AbstractAsset
         return $this;
     }
 
-    public function hasView(string $viewName): bool
+    public function hasView(string $viewName) : bool
     {
         $viewName = $this->getFullQualifiedAssetName($viewName);
 
-        return isset($this->_views[$viewName]);
+        return isset($this->views[$viewName]);
     }
 
     /**
@@ -428,11 +426,11 @@ class Schema extends AbstractAsset
     public function getView(string $viewName) : View
     {
         $viewName = $this->getFullQualifiedAssetName($viewName);
-        if (! isset($this->_views[$viewName])) {
+        if (! isset($this->views[$viewName])) {
             throw SchemaException::viewDoesNotExist($viewName);
         }
 
-        return $this->_views[$viewName];
+        return $this->views[$viewName];
     }
 
     /**
@@ -440,21 +438,24 @@ class Schema extends AbstractAsset
      */
     public function getViews() : array
     {
-        return $this->_views;
+        return $this->views;
     }
 
     public function createView(string $viewName, string $sql) : View
     {
         $view = new View($viewName, $sql);
-        $this->_addView($view);
+        $this->addView($view);
 
         return $view;
     }
 
+    /**
+     * @return $this
+     */
     public function dropView(string $viewName) : self
     {
         $viewName = $this->getFullQualifiedAssetName($viewName);
-        unset($this->_views[$viewName]);
+        unset($this->views[$viewName]);
 
         return $this;
     }
@@ -528,7 +529,7 @@ class Schema extends AbstractAsset
             $sequence->visit($visitor);
         }
 
-        foreach ($this->_views as $view) {
+        foreach ($this->views as $view) {
             $view->visit($visitor);
         }
     }
@@ -546,8 +547,8 @@ class Schema extends AbstractAsset
         foreach ($this->_sequences as $k => $sequence) {
             $this->_sequences[$k] = clone $sequence;
         }
-        foreach ($this->_views as $k => $view) {
-            $this->_views[$k] = clone $view;
+        foreach ($this->views as $k => $view) {
+            $this->views[$k] = clone $view;
         }
     }
 }

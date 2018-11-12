@@ -46,7 +46,7 @@ class AbstractVisitor implements Visitor, NamespaceVisitor, ViewVisitor
     {
     }
 
-    public function acceptView(View $view)
+    public function acceptView(View $view) : void
     {
     }
 }
