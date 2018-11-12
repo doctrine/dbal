@@ -420,10 +420,8 @@ class QueryBuilder
 
     /**
      * Returns whether or not the query object is set to return only distinct results
-     *
-     * @return bool
      */
-    public function isDistinct(): bool
+    public function isDistinct() : bool
     {
         return $this->isDistinct;
     }
