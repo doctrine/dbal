@@ -423,7 +423,7 @@ class QueryBuilder
      *
      * @return bool
      */
-    public function isDistinct()
+    public function isDistinct(): bool
     {
         return $this->isDistinct;
     }
