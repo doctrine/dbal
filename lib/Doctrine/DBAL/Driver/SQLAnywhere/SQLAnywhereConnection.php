@@ -167,7 +167,7 @@ class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
     public function quote($input, $type = ParameterType::STRING) : string
     {
         if (is_int($input) || is_float($input)) {
-            return $input;
+            return (string) $input;
         }
 
         return "'" . sasql_escape_string($this->connection, $input) . "'";

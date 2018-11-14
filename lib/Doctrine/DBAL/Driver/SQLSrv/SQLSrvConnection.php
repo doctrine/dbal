@@ -95,7 +95,7 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
     public function quote($value, $type = ParameterType::STRING) : string
     {
         if (is_int($value)) {
-            return $value;
+            return (string) $value;
         } elseif (is_float($value)) {
             return sprintf('%F', $value);
         }
