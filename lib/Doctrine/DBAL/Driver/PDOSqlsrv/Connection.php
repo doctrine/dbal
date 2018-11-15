@@ -25,7 +25,7 @@ class Connection extends PDOConnection implements \Doctrine\DBAL\Driver\Connecti
         $stmt = $this->prepare('SELECT CONVERT(VARCHAR(MAX), current_value) FROM sys.sequences WHERE name = ?');
         $stmt->execute([$name]);
 
-        return $stmt->fetchColumn();
+        return (string) $stmt->fetchColumn();
     }
 
     /**

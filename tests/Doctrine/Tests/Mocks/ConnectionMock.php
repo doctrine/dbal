@@ -42,7 +42,7 @@ class ConnectionMock extends Connection
 
     public function lastInsertId(string $seqName = null) : string
     {
-        return $this->lastInsertId;
+        return (string) $this->lastInsertId;
     }
 
     public function quote($input, $type = ParameterType::STRING) : string
@@ -50,7 +50,7 @@ class ConnectionMock extends Connection
         if (is_string($input)) {
             return "'" . $input . "'";
         }
-        return $input;
+        return (string) $input;
     }
 
     public function setLastInsertId($id)
