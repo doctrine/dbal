@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\DBAL\Functional;
 
 use DateTime;
+use Doctrine\DBAL\Driver\OCI8\OCI8Exception;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Sequence;
@@ -189,7 +190,10 @@ class WriteTest extends DbalFunctionalTestCase
             $this->markTestSkipped("Test only works consistently on platforms that support sequences and don't support identity columns.");
         }
 
-        self::assertSame('', $this->connection->lastInsertId(null));
+        $this->expectException(OCI8Exception::class);
+        $this->expectExceptionMessage('A sequence name must be provided.');
+
+        $this->connection->lastInsertId(null);
     }
 
     /**

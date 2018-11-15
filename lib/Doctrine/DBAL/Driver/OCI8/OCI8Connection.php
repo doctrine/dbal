@@ -142,7 +142,7 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
     public function lastInsertId(string $name = null) : string
     {
         if ($name === null) {
-            return false;
+            throw new OCI8Exception('A sequence name must be provided.');
         }
 
         $sql    = 'SELECT ' . $name . '.CURRVAL FROM DUAL';
