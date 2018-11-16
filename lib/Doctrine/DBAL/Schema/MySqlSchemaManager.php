@@ -10,6 +10,7 @@ use function array_change_key_case;
 use function array_shift;
 use function array_values;
 use function end;
+use function explode;
 use function preg_match;
 use function preg_replace;
 use function str_replace;
@@ -17,6 +18,7 @@ use function stripslashes;
 use function strpos;
 use function strtok;
 use function strtolower;
+use function trim;
 
 /**
  * Schema manager for the MySql RDBMS.
@@ -283,5 +285,45 @@ class MySqlSchemaManager extends AbstractSchemaManager
         }
 
         return $result;
+    }
+
+    public function listTableDetails($tableName)
+    {
+        $table = parent::listTableDetails($tableName);
+
+        /** @var MySqlPlatform $platform */
+        $platform = $this->_platform;
+        $sql      = $platform->getListTableMetadataSQL($tableName);
+
+        $tableOptions = $this->_conn->fetchAssoc($sql);
+
+        $table->addOption('engine', $tableOptions['ENGINE']);
+        if ($tableOptions['TABLE_COLLATION'] !== null) {
+            $table->addOption('collation', $tableOptions['TABLE_COLLATION']);
+        }
+        if ($tableOptions['AUTO_INCREMENT'] !== null) {
+            $table->addOption('autoincrement', $tableOptions['AUTO_INCREMENT']);
+        }
+        $table->addOption('comment', $tableOptions['TABLE_COMMENT']);
+
+        if ($tableOptions['CREATE_OPTIONS'] === null) {
+            return $table;
+        }
+
+        $createOptionsString = trim($tableOptions['CREATE_OPTIONS']);
+
+        $createOptions = [];
+
+        if ($createOptionsString !== '') {
+            foreach (explode(' ', $createOptionsString) as $option) {
+                [$createOption, $value] = explode('=', $option);
+
+                $createOptions[$createOption] = $value;
+            }
+        }
+
+        $table->addOption('create_options', $createOptions);
+
+        return $table;
     }
 }
