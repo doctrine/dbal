@@ -16,7 +16,7 @@ class Connection extends PDOConnection implements \Doctrine\DBAL\Driver\Connecti
     /**
      * {@inheritDoc}
      */
-    public function lastInsertId(string $name = null) : string
+    public function lastInsertId(?string $name = null) : string
     {
         if ($name === null) {
             return parent::lastInsertId($name);

@@ -133,7 +133,7 @@ class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function lastInsertId(string $name = null) : string
+    public function lastInsertId(?string $name = null) : string
     {
         if ($name === null) {
             return (string) sasql_insert_id($this->connection);

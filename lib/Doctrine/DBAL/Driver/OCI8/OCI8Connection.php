@@ -139,7 +139,7 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function lastInsertId(string $name = null) : string
+    public function lastInsertId(?string $name = null) : string
     {
         if ($name === null) {
             throw new OCI8Exception('A sequence name must be provided.');

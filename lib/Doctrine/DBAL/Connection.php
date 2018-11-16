@@ -1110,7 +1110,7 @@ class Connection implements DriverConnection
      *
      * @return string A string representation of the last inserted ID.
      */
-    public function lastInsertId(string $seqName = null) : string
+    public function lastInsertId(?string $seqName = null) : string
     {
         $this->connect();
 
@@ -1189,8 +1189,6 @@ class Connection implements DriverConnection
 
     /**
      * Starts a transaction by suspending auto-commit mode.
-     *
-     * @return void
      */
     public function beginTransaction() : void
     {
@@ -1213,8 +1211,6 @@ class Connection implements DriverConnection
 
     /**
      * Commits the current transaction.
-     *
-     * @return void
      *
      * @throws ConnectionException If the commit failed due to no active transaction or
      *                                            because the transaction was marked for rollback only.

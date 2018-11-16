@@ -40,7 +40,7 @@ class ConnectionMock extends Connection
         $this->inserts[$tableName][] = $data;
     }
 
-    public function lastInsertId(string $seqName = null) : string
+    public function lastInsertId(?string $seqName = null) : string
     {
         return (string) $this->lastInsertId;
     }
