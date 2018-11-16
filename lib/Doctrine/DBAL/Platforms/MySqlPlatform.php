@@ -380,6 +380,20 @@ class MySqlPlatform extends AbstractPlatform
                'FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = ' . $database . ' AND TABLE_NAME = ' . $table;
     }
 
+    public function getListTableMetadataSQL(string $table, ?string $database = null) : string
+    {
+        return sprintf(
+            <<<'SQL'
+SELECT ENGINE, AUTO_INCREMENT, TABLE_COLLATION, TABLE_COMMENT, CREATE_OPTIONS
+FROM information_schema.TABLES
+WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_SCHEMA = %s AND TABLE_NAME = %s
+SQL
+            ,
+            $database ? $this->quoteStringLiteral($database) : 'DATABASE()',
+            $this->quoteStringLiteral($table)
+        );
+    }
+
     /**
      * {@inheritDoc}
      */

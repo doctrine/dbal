@@ -486,4 +486,43 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $onlineTable = $this->schemaManager->listTableDetails('test_column_defaults_with_create');
         self::assertSame($default, $onlineTable->getColumn('col1')->getDefault());
     }
+
+    public function testEnsureTableOptionsAreReflectedInMetadata() : void
+    {
+        $this->connection->query('DROP TABLE IF EXISTS test_table_metadata');
+
+        $sql = <<<'SQL'
+CREATE TABLE test_table_metadata(
+  col1 INT NOT NULL AUTO_INCREMENT PRIMARY KEY
+)
+COLLATE utf8_general_ci
+ENGINE InnoDB
+ROW_FORMAT COMPRESSED
+COMMENT 'This is a test'
+AUTO_INCREMENT=42
+SQL;
+
+        $this->connection->query($sql);
+        $onlineTable = $this->schemaManager->listTableDetails('test_table_metadata');
+
+        self::assertEquals('InnoDB', $onlineTable->getOption('engine'));
+        self::assertEquals('utf8_general_ci', $onlineTable->getOption('collation'));
+        self::assertEquals(42, $onlineTable->getOption('autoincrement'));
+        self::assertEquals('This is a test', $onlineTable->getOption('comment'));
+        self::assertEquals(['row_format' => 'COMPRESSED'], $onlineTable->getOption('create_options'));
+    }
+
+    public function testEnsureTableWithoutOptionsAreReflectedInMetadata() : void
+    {
+        $this->connection->query('DROP TABLE IF EXISTS test_table_empty_metadata');
+
+        $this->connection->query('CREATE TABLE test_table_empty_metadata(col1 INT NOT NULL)');
+        $onlineTable = $this->schemaManager->listTableDetails('test_table_empty_metadata');
+
+        self::assertNotEmpty($onlineTable->getOption('engine'));
+        // collation could be set to default or not set, information_schema indicate a possibly null value
+        self::assertFalse($onlineTable->hasOption('autoincrement'));
+        self::assertEquals('', $onlineTable->getOption('comment'));
+        self::assertEquals([], $onlineTable->getOption('create_options'));
+    }
 }
