@@ -179,14 +179,3 @@ liberal DateTime parser that detects the format automatically:
     Type::overrideType('datetime_immutable', 'Doctrine\DBAL\Types\VarDateTimeImmutableType');
     Type::overrideType('datetimetz_immutable', 'Doctrine\DBAL\Types\VarDateTimeImmutableType');
     Type::overrideType('time_immutable', 'Doctrine\DBAL\Types\VarDateTimeImmutableType');
-
-PDO_SQLSRV: VARBINARY/BLOB columns
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The ``PDO_SQLSRV`` driver currently has a bug when binding values to
-VARBINARY/BLOB columns with ``bindValue`` in prepared statements.
-This raises an implicit conversion from data type error as it tries
-to convert a character type value to a binary type value even if
-you explicitly define the value as ``ParameterType::LARGE_OBJECT`` type.
-Therefore it is highly encouraged to use the native ``sqlsrv``
-driver instead which does not have this limitation.
