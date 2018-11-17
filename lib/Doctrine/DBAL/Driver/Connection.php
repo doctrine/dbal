@@ -59,11 +59,22 @@ interface Connection
     /**
      * Returns the ID of the last inserted row or sequence value.
      *
-     * @param string|null $name The sequence name, or NULL if the database does not use sequences.
+     * If a sequence name was not specified, lastInsertId() returns a string representing the row ID of the last row
+     * that was inserted into the database.
+     *
+     * If a sequence name was specified, lastInsertId() returns a string representing the last value retrieved from the
+     * specified sequence object.
+     *
+     * This method throws a DriverException if a value cannot be returned, in particular when:
+     *
+     * - no sequence name was provided, but the platform requires one, or the last statement did not return an identity;
+     * - a sequence name was provided, but the platform does not support sequences, or no such sequence exists.
+     *
+     * @param string|null $name The sequence name, or NULL to return the ID of the last row inserted.
      *
      * @return string The last insert ID or sequence value.
      *
-     * @throws DriverException If a sequence name is not provided but the database requires one.
+     * @throws DriverException If an error occurs.
      */
     public function lastInsertId(?string $name = null) : string;
 

@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Driver\PDOSqlsrv;
 
+use Doctrine\DBAL\Driver\AbstractDriverException;
 use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\Driver\PDOStatement;
 use Doctrine\DBAL\ParameterType;
@@ -25,7 +26,15 @@ class Connection extends PDOConnection implements \Doctrine\DBAL\Driver\Connecti
         $stmt = $this->prepare('SELECT CONVERT(VARCHAR(MAX), current_value) FROM sys.sequences WHERE name = ?');
         $stmt->execute([$name]);
 
-        return (string) $stmt->fetchColumn();
+        $result = $stmt->fetchColumn();
+
+        if ($result === false) {
+            // WIP regarding exceptions, see:
+            // https://github.com/doctrine/dbal/pull/3335#discussion_r234381175
+            throw new class ('No sequence with name "' . $name . '" found.') extends AbstractDriverException {};
+        }
+
+        return (string) $result;
     }
 
     /**

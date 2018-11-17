@@ -136,10 +136,26 @@ class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
     public function lastInsertId(?string $name = null) : string
     {
         if ($name === null) {
-            return (string) sasql_insert_id($this->connection);
+            $result = sasql_insert_id($this->connection);
+
+            if ($result === false) {
+                throw new SQLAnywhereException('The connection is not valid.');
+            }
+
+            if ($result === 0) {
+                throw new SQLAnywhereException('The last insert did not affect an AUTOINCREMENT column.');
+            }
+
+            return (string) $result;
         }
 
-        return (string) $this->query('SELECT ' . $name . '.CURRVAL')->fetchColumn();
+        $result = $this->query('SELECT ' . $name . '.CURRVAL')->fetchColumn();
+
+        if ($result === false) {
+            throw new SQLAnywhereException('No sequence with name "' . $name . '" found.');
+        }
+
+        return (string) $result;
     }
 
     /**
