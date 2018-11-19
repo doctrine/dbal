@@ -98,13 +98,9 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function quote($input, $type = ParameterType::STRING) : string
+    public function quote(string $input) : string
     {
         $input = db2_escape_string($input);
-
-        if ($type === ParameterType::INTEGER) {
-            return (string) $input;
-        }
 
         return "'" . $input . "'";
     }

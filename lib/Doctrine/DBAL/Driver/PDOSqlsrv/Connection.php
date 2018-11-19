@@ -40,9 +40,9 @@ class Connection extends PDOConnection implements \Doctrine\DBAL\Driver\Connecti
     /**
      * {@inheritDoc}
      */
-    public function quote($value, $type = ParameterType::STRING) : string
+    public function quote(string $value) : string
     {
-        $val = parent::quote($value, $type);
+        $val = parent::quote($value);
 
         // Fix for a driver version terminating all values with null byte
         if (strpos($val, "\0") !== false) {

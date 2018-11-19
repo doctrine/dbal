@@ -115,11 +115,8 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function quote($value, $type = ParameterType::STRING) : string
+    public function quote(string $value) : string
     {
-        if (is_int($value) || is_float($value)) {
-            return (string) $value;
-        }
         $value = str_replace("'", "''", $value);
 
         return "'" . addcslashes($value, "\000\n\r\\\032") . "'";

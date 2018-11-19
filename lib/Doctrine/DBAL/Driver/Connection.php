@@ -36,14 +36,11 @@ interface Connection
     /**
      * Quotes a string for use in a query.
      *
-     * If the driver does not support quoting, an exception is thrown.
-     *
-     * @param mixed $input The parameter to quote.
-     * @param int   $type  The parameter type, as a ParameterType constant.
+     * @param string $input The parameter to quote.
      *
      * @return string The quoted string.
      */
-    public function quote($input, $type = ParameterType::STRING) : string;
+    public function quote(string $input) : string;
 
     /**
      * Executes an SQL statement and return the number of affected rows.

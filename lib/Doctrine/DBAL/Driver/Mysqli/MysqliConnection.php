@@ -146,7 +146,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
     /**
      * {@inheritdoc}
      */
-    public function quote($input, $type = ParameterType::STRING) : string
+    public function quote(string $input) : string
     {
         return "'" . $this->conn->escape_string($input) . "'";
     }

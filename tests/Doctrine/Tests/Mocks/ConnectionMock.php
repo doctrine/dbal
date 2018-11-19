@@ -45,12 +45,9 @@ class ConnectionMock extends Connection
         return (string) $this->lastInsertId;
     }
 
-    public function quote($input, $type = ParameterType::STRING) : string
+    public function quote(string $input) : string
     {
-        if (is_string($input)) {
-            return "'" . $input . "'";
-        }
-        return (string) $input;
+        return "'" . $input . "'";
     }
 
     public function setLastInsertId($id)

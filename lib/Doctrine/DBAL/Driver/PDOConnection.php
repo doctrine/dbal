@@ -84,9 +84,9 @@ class PDOConnection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function quote($input, $type = ParameterType::STRING) : string
+    public function quote(string $input) : string
     {
-        return $this->connection->quote($input, $type);
+        return $this->connection->quote($input);
     }
 
     /**

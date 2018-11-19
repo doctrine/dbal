@@ -814,18 +814,15 @@ class Connection implements DriverConnection
     /**
      * Quotes a given input parameter.
      *
-     * @param mixed $input The parameter to be quoted.
-     * @param int   $type  The type of the parameter.
+     * @param string $input The parameter to be quoted.
      *
      * @return string The quoted parameter.
      */
-    public function quote($input, $type = ParameterType::STRING) : string
+    public function quote(string $input) : string
     {
         $this->connect();
 
-        [$value, $bindingType] = $this->getBindingInfo($input, $type);
-
-        return $this->_conn->quote($value, $bindingType);
+        return $this->_conn->quote($input);
     }
 
     /**

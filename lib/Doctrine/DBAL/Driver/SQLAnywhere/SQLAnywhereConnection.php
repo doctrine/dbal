@@ -180,12 +180,8 @@ class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function quote($input, $type = ParameterType::STRING) : string
+    public function quote(string $input) : string
     {
-        if (is_int($input) || is_float($input)) {
-            return (string) $input;
-        }
-
         return "'" . sasql_escape_string($this->connection, $input) . "'";
     }
 
