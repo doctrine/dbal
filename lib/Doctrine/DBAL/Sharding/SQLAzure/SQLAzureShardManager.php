@@ -198,17 +198,15 @@ class SQLAzureShardManager implements ShardManager
     /**
      * Splits Federation at a given distribution value.
      *
-     * @param mixed $splitDistributionValue
+     * @param string $splitDistributionValue
      *
      * @return void
      */
     public function splitFederation($splitDistributionValue)
     {
-        $type = Type::getType($this->distributionType);
-
         $sql = 'ALTER FEDERATION ' . $this->getFederationName() . ' ' .
                'SPLIT AT (' . $this->getDistributionKey() . ' = ' .
-               $this->conn->quote($splitDistributionValue, $type->getBindingType()) . ')';
+               $this->conn->quote($splitDistributionValue) . ')';
         $this->conn->exec($sql);
     }
 }
