@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\Driver\OCI8\Driver as OCI8Driver;
+use Doctrine\DBAL\Driver\PDOOracle\Driver as PDOOracleDriver;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Table;
@@ -20,6 +21,12 @@ class BlobTest extends DbalFunctionalTestCase
     protected function setUp()
     {
         parent::setUp();
+
+        if ($this->connection->getDriver() instanceof PDOOracleDriver) {
+            // inserting BLOBs as streams on Oracle requires Oracle-specific SQL syntax which is currently not supported
+            // see http://php.net/manual/en/pdo.lobs.php#example-1035
+            $this->markTestSkipped('DBAL doesn\'t support storing LOBs represented as streams using PDO_OCI');
+        }
 
         $table = new Table('blob_table');
         $table->addColumn('id', 'integer');

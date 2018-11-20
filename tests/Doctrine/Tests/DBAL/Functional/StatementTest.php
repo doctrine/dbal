@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Functional;
 
+use Doctrine\DBAL\Driver\PDOOracle\Driver as PDOOracleDriver;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
@@ -25,6 +26,10 @@ class StatementTest extends DbalFunctionalTestCase
 
     public function testStatementIsReusableAfterClosingCursor()
     {
+        if ($this->connection->getDriver() instanceof PDOOracleDriver) {
+            $this->markTestIncomplete('See https://bugs.php.net/bug.php?id=77181');
+        }
+
         $this->connection->insert('stmt_test', ['id' => 1]);
         $this->connection->insert('stmt_test', ['id' => 2]);
 
@@ -46,6 +51,10 @@ class StatementTest extends DbalFunctionalTestCase
 
     public function testReuseStatementWithLongerResults()
     {
+        if ($this->connection->getDriver() instanceof PDOOracleDriver) {
+            $this->markTestIncomplete('PDO_OCI doesn\'t support fetching blobs via PDOStatement::fetchAll()');
+        }
+
         $sm    = $this->connection->getSchemaManager();
         $table = new Table('stmt_longer_results');
         $table->addColumn('param', 'string');
@@ -79,6 +88,12 @@ class StatementTest extends DbalFunctionalTestCase
 
     public function testFetchLongBlob()
     {
+        if ($this->connection->getDriver() instanceof PDOOracleDriver) {
+            // inserting BLOBs as streams on Oracle requires Oracle-specific SQL syntax which is currently not supported
+            // see http://php.net/manual/en/pdo.lobs.php#example-1035
+            $this->markTestSkipped('DBAL doesn\'t support storing LOBs represented as streams using PDO_OCI');
+        }
+
         // make sure memory limit is large enough to not cause false positives,
         // but is still not enough to store a LONGBLOB of the max possible size
         $this->iniSet('memory_limit', '4G');
@@ -138,6 +153,10 @@ EOF
 
     public function testReuseStatementAfterClosingCursor()
     {
+        if ($this->connection->getDriver() instanceof PDOOracleDriver) {
+            $this->markTestIncomplete('See https://bugs.php.net/bug.php?id=77181');
+        }
+
         $this->connection->insert('stmt_test', ['id' => 1]);
         $this->connection->insert('stmt_test', ['id' => 2]);
 

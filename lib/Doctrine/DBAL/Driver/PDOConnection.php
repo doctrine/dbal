@@ -104,7 +104,11 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
      */
     public function lastInsertId($name = null)
     {
-        return parent::lastInsertId($name);
+        try {
+            return parent::lastInsertId($name);
+        } catch (\PDOException $exception) {
+            throw new PDOException($exception);
+        }
     }
 
     /**

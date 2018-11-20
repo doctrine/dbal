@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\Tests\DBAL\Functional\Types;
 
 use Doctrine\DBAL\Driver\IBMDB2\DB2Driver;
+use Doctrine\DBAL\Driver\PDOOracle\Driver as PDOOracleDriver;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\Tests\DbalFunctionalTestCase;
@@ -18,6 +19,10 @@ class BinaryTest extends DbalFunctionalTestCase
     protected function setUp()
     {
         parent::setUp();
+
+        if ($this->connection->getDriver() instanceof PDOOracleDriver) {
+            $this->markTestSkipped('PDO_OCI doesn\'t support binding binary values');
+        }
 
         $table = new Table('binary_table');
         $table->addColumn('id', 'binary', [
