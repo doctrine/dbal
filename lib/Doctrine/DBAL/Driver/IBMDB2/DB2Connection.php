@@ -6,7 +6,6 @@ use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
-use Doctrine\DBAL\ParameterType;
 use stdClass;
 use const DB2_AUTOCOMMIT_OFF;
 use const DB2_AUTOCOMMIT_ON;

@@ -3,7 +3,6 @@
 namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\ParameterType;
 
 /**
  * Connection interface.

@@ -2,7 +2,6 @@
 
 namespace Doctrine\DBAL\Driver;
 
-use Doctrine\DBAL\ParameterType;
 use PDO;
 
 /**

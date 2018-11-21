@@ -7,7 +7,6 @@ use Doctrine\DBAL\Driver\PingableConnection;
 use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
-use Doctrine\DBAL\ParameterType;
 use mysqli;
 use const MYSQLI_INIT_COMMAND;
 use const MYSQLI_OPT_CONNECT_TIMEOUT;

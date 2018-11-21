@@ -5,7 +5,6 @@ namespace Doctrine\DBAL\Sharding\SQLAzure;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Sharding\ShardingException;
 use Doctrine\DBAL\Sharding\ShardManager;
-use Doctrine\DBAL\Types\Type;
 use RuntimeException;
 use function is_bool;
 use function is_scalar;

@@ -5,7 +5,6 @@ namespace Doctrine\DBAL\Driver\PDOSqlsrv;
 use Doctrine\DBAL\Driver\AbstractDriverException;
 use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\Driver\PDOStatement;
-use Doctrine\DBAL\ParameterType;
 use function strpos;
 use function substr;
 
@@ -31,7 +30,8 @@ class Connection extends PDOConnection implements \Doctrine\DBAL\Driver\Connecti
         if ($result === false) {
             // WIP regarding exceptions, see:
             // https://github.com/doctrine/dbal/pull/3335#discussion_r234381175
-            throw new class ('No sequence with name "' . $name . '" found.') extends AbstractDriverException {};
+            throw new class ('No sequence with name "' . $name . '" found.') extends AbstractDriverException {
+            };
         }
 
         return (string) $result;

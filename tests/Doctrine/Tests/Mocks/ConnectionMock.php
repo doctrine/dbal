@@ -3,8 +3,6 @@
 namespace Doctrine\Tests\Mocks;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\ParameterType;
-use function is_string;
 
 class ConnectionMock extends Connection
 {
