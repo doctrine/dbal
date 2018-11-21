@@ -139,7 +139,6 @@ interfaces to use. It can be configured in one of three ways:
       extension.
       **Note that this driver caused problems in our tests. Prefer the oci8 driver if possible.**
    -  ``pdo_sqlsrv``: A Microsoft SQL Server driver that uses pdo_sqlsrv PDO
-      **Note that this driver caused problems in our tests. Prefer the sqlsrv driver if possible.**
    -  ``sqlsrv``: A Microsoft SQL Server driver that uses the sqlsrv PHP extension.
    -  ``oci8``: An Oracle driver that uses the oci8 PHP extension.
    -  ``sqlanywhere``: A SAP Sybase SQL Anywhere driver that uses the sqlanywhere PHP extension.
