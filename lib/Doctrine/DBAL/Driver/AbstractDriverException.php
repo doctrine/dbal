@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Driver;
 
 use Exception;
+use Throwable;
 
 /**
  * Abstract base implementation of the {@link DriverException} interface.
@@ -27,10 +28,15 @@ abstract class AbstractDriverException extends Exception implements DriverExcept
      * @param string          $message   The driver error message.
      * @param string|null     $sqlState  The SQLSTATE the driver is in at the time the error occurred, if any.
      * @param int|string|null $errorCode The driver specific error code if any.
+     * @param Throwable|null  $previous  The previous exception.
      */
-    public function __construct($message, $sqlState = null, $errorCode = null)
-    {
-        parent::__construct($message);
+    public function __construct(
+        $message,
+        $sqlState = null,
+        $errorCode = null,
+        ?Throwable $previous = null
+    ) {
+        parent::__construct($message, 0, $previous);
 
         $this->errorCode = $errorCode;
         $this->sqlState  = $sqlState;
