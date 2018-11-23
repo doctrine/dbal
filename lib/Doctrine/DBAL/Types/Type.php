@@ -118,7 +118,7 @@ abstract class Type
     }
 
     /**
-     * Converts a given value from a database reprentation or flexibly from an existing
+     * Converts a given value from a database representation or flexibly from an existing
      * value to a value which will be used to hydrate an object.
      *
      * If $param is of type DateTime and normalizeToPHPValue returns a DateTime this function
