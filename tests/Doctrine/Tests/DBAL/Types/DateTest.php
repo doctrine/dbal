@@ -60,4 +60,5 @@ class DateTest extends BaseDateTypeTestCase
         $date = $this->type->convertToPHPValue('1985-09-01', $this->platform);
 
         self::assertSame($date, $this->type->normalizeToPHPValue($date, $this->platform));
-    }}
+    }
+}

@@ -66,7 +66,7 @@ class VarDateTimeTest extends DbalTestCase
 
     public function testNormalizesDateTimeToPHPValue()
     {
-        $date = new \DateTime("now");
+        $date = new DateTime('now');
         self::assertSame($date, $this->type->normalizeToPHPValue($date, $this->platform));
     }
 }

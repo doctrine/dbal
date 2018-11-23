@@ -3,11 +3,9 @@
 namespace Doctrine\Tests\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DBAL\Mocks\MockPlatform;
 use Doctrine\Tests\DbalTestCase;
-use function serialize;
 
 class SimpleArrayTest extends DbalTestCase
 {

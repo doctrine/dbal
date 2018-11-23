@@ -41,7 +41,7 @@ class ArrayTest extends DbalTestCase
 
     public function testArrayConvertsToPHPFailsWithArrayParameterValue()
     {
-        $this->expectException(\Doctrine\DBAL\Types\ConversionException::class);
+        $this->expectException(ConversionException::class);
 
         self::assertInternalType(
             'array',

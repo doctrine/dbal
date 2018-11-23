@@ -9,6 +9,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\DateImmutableType;
 use Doctrine\DBAL\Types\Type;
+use PHPUnit\Framework\Error\Warning;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Prophecy\ObjectProphecy;
 use function get_class;
@@ -107,7 +108,7 @@ class DateImmutableTypeTest extends TestCase
 
     public function testArrayConvertsToPHPFailsWithDateTimeImmutableParameterValue()
     {
-        $this->expectException(\PHPUnit\Framework\Error\Warning::class);
+        $this->expectException(Warning::class);
 
         $date = new DateTimeImmutable();
 

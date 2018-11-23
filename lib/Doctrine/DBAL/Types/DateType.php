@@ -52,8 +52,8 @@ class DateType extends Type
             return null;
         }
 
-        $val = DateTime::createFromFormat('!'.$platform->getDateFormatString(), $value);
-        if ( ! $val) {
+        $val = DateTime::createFromFormat('!' . $platform->getDateFormatString(), $value);
+        if (! $val) {
             throw ConversionException::conversionFailedFormat($value, $this->getName(), $platform->getDateFormatString());
         }
 

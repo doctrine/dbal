@@ -73,7 +73,6 @@ abstract class BaseDateTypeTestCase extends TestCase
 
     /**
      * @group #3291 Test changed from convertToPHPValue to normalizeToPHPValue
-     *
      * @group #2794
      * Note that while \@see \DateTimeImmutable is supposed to be handled
      * by @see \Doctrine\DBAL\Types\DateTimeImmutableType, previous DBAL versions handled it just fine.

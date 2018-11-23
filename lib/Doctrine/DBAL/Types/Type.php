@@ -128,11 +128,11 @@ abstract class Type
      *
      * This also allows custom field types to render uniquely.
      *
-     * @param mixed                                     $value    The value to convert.
-     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform The currently used database platform.
+     * @param mixed            $value    The value to convert.
+     * @param AbstractPlatform $platform The currently used database platform.
      *
      * @return mixed The type specific representation of the value.
-    */
+     */
     public function normalizeToPHPValue($value, AbstractPlatform $platform)
     {
         return $this->convertToPHPValue($value, $platform);
