@@ -6,9 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\DriverManager;
-use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use Error;
 use Exception;
@@ -244,17 +242,6 @@ class ConnectionTest extends DbalFunctionalTestCase
         });
 
         self::assertEquals(42, $res);
-    }
-
-    /**
-     * Tests that the quote function accepts DBAL and PDO types.
-     */
-    public function testQuote()
-    {
-        self::assertEquals(
-            $this->connection->quote('foo', Type::STRING),
-            $this->connection->quote('foo', ParameterType::STRING)
-        );
     }
 
     public function testPingDoesTriggersConnect()
