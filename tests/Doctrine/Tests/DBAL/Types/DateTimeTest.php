@@ -50,4 +50,11 @@ class DateTimeTest extends BaseDateTypeTestCase
 
         self::assertEquals('1985-09-01 10:10:10', $actual->format('Y-m-d H:i:s'));
     }
+
+    public function testNormalizesInstanceToPHPValue()
+    {
+        $date = new DateTime();
+
+        self::assertSame($date, $this->type->normalizeToPHPValue($date, $this->platform));
+    }
 }

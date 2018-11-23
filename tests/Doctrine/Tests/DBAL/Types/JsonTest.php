@@ -84,6 +84,12 @@ class JsonTest extends DbalTestCase
         self::assertSame($value, $phpValue);
     }
 
+    public function testJsonNormalizesToPHPValue()
+    {
+        self::assertSame(null, $this->type->normalizeToPHPValue('', $this->platform));
+        self::assertSame(null, $this->type->normalizeToPHPValue(null, $this->platform));
+    }
+
     public function testRequiresSQLCommentHint()
     {
         self::assertTrue($this->type->requiresSQLCommentHint($this->platform));

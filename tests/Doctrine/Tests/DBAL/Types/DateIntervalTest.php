@@ -93,6 +93,13 @@ final class DateIntervalTest extends DbalTestCase
         $this->type->convertToPHPValue('', $this->platform);
     }
 
+    public function testDateIntervalNormalizeConversion() : void
+    {
+        $dateInterval = new DateInterval('P10D');
+
+        $this->type->normalizeToPHPValue($dateInterval, $this->platform);
+    }
+
     /**
      * @group DBAL-1288
      */

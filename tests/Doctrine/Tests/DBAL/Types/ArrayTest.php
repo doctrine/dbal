@@ -39,6 +39,34 @@ class ArrayTest extends DbalTestCase
         );
     }
 
+    public function testArrayConvertsToPHPFailsWithArrayParameterValue()
+    {
+        $this->expectException(\Doctrine\DBAL\Types\ConversionException::class);
+
+        self::assertInternalType(
+            'array',
+            $this->type->convertToPHPValue([], $this->platform)
+        );
+    }
+
+    public function testArrayNormalizesToPHPValue()
+    {
+        self::assertInternalType(
+            'array',
+            $this->type->normalizeToPHPValue([], $this->platform)
+        );
+
+        self::assertInternalType(
+            'null',
+            $this->type->normalizeToPHPValue(null, $this->platform)
+        );
+
+        self::assertInternalType(
+            'array',
+            $this->type->convertToPHPValue(serialize([]), $this->platform)
+        );
+    }
+
     public function testArrayPassesThroughArrayForConvertToPHPValue()
     {
         self::assertInternalType(

@@ -35,4 +35,11 @@ class TimeTest extends BaseDateTypeTestCase
         $this->expectException(ConversionException::class);
         $this->type->convertToPHPValue('abcdefg', $this->platform);
     }
+
+    public function testNormalizesInstanceToPHPValue()
+    {
+        $time = $this->type->convertToPHPValue('01:23:34', $this->platform);
+
+        self::assertSame($time, $this->type->normalizeToPHPValue($time, $this->platform));
+    }
 }

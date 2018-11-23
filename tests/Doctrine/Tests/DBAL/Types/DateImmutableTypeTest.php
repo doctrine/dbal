@@ -67,7 +67,7 @@ class DateImmutableTypeTest extends TestCase
         $this->type->convertToDatabaseValue(new DateTime(), $this->platform->reveal());
     }
 
-    public function testNormalizesDateTimeImmutableInstanceToPHPValue()
+    public function testNormalizesInstanceToPHPValue()
     {
         $date = new DateTimeImmutable();
 
@@ -103,6 +103,18 @@ class DateImmutableTypeTest extends TestCase
         $this->expectException(ConversionException::class);
 
         $this->type->convertToPHPValue('invalid date string', $this->platform->reveal());
+    }
+
+    public function testArrayConvertsToPHPFailsWithDateTimeImmutableParameterValue()
+    {
+        $this->expectException(\PHPUnit\Framework\Error\Warning::class);
+
+        $date = new DateTimeImmutable();
+
+        self::assertInternalType(
+            'datetime',
+            $this->type->convertToPHPValue($date, $this->platform->reveal())
+        );
     }
 
     public function testRequiresSQLCommentHint()

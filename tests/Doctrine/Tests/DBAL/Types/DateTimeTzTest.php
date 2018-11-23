@@ -41,4 +41,11 @@ class DateTimeTzTest extends BaseDateTypeTestCase
         $this->expectException(ConversionException::class);
         $this->type->convertToPHPValue('abcdefg', $this->platform);
     }
+
+    public function testNormalizesInstanceToPHPValue()
+    {
+        $date = new DateTime('1985-09-02 10:10:10');
+
+        self::assertSame($date, $this->type->normalizeToPHPValue($date, $this->platform));
+    }
 }
