@@ -23,6 +23,8 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
             return;
         }
 
+        $this->resetSharedConn();
+
         Type::addType('point', MySqlPointType::class);
     }
 
