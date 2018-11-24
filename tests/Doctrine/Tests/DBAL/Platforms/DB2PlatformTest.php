@@ -10,6 +10,7 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 
 class DB2PlatformTest extends AbstractPlatformTestCase
 {
@@ -279,7 +280,7 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     {
         $data = parent::getIsCommentedDoctrineType();
 
-        $data[Type::BOOLEAN] = [Type::getType(Type::BOOLEAN), true];
+        $data[Types::BOOLEAN] = [Type::getType(Types::BOOLEAN), true];
 
         return $data;
     }

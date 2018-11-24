@@ -3,7 +3,7 @@
 namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 
 class PostgreSQL94PlatformTest extends PostgreSQL92PlatformTest
 {
@@ -26,6 +26,6 @@ class PostgreSQL94PlatformTest extends PostgreSQL92PlatformTest
     {
         parent::testInitializesJsonTypeMapping();
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('jsonb'));
-        self::assertEquals(Type::JSON, $this->platform->getDoctrineTypeMapping('jsonb'));
+        self::assertEquals(Types::JSON, $this->platform->getDoctrineTypeMapping('jsonb'));
     }
 }

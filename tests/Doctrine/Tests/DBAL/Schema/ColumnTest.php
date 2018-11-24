@@ -7,6 +7,7 @@ use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\TestCase;
 
 class ColumnTest extends TestCase
@@ -74,10 +75,10 @@ class ColumnTest extends TestCase
      */
     public function testOptionsShouldNotBeIgnored() : void
     {
-        $col1 = new Column('bar', Type::getType(Type::INTEGER), ['unknown_option' => 'bar', 'notnull' => true]);
+        $col1 = new Column('bar', Type::getType(Types::INTEGER), ['unknown_option' => 'bar', 'notnull' => true]);
         self::assertTrue($col1->getNotnull());
 
-        $col2 = new Column('bar', Type::getType(Type::INTEGER), ['unknown_option' => 'bar', 'notnull' => false]);
+        $col2 = new Column('bar', Type::getType(Types::INTEGER), ['unknown_option' => 'bar', 'notnull' => false]);
         self::assertFalse($col2->getNotnull());
     }
 

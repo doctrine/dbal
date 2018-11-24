@@ -33,7 +33,7 @@ class JsonArrayType extends JsonType
      */
     public function getName()
     {
-        return Type::JSON_ARRAY;
+        return Types::JSON_ARRAY;
     }
 
     /**

@@ -6,6 +6,7 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\JsonArrayType;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\Tests\DbalTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 use function base64_encode;
@@ -36,7 +37,7 @@ class JsonArrayTest extends DbalTestCase
 
     public function testReturnsName()
     {
-        self::assertSame(Type::JSON_ARRAY, $this->type->getName());
+        self::assertSame(Types::JSON_ARRAY, $this->type->getName());
     }
 
     public function testReturnsSQLDeclaration()

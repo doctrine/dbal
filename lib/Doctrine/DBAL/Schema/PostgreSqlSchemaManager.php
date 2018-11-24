@@ -6,6 +6,7 @@ use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use const CASE_LOWER;
 use function array_change_key_case;
 use function array_filter;
@@ -456,7 +457,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             $column->setPlatformOption('collation', $tableColumn['collation']);
         }
 
-        if (in_array($column->getType()->getName(), [Type::JSON_ARRAY, Type::JSON], true)) {
+        if (in_array($column->getType()->getName(), [Types::JSON_ARRAY, Types::JSON], true)) {
             $column->setPlatformOption('jsonb', $jsonb);
         }
 

@@ -15,7 +15,7 @@ class TimeImmutableType extends TimeType
      */
     public function getName()
     {
-        return Type::TIME_IMMUTABLE;
+        return Types::TIME_IMMUTABLE;
     }
 
     /**

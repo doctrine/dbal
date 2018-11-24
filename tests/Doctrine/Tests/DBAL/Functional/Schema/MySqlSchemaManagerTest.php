@@ -9,6 +9,7 @@ use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\Tests\Types\MySqlPointType;
 use function implode;
 use function sprintf;
@@ -415,7 +416,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $columns = $this->schemaManager->listTableColumns('test_mysql_json');
 
-        self::assertSame(Type::JSON, $columns['col_json']->getType()->getName());
+        self::assertSame(Types::JSON, $columns['col_json']->getType()->getName());
     }
 
     public function testColumnDefaultCurrentTimestamp() : void

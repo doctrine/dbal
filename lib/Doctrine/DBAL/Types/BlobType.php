@@ -42,7 +42,7 @@ class BlobType extends Type
         }
 
         if (! is_resource($value)) {
-            throw ConversionException::conversionFailed($value, self::BLOB);
+            throw ConversionException::conversionFailed($value, Types::BLOB);
         }
 
         return $value;
@@ -53,7 +53,7 @@ class BlobType extends Type
      */
     public function getName()
     {
-        return Type::BLOB;
+        return Types::BLOB;
     }
 
     /**

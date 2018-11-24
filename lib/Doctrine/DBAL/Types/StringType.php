@@ -30,6 +30,6 @@ class StringType extends Type
      */
     public function getName()
     {
-        return Type::STRING;
+        return Types::STRING;
     }
 }

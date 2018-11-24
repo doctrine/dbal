@@ -8,6 +8,7 @@ use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use function array_merge;
 use function count;
 use function current;
@@ -96,7 +97,7 @@ class DB2Platform extends AbstractPlatform
      */
     public function isCommentedDoctrineType(Type $doctrineType)
     {
-        if ($doctrineType->getName() === Type::BOOLEAN) {
+        if ($doctrineType->getName() === Types::BOOLEAN) {
             // We require a commented boolean type in order to distinguish between boolean and smallint
             // as both (have to) map to the same native type.
             return true;

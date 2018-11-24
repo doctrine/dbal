@@ -3,7 +3,7 @@
 namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 
 class MariaDb1027PlatformTest extends AbstractMySQLPlatformTestCase
 {
@@ -33,7 +33,7 @@ class MariaDb1027PlatformTest extends AbstractMySQLPlatformTestCase
     public function testInitializesJsonTypeMapping() : void
     {
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('json'));
-        self::assertSame(Type::JSON, $this->platform->getDoctrineTypeMapping('json'));
+        self::assertSame(Types::JSON, $this->platform->getDoctrineTypeMapping('json'));
     }
 
     /**

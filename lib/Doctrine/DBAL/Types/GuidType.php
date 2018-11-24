@@ -22,7 +22,7 @@ class GuidType extends StringType
      */
     public function getName()
     {
-        return Type::GUID;
+        return Types::GUID;
     }
 
     /**

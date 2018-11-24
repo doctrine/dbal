@@ -5,7 +5,7 @@ namespace Doctrine\Tests\DBAL\Functional\Schema;
 use Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\BinaryType;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\Tests\TestUtil;
 use function array_map;
 
@@ -232,7 +232,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->schemaManager->dropAndCreateTable($table);
 
         $otherTable = new Table($table->getName());
-        $otherTable->addColumn('id', Type::STRING);
+        $otherTable->addColumn('id', Types::STRING);
         TestUtil::getTempConnection()->getSchemaManager()->dropAndCreateTable($otherTable);
 
         $columns = $this->schemaManager->listTableColumns($table->getName(), $this->connection->getUsername());

@@ -17,7 +17,7 @@ class DateTimeType extends Type implements PhpDateTimeMappingType
      */
     public function getName()
     {
-        return Type::DATETIME;
+        return Types::DATETIME_MUTABLE;
     }
 
     /**

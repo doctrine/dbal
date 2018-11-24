@@ -15,7 +15,7 @@ class SmallIntType extends Type implements PhpIntegerMappingType
      */
     public function getName()
     {
-        return Type::SMALLINT;
+        return Types::SMALLINT;
     }
 
     /**
