@@ -922,7 +922,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
      */
     public function testQuotesTableNameInListTableForeignKeysSQL()
     {
-        self::assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableForeignKeysSQL("Foo'Bar\\"), '', true);
+        self::assertContains("'Foo''Bar\\'", $this->_platform->getListTableForeignKeysSQL("Foo'Bar\\"), '', true);
     }
 
     /**
@@ -931,7 +931,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     public function testQuotesSchemaNameInListTableForeignKeysSQL()
     {
         self::assertContains(
-            "'Foo''Bar\\\\'",
+            "'Foo''Bar\\'",
             $this->_platform->getListTableForeignKeysSQL("Foo'Bar\\.baz_table"),
             '',
             true
@@ -943,7 +943,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
      */
     public function testQuotesTableNameInListTableConstraintsSQL()
     {
-        self::assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableConstraintsSQL("Foo'Bar\\"), '', true);
+        self::assertContains("'Foo''Bar\\'", $this->_platform->getListTableConstraintsSQL("Foo'Bar\\"), '', true);
     }
 
     /**
@@ -951,7 +951,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
      */
     public function testQuotesTableNameInListTableIndexesSQL()
     {
-        self::assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableIndexesSQL("Foo'Bar\\"), '', true);
+        self::assertContains("'Foo''Bar\\'", $this->_platform->getListTableIndexesSQL("Foo'Bar\\"), '', true);
     }
 
     /**
@@ -960,7 +960,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     public function testQuotesSchemaNameInListTableIndexesSQL()
     {
         self::assertContains(
-            "'Foo''Bar\\\\'",
+            "'Foo''Bar\\'",
             $this->_platform->getListTableIndexesSQL("Foo'Bar\\.baz_table"),
             '',
             true
@@ -972,7 +972,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
      */
     public function testQuotesTableNameInListTableColumnsSQL()
     {
-        self::assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableColumnsSQL("Foo'Bar\\"), '', true);
+        self::assertContains("'Foo''Bar\\'", $this->_platform->getListTableColumnsSQL("Foo'Bar\\"), '', true);
     }
 
     /**
@@ -981,7 +981,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     public function testQuotesSchemaNameInListTableColumnsSQL()
     {
         self::assertContains(
-            "'Foo''Bar\\\\'",
+            "'Foo''Bar\\'",
             $this->_platform->getListTableColumnsSQL("Foo'Bar\\.baz_table"),
             '',
             true
@@ -994,7 +994,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     public function testQuotesDatabaseNameInCloseActiveDatabaseConnectionsSQL()
     {
         self::assertContains(
-            "'Foo''Bar\\\\'",
+            "'Foo''Bar\\'",
             $this->_platform->getCloseActiveDatabaseConnectionsSQL("Foo'Bar\\"),
             '',
             true
