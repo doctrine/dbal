@@ -63,8 +63,11 @@ interface Connection
      *
      * This method throws a DriverException if a value cannot be returned, in particular when:
      *
-     * - no sequence name was provided, but the platform requires one, or the last statement did not return an identity;
-     * - a sequence name was provided, but the platform does not support sequences, or no such sequence exists.
+     * - this operation is not supported by the driver;
+     * - no sequence name was provided, but the driver requires one;
+     * - no sequence name was provided, but the last statement dit not return an identity;
+     * - a sequence name was provided, but the driver does not support sequences;
+     * - a sequence name was provided, but the sequence does not exist.
      *
      * @param string|null $name The sequence name, or NULL to return the ID of the last row inserted.
      *
