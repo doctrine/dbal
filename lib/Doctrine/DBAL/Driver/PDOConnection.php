@@ -93,7 +93,16 @@ class PDOConnection implements Connection, ServerInfoAwareConnection
      */
     public function lastInsertId(?string $name = null) : string
     {
-        return $this->connection->lastInsertId($name);
+        $lastInsertId = $this->connection->lastInsertId($name);
+
+        if ($lastInsertId === '0') {
+            // WIP regarding exceptions, see:
+            // https://github.com/doctrine/dbal/pull/3335#discussion_r234381175
+            throw new class ('The last statement did not return an insert ID.') extends AbstractDriverException {
+            };
+        }
+
+        return $lastInsertId;
     }
 
     /**
