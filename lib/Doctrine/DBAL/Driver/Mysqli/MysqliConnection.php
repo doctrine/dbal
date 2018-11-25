@@ -167,6 +167,10 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
      */
     public function lastInsertId(?string $name = null) : string
     {
+        if ($this->conn->insert_id === 0) {
+            throw new MysqliException('The last statement did not return an insert ID.');
+        }
+
         return (string) $this->conn->insert_id;
     }
 
