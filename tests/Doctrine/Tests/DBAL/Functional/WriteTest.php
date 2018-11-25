@@ -154,20 +154,11 @@ class WriteTest extends DbalFunctionalTestCase
         self::assertEquals(1, $this->connection->insert('write_table', ['test_int' => 2, 'test_string' => 'bar']));
         $num = $this->connection->lastInsertId();
 
-        self::assertNotNull($num, 'LastInsertId() should not be null.');
-        self::assertGreaterThan(0, $num, 'LastInsertId() should be non-negative number.');
-    }
+        self::assertGreaterThan(0, $num, 'lastInsertId() should return a positive number.');
 
-    /**
-     * @expectedException \Doctrine\DBAL\Driver\DriverException
-     */
-    public function testLastInsertIdNoId()
-    {
-        if (! $this->connection->getDatabasePlatform()->supportsIdentityColumns()) {
-            $this->markTestSkipped('Test only works on platforms with identity columns.');
-        }
+        $this->connection->query('SELECT id FROM write_table')->fetchAll();
 
-        $this->connection->query('SELECT 1 FROM write_table LIMIT 1')->fetchColumn();
+        $this->expectException(DriverException::class);
         $this->connection->lastInsertId();
     }
 
