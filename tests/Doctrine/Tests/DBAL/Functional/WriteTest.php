@@ -147,7 +147,7 @@ class WriteTest extends DbalFunctionalTestCase
 
     public function testLastInsertId()
     {
-        if (! $this->connection->getDatabasePlatform()->prefersIdentityColumns()) {
+        if (! $this->connection->getDatabasePlatform()->supportsIdentityColumns()) {
             $this->markTestSkipped('Test only works on platforms with identity columns.');
         }
 
@@ -156,6 +156,19 @@ class WriteTest extends DbalFunctionalTestCase
 
         self::assertNotNull($num, 'LastInsertId() should not be null.');
         self::assertGreaterThan(0, $num, 'LastInsertId() should be non-negative number.');
+    }
+
+    /**
+     * @expectedException \Doctrine\DBAL\Driver\DriverException
+     */
+    public function testLastInsertIdNoId()
+    {
+        if (! $this->connection->getDatabasePlatform()->supportsIdentityColumns()) {
+            $this->markTestSkipped('Test only works on platforms with identity columns.');
+        }
+
+        $this->connection->query('SELECT 1 FROM write_table LIMIT 1')->fetchColumn();
+        $this->connection->lastInsertId();
     }
 
     public function testLastInsertIdSequence()
