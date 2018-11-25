@@ -123,7 +123,13 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
      */
     public function lastInsertId(?string $name = null) : string
     {
-        return db2_last_insert_id($this->conn);
+        $lastInsertId = db2_last_insert_id($this->conn);
+
+        if ($lastInsertId === '0') {
+            throw new DB2Exception('The last statement did not return an insert ID.');
+        }
+
+        return $lastInsertId;
     }
 
     /**
