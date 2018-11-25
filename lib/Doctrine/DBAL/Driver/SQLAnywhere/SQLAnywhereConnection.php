@@ -136,7 +136,7 @@ class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
             $result = sasql_insert_id($this->connection);
 
             if ($result === false) {
-                throw new SQLAnywhereException('The connection is not valid.');
+                throw SQLAnywhereException::fromSQLAnywhereError($this->connection);
             }
 
             if ($result === 0) {
