@@ -55,11 +55,10 @@ interface Connection
     /**
      * Returns the ID of the last inserted row or sequence value.
      *
-     * If a sequence name was not specified, lastInsertId() returns a string representing the row ID of the last row
-     * that was inserted into the database.
+     * If a sequence name was not specified, lastInsertId() returns a string representing the value of the
+     * auto-increment field from the last row inserted into the database, if any.
      *
-     * If a sequence name was specified, lastInsertId() returns a string representing the last value retrieved from the
-     * specified sequence object.
+     * If a sequence name was specified, lastInsertId() returns a string representing the current value of the sequence.
      *
      * This method throws a DriverException if a value cannot be returned, in particular when:
      *
