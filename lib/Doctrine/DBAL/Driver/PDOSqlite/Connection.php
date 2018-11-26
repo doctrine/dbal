@@ -13,7 +13,7 @@ class Connection extends PDOConnection
     /**
      * {@inheritdoc}
      */
-    public function lastInsertId(?string $name = null): string
+    public function lastInsertId(?string $name = null) : string
     {
         if ($name !== null) {
             // SQLite does not support sequences. However, PDO::lastInsertId() ignores the name parameter, and returns

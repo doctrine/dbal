@@ -126,7 +126,7 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
         if ($name !== null) {
             // DB2 does not support sequences. However, PDO::lastInsertId() ignores the name parameter, and returns
             // the last insert ID even if a sequence name is given. We expect an exception in that case.
-            throw new DB2Exception ('DB2 does not support sequences.');
+            throw new DB2Exception('DB2 does not support sequences.');
         }
 
         $lastInsertId = db2_last_insert_id($this->conn);
