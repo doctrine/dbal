@@ -65,9 +65,13 @@ interface Connection
      *
      * - this operation is not supported by the driver;
      * - no sequence name was provided, but the driver requires one;
-     * - no sequence name was provided, but the last statement dit not return an identity;
+     * - no sequence name was provided, but the last statement dit not return an identity (caution: see note below);
      * - a sequence name was provided, but the driver does not support sequences;
      * - a sequence name was provided, but the sequence does not exist.
+     *
+     * Note: if the last statement was not an INSERT to an autoincrement column, this method MAY return an ID from a
+     * previous statement. DO NOT RELY ON THIS BEHAVIOR which is driver-dependent: always use lastInsertId() right after
+     * executing an INSERT statement.
      *
      * @param string|null $name The sequence name, or NULL to return the ID of the last row inserted.
      *

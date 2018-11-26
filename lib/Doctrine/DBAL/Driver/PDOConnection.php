@@ -93,7 +93,11 @@ class PDOConnection implements Connection, ServerInfoAwareConnection
      */
     public function lastInsertId(?string $name = null) : string
     {
-        $lastInsertId = $this->connection->lastInsertId($name);
+        try {
+            $lastInsertId = $this->connection->lastInsertId($name);
+        } catch (\PDOException $e) {
+            throw new PDOException($e);
+        }
 
         if ($lastInsertId === '0') {
             // WIP regarding exceptions, see:

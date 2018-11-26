@@ -10,6 +10,7 @@ use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DbalFunctionalTestCase;
+use Doctrine\Tests\TestUtil;
 use Throwable;
 use function array_filter;
 use function strtolower;
@@ -155,11 +156,14 @@ class WriteTest extends DbalFunctionalTestCase
         $num = $this->connection->lastInsertId();
 
         self::assertGreaterThan(0, $num, 'lastInsertId() should return a positive number.');
+    }
 
-        $this->connection->query('SELECT id FROM write_table')->fetchAll();
+    public function testLastInsertIdNewConnection()
+    {
+        $connection = TestUtil::getConnection();
 
         $this->expectException(DriverException::class);
-        $this->connection->lastInsertId();
+        $connection->lastInsertId();
     }
 
     public function testLastInsertIdSequence()
