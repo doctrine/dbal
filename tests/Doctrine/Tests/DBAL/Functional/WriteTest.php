@@ -202,6 +202,16 @@ class WriteTest extends DbalFunctionalTestCase
         $this->connection->lastInsertId(null);
     }
 
+    public function testLastInsertIdSequenceDoesNotExist()
+    {
+        if (! $this->connection->getDatabasePlatform()->supportsSequences()) {
+            $this->markTestSkipped('This test only works on platforms that support sequences.');
+        }
+
+        $this->expectException(DriverException::class);
+        $this->connection->lastInsertId('unknown-sequence');
+    }
+
     /**
      * @group DBAL-445
      */
