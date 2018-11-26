@@ -124,7 +124,7 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
     public function lastInsertId(?string $name = null) : string
     {
         if ($name !== null) {
-            throw new DB2Exception('This DB2 driver does not support sequences.');
+            throw new DB2Exception('Sequences on IBM DB2 are not currently supported.');
         }
 
         $lastInsertId = db2_last_insert_id($this->conn);
