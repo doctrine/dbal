@@ -99,6 +99,7 @@ class PDOConnection implements Connection, ServerInfoAwareConnection
             throw new PDOException($e);
         }
 
+        // pdo_mysql and others return '0', pdo_sqlsrv returns ''
         if ($lastInsertId === '0' || $lastInsertId === '') {
             // WIP regarding exceptions, see:
             // https://github.com/doctrine/dbal/pull/3335#discussion_r234381175
