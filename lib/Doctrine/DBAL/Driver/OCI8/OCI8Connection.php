@@ -147,7 +147,7 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
             throw new OCI8Exception('lastInsertId failed: Query was executed but no result was returned.');
         }
 
-        return (string) $result;
+        return $result;
     }
 
     /**
