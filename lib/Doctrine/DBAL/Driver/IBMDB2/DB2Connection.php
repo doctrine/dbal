@@ -130,7 +130,7 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
         $lastInsertId = db2_last_insert_id($this->conn);
 
         if ($lastInsertId === '') {
-            throw new DB2Exception('The last statement did not return an insert ID.');
+            throw DB2Exception::noInsertId();
         }
 
         return $lastInsertId;

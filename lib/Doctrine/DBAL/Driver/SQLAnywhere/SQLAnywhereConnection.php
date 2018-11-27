@@ -140,7 +140,7 @@ class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
             }
 
             if ($result === 0) {
-                throw new SQLAnywhereException('The last insert did not affect an AUTOINCREMENT column.');
+                throw SQLAnywhereException::noInsertId();
             }
 
             return (string) $result;
@@ -149,7 +149,7 @@ class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
         $result = $this->query('SELECT ' . $name . '.CURRVAL')->fetchColumn();
 
         if ($result === false) {
-            throw new SQLAnywhereException('No sequence with name "' . $name . '" found.');
+            throw SQLAnywhereException::noSuchSequence($name);
         }
 
         return (string) $result;

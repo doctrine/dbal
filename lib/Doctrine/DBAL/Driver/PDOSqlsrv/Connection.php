@@ -28,10 +28,7 @@ class Connection extends PDOConnection implements \Doctrine\DBAL\Driver\Connecti
         $result = $stmt->fetchColumn();
 
         if ($result === false) {
-            // WIP regarding exceptions, see:
-            // https://github.com/doctrine/dbal/pull/3335#discussion_r234381175
-            throw new class ('No sequence with name "' . $name . '" found.') extends AbstractDriverException {
-            };
+            throw AbstractDriverException::noSuchSequence($name);
         }
 
         return (string) $result;

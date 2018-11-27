@@ -101,10 +101,7 @@ class PDOConnection implements Connection, ServerInfoAwareConnection
 
         // pdo_mysql and others return '0', pdo_sqlsrv returns ''
         if ($lastInsertId === '0' || $lastInsertId === '') {
-            // WIP regarding exceptions, see:
-            // https://github.com/doctrine/dbal/pull/3335#discussion_r234381175
-            throw new class ('The last statement did not return an insert ID.') extends AbstractDriverException {
-            };
+            throw AbstractDriverException::noInsertId();
         }
 
         return $lastInsertId;
