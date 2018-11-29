@@ -92,10 +92,10 @@ class PDOConnection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function lastInsertId(?string $name = null) : string
+    public function lastInsertId() : string
     {
         try {
-            $lastInsertId = $this->connection->lastInsertId($name);
+            $lastInsertId = $this->connection->lastInsertId();
         } catch (PDOException $e) {
             throw self::exceptionFromPDOException($e);
         }
@@ -103,6 +103,25 @@ class PDOConnection implements Connection, ServerInfoAwareConnection
         // pdo_mysql and others return '0', pdo_sqlsrv returns ''
         if ($lastInsertId === '0' || $lastInsertId === '') {
             throw DriverException::noInsertId();
+        }
+
+        return $lastInsertId;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSequenceNumber(string $name) : string
+    {
+        try {
+            $lastInsertId = $this->connection->lastInsertId($name);
+        } catch (\PDOException $e) {
+            throw self::exceptionFromPDOException($e);
+        }
+
+        // pdo_mysql and others return '0', pdo_sqlsrv returns ''
+        if ($lastInsertId === '0' || $lastInsertId === '') {
+            throw DriverException::noSuchSequence($name);
         }
 
         return $lastInsertId;

@@ -112,25 +112,31 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritDoc}
      */
-    public function lastInsertId(?string $name = null) : string
+    public function lastInsertId() : string
     {
-        if ($name !== null) {
-            $stmt = $this->prepare('SELECT CONVERT(VARCHAR(MAX), current_value) FROM sys.sequences WHERE name = ?');
-            $stmt->execute([$name]);
-        } else {
-            $stmt = $this->query('SELECT @@IDENTITY');
-        }
+        $stmt = $this->query('SELECT @@IDENTITY');
 
         $result = $stmt->fetchColumn();
 
-        if ($name !== null) {
-            if ($result === false) {
-                throw DriverException::noSuchSequence($name);
-            }
-        } else {
-            if ($result === null) {
-                throw DriverException::noInsertId();
-            }
+        if ($result === null) {
+            throw DriverException::noInsertId();
+        }
+
+        return (string) $result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getSequenceNumber(string $name) : string
+    {
+        $stmt = $this->prepare('SELECT CONVERT(VARCHAR(MAX), current_value) FROM sys.sequences WHERE name = ?');
+        $stmt->execute([$name]);
+
+        $result = $stmt->fetchColumn();
+
+        if ($result === false) {
+            throw DriverException::noSuchSequence($name);
         }
 
         return (string) $result;

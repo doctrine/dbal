@@ -149,13 +149,25 @@ class WriteTest extends DbalFunctionalTestCase
     public function testLastInsertId()
     {
         if (! $this->connection->getDatabasePlatform()->supportsIdentityColumns()) {
-            $this->markTestSkipped('Test only works on platforms with identity columns.');
+            $this->markTestSkipped('This test targets platforms that support identity columns.');
         }
 
         self::assertEquals(1, $this->connection->insert('write_table', ['test_int' => 2, 'test_string' => 'bar']));
-        $num = $this->connection->lastInsertId();
 
+        $num = $this->connection->lastInsertId();
         self::assertGreaterThan(0, $num, 'lastInsertId() should return a positive number.');
+    }
+
+    public function testLastInsertIdNotSupported()
+    {
+        if ($this->connection->getDatabasePlatform()->supportsIdentityColumns()) {
+            $this->markTestSkipped('This test targets platforms that don\'t support identity columns.');
+        }
+
+        self::assertEquals(1, $this->connection->insert('write_table', ['test_int' => 2, 'test_string' => 'bar']));
+
+        self::expectException(DriverException::class);
+        $this->connection->lastInsertId();
     }
 
     public function testLastInsertIdNewConnection()
@@ -166,10 +178,10 @@ class WriteTest extends DbalFunctionalTestCase
         $connection->lastInsertId();
     }
 
-    public function testLastInsertIdSequence()
+    public function testGetSequenceNumber()
     {
         if (! $this->connection->getDatabasePlatform()->supportsSequences()) {
-            $this->markTestSkipped('Test only works on platforms with sequences.');
+            $this->markTestSkipped('This test targets platforms that support sequences.');
         }
 
         $sequence = new Sequence('write_table_id_seq');
@@ -186,26 +198,16 @@ class WriteTest extends DbalFunctionalTestCase
         $stmt            = $this->connection->query($this->connection->getDatabasePlatform()->getSequenceNextValSQL('write_table_id_seq'));
         $nextSequenceVal = $stmt->fetchColumn();
 
-        $lastInsertId = $this->connection->lastInsertId('write_table_id_seq');
+        $sequenceNumber = $this->connection->getSequenceNumber('write_table_id_seq');
 
-        self::assertGreaterThan(0, $lastInsertId);
-        self::assertEquals($nextSequenceVal, $lastInsertId);
+        self::assertGreaterThan(0, $sequenceNumber);
+        self::assertEquals($nextSequenceVal, $sequenceNumber);
     }
 
-    public function testLastInsertIdNoSequenceGiven()
-    {
-        if (! $this->connection->getDatabasePlatform()->supportsSequences() || $this->connection->getDatabasePlatform()->supportsIdentityColumns()) {
-            $this->markTestSkipped("Test only works consistently on platforms that support sequences and don't support identity columns.");
-        }
-
-        $this->expectException(DriverException::class);
-        $this->connection->lastInsertId(null);
-    }
-
-    public function testLastInsertIdSequencesNotSupportedOrSequenceDoesNotExist()
+    public function testGetSequenceNumberNotSupportedOrSequenceDoesNotExist()
     {
         $this->expectException(DriverException::class);
-        $this->connection->lastInsertId('unknown-sequence');
+        $this->connection->getSequenceNumber('unknown-sequence');
     }
 
     /**

@@ -128,22 +128,26 @@ class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function lastInsertId(?string $name = null) : string
+    public function lastInsertId() : string
     {
-        if ($name === null) {
-            $result = sasql_insert_id($this->connection);
+        $result = sasql_insert_id($this->connection);
 
-            if ($result === false) {
-                throw self::exceptionFromSQLAnywhereError($this->connection);
-            }
-
-            if ($result === 0) {
-                throw DriverException::noInsertId();
-            }
-
-            return (string) $result;
+        if ($result === false) {
+            throw self::exceptionFromSQLAnywhereError($this->connection);
         }
 
+        if ($result === 0) {
+            throw DriverException::noInsertId();
+        }
+
+        return (string) $result;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSequenceNumber(string $name) : string
+    {
         $result = $this->query('SELECT ' . $name . '.CURRVAL')->fetchColumn();
 
         if ($result === false) {

@@ -166,7 +166,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
     /**
      * {@inheritdoc}
      */
-    public function lastInsertId(?string $name = null) : string
+    public function lastInsertId() : string
     {
         $insertId = $this->conn->insert_id;
 
@@ -175,6 +175,14 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
         }
 
         return (string) $insertId;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSequenceNumber(string $name) : string
+    {
+        throw new DriverException('MySQL does not support sequences.');
     }
 
     /**

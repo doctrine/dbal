@@ -55,32 +55,40 @@ interface Connection
     public function exec(string $statement) : int;
 
     /**
-     * Returns the ID of the last inserted row or sequence value.
+     * Returns the ID of the last inserted row.
      *
-     * If a sequence name was not specified, lastInsertId() returns a string representing the value of the
-     * auto-increment field from the last row inserted into the database, if any.
+     * This method returns a string representing the value of the auto-increment field from the last row inserted into
+     * the database, if any, or throws a DriverException if a value cannot be returned, in particular when:
      *
-     * If a sequence name was specified, lastInsertId() returns a string representing the current value of the sequence.
-     *
-     * This method throws a DriverException if a value cannot be returned, in particular when:
-     *
-     * - this operation is not supported by the driver;
-     * - no sequence name was provided, but the driver requires one;
-     * - no sequence name was provided, but the last statement dit not return an identity (caution: see note below);
-     * - a sequence name was provided, but the driver does not support sequences;
-     * - a sequence name was provided, but the sequence does not exist.
+     * - the driver does not support identity columns;
+     * - the last statement dit not return an identity (caution: see note below).
      *
      * Note: if the last statement was not an INSERT to an autoincrement column, this method MAY return an ID from a
      * previous statement. DO NOT RELY ON THIS BEHAVIOR which is driver-dependent: always use lastInsertId() right after
      * executing an INSERT statement.
      *
-     * @param string|null $name The sequence name, or NULL to return the ID of the last row inserted.
-     *
-     * @return string The last insert ID or sequence value.
+     * @return string The last insert ID.
      *
      * @throws DriverException If an error occurs.
      */
-    public function lastInsertId(?string $name = null) : string;
+    public function lastInsertId() : string;
+
+    /**
+     * Returns the current sequence value for the given sequence name.
+     *
+     * This method returns a string representing the current value of the sequence, or throws a DriverException if a
+     * value cannot be returned, in particular when:
+     *
+     * - the driver does not support sequences;
+     * - the sequence does not exist.
+     *
+     * @param string $name The sequence name.
+     *
+     * @return string The current sequence value.
+     *
+     * @throws DriverException If an error occurs.
+     */
+    public function getSequenceNumber(string $name) : string;
 
     /**
      * Initiates a transaction.
