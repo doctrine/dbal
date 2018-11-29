@@ -47,7 +47,7 @@ class PDOConnectionTest extends DbalFunctionalTestCase
     }
 
     /**
-     * @expectedException \Doctrine\DBAL\Driver\PDOException
+     * @expectedException \Doctrine\DBAL\Driver\DriverException
      */
     public function testThrowsWrappedExceptionOnConstruct()
     {
@@ -56,7 +56,7 @@ class PDOConnectionTest extends DbalFunctionalTestCase
 
     /**
      * @group DBAL-1022
-     * @expectedException \Doctrine\DBAL\Driver\PDOException
+     * @expectedException \Doctrine\DBAL\Driver\DriverException
      */
     public function testThrowsWrappedExceptionOnExec()
     {
@@ -64,7 +64,7 @@ class PDOConnectionTest extends DbalFunctionalTestCase
     }
 
     /**
-     * @expectedException \Doctrine\DBAL\Driver\PDOException
+     * @expectedException \Doctrine\DBAL\Driver\DriverException
      */
     public function testThrowsWrappedExceptionOnPrepare()
     {
@@ -94,7 +94,7 @@ class PDOConnectionTest extends DbalFunctionalTestCase
     }
 
     /**
-     * @expectedException \Doctrine\DBAL\Driver\PDOException
+     * @expectedException \Doctrine\DBAL\Driver\DriverException
      */
     public function testThrowsWrappedExceptionOnQuery()
     {

@@ -20,7 +20,7 @@ class PDOConnection implements Connection, ServerInfoAwareConnection
      * @param string|null  $password
      * @param mixed[]|null $options
      *
-     * @throws PDOException In case of an error.
+     * @throws DriverException In case of an error.
      */
     public function __construct($dsn, $user = null, $password = null, ?array $options = null)
     {
@@ -28,7 +28,7 @@ class PDOConnection implements Connection, ServerInfoAwareConnection
             $this->connection = new PDO($dsn, $user, $password, $options);
             $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+            throw self::exceptionFromPDOException($exception);
         }
     }
 
@@ -40,7 +40,7 @@ class PDOConnection implements Connection, ServerInfoAwareConnection
         try {
             return $this->connection->exec($statement);
         } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+            throw self::exceptionFromPDOException($exception);
         }
     }
 
@@ -62,7 +62,7 @@ class PDOConnection implements Connection, ServerInfoAwareConnection
                 $this->connection->prepare($sql)
             );
         } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+            throw self::exceptionFromPDOException($exception);
         }
     }
 
@@ -76,7 +76,7 @@ class PDOConnection implements Connection, ServerInfoAwareConnection
                 $this->connection->query($sql)
             );
         } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+            throw self::exceptionFromPDOException($exception);
         }
     }
 
@@ -96,12 +96,12 @@ class PDOConnection implements Connection, ServerInfoAwareConnection
         try {
             $lastInsertId = $this->connection->lastInsertId($name);
         } catch (\PDOException $e) {
-            throw new PDOException($e);
+            throw self::exceptionFromPDOException($e);
         }
 
         // pdo_mysql and others return '0', pdo_sqlsrv returns ''
         if ($lastInsertId === '0' || $lastInsertId === '') {
-            throw AbstractDriverException::noInsertId();
+            throw DriverException::noInsertId();
         }
 
         return $lastInsertId;
@@ -166,5 +166,22 @@ class PDOConnection implements Connection, ServerInfoAwareConnection
     public function getWrappedConnection() : PDO
     {
         return $this->connection;
+    }
+
+    /**
+     * Creates a DriverException from a PDOException.
+     *
+     * @param \PDOException $exception The PDO exception to wrap.
+     *
+     * @return DriverException
+     */
+    public static function exceptionFromPDOException(\PDOException $exception) : DriverException
+    {
+        return new DriverException(
+            $exception->getMessage(),
+            $exception->errorInfo[0] ?? $exception->getCode(),
+            $exception->errorInfo[1] ?? $exception->getCode(),
+            $exception
+        );
     }
 }

@@ -2,8 +2,6 @@
 
 namespace Doctrine\DBAL\Driver;
 
-use Doctrine\DBAL\DBALException;
-
 /**
  * Connection interface.
  * Driver connections must implement this interface.
@@ -18,6 +16,8 @@ interface Connection
      * @param string $sql The SQL query to prepare.
      *
      * @return Statement The prepared statement.
+     *
+     * @throws DriverException If an error occurs.
      */
     public function prepare(string $sql) : Statement;
 
@@ -28,7 +28,7 @@ interface Connection
      *
      * @return ResultStatement The result statement.
      *
-     * @throws DBALException
+     * @throws DriverException If an error occurs.
      */
     public function query(string $sql) : ResultStatement;
 
@@ -38,6 +38,8 @@ interface Connection
      * @param string $input The parameter to quote.
      *
      * @return string The quoted string.
+     *
+     * @throws DriverException If an error occurs.
      */
     public function quote(string $input) : string;
 
@@ -48,7 +50,7 @@ interface Connection
      *
      * @return int The number of affected rows.
      *
-     * @throws DBALException
+     * @throws DriverException If an error occurs.
      */
     public function exec(string $statement) : int;
 
@@ -82,16 +84,22 @@ interface Connection
 
     /**
      * Initiates a transaction.
+     *
+     * @throws DriverException If an error occurs.
      */
     public function beginTransaction() : void;
 
     /**
      * Commits a transaction.
+     *
+     * @throws DriverException If an error occurs.
      */
     public function commit() : void;
 
     /**
      * Rolls back the current transaction, as initiated by beginTransaction().
+     *
+     * @throws DriverException If an error occurs.
      */
     public function rollBack() : void;
 

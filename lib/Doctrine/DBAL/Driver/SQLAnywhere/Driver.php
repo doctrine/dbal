@@ -6,6 +6,7 @@ use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\AbstractSQLAnywhereDriver;
 use function array_keys;
 use function array_map;
+use Doctrine\DBAL\Driver\DriverException;
 use function implode;
 
 /**
@@ -33,7 +34,7 @@ class Driver extends AbstractSQLAnywhereDriver
                 ),
                 $params['persistent'] ?? false
             );
-        } catch (SQLAnywhereException $e) {
+        } catch (DriverException $e) {
             throw DBALException::driverException($this, $e);
         }
     }

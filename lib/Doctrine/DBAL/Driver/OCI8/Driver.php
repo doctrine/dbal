@@ -4,6 +4,7 @@ namespace Doctrine\DBAL\Driver\OCI8;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\AbstractOracleDriver;
+use Doctrine\DBAL\Driver\DriverException;
 use const OCI_DEFAULT;
 
 /**
@@ -25,7 +26,7 @@ class Driver extends AbstractOracleDriver
                 $params['sessionMode'] ?? OCI_DEFAULT,
                 $params['persistent'] ?? false
             );
-        } catch (OCI8Exception $e) {
+        } catch (DriverException $e) {
             throw DBALException::driverException($this, $e);
         }
     }

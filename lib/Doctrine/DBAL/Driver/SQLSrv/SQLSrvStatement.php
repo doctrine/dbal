@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Driver\SQLSrv;
 
+use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\FetchMode;
@@ -146,7 +147,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     public function bindValue($param, $value, $type = ParameterType::STRING)
     {
         if (! is_numeric($param)) {
-            throw new SQLSrvException(
+            throw new DriverException(
                 'sqlsrv does not support named parameters to queries, use question mark (?) placeholders instead.'
             );
         }
@@ -161,7 +162,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null)
     {
         if (! is_numeric($column)) {
-            throw new SQLSrvException('sqlsrv does not support named parameters to queries, use question mark (?) placeholders instead.');
+            throw new DriverException('sqlsrv does not support named parameters to queries, use question mark (?) placeholders instead.');
         }
 
         $this->variables[$column] =& $variable;
@@ -240,7 +241,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
         }
 
         if (! sqlsrv_execute($this->stmt)) {
-            throw SQLSrvException::fromSqlSrvErrors();
+            throw SQLSrvConnection::exceptionFromSqlSrvErrors();
         }
 
         if ($this->lastInsertId) {
@@ -257,7 +258,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
      *
      * @return resource
      *
-     * @throws SQLSrvException
+     * @throws DriverException
      */
     private function prepare()
     {
@@ -291,7 +292,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
         $stmt = sqlsrv_prepare($this->conn, $this->sql, $params);
 
         if (! $stmt) {
-            throw SQLSrvException::fromSqlSrvErrors();
+            throw SQLSrvConnection::exceptionFromSqlSrvErrors();
         }
 
         return $stmt;
@@ -326,7 +327,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      *
-     * @throws SQLSrvException
+     * @throws DriverException
      */
     public function fetch($fetchMode = null, ...$args)
     {
@@ -358,7 +359,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
             return sqlsrv_fetch_object($this->stmt, $className, $ctorArgs) ?: false;
         }
 
-        throw new SQLSrvException('Fetch mode is not supported!');
+        throw new DriverException('Fetch mode is not supported!');
     }
 
     /**

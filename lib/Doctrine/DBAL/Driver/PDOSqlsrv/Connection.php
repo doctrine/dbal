@@ -2,7 +2,7 @@
 
 namespace Doctrine\DBAL\Driver\PDOSqlsrv;
 
-use Doctrine\DBAL\Driver\AbstractDriverException;
+use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\Driver\PDOStatement;
 use function strpos;
@@ -28,7 +28,7 @@ class Connection extends PDOConnection implements \Doctrine\DBAL\Driver\Connecti
         $result = $stmt->fetchColumn();
 
         if ($result === false) {
-            throw AbstractDriverException::noSuchSequence($name);
+            throw DriverException::noSuchSequence($name);
         }
 
         return (string) $result;

@@ -39,7 +39,7 @@ class ConnectionTest extends DbalFunctionalTestCase
     }
 
     /**
-     * @expectedException \Doctrine\DBAL\Driver\Mysqli\MysqliException
+     * @expectedException \Doctrine\DBAL\Driver\DriverException
      */
     public function testUnsupportedDriverOption()
     {

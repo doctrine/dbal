@@ -83,29 +83,7 @@ abstract class AbstractDriverTest extends DbalTestCase
             );
         }
 
-        $driverException = new class extends Exception implements DriverExceptionInterface
-        {
-            public function __construct()
-            {
-                parent::__construct('baz');
-            }
-
-            /**
-             * {@inheritDoc}
-             */
-            public function getErrorCode()
-            {
-                return 'foo';
-            }
-
-            /**
-             * {@inheritDoc}
-             */
-            public function getSQLState()
-            {
-                return 'bar';
-            }
-        };
+        $driverException = new Driver\DriverException('baz', 'bar', 'foo');
 
         $data[] = [$driverException, self::EXCEPTION_DRIVER];
 
@@ -253,41 +231,7 @@ abstract class AbstractDriverTest extends DbalTestCase
 
         foreach ($this->getExceptionConversionData() as $convertedExceptionClassName => $errors) {
             foreach ($errors as $error) {
-                $driverException = new class ($error[0], $error[1], $error[2])
-                    extends Exception
-                    implements DriverExceptionInterface
-                {
-                    /** @var mixed */
-                    private $errorCode;
-
-                    /** @var mixed */
-                    private $sqlState;
-
-                    public function __construct($errorCode, $sqlState, $message)
-                    {
-                        parent::__construct($message);
-
-                        $this->errorCode = $errorCode;
-                        $this->sqlState  = $sqlState;
-                    }
-
-                    /**
-                     * {@inheritDoc}
-                     */
-                    public function getErrorCode()
-                    {
-                        return $this->errorCode;
-                    }
-
-                    /**
-                     * {@inheritDoc}
-                     */
-                    public function getSQLState()
-                    {
-                        return $this->sqlState;
-                    }
-                };
-
+                $driverException = new Driver\DriverException($error[2] ?? '', $error[1], $error[0]);
                 $data[] = [$driverException, $convertedExceptionClassName];
             }
         }

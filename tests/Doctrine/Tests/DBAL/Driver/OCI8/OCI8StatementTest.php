@@ -2,8 +2,8 @@
 
 namespace Doctrine\Tests\DBAL\Driver\OCI8;
 
+use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Driver\OCI8\OCI8Connection;
-use Doctrine\DBAL\Driver\OCI8\OCI8Exception;
 use Doctrine\DBAL\Driver\OCI8\OCI8Statement;
 use Doctrine\Tests\DbalTestCase;
 use ReflectionProperty;
@@ -32,7 +32,7 @@ class OCI8StatementTest extends DbalTestCase
      * @param mixed[] $params
      *
      * @dataProvider executeDataProvider
-     * @expectedException \Doctrine\DBAL\Driver\OCI8\OCI8Exception
+     * @expectedException \Doctrine\DBAL\Driver\DriverException
      */
     public function testExecute(array $params)
     {
@@ -95,7 +95,7 @@ class OCI8StatementTest extends DbalTestCase
      */
     public function testConvertNonTerminatedLiteral($sql, $message)
     {
-        $this->expectException(OCI8Exception::class);
+        $this->expectException(DriverException::class);
         $this->expectExceptionMessageRegExp($message);
         OCI8Statement::convertPositionalToNamedPlaceholders($sql);
     }

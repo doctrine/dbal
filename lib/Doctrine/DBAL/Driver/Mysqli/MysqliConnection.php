@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Driver\Mysqli;
 
 use Doctrine\DBAL\Driver\Connection;
+use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Driver\PingableConnection;
 use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
@@ -43,7 +44,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
      * @param string  $password
      * @param mixed[] $driverOptions
      *
-     * @throws MysqliException
+     * @throws DriverException
      */
     public function __construct(array $params, $username, $password, array $driverOptions = [])
     {
@@ -68,7 +69,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
         });
         try {
             if (! $this->conn->real_connect($params['host'], $username, $password, $dbname, $port, $socket, $flags)) {
-                throw new MysqliException($this->conn->connect_error, $this->conn->sqlstate ?? 'HY000', $this->conn->connect_errno);
+                throw new DriverException($this->conn->connect_error, $this->conn->sqlstate ?? 'HY000', $this->conn->connect_errno);
             }
         } finally {
             restore_error_handler();
@@ -156,7 +157,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
     public function exec(string $statement) : int
     {
         if ($this->conn->query($statement) === false) {
-            throw new MysqliException($this->conn->error, $this->conn->sqlstate, $this->conn->errno);
+            throw new DriverException($this->conn->error, $this->conn->sqlstate, $this->conn->errno);
         }
 
         return $this->conn->affected_rows;
@@ -170,7 +171,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
         $insertId = $this->conn->insert_id;
 
         if ($insertId === 0) {
-            throw MysqliException::noInsertId();
+            throw DriverException::noInsertId();
         }
 
         return (string) $insertId;
@@ -221,8 +222,8 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
      *
      * @param mixed[] $driverOptions
      *
-     * @throws MysqliException When one of of the options is not supported.
-     * @throws MysqliException When applying doesn't work - e.g. due to incorrect value.
+     * @throws DriverException When one of of the options is not supported.
+     * @throws DriverException When applying doesn't work - e.g. due to incorrect value.
      */
     private function setDriverOptions(array $driverOptions = [])
     {
@@ -246,7 +247,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
             }
 
             if (! in_array($option, $supportedDriverOptions, true)) {
-                throw new MysqliException(
+                throw new DriverException(
                     sprintf($exceptionMsg, 'Unsupported', $option, $value)
                 );
             }
@@ -258,7 +259,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
             $msg  = sprintf($exceptionMsg, 'Failed to set', $option, $value);
             $msg .= sprintf(', error: %s (%d)', mysqli_error($this->conn), mysqli_errno($this->conn));
 
-            throw new MysqliException(
+            throw new DriverException(
                 $msg,
                 $this->conn->sqlstate,
                 $this->conn->errno
@@ -281,7 +282,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
      *
      * @param mixed[] $params
      *
-     * @throws MysqliException
+     * @throws DriverException
      */
     private function setSecureConnection(array $params)
     {

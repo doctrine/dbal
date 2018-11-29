@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Driver\SQLSrv;
 
 use Doctrine\DBAL\Driver\Connection;
+use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
@@ -33,17 +34,17 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
      * @param string  $serverName
      * @param mixed[] $connectionOptions
      *
-     * @throws SQLSrvException
+     * @throws DriverException
      */
     public function __construct($serverName, $connectionOptions)
     {
         if (! sqlsrv_configure('WarningsReturnAsErrors', 0)) {
-            throw SQLSrvException::fromSqlSrvErrors();
+            throw self::exceptionFromSqlSrvErrors();
         }
 
         $this->conn = sqlsrv_connect($serverName, $connectionOptions);
         if (! $this->conn) {
-            throw SQLSrvException::fromSqlSrvErrors();
+            throw self::exceptionFromSqlSrvErrors();
         }
         $this->lastInsertId = new LastInsertId();
     }
@@ -101,7 +102,7 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
         $stmt = sqlsrv_query($this->conn, $statement);
 
         if ($stmt === false) {
-            throw SQLSrvException::fromSqlSrvErrors();
+            throw self::exceptionFromSqlSrvErrors();
         }
 
         return sqlsrv_rows_affected($stmt);
@@ -123,11 +124,11 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
 
         if ($name !== null) {
             if ($result === false) {
-                throw SQLSrvException::noSuchSequence($name);
+                throw DriverException::noSuchSequence($name);
             }
         } else {
             if ($result === null) {
-                throw SQLSrvException::noInsertId();
+                throw DriverException::noInsertId();
             }
         }
 
@@ -140,7 +141,7 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
     public function beginTransaction() : void
     {
         if (! sqlsrv_begin_transaction($this->conn)) {
-            throw SQLSrvException::fromSqlSrvErrors();
+            throw self::exceptionFromSqlSrvErrors();
         }
     }
 
@@ -150,7 +151,7 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
     public function commit() : void
     {
         if (! sqlsrv_commit($this->conn)) {
-            throw SQLSrvException::fromSqlSrvErrors();
+            throw self::exceptionFromSqlSrvErrors();
         }
     }
 
@@ -160,7 +161,7 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
     public function rollBack() : void
     {
         if (! sqlsrv_rollback($this->conn)) {
-            throw SQLSrvException::fromSqlSrvErrors();
+            throw self::exceptionFromSqlSrvErrors();
         }
     }
 
@@ -183,5 +184,37 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
     public function errorInfo()
     {
         return sqlsrv_errors(SQLSRV_ERR_ERRORS);
+    }
+
+    /**
+     * Helper method to turn sql server errors into exception.
+     *
+     * @return DriverException
+     */
+    public static function exceptionFromSqlSrvErrors() : DriverException
+    {
+        $errors    = sqlsrv_errors(SQLSRV_ERR_ERRORS);
+        $message   = '';
+        $sqlState  = null;
+        $errorCode = null;
+
+        foreach ($errors as $error) {
+            $message .= 'SQLSTATE [' . $error['SQLSTATE'] . ', ' . $error['code'] . ']: ' . $error['message'] . "\n";
+
+            if ($sqlState === null) {
+                $sqlState = $error['SQLSTATE'];
+            }
+
+            if ($errorCode !== null) {
+                continue;
+            }
+
+            $errorCode = $error['code'];
+        }
+        if (! $message) {
+            $message = 'SQL Server error occurred but no error message was retrieved from driver.';
+        }
+
+        return new DriverException(rtrim($message), $sqlState, $errorCode);
     }
 }

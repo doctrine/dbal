@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Driver\IBMDB2;
 
 use Doctrine\DBAL\Driver\Connection;
+use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
@@ -35,7 +36,7 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
      * @param string  $password
      * @param mixed[] $driverOptions
      *
-     * @throws DB2Exception
+     * @throws DriverException
      */
     public function __construct(array $params, $username, $password, $driverOptions = [])
     {
@@ -47,7 +48,7 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
             $this->conn = db2_connect($params['dbname'], $username, $password, $driverOptions);
         }
         if (! $this->conn) {
-            throw new DB2Exception(db2_conn_errormsg());
+            throw new DriverException(db2_conn_errormsg());
         }
     }
 
@@ -77,7 +78,7 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
     {
         $stmt = @db2_prepare($this->conn, $sql);
         if (! $stmt) {
-            throw new DB2Exception(db2_stmt_errormsg());
+            throw new DriverException(db2_stmt_errormsg());
         }
 
         return new DB2Statement($stmt);
@@ -112,7 +113,7 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
         $stmt = @db2_exec($this->conn, $statement);
 
         if ($stmt === false) {
-            throw new DB2Exception(db2_stmt_errormsg());
+            throw new DriverException(db2_stmt_errormsg());
         }
 
         return db2_num_rows($stmt);
@@ -124,13 +125,13 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
     public function lastInsertId(?string $name = null) : string
     {
         if ($name !== null) {
-            throw new DB2Exception('Sequences on IBM DB2 are not currently supported.');
+            throw new DriverException('Sequences on IBM DB2 are not currently supported.');
         }
 
         $lastInsertId = db2_last_insert_id($this->conn);
 
         if ($lastInsertId === '') {
-            throw DB2Exception::noInsertId();
+            throw DriverException::noInsertId();
         }
 
         return $lastInsertId;
@@ -150,7 +151,7 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
     public function commit() : void
     {
         if (! db2_commit($this->conn)) {
-            throw new DB2Exception(db2_conn_errormsg($this->conn));
+            throw new DriverException(db2_conn_errormsg($this->conn));
         }
         db2_autocommit($this->conn, DB2_AUTOCOMMIT_ON);
     }
@@ -161,7 +162,7 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
     public function rollBack() : void
     {
         if (! db2_rollback($this->conn)) {
-            throw new DB2Exception(db2_conn_errormsg($this->conn));
+            throw new DriverException(db2_conn_errormsg($this->conn));
         }
         db2_autocommit($this->conn, DB2_AUTOCOMMIT_ON);
     }

@@ -52,7 +52,7 @@ class PDOStatement implements IteratorAggregate, Statement
         try {
             return $this->stmt->setFetchMode($fetchMode, ...$args);
         } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+            throw PDOConnection::exceptionFromPDOException($exception);
         }
     }
 
@@ -66,7 +66,7 @@ class PDOStatement implements IteratorAggregate, Statement
         try {
             return $this->stmt->bindValue($param, $value, $type);
         } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+            throw PDOConnection::exceptionFromPDOException($exception);
         }
     }
 
@@ -80,7 +80,7 @@ class PDOStatement implements IteratorAggregate, Statement
         try {
             return $this->stmt->bindParam($column, $variable, $type, $length, $driverOptions);
         } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+            throw PDOConnection::exceptionFromPDOException($exception);
         }
     }
 
@@ -130,7 +130,7 @@ class PDOStatement implements IteratorAggregate, Statement
         try {
             return $this->stmt->execute($params);
         } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+            throw PDOConnection::exceptionFromPDOException($exception);
         }
     }
 
@@ -156,7 +156,7 @@ class PDOStatement implements IteratorAggregate, Statement
 
             return $this->stmt->fetch($fetchMode, ...$args);
         } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+            throw PDOConnection::exceptionFromPDOException($exception);
         }
     }
 
@@ -174,7 +174,7 @@ class PDOStatement implements IteratorAggregate, Statement
 
             return $this->stmt->fetchAll($fetchMode, ...$args);
         } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+            throw PDOConnection::exceptionFromPDOException($exception);
         }
     }
 
@@ -186,7 +186,7 @@ class PDOStatement implements IteratorAggregate, Statement
         try {
             return $this->stmt->fetchColumn($columnIndex);
         } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+            throw PDOConnection::exceptionFromPDOException($exception);
         }
     }
 

@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Driver\Mysqli;
 
+use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
@@ -71,14 +72,14 @@ class MysqliStatement implements IteratorAggregate, Statement
     /**
      * @param string $prepareString
      *
-     * @throws MysqliException
+     * @throws DriverException
      */
     public function __construct(mysqli $conn, $prepareString)
     {
         $this->_conn = $conn;
         $this->_stmt = $conn->prepare($prepareString);
         if ($this->_stmt === false) {
-            throw new MysqliException($this->_conn->error, $this->_conn->sqlstate, $this->_conn->errno);
+            throw new DriverException($this->_conn->error, $this->_conn->sqlstate, $this->_conn->errno);
         }
 
         $paramCount = $this->_stmt->param_count;
@@ -99,7 +100,7 @@ class MysqliStatement implements IteratorAggregate, Statement
             $type = 's';
         } else {
             if (! isset(self::$_paramTypeMap[$type])) {
-                throw new MysqliException(sprintf("Unknown type: '%s'", $type));
+                throw new DriverException(sprintf("Unknown type: '%s'", $type));
             }
 
             $type = self::$_paramTypeMap[$type];
@@ -120,7 +121,7 @@ class MysqliStatement implements IteratorAggregate, Statement
             $type = 's';
         } else {
             if (! isset(self::$_paramTypeMap[$type])) {
-                throw new MysqliException(sprintf("Unknown type: '%s'", $type));
+                throw new DriverException(sprintf("Unknown type: '%s'", $type));
             }
 
             $type = self::$_paramTypeMap[$type];
@@ -141,19 +142,19 @@ class MysqliStatement implements IteratorAggregate, Statement
         if ($this->_bindedValues !== null) {
             if ($params !== null) {
                 if (! $this->_bindValues($params)) {
-                    throw new MysqliException($this->_stmt->error, $this->_stmt->errno);
+                    throw new DriverException($this->_stmt->error, $this->_stmt->errno);
                 }
             } else {
                 [$types, $values, $streams] = $this->separateBoundValues();
                 if (! $this->_stmt->bind_param($types, ...$values)) {
-                    throw new MysqliException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
+                    throw new DriverException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
                 }
                 $this->sendLongData($streams);
             }
         }
 
         if (! $this->_stmt->execute()) {
-            throw new MysqliException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
+            throw new DriverException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
         }
 
         if ($this->_columnNames === null) {
@@ -196,7 +197,7 @@ class MysqliStatement implements IteratorAggregate, Statement
             }
 
             if (! $this->_stmt->bind_result(...$refs)) {
-                throw new MysqliException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
+                throw new DriverException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
             }
         }
 
@@ -243,7 +244,7 @@ class MysqliStatement implements IteratorAggregate, Statement
     /**
      * Handle $this->_longData after regular query parameters have been bound
      *
-     * @throws MysqliException
+     * @throws DriverException
      */
     private function sendLongData($streams)
     {
@@ -252,11 +253,11 @@ class MysqliStatement implements IteratorAggregate, Statement
                 $chunk = fread($stream, 8192);
 
                 if ($chunk === false) {
-                    throw new MysqliException("Failed reading the stream resource for parameter offset ${paramNr}.");
+                    throw new DriverException("Failed reading the stream resource for parameter offset ${paramNr}.");
                 }
 
                 if (! $this->_stmt->send_long_data($paramNr - 1, $chunk)) {
-                    throw new MysqliException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
+                    throw new DriverException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
                 }
             }
         }
@@ -323,7 +324,7 @@ class MysqliStatement implements IteratorAggregate, Statement
         }
 
         if ($values === false) {
-            throw new MysqliException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
+            throw new DriverException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
         }
 
         switch ($fetchMode) {
@@ -350,7 +351,7 @@ class MysqliStatement implements IteratorAggregate, Statement
                 return $ret;
 
             default:
-                throw new MysqliException(sprintf("Unknown fetch type '%s'", $fetchMode));
+                throw new DriverException(sprintf("Unknown fetch type '%s'", $fetchMode));
         }
     }
 

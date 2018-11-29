@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Driver\IBMDB2;
 
+use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\FetchMode;
@@ -128,14 +129,14 @@ class DB2Statement implements IteratorAggregate, Statement
      * @param int|string $parameter Parameter position or name
      * @param mixed      $variable
      *
-     * @throws DB2Exception
+     * @throws DriverException
      */
     private function bind($parameter, &$variable, int $parameterType, int $dataType) : void
     {
         $this->bindParam[$parameter] =& $variable;
 
         if (! db2_bind_param($this->stmt, $parameter, 'variable', $parameterType, $dataType)) {
-            throw new DB2Exception(db2_stmt_errormsg());
+            throw new DriverException(db2_stmt_errormsg());
         }
     }
 
@@ -228,7 +229,7 @@ class DB2Statement implements IteratorAggregate, Statement
         $this->lobs = [];
 
         if ($retval === false) {
-            throw new DB2Exception(db2_stmt_errormsg());
+            throw new DriverException(db2_stmt_errormsg());
         }
 
         $this->result = true;
@@ -308,7 +309,7 @@ class DB2Statement implements IteratorAggregate, Statement
                 return db2_fetch_object($this->stmt);
 
             default:
-                throw new DB2Exception('Given Fetch-Style ' . $fetchMode . ' is not supported.');
+                throw new DriverException('Given Fetch-Style ' . $fetchMode . ' is not supported.');
         }
     }
 
@@ -370,13 +371,13 @@ class DB2Statement implements IteratorAggregate, Statement
      *
      * @return object
      *
-     * @throws DB2Exception
+     * @throws DriverException
      */
     private function castObject(stdClass $sourceObject, $destinationClass, array $ctorArgs = [])
     {
         if (! is_string($destinationClass)) {
             if (! is_object($destinationClass)) {
-                throw new DB2Exception(sprintf(
+                throw new DriverException(sprintf(
                     'Destination class has to be of type string or object, %s given.',
                     gettype($destinationClass)
                 ));
@@ -429,14 +430,14 @@ class DB2Statement implements IteratorAggregate, Statement
     /**
      * @return resource
      *
-     * @throws DB2Exception
+     * @throws DriverException
      */
     private function createTemporaryFile()
     {
         $handle = @tmpfile();
 
         if ($handle === false) {
-            throw new DB2Exception('Could not create temporary file: ' . error_get_last()['message']);
+            throw new DriverException('Could not create temporary file: ' . error_get_last()['message']);
         }
 
         return $handle;
@@ -446,24 +447,24 @@ class DB2Statement implements IteratorAggregate, Statement
      * @param resource $source
      * @param resource $target
      *
-     * @throws DB2Exception
+     * @throws DriverException
      */
     private function copyStreamToStream($source, $target) : void
     {
         if (@stream_copy_to_stream($source, $target) === false) {
-            throw new DB2Exception('Could not copy source stream to temporary file: ' . error_get_last()['message']);
+            throw new DriverException('Could not copy source stream to temporary file: ' . error_get_last()['message']);
         }
     }
 
     /**
      * @param resource $target
      *
-     * @throws DB2Exception
+     * @throws DriverException
      */
     private function writeStringToStream(string $string, $target) : void
     {
         if (@fwrite($target, $string) === false) {
-            throw new DB2Exception('Could not write string to temporary file: ' . error_get_last()['message']);
+            throw new DriverException('Could not write string to temporary file: ' . error_get_last()['message']);
         }
     }
 }

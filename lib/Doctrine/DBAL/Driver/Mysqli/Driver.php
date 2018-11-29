@@ -4,6 +4,7 @@ namespace Doctrine\DBAL\Driver\Mysqli;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\AbstractMySQLDriver;
+use Doctrine\DBAL\Driver\DriverException;
 
 class Driver extends AbstractMySQLDriver
 {
@@ -14,7 +15,7 @@ class Driver extends AbstractMySQLDriver
     {
         try {
             return new MysqliConnection($params, $username, $password, $driverOptions);
-        } catch (MysqliException $e) {
+        } catch (DriverException $e) {
             throw DBALException::driverException($this, $e);
         }
     }

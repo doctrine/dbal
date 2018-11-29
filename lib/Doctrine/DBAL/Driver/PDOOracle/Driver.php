@@ -4,8 +4,8 @@ namespace Doctrine\DBAL\Driver\PDOOracle;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\AbstractOracleDriver;
+use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Driver\PDOConnection;
-use PDOException;
 
 /**
  * PDO Oracle driver.
@@ -29,7 +29,7 @@ class Driver extends AbstractOracleDriver
                 $password,
                 $driverOptions
             );
-        } catch (PDOException $e) {
+        } catch (DriverException $e) {
             throw DBALException::driverException($this, $e);
         }
     }

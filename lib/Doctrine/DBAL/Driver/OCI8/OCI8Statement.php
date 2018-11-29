@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Driver\OCI8;
 
+use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\FetchMode;
@@ -119,7 +120,7 @@ class OCI8Statement implements IteratorAggregate, Statement
      *
      * @return mixed[] [0] => the statement value (string), [1] => the paramMap value (array).
      *
-     * @throws OCI8Exception
+     * @throws DriverException
      *
      * @todo extract into utility class in Doctrine\DBAL\Util namespace
      * @todo review and test for lost spaces. we experienced missing spaces with oci8 in some sql statements.
@@ -146,7 +147,7 @@ class OCI8Statement implements IteratorAggregate, Statement
         } while ($result);
 
         if ($currentLiteralDelimiter) {
-            throw new OCI8Exception(sprintf(
+            throw new DriverException(sprintf(
                 'The statement contains non-terminated string literal starting at offset %d',
                 $tokenOffset - 1
             ));
@@ -368,7 +369,7 @@ class OCI8Statement implements IteratorAggregate, Statement
 
         $ret = @oci_execute($this->_sth, $this->_conn->getExecuteMode());
         if (! $ret) {
-            throw OCI8Exception::fromErrorInfo($this->errorInfo());
+            throw OCI8Connection::exceptionFromErrorInfo($this->errorInfo());
         }
 
         $this->result = true;
