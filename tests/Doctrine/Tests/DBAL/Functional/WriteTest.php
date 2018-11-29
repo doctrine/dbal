@@ -4,7 +4,6 @@ namespace Doctrine\Tests\DBAL\Functional;
 
 use DateTime;
 use Doctrine\DBAL\ParameterType;
-use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;

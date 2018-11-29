@@ -2,7 +2,6 @@
 
 namespace Doctrine\Tests\DBAL\Functional;
 
-use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use const CASE_LOWER;
