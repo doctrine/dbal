@@ -20,9 +20,6 @@ class TypeConversionTest extends DbalFunctionalTestCase
     {
         parent::setUp();
 
-        /** @var AbstractSchemaManager $sm */
-        $sm = $this->connection->getSchemaManager();
-
         $table = new Table('type_conversion');
         $table->addColumn('id', 'integer', ['notnull' => false]);
         $table->addColumn('test_string', 'string', ['notnull' => false]);

@@ -20,7 +20,6 @@ class WriteTest extends DbalFunctionalTestCase
         parent::setUp();
 
         try {
-            /** @var AbstractSchemaManager $sm */
             $table = new Table('write_table');
             $table->addColumn('id', 'integer', ['autoincrement' => true]);
             $table->addColumn('test_int', 'integer');

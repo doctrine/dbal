@@ -42,7 +42,6 @@ class DataAccessTest extends DbalFunctionalTestCase
             return;
         }
 
-        /** @var AbstractSchemaManager $sm */
         $table = new Table('fetch_table');
         $table->addColumn('test_int', 'integer');
         $table->addColumn('test_string', 'string');
@@ -601,7 +600,6 @@ class DataAccessTest extends DbalFunctionalTestCase
         $table->addColumn('test_days', 'integer');
         $table->setPrimaryKey(['test_date']);
 
-        /** @var AbstractSchemaManager $sm */
         $sm = $this->connection->getSchemaManager();
         $sm->createTable($table);
 

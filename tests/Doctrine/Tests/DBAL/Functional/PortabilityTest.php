@@ -51,7 +51,6 @@ class PortabilityTest extends DbalFunctionalTestCase
             $this->portableConnection = DriverManager::getConnection($params, $this->connection->getConfiguration(), $this->connection->getEventManager());
 
             try {
-                /** @var AbstractSchemaManager $sm */
                 $table = new Table('portability_table');
                 $table->addColumn('Test_Int', 'integer');
                 $table->addColumn('Test_String', 'string', ['fixed' => true, 'length' => 32]);

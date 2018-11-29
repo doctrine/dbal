@@ -19,7 +19,6 @@ class ModifyLimitQueryTest extends DbalFunctionalTestCase
         parent::setUp();
 
         if (! self::$tableCreated) {
-            /** @var AbstractSchemaManager $sm */
             $table = new Table('modify_limit_table');
             $table->addColumn('test_int', 'integer');
             $table->setPrimaryKey(['test_int']);

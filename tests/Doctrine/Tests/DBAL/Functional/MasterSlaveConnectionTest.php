@@ -32,7 +32,6 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
         }
 
         try {
-            /** @var AbstractSchemaManager $sm */
             $table = new Table('master_slave_table');
             $table->addColumn('test_int', 'integer');
             $table->setPrimaryKey(['test_int']);

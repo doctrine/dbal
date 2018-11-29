@@ -22,7 +22,6 @@ class BlobTest extends DbalFunctionalTestCase
     {
         parent::setUp();
 
-        /** @var AbstractSchemaManager $sm */
         $table = new Table('blob_table');
         $table->addColumn('id', 'integer');
         $table->addColumn('clobfield', 'text');
