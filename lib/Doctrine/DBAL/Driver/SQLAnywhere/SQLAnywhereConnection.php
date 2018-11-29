@@ -65,8 +65,6 @@ class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
 
     /**
      * {@inheritdoc}
-     *
-     * @throws DriverException
      */
     public function beginTransaction() : void
     {
@@ -77,8 +75,6 @@ class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
 
     /**
      * {@inheritdoc}
-     *
-     * @throws DriverException
      */
     public function commit() : void
     {
@@ -194,8 +190,6 @@ class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
 
     /**
      * {@inheritdoc}
-     *
-     * @throws DriverException
      */
     public function rollBack() : void
     {

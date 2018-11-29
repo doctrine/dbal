@@ -194,7 +194,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
     }
 
     /**
-     * {@inheritdoc}non-PHPdoc)
+     * {@inheritdoc}
      */
     public function rollBack() : void
     {
