@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Driver;
 
 use PDO;
+use PDOException;
 
 /**
  * PDO implementation of the Connection interface.
@@ -27,7 +28,7 @@ class PDOConnection implements Connection, ServerInfoAwareConnection
         try {
             $this->connection = new PDO($dsn, $user, $password, $options);
             $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        } catch (\PDOException $exception) {
+        } catch (PDOException $exception) {
             throw self::exceptionFromPDOException($exception);
         }
     }
@@ -39,7 +40,7 @@ class PDOConnection implements Connection, ServerInfoAwareConnection
     {
         try {
             return $this->connection->exec($statement);
-        } catch (\PDOException $exception) {
+        } catch (PDOException $exception) {
             throw self::exceptionFromPDOException($exception);
         }
     }
@@ -61,7 +62,7 @@ class PDOConnection implements Connection, ServerInfoAwareConnection
             return $this->createStatement(
                 $this->connection->prepare($sql)
             );
-        } catch (\PDOException $exception) {
+        } catch (PDOException $exception) {
             throw self::exceptionFromPDOException($exception);
         }
     }
@@ -75,7 +76,7 @@ class PDOConnection implements Connection, ServerInfoAwareConnection
             return $this->createStatement(
                 $this->connection->query($sql)
             );
-        } catch (\PDOException $exception) {
+        } catch (PDOException $exception) {
             throw self::exceptionFromPDOException($exception);
         }
     }
@@ -95,7 +96,7 @@ class PDOConnection implements Connection, ServerInfoAwareConnection
     {
         try {
             $lastInsertId = $this->connection->lastInsertId($name);
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             throw self::exceptionFromPDOException($e);
         }
 
@@ -170,12 +171,8 @@ class PDOConnection implements Connection, ServerInfoAwareConnection
 
     /**
      * Creates a DriverException from a PDOException.
-     *
-     * @param \PDOException $exception The PDO exception to wrap.
-     *
-     * @return DriverException
      */
-    public static function exceptionFromPDOException(\PDOException $exception) : DriverException
+    public static function exceptionFromPDOException(PDOException $exception) : DriverException
     {
         return new DriverException(
             $exception->getMessage(),

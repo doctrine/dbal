@@ -213,9 +213,7 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
     }
 
     /**
-     * @param array $error The return value of an oci_error() call.
-     *
-     * @return DriverException
+     * @param mixed[] $error The return value of an oci_error() call.
      */
     public static function exceptionFromErrorInfo(array $error) : DriverException
     {

@@ -4,7 +4,6 @@ namespace Doctrine\Tests\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
-use Doctrine\DBAL\Driver\DriverException as DriverExceptionInterface;
 use Doctrine\DBAL\Driver\ExceptionConverterDriver;
 use Doctrine\DBAL\Exception\ConnectionException;
 use Doctrine\DBAL\Exception\ConstraintViolationException;
@@ -27,7 +26,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
 use Doctrine\Tests\DbalTestCase;
-use Exception;
 use function get_class;
 use function sprintf;
 
@@ -232,6 +230,7 @@ abstract class AbstractDriverTest extends DbalTestCase
         foreach ($this->getExceptionConversionData() as $convertedExceptionClassName => $errors) {
             foreach ($errors as $error) {
                 $driverException = new Driver\DriverException($error[2] ?? '', $error[1], $error[0]);
+
                 $data[] = [$driverException, $convertedExceptionClassName];
             }
         }

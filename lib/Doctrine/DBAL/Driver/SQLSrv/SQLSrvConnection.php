@@ -8,6 +8,7 @@ use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use const SQLSRV_ERR_ERRORS;
+use function rtrim;
 use function sqlsrv_begin_transaction;
 use function sqlsrv_commit;
 use function sqlsrv_configure;
@@ -188,8 +189,6 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
 
     /**
      * Helper method to turn sql server errors into exception.
-     *
-     * @return DriverException
      */
     public static function exceptionFromSqlSrvErrors() : DriverException
     {

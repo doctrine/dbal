@@ -222,8 +222,6 @@ class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
      * @param resource|null $conn The SQL Anywhere connection resource to retrieve the last error from.
      * @param resource|null $stmt The SQL Anywhere statement resource to retrieve the last error from.
      *
-     * @return DriverException
-     *
      * @throws InvalidArgumentException
      */
     public static function exceptionFromSQLAnywhereError($conn = null, $stmt = null) : DriverException

@@ -65,7 +65,7 @@ class DriverException extends Exception
      * Returns null if no driver specific error code is available
      * for the error raised by the driver.
      *
-     * @return int|string|null
+     * @return int|string|null The error code.
      */
     public function getErrorCode()
     {
@@ -77,7 +77,7 @@ class DriverException extends Exception
      *
      * Returns null if the driver does not provide a SQLSTATE for the error occurred.
      *
-     * @return string|null
+     * @return string|null The SQLSTATE, or null if not available.
      */
     public function getSQLState() : ?string
     {
