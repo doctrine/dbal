@@ -11,7 +11,7 @@ use function substr;
 /**
  * Sqlsrv Connection implementation.
  */
-class Connection extends PDOConnection implements \Doctrine\DBAL\Driver\Connection
+class Connection extends PDOConnection
 {
     /**
      * {@inheritdoc}
