@@ -3,10 +3,12 @@
 namespace Doctrine\DBAL\Driver\SQLAnywhere;
 
 use Doctrine\DBAL\Driver\Connection;
+use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\ParameterType;
+use InvalidArgumentException;
 use function assert;
 use function is_float;
 use function is_int;
@@ -38,41 +40,39 @@ class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
      * @param string $dsn        The connection string.
      * @param bool   $persistent Whether or not to establish a persistent connection.
      *
-     * @throws SQLAnywhereException
+     * @throws DriverException
      */
     public function __construct($dsn, $persistent = false)
     {
         $this->connection = $persistent ? @sasql_pconnect($dsn) : @sasql_connect($dsn);
 
         if (! is_resource($this->connection)) {
-            throw SQLAnywhereException::fromSQLAnywhereError();
+            throw self::exceptionFromSQLAnywhereError();
         }
 
         // Disable PHP warnings on error.
         if (! sasql_set_option($this->connection, 'verbose_errors', false)) {
-            throw SQLAnywhereException::fromSQLAnywhereError($this->connection);
+            throw self::exceptionFromSQLAnywhereError($this->connection);
         }
 
         // Enable auto committing by default.
         if (! sasql_set_option($this->connection, 'auto_commit', 'on')) {
-            throw SQLAnywhereException::fromSQLAnywhereError($this->connection);
+            throw self::exceptionFromSQLAnywhereError($this->connection);
         }
 
         // Enable exact, non-approximated row count retrieval.
         if (! sasql_set_option($this->connection, 'row_counts', true)) {
-            throw SQLAnywhereException::fromSQLAnywhereError($this->connection);
+            throw self::exceptionFromSQLAnywhereError($this->connection);
         }
     }
 
     /**
      * {@inheritdoc}
-     *
-     * @throws SQLAnywhereException
      */
     public function beginTransaction()
     {
         if (! sasql_set_option($this->connection, 'auto_commit', 'off')) {
-            throw SQLAnywhereException::fromSQLAnywhereError($this->connection);
+            throw self::exceptionFromSQLAnywhereError($this->connection);
         }
 
         return true;
@@ -80,13 +80,11 @@ class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
 
     /**
      * {@inheritdoc}
-     *
-     * @throws SQLAnywhereException
      */
     public function commit()
     {
         if (! sasql_commit($this->connection)) {
-            throw SQLAnywhereException::fromSQLAnywhereError($this->connection);
+            throw self::exceptionFromSQLAnywhereError($this->connection);
         }
 
         $this->endTransaction();
@@ -116,7 +114,7 @@ class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
     public function exec(string $statement) : int
     {
         if (sasql_real_query($this->connection, $statement) === false) {
-            throw SQLAnywhereException::fromSQLAnywhereError($this->connection);
+            throw self::exceptionFromSQLAnywhereError($this->connection);
         }
 
         return sasql_affected_rows($this->connection);
@@ -187,13 +185,11 @@ class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
 
     /**
      * {@inheritdoc}
-     *
-     * @throws SQLAnywhereException
      */
     public function rollBack()
     {
         if (! sasql_rollback($this->connection)) {
-            throw SQLAnywhereException::fromSQLAnywhereError($this->connection);
+            throw self::exceptionFromSQLAnywhereError($this->connection);
         }
 
         $this->endTransaction();
@@ -206,14 +202,74 @@ class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
      *
      * @return bool Whether or not ending transactional mode succeeded.
      *
-     * @throws SQLAnywhereException
+     * @throws DriverException
      */
     private function endTransaction()
     {
         if (! sasql_set_option($this->connection, 'auto_commit', 'on')) {
-            throw SQLAnywhereException::fromSQLAnywhereError($this->connection);
+            throw self::exceptionFromSQLAnywhereError($this->connection);
         }
 
         return true;
+    }
+
+    /**
+     * Helper method to turn SQL Anywhere error into exception.
+     *
+     * @param resource|null $conn The SQL Anywhere connection resource to retrieve the last error from.
+     * @param resource|null $stmt The SQL Anywhere statement resource to retrieve the last error from.
+     *
+     * @throws InvalidArgumentException
+     */
+    public static function exceptionFromSQLAnywhereError($conn = null, $stmt = null) : DriverException
+    {
+        if ($conn !== null && ! is_resource($conn)) {
+            throw new InvalidArgumentException('Invalid SQL Anywhere connection resource given: ' . $conn);
+        }
+
+        if ($stmt !== null && ! is_resource($stmt)) {
+            throw new InvalidArgumentException('Invalid SQL Anywhere statement resource given: ' . $stmt);
+        }
+
+        $state   = $conn ? sasql_sqlstate($conn) : sasql_sqlstate();
+        $code    = null;
+        $message = null;
+
+        /**
+         * Try retrieving the last error from statement resource if given
+         */
+        if ($stmt) {
+            $code    = sasql_stmt_errno($stmt);
+            $message = sasql_stmt_error($stmt);
+        }
+
+        /**
+         * Try retrieving the last error from the connection resource
+         * if either the statement resource is not given or the statement
+         * resource is given but the last error could not be retrieved from it (fallback).
+         * Depending on the type of error, it is sometimes necessary to retrieve
+         * it from the connection resource even though it occurred during
+         * a prepared statement.
+         */
+        if ($conn && ! $code) {
+            $code    = sasql_errorcode($conn);
+            $message = sasql_error($conn);
+        }
+
+        /**
+         * Fallback mode if either no connection resource is given
+         * or the last error could not be retrieved from the given
+         * connection / statement resource.
+         */
+        if (! $conn || ! $code) {
+            $code    = sasql_errorcode();
+            $message = sasql_error();
+        }
+
+        if ($message) {
+            return new DriverException('SQLSTATE [' . $state . '] [' . $code . '] ' . $message, $state, $code);
+        }
+
+        return new DriverException('SQL Anywhere error occurred but no error message was retrieved from driver.', $state, $code);
     }
 }

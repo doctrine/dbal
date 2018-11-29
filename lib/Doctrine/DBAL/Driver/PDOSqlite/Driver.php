@@ -4,9 +4,9 @@ namespace Doctrine\DBAL\Driver\PDOSqlite;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\AbstractSQLiteDriver;
+use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
-use PDOException;
 use function array_merge;
 
 /**
@@ -41,7 +41,7 @@ class Driver extends AbstractSQLiteDriver
                 $password,
                 $driverOptions
             );
-        } catch (PDOException $ex) {
+        } catch (DriverException $ex) {
             throw DBALException::driverException($this, $ex);
         }
 

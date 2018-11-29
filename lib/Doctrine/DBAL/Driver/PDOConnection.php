@@ -4,6 +4,7 @@ namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\ParameterType;
 use PDO;
+use PDOException;
 
 /**
  * PDO implementation of the Connection interface.
@@ -21,15 +22,15 @@ class PDOConnection implements Connection, ServerInfoAwareConnection
      * @param string|null  $password
      * @param mixed[]|null $options
      *
-     * @throws PDOException In case of an error.
+     * @throws DriverException In case of an error.
      */
     public function __construct($dsn, $user = null, $password = null, ?array $options = null)
     {
         try {
             $this->connection = new PDO($dsn, $user, $password, $options);
             $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+        } catch (PDOException $exception) {
+            throw self::exceptionFromPDOException($exception);
         }
     }
 
@@ -40,8 +41,8 @@ class PDOConnection implements Connection, ServerInfoAwareConnection
     {
         try {
             return $this->connection->exec($statement);
-        } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+        } catch (PDOException $exception) {
+            throw self::exceptionFromPDOException($exception);
         }
     }
 
@@ -62,8 +63,8 @@ class PDOConnection implements Connection, ServerInfoAwareConnection
             return $this->createStatement(
                 $this->connection->prepare($sql)
             );
-        } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+        } catch (PDOException $exception) {
+            throw self::exceptionFromPDOException($exception);
         }
     }
 
@@ -76,8 +77,8 @@ class PDOConnection implements Connection, ServerInfoAwareConnection
             return $this->createStatement(
                 $this->connection->query($sql)
             );
-        } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+        } catch (PDOException $exception) {
+            throw self::exceptionFromPDOException($exception);
         }
     }
 
@@ -156,5 +157,18 @@ class PDOConnection implements Connection, ServerInfoAwareConnection
     public function getWrappedConnection() : PDO
     {
         return $this->connection;
+    }
+
+    /**
+     * Creates a DriverException from a PDOException.
+     */
+    public static function exceptionFromPDOException(PDOException $exception) : DriverException
+    {
+        return new DriverException(
+            $exception->getMessage(),
+            $exception->errorInfo[0] ?? $exception->getCode(),
+            $exception->errorInfo[1] ?? $exception->getCode(),
+            $exception
+        );
     }
 }

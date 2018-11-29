@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Driver\SQLSrv;
 
 use Doctrine\DBAL\Driver\AbstractSQLServerDriver;
+use Doctrine\DBAL\Driver\DriverException;
 
 /**
  * Driver for ext/sqlsrv.
@@ -15,7 +16,7 @@ class Driver extends AbstractSQLServerDriver
     public function connect(array $params, $username = null, $password = null, array $driverOptions = [])
     {
         if (! isset($params['host'])) {
-            throw new SQLSrvException("Missing 'host' in configuration for sqlsrv driver.");
+            throw new DriverException("Missing 'host' in configuration for sqlsrv driver.");
         }
 
         $serverName = $params['host'];

@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Driver\OCI8;
 
 use Doctrine\DBAL\Driver\Connection;
+use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
@@ -47,7 +48,7 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
      * @param int         $sessionMode
      * @param bool        $persistent
      *
-     * @throws OCI8Exception
+     * @throws DriverException
      */
     public function __construct($username, $password, $db, $charset = null, $sessionMode = OCI_DEFAULT, $persistent = false)
     {
@@ -60,7 +61,7 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
             : @oci_connect($username, $password, $db, $charset, $sessionMode);
 
         if (! $this->dbh) {
-            throw OCI8Exception::fromErrorInfo(oci_error());
+            throw self::exceptionFromErrorInfo(oci_error());
         }
     }
 
@@ -142,7 +143,7 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
     public function lastInsertId($name = null)
     {
         if ($name === null) {
-            return false;
+            throw new DriverException('A sequence name must be provided.');
         }
 
         $sql    = 'SELECT ' . $name . '.CURRVAL FROM DUAL';
@@ -150,7 +151,7 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
         $result = $stmt->fetchColumn();
 
         if ($result === false) {
-            throw new OCI8Exception('lastInsertId failed: Query was executed but no result was returned.');
+            throw new DriverException('lastInsertId failed: Query was executed but no result was returned.');
         }
 
         return (int) $result;
@@ -182,7 +183,7 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
     public function commit()
     {
         if (! oci_commit($this->dbh)) {
-            throw OCI8Exception::fromErrorInfo($this->errorInfo());
+            throw self::exceptionFromErrorInfo($this->errorInfo());
         }
         $this->executeMode = OCI_COMMIT_ON_SUCCESS;
 
@@ -195,7 +196,7 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
     public function rollBack()
     {
         if (! oci_rollback($this->dbh)) {
-            throw OCI8Exception::fromErrorInfo($this->errorInfo());
+            throw self::exceptionFromErrorInfo($this->errorInfo());
         }
         $this->executeMode = OCI_COMMIT_ON_SUCCESS;
 
@@ -221,5 +222,13 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
     public function errorInfo()
     {
         return oci_error($this->dbh);
+    }
+
+    /**
+     * @param mixed[] $error The return value of an oci_error() call.
+     */
+    public static function exceptionFromErrorInfo(array $error) : DriverException
+    {
+        return new DriverException($error['message'], null, $error['code']);
     }
 }

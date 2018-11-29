@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Driver\SQLAnywhere;
 
+use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\FetchMode;
@@ -64,26 +65,26 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
      * @param resource $conn The connection resource to use.
      * @param string   $sql  The SQL statement to prepare.
      *
-     * @throws SQLAnywhereException
+     * @throws DriverException
      */
     public function __construct($conn, $sql)
     {
         if (! is_resource($conn)) {
-            throw new SQLAnywhereException('Invalid SQL Anywhere connection resource: ' . $conn);
+            throw new DriverException('Invalid SQL Anywhere connection resource: ' . $conn);
         }
 
         $this->conn = $conn;
         $this->stmt = sasql_prepare($conn, $sql);
 
         if (! is_resource($this->stmt)) {
-            throw SQLAnywhereException::fromSQLAnywhereError($conn);
+            throw SQLAnywhereConnection::exceptionFromSQLAnywhereError($conn);
         }
     }
 
     /**
      * {@inheritdoc}
      *
-     * @throws SQLAnywhereException
+     * @throws DriverException
      */
     public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null)
     {
@@ -104,11 +105,11 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
                 break;
 
             default:
-                throw new SQLAnywhereException('Unknown type: ' . $type);
+                throw new DriverException('Unknown type: ' . $type);
         }
 
         if (! sasql_stmt_bind_param_ex($this->stmt, $column - 1, $variable, $type, $variable === null)) {
-            throw SQLAnywhereException::fromSQLAnywhereError($this->conn, $this->stmt);
+            throw SQLAnywhereConnection::exceptionFromSQLAnywhereError($this->conn, $this->stmt);
         }
 
         return true;
@@ -125,12 +126,12 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      *
-     * @throws SQLAnywhereException
+     * @throws DriverException
      */
     public function closeCursor()
     {
         if (! sasql_stmt_reset($this->stmt)) {
-            throw SQLAnywhereException::fromSQLAnywhereError($this->conn, $this->stmt);
+            throw SQLAnywhereConnection::exceptionFromSQLAnywhereError($this->conn, $this->stmt);
         }
 
         return true;
@@ -163,7 +164,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      *
-     * @throws SQLAnywhereException
+     * @throws DriverException
      */
     public function execute($params = null)
     {
@@ -178,7 +179,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
         }
 
         if (! sasql_stmt_execute($this->stmt)) {
-            throw SQLAnywhereException::fromSQLAnywhereError($this->conn, $this->stmt);
+            throw SQLAnywhereConnection::exceptionFromSQLAnywhereError($this->conn, $this->stmt);
         }
 
         $this->result = sasql_stmt_result_metadata($this->stmt);
@@ -189,7 +190,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      *
-     * @throws SQLAnywhereException
+     * @throws DriverException
      */
     public function fetch($fetchMode = null, ...$args)
     {
@@ -233,7 +234,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
                 return sasql_fetch_object($this->result);
 
             default:
-                throw new SQLAnywhereException('Fetch mode is not supported: ' . $fetchMode);
+                throw new DriverException('Fetch mode is not supported: ' . $fetchMode);
         }
     }
 
@@ -323,13 +324,13 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
      *
      * @return object
      *
-     * @throws SQLAnywhereException
+     * @throws DriverException
      */
     private function castObject(stdClass $sourceObject, $destinationClass, array $ctorArgs = [])
     {
         if (! is_string($destinationClass)) {
             if (! is_object($destinationClass)) {
-                throw new SQLAnywhereException(sprintf(
+                throw new DriverException(sprintf(
                     'Destination class has to be of type string or object, %s given.',
                     gettype($destinationClass)
                 ));

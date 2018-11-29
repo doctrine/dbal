@@ -46,6 +46,8 @@ interface ResultStatement extends Traversable
      *
      * @return mixed The return value of this method on success depends on the fetch mode. In all cases, FALSE is
      *               returned on failure.
+     *
+     * @throws DriverException If an error occurs.
      */
     public function fetch($fetchMode = null, ...$args);
 
@@ -63,6 +65,8 @@ interface ResultStatement extends Traversable
      *                              2. Array of constructor arguments
      *
      * @return mixed[]
+     *
+     * @throws DriverException If an error occurs.
      */
     public function fetchAll($fetchMode = null, ...$args);
 
@@ -73,6 +77,8 @@ interface ResultStatement extends Traversable
      *                         If no value is supplied, fetches the first column.
      *
      * @return mixed|false A single column in the next row of a result set, or FALSE if there are no more rows.
+     *
+     * @throws DriverException If an error occurs.
      */
     public function fetchColumn($columnIndex = 0);
 }

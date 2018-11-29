@@ -4,8 +4,8 @@ namespace Doctrine\DBAL\Driver\PDOMySql;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\AbstractMySQLDriver;
+use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Driver\PDOConnection;
-use PDOException;
 
 /**
  * PDO MySql driver.
@@ -24,7 +24,7 @@ class Driver extends AbstractMySQLDriver
                 $password,
                 $driverOptions
             );
-        } catch (PDOException $e) {
+        } catch (DriverException $e) {
             throw DBALException::driverException($this, $e);
         }
 

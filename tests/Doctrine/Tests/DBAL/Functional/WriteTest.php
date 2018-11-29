@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\DBAL\Functional;
 
 use DateTime;
+use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Sequence;
@@ -189,7 +190,8 @@ class WriteTest extends DbalFunctionalTestCase
             $this->markTestSkipped("Test only works consistently on platforms that support sequences and don't support identity columns.");
         }
 
-        self::assertFalse($this->connection->lastInsertId(null));
+        $this->expectException(DriverException::class);
+        $this->connection->lastInsertId();
     }
 
     /**
