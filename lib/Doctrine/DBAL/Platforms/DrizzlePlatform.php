@@ -508,7 +508,6 @@ class DrizzlePlatform extends AbstractPlatform
                 continue;
             }
 
-            /** @var ColumnDiff $columnDiff */
             $column      = $columnDiff->column;
             $columnArray = $column->toArray();
 

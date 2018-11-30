@@ -161,7 +161,6 @@ EOT
 
         $output->write('Checking keyword violations for <comment>' . implode(', ', $keywordLists) . '</comment>...', true);
 
-        /** @var Schema $schema */
         $schema  = $conn->getSchemaManager()->createSchema();
         $visitor = new ReservedKeywordsValidator($keywords);
         $schema->visit($visitor);

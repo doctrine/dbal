@@ -580,7 +580,6 @@ SQL
                 continue;
             }
 
-            /** @var ColumnDiff $columnDiff */
             $column      = $columnDiff->column;
             $columnArray = $column->toArray();
 

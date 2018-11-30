@@ -460,7 +460,6 @@ SQL
         $columnSql   = [];
         $commentsSql = [];
 
-        /** @var Column $column */
         foreach ($diff->addedColumns as $column) {
             if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
                 continue;
@@ -494,7 +493,6 @@ SQL
             $queryParts[] = 'DROP COLUMN ' . $column->getQuotedName($this);
         }
 
-        /** @var ColumnDiff $columnDiff */
         foreach ($diff->changedColumns as $columnDiff) {
             if ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
                 continue;

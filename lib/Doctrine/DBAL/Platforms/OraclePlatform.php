@@ -799,7 +799,6 @@ SQL
                 continue;
             }
 
-            /** @var ColumnDiff $columnDiff */
             $column = $columnDiff->column;
 
             // Do not generate column alteration clause if type is binary and only fixed property has changed.

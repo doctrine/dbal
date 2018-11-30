@@ -116,7 +116,6 @@ class SQLAnywherePlatform extends AbstractPlatform
         $tableSql     = [];
         $alterClauses = [];
 
-        /** @var Column $column */
         foreach ($diff->addedColumns as $column) {
             if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
                 continue;
@@ -137,7 +136,6 @@ class SQLAnywherePlatform extends AbstractPlatform
             );
         }
 
-        /** @var Column $column */
         foreach ($diff->removedColumns as $column) {
             if ($this->onSchemaAlterTableRemoveColumn($column, $diff, $columnSql)) {
                 continue;
@@ -146,7 +144,6 @@ class SQLAnywherePlatform extends AbstractPlatform
             $alterClauses[] = $this->getAlterTableRemoveColumnClause($column);
         }
 
-        /** @var ColumnDiff $columnDiff */
         foreach ($diff->changedColumns as $columnDiff) {
             if ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
                 continue;

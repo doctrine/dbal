@@ -56,7 +56,6 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
      */
     public function getServerVersion()
     {
-        /** @var stdClass $serverInfo */
         $serverInfo = db2_server_info($this->conn);
 
         return $serverInfo->DBMS_VER;
