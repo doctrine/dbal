@@ -1118,7 +1118,7 @@ class Connection implements DriverConnection
      *
      * @throws Driver\DriverException
      */
-    public function getSequenceNumber(string $name): string
+    public function getSequenceNumber(string $name) : string
     {
         $this->connect();
 

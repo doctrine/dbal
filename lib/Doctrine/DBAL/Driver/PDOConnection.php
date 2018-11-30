@@ -115,7 +115,7 @@ class PDOConnection implements Connection, ServerInfoAwareConnection
     {
         try {
             $lastInsertId = $this->connection->lastInsertId($name);
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             throw self::exceptionFromPDOException($e);
         }
 
