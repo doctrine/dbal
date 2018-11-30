@@ -305,11 +305,15 @@ class WriteTest extends DbalFunctionalTestCase
 
         $this->connection->exec($sql);
 
-        $firstId = $this->connection->lastInsertId($seqName);
+        $firstId = ($seqName !== null)
+            ? $this->connection->getSequenceNumber($seqName)
+            : $this->connection->lastInsertId();
 
         $this->connection->exec($sql);
 
-        $secondId = $this->connection->lastInsertId($seqName);
+        $secondId = ($seqName !== null)
+            ? $this->connection->getSequenceNumber($seqName)
+            : $this->connection->lastInsertId();
 
         self::assertGreaterThan($firstId, $secondId);
     }
