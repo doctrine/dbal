@@ -3,7 +3,6 @@
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
@@ -799,7 +798,6 @@ SQL
                 continue;
             }
 
-            /** @var ColumnDiff $columnDiff */
             $column = $columnDiff->column;
 
             // Do not generate column alteration clause if type is binary and only fixed property has changed.

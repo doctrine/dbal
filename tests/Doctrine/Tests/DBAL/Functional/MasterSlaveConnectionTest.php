@@ -4,7 +4,6 @@ namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\Connections\MasterSlaveConnection;
 use Doctrine\DBAL\DriverManager;
-use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use Throwable;
@@ -32,7 +31,6 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
         }
 
         try {
-            /** @var AbstractSchemaManager $sm */
             $table = new Table('master_slave_table');
             $table->addColumn('test_int', 'integer');
             $table->setPrimaryKey(['test_int']);

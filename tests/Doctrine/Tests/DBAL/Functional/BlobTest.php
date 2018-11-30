@@ -5,7 +5,6 @@ namespace Doctrine\Tests\DBAL\Functional;
 use Doctrine\DBAL\Driver\OCI8\Driver as OCI8Driver;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
-use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DbalFunctionalTestCase;
@@ -22,7 +21,6 @@ class BlobTest extends DbalFunctionalTestCase
     {
         parent::setUp();
 
-        /** @var AbstractSchemaManager $sm */
         $table = new Table('blob_table');
         $table->addColumn('id', 'integer');
         $table->addColumn('clobfield', 'text');

@@ -10,7 +10,6 @@ use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Platforms\TrimMode;
-use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Statement;
 use Doctrine\DBAL\Types\Type;
@@ -42,7 +41,6 @@ class DataAccessTest extends DbalFunctionalTestCase
             return;
         }
 
-        /** @var AbstractSchemaManager $sm */
         $table = new Table('fetch_table');
         $table->addColumn('test_int', 'integer');
         $table->addColumn('test_string', 'string');
@@ -601,7 +599,6 @@ class DataAccessTest extends DbalFunctionalTestCase
         $table->addColumn('test_days', 'integer');
         $table->setPrimaryKey(['test_date']);
 
-        /** @var AbstractSchemaManager $sm */
         $sm = $this->connection->getSchemaManager();
         $sm->createTable($table);
 

@@ -8,7 +8,6 @@ use Doctrine\DBAL\Driver\PDOSqlsrv\Driver;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Portability\Connection as ConnectionPortability;
-use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use Throwable;
@@ -51,7 +50,6 @@ class PortabilityTest extends DbalFunctionalTestCase
             $this->portableConnection = DriverManager::getConnection($params, $this->connection->getConfiguration(), $this->connection->getEventManager());
 
             try {
-                /** @var AbstractSchemaManager $sm */
                 $table = new Table('portability_table');
                 $table->addColumn('Test_Int', 'integer');
                 $table->addColumn('Test_String', 'string', ['fixed' => true, 'length' => 32]);

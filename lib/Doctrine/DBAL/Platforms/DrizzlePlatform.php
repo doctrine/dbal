@@ -2,7 +2,6 @@
 
 namespace Doctrine\DBAL\Platforms;
 
-use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
@@ -508,7 +507,6 @@ class DrizzlePlatform extends AbstractPlatform
                 continue;
             }
 
-            /** @var ColumnDiff $columnDiff */
             $column      = $columnDiff->column;
             $columnArray = $column->toArray();
 

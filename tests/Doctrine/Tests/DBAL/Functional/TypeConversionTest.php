@@ -3,7 +3,6 @@
 namespace Doctrine\Tests\DBAL\Functional;
 
 use DateTime;
-use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DbalFunctionalTestCase;
@@ -19,9 +18,6 @@ class TypeConversionTest extends DbalFunctionalTestCase
     protected function setUp()
     {
         parent::setUp();
-
-        /** @var AbstractSchemaManager $sm */
-        $sm = $this->connection->getSchemaManager();
 
         $table = new Table('type_conversion');
         $table->addColumn('id', 'integer', ['notnull' => false]);

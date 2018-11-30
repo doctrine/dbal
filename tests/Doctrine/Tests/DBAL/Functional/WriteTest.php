@@ -4,7 +4,6 @@ namespace Doctrine\Tests\DBAL\Functional;
 
 use DateTime;
 use Doctrine\DBAL\ParameterType;
-use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
@@ -20,7 +19,6 @@ class WriteTest extends DbalFunctionalTestCase
         parent::setUp();
 
         try {
-            /** @var AbstractSchemaManager $sm */
             $table = new Table('write_table');
             $table->addColumn('id', 'integer', ['autoincrement' => true]);
             $table->addColumn('test_int', 'integer');

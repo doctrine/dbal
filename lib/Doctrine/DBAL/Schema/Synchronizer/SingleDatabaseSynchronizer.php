@@ -115,7 +115,6 @@ class SingleDatabaseSynchronizer extends AbstractSchemaSynchronizer
         $sm      = $this->conn->getSchemaManager();
         $visitor = new DropSchemaSqlCollector($this->platform);
 
-        /** @var Schema $schema */
         $schema = $sm->createSchema();
         $schema->visit($visitor);
 

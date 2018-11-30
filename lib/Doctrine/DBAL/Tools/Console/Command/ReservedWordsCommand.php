@@ -21,7 +21,6 @@ use Doctrine\DBAL\Platforms\Keywords\SQLServer2005Keywords;
 use Doctrine\DBAL\Platforms\Keywords\SQLServer2008Keywords;
 use Doctrine\DBAL\Platforms\Keywords\SQLServer2012Keywords;
 use Doctrine\DBAL\Platforms\Keywords\SQLServerKeywords;
-use Doctrine\DBAL\Schema\Schema;
 use InvalidArgumentException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -161,7 +160,6 @@ EOT
 
         $output->write('Checking keyword violations for <comment>' . implode(', ', $keywordLists) . '</comment>...', true);
 
-        /** @var Schema $schema */
         $schema  = $conn->getSchemaManager()->createSchema();
         $visitor = new ReservedKeywordsValidator($keywords);
         $schema->visit($visitor);

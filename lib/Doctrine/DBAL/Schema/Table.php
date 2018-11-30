@@ -615,7 +615,6 @@ class Table extends AbstractAsset
     {
         $foreignKeyColumns = [];
         foreach ($this->getForeignKeys() as $foreignKey) {
-            /** @var ForeignKeyConstraint $foreignKey */
             $foreignKeyColumns = array_merge($foreignKeyColumns, $foreignKey->getColumns());
         }
         return $this->filterColumns($foreignKeyColumns);

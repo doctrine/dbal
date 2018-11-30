@@ -833,7 +833,6 @@ class ComparatorTest extends TestCase
         $sequence = $schema->createSequence('baz');
 
         $schemaNew = clone $schema;
-        /** @var Schema $schemaNew */
         $schemaNew->getSequence('baz')->setAllocationSize(20);
 
         $c    = new Comparator();
