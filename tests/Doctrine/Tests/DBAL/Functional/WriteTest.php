@@ -305,13 +305,13 @@ class WriteTest extends DbalFunctionalTestCase
 
         $this->connection->exec($sql);
 
-        $firstId = ($seqName !== null)
+        $firstId = $seqName !== null
             ? $this->connection->getSequenceNumber($seqName)
             : $this->connection->lastInsertId();
 
         $this->connection->exec($sql);
 
-        $secondId = ($seqName !== null)
+        $secondId = $seqName !== null
             ? $this->connection->getSequenceNumber($seqName)
             : $this->connection->lastInsertId();
 
