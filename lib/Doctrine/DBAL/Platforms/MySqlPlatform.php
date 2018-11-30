@@ -2,7 +2,6 @@
 
 namespace Doctrine\DBAL\Platforms;
 
-use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
