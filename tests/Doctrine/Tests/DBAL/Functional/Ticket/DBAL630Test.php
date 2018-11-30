@@ -48,7 +48,7 @@ class DBAL630Test extends DbalFunctionalTestCase
     public function testBooleanConversionSqlLiteral()
     {
         $this->connection->executeUpdate('INSERT INTO dbal630 (bool_col) VALUES(false)');
-        $id = $this->connection->lastInsertId('dbal630_id_seq');
+        $id = $this->connection->getSequenceNumber('dbal630_id_seq');
         self::assertNotEmpty($id);
 
         $row = $this->connection->fetchAssoc('SELECT bool_col FROM dbal630 WHERE id = ?', [$id]);
@@ -63,7 +63,7 @@ class DBAL630Test extends DbalFunctionalTestCase
             ['false'],
             [ParameterType::BOOLEAN]
         );
-        $id = $this->connection->lastInsertId('dbal630_id_seq');
+        $id = $this->connection->getSequenceNumber('dbal630_id_seq');
         self::assertNotEmpty($id);
 
         $row = $this->connection->fetchAssoc('SELECT bool_col FROM dbal630 WHERE id = ?', [$id]);
@@ -83,7 +83,7 @@ class DBAL630Test extends DbalFunctionalTestCase
         $stmt->bindValue(1, $platform->convertBooleansToDatabaseValue('false'), ParameterType::BOOLEAN);
         $stmt->execute();
 
-        $id = $this->connection->lastInsertId('dbal630_id_seq');
+        $id = $this->connection->getSequenceNumber('dbal630_id_seq');
 
         self::assertNotEmpty($id);
 
@@ -109,7 +109,7 @@ class DBAL630Test extends DbalFunctionalTestCase
         $stmt->bindValue(1, $platform->convertBooleansToDatabaseValue($statementValue));
         $stmt->execute();
 
-        $id = $this->connection->lastInsertId('dbal630_allow_nulls_id_seq');
+        $id = $this->connection->getSequenceNumber('dbal630_allow_nulls_id_seq');
 
         self::assertNotEmpty($id);
 
@@ -139,7 +139,7 @@ class DBAL630Test extends DbalFunctionalTestCase
         );
         $stmt->execute();
 
-        $id = $this->connection->lastInsertId('dbal630_allow_nulls_id_seq');
+        $id = $this->connection->getSequenceNumber('dbal630_allow_nulls_id_seq');
 
         self::assertNotEmpty($id);
 
