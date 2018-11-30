@@ -41,6 +41,11 @@ class OCI8StatementTest extends DbalTestCase
             ->disableOriginalConstructor()
             ->getMock();
 
+        $statement->method('errorInfo')->willReturn([
+            'message' => '',
+            'code' => 0,
+        ]);
+
         $statement->expects($this->at(0))
             ->method('bindValue')
             ->with(
