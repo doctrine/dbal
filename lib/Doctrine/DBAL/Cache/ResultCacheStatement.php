@@ -4,14 +4,17 @@ namespace Doctrine\DBAL\Cache;
 
 use ArrayIterator;
 use Doctrine\Common\Cache\Cache;
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\FetchMode;
 use InvalidArgumentException;
 use IteratorAggregate;
+use function array_key_exists;
 use function array_merge;
 use function array_values;
 use function assert;
+use function count;
 use function reset;
 
 /**
@@ -179,8 +182,15 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
     {
         $row = $this->fetch(FetchMode::NUMERIC);
 
-        // TODO: verify that return false is the correct behavior
-        return $row[$columnIndex] ?? false;
+        if ($row === false) {
+            return false;
+        }
+
+        if (! array_key_exists($columnIndex, $row)) {
+            throw DBALException::invalidColumnIndex($columnIndex, count($row));
+        }
+
+        return $row[$columnIndex];
     }
 
     /**

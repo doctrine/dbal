@@ -65,3 +65,8 @@ parameters:
 
         # https://github.com/doctrine/dbal/issues/3237
         - '~^Call to an undefined method Doctrine\\DBAL\\Driver\\PDOStatement::nextRowset\(\)~'
+
+        # https://github.com/phpstan/phpstan/pull/1886
+        -
+            message: '~^Strict comparison using === between string|false and null will always evaluate to false\.~'
+            path: %currentWorkingDirectory%/lib/Doctrine/DBAL/Driver/PDOStatement.php
