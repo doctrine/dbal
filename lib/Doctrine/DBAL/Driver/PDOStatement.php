@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Driver;
 
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use IteratorAggregate;
@@ -193,7 +194,17 @@ class PDOStatement implements IteratorAggregate, Statement
     public function fetchColumn($columnIndex = 0)
     {
         try {
-            return $this->stmt->fetchColumn($columnIndex);
+            $value = $this->stmt->fetchColumn($columnIndex);
+
+            if ($value === null) {
+                $columnCount = $this->columnCount();
+
+                if ($columnIndex < 0 || $columnIndex >= $columnCount) {
+                    throw DBALException::invalidColumnIndex($columnIndex, $columnCount);
+                }
+            }
+
+            return $value;
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
         }
