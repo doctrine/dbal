@@ -375,9 +375,13 @@ class OCI8Statement implements IteratorAggregate, Statement
 
             foreach ($params as $key => $val) {
                 if ($hasZeroIndex && is_int($key)) {
-                    $this->bindValue($key + 1, $val);
+                    $param = $key + 1;
                 } else {
-                    $this->bindValue($key, $val);
+                    $param = $key;
+                }
+
+                if (! $this->bindValue($param, $val)) {
+                    throw OCI8Exception::fromErrorInfo($this->errorInfo());
                 }
             }
         }
