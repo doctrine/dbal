@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Functional;
 
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\PDOOracle\Driver as PDOOracleDriver;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\FetchMode;
@@ -10,6 +11,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use function base64_decode;
+use function sprintf;
 use function stream_get_contents;
 
 class StatementTest extends DbalFunctionalTestCase
@@ -310,5 +312,41 @@ EOF
         $result   = $this->connection->executeQuery($query)->fetch(FetchMode::COLUMN);
 
         self::assertEquals(1, $result);
+    }
+
+    public function testExecWithRedundantParameters() : void
+    {
+        $driver = $this->connection->getDriver()->getName();
+
+        switch ($driver) {
+            case 'pdo_mysql':
+            case 'pdo_oracle':
+            case 'pdo_sqlsrv':
+                self::markTestSkipped(sprintf(
+                    'PDOStatement::execute() implemented in the "%s" driver does not report redundant parameters',
+                    $driver
+                ));
+
+                return;
+            case 'ibm_db2':
+                self::markTestSkipped('db2_execute() does not report redundant parameters');
+
+                return;
+            case 'sqlsrv':
+                self::markTestSkipped('sqlsrv_prepare() does not report redundant parameters');
+
+                return;
+        }
+
+        $platform = $this->connection->getDatabasePlatform();
+        $query    = $platform->getDummySelectSQL();
+        $stmt     = $this->connection->prepare($query);
+
+        // we want to make sure the exception is thrown by the DBAL code, not by PHPUnit due to a PHP-level error,
+        // but the wrapper connection wraps everything in a DBAL exception
+        $this->iniSet('error_reporting', 0);
+
+        self::expectException(DBALException::class);
+        $stmt->execute([null]);
     }
 }
