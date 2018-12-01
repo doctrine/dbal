@@ -40,24 +40,15 @@ class OCI8StatementTest extends DbalTestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $statement->expects($this->at(0))
-            ->method('bindValue')
-            ->with(
-                $this->equalTo(1),
-                $this->equalTo($params[0])
-            );
-        $statement->expects($this->at(1))
-            ->method('bindValue')
-            ->with(
-                $this->equalTo(2),
-                $this->equalTo($params[1])
-            );
-        $statement->expects($this->at(2))
-            ->method('bindValue')
-            ->with(
-                $this->equalTo(3),
-                $this->equalTo($params[2])
-            );
+        foreach ($params as $index => $value) {
+            $statement->expects($this->at($index))
+                ->method('bindValue')
+                ->with(
+                    $this->equalTo($index + 1),
+                    $this->equalTo($value)
+                )
+                ->willReturn(true);
+        }
 
         // can't pass to constructor since we don't have a real database handle,
         // but execute must check the connection for the executeMode
