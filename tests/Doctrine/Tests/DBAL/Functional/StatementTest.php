@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\Driver\PDOOracle\Driver as PDOOracleDriver;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\FetchMode;
@@ -348,5 +349,35 @@ EOF
 
         self::expectException(DBALException::class);
         $stmt->execute([null]);
+    }
+
+    /**
+     * @throws DBALException
+     *
+     * @dataProvider nonExistingIndexProvider
+     */
+    public function testFetchColumnNonExistingIndex(int $index) : void
+    {
+        if ($this->connection->getWrappedConnection() instanceof PDOConnection) {
+            $this->markTestSkipped('PDO supports this behavior natively but throws a different exception');
+        }
+
+        $platform = $this->connection->getDatabasePlatform();
+        $query    = $platform->getDummySelectSQL();
+        $stmt     = $this->connection->query($query);
+
+        self::expectException(DBALException::class);
+        $stmt->fetchColumn($index);
+    }
+
+    /**
+     * @return mixed[][]
+     */
+    public static function nonExistingIndexProvider() : iterable
+    {
+        return [
+            [1],
+            [-1],
+        ];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Driver\SQLSrv;
 
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\FetchMode;
@@ -410,7 +411,11 @@ class SQLSrvStatement implements IteratorAggregate, Statement
             return false;
         }
 
-        return $row[$columnIndex] ?? null;
+        if (! array_key_exists($columnIndex, $row)) {
+            throw DBALException::invalidColumnIndex($columnIndex, count($row));
+        }
+
+        return $row[$columnIndex];
     }
 
     /**
