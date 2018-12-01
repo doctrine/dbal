@@ -158,7 +158,8 @@ class MySqlPlatform extends AbstractPlatform
                    'SEQ_IN_INDEX AS Seq_in_index, COLUMN_NAME AS Column_Name, COLLATION AS Collation, ' .
                    'CARDINALITY AS Cardinality, SUB_PART AS Sub_Part, PACKED AS Packed, ' .
                    'NULLABLE AS `Null`, INDEX_TYPE AS Index_Type, COMMENT AS Comment ' .
-                   'FROM information_schema.STATISTICS WHERE TABLE_NAME = ' . $table . ' AND TABLE_SCHEMA = ' . $currentDatabase;
+                   'FROM information_schema.STATISTICS WHERE TABLE_NAME = ' . $table . ' AND TABLE_SCHEMA = ' . $currentDatabase .
+                   ' ORDER BY SEQ_IN_INDEX ASC';
         }
 
         return 'SHOW INDEX FROM ' . $table;
@@ -376,7 +377,8 @@ class MySqlPlatform extends AbstractPlatform
         return 'SELECT COLUMN_NAME AS Field, COLUMN_TYPE AS Type, IS_NULLABLE AS `Null`, ' .
                'COLUMN_KEY AS `Key`, COLUMN_DEFAULT AS `Default`, EXTRA AS Extra, COLUMN_COMMENT AS Comment, ' .
                'CHARACTER_SET_NAME AS CharacterSet, COLLATION_NAME AS Collation ' .
-               'FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = ' . $database . ' AND TABLE_NAME = ' . $table;
+               'FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = ' . $database . ' AND TABLE_NAME = ' . $table .
+               ' ORDER BY ORDINAL_POSITION ASC';
     }
 
     public function getListTableMetadataSQL(string $table, ?string $database = null) : string
