@@ -46,7 +46,7 @@ class MysqliStatement implements IteratorAggregate, Statement
     protected $_rowBindedValues;
 
     /** @var mixed[] */
-    protected $_bindedValues;
+    protected $_bindedValues = [];
 
     /** @var string */
     protected $types;
@@ -138,18 +138,18 @@ class MysqliStatement implements IteratorAggregate, Statement
      */
     public function execute($params = null)
     {
-        if ($this->_bindedValues !== null) {
-            if ($params !== null) {
-                if (! $this->_bindValues($params)) {
-                    throw new MysqliException($this->_stmt->error, $this->_stmt->errno);
-                }
-            } else {
-                [$types, $values, $streams] = $this->separateBoundValues();
-                if (! $this->_stmt->bind_param($types, ...$values)) {
-                    throw new MysqliException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
-                }
-                $this->sendLongData($streams);
+        if ($params !== null && count($params) > 0) {
+            if (! $this->_bindValues($params)) {
+                throw new MysqliException($this->_stmt->error, $this->_stmt->errno);
             }
+        } else {
+            [$types, $values, $streams] = $this->separateBoundValues();
+
+            if (count($values) > 0 && ! $this->_stmt->bind_param($types, ...$values)) {
+                throw new MysqliException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
+            }
+
+            $this->sendLongData($streams);
         }
 
         if (! $this->_stmt->execute()) {
