@@ -277,4 +277,14 @@ class DBALException extends Exception
     {
         return new self('Type to be overwritten ' . $name . ' does not exist.');
     }
+
+    public static function invalidColumnIndex(int $index, int $count) : self
+    {
+        return new self(sprintf(
+            'Invalid column index %d. The statement result contains %d column%s.',
+            $index,
+            $count,
+            $count === 1 ? '' : 's'
+        ));
+    }
 }

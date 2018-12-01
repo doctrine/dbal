@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Driver\OCI8;
 
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\FetchMode;
@@ -516,7 +517,11 @@ class OCI8Statement implements IteratorAggregate, Statement
             return false;
         }
 
-        return $row[$columnIndex] ?? null;
+        if (! array_key_exists($columnIndex, $row)) {
+            throw DBALException::invalidColumnIndex($columnIndex, count($row));
+        }
+
+        return $row[$columnIndex];
     }
 
     /**
