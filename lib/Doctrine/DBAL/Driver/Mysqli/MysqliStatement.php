@@ -48,7 +48,7 @@ class MysqliStatement implements IteratorAggregate, Statement
     protected $_rowBindedValues = [];
 
     /** @var mixed[] */
-    protected $_bindedValues;
+    protected $_bindedValues = [];
 
     /** @var string */
     protected $types;
@@ -136,14 +136,12 @@ class MysqliStatement implements IteratorAggregate, Statement
      */
     public function execute($params = null)
     {
-        if ($this->_bindedValues !== null) {
-            if ($params !== null) {
-                if (! $this->bindUntypedValues($params)) {
-                    throw new MysqliException($this->_stmt->error, $this->_stmt->errno);
-                }
-            } else {
-                $this->bindTypedParameters();
+        if ($params !== null && count($params) > 0) {
+            if (! $this->bindUntypedValues($params)) {
+                throw new MysqliException($this->_stmt->error, $this->_stmt->errno);
             }
+        } else {
+            $this->bindTypedParameters();
         }
 
         if (! $this->_stmt->execute()) {
@@ -232,7 +230,7 @@ class MysqliStatement implements IteratorAggregate, Statement
             $values[$parameter] = $value;
         }
 
-        if (! $this->_stmt->bind_param($types, ...$values)) {
+        if (count($values) > 0 && ! $this->_stmt->bind_param($types, ...$values)) {
             throw new MysqliException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
         }
 
