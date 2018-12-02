@@ -5,6 +5,9 @@ namespace Doctrine\Tests\DBAL\Functional;
 use DateTime;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\Mysqli\Driver as MySQLiDriver;
+use Doctrine\DBAL\Driver\OCI8\Driver as Oci8Driver;
+use Doctrine\DBAL\Driver\PDOConnection;
+use Doctrine\DBAL\Driver\PDOOracle\Driver as PDOOracleDriver;
 use Doctrine\DBAL\Driver\SQLSrv\Driver as SQLSrvDriver;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
@@ -14,6 +17,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Statement;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DbalFunctionalTestCase;
+use PDO;
 use const CASE_LOWER;
 use const PHP_EOL;
 use function array_change_key_case;
@@ -749,7 +753,7 @@ class DataAccessTest extends DbalFunctionalTestCase
      */
     public function testFetchAllSupportFetchClass()
     {
-        $this->skipOci8AndMysqli();
+        $this->beforeFetchClassTest();
         $this->setupFixture();
 
         $sql  = 'SELECT test_int, test_string, test_datetime FROM fetch_table';
@@ -791,7 +795,7 @@ class DataAccessTest extends DbalFunctionalTestCase
      */
     public function testSetFetchModeClassFetchAll()
     {
-        $this->skipOci8AndMysqli();
+        $this->beforeFetchClassTest();
         $this->setupFixture();
 
         $sql  = 'SELECT * FROM fetch_table';
@@ -813,7 +817,7 @@ class DataAccessTest extends DbalFunctionalTestCase
      */
     public function testSetFetchModeClassFetch()
     {
-        $this->skipOci8AndMysqli();
+        $this->beforeFetchClassTest();
         $this->setupFixture();
 
         $sql  = 'SELECT * FROM fetch_table';
@@ -908,16 +912,25 @@ class DataAccessTest extends DbalFunctionalTestCase
         ]);
     }
 
-    private function skipOci8AndMysqli()
+    private function beforeFetchClassTest()
     {
-        if (isset($GLOBALS['db_type']) && $GLOBALS['db_type'] === 'oci8') {
+        $driver = $this->connection->getDriver();
+
+        if ($driver instanceof Oci8Driver) {
             $this->markTestSkipped('Not supported by OCI8');
         }
-        if ($this->connection->getDriver()->getName() !== 'mysqli') {
+
+        if ($driver instanceof MySQLiDriver) {
+            $this->markTestSkipped('Mysqli driver dont support this feature.');
+        }
+
+        if (! $driver instanceof PDOOracleDriver) {
             return;
         }
 
-        $this->markTestSkipped('Mysqli driver dont support this feature.');
+        /** @var PDOConnection $connection */
+        $connection = $this->connection->getWrappedConnection();
+        $connection->setAttribute(PDO::ATTR_CASE, PDO::CASE_LOWER);
     }
 }
 
