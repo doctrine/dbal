@@ -891,22 +891,6 @@ class DataAccessTest extends DbalFunctionalTestCase
     /**
      * @group DBAL-1028
      */
-    public function testFetchColumnNonExistingIndex()
-    {
-        if ($this->connection->getDriver()->getName() === 'pdo_sqlsrv') {
-            $this->markTestSkipped(
-                'Test does not work for pdo_sqlsrv driver as it throws a fatal error for a non-existing column index.'
-            );
-        }
-
-        self::assertNull(
-            $this->connection->fetchColumn('SELECT test_int FROM fetch_table WHERE test_int = ?', [1], 1)
-        );
-    }
-
-    /**
-     * @group DBAL-1028
-     */
     public function testFetchColumnNoResult()
     {
         self::assertFalse(
