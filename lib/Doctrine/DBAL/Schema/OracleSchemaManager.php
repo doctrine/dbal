@@ -128,7 +128,7 @@ class OracleSchemaManager extends AbstractSchemaManager
             }
         }
 
-        $unsigned = $fixed = null;
+        $unsigned = $fixed = $precision = $scale = $length = null;
 
         if (! isset($tableColumn['column_name'])) {
             $tableColumn['column_name'] = '';
@@ -146,8 +146,13 @@ class OracleSchemaManager extends AbstractSchemaManager
             $tableColumn['data_default'] = trim($tableColumn['data_default'], "'");
         }
 
-        $precision = null;
-        $scale     = null;
+        if ($tableColumn['data_precision'] !== null) {
+            $precision = (int) $tableColumn['data_precision'];
+        }
+
+        if ($tableColumn['data_scale'] !== null) {
+            $scale = (int) $tableColumn['data_scale'];
+        }
 
         $type                    = $this->_platform->getDoctrineTypeMapping($dbType);
         $type                    = $this->extractDoctrineTypeFromComment($tableColumn['comments'], $type);
@@ -155,28 +160,16 @@ class OracleSchemaManager extends AbstractSchemaManager
 
         switch ($dbType) {
             case 'number':
-                if ($tableColumn['data_precision'] === 20 && $tableColumn['data_scale'] === 0) {
-                    $precision = 20;
-                    $scale     = 0;
-                    $type      = 'bigint';
-                } elseif ($tableColumn['data_precision'] === 5 && $tableColumn['data_scale'] === 0) {
-                    $type      = 'smallint';
-                    $precision = 5;
-                    $scale     = 0;
-                } elseif ($tableColumn['data_precision'] === 1 && $tableColumn['data_scale'] === 0) {
-                    $precision = 1;
-                    $scale     = 0;
-                    $type      = 'boolean';
-                } elseif ($tableColumn['data_scale'] > 0) {
-                    $precision = $tableColumn['data_precision'];
-                    $scale     = $tableColumn['data_scale'];
-                    $type      = 'decimal';
+                if ($precision === 20 && $scale === 0) {
+                    $type = 'bigint';
+                } elseif ($precision === 5 && $scale === 0) {
+                    $type = 'smallint';
+                } elseif ($precision === 1 && $scale === 0) {
+                    $type = 'boolean';
+                } elseif ($scale > 0) {
+                    $type = 'decimal';
                 }
-                $length = null;
-                break;
-            case 'pls_integer':
-            case 'binary_integer':
-                $length = null;
+
                 break;
             case 'varchar':
             case 'varchar2':
@@ -189,31 +182,6 @@ class OracleSchemaManager extends AbstractSchemaManager
                 $length = $tableColumn['char_length'];
                 $fixed  = true;
                 break;
-            case 'date':
-            case 'timestamp':
-                $length = null;
-                break;
-            case 'float':
-            case 'binary_float':
-            case 'binary_double':
-                $precision = $tableColumn['data_precision'];
-                $scale     = $tableColumn['data_scale'];
-                $length    = null;
-                break;
-            case 'clob':
-            case 'nclob':
-                $length = null;
-                break;
-            case 'blob':
-            case 'raw':
-            case 'long raw':
-            case 'bfile':
-                $length = null;
-                break;
-            case 'rowid':
-            case 'urowid':
-            default:
-                $length = null;
         }
 
         $options = [
