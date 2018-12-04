@@ -646,7 +646,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
             $this->platform->modifyLimitQuery('SELECT * FROM user', 10, 5)
         );
         self::assertEquals(
-            'SELECT TOP ALL START AT 6 * FROM user',
+            'SELECT TOP 0 START AT 6 * FROM user',
             $this->platform->modifyLimitQuery('SELECT * FROM user', 0, 5)
         );
     }
@@ -656,6 +656,14 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         self::assertEquals(
             'SELECT TOP 10 * FROM (SELECT u.id as uid, u.name as uname FROM user) AS doctrine_tbl',
             $this->platform->modifyLimitQuery('SELECT * FROM (SELECT u.id as uid, u.name as uname FROM user) AS doctrine_tbl', 10)
+        );
+    }
+
+    public function testModifiesLimitQueryWithoutLimit()
+    {
+        self::assertEquals(
+            'SELECT TOP ALL START AT 11 n FROM Foo',
+            $this->platform->modifyLimitQuery('SELECT n FROM Foo', null, 10)
         );
     }
 
