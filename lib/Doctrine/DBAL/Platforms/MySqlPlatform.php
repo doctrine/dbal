@@ -154,11 +154,10 @@ class MySqlPlatform extends AbstractPlatform
             $currentDatabase = $this->quoteStringLiteral($currentDatabase);
             $table           = $this->quoteStringLiteral($table);
 
-            return 'SELECT TABLE_NAME AS `Table`, NON_UNIQUE AS Non_Unique, INDEX_NAME AS Key_name, ' .
-                   'SEQ_IN_INDEX AS Seq_in_index, COLUMN_NAME AS Column_Name, COLLATION AS Collation, ' .
-                   'CARDINALITY AS Cardinality, SUB_PART AS Sub_Part, PACKED AS Packed, ' .
-                   'NULLABLE AS `Null`, INDEX_TYPE AS Index_Type, COMMENT AS Comment ' .
-                   'FROM information_schema.STATISTICS WHERE TABLE_NAME = ' . $table . ' AND TABLE_SCHEMA = ' . $currentDatabase .
+            return 'SELECT NON_UNIQUE AS Non_Unique, INDEX_NAME AS Key_name, COLUMN_NAME AS Column_Name,' .
+                   ' SUB_PART AS Sub_Part, INDEX_TYPE AS Index_Type' .
+                   ' FROM information_schema.STATISTICS WHERE TABLE_NAME = ' . $table .
+                   ' AND TABLE_SCHEMA = ' . $currentDatabase .
                    ' ORDER BY SEQ_IN_INDEX ASC';
         }
 
