@@ -435,7 +435,7 @@ class Comparator
         // Null values need to be checked additionally as they tell whether to create or drop a default value.
         // null != 0, null != false, null != '' etc. This affects platform's table alteration SQL generation.
         if (($properties1['default'] === null) !== ($properties2['default'] === null)
-            || (string) $properties1['default'] !== (string) $properties2['default']) {
+            || $properties1['default'] != $properties2['default']) {
             $changedProperties[] = 'default';
         }
 
