@@ -1308,25 +1308,20 @@ SQL
      */
     protected function doModifyLimitQuery($query, $limit, $offset)
     {
-        $limitOffsetClause = '';
+        $limitOffsetClause = $this->getTopClauseSQL($limit, $offset);
 
-        if ($limit > 0) {
-            $limitOffsetClause = 'TOP ' . $limit . ' ';
-        }
+        return $limitOffsetClause === ''
+            ? $query
+            : preg_replace('/^\s*(SELECT\s+(DISTINCT\s+)?)/i', '\1' . $limitOffsetClause . ' ', $query);
+    }
 
+    private function getTopClauseSQL(?int $limit, ?int $offset) : string
+    {
         if ($offset > 0) {
-            if ($limit === 0) {
-                $limitOffsetClause = 'TOP ALL ';
-            }
-
-            $limitOffsetClause .= 'START AT ' . ($offset + 1) . ' ';
+            return sprintf('TOP %s START AT %d', $limit ?? 'ALL', $offset + 1);
         }
 
-        if ($limitOffsetClause) {
-            return preg_replace('/^\s*(SELECT\s+(DISTINCT\s+)?)/i', '\1' . $limitOffsetClause, $query);
-        }
-
-        return $query;
+        return $limit === null ? '' : 'TOP ' . $limit;
     }
 
     /**
