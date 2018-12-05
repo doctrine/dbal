@@ -253,19 +253,19 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
 
         switch ($fetchMode) {
             case FetchMode::CUSTOM_OBJECT:
-                while ($row = $this->fetch(...func_get_args())) {
+                while (($row = $this->fetch(...func_get_args())) !== false) {
                     $rows[] = $row;
                 }
                 break;
 
             case FetchMode::COLUMN:
-                while ($row = $this->fetchColumn()) {
+                while (($row = $this->fetchColumn()) !== false) {
                     $rows[] = $row;
                 }
                 break;
 
             default:
-                while ($row = $this->fetch($fetchMode)) {
+                while (($row = $this->fetch($fetchMode)) !== false) {
                     $rows[] = $row;
                 }
         }
