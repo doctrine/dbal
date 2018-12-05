@@ -58,4 +58,9 @@
         <exclude-pattern>tests/Doctrine/Tests/DBAL/Platforms/OraclePlatformTest.php</exclude-pattern>
         <exclude-pattern>tests/Doctrine/Tests/DBAL/SQLParserUtilsTest.php</exclude-pattern>
     </rule>
+
+    <!-- see https://github.com/doctrine/dbal/issues/3377 -->
+    <rule ref="SlevomatCodingStandard.ControlStructures.DisallowEqualOperators.DisallowedNotEqualOperator">
+        <exclude-pattern>lib/Doctrine/DBAL/Schema/Comparator.php</exclude-pattern>
+    </rule>
 </ruleset>
