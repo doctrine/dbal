@@ -9,8 +9,6 @@ use const ARRAY_FILTER_USE_KEY;
 use function array_filter;
 use function array_merge;
 use function in_array;
-use function is_numeric;
-use function is_string;
 use function preg_match;
 use function strlen;
 use function strtolower;
@@ -100,16 +98,16 @@ class Table extends AbstractAsset
     /**
      * Sets the Primary Key.
      *
-     * @param mixed[][]   $columns
+     * @param string[]    $columnNames
      * @param string|bool $indexName
      *
      * @return self
      */
-    public function setPrimaryKey(array $columns, $indexName = false)
+    public function setPrimaryKey(array $columnNames, $indexName = false)
     {
-        $this->_addIndex($this->_createIndex($columns, $indexName ?: 'primary', true, true));
+        $this->_addIndex($this->_createIndex($columnNames, $indexName ?: 'primary', true, true));
 
-        foreach ($columns as $columnName) {
+        foreach ($columnNames as $columnName) {
             $column = $this->getColumn($columnName);
             $column->setNotnull(true);
         }
@@ -118,7 +116,7 @@ class Table extends AbstractAsset
     }
 
     /**
-     * @param mixed[][]   $columnNames
+     * @param string[]    $columnNames
      * @param string|null $indexName
      * @param string[]    $flags
      * @param mixed[]     $options
@@ -168,7 +166,7 @@ class Table extends AbstractAsset
     }
 
     /**
-     * @param mixed[][]   $columnNames
+     * @param string[]    $columnNames
      * @param string|null $indexName
      * @param mixed[]     $options
      *
@@ -236,15 +234,15 @@ class Table extends AbstractAsset
     /**
      * Checks if an index begins in the order of the given columns.
      *
-     * @param mixed[][] $columnsNames
+     * @param string[] $columnNames
      *
      * @return bool
      */
-    public function columnsAreIndexed(array $columnsNames)
+    public function columnsAreIndexed(array $columnNames)
     {
         foreach ($this->getIndexes() as $index) {
             /** @var $index Index */
-            if ($index->spansColumns($columnsNames)) {
+            if ($index->spansColumns($columnNames)) {
                 return true;
             }
         }
@@ -253,12 +251,12 @@ class Table extends AbstractAsset
     }
 
     /**
-     * @param mixed[][] $columnNames
-     * @param string    $indexName
-     * @param bool      $isUnique
-     * @param bool      $isPrimary
-     * @param string[]  $flags
-     * @param mixed[]   $options
+     * @param string[] $columnNames
+     * @param string   $indexName
+     * @param bool     $isUnique
+     * @param bool     $isPrimary
+     * @param string[] $flags
+     * @param mixed[]  $options
      *
      * @return Index
      *
@@ -270,11 +268,7 @@ class Table extends AbstractAsset
             throw SchemaException::indexNameInvalid($indexName);
         }
 
-        foreach ($columnNames as $columnName => $indexColOptions) {
-            if (is_numeric($columnName) && is_string($indexColOptions)) {
-                $columnName = $indexColOptions;
-            }
-
+        foreach ($columnNames as $columnName) {
             if (! $this->hasColumn($columnName)) {
                 throw SchemaException::columnDoesNotExist($columnName, $this->_name);
             }
