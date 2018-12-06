@@ -9,6 +9,9 @@ use function microtime;
  */
 class DebugStack implements SQLLogger
 {
+    const SOURCE_DISABLED = 0;
+    const SOURCE_ENABLED = 1;
+
     /**
      * Executed SQL queries.
      *
@@ -29,6 +32,13 @@ class DebugStack implements SQLLogger
     /** @var int */
     public $currentQuery = 0;
 
+    private $includeSource;
+
+    public function __construct($includeSource = self::SOURCE_DISABLED)
+    {
+        $this->includeSource = $includeSource;
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -37,9 +47,20 @@ class DebugStack implements SQLLogger
         if (! $this->enabled) {
             return;
         }
+        
+        $this->start = microtime(true);
+        $log = [
+            'sql' => $sql,
+            'params' => $params,
+            'types' => $types,
+            'executionMS' => 0,
+        ];
 
-        $this->start                          = microtime(true);
-        $this->queries[++$this->currentQuery] = ['sql' => $sql, 'params' => $params, 'types' => $types, 'executionMS' => 0];
+        if ($this->includeSource !== self::SOURCE_DISABLED) {
+            $log['querySource'] = $this->findQuerySource();
+        }
+
+        $this->queries[++$this->currentQuery] = $log;
     }
 
     /**
@@ -52,5 +73,15 @@ class DebugStack implements SQLLogger
         }
 
         $this->queries[$this->currentQuery]['executionMS'] = microtime(true) - $this->start;
+    }
+
+    private function findQuerySource()
+    {
+        foreach (debug_backtrace() as $row) {
+            if (stripos($row['file'], 'vendor') === false) {
+                return $row;
+            }
+        }
+        return ['file' => '*unknown*', 'line' => 0];
     }
 }
