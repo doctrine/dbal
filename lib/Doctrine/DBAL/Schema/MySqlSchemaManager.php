@@ -18,7 +18,6 @@ use function stripslashes;
 use function strpos;
 use function strtok;
 use function strtolower;
-use function trim;
 
 /**
  * Schema manager for the MySql RDBMS.
@@ -305,25 +304,28 @@ class MySqlSchemaManager extends AbstractSchemaManager
             $table->addOption('autoincrement', $tableOptions['AUTO_INCREMENT']);
         }
         $table->addOption('comment', $tableOptions['TABLE_COMMENT']);
-
-        if ($tableOptions['CREATE_OPTIONS'] === null) {
-            return $table;
-        }
-
-        $createOptionsString = trim($tableOptions['CREATE_OPTIONS']);
-
-        $createOptions = [];
-
-        if ($createOptionsString !== '') {
-            foreach (explode(' ', $createOptionsString) as $option) {
-                [$createOption, $value] = explode('=', $option);
-
-                $createOptions[$createOption] = $value;
-            }
-        }
-
-        $table->addOption('create_options', $createOptions);
+        $table->addOption('create_options', $this->parseCreateOptions($tableOptions['CREATE_OPTIONS']));
 
         return $table;
+    }
+
+    /**
+     * @return string[]|true[]
+     */
+    private function parseCreateOptions(string $string) : array
+    {
+        $options = [];
+
+        if ($string === '') {
+            return $options;
+        }
+
+        foreach (explode(' ', $string) as $pair) {
+            $parts = explode('=', $pair, 2);
+
+            $options[$parts[0]] = $parts[1] ?? true;
+        }
+
+        return $options;
     }
 }
