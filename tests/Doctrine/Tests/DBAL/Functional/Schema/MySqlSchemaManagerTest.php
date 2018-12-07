@@ -502,6 +502,7 @@ ENGINE InnoDB
 ROW_FORMAT COMPRESSED
 COMMENT 'This is a test'
 AUTO_INCREMENT=42
+PARTITION BY HASH (col1)
 SQL;
 
         $this->connection->query($sql);
@@ -511,7 +512,10 @@ SQL;
         self::assertEquals('utf8_general_ci', $onlineTable->getOption('collation'));
         self::assertEquals(42, $onlineTable->getOption('autoincrement'));
         self::assertEquals('This is a test', $onlineTable->getOption('comment'));
-        self::assertEquals(['row_format' => 'COMPRESSED'], $onlineTable->getOption('create_options'));
+        self::assertEquals([
+            'row_format' => 'COMPRESSED',
+            'partitioned' => true,
+        ], $onlineTable->getOption('create_options'));
     }
 
     public function testEnsureTableWithoutOptionsAreReflectedInMetadata() : void
