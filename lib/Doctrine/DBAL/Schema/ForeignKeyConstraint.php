@@ -364,9 +364,9 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
      */
     public function intersectsIndexColumns(Index $index)
     {
-        foreach ($index->getColumns() as $indexColumn) {
+        foreach ($index->getUnquotedColumns() as $indexColumn) {
             foreach ($this->_localColumnNames as $localColumn) {
-                if (strtolower($indexColumn) === strtolower($localColumn->getName())) {
+                if (strtolower($indexColumn) === strtolower($localColumn->trimQuotes($localColumn->getName()))) {
                     return true;
                 }
             }
