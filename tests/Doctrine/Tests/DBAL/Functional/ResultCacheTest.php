@@ -166,6 +166,16 @@ class ResultCacheTest extends DbalFunctionalTestCase
         self::assertCount(2, $this->sqlLogger->queries);
     }
 
+    public function testFetchAllAndFinishSavesCache()
+    {
+        $layerCache = new ArrayCache();
+        $stmt       = $this->connection->executeQuery('SELECT * FROM caching WHERE test_int > 500', [], [], new QueryCacheProfile(10, 'testcachekey', $layerCache));
+        $stmt->fetchAll();
+        $stmt->closeCursor();
+
+        self::assertCount(1, $layerCache->fetch('testcachekey'));
+    }
+
     public function assertCacheNonCacheSelectSameFetchModeAreEqual($expectedResult, $fetchMode)
     {
         $stmt = $this->connection->executeQuery('SELECT * FROM caching ORDER BY test_int ASC', [], [], new QueryCacheProfile(10, 'testcachekey'));

@@ -166,7 +166,10 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
      */
     public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
     {
-        return $this->statement->fetchAll($fetchMode, $fetchArgument, $ctorArgs);
+        $this->data    = $this->statement->fetchAll($fetchMode, $fetchArgument, $ctorArgs);
+        $this->emptied = true;
+
+        return $this->data;
     }
 
     /**
