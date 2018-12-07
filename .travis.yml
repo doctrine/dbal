@@ -320,12 +320,11 @@ jobs:
 
     - stage: Code Quality
       php: 7.2
-      env: DB=none STATIC_ANALYSIS
+      env: PHPStan
       install: travis_retry composer install --prefer-dist
       script: vendor/bin/phpstan analyse
-
-    - stage: Coding standard
+    - stage: Code Quality
       php: 7.2
+      env: PHP_CodeSniffer
       install: travis_retry composer install --prefer-dist
-      script:
-        - ./vendor/bin/phpcs
+      script: vendor/bin/phpcs
