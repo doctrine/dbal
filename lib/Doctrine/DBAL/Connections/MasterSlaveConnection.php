@@ -354,6 +354,8 @@ class MasterSlaveConnection extends Connection
 
         $statement = $this->_conn->query(...$args);
 
+        $statement->setFetchMode($this->defaultFetchMode);
+
         if ($logger) {
             $logger->stopQuery();
         }
