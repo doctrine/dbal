@@ -16,14 +16,9 @@ class ForeignKeyConstraintTest extends TestCase
      */
     public function testIntersectsIndexColumns(array $indexColumns, $expectedResult)
     {
-        $foreignKey = new ForeignKeyConstraint(['foo', 'bar'], 'foreign_table', ['fk_foo', 'fk_bar']);
+        $foreignKey = new ForeignKeyConstraint(['foo', '`bar`'], 'foreign_table', ['fk_foo', 'fk_bar']);
 
-        $index = $this->getMockBuilder(Index::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $index->expects($this->once())
-            ->method('getColumns')
-            ->will($this->returnValue($indexColumns));
+        $index = new Index('INDEX_NAME', $indexColumns);
 
         self::assertSame($expectedResult, $foreignKey->intersectsIndexColumns($index));
     }
@@ -37,6 +32,8 @@ class ForeignKeyConstraintTest extends TestCase
             [['baz'], false],
             [['baz', 'bloo'], false],
 
+            [['`foo`'], true],
+            [['`bar`'], true],
             [['foo'], true],
             [['bar'], true],
 
