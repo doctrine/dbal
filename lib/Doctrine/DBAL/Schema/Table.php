@@ -100,8 +100,8 @@ class Table extends AbstractAsset
     /**
      * Sets the Primary Key.
      *
-     * @param mixed[][]   $columns
-     * @param string|bool $indexName
+     * @param string[]|mixed[][] $columns
+     * @param string|bool        $indexName
      *
      * @return self
      */
@@ -118,10 +118,10 @@ class Table extends AbstractAsset
     }
 
     /**
-     * @param mixed[][]   $columnNames
-     * @param string|null $indexName
-     * @param string[]    $flags
-     * @param mixed[]     $options
+     * @param string[]|mixed[][] $columnNames
+     * @param string|null        $indexName
+     * @param string[]           $flags
+     * @param mixed[]            $options
      *
      * @return self
      */
@@ -168,9 +168,9 @@ class Table extends AbstractAsset
     }
 
     /**
-     * @param mixed[][]   $columnNames
-     * @param string|null $indexName
-     * @param mixed[]     $options
+     * @param string[]|mixed[][] $columnNames
+     * @param string|null        $indexName
+     * @param mixed[]            $options
      *
      * @return self
      */
@@ -236,7 +236,7 @@ class Table extends AbstractAsset
     /**
      * Checks if an index begins in the order of the given columns.
      *
-     * @param mixed[][] $columnsNames
+     * @param string[]|mixed[][] $columnsNames
      *
      * @return bool
      */
@@ -253,12 +253,12 @@ class Table extends AbstractAsset
     }
 
     /**
-     * @param mixed[][] $columnNames
-     * @param string    $indexName
-     * @param bool      $isUnique
-     * @param bool      $isPrimary
-     * @param string[]  $flags
-     * @param mixed[]   $options
+     * @param string[]|mixed[][] $columnNames
+     * @param string             $indexName
+     * @param bool               $isUnique
+     * @param bool               $isPrimary
+     * @param string[]           $flags
+     * @param mixed[]            $options
      *
      * @return Index
      *
