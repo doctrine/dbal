@@ -11,12 +11,26 @@ class ForeignKeyConstraintTest extends TestCase
     /**
      * @param string[] $indexColumns
      *
+     * @dataProvider getIntersectsIndexColumnsData
+     */
+    public function testIntersectsIndexEscapedColumns(array $indexColumns, $expectedResult)
+    {
+        $foreignKey = new ForeignKeyConstraint(['`foo`', '`bar`'], 'foreign_table', ['fk_foo', 'fk_bar']);
+
+        $index = new Index('INDEX_NAME', $indexColumns);
+
+        self::assertSame($expectedResult, $foreignKey->intersectsIndexColumns($index));
+    }
+
+    /**
+     * @param string[] $indexColumns
+     *
      * @group DBAL-1062
      * @dataProvider getIntersectsIndexColumnsData
      */
     public function testIntersectsIndexColumns(array $indexColumns, $expectedResult)
     {
-        $foreignKey = new ForeignKeyConstraint(['foo', '`bar`'], 'foreign_table', ['fk_foo', 'fk_bar']);
+        $foreignKey = new ForeignKeyConstraint(['foo', 'bar'], 'foreign_table', ['fk_foo', 'fk_bar']);
 
         $index = new Index('INDEX_NAME', $indexColumns);
 
