@@ -1302,4 +1302,32 @@ class ComparatorTest extends TestCase
         self::assertCount(1, $actual->changedTables['table2']->addedForeignKeys, 'FK to table3 should be added.');
         self::assertEquals('table3', $actual->changedTables['table2']->addedForeignKeys[0]->getForeignTableName());
     }
+
+    public function testAutoincrementColumnWithStringConfiguration()
+    {
+        $schema1 = new Schema([
+            'bugdb' => new Table(
+                'bugdb',
+                [
+                    'integerfield1' => new Column('integerfield1', Type::getType('integer'), [
+                        'autoincrement' => true,
+                    ]),
+                ]
+            ),
+        ]);
+        $schema2 = new Schema([
+            'bugdb' => new Table(
+                'bugdb',
+                [
+                    'integerfield1' => new Column('integerfield1', Type::getType('integer'), [
+                        'autoincrement' => 'auto',
+                    ]),
+                ]
+            ),
+        ]);
+
+        $expected             = new SchemaDiff();
+        $expected->fromSchema = $schema1;
+        self::assertEquals($expected, Comparator::compareSchemas($schema1, $schema2));
+    }
 }
