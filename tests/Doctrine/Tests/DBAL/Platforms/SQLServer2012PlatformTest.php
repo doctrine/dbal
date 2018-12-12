@@ -6,7 +6,7 @@ use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Doctrine\DBAL\Schema\Sequence;
 
-class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
+class SQLServer2012PlatformTest extends SQLServer2008PlatformTest
 {
     public function createPlatform()
     {
@@ -370,5 +370,14 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
         $expectedSql = "SELECT * FROM test\nORDER BY col DESC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY";
         $sql         = $this->platform->modifyLimitQuery($querySql, 10);
         self::assertEquals($expectedSql, $sql);
+    }
+
+    /**
+     * @group DBAL-2408
+     * @dataProvider getModifyLimitQueries
+     */
+    public function testScrubInnerOrderBy($query, $limit, $offset, $expectedResult)
+    {
+        $this->markTestIncomplete('Test not completed for SQL Server 2018');
     }
 }
