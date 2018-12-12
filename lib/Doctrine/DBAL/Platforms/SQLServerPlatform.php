@@ -282,7 +282,16 @@ SQL
             if (isset($options['primary_index']) && $options['primary_index']->hasFlag('nonclustered')) {
                 $flags = ' NONCLUSTERED';
             }
-            $columnListSql .= ', PRIMARY KEY' . $flags . ' (' . implode(', ', array_unique(array_values($options['primary']))) . ')';
+
+            $constraint = '';
+            // Only add the Constraint Name if the name is not the default value for the specific platform
+            if (isset($options['primary_index'])
+                && $options['primary_index']->getQuotedName($this) !== $this->quoteIdentifier($options['primary_index']->getName())
+            ) {
+                $constraint = ' CONSTRAINT ' . $options['primary_index']->getQuotedName($this);
+            }
+
+            $columnListSql .= ',' . $constraint . ' PRIMARY KEY' . $flags . ' (' . implode(', ', array_unique(array_values($options['primary']))) . ')';
         }
 
         $query = 'CREATE TABLE ' . $tableName . ' (' . $columnListSql;
@@ -315,12 +324,20 @@ SQL
      */
     public function getCreatePrimaryKeySQL(Index $index, $table)
     {
-        $flags = '';
-        if ($index->hasFlag('nonclustered')) {
-            $flags = ' NONCLUSTERED';
+        $constraintName = $index->getQuotedName($this);
+        // Only add the Constraint Name if the name is not the default value for the specific platform
+        if ($constraintName !== ''
+            && $constraintName !== $this->quoteIdentifier($index->getName())) {
+            $constraintSql = ' CONSTRAINT ' . $constraintName;
         }
 
-        return 'ALTER TABLE ' . $table . ' ADD PRIMARY KEY' . $flags . ' (' . $this->getIndexFieldDeclarationListSQL($index) . ')';
+        return sprintf(
+            'ALTER TABLE %s ADD%s PRIMARY KEY%s (%s)',
+            $table,
+            $constraintSql ?? null,
+            $index->hasFlag('nonclustered') ? ' NONCLUSTERED' : null,
+            $this->getIndexFieldDeclarationListSQL($index)
+        );
     }
 
     /**

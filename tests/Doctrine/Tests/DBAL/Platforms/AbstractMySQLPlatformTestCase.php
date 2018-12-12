@@ -462,6 +462,19 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
         self::assertEquals([
             'ALTER TABLE mytable DROP PRIMARY KEY',
+            'ALTER TABLE mytable ADD CONSTRAINT foo_index PRIMARY KEY (foo)',
+        ], $sql);
+    }
+
+    public function testUnnamedPrimaryKey() : void
+    {
+        $diff                              = new TableDiff('mytable');
+        $diff->changedIndexes['foo_index'] = new Index(null, ['foo'], true, true);
+
+        $sql = $this->platform->getAlterTableSQL($diff);
+
+        self::assertEquals([
+            'ALTER TABLE mytable DROP PRIMARY KEY',
             'ALTER TABLE mytable ADD PRIMARY KEY (foo)',
         ], $sql);
     }
@@ -928,6 +941,79 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
             ['CREATE TABLE foo (no_collation VARCHAR(255) NOT NULL, column_collation VARCHAR(255) NOT NULL COLLATE ascii_general_ci) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB'],
             $this->platform->getCreateTableSQL($table),
             'Column "no_collation" will use the default collation from the table/database and "column_collation" overwrites the collation on this column'
+        );
+    }
+
+    public function testCreateUnnamedPrimaryKey() : void
+    {
+        $table = new Table('test');
+        $table->addColumn('id', 'integer');
+        $table->addColumn('name', 'string', ['length' => 50]);
+        $table->setPrimaryKey(['id']);
+
+        self::assertEquals(
+            ['CREATE TABLE test (id INT NOT NULL, name VARCHAR(50) NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB'],
+            $this->platform->getCreateTableSQL($table)
+        );
+    }
+
+    public function testCreateUnnamedNonPrimaryIndex() : void
+    {
+        $table = new Table('test');
+        $table->addColumn('id', 'integer');
+        $table->addColumn('name', 'string', ['length' => 50]);
+        $table->addIndex(['name']);
+
+        self::assertEquals(
+            ['CREATE TABLE test (id INT NOT NULL, name VARCHAR(50) NOT NULL, INDEX IDX_D87F7E0C5E237E06 (name)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB'],
+            $this->platform->getCreateTableSQL($table)
+        );
+    }
+
+    public function testCreateUnnamedConstraintName() : void
+    {
+        self::assertEquals(
+            'ALTER TABLE foo ADD PRIMARY KEY (a, b)',
+            $this->platform->getCreatePrimaryKeySQL(
+                new Index(null, ['a', 'b'], false, false),
+                'foo'
+            )
+        );
+    }
+
+    public function testCreateNamedPrimaryKey() : void
+    {
+        $table = new Table('test');
+        $table->addColumn('id', 'integer');
+        $table->setPrimaryKey(['id'], 'primary_key_name');
+
+        self::assertEquals(
+            ['CREATE TABLE test (id INT NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB'],
+            $this->platform->getCreateTableSQL($table)
+        );
+    }
+
+    public function testCreateNamedNonPrimaryIndex() : void
+    {
+        $table = new Table('test');
+        $table->addColumn('id', 'integer');
+        $table->addColumn('name', 'string', ['length' => 50]);
+        $table->addIndex(['name'], 'named_index');
+
+        self::assertEquals(
+            ['CREATE TABLE test (id INT NOT NULL, name VARCHAR(50) NOT NULL, INDEX named_index (name)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB'],
+            $this->platform->getCreateTableSQL($table)
+        );
+    }
+
+    public function testCreateNamedConstraintName() : void
+    {
+        self::assertEquals(
+            'ALTER TABLE foo ADD CONSTRAINT constraint_name PRIMARY KEY (a, b)',
+            $this->platform->getCreatePrimaryKeySQL(
+                new Index('constraint_name', ['a', 'b']),
+                'foo'
+            )
         );
     }
 }

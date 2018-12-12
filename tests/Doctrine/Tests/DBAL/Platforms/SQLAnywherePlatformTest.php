@@ -1065,4 +1065,86 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
             true
         );
     }
+
+    public function testCreateUnnamedPrimaryKey() : void
+    {
+        $table = new Table('test');
+        $table->addColumn('id', 'integer');
+        $table->addColumn('name', 'string', ['length' => 50]);
+        $table->setPrimaryKey(['id']);
+
+        self::assertEquals(
+            ['CREATE TABLE test (id INT NOT NULL, name VARCHAR(50) NOT NULL, PRIMARY KEY (id))'],
+            $this->platform->getCreateTableSQL($table)
+        );
+    }
+
+    public function testCreateUnnamedNonPrimaryIndex() : void
+    {
+        $table = new Table('test');
+        $table->addColumn('id', 'integer');
+        $table->addColumn('name', 'string', ['length' => 50]);
+        $table->addIndex(['name']);
+
+        self::assertEquals(
+            [
+                'CREATE TABLE test (id INT NOT NULL, name VARCHAR(50) NOT NULL)',
+                'CREATE INDEX IDX_D87F7E0C5E237E06 ON test (name)',
+            ],
+            $this->platform->getCreateTableSQL($table)
+        );
+    }
+
+    public function testCreateUnnamedConstraintName() : void
+    {
+        self::assertEquals(
+            'CONSTRAINT foo PRIMARY KEY (a, b)',
+            $this->platform->getPrimaryKeyDeclarationSQL(
+                new Index(null, ['a', 'b'], false, true),
+                'foo'
+            )
+        );
+    }
+
+    public function testCreateNamedPrimaryKey() : void
+    {
+        $table = new Table('test');
+        $table->addColumn('id', 'integer');
+        $table->setPrimaryKey(['id'], 'primary_key_name');
+
+        self::assertEquals(
+            ['CREATE TABLE test (id INT NOT NULL, PRIMARY KEY (id))'],
+            $this->platform->getCreateTableSQL($table)
+        );
+    }
+
+    public function testCreateNamedNonPrimaryIndex() : void
+    {
+        $table = new Table('test');
+        $table->addColumn('id', 'integer');
+        $table->addColumn('name', 'string', ['length' => 50]);
+        $table->addIndex(['name'], 'named_index');
+
+        self::assertEquals(
+            [
+                'CREATE TABLE test (id INT NOT NULL, name VARCHAR(50) NOT NULL)',
+                'CREATE INDEX named_index ON test (name)',
+            ],
+            $this->platform->getCreateTableSQL($table)
+        );
+    }
+
+    public function testCreateNamedConstraintName() : void
+    {
+        // TODO: check SQL Anywhere logic for outputting constraint name
+        $this->markTestIncomplete('constraint does not output name');
+
+        self::assertEquals(
+            'CONSTRAINT constraint_name foo PRIMARY KEY (a, b)',
+            $this->platform->getPrimaryKeyDeclarationSQL(
+                new Index('constraint_name', ['a', 'b'], true, true),
+                'foo'
+            )
+        );
+    }
 }

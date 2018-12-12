@@ -6,6 +6,7 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
@@ -1028,6 +1029,85 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
             $this->platform->getCloseActiveDatabaseConnectionsSQL("Foo'Bar\\"),
             '',
             true
+        );
+    }
+
+    public function testCreateUnnamedPrimaryKey() : void
+    {
+        $table = new Table('test');
+        $table->addColumn('id', 'integer');
+        $table->addColumn('name', 'string', ['length' => 50]);
+        $table->setPrimaryKey(['id']);
+
+        self::assertEquals(
+            ['CREATE TABLE test (id INT NOT NULL, name VARCHAR(50) NOT NULL, PRIMARY KEY(id))'],
+            $this->platform->getCreateTableSQL($table)
+        );
+    }
+
+    public function testCreateUnnamedNonPrimaryIndex() : void
+    {
+        $table = new Table('test');
+        $table->addColumn('id', 'integer');
+        $table->addColumn('name', 'string', ['length' => 50]);
+        $table->addIndex(['name']);
+
+        self::assertEquals(
+            [
+                'CREATE TABLE test (id INT NOT NULL, name VARCHAR(50) NOT NULL)',
+                'CREATE INDEX IDX_D87F7E0C5E237E06 ON test (name)',
+            ],
+            $this->platform->getCreateTableSQL($table)
+        );
+    }
+
+    public function testCreateUnnamedConstraintName() : void
+    {
+        self::assertEquals(
+            'ALTER TABLE foo ADD PRIMARY KEY (a, b)',
+            $this->platform->getCreatePrimaryKeySQL(
+                new Index(null, ['a', 'b'], false, false),
+                'foo'
+            )
+        );
+    }
+
+    public function testCreateNamedPrimaryKey() : void
+    {
+        $table = new Table('test');
+        $table->addColumn('id', 'integer');
+        $table->setPrimaryKey(['id'], 'primary_key_name');
+
+        self::assertEquals(
+            ['CREATE TABLE test (id INT NOT NULL, PRIMARY KEY(id))'],
+            $this->platform->getCreateTableSQL($table)
+        );
+    }
+
+    public function testCreateNamedNonPrimaryIndex() : void
+    {
+        $table = new Table('test');
+        $table->addColumn('id', 'integer');
+        $table->addColumn('name', 'string', ['length' => 50]);
+        $table->addIndex(['name'], 'named_index');
+
+        self::assertEquals(
+            [
+                'CREATE TABLE test (id INT NOT NULL, name VARCHAR(50) NOT NULL)',
+                'CREATE INDEX named_index ON test (name)',
+            ],
+            $this->platform->getCreateTableSQL($table)
+        );
+    }
+
+    public function testCreateNamedConstraintName() : void
+    {
+        self::assertEquals(
+            'ALTER TABLE foo ADD CONSTRAINT constraint_name PRIMARY KEY (a, b)',
+            $this->platform->getCreatePrimaryKeySQL(
+                new Index('constraint_name', ['a', 'b']),
+                'foo'
+            )
         );
     }
 }

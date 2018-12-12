@@ -302,6 +302,17 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         self::assertEquals(
             'ALTER TABLE foo ADD PRIMARY KEY (a, b)',
             $this->platform->getCreatePrimaryKeySQL(
+                new Index(null, ['a', 'b'], true, true),
+                'foo'
+            )
+        );
+    }
+
+    public function testGeneratesCreateNamedPrimaryKeySQL()
+    {
+        self::assertEquals(
+            'ALTER TABLE foo ADD CONSTRAINT any_pk_name PRIMARY KEY (a, b)',
+            $this->platform->getCreatePrimaryKeySQL(
                 new Index('any_pk_name', ['a', 'b'], true, true),
                 'foo'
             )
@@ -703,5 +714,94 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     public function testQuotesTableNameInListTableForeignKeysSQL()
     {
         self::assertContains("'Foo''Bar\\'", $this->platform->getListTableForeignKeysSQL("Foo'Bar\\"), '', true);
+    }
+
+    public function testCreateUnnamedPrimaryKey() : void
+    {
+        //$this->testGeneratesCreateTableSQLWithCommonIndexes();
+
+        $table = new Table('test');
+        $table->addColumn('id', 'integer');
+        $table->addColumn('name', 'string', ['length' => 50]);
+        $table->setPrimaryKey(['id']);
+
+        self::assertEquals(
+            ['CREATE TABLE test (id INTEGER NOT NULL, name VARCHAR(50) NOT NULL, PRIMARY KEY(id))'],
+            $this->platform->getCreateTableSQL($table)
+        );
+    }
+
+    public function testCreateUnnamedNonPrimaryIndex() : void
+    {
+        // taken from $this->testGeneratesCreateTableSQLWithCommonIndexes();
+
+        $table = new Table('test');
+        $table->addColumn('id', 'integer');
+        $table->addColumn('name', 'string', ['length' => 50]);
+        $table->addIndex(['name']);
+
+        self::assertEquals(
+            [
+                'CREATE TABLE test (id INTEGER NOT NULL, name VARCHAR(50) NOT NULL)',
+                'CREATE INDEX IDX_D87F7E0C5E237E06 ON test (name)',
+            ],
+            $this->platform->getCreateTableSQL($table)
+        );
+    }
+
+    public function testCreateUnnamedConstraintName() : void
+    {
+        // taken from testGeneratesCreateNamedPrimaryKeySQL
+
+        self::assertEquals(
+            'ALTER TABLE foo ADD PRIMARY KEY (a, b)',
+            $this->platform->getCreatePrimaryKeySQL(
+                new Index(null, ['a', 'b'], false, false),
+                'foo'
+            )
+        );
+    }
+
+    public function testCreateNamedPrimaryKey() : void
+    {
+        // taken from $this->testGeneratesCreateTableSQLWithCommonIndexes();
+
+        $table = new Table('test');
+        $table->addColumn('id', 'integer');
+        $table->setPrimaryKey(['id'], 'primary_key_name');
+
+        self::assertEquals(
+            ['CREATE TABLE test (id INTEGER NOT NULL, PRIMARY KEY(id))'],
+            $this->platform->getCreateTableSQL($table)
+        );
+    }
+
+    public function testCreateNamedNonPrimaryIndex() : void
+    {
+        // taken from $this->testGeneratesCreateTableSQLWithCommonIndexes();
+
+        $table = new Table('test');
+        $table->addColumn('id', 'integer');
+        $table->addColumn('name', 'string', ['length' => 50]);
+        $table->addIndex(['name'], 'named_index');
+
+        self::assertEquals(
+            [
+                'CREATE TABLE test (id INTEGER NOT NULL, name VARCHAR(50) NOT NULL)',
+                'CREATE INDEX named_index ON test (name)',
+            ],
+            $this->platform->getCreateTableSQL($table)
+        );
+    }
+
+    public function testCreateNamedConstraintName() : void
+    {
+        self::assertEquals(
+            'ALTER TABLE foo ADD CONSTRAINT constraint_name PRIMARY KEY (a, b)',
+            $this->platform->getCreatePrimaryKeySQL(
+                new Index('constraint_name', ['a', 'b']),
+                'foo'
+            )
+        );
     }
 }

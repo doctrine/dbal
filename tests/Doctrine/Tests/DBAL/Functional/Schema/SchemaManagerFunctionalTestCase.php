@@ -451,6 +451,42 @@ class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         self::assertFalse($tableIndexes['test_composite_idx']->isPrimary());
     }
 
+    public function testListTableWithUnnamedUniqueIndexCanBeCreated() : void
+    {
+        $table = $this->getTestCompositeTable('list_table_indexes_test');
+        $table->addUniqueIndex(['test'], null);
+
+        $this->schemaManager->dropAndCreateTable($table);
+
+        $tableIndexes = $this->schemaManager->listTableIndexes('list_table_indexes_test');
+
+        self::assertCount(2, $tableIndexes);
+
+        self::assertArrayHasKey('uniq_ee805592d87f7e0c', $tableIndexes);
+        self::assertEquals('uniq_ee805592d87f7e0c', strtolower($tableIndexes['uniq_ee805592d87f7e0c']->getName()));
+        self::assertEquals(['test'], array_map('strtolower', $tableIndexes['uniq_ee805592d87f7e0c']->getColumns()));
+        self::assertTrue($tableIndexes['uniq_ee805592d87f7e0c']->isUnique());
+        self::assertFalse($tableIndexes['uniq_ee805592d87f7e0c']->isPrimary());
+    }
+
+    public function testListTableWithUnnamedCompositeIndexCanBeCreated() : void
+    {
+        $table = $this->getTestCompositeTable('list_table_indexes_test');
+        $table->addIndex(['id', 'test'], null);
+
+        $this->schemaManager->dropAndCreateTable($table);
+
+        $tableIndexes = $this->schemaManager->listTableIndexes('list_table_indexes_test');
+
+        self::assertCount(2, $tableIndexes);
+
+        self::assertArrayHasKey('idx_ee805592bf396750d87f7e0c', $tableIndexes);
+        self::assertEquals('idx_ee805592bf396750d87f7e0c', strtolower($tableIndexes['idx_ee805592bf396750d87f7e0c']->getName()));
+        self::assertEquals(['id', 'test'], array_map('strtolower', $tableIndexes['idx_ee805592bf396750d87f7e0c']->getColumns()));
+        self::assertFalse($tableIndexes['idx_ee805592bf396750d87f7e0c']->isUnique());
+        self::assertFalse($tableIndexes['idx_ee805592bf396750d87f7e0c']->isPrimary());
+    }
+
     public function testDropAndCreateIndex()
     {
         $table = $this->getTestTable('test_create_index');

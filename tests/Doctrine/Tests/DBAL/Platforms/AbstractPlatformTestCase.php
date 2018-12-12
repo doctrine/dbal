@@ -1513,4 +1513,12 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
             $this->platform->modifyLimitQuery($query, null, 0)
         );
     }
+
+    // TODO: These abstract functions can be uncommented once PlatformTestCases have correct inheritance
+//    abstract public function testCreateUnnamedPrimaryKey(): void;
+//    abstract public function testCreateUnnamedNonPrimaryIndex(): void;
+//    abstract public function testCreateUnnamedConstraintName(): void;
+//    abstract public function testCreateNamedPrimaryKey(): void;
+//    abstract public function testCreateNamedNonPrimaryIndex(): void;
+//    abstract public function testCreateNamedConstraintName(): void;
 }

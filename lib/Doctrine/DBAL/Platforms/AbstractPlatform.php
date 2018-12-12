@@ -1775,8 +1775,6 @@ abstract class AbstractPlatform
      * @param Table|string $table The name of the table on which the index is to be created.
      *
      * @return string
-     *
-     * @throws InvalidArgumentException
      */
     public function getCreateIndexSQL(Index $index, $table)
     {
@@ -1785,6 +1783,10 @@ abstract class AbstractPlatform
         }
         $name    = $index->getQuotedName($this);
         $columns = $index->getColumns();
+
+        if (strlen($name) === 0 && ! $index->isPrimary()) {
+            throw new InvalidArgumentException('A non-primary index definition requires the name attribute.');
+        }
 
         if (count($columns) === 0) {
             throw new InvalidArgumentException("Incomplete definition. 'columns' required.");
@@ -1833,7 +1835,19 @@ abstract class AbstractPlatform
      */
     public function getCreatePrimaryKeySQL(Index $index, $table)
     {
-        return 'ALTER TABLE ' . $table . ' ADD PRIMARY KEY (' . $this->getIndexFieldDeclarationListSQL($index) . ')';
+        $constraintName = $index->getQuotedName($this);
+        // Only add the Constraint Name if the name is not the default value for the specific platform
+        if (strlen($constraintName) !== 0
+            && $constraintName !== $this->quoteIdentifier($index->getName())) {
+            $constraintSql = ' CONSTRAINT ' . $constraintName;
+        }
+
+        return sprintf(
+            'ALTER TABLE %s ADD%s PRIMARY KEY (%s)',
+            $table,
+            $constraintSql ?? null,
+            $this->getIndexFieldDeclarationListSQL($index)
+        );
     }
 
     /**

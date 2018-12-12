@@ -10,6 +10,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
+use InvalidArgumentException;
 use function sprintf;
 
 abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCase
@@ -512,6 +513,24 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         self::assertEquals('CREATE CLUSTERED INDEX idx ON tbl (id)', $this->platform->getCreateIndexSQL($idx, 'tbl'));
     }
 
+    public function testFailureToCreateClusteredUnnamedNullIndex()
+    {
+        $idx = new Index(null, ['id']);
+        $idx->addFlag('clustered');
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->platform->getCreateIndexSQL($idx, 'tbl');
+    }
+
+    public function testFailureToCreateClusteredUnnamedEmptyIndex()
+    {
+        $idx = new Index('', ['id']);
+        $idx->addFlag('clustered');
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->platform->getCreateIndexSQL($idx, 'tbl');
+    }
+
     /**
      * @group DBAL-220
      */
@@ -525,20 +544,46 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         self::assertEquals(['CREATE TABLE tbl (id INT NOT NULL, PRIMARY KEY NONCLUSTERED (id))'], $this->platform->getCreateTableSQL($table));
     }
 
+    public function testCreateNonClusteredNamedPrimaryKeyInTable()
+    {
+        $table = new Table('tbl');
+        $table->addColumn('id', 'integer');
+        $table->setPrimaryKey(['id'], 'named_primary_key_test');
+        $table->getIndex('named_primary_key_test')->addFlag('nonclustered');
+
+        self::assertEquals(['CREATE TABLE tbl (id INT NOT NULL, CONSTRAINT named_primary_key_test PRIMARY KEY NONCLUSTERED (id))'], $this->platform->getCreateTableSQL($table));
+    }
+
     /**
      * @group DBAL-220
      */
     public function testCreateNonClusteredPrimaryKey()
     {
-        $idx = new Index('idx', ['id'], false, true);
+        $idx = new Index(null, ['id'], false, true);
         $idx->addFlag('nonclustered');
         self::assertEquals('ALTER TABLE tbl ADD PRIMARY KEY NONCLUSTERED (id)', $this->platform->getCreatePrimaryKeySQL($idx, 'tbl'));
     }
 
-    public function testAlterAddPrimaryKey()
+    /**
+     * @group DBAL-220
+     */
+    public function testCreateNonClusteredNamedPrimaryKey()
     {
         $idx = new Index('idx', ['id'], false, true);
+        $idx->addFlag('nonclustered');
+        self::assertEquals('ALTER TABLE tbl ADD CONSTRAINT idx PRIMARY KEY NONCLUSTERED (id)', $this->platform->getCreatePrimaryKeySQL($idx, 'tbl'));
+    }
+
+    public function testAlterAddPrimaryKey()
+    {
+        $idx = new Index(null, ['id'], false, true);
         self::assertEquals('ALTER TABLE tbl ADD PRIMARY KEY (id)', $this->platform->getCreateIndexSQL($idx, 'tbl'));
+    }
+
+    public function testAlterAddNamedPrimaryKey()
+    {
+        $idx = new Index('idx', ['id'], false, true);
+        self::assertEquals('ALTER TABLE tbl ADD CONSTRAINT idx PRIMARY KEY (id)', $this->platform->getCreateIndexSQL($idx, 'tbl'));
     }
 
     protected function getQuotedColumnInPrimaryKeySQL()
