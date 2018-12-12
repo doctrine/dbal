@@ -10,7 +10,7 @@ Getting Help
 If this documentation is not helping to answer questions you have about the
 Doctrine DBAL, don't panic. You can get help from different sources:
 
--  Gitter chat room `#doctrine/dbal <https://gitter.im/doctrine/dbal>`_
+-  Slack chat room `#dbal <https://www.doctrine-project.org/slack>`_
 -  On `Stack Overflow <http://stackoverflow.com/questions/tagged/doctrine-dbal>`_
 -  The `Doctrine Mailing List <http://groups.google.com/group/doctrine-user>`_
 -  Report a bug on `GitHub <https://github.com/doctrine/dbal/issues>`_.
