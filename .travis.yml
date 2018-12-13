@@ -207,16 +207,18 @@ jobs:
         - travis_retry composer update --prefer-dist --prefer-lowest
     - stage: Test
       php: 7.3
-      env: DB=mysql MYSQL_VERSION=5.7
+      env: DB=mysql MYSQL_VERSION=8.0
+      dist: xenial
       sudo: required
       before_script:
-        - bash ./tests/travis/install-mysql-5.7.sh
+        - bash ./tests/travis/install-mysql-8.0.sh
     - stage: Test
       php: 7.3
-      env: DB=mysqli MYSQL_VERSION=5.7
+      env: DB=mysqli MYSQL_VERSION=8.0
+      dist: xenial
       sudo: required
       before_script:
-        - bash ./tests/travis/install-mysql-5.7.sh
+        - bash ./tests/travis/install-mysql-8.0.sh
     - stage: Test
       php: 7.3
       env: DB=mariadb MARIADB_VERSION=10.3
