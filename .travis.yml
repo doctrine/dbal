@@ -45,6 +45,21 @@ jobs:
     - php: nightly
 
   include:
+
+    - stage: Smoke Testing
+      php: 7.2
+      env: DB=sqlite COVERAGE=yes
+    - stage: Smoke Testing
+      php: 7.2
+      env: PHPStan
+      install: travis_retry composer install --prefer-dist
+      script: vendor/bin/phpstan analyse
+    - stage: Smoke Testing
+      php: 7.2
+      env: PHP_CodeSniffer
+      install: travis_retry composer install --prefer-dist
+      script: vendor/bin/phpcs
+
     - stage: Test
       php: 7.2
       env: DB=mysql COVERAGE=yes
@@ -172,9 +187,6 @@ jobs:
         - docker
       before_script:
         - bash ./tests/travis/install-postgres-11.sh
-    - stage: Test
-      php: 7.2
-      env: DB=sqlite COVERAGE=yes
     - stage: Test
       php: 7.2
       env: DB=sqlsrv COVERAGE=yes
@@ -325,14 +337,3 @@ jobs:
       install:
         - composer config minimum-stability dev
         - travis_retry composer update --prefer-dist
-
-    - stage: Code Quality
-      php: 7.2
-      env: PHPStan
-      install: travis_retry composer install --prefer-dist
-      script: vendor/bin/phpstan analyse
-    - stage: Code Quality
-      php: 7.2
-      env: PHP_CodeSniffer
-      install: travis_retry composer install --prefer-dist
-      script: vendor/bin/phpcs
