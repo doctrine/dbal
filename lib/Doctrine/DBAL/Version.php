@@ -14,7 +14,7 @@ class Version
     /**
      * Current Doctrine Version.
      */
-    public const VERSION = '2.9.1';
+    public const VERSION = '2.9.2-DEV';
 
     /**
      * Compares a Doctrine version with the current one.
