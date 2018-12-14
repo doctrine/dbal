@@ -61,6 +61,7 @@ class ConnectionTest extends DbalFunctionalTestCase
             [
                 'host' => $GLOBALS['db_host'],
                 'dbname' => $GLOBALS['db_name'],
+                'port' => $GLOBALS['db_port'],
             ],
             $GLOBALS['db_username'],
             $GLOBALS['db_password'],
