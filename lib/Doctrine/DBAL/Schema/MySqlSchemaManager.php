@@ -312,11 +312,11 @@ class MySqlSchemaManager extends AbstractSchemaManager
     /**
      * @return string[]|true[]
      */
-    private function parseCreateOptions(string $string) : array
+    private function parseCreateOptions(?string $string) : array
     {
         $options = [];
 
-        if ($string === '') {
+        if ($string === null || $string === '') {
             return $options;
         }
 
