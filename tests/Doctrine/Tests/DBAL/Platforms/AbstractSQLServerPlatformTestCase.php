@@ -636,6 +636,21 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         self::assertEquals($expectedSql, $this->platform->getAlterTableSQL($tableDiff));
     }
 
+    public function testAlterTableWithSchemaSameColumnComments()
+    {
+        $tableDiff                          = new TableDiff('testschema.mytable');
+        $tableDiff->changedColumns['quota'] = new ColumnDiff(
+            'quota',
+            new Column('quota', Type::getType('integer'), ['comment' => 'A comment', 'notnull' => true]),
+            ['comment', 'notnull'],
+            new Column('quota', Type::getType('integer'), ['comment' => 'A comment', 'notnull' => false])
+        );
+
+        $expectedSql = ['ALTER TABLE testschema.mytable ALTER COLUMN quota INT NOT NULL'];
+
+        self::assertEquals($expectedSql, $this->platform->getAlterTableSQL($tableDiff));
+    }
+
     /**
      * @group DBAL-543
      */
