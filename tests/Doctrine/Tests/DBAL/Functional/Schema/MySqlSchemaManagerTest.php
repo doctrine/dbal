@@ -531,4 +531,11 @@ SQL;
         self::assertEquals('', $onlineTable->getOption('comment'));
         self::assertEquals([], $onlineTable->getOption('create_options'));
     }
+
+    public function testParseNullCreateOptions() : void
+    {
+        $table = $this->schemaManager->listTableDetails('sys.processlist');
+
+        self::assertEquals([], $table->getOption('create_options'));
+    }
 }
