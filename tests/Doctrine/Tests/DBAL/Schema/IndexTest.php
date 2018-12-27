@@ -109,6 +109,36 @@ class IndexTest extends TestCase
     }
 
     /**
+     * @param string[]     $columns
+     * @param int[]|null[] $lengths1
+     * @param int[]|null[] $lengths2
+     *
+     * @dataProvider indexLengthProvider
+     */
+    public function testFulfilledWithLength(array $columns, array $lengths1, array $lengths2, bool $expected) : void
+    {
+        $index1 = new Index('index1', $columns, false, false, [], ['lengths' => $lengths1]);
+        $index2 = new Index('index2', $columns, false, false, [], ['lengths' => $lengths2]);
+
+        self::assertSame($expected, $index1->isFullfilledBy($index2));
+        self::assertSame($expected, $index2->isFullfilledBy($index1));
+    }
+
+    /**
+     * @return mixed[][]
+     */
+    public static function indexLengthProvider() : iterable
+    {
+        return [
+            'empty' => [['column'], [], [], true],
+            'same' => [['column'], [64], [64], true],
+            'different' => [['column'], [32], [64], false],
+            'sparse-different-positions' => [['column1', 'column2'], [0 => 32], [1 => 32], false],
+            'sparse-same-positions' => [['column1', 'column2'], [null, 32], [1 => 32], true],
+        ];
+    }
+
+    /**
      * @group DBAL-220
      */
     public function testFlags()
