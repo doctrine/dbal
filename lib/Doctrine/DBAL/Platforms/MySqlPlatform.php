@@ -956,6 +956,14 @@ SQL
     /**
      * {@inheritDoc}
      */
+    public function getColumnCharsetDeclarationSQL($charset)
+    {
+        return 'CHARACTER SET ' . $charset;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey)
     {
         $query = '';

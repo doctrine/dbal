@@ -192,6 +192,9 @@ class MySqlSchemaManager extends AbstractSchemaManager
 
         $column = new Column($tableColumn['field'], Type::getType($type), $options);
 
+        if (isset($tableColumn['characterset'])) {
+            $column->setPlatformOption('charset', $tableColumn['characterset']);
+        }
         if (isset($tableColumn['collation'])) {
             $column->setPlatformOption('collation', $tableColumn['collation']);
         }
