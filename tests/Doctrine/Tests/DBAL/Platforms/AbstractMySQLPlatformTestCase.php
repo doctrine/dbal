@@ -905,6 +905,14 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         self::assertNotContains('DATABASE()', $sql);
     }
 
+    public function testColumnCharsetDeclarationSQL() : void
+    {
+        self::assertSame(
+            'CHARACTER SET ascii',
+            $this->platform->getColumnCharsetDeclarationSQL('ascii')
+        );
+    }
+
     public function testSupportsColumnCollation() : void
     {
         self::assertTrue($this->platform->supportsColumnCollation());
