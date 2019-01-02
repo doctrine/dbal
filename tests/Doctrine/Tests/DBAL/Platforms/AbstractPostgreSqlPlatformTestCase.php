@@ -961,7 +961,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     {
         self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",
-            $this->platform->getListTableForeignKeysSQL("Foo'Bar\\")
+            $this->platform->getListTableForeignKeysSQL("public.Foo'Bar\\")
         );
     }
 
@@ -994,7 +994,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     {
         self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",
-            $this->platform->getListTableIndexesSQL("Foo'Bar\\")
+            $this->platform->getListTableIndexesSQL("public.Foo'Bar\\")
         );
     }
 
@@ -1016,7 +1016,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     {
         self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",
-            $this->platform->getListTableColumnsSQL("Foo'Bar\\")
+            $this->platform->getListTableColumnsSQL("public.Foo'Bar\\")
         );
     }
 

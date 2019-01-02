@@ -98,6 +98,18 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     }
 
     /**
+     * Lists the foreign keys for the given table in a given schema.
+     *
+     * @param string $tableWithSchema The name of the table prefixed with the schema (i.e. 'some_schema.some_table').
+     *
+     * @return array<int|string, ForeignKeyConstraint>
+     */
+    public function listTableForeignKeys(string $tableWithSchema, ?string $database = null) : array
+    {
+        return parent::listTableForeignKeys($tableWithSchema, $database);
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function dropDatabase(string $database) : void

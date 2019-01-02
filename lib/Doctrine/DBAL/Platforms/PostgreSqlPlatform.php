@@ -16,6 +16,7 @@ use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\IntegerType;
 use Doctrine\DBAL\Types\Type;
 use UnexpectedValueException;
+use const E_USER_DEPRECATED;
 use function array_diff;
 use function array_merge;
 use function array_unique;
@@ -31,6 +32,7 @@ use function is_string;
 use function sprintf;
 use function strpos;
 use function strtolower;
+use function trigger_error;
 use function trim;
 
 /**
@@ -272,9 +274,9 @@ class PostgreSqlPlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     * @param string $tableWithSchema The name of the table prefixed with the schema (i.e. 'some_schema.some_table').
      */
-    public function getListTableForeignKeysSQL(string $table, ?string $database = null) : string
+    public function getListTableForeignKeysSQL(string $tableWithSchema, ?string $database = null) : string
     {
         return 'SELECT quote_ident(r.conname) as conname, pg_catalog.pg_get_constraintdef(r.oid, true) as condef
                   FROM pg_catalog.pg_constraint r
@@ -282,7 +284,8 @@ class PostgreSqlPlatform extends AbstractPlatform
                   (
                       SELECT c.oid
                       FROM pg_catalog.pg_class c, pg_catalog.pg_namespace n
-                      WHERE ' . $this->getTableWhereClause($table) . " AND n.oid = c.relnamespace
+                      WHERE ' . $this->getTableWhereClause($tableWithSchema) . " AND n.oid = c.relnamespace
+                      LIMIT 1
                   )
                   AND r.contype = 'f'";
     }
@@ -331,11 +334,9 @@ SQL
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @link http://ezcomponents.org/docs/api/trunk/DatabaseSchema/ezcDbSchemaPgsqlReader.html
+     * @param string $tableWithSchema The name of the table prefixed with the schema (i.e. 'some_schema.some_table').
      */
-    public function getListTableIndexesSQL(string $table, ?string $currentDatabase = null) : string
+    public function getListTableIndexesSQL(string $tableWithSchema, ?string $currentDatabase = null) : string
     {
         return 'SELECT quote_ident(relname) as relname, pg_index.indisunique, pg_index.indisprimary,
                        pg_index.indkey, pg_index.indrelid,
@@ -344,25 +345,33 @@ SQL
                  WHERE oid IN (
                     SELECT indexrelid
                     FROM pg_index si, pg_class sc, pg_namespace sn
-                    WHERE ' . $this->getTableWhereClause($table, 'sc', 'sn') . ' AND sc.oid=si.indrelid AND sc.relnamespace = sn.oid
+                    WHERE ' . $this->getTableWhereClause($tableWithSchema, 'sc', 'sn') . ' AND sc.oid=si.indrelid AND sc.relnamespace = sn.oid
                  ) AND pg_index.indexrelid = oid';
     }
 
-    private function getTableWhereClause(string $table, string $classAlias = 'c', string $namespaceAlias = 'n') : string
+    /**
+     * @param string $tableWithSchema The name of the table prefixed with the schema (i.e. 'some_schema.some_table').
+     */
+    private function getTableWhereClause(string $tableWithSchema, string $classAlias = 'c', string $namespaceAlias = 'n') : string
     {
-        $whereClause = $namespaceAlias . ".nspname NOT IN ('pg_catalog', 'information_schema', 'pg_toast') AND ";
-        if (strpos($table, '.') !== false) {
-            [$schema, $table] = explode('.', $table);
+        if (strpos($tableWithSchema, '.') !== false) {
+            [$schema, $table] = explode('.', $tableWithSchema);
             $schema           = $this->quoteStringLiteral($schema);
         } else {
+            $table  = $tableWithSchema;
             $schema = "ANY(string_to_array((select replace(replace(setting,'\"\$user\"',user),' ','') from pg_catalog.pg_settings where name = 'search_path'),','))";
+            @trigger_error(sprintf(
+                'Providing a table name without a schema prefix, i.e. \'some_schema.some_table\', (%s given) is deprecated and will cause an error in Doctrine 3.0',
+                $tableWithSchema
+            ), E_USER_DEPRECATED);
         }
 
         $table = new Identifier($table);
         $table = $this->quoteStringLiteral($table->getName());
 
-        return $whereClause . sprintf(
-            '%s.relname = %s AND %s.nspname = %s',
+        return sprintf(
+            "%s.nspname NOT IN ('pg_catalog', 'information_schema', 'pg_toast') AND %s.relname = %s AND %s.nspname = %s",
+            $namespaceAlias,
             $classAlias,
             $table,
             $namespaceAlias,
@@ -371,9 +380,9 @@ SQL
     }
 
     /**
-     * {@inheritDoc}
+     * @param string $tableWithSchema The name of the table prefixed with the schema (i.e. 'some_schema.some_table').
      */
-    public function getListTableColumnsSQL(string $table, ?string $database = null) : string
+    public function getListTableColumnsSQL(string $tableWithSchema, ?string $database = null) : string
     {
         return "SELECT
                     a.attnum,
@@ -400,7 +409,7 @@ SQL
                         FROM pg_description WHERE pg_description.objoid = c.oid AND a.attnum = pg_description.objsubid
                     ) AS comment
                     FROM pg_attribute a, pg_class c, pg_type t, pg_namespace n
-                    WHERE " . $this->getTableWhereClause($table, 'c', 'n') . '
+                    WHERE " . $this->getTableWhereClause($tableWithSchema, 'c', 'n') . '
                         AND a.attnum > 0
                         AND a.attrelid = c.oid
                         AND a.atttypid = t.oid
