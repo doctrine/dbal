@@ -287,7 +287,7 @@ class PostgreSqlPlatform extends AbstractPlatform
     {
         return "SELECT quote_ident(r.conname) as conname, pg_catalog.pg_get_constraintdef(r.oid, true) as condef
                   FROM pg_catalog.pg_constraint r
-                  WHERE r.conrelid =
+                  WHERE r.conrelid IN
                   (
                       SELECT c.oid
                       FROM pg_catalog.pg_class c, pg_catalog.pg_namespace n
