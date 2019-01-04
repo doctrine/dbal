@@ -133,7 +133,11 @@ final class Connection implements ServerInfoAwareConnection
      */
     public function commit()
     {
-        return $this->connection->commit();
+        try {
+            return $this->connection->commit();
+        } catch (PDOException $exception) {
+            throw Exception::new($exception);
+        }
     }
 
     /**
