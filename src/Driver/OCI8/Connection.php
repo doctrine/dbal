@@ -95,7 +95,7 @@ final class Connection implements ConnectionInterface
 
     public function commit(): void
     {
-        if (! oci_commit($this->connection)) {
+        if (! @oci_commit($this->connection)) {
             throw Error::new($this->connection);
         }
 

@@ -919,14 +919,15 @@ class Connection implements ServerVersionProvider
         $this->beginTransaction();
         try {
             $res = $func($this);
-            $this->commit();
-
-            return $res;
         } catch (Throwable $e) {
             $this->rollBack();
 
             throw $e;
         }
+
+        $this->commit();
+
+        return $res;
     }
 
     /**
@@ -1005,17 +1006,26 @@ class Connection implements ServerVersionProvider
 
         $connection = $this->connect();
 
-        if ($this->transactionNestingLevel === 1) {
-            try {
-                $connection->commit();
-            } catch (Driver\Exception $e) {
-                throw $this->convertException($e);
+        try {
+            if ($this->transactionNestingLevel === 1) {
+                try {
+                    $connection->commit();
+                } catch (Driver\Exception $e) {
+                    throw $this->convertException($e);
+                }
+            } else {
+                $this->releaseSavepoint($this->_getNestedTransactionSavePointName());
             }
-        } else {
-            $this->releaseSavepoint($this->_getNestedTransactionSavePointName());
+        } finally {
+            $this->updateTransactionStateAfterCommit();
         }
+    }
 
-        --$this->transactionNestingLevel;
+    private function updateTransactionStateAfterCommit(): void
+    {
+        if ($this->transactionNestingLevel !== 0) {
+            --$this->transactionNestingLevel;
+        }
 
         if ($this->autoCommit !== false || $this->transactionNestingLevel !== 0) {
             return;
