@@ -1269,14 +1269,15 @@ class Connection
         $this->beginTransaction();
         try {
             $res = $func($this);
-            $this->commit();
-
-            return $res;
         } catch (Throwable $e) {
             $this->rollBack();
 
             throw $e;
         }
+
+        $this->commit();
+
+        return $res;
     }
 
     /**
@@ -1412,13 +1413,24 @@ class Connection
 
         $connection = $this->getWrappedConnection();
 
-        if ($this->transactionNestingLevel === 1) {
-            $result = $this->doCommit($connection);
-        } elseif ($this->nestTransactionsWithSavepoints) {
-            $this->releaseSavepoint($this->_getNestedTransactionSavePointName());
+        try {
+            if ($this->transactionNestingLevel === 1) {
+                $result = $this->doCommit($connection);
+            } elseif ($this->nestTransactionsWithSavepoints) {
+                $this->releaseSavepoint($this->_getNestedTransactionSavePointName());
+            }
+        } finally {
+            $this->updateTransactionStateAfterCommit();
         }
 
-        --$this->transactionNestingLevel;
+        return $result;
+    }
+
+    private function updateTransactionStateAfterCommit(): void
+    {
+        if ($this->transactionNestingLevel !== 0) {
+            --$this->transactionNestingLevel;
+        }
 
         $eventManager = $this->getEventManager();
 
@@ -1433,13 +1445,7 @@ class Connection
             $eventManager->dispatchEvent(Events::onTransactionCommit, new TransactionCommitEventArgs($this));
         }
 
-        if ($this->autoCommit !== false || $this->transactionNestingLevel !== 0) {
-            return $result;
-        }
-
         $this->beginTransaction();
-
-        return $result;
     }
 
     /**
