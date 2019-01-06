@@ -10,6 +10,7 @@ use function array_change_key_case;
 use function array_shift;
 use function array_values;
 use function end;
+use function explode;
 use function preg_match;
 use function preg_replace;
 use function str_replace;
@@ -67,6 +68,8 @@ class MySqlSchemaManager extends AbstractSchemaManager
             } elseif (strpos($v['index_type'], 'SPATIAL') !== false) {
                 $v['flags'] = ['SPATIAL'];
             }
+            $v['length'] = $v['sub_part'] ?? null;
+
             $tableIndexes[$k] = $v;
         }
 
@@ -189,6 +192,9 @@ class MySqlSchemaManager extends AbstractSchemaManager
 
         $column = new Column($tableColumn['field'], Type::getType($type), $options);
 
+        if (isset($tableColumn['characterset'])) {
+            $column->setPlatformOption('charset', $tableColumn['characterset']);
+        }
         if (isset($tableColumn['collation'])) {
             $column->setPlatformOption('collation', $tableColumn['collation']);
         }
@@ -281,5 +287,48 @@ class MySqlSchemaManager extends AbstractSchemaManager
         }
 
         return $result;
+    }
+
+    public function listTableDetails($tableName)
+    {
+        $table = parent::listTableDetails($tableName);
+
+        /** @var MySqlPlatform $platform */
+        $platform = $this->_platform;
+        $sql      = $platform->getListTableMetadataSQL($tableName);
+
+        $tableOptions = $this->_conn->fetchAssoc($sql);
+
+        $table->addOption('engine', $tableOptions['ENGINE']);
+        if ($tableOptions['TABLE_COLLATION'] !== null) {
+            $table->addOption('collation', $tableOptions['TABLE_COLLATION']);
+        }
+        if ($tableOptions['AUTO_INCREMENT'] !== null) {
+            $table->addOption('autoincrement', $tableOptions['AUTO_INCREMENT']);
+        }
+        $table->addOption('comment', $tableOptions['TABLE_COMMENT']);
+        $table->addOption('create_options', $this->parseCreateOptions($tableOptions['CREATE_OPTIONS']));
+
+        return $table;
+    }
+
+    /**
+     * @return string[]|true[]
+     */
+    private function parseCreateOptions(?string $string) : array
+    {
+        $options = [];
+
+        if ($string === null || $string === '') {
+            return $options;
+        }
+
+        foreach (explode(' ', $string) as $pair) {
+            $parts = explode('=', $pair, 2);
+
+            $options[$parts[0]] = $parts[1] ?? true;
+        }
+
+        return $options;
     }
 }

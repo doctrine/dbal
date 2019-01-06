@@ -14,6 +14,7 @@ use function is_int;
 use function key;
 use function ksort;
 use function preg_match_all;
+use function sprintf;
 use function strlen;
 use function strpos;
 use function substr;
@@ -199,11 +200,13 @@ class SQLParserUtils
      */
     private static function getUnquotedStatementFragments($statement)
     {
-        $literal = self::ESCAPED_SINGLE_QUOTED_TEXT . '|' .
-                   self::ESCAPED_DOUBLE_QUOTED_TEXT . '|' .
-                   self::ESCAPED_BACKTICK_QUOTED_TEXT . '|' .
-                   self::ESCAPED_BRACKET_QUOTED_TEXT;
-        preg_match_all('/([^\'"`\[]+)(?:' . $literal . ')?/s', $statement, $fragments, PREG_OFFSET_CAPTURE);
+        $literal    = self::ESCAPED_SINGLE_QUOTED_TEXT . '|' .
+            self::ESCAPED_DOUBLE_QUOTED_TEXT . '|' .
+            self::ESCAPED_BACKTICK_QUOTED_TEXT . '|' .
+            self::ESCAPED_BRACKET_QUOTED_TEXT;
+        $expression = sprintf('/((.+(?i:ARRAY)\\[.+\\])|([^\'"`\\[]+))(?:%s)?/s', $literal);
+
+        preg_match_all($expression, $statement, $fragments, PREG_OFFSET_CAPTURE);
 
         return $fragments[1];
     }

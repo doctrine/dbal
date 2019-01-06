@@ -4,9 +4,11 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use InvalidArgumentException;
+use function array_filter;
 use function array_keys;
 use function array_map;
 use function array_search;
+use function array_shift;
 use function count;
 use function is_string;
 use function strtolower;
@@ -97,10 +99,21 @@ class Index extends AbstractAsset implements Constraint
      */
     public function getQuotedColumns(AbstractPlatform $platform)
     {
+        $subParts = $platform->supportsColumnLengthIndexes() && $this->hasOption('lengths')
+            ? $this->getOption('lengths') : [];
+
         $columns = [];
 
         foreach ($this->_columns as $column) {
-            $columns[] = $column->getQuotedName($platform);
+            $length = array_shift($subParts);
+
+            $quotedColumn = $column->getQuotedName($platform);
+
+            if ($length !== null) {
+                $quotedColumn .= '(' . $length . ')';
+            }
+
+            $columns[] = $quotedColumn;
         }
 
         return $columns;
@@ -196,6 +209,10 @@ class Index extends AbstractAsset implements Constraint
 
         if ($sameColumns) {
             if (! $this->samePartialIndex($other)) {
+                return false;
+            }
+
+            if (! $this->hasSameColumnLengths($other)) {
                 return false;
             }
 
@@ -323,5 +340,18 @@ class Index extends AbstractAsset implements Constraint
         }
 
         return ! $this->hasOption('where') && ! $other->hasOption('where');
+    }
+
+    /**
+     * Returns whether the index has the same column lengths as the other
+     */
+    private function hasSameColumnLengths(self $other) : bool
+    {
+        $filter = static function (?int $length) : bool {
+            return $length !== null;
+        };
+
+        return array_filter($this->options['lengths'] ?? [], $filter)
+            === array_filter($other->options['lengths'] ?? [], $filter);
     }
 }

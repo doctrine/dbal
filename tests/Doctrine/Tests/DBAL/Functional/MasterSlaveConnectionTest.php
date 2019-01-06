@@ -3,8 +3,8 @@
 namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\Connections\MasterSlaveConnection;
+use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\DriverManager;
-use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use Throwable;
@@ -32,7 +32,6 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
         }
 
         try {
-            /** @var AbstractSchemaManager $sm */
             $table = new Table('master_slave_table');
             $table->addColumn('test_int', 'integer');
             $table->setPrimaryKey(['test_int']);
@@ -188,5 +187,55 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
 
         $conn->connect('master');
         self::assertTrue($conn->isConnectedToMaster());
+    }
+
+    public function testQueryOnMaster()
+    {
+        $conn = $this->createMasterSlaveConnection();
+
+        $query = 'SELECT count(*) as num FROM master_slave_table';
+
+        $statement = $conn->query($query);
+
+        self::assertInstanceOf(Statement::class, $statement);
+
+        //Query must be executed only on Master
+        self::assertTrue($conn->isConnectedToMaster());
+
+        $data = $statement->fetchAll();
+
+        //Default fetchmode is FetchMode::ASSOCIATIVE
+        self::assertArrayHasKey(0, $data);
+        self::assertArrayHasKey('num', $data[0]);
+
+        //Could be set in other fetchmodes
+        self::assertArrayNotHasKey(0, $data[0]);
+        self::assertEquals(1, $data[0]['num']);
+    }
+
+    public function testQueryOnSlave()
+    {
+        $conn = $this->createMasterSlaveConnection();
+        $conn->connect('slave');
+
+        $query = 'SELECT count(*) as num FROM master_slave_table';
+
+        $statement = $conn->query($query);
+
+        self::assertInstanceOf(Statement::class, $statement);
+
+        //Query must be executed only on Master, even when we connect to the slave
+        self::assertTrue($conn->isConnectedToMaster());
+
+        $data = $statement->fetchAll();
+
+        //Default fetchmode is FetchMode::ASSOCIATIVE
+        self::assertArrayHasKey(0, $data);
+        self::assertArrayHasKey('num', $data[0]);
+
+        //Could be set in other fetchmodes
+        self::assertArrayNotHasKey(0, $data[0]);
+
+        self::assertEquals(1, $data[0]['num']);
     }
 }

@@ -11,20 +11,25 @@ use function array_map;
 
 class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
+    /** @var bool */
+    private static $privilegesGranted = false;
+
     protected function setUp()
     {
         parent::setUp();
 
-        if (! isset($GLOBALS['db_username'])) {
-            $this->markTestSkipped('Foo');
+        if (self::$privilegesGranted) {
+            return;
         }
 
-        $username = $GLOBALS['db_username'];
+        if (! isset($GLOBALS['db_username'])) {
+            self::markTestSkipped('Username must be explicitly specified in connection parameters for this test');
+        }
 
-        $query = 'GRANT ALL PRIVILEGES TO ' . $username;
+        TestUtil::getTempConnection()
+            ->exec('GRANT ALL PRIVILEGES TO ' . $GLOBALS['db_username']);
 
-        $conn = TestUtil::getTempConnection();
-        $conn->executeUpdate($query);
+        self::$privilegesGranted = true;
     }
 
     public function testRenameTable()

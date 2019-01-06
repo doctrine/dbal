@@ -5,16 +5,19 @@ namespace Doctrine\Tests\DBAL\Functional;
 use DateTime;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\Mysqli\Driver as MySQLiDriver;
+use Doctrine\DBAL\Driver\OCI8\Driver as Oci8Driver;
+use Doctrine\DBAL\Driver\PDOConnection;
+use Doctrine\DBAL\Driver\PDOOracle\Driver as PDOOracleDriver;
 use Doctrine\DBAL\Driver\SQLSrv\Driver as SQLSrvDriver;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Platforms\TrimMode;
-use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Statement;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DbalFunctionalTestCase;
+use PDO;
 use const CASE_LOWER;
 use const PHP_EOL;
 use function array_change_key_case;
@@ -42,7 +45,6 @@ class DataAccessTest extends DbalFunctionalTestCase
             return;
         }
 
-        /** @var AbstractSchemaManager $sm */
         $table = new Table('fetch_table');
         $table->addColumn('test_int', 'integer');
         $table->addColumn('test_string', 'string');
@@ -601,7 +603,6 @@ class DataAccessTest extends DbalFunctionalTestCase
         $table->addColumn('test_days', 'integer');
         $table->setPrimaryKey(['test_date']);
 
-        /** @var AbstractSchemaManager $sm */
         $sm = $this->connection->getSchemaManager();
         $sm->createTable($table);
 
@@ -752,7 +753,7 @@ class DataAccessTest extends DbalFunctionalTestCase
      */
     public function testFetchAllSupportFetchClass()
     {
-        $this->skipOci8AndMysqli();
+        $this->beforeFetchClassTest();
         $this->setupFixture();
 
         $sql  = 'SELECT test_int, test_string, test_datetime FROM fetch_table';
@@ -794,7 +795,7 @@ class DataAccessTest extends DbalFunctionalTestCase
      */
     public function testSetFetchModeClassFetchAll()
     {
-        $this->skipOci8AndMysqli();
+        $this->beforeFetchClassTest();
         $this->setupFixture();
 
         $sql  = 'SELECT * FROM fetch_table';
@@ -816,7 +817,7 @@ class DataAccessTest extends DbalFunctionalTestCase
      */
     public function testSetFetchModeClassFetch()
     {
-        $this->skipOci8AndMysqli();
+        $this->beforeFetchClassTest();
         $this->setupFixture();
 
         $sql  = 'SELECT * FROM fetch_table';
@@ -894,22 +895,6 @@ class DataAccessTest extends DbalFunctionalTestCase
     /**
      * @group DBAL-1028
      */
-    public function testFetchColumnNonExistingIndex()
-    {
-        if ($this->connection->getDriver()->getName() === 'pdo_sqlsrv') {
-            $this->markTestSkipped(
-                'Test does not work for pdo_sqlsrv driver as it throws a fatal error for a non-existing column index.'
-            );
-        }
-
-        self::assertNull(
-            $this->connection->fetchColumn('SELECT test_int FROM fetch_table WHERE test_int = ?', [1], 1)
-        );
-    }
-
-    /**
-     * @group DBAL-1028
-     */
     public function testFetchColumnNoResult()
     {
         self::assertFalse(
@@ -927,16 +912,25 @@ class DataAccessTest extends DbalFunctionalTestCase
         ]);
     }
 
-    private function skipOci8AndMysqli()
+    private function beforeFetchClassTest()
     {
-        if (isset($GLOBALS['db_type']) && $GLOBALS['db_type'] === 'oci8') {
+        $driver = $this->connection->getDriver();
+
+        if ($driver instanceof Oci8Driver) {
             $this->markTestSkipped('Not supported by OCI8');
         }
-        if ($this->connection->getDriver()->getName() !== 'mysqli') {
+
+        if ($driver instanceof MySQLiDriver) {
+            $this->markTestSkipped('Mysqli driver dont support this feature.');
+        }
+
+        if (! $driver instanceof PDOOracleDriver) {
             return;
         }
 
-        $this->markTestSkipped('Mysqli driver dont support this feature.');
+        /** @var PDOConnection $connection */
+        $connection = $this->connection->getWrappedConnection();
+        $connection->setAttribute(PDO::ATTR_CASE, PDO::CASE_LOWER);
     }
 }
 

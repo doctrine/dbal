@@ -59,6 +59,9 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
     /** @var resource The prepared SQL statement to execute. */
     private $stmt;
 
+    /** @var mixed[] The references to bound parameter values. */
+    private $boundValues = [];
+
     /**
      * Prepares given statement for given connection.
      *
@@ -107,6 +110,8 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
             default:
                 throw new SQLAnywhereException('Unknown type: ' . $type);
         }
+
+        $this->boundValues[$column] =& $variable;
 
         if (! sasql_stmt_bind_param_ex($this->stmt, $column - 1, $variable, $type, $variable === null)) {
             throw SQLAnywhereException::fromSQLAnywhereError($this->conn, $this->stmt);
@@ -248,19 +253,19 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
 
         switch ($fetchMode) {
             case FetchMode::CUSTOM_OBJECT:
-                while ($row = $this->fetch(...func_get_args())) {
+                while (($row = $this->fetch(...func_get_args())) !== false) {
                     $rows[] = $row;
                 }
                 break;
 
             case FetchMode::COLUMN:
-                while ($row = $this->fetchColumn()) {
+                while (($row = $this->fetchColumn()) !== false) {
                     $rows[] = $row;
                 }
                 break;
 
             default:
-                while ($row = $this->fetch($fetchMode)) {
+                while (($row = $this->fetch($fetchMode)) !== false) {
                     $rows[] = $row;
                 }
         }

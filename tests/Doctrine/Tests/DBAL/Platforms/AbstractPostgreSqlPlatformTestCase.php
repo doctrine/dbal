@@ -854,6 +854,29 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     }
 
     /**
+     * @group 3158
+     */
+    public function testAltersTableColumnCommentIfRequiredByType()
+    {
+        $table1 = new Table('"foo"', [new Column('"bar"', Type::getType('datetime'))]);
+        $table2 = new Table('"foo"', [new Column('"bar"', Type::getType('datetime_immutable'))]);
+
+        $comparator = new Comparator();
+
+        $tableDiff = $comparator->diffTable($table1, $table2);
+
+        $this->assertInstanceOf('Doctrine\DBAL\Schema\TableDiff', $tableDiff);
+        $this->assertSame(
+            [
+                'ALTER TABLE "foo" ALTER "bar" TYPE TIMESTAMP(0) WITHOUT TIME ZONE',
+                'ALTER TABLE "foo" ALTER "bar" DROP DEFAULT',
+                'COMMENT ON COLUMN "foo"."bar" IS \'(DC2Type:datetime_immutable)\'',
+            ],
+            $this->platform->getAlterTableSQL($tableDiff)
+        );
+    }
+
+    /**
      * {@inheritdoc}
      */
     protected function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL()
@@ -929,7 +952,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
      */
     public function testQuotesTableNameInListTableForeignKeysSQL()
     {
-        self::assertContains("'Foo''Bar\\\\'", $this->platform->getListTableForeignKeysSQL("Foo'Bar\\"), '', true);
+        self::assertContains("'Foo''Bar\\'", $this->platform->getListTableForeignKeysSQL("Foo'Bar\\"), '', true);
     }
 
     /**
@@ -938,7 +961,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     public function testQuotesSchemaNameInListTableForeignKeysSQL()
     {
         self::assertContains(
-            "'Foo''Bar\\\\'",
+            "'Foo''Bar\\'",
             $this->platform->getListTableForeignKeysSQL("Foo'Bar\\.baz_table"),
             '',
             true
@@ -950,7 +973,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
      */
     public function testQuotesTableNameInListTableConstraintsSQL()
     {
-        self::assertContains("'Foo''Bar\\\\'", $this->platform->getListTableConstraintsSQL("Foo'Bar\\"), '', true);
+        self::assertContains("'Foo''Bar\\'", $this->platform->getListTableConstraintsSQL("Foo'Bar\\"), '', true);
     }
 
     /**
@@ -958,7 +981,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
      */
     public function testQuotesTableNameInListTableIndexesSQL()
     {
-        self::assertContains("'Foo''Bar\\\\'", $this->platform->getListTableIndexesSQL("Foo'Bar\\"), '', true);
+        self::assertContains("'Foo''Bar\\'", $this->platform->getListTableIndexesSQL("Foo'Bar\\"), '', true);
     }
 
     /**
@@ -967,7 +990,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     public function testQuotesSchemaNameInListTableIndexesSQL()
     {
         self::assertContains(
-            "'Foo''Bar\\\\'",
+            "'Foo''Bar\\'",
             $this->platform->getListTableIndexesSQL("Foo'Bar\\.baz_table"),
             '',
             true
@@ -979,7 +1002,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
      */
     public function testQuotesTableNameInListTableColumnsSQL()
     {
-        self::assertContains("'Foo''Bar\\\\'", $this->platform->getListTableColumnsSQL("Foo'Bar\\"), '', true);
+        self::assertContains("'Foo''Bar\\'", $this->platform->getListTableColumnsSQL("Foo'Bar\\"), '', true);
     }
 
     /**
@@ -988,7 +1011,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     public function testQuotesSchemaNameInListTableColumnsSQL()
     {
         self::assertContains(
-            "'Foo''Bar\\\\'",
+            "'Foo''Bar\\'",
             $this->platform->getListTableColumnsSQL("Foo'Bar\\.baz_table"),
             '',
             true
@@ -1001,7 +1024,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     public function testQuotesDatabaseNameInCloseActiveDatabaseConnectionsSQL()
     {
         self::assertContains(
-            "'Foo''Bar\\\\'",
+            "'Foo''Bar\\'",
             $this->platform->getCloseActiveDatabaseConnectionsSQL("Foo'Bar\\"),
             '',
             true

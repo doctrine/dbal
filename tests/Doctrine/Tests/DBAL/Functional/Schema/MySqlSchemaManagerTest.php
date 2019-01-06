@@ -23,6 +23,8 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
             return;
         }
 
+        $this->resetSharedConn();
+
         Type::addType('point', MySqlPointType::class);
     }
 
@@ -197,6 +199,59 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertNull($onlineTable->getColumn('def_blob')->getDefault());
         self::assertNull($onlineTable->getColumn('def_blob_null')->getDefault());
         self::assertFalse($onlineTable->getColumn('def_blob_null')->getNotnull());
+    }
+
+    public function testColumnCharset()
+    {
+        $table = new Table('test_column_charset');
+        $table->addColumn('id', 'integer');
+        $table->addColumn('no_charset', 'text');
+        $table->addColumn('foo', 'text')->setPlatformOption('charset', 'ascii');
+        $table->addColumn('bar', 'text')->setPlatformOption('charset', 'latin1');
+        $this->schemaManager->dropAndCreateTable($table);
+
+        $columns = $this->schemaManager->listTableColumns('test_column_charset');
+
+        self::assertFalse($columns['id']->hasPlatformOption('charset'));
+        self::assertEquals('utf8', $columns['no_charset']->getPlatformOption('charset'));
+        self::assertEquals('ascii', $columns['foo']->getPlatformOption('charset'));
+        self::assertEquals('latin1', $columns['bar']->getPlatformOption('charset'));
+    }
+
+    public function testAlterColumnCharset()
+    {
+        $tableName = 'test_alter_column_charset';
+
+        $table = new Table($tableName);
+        $table->addColumn('col_text', 'text')->setPlatformOption('charset', 'utf8');
+
+        $this->schemaManager->dropAndCreateTable($table);
+
+        $diffTable = clone $table;
+        $diffTable->getColumn('col_text')->setPlatformOption('charset', 'ascii');
+
+        $comparator = new Comparator();
+
+        $this->schemaManager->alterTable($comparator->diffTable($table, $diffTable));
+
+        $table = $this->schemaManager->listTableDetails($tableName);
+
+        self::assertEquals('ascii', $table->getColumn('col_text')->getPlatformOption('charset'));
+    }
+
+    public function testColumnCharsetChange()
+    {
+        $table = new Table('test_column_charset_change');
+        $table->addColumn('col_string', 'string')->setLength(100)->setNotnull(true)->setPlatformOption('charset', 'utf8');
+
+        $diffTable = clone $table;
+        $diffTable->getColumn('col_string')->setPlatformOption('charset', 'ascii');
+
+        $fromSchema = new Schema([$table]);
+        $toSchema   = new Schema([$diffTable]);
+
+        $diff = $fromSchema->getMigrateToSql($toSchema, $this->connection->getDatabasePlatform());
+        self::assertContains('ALTER TABLE test_column_charset_change CHANGE col_string col_string VARCHAR(100) CHARACTER SET ascii NOT NULL', $diff);
     }
 
     public function testColumnCollation()
@@ -485,5 +540,55 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->connection->query($sql);
         $onlineTable = $this->schemaManager->listTableDetails('test_column_defaults_with_create');
         self::assertSame($default, $onlineTable->getColumn('col1')->getDefault());
+    }
+
+    public function testEnsureTableOptionsAreReflectedInMetadata() : void
+    {
+        $this->connection->query('DROP TABLE IF EXISTS test_table_metadata');
+
+        $sql = <<<'SQL'
+CREATE TABLE test_table_metadata(
+  col1 INT NOT NULL AUTO_INCREMENT PRIMARY KEY
+)
+COLLATE utf8_general_ci
+ENGINE InnoDB
+ROW_FORMAT COMPRESSED
+COMMENT 'This is a test'
+AUTO_INCREMENT=42
+PARTITION BY HASH (col1)
+SQL;
+
+        $this->connection->query($sql);
+        $onlineTable = $this->schemaManager->listTableDetails('test_table_metadata');
+
+        self::assertEquals('InnoDB', $onlineTable->getOption('engine'));
+        self::assertEquals('utf8_general_ci', $onlineTable->getOption('collation'));
+        self::assertEquals(42, $onlineTable->getOption('autoincrement'));
+        self::assertEquals('This is a test', $onlineTable->getOption('comment'));
+        self::assertEquals([
+            'row_format' => 'COMPRESSED',
+            'partitioned' => true,
+        ], $onlineTable->getOption('create_options'));
+    }
+
+    public function testEnsureTableWithoutOptionsAreReflectedInMetadata() : void
+    {
+        $this->connection->query('DROP TABLE IF EXISTS test_table_empty_metadata');
+
+        $this->connection->query('CREATE TABLE test_table_empty_metadata(col1 INT NOT NULL)');
+        $onlineTable = $this->schemaManager->listTableDetails('test_table_empty_metadata');
+
+        self::assertNotEmpty($onlineTable->getOption('engine'));
+        // collation could be set to default or not set, information_schema indicate a possibly null value
+        self::assertFalse($onlineTable->hasOption('autoincrement'));
+        self::assertEquals('', $onlineTable->getOption('comment'));
+        self::assertEquals([], $onlineTable->getOption('create_options'));
+    }
+
+    public function testParseNullCreateOptions() : void
+    {
+        $table = $this->schemaManager->listTableDetails('sys.processlist');
+
+        self::assertEquals([], $table->getOption('create_options'));
     }
 }

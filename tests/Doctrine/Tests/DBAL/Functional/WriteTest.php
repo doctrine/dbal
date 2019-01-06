@@ -3,8 +3,8 @@
 namespace Doctrine\Tests\DBAL\Functional;
 
 use DateTime;
+use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\ParameterType;
-use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
@@ -20,7 +20,6 @@ class WriteTest extends DbalFunctionalTestCase
         parent::setUp();
 
         try {
-            /** @var AbstractSchemaManager $sm */
             $table = new Table('write_table');
             $table->addColumn('id', 'integer', ['autoincrement' => true]);
             $table->addColumn('test_int', 'integer');
@@ -151,7 +150,7 @@ class WriteTest extends DbalFunctionalTestCase
         }
 
         self::assertEquals(1, $this->connection->insert('write_table', ['test_int' => 2, 'test_string' => 'bar']));
-        $num = $this->connection->lastInsertId();
+        $num = $this->lastInsertId();
 
         self::assertNotNull($num, 'LastInsertId() should not be null.');
         self::assertGreaterThan(0, $num, 'LastInsertId() should be non-negative number.');
@@ -177,7 +176,7 @@ class WriteTest extends DbalFunctionalTestCase
         $stmt            = $this->connection->query($this->connection->getDatabasePlatform()->getSequenceNextValSQL('write_table_id_seq'));
         $nextSequenceVal = $stmt->fetchColumn();
 
-        $lastInsertId = $this->connection->lastInsertId('write_table_id_seq');
+        $lastInsertId = $this->lastInsertId('write_table_id_seq');
 
         self::assertGreaterThan(0, $lastInsertId);
         self::assertEquals($nextSequenceVal, $lastInsertId);
@@ -189,7 +188,7 @@ class WriteTest extends DbalFunctionalTestCase
             $this->markTestSkipped("Test only works consistently on platforms that support sequences and don't support identity columns.");
         }
 
-        self::assertFalse($this->connection->lastInsertId(null));
+        self::assertFalse($this->lastInsertId());
     }
 
     /**
@@ -287,11 +286,11 @@ class WriteTest extends DbalFunctionalTestCase
 
         $this->connection->exec($sql);
 
-        $firstId = $this->connection->lastInsertId($seqName);
+        $firstId = $this->lastInsertId($seqName);
 
         $this->connection->exec($sql);
 
-        $secondId = $this->connection->lastInsertId($seqName);
+        $secondId = $this->lastInsertId($seqName);
 
         self::assertGreaterThan($firstId, $secondId);
     }
@@ -335,5 +334,26 @@ class WriteTest extends DbalFunctionalTestCase
         $data = $this->connection->fetchAll('SELECT * FROM write_table WHERE test_int = 30');
 
         self::assertCount(0, $data);
+    }
+
+    /**
+     * Returns the ID of the last inserted row or skips the test if the currently used driver
+     * doesn't support this feature
+     *
+     * @return string
+     *
+     * @throws DriverException
+     */
+    private function lastInsertId(?string $name = null)
+    {
+        try {
+            return $this->connection->lastInsertId($name);
+        } catch (DriverException $e) {
+            if ($e->getCode() === 'IM001') {
+                $this->markTestSkipped($e->getMessage());
+            }
+
+            throw $e;
+        }
     }
 }

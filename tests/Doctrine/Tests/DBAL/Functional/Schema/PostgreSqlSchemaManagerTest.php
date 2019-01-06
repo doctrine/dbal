@@ -397,7 +397,6 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('foo', $type)->setPlatformOption('jsonb', true);
         $this->schemaManager->dropAndCreateTable($table);
 
-        /** @var Schema\Column[] $columns */
         $columns = $this->schemaManager->listTableColumns('test_jsonb');
 
         self::assertSame($type, $columns['foo']->getType()->getName());

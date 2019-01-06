@@ -2,15 +2,14 @@
 
 namespace Doctrine\Tests\DBAL\Functional;
 
-use Doctrine\DBAL\Driver\PDOSqlsrv\Driver as PDOSQLSrvDriver;
+use Doctrine\DBAL\Driver\OCI8\Driver as OCI8Driver;
+use Doctrine\DBAL\Driver\PDOOracle\Driver as PDOOracleDriver;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
-use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use function fopen;
-use function in_array;
 use function str_repeat;
 use function stream_get_contents;
 
@@ -23,11 +22,12 @@ class BlobTest extends DbalFunctionalTestCase
     {
         parent::setUp();
 
-        if ($this->connection->getDriver() instanceof PDOSQLSrvDriver) {
-            $this->markTestSkipped('This test does not work on pdo_sqlsrv driver due to a bug. See: http://social.msdn.microsoft.com/Forums/sqlserver/en-US/5a755bdd-41e9-45cb-9166-c9da4475bb94/how-to-set-null-for-varbinarymax-using-bindvalue-using-pdosqlsrv?forum=sqldriverforphp');
+        if ($this->connection->getDriver() instanceof PDOOracleDriver) {
+            // inserting BLOBs as streams on Oracle requires Oracle-specific SQL syntax which is currently not supported
+            // see http://php.net/manual/en/pdo.lobs.php#example-1035
+            $this->markTestSkipped('DBAL doesn\'t support storing LOBs represented as streams using PDO_OCI');
         }
 
-        /** @var AbstractSchemaManager $sm */
         $table = new Table('blob_table');
         $table->addColumn('id', 'integer');
         $table->addColumn('clobfield', 'text');
@@ -55,10 +55,9 @@ class BlobTest extends DbalFunctionalTestCase
 
     public function testInsertProcessesStream()
     {
-        if (in_array($this->connection->getDatabasePlatform()->getName(), ['oracle', 'db2'], true)) {
-            // https://github.com/doctrine/dbal/issues/3288 for DB2
-            // https://github.com/doctrine/dbal/issues/3290 for Oracle
-            $this->markTestIncomplete('Platform does not support stream resources as parameters');
+        // https://github.com/doctrine/dbal/issues/3290
+        if ($this->connection->getDriver() instanceof OCI8Driver) {
+            $this->markTestIncomplete('The oci8 driver does not support stream resources as parameters');
         }
 
         $longBlob = str_repeat('x', 4 * 8192); // send 4 chunks
@@ -112,10 +111,9 @@ class BlobTest extends DbalFunctionalTestCase
 
     public function testUpdateProcessesStream()
     {
-        if (in_array($this->connection->getDatabasePlatform()->getName(), ['oracle', 'db2'], true)) {
-            // https://github.com/doctrine/dbal/issues/3288 for DB2
-            // https://github.com/doctrine/dbal/issues/3290 for Oracle
-            $this->markTestIncomplete('Platform does not support stream resources as parameters');
+        // https://github.com/doctrine/dbal/issues/3290
+        if ($this->connection->getDriver() instanceof OCI8Driver) {
+            $this->markTestIncomplete('The oci8 driver does not support stream resources as parameters');
         }
 
         $this->connection->insert('blob_table', [
@@ -141,10 +139,8 @@ class BlobTest extends DbalFunctionalTestCase
 
     public function testBindParamProcessesStream()
     {
-        if (in_array($this->connection->getDatabasePlatform()->getName(), ['oracle', 'db2'], true)) {
-            // https://github.com/doctrine/dbal/issues/3288 for DB2
-            // https://github.com/doctrine/dbal/issues/3290 for Oracle
-            $this->markTestIncomplete('Platform does not support stream resources as parameters');
+        if ($this->connection->getDriver() instanceof OCI8Driver) {
+            $this->markTestIncomplete('The oci8 driver does not support stream resources as parameters');
         }
 
         $stmt = $this->connection->prepare("INSERT INTO blob_table(id, clobfield, blobfield) VALUES (1, 'ignored', ?)");

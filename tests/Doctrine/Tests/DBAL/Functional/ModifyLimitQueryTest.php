@@ -2,7 +2,6 @@
 
 namespace Doctrine\Tests\DBAL\Functional;
 
-use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use const CASE_LOWER;
@@ -19,7 +18,6 @@ class ModifyLimitQueryTest extends DbalFunctionalTestCase
         parent::setUp();
 
         if (! self::$tableCreated) {
-            /** @var AbstractSchemaManager $sm */
             $table = new Table('modify_limit_table');
             $table->addColumn('test_int', 'integer');
             $table->setPrimaryKey(['test_int']);

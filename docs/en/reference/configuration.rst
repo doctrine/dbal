@@ -126,20 +126,19 @@ interfaces to use. It can be configured in one of three ways:
 -  ``driver``: The built-in driver implementation to use. The
    following drivers are currently available:
 
-   -  ``pdo_mysql``: A MySQL driver that uses the pdo\_mysql PDO
+   -  ``pdo_mysql``: A MySQL driver that uses the pdo_mysql PDO
       extension.
-   -  ``drizzle_pdo_mysql``: A Drizzle driver that uses pdo\_mysql PDO
+   -  ``drizzle_pdo_mysql``: A Drizzle driver that uses pdo_mysql PDO
       extension.
    -  ``mysqli``: A MySQL driver that uses the mysqli extension.
-   -  ``pdo_sqlite``: An SQLite driver that uses the pdo\_sqlite PDO
+   -  ``pdo_sqlite``: An SQLite driver that uses the pdo_sqlite PDO
       extension.
-   -  ``pdo_pgsql``: A PostgreSQL driver that uses the pdo\_pgsql PDO
+   -  ``pdo_pgsql``: A PostgreSQL driver that uses the pdo_pgsql PDO
       extension.
-   -  ``pdo_oci``: An Oracle driver that uses the pdo\_oci PDO
+   -  ``pdo_oci``: An Oracle driver that uses the pdo_oci PDO
       extension.
       **Note that this driver caused problems in our tests. Prefer the oci8 driver if possible.**
-   -  ``pdo_sqlsrv``: A Microsoft SQL Server driver that uses pdo\_sqlsrv PDO
-      **Note that this driver caused problems in our tests. Prefer the sqlsrv driver if possible.**
+   -  ``pdo_sqlsrv``: A Microsoft SQL Server driver that uses pdo_sqlsrv PDO
    -  ``sqlsrv``: A Microsoft SQL Server driver that uses the sqlsrv PHP extension.
    -  ``oci8``: An Oracle driver that uses the oci8 PHP extension.
    -  ``sqlanywhere``: A SAP Sybase SQL Anywhere driver that uses the sqlanywhere PHP extension.
@@ -170,8 +169,8 @@ options recognized by each built-in driver.
     When using an existing PDO instance through the ``pdo``
     option, specifying connection details is obviously not necessary.
 
-pdo\_sqlite
-^^^^^^^^^^^
+pdo_sqlite
+^^^^^^^^^^
 
 -  ``user`` (string): Username to use when connecting to the
    database.
@@ -183,8 +182,8 @@ pdo\_sqlite
    in-memory (non-persistent). Mutually exclusive with ``path``.
    ``path`` takes precedence.
 
-pdo\_mysql
-^^^^^^^^^^
+pdo_mysql
+^^^^^^^^^
 
 -  ``user`` (string): Username to use when connecting to the
    database.
@@ -198,8 +197,8 @@ pdo\_mysql
 -  ``charset`` (string): The charset used when connecting to the
    database.
 
-drizzle\_pdo\_mysql
-^^^^^^^^^^^^^^^^^^^
+drizzle_pdo_mysql
+^^^^^^^^^^^^^^^^^
 
 **Requires** drizzle plugin ``mysql_protocol`` or ``mysql_unix_socket_protocol`` to be enabled.
 On Ubuntu this can be done by editing ``/etc/drizzle/conf.d/mysql-protocol.cnf``
@@ -236,8 +235,8 @@ mysqli
 -  ``ssl_cipher`` (string): A list of allowable ciphers to use for SSL encryption.
 -  ``driverOptions`` Any supported flags for mysqli found on `http://www.php.net/manual/en/mysqli.real-connect.php`
 
-pdo\_pgsql
-^^^^^^^^^^
+pdo_pgsql
+^^^^^^^^^
 
 -  ``user`` (string): Username to use when connecting to the
    database.
@@ -275,8 +274,8 @@ PostgreSQL behaves differently with regard to booleans when you use
 and ``'false'`` as strings you can change to integers by using:
 ``$conn->getDatabasePlatform()->setUseBooleanTrueFalseStrings($flag)``.
 
-pdo\_oci / oci8
-^^^^^^^^^^^^^^^
+pdo_oci / oci8
+^^^^^^^^^^^^^^
 
 -  ``user`` (string): Username to use when connecting to the
    database.
@@ -307,8 +306,8 @@ pdo\_oci / oci8
    and ``getPort`` methods from ``Doctrine\DBAL\Connection`` will no longer function as expected.
 -  ``persistent`` (boolean): Whether to establish a persistent connection.
 
-pdo\_sqlsrv / sqlsrv
-^^^^^^^^^^^^^^^^^^^^
+pdo_sqlsrv / sqlsrv
+^^^^^^^^^^^^^^^^^^^
 
 -  ``user`` (string): Username to use when connecting to the
    database.

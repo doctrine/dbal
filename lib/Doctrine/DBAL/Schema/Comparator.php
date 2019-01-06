@@ -432,12 +432,10 @@ class Comparator
             $changedProperties[] = 'comment';
         }
 
-        if ($properties1['default'] !== $properties2['default'] ||
-            // Null values need to be checked additionally as they tell whether to create or drop a default value.
-            // null != 0, null != false, null != '' etc. This affects platform's table alteration SQL generation.
-            ($properties1['default'] === null && $properties2['default'] !== null) ||
-            ($properties2['default'] === null && $properties1['default'] !== null)
-        ) {
+        // Null values need to be checked additionally as they tell whether to create or drop a default value.
+        // null != 0, null != false, null != '' etc. This affects platform's table alteration SQL generation.
+        if (($properties1['default'] === null) !== ($properties2['default'] === null)
+            || $properties1['default'] != $properties2['default']) {
             $changedProperties[] = 'default';
         }
 
