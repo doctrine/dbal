@@ -68,7 +68,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
             } elseif (strpos($v['index_type'], 'SPATIAL') !== false) {
                 $v['flags'] = ['SPATIAL'];
             }
-            $v['length'] = $v['sub_part'] ?? null;
+            $v['length'] = isset($v['sub_part']) ? (int) $v['sub_part'] : null;
 
             $tableIndexes[$k] = $v;
         }
