@@ -16,4 +16,5 @@ sudo docker run \
     --name mysql80 \
     mysql:8.0
 
-sudo docker exec -i mysql80 bash <<< 'until echo \\q | mysql doctrine_tests > /dev/null 2>&1 ; do sleep 1; done'
+sudo docker exec -i mysql80 bash <<< 'until echo \\q | mysql doctrine_tests > /dev/null 2>&1; do sleep 1; done'
+sudo docker exec -i mysql80 mysql -e 'SET @@GLOBAL.wait_timeout=3600;' > /dev/null
