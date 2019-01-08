@@ -2,11 +2,8 @@
 
 namespace Doctrine\Tests\DBAL\Functional;
 
-use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\Tests\DbalFunctionalTestCase;
-use const CASE_LOWER;
-use function array_change_key_case;
 
 class ResetAutoincrementTest extends DbalFunctionalTestCase
 {
@@ -17,7 +14,6 @@ class ResetAutoincrementTest extends DbalFunctionalTestCase
         $table->addColumn('test_int', 'integer');
         $table->setPrimaryKey(['id']);
 
-        /** @var AbstractSchemaManager $sm */
         $sm = $this->connection->getSchemaManager();
         $sm->createTable($table);
 
@@ -38,9 +34,6 @@ class ResetAutoincrementTest extends DbalFunctionalTestCase
 
     protected function getIdByTestInt(int $whereTestInt)
     {
-        $row = $this->connection->fetchAssoc('SELECT id FROM autoincremented_table WHERE test_int = ?', [$whereTestInt]);
-        $row = array_change_key_case($row, CASE_LOWER);
-
-        return $row['id'];
+        return $this->connection->fetchColumn('SELECT id FROM autoincremented_table WHERE test_int = ?', [$whereTestInt]);
     }
 }
