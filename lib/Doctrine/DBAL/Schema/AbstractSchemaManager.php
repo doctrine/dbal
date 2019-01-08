@@ -188,7 +188,7 @@ abstract class AbstractSchemaManager
     /**
      * Returns true if all the given tables exist.
      *
-     * @param string[] $tableNames
+     * @param string|string[] $tableNames
      *
      * @return bool
      */
@@ -1098,28 +1098,32 @@ abstract class AbstractSchemaManager
      * Given a table comment this method tries to extract a typehint for Doctrine Type, or returns
      * the type given as default.
      *
-     * @param string $comment
-     * @param string $currentType
+     * @param string|null $comment
+     * @param string      $currentType
      *
      * @return string
      */
     public function extractDoctrineTypeFromComment($comment, $currentType)
     {
-        if (preg_match('(\(DC2Type:(((?!\)).)+)\))', $comment, $match)) {
-            $currentType = $match[1];
+        if ($comment !== null && preg_match('(\(DC2Type:(((?!\)).)+)\))', $comment, $match)) {
+            return $match[1];
         }
 
         return $currentType;
     }
 
     /**
-     * @param string $comment
-     * @param string $type
+     * @param string|null $comment
+     * @param string|null $type
      *
-     * @return string
+     * @return string|null
      */
     public function removeDoctrineTypeFromComment($comment, $type)
     {
+        if ($comment === null) {
+            return null;
+        }
+
         return str_replace('(DC2Type:' . $type . ')', '', $comment);
     }
 }

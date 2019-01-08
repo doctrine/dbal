@@ -213,10 +213,9 @@ class OCI8Statement implements IteratorAggregate, Statement
     /**
      * Finds closing quote
      *
-     * @param string      $statement               The SQL statement to parse
-     * @param string      $tokenOffset             The offset to start searching from
-     * @param string|null $currentLiteralDelimiter The delimiter of the current string literal
-     *                                             or NULL if not currently in a literal
+     * @param string $statement               The SQL statement to parse
+     * @param string $tokenOffset             The offset to start searching from
+     * @param string $currentLiteralDelimiter The delimiter of the current string literal
      *
      * @return bool Whether the token was found
      */
@@ -274,7 +273,7 @@ class OCI8Statement implements IteratorAggregate, Statement
      */
     public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null)
     {
-        $column = $this->_paramMap[$column] ?? $column;
+        $column = $this->_paramMap[$column];
 
         if ($type === ParameterType::LARGE_OBJECT) {
             $lob = oci_new_descriptor($this->_dbh, OCI_D_LOB);

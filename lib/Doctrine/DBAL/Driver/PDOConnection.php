@@ -24,7 +24,7 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
     public function __construct($dsn, $user = null, $password = null, ?array $options = null)
     {
         try {
-            parent::__construct($dsn, $user, $password, $options);
+            parent::__construct($dsn, (string) $user, (string) $password, (array) $options);
             $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, [PDOStatement::class, []]);
             $this->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (\PDOException $exception) {
@@ -95,6 +95,10 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
     public function lastInsertId($name = null)
     {
         try {
+            if ($name === null) {
+                return parent::lastInsertId();
+            }
+
             return parent::lastInsertId($name);
         } catch (\PDOException $exception) {
             throw new PDOException($exception);

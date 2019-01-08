@@ -6,6 +6,7 @@ use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Types\Type;
+use Throwable;
 use const CASE_LOWER;
 use function array_change_key_case;
 use function array_values;
@@ -31,6 +32,7 @@ class OracleSchemaManager extends AbstractSchemaManager
             parent::dropDatabase($database);
         } catch (DBALException $exception) {
             $exception = $exception->getPrevious();
+            assert($exception instanceof Throwable);
 
             if (! $exception instanceof DriverException) {
                 throw $exception;

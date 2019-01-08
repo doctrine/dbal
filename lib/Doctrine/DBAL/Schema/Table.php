@@ -216,7 +216,7 @@ class Table extends AbstractAsset
         if ($oldIndex->isPrimary()) {
             $this->dropPrimaryKey();
 
-            return $this->setPrimaryKey($oldIndex->getColumns(), $newIndexName);
+            return $this->setPrimaryKey($oldIndex->getColumns(), $newIndexName ?? false);
         }
 
         unset($this->_indexes[$oldIndexName]);
@@ -589,9 +589,11 @@ class Table extends AbstractAsset
      */
     public function getColumns()
     {
+        $primaryKey        = $this->getPrimaryKey();
         $primaryKeyColumns = [];
-        if ($this->hasPrimaryKey()) {
-            $primaryKeyColumns = $this->filterColumns($this->getPrimaryKey()->getColumns());
+
+        if ($primaryKey !== null) {
+            $primaryKeyColumns = $this->filterColumns($primaryKey->getColumns());
         }
 
         return array_merge($primaryKeyColumns, $this->getForeignKeyColumns(), $this->_columns);
@@ -681,10 +683,13 @@ class Table extends AbstractAsset
      */
     public function getPrimaryKeyColumns()
     {
-        if (! $this->hasPrimaryKey()) {
+        $primaryKey = $this->getPrimaryKey();
+
+        if ($primaryKey === null) {
             throw new DBALException('Table ' . $this->getName() . ' has no primary key.');
         }
-        return $this->getPrimaryKey()->getColumns();
+
+        return $primaryKey->getColumns();
     }
 
     /**
@@ -820,12 +825,16 @@ class Table extends AbstractAsset
      *
      * Trims quotes and lowercases the given identifier.
      *
-     * @param string $identifier The identifier to normalize.
+     * @param string|null $identifier The identifier to normalize.
      *
      * @return string The normalized identifier.
      */
     private function normalizeIdentifier($identifier)
     {
+        if ($identifier === null) {
+            return '';
+        }
+
         return $this->trimQuotes(strtolower($identifier));
     }
 }

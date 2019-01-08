@@ -47,9 +47,7 @@ class DrizzlePlatform extends AbstractPlatform
      */
     public function getConcatExpression()
     {
-        $args = func_get_args();
-
-        return 'CONCAT(' . implode(', ', (array) $args) . ')';
+        return 'CONCAT(' . implode(', ', func_get_args()) . ')';
     }
 
     /**

@@ -28,7 +28,6 @@ use Doctrine\Tests\Mocks\ServerInfoAwareConnectionMock;
 use Doctrine\Tests\Mocks\VersionAwarePlatformDriverMock;
 use Exception;
 use PHPUnit\Framework\MockObject\MockObject;
-use ReflectionObject;
 use stdClass;
 use function call_user_func_array;
 
@@ -603,29 +602,6 @@ class ConnectionTest extends DbalTestCase
             ->will($this->returnValue($driverStatementMock));
 
         self::assertSame($result, $conn->fetchColumn($statement, $params, $column, $types));
-    }
-
-    public function testConnectionIsClosedButNotUnset()
-    {
-        // mock Connection, and make connect() purposefully do nothing
-        $connection = $this->getMockBuilder(Connection::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['connect'])
-            ->getMock();
-
-        // artificially set the wrapped connection to non-null
-        $reflection   = new ReflectionObject($connection);
-        $connProperty = $reflection->getProperty('_conn');
-        $connProperty->setAccessible(true);
-        $connProperty->setValue($connection, new stdClass());
-
-        // close the connection (should nullify the wrapped connection)
-        $connection->close();
-
-        // the wrapped connection should be null
-        // (and since connect() does nothing, this will not reconnect)
-        // this will also fail if this _conn property was unset instead of set to null
-        self::assertNull($connection->getWrappedConnection());
     }
 
     public function testFetchAll()

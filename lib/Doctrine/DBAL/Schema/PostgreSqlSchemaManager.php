@@ -134,8 +134,8 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     {
         $onUpdate       = null;
         $onDelete       = null;
-        $localColumns   = null;
-        $foreignColumns = null;
+        $localColumns   = [];
+        $foreignColumns = [];
         $foreignTable   = null;
 
         if (preg_match('(ON UPDATE ([a-zA-Z0-9]+( (NULL|ACTION|DEFAULT))?))', $tableForeignKey['condef'], $match)) {

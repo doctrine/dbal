@@ -26,7 +26,6 @@ use function is_bool;
 use function is_numeric;
 use function is_string;
 use function preg_match;
-use function preg_replace;
 use function sprintf;
 use function str_replace;
 use function stripos;
@@ -341,9 +340,9 @@ SQL
      * as column comments are stored in the same property there when
      * specifying a column's "Description" attribute.
      *
-     * @param string $tableName  The quoted table name to which the column belongs.
-     * @param string $columnName The quoted column name to create the comment for.
-     * @param string $comment    The column's comment.
+     * @param string      $tableName  The quoted table name to which the column belongs.
+     * @param string      $columnName The quoted column name to create the comment for.
+     * @param string|null $comment    The column's comment.
      *
      * @return string
      */
@@ -700,9 +699,9 @@ SQL
      * as column comments are stored in the same property there when
      * specifying a column's "Description" attribute.
      *
-     * @param string $tableName  The quoted table name to which the column belongs.
-     * @param string $columnName The quoted column name to alter the comment for.
-     * @param string $comment    The column's comment.
+     * @param string      $tableName  The quoted table name to which the column belongs.
+     * @param string      $columnName The quoted column name to alter the comment for.
+     * @param string|null $comment    The column's comment.
      *
      * @return string
      */
@@ -808,10 +807,10 @@ SQL
         $level2Name = null
     ) {
         return 'EXEC sp_addextendedproperty ' .
-            'N' . $this->quoteStringLiteral($name) . ', N' . $this->quoteStringLiteral($value) . ', ' .
-            'N' . $this->quoteStringLiteral($level0Type) . ', ' . $level0Name . ', ' .
-            'N' . $this->quoteStringLiteral($level1Type) . ', ' . $level1Name . ', ' .
-            'N' . $this->quoteStringLiteral($level2Type) . ', ' . $level2Name;
+            'N' . $this->quoteStringLiteral($name) . ', N' . $this->quoteStringLiteral((string) $value) . ', ' .
+            'N' . $this->quoteStringLiteral((string) $level0Type) . ', ' . $level0Name . ', ' .
+            'N' . $this->quoteStringLiteral((string) $level1Type) . ', ' . $level1Name . ', ' .
+            'N' . $this->quoteStringLiteral((string) $level2Type) . ', ' . $level2Name;
     }
 
     /**
@@ -840,9 +839,9 @@ SQL
     ) {
         return 'EXEC sp_dropextendedproperty ' .
             'N' . $this->quoteStringLiteral($name) . ', ' .
-            'N' . $this->quoteStringLiteral($level0Type) . ', ' . $level0Name . ', ' .
-            'N' . $this->quoteStringLiteral($level1Type) . ', ' . $level1Name . ', ' .
-            'N' . $this->quoteStringLiteral($level2Type) . ', ' . $level2Name;
+            'N' . $this->quoteStringLiteral((string) $level0Type) . ', ' . $level0Name . ', ' .
+            'N' . $this->quoteStringLiteral((string) $level1Type) . ', ' . $level1Name . ', ' .
+            'N' . $this->quoteStringLiteral((string) $level2Type) . ', ' . $level2Name;
     }
 
     /**
@@ -872,10 +871,10 @@ SQL
         $level2Name = null
     ) {
         return 'EXEC sp_updateextendedproperty ' .
-        'N' . $this->quoteStringLiteral($name) . ', N' . $this->quoteStringLiteral($value) . ', ' .
-        'N' . $this->quoteStringLiteral($level0Type) . ', ' . $level0Name . ', ' .
-        'N' . $this->quoteStringLiteral($level1Type) . ', ' . $level1Name . ', ' .
-        'N' . $this->quoteStringLiteral($level2Type) . ', ' . $level2Name;
+            'N' . $this->quoteStringLiteral($name) . ', N' . $this->quoteStringLiteral((string) $value) . ', ' .
+            'N' . $this->quoteStringLiteral((string) $level0Type) . ', ' . $level0Name . ', ' .
+            'N' . $this->quoteStringLiteral((string) $level1Type) . ', ' . $level1Name . ', ' .
+            'N' . $this->quoteStringLiteral((string) $level2Type) . ', ' . $level2Name;
     }
 
     /**
@@ -1279,9 +1278,11 @@ SQL
         // Even if the TOP n is very large, the use of a CTE will
         // allow the SQL Server query planner to optimize it so it doesn't
         // actually scan the entire range covered by the TOP clause.
-        $selectPattern  = '/^(\s*SELECT\s+(?:DISTINCT\s+)?)(.*)$/im';
-        $replacePattern = sprintf('$1%s $2', $top);
-        $query          = preg_replace($selectPattern, $replacePattern, $query);
+        if (! preg_match('/^(\s*SELECT\s+(?:DISTINCT\s+)?)(.*)$/im', $query, $matches)) {
+            return $query;
+        }
+
+        $query = $matches[1] . $top . ' ' . $matches[2];
 
         if (stristr($query, 'ORDER BY')) {
             // Inner order by is not valid in SQL Server for our purposes

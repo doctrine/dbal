@@ -4,7 +4,6 @@ namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\ColumnCase;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Driver\PDOSqlsrv\Driver;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Portability\Connection as ConnectionPortability;
@@ -134,29 +133,6 @@ class PortabilityTest extends DbalFunctionalTestCase
         self::assertEquals(3, strlen($row['test_string']), 'test_string should be rtrimed to length of three for CHAR(32) column.');
         self::assertNull($row['test_null']);
         self::assertArrayNotHasKey(0, $row, 'The row should not contain numerical keys.');
-    }
-
-    /**
-     * @requires extension pdo
-     */
-    public function testPortabilityPdoSqlServer()
-    {
-        $portability = ConnectionPortability::PORTABILITY_SQLSRV;
-        $params      = ['portability' => $portability];
-
-        $driverMock = $this->getMockBuilder(Driver::class)
-            ->setMethods(['connect'])
-            ->getMock();
-
-        $driverMock->expects($this->once())
-                   ->method('connect')
-                   ->will($this->returnValue(null));
-
-        $connection = new ConnectionPortability($params, $driverMock);
-
-        $connection->connect($params);
-
-        self::assertEquals($portability, $connection->getPortability());
     }
 
     /**

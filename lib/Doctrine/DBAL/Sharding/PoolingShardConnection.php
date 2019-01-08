@@ -53,7 +53,7 @@ class PoolingShardConnection extends Connection
     /** @var DriverConnection[] */
     private $activeConnections = [];
 
-    /** @var int|null */
+    /** @var string|int|null */
     private $activeShardId;
 
     /** @var mixed[] */
@@ -106,7 +106,7 @@ class PoolingShardConnection extends Connection
     /**
      * Get active shard id.
      *
-     * @return int
+     * @return string|int|null
      */
     public function getActiveShardId()
     {
@@ -164,7 +164,7 @@ class PoolingShardConnection extends Connection
     /**
      * Connects to a given shard.
      *
-     * @param mixed $shardId
+     * @param string|int|null $shardId
      *
      * @return bool
      *
@@ -184,15 +184,15 @@ class PoolingShardConnection extends Connection
             throw new ShardingException('Cannot switch shard when transaction is active.');
         }
 
-        $this->activeShardId = (int) $shardId;
+        $activeShardId = $this->activeShardId = (int) $shardId;
 
-        if (isset($this->activeConnections[$this->activeShardId])) {
-            $this->_conn = $this->activeConnections[$this->activeShardId];
+        if (isset($this->activeConnections[$activeShardId])) {
+            $this->_conn = $this->activeConnections[$activeShardId];
 
             return false;
         }
 
-        $this->_conn = $this->activeConnections[$this->activeShardId] = $this->connectTo($this->activeShardId);
+        $this->_conn = $this->activeConnections[$activeShardId] = $this->connectTo($activeShardId);
 
         if ($this->_eventManager->hasListeners(Events::postConnect)) {
             $eventArgs = new ConnectionEventArgs($this);
@@ -224,7 +224,7 @@ class PoolingShardConnection extends Connection
     }
 
     /**
-     * @param string|null $shardId
+     * @param string|int|null $shardId
      *
      * @return bool
      */

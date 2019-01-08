@@ -190,6 +190,6 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
      */
     public function errorInfo()
     {
-        return sqlsrv_errors(SQLSRV_ERR_ERRORS);
+        return (array) sqlsrv_errors(SQLSRV_ERR_ERRORS);
     }
 }

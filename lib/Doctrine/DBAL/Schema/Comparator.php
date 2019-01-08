@@ -253,6 +253,7 @@ class Comparator
 
             // See if index has changed in table 2.
             $table2Index = $index->isPrimary() ? $table2->getPrimaryKey() : $table2->getIndex($indexName);
+            assert($table2Index instanceof Index);
 
             if (! $this->diffIndex($index, $table2Index)) {
                 continue;
