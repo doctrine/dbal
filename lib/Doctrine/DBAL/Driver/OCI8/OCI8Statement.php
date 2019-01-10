@@ -301,7 +301,7 @@ class OCI8Statement implements IteratorAggregate, Statement
                 return OCI_B_BLOB;
 
             case ParameterType::INTEGER:
-                return SQLT_INT;
+                return OCI_B_INT;
 
             default:
                 return SQLT_CHR;
