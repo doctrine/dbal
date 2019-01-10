@@ -299,7 +299,7 @@ class OCI8Statement implements IteratorAggregate, Statement
 
             case ParameterType::LARGE_OBJECT:
                 return OCI_B_BLOB;
-                
+
             case ParameterType::INTEGER:
                 return SQLT_INT;
 
