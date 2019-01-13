@@ -1,6 +1,6 @@
 language: php
 sudo: false
-dist: trusty
+dist: xenial
 
 cache:
     directories:
@@ -63,12 +63,16 @@ jobs:
     - stage: Test
       php: 7.2
       env: DB=mysql COVERAGE=yes
+      services:
+        - mysql
     - stage: Test
       php: 7.2
       env: DB=mysql MYSQL_VERSION=5.7 COVERAGE=yes
       sudo: required
       before_script:
         - bash ./tests/travis/install-mysql-5.7.sh
+      services:
+        - mysql
     - stage: Test
       php: 7.2
       env: DB=mysql.docker MYSQL_VERSION=8.0 COVERAGE=yes
@@ -80,12 +84,16 @@ jobs:
     - stage: Test
       php: 7.2
       env: DB=mysqli COVERAGE=yes
+      services:
+        - mysql
     - stage: Test
       php: 7.2
       env: DB=mysqli MYSQL_VERSION=5.7 COVERAGE=yes
       sudo: required
       before_script:
         - bash ./tests/travis/install-mysql-5.7.sh
+      services:
+        - mysql
     - stage: Test
       php: 7.2
       env: DB=mysqli.docker MYSQL_VERSION=8.0 COVERAGE=yes
