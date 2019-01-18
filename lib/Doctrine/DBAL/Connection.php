@@ -1227,9 +1227,7 @@ class Connection implements DriverConnection
     }
 
     /**
-     * Starts a transaction by suspending auto-commit mode.
-     *
-     * @return void
+     * {@inheritDoc}
      */
     public function beginTransaction()
     {
@@ -1256,12 +1254,12 @@ class Connection implements DriverConnection
                 $logger->stopQuery();
             }
         }
+
+        return true;
     }
 
     /**
-     * Commits the current transaction.
-     *
-     * @return void
+     * {@inheritDoc}
      *
      * @throws ConnectionException If the commit failed due to no active transaction or
      *                                            because the transaction was marked for rollback only.
@@ -1300,10 +1298,12 @@ class Connection implements DriverConnection
         --$this->transactionNestingLevel;
 
         if ($this->autoCommit !== false || $this->transactionNestingLevel !== 0) {
-            return;
+            return true;
         }
 
         $this->beginTransaction();
+
+        return true;
     }
 
     /**

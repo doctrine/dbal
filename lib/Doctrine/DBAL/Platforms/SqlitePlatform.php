@@ -356,8 +356,8 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * Generate a PRIMARY KEY definition if no autoincrement value is used
      *
-     * @param string[] $columns
-     * @param mixed[]  $options
+     * @param mixed[][] $columns
+     * @param mixed[]   $options
      */
     private function getNonAutoincrementPrimaryKeyDefinition(array $columns, array $options) : string
     {
@@ -368,7 +368,7 @@ class SqlitePlatform extends AbstractPlatform
         $keyColumns = array_unique(array_values($options['primary']));
 
         foreach ($keyColumns as $keyColumn) {
-            if (isset($columns[$keyColumn]['autoincrement']) && ! empty($columns[$keyColumn]['autoincrement'])) {
+            if (! empty($columns[$keyColumn]['autoincrement'])) {
                 return '';
             }
         }

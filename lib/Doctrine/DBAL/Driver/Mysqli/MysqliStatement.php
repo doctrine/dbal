@@ -11,13 +11,14 @@ use IteratorAggregate;
 use mysqli;
 use mysqli_stmt;
 use PDO;
-use stdClass;
 use function array_combine;
 use function array_fill;
+use function assert;
 use function count;
 use function feof;
 use function fread;
 use function get_resource_type;
+use function is_array;
 use function is_resource;
 use function sprintf;
 use function str_repeat;
@@ -327,28 +328,23 @@ class MysqliStatement implements IteratorAggregate, Statement
             throw new MysqliException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
         }
 
-        switch ($fetchMode) {
-            case FetchMode::NUMERIC:
-                return $values;
+        if ($fetchMode === FetchMode::NUMERIC) {
+            return $values;
+        }
 
+        assert(is_array($this->_columnNames));
+        $assoc = array_combine($this->_columnNames, $values);
+        assert(is_array($assoc));
+
+        switch ($fetchMode) {
             case FetchMode::ASSOCIATIVE:
-                return array_combine($this->_columnNames, $values);
+                return $assoc;
 
             case FetchMode::MIXED:
-                $ret  = array_combine($this->_columnNames, $values);
-                $ret += $values;
-
-                return $ret;
+                return $assoc + $values;
 
             case FetchMode::STANDARD_OBJECT:
-                $assoc = array_combine($this->_columnNames, $values);
-                $ret   = new stdClass();
-
-                foreach ($assoc as $column => $value) {
-                    $ret->$column = $value;
-                }
-
-                return $ret;
+                return (object) $assoc;
 
             default:
                 throw new MysqliException(sprintf("Unknown fetch type '%s'", $fetchMode));
