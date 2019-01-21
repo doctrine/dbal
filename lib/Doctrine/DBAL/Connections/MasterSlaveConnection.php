@@ -232,7 +232,7 @@ class MasterSlaveConnection extends Connection
     {
         $this->connect('master');
 
-        parent::beginTransaction();
+        return parent::beginTransaction();
     }
 
     /**
@@ -242,7 +242,7 @@ class MasterSlaveConnection extends Connection
     {
         $this->connect('master');
 
-        parent::commit();
+        return parent::commit();
     }
 
     /**
