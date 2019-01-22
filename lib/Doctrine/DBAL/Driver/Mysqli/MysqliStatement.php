@@ -97,15 +97,11 @@ class MysqliStatement implements IteratorAggregate, Statement
      */
     public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null)
     {
-        if ($type === null) {
-            $type = 's';
-        } else {
-            if (! isset(self::$_paramTypeMap[$type])) {
-                throw new MysqliException(sprintf("Unknown type: '%s'", $type));
-            }
-
-            $type = self::$_paramTypeMap[$type];
+        if (! isset(self::$_paramTypeMap[$type])) {
+            throw new MysqliException(sprintf("Unknown type: '%s'", $type));
         }
+
+        $type = self::$_paramTypeMap[$type];
 
         $this->_bindedValues[$column] =& $variable;
         $this->types[$column - 1]     = $type;
@@ -118,15 +114,11 @@ class MysqliStatement implements IteratorAggregate, Statement
      */
     public function bindValue($param, $value, $type = ParameterType::STRING)
     {
-        if ($type === null) {
-            $type = 's';
-        } else {
-            if (! isset(self::$_paramTypeMap[$type])) {
-                throw new MysqliException(sprintf("Unknown type: '%s'", $type));
-            }
-
-            $type = self::$_paramTypeMap[$type];
+        if (! isset(self::$_paramTypeMap[$type])) {
+            throw new MysqliException(sprintf("Unknown type: '%s'", $type));
         }
+
+        $type = self::$_paramTypeMap[$type];
 
         $this->_values[$param]       = $value;
         $this->_bindedValues[$param] =& $this->_values[$param];
@@ -284,7 +276,7 @@ class MysqliStatement implements IteratorAggregate, Statement
     }
 
     /**
-     * @return mixed[]|false
+     * @return mixed[]|false|null
      */
     private function _fetch()
     {

@@ -4,7 +4,6 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Schema\Visitor\Visitor;
 use function count;
-use function is_numeric;
 use function sprintf;
 
 /**
@@ -66,7 +65,7 @@ class Sequence extends AbstractAsset
      */
     public function setAllocationSize($allocationSize)
     {
-        $this->allocationSize = is_numeric($allocationSize) ? (int) $allocationSize : 1;
+        $this->allocationSize = (int) $allocationSize ?: 1;
 
         return $this;
     }
@@ -78,7 +77,7 @@ class Sequence extends AbstractAsset
      */
     public function setInitialValue($initialValue)
     {
-        $this->initialValue = is_numeric($initialValue) ? (int) $initialValue : 1;
+        $this->initialValue = (int) $initialValue ?: 1;
 
         return $this;
     }

@@ -12,7 +12,7 @@ class TableDiff
     /** @var string */
     public $name = null;
 
-    /** @var string|bool */
+    /** @var string|false */
     public $newName = false;
 
     /**
@@ -92,7 +92,7 @@ class TableDiff
      */
     public $removedForeignKeys = [];
 
-    /** @var Table */
+    /** @var Table|null */
     public $fromTable;
 
     /**
@@ -139,10 +139,14 @@ class TableDiff
     }
 
     /**
-     * @return Identifier|string|bool
+     * @return Identifier|false
      */
     public function getNewName()
     {
-        return $this->newName ? new Identifier($this->newName) : $this->newName;
+        if ($this->newName === false) {
+            return false;
+        }
+
+        return new Identifier($this->newName);
     }
 }
