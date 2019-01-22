@@ -144,7 +144,7 @@ abstract class AbstractPlatform
     /**
      * Holds the KeywordList instance for the current platform.
      *
-     * @var KeywordList
+     * @var KeywordList|null
      */
     protected $_keywords;
 
@@ -518,7 +518,7 @@ abstract class AbstractPlatform
     /**
      * Gets the comment of a passed column modified by potential doctrine type comment hints.
      *
-     * @return string
+     * @return string|null
      */
     protected function getColumnComment(Column $column)
     {
@@ -1610,9 +1610,9 @@ abstract class AbstractPlatform
     }
 
     /**
-     * @param string $tableName
-     * @param string $columnName
-     * @param string $comment
+     * @param string      $tableName
+     * @param string      $columnName
+     * @param string|null $comment
      *
      * @return string
      */
@@ -1620,13 +1620,12 @@ abstract class AbstractPlatform
     {
         $tableName  = new Identifier($tableName);
         $columnName = new Identifier($columnName);
-        $comment    = $this->quoteStringLiteral($comment);
 
         return sprintf(
             'COMMENT ON COLUMN %s.%s IS %s',
             $tableName->getQuotedName($this),
             $columnName->getQuotedName($this),
-            $comment
+            $this->quoteStringLiteral((string) $comment)
         );
     }
 
@@ -2300,7 +2299,7 @@ abstract class AbstractPlatform
      * Obtains DBMS specific SQL code portion needed to set a CHECK constraint
      * declaration to be used in statements like CREATE TABLE.
      *
-     * @param mixed[][] $definition The check definition.
+     * @param string[]|mixed[][] $definition The check definition.
      *
      * @return string DBMS specific SQL code portion needed to set a CHECK constraint.
      */
@@ -3154,7 +3153,7 @@ abstract class AbstractPlatform
      */
     public function supportsForeignKeyOnUpdate()
     {
-        return $this->supportsForeignKeyConstraints() && true;
+        return $this->supportsForeignKeyConstraints();
     }
 
     /**

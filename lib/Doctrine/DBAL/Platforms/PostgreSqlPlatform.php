@@ -1215,7 +1215,8 @@ SQL
      */
     private function isSerialField(array $field) : bool
     {
-        return $field['autoincrement'] ?? false === true && isset($field['type'])
+        return isset($field['type'], $field['autoincrement'])
+            && $field['autoincrement'] === true
             && $this->isNumericType($field['type']);
     }
 

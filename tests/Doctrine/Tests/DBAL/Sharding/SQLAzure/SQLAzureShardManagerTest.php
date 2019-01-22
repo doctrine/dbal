@@ -79,18 +79,6 @@ class SQLAzureShardManagerTest extends TestCase
         self::assertEquals(1234, $sm->getCurrentDistributionValue());
     }
 
-    public function testSelectShardNoDistributionValue()
-    {
-        $conn = $this->createConnection(['sharding' => ['federationName' => 'abc', 'distributionKey' => 'foo', 'distributionType' => 'integer']]);
-        $conn->expects($this->at(1))->method('isTransactionActive')->will($this->returnValue(false));
-
-        $this->expectException(ShardingException::class);
-        $this->expectExceptionMessage('You have to specify a string or integer as shard distribution value.');
-
-        $sm = new SQLAzureShardManager($conn);
-        $sm->selectShard(null);
-    }
-
     /**
      * @param mixed[] $params
      */

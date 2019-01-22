@@ -149,7 +149,7 @@ class Connection implements DriverConnection
     /**
      * The schema manager.
      *
-     * @var AbstractSchemaManager
+     * @var AbstractSchemaManager|null
      */
     protected $_schemaManager;
 
@@ -1446,7 +1446,7 @@ class Connection implements DriverConnection
      */
     public function getSchemaManager()
     {
-        if (! $this->_schemaManager) {
+        if ($this->_schemaManager === null) {
             $this->_schemaManager = $this->_driver->getSchemaManager($this);
         }
 

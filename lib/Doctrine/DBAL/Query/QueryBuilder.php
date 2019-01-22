@@ -403,7 +403,7 @@ class QueryBuilder
      * 'groupBy', 'having' and 'orderBy'.
      *
      * @param string $sqlPartName
-     * @param string $sqlPart
+     * @param mixed  $sqlPart
      * @param bool   $append
      *
      * @return $this This QueryBuilder instance.

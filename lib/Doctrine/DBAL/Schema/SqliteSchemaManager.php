@@ -77,7 +77,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
      */
     public function createForeignKey(ForeignKeyConstraint $foreignKey, $table)
     {
-        $tableDiff                     = $this->getTableDiffForAlterForeignKey($foreignKey, $table);
+        $tableDiff                     = $this->getTableDiffForAlterForeignKey($table);
         $tableDiff->addedForeignKeys[] = $foreignKey;
 
         $this->alterTable($tableDiff);
@@ -88,7 +88,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
      */
     public function dropAndCreateForeignKey(ForeignKeyConstraint $foreignKey, $table)
     {
-        $tableDiff                       = $this->getTableDiffForAlterForeignKey($foreignKey, $table);
+        $tableDiff                       = $this->getTableDiffForAlterForeignKey($table);
         $tableDiff->changedForeignKeys[] = $foreignKey;
 
         $this->alterTable($tableDiff);
@@ -99,7 +99,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
      */
     public function dropForeignKey($foreignKey, $table)
     {
-        $tableDiff                       = $this->getTableDiffForAlterForeignKey($foreignKey, $table);
+        $tableDiff                       = $this->getTableDiffForAlterForeignKey($table);
         $tableDiff->removedForeignKeys[] = $foreignKey;
 
         $this->alterTable($tableDiff);
@@ -436,11 +436,12 @@ class SqliteSchemaManager extends AbstractSchemaManager
      *
      * @throws DBALException
      */
-    private function getTableDiffForAlterForeignKey(ForeignKeyConstraint $foreignKey, $table)
+    private function getTableDiffForAlterForeignKey($table)
     {
         if (! $table instanceof Table) {
             $tableDetails = $this->tryMethod('listTableDetails', $table);
-            if ($table === false) {
+
+            if ($tableDetails === false) {
                 throw new DBALException(sprintf('Sqlite schema manager requires to modify foreign keys table definition "%s".', $table));
             }
 

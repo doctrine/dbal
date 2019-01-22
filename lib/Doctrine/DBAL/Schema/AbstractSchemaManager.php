@@ -747,14 +747,9 @@ abstract class AbstractSchemaManager
     protected function _getPortableSequencesList($sequences)
     {
         $list = [];
+
         foreach ($sequences as $value) {
-            $value = $this->_getPortableSequenceDefinition($value);
-
-            if (! $value) {
-                continue;
-            }
-
-            $list[] = $value;
+            $list[] = $this->_getPortableSequenceDefinition($value);
         }
 
         return $list;
@@ -996,14 +991,9 @@ abstract class AbstractSchemaManager
     protected function _getPortableTableForeignKeysList($tableForeignKeys)
     {
         $list = [];
+
         foreach ($tableForeignKeys as $value) {
-            $value = $this->_getPortableTableForeignKeyDefinition($value);
-
-            if (! $value) {
-                continue;
-            }
-
-            $list[] = $value;
+            $list[] = $this->_getPortableTableForeignKeyDefinition($value);
         }
 
         return $list;

@@ -146,10 +146,6 @@ class DB2Statement implements IteratorAggregate, Statement
      */
     public function closeCursor()
     {
-        if (! $this->stmt) {
-            return false;
-        }
-
         $this->bindParam = [];
 
         if (! db2_free_result($this->stmt)) {
@@ -166,11 +162,7 @@ class DB2Statement implements IteratorAggregate, Statement
      */
     public function columnCount()
     {
-        if (! $this->stmt) {
-            return 0;
-        }
-
-        return db2_num_fields($this->stmt);
+        return db2_num_fields($this->stmt) ?: 0;
     }
 
     /**
@@ -197,10 +189,6 @@ class DB2Statement implements IteratorAggregate, Statement
      */
     public function execute($params = null)
     {
-        if (! $this->stmt) {
-            return false;
-        }
-
         if ($params === null) {
             ksort($this->bindParam);
 
