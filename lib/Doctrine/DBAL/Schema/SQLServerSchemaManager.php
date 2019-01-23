@@ -216,7 +216,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     protected function _getPortableViewDefinition($view)
     {
         // @todo
-        return new View($view['name'], null);
+        return new View($view['name'], '');
     }
 
     /**

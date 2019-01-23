@@ -8,8 +8,6 @@ use Doctrine\DBAL\Schema\Table;
 use function current;
 use function file_put_contents;
 use function in_array;
-use function mt_rand;
-use function sha1;
 use function strtolower;
 
 /**
@@ -41,7 +39,7 @@ class Graphviz extends AbstractVisitor
      */
     public function acceptSchema(Schema $schema)
     {
-        $this->output  = 'digraph "' . sha1(mt_rand()) . '" {' . "\n";
+        $this->output  = 'digraph "' . $schema->getName() . '" {' . "\n";
         $this->output .= 'splines = true;' . "\n";
         $this->output .= 'overlap = false;' . "\n";
         $this->output .= 'outputorder=edgesfirst;' . "\n";

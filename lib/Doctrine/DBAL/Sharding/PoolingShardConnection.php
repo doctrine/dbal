@@ -205,7 +205,7 @@ class PoolingShardConnection extends Connection
     /**
      * Connects to a specific connection.
      *
-     * @param string $shardId
+     * @param string|int $shardId
      *
      * @return \Doctrine\DBAL\Driver\Connection
      */

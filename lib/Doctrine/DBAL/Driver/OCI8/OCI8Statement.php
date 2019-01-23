@@ -240,7 +240,7 @@ class OCI8Statement implements IteratorAggregate, Statement
      * where the token was found.
      *
      * @param string $statement The SQL statement to parse
-     * @param string $offset    The offset to start searching from
+     * @param int    $offset    The offset to start searching from
      * @param string $regex     The regex containing token pattern
      *
      * @return string|null Token or NULL if not found
