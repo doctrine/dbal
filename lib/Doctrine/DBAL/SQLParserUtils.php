@@ -36,13 +36,13 @@ class SQLParserUtils
     /**
      * Gets an array of the placeholders in an sql statements as keys and their positions in the query string.
      *
-     * Returns an integer => integer pair (indexed from zero) for a positional statement
-     * and a string => int[] pair for a named statement.
+     * For a statement with positional parameters, returns a zero-indexed list of placeholder position.
+     * For a statement with named parameters, returns a map of placeholder positions to their parameter names.
      *
      * @param string $statement
      * @param bool   $isPositional
      *
-     * @return int[]
+     * @return int[]|string[]
      */
     public static function getPlaceholderPositions($statement, $isPositional = true)
     {

@@ -1,5 +1,5 @@
 parameters:
-    level: 4
+    level: 5
     paths:
         - %currentWorkingDirectory%/lib
     autoload_files:
@@ -25,6 +25,9 @@ parameters:
 
         # http://php.net/manual/en/pdo.sqlitecreatefunction.php
         - '~^Call to an undefined method Doctrine\\DBAL\\Driver\\PDOConnection::sqliteCreateFunction\(\)\.\z~'
+
+        # https://github.com/JetBrains/phpstorm-stubs/pull/488
+        - '~^Parameter #1 \$byteCount of function SQLSRV_SQLTYPE_VARBINARY expects int, string given\.\z~'
 
         # legacy variadic-like signature
         - '~^Method Doctrine\\DBAL\\Driver\\Connection::query\(\) invoked with \d+ parameters?, 0 required\.\z~'

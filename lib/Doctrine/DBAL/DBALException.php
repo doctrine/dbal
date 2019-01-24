@@ -128,11 +128,10 @@ class DBALException extends Exception
     }
 
     /**
-     * @param Exception $driverEx
-     * @param string    $sql
-     * @param mixed[]   $params
+     * @param string  $sql
+     * @param mixed[] $params
      *
-     * @return \Doctrine\DBAL\DBALException
+     * @return self
      */
     public static function driverExceptionDuringQuery(Driver $driver, Throwable $driverEx, $sql, array $params = [])
     {
@@ -146,9 +145,7 @@ class DBALException extends Exception
     }
 
     /**
-     * @param Exception $driverEx
-     *
-     * @return \Doctrine\DBAL\DBALException
+     * @return self
      */
     public static function driverException(Driver $driver, Throwable $driverEx)
     {
@@ -156,9 +153,7 @@ class DBALException extends Exception
     }
 
     /**
-     * @param Exception $driverEx
-     *
-     * @return \Doctrine\DBAL\DBALException
+     * @return self
      */
     private static function wrapException(Driver $driver, Throwable $driverEx, $msg)
     {

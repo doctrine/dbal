@@ -425,7 +425,7 @@ class Table extends AbstractAsset
 
     /**
      * @param string $name
-     * @param string $value
+     * @param mixed  $value
      *
      * @return self
      */
