@@ -107,14 +107,14 @@ class QueryBuilder
     /**
      * The index of the first result to retrieve.
      *
-     * @var int
+     * @var int|null
      */
     private $firstResult = null;
 
     /**
      * The maximum number of results to retrieve.
      *
-     * @var int
+     * @var int|null
      */
     private $maxResults = null;
 
@@ -347,7 +347,7 @@ class QueryBuilder
     /**
      * Sets the position of the first result to retrieve (the "offset").
      *
-     * @param int $firstResult The first result to return.
+     * @param int|null $firstResult The first result to return.
      *
      * @return $this This QueryBuilder instance.
      */
@@ -363,7 +363,7 @@ class QueryBuilder
      * Gets the position of the first result the query object was set to retrieve (the "offset").
      * Returns NULL if {@link setFirstResult} was not applied to this QueryBuilder.
      *
-     * @return int The position of the first result.
+     * @return int|null The position of the first result.
      */
     public function getFirstResult()
     {
@@ -373,7 +373,7 @@ class QueryBuilder
     /**
      * Sets the maximum number of results to retrieve (the "limit").
      *
-     * @param int $maxResults The maximum number of results to retrieve.
+     * @param int|null $maxResults The maximum number of results to retrieve.
      *
      * @return $this This QueryBuilder instance.
      */
@@ -389,7 +389,7 @@ class QueryBuilder
      * Gets the maximum number of results the query object was set to retrieve (the "limit").
      * Returns NULL if {@link setMaxResults} was not applied to this query builder.
      *
-     * @return int The maximum number of results.
+     * @return int|null The maximum number of results.
      */
     public function getMaxResults()
     {
