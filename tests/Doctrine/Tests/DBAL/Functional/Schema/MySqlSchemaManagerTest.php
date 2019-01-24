@@ -345,7 +345,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         );
     }
 
-    public function testDefaultConstraintsForTextAndBlobAreIgnored()
+    public function testDefaultConstraintsForTextAndBlobAreIgnoredInSchemaDiff()
     {
         $tableName = 'default_constraints_text_and_blob';
         $table     = new Table($tableName);
@@ -364,8 +364,8 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $onlineTable = $this->schemaManager->listTableDetails($tableName);
         $comparator  = new Comparator();
-        $diff        = $comparator->diffTable($onlineTable, $table);
-        self::assertFalse($diff, 'no changes expected.');
+        $diff        = $comparator->compare(new Schema([$onlineTable]), new Schema([$table]));
+        self::assertCount(0, $diff->toSql($this->getPlatform()));
     }
 
     /**
