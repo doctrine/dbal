@@ -18,6 +18,7 @@ use function array_key_exists;
 use function count;
 use function func_get_args;
 use function in_array;
+use function is_int;
 use function is_numeric;
 use function sqlsrv_errors;
 use function sqlsrv_execute;
@@ -200,7 +201,11 @@ class SQLSrvStatement implements IteratorAggregate, Statement
      */
     public function columnCount()
     {
-        return sqlsrv_num_fields($this->stmt);
+        if ($this->stmt === null) {
+            return 0;
+        }
+
+        return sqlsrv_num_fields($this->stmt) ?: 0;
     }
 
     /**
@@ -231,9 +236,13 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     {
         if ($params) {
             $hasZeroIndex = array_key_exists(0, $params);
+
             foreach ($params as $key => $val) {
-                $key = $hasZeroIndex && is_numeric($key) ? $key + 1 : $key;
-                $this->bindValue($key, $val);
+                if ($hasZeroIndex && is_int($key)) {
+                    $this->bindValue($key + 1, $val);
+                } else {
+                    $this->bindValue($key, $val);
+                }
             }
         }
 
@@ -406,6 +415,10 @@ class SQLSrvStatement implements IteratorAggregate, Statement
      */
     public function rowCount()
     {
-        return sqlsrv_rows_affected($this->stmt);
+        if ($this->stmt === null) {
+            return 0;
+        }
+
+        return sqlsrv_rows_affected($this->stmt) ?: 0;
     }
 }

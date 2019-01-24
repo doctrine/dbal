@@ -22,7 +22,6 @@ use Doctrine\DBAL\Types\Type;
 use Exception;
 use Throwable;
 use function array_key_exists;
-use function array_merge;
 use function assert;
 use function func_get_args;
 use function implode;
@@ -599,24 +598,26 @@ class Connection implements DriverConnection
     }
 
     /**
-     * Gathers conditions for an update or delete call.
+     * Adds identifier condition to the query components
      *
-     * @param mixed[] $identifiers Input array of columns to values
+     * @param mixed[]  $identifier Map of key columns to their values
+     * @param string[] $columns    Column names
+     * @param mixed[]  $values     Column values
+     * @param string[] $conditions Key conditions
      *
-     * @return string[][] a triplet with:
-     *                    - the first key being the columns
-     *                    - the second key being the values
-     *                    - the third key being the conditions
+     * @throws DBALException
      */
-    private function gatherConditions(array $identifiers)
-    {
-        $columns    = [];
-        $values     = [];
-        $conditions = [];
+    private function addIdentifierCondition(
+        array $identifier,
+        array &$columns,
+        array &$values,
+        array &$conditions
+    ) : void {
+        $platform = $this->getDatabasePlatform();
 
-        foreach ($identifiers as $columnName => $value) {
+        foreach ($identifier as $columnName => $value) {
             if ($value === null) {
-                $conditions[] = $this->getDatabasePlatform()->getIsNullExpression($columnName);
+                $conditions[] = $platform->getIsNullExpression($columnName);
                 continue;
             }
 
@@ -624,8 +625,6 @@ class Connection implements DriverConnection
             $values[]     = $value;
             $conditions[] = $columnName . ' = ?';
         }
-
-        return [$columns, $values, $conditions];
     }
 
     /**
@@ -648,7 +647,9 @@ class Connection implements DriverConnection
             throw InvalidArgumentException::fromEmptyCriteria();
         }
 
-        [$columns, $values, $conditions] = $this->gatherConditions($identifier);
+        $columns = $values = $conditions = [];
+
+        $this->addIdentifierCondition($identifier, $columns, $values, $conditions);
 
         return $this->executeUpdate(
             'DELETE FROM ' . $tableExpression . ' WHERE ' . implode(' AND ', $conditions),
@@ -713,19 +714,15 @@ class Connection implements DriverConnection
      */
     public function update($tableExpression, array $data, array $identifier, array $types = [])
     {
-        $setColumns = [];
-        $setValues  = [];
-        $set        = [];
+        $columns = $values = $conditions = $set = [];
 
         foreach ($data as $columnName => $value) {
-            $setColumns[] = $columnName;
-            $setValues[]  = $value;
-            $set[]        = $columnName . ' = ?';
+            $columns[] = $columnName;
+            $values[]  = $value;
+            $set[]     = $columnName . ' = ?';
         }
 
-        [$conditionColumns, $conditionValues, $conditions] = $this->gatherConditions($identifier);
-        $columns                                           = array_merge($setColumns, $conditionColumns);
-        $values                                            = array_merge($setValues, $conditionValues);
+        $this->addIdentifierCondition($identifier, $columns, $values, $conditions);
 
         if (is_string(key($types))) {
             $types = $this->extractTypeValues($columns, $types);
@@ -777,7 +774,7 @@ class Connection implements DriverConnection
     /**
      * Extract ordered type list from an ordered column list and type map.
      *
-     * @param string[]       $columnList
+     * @param int[]|string[] $columnList
      * @param int[]|string[] $types
      *
      * @return int[]|string[]

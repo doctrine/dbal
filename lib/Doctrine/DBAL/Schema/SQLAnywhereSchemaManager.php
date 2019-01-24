@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Platforms\SQLAnywherePlatform;
 use Doctrine\DBAL\Types\Type;
 use function assert;
+use function is_string;
 use function preg_replace;
 
 /**
@@ -222,9 +223,9 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableViewDefinition($view)
     {
-        return new View(
-            $view['table_name'],
-            preg_replace('/^.*\s+as\s+SELECT(.*)/i', 'SELECT$1', $view['view_def'])
-        );
+        $definition = preg_replace('/^.*\s+as\s+SELECT(.*)/i', 'SELECT$1', $view['view_def']);
+        assert(is_string($definition));
+
+        return new View($view['table_name'], $definition);
     }
 }

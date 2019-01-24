@@ -480,8 +480,10 @@ class DrizzlePlatform extends AbstractPlatform
         $columnSql  = [];
         $queryParts = [];
 
-        if ($diff->newName !== false) {
-            $queryParts[] =  'RENAME TO ' . $diff->getNewName()->getQuotedName($this);
+        $newName = $diff->getNewName();
+
+        if ($newName !== false) {
+            $queryParts[] = 'RENAME TO ' . $newName->getQuotedName($this);
         }
 
         foreach ($diff->addedColumns as $column) {

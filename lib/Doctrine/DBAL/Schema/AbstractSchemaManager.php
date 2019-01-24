@@ -14,10 +14,12 @@ use function array_filter;
 use function array_intersect;
 use function array_map;
 use function array_values;
+use function assert;
 use function call_user_func_array;
 use function count;
 use function func_get_args;
 use function is_array;
+use function is_callable;
 use function preg_match;
 use function str_replace;
 use function strtolower;
@@ -80,8 +82,11 @@ abstract class AbstractSchemaManager
         unset($args[0]);
         $args = array_values($args);
 
+        $callback = [$this, $method];
+        assert(is_callable($callback));
+
         try {
-            return call_user_func_array([$this, $method], $args);
+            return call_user_func_array($callback, $args);
         } catch (Throwable $e) {
             return false;
         }

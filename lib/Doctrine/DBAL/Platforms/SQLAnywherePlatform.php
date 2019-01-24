@@ -184,9 +184,11 @@ class SQLAnywherePlatform extends AbstractPlatform
 
             $sql = array_merge($sql, $commentsSQL);
 
-            if ($diff->newName !== false) {
+            $newName = $diff->getNewName();
+
+            if ($newName !== false) {
                 $sql[] = $this->getAlterTableClause($diff->getName($this)) . ' ' .
-                    $this->getAlterTableRenameTableClause($diff->getNewName());
+                    $this->getAlterTableRenameTableClause($newName);
             }
 
             $sql = array_merge(

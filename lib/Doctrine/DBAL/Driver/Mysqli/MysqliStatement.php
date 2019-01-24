@@ -19,6 +19,7 @@ use function feof;
 use function fread;
 use function get_resource_type;
 use function is_array;
+use function is_int;
 use function is_resource;
 use function sprintf;
 use function str_repeat;
@@ -41,7 +42,7 @@ class MysqliStatement implements IteratorAggregate, Statement
     /** @var mysqli_stmt */
     protected $_stmt;
 
-    /** @var string[]|bool|null */
+    /** @var string[]|false|null */
     protected $_columnNames;
 
     /** @var mixed[]|null */
@@ -78,10 +79,14 @@ class MysqliStatement implements IteratorAggregate, Statement
     public function __construct(mysqli $conn, $prepareString)
     {
         $this->_conn = $conn;
-        $this->_stmt = $conn->prepare($prepareString);
-        if ($this->_stmt === false) {
+
+        $stmt = $conn->prepare($prepareString);
+
+        if ($stmt === false) {
             throw new MysqliException($this->_conn->error, $this->_conn->sqlstate, $this->_conn->errno);
         }
+
+        $this->_stmt = $stmt;
 
         $paramCount = $this->_stmt->param_count;
         if (0 >= $paramCount) {
@@ -97,14 +102,14 @@ class MysqliStatement implements IteratorAggregate, Statement
      */
     public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null)
     {
+        assert(is_int($column));
+
         if (! isset(self::$_paramTypeMap[$type])) {
             throw new MysqliException(sprintf("Unknown type: '%s'", $type));
         }
 
-        $type = self::$_paramTypeMap[$type];
-
         $this->_bindedValues[$column] =& $variable;
-        $this->types[$column - 1]     = $type;
+        $this->types[$column - 1]     = self::$_paramTypeMap[$type];
 
         return true;
     }
@@ -114,15 +119,15 @@ class MysqliStatement implements IteratorAggregate, Statement
      */
     public function bindValue($param, $value, $type = ParameterType::STRING)
     {
+        assert(is_int($param));
+
         if (! isset(self::$_paramTypeMap[$type])) {
             throw new MysqliException(sprintf("Unknown type: '%s'", $type));
         }
 
-        $type = self::$_paramTypeMap[$type];
-
         $this->_values[$param]       = $value;
         $this->_bindedValues[$param] =& $this->_values[$param];
-        $this->types[$param - 1]     = $type;
+        $this->types[$param - 1]     = self::$_paramTypeMap[$type];
 
         return true;
     }
@@ -134,15 +139,11 @@ class MysqliStatement implements IteratorAggregate, Statement
     {
         if ($this->_bindedValues !== null) {
             if ($params !== null) {
-                if (! $this->_bindValues($params)) {
+                if (! $this->bindUntypedValues($params)) {
                     throw new MysqliException($this->_stmt->error, $this->_stmt->errno);
                 }
             } else {
-                [$types, $values, $streams] = $this->separateBoundValues();
-                if (! $this->_stmt->bind_param($types, ...$values)) {
-                    throw new MysqliException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
-                }
-                $this->sendLongData($streams);
+                $this->bindTypedParameters();
             }
         }
 
@@ -153,10 +154,14 @@ class MysqliStatement implements IteratorAggregate, Statement
         if ($this->_columnNames === null) {
             $meta = $this->_stmt->result_metadata();
             if ($meta !== false) {
+                $fields = $meta->fetch_fields();
+                assert(is_array($fields));
+
                 $columnNames = [];
-                foreach ($meta->fetch_fields() as $col) {
+                foreach ($fields as $col) {
                     $columnNames[] = $col->name;
                 }
+
                 $meta->free();
 
                 $this->_columnNames = $columnNames;
@@ -200,12 +205,9 @@ class MysqliStatement implements IteratorAggregate, Statement
     }
 
     /**
-     * Split $this->_bindedValues into those values that need to be sent using mysqli::send_long_data()
-     * and those that can be bound the usual way.
-     *
-     * @return array<int, array<int|string, mixed>|string>
+     * Binds parameters with known types previously bound to the statement
      */
-    private function separateBoundValues()
+    private function bindTypedParameters()
     {
         $streams = $values = [];
         $types   = $this->types;
@@ -231,7 +233,11 @@ class MysqliStatement implements IteratorAggregate, Statement
             $values[$parameter] = $value;
         }
 
-        return [$types, $values, $streams];
+        if (! $this->_stmt->bind_param($types, ...$values)) {
+            throw new MysqliException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
+        }
+
+        $this->sendLongData($streams);
     }
 
     /**
@@ -263,7 +269,7 @@ class MysqliStatement implements IteratorAggregate, Statement
      *
      * @return bool
      */
-    private function _bindValues($values)
+    private function bindUntypedValues(array $values)
     {
         $params = [];
         $types  = str_repeat('s', count($values));
