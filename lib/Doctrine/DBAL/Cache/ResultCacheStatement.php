@@ -6,14 +6,12 @@ use ArrayIterator;
 use Doctrine\Common\Cache\Cache;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\ResultStatement;
-use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\FetchMode;
 use InvalidArgumentException;
 use IteratorAggregate;
 use function array_key_exists;
 use function array_merge;
 use function array_values;
-use function assert;
 use function count;
 use function reset;
 
@@ -206,8 +204,6 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
      */
     public function rowCount() : int
     {
-        assert($this->statement instanceof Statement);
-
         return $this->statement->rowCount();
     }
 }

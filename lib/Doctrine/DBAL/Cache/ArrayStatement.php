@@ -60,6 +60,18 @@ class ArrayStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
+    public function rowCount() : int
+    {
+        if ($this->data === null) {
+            return 0;
+        }
+
+        return count($this->data);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function setFetchMode($fetchMode, ...$args)
     {
         if (count($args) > 0) {
