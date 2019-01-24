@@ -1,5 +1,9 @@
 # Upgrade to 3.0
 
+## BC BREAK `Statement::rowCount()` is moved.
+
+`Statement::rowCount()` has been moved to the `ResultStatement` interface where it belongs by definition.
+
 ## BC BREAK Transaction-related `Statement` methods return `void`.
 
 `Statement::beginTransaction()`, `::commit()` and `::rollBack()` no longer return a boolean value. They will throw a `DriverException` in case of failure.
@@ -61,7 +65,7 @@ The following classes have been removed:
 
  * `Doctrine\DBAL\Platforms\SQLAnywhere11Platform`
  * `Doctrine\DBAL\Platforms\SQLAnywhere12Platform`
- * `Doctrine\DBAL\Platforms\SQLAnywhere16Platform`  
+ * `Doctrine\DBAL\Platforms\SQLAnywhere16Platform`
  * `Doctrine\DBAL\Platforms\Keywords\SQLAnywhere11Keywords`
  * `Doctrine\DBAL\Platforms\Keywords\SQLAnywhere12Keywords`
  * `Doctrine\DBAL\Platforms\Keywords\SQLAnywhere16Keywords`
@@ -215,7 +219,7 @@ This method now throws SPL ``UnexpectedValueException`` instead of accidentally 
 
 ## Doctrine\DBAL\Connection::TRANSACTION_* constants deprecated
 
-``Doctrine\DBAL\Connection::TRANSACTION_*`` were moved into ``Doctrine\DBAL\TransactionIsolationLevel`` class without the ``TRANSACTION_`` prefix. 
+``Doctrine\DBAL\Connection::TRANSACTION_*`` were moved into ``Doctrine\DBAL\TransactionIsolationLevel`` class without the ``TRANSACTION_`` prefix.
 
 ## DEPRECATION: direct usage of the PDO APIs in the DBAL API
 
