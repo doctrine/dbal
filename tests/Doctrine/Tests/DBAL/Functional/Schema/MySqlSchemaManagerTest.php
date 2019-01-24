@@ -345,6 +345,31 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         );
     }
 
+    public function testDefaultConstraintsForTextAndBlobAreIgnoredInSchemaDiff()
+    {
+        $tableName = 'default_constraints_text_and_blob';
+        $table     = new Table($tableName);
+        $table->addColumn('no_default', 'string');
+        $table->addColumn('df_string', 'string', ['default' => 'foobar']);
+        $table->addColumn('df_text', 'text', ['default' => 'Doctrine rocks!!!']);
+        $table->addColumn('df_blob', 'blob', ['default' => 'another default value']);
+
+        $this->schemaManager->dropAndCreateTable($table);
+        $onlineColumns = $this->schemaManager->listTableColumns($tableName);
+
+        self::assertNull($onlineColumns['no_default']->getDefault());
+        self::assertEquals('foobar', $onlineColumns['df_string']->getDefault());
+        self::assertNull($onlineColumns['df_text']->getDefault());
+        self::assertNull($onlineColumns['df_blob']->getDefault());
+
+        $platform    = $this->schemaManager->getDatabasePlatform();
+        $onlineTable = $this->schemaManager->listTableDetails($tableName);
+        $comparator  = new Comparator();
+        $diff        = $comparator->compare(new Schema([$onlineTable]), new Schema([$table]));
+
+        self::assertCount(0, $diff->toSql($platform), 'nothing to update');
+    }
+
     /**
      * @group DBAL-423
      */
