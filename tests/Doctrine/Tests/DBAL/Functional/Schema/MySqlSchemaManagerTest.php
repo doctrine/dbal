@@ -345,7 +345,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         );
     }
 
-    public function testDefaultConstraintsForTextAndBlobAreIgnoredInSchemaDiff()
+    public function testDefaultConstraintsForTextAndBlobAreIgnoredInSchemaAndTableDiff()
     {
         $tableName = 'default_constraints_text_and_blob';
         $table     = new Table($tableName);
@@ -365,9 +365,13 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $platform    = $this->schemaManager->getDatabasePlatform();
         $onlineTable = $this->schemaManager->listTableDetails($tableName);
         $comparator  = new Comparator();
-        $diff        = $comparator->compare(new Schema([$onlineTable]), new Schema([$table]));
 
-        self::assertCount(0, $diff->toSql($platform), 'nothing to update');
+        $diff = $comparator->compare(new Schema([$onlineTable]), new Schema([$table]));
+        self::assertCount(0, $diff->toSql($platform), 'nothing to update - correct');
+
+        $tableDiff = $comparator->diffTable($onlineTable, $table);
+        // $tableDiff is not empty because Comparator has no idea which DB Platform it compares for :(
+        self::assertFalse($tableDiff, 'nothing to update, so table diff should be empty');
     }
 
     /**
