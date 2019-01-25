@@ -362,10 +362,12 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertNull($onlineColumns['df_text']->getDefault());
         self::assertNull($onlineColumns['df_blob']->getDefault());
 
+        $platform    = $this->schemaManager->getDatabasePlatform();
         $onlineTable = $this->schemaManager->listTableDetails($tableName);
         $comparator  = new Comparator();
         $diff        = $comparator->compare(new Schema([$onlineTable]), new Schema([$table]));
-        self::assertCount(0, $diff->toSql($this->getPlatform()));
+
+        self::assertCount(0, $diff->toSql($platform), 'nothing to update');
     }
 
     /**
