@@ -869,8 +869,14 @@ SQL
         if (! $this->onSchemaAlterTable($diff, $tableSql)) {
             $sql = array_merge($sql, $commentsSQL);
 
-            if ($diff->newName !== false) {
-                $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' RENAME TO ' . $diff->getNewName()->getQuotedName($this);
+            $newName = $diff->getNewName();
+
+            if ($newName !== false) {
+                $sql[] = sprintf(
+                    'ALTER TABLE %s RENAME TO %s',
+                    $diff->getName($this)->getQuotedName($this),
+                    $newName->getQuotedName($this)
+                );
             }
 
             $sql = array_merge(

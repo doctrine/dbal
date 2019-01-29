@@ -315,12 +315,19 @@ SQL
      */
     public function getCreatePrimaryKeySQL(Index $index, $table)
     {
-        $flags = '';
-        if ($index->hasFlag('nonclustered')) {
-            $flags = ' NONCLUSTERED';
+        if ($table instanceof Table) {
+            $identifier = $table->getQuotedName($this);
+        } else {
+            $identifier = $table;
         }
 
-        return 'ALTER TABLE ' . $table . ' ADD PRIMARY KEY' . $flags . ' (' . $this->getIndexFieldDeclarationListSQL($index) . ')';
+        $sql = 'ALTER TABLE ' . $identifier . ' ADD PRIMARY KEY';
+
+        if ($index->hasFlag('nonclustered')) {
+            $sql .= ' NONCLUSTERED';
+        }
+
+        return $sql . ' (' . $this->getIndexFieldDeclarationListSQL($index) . ')';
     }
 
     /**
@@ -584,8 +591,10 @@ SQL
 
         $sql = array_merge($sql, $commentsSql);
 
-        if ($diff->newName !== false) {
-            $sql[] = "sp_RENAME '" . $diff->getName($this)->getQuotedName($this) . "', '" . $diff->getNewName()->getName() . "'";
+        $newName = $diff->getNewName();
+
+        if ($newName !== false) {
+            $sql[] = "sp_RENAME '" . $diff->getName($this)->getQuotedName($this) . "', '" . $newName->getName() . "'";
 
             /**
              * Rename table's default constraints names
@@ -598,10 +607,10 @@ SQL
             $sql[] = "DECLARE @sql NVARCHAR(MAX) = N''; " .
                 "SELECT @sql += N'EXEC sp_rename N''' + dc.name + ''', N''' " .
                 "+ REPLACE(dc.name, '" . $this->generateIdentifierName($diff->name) . "', " .
-                "'" . $this->generateIdentifierName($diff->newName) . "') + ''', ''OBJECT'';' " .
+                "'" . $this->generateIdentifierName($newName->getName()) . "') + ''', ''OBJECT'';' " .
                 'FROM sys.default_constraints dc ' .
                 'JOIN sys.tables tbl ON dc.parent_object_id = tbl.object_id ' .
-                "WHERE tbl.name = '" . $diff->getNewName()->getName() . "';" .
+                "WHERE tbl.name = '" . $newName->getName() . "';" .
                 'EXEC sp_executesql @sql';
         }
 

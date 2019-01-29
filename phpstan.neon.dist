@@ -1,5 +1,5 @@
 parameters:
-    level: 5
+    level: 6
     paths:
         - %currentWorkingDirectory%/lib
     autoload_files:
@@ -28,6 +28,10 @@ parameters:
 
         # https://github.com/JetBrains/phpstorm-stubs/pull/488
         - '~^Parameter #1 \$byteCount of function SQLSRV_SQLTYPE_VARBINARY expects int, string given\.\z~'
+
+        # https://github.com/phpstan/phpstan/issues/1847
+        - '~^Parameter #2 \$registeredAliases of static method Doctrine\\DBAL\\Query\\QueryException::unknownAlias\(\) expects array<string>, array<int, int|string> given\.\z~'
+        - '~^Parameter #2 \$registeredAliases of static method Doctrine\\DBAL\\Query\\QueryException::nonUniqueAlias\(\) expects array<string>, array<int, int|string> given\.\z~'
 
         # legacy variadic-like signature
         - '~^Method Doctrine\\DBAL\\Driver\\Connection::query\(\) invoked with \d+ parameters?, 0 required\.\z~'

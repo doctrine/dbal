@@ -18,9 +18,6 @@ use function strtolower;
  */
 class Table extends AbstractAsset
 {
-    /** @var string */
-    protected $_name = null;
-
     /** @var Column[] */
     protected $_columns = [];
 
@@ -98,8 +95,8 @@ class Table extends AbstractAsset
     /**
      * Sets the Primary Key.
      *
-     * @param string[]    $columnNames
-     * @param string|bool $indexName
+     * @param string[]     $columnNames
+     * @param string|false $indexName
      *
      * @return self
      */

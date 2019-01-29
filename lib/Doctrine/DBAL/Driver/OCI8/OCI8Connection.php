@@ -54,13 +54,15 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
             define('OCI_NO_AUTO_COMMIT', 0);
         }
 
-        $this->dbh = $persistent
+        $dbh = $persistent
             ? @oci_pconnect($username, $password, $db, $charset, $sessionMode)
             : @oci_connect($username, $password, $db, $charset, $sessionMode);
 
-        if (! $this->dbh) {
+        if ($dbh === false) {
             throw OCI8Exception::fromErrorInfo(oci_error());
         }
+
+        $this->dbh = $dbh;
     }
 
     /**
@@ -71,17 +73,23 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
      */
     public function getServerVersion()
     {
-        if (! preg_match('/\s+(\d+\.\d+\.\d+\.\d+\.\d+)\s+/', oci_server_version($this->dbh), $version)) {
+        $version = oci_server_version($this->dbh);
+
+        if ($version === false) {
+            throw OCI8Exception::fromErrorInfo(oci_error($this->dbh));
+        }
+
+        if (! preg_match('/\s+(\d+\.\d+\.\d+\.\d+\.\d+)\s+/', $version, $matches)) {
             throw new UnexpectedValueException(
                 sprintf(
                     'Unexpected database version string "%s". Cannot parse an appropriate version number from it. ' .
                     'Please report this database version string to the Doctrine team.',
-                    oci_server_version($this->dbh)
+                    $version
                 )
             );
         }
 
-        return $version[1];
+        return $matches[1];
     }
 
     /**
@@ -222,6 +230,12 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
      */
     public function errorInfo()
     {
-        return oci_error($this->dbh);
+        $error = oci_error($this->dbh);
+
+        if ($error === false) {
+            return [];
+        }
+
+        return $error;
     }
 }

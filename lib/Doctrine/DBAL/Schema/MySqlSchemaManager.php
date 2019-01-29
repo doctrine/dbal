@@ -9,8 +9,10 @@ use const CASE_LOWER;
 use function array_change_key_case;
 use function array_shift;
 use function array_values;
+use function assert;
 use function end;
 use function explode;
+use function is_string;
 use function preg_match;
 use function preg_replace;
 use function str_replace;
@@ -101,6 +103,8 @@ class MySqlSchemaManager extends AbstractSchemaManager
 
         $dbType = strtolower($tableColumn['type']);
         $dbType = strtok($dbType, '(), ');
+        assert(is_string($dbType));
+
         $length = $tableColumn['length'] ?? strtok('(), ');
 
         $fixed = null;

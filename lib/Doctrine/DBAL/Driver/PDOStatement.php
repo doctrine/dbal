@@ -6,6 +6,8 @@ use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use PDO;
 use const E_USER_DEPRECATED;
+use function assert;
+use function is_array;
 use function sprintf;
 use function trigger_error;
 
@@ -153,20 +155,21 @@ class PDOStatement extends \PDOStatement implements Statement
     {
         $fetchMode = $this->convertFetchMode($fetchMode);
 
+        if ($fetchMode === null && $fetchArgument === null && $ctorArgs === null) {
+            $args = [];
+        } elseif ($fetchArgument === null && $ctorArgs === null) {
+            $args = [$fetchMode];
+        } elseif ($ctorArgs === null) {
+            $args = [$fetchMode, $fetchArgument];
+        } else {
+            $args = [$fetchMode, $fetchArgument, $ctorArgs];
+        }
+
         try {
-            if ($fetchMode === null && $fetchArgument === null && $ctorArgs === null) {
-                return parent::fetchAll();
-            }
+            $data = parent::fetchAll(...$args);
+            assert(is_array($data));
 
-            if ($fetchArgument === null && $ctorArgs === null) {
-                return parent::fetchAll($fetchMode);
-            }
-
-            if ($ctorArgs === null) {
-                return parent::fetchAll($fetchMode, $fetchArgument);
-            }
-
-            return parent::fetchAll($fetchMode, $fetchArgument, $ctorArgs);
+            return $data;
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
         }
