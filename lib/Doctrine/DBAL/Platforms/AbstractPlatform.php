@@ -314,6 +314,21 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Returns the SQL snippet to declare a JSON field.
+     *
+     * By default this maps directly to a CLOB and only maps to more
+     * special datatypes when the underlying databases support this datatype.
+     *
+     * @param mixed[] $field
+     *
+     * @return string
+     */
+    public function getObjectTypeDeclarationSQL(array $field)
+    {
+        return $this->getClobTypeDeclarationSQL($field);
+    }
+
+    /**
      * @param int  $length
      * @param bool $fixed
      *
@@ -3557,6 +3572,16 @@ abstract class AbstractPlatform
     public function getStringLiteralQuoteCharacter()
     {
         return "'";
+    }
+
+    /**
+     * @param string $data A string containing text or binary data to be inserted into a object column.
+     *
+     * @return string A string containing the escaped data.
+     */
+    public function escapeStringForObject($data)
+    {
+        return $data;
     }
 
     /**

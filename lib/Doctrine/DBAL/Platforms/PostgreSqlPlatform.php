@@ -27,6 +27,7 @@ use function is_array;
 use function is_bool;
 use function is_numeric;
 use function is_string;
+use function pg_escape_bytea;
 use function sprintf;
 use function strpos;
 use function strtolower;
@@ -1051,6 +1052,14 @@ SQL
     /**
      * {@inheritDoc}
      */
+    public function getObjectTypeDeclarationSQL(array $field)
+    {
+        return 'BYTEA';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getName()
     {
         return 'postgresql';
@@ -1272,5 +1281,13 @@ SQL
     private function getOldColumnComment(ColumnDiff $columnDiff) : ?string
     {
         return $columnDiff->fromColumn ? $this->getColumnComment($columnDiff->fromColumn) : null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function escapeStringForObject($data)
+    {
+        return pg_escape_bytea($data);
     }
 }

@@ -20,7 +20,7 @@ class ObjectType extends Type
      */
     public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
     {
-        return $platform->getClobTypeDeclarationSQL($fieldDeclaration);
+        return $platform->getObjectTypeDeclarationSQL($fieldDeclaration);
     }
 
     /**
@@ -28,7 +28,7 @@ class ObjectType extends Type
      */
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
-        return serialize($value);
+        return $platform->escapeStringForObject(serialize($value));
     }
 
     /**
