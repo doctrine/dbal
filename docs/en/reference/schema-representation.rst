@@ -13,7 +13,7 @@ system this allows you to generate SQL code that makes your Domain
 model work.
 
 You will be pleased to hear, that Schema representation is
-completely decoupled from the Doctrine ORM though, that is you can
+completely decoupled from the Doctrine ORM though, that is so you can
 also use it in any other project to implement database migrations
 or for SQL schema generation for any metadata model that your
 application has. You can easily generate a Schema, as a simple
