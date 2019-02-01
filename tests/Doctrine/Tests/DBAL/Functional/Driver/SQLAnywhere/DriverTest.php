@@ -9,7 +9,7 @@ use function extension_loaded;
 
 class DriverTest extends AbstractDriverTest
 {
-    protected function setUp()
+    protected function setUp() : void
     {
         if (! extension_loaded('sqlanywhere')) {
             $this->markTestSkipped('sqlanywhere is not installed.');
@@ -38,7 +38,7 @@ class DriverTest extends AbstractDriverTest
 
         // SQL Anywhere has no "default" database. The name of the default database
         // is defined on server startup and therefore can be arbitrary.
-        self::assertInternalType('string', $this->driver->getDatabase($connection));
+        self::assertIsString($this->driver->getDatabase($connection));
     }
 
     /**

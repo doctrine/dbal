@@ -21,7 +21,7 @@ class MySqlSchemaManagerTest extends TestCase
     /** @var Connection */
     private $conn;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $eventManager  = new EventManager();
         $driverMock    = $this->createMock(Driver::class);

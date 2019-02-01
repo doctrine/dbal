@@ -11,7 +11,7 @@ final class NewPrimaryKeyWithNewAutoIncrementColumnTest extends DbalFunctionalTe
     /**
      * {@inheritDoc}
      */
-    protected function setUp()
+    protected function setUp() : void
     {
         parent::setUp();
 

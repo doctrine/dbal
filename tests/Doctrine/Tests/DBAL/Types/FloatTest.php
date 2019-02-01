@@ -14,7 +14,7 @@ class FloatTest extends DbalTestCase
     /** @var Type */
     private $type;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->platform = new MockPlatform();
         $this->type     = Type::getType('float');
@@ -22,7 +22,7 @@ class FloatTest extends DbalTestCase
 
     public function testFloatConvertsToPHPValue()
     {
-        self::assertInternalType('float', $this->type->convertToPHPValue('5.5', $this->platform));
+        self::assertIsFloat($this->type->convertToPHPValue('5.5', $this->platform));
     }
 
     public function testFloatNullConvertsToPHPValue()
@@ -32,7 +32,7 @@ class FloatTest extends DbalTestCase
 
     public function testFloatConvertToDatabaseValue()
     {
-        self::assertInternalType('float', $this->type->convertToDatabaseValue(5.5, $this->platform));
+        self::assertIsFloat($this->type->convertToDatabaseValue(5.5, $this->platform));
     }
 
     public function testFloatNullConvertToDatabaseValue()

@@ -15,7 +15,7 @@ use function strtolower;
 
 class WriteTest extends DbalFunctionalTestCase
 {
-    protected function setUp()
+    protected function setUp() : void
     {
         parent::setUp();
 

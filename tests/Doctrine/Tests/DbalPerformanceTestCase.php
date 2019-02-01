@@ -30,7 +30,7 @@ class DbalPerformanceTestCase extends DbalFunctionalTestCase
     /**
      * {@inheritdoc}
      */
-    protected function assertPostConditions()
+    protected function assertPostConditions() : void
     {
         // If a perf test doesn't start or stop, it fails.
         self::assertNotNull($this->startTime, 'Test timing was started');

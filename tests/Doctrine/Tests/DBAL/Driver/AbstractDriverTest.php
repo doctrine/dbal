@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\DriverException as DriverExceptionInterface;
 use Doctrine\DBAL\Driver\ExceptionConverterDriver;
@@ -28,6 +29,7 @@ use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
 use Doctrine\Tests\DbalTestCase;
 use Exception;
+use ReflectionProperty;
 use function get_class;
 use function sprintf;
 
@@ -58,7 +60,7 @@ abstract class AbstractDriverTest extends DbalTestCase
      */
     protected $driver;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         parent::setUp();
 
@@ -158,15 +160,13 @@ abstract class AbstractDriverTest extends DbalTestCase
         }
     }
 
-    /**
-     * @expectedException \Doctrine\DBAL\DBALException
-     */
     public function testThrowsExceptionOnCreatingDatabasePlatformsForInvalidVersion()
     {
         if (! $this->driver instanceof VersionAwarePlatformDriver) {
             $this->markTestSkipped('This test is only intended for version aware platform drivers.');
         }
 
+        $this->expectException(DBALException::class);
         $this->driver->createDatabasePlatformForVersion('foo');
     }
 
@@ -198,7 +198,11 @@ abstract class AbstractDriverTest extends DbalTestCase
         $schemaManager = $this->driver->getSchemaManager($connection);
 
         self::assertEquals($this->createSchemaManager($connection), $schemaManager);
-        self::assertAttributeSame($connection, '_conn', $schemaManager);
+
+        $re = new ReflectionProperty($schemaManager, '_conn');
+        $re->setAccessible(true);
+
+        self::assertSame($connection, $re->getValue($schemaManager));
     }
 
     /**

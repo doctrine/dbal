@@ -59,7 +59,7 @@ class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         return strtolower(str_replace('SchemaManagerTest', null, $testClass));
     }
 
-    protected function setUp()
+    protected function setUp() : void
     {
         parent::setUp();
 
@@ -73,7 +73,7 @@ class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
     }
 
 
-    protected function tearDown()
+    protected function tearDown() : void
     {
         parent::tearDown();
 
@@ -168,7 +168,7 @@ class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
 
         $sequences = $this->schemaManager->listSequences();
 
-        self::assertInternalType('array', $sequences, 'listSequences() should return an array.');
+        self::assertIsArray($sequences, 'listSequences() should return an array.');
 
         $foundSequence = null;
         foreach ($sequences as $sequence) {
@@ -227,7 +227,7 @@ class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         $this->createTestTable('list_tables_test');
         $tables = $this->schemaManager->listTables();
 
-        self::assertInternalType('array', $tables);
+        self::assertIsArray($tables);
         self::assertTrue(count($tables) > 0, "List Tables has to find at least one table named 'list_tables_test'.");
 
         $foundTable = false;
@@ -278,7 +278,7 @@ class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         self::assertEquals(false, $columns['id']->getunsigned());
         self::assertEquals(true, $columns['id']->getnotnull());
         self::assertEquals(null, $columns['id']->getdefault());
-        self::assertInternalType('array', $columns['id']->getPlatformOptions());
+        self::assertIsArray($columns['id']->getPlatformOptions());
 
         self::assertArrayHasKey('test', $columns);
         self::assertEquals(1, array_search('test', $columnsKeys));
@@ -288,7 +288,7 @@ class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         self::assertEquals(false, $columns['test']->getfixed());
         self::assertEquals(false, $columns['test']->getnotnull());
         self::assertEquals('expected default', $columns['test']->getdefault());
-        self::assertInternalType('array', $columns['test']->getPlatformOptions());
+        self::assertIsArray($columns['test']->getPlatformOptions());
 
         self::assertEquals('foo', strtolower($columns['foo']->getname()));
         self::assertEquals(2, array_search('foo', $columnsKeys));
@@ -297,7 +297,7 @@ class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         self::assertEquals(false, $columns['foo']->getfixed());
         self::assertEquals(true, $columns['foo']->getnotnull());
         self::assertEquals(null, $columns['foo']->getdefault());
-        self::assertInternalType('array', $columns['foo']->getPlatformOptions());
+        self::assertIsArray($columns['foo']->getPlatformOptions());
 
         self::assertEquals('bar', strtolower($columns['bar']->getname()));
         self::assertEquals(3, array_search('bar', $columnsKeys));
@@ -309,28 +309,28 @@ class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         self::assertEquals(false, $columns['bar']->getfixed());
         self::assertEquals(false, $columns['bar']->getnotnull());
         self::assertEquals(null, $columns['bar']->getdefault());
-        self::assertInternalType('array', $columns['bar']->getPlatformOptions());
+        self::assertIsArray($columns['bar']->getPlatformOptions());
 
         self::assertEquals('baz1', strtolower($columns['baz1']->getname()));
         self::assertEquals(4, array_search('baz1', $columnsKeys));
         self::assertInstanceOf(DateTimeType::class, $columns['baz1']->gettype());
         self::assertEquals(true, $columns['baz1']->getnotnull());
         self::assertEquals(null, $columns['baz1']->getdefault());
-        self::assertInternalType('array', $columns['baz1']->getPlatformOptions());
+        self::assertIsArray($columns['baz1']->getPlatformOptions());
 
         self::assertEquals('baz2', strtolower($columns['baz2']->getname()));
         self::assertEquals(5, array_search('baz2', $columnsKeys));
         self::assertContains($columns['baz2']->gettype()->getName(), ['time', 'date', 'datetime']);
         self::assertEquals(true, $columns['baz2']->getnotnull());
         self::assertEquals(null, $columns['baz2']->getdefault());
-        self::assertInternalType('array', $columns['baz2']->getPlatformOptions());
+        self::assertIsArray($columns['baz2']->getPlatformOptions());
 
         self::assertEquals('baz3', strtolower($columns['baz3']->getname()));
         self::assertEquals(6, array_search('baz3', $columnsKeys));
         self::assertContains($columns['baz3']->gettype()->getName(), ['time', 'date', 'datetime']);
         self::assertEquals(true, $columns['baz3']->getnotnull());
         self::assertEquals(null, $columns['baz3']->getdefault());
-        self::assertInternalType('array', $columns['baz3']->getPlatformOptions());
+        self::assertIsArray($columns['baz3']->getPlatformOptions());
     }
 
     /**
@@ -459,7 +459,7 @@ class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
 
         $this->schemaManager->dropAndCreateIndex($table->getIndex('test'), $table);
         $tableIndexes = $this->schemaManager->listTableIndexes('test_create_index');
-        self::assertInternalType('array', $tableIndexes);
+        self::assertIsArray($tableIndexes);
 
         self::assertEquals('test', strtolower($tableIndexes['test']->getName()));
         self::assertEquals(['test'], array_map('strtolower', $tableIndexes['test']->getColumns()));
@@ -1188,8 +1188,8 @@ class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         $table->addColumn('id', 'integer', ['columnDefinition' => $columnDefinition, 'comment' => 'unexpected_column_comment']);
         $sql = $this->connection->getDatabasePlatform()->getCreateTableSQL($table);
 
-        self::assertContains('expected+column+comment', $sql[0]);
-        self::assertNotContains('unexpected_column_comment', $sql[0]);
+        self::assertStringContainsString('expected+column+comment', $sql[0]);
+        self::assertStringNotContainsString('unexpected_column_comment', $sql[0]);
     }
 
     /**

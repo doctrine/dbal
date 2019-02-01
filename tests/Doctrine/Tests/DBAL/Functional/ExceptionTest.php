@@ -20,7 +20,7 @@ use function unlink;
 
 class ExceptionTest extends DbalFunctionalTestCase
 {
-    protected function setUp()
+    protected function setUp() : void
     {
         parent::setUp();
 

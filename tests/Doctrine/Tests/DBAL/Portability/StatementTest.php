@@ -9,24 +9,25 @@ use Doctrine\DBAL\Portability\Connection;
 use Doctrine\DBAL\Portability\Statement;
 use Doctrine\Tests\DbalTestCase;
 use Doctrine\Tests\Mocks\DriverStatementMock;
-use PHPUnit_Framework_MockObject_MockObject;
+use PHPUnit\Framework\MockObject\MockObject;
+use ReflectionProperty;
 use function iterator_to_array;
 
 class StatementTest extends DbalTestCase
 {
-    /** @var Connection|PHPUnit_Framework_MockObject_MockObject */
+    /** @var Connection|MockObject */
     protected $conn;
 
     /** @var Statement */
     protected $stmt;
 
-    /** @var DriverStatement|PHPUnit_Framework_MockObject_MockObject */
+    /** @var DriverStatement|MockObject */
     protected $wrappedStmt;
 
     /**
      * {@inheritdoc}
      */
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->wrappedStmt = $this->createWrappedStatement();
         $this->conn        = $this->createConnection();
@@ -133,9 +134,12 @@ class StatementTest extends DbalTestCase
             ->with($fetchMode, $arg1, $arg2)
             ->will($this->returnValue(true));
 
-        self::assertAttributeSame(FetchMode::MIXED, 'defaultFetchMode', $this->stmt);
+        $re = new ReflectionProperty($this->stmt, 'defaultFetchMode');
+        $re->setAccessible(true);
+
+        self::assertSame(FetchMode::MIXED, $re->getValue($this->stmt));
         self::assertTrue($this->stmt->setFetchMode($fetchMode, $arg1, $arg2));
-        self::assertAttributeSame($fetchMode, 'defaultFetchMode', $this->stmt);
+        self::assertSame($fetchMode, $re->getValue($this->stmt));
     }
 
     public function testGetIterator()
@@ -159,7 +163,7 @@ class StatementTest extends DbalTestCase
     }
 
     /**
-     * @return Connection|PHPUnit_Framework_MockObject_MockObject
+     * @return Connection|MockObject
      */
     protected function createConnection()
     {
@@ -177,7 +181,7 @@ class StatementTest extends DbalTestCase
     }
 
     /**
-     * @return DriverStatement|PHPUnit_Framework_MockObject_MockObject
+     * @return DriverStatement|MockObject
      */
     protected function createWrappedStatement()
     {

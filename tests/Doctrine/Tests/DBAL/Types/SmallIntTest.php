@@ -14,7 +14,7 @@ class SmallIntTest extends DbalTestCase
     /** @var Type */
     private $type;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->platform = new MockPlatform();
         $this->type     = Type::getType('smallint');
@@ -22,8 +22,8 @@ class SmallIntTest extends DbalTestCase
 
     public function testSmallIntConvertsToPHPValue()
     {
-        self::assertInternalType('integer', $this->type->convertToPHPValue('1', $this->platform));
-        self::assertInternalType('integer', $this->type->convertToPHPValue('0', $this->platform));
+        self::assertIsInt($this->type->convertToPHPValue('1', $this->platform));
+        self::assertIsInt($this->type->convertToPHPValue('0', $this->platform));
     }
 
     public function testSmallIntNullConvertsToPHPValue()

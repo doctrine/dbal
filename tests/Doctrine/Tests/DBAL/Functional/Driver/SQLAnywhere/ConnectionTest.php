@@ -9,7 +9,7 @@ use function extension_loaded;
 
 class ConnectionTest extends DbalFunctionalTestCase
 {
-    protected function setUp()
+    protected function setUp() : void
     {
         if (! extension_loaded('sqlanywhere')) {
             $this->markTestSkipped('sqlanywhere is not installed.');

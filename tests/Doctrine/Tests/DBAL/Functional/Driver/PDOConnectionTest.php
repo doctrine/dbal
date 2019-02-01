@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\DBAL\Functional\Driver;
 
 use Doctrine\DBAL\Driver\PDOConnection;
+use Doctrine\DBAL\Driver\PDOException;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use PDO;
 use function extension_loaded;
@@ -17,7 +18,7 @@ class PDOConnectionTest extends DbalFunctionalTestCase
      */
     protected $driverConnection;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         if (! extension_loaded('PDO')) {
             $this->markTestSkipped('PDO is not installed.');
@@ -34,7 +35,7 @@ class PDOConnectionTest extends DbalFunctionalTestCase
         $this->markTestSkipped('PDO connection only test.');
     }
 
-    protected function tearDown()
+    protected function tearDown() : void
     {
         $this->resetSharedConn();
 
@@ -46,26 +47,23 @@ class PDOConnectionTest extends DbalFunctionalTestCase
         self::assertFalse($this->driverConnection->requiresQueryForServerVersion());
     }
 
-    /**
-     * @expectedException \Doctrine\DBAL\Driver\PDOException
-     */
     public function testThrowsWrappedExceptionOnConstruct()
     {
+        $this->expectException(PDOException::class);
+
         new PDOConnection('foo');
     }
 
     /**
      * @group DBAL-1022
-     * @expectedException \Doctrine\DBAL\Driver\PDOException
      */
     public function testThrowsWrappedExceptionOnExec()
     {
+        $this->expectException(PDOException::class);
+
         $this->driverConnection->exec('foo');
     }
 
-    /**
-     * @expectedException \Doctrine\DBAL\Driver\PDOException
-     */
     public function testThrowsWrappedExceptionOnPrepare()
     {
         if ($this->connection->getDriver()->getName() === 'pdo_sqlsrv') {
@@ -75,6 +73,8 @@ class PDOConnectionTest extends DbalFunctionalTestCase
         // Emulated prepared statements have to be disabled for this test
         // so that PDO actually communicates with the database server to check the query.
         $this->driverConnection->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+
+        $this->expectException(PDOException::class);
 
         $this->driverConnection->prepare('foo');
 
@@ -91,11 +91,10 @@ class PDOConnectionTest extends DbalFunctionalTestCase
         );
     }
 
-    /**
-     * @expectedException \Doctrine\DBAL\Driver\PDOException
-     */
     public function testThrowsWrappedExceptionOnQuery()
     {
+        $this->expectException(PDOException::class);
+
         $this->driverConnection->query('foo');
     }
 }

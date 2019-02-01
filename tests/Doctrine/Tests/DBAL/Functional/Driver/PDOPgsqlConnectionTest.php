@@ -10,7 +10,7 @@ use function extension_loaded;
 
 class PDOPgsqlConnectionTest extends DbalFunctionalTestCase
 {
-    protected function setUp()
+    protected function setUp() : void
     {
         if (! extension_loaded('pdo_pgsql')) {
             $this->markTestSkipped('pdo_pgsql is not loaded.');

@@ -4,6 +4,7 @@ namespace Doctrine\Tests\DBAL\Functional;
 
 use DateTime;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\Mysqli\Driver as MySQLiDriver;
 use Doctrine\DBAL\Driver\OCI8\Driver as Oci8Driver;
 use Doctrine\DBAL\Driver\PDOConnection;
@@ -37,7 +38,7 @@ class DataAccessTest extends DbalFunctionalTestCase
     /** @var bool */
     static private $generated = false;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         parent::setUp();
 
@@ -238,7 +239,6 @@ class DataAccessTest extends DbalFunctionalTestCase
 
     /**
      * @group DBAL-209
-     * @expectedException \Doctrine\DBAL\DBALException
      */
     public function testFetchAllWithMissingTypes()
     {
@@ -250,6 +250,9 @@ class DataAccessTest extends DbalFunctionalTestCase
         $datetimeString = '2010-01-01 10:10:10';
         $datetime       = new DateTime($datetimeString);
         $sql            = 'SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?';
+
+        $this->expectException(DBALException::class);
+
         $this->connection->fetchAll($sql, [1, $datetime]);
     }
 
@@ -304,9 +307,6 @@ class DataAccessTest extends DbalFunctionalTestCase
         self::assertStringStartsWith($datetimeString, $row['test_datetime']);
     }
 
-    /**
-     * @expectedException \Doctrine\DBAL\DBALException
-     */
     public function testFetchAssocWithMissingTypes()
     {
         if ($this->connection->getDriver() instanceof MySQLiDriver ||
@@ -317,6 +317,9 @@ class DataAccessTest extends DbalFunctionalTestCase
         $datetimeString = '2010-01-01 10:10:10';
         $datetime       = new DateTime($datetimeString);
         $sql            = 'SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?';
+
+        $this->expectException(DBALException::class);
+
         $this->connection->fetchAssoc($sql, [1, $datetime]);
     }
 
@@ -345,9 +348,6 @@ class DataAccessTest extends DbalFunctionalTestCase
         self::assertStringStartsWith($datetimeString, $row[1]);
     }
 
-    /**
-     * @expectedException \Doctrine\DBAL\DBALException
-     */
     public function testFetchArrayWithMissingTypes()
     {
         if ($this->connection->getDriver() instanceof MySQLiDriver ||
@@ -358,7 +358,10 @@ class DataAccessTest extends DbalFunctionalTestCase
         $datetimeString = '2010-01-01 10:10:10';
         $datetime       = new DateTime($datetimeString);
         $sql            = 'SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?';
-        $row            = $this->connection->fetchArray($sql, [1, $datetime]);
+
+        $this->expectException(DBALException::class);
+
+        $this->connection->fetchArray($sql, [1, $datetime]);
     }
 
     public function testFetchColumn()
@@ -387,9 +390,6 @@ class DataAccessTest extends DbalFunctionalTestCase
         self::assertStringStartsWith($datetimeString, $column);
     }
 
-    /**
-     * @expectedException \Doctrine\DBAL\DBALException
-     */
     public function testFetchColumnWithMissingTypes()
     {
         if ($this->connection->getDriver() instanceof MySQLiDriver ||
@@ -400,7 +400,10 @@ class DataAccessTest extends DbalFunctionalTestCase
         $datetimeString = '2010-01-01 10:10:10';
         $datetime       = new DateTime($datetimeString);
         $sql            = 'SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?';
-        $column         = $this->connection->fetchColumn($sql, [1, $datetime], 1);
+
+        $this->expectException(DBALException::class);
+
+        $this->connection->fetchColumn($sql, [1, $datetime], 1);
     }
 
     /**

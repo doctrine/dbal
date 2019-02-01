@@ -47,11 +47,10 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         ];
     }
 
-    /**
-     * @expectedException \Doctrine\DBAL\DBALException
-     */
     public function testDoesNotSupportRegexp()
     {
+        $this->expectException(DBALException::class);
+
         $this->platform->getRegexpExpression();
     }
 
@@ -1423,7 +1422,10 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     public function testQuotesTableNameInListTableColumnsSQL()
     {
-        self::assertContains("'Foo''Bar\\'", $this->platform->getListTableColumnsSQL("Foo'Bar\\"), '', true);
+        self::assertStringContainsStringIgnoringCase(
+            "'Foo''Bar\\'",
+            $this->platform->getListTableColumnsSQL("Foo'Bar\\")
+        );
     }
 
     /**
@@ -1431,11 +1433,9 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     public function testQuotesSchemaNameInListTableColumnsSQL()
     {
-        self::assertContains(
+        self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",
-            $this->platform->getListTableColumnsSQL("Foo'Bar\\.baz_table"),
-            '',
-            true
+            $this->platform->getListTableColumnsSQL("Foo'Bar\\.baz_table")
         );
     }
 
@@ -1444,7 +1444,10 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     public function testQuotesTableNameInListTableForeignKeysSQL()
     {
-        self::assertContains("'Foo''Bar\\'", $this->platform->getListTableForeignKeysSQL("Foo'Bar\\"), '', true);
+        self::assertStringContainsStringIgnoringCase(
+            "'Foo''Bar\\'",
+            $this->platform->getListTableForeignKeysSQL("Foo'Bar\\")
+        );
     }
 
     /**
@@ -1452,11 +1455,9 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     public function testQuotesSchemaNameInListTableForeignKeysSQL()
     {
-        self::assertContains(
+        self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",
-            $this->platform->getListTableForeignKeysSQL("Foo'Bar\\.baz_table"),
-            '',
-            true
+            $this->platform->getListTableForeignKeysSQL("Foo'Bar\\.baz_table")
         );
     }
 
@@ -1465,7 +1466,10 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     public function testQuotesTableNameInListTableIndexesSQL()
     {
-        self::assertContains("'Foo''Bar\\'", $this->platform->getListTableIndexesSQL("Foo'Bar\\"), '', true);
+        self::assertStringContainsStringIgnoringCase(
+            "'Foo''Bar\\'",
+            $this->platform->getListTableIndexesSQL("Foo'Bar\\")
+        );
     }
 
     /**
@@ -1473,11 +1477,9 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     public function testQuotesSchemaNameInListTableIndexesSQL()
     {
-        self::assertContains(
+        self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",
-            $this->platform->getListTableIndexesSQL("Foo'Bar\\.baz_table"),
-            '',
-            true
+            $this->platform->getListTableIndexesSQL("Foo'Bar\\.baz_table")
         );
     }
 

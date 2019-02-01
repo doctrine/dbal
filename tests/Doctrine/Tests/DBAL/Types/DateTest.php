@@ -12,7 +12,7 @@ class DateTest extends BaseDateTypeTestCase
     /**
      * {@inheritDoc}
      */
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->type = Type::getType('date');
 

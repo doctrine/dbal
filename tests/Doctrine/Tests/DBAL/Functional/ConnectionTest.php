@@ -18,13 +18,13 @@ use function in_array;
 
 class ConnectionTest extends DbalFunctionalTestCase
 {
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->resetSharedConn();
         parent::setUp();
     }
 
-    protected function tearDown()
+    protected function tearDown() : void
     {
         parent::tearDown();
         $this->resetSharedConn();

@@ -783,7 +783,6 @@ class TableTest extends DbalTestCase
 
     /**
      * @group DBAL-234
-     * @expectedException \Doctrine\DBAL\Schema\SchemaException
      */
     public function testThrowsExceptionOnRenamingNonExistingIndex()
     {
@@ -791,12 +790,13 @@ class TableTest extends DbalTestCase
         $table->addColumn('id', 'integer');
         $table->addIndex(['id'], 'idx');
 
+        $this->expectException(SchemaException::class);
+
         $table->renameIndex('foo', 'bar');
     }
 
     /**
      * @group DBAL-234
-     * @expectedException \Doctrine\DBAL\Schema\SchemaException
      */
     public function testThrowsExceptionOnRenamingToAlreadyExistingIndex()
     {
@@ -805,6 +805,8 @@ class TableTest extends DbalTestCase
         $table->addColumn('foo', 'integer');
         $table->addIndex(['id'], 'idx_id');
         $table->addIndex(['foo'], 'idx_foo');
+
+        $this->expectException(SchemaException::class);
 
         $table->renameIndex('idx_id', 'idx_foo');
     }

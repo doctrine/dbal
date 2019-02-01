@@ -10,7 +10,7 @@ use function extension_loaded;
 
 class DriverTest extends AbstractDriverTest
 {
-    protected function setUp()
+    protected function setUp() : void
     {
         if (! extension_loaded('pdo_sqlsrv')) {
             $this->markTestSkipped('pdo_sqlsrv is not installed.');

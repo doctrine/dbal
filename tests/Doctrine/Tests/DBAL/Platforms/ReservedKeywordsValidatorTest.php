@@ -12,7 +12,7 @@ class ReservedKeywordsValidatorTest extends DbalTestCase
     /** @var ReservedKeywordsValidator */
     private $validator;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->validator = new ReservedKeywordsValidator([new MySQLKeywords()]);
     }

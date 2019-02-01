@@ -17,7 +17,7 @@ class ComparatorTest extends DbalFunctionalTestCase
     /** @var Comparator */
     private $comparator;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         parent::setUp();
 

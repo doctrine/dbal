@@ -14,7 +14,7 @@ class StringTest extends DbalTestCase
     /** @var Type */
     private $type;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->platform = new MockPlatform();
         $this->type     = Type::getType('string');
@@ -32,8 +32,8 @@ class StringTest extends DbalTestCase
 
     public function testConvertToPHPValue()
     {
-        self::assertInternalType('string', $this->type->convertToPHPValue('foo', $this->platform));
-        self::assertInternalType('string', $this->type->convertToPHPValue('', $this->platform));
+        self::assertIsString($this->type->convertToPHPValue('foo', $this->platform));
+        self::assertIsString($this->type->convertToPHPValue('', $this->platform));
     }
 
     public function testNullConversion()

@@ -14,7 +14,7 @@ use function stream_get_contents;
 
 class StatementTest extends DbalFunctionalTestCase
 {
-    protected function setUp()
+    protected function setUp() : void
     {
         parent::setUp();
 
@@ -69,7 +69,7 @@ class StatementTest extends DbalFunctionalTestCase
 
         $stmt = $this->connection->prepare('SELECT param, val FROM stmt_longer_results ORDER BY param');
         $stmt->execute();
-        self::assertArraySubset([
+        self::assertEquals([
             ['param1', 'X'],
         ], $stmt->fetchAll(FetchMode::NUMERIC));
 
@@ -80,7 +80,7 @@ class StatementTest extends DbalFunctionalTestCase
         $this->connection->insert('stmt_longer_results', $row2);
 
         $stmt->execute();
-        self::assertArraySubset([
+        self::assertEquals([
             ['param1', 'X'],
             ['param2', 'A bit longer value'],
         ], $stmt->fetchAll(FetchMode::NUMERIC));

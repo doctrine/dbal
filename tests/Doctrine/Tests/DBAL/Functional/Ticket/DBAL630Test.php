@@ -16,7 +16,7 @@ class DBAL630Test extends DbalFunctionalTestCase
     /** @var bool */
     private $running = false;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         parent::setUp();
 
@@ -34,7 +34,7 @@ class DBAL630Test extends DbalFunctionalTestCase
         $this->running = true;
     }
 
-    protected function tearDown()
+    protected function tearDown() : void
     {
         if ($this->running) {
             $this->connection->getWrappedConnection()->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);

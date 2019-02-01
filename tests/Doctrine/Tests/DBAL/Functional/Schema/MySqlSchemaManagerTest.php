@@ -15,7 +15,7 @@ use function sprintf;
 
 class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
-    protected function setUp()
+    protected function setUp() : void
     {
         parent::setUp();
 

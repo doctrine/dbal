@@ -14,7 +14,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
     /** @var bool */
     private static $privilegesGranted = false;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         parent::setUp();
 

@@ -26,7 +26,7 @@ abstract class BaseDateTypeTestCase extends TestCase
     /**
      * {@inheritDoc}
      */
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->platform        = new MockPlatform();
         $this->currentTimezone = date_default_timezone_get();
@@ -37,14 +37,14 @@ abstract class BaseDateTypeTestCase extends TestCase
     /**
      * {@inheritDoc}
      */
-    protected function tearDown()
+    protected function tearDown() : void
     {
         date_default_timezone_set($this->currentTimezone);
     }
 
     public function testDateConvertsToDatabaseValue()
     {
-        self::assertInternalType('string', $this->type->convertToDatabaseValue(new DateTime(), $this->platform));
+        self::assertIsString($this->type->convertToDatabaseValue(new DateTime(), $this->platform));
     }
 
     /**
@@ -94,10 +94,7 @@ abstract class BaseDateTypeTestCase extends TestCase
      */
     public function testDateTimeImmutableConvertsToDatabaseValue()
     {
-        self::assertInternalType(
-            'string',
-            $this->type->convertToDatabaseValue(new DateTimeImmutable(), $this->platform)
-        );
+        self::assertIsString($this->type->convertToDatabaseValue(new DateTimeImmutable(), $this->platform));
     }
 
     /**

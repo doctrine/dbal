@@ -26,7 +26,7 @@ class ResultCacheTest extends DbalFunctionalTestCase
     /** @var DebugStack */
     private $sqlLogger;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         parent::setUp();
 
@@ -49,7 +49,7 @@ class ResultCacheTest extends DbalFunctionalTestCase
         $config->setResultCacheImpl($cache);
     }
 
-    protected function tearDown()
+    protected function tearDown() : void
     {
         $this->connection->getSchemaManager()->dropTable('caching');
 
