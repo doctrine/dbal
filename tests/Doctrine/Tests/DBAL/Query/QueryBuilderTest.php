@@ -17,7 +17,7 @@ class QueryBuilderTest extends DbalTestCase
     /** @var Connection */
     protected $conn;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->conn = $this->createMock(Connection::class);
 

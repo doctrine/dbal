@@ -11,7 +11,7 @@ use function extension_loaded;
 
 class DB2StatementTest extends DbalFunctionalTestCase
 {
-    protected function setUp()
+    protected function setUp() : void
     {
         if (! extension_loaded('ibm_db2')) {
             $this->markTestSkipped('ibm_db2 is not installed.');

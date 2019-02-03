@@ -10,12 +10,12 @@ class DebugStackTest extends DbalTestCase
     /** @var DebugStack */
     private $logger;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->logger = new DebugStack();
     }
 
-    protected function tearDown()
+    protected function tearDown() : void
     {
         unset($this->logger);
     }

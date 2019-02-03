@@ -21,7 +21,7 @@ class PortabilityTest extends DbalFunctionalTestCase
     /** @var Connection */
     private $portableConnection;
 
-    protected function tearDown()
+    protected function tearDown() : void
     {
         if ($this->portableConnection) {
             $this->portableConnection->close();

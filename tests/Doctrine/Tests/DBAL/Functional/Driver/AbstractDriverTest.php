@@ -16,7 +16,7 @@ abstract class AbstractDriverTest extends DbalFunctionalTestCase
      */
     protected $driver;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         parent::setUp();
 

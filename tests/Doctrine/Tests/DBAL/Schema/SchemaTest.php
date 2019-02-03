@@ -10,6 +10,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\Visitor\AbstractVisitor;
 use Doctrine\DBAL\Schema\Visitor\Visitor;
 use PHPUnit\Framework\TestCase;
+use ReflectionProperty;
 use function current;
 use function strlen;
 
@@ -211,7 +212,11 @@ class SchemaTest extends TestCase
 
         $fk = $schemaNew->getTable('bar')->getForeignKeys();
         $fk = current($fk);
-        self::assertSame($schemaNew->getTable('bar'), $this->readAttribute($fk, '_localTable'));
+
+        $re = new ReflectionProperty($fk, '_localTable');
+        $re->setAccessible(true);
+
+        self::assertSame($schemaNew->getTable('bar'), $re->getValue($fk));
     }
 
     /**
@@ -279,13 +284,15 @@ class SchemaTest extends TestCase
 
     /**
      * @group DBAL-669
-     * @expectedException \Doctrine\DBAL\Schema\SchemaException
      */
     public function testThrowsExceptionOnCreatingNamespaceTwice()
     {
         $schema = new Schema();
 
         $schema->createNamespace('foo');
+
+        $this->expectException(SchemaException::class);
+
         $schema->createNamespace('foo');
     }
 

@@ -20,7 +20,7 @@ class VarDateTimeImmutableTypeTest extends TestCase
     /** @var VarDateTimeImmutableType */
     private $type;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         if (! Type::hasType('vardatetime_immutable')) {
             Type::addType('vardatetime_immutable', VarDateTimeImmutableType::class);

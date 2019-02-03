@@ -15,7 +15,7 @@ class ExpressionBuilderTest extends DbalTestCase
     /** @var ExpressionBuilder */
     protected $expr;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $conn = $this->createMock(Connection::class);
 

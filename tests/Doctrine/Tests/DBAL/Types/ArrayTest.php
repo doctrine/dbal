@@ -17,7 +17,7 @@ class ArrayTest extends DbalTestCase
     /** @var Type */
     private $type;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->platform = new MockPlatform();
         $this->type     = Type::getType('array');
@@ -25,18 +25,12 @@ class ArrayTest extends DbalTestCase
 
     public function testArrayConvertsToDatabaseValue()
     {
-        self::assertInternalType(
-            'string',
-            $this->type->convertToDatabaseValue([], $this->platform)
-        );
+        self::assertIsString($this->type->convertToDatabaseValue([], $this->platform));
     }
 
     public function testArrayConvertsToPHPValue()
     {
-        self::assertInternalType(
-            'array',
-            $this->type->convertToPHPValue(serialize([]), $this->platform)
-        );
+        self::assertIsArray($this->type->convertToPHPValue(serialize([]), $this->platform));
     }
 
     public function testConversionFailure()

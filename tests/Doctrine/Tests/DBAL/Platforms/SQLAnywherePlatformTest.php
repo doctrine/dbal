@@ -995,11 +995,9 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
      */
     public function testQuotesSchemaNameInListTableColumnsSQL()
     {
-        self::assertContains(
+        self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",
-            $this->platform->getListTableColumnsSQL("Foo'Bar\\.baz_table"),
-            '',
-            true
+            $this->platform->getListTableColumnsSQL("Foo'Bar\\.baz_table")
         );
     }
 
@@ -1008,7 +1006,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
      */
     public function testQuotesTableNameInListTableConstraintsSQL()
     {
-        self::assertContains("'Foo''Bar\\'", $this->platform->getListTableConstraintsSQL("Foo'Bar\\"), '', true);
+        self::assertStringContainsStringIgnoringCase("'Foo''Bar\\'", $this->platform->getListTableConstraintsSQL("Foo'Bar\\"), '', true);
     }
 
     /**
@@ -1016,11 +1014,9 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
      */
     public function testQuotesSchemaNameInListTableConstraintsSQL()
     {
-        self::assertContains(
+        self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",
-            $this->platform->getListTableConstraintsSQL("Foo'Bar\\.baz_table"),
-            '',
-            true
+            $this->platform->getListTableConstraintsSQL("Foo'Bar\\.baz_table")
         );
     }
 
@@ -1029,7 +1025,10 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
      */
     public function testQuotesTableNameInListTableForeignKeysSQL()
     {
-        self::assertContains("'Foo''Bar\\'", $this->platform->getListTableForeignKeysSQL("Foo'Bar\\"), '', true);
+        self::assertStringContainsStringIgnoringCase(
+            "'Foo''Bar\\'",
+            $this->platform->getListTableForeignKeysSQL("Foo'Bar\\")
+        );
     }
 
     /**
@@ -1037,11 +1036,9 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
      */
     public function testQuotesSchemaNameInListTableForeignKeysSQL()
     {
-        self::assertContains(
+        self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",
-            $this->platform->getListTableForeignKeysSQL("Foo'Bar\\.baz_table"),
-            '',
-            true
+            $this->platform->getListTableForeignKeysSQL("Foo'Bar\\.baz_table")
         );
     }
 
@@ -1050,7 +1047,10 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
      */
     public function testQuotesTableNameInListTableIndexesSQL()
     {
-        self::assertContains("'Foo''Bar\\'", $this->platform->getListTableIndexesSQL("Foo'Bar\\"), '', true);
+        self::assertStringContainsStringIgnoringCase(
+            "'Foo''Bar\\'",
+            $this->platform->getListTableIndexesSQL("Foo'Bar\\")
+        );
     }
 
     /**
@@ -1058,11 +1058,9 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
      */
     public function testQuotesSchemaNameInListTableIndexesSQL()
     {
-        self::assertContains(
+        self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",
-            $this->platform->getListTableIndexesSQL("Foo'Bar\\.baz_table"),
-            '',
-            true
+            $this->platform->getListTableIndexesSQL("Foo'Bar\\.baz_table")
         );
     }
 }

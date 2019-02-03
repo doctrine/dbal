@@ -16,7 +16,7 @@ class MySQLSchemaTest extends TestCase
     /** @var AbstractPlatform */
     private $platform;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->comparator = new Comparator();
         $this->platform   = new MySqlPlatform();

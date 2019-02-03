@@ -29,7 +29,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
 
     abstract public function createPlatform();
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->platform = $this->createPlatform();
     }
@@ -266,10 +266,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         $fk = new ForeignKeyConstraint(['fk_name'], 'foreign', ['id'], 'constraint_fk');
 
         if ($this->platform->supportsForeignKeyConstraints()) {
-            self::assertInternalType(
-                'string',
-                $this->platform->getCreateForeignKeySQL($fk, 'test')
-            );
+            self::assertIsString($this->platform->getCreateForeignKeySQL($fk, 'test'));
         } else {
             $this->expectException(DBALException::class);
             $this->platform->getCreateForeignKeySQL($fk, 'test');
@@ -773,11 +770,10 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         return false;
     }
 
-    /**
-     * @expectedException \Doctrine\DBAL\DBALException
-     */
     public function testGetCreateSchemaSQL()
     {
+        $this->expectException(DBALException::class);
+
         $this->platform->getCreateSchemaSQL('schema');
     }
 
@@ -797,7 +793,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
             ['type']
         );
 
-        self::assertContains(
+        self::assertStringContainsString(
             $this->platform->quoteIdentifier('select'),
             implode(';', $this->platform->getAlterTableSQL($tableDiff))
         );
@@ -813,10 +809,11 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
 
     /**
      * @group DBAL-563
-     * @expectedException \Doctrine\DBAL\DBALException
      */
     public function testReturnsIdentitySequenceName()
     {
+        $this->expectException(DBALException::class);
+
         $this->platform->getIdentitySequenceName('mytable', 'mycolumn');
     }
 
@@ -840,11 +837,10 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         return 4000;
     }
 
-    /**
-     * @expectedException \Doctrine\DBAL\DBALException
-     */
     public function testReturnsBinaryTypeDeclarationSQL()
     {
+        $this->expectException(DBALException::class);
+
         $this->platform->getBinaryTypeDeclarationSQL([]);
     }
 
@@ -1301,10 +1297,11 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
 
     /**
      * @group DBAL-423
-     * @expectedException \Doctrine\DBAL\DBALException
      */
     public function testReturnsGuidTypeDeclarationSQL()
     {
+        $this->expectException(DBALException::class);
+
         $this->platform->getGuidTypeDeclarationSQL([]);
     }
 

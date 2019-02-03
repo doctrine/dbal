@@ -14,7 +14,7 @@ class BooleanTest extends DbalTestCase
     /** @var Type */
     private $type;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->platform = new MockPlatform();
         $this->type     = Type::getType('boolean');
@@ -22,12 +22,12 @@ class BooleanTest extends DbalTestCase
 
     public function testBooleanConvertsToDatabaseValue()
     {
-        self::assertInternalType('integer', $this->type->convertToDatabaseValue(1, $this->platform));
+        self::assertIsInt($this->type->convertToDatabaseValue(1, $this->platform));
     }
 
     public function testBooleanConvertsToPHPValue()
     {
-        self::assertInternalType('bool', $this->type->convertToPHPValue(0, $this->platform));
+        self::assertIsBool($this->type->convertToPHPValue(0, $this->platform));
     }
 
     public function testBooleanNullConvertsToPHPValue()

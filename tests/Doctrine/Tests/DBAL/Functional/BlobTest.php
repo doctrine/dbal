@@ -18,7 +18,7 @@ use function stream_get_contents;
  */
 class BlobTest extends DbalFunctionalTestCase
 {
-    protected function setUp()
+    protected function setUp() : void
     {
         parent::setUp();
 
@@ -164,7 +164,7 @@ class BlobTest extends DbalFunctionalTestCase
 
         $blobValue = Type::getType('blob')->convertToPHPValue($rows[0], $this->connection->getDatabasePlatform());
 
-        self::assertInternalType('resource', $blobValue);
+        self::assertIsResource($blobValue);
         self::assertEquals($text, stream_get_contents($blobValue));
     }
 }

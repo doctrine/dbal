@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Schema\Table;
@@ -17,11 +18,11 @@ class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
     /**
      * SQLITE does not support databases.
-     *
-     * @expectedException \Doctrine\DBAL\DBALException
      */
     public function testListDatabases()
     {
+        $this->expectException(DBALException::class);
+
         $this->schemaManager->listDatabases();
     }
 

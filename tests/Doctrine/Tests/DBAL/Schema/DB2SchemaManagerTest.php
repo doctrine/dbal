@@ -8,8 +8,8 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Schema\DB2SchemaManager;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use PHPUnit_Framework_MockObject_MockObject;
 use function in_array;
 
 /**
@@ -17,13 +17,13 @@ use function in_array;
  */
 final class DB2SchemaManagerTest extends TestCase
 {
-    /** @var Connection|PHPUnit_Framework_MockObject_MockObject */
+    /** @var Connection|MockObject */
     private $conn;
 
     /** @var DB2SchemaManager */
     private $manager;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $eventManager  = new EventManager();
         $driverMock    = $this->createMock(Driver::class);
@@ -87,7 +87,7 @@ final class DB2SchemaManagerTest extends TestCase
         );
 
         $callable = $this->conn->getConfiguration()->getSchemaAssetsFilter();
-        $this->assertInternalType('callable', $callable);
+        self::assertIsCallable($callable);
 
         // BC check: Test that regexp expression is still preserved & accessible.
         $this->assertEquals($filterExpression, $this->conn->getConfiguration()->getFilterSchemaAssetsExpression());

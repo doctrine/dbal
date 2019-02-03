@@ -14,7 +14,7 @@ class SQLAzurePlatformTest extends DbalTestCase
     /** @var SQLAzurePlatform */
     private $platform;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->platform = new SQLAzurePlatform();
     }

@@ -10,7 +10,7 @@ use function extension_loaded;
 
 class PDOStatementTest extends DbalFunctionalTestCase
 {
-    protected function setUp()
+    protected function setUp() : void
     {
         if (! extension_loaded('pdo')) {
             $this->markTestSkipped('PDO is not installed');

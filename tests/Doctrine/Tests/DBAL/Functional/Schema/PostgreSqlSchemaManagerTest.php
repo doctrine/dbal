@@ -19,7 +19,7 @@ use function strtolower;
 
 class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
-    protected function tearDown()
+    protected function tearDown() : void
     {
         parent::tearDown();
 
@@ -48,7 +48,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     {
         $names = $this->schemaManager->getSchemaNames();
 
-        self::assertInternalType('array', $names);
+        self::assertIsArray($names);
         self::assertNotEmpty($names);
         self::assertContains('public', $names, 'The public schema should be found.');
     }

@@ -16,7 +16,7 @@ use function stream_get_contents;
 
 class BinaryTest extends DbalFunctionalTestCase
 {
-    protected function setUp()
+    protected function setUp() : void
     {
         parent::setUp();
 

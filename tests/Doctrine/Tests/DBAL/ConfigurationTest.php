@@ -20,7 +20,7 @@ class ConfigurationTest extends DbalTestCase
     /**
      * {@inheritdoc}
      */
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->config = new Configuration();
     }

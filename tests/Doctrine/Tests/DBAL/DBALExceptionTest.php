@@ -20,7 +20,7 @@ class DBALExceptionTest extends DbalTestCase
         /** @var Driver $driver */
         $driver = $this->createMock(Driver::class);
         $e      = DBALException::driverExceptionDuringQuery($driver, new Exception(), '', ['ABC', chr(128)]);
-        self::assertContains('with params ["ABC", "\x80"]', $e->getMessage());
+        self::assertStringContainsString('with params ["ABC", "\x80"]', $e->getMessage());
     }
 
     public function testDriverExceptionDuringQueryAcceptsResource()
@@ -28,7 +28,7 @@ class DBALExceptionTest extends DbalTestCase
         /** @var Driver $driver */
         $driver = $this->createMock(Driver::class);
         $e      = DBALException::driverExceptionDuringQuery($driver, new Exception(), 'INSERT INTO file (`content`) VALUES (?)', [1 => fopen(__FILE__, 'r')]);
-        self::assertContains('Resource', $e->getMessage());
+        self::assertStringContainsString('Resource', $e->getMessage());
     }
 
     public function testAvoidOverWrappingOnDriverException()

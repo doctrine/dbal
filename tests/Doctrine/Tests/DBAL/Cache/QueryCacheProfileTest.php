@@ -33,7 +33,7 @@ class QueryCacheProfileTest extends DbalTestCase
         'driver'   => 'database_driver',
     ];
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->queryCacheProfile = new QueryCacheProfile(self::LIFETIME, self::CACHE_KEY);
     }
@@ -110,7 +110,7 @@ class QueryCacheProfileTest extends DbalTestCase
         self::assertArrayHasKey('connectionParams', $params);
 
         foreach ($this->connectionParams as $param) {
-            self::assertNotContains($param, $params['connectionParams']);
+            self::assertStringNotContainsString($param, $params['connectionParams']);
         }
     }
 

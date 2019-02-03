@@ -22,7 +22,7 @@ class BlobTest extends DbalTestCase
     /**
      * {@inheritdoc}
      */
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->platform = new MockPlatform();
         $this->type     = Type::getType('blob');
@@ -38,7 +38,7 @@ class BlobTest extends DbalTestCase
         $databaseValue = $this->getBinaryString();
         $phpValue      = $this->type->convertToPHPValue($databaseValue, $this->platform);
 
-        self::assertInternalType('resource', $phpValue);
+        self::assertIsResource($phpValue);
         self::assertSame($databaseValue, stream_get_contents($phpValue));
     }
 

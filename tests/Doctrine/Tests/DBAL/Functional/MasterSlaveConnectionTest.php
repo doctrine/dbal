@@ -20,7 +20,7 @@ use function substr;
  */
 class MasterSlaveConnectionTest extends DbalFunctionalTestCase
 {
-    protected function setUp()
+    protected function setUp() : void
     {
         parent::setUp();
 

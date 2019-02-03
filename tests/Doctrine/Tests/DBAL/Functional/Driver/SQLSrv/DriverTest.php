@@ -8,7 +8,7 @@ use function extension_loaded;
 
 class DriverTest extends AbstractDriverTest
 {
-    protected function setUp()
+    protected function setUp() : void
     {
         if (! extension_loaded('sqlsrv')) {
             $this->markTestSkipped('sqlsrv is not installed.');

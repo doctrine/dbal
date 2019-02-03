@@ -17,7 +17,7 @@ class VarDateTimeTest extends DbalTestCase
     /** @var Type */
     private $type;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->platform = new MockPlatform();
         if (! Type::hasType('vardatetime')) {
