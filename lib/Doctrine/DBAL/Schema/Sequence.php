@@ -104,11 +104,13 @@ class Sequence extends AbstractAsset
      */
     public function isAutoIncrementsFor(Table $table)
     {
-        if (! $table->hasPrimaryKey()) {
+        $primaryKey = $table->getPrimaryKey();
+
+        if ($primaryKey === null) {
             return false;
         }
 
-        $pkColumns = $table->getPrimaryKey()->getColumns();
+        $pkColumns = $primaryKey->getColumns();
 
         if (count($pkColumns) !== 1) {
             return false;

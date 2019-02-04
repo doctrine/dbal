@@ -45,8 +45,8 @@ class MysqliStatement implements IteratorAggregate, Statement
     /** @var string[]|false|null */
     protected $_columnNames;
 
-    /** @var mixed[]|null */
-    protected $_rowBindedValues;
+    /** @var mixed[] */
+    protected $_rowBindedValues = [];
 
     /** @var mixed[] */
     protected $_bindedValues;
@@ -318,6 +318,7 @@ class MysqliStatement implements IteratorAggregate, Statement
         }
 
         $values = $this->_fetch();
+
         if ($values === null) {
             return false;
         }

@@ -180,7 +180,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     public function closeCursor()
     {
         // not having the result means there's nothing to close
-        if (! $this->result) {
+        if ($this->stmt === null || ! $this->result) {
             return true;
         }
 
@@ -226,7 +226,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
      */
     public function errorInfo()
     {
-        return sqlsrv_errors(SQLSRV_ERR_ERRORS);
+        return (array) sqlsrv_errors(SQLSRV_ERR_ERRORS);
     }
 
     /**
@@ -337,7 +337,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     {
         // do not try fetching from the statement if it's not expected to contain result
         // in order to prevent exceptional situation
-        if (! $this->result) {
+        if ($this->stmt === null || ! $this->result) {
             return false;
         }
 

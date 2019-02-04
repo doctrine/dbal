@@ -23,7 +23,7 @@ use function func_get_args;
 use function get_class;
 use function implode;
 use function is_string;
-use function preg_replace;
+use function preg_match;
 use function sprintf;
 use function strlen;
 use function strpos;
@@ -1312,9 +1312,15 @@ SQL
     {
         $limitOffsetClause = $this->getTopClauseSQL($limit, $offset);
 
-        return $limitOffsetClause === ''
-            ? $query
-            : preg_replace('/^\s*(SELECT\s+(DISTINCT\s+)?)/i', '\1' . $limitOffsetClause . ' ', $query);
+        if ($limitOffsetClause === '') {
+            return $query;
+        }
+
+        if (! preg_match('/^\s*(SELECT\s+(DISTINCT\s+)?)(.*)/i', $query, $matches)) {
+            return $query;
+        }
+
+        return $matches[1] . $limitOffsetClause . ' ' . $matches[3];
     }
 
     private function getTopClauseSQL(?int $limit, ?int $offset) : string

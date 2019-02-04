@@ -105,7 +105,9 @@ class Schema extends AbstractAsset
             throw SchemaException::tableAlreadyExists($tableName);
         }
 
-        if (! $table->isInDefaultNamespace($this->getName()) && ! $this->hasNamespace($namespaceName)) {
+        if ($namespaceName !== null
+            && ! $table->isInDefaultNamespace($this->getName())
+            && ! $this->hasNamespace($namespaceName)) {
             $this->createNamespace($namespaceName);
         }
 
@@ -127,7 +129,9 @@ class Schema extends AbstractAsset
             throw SchemaException::sequenceAlreadyExists($seqName);
         }
 
-        if (! $sequence->isInDefaultNamespace($this->getName()) && ! $this->hasNamespace($namespaceName)) {
+        if ($namespaceName !== null
+            && ! $sequence->isInDefaultNamespace($this->getName())
+            && ! $this->hasNamespace($namespaceName)) {
             $this->createNamespace($namespaceName);
         }
 

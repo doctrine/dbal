@@ -10,8 +10,6 @@ use const OCI_COMMIT_ON_SUCCESS;
 use const OCI_DEFAULT;
 use const OCI_NO_AUTO_COMMIT;
 use function addcslashes;
-use function define;
-use function defined;
 use function func_get_args;
 use function is_float;
 use function is_int;
@@ -39,21 +37,23 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
     /**
      * Creates a Connection to an Oracle Database using oci8 extension.
      *
-     * @param string      $username
-     * @param string      $password
-     * @param string      $db
-     * @param string|null $charset
-     * @param int         $sessionMode
-     * @param bool        $persistent
+     * @param string $username
+     * @param string $password
+     * @param string $db
+     * @param string $charset
+     * @param int    $sessionMode
+     * @param bool   $persistent
      *
      * @throws OCI8Exception
      */
-    public function __construct($username, $password, $db, $charset = null, $sessionMode = OCI_DEFAULT, $persistent = false)
-    {
-        if (! defined('OCI_NO_AUTO_COMMIT')) {
-            define('OCI_NO_AUTO_COMMIT', 0);
-        }
-
+    public function __construct(
+        $username,
+        $password,
+        $db,
+        $charset = '',
+        $sessionMode = OCI_DEFAULT,
+        $persistent = false
+    ) {
         $dbh = $persistent
             ? @oci_pconnect($username, $password, $db, $charset, $sessionMode)
             : @oci_connect($username, $password, $db, $charset, $sessionMode);

@@ -6,6 +6,7 @@ use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Types\Type;
 use PDOException;
+use Throwable;
 use function assert;
 use function count;
 use function in_array;
@@ -31,6 +32,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
             parent::dropDatabase($database);
         } catch (DBALException $exception) {
             $exception = $exception->getPrevious();
+            assert($exception instanceof Throwable);
 
             if (! $exception instanceof DriverException) {
                 throw $exception;

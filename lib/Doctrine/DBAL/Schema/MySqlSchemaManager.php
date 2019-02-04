@@ -10,11 +10,9 @@ use function array_change_key_case;
 use function array_shift;
 use function array_values;
 use function assert;
-use function end;
 use function explode;
 use function is_string;
 use function preg_match;
-use function preg_replace;
 use function str_replace;
 use function stripslashes;
 use function strpos;
@@ -76,14 +74,6 @@ class MySqlSchemaManager extends AbstractSchemaManager
         }
 
         return parent::_getPortableTableIndexesList($tableIndexes, $tableName);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function _getPortableSequenceDefinition($sequence)
-    {
-        return end($sequence);
     }
 
     /**
@@ -227,15 +217,11 @@ class MySqlSchemaManager extends AbstractSchemaManager
         if ($columnDefault === 'NULL' || $columnDefault === null) {
             return null;
         }
-        if ($columnDefault[0] === "'") {
-            return stripslashes(
-                str_replace(
-                    "''",
-                    "'",
-                    preg_replace('/^\'(.*)\'$/', '$1', $columnDefault)
-                )
-            );
+
+        if (preg_match('/^\'(.*)\'$/', $columnDefault, $matches)) {
+            return stripslashes(str_replace("''", "'", $matches[1]));
         }
+
         switch ($columnDefault) {
             case 'current_timestamp()':
                 return $platform->getCurrentTimestampSQL();

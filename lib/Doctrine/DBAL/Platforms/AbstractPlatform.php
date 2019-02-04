@@ -27,12 +27,14 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Type;
 use InvalidArgumentException;
+use UnexpectedValueException;
 use const E_USER_DEPRECATED;
 use function addcslashes;
 use function array_map;
 use function array_merge;
 use function array_unique;
 use function array_values;
+use function assert;
 use function count;
 use function explode;
 use function func_get_arg;
@@ -486,6 +488,8 @@ abstract class AbstractPlatform
             $this->initializeCommentedDoctrineTypes();
         }
 
+        assert(is_array($this->doctrineTypeComments));
+
         return in_array($doctrineType->getName(), $this->doctrineTypeComments);
     }
 
@@ -501,6 +505,8 @@ abstract class AbstractPlatform
         if ($this->doctrineTypeComments === null) {
             $this->initializeCommentedDoctrineTypes();
         }
+
+        assert(is_array($this->doctrineTypeComments));
 
         $this->doctrineTypeComments[] = $doctrineType instanceof Type ? $doctrineType->getName() : $doctrineType;
     }
@@ -1419,7 +1425,13 @@ abstract class AbstractPlatform
             $this->_eventManager->dispatchEvent(Events::onSchemaDropTable, $eventArgs);
 
             if ($eventArgs->isDefaultPrevented()) {
-                return $eventArgs->getSql();
+                $sql = $eventArgs->getSql();
+
+                if ($sql === null) {
+                    throw new UnexpectedValueException('Default implementation of DROP TABLE was overridden with NULL');
+                }
+
+                return $sql;
             }
         }
 

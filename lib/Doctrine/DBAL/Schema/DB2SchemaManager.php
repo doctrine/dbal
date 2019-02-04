@@ -41,7 +41,6 @@ class DB2SchemaManager extends AbstractSchemaManager
 
         $length    = null;
         $fixed     = null;
-        $unsigned  = false;
         $scale     = false;
         $precision = false;
 
@@ -80,7 +79,7 @@ class DB2SchemaManager extends AbstractSchemaManager
 
         $options = [
             'length'        => $length,
-            'unsigned'      => (bool) $unsigned,
+            'unsigned'      => false,
             'fixed'         => (bool) $fixed,
             'default'       => $default,
             'autoincrement' => (bool) $tableColumn['autoincrement'],

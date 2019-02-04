@@ -48,7 +48,7 @@ interface Statement extends ResultStatement
      *                           this will be a parameter name of the form :name. For a prepared statement using
      *                           question mark placeholders, this will be the 1-indexed position of the parameter.
      * @param mixed    $variable Name of the PHP variable to bind to the SQL statement parameter.
-     * @param int|null $type     Explicit data type for the parameter using the {@link \Doctrine\DBAL\ParameterType}
+     * @param int      $type     Explicit data type for the parameter using the {@link \Doctrine\DBAL\ParameterType}
      *                           constants. To return an INOUT parameter from a stored procedure, use the bitwise
      *                           OR operator to set the PDO::PARAM_INPUT_OUTPUT bits for the data_type parameter.
      * @param int|null $length   You must specify maxlength when using an OUT bind

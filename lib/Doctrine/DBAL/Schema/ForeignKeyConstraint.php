@@ -64,7 +64,9 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
      */
     public function __construct(array $localColumnNames, $foreignTableName, array $foreignColumnNames, $name = null, array $options = [])
     {
-        $this->_setName($name);
+        if ($name !== null) {
+            $this->_setName($name);
+        }
 
         $this->_localColumnNames = $this->createIdentifierMap($localColumnNames);
 

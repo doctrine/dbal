@@ -87,11 +87,14 @@ class SingleDatabaseSynchronizer extends AbstractSchemaSynchronizer
         }
 
         foreach ($dropSchema->getTables() as $table) {
-            if (! $table->hasPrimaryKey()) {
+            $primaryKey = $table->getPrimaryKey();
+
+            if ($primaryKey === null) {
                 continue;
             }
 
-            $columns = $table->getPrimaryKey()->getColumns();
+            $columns = $primaryKey->getColumns();
+
             if (count($columns) > 1) {
                 continue;
             }

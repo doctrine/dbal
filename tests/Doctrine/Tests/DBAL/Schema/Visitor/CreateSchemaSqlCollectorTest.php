@@ -39,11 +39,13 @@ class CreateSchemaSqlCollectorTest extends TestCase
             ->getMockForAbstractClass();
         $this->visitor      = new CreateSchemaSqlCollector($this->platformMock);
 
-        foreach (['getCreateSchemaSQL', 'getCreateTableSQL', 'getCreateForeignKeySQL', 'getCreateSequenceSQL'] as $method) {
-            $this->platformMock->expects($this->any())
-                ->method($method)
-                ->will($this->returnValue('foo'));
+        foreach (['getCreateSchemaSQL', 'getCreateForeignKeySQL', 'getCreateSequenceSQL'] as $method) {
+            $this->platformMock->method($method)
+                ->willReturn('foo');
         }
+
+        $this->platformMock->method('getCreateTableSQL')
+            ->willReturn(['foo']);
     }
 
     public function testAcceptsNamespace()
