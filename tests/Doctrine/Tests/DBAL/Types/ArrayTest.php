@@ -48,9 +48,9 @@ class ArrayTest extends DbalTestCase
             $this->type->normalizeToPHPValue([], $this->platform)
         );
 
-        self::assertTrue(is_null(
+        self::assertNull(
             $this->type->normalizeToPHPValue(null, $this->platform)
-        ));
+        );
 
         self::assertIsArray(
             $this->type->convertToPHPValue(serialize([]), $this->platform)
