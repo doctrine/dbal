@@ -18,6 +18,8 @@
          beStrictAboutTodoAnnotatedTests="true"
          failOnRisky="true"
          failOnWarning="true"
+         executionOrder="random"
+         resolveDependencies="true"
 >
     <php>
         <ini name="error_reporting" value="-1" />
