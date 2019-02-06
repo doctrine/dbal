@@ -15,7 +15,7 @@ class SimpleArrayTest extends DbalTestCase
     /** @var Type */
     private $type;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->platform = new MockPlatform();
         $this->type     = Type::getType('simple_array');
@@ -23,34 +23,29 @@ class SimpleArrayTest extends DbalTestCase
 
     public function testArrayConvertsToDatabaseValue()
     {
-        self::assertInternalType(
-            'string',
+        self::assertIsString(
             $this->type->convertToDatabaseValue(['one', 'two', 'three'], $this->platform)
         );
     }
 
     public function testArrayConvertsToPHPValue()
     {
-        self::assertInternalType(
-            'array',
+        self::assertIsArray(
             $this->type->convertToPHPValue('one,two,three', $this->platform)
         );
     }
 
     public function testArrayNormalizesToPHPValue()
     {
-        self::assertInternalType(
-            'array',
+        self::assertIsArray(
             $this->type->normalizeToPHPValue([], $this->platform)
         );
 
-        self::assertInternalType(
-            'null',
+        self::assertTrue(is_null(
             $this->type->normalizeToPHPValue(null, $this->platform)
-        );
+        ));
 
-        self::assertInternalType(
-            'array',
+        self::assertIsArray(
             $this->type->convertToPHPValue('one,two,three', $this->platform)
         );
     }

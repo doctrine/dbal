@@ -112,8 +112,8 @@ class DateImmutableTypeTest extends TestCase
 
         $date = new DateTimeImmutable();
 
-        self::assertInternalType(
-            'datetime',
+        self::assertInstanceOf(
+            DateTime::class,
             $this->type->convertToPHPValue($date, $this->platform->reveal())
         );
     }
