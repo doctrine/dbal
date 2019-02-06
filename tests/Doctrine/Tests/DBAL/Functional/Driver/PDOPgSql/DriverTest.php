@@ -13,7 +13,7 @@ use function sprintf;
 
 class DriverTest extends AbstractDriverTest
 {
-    protected function setUp()
+    protected function setUp() : void
     {
         if (! extension_loaded('pdo_pgsql')) {
             $this->markTestSkipped('pdo_pgsql is not installed.');

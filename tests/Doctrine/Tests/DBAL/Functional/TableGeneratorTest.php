@@ -16,7 +16,7 @@ class TableGeneratorTest extends DbalFunctionalTestCase
     /** @var TableGenerator */
     private $generator;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         parent::setUp();
 

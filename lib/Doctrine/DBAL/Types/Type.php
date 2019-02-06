@@ -5,9 +5,9 @@ namespace Doctrine\DBAL\Types;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use function end;
-use function explode;
 use function str_replace;
+use function strrpos;
+use function substr;
 
 /**
  * The base class for so-called Doctrine mapping types.
@@ -276,9 +276,14 @@ abstract class Type
      */
     public function __toString()
     {
-        $e = explode('\\', static::class);
+        $type     = static::class;
+        $position = strrpos($type, '\\');
 
-        return str_replace('Type', '', end($e));
+        if ($position !== false) {
+            $type = substr($type, $position);
+        }
+
+        return str_replace('Type', '', $type);
     }
 
     /**

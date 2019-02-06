@@ -4,11 +4,9 @@ namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\ColumnCase;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Driver\PDOSqlsrv\Driver;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Portability\Connection as ConnectionPortability;
-use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use Throwable;
@@ -22,7 +20,7 @@ class PortabilityTest extends DbalFunctionalTestCase
     /** @var Connection */
     private $portableConnection;
 
-    protected function tearDown()
+    protected function tearDown() : void
     {
         if ($this->portableConnection) {
             $this->portableConnection->close();
@@ -51,7 +49,6 @@ class PortabilityTest extends DbalFunctionalTestCase
             $this->portableConnection = DriverManager::getConnection($params, $this->connection->getConfiguration(), $this->connection->getEventManager());
 
             try {
-                /** @var AbstractSchemaManager $sm */
                 $table = new Table('portability_table');
                 $table->addColumn('Test_Int', 'integer');
                 $table->addColumn('Test_String', 'string', ['fixed' => true, 'length' => 32]);
@@ -136,29 +133,6 @@ class PortabilityTest extends DbalFunctionalTestCase
         self::assertEquals(3, strlen($row['test_string']), 'test_string should be rtrimed to length of three for CHAR(32) column.');
         self::assertNull($row['test_null']);
         self::assertArrayNotHasKey(0, $row, 'The row should not contain numerical keys.');
-    }
-
-    /**
-     * @requires extension pdo
-     */
-    public function testPortabilityPdoSqlServer()
-    {
-        $portability = ConnectionPortability::PORTABILITY_SQLSRV;
-        $params      = ['portability' => $portability];
-
-        $driverMock = $this->getMockBuilder(Driver::class)
-            ->setMethods(['connect'])
-            ->getMock();
-
-        $driverMock->expects($this->once())
-                   ->method('connect')
-                   ->will($this->returnValue(null));
-
-        $connection = new ConnectionPortability($params, $driverMock);
-
-        $connection->connect($params);
-
-        self::assertEquals($portability, $connection->getPortability());
     }
 
     /**

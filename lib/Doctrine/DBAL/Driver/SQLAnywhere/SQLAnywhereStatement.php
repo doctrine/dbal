@@ -17,7 +17,7 @@ use function func_get_args;
 use function func_num_args;
 use function gettype;
 use function is_array;
-use function is_numeric;
+use function is_int;
 use function is_object;
 use function is_resource;
 use function is_string;
@@ -58,6 +58,9 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
 
     /** @var resource The prepared SQL statement to execute. */
     private $stmt;
+
+    /** @var mixed[] The references to bound parameter values. */
+    private $boundValues = [];
 
     /**
      * Prepares given statement for given connection.
@@ -107,6 +110,8 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
             default:
                 throw new SQLAnywhereException('Unknown type: ' . $type);
         }
+
+        $this->boundValues[$column] =& $variable;
 
         if (! sasql_stmt_bind_param_ex($this->stmt, $column - 1, $variable, $type, $variable === null)) {
             throw SQLAnywhereException::fromSQLAnywhereError($this->conn, $this->stmt);
@@ -172,9 +177,11 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
             $hasZeroIndex = array_key_exists(0, $params);
 
             foreach ($params as $key => $val) {
-                $key = $hasZeroIndex && is_numeric($key) ? $key + 1 : $key;
-
-                $this->bindValue($key, $val);
+                if ($hasZeroIndex && is_int($key)) {
+                    $this->bindValue($key + 1, $val);
+                } else {
+                    $this->bindValue($key, $val);
+                }
             }
         }
 
@@ -248,19 +255,19 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
 
         switch ($fetchMode) {
             case FetchMode::CUSTOM_OBJECT:
-                while ($row = $this->fetch(...func_get_args())) {
+                while (($row = $this->fetch(...func_get_args())) !== false) {
                     $rows[] = $row;
                 }
                 break;
 
             case FetchMode::COLUMN:
-                while ($row = $this->fetchColumn()) {
+                while (($row = $this->fetchColumn()) !== false) {
                     $rows[] = $row;
                 }
                 break;
 
             default:
-                while ($row = $this->fetch($fetchMode)) {
+                while (($row = $this->fetch($fetchMode)) !== false) {
                     $rows[] = $row;
                 }
         }

@@ -56,11 +56,6 @@ class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
         if (! sasql_set_option($this->connection, 'auto_commit', 'on')) {
             throw SQLAnywhereException::fromSQLAnywhereError($this->connection);
         }
-
-        // Enable exact, non-approximated row count retrieval.
-        if (! sasql_set_option($this->connection, 'row_counts', true)) {
-            throw SQLAnywhereException::fromSQLAnywhereError($this->connection);
-        }
     }
 
     /**

@@ -10,6 +10,7 @@ use function array_map;
 use function array_merge;
 use function array_shift;
 use function array_unique;
+use function assert;
 use function count;
 use function strtolower;
 
@@ -108,6 +109,8 @@ class Comparator
                 }
 
                 foreach ($diff->changedTables[$localTableName]->removedForeignKeys as $key => $removedForeignKey) {
+                    assert($removedForeignKey instanceof ForeignKeyConstraint);
+
                     // We check if the key is from the removed table if not we skip.
                     if ($tableName !== strtolower($removedForeignKey->getForeignTableName())) {
                         continue;
@@ -250,6 +253,7 @@ class Comparator
 
             // See if index has changed in table 2.
             $table2Index = $index->isPrimary() ? $table2->getPrimaryKey() : $table2->getIndex($indexName);
+            assert($table2Index instanceof Index);
 
             if (! $this->diffIndex($index, $table2Index)) {
                 continue;
@@ -432,12 +436,10 @@ class Comparator
             $changedProperties[] = 'comment';
         }
 
-        if ($properties1['default'] !== $properties2['default'] ||
-            // Null values need to be checked additionally as they tell whether to create or drop a default value.
-            // null != 0, null != false, null != '' etc. This affects platform's table alteration SQL generation.
-            ($properties1['default'] === null && $properties2['default'] !== null) ||
-            ($properties2['default'] === null && $properties1['default'] !== null)
-        ) {
+        // Null values need to be checked additionally as they tell whether to create or drop a default value.
+        // null != 0, null != false, null != '' etc. This affects platform's table alteration SQL generation.
+        if (($properties1['default'] === null) !== ($properties2['default'] === null)
+            || $properties1['default'] != $properties2['default']) {
             $changedProperties[] = 'default';
         }
 

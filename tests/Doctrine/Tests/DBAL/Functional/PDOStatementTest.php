@@ -10,7 +10,7 @@ use function extension_loaded;
 
 class PDOStatementTest extends DbalFunctionalTestCase
 {
-    protected function setUp()
+    protected function setUp() : void
     {
         if (! extension_loaded('pdo')) {
             $this->markTestSkipped('PDO is not installed');
@@ -24,7 +24,7 @@ class PDOStatementTest extends DbalFunctionalTestCase
 
         $table = new Table('stmt_test');
         $table->addColumn('id', 'integer');
-        $table->addColumn('name', 'text');
+        $table->addColumn('name', 'string');
         $this->connection->getSchemaManager()->dropAndCreateTable($table);
     }
 

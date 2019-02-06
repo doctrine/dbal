@@ -26,7 +26,7 @@ class ResultCacheTest extends DbalFunctionalTestCase
     /** @var DebugStack */
     private $sqlLogger;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         parent::setUp();
 
@@ -49,7 +49,7 @@ class ResultCacheTest extends DbalFunctionalTestCase
         $config->setResultCacheImpl($cache);
     }
 
-    protected function tearDown()
+    protected function tearDown() : void
     {
         $this->connection->getSchemaManager()->dropTable('caching');
 
@@ -164,6 +164,16 @@ class ResultCacheTest extends DbalFunctionalTestCase
         $this->hydrateStmt($stmt, FetchMode::NUMERIC);
 
         self::assertCount(2, $this->sqlLogger->queries);
+    }
+
+    public function testFetchAllAndFinishSavesCache()
+    {
+        $layerCache = new ArrayCache();
+        $stmt       = $this->connection->executeQuery('SELECT * FROM caching WHERE test_int > 500', [], [], new QueryCacheProfile(10, 'testcachekey', $layerCache));
+        $stmt->fetchAll();
+        $stmt->closeCursor();
+
+        self::assertCount(1, $layerCache->fetch('testcachekey'));
     }
 
     public function assertCacheNonCacheSelectSameFetchModeAreEqual($expectedResult, $fetchMode)

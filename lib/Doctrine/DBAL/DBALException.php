@@ -17,8 +17,8 @@ use function is_object;
 use function is_resource;
 use function is_string;
 use function json_encode;
+use function preg_replace;
 use function sprintf;
-use function str_split;
 
 class DBALException extends Exception
 {
@@ -128,11 +128,10 @@ class DBALException extends Exception
     }
 
     /**
-     * @param Exception $driverEx
-     * @param string    $sql
-     * @param mixed[]   $params
+     * @param string  $sql
+     * @param mixed[] $params
      *
-     * @return \Doctrine\DBAL\DBALException
+     * @return self
      */
     public static function driverExceptionDuringQuery(Driver $driver, Throwable $driverEx, $sql, array $params = [])
     {
@@ -146,9 +145,7 @@ class DBALException extends Exception
     }
 
     /**
-     * @param Exception $driverEx
-     *
-     * @return \Doctrine\DBAL\DBALException
+     * @return self
      */
     public static function driverException(Driver $driver, Throwable $driverEx)
     {
@@ -156,9 +153,7 @@ class DBALException extends Exception
     }
 
     /**
-     * @param Exception $driverEx
-     *
-     * @return \Doctrine\DBAL\DBALException
+     * @return self
      */
     private static function wrapException(Driver $driver, Throwable $driverEx, $msg)
     {
@@ -191,7 +186,7 @@ class DBALException extends Exception
 
             if (! is_string($json) || $json === 'null' && is_string($param)) {
                 // JSON encoding failed, this is not a UTF-8 string.
-                return '"\x' . implode('\x', str_split(bin2hex($param), 2)) . '"';
+                return sprintf('"%s"', preg_replace('/.{2}/', '\\x$0', bin2hex($param)));
             }
 
             return $json;

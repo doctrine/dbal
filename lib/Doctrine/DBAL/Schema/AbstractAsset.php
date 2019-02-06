@@ -84,7 +84,7 @@ abstract class AbstractAsset
      * The shortest name is stripped of the default namespace. All other
      * namespaced elements are returned as full-qualified names.
      *
-     * @param string $defaultNamespaceName
+     * @param string|null $defaultNamespaceName
      *
      * @return string
      */

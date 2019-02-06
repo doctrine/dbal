@@ -4,6 +4,7 @@ namespace Doctrine\Tests\DBAL;
 
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Logging\SQLLogger;
@@ -25,7 +26,7 @@ class StatementTest extends DbalTestCase
     /** @var PDOStatement */
     private $pdoStatement;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->pdoStatement = $this->getMockBuilder(PDOStatement::class)
             ->setMethods(['execute', 'bindParam', 'bindValue'])
@@ -124,9 +125,6 @@ class StatementTest extends DbalTestCase
         $statement->execute();
     }
 
-    /**
-     * @expectedException \Doctrine\DBAL\DBALException
-     */
     public function testExecuteCallsLoggerStopQueryOnException()
     {
         $logger = $this->createMock(SQLLogger::class);
@@ -151,6 +149,9 @@ class StatementTest extends DbalTestCase
             ->will($this->throwException(new Exception('Mock test exception')));
 
         $statement = new Statement('', $this->conn);
+
+        $this->expectException(DBALException::class);
+
         $statement->execute();
     }
 }

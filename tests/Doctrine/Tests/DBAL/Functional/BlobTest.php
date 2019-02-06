@@ -3,9 +3,9 @@
 namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\Driver\OCI8\Driver as OCI8Driver;
+use Doctrine\DBAL\Driver\PDOOracle\Driver as PDOOracleDriver;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
-use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DbalFunctionalTestCase;
@@ -18,11 +18,16 @@ use function stream_get_contents;
  */
 class BlobTest extends DbalFunctionalTestCase
 {
-    protected function setUp()
+    protected function setUp() : void
     {
         parent::setUp();
 
-        /** @var AbstractSchemaManager $sm */
+        if ($this->connection->getDriver() instanceof PDOOracleDriver) {
+            // inserting BLOBs as streams on Oracle requires Oracle-specific SQL syntax which is currently not supported
+            // see http://php.net/manual/en/pdo.lobs.php#example-1035
+            $this->markTestSkipped('DBAL doesn\'t support storing LOBs represented as streams using PDO_OCI');
+        }
+
         $table = new Table('blob_table');
         $table->addColumn('id', 'integer');
         $table->addColumn('clobfield', 'text');
@@ -159,7 +164,7 @@ class BlobTest extends DbalFunctionalTestCase
 
         $blobValue = Type::getType('blob')->convertToPHPValue($rows[0], $this->connection->getDatabasePlatform());
 
-        self::assertInternalType('resource', $blobValue);
+        self::assertIsResource($blobValue);
         self::assertEquals($text, stream_get_contents($blobValue));
     }
 }

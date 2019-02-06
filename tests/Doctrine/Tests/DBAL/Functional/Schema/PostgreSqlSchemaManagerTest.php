@@ -19,7 +19,7 @@ use function strtolower;
 
 class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
-    protected function tearDown()
+    protected function tearDown() : void
     {
         parent::tearDown();
 
@@ -48,7 +48,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     {
         $names = $this->schemaManager->getSchemaNames();
 
-        self::assertInternalType('array', $names);
+        self::assertIsArray($names);
         self::assertNotEmpty($names);
         self::assertContains('public', $names, 'The public schema should be found.');
     }
@@ -397,7 +397,6 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('foo', $type)->setPlatformOption('jsonb', true);
         $this->schemaManager->dropAndCreateTable($table);
 
-        /** @var Schema\Column[] $columns */
         $columns = $this->schemaManager->listTableColumns('test_jsonb');
 
         self::assertSame($type, $columns['foo']->getType()->getName());

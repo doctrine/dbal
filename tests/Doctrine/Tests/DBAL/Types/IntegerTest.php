@@ -14,7 +14,7 @@ class IntegerTest extends DbalTestCase
     /** @var Type */
     private $type;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->platform = new MockPlatform();
         $this->type     = Type::getType('integer');
@@ -22,8 +22,8 @@ class IntegerTest extends DbalTestCase
 
     public function testIntegerConvertsToPHPValue()
     {
-        self::assertInternalType('integer', $this->type->convertToPHPValue('1', $this->platform));
-        self::assertInternalType('integer', $this->type->convertToPHPValue('0', $this->platform));
+        self::assertIsInt($this->type->convertToPHPValue('1', $this->platform));
+        self::assertIsInt($this->type->convertToPHPValue('0', $this->platform));
     }
 
     public function testIntegerNullConvertsToPHPValue()

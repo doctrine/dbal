@@ -3,14 +3,13 @@
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use function array_combine;
 use function array_keys;
 use function array_map;
-use function end;
-use function explode;
 use function in_array;
+use function strrpos;
 use function strtolower;
 use function strtoupper;
+use function substr;
 
 /**
  * An abstraction class for a foreign key constraint.
@@ -65,13 +64,11 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
      */
     public function __construct(array $localColumnNames, $foreignTableName, array $foreignColumnNames, $name = null, array $options = [])
     {
-        $this->_setName($name);
-        $identifierConstructorCallback = static function ($column) {
-            return new Identifier($column);
-        };
-        $this->_localColumnNames       = $localColumnNames
-            ? array_combine($localColumnNames, array_map($identifierConstructorCallback, $localColumnNames))
-            : [];
+        if ($name !== null) {
+            $this->_setName($name);
+        }
+
+        $this->_localColumnNames = $this->createIdentifierMap($localColumnNames);
 
         if ($foreignTableName instanceof Table) {
             $this->_foreignTableName = $foreignTableName;
@@ -79,10 +76,24 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
             $this->_foreignTableName = new Identifier($foreignTableName);
         }
 
-        $this->_foreignColumnNames = $foreignColumnNames
-            ? array_combine($foreignColumnNames, array_map($identifierConstructorCallback, $foreignColumnNames))
-            : [];
+        $this->_foreignColumnNames = $this->createIdentifierMap($foreignColumnNames);
         $this->_options            = $options;
+    }
+
+    /**
+     * @param string[] $names
+     *
+     * @return Identifier[]
+     */
+    private function createIdentifierMap(array $names) : array
+    {
+        $identifiers = [];
+
+        foreach ($names as $name) {
+            $identifiers[$name] = new Identifier($name);
+        }
+
+        return $identifiers;
     }
 
     /**
@@ -218,9 +229,14 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
      */
     public function getUnqualifiedForeignTableName()
     {
-        $parts = explode('.', $this->_foreignTableName->getName());
+        $name     = $this->_foreignTableName->getName();
+        $position = strrpos($name, '.');
 
-        return strtolower(end($parts));
+        if ($position !== false) {
+            $name = substr($name, $position);
+        }
+
+        return strtolower($name);
     }
 
     /**

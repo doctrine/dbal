@@ -21,7 +21,7 @@ class TimeImmutableTypeTest extends TestCase
     /** @var TimeImmutableType */
     private $type;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->type     = Type::getType('time_immutable');
         $this->platform = $this->prophesize(AbstractPlatform::class);

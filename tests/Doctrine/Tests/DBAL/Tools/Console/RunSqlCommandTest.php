@@ -21,7 +21,7 @@ class RunSqlCommandTest extends TestCase
     /** @var Connection */
     private $connectionMock;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $application = new Application();
         $application->add(new RunSqlCommand());
@@ -48,7 +48,7 @@ class RunSqlCommandTest extends TestCase
             ]);
             $this->fail('Expected a runtime exception when omitting sql argument');
         } catch (RuntimeException $e) {
-            self::assertContains("Argument 'SQL", $e->getMessage());
+            self::assertStringContainsString("Argument 'SQL", $e->getMessage());
         }
     }
 
@@ -62,7 +62,7 @@ class RunSqlCommandTest extends TestCase
             ]);
             $this->fail('Expected a logic exception when executing with a stringy depth');
         } catch (LogicException $e) {
-            self::assertContains("Option 'depth'", $e->getMessage());
+            self::assertStringContainsString("Option 'depth'", $e->getMessage());
         }
     }
 

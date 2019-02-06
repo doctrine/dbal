@@ -9,8 +9,6 @@ use const ARRAY_FILTER_USE_KEY;
 use function array_filter;
 use function array_merge;
 use function in_array;
-use function is_numeric;
-use function is_string;
 use function preg_match;
 use function strlen;
 use function strtolower;
@@ -20,9 +18,6 @@ use function strtolower;
  */
 class Table extends AbstractAsset
 {
-    /** @var string */
-    protected $_name = null;
-
     /** @var Column[] */
     protected $_columns = [];
 
@@ -100,16 +95,16 @@ class Table extends AbstractAsset
     /**
      * Sets the Primary Key.
      *
-     * @param mixed[][]   $columns
-     * @param string|bool $indexName
+     * @param string[]     $columnNames
+     * @param string|false $indexName
      *
      * @return self
      */
-    public function setPrimaryKey(array $columns, $indexName = false)
+    public function setPrimaryKey(array $columnNames, $indexName = false)
     {
-        $this->_addIndex($this->_createIndex($columns, $indexName ?: 'primary', true, true));
+        $this->_addIndex($this->_createIndex($columnNames, $indexName ?: 'primary', true, true));
 
-        foreach ($columns as $columnName) {
+        foreach ($columnNames as $columnName) {
             $column = $this->getColumn($columnName);
             $column->setNotnull(true);
         }
@@ -118,7 +113,7 @@ class Table extends AbstractAsset
     }
 
     /**
-     * @param mixed[][]   $columnNames
+     * @param string[]    $columnNames
      * @param string|null $indexName
      * @param string[]    $flags
      * @param mixed[]     $options
@@ -168,7 +163,7 @@ class Table extends AbstractAsset
     }
 
     /**
-     * @param mixed[][]   $columnNames
+     * @param string[]    $columnNames
      * @param string|null $indexName
      * @param mixed[]     $options
      *
@@ -221,7 +216,7 @@ class Table extends AbstractAsset
         if ($oldIndex->isPrimary()) {
             $this->dropPrimaryKey();
 
-            return $this->setPrimaryKey($oldIndex->getColumns(), $newIndexName);
+            return $this->setPrimaryKey($oldIndex->getColumns(), $newIndexName ?? false);
         }
 
         unset($this->_indexes[$oldIndexName]);
@@ -236,15 +231,15 @@ class Table extends AbstractAsset
     /**
      * Checks if an index begins in the order of the given columns.
      *
-     * @param mixed[][] $columnsNames
+     * @param string[] $columnNames
      *
      * @return bool
      */
-    public function columnsAreIndexed(array $columnsNames)
+    public function columnsAreIndexed(array $columnNames)
     {
         foreach ($this->getIndexes() as $index) {
             /** @var $index Index */
-            if ($index->spansColumns($columnsNames)) {
+            if ($index->spansColumns($columnNames)) {
                 return true;
             }
         }
@@ -253,12 +248,12 @@ class Table extends AbstractAsset
     }
 
     /**
-     * @param mixed[][] $columnNames
-     * @param string    $indexName
-     * @param bool      $isUnique
-     * @param bool      $isPrimary
-     * @param string[]  $flags
-     * @param mixed[]   $options
+     * @param string[] $columnNames
+     * @param string   $indexName
+     * @param bool     $isUnique
+     * @param bool     $isPrimary
+     * @param string[] $flags
+     * @param mixed[]  $options
      *
      * @return Index
      *
@@ -270,11 +265,7 @@ class Table extends AbstractAsset
             throw SchemaException::indexNameInvalid($indexName);
         }
 
-        foreach ($columnNames as $columnName => $indexColOptions) {
-            if (is_numeric($columnName) && is_string($indexColOptions)) {
-                $columnName = $indexColOptions;
-            }
-
+        foreach ($columnNames as $columnName) {
             if (! $this->hasColumn($columnName)) {
                 throw SchemaException::columnDoesNotExist($columnName, $this->_name);
             }
@@ -431,7 +422,7 @@ class Table extends AbstractAsset
 
     /**
      * @param string $name
-     * @param string $value
+     * @param mixed  $value
      *
      * @return self
      */
@@ -598,9 +589,11 @@ class Table extends AbstractAsset
      */
     public function getColumns()
     {
+        $primaryKey        = $this->getPrimaryKey();
         $primaryKeyColumns = [];
-        if ($this->hasPrimaryKey()) {
-            $primaryKeyColumns = $this->filterColumns($this->getPrimaryKey()->getColumns());
+
+        if ($primaryKey !== null) {
+            $primaryKeyColumns = $this->filterColumns($primaryKey->getColumns());
         }
 
         return array_merge($primaryKeyColumns, $this->getForeignKeyColumns(), $this->_columns);
@@ -615,7 +608,6 @@ class Table extends AbstractAsset
     {
         $foreignKeyColumns = [];
         foreach ($this->getForeignKeys() as $foreignKey) {
-            /** @var ForeignKeyConstraint $foreignKey */
             $foreignKeyColumns = array_merge($foreignKeyColumns, $foreignKey->getColumns());
         }
         return $this->filterColumns($foreignKeyColumns);
@@ -691,10 +683,13 @@ class Table extends AbstractAsset
      */
     public function getPrimaryKeyColumns()
     {
-        if (! $this->hasPrimaryKey()) {
+        $primaryKey = $this->getPrimaryKey();
+
+        if ($primaryKey === null) {
             throw new DBALException('Table ' . $this->getName() . ' has no primary key.');
         }
-        return $this->getPrimaryKey()->getColumns();
+
+        return $primaryKey->getColumns();
     }
 
     /**
@@ -830,12 +825,16 @@ class Table extends AbstractAsset
      *
      * Trims quotes and lowercases the given identifier.
      *
-     * @param string $identifier The identifier to normalize.
+     * @param string|null $identifier The identifier to normalize.
      *
      * @return string The normalized identifier.
      */
     private function normalizeIdentifier($identifier)
     {
+        if ($identifier === null) {
+            return '';
+        }
+
         return $this->trimQuotes(strtolower($identifier));
     }
 }

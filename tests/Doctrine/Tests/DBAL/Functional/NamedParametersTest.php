@@ -147,7 +147,7 @@ class NamedParametersTest extends DbalFunctionalTestCase
         ];
     }
 
-    protected function setUp()
+    protected function setUp() : void
     {
         parent::setUp();
 

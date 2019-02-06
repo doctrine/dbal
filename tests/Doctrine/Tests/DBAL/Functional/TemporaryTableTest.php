@@ -9,7 +9,7 @@ use Throwable;
 
 class TemporaryTableTest extends DbalFunctionalTestCase
 {
-    protected function setUp()
+    protected function setUp() : void
     {
         parent::setUp();
         try {
@@ -18,7 +18,7 @@ class TemporaryTableTest extends DbalFunctionalTestCase
         }
     }
 
-    protected function tearDown()
+    protected function tearDown() : void
     {
         if ($this->connection) {
             try {

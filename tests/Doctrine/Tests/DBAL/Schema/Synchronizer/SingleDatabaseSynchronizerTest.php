@@ -19,7 +19,7 @@ class SingleDatabaseSynchronizerTest extends TestCase
     /** @var SingleDatabaseSynchronizer */
     private $synchronizer;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->conn         = DriverManager::getConnection([
             'driver' => 'pdo_sqlite',

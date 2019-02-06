@@ -3,12 +3,11 @@
 namespace Doctrine\Tests\DBAL\Functional;
 
 use DateTime;
-use Doctrine\DBAL\Schema\AbstractSchemaManager;
+use Doctrine\DBAL\Driver\PDOOracle\Driver as PDOOracleDriver;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use stdClass;
-use Throwable;
 use function str_repeat;
 
 class TypeConversionTest extends DbalFunctionalTestCase
@@ -16,12 +15,9 @@ class TypeConversionTest extends DbalFunctionalTestCase
     /** @var int */
     static private $typeCounter = 0;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         parent::setUp();
-
-        /** @var AbstractSchemaManager $sm */
-        $sm = $this->connection->getSchemaManager();
 
         $table = new Table('type_conversion');
         $table->addColumn('id', 'integer', ['notnull' => false]);
@@ -41,45 +37,189 @@ class TypeConversionTest extends DbalFunctionalTestCase
         $table->addColumn('test_decimal', 'decimal', ['notnull' => false, 'scale' => 2, 'precision' => 10]);
         $table->setPrimaryKey(['id']);
 
-        try {
-            $this->connection->getSchemaManager()->createTable($table);
-        } catch (Throwable $e) {
-        }
+        $this->connection
+            ->getSchemaManager()
+            ->dropAndCreateTable($table);
     }
 
-    public static function dataIdempotentDataConversion()
+    /**
+     * @dataProvider booleanProvider
+     */
+    public function testIdempotentConversionToBoolean(string $type, $originalValue) : void
+    {
+        $dbValue = $this->processValue($type, $originalValue);
+
+        self::assertIsBool($dbValue);
+        self::assertEquals($originalValue, $dbValue);
+    }
+
+    /**
+     * @return mixed[][]
+     */
+    public static function booleanProvider() : iterable
+    {
+        return [
+            'true' => ['boolean', true],
+            'false' => ['boolean', false],
+        ];
+    }
+
+    /**
+     * @dataProvider integerProvider
+     */
+    public function testIdempotentConversionToInteger(string $type, $originalValue) : void
+    {
+        $dbValue = $this->processValue($type, $originalValue);
+
+        self::assertIsInt($dbValue);
+        self::assertEquals($originalValue, $dbValue);
+    }
+
+    /**
+     * @return mixed[][]
+     */
+    public static function integerProvider() : iterable
+    {
+        return [
+            'smallint' => ['smallint', 123],
+        ];
+    }
+
+    /**
+     * @dataProvider floatProvider
+     */
+    public function testIdempotentConversionToFloat(string $type, $originalValue) : void
+    {
+        $dbValue = $this->processValue($type, $originalValue);
+
+        self::assertIsFloat($dbValue);
+        self::assertEquals($originalValue, $dbValue);
+    }
+
+    /**
+     * @return mixed[][]
+     */
+    public static function floatProvider() : iterable
+    {
+        return [
+            'float' => ['float', 1.5],
+        ];
+    }
+
+    /**
+     * @dataProvider toStringProvider
+     */
+    public function testIdempotentConversionToString(string $type, $originalValue) : void
+    {
+        if ($type === 'text' && $this->connection->getDriver() instanceof PDOOracleDriver) {
+            // inserting BLOBs as streams on Oracle requires Oracle-specific SQL syntax which is currently not supported
+            // see http://php.net/manual/en/pdo.lobs.php#example-1035
+            $this->markTestSkipped('DBAL doesn\'t support storing LOBs represented as streams using PDO_OCI');
+        }
+
+        $dbValue = $this->processValue($type, $originalValue);
+
+        self::assertIsString($dbValue);
+        self::assertEquals($originalValue, $dbValue);
+    }
+
+    /**
+     * @return mixed[][]
+     */
+    public static function toStringProvider() : iterable
+    {
+        return [
+            'string' => ['string', 'ABCDEFGabcdefg'],
+            'bigint' => ['bigint', 12345678],
+            'text' => ['text', str_repeat('foo ', 1000)],
+            'decimal' => ['decimal', 1.55],
+        ];
+    }
+
+    /**
+     * @dataProvider toArrayProvider
+     */
+    public function testIdempotentConversionToArray(string $type, $originalValue) : void
+    {
+        $dbValue = $this->processValue($type, $originalValue);
+
+        self::assertIsArray($dbValue);
+        self::assertEquals($originalValue, $dbValue);
+    }
+
+    /**
+     * @return mixed[][]
+     */
+    public static function toArrayProvider() : iterable
+    {
+        return [
+            'array' => ['array', ['foo' => 'bar']],
+            'json_array' => ['json_array', ['foo' => 'bar']],
+        ];
+    }
+
+    /**
+     * @dataProvider toObjectProvider
+     */
+    public function testIdempotentConversionToObject(string $type, $originalValue) : void
+    {
+        $dbValue = $this->processValue($type, $originalValue);
+
+        self::assertIsObject($dbValue);
+        self::assertEquals($originalValue, $dbValue);
+    }
+
+    /**
+     * @return mixed[][]
+     */
+    public static function toObjectProvider() : iterable
     {
         $obj      = new stdClass();
         $obj->foo = 'bar';
         $obj->bar = 'baz';
 
         return [
-            ['string',     'ABCDEFGaaaBBB', 'string'],
-            ['boolean',    true, 'bool'],
-            ['boolean',    false, 'bool'],
-            ['bigint',     12345678, 'string'],
-            ['smallint',   123, 'int'],
-            ['datetime',   new DateTime('2010-04-05 10:10:10'), 'DateTime'],
-            ['datetimetz', new DateTime('2010-04-05 10:10:10'), 'DateTime'],
-            ['date',       new DateTime('2010-04-05'), 'DateTime'],
-            ['time',       new DateTime('1970-01-01 10:10:10'), 'DateTime'],
-            ['text',       str_repeat('foo ', 1000), 'string'],
-            ['array',      ['foo' => 'bar'], 'array'],
-            ['json_array', ['foo' => 'bar'], 'array'],
-            ['object',     $obj, 'object'],
-            ['float',      1.5, 'float'],
-            ['decimal',    1.55, 'string'],
+            'object' => ['object', $obj],
         ];
     }
 
     /**
-     * @param string $type
-     * @param mixed  $originalValue
-     * @param string $expectedPhpType
-     *
-     * @dataProvider dataIdempotentDataConversion
+     * @dataProvider toDateTimeProvider
      */
-    public function testIdempotentDataConversion($type, $originalValue, $expectedPhpType)
+    public function testIdempotentConversionToDateTime(string $type, DateTime $originalValue) : void
+    {
+        $dbValue = $this->processValue($type, $originalValue);
+
+        self::assertInstanceOf(DateTime::class, $dbValue);
+
+        if ($type === 'datetimetz') {
+            return;
+        }
+
+        self::assertEquals($originalValue, $dbValue);
+        self::assertEquals(
+            $originalValue->getTimezone(),
+            $dbValue->getTimezone()
+        );
+    }
+
+    /**
+     * @return mixed[][]
+     */
+    public static function toDateTimeProvider() : iterable
+    {
+        return [
+            'datetime' => ['datetime', new DateTime('2010-04-05 10:10:10')],
+            'datetimetz' => ['datetimetz', new DateTime('2010-04-05 10:10:10')],
+            'date' => ['date', new DateTime('2010-04-05')],
+            'time' => ['time', new DateTime('1970-01-01 10:10:10')],
+        ];
+    }
+
+    /**
+     * @param mixed $originalValue
+     */
+    private function processValue(string $type, $originalValue)
     {
         $columnName     = 'test_' . $type;
         $typeInstance   = Type::getType($type);
@@ -87,25 +227,11 @@ class TypeConversionTest extends DbalFunctionalTestCase
 
         $this->connection->insert('type_conversion', ['id' => ++self::$typeCounter, $columnName => $insertionValue]);
 
-        $sql           = 'SELECT ' . $columnName . ' FROM type_conversion WHERE id = ' . self::$typeCounter;
-        $actualDbValue = $typeInstance->convertToPHPValue($this->connection->fetchColumn($sql), $this->connection->getDatabasePlatform());
+        $sql = 'SELECT ' . $columnName . ' FROM type_conversion WHERE id = ' . self::$typeCounter;
 
-        if ($originalValue instanceof DateTime) {
-            self::assertInstanceOf($expectedPhpType, $actualDbValue, 'The expected type from the conversion to and back from the database should be ' . $expectedPhpType);
-        } else {
-            self::assertInternalType($expectedPhpType, $actualDbValue, 'The expected type from the conversion to and back from the database should be ' . $expectedPhpType);
-        }
-
-        if ($type === 'datetimetz') {
-            return;
-        }
-
-        self::assertEquals($originalValue, $actualDbValue, 'Conversion between values should produce the same out as in value, but doesnt!');
-
-        if (! ($originalValue instanceof DateTime)) {
-            return;
-        }
-
-        self::assertEquals($originalValue->getTimezone()->getName(), $actualDbValue->getTimezone()->getName(), 'Timezones should be the same.');
+        return $typeInstance->convertToPHPValue(
+            $this->connection->fetchColumn($sql),
+            $this->connection->getDatabasePlatform()
+        );
     }
 }

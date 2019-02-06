@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="../../vendor/phpunit/phpunit/phpunit.xsd"
+         colors="true"
+         beStrictAboutOutputDuringTests="true"
+         beStrictAboutTodoAnnotatedTests="true"
+         failOnRisky="true"
+         failOnWarning="true"
+         bootstrap="bootstrap.php"
+>
+  <php>
+    <var name="db_type" value="pdo_oci"/>
+    <var name="db_host" value="oracle-xe-11" />
+    <var name="db_username" value="C##doctrine" />
+    <var name="db_password" value="ORACLE" />
+    <var name="db_name" value="XE" />
+    <var name="db_port" value="1521"/>
+    <var name="db_event_subscribers" value="Doctrine\DBAL\Event\Listeners\OracleSessionInit"/>
+
+    <var name="tmpdb_type" value="pdo_oci"/>
+    <var name="tmpdb_host" value="oracle-xe-11" />
+    <var name="tmpdb_username" value="ORACLE" />
+    <var name="tmpdb_password" value="ORACLE" />
+    <var name="tmpdb_name" value="XE" />
+    <var name="tmpdb_port" value="1521"/>
+  </php>
+
+  <testsuites>
+    <testsuite name="Doctrine DBAL Test Suite">
+      <directory>../Doctrine/Tests/DBAL</directory>
+    </testsuite>
+  </testsuites>
+
+  <filter>
+    <whitelist>
+      <directory suffix=".php">../../lib/Doctrine</directory>
+    </whitelist>
+  </filter>
+
+  <listeners>
+      <listener class="Symfony\Bridge\PhpUnit\SymfonyTestsListener" />
+  </listeners>
+
+</phpunit>

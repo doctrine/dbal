@@ -4,7 +4,7 @@ namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\ParameterType;
 use PDO;
-use function count;
+use function assert;
 use function func_get_args;
 
 /**
@@ -24,7 +24,7 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
     public function __construct($dsn, $user = null, $password = null, ?array $options = null)
     {
         try {
-            parent::__construct($dsn, $user, $password, $options);
+            parent::__construct($dsn, (string) $user, (string) $password, (array) $options);
             $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, [PDOStatement::class, []]);
             $this->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (\PDOException $exception) {
@@ -69,23 +69,13 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
      */
     public function query()
     {
-        $args      = func_get_args();
-        $argsCount = count($args);
+        $args = func_get_args();
 
         try {
-            if ($argsCount === 4) {
-                return parent::query($args[0], $args[1], $args[2], $args[3]);
-            }
+            $stmt = parent::query(...$args);
+            assert($stmt instanceof \PDOStatement);
 
-            if ($argsCount === 3) {
-                return parent::query($args[0], $args[1], $args[2]);
-            }
-
-            if ($argsCount === 2) {
-                return parent::query($args[0], $args[1]);
-            }
-
-            return parent::query($args[0]);
+            return $stmt;
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
         }
@@ -104,7 +94,15 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
      */
     public function lastInsertId($name = null)
     {
-        return parent::lastInsertId($name);
+        try {
+            if ($name === null) {
+                return parent::lastInsertId();
+            }
+
+            return parent::lastInsertId($name);
+        } catch (\PDOException $exception) {
+            throw new PDOException($exception);
+        }
     }
 
     /**

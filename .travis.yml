@@ -7,17 +7,6 @@ cache:
         - vendor
         - $HOME/.composer/cache
 
-php:
-  - 7.1
-  - 7.2
-  - 7.3
-  - nightly
-
-env:
-  - DB=sqlite
-  - DB=mysql
-  - DB=mysqli
-
 before_install:
   - |
     if [ "x$COVERAGE" != "xyes" ]; then
@@ -54,53 +43,26 @@ after_script:
 jobs:
   allow_failures:
     - php: nightly
-    - env: DB=pgsql POSTGRESQL_VERSION=11.0
-
-  exclude:
-    - php: 7.1
-      env: DB=sqlite
-    - php: 7.1
-      env: DB=mysql
-    - php: 7.1
-      env: DB=mysqli
-    - php: 7.2
-      env: DB=sqlite
-    - php: 7.2
-      env: DB=mysql
-    - php: 7.2
-      env: DB=mysqli
-    - php: 7.3
-      env: DB=mysql
-    - php: 7.3
-      env: DB=mysqli
-    - php: nightly
-      env: DB=mysql
-    - php: nightly
-      env: DB=mysqli
 
   include:
-    - stage: Test
-      php: 7.1
-      env: DB=sqlite
 
-    - stage: Test
+    - stage: Smoke Testing
       php: 7.2
       env: DB=sqlite COVERAGE=yes
+    - stage: Smoke Testing
+      php: 7.2
+      env: PHPStan
+      install: travis_retry composer install --prefer-dist
+      script: vendor/bin/phpstan analyse
+    - stage: Smoke Testing
+      php: 7.2
+      env: PHP_CodeSniffer
+      install: travis_retry composer install --prefer-dist
+      script: vendor/bin/phpcs
 
     - stage: Test
       php: 7.2
       env: DB=mysql COVERAGE=yes
-
-    - stage: Test
-      php: 7.2
-      env: DB=mysqli COVERAGE=yes
-
-    - stage: Test
-      php: 7.1
-      env: DB=mysql MYSQL_VERSION=5.7
-      sudo: required
-      before_script:
-        - bash ./tests/travis/install-mysql-5.7.sh
     - stage: Test
       php: 7.2
       env: DB=mysql MYSQL_VERSION=5.7 COVERAGE=yes
@@ -108,24 +70,16 @@ jobs:
       before_script:
         - bash ./tests/travis/install-mysql-5.7.sh
     - stage: Test
-      php: 7.3
-      env: DB=mysql MYSQL_VERSION=5.7
+      php: 7.2
+      env: DB=mysql.docker MYSQL_VERSION=8.0 COVERAGE=yes
       sudo: required
+      services:
+        - docker
       before_script:
-        - bash ./tests/travis/install-mysql-5.7.sh
+        - bash ./tests/travis/install-mysql-8.0.sh
     - stage: Test
-      php: nightly
-      env: DB=mysql MYSQL_VERSION=5.7
-      sudo: required
-      before_script:
-        - bash ./tests/travis/install-mysql-5.7.sh
-
-    - stage: Test
-      php: 7.1
-      env: DB=mysqli MYSQL_VERSION=5.7
-      sudo: required
-      before_script:
-        - bash ./tests/travis/install-mysql-5.7.sh
+      php: 7.2
+      env: DB=mysqli COVERAGE=yes
     - stage: Test
       php: 7.2
       env: DB=mysqli MYSQL_VERSION=5.7 COVERAGE=yes
@@ -133,102 +87,53 @@ jobs:
       before_script:
         - bash ./tests/travis/install-mysql-5.7.sh
     - stage: Test
-      php: 7.3
-      env: DB=mysqli MYSQL_VERSION=5.7
+      php: 7.2
+      env: DB=mysqli.docker MYSQL_VERSION=8.0 COVERAGE=yes
       sudo: required
+      services:
+        - docker
       before_script:
-        - bash ./tests/travis/install-mysql-5.7.sh
-    - stage: Test
-      php: nightly
-      env: DB=mysqli MYSQL_VERSION=5.7
-      sudo: required
-      before_script:
-        - bash ./tests/travis/install-mysql-5.7.sh
-
+        - bash ./tests/travis/install-mysql-8.0.sh
     - stage: Test
       php: 7.2
       env: DB=mariadb MARIADB_VERSION=10.0 COVERAGE=yes
       addons:
         mariadb: 10.0
-
     - stage: Test
       php: 7.2
       env: DB=mariadb MARIADB_VERSION=10.1 COVERAGE=yes
       addons:
         mariadb: 10.1
-
     - stage: Test
       php: 7.2
       env: DB=mariadb MARIADB_VERSION=10.2 COVERAGE=yes
       addons:
         mariadb: 10.2
-
+    - stage: Test
+      php: 7.2
+      env: DB=mariadb MARIADB_VERSION=10.3 COVERAGE=yes
+      addons:
+        mariadb: 10.3
     - stage: Test
       php: 7.2
       env: DB=mariadb.mysqli MARIADB_VERSION=10.0 COVERAGE=yes
       addons:
-          mariadb: 10.0
-
+        mariadb: 10.0
     - stage: Test
       php: 7.2
       env: DB=mariadb.mysqli MARIADB_VERSION=10.1 COVERAGE=yes
       addons:
-          mariadb: 10.1
-
+        mariadb: 10.1
     - stage: Test
       php: 7.2
       env: DB=mariadb.mysqli MARIADB_VERSION=10.2 COVERAGE=yes
       addons:
         mariadb: 10.2
-
-    - stage: Test
-      php: 7.1
-      env: DB=mariadb MARIADB_VERSION=10.3
-      addons:
-          mariadb: 10.3
-
-    - stage: Test
-      php: 7.2
-      env: DB=mariadb MARIADB_VERSION=10.3 COVERAGE=yes
-      addons:
-          mariadb: 10.3
-
-    - stage: Test
-      php: 7.3
-      env: DB=mariadb MARIADB_VERSION=10.3
-      addons:
-          mariadb: 10.3
-
-    - stage: Test
-      php: nightly
-      env: DB=mariadb MARIADB_VERSION=10.3
-      addons:
-          mariadb: 10.3
-
-    - stage: Test
-      php: 7.1
-      env: DB=mariadb.mysqli MARIADB_VERSION=10.3
-      addons:
-          mariadb: 10.3
-
     - stage: Test
       php: 7.2
       env: DB=mariadb.mysqli MARIADB_VERSION=10.3 COVERAGE=yes
       addons:
-          mariadb: 10.3
-
-    - stage: Test
-      php: 7.3
-      env: DB=mariadb.mysqli MARIADB_VERSION=10.3
-      addons:
-          mariadb: 10.3
-
-    - stage: Test
-      php: nightly
-      env: DB=mariadb.mysqli MARIADB_VERSION=10.3
-      addons:
-          mariadb: 10.3
-
+        mariadb: 10.3
     - stage: Test
       php: 7.2
       env: DB=pgsql POSTGRESQL_VERSION=9.2 COVERAGE=yes
@@ -236,7 +141,6 @@ jobs:
         - postgresql
       addons:
         postgresql: "9.2"
-
     - stage: Test
       php: 7.2
       env: DB=pgsql POSTGRESQL_VERSION=9.3 COVERAGE=yes
@@ -244,7 +148,6 @@ jobs:
         - postgresql
       addons:
         postgresql: "9.3"
-
     - stage: Test
       php: 7.2
       env: DB=pgsql POSTGRESQL_VERSION=9.4 COVERAGE=yes
@@ -252,7 +155,6 @@ jobs:
         - postgresql
       addons:
         postgresql: "9.4"
-
     - stage: Test
       php: 7.2
       env: DB=pgsql POSTGRESQL_VERSION=9.5 COVERAGE=yes
@@ -260,7 +162,6 @@ jobs:
         - postgresql
       addons:
         postgresql: "9.5"
-
     - stage: Test
       php: 7.2
       env: DB=pgsql POSTGRESQL_VERSION=9.6 COVERAGE=yes
@@ -268,7 +169,6 @@ jobs:
         - postgresql
       addons:
         postgresql: "9.6"
-
     - stage: Test
       php: 7.2
       env: DB=pgsql POSTGRESQL_VERSION=10.0 COVERAGE=yes
@@ -279,15 +179,6 @@ jobs:
         postgresql: "9.6"
       before_script:
         - bash ./tests/travis/install-postgres-10.sh
-
-    - stage: Test
-      php: 7.1
-      env: DB=pgsql POSTGRESQL_VERSION=11.0
-      sudo: required
-      services:
-        - docker
-      before_script:
-        - bash ./tests/travis/install-postgres-11.sh
     - stage: Test
       php: 7.2
       env: DB=pgsql POSTGRESQL_VERSION=11.0 COVERAGE=yes
@@ -297,67 +188,13 @@ jobs:
       before_script:
         - bash ./tests/travis/install-postgres-11.sh
     - stage: Test
-      php: 7.3
-      env: DB=pgsql POSTGRESQL_VERSION=11.0
-      sudo: required
-      services:
-        - docker
-      before_script:
-        - bash ./tests/travis/install-postgres-11.sh
-    - stage: Test
-      php: nightly
-      env: DB=pgsql POSTGRESQL_VERSION=11.0
-      sudo: required
-      services:
-        - docker
-      before_script:
-        - bash ./tests/travis/install-postgres-11.sh
-
-    - stage: Test
-      php: 7.1
-      env: DB=sqlsrv
-      sudo: required
-      services:
-        - docker
-      before_script:
-        - bash ./tests/travis/install-mssql-$DB.sh
-        - bash ./tests/travis/install-mssql.sh
-    - stage: Test
       php: 7.2
       env: DB=sqlsrv COVERAGE=yes
       sudo: required
       services:
         - docker
       before_script:
-        - bash ./tests/travis/install-mssql-$DB.sh
-        - bash ./tests/travis/install-mssql.sh
-    - stage: Test
-      php: 7.3
-      env: DB=sqlsrv
-      sudo: required
-      services:
-        - docker
-      before_script:
-        - bash ./tests/travis/install-mssql-$DB.sh
-        - bash ./tests/travis/install-mssql.sh
-    - stage: Test
-      php: nightly
-      env: DB=sqlsrv
-      sudo: required
-      services:
-        - docker
-      before_script:
-        - bash ./tests/travis/install-mssql-$DB.sh
-        - bash ./tests/travis/install-mssql.sh
-
-    - stage: Test
-      php: 7.1
-      env: DB=pdo_sqlsrv
-      sudo: required
-      services:
-        - docker
-      before_script:
-        - bash ./tests/travis/install-mssql-$DB.sh
+        - bash ./tests/travis/install-mssql-sqlsrv.sh
         - bash ./tests/travis/install-mssql.sh
     - stage: Test
       php: 7.2
@@ -366,36 +203,8 @@ jobs:
       services:
         - docker
       before_script:
-        - bash ./tests/travis/install-mssql-$DB.sh
+        - bash ./tests/travis/install-mssql-pdo_sqlsrv.sh
         - bash ./tests/travis/install-mssql.sh
-    - stage: Test
-      php: 7.3
-      env: DB=pdo_sqlsrv
-      sudo: required
-      services:
-      - docker
-      before_script:
-      - bash ./tests/travis/install-mssql-$DB.sh
-      - bash ./tests/travis/install-mssql.sh
-    - stage: Test
-      php: nightly
-      env: DB=pdo_sqlsrv
-      sudo: required
-      services:
-      - docker
-      before_script:
-      - bash ./tests/travis/install-mssql-$DB.sh
-      - bash ./tests/travis/install-mssql.sh
-
-    - stage: Test
-      php: 7.1
-      env: DB=ibm_db2
-      sudo: required
-      services:
-        - docker
-      before_script:
-        - bash ./tests/travis/install-db2.sh
-        - bash ./tests/travis/install-db2-$DB.sh
     - stage: Test
       php: 7.2
       env: DB=ibm_db2 COVERAGE=yes
@@ -404,13 +213,122 @@ jobs:
         - docker
       before_script:
         - bash ./tests/travis/install-db2.sh
-        - bash ./tests/travis/install-db2-$DB.sh
-
+        - bash ./tests/travis/install-db2-ibm_db2.sh
     - stage: Test
-      php: 7.1
+      php: 7.2
       env: DB=sqlite DEPENDENCIES=low
       install:
         - travis_retry composer update --prefer-dist --prefer-lowest
+    - stage: Test
+      php: 7.3
+      env: DB=mysql.docker MYSQL_VERSION=8.0
+      sudo: required
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-mysql-8.0.sh
+    - stage: Test
+      php: 7.3
+      env: DB=mysqli.docker MYSQL_VERSION=8.0
+      sudo: required
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-mysql-8.0.sh
+    - stage: Test
+      php: 7.3
+      env: DB=mariadb MARIADB_VERSION=10.3
+      addons:
+        mariadb: 10.3
+    - stage: Test
+      php: 7.3
+      env: DB=mariadb.mysqli MARIADB_VERSION=10.3
+      addons:
+        mariadb: 10.3
+    - stage: Test
+      php: 7.3
+      env: DB=pgsql POSTGRESQL_VERSION=11.0
+      sudo: required
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-postgres-11.sh
+    - stage: Test
+      php: 7.3
+      env: DB=sqlite
+    - stage: Test
+      php: 7.3
+      env: DB=sqlsrv
+      sudo: required
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-mssql-sqlsrv.sh
+        - bash ./tests/travis/install-mssql.sh
+    - stage: Test
+      php: 7.3
+      env: DB=pdo_sqlsrv
+      sudo: required
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-mssql-pdo_sqlsrv.sh
+        - bash ./tests/travis/install-mssql.sh
+    - stage: Test
+      php: nightly
+      env: DB=mysql.docker MYSQL_VERSION=8.0
+      sudo: required
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-mysql-8.0.sh
+    - stage: Test
+      php: nightly
+      env: DB=mysqli.docker MYSQL_VERSION=8.0
+      sudo: required
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-mysql-8.0.sh
+    - stage: Test
+      php: nightly
+      env: DB=mariadb MARIADB_VERSION=10.3
+      addons:
+        mariadb: 10.3
+    - stage: Test
+      php: nightly
+      env: DB=mariadb.mysqli MARIADB_VERSION=10.3
+      addons:
+        mariadb: 10.3
+    - stage: Test
+      php: nightly
+      env: DB=pgsql POSTGRESQL_VERSION=11.0
+      sudo: required
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-postgres-11.sh
+    - stage: Test
+      php: nightly
+      env: DB=sqlite
+    - stage: Test
+      php: nightly
+      env: DB=sqlsrv
+      sudo: required
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-mssql-sqlsrv.sh
+        - bash ./tests/travis/install-mssql.sh
+    - stage: Test
+      php: nightly
+      env: DB=pdo_sqlsrv
+      sudo: required
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-mssql-pdo_sqlsrv.sh
+        - bash ./tests/travis/install-mssql.sh
 
     - stage: Test
       if: type = cron
@@ -419,15 +337,3 @@ jobs:
       install:
         - composer config minimum-stability dev
         - travis_retry composer update --prefer-dist
-
-    - stage: Code Quality
-      php: 7.2
-      env: DB=none STATIC_ANALYSIS
-      install: travis_retry composer install --prefer-dist
-      script: vendor/bin/phpstan analyse
-
-    - stage: Coding standard
-      php: 7.2
-      install: travis_retry composer install --prefer-dist
-      script:
-        - ./vendor/bin/phpcs

@@ -44,10 +44,13 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
             throw SQLSrvException::fromSqlSrvErrors();
         }
 
-        $this->conn = sqlsrv_connect($serverName, $connectionOptions);
-        if (! $this->conn) {
+        $conn = sqlsrv_connect($serverName, $connectionOptions);
+
+        if ($conn === false) {
             throw SQLSrvException::fromSqlSrvErrors();
         }
+
+        $this->conn         = $conn;
         $this->lastInsertId = new LastInsertId();
     }
 
@@ -115,7 +118,13 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
             throw SQLSrvException::fromSqlSrvErrors();
         }
 
-        return sqlsrv_rows_affected($stmt);
+        $rowsAffected = sqlsrv_rows_affected($stmt);
+
+        if ($rowsAffected === false) {
+            throw SQLSrvException::fromSqlSrvErrors();
+        }
+
+        return $rowsAffected;
     }
 
     /**
@@ -181,6 +190,6 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
      */
     public function errorInfo()
     {
-        return sqlsrv_errors(SQLSRV_ERR_ERRORS);
+        return (array) sqlsrv_errors(SQLSRV_ERR_ERRORS);
     }
 }

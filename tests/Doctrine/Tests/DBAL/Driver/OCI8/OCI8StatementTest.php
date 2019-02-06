@@ -11,7 +11,7 @@ use function extension_loaded;
 
 class OCI8StatementTest extends DbalTestCase
 {
-    protected function setUp()
+    protected function setUp() : void
     {
         if (! extension_loaded('oci8')) {
             $this->markTestSkipped('oci8 is not installed.');
@@ -32,7 +32,6 @@ class OCI8StatementTest extends DbalTestCase
      * @param mixed[] $params
      *
      * @dataProvider executeDataProvider
-     * @expectedException \Doctrine\DBAL\Driver\OCI8\OCI8Exception
      */
     public function testExecute(array $params)
     {
@@ -73,6 +72,7 @@ class OCI8StatementTest extends DbalTestCase
         $reflProperty->setAccessible(true);
         $reflProperty->setValue($statement, $conn);
 
+        $this->expectException(OCI8Exception::class);
         $statement->execute($params);
     }
 

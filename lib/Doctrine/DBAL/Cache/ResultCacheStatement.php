@@ -12,6 +12,7 @@ use IteratorAggregate;
 use PDO;
 use function array_merge;
 use function array_values;
+use function assert;
 use function reset;
 
 /**
@@ -41,7 +42,7 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
     /** @var int */
     private $lifetime;
 
-    /** @var Statement */
+    /** @var ResultStatement */
     private $statement;
 
     /**
@@ -62,7 +63,7 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
      * @param string $realKey
      * @param int    $lifetime
      */
-    public function __construct(Statement $stmt, Cache $resultCache, $cacheKey, $realKey, $lifetime)
+    public function __construct(ResultStatement $stmt, Cache $resultCache, $cacheKey, $realKey, $lifetime)
     {
         $this->statement   = $stmt;
         $this->resultCache = $resultCache;
@@ -166,7 +167,10 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
      */
     public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
     {
-        return $this->statement->fetchAll($fetchMode, $fetchArgument, $ctorArgs);
+        $this->data    = $this->statement->fetchAll($fetchMode, $fetchArgument, $ctorArgs);
+        $this->emptied = true;
+
+        return $this->data;
     }
 
     /**
@@ -193,6 +197,8 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
      */
     public function rowCount()
     {
+        assert($this->statement instanceof Statement);
+
         return $this->statement->rowCount();
     }
 }

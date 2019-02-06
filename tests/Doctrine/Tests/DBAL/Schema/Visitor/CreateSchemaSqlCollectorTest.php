@@ -7,12 +7,12 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\Visitor\CreateSchemaSqlCollector;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use PHPUnit_Framework_MockObject_MockObject;
 
 class CreateSchemaSqlCollectorTest extends TestCase
 {
-    /** @var AbstractPlatform|PHPUnit_Framework_MockObject_MockObject */
+    /** @var AbstractPlatform|MockObject */
     private $platformMock;
 
     /** @var CreateSchemaSqlCollector */
@@ -21,7 +21,7 @@ class CreateSchemaSqlCollectorTest extends TestCase
     /**
      * {@inheritdoc}
      */
-    protected function setUp()
+    protected function setUp() : void
     {
         parent::setUp();
 
@@ -39,11 +39,13 @@ class CreateSchemaSqlCollectorTest extends TestCase
             ->getMockForAbstractClass();
         $this->visitor      = new CreateSchemaSqlCollector($this->platformMock);
 
-        foreach (['getCreateSchemaSQL', 'getCreateTableSQL', 'getCreateForeignKeySQL', 'getCreateSequenceSQL'] as $method) {
-            $this->platformMock->expects($this->any())
-                ->method($method)
-                ->will($this->returnValue('foo'));
+        foreach (['getCreateSchemaSQL', 'getCreateForeignKeySQL', 'getCreateSequenceSQL'] as $method) {
+            $this->platformMock->method($method)
+                ->willReturn('foo');
         }
+
+        $this->platformMock->method('getCreateTableSQL')
+            ->willReturn(['foo']);
     }
 
     public function testAcceptsNamespace()
@@ -130,7 +132,7 @@ class CreateSchemaSqlCollectorTest extends TestCase
     }
 
     /**
-     * @return ForeignKeyConstraint|PHPUnit_Framework_MockObject_MockObject
+     * @return ForeignKeyConstraint|MockObject
      */
     private function createForeignKeyConstraintMock()
     {
@@ -140,7 +142,7 @@ class CreateSchemaSqlCollectorTest extends TestCase
     }
 
     /**
-     * @return Sequence|PHPUnit_Framework_MockObject_MockObject
+     * @return Sequence|MockObject
      */
     private function createSequenceMock()
     {
@@ -150,7 +152,7 @@ class CreateSchemaSqlCollectorTest extends TestCase
     }
 
     /**
-     * @return Table|PHPUnit_Framework_MockObject_MockObject
+     * @return Table|MockObject
      */
     private function createTableMock()
     {

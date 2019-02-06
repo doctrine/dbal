@@ -43,7 +43,7 @@ class DbalFunctionalTestCase extends DbalTestCase
         self::$sharedConnection = null;
     }
 
-    protected function setUp()
+    protected function setUp() : void
     {
         if (! isset(self::$sharedConnection)) {
             self::$sharedConnection = TestUtil::getConnection();
@@ -54,14 +54,14 @@ class DbalFunctionalTestCase extends DbalTestCase
         $this->connection->getConfiguration()->setSQLLogger($this->sqlLoggerStack);
     }
 
-    protected function tearDown()
+    protected function tearDown() : void
     {
         while ($this->connection->isTransactionActive()) {
             $this->connection->rollBack();
         }
     }
 
-    protected function onNotSuccessfulTest(Throwable $t)
+    protected function onNotSuccessfulTest(Throwable $t) : void
     {
         if ($t instanceof AssertionFailedError) {
             throw $t;

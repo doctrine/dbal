@@ -21,7 +21,7 @@ class DateTimeTzImmutableTypeTest extends TestCase
     /** @var DateTimeTzImmutableType */
     private $type;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->type     = Type::getType('datetimetz_immutable');
         $this->platform = $this->prophesize(AbstractPlatform::class);

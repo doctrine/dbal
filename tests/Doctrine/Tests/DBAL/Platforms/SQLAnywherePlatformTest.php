@@ -646,7 +646,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
             $this->platform->modifyLimitQuery('SELECT * FROM user', 10, 5)
         );
         self::assertEquals(
-            'SELECT TOP ALL START AT 6 * FROM user',
+            'SELECT TOP 0 START AT 6 * FROM user',
             $this->platform->modifyLimitQuery('SELECT * FROM user', 0, 5)
         );
     }
@@ -656,6 +656,14 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         self::assertEquals(
             'SELECT TOP 10 * FROM (SELECT u.id as uid, u.name as uname FROM user) AS doctrine_tbl',
             $this->platform->modifyLimitQuery('SELECT * FROM (SELECT u.id as uid, u.name as uname FROM user) AS doctrine_tbl', 10)
+        );
+    }
+
+    public function testModifiesLimitQueryWithoutLimit()
+    {
+        self::assertEquals(
+            'SELECT TOP ALL START AT 11 n FROM Foo',
+            $this->platform->modifyLimitQuery('SELECT n FROM Foo', null, 10)
         );
     }
 
@@ -987,11 +995,9 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
      */
     public function testQuotesSchemaNameInListTableColumnsSQL()
     {
-        self::assertContains(
+        self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",
-            $this->platform->getListTableColumnsSQL("Foo'Bar\\.baz_table"),
-            '',
-            true
+            $this->platform->getListTableColumnsSQL("Foo'Bar\\.baz_table")
         );
     }
 
@@ -1000,7 +1006,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
      */
     public function testQuotesTableNameInListTableConstraintsSQL()
     {
-        self::assertContains("'Foo''Bar\\'", $this->platform->getListTableConstraintsSQL("Foo'Bar\\"), '', true);
+        self::assertStringContainsStringIgnoringCase("'Foo''Bar\\'", $this->platform->getListTableConstraintsSQL("Foo'Bar\\"), '', true);
     }
 
     /**
@@ -1008,11 +1014,9 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
      */
     public function testQuotesSchemaNameInListTableConstraintsSQL()
     {
-        self::assertContains(
+        self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",
-            $this->platform->getListTableConstraintsSQL("Foo'Bar\\.baz_table"),
-            '',
-            true
+            $this->platform->getListTableConstraintsSQL("Foo'Bar\\.baz_table")
         );
     }
 
@@ -1021,7 +1025,10 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
      */
     public function testQuotesTableNameInListTableForeignKeysSQL()
     {
-        self::assertContains("'Foo''Bar\\'", $this->platform->getListTableForeignKeysSQL("Foo'Bar\\"), '', true);
+        self::assertStringContainsStringIgnoringCase(
+            "'Foo''Bar\\'",
+            $this->platform->getListTableForeignKeysSQL("Foo'Bar\\")
+        );
     }
 
     /**
@@ -1029,11 +1036,9 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
      */
     public function testQuotesSchemaNameInListTableForeignKeysSQL()
     {
-        self::assertContains(
+        self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",
-            $this->platform->getListTableForeignKeysSQL("Foo'Bar\\.baz_table"),
-            '',
-            true
+            $this->platform->getListTableForeignKeysSQL("Foo'Bar\\.baz_table")
         );
     }
 
@@ -1042,7 +1047,10 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
      */
     public function testQuotesTableNameInListTableIndexesSQL()
     {
-        self::assertContains("'Foo''Bar\\'", $this->platform->getListTableIndexesSQL("Foo'Bar\\"), '', true);
+        self::assertStringContainsStringIgnoringCase(
+            "'Foo''Bar\\'",
+            $this->platform->getListTableIndexesSQL("Foo'Bar\\")
+        );
     }
 
     /**
@@ -1050,11 +1058,9 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
      */
     public function testQuotesSchemaNameInListTableIndexesSQL()
     {
-        self::assertContains(
+        self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",
-            $this->platform->getListTableIndexesSQL("Foo'Bar\\.baz_table"),
-            '',
-            true
+            $this->platform->getListTableIndexesSQL("Foo'Bar\\.baz_table")
         );
     }
 }

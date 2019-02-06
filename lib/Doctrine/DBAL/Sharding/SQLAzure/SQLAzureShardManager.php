@@ -7,8 +7,6 @@ use Doctrine\DBAL\Sharding\ShardingException;
 use Doctrine\DBAL\Sharding\ShardManager;
 use Doctrine\DBAL\Types\Type;
 use RuntimeException;
-use function is_bool;
-use function is_scalar;
 use function sprintf;
 
 /**
@@ -123,10 +121,6 @@ class SQLAzureShardManager implements ShardManager
     {
         if ($this->conn->isTransactionActive()) {
             throw ShardingException::activeTransaction();
-        }
-
-        if ($distributionValue === null || is_bool($distributionValue) || ! is_scalar($distributionValue)) {
-            throw ShardingException::noShardDistributionValue();
         }
 
         $platform = $this->conn->getDatabasePlatform();

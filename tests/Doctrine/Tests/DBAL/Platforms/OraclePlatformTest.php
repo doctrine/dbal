@@ -97,11 +97,10 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * @expectedException \Doctrine\DBAL\DBALException
-     */
     public function testRLike()
     {
+        $this->expectException(DBALException::class);
+
         self::assertEquals('RLIKE', $this->platform->getRegexpExpression(), 'Regular expression operator is not correct');
     }
 
@@ -131,11 +130,10 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    /**
-     * @expectedException \Doctrine\DBAL\DBALException
-     */
     public function testCreateDatabaseThrowsException()
     {
+        $this->expectException(DBALException::class);
+
         self::assertEquals('CREATE DATABASE foobar', $this->platform->getCreateDatabaseSQL('foobar'));
     }
 
@@ -539,7 +537,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     public function testCreateSequenceWithCache($cacheSize, $expectedSql)
     {
         $sequence = new Sequence('foo', 1, 1, $cacheSize);
-        self::assertContains($expectedSql, $this->platform->getCreateSequenceSQL($sequence));
+        self::assertStringContainsString($expectedSql, $this->platform->getCreateSequenceSQL($sequence));
     }
 
     public function dataCreateSequenceWithCache()
@@ -875,7 +873,10 @@ SQL
      */
     public function testQuotesDatabaseNameInListSequencesSQL()
     {
-        self::assertContains("'Foo''Bar\\'", $this->platform->getListSequencesSQL("Foo'Bar\\"), '', true);
+        self::assertStringContainsStringIgnoringCase(
+            "'Foo''Bar\\'",
+            $this->platform->getListSequencesSQL("Foo'Bar\\")
+        );
     }
 
     /**
@@ -883,7 +884,10 @@ SQL
      */
     public function testQuotesTableNameInListTableIndexesSQL()
     {
-        self::assertContains("'Foo''Bar\\'", $this->platform->getListTableIndexesSQL("Foo'Bar\\"), '', true);
+        self::assertStringContainsStringIgnoringCase(
+            "'Foo''Bar\\'",
+            $this->platform->getListTableIndexesSQL("Foo'Bar\\")
+        );
     }
 
     /**
@@ -891,7 +895,10 @@ SQL
      */
     public function testQuotesTableNameInListTableForeignKeysSQL()
     {
-        self::assertContains("'Foo''Bar\\'", $this->platform->getListTableForeignKeysSQL("Foo'Bar\\"), '', true);
+        self::assertStringContainsStringIgnoringCase(
+            "'Foo''Bar\\'",
+            $this->platform->getListTableForeignKeysSQL("Foo'Bar\\")
+        );
     }
 
     /**
@@ -899,7 +906,10 @@ SQL
      */
     public function testQuotesTableNameInListTableConstraintsSQL()
     {
-        self::assertContains("'Foo''Bar\\'", $this->platform->getListTableConstraintsSQL("Foo'Bar\\"), '', true);
+        self::assertStringContainsStringIgnoringCase(
+            "'Foo''Bar\\'",
+            $this->platform->getListTableConstraintsSQL("Foo'Bar\\")
+        );
     }
 
     /**
@@ -907,7 +917,10 @@ SQL
      */
     public function testQuotesTableNameInListTableColumnsSQL()
     {
-        self::assertContains("'Foo''Bar\\'", $this->platform->getListTableColumnsSQL("Foo'Bar\\"), '', true);
+        self::assertStringContainsStringIgnoringCase(
+            "'Foo''Bar\\'",
+            $this->platform->getListTableColumnsSQL("Foo'Bar\\")
+        );
     }
 
     /**
@@ -915,6 +928,9 @@ SQL
      */
     public function testQuotesDatabaseNameInListTableColumnsSQL()
     {
-        self::assertContains("'Foo''Bar\\'", $this->platform->getListTableColumnsSQL('foo_table', "Foo'Bar\\"), '', true);
+        self::assertStringContainsStringIgnoringCase(
+            "'Foo''Bar\\'",
+            $this->platform->getListTableColumnsSQL('foo_table', "Foo'Bar\\")
+        );
     }
 }

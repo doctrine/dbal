@@ -23,7 +23,7 @@ use function func_get_args;
 use function get_class;
 use function implode;
 use function is_string;
-use function preg_replace;
+use function preg_match;
 use function sprintf;
 use function strlen;
 use function strpos;
@@ -116,7 +116,6 @@ class SQLAnywherePlatform extends AbstractPlatform
         $tableSql     = [];
         $alterClauses = [];
 
-        /** @var Column $column */
         foreach ($diff->addedColumns as $column) {
             if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
                 continue;
@@ -137,7 +136,6 @@ class SQLAnywherePlatform extends AbstractPlatform
             );
         }
 
-        /** @var Column $column */
         foreach ($diff->removedColumns as $column) {
             if ($this->onSchemaAlterTableRemoveColumn($column, $diff, $columnSql)) {
                 continue;
@@ -146,7 +144,6 @@ class SQLAnywherePlatform extends AbstractPlatform
             $alterClauses[] = $this->getAlterTableRemoveColumnClause($column);
         }
 
-        /** @var ColumnDiff $columnDiff */
         foreach ($diff->changedColumns as $columnDiff) {
             if ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
                 continue;
@@ -187,9 +184,11 @@ class SQLAnywherePlatform extends AbstractPlatform
 
             $sql = array_merge($sql, $commentsSQL);
 
-            if ($diff->newName !== false) {
+            $newName = $diff->getNewName();
+
+            if ($newName !== false) {
                 $sql[] = $this->getAlterTableClause($diff->getName($this)) . ' ' .
-                    $this->getAlterTableRenameTableClause($diff->getNewName());
+                    $this->getAlterTableRenameTableClause($newName);
             }
 
             $sql = array_merge(
@@ -1311,25 +1310,26 @@ SQL
      */
     protected function doModifyLimitQuery($query, $limit, $offset)
     {
-        $limitOffsetClause = '';
+        $limitOffsetClause = $this->getTopClauseSQL($limit, $offset);
 
-        if ($limit > 0) {
-            $limitOffsetClause = 'TOP ' . $limit . ' ';
+        if ($limitOffsetClause === '') {
+            return $query;
         }
 
+        if (! preg_match('/^\s*(SELECT\s+(DISTINCT\s+)?)(.*)/i', $query, $matches)) {
+            return $query;
+        }
+
+        return $matches[1] . $limitOffsetClause . ' ' . $matches[3];
+    }
+
+    private function getTopClauseSQL(?int $limit, ?int $offset) : string
+    {
         if ($offset > 0) {
-            if ($limit === 0) {
-                $limitOffsetClause = 'TOP ALL ';
-            }
-
-            $limitOffsetClause .= 'START AT ' . ($offset + 1) . ' ';
+            return sprintf('TOP %s START AT %d', $limit ?? 'ALL', $offset + 1);
         }
 
-        if ($limitOffsetClause) {
-            return preg_replace('/^\s*(SELECT\s+(DISTINCT\s+)?)/i', '\1' . $limitOffsetClause, $query);
-        }
-
-        return $query;
+        return $limit === null ? '' : 'TOP ' . $limit;
     }
 
     /**

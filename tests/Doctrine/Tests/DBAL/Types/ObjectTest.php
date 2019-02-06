@@ -17,7 +17,7 @@ class ObjectTest extends DbalTestCase
     /** @var Type */
     private $type;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->platform = new MockPlatform();
         $this->type     = Type::getType('object');
@@ -25,12 +25,12 @@ class ObjectTest extends DbalTestCase
 
     public function testObjectConvertsToDatabaseValue()
     {
-        self::assertInternalType('string', $this->type->convertToDatabaseValue(new stdClass(), $this->platform));
+        self::assertIsString($this->type->convertToDatabaseValue(new stdClass(), $this->platform));
     }
 
     public function testObjectConvertsToPHPValue()
     {
-        self::assertInternalType('object', $this->type->convertToPHPValue(serialize(new stdClass()), $this->platform));
+        self::assertIsObject($this->type->convertToPHPValue(serialize(new stdClass()), $this->platform));
     }
 
     public function testExistingObjectPassesThroughForNormalizeToPHPValue()

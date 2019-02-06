@@ -11,7 +11,7 @@ use function preg_match;
  */
 class DBAL421Test extends DbalFunctionalTestCase
 {
-    protected function setUp()
+    protected function setUp() : void
     {
         parent::setUp();
 

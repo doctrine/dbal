@@ -25,10 +25,10 @@ class DriverManagerTest extends DbalTestCase
 {
     /**
      * @requires extension pdo_sqlite
-     * @expectedException \Doctrine\DBAL\DBALException
      */
     public function testInvalidPdoInstance()
     {
+        $this->expectException(DBALException::class);
         DriverManager::getConnection(['pdo' => 'test']);
     }
 
@@ -58,19 +58,17 @@ class DriverManagerTest extends DbalTestCase
         self::assertEquals(PDO::ERRMODE_EXCEPTION, $pdo->getAttribute(PDO::ATTR_ERRMODE));
     }
 
-    /**
-     * @expectedException \Doctrine\DBAL\DBALException
-     */
     public function testCheckParams()
     {
+        $this->expectException(DBALException::class);
+
         DriverManager::getConnection([]);
     }
 
-    /**
-     * @expectedException \Doctrine\DBAL\DBALException
-     */
     public function testInvalidDriver()
     {
+        $this->expectException(DBALException::class);
+
         DriverManager::getConnection(['driver' => 'invalid_driver']);
     }
 

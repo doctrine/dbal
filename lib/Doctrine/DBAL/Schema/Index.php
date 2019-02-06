@@ -4,6 +4,7 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use InvalidArgumentException;
+use function array_filter;
 use function array_keys;
 use function array_map;
 use function array_search;
@@ -211,6 +212,10 @@ class Index extends AbstractAsset implements Constraint
                 return false;
             }
 
+            if (! $this->hasSameColumnLengths($other)) {
+                return false;
+            }
+
             if (! $this->isUnique() && ! $this->isPrimary()) {
                 // this is a special case: If the current key is neither primary or unique, any unique or
                 // primary key will always have the same effect for the index and there cannot be any constraint
@@ -335,5 +340,18 @@ class Index extends AbstractAsset implements Constraint
         }
 
         return ! $this->hasOption('where') && ! $other->hasOption('where');
+    }
+
+    /**
+     * Returns whether the index has the same column lengths as the other
+     */
+    private function hasSameColumnLengths(self $other) : bool
+    {
+        $filter = static function (?int $length) : bool {
+            return $length !== null;
+        };
+
+        return array_filter($this->options['lengths'] ?? [], $filter)
+            === array_filter($other->options['lengths'] ?? [], $filter);
     }
 }
