@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Types;
 
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use function is_resource;
 use function restore_error_handler;
@@ -20,7 +21,7 @@ class ObjectType extends Type
      */
     public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
     {
-        return $platform->getClobTypeDeclarationSQL($fieldDeclaration);
+        return $platform->getBlobTypeDeclarationSQL($fieldDeclaration);
     }
 
     /**
@@ -51,6 +52,14 @@ class ObjectType extends Type
         } finally {
             restore_error_handler();
         }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBindingType() : int
+    {
+        return ParameterType::BINARY;
     }
 
     /**
