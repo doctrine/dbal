@@ -164,22 +164,29 @@ jobs:
         postgresql: "9.6"
     - stage: Test
       php: 7.2
+      dist: xenial
       env: DB=pgsql POSTGRESQL_VERSION=10.0 COVERAGE=yes
-      sudo: required
-      services:
-        - postgresql
       addons:
-        postgresql: "9.6"
-      before_script:
-        - bash ./tests/travis/install-postgres-10.sh
+        postgresql: "10"
+        apt:
+          packages:
+            - postgresql-10
+            - postgresql-client-10
     - stage: Test
       php: 7.2
-      env: DB=pgsql POSTGRESQL_VERSION=11.0 COVERAGE=yes
+      dist: xenial
+      env: DB=pgsql.new POSTGRESQL_VERSION=11.0 COVERAGE=yes
       sudo: required
-      services:
-        - docker
-      before_script:
-        - bash ./tests/travis/install-postgres-11.sh
+      addons:
+        postgresql: "11"
+        apt:
+          packages:
+            - postgresql-11
+            - postgresql-client-11
+      before_install:
+        - sudo sed -i -e '/local\s*all/s/peer/trust/' -e /'host\s*all/s/md5/trust/' /etc/postgresql/11/main/pg_hba.conf
+        - sudo systemctl restart postgresql@11-main
+        - sleep 1
     - stage: Test
       php: 7.2
       env: DB=sqlsrv COVERAGE=yes
@@ -240,12 +247,19 @@ jobs:
         mariadb: 10.3
     - stage: Test
       php: 7.3
-      env: DB=pgsql POSTGRESQL_VERSION=11.0
+      dist: xenial
+      env: DB=pgsql.new POSTGRESQL_VERSION=11.0
       sudo: required
-      services:
-        - docker
-      before_script:
-        - bash ./tests/travis/install-postgres-11.sh
+      addons:
+        postgresql: "11"
+        apt:
+          packages:
+            - postgresql-11
+            - postgresql-client-11
+      before_install:
+        - sudo sed -i -e '/local\s*all/s/peer/trust/' -e /'host\s*all/s/md5/trust/' /etc/postgresql/11/main/pg_hba.conf
+        - sudo systemctl restart postgresql@11-main
+        - sleep 1
     - stage: Test
       php: 7.3
       env: DB=sqlite
@@ -295,12 +309,19 @@ jobs:
         mariadb: 10.3
     - stage: Test
       php: 7.4snapshot
-      env: DB=pgsql POSTGRESQL_VERSION=11.0
+      dist: xenial
+      env: DB=pgsql.new POSTGRESQL_VERSION=11.0
       sudo: required
-      services:
-        - docker
-      before_script:
-        - bash ./tests/travis/install-postgres-11.sh
+      addons:
+        postgresql: "11"
+        apt:
+          packages:
+            - postgresql-11
+            - postgresql-client-11
+      before_install:
+        - sudo sed -i -e '/local\s*all/s/peer/trust/' -e /'host\s*all/s/md5/trust/' /etc/postgresql/11/main/pg_hba.conf
+        - sudo systemctl restart postgresql@11-main
+        - sleep 1
     - stage: Test
       php: 7.4snapshot
       env: DB=sqlite
