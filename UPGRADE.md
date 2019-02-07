@@ -4,6 +4,10 @@
 
 Similarly to `PDOStatement::fetchColumn()`, DBAL statements throw an exception in case of an invalid column index.
 
+## BC BREAK `ObjectType` changed from STRING to BINARY type
+
+`serialize()` output should generally be stored in a BLOB field in a database, because this is a binary string which may include null bytes.
+
 ## BC BREAK `Statement::execute()` with redundant parameters.
 
 Similarly to the drivers based on `pdo_pgsql` and `pdo_sqlsrv`, `OCI8Statement::execute()` and `MySQLiStatement::execute()` do not longer ignore redundant parameters.
