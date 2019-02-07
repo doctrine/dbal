@@ -693,7 +693,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
 
         self::assertEquals(
             [
-                'CREATE TABLE mytable (id INT IDENTITY NOT NULL, comment_null INT NOT NULL, comment_false INT NOT NULL, comment_empty_string INT NOT NULL, comment_integer_0 INT NOT NULL, comment_float_0 INT NOT NULL, comment_string_0 INT NOT NULL, comment INT NOT NULL, [comment_quoted] INT NOT NULL, [create] INT NOT NULL, commented_type VARCHAR(MAX) NOT NULL, commented_type_with_comment VARCHAR(MAX) NOT NULL, comment_with_string_literal_char NVARCHAR(255) NOT NULL, PRIMARY KEY (id))',
+                'CREATE TABLE mytable (id INT IDENTITY NOT NULL, comment_null INT NOT NULL, comment_false INT NOT NULL, comment_empty_string INT NOT NULL, comment_integer_0 INT NOT NULL, comment_float_0 INT NOT NULL, comment_string_0 INT NOT NULL, comment INT NOT NULL, [comment_quoted] INT NOT NULL, [create] INT NOT NULL, commented_type VARBINARY(MAX) NOT NULL, commented_type_with_comment VARCHAR(MAX) NOT NULL, comment_with_string_literal_char NVARCHAR(255) NOT NULL, PRIMARY KEY (id))',
                 "EXEC sp_addextendedproperty N'MS_Description', N'0', N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', comment_integer_0",
                 "EXEC sp_addextendedproperty N'MS_Description', N'0', N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', comment_float_0",
                 "EXEC sp_addextendedproperty N'MS_Description', N'0', N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', comment_string_0",
@@ -854,14 +854,14 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
                 'ALTER TABLE mytable ADD added_comment INT NOT NULL',
                 'ALTER TABLE mytable ADD [added_comment_quoted] INT NOT NULL',
                 'ALTER TABLE mytable ADD [select] INT NOT NULL',
-                'ALTER TABLE mytable ADD added_commented_type VARCHAR(MAX) NOT NULL',
+                'ALTER TABLE mytable ADD added_commented_type VARBINARY(MAX) NOT NULL',
                 'ALTER TABLE mytable ADD added_commented_type_with_comment VARCHAR(MAX) NOT NULL',
                 'ALTER TABLE mytable ADD added_comment_with_string_literal_char NVARCHAR(255) NOT NULL',
                 'ALTER TABLE mytable DROP COLUMN comment_integer_0',
                 'ALTER TABLE mytable ALTER COLUMN comment_null NVARCHAR(255) NOT NULL',
-                'ALTER TABLE mytable ALTER COLUMN comment_empty_string VARCHAR(MAX) NOT NULL',
+                'ALTER TABLE mytable ALTER COLUMN comment_empty_string VARBINARY(MAX) NOT NULL',
                 'ALTER TABLE mytable ALTER COLUMN [comment_quoted] VARCHAR(MAX) NOT NULL',
-                'ALTER TABLE mytable ALTER COLUMN [create] VARCHAR(MAX) NOT NULL',
+                'ALTER TABLE mytable ALTER COLUMN [create] VARBINARY(MAX) NOT NULL',
                 'ALTER TABLE mytable ALTER COLUMN commented_type INT NOT NULL',
 
                 // Added columns.
