@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Driver\SQLAnywhere;
 
 use Doctrine\DBAL\Driver\SQLAnywhere\Driver;

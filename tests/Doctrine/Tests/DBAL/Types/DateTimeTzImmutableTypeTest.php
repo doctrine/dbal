@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Types;
 
 use DateTime;
@@ -91,6 +93,8 @@ class DateTimeTzImmutableTypeTest extends TestCase
 
     public function testThrowsExceptionDuringConversionToPHPValueWithInvalidDateTimeWithTimezoneString()
     {
+        $this->platform->getDateTimeTzFormatString()->willReturn('Y-m-d H:i:s T')->shouldBeCalled();
+
         $this->expectException(ConversionException::class);
 
         $this->type->convertToPHPValue('invalid datetime with timezone string', $this->platform->reveal());

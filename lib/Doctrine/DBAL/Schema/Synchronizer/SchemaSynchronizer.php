@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Schema\Synchronizer;
 
 use Doctrine\DBAL\Schema\Schema;
