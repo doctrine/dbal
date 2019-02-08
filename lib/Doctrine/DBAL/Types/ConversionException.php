@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\DBALException;
@@ -9,6 +11,7 @@ use function gettype;
 use function implode;
 use function is_object;
 use function is_scalar;
+use function is_string;
 use function sprintf;
 use function strlen;
 use function substr;
@@ -21,14 +24,14 @@ class ConversionException extends DBALException
     /**
      * Thrown when a Database to Doctrine Type Conversion fails.
      *
-     * @param string $value
+     * @param mixed  $value
      * @param string $toType
      *
      * @return \Doctrine\DBAL\Types\ConversionException
      */
     public static function conversionFailed($value, $toType)
     {
-        $value = strlen($value) > 32 ? substr($value, 0, 20) . '...' : $value;
+        $value = is_string($value) && strlen($value) > 32 ? substr($value, 0, 20) . '...' : $value;
 
         return new self('Could not convert database value "' . $value . '" to Doctrine Type ' . $toType);
     }
@@ -37,7 +40,7 @@ class ConversionException extends DBALException
      * Thrown when a Database to Doctrine Type Conversion fails and we can make a statement
      * about the expected format.
      *
-     * @param string $value
+     * @param mixed  $value
      * @param string $toType
      * @param string $expectedFormat
      *
@@ -45,7 +48,7 @@ class ConversionException extends DBALException
      */
     public static function conversionFailedFormat($value, $toType, $expectedFormat, ?Throwable $previous = null)
     {
-        $value = strlen($value) > 32 ? substr($value, 0, 20) . '...' : $value;
+        $value = is_string($value) && strlen($value) > 32 ? substr($value, 0, 20) . '...' : $value;
 
         return new self(
             'Could not convert database value "' . $value . '" to Doctrine Type ' .

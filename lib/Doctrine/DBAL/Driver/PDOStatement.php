@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\DBALException;
@@ -10,6 +12,7 @@ use PDO;
 use const E_USER_DEPRECATED;
 use function array_slice;
 use function assert;
+use function count;
 use function func_get_args;
 use function is_array;
 use function sprintf;
@@ -80,10 +83,15 @@ class PDOStatement implements IteratorAggregate, Statement
      */
     public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null, $driverOptions = null) : void
     {
-        $type = $this->convertParamType($type);
+        $type            = $this->convertParamType($type);
+        $extraParameters = array_slice(func_get_args(), 3);
+
+        if (count($extraParameters) !== 0) {
+            $extraParameters[0] = $extraParameters[0] ?? 0;
+        }
 
         try {
-            $this->stmt->bindParam($column, $variable, $type, ...array_slice(func_get_args(), 3));
+            $this->stmt->bindParam($column, $variable, $type, ...$extraParameters);
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
         }
