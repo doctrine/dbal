@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Schema\Column;
@@ -901,7 +903,7 @@ SQL
      */
     public function convertFromBoolean($item)
     {
-        if (in_array(strtolower($item), $this->booleanLiterals['false'], true)) {
+        if (in_array($item, $this->booleanLiterals['false'], true)) {
             return false;
         }
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Driver\OCI8;
 
 use Doctrine\DBAL\Driver\OCI8\OCI8Connection;
@@ -7,7 +9,9 @@ use Doctrine\DBAL\Driver\OCI8\OCI8Exception;
 use Doctrine\DBAL\Driver\OCI8\OCI8Statement;
 use Doctrine\Tests\DbalTestCase;
 use ReflectionProperty;
+use const OCI_NO_AUTO_COMMIT;
 use function extension_loaded;
+use function fopen;
 
 class OCI8StatementTest extends DbalTestCase
 {
@@ -57,11 +61,16 @@ class OCI8StatementTest extends DbalTestCase
             ->disableOriginalConstructor()
             ->getMock();
         $conn->expects($this->once())
-            ->method('getExecuteMode');
+            ->method('getExecuteMode')
+            ->willReturn(OCI_NO_AUTO_COMMIT);
 
-        $reflProperty = new ReflectionProperty($statement, '_conn');
-        $reflProperty->setAccessible(true);
-        $reflProperty->setValue($statement, $conn);
+        $connectionReflection = new ReflectionProperty($statement, '_conn');
+        $connectionReflection->setAccessible(true);
+        $connectionReflection->setValue($statement, $conn);
+
+        $handleReflection = new ReflectionProperty($statement, '_sth');
+        $handleReflection->setAccessible(true);
+        $handleReflection->setValue($statement, fopen('php://temp', 'r'));
 
         $this->expectException(OCI8Exception::class);
         $statement->execute($params);
