@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL;
 
 use const PREG_OFFSET_CAPTURE;

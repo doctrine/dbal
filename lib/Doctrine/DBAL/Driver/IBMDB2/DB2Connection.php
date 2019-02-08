@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=0);
+
 namespace Doctrine\DBAL\Driver\IBMDB2;
 
 use Doctrine\DBAL\Driver\Connection;
