@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
 use Doctrine\DBAL\DBALException;
@@ -98,7 +100,7 @@ EOS
             new Schema\ForeignKeyConstraint(
                 ['log'],
                 'log',
-                [null],
+                [''],
                 'FK_3',
                 ['onUpdate' => 'SET NULL', 'onDelete' => 'NO ACTION', 'deferrable' => false, 'deferred' => false]
             ),

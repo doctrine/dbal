@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
@@ -269,7 +271,7 @@ abstract class AbstractDriverTest extends DbalTestCase
 
                     public function __construct($errorCode, $sqlState, $message)
                     {
-                        parent::__construct($message);
+                        parent::__construct($message ?? '');
 
                         $this->errorCode = $errorCode;
                         $this->sqlState  = $sqlState;

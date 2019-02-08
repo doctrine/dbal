@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Cache;
 
 use Doctrine\Common\Cache\Cache;
