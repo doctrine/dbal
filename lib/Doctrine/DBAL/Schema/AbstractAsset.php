@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -166,7 +168,7 @@ abstract class AbstractAsset
             return $this->_namespace . '.' . $this->_name;
         }
 
-        return $this->_name;
+        return $this->_name ?? '';
     }
 
     /**

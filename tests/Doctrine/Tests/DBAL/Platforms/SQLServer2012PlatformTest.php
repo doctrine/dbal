@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\DBAL\DBALException;

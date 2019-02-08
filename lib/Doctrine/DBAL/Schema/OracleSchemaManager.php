@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\DBALException;
@@ -99,7 +101,7 @@ class OracleSchemaManager extends AbstractSchemaManager
             $keyName = strtolower($tableIndex['name']);
             $buffer  = [];
 
-            if (strtolower($tableIndex['is_primary']) === 'p') {
+            if ($tableIndex['is_primary'] === 'P') {
                 $keyName              = 'primary';
                 $buffer['primary']    = true;
                 $buffer['non_unique'] = false;
@@ -138,7 +140,9 @@ class OracleSchemaManager extends AbstractSchemaManager
         }
 
         // Default values returned from database sometimes have trailing spaces.
-        $tableColumn['data_default'] = trim($tableColumn['data_default']);
+        if ($tableColumn['data_default'] !== null) {
+            $tableColumn['data_default'] = trim($tableColumn['data_default']);
+        }
 
         if ($tableColumn['data_default'] === '' || $tableColumn['data_default'] === 'NULL') {
             $tableColumn['data_default'] = null;
