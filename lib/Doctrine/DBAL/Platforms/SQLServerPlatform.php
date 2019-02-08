@@ -1278,7 +1278,7 @@ SQL
         // Even if the TOP n is very large, the use of a CTE will
         // allow the SQL Server query planner to optimize it so it doesn't
         // actually scan the entire range covered by the TOP clause.
-        if (! preg_match('/^(\s*SELECT\s+(?:DISTINCT\s+)?)(.*)$/im', $query, $matches)) {
+        if (! preg_match('/^(\s*SELECT\s+(?:DISTINCT\s+)?)(.*)$/is', $query, $matches)) {
             return $query;
         }
 
