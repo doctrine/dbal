@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Functional;
 
 use DateTime;
@@ -921,8 +923,8 @@ class DataAccessTest extends DbalFunctionalTestCase
         $sql .= $platform->getLocateExpression("'foo'", 'test_string') . ' AS locate5, ';
         $sql .= $platform->getLocateExpression("'barfoobaz'", 'test_string') . ' AS locate6, ';
         $sql .= $platform->getLocateExpression("'bar'", 'test_string') . ' AS locate7, ';
-        $sql .= $platform->getLocateExpression('test_string', "'oo'", 2) . ' AS locate8, ';
-        $sql .= $platform->getLocateExpression('test_string', "'oo'", 3) . ' AS locate9 ';
+        $sql .= $platform->getLocateExpression('test_string', "'oo'", '2') . ' AS locate8, ';
+        $sql .= $platform->getLocateExpression('test_string', "'oo'", '3') . ' AS locate9 ';
         $sql .= 'FROM fetch_table';
 
         $row = $this->connection->fetchAssoc($sql);
@@ -1012,8 +1014,8 @@ class DataAccessTest extends DbalFunctionalTestCase
         $sql[] = 'SELECT ';
         $sql[] = 'test_int, ';
         $sql[] = 'test_string, ';
-        $sql[] = $platform->getBitOrComparisonExpression('test_int', 2) . ' AS bit_or, ';
-        $sql[] = $platform->getBitAndComparisonExpression('test_int', 2) . ' AS bit_and ';
+        $sql[] = $platform->getBitOrComparisonExpression('test_int', '2') . ' AS bit_or, ';
+        $sql[] = $platform->getBitAndComparisonExpression('test_int', '2') . ' AS bit_and ';
         $sql[] = 'FROM fetch_table';
 
         $stmt = $this->connection->executeQuery(implode(PHP_EOL, $sql));

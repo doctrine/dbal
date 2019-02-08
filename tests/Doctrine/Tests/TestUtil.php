@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests;
 
 use Doctrine\DBAL\Connection;
@@ -151,7 +153,7 @@ class TestUtil
             'password' => $GLOBALS['tmpdb_password'],
             'host' => $GLOBALS['tmpdb_host'],
             'dbname' => null,
-            'port' => $GLOBALS['tmpdb_port'],
+            'port' => (int) $GLOBALS['tmpdb_port'],
         ];
 
         if (isset($GLOBALS['tmpdb_name'])) {
@@ -177,7 +179,7 @@ class TestUtil
             'password' => $GLOBALS['db_password'],
             'host' => $GLOBALS['db_host'],
             'dbname' => $GLOBALS['db_name'],
-            'port' => $GLOBALS['db_port'],
+            'port' => (int) $GLOBALS['db_port'],
         ];
 
         if (isset($GLOBALS['db_server'])) {
