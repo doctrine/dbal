@@ -131,17 +131,25 @@ before_test:
       }
 
 test_script:
-  - cd C:\projects\dbal
   - ps: >-
       if ($env:db_version) {
         $env:phpunit_config = "tests\appveyor\$($env:db).$($env:db_version).$($env:driver).appveyor.xml"
       } else {
         $env:phpunit_config = "tests\appveyor\$($env:db).$($env:driver).appveyor.xml"
       }
-  - ps: >-
+
       if ($env:coverage -eq "yes") {
         vendor\bin\phpunit -c $($env:phpunit_config) --coverage-clover clover.xml
-        appveyor-retry ocular code-coverage:upload --format=php-clover clover.xml
       } else {
         vendor\bin\phpunit -c $($env:phpunit_config)
+      }
+
+      if ($LastExitCode -ne 0) {
+        $host.SetShouldExit($LastExitCode)
+      }
+
+after_test:
+  - ps: >-
+      if ($env:coverage -eq "yes") {
+        appveyor-retry ocular code-coverage:upload --format=php-clover clover.xml
       }
