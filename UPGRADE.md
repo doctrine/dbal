@@ -1,5 +1,9 @@
 # Upgrade to 3.0
 
+## MINOR BC BREAK `Statement::fetchColumn()` with an invalid index.
+
+Similarly to `PDOStatement::fetchColumn()`, DBAL statements throw an exception in case of an invalid column index.
+
 ## BC BREAK `Statement::execute()` with redundant parameters.
 
 Similarly to the drivers based on `pdo_pgsql` and `pdo_sqlsrv`, `OCI8Statement::execute()` and `MySQLiStatement::execute()` do not longer ignore redundant parameters.
