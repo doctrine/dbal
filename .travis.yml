@@ -42,7 +42,7 @@ after_script:
 
 jobs:
   allow_failures:
-    - php: nightly
+    - php: 7.4snapshot
 
   include:
 
@@ -275,7 +275,7 @@ jobs:
         - bash ./tests/travis/install-mssql-pdo_sqlsrv.sh
         - bash ./tests/travis/install-mssql.sh
     - stage: Test
-      php: nightly
+      php: 7.4snapshot
       env: DB=mysql.docker MYSQL_VERSION=8.0
       sudo: required
       services:
@@ -283,7 +283,7 @@ jobs:
       before_script:
         - bash ./tests/travis/install-mysql-8.0.sh
     - stage: Test
-      php: nightly
+      php: 7.4snapshot
       env: DB=mysqli.docker MYSQL_VERSION=8.0
       sudo: required
       services:
@@ -291,17 +291,17 @@ jobs:
       before_script:
         - bash ./tests/travis/install-mysql-8.0.sh
     - stage: Test
-      php: nightly
+      php: 7.4snapshot
       env: DB=mariadb MARIADB_VERSION=10.3
       addons:
         mariadb: 10.3
     - stage: Test
-      php: nightly
+      php: 7.4snapshot
       env: DB=mariadb.mysqli MARIADB_VERSION=10.3
       addons:
         mariadb: 10.3
     - stage: Test
-      php: nightly
+      php: 7.4snapshot
       env: DB=pgsql POSTGRESQL_VERSION=11.0
       sudo: required
       services:
@@ -309,10 +309,10 @@ jobs:
       before_script:
         - bash ./tests/travis/install-postgres-11.sh
     - stage: Test
-      php: nightly
+      php: 7.4snapshot
       env: DB=sqlite
     - stage: Test
-      php: nightly
+      php: 7.4snapshot
       env: DB=sqlsrv
       sudo: required
       services:
@@ -321,7 +321,7 @@ jobs:
         - bash ./tests/travis/install-mssql-sqlsrv.sh
         - bash ./tests/travis/install-mssql.sh
     - stage: Test
-      php: nightly
+      php: 7.4snapshot
       env: DB=pdo_sqlsrv
       sudo: required
       services:
