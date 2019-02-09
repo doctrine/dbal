@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Driver\IBMDB2;
 
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\FetchMode;
@@ -18,6 +19,7 @@ use const DB2_LONG;
 use const DB2_PARAM_FILE;
 use const DB2_PARAM_IN;
 use function array_change_key_case;
+use function array_key_exists;
 use function count;
 use function db2_bind_param;
 use function db2_execute;
@@ -338,7 +340,11 @@ class DB2Statement implements IteratorAggregate, Statement
             return false;
         }
 
-        return $row[$columnIndex] ?? null;
+        if (! array_key_exists($columnIndex, $row)) {
+            throw DBALException::invalidColumnIndex($columnIndex, count($row));
+        }
+
+        return $row[$columnIndex];
     }
 
     /**
