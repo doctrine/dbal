@@ -291,4 +291,14 @@ class DBALException extends Exception
             sprintf('Type of the class %s@%s is already registered.', get_class($type), spl_object_hash($type))
         );
     }
+
+    public static function invalidColumnIndex(int $index, int $count) : self
+    {
+        return new self(sprintf(
+            'Invalid column index %d. The statement result contains %d column%s.',
+            $index,
+            $count,
+            $count === 1 ? '' : 's'
+        ));
+    }
 }
