@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Driver\Mysqli;
 
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
@@ -12,6 +13,7 @@ use mysqli;
 use mysqli_stmt;
 use function array_combine;
 use function array_fill;
+use function array_key_exists;
 use function assert;
 use function count;
 use function feof;
@@ -380,7 +382,11 @@ class MysqliStatement implements IteratorAggregate, Statement
             return false;
         }
 
-        return $row[$columnIndex] ?? null;
+        if (! array_key_exists($columnIndex, $row)) {
+            throw DBALException::invalidColumnIndex($columnIndex, count($row));
+        }
+
+        return $row[$columnIndex];
     }
 
     /**
