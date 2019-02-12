@@ -148,8 +148,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
             if (! isset($foreignKeys[$tableForeignKey['ForeignKey']])) {
                 $foreignKeys[$tableForeignKey['ForeignKey']] = [
                     'local_columns' => [$tableForeignKey['ColumnName']],
-                    'foreign_table' => $tableForeignKey['ReferenceTableName'],
-                    'foreign_columns' => [$tableForeignKey['ReferenceColumnName']],
+                    'foreign_table' => $tableForeignKey['ReferenceSchemaName'] . '.' . $tableForeignKey['ReferenceTableName'],                    'foreign_columns' => [$tableForeignKey['ReferenceColumnName']],
                     'name' => $tableForeignKey['ForeignKey'],
                     'options' => [
                         'onUpdate' => str_replace('_', ' ', $tableForeignKey['update_referential_action_desc']),
