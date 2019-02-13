@@ -26,7 +26,7 @@ class VarDateTimeTest extends DbalTestCase
         $this->type = Type::getType('vardatetime');
     }
 
-    public function testDateTimeConvertsToDatabaseValue()
+    public function testDateTimeConvertsToDatabaseValue() : void
     {
         $date = new DateTime('1985-09-01 10:10:10');
 
@@ -36,7 +36,7 @@ class VarDateTimeTest extends DbalTestCase
         self::assertEquals($expected, $actual);
     }
 
-    public function testDateTimeConvertsToPHPValue()
+    public function testDateTimeConvertsToPHPValue() : void
     {
         // Birthday of jwage and also birthday of Doctrine. Send him a present ;)
         $date = $this->type->convertToPHPValue('1985-09-01 00:00:00', $this->platform);
@@ -45,13 +45,13 @@ class VarDateTimeTest extends DbalTestCase
         self::assertEquals('000000', $date->format('u'));
     }
 
-    public function testInvalidDateTimeFormatConversion()
+    public function testInvalidDateTimeFormatConversion() : void
     {
         $this->expectException(ConversionException::class);
         $this->type->convertToPHPValue('abcdefg', $this->platform);
     }
 
-    public function testConversionWithMicroseconds()
+    public function testConversionWithMicroseconds() : void
     {
         $date = $this->type->convertToPHPValue('1985-09-01 00:00:00.123456', $this->platform);
         self::assertInstanceOf('DateTime', $date);
@@ -59,12 +59,12 @@ class VarDateTimeTest extends DbalTestCase
         self::assertEquals('123456', $date->format('u'));
     }
 
-    public function testNullConversion()
+    public function testNullConversion() : void
     {
         self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }
 
-    public function testNormalizesDateTimeToPHPValue()
+    public function testNormalizesDateTimeToPHPValue() : void
     {
         $date = new DateTime('now');
         self::assertSame($date, $this->type->normalizeToPHPValue($date, $this->platform));

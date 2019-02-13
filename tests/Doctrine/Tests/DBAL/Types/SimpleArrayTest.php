@@ -21,21 +21,21 @@ class SimpleArrayTest extends DbalTestCase
         $this->type     = Type::getType('simple_array');
     }
 
-    public function testArrayConvertsToDatabaseValue()
+    public function testArrayConvertsToDatabaseValue() : void
     {
         self::assertIsString(
             $this->type->convertToDatabaseValue(['one', 'two', 'three'], $this->platform)
         );
     }
 
-    public function testArrayConvertsToPHPValue()
+    public function testArrayConvertsToPHPValue() : void
     {
         self::assertIsArray(
             $this->type->convertToPHPValue('one,two,three', $this->platform)
         );
     }
 
-    public function testArrayNormalizesToPHPValue()
+    public function testArrayNormalizesToPHPValue() : void
     {
         self::assertIsArray(
             $this->type->normalizeToPHPValue([], $this->platform)
@@ -50,7 +50,7 @@ class SimpleArrayTest extends DbalTestCase
         );
     }
 
-    public function testNullConversion()
+    public function testNullConversion() : void
     {
         self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }

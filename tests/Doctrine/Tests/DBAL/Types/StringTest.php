@@ -20,28 +20,28 @@ class StringTest extends DbalTestCase
         $this->type     = Type::getType('string');
     }
 
-    public function testReturnsSqlDeclarationFromPlatformVarchar()
+    public function testReturnsSqlDeclarationFromPlatformVarchar() : void
     {
         self::assertEquals('DUMMYVARCHAR()', $this->type->getSqlDeclaration([], $this->platform));
     }
 
-    public function testReturnsDefaultLengthFromPlatformVarchar()
+    public function testReturnsDefaultLengthFromPlatformVarchar() : void
     {
         self::assertEquals(255, $this->type->getDefaultLength($this->platform));
     }
 
-    public function testConvertToPHPValue()
+    public function testConvertToPHPValue() : void
     {
         self::assertIsString($this->type->convertToPHPValue('foo', $this->platform));
         self::assertIsString($this->type->convertToPHPValue('', $this->platform));
     }
 
-    public function testNullConversion()
+    public function testNullConversion() : void
     {
         self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }
 
-    public function testSQLConversion()
+    public function testSQLConversion() : void
     {
         self::assertFalse($this->type->canRequireSQLConversion(), 'String type can never require SQL conversion to work.');
         self::assertEquals('t.foo', $this->type->convertToDatabaseValueSQL('t.foo', $this->platform));
