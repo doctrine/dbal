@@ -76,6 +76,9 @@ class BinaryTest extends DbalTestCase
         $this->type->convertToPHPValue($value, $this->platform);
     }
 
+    /**
+     * @return mixed[]
+     */
     public function getInvalidDatabaseValues() : array
     {
         return [

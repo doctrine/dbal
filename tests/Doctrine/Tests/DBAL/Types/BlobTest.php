@@ -52,8 +52,6 @@ class BlobTest extends DbalTestCase
 
     /**
      * Creates a binary string containing all possible byte values.
-     *
-     * @return string
      */
     private function getBinaryString() : string
     {

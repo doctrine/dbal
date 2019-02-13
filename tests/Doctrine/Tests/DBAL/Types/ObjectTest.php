@@ -53,7 +53,7 @@ class ObjectTest extends DbalTestCase
     /**
      * @group DBAL-73
      */
-    public function testFalseConversion(): void
+    public function testFalseConversion() : void
     {
         self::assertFalse($this->type->convertToPHPValue(serialize(false), $this->platform));
     }
