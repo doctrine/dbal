@@ -398,6 +398,40 @@ class ComparatorTest extends TestCase
         self::assertEquals($expected, Comparator::compareSchemas($schema1, $schema2));
     }
 
+    public function testPreserveIndexesWhenNoChange()
+    {
+        $schema1 = new Schema(
+            [
+                'table' => new Table(
+                    'table',
+                    [
+                        'field' => new Column('field', Type::getType('integer')),
+                    ],
+                    [
+                        'primary' => new Index('primary', ['field']),
+                    ]
+                ),
+            ]
+        );
+        $schema2 = new Schema(
+            [
+                'table' => new Table(
+                    'table',
+                    [
+                        'field' => new Column('field', Type::getType('integer')),
+                    ],
+                    [
+                        'primary' => new Index('primary', ['field']),
+                    ]
+                ),
+            ]
+        );
+
+        $expected = new SchemaDiff();
+        $expected->fromSchema = $schema1;
+        self::assertEquals($expected, Comparator::compareSchemas($schema1, $schema2));
+    }
+
     public function testCompareChangedIndexFieldPositions()
     {
         $schema1 = new Schema([
