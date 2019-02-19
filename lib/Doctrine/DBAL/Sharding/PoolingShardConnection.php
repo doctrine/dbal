@@ -26,7 +26,7 @@ use function is_string;
  * - By default, the global shard is selected. If no global shard is configured
  *   an exception is thrown on access.
  * - Selecting a shard by distribution value delegates the mapping
- *   "distributionValue" => "client" to the ShardChooser interface.
+ *   "distributionValue" => "client" to the ShardChoser interface.
  * - An exception is thrown if trying to switch shards during an open
  *   transaction.
  *
