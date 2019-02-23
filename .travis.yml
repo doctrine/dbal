@@ -8,18 +8,14 @@ cache:
         - $HOME/.composer/cache
 
 before_install:
+  - phpenv config-rm xdebug.ini || true
   - |
-    if [ "x$COVERAGE" != "xyes" ]; then
-      mv ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini{,.disabled} || true
+    if [ "x$COVERAGE" == "xyes" ]; then
+      pecl install pcov-1.0.0
     fi
 
 before_script:
   - if [[ "$DB" == "mysql" || "$DB" == "mysqli" || "$DB" == *"mariadb"* ]]; then mysql < tests/travis/create-mysql-schema.sql; fi;
-  - |
-    if [ "x$COVERAGE" == "xyes" ] && [[ ! $(php -m | grep -si xdebug) ]]; then
-      echo "xdebug is required for coverage"
-      exit 1
-    fi
 
 install:
   - rm composer.lock
