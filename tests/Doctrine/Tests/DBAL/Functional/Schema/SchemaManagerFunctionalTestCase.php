@@ -46,7 +46,7 @@ use function strlen;
 use function strtolower;
 use function substr;
 
-class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
+abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
 {
     /** @var AbstractSchemaManager */
     protected $schemaManager;

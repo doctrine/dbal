@@ -11,7 +11,7 @@ use function microtime;
  * and stopTiming at the end of all tests. Tests that do not start or stop
  * timing will fail.
  */
-class DbalPerformanceTestCase extends DbalFunctionalTestCase
+abstract class DbalPerformanceTestCase extends DbalFunctionalTestCase
 {
     /**
      * time the test started
