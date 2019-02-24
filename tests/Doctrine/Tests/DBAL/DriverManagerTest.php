@@ -2,8 +2,10 @@
 
 namespace Doctrine\Tests\DBAL;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Connections\MasterSlaveConnection;
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\DrizzlePDOMySql\Driver as DrizzlePDOMySqlDriver;
 use Doctrine\DBAL\Driver\PDOMySql\Driver as PDOMySQLDriver;
 use Doctrine\DBAL\Driver\PDOSqlite\Driver as PDOSqliteDriver;
@@ -13,11 +15,10 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Sharding\PoolingShardConnection;
 use Doctrine\DBAL\Sharding\ShardChoser\MultiTenantShardChoser;
 use Doctrine\Tests\DbalTestCase;
-use Doctrine\Tests\Mocks\ConnectionMock;
-use Doctrine\Tests\Mocks\DriverMock;
 use PDO;
 use stdClass;
 use function extension_loaded;
+use function get_class;
 use function in_array;
 use function is_array;
 
@@ -92,7 +93,8 @@ class DriverManagerTest extends DbalTestCase
      */
     public function testCustomWrapper()
     {
-        $wrapperClass = ConnectionMock::class;
+        $wrapper      = $this->createMock(Connection::class);
+        $wrapperClass = get_class($wrapper);
 
         $options = [
             'pdo' => new PDO('sqlite::memory:'),
@@ -238,6 +240,9 @@ class DriverManagerTest extends DbalTestCase
 
     public function databaseUrls()
     {
+        $driver      = $this->createMock(Driver::class);
+        $driverClass = get_class($driver);
+
         return [
             'simple URL' => [
                 'mysql://foo:bar@localhost/baz',
@@ -406,14 +411,14 @@ class DriverManagerTest extends DbalTestCase
             'URL without scheme but custom driver' => [
                 [
                     'url'         => '//foo:bar@localhost/baz',
-                    'driverClass' => DriverMock::class,
+                    'driverClass' => $driverClass,
                 ],
                 [
                     'user'        => 'foo',
                     'password'    => 'bar',
                     'host'        => 'localhost',
                     'dbname'      => 'baz',
-                    'driverClass' => DriverMock::class,
+                    'driverClass' => $driverClass,
                 ],
             ],
             'URL without scheme but default PDO driver and default driver' => [
@@ -434,14 +439,14 @@ class DriverManagerTest extends DbalTestCase
                 [
                     'url'         => '//foo:bar@localhost/baz',
                     'driver'      => 'pdo_mysql',
-                    'driverClass' => DriverMock::class,
+                    'driverClass' => $driverClass,
                 ],
                 [
                     'user'        => 'foo',
                     'password'    => 'bar',
                     'host'        => 'localhost',
                     'dbname'      => 'baz',
-                    'driverClass' => DriverMock::class,
+                    'driverClass' => $driverClass,
                 ],
             ],
             'URL with default PDO driver' => [
@@ -473,7 +478,7 @@ class DriverManagerTest extends DbalTestCase
             'URL with default custom driver' => [
                 [
                     'url'         => 'mysql://foo:bar@localhost/baz',
-                    'driverClass' => DriverMock::class,
+                    'driverClass' => $driverClass,
                 ],
                 [
                     'user'     => 'foo',
@@ -501,7 +506,7 @@ class DriverManagerTest extends DbalTestCase
                 [
                     'url'         => 'mysql://foo:bar@localhost/baz',
                     'driver'      => 'sqlite',
-                    'driverClass' => DriverMock::class,
+                    'driverClass' => $driverClass,
                 ],
                 [
                     'user'     => 'foo',
@@ -516,7 +521,7 @@ class DriverManagerTest extends DbalTestCase
                     'url'         => 'mysql://foo:bar@localhost/baz',
                     'pdo'         => true,
                     'driver'      => 'sqlite',
-                    'driverClass' => DriverMock::class,
+                    'driverClass' => $driverClass,
                 ],
                 [
                     'user'     => 'foo',

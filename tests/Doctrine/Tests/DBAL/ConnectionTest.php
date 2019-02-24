@@ -22,7 +22,6 @@ use Doctrine\DBAL\Logging\EchoSQLLogger;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\Tests\DbalTestCase;
-use Doctrine\Tests\Mocks\DriverMock;
 use Doctrine\Tests\Mocks\DriverStatementMock;
 use Doctrine\Tests\Mocks\ServerInfoAwareConnectionMock;
 use Doctrine\Tests\Mocks\VersionAwarePlatformDriverMock;
@@ -165,10 +164,22 @@ class ConnectionTest extends DbalTestCase
 
     public function testEventManagerPassedToPlatform()
     {
-        $driverMock = new DriverMock();
-        $connection = new Connection($this->params, $driverMock);
-        self::assertInstanceOf(EventManager::class, $connection->getDatabasePlatform()->getEventManager());
-        self::assertSame($connection->getEventManager(), $connection->getDatabasePlatform()->getEventManager());
+        $eventManager = new EventManager();
+
+        /** @var AbstractPlatform|MockObject $driver */
+        $platform = $this->createMock(AbstractPlatform::class);
+        $platform->expects($this->once())
+            ->method('setEventManager')
+            ->with($eventManager);
+
+        /** @var Driver|MockObject $driver */
+        $driver = $this->createMock(Driver::class);
+        $driver->expects($this->any())
+            ->method('getDatabasePlatform')
+            ->willReturn($platform);
+
+        $connection = new Connection($this->params, $driver, null, $eventManager);
+        $connection->getDatabasePlatform();
     }
 
     /**
