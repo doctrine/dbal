@@ -9,9 +9,9 @@ use Doctrine\DBAL\Driver\PDOMySql\Driver as PDOMySQLDriver;
 use Doctrine\DBAL\Driver\PDOSqlite\Driver as PDOSqliteDriver;
 use Doctrine\DBAL\Driver\SQLSrv\Driver as SQLSrvDriver;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Sharding\PoolingShardConnection;
 use Doctrine\DBAL\Sharding\ShardChoser\MultiTenantShardChoser;
-use Doctrine\Tests\DBAL\Mocks\MockPlatform;
 use Doctrine\Tests\DbalTestCase;
 use Doctrine\Tests\Mocks\ConnectionMock;
 use Doctrine\Tests\Mocks\DriverMock;
@@ -77,14 +77,14 @@ class DriverManagerTest extends DbalTestCase
      */
     public function testCustomPlatform()
     {
-        $mockPlatform = new MockPlatform();
-        $options      = [
+        $platform = $this->createMock(AbstractPlatform::class);
+        $options  = [
             'pdo'      => new PDO('sqlite::memory:'),
-            'platform' => $mockPlatform,
+            'platform' => $platform,
         ];
 
         $conn = DriverManager::getConnection($options);
-        self::assertSame($mockPlatform, $conn->getDatabasePlatform());
+        self::assertSame($platform, $conn->getDatabasePlatform());
     }
 
     /**

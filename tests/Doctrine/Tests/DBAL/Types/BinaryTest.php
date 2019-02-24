@@ -3,18 +3,19 @@
 namespace Doctrine\Tests\DBAL\Types;
 
 use Doctrine\DBAL\ParameterType;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Tests\DBAL\Mocks\MockPlatform;
 use Doctrine\Tests\DbalTestCase;
+use PHPUnit\Framework\MockObject\MockObject;
 use function base64_encode;
 use function fopen;
 use function stream_get_contents;
 
 class BinaryTest extends DbalTestCase
 {
-    /** @var MockPlatform */
+    /** @var AbstractPlatform|MockObject */
     protected $platform;
 
     /** @var BinaryType */
@@ -25,7 +26,7 @@ class BinaryTest extends DbalTestCase
      */
     protected function setUp() : void
     {
-        $this->platform = new MockPlatform();
+        $this->platform = $this->createMock(AbstractPlatform::class);
         $this->type     = Type::getType('binary');
     }
 
@@ -41,7 +42,11 @@ class BinaryTest extends DbalTestCase
 
     public function testReturnsSQLDeclaration()
     {
-        self::assertSame('DUMMYBINARY', $this->type->getSQLDeclaration([], $this->platform));
+        $this->platform->expects($this->once())
+            ->method('getBinaryTypeDeclarationSQL')
+            ->willReturn('TEST_BINARY');
+
+        self::assertSame('TEST_BINARY', $this->type->getSQLDeclaration([], $this->platform));
     }
 
     public function testBinaryNullConvertsToPHPValue()

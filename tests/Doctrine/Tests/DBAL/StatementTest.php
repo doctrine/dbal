@@ -10,7 +10,6 @@ use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Logging\SQLLogger;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Statement;
-use Doctrine\Tests\DBAL\Mocks\MockPlatform;
 use Doctrine\Tests\DbalTestCase;
 use Exception;
 use PDOStatement;
@@ -31,19 +30,16 @@ class StatementTest extends DbalTestCase
         $this->pdoStatement = $this->getMockBuilder(PDOStatement::class)
             ->setMethods(['execute', 'bindParam', 'bindValue'])
             ->getMock();
-        $platform           = new MockPlatform();
-        $driverConnection   = $this->createMock(DriverConnection::class);
+
+        $driverConnection = $this->createMock(DriverConnection::class);
         $driverConnection->expects($this->any())
                 ->method('prepare')
                 ->will($this->returnValue($this->pdoStatement));
 
-        $driver          = $this->createMock(Driver::class);
-        $constructorArgs = [
-            ['platform' => $platform],
-            $driver,
-        ];
-        $this->conn      = $this->getMockBuilder(Connection::class)
-            ->setConstructorArgs($constructorArgs)
+        $driver = $this->createMock(Driver::class);
+
+        $this->conn = $this->getMockBuilder(Connection::class)
+            ->setConstructorArgs([[], $driver])
             ->getMock();
         $this->conn->expects($this->atLeastOnce())
                 ->method('getWrappedConnection')
