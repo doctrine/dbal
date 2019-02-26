@@ -50,9 +50,12 @@ class DriverTest extends AbstractDriverTest
         );
     }
 
-    public function getDatabaseParameter()
+    /**
+     * @return mixed[][]
+     */
+    public static function getDatabaseParameter() : iterable
     {
-        $params            = TestUtil::getConnection()->getParams();
+        $params            = TestUtil::getConnectionParams();
         $realDatabaseName  = $params['dbname'] ?? '';
         $dummyDatabaseName = $realDatabaseName . 'a';
 
@@ -61,7 +64,7 @@ class DriverTest extends AbstractDriverTest
             [$realDatabaseName, null, $realDatabaseName],
             [$realDatabaseName, $dummyDatabaseName, $realDatabaseName],
             [null, $realDatabaseName, $realDatabaseName],
-            [null, null, $this->getDatabaseNameForConnectionWithoutDatabaseNameParameter()],
+            [null, null, static::getDatabaseNameForConnectionWithoutDatabaseNameParameter()],
         ];
     }
 
@@ -108,7 +111,7 @@ class DriverTest extends AbstractDriverTest
     /**
      * {@inheritdoc}
      */
-    protected function getDatabaseNameForConnectionWithoutDatabaseNameParameter()
+    protected static function getDatabaseNameForConnectionWithoutDatabaseNameParameter() : ?string
     {
         return 'postgres';
     }

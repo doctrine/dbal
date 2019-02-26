@@ -40,6 +40,11 @@ class TestUtil
      */
     public static function getConnection()
     {
+        if (self::hasRequiredConnectionParams() && ! self::$initialized) {
+            self::initializeDatabase();
+            self::$initialized = true;
+        }
+
         $conn = DriverManager::getConnection(self::getConnectionParams());
 
         self::addDbEventSubscribers($conn);
@@ -47,10 +52,10 @@ class TestUtil
         return $conn;
     }
 
-    private static function getConnectionParams()
+    public static function getConnectionParams()
     {
         if (self::hasRequiredConnectionParams()) {
-            return self::getSpecifiedConnectionParams();
+            return self::getParamsForMainConnection();
         }
 
         return self::getFallbackConnectionParams();
@@ -75,7 +80,7 @@ class TestUtil
         );
     }
 
-    private static function getSpecifiedConnectionParams()
+    private static function initializeDatabase() : void
     {
         $realDbParams = self::getParamsForMainConnection();
         $tmpDbParams  = self::getParamsForTemporaryConnection();
@@ -87,29 +92,23 @@ class TestUtil
 
         $platform = $tmpConn->getDatabasePlatform();
 
-        if (! self::$initialized) {
-            if ($platform->supportsCreateDropDatabase()) {
-                $dbname = $realConn->getDatabase();
-                $realConn->close();
+        if ($platform->supportsCreateDropDatabase()) {
+            $dbname = $realConn->getDatabase();
+            $realConn->close();
 
-                $tmpConn->getSchemaManager()->dropAndCreateDatabase($dbname);
+            $tmpConn->getSchemaManager()->dropAndCreateDatabase($dbname);
 
-                $tmpConn->close();
-            } else {
-                $sm = $realConn->getSchemaManager();
+            $tmpConn->close();
+        } else {
+            $sm = $realConn->getSchemaManager();
 
-                $schema = $sm->createSchema();
-                $stmts  = $schema->toDropSql($realConn->getDatabasePlatform());
+            $schema = $sm->createSchema();
+            $stmts  = $schema->toDropSql($realConn->getDatabasePlatform());
 
-                foreach ($stmts as $stmt) {
-                    $realConn->exec($stmt);
-                }
+            foreach ($stmts as $stmt) {
+                $realConn->exec($stmt);
             }
-
-            self::$initialized = true;
         }
-
-        return $realDbParams;
     }
 
     private static function getFallbackConnectionParams()
