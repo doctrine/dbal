@@ -4,9 +4,10 @@ namespace Doctrine\Tests\DBAL\Types;
 
 use DateTime;
 use DateTimeImmutable;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Tests\DBAL\Mocks\MockPlatform;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 use function date_default_timezone_get;
@@ -14,7 +15,7 @@ use function date_default_timezone_set;
 
 abstract class BaseDateTypeTestCase extends TestCase
 {
-    /** @var MockPlatform */
+    /** @var AbstractPlatform|MockObject */
     protected $platform;
 
     /** @var Type */
@@ -28,7 +29,7 @@ abstract class BaseDateTypeTestCase extends TestCase
      */
     protected function setUp() : void
     {
-        $this->platform        = new MockPlatform();
+        $this->platform        = $this->getMockForAbstractClass(AbstractPlatform::class);
         $this->currentTimezone = date_default_timezone_get();
 
         self::assertInstanceOf(Type::class, $this->type);

@@ -4,16 +4,17 @@ namespace Doctrine\Tests\DBAL\Types;
 
 use DateInterval;
 use DateTime;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\DateIntervalType;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Tests\DBAL\Mocks\MockPlatform;
 use Doctrine\Tests\DbalTestCase;
+use PHPUnit\Framework\MockObject\MockObject;
 use stdClass;
 
 final class DateIntervalTest extends DbalTestCase
 {
-    /** @var MockPlatform */
+    /** @var AbstractPlatform|MockObject */
     private $platform;
 
     /** @var DateIntervalType */
@@ -24,7 +25,7 @@ final class DateIntervalTest extends DbalTestCase
      */
     protected function setUp() : void
     {
-        $this->platform = new MockPlatform();
+        $this->platform = $this->createMock(AbstractPlatform::class);
         $this->type     = Type::getType('dateinterval');
 
         self::assertInstanceOf(DateIntervalType::class, $this->type);

@@ -2,31 +2,41 @@
 
 namespace Doctrine\Tests\DBAL\Types;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Tests\DBAL\Mocks\MockPlatform;
 use Doctrine\Tests\DbalTestCase;
+use PHPUnit\Framework\MockObject\MockObject;
 
 class StringTest extends DbalTestCase
 {
-    /** @var MockPlatform */
+    /** @var AbstractPlatform|MockObject */
     private $platform;
 
-    /** @var Type */
+    /** @var StringType */
     private $type;
 
     protected function setUp() : void
     {
-        $this->platform = new MockPlatform();
+        $this->platform = $this->createMock(AbstractPlatform::class);
         $this->type     = Type::getType('string');
     }
 
     public function testReturnsSqlDeclarationFromPlatformVarchar()
     {
-        self::assertEquals('DUMMYVARCHAR()', $this->type->getSqlDeclaration([], $this->platform));
+        $this->platform->expects($this->once())
+            ->method('getVarcharTypeDeclarationSQL')
+            ->willReturn('TEST_VARCHAR');
+
+        self::assertEquals('TEST_VARCHAR', $this->type->getSqlDeclaration([], $this->platform));
     }
 
     public function testReturnsDefaultLengthFromPlatformVarchar()
     {
+        $this->platform->expects($this->once())
+            ->method('getVarcharDefaultLength')
+            ->willReturn(255);
+
         self::assertEquals(255, $this->type->getDefaultLength($this->platform));
     }
 

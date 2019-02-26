@@ -53,7 +53,10 @@ class ConnectionTest extends DbalTestCase
         $this->connection = DriverManager::getConnection($this->params);
     }
 
-    public function getExecuteUpdateMockConnection()
+    /**
+     * @return Connection|MockObject
+     */
+    private function getExecuteUpdateMockConnection()
     {
         $driverMock = $this->createMock(Driver::class);
 
@@ -63,9 +66,11 @@ class ConnectionTest extends DbalTestCase
                 $this->createMock(DriverConnection::class)
             ));
 
+        $platform = $this->getMockForAbstractClass(AbstractPlatform::class);
+
         return $this->getMockBuilder(Connection::class)
             ->setMethods(['executeUpdate'])
-            ->setConstructorArgs([['platform' => new Mocks\MockPlatform()], $driverMock])
+            ->setConstructorArgs([['platform' => $platform], $driverMock])
             ->getMock();
     }
 
@@ -153,9 +158,8 @@ class ConnectionTest extends DbalTestCase
         $driverMock = $this->createMock(Driver::class);
         $driverMock->expects($this->at(0))
                    ->method('connect');
-        $platform = new Mocks\MockPlatform();
 
-        $conn = new Connection(['platform' => $platform], $driverMock, new Configuration(), $eventManager);
+        $conn = new Connection([], $driverMock, new Configuration(), $eventManager);
         $conn->connect();
     }
 
@@ -249,7 +253,7 @@ class ConnectionTest extends DbalTestCase
             ->will($this->returnValue(
                 $this->createMock(DriverConnection::class)
             ));
-        $conn = new Connection(['platform' => new Mocks\MockPlatform()], $driverMock);
+        $conn = new Connection([], $driverMock);
 
         $conn->setAutoCommit(false);
 
@@ -271,7 +275,7 @@ class ConnectionTest extends DbalTestCase
             ->will($this->returnValue(
                 $this->createMock(DriverConnection::class)
             ));
-        $conn = new Connection(['platform' => new Mocks\MockPlatform()], $driverMock);
+        $conn = new Connection([], $driverMock);
 
         $conn->setAutoCommit(false);
         $conn->connect();
@@ -291,7 +295,7 @@ class ConnectionTest extends DbalTestCase
             ->will($this->returnValue(
                 $this->createMock(DriverConnection::class)
             ));
-        $conn = new Connection(['platform' => new Mocks\MockPlatform()], $driverMock);
+        $conn = new Connection([], $driverMock);
 
         $conn->setAutoCommit(false);
         $conn->connect();
@@ -311,7 +315,7 @@ class ConnectionTest extends DbalTestCase
             ->will($this->returnValue(
                 $this->createMock(DriverConnection::class)
             ));
-        $conn = new Connection(['platform' => new Mocks\MockPlatform()], $driverMock);
+        $conn = new Connection([], $driverMock);
 
         $conn->connect();
         $conn->beginTransaction();
@@ -520,7 +524,7 @@ class ConnectionTest extends DbalTestCase
         /** @var Connection|MockObject $conn */
         $conn = $this->getMockBuilder(Connection::class)
             ->setMethods(['executeQuery'])
-            ->setConstructorArgs([['platform' => new Mocks\MockPlatform()], $driverMock])
+            ->setConstructorArgs([[], $driverMock])
             ->getMock();
 
         $conn->expects($this->once())
@@ -556,7 +560,7 @@ class ConnectionTest extends DbalTestCase
         /** @var Connection|MockObject $conn */
         $conn = $this->getMockBuilder(Connection::class)
             ->setMethods(['executeQuery'])
-            ->setConstructorArgs([['platform' => new Mocks\MockPlatform()], $driverMock])
+            ->setConstructorArgs([[], $driverMock])
             ->getMock();
 
         $conn->expects($this->once())
@@ -593,7 +597,7 @@ class ConnectionTest extends DbalTestCase
         /** @var Connection|MockObject $conn */
         $conn = $this->getMockBuilder(Connection::class)
             ->setMethods(['executeQuery'])
-            ->setConstructorArgs([['platform' => new Mocks\MockPlatform()], $driverMock])
+            ->setConstructorArgs([[], $driverMock])
             ->getMock();
 
         $conn->expects($this->once())
@@ -628,7 +632,7 @@ class ConnectionTest extends DbalTestCase
         /** @var Connection|MockObject $conn */
         $conn = $this->getMockBuilder(Connection::class)
             ->setMethods(['executeQuery'])
-            ->setConstructorArgs([['platform' => new Mocks\MockPlatform()], $driverMock])
+            ->setConstructorArgs([[], $driverMock])
             ->getMock();
 
         $conn->expects($this->once())
@@ -694,8 +698,8 @@ class ConnectionTest extends DbalTestCase
     public function testCallConnectOnce($method, $params)
     {
         $driverMock   = $this->createMock(Driver::class);
-        $pdoMock      = $this->createMock(\Doctrine\DBAL\Driver\Connection::class);
-        $platformMock = new Mocks\MockPlatform();
+        $pdoMock      = $this->createMock(Connection::class);
+        $platformMock = $this->createMock(AbstractPlatform::class);
         $stmtMock     = $this->createMock(Statement::class);
 
         $pdoMock->expects($this->any())
