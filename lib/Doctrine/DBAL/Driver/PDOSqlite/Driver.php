@@ -66,6 +66,9 @@ class Driver extends AbstractSQLiteDriver
             $dsn .= $params['path'];
         } elseif (isset($params['memory'])) {
             $dsn .= ':memory:';
+            if (isset($params['cache'])) {
+                $dsn .= '?cache=' . $params['cache'];
+            }
         }
 
         return $dsn;
