@@ -61,14 +61,14 @@ class Driver extends AbstractSQLiteDriver
      */
     protected function _constructPdoDsn(array $params)
     {
+        if (isset($params['dsn'])) {
+            return $params['dsn'];
+        }
         $dsn = 'sqlite:';
         if (isset($params['path'])) {
             $dsn .= $params['path'];
         } elseif (isset($params['memory'])) {
             $dsn .= ':memory:';
-            if (isset($params['cache'])) {
-                $dsn .= '?cache=' . $params['cache'];
-            }
         }
 
         return $dsn;
