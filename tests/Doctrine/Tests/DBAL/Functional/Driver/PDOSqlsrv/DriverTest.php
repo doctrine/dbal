@@ -36,7 +36,7 @@ class DriverTest extends AbstractDriverTest
     /**
      * {@inheritdoc}
      */
-    protected function getDatabaseNameForConnectionWithoutDatabaseNameParameter()
+    protected static function getDatabaseNameForConnectionWithoutDatabaseNameParameter() : ?string
     {
         return 'master';
     }

@@ -55,7 +55,7 @@ abstract class AbstractDriverTest extends DbalFunctionalTestCase
         );
 
         self::assertSame(
-            $this->getDatabaseNameForConnectionWithoutDatabaseNameParameter(),
+            static::getDatabaseNameForConnectionWithoutDatabaseNameParameter(),
             $this->driver->getDatabase($connection)
         );
     }
@@ -65,10 +65,7 @@ abstract class AbstractDriverTest extends DbalFunctionalTestCase
      */
     abstract protected function createDriver();
 
-    /**
-     * @return string|null
-     */
-    protected function getDatabaseNameForConnectionWithoutDatabaseNameParameter()
+    protected static function getDatabaseNameForConnectionWithoutDatabaseNameParameter() : ?string
     {
         return null;
     }
