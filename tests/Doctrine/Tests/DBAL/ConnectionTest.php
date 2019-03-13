@@ -249,8 +249,6 @@ class ConnectionTest extends DbalTestCase
     {
         $this->connection->setAutoCommit(false);
         self::assertFalse($this->connection->isAutoCommit());
-        $this->connection->setAutoCommit(0);
-        self::assertFalse($this->connection->isAutoCommit());
     }
 
     /**
