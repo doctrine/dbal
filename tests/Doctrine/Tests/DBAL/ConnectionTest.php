@@ -251,8 +251,6 @@ class ConnectionTest extends DbalTestCase
     {
         $this->connection->setAutoCommit(false);
         self::assertFalse($this->connection->isAutoCommit());
-        $this->connection->setAutoCommit(0);
-        self::assertFalse($this->connection->isAutoCommit());
     }
 
     /**
@@ -295,28 +293,6 @@ class ConnectionTest extends DbalTestCase
         $conn->commit();
 
         self::assertTrue($conn->isTransactionActive());
-    }
-
-    /**
-     * @dataProvider resultProvider
-     */
-    public function testCommitReturn(bool $expectedResult) : void
-    {
-        $driverConnection = $this->createMock(DriverConnection::class);
-        $driverConnection->expects($this->once())
-            ->method('commit')->willReturn($expectedResult);
-
-        $driverMock = $this->createMock(Driver::class);
-        $driverMock->expects($this->any())
-            ->method('connect')
-            ->will($this->returnValue($driverConnection));
-
-        $conn = new Connection([], $driverMock);
-
-        $conn->connect();
-        $conn->beginTransaction();
-
-        self::assertSame($expectedResult, $conn->commit());
     }
 
     /**
