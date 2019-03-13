@@ -494,12 +494,11 @@ class Connection implements DriverConnection
      *
      * @see   isAutoCommit
      *
-     * @param bool $autoCommit True to enable auto-commit mode; false to disable it.
+     * @throws ConnectionException
+     * @throws DriverException
      */
-    public function setAutoCommit($autoCommit)
+    public function setAutoCommit(bool $autoCommit) : void
     {
-        $autoCommit = (bool) $autoCommit;
-
         // Mode not changed, no-op.
         if ($autoCommit === $this->autoCommit) {
             return;
