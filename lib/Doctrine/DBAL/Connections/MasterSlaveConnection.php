@@ -230,31 +230,31 @@ class MasterSlaveConnection extends Connection
     /**
      * {@inheritDoc}
      */
-    public function beginTransaction()
+    public function beginTransaction() : void
     {
         $this->connect('master');
 
-        return parent::beginTransaction();
+        parent::beginTransaction();
     }
 
     /**
      * {@inheritDoc}
      */
-    public function commit()
+    public function commit() : void
     {
         $this->connect('master');
 
-        return parent::commit();
+        parent::commit();
     }
 
     /**
      * {@inheritDoc}
      */
-    public function rollBack()
+    public function rollBack() : void
     {
         $this->connect('master');
 
-        return parent::rollBack();
+        parent::rollBack();
     }
 
     /**
