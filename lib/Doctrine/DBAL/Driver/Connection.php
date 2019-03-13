@@ -54,23 +54,23 @@ interface Connection
     /**
      * Initiates a transaction.
      *
-     * @return bool TRUE on success or FALSE on failure.
+     * @throws DriverException
      */
-    public function beginTransaction();
+    public function beginTransaction() : void;
 
     /**
      * Commits a transaction.
      *
-     * @return bool TRUE on success or FALSE on failure.
+     * @throws DriverException
      */
-    public function commit();
+    public function commit() : void;
 
     /**
      * Rolls back the current transaction, as initiated by beginTransaction().
      *
-     * @return bool TRUE on success or FALSE on failure.
+     * @throws DriverException
      */
-    public function rollBack();
+    public function rollBack() : void;
 
     /**
      * Returns the error code associated with the last operation on the database handle.

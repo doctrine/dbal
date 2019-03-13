@@ -1,5 +1,9 @@
 # Upgrade to 3.0
 
+## BC BREAK Transaction-related `Statement` methods return `void`.
+
+`Statement::beginTransaction()`, `::commit()` and `::rollBack()` no longer return a boolean value. They will throw a `DriverException` in case of failure.
+
 ## MINOR BC BREAK `Statement::fetchColumn()` with an invalid index.
 
 Similarly to `PDOStatement::fetchColumn()`, DBAL statements throw an exception in case of an invalid column index.
