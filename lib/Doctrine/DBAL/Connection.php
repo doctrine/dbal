@@ -9,6 +9,7 @@ use Doctrine\DBAL\Cache\CacheException;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Cache\ResultCacheStatement;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
+use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Driver\PingableConnection;
 use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
@@ -1181,7 +1182,7 @@ class Connection implements DriverConnection
     /**
      * {@inheritDoc}
      */
-    public function beginTransaction()
+    public function beginTransaction() : void
     {
         $connection = $this->getWrappedConnection();
 
@@ -1191,15 +1192,17 @@ class Connection implements DriverConnection
 
         if ($this->transactionNestingLevel === 1) {
             $logger->startQuery('"START TRANSACTION"');
-            $connection->beginTransaction();
-            $logger->stopQuery();
+
+            try {
+                $connection->beginTransaction();
+            } finally {
+                $logger->stopQuery();
+            }
         } elseif ($this->nestTransactionsWithSavepoints) {
             $logger->startQuery('"SAVEPOINT"');
             $this->createSavepoint($this->_getNestedTransactionSavePointName());
             $logger->stopQuery();
         }
-
-        return true;
     }
 
     /**
@@ -1208,11 +1211,12 @@ class Connection implements DriverConnection
      * @throws ConnectionException If the commit failed due to no active transaction or
      *                                            because the transaction was marked for rollback only.
      */
-    public function commit()
+    public function commit() : void
     {
         if ($this->transactionNestingLevel === 0) {
             throw ConnectionException::noActiveTransaction();
         }
+
         if ($this->isRollbackOnly) {
             throw ConnectionException::commitFailedRollbackOnly();
         }
@@ -1225,8 +1229,12 @@ class Connection implements DriverConnection
 
         if ($this->transactionNestingLevel === 1) {
             $logger->startQuery('"COMMIT"');
-            $result = $connection->commit();
-            $logger->stopQuery();
+
+            try {
+                $connection->commit();
+            } finally {
+                $logger->stopQuery();
+            }
         } elseif ($this->nestTransactionsWithSavepoints) {
             $logger->startQuery('"RELEASE SAVEPOINT"');
             $this->releaseSavepoint($this->_getNestedTransactionSavePointName());
@@ -1236,18 +1244,19 @@ class Connection implements DriverConnection
         --$this->transactionNestingLevel;
 
         if ($this->autoCommit !== false || $this->transactionNestingLevel !== 0) {
-            return $result;
+            return;
         }
 
         $this->beginTransaction();
-
-        return $result;
     }
 
     /**
      * Commits all current nesting transactions.
+     *
+     * @throws ConnectionException
+     * @throws DriverException
      */
-    private function commitAll()
+    private function commitAll() : void
     {
         while ($this->transactionNestingLevel !== 0) {
             if ($this->autoCommit === false && $this->transactionNestingLevel === 1) {
@@ -1263,11 +1272,11 @@ class Connection implements DriverConnection
     }
 
     /**
-     * Cancels any database changes done during the current transaction.
+     * {@inheritDoc}
      *
      * @throws ConnectionException If the rollback operation failed.
      */
-    public function rollBack()
+    public function rollBack() : void
     {
         if ($this->transactionNestingLevel === 0) {
             throw ConnectionException::noActiveTransaction();
@@ -1280,12 +1289,16 @@ class Connection implements DriverConnection
         if ($this->transactionNestingLevel === 1) {
             $logger->startQuery('"ROLLBACK"');
             $this->transactionNestingLevel = 0;
-            $connection->rollBack();
-            $this->isRollbackOnly = false;
-            $logger->stopQuery();
 
-            if ($this->autoCommit === false) {
-                $this->beginTransaction();
+            try {
+                $connection->rollBack();
+            } finally {
+                $this->isRollbackOnly = false;
+                $logger->stopQuery();
+
+                if ($this->autoCommit === false) {
+                    $this->beginTransaction();
+                }
             }
         } elseif ($this->nestTransactionsWithSavepoints) {
             $logger->startQuery('"ROLLBACK TO SAVEPOINT"');

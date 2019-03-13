@@ -298,28 +298,6 @@ class ConnectionTest extends DbalTestCase
     }
 
     /**
-     * @dataProvider resultProvider
-     */
-    public function testCommitReturn(bool $expectedResult) : void
-    {
-        $driverConnection = $this->createMock(DriverConnection::class);
-        $driverConnection->expects($this->once())
-            ->method('commit')->willReturn($expectedResult);
-
-        $driverMock = $this->createMock(Driver::class);
-        $driverMock->expects($this->any())
-            ->method('connect')
-            ->will($this->returnValue($driverConnection));
-
-        $conn = new Connection([], $driverMock);
-
-        $conn->connect();
-        $conn->beginTransaction();
-
-        self::assertSame($expectedResult, $conn->commit());
-    }
-
-    /**
      * @return bool[][]
      */
     public function resultProvider() : array

@@ -88,7 +88,7 @@ class ConnectionTest extends DbalFunctionalTestCase
                 self::assertEquals(2, $this->connection->getTransactionNestingLevel());
                 $this->connection->beginTransaction();
                 self::assertEquals(3, $this->connection->getTransactionNestingLevel());
-                self::assertTrue($this->connection->commit());
+                $this->connection->commit();
                 self::assertEquals(2, $this->connection->getTransactionNestingLevel());
                 throw new Exception();
                 $this->connection->commit(); // never reached

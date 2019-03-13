@@ -177,37 +177,33 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function beginTransaction()
+    public function beginTransaction() : void
     {
         $this->executeMode = OCI_NO_AUTO_COMMIT;
-
-        return true;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function commit()
+    public function commit() : void
     {
         if (! oci_commit($this->dbh)) {
             throw OCI8Exception::fromErrorInfo($this->errorInfo());
         }
-        $this->executeMode = OCI_COMMIT_ON_SUCCESS;
 
-        return true;
+        $this->executeMode = OCI_COMMIT_ON_SUCCESS;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function rollBack()
+    public function rollBack() : void
     {
         if (! oci_rollback($this->dbh)) {
             throw OCI8Exception::fromErrorInfo($this->errorInfo());
         }
-        $this->executeMode = OCI_COMMIT_ON_SUCCESS;
 
-        return true;
+        $this->executeMode = OCI_COMMIT_ON_SUCCESS;
     }
 
     /**
