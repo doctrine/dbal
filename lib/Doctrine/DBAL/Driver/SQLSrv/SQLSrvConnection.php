@@ -144,7 +144,7 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritDoc}
      */
-    public function beginTransaction()
+    public function beginTransaction() : void
     {
         if (! sqlsrv_begin_transaction($this->conn)) {
             throw SQLSrvException::fromSqlSrvErrors();
@@ -154,7 +154,7 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritDoc}
      */
-    public function commit()
+    public function commit() : void
     {
         if (! sqlsrv_commit($this->conn)) {
             throw SQLSrvException::fromSqlSrvErrors();
@@ -164,7 +164,7 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritDoc}
      */
-    public function rollBack()
+    public function rollBack() : void
     {
         if (! sqlsrv_rollback($this->conn)) {
             throw SQLSrvException::fromSqlSrvErrors();
