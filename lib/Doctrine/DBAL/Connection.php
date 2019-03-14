@@ -1557,38 +1557,40 @@ class Connection implements DriverConnection
     /**
      * Ping the server
      *
-     * When the server is not available the method returns FALSE.
+     * When the server is not available the method throws a DBALException.
      * It is responsibility of the developer to handle this case
-     * and abort the request or reconnect manually:
+     * and abort the request or close the connection so that it's reestablished
+     * upon the next statement execution.
      *
-     * @return bool
+     * @throws DBALException
      *
      * @example
      *
-     *   if ($conn->ping() === false) {
+     *   try {
+     *      $conn->ping();
+     *   } catch (DBALException $e) {
      *      $conn->close();
-     *      $conn->connect();
      *   }
      *
      * It is undefined if the underlying driver attempts to reconnect
      * or disconnect when the connection is not available anymore
-     * as long it returns TRUE when a reconnect succeeded and
-     * FALSE when the connection was dropped.
+     * as long it successfully returns when a reconnect succeeded
+     * and throws an exception if the connection was dropped.
      */
-    public function ping()
+    public function ping() : void
     {
         $connection = $this->getWrappedConnection();
 
-        if ($connection instanceof PingableConnection) {
-            return $connection->ping();
+        if (! $connection instanceof PingableConnection) {
+            $this->query($this->getDatabasePlatform()->getDummySelectSQL());
+
+            return;
         }
 
         try {
-            $this->query($this->getDatabasePlatform()->getDummySelectSQL());
-
-            return true;
-        } catch (DBALException $e) {
-            return false;
+            $connection->ping();
+        } catch (DriverException $e) {
+            throw DBALException::driverException($this->_driver, $e);
         }
     }
 }

@@ -250,11 +250,13 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
     /**
      * Pings the server and re-connects when `mysqli.reconnect = 1`
      *
-     * @return bool
+     * {@inheritDoc}
      */
-    public function ping()
+    public function ping() : void
     {
-        return $this->conn->ping();
+        if (! $this->conn->ping()) {
+            throw new MysqliException($this->conn->error, $this->conn->sqlstate, $this->conn->errno);
+        }
     }
 
     /**
