@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Driver\Mysqli;
 
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
@@ -101,7 +102,7 @@ class MysqliStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null)
+    public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null) : void
     {
         assert(is_int($column));
 
@@ -111,14 +112,12 @@ class MysqliStatement implements IteratorAggregate, Statement
 
         $this->_bindedValues[$column] =& $variable;
         $this->types[$column - 1]     = self::$_paramTypeMap[$type];
-
-        return true;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function bindValue($param, $value, $type = ParameterType::STRING)
+    public function bindValue($param, $value, $type = ParameterType::STRING) : void
     {
         assert(is_int($param));
 
@@ -129,14 +128,12 @@ class MysqliStatement implements IteratorAggregate, Statement
         $this->_values[$param]       = $value;
         $this->_bindedValues[$param] =& $this->_values[$param];
         $this->types[$param - 1]     = self::$_paramTypeMap[$type];
-
-        return true;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function execute($params = null)
+    public function execute($params = null) : void
     {
         if ($params !== null && count($params) > 0) {
             if (! $this->bindUntypedValues($params)) {
@@ -199,12 +196,12 @@ class MysqliStatement implements IteratorAggregate, Statement
         }
 
         $this->result = true;
-
-        return true;
     }
 
     /**
      * Binds parameters with known types previously bound to the statement
+     *
+     * @throws DriverException
      */
     private function bindTypedParameters()
     {
@@ -408,12 +405,10 @@ class MysqliStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function closeCursor()
+    public function closeCursor() : void
     {
         $this->_stmt->free_result();
         $this->result = false;
-
-        return true;
     }
 
     /**
@@ -439,11 +434,9 @@ class MysqliStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, ...$args)
+    public function setFetchMode($fetchMode, ...$args) : void
     {
         $this->_defaultFetchMode = $fetchMode;
-
-        return true;
     }
 
     /**
