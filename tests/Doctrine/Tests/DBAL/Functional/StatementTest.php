@@ -241,8 +241,11 @@ EOF
 
     public function testCloseCursorOnNonExecutedStatement() : void
     {
+        $this->expectNotToPerformAssertions();
+
         $stmt = $this->connection->prepare('SELECT id FROM stmt_test');
-        self::assertTrue($stmt->closeCursor());
+
+        $stmt->closeCursor();
     }
 
     /**
@@ -250,12 +253,23 @@ EOF
      */
     public function testCloseCursorAfterCursorEnd() : void
     {
+        $this->expectNotToPerformAssertions();
+
         $stmt = $this->connection->prepare('SELECT name FROM stmt_test');
 
         $stmt->execute();
         $stmt->fetch();
 
-        self::assertTrue($stmt->closeCursor());
+        $stmt->closeCursor();
+    }
+
+    public function testCloseCursorAfterClosingCursor() : void
+    {
+        $this->expectNotToPerformAssertions();
+
+        $stmt = $this->connection->executeQuery('SELECT name FROM stmt_test');
+        $stmt->closeCursor();
+        $stmt->closeCursor();
     }
 
     /**
