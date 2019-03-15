@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL;
 
+use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
@@ -84,27 +85,26 @@ class Statement implements IteratorAggregate, DriverStatement
      * @param mixed      $value The value of the parameter.
      * @param mixed      $type  Either a PDO binding type or a DBAL mapping type name or instance.
      *
-     * @return bool TRUE on success, FALSE on failure.
+     * @throws DBALException
+     * @throws DriverException
      */
-    public function bindValue($name, $value, $type = ParameterType::STRING)
+    public function bindValue($name, $value, $type = ParameterType::STRING) : void
     {
         $this->params[$name] = $value;
         $this->types[$name]  = $type;
-        if ($type !== null) {
-            if (is_string($type)) {
-                $type = Type::getType($type);
-            }
-            if ($type instanceof Type) {
-                $value       = $type->convertToDatabaseValue($value, $this->platform);
-                $bindingType = $type->getBindingType();
-            } else {
-                $bindingType = $type;
-            }
 
-            return $this->stmt->bindValue($name, $value, $bindingType);
+        if (is_string($type)) {
+            $type = Type::getType($type);
         }
 
-        return $this->stmt->bindValue($name, $value);
+        if ($type instanceof Type) {
+            $value       = $type->convertToDatabaseValue($value, $this->platform);
+            $bindingType = $type->getBindingType();
+        } else {
+            $bindingType = $type;
+        }
+
+        $this->stmt->bindValue($name, $value, $bindingType);
     }
 
     /**
@@ -118,26 +118,22 @@ class Statement implements IteratorAggregate, DriverStatement
      * @param int|null   $length Must be specified when using an OUT bind
      *                           so that PHP allocates enough memory to hold the returned value.
      *
-     * @return bool TRUE on success, FALSE on failure.
+     * @throws DriverException
      */
-    public function bindParam($name, &$var, $type = ParameterType::STRING, $length = null)
+    public function bindParam($name, &$var, $type = ParameterType::STRING, $length = null) : void
     {
         $this->params[$name] = $var;
         $this->types[$name]  = $type;
 
-        return $this->stmt->bindParam($name, $var, $type, $length);
+        $this->stmt->bindParam($name, $var, $type, $length);
     }
 
     /**
-     * Executes the statement with the currently bound parameters.
-     *
-     * @param mixed[]|null $params
-     *
-     * @return bool TRUE on success, FALSE on failure.
+     * {@inheritDoc}
      *
      * @throws DBALException
      */
-    public function execute($params = null)
+    public function execute($params = null) : void
     {
         if (is_array($params)) {
             $this->params = $params;
@@ -147,32 +143,28 @@ class Statement implements IteratorAggregate, DriverStatement
         $logger->startQuery($this->sql, $this->params, $this->types);
 
         try {
-            $stmt = $this->stmt->execute($params);
+            $this->stmt->execute($params);
         } catch (Throwable $ex) {
-            $logger->stopQuery();
             throw DBALException::driverExceptionDuringQuery(
                 $this->conn->getDriver(),
                 $ex,
                 $this->sql,
                 $this->conn->resolveParams($this->params, $this->types)
             );
+        } finally {
+            $logger->stopQuery();
         }
 
-        $logger->stopQuery();
         $this->params = [];
         $this->types  = [];
-
-        return $stmt;
     }
 
     /**
-     * Closes the cursor, freeing the database resources used by this statement.
-     *
-     * @return bool TRUE on success, FALSE on failure.
+     * {@inheritDoc}
      */
-    public function closeCursor()
+    public function closeCursor() : void
     {
-        return $this->stmt->closeCursor();
+        $this->stmt->closeCursor();
     }
 
     /**
@@ -206,9 +198,9 @@ class Statement implements IteratorAggregate, DriverStatement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, ...$args)
+    public function setFetchMode($fetchMode, ...$args) : void
     {
-        return $this->stmt->setFetchMode($fetchMode, ...$args);
+        $this->stmt->setFetchMode($fetchMode, ...$args);
     }
 
     /**

@@ -39,41 +39,45 @@ class Connection extends \Doctrine\DBAL\Connection
     /**
      * {@inheritdoc}
      */
-    public function connect()
+    public function connect() : void
     {
-        $ret = parent::connect();
-        if ($ret) {
-            $params = $this->getParams();
-            if (isset($params['portability'])) {
-                if ($this->getDatabasePlatform()->getName() === 'oracle') {
-                    $params['portability'] &= self::PORTABILITY_ORACLE;
-                } elseif ($this->getDatabasePlatform()->getName() === 'postgresql') {
-                    $params['portability'] &= self::PORTABILITY_POSTGRESQL;
-                } elseif ($this->getDatabasePlatform()->getName() === 'sqlite') {
-                    $params['portability'] &= self::PORTABILITY_SQLITE;
-                } elseif ($this->getDatabasePlatform()->getName() === 'sqlanywhere') {
-                    $params['portability'] &= self::PORTABILITY_SQLANYWHERE;
-                } elseif ($this->getDatabasePlatform()->getName() === 'db2') {
-                    $params['portability'] &= self::PORTABILITY_DB2;
-                } elseif ($this->getDatabasePlatform()->getName() === 'mssql') {
-                    $params['portability'] &= self::PORTABILITY_SQLSRV;
-                } else {
-                    $params['portability'] &= self::PORTABILITY_OTHERVENDORS;
-                }
-                $this->portability = $params['portability'];
-            }
-
-            if (isset($params['fetch_case']) && $this->portability & self::PORTABILITY_FIX_CASE) {
-                if ($this->_conn instanceof PDOConnection) {
-                    // make use of c-level support for case handling
-                    $this->_conn->getWrappedConnection()->setAttribute(PDO::ATTR_CASE, $params['fetch_case']);
-                } else {
-                    $this->case = $params['fetch_case'] === ColumnCase::LOWER ? CASE_LOWER : CASE_UPPER;
-                }
-            }
+        if ($this->isConnected()) {
+            return;
         }
 
-        return $ret;
+        parent::connect();
+
+        $params = $this->getParams();
+
+        if (isset($params['portability'])) {
+            if ($this->getDatabasePlatform()->getName() === 'oracle') {
+                $params['portability'] &= self::PORTABILITY_ORACLE;
+            } elseif ($this->getDatabasePlatform()->getName() === 'postgresql') {
+                $params['portability'] &= self::PORTABILITY_POSTGRESQL;
+            } elseif ($this->getDatabasePlatform()->getName() === 'sqlite') {
+                $params['portability'] &= self::PORTABILITY_SQLITE;
+            } elseif ($this->getDatabasePlatform()->getName() === 'sqlanywhere') {
+                $params['portability'] &= self::PORTABILITY_SQLANYWHERE;
+            } elseif ($this->getDatabasePlatform()->getName() === 'db2') {
+                $params['portability'] &= self::PORTABILITY_DB2;
+            } elseif ($this->getDatabasePlatform()->getName() === 'mssql') {
+                $params['portability'] &= self::PORTABILITY_SQLSRV;
+            } else {
+                $params['portability'] &= self::PORTABILITY_OTHERVENDORS;
+            }
+            $this->portability = $params['portability'];
+        }
+
+        if (! isset($params['fetch_case']) || ! ($this->portability & self::PORTABILITY_FIX_CASE)) {
+            return;
+        }
+
+        if ($this->_conn instanceof PDOConnection) {
+            // make use of c-level support for case handling
+            $this->_conn->getWrappedConnection()->setAttribute(PDO::ATTR_CASE, $params['fetch_case']);
+        } else {
+            $this->case = $params['fetch_case'] === ColumnCase::LOWER ? CASE_LOWER : CASE_UPPER;
+        }
     }
 
     /**

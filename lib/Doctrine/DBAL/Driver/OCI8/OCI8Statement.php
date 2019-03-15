@@ -268,15 +268,15 @@ class OCI8Statement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function bindValue($param, $value, $type = ParameterType::STRING)
+    public function bindValue($param, $value, $type = ParameterType::STRING) : void
     {
-        return $this->bindParam($param, $value, $type, null);
+        $this->bindParam($param, $value, $type, null);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null)
+    public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null) : void
     {
         $column = $this->_paramMap[$column];
 
@@ -293,13 +293,15 @@ class OCI8Statement implements IteratorAggregate, Statement
 
         $this->boundValues[$column] =& $variable;
 
-        return oci_bind_by_name(
+        if (! oci_bind_by_name(
             $this->_sth,
             $column,
             $variable,
             $length ?? -1,
             $this->convertParameterType($type)
-        );
+        )) {
+            throw OCI8Exception::fromErrorInfo($this->errorInfo());
+        }
     }
 
     /**
@@ -322,18 +324,16 @@ class OCI8Statement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function closeCursor()
+    public function closeCursor() : void
     {
         // not having the result means there's nothing to close
         if (! $this->result) {
-            return true;
+            return;
         }
 
         oci_cancel($this->_sth);
 
         $this->result = false;
-
-        return true;
     }
 
     /**
@@ -374,7 +374,7 @@ class OCI8Statement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function execute($params = null)
+    public function execute($params = null) : void
     {
         if ($params) {
             $hasZeroIndex = array_key_exists(0, $params);
@@ -386,9 +386,7 @@ class OCI8Statement implements IteratorAggregate, Statement
                     $param = $key;
                 }
 
-                if (! $this->bindValue($param, $val)) {
-                    throw OCI8Exception::fromErrorInfo($this->errorInfo());
-                }
+                $this->bindValue($param, $val);
             }
         }
 
@@ -398,18 +396,14 @@ class OCI8Statement implements IteratorAggregate, Statement
         }
 
         $this->result = true;
-
-        return $ret;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, ...$args)
+    public function setFetchMode($fetchMode, ...$args) : void
     {
         $this->_defaultFetchMode = $fetchMode;
-
-        return true;
     }
 
     /**
