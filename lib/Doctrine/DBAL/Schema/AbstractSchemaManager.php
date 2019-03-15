@@ -947,9 +947,9 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * @param mixed[] $user
+     * @param string[] $user
      *
-     * @return mixed[]
+     * @return string[]
      */
     protected function _getPortableUserDefinition($user)
     {

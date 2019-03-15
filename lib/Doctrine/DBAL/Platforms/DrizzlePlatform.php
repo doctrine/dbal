@@ -576,7 +576,7 @@ class DrizzlePlatform extends AbstractPlatform
     {
         if (is_array($item)) {
             foreach ($item as $key => $value) {
-                if (! is_bool($value) && ! is_numeric($item)) {
+                if (! is_bool($value) && ! is_numeric($value)) {
                     continue;
                 }
 
