@@ -45,10 +45,9 @@ class StatementTest extends DbalTestCase
 
         $this->wrappedStmt->expects($this->once())
             ->method('bindParam')
-            ->with($column, $variable, $type, $length)
-            ->will($this->returnValue(true));
+            ->with($column, $variable, $type, $length);
 
-        self::assertTrue($this->stmt->bindParam($column, $variable, $type, $length));
+        $this->stmt->bindParam($column, $variable, $type, $length);
     }
 
     public function testBindValue() : void
@@ -59,19 +58,17 @@ class StatementTest extends DbalTestCase
 
         $this->wrappedStmt->expects($this->once())
             ->method('bindValue')
-            ->with($param, $value, $type)
-            ->will($this->returnValue(true));
+            ->with($param, $value, $type);
 
-        self::assertTrue($this->stmt->bindValue($param, $value, $type));
+        $this->stmt->bindValue($param, $value, $type);
     }
 
     public function testCloseCursor() : void
     {
         $this->wrappedStmt->expects($this->once())
-            ->method('closeCursor')
-            ->will($this->returnValue(true));
+            ->method('closeCursor');
 
-        self::assertTrue($this->stmt->closeCursor());
+        $this->stmt->closeCursor();
     }
 
     public function testColumnCount() : void
@@ -116,10 +113,9 @@ class StatementTest extends DbalTestCase
 
         $this->wrappedStmt->expects($this->once())
             ->method('execute')
-            ->with($params)
-            ->will($this->returnValue(true));
+            ->with($params);
 
-        self::assertTrue($this->stmt->execute($params));
+        $this->stmt->execute($params);
     }
 
     public function testSetFetchMode() : void
@@ -137,7 +133,7 @@ class StatementTest extends DbalTestCase
         $re->setAccessible(true);
 
         self::assertSame(FetchMode::MIXED, $re->getValue($this->stmt));
-        self::assertTrue($this->stmt->setFetchMode($fetchMode, $arg1, $arg2));
+        $this->stmt->setFetchMode($fetchMode, $arg1, $arg2);
         self::assertSame($fetchMode, $re->getValue($this->stmt));
     }
 

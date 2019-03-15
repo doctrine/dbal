@@ -123,7 +123,7 @@ class MasterSlaveConnection extends Connection
     /**
      * {@inheritDoc}
      */
-    public function connect($connectionName = null)
+    public function connect($connectionName = null) : void
     {
         $requestedConnectionChange = ($connectionName !== null);
         $connectionName            = $connectionName ?: 'slave';
@@ -136,7 +136,7 @@ class MasterSlaveConnection extends Connection
         // change request, then abort right here, because we are already done.
         // This prevents writes to the slave in case of "keepSlave" option enabled.
         if ($this->_conn !== null && ! $requestedConnectionChange) {
-            return false;
+            return;
         }
 
         $forceMasterAsSlave = false;
@@ -153,7 +153,7 @@ class MasterSlaveConnection extends Connection
                 $this->connections['slave'] = $this->_conn;
             }
 
-            return false;
+            return;
         }
 
         if ($connectionName === 'master') {
@@ -167,12 +167,12 @@ class MasterSlaveConnection extends Connection
             $this->connections['slave'] = $this->_conn = $this->connectTo($connectionName);
         }
 
-        if ($this->_eventManager->hasListeners(Events::postConnect)) {
-            $eventArgs = new ConnectionEventArgs($this);
-            $this->_eventManager->dispatchEvent(Events::postConnect, $eventArgs);
+        if (! $this->_eventManager->hasListeners(Events::postConnect)) {
+            return;
         }
 
-        return true;
+        $eventArgs = new ConnectionEventArgs($this);
+        $this->_eventManager->dispatchEvent(Events::postConnect, $eventArgs);
     }
 
     /**
