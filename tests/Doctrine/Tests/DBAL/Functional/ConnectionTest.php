@@ -316,7 +316,9 @@ class ConnectionTest extends DbalFunctionalTestCase
             $this->connection->getEventManager()
         );
 
-        self::assertTrue($connection->connect());
+        $connection->connect();
+
+        self::assertTrue($connection->isConnected());
 
         $connection->close();
     }
