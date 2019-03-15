@@ -26,9 +26,9 @@ interface Statement extends ResultStatement
      * @param int   $type  Explicit data type for the parameter using the {@link \Doctrine\DBAL\ParameterType}
      *                     constants.
      *
-     * @return bool TRUE on success or FALSE on failure.
+     * @throws DriverException
      */
-    public function bindValue($param, $value, $type = ParameterType::STRING);
+    public function bindValue($param, $value, $type = ParameterType::STRING) : void;
 
     /**
      * Binds a PHP variable to a corresponding named (not supported by mysqli driver, see comment below) or question
@@ -53,9 +53,9 @@ interface Statement extends ResultStatement
      * @param int|null $length   You must specify maxlength when using an OUT bind
      *                           so that PHP allocates enough memory to hold the returned value.
      *
-     * @return bool TRUE on success or FALSE on failure.
+     * @throws DriverException
      */
-    public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null);
+    public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null) : void;
 
     /**
      * Fetches the SQLSTATE associated with the last operation on the statement handle.
@@ -85,7 +85,7 @@ interface Statement extends ResultStatement
      * @param mixed[]|null $params An array of values with as many elements as there are
      *                             bound parameters in the SQL statement being executed.
      *
-     * @return bool TRUE on success or FALSE on failure.
+     * @throws DriverException
      */
-    public function execute($params = null);
+    public function execute($params = null) : void;
 }
