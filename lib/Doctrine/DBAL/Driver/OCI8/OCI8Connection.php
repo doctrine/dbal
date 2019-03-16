@@ -6,14 +6,11 @@ use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
-use Doctrine\DBAL\ParameterType;
 use UnexpectedValueException;
 use const OCI_COMMIT_ON_SUCCESS;
 use const OCI_DEFAULT;
 use const OCI_NO_AUTO_COMMIT;
 use function addcslashes;
-use function is_float;
-use function is_int;
 use function oci_commit;
 use function oci_connect;
 use function oci_error;
@@ -123,14 +120,9 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function quote($value, $type = ParameterType::STRING)
+    public function quote(string $input) : string
     {
-        if (is_int($value) || is_float($value)) {
-            return $value;
-        }
-        $value = str_replace("'", "''", $value);
-
-        return "'" . addcslashes($value, "\000\n\r\\\032") . "'";
+        return "'" . addcslashes(str_replace("'", "''", $input), "\000\n\r\\\032") . "'";
     }
 
     /**
