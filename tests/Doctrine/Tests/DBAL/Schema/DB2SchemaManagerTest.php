@@ -25,14 +25,19 @@ final class DB2SchemaManagerTest extends TestCase
 
     protected function setUp() : void
     {
-        $eventManager  = new EventManager();
-        $driverMock    = $this->createMock(Driver::class);
-        $platform      = $this->createMock(DB2Platform::class);
-        $this->conn    = $this
+        $eventManager = new EventManager();
+        $driverMock   = $this->createMock(Driver::class);
+        $platform     = $this->createMock(DB2Platform::class);
+        $this->conn   = $this
             ->getMockBuilder(Connection::class)
-            ->onlyMethods(['fetchAll', 'quote'])
+            ->onlyMethods(['fetchAll', 'getUsername'])
             ->setConstructorArgs([['platform' => $platform], $driverMock, new Configuration(), $eventManager])
             ->getMock();
+
+        $this->conn->expects($this->any())
+            ->method('getUsername')
+            ->willReturn('db2inst1');
+
         $this->manager = new DB2SchemaManager($this->conn);
     }
 
@@ -95,7 +100,7 @@ final class DB2SchemaManagerTest extends TestCase
         $this->conn->getConfiguration()->setSchemaAssetsFilter(static function ($assetName) use ($accepted) {
             return in_array($assetName, $accepted);
         });
-        $this->conn->expects($this->any())->method('quote');
+
         $this->conn->expects($this->once())->method('fetchAll')->will($this->returnValue([
             ['name' => 'FOO'],
             ['name' => 'T_FOO'],
@@ -120,7 +125,7 @@ final class DB2SchemaManagerTest extends TestCase
         $this->conn->getConfiguration()->setSchemaAssetsFilter(static function ($assetName) use ($accepted) {
             return in_array($assetName, $accepted);
         });
-        $this->conn->expects($this->any())->method('quote');
+
         $this->conn->expects($this->atLeastOnce())->method('fetchAll')->will($this->returnValue([
             ['name' => 'FOO'],
             ['name' => 'T_FOO'],
