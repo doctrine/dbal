@@ -166,18 +166,16 @@ class PoolingShardConnection extends Connection
      *
      * @param string|int|null $shardId
      *
-     * @return bool
-     *
      * @throws ShardingException
      */
-    public function connect($shardId = null)
+    public function connect($shardId = null) : void
     {
         if ($shardId === null && $this->_conn) {
-            return false;
+            return;
         }
 
         if ($shardId !== null && $shardId === $this->activeShardId) {
-            return false;
+            return;
         }
 
         if ($this->getTransactionNestingLevel() > 0) {
@@ -189,17 +187,17 @@ class PoolingShardConnection extends Connection
         if (isset($this->activeConnections[$activeShardId])) {
             $this->_conn = $this->activeConnections[$activeShardId];
 
-            return false;
+            return;
         }
 
         $this->_conn = $this->activeConnections[$activeShardId] = $this->connectTo($activeShardId);
 
-        if ($this->_eventManager->hasListeners(Events::postConnect)) {
-            $eventArgs = new ConnectionEventArgs($this);
-            $this->_eventManager->dispatchEvent(Events::postConnect, $eventArgs);
+        if (! $this->_eventManager->hasListeners(Events::postConnect)) {
+            return;
         }
 
-        return true;
+        $eventArgs = new ConnectionEventArgs($this);
+        $this->_eventManager->dispatchEvent(Events::postConnect, $eventArgs);
     }
 
     /**

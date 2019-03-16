@@ -338,13 +338,12 @@ class Connection implements DriverConnection
     /**
      * Establishes the connection with the database.
      *
-     * @return bool TRUE if the connection was successfully established, FALSE if
-     *              the connection is already open.
+     * @throws DriverException
      */
-    public function connect()
+    public function connect() : void
     {
         if ($this->isConnected) {
-            return false;
+            return;
         }
 
         $driverOptions = $this->params['driverOptions'] ?? [];
@@ -358,12 +357,12 @@ class Connection implements DriverConnection
             $this->beginTransaction();
         }
 
-        if ($this->_eventManager->hasListeners(Events::postConnect)) {
-            $eventArgs = new Event\ConnectionEventArgs($this);
-            $this->_eventManager->dispatchEvent(Events::postConnect, $eventArgs);
+        if (! $this->_eventManager->hasListeners(Events::postConnect)) {
+            return;
         }
 
-        return true;
+        $eventArgs = new Event\ConnectionEventArgs($this);
+        $this->_eventManager->dispatchEvent(Events::postConnect, $eventArgs);
     }
 
     /**
@@ -517,10 +516,8 @@ class Connection implements DriverConnection
      * Sets the fetch mode.
      *
      * @param int $fetchMode
-     *
-     * @return void
      */
-    public function setFetchMode($fetchMode)
+    public function setFetchMode($fetchMode) : void
     {
         $this->defaultFetchMode = $fetchMode;
     }
