@@ -6,7 +6,6 @@ use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
-use Doctrine\DBAL\ParameterType;
 use stdClass;
 use const DB2_AUTOCOMMIT_OFF;
 use const DB2_AUTOCOMMIT_ON;
@@ -101,15 +100,9 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function quote($input, $type = ParameterType::STRING)
+    public function quote(string $input) : string
     {
-        $input = db2_escape_string($input);
-
-        if ($type === ParameterType::INTEGER) {
-            return $input;
-        }
-
-        return "'" . $input . "'";
+        return "'" . db2_escape_string($input) . "'";
     }
 
     /**
