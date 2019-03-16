@@ -44,7 +44,7 @@ class ArrayStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function closeCursor()
+    public function closeCursor() : void
     {
         unset($this->data);
     }
@@ -72,15 +72,13 @@ class ArrayStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, ...$args)
+    public function setFetchMode($fetchMode, ...$args) : void
     {
         if (count($args) > 0) {
             throw new InvalidArgumentException('Caching layer does not support 2nd/3rd argument to setFetchMode()');
         }
 
         $this->defaultFetchMode = $fetchMode;
-
-        return true;
     }
 
     /**
