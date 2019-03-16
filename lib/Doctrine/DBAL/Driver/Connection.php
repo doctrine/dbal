@@ -3,7 +3,6 @@
 namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\ParameterType;
 
 /**
  * Connection interface.
@@ -27,13 +26,8 @@ interface Connection
 
     /**
      * Quotes a string for use in a query.
-     *
-     * @param mixed $input
-     * @param int   $type
-     *
-     * @return mixed
      */
-    public function quote($input, $type = ParameterType::STRING);
+    public function quote(string $input) : string;
 
     /**
      * Executes an SQL statement and return the number of affected rows.

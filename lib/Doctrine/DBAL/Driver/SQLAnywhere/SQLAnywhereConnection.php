@@ -6,10 +6,7 @@ use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
-use Doctrine\DBAL\ParameterType;
 use function assert;
-use function is_float;
-use function is_int;
 use function is_resource;
 use function is_string;
 use function sasql_affected_rows;
@@ -159,12 +156,8 @@ class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function quote($input, $type = ParameterType::STRING)
+    public function quote(string $input) : string
     {
-        if (is_int($input) || is_float($input)) {
-            return $input;
-        }
-
         return "'" . sasql_escape_string($this->connection, $input) . "'";
     }
 
