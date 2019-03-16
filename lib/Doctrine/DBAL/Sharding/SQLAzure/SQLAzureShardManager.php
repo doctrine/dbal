@@ -202,7 +202,7 @@ class SQLAzureShardManager implements ShardManager
 
         $sql = 'ALTER FEDERATION ' . $this->getFederationName() . ' ' .
                'SPLIT AT (' . $this->getDistributionKey() . ' = ' .
-               $this->conn->quote($splitDistributionValue, $type->getBindingType()) . ')';
+               $this->conn->quote($splitDistributionValue) . ')';
         $this->conn->exec($sql);
     }
 }
