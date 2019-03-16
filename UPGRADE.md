@@ -1,5 +1,9 @@
 # Upgrade to 3.0
 
+## BC BREAK `Statement::quote()` only accepts strings.
+
+`Statement::quote()` and `ExpressionBuilder::literal()` no longer accept arguments of an arbitrary type and and don't implement type-specific handling. Only strings can be quoted.
+
 ## BC BREAK `Statement` and `Connection` methods return `void`.
 
 `Connection::connect()`, `Statement::bindParam()`, `::bindValue()`, `::execute()`, `ResultStatement::setFetchMode()` and `::closeCursor()` no longer return a boolean value. They will throw an exception in case of failure.
