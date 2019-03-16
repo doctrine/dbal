@@ -11,10 +11,8 @@ interface ResultStatement extends Traversable
 {
     /**
      * Closes the cursor, enabling the statement to be executed again.
-     *
-     * @return bool TRUE on success or FALSE on failure.
      */
-    public function closeCursor();
+    public function closeCursor() : void;
 
     /**
      * Returns the number of columns in the result set
@@ -42,10 +40,8 @@ interface ResultStatement extends Traversable
      * @param int   $fetchMode Controls how the next row will be returned to the caller.
      *                         The value must be one of the {@link \Doctrine\DBAL\FetchMode} constants.
      * @param mixed ...$args   Optional mode-specific arguments (see {@link self::fetchAll()}).
-     *
-     * @return bool
      */
-    public function setFetchMode($fetchMode, ...$args);
+    public function setFetchMode($fetchMode, ...$args) : void;
 
     /**
      * Returns the next row of a result set.
