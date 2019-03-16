@@ -830,12 +830,11 @@ abstract class AbstractSchemaManager
     /**
      * Aggregates and groups the index results according to the required data result.
      *
-     * @param mixed[][]   $tableIndexRows
-     * @param string|null $tableName
+     * @param mixed[][] $tableIndexRows
      *
      * @return Index[]
      */
-    protected function _getPortableTableIndexesList($tableIndexRows, $tableName = null)
+    protected function _getPortableTableIndexesList(array $tableIndexRows, string $tableName) : array
     {
         $result = [];
         foreach ($tableIndexRows as $tableIndex) {
