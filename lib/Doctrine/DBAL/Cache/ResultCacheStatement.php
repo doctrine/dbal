@@ -75,11 +75,12 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function closeCursor()
+    public function closeCursor() : void
     {
         $this->statement->closeCursor();
+
         if (! $this->emptied || $this->data === null) {
-            return true;
+            return;
         }
 
         $data = $this->resultCache->fetch($this->cacheKey);
@@ -90,8 +91,6 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
 
         $this->resultCache->save($this->cacheKey, $data, $this->lifetime);
         unset($this->data);
-
-        return true;
     }
 
     /**
@@ -105,11 +104,9 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, ...$args)
+    public function setFetchMode($fetchMode, ...$args) : void
     {
         $this->defaultFetchMode = $fetchMode;
-
-        return true;
     }
 
     /**
