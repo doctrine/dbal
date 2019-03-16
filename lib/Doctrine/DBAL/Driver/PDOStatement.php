@@ -50,12 +50,12 @@ class PDOStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, ...$args)
+    public function setFetchMode($fetchMode, ...$args) : void
     {
         $fetchMode = $this->convertFetchMode($fetchMode);
 
         try {
-            return $this->stmt->setFetchMode($fetchMode, ...$args);
+            $this->stmt->setFetchMode($fetchMode, ...$args);
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
         }
@@ -64,12 +64,12 @@ class PDOStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function bindValue($param, $value, $type = ParameterType::STRING)
+    public function bindValue($param, $value, $type = ParameterType::STRING) : void
     {
         $type = $this->convertParamType($type);
 
         try {
-            return $this->stmt->bindValue($param, $value, $type);
+            $this->stmt->bindValue($param, $value, $type);
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
         }
@@ -78,12 +78,12 @@ class PDOStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null, $driverOptions = null)
+    public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null, $driverOptions = null) : void
     {
         $type = $this->convertParamType($type);
 
         try {
-            return $this->stmt->bindParam($column, $variable, $type, ...array_slice(func_get_args(), 3));
+            $this->stmt->bindParam($column, $variable, $type, ...array_slice(func_get_args(), 3));
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
         }
@@ -92,15 +92,9 @@ class PDOStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function closeCursor()
+    public function closeCursor() : void
     {
-        try {
-            return $this->stmt->closeCursor();
-        } catch (\PDOException $exception) {
-            // Exceptions not allowed by the interface.
-            // In case driver implementations do not adhere to the interface, silence exceptions here.
-            return true;
-        }
+        $this->stmt->closeCursor();
     }
 
     /**
@@ -130,10 +124,10 @@ class PDOStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function execute($params = null)
+    public function execute($params = null) : void
     {
         try {
-            return $this->stmt->execute($params);
+            $this->stmt->execute($params);
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
         }
