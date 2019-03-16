@@ -46,7 +46,7 @@ class WriteTest extends DbalFunctionalTestCase
 
     public function testExecuteUpdate()
     {
-        $sql      = 'INSERT INTO write_table (test_int) VALUES ( ' . $this->connection->quote(1) . ')';
+        $sql      = 'INSERT INTO write_table (test_int) VALUES (1)';
         $affected = $this->connection->executeUpdate($sql);
 
         self::assertEquals(1, $affected, 'executeUpdate() should return the number of affected rows!');

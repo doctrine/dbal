@@ -808,13 +808,9 @@ class Connection implements DriverConnection
     /**
      * {@inheritDoc}
      */
-    public function quote($input, $type = null)
+    public function quote(string $input) : string
     {
-        $connection = $this->getWrappedConnection();
-
-        [$value, $bindingType] = $this->getBindingInfo($input, $type);
-
-        return $connection->quote($value, $bindingType);
+        return $this->getWrappedConnection()->quote($input);
     }
 
     /**
