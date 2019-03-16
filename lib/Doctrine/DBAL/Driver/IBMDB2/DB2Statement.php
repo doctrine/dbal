@@ -89,15 +89,15 @@ class DB2Statement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function bindValue($param, $value, $type = ParameterType::STRING)
+    public function bindValue($param, $value, $type = ParameterType::STRING) : void
     {
-        return $this->bindParam($param, $value, $type);
+        $this->bindParam($param, $value, $type);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null)
+    public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null) : void
     {
         switch ($type) {
             case ParameterType::INTEGER:
@@ -122,8 +122,6 @@ class DB2Statement implements IteratorAggregate, Statement
                 $this->bind($column, $variable, DB2_PARAM_IN, DB2_CHAR);
                 break;
         }
-
-        return true;
     }
 
     /**
@@ -144,17 +142,17 @@ class DB2Statement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function closeCursor()
+    public function closeCursor() : void
     {
         $this->bindParam = [];
 
-        if (! db2_free_result($this->stmt)) {
-            return false;
+        if (! $this->result) {
+            return;
         }
 
-        $this->result = false;
+        db2_free_result($this->stmt);
 
-        return true;
+        $this->result = false;
     }
 
     /**
@@ -187,7 +185,7 @@ class DB2Statement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function execute($params = null)
+    public function execute($params = null) : void
     {
         if ($params === null) {
             ksort($this->bindParam);
@@ -222,14 +220,12 @@ class DB2Statement implements IteratorAggregate, Statement
         }
 
         $this->result = true;
-
-        return $retval;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, ...$args)
+    public function setFetchMode($fetchMode, ...$args) : void
     {
         $this->defaultFetchMode = $fetchMode;
 
@@ -237,11 +233,11 @@ class DB2Statement implements IteratorAggregate, Statement
             $this->defaultFetchClass = $args[0];
         }
 
-        if (isset($args[1])) {
-            $this->defaultFetchClassCtorArgs = (array) $args[2];
+        if (! isset($args[1])) {
+            return;
         }
 
-        return true;
+        $this->defaultFetchClassCtorArgs = (array) $args[2];
     }
 
     /**
