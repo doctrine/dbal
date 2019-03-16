@@ -45,29 +45,29 @@ class Statement implements IteratorAggregate, DriverStatement
     /**
      * {@inheritdoc}
      */
-    public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null)
+    public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null) : void
     {
         assert($this->stmt instanceof DriverStatement);
 
-        return $this->stmt->bindParam($column, $variable, $type, $length);
+        $this->stmt->bindParam($column, $variable, $type, $length);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function bindValue($param, $value, $type = ParameterType::STRING)
+    public function bindValue($param, $value, $type = ParameterType::STRING) : void
     {
         assert($this->stmt instanceof DriverStatement);
 
-        return $this->stmt->bindValue($param, $value, $type);
+        $this->stmt->bindValue($param, $value, $type);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function closeCursor()
+    public function closeCursor() : void
     {
-        return $this->stmt->closeCursor();
+        $this->stmt->closeCursor();
     }
 
     /**
@@ -101,21 +101,21 @@ class Statement implements IteratorAggregate, DriverStatement
     /**
      * {@inheritdoc}
      */
-    public function execute($params = null)
+    public function execute($params = null) : void
     {
         assert($this->stmt instanceof DriverStatement);
 
-        return $this->stmt->execute($params);
+        $this->stmt->execute($params);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, ...$args)
+    public function setFetchMode($fetchMode, ...$args) : void
     {
         $this->defaultFetchMode = $fetchMode;
 
-        return $this->stmt->setFetchMode($fetchMode, ...$args);
+        $this->stmt->setFetchMode($fetchMode, ...$args);
     }
 
     /**

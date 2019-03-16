@@ -1,5 +1,9 @@
 # Upgrade to 3.0
 
+## BC BREAK `Statement` and `Connection` methods return `void`.
+
+`Connection::connect()`, `Statement::bindParam()`, `::bindValue()`, `::execute()`, `ResultStatement::setFetchMode()` and `::closeCursor()` no longer return a boolean value. They will throw an exception in case of failure.
+
 ## BC BREAK `Statement::rowCount()` is moved.
 
 `Statement::rowCount()` has been moved to the `ResultStatement` interface where it belongs by definition.
