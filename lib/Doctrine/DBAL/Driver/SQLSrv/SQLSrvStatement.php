@@ -145,7 +145,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function bindValue($param, $value, $type = ParameterType::STRING)
+    public function bindValue($param, $value, $type = ParameterType::STRING) : void
     {
         if (! is_numeric($param)) {
             throw new SQLSrvException(
@@ -160,7 +160,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null)
+    public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null) : void
     {
         if (! is_numeric($column)) {
             throw new SQLSrvException('sqlsrv does not support named parameters to queries, use question mark (?) placeholders instead.');
@@ -176,11 +176,11 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function closeCursor()
+    public function closeCursor() : void
     {
         // not having the result means there's nothing to close
         if ($this->stmt === null || ! $this->result) {
-            return true;
+            return;
         }
 
         // emulate it by fetching and discarding rows, similarly to what PDO does in this case
@@ -191,8 +191,6 @@ class SQLSrvStatement implements IteratorAggregate, Statement
         }
 
         $this->result = false;
-
-        return true;
     }
 
     /**
@@ -231,7 +229,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function execute($params = null)
+    public function execute($params = null) : void
     {
         if ($params) {
             $hasZeroIndex = array_key_exists(0, $params);
@@ -310,7 +308,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, ...$args)
+    public function setFetchMode($fetchMode, ...$args) : void
     {
         $this->defaultFetchMode = $fetchMode;
 
@@ -318,11 +316,11 @@ class SQLSrvStatement implements IteratorAggregate, Statement
             $this->defaultFetchClass = $args[0];
         }
 
-        if (isset($args[1])) {
-            $this->defaultFetchClassCtorArgs = (array) $args[1];
+        if (! isset($args[1])) {
+            return;
         }
 
-        return true;
+        $this->defaultFetchClassCtorArgs = (array) $args[1];
     }
 
     /**
