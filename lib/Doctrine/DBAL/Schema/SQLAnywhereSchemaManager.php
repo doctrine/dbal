@@ -194,7 +194,7 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableIndexesList($tableIndexRows, $tableName = null)
+    protected function _getPortableTableIndexesList(array $tableIndexRows, string $tableName) : array
     {
         foreach ($tableIndexRows as &$tableIndex) {
             $tableIndex['primary'] = (bool) $tableIndex['primary'];

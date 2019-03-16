@@ -5,7 +5,9 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Types\Type;
 use const CASE_LOWER;
 use function array_change_key_case;
+use function assert;
 use function is_resource;
+use function is_string;
 use function strpos;
 use function strtolower;
 use function substr;
@@ -22,12 +24,14 @@ class DB2SchemaManager extends AbstractSchemaManager
      * Apparently creator is the schema not the user who created it:
      * {@link http://publib.boulder.ibm.com/infocenter/dzichelp/v2r2/index.jsp?topic=/com.ibm.db29.doc.sqlref/db2z_sysibmsystablestable.htm}
      */
-    public function listTableNames()
+    public function listTableNames() : array
     {
-        $sql  = $this->_platform->getListTablesSQL();
-        $sql .= ' AND CREATOR = UPPER(' . $this->_conn->quote($this->_conn->getUsername()) . ')';
+        $username = $this->_conn->getUsername();
+        assert(is_string($username));
 
-        $tables = $this->_conn->fetchAll($sql);
+        $sql = $this->_platform->getListTablesSQL() . ' AND CREATOR = UPPER(?)';
+
+        $tables = $this->_conn->fetchAll($sql, [$username]);
 
         return $this->filterAssetNames($this->_getPortableTablesList($tables));
     }
@@ -117,7 +121,7 @@ class DB2SchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableIndexesList($tableIndexRows, $tableName = null)
+    protected function _getPortableTableIndexesList(array $tableIndexRows, string $tableName) : array
     {
         foreach ($tableIndexRows as &$tableIndexRow) {
             $tableIndexRow            = array_change_key_case($tableIndexRow, CASE_LOWER);

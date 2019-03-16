@@ -6,11 +6,7 @@ use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
-use Doctrine\DBAL\ParameterType;
 use const SQLSRV_ERR_ERRORS;
-use function is_float;
-use function is_int;
-use function sprintf;
 use function sqlsrv_begin_transaction;
 use function sqlsrv_commit;
 use function sqlsrv_configure;
@@ -95,15 +91,9 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritDoc}
      */
-    public function quote($value, $type = ParameterType::STRING)
+    public function quote(string $input) : string
     {
-        if (is_int($value)) {
-            return $value;
-        } elseif (is_float($value)) {
-            return sprintf('%F', $value);
-        }
-
-        return "'" . str_replace("'", "''", $value) . "'";
+        return "'" . str_replace("'", "''", $input) . "'";
     }
 
     /**
