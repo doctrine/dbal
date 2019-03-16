@@ -177,9 +177,9 @@ class DataAccessTest extends DbalFunctionalTestCase
         $paramStr = 'foo';
 
         $stmt = $this->connection->prepare(sprintf(
-            'SELECT test_int, test_string FROM %s WHERE test_int = %s AND test_string = %s',
+            'SELECT test_int, test_string FROM %s WHERE test_int = %d AND test_string = %s',
             $this->connection->quoteIdentifier($table),
-            $this->connection->quote($paramInt),
+            $paramInt,
             $this->connection->quote($paramStr)
         ));
         self::assertInstanceOf(Statement::class, $stmt);
