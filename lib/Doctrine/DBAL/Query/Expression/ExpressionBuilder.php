@@ -284,15 +284,10 @@ class ExpressionBuilder
     }
 
     /**
-     * Quotes a given input parameter.
-     *
-     * @param mixed    $input The parameter to be quoted.
-     * @param int|null $type  The type of the parameter.
-     *
-     * @return string
+     * Creates an SQL literal expression from the string.
      */
-    public function literal($input, $type = null)
+    public function literal(string $input)
     {
-        return $this->connection->quote($input, $type);
+        return $this->connection->quote($input);
     }
 }
