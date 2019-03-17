@@ -114,7 +114,6 @@ class OraclePlatform extends AbstractPlatform
                 }
 
                 return 'ADD_MONTHS(' . $date . ', ' . $operator . $interval . ')';
-
             default:
                 $calculationClause = '';
 
@@ -201,9 +200,13 @@ class OraclePlatform extends AbstractPlatform
     {
         if ($sequence->getCache() === 0) {
             return ' NOCACHE';
-        } elseif ($sequence->getCache() === 1) {
+        }
+
+        if ($sequence->getCache() === 1) {
             return ' NOCACHE';
-        } elseif ($sequence->getCache() > 1) {
+        }
+
+        if ($sequence->getCache() > 1) {
             return ' CACHE ' . $sequence->getCache();
         }
 
@@ -739,11 +742,9 @@ SQL
                 // NO ACTION cannot be declared explicitly,
                 // therefore returning empty string to indicate to OMIT the referential clause.
                 return '';
-
             case 'CASCADE':
             case 'SET NULL':
                 return $action;
-
             default:
                 // SET DEFAULT is not supported, throw exception instead.
                 throw new InvalidArgumentException('Invalid foreign key action: ' . $action);

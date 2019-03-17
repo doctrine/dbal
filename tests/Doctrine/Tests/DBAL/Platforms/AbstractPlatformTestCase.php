@@ -628,8 +628,11 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
     }
 
     abstract protected function getQuotedColumnInPrimaryKeySQL();
+
     abstract protected function getQuotedColumnInIndexSQL();
+
     abstract protected function getQuotedNameInIndexSQL();
+
     abstract protected function getQuotedColumnInForeignKeySQL();
 
     /**

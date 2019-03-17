@@ -1349,6 +1349,7 @@ SQL
             $query  = substr($query, 0, $orderByPos) . substr($query, $currentPosition - 1);
             $offset = $orderByPos;
         }
+
         return $query;
     }
 
@@ -1547,13 +1548,10 @@ SQL
         switch (true) {
             case $lockMode === LockMode::NONE:
                 return $fromClause . ' WITH (NOLOCK)';
-
             case $lockMode === LockMode::PESSIMISTIC_READ:
                 return $fromClause . ' WITH (HOLDLOCK, ROWLOCK)';
-
             case $lockMode === LockMode::PESSIMISTIC_WRITE:
                 return $fromClause . ' WITH (UPDLOCK, ROWLOCK)';
-
             default:
                 return $fromClause;
         }

@@ -60,7 +60,7 @@
     </rule>
 
     <!-- see https://github.com/doctrine/dbal/issues/3377 -->
-    <rule ref="SlevomatCodingStandard.ControlStructures.DisallowEqualOperators.DisallowedNotEqualOperator">
+    <rule ref="SlevomatCodingStandard.Operators.DisallowEqualOperators.DisallowedNotEqualOperator">
         <exclude-pattern>lib/Doctrine/DBAL/Schema/Comparator.php</exclude-pattern>
     </rule>
 </ruleset>

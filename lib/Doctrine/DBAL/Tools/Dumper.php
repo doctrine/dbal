@@ -73,6 +73,7 @@ final class Dumper
         try {
             $output = ob_get_clean();
             assert(is_string($output));
+
             return strip_tags(html_entity_decode($output));
         } finally {
             ini_set('html_errors', $html);

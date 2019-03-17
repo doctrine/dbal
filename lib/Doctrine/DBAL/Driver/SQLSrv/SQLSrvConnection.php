@@ -100,7 +100,9 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
     {
         if (is_int($value)) {
             return $value;
-        } elseif (is_float($value)) {
+        }
+
+        if (is_float($value)) {
             return sprintf('%F', $value);
         }
 

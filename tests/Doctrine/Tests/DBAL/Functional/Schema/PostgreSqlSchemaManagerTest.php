@@ -390,6 +390,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     {
         if (! $this->schemaManager->getDatabasePlatform() instanceof PostgreSQL94Platform) {
             $this->markTestSkipped('Requires PostgresSQL 9.4+');
+
             return;
         }
 

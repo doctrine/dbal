@@ -223,6 +223,7 @@ class ResultCacheTest extends DbalFunctionalTestCase
             $data[] = is_array($row) ? array_change_key_case($row, CASE_LOWER) : $row;
         }
         $stmt->closeCursor();
+
         return $data;
     }
 
@@ -234,6 +235,7 @@ class ResultCacheTest extends DbalFunctionalTestCase
             $data[] = is_array($row) ? array_change_key_case($row, CASE_LOWER) : $row;
         }
         $stmt->closeCursor();
+
         return $data;
     }
 }

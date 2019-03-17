@@ -254,6 +254,7 @@ class OCI8Statement implements IteratorAggregate, Statement
     {
         if (preg_match($regex, $statement, $matches, PREG_OFFSET_CAPTURE, $offset)) {
             $offset = $matches[0][1];
+
             return $matches[0][0];
         }
 
@@ -305,10 +306,8 @@ class OCI8Statement implements IteratorAggregate, Statement
         switch ($type) {
             case ParameterType::BINARY:
                 return OCI_B_BIN;
-
             case ParameterType::LARGE_OBJECT:
                 return OCI_B_BLOB;
-
             default:
                 return SQLT_CHR;
         }

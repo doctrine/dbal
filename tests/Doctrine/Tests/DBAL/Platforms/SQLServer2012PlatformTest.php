@@ -44,7 +44,6 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
         );
     }
 
-
     public function testModifyLimitQuery()
     {
         $sql = $this->platform->modifyLimitQuery('SELECT * FROM user', 10, 0);
@@ -269,7 +268,6 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
 
         self::assertEquals($sql, $expected);
     }
-
 
     /**
      * @throws DBALException

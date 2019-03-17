@@ -89,6 +89,7 @@ class SQLAzureShardManagerTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
         $conn->expects($this->at(0))->method('getParams')->will($this->returnValue($params));
+
         return $conn;
     }
 }

@@ -75,7 +75,6 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         );
     }
 
-
     public function testGeneratesDDLSnippets()
     {
         self::assertEquals('SHOW DATABASES', $this->platform->getListDatabasesSQL());

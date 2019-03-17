@@ -610,6 +610,7 @@ class Table extends AbstractAsset
         foreach ($this->getForeignKeys() as $foreignKey) {
             $foreignKeyColumns = array_merge($foreignKeyColumns, $foreignKey->getColumns());
         }
+
         return $this->filterColumns($foreignKeyColumns);
     }
 

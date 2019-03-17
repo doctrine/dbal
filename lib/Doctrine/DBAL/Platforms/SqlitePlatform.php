@@ -128,7 +128,6 @@ class SqlitePlatform extends AbstractPlatform
             case DateIntervalUnit::MINUTE:
             case DateIntervalUnit::HOUR:
                 return 'DATETIME(' . $date . ",'" . $operator . $interval . ' ' . $unit . "')";
-
             default:
                 switch ($unit) {
                     case DateIntervalUnit::WEEK:
@@ -1070,12 +1069,14 @@ class SqlitePlatform extends AbstractPlatform
                 if (! isset($columnNames[$normalizedColumnName])) {
                     unset($indexes[$key]);
                     continue 2;
-                } else {
-                    $indexColumns[] = $columnNames[$normalizedColumnName];
-                    if ($columnName !== $columnNames[$normalizedColumnName]) {
-                        $changed = true;
-                    }
                 }
+
+                $indexColumns[] = $columnNames[$normalizedColumnName];
+                if ($columnName === $columnNames[$normalizedColumnName]) {
+                    continue;
+                }
+
+                $changed = true;
             }
 
             if (! $changed) {
@@ -1122,12 +1123,14 @@ class SqlitePlatform extends AbstractPlatform
                 if (! isset($columnNames[$normalizedColumnName])) {
                     unset($foreignKeys[$key]);
                     continue 2;
-                } else {
-                    $localColumns[] = $columnNames[$normalizedColumnName];
-                    if ($columnName !== $columnNames[$normalizedColumnName]) {
-                        $changed = true;
-                    }
                 }
+
+                $localColumns[] = $columnNames[$normalizedColumnName];
+                if ($columnName === $columnNames[$normalizedColumnName]) {
+                    continue;
+                }
+
+                $changed = true;
             }
 
             if (! $changed) {

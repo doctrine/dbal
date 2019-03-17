@@ -49,13 +49,10 @@ class SQLAnywherePlatform extends AbstractPlatform
         switch (true) {
             case $lockMode === LockMode::NONE:
                 return $fromClause . ' WITH (NOLOCK)';
-
             case $lockMode === LockMode::PESSIMISTIC_READ:
                 return $fromClause . ' WITH (UPDLOCK)';
-
             case $lockMode === LockMode::PESSIMISTIC_WRITE:
                 return $fromClause . ' WITH (XLOCK)';
-
             default:
                 return $fromClause;
         }
@@ -627,12 +624,15 @@ class SQLAnywherePlatform extends AbstractPlatform
         switch ((int) $type) {
             case self::FOREIGN_KEY_MATCH_SIMPLE:
                 return 'SIMPLE';
+
                 break;
             case self::FOREIGN_KEY_MATCH_FULL:
                 return 'FULL';
+
                 break;
             case self::FOREIGN_KEY_MATCH_SIMPLE_UNIQUE:
                 return 'UNIQUE SIMPLE';
+
                 break;
             case self::FOREIGN_KEY_MATCH_FULL_UNIQUE:
                 return 'UNIQUE FULL';

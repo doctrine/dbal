@@ -36,7 +36,7 @@ use function strtotime;
 class DataAccessTest extends DbalFunctionalTestCase
 {
     /** @var bool */
-    static private $generated = false;
+    private static $generated = false;
 
     protected function setUp() : void
     {

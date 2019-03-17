@@ -118,6 +118,7 @@ class SchemaDiffTest extends TestCase
         $fk = new ForeignKeyConstraint(['id'], 'foreign_table', ['id']);
         $fk->setLocalTable(new Table('local_table'));
         $diff->orphanedForeignKeys[] = $fk;
+
         return $diff;
     }
 }

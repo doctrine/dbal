@@ -1161,6 +1161,7 @@ class Connection implements DriverConnection
         try {
             $res = $func($this);
             $this->commit();
+
             return $res;
         } catch (Exception $e) {
             $this->rollBack();

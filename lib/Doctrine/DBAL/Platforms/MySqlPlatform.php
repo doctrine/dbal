@@ -247,15 +247,15 @@ class MySqlPlatform extends AbstractPlatform
         if (! empty($field['length']) && is_numeric($field['length'])) {
             $length = $field['length'];
 
-            if ($length <= static::LENGTH_LIMIT_TINYTEXT) {
+            if ($length <= self::LENGTH_LIMIT_TINYTEXT) {
                 return 'TINYTEXT';
             }
 
-            if ($length <= static::LENGTH_LIMIT_TEXT) {
+            if ($length <= self::LENGTH_LIMIT_TEXT) {
                 return 'TEXT';
             }
 
-            if ($length <= static::LENGTH_LIMIT_MEDIUMTEXT) {
+            if ($length <= self::LENGTH_LIMIT_MEDIUMTEXT) {
                 return 'MEDIUMTEXT';
             }
         }
@@ -1137,15 +1137,15 @@ SQL
         if (! empty($field['length']) && is_numeric($field['length'])) {
             $length = $field['length'];
 
-            if ($length <= static::LENGTH_LIMIT_TINYBLOB) {
+            if ($length <= self::LENGTH_LIMIT_TINYBLOB) {
                 return 'TINYBLOB';
             }
 
-            if ($length <= static::LENGTH_LIMIT_BLOB) {
+            if ($length <= self::LENGTH_LIMIT_BLOB) {
                 return 'BLOB';
             }
 
-            if ($length <= static::LENGTH_LIMIT_MEDIUMBLOB) {
+            if ($length <= self::LENGTH_LIMIT_MEDIUMBLOB) {
                 return 'MEDIUMBLOB';
             }
         }
