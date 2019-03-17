@@ -1,5 +1,9 @@
 # Upgrade to 3.0
 
+## BC BREAK The type of `$char` in `AbstractPlatform::getTrimExpression()` changed from `string|false` to `?string`
+
+The default value of `$char` is now `null`, not `false`. Additionally, the method will throw an `InvalidArgumentException` in an invalid value of `$mode` is passed.
+
 ## BC BREAK `Statement::quote()` only accepts strings.
 
 `Statement::quote()` and `ExpressionBuilder::literal()` no longer accept arguments of an arbitrary type and and don't implement type-specific handling. Only strings can be quoted.
