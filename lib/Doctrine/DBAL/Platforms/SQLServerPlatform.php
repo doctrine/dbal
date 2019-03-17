@@ -20,6 +20,7 @@ use function dechex;
 use function explode;
 use function func_get_args;
 use function implode;
+use function in_array;
 use function is_array;
 use function is_bool;
 use function is_numeric;
@@ -1030,23 +1031,25 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getTrimExpression($str, $pos = TrimMode::UNSPECIFIED, $char = false)
+    public function getTrimExpression(string $str, int $mode = TrimMode::UNSPECIFIED, ?string $char = null) : string
     {
-        if (! $char) {
-            switch ($pos) {
+        if (! in_array($mode, [TrimMode::UNSPECIFIED, TrimMode::LEADING, TrimMode::TRAILING, TrimMode::BOTH], true)) {
+            throw new InvalidArgumentException(
+                sprintf('The value of $mode is expected to be one of the TrimMode constants, %d given', $mode)
+            );
+        }
+
+        if ($char === null) {
+            switch ($mode) {
                 case TrimMode::LEADING:
-                    $trimFn = 'LTRIM';
-                    break;
+                    return 'LTRIM(' . $str . ')';
 
                 case TrimMode::TRAILING:
-                    $trimFn = 'RTRIM';
-                    break;
+                    return 'RTRIM(' . $str . ')';
 
                 default:
                     return 'LTRIM(RTRIM(' . $str . '))';
             }
-
-            return $trimFn . '(' . $str . ')';
         }
 
         /** Original query used to get those expressions
@@ -1060,11 +1063,11 @@ SQL
          */
         $pattern = "'%[^' + " . $char . " + ']%'";
 
-        if ($pos === TrimMode::LEADING) {
+        if ($mode === TrimMode::LEADING) {
             return 'stuff(' . $str . ', 1, patindex(' . $pattern . ', ' . $str . ') - 1, null)';
         }
 
-        if ($pos === TrimMode::TRAILING) {
+        if ($mode === TrimMode::TRAILING) {
             return 'reverse(stuff(reverse(' . $str . '), 1, patindex(' . $pattern . ', reverse(' . $str . ')) - 1, null))';
         }
 
