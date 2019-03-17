@@ -19,6 +19,8 @@
         <exclude name="SlevomatCodingStandard.TypeHints.TypeHintDeclaration.MissingReturnTypeHint"/>
         <exclude name="SlevomatCodingStandard.Classes.SuperfluousAbstractClassNaming"/>
         <exclude name="SlevomatCodingStandard.Classes.SuperfluousExceptionNaming"/>
+        <exclude name="SlevomatCodingStandard.ControlStructures.ControlStructureSpacing.IncorrectLinesCountAfterLastControlStructure"/>
+        <exclude name="SlevomatCodingStandard.Classes.DisallowLateStaticBindingForConstants.DisallowedLateStaticBindingForConstant"/>
     </rule>
 
     <rule ref="PSR1.Classes.ClassDeclaration.MultipleClasses">
@@ -60,7 +62,7 @@
     </rule>
 
     <!-- see https://github.com/doctrine/dbal/issues/3377 -->
-    <rule ref="SlevomatCodingStandard.ControlStructures.DisallowEqualOperators.DisallowedNotEqualOperator">
+    <rule ref="SlevomatCodingStandard.Operators.DisallowEqualOperators.DisallowedNotEqualOperator">
         <exclude-pattern>lib/Doctrine/DBAL/Schema/Comparator.php</exclude-pattern>
     </rule>
 </ruleset>

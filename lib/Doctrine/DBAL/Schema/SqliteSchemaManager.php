@@ -205,7 +205,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
             $idx               = [];
             $idx['key_name']   = $keyName;
             $idx['primary']    = false;
-            $idx['non_unique'] = $tableIndex['unique']?false:true;
+            $idx['non_unique'] = ! $tableIndex['unique'];
 
                 $stmt       = $this->_conn->executeQuery(sprintf(
                     'PRAGMA INDEX_INFO (%s)',

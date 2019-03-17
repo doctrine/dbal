@@ -243,7 +243,9 @@ class Index extends AbstractAsset implements Constraint
     {
         if ($other->isPrimary()) {
             return false;
-        } elseif ($this->isSimpleIndex() && $other->isUnique()) {
+        }
+
+        if ($this->isSimpleIndex() && $other->isUnique()) {
             return false;
         }
 

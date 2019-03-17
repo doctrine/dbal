@@ -230,6 +230,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
             case 'curtime()':
                 return $platform->getCurrentTimeSQL();
         }
+
         return $columnDefault;
     }
 

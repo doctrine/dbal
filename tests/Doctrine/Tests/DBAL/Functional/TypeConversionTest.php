@@ -13,7 +13,7 @@ use function str_repeat;
 class TypeConversionTest extends DbalFunctionalTestCase
 {
     /** @var int */
-    static private $typeCounter = 0;
+    private static $typeCounter = 0;
 
     protected function setUp() : void
     {

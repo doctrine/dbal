@@ -25,6 +25,7 @@ class PoolingShardManagerTest extends TestCase
              ->will($this->returnCallback(static function ($value) {
                 return $value;
              }));
+
         return $mock;
     }
 
@@ -34,6 +35,7 @@ class PoolingShardManagerTest extends TestCase
         $mock->expects($this->any())
             ->method('pickShard')
             ->willReturn(1);
+
         return $mock;
     }
 

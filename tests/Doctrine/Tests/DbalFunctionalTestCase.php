@@ -74,7 +74,9 @@ abstract class DbalFunctionalTestCase extends DbalTestCase
                 $params   = array_map(static function ($p) {
                     if (is_object($p)) {
                         return get_class($p);
-                    } elseif (is_scalar($p)) {
+                    }
+
+                    if (is_scalar($p)) {
                         return "'" . $p . "'";
                     }
 

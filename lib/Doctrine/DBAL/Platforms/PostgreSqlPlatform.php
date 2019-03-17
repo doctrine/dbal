@@ -821,7 +821,7 @@ SQL
         }
 
         if (is_bool($value) || is_numeric($value)) {
-            return $callback($value ? true : false);
+            return $callback((bool) $value);
         }
 
         if (! is_string($value)) {

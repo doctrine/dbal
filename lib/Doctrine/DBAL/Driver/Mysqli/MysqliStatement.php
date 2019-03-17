@@ -225,9 +225,9 @@ class MysqliStatement implements IteratorAggregate, Statement
                     $streams[$parameter] = $value;
                     $values[$parameter]  = null;
                     continue;
-                } else {
-                    $types[$parameter - 1] = static::$_paramTypeMap[ParameterType::STRING];
                 }
+
+                $types[$parameter - 1] = static::$_paramTypeMap[ParameterType::STRING];
             }
 
             $values[$parameter] = $value;

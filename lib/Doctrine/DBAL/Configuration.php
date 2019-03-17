@@ -107,6 +107,7 @@ class Configuration
             if ($assetName instanceof AbstractAsset) {
                 $assetName = $assetName->getName();
             }
+
             return preg_match($filterExpression, $assetName);
         };
     }
@@ -116,7 +117,8 @@ class Configuration
      */
     public function setSchemaAssetsFilter(?callable $callable = null) : ?callable
     {
-        $this->_attributes['filterSchemaAssetsExpression']                = null;
+        $this->_attributes['filterSchemaAssetsExpression'] = null;
+
         return $this->_attributes['filterSchemaAssetsExpressionCallable'] = $callable;
     }
 

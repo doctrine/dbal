@@ -65,6 +65,7 @@ class RemoveNamespacedAssets extends AbstractVisitor
         // point to nowhere.
         if (! $this->schema->hasTable($fkConstraint->getForeignTableName())) {
             $localTable->removeForeignKey($fkConstraint->getName());
+
             return;
         }
 

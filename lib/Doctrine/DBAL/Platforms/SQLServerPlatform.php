@@ -1349,6 +1349,7 @@ SQL
             $query  = substr($query, 0, $orderByPos) . substr($query, $currentPosition - 1);
             $offset = $orderByPos;
         }
+
         return $query;
     }
 

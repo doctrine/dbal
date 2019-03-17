@@ -627,12 +627,15 @@ class SQLAnywherePlatform extends AbstractPlatform
         switch ((int) $type) {
             case self::FOREIGN_KEY_MATCH_SIMPLE:
                 return 'SIMPLE';
+
                 break;
             case self::FOREIGN_KEY_MATCH_FULL:
                 return 'FULL';
+
                 break;
             case self::FOREIGN_KEY_MATCH_SIMPLE_UNIQUE:
                 return 'UNIQUE SIMPLE';
+
                 break;
             case self::FOREIGN_KEY_MATCH_FULL_UNIQUE:
                 return 'UNIQUE FULL';

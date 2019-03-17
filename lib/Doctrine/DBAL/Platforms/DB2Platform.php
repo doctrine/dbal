@@ -501,6 +501,7 @@ class DB2Platform extends AbstractPlatform
         foreach ($indexes as $definition) {
             $sqls[] = $this->getCreateIndexSQL($definition, $tableName);
         }
+
         return $sqls;
     }
 

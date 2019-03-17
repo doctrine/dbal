@@ -866,7 +866,6 @@ class QueryBuilder
         return $this->add('groupBy', $groupBy, false);
     }
 
-
     /**
      * Adds a grouping expression to the query.
      *
@@ -1188,6 +1187,7 @@ class QueryBuilder
     private function getSQLForUpdate()
     {
         $table = $this->sqlParts['from']['table'] . ($this->sqlParts['from']['alias'] ? ' ' . $this->sqlParts['from']['alias'] : '');
+
         return 'UPDATE ' . $table
             . ' SET ' . implode(', ', $this->sqlParts['set'])
             . ($this->sqlParts['where'] !== null ? ' WHERE ' . ((string) $this->sqlParts['where']) : '');
@@ -1201,6 +1201,7 @@ class QueryBuilder
     private function getSQLForDelete()
     {
         $table = $this->sqlParts['from']['table'] . ($this->sqlParts['from']['alias'] ? ' ' . $this->sqlParts['from']['alias'] : '');
+
         return 'DELETE FROM ' . $table . ($this->sqlParts['where'] !== null ? ' WHERE ' . ((string) $this->sqlParts['where']) : '');
     }
 

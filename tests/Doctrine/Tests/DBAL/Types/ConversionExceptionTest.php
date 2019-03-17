@@ -26,6 +26,7 @@ class ConversionExceptionTest extends TestCase
             $exception->getMessage()
         );
     }
+
     /**
      * @param mixed $nonScalar
      *

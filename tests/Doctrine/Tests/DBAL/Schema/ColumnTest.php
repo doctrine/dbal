@@ -99,6 +99,7 @@ class ColumnTest extends TestCase
         ];
 
         $string = Type::getType('string');
+
         return new Column('foo', $string, $options);
     }
 

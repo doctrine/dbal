@@ -854,7 +854,7 @@ abstract class AbstractSchemaManager
                 $result[$keyName] = [
                     'name' => $indexName,
                     'columns' => [],
-                    'unique' => $tableIndex['non_unique'] ? false : true,
+                    'unique' => ! $tableIndex['non_unique'],
                     'primary' => $tableIndex['primary'],
                     'flags' => $tableIndex['flags'] ?? [],
                     'options' => $options,

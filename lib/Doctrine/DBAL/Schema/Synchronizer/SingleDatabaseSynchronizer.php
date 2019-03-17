@@ -31,7 +31,6 @@ class SingleDatabaseSynchronizer extends AbstractSchemaSynchronizer
         return $createSchema->toSql($this->platform);
     }
 
-
     /**
      * {@inheritdoc}
      */

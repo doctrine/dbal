@@ -8,8 +8,6 @@ use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DbalPerformanceTestCase;
 
 /**
- * Class TypeConversionPerformanceTest
- *
  * @group performance
  */
 class TypeConversionPerformanceTest extends DbalPerformanceTestCase

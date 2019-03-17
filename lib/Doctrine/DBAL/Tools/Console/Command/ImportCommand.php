@@ -73,7 +73,9 @@ EOT
                 throw new InvalidArgumentException(
                     sprintf("SQL file '<info>%s</info>' does not exist.", $filePath)
                 );
-            } elseif (! is_readable($filePath)) {
+            }
+
+            if (! is_readable($filePath)) {
                 throw new InvalidArgumentException(
                     sprintf("SQL file '<info>%s</info>' does not have read permissions.", $filePath)
                 );

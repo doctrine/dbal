@@ -201,9 +201,13 @@ class OraclePlatform extends AbstractPlatform
     {
         if ($sequence->getCache() === 0) {
             return ' NOCACHE';
-        } elseif ($sequence->getCache() === 1) {
+        }
+
+        if ($sequence->getCache() === 1) {
             return ' NOCACHE';
-        } elseif ($sequence->getCache() > 1) {
+        }
+
+        if ($sequence->getCache() > 1) {
             return ' CACHE ' . $sequence->getCache();
         }
 

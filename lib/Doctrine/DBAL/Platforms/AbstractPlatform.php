@@ -2968,7 +2968,6 @@ abstract class AbstractPlatform
         return $this->getDateTimeTypeDeclarationSQL($fieldDeclaration);
     }
 
-
     /**
      * Obtains DBMS specific SQL to be used to create date fields in statements
      * like CREATE TABLE.
