@@ -18,6 +18,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Statement;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DbalFunctionalTestCase;
+use InvalidArgumentException;
 use PDO;
 use const CASE_LOWER;
 use const PHP_EOL;
@@ -508,10 +509,10 @@ class DataAccessTest extends DbalFunctionalTestCase
     public function getTrimExpressionData()
     {
         return [
-            ['test_string', TrimMode::UNSPECIFIED, false, 'foo'],
-            ['test_string', TrimMode::LEADING, false, 'foo'],
-            ['test_string', TrimMode::TRAILING, false, 'foo'],
-            ['test_string', TrimMode::BOTH, false, 'foo'],
+            ['test_string', TrimMode::UNSPECIFIED, null, 'foo'],
+            ['test_string', TrimMode::LEADING, null, 'foo'],
+            ['test_string', TrimMode::TRAILING, null, 'foo'],
+            ['test_string', TrimMode::BOTH, null, 'foo'],
             ['test_string', TrimMode::UNSPECIFIED, "'f'", 'oo'],
             ['test_string', TrimMode::UNSPECIFIED, "'o'", 'f'],
             ['test_string', TrimMode::UNSPECIFIED, "'.'", 'foo'],
@@ -524,10 +525,10 @@ class DataAccessTest extends DbalFunctionalTestCase
             ['test_string', TrimMode::BOTH, "'f'", 'oo'],
             ['test_string', TrimMode::BOTH, "'o'", 'f'],
             ['test_string', TrimMode::BOTH, "'.'", 'foo'],
-            ["' foo '", TrimMode::UNSPECIFIED, false, 'foo'],
-            ["' foo '", TrimMode::LEADING, false, 'foo '],
-            ["' foo '", TrimMode::TRAILING, false, ' foo'],
-            ["' foo '", TrimMode::BOTH, false, 'foo'],
+            ["' foo '", TrimMode::UNSPECIFIED, null, 'foo'],
+            ["' foo '", TrimMode::LEADING, null, 'foo '],
+            ["' foo '", TrimMode::TRAILING, null, ' foo'],
+            ["' foo '", TrimMode::BOTH, null, 'foo'],
             ["' foo '", TrimMode::UNSPECIFIED, "'f'", ' foo '],
             ["' foo '", TrimMode::UNSPECIFIED, "'o'", ' foo '],
             ["' foo '", TrimMode::UNSPECIFIED, "'.'", ' foo '],
@@ -545,6 +546,12 @@ class DataAccessTest extends DbalFunctionalTestCase
             ["' foo '", TrimMode::BOTH, "'.'", ' foo '],
             ["' foo '", TrimMode::BOTH, "' '", 'foo'],
         ];
+    }
+
+    public function testTrimExpressionInvalidMode() : void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->connection->getDatabasePlatform()->getTrimExpression('Trim me!', 0xBEEF);
     }
 
     /**
