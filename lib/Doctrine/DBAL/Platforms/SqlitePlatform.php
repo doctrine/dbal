@@ -12,6 +12,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
+use InvalidArgumentException;
 use function array_merge;
 use function array_unique;
 use function array_values;
@@ -60,11 +61,14 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getTrimExpression($str, $pos = TrimMode::UNSPECIFIED, $char = false)
+    public function getTrimExpression(string $str, int $mode = TrimMode::UNSPECIFIED, ?string $char = null) : string
     {
-        $trimChar = $char !== false ? (', ' . $char) : '';
+        switch ($mode) {
+            case TrimMode::UNSPECIFIED:
+            case TrimMode::BOTH:
+                $trimFn = 'TRIM';
+                break;
 
-        switch ($pos) {
             case TrimMode::LEADING:
                 $trimFn = 'LTRIM';
                 break;
@@ -74,10 +78,21 @@ class SqlitePlatform extends AbstractPlatform
                 break;
 
             default:
-                $trimFn = 'TRIM';
+                throw new InvalidArgumentException(
+                    sprintf(
+                        'The value of $mode is expected to be one of the TrimMode constants, %d given',
+                        $mode
+                    )
+                );
         }
 
-        return $trimFn . '(' . $str . $trimChar . ')';
+        $arguments = [$str];
+
+        if ($char !== null) {
+            $arguments[] = $char;
+        }
+
+        return sprintf('%s(%s)', $trimFn, implode(', ', $arguments));
     }
 
     /**
