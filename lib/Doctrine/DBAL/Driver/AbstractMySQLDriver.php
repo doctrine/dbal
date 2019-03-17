@@ -36,28 +36,34 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
                 return new Exception\LockWaitTimeoutException($message, $exception);
             case '1050':
                 return new Exception\TableExistsException($message, $exception);
+
             case '1051':
             case '1146':
                 return new Exception\TableNotFoundException($message, $exception);
+
             case '1216':
             case '1217':
             case '1451':
             case '1452':
             case '1701':
                 return new Exception\ForeignKeyConstraintViolationException($message, $exception);
+
             case '1062':
             case '1557':
             case '1569':
             case '1586':
                 return new Exception\UniqueConstraintViolationException($message, $exception);
+
             case '1054':
             case '1166':
             case '1611':
                 return new Exception\InvalidFieldNameException($message, $exception);
+
             case '1052':
             case '1060':
             case '1110':
                 return new Exception\NonUniqueFieldNameException($message, $exception);
+
             case '1064':
             case '1149':
             case '1287':
@@ -71,6 +77,7 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
             case '1554':
             case '1626':
                 return new Exception\SyntaxErrorException($message, $exception);
+
             case '1044':
             case '1045':
             case '1046':
@@ -84,6 +91,7 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
             case '2002':
             case '2005':
                 return new Exception\ConnectionException($message, $exception);
+
             case '1048':
             case '1121':
             case '1138':

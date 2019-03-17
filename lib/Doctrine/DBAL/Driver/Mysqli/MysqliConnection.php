@@ -57,7 +57,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
         $socket = $params['unix_socket'] ?? ini_get('mysqli.default_socket');
         $dbname = $params['dbname'] ?? null;
 
-        $flags = $driverOptions[self::OPTION_FLAGS] ?? null;
+        $flags = $driverOptions[static::OPTION_FLAGS] ?? null;
 
         $this->conn = mysqli_init();
 
@@ -239,7 +239,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
         $exceptionMsg = "%s option '%s' with value '%s'";
 
         foreach ($driverOptions as $option => $value) {
-            if ($option === self::OPTION_FLAGS) {
+            if ($option === static::OPTION_FLAGS) {
                 continue;
             }
 

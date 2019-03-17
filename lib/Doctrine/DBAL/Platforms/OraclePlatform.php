@@ -114,6 +114,7 @@ class OraclePlatform extends AbstractPlatform
                 }
 
                 return 'ADD_MONTHS(' . $date . ', ' . $operator . $interval . ')';
+
             default:
                 $calculationClause = '';
 
@@ -742,9 +743,11 @@ SQL
                 // NO ACTION cannot be declared explicitly,
                 // therefore returning empty string to indicate to OMIT the referential clause.
                 return '';
+
             case 'CASCADE':
             case 'SET NULL':
                 return $action;
+
             default:
                 // SET DEFAULT is not supported, throw exception instead.
                 throw new InvalidArgumentException('Invalid foreign key action: ' . $action);

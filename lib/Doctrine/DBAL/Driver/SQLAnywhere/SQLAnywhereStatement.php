@@ -210,10 +210,13 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
         switch ($fetchMode) {
             case FetchMode::COLUMN:
                 return $this->fetchColumn();
+
             case FetchMode::ASSOCIATIVE:
                 return sasql_fetch_assoc($this->result);
+
             case FetchMode::MIXED:
                 return sasql_fetch_array($this->result, SASQL_BOTH);
+
             case FetchMode::CUSTOM_OBJECT:
                 $className = $this->defaultFetchClass;
                 $ctorArgs  = $this->defaultFetchClassCtorArgs;
@@ -231,10 +234,13 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
                 }
 
                 return $result;
+
             case FetchMode::NUMERIC:
                 return sasql_fetch_row($this->result);
+
             case FetchMode::STANDARD_OBJECT:
                 return sasql_fetch_object($this->result);
+
             default:
                 throw new SQLAnywhereException('Fetch mode is not supported: ' . $fetchMode);
         }

@@ -306,8 +306,10 @@ class OCI8Statement implements IteratorAggregate, Statement
         switch ($type) {
             case ParameterType::BINARY:
                 return OCI_B_BIN;
+
             case ParameterType::LARGE_OBJECT:
                 return OCI_B_BLOB;
+
             default:
                 return SQLT_CHR;
         }

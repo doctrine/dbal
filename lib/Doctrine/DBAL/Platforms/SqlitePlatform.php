@@ -128,6 +128,7 @@ class SqlitePlatform extends AbstractPlatform
             case DateIntervalUnit::MINUTE:
             case DateIntervalUnit::HOUR:
                 return 'DATETIME(' . $date . ",'" . $operator . $interval . ' ' . $unit . "')";
+
             default:
                 switch ($unit) {
                     case DateIntervalUnit::WEEK:

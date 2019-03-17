@@ -49,10 +49,13 @@ class SQLAnywherePlatform extends AbstractPlatform
         switch (true) {
             case $lockMode === LockMode::NONE:
                 return $fromClause . ' WITH (NOLOCK)';
+
             case $lockMode === LockMode::PESSIMISTIC_READ:
                 return $fromClause . ' WITH (UPDLOCK)';
+
             case $lockMode === LockMode::PESSIMISTIC_WRITE:
                 return $fromClause . ' WITH (XLOCK)';
+
             default:
                 return $fromClause;
         }
