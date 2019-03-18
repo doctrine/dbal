@@ -97,28 +97,26 @@ class SqlitePlatform extends AbstractPlatform
 
     /**
      * {@inheritDoc}
-     *
-     * SQLite only supports the 2 parameter variant of this function
      */
-    public function getSubstringExpression($value, $position, $length = null)
+    public function getSubstringExpression(string $string, string $start, ?string $length = null) : string
     {
-        if ($length !== null) {
-            return 'SUBSTR(' . $value . ', ' . $position . ', ' . $length . ')';
+        if ($length === null) {
+            return sprintf('SUBSTR(%s, %s)', $string, $start);
         }
 
-        return 'SUBSTR(' . $value . ', ' . $position . ', LENGTH(' . $value . '))';
+        return sprintf('SUBSTR(%s, %s, %s)', $string, $start, $length);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getLocateExpression($str, $substr, $startPos = false)
+    public function getLocateExpression(string $string, string $substring, ?string $start = null) : string
     {
-        if ($startPos === false) {
-            return 'LOCATE(' . $str . ', ' . $substr . ')';
+        if ($start === null) {
+            return sprintf('LOCATE(%s, %s)', $string, $substring);
         }
 
-        return 'LOCATE(' . $str . ', ' . $substr . ', ' . $startPos . ')';
+        return sprintf('LOCATE(%s, %s, %s)', $string, $substring, $start);
     }
 
     /**
