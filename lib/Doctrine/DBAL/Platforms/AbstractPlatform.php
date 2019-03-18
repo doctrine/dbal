@@ -850,17 +850,16 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Returns the SQL snippet to get the position of the first occurrence of substring $substr in string $str.
+     * Returns the SQL snippet to get the position of the first occurrence of the substring in the string.
      *
-     * @param string    $str      Literal string.
-     * @param string    $substr   Literal string to find.
-     * @param int|false $startPos Position to start at, beginning of string by default.
-     *
-     * @return string
+     * @param string      $string    SQL expression producing the string to locate the substring in.
+     * @param string      $substring SQL expression producing the substring to locate.
+     * @param string|null $start     SQL expression producing the position to start at.
+     *                               Defaults to the beginning of the string.
      *
      * @throws DBALException If not supported on this platform.
      */
-    public function getLocateExpression($str, $substr, $startPos = false)
+    public function getLocateExpression(string $string, string $substring, ?string $start = null) : string
     {
         throw DBALException::notSupported(__METHOD__);
     }
@@ -876,25 +875,22 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Returns a SQL snippet to get a substring inside an SQL statement.
+     * Returns an SQL snippet to get a substring inside the string.
      *
      * Note: Not SQL92, but common functionality.
      *
-     * SQLite only supports the 2 parameter variant of this function.
-     *
-     * @param string   $value  An sql string literal or column name/alias.
-     * @param int      $from   Where to start the substring portion.
-     * @param int|null $length The substring portion length.
-     *
-     * @return string
+     * @param string      $string SQL expression producing the string from which a substring should be extracted.
+     * @param string      $start  SQL expression producing the position to start at,
+     * @param string|null $length SQL expression producing the length of the substring portion to be returned.
+     *                            By default, the entire substring is returned.
      */
-    public function getSubstringExpression($value, $from, $length = null)
+    public function getSubstringExpression(string $string, string $start, ?string $length = null) : string
     {
         if ($length === null) {
-            return 'SUBSTRING(' . $value . ' FROM ' . $from . ')';
+            return sprintf('SUBSTRING(%s FROM %s)', $string, $start);
         }
 
-        return 'SUBSTRING(' . $value . ' FROM ' . $from . ' FOR ' . $length . ')';
+        return sprintf('SUBSTRING(%s FROM %s FOR %s)', $string, $start, $length);
     }
 
     /**

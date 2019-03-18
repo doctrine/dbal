@@ -966,13 +966,13 @@ SQL
     /**
      * {@inheritdoc}
      */
-    public function getLocateExpression($str, $substr, $startPos = false)
+    public function getLocateExpression(string $string, string $substring, ?string $start = null) : string
     {
-        if ($startPos === false) {
-            return 'LOCATE(' . $str . ', ' . $substr . ')';
+        if ($start === null) {
+            return sprintf('LOCATE(%s, %s)', $string, $substring);
         }
 
-        return 'LOCATE(' . $str . ', ' . $substr . ', ' . $startPos . ')';
+        return sprintf('LOCATE(%s, %s, %s)', $string, $substring, $start);
     }
 
     /**
@@ -1089,13 +1089,13 @@ SQL
     /**
      * {@inheritdoc}
      */
-    public function getSubstringExpression($value, $from, $length = null)
+    public function getSubstringExpression(string $string, string $start, ?string $length = null) : string
     {
         if ($length === null) {
-            return 'SUBSTRING(' . $value . ', ' . $from . ')';
+            return sprintf('SUBSTRING(%s, %s)', $string, $start);
         }
 
-        return 'SUBSTRING(' . $value . ', ' . $from . ', ' . $length . ')';
+        return sprintf('SUBSTRING(%s, %s, %s)', $string, $start, $length);
     }
 
     /**
