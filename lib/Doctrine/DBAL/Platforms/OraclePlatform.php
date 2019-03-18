@@ -47,13 +47,13 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getSubstringExpression($value, $position, $length = null)
+    public function getSubstringExpression(string $string, string $start, ?string $length = null) : string
     {
-        if ($length !== null) {
-            return sprintf('SUBSTR(%s, %d, %d)', $value, $position, $length);
+        if ($length === null) {
+            return sprintf('SUBSTR(%s, %s)', $string, $start);
         }
 
-        return sprintf('SUBSTR(%s, %d)', $value, $position);
+        return sprintf('SUBSTR(%s, %s, %s)', $string, $start, $length);
     }
 
     /**
@@ -73,13 +73,13 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getLocateExpression($str, $substr, $startPos = false)
+    public function getLocateExpression(string $string, string $substring, ?string $start = null) : string
     {
-        if ($startPos === false) {
-            return 'INSTR(' . $str . ', ' . $substr . ')';
+        if ($start === null) {
+            return sprintf('INSTR(%s, %s)', $string, $substring);
         }
 
-        return 'INSTR(' . $str . ', ' . $substr . ', ' . $startPos . ')';
+        return sprintf('INSTR(%s, %s, %s)', $string, $substring, $start);
     }
 
     /**
