@@ -753,37 +753,50 @@ abstract class AbstractPlatform
      *
      * @param string      $str  The expression to apply the trim to.
      * @param int         $mode The position of the trim (leading/trailing/both).
-     * @param string|bool $char The char to trim, has to be quoted already. Defaults to space.
+     * @param string|null $char The char to trim, has to be quoted already. Defaults to space.
      *
-     * @return string
+     * @throws InvalidArgumentException
      */
-    public function getTrimExpression($str, $mode = TrimMode::UNSPECIFIED, $char = false)
+    public function getTrimExpression(string $str, int $mode = TrimMode::UNSPECIFIED, ?string $char = null) : string
     {
-        $expression = '';
+        $tokens = [];
 
         switch ($mode) {
+            case TrimMode::UNSPECIFIED:
+                break;
+
             case TrimMode::LEADING:
-                $expression = 'LEADING ';
+                $tokens[] = 'LEADING';
                 break;
 
             case TrimMode::TRAILING:
-                $expression = 'TRAILING ';
+                $tokens[] = 'TRAILING';
                 break;
 
             case TrimMode::BOTH:
-                $expression = 'BOTH ';
+                $tokens[] = 'BOTH';
                 break;
+
+            default:
+                throw new InvalidArgumentException(
+                    sprintf(
+                        'The value of $mode is expected to be one of the TrimMode constants, %d given',
+                        $mode
+                    )
+                );
         }
 
-        if ($char !== false) {
-            $expression .= $char . ' ';
+        if ($char !== null) {
+            $tokens[] = $char;
         }
 
-        if ($mode || $char !== false) {
-            $expression .= 'FROM ';
+        if (count($tokens) > 0) {
+            $tokens[] = 'FROM';
         }
 
-        return 'TRIM(' . $expression . $str . ')';
+        $tokens[] = $str;
+
+        return sprintf('TRIM(%s)', implode(' ', $tokens));
     }
 
     /**
