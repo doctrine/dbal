@@ -24,6 +24,7 @@ use function explode;
 use function func_get_args;
 use function get_class;
 use function implode;
+use function in_array;
 use function is_string;
 use function preg_match;
 use function sprintf;
@@ -1124,10 +1125,16 @@ SQL
     /**
      * {@inheritdoc}
      */
-    public function getTrimExpression($str, $pos = TrimMode::UNSPECIFIED, $char = false)
+    public function getTrimExpression(string $str, int $mode = TrimMode::UNSPECIFIED, ?string $char = null) : string
     {
-        if (! $char) {
-            switch ($pos) {
+        if (! in_array($mode, [TrimMode::UNSPECIFIED, TrimMode::LEADING, TrimMode::TRAILING, TrimMode::BOTH], true)) {
+            throw new InvalidArgumentException(
+                sprintf('The value of $mode is expected to be one of the TrimMode constants, %d given', $mode)
+            );
+        }
+
+        if ($char === null) {
+            switch ($mode) {
                 case TrimMode::LEADING:
                     return $this->getLtrimExpression($str);
                 case TrimMode::TRAILING:
@@ -1139,7 +1146,7 @@ SQL
 
         $pattern = "'%[^' + " . $char . " + ']%'";
 
-        switch ($pos) {
+        switch ($mode) {
             case TrimMode::LEADING:
                 return 'SUBSTR(' . $str . ', PATINDEX(' . $pattern . ', ' . $str . '))';
             case TrimMode::TRAILING:
