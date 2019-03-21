@@ -81,13 +81,13 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getLocateExpression($str, $substr, $startPos = false)
+    public function getLocateExpression(string $string, string $substring, ?string $start = null) : string
     {
-        if ($startPos === false) {
-            return 'LOCATE(' . $substr . ', ' . $str . ')';
+        if ($start === null) {
+            return sprintf('LOCATE(%s, %s)', $substring, $string);
         }
 
-        return 'LOCATE(' . $substr . ', ' . $str . ', ' . $startPos . ')';
+        return sprintf('LOCATE(%s, %s, %s)', $substring, $string, $start);
     }
 
     /**
