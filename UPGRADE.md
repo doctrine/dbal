@@ -1,5 +1,13 @@
 # Upgrade to 3.0
 
+## BC BREAK The type of `$start` in `AbstractPlatform::getLocateExpression()` changed from `string|false` to `?string`
+
+The default value of `$start` is now `null`, not `false`.
+
+## BC BREAK The types of `$start` and `$length` in `AbstractPlatform::getSubstringExpression()` changed from `int` and `?int` to `string` and `?string` respectively
+
+The platform abstraction allows building arbitrary SQL expressions, so even if the arguments represent numeric literals, they should be passed as a string.
+
 ## BC BREAK The type of `$char` in `AbstractPlatform::getTrimExpression()` changed from `string|false` to `?string`
 
 The default value of `$char` is now `null`, not `false`. Additionally, the method will throw an `InvalidArgumentException` in an invalid value of `$mode` is passed.

@@ -1016,13 +1016,13 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getLocateExpression($str, $substr, $startPos = false)
+    public function getLocateExpression(string $string, string $substring, ?string $start = null) : string
     {
-        if ($startPos === false) {
-            return 'CHARINDEX(' . $substr . ', ' . $str . ')';
+        if ($start === null) {
+            return sprintf('CHARINDEX(%s, %s)', $substring, $string);
         }
 
-        return 'CHARINDEX(' . $substr . ', ' . $str . ', ' . $startPos . ')';
+        return sprintf('CHARINDEX(%s, %s, %s)', $substring, $string, $start);
     }
 
     /**
@@ -1108,13 +1108,13 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getSubstringExpression($value, $from, $length = null)
+    public function getSubstringExpression(string $string, string $start, ?string $length = null) : string
     {
-        if ($length !== null) {
-            return 'SUBSTRING(' . $value . ', ' . $from . ', ' . $length . ')';
+        if ($length === null) {
+            return sprintf('SUBSTRING(%s, %s, LEN(%s) - %s + 1)', $string, $start, $string, $start);
         }
 
-        return 'SUBSTRING(' . $value . ', ' . $from . ', LEN(' . $value . ') - ' . $from . ' + 1)';
+        return sprintf('SUBSTRING(%s, %s, %s)', $string, $start, $length);
     }
 
     /**
