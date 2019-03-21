@@ -78,18 +78,6 @@ class PostgreSqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getSubstringExpression($value, $from, $length = null)
-    {
-        if ($length === null) {
-            return 'SUBSTRING(' . $value . ' FROM ' . $from . ')';
-        }
-
-        return 'SUBSTRING(' . $value . ' FROM ' . $from . ' FOR ' . $length . ')';
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function getNowExpression()
     {
         return 'LOCALTIMESTAMP(0)';
@@ -106,15 +94,15 @@ class PostgreSqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getLocateExpression($str, $substr, $startPos = false)
+    public function getLocateExpression(string $string, string $substring, ?string $start = null) : string
     {
-        if ($startPos !== false) {
-            $str = $this->getSubstringExpression($str, $startPos);
+        if ($start !== null) {
+            $string = $this->getSubstringExpression($string, $start);
 
-            return 'CASE WHEN (POSITION(' . $substr . ' IN ' . $str . ') = 0) THEN 0 ELSE (POSITION(' . $substr . ' IN ' . $str . ') + ' . ($startPos-1) . ') END';
+            return 'CASE WHEN (POSITION(' . $substring . ' IN ' . $string . ') = 0) THEN 0 ELSE (POSITION(' . $substring . ' IN ' . $string . ') + ' . $start . ' - 1) END';
         }
 
-        return 'POSITION(' . $substr . ' IN ' . $str . ')';
+        return sprintf('POSITION(%s IN %s)', $substring, $string);
     }
 
     /**
