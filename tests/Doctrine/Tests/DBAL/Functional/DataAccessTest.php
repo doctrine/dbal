@@ -679,6 +679,47 @@ class DataAccessTest extends DbalFunctionalTestCase
         self::assertEquals(0, $row['locate9']);
     }
 
+    /**
+     * @dataProvider substringExpressionProvider
+     */
+    public function testSubstringExpression(string $string, string $start, ?string $length, string $expected) : void
+    {
+        $platform = $this->connection->getDatabasePlatform();
+
+        $query = $platform->getDummySelectSQL(
+            $platform->getSubstringExpression($string, $start, $length)
+        );
+
+        $this->assertEquals($expected, $this->connection->fetchColumn($query));
+    }
+
+    /**
+     * @return mixed[][]
+     */
+    public static function substringExpressionProvider() : iterable
+    {
+        return [
+            'start-no-length' => [
+                "'abcdef'",
+                '3',
+                null,
+                'cdef',
+            ],
+            'start-with-length' => [
+                "'abcdef'",
+                '2',
+                '4',
+                'bcde',
+            ],
+            'expressions' => [
+                "'abcdef'",
+                '1 + 1',
+                '1 + 1',
+                'bc',
+            ],
+        ];
+    }
+
     public function testQuoteSQLInjection() : void
     {
         $sql  = 'SELECT * FROM fetch_table WHERE test_string = ' . $this->connection->quote("bar' OR '1'='1");
