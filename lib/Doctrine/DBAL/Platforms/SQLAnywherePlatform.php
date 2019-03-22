@@ -21,7 +21,6 @@ use function array_unique;
 use function array_values;
 use function count;
 use function explode;
-use function func_get_args;
 use function get_class;
 use function implode;
 use function in_array;
@@ -373,9 +372,9 @@ class SQLAnywherePlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    public function getConcatExpression()
+    public function getConcatExpression(string ...$string) : string
     {
-        return 'STRING(' . implode(', ', (array) func_get_args()) . ')';
+        return 'STRING(' . implode(', ', $string) . ')';
     }
 
     /**
@@ -470,7 +469,7 @@ class SQLAnywherePlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    protected function getDateArithmeticIntervalExpression($date, $operator, $interval, $unit)
+    protected function getDateArithmeticIntervalExpression(string $date, string $operator, string $interval, string $unit) : string
     {
         $factorClause = '';
 
@@ -484,7 +483,7 @@ class SQLAnywherePlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    public function getDateDiffExpression($date1, $date2)
+    public function getDateDiffExpression(string $date1, string $date2) : string
     {
         return 'DATEDIFF(day, ' . $date2 . ', ' . $date1 . ')';
     }
@@ -986,15 +985,15 @@ SQL
     /**
      * {@inheritdoc}
      */
-    public function getMd5Expression($column)
+    public function getMd5Expression(string $string) : string
     {
-        return 'HASH(' . $column . ", 'MD5')";
+        return 'HASH(' . $string . ", 'MD5')";
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getRegexpExpression()
+    public function getRegexpExpression() : string
     {
         return 'REGEXP';
     }
