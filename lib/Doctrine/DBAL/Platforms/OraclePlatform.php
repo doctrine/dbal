@@ -59,7 +59,7 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getNowExpression($type = 'timestamp')
+    public function getNowExpression($type = 'timestamp') : string
     {
         switch ($type) {
             case 'date':
@@ -85,7 +85,7 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    protected function getDateArithmeticIntervalExpression($date, $operator, $interval, $unit)
+    protected function getDateArithmeticIntervalExpression(string $date, string $operator, string $interval, string $unit) : string
     {
         switch ($unit) {
             case DateIntervalUnit::MONTH:
@@ -93,11 +93,11 @@ class OraclePlatform extends AbstractPlatform
             case DateIntervalUnit::YEAR:
                 switch ($unit) {
                     case DateIntervalUnit::QUARTER:
-                        $interval *= 3;
+                        $interval = $this->multiplyInterval($interval, 3);
                         break;
 
                     case DateIntervalUnit::YEAR:
-                        $interval *= 12;
+                        $interval = $this->multiplyInterval($interval, 12);
                         break;
                 }
 
@@ -131,7 +131,7 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getDateDiffExpression($date1, $date2)
+    public function getDateDiffExpression(string $date1, string $date2) : string
     {
         return sprintf('TRUNC(%s) - TRUNC(%s)', $date1, $date2);
     }
@@ -139,7 +139,7 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getBitAndComparisonExpression($value1, $value2)
+    public function getBitAndComparisonExpression(string $value1, string $value2) : string
     {
         return 'BITAND(' . $value1 . ', ' . $value2 . ')';
     }
@@ -147,7 +147,7 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getBitOrComparisonExpression($value1, $value2)
+    public function getBitOrComparisonExpression(string $value1, string $value2) : string
     {
         return '(' . $value1 . '-' .
                 $this->getBitAndComparisonExpression($value1, $value2)
