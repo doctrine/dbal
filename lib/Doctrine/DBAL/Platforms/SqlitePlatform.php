@@ -17,7 +17,6 @@ use function array_merge;
 use function array_unique;
 use function array_values;
 use function implode;
-use function is_numeric;
 use function sprintf;
 use function sqrt;
 use function str_replace;
@@ -37,7 +36,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getRegexpExpression()
+    public function getRegexpExpression() : string
     {
         return 'REGEXP';
     }
@@ -45,7 +44,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getNowExpression($type = 'timestamp')
+    public function getNowExpression($type = 'timestamp') : string
     {
         switch ($type) {
             case 'time':
@@ -122,39 +121,31 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    protected function getDateArithmeticIntervalExpression($date, $operator, $interval, $unit)
+    protected function getDateArithmeticIntervalExpression(string $date, string $operator, string $interval, string $unit) : string
     {
         switch ($unit) {
-            case DateIntervalUnit::SECOND:
-            case DateIntervalUnit::MINUTE:
-            case DateIntervalUnit::HOUR:
-                return 'DATETIME(' . $date . ",'" . $operator . $interval . ' ' . $unit . "')";
+            case DateIntervalUnit::WEEK:
+                $interval = $this->multiplyInterval($interval, 7);
+                $unit     = DateIntervalUnit::DAY;
+                break;
 
-            default:
-                switch ($unit) {
-                    case DateIntervalUnit::WEEK:
-                        $interval *= 7;
-                        $unit      = DateIntervalUnit::DAY;
-                        break;
-
-                    case DateIntervalUnit::QUARTER:
-                        $interval *= 3;
-                        $unit      = DateIntervalUnit::MONTH;
-                        break;
-                }
-
-                if (! is_numeric($interval)) {
-                    $interval = "' || " . $interval . " || '";
-                }
-
-                return 'DATE(' . $date . ",'" . $operator . $interval . ' ' . $unit . "')";
+            case DateIntervalUnit::QUARTER:
+                $interval = $this->multiplyInterval($interval, 3);
+                $unit     = DateIntervalUnit::MONTH;
+                break;
         }
+
+        return 'DATETIME(' . $date . ',' . $this->getConcatExpression(
+            $this->quoteStringLiteral($operator),
+            $interval,
+            $this->quoteStringLiteral(' ' . $unit)
+        ) . ')';
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getDateDiffExpression($date1, $date2)
+    public function getDateDiffExpression(string $date1, string $date2) : string
     {
         return sprintf("JULIANDAY(%s, 'start of day') - JULIANDAY(%s, 'start of day')", $date1, $date2);
     }
