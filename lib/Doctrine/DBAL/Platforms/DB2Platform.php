@@ -185,7 +185,7 @@ class DB2Platform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    public function getBitAndComparisonExpression($value1, $value2)
+    public function getBitAndComparisonExpression(string $value1, string $value2) : string
     {
         return 'BITAND(' . $value1 . ', ' . $value2 . ')';
     }
@@ -193,7 +193,7 @@ class DB2Platform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    public function getBitOrComparisonExpression($value1, $value2)
+    public function getBitOrComparisonExpression(string $value1, string $value2) : string
     {
         return 'BITOR(' . $value1 . ', ' . $value2 . ')';
     }
@@ -201,17 +201,17 @@ class DB2Platform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    protected function getDateArithmeticIntervalExpression($date, $operator, $interval, $unit)
+    protected function getDateArithmeticIntervalExpression(string $date, string $operator, string $interval, string $unit) : string
     {
         switch ($unit) {
             case DateIntervalUnit::WEEK:
-                $interval *= 7;
-                $unit      = DateIntervalUnit::DAY;
+                $interval = $this->multiplyInterval($interval, 7);
+                $unit     = DateIntervalUnit::DAY;
                 break;
 
             case DateIntervalUnit::QUARTER:
-                $interval *= 3;
-                $unit      = DateIntervalUnit::MONTH;
+                $interval = $this->multiplyInterval($interval, 3);
+                $unit     = DateIntervalUnit::MONTH;
                 break;
         }
 
@@ -221,7 +221,7 @@ class DB2Platform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    public function getDateDiffExpression($date1, $date2)
+    public function getDateDiffExpression(string $date1, string $date2) : string
     {
         return 'DAYS(' . $date1 . ') - DAYS(' . $date2 . ')';
     }
