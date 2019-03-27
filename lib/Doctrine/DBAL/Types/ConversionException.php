@@ -30,7 +30,7 @@ class ConversionException extends DBALException
     {
         $value = strlen($value) > 32 ? substr($value, 0, 20) . '...' : $value;
 
-        return new self('Could not convert database value "' . $value . '" to Doctrine Type ' . $toType);
+        return new static('Could not convert database value "' . $value . '" to Doctrine Type ' . $toType);
     }
 
     /**
@@ -47,7 +47,7 @@ class ConversionException extends DBALException
     {
         $value = strlen($value) > 32 ? substr($value, 0, 20) . '...' : $value;
 
-        return new self(
+        return new static(
             'Could not convert database value "' . $value . '" to Doctrine Type ' .
             $toType . '. Expected format: ' . $expectedFormat,
             0,
@@ -69,7 +69,7 @@ class ConversionException extends DBALException
         $actualType = is_object($value) ? get_class($value) : gettype($value);
 
         if (is_scalar($value)) {
-            return new self(sprintf(
+            return new static(sprintf(
                 "Could not convert PHP value '%s' of type '%s' to type '%s'. Expected one of the following types: %s",
                 $value,
                 $actualType,
@@ -78,7 +78,7 @@ class ConversionException extends DBALException
             ));
         }
 
-        return new self(sprintf(
+        return new static(sprintf(
             "Could not convert PHP value of type '%s' to type '%s'. Expected one of the following types: %s",
             $actualType,
             $toType,
@@ -90,7 +90,7 @@ class ConversionException extends DBALException
     {
         $actualType = is_object($value) ? get_class($value) : gettype($value);
 
-        return new self(sprintf(
+        return new static(sprintf(
             "Could not convert PHP type '%s' to '%s', as an '%s' error was triggered by the serialization",
             $actualType,
             $format,
@@ -100,7 +100,7 @@ class ConversionException extends DBALException
 
     public static function conversionFailedUnserialization(string $format, string $error) : self
     {
-        return new self(sprintf(
+        return new static(sprintf(
             "Could not convert database value to '%s' as an error was triggered by the unserialization: '%s'",
             $format,
             $error
