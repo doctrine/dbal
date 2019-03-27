@@ -37,7 +37,6 @@ use function array_values;
 use function assert;
 use function count;
 use function explode;
-use function func_get_args;
 use function implode;
 use function in_array;
 use function is_array;
@@ -611,11 +610,9 @@ abstract class AbstractPlatform
     /**
      * Returns the regular expression operator.
      *
-     * @return string
-     *
      * @throws DBALException If not supported on this platform.
      */
-    public function getRegexpExpression()
+    public function getRegexpExpression() : string
     {
         throw DBALException::notSupported(__METHOD__);
     }
@@ -623,13 +620,11 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL snippet to get the average value of a column.
      *
-     * @param string $column The column to use.
-     *
-     * @return string Generated SQL including an AVG aggregate function.
+     * @param string $value SQL expression producing the value.
      */
-    public function getAvgExpression($column)
+    public function getAvgExpression(string $value) : string
     {
-        return 'AVG(' . $column . ')';
+        return 'AVG(' . $value . ')';
     }
 
     /**
@@ -637,115 +632,97 @@ abstract class AbstractPlatform
      *
      * If a '*' is used instead of a column the number of selected rows is returned.
      *
-     * @param string|int $column The column to use.
-     *
-     * @return string Generated SQL including a COUNT aggregate function.
+     * @param string $expression The expression to count.
      */
-    public function getCountExpression($column)
+    public function getCountExpression(string $expression) : string
     {
-        return 'COUNT(' . $column . ')';
+        return 'COUNT(' . $expression . ')';
     }
 
     /**
-     * Returns the SQL snippet to get the highest value of a column.
+     * Returns the SQL snippet to get the maximum value in a set of values.
      *
-     * @param string $column The column to use.
-     *
-     * @return string Generated SQL including a MAX aggregate function.
+     * @param string $value SQL expression producing the value.
      */
-    public function getMaxExpression($column)
+    public function getMaxExpression(string $value) : string
     {
-        return 'MAX(' . $column . ')';
+        return 'MAX(' . $value . ')';
     }
 
     /**
-     * Returns the SQL snippet to get the lowest value of a column.
+     * Returns the SQL snippet to get the minimum value in a set of values.
      *
-     * @param string $column The column to use.
-     *
-     * @return string Generated SQL including a MIN aggregate function.
+     * @param string $value SQL expression producing the value.
      */
-    public function getMinExpression($column)
+    public function getMinExpression(string $value) : string
     {
-        return 'MIN(' . $column . ')';
+        return 'MIN(' . $value . ')';
     }
 
     /**
-     * Returns the SQL snippet to get the total sum of a column.
+     * Returns the SQL snippet to get the total sum of the values in a set.
      *
-     * @param string $column The column to use.
-     *
-     * @return string Generated SQL including a SUM aggregate function.
+     * @param string $value SQL expression producing the value.
      */
-    public function getSumExpression($column)
+    public function getSumExpression(string $value) : string
     {
-        return 'SUM(' . $column . ')';
+        return 'SUM(' . $value . ')';
     }
 
     // scalar functions
 
     /**
-     * Returns the SQL snippet to get the md5 sum of a field.
+     * Returns the SQL snippet to get the md5 sum of the value.
      *
      * Note: Not SQL92, but common functionality.
      *
-     * @param string $column
-     *
-     * @return string
+     * @param string $string SQL expression producing the string.
      */
-    public function getMd5Expression($column)
+    public function getMd5Expression(string $string) : string
     {
-        return 'MD5(' . $column . ')';
+        return 'MD5(' . $string . ')';
     }
 
     /**
      * Returns the SQL snippet to get the length of a text field.
      *
-     * @param string $column
-     *
-     * @return string
+     * @param string $string SQL expression producing the string.
      */
-    public function getLengthExpression($column)
+    public function getLengthExpression(string $string) : string
     {
-        return 'LENGTH(' . $column . ')';
+        return 'LENGTH(' . $string . ')';
     }
 
     /**
-     * Returns the SQL snippet to get the squared value of a column.
+     * Returns the SQL snippet to get the square root of the value.
      *
-     * @param string $column The column to use.
-     *
-     * @return string Generated SQL including an SQRT aggregate function.
+     * @param string $number SQL expression producing the number.
      */
-    public function getSqrtExpression($column)
+    public function getSqrtExpression(string $number) : string
     {
-        return 'SQRT(' . $column . ')';
+        return 'SQRT(' . $number . ')';
     }
 
     /**
-     * Returns the SQL snippet to round a numeric field to the number of decimals specified.
+     * Returns the SQL snippet to round a number to the number of decimals specified.
      *
-     * @param string $column
-     * @param int    $decimals
-     *
-     * @return string
+     * @param string $number   SQL expression producing the number to round.
+     * @param string $decimals SQL expression producing the number of decimals.
      */
-    public function getRoundExpression($column, $decimals = 0)
+    public function getRoundExpression(string $number, string $decimals = '0') : string
     {
-        return 'ROUND(' . $column . ', ' . $decimals . ')';
+        return 'ROUND(' . $number . ', ' . $decimals . ')';
     }
 
     /**
-     * Returns the SQL snippet to get the remainder of the division operation $expression1 / $expression2.
+     * Returns the SQL snippet to get the remainder of the operation of division of dividend by divisor.
      *
-     * @param string $expression1
-     * @param string $expression2
-     *
-     * @return string
+     * @param string $dividend SQL expression producing the dividend.
+     * @param string $divisor  SQL expression producing the divisor.
      */
-    public function getModExpression($expression1, $expression2)
+    public function getModExpression(string $dividend, string $divisor) : string
     {
-        return 'MOD(' . $expression1 . ', ' . $expression2 . ')';
+        return 'MOD(' . $dividend . ', ' . $divisor . ')';
     }
 
     /**
@@ -800,53 +777,45 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Returns the SQL snippet to trim trailing space characters from the expression.
+     * Returns the SQL snippet to trim trailing space characters from the string.
      *
-     * @param string $str Literal string or column name.
-     *
-     * @return string
+     * @param string $string SQL expression producing the string.
      */
-    public function getRtrimExpression($str)
+    public function getRtrimExpression(string $string) : string
     {
-        return 'RTRIM(' . $str . ')';
+        return 'RTRIM(' . $string . ')';
     }
 
     /**
-     * Returns the SQL snippet to trim leading space characters from the expression.
+     * Returns the SQL snippet to trim leading space characters from the string.
      *
-     * @param string $str Literal string or column name.
-     *
-     * @return string
+     * @param string $string SQL expression producing the string.
      */
-    public function getLtrimExpression($str)
+    public function getLtrimExpression(string $string) : string
     {
-        return 'LTRIM(' . $str . ')';
+        return 'LTRIM(' . $string . ')';
     }
 
     /**
-     * Returns the SQL snippet to change all characters from the expression to uppercase,
+     * Returns the SQL snippet to change all characters from the string to uppercase,
      * according to the current character set mapping.
      *
-     * @param string $str Literal string or column name.
-     *
-     * @return string
+     * @param string $string SQL expression producing the string.
      */
-    public function getUpperExpression($str)
+    public function getUpperExpression(string $string) : string
     {
-        return 'UPPER(' . $str . ')';
+        return 'UPPER(' . $string . ')';
     }
 
     /**
-     * Returns the SQL snippet to change all characters from the expression to lowercase,
+     * Returns the SQL snippet to change all characters from the string to lowercase,
      * according to the current character set mapping.
      *
-     * @param string $str Literal string or column name.
-     *
-     * @return string
+     * @param string $string SQL expression producing the string.
      */
-    public function getLowerExpression($str)
+    public function getLowerExpression(string $string) : string
     {
-        return 'LOWER(' . $str . ')';
+        return 'LOWER(' . $string . ')';
     }
 
     /**
@@ -866,10 +835,8 @@ abstract class AbstractPlatform
 
     /**
      * Returns the SQL snippet to get the current system date.
-     *
-     * @return string
      */
-    public function getNowExpression()
+    public function getNowExpression() : string
     {
         return 'NOW()';
     }
@@ -894,111 +861,87 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Returns a SQL snippet to concatenate the given expressions.
+     * Returns a SQL snippet to concatenate the given strings.
      *
-     * Accepts an arbitrary number of string parameters. Each parameter must contain an expression.
-     *
-     * @return string
+     * @param string[] ...$string
      */
-    public function getConcatExpression()
+    public function getConcatExpression(string ...$string) : string
     {
-        return implode(' || ', func_get_args());
+        return implode(' || ', $string);
     }
 
     /**
      * Returns the SQL for a logical not.
      *
-     * Example:
-     * <code>
-     * $q = new Doctrine_Query();
-     * $e = $q->expr;
-     * $q->select('*')->from('table')
-     *   ->where($e->eq('id', $e->not('null'));
-     * </code>
-     *
-     * @param string $expression
-     *
-     * @return string The logical expression.
+     * @param string $value SQL expression producing the value to negate.
      */
-    public function getNotExpression($expression)
+    public function getNotExpression(string $value) : string
     {
-        return 'NOT(' . $expression . ')';
+        return 'NOT(' . $value . ')';
     }
 
     /**
      * Returns the SQL that checks if an expression is null.
      *
-     * @param string $expression The expression that should be compared to null.
-     *
-     * @return string The logical expression.
+     * @param string $value SQL expression producing the to be compared to null.
      */
-    public function getIsNullExpression($expression)
+    public function getIsNullExpression(string $value) : string
     {
-        return $expression . ' IS NULL';
+        return $value . ' IS NULL';
     }
 
     /**
      * Returns the SQL that checks if an expression is not null.
      *
-     * @param string $expression The expression that should be compared to null.
-     *
-     * @return string The logical expression.
+     * @param string $value SQL expression producing the to be compared to null.
      */
-    public function getIsNotNullExpression($expression)
+    public function getIsNotNullExpression(string $value) : string
     {
-        return $expression . ' IS NOT NULL';
+        return $value . ' IS NOT NULL';
     }
 
     /**
      * Returns the SQL that checks if an expression evaluates to a value between two values.
      *
-     * The parameter $expression is checked if it is between $value1 and $value2.
+     * The parameter $value is checked if it is between $min and $max.
      *
      * Note: There is a slight difference in the way BETWEEN works on some databases.
      * http://www.w3schools.com/sql/sql_between.asp. If you want complete database
      * independence you should avoid using between().
      *
-     * @param string $expression The value to compare to.
-     * @param string $value1     The lower value to compare with.
-     * @param string $value2     The higher value to compare with.
-     *
-     * @return string The logical expression.
+     * @param string $value SQL expression producing the value to compare.
+     * @param string $min   SQL expression producing the lower value to compare with.
+     * @param string $max   SQL expression producing the higher value to compare with.
      */
-    public function getBetweenExpression($expression, $value1, $value2)
+    public function getBetweenExpression(string $value, string $min, string $max) : string
     {
-        return $expression . ' BETWEEN ' . $value1 . ' AND ' . $value2;
+        return $value . ' BETWEEN ' . $min . ' AND ' . $max;
     }
 
     /**
      * Returns the SQL to get the arccosine of a value.
      *
-     * @param string $value
-     *
-     * @return string
+     * @param string $number SQL expression producing the number.
      */
-    public function getAcosExpression($value)
+    public function getAcosExpression(string $number) : string
     {
-        return 'ACOS(' . $value . ')';
+        return 'ACOS(' . $number . ')';
     }
 
     /**
      * Returns the SQL to get the sine of a value.
      *
-     * @param string $value
-     *
-     * @return string
+     * @param string $number SQL expression producing the number.
      */
-    public function getSinExpression($value)
+    public function getSinExpression(string $number) : string
     {
-        return 'SIN(' . $value . ')';
+        return 'SIN(' . $number . ')';
     }
 
     /**
      * Returns the SQL to get the PI value.
-     *
-     * @return string
      */
-    public function getPiExpression()
+    public function getPiExpression() : string
     {
         return 'PI()';
     }
@@ -1006,13 +949,11 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to get the cosine of a value.
      *
-     * @param string $value
-     *
-     * @return string
+     * @param string $number SQL expression producing the number.
      */
-    public function getCosExpression($value)
+    public function getCosExpression(string $number) : string
     {
-        return 'COS(' . $value . ')';
+        return 'COS(' . $number . ')';
     }
 
     /**
@@ -1020,14 +961,9 @@ abstract class AbstractPlatform
      *
      * Computes diff = date1 - date2.
      *
-     * @param string $date1
-     * @param string $date2
-     *
-     * @return string
-     *
      * @throws DBALException If not supported on this platform.
      */
-    public function getDateDiffExpression($date1, $date2)
+    public function getDateDiffExpression(string $date1, string $date2) : string
     {
         throw DBALException::notSupported(__METHOD__);
     }
@@ -1035,14 +971,12 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to add the number of given seconds to a date.
      *
-     * @param string $date
-     * @param int    $seconds
-     *
-     * @return string
+     * @param string $date    SQL expression producing the date.
+     * @param string $seconds SQL expression producing the number of seconds.
      *
      * @throws DBALException If not supported on this platform.
      */
-    public function getDateAddSecondsExpression($date, $seconds)
+    public function getDateAddSecondsExpression(string $date, string $seconds) : string
     {
         return $this->getDateArithmeticIntervalExpression($date, '+', $seconds, DateIntervalUnit::SECOND);
     }
@@ -1050,14 +984,12 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to subtract the number of given seconds from a date.
      *
-     * @param string $date
-     * @param int    $seconds
-     *
-     * @return string
+     * @param string $date    SQL expression producing the date.
+     * @param string $seconds SQL expression producing the number of seconds.
      *
      * @throws DBALException If not supported on this platform.
      */
-    public function getDateSubSecondsExpression($date, $seconds)
+    public function getDateSubSecondsExpression(string $date, string $seconds) : string
     {
         return $this->getDateArithmeticIntervalExpression($date, '-', $seconds, DateIntervalUnit::SECOND);
     }
@@ -1065,14 +997,12 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to add the number of given minutes to a date.
      *
-     * @param string $date
-     * @param int    $minutes
-     *
-     * @return string
+     * @param string $date    SQL expression producing the date.
+     * @param string $minutes SQL expression producing the number of minutes.
      *
      * @throws DBALException If not supported on this platform.
      */
-    public function getDateAddMinutesExpression($date, $minutes)
+    public function getDateAddMinutesExpression(string $date, string $minutes) : string
     {
         return $this->getDateArithmeticIntervalExpression($date, '+', $minutes, DateIntervalUnit::MINUTE);
     }
@@ -1080,14 +1010,12 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to subtract the number of given minutes from a date.
      *
-     * @param string $date
-     * @param int    $minutes
-     *
-     * @return string
+     * @param string $date    SQL expression producing the date.
+     * @param string $minutes SQL expression producing the number of minutes.
      *
      * @throws DBALException If not supported on this platform.
      */
-    public function getDateSubMinutesExpression($date, $minutes)
+    public function getDateSubMinutesExpression(string $date, string $minutes) : string
     {
         return $this->getDateArithmeticIntervalExpression($date, '-', $minutes, DateIntervalUnit::MINUTE);
     }
@@ -1095,14 +1023,12 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to add the number of given hours to a date.
      *
-     * @param string $date
-     * @param int    $hours
-     *
-     * @return string
+     * @param string $date  SQL expression producing the date.
+     * @param string $hours SQL expression producing the number of hours.
      *
      * @throws DBALException If not supported on this platform.
      */
-    public function getDateAddHourExpression($date, $hours)
+    public function getDateAddHourExpression(string $date, string $hours) : string
     {
         return $this->getDateArithmeticIntervalExpression($date, '+', $hours, DateIntervalUnit::HOUR);
     }
@@ -1110,14 +1036,12 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to subtract the number of given hours to a date.
      *
-     * @param string $date
-     * @param int    $hours
-     *
-     * @return string
+     * @param string $date  SQL expression producing the date.
+     * @param string $hours SQL expression producing the number of hours.
      *
      * @throws DBALException If not supported on this platform.
      */
-    public function getDateSubHourExpression($date, $hours)
+    public function getDateSubHourExpression(string $date, string $hours) : string
     {
         return $this->getDateArithmeticIntervalExpression($date, '-', $hours, DateIntervalUnit::HOUR);
     }
@@ -1125,14 +1049,12 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to add the number of given days to a date.
      *
-     * @param string $date
-     * @param int    $days
-     *
-     * @return string
+     * @param string $date SQL expression producing the date.
+     * @param string $days SQL expression producing the number of days.
      *
      * @throws DBALException If not supported on this platform.
      */
-    public function getDateAddDaysExpression($date, $days)
+    public function getDateAddDaysExpression(string $date, string $days) : string
     {
         return $this->getDateArithmeticIntervalExpression($date, '+', $days, DateIntervalUnit::DAY);
     }
@@ -1140,14 +1062,12 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to subtract the number of given days to a date.
      *
-     * @param string $date
-     * @param int    $days
-     *
-     * @return string
+     * @param string $date SQL expression producing the date.
+     * @param string $days SQL expression producing the number of days.
      *
      * @throws DBALException If not supported on this platform.
      */
-    public function getDateSubDaysExpression($date, $days)
+    public function getDateSubDaysExpression(string $date, string $days) : string
     {
         return $this->getDateArithmeticIntervalExpression($date, '-', $days, DateIntervalUnit::DAY);
     }
@@ -1155,14 +1075,12 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to add the number of given weeks to a date.
      *
-     * @param string $date
-     * @param int    $weeks
-     *
-     * @return string
+     * @param string $date  SQL expression producing the date.
+     * @param string $weeks SQL expression producing the number of weeks.
      *
      * @throws DBALException If not supported on this platform.
      */
-    public function getDateAddWeeksExpression($date, $weeks)
+    public function getDateAddWeeksExpression(string $date, string $weeks) : string
     {
         return $this->getDateArithmeticIntervalExpression($date, '+', $weeks, DateIntervalUnit::WEEK);
     }
@@ -1170,14 +1088,12 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to subtract the number of given weeks from a date.
      *
-     * @param string $date
-     * @param int    $weeks
-     *
-     * @return string
+     * @param string $date  SQL expression producing the date.
+     * @param string $weeks SQL expression producing the number of weeks.
      *
      * @throws DBALException If not supported on this platform.
      */
-    public function getDateSubWeeksExpression($date, $weeks)
+    public function getDateSubWeeksExpression(string $date, string $weeks) : string
     {
         return $this->getDateArithmeticIntervalExpression($date, '-', $weeks, DateIntervalUnit::WEEK);
     }
@@ -1185,14 +1101,12 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to add the number of given months to a date.
      *
-     * @param string $date
-     * @param int    $months
-     *
-     * @return string
+     * @param string $date   SQL expression producing the date.
+     * @param string $months SQL expression producing the number of months.
      *
      * @throws DBALException If not supported on this platform.
      */
-    public function getDateAddMonthExpression($date, $months)
+    public function getDateAddMonthExpression(string $date, string $months) : string
     {
         return $this->getDateArithmeticIntervalExpression($date, '+', $months, DateIntervalUnit::MONTH);
     }
@@ -1200,14 +1114,12 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to subtract the number of given months to a date.
      *
-     * @param string $date
-     * @param int    $months
-     *
-     * @return string
+     * @param string $date   SQL expression producing the date.
+     * @param string $months SQL expression producing the number of months.
      *
      * @throws DBALException If not supported on this platform.
      */
-    public function getDateSubMonthExpression($date, $months)
+    public function getDateSubMonthExpression(string $date, string $months) : string
     {
         return $this->getDateArithmeticIntervalExpression($date, '-', $months, DateIntervalUnit::MONTH);
     }
@@ -1215,14 +1127,12 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to add the number of given quarters to a date.
      *
-     * @param string $date
-     * @param int    $quarters
-     *
-     * @return string
+     * @param string $date     SQL expression producing the date.
+     * @param string $quarters SQL expression producing the number of quarters.
      *
      * @throws DBALException If not supported on this platform.
      */
-    public function getDateAddQuartersExpression($date, $quarters)
+    public function getDateAddQuartersExpression(string $date, string $quarters) : string
     {
         return $this->getDateArithmeticIntervalExpression($date, '+', $quarters, DateIntervalUnit::QUARTER);
     }
@@ -1230,14 +1140,12 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to subtract the number of given quarters from a date.
      *
-     * @param string $date
-     * @param int    $quarters
-     *
-     * @return string
+     * @param string $date     SQL expression producing the date.
+     * @param string $quarters SQL expression producing the number of quarters.
      *
      * @throws DBALException If not supported on this platform.
      */
-    public function getDateSubQuartersExpression($date, $quarters)
+    public function getDateSubQuartersExpression(string $date, string $quarters) : string
     {
         return $this->getDateArithmeticIntervalExpression($date, '-', $quarters, DateIntervalUnit::QUARTER);
     }
@@ -1245,14 +1153,12 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to add the number of given years to a date.
      *
-     * @param string $date
-     * @param int    $years
-     *
-     * @return string
+     * @param string $date  SQL expression producing the date.
+     * @param string $years SQL expression producing the number of years.
      *
      * @throws DBALException If not supported on this platform.
      */
-    public function getDateAddYearsExpression($date, $years)
+    public function getDateAddYearsExpression(string $date, string $years) : string
     {
         return $this->getDateArithmeticIntervalExpression($date, '+', $years, DateIntervalUnit::YEAR);
     }
@@ -1260,14 +1166,12 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to subtract the number of given years from a date.
      *
-     * @param string $date
-     * @param int    $years
-     *
-     * @return string
+     * @param string $date  SQL expression producing the date.
+     * @param string $years SQL expression producing the number of years.
      *
      * @throws DBALException If not supported on this platform.
      */
-    public function getDateSubYearsExpression($date, $years)
+    public function getDateSubYearsExpression(string $date, string $years) : string
     {
         return $this->getDateArithmeticIntervalExpression($date, '-', $years, DateIntervalUnit::YEAR);
     }
@@ -1275,30 +1179,40 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL for a date arithmetic expression.
      *
-     * @param string $date     The column or literal representing a date to perform the arithmetic operation on.
+     * @param string $date     SQL expression representing a date to perform the arithmetic operation on.
      * @param string $operator The arithmetic operator (+ or -).
-     * @param int    $interval The interval that shall be calculated into the date.
+     * @param string $interval SQL expression representing the value of the interval that shall be calculated
+     *                         into the date.
      * @param string $unit     The unit of the interval that shall be calculated into the date.
      *                         One of the DATE_INTERVAL_UNIT_* constants.
      *
-     * @return string
-     *
      * @throws DBALException If not supported on this platform.
      */
-    protected function getDateArithmeticIntervalExpression($date, $operator, $interval, $unit)
+    protected function getDateArithmeticIntervalExpression(string $date, string $operator, string $interval, string $unit) : string
     {
         throw DBALException::notSupported(__METHOD__);
     }
 
     /**
+     * Generates the SQL expression which represents the given date interval multiplied by a number
+     *
+     * @param string $interval   SQL expression describing the interval value
+     * @param int    $multiplier Interval multiplier
+     *
+     * @throws DBALException
+     */
+    protected function multiplyInterval(string $interval, int $multiplier) : string
+    {
+        return sprintf('(%s * %d)', $interval, $multiplier);
+    }
+
+    /**
      * Returns the SQL bit AND comparison expression.
      *
-     * @param string $value1
-     * @param string $value2
-     *
-     * @return string
+     * @param string $value1 SQL expression producing the first value.
+     * @param string $value2 SQL expression producing the second value.
      */
-    public function getBitAndComparisonExpression($value1, $value2)
+    public function getBitAndComparisonExpression(string $value1, string $value2) : string
     {
         return '(' . $value1 . ' & ' . $value2 . ')';
     }
@@ -1306,12 +1220,10 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL bit OR comparison expression.
      *
-     * @param string $value1
-     * @param string $value2
-     *
-     * @return string
+     * @param string $value1 SQL expression producing the first value.
+     * @param string $value2 SQL expression producing the second value.
      */
-    public function getBitOrComparisonExpression($value1, $value2)
+    public function getBitOrComparisonExpression(string $value1, string $value2) : string
     {
         return '(' . $value1 . ' | ' . $value2 . ')';
     }
