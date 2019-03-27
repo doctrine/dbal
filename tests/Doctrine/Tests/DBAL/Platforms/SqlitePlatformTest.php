@@ -766,12 +766,12 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
 
     public function testDateAddStaticNumberOfDays()
     {
-        self::assertSame("DATE(rentalBeginsOn,'+12 DAY')", $this->platform->getDateAddDaysExpression('rentalBeginsOn', 12));
+        self::assertSame("DATETIME(rentalBeginsOn,'+' || 12 || ' DAY')", $this->platform->getDateAddDaysExpression('rentalBeginsOn', 12));
     }
 
     public function testDateAddNumberOfDaysFromColumn()
     {
-        self::assertSame("DATE(rentalBeginsOn,'+' || duration || ' DAY')", $this->platform->getDateAddDaysExpression('rentalBeginsOn', 'duration'));
+        self::assertSame("DATETIME(rentalBeginsOn,'+' || duration || ' DAY')", $this->platform->getDateAddDaysExpression('rentalBeginsOn', 'duration'));
     }
 
     public function testSupportsColumnCollation() : void
