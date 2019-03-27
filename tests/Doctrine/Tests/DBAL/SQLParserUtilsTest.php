@@ -86,6 +86,25 @@ SQLDATA
             ['SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE "\\\\") AND (data.description LIKE :condition_1 ESCAPE \'\\\\\') ORDER BY id ASC', false, [121 => 'condition_0', 174 => 'condition_1']],
             ['SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE `\\\\`) AND (data.description LIKE :condition_1 ESCAPE `\\\\`) ORDER BY id ASC', false, [121 => 'condition_0', 174 => 'condition_1']],
             ['SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE \'\\\\\') AND (data.description LIKE :condition_1 ESCAPE `\\\\`) ORDER BY id ASC', false, [121 => 'condition_0', 174 => 'condition_1']],
+            // Named parameter containing comment(s) with odd number of single quotes
+            [
+                <<<'SQLDATA'
+SELECT * FROM foo WHERE 
+bar=:a_param1
+-- Oops! Perfectly normal comment but it's got an odd number of apostrophes
+OR bar=':not_a_param1'
+OR bar=:a_param2
+OR bar=:a_param3
+OR bar=':not_a_param2'
+SQLDATA
+                ,
+                false,
+                [
+                    29 => 'a_param1',
+                    145 => 'a_param2',
+                    162 => 'a_param3',
+                ],
+            ],
 
         ];
     }
