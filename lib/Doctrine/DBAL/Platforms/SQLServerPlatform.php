@@ -18,7 +18,6 @@ use function count;
 use function crc32;
 use function dechex;
 use function explode;
-use function func_get_args;
 use function implode;
 use function in_array;
 use function is_array;
@@ -74,7 +73,7 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    protected function getDateArithmeticIntervalExpression($date, $operator, $interval, $unit)
+    protected function getDateArithmeticIntervalExpression(string $date, string $operator, string $interval, string $unit) : string
     {
         $factorClause = '';
 
@@ -88,7 +87,7 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getDateDiffExpression($date1, $date2)
+    public function getDateDiffExpression(string $date1, string $date2) : string
     {
         return 'DATEDIFF(day, ' . $date2 . ',' . $date1 . ')';
     }
@@ -1028,9 +1027,9 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getModExpression($expression1, $expression2)
+    public function getModExpression(string $dividend, string $divisor) : string
     {
-        return $expression1 . ' % ' . $expression2;
+        return $dividend . ' % ' . $divisor;
     }
 
     /**
@@ -1082,11 +1081,9 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getConcatExpression()
+    public function getConcatExpression(string ...$string) : string
     {
-        $args = func_get_args();
-
-        return '(' . implode(' + ', $args) . ')';
+        return '(' . implode(' + ', $string) . ')';
     }
 
     /**
@@ -1120,9 +1117,9 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getLengthExpression($column)
+    public function getLengthExpression(string $string) : string
     {
-        return 'LEN(' . $column . ')';
+        return 'LEN(' . $string . ')';
     }
 
     /**
