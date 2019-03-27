@@ -12,6 +12,7 @@ use Doctrine\DBAL\Driver\PDOOracle\Driver as PDOOracleDriver;
 use Doctrine\DBAL\Driver\SQLSrv\Driver as SQLSrvDriver;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Platforms\TrimMode;
 use Doctrine\DBAL\Schema\Table;
@@ -577,49 +578,313 @@ class DataAccessTest extends DbalFunctionalTestCase
     }
 
     /**
-     * @group DDC-1014
+     * @dataProvider modeProvider
      */
-    public function testDateArithmetics() : void
+    public function testDateAddSeconds(callable $buildQuery, callable $bindParams) : void
     {
-        $p    = $this->connection->getDatabasePlatform();
-        $sql  = 'SELECT ';
-        $sql .= $p->getDateAddSecondsExpression('test_datetime', 1) . ' AS add_seconds, ';
-        $sql .= $p->getDateSubSecondsExpression('test_datetime', 1) . ' AS sub_seconds, ';
-        $sql .= $p->getDateAddMinutesExpression('test_datetime', 5) . ' AS add_minutes, ';
-        $sql .= $p->getDateSubMinutesExpression('test_datetime', 5) . ' AS sub_minutes, ';
-        $sql .= $p->getDateAddHourExpression('test_datetime', 3) . ' AS add_hour, ';
-        $sql .= $p->getDateSubHourExpression('test_datetime', 3) . ' AS sub_hour, ';
-        $sql .= $p->getDateAddDaysExpression('test_datetime', 10) . ' AS add_days, ';
-        $sql .= $p->getDateSubDaysExpression('test_datetime', 10) . ' AS sub_days, ';
-        $sql .= $p->getDateAddWeeksExpression('test_datetime', 1) . ' AS add_weeks, ';
-        $sql .= $p->getDateSubWeeksExpression('test_datetime', 1) . ' AS sub_weeks, ';
-        $sql .= $p->getDateAddMonthExpression('test_datetime', 2) . ' AS add_month, ';
-        $sql .= $p->getDateSubMonthExpression('test_datetime', 2) . ' AS sub_month, ';
-        $sql .= $p->getDateAddQuartersExpression('test_datetime', 3) . ' AS add_quarters, ';
-        $sql .= $p->getDateSubQuartersExpression('test_datetime', 3) . ' AS sub_quarters, ';
-        $sql .= $p->getDateAddYearsExpression('test_datetime', 6) . ' AS add_years, ';
-        $sql .= $p->getDateSubYearsExpression('test_datetime', 6) . ' AS sub_years ';
-        $sql .= 'FROM fetch_table';
+        $this->assertDateExpression(
+            $buildQuery,
+            $bindParams,
+            static function (AbstractPlatform $platform, string $interval) : string {
+                return $platform->getDateAddSecondsExpression('test_datetime', $interval);
+            },
+            1,
+            '2010-01-01 10:10:11'
+        );
+    }
 
-        $row = $this->connection->fetchAssoc($sql);
-        $row = array_change_key_case($row, CASE_LOWER);
+    /**
+     * @dataProvider modeProvider
+     */
+    public function testDateSubSeconds(callable $buildQuery, callable $bindParams) : void
+    {
+        $this->assertDateExpression(
+            $buildQuery,
+            $bindParams,
+            static function (AbstractPlatform $platform, string $interval) : string {
+                return $platform->getDateSubSecondsExpression('test_datetime', $interval);
+            },
+            1,
+            '2010-01-01 10:10:09'
+        );
+    }
 
-        self::assertEquals('2010-01-01 10:10:11', date('Y-m-d H:i:s', strtotime($row['add_seconds'])), 'Adding second should end up on 2010-01-01 10:10:11');
-        self::assertEquals('2010-01-01 10:10:09', date('Y-m-d H:i:s', strtotime($row['sub_seconds'])), 'Subtracting second should end up on 2010-01-01 10:10:09');
-        self::assertEquals('2010-01-01 10:15:10', date('Y-m-d H:i:s', strtotime($row['add_minutes'])), 'Adding minutes should end up on 2010-01-01 10:15:10');
-        self::assertEquals('2010-01-01 10:05:10', date('Y-m-d H:i:s', strtotime($row['sub_minutes'])), 'Subtracting minutes should end up on 2010-01-01 10:05:10');
-        self::assertEquals('2010-01-01 13:10', date('Y-m-d H:i', strtotime($row['add_hour'])), 'Adding date should end up on 2010-01-01 13:10');
-        self::assertEquals('2010-01-01 07:10', date('Y-m-d H:i', strtotime($row['sub_hour'])), 'Subtracting date should end up on 2010-01-01 07:10');
-        self::assertEquals('2010-01-11', date('Y-m-d', strtotime($row['add_days'])), 'Adding date should end up on 2010-01-11');
-        self::assertEquals('2009-12-22', date('Y-m-d', strtotime($row['sub_days'])), 'Subtracting date should end up on 2009-12-22');
-        self::assertEquals('2010-01-08', date('Y-m-d', strtotime($row['add_weeks'])), 'Adding week should end up on 2010-01-08');
-        self::assertEquals('2009-12-25', date('Y-m-d', strtotime($row['sub_weeks'])), 'Subtracting week should end up on 2009-12-25');
-        self::assertEquals('2010-03-01', date('Y-m-d', strtotime($row['add_month'])), 'Adding month should end up on 2010-03-01');
-        self::assertEquals('2009-11-01', date('Y-m-d', strtotime($row['sub_month'])), 'Subtracting month should end up on 2009-11-01');
-        self::assertEquals('2010-10-01', date('Y-m-d', strtotime($row['add_quarters'])), 'Adding quarters should end up on 2010-04-01');
-        self::assertEquals('2009-04-01', date('Y-m-d', strtotime($row['sub_quarters'])), 'Subtracting quarters should end up on 2009-10-01');
-        self::assertEquals('2016-01-01', date('Y-m-d', strtotime($row['add_years'])), 'Adding years should end up on 2016-01-01');
-        self::assertEquals('2004-01-01', date('Y-m-d', strtotime($row['sub_years'])), 'Subtracting years should end up on 2004-01-01');
+    /**
+     * @dataProvider modeProvider
+     */
+    public function testDateAddMinutes(callable $buildQuery, callable $bindParams) : void
+    {
+        $this->assertDateExpression(
+            $buildQuery,
+            $bindParams,
+            static function (AbstractPlatform $platform, string $interval) : string {
+                return $platform->getDateAddMinutesExpression('test_datetime', $interval);
+            },
+            5,
+            '2010-01-01 10:15:10'
+        );
+    }
+
+    /**
+     * @dataProvider modeProvider
+     */
+    public function testDateSubMinutes(callable $buildQuery, callable $bindParams) : void
+    {
+        $this->assertDateExpression(
+            $buildQuery,
+            $bindParams,
+            static function (AbstractPlatform $platform, string $interval) : string {
+                return $platform->getDateSubMinutesExpression('test_datetime', $interval);
+            },
+            5,
+            '2010-01-01 10:05:10'
+        );
+    }
+
+    /**
+     * @dataProvider modeProvider
+     */
+    public function testDateAddHours(callable $buildQuery, callable $bindParams) : void
+    {
+        $this->assertDateExpression(
+            $buildQuery,
+            $bindParams,
+            static function (AbstractPlatform $platform, string $interval) : string {
+                return $platform->getDateAddHourExpression('test_datetime', $interval);
+            },
+            3,
+            '2010-01-01 13:10:10'
+        );
+    }
+
+    /**
+     * @dataProvider modeProvider
+     */
+    public function testDateSubHours(callable $buildQuery, callable $bindParams) : void
+    {
+        $this->assertDateExpression(
+            $buildQuery,
+            $bindParams,
+            static function (AbstractPlatform $platform, string $interval) : string {
+                return $platform->getDateSubHourExpression('test_datetime', $interval);
+            },
+            3,
+            '2010-01-01 07:10:10'
+        );
+    }
+
+    /**
+     * @dataProvider modeProvider
+     */
+    public function testDateAddDays(callable $buildQuery, callable $bindParams) : void
+    {
+        $this->assertDateExpression(
+            $buildQuery,
+            $bindParams,
+            static function (AbstractPlatform $platform, string $interval) : string {
+                return $platform->getDateAddDaysExpression('test_datetime', $interval);
+            },
+            10,
+            '2010-01-11 10:10:10'
+        );
+    }
+
+    /**
+     * @dataProvider modeProvider
+     */
+    public function testDateSubDays(callable $buildQuery, callable $bindParams) : void
+    {
+        $this->assertDateExpression(
+            $buildQuery,
+            $bindParams,
+            static function (AbstractPlatform $platform, string $interval) : string {
+                return $platform->getDateSubDaysExpression('test_datetime', $interval);
+            },
+            10,
+            '2009-12-22 10:10:10'
+        );
+    }
+
+    /**
+     * @dataProvider modeProvider
+     */
+    public function testDateAddWeeks(callable $buildQuery, callable $bindParams) : void
+    {
+        $this->assertDateExpression(
+            $buildQuery,
+            $bindParams,
+            static function (AbstractPlatform $platform, string $interval) : string {
+                return $platform->getDateAddWeeksExpression('test_datetime', $interval);
+            },
+            1,
+            '2010-01-08 10:10:10'
+        );
+    }
+
+    /**
+     * @dataProvider modeProvider
+     */
+    public function testDateSubWeeks(callable $buildQuery, callable $bindParams) : void
+    {
+        $this->assertDateExpression(
+            $buildQuery,
+            $bindParams,
+            static function (AbstractPlatform $platform, string $interval) : string {
+                return $platform->getDateSubWeeksExpression('test_datetime', $interval);
+            },
+            1,
+            '2009-12-25 10:10:10'
+        );
+    }
+
+    /**
+     * @dataProvider modeProvider
+     */
+    public function testDateAddMonths(callable $buildQuery, callable $bindParams) : void
+    {
+        $this->assertDateExpression(
+            $buildQuery,
+            $bindParams,
+            static function (AbstractPlatform $platform, string $interval) : string {
+                return $platform->getDateAddMonthExpression('test_datetime', $interval);
+            },
+            2,
+            '2010-03-01 10:10:10'
+        );
+    }
+
+    /**
+     * @dataProvider modeProvider
+     */
+    public function testDateSubMonths(callable $buildQuery, callable $bindParams) : void
+    {
+        $this->assertDateExpression(
+            $buildQuery,
+            $bindParams,
+            static function (AbstractPlatform $platform, string $interval) : string {
+                return $platform->getDateSubMonthExpression('test_datetime', $interval);
+            },
+            2,
+            '2009-11-01 10:10:10'
+        );
+    }
+
+    /**
+     * @dataProvider modeProvider
+     */
+    public function testDateAddQuarters(callable $buildQuery, callable $bindParams) : void
+    {
+        $this->assertDateExpression(
+            $buildQuery,
+            $bindParams,
+            static function (AbstractPlatform $platform, string $interval) : string {
+                return $platform->getDateAddQuartersExpression('test_datetime', $interval);
+            },
+            3,
+            '2010-10-01 10:10:10'
+        );
+    }
+
+    /**
+     * @dataProvider modeProvider
+     */
+    public function testDateSubQuarters(callable $buildQuery, callable $bindParams) : void
+    {
+        $this->assertDateExpression(
+            $buildQuery,
+            $bindParams,
+            static function (AbstractPlatform $platform, string $interval) : string {
+                return $platform->getDateSubQuartersExpression('test_datetime', $interval);
+            },
+            3,
+            '2009-04-01 10:10:10'
+        );
+    }
+
+    /**
+     * @dataProvider modeProvider
+     */
+    public function testDateAddYears(callable $buildQuery, callable $bindParams) : void
+    {
+        $this->assertDateExpression(
+            $buildQuery,
+            $bindParams,
+            static function (AbstractPlatform $platform, string $interval) : string {
+                return $platform->getDateAddYearsExpression('test_datetime', $interval);
+            },
+            6,
+            '2016-01-01 10:10:10'
+        );
+    }
+
+    /**
+     * @dataProvider modeProvider
+     */
+    public function testDateSubYears(callable $buildQuery, callable $bindParams) : void
+    {
+        $this->assertDateExpression(
+            $buildQuery,
+            $bindParams,
+            static function (AbstractPlatform $platform, string $interval) : string {
+                return $platform->getDateSubYearsExpression('test_datetime', $interval);
+            },
+            6,
+            '2004-01-01 10:10:10'
+        );
+    }
+
+    /**
+     * @param callable $buildQuery Builds the portion of the query representing the interval value
+     * @param callable $bindParams Binds the interval value to the statement
+     * @param callable $expression Builds the platform-specific interval expression
+     * @param int      $interval   Interval value
+     * @param string   $expected   Expected value
+     */
+    private function assertDateExpression(callable $buildQuery, callable $bindParams, callable $expression, int $interval, string $expected) : void
+    {
+        $connection = $this->connection;
+        $platform   = $connection->getDatabasePlatform();
+
+        $query = sprintf('SELECT %s FROM fetch_table', $expression($platform, $buildQuery($interval)));
+        $stmt  = $connection->prepare($query);
+        $bindParams($stmt, $interval);
+
+        $stmt->execute();
+
+        $date = $stmt->fetchColumn();
+
+        $this->assertEquals($expected, date('Y-m-d H:i:s', strtotime($date)));
+    }
+
+    /**
+     * @return mixed[][]
+     */
+    public static function modeProvider() : array
+    {
+        return [
+            'bind' => [
+                static function (int $interval) : string {
+                    return '?';
+                },
+                static function (Statement $stmt, int $interval) : void {
+                    $stmt->bindParam(1, $interval, ParameterType::INTEGER);
+                },
+            ],
+            'literal' => [
+                static function (int $interval) : string {
+                    return sprintf('%d', $interval);
+                },
+                static function (Statement $stmt, int $interval) : void {
+                },
+            ],
+            'expression' => [
+                static function (int $interval) : string {
+                    return sprintf('(0 + %d)', $interval);
+                },
+                static function (Statement $stmt, int $interval) : void {
+                },
+            ],
+        ];
     }
 
     public function testSqliteDateArithmeticWithDynamicInterval() : void
