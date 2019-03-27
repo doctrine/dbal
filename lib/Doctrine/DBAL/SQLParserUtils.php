@@ -4,6 +4,7 @@ namespace Doctrine\DBAL;
 
 use const PREG_OFFSET_CAPTURE;
 use function array_fill;
+use function array_filter;
 use function array_key_exists;
 use function array_merge;
 use function array_slice;
@@ -250,11 +251,12 @@ class SQLParserUtils
             self::ESCAPED_DOUBLE_QUOTED_TEXT . '|' .
             self::ESCAPED_BACKTICK_QUOTED_TEXT . '|' .
             self::ESCAPED_BRACKET_QUOTED_TEXT;
-        $expression = sprintf('/((.+(?i:ARRAY)\\[.+\\])|([^\'"`\\[]+))(?:%s)?/s', $literal);
-
+        $expression = sprintf('/(?:[\s]*--.*?\n)|((.+(?i:ARRAY)\\[.+\\])|([^-\'"`\\[]+))(?:%s)?/s', $literal);
         preg_match_all($expression, $statement, $fragments, PREG_OFFSET_CAPTURE);
 
-        return $fragments[1];
+        return array_filter($fragments[1], static function ($match) {
+            return $match !== '';
+        });
     }
 
     /**
