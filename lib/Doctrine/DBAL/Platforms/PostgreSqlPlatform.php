@@ -797,6 +797,12 @@ SQL
             }
         }
 
+        if (isset($options['comment'])) {
+            $comment = trim($options['comment'], " '");
+
+            $sql[] = sprintf('COMMENT ON TABLE %s IS %s', $tableName, $this->quoteStringLiteral($comment));
+        }
+
         return $sql;
     }
 
@@ -1251,5 +1257,20 @@ SQL
     private function getOldColumnComment(ColumnDiff $columnDiff) : ?string
     {
         return $columnDiff->fromColumn ? $this->getColumnComment($columnDiff->fromColumn) : null;
+    }
+
+    public function getListTableMetadataSQL(string $table, ?string $schema = null) : string
+    {
+        if ($schema !== null) {
+            $table = $schema . '.' . $table;
+        }
+
+        return sprintf(
+            <<<'SQL'
+SELECT obj_description(%s::regclass) AS table_comment;
+SQL
+            ,
+            $this->quoteStringLiteral($table)
+        );
     }
 }

@@ -478,4 +478,19 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
 
         return $defaultValue;
     }
+
+    public function listTableDetails($tableName)
+    {
+        $table = parent::listTableDetails($tableName);
+
+        /** @var PostgreSqlPlatform $platform */
+        $platform = $this->_platform;
+        $sql      = $platform->getListTableMetadataSQL($tableName);
+
+        $tableOptions = $this->_conn->fetchAssoc($sql);
+
+        $table->addOption('comment', $tableOptions['table_comment']);
+
+        return $table;
+    }
 }

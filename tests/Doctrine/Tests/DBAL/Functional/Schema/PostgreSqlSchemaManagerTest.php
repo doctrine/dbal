@@ -517,7 +517,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testCommentInTable() : void
     {
         $table = new Table('table_with_comment');
-        $table->addColumn('id', 'int');
+        $table->addColumn('id', 'integer');
         $table->addOption('comment', 'Foo');
         $this->schemaManager->dropAndCreateTable($table);
 
