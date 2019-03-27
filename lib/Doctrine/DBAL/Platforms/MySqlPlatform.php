@@ -16,7 +16,6 @@ use function array_merge;
 use function array_unique;
 use function array_values;
 use function count;
-use function func_get_args;
 use function implode;
 use function in_array;
 use function is_numeric;
@@ -73,7 +72,7 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getRegexpExpression()
+    public function getRegexpExpression() : string
     {
         return 'RLIKE';
     }
@@ -93,15 +92,15 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getConcatExpression()
+    public function getConcatExpression(string ...$string) : string
     {
-        return sprintf('CONCAT(%s)', implode(', ', func_get_args()));
+        return sprintf('CONCAT(%s)', implode(', ', $string));
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function getDateArithmeticIntervalExpression($date, $operator, $interval, $unit)
+    protected function getDateArithmeticIntervalExpression(string $date, string $operator, string $interval, string $unit) : string
     {
         $function = $operator === '+' ? 'DATE_ADD' : 'DATE_SUB';
 
@@ -111,7 +110,7 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getDateDiffExpression($date1, $date2)
+    public function getDateDiffExpression(string $date1, string $date2) : string
     {
         return 'DATEDIFF(' . $date1 . ', ' . $date2 . ')';
     }

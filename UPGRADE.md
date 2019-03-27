@@ -1,5 +1,32 @@
 # Upgrade to 3.0
 
+## BC BREAK `AbstractPlatform::get*Expression()` methods no loner accept integer values as arguments
+
+The following methods' arguments do not longer accept integer value:
+
+- the `$expression` argument in `::getCountExpression()`,
+- the `$decimals` argument in `::getRoundExpression()`,
+- the `$seconds` argument in `::getDateAddSecondsExpression()`,
+- the `$seconds` argument in `::getDateSubSecondsExpression()`,
+- the `$minutes` argument in `::getDateAddMinutesExpression()`,
+- the `$minutes` argument in `::getDateSubMinutesExpression()`,
+- the `$hours` argument in `::getDateAddHourExpression()`,
+- the `$hours` argument in `::getDateAddHourExpression()`,
+- the `$days` argument in `::getDateAddDaysExpression()`,
+- the `$days` argument in `::getDateSubDaysExpression()`,
+- the `$weeks` argument in `::getDateAddWeeksExpression()`,
+- the `$weeks` argument in `::getDateSubWeeksExpression()`,
+- the `$months` argument in `::getDateAddMonthExpression()`,
+- the `$months` argument in `::getDateSubMonthExpression()`,
+- the `$quarters` argument in `::getDateAddQuartersExpression()`,
+- the `$quarters` argument in `::getDateSubQuartersExpression()`,
+- the `$years` argument in `::getDateAddYearsExpression()`,
+- the `$years` argument in `::getDateSubYearsExpression()`.
+
+Please use the strings representing numeric SQL literals instead (e.g. `'1'` instead of `1`).
+
+The signature of `AbstractPlatform::getConcatExpression()` changed to `::getConcatExpression(string ...$string)`.
+
 ## BC BREAK The type of `$start` in `AbstractPlatform::getLocateExpression()` changed from `string|false` to `?string`
 
 The default value of `$start` is now `null`, not `false`.
