@@ -514,6 +514,17 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertTrue($tableFinal->getColumn('id')->getAutoincrement());
     }
 
+    public function testCommentInTable() : void
+    {
+        $table = new Table('table_with_comment');
+        $table->addColumn('id', 'int');
+        $table->addOption('comment', 'Foo');
+        $this->schemaManager->dropAndCreateTable($table);
+
+        $table = $this->schemaManager->listTableDetails('table_with_comment');
+        self::assertSame('Foo', $table->getOption('comment'));
+    }
+
     /**
      * @return mixed[][]
      */
