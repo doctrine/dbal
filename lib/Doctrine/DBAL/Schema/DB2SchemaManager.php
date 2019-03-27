@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Types\Type;
 use const CASE_LOWER;
 use function array_change_key_case;
@@ -208,5 +209,19 @@ class DB2SchemaManager extends AbstractSchemaManager
         }
 
         return new View($view['name'], $sql);
+    }
+
+    public function listTableDetails($tableName) : Table
+    {
+        $table = parent::listTableDetails($tableName);
+
+        /** @var DB2Platform $platform */
+        $platform = $this->_platform;
+        $sql      = $platform->getListTableCommentsSQL($tableName);
+
+        $tableOptions = $this->_conn->fetchAssoc($sql);
+        $table->addOption('comment', $tableOptions['REMARKS']);
+
+        return $table;
     }
 }

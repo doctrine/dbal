@@ -247,6 +247,11 @@ SQL
         $defaultConstraintsSql = [];
         $commentsSql           = [];
 
+        $tableComment = $options['comment'] ?? null;
+        if ($tableComment !== null) {
+            $commentsSql[] = $this->getCommentOnTableSQL($tableName, $tableComment);
+        }
+
         // @todo does other code breaks because of this?
         // force primary keys to be not null
         foreach ($columns as &$column) {
@@ -1655,5 +1660,36 @@ SQL
         $identifier = new Identifier($identifier);
 
         return strtoupper(dechex(crc32($identifier->getName())));
+    }
+
+    protected function getCommentOnTableSQL(string $tableName, ?string $comment) : string
+    {
+        return sprintf(
+            <<<'SQL'
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', 
+  @value=N%s, @level0type=N'SCHEMA', @level0name=N'dbo', 
+  @level1type=N'TABLE', @level1name=N%s
+SQL
+            ,
+            $this->quoteStringLiteral((string) $comment),
+            $this->quoteStringLiteral($tableName)
+        );
+    }
+
+    public function getListTableMetadataSQL(string $table) : string
+    {
+        return sprintf(
+            <<<'SQL'
+SELECT
+  p.value AS [table_comment]
+FROM
+  sys.tables AS tbl
+  INNER JOIN sys.extended_properties AS p ON p.major_id=tbl.object_id AND p.minor_id=0 AND p.class=1
+WHERE
+  (tbl.name=N%s and SCHEMA_NAME(tbl.schema_id)=N'dbo' and p.name=N'MS_Description')
+SQL
+            ,
+            $this->quoteStringLiteral($table)
+        );
     }
 }

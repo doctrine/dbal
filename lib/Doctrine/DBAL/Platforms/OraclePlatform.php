@@ -1182,4 +1182,25 @@ SQL
     {
         return 'BLOB';
     }
+
+    public function getListTableCommentsSQL(string $table, ?string $database = null) : string
+    {
+        $tableCommentsName = 'user_tab_comments';
+        $ownerCondition    = '';
+
+        if ($database !== null && $database !== '/') {
+            $tableCommentsName = 'all_tab_comments';
+            $ownerCondition    = ' AND owner = ' . $this->quoteStringLiteral($this->normalizeIdentifier($database)->getName());
+        }
+
+        return sprintf(
+            <<<'SQL'
+SELECT comments FROM %s WHERE table_name = %s%s
+SQL
+            ,
+            $tableCommentsName,
+            $this->quoteStringLiteral($this->normalizeIdentifier($table)->getName()),
+            $ownerCondition
+        );
+    }
 }

@@ -1252,4 +1252,19 @@ SQL
     {
         return $columnDiff->fromColumn ? $this->getColumnComment($columnDiff->fromColumn) : null;
     }
+
+    public function getListTableMetadataSQL(string $table, ?string $schema = null) : string
+    {
+        if ($schema !== null) {
+            $table = $schema . '.' . $table;
+        }
+
+        return sprintf(
+            <<<'SQL'
+SELECT obj_description(%s::regclass) AS table_comment;
+SQL
+            ,
+            $this->quoteStringLiteral($table)
+        );
+    }
 }

@@ -470,6 +470,25 @@ class SqliteSchemaManager extends AbstractSchemaManager
         return $match[1];
     }
 
+    private function parseTableCommentFromSQL(string $table, string $sql) : ?string
+    {
+        $pattern = '/\s* # Allow whitespace characters at start of line
+CREATE\sTABLE # Match "CREATE TABLE"
+(?:\W"' . preg_quote($this->_platform->quoteSingleIdentifier($table), '/') . '"\W|\W' . preg_quote($table, '/')
+            . '\W) # Match table name (quoted and unquoted)
+( # Start capture
+   (?:\s*--[^\n]*\n?)+ # Capture anything that starts with whitespaces followed by -- until the end of the line(s)
+)/ix';
+
+        if (preg_match($pattern, $sql, $match) !== 1) {
+            return null;
+        }
+
+        $comment = preg_replace('{^\s*--}m', '', rtrim($match[1], "\n"));
+
+        return $comment === '' ? null : $comment;
+    }
+
     private function parseColumnCommentFromSQL(string $column, string $sql) : ?string
     {
         $pattern = '{[\s(,](?:\W' . preg_quote($this->_platform->quoteSingleIdentifier($column)) . '\W|\W' . preg_quote($column)
@@ -502,5 +521,23 @@ SQL
             ,
             [$table]
         ) ?: null;
+    }
+
+    /**
+     * @param string $tableName
+     */
+    public function listTableDetails($tableName) : Table
+    {
+        $table = parent::listTableDetails($tableName);
+
+        $tableCreateSql = $this->getCreateTableSQL($tableName) ?? '';
+
+        $comment = $this->parseTableCommentFromSQL($tableName, $tableCreateSql);
+
+        if ($comment !== null) {
+            $table->addOption('comment', $comment);
+        }
+
+        return $table;
     }
 }

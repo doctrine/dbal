@@ -385,4 +385,18 @@ SQL;
             );
         }
     }
+
+    public function listTableDetails($tableName) : Table
+    {
+        $table = parent::listTableDetails($tableName);
+
+        /** @var OraclePlatform $platform */
+        $platform = $this->_platform;
+        $sql      = $platform->getListTableCommentsSQL($tableName);
+
+        $tableOptions = $this->_conn->fetchAssoc($sql);
+        $table->addOption('comment', $tableOptions['COMMENTS']);
+
+        return $table;
+    }
 }

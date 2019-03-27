@@ -23,6 +23,7 @@ use function str_replace;
 use function strlen;
 use function strpos;
 use function strtolower;
+use function trim;
 
 /**
  * The SqlitePlatform class describes the specifics and dialects of the SQLite
@@ -332,7 +333,14 @@ class SqlitePlatform extends AbstractPlatform
             }
         }
 
-        $query = ['CREATE TABLE ' . $name . ' (' . $queryFields . ')'];
+        $tableComment = '';
+        if (isset($options['comment'])) {
+            $comment = trim($options['comment'], " '");
+
+            $tableComment = $this->getInlineTableCommentSQL($comment);
+        }
+
+        $query = ['CREATE TABLE ' . $name . ' ' . $tableComment . '(' . $queryFields . ')'];
 
         if (isset($options['alter']) && $options['alter'] === true) {
             return $query;
@@ -603,6 +611,11 @@ class SqlitePlatform extends AbstractPlatform
     public function getInlineColumnCommentSQL($comment)
     {
         return '--' . str_replace("\n", "\n--", $comment) . "\n";
+    }
+
+    private function getInlineTableCommentSQL(string $comment) : string
+    {
+        return $this->getInlineColumnCommentSQL($comment);
     }
 
     /**

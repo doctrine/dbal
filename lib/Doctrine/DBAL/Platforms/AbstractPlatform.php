@@ -1607,6 +1607,9 @@ abstract class AbstractPlatform
 
         $sql = $this->_getCreateTableSQL($tableName, $columns, $options);
         if ($this->supportsCommentOnStatement()) {
+            if ($table->hasOption('comment')) {
+                $sql[] = $this->getCommentOnTableSQL($tableName, $table->getOption('comment'));
+            }
             foreach ($table->getColumns() as $column) {
                 $comment = $this->getColumnComment($column);
 
@@ -1619,6 +1622,17 @@ abstract class AbstractPlatform
         }
 
         return array_merge($sql, $columnSql);
+    }
+
+    protected function getCommentOnTableSQL(string $tableName, ?string $comment) : string
+    {
+        $tableName = new Identifier($tableName);
+
+        return sprintf(
+            'COMMENT ON TABLE %s IS %s',
+            $tableName->getQuotedName($this),
+            $this->quoteStringLiteral((string) $comment)
+        );
     }
 
     /**
