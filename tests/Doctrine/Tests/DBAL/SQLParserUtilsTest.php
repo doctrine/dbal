@@ -105,6 +105,23 @@ SQLDATA
                     162 => 'a_param3',
                 ],
             ],
+            // Check comments in strings don't reverse it either
+            [
+                <<<'SQLDATA'
+INSERT INTO foo VALUES
+('
+-- Not a comment
+Hello, world! 
+',
+:a_param1
+':not_a_param1')
+SQLDATA
+                ,
+                false,
+                [
+                    61 => 'a_param1',
+                ],
+            ],
 
         ];
     }
