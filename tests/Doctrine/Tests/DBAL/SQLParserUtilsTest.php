@@ -118,9 +118,19 @@ Hello, world!
 SQLDATA
                 ,
                 false,
-                [
-                    61 => 'a_param1',
-                ],
+                [ 61 => 'a_param1' ],
+            ],
+            // And with comment on same line as quote
+            [
+                <<<'SQLDATA'
+INSERT INTO foo VALUES
+('
+-- Not a comment Hello, world! ', :a_param1
+':not_a_param1')
+SQLDATA
+                ,
+                false,
+                [ 60 => 'a_param1' ],
             ],
 
         ];
