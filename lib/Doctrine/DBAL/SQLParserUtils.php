@@ -254,7 +254,7 @@ class SQLParserUtils
         $expression = sprintf('/(?:[\s]*--.*?\n)|((.+(?i:ARRAY)\\[.+\\])|([^-\'"`\\[]+))(?:%s)?/s', $literal);
         preg_match_all($expression, $statement, $fragments, PREG_OFFSET_CAPTURE);
 
-        return array_filter($fragments[1], static function ($match) {
+        return array_filter($fragments[1], static function (string $match) : bool {
             return $match !== '';
         });
     }
