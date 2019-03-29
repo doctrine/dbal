@@ -23,7 +23,6 @@ use function func_get_args;
 use function is_array;
 use function is_callable;
 use function preg_match;
-use function str_replace;
 use function strtolower;
 
 /**
@@ -1099,35 +1098,19 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * Given a table comment this method tries to extract a typehint for Doctrine Type, or returns
-     * the type given as default.
+     * Given a table comment this method tries to extract a type hint for Doctrine Type. If the type hint is found,
+     * it's removed from the comment.
      *
-     * @param string|null $comment
-     * @param string      $currentType
-     *
-     * @return string
+     * @return string|null The extracted Doctrine type or NULL of the type hint was not found.
      */
-    public function extractDoctrineTypeFromComment($comment, $currentType)
+    final protected function extractDoctrineTypeFromComment(?string &$comment) : ?string
     {
-        if ($comment !== null && preg_match('(\(DC2Type:(((?!\)).)+)\))', $comment, $match)) {
-            return $match[1];
-        }
-
-        return $currentType;
-    }
-
-    /**
-     * @param string|null $comment
-     * @param string|null $type
-     *
-     * @return string|null
-     */
-    public function removeDoctrineTypeFromComment($comment, $type)
-    {
-        if ($comment === null) {
+        if ($comment === null || ! preg_match('/(.*)\(DC2Type:(((?!\)).)+)\)(.*)/', $comment, $match)) {
             return null;
         }
 
-        return str_replace('(DC2Type:' . $type . ')', '', $comment);
+        $comment = $match[1] . $match[4];
+
+        return $match[2];
     }
 }

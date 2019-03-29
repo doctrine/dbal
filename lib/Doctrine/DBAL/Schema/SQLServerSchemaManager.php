@@ -101,9 +101,8 @@ class SQLServerSchemaManager extends AbstractSchemaManager
             $fixed = true;
         }
 
-        $type                   = $this->_platform->getDoctrineTypeMapping($dbType);
-        $type                   = $this->extractDoctrineTypeFromComment($tableColumn['comment'], $type);
-        $tableColumn['comment'] = $this->removeDoctrineTypeFromComment($tableColumn['comment'], $type);
+        $type = $this->extractDoctrineTypeFromComment($tableColumn['comment'])
+            ?? $this->_platform->getDoctrineTypeMapping($dbType);
 
         $options = [
             'length'        => $length === 0 || ! in_array($type, ['text', 'string']) ? null : $length,
