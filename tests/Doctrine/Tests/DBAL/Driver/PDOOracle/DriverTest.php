@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Driver\PDOOracle;
 
 use Doctrine\DBAL\Driver\PDOOracle\Driver;

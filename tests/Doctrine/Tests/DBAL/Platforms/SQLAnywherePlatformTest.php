@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\DBAL\DBALException;
@@ -306,7 +308,6 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         self::assertEquals('STOP DATABASE "foobar" UNCONDITIONALLY', $this->platform->getStopDatabaseSQL('"foobar"'));
         self::assertEquals('STOP DATABASE "create" UNCONDITIONALLY', $this->platform->getStopDatabaseSQL('create'));
         self::assertEquals('TRUNCATE TABLE foobar', $this->platform->getTruncateTableSQL('foobar'));
-        self::assertEquals('TRUNCATE TABLE foobar', $this->platform->getTruncateTableSQL('foobar'), true);
 
         $viewSql = 'SELECT * FROM footable';
         self::assertEquals('CREATE VIEW fooview AS ' . $viewSql, $this->platform->getCreateViewSQL('fooview', $viewSql));
@@ -361,12 +362,12 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
             'CONSTRAINT unique_constraint UNIQUE CLUSTERED (a, b)',
             $this->platform->getUniqueConstraintDeclarationSQL(
                 'unique_constraint',
-                new UniqueConstraint(null, ['a', 'b'], ['clustered'])
+                new UniqueConstraint('', ['a', 'b'], ['clustered'])
             )
         );
         self::assertEquals(
             'CONSTRAINT UNIQUE (a, b)',
-            $this->platform->getUniqueConstraintDeclarationSQL(null, new UniqueConstraint(null, ['a', 'b']))
+            $this->platform->getUniqueConstraintDeclarationSQL('', new UniqueConstraint('', ['a', 'b']))
         );
     }
 
@@ -615,31 +616,31 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         self::assertEquals('CURRENT DATE', $this->platform->getCurrentDateSQL());
         self::assertEquals('CURRENT TIME', $this->platform->getCurrentTimeSQL());
         self::assertEquals('CURRENT TIMESTAMP', $this->platform->getCurrentTimestampSQL());
-        self::assertEquals("DATEADD(DAY, 4, '1987/05/02')", $this->platform->getDateAddDaysExpression("'1987/05/02'", 4));
-        self::assertEquals("DATEADD(HOUR, 12, '1987/05/02')", $this->platform->getDateAddHourExpression("'1987/05/02'", 12));
-        self::assertEquals("DATEADD(MINUTE, 2, '1987/05/02')", $this->platform->getDateAddMinutesExpression("'1987/05/02'", 2));
-        self::assertEquals("DATEADD(MONTH, 102, '1987/05/02')", $this->platform->getDateAddMonthExpression("'1987/05/02'", 102));
-        self::assertEquals("DATEADD(QUARTER, 5, '1987/05/02')", $this->platform->getDateAddQuartersExpression("'1987/05/02'", 5));
-        self::assertEquals("DATEADD(SECOND, 1, '1987/05/02')", $this->platform->getDateAddSecondsExpression("'1987/05/02'", 1));
-        self::assertEquals("DATEADD(WEEK, 3, '1987/05/02')", $this->platform->getDateAddWeeksExpression("'1987/05/02'", 3));
-        self::assertEquals("DATEADD(YEAR, 10, '1987/05/02')", $this->platform->getDateAddYearsExpression("'1987/05/02'", 10));
+        self::assertEquals("DATEADD(DAY, 4, '1987/05/02')", $this->platform->getDateAddDaysExpression("'1987/05/02'", '4'));
+        self::assertEquals("DATEADD(HOUR, 12, '1987/05/02')", $this->platform->getDateAddHourExpression("'1987/05/02'", '12'));
+        self::assertEquals("DATEADD(MINUTE, 2, '1987/05/02')", $this->platform->getDateAddMinutesExpression("'1987/05/02'", '2'));
+        self::assertEquals("DATEADD(MONTH, 102, '1987/05/02')", $this->platform->getDateAddMonthExpression("'1987/05/02'", '102'));
+        self::assertEquals("DATEADD(QUARTER, 5, '1987/05/02')", $this->platform->getDateAddQuartersExpression("'1987/05/02'", '5'));
+        self::assertEquals("DATEADD(SECOND, 1, '1987/05/02')", $this->platform->getDateAddSecondsExpression("'1987/05/02'", '1'));
+        self::assertEquals("DATEADD(WEEK, 3, '1987/05/02')", $this->platform->getDateAddWeeksExpression("'1987/05/02'", '3'));
+        self::assertEquals("DATEADD(YEAR, 10, '1987/05/02')", $this->platform->getDateAddYearsExpression("'1987/05/02'", '10'));
         self::assertEquals("DATEDIFF(day, '1987/04/01', '1987/05/02')", $this->platform->getDateDiffExpression("'1987/05/02'", "'1987/04/01'"));
-        self::assertEquals("DATEADD(DAY, -1 * 4, '1987/05/02')", $this->platform->getDateSubDaysExpression("'1987/05/02'", 4));
-        self::assertEquals("DATEADD(HOUR, -1 * 12, '1987/05/02')", $this->platform->getDateSubHourExpression("'1987/05/02'", 12));
-        self::assertEquals("DATEADD(MINUTE, -1 * 2, '1987/05/02')", $this->platform->getDateSubMinutesExpression("'1987/05/02'", 2));
-        self::assertEquals("DATEADD(MONTH, -1 * 102, '1987/05/02')", $this->platform->getDateSubMonthExpression("'1987/05/02'", 102));
-        self::assertEquals("DATEADD(QUARTER, -1 * 5, '1987/05/02')", $this->platform->getDateSubQuartersExpression("'1987/05/02'", 5));
-        self::assertEquals("DATEADD(SECOND, -1 * 1, '1987/05/02')", $this->platform->getDateSubSecondsExpression("'1987/05/02'", 1));
-        self::assertEquals("DATEADD(WEEK, -1 * 3, '1987/05/02')", $this->platform->getDateSubWeeksExpression("'1987/05/02'", 3));
-        self::assertEquals("DATEADD(YEAR, -1 * 10, '1987/05/02')", $this->platform->getDateSubYearsExpression("'1987/05/02'", 10));
+        self::assertEquals("DATEADD(DAY, -1 * 4, '1987/05/02')", $this->platform->getDateSubDaysExpression("'1987/05/02'", '4'));
+        self::assertEquals("DATEADD(HOUR, -1 * 12, '1987/05/02')", $this->platform->getDateSubHourExpression("'1987/05/02'", '12'));
+        self::assertEquals("DATEADD(MINUTE, -1 * 2, '1987/05/02')", $this->platform->getDateSubMinutesExpression("'1987/05/02'", '2'));
+        self::assertEquals("DATEADD(MONTH, -1 * 102, '1987/05/02')", $this->platform->getDateSubMonthExpression("'1987/05/02'", '102'));
+        self::assertEquals("DATEADD(QUARTER, -1 * 5, '1987/05/02')", $this->platform->getDateSubQuartersExpression("'1987/05/02'", '5'));
+        self::assertEquals("DATEADD(SECOND, -1 * 1, '1987/05/02')", $this->platform->getDateSubSecondsExpression("'1987/05/02'", '1'));
+        self::assertEquals("DATEADD(WEEK, -1 * 3, '1987/05/02')", $this->platform->getDateSubWeeksExpression("'1987/05/02'", '3'));
+        self::assertEquals("DATEADD(YEAR, -1 * 10, '1987/05/02')", $this->platform->getDateSubYearsExpression("'1987/05/02'", '10'));
         self::assertEquals('Y-m-d H:i:s.u', $this->platform->getDateTimeFormatString());
         self::assertEquals('H:i:s.u', $this->platform->getTimeFormatString());
         self::assertEquals('', $this->platform->getForUpdateSQL());
         self::assertEquals('LOCATE(string_column, substring_column)', $this->platform->getLocateExpression('string_column', 'substring_column'));
-        self::assertEquals('LOCATE(string_column, substring_column, 1)', $this->platform->getLocateExpression('string_column', 'substring_column', 1));
+        self::assertEquals('LOCATE(string_column, substring_column, 1)', $this->platform->getLocateExpression('string_column', 'substring_column', '1'));
         self::assertEquals("HASH(column, 'MD5')", $this->platform->getMd5Expression('column'));
-        self::assertEquals('SUBSTRING(column, 5)', $this->platform->getSubstringExpression('column', 5));
-        self::assertEquals('SUBSTRING(column, 5, 2)', $this->platform->getSubstringExpression('column', 5, 2));
+        self::assertEquals('SUBSTRING(column, 5)', $this->platform->getSubstringExpression('column', '5'));
+        self::assertEquals('SUBSTRING(column, 5, 2)', $this->platform->getSubstringExpression('column', '5', '2'));
         self::assertEquals('GLOBAL TEMPORARY', $this->platform->getTemporaryTableSQL());
         self::assertEquals(
             'LTRIM(column)',

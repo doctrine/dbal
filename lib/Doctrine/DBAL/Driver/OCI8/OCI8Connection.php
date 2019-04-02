@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Driver\OCI8;
 
 use Doctrine\DBAL\Driver\Connection;
@@ -180,7 +182,7 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
     public function commit() : void
     {
         if (! oci_commit($this->dbh)) {
-            throw OCI8Exception::fromErrorInfo($this->errorInfo());
+            throw OCI8Exception::fromErrorInfo(oci_error($this->dbh));
         }
 
         $this->executeMode = OCI_COMMIT_ON_SUCCESS;
@@ -192,7 +194,7 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
     public function rollBack() : void
     {
         if (! oci_rollback($this->dbh)) {
-            throw OCI8Exception::fromErrorInfo($this->errorInfo());
+            throw OCI8Exception::fromErrorInfo(oci_error($this->dbh));
         }
 
         $this->executeMode = OCI_COMMIT_ON_SUCCESS;
