@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\Driver\OCI8\Driver as OCI8Driver;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -57,7 +59,9 @@ class Index extends AbstractAsset implements Constraint
     {
         $isUnique = $isUnique || $isPrimary;
 
-        $this->_setName($indexName);
+        if ($indexName !== null) {
+            $this->_setName($indexName);
+        }
 
         $this->_isUnique  = $isUnique;
         $this->_isPrimary = $isPrimary;
