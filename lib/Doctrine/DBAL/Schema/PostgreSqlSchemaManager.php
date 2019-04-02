@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Exception\DriverException;
@@ -323,17 +325,17 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         $matches = [];
 
         $autoincrement = false;
-        if (preg_match("/^nextval\('(.*)'(::.*)?\)$/", $tableColumn['default'], $matches)) {
+        if ($tableColumn['default'] !== null && preg_match("/^nextval\('(.*)'(::.*)?\)$/", $tableColumn['default'], $matches)) {
             $tableColumn['sequence'] = $matches[1];
             $tableColumn['default']  = null;
             $autoincrement           = true;
         }
 
-        if (preg_match("/^['(](.*)[')]::.*$/", $tableColumn['default'], $matches)) {
+        if ($tableColumn['default'] !== null && preg_match("/^['(](.*)[')]::.*$/", $tableColumn['default'], $matches)) {
             $tableColumn['default'] = $matches[1];
         }
 
-        if (stripos($tableColumn['default'], 'NULL') === 0) {
+        if ($tableColumn['default'] !== null && stripos($tableColumn['default'], 'NULL') === 0) {
             $tableColumn['default'] = null;
         }
 
@@ -355,7 +357,10 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         $jsonb     = null;
 
         $dbType = strtolower($tableColumn['type']);
-        if (strlen($tableColumn['domain_type']) && ! $this->_platform->hasDoctrineTypeMappingFor($tableColumn['type'])) {
+        if ($tableColumn['domain_type'] !== null
+            && strlen($tableColumn['domain_type'])
+            && ! $this->_platform->hasDoctrineTypeMappingFor($tableColumn['type'])
+        ) {
             $dbType                       = strtolower($tableColumn['domain_type']);
             $tableColumn['complete_type'] = $tableColumn['domain_complete_type'];
         }
@@ -472,7 +477,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
      */
     private function fixVersion94NegativeNumericDefaultValue($defaultValue)
     {
-        if (strpos($defaultValue, '(') === 0) {
+        if ($defaultValue !== null && strpos($defaultValue, '(') === 0) {
             return trim($defaultValue, '()');
         }
 

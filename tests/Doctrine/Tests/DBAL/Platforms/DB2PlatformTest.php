@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -290,7 +292,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         self::assertEquals('DROP DATABASE foobar', $this->platform->getDropDatabaseSQL('foobar'));
         self::assertEquals('DECLARE GLOBAL TEMPORARY TABLE', $this->platform->getCreateTemporaryTableSnippetSQL());
         self::assertEquals('TRUNCATE foobar IMMEDIATE', $this->platform->getTruncateTableSQL('foobar'));
-        self::assertEquals('TRUNCATE foobar IMMEDIATE', $this->platform->getTruncateTableSQL('foobar'), true);
 
         $viewSql = 'SELECT * FROM footable';
         self::assertEquals('CREATE VIEW fooview AS ' . $viewSql, $this->platform->getCreateViewSQL('fooview', $viewSql));
@@ -313,28 +314,28 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         self::assertEquals('CURRENT DATE', $this->platform->getCurrentDateSQL());
         self::assertEquals('CURRENT TIME', $this->platform->getCurrentTimeSQL());
         self::assertEquals('CURRENT TIMESTAMP', $this->platform->getCurrentTimestampSQL());
-        self::assertEquals("'1987/05/02' + 4 DAY", $this->platform->getDateAddDaysExpression("'1987/05/02'", 4));
-        self::assertEquals("'1987/05/02' + 12 HOUR", $this->platform->getDateAddHourExpression("'1987/05/02'", 12));
-        self::assertEquals("'1987/05/02' + 2 MINUTE", $this->platform->getDateAddMinutesExpression("'1987/05/02'", 2));
-        self::assertEquals("'1987/05/02' + 102 MONTH", $this->platform->getDateAddMonthExpression("'1987/05/02'", 102));
-        self::assertEquals("'1987/05/02' + (5 * 3) MONTH", $this->platform->getDateAddQuartersExpression("'1987/05/02'", 5));
-        self::assertEquals("'1987/05/02' + 1 SECOND", $this->platform->getDateAddSecondsExpression("'1987/05/02'", 1));
-        self::assertEquals("'1987/05/02' + (3 * 7) DAY", $this->platform->getDateAddWeeksExpression("'1987/05/02'", 3));
-        self::assertEquals("'1987/05/02' + 10 YEAR", $this->platform->getDateAddYearsExpression("'1987/05/02'", 10));
+        self::assertEquals("'1987/05/02' + 4 DAY", $this->platform->getDateAddDaysExpression("'1987/05/02'", '4'));
+        self::assertEquals("'1987/05/02' + 12 HOUR", $this->platform->getDateAddHourExpression("'1987/05/02'", '12'));
+        self::assertEquals("'1987/05/02' + 2 MINUTE", $this->platform->getDateAddMinutesExpression("'1987/05/02'", '2'));
+        self::assertEquals("'1987/05/02' + 102 MONTH", $this->platform->getDateAddMonthExpression("'1987/05/02'", '102'));
+        self::assertEquals("'1987/05/02' + (5 * 3) MONTH", $this->platform->getDateAddQuartersExpression("'1987/05/02'", '5'));
+        self::assertEquals("'1987/05/02' + 1 SECOND", $this->platform->getDateAddSecondsExpression("'1987/05/02'", '1'));
+        self::assertEquals("'1987/05/02' + (3 * 7) DAY", $this->platform->getDateAddWeeksExpression("'1987/05/02'", '3'));
+        self::assertEquals("'1987/05/02' + 10 YEAR", $this->platform->getDateAddYearsExpression("'1987/05/02'", '10'));
         self::assertEquals("DAYS('1987/05/02') - DAYS('1987/04/01')", $this->platform->getDateDiffExpression("'1987/05/02'", "'1987/04/01'"));
-        self::assertEquals("'1987/05/02' - 4 DAY", $this->platform->getDateSubDaysExpression("'1987/05/02'", 4));
-        self::assertEquals("'1987/05/02' - 12 HOUR", $this->platform->getDateSubHourExpression("'1987/05/02'", 12));
-        self::assertEquals("'1987/05/02' - 2 MINUTE", $this->platform->getDateSubMinutesExpression("'1987/05/02'", 2));
-        self::assertEquals("'1987/05/02' - 102 MONTH", $this->platform->getDateSubMonthExpression("'1987/05/02'", 102));
-        self::assertEquals("'1987/05/02' - (5 * 3) MONTH", $this->platform->getDateSubQuartersExpression("'1987/05/02'", 5));
-        self::assertEquals("'1987/05/02' - 1 SECOND", $this->platform->getDateSubSecondsExpression("'1987/05/02'", 1));
-        self::assertEquals("'1987/05/02' - (3 * 7) DAY", $this->platform->getDateSubWeeksExpression("'1987/05/02'", 3));
-        self::assertEquals("'1987/05/02' - 10 YEAR", $this->platform->getDateSubYearsExpression("'1987/05/02'", 10));
+        self::assertEquals("'1987/05/02' - 4 DAY", $this->platform->getDateSubDaysExpression("'1987/05/02'", '4'));
+        self::assertEquals("'1987/05/02' - 12 HOUR", $this->platform->getDateSubHourExpression("'1987/05/02'", '12'));
+        self::assertEquals("'1987/05/02' - 2 MINUTE", $this->platform->getDateSubMinutesExpression("'1987/05/02'", '2'));
+        self::assertEquals("'1987/05/02' - 102 MONTH", $this->platform->getDateSubMonthExpression("'1987/05/02'", '102'));
+        self::assertEquals("'1987/05/02' - (5 * 3) MONTH", $this->platform->getDateSubQuartersExpression("'1987/05/02'", '5'));
+        self::assertEquals("'1987/05/02' - 1 SECOND", $this->platform->getDateSubSecondsExpression("'1987/05/02'", '1'));
+        self::assertEquals("'1987/05/02' - (3 * 7) DAY", $this->platform->getDateSubWeeksExpression("'1987/05/02'", '3'));
+        self::assertEquals("'1987/05/02' - 10 YEAR", $this->platform->getDateSubYearsExpression("'1987/05/02'", '10'));
         self::assertEquals(' WITH RR USE AND KEEP UPDATE LOCKS', $this->platform->getForUpdateSQL());
         self::assertEquals('LOCATE(substring_column, string_column)', $this->platform->getLocateExpression('string_column', 'substring_column'));
-        self::assertEquals('LOCATE(substring_column, string_column, 1)', $this->platform->getLocateExpression('string_column', 'substring_column', 1));
-        self::assertEquals('SUBSTR(column, 5)', $this->platform->getSubstringExpression('column', 5));
-        self::assertEquals('SUBSTR(column, 5, 2)', $this->platform->getSubstringExpression('column', 5, 2));
+        self::assertEquals('LOCATE(substring_column, string_column, 1)', $this->platform->getLocateExpression('string_column', 'substring_column', '1'));
+        self::assertEquals('SUBSTR(column, 5)', $this->platform->getSubstringExpression('column', '5'));
+        self::assertEquals('SUBSTR(column, 5, 2)', $this->platform->getSubstringExpression('column', '5', '2'));
     }
 
     public function testModifiesLimitQuery()
