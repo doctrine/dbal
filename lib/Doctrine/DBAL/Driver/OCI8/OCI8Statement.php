@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Driver\OCI8;
 
 use Doctrine\DBAL\DBALException;
@@ -300,7 +302,7 @@ class OCI8Statement implements IteratorAggregate, Statement
             $length ?? -1,
             $this->convertParameterType($type)
         )) {
-            throw OCI8Exception::fromErrorInfo($this->errorInfo());
+            throw OCI8Exception::fromErrorInfo(oci_error($this->_sth));
         }
     }
 
@@ -392,7 +394,7 @@ class OCI8Statement implements IteratorAggregate, Statement
 
         $ret = @oci_execute($this->_sth, $this->_conn->getExecuteMode());
         if (! $ret) {
-            throw OCI8Exception::fromErrorInfo($this->errorInfo());
+            throw OCI8Exception::fromErrorInfo(oci_error($this->_sth));
         }
 
         $this->result = true;
