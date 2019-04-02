@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Tools;
 
 use ArrayIterator;
@@ -58,11 +60,11 @@ final class Dumper
         $html = ini_get('html_errors');
 
         if ($html !== true) {
-            ini_set('html_errors', true);
+            ini_set('html_errors', '1');
         }
 
         if (extension_loaded('xdebug')) {
-            ini_set('xdebug.var_display_max_depth', $maxDepth);
+            ini_set('xdebug.var_display_max_depth', (string) $maxDepth);
         }
 
         $var = self::export($var, $maxDepth);
@@ -149,7 +151,7 @@ final class Dumper
         $clone = (array) $var;
 
         foreach (array_keys($clone) as $key) {
-            $aux  = explode("\0", $key);
+            $aux  = explode("\0", (string) $key);
             $name = end($aux);
             if ($aux[0] === '') {
                 $name .= ':' . ($aux[1] === '*' ? 'protected' : $aux[1] . ':private');

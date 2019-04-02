@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -402,7 +404,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $columns = $this->schemaManager->listTableColumns('test_jsonb');
 
         self::assertSame($type, $columns['foo']->getType()->getName());
-        self::assertTrue(true, $columns['foo']->getPlatformOption('jsonb'));
+        self::assertTrue($columns['foo']->getPlatformOption('jsonb'));
     }
 
     /**
