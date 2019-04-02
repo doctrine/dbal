@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Sharding\SQLAzure;
 
 use Doctrine\DBAL\Connection;

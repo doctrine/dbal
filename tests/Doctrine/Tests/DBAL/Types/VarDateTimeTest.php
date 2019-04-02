@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Types;
 
 use DateTime;
@@ -21,6 +23,10 @@ class VarDateTimeTest extends DbalTestCase
     protected function setUp() : void
     {
         $this->platform = $this->createMock(AbstractPlatform::class);
+        $this->platform->expects($this->any())
+            ->method('getDateTimeFormatString')
+            ->will($this->returnValue('U'));
+
         if (! Type::hasType('vardatetime')) {
             Type::addType('vardatetime', VarDateTimeType::class);
         }
@@ -31,7 +37,7 @@ class VarDateTimeTest extends DbalTestCase
     {
         $date = new DateTime('1985-09-01 10:10:10');
 
-        $expected = $date->format($this->platform->getDateTimeTzFormatString());
+        $expected = $date->format($this->platform->getDateTimeFormatString());
         $actual   = $this->type->convertToDatabaseValue($date, $this->platform);
 
         self::assertEquals($expected, $actual);

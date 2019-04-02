@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -90,7 +92,7 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
         $identifiers = [];
 
         foreach ($names as $name) {
-            $identifiers[$name] = new Identifier($name);
+            $identifiers[$name] = new Identifier($name ?? '');
         }
 
         return $identifiers;
