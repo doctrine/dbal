@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\DBALException;
@@ -367,7 +369,7 @@ EOF
 
         // we want to make sure the exception is thrown by the DBAL code, not by PHPUnit due to a PHP-level error,
         // but the wrapper connection wraps everything in a DBAL exception
-        $this->iniSet('error_reporting', 0);
+        $this->iniSet('error_reporting', '0');
 
         self::expectException(DBALException::class);
         $stmt->execute([null]);

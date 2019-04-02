@@ -14,7 +14,6 @@
     <file>tests</file>
 
     <rule ref="Doctrine">
-        <exclude name="SlevomatCodingStandard.TypeHints.DeclareStrictTypes"/>
         <exclude name="SlevomatCodingStandard.Classes.SuperfluousAbstractClassNaming"/>
         <exclude name="SlevomatCodingStandard.Classes.SuperfluousExceptionNaming"/>
         <exclude name="SlevomatCodingStandard.ControlStructures.ControlStructureSpacing.IncorrectLinesCountAfterLastControlStructure"/>
@@ -71,5 +70,11 @@
     <!-- see https://github.com/doctrine/dbal/issues/3377 -->
     <rule ref="SlevomatCodingStandard.Operators.DisallowEqualOperators.DisallowedNotEqualOperator">
         <exclude-pattern>lib/Doctrine/DBAL/Schema/Comparator.php</exclude-pattern>
+    </rule>
+
+    <!-- DB2_AUTOCOMMIT_ON/DB2_AUTOCOMMIT_OFF are of int type but db2_autocommit() incorrectly expects bool,
+         see https://bugs.php.net/bug.php?id=77591 -->
+    <rule ref="SlevomatCodingStandard.TypeHints.DeclareStrictTypes.DeclareStrictTypesMissing">
+        <exclude-pattern>lib/Doctrine/DBAL/Driver/IBMDB2/DB2Connection.php</exclude-pattern>
     </rule>
 </ruleset>

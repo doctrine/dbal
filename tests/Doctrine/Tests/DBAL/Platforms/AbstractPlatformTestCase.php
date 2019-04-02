@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\Common\EventManager;
@@ -289,8 +291,8 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
      */
     public function testGeneratesBitAndComparisonExpressionSql() : void
     {
-        $sql = $this->platform->getBitAndComparisonExpression(2, 4);
-        self::assertEquals($this->getBitAndComparisonExpressionSql(2, 4), $sql);
+        $sql = $this->platform->getBitAndComparisonExpression('2', '4');
+        self::assertEquals($this->getBitAndComparisonExpressionSql('2', '4'), $sql);
     }
 
     protected function getBitOrComparisonExpressionSql(string $value1, string $value2) : string
@@ -303,8 +305,8 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
      */
     public function testGeneratesBitOrComparisonExpressionSql() : void
     {
-        $sql = $this->platform->getBitOrComparisonExpression(2, 4);
-        self::assertEquals($this->getBitOrComparisonExpressionSql(2, 4), $sql);
+        $sql = $this->platform->getBitOrComparisonExpression('2', '4');
+        self::assertEquals($this->getBitOrComparisonExpressionSql('2', '4'), $sql);
     }
 
     public function getGenerateConstraintUniqueIndexSql() : string

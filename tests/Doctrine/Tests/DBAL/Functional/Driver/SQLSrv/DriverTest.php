@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Functional\Driver\SQLSrv;
 
 use Doctrine\DBAL\Driver as DriverInterface;

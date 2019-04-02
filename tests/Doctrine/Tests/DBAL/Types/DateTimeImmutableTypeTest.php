@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Types;
 
 use DateTime;
@@ -103,6 +105,8 @@ class DateTimeImmutableTypeTest extends TestCase
 
     public function testThrowsExceptionDuringConversionToPHPValueWithInvalidDateTimeString() : void
     {
+        $this->platform->getDateTimeFormatString()->willReturn('Y-m-d H:i:s')->shouldBeCalled();
+
         $this->expectException(ConversionException::class);
 
         $this->type->convertToPHPValue('invalid datetime string', $this->platform->reveal());

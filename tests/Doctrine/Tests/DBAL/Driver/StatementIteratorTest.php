@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Driver;
 
 use Doctrine\DBAL\Driver\IBMDB2\DB2Statement;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Driver\Mysqli;
 
 use Doctrine\DBAL\Driver\Connection;
@@ -47,7 +49,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
      */
     public function __construct(array $params, $username, $password, array $driverOptions = [])
     {
-        $port = $params['port'] ?? ini_get('mysqli.default_port');
+        $port = $params['port'] ?? (int) ini_get('mysqli.default_port');
 
         // Fallback to default MySQL port if not given.
         if (! $port) {
@@ -55,9 +57,9 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
         }
 
         $socket = $params['unix_socket'] ?? ini_get('mysqli.default_socket');
-        $dbname = $params['dbname'] ?? null;
+        $dbname = $params['dbname'] ?? '';
 
-        $flags = $driverOptions[static::OPTION_FLAGS] ?? null;
+        $flags = $driverOptions[static::OPTION_FLAGS] ?? 0;
 
         $this->conn = mysqli_init();
 
