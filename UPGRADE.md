@@ -1,5 +1,9 @@
 # Upgrade to 3.0
 
+## BC BREAK `DB2SchemaManager::_getPortableForeignKeyRuleDef()` removed
+
+The method was used internally and is no longer needed.
+
 ## BC BREAK `AbstractPlatform::get*Expression()` methods no loner accept integer values as arguments
 
 The following methods' arguments do not longer accept integer value:
