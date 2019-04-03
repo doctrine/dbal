@@ -180,22 +180,6 @@ class DB2SchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableForeignKeyRuleDef($def)
-    {
-        if ($def === 'C') {
-            return 'CASCADE';
-        }
-
-        if ($def === 'N') {
-            return 'SET NULL';
-        }
-
-        return null;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     protected function _getPortableViewDefinition($view)
     {
         $view = array_change_key_case($view, CASE_LOWER);
