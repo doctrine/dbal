@@ -504,7 +504,7 @@ class QueryBuilder
      * <code>
      *     $qb = $conn->createQueryBuilder()
      *         ->delete('users', 'u')
-     *         ->where('u.id = :user_id');
+     *         ->where('u.id = :user_id')
      *         ->setParameter(':user_id', 1);
      * </code>
      *
@@ -873,8 +873,8 @@ class QueryBuilder
      *     $qb = $conn->createQueryBuilder()
      *         ->select('u.name')
      *         ->from('users', 'u')
-     *         ->groupBy('u.lastLogin');
-     *         ->addGroupBy('u.createdAt')
+     *         ->groupBy('u.lastLogin')
+     *         ->addGroupBy('u.createdAt');
      * </code>
      *
      * @param mixed $groupBy The grouping expression.
