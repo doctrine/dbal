@@ -7,8 +7,8 @@ namespace Doctrine\DBAL\Driver\PDOPgSql;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\AbstractPostgreSQLDriver;
 use Doctrine\DBAL\Driver\PDOConnection;
+use Doctrine\DBAL\Driver\PDOException;
 use PDO;
-use PDOException;
 use function defined;
 
 /**

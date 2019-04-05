@@ -1,5 +1,13 @@
 # Upgrade to 3.0
 
+## BC BREAK Changes in driver exceptions
+
+1. The `Doctrine\DBAL\Driver\DriverException::getErrorCode()` method is removed. In order to obtain the driver error code, please use `::getCode()`.
+2. `Doctrine\DBAL\Driver\PDOException` no longer extends `PDOException`.
+3. The value returned by `Doctrine\DBAL\Driver\PDOException::getSQLState()` no longer falls back to the driver error code.
+
+The method was used internally and is no longer needed.
+
 ## BC BREAK `DB2SchemaManager::_getPortableForeignKeyRuleDef()` removed
 
 The method was used internally and is no longer needed.
