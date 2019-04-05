@@ -97,15 +97,7 @@ abstract class AbstractDriverTest extends DbalTestCase
             /**
              * {@inheritDoc}
              */
-            public function getErrorCode()
-            {
-                return 'foo';
-            }
-
-            /**
-             * {@inheritDoc}
-             */
-            public function getSQLState()
+            public function getSQLState() : ?string
             {
                 return 'bar';
             }
@@ -123,7 +115,7 @@ abstract class AbstractDriverTest extends DbalTestCase
 
             self::assertSame($convertedExceptionClassName, get_class($convertedException));
 
-            self::assertSame($driverException->getErrorCode(), $convertedException->getErrorCode());
+            self::assertSame($driverException->getCode(), $convertedException->getCode());
             self::assertSame($driverException->getSQLState(), $convertedException->getSQLState());
             self::assertSame($message, $convertedException->getMessage());
         }
@@ -259,36 +251,24 @@ abstract class AbstractDriverTest extends DbalTestCase
 
         foreach ($this->getExceptionConversionData() as $convertedExceptionClassName => $errors) {
             foreach ($errors as $error) {
-                $driverException = new class ($error[0], $error[1], $error[2])
+                $driverException = new class (...$error)
                     extends Exception
                     implements DriverExceptionInterface
                 {
-                    /** @var mixed */
-                    private $errorCode;
-
-                    /** @var mixed */
+                    /** @var string|null */
                     private $sqlState;
 
-                    public function __construct($errorCode, $sqlState, $message)
+                    public function __construct(int $code, ?string $sqlState = null, string $message = '')
                     {
-                        parent::__construct($message ?? '');
+                        parent::__construct($message, $code);
 
-                        $this->errorCode = $errorCode;
-                        $this->sqlState  = $sqlState;
+                        $this->sqlState = $sqlState;
                     }
 
                     /**
                      * {@inheritDoc}
                      */
-                    public function getErrorCode()
-                    {
-                        return $this->errorCode;
-                    }
-
-                    /**
-                     * {@inheritDoc}
-                     */
-                    public function getSQLState()
+                    public function getSQLState() : ?string
                     {
                         return $this->sqlState;
                     }
