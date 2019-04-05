@@ -351,7 +351,7 @@ class WriteTest extends DbalFunctionalTestCase
         try {
             return $this->connection->lastInsertId($name);
         } catch (DriverException $e) {
-            if ($e->getCode() === 'IM001') {
+            if ($e->getSQLState() === 'IM001') {
                 $this->markTestSkipped($e->getMessage());
             }
 

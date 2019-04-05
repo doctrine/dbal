@@ -73,42 +73,30 @@ abstract class AbstractDriverTest extends DbalTestCase
     /**
      * @dataProvider exceptionConversionProvider
      */
-    public function testConvertsException($errorCode, $sqlState, $message, string $expectedClass) : void
+    public function testConvertsException(string $expectedClass, $code, $sqlState = null, $message = '') : void
     {
         if (! $this->driver instanceof ExceptionConverterDriver) {
             $this->markTestSkipped('This test is only intended for exception converter drivers.');
         }
 
-        $driverException = new class ($errorCode, $sqlState, $message)
+        $driverException = new class ($code, $sqlState, $message)
             extends Exception
             implements DriverExceptionInterface
         {
             /** @var mixed */
-            private $errorCode;
-
-            /** @var mixed */
             private $sqlState;
 
-            public function __construct($errorCode, $sqlState, $message)
+            public function __construct($code, $sqlState, $message)
             {
-                parent::__construct($message);
+                parent::__construct($message, $code);
 
-                $this->errorCode = $errorCode;
-                $this->sqlState  = $sqlState;
+                $this->sqlState = $sqlState;
             }
 
             /**
              * {@inheritDoc}
              */
-            public function getErrorCode()
-            {
-                return $this->errorCode;
-            }
-
-            /**
-             * {@inheritDoc}
-             */
-            public function getSQLState()
+            public function getSQLState() : ?string
             {
                 return $this->sqlState;
             }
@@ -119,7 +107,7 @@ abstract class AbstractDriverTest extends DbalTestCase
 
         self::assertInstanceOf($expectedClass, $dbalException);
 
-        self::assertSame($driverException->getErrorCode(), $dbalException->getErrorCode());
+        self::assertSame($driverException->getCode(), $dbalException->getCode());
         self::assertSame($driverException->getSQLState(), $dbalException->getSQLState());
         self::assertSame($driverException, $dbalException->getPrevious());
         self::assertSame($dbalMessage, $dbalException->getMessage());
@@ -251,11 +239,11 @@ abstract class AbstractDriverTest extends DbalTestCase
     {
         foreach (static::getExceptionConversionData() as $expectedClass => $items) {
             foreach ($items as $item) {
-                yield array_merge($item, [$expectedClass]);
+                yield array_merge([$expectedClass], $item);
             }
         }
 
-        yield ['foo', 'bar', 'baz', self::EXCEPTION_DRIVER];
+        yield [self::EXCEPTION_DRIVER, 1, 'HY000', 'The message'];
     }
 
     /**

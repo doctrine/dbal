@@ -137,7 +137,7 @@ class DB2Statement implements IteratorAggregate, Statement
         $this->bindParam[$position] =& $variable;
 
         if (! db2_bind_param($this->stmt, $position, 'variable', $parameterType, $dataType)) {
-            throw new DB2Exception(db2_stmt_errormsg());
+            throw DB2Exception::fromStatementError($this->stmt);
         }
     }
 
@@ -218,7 +218,7 @@ class DB2Statement implements IteratorAggregate, Statement
         $this->lobs = [];
 
         if ($retval === false) {
-            throw new DB2Exception(db2_stmt_errormsg());
+            throw DB2Exception::fromStatementError($this->stmt);
         }
 
         $this->result = true;
