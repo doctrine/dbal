@@ -26,7 +26,6 @@ parameters:
         - '~^Method Doctrine\\DBAL\\Schema\\(Oracle|PostgreSql|SQLServer)SchemaManager::_getPortableTableDefinition\(\) should return array but returns string\.\z~'
         - '~^Method Doctrine\\DBAL\\Platforms\\(|SQLAnywhere|Sqlite)Platform::_getTransactionIsolationLevelSQL\(\) should return string but returns int\.\z~'
         - '~^Method Doctrine\\DBAL\\Driver\\OCI8\\OCI8Connection::lastInsertId\(\) should return string but returns (int|false)\.\z~'
-        - '~^Method Doctrine\\DBAL\\Driver\\SQLSrv\\SQLSrvConnection::errorCode\(\) should return string\|null but returns false\.\z~'
 
         # http://php.net/manual/en/pdo.sqlitecreatefunction.php
         - '~^Call to an undefined method PDO::sqliteCreateFunction\(\)\.\z~'
