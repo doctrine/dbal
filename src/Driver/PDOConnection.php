@@ -138,22 +138,6 @@ class PDOConnection implements ServerInfoAwareConnection
         return $this->connection->rollBack();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function errorCode()
-    {
-        return $this->connection->errorCode();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function errorInfo()
-    {
-        return $this->connection->errorInfo();
-    }
-
     public function getWrappedConnection() : PDO
     {
         return $this->connection;

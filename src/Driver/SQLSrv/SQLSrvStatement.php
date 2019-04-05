@@ -12,7 +12,6 @@ use IteratorAggregate;
 use function array_key_exists;
 use function is_int;
 use function is_numeric;
-use function sqlsrv_errors;
 use function sqlsrv_execute;
 use function sqlsrv_fetch;
 use function sqlsrv_fetch_array;
@@ -26,7 +25,6 @@ use function sqlsrv_rows_affected;
 use function SQLSRV_SQLTYPE_VARBINARY;
 use function stripos;
 use const SQLSRV_ENC_BINARY;
-use const SQLSRV_ERR_ERRORS;
 use const SQLSRV_FETCH_ASSOC;
 use const SQLSRV_FETCH_BOTH;
 use const SQLSRV_FETCH_NUMERIC;
@@ -201,31 +199,6 @@ class SQLSrvStatement implements IteratorAggregate, Statement, ForwardCompatible
         }
 
         return 0;
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated The error information is available via exceptions.
-     */
-    public function errorCode()
-    {
-        $errors = sqlsrv_errors(SQLSRV_ERR_ERRORS);
-        if ($errors !== null) {
-            return $errors[0]['code'];
-        }
-
-        return false;
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated The error information is available via exceptions.
-     */
-    public function errorInfo()
-    {
-        return (array) sqlsrv_errors(SQLSRV_ERR_ERRORS);
     }
 
     /**

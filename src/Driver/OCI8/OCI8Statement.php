@@ -358,37 +358,6 @@ class OCI8Statement implements IteratorAggregate, Statement, ForwardCompatibleRe
 
     /**
      * {@inheritdoc}
-     *
-     * @deprecated The error information is available via exceptions.
-     */
-    public function errorCode()
-    {
-        $error = oci_error($this->_sth);
-        if ($error !== false) {
-            $error = $error['code'];
-        }
-
-        return $error;
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated The error information is available via exceptions.
-     */
-    public function errorInfo()
-    {
-        $error = oci_error($this->_sth);
-
-        if ($error === false) {
-            return [];
-        }
-
-        return $error;
-    }
-
-    /**
-     * {@inheritdoc}
      */
     public function execute($params = null)
     {
@@ -405,7 +374,7 @@ class OCI8Statement implements IteratorAggregate, Statement, ForwardCompatibleRe
 
         $ret = @oci_execute($this->_sth, $this->_conn->getExecuteMode());
         if (! $ret) {
-            throw OCI8Exception::fromErrorInfo($this->errorInfo());
+            throw OCI8Exception::fromErrorInfo(oci_error($this->_sth));
         }
 
         $this->result = true;

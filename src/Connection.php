@@ -1321,28 +1321,6 @@ class Connection implements DriverConnection
     }
 
     /**
-     * Fetches the SQLSTATE associated with the last database operation.
-     *
-     * @deprecated The error information is available via exceptions.
-     *
-     * @return string|null The last error code.
-     */
-    public function errorCode()
-    {
-        return $this->getWrappedConnection()->errorCode();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @deprecated The error information is available via exceptions.
-     */
-    public function errorInfo()
-    {
-        return $this->getWrappedConnection()->errorInfo();
-    }
-
-    /**
      * Returns the ID of the last inserted row, or the last value from a sequence object,
      * depending on the underlying driver.
      *

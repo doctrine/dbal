@@ -1,5 +1,9 @@
 # Upgrade to 3.0
 
+## BC BREAK `::errorCode()` and `::errorInfo()` removed from `Connection` and `Statement` APIs
+
+The error information is available in `DriverException` thrown in case of an error.
+
 ## BC BREAK: Dropped support for `FetchMode::CUSTOM_OBJECT` and `::STANDARD_OBJECT`
 
 Instead of fetching an object, fetch an array and map it to an object of the desired class.

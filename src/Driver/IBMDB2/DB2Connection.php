@@ -10,7 +10,6 @@ use stdClass;
 use function assert;
 use function db2_autocommit;
 use function db2_commit;
-use function db2_conn_error;
 use function db2_conn_errormsg;
 use function db2_connect;
 use function db2_escape_string;
@@ -165,28 +164,5 @@ class DB2Connection implements ServerInfoAwareConnection
         assert(is_bool($result));
 
         return $result;
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated The error information is available via exceptions.
-     */
-    public function errorCode()
-    {
-        return db2_conn_error($this->conn);
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated The error information is available via exceptions.
-     */
-    public function errorInfo()
-    {
-        return [
-            0 => db2_conn_errormsg($this->conn),
-            1 => $this->errorCode(),
-        ];
     }
 }

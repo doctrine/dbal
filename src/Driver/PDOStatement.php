@@ -118,22 +118,6 @@ class PDOStatement implements IteratorAggregate, Statement, ForwardCompatibleRes
     /**
      * {@inheritdoc}
      */
-    public function errorCode()
-    {
-        return $this->stmt->errorCode();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function errorInfo()
-    {
-        return $this->stmt->errorInfo();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function execute($params = null)
     {
         try {

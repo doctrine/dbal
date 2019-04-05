@@ -80,28 +80,6 @@ class StatementTest extends TestCase
         self::assertSame($columnCount, $this->stmt->columnCount());
     }
 
-    public function testErrorCode() : void
-    {
-        $errorCode = '666';
-
-        $this->wrappedStmt->expects(self::once())
-            ->method('errorCode')
-            ->will(self::returnValue($errorCode));
-
-        self::assertSame($errorCode, $this->stmt->errorCode());
-    }
-
-    public function testErrorInfo() : void
-    {
-        $errorInfo = ['666', 'Evil error.'];
-
-        $this->wrappedStmt->expects(self::once())
-            ->method('errorInfo')
-            ->will(self::returnValue($errorInfo));
-
-        self::assertSame($errorInfo, $this->stmt->errorInfo());
-    }
-
     public function testExecute() : void
     {
         $params = [
