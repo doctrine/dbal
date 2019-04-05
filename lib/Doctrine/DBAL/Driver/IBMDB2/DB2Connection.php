@@ -24,7 +24,6 @@ use function db2_pconnect;
 use function db2_prepare;
 use function db2_rollback;
 use function db2_server_info;
-use function db2_stmt_errormsg;
 
 class DB2Connection implements Connection, ServerInfoAwareConnection
 {
@@ -50,7 +49,7 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
         }
 
         if ($conn === false) {
-            throw new DB2Exception(db2_conn_errormsg());
+            throw DB2Exception::fromConnectionError();
         }
 
         $this->conn = $conn;
@@ -82,7 +81,7 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
     {
         $stmt = @db2_prepare($this->conn, $sql);
         if (! $stmt) {
-            throw new DB2Exception(db2_stmt_errormsg());
+            throw DB2Exception::fromStatementError();
         }
 
         return new DB2Statement($stmt);
@@ -115,7 +114,7 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
         $stmt = @db2_exec($this->conn, $statement);
 
         if ($stmt === false) {
-            throw new DB2Exception(db2_stmt_errormsg());
+            throw DB2Exception::fromStatementError();
         }
 
         return db2_num_rows($stmt);
@@ -135,7 +134,7 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
     public function beginTransaction() : void
     {
         if (! db2_autocommit($this->conn, DB2_AUTOCOMMIT_OFF)) {
-            throw new DB2Exception(db2_conn_errormsg($this->conn));
+            throw DB2Exception::fromConnectionError($this->conn);
         }
     }
 
@@ -145,11 +144,11 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
     public function commit() : void
     {
         if (! db2_commit($this->conn)) {
-            throw new DB2Exception(db2_conn_errormsg($this->conn));
+            throw DB2Exception::fromConnectionError($this->conn);
         }
 
         if (! db2_autocommit($this->conn, DB2_AUTOCOMMIT_ON)) {
-            throw new DB2Exception(db2_conn_errormsg($this->conn));
+            throw DB2Exception::fromConnectionError($this->conn);
         }
     }
 
@@ -159,11 +158,11 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
     public function rollBack() : void
     {
         if (! db2_rollback($this->conn)) {
-            throw new DB2Exception(db2_conn_errormsg($this->conn));
+            throw DB2Exception::fromConnectionError($this->conn);
         }
 
         if (! db2_autocommit($this->conn, DB2_AUTOCOMMIT_ON)) {
-            throw new DB2Exception(db2_conn_errormsg($this->conn));
+            throw DB2Exception::fromConnectionError($this->conn);
         }
     }
 
