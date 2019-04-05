@@ -67,18 +67,4 @@ interface Connection
      * @throws DriverException
      */
     public function rollBack() : void;
-
-    /**
-     * Returns the error code associated with the last operation on the database handle.
-     *
-     * @return string|null The error code, or null if no operation has been run on the database handle.
-     */
-    public function errorCode();
-
-    /**
-     * Returns extended error information associated with the last operation on the database handle.
-     *
-     * @return mixed[]
-     */
-    public function errorInfo();
 }
