@@ -83,26 +83,6 @@ class Statement implements IteratorAggregate, DriverStatement
     /**
      * {@inheritdoc}
      */
-    public function errorCode()
-    {
-        assert($this->stmt instanceof DriverStatement);
-
-        return $this->stmt->errorCode();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function errorInfo()
-    {
-        assert($this->stmt instanceof DriverStatement);
-
-        return $this->stmt->errorInfo();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function execute($params = null) : void
     {
         assert($this->stmt instanceof DriverStatement);

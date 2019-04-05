@@ -85,29 +85,7 @@ class StatementTest extends DbalTestCase
         self::assertSame($columnCount, $this->stmt->columnCount());
     }
 
-    public function testErrorCode()
-    {
-        $errorCode = '666';
-
-        $this->wrappedStmt->expects($this->once())
-            ->method('errorCode')
-            ->will($this->returnValue($errorCode));
-
-        self::assertSame($errorCode, $this->stmt->errorCode());
-    }
-
-    public function testErrorInfo()
-    {
-        $errorInfo = ['666', 'Evil error.'];
-
-        $this->wrappedStmt->expects($this->once())
-            ->method('errorInfo')
-            ->will($this->returnValue($errorInfo));
-
-        self::assertSame($errorInfo, $this->stmt->errorInfo());
-    }
-
-    public function testExecute()
+    public function testExecute() : void
     {
         $params = [
             'foo',

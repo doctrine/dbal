@@ -8,12 +8,10 @@ use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
-use const SQLSRV_ERR_ERRORS;
 use function sqlsrv_begin_transaction;
 use function sqlsrv_commit;
 use function sqlsrv_configure;
 use function sqlsrv_connect;
-use function sqlsrv_errors;
 use function sqlsrv_query;
 use function sqlsrv_rollback;
 use function sqlsrv_rows_affected;
@@ -161,26 +159,5 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
         if (! sqlsrv_rollback($this->conn)) {
             throw SQLSrvException::fromSqlSrvErrors();
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function errorCode()
-    {
-        $errors = sqlsrv_errors(SQLSRV_ERR_ERRORS);
-        if ($errors) {
-            return $errors[0]['code'];
-        }
-
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function errorInfo()
-    {
-        return (array) sqlsrv_errors(SQLSRV_ERR_ERRORS);
     }
 }
