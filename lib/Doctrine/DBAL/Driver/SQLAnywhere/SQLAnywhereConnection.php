@@ -14,8 +14,6 @@ use function is_string;
 use function sasql_affected_rows;
 use function sasql_commit;
 use function sasql_connect;
-use function sasql_error;
-use function sasql_errorcode;
 use function sasql_escape_string;
 use function sasql_insert_id;
 use function sasql_pconnect;
@@ -82,22 +80,6 @@ class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
         }
 
         $this->endTransaction();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function errorCode()
-    {
-        return sasql_errorcode($this->connection);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function errorInfo()
-    {
-        return sasql_error($this->connection);
     }
 
     /**
