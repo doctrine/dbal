@@ -1,5 +1,9 @@
 # Upgrade to 3.0
 
+## BC BREAK `::errorCode()` and `::errorInfo()` removed from `Connection` and `Statement` APIs
+
+The error information is available in `DriverException` trown in case of an error.
+
 ## BC BREAK Changes in driver exceptions
 
 1. The `Doctrine\DBAL\Driver\DriverException::getErrorCode()` method is removed. In order to obtain the driver error code, please use `::getCode()`.

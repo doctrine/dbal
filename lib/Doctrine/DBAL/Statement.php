@@ -180,24 +180,6 @@ class Statement implements IteratorAggregate, DriverStatement
     }
 
     /**
-     * Fetches the SQLSTATE associated with the last operation on the statement.
-     *
-     * @return string|int|bool
-     */
-    public function errorCode()
-    {
-        return $this->stmt->errorCode();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function errorInfo()
-    {
-        return $this->stmt->errorInfo();
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function setFetchMode($fetchMode, ...$args) : void
