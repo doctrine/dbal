@@ -7,7 +7,7 @@ namespace Doctrine\DBAL\Driver\PDOOracle;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\AbstractOracleDriver;
 use Doctrine\DBAL\Driver\PDOConnection;
-use PDOException;
+use Doctrine\DBAL\Driver\PDOException;
 
 /**
  * PDO Oracle driver.
