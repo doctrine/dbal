@@ -11,7 +11,6 @@ use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use IteratorAggregate;
 use const SQLSRV_ENC_BINARY;
-use const SQLSRV_ERR_ERRORS;
 use const SQLSRV_FETCH_ASSOC;
 use const SQLSRV_FETCH_BOTH;
 use const SQLSRV_FETCH_NUMERIC;
@@ -21,7 +20,6 @@ use function count;
 use function in_array;
 use function is_int;
 use function is_numeric;
-use function sqlsrv_errors;
 use function sqlsrv_execute;
 use function sqlsrv_fetch;
 use function sqlsrv_fetch_array;
@@ -205,27 +203,6 @@ class SQLSrvStatement implements IteratorAggregate, Statement
         }
 
         return sqlsrv_num_fields($this->stmt) ?: 0;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function errorCode()
-    {
-        $errors = sqlsrv_errors(SQLSRV_ERR_ERRORS);
-        if ($errors) {
-            return $errors[0]['code'];
-        }
-
-        return false;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function errorInfo()
-    {
-        return (array) sqlsrv_errors(SQLSRV_ERR_ERRORS);
     }
 
     /**
