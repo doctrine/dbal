@@ -20,8 +20,6 @@ use function defined;
 use function floor;
 use function in_array;
 use function ini_get;
-use function mysqli_errno;
-use function mysqli_error;
 use function mysqli_init;
 use function mysqli_options;
 use function restore_error_handler;
@@ -70,7 +68,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
         });
         try {
             if (! $this->conn->real_connect($params['host'], $username, $password, $dbname, $port, $socket, $flags)) {
-                throw new MysqliException($this->conn->connect_error, $this->conn->sqlstate ?? 'HY000', $this->conn->connect_errno);
+                throw MysqliException::fromConnectionError($this->conn);
             }
         } finally {
             restore_error_handler();
@@ -158,7 +156,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
     public function exec(string $statement) : int
     {
         if ($this->conn->query($statement) === false) {
-            throw new MysqliException($this->conn->error, $this->conn->sqlstate, $this->conn->errno);
+            throw MysqliException::fromConnectionError($this->conn);
         }
 
         return $this->conn->affected_rows;
@@ -186,7 +184,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
     public function commit() : void
     {
         if (! $this->conn->commit()) {
-            throw new MysqliException($this->conn->error, $this->conn->sqlstate, $this->conn->errno);
+            throw MysqliException::fromConnectionError($this->conn);
         }
     }
 
@@ -196,7 +194,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
     public function rollBack() : void
     {
         if (! $this->conn->rollback()) {
-            throw new MysqliException($this->conn->error, $this->conn->sqlstate, $this->conn->errno);
+            throw MysqliException::fromConnectionError($this->conn);
         }
     }
 
@@ -255,14 +253,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
                 continue;
             }
 
-            $msg  = sprintf($exceptionMsg, 'Failed to set', $option, $value);
-            $msg .= sprintf(', error: %s (%d)', mysqli_error($this->conn), mysqli_errno($this->conn));
-
-            throw new MysqliException(
-                $msg,
-                $this->conn->sqlstate,
-                $this->conn->errno
-            );
+            throw MysqliException::fromConnectionError($this->conn);
         }
     }
 

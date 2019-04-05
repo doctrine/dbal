@@ -42,14 +42,7 @@ class DBALExceptionTest extends DbalTestCase
             /**
              * {@inheritDoc}
              */
-            public function getErrorCode()
-            {
-            }
-
-            /**
-             * {@inheritDoc}
-             */
-            public function getSQLState()
+            public function getSQLState() : ?string
             {
             }
         };
