@@ -13,14 +13,12 @@ class SQLSrvException extends AbstractDriverException
 {
     /**
      * Helper method to turn sql server errors into exception.
-     *
-     * @return \Doctrine\DBAL\Driver\SQLSrv\SQLSrvException
      */
-    public static function fromSqlSrvErrors()
+    public static function fromSqlSrvErrors() : self
     {
-        $message   = '';
-        $sqlState  = null;
-        $errorCode = null;
+        $message  = '';
+        $sqlState = null;
+        $code     = null;
 
         foreach ((array) sqlsrv_errors(SQLSRV_ERR_ERRORS) as $error) {
             $message .= 'SQLSTATE [' . $error['SQLSTATE'] . ', ' . $error['code'] . ']: ' . $error['message'] . "\n";
@@ -29,17 +27,17 @@ class SQLSrvException extends AbstractDriverException
                 $sqlState = $error['SQLSTATE'];
             }
 
-            if ($errorCode !== null) {
+            if ($code !== null) {
                 continue;
             }
 
-            $errorCode = $error['code'];
+            $code = $error['code'];
         }
 
         if (! $message) {
             $message = 'SQL Server error occurred but no error message was retrieved from driver.';
         }
 
-        return new self(rtrim($message), $sqlState, $errorCode);
+        return new self(rtrim($message), $sqlState, $code);
     }
 }
