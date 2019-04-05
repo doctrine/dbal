@@ -7,7 +7,7 @@ namespace Doctrine\DBAL\Driver\PDOMySql;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\AbstractMySQLDriver;
 use Doctrine\DBAL\Driver\PDOConnection;
-use PDOException;
+use Doctrine\DBAL\Driver\PDOException;
 
 /**
  * PDO MySql driver.
