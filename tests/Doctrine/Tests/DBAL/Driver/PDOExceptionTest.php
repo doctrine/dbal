@@ -15,7 +15,7 @@ class PDOExceptionTest extends DbalTestCase
 
     public const MESSAGE = 'PDO Exception';
 
-    public const SQLSTATE = 28000;
+    public const SQLSTATE = 'HY000';
 
     /**
      * The PDO exception wrapper under test.
@@ -39,7 +39,7 @@ class PDOExceptionTest extends DbalTestCase
 
         parent::setUp();
 
-        $this->wrappedException = new \PDOException(self::MESSAGE, self::SQLSTATE);
+        $this->wrappedException = new \PDOException(self::MESSAGE);
 
         $this->wrappedException->errorInfo = [self::SQLSTATE, self::ERROR_CODE];
 
@@ -48,12 +48,7 @@ class PDOExceptionTest extends DbalTestCase
 
     public function testReturnsCode() : void
     {
-        self::assertSame(self::SQLSTATE, $this->exception->getCode());
-    }
-
-    public function testReturnsErrorCode() : void
-    {
-        self::assertSame(self::ERROR_CODE, $this->exception->getErrorCode());
+        self::assertSame(self::ERROR_CODE, $this->exception->getCode());
     }
 
     public function testReturnsMessage() : void

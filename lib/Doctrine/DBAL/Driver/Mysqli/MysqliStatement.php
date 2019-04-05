@@ -87,7 +87,7 @@ class MysqliStatement implements IteratorAggregate, Statement
         $stmt = $conn->prepare($prepareString);
 
         if ($stmt === false) {
-            throw new MysqliException($this->_conn->error, $this->_conn->sqlstate, $this->_conn->errno);
+            throw MysqliException::fromConnectionError($this->_conn);
         }
 
         $this->_stmt = $stmt;
@@ -139,14 +139,14 @@ class MysqliStatement implements IteratorAggregate, Statement
     {
         if ($params !== null && count($params) > 0) {
             if (! $this->bindUntypedValues($params)) {
-                throw new MysqliException($this->_stmt->error, $this->_stmt->errno);
+                throw MysqliException::fromStatementError($this->_stmt);
             }
         } else {
             $this->bindTypedParameters();
         }
 
         if (! $this->_stmt->execute()) {
-            throw new MysqliException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
+            throw MysqliException::fromStatementError($this->_stmt);
         }
 
         if ($this->_columnNames === null) {
@@ -193,7 +193,7 @@ class MysqliStatement implements IteratorAggregate, Statement
             }
 
             if (! $this->_stmt->bind_result(...$refs)) {
-                throw new MysqliException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
+                throw MysqliException::fromStatementError($this->_stmt);
             }
         }
 
@@ -232,7 +232,7 @@ class MysqliStatement implements IteratorAggregate, Statement
         }
 
         if (count($values) > 0 && ! $this->_stmt->bind_param($types, ...$values)) {
-            throw new MysqliException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
+            throw MysqliException::fromStatementError($this->_stmt);
         }
 
         $this->sendLongData($streams);
@@ -254,7 +254,7 @@ class MysqliStatement implements IteratorAggregate, Statement
                 }
 
                 if (! $this->_stmt->send_long_data($paramNr - 1, $chunk)) {
-                    throw new MysqliException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
+                    throw MysqliException::fromStatementError($this->_stmt);
                 }
             }
         }
@@ -322,7 +322,7 @@ class MysqliStatement implements IteratorAggregate, Statement
         }
 
         if ($values === false) {
-            throw new MysqliException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
+            throw MysqliException::fromStatementError($this->_stmt);
         }
 
         if ($fetchMode === FetchMode::NUMERIC) {
