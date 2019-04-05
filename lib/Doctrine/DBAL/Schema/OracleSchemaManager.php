@@ -45,7 +45,7 @@ class OracleSchemaManager extends AbstractSchemaManager
             // because of active connections on the database.
             // To force dropping the database, we first have to close all active connections
             // on that database and issue the drop database operation again.
-            if ($exception->getErrorCode() !== 1940) {
+            if ($exception->getCode() !== 1940) {
                 throw $exception;
             }
 
