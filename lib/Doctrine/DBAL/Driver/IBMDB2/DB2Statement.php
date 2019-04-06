@@ -32,8 +32,6 @@ use function db2_fetch_object;
 use function db2_free_result;
 use function db2_num_fields;
 use function db2_num_rows;
-use function db2_stmt_error;
-use function db2_stmt_errormsg;
 use function error_get_last;
 use function fclose;
 use function fwrite;
@@ -163,25 +161,6 @@ class DB2Statement implements IteratorAggregate, Statement
     public function columnCount()
     {
         return db2_num_fields($this->stmt) ?: 0;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function errorCode()
-    {
-        return db2_stmt_error();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function errorInfo()
-    {
-        return [
-            db2_stmt_errormsg(),
-            db2_stmt_error(),
-        ];
     }
 
     /**
