@@ -199,22 +199,6 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
     }
 
     /**
-     * {@inheritdoc}
-     */
-    public function errorCode()
-    {
-        return $this->conn->errno;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function errorInfo()
-    {
-        return $this->conn->error;
-    }
-
-    /**
      * Apply the driver options to the connection.
      *
      * @param mixed[] $driverOptions
