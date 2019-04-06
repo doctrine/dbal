@@ -257,7 +257,7 @@ jobs:
         - bash ./tests/travis/install-mssql-pdo_sqlsrv.sh
         - bash ./tests/travis/install-mssql.sh
     - stage: Test
-      php: 7.2
+      php: 7.3
       env: DB=ibm_db2 COVERAGE=yes
       sudo: required
       services:
