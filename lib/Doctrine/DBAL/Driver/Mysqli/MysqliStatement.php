@@ -391,22 +391,6 @@ class MysqliStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function errorCode()
-    {
-        return $this->_stmt->errno;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function errorInfo()
-    {
-        return $this->_stmt->error;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function closeCursor() : void
     {
         $this->_stmt->free_result();

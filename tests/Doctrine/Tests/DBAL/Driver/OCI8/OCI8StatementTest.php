@@ -8,6 +8,7 @@ use Doctrine\DBAL\Driver\OCI8\OCI8Connection;
 use Doctrine\DBAL\Driver\OCI8\OCI8Exception;
 use Doctrine\DBAL\Driver\OCI8\OCI8Statement;
 use Doctrine\Tests\DbalTestCase;
+use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionProperty;
 use const OCI_NO_AUTO_COMMIT;
 use function extension_loaded;
@@ -39,8 +40,9 @@ class OCI8StatementTest extends DbalTestCase
      */
     public function testExecute(array $params)
     {
+        /** @var OCI8Statement|MockObject $statement */
         $statement = $this->getMockBuilder(OCI8Statement::class)
-            ->setMethods(['bindValue', 'errorInfo'])
+            ->setMethods(['bindValue'])
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -56,10 +58,7 @@ class OCI8StatementTest extends DbalTestCase
 
         // can't pass to constructor since we don't have a real database handle,
         // but execute must check the connection for the executeMode
-        $conn = $this->getMockBuilder(OCI8Connection::class)
-            ->setMethods(['getExecuteMode'])
-            ->disableOriginalConstructor()
-            ->getMock();
+        $conn = $this->createMock(OCI8Connection::class);
         $conn->expects($this->once())
             ->method('getExecuteMode')
             ->willReturn(OCI_NO_AUTO_COMMIT);
