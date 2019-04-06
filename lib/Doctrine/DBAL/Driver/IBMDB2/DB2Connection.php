@@ -13,8 +13,6 @@ use const DB2_AUTOCOMMIT_OFF;
 use const DB2_AUTOCOMMIT_ON;
 use function db2_autocommit;
 use function db2_commit;
-use function db2_conn_error;
-use function db2_conn_errormsg;
 use function db2_connect;
 use function db2_escape_string;
 use function db2_exec;
@@ -164,24 +162,5 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
         if (! db2_autocommit($this->conn, DB2_AUTOCOMMIT_ON)) {
             throw DB2Exception::fromConnectionError($this->conn);
         }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function errorCode()
-    {
-        return db2_conn_error($this->conn);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function errorInfo()
-    {
-        return [
-            0 => db2_conn_errormsg($this->conn),
-            1 => $this->errorCode(),
-        ];
     }
 }
