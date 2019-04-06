@@ -345,33 +345,6 @@ class OCI8Statement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function errorCode()
-    {
-        $error = oci_error($this->_sth);
-        if ($error !== false) {
-            $error = $error['code'];
-        }
-
-        return $error;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function errorInfo()
-    {
-        $error = oci_error($this->_sth);
-
-        if ($error === false) {
-            return [];
-        }
-
-        return $error;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function execute($params = null) : void
     {
         if ($params) {
