@@ -30,8 +30,6 @@ use function sasql_fetch_row;
 use function sasql_prepare;
 use function sasql_stmt_affected_rows;
 use function sasql_stmt_bind_param_ex;
-use function sasql_stmt_errno;
-use function sasql_stmt_error;
 use function sasql_stmt_execute;
 use function sasql_stmt_field_count;
 use function sasql_stmt_reset;
@@ -142,22 +140,6 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
     public function columnCount()
     {
         return sasql_stmt_field_count($this->stmt);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function errorCode()
-    {
-        return sasql_stmt_errno($this->stmt);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function errorInfo()
-    {
-        return sasql_stmt_error($this->stmt);
     }
 
     /**

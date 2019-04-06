@@ -199,31 +199,4 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
 
         $this->executeMode = OCI_COMMIT_ON_SUCCESS;
     }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function errorCode()
-    {
-        $error = oci_error($this->dbh);
-        if ($error !== false) {
-            $error = $error['code'];
-        }
-
-        return $error;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function errorInfo()
-    {
-        $error = oci_error($this->dbh);
-
-        if ($error === false) {
-            return [];
-        }
-
-        return $error;
-    }
 }
