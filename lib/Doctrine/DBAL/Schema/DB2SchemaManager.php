@@ -45,12 +45,9 @@ class DB2SchemaManager extends AbstractSchemaManager
     {
         $tableColumn = array_change_key_case($tableColumn, CASE_LOWER);
 
-        $length    = null;
-        $fixed     = null;
-        $scale     = false;
-        $precision = false;
-
-        $default = null;
+        $length = $precision = $default = null;
+        $scale  = 0;
+        $fixed  = false;
 
         if ($tableColumn['default'] !== null && $tableColumn['default'] !== 'NULL') {
             $default = trim($tableColumn['default'], "'");
@@ -62,7 +59,6 @@ class DB2SchemaManager extends AbstractSchemaManager
         switch (strtolower($tableColumn['typename'])) {
             case 'varchar':
                 $length = $tableColumn['length'];
-                $fixed  = false;
                 break;
             case 'character':
                 $length = $tableColumn['length'];
@@ -82,12 +78,10 @@ class DB2SchemaManager extends AbstractSchemaManager
         $options = [
             'length'        => $length,
             'unsigned'      => false,
-            'fixed'         => (bool) $fixed,
+            'fixed'         => $fixed,
             'default'       => $default,
             'autoincrement' => (bool) $tableColumn['autoincrement'],
-            'notnull'       => (bool) ($tableColumn['nulls'] === 'N'),
-            'scale'         => null,
-            'precision'     => null,
+            'notnull'       => $tableColumn['nulls'] === 'N',
             'comment'       => isset($tableColumn['comment']) && $tableColumn['comment'] !== ''
                 ? $tableColumn['comment']
                 : null,
