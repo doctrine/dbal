@@ -1,5 +1,17 @@
 # Upgrade to 2.10
 
+## MINOR BC BREAK: escaped default values
+
+Default values will be automatically escaped. So default values must now be specified non-escaped.
+
+Before:
+
+    $column->setDefault('Foo\\\\Bar\\\\Baz');
+
+After:
+
+    $column->setDefault('Foo\\Bar\\Baz');
+
 ## Deprecated `Type::*` constants
 
 The constants for built-in types have been moved from `Doctrine\DBAL\Types\Type` to a separate class `Doctrine\DBAL\Types\Types`.

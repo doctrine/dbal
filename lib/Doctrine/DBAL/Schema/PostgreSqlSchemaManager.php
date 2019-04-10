@@ -395,11 +395,12 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
                 $length = null;
                 break;
             case 'text':
-                $fixed = false;
-                break;
-            case 'varchar':
-            case 'interval':
             case '_varchar':
+            case 'varchar':
+                $tableColumn['default'] = $this->parseDefaultExpression($tableColumn['default']);
+                $fixed                  = false;
+                break;
+            case 'interval':
                 $fixed = false;
                 break;
             case 'char':
@@ -478,5 +479,17 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         }
 
         return $defaultValue;
+    }
+
+    /**
+     * Parses a default value expression as given by PostgreSQL
+     */
+    private function parseDefaultExpression(?string $default) : ?string
+    {
+        if ($default === null) {
+            return $default;
+        }
+
+        return str_replace("''", "'", $default);
     }
 }

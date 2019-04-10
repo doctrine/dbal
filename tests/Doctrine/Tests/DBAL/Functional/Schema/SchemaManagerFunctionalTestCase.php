@@ -1496,6 +1496,67 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
     }
 
     /**
+     * Returns potential escaped literals from all platforms combined.
+     *
+     * @see https://dev.mysql.com/doc/refman/5.7/en/string-literals.html
+     * @see http://www.sqlite.org/lang_expr.html
+     * @see https://www.postgresql.org/docs/9.6/static/sql-syntax-lexical.html#SQL-SYNTAX-STRINGS-ESCAPE
+     *
+     * @return mixed[][]
+     */
+    private function getEscapedLiterals() : iterable
+    {
+        return [
+            ['An ASCII NUL (X\'00\')', "foo\\0bar"],
+            ['Single quote, C-style', "foo\\'bar"],
+            ['Single quote, doubled-style', "foo''bar"],
+            ['Double quote, C-style', 'foo\\"bar'],
+            ['Double quote, double-style', 'foo""bar'],
+            ['Backspace', 'foo\\bbar'],
+            ['New-line', 'foo\\nbar'],
+            ['Carriage return', 'foo\\rbar'],
+            ['Tab', 'foo\\tbar'],
+            ['ASCII 26 (Control+Z)', 'foo\\Zbar'],
+            ['Backslash (\)', 'foo\\\\bar'],
+            ['Percent (%)', 'foo\\%bar'],
+            ['Underscore (_)', 'foo\\_bar'],
+        ];
+    }
+
+    private function createTableForDefaultValues() : void
+    {
+        $table = new Table('string_escaped_default_value');
+        foreach ($this->getEscapedLiterals() as $i => $literal) {
+            $table->addColumn('field' . $i, 'string', ['default' => $literal[1]]);
+        }
+
+        $table->addColumn('def_foo', 'string');
+        $this->schemaManager->dropAndCreateTable($table);
+    }
+
+    public function testEscapedDefaultValueCanBeIntrospected() : void
+    {
+        $this->createTableForDefaultValues();
+
+        $onlineTable = $this->schemaManager->listTableDetails('string_escaped_default_value');
+        foreach ($this->getEscapedLiterals() as $i => $literal) {
+            self::assertSame($literal[1], $onlineTable->getColumn('field' . $i)->getDefault(), 'should be able introspect the value of default for: ' . $literal[0]);
+        }
+    }
+
+    public function testEscapedDefaultValueCanBeInserted() : void
+    {
+        $this->createTableForDefaultValues();
+
+        $this->connection->insert('string_escaped_default_value', ['def_foo' => 'foo']);
+
+        foreach ($this->getEscapedLiterals() as $i => $literal) {
+            $value = $this->connection->fetchColumn('SELECT field' . $i . ' FROM string_escaped_default_value');
+            self::assertSame($literal[1], $value, 'inserted default value should be the configured default value for: ' . $literal[0]);
+        }
+    }
+
+    /**
      * @group #3086
      */
     public function testComparisonWithAutoDetectedSequenceDefinition() : void
