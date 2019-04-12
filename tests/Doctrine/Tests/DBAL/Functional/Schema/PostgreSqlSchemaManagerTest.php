@@ -518,11 +518,11 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     {
         $table = new Table('table_with_comment');
         $table->addColumn('id', 'integer');
-        $table->addOption('comment', 'Foo');
+        $table->addOption('comment', 'Foo with control characters \'\\');
         $this->schemaManager->dropAndCreateTable($table);
 
         $table = $this->schemaManager->listTableDetails('table_with_comment');
-        self::assertSame('Foo', $table->getOption('comment'));
+        self::assertSame('Foo with control characters \'\\', $table->getOption('comment'));
     }
 
     /**
