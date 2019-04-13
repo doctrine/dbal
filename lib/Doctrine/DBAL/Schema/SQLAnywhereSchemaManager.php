@@ -88,13 +88,13 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableTableColumnDefinition($tableColumn)
     {
-        $type                   = $this->_platform->getDoctrineTypeMapping($tableColumn['type']);
-        $type                   = $this->extractDoctrineTypeFromComment($tableColumn['comment'], $type);
-        $tableColumn['comment'] = $this->removeDoctrineTypeFromComment($tableColumn['comment'], $type);
-        $precision              = null;
-        $scale                  = null;
-        $fixed                  = false;
-        $default                = null;
+        $type = $this->extractDoctrineTypeFromComment($tableColumn['comment'])
+            ?? $this->_platform->getDoctrineTypeMapping($tableColumn['type']);
+
+        $precision = null;
+        $scale     = null;
+        $fixed     = false;
+        $default   = null;
 
         if ($tableColumn['default'] !== null) {
             // Strip quotes from default value.
