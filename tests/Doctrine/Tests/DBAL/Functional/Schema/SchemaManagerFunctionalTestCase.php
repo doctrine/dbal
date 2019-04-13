@@ -32,6 +32,7 @@ use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DbalFunctionalTestCase;
+use ReflectionMethod;
 use function array_filter;
 use function array_keys;
 use function array_map;
@@ -1440,27 +1441,26 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
      * @dataProvider commentsProvider
      * @group 2596
      */
-    public function testExtractDoctrineTypeFromComment(string $comment, string $expected, string $currentType) : void
+    public function testExtractDoctrineTypeFromComment(?string $comment, ?string $expectedType) : void
     {
-        $result = $this->schemaManager->extractDoctrineTypeFromComment($comment, $currentType);
+        $re = new ReflectionMethod($this->schemaManager, 'extractDoctrineTypeFromComment');
+        $re->setAccessible(true);
 
-        self::assertSame($expected, $result);
+        self::assertSame($expectedType, $re->invokeArgs($this->schemaManager, [&$comment]));
     }
 
     /**
-     * @return string[][]
+     * @return mixed[][]
      */
-    public function commentsProvider() : array
+    public static function commentsProvider() : iterable
     {
-        $currentType = 'current type';
-
         return [
-            'invalid custom type comments'      => ['should.return.current.type', $currentType, $currentType],
-            'valid doctrine type'               => ['(DC2Type:guid)', 'guid', $currentType],
-            'valid with dots'                   => ['(DC2Type:type.should.return)', 'type.should.return', $currentType],
-            'valid with namespace'              => ['(DC2Type:Namespace\Class)', 'Namespace\Class', $currentType],
-            'valid with extra closing bracket'  => ['(DC2Type:should.stop)).before)', 'should.stop', $currentType],
-            'valid with extra opening brackets' => ['(DC2Type:should((.stop)).before)', 'should((.stop', $currentType],
+            'invalid custom type comments'      => ['should.return.null', null],
+            'valid doctrine type'               => ['(DC2Type:guid)', 'guid'],
+            'valid with dots'                   => ['(DC2Type:type.should.return)', 'type.should.return'],
+            'valid with namespace'              => ['(DC2Type:Namespace\Class)', 'Namespace\Class'],
+            'valid with extra closing bracket'  => ['(DC2Type:should.stop)).before)', 'should.stop'],
+            'valid with extra opening brackets' => ['(DC2Type:should((.stop)).before)', 'should((.stop'],
         ];
     }
 
