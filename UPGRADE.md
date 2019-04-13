@@ -1,5 +1,9 @@
 # Upgrade to 3.0
 
+## BC BREAK `AbstractSchemaManager::extractDoctrineTypeFromComment()` changed, `::removeDoctrineTypeFromComment()` removed
+
+`AbstractSchemaManager::extractDoctrineTypeFromComment()` made `protected`. It takes the comment by reference, removes the type annotation from it and returns the extracted Doctrine type.
+
 ## BC BREAK `::errorCode()` and `::errorInfo()` removed from `Connection` and `Statement` APIs
 
 The error information is available in `DriverException` trown in case of an error.
