@@ -8,6 +8,7 @@ use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\AbstractMySQLDriver;
 use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\Driver\PDOException;
+use PDO;
 
 /**
  * PDO MySql driver.
@@ -19,6 +20,10 @@ class Driver extends AbstractMySQLDriver
      */
     public function connect(array $params, $username = null, $password = null, array $driverOptions = [])
     {
+        if (! empty($params['persistent'])) {
+            $driverOptions[PDO::ATTR_PERSISTENT] = true;
+        }
+
         try {
             $conn = new PDOConnection(
                 $this->constructPdoDsn($params),
