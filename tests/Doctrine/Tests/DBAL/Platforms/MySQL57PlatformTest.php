@@ -3,7 +3,7 @@
 namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\DBAL\Platforms\MySQL57Platform;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 
 class MySQL57PlatformTest extends AbstractMySQLPlatformTestCase
 {
@@ -28,7 +28,7 @@ class MySQL57PlatformTest extends AbstractMySQLPlatformTestCase
     public function testInitializesJsonTypeMapping()
     {
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('json'));
-        self::assertSame(Type::JSON, $this->platform->getDoctrineTypeMapping('json'));
+        self::assertSame(Types::JSON, $this->platform->getDoctrineTypeMapping('json'));
     }
 
     /**

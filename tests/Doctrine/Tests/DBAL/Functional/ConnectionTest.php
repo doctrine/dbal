@@ -8,7 +8,7 @@ use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use Error;
 use Exception;
@@ -252,7 +252,7 @@ class ConnectionTest extends DbalFunctionalTestCase
     public function testQuote()
     {
         self::assertEquals(
-            $this->connection->quote('foo', Type::STRING),
+            $this->connection->quote('foo', Types::STRING),
             $this->connection->quote('foo', ParameterType::STRING)
         );
     }

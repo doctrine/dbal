@@ -18,61 +18,110 @@ use function substr;
  */
 abstract class Type
 {
-    public const BIGINT               = 'bigint';
-    public const BINARY               = 'binary';
-    public const BLOB                 = 'blob';
-    public const BOOLEAN              = 'boolean';
-    public const DATE                 = 'date';
-    public const DATE_IMMUTABLE       = 'date_immutable';
-    public const DATEINTERVAL         = 'dateinterval';
-    public const DATETIME             = 'datetime';
-    public const DATETIME_IMMUTABLE   = 'datetime_immutable';
-    public const DATETIMETZ           = 'datetimetz';
-    public const DATETIMETZ_IMMUTABLE = 'datetimetz_immutable';
-    public const DECIMAL              = 'decimal';
-    public const FLOAT                = 'float';
-    public const GUID                 = 'guid';
-    public const INTEGER              = 'integer';
-    public const JSON                 = 'json';
-    public const JSON_ARRAY           = 'json_array';
-    public const OBJECT               = 'object';
-    public const SIMPLE_ARRAY         = 'simple_array';
-    public const SMALLINT             = 'smallint';
-    public const STRING               = 'string';
-    public const TARRAY               = 'array';
-    public const TEXT                 = 'text';
-    public const TIME                 = 'time';
-    public const TIME_IMMUTABLE       = 'time_immutable';
+    /** @deprecated Use {@see DefaultTypes::BIGINT} instead. */
+    public const BIGINT = Types::BIGINT;
+
+    /** @deprecated Use {@see DefaultTypes::BINARY} instead. */
+    public const BINARY = Types::BINARY;
+
+    /** @deprecated Use {@see DefaultTypes::BLOB} instead. */
+    public const BLOB = Types::BLOB;
+
+    /** @deprecated Use {@see DefaultTypes::BOOLEAN} instead. */
+    public const BOOLEAN = Types::BOOLEAN;
+
+    /** @deprecated Use {@see DefaultTypes::DATE_MUTABLE} instead. */
+    public const DATE = Types::DATE_MUTABLE;
+
+    /** @deprecated Use {@see DefaultTypes::DATE_IMMUTABLE} instead. */
+    public const DATE_IMMUTABLE = Types::DATE_IMMUTABLE;
+
+    /** @deprecated Use {@see DefaultTypes::DATEINTERVAL} instead. */
+    public const DATEINTERVAL = Types::DATEINTERVAL;
+
+    /** @deprecated Use {@see DefaultTypes::DATETIME_MUTABLE} instead. */
+    public const DATETIME = Types::DATETIME_MUTABLE;
+
+    /** @deprecated Use {@see DefaultTypes::DATETIME_IMMUTABLE} instead. */
+    public const DATETIME_IMMUTABLE = Types::DATETIME_IMMUTABLE;
+
+    /** @deprecated Use {@see DefaultTypes::DATETIMETZ_MUTABLE} instead. */
+    public const DATETIMETZ = Types::DATETIMETZ_MUTABLE;
+
+    /** @deprecated Use {@see DefaultTypes::DATETIMETZ_IMMUTABLE} instead. */
+    public const DATETIMETZ_IMMUTABLE = Types::DATETIMETZ_IMMUTABLE;
+
+    /** @deprecated Use {@see DefaultTypes::DECIMAL} instead. */
+    public const DECIMAL = Types::DECIMAL;
+
+    /** @deprecated Use {@see DefaultTypes::FLOAT} instead. */
+    public const FLOAT = Types::FLOAT;
+
+    /** @deprecated Use {@see DefaultTypes::GUID} instead. */
+    public const GUID = Types::GUID;
+
+    /** @deprecated Use {@see DefaultTypes::INTEGER} instead. */
+    public const INTEGER = Types::INTEGER;
+
+    /** @deprecated Use {@see DefaultTypes::JSON} instead. */
+    public const JSON = Types::JSON;
+
+    /** @deprecated Use {@see DefaultTypes::JSON_ARRAY} instead. */
+    public const JSON_ARRAY = Types::JSON_ARRAY;
+
+    /** @deprecated Use {@see DefaultTypes::OBJECT} instead. */
+    public const OBJECT = Types::OBJECT;
+
+    /** @deprecated Use {@see DefaultTypes::SIMPLE_ARRAY} instead. */
+    public const SIMPLE_ARRAY = Types::SIMPLE_ARRAY;
+
+    /** @deprecated Use {@see DefaultTypes::SMALLINT} instead. */
+    public const SMALLINT = Types::SMALLINT;
+
+    /** @deprecated Use {@see DefaultTypes::STRING} instead. */
+    public const STRING = Types::STRING;
+
+    /** @deprecated Use {@see DefaultTypes::ARRAY} instead. */
+    public const TARRAY = Types::ARRAY;
+
+    /** @deprecated Use {@see DefaultTypes::TEXT} instead. */
+    public const TEXT = Types::TEXT;
+
+    /** @deprecated Use {@see DefaultTypes::TIME_MUTABLE} instead. */
+    public const TIME = Types::TIME_MUTABLE;
+
+    /** @deprecated Use {@see DefaultTypes::TIME_IMMUTABLE} instead. */
+    public const TIME_IMMUTABLE = Types::TIME_IMMUTABLE;
 
     /**
      * The map of supported doctrine mapping types.
      */
     private const BUILTIN_TYPES_MAP = [
-        self::BIGINT               => BigIntType::class,
-        self::BINARY               => BinaryType::class,
-        self::BLOB                 => BlobType::class,
-        self::BOOLEAN              => BooleanType::class,
-        self::DATE                 => DateType::class,
-        self::DATE_IMMUTABLE       => DateImmutableType::class,
-        self::DATEINTERVAL         => DateIntervalType::class,
-        self::DATETIME             => DateTimeType::class,
-        self::DATETIME_IMMUTABLE   => DateTimeImmutableType::class,
-        self::DATETIMETZ           => DateTimeTzType::class,
-        self::DATETIMETZ_IMMUTABLE => DateTimeTzImmutableType::class,
-        self::DECIMAL              => DecimalType::class,
-        self::FLOAT                => FloatType::class,
-        self::GUID                 => GuidType::class,
-        self::INTEGER              => IntegerType::class,
-        self::JSON                 => JsonType::class,
-        self::JSON_ARRAY           => JsonArrayType::class,
-        self::OBJECT               => ObjectType::class,
-        self::SIMPLE_ARRAY         => SimpleArrayType::class,
-        self::SMALLINT             => SmallIntType::class,
-        self::STRING               => StringType::class,
-        self::TARRAY               => ArrayType::class,
-        self::TEXT                 => TextType::class,
-        self::TIME                 => TimeType::class,
-        self::TIME_IMMUTABLE       => TimeImmutableType::class,
+        Types::ARRAY                => ArrayType::class,
+        Types::BIGINT               => BigIntType::class,
+        Types::BINARY               => BinaryType::class,
+        Types::BLOB                 => BlobType::class,
+        Types::BOOLEAN              => BooleanType::class,
+        Types::DATE_MUTABLE         => DateType::class,
+        Types::DATE_IMMUTABLE       => DateImmutableType::class,
+        Types::DATEINTERVAL         => DateIntervalType::class,
+        Types::DATETIME_MUTABLE     => DateTimeType::class,
+        Types::DATETIME_IMMUTABLE   => DateTimeImmutableType::class,
+        Types::DATETIMETZ_MUTABLE   => DateTimeTzType::class,
+        Types::DATETIMETZ_IMMUTABLE => DateTimeTzImmutableType::class,
+        Types::DECIMAL              => DecimalType::class,
+        Types::FLOAT                => FloatType::class,
+        Types::GUID                 => GuidType::class,
+        Types::INTEGER              => IntegerType::class,
+        Types::JSON                 => JsonType::class,
+        Types::JSON_ARRAY           => JsonArrayType::class,
+        Types::OBJECT               => ObjectType::class,
+        Types::SIMPLE_ARRAY         => SimpleArrayType::class,
+        Types::SMALLINT             => SmallIntType::class,
+        Types::STRING               => StringType::class,
+        Types::TEXT                 => TextType::class,
+        Types::TIME_MUTABLE         => TimeType::class,
+        Types::TIME_IMMUTABLE       => TimeImmutableType::class,
     ];
 
     /** @var TypeRegistry|null */

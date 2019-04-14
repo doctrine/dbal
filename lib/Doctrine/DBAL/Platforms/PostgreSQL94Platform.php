@@ -2,7 +2,7 @@
 
 namespace Doctrine\DBAL\Platforms;
 
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 
 /**
  * Provides the behavior, features and SQL dialect of the PostgreSQL 9.4 database platform.
@@ -36,6 +36,6 @@ class PostgreSQL94Platform extends PostgreSQL92Platform
     {
         parent::initializeDoctrineTypeMappings();
 
-        $this->doctrineTypeMapping['jsonb'] = Type::JSON;
+        $this->doctrineTypeMapping['jsonb'] = Types::JSON;
     }
 }

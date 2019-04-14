@@ -15,7 +15,7 @@ class IntegerType extends Type implements PhpIntegerMappingType
      */
     public function getName()
     {
-        return Type::INTEGER;
+        return Types::INTEGER;
     }
 
     /**

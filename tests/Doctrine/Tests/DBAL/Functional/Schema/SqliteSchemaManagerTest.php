@@ -8,6 +8,7 @@ use Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use SQLite3;
 use function array_map;
 use function dirname;
@@ -206,8 +207,8 @@ SQL;
         self::assertArrayHasKey('foo', $columns);
         self::assertArrayHasKey('bar', $columns);
 
-        self::assertSame(Type::getType(Type::STRING), $columns['foo']->getType());
-        self::assertSame(Type::getType(Type::TEXT), $columns['bar']->getType());
+        self::assertSame(Type::getType(Types::STRING), $columns['foo']->getType());
+        self::assertSame(Type::getType(Types::TEXT), $columns['bar']->getType());
 
         self::assertSame(64, $columns['foo']->getLength());
         self::assertSame(100, $columns['bar']->getLength());

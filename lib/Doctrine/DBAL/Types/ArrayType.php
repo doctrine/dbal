@@ -59,7 +59,7 @@ class ArrayType extends Type
      */
     public function getName()
     {
-        return Type::TARRAY;
+        return Types::ARRAY;
     }
 
     /**

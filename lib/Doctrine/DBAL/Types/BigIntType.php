@@ -15,7 +15,7 @@ class BigIntType extends Type implements PhpIntegerMappingType
      */
     public function getName()
     {
-        return Type::BIGINT;
+        return Types::BIGINT;
     }
 
     /**

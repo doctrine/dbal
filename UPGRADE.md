@@ -1,3 +1,16 @@
+# Upgrade to 2.10
+
+## Deprecated `Type::*` constants
+
+The constants for built-in types have been moved from `Doctrine\DBAL\Types\Type` to a separate class `Doctrine\DBAL\Types\Types`.
+
+Some of the constants were renamed in the process:
+* `TARRAY`-> `ARRAY`
+* `DATE` -> `DATE_MUTABLE`
+* `DATETIME` -> `DATETIME_MUTABLE`
+* `DATETIMETZ` -> `DATETIMETZ_MUTABLE`
+* `TIME` -> `TIME_MUTABLE`
+
 # Upgrade to 2.9
 
 ## Deprecated `Statement::fetchColumn()` with an invalid index

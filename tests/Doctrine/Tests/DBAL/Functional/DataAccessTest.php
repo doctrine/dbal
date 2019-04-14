@@ -16,7 +16,7 @@ use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Platforms\TrimMode;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Statement;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use PDO;
 use const CASE_LOWER;
@@ -225,7 +225,11 @@ class DataAccessTest extends DbalFunctionalTestCase
         $datetime       = new DateTime($datetimeString);
 
         $sql  = 'SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?';
-        $data = $this->connection->fetchAll($sql, [1, $datetime], [ParameterType::STRING, Type::DATETIME]);
+        $data = $this->connection->fetchAll(
+            $sql,
+            [1, $datetime],
+            [ParameterType::STRING, Types::DATETIME_MUTABLE]
+        );
 
         self::assertCount(1, $data);
 
@@ -297,7 +301,11 @@ class DataAccessTest extends DbalFunctionalTestCase
         $datetime       = new DateTime($datetimeString);
 
         $sql = 'SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?';
-        $row = $this->connection->fetchAssoc($sql, [1, $datetime], [ParameterType::STRING, Type::DATETIME]);
+        $row = $this->connection->fetchAssoc(
+            $sql,
+            [1, $datetime],
+            [ParameterType::STRING, Types::DATETIME_MUTABLE]
+        );
 
         self::assertNotFalse($row);
 
@@ -338,7 +346,11 @@ class DataAccessTest extends DbalFunctionalTestCase
         $datetime       = new DateTime($datetimeString);
 
         $sql = 'SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?';
-        $row = $this->connection->fetchArray($sql, [1, $datetime], [ParameterType::STRING, Type::DATETIME]);
+        $row = $this->connection->fetchArray(
+            $sql,
+            [1, $datetime],
+            [ParameterType::STRING, Types::DATETIME_MUTABLE]
+        );
 
         self::assertNotFalse($row);
 
@@ -383,7 +395,12 @@ class DataAccessTest extends DbalFunctionalTestCase
         $datetime       = new DateTime($datetimeString);
 
         $sql    = 'SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?';
-        $column = $this->connection->fetchColumn($sql, [1, $datetime], 1, [ParameterType::STRING, Type::DATETIME]);
+        $column = $this->connection->fetchColumn(
+            $sql,
+            [1, $datetime],
+            1,
+            [ParameterType::STRING, Types::DATETIME_MUTABLE]
+        );
 
         self::assertNotFalse($column);
 
@@ -415,7 +432,7 @@ class DataAccessTest extends DbalFunctionalTestCase
         $stmt = $this->connection->executeQuery(
             $sql,
             [1 => new DateTime('2010-01-01 10:10:10')],
-            [1 => Type::DATETIME]
+            [1 => Types::DATETIME_MUTABLE]
         );
 
         self::assertEquals(1, $stmt->fetchColumn());
@@ -436,14 +453,14 @@ class DataAccessTest extends DbalFunctionalTestCase
         ], [
             1 => ParameterType::INTEGER,
             2 => ParameterType::STRING,
-            3 => Type::DATETIME,
+            3 => Types::DATETIME_MUTABLE,
         ]);
 
         self::assertEquals(1, $affectedRows);
         self::assertEquals(1, $this->connection->executeQuery(
             'SELECT count(*) AS c FROM fetch_table WHERE test_datetime = ?',
             [1 => $datetime],
-            [1 => Type::DATETIME]
+            [1 => Types::DATETIME_MUTABLE]
         )->fetchColumn());
     }
 
@@ -454,7 +471,7 @@ class DataAccessTest extends DbalFunctionalTestCase
     {
         $sql  = 'SELECT count(*) AS c FROM fetch_table WHERE test_datetime = ?';
         $stmt = $this->connection->prepare($sql);
-        $stmt->bindValue(1, new DateTime('2010-01-01 10:10:10'), Type::DATETIME);
+        $stmt->bindValue(1, new DateTime('2010-01-01 10:10:10'), Types::DATETIME_MUTABLE);
         $stmt->execute();
 
         self::assertEquals(1, $stmt->fetchColumn());

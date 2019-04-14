@@ -16,7 +16,7 @@ class DateType extends Type
      */
     public function getName()
     {
-        return Type::DATE;
+        return Types::DATE_MUTABLE;
     }
 
     /**

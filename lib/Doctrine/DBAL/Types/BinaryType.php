@@ -42,7 +42,7 @@ class BinaryType extends Type
         }
 
         if (! is_resource($value)) {
-            throw ConversionException::conversionFailed($value, self::BINARY);
+            throw ConversionException::conversionFailed($value, Types::BINARY);
         }
 
         return $value;
@@ -53,7 +53,7 @@ class BinaryType extends Type
      */
     public function getName()
     {
-        return Type::BINARY;
+        return Types::BINARY;
     }
 
     /**

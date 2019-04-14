@@ -16,7 +16,7 @@ class DateTimeImmutableType extends DateTimeType
      */
     public function getName()
     {
-        return Type::DATETIME_IMMUTABLE;
+        return Types::DATETIME_IMMUTABLE;
     }
 
     /**

@@ -14,7 +14,7 @@ class DecimalType extends Type
      */
     public function getName()
     {
-        return Type::DECIMAL;
+        return Types::DECIMAL;
     }
 
     /**

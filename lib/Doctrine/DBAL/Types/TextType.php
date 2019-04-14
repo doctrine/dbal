@@ -32,6 +32,6 @@ class TextType extends Type
      */
     public function getName()
     {
-        return Type::TEXT;
+        return Types::TEXT;
     }
 }

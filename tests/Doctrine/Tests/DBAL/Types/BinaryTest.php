@@ -7,6 +7,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\Tests\DbalTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 use function base64_encode;
@@ -37,7 +38,7 @@ class BinaryTest extends DbalTestCase
 
     public function testReturnsName()
     {
-        self::assertSame(Type::BINARY, $this->type->getName());
+        self::assertSame(Types::BINARY, $this->type->getName());
     }
 
     public function testReturnsSQLDeclaration()

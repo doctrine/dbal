@@ -11,7 +11,7 @@ class FloatType extends Type
      */
     public function getName()
     {
-        return Type::FLOAT;
+        return Types::FLOAT;
     }
 
     /**
