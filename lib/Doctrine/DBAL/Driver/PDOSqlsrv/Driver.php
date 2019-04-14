@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver\PDOSqlsrv;
 
 use Doctrine\DBAL\Driver\AbstractSQLServerDriver;
+use PDO;
 use function is_int;
 use function sprintf;
 
@@ -26,6 +27,10 @@ class Driver extends AbstractSQLServerDriver
             } else {
                 $dsnOptions[$option] = $value;
             }
+        }
+
+        if (! empty($params['persistent'])) {
+            $pdoOptions[PDO::ATTR_PERSISTENT] = true;
         }
 
         return new Connection(
