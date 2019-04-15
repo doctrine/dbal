@@ -18,6 +18,7 @@ use Doctrine\DBAL\Types\Types;
 use function array_map;
 use function array_pop;
 use function count;
+use function preg_match;
 use function strtolower;
 
 class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
@@ -217,11 +218,15 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $column    = $testTable->addColumn('id', 'integer');
         $this->schemaManager->createTable($testTable);
 
-        $this->connection->getConfiguration()->setFilterSchemaAssetsExpression('#^dbal204_#');
+        $this->connection->getConfiguration()->setSchemaAssetsFilter(static function (string $name): bool {
+            return preg_match('#^dbal204_#', $name) === 1;
+        });
         $names = $this->schemaManager->listTableNames();
         self::assertCount(2, $names);
 
-        $this->connection->getConfiguration()->setFilterSchemaAssetsExpression('#^dbal204_test#');
+        $this->connection->getConfiguration()->setSchemaAssetsFilter(static function (string $name): bool {
+            return preg_match('#^dbal204_test#', $name) === 1;
+        });
         $names = $this->schemaManager->listTableNames();
         self::assertCount(1, $names);
     }

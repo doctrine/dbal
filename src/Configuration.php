@@ -88,18 +88,6 @@ class Configuration
     }
 
     /**
-     * Returns filter schema assets expression.
-     *
-     * @deprecated Use Configuration::getSchemaAssetsFilter() instead
-     *
-     * @return string|null
-     */
-    public function getFilterSchemaAssetsExpression()
-    {
-        return $this->_attributes['filterSchemaAssetsExpression'] ?? null;
-    }
-
-    /**
      * @param string $filterExpression
      */
     private function buildSchemaAssetsFilterFromExpression($filterExpression): callable

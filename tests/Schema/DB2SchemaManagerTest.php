@@ -12,6 +12,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 use function in_array;
+use function preg_match;
 
 /**
  * @covers \Doctrine\DBAL\Schema\DB2SchemaManager
@@ -44,8 +45,10 @@ final class DB2SchemaManagerTest extends TestCase
      */
     public function testListTableNamesFiltersAssetNamesCorrectly(): void
     {
-        $this->conn->getConfiguration()->setFilterSchemaAssetsExpression('/^(?!T_)/');
-        $this->conn->expects(self::once())->method('fetchAllAssociative')->will(self::returnValue([
+        $this->conn->getConfiguration()->setSchemaAssetsFilter(static function (string $name): bool {
+            return preg_match('/^(?!T_)/', $name) === 1;
+        });
+        $this->conn->expects(self::once())->method('fetchAllAssociative')->will($this->returnValue([
             ['name' => 'FOO'],
             ['name' => 'T_FOO'],
             ['name' => 'BAR'],
@@ -59,35 +62,6 @@ final class DB2SchemaManagerTest extends TestCase
             ],
             $this->manager->listTableNames()
         );
-    }
-
-    /**
-     * @group DBAL-2701
-     */
-    public function testAssetFilteringSetsACallable(): void
-    {
-        $filterExpression = '/^(?!T_)/';
-        $this->conn->getConfiguration()->setFilterSchemaAssetsExpression($filterExpression);
-        $this->conn->expects(self::once())->method('fetchAllAssociative')->will(self::returnValue([
-            ['name' => 'FOO'],
-            ['name' => 'T_FOO'],
-            ['name' => 'BAR'],
-            ['name' => 'T_BAR'],
-        ]));
-
-        self::assertSame(
-            [
-                'FOO',
-                'BAR',
-            ],
-            $this->manager->listTableNames()
-        );
-
-        $callable = $this->conn->getConfiguration()->getSchemaAssetsFilter();
-        self::assertIsCallable($callable);
-
-        // BC check: Test that regexp expression is still preserved & accessible.
-        self::assertEquals($filterExpression, $this->conn->getConfiguration()->getFilterSchemaAssetsExpression());
     }
 
     public function testListTableNamesFiltersAssetNamesCorrectlyWithCallable(): void
@@ -111,79 +85,5 @@ final class DB2SchemaManagerTest extends TestCase
             ],
             $this->manager->listTableNames()
         );
-
-        self::assertNull($this->conn->getConfiguration()->getFilterSchemaAssetsExpression());
-    }
-
-    public function testSettingNullExpressionWillResetCallable(): void
-    {
-        $accepted = ['T_FOO', 'T_BAR'];
-        $this->conn->getConfiguration()->setSchemaAssetsFilter(static function ($assetName) use ($accepted) {
-            return in_array($assetName, $accepted);
-        });
-        $this->conn->expects(self::any())->method('quote');
-        $this->conn->expects($this->atLeastOnce())->method('fetchAllAssociative')->will(self::returnValue([
-            ['name' => 'FOO'],
-            ['name' => 'T_FOO'],
-            ['name' => 'BAR'],
-            ['name' => 'T_BAR'],
-        ]));
-
-        self::assertSame(
-            [
-                'T_FOO',
-                'T_BAR',
-            ],
-            $this->manager->listTableNames()
-        );
-
-        $this->conn->getConfiguration()->setFilterSchemaAssetsExpression(null);
-
-        self::assertSame(
-            [
-                'FOO',
-                'T_FOO',
-                'BAR',
-                'T_BAR',
-            ],
-            $this->manager->listTableNames()
-        );
-
-        self::assertNull($this->conn->getConfiguration()->getSchemaAssetsFilter());
-    }
-
-    public function testSettingNullAsCallableClearsExpression(): void
-    {
-        $filterExpression = '/^(?!T_)/';
-        $this->conn->getConfiguration()->setFilterSchemaAssetsExpression($filterExpression);
-
-        $this->conn->expects(self::exactly(2))->method('fetchAllAssociative')->will(self::returnValue([
-            ['name' => 'FOO'],
-            ['name' => 'T_FOO'],
-            ['name' => 'BAR'],
-            ['name' => 'T_BAR'],
-        ]));
-
-        self::assertSame(
-            [
-                'FOO',
-                'BAR',
-            ],
-            $this->manager->listTableNames()
-        );
-
-        $this->conn->getConfiguration()->setSchemaAssetsFilter(null);
-
-        self::assertSame(
-            [
-                'FOO',
-                'T_FOO',
-                'BAR',
-                'T_BAR',
-            ],
-            $this->manager->listTableNames()
-        );
-
-        $this->assertNull($this->conn->getConfiguration()->getFilterSchemaAssetsExpression());
     }
 }
