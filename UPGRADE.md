@@ -1,5 +1,9 @@
 # Upgrade to 3.0
 
+## BC BREAK Removed previously deprecated features
+
+ * Removed `json_array` type and all associated hacks.
+
 ## BC BREAK changes the `Driver::connect()` signature
 
 The method no longer accepts the `$username`, `$password` and `$driverOptions` arguments. The corresponding values are expected to be passed as the "user", "password" and "driver_options" keys of the `$params` argument respectively.

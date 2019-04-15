@@ -857,7 +857,7 @@ abstract class AbstractPlatformTestCase extends TestCase
         $column = [
             'length'  => 666,
             'notnull' => true,
-            'type'    => Type::getType('json_array'),
+            'type'    => Type::getType('json'),
         ];
 
         self::assertSame(

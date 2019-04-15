@@ -497,7 +497,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             $column->setPlatformOption('collation', $tableColumn['collation']);
         }
 
-        if (in_array($column->getType()->getName(), [Types::JSON_ARRAY, Types::JSON], true)) {
+        if ($column->getType()->getName() === Types::JSON) {
             $column->setPlatformOption('jsonb', $jsonb);
         }
 

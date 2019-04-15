@@ -403,10 +403,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertSame('(id IS NULL)', $onlineTable->getIndex('simple_partial_index')->getOption('where'));
     }
 
-    /**
-     * @dataProvider jsonbColumnTypeProvider
-     */
-    public function testJsonbColumn(string $type): void
+    public function testJsonbColumn(): void
     {
         if (! $this->schemaManager->getDatabasePlatform() instanceof PostgreSQL94Platform) {
             $this->markTestSkipped('Requires PostgresSQL 9.4+');
@@ -415,24 +412,13 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         }
 
         $table = new Schema\Table('test_jsonb');
-        $table->addColumn('foo', $type)->setPlatformOption('jsonb', true);
+        $table->addColumn('foo', Types::JSON)->setPlatformOption('jsonb', true);
         $this->schemaManager->dropAndCreateTable($table);
 
         $columns = $this->schemaManager->listTableColumns('test_jsonb');
 
-        self::assertSame($type, $columns['foo']->getType()->getName());
+        self::assertSame(Types::JSON, $columns['foo']->getType()->getName());
         self::assertTrue(true, $columns['foo']->getPlatformOption('jsonb'));
-    }
-
-    /**
-     * @return mixed[][]
-     */
-    public function jsonbColumnTypeProvider(): array
-    {
-        return [
-            [Types::JSON],
-            [Types::JSON_ARRAY],
-        ];
     }
 
     /**

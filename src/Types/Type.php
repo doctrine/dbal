@@ -67,9 +67,6 @@ abstract class Type
     /** @deprecated Use {@see Types::JSON} instead. */
     public const JSON = Types::JSON;
 
-    /** @deprecated Use {@see Types::JSON_ARRAY} instead. */
-    public const JSON_ARRAY = Types::JSON_ARRAY;
-
     /** @deprecated Use {@see Types::OBJECT} instead. */
     public const OBJECT = Types::OBJECT;
 
@@ -115,7 +112,6 @@ abstract class Type
         Types::GUID                 => GuidType::class,
         Types::INTEGER              => IntegerType::class,
         Types::JSON                 => JsonType::class,
-        Types::JSON_ARRAY           => JsonArrayType::class,
         Types::OBJECT               => ObjectType::class,
         Types::SIMPLE_ARRAY         => SimpleArrayType::class,
         Types::SMALLINT             => SmallIntType::class,
