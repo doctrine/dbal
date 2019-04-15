@@ -8,6 +8,7 @@
 ## BC BREAK Removed previously deprecated features
 
  * Removed `json_array` type and all associated hacks.
+ * Removed `Connection::TRANSACTION_*` constants.
 
 ## BC BREAK `AbstractSchemaManager::extractDoctrineTypeFromComment()` changed, `::removeDoctrineTypeFromComment()` removed
 
