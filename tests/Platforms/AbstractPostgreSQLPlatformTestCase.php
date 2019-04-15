@@ -589,7 +589,7 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
 
         $oldTable = clone $newTable;
         $oldTable->addColumn('parent_id', 'integer');
-        $oldTable->addUnnamedForeignKeyConstraint('mytable', ['parent_id'], ['id']);
+        $oldTable->addForeignKeyConstraint('mytable', ['parent_id'], ['id']);
 
         $comparator = new Comparator();
         $tableDiff  = $comparator->diffTable($oldTable, $newTable);

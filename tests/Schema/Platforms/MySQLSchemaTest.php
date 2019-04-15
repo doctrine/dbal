@@ -51,7 +51,7 @@ class MySQLSchemaTest extends TestCase
     {
         $tableOld = new Table('test');
         $tableOld->addColumn('foo_id', 'integer');
-        $tableOld->addUnnamedForeignKeyConstraint('test_foreign', ['foo_id'], ['foo_id']);
+        $tableOld->addForeignKeyConstraint('test_foreign', ['foo_id'], ['foo_id']);
 
         $sqls = [];
         foreach ($tableOld->getForeignKeys() as $fk) {
