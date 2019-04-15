@@ -74,6 +74,7 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
      */
     public function prepare(string $sql) : DriverStatement
     {
+        $this->lastInsertId = new LastInsertId();
         return new SQLSrvStatement($this->conn, $sql, $this->lastInsertId);
     }
 
@@ -124,10 +125,14 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
         if ($name !== null) {
             $stmt = $this->prepare('SELECT CONVERT(VARCHAR(MAX), current_value) FROM sys.sequences WHERE name = ?');
             $stmt->execute([$name]);
-        } else {
-            $stmt = $this->query('SELECT @@IDENTITY');
+            return $stmt->fetchColumn();
         }
 
+        if ($this->lastInsertId->getId()) {
+            return $this->lastInsertId->getId();
+        }
+
+        $stmt = $this->query('SELECT @@IDENTITY');
         return $stmt->fetchColumn();
     }
 

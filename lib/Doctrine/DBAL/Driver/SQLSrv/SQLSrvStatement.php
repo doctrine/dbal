@@ -121,6 +121,13 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     private $result = false;
 
     /**
+     * The affected number of rows
+     *
+     * @var int|null
+     */
+    private $rowCount;
+
+    /**
      * Append to any INSERT query to retrieve the last insert id.
      *
      * @deprecated This constant has been deprecated and will be made private in 3.0
@@ -228,7 +235,18 @@ class SQLSrvStatement implements IteratorAggregate, Statement
         if ($this->lastInsertId) {
             sqlsrv_next_result($this->stmt);
             sqlsrv_fetch($this->stmt);
-            $this->lastInsertId->setId(sqlsrv_get_field($this->stmt, 0));
+
+            $id             = sqlsrv_get_field($this->stmt, 0);
+            $this->rowCount = sqlsrv_rows_affected($this->stmt);
+
+            if (! $id) {
+                while (sqlsrv_next_result($this->stmt)) {
+                    sqlsrv_fetch($this->stmt);
+                    $id = sqlsrv_get_field($this->stmt, 0);
+                }
+            }
+
+            $this->lastInsertId->setId($id);
         }
 
         $this->result = true;
@@ -399,6 +417,6 @@ class SQLSrvStatement implements IteratorAggregate, Statement
             return 0;
         }
 
-        return sqlsrv_rows_affected($this->stmt) ?: 0;
+        return $this->rowCount ?: sqlsrv_rows_affected($this->stmt);
     }
 }
