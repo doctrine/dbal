@@ -277,4 +277,9 @@ SQL;
         // with an empty table, non autoincrement rowid is always 1
         $this->assertEquals(1, $lastUsedIdAfterDelete);
     }
+
+    public function testCommentInTable() : void
+    {
+        self::markTestSkipped('Table level comments are not supported on Sqlite');
+    }
 }

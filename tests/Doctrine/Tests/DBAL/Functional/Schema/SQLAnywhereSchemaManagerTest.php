@@ -61,4 +61,9 @@ class SQLAnywhereSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertArrayHasKey('test', $columns);
         self::assertTrue($columns['test']->getFixed());
     }
+
+    public function testCommentInTable() : void
+    {
+        self::markTestSkipped('Table level comments are not supported on SQLAnywhere');
+    }
 }

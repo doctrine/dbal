@@ -31,4 +31,9 @@ class Db2SchemaManagerTest extends SchemaManagerFunctionalTestCase
     {
         self::markTestSkipped('Binary data type is currently not supported on DB2 LUW');
     }
+
+    public function testCommentInTable() : void
+    {
+        self::markTestSkipped('Table level comments are not supported on DB2');
+    }
 }

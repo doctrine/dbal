@@ -285,4 +285,9 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
     {
         self::markTestSkipped("Skipped for uppercase letters are contained in sequences' names. Fix the schema manager in 3.0.");
     }
+
+    public function testCommentInTable() : void
+    {
+        self::markTestSkipped('Table level comments are not supported on Oracle');
+    }
 }

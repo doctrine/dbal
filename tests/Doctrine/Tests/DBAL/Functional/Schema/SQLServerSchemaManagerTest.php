@@ -357,4 +357,9 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertEquals('colB', $columns[0]);
         self::assertEquals('colA', $columns[1]);
     }
+
+    public function testCommentInTable() : void
+    {
+        self::markTestSkipped('Table level comments are not supported on SQLServer');
+    }
 }
