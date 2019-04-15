@@ -11,14 +11,6 @@ class BacktraceLogger extends DebugStack
     {
         parent::startQuery($sql, $params, $types);
 
-        $this->queries[$this->currentQuery]['backtrace'] = array_reverse(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS));
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function stopQuery()
-    {
-        parent::stopQuery();
+        $this->queries[$this->currentQuery]['backtrace'] = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
     }
 }
