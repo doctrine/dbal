@@ -1,5 +1,9 @@
 # Upgrade to 3.0
 
+## BC BREAK Removed previously deprecated features
+
+ * Removed `json_array` type and all associated hacks.
+
 ## BC BREAK `Connection::ping()` returns `void`.
 
 `Connection::ping()` and `PingableConnection::ping()` no longer return a boolean value. They will throw an exception in case of failure.
