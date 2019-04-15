@@ -3258,18 +3258,6 @@ abstract class AbstractPlatform
     }
 
     /**
-     * @deprecated
-     *
-     * @return string
-     *
-     * @todo Remove in 3.0
-     */
-    public function getIdentityColumnNullInsertSQL()
-    {
-        return '';
-    }
-
-    /**
      * Whether this platform supports views.
      *
      * @return bool
