@@ -4,6 +4,7 @@ namespace Doctrine\Tests\DBAL\Logging;
 
 use Doctrine\DBAL\Logging\BacktraceLogger;
 use Doctrine\Tests\DbalTestCase;
+use function current;
 
 class BacktraceLoggerTest extends DbalTestCase
 {

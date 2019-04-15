@@ -2,6 +2,9 @@
 
 namespace Doctrine\DBAL\Logging;
 
+use const DEBUG_BACKTRACE_IGNORE_ARGS;
+use function debug_backtrace;
+
 class BacktraceLogger extends DebugStack
 {
     /**
