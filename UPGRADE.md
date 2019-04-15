@@ -6,6 +6,7 @@
  * Removed `Connection::TRANSACTION_*` constants.
  * Removed `AbstractPlatform::DATE_INTERVAL_UNIT_*` and `AbstractPlatform::TRIM_*` constants.
  * Removed `MysqlSessionInit` listener.
+ * Removed `MysqlPlatform::getCollationFieldDeclaration()`.
 
 ## BC BREAK `Connection::ping()` returns `void`.
 
