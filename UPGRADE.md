@@ -11,6 +11,8 @@
  * Removed `Table::addUnnamedForeignKeyConstraint()` and `Table::addNamedForeignKeyConstraint()`.
  * Removed `Table::renameColumn()`.
  * Removed `SQLParserUtils::getPlaceholderPositions()`.
+ * Removed `AbstractSchemaManager::getFilterSchemaAssetsExpression()`, `Configuration::getFilterSchemaAssetsExpression()`
+   and `Configuration::getFilterSchemaAssetsExpression()`.
  * `SQLParserUtils::*_TOKEN` constants made private.
 
 ## BC BREAK `Connection::ping()` returns `void`.
