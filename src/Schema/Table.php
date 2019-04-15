@@ -303,25 +303,6 @@ class Table extends AbstractAsset
     }
 
     /**
-     * Renames a Column.
-     *
-     * @deprecated
-     *
-     * @param string $oldColumnName
-     * @param string $newColumnName
-     *
-     * @return void
-     *
-     * @throws DBALException
-     */
-    public function renameColumn($oldColumnName, $newColumnName)
-    {
-        throw new DBALException('Table#renameColumn() was removed, because it drops and recreates ' .
-            'the column instead. There is no fix available, because a schema diff cannot reliably detect if a ' .
-            'column was renamed or one column was created and another one dropped.');
-    }
-
-    /**
      * Change Column Details.
      *
      * @param string  $columnName
