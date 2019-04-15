@@ -28,13 +28,8 @@ use function substr;
  */
 class SQLParserUtils
 {
-    /**#@+
-     *
-     * @deprecated Will be removed as internal implementation details.
-     */
-    public const POSITIONAL_TOKEN = '\?';
-    public const NAMED_TOKEN      = '(?<!:):[a-zA-Z_][a-zA-Z0-9_]*';
-    /**#@-*/
+    private const POSITIONAL_TOKEN = '\?';
+    private const NAMED_TOKEN      = '(?<!:):[a-zA-Z_][a-zA-Z0-9_]*';
 
     // Quote characters within string literals can be preceded by a backslash.
     public const ESCAPED_SINGLE_QUOTED_TEXT   = "(?:'(?:\\\\\\\\)+'|'(?:[^'\\\\]|\\\\'?|'')*')";
