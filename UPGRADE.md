@@ -5,6 +5,7 @@
  * Removed `json_array` type and all associated hacks.
  * Removed `Connection::TRANSACTION_*` constants.
  * Removed `AbstractPlatform::DATE_INTERVAL_UNIT_*` and `AbstractPlatform::TRIM_*` constants.
+ * Removed `MysqlSessionInit` listener.
 
 ## BC BREAK `Connection::ping()` returns `void`.
 
