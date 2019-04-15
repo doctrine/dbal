@@ -10,7 +10,6 @@ use function array_key_exists;
 use function array_keys;
 use function array_map;
 use function array_merge;
-use function array_shift;
 use function array_unique;
 use function assert;
 use function count;
@@ -431,13 +430,6 @@ class Comparator
             $changedProperties[] = $property;
         }
 
-        // This is a very nasty hack to make comparator work with the legacy json_array type, which should be killed in v3
-        if ($this->isALegacyJsonComparison($properties1['type'], $properties2['type'])) {
-            array_shift($changedProperties);
-
-            $changedProperties[] = 'comment';
-        }
-
         // Null values need to be checked additionally as they tell whether to create or drop a default value.
         // null != 0, null != false, null != '' etc. This affects platform's table alteration SQL generation.
         if (($properties1['default'] === null) !== ($properties2['default'] === null)
@@ -498,21 +490,6 @@ class Comparator
         }
 
         return array_unique($changedProperties);
-    }
-
-    /**
-     * TODO: kill with fire on v3.0
-     *
-     * @deprecated
-     */
-    private function isALegacyJsonComparison(Types\Type $one, Types\Type $other) : bool
-    {
-        if (! $one instanceof Types\JsonType || ! $other instanceof Types\JsonType) {
-            return false;
-        }
-
-        return ( ! $one instanceof Types\JsonArrayType && $other instanceof Types\JsonArrayType)
-            || ( ! $other instanceof Types\JsonArrayType && $one instanceof Types\JsonArrayType);
     }
 
     /**
