@@ -9,6 +9,7 @@
  * Removed `MysqlPlatform::getCollationFieldDeclaration()`.
  * Removed `AbstractPlatform::getIdentityColumnNullInsertSQL()`.
  * Removed `Table::addUnnamedForeignKeyConstraint()` and `Table::addNamedForeignKeyConstraint()`.
+ * Removed `SQLParserUtils::getPlaceholderPositions()`.
  * `SQLParserUtils::*_TOKEN` constants made private.
 
 ## BC BREAK changes the `Driver::connect()` signature

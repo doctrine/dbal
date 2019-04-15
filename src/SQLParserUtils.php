@@ -43,26 +43,6 @@ class SQLParserUtils
     private const ESCAPED_BRACKET_QUOTED_TEXT = '(?<!\b(?i:ARRAY))\[(?:[^\]])*\]';
 
     /**
-     * Gets an array of the placeholders in an sql statements as keys and their positions in the query string.
-     *
-     * For a statement with positional parameters, returns a zero-indexed list of placeholder position.
-     * For a statement with named parameters, returns a map of placeholder positions to their parameter names.
-     *
-     * @deprecated Will be removed as internal implementation detail.
-     *
-     * @param string $statement
-     * @param bool   $isPositional
-     *
-     * @return int[]|string[]
-     */
-    public static function getPlaceholderPositions($statement, $isPositional = true)
-    {
-        return $isPositional
-            ? self::getPositionalPlaceholderPositions($statement)
-            : self::getNamedPlaceholderPositions($statement);
-    }
-
-    /**
      * Returns a zero-indexed list of placeholder position.
      *
      * @return int[]
