@@ -5,6 +5,10 @@
 `PostgreSqlPlatform::getAdvancedForeignKeyOptionsSQL()` had a typo in it in 2.x. Both the option name
 `feferred` and `deferred` were supported in `2.x` but the misspelling was removed in 3.x.
 
+## BC BREAK Removed previously deprecated features
+
+ * Removed `json_array` type and all associated hacks.
+
 ## BC BREAK `AbstractSchemaManager::extractDoctrineTypeFromComment()` changed, `::removeDoctrineTypeFromComment()` removed
 
 `AbstractSchemaManager::extractDoctrineTypeFromComment()` made `protected`. It takes the comment by reference, removes the type annotation from it and returns the extracted Doctrine type.
