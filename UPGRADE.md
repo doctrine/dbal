@@ -3,6 +3,7 @@
 ## BC BREAK Removed previously deprecated features
 
  * Removed `json_array` type and all associated hacks.
+ * Removed `Connection::TRANSACTION_*` constants.
 
 ## BC BREAK `Connection::ping()` returns `void`.
 
