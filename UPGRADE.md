@@ -9,6 +9,7 @@
  * Removed `MysqlPlatform::getCollationFieldDeclaration()`.
  * Removed `AbstractPlatform::getIdentityColumnNullInsertSQL()`.
  * Removed `Table::addUnnamedForeignKeyConstraint()` and `Table::addNamedForeignKeyConstraint()`.
+ * `SQLParserUtils::*_TOKEN` constants made private.
 
 ## BC BREAK `Connection::ping()` returns `void`.
 
