@@ -1299,6 +1299,46 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
     }
 
     /**
+     * Verify that setting a string column to have a default value
+     * does generate the correct ALTER statement.
+     */
+    public function testCompareDefaultString()
+    {
+        $oldColumn = new Column('test_column', Type::getType('string'), [
+            'default' => null,
+            'length' => 255,
+        ]);
+
+        $newColumn = new Column('test_column', Type::getType('string'), [
+            'default' => 'some_value',
+            'length' => 255,
+        ]);
+
+        $columnDiff = new ColumnDiff(
+            'test_column',
+            $newColumn,
+            ['default'],
+            $oldColumn
+        );
+
+        $tableDiff            = new TableDiff('test_table');
+        $tableDiff->fromTable = new Table('test_table');
+        $tableDiff->fromTable->addColumn('test_column', 'string');
+        $tableDiff->changedColumns[] = $columnDiff;
+
+        $sql = $this->platform->getAlterTableSQL($tableDiff);
+
+        self::assertEquals($this->getGenerateAlterDefaultSql(), $sql);
+    }
+
+    /**
+     * Return ALTER statement to set a string default.
+     *
+     * @return string
+     */
+    abstract protected function getGenerateAlterDefaultSql();
+
+    /**
      * @group DBAL-423
      */
     public function testReturnsGuidTypeDeclarationSQL()

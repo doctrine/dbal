@@ -865,6 +865,14 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
     }
 
     /**
+     * {@inheritdoc}
+     */
+    protected function getGenerateAlterDefaultSql()
+    {
+        return ["ALTER TABLE test_table ALTER test_column VARCHAR(255) DEFAULT 'some_value' NOT NULL"];
+    }
+
+    /**
      * @group DBAL-423
      */
     public function testReturnsGuidTypeDeclarationSQL()

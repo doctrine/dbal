@@ -426,6 +426,12 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             case 'year':
                 $length = null;
                 break;
+            case 'timestamp':
+            case 'timestamptz':
+                if ($tableColumn['default'] === 'now()') {
+                    $tableColumn['default'] = $this->_platform->getCurrentTimestampSQL();
+                }
+                break;
 
             // PostgreSQL 9.4+ only
             case 'jsonb':

@@ -491,6 +491,17 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     }
 
     /**
+     * {@inheritdoc}
+     */
+    protected function getGenerateAlterDefaultSql()
+    {
+        return [
+            "ALTER TABLE test_table ALTER COLUMN test_column SET DEFAULT 'some_value'",
+            "CALL SYSPROC.ADMIN_CMD ('REORG TABLE test_table')",
+        ];
+    }
+
+    /**
      * @group DBAL-423
      */
     public function testReturnsGuidTypeDeclarationSQL()

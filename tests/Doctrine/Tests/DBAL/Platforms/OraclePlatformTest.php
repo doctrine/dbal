@@ -619,6 +619,14 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     }
 
     /**
+     * {@inheritdoc}
+     */
+    protected function getGenerateAlterDefaultSql()
+    {
+        return ["ALTER TABLE test_table MODIFY (test_column VARCHAR2(255) DEFAULT 'some_value')"];
+    }
+
+    /**
      * @group DBAL-423
      */
     public function testReturnsGuidTypeDeclarationSQL()

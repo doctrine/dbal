@@ -17,6 +17,7 @@ use function array_map;
 use function array_pop;
 use function count;
 use function strtolower;
+use function substr;
 
 class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
@@ -524,6 +525,104 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
             'int->bigint' => ['integer', 'bigint', 'BIGINT'],
             'bigint->int' => ['bigint', 'integer', 'INT'],
         ];
+    }
+
+    /**
+     * Verify that an existing datetime column in the database
+     * that is set to default to the current time will be correctly
+     * transformed to "CURRENT_TIMESTAMP" by the schema manager,
+     * thereby resulting in no change.
+     */
+    public function testDatetimeDefaultNow()
+    {
+        $table = new Table('test_datetime_default_now_table');
+
+        $table->addColumn('id', 'integer');
+        $table->addColumn('test_column', 'datetime', ['default' => 'CURRENT_TIMESTAMP']);
+
+        $this->schemaManager->createTable($table);
+
+        $databaseTable = $this->schemaManager->listTableDetails($table->getName());
+
+        $c    = new Comparator();
+        $diff = $c->diffTable($table, $databaseTable);
+
+        $this->assertFalse($diff);
+    }
+
+    /**
+     * Verify that an existing datetimetz column in the database
+     * that is set to default to the current time will be correctly
+     * transformed to "CURRENT_TIMESTAMP" by the schema manager,
+     * thereby resulting in no change.
+     */
+    public function testDatetimeTzDefaultNow()
+    {
+        $table = new Table('test_datetimetz_default_now_table');
+
+        $table->addColumn('id', 'integer');
+        $table->addColumn('test_column', 'datetimetz', ['default' => 'CURRENT_TIMESTAMP']);
+
+        $this->schemaManager->createTable($table);
+
+        $databaseTable = $this->schemaManager->listTableDetails($table->getName());
+
+        $c    = new Comparator();
+        $diff = $c->diffTable($table, $databaseTable);
+
+        $this->assertFalse($diff);
+    }
+
+    /**
+     * Verify that an existing datetime column in the database
+     * that is set to default to a timestamp value will be correctly
+     * handled by the schema manager, resulting in no change.
+     */
+    public function testDatetimeDefaultTimestamp()
+    {
+        $testTimestamp = '2014-08-29 18:01:01.370568';
+
+        $table = new Table('test_datetime_default_table');
+
+        $table->addColumn('id', 'integer');
+        $table->addColumn('test_column', 'datetime', ['default' => $testTimestamp]);
+
+        $this->schemaManager->createTable($table);
+
+        $databaseTable = $this->schemaManager->listTableDetails($table->getName());
+
+        $c    = new Comparator();
+        $diff = $c->diffTable($table, $databaseTable);
+
+        $this->assertFalse($diff);
+    }
+
+    /**
+     * Verify that an existing datetimetz column in the database
+     * that is set to default to a timestamp value will be correctly
+     * handled by the schema manager, resulting in no change.
+     */
+    public function testDatetimeTzDefaultTimestamp()
+    {
+        // must determine server time zone for proper comparison
+        $serverTime     = $this->connection->fetchAssoc('SELECT CURRENT_TIMESTAMP AS timestamp_with_tz');
+        $timeZoneOffset = substr($serverTime['timestamp_with_tz'], -3);
+
+        $testTimestamp = '2014-08-29 18:01:01.370568' . $timeZoneOffset;
+
+        $table = new Table('test_datetimetz_default_table');
+
+        $table->addColumn('id', 'integer');
+        $table->addColumn('test_column', 'datetimetz', ['default' => $testTimestamp]);
+
+        $this->schemaManager->createTable($table);
+
+        $databaseTable = $this->schemaManager->listTableDetails($table->getName());
+
+        $c    = new Comparator();
+        $diff = $c->diffTable($table, $databaseTable);
+
+        $this->assertFalse($diff);
     }
 }
 

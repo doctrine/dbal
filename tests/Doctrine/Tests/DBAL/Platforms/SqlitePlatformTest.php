@@ -588,6 +588,20 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     }
 
     /**
+     * {@inheritdoc}
+     */
+    protected function getGenerateAlterDefaultSql()
+    {
+        return [
+            'CREATE TEMPORARY TABLE __temp__test_table AS SELECT test_column FROM test_table',
+            'DROP TABLE test_table',
+            "CREATE TABLE test_table (test_column VARCHAR(255) DEFAULT 'some_value' NOT NULL)",
+            'INSERT INTO test_table (test_column) SELECT test_column FROM __temp__test_table',
+            'DROP TABLE __temp__test_table',
+        ];
+    }
+
+    /**
      * @group DBAL-423
      */
     public function testReturnsGuidTypeDeclarationSQL()

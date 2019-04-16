@@ -789,6 +789,14 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     }
 
     /**
+     * {@inheritdoc}
+     */
+    protected function getGenerateAlterDefaultSql()
+    {
+        return ["ALTER TABLE test_table ALTER test_column SET DEFAULT 'some_value'"];
+    }
+
+    /**
      * @group DBAL-423
      */
     public function testReturnsGuidTypeDeclarationSQL()

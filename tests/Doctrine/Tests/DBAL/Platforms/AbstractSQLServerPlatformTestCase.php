@@ -1115,6 +1115,17 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     }
 
     /**
+     * {@inheritdoc}
+     */
+    protected function getGenerateAlterDefaultSql()
+    {
+        return [
+            'ALTER TABLE test_table ALTER COLUMN test_column NVARCHAR(255) NOT NULL',
+            "ALTER TABLE test_table ADD CONSTRAINT DF_FDF7294D_EA8A8050 DEFAULT 'some_value' FOR test_column",
+        ];
+    }
+
+    /**
      * @dataProvider getGeneratesIdentifierNamesInDefaultConstraintDeclarationSQL
      * @group DBAL-830
      */
