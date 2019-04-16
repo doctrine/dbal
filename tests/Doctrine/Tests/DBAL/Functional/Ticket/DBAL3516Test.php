@@ -25,7 +25,7 @@ class DBAL3516Test extends DbalFunctionalTestCase
 CREATE TRIGGER dbal3516_after_insert ON dbal3516 AFTER INSERT AS 
     DECLARE @i INT = 0;
     
-    WHILE @i < 1000
+    WHILE @i < 3
     BEGIN
         INSERT INTO dbal3516help (test) VALUES (1);
         SET @i = @i + 1;
