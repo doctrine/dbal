@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Logging;
 
 use const DEBUG_BACKTRACE_IGNORE_ARGS;
+use function array_shift;
 use function debug_backtrace;
 
 class BacktraceLogger extends DebugStack
@@ -14,6 +15,11 @@ class BacktraceLogger extends DebugStack
     {
         parent::startQuery($sql, $params, $types);
 
-        $this->queries[$this->currentQuery]['backtrace'] = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+        $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+
+        // skip first since it's always the current method
+        array_shift($backtrace);
+
+        $this->queries[$this->currentQuery]['backtrace'] = $backtrace;
     }
 }
