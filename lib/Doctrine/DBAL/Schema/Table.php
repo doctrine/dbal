@@ -863,7 +863,7 @@ class Table extends AbstractAsset
         $name = strlen($constraint->getName())
             ? $constraint->getName()
             : $this->_generateIdentifierName(
-                array_merge((array) $this->getName(), $constraint->getLocalColumns()),
+                array_merge((array) $this->getName(), $constraint->getColumns()),
                 'fk',
                 $this->_getMaxIdentifierLength()
             );
