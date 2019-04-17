@@ -118,13 +118,13 @@ class MySqlSchemaManager extends AbstractSchemaManager
 
         $length = $tableColumn['length'] ?? strtok('(), ');
 
-        $fixed = null;
+        $fixed = false;
 
         if (! isset($tableColumn['name'])) {
             $tableColumn['name'] = '';
         }
 
-        $scale     = null;
+        $scale     = 0;
         $precision = null;
 
         $type = $this->extractDoctrineTypeFromComment($tableColumn['comment'])
@@ -141,8 +141,8 @@ class MySqlSchemaManager extends AbstractSchemaManager
             case 'numeric':
             case 'decimal':
                 if (preg_match('([A-Za-z]+\(([0-9]+)\,([0-9]+)\))', $tableColumn['type'], $match)) {
-                    $precision = $match[1];
-                    $scale     = $match[2];
+                    $precision = (int) $match[1];
+                    $scale     = (int) $match[2];
                     $length    = null;
                 }
                 break;
@@ -184,21 +184,16 @@ class MySqlSchemaManager extends AbstractSchemaManager
         $options = [
             'length'        => $length !== null ? (int) $length : null,
             'unsigned'      => strpos($tableColumn['type'], 'unsigned') !== false,
-            'fixed'         => (bool) $fixed,
+            'fixed'         => $fixed,
             'default'       => $columnDefault,
             'notnull'       => $tableColumn['null'] !== 'YES',
-            'scale'         => null,
-            'precision'     => null,
+            'scale'         => $scale,
+            'precision'     => $precision,
             'autoincrement' => strpos($tableColumn['extra'], 'auto_increment') !== false,
             'comment'       => isset($tableColumn['comment']) && $tableColumn['comment'] !== ''
                 ? $tableColumn['comment']
                 : null,
         ];
-
-        if ($scale !== null && $precision !== null) {
-            $options['scale']     = (int) $scale;
-            $options['precision'] = (int) $precision;
-        }
 
         $column = new Column($tableColumn['field'], Type::getType($type), $options);
 
