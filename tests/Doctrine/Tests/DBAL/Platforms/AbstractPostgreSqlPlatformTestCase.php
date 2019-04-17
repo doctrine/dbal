@@ -111,7 +111,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
             'my_table',
             ['id'],
             'my_fk',
-            ['feferred' => true]
+            ['deferred' => true]
         );
         self::assertEquals(
             'CONSTRAINT my_fk FOREIGN KEY (foreign_id) REFERENCES my_table (id) NOT DEFERRABLE INITIALLY DEFERRED',
