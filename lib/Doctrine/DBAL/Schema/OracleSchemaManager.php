@@ -132,7 +132,9 @@ class OracleSchemaManager extends AbstractSchemaManager
             }
         }
 
-        $unsigned = $fixed = $precision = $scale = $length = null;
+        $length = $precision = null;
+        $scale  = 0;
+        $fixed  = false;
 
         if (! isset($tableColumn['column_name'])) {
             $tableColumn['column_name'] = '';
@@ -179,20 +181,18 @@ class OracleSchemaManager extends AbstractSchemaManager
             case 'varchar':
             case 'varchar2':
             case 'nvarchar2':
-                $length = $tableColumn['char_length'];
-                $fixed  = false;
+                $length = (int) $tableColumn['char_length'];
                 break;
             case 'char':
             case 'nchar':
-                $length = $tableColumn['char_length'];
+                $length = (int) $tableColumn['char_length'];
                 $fixed  = true;
                 break;
         }
 
         $options = [
-            'notnull'    => (bool) ($tableColumn['nullable'] === 'N'),
-            'fixed'      => (bool) $fixed,
-            'unsigned'   => (bool) $unsigned,
+            'notnull'    => $tableColumn['nullable'] === 'N',
+            'fixed'      => $fixed,
             'default'    => $tableColumn['data_default'],
             'length'     => $length,
             'precision'  => $precision,

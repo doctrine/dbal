@@ -20,7 +20,6 @@ use function explode;
 use function implode;
 use function in_array;
 use function preg_match;
-use function preg_replace;
 use function sprintf;
 use function str_replace;
 use function stripos;
@@ -317,10 +316,11 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     {
         $tableColumn = array_change_key_case($tableColumn, CASE_LOWER);
 
-        if (strtolower($tableColumn['type']) === 'varchar' || strtolower($tableColumn['type']) === 'bpchar') {
-            // get length from varchar definition
-            $length                = preg_replace('~.*\(([0-9]*)\).*~', '$1', $tableColumn['complete_type']);
-            $tableColumn['length'] = $length;
+        $length = null;
+
+        if (in_array(strtolower($tableColumn['type']), ['varchar', 'bpchar'], true)
+            && preg_match('/\((\d*)\)/', $tableColumn['complete_type'], $matches)) {
+            $length = (int) $matches[1];
         }
 
         $matches = [];
@@ -340,21 +340,22 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             $tableColumn['default'] = null;
         }
 
-        $length = $tableColumn['length'] ?? null;
-        if ($length === '-1' && isset($tableColumn['atttypmod'])) {
+        if ($length === -1 && isset($tableColumn['atttypmod'])) {
             $length = $tableColumn['atttypmod'] - 4;
         }
+
         if ((int) $length <= 0) {
             $length = null;
         }
-        $fixed = null;
+
+        $fixed = false;
 
         if (! isset($tableColumn['name'])) {
             $tableColumn['name'] = '';
         }
 
         $precision = null;
-        $scale     = null;
+        $scale     = 0;
         $jsonb     = null;
 
         $dbType = strtolower($tableColumn['type']);
@@ -398,14 +399,6 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
 
                 $length = null;
                 break;
-            case 'text':
-                $fixed = false;
-                break;
-            case 'varchar':
-            case 'interval':
-            case '_varchar':
-                $fixed = false;
-                break;
             case 'char':
             case 'bpchar':
                 $fixed = true;
@@ -422,8 +415,8 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
                 $tableColumn['default'] = $this->fixVersion94NegativeNumericDefaultValue($tableColumn['default']);
 
                 if (preg_match('([A-Za-z]+\(([0-9]+)\,([0-9]+)\))', $tableColumn['complete_type'], $match)) {
-                    $precision = $match[1];
-                    $scale     = $match[2];
+                    $precision = (int) $match[1];
+                    $scale     = (int) $match[2];
                     $length    = null;
                 }
                 break;
