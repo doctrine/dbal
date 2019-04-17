@@ -1193,7 +1193,7 @@ class ComparatorTest extends TestCase
         $column2 = new Column(
             'foo',
             Type::getType('guid'),
-            ['notnull' => false, 'length' => '36', 'fixed' => true, 'default' => 'NEWID()', 'comment' => 'GUID 2.']
+            ['notnull' => false, 'length' => 36, 'fixed' => true, 'default' => 'NEWID()', 'comment' => 'GUID 2.']
         );
 
         self::assertEquals(['notnull', 'default', 'comment'], $comparator->diffColumn($column1, $column2));
