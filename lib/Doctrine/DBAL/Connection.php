@@ -200,7 +200,6 @@ class Connection implements DriverConnection
             }
 
             $this->platform = $params['platform'];
-            unset($this->params['platform']);
         }
 
         // Create default config and event manager if none given
@@ -932,7 +931,10 @@ class Connection implements DriverConnection
             throw CacheException::noResultDriverConfigured();
         }
 
-        [$cacheKey, $realKey] = $qcp->generateCacheKeys($query, $params, $types, $this->getParams());
+        $connectionParams = $this->getParams();
+        unset($connectionParams['platform']);
+
+        [$cacheKey, $realKey] = $qcp->generateCacheKeys($query, $params, $types, $connectionParams);
 
         // fetch the row pointers entry
         $data = $resultCache->fetch($cacheKey);
