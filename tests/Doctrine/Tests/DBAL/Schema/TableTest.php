@@ -12,9 +12,10 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\SchemaException;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DbalTestCase;
-use function array_shift;
+use function array_keys;
 use function current;
 
 class TableTest extends DbalTestCase
@@ -206,7 +207,11 @@ class TableTest extends DbalTestCase
         $constraints = $tableA->getForeignKeys();
 
         self::assertCount(1, $constraints);
-        self::assertSame($constraint, array_shift($constraints));
+
+        $constraintNames = array_keys($constraints);
+
+        self::assertSame('fk_8c736521', $constraintNames[0]);
+        self::assertSame($constraint, $constraints['fk_8c736521']);
     }
 
     public function testOptions() : void
@@ -895,5 +900,34 @@ class TableTest extends DbalTestCase
 
         $table->setComment('foo');
         self::assertEquals('foo', $table->getComment());
+    }
+
+    public function testUniqueConstraintWithEmptyName() : void
+    {
+        $columns = [
+            new Column('column1', Type::getType(Type::STRING)),
+            new Column('column2', Type::getType(Type::STRING)),
+            new Column('column3', Type::getType(Type::STRING)),
+            new Column('column4', Type::getType(Type::STRING)),
+        ];
+
+        $uniqueConstraints = [
+            new UniqueConstraint('', ['column1', 'column2']),
+            new UniqueConstraint('', ['column3', 'column4']),
+        ];
+
+        $table = new Table('test', $columns, [], $uniqueConstraints);
+
+        $constraints = $table->getUniqueConstraints();
+
+        self::assertCount(2, $constraints);
+
+        $constraintNames = array_keys($constraints);
+
+        self::assertSame('fk_d87f7e0c341ce00bad15b1b1', $constraintNames[0]);
+        self::assertSame('fk_d87f7e0cda12812744761484', $constraintNames[1]);
+
+        self::assertSame($uniqueConstraints[0], $constraints['fk_d87f7e0c341ce00bad15b1b1']);
+        self::assertSame($uniqueConstraints[1], $constraints['fk_d87f7e0cda12812744761484']);
     }
 }
