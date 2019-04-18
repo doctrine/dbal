@@ -59,7 +59,9 @@ class PDOSqlsrvStatement implements IteratorAggregate, Statement
     public const LAST_INSERT_ID_SQL = ';SELECT SCOPE_IDENTITY() AS LastInsertId;';
 
     /**
+     * @param PDOConnection $conn
      * @param string $sql
+     * @param LastInsertId|null $lastInsertId
      */
     public function __construct(PDOConnection $conn, $sql, ?LastInsertId $lastInsertId = null)
     {
@@ -136,8 +138,11 @@ class PDOSqlsrvStatement implements IteratorAggregate, Statement
         if ($params) {
             $hasZeroIndex = array_key_exists(0, $params);
             foreach ($params as $key => $val) {
-                $key = $hasZeroIndex && is_numeric($key) ? $key + 1 : $key;
-                $this->bindValue($key, $val);
+                if ($hasZeroIndex && is_int($key)) {
+                    $this->bindValue($key + 1, $val);
+                } else {
+                    $this->bindValue($key, $val);
+                }
             }
         }
 
@@ -145,11 +150,11 @@ class PDOSqlsrvStatement implements IteratorAggregate, Statement
             $this->stmt = $this->prepare();
         }
 
-        $this->stmt->execute($params);
+        $result = $this->stmt->execute($params);
         $this->rowCount = $this->rowCount();
 
         if (! $this->lastInsertId) {
-            return;
+            return $result;
         }
 
         $id = null;
@@ -170,6 +175,8 @@ class PDOSqlsrvStatement implements IteratorAggregate, Statement
         }
 
         $this->lastInsertId->setId($id);
+
+        return $result;
     }
 
     /**
@@ -179,7 +186,10 @@ class PDOSqlsrvStatement implements IteratorAggregate, Statement
      */
     private function prepare()
     {
-        return $this->conn->prepare($this->sql);
+        /** @var PDOStatement $stmt */
+        $stmt = $this->conn->prepare($this->sql);
+
+        return $stmt;
     }
 
     /**

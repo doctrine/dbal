@@ -123,7 +123,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     /**
      * The affected number of rows
      *
-     * @var int|null
+     * @var int|false
      */
     private $rowCount;
 
@@ -417,6 +417,8 @@ class SQLSrvStatement implements IteratorAggregate, Statement
             return 0;
         }
 
-        return $this->rowCount ?: sqlsrv_rows_affected($this->stmt);
+        $count = $this->rowCount ?: sqlsrv_rows_affected($this->stmt);
+
+        return is_int($count) ? $count : 0;
     }
 }
