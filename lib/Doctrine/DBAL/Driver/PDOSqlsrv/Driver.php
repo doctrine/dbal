@@ -18,7 +18,7 @@ class Driver extends AbstractSQLServerDriver
     {
         [$driverOptions, $connectionOptions] = $this->splitOptions($driverOptions);
 
-        return new Connection(
+        return new PDOSqlsrvConnection(
             $this->_constructPdoDsn($params, $connectionOptions),
             $username,
             $password,
