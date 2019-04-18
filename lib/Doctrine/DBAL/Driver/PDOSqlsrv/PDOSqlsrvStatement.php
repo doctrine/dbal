@@ -10,7 +10,7 @@ use Doctrine\DBAL\ParameterType;
 use IteratorAggregate;
 use PDO;
 use function array_key_exists;
-use function is_numeric;
+use function is_int;
 use function stripos;
 
 /**
@@ -59,9 +59,7 @@ class PDOSqlsrvStatement implements IteratorAggregate, Statement
     public const LAST_INSERT_ID_SQL = ';SELECT SCOPE_IDENTITY() AS LastInsertId;';
 
     /**
-     * @param PDOConnection $conn
      * @param string $sql
-     * @param LastInsertId|null $lastInsertId
      */
     public function __construct(PDOConnection $conn, $sql, ?LastInsertId $lastInsertId = null)
     {
@@ -150,7 +148,7 @@ class PDOSqlsrvStatement implements IteratorAggregate, Statement
             $this->stmt = $this->prepare();
         }
 
-        $result = $this->stmt->execute($params);
+        $result         = $this->stmt->execute($params);
         $this->rowCount = $this->rowCount();
 
         if (! $this->lastInsertId) {
