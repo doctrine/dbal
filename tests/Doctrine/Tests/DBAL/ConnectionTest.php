@@ -880,4 +880,55 @@ class ConnectionTest extends DbalTestCase
 
         $connection->getDatabasePlatform();
     }
+
+    /**
+     * @group #3194
+     */
+    public function testExecuteCacheQueryStripsPlatformFromConnectionParamsBeforeGeneratingCacheKeys() : void
+    {
+        /** @var Driver|MockObject $driver */
+        $driver = $this->createMock(Driver::class);
+
+        /** @var AbstractPlatform|MockObject $platform */
+        $platform = $this->createMock(AbstractPlatform::class);
+
+        /** @var QueryCacheProfile|MockObject $queryCacheProfile */
+        $queryCacheProfile = $this->createMock(QueryCacheProfile::class);
+
+        /** @var Cache|MockObject $resultCacheDriver */
+        $resultCacheDriver = $this->createMock(Cache::class);
+
+        $queryCacheProfile
+            ->expects($this->any())
+            ->method('getResultCacheDriver')
+            ->will($this->returnValue($resultCacheDriver));
+
+        $resultCacheDriver
+            ->expects($this->atLeastOnce())
+            ->method('fetch')
+            ->with('cacheKey')
+            ->will($this->returnValue(['realKey' => []]));
+
+        $query = 'SELECT 1';
+
+        $params = [
+            'dbname' => 'foo',
+            'platform' => $platform,
+        ];
+
+        $paramsWithoutPlatform = $params;
+        unset($paramsWithoutPlatform['platform']);
+
+        $queryCacheProfile
+            ->expects($this->once())
+            ->method('generateCacheKeys')
+            ->with($query, [], [], $paramsWithoutPlatform)
+            ->will($this->returnValue(['cacheKey', 'realKey']));
+
+        $connection = new Connection($params, $driver);
+
+        self::assertSame($params, $connection->getParams());
+
+        $connection->executeCacheQuery($query, [], [], $queryCacheProfile);
+    }
 }
