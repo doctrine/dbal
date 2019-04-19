@@ -150,14 +150,4 @@ class PDOSqlsrvConnection implements Connection, ServerInfoAwareConnection
     {
         return $this->conn->requiresQueryForServerVersion();
     }
-
-    /**
-     * @param int $attribute
-     *
-     * @return mixed
-     */
-    public function getAttribute($attribute)
-    {
-        return $this->conn->getAttribute($attribute);
-    }
 }
