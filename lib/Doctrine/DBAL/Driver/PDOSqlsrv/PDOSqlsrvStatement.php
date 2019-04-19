@@ -143,11 +143,7 @@ class PDOSqlsrvStatement implements IteratorAggregate, Statement
                 }
             }
         }
-
-        if (! $this->stmt) {
-            $this->stmt = $this->prepare();
-        }
-
+        
         $result         = $this->stmt->execute($params);
         $this->rowCount = $this->rowCount();
 
