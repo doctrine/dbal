@@ -4,12 +4,9 @@ declare(strict_types=1);
 
 namespace Doctrine\Tests\DBAL\Functional\Driver\PDOSqlsrv;
 
-use Doctrine\DBAL\Driver\Connection;
-use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\Driver\PDOSqlsrv\Driver;
+use Doctrine\DBAL\Driver\PDOSqlsrv\PDOSqlsrvConnection;
 use Doctrine\Tests\DBAL\Functional\Driver\AbstractDriverTest;
-use PDO;
-use function assert;
 use function extension_loaded;
 
 class DriverTest extends AbstractDriverTest
@@ -48,7 +45,7 @@ class DriverTest extends AbstractDriverTest
     /**
      * @param int[]|string[] $driverOptions
      */
-    protected function getConnection(array $driverOptions) : Connection
+    protected function getConnection(array $driverOptions) : PDOSqlsrvConnection
     {
         return $this->connection->getDriver()->connect(
             [
@@ -67,19 +64,5 @@ class DriverTest extends AbstractDriverTest
         $result     = $connection->query('SELECT APP_NAME()')->fetchColumn();
 
         self::assertSame('APP_NAME', $result);
-    }
-
-    public function testDriverOptions() : void
-    {
-        $connection = $this->getConnection([PDO::ATTR_CASE => PDO::CASE_UPPER]);
-
-        assert($connection instanceof PDOConnection);
-
-        self::assertSame(
-            PDO::CASE_UPPER,
-            $connection
-                ->getWrappedConnection()
-                ->getAttribute(PDO::ATTR_CASE)
-        );
     }
 }
