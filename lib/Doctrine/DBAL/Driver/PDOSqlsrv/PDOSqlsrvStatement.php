@@ -35,7 +35,7 @@ class PDOSqlsrvStatement implements IteratorAggregate, Statement
     /**
      * The PDO statement.
      *
-     * @var PDOStatement|null
+     * @var PDOStatement
      */
     private $stmt;
 
