@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Doctrine\Tests\DBAL\Functional\Driver\PDOSqlsrv;
 
+use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\PDOSqlsrv\Driver;
-use Doctrine\DBAL\Driver\PDOSqlsrv\PDOSqlsrvConnection;
 use Doctrine\Tests\DBAL\Functional\Driver\AbstractDriverTest;
 use function extension_loaded;
 
@@ -45,7 +45,7 @@ class DriverTest extends AbstractDriverTest
     /**
      * @param int[]|string[] $driverOptions
      */
-    protected function getConnection(array $driverOptions) : PDOSqlsrvConnection
+    protected function getConnection(array $driverOptions) : Connection
     {
         return $this->connection->getDriver()->connect(
             [
