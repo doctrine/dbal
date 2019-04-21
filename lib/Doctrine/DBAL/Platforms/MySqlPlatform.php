@@ -221,8 +221,7 @@ class MySqlPlatform extends AbstractPlatform
      */
     protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)
     {
-        return $fixed ? ($length ? 'CHAR(' . $length . ')' : 'CHAR(255)')
-                : ($length ? 'VARCHAR(' . $length . ')' : 'VARCHAR(255)');
+        return ($fixed ? 'CHAR' : 'VARCHAR') . '(' . ($length  ?: 255) . ')';
     }
 
     /**
@@ -296,7 +295,7 @@ class MySqlPlatform extends AbstractPlatform
      */
     public function getBooleanTypeDeclarationSQL(array $field)
     {
-        return 'TINYINT(1)';
+        return 'BIT(1)';
     }
 
     /**
@@ -1049,7 +1048,8 @@ SQL
     protected function initializeDoctrineTypeMappings()
     {
         $this->doctrineTypeMapping = [
-            'tinyint'       => 'boolean',
+            'bit'           => 'boolean',
+            'tinyint'       => 'tinyint',
             'smallint'      => 'smallint',
             'mediumint'     => 'integer',
             'int'           => 'integer',
