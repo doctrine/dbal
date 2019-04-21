@@ -5,11 +5,13 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use const CASE_LOWER;
 use function array_change_key_case;
 use function array_shift;
 use function array_values;
 use function assert;
+use function bindec;
 use function explode;
 use function is_string;
 use function preg_match;
@@ -178,7 +180,10 @@ class MySqlSchemaManager extends AbstractSchemaManager
                 break;
         }
 
-        if ($this->_platform instanceof MariaDb1027Platform) {
+        if ($type === Types::BOOLEAN) {
+            // As BIT (0b'0' or 0b'1') is used to store boolean values we must cast this default to a php boolean
+            $columnDefault = (bool) bindec(substr($tableColumn['default'], 2, -1));
+        } elseif ($this->_platform instanceof MariaDb1027Platform) {
             $columnDefault = $this->getMariaDb1027ColumnDefault($this->_platform, $tableColumn['default']);
         } else {
             $columnDefault = $tableColumn['default'];

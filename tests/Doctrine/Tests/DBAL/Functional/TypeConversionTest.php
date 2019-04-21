@@ -6,6 +6,7 @@ use DateTime;
 use Doctrine\DBAL\Driver\PDOOracle\Driver as PDOOracleDriver;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use stdClass;
 use function str_repeat;
@@ -225,7 +226,11 @@ class TypeConversionTest extends DbalFunctionalTestCase
         $typeInstance   = Type::getType($type);
         $insertionValue = $typeInstance->convertToDatabaseValue($originalValue, $this->connection->getDatabasePlatform());
 
-        $this->connection->insert('type_conversion', ['id' => ++self::$typeCounter, $columnName => $insertionValue]);
+        $this->connection->insert(
+            'type_conversion',
+            ['id' => ++self::$typeCounter, $columnName => $insertionValue],
+            ['id' => Types::INTEGER, $columnName => $typeInstance->getBindingType()]
+        );
 
         $sql = 'SELECT ' . $columnName . ' FROM type_conversion WHERE id = ' . self::$typeCounter;
 
