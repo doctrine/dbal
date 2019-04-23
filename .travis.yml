@@ -1,6 +1,6 @@
 language: php
 sudo: false
-dist: trusty
+dist: xenial
 
 cache:
     directories:
@@ -174,6 +174,8 @@ jobs:
     - stage: Test
       php: 7.4
       env: DB=mysql COVERAGE=yes
+      services:
+        - mysql
     - stage: Test
       php: 7.4
       env: DB=mysql.docker MYSQL_VERSION=5.7 COVERAGE=yes
@@ -191,6 +193,8 @@ jobs:
     - stage: Test
       php: 7.4
       env: DB=mysqli COVERAGE=yes
+      services:
+        - mysql
     - stage: Test
       php: 7.4
       env: DB=mysqli.docker MYSQL_VERSION=5.7 COVERAGE=yes
@@ -207,9 +211,11 @@ jobs:
         - bash ./tests/travis/install-mysql-8.0.sh
     - stage: Test
       php: 7.4
-      env: DB=mariadb MARIADB_VERSION=10.1 COVERAGE=yes
-      addons:
-        mariadb: 10.1
+      env: DB=mariadb.docker MARIADB_VERSION=10.1 COVERAGE=yes
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-mariadb.sh
     - stage: Test
       php: 7.4
       env: DB=mariadb MARIADB_VERSION=10.2 COVERAGE=yes
@@ -222,9 +228,11 @@ jobs:
         mariadb: 10.3
     - stage: Test
       php: 7.4
-      env: DB=mariadb.mysqli MARIADB_VERSION=10.1 COVERAGE=yes
-      addons:
-        mariadb: 10.1
+      env: DB=mariadb.mysqli.docker MARIADB_VERSION=10.1 COVERAGE=yes
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-mariadb.sh
     - stage: Test
       php: 7.4
       env: DB=mariadb.mysqli MARIADB_VERSION=10.2 COVERAGE=yes
@@ -238,32 +246,24 @@ jobs:
     - stage: Test
       php: 7.4
       env: DB=pgsql POSTGRESQL_VERSION=9.4 COVERAGE=yes
-      services:
-        - postgresql
       addons:
         postgresql: "9.4"
     - stage: Test
       php: 7.4
       env: DB=pgsql POSTGRESQL_VERSION=9.5 COVERAGE=yes
-      services:
-        - postgresql
       addons:
         postgresql: "9.5"
     - stage: Test
       php: 7.4
       env: DB=pgsql POSTGRESQL_VERSION=9.6 COVERAGE=yes
-      services:
-        - postgresql
       addons:
         postgresql: "9.6"
     - stage: Test
       php: 7.4
       env: DB=pgsql POSTGRESQL_VERSION=10.0 COVERAGE=yes
       sudo: required
-      services:
-        - postgresql
       addons:
-        postgresql: "10.0"
+        postgresql: "10"
       before_script:
         - bash ./tests/travis/install-postgres-10.sh
     - stage: Test
