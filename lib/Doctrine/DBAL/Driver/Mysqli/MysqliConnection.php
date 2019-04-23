@@ -56,6 +56,11 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
 
         $socket = $params['unix_socket'] ?? ini_get('mysqli.default_socket');
         $dbname = $params['dbname'] ?? '';
+        $host   = $params['host'];
+
+        if (! empty($params['persistent'])) {
+            $host = 'p:' . $host;
+        }
 
         $flags = $driverOptions[static::OPTION_FLAGS] ?? 0;
 
@@ -67,7 +72,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
         set_error_handler(static function () {
         });
         try {
-            if (! $this->conn->real_connect($params['host'], $username, $password, $dbname, $port, $socket, $flags)) {
+            if (! $this->conn->real_connect($host, $username, $password, $dbname, $port, $socket, $flags)) {
                 throw MysqliException::fromConnectionError($this->conn);
             }
         } finally {
