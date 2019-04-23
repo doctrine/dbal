@@ -1,5 +1,17 @@
 # Upgrade to 2.10
 
+## MINOR BC BREAK: Default values are no longer handled as SQL expressions
+
+They are converted to SQL literals (e.g. escaped). Clients must now specify default values in their initial form, not in the form of an SQL literal (e.g. escaped).
+
+Before:
+
+    $column->setDefault('Foo\\\\Bar\\\\Baz');
+
+After:
+
+    $column->setDefault('Foo\\Bar\\Baz');
+
 ## Deprecated `Type::*` constants
 
 The constants for built-in types have been moved from `Doctrine\DBAL\Types\Type` to a separate class `Doctrine\DBAL\Types\Types`.

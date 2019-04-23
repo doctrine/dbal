@@ -11,8 +11,6 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Tests\Types\MySqlPointType;
-use function implode;
-use function sprintf;
 
 class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
@@ -515,45 +513,6 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $diff = $comparator->diffTable($table, $onlineTable);
         self::assertFalse($diff, 'Tables should be identical with column defauts time and date.');
-    }
-
-    /**
-     * Ensure default values (un-)escaping is properly done by mysql platforms.
-     * The test is voluntarily relying on schema introspection due to current
-     * doctrine limitations. Once #2850 is landed, this test can be removed.
-     *
-     * @see https://dev.mysql.com/doc/refman/5.7/en/string-literals.html
-     */
-    public function testEnsureDefaultsAreUnescapedFromSchemaIntrospection() : void
-    {
-        $platform = $this->schemaManager->getDatabasePlatform();
-        $this->connection->query('DROP TABLE IF EXISTS test_column_defaults_with_create');
-
-        $escapeSequences = [
-            "\\0",          // An ASCII NUL (X'00') character
-            "\\'",
-            "''",    // Single quote
-            '\\"',
-            '""',    // Double quote
-            '\\b',          // A backspace character
-            '\\n',          // A new-line character
-            '\\r',          // A carriage return character
-            '\\t',          // A tab character
-            '\\Z',          // ASCII 26 (Control+Z)
-            '\\\\',         // A backslash (\) character
-            '\\%',          // A percent (%) character
-            '\\_',          // An underscore (_) character
-        ];
-
-        $default = implode('+', $escapeSequences);
-
-        $sql = sprintf(
-            'CREATE TABLE test_column_defaults_with_create(col1 VARCHAR(255) NULL DEFAULT %s)',
-            $platform->quoteStringLiteral($default)
-        );
-        $this->connection->query($sql);
-        $onlineTable = $this->schemaManager->listTableDetails('test_column_defaults_with_create');
-        self::assertSame($default, $onlineTable->getColumn('col1')->getDefault());
     }
 
     public function testEnsureTableOptionsAreReflectedInMetadata() : void

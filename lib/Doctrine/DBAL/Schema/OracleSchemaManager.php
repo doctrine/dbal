@@ -13,6 +13,7 @@ use function array_values;
 use function assert;
 use function preg_match;
 use function sprintf;
+use function str_replace;
 use function strpos;
 use function strtolower;
 use function strtoupper;
@@ -144,8 +145,10 @@ class OracleSchemaManager extends AbstractSchemaManager
         }
 
         if ($tableColumn['data_default'] !== null) {
-            // Default values returned from database are enclosed in single quotes.
-            $tableColumn['data_default'] = trim($tableColumn['data_default'], "'");
+            // Default values returned from database are represented as literal expressions
+            if (preg_match('/^\'(.*)\'$/s', $tableColumn['data_default'], $matches)) {
+                $tableColumn['data_default'] = str_replace("''", "'", $matches[1]);
+            }
         }
 
         if ($tableColumn['data_precision'] !== null) {

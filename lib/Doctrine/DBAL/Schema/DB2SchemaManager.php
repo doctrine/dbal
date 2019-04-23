@@ -6,10 +6,11 @@ use Doctrine\DBAL\Types\Type;
 use const CASE_LOWER;
 use function array_change_key_case;
 use function is_resource;
+use function preg_match;
+use function str_replace;
 use function strpos;
 use function strtolower;
 use function substr;
-use function trim;
 
 /**
  * IBM Db2 Schema Manager.
@@ -47,7 +48,11 @@ class DB2SchemaManager extends AbstractSchemaManager
         $default = null;
 
         if ($tableColumn['default'] !== null && $tableColumn['default'] !== 'NULL') {
-            $default = trim($tableColumn['default'], "'");
+            $default = $tableColumn['default'];
+
+            if (preg_match('/^\'(.*)\'$/s', $default, $matches)) {
+                $default = str_replace("''", "'", $matches[1]);
+            }
         }
 
         $type = $this->_platform->getDoctrineTypeMapping($tableColumn['typename']);

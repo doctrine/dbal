@@ -13,17 +13,36 @@ use function assert;
 use function explode;
 use function is_string;
 use function preg_match;
-use function str_replace;
-use function stripslashes;
 use function strpos;
 use function strtok;
 use function strtolower;
+use function strtr;
 
 /**
  * Schema manager for the MySql RDBMS.
  */
 class MySqlSchemaManager extends AbstractSchemaManager
 {
+    /**
+     * @see https://mariadb.com/kb/en/library/string-literals/#escape-sequences
+     */
+    private const MARIADB_ESCAPE_SEQUENCES = [
+        '\\0' => "\0",
+        "\\'" => "'",
+        '\\"' => '"',
+        '\\b' => "\b",
+        '\\n' => "\n",
+        '\\r' => "\r",
+        '\\t' => "\t",
+        '\\Z' => "\x1a",
+        '\\\\' => '\\',
+        '\\%' => '%',
+        '\\_' => '_',
+
+        // Internally, MariaDB escapes single quotes using the standard syntax
+        "''" => "'",
+    ];
+
     /**
      * {@inheritdoc}
      */
@@ -219,7 +238,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
         }
 
         if (preg_match('/^\'(.*)\'$/', $columnDefault, $matches)) {
-            return stripslashes(str_replace("''", "'", $matches[1]));
+            return strtr($matches[1], self::MARIADB_ESCAPE_SEQUENCES);
         }
 
         switch ($columnDefault) {
