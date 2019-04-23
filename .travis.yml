@@ -100,6 +100,7 @@ jobs:
       services:
         - docker
       before_script:
+        - bash ./tests/travis/install-sqlsrv-dependencies.sh
         - bash ./tests/travis/install-mssql-sqlsrv.sh
         - bash ./tests/travis/install-mssql.sh
     - stage: Test
@@ -109,6 +110,7 @@ jobs:
       services:
         - docker
       before_script:
+        - bash ./tests/travis/install-sqlsrv-dependencies.sh
         - bash ./tests/travis/install-mssql-pdo_sqlsrv.sh
         - bash ./tests/travis/install-mssql.sh
     - stage: Test
@@ -245,6 +247,7 @@ jobs:
       services:
         - docker
       before_script:
+        - bash ./tests/travis/install-sqlsrv-dependencies.sh
         - bash ./tests/travis/install-mssql-sqlsrv.sh
         - bash ./tests/travis/install-mssql.sh
     - stage: Test
@@ -254,6 +257,7 @@ jobs:
       services:
         - docker
       before_script:
+        - bash ./tests/travis/install-sqlsrv-dependencies.sh
         - bash ./tests/travis/install-mssql-pdo_sqlsrv.sh
         - bash ./tests/travis/install-mssql.sh
     - stage: Test
@@ -314,6 +318,7 @@ jobs:
       services:
         - docker
       before_script:
+        - bash ./tests/travis/install-sqlsrv-dependencies.sh
         - bash ./tests/travis/install-mssql-sqlsrv.sh
         - bash ./tests/travis/install-mssql.sh
     - stage: Test
@@ -323,6 +328,7 @@ jobs:
       services:
         - docker
       before_script:
+        - bash ./tests/travis/install-sqlsrv-dependencies.sh
         - bash ./tests/travis/install-mssql-pdo_sqlsrv.sh
         - bash ./tests/travis/install-mssql.sh
 
