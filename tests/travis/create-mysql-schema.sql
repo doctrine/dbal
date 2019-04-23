@@ -1,3 +1,6 @@
+DROP USER IF EXISTS 'travis'@'%';
+CREATE USER 'travis'@'%';
+
 CREATE SCHEMA doctrine_tests;
 CREATE SCHEMA test_create_database;
 CREATE SCHEMA test_drop_database;
