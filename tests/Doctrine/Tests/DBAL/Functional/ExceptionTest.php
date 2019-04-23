@@ -9,10 +9,13 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use Throwable;
+use const PHP_OS;
 use function array_merge;
 use function chmod;
-use function defined;
+use function exec;
 use function file_exists;
+use function posix_geteuid;
+use function posix_getpwuid;
 use function sprintf;
 use function sys_get_temp_dir;
 use function touch;
@@ -284,24 +287,27 @@ class ExceptionTest extends DbalFunctionalTestCase
         $this->connection->executeQuery($sql);
     }
 
-    /**
-     * @dataProvider getSqLiteOpenConnection
-     */
-    public function testConnectionExceptionSqLite($mode, $exceptionClass)
+    public function testConnectionExceptionSqLite()
     {
         if ($this->connection->getDatabasePlatform()->getName() !== 'sqlite') {
             $this->markTestSkipped('Only fails this way on sqlite');
         }
 
+        // mode 0 is considered read-only on Windows
+        $mode = PHP_OS === 'Linux' ? 0444 : 0000;
+
         $filename = sprintf('%s/%s', sys_get_temp_dir(), 'doctrine_failed_connection_' . $mode . '.db');
 
         if (file_exists($filename)) {
-            chmod($filename, 0200); // make the file writable again, so it can be removed on Windows
-            unlink($filename);
+            $this->cleanupReadOnlyFile($filename);
         }
 
         touch($filename);
         chmod($filename, $mode);
+
+        if ($this->isLinuxRoot()) {
+            exec(sprintf('chattr +i %s', $filename));
+        }
 
         $params = [
             'driver' => 'pdo_sqlite',
@@ -313,19 +319,21 @@ class ExceptionTest extends DbalFunctionalTestCase
         $table  = $schema->createTable('no_connection');
         $table->addColumn('id', 'integer');
 
-        $this->expectException($exceptionClass);
-        foreach ($schema->toSql($conn->getDatabasePlatform()) as $sql) {
-            $conn->exec($sql);
-        }
-    }
+        $this->expectException(Exception\ReadOnlyException::class);
+        $this->expectExceptionMessage(<<<EOT
+An exception occurred while executing 'CREATE TABLE no_connection (id INTEGER NOT NULL)':
 
-    public function getSqLiteOpenConnection()
-    {
-        return [
-            // mode 0 is considered read-only on Windows
-            [0000, defined('PHP_WINDOWS_VERSION_BUILD') ? Exception\ReadOnlyException::class : Exception\ConnectionException::class],
-            [0444, Exception\ReadOnlyException::class],
-        ];
+SQLSTATE[HY000]: General error: 8 attempt to write a readonly database
+EOT
+        );
+
+        try {
+            foreach ($schema->toSql($conn->getDatabasePlatform()) as $sql) {
+                $conn->exec($sql);
+            }
+        } finally {
+            $this->cleanupReadOnlyFile($filename);
+        }
     }
 
     /**
@@ -394,5 +402,20 @@ class ExceptionTest extends DbalFunctionalTestCase
 
         $schemaManager->dropTable('owning_table');
         $schemaManager->dropTable('constraint_error_table');
+    }
+
+    private function isLinuxRoot() : bool
+    {
+        return PHP_OS === 'Linux' && posix_getpwuid(posix_geteuid())['name'] === 'root';
+    }
+
+    private function cleanupReadOnlyFile(string $filename) : void
+    {
+        if ($this->isLinuxRoot()) {
+            exec(sprintf('chattr -i %s', $filename));
+        }
+
+        chmod($filename, 0200); // make the file writable again, so it can be removed on Windows
+        unlink($filename);
     }
 }
