@@ -805,7 +805,7 @@ abstract class AbstractSchemaManager
                     $column = $this->_getPortableTableColumnDefinition($tableColumn);
                 } catch (\Doctrine\DBAL\DBALException $e) {
                     throw new \Doctrine\DBAL\DBALException($e->getMessage() . ' ' . sprintf(
-                        'at %s.%s%s',
+                        'at %s.%s.%s',
                         $database,
                         $table,
                         $tableColumn
