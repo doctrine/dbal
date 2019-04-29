@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Platforms;
 
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\LockMode;
+use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Constraint;
@@ -683,7 +683,7 @@ class SQLAnywherePlatform extends AbstractPlatform
     public function getIndexDeclarationSQL($name, Index $index)
     {
         // Index declaration in statements like CREATE TABLE is not supported.
-        throw DBALException::notSupported(__METHOD__);
+        throw NotSupported::new(__METHOD__);
     }
 
     /**

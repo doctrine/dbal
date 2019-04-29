@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver\OCI8;
 
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\StatementIterator;
+use Doctrine\DBAL\Exception\InvalidColumnIndex;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use InvalidArgumentException;
@@ -488,7 +488,7 @@ class OCI8Statement implements IteratorAggregate, Statement
         }
 
         if (! array_key_exists($columnIndex, $row)) {
-            throw DBALException::invalidColumnIndex($columnIndex, count($row));
+            throw InvalidColumnIndex::new($columnIndex, count($row));
         }
 
         return $row[$columnIndex];
