@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Platforms\Exception\InvalidPlatformVersion;
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
 use Doctrine\DBAL\Platforms\MySQL57Platform;
 use Doctrine\DBAL\Platforms\MySQL80Platform;
@@ -148,7 +149,7 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
             $versionString,
             $versionParts
         )) {
-            throw DBALException::invalidPlatformVersionSpecified(
+            throw InvalidPlatformVersion::new(
                 $versionString,
                 '<major_version>.<minor_version>.<patch_version>'
             );
@@ -179,7 +180,7 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
             $versionString,
             $versionParts
         )) {
-            throw DBALException::invalidPlatformVersionSpecified(
+            throw InvalidPlatformVersion::new(
                 $versionString,
                 '^(?:5\.5\.5-)?(mariadb-)?<major_version>.<minor_version>.<patch_version>'
             );
