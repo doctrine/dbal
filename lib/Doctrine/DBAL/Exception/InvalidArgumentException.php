@@ -11,11 +11,4 @@ use Doctrine\DBAL\DBALException;
  */
 class InvalidArgumentException extends DBALException
 {
-    /**
-     * @return self
-     */
-    public static function fromEmptyCriteria()
-    {
-        return new self('Empty criteria was used, expected non-empty criteria');
-    }
 }

@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver\Mysqli;
 
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
+use Doctrine\DBAL\Exception\InvalidColumnIndex;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use IteratorAggregate;
@@ -382,7 +382,7 @@ class MysqliStatement implements IteratorAggregate, Statement
         }
 
         if (! array_key_exists($columnIndex, $row)) {
-            throw DBALException::invalidColumnIndex($columnIndex, count($row));
+            throw InvalidColumnIndex::new($columnIndex, count($row));
         }
 
         return $row[$columnIndex];

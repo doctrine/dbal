@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Types\Exception\ValueNotConvertible;
 use function is_resource;
 use function restore_error_handler;
 use function serialize;
@@ -45,8 +46,8 @@ class ArrayType extends Type
 
         $value = is_resource($value) ? stream_get_contents($value) : $value;
 
-        set_error_handler(function (int $code, string $message) : void {
-            throw ConversionException::conversionFailedUnserialization($this->getName(), $message);
+        set_error_handler(function (int $code, string $message) use ($value) : void {
+            throw ValueNotConvertible::new($value, $this->getName(), $message);
         });
 
         try {
