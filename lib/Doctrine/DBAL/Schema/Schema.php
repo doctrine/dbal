@@ -304,6 +304,15 @@ class Schema extends AbstractAsset
         return $this;
     }
 
+    public function createNamespaceIfNotExists(string $namespaceName) : self
+    {
+        if ($this->hasNamespace($namespaceName)) {
+            return $this;
+        }
+
+        return $this->createNamespace($namespaceName);
+    }
+
     /**
      * Creates a new table.
      *
@@ -321,6 +330,15 @@ class Schema extends AbstractAsset
         }
 
         return $table;
+    }
+
+    public function createTableIfNotExists(string $tableName) : Table
+    {
+        if ($this->hasTable($tableName)) {
+            return $this->getTable($tableName);
+        }
+
+        return $this->createTable($tableName);
     }
 
     /**
@@ -358,6 +376,15 @@ class Schema extends AbstractAsset
         return $this;
     }
 
+    public function dropTableIfExists(string $tableName) : self
+    {
+        if (! $this->hasTable($tableName)) {
+            return $this;
+        }
+
+        return $this->dropTable($tableName);
+    }
+
     /**
      * Creates a new sequence.
      *
@@ -375,6 +402,18 @@ class Schema extends AbstractAsset
         return $seq;
     }
 
+    public function createSequenceIfNotExists(
+        string $sequenceName,
+        int $allocationSize = 1,
+        int $initialValue = 1
+    ) : Sequence {
+        if ($this->hasSequence($sequenceName)) {
+            return $this->getSequence($sequenceName);
+        }
+
+        return $this->createSequence($sequenceName, $allocationSize, $initialValue);
+    }
+
     /**
      * @param string $sequenceName
      *
@@ -386,6 +425,15 @@ class Schema extends AbstractAsset
         unset($this->_sequences[$sequenceName]);
 
         return $this;
+    }
+
+    public function dropSequenceIfExists(string $sequenceName) : self
+    {
+        if (! $this->hasSequence($sequenceName)) {
+            return $this;
+        }
+
+        return $this->dropSequence($sequenceName);
     }
 
     /**

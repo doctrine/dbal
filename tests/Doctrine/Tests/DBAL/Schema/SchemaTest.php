@@ -90,6 +90,20 @@ class SchemaTest extends TestCase
         self::assertFalse($schema->hasTable('foo'));
     }
 
+    public function testDropTableIfExists() : void
+    {
+        $table  = new Table('foo');
+        $schema = new Schema([$table]);
+
+        self::assertTrue($schema->hasTable('foo'));
+
+        $schema->dropTableIfExists('foo');
+
+        self::assertFalse($schema->hasTable('foo'));
+
+        $schema->dropTableIfExists('foo');
+    }
+
     public function testCreateTable()
     {
         $schema = new Schema();
@@ -101,6 +115,15 @@ class SchemaTest extends TestCase
         self::assertInstanceOf(Table::class, $table);
         self::assertEquals('foo', $table->getName());
         self::assertTrue($schema->hasTable('foo'));
+    }
+
+    public function testCreateTableIfNotExists() : void
+    {
+        $schema = new Schema();
+
+        $table = $schema->createTableIfNotExists('foo');
+
+        self::assertSame($table, $schema->createTableIfNotExists('foo'));
     }
 
     public function testAddSequences()
@@ -154,6 +177,14 @@ class SchemaTest extends TestCase
         self::assertArrayHasKey('public.a_seq', $sequences);
     }
 
+    public function testCreateSequenceIfNotExists() : void
+    {
+        $schema   = new Schema();
+        $sequence = $schema->createSequenceIfNotExists('a_seq', 10, 20);
+
+        self::assertSame($sequence, $schema->createSequenceIfNotExists('a_seq', 10, 20));
+    }
+
     public function testDropSequence()
     {
         $sequence = new Sequence('a_seq', 1, 1);
@@ -162,6 +193,19 @@ class SchemaTest extends TestCase
 
         $schema->dropSequence('a_seq');
         self::assertFalse($schema->hasSequence('a_seq'));
+    }
+
+    public function testDropSequenceIfExists() : void
+    {
+        $sequence = new Sequence('a_seq', 1, 1);
+
+        $schema = new Schema([], [$sequence]);
+
+        $schema->dropSequenceIfExists('a_seq');
+
+        self::assertFalse($schema->hasSequence('a_seq'));
+
+        $schema->dropSequenceIfExists('a_seq');
     }
 
     public function testAddSequenceTwiceThrowsException()
@@ -354,6 +398,20 @@ class SchemaTest extends TestCase
 
         self::assertTrue($schema->hasNamespace('baz'));
         self::assertFalse($schema->hasNamespace('moo'));
+    }
+
+    public function testCreateNamespaceIfNotExists() : void
+    {
+        $schema = new Schema();
+
+        $schema->createNamespaceIfNotExists('namespace');
+
+        self::assertTrue($schema->hasNamespace('namespace'));
+        self::assertCount(1, $schema->getNamespaces());
+
+        $schema->createNamespaceIfNotExists('namespace');
+
+        self::assertCount(1, $schema->getNamespaces());
     }
 
     /**

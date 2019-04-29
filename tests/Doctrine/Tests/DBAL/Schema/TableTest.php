@@ -882,4 +882,105 @@ class TableTest extends DbalTestCase
             ['"FOO"'],
         ];
     }
+
+    public function testRemoveForeignKeyIfExists() : void
+    {
+        $table =  new Table('foo');
+        $table->addColumn('id', 'integer');
+        $table->addColumn('foo', 'integer');
+
+        $foreignTable = new Table('bar');
+        $foreignTable->addColumn('id', 'integer');
+
+        $table->addForeignKeyConstraint($foreignTable, ['foo'], ['id'], [], 'testfk');
+
+        self::assertTrue($table->hasForeignKey('testfk'));
+
+        $table->removeForeignKeyIfExists('testfk');
+
+        self::assertFalse($table->hasForeignKey('testfk'));
+
+        $table->removeForeignKeyIfExists('testfk');
+    }
+
+    public function testAddIndexIfNotExists() : void
+    {
+        $table = new Table('foo');
+        $table->addColumn('bar', 'string');
+
+        $table->addIndexIfNotExists(['bar'], 'test_foo_idx');
+
+        self::assertTrue($table->hasIndex('test_foo_idx'));
+
+        $table->addIndexIfNotExists(['bar'], 'test_foo_idx');
+    }
+
+    public function testAddUniqueIndexIfNotExists() : void
+    {
+        $table = new Table('foo');
+        $table->addColumn('bar', 'string');
+
+        $table->addUniqueIndexIfNotExists(['bar'], 'test_foo_uniq');
+
+        self::assertTrue($table->hasIndex('test_foo_uniq'));
+
+        $table->addUniqueIndexIfNotExists(['bar'], 'test_foo_uniq');
+    }
+
+    public function testDropIndexIfExists() : void
+    {
+        $table = new Table('foo');
+        $table->addColumn('bar', 'string');
+
+        $table->addIndex(['bar'], 'test_foo_idx');
+
+        self::assertTrue($table->hasIndex('test_foo_idx'));
+
+        $table->dropIndexIfExists('test_foo_idx');
+
+        self::assertFalse($table->hasIndex('test_foo_idx'));
+
+        $table->dropIndexIfExists('test_foo_idx');
+    }
+
+    public function testAddColumnIfNotExists() : void
+    {
+        $table  = new Table('foo');
+        $column = $table->addColumnIfNotExists('bar', 'string');
+
+        self::assertSame('bar', $column->getName());
+        self::assertTrue($table->hasColumn('bar'));
+
+        self::assertSame($column, $table->addColumnIfNotExists('bar', 'string'));
+    }
+
+    public function testDropColumnIfExists() : void
+    {
+        $table = new Table('foo');
+        $table->addColumn('bar', 'string');
+
+        self::assertTrue($table->hasColumn('bar'));
+
+        $table->dropColumnIfExists('bar');
+
+        self::assertFalse($table->hasColumn('bar'));
+
+        $table->dropColumnIfExists('bar');
+    }
+
+    public function testAddForeignKeyConstraintIfNotExists() : void
+    {
+        $table =  new Table('foo');
+        $table->addColumn('id', 'integer');
+        $table->addColumn('foo', 'integer');
+
+        $foreignTable = new Table('bar');
+        $foreignTable->addColumn('id', 'integer');
+
+        $table->addForeignKeyConstraintIfNotExists($foreignTable, ['foo'], ['id'], [], 'testfk');
+
+        self::assertTrue($table->hasForeignKey('testfk'));
+
+        $table->addForeignKeyConstraint($foreignTable, ['foo'], ['id'], [], 'testfk');
+    }
 }
