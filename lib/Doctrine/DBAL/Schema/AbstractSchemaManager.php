@@ -11,6 +11,7 @@ use Doctrine\DBAL\Event\SchemaColumnDefinitionEventArgs;
 use Doctrine\DBAL\Event\SchemaIndexDefinitionEventArgs;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Throwable;
 use function array_filter;
 use function array_intersect;
@@ -773,7 +774,7 @@ abstract class AbstractSchemaManager
      */
     protected function _getPortableSequenceDefinition($sequence)
     {
-        throw DBALException::notSupported('Sequences');
+        throw NotSupported::new('Sequences');
     }
 
     /**

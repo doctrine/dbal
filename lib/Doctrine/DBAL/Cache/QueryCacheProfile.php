@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Cache;
 
 use Doctrine\Common\Cache\Cache;
+use Doctrine\DBAL\Cache\Exception\NoCacheKey;
 use function hash;
 use function serialize;
 use function sha1;
@@ -60,7 +61,7 @@ class QueryCacheProfile
     public function getCacheKey()
     {
         if ($this->cacheKey === null) {
-            throw CacheException::noCacheKey();
+            throw NoCacheKey::new();
         }
 
         return $this->cacheKey;
