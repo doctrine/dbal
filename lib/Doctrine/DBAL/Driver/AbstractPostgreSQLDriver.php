@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Platforms\Exception\InvalidPlatformVersion;
 use Doctrine\DBAL\Platforms\PostgreSQL100Platform;
 use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
@@ -82,7 +82,7 @@ abstract class AbstractPostgreSQLDriver implements Driver, ExceptionConverterDri
     public function createDatabasePlatformForVersion($version)
     {
         if (! preg_match('/^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?)?/', $version, $versionParts)) {
-            throw DBALException::invalidPlatformVersionSpecified(
+            throw InvalidPlatformVersion::new(
                 $version,
                 '<major_version>.<minor_version>.<patch_version>'
             );

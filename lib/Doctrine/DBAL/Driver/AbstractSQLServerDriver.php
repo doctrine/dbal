@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
+use Doctrine\DBAL\Platforms\Exception\InvalidPlatformVersion;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\SQLServerSchemaManager;
@@ -29,7 +29,7 @@ abstract class AbstractSQLServerDriver implements Driver, VersionAwarePlatformDr
             $version,
             $versionParts
         )) {
-            throw DBALException::invalidPlatformVersionSpecified(
+            throw InvalidPlatformVersion::new(
                 $version,
                 '<major_version>.<minor_version>.<patch_version>.<build_version>'
             );
