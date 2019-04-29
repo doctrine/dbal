@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver;
 
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception\InvalidColumnIndex;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use IteratorAggregate;
@@ -186,7 +186,7 @@ class PDOStatement implements IteratorAggregate, Statement
                 $columnCount = $this->columnCount();
 
                 if ($columnIndex < 0 || $columnIndex >= $columnCount) {
-                    throw DBALException::invalidColumnIndex($columnIndex, $columnCount);
+                    throw InvalidColumnIndex::new($columnIndex, $columnCount);
                 }
             }
 
