@@ -12,7 +12,7 @@ final class TableAlreadyExists extends SchemaException
     public static function new(string $tableName) : self
     {
         return new self(
-            sprintf("The table with name '%s' already exists.", $tableName),
+            sprintf('The table with name "%s" already exists.', $tableName),
             self::TABLE_ALREADY_EXISTS
         );
     }

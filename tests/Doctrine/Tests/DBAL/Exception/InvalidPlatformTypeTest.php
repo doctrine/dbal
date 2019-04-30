@@ -18,7 +18,7 @@ class InvalidPlatformTypeTest extends TestCase
         $exception = InvalidPlatformType::new(new stdClass());
 
         self::assertSame(
-            "Option 'platform' must be a subtype of 'Doctrine\DBAL\Platforms\AbstractPlatform', instance of 'stdClass' given",
+            'Option "platform" must be a subtype of Doctrine\DBAL\Platforms\AbstractPlatform, instance of stdClass given.',
             $exception->getMessage()
         );
     }
@@ -31,7 +31,7 @@ class InvalidPlatformTypeTest extends TestCase
         $exception = InvalidPlatformType::new('some string');
 
         self::assertSame(
-            "Option 'platform' must be an object and subtype of 'Doctrine\DBAL\Platforms\AbstractPlatform'. Got 'string'",
+            'Option "platform" must be an object and subtype of Doctrine\DBAL\Platforms\AbstractPlatform. Got string.',
             $exception->getMessage()
         );
     }

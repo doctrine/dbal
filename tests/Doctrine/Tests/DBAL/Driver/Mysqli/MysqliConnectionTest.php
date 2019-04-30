@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Doctrine\Tests\DBAL\Driver\Mysqli;
 
+use Doctrine\DBAL\Driver\Mysqli\Exception\ConnectionError;
 use Doctrine\DBAL\Driver\Mysqli\MysqliConnection;
-use Doctrine\DBAL\Driver\Mysqli\MysqliException;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -54,7 +54,7 @@ class MysqliConnectionTest extends DbalFunctionalTestCase
         try {
             new MysqliConnection(['host' => '255.255.255.255'], 'user', 'pass');
             self::fail('An exception was supposed to be raised');
-        } catch (MysqliException $e) {
+        } catch (ConnectionError $e) {
             // Do nothing
         }
 
