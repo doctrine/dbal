@@ -13,6 +13,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\Visitor\Visitor;
 use RuntimeException;
 use function in_array;
+use function sprintf;
 
 /**
  * Converts a single tenant schema into a multi-tenant schema for SQL Azure
@@ -110,7 +111,7 @@ class MultiTenantVisitor implements Visitor
                 return $index;
             }
         }
-        throw new RuntimeException('No clustered index found on table ' . $table->getName());
+        throw new RuntimeException(sprintf('No clustered index found on table "%s".', $table->getName()));
     }
 
     /**

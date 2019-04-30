@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Driver\SQLAnywhere;
 
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\StatementIterator;
+use Doctrine\DBAL\Exception\GetVariableType;
 use Doctrine\DBAL\Exception\InvalidColumnIndex;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
@@ -17,7 +18,6 @@ use const SASQL_BOTH;
 use function array_key_exists;
 use function count;
 use function func_get_args;
-use function gettype;
 use function is_array;
 use function is_int;
 use function is_object;
@@ -73,7 +73,10 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
     public function __construct($conn, $sql)
     {
         if (! is_resource($conn)) {
-            throw new SQLAnywhereException('Invalid SQL Anywhere connection resource: ' . $conn);
+            throw new SQLAnywhereException(sprintf(
+                'Invalid SQL Anywhere connection resource, %s given.',
+                (new GetVariableType())->__invoke($conn)
+            ));
         }
 
         $this->conn = $conn;
@@ -108,7 +111,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
                 break;
 
             default:
-                throw new SQLAnywhereException('Unknown type: ' . $type);
+                throw new SQLAnywhereException(sprintf('Unknown type %d.', $type));
         }
 
         $this->boundValues[$column] =& $variable;
@@ -215,7 +218,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
                 return sasql_fetch_object($this->result);
 
             default:
-                throw new SQLAnywhereException('Fetch mode is not supported: ' . $fetchMode);
+                throw new SQLAnywhereException(sprintf('Fetch mode is not supported %d.', $fetchMode));
         }
     }
 
@@ -314,8 +317,8 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
         if (! is_string($destinationClass)) {
             if (! is_object($destinationClass)) {
                 throw new SQLAnywhereException(sprintf(
-                    'Destination class has to be of type string or object, %s given.',
-                    gettype($destinationClass)
+                    'Destination class has to be of type string or object, "%s" given.',
+                    (new GetVariableType())->__invoke($destinationClass)
                 ));
             }
         } else {

@@ -551,7 +551,7 @@ class SQLAnywherePlatform extends AbstractPlatform
 
         if (! is_string($index)) {
             throw new InvalidArgumentException(
-                'SQLAnywherePlatform::getDropIndexSQL() expects $index parameter to be string or ' . Index::class . '.'
+                sprintf('SQLAnywherePlatform::getDropIndexSQL() expects $index parameter to be a string or an instance of %s.', Index::class)
             );
         }
 
@@ -565,7 +565,7 @@ class SQLAnywherePlatform extends AbstractPlatform
 
         if (! is_string($table)) {
             throw new InvalidArgumentException(
-                'SQLAnywherePlatform::getDropIndexSQL() expects $table parameter to be string or ' . Index::class . '.'
+                sprintf('SQLAnywherePlatform::getDropIndexSQL() expects $table parameter to be a string or an instance of %s.', Index::class)
             );
         }
 
@@ -596,15 +596,15 @@ class SQLAnywherePlatform extends AbstractPlatform
         }
 
         if (empty($localColumns)) {
-            throw new InvalidArgumentException("Incomplete definition. 'local' required.");
+            throw new InvalidArgumentException('Incomplete definition. "local" required.');
         }
 
         if (empty($foreignColumns)) {
-            throw new InvalidArgumentException("Incomplete definition. 'foreign' required.");
+            throw new InvalidArgumentException('Incomplete definition. "foreign" required.');
         }
 
         if (empty($foreignTableName)) {
-            throw new InvalidArgumentException("Incomplete definition. 'foreignTable' required.");
+            throw new InvalidArgumentException('Incomplete definition. "foreignTable" required.');
         }
 
         if ($foreignKey->hasOption('notnull') && (bool) $foreignKey->getOption('notnull')) {
@@ -644,7 +644,7 @@ class SQLAnywherePlatform extends AbstractPlatform
             case self::FOREIGN_KEY_MATCH_FULL_UNIQUE:
                 return 'UNIQUE FULL';
             default:
-                throw new InvalidArgumentException('Invalid foreign key match type: ' . $type);
+                throw new InvalidArgumentException(sprintf('Invalid foreign key match type "%s".', $type));
         }
     }
 
@@ -1355,7 +1355,7 @@ SQL
             case TransactionIsolationLevel::SERIALIZABLE:
                 return 3;
             default:
-                throw new InvalidArgumentException('Invalid isolation level:' . $level);
+                throw new InvalidArgumentException(sprintf('Invalid isolation level %d.', $level));
         }
     }
 
@@ -1446,7 +1446,7 @@ SQL
         }
 
         if (! $constraint instanceof Index) {
-            throw new InvalidArgumentException('Unsupported constraint type: ' . get_class($constraint));
+            throw new InvalidArgumentException(sprintf('Unsupported constraint type %s.', get_class($constraint)));
         }
 
         if (! $constraint->isPrimary() && ! $constraint->isUnique()) {
@@ -1459,7 +1459,7 @@ SQL
         $constraintColumns = $constraint->getQuotedColumns($this);
 
         if (empty($constraintColumns)) {
-            throw new InvalidArgumentException("Incomplete definition. 'columns' required.");
+            throw new InvalidArgumentException('Incomplete definition. "columns" required.');
         }
 
         $sql   = '';

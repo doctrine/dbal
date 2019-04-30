@@ -110,15 +110,15 @@ class OCI8StatementTest extends DbalTestCase
         return [
             'no-matching-quote' => [
                 "SELECT 'literal FROM DUAL",
-                '/offset 7/',
+                '/offset 7./',
             ],
             'no-matching-double-quote' => [
                 'SELECT 1 "COL1 FROM DUAL',
-                '/offset 9/',
+                '/offset 9./',
             ],
             'incorrect-escaping-syntax' => [
                 "SELECT 'quoted \\'string' FROM DUAL",
-                '/offset 23/',
+                '/offset 23./',
             ],
         ];
     }

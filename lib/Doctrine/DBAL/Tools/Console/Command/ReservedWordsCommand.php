@@ -26,6 +26,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use function array_keys;
 use function count;
 use function implode;
+use function sprintf;
 
 class ReservedWordsCommand extends Command
 {
@@ -121,10 +122,11 @@ EOT
         $keywords = [];
         foreach ($keywordLists as $keywordList) {
             if (! isset($this->keywordListClasses[$keywordList])) {
-                throw new InvalidArgumentException(
-                    "There exists no keyword list with name '" . $keywordList . "'. " .
-                    'Known lists: ' . implode(', ', array_keys($this->keywordListClasses))
-                );
+                throw new InvalidArgumentException(sprintf(
+                    'There exists no keyword list with name "%s". Known lists: %s',
+                    $keywordList,
+                    implode(', ', array_keys($this->keywordListClasses))
+                ));
             }
             $class      = $this->keywordListClasses[$keywordList];
             $keywords[] = new $class();
