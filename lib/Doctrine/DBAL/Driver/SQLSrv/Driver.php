@@ -17,7 +17,7 @@ class Driver extends AbstractSQLServerDriver
     public function connect(array $params, $username = null, $password = null, array $driverOptions = [])
     {
         if (! isset($params['host'])) {
-            throw new SQLSrvException("Missing 'host' in configuration for sqlsrv driver.");
+            throw new SQLSrvException('Missing "host" in configuration for sqlsrv driver.');
         }
 
         $serverName = $params['host'];
