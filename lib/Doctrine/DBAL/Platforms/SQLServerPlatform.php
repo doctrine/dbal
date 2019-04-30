@@ -215,7 +215,10 @@ class SQLServerPlatform extends AbstractPlatform
         if ($index instanceof Index) {
             $index = $index->getQuotedName($this);
         } elseif (! is_string($index)) {
-            throw new InvalidArgumentException('AbstractPlatform::getDropIndexSQL() expects $index parameter to be string or \Doctrine\DBAL\Schema\Index.');
+            throw new InvalidArgumentException(sprintf(
+                'AbstractPlatform::getDropIndexSQL() expects $index parameter to be a string or an instanceof %s.',
+                Index::class
+            ));
         }
 
         if (! isset($table)) {
@@ -384,7 +387,7 @@ SQL
     public function getDefaultConstraintDeclarationSQL($table, array $column)
     {
         if (! isset($column['default'])) {
-            throw new InvalidArgumentException("Incomplete column definition. 'default' required.");
+            throw new InvalidArgumentException('Incomplete column definition. "default" required.');
         }
 
         $columnName = new Identifier($column['name']);

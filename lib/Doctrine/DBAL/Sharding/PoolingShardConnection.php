@@ -16,6 +16,7 @@ use InvalidArgumentException;
 use function array_merge;
 use function is_numeric;
 use function is_string;
+use function sprintf;
 
 /**
  * Sharding implementation that pools many different connections
@@ -69,11 +70,11 @@ class PoolingShardConnection extends Connection
     public function __construct(array $params, Driver $driver, ?Configuration $config = null, ?EventManager $eventManager = null)
     {
         if (! isset($params['global'], $params['shards'])) {
-            throw new InvalidArgumentException("Connection Parameters require 'global' and 'shards' configurations.");
+            throw new InvalidArgumentException('Connection Parameters require "global" and "shards" configurations.');
         }
 
         if (! isset($params['shardChoser'])) {
-            throw new InvalidArgumentException("Missing Shard Choser configuration 'shardChoser'");
+            throw new InvalidArgumentException('Missing Shard Choser configuration "shardChoser".');
         }
 
         if (is_string($params['shardChoser'])) {
@@ -81,14 +82,14 @@ class PoolingShardConnection extends Connection
         }
 
         if (! ($params['shardChoser'] instanceof ShardChoser)) {
-            throw new InvalidArgumentException("The 'shardChoser' configuration is not a valid instance of Doctrine\DBAL\Sharding\ShardChoser\ShardChoser");
+            throw new InvalidArgumentException('The "shardChoser" configuration is not a valid instance of Doctrine\DBAL\Sharding\ShardChoser\ShardChoser');
         }
 
         $this->connectionParameters[0] = array_merge($params, $params['global']);
 
         foreach ($params['shards'] as $shard) {
             if (! isset($shard['id'])) {
-                throw new InvalidArgumentException("Missing 'id' for one configured shard. Please specify a unique shard-id.");
+                throw new InvalidArgumentException('Missing "id" for one configured shard. Please specify a unique shard-id.');
             }
 
             if (! is_numeric($shard['id']) || $shard['id'] < 1) {
@@ -96,7 +97,7 @@ class PoolingShardConnection extends Connection
             }
 
             if (isset($this->connectionParameters[$shard['id']])) {
-                throw new InvalidArgumentException('Shard ' . $shard['id'] . ' is duplicated in the configuration.');
+                throw new InvalidArgumentException(sprintf('Shard "%s" is duplicated in the configuration.', $shard['id']));
             }
 
             $this->connectionParameters[$shard['id']] = array_merge($params, $shard);

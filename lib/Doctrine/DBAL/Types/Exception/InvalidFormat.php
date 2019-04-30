@@ -24,7 +24,7 @@ final class InvalidFormat extends ConversionException implements TypesException
     ) : self {
         return new self(
             sprintf(
-                'Could not convert database value "%s" to Doctrine Type %s. Expected format: %s',
+                'Could not convert database value "%s" to Doctrine Type %s. Expected format "%s".',
                 strlen($value) > 32 ? substr($value, 0, 20) . '...' : $value,
                 $toType,
                 $expectedFormat ?? ''

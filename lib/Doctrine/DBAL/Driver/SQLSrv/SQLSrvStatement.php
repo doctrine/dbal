@@ -345,7 +345,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
             return sqlsrv_fetch_object($this->stmt, $className, $ctorArgs) ?: false;
         }
 
-        throw new SQLSrvException('Fetch mode is not supported!');
+        throw new SQLSrvException('Fetch mode is not supported.');
     }
 
     /**

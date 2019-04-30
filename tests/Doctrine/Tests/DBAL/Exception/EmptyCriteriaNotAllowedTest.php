@@ -15,6 +15,6 @@ class EmptyCriteriaNotAllowedTest extends TestCase
         $exception = EmptyCriteriaNotAllowed::new();
 
         self::assertInstanceOf(InvalidArgumentException::class, $exception);
-        self::assertSame('Empty criteria was used, expected non-empty criteria', $exception->getMessage());
+        self::assertSame('Empty criteria was used, expected non-empty criteria.', $exception->getMessage());
     }
 }

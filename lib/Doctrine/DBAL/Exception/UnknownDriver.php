@@ -17,7 +17,7 @@ final class UnknownDriver extends DBALException
     {
         return new self(
             sprintf(
-                "The given 'driver' %s is unknown, Doctrine currently supports only the following drivers: %s",
+                'The given "driver" "%s" is unknown, Doctrine currently supports only the following drivers: %s',
                 $unknownDriverName,
                 implode(', ', $knownDrivers)
             )

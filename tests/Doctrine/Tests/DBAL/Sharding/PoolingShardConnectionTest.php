@@ -8,6 +8,7 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Sharding\PoolingShardConnection;
 use Doctrine\DBAL\Sharding\ShardChoser\MultiTenantShardChoser;
 use Doctrine\DBAL\Sharding\ShardingException;
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -52,8 +53,8 @@ class PoolingShardConnectionTest extends TestCase
 
     public function testNoGlobalServerException()
     {
-        $this->expectException('InvalidArgumentException');
-        $this->expectExceptionMessage("Connection Parameters require 'global' and 'shards' configurations.");
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Connection Parameters require "global" and "shards" configurations.');
 
         DriverManager::getConnection([
             'wrapperClass' => PoolingShardConnection::class,
@@ -68,8 +69,8 @@ class PoolingShardConnectionTest extends TestCase
 
     public function testNoShardsServersException()
     {
-        $this->expectException('InvalidArgumentException');
-        $this->expectExceptionMessage("Connection Parameters require 'global' and 'shards' configurations.");
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Connection Parameters require "global" and "shards" configurations.');
 
         DriverManager::getConnection([
             'wrapperClass' => PoolingShardConnection::class,
@@ -81,8 +82,8 @@ class PoolingShardConnectionTest extends TestCase
 
     public function testNoShardsChoserException()
     {
-        $this->expectException('InvalidArgumentException');
-        $this->expectExceptionMessage("Missing Shard Choser configuration 'shardChoser'");
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Missing Shard Choser configuration "shardChoser".');
 
         DriverManager::getConnection([
             'wrapperClass' => PoolingShardConnection::class,
@@ -97,8 +98,8 @@ class PoolingShardConnectionTest extends TestCase
 
     public function testShardChoserWrongInstance()
     {
-        $this->expectException('InvalidArgumentException');
-        $this->expectExceptionMessage("The 'shardChoser' configuration is not a valid instance of Doctrine\DBAL\Sharding\ShardChoser\ShardChoser");
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The "shardChoser" configuration is not a valid instance of Doctrine\DBAL\Sharding\ShardChoser\ShardChoser');
 
         DriverManager::getConnection([
             'wrapperClass' => PoolingShardConnection::class,
@@ -130,8 +131,8 @@ class PoolingShardConnectionTest extends TestCase
 
     public function testShardMissingId()
     {
-        $this->expectException('InvalidArgumentException');
-        $this->expectExceptionMessage("Missing 'id' for one configured shard. Please specify a unique shard-id.");
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Missing "id" for one configured shard. Please specify a unique shard-id.');
 
         DriverManager::getConnection([
             'wrapperClass' => PoolingShardConnection::class,
@@ -146,8 +147,8 @@ class PoolingShardConnectionTest extends TestCase
 
     public function testDuplicateShardId()
     {
-        $this->expectException('InvalidArgumentException');
-        $this->expectExceptionMessage('Shard 1 is duplicated in the configuration.');
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Shard "1" is duplicated in the configuration.');
 
         DriverManager::getConnection([
             'wrapperClass' => PoolingShardConnection::class,

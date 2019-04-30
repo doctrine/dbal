@@ -21,7 +21,7 @@ final class SerializationFailed extends ConversionException implements TypesExce
 
         return new self(
             sprintf(
-                "Could not convert PHP type '%s' to '%s', as an '%s' error was triggered by the serialization",
+                'Could not convert PHP type "%s" to "%s". An error was triggered by the serialization: %s',
                 $actualType,
                 $format,
                 $error

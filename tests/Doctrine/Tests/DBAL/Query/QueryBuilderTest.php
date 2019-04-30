@@ -673,7 +673,7 @@ class QueryBuilderTest extends DbalTestCase
             ->where('nt.lang = :lang AND n.deleted != 1');
 
         $this->expectException(QueryException::class);
-        $this->expectExceptionMessage("The given alias 'invalid' is not part of any FROM or JOIN clause table. The currently registered aliases are: news, nv.");
+        $this->expectExceptionMessage('The given alias "invalid" is not part of any FROM or JOIN clause table. The currently registered aliases are: news, nv.');
         self::assertEquals('', $qb->getSQL());
     }
 
@@ -926,7 +926,7 @@ class QueryBuilderTest extends DbalTestCase
             ->join('a', 'table_b', 'a', 'a.fk_b = a.id');
 
         $this->expectException(QueryException::class);
-        $this->expectExceptionMessage("The given alias 'a' is not unique in FROM and JOIN clause table. The currently registered aliases are: a.");
+        $this->expectExceptionMessage('The given alias "a" is not unique in FROM and JOIN clause table. The currently registered aliases are: a.');
 
         $qb->getSQL();
     }
