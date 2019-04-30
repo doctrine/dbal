@@ -11,6 +11,6 @@ final class InvalidTableName extends SchemaException
 {
     public static function new(string $tableName) : self
     {
-        return new self(sprintf('Invalid table name specified: %s', $tableName));
+        return new self(sprintf('Invalid table name specified "%s".', $tableName));
     }
 }
