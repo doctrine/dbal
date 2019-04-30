@@ -8,6 +8,6 @@ final class EmptyCriteriaNotAllowed extends InvalidArgumentException
 {
     public static function new() : self
     {
-        return new self('Empty criteria was used, expected non-empty criteria');
+        return new self('Empty criteria was used, expected non-empty criteria.');
     }
 }

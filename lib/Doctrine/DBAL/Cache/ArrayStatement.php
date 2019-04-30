@@ -15,6 +15,7 @@ use function array_merge;
 use function array_values;
 use function count;
 use function reset;
+use function sprintf;
 
 class ArrayStatement implements IteratorAggregate, ResultStatement
 {
@@ -48,7 +49,7 @@ class ArrayStatement implements IteratorAggregate, ResultStatement
      */
     public function closeCursor() : void
     {
-        unset($this->data);
+        $this->data = null;
     }
 
     /**
@@ -77,7 +78,7 @@ class ArrayStatement implements IteratorAggregate, ResultStatement
     public function setFetchMode($fetchMode, ...$args) : void
     {
         if (count($args) > 0) {
-            throw new InvalidArgumentException('Caching layer does not support 2nd/3rd argument to setFetchMode()');
+            throw new InvalidArgumentException('Caching layer does not support 2nd/3rd argument to setFetchMode().');
         }
 
         $this->defaultFetchMode = $fetchMode;
@@ -121,7 +122,9 @@ class ArrayStatement implements IteratorAggregate, ResultStatement
             return reset($row);
         }
 
-        throw new InvalidArgumentException('Invalid fetch-style given for fetching result.');
+        throw new InvalidArgumentException(
+            sprintf('Invalid fetch mode given for fetching result, %d given.', $fetchMode)
+        );
     }
 
     /**

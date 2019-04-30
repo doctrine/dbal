@@ -11,6 +11,6 @@ final class NoColumnsSpecifiedForTable extends DBALException implements Platform
 {
     public static function new(string $tableName) : self
     {
-        return new self(sprintf('No columns specified for table %s', $tableName));
+        return new self(sprintf('No columns specified for table "%s".', $tableName));
     }
 }

@@ -81,7 +81,7 @@ class SqlitePlatform extends AbstractPlatform
             default:
                 throw new InvalidArgumentException(
                     sprintf(
-                        'The value of $mode is expected to be one of the TrimMode constants, %d given',
+                        'The value of $mode is expected to be one of the TrimMode constants, %d given.',
                         $mode
                     )
                 );
@@ -668,7 +668,7 @@ class SqlitePlatform extends AbstractPlatform
     protected function getPreAlterTableIndexForeignKeySQL(TableDiff $diff)
     {
         if (! $diff->fromTable instanceof Table) {
-            throw new DBALException('Sqlite platform requires for alter table the table diff with reference to original table schema');
+            throw new DBALException('Sqlite platform requires for alter table the table diff with reference to original table schema.');
         }
 
         $sql = [];
@@ -689,7 +689,7 @@ class SqlitePlatform extends AbstractPlatform
     protected function getPostAlterTableIndexForeignKeySQL(TableDiff $diff)
     {
         if (! $diff->fromTable instanceof Table) {
-            throw new DBALException('Sqlite platform requires for alter table the table diff with reference to original table schema');
+            throw new DBALException('Sqlite platform requires for alter table the table diff with reference to original table schema.');
         }
 
         $sql       = [];
@@ -826,7 +826,7 @@ class SqlitePlatform extends AbstractPlatform
 
         $fromTable = $diff->fromTable;
         if (! $fromTable instanceof Table) {
-            throw new DBALException('Sqlite platform requires for alter table the table diff with reference to original table schema');
+            throw new DBALException('Sqlite platform requires for alter table the table diff with reference to original table schema.');
         }
 
         $table = clone $fromTable;

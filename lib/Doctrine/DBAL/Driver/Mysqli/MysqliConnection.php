@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver\Mysqli;
 
 use Doctrine\DBAL\Driver\Connection;
+use Doctrine\DBAL\Driver\Mysqli\Exception\ConnectionError;
 use Doctrine\DBAL\Driver\PingableConnection;
 use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
@@ -73,7 +74,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
         });
         try {
             if (! $this->conn->real_connect($host, $username, $password, $dbname, $port, $socket, $flags)) {
-                throw MysqliException::fromConnectionError($this->conn);
+                throw ConnectionError::new($this->conn);
             }
         } finally {
             restore_error_handler();
@@ -161,7 +162,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
     public function exec(string $statement) : int
     {
         if ($this->conn->query($statement) === false) {
-            throw MysqliException::fromConnectionError($this->conn);
+            throw ConnectionError::new($this->conn);
         }
 
         return $this->conn->affected_rows;
@@ -189,7 +190,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
     public function commit() : void
     {
         if (! $this->conn->commit()) {
-            throw MysqliException::fromConnectionError($this->conn);
+            throw ConnectionError::new($this->conn);
         }
     }
 
@@ -199,7 +200,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
     public function rollBack() : void
     {
         if (! $this->conn->rollback()) {
-            throw MysqliException::fromConnectionError($this->conn);
+            throw ConnectionError::new($this->conn);
         }
     }
 
@@ -242,7 +243,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
                 continue;
             }
 
-            throw MysqliException::fromConnectionError($this->conn);
+            throw ConnectionError::new($this->conn);
         }
     }
 

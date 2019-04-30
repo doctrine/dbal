@@ -12,6 +12,7 @@ use Doctrine\DBAL\LockMode;
 use Throwable;
 use const CASE_LOWER;
 use function array_change_key_case;
+use function sprintf;
 
 /**
  * Table ID Generator for those poor languages that are missing sequences.
@@ -126,7 +127,7 @@ class TableGenerator
                 $rows = $this->conn->executeUpdate($sql, [$sequenceName, $row['sequence_value']]);
 
                 if ($rows !== 1) {
-                    throw new DBALException('Race-condition detected while updating sequence. Aborting generation');
+                    throw new DBALException('Race condition detected while updating sequence. Aborting generation.');
                 }
             } else {
                 $this->conn->insert(
@@ -139,7 +140,7 @@ class TableGenerator
             $this->conn->commit();
         } catch (Throwable $e) {
             $this->conn->rollBack();
-            throw new DBALException('Error occurred while generating ID with TableGenerator, aborted generation: ' . $e->getMessage(), 0, $e);
+            throw new DBALException(sprintf('Error occurred while generating ID with TableGenerator, aborted generation with error: %s', $e->getMessage()), 0, $e);
         }
 
         return $value;
