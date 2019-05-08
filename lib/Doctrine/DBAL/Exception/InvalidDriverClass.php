@@ -14,7 +14,7 @@ final class InvalidDriverClass extends DBALException
     {
         return new self(
             sprintf(
-                "The given 'driverClass' %s has to implement the %s interface.",
+                'The given "driverClass" %s has to implement the %s interface.',
                 $driverClass,
                 Driver::class
             )

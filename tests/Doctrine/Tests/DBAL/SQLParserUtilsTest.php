@@ -70,7 +70,7 @@ class SQLParserUtilsTest extends DbalTestCase
             ['SELECT table.field1, ARRAY[:foo]::integer[] FROM schema.table table WHERE table.f1 = :bar AND ARRAY[\'3\']::integer[]', false, [27 => 'foo', 85 => 'bar']],
             [
                 <<<'SQLDATA'
-SELECT * FROM foo WHERE 
+SELECT * FROM foo WHERE
 bar = ':not_a_param1 ''":not_a_param2"'''
 OR bar=:a_param1
 OR bar=:a_param2||':not_a_param3'
@@ -81,9 +81,9 @@ SQLDATA
                 ,
                 false,
                 [
-                    74 => 'a_param1',
-                    91 => 'a_param2',
-                    190 => 'a_param3',
+                    73 => 'a_param1',
+                    90 => 'a_param2',
+                    189 => 'a_param3',
                 ],
             ],
             ["SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE '\\\\') AND (data.description LIKE :condition_1 ESCAPE '\\\\') ORDER BY id ASC", false, [121 => 'condition_0', 174 => 'condition_1']],
@@ -493,7 +493,7 @@ SQLDATA
     public function testExceptionIsThrownForMissingParam(string $query, array $params, array $types = []) : void
     {
         $this->expectException(SQLParserUtilsException::class);
-        $this->expectExceptionMessage('Value for :param not found in params array. Params array key should be "param"');
+        $this->expectExceptionMessage('Parameter "param" is missing.');
 
         SQLParserUtils::expandListParameters($query, $params, $types);
     }

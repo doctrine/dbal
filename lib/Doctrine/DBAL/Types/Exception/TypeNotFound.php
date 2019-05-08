@@ -11,6 +11,6 @@ final class TypeNotFound extends DBALException implements TypesException
 {
     public static function new(string $name) : self
     {
-        return new self(sprintf('Type to be overwritten %s does not exist.', $name));
+        return new self(sprintf('Type to be overwritten "%s" does not exist.', $name));
     }
 }

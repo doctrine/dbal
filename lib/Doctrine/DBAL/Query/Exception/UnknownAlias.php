@@ -17,7 +17,7 @@ final class UnknownAlias extends QueryException
     {
         return new self(
             sprintf(
-                "The given alias '%s' is not part of any FROM or JOIN clause table. "
+                'The given alias "%s" is not part of any FROM or JOIN clause table. '
                     . 'The currently registered aliases are: %s.',
                 $alias,
                 implode(', ', $registeredAliases)

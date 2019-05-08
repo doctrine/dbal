@@ -28,13 +28,20 @@ class DBALException extends Exception
      */
     public static function driverExceptionDuringQuery(Driver $driver, Throwable $driverEx, $sql, array $params = [])
     {
-        $msg = "An exception occurred while executing '" . $sql . "'";
-        if ($params) {
-            $msg .= ' with params ' . self::formatParameters($params);
-        }
-        $msg .= ":\n\n" . $driverEx->getMessage();
+        $messageFormat = <<<'MESSAGE'
+An exception occurred while executing "%s"%s:
 
-        return static::wrapException($driver, $driverEx, $msg);
+%s
+MESSAGE;
+
+        $message = sprintf(
+            $messageFormat,
+            $sql,
+            $params !== [] ? sprintf(' with params %s', self::formatParameters($params)) : '',
+            $driverEx->getMessage()
+        );
+
+        return static::wrapException($driver, $driverEx, $message);
     }
 
     /**
@@ -42,7 +49,7 @@ class DBALException extends Exception
      */
     public static function driverException(Driver $driver, Throwable $driverEx)
     {
-        return static::wrapException($driver, $driverEx, 'An exception occurred in driver: ' . $driverEx->getMessage());
+        return static::wrapException($driver, $driverEx, sprintf('An exception occurred in driver with message: %s', $driverEx->getMessage()));
     }
 
     /**
@@ -64,11 +71,9 @@ class DBALException extends Exception
      * Returns a human-readable representation of an array of parameters.
      * This properly handles binary data by returning a hex representation.
      *
-     * @param mixed[] $params
-     *
-     * @return string
+     * @param array<mixed, mixed> $params
      */
-    private static function formatParameters(array $params)
+    private static function formatParameters(array $params) : string
     {
         return '[' . implode(', ', array_map(static function ($param) {
             if (is_resource($param)) {

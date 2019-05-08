@@ -503,7 +503,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         $platform = $this->createPlatform();
 
         $this->expectException(UnexpectedValueException::class);
-        $this->expectExceptionMessage("Unrecognized boolean literal 'my-bool'");
+        $this->expectExceptionMessage('Unrecognized boolean literal, my-bool given.');
 
         $platform->convertBooleansToDatabaseValue('my-bool');
     }

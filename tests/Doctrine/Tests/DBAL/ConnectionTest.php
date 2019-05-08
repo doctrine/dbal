@@ -190,7 +190,7 @@ class ConnectionTest extends DbalTestCase
     public function testDriverExceptionIsWrapped(string $method) : void
     {
         $this->expectException(DBALException::class);
-        $this->expectExceptionMessage("An exception occurred while executing 'MUUHAAAAHAAAA':\n\nSQLSTATE[HY000]: General error: 1 near \"MUUHAAAAHAAAA\"");
+        $this->expectExceptionMessage("An exception occurred while executing \"MUUHAAAAHAAAA\":\n\nSQLSTATE[HY000]: General error: 1 near \"MUUHAAAAHAAAA\"");
 
         $connection = DriverManager::getConnection([
             'driver' => 'pdo_sqlite',
