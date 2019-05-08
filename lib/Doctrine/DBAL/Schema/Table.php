@@ -22,6 +22,7 @@ use function array_unique;
 use function in_array;
 use function is_string;
 use function preg_match;
+use function sprintf;
 use function strlen;
 use function strtolower;
 use function uksort;
@@ -649,7 +650,7 @@ class Table extends AbstractAsset
         $primaryKey = $this->getPrimaryKey();
 
         if ($primaryKey === null) {
-            throw new DBALException('Table ' . $this->getName() . ' has no primary key.');
+            throw new DBALException(sprintf('Table "%s" has no primary key.', $this->getName()));
         }
 
         return $primaryKey->getColumns();
