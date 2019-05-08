@@ -19,6 +19,7 @@
  * Removed `AbstractSchemaManager::getFilterSchemaAssetsExpression()`, `Configuration::getFilterSchemaAssetsExpression()`
    and `Configuration::getFilterSchemaAssetsExpression()`.
  * `SQLParserUtils::*_TOKEN` constants made private.
+ * Removed `Configuration::setFilterSchemaAssetsExpression()` and `Configuration::getFilterSchemaAssetsExpression()`. Use `Configuration::setSchemaAssetsFilter()` and `Configuration::getSchemaAssetsFilter()` instead.
 
 ## BC BREAK `AbstractSchemaManager::extractDoctrineTypeFromComment()` changed, `::removeDoctrineTypeFromComment()` removed
 
