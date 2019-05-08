@@ -156,7 +156,7 @@ class OCI8Statement implements IteratorAggregate, Statement
 
         if ($currentLiteralDelimiter) {
             throw new OCI8Exception(sprintf(
-                'The statement contains non-terminated string literal starting at offset %d',
+                'The statement contains non-terminated string literal starting at offset %d.',
                 $tokenOffset - 1
             ));
         }
@@ -407,7 +407,7 @@ class OCI8Statement implements IteratorAggregate, Statement
         }
 
         if (! isset(self::$fetchModeMap[$fetchMode])) {
-            throw new InvalidArgumentException('Invalid fetch style: ' . $fetchMode);
+            throw new InvalidArgumentException(sprintf('Invalid fetch mode %d.', $fetchMode));
         }
 
         return oci_fetch_array(
@@ -434,7 +434,7 @@ class OCI8Statement implements IteratorAggregate, Statement
         }
 
         if (! isset(self::$fetchModeMap[$fetchMode])) {
-            throw new InvalidArgumentException('Invalid fetch style: ' . $fetchMode);
+            throw new InvalidArgumentException(sprintf('Invalid fetch mode %d.', $fetchMode));
         }
 
         if (self::$fetchModeMap[$fetchMode] === OCI_BOTH) {

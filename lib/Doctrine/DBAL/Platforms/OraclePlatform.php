@@ -42,7 +42,7 @@ class OraclePlatform extends AbstractPlatform
     public static function assertValidIdentifier($identifier)
     {
         if (! preg_match('(^(([a-zA-Z]{1}[a-zA-Z0-9_$#]{0,})|("[^"]+"))$)', $identifier)) {
-            throw new DBALException('Invalid Oracle identifier');
+            throw new DBALException('Invalid Oracle identifier.');
         }
     }
 
@@ -740,7 +740,7 @@ SQL
 
             default:
                 // SET DEFAULT is not supported, throw exception instead.
-                throw new InvalidArgumentException('Invalid foreign key action: ' . $action);
+                throw new InvalidArgumentException(sprintf('Invalid foreign key action "%s".', $action));
         }
     }
 
