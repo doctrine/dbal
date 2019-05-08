@@ -20,7 +20,7 @@ final class ValueNotConvertible extends ConversionException implements TypesExce
         if ($message !== null) {
             return new self(
                 sprintf(
-                    "Could not convert database value to '%s' as an error was triggered by the unserialization: '%s'",
+                    'Could not convert database value to "%s" as an error was triggered by the unserialization: %s',
                     $toType,
                     $message
                 )
@@ -29,7 +29,7 @@ final class ValueNotConvertible extends ConversionException implements TypesExce
 
         return new self(
             sprintf(
-                'Could not convert database value "%s" to Doctrine Type %s',
+                'Could not convert database value "%s" to Doctrine Type "%s".',
                 is_string($value) && strlen($value) > 32 ? substr($value, 0, 20) . '...' : $value,
                 $toType
             )

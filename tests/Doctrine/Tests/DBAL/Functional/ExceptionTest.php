@@ -330,7 +330,7 @@ class ExceptionTest extends DbalFunctionalTestCase
         $this->expectException(Exception\ReadOnlyException::class);
         $this->expectExceptionMessage(
             <<<EOT
-An exception occurred while executing 'CREATE TABLE no_connection (id INTEGER NOT NULL)':
+An exception occurred while executing "CREATE TABLE no_connection (id INTEGER NOT NULL)":
 
 SQLSTATE[HY000]: General error: 8 attempt to write a readonly database
 EOT

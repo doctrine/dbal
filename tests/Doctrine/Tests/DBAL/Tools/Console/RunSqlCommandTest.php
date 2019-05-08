@@ -43,29 +43,25 @@ class RunSqlCommandTest extends TestCase
 
     public function testMissingSqlArgument() : void
     {
-        try {
-            $this->commandTester->execute([
-                'command' => $this->command->getName(),
-                'sql' => null,
-            ]);
-            $this->fail('Expected a runtime exception when omitting sql argument');
-        } catch (RuntimeException $e) {
-            self::assertStringContainsString("Argument 'SQL", $e->getMessage());
-        }
+        self::expectException(RuntimeException::class);
+        self::expectExceptionMessage('Argument "sql" is required in order to execute this command correctly.');
+
+        $this->commandTester->execute([
+            'command' => $this->command->getName(),
+            'sql' => null,
+        ]);
     }
 
     public function testIncorrectDepthOption() : void
     {
-        try {
-            $this->commandTester->execute([
-                'command' => $this->command->getName(),
-                'sql' => 'SELECT 1',
-                '--depth' => 'string',
-            ]);
-            $this->fail('Expected a logic exception when executing with a stringy depth');
-        } catch (LogicException $e) {
-            self::assertStringContainsString("Option 'depth'", $e->getMessage());
-        }
+        self::expectException(LogicException::class);
+        self::expectExceptionMessage('Option "depth" must contains an integer value.');
+
+        $this->commandTester->execute([
+            'command' => $this->command->getName(),
+            'sql' => 'SELECT 1',
+            '--depth' => 'string',
+        ]);
     }
 
     public function testSelectStatementsPrintsResult() : void

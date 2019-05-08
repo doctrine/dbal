@@ -5,10 +5,8 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use InvalidArgumentException;
 use function array_keys;
 use function array_map;
-use function is_string;
 use function strtolower;
 
 /**
@@ -168,19 +166,8 @@ class UniqueConstraint extends AbstractAsset implements Constraint
         return $this->options;
     }
 
-    /**
-     * @param string $column
-     *
-     * @return void
-     *
-     * @throws InvalidArgumentException
-     */
-    protected function _addColumn($column)
+    protected function _addColumn(string $column) : void
     {
-        if (! is_string($column)) {
-            throw new InvalidArgumentException('Expecting a string as Index Column');
-        }
-
         $this->columns[$column] = new Identifier($column);
     }
 }
