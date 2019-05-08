@@ -23,6 +23,10 @@ Some of the constants were renamed in the process:
 * `DATETIMETZ` -> `DATETIMETZ_MUTABLE`
 * `TIME` -> `TIME_MUTABLE`
 
+## Deprecated `SQLSrvStatement::LAST_INSERT_ID_SQL` constant
+
+The  `Doctrine\DBAL\Driver\SQLSrv\SQLSrvStatement::LAST_INSERT_ID_SQL` constant has been deprecated and will be made private in 3.0.
+
 # Upgrade to 2.9
 
 ## Deprecated `Statement::fetchColumn()` with an invalid index
@@ -92,7 +96,7 @@ This method now throws SPL ``UnexpectedValueException`` instead of accidentally 
 
 ## Doctrine\DBAL\Connection::TRANSACTION_* constants deprecated
 
-``Doctrine\DBAL\Connection::TRANSACTION_*`` were moved into ``Doctrine\DBAL\TransactionIsolationLevel`` class without the ``TRANSACTION_`` prefix. 
+``Doctrine\DBAL\Connection::TRANSACTION_*`` were moved into ``Doctrine\DBAL\TransactionIsolationLevel`` class without the ``TRANSACTION_`` prefix.
 
 ## DEPRECATION: direct usage of the PDO APIs in the DBAL API
 
