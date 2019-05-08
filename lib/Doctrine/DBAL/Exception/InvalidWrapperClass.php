@@ -14,7 +14,7 @@ final class InvalidWrapperClass extends DBALException
     {
         return new self(
             sprintf(
-                "The given 'wrapperClass' %s has to be a subtype of %s.",
+                'The given "wrapperClass" %s has to be a subtype of %s.',
                 $wrapperClass,
                 Connection::class
             )

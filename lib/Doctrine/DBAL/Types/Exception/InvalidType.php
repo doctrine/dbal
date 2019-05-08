@@ -31,7 +31,7 @@ final class InvalidType extends ConversionException implements TypesException
         if (is_scalar($value)) {
             return new self(
                 sprintf(
-                    "Could not convert PHP value '%s' of type '%s' to type '%s'. Expected one of the following types: %s",
+                    'Could not convert PHP value "%s" of type "%s" to type "%s". Expected one of the following types: %s.',
                     $value,
                     $actualType,
                     $toType,
@@ -42,7 +42,7 @@ final class InvalidType extends ConversionException implements TypesException
 
         return new self(
             sprintf(
-                "Could not convert PHP value of type '%s' to type '%s'. Expected one of the following types: %s",
+                'Could not convert PHP value of type "%s" to type "%s". Expected one of the following types: %s.',
                 $actualType,
                 $toType,
                 implode(', ', $possibleTypes)

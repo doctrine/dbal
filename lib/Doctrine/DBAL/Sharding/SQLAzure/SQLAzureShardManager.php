@@ -173,7 +173,7 @@ class SQLAzureShardManager implements ShardManager
     {
         $shards = $this->getShards();
         if (! $shards) {
-            throw new RuntimeException('No shards found for ' . $this->federationName);
+            throw new RuntimeException(sprintf('No shards found for "%s".', $this->federationName));
         }
 
         $result          = [];
