@@ -420,7 +420,11 @@ abstract class AbstractPlatform
         $dbType = strtolower($dbType);
 
         if (! isset($this->doctrineTypeMapping[$dbType])) {
-            throw new DBALException('Unknown database type ' . $dbType . ' requested, ' . static::class . ' may not support it.');
+            throw new DBALException(sprintf(
+                'Unknown database type "%s" requested, %s may not support it.',
+                $dbType,
+                static::class
+            ));
         }
 
         return $this->doctrineTypeMapping[$dbType];
@@ -762,7 +766,7 @@ abstract class AbstractPlatform
             default:
                 throw new InvalidArgumentException(
                     sprintf(
-                        'The value of $mode is expected to be one of the TrimMode constants, %d given',
+                        'The value of $mode is expected to be one of the TrimMode constants, %d given.',
                         $mode
                     )
                 );
@@ -1323,7 +1327,7 @@ abstract class AbstractPlatform
                 $sql = $eventArgs->getSql();
 
                 if ($sql === null) {
-                    throw new UnexpectedValueException('Default implementation of DROP TABLE was overridden with NULL');
+                    throw new UnexpectedValueException('Default implementation of DROP TABLE was overridden with NULL.');
                 }
 
                 return $sql;
@@ -1428,7 +1432,7 @@ abstract class AbstractPlatform
     public function getCreateTableSQL(Table $table, $createFlags = self::CREATE_INDEXES)
     {
         if (! is_int($createFlags)) {
-            throw new InvalidArgumentException('Second argument of AbstractPlatform::getCreateTableSQL() has to be integer.');
+            throw new InvalidArgumentException('Second argument of AbstractPlatform::getCreateTableSQL() has to be an integer.');
         }
 
         if (count($table->getColumns()) === 0) {
@@ -1701,7 +1705,7 @@ abstract class AbstractPlatform
         $columns = $index->getColumns();
 
         if (count($columns) === 0) {
-            throw new InvalidArgumentException("Incomplete definition. 'columns' required.");
+            throw new InvalidArgumentException('Incomplete definition. "columns" required.');
         }
 
         if ($index->isPrimary()) {
@@ -2264,7 +2268,7 @@ abstract class AbstractPlatform
         $name    = new Identifier($name);
 
         if (count($columns) === 0) {
-            throw new InvalidArgumentException("Incomplete definition. 'columns' required.");
+            throw new InvalidArgumentException('Incomplete definition. "columns" required.');
         }
 
         $flags = ['UNIQUE'];
@@ -2297,7 +2301,7 @@ abstract class AbstractPlatform
         $name    = new Identifier($name);
 
         if (count($columns) === 0) {
-            throw new InvalidArgumentException("Incomplete definition. 'columns' required.");
+            throw new InvalidArgumentException('Incomplete definition. "columns" required.');
         }
 
         return $this->getCreateIndexSQLFlags($index) . 'INDEX ' . $name->getQuotedName($this) . ' ('
@@ -2435,7 +2439,7 @@ abstract class AbstractPlatform
             case 'SET DEFAULT':
                 return $upper;
             default:
-                throw new InvalidArgumentException('Invalid foreign key action: ' . $upper);
+                throw new InvalidArgumentException(sprintf('Invalid foreign key action "%s".', $upper));
         }
     }
 
@@ -2456,13 +2460,13 @@ abstract class AbstractPlatform
         $sql .= 'FOREIGN KEY (';
 
         if (count($foreignKey->getLocalColumns()) === 0) {
-            throw new InvalidArgumentException("Incomplete definition. 'local' required.");
+            throw new InvalidArgumentException('Incomplete definition. "local" required.');
         }
         if (count($foreignKey->getForeignColumns()) === 0) {
-            throw new InvalidArgumentException("Incomplete definition. 'foreign' required.");
+            throw new InvalidArgumentException('Incomplete definition. "foreign" required.');
         }
         if (strlen($foreignKey->getForeignTableName()) === 0) {
-            throw new InvalidArgumentException("Incomplete definition. 'foreignTable' required.");
+            throw new InvalidArgumentException('Incomplete definition. "foreignTable" required.');
         }
 
         return $sql . implode(', ', $foreignKey->getQuotedLocalColumns($this))
@@ -2644,7 +2648,7 @@ abstract class AbstractPlatform
             case TransactionIsolationLevel::SERIALIZABLE:
                 return 'SERIALIZABLE';
             default:
-                throw new InvalidArgumentException('Invalid isolation level:' . $level);
+                throw new InvalidArgumentException(sprintf('Invalid isolation level "%s".', $level));
         }
     }
 
@@ -3288,14 +3292,14 @@ abstract class AbstractPlatform
     {
         if ($offset < 0) {
             throw new DBALException(sprintf(
-                'Offset must be a positive integer or zero, %d given',
+                'Offset must be a positive integer or zero, %d given.',
                 $offset
             ));
         }
 
         if ($offset > 0 && ! $this->supportsLimitOffset()) {
             throw new DBALException(sprintf(
-                'Platform %s does not support offset values in limit queries.',
+                'Platform "%s" does not support offset values in limit queries.',
                 $this->getName()
             ));
         }

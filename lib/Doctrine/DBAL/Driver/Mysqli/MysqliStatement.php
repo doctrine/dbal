@@ -5,6 +5,11 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver\Mysqli;
 
 use Doctrine\DBAL\Driver\DriverException;
+use Doctrine\DBAL\Driver\Mysqli\Exception\ConnectionError;
+use Doctrine\DBAL\Driver\Mysqli\Exception\FailedReadingStreamOffset;
+use Doctrine\DBAL\Driver\Mysqli\Exception\StatementError;
+use Doctrine\DBAL\Driver\Mysqli\Exception\UnknownFetchMode;
+use Doctrine\DBAL\Driver\Mysqli\Exception\UnknownType;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
@@ -25,7 +30,6 @@ use function get_resource_type;
 use function is_array;
 use function is_int;
 use function is_resource;
-use function sprintf;
 use function str_repeat;
 
 class MysqliStatement implements IteratorAggregate, Statement
@@ -87,7 +91,7 @@ class MysqliStatement implements IteratorAggregate, Statement
         $stmt = $conn->prepare($prepareString);
 
         if ($stmt === false) {
-            throw MysqliException::fromConnectionError($this->_conn);
+            throw ConnectionError::new($this->_conn);
         }
 
         $this->_stmt = $stmt;
@@ -109,7 +113,7 @@ class MysqliStatement implements IteratorAggregate, Statement
         assert(is_int($column));
 
         if (! isset(self::$_paramTypeMap[$type])) {
-            throw new MysqliException(sprintf("Unknown type: '%s'", $type));
+            throw UnknownType::new($type);
         }
 
         $this->_bindedValues[$column] =& $variable;
@@ -124,7 +128,7 @@ class MysqliStatement implements IteratorAggregate, Statement
         assert(is_int($param));
 
         if (! isset(self::$_paramTypeMap[$type])) {
-            throw new MysqliException(sprintf("Unknown type: '%s'", $type));
+            throw UnknownType::new($type);
         }
 
         $this->_values[$param]       = $value;
@@ -139,14 +143,14 @@ class MysqliStatement implements IteratorAggregate, Statement
     {
         if ($params !== null && count($params) > 0) {
             if (! $this->bindUntypedValues($params)) {
-                throw MysqliException::fromStatementError($this->_stmt);
+                throw StatementError::new($this->_stmt);
             }
         } else {
             $this->bindTypedParameters();
         }
 
         if (! $this->_stmt->execute()) {
-            throw MysqliException::fromStatementError($this->_stmt);
+            throw StatementError::new($this->_stmt);
         }
 
         if ($this->_columnNames === null) {
@@ -193,7 +197,7 @@ class MysqliStatement implements IteratorAggregate, Statement
             }
 
             if (! $this->_stmt->bind_result(...$refs)) {
-                throw MysqliException::fromStatementError($this->_stmt);
+                throw StatementError::new($this->_stmt);
             }
         }
 
@@ -232,7 +236,7 @@ class MysqliStatement implements IteratorAggregate, Statement
         }
 
         if (count($values) > 0 && ! $this->_stmt->bind_param($types, ...$values)) {
-            throw MysqliException::fromStatementError($this->_stmt);
+            throw StatementError::new($this->_stmt);
         }
 
         $this->sendLongData($streams);
@@ -250,11 +254,11 @@ class MysqliStatement implements IteratorAggregate, Statement
                 $chunk = fread($stream, 8192);
 
                 if ($chunk === false) {
-                    throw new MysqliException("Failed reading the stream resource for parameter offset ${paramNr}.");
+                    throw FailedReadingStreamOffset::new($paramNr);
                 }
 
                 if (! $this->_stmt->send_long_data($paramNr - 1, $chunk)) {
-                    throw MysqliException::fromStatementError($this->_stmt);
+                    throw StatementError::new($this->_stmt);
                 }
             }
         }
@@ -322,7 +326,7 @@ class MysqliStatement implements IteratorAggregate, Statement
         }
 
         if ($values === false) {
-            throw MysqliException::fromStatementError($this->_stmt);
+            throw StatementError::new($this->_stmt);
         }
 
         if ($fetchMode === FetchMode::NUMERIC) {
@@ -344,7 +348,7 @@ class MysqliStatement implements IteratorAggregate, Statement
                 return (object) $assoc;
 
             default:
-                throw new MysqliException(sprintf("Unknown fetch type '%s'", $fetchMode));
+                throw UnknownFetchMode::new($fetchMode);
         }
     }
 
