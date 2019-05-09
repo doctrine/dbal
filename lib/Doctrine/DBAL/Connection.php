@@ -20,6 +20,7 @@ use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Types\Type;
 use Exception;
+use PDO;
 use Throwable;
 use function array_key_exists;
 use function assert;
@@ -1424,12 +1425,12 @@ class Connection implements DriverConnection
     /**
      * Gets the wrapped driver connection.
      *
-     * @return DriverConnection
+     * @return DriverConnection|PDO
      */
     public function getWrappedConnection()
     {
         $this->connect();
-        assert($this->_conn instanceof DriverConnection);
+        assert($this->_conn instanceof DriverConnection || $this->_conn instanceof PDO);
 
         return $this->_conn;
     }
