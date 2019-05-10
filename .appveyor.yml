@@ -68,7 +68,7 @@ install:
           Add-Content php.ini "`n extension=php_curl.dll"
           Add-Content php.ini "`n curl.cainfo=C:\tools\cacert\bundle.pem"
 
-          $DLLVersion = "5.5.0preview"
+          $DLLVersion = "5.6.1"
           cd c:\tools\php\ext
           $source = "https://windows.php.net/downloads/pecl/releases/sqlsrv/$($DLLVersion)/php_sqlsrv-$($DLLVersion)-$($env:php)-nts-vc15-x64.zip"
           $destination = "c:\tools\php\ext\php_sqlsrv-$($DLLVersion)-$($env:php)-nts-vc15-x64.zip"
