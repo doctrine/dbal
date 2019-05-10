@@ -10,9 +10,11 @@ use Doctrine\DBAL\FetchMode;
 use InvalidArgumentException;
 use IteratorAggregate;
 use PDO;
+use PDOStatement;
 use function array_merge;
 use function array_values;
 use function assert;
+use function is_array;
 use function reset;
 
 /**
@@ -42,7 +44,7 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
     /** @var int */
     private $lifetime;
 
-    /** @var ResultStatement */
+    /** @var ResultStatement|PDOStatement */
     private $statement;
 
     /**
@@ -59,11 +61,12 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
     private $defaultFetchMode = FetchMode::MIXED;
 
     /**
-     * @param string $cacheKey
-     * @param string $realKey
-     * @param int    $lifetime
+     * @param ResultStatement|PDOStatement $stmt
+     * @param                              string                       $cacheKey
+     * @param                              string                       $realKey
+     * @param                              int                          $lifetime
      */
-    public function __construct(ResultStatement $stmt, Cache $resultCache, $cacheKey, $realKey, $lifetime)
+    public function __construct($stmt, Cache $resultCache, $cacheKey, $realKey, $lifetime)
     {
         $this->statement   = $stmt;
         $this->resultCache = $resultCache;
@@ -167,7 +170,10 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
      */
     public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
     {
-        $this->data    = $this->statement->fetchAll($fetchMode, $fetchArgument, $ctorArgs);
+        $data = $this->statement->fetchAll($fetchMode, $fetchArgument, $ctorArgs);
+        assert(is_array($data));
+
+        $this->data    = $data;
         $this->emptied = true;
 
         return $this->data;

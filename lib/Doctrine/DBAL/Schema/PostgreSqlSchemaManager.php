@@ -17,6 +17,7 @@ use function assert;
 use function explode;
 use function implode;
 use function in_array;
+use function is_array;
 use function preg_match;
 use function preg_replace;
 use function sprintf;
@@ -43,7 +44,10 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     {
         $statement = $this->_conn->executeQuery("SELECT nspname FROM pg_namespace WHERE nspname !~ '^pg_.*' AND nspname != 'information_schema'");
 
-        return $statement->fetchAll(FetchMode::COLUMN);
+        $schemaNames = $statement->fetchAll(FetchMode::COLUMN);
+        assert(is_array($schemaNames));
+
+        return $schemaNames;
     }
 
     /**
@@ -222,6 +226,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
 
             $stmt         = $this->_conn->executeQuery($columnNameSql);
             $indexColumns = $stmt->fetchAll();
+            assert(is_array($indexColumns));
 
             // required for getting the order of the columns right.
             foreach ($colNumbers as $colNum) {

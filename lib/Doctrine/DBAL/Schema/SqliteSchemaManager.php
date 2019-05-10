@@ -13,8 +13,10 @@ use function array_change_key_case;
 use function array_map;
 use function array_reverse;
 use function array_values;
+use function assert;
 use function explode;
 use function file_exists;
+use function is_array;
 use function preg_match;
 use function preg_match_all;
 use function preg_quote;
@@ -173,6 +175,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
             $this->_conn->quote($tableName)
         ));
         $indexArray = $stmt->fetchAll(FetchMode::ASSOCIATIVE);
+        assert(is_array($indexArray));
 
         usort($indexArray, static function ($a, $b) {
             if ($a['pk'] === $b['pk']) {
@@ -207,11 +210,12 @@ class SqliteSchemaManager extends AbstractSchemaManager
             $idx['primary']    = false;
             $idx['non_unique'] = ! $tableIndex['unique'];
 
-                $stmt       = $this->_conn->executeQuery(sprintf(
-                    'PRAGMA INDEX_INFO (%s)',
-                    $this->_conn->quote($keyName)
-                ));
-                $indexArray = $stmt->fetchAll(FetchMode::ASSOCIATIVE);
+            $stmt       = $this->_conn->executeQuery(sprintf(
+                'PRAGMA INDEX_INFO (%s)',
+                $this->_conn->quote($keyName)
+            ));
+            $indexArray = $stmt->fetchAll(FetchMode::ASSOCIATIVE);
+            assert(is_array($indexArray));
 
             foreach ($indexArray as $indexColumnRow) {
                 $idx['column_name'] = $indexColumnRow['name'];

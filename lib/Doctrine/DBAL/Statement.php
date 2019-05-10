@@ -7,7 +7,9 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
 use IteratorAggregate;
 use PDO;
+use PDOStatement;
 use Throwable;
+use function assert;
 use function is_array;
 use function is_string;
 
@@ -41,7 +43,7 @@ class Statement implements IteratorAggregate, DriverStatement
     /**
      * The underlying driver statement.
      *
-     * @var \Doctrine\DBAL\Driver\Statement
+     * @var \Doctrine\DBAL\Driver\Statement|PDOStatement
      */
     protected $stmt;
 
@@ -249,11 +251,10 @@ class Statement implements IteratorAggregate, DriverStatement
      */
     public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
     {
-        if ($fetchArgument) {
-            return $this->stmt->fetchAll($fetchMode, $fetchArgument);
-        }
+        $data = $fetchArgument ? $this->stmt->fetchAll($fetchMode, $fetchArgument) : $this->stmt->fetchAll($fetchMode);
+        assert(is_array($data));
 
-        return $this->stmt->fetchAll($fetchMode);
+        return $data;
     }
 
     /**
@@ -277,7 +278,7 @@ class Statement implements IteratorAggregate, DriverStatement
     /**
      * Gets the wrapped driver statement.
      *
-     * @return \Doctrine\DBAL\Driver\Statement
+     * @return \Doctrine\DBAL\Driver\Statement|PDOStatement
      */
     public function getWrappedStatement()
     {

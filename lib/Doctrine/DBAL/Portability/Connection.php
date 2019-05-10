@@ -8,6 +8,7 @@ use Doctrine\DBAL\Driver\PDOConnection;
 use PDO;
 use const CASE_LOWER;
 use const CASE_UPPER;
+use function assert;
 use function func_get_args;
 
 /**
@@ -124,6 +125,8 @@ class Connection extends \Doctrine\DBAL\Connection
         $connection = $this->getWrappedConnection();
 
         $stmt = $connection->query(...func_get_args());
+        assert($stmt !== false);
+
         $stmt = new Statement($stmt, $this);
         $stmt->setFetchMode($this->defaultFetchMode);
 

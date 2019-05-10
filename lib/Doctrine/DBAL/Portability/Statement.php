@@ -9,8 +9,10 @@ use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use IteratorAggregate;
 use PDO;
+use PDOStatement;
 use function array_change_key_case;
 use function assert;
+use function is_array;
 use function is_string;
 use function rtrim;
 
@@ -22,7 +24,7 @@ class Statement implements IteratorAggregate, DriverStatement
     /** @var int */
     private $portability;
 
-    /** @var DriverStatement|ResultStatement */
+    /** @var DriverStatement|ResultStatement|PDOStatement */
     private $stmt;
 
     /** @var int */
@@ -34,7 +36,7 @@ class Statement implements IteratorAggregate, DriverStatement
     /**
      * Wraps <tt>Statement</tt> and applies portability measures.
      *
-     * @param DriverStatement|ResultStatement $stmt
+     * @param DriverStatement|ResultStatement|PDOStatement $stmt
      */
     public function __construct($stmt, Connection $conn)
     {
@@ -158,6 +160,8 @@ class Statement implements IteratorAggregate, DriverStatement
         } else {
             $rows = $this->stmt->fetchAll($fetchMode);
         }
+
+        assert(is_array($rows));
 
         $iterateRow = $this->portability & (Connection::PORTABILITY_EMPTY_TO_NULL|Connection::PORTABILITY_RTRIM);
         $fixCase    = $this->case !== null

@@ -21,11 +21,13 @@ use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Types\Type;
 use Exception;
 use PDO;
+use PDOStatement;
 use Throwable;
 use function array_key_exists;
 use function assert;
 use function func_get_args;
 use function implode;
+use function is_array;
 use function is_int;
 use function is_string;
 use function key;
@@ -83,7 +85,7 @@ class Connection implements DriverConnection
     /**
      * The wrapped driver connection.
      *
-     * @var \Doctrine\DBAL\Driver\Connection|null
+     * @var \Doctrine\DBAL\Driver\Connection|PDO|null
      */
     protected $_conn;
 
@@ -832,7 +834,10 @@ class Connection implements DriverConnection
      */
     public function fetchAll($sql, array $params = [], $types = [])
     {
-        return $this->executeQuery($sql, $params, $types)->fetchAll();
+        $data = $this->executeQuery($sql, $params, $types)->fetchAll();
+        assert(is_array($data));
+
+        return $data;
     }
 
     /**
@@ -868,7 +873,7 @@ class Connection implements DriverConnection
      * @param int[]|string[]         $types  The types the previous parameters are in.
      * @param QueryCacheProfile|null $qcp    The query cache profile, optional.
      *
-     * @return ResultStatement The executed statement.
+     * @return ResultStatement|PDOStatement The executed statement.
      *
      * @throws DBALException
      */
@@ -902,6 +907,8 @@ class Connection implements DriverConnection
         } catch (Throwable $ex) {
             throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $query, $this->resolveParams($params, $types));
         }
+
+        assert($stmt instanceof ResultStatement || $stmt instanceof PDOStatement);
 
         $stmt->setFetchMode($this->defaultFetchMode);
 
@@ -987,7 +994,7 @@ class Connection implements DriverConnection
     /**
      * Executes an SQL statement, returning a result set as a Statement object.
      *
-     * @return \Doctrine\DBAL\Driver\Statement
+     * @return DriverStatement|PDOStatement
      *
      * @throws DBALException
      */
@@ -1008,6 +1015,7 @@ class Connection implements DriverConnection
             throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $args[0]);
         }
 
+        assert($statement instanceof PDOStatement || $statement instanceof DriverStatement);
         $statement->setFetchMode($this->defaultFetchMode);
 
         if ($logger) {
@@ -1517,9 +1525,9 @@ class Connection implements DriverConnection
      * @internal Duck-typing used on the $stmt parameter to support driver statements as well as
      *           raw PDOStatement instances.
      *
-     * @param \Doctrine\DBAL\Driver\Statement $stmt   The statement to bind the values to.
-     * @param mixed[]                         $params The map/list of named/positional parameters.
-     * @param int[]|string[]                  $types  The parameter types (PDO binding types or DBAL mapping types).
+     * @param DriverStatement|PDOStatement $stmt   The statement to bind the values to.
+     * @param mixed[]                      $params The map/list of named/positional parameters.
+     * @param int[]|string[]               $types  The parameter types (PDO binding types or DBAL mapping types).
      *
      * @return void
      */

@@ -3,10 +3,11 @@
 namespace Doctrine\DBAL\Query;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Driver\Statement;
+use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
+use PDOStatement;
 use function array_key_exists;
 use function array_keys;
 use function array_unshift;
@@ -192,7 +193,7 @@ class QueryBuilder
      * Uses {@see Connection::executeQuery} for select statements and {@see Connection::executeUpdate}
      * for insert, update and delete statements.
      *
-     * @return Statement|int
+     * @return ResultStatement|PDOStatement|int
      */
     public function execute()
     {
