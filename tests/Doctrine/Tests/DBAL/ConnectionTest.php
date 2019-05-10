@@ -12,7 +12,6 @@ use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
-use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
@@ -26,6 +25,7 @@ use Doctrine\Tests\Mocks\DriverStatementMock;
 use Doctrine\Tests\Mocks\ServerInfoAwareConnectionMock;
 use Doctrine\Tests\Mocks\VersionAwarePlatformDriverMock;
 use Exception;
+use PDO;
 use PHPUnit\Framework\MockObject\MockObject;
 use stdClass;
 use function call_user_func_array;
@@ -656,7 +656,7 @@ class ConnectionTest extends DbalTestCase
 
     public function testConnectionDoesNotMaintainTwoReferencesToExternalPDO()
     {
-        $params['pdo'] = new stdClass();
+        $params['pdo'] = new PDO('sqlite::memory:');
 
         $driverMock = $this->createMock(Driver::class);
 
@@ -667,7 +667,7 @@ class ConnectionTest extends DbalTestCase
 
     public function testPassingExternalPDOMeansConnectionIsConnected()
     {
-        $params['pdo'] = new stdClass();
+        $params['pdo'] = new PDO('sqlite::memory:');
 
         $driverMock = $this->createMock(Driver::class);
 
@@ -680,7 +680,7 @@ class ConnectionTest extends DbalTestCase
     {
         /** @var Driver $driver */
         $driver  = $this->createMock(Driver::class);
-        $pdoMock = $this->createMock(\Doctrine\DBAL\Driver\Connection::class);
+        $pdoMock = $this->createMock(PDO::class);
 
         // should never execute queries with invalid arguments
         $pdoMock->expects($this->never())->method('exec');
@@ -709,9 +709,9 @@ class ConnectionTest extends DbalTestCase
     public function testCallConnectOnce($method, $params)
     {
         $driverMock   = $this->createMock(Driver::class);
-        $pdoMock      = $this->createMock(Connection::class);
+        $pdoMock      = $this->createMock(PDO::class);
         $platformMock = $this->createMock(AbstractPlatform::class);
-        $stmtMock     = $this->createMock(Statement::class);
+        $stmtMock     = $this->createMock(Driver\PDOStatement::class);
 
         $pdoMock->expects($this->any())
             ->method('prepare')
