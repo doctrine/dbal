@@ -38,11 +38,10 @@ class DriverManagerTest extends DbalTestCase
      */
     public function testValidPdoInstance()
     {
-        $conn = DriverManager::getConnection([
-            'pdo' => new PDO('sqlite::memory:'),
-        ]);
+        $conn = DriverManager::getConnection(['pdo' => new PDO('sqlite::memory:')]);
 
         self::assertEquals('sqlite', $conn->getDatabasePlatform()->getName());
+        self::assertInstanceOf(Driver\WrappedPDOConnection::class, $conn->getWrappedConnection());
     }
 
     /**
