@@ -13,6 +13,7 @@ use Doctrine\DBAL\Driver\PingableConnection;
 use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
+use Doctrine\DBAL\Driver\WrappedPDOConnection;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
@@ -189,7 +190,7 @@ class Connection implements DriverConnection
         $this->params  = $params;
 
         if (isset($params['pdo'])) {
-            $this->_conn       = $params['pdo'];
+            $this->_conn       = WrappedPDOConnection::fromInstance($params['pdo']);
             $this->isConnected = true;
             unset($this->params['pdo']);
         }

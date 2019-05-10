@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Portability;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\ColumnCase;
 use Doctrine\DBAL\Driver\PDOConnection;
+use Doctrine\DBAL\Driver\WrappedPDOConnection;
 use PDO;
 use const CASE_LOWER;
 use const CASE_UPPER;
@@ -66,7 +67,7 @@ class Connection extends \Doctrine\DBAL\Connection
             }
 
             if (isset($params['fetch_case']) && $this->portability & self::PORTABILITY_FIX_CASE) {
-                if ($this->_conn instanceof PDOConnection) {
+                if ($this->_conn instanceof PDOConnection || $this->_conn instanceof WrappedPDOConnection) {
                     // make use of c-level support for case handling
                     $this->_conn->setAttribute(PDO::ATTR_CASE, $params['fetch_case']);
                 } else {
