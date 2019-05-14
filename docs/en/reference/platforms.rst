@@ -41,6 +41,7 @@ MariaDB
 ^^^^^
 
 -  ``MariaDb1027Platform`` for version 10.2 (10.2.7 GA) and above.
+-  ``MariaDb1043Platform`` for version 10.4 (10.4.3 RC) and above.
 
 Oracle
 ^^^^^^

@@ -9,7 +9,7 @@ use Doctrine\DBAL\Types\Types;
  *
  * Note: Should not be used with versions prior to 10.2.7.
  */
-final class MariaDb1027Platform extends MySqlPlatform
+class MariaDb1027Platform extends MySqlPlatform
 {
     /**
      * {@inheritdoc}

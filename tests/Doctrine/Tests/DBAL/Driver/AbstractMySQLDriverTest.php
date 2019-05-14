@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\AbstractMySQLDriver;
 use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
+use Doctrine\DBAL\Platforms\MariaDb1043Platform;
 use Doctrine\DBAL\Platforms\MySQL57Platform;
 use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
@@ -80,6 +81,9 @@ class AbstractMySQLDriverTest extends AbstractDriverTest
             ['5.5.5-MariaDB-10.2.8+maria~xenial-log', MariaDb1027Platform::class],
             ['10.2.8-MariaDB-10.2.8+maria~xenial-log', MariaDb1027Platform::class],
             ['10.2.8-MariaDB-1~lenny-log', MariaDb1027Platform::class],
+            ['5.5.5-MariaDB-10.4.3+maria~bionic-log', MariaDb1043Platform::class],
+            ['10.4.3-MariaDB-10.4.3+maria~bionic-log', MariaDb1043Platform::class],
+            ['10.4.3-MariaDB-1~stretch-log', MariaDb1043Platform::class],
         ];
     }
 

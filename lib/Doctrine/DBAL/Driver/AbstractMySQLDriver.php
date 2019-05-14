@@ -7,6 +7,7 @@ use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
+use Doctrine\DBAL\Platforms\MariaDb1043Platform;
 use Doctrine\DBAL\Platforms\MySQL57Platform;
 use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
@@ -114,8 +115,13 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
     public function createDatabasePlatformForVersion($version)
     {
         $mariadb = stripos($version, 'mariadb') !== false;
-        if ($mariadb && version_compare($this->getMariaDbMysqlVersionNumber($version), '10.2.7', '>=')) {
-            return new MariaDb1027Platform();
+        if ($mariadb) {
+            if (version_compare($this->getMariaDbMysqlVersionNumber($version), '10.4.3', '>=')) {
+                return new MariaDb1043Platform();
+            }
+            if (version_compare($this->getMariaDbMysqlVersionNumber($version), '10.2.7', '>=')) {
+                return new MariaDb1027Platform();
+            }
         }
 
         if (! $mariadb) {
