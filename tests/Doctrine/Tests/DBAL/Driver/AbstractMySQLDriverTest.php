@@ -83,7 +83,10 @@ class AbstractMySQLDriverTest extends AbstractDriverTest
         ];
     }
 
-    protected function getExceptionConversionData()
+    /**
+     * {@inheritDoc}
+     */
+    protected static function getExceptionConversionData() : array
     {
         return [
             self::EXCEPTION_CONNECTION => [

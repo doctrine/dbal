@@ -30,6 +30,7 @@ use Doctrine\DBAL\VersionAwarePlatformDriver;
 use Doctrine\Tests\DbalTestCase;
 use Exception;
 use ReflectionProperty;
+use function array_merge;
 use function get_class;
 use function sprintf;
 
@@ -67,29 +68,31 @@ abstract class AbstractDriverTest extends DbalTestCase
         $this->driver = $this->createDriver();
     }
 
-    public function testConvertsException()
+    /**
+     * @dataProvider exceptionConversionProvider
+     */
+    public function testConvertsException($errorCode, $sqlState, $message, string $expectedClass) : void
     {
         if (! $this->driver instanceof ExceptionConverterDriver) {
             $this->markTestSkipped('This test is only intended for exception converter drivers.');
         }
 
-        $data = $this->getExceptionConversions();
-
-        if (empty($data)) {
-            $this->fail(
-                sprintf(
-                    'No test data found for test %s. You have to return test data from %s.',
-                    static::class . '::' . __FUNCTION__,
-                    static::class . '::getExceptionConversionData'
-                )
-            );
-        }
-
-        $driverException = new class extends Exception implements DriverExceptionInterface
+        $driverException = new class ($errorCode, $sqlState, $message)
+            extends Exception
+            implements DriverExceptionInterface
         {
-            public function __construct()
+            /** @var mixed */
+            private $errorCode;
+
+            /** @var mixed */
+            private $sqlState;
+
+            public function __construct($errorCode, $sqlState, $message)
             {
-                parent::__construct('baz');
+                parent::__construct($message);
+
+                $this->errorCode = $errorCode;
+                $this->sqlState  = $sqlState;
             }
 
             /**
@@ -97,7 +100,7 @@ abstract class AbstractDriverTest extends DbalTestCase
              */
             public function getErrorCode()
             {
-                return 'foo';
+                return $this->errorCode;
             }
 
             /**
@@ -105,26 +108,19 @@ abstract class AbstractDriverTest extends DbalTestCase
              */
             public function getSQLState()
             {
-                return 'bar';
+                return $this->sqlState;
             }
         };
 
-        $data[] = [$driverException, self::EXCEPTION_DRIVER];
+        $dbalMessage   = 'DBAL exception message';
+        $dbalException = $this->driver->convertException($dbalMessage, $driverException);
 
-        $message = 'DBAL exception message';
+        self::assertInstanceOf($expectedClass, $dbalException);
 
-        foreach ($data as $item) {
-            /** @var $driverException \Doctrine\DBAL\Driver\DriverException */
-            [$driverException, $convertedExceptionClassName] = $item;
-
-            $convertedException = $this->driver->convertException($message, $driverException);
-
-            self::assertSame($convertedExceptionClassName, get_class($convertedException));
-
-            self::assertSame($driverException->getErrorCode(), $convertedException->getErrorCode());
-            self::assertSame($driverException->getSQLState(), $convertedException->getSQLState());
-            self::assertSame($message, $convertedException->getMessage());
-        }
+        self::assertSame($driverException->getErrorCode(), $dbalException->getErrorCode());
+        self::assertSame($driverException->getSQLState(), $dbalException->getSQLState());
+        self::assertSame($driverException, $dbalException->getPrevious());
+        self::assertSame($dbalMessage, $dbalException->getMessage());
     }
 
     public function testCreatesDatabasePlatformForVersion()
@@ -246,56 +242,25 @@ abstract class AbstractDriverTest extends DbalTestCase
         return [];
     }
 
-    protected function getExceptionConversionData()
+    /**
+     * @return mixed[][]
+     */
+    public static function exceptionConversionProvider() : iterable
     {
-        return [];
-    }
-
-    private function getExceptionConversions()
-    {
-        $data = [];
-
-        foreach ($this->getExceptionConversionData() as $convertedExceptionClassName => $errors) {
-            foreach ($errors as $error) {
-                $driverException = new class ($error[0], $error[1], $error[2])
-                    extends Exception
-                    implements DriverExceptionInterface
-                {
-                    /** @var mixed */
-                    private $errorCode;
-
-                    /** @var mixed */
-                    private $sqlState;
-
-                    public function __construct($errorCode, $sqlState, $message)
-                    {
-                        parent::__construct($message);
-
-                        $this->errorCode = $errorCode;
-                        $this->sqlState  = $sqlState;
-                    }
-
-                    /**
-                     * {@inheritDoc}
-                     */
-                    public function getErrorCode()
-                    {
-                        return $this->errorCode;
-                    }
-
-                    /**
-                     * {@inheritDoc}
-                     */
-                    public function getSQLState()
-                    {
-                        return $this->sqlState;
-                    }
-                };
-
-                $data[] = [$driverException, $convertedExceptionClassName];
+        foreach (static::getExceptionConversionData() as $expectedClass => $items) {
+            foreach ($items as $item) {
+                yield array_merge($item, [$expectedClass]);
             }
         }
 
-        return $data;
+        yield ['foo', 'bar', 'baz', self::EXCEPTION_DRIVER];
+    }
+
+    /**
+     * @return array<string,mixed[][]>
+     */
+    protected static function getExceptionConversionData() : array
+    {
+        return [];
     }
 }

@@ -35,24 +35,12 @@ class DBALExceptionTest extends DbalTestCase
     {
         /** @var Driver $driver */
         $driver = $this->createMock(Driver::class);
-        $inner  = new class extends Exception implements InnerDriverException
-        {
-            /**
-             * {@inheritDoc}
-             */
-            public function getErrorCode()
-            {
-            }
 
-            /**
-             * {@inheritDoc}
-             */
-            public function getSQLState()
-            {
-            }
-        };
-        $ex     = new DriverException('', $inner);
-        $e      = DBALException::driverExceptionDuringQuery($driver, $ex, '');
+        /** @var InnerDriverException $inner */
+        $inner = $this->createMock(InnerDriverException::class);
+
+        $ex = new DriverException('', $inner);
+        $e  = DBALException::driverExceptionDuringQuery($driver, $ex, '');
         self::assertSame($ex, $e);
     }
 

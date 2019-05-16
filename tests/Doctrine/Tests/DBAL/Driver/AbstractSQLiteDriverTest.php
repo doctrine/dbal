@@ -42,7 +42,10 @@ class AbstractSQLiteDriverTest extends AbstractDriverTest
         return new SqliteSchemaManager($connection);
     }
 
-    protected function getExceptionConversionData()
+    /**
+     * {@inheritDoc}
+     */
+    protected static function getExceptionConversionData() : array
     {
         return [
             self::EXCEPTION_CONNECTION => [
