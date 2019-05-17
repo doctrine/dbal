@@ -60,7 +60,10 @@ class AbstractOracleDriverTest extends AbstractDriverTest
         return new OracleSchemaManager($connection);
     }
 
-    protected function getExceptionConversionData()
+    /**
+     * {@inheritDoc}
+     */
+    protected static function getExceptionConversionData() : array
     {
         return [
             self::EXCEPTION_CONNECTION => [
