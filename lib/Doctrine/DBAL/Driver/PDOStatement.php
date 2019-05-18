@@ -244,4 +244,14 @@ class PDOStatement implements IteratorAggregate, Statement
     {
         yield from $this->stmt;
     }
+
+    /**
+     * Advances to the next rowset in a multi-rowset statement handle
+     *
+     * @return bool Returns TRUE on success or FALSE on failure.
+     */
+    public function nextRowset() : bool
+    {
+        return $this->stmt->nextRowset();
+    }
 }

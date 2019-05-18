@@ -1,16 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Driver\PDOSqlsrv;
 
 use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\Driver\PDOStatement;
 use Doctrine\DBAL\Driver\Statement;
-use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\ParameterType;
 use IteratorAggregate;
 use PDO;
-use function array_key_exists;
-use function is_int;
 use function stripos;
 
 /**
@@ -58,10 +57,7 @@ class PDOSqlsrvStatement implements IteratorAggregate, Statement
      */
     public const LAST_INSERT_ID_SQL = ';SELECT SCOPE_IDENTITY() AS LastInsertId;';
 
-    /**
-     * @param string $sql
-     */
-    public function __construct(PDOConnection $conn, $sql, ?LastInsertId $lastInsertId = null)
+    public function __construct(PDOConnection $conn, string $sql, ?LastInsertId $lastInsertId = null)
     {
         $this->conn = $conn;
         $this->sql  = $sql;
@@ -77,15 +73,15 @@ class PDOSqlsrvStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function bindValue($param, $value, $type = ParameterType::STRING)
+    public function bindValue($param, $value, $type = ParameterType::STRING) : void
     {
-        return $this->bindParam($param, $value, $type);
+        $this->bindParam($param, $value, $type);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null, $driverOptions = null)
+    public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null, $driverOptions = null) : void
     {
         if (($type === ParameterType::LARGE_OBJECT || $type === ParameterType::BINARY)
             && $driverOptions === null
@@ -93,15 +89,15 @@ class PDOSqlsrvStatement implements IteratorAggregate, Statement
             $driverOptions = PDO::SQLSRV_ENCODING_BINARY;
         }
 
-        return $this->stmt->bindParam($column, $variable, $type, $length, $driverOptions);
+        $this->stmt->bindParam($column, $variable, $type, $length, $driverOptions);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function closeCursor()
+        /**
+         * {@inheritdoc}
+         */
+    public function closeCursor() : void
     {
-        return $this->stmt->closeCursor();
+        $this->stmt->closeCursor();
     }
 
     /**
@@ -115,40 +111,13 @@ class PDOSqlsrvStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function errorCode()
+    public function execute($params = null) : void
     {
-        return $this->stmt->errorCode();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function errorInfo()
-    {
-        return $this->stmt->errorInfo();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function execute($params = null)
-    {
-        if ($params) {
-            $hasZeroIndex = array_key_exists(0, $params);
-            foreach ($params as $key => $val) {
-                if ($hasZeroIndex && is_int($key)) {
-                    $this->bindValue($key + 1, $val);
-                } else {
-                    $this->bindValue($key, $val);
-                }
-            }
-        }
-
-        $result         = $this->stmt->execute($params);
+        $this->stmt->execute($params);
         $this->rowCount = $this->rowCount();
 
         if (! $this->lastInsertId) {
-            return $result;
+            return;
         }
 
         $id = null;
@@ -169,8 +138,6 @@ class PDOSqlsrvStatement implements IteratorAggregate, Statement
         }
 
         $this->lastInsertId->setId($id);
-
-        return $result;
     }
 
     /**
@@ -189,9 +156,9 @@ class PDOSqlsrvStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
+    public function setFetchMode($fetchMode, ...$args) : void
     {
-        return $this->stmt->setFetchMode($fetchMode, $arg2, $arg3);
+        $this->stmt->setFetchMode($fetchMode, ...$args);
     }
 
     /**
@@ -199,23 +166,23 @@ class PDOSqlsrvStatement implements IteratorAggregate, Statement
      */
     public function getIterator()
     {
-        return new StatementIterator($this);
+        yield from $this->stmt;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null, $cursorOrientation = PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
+    public function fetch($fetchMode = null, ...$args)
     {
-        return $this->stmt->fetch($fetchMode, $cursorOrientation, $cursorOffset);
+        return $this->stmt->fetch($fetchMode, ...$args);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
+    public function fetchAll($fetchMode = null, ...$args)
     {
-        return $this->stmt->fetchAll($fetchMode, $fetchArgument, $ctorArgs);
+        return $this->stmt->fetchAll($fetchMode, ...$args);
     }
 
     /**
@@ -229,8 +196,13 @@ class PDOSqlsrvStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function rowCount()
+    public function rowCount() : int
     {
         return $this->rowCount ?: $this->stmt->rowCount();
+    }
+
+    public function nextRowset() : bool
+    {
+        return $this->stmt->nextRowset();
     }
 }

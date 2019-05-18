@@ -1,12 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Driver\PDOSqlsrv;
 
 use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\PDOConnection;
+use Doctrine\DBAL\Driver\PDOException;
+use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
-use Doctrine\DBAL\ParameterType;
-use function func_get_args;
+use Doctrine\DBAL\Driver\Statement;
 use function strpos;
 use function substr;
 
@@ -33,30 +36,36 @@ class PDOSqlsrvConnection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritDoc}
      */
-    public function prepare($sql)
+    public function prepare($sql) : Statement
     {
         $this->lastInsertId = new LastInsertId();
 
-        return new PDOSqlsrvStatement($this->conn, $sql, $this->lastInsertId);
+        try {
+            return new PDOSqlsrvStatement($this->conn, $sql, $this->lastInsertId);
+        } catch (\PDOException $exception) {
+            throw new PDOException($exception);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
-    public function query()
+    public function query(string $sql) : ResultStatement
     {
-        $args = func_get_args();
-        $sql  = $args[0];
-        $stmt = $this->prepare($sql);
-        $stmt->execute();
+        try {
+            $stmt = $this->prepare($sql);
+            $stmt->execute();
 
-        return $stmt;
+            return $stmt;
+        } catch (\PDOException $exception) {
+            throw new PDOException($exception);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
-    public function exec($statement)
+    public function exec($statement) : int
     {
         return $this->conn->exec($statement);
     }
@@ -64,9 +73,9 @@ class PDOSqlsrvConnection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritDoc}
      */
-    public function quote($value, $type = ParameterType::STRING)
+    public function quote(string $input) : string
     {
-        $val = $this->conn->quote($value, $type);
+        $val = $this->conn->quote($input);
 
         // Fix for a driver version terminating all values with null byte
         if (strpos($val, "\0") !== false) {
@@ -98,41 +107,25 @@ class PDOSqlsrvConnection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritDoc}
      */
-    public function beginTransaction()
+    public function beginTransaction() : void
     {
-        return $this->conn->beginTransaction();
+        $this->conn->beginTransaction();
     }
 
     /**
      * {@inheritDoc}
      */
-    public function commit()
+    public function commit() : void
     {
-        return $this->conn->commit();
+        $this->conn->commit();
     }
 
     /**
      * {@inheritDoc}
      */
-    public function rollBack()
+    public function rollBack() : void
     {
-        return $this->conn->rollBack();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function errorCode()
-    {
-        return $this->conn->errorCode();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function errorInfo()
-    {
-        return $this->conn->errorInfo();
+        $this->conn->rollBack();
     }
 
     /**
