@@ -44,7 +44,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
     public function getGenerateAlterTableSql()
     {
-        return ["ALTER TABLE mytable RENAME TO userlist, ADD quota INT DEFAULT NULL, DROP foo, CHANGE bar baz VARCHAR(255) DEFAULT 'def' NOT NULL, CHANGE bloo bloo BIT(1) DEFAULT 0 NOT NULL"];
+        return ["ALTER TABLE mytable RENAME TO userlist, ADD quota INT DEFAULT NULL, DROP foo, CHANGE bar baz VARCHAR(255) DEFAULT 'def' NOT NULL, CHANGE bloo bloo BOOLEAN DEFAULT '0' NOT NULL COMMENT '(DC2Type:boolean)'"];
     }
 
     public function testGeneratesSqlSnippets()

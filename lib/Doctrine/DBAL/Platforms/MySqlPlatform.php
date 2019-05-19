@@ -9,7 +9,6 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\BlobType;
-use Doctrine\DBAL\Types\BooleanType;
 use Doctrine\DBAL\Types\TextType;
 use InvalidArgumentException;
 use function array_diff_key;
@@ -296,7 +295,7 @@ class MySqlPlatform extends AbstractPlatform
      */
     public function getBooleanTypeDeclarationSQL(array $field)
     {
-        return 'BIT(1)';
+        return 'BOOLEAN';
     }
 
     /**
@@ -468,10 +467,6 @@ SQL
      */
     public function getDefaultValueDeclarationSQL($field)
     {
-        // Default boolean should not be in quotes
-        if (isset($field['default']) && $field['type'] instanceof BooleanType) {
-            return ' DEFAULT ' . $this->convertBooleans($field['default']);
-        }
         // Unset the default value if the given field definition does not allow default values.
         if ($field['type'] instanceof TextType || $field['type'] instanceof BlobType) {
             $field['default'] = null;
@@ -1053,7 +1048,7 @@ SQL
     protected function initializeDoctrineTypeMappings()
     {
         $this->doctrineTypeMapping = [
-            'bit'           => 'boolean',
+            'boolean'       => 'boolean',
             'tinyint'       => 'tinyint',
             'smallint'      => 'smallint',
             'mediumint'     => 'integer',

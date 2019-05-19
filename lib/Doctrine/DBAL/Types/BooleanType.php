@@ -49,4 +49,13 @@ class BooleanType extends Type
     {
         return ParameterType::BOOLEAN;
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function requiresSQLCommentHint(AbstractPlatform $platform)
+    {
+        // BOOLEAN is an alias of TINYINT so we need comment hint
+        return $platform->getName() === 'mysql';
+    }
 }
