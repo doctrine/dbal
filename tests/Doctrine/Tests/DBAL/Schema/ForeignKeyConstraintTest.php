@@ -28,16 +28,11 @@ class ForeignKeyConstraintTest extends TestCase
      * @group DBAL-1062
      * @dataProvider getIntersectsIndexColumnsData
      */
-    public function testIntersectsIndexColumns(array $indexColumns, $expectedResult)
+    public function testIntersectsIndexColumns(array $indexColumns, bool $expectedResult)
     {
         $foreignKey = new ForeignKeyConstraint(['foo', 'bar'], 'foreign_table', ['fk_foo', 'fk_bar']);
 
-        $index = $this->getMockBuilder(Index::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $index->expects($this->once())
-            ->method('getColumns')
-            ->will($this->returnValue($indexColumns));
+        $index = new Index('INDEX_NAME', $indexColumns);
 
         self::assertSame($expectedResult, $foreignKey->intersectsIndexColumns($index));
     }

@@ -366,7 +366,7 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
     {
         foreach ($index->getUnquotedColumns() as $indexColumn) {
             foreach ($this->_localColumnNames as $localColumn) {
-                if (strtolower($indexColumn) === strtolower($localColumn->trimQuotes($localColumn->getName()))) {
+                if (strtolower($indexColumn) === strtolower($localColumn->getName())) {
                     return true;
                 }
             }
