@@ -1494,7 +1494,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             ];
 
             self::assertSame(
-                " DEFAULT '" . $currentDateSql . "'",
+                ' DEFAULT CONVERT(date, GETDATE())',
                 $this->platform->getDefaultValueDeclarationSQL($field)
             );
         }
