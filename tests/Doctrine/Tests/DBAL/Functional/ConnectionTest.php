@@ -357,18 +357,6 @@ class ConnectionTest extends DbalFunctionalTestCase
         $connection->close();
     }
 
-    /**
-     * @requires extension pdo_sqlite
-     */
-    public function testUserProvidedPDOConnection() : void
-    {
-        self::assertTrue(
-            DriverManager::getConnection([
-                'pdo' => new PDO('sqlite::memory:'),
-            ])->ping()
-        );
-    }
-
     public function testPersistentConnection() : void
     {
         $platform = $this->connection->getDatabasePlatform();

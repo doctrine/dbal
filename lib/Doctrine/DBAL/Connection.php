@@ -187,12 +187,6 @@ class Connection implements DriverConnection
         $this->_driver = $driver;
         $this->params  = $params;
 
-        if (isset($params['pdo'])) {
-            $this->_conn       = $params['pdo'];
-            $this->isConnected = true;
-            unset($this->params['pdo']);
-        }
-
         if (isset($params['platform'])) {
             if (! $params['platform'] instanceof Platforms\AbstractPlatform) {
                 throw DBALException::invalidPlatformType($params['platform']);

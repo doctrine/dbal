@@ -1,5 +1,9 @@
 # Upgrade to 3.0
 
+## BC BREAK User-provided `PDO` instance is no longer supported
+
+In order to share the same `PDO` instances between DBAL and other components, initialize the connection in DBAL and access it using `Connection::getWrappedConnection()->getWrappedConnection()`.
+
 ## BC BREAK: the PDO symbols are no longer part of the DBAL API
 
 1. The support of `PDO::PARAM_*`, `PDO::FETCH_*`, `PDO::CASE_*` and `PDO::PARAM_INPUT_OUTPUT` constants in the DBAL API is removed.
