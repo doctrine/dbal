@@ -48,12 +48,6 @@ class ConnectionTest extends DbalFunctionalTestCase
         $this->getConnection(['hello' => 'world']); // use local infile
     }
 
-    public function testPing() : void
-    {
-        $conn = $this->getConnection([]);
-        self::assertTrue($conn->ping());
-    }
-
     /**
      * @param mixed[] $driverOptions
      */
