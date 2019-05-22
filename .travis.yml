@@ -117,7 +117,7 @@ jobs:
       env: DB=mysql COVERAGE=yes
     - stage: Test
       php: 7.2
-      env: DB=mysql MYSQL_VERSION=5.7 COVERAGE=yes
+      env: DB=mysql.docker MYSQL_VERSION=5.7 COVERAGE=yes
       sudo: required
       before_script:
         - bash ./tests/travis/install-mysql-5.7.sh
@@ -133,7 +133,7 @@ jobs:
       env: DB=mysqli COVERAGE=yes
     - stage: Test
       php: 7.2
-      env: DB=mysqli MYSQL_VERSION=5.7 COVERAGE=yes
+      env: DB=mysqli.docker MYSQL_VERSION=5.7 COVERAGE=yes
       sudo: required
       before_script:
         - bash ./tests/travis/install-mysql-5.7.sh
