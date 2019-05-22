@@ -12,6 +12,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use Error;
 use Exception;
+use PDO;
 use RuntimeException;
 use Throwable;
 use function in_array;
@@ -310,5 +311,17 @@ class ConnectionTest extends DbalFunctionalTestCase
         self::assertSame($params, $connection->getParams());
 
         $connection->close();
+    }
+
+    /**
+     * @requires extension pdo_sqlite
+     */
+    public function testUserProvidedPDOConnection() : void
+    {
+        self::assertTrue(
+            DriverManager::getConnection([
+                'pdo' => new PDO('sqlite::memory:'),
+            ])->ping()
+        );
     }
 }

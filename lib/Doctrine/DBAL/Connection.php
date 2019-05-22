@@ -1429,7 +1429,6 @@ class Connection implements DriverConnection
     public function getWrappedConnection()
     {
         $this->connect();
-        assert($this->_conn instanceof DriverConnection);
 
         return $this->_conn;
     }
