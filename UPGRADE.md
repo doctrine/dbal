@@ -1,5 +1,9 @@
 # Upgrade to 3.0
 
+## BC BREAK `Connection::ping()` returns `void`.
+
+`Connection::ping()` and `PingableConnection::ping()` no longer return a boolean value. They will throw an exception in case of failure.
+
 ## BC BREAK User-provided `PDO` instance is no longer supported
 
 In order to share the same `PDO` instances between DBAL and other components, initialize the connection in DBAL and access it using `Connection::getWrappedConnection()->getWrappedConnection()`.
