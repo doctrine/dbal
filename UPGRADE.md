@@ -1,5 +1,9 @@
 # Upgrade to 3.0
 
+## BC BREAK User-provided `PDO` instance is no longer supported
+
+In order to share the same `PDO` instances between DBAL and other components, initialize the connection in DBAL and access it using `Connection::getWrappedConnection()->getWrappedConnection()`.
+
 ## BC BREAK PostgreSqlPlatform ForeignKeyConstraint support for `feferred` misspelling removed
 
 `PostgreSqlPlatform::getAdvancedForeignKeyOptionsSQL()` had a typo in it in 2.x. Both the option name
