@@ -10,7 +10,6 @@ use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
-use Doctrine\DBAL\Types;
 use InvalidArgumentException;
 use function array_merge;
 use function array_unique;
@@ -1589,36 +1588,6 @@ SQL
     public function getBlobTypeDeclarationSQL(array $field)
     {
         return 'VARBINARY(MAX)';
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDefaultValueDeclarationSQL($field)
-    {
-        if (! isset($field['default'])) {
-            return empty($field['notnull']) ? ' NULL' : '';
-        }
-
-        if (! isset($field['type'])) {
-            return " DEFAULT '" . $field['default'] . "'";
-        }
-
-        $type = $field['type'];
-
-        if ($type instanceof Types\PhpIntegerMappingType) {
-            return ' DEFAULT ' . $field['default'];
-        }
-
-        if ($type instanceof Types\PhpDateTimeMappingType && $field['default'] === $this->getCurrentTimestampSQL()) {
-            return ' DEFAULT ' . $this->getCurrentTimestampSQL();
-        }
-
-        if ($type instanceof Types\BooleanType) {
-            return " DEFAULT '" . $this->convertBooleans($field['default']) . "'";
-        }
-
-        return " DEFAULT '" . $field['default'] . "'";
     }
 
     /**
