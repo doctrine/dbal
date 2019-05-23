@@ -113,12 +113,4 @@ class Driver extends AbstractMySQLDriver
 
         return $initializers;
     }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
-    {
-        return 'mysqli';
-    }
 }

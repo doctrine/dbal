@@ -8,11 +8,6 @@ use Doctrine\DBAL\Tests\Driver\AbstractSQLiteDriverTest;
 
 class DriverTest extends AbstractSQLiteDriverTest
 {
-    public function testReturnsName(): void
-    {
-        self::assertSame('pdo_sqlite', $this->driver->getName());
-    }
-
     protected function createDriver(): DriverInterface
     {
         return new Driver();

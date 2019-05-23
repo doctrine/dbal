@@ -22,14 +22,4 @@ class DB2Driver extends AbstractDB2Driver
             $params['driver_options'] ?? []
         );
     }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated
-     */
-    public function getName()
-    {
-        return 'ibm_db2';
-    }
 }
