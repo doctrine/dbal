@@ -235,16 +235,6 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * @deprecated Use Configuration::getSchemaAssetsFilter() instead
-     *
-     * @return string|null
-     */
-    protected function getFilterSchemaAssetsExpression()
-    {
-        return $this->_conn->getConfiguration()->getFilterSchemaAssetsExpression();
-    }
-
-    /**
      * Lists the tables for this connection.
      *
      * @return Table[]
