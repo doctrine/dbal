@@ -1,5 +1,12 @@
 # Upgrade to 2.10
 
+## Deprecated usage of user-provided `PDO` instance
+
+The usage of user-provided `PDO` instance is deprecated. The known use cases are:
+
+1. **Persistent PDO connections.** DBAL 3.0 will supported establishing persistent connections, therefore, providing a pre-created persistent PDO connection will be no longer needed.
+2. **Sharing `PDO` instance between DBAL and legacy components.** In order to share a PDO instance, initialize the connection in DBAL and access it using `Connection::getWrappedConnection()->getWrappedConnection()`.
+
 ## MINOR BC BREAK: Default values are no longer handled as SQL expressions
 
 They are converted to SQL literals (e.g. escaped). Clients must now specify default values in their initial form, not in the form of an SQL literal (e.g. escaped).
