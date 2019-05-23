@@ -66,14 +66,4 @@ class Driver extends AbstractMySQLDriver
 
         return $dsn;
     }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated
-     */
-    public function getName()
-    {
-        return 'pdo_mysql';
-    }
 }
