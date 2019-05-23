@@ -16,10 +16,10 @@ use const SQLSRV_FETCH_BOTH;
 use const SQLSRV_FETCH_NUMERIC;
 use const SQLSRV_PARAM_IN;
 use function array_key_exists;
+use function assert;
 use function count;
 use function in_array;
 use function is_int;
-use function is_numeric;
 use function sqlsrv_execute;
 use function sqlsrv_fetch;
 use function sqlsrv_fetch_array;
@@ -129,9 +129,8 @@ class SQLSrvStatement implements IteratorAggregate, Statement
 
     /**
      * @param resource $conn
-     * @param string   $sql
      */
-    public function __construct($conn, $sql, ?LastInsertId $lastInsertId = null)
+    public function __construct($conn, string $sql, ?LastInsertId $lastInsertId = null)
     {
         $this->conn = $conn;
         $this->sql  = $sql;
@@ -147,13 +146,9 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function bindValue($param, $value, $type = ParameterType::STRING) : void
+    public function bindValue($param, $value, int $type = ParameterType::STRING) : void
     {
-        if (! is_numeric($param)) {
-            throw new SQLSrvException(
-                'sqlsrv does not support named parameters to queries, use question mark (?) placeholders instead.'
-            );
-        }
+        assert(is_int($param));
 
         $this->variables[$param] = $value;
         $this->types[$param]     = $type;
@@ -162,14 +157,12 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null) : void
+    public function bindParam($param, &$variable, int $type = ParameterType::STRING, ?int $length = null) : void
     {
-        if (! is_numeric($column)) {
-            throw new SQLSrvException('sqlsrv does not support named parameters to queries, use question mark (?) placeholders instead.');
-        }
+        assert(is_int($param));
 
-        $this->variables[$column] =& $variable;
-        $this->types[$column]     = $type;
+        $this->variables[$param] =& $variable;
+        $this->types[$param]     = $type;
 
         // unset the statement resource if it exists as the new one will need to be bound to the new variable
         $this->stmt = null;
@@ -189,7 +182,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
         // @link http://php.net/manual/en/pdostatement.closecursor.php
         // @link https://github.com/php/php-src/blob/php-7.0.11/ext/pdo/pdo_stmt.c#L2075
         // deliberately do not consider multiple result sets, since doctrine/dbal doesn't support them
-        while (sqlsrv_fetch($this->stmt)) {
+        while (sqlsrv_fetch($this->stmt) !== false) {
         }
 
         $this->result = false;
@@ -198,7 +191,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function columnCount()
+    public function columnCount() : int
     {
         if ($this->stmt === null) {
             return 0;
@@ -210,7 +203,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function execute($params = null) : void
+    public function execute(?array $params = null) : void
     {
         if ($params) {
             $hasZeroIndex = array_key_exists(0, $params);
@@ -289,7 +282,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, ...$args) : void
+    public function setFetchMode(int $fetchMode, ...$args) : void
     {
         $this->defaultFetchMode = $fetchMode;
 
@@ -317,7 +310,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
      *
      * @throws SQLSrvException
      */
-    public function fetch($fetchMode = null, ...$args)
+    public function fetch(?int $fetchMode = null, ...$args)
     {
         // do not try fetching from the statement if it's not expected to contain result
         // in order to prevent exceptional situation
@@ -353,7 +346,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, ...$args)
+    public function fetchAll(?int $fetchMode = null, ...$args) : array
     {
         $rows = [];
 
@@ -382,7 +375,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchColumn($columnIndex = 0)
+    public function fetchColumn(int $columnIndex = 0)
     {
         $row = $this->fetch(FetchMode::NUMERIC);
 
