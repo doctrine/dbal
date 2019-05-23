@@ -53,7 +53,7 @@ class PDOStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, ...$args) : void
+    public function setFetchMode(int $fetchMode, ...$args) : void
     {
         $fetchMode = $this->convertFetchMode($fetchMode);
 
@@ -67,7 +67,7 @@ class PDOStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function bindValue($param, $value, $type = ParameterType::STRING) : void
+    public function bindValue($param, $value, int $type = ParameterType::STRING) : void
     {
         $type = $this->convertParamType($type);
 
@@ -81,7 +81,7 @@ class PDOStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null, $driverOptions = null) : void
+    public function bindParam($param, &$variable, int $type = ParameterType::STRING, ?int $length = null, $driverOptions = null) : void
     {
         $type            = $this->convertParamType($type);
         $extraParameters = array_slice(func_get_args(), 3);
@@ -91,7 +91,7 @@ class PDOStatement implements IteratorAggregate, Statement
         }
 
         try {
-            $this->stmt->bindParam($column, $variable, $type, ...$extraParameters);
+            $this->stmt->bindParam($param, $variable, $type, ...$extraParameters);
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
         }
@@ -108,7 +108,7 @@ class PDOStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function columnCount()
+    public function columnCount() : int
     {
         return $this->stmt->columnCount();
     }
@@ -116,7 +116,7 @@ class PDOStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function execute($params = null) : void
+    public function execute(?array $params = null) : void
     {
         try {
             $this->stmt->execute($params);
@@ -136,7 +136,7 @@ class PDOStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null, ...$args)
+    public function fetch(?int $fetchMode = null, ...$args)
     {
         try {
             if ($fetchMode === null) {
@@ -154,7 +154,7 @@ class PDOStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, ...$args)
+    public function fetchAll(?int $fetchMode = null, ...$args) : array
     {
         try {
             if ($fetchMode === null) {
@@ -177,7 +177,7 @@ class PDOStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchColumn($columnIndex = 0)
+    public function fetchColumn(int $columnIndex = 0)
     {
         try {
             $value = $this->stmt->fetchColumn($columnIndex);
