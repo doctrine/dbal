@@ -43,12 +43,4 @@ class Driver extends AbstractOracleDriver
     {
         return $this->getEasyConnectString($params);
     }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
-    {
-        return 'oci8';
-    }
 }
