@@ -4,12 +4,12 @@ namespace Doctrine\Tests\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\AbstractMySQLDriver;
+use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
 use Doctrine\DBAL\Platforms\MySQL57Platform;
 use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Schema\MySqlSchemaManager;
-use Doctrine\Tests\Mocks\DriverResultStatementMock;
 
 class AbstractMySQLDriverTest extends AbstractDriverTest
 {
@@ -23,7 +23,7 @@ class AbstractMySQLDriverTest extends AbstractDriverTest
             'password' => 'bar',
         ];
 
-        $statement = $this->createMock(DriverResultStatementMock::class);
+        $statement = $this->createMock(ResultStatement::class);
 
         $statement->expects($this->once())
             ->method('fetchColumn')

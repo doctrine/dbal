@@ -4,13 +4,13 @@ namespace Doctrine\Tests\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\AbstractPostgreSQLDriver;
+use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Platforms\PostgreSQL100Platform;
 use Doctrine\DBAL\Platforms\PostgreSQL91Platform;
 use Doctrine\DBAL\Platforms\PostgreSQL92Platform;
 use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
 use Doctrine\DBAL\Schema\PostgreSqlSchemaManager;
-use Doctrine\Tests\Mocks\DriverResultStatementMock;
 
 class AbstractPostgreSQLDriverTest extends AbstractDriverTest
 {
@@ -24,7 +24,7 @@ class AbstractPostgreSQLDriverTest extends AbstractDriverTest
             'password' => 'bar',
         ];
 
-        $statement = $this->createMock(DriverResultStatementMock::class);
+        $statement = $this->createMock(ResultStatement::class);
 
         $statement->expects($this->once())
             ->method('fetchColumn')

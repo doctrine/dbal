@@ -8,7 +8,6 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Portability\Connection;
 use Doctrine\DBAL\Portability\Statement;
 use Doctrine\Tests\DbalTestCase;
-use Doctrine\Tests\Mocks\DriverStatementMock;
 use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionProperty;
 use function iterator_to_array;
@@ -29,7 +28,7 @@ class StatementTest extends DbalTestCase
      */
     protected function setUp() : void
     {
-        $this->wrappedStmt = $this->createWrappedStatement();
+        $this->wrappedStmt = $this->createMock(DriverStatement::class);
         $this->conn        = $this->createConnection();
         $this->stmt        = $this->createStatement($this->wrappedStmt, $this->conn);
     }
@@ -178,13 +177,5 @@ class StatementTest extends DbalTestCase
     protected function createStatement(DriverStatement $wrappedStatement, Connection $connection)
     {
         return new Statement($wrappedStatement, $connection);
-    }
-
-    /**
-     * @return DriverStatement|MockObject
-     */
-    protected function createWrappedStatement()
-    {
-        return $this->createMock(DriverStatementMock::class);
     }
 }
