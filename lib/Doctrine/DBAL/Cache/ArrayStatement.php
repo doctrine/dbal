@@ -55,7 +55,7 @@ class ArrayStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function columnCount()
+    public function columnCount() : int
     {
         return $this->columnCount;
     }
@@ -75,7 +75,7 @@ class ArrayStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, ...$args) : void
+    public function setFetchMode(int $fetchMode, ...$args) : void
     {
         if (count($args) > 0) {
             throw new InvalidArgumentException('Caching layer does not support 2nd/3rd argument to setFetchMode().');
@@ -97,7 +97,7 @@ class ArrayStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null, ...$args)
+    public function fetch(?int $fetchMode = null, ...$args)
     {
         if (! isset($this->data[$this->num])) {
             return false;
@@ -130,7 +130,7 @@ class ArrayStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, ...$args)
+    public function fetchAll(?int $fetchMode = null, ...$args) : array
     {
         $rows = [];
         while ($row = $this->fetch($fetchMode, ...$args)) {
@@ -143,7 +143,7 @@ class ArrayStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function fetchColumn($columnIndex = 0)
+    public function fetchColumn(int $columnIndex = 0)
     {
         $row = $this->fetch(FetchMode::NUMERIC);
 

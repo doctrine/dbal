@@ -80,15 +80,13 @@ class MysqliStatement implements IteratorAggregate, Statement
     private $result = false;
 
     /**
-     * @param string $prepareString
-     *
      * @throws MysqliException
      */
-    public function __construct(mysqli $conn, $prepareString)
+    public function __construct(mysqli $conn, string $sql)
     {
         $this->_conn = $conn;
 
-        $stmt = $conn->prepare($prepareString);
+        $stmt = $conn->prepare($sql);
 
         if ($stmt === false) {
             throw ConnectionError::new($this->_conn);
@@ -108,22 +106,22 @@ class MysqliStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null) : void
+    public function bindParam($param, &$variable, int $type = ParameterType::STRING, ?int $length = null) : void
     {
-        assert(is_int($column));
+        assert(is_int($param));
 
         if (! isset(self::$_paramTypeMap[$type])) {
             throw UnknownType::new($type);
         }
 
-        $this->_bindedValues[$column] =& $variable;
-        $this->types[$column - 1]     = self::$_paramTypeMap[$type];
+        $this->_bindedValues[$param] =& $variable;
+        $this->types[$param - 1]     = self::$_paramTypeMap[$type];
     }
 
     /**
      * {@inheritdoc}
      */
-    public function bindValue($param, $value, $type = ParameterType::STRING) : void
+    public function bindValue($param, $value, int $type = ParameterType::STRING) : void
     {
         assert(is_int($param));
 
@@ -139,7 +137,7 @@ class MysqliStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function execute($params = null) : void
+    public function execute(?array $params = null) : void
     {
         if ($params !== null && count($params) > 0) {
             if (! $this->bindUntypedValues($params)) {
@@ -209,7 +207,7 @@ class MysqliStatement implements IteratorAggregate, Statement
      *
      * @throws DriverException
      */
-    private function bindTypedParameters()
+    private function bindTypedParameters() : void
     {
         $streams = $values = [];
         $types   = $this->types;
@@ -245,9 +243,11 @@ class MysqliStatement implements IteratorAggregate, Statement
     /**
      * Handle $this->_longData after regular query parameters have been bound
      *
+     * @param resource[] $streams
+     *
      * @throws MysqliException
      */
-    private function sendLongData($streams)
+    private function sendLongData(array $streams) : void
     {
         foreach ($streams as $paramNr => $stream) {
             while (! feof($stream)) {
@@ -268,10 +268,8 @@ class MysqliStatement implements IteratorAggregate, Statement
      * Binds a array of values to bound parameters.
      *
      * @param mixed[] $values
-     *
-     * @return bool
      */
-    private function bindUntypedValues(array $values)
+    private function bindUntypedValues(array $values) : bool
     {
         $params = [];
         $types  = str_repeat('s', count($values));
@@ -305,7 +303,7 @@ class MysqliStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null, ...$args)
+    public function fetch(?int $fetchMode = null, ...$args)
     {
         // do not try fetching from the statement if it's not expected to contain result
         // in order to prevent exceptional situation
@@ -355,7 +353,7 @@ class MysqliStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, ...$args)
+    public function fetchAll(?int $fetchMode = null, ...$args) : array
     {
         $fetchMode = $fetchMode ?: $this->_defaultFetchMode;
 
@@ -377,7 +375,7 @@ class MysqliStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchColumn($columnIndex = 0)
+    public function fetchColumn(int $columnIndex = 0)
     {
         $row = $this->fetch(FetchMode::NUMERIC);
 
@@ -416,7 +414,7 @@ class MysqliStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function columnCount()
+    public function columnCount() : int
     {
         return $this->_stmt->field_count;
     }
@@ -424,7 +422,7 @@ class MysqliStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, ...$args) : void
+    public function setFetchMode(int $fetchMode, ...$args) : void
     {
         $this->_defaultFetchMode = $fetchMode;
     }
