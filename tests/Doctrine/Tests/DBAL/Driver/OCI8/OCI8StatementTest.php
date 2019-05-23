@@ -52,8 +52,7 @@ class OCI8StatementTest extends DbalTestCase
                 ->with(
                     $this->equalTo($index + 1),
                     $this->equalTo($value)
-                )
-                ->willReturn(true);
+                );
         }
 
         // can't pass to constructor since we don't have a real database handle,
