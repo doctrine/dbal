@@ -16,6 +16,7 @@ use ReflectionObject;
 use stdClass;
 use const SASQL_BOTH;
 use function array_key_exists;
+use function assert;
 use function count;
 use function func_get_args;
 use function is_array;
@@ -70,7 +71,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
      *
      * @throws SQLAnywhereException
      */
-    public function __construct($conn, $sql)
+    public function __construct($conn, string $sql)
     {
         if (! is_resource($conn)) {
             throw new SQLAnywhereException(sprintf(
@@ -92,8 +93,10 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
      *
      * @throws SQLAnywhereException
      */
-    public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null) : void
+    public function bindParam($param, &$variable, int $type = ParameterType::STRING, ?int $length = null) : void
     {
+        assert(is_int($param));
+
         switch ($type) {
             case ParameterType::INTEGER:
             case ParameterType::BOOLEAN:
@@ -114,9 +117,9 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
                 throw new SQLAnywhereException(sprintf('Unknown type %d.', $type));
         }
 
-        $this->boundValues[$column] =& $variable;
+        $this->boundValues[$param] =& $variable;
 
-        if (! sasql_stmt_bind_param_ex($this->stmt, $column - 1, $variable, $type, $variable === null)) {
+        if (! sasql_stmt_bind_param_ex($this->stmt, $param - 1, $variable, $type, $variable === null)) {
             throw SQLAnywhereException::fromSQLAnywhereError($this->conn, $this->stmt);
         }
     }
@@ -124,7 +127,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function bindValue($param, $value, $type = ParameterType::STRING) : void
+    public function bindValue($param, $value, int $type = ParameterType::STRING) : void
     {
         $this->bindParam($param, $value, $type);
     }
@@ -140,7 +143,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function columnCount()
+    public function columnCount() : int
     {
         return sasql_stmt_field_count($this->stmt);
     }
@@ -150,7 +153,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
      *
      * @throws SQLAnywhereException
      */
-    public function execute($params = null) : void
+    public function execute(?array $params = null) : void
     {
         if (is_array($params)) {
             $hasZeroIndex = array_key_exists(0, $params);
@@ -176,7 +179,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
      *
      * @throws SQLAnywhereException
      */
-    public function fetch($fetchMode = null, ...$args)
+    public function fetch(?int $fetchMode = null, ...$args)
     {
         if (! is_resource($this->result)) {
             return false;
@@ -225,7 +228,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, ...$args)
+    public function fetchAll(?int $fetchMode = null, ...$args) : array
     {
         $rows = [];
 
@@ -254,7 +257,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchColumn($columnIndex = 0)
+    public function fetchColumn(int $columnIndex = 0)
     {
         $row = $this->fetch(FetchMode::NUMERIC);
 
@@ -265,6 +268,8 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
         if (! array_key_exists($columnIndex, $row)) {
             throw InvalidColumnIndex::new($columnIndex, count($row));
         }
+
+        return $row[$columnIndex];
     }
 
     /**
@@ -286,7 +291,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, ...$args) : void
+    public function setFetchMode(int $fetchMode, ...$args) : void
     {
         $this->defaultFetchMode = $fetchMode;
 
@@ -308,11 +313,9 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
      * @param string|object $destinationClass Name of the class or class instance to cast to.
      * @param mixed[]       $ctorArgs         Arguments to use for constructing the destination class instance.
      *
-     * @return object
-     *
      * @throws SQLAnywhereException
      */
-    private function castObject(stdClass $sourceObject, $destinationClass, array $ctorArgs = [])
+    private function castObject(stdClass $sourceObject, $destinationClass, array $ctorArgs = []) : object
     {
         if (! is_string($destinationClass)) {
             if (! is_object($destinationClass)) {

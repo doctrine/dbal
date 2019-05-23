@@ -20,10 +20,10 @@ interface ResultStatement extends Traversable
      * Returns the number of columns in the result set
      *
      * @return int The number of columns in the result set represented
-     *                 by the PDOStatement object. If there is no result set,
-     *                 this method should return 0.
+     *             by the statement. If there is no result set,
+     *             this method should return 0.
      */
-    public function columnCount();
+    public function columnCount() : int;
 
     /**
      * Returns the number of rows affected by the last DELETE, INSERT, or UPDATE statement
@@ -43,7 +43,7 @@ interface ResultStatement extends Traversable
      *                         The value must be one of the {@link \Doctrine\DBAL\FetchMode} constants.
      * @param mixed ...$args   Optional mode-specific arguments (see {@link self::fetchAll()}).
      */
-    public function setFetchMode($fetchMode, ...$args) : void;
+    public function setFetchMode(int $fetchMode, ...$args) : void;
 
     /**
      * Returns the next row of a result set.
@@ -56,7 +56,7 @@ interface ResultStatement extends Traversable
      * @return mixed The return value of this method on success depends on the fetch mode. In all cases, FALSE is
      *               returned on failure.
      */
-    public function fetch($fetchMode = null, ...$args);
+    public function fetch(?int $fetchMode = null, ...$args);
 
     /**
      * Returns an array containing all of the result set rows.
@@ -73,7 +73,7 @@ interface ResultStatement extends Traversable
      *
      * @return mixed[]
      */
-    public function fetchAll($fetchMode = null, ...$args);
+    public function fetchAll(?int $fetchMode = null, ...$args) : array;
 
     /**
      * Returns a single column from the next row of a result set or FALSE if there are no more rows.
@@ -83,5 +83,5 @@ interface ResultStatement extends Traversable
      *
      * @return mixed|false A single column in the next row of a result set, or FALSE if there are no more rows.
      */
-    public function fetchColumn($columnIndex = 0);
+    public function fetchColumn(int $columnIndex = 0);
 }
