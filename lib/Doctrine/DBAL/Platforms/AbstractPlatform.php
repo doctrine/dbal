@@ -70,66 +70,6 @@ abstract class AbstractPlatform
 
     public const CREATE_FOREIGNKEYS = 2;
 
-    /**
-     * @deprecated Use DateIntervalUnit::INTERVAL_UNIT_SECOND.
-     */
-    public const DATE_INTERVAL_UNIT_SECOND = DateIntervalUnit::SECOND;
-
-    /**
-     * @deprecated Use DateIntervalUnit::MINUTE.
-     */
-    public const DATE_INTERVAL_UNIT_MINUTE = DateIntervalUnit::MINUTE;
-
-    /**
-     * @deprecated Use DateIntervalUnit::HOUR.
-     */
-    public const DATE_INTERVAL_UNIT_HOUR = DateIntervalUnit::HOUR;
-
-    /**
-     * @deprecated Use DateIntervalUnit::DAY.
-     */
-    public const DATE_INTERVAL_UNIT_DAY = DateIntervalUnit::DAY;
-
-    /**
-     * @deprecated Use DateIntervalUnit::WEEK.
-     */
-    public const DATE_INTERVAL_UNIT_WEEK = DateIntervalUnit::WEEK;
-
-    /**
-     * @deprecated Use DateIntervalUnit::MONTH.
-     */
-    public const DATE_INTERVAL_UNIT_MONTH = DateIntervalUnit::MONTH;
-
-    /**
-     * @deprecated Use DateIntervalUnit::QUARTER.
-     */
-    public const DATE_INTERVAL_UNIT_QUARTER = DateIntervalUnit::QUARTER;
-
-    /**
-     * @deprecated Use DateIntervalUnit::QUARTER.
-     */
-    public const DATE_INTERVAL_UNIT_YEAR = DateIntervalUnit::YEAR;
-
-    /**
-     * @deprecated Use TrimMode::UNSPECIFIED.
-     */
-    public const TRIM_UNSPECIFIED = TrimMode::UNSPECIFIED;
-
-    /**
-     * @deprecated Use TrimMode::LEADING.
-     */
-    public const TRIM_LEADING = TrimMode::LEADING;
-
-    /**
-     * @deprecated Use TrimMode::TRAILING.
-     */
-    public const TRIM_TRAILING = TrimMode::TRAILING;
-
-    /**
-     * @deprecated Use TrimMode::BOTH.
-     */
-    public const TRIM_BOTH = TrimMode::BOTH;
-
     /** @var string[]|null */
     protected $doctrineTypeMapping = null;
 
@@ -3205,16 +3145,6 @@ abstract class AbstractPlatform
     public function hasNativeJsonType()
     {
         return false;
-    }
-
-    /**
-     * @deprecated
-     *
-     * @todo Remove in 3.0
-     */
-    public function getIdentityColumnNullInsertSQL()
-    {
-        return '';
     }
 
     /**
