@@ -60,12 +60,7 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
     /** @var int */
     private $defaultFetchMode = FetchMode::MIXED;
 
-    /**
-     * @param string $cacheKey
-     * @param string $realKey
-     * @param int    $lifetime
-     */
-    public function __construct(ResultStatement $stmt, Cache $resultCache, $cacheKey, $realKey, $lifetime)
+    public function __construct(ResultStatement $stmt, Cache $resultCache, string $cacheKey, string $realKey, int $lifetime)
     {
         $this->statement   = $stmt;
         $this->resultCache = $resultCache;
@@ -98,7 +93,7 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function columnCount()
+    public function columnCount() : int
     {
         return $this->statement->columnCount();
     }
@@ -106,7 +101,7 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, ...$args) : void
+    public function setFetchMode(int $fetchMode, ...$args) : void
     {
         $this->defaultFetchMode = $fetchMode;
     }
@@ -124,7 +119,7 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null, ...$args)
+    public function fetch(?int $fetchMode = null, ...$args)
     {
         if ($this->data === null) {
             $this->data = [];
@@ -164,7 +159,7 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, ...$args)
+    public function fetchAll(?int $fetchMode = null, ...$args) : array
     {
         $this->data    = $this->statement->fetchAll($fetchMode, ...$args);
         $this->emptied = true;
@@ -175,7 +170,7 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function fetchColumn($columnIndex = 0)
+    public function fetchColumn(int $columnIndex = 0)
     {
         $row = $this->fetch(FetchMode::NUMERIC);
 
