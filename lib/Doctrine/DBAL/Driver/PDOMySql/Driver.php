@@ -62,6 +62,8 @@ class Driver extends AbstractMySQLDriver
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated
      */
     public function getName()
     {

@@ -1,5 +1,9 @@
 # Upgrade to 2.10
 
+## Deprecated `Doctrine\DBAL\Driver::getName()`
+
+Relying on the name of the driver is discouraged. For referencing the driver, use its class name.
+
 ## Deprecated usage of user-provided `PDO` instance
 
 The usage of user-provided `PDO` instance is deprecated. The known use cases are:

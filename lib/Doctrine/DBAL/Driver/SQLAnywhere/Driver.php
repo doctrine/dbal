@@ -40,6 +40,8 @@ class Driver extends AbstractSQLAnywhereDriver
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated
      */
     public function getName()
     {

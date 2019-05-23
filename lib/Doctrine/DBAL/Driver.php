@@ -42,6 +42,8 @@ interface Driver
     /**
      * Gets the name of the driver.
      *
+     * @deprecated
+     *
      * @return string The name of the driver.
      */
     public function getName();

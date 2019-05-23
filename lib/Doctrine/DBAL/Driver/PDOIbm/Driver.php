@@ -49,6 +49,8 @@ class Driver extends AbstractDB2Driver
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated
      */
     public function getName()
     {
