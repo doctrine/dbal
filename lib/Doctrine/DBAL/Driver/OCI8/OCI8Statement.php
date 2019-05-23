@@ -103,7 +103,7 @@ class OCI8Statement implements IteratorAggregate, Statement
      * @param resource $dbh   The connection handle.
      * @param string   $query The SQL query.
      */
-    public function __construct($dbh, $query, OCI8Connection $conn)
+    public function __construct($dbh, string $query, OCI8Connection $conn)
     {
         [$query, $paramMap] = self::convertPositionalToNamedPlaceholders($query);
 
@@ -137,14 +137,14 @@ class OCI8Statement implements IteratorAggregate, Statement
      * @todo extract into utility class in Doctrine\DBAL\Util namespace
      * @todo review and test for lost spaces. we experienced missing spaces with oci8 in some sql statements.
      */
-    public static function convertPositionalToNamedPlaceholders($statement)
+    public static function convertPositionalToNamedPlaceholders(string $statement) : array
     {
         $fragmentOffset          = $tokenOffset = 0;
         $fragments               = $paramMap = [];
         $currentLiteralDelimiter = null;
 
         do {
-            if (! $currentLiteralDelimiter) {
+            if ($currentLiteralDelimiter === null) {
                 $result = self::findPlaceholderOrOpeningQuote(
                     $statement,
                     $tokenOffset,
@@ -174,24 +174,24 @@ class OCI8Statement implements IteratorAggregate, Statement
     /**
      * Finds next placeholder or opening quote.
      *
-     * @param string             $statement               The SQL statement to parse
-     * @param string             $tokenOffset             The offset to start searching from
-     * @param int                $fragmentOffset          The offset to build the next fragment from
-     * @param string[]           $fragments               Fragments of the original statement not containing placeholders
-     * @param string|null        $currentLiteralDelimiter The delimiter of the current string literal
-     *                                                    or NULL if not currently in a literal
-     * @param array<int, string> $paramMap                Mapping of the original parameter positions to their named replacements
+     * @param string      $statement               The SQL statement to parse
+     * @param int         $tokenOffset             The offset to start searching from
+     * @param int         $fragmentOffset          The offset to build the next fragment from
+     * @param string[]    $fragments               Fragments of the original statement not containing placeholders
+     * @param string|null $currentLiteralDelimiter The delimiter of the current string literal
+     *                                             or NULL if not currently in a literal
+     * @param string[]    $paramMap                Mapping of the original parameter positions to their named replacements
      *
      * @return bool Whether the token was found
      */
     private static function findPlaceholderOrOpeningQuote(
-        $statement,
-        &$tokenOffset,
-        &$fragmentOffset,
-        &$fragments,
-        &$currentLiteralDelimiter,
-        &$paramMap
-    ) {
+        string $statement,
+        int &$tokenOffset,
+        int &$fragmentOffset,
+        array &$fragments,
+        ?string &$currentLiteralDelimiter,
+        array &$paramMap
+    ) : bool {
         $token = self::findToken($statement, $tokenOffset, '/[?\'"]/');
 
         if (! $token) {
@@ -220,16 +220,16 @@ class OCI8Statement implements IteratorAggregate, Statement
      * Finds closing quote
      *
      * @param string $statement               The SQL statement to parse
-     * @param string $tokenOffset             The offset to start searching from
+     * @param int    $tokenOffset             The offset to start searching from
      * @param string $currentLiteralDelimiter The delimiter of the current string literal
      *
      * @return bool Whether the token was found
      */
     private static function findClosingQuote(
-        $statement,
-        &$tokenOffset,
-        &$currentLiteralDelimiter
-    ) {
+        string $statement,
+        int &$tokenOffset,
+        string &$currentLiteralDelimiter
+    ) : bool {
         $token = self::findToken(
             $statement,
             $tokenOffset,
@@ -240,7 +240,7 @@ class OCI8Statement implements IteratorAggregate, Statement
             return false;
         }
 
-        $currentLiteralDelimiter = false;
+        $currentLiteralDelimiter = null;
         ++$tokenOffset;
 
         return true;
@@ -256,7 +256,7 @@ class OCI8Statement implements IteratorAggregate, Statement
      *
      * @return string|null Token or NULL if not found
      */
-    private static function findToken($statement, &$offset, $regex)
+    private static function findToken(string $statement, int &$offset, string $regex) : ?string
     {
         if (preg_match($regex, $statement, $matches, PREG_OFFSET_CAPTURE, $offset)) {
             $offset = $matches[0][1];
@@ -270,7 +270,7 @@ class OCI8Statement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function bindValue($param, $value, $type = ParameterType::STRING) : void
+    public function bindValue($param, $value, int $type = ParameterType::STRING) : void
     {
         $this->bindParam($param, $value, $type, null);
     }
@@ -278,9 +278,9 @@ class OCI8Statement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null) : void
+    public function bindParam($param, &$variable, int $type = ParameterType::STRING, ?int $length = null) : void
     {
-        $column = $this->_paramMap[$column];
+        $param = $this->_paramMap[$param];
 
         if ($type === ParameterType::LARGE_OBJECT) {
             $lob = oci_new_descriptor($this->_dbh, OCI_D_LOB);
@@ -293,11 +293,11 @@ class OCI8Statement implements IteratorAggregate, Statement
             $variable =& $lob;
         }
 
-        $this->boundValues[$column] =& $variable;
+        $this->boundValues[$param] =& $variable;
 
         if (! oci_bind_by_name(
             $this->_sth,
-            $column,
+            $param,
             $variable,
             $length ?? -1,
             $this->convertParameterType($type)
@@ -341,7 +341,7 @@ class OCI8Statement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function columnCount()
+    public function columnCount() : int
     {
         return oci_num_fields($this->_sth) ?: 0;
     }
@@ -349,7 +349,7 @@ class OCI8Statement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function execute($params = null) : void
+    public function execute(?array $params = null) : void
     {
         if ($params) {
             $hasZeroIndex = array_key_exists(0, $params);
@@ -376,7 +376,7 @@ class OCI8Statement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, ...$args) : void
+    public function setFetchMode(int $fetchMode, ...$args) : void
     {
         $this->_defaultFetchMode = $fetchMode;
     }
@@ -392,7 +392,7 @@ class OCI8Statement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null, ...$args)
+    public function fetch(?int $fetchMode = null, ...$args)
     {
         // do not try fetching from the statement if it's not expected to contain result
         // in order to prevent exceptional situation
@@ -423,7 +423,7 @@ class OCI8Statement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, ...$args)
+    public function fetchAll(?int $fetchMode = null, ...$args) : array
     {
         $fetchMode = $fetchMode ?: $this->_defaultFetchMode;
 
@@ -477,7 +477,7 @@ class OCI8Statement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchColumn($columnIndex = 0)
+    public function fetchColumn(int $columnIndex = 0)
     {
         // do not try fetching from the statement if it's not expected to contain result
         // in order to prevent exceptional situation
