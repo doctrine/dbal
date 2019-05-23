@@ -1,5 +1,20 @@
 # Upgrade to 3.0
 
+## BC BREAK Removed previously deprecated features
+
+ * Removed `json_array` type and all associated hacks.
+ * Removed `Connection::TRANSACTION_*` constants.
+ * Removed `AbstractPlatform::DATE_INTERVAL_UNIT_*` and `AbstractPlatform::TRIM_*` constants.
+ * Removed `MysqlSessionInit` listener.
+ * Removed `MysqlPlatform::getCollationFieldDeclaration()`.
+ * Removed `AbstractPlatform::getIdentityColumnNullInsertSQL()`.
+ * Removed `Table::addUnnamedForeignKeyConstraint()` and `Table::addNamedForeignKeyConstraint()`.
+ * Removed `Table::renameColumn()`.
+ * Removed `SQLParserUtils::getPlaceholderPositions()`.
+ * Removed `AbstractSchemaManager::getFilterSchemaAssetsExpression()`, `Configuration::getFilterSchemaAssetsExpression()`
+   and `Configuration::getFilterSchemaAssetsExpression()`.
+ * `SQLParserUtils::*_TOKEN` constants made private.
+
 ## BC BREAK `Connection::ping()` returns `void`.
 
 `Connection::ping()` and `PingableConnection::ping()` no longer return a boolean value. They will throw an exception in case of failure.
