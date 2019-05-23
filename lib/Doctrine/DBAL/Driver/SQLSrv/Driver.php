@@ -47,14 +47,4 @@ class Driver extends AbstractSQLServerDriver
 
         return new SQLSrvConnection($serverName, $driverOptions);
     }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated
-     */
-    public function getName()
-    {
-        return 'sqlsrv';
-    }
 }
