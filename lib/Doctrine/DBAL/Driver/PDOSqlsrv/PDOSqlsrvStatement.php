@@ -81,15 +81,15 @@ class PDOSqlsrvStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null, $driverOptions = null) : void
+    public function bindParam($param, &$variable, int $type = ParameterType::STRING, ?int $length = null) : void
     {
-        if (($type === ParameterType::LARGE_OBJECT || $type === ParameterType::BINARY)
-            && $driverOptions === null
-        ) {
+        $driverOptions = null;
+
+        if ($type === ParameterType::LARGE_OBJECT || $type === ParameterType::BINARY) {
             $driverOptions = PDO::SQLSRV_ENCODING_BINARY;
         }
 
-        $this->stmt->bindParam($column, $variable, $type, $length, $driverOptions);
+        $this->stmt->bindParam($param, $variable, $type, $length, $driverOptions);
     }
 
         /**
@@ -103,7 +103,7 @@ class PDOSqlsrvStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function columnCount()
+    public function columnCount() : int
     {
         return $this->stmt->columnCount();
     }
@@ -111,7 +111,7 @@ class PDOSqlsrvStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function execute($params = null) : void
+    public function execute(?array $params = null) : void
     {
         $this->stmt->execute($params);
         $this->rowCount = $this->rowCount();
@@ -172,7 +172,7 @@ class PDOSqlsrvStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null, ...$args)
+    public function fetch(?int $fetchMode = null, ...$args)
     {
         return $this->stmt->fetch($fetchMode, ...$args);
     }
@@ -180,7 +180,7 @@ class PDOSqlsrvStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, ...$args)
+    public function fetchAll(?int $fetchMode = null, ...$args) : array
     {
         return $this->stmt->fetchAll($fetchMode, ...$args);
     }
