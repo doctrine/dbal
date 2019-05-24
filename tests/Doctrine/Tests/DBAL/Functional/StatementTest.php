@@ -5,8 +5,12 @@ declare(strict_types=1);
 namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver\IBMDB2\DB2Driver;
 use Doctrine\DBAL\Driver\PDOConnection;
+use Doctrine\DBAL\Driver\PDOMySql\Driver as PDOMySQLDriver;
 use Doctrine\DBAL\Driver\PDOOracle\Driver as PDOOracleDriver;
+use Doctrine\DBAL\Driver\PDOSqlsrv\Driver as PDOSQLSRVDriver;
+use Doctrine\DBAL\Driver\SQLSrv\Driver as SQLSRVDriver;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
@@ -14,6 +18,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use function base64_decode;
+use function get_class;
 use function sprintf;
 use function stream_get_contents;
 
@@ -341,26 +346,24 @@ EOF
 
     public function testExecWithRedundantParameters() : void
     {
-        $driver = $this->connection->getDriver()->getName();
+        $driver = $this->connection->getDriver();
 
-        switch ($driver) {
-            case 'pdo_mysql':
-            case 'pdo_oracle':
-            case 'pdo_sqlsrv':
-                self::markTestSkipped(sprintf(
-                    'PDOStatement::execute() implemented in the "%s" driver does not report redundant parameters',
-                    $driver
-                ));
+        if ($driver instanceof PDOMySQLDriver
+            || $driver instanceof PDOOracleDriver
+            || $driver instanceof PDOSQLSRVDriver
+        ) {
+            self::markTestSkipped(sprintf(
+                'The underlying implementation of the "%s" driver does not report redundant parameters',
+                get_class($driver)
+            ));
+        }
 
-                return;
-            case 'ibm_db2':
-                self::markTestSkipped('db2_execute() does not report redundant parameters');
+        if ($driver instanceof DB2Driver) {
+            self::markTestSkipped('db2_execute() does not report redundant parameters');
+        }
 
-                return;
-            case 'sqlsrv':
-                self::markTestSkipped('sqlsrv_prepare() does not report redundant parameters');
-
-                return;
+        if ($driver instanceof SQLSRVDriver) {
+            self::markTestSkipped('sqlsrv_prepare() does not report redundant parameters');
         }
 
         $platform = $this->connection->getDatabasePlatform();
