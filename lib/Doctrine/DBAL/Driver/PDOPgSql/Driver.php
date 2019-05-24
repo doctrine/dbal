@@ -111,14 +111,4 @@ class Driver extends AbstractPostgreSQLDriver
 
         return $dsn;
     }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated
-     */
-    public function getName()
-    {
-        return 'pdo_pgsql';
-    }
 }
