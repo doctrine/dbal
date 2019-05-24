@@ -12,6 +12,7 @@ use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
+use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Events;
@@ -21,10 +22,8 @@ use Doctrine\DBAL\Logging\DebugStack;
 use Doctrine\DBAL\Logging\EchoSQLLogger;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\VersionAwarePlatformDriver;
 use Doctrine\Tests\DbalTestCase;
-use Doctrine\Tests\Mocks\DriverStatementMock;
-use Doctrine\Tests\Mocks\ServerInfoAwareConnectionMock;
-use Doctrine\Tests\Mocks\VersionAwarePlatformDriverMock;
 use Exception;
 use PHPUnit\Framework\MockObject\MockObject;
 use stdClass;
@@ -525,7 +524,7 @@ class ConnectionTest extends DbalTestCase
                 $this->createMock(DriverConnection::class)
             ));
 
-        $driverStatementMock = $this->createMock(DriverStatementMock::class);
+        $driverStatementMock = $this->createMock(Statement::class);
 
         $driverStatementMock->expects($this->once())
             ->method('fetch')
@@ -561,7 +560,7 @@ class ConnectionTest extends DbalTestCase
                 $this->createMock(DriverConnection::class)
             ));
 
-        $driverStatementMock = $this->createMock(DriverStatementMock::class);
+        $driverStatementMock = $this->createMock(Statement::class);
 
         $driverStatementMock->expects($this->once())
             ->method('fetch')
@@ -598,7 +597,7 @@ class ConnectionTest extends DbalTestCase
                 $this->createMock(DriverConnection::class)
             ));
 
-        $driverStatementMock = $this->createMock(DriverStatementMock::class);
+        $driverStatementMock = $this->createMock(Statement::class);
 
         $driverStatementMock->expects($this->once())
             ->method('fetchColumn')
@@ -634,7 +633,7 @@ class ConnectionTest extends DbalTestCase
                 $this->createMock(DriverConnection::class)
             ));
 
-        $driverStatementMock = $this->createMock(DriverStatementMock::class);
+        $driverStatementMock = $this->createMock(Statement::class);
 
         $driverStatementMock->expects($this->once())
             ->method('fetchAll')
@@ -732,11 +731,11 @@ class ConnectionTest extends DbalTestCase
      */
     public function testPlatformDetectionIsTriggerOnlyOnceOnRetrievingPlatform()
     {
-        /** @var VersionAwarePlatformDriverMock|MockObject $driverMock */
-        $driverMock = $this->createMock(VersionAwarePlatformDriverMock::class);
+        /** @var Driver|VersionAwarePlatformDriver|MockObject $driverMock */
+        $driverMock = $this->createMock([Driver::class, VersionAwarePlatformDriver::class]);
 
-        /** @var ServerInfoAwareConnectionMock|MockObject $driverConnectionMock */
-        $driverConnectionMock = $this->createMock(ServerInfoAwareConnectionMock::class);
+        /** @var ServerInfoAwareConnection|MockObject $driverConnectionMock */
+        $driverConnectionMock = $this->createMock(ServerInfoAwareConnection::class);
 
         /** @var AbstractPlatform|MockObject $platformMock */
         $platformMock = $this->getMockForAbstractClass(AbstractPlatform::class);
@@ -861,8 +860,8 @@ class ConnectionTest extends DbalTestCase
      */
     public function testRethrowsOriginalExceptionOnDeterminingPlatformWhenConnectingToNonExistentDatabase()
     {
-        /** @var VersionAwarePlatformDriverMock|MockObject $driverMock */
-        $driverMock = $this->createMock(VersionAwarePlatformDriverMock::class);
+        /** @var Driver|VersionAwarePlatformDriver|MockObject $driverMock */
+        $driverMock = $this->createMock([Driver::class, VersionAwarePlatformDriver::class]);
 
         $connection        = new Connection(['dbname' => 'foo'], $driverMock);
         $originalException = new Exception('Original exception');
