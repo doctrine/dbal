@@ -83,6 +83,8 @@ class Driver extends AbstractSQLServerDriver
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated
      */
     public function getName()
     {

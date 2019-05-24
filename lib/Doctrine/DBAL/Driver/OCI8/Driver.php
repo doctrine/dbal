@@ -44,6 +44,8 @@ class Driver extends AbstractOracleDriver
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated
      */
     public function getName()
     {
