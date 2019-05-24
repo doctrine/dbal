@@ -20,12 +20,4 @@ class Driver extends AbstractMySQLDriver
             throw DBALException::driverException($this, $e);
         }
     }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
-    {
-        return 'mysqli';
-    }
 }

@@ -43,6 +43,7 @@ use function current;
 use function end;
 use function explode;
 use function in_array;
+use function sprintf;
 use function str_replace;
 use function strcasecmp;
 use function strlen;
@@ -133,8 +134,12 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
      */
     public function testDropAndCreateSequence()
     {
-        if (! $this->connection->getDatabasePlatform()->supportsSequences()) {
-            $this->markTestSkipped($this->connection->getDriver()->getName() . ' does not support sequences.');
+        $platform = $this->connection->getDatabasePlatform();
+
+        if (! $platform->supportsSequences()) {
+            $this->markTestSkipped(
+                sprintf('The "%s" platform does not support sequences.', $platform->getName())
+            );
         }
 
         $name = 'dropcreate_sequences_test_seq';
@@ -161,8 +166,12 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
 
     public function testListSequences()
     {
-        if (! $this->connection->getDatabasePlatform()->supportsSequences()) {
-            $this->markTestSkipped($this->connection->getDriver()->getName() . ' does not support sequences.');
+        $platform = $this->connection->getDatabasePlatform();
+
+        if (! $platform->supportsSequences()) {
+            $this->markTestSkipped(
+                sprintf('The "%s" platform does not support sequences.', $platform->getName())
+            );
         }
 
         $sequence = new Sequence('list_sequences_test_seq', 20, 10);

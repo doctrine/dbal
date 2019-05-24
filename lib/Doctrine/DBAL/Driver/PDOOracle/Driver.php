@@ -58,12 +58,4 @@ class Driver extends AbstractOracleDriver
 
         return $dsn;
     }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
-    {
-        return 'pdo_oracle';
-    }
 }
