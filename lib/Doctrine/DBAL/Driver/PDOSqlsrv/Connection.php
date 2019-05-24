@@ -5,10 +5,9 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver\PDOSqlsrv;
 
 use Doctrine\DBAL\Driver\PDOConnection;
-use Doctrine\DBAL\Driver\PDOSqlsrv\Statement as PDOSqlSrvStatement;
 use Doctrine\DBAL\Driver\PDOStatement;
 use Doctrine\DBAL\Driver\ResultStatement;
-use Doctrine\DBAL\Driver\Statement;
+use Doctrine\DBAL\Driver\Statement as DBALStatement;
 use function stripos;
 use function strpos;
 use function substr;
@@ -63,7 +62,7 @@ class Connection extends PDOConnection
     /**
      * {@inheritdoc}
      */
-    public function prepare(string $sql) : Statement
+    public function prepare(string $sql) : DBALStatement
     {
         return parent::prepare($this->prepareSql($sql));
     }
@@ -83,7 +82,7 @@ class Connection extends PDOConnection
     {
         $this->lastInsertId = static::isInsertStatement($sql) ? new LastInsertId() : null;
 
-        return new PDOSqlSrvStatement($stmt, $this->lastInsertId);
+        return new Statement($stmt, $this->lastInsertId);
     }
 
     protected function prepareSql(string $sql) : string
