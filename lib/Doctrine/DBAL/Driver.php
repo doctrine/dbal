@@ -44,15 +44,6 @@ interface Driver
     public function getSchemaManager(Connection $conn);
 
     /**
-     * Gets the name of the driver.
-     *
-     * @deprecated
-     *
-     * @return string The name of the driver.
-     */
-    public function getName();
-
-    /**
      * Gets the name of the database connected to for this driver.
      *
      * @return string The name of the database.

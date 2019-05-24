@@ -1,5 +1,9 @@
 # Upgrade to 3.0
 
+## BC BREAK: `Doctrine\DBAL\Driver::getName()` removed
+
+The `Doctrine\DBAL\Driver::getName()` has been removed.
+
 ## BC BREAK Removed previously deprecated features
 
  * Removed `json_array` type and all associated hacks.
