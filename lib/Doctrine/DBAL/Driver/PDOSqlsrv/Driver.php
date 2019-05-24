@@ -33,7 +33,7 @@ class Driver extends AbstractSQLServerDriver
             $pdoOptions[PDO::ATTR_PERSISTENT] = true;
         }
 
-        return new PDOSqlsrvConnection(
+        return new Connection(
             $this->_constructPdoDsn($params, $dsnOptions),
             $username,
             $password,

@@ -62,7 +62,8 @@ class PDOConnection implements Connection, ServerInfoAwareConnection
     {
         try {
             return $this->createStatement(
-                $this->connection->prepare($sql)
+                $this->connection->prepare($sql),
+                $sql
             );
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
@@ -78,7 +79,7 @@ class PDOConnection implements Connection, ServerInfoAwareConnection
             $stmt = $this->connection->query($sql);
             assert($stmt instanceof \PDOStatement);
 
-            return $this->createStatement($stmt);
+            return $this->createStatement($stmt, $sql);
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
         }
@@ -119,7 +120,7 @@ class PDOConnection implements Connection, ServerInfoAwareConnection
     /**
      * Creates a wrapped statement
      */
-    protected function createStatement(\PDOStatement $stmt) : PDOStatement
+    protected function createStatement(\PDOStatement $stmt, string $sql) : PDOStatement
     {
         return new PDOStatement($stmt);
     }
