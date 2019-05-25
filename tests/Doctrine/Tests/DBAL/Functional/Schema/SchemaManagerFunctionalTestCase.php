@@ -117,8 +117,8 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
             $params['dbname'] = 'test_drop_database';
         }
 
-        $user     = $params['user'] ?? null;
-        $password = $params['password'] ?? null;
+        $user     = $params['user'] ?? '';
+        $password = $params['password'] ?? '';
 
         $connection = $this->connection->getDriver()->connect($params, $user, $password);
 
