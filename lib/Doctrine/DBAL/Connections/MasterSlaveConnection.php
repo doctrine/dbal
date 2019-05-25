@@ -192,8 +192,8 @@ class MasterSlaveConnection extends Connection
 
         $connectionParams = $this->chooseConnectionConfiguration($connectionName, $params);
 
-        $user     = $connectionParams['user'] ?? null;
-        $password = $connectionParams['password'] ?? null;
+        $user     = $connectionParams['user'] ?? '';
+        $password = $connectionParams['password'] ?? '';
 
         return $this->_driver->connect($connectionParams, $user, $password, $driverOptions);
     }

@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Driver\PDOOracle;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\AbstractOracleDriver;
+use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\Driver\PDOException;
 use PDO;
@@ -23,8 +24,12 @@ class Driver extends AbstractOracleDriver
     /**
      * {@inheritdoc}
      */
-    public function connect(array $params, $username = null, $password = null, array $driverOptions = [])
-    {
+    public function connect(
+        array $params,
+        string $username = '',
+        string $password = '',
+        array $driverOptions = []
+    ) : Connection {
         if (! empty($params['persistent'])) {
             $driverOptions[PDO::ATTR_PERSISTENT] = true;
         }
@@ -48,7 +53,7 @@ class Driver extends AbstractOracleDriver
      *
      * @return string The DSN.
      */
-    private function constructPdoDsn(array $params)
+    private function constructPdoDsn(array $params) : string
     {
         $dsn = 'oci:dbname=' . $this->getEasyConnectString($params);
 

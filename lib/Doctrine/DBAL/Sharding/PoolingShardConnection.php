@@ -218,8 +218,8 @@ class PoolingShardConnection extends Connection
 
         $connectionParams = $this->connectionParameters[$shardId];
 
-        $user     = $connectionParams['user'] ?? null;
-        $password = $connectionParams['password'] ?? null;
+        $user     = $connectionParams['user'] ?? '';
+        $password = $connectionParams['password'] ?? '';
 
         return $this->_driver->connect($connectionParams, $user, $password, $driverOptions);
     }

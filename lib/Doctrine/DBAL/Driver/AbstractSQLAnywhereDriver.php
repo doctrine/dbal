@@ -6,9 +6,13 @@ namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
+use Doctrine\DBAL\Driver\DriverException as DriverExceptionInterface;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Exception\DriverException;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\Exception\InvalidPlatformVersion;
 use Doctrine\DBAL\Platforms\SQLAnywherePlatform;
+use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\SQLAnywhereSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
 use function preg_match;
@@ -23,7 +27,7 @@ abstract class AbstractSQLAnywhereDriver implements Driver, ExceptionConverterDr
      *
      * @link http://dcx.sybase.com/index.html#sa160/en/saerrors/sqlerror.html
      */
-    public function convertException($message, DriverException $exception)
+    public function convertException(string $message, DriverExceptionInterface $exception) : DriverException
     {
         switch ($exception->getCode()) {
             case -306:
@@ -60,13 +64,13 @@ abstract class AbstractSQLAnywhereDriver implements Driver, ExceptionConverterDr
                 return new Exception\TableNotFoundException($message, $exception);
         }
 
-        return new Exception\DriverException($message, $exception);
+        return new DriverException($message, $exception);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function createDatabasePlatformForVersion($version)
+    public function createDatabasePlatformForVersion(string $version) : AbstractPlatform
     {
         if (! preg_match(
             '/^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+)(?:\.(?P<build>\d+))?)?)?/',
@@ -88,7 +92,7 @@ abstract class AbstractSQLAnywhereDriver implements Driver, ExceptionConverterDr
     /**
      * {@inheritdoc}
      */
-    public function getDatabase(Connection $conn)
+    public function getDatabase(Connection $conn) : ?string
     {
         $params = $conn->getParams();
 
@@ -98,7 +102,7 @@ abstract class AbstractSQLAnywhereDriver implements Driver, ExceptionConverterDr
     /**
      * {@inheritdoc}
      */
-    public function getDatabasePlatform()
+    public function getDatabasePlatform() : AbstractPlatform
     {
         return new SQLAnywherePlatform();
     }
@@ -106,7 +110,7 @@ abstract class AbstractSQLAnywhereDriver implements Driver, ExceptionConverterDr
     /**
      * {@inheritdoc}
      */
-    public function getSchemaManager(Connection $conn)
+    public function getSchemaManager(Connection $conn) : AbstractSchemaManager
     {
         return new SQLAnywhereSchemaManager($conn);
     }
