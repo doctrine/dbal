@@ -6,11 +6,15 @@ namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
+use Doctrine\DBAL\Driver\DriverException as DriverExceptionInterface;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Exception\DriverException;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\Exception\InvalidPlatformVersion;
 use Doctrine\DBAL\Platforms\PostgreSQL100Platform;
 use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
+use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\PostgreSqlSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
 use function preg_match;
@@ -27,7 +31,7 @@ abstract class AbstractPostgreSQLDriver implements Driver, ExceptionConverterDri
      *
      * @link http://www.postgresql.org/docs/9.3/static/errcodes-appendix.html
      */
-    public function convertException($message, DriverException $exception)
+    public function convertException(string $message, DriverExceptionInterface $exception) : DriverException
     {
         switch ($exception->getSQLState()) {
             case '40001':
@@ -73,13 +77,13 @@ abstract class AbstractPostgreSQLDriver implements Driver, ExceptionConverterDri
             return new Exception\ConnectionException($message, $exception);
         }
 
-        return new Exception\DriverException($message, $exception);
+        return new DriverException($message, $exception);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function createDatabasePlatformForVersion($version)
+    public function createDatabasePlatformForVersion(string $version) : AbstractPlatform
     {
         if (! preg_match('/^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?)?/', $version, $versionParts)) {
             throw InvalidPlatformVersion::new(
@@ -106,7 +110,7 @@ abstract class AbstractPostgreSQLDriver implements Driver, ExceptionConverterDri
     /**
      * {@inheritdoc}
      */
-    public function getDatabase(Connection $conn)
+    public function getDatabase(Connection $conn) : ?string
     {
         $params = $conn->getParams();
 
@@ -116,7 +120,7 @@ abstract class AbstractPostgreSQLDriver implements Driver, ExceptionConverterDri
     /**
      * {@inheritdoc}
      */
-    public function getDatabasePlatform()
+    public function getDatabasePlatform() : AbstractPlatform
     {
         return new PostgreSqlPlatform();
     }
@@ -124,7 +128,7 @@ abstract class AbstractPostgreSQLDriver implements Driver, ExceptionConverterDri
     /**
      * {@inheritdoc}
      */
-    public function getSchemaManager(Connection $conn)
+    public function getSchemaManager(Connection $conn) : AbstractSchemaManager
     {
         return new PostgreSqlSchemaManager($conn);
     }
