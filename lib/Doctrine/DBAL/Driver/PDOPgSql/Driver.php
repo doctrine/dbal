@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Driver\PDOPgSql;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\AbstractPostgreSQLDriver;
+use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\Driver\PDOException;
 use PDO;
@@ -19,8 +20,12 @@ class Driver extends AbstractPostgreSQLDriver
     /**
      * {@inheritdoc}
      */
-    public function connect(array $params, $username = null, $password = null, array $driverOptions = [])
-    {
+    public function connect(
+        array $params,
+        string $username = '',
+        string $password = '',
+        array $driverOptions = []
+    ) : Connection {
         if (! empty($params['persistent'])) {
             $driverOptions[PDO::ATTR_PERSISTENT] = true;
         }
@@ -62,7 +67,7 @@ class Driver extends AbstractPostgreSQLDriver
      *
      * @return string The DSN.
      */
-    private function _constructPdoDsn(array $params)
+    private function _constructPdoDsn(array $params) : string
     {
         $dsn = 'pgsql:';
 
