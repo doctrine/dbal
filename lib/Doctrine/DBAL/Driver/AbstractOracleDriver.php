@@ -7,8 +7,12 @@ namespace Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\AbstractOracleDriver\EasyConnectString;
+use Doctrine\DBAL\Driver\DriverException as DriverExceptionInterface;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Exception\DriverException;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
+use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\OracleSchemaManager;
 
 /**
@@ -19,7 +23,7 @@ abstract class AbstractOracleDriver implements Driver, ExceptionConverterDriver
     /**
      * {@inheritdoc}
      */
-    public function convertException($message, DriverException $exception)
+    public function convertException(string $message, DriverExceptionInterface $exception) : DriverException
     {
         switch ($exception->getCode()) {
             case 1:
@@ -56,13 +60,13 @@ abstract class AbstractOracleDriver implements Driver, ExceptionConverterDriver
                 return new Exception\ForeignKeyConstraintViolationException($message, $exception);
         }
 
-        return new Exception\DriverException($message, $exception);
+        return new DriverException($message, $exception);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getDatabase(Connection $conn)
+    public function getDatabase(Connection $conn) : ?string
     {
         $params = $conn->getParams();
 
@@ -72,7 +76,7 @@ abstract class AbstractOracleDriver implements Driver, ExceptionConverterDriver
     /**
      * {@inheritdoc}
      */
-    public function getDatabasePlatform()
+    public function getDatabasePlatform() : AbstractPlatform
     {
         return new OraclePlatform();
     }
@@ -80,7 +84,7 @@ abstract class AbstractOracleDriver implements Driver, ExceptionConverterDriver
     /**
      * {@inheritdoc}
      */
-    public function getSchemaManager(Connection $conn)
+    public function getSchemaManager(Connection $conn) : AbstractSchemaManager
     {
         return new OracleSchemaManager($conn);
     }
@@ -89,10 +93,8 @@ abstract class AbstractOracleDriver implements Driver, ExceptionConverterDriver
      * Returns an appropriate Easy Connect String for the given parameters.
      *
      * @param mixed[] $params The connection parameters to return the Easy Connect String for.
-     *
-     * @return string
      */
-    protected function getEasyConnectString(array $params)
+    protected function getEasyConnectString(array $params) : string
     {
         return (string) EasyConnectString::fromConnectionParameters($params);
     }
