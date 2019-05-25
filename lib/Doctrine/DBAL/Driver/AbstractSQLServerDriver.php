@@ -6,9 +6,11 @@ namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\Exception\InvalidPlatformVersion;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
+use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\SQLServerSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
 use function preg_match;
@@ -22,7 +24,7 @@ abstract class AbstractSQLServerDriver implements Driver, VersionAwarePlatformDr
     /**
      * {@inheritdoc}
      */
-    public function createDatabasePlatformForVersion($version)
+    public function createDatabasePlatformForVersion(string $version) : AbstractPlatform
     {
         if (! preg_match(
             '/^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+)(?:\.(?P<build>\d+))?)?)?/',
@@ -52,7 +54,7 @@ abstract class AbstractSQLServerDriver implements Driver, VersionAwarePlatformDr
     /**
      * {@inheritdoc}
      */
-    public function getDatabase(Connection $conn)
+    public function getDatabase(Connection $conn) : ?string
     {
         $params = $conn->getParams();
 
@@ -62,7 +64,7 @@ abstract class AbstractSQLServerDriver implements Driver, VersionAwarePlatformDr
     /**
      * {@inheritdoc}
      */
-    public function getDatabasePlatform()
+    public function getDatabasePlatform() : AbstractPlatform
     {
         return new SQLServerPlatform();
     }
@@ -70,7 +72,7 @@ abstract class AbstractSQLServerDriver implements Driver, VersionAwarePlatformDr
     /**
      * {@inheritdoc}
      */
-    public function getSchemaManager(Connection $conn)
+    public function getSchemaManager(Connection $conn) : AbstractSchemaManager
     {
         return new SQLServerSchemaManager($conn);
     }
