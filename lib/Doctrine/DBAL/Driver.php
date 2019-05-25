@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL;
 
+use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 
@@ -16,14 +17,19 @@ interface Driver
     /**
      * Attempts to create a connection with the database.
      *
-     * @param mixed[]     $params        All connection parameters passed by the user.
-     * @param string|null $username      The username to use when connecting.
-     * @param string|null $password      The password to use when connecting.
-     * @param mixed[]     $driverOptions The driver options to use when connecting.
+     * @param mixed[] $params        All connection parameters passed by the user.
+     * @param string  $username      The username to use when connecting.
+     * @param string  $password      The password to use when connecting.
+     * @param mixed[] $driverOptions The driver options to use when connecting.
      *
-     * @return \Doctrine\DBAL\Driver\Connection The database connection.
+     * @return DriverConnection The database connection.
      */
-    public function connect(array $params, $username = null, $password = null, array $driverOptions = []);
+    public function connect(
+        array $params,
+        string $username = '',
+        string $password = '',
+        array $driverOptions = []
+    ) : DriverConnection;
 
     /**
      * Gets the DatabasePlatform instance that provides all the metadata about
@@ -31,20 +37,18 @@ interface Driver
      *
      * @return AbstractPlatform The database platform.
      */
-    public function getDatabasePlatform();
+    public function getDatabasePlatform() : AbstractPlatform;
 
     /**
      * Gets the SchemaManager that can be used to inspect and change the underlying
      * database schema of the platform this driver connects to.
-     *
-     * @return AbstractSchemaManager
      */
-    public function getSchemaManager(Connection $conn);
+    public function getSchemaManager(Connection $conn) : AbstractSchemaManager;
 
     /**
      * Gets the name of the database connected to for this driver.
      *
-     * @return string The name of the database.
+     * @return string The name of the database or NULL if no database is currently selected.
      */
-    public function getDatabase(Connection $conn);
+    public function getDatabase(Connection $conn) : ?string;
 }

@@ -695,8 +695,8 @@ class ConnectionTest extends DbalTestCase
         /** @var Driver|VersionAwarePlatformDriver|MockObject $driverMock */
         $driverMock = $this->createMock([Driver::class, VersionAwarePlatformDriver::class]);
 
-        /** @var ServerInfoAwareConnection|MockObject $driverConnectionMock */
-        $driverConnectionMock = $this->createMock(ServerInfoAwareConnection::class);
+        /** @var DriverConnection|ServerInfoAwareConnection|MockObject $driverConnectionMock */
+        $driverConnectionMock = $this->createMock([DriverConnection::class, ServerInfoAwareConnection::class]);
 
         /** @var AbstractPlatform|MockObject $platformMock */
         $platformMock = $this->getMockForAbstractClass(AbstractPlatform::class);
