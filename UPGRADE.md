@@ -1,5 +1,10 @@
 # Upgrade to 3.0
 
+## BC BREAK: Changes in the `Doctrine\DBAL\Driver` API
+
+1. The `$username` and `$password` arguments of `::connect()` are no longer nullable. Use an empty string to indicate empty username or password.
+2. The return value of `::getDatabase()` has been documented as nullable since some of the drivers allow establishing a connection without selecting a database.
+
 ## BC BREAK: `Doctrine\DBAL\Driver::getName()` removed
 
 The `Doctrine\DBAL\Driver::getName()` has been removed.

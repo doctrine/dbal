@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Driver\PDOSqlite;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\AbstractSQLiteDriver;
+use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\Driver\PDOException;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
@@ -26,8 +27,12 @@ class Driver extends AbstractSQLiteDriver
     /**
      * {@inheritdoc}
      */
-    public function connect(array $params, $username = null, $password = null, array $driverOptions = [])
-    {
+    public function connect(
+        array $params,
+        string $username = '',
+        string $password = '',
+        array $driverOptions = []
+    ) : Connection {
         if (isset($driverOptions['userDefinedFunctions'])) {
             $this->_userDefinedFunctions = array_merge(
                 $this->_userDefinedFunctions,
@@ -63,7 +68,7 @@ class Driver extends AbstractSQLiteDriver
      *
      * @return string The DSN.
      */
-    protected function _constructPdoDsn(array $params)
+    protected function _constructPdoDsn(array $params) : string
     {
         $dsn = 'sqlite:';
         if (isset($params['path'])) {
