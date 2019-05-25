@@ -79,8 +79,8 @@ class DriverTest extends AbstractDriverTest
         $parameters                     = $this->connection->getParams();
         $parameters['application_name'] = 'doctrine';
 
-        $user     = $parameters['user'] ?? null;
-        $password = $parameters['password'] ?? null;
+        $user     = $parameters['user'] ?? '';
+        $password = $parameters['password'] ?? '';
 
         $connection = $this->driver->connect($parameters, $user, $password);
 

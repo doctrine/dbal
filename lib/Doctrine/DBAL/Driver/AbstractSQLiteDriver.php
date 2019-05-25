@@ -6,8 +6,12 @@ namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
+use Doctrine\DBAL\Driver\DriverException as DriverExceptionInterface;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Exception\DriverException;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
+use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\SqliteSchemaManager;
 use function strpos;
 
@@ -21,7 +25,7 @@ abstract class AbstractSQLiteDriver implements Driver, ExceptionConverterDriver
      *
      * @link http://www.sqlite.org/c3ref/c_abort.html
      */
-    public function convertException($message, DriverException $exception)
+    public function convertException(string $message, DriverExceptionInterface $exception) : DriverException
     {
         if (strpos($exception->getMessage(), 'database is locked') !== false) {
             return new Exception\LockWaitTimeoutException($message, $exception);
@@ -69,13 +73,13 @@ abstract class AbstractSQLiteDriver implements Driver, ExceptionConverterDriver
             return new Exception\ConnectionException($message, $exception);
         }
 
-        return new Exception\DriverException($message, $exception);
+        return new DriverException($message, $exception);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getDatabase(Connection $conn)
+    public function getDatabase(Connection $conn) : ?string
     {
         $params = $conn->getParams();
 
@@ -85,7 +89,7 @@ abstract class AbstractSQLiteDriver implements Driver, ExceptionConverterDriver
     /**
      * {@inheritdoc}
      */
-    public function getDatabasePlatform()
+    public function getDatabasePlatform() : AbstractPlatform
     {
         return new SqlitePlatform();
     }
@@ -93,7 +97,7 @@ abstract class AbstractSQLiteDriver implements Driver, ExceptionConverterDriver
     /**
      * {@inheritdoc}
      */
-    public function getSchemaManager(Connection $conn)
+    public function getSchemaManager(Connection $conn) : AbstractSchemaManager
     {
         return new SqliteSchemaManager($conn);
     }
