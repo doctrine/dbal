@@ -38,13 +38,13 @@ class ConnectionTest extends DbalTestCase
     /** @var Connection */
     private $connection;
 
-    /** @var string[] */
+    /** @var array<string, mixed> */
     protected $params = [
         'driver' => 'pdo_mysql',
         'host' => 'localhost',
         'user' => 'root',
         'password' => 'password',
-        'port' => '1234',
+        'port' => 1234,
     ];
 
     protected function setUp() : void
@@ -112,26 +112,6 @@ class ConnectionTest extends DbalTestCase
         $config = $this->connection->getConfiguration();
 
         self::assertInstanceOf(Configuration::class, $config);
-    }
-
-    public function testGetHost() : void
-    {
-        self::assertEquals('localhost', $this->connection->getHost());
-    }
-
-    public function testGetPort() : void
-    {
-        self::assertEquals('1234', $this->connection->getPort());
-    }
-
-    public function testGetUsername() : void
-    {
-        self::assertEquals('root', $this->connection->getUsername());
-    }
-
-    public function testGetPassword() : void
-    {
-        self::assertEquals('password', $this->connection->getPassword());
     }
 
     public function testGetDriver() : void
