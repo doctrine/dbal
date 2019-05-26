@@ -17,7 +17,7 @@ class Connection extends PDOConnection
     /**
      * {@inheritDoc}
      */
-    public function lastInsertId($name = null)
+    public function lastInsertId(?string $name = null) : string
     {
         if ($name === null) {
             return parent::lastInsertId($name);
