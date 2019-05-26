@@ -30,12 +30,11 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
     protected $lastInsertId;
 
     /**
-     * @param string  $serverName
-     * @param mixed[] $connectionOptions
+     * @param array<string, mixed> $connectionOptions
      *
      * @throws SQLSrvException
      */
-    public function __construct($serverName, $connectionOptions)
+    public function __construct(string $serverName, array $connectionOptions)
     {
         if (! sqlsrv_configure('WarningsReturnAsErrors', 0)) {
             throw SQLSrvException::fromSqlSrvErrors();
@@ -54,7 +53,7 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function getServerVersion()
+    public function getServerVersion() : string
     {
         $serverInfo = sqlsrv_server_info($this->conn);
 
@@ -64,7 +63,7 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function requiresQueryForServerVersion()
+    public function requiresQueryForServerVersion() : bool
     {
         return false;
     }
@@ -119,7 +118,7 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritDoc}
      */
-    public function lastInsertId($name = null)
+    public function lastInsertId(?string $name = null) : string
     {
         if ($name !== null) {
             $stmt = $this->prepare('SELECT CONVERT(VARCHAR(MAX), current_value) FROM sys.sequences WHERE name = ?');
