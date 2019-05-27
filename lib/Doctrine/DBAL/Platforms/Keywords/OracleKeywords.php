@@ -12,7 +12,7 @@ class OracleKeywords extends KeywordList
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName() : string
     {
         return 'Oracle';
     }
@@ -20,7 +20,7 @@ class OracleKeywords extends KeywordList
     /**
      * {@inheritdoc}
      */
-    protected function getKeywords()
+    protected function getKeywords() : array
     {
         return [
             'ACCESS',
