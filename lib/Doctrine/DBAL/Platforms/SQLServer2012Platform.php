@@ -22,7 +22,7 @@ class SQLServer2012Platform extends SQLServerPlatform
     /**
      * {@inheritdoc}
      */
-    public function getAlterSequenceSQL(Sequence $sequence)
+    public function getAlterSequenceSQL(Sequence $sequence) : string
     {
         return 'ALTER SEQUENCE ' . $sequence->getQuotedName($this) .
                ' INCREMENT BY ' . $sequence->getAllocationSize();
@@ -31,7 +31,7 @@ class SQLServer2012Platform extends SQLServerPlatform
     /**
      * {@inheritdoc}
      */
-    public function getCreateSequenceSQL(Sequence $sequence)
+    public function getCreateSequenceSQL(Sequence $sequence) : string
     {
         return 'CREATE SEQUENCE ' . $sequence->getQuotedName($this) .
                ' START WITH ' . $sequence->getInitialValue() .
@@ -42,7 +42,7 @@ class SQLServer2012Platform extends SQLServerPlatform
     /**
      * {@inheritdoc}
      */
-    public function getDropSequenceSQL($sequence)
+    public function getDropSequenceSQL($sequence) : string
     {
         if ($sequence instanceof Sequence) {
             $sequence = $sequence->getQuotedName($this);
@@ -54,7 +54,7 @@ class SQLServer2012Platform extends SQLServerPlatform
     /**
      * {@inheritdoc}
      */
-    public function getListSequencesSQL($database)
+    public function getListSequencesSQL(string $database) : string
     {
         return 'SELECT seq.name,
                        CAST(
@@ -69,7 +69,7 @@ class SQLServer2012Platform extends SQLServerPlatform
     /**
      * {@inheritdoc}
      */
-    public function getSequenceNextValSQL($sequenceName)
+    public function getSequenceNextValSQL(string $sequenceName) : string
     {
         return 'SELECT NEXT VALUE FOR ' . $sequenceName;
     }
@@ -77,7 +77,7 @@ class SQLServer2012Platform extends SQLServerPlatform
     /**
      * {@inheritdoc}
      */
-    public function supportsSequences()
+    public function supportsSequences() : bool
     {
         return true;
     }
@@ -87,7 +87,7 @@ class SQLServer2012Platform extends SQLServerPlatform
      *
      * Returns Microsoft SQL Server 2012 specific keywords class
      */
-    protected function getReservedKeywordsClass()
+    protected function getReservedKeywordsClass() : string
     {
         return Keywords\SQLServer2012Keywords::class;
     }
