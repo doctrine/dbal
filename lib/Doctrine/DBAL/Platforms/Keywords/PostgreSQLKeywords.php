@@ -12,7 +12,7 @@ class PostgreSQLKeywords extends KeywordList
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName() : string
     {
         return 'PostgreSQL';
     }
@@ -20,7 +20,7 @@ class PostgreSQLKeywords extends KeywordList
     /**
      * {@inheritdoc}
      */
-    protected function getKeywords()
+    protected function getKeywords() : array
     {
         return [
             'ALL',

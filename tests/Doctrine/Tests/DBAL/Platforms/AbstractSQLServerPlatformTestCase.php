@@ -1032,9 +1032,9 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
 
         $tableDiff->changedColumns['col_string'] = new ColumnDiff(
             'col_string',
-            new Column('col_string', Type::getType('string'), ['default' => 666, 'fixed' => true]),
+            new Column('col_string', Type::getType('string'), ['default' => 'foo', 'fixed' => true]),
             ['fixed'],
-            new Column('col_string', Type::getType('string'), ['default' => 666])
+            new Column('col_string', Type::getType('string'), ['default' => 'foo'])
         );
 
         $expected = $this->platform->getAlterTableSQL($tableDiff);
@@ -1047,7 +1047,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
                 'ALTER TABLE column_def_change_type ADD CONSTRAINT DF_829302E0_FA2CB292 DEFAULT 666 FOR col_int',
                 'ALTER TABLE column_def_change_type DROP CONSTRAINT DF_829302E0_2725A6D0',
                 'ALTER TABLE column_def_change_type ALTER COLUMN col_string NCHAR(255) NOT NULL',
-                "ALTER TABLE column_def_change_type ADD CONSTRAINT DF_829302E0_2725A6D0 DEFAULT '666' FOR col_string",
+                "ALTER TABLE column_def_change_type ADD CONSTRAINT DF_829302E0_2725A6D0 DEFAULT 'foo' FOR col_string",
             ]
         );
     }
