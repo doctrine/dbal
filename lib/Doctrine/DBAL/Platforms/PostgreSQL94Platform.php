@@ -13,8 +13,10 @@ class PostgreSQL94Platform extends PostgreSqlPlatform
 {
     /**
      * {@inheritdoc}
+     *
+     * @return string
      */
-    public function getJsonTypeDeclarationSQL(array $field)
+    public function getJsonTypeDeclarationSQL(array $field) : string
     {
         if (! empty($field['jsonb'])) {
             return 'JSONB';
@@ -26,7 +28,7 @@ class PostgreSQL94Platform extends PostgreSqlPlatform
     /**
      * {@inheritdoc}
      */
-    protected function getReservedKeywordsClass()
+    protected function getReservedKeywordsClass() : string
     {
         return Keywords\PostgreSQL94Keywords::class;
     }
@@ -34,7 +36,7 @@ class PostgreSQL94Platform extends PostgreSqlPlatform
     /**
      * {@inheritdoc}
      */
-    protected function initializeDoctrineTypeMappings()
+    protected function initializeDoctrineTypeMappings() : void
     {
         parent::initializeDoctrineTypeMappings();
 

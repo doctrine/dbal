@@ -1062,12 +1062,9 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         $table = new Table('col_def_lifecycle');
         $table->addColumn('id', 'integer', ['autoincrement' => true]);
         $table->addColumn('column1', 'string', ['default' => null]);
-        $table->addColumn('column2', 'string', ['default' => false]);
-        $table->addColumn('column3', 'string', ['default' => true]);
-        $table->addColumn('column4', 'string', ['default' => 0]);
-        $table->addColumn('column5', 'string', ['default' => '']);
-        $table->addColumn('column6', 'string', ['default' => 'def']);
-        $table->addColumn('column7', 'integer', ['default' => 0]);
+        $table->addColumn('column2', 'string', ['default' => '']);
+        $table->addColumn('column3', 'string', ['default' => 'default1']);
+        $table->addColumn('column4', 'integer', ['default' => 0]);
         $table->setPrimaryKey(['id']);
 
         $this->schemaManager->dropAndCreateTable($table);
@@ -1077,21 +1074,15 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         self::assertNull($columns['id']->getDefault());
         self::assertNull($columns['column1']->getDefault());
         self::assertSame('', $columns['column2']->getDefault());
-        self::assertSame('1', $columns['column3']->getDefault());
+        self::assertSame('default1', $columns['column3']->getDefault());
         self::assertSame('0', $columns['column4']->getDefault());
-        self::assertSame('', $columns['column5']->getDefault());
-        self::assertSame('def', $columns['column6']->getDefault());
-        self::assertSame('0', $columns['column7']->getDefault());
 
         $diffTable = clone $table;
 
-        $diffTable->changeColumn('column1', ['default' => false]);
+        $diffTable->changeColumn('column1', ['default' => '']);
         $diffTable->changeColumn('column2', ['default' => null]);
-        $diffTable->changeColumn('column3', ['default' => false]);
+        $diffTable->changeColumn('column3', ['default' => 'default2']);
         $diffTable->changeColumn('column4', ['default' => null]);
-        $diffTable->changeColumn('column5', ['default' => false]);
-        $diffTable->changeColumn('column6', ['default' => 666]);
-        $diffTable->changeColumn('column7', ['default' => null]);
 
         $comparator = new Comparator();
 
@@ -1101,11 +1092,8 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
 
         self::assertSame('', $columns['column1']->getDefault());
         self::assertNull($columns['column2']->getDefault());
-        self::assertSame('', $columns['column3']->getDefault());
+        self::assertSame('default2', $columns['column3']->getDefault());
         self::assertNull($columns['column4']->getDefault());
-        self::assertSame('', $columns['column5']->getDefault());
-        self::assertSame('666', $columns['column6']->getDefault());
-        self::assertNull($columns['column7']->getDefault());
     }
 
     public function testListTableWithBinary() : void
