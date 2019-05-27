@@ -33,17 +33,15 @@ class ReservedKeywordsValidator implements Visitor
     /**
      * @return string[]
      */
-    public function getViolations()
+    public function getViolations() : array
     {
         return $this->violations;
     }
 
     /**
-     * @param string $word
-     *
      * @return string[]
      */
-    private function isReservedWord($word)
+    private function isReservedWord(string $word) : array
     {
         if ($word[0] === '`') {
             $word = str_replace('`', '', $word);
@@ -62,12 +60,9 @@ class ReservedKeywordsValidator implements Visitor
     }
 
     /**
-     * @param string   $asset
      * @param string[] $violatedPlatforms
-     *
-     * @return void
      */
-    private function addViolation($asset, $violatedPlatforms)
+    private function addViolation(string $asset, array $violatedPlatforms) : void
     {
         if (! $violatedPlatforms) {
             return;
@@ -79,7 +74,7 @@ class ReservedKeywordsValidator implements Visitor
     /**
      * {@inheritdoc}
      */
-    public function acceptColumn(Table $table, Column $column)
+    public function acceptColumn(Table $table, Column $column) : void
     {
         $this->addViolation(
             'Table ' . $table->getName() . ' column ' . $column->getName(),
@@ -90,35 +85,35 @@ class ReservedKeywordsValidator implements Visitor
     /**
      * {@inheritdoc}
      */
-    public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint)
+    public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint) : void
     {
     }
 
     /**
      * {@inheritdoc}
      */
-    public function acceptIndex(Table $table, Index $index)
+    public function acceptIndex(Table $table, Index $index) : void
     {
     }
 
     /**
      * {@inheritdoc}
      */
-    public function acceptSchema(Schema $schema)
+    public function acceptSchema(Schema $schema) : void
     {
     }
 
     /**
      * {@inheritdoc}
      */
-    public function acceptSequence(Sequence $sequence)
+    public function acceptSequence(Sequence $sequence) : void
     {
     }
 
     /**
      * {@inheritdoc}
      */
-    public function acceptTable(Table $table)
+    public function acceptTable(Table $table) : void
     {
         $this->addViolation(
             'Table ' . $table->getName(),

@@ -28,6 +28,14 @@ class DriverTest extends AbstractDriverTest
     /**
      * {@inheritdoc}
      */
+    public function testReturnsDatabaseNameWithoutDatabaseNameParameter()
+    {
+        $this->markTestSkipped('SQLite does not support the concept of a database.');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     protected function createDriver()
     {
         return new Driver();

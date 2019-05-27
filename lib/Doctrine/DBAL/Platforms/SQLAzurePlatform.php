@@ -18,7 +18,7 @@ class SQLAzurePlatform extends SQLServerPlatform
     /**
      * {@inheritDoc}
      */
-    public function getCreateTableSQL(Table $table, $createFlags = self::CREATE_INDEXES)
+    public function getCreateTableSQL(Table $table, int $createFlags = self::CREATE_INDEXES) : array
     {
         $sql = parent::getCreateTableSQL($table, $createFlags);
 

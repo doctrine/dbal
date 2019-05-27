@@ -663,7 +663,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
 
     protected function getInlineColumnEmptyCommentSQL()
     {
-        return "--\n";
+        return '';
     }
 
     /**
