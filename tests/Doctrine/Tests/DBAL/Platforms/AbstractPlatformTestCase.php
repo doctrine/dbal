@@ -246,10 +246,10 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
 
     public function testGeneratesForeignKeyCreationSql() : void
     {
-        $fk = new ForeignKeyConstraint(['fk_name_id'], 'other_table', ['id'], '');
+        $fk = new ForeignKeyConstraint(['fk_name_id'], 'other_table', ['id']);
 
         $sql = $this->platform->getCreateForeignKeySQL($fk, 'test');
-        self::assertEquals($sql, $this->getGenerateForeignKeySql());
+        self::assertEquals($this->getGenerateForeignKeySql(), $sql);
     }
 
     abstract public function getGenerateForeignKeySql() : string;
