@@ -20,7 +20,7 @@ class DBAL202Test extends DbalFunctionalTestCase
             $this->markTestSkipped('OCI8 only test');
         }
 
-        if ($this->connection->getSchemaManager()->tablesExist('DBAL202')) {
+        if ($this->connection->getSchemaManager()->tableExists('DBAL202')) {
             $this->connection->exec('DELETE FROM DBAL202');
         } else {
             $table = new Table('DBAL202');

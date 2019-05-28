@@ -38,7 +38,7 @@ class DropSchemaSqlCollector extends AbstractVisitor
     /**
      * {@inheritdoc}
      */
-    public function acceptTable(Table $table)
+    public function acceptTable(Table $table) : void
     {
         $this->tables->attach($table);
     }
@@ -46,7 +46,7 @@ class DropSchemaSqlCollector extends AbstractVisitor
     /**
      * {@inheritdoc}
      */
-    public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint)
+    public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint) : void
     {
         if (strlen($fkConstraint->getName()) === 0) {
             throw NamedForeignKeyRequired::new($localTable, $fkConstraint);
@@ -58,15 +58,12 @@ class DropSchemaSqlCollector extends AbstractVisitor
     /**
      * {@inheritdoc}
      */
-    public function acceptSequence(Sequence $sequence)
+    public function acceptSequence(Sequence $sequence) : void
     {
         $this->sequences->attach($sequence);
     }
 
-    /**
-     * @return void
-     */
-    public function clearQueries()
+    public function clearQueries() : void
     {
         $this->constraints = new SplObjectStorage();
         $this->sequences   = new SplObjectStorage();
@@ -74,9 +71,9 @@ class DropSchemaSqlCollector extends AbstractVisitor
     }
 
     /**
-     * @return string[]
+     * @return array<int, string>
      */
-    public function getQueries()
+    public function getQueries() : array
     {
         $sql = [];
 
