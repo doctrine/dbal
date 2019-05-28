@@ -669,41 +669,6 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * @deprecated
-     *
-     * @param mixed[][] $functions
-     *
-     * @return mixed[][]
-     */
-    protected function _getPortableFunctionsList($functions)
-    {
-        $list = [];
-        foreach ($functions as $value) {
-            $value = $this->_getPortableFunctionDefinition($value);
-
-            if (! $value) {
-                continue;
-            }
-
-            $list[] = $value;
-        }
-
-        return $list;
-    }
-
-    /**
-     * @deprecated
-     *
-     * @param mixed[] $function
-     *
-     * @return mixed
-     */
-    protected function _getPortableFunctionDefinition($function)
-    {
-        return $function;
-    }
-
-    /**
      * @param mixed[][] $triggers
      *
      * @return mixed[][]

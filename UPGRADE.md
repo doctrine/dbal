@@ -1,5 +1,12 @@
 # Upgrade to 3.0
 
+## BC BREAK: Changes in the `Doctrine\DBAL\Schema` API
+
+- Removed unused method `Doctrine\DBAL\Schema\AbstractSchemaManager::_getPortableFunctionsList()`
+- Removed unused method `Doctrine\DBAL\Schema\AbstractSchemaManager::_getPortableFunctionDefinition()`
+- Removed unused method `Doctrine\DBAL\Schema\OracleSchemaManager::_getPortableFunctionDefinition()`
+- Removed unused method `Doctrine\DBAL\Schema\SqliteSchemaManager::_getPortableTableIndexDefinition()`
+
 ## BC BREAK: Removed support for DB-generated UUIDs
 
 The support for DB-generated UUIDs was removed as non-portable.
