@@ -22,13 +22,7 @@ class Sequence extends AbstractAsset
     /** @var int|null */
     protected $cache = null;
 
-    /**
-     * @param string   $name
-     * @param int      $allocationSize
-     * @param int      $initialValue
-     * @param int|null $cache
-     */
-    public function __construct($name, $allocationSize = 1, $initialValue = 1, $cache = null)
+    public function __construct(string $name, int $allocationSize = 1, int $initialValue = 1, ?int $cache = null)
     {
         $this->_setName($name);
         $this->setAllocationSize($allocationSize);
@@ -36,60 +30,36 @@ class Sequence extends AbstractAsset
         $this->cache = $cache;
     }
 
-    /**
-     * @return int
-     */
-    public function getAllocationSize()
+    public function getAllocationSize() : int
     {
         return $this->allocationSize;
     }
 
-    /**
-     * @return int
-     */
-    public function getInitialValue()
+    public function getInitialValue() : int
     {
         return $this->initialValue;
     }
 
-    /**
-     * @return int|null
-     */
-    public function getCache()
+    public function getCache() : ?int
     {
         return $this->cache;
     }
 
-    /**
-     * @param int $allocationSize
-     *
-     * @return \Doctrine\DBAL\Schema\Sequence
-     */
-    public function setAllocationSize($allocationSize)
+    public function setAllocationSize(int $allocationSize) : self
     {
-        $this->allocationSize = (int) $allocationSize ?: 1;
+        $this->allocationSize = $allocationSize;
 
         return $this;
     }
 
-    /**
-     * @param int $initialValue
-     *
-     * @return \Doctrine\DBAL\Schema\Sequence
-     */
-    public function setInitialValue($initialValue)
+    public function setInitialValue(int $initialValue) : self
     {
-        $this->initialValue = (int) $initialValue ?: 1;
+        $this->initialValue = $initialValue;
 
         return $this;
     }
 
-    /**
-     * @param int $cache
-     *
-     * @return \Doctrine\DBAL\Schema\Sequence
-     */
-    public function setCache($cache)
+    public function setCache(int $cache) : self
     {
         $this->cache = $cache;
 
@@ -101,10 +71,8 @@ class Sequence extends AbstractAsset
      *
      * This is used inside the comparator to not report sequences as missing,
      * when the "from" schema implicitly creates the sequences.
-     *
-     * @return bool
      */
-    public function isAutoIncrementsFor(Table $table)
+    public function isAutoIncrementsFor(Table $table) : bool
     {
         $primaryKey = $table->getPrimaryKey();
 
@@ -131,10 +99,7 @@ class Sequence extends AbstractAsset
         return $tableSequenceName === $sequenceName;
     }
 
-    /**
-     * @return void
-     */
-    public function visit(Visitor $visitor)
+    public function visit(Visitor $visitor) : void
     {
         $visitor->acceptSequence($this);
     }
