@@ -16,7 +16,7 @@ class MySQL57Platform extends MySqlPlatform
     /**
      * {@inheritdoc}
      */
-    public function hasNativeJsonType()
+    public function hasNativeJsonType() : bool
     {
         return true;
     }
@@ -24,7 +24,7 @@ class MySQL57Platform extends MySqlPlatform
     /**
      * {@inheritdoc}
      */
-    public function getJsonTypeDeclarationSQL(array $field)
+    public function getJsonTypeDeclarationSQL(array $field) : string
     {
         return 'JSON';
     }
@@ -32,7 +32,7 @@ class MySQL57Platform extends MySqlPlatform
     /**
      * {@inheritdoc}
      */
-    protected function getPreAlterTableRenameIndexForeignKeySQL(TableDiff $diff)
+    protected function getPreAlterTableRenameIndexForeignKeySQL(TableDiff $diff) : array
     {
         return [];
     }
@@ -40,7 +40,7 @@ class MySQL57Platform extends MySqlPlatform
     /**
      * {@inheritdoc}
      */
-    protected function getPostAlterTableRenameIndexForeignKeySQL(TableDiff $diff)
+    protected function getPostAlterTableRenameIndexForeignKeySQL(TableDiff $diff) : array
     {
         return [];
     }
@@ -48,7 +48,7 @@ class MySQL57Platform extends MySqlPlatform
     /**
      * {@inheritdoc}
      */
-    protected function getRenameIndexSQL($oldIndexName, Index $index, $tableName)
+    protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName) : array
     {
         return ['ALTER TABLE ' . $tableName . ' RENAME INDEX ' . $oldIndexName . ' TO ' . $index->getQuotedName($this)];
     }
@@ -56,7 +56,7 @@ class MySQL57Platform extends MySqlPlatform
     /**
      * {@inheritdoc}
      */
-    protected function getReservedKeywordsClass()
+    protected function getReservedKeywordsClass() : string
     {
         return Keywords\MySQL57Keywords::class;
     }
@@ -64,7 +64,7 @@ class MySQL57Platform extends MySqlPlatform
     /**
      * {@inheritdoc}
      */
-    protected function initializeDoctrineTypeMappings()
+    protected function initializeDoctrineTypeMappings() : void
     {
         parent::initializeDoctrineTypeMappings();
 
