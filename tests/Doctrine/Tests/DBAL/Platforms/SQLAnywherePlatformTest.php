@@ -253,8 +253,6 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
     {
         return [
             [null, ''],
-            [false, ''],
-            [true, ''],
             [LockMode::NONE, ' WITH (NOLOCK)'],
             [LockMode::OPTIMISTIC, ''],
             [LockMode::PESSIMISTIC_READ, ' WITH (UPDLOCK)'],
@@ -757,13 +755,6 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    public function testCannotGenerateTransactionCommandWithInvalidIsolationLevel() : void
-    {
-        $this->expectException(InvalidArgumentException::class);
-
-        $this->platform->getSetTransactionIsolationSQL('invalid_transaction_isolation_level');
-    }
-
     public function testModifiesLimitQuery() : void
     {
         self::assertEquals(
@@ -915,10 +906,6 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         self::assertEquals(
             'SELECT myseq.NEXTVAL',
             $this->platform->getSequenceNextValSQL('myseq')
-        );
-        self::assertEquals(
-            'SELECT sequence_name, increment_by, start_with, min_value FROM SYS.SYSSEQUENCE',
-            $this->platform->getListSequencesSQL(null)
         );
     }
 
