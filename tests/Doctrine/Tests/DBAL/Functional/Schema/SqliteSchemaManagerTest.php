@@ -237,7 +237,7 @@ SQL;
         if ($expectedComparatorDiff) {
             self::assertEmpty($this->schemaManager->getDatabasePlatform()->getAlterTableSQL($diff));
         } else {
-            self::assertFalse($diff);
+            self::assertNull($diff);
         }
     }
 
