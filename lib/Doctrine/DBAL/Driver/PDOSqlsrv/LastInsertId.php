@@ -12,7 +12,7 @@ class LastInsertId
     /** @var string|null */
     private $id;
 
-    public function setId(string $id) : void
+    public function setId(?string $id) : void
     {
         $this->id = $id;
     }
