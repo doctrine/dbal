@@ -512,7 +512,7 @@ SQL
         $queryParts = [];
         $newName    = $diff->getNewName();
 
-        if ($newName !== false) {
+        if ($newName !== null) {
             $queryParts[] = 'RENAME TO ' . $newName->getQuotedName($this);
         }
 
@@ -817,7 +817,7 @@ SQL
         $sql     = [];
         $newName = $diff->getNewName();
 
-        if ($newName !== false) {
+        if ($newName !== null) {
             $tableName = $newName->getQuotedName($this);
         } else {
             $tableName = $diff->getName($this)->getQuotedName($this);

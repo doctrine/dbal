@@ -597,7 +597,7 @@ class DB2Platform extends AbstractPlatform
 
             $newName = $diff->getNewName();
 
-            if ($newName !== false) {
+            if ($newName !== null) {
                 $sql[] = sprintf(
                     'RENAME TABLE %s TO %s',
                     $diff->getName($this)->getQuotedName($this),

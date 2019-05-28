@@ -58,7 +58,7 @@ class TableDiffTest extends TestCase
     {
         $tableDiff = new TableDiff('foo');
 
-        self::assertFalse($tableDiff->getNewName());
+        self::assertNull($tableDiff->getNewName());
 
         $tableDiff->newName = 'bar';
 
