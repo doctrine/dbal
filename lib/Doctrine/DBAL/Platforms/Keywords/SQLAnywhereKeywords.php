@@ -12,7 +12,7 @@ class SQLAnywhereKeywords extends KeywordList
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName() : string
     {
         return 'SQLAnywhere';
     }
@@ -22,7 +22,7 @@ class SQLAnywhereKeywords extends KeywordList
      *
      * @link http://infocenter.sybase.com/help/topic/com.sybase.dbrfen10/pdf/dbrfen10.pdf?noframes=true
      */
-    protected function getKeywords()
+    protected function getKeywords() : array
     {
         return [
             'ADD',

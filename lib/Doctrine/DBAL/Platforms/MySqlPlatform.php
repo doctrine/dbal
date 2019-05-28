@@ -66,7 +66,7 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getIdentifierQuoteCharacter()
+    public function getIdentifierQuoteCharacter() : string
     {
         return '`';
     }
@@ -120,7 +120,7 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getListDatabasesSQL()
+    public function getListDatabasesSQL() : string
     {
         return 'SHOW DATABASES';
     }
@@ -128,7 +128,7 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getListTableConstraintsSQL($table)
+    public function getListTableConstraintsSQL(string $table) : string
     {
         return 'SHOW INDEX FROM ' . $table;
     }
@@ -139,7 +139,7 @@ class MySqlPlatform extends AbstractPlatform
      * Two approaches to listing the table indexes. The information_schema is
      * preferred, because it doesn't cause problems with SQL keywords such as "order" or "table".
      */
-    public function getListTableIndexesSQL($table, $currentDatabase = null)
+    public function getListTableIndexesSQL(string $table, ?string $currentDatabase = null) : string
     {
         if ($currentDatabase) {
             $currentDatabase = $this->quoteStringLiteral($currentDatabase);
@@ -158,23 +158,17 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getListViewsSQL($database)
+    public function getListViewsSQL(string $database) : string
     {
-        $database = $this->quoteStringLiteral($database);
-
-        return 'SELECT * FROM information_schema.VIEWS WHERE TABLE_SCHEMA = ' . $database;
+        return 'SELECT * FROM information_schema.VIEWS WHERE TABLE_SCHEMA = ' . $this->quoteStringLiteral($database);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getListTableForeignKeysSQL($table, $database = null)
+    public function getListTableForeignKeysSQL(string $table, ?string $database = null) : string
     {
         $table = $this->quoteStringLiteral($table);
-
-        if ($database !== null) {
-            $database = $this->quoteStringLiteral($database);
-        }
 
         $sql = 'SELECT DISTINCT k.`CONSTRAINT_NAME`, k.`COLUMN_NAME`, k.`REFERENCED_TABLE_NAME`, ' .
                'k.`REFERENCED_COLUMN_NAME` /*!50116 , c.update_rule, c.delete_rule */ ' .
@@ -183,7 +177,7 @@ class MySqlPlatform extends AbstractPlatform
                '  c.constraint_name = k.constraint_name AND ' .
                '  c.table_name = ' . $table . ' */ WHERE k.table_name = ' . $table;
 
-        $databaseNameSql = $database ?? 'DATABASE()';
+        $databaseNameSql = $this->getDatabaseNameSql($database);
 
         $sql .= ' AND k.table_schema = ' . $databaseNameSql . ' /*!50116 AND c.constraint_schema = ' . $databaseNameSql . ' */';
         $sql .= ' AND k.`REFERENCED_COLUMN_NAME` is not NULL';
@@ -194,7 +188,7 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getCreateViewSQL($name, $sql)
+    public function getCreateViewSQL(string $name, string $sql) : string
     {
         return 'CREATE VIEW ' . $name . ' AS ' . $sql;
     }
@@ -202,7 +196,7 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getDropViewSQL($name)
+    public function getDropViewSQL(string $name) : string
     {
         return 'DROP VIEW ' . $name;
     }
@@ -210,7 +204,7 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)
+    protected function getVarcharTypeDeclarationSQLSnippet(int $length, bool $fixed) : string
     {
         return $fixed ? ($length ? 'CHAR(' . $length . ')' : 'CHAR(255)')
                 : ($length ? 'VARCHAR(' . $length . ')' : 'VARCHAR(255)');
@@ -219,7 +213,7 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    protected function getBinaryTypeDeclarationSQLSnippet($length, $fixed)
+    protected function getBinaryTypeDeclarationSQLSnippet(int $length, bool $fixed) : string
     {
         return $fixed ? 'BINARY(' . ($length ?: 255) . ')' : 'VARBINARY(' . ($length ?: 255) . ')';
     }
@@ -233,7 +227,7 @@ class MySqlPlatform extends AbstractPlatform
      *
      * {@inheritDoc}
      */
-    public function getClobTypeDeclarationSQL(array $field)
+    public function getClobTypeDeclarationSQL(array $field) : string
     {
         if (! empty($field['length']) && is_numeric($field['length'])) {
             $length = $field['length'];
@@ -257,7 +251,7 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getDateTimeTypeDeclarationSQL(array $fieldDeclaration)
+    public function getDateTimeTypeDeclarationSQL(array $fieldDeclaration) : string
     {
         if (isset($fieldDeclaration['version']) && $fieldDeclaration['version'] === true) {
             return 'TIMESTAMP';
@@ -269,7 +263,7 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getDateTypeDeclarationSQL(array $fieldDeclaration)
+    public function getDateTypeDeclarationSQL(array $fieldDeclaration) : string
     {
         return 'DATE';
     }
@@ -277,7 +271,7 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getTimeTypeDeclarationSQL(array $fieldDeclaration)
+    public function getTimeTypeDeclarationSQL(array $fieldDeclaration) : string
     {
         return 'TIME';
     }
@@ -285,7 +279,7 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getBooleanTypeDeclarationSQL(array $field)
+    public function getBooleanTypeDeclarationSQL(array $columnDef) : string
     {
         return 'TINYINT(1)';
     }
@@ -296,7 +290,7 @@ class MySqlPlatform extends AbstractPlatform
      * MySql prefers "autoincrement" identity columns since sequences can only
      * be emulated with a table.
      */
-    public function prefersIdentityColumns()
+    public function prefersIdentityColumns() : bool
     {
         return true;
     }
@@ -306,7 +300,7 @@ class MySqlPlatform extends AbstractPlatform
      *
      * MySql supports this through AUTO_INCREMENT columns.
      */
-    public function supportsIdentityColumns()
+    public function supportsIdentityColumns() : bool
     {
         return true;
     }
@@ -314,7 +308,7 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function supportsInlineColumnComments()
+    public function supportsInlineColumnComments() : bool
     {
         return true;
     }
@@ -322,7 +316,7 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function supportsColumnCollation()
+    public function supportsColumnCollation() : bool
     {
         return true;
     }
@@ -330,7 +324,7 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getListTablesSQL()
+    public function getListTablesSQL() : string
     {
         return "SHOW FULL TABLES WHERE Table_type = 'BASE TABLE'";
     }
@@ -338,21 +332,13 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getListTableColumnsSQL($table, $database = null)
+    public function getListTableColumnsSQL(string $table, ?string $database = null) : string
     {
-        $table = $this->quoteStringLiteral($table);
-
-        if ($database) {
-            $database = $this->quoteStringLiteral($database);
-        } else {
-            $database = 'DATABASE()';
-        }
-
         return 'SELECT COLUMN_NAME AS Field, COLUMN_TYPE AS Type, IS_NULLABLE AS `Null`, ' .
                'COLUMN_KEY AS `Key`, COLUMN_DEFAULT AS `Default`, EXTRA AS Extra, COLUMN_COMMENT AS Comment, ' .
                'CHARACTER_SET_NAME AS CharacterSet, COLLATION_NAME AS Collation ' .
-               'FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = ' . $database . ' AND TABLE_NAME = ' . $table .
-               ' ORDER BY ORDINAL_POSITION ASC';
+               'FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = ' . $this->getDatabaseNameSql($database) . ' ' .
+               'AND TABLE_NAME = ' . $this->quoteStringLiteral($table) . ' ORDER BY ORDINAL_POSITION';
     }
 
     public function getListTableMetadataSQL(string $table, ?string $database = null) : string
@@ -372,23 +358,23 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getCreateDatabaseSQL($name)
+    public function getCreateDatabaseSQL(string $database) : string
     {
-        return 'CREATE DATABASE ' . $name;
+        return 'CREATE DATABASE ' . $database;
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getDropDatabaseSQL($name)
+    public function getDropDatabaseSQL(string $database) : string
     {
-        return 'DROP DATABASE ' . $name;
+        return 'DROP DATABASE ' . $database;
     }
 
     /**
      * {@inheritDoc}
      */
-    protected function _getCreateTableSQL($tableName, array $columns, array $options = [])
+    protected function _getCreateTableSQL(string $tableName, array $columns, array $options = []) : array
     {
         $queryFields = $this->getColumnDeclarationListSQL($columns);
 
@@ -441,7 +427,7 @@ SQL
     /**
      * {@inheritdoc}
      */
-    public function getDefaultValueDeclarationSQL($field)
+    public function getDefaultValueDeclarationSQL(array $field) : string
     {
         // Unset the default value if the given field definition does not allow default values.
         if ($field['type'] instanceof TextType || $field['type'] instanceof BlobType) {
@@ -455,10 +441,8 @@ SQL
      * Build SQL for table options
      *
      * @param mixed[] $options
-     *
-     * @return string
      */
-    private function buildTableOptions(array $options)
+    private function buildTableOptions(array $options) : string
     {
         if (isset($options['table_options'])) {
             return $options['table_options'];
@@ -511,10 +495,8 @@ SQL
      * Build SQL for partition options.
      *
      * @param mixed[] $options
-     *
-     * @return string
      */
-    private function buildPartitionOptions(array $options)
+    private function buildPartitionOptions(array $options) : string
     {
         return isset($options['partition_options'])
             ? ' ' . $options['partition_options']
@@ -524,7 +506,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getAlterTableSQL(TableDiff $diff)
+    public function getAlterTableSQL(TableDiff $diff) : array
     {
         $columnSql  = [];
         $queryParts = [];
@@ -622,7 +604,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    protected function getPreAlterTableIndexForeignKeySQL(TableDiff $diff)
+    protected function getPreAlterTableIndexForeignKeySQL(TableDiff $diff) : array
     {
         $sql   = [];
         $table = $diff->getName($this)->getQuotedName($this);
@@ -683,7 +665,7 @@ SQL
     /**
      * @return string[]
      */
-    private function getPreAlterTableAlterPrimaryKeySQL(TableDiff $diff, Index $index)
+    private function getPreAlterTableAlterPrimaryKeySQL(TableDiff $diff, Index $index) : array
     {
         $sql = [];
 
@@ -701,7 +683,7 @@ SQL
 
             $column = $diff->fromTable->getColumn($columnName);
 
-            if ($column->getAutoincrement() !== true) {
+            if (! $column->getAutoincrement()) {
                 continue;
             }
 
@@ -722,7 +704,7 @@ SQL
      *
      * @return string[]
      */
-    private function getPreAlterTableAlterIndexForeignKeySQL(TableDiff $diff)
+    private function getPreAlterTableAlterIndexForeignKeySQL(TableDiff $diff) : array
     {
         $sql   = [];
         $table = $diff->getName($this)->getQuotedName($this);
@@ -762,7 +744,7 @@ SQL
      *
      * @return string[]
      */
-    protected function getPreAlterTableRenameIndexForeignKeySQL(TableDiff $diff)
+    protected function getPreAlterTableRenameIndexForeignKeySQL(TableDiff $diff) : array
     {
         $sql       = [];
         $tableName = $diff->getName($this)->getQuotedName($this);
@@ -788,7 +770,7 @@ SQL
      *
      * @return ForeignKeyConstraint[]
      */
-    private function getRemainingForeignKeyConstraintsRequiringRenamedIndexes(TableDiff $diff)
+    private function getRemainingForeignKeyConstraintsRequiringRenamedIndexes(TableDiff $diff) : array
     {
         if (empty($diff->renamedIndexes) || ! $diff->fromTable instanceof Table) {
             return [];
@@ -817,7 +799,7 @@ SQL
     /**
      * {@inheritdoc}
      */
-    protected function getPostAlterTableIndexForeignKeySQL(TableDiff $diff)
+    protected function getPostAlterTableIndexForeignKeySQL(TableDiff $diff) : array
     {
         return array_merge(
             parent::getPostAlterTableIndexForeignKeySQL($diff),
@@ -830,7 +812,7 @@ SQL
      *
      * @return string[]
      */
-    protected function getPostAlterTableRenameIndexForeignKeySQL(TableDiff $diff)
+    protected function getPostAlterTableRenameIndexForeignKeySQL(TableDiff $diff) : array
     {
         $sql     = [];
         $newName = $diff->getNewName();
@@ -855,7 +837,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    protected function getCreateIndexSQLFlags(Index $index)
+    protected function getCreateIndexSQLFlags(Index $index) : string
     {
         $type = '';
         if ($index->isUnique()) {
@@ -872,39 +854,39 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getIntegerTypeDeclarationSQL(array $field)
+    public function getIntegerTypeDeclarationSQL(array $columnDef) : string
     {
-        return 'INT' . $this->_getCommonIntegerTypeDeclarationSQL($field);
+        return 'INT' . $this->_getCommonIntegerTypeDeclarationSQL($columnDef);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getBigIntTypeDeclarationSQL(array $field)
+    public function getBigIntTypeDeclarationSQL(array $columnDef) : string
     {
-        return 'BIGINT' . $this->_getCommonIntegerTypeDeclarationSQL($field);
+        return 'BIGINT' . $this->_getCommonIntegerTypeDeclarationSQL($columnDef);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getSmallIntTypeDeclarationSQL(array $field)
+    public function getSmallIntTypeDeclarationSQL(array $columnDef) : string
     {
-        return 'SMALLINT' . $this->_getCommonIntegerTypeDeclarationSQL($field);
+        return 'SMALLINT' . $this->_getCommonIntegerTypeDeclarationSQL($columnDef);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getFloatDeclarationSQL(array $field)
+    public function getFloatDeclarationSQL(array $fieldDeclaration) : string
     {
-        return 'DOUBLE PRECISION' . $this->getUnsignedDeclaration($field);
+        return 'DOUBLE PRECISION' . $this->getUnsignedDeclaration($fieldDeclaration);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getDecimalTypeDeclarationSQL(array $columnDef)
+    public function getDecimalTypeDeclarationSQL(array $columnDef) : string
     {
         return parent::getDecimalTypeDeclarationSQL($columnDef) . $this->getUnsignedDeclaration($columnDef);
     }
@@ -913,10 +895,8 @@ SQL
      * Get unsigned declaration for a column.
      *
      * @param mixed[] $columnDef
-     *
-     * @return string
      */
-    private function getUnsignedDeclaration(array $columnDef)
+    private function getUnsignedDeclaration(array $columnDef) : string
     {
         return ! empty($columnDef['unsigned']) ? ' UNSIGNED' : '';
     }
@@ -924,7 +904,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef)
+    protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef) : string
     {
         $autoinc = '';
         if (! empty($columnDef['autoincrement'])) {
@@ -937,7 +917,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getColumnCharsetDeclarationSQL($charset)
+    public function getColumnCharsetDeclarationSQL(string $charset) : string
     {
         return 'CHARACTER SET ' . $charset;
     }
@@ -945,7 +925,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey)
+    public function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey) : string
     {
         $query = '';
         if ($foreignKey->hasOption('match')) {
@@ -959,7 +939,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getDropIndexSQL($index, $table = null)
+    public function getDropIndexSQL($index, $table = null) : string
     {
         if ($index instanceof Index) {
             $indexName = $index->getQuotedName($this);
@@ -984,12 +964,7 @@ SQL
         return 'DROP INDEX ' . $indexName . ' ON ' . $table;
     }
 
-    /**
-     * @param string $table
-     *
-     * @return string
-     */
-    protected function getDropPrimaryKeySQL($table)
+    protected function getDropPrimaryKeySQL(string $table) : string
     {
         return 'ALTER TABLE ' . $table . ' DROP PRIMARY KEY';
     }
@@ -997,7 +972,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getSetTransactionIsolationSQL($level)
+    public function getSetTransactionIsolationSQL(int $level) : string
     {
         return 'SET SESSION TRANSACTION ISOLATION LEVEL ' . $this->_getTransactionIsolationLevelSQL($level);
     }
@@ -1005,7 +980,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getName()
+    public function getName() : string
     {
         return 'mysql';
     }
@@ -1013,7 +988,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getReadLockSQL()
+    public function getReadLockSQL() : string
     {
         return 'LOCK IN SHARE MODE';
     }
@@ -1021,7 +996,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    protected function initializeDoctrineTypeMappings()
+    protected function initializeDoctrineTypeMappings() : void
     {
         $this->doctrineTypeMapping = [
             'bigint'     => 'bigint',
@@ -1060,7 +1035,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getVarcharMaxLength()
+    public function getVarcharMaxLength() : int
     {
         return 65535;
     }
@@ -1068,7 +1043,7 @@ SQL
     /**
      * {@inheritdoc}
      */
-    public function getBinaryMaxLength()
+    public function getBinaryMaxLength() : int
     {
         return 65535;
     }
@@ -1076,7 +1051,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    protected function getReservedKeywordsClass()
+    protected function getReservedKeywordsClass() : string
     {
         return Keywords\MySQLKeywords::class;
     }
@@ -1087,7 +1062,7 @@ SQL
      * MySQL commits a transaction implicitly when DROP TABLE is executed, however not
      * if DROP TEMPORARY TABLE is executed.
      */
-    public function getDropTemporaryTableSQL($table)
+    public function getDropTemporaryTableSQL($table) : string
     {
         if ($table instanceof Table) {
             $table = $table->getQuotedName($this);
@@ -1107,7 +1082,7 @@ SQL
      *
      * {@inheritDoc}
      */
-    public function getBlobTypeDeclarationSQL(array $field)
+    public function getBlobTypeDeclarationSQL(array $field) : string
     {
         if (! empty($field['length']) && is_numeric($field['length'])) {
             $length = $field['length'];
@@ -1131,7 +1106,7 @@ SQL
     /**
      * {@inheritdoc}
      */
-    public function quoteStringLiteral($str)
+    public function quoteStringLiteral(string $str) : string
     {
         $str = str_replace('\\', '\\\\', $str); // MySQL requires backslashes to be escaped aswell.
 
@@ -1141,7 +1116,7 @@ SQL
     /**
      * {@inheritdoc}
      */
-    public function getDefaultTransactionIsolationLevel()
+    public function getDefaultTransactionIsolationLevel() : int
     {
         return TransactionIsolationLevel::REPEATABLE_READ;
     }
@@ -1152,5 +1127,19 @@ SQL
     public function supportsColumnLengthIndexes() : bool
     {
         return true;
+    }
+
+    /**
+     * Returns an SQL expression representing the given database name or current database name
+     *
+     * @param string|null $database Database name
+     */
+    private function getDatabaseNameSql(?string $database) : string
+    {
+        if ($database === null) {
+            return 'DATABASE()';
+        }
+
+        return $this->quoteStringLiteral($database);
     }
 }

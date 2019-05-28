@@ -83,7 +83,7 @@ abstract class AbstractSQLiteDriver implements Driver, ExceptionConverterDriver
     {
         $params = $conn->getParams();
 
-        return $params['path'] ?? null;
+        return $params['path'] ?? '';
     }
 
     /**
