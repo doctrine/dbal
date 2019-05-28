@@ -22,7 +22,6 @@ use function implode;
 use function sprintf;
 use function sqrt;
 use function str_replace;
-use function strlen;
 use function strpos;
 use function strtolower;
 
@@ -45,7 +44,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getNowExpression($type = 'timestamp') : string
+    public function getNowExpression(string $type = 'timestamp') : string
     {
         switch ($type) {
             case 'time':
@@ -154,15 +153,15 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function _getTransactionIsolationLevelSQL($level)
+    protected function _getTransactionIsolationLevelSQL(int $level) : string
     {
         switch ($level) {
             case TransactionIsolationLevel::READ_UNCOMMITTED:
-                return 0;
+                return '0';
             case TransactionIsolationLevel::READ_COMMITTED:
             case TransactionIsolationLevel::REPEATABLE_READ:
             case TransactionIsolationLevel::SERIALIZABLE:
-                return 1;
+                return '1';
             default:
                 return parent::_getTransactionIsolationLevelSQL($level);
         }
@@ -171,7 +170,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getSetTransactionIsolationSQL($level)
+    public function getSetTransactionIsolationSQL(int $level) : string
     {
         return 'PRAGMA read_uncommitted = ' . $this->_getTransactionIsolationLevelSQL($level);
     }
@@ -179,7 +178,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function prefersIdentityColumns()
+    public function prefersIdentityColumns() : bool
     {
         return true;
     }
@@ -187,7 +186,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getBooleanTypeDeclarationSQL(array $field)
+    public function getBooleanTypeDeclarationSQL(array $columnDef) : string
     {
         return 'BOOLEAN';
     }
@@ -195,28 +194,28 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getIntegerTypeDeclarationSQL(array $field)
+    public function getIntegerTypeDeclarationSQL(array $columnDef) : string
     {
-        return 'INTEGER' . $this->_getCommonIntegerTypeDeclarationSQL($field);
+        return 'INTEGER' . $this->_getCommonIntegerTypeDeclarationSQL($columnDef);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getBigIntTypeDeclarationSQL(array $field)
+    public function getBigIntTypeDeclarationSQL(array $columnDef) : string
     {
         //  SQLite autoincrement is implicit for INTEGER PKs, but not for BIGINT fields.
-        if (! empty($field['autoincrement'])) {
-            return $this->getIntegerTypeDeclarationSQL($field);
+        if (! empty($columnDef['autoincrement'])) {
+            return $this->getIntegerTypeDeclarationSQL($columnDef);
         }
 
-        return 'BIGINT' . $this->_getCommonIntegerTypeDeclarationSQL($field);
+        return 'BIGINT' . $this->_getCommonIntegerTypeDeclarationSQL($columnDef);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getTinyIntTypeDeclarationSql(array $field)
+    public function getTinyIntTypeDeclarationSql(array $field) : string
     {
         //  SQLite autoincrement is implicit for INTEGER PKs, but not for TINYINT fields.
         if (! empty($field['autoincrement'])) {
@@ -229,20 +228,20 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getSmallIntTypeDeclarationSQL(array $field)
+    public function getSmallIntTypeDeclarationSQL(array $columnDef) : string
     {
         //  SQLite autoincrement is implicit for INTEGER PKs, but not for SMALLINT fields.
-        if (! empty($field['autoincrement'])) {
-            return $this->getIntegerTypeDeclarationSQL($field);
+        if (! empty($columnDef['autoincrement'])) {
+            return $this->getIntegerTypeDeclarationSQL($columnDef);
         }
 
-        return 'SMALLINT' . $this->_getCommonIntegerTypeDeclarationSQL($field);
+        return 'SMALLINT' . $this->_getCommonIntegerTypeDeclarationSQL($columnDef);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getMediumIntTypeDeclarationSql(array $field)
+    public function getMediumIntTypeDeclarationSql(array $field) : string
     {
         //  SQLite autoincrement is implicit for INTEGER PKs, but not for MEDIUMINT fields.
         if (! empty($field['autoincrement'])) {
@@ -255,7 +254,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getDateTimeTypeDeclarationSQL(array $fieldDeclaration)
+    public function getDateTimeTypeDeclarationSQL(array $fieldDeclaration) : string
     {
         return 'DATETIME';
     }
@@ -263,7 +262,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getDateTypeDeclarationSQL(array $fieldDeclaration)
+    public function getDateTypeDeclarationSQL(array $fieldDeclaration) : string
     {
         return 'DATE';
     }
@@ -271,7 +270,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getTimeTypeDeclarationSQL(array $fieldDeclaration)
+    public function getTimeTypeDeclarationSQL(array $fieldDeclaration) : string
     {
         return 'TIME';
     }
@@ -279,7 +278,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef)
+    protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef) : string
     {
         // sqlite autoincrement is only possible for the primary key
         if (! empty($columnDef['autoincrement'])) {
@@ -292,7 +291,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getForeignKeyDeclarationSQL(ForeignKeyConstraint $foreignKey)
+    public function getForeignKeyDeclarationSQL(ForeignKeyConstraint $foreignKey) : string
     {
         return parent::getForeignKeyDeclarationSQL(new ForeignKeyConstraint(
             $foreignKey->getQuotedLocalColumns($this),
@@ -306,7 +305,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function _getCreateTableSQL($tableName, array $columns, array $options = [])
+    protected function _getCreateTableSQL(string $tableName, array $columns, array $options = []) : array
     {
         $tableName   = str_replace('.', '__', $tableName);
         $queryFields = $this->getColumnDeclarationListSQL($columns);
@@ -372,7 +371,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)
+    protected function getVarcharTypeDeclarationSQLSnippet(int $length, bool $fixed) : string
     {
         return $fixed
             ? ($length ? 'CHAR(' . $length . ')' : 'CHAR(255)')
@@ -382,7 +381,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    protected function getBinaryTypeDeclarationSQLSnippet($length, $fixed)
+    protected function getBinaryTypeDeclarationSQLSnippet(int $length, bool $fixed) : string
     {
         return 'BLOB';
     }
@@ -390,7 +389,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    public function getBinaryMaxLength()
+    public function getBinaryMaxLength() : int
     {
         return 0;
     }
@@ -398,7 +397,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    public function getBinaryDefaultLength()
+    public function getBinaryDefaultLength() : int
     {
         return 0;
     }
@@ -406,7 +405,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getClobTypeDeclarationSQL(array $field)
+    public function getClobTypeDeclarationSQL(array $field) : string
     {
         return 'CLOB';
     }
@@ -414,7 +413,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getListTableConstraintsSQL($table)
+    public function getListTableConstraintsSQL(string $table) : string
     {
         $table = str_replace('.', '__', $table);
 
@@ -427,7 +426,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getListTableColumnsSQL($table, $currentDatabase = null)
+    public function getListTableColumnsSQL(string $table, ?string $database = null) : string
     {
         $table = str_replace('.', '__', $table);
 
@@ -437,7 +436,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getListTableIndexesSQL($table, $currentDatabase = null)
+    public function getListTableIndexesSQL(string $table, ?string $currentDatabase = null) : string
     {
         $table = str_replace('.', '__', $table);
 
@@ -447,7 +446,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getListTablesSQL()
+    public function getListTablesSQL() : string
     {
         return "SELECT name FROM sqlite_master WHERE type = 'table' AND name != 'sqlite_sequence' AND name != 'geometry_columns' AND name != 'spatial_ref_sys' "
              . 'UNION ALL SELECT name FROM sqlite_temp_master '
@@ -457,7 +456,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getListViewsSQL($database)
+    public function getListViewsSQL(string $database) : string
     {
         return "SELECT name, sql FROM sqlite_master WHERE type='view' AND sql NOT NULL";
     }
@@ -465,7 +464,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getCreateViewSQL($name, $sql)
+    public function getCreateViewSQL(string $name, string $sql) : string
     {
         return 'CREATE VIEW ' . $name . ' AS ' . $sql;
     }
@@ -473,7 +472,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getDropViewSQL($name)
+    public function getDropViewSQL(string $name) : string
     {
         return 'DROP VIEW ' . $name;
     }
@@ -481,7 +480,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey)
+    public function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey) : string
     {
         $query = parent::getAdvancedForeignKeyOptionsSQL($foreignKey);
 
@@ -494,7 +493,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function supportsIdentityColumns()
+    public function supportsIdentityColumns() : bool
     {
         return true;
     }
@@ -502,7 +501,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function supportsColumnCollation()
+    public function supportsColumnCollation() : bool
     {
         return true;
     }
@@ -510,7 +509,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function supportsInlineColumnComments()
+    public function supportsInlineColumnComments() : bool
     {
         return true;
     }
@@ -518,7 +517,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getName()
+    public function getName() : string
     {
         return 'sqlite';
     }
@@ -526,7 +525,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getTruncateTableSQL($tableName, $cascade = false)
+    public function getTruncateTableSQL(string $tableName, bool $cascade = false) : string
     {
         $tableIdentifier = new Identifier($tableName);
         $tableName       = str_replace('.', '__', $tableIdentifier->getQuotedName($this));
@@ -538,35 +537,21 @@ class SqlitePlatform extends AbstractPlatform
      * User-defined function for Sqlite that is used with PDO::sqliteCreateFunction().
      *
      * @param int|float $value
-     *
-     * @return float
      */
-    public static function udfSqrt($value)
+    public static function udfSqrt($value) : float
     {
         return sqrt($value);
     }
 
     /**
      * User-defined function for Sqlite that implements MOD(a, b).
-     *
-     * @param int $a
-     * @param int $b
-     *
-     * @return int
      */
-    public static function udfMod($a, $b)
+    public static function udfMod(int $a, int $b) : int
     {
         return $a % $b;
     }
 
-    /**
-     * @param string $str
-     * @param string $substr
-     * @param int    $offset
-     *
-     * @return int
-     */
-    public static function udfLocate($str, $substr, $offset = 0)
+    public static function udfLocate(string $str, string $substr, int $offset = 0) : int
     {
         // SQL's LOCATE function works on 1-based positions, while PHP's strpos works on 0-based positions.
         // So we have to make them compatible if an offset is given.
@@ -586,7 +571,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getForUpdateSql()
+    public function getForUpdateSql() : string
     {
         return '';
     }
@@ -594,15 +579,19 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getInlineColumnCommentSQL($comment)
+    public function getInlineColumnCommentSQL(?string $comment) : string
     {
+        if ($comment === null || $comment === '') {
+            return '';
+        }
+
         return '--' . str_replace("\n", "\n--", $comment) . "\n";
     }
 
     /**
      * {@inheritDoc}
      */
-    protected function initializeDoctrineTypeMappings()
+    protected function initializeDoctrineTypeMappings() : void
     {
         $this->doctrineTypeMapping = [
             'bigint'           => 'bigint',
@@ -644,7 +633,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function getReservedKeywordsClass()
+    protected function getReservedKeywordsClass() : string
     {
         return Keywords\SQLiteKeywords::class;
     }
@@ -652,7 +641,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function getPreAlterTableIndexForeignKeySQL(TableDiff $diff)
+    protected function getPreAlterTableIndexForeignKeySQL(TableDiff $diff) : array
     {
         if (! $diff->fromTable instanceof Table) {
             throw new DBALException('Sqlite platform requires for alter table the table diff with reference to original table schema.');
@@ -673,7 +662,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function getPostAlterTableIndexForeignKeySQL(TableDiff $diff)
+    protected function getPostAlterTableIndexForeignKeySQL(TableDiff $diff) : array
     {
         if (! $diff->fromTable instanceof Table) {
             throw new DBALException('Sqlite platform requires for alter table the table diff with reference to original table schema.');
@@ -712,7 +701,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getBlobTypeDeclarationSQL(array $field)
+    public function getBlobTypeDeclarationSQL(array $field) : string
     {
         return 'BLOB';
     }
@@ -720,7 +709,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getTemporaryTableName($tableName)
+    public function getTemporaryTableName(string $tableName) : string
     {
         $tableName = str_replace('.', '__', $tableName);
 
@@ -736,7 +725,7 @@ class SqlitePlatform extends AbstractPlatform
      * This hack is implemented to be able to use SQLite as testdriver when
      * using schema supporting databases.
      */
-    public function canEmulateSchemas()
+    public function canEmulateSchemas() : bool
     {
         return true;
     }
@@ -744,7 +733,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function supportsForeignKeyConstraints()
+    public function supportsForeignKeyConstraints() : bool
     {
         return false;
     }
@@ -752,7 +741,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getCreatePrimaryKeySQL(Index $index, $table)
+    public function getCreatePrimaryKeySQL(Index $index, $table) : string
     {
         throw new DBALException('Sqlite platform does not support alter primary key.');
     }
@@ -760,7 +749,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    public function getCreateForeignKeySQL(ForeignKeyConstraint $foreignKey, $table)
+    public function getCreateForeignKeySQL(ForeignKeyConstraint $foreignKey, $table) : string
     {
         throw new DBALException('Sqlite platform does not support alter foreign key.');
     }
@@ -768,7 +757,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    public function getDropForeignKeySQL($foreignKey, $table)
+    public function getDropForeignKeySQL($foreignKey, $table) : string
     {
         throw new DBALException('Sqlite platform does not support alter foreign key.');
     }
@@ -776,7 +765,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getCreateConstraintSQL(Constraint $constraint, $table)
+    public function getCreateConstraintSQL(Constraint $constraint, $table) : string
     {
         throw new DBALException('Sqlite platform does not support alter constraint.');
     }
@@ -784,17 +773,15 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getCreateTableSQL(Table $table, $createFlags = null)
+    public function getCreateTableSQL(Table $table, int $createFlags = self::CREATE_INDEXES | self::CREATE_FOREIGNKEYS) : array
     {
-        $createFlags = $createFlags ?? self::CREATE_INDEXES | self::CREATE_FOREIGNKEYS;
-
         return parent::getCreateTableSQL($table, $createFlags);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getListTableForeignKeysSQL($table, $database = null)
+    public function getListTableForeignKeysSQL(string $table, ?string $database = null) : string
     {
         $table = str_replace('.', '__', $table);
 
@@ -804,7 +791,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getAlterTableSQL(TableDiff $diff)
+    public function getAlterTableSQL(TableDiff $diff) : array
     {
         $sql = $this->getSimpleAlterTableSQL($diff);
         if ($sql !== false) {
@@ -1005,7 +992,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * @return string[]
      */
-    private function getColumnNamesInAlteredTable(TableDiff $diff)
+    private function getColumnNamesInAlteredTable(TableDiff $diff) : array
     {
         $columns = [];
 
@@ -1045,7 +1032,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * @return Index[]
      */
-    private function getIndexesInAlteredTable(TableDiff $diff)
+    private function getIndexesInAlteredTable(TableDiff $diff) : array
     {
         $indexes     = $diff->fromTable->getIndexes();
         $columnNames = $this->getColumnNamesInAlteredTable($diff);
@@ -1084,18 +1071,20 @@ class SqlitePlatform extends AbstractPlatform
         }
 
         foreach ($diff->removedIndexes as $index) {
-            $indexName = strtolower($index->getName());
-            if (! strlen($indexName) || ! isset($indexes[$indexName])) {
+            $indexName = $index->getName();
+
+            if ($indexName === '') {
                 continue;
             }
 
-            unset($indexes[$indexName]);
+            unset($indexes[strtolower($indexName)]);
         }
 
         foreach (array_merge($diff->changedIndexes, $diff->addedIndexes, $diff->renamedIndexes) as $index) {
-            $indexName = strtolower($index->getName());
-            if (strlen($indexName)) {
-                $indexes[$indexName] = $index;
+            $indexName = $index->getName();
+
+            if ($indexName !== '') {
+                $indexes[strtolower($indexName)] = $index;
             } else {
                 $indexes[] = $index;
             }
@@ -1107,7 +1096,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * @return ForeignKeyConstraint[]
      */
-    private function getForeignKeysInAlteredTable(TableDiff $diff)
+    private function getForeignKeysInAlteredTable(TableDiff $diff) : array
     {
         $foreignKeys = $diff->fromTable->getForeignKeys();
         $columnNames = $this->getColumnNamesInAlteredTable($diff);
@@ -1142,18 +1131,20 @@ class SqlitePlatform extends AbstractPlatform
                 $constraint = new Identifier($constraint);
             }
 
-            $constraintName = strtolower($constraint->getName());
-            if (! strlen($constraintName) || ! isset($foreignKeys[$constraintName])) {
+            $constraintName = $constraint->getName();
+
+            if ($constraintName === '') {
                 continue;
             }
 
-            unset($foreignKeys[$constraintName]);
+            unset($foreignKeys[strtolower($constraintName)]);
         }
 
         foreach (array_merge($diff->changedForeignKeys, $diff->addedForeignKeys) as $constraint) {
-            $constraintName = strtolower($constraint->getName());
-            if (strlen($constraintName)) {
-                $foreignKeys[$constraintName] = $constraint;
+            $constraintName = $constraint->getName();
+
+            if ($constraintName !== '') {
+                $foreignKeys[strtolower($constraintName)] = $constraint;
             } else {
                 $foreignKeys[] = $constraint;
             }
@@ -1165,7 +1156,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * @return Index[]
      */
-    private function getPrimaryIndexInAlteredTable(TableDiff $diff)
+    private function getPrimaryIndexInAlteredTable(TableDiff $diff) : array
     {
         $primaryIndex = [];
 
