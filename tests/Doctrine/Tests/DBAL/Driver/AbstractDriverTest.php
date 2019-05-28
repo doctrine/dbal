@@ -28,7 +28,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
 use Doctrine\Tests\DbalTestCase;
-use Exception;
+use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionProperty;
 use function array_merge;
 use function get_class;
@@ -77,40 +77,14 @@ abstract class AbstractDriverTest extends DbalTestCase
             $this->markTestSkipped('This test is only intended for exception converter drivers.');
         }
 
-        $driverException = new class ($errorCode, $sqlState, $message)
-            extends Exception
-            implements DriverExceptionInterface
-        {
-            /** @var mixed */
-            private $errorCode;
-
-            /** @var mixed */
-            private $sqlState;
-
-            public function __construct($errorCode, $sqlState, $message)
-            {
-                parent::__construct($message);
-
-                $this->errorCode = $errorCode;
-                $this->sqlState  = $sqlState;
-            }
-
-            /**
-             * {@inheritDoc}
-             */
-            public function getErrorCode()
-            {
-                return $this->errorCode;
-            }
-
-            /**
-             * {@inheritDoc}
-             */
-            public function getSQLState()
-            {
-                return $this->sqlState;
-            }
-        };
+        /** @var DriverExceptionInterface|MockObject $driverException */
+        $driverException = $this->getMockBuilder(DriverExceptionInterface::class)
+            ->setConstructorArgs([$message])
+            ->getMock();
+        $driverException->method('getErrorCode')
+            ->willReturn($errorCode);
+        $driverException->method('getSQLState')
+            ->willReturn($sqlState);
 
         $dbalMessage   = 'DBAL exception message';
         $dbalException = $this->driver->convertException($dbalMessage, $driverException);
