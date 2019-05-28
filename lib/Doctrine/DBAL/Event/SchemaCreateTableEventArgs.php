@@ -89,7 +89,7 @@ class SchemaCreateTableEventArgs extends SchemaEventArgs
     }
 
     /**
-     * @return string[]
+     * @return array<int, string>
      */
     public function getSql()
     {

@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
 use DateTime;
+use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Exception\DatabaseRequired;
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Schema\Comparator;
@@ -13,6 +15,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use Doctrine\Tests\TestUtil;
 use Doctrine\Tests\Types\MySqlPointType;
 
 class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
@@ -72,7 +75,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $comparator = new Comparator();
         $diff       = $comparator->diffTable($tableFetched, $table);
 
-        self::assertFalse($diff, 'no changes expected.');
+        self::assertNull($diff, 'no changes expected.');
     }
 
     public function testFulltextIndex() : void
@@ -363,7 +366,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $comparator = new Comparator();
 
-        self::assertFalse(
+        self::assertNull(
             $comparator->diffTable($offlineTable, $onlineTable),
             'No differences should be detected with the offline vs online schema.'
         );
@@ -442,7 +445,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $comparator = new Comparator();
 
         $diff = $comparator->diffTable($table, $onlineTable);
-        self::assertFalse($diff, 'Tables should be identical with column defaults.');
+        self::assertNull($diff, 'Tables should be identical with column defaults.');
     }
 
     public function testColumnDefaultsAreValid() : void
@@ -517,7 +520,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $comparator = new Comparator();
 
         $diff = $comparator->diffTable($table, $onlineTable);
-        self::assertFalse($diff, 'Tables should be identical with column defauts time and date.');
+        self::assertNull($diff, 'Tables should be identical with column defauts time and date.');
     }
 
     public function testEnsureTableOptionsAreReflectedInMetadata() : void
@@ -568,5 +571,19 @@ SQL;
         $table = $this->schemaManager->listTableDetails('sys.processlist');
 
         self::assertEquals([], $table->getOption('create_options'));
+    }
+
+    public function testListTableColumnsThrowsDatabaseRequired() : void
+    {
+        $params = TestUtil::getConnectionParams();
+        unset($params['dbname']);
+
+        $connection    = DriverManager::getConnection($params);
+        $schemaManager = $connection->getSchemaManager();
+
+        self::expectException(DatabaseRequired::class);
+        self::expectExceptionMessage('A database is required for the method: Doctrine\DBAL\Schema\AbstractSchemaManager::listTableColumns');
+
+        $schemaManager->listTableColumns('users');
     }
 }

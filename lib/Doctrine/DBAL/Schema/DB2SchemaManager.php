@@ -43,7 +43,7 @@ class DB2SchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableColumnDefinition($tableColumn)
+    protected function _getPortableTableColumnDefinition(array $tableColumn) : Column
     {
         $tableColumn = array_change_key_case($tableColumn, CASE_LOWER);
 
@@ -105,7 +105,7 @@ class DB2SchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTablesList($tables)
+    protected function _getPortableTablesList(array $tables) : array
     {
         $tableNames = [];
         foreach ($tables as $tableRow) {
@@ -132,7 +132,7 @@ class DB2SchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableForeignKeyDefinition($tableForeignKey)
+    protected function _getPortableTableForeignKeyDefinition(array $tableForeignKey) : ForeignKeyConstraint
     {
         return new ForeignKeyConstraint(
             $tableForeignKey['local_columns'],
@@ -146,7 +146,7 @@ class DB2SchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableForeignKeysList($tableForeignKeys)
+    protected function _getPortableTableForeignKeysList(array $tableForeignKeys) : array
     {
         $foreignKeys = [];
 
@@ -176,7 +176,7 @@ class DB2SchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableViewDefinition($view)
+    protected function _getPortableViewDefinition(array $view) : View
     {
         $view = array_change_key_case($view, CASE_LOWER);
         // sadly this still segfaults on PDO_IBM, see http://pecl.php.net/bugs/bug.php?id=17199
@@ -191,7 +191,7 @@ class DB2SchemaManager extends AbstractSchemaManager
         return new View($view['name'], $sql);
     }
 
-    public function listTableDetails($tableName) : Table
+    public function listTableDetails(string $tableName) : Table
     {
         $table = parent::listTableDetails($tableName);
 

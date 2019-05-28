@@ -48,7 +48,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableViewDefinition($view)
+    protected function _getPortableViewDefinition(array $view) : View
     {
         return new View($view['TABLE_NAME'], $view['VIEW_DEFINITION']);
     }
@@ -56,7 +56,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableDefinition($table)
+    protected function _getPortableTableDefinition(array $table) : string
     {
         return array_shift($table);
     }
@@ -64,7 +64,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableUserDefinition($user)
+    protected function _getPortableUserDefinition(array $user) : array
     {
         return [
             'user' => $user['User'],
@@ -100,7 +100,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableDatabaseDefinition($database)
+    protected function _getPortableDatabaseDefinition(array $database) : string
     {
         return $database['Database'];
     }
@@ -108,7 +108,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableColumnDefinition($tableColumn)
+    protected function _getPortableTableColumnDefinition(array $tableColumn) : Column
     {
         $tableColumn = array_change_key_case($tableColumn, CASE_LOWER);
 
@@ -248,7 +248,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableForeignKeysList($tableForeignKeys)
+    protected function _getPortableTableForeignKeysList(array $tableForeignKeys) : array
     {
         $list = [];
         foreach ($tableForeignKeys as $value) {
@@ -291,7 +291,10 @@ class MySqlSchemaManager extends AbstractSchemaManager
         return $result;
     }
 
-    public function listTableDetails($tableName)
+    /**
+     * {@inheritdoc}
+     */
+    public function listTableDetails(string $tableName) : Table
     {
         $table = parent::listTableDetails($tableName);
 
@@ -322,7 +325,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * @return string[]|true[]
+     * @return array<string, string>|array<string, true>
      */
     private function parseCreateOptions(?string $string) : array
     {

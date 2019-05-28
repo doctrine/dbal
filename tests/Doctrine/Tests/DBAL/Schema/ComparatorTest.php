@@ -484,13 +484,11 @@ class ComparatorTest extends TestCase
         $seq1 = new Sequence('foo', 1, 1);
         $seq2 = new Sequence('foo', 1, 2);
         $seq3 = new Sequence('foo', 2, 1);
-        $seq4 = new Sequence('foo', '1', '1');
 
         $c = new Comparator();
 
         self::assertTrue($c->diffSequence($seq1, $seq2));
         self::assertTrue($c->diffSequence($seq1, $seq3));
-        self::assertFalse($c->diffSequence($seq1, $seq4));
     }
 
     public function testRemovedSequence() : void
@@ -653,7 +651,7 @@ class ComparatorTest extends TestCase
         $c         = new Comparator();
         $tableDiff = $c->diffTable($tableA, $tableB);
 
-        self::assertFalse($tableDiff);
+        self::assertNull($tableDiff);
     }
 
     public function testCompareIndexBasedOnPropertiesNotName() : void
@@ -690,7 +688,7 @@ class ComparatorTest extends TestCase
         $c         = new Comparator();
         $tableDiff = $c->diffTable($tableA, $tableB);
 
-        self::assertFalse($tableDiff);
+        self::assertNull($tableDiff);
     }
 
     public function testCompareForeignKeyRestrictNoActionAreTheSame() : void
