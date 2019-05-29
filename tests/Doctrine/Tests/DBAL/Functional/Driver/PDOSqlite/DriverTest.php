@@ -41,4 +41,9 @@ class DriverTest extends AbstractDriverTest
     {
         return new Driver();
     }
+
+    protected static function getDatabaseNameForConnectionWithoutDatabaseNameParameter() : ?string
+    {
+        return '';
+    }
 }

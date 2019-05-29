@@ -671,7 +671,7 @@ class SqlitePlatform extends AbstractPlatform
         $sql       = [];
         $tableName = $diff->getNewName();
 
-        if ($tableName === false) {
+        if ($tableName === null) {
             $tableName = $diff->getName($this);
         }
 
@@ -898,7 +898,7 @@ class SqlitePlatform extends AbstractPlatform
 
             $newName = $diff->getNewName();
 
-            if ($newName !== false) {
+            if ($newName !== null) {
                 $sql[] = sprintf(
                     'ALTER TABLE %s RENAME TO %s',
                     $newTable->getQuotedName($this),
@@ -980,7 +980,7 @@ class SqlitePlatform extends AbstractPlatform
         }
 
         if (! $this->onSchemaAlterTable($diff, $tableSql)) {
-            if ($diff->newName !== false) {
+            if ($diff->newName !== null) {
                 $newTable = new Identifier($diff->newName);
                 $sql[]    = 'ALTER TABLE ' . $table->getQuotedName($this) . ' RENAME TO ' . $newTable->getQuotedName($this);
             }
