@@ -29,7 +29,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    public function dropDatabase($database)
+    public function dropDatabase(string $database) : void
     {
         try {
             parent::dropDatabase($database);
@@ -58,7 +58,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableViewDefinition($view)
+    protected function _getPortableViewDefinition(array $view) : View
     {
         $view = array_change_key_case($view, CASE_LOWER);
 
@@ -68,7 +68,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableUserDefinition($user)
+    protected function _getPortableUserDefinition(array $user) : array
     {
         $user = array_change_key_case($user, CASE_LOWER);
 
@@ -80,7 +80,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableDefinition($table)
+    protected function _getPortableTableDefinition(array $table) : string
     {
         $table = array_change_key_case($table, CASE_LOWER);
 
@@ -120,7 +120,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableColumnDefinition($tableColumn)
+    protected function _getPortableTableColumnDefinition(array $tableColumn) : Column
     {
         $tableColumn = array_change_key_case($tableColumn, CASE_LOWER);
 
@@ -211,7 +211,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableForeignKeysList($tableForeignKeys)
+    protected function _getPortableTableForeignKeysList(array $tableForeignKeys) : array
     {
         $list = [];
         foreach ($tableForeignKeys as $value) {
@@ -254,7 +254,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableSequenceDefinition($sequence)
+    protected function _getPortableSequenceDefinition(array $sequence) : Sequence
     {
         $sequence = array_change_key_case($sequence, CASE_LOWER);
 
@@ -268,17 +268,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableFunctionDefinition($function)
-    {
-        $function = array_change_key_case($function, CASE_LOWER);
-
-        return $function['name'];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function _getPortableDatabaseDefinition($database)
+    protected function _getPortableDatabaseDefinition(array $database) : string
     {
         $database = array_change_key_case($database, CASE_LOWER);
 
@@ -288,12 +278,8 @@ class OracleSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    public function createDatabase($database = null)
+    public function createDatabase(string $database) : void
     {
-        if ($database === null) {
-            $database = $this->_conn->getDatabase();
-        }
-
         $params   = $this->_conn->getParams();
         $username = $database;
         $password = $params['password'];
@@ -305,12 +291,7 @@ class OracleSchemaManager extends AbstractSchemaManager
         $this->_conn->executeUpdate($query);
     }
 
-    /**
-     * @param string $table
-     *
-     * @return bool
-     */
-    public function dropAutoincrement($table)
+    public function dropAutoincrement(string $table) : bool
     {
         assert($this->_platform instanceof OraclePlatform);
 
@@ -325,7 +306,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    public function dropTable($name)
+    public function dropTable(string $name) : void
     {
         $this->tryMethod('dropAutoincrement', $name);
 
@@ -337,12 +318,8 @@ class OracleSchemaManager extends AbstractSchemaManager
      *
      * Quotes non-uppercase identifiers explicitly to preserve case
      * and thus make references to the particular identifier work.
-     *
-     * @param string $identifier The identifier to quote.
-     *
-     * @return string The quoted identifier.
      */
-    private function getQuotedIdentifierName($identifier)
+    private function getQuotedIdentifierName(string $identifier) : string
     {
         if (preg_match('/[a-z]/', $identifier)) {
             return $this->_platform->quoteIdentifier($identifier);
@@ -357,10 +334,8 @@ class OracleSchemaManager extends AbstractSchemaManager
      * This is useful to force DROP USER operations which could fail because of active user sessions.
      *
      * @param string $user The name of the user to kill sessions for.
-     *
-     * @return void
      */
-    private function killUserSessions($user)
+    private function killUserSessions(string $user) : void
     {
         $sql = <<<SQL
 SELECT

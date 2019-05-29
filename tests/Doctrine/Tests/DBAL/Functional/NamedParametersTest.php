@@ -153,7 +153,7 @@ class NamedParametersTest extends DbalFunctionalTestCase
     {
         parent::setUp();
 
-        if ($this->connection->getSchemaManager()->tablesExist('ddc1372_foobar')) {
+        if ($this->connection->getSchemaManager()->tableExists('ddc1372_foobar')) {
             return;
         }
 

@@ -37,6 +37,6 @@ class DBAL510Test extends DbalFunctionalTestCase
         $comparator = new Comparator();
         $diff       = $comparator->diffTable($onlineTable, $table);
 
-        self::assertFalse($diff);
+        self::assertNull($diff);
     }
 }

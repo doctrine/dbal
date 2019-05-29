@@ -27,7 +27,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    public function dropDatabase($database)
+    public function dropDatabase(string $database) : void
     {
         try {
             parent::dropDatabase($database);
@@ -56,7 +56,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableSequenceDefinition($sequence)
+    protected function _getPortableSequenceDefinition(array $sequence) : Sequence
     {
         return new Sequence($sequence['name'], (int) $sequence['increment'], (int) $sequence['start_value']);
     }
@@ -64,7 +64,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableColumnDefinition($tableColumn)
+    protected function _getPortableTableColumnDefinition(array $tableColumn) : Column
     {
         $dbType = strtok($tableColumn['type'], '(), ');
         assert(is_string($dbType));
@@ -158,7 +158,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableForeignKeysList($tableForeignKeys)
+    protected function _getPortableTableForeignKeysList(array $tableForeignKeys) : array
     {
         $foreignKeys = [];
 
@@ -200,7 +200,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableForeignKeyDefinition($tableForeignKey)
+    protected function _getPortableTableForeignKeyDefinition(array $tableForeignKey) : ForeignKeyConstraint
     {
         return new ForeignKeyConstraint(
             $tableForeignKey['local_columns'],
@@ -214,7 +214,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableDefinition($table)
+    protected function _getPortableTableDefinition(array $table) : string
     {
         if (isset($table['schema_name']) && $table['schema_name'] !== 'dbo') {
             return $table['schema_name'] . '.' . $table['name'];
@@ -226,7 +226,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableDatabaseDefinition($database)
+    protected function _getPortableDatabaseDefinition(array $database) : string
     {
         return $database['name'];
     }
@@ -234,7 +234,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function getPortableNamespaceDefinition(array $namespace)
+    protected function getPortableNamespaceDefinition(array $namespace) : string
     {
         return $namespace['name'];
     }
@@ -242,7 +242,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableViewDefinition($view)
+    protected function _getPortableViewDefinition(array $view) : View
     {
         // @todo
         return new View($view['name'], '');
@@ -251,7 +251,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    public function listTableIndexes($table)
+    public function listTableIndexes(string $table) : array
     {
         $sql = $this->_platform->getListTableIndexesSQL($table, $this->_conn->getDatabase());
 
@@ -277,7 +277,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    public function alterTable(TableDiff $tableDiff)
+    public function alterTable(TableDiff $tableDiff) : void
     {
         if (count($tableDiff->removedColumns) > 0) {
             foreach ($tableDiff->removedColumns as $col) {
@@ -299,13 +299,8 @@ class SQLServerSchemaManager extends AbstractSchemaManager
 
     /**
      * Returns the SQL to retrieve the constraints for a given column.
-     *
-     * @param string $table
-     * @param string $column
-     *
-     * @return string
      */
-    private function getColumnConstraintSQL($table, $column)
+    private function getColumnConstraintSQL(string $table, string $column) : string
     {
         return "SELECT SysObjects.[Name]
             FROM SysObjects INNER JOIN (SELECT [Name],[ID] FROM SysObjects WHERE XType = 'U') AS Tab
@@ -320,12 +315,8 @@ class SQLServerSchemaManager extends AbstractSchemaManager
      * Closes currently active connections on the given database.
      *
      * This is useful to force DROP DATABASE operations which could fail because of active connections.
-     *
-     * @param string $database The name of the database to close currently active connections for.
-     *
-     * @return void
      */
-    private function closeActiveDatabaseConnections($database)
+    private function closeActiveDatabaseConnections(string $database) : void
     {
         $database = new Identifier($database);
 

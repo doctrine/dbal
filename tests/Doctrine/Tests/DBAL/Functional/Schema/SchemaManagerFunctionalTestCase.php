@@ -431,7 +431,7 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         $comparator = new Comparator();
         $diff       = $comparator->diffTable($offlineTable, $onlineTable);
 
-        self::assertFalse($diff, 'No differences should be detected with the offline vs online schema.');
+        self::assertNull($diff, 'No differences should be detected with the offline vs online schema.');
     }
 
     public function testListTableIndexes()
@@ -1308,7 +1308,7 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         $comparator = new Comparator();
         $tableDiff  = $comparator->diffTable($this->schemaManager->listTableDetails('json_test'), $table);
 
-        self::assertFalse($tableDiff);
+        self::assertNull($tableDiff);
     }
 
     /**

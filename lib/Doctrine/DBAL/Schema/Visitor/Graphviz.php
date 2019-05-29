@@ -23,7 +23,7 @@ class Graphviz extends AbstractVisitor
     /**
      * {@inheritdoc}
      */
-    public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint)
+    public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint) : void
     {
         $this->output .= $this->createNodeRelation(
             $fkConstraint->getLocalTableName() . ':col' . current($fkConstraint->getLocalColumns()) . ':se',
@@ -39,7 +39,7 @@ class Graphviz extends AbstractVisitor
     /**
      * {@inheritdoc}
      */
-    public function acceptSchema(Schema $schema)
+    public function acceptSchema(Schema $schema) : void
     {
         $this->output  = 'digraph "' . $schema->getName() . '" {' . "\n";
         $this->output .= 'splines = true;' . "\n";
@@ -52,7 +52,7 @@ class Graphviz extends AbstractVisitor
     /**
      * {@inheritdoc}
      */
-    public function acceptTable(Table $table)
+    public function acceptTable(Table $table) : void
     {
         $this->output .= $this->createNode(
             $table->getName(),
@@ -63,10 +63,7 @@ class Graphviz extends AbstractVisitor
         );
     }
 
-    /**
-     * @return string
-     */
-    private function createTableLabel(Table $table)
+    private function createTableLabel(Table $table) : string
     {
         // Start the table
         $label = '<<TABLE CELLSPACING="0" BORDER="1" ALIGN="LEFT">';
@@ -99,12 +96,9 @@ class Graphviz extends AbstractVisitor
     }
 
     /**
-     * @param string   $name
-     * @param string[] $options
-     *
-     * @return string
+     * @param array<string, string> $options
      */
-    private function createNode($name, $options)
+    private function createNode(string $name, array $options) : string
     {
         $node = $name . ' [';
         foreach ($options as $key => $value) {
@@ -116,13 +110,9 @@ class Graphviz extends AbstractVisitor
     }
 
     /**
-     * @param string   $node1
-     * @param string   $node2
-     * @param string[] $options
-     *
-     * @return string
+     * @param array<string, string> $options
      */
-    private function createNodeRelation($node1, $node2, $options)
+    private function createNodeRelation(string $node1, string $node2, array $options) : string
     {
         $relation = $node1 . ' -> ' . $node2 . ' [';
         foreach ($options as $key => $value) {
@@ -135,10 +125,8 @@ class Graphviz extends AbstractVisitor
 
     /**
      * Get Graphviz Output
-     *
-     * @return string
      */
-    public function getOutput()
+    public function getOutput() : string
     {
         return $this->output . '}';
     }
@@ -150,12 +138,8 @@ class Graphviz extends AbstractVisitor
      * and execute:
      *
      *  neato -Tpng -o er.png er.dot
-     *
-     * @param string $filename
-     *
-     * @return void
      */
-    public function write($filename)
+    public function write(string $filename) : void
     {
         file_put_contents($filename, $this->getOutput());
     }

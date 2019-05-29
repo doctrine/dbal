@@ -190,7 +190,7 @@ class SQLAnywherePlatform extends AbstractPlatform
 
             $newName = $diff->getNewName();
 
-            if ($newName !== false) {
+            if ($newName !== null) {
                 $sql[] = $this->getAlterTableClause($diff->getName($this)) . ' ' .
                     $this->getAlterTableRenameTableClause($newName);
             }
