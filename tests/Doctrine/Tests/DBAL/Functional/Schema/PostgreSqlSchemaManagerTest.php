@@ -300,7 +300,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $c    = new Comparator();
         $diff = $c->diffTable($table, $databaseTable);
 
-        self::assertFalse($diff);
+        self::assertNull($diff);
     }
 
     public function testListTableWithBinary() : void
@@ -339,7 +339,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $comparator = new Schema\Comparator();
 
-        self::assertFalse($comparator->diffTable($offlineTable, $onlineTable));
+        self::assertNull($comparator->diffTable($offlineTable, $onlineTable));
     }
 
     public function testListTablesExcludesViews() : void
@@ -385,7 +385,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $comparator = new Schema\Comparator();
 
-        self::assertFalse($comparator->diffTable($offlineTable, $onlineTable));
+        self::assertNull($comparator->diffTable($offlineTable, $onlineTable));
         self::assertTrue($onlineTable->hasIndex('simple_partial_index'));
         self::assertTrue($onlineTable->getIndex('simple_partial_index')->hasOption('where'));
         self::assertSame('(id IS NULL)', $onlineTable->getIndex('simple_partial_index')->getOption('where'));

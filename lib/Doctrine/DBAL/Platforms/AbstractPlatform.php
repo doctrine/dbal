@@ -1274,7 +1274,7 @@ abstract class AbstractPlatform
      * Returns the SQL statement(s) to create a table with the specified name, columns and constraints
      * on this platform.
      *
-     * @return string[] The sequence of SQL statements.
+     * @return array<int, string> The sequence of SQL statements.
      *
      * @throws DBALException
      */
@@ -1420,7 +1420,7 @@ abstract class AbstractPlatform
      * @param mixed[][] $columns
      * @param mixed[]   $options
      *
-     * @return string[]
+     * @return array<int, string>
      */
     protected function _getCreateTableSQL(string $tableName, array $columns, array $options = []) : array
     {
@@ -1450,7 +1450,7 @@ abstract class AbstractPlatform
         }
         $query .= ')';
 
-        $sql[] = $query;
+        $sql = [$query];
 
         if (isset($options['foreignKeys'])) {
             foreach ((array) $options['foreignKeys'] as $definition) {
@@ -1656,7 +1656,7 @@ abstract class AbstractPlatform
      *
      * This method returns an array of SQL statements, since some platforms need several statements.
      *
-     * @return string[]
+     * @return array<int, string>
      *
      * @throws DBALException If not supported on this platform.
      */
@@ -1805,7 +1805,7 @@ abstract class AbstractPlatform
         $sql     = [];
         $newName = $diff->getNewName();
 
-        if ($newName !== false) {
+        if ($newName !== null) {
             $tableName = $newName->getQuotedName($this);
         } else {
             $tableName = $diff->getName($this)->getQuotedName($this);

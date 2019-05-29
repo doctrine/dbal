@@ -25,7 +25,7 @@ class SchemaCreateTableColumnEventArgs extends SchemaEventArgs
     /** @var AbstractPlatform */
     private $platform;
 
-    /** @var string[] */
+    /** @var array<int, string> */
     private $sql = [];
 
     public function __construct(Column $column, Table $table, AbstractPlatform $platform)
@@ -74,7 +74,7 @@ class SchemaCreateTableColumnEventArgs extends SchemaEventArgs
     }
 
     /**
-     * @return string[]
+     * @return array<int, string>
      */
     public function getSql()
     {

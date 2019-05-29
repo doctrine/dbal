@@ -579,7 +579,7 @@ SQL
 
         $newName = $diff->getNewName();
 
-        if ($newName !== false) {
+        if ($newName !== null) {
             $sql[] = "sp_RENAME '" . $diff->getName($this)->getQuotedName($this) . "', '" . $newName->getName() . "'";
 
             /**

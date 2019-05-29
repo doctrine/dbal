@@ -39,7 +39,7 @@ class ComparatorTest extends DbalFunctionalTestCase
 
         $onlineTable = $this->schemaManager->listTableDetails('default_value');
 
-        self::assertFalse($this->comparator->diffTable($table, $onlineTable));
+        self::assertNull($this->comparator->diffTable($table, $onlineTable));
     }
 
     /**
