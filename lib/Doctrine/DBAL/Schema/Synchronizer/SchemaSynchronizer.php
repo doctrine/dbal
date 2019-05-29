@@ -15,60 +15,48 @@ interface SchemaSynchronizer
     /**
      * Gets the SQL statements that can be executed to create the schema.
      *
-     * @return string[]
+     * @return array<int, string>
      */
-    public function getCreateSchema(Schema $createSchema);
+    public function getCreateSchema(Schema $createSchema) : array;
 
     /**
      * Gets the SQL Statements to update given schema with the underlying db.
      *
-     * @param bool $noDrops
-     *
-     * @return string[]
+     * @return array<int, string>
      */
-    public function getUpdateSchema(Schema $toSchema, $noDrops = false);
+    public function getUpdateSchema(Schema $toSchema, bool $noDrops = false) : array;
 
     /**
      * Gets the SQL Statements to drop the given schema from underlying db.
      *
      * @return string[]
      */
-    public function getDropSchema(Schema $dropSchema);
+    public function getDropSchema(Schema $dropSchema) : array;
 
     /**
      * Gets the SQL statements to drop all schema assets from underlying db.
      *
-     * @return string[]
+     * @return array<int, string>
      */
-    public function getDropAllSchema();
+    public function getDropAllSchema() : array;
 
     /**
      * Creates the Schema.
-     *
-     * @return void
      */
-    public function createSchema(Schema $createSchema);
+    public function createSchema(Schema $createSchema) : void;
 
     /**
      * Updates the Schema to new schema version.
-     *
-     * @param bool $noDrops
-     *
-     * @return void
      */
-    public function updateSchema(Schema $toSchema, $noDrops = false);
+    public function updateSchema(Schema $toSchema, bool $noDrops = false) : void;
 
     /**
      * Drops the given database schema from the underlying db.
-     *
-     * @return void
      */
-    public function dropSchema(Schema $dropSchema);
+    public function dropSchema(Schema $dropSchema) : void;
 
     /**
      * Drops all assets from the underlying db.
-     *
-     * @return void
      */
-    public function dropAllSchema();
+    public function dropAllSchema() : void;
 }

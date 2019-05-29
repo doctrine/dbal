@@ -461,7 +461,7 @@ class OraclePlatform extends AbstractPlatform
     }
 
     /**
-     * @return string[]
+     * @return array<int, string>
      */
     public function getCreateAutoincrementSql(string $name, string $table, int $start = 1) : array
     {
@@ -854,7 +854,7 @@ SQL
 
             $newName = $diff->getNewName();
 
-            if ($newName !== false) {
+            if ($newName !== null) {
                 $sql[] = sprintf(
                     'ALTER TABLE %s RENAME TO %s',
                     $diff->getName($this)->getQuotedName($this),
