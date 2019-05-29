@@ -44,7 +44,7 @@ class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
     /**
      * {@inheritdoc}
      */
-    public function getCreateSchema(Schema $createSchema)
+    public function getCreateSchema(Schema $createSchema) : array
     {
         $sql = [];
 
@@ -73,7 +73,7 @@ class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
     /**
      * {@inheritdoc}
      */
-    public function getUpdateSchema(Schema $toSchema, $noDrops = false)
+    public function getUpdateSchema(Schema $toSchema, bool $noDrops = false) : array
     {
         return $this->work($toSchema, static function ($synchronizer, $schema) use ($noDrops) {
             return $synchronizer->getUpdateSchema($schema, $noDrops);
@@ -83,7 +83,7 @@ class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
     /**
      * {@inheritdoc}
      */
-    public function getDropSchema(Schema $dropSchema)
+    public function getDropSchema(Schema $dropSchema) : array
     {
         return $this->work($dropSchema, static function ($synchronizer, $schema) {
             return $synchronizer->getDropSchema($schema);
@@ -93,7 +93,7 @@ class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
     /**
      * {@inheritdoc}
      */
-    public function createSchema(Schema $createSchema)
+    public function createSchema(Schema $createSchema) : void
     {
         $this->processSql($this->getCreateSchema($createSchema));
     }
@@ -101,7 +101,7 @@ class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
     /**
      * {@inheritdoc}
      */
-    public function updateSchema(Schema $toSchema, $noDrops = false)
+    public function updateSchema(Schema $toSchema, bool $noDrops = false) : void
     {
         $this->processSql($this->getUpdateSchema($toSchema, $noDrops));
     }
@@ -109,7 +109,7 @@ class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
     /**
      * {@inheritdoc}
      */
-    public function dropSchema(Schema $dropSchema)
+    public function dropSchema(Schema $dropSchema) : void
     {
         $this->processSqlSafely($this->getDropSchema($dropSchema));
     }
@@ -117,7 +117,7 @@ class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
     /**
      * {@inheritdoc}
      */
-    public function getDropAllSchema()
+    public function getDropAllSchema() : array
     {
         $this->shardManager->selectGlobal();
         $globalSql = $this->synchronizer->getDropAllSchema();
@@ -150,7 +150,7 @@ class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
     /**
      * {@inheritdoc}
      */
-    public function dropAllSchema()
+    public function dropAllSchema() : void
     {
         $this->processSqlSafely($this->getDropAllSchema());
     }

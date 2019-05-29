@@ -6,7 +6,6 @@ namespace Doctrine\DBAL\Event;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Table;
-use function array_merge;
 use function is_array;
 
 /**
@@ -81,7 +80,9 @@ class SchemaCreateTableEventArgs extends SchemaEventArgs
     public function addSql($sql)
     {
         if (is_array($sql)) {
-            $this->sql = array_merge($this->sql, $sql);
+            foreach ($sql as $query) {
+                $this->sql[] = $query;
+            }
         } else {
             $this->sql[] = $sql;
         }
@@ -90,7 +91,7 @@ class SchemaCreateTableEventArgs extends SchemaEventArgs
     }
 
     /**
-     * @return string[]
+     * @return array<int, string>
      */
     public function getSql()
     {

@@ -1,5 +1,17 @@
 # Upgrade to 3.0
 
+## BC BREAK: Changes in the `Doctrine\DBAL\Schema` API
+
+- Method `Doctrine\DBAL\Schema\AbstractSchemaManager::_getPortableViewDefinition()` no longer optionally returns false. It will always return a `Doctrine\DBAL\Schema\View` instance.
+- Method `Doctrine\DBAL\Schema\Comparator::diffTable()` now optionally returns null instead of false.
+- Property `Doctrine\DBAL\Schema\TableDiff::$newName` is now optionally null instead of false.
+- Method `Doctrine\DBAL\Schema\AbstractSchemaManager::tablesExist()` no longer accepts a string. Use `Doctrine\DBAL\Schema\AbstractSchemaManager::tableExists()` instead.
+- Method `Doctrine\DBAL\Schema\OracleSchemaManager::createDatabase()` no longer accepts `null` for `$database` argument.
+- Removed unused method `Doctrine\DBAL\Schema\AbstractSchemaManager::_getPortableFunctionsList()`
+- Removed unused method `Doctrine\DBAL\Schema\AbstractSchemaManager::_getPortableFunctionDefinition()`
+- Removed unused method `Doctrine\DBAL\Schema\OracleSchemaManager::_getPortableFunctionDefinition()`
+- Removed unused method `Doctrine\DBAL\Schema\SqliteSchemaManager::_getPortableTableIndexDefinition()`
+
 ## BC BREAK: Changes in the `Doctrine\DBAL\Driver` API
 
 1. The `$username` and `$password` arguments of `::connect()` are no longer nullable. Use an empty string to indicate empty username or password.
