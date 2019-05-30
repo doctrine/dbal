@@ -29,7 +29,7 @@ class OCI8ConnectionTest extends DbalTestCase
             ->getMockForAbstractClass();
     }
 
-    public function testDoesNotRequireQueryForServerVersion()
+    public function testDoesNotRequireQueryForServerVersion() : void
     {
         self::assertFalse($this->connectionMock->requiresQueryForServerVersion());
     }

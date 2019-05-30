@@ -3,18 +3,21 @@
 namespace Doctrine\Tests\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\AbstractPostgreSQLDriver;
 use Doctrine\DBAL\Driver\ResultStatement;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQL100Platform;
 use Doctrine\DBAL\Platforms\PostgreSQL91Platform;
 use Doctrine\DBAL\Platforms\PostgreSQL92Platform;
 use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
+use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\PostgreSqlSchemaManager;
 
 class AbstractPostgreSQLDriverTest extends AbstractDriverTest
 {
-    public function testReturnsDatabaseName()
+    public function testReturnsDatabaseName() : void
     {
         parent::testReturnsDatabaseName();
 
@@ -43,22 +46,25 @@ class AbstractPostgreSQLDriverTest extends AbstractDriverTest
         self::assertSame($database, $this->driver->getDatabase($connection));
     }
 
-    protected function createDriver()
+    protected function createDriver() : Driver
     {
         return $this->getMockForAbstractClass(AbstractPostgreSQLDriver::class);
     }
 
-    protected function createPlatform()
+    protected function createPlatform() : AbstractPlatform
     {
         return new PostgreSqlPlatform();
     }
 
-    protected function createSchemaManager(Connection $connection)
+    protected function createSchemaManager(Connection $connection) : AbstractSchemaManager
     {
         return new PostgreSqlSchemaManager($connection);
     }
 
-    protected function getDatabasePlatformsForVersions()
+    /**
+     * {@inheritDoc}
+     */
+    protected function getDatabasePlatformsForVersions() : array
     {
         return [
             ['9.0.9', PostgreSqlPlatform::class],

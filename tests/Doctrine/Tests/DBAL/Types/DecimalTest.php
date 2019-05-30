@@ -22,12 +22,12 @@ class DecimalTest extends DbalTestCase
         $this->type     = Type::getType('decimal');
     }
 
-    public function testDecimalConvertsToPHPValue()
+    public function testDecimalConvertsToPHPValue() : void
     {
         self::assertIsString($this->type->convertToPHPValue('5.5', $this->platform));
     }
 
-    public function testDecimalNullConvertsToPHPValue()
+    public function testDecimalNullConvertsToPHPValue() : void
     {
         self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }

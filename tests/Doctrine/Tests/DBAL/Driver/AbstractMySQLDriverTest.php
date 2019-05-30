@@ -3,17 +3,20 @@
 namespace Doctrine\Tests\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\AbstractMySQLDriver;
 use Doctrine\DBAL\Driver\ResultStatement;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
 use Doctrine\DBAL\Platforms\MySQL57Platform;
 use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
+use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\MySqlSchemaManager;
 
 class AbstractMySQLDriverTest extends AbstractDriverTest
 {
-    public function testReturnsDatabaseName()
+    public function testReturnsDatabaseName() : void
     {
         parent::testReturnsDatabaseName();
 
@@ -42,23 +45,23 @@ class AbstractMySQLDriverTest extends AbstractDriverTest
         self::assertSame($database, $this->driver->getDatabase($connection));
     }
 
-    protected function createDriver()
+    protected function createDriver() : Driver
     {
         return $this->getMockForAbstractClass(AbstractMySQLDriver::class);
     }
 
-    protected function createPlatform()
+    protected function createPlatform() : AbstractPlatform
     {
         return new MySqlPlatform();
     }
 
-    protected function createSchemaManager(Connection $connection)
+    protected function createSchemaManager(Connection $connection) : AbstractSchemaManager
     {
         return new MySqlSchemaManager($connection);
     }
 
     /**
-     * @return mixed[][]
+     * {@inheritDoc}
      */
     protected function getDatabasePlatformsForVersions() : array
     {

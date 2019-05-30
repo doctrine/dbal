@@ -31,7 +31,7 @@ class ConnectionTest extends DbalFunctionalTestCase
         parent::tearDown();
     }
 
-    public function testDriverOptions()
+    public function testDriverOptions() : void
     {
         $driverOptions = [MYSQLI_OPT_CONNECT_TIMEOUT => 1];
 
@@ -39,14 +39,14 @@ class ConnectionTest extends DbalFunctionalTestCase
         self::assertInstanceOf(MysqliConnection::class, $connection);
     }
 
-    public function testUnsupportedDriverOption()
+    public function testUnsupportedDriverOption() : void
     {
         $this->expectException(MysqliException::class);
 
         $this->getConnection(['hello' => 'world']); // use local infile
     }
 
-    public function testPing()
+    public function testPing() : void
     {
         $conn = $this->getConnection([]);
         self::assertTrue($conn->ping());
@@ -55,7 +55,7 @@ class ConnectionTest extends DbalFunctionalTestCase
     /**
      * @param mixed[] $driverOptions
      */
-    private function getConnection(array $driverOptions)
+    private function getConnection(array $driverOptions) : MysqliConnection
     {
         return new MysqliConnection(
             [

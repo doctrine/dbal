@@ -29,12 +29,12 @@ class BlobTest extends DbalTestCase
         $this->type     = Type::getType('blob');
     }
 
-    public function testBlobNullConvertsToPHPValue()
+    public function testBlobNullConvertsToPHPValue() : void
     {
         self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }
 
-    public function testBinaryStringConvertsToPHPValue()
+    public function testBinaryStringConvertsToPHPValue() : void
     {
         $databaseValue = $this->getBinaryString();
         $phpValue      = $this->type->convertToPHPValue($databaseValue, $this->platform);
@@ -43,7 +43,7 @@ class BlobTest extends DbalTestCase
         self::assertSame($databaseValue, stream_get_contents($phpValue));
     }
 
-    public function testBinaryResourceConvertsToPHPValue()
+    public function testBinaryResourceConvertsToPHPValue() : void
     {
         $databaseValue = fopen('data://text/plain;base64,' . base64_encode($this->getBinaryString()), 'r');
         $phpValue      = $this->type->convertToPHPValue($databaseValue, $this->platform);
@@ -53,10 +53,8 @@ class BlobTest extends DbalTestCase
 
     /**
      * Creates a binary string containing all possible byte values.
-     *
-     * @return string
      */
-    private function getBinaryString()
+    private function getBinaryString() : string
     {
         $string = '';
 

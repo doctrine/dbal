@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 
 class SchemaSqlCollectorTest extends TestCase
 {
-    public function testCreateSchema()
+    public function testCreateSchema() : void
     {
         $platformMock = $this->getMockBuilder(MySqlPlatform::class)
             ->setMethods(['getCreateTableSql', 'getCreateSequenceSql', 'getCreateForeignKeySql'])
@@ -30,7 +30,7 @@ class SchemaSqlCollectorTest extends TestCase
         self::assertEquals(['foo', 'foo', 'bar', 'baz'], $sql);
     }
 
-    public function testDropSchema()
+    public function testDropSchema() : void
     {
         $platformMock = $this->getMockBuilder(MySqlPlatform::class)
             ->setMethods(['getDropTableSql', 'getDropSequenceSql', 'getDropForeignKeySql'])
@@ -52,10 +52,7 @@ class SchemaSqlCollectorTest extends TestCase
         self::assertEquals(['fk', 'seq', 'tbl', 'tbl'], $sql);
     }
 
-    /**
-     * @return Schema
-     */
-    public function createFixtureSchema()
+    public function createFixtureSchema() : Schema
     {
         $schema = new Schema();
         $tableA = $schema->createTable('foo');

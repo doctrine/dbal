@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\DBAL\Functional\Driver\PDOPgSql;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver as DriverInterface;
 use Doctrine\DBAL\Driver\PDOPgSql\Driver;
 use Doctrine\Tests\DBAL\Functional\Driver\AbstractDriverTest;
 use Doctrine\Tests\TestUtil;
@@ -31,7 +32,7 @@ class DriverTest extends AbstractDriverTest
     /**
      * @dataProvider getDatabaseParameter
      */
-    public function testDatabaseParameters($databaseName, $defaultDatabaseName, $expectedDatabaseName)
+    public function testDatabaseParameters(?string $databaseName, ?string $defaultDatabaseName, ?string $expectedDatabaseName) : void
     {
         $params                   = $this->connection->getParams();
         $params['dbname']         = $databaseName;
@@ -71,7 +72,7 @@ class DriverTest extends AbstractDriverTest
     /**
      * @group DBAL-1146
      */
-    public function testConnectsWithApplicationNameParameter()
+    public function testConnectsWithApplicationNameParameter() : void
     {
         $parameters                     = $this->connection->getParams();
         $parameters['application_name'] = 'doctrine';
@@ -103,7 +104,7 @@ class DriverTest extends AbstractDriverTest
     /**
      * {@inheritdoc}
      */
-    protected function createDriver()
+    protected function createDriver() : DriverInterface
     {
         return new Driver();
     }

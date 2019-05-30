@@ -44,27 +44,27 @@ class PDOExceptionTest extends DbalTestCase
         $this->exception = new PDOException($this->wrappedException);
     }
 
-    public function testReturnsCode()
+    public function testReturnsCode() : void
     {
         self::assertSame(self::SQLSTATE, $this->exception->getCode());
     }
 
-    public function testReturnsErrorCode()
+    public function testReturnsErrorCode() : void
     {
         self::assertSame(self::ERROR_CODE, $this->exception->getErrorCode());
     }
 
-    public function testReturnsMessage()
+    public function testReturnsMessage() : void
     {
         self::assertSame(self::MESSAGE, $this->exception->getMessage());
     }
 
-    public function testReturnsSQLState()
+    public function testReturnsSQLState() : void
     {
         self::assertSame(self::SQLSTATE, $this->exception->getSQLState());
     }
 
-    public function testOriginalExceptionIsInChain()
+    public function testOriginalExceptionIsInChain() : void
     {
         self::assertSame($this->wrappedException, $this->exception->getPrevious());
     }

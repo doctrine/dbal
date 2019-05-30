@@ -33,7 +33,7 @@ abstract class DbalFunctionalTestCase extends DbalTestCase
     /** @var DebugStack */
     protected $sqlLoggerStack;
 
-    protected function resetSharedConn()
+    protected function resetSharedConn() : void
     {
         if (! self::$sharedConnection) {
             return;

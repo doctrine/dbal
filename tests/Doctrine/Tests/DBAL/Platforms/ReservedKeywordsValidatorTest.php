@@ -17,7 +17,7 @@ class ReservedKeywordsValidatorTest extends DbalTestCase
         $this->validator = new ReservedKeywordsValidator([new MySQLKeywords()]);
     }
 
-    public function testReservedTableName()
+    public function testReservedTableName() : void
     {
         $table = new Table('TABLE');
         $this->validator->acceptTable($table);
@@ -28,7 +28,7 @@ class ReservedKeywordsValidatorTest extends DbalTestCase
         );
     }
 
-    public function testReservedColumnName()
+    public function testReservedColumnName() : void
     {
         $table  = new Table('TABLE');
         $column = $table->addColumn('table', 'string');

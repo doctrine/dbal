@@ -48,7 +48,7 @@ class CreateSchemaSqlCollectorTest extends TestCase
             ->willReturn(['foo']);
     }
 
-    public function testAcceptsNamespace()
+    public function testAcceptsNamespace() : void
     {
         $this->platformMock->expects($this->at(0))
             ->method('supportsSchemas')
@@ -67,7 +67,7 @@ class CreateSchemaSqlCollectorTest extends TestCase
         self::assertSame(['foo'], $this->visitor->getQueries());
     }
 
-    public function testAcceptsTable()
+    public function testAcceptsTable() : void
     {
         $table = $this->createTableMock();
 
@@ -76,7 +76,7 @@ class CreateSchemaSqlCollectorTest extends TestCase
         self::assertSame(['foo'], $this->visitor->getQueries());
     }
 
-    public function testAcceptsForeignKey()
+    public function testAcceptsForeignKey() : void
     {
         $this->platformMock->expects($this->at(0))
             ->method('supportsForeignKeyConstraints')
@@ -98,7 +98,7 @@ class CreateSchemaSqlCollectorTest extends TestCase
         self::assertSame(['foo'], $this->visitor->getQueries());
     }
 
-    public function testAcceptsSequences()
+    public function testAcceptsSequences() : void
     {
         $sequence = $this->createSequenceMock();
 
@@ -107,7 +107,7 @@ class CreateSchemaSqlCollectorTest extends TestCase
         self::assertSame(['foo'], $this->visitor->getQueries());
     }
 
-    public function testResetsQueries()
+    public function testResetsQueries() : void
     {
         foreach (['supportsSchemas', 'supportsForeignKeyConstraints'] as $method) {
             $this->platformMock->expects($this->any())

@@ -22,13 +22,13 @@ class SmallIntTest extends DbalTestCase
         $this->type     = Type::getType('smallint');
     }
 
-    public function testSmallIntConvertsToPHPValue()
+    public function testSmallIntConvertsToPHPValue() : void
     {
         self::assertIsInt($this->type->convertToPHPValue('1', $this->platform));
         self::assertIsInt($this->type->convertToPHPValue('0', $this->platform));
     }
 
-    public function testSmallIntNullConvertsToPHPValue()
+    public function testSmallIntNullConvertsToPHPValue() : void
     {
         self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }

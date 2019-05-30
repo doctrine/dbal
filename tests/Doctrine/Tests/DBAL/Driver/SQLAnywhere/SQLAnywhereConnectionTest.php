@@ -29,7 +29,7 @@ class SQLAnywhereConnectionTest extends DbalTestCase
             ->getMockForAbstractClass();
     }
 
-    public function testRequiresQueryForServerVersion()
+    public function testRequiresQueryForServerVersion() : void
     {
         self::assertTrue($this->connectionMock->requiresQueryForServerVersion());
     }

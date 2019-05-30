@@ -2,12 +2,13 @@
 
 namespace Doctrine\Tests\DBAL\Platforms;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQL91Platform;
 use Doctrine\DBAL\Schema\Table;
 
 class PostgreSQL91PlatformTest extends PostgreSqlPlatformTest
 {
-    public function createPlatform()
+    public function createPlatform() : AbstractPlatform
     {
         return new PostgreSQL91Platform();
     }

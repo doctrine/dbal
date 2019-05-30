@@ -22,7 +22,7 @@ class TableDiffTest extends TestCase
     /**
      * @group DBAL-1013
      */
-    public function testReturnsName()
+    public function testReturnsName() : void
     {
         $tableDiff = new TableDiff('foo');
 
@@ -32,7 +32,7 @@ class TableDiffTest extends TestCase
     /**
      * @group DBAL-1016
      */
-    public function testPrefersNameFromTableObject()
+    public function testPrefersNameFromTableObject() : void
     {
         $tableMock = $this->getMockBuilder(Table::class)
             ->disableOriginalConstructor()
@@ -52,7 +52,7 @@ class TableDiffTest extends TestCase
     /**
      * @group DBAL-1013
      */
-    public function testReturnsNewName()
+    public function testReturnsNewName() : void
     {
         $tableDiff = new TableDiff('foo');
 

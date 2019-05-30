@@ -23,7 +23,7 @@ class DBAL752Test extends DbalFunctionalTestCase
         $this->markTestSkipped('Related to SQLite only');
     }
 
-    public function testUnsignedIntegerDetection()
+    public function testUnsignedIntegerDetection() : void
     {
         $this->connection->exec(<<<SQL
 CREATE TABLE dbal752_unsigneds (

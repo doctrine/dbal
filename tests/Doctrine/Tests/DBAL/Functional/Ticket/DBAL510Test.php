@@ -22,7 +22,7 @@ class DBAL510Test extends DbalFunctionalTestCase
         $this->markTestSkipped('PostgreSQL Only test');
     }
 
-    public function testSearchPathSchemaChanges()
+    public function testSearchPathSchemaChanges() : void
     {
         $table = new Table('dbal510tbl');
         $table->addColumn('id', 'integer');

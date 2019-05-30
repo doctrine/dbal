@@ -24,7 +24,7 @@ class StatementTest extends DbalFunctionalTestCase
         $this->connection->getSchemaManager()->dropAndCreateTable($table);
     }
 
-    public function testStatementIsReusableAfterClosingCursor()
+    public function testStatementIsReusableAfterClosingCursor() : void
     {
         if ($this->connection->getDriver() instanceof PDOOracleDriver) {
             $this->markTestIncomplete('See https://bugs.php.net/bug.php?id=77181');
@@ -49,7 +49,7 @@ class StatementTest extends DbalFunctionalTestCase
         self::assertEquals(2, $id);
     }
 
-    public function testReuseStatementWithLongerResults()
+    public function testReuseStatementWithLongerResults() : void
     {
         if ($this->connection->getDriver() instanceof PDOOracleDriver) {
             $this->markTestIncomplete('PDO_OCI doesn\'t support fetching blobs via PDOStatement::fetchAll()');
@@ -86,7 +86,7 @@ class StatementTest extends DbalFunctionalTestCase
         ], $stmt->fetchAll(FetchMode::NUMERIC));
     }
 
-    public function testFetchLongBlob()
+    public function testFetchLongBlob() : void
     {
         if ($this->connection->getDriver() instanceof PDOOracleDriver) {
             // inserting BLOBs as streams on Oracle requires Oracle-specific SQL syntax which is currently not supported
@@ -134,7 +134,7 @@ EOF
         self::assertSame($contents, stream_get_contents($stream));
     }
 
-    public function testIncompletelyFetchedStatementDoesNotBlockConnection()
+    public function testIncompletelyFetchedStatementDoesNotBlockConnection() : void
     {
         $this->connection->insert('stmt_test', ['id' => 1]);
         $this->connection->insert('stmt_test', ['id' => 2]);
@@ -151,7 +151,7 @@ EOF
         self::assertEquals(1, $stmt2->fetchColumn());
     }
 
-    public function testReuseStatementAfterClosingCursor()
+    public function testReuseStatementAfterClosingCursor() : void
     {
         if ($this->connection->getDriver() instanceof PDOOracleDriver) {
             $this->markTestIncomplete('See https://bugs.php.net/bug.php?id=77181');
@@ -173,7 +173,7 @@ EOF
         self::assertEquals(2, $id);
     }
 
-    public function testReuseStatementWithParameterBoundByReference()
+    public function testReuseStatementWithParameterBoundByReference() : void
     {
         $this->connection->insert('stmt_test', ['id' => 1]);
         $this->connection->insert('stmt_test', ['id' => 2]);
@@ -190,7 +190,7 @@ EOF
         self::assertEquals(2, $stmt->fetchColumn());
     }
 
-    public function testReuseStatementWithReboundValue()
+    public function testReuseStatementWithReboundValue() : void
     {
         $this->connection->insert('stmt_test', ['id' => 1]);
         $this->connection->insert('stmt_test', ['id' => 2]);
@@ -206,7 +206,7 @@ EOF
         self::assertEquals(2, $stmt->fetchColumn());
     }
 
-    public function testReuseStatementWithReboundParam()
+    public function testReuseStatementWithReboundParam() : void
     {
         $this->connection->insert('stmt_test', ['id' => 1]);
         $this->connection->insert('stmt_test', ['id' => 2]);
@@ -225,26 +225,27 @@ EOF
     }
 
     /**
+     * @param mixed $expected
+     *
      * @dataProvider emptyFetchProvider
      */
-    public function testFetchFromNonExecutedStatement(callable $fetch, $expected)
+    public function testFetchFromNonExecutedStatement(callable $fetch, $expected) : void
     {
         $stmt = $this->connection->prepare('SELECT id FROM stmt_test');
 
         self::assertSame($expected, $fetch($stmt));
     }
 
-    public function testCloseCursorOnNonExecutedStatement()
+    public function testCloseCursorOnNonExecutedStatement() : void
     {
         $stmt = $this->connection->prepare('SELECT id FROM stmt_test');
-
         self::assertTrue($stmt->closeCursor());
     }
 
     /**
      * @group DBAL-2637
      */
-    public function testCloseCursorAfterCursorEnd()
+    public function testCloseCursorAfterCursorEnd() : void
     {
         $stmt = $this->connection->prepare('SELECT name FROM stmt_test');
 
@@ -255,9 +256,11 @@ EOF
     }
 
     /**
+     * @param mixed $expected
+     *
      * @dataProvider emptyFetchProvider
      */
-    public function testFetchFromNonExecutedStatementWithClosedCursor(callable $fetch, $expected)
+    public function testFetchFromNonExecutedStatementWithClosedCursor(callable $fetch, $expected) : void
     {
         $stmt = $this->connection->prepare('SELECT id FROM stmt_test');
         $stmt->closeCursor();
@@ -266,9 +269,11 @@ EOF
     }
 
     /**
+     * @param mixed $expected
+     *
      * @dataProvider emptyFetchProvider
      */
-    public function testFetchFromExecutedStatementWithClosedCursor(callable $fetch, $expected)
+    public function testFetchFromExecutedStatementWithClosedCursor(callable $fetch, $expected) : void
     {
         $this->connection->insert('stmt_test', ['id' => 1]);
 
@@ -279,7 +284,10 @@ EOF
         self::assertSame($expected, $fetch($stmt));
     }
 
-    public static function emptyFetchProvider()
+    /**
+     * @return mixed[][]
+     */
+    public static function emptyFetchProvider() : iterable
     {
         return [
             'fetch' => [

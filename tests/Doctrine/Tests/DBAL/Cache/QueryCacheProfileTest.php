@@ -38,7 +38,7 @@ class QueryCacheProfileTest extends DbalTestCase
         $this->queryCacheProfile = new QueryCacheProfile(self::LIFETIME, self::CACHE_KEY);
     }
 
-    public function testShouldUseTheGivenCacheKeyIfPresent()
+    public function testShouldUseTheGivenCacheKeyIfPresent() : void
     {
         [$cacheKey] = $this->queryCacheProfile->generateCacheKeys(
             $this->query,
@@ -50,7 +50,7 @@ class QueryCacheProfileTest extends DbalTestCase
         self::assertEquals(self::CACHE_KEY, $cacheKey, 'The returned cache key should match the given one');
     }
 
-    public function testShouldGenerateAnAutomaticKeyIfNoKeyHasBeenGiven()
+    public function testShouldGenerateAnAutomaticKeyIfNoKeyHasBeenGiven() : void
     {
         $this->queryCacheProfile = $this->queryCacheProfile->setCacheKey(null);
 
@@ -70,7 +70,7 @@ class QueryCacheProfileTest extends DbalTestCase
         self::assertNotEmpty($cacheKey, 'The generated cache key should not be empty');
     }
 
-    public function testShouldGenerateDifferentKeysForSameQueryAndParamsAndDifferentConnections()
+    public function testShouldGenerateDifferentKeysForSameQueryAndParamsAndDifferentConnections() : void
     {
         $this->queryCacheProfile = $this->queryCacheProfile->setCacheKey(null);
 
@@ -93,7 +93,7 @@ class QueryCacheProfileTest extends DbalTestCase
         self::assertNotEquals($firstCacheKey, $secondCacheKey, 'Cache keys should be different');
     }
 
-    public function testConnectionParamsShouldBeHashed()
+    public function testConnectionParamsShouldBeHashed() : void
     {
         $this->queryCacheProfile = $this->queryCacheProfile->setCacheKey(null);
 
@@ -114,7 +114,7 @@ class QueryCacheProfileTest extends DbalTestCase
         }
     }
 
-    public function testShouldGenerateSameKeysIfNoneOfTheParamsChanges()
+    public function testShouldGenerateSameKeysIfNoneOfTheParamsChanges() : void
     {
         $this->queryCacheProfile = $this->queryCacheProfile->setCacheKey(null);
 

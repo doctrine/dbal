@@ -32,7 +32,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::$privilegesGranted = true;
     }
 
-    public function testRenameTable()
+    public function testRenameTable() : void
     {
         $this->schemaManager->tryMethod('DropTable', 'list_tables_test');
         $this->schemaManager->tryMethod('DropTable', 'list_tables_test_new_name');
@@ -45,7 +45,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertHasTable($tables, 'list_tables_test_new_name');
     }
 
-    public function testListTableWithBinary()
+    public function testListTableWithBinary() : void
     {
         $tableName = 'test_binary_table';
 
@@ -70,7 +70,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
      * @group DBAL-472
      * @group DBAL-1001
      */
-    public function testAlterTableColumnNotNull()
+    public function testAlterTableColumnNotNull() : void
     {
         $comparator = new Schema\Comparator();
         $tableName  = 'list_table_column_notnull';
@@ -102,7 +102,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertTrue($columns['bar']->getNotnull());
     }
 
-    public function testListDatabases()
+    public function testListDatabases() : void
     {
         // We need the temp connection that has privileges to create a database.
         $sm = TestUtil::getTempConnection()->getSchemaManager();
@@ -118,7 +118,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
     /**
      * @group DBAL-831
      */
-    public function testListTableDetailsWithDifferentIdentifierQuotingRequirements()
+    public function testListTableDetailsWithDifferentIdentifierQuotingRequirements() : void
     {
         $primaryTableName    = '"Primary_Table"';
         $offlinePrimaryTable = new Schema\Table($primaryTableName);
@@ -226,7 +226,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         );
     }
 
-    public function testListTableColumnsSameTableNamesInDifferentSchemas()
+    public function testListTableColumnsSameTableNamesInDifferentSchemas() : void
     {
         $table = $this->createListTableColumns();
         $this->schemaManager->dropAndCreateTable($table);
@@ -242,7 +242,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
     /**
      * @group DBAL-1234
      */
-    public function testListTableIndexesPrimaryKeyConstraintNameDiffersFromIndexName()
+    public function testListTableIndexesPrimaryKeyConstraintNameDiffersFromIndexName() : void
     {
         $table = new Table('list_table_indexes_pk_id_test');
         $table->setSchemaConfig($this->schemaManager->createSchemaConfig());
@@ -265,7 +265,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
     /**
      * @group DBAL-2555
      */
-    public function testListTableDateTypeColumns()
+    public function testListTableDateTypeColumns() : void
     {
         $table = new Table('tbl_date');
         $table->addColumn('col_date', 'date');

@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Functional\Platform;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use function in_array;
@@ -30,7 +31,7 @@ final class NewPrimaryKeyWithNewAutoIncrementColumnTest extends DbalFunctionalTe
      * SQLSTATE[42000]: Syntax error or access violation: 1075 Incorrect table definition; there can be only one auto
      * column and it must be defined as a key
      */
-    public function testAlterPrimaryKeyToAutoIncrementColumn()
+    public function testAlterPrimaryKeyToAutoIncrementColumn() : void
     {
         $schemaManager = $this->connection->getSchemaManager();
         $schema        = $schemaManager->createSchema();
@@ -62,7 +63,7 @@ final class NewPrimaryKeyWithNewAutoIncrementColumnTest extends DbalFunctionalTe
         $this->assertSame(['new_id'], $validationTable->getPrimaryKeyColumns());
     }
 
-    private function getPlatform()
+    private function getPlatform() : AbstractPlatform
     {
         return $this->connection->getDatabasePlatform();
     }

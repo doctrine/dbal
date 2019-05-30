@@ -39,7 +39,7 @@ class RunSqlCommandTest extends TestCase
         $this->command->setHelperSet($helperSet);
     }
 
-    public function testMissingSqlArgument()
+    public function testMissingSqlArgument() : void
     {
         try {
             $this->commandTester->execute([
@@ -52,7 +52,7 @@ class RunSqlCommandTest extends TestCase
         }
     }
 
-    public function testIncorrectDepthOption()
+    public function testIncorrectDepthOption() : void
     {
         try {
             $this->commandTester->execute([
@@ -66,7 +66,7 @@ class RunSqlCommandTest extends TestCase
         }
     }
 
-    public function testSelectStatementsPrintsResult()
+    public function testSelectStatementsPrintsResult() : void
     {
         $this->expectConnectionFetchAll();
 
@@ -79,7 +79,7 @@ class RunSqlCommandTest extends TestCase
         self::assertRegExp('@array.*1.*@', $this->commandTester->getDisplay());
     }
 
-    public function testUpdateStatementsPrintsAffectedLines()
+    public function testUpdateStatementsPrintsAffectedLines() : void
     {
         $this->expectConnectionExecuteUpdate();
 
@@ -92,7 +92,7 @@ class RunSqlCommandTest extends TestCase
         self::assertNotRegExp('@array.*1.*@', $this->commandTester->getDisplay());
     }
 
-    private function expectConnectionExecuteUpdate()
+    private function expectConnectionExecuteUpdate() : void
     {
         $this->connectionMock
             ->expects($this->exactly(1))
@@ -102,7 +102,7 @@ class RunSqlCommandTest extends TestCase
             ->method('fetchAll');
     }
 
-    private function expectConnectionFetchAll()
+    private function expectConnectionFetchAll() : void
     {
         $this->connectionMock
             ->expects($this->exactly(0))
@@ -112,7 +112,7 @@ class RunSqlCommandTest extends TestCase
             ->method('fetchAll');
     }
 
-    public function testStatementsWithFetchResultPrintsResult()
+    public function testStatementsWithFetchResultPrintsResult() : void
     {
         $this->expectConnectionFetchAll();
 

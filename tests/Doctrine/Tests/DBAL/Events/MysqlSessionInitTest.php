@@ -10,7 +10,7 @@ use Doctrine\Tests\DbalTestCase;
 
 class MysqlSessionInitTest extends DbalTestCase
 {
-    public function testPostConnect()
+    public function testPostConnect() : void
     {
         $connectionMock = $this->createMock(Connection::class);
         $connectionMock->expects($this->once())
@@ -23,7 +23,7 @@ class MysqlSessionInitTest extends DbalTestCase
         $listener->postConnect($eventArgs);
     }
 
-    public function testGetSubscribedEvents()
+    public function testGetSubscribedEvents() : void
     {
         $listener = new MysqlSessionInit();
         self::assertEquals([Events::postConnect], $listener->getSubscribedEvents());

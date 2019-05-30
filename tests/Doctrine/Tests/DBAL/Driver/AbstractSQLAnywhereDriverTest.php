@@ -3,31 +3,37 @@
 namespace Doctrine\Tests\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\AbstractSQLAnywhereDriver;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLAnywhere11Platform;
 use Doctrine\DBAL\Platforms\SQLAnywhere12Platform;
 use Doctrine\DBAL\Platforms\SQLAnywhere16Platform;
 use Doctrine\DBAL\Platforms\SQLAnywherePlatform;
+use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\SQLAnywhereSchemaManager;
 
 class AbstractSQLAnywhereDriverTest extends AbstractDriverTest
 {
-    protected function createDriver()
+    protected function createDriver() : Driver
     {
         return $this->getMockForAbstractClass(AbstractSQLAnywhereDriver::class);
     }
 
-    protected function createPlatform()
+    protected function createPlatform() : AbstractPlatform
     {
         return new SQLAnywhere12Platform();
     }
 
-    protected function createSchemaManager(Connection $connection)
+    protected function createSchemaManager(Connection $connection) : AbstractSchemaManager
     {
         return new SQLAnywhereSchemaManager($connection);
     }
 
-    protected function getDatabasePlatformsForVersions()
+    /**
+     * {@inheritDoc}
+     */
+    protected function getDatabasePlatformsForVersions() : array
     {
         return [
             ['10', SQLAnywherePlatform::class],

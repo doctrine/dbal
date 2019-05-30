@@ -20,7 +20,7 @@ class DebugStackTest extends DbalTestCase
         unset($this->logger);
     }
 
-    public function testLoggedQuery()
+    public function testLoggedQuery() : void
     {
         $this->logger->startQuery('SELECT column FROM table');
         self::assertEquals(
@@ -39,7 +39,7 @@ class DebugStackTest extends DbalTestCase
         self::assertGreaterThan(0, $this->logger->queries[1]['executionMS']);
     }
 
-    public function testLoggedQueryDisabled()
+    public function testLoggedQueryDisabled() : void
     {
         $this->logger->enabled = false;
         $this->logger->startQuery('SELECT column FROM table');

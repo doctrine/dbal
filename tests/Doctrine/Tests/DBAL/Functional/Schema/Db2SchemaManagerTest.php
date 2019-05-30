@@ -10,7 +10,7 @@ class Db2SchemaManagerTest extends SchemaManagerFunctionalTestCase
     /**
      * @group DBAL-939
      */
-    public function testGetBooleanColumn()
+    public function testGetBooleanColumn() : void
     {
         $table = new Table('boolean_column_test');
         $table->addColumn('bool', 'boolean');
@@ -27,7 +27,7 @@ class Db2SchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertSame("That's a comment", $columns['bool_commented']->getComment());
     }
 
-    public function testListTableWithBinary()
+    public function testListTableWithBinary() : void
     {
         self::markTestSkipped('Binary data type is currently not supported on DB2 LUW');
     }

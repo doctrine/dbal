@@ -31,17 +31,17 @@ class BinaryTest extends DbalTestCase
         $this->type     = Type::getType('binary');
     }
 
-    public function testReturnsBindingType()
+    public function testReturnsBindingType() : void
     {
         self::assertSame(ParameterType::BINARY, $this->type->getBindingType());
     }
 
-    public function testReturnsName()
+    public function testReturnsName() : void
     {
         self::assertSame(Types::BINARY, $this->type->getName());
     }
 
-    public function testReturnsSQLDeclaration()
+    public function testReturnsSQLDeclaration() : void
     {
         $this->platform->expects($this->once())
             ->method('getBinaryTypeDeclarationSQL')
@@ -50,12 +50,12 @@ class BinaryTest extends DbalTestCase
         self::assertSame('TEST_BINARY', $this->type->getSQLDeclaration([], $this->platform));
     }
 
-    public function testBinaryNullConvertsToPHPValue()
+    public function testBinaryNullConvertsToPHPValue() : void
     {
         self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }
 
-    public function testBinaryStringConvertsToPHPValue()
+    public function testBinaryStringConvertsToPHPValue() : void
     {
         $databaseValue = 'binary string';
         $phpValue      = $this->type->convertToPHPValue($databaseValue, $this->platform);
@@ -64,7 +64,7 @@ class BinaryTest extends DbalTestCase
         self::assertEquals($databaseValue, stream_get_contents($phpValue));
     }
 
-    public function testBinaryResourceConvertsToPHPValue()
+    public function testBinaryResourceConvertsToPHPValue() : void
     {
         $databaseValue = fopen('data://text/plain;base64,' . base64_encode('binary string'), 'r');
         $phpValue      = $this->type->convertToPHPValue($databaseValue, $this->platform);
@@ -73,16 +73,21 @@ class BinaryTest extends DbalTestCase
     }
 
     /**
+     * @param mixed $value
+     *
      * @dataProvider getInvalidDatabaseValues
      */
-    public function testThrowsConversionExceptionOnInvalidDatabaseValue($value)
+    public function testThrowsConversionExceptionOnInvalidDatabaseValue($value) : void
     {
         $this->expectException(ConversionException::class);
 
         $this->type->convertToPHPValue($value, $this->platform);
     }
 
-    public function getInvalidDatabaseValues()
+    /**
+     * @return mixed[][]
+     */
+    public static function getInvalidDatabaseValues() : iterable
     {
         return [
             [false],

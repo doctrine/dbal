@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 
 class MultiTenantShardChoserTest extends TestCase
 {
-    public function testPickShard()
+    public function testPickShard() : void
     {
         $choser = new MultiTenantShardChoser();
         $conn   = $this->createConnectionMock();
@@ -17,7 +17,7 @@ class MultiTenantShardChoserTest extends TestCase
         self::assertEquals(2, $choser->pickShard(2, $conn));
     }
 
-    private function createConnectionMock()
+    private function createConnectionMock() : PoolingShardConnection
     {
         return $this->getMockBuilder(PoolingShardConnection::class)
             ->setMethods(['connect', 'getParams', 'fetchAll'])

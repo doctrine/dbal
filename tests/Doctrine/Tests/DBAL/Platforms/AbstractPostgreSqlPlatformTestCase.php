@@ -16,12 +16,15 @@ use function sprintf;
 
 abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCase
 {
-    public function getGenerateTableSql()
+    public function getGenerateTableSql() : string
     {
         return 'CREATE TABLE test (id SERIAL NOT NULL, test VARCHAR(255) DEFAULT NULL, PRIMARY KEY(id))';
     }
 
-    public function getGenerateTableWithMultiColumnUniqueIndexSql()
+    /**
+     * {@inheritDoc}
+     */
+    public function getGenerateTableWithMultiColumnUniqueIndexSql() : array
     {
         return [
             'CREATE TABLE test (foo VARCHAR(255) DEFAULT NULL, bar VARCHAR(255) DEFAULT NULL)',
@@ -29,7 +32,10 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         ];
     }
 
-    public function getGenerateAlterTableSql()
+    /**
+     * {@inheritDoc}
+     */
+    public function getGenerateAlterTableSql() : array
     {
         return [
             'ALTER TABLE mytable ADD quota INT DEFAULT NULL',
@@ -44,17 +50,17 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         ];
     }
 
-    public function getGenerateIndexSql()
+    public function getGenerateIndexSql() : string
     {
         return 'CREATE INDEX my_idx ON mytable (user_name, last_login)';
     }
 
-    public function getGenerateForeignKeySql()
+    public function getGenerateForeignKeySql() : string
     {
         return 'ALTER TABLE test ADD FOREIGN KEY (fk_name_id) REFERENCES other_table (id) NOT DEFERRABLE INITIALLY IMMEDIATE';
     }
 
-    public function testGeneratesForeignKeySqlForNonStandardOptions()
+    public function testGeneratesForeignKeySqlForNonStandardOptions() : void
     {
         $foreignKey = new ForeignKeyConstraint(
             ['foreign_id'],
@@ -129,7 +135,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         );
     }
 
-    public function testGeneratesSqlSnippets()
+    public function testGeneratesSqlSnippets() : void
     {
         self::assertEquals('SIMILAR TO', $this->platform->getRegexpExpression(), 'Regular expression operator is not correct');
         self::assertEquals('"', $this->platform->getIdentifierQuoteCharacter(), 'Identifier quote character is not correct');
@@ -138,7 +144,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         self::assertEquals('SUBSTRING(column FROM 1 FOR 5)', $this->platform->getSubstringExpression('column', 1, 5), 'Substring expression with length is not correct');
     }
 
-    public function testGeneratesTransactionCommands()
+    public function testGeneratesTransactionCommands() : void
     {
         self::assertEquals(
             'SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL READ UNCOMMITTED',
@@ -158,14 +164,14 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         );
     }
 
-    public function testGeneratesDDLSnippets()
+    public function testGeneratesDDLSnippets() : void
     {
         self::assertEquals('CREATE DATABASE foobar', $this->platform->getCreateDatabaseSQL('foobar'));
         self::assertEquals('DROP DATABASE foobar', $this->platform->getDropDatabaseSQL('foobar'));
         self::assertEquals('DROP TABLE foobar', $this->platform->getDropTableSQL('foobar'));
     }
 
-    public function testGenerateTableWithAutoincrement()
+    public function testGenerateTableWithAutoincrement() : void
     {
         $table  = new Table('autoinc_table');
         $column = $table->addColumn('id', 'integer');
@@ -175,9 +181,9 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     }
 
     /**
-     * @return string[][]
+     * @return mixed[][]
      */
-    public static function serialTypes() : array
+    public static function serialTypes() : iterable
     {
         return [
             ['integer', 'SERIAL'],
@@ -234,7 +240,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         self::assertSame('', $sql);
     }
 
-    public function testGeneratesTypeDeclarationForIntegers()
+    public function testGeneratesTypeDeclarationForIntegers() : void
     {
         self::assertEquals(
             'INT',
@@ -252,7 +258,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         );
     }
 
-    public function testGeneratesTypeDeclarationForStrings()
+    public function testGeneratesTypeDeclarationForStrings() : void
     {
         self::assertEquals(
             'CHAR(10)',
@@ -272,12 +278,12 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         );
     }
 
-    public function getGenerateUniqueIndexSql()
+    public function getGenerateUniqueIndexSql() : string
     {
         return 'CREATE UNIQUE INDEX index_name ON test (test, test2)';
     }
 
-    public function testGeneratesSequenceSqlCommands()
+    public function testGeneratesSequenceSqlCommands() : void
     {
         $sequence = new Sequence('myseq', 20, 1);
         self::assertEquals(
@@ -294,27 +300,27 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         );
     }
 
-    public function testDoesNotPreferIdentityColumns()
+    public function testDoesNotPreferIdentityColumns() : void
     {
         self::assertFalse($this->platform->prefersIdentityColumns());
     }
 
-    public function testPrefersSequences()
+    public function testPrefersSequences() : void
     {
         self::assertTrue($this->platform->prefersSequences());
     }
 
-    public function testSupportsIdentityColumns()
+    public function testSupportsIdentityColumns() : void
     {
         self::assertTrue($this->platform->supportsIdentityColumns());
     }
 
-    public function testSupportsSavePoints()
+    public function testSupportsSavePoints() : void
     {
         self::assertTrue($this->platform->supportsSavepoints());
     }
 
-    public function testSupportsSequences()
+    public function testSupportsSequences() : void
     {
         self::assertTrue($this->platform->supportsSequences());
     }
@@ -322,24 +328,27 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     /**
      * {@inheritdoc}
      */
-    protected function supportsCommentOnStatement()
+    protected function supportsCommentOnStatement() : bool
     {
         return true;
     }
 
-    public function testModifyLimitQuery()
+    public function testModifyLimitQuery() : void
     {
         $sql = $this->platform->modifyLimitQuery('SELECT * FROM user', 10, 0);
         self::assertEquals('SELECT * FROM user LIMIT 10', $sql);
     }
 
-    public function testModifyLimitQueryWithEmptyOffset()
+    public function testModifyLimitQueryWithEmptyOffset() : void
     {
         $sql = $this->platform->modifyLimitQuery('SELECT * FROM user', 10);
         self::assertEquals('SELECT * FROM user LIMIT 10', $sql);
     }
 
-    public function getCreateTableColumnCommentsSQL()
+    /**
+     * {@inheritDoc}
+     */
+    public function getCreateTableColumnCommentsSQL() : array
     {
         return [
             'CREATE TABLE test (id INT NOT NULL, PRIMARY KEY(id))',
@@ -347,7 +356,10 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         ];
     }
 
-    public function getAlterTableColumnCommentsSQL()
+    /**
+     * {@inheritDoc}
+     */
+    public function getAlterTableColumnCommentsSQL() : array
     {
         return [
             'ALTER TABLE mytable ADD quota INT NOT NULL',
@@ -357,7 +369,10 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         ];
     }
 
-    public function getCreateTableColumnTypeCommentsSQL()
+    /**
+     * {@inheritDoc}
+     */
+    public function getCreateTableColumnTypeCommentsSQL() : array
     {
         return [
             'CREATE TABLE test (id INT NOT NULL, data TEXT NOT NULL, PRIMARY KEY(id))',
@@ -365,12 +380,18 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         ];
     }
 
-    protected function getQuotedColumnInPrimaryKeySQL()
+    /**
+     * {@inheritDoc}
+     */
+    protected function getQuotedColumnInPrimaryKeySQL() : array
     {
         return ['CREATE TABLE "quoted" ("create" VARCHAR(255) NOT NULL, PRIMARY KEY("create"))'];
     }
 
-    protected function getQuotedColumnInIndexSQL()
+    /**
+     * {@inheritDoc}
+     */
+    protected function getQuotedColumnInIndexSQL() : array
     {
         return [
             'CREATE TABLE "quoted" ("create" VARCHAR(255) NOT NULL)',
@@ -378,7 +399,10 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         ];
     }
 
-    protected function getQuotedNameInIndexSQL()
+    /**
+     * {@inheritDoc}
+     */
+    protected function getQuotedNameInIndexSQL() : array
     {
         return [
             'CREATE TABLE test (column1 VARCHAR(255) NOT NULL)',
@@ -386,7 +410,10 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         ];
     }
 
-    protected function getQuotedColumnInForeignKeySQL()
+    /**
+     * {@inheritDoc}
+     */
+    protected function getQuotedColumnInForeignKeySQL() : array
     {
         return [
             'CREATE TABLE "quoted" ("create" VARCHAR(255) NOT NULL, foo VARCHAR(255) NOT NULL, "bar" VARCHAR(255) NOT NULL)',
@@ -397,20 +424,17 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     }
 
     /**
-     * @param string $databaseValue
-     * @param string $preparedStatementValue
-     * @param int    $integerValue
-     * @param bool   $booleanValue
+     * @param string|bool $databaseValue
      *
      * @group DBAL-457
      * @dataProvider pgBooleanProvider
      */
     public function testConvertBooleanAsLiteralStrings(
         $databaseValue,
-        $preparedStatementValue,
-        $integerValue,
-        $booleanValue
-    ) {
+        string $preparedStatementValue,
+        ?int $integerValue,
+        ?bool $booleanValue
+    ) : void {
         $platform = $this->createPlatform();
 
         self::assertEquals($preparedStatementValue, $platform->convertBooleans($databaseValue));
@@ -419,7 +443,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     /**
      * @group DBAL-457
      */
-    public function testConvertBooleanAsLiteralIntegers()
+    public function testConvertBooleanAsLiteralIntegers() : void
     {
         $platform = $this->createPlatform();
         $platform->setUseBooleanTrueFalseStrings(false);
@@ -432,20 +456,17 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     }
 
     /**
-     * @param string $databaseValue
-     * @param string $preparedStatementValue
-     * @param int    $integerValue
-     * @param bool   $booleanValue
+     * @param string|bool $databaseValue
      *
      * @group DBAL-630
      * @dataProvider pgBooleanProvider
      */
     public function testConvertBooleanAsDatabaseValueStrings(
         $databaseValue,
-        $preparedStatementValue,
-        $integerValue,
-        $booleanValue
-    ) {
+        string $preparedStatementValue,
+        ?int $integerValue,
+        ?bool $booleanValue
+    ) : void {
         $platform = $this->createPlatform();
 
         self::assertSame($integerValue, $platform->convertBooleansToDatabaseValue($booleanValue));
@@ -454,7 +475,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     /**
      * @group DBAL-630
      */
-    public function testConvertBooleanAsDatabaseValueIntegers()
+    public function testConvertBooleanAsDatabaseValueIntegers() : void
     {
         $platform = $this->createPlatform();
         $platform->setUseBooleanTrueFalseStrings(false);
@@ -464,21 +485,18 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     }
 
     /**
-     * @param string $databaseValue
-     * @param string $prepareStatementValue
-     * @param int    $integerValue
-     * @param bool   $booleanValue
+     * @param string|bool $databaseValue
      *
      * @dataProvider pgBooleanProvider
      */
-    public function testConvertFromBoolean($databaseValue, $prepareStatementValue, $integerValue, $booleanValue)
+    public function testConvertFromBoolean($databaseValue, string $prepareStatementValue, ?int $integerValue, ?bool $booleanValue) : void
     {
         $platform = $this->createPlatform();
 
         self::assertSame($booleanValue, $platform->convertFromBoolean($databaseValue));
     }
 
-    public function testThrowsExceptionWithInvalidBooleanLiteral()
+    public function testThrowsExceptionWithInvalidBooleanLiteral() : void
     {
         $platform = $this->createPlatform();
 
@@ -488,14 +506,14 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         $platform->convertBooleansToDatabaseValue('my-bool');
     }
 
-    public function testGetCreateSchemaSQL()
+    public function testGetCreateSchemaSQL() : void
     {
         $schemaName = 'schema';
         $sql        = $this->platform->getCreateSchemaSQL($schemaName);
         self::assertEquals('CREATE SCHEMA ' . $schemaName, $sql);
     }
 
-    public function testAlterDecimalPrecisionScale()
+    public function testAlterDecimalPrecisionScale() : void
     {
         $table = new Table('mytable');
         $table->addColumn('dfoo1', 'decimal');
@@ -557,7 +575,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     /**
      * @group DBAL-365
      */
-    public function testDroppingConstraintsBeforeColumns()
+    public function testDroppingConstraintsBeforeColumns() : void
     {
         $newTable = new Table('mytable');
         $newTable->addColumn('id', 'integer');
@@ -584,7 +602,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     /**
      * @group DBAL-563
      */
-    public function testUsesSequenceEmulatedIdentityColumns()
+    public function testUsesSequenceEmulatedIdentityColumns() : void
     {
         self::assertTrue($this->platform->usesSequenceEmulatedIdentityColumns());
     }
@@ -592,7 +610,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     /**
      * @group DBAL-563
      */
-    public function testReturnsIdentitySequenceName()
+    public function testReturnsIdentitySequenceName() : void
     {
         self::assertSame('mytable_mycolumn_seq', $this->platform->getIdentitySequenceName('mytable', 'mycolumn'));
     }
@@ -601,30 +619,33 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
      * @dataProvider dataCreateSequenceWithCache
      * @group DBAL-139
      */
-    public function testCreateSequenceWithCache($cacheSize, $expectedSql)
+    public function testCreateSequenceWithCache(int $cacheSize, string $expectedSql) : void
     {
         $sequence = new Sequence('foo', 1, 1, $cacheSize);
         self::assertStringContainsString($expectedSql, $this->platform->getCreateSequenceSQL($sequence));
     }
 
-    public function dataCreateSequenceWithCache()
+    /**
+     * @return mixed[][]
+     */
+    public static function dataCreateSequenceWithCache() : iterable
     {
         return [
             [3, 'CACHE 3'],
         ];
     }
 
-    protected function getBinaryDefaultLength()
+    protected function getBinaryDefaultLength() : int
     {
         return 0;
     }
 
-    protected function getBinaryMaxLength()
+    protected function getBinaryMaxLength() : int
     {
         return 0;
     }
 
-    public function testReturnsBinaryTypeDeclarationSQL()
+    public function testReturnsBinaryTypeDeclarationSQL() : void
     {
         self::assertSame('BYTEA', $this->platform->getBinaryTypeDeclarationSQL([]));
         self::assertSame('BYTEA', $this->platform->getBinaryTypeDeclarationSQL(['length' => 0]));
@@ -635,7 +656,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         self::assertSame('BYTEA', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 9999999]));
     }
 
-    public function testDoesNotPropagateUnnecessaryTableAlterationOnBinaryType()
+    public function testDoesNotPropagateUnnecessaryTableAlterationOnBinaryType() : void
     {
         $table1 = new Table('mytable');
         $table1->addColumn('column_varbinary', 'binary');
@@ -676,17 +697,21 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     }
 
     /**
+     * {@inheritDoc}
+     *
      * @group DBAL-234
      */
-    protected function getAlterTableRenameIndexSQL()
+    protected function getAlterTableRenameIndexSQL() : array
     {
         return ['ALTER INDEX idx_foo RENAME TO idx_bar'];
     }
 
     /**
+     * {@inheritDoc}
+     *
      * @group DBAL-234
      */
-    protected function getQuotedAlterTableRenameIndexSQL()
+    protected function getQuotedAlterTableRenameIndexSQL() : array
     {
         return [
             'ALTER INDEX "create" RENAME TO "select"',
@@ -697,9 +722,9 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     /**
      * PostgreSQL boolean strings provider
      *
-     * @return mixed[]
+     * @return mixed[][]
      */
-    public function pgBooleanProvider()
+    public static function pgBooleanProvider() : iterable
     {
         return [
             // Database value, prepared statement value, boolean integer value, boolean value.
@@ -726,7 +751,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     /**
      * {@inheritdoc}
      */
-    protected function getQuotedAlterTableRenameColumnSQL()
+    protected function getQuotedAlterTableRenameColumnSQL() : array
     {
         return [
             'ALTER TABLE mytable RENAME COLUMN unquoted1 TO unquoted',
@@ -744,7 +769,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     /**
      * {@inheritdoc}
      */
-    protected function getQuotedAlterTableChangeColumnLengthSQL()
+    protected function getQuotedAlterTableChangeColumnLengthSQL() : array
     {
         return [
             'ALTER TABLE mytable ALTER unquoted1 TYPE VARCHAR(255)',
@@ -757,17 +782,21 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     }
 
     /**
+     * {@inheritDoc}
+     *
      * @group DBAL-807
      */
-    protected function getAlterTableRenameIndexInSchemaSQL()
+    protected function getAlterTableRenameIndexInSchemaSQL() : array
     {
         return ['ALTER INDEX myschema.idx_foo RENAME TO idx_bar'];
     }
 
     /**
+     * {@inheritDoc}
+     *
      * @group DBAL-807
      */
-    protected function getQuotedAlterTableRenameIndexInSchemaSQL()
+    protected function getQuotedAlterTableRenameIndexInSchemaSQL() : array
     {
         return [
             'ALTER INDEX "schema"."create" RENAME TO "select"',
@@ -775,12 +804,12 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         ];
     }
 
-    protected function getQuotesDropForeignKeySQL()
+    protected function getQuotesDropForeignKeySQL() : string
     {
         return 'ALTER TABLE "table" DROP CONSTRAINT "select"';
     }
 
-    public function testGetNullCommentOnColumnSQL()
+    public function testGetNullCommentOnColumnSQL() : void
     {
         self::assertEquals(
             'COMMENT ON COLUMN mytable.id IS NULL',
@@ -791,7 +820,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     /**
      * @group DBAL-423
      */
-    public function testReturnsGuidTypeDeclarationSQL()
+    public function testReturnsGuidTypeDeclarationSQL() : void
     {
         self::assertSame('UUID', $this->platform->getGuidTypeDeclarationSQL([]));
     }
@@ -799,7 +828,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     /**
      * {@inheritdoc}
      */
-    public function getAlterTableRenameColumnSQL()
+    public function getAlterTableRenameColumnSQL() : array
     {
         return ['ALTER TABLE foo RENAME COLUMN bar TO baz'];
     }
@@ -807,7 +836,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     /**
      * {@inheritdoc}
      */
-    protected function getQuotesTableIdentifiersInAlterTableSQL()
+    protected function getQuotesTableIdentifiersInAlterTableSQL() : array
     {
         return [
             'ALTER TABLE "foo" DROP CONSTRAINT fk1',
@@ -827,7 +856,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     /**
      * {@inheritdoc}
      */
-    protected function getCommentOnColumnSQL()
+    protected function getCommentOnColumnSQL() : array
     {
         return [
             'COMMENT ON COLUMN foo.bar IS \'comment\'',
@@ -839,7 +868,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     /**
      * @group DBAL-1004
      */
-    public function testAltersTableColumnCommentWithExplicitlyQuotedIdentifiers()
+    public function testAltersTableColumnCommentWithExplicitlyQuotedIdentifiers() : void
     {
         $table1 = new Table('"foo"', [new Column('"bar"', Type::getType('integer'))]);
         $table2 = new Table('"foo"', [new Column('"bar"', Type::getType('integer'), ['comment' => 'baz'])]);
@@ -858,7 +887,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     /**
      * @group 3158
      */
-    public function testAltersTableColumnCommentIfRequiredByType()
+    public function testAltersTableColumnCommentIfRequiredByType() : void
     {
         $table1 = new Table('"foo"', [new Column('"bar"', Type::getType('datetime'))]);
         $table2 = new Table('"foo"', [new Column('"bar"', Type::getType('datetime_immutable'))]);
@@ -881,7 +910,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     /**
      * {@inheritdoc}
      */
-    protected function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL()
+    protected function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL() : string
     {
         return 'CONSTRAINT "select" UNIQUE (foo)';
     }
@@ -889,7 +918,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     /**
      * {@inheritdoc}
      */
-    protected function getQuotesReservedKeywordInIndexDeclarationSQL()
+    protected function getQuotesReservedKeywordInIndexDeclarationSQL() : string
     {
         return 'INDEX "select" (foo)';
     }
@@ -897,7 +926,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     /**
      * {@inheritdoc}
      */
-    protected function getQuotesReservedKeywordInTruncateTableSQL()
+    protected function getQuotesReservedKeywordInTruncateTableSQL() : string
     {
         return 'TRUNCATE "select"';
     }
@@ -905,7 +934,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     /**
      * {@inheritdoc}
      */
-    protected function getAlterStringToFixedStringSQL()
+    protected function getAlterStringToFixedStringSQL() : array
     {
         return ['ALTER TABLE mytable ALTER name TYPE CHAR(2)'];
     }
@@ -913,7 +942,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     /**
      * {@inheritdoc}
      */
-    protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL()
+    protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL() : array
     {
         return ['ALTER INDEX idx_foo RENAME TO idx_foo_renamed'];
     }
@@ -921,7 +950,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     /**
      * @group DBAL-1142
      */
-    public function testInitializesTsvectorTypeMapping()
+    public function testInitializesTsvectorTypeMapping() : void
     {
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('tsvector'));
         self::assertEquals('text', $this->platform->getDoctrineTypeMapping('tsvector'));
@@ -930,7 +959,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     /**
      * @group DBAL-1220
      */
-    public function testReturnsDisallowDatabaseConnectionsSQL()
+    public function testReturnsDisallowDatabaseConnectionsSQL() : void
     {
         self::assertSame(
             "UPDATE pg_database SET datallowconn = 'false' WHERE datname = 'foo'",
@@ -941,7 +970,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     /**
      * @group DBAL-1220
      */
-    public function testReturnsCloseActiveDatabaseConnectionsSQL()
+    public function testReturnsCloseActiveDatabaseConnectionsSQL() : void
     {
         self::assertSame(
             "SELECT pg_terminate_backend(procpid) FROM pg_stat_activity WHERE datname = 'foo'",
@@ -952,7 +981,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     /**
      * @group DBAL-2436
      */
-    public function testQuotesTableNameInListTableForeignKeysSQL()
+    public function testQuotesTableNameInListTableForeignKeysSQL() : void
     {
         self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",
@@ -963,7 +992,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     /**
      * @group DBAL-2436
      */
-    public function testQuotesSchemaNameInListTableForeignKeysSQL()
+    public function testQuotesSchemaNameInListTableForeignKeysSQL() : void
     {
         self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",
@@ -974,7 +1003,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     /**
      * @group DBAL-2436
      */
-    public function testQuotesTableNameInListTableConstraintsSQL()
+    public function testQuotesTableNameInListTableConstraintsSQL() : void
     {
         self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",
@@ -985,7 +1014,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     /**
      * @group DBAL-2436
      */
-    public function testQuotesTableNameInListTableIndexesSQL()
+    public function testQuotesTableNameInListTableIndexesSQL() : void
     {
         self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",
@@ -996,7 +1025,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     /**
      * @group DBAL-2436
      */
-    public function testQuotesSchemaNameInListTableIndexesSQL()
+    public function testQuotesSchemaNameInListTableIndexesSQL() : void
     {
         self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",
@@ -1007,7 +1036,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     /**
      * @group DBAL-2436
      */
-    public function testQuotesTableNameInListTableColumnsSQL()
+    public function testQuotesTableNameInListTableColumnsSQL() : void
     {
         self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",
@@ -1018,7 +1047,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     /**
      * @group DBAL-2436
      */
-    public function testQuotesSchemaNameInListTableColumnsSQL()
+    public function testQuotesSchemaNameInListTableColumnsSQL() : void
     {
         self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",
@@ -1029,7 +1058,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     /**
      * @group DBAL-2436
      */
-    public function testQuotesDatabaseNameInCloseActiveDatabaseConnectionsSQL()
+    public function testQuotesDatabaseNameInCloseActiveDatabaseConnectionsSQL() : void
     {
         self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",

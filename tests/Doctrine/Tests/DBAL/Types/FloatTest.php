@@ -22,22 +22,22 @@ class FloatTest extends DbalTestCase
         $this->type     = Type::getType('float');
     }
 
-    public function testFloatConvertsToPHPValue()
+    public function testFloatConvertsToPHPValue() : void
     {
         self::assertIsFloat($this->type->convertToPHPValue('5.5', $this->platform));
     }
 
-    public function testFloatNullConvertsToPHPValue()
+    public function testFloatNullConvertsToPHPValue() : void
     {
         self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }
 
-    public function testFloatConvertToDatabaseValue()
+    public function testFloatConvertToDatabaseValue() : void
     {
         self::assertIsFloat($this->type->convertToDatabaseValue(5.5, $this->platform));
     }
 
-    public function testFloatNullConvertToDatabaseValue()
+    public function testFloatNullConvertToDatabaseValue() : void
     {
         self::assertNull($this->type->convertToDatabaseValue(null, $this->platform));
     }

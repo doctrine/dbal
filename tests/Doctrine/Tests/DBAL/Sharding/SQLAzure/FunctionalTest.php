@@ -7,7 +7,7 @@ use function count;
 
 class FunctionalTest extends AbstractTestCase
 {
-    public function testSharding()
+    public function testSharding() : void
     {
         $schema = $this->createShopSchema();
 

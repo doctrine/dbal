@@ -14,7 +14,7 @@ use ReflectionMethod;
  */
 class DBAL461Test extends TestCase
 {
-    public function testIssue()
+    public function testIssue() : void
     {
         $conn     = $this->createMock(Connection::class);
         $platform = $this->getMockForAbstractClass(AbstractPlatform::class);
