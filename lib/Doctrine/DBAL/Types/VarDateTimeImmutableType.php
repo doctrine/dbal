@@ -18,7 +18,7 @@ class VarDateTimeImmutableType extends VarDateTimeType
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName() : string
     {
         return Types::DATETIME_IMMUTABLE;
     }
@@ -64,7 +64,7 @@ class VarDateTimeImmutableType extends VarDateTimeType
     /**
      * {@inheritdoc}
      */
-    public function requiresSQLCommentHint(AbstractPlatform $platform)
+    public function requiresSQLCommentHint(AbstractPlatform $platform) : bool
     {
         return true;
     }
