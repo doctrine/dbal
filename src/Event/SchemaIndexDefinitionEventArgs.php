@@ -3,7 +3,6 @@
 namespace Doctrine\DBAL\Event;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Index;
 
 /**
@@ -80,13 +79,5 @@ class SchemaIndexDefinitionEventArgs extends SchemaEventArgs
     public function getConnection()
     {
         return $this->connection;
-    }
-
-    /**
-     * @return AbstractPlatform
-     */
-    public function getDatabasePlatform()
-    {
-        return $this->connection->getDatabasePlatform();
     }
 }
