@@ -190,7 +190,8 @@ class WriteTest extends DbalFunctionalTestCase
             $this->markTestSkipped("Test only works consistently on platforms that support sequences and don't support identity columns.");
         }
 
-        self::assertFalse($this->lastInsertId());
+        $this->expectException(DriverException::class);
+        $this->lastInsertId();
     }
 
     /**

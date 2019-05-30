@@ -40,12 +40,8 @@ interface Connection
 
     /**
      * Returns the ID of the last inserted row or sequence value.
-     *
-     * @param string|null $name
-     *
-     * @return string
      */
-    public function lastInsertId($name = null);
+    public function lastInsertId(?string $name = null) : string;
 
     /**
      * Initiates a transaction.
