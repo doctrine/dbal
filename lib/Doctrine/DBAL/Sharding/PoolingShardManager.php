@@ -18,7 +18,7 @@ class PoolingShardManager implements ShardManager
     /** @var ShardChoser */
     private $choser;
 
-    /** @var string|null */
+    /** @var mixed */
     private $currentDistributionValue;
 
     public function __construct(PoolingShardConnection $conn)
@@ -31,7 +31,7 @@ class PoolingShardManager implements ShardManager
     /**
      * {@inheritDoc}
      */
-    public function selectGlobal()
+    public function selectGlobal() : void
     {
         $this->conn->connect(0);
         $this->currentDistributionValue = null;
@@ -40,7 +40,7 @@ class PoolingShardManager implements ShardManager
     /**
      * {@inheritDoc}
      */
-    public function selectShard($distributionValue)
+    public function selectShard($distributionValue) : void
     {
         $shardId = $this->choser->pickShard($distributionValue, $this->conn);
         $this->conn->connect($shardId);
@@ -58,7 +58,7 @@ class PoolingShardManager implements ShardManager
     /**
      * {@inheritDoc}
      */
-    public function getShards()
+    public function getShards() : array
     {
         $params = $this->conn->getParams();
         $shards = [];
@@ -75,7 +75,7 @@ class PoolingShardManager implements ShardManager
      *
      * @throws RuntimeException
      */
-    public function queryAll($sql, array $params, array $types)
+    public function queryAll(string $sql, array $params, array $types) : array
     {
         $shards = $this->getShards();
         if (! $shards) {

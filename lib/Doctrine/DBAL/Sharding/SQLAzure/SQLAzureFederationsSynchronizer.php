@@ -158,7 +158,7 @@ class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
     /**
      * @return Schema[]
      */
-    private function partitionSchema(Schema $schema)
+    private function partitionSchema(Schema $schema) : array
     {
         return [
             $this->extractSchemaFederation($schema, false),
@@ -167,13 +167,9 @@ class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
     }
 
     /**
-     * @param bool $isFederation
-     *
-     * @return Schema
-     *
      * @throws RuntimeException
      */
-    private function extractSchemaFederation(Schema $schema, $isFederation)
+    private function extractSchemaFederation(Schema $schema, bool $isFederation) : Schema
     {
         $partitionedSchema = clone $schema;
 
@@ -204,7 +200,7 @@ class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
      *
      * @return string[]
      */
-    private function work(Schema $schema, Closure $operation)
+    private function work(Schema $schema, Closure $operation) : array
     {
         [$global, $federation] = $this->partitionSchema($schema);
         $sql                   = [];
@@ -235,10 +231,7 @@ class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
         return $sql;
     }
 
-    /**
-     * @return string
-     */
-    private function getFederationTypeDefaultValue()
+    private function getFederationTypeDefaultValue() : string
     {
         $federationType = Type::getType($this->shardManager->getDistributionType());
 
@@ -259,10 +252,7 @@ class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
         return $defaultValue;
     }
 
-    /**
-     * @return string
-     */
-    private function getCreateFederationStatement()
+    private function getCreateFederationStatement() : string
     {
         $federationType    = Type::getType($this->shardManager->getDistributionType());
         $federationTypeSql = $federationType->getSQLDeclaration([], $this->conn->getDatabasePlatform());

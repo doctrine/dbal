@@ -27,26 +27,22 @@ interface ShardManager
      *
      * This is the default database that is connected when no shard is
      * selected.
-     *
-     * @return void
      */
-    public function selectGlobal();
+    public function selectGlobal() : void;
 
     /**
      * Selects the shard against which the queries after this statement will be issued.
      *
-     * @param string $distributionValue
-     *
-     * @return void
+     * @param mixed $distributionValue
      *
      * @throws ShardingException If no value is passed as shard identifier.
      */
-    public function selectShard($distributionValue);
+    public function selectShard($distributionValue) : void;
 
     /**
      * Gets the distribution value currently used for sharding.
      *
-     * @return string|null
+     * @return mixed
      */
     public function getCurrentDistributionValue();
 
@@ -58,7 +54,7 @@ interface ShardManager
      *
      * @return mixed[][]
      */
-    public function getShards();
+    public function getShards() : array;
 
     /**
      * Queries all shards in undefined order and return the results appended to
@@ -66,11 +62,10 @@ interface ShardManager
      *
      * Using {@link \Doctrine\DBAL\Connection::fetchAll} to retrieve rows internally.
      *
-     * @param string         $sql
      * @param mixed[]        $params
      * @param int[]|string[] $types
      *
      * @return mixed[]
      */
-    public function queryAll($sql, array $params, array $types);
+    public function queryAll(string $sql, array $params, array $types) : array;
 }
