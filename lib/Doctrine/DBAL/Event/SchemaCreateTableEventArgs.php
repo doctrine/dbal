@@ -9,14 +9,15 @@ use Doctrine\DBAL\Schema\Table;
 use function array_merge;
 
 /**
- * Event Arguments used when SQL queries for creating tables are generated inside Doctrine\DBAL\Platform\AbstractPlatform.
+ * Event Arguments used when SQL queries for creating tables are generated
+ * inside Doctrine\DBAL\Platform\AbstractPlatform.
  */
 class SchemaCreateTableEventArgs extends SchemaEventArgs
 {
     /** @var Table */
     private $table;
 
-    /** @var array<string, array<string, mixed>> */
+    /** @var array<int, array<string, mixed>> */
     private $columns;
 
     /** @var array<string, mixed> */
@@ -29,8 +30,8 @@ class SchemaCreateTableEventArgs extends SchemaEventArgs
     private $sql = [];
 
     /**
-     * @param array<string, array<string, mixed>> $columns
-     * @param array<string, mixed>                $options
+     * @param array<int, array<string, mixed>> $columns
+     * @param array<string, mixed>             $options
      */
     public function __construct(Table $table, array $columns, array $options, AbstractPlatform $platform)
     {
@@ -46,7 +47,7 @@ class SchemaCreateTableEventArgs extends SchemaEventArgs
     }
 
     /**
-     * @return array<string, array<string, mixed>>
+     * @return array<int, array<string, mixed>>
      */
     public function getColumns() : array
     {

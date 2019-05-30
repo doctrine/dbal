@@ -367,17 +367,16 @@ class OraclePlatform extends AbstractPlatform
         $options['indexes'] = [];
         $sql                = parent::_getCreateTableSQL($tableName, $columns, $options);
 
-        foreach ($columns as $name => $column) {
+        foreach ($columns as $column) {
             if (isset($column['sequence'])) {
                 $sql[] = $this->getCreateSequenceSQL($column['sequence']);
             }
 
-            if (! isset($column['autoincrement']) || ! $column['autoincrement'] &&
-               (! isset($column['autoinc']) || ! $column['autoinc'])) {
+            if (empty($column['autoincrement'])) {
                 continue;
             }
 
-            $sql = array_merge($sql, $this->getCreateAutoincrementSql($name, $tableName));
+            $sql = array_merge($sql, $this->getCreateAutoincrementSql($column['name'], $tableName));
         }
 
         if (isset($indexes) && ! empty($indexes)) {
