@@ -160,21 +160,17 @@ abstract class Type
     /**
      * Gets the SQL declaration snippet for a field of this type.
      *
-     * @param mixed[]          $fieldDeclaration The field declaration.
-     * @param AbstractPlatform $platform         The currently used database platform.
-     *
-     * @return string
+     * @param array<string, mixed> $fieldDeclaration The field declaration.
+     * @param AbstractPlatform     $platform         The currently used database platform.
      */
-    abstract public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform);
+    abstract public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform) : string;
 
     /**
      * Gets the name of this type.
      *
-     * @return string
-     *
      * @todo Needed?
      */
-    abstract public function getName();
+    abstract public function getName() : string;
 
     /**
      * @internal This method is only to be used within DBAL for forward compatibility purposes. Do not use directly.
@@ -205,11 +201,9 @@ abstract class Type
      *
      * @param string $name The name of the type (as returned by getName()).
      *
-     * @return \Doctrine\DBAL\Types\Type
-     *
      * @throws DBALException
      */
-    public static function getType($name)
+    public static function getType(string $name) : self
     {
         return self::getTypeRegistry()->get($name);
     }
@@ -220,11 +214,9 @@ abstract class Type
      * @param string $name      The name of the type. This should correspond to what getName() returns.
      * @param string $className The class name of the custom type.
      *
-     * @return void
-     *
      * @throws DBALException
      */
-    public static function addType($name, $className)
+    public static function addType(string $name, string $className) : void
     {
         self::getTypeRegistry()->register($name, new $className());
     }
@@ -236,7 +228,7 @@ abstract class Type
      *
      * @return bool TRUE if type is supported; FALSE otherwise.
      */
-    public static function hasType($name)
+    public static function hasType(string $name) : bool
     {
         return self::getTypeRegistry()->has($name);
     }
@@ -244,14 +236,9 @@ abstract class Type
     /**
      * Overrides an already defined type to use a different implementation.
      *
-     * @param string $name
-     * @param string $className
-     *
-     * @return void
-     *
      * @throws DBALException
      */
-    public static function overrideType($name, $className)
+    public static function overrideType(string $name, string $className) : void
     {
         self::getTypeRegistry()->override($name, new $className());
     }
@@ -261,10 +248,8 @@ abstract class Type
      * can be used when binding parameters to prepared statements.
      *
      * This method should return one of the {@link \Doctrine\DBAL\ParameterType} constants.
-     *
-     * @return int
      */
-    public function getBindingType()
+    public function getBindingType() : int
     {
         return ParameterType::STRING;
     }
@@ -273,9 +258,9 @@ abstract class Type
      * Gets the types array map which holds all registered types and the corresponding
      * type class
      *
-     * @return string[]
+     * @return array<string, string>
      */
-    public static function getTypesMap()
+    public static function getTypesMap() : array
     {
         return array_map(
             static function (Type $type) : string {
@@ -292,35 +277,24 @@ abstract class Type
      * Usage of {@link convertToDatabaseValueSQL} and
      * {@link convertToPHPValueSQL} works for any type and mostly
      * does nothing. This method can additionally be used for optimization purposes.
-     *
-     * @return bool
      */
-    public function canRequireSQLConversion()
+    public function canRequireSQLConversion() : bool
     {
         return false;
     }
 
     /**
      * Modifies the SQL expression (identifier, parameter) to convert to a database value.
-     *
-     * @param string $sqlExpr
-     *
-     * @return string
      */
-    public function convertToDatabaseValueSQL($sqlExpr, AbstractPlatform $platform)
+    public function convertToDatabaseValueSQL(string $sqlExpr, AbstractPlatform $platform) : string
     {
         return $sqlExpr;
     }
 
     /**
      * Modifies the SQL expression (identifier, parameter) to convert to a PHP value.
-     *
-     * @param string           $sqlExpr
-     * @param AbstractPlatform $platform
-     *
-     * @return string
      */
-    public function convertToPHPValueSQL($sqlExpr, $platform)
+    public function convertToPHPValueSQL(string $sqlExpr, AbstractPlatform $platform) : string
     {
         return $sqlExpr;
     }
@@ -328,9 +302,9 @@ abstract class Type
     /**
      * Gets an array of database types that map to this Doctrine type.
      *
-     * @return string[]
+     * @return array<int, string>
      */
-    public function getMappedDatabaseTypes(AbstractPlatform $platform)
+    public function getMappedDatabaseTypes(AbstractPlatform $platform) : array
     {
         return [];
     }
@@ -340,10 +314,8 @@ abstract class Type
      * reverse schema engineering can't tell them apart. You need to mark
      * one of those types as commented, which will have Doctrine use an SQL
      * comment to typehint the actual Doctrine Type.
-     *
-     * @return bool
      */
-    public function requiresSQLCommentHint(AbstractPlatform $platform)
+    public function requiresSQLCommentHint(AbstractPlatform $platform) : bool
     {
         return false;
     }

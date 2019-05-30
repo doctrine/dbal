@@ -14,7 +14,7 @@ class DecimalType extends Type
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName() : string
     {
         return Types::DECIMAL;
     }
@@ -22,7 +22,7 @@ class DecimalType extends Type
     /**
      * {@inheritdoc}
      */
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
+    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform) : string
     {
         return $platform->getDecimalTypeDeclarationSQL($fieldDeclaration);
     }

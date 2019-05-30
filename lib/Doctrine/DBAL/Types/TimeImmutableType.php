@@ -17,7 +17,7 @@ class TimeImmutableType extends TimeType
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName() : string
     {
         return Types::TIME_IMMUTABLE;
     }
@@ -67,7 +67,7 @@ class TimeImmutableType extends TimeType
     /**
      * {@inheritdoc}
      */
-    public function requiresSQLCommentHint(AbstractPlatform $platform)
+    public function requiresSQLCommentHint(AbstractPlatform $platform) : bool
     {
         return true;
     }
