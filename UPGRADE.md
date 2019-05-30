@@ -42,6 +42,10 @@ The  `Doctrine\DBAL\Driver\SQLSrv\SQLSrvStatement::LAST_INSERT_ID_SQL` constant 
 
 The constants in `Doctrine\DBAL\SQLParserUtils` have been deprecated and will be made private in 3.0.
 
+## Deprecated `LoggerChain::addLogger` method
+
+The `Doctrine\DBAL\Logging\LoggerChain::addLogger` method has been deprecated. Inject list of loggers via constructor instead.
+
 # Upgrade to 2.9
 
 ## Deprecated `Statement::fetchColumn()` with an invalid index
