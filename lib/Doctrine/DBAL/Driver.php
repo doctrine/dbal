@@ -48,7 +48,7 @@ interface Driver
     /**
      * Gets the name of the database connected to for this driver.
      *
-     * @return string The name of the database or NULL if no database is currently selected.
+     * @return string|null The name of the database or NULL if no database is currently selected.
      */
     public function getDatabase(Connection $conn) : ?string;
 }

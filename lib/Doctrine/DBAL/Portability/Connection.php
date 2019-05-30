@@ -82,18 +82,12 @@ class Connection extends \Doctrine\DBAL\Connection
         }
     }
 
-    /**
-     * @return int
-     */
-    public function getPortability()
+    public function getPortability() : int
     {
         return $this->portability;
     }
 
-    /**
-     * @return int
-     */
-    public function getFetchCase()
+    public function getFetchCase() : ?int
     {
         return $this->case;
     }
