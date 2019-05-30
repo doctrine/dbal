@@ -7,7 +7,7 @@ namespace Doctrine\DBAL\Event;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Table;
-use function is_array;
+use function array_merge;
 
 /**
  * Event Arguments used when SQL queries for creating table columns are generated inside Doctrine\DBAL\Platform\AbstractPlatform.
@@ -33,44 +33,27 @@ class SchemaCreateTableColumnEventArgs extends SchemaEventArgs
         $this->platform = $platform;
     }
 
-    /**
-     * @return Column
-     */
-    public function getColumn()
+    public function getColumn() : Column
     {
         return $this->column;
     }
 
-    /**
-     * @return Table
-     */
-    public function getTable()
+    public function getTable() : Table
     {
         return $this->table;
     }
 
-    /**
-     * @return AbstractPlatform
-     */
-    public function getPlatform()
+    public function getPlatform() : AbstractPlatform
     {
         return $this->platform;
     }
 
     /**
-     * @param string|string[] $sql
-     *
-     * @return \Doctrine\DBAL\Event\SchemaCreateTableColumnEventArgs
+     * @return $this
      */
-    public function addSql($sql)
+    public function addSql(string ...$sql) : self
     {
-        if (is_array($sql)) {
-            foreach ($sql as $query) {
-                $this->sql[] = $query;
-            }
-        } else {
-            $this->sql[] = $sql;
-        }
+        $this->sql = array_merge($this->sql, $sql);
 
         return $this;
     }
@@ -78,7 +61,7 @@ class SchemaCreateTableColumnEventArgs extends SchemaEventArgs
     /**
      * @return array<int, string>
      */
-    public function getSql()
+    public function getSql() : array
     {
         return $this->sql;
     }

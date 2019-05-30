@@ -8,7 +8,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\TableDiff;
 use function array_merge;
-use function is_array;
 
 /**
  * Event Arguments used when SQL queries for changing table columns are generated inside Doctrine\DBAL\Platform\*Platform.
@@ -24,7 +23,7 @@ class SchemaAlterTableChangeColumnEventArgs extends SchemaEventArgs
     /** @var AbstractPlatform */
     private $platform;
 
-    /** @var string[] */
+    /** @var array<int, string> */
     private $sql = [];
 
     public function __construct(ColumnDiff $columnDiff, TableDiff $tableDiff, AbstractPlatform $platform)
@@ -34,50 +33,35 @@ class SchemaAlterTableChangeColumnEventArgs extends SchemaEventArgs
         $this->platform   = $platform;
     }
 
-    /**
-     * @return ColumnDiff
-     */
-    public function getColumnDiff()
+    public function getColumnDiff() : ColumnDiff
     {
         return $this->columnDiff;
     }
 
-    /**
-     * @return TableDiff
-     */
-    public function getTableDiff()
+    public function getTableDiff() : TableDiff
     {
         return $this->tableDiff;
     }
 
-    /**
-     * @return AbstractPlatform
-     */
-    public function getPlatform()
+    public function getPlatform() : AbstractPlatform
     {
         return $this->platform;
     }
 
     /**
-     * @param string|string[] $sql
-     *
-     * @return \Doctrine\DBAL\Event\SchemaAlterTableChangeColumnEventArgs
+     * @return $this
      */
-    public function addSql($sql)
+    public function addSql(string ...$sql) : self
     {
-        if (is_array($sql)) {
-            $this->sql = array_merge($this->sql, $sql);
-        } else {
-            $this->sql[] = $sql;
-        }
+        $this->sql = array_merge($this->sql, $sql);
 
         return $this;
     }
 
     /**
-     * @return string[]
+     * @return array<int, string>
      */
-    public function getSql()
+    public function getSql() : array
     {
         return $this->sql;
     }
