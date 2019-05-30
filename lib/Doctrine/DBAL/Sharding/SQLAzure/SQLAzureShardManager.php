@@ -35,7 +35,7 @@ class SQLAzureShardManager implements ShardManager
     /** @var Connection */
     private $conn;
 
-    /** @var string|null */
+    /** @var mixed */
     private $currentDistributionValue;
 
     /**
@@ -66,50 +66,40 @@ class SQLAzureShardManager implements ShardManager
 
     /**
      * Gets the name of the federation.
-     *
-     * @return string
      */
-    public function getFederationName()
+    public function getFederationName() : string
     {
         return $this->federationName;
     }
 
     /**
      * Gets the distribution key.
-     *
-     * @return string
      */
-    public function getDistributionKey()
+    public function getDistributionKey() : string
     {
         return $this->distributionKey;
     }
 
     /**
      * Gets the Doctrine Type name used for the distribution.
-     *
-     * @return string
      */
-    public function getDistributionType()
+    public function getDistributionType() : string
     {
         return $this->distributionType;
     }
 
     /**
      * Sets Enabled/Disable filtering on the fly.
-     *
-     * @param bool $flag
-     *
-     * @return void
      */
-    public function setFilteringEnabled($flag)
+    public function setFilteringEnabled(bool $flag) : void
     {
-        $this->filteringEnabled = (bool) $flag;
+        $this->filteringEnabled = $flag;
     }
 
     /**
      * {@inheritDoc}
      */
-    public function selectGlobal()
+    public function selectGlobal() : void
     {
         if ($this->conn->isTransactionActive()) {
             throw ActiveTransaction::new();
@@ -123,7 +113,7 @@ class SQLAzureShardManager implements ShardManager
     /**
      * {@inheritDoc}
      */
-    public function selectShard($distributionValue)
+    public function selectShard($distributionValue) : void
     {
         if ($this->conn->isTransactionActive()) {
             throw ActiveTransaction::new();
@@ -153,7 +143,7 @@ class SQLAzureShardManager implements ShardManager
     /**
      * {@inheritDoc}
      */
-    public function getShards()
+    public function getShards() : array
     {
         $sql = 'SELECT member_id as id,
                       distribution_name as distribution_key,
@@ -169,7 +159,7 @@ class SQLAzureShardManager implements ShardManager
      /**
       * {@inheritDoc}
       */
-    public function queryAll($sql, array $params = [], array $types = [])
+    public function queryAll(string $sql, array $params = [], array $types = []) : array
     {
         $shards = $this->getShards();
         if (! $shards) {
@@ -199,10 +189,8 @@ class SQLAzureShardManager implements ShardManager
      * Splits Federation at a given distribution value.
      *
      * @param mixed $splitDistributionValue
-     *
-     * @return void
      */
-    public function splitFederation($splitDistributionValue)
+    public function splitFederation($splitDistributionValue) : void
     {
         $type = Type::getType($this->distributionType);
 
