@@ -7,9 +7,7 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Types\Type;
 use const CASE_LOWER;
 use function array_change_key_case;
-use function assert;
 use function is_resource;
-use function is_string;
 use function preg_match;
 use function str_replace;
 use function strpos;
@@ -29,12 +27,9 @@ class DB2SchemaManager extends AbstractSchemaManager
      */
     public function listTableNames() : array
     {
-        $username = $this->_conn->getUsername();
-        assert(is_string($username));
+        $sql = $this->_platform->getListTablesSQL() . ' AND CREATOR = CURRENT_USER';
 
-        $sql = $this->_platform->getListTablesSQL() . ' AND CREATOR = UPPER(?)';
-
-        $tables = $this->_conn->fetchAll($sql, [$username]);
+        $tables = $this->_conn->fetchAll($sql);
 
         return $this->filterAssetNames($this->_getPortableTablesList($tables));
     }

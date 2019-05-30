@@ -37,22 +37,15 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
     /**
      * Creates a Connection to an Oracle Database using oci8 extension.
      *
-     * @param string $username
-     * @param string $password
-     * @param string $db
-     * @param string $charset
-     * @param int    $sessionMode
-     * @param bool   $persistent
-     *
      * @throws OCI8Exception
      */
     public function __construct(
-        $username,
-        $password,
-        $db,
-        $charset = '',
-        $sessionMode = OCI_DEFAULT,
-        $persistent = false
+        string $username,
+        string $password,
+        string $db,
+        string $charset = '',
+        int $sessionMode = OCI_DEFAULT,
+        bool $persistent = false
     ) {
         $dbh = $persistent
             ? @oci_pconnect($username, $password, $db, $charset, $sessionMode)
@@ -71,7 +64,7 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
      * @throws UnexpectedValueException If the version string returned by the database server
      *                                  does not contain a parsable version number.
      */
-    public function getServerVersion()
+    public function getServerVersion() : string
     {
         $version = oci_server_version($this->dbh);
 
@@ -95,7 +88,7 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function requiresQueryForServerVersion()
+    public function requiresQueryForServerVersion() : bool
     {
         return false;
     }
@@ -141,10 +134,10 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function lastInsertId($name = null)
+    public function lastInsertId(?string $name = null) : string
     {
         if ($name === null) {
-            return false;
+            throw new OCI8Exception('The driver does not support identity columns.');
         }
 
         $sql    = 'SELECT ' . $name . '.CURRVAL FROM DUAL';
@@ -155,15 +148,13 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
             throw new OCI8Exception('lastInsertId failed: Query was executed but no result was returned.');
         }
 
-        return (int) $result;
+        return $result;
     }
 
     /**
      * Returns the current execution mode.
-     *
-     * @return int
      */
-    public function getExecuteMode()
+    public function getExecuteMode() : int
     {
         return $this->executeMode;
     }
