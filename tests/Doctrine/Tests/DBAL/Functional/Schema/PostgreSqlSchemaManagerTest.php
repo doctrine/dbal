@@ -522,7 +522,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
 class MoneyType extends Type
 {
-    public function getName()
+    public function getName() : string
     {
         return 'MyMoney';
     }
@@ -530,7 +530,7 @@ class MoneyType extends Type
     /**
      * {@inheritDoc}
      */
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
+    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform) : string
     {
         return 'MyMoney';
     }
