@@ -29,10 +29,8 @@ class ConnectionHelper extends Helper
 
     /**
      * Retrieves the Doctrine database Connection.
-     *
-     * @return Connection
      */
-    public function getConnection()
+    public function getConnection() : Connection
     {
         return $this->_connection;
     }
