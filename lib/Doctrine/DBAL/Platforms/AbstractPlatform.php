@@ -1345,7 +1345,10 @@ abstract class AbstractPlatform
                 $columnData['primary'] = true;
             }
 
-            $columns[$columnData['name']] = $columnData;
+            $columnName = $columnData['name'];
+            assert(is_string($columnName));
+
+            $columns[$columnName] = $columnData;
         }
 
         if ($this->_eventManager !== null && $this->_eventManager->hasListeners(Events::onSchemaCreateTable)) {
