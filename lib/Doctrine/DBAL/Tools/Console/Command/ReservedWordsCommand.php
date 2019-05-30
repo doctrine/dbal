@@ -30,7 +30,7 @@ use function sprintf;
 
 class ReservedWordsCommand extends Command
 {
-    /** @var string[] */
+    /** @var array<string, string> */
     private $keywordListClasses = [
         'db2'           => DB2Keywords::class,
         'mysql'         => MySQLKeywords::class,
@@ -48,13 +48,8 @@ class ReservedWordsCommand extends Command
 
     /**
      * If you want to add or replace a keywords list use this command.
-     *
-     * @param string $name
-     * @param string $class
-     *
-     * @return void
      */
-    public function setKeywordListClass($name, $class)
+    public function setKeywordListClass(string $name, string $class) : void
     {
         $this->keywordListClasses[$name] = $class;
     }
@@ -62,7 +57,7 @@ class ReservedWordsCommand extends Command
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure() : void
     {
         $this
         ->setName('dbal:reserved-words')
