@@ -54,11 +54,9 @@ class MultiTenantVisitor implements Visitor
     private $distributionName;
 
     /**
-     * @param string[]    $excludedTables
-     * @param string      $tenantColumnName
-     * @param string|null $distributionName
+     * @param string[] $excludedTables
      */
-    public function __construct(array $excludedTables = [], $tenantColumnName = 'tenant_id', $distributionName = null)
+    public function __construct(array $excludedTables = [], string $tenantColumnName = 'tenant_id', ?string $distributionName = null)
     {
         $this->excludedTables   = $excludedTables;
         $this->tenantColumnName = $tenantColumnName;
@@ -94,13 +92,9 @@ class MultiTenantVisitor implements Visitor
     }
 
     /**
-     * @param Table $table
-     *
-     * @return Index
-     *
      * @throws RuntimeException
      */
-    private function getClusteredIndex($table)
+    private function getClusteredIndex(Table $table) : Index
     {
         foreach ($table->getIndexes() as $index) {
             if ($index->isPrimary() && ! $index->hasFlag('nonclustered')) {
