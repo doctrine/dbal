@@ -44,20 +44,16 @@ class Configuration
 
     /**
      * Gets the cache driver implementation that is used for query result caching.
-     *
-     * @return Cache|null
      */
-    public function getResultCacheImpl()
+    public function getResultCacheImpl() : ?Cache
     {
         return $this->_attributes['resultCacheImpl'] ?? null;
     }
 
     /**
      * Sets the cache driver implementation that is used for query result caching.
-     *
-     * @return void
      */
-    public function setResultCacheImpl(Cache $cacheImpl)
+    public function setResultCacheImpl(Cache $cacheImpl) : void
     {
         $this->_attributes['resultCacheImpl'] = $cacheImpl;
     }
@@ -70,12 +66,8 @@ class Configuration
      * {AbstractSchemaManager#createSchema()}.
      *
      * @deprecated Use Configuration::setSchemaAssetsFilter() instead
-     *
-     * @param string $filterExpression
-     *
-     * @return void
      */
-    public function setFilterSchemaAssetsExpression($filterExpression)
+    public function setFilterSchemaAssetsExpression(?string $filterExpression) : void
     {
         $this->_attributes['filterSchemaAssetsExpression'] = $filterExpression;
         if ($filterExpression) {
@@ -85,17 +77,14 @@ class Configuration
         }
     }
 
-    /**
-     * @param string $filterExpression
-     */
-    private function buildSchemaAssetsFilterFromExpression($filterExpression) : callable
+    private function buildSchemaAssetsFilterFromExpression(string $filterExpression) : callable
     {
-        return static function ($assetName) use ($filterExpression) {
+        return static function ($assetName) use ($filterExpression) : bool {
             if ($assetName instanceof AbstractAsset) {
                 $assetName = $assetName->getName();
             }
 
-            return preg_match($filterExpression, $assetName);
+            return preg_match($filterExpression, $assetName) > 0;
         };
     }
 
@@ -124,13 +113,13 @@ class Configuration
      * transactions. Otherwise, its SQL statements are grouped into transactions that are terminated by a call to either
      * the method commit or the method rollback. By default, new connections are in auto-commit mode.
      *
-     * @see   getAutoCommit
+     * @see getAutoCommit
      *
      * @param bool $autoCommit True to enable auto-commit mode; false to disable it.
      */
-    public function setAutoCommit($autoCommit)
+    public function setAutoCommit(bool $autoCommit) : void
     {
-        $this->_attributes['autoCommit'] = (bool) $autoCommit;
+        $this->_attributes['autoCommit'] = $autoCommit;
     }
 
     /**
@@ -140,7 +129,7 @@ class Configuration
      *
      * @return bool True if auto-commit mode is enabled by default for connections, false otherwise.
      */
-    public function getAutoCommit()
+    public function getAutoCommit() : bool
     {
         return $this->_attributes['autoCommit'] ?? true;
     }
