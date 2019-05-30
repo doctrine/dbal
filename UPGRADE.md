@@ -1,5 +1,14 @@
 # Upgrade to 3.0
 
+## BC BREAK: Changes in the `Doctrine\DBAL\Connection` API
+
+- The following methods have been removed as leaking internal implementation details: `::getHost()`, `::getPort()`, `::getUsername()`, `::getPassword()`.
+- The `::getDatabase()` method can now return null which means that no database is currently selected.
+
+## BC BREAK: Changes in `Doctrine\DBAL\Driver\SQLSrv\LastInsertId`
+
+- The class stores the last inserted ID as a nullable string, not an integer, which is reflected in the method signatures.
+
 ## BC BREAK: Changes in the `Doctrine\DBAL\Schema` API
 
 - Method `Doctrine\DBAL\Schema\AbstractSchemaManager::_getPortableViewDefinition()` no longer optionally returns false. It will always return a `Doctrine\DBAL\Schema\View` instance.

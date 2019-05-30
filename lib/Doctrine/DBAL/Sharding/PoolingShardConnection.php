@@ -53,13 +53,13 @@ use function sprintf;
  */
 class PoolingShardConnection extends Connection
 {
-    /** @var DriverConnection[] */
+    /** @var array<int, DriverConnection>|array<string, DriverConnection> */
     private $activeConnections = [];
 
     /** @var string|int|null */
     private $activeShardId;
 
-    /** @var mixed[] */
+    /** @var array<int, array<string, mixed>>|array<string, array<string, mixed>> */
     private $connectionParameters = [];
 
     /**
@@ -67,8 +67,12 @@ class PoolingShardConnection extends Connection
      *
      * @throws InvalidArgumentException
      */
-    public function __construct(array $params, Driver $driver, ?Configuration $config = null, ?EventManager $eventManager = null)
-    {
+    public function __construct(
+        array $params,
+        Driver $driver,
+        ?Configuration $config = null,
+        ?EventManager $eventManager = null
+    ) {
         if (! isset($params['global'], $params['shards'])) {
             throw new InvalidArgumentException('Connection Parameters require "global" and "shards" configurations.');
         }
@@ -119,49 +123,9 @@ class PoolingShardConnection extends Connection
     /**
      * {@inheritdoc}
      */
-    public function getParams()
+    public function getParams() : array
     {
         return $this->activeShardId ? $this->connectionParameters[$this->activeShardId] : $this->connectionParameters[0];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getHost()
-    {
-        $params = $this->getParams();
-
-        return $params['host'] ?? parent::getHost();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getPort()
-    {
-        $params = $this->getParams();
-
-        return $params['port'] ?? parent::getPort();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getUsername()
-    {
-        $params = $this->getParams();
-
-        return $params['user'] ?? parent::getUsername();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getPassword()
-    {
-        $params = $this->getParams();
-
-        return $params['password'] ?? parent::getPassword();
     }
 
     /**
@@ -207,10 +171,8 @@ class PoolingShardConnection extends Connection
      * Connects to a specific connection.
      *
      * @param string|int $shardId
-     *
-     * @return \Doctrine\DBAL\Driver\Connection
      */
-    protected function connectTo($shardId)
+    protected function connectTo($shardId) : DriverConnection
     {
         $params = $this->getParams();
 
@@ -226,10 +188,8 @@ class PoolingShardConnection extends Connection
 
     /**
      * @param string|int|null $shardId
-     *
-     * @return bool
      */
-    public function isConnected($shardId = null)
+    public function isConnected($shardId = null) : bool
     {
         if ($shardId === null) {
             return $this->_conn !== null;
@@ -238,10 +198,7 @@ class PoolingShardConnection extends Connection
         return isset($this->activeConnections[$shardId]);
     }
 
-    /**
-     * @return void
-     */
-    public function close()
+    public function close() : void
     {
         $this->_conn             = null;
         $this->activeConnections = [];
