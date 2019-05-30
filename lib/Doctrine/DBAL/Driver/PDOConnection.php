@@ -18,17 +18,14 @@ class PDOConnection implements Connection, ServerInfoAwareConnection
     private $connection;
 
     /**
-     * @param string       $dsn
-     * @param string|null  $user
-     * @param string|null  $password
-     * @param mixed[]|null $options
+     * @param array<int, mixed> $options
      *
      * @throws PDOException In case of an error.
      */
-    public function __construct($dsn, $user = null, $password = null, ?array $options = null)
+    public function __construct(string $dsn, string $username = '', string $password = '', array $options = [])
     {
         try {
-            $this->connection = new PDO($dsn, (string) $user, (string) $password, (array) $options);
+            $this->connection = new PDO($dsn, $username, $password, $options);
             $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
@@ -50,7 +47,7 @@ class PDOConnection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function getServerVersion()
+    public function getServerVersion() : string
     {
         return $this->connection->getAttribute(PDO::ATTR_SERVER_VERSION);
     }
@@ -95,7 +92,7 @@ class PDOConnection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function lastInsertId($name = null)
+    public function lastInsertId(?string $name = null) : string
     {
         try {
             if ($name === null) {
@@ -111,7 +108,7 @@ class PDOConnection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function requiresQueryForServerVersion()
+    public function requiresQueryForServerVersion() : bool
     {
         return false;
     }

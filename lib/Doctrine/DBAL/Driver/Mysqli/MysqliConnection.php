@@ -39,14 +39,12 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
     private $conn;
 
     /**
-     * @param mixed[] $params
-     * @param string  $username
-     * @param string  $password
-     * @param mixed[] $driverOptions
+     * @param array<string, mixed> $params
+     * @param array<int, mixed>    $driverOptions
      *
      * @throws MysqliException
      */
-    public function __construct(array $params, $username, $password, array $driverOptions = [])
+    public function __construct(array $params, string $username, string $password, array $driverOptions = [])
     {
         $port = $params['port'] ?? (int) ini_get('mysqli.default_port');
 
@@ -70,7 +68,8 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
         $this->setSecureConnection($params);
         $this->setDriverOptions($driverOptions);
 
-        set_error_handler(static function () {
+        set_error_handler(static function () : bool {
+            return true;
         });
         try {
             if (! $this->conn->real_connect($host, $username, $password, $dbname, $port, $socket, $flags)) {
@@ -91,10 +90,8 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
      * Retrieves mysqli native resource handle.
      *
      * Could be used if part of your application is not using DBAL.
-     *
-     * @return mysqli
      */
-    public function getWrappedResourceHandle()
+    public function getWrappedResourceHandle() : mysqli
     {
         return $this->conn;
     }
@@ -107,7 +104,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
      *
      * @link https://jira.mariadb.org/browse/MDEV-4088
      */
-    public function getServerVersion()
+    public function getServerVersion() : string
     {
         $serverInfos = $this->conn->get_server_info();
         if (stripos($serverInfos, 'mariadb') !== false) {
@@ -124,7 +121,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
     /**
      * {@inheritdoc}
      */
-    public function requiresQueryForServerVersion()
+    public function requiresQueryForServerVersion() : bool
     {
         return false;
     }
@@ -171,9 +168,9 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
     /**
      * {@inheritdoc}
      */
-    public function lastInsertId($name = null)
+    public function lastInsertId(?string $name = null) : string
     {
-        return $this->conn->insert_id;
+        return (string) $this->conn->insert_id;
     }
 
     /**
@@ -207,12 +204,12 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
     /**
      * Apply the driver options to the connection.
      *
-     * @param mixed[] $driverOptions
+     * @param array<int, mixed> $driverOptions
      *
      * @throws MysqliException When one of of the options is not supported.
      * @throws MysqliException When applying doesn't work - e.g. due to incorrect value.
      */
-    private function setDriverOptions(array $driverOptions = [])
+    private function setDriverOptions(array $driverOptions = []) : void
     {
         $supportedDriverOptions = [
             MYSQLI_OPT_CONNECT_TIMEOUT,
@@ -262,11 +259,11 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
     /**
      * Establish a secure connection
      *
-     * @param mixed[] $params
+     * @param array<string, mixed> $params
      *
      * @throws MysqliException
      */
-    private function setSecureConnection(array $params)
+    private function setSecureConnection(array $params) : void
     {
         if (! isset($params['ssl_key']) &&
             ! isset($params['ssl_cert']) &&

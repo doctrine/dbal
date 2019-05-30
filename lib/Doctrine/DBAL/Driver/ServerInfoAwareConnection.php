@@ -11,15 +11,13 @@ interface ServerInfoAwareConnection
 {
     /**
      * Returns the version number of the database server connected to.
-     *
-     * @return string
      */
-    public function getServerVersion();
+    public function getServerVersion() : string;
 
     /**
      * Checks whether a query is required to retrieve the database server version.
      *
      * @return bool True if a query is required to retrieve the database server version, false otherwise.
      */
-    public function requiresQueryForServerVersion();
+    public function requiresQueryForServerVersion() : bool;
 }

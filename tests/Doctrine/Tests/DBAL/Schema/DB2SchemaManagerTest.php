@@ -33,13 +33,9 @@ final class DB2SchemaManagerTest extends TestCase
         $platform     = $this->createMock(DB2Platform::class);
         $this->conn   = $this
             ->getMockBuilder(Connection::class)
-            ->onlyMethods(['fetchAll', 'getUsername'])
+            ->onlyMethods(['fetchAll'])
             ->setConstructorArgs([['platform' => $platform], $driverMock, new Configuration(), $eventManager])
             ->getMock();
-
-        $this->conn->expects($this->any())
-            ->method('getUsername')
-            ->willReturn('db2inst1');
 
         $this->manager = new DB2SchemaManager($this->conn);
     }

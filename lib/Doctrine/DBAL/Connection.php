@@ -114,7 +114,7 @@ class Connection implements DriverConnection
     /**
      * The parameters used during creation of the Connection instance.
      *
-     * @var mixed[]
+     * @var array<string, mixed>
      */
     private $params = [];
 
@@ -153,10 +153,10 @@ class Connection implements DriverConnection
     /**
      * Initializes a new instance of the Connection class.
      *
-     * @param mixed[]            $params       The connection parameters.
-     * @param Driver             $driver       The driver to use.
-     * @param Configuration|null $config       The configuration, optional.
-     * @param EventManager|null  $eventManager The event manager, optional.
+     * @param array<string, mixed> $params       The connection parameters.
+     * @param Driver               $driver       The driver to use.
+     * @param Configuration|null   $config       The configuration, optional.
+     * @param EventManager|null    $eventManager The event manager, optional.
      *
      * @throws DBALException
      */
@@ -197,97 +197,41 @@ class Connection implements DriverConnection
     /**
      * Gets the parameters used during instantiation.
      *
-     * @return mixed[]
+     * @return array<string, mixed>
      */
-    public function getParams()
+    public function getParams() : array
     {
         return $this->params;
     }
 
     /**
      * Gets the name of the database this Connection is connected to.
-     *
-     * @return string
      */
-    public function getDatabase()
+    public function getDatabase() : ?string
     {
         return $this->_driver->getDatabase($this);
     }
 
     /**
-     * Gets the hostname of the currently connected database.
-     *
-     * @deprecated
-     *
-     * @return string|null
-     */
-    public function getHost()
-    {
-        return $this->params['host'] ?? null;
-    }
-
-    /**
-     * Gets the port of the currently connected database.
-     *
-     * @deprecated
-     *
-     * @return mixed
-     */
-    public function getPort()
-    {
-        return $this->params['port'] ?? null;
-    }
-
-    /**
-     * Gets the username used by this connection.
-     *
-     * @deprecated
-     *
-     * @return string|null
-     */
-    public function getUsername()
-    {
-        return $this->params['user'] ?? null;
-    }
-
-    /**
-     * Gets the password used by this connection.
-     *
-     * @deprecated
-     *
-     * @return string|null
-     */
-    public function getPassword()
-    {
-        return $this->params['password'] ?? null;
-    }
-
-    /**
      * Gets the DBAL driver instance.
-     *
-     * @return Driver
      */
-    public function getDriver()
+    public function getDriver() : Driver
     {
         return $this->_driver;
     }
 
     /**
      * Gets the Configuration used by the Connection.
-     *
-     * @return Configuration
      */
-    public function getConfiguration()
+    public function getConfiguration() : Configuration
     {
         return $this->_config;
     }
 
     /**
      * Gets the EventManager used by the Connection.
-     *
-     * @return EventManager
      */
-    public function getEventManager()
+    public function getEventManager() : EventManager
     {
         return $this->_eventManager;
     }
@@ -295,11 +239,9 @@ class Connection implements DriverConnection
     /**
      * Gets the DatabasePlatform for the connection.
      *
-     * @return AbstractPlatform
-     *
      * @throws DBALException
      */
-    public function getDatabasePlatform()
+    public function getDatabasePlatform() : AbstractPlatform
     {
         if ($this->platform === null) {
             $this->detectDatabasePlatform();
@@ -310,10 +252,8 @@ class Connection implements DriverConnection
 
     /**
      * Gets the ExpressionBuilder for the connection.
-     *
-     * @return ExpressionBuilder
      */
-    public function getExpressionBuilder()
+    public function getExpressionBuilder() : ExpressionBuilder
     {
         return $this->_expr;
     }
@@ -357,7 +297,7 @@ class Connection implements DriverConnection
      *
      * @throws DBALException If an invalid platform was specified for this connection.
      */
-    private function detectDatabasePlatform()
+    private function detectDatabasePlatform() : void
     {
         $version = $this->getDatabasePlatformVersion();
 
@@ -380,11 +320,9 @@ class Connection implements DriverConnection
      * or the underlying driver connection cannot determine the platform
      * version without having to query it (performance reasons).
      *
-     * @return string|null
-     *
      * @throws Exception
      */
-    private function getDatabasePlatformVersion()
+    private function getDatabasePlatformVersion() : ?string
     {
         // Driver does not support version specific platforms.
         if (! $this->_driver instanceof VersionAwarePlatformDriver) {
@@ -437,10 +375,8 @@ class Connection implements DriverConnection
 
     /**
      * Returns the database server version if the underlying driver supports it.
-     *
-     * @return string|null
      */
-    private function getServerVersion()
+    private function getServerVersion() : ?string
     {
         $connection = $this->getWrappedConnection();
 
@@ -460,9 +396,9 @@ class Connection implements DriverConnection
      *
      * @return bool True if auto-commit mode is currently enabled for this connection, false otherwise.
      */
-    public function isAutoCommit()
+    public function isAutoCommit() : bool
     {
-        return $this->autoCommit === true;
+        return $this->autoCommit;
     }
 
     /**
@@ -475,7 +411,7 @@ class Connection implements DriverConnection
      * NOTE: If this method is called during a transaction and the auto-commit mode is changed, the transaction is
      * committed. If this method is called and the auto-commit mode is not changed, the call is a no-op.
      *
-     * @see   isAutoCommit
+     * @see isAutoCommit
      *
      * @throws ConnectionException
      * @throws DriverException
@@ -490,7 +426,7 @@ class Connection implements DriverConnection
         $this->autoCommit = $autoCommit;
 
         // Commit all currently active transactions if any when switching auto-commit mode.
-        if ($this->isConnected !== true || $this->transactionNestingLevel === 0) {
+        if (! $this->isConnected || $this->transactionNestingLevel === 0) {
             return;
         }
 
@@ -499,10 +435,8 @@ class Connection implements DriverConnection
 
     /**
      * Sets the fetch mode.
-     *
-     * @param int $fetchMode
      */
-    public function setFetchMode($fetchMode) : void
+    public function setFetchMode(int $fetchMode) : void
     {
         $this->defaultFetchMode = $fetchMode;
     }
@@ -511,58 +445,58 @@ class Connection implements DriverConnection
      * Prepares and executes an SQL query and returns the first row of the result
      * as an associative array.
      *
-     * @param string         $statement The SQL query.
-     * @param mixed[]        $params    The query parameters.
-     * @param int[]|string[] $types     The query parameter types.
+     * @param string                                           $query  The SQL query.
+     * @param array<int, mixed>|array<string, mixed>           $params The prepared statement params.
+     * @param array<int, int|string>|array<string, int|string> $types  The query parameter types.
      *
-     * @return mixed[]|false False is returned if no rows are found.
+     * @return array<string, mixed>|false False is returned if no rows are found.
      *
      * @throws DBALException
      */
-    public function fetchAssoc($statement, array $params = [], array $types = [])
+    public function fetchAssoc(string $query, array $params = [], array $types = [])
     {
-        return $this->executeQuery($statement, $params, $types)->fetch(FetchMode::ASSOCIATIVE);
+        return $this->executeQuery($query, $params, $types)->fetch(FetchMode::ASSOCIATIVE);
     }
 
     /**
      * Prepares and executes an SQL query and returns the first row of the result
      * as a numerically indexed array.
      *
-     * @param string         $statement The SQL query to be executed.
-     * @param mixed[]        $params    The prepared statement params.
-     * @param int[]|string[] $types     The query parameter types.
+     * @param string                                           $query  The SQL query to be executed.
+     * @param array<int, mixed>|array<string, mixed>           $params The prepared statement params.
+     * @param array<int, int|string>|array<string, int|string> $types  The query parameter types.
      *
-     * @return mixed[]|false False is returned if no rows are found.
+     * @return array<int, mixed>|false False is returned if no rows are found.
+     *
+     * @throws DBALException
      */
-    public function fetchArray($statement, array $params = [], array $types = [])
+    public function fetchArray(string $query, array $params = [], array $types = [])
     {
-        return $this->executeQuery($statement, $params, $types)->fetch(FetchMode::NUMERIC);
+        return $this->executeQuery($query, $params, $types)->fetch(FetchMode::NUMERIC);
     }
 
     /**
      * Prepares and executes an SQL query and returns the value of a single column
      * of the first row of the result.
      *
-     * @param string         $statement The SQL query to be executed.
-     * @param mixed[]        $params    The prepared statement params.
-     * @param int            $column    The 0-indexed column number to retrieve.
-     * @param int[]|string[] $types     The query parameter types.
+     * @param string                                           $query  The SQL query to be executed.
+     * @param array<int, mixed>|array<string, mixed>           $params The prepared statement params.
+     * @param int                                              $column The 0-indexed column number to retrieve.
+     * @param array<int, int|string>|array<string, int|string> $types  The query parameter types.
      *
      * @return mixed|false False is returned if no rows are found.
      *
      * @throws DBALException
      */
-    public function fetchColumn($statement, array $params = [], $column = 0, array $types = [])
+    public function fetchColumn(string $query, array $params = [], int $column = 0, array $types = [])
     {
-        return $this->executeQuery($statement, $params, $types)->fetchColumn($column);
+        return $this->executeQuery($query, $params, $types)->fetchColumn($column);
     }
 
     /**
      * Whether an actual connection to the database is established.
-     *
-     * @return bool
      */
-    public function isConnected()
+    public function isConnected() : bool
     {
         return $this->isConnected;
     }
@@ -572,7 +506,7 @@ class Connection implements DriverConnection
      *
      * @return bool TRUE if a transaction is currently active, FALSE otherwise.
      */
-    public function isTransactionActive()
+    public function isTransactionActive() : bool
     {
         return $this->transactionNestingLevel > 0;
     }
@@ -580,10 +514,10 @@ class Connection implements DriverConnection
     /**
      * Adds identifier condition to the query components
      *
-     * @param mixed[]  $identifier Map of key columns to their values
-     * @param string[] $columns    Column names
-     * @param mixed[]  $values     Column values
-     * @param string[] $conditions Key conditions
+     * @param array<string, mixed> $identifier Map of key columns to their values
+     * @param array<int, string>   $columns    Column names
+     * @param array<int, mixed>    $values     Column values
+     * @param array<int, string>   $conditions Key conditions
      *
      * @throws DBALException
      */
@@ -612,16 +546,16 @@ class Connection implements DriverConnection
      *
      * Table expression and columns are not escaped and are not safe for user-input.
      *
-     * @param string         $tableExpression The expression of the table on which to delete.
-     * @param mixed[]        $identifier      The deletion criteria. An associative array containing column-value pairs.
-     * @param int[]|string[] $types           The types of identifiers.
+     * @param string                                           $table      The SQL expression of the table on which to delete.
+     * @param array<string, mixed>                             $identifier The deletion criteria. An associative array containing column-value pairs.
+     * @param array<int, int|string>|array<string, int|string> $types      The query parameter types.
      *
      * @return int The number of affected rows.
      *
      * @throws DBALException
      * @throws InvalidArgumentException
      */
-    public function delete($tableExpression, array $identifier, array $types = [])
+    public function delete(string $table, array $identifier, array $types = []) : int
     {
         if (empty($identifier)) {
             throw EmptyCriteriaNotAllowed::new();
@@ -632,7 +566,7 @@ class Connection implements DriverConnection
         $this->addIdentifierCondition($identifier, $columns, $values, $conditions);
 
         return $this->executeUpdate(
-            'DELETE FROM ' . $tableExpression . ' WHERE ' . implode(' AND ', $conditions),
+            'DELETE FROM ' . $table . ' WHERE ' . implode(' AND ', $conditions),
             $values,
             is_string(key($types)) ? $this->extractTypeValues($columns, $types) : $types
         );
@@ -640,10 +574,8 @@ class Connection implements DriverConnection
 
     /**
      * Closes the connection.
-     *
-     * @return void
      */
-    public function close()
+    public function close() : void
     {
         $this->_conn = null;
 
@@ -654,14 +586,12 @@ class Connection implements DriverConnection
      * Sets the transaction isolation level.
      *
      * @param int $level The level to set.
-     *
-     * @return int
      */
-    public function setTransactionIsolation($level)
+    public function setTransactionIsolation(int $level) : void
     {
         $this->transactionIsolationLevel = $level;
 
-        return $this->executeUpdate($this->getDatabasePlatform()->getSetTransactionIsolationSQL($level));
+        $this->executeUpdate($this->getDatabasePlatform()->getSetTransactionIsolationSQL($level));
     }
 
     /**
@@ -669,7 +599,7 @@ class Connection implements DriverConnection
      *
      * @return int The current transaction isolation level.
      */
-    public function getTransactionIsolation()
+    public function getTransactionIsolation() : int
     {
         if ($this->transactionIsolationLevel === null) {
             $this->transactionIsolationLevel = $this->getDatabasePlatform()->getDefaultTransactionIsolationLevel();
@@ -683,16 +613,16 @@ class Connection implements DriverConnection
      *
      * Table expression and columns are not escaped and are not safe for user-input.
      *
-     * @param string         $tableExpression The expression of the table to update quoted or unquoted.
-     * @param mixed[]        $data            An associative array containing column-value pairs.
-     * @param mixed[]        $identifier      The update criteria. An associative array containing column-value pairs.
-     * @param int[]|string[] $types           Types of the merged $data and $identifier arrays in that order.
+     * @param string                                           $table      The SQL expression of the table to update quoted or unquoted.
+     * @param array<string, mixed>                             $data       An associative array containing column-value pairs.
+     * @param array<string, mixed>                             $identifier The update criteria. An associative array containing column-value pairs.
+     * @param array<int, int|string>|array<string, int|string> $types      The query parameter types.
      *
      * @return int The number of affected rows.
      *
      * @throws DBALException
      */
-    public function update($tableExpression, array $data, array $identifier, array $types = [])
+    public function update(string $table, array $data, array $identifier, array $types = []) : int
     {
         $columns = $values = $conditions = $set = [];
 
@@ -708,7 +638,7 @@ class Connection implements DriverConnection
             $types = $this->extractTypeValues($columns, $types);
         }
 
-        $sql = 'UPDATE ' . $tableExpression . ' SET ' . implode(', ', $set)
+        $sql = 'UPDATE ' . $table . ' SET ' . implode(', ', $set)
                 . ' WHERE ' . implode(' AND ', $conditions);
 
         return $this->executeUpdate($sql, $values, $types);
@@ -719,18 +649,18 @@ class Connection implements DriverConnection
      *
      * Table expression and columns are not escaped and are not safe for user-input.
      *
-     * @param string         $tableExpression The expression of the table to insert data into, quoted or unquoted.
-     * @param mixed[]        $data            An associative array containing column-value pairs.
-     * @param int[]|string[] $types           Types of the inserted data.
+     * @param string                                           $table The SQL expression of the table to insert data into, quoted or unquoted.
+     * @param array<string, mixed>                             $data  An associative array containing column-value pairs.
+     * @param array<int, int|string>|array<string, int|string> $types The query parameter types.
      *
      * @return int The number of affected rows.
      *
      * @throws DBALException
      */
-    public function insert($tableExpression, array $data, array $types = [])
+    public function insert(string $table, array $data, array $types = []) : int
     {
         if (empty($data)) {
-            return $this->executeUpdate('INSERT INTO ' . $tableExpression . ' () VALUES ()');
+            return $this->executeUpdate('INSERT INTO ' . $table . ' () VALUES ()');
         }
 
         $columns = [];
@@ -744,7 +674,7 @@ class Connection implements DriverConnection
         }
 
         return $this->executeUpdate(
-            'INSERT INTO ' . $tableExpression . ' (' . implode(', ', $columns) . ')' .
+            'INSERT INTO ' . $table . ' (' . implode(', ', $columns) . ')' .
             ' VALUES (' . implode(', ', $set) . ')',
             $values,
             is_string(key($types)) ? $this->extractTypeValues($columns, $types) : $types
@@ -754,16 +684,16 @@ class Connection implements DriverConnection
     /**
      * Extract ordered type list from an ordered column list and type map.
      *
-     * @param int[]|string[] $columnList
-     * @param int[]|string[] $types
+     * @param array<int, string>     $columnList
+     * @param array<int, int|string> $types      The query parameter types.
      *
-     * @return int[]|string[]
+     * @return array<int, int>|array<int, string>
      */
     private function extractTypeValues(array $columnList, array $types)
     {
         $typeValues = [];
 
-        foreach ($columnList as $columnIndex => $columnName) {
+        foreach ($columnList as $columnName) {
             $typeValues[] = $types[$columnName] ?? ParameterType::STRING;
         }
 
@@ -780,13 +710,13 @@ class Connection implements DriverConnection
      * you SHOULD use them. In general, they end up causing way more
      * problems than they solve.
      *
-     * @param string $str The name to be quoted.
+     * @param string $identifier The identifier to be quoted.
      *
-     * @return string The quoted name.
+     * @return string The quoted identifier.
      */
-    public function quoteIdentifier($str)
+    public function quoteIdentifier(string $identifier) : string
     {
-        return $this->getDatabasePlatform()->quoteIdentifier($str);
+        return $this->getDatabasePlatform()->quoteIdentifier($identifier);
     }
 
     /**
@@ -800,15 +730,15 @@ class Connection implements DriverConnection
     /**
      * Prepares and executes an SQL query and returns the result as an associative array.
      *
-     * @param string         $sql    The SQL query.
-     * @param mixed[]        $params The query parameters.
-     * @param int[]|string[] $types  The query parameter types.
+     * @param string                                           $query  The SQL query.
+     * @param array<int, mixed>|array<string, mixed>           $params The query parameters.
+     * @param array<int, int|string>|array<string, int|string> $types  The query parameter types.
      *
-     * @return mixed[]
+     * @return array<int, mixed>
      */
-    public function fetchAll($sql, array $params = [], $types = [])
+    public function fetchAll(string $query, array $params = [], array $types = []) : array
     {
-        return $this->executeQuery($sql, $params, $types)->fetchAll();
+        return $this->executeQuery($query, $params, $types)->fetchAll();
     }
 
     /**
@@ -837,10 +767,10 @@ class Connection implements DriverConnection
      * If the query is parametrized, a prepared statement is used.
      * If an SQLLogger is configured, the execution is logged.
      *
-     * @param string                 $query  The SQL query to execute.
-     * @param mixed[]                $params The parameters to bind to the query, if any.
-     * @param int[]|string[]         $types  The types the previous parameters are in.
-     * @param QueryCacheProfile|null $qcp    The query cache profile, optional.
+     * @param string                                           $query  The SQL query to execute.
+     * @param array<int, mixed>|array<string, mixed>           $params The parameters to bind to the query, if any.
+     * @param array<int, int|string>|array<string, int|string> $types  The query parameter types.
+     * @param QueryCacheProfile|null                           $qcp    The query cache profile, optional.
      *
      * @return ResultStatement The executed statement.
      *
@@ -885,14 +815,14 @@ class Connection implements DriverConnection
     /**
      * Executes a caching query.
      *
-     * @param string            $query  The SQL query to execute.
-     * @param mixed[]           $params The parameters to bind to the query, if any.
-     * @param int[]|string[]    $types  The types the previous parameters are in.
-     * @param QueryCacheProfile $qcp    The query cache profile.
+     * @param string                                           $query  The SQL query to execute.
+     * @param array<int, mixed>|array<string, mixed>           $params The parameters to bind to the query, if any.
+     * @param array<int, int|string>|array<string, int|string> $types  The query parameter types.
+     * @param QueryCacheProfile                                $qcp    The query cache profile.
      *
      * @throws CacheException
      */
-    public function executeCacheQuery($query, $params, $types, QueryCacheProfile $qcp) : ResultStatement
+    public function executeCacheQuery(string $query, array $params, array $types, QueryCacheProfile $qcp) : ResultStatement
     {
         $resultCache = $qcp->getResultCacheDriver() ?? $this->_config->getResultCacheImpl();
 
@@ -930,15 +860,15 @@ class Connection implements DriverConnection
      * Executes an, optionally parametrized, SQL query and returns the result,
      * applying a given projection/transformation function on each row of the result.
      *
-     * @param string  $query    The SQL query to execute.
-     * @param mixed[] $params   The parameters, if any.
-     * @param Closure $function The transformation function that is applied on each row.
-     *                           The function receives a single parameter, an array, that
-     *                           represents a row of the result set.
+     * @param string                                 $query    The SQL query to execute.
+     * @param array<int, mixed>|array<string, mixed> $params   The parameters, if any.
+     * @param Closure                                $function The transformation function that is applied on each row.
+     *                                                          The function receives a single parameter, an array, that
+     *                                                          represents a row of the result set.
      *
-     * @return mixed[] The projected result of the query.
+     * @return array<int, mixed> The projected result of the query.
      */
-    public function project($query, array $params, Closure $function)
+    public function project(string $query, array $params, Closure $function) : array
     {
         $result = [];
         $stmt   = $this->executeQuery($query, $params);
@@ -981,9 +911,9 @@ class Connection implements DriverConnection
      *
      * This method supports PDO binding types as well as DBAL mapping types.
      *
-     * @param string         $query  The SQL query.
-     * @param mixed[]        $params The query parameters.
-     * @param int[]|string[] $types  The parameter types.
+     * @param string                                           $query  The SQL query.
+     * @param array<int, mixed>|array<string, mixed>           $params The query parameters.
+     * @param array<int, int|string>|array<string, int|string> $types  The query parameter types.
      *
      * @throws DBALException
      */
@@ -1045,7 +975,7 @@ class Connection implements DriverConnection
      *
      * @return int The nesting level. A value of 0 means there's no active transaction.
      */
-    public function getTransactionNestingLevel()
+    public function getTransactionNestingLevel() : int
     {
         return $this->transactionNestingLevel;
     }
@@ -1058,13 +988,13 @@ class Connection implements DriverConnection
      * because the underlying database may not even support the notion of AUTO_INCREMENT/IDENTITY
      * columns or sequences.
      *
-     * @param string|null $seqName Name of the sequence object from which the ID should be returned.
+     * @param string|null $name Name of the sequence object from which the ID should be returned.
      *
      * @return string A string representation of the last inserted ID.
      */
-    public function lastInsertId($seqName = null)
+    public function lastInsertId(?string $name = null) : string
     {
-        return $this->getWrappedConnection()->lastInsertId($seqName);
+        return $this->getWrappedConnection()->lastInsertId($name);
     }
 
     /**
@@ -1098,13 +1028,9 @@ class Connection implements DriverConnection
     /**
      * Sets if nested transactions should use savepoints.
      *
-     * @param bool $nestTransactionsWithSavepoints
-     *
-     * @return void
-     *
      * @throws ConnectionException
      */
-    public function setNestTransactionsWithSavepoints($nestTransactionsWithSavepoints)
+    public function setNestTransactionsWithSavepoints(bool $nestTransactionsWithSavepoints) : void
     {
         if ($this->transactionNestingLevel > 0) {
             throw MayNotAlterNestedTransactionWithSavepointsInTransaction::new();
@@ -1114,15 +1040,13 @@ class Connection implements DriverConnection
             throw SavepointsNotSupported::new();
         }
 
-        $this->nestTransactionsWithSavepoints = (bool) $nestTransactionsWithSavepoints;
+        $this->nestTransactionsWithSavepoints = $nestTransactionsWithSavepoints;
     }
 
     /**
      * Gets if nested transactions should use savepoints.
-     *
-     * @return bool
      */
-    public function getNestTransactionsWithSavepoints()
+    public function getNestTransactionsWithSavepoints() : bool
     {
         return $this->nestTransactionsWithSavepoints;
     }
@@ -1274,11 +1198,9 @@ class Connection implements DriverConnection
      *
      * @param string $savepoint The name of the savepoint to create.
      *
-     * @return void
-     *
      * @throws ConnectionException
      */
-    public function createSavepoint($savepoint)
+    public function createSavepoint(string $savepoint) : void
     {
         if (! $this->getDatabasePlatform()->supportsSavepoints()) {
             throw SavepointsNotSupported::new();
@@ -1292,11 +1214,9 @@ class Connection implements DriverConnection
      *
      * @param string $savepoint The name of the savepoint to release.
      *
-     * @return void
-     *
      * @throws ConnectionException
      */
-    public function releaseSavepoint($savepoint)
+    public function releaseSavepoint(string $savepoint) : void
     {
         if (! $this->getDatabasePlatform()->supportsSavepoints()) {
             throw SavepointsNotSupported::new();
@@ -1314,11 +1234,9 @@ class Connection implements DriverConnection
      *
      * @param string $savepoint The name of the savepoint to rollback to.
      *
-     * @return void
-     *
      * @throws ConnectionException
      */
-    public function rollbackSavepoint($savepoint)
+    public function rollbackSavepoint(string $savepoint) : void
     {
         if (! $this->getDatabasePlatform()->supportsSavepoints()) {
             throw SavepointsNotSupported::new();
@@ -1329,10 +1247,8 @@ class Connection implements DriverConnection
 
     /**
      * Gets the wrapped driver connection.
-     *
-     * @return DriverConnection
      */
-    public function getWrappedConnection()
+    public function getWrappedConnection() : DriverConnection
     {
         $this->connect();
 
@@ -1342,10 +1258,8 @@ class Connection implements DriverConnection
     /**
      * Gets the SchemaManager that can be used to inspect or change the
      * database schema through the connection.
-     *
-     * @return AbstractSchemaManager
      */
-    public function getSchemaManager()
+    public function getSchemaManager() : AbstractSchemaManager
     {
         if ($this->_schemaManager === null) {
             $this->_schemaManager = $this->_driver->getSchemaManager($this);
@@ -1358,11 +1272,9 @@ class Connection implements DriverConnection
      * Marks the current transaction so that the only possible
      * outcome for the transaction to be rolled back.
      *
-     * @return void
-     *
      * @throws ConnectionException If no transaction is active.
      */
-    public function setRollbackOnly()
+    public function setRollbackOnly() : void
     {
         if ($this->transactionNestingLevel === 0) {
             throw NoActiveTransaction::new();
@@ -1373,11 +1285,9 @@ class Connection implements DriverConnection
     /**
      * Checks whether the current transaction is marked for rollback only.
      *
-     * @return bool
-     *
      * @throws ConnectionException If no transaction is active.
      */
-    public function isRollbackOnly()
+    public function isRollbackOnly() : bool
     {
         if ($this->transactionNestingLevel === 0) {
             throw NoActiveTransaction::new();
@@ -1395,7 +1305,7 @@ class Connection implements DriverConnection
      *
      * @return mixed The converted value.
      */
-    public function convertToDatabaseValue($value, $type)
+    public function convertToDatabaseValue($value, string $type)
     {
         return Type::getType($type)->convertToDatabaseValue($value, $this->getDatabasePlatform());
     }
@@ -1409,7 +1319,7 @@ class Connection implements DriverConnection
      *
      * @return mixed The converted type.
      */
-    public function convertToPHPValue($value, $type)
+    public function convertToPHPValue($value, string $type)
     {
         return Type::getType($type)->convertToPHPValue($value, $this->getDatabasePlatform());
     }
@@ -1421,9 +1331,9 @@ class Connection implements DriverConnection
      * @internal Duck-typing used on the $stmt parameter to support driver statements as well as
      *           raw PDOStatement instances.
      *
-     * @param DriverStatement $stmt   The statement to bind the values to.
-     * @param mixed[]         $params The map/list of named/positional parameters.
-     * @param int[]|string[]  $types  The parameter types.
+     * @param DriverStatement                                  $stmt   The statement to bind the values to.
+     * @param array<int, mixed>|array<string, mixed>           $params The map/list of named/positional parameters.
+     * @param array<int, int|string>|array<string, int|string> $types  The query parameter types.
      */
     private function _bindTypedValues(DriverStatement $stmt, array $params, array $types) : void
     {
@@ -1463,9 +1373,9 @@ class Connection implements DriverConnection
      * @param mixed           $value The value to bind.
      * @param int|string|null $type  The type to bind (PDO or DBAL).
      *
-     * @return mixed[] [0] => the (escaped) value, [1] => the binding type.
+     * @return array<int, mixed> [0] => the (escaped) value, [1] => the binding type.
      */
-    private function getBindingInfo($value, $type)
+    private function getBindingInfo($value, $type) : array
     {
         if (is_string($type)) {
             $type = Type::getType($type);
@@ -1486,12 +1396,12 @@ class Connection implements DriverConnection
      * @internal This is a purely internal method. If you rely on this method, you are advised to
      *           copy/paste the code as this method may change, or be removed without prior notice.
      *
-     * @param mixed[]        $params
-     * @param int[]|string[] $types
+     * @param array<int, mixed>|array<string, mixed>           $params
+     * @param array<int, int|string>|array<string, int|string> $types  The query parameter types.
      *
-     * @return mixed[]
+     * @return array<int, mixed>|array<string, mixed>
      */
-    public function resolveParams(array $params, array $types)
+    public function resolveParams(array $params, array $types) : array
     {
         $resolvedParams = [];
 
@@ -1529,10 +1439,8 @@ class Connection implements DriverConnection
 
     /**
      * Creates a new instance of a SQL query builder.
-     *
-     * @return QueryBuilder
      */
-    public function createQueryBuilder()
+    public function createQueryBuilder() : QueryBuilder
     {
         return new Query\QueryBuilder($this);
     }
