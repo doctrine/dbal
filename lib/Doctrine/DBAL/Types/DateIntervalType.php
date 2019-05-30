@@ -21,7 +21,7 @@ class DateIntervalType extends Type
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName() : string
     {
         return Types::DATEINTERVAL;
     }
@@ -29,7 +29,7 @@ class DateIntervalType extends Type
     /**
      * {@inheritdoc}
      */
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
+    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform) : string
     {
         $fieldDeclaration['length'] = 255;
 
@@ -84,7 +84,7 @@ class DateIntervalType extends Type
     /**
      * {@inheritdoc}
      */
-    public function requiresSQLCommentHint(AbstractPlatform $platform)
+    public function requiresSQLCommentHint(AbstractPlatform $platform) : bool
     {
         return true;
     }

@@ -18,7 +18,7 @@ class DateTimeImmutableType extends DateTimeType
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName() : string
     {
         return Types::DATETIME_IMMUTABLE;
     }
@@ -72,7 +72,7 @@ class DateTimeImmutableType extends DateTimeType
     /**
      * {@inheritdoc}
      */
-    public function requiresSQLCommentHint(AbstractPlatform $platform)
+    public function requiresSQLCommentHint(AbstractPlatform $platform) : bool
     {
         return true;
     }

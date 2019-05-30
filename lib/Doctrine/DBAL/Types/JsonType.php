@@ -23,7 +23,7 @@ class JsonType extends Type
     /**
      * {@inheritdoc}
      */
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
+    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform) : string
     {
         return $platform->getJsonTypeDeclarationSQL($fieldDeclaration);
     }
@@ -71,7 +71,7 @@ class JsonType extends Type
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName() : string
     {
         return Types::JSON;
     }
@@ -79,7 +79,7 @@ class JsonType extends Type
     /**
      * {@inheritdoc}
      */
-    public function requiresSQLCommentHint(AbstractPlatform $platform)
+    public function requiresSQLCommentHint(AbstractPlatform $platform) : bool
     {
         return ! $platform->hasNativeJsonType();
     }
