@@ -17,10 +17,7 @@ class TableGeneratorSchemaVisitor implements Visitor
     /** @var string */
     private $generatorTableName;
 
-    /**
-     * @param string $generatorTableName
-     */
-    public function __construct($generatorTableName = 'sequences')
+    public function __construct(string $generatorTableName = 'sequences')
     {
         $this->generatorTableName = $generatorTableName;
     }
