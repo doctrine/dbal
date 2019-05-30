@@ -59,7 +59,7 @@ final class Dumper
     {
         $html = ini_get('html_errors');
 
-        if ($html !== true) {
+        if ($html !== '1') {
             ini_set('html_errors', '1');
         }
 
@@ -142,11 +142,9 @@ final class Dumper
      * Fill the $return variable with class attributes
      * Based on obj2array function from {@see https://secure.php.net/manual/en/function.get-object-vars.php#47075}
      *
-     * @param object $var
-     *
      * @return mixed
      */
-    private static function fillReturnWithClassAttributes($var, stdClass $return, int $maxDepth)
+    private static function fillReturnWithClassAttributes(object $var, stdClass $return, int $maxDepth)
     {
         $clone = (array) $var;
 
@@ -162,10 +160,7 @@ final class Dumper
         return $return;
     }
 
-    /**
-     * @param object $object
-     */
-    private static function getClass($object) : string
+    private static function getClass(object $object) : string
     {
         $class = get_class($object);
 
