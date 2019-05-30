@@ -51,10 +51,8 @@ class ExpressionBuilder
      *
      * @param mixed $x Optional clause. Defaults = null, but requires
      *                 at least one defined when converting to string.
-     *
-     * @return CompositeExpression
      */
-    public function andX($x = null)
+    public function andX($x = null) : CompositeExpression
     {
         return new CompositeExpression(CompositeExpression::TYPE_AND, func_get_args());
     }
@@ -70,10 +68,8 @@ class ExpressionBuilder
      *
      * @param mixed $x Optional clause. Defaults = null, but requires
      *                 at least one defined when converting to string.
-     *
-     * @return CompositeExpression
      */
-    public function orX($x = null)
+    public function orX($x = null) : CompositeExpression
     {
         return new CompositeExpression(CompositeExpression::TYPE_OR, func_get_args());
     }
@@ -84,10 +80,8 @@ class ExpressionBuilder
      * @param mixed  $x        The left expression.
      * @param string $operator One of the ExpressionBuilder::* constants.
      * @param mixed  $y        The right expression.
-     *
-     * @return string
      */
-    public function comparison($x, $operator, $y)
+    public function comparison($x, string $operator, $y) : string
     {
         return $x . ' ' . $operator . ' ' . $y;
     }
@@ -104,10 +98,8 @@ class ExpressionBuilder
      *
      * @param mixed $x The left expression.
      * @param mixed $y The right expression.
-     *
-     * @return string
      */
-    public function eq($x, $y)
+    public function eq($x, $y) : string
     {
         return $this->comparison($x, self::EQ, $y);
     }
@@ -123,10 +115,8 @@ class ExpressionBuilder
      *
      * @param mixed $x The left expression.
      * @param mixed $y The right expression.
-     *
-     * @return string
      */
-    public function neq($x, $y)
+    public function neq($x, $y) : string
     {
         return $this->comparison($x, self::NEQ, $y);
     }
@@ -142,10 +132,8 @@ class ExpressionBuilder
      *
      * @param mixed $x The left expression.
      * @param mixed $y The right expression.
-     *
-     * @return string
      */
-    public function lt($x, $y)
+    public function lt($x, $y) : string
     {
         return $this->comparison($x, self::LT, $y);
     }
@@ -161,10 +149,8 @@ class ExpressionBuilder
      *
      * @param mixed $x The left expression.
      * @param mixed $y The right expression.
-     *
-     * @return string
      */
-    public function lte($x, $y)
+    public function lte($x, $y) : string
     {
         return $this->comparison($x, self::LTE, $y);
     }
@@ -180,10 +166,8 @@ class ExpressionBuilder
      *
      * @param mixed $x The left expression.
      * @param mixed $y The right expression.
-     *
-     * @return string
      */
-    public function gt($x, $y)
+    public function gt($x, $y) : string
     {
         return $this->comparison($x, self::GT, $y);
     }
@@ -199,10 +183,8 @@ class ExpressionBuilder
      *
      * @param mixed $x The left expression.
      * @param mixed $y The right expression.
-     *
-     * @return string
      */
-    public function gte($x, $y)
+    public function gte($x, $y) : string
     {
         return $this->comparison($x, self::GTE, $y);
     }
@@ -211,10 +193,8 @@ class ExpressionBuilder
      * Creates an IS NULL expression with the given arguments.
      *
      * @param string $x The field in string format to be restricted by IS NULL.
-     *
-     * @return string
      */
-    public function isNull($x)
+    public function isNull(string $x) : string
     {
         return $x . ' IS NULL';
     }
@@ -223,10 +203,8 @@ class ExpressionBuilder
      * Creates an IS NOT NULL expression with the given arguments.
      *
      * @param string $x The field in string format to be restricted by IS NOT NULL.
-     *
-     * @return string
      */
-    public function isNotNull($x)
+    public function isNotNull(string $x) : string
     {
         return $x . ' IS NOT NULL';
     }
@@ -236,10 +214,8 @@ class ExpressionBuilder
      *
      * @param string $x Field in string format to be inspected by LIKE() comparison.
      * @param mixed  $y Argument to be used in LIKE() comparison.
-     *
-     * @return string
      */
-    public function like($x, $y/*, ?string $escapeChar = null */)
+    public function like(string $x, $y/*, ?string $escapeChar = null */) : string
     {
         return $this->comparison($x, 'LIKE', $y) .
             (func_num_args() >= 3 ? sprintf(' ESCAPE %s', func_get_arg(2)) : '');
@@ -250,10 +226,8 @@ class ExpressionBuilder
      *
      * @param string $x Field in string format to be inspected by NOT LIKE() comparison.
      * @param mixed  $y Argument to be used in NOT LIKE() comparison.
-     *
-     * @return string
      */
-    public function notLike($x, $y/*, ?string $escapeChar = null */)
+    public function notLike(string $x, $y/*, ?string $escapeChar = null */) : string
     {
         return $this->comparison($x, 'NOT LIKE', $y) .
             (func_num_args() >= 3 ? sprintf(' ESCAPE %s', func_get_arg(2)) : '');
@@ -264,10 +238,8 @@ class ExpressionBuilder
      *
      * @param string          $x The field in string format to be inspected by IN() comparison.
      * @param string|string[] $y The placeholder or the array of values to be used by IN() comparison.
-     *
-     * @return string
      */
-    public function in($x, $y)
+    public function in(string $x, $y) : string
     {
         return $this->comparison($x, 'IN', '(' . implode(', ', (array) $y) . ')');
     }
@@ -277,10 +249,8 @@ class ExpressionBuilder
      *
      * @param string          $x The field in string format to be inspected by NOT IN() comparison.
      * @param string|string[] $y The placeholder or the array of values to be used by NOT IN() comparison.
-     *
-     * @return string
      */
-    public function notIn($x, $y)
+    public function notIn(string $x, $y) : string
     {
         return $this->comparison($x, 'NOT IN', '(' . implode(', ', (array) $y) . ')');
     }
@@ -288,7 +258,7 @@ class ExpressionBuilder
     /**
      * Creates an SQL literal expression from the string.
      */
-    public function literal(string $input)
+    public function literal(string $input) : string
     {
         return $this->connection->quote($input);
     }
