@@ -21,12 +21,9 @@ use function sprintf;
 class DBALException extends Exception
 {
     /**
-     * @param string  $sql
      * @param mixed[] $params
-     *
-     * @return self
      */
-    public static function driverExceptionDuringQuery(Driver $driver, Throwable $driverEx, $sql, array $params = [])
+    public static function driverExceptionDuringQuery(Driver $driver, Throwable $driverEx, string $sql, array $params = []) : self
     {
         $messageFormat = <<<'MESSAGE'
 An exception occurred while executing "%s"%s:
@@ -44,18 +41,12 @@ MESSAGE;
         return static::wrapException($driver, $driverEx, $message);
     }
 
-    /**
-     * @return self
-     */
-    public static function driverException(Driver $driver, Throwable $driverEx)
+    public static function driverException(Driver $driver, Throwable $driverEx) : self
     {
         return static::wrapException($driver, $driverEx, sprintf('An exception occurred in driver with message: %s', $driverEx->getMessage()));
     }
 
-    /**
-     * @return self
-     */
-    private static function wrapException(Driver $driver, Throwable $driverEx, $msg)
+    private static function wrapException(Driver $driver, Throwable $driverEx, string $msg) : self
     {
         if ($driverEx instanceof DriverException) {
             return $driverEx;
@@ -75,7 +66,7 @@ MESSAGE;
      */
     private static function formatParameters(array $params) : string
     {
-        return '[' . implode(', ', array_map(static function ($param) {
+        return '[' . implode(', ', array_map(static function ($param) : string {
             if (is_resource($param)) {
                 return (string) $param;
             }
