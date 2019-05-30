@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Platforms;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
 use Doctrine\DBAL\Types\Types;
 
@@ -10,7 +11,7 @@ class MariaDb1027PlatformTest extends AbstractMySQLPlatformTestCase
     /**
      * {@inheritdoc}
      */
-    public function createPlatform() : MariaDb1027Platform
+    public function createPlatform() : AbstractPlatform
     {
         return new MariaDb1027Platform();
     }

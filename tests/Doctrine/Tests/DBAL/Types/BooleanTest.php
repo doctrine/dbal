@@ -22,17 +22,17 @@ class BooleanTest extends DbalTestCase
         $this->type     = Type::getType('boolean');
     }
 
-    public function testBooleanConvertsToDatabaseValue()
+    public function testBooleanConvertsToDatabaseValue() : void
     {
         self::assertIsInt($this->type->convertToDatabaseValue(1, $this->platform));
     }
 
-    public function testBooleanConvertsToPHPValue()
+    public function testBooleanConvertsToPHPValue() : void
     {
         self::assertIsBool($this->type->convertToPHPValue(0, $this->platform));
     }
 
-    public function testBooleanNullConvertsToPHPValue()
+    public function testBooleanNullConvertsToPHPValue() : void
     {
         self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }

@@ -25,24 +25,24 @@ class ObjectTest extends DbalTestCase
         $this->type     = Type::getType('object');
     }
 
-    public function testObjectConvertsToDatabaseValue()
+    public function testObjectConvertsToDatabaseValue() : void
     {
         self::assertIsString($this->type->convertToDatabaseValue(new stdClass(), $this->platform));
     }
 
-    public function testObjectConvertsToPHPValue()
+    public function testObjectConvertsToPHPValue() : void
     {
         self::assertIsObject($this->type->convertToPHPValue(serialize(new stdClass()), $this->platform));
     }
 
-    public function testConversionFailure()
+    public function testConversionFailure() : void
     {
         $this->expectException(ConversionException::class);
         $this->expectExceptionMessage("Could not convert database value to 'object' as an error was triggered by the unserialization: 'unserialize(): Error at offset 0 of 7 bytes'");
         $this->type->convertToPHPValue('abcdefg', $this->platform);
     }
 
-    public function testNullConversion()
+    public function testNullConversion() : void
     {
         self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }
@@ -50,7 +50,7 @@ class ObjectTest extends DbalTestCase
     /**
      * @group DBAL-73
      */
-    public function testFalseConversion()
+    public function testFalseConversion() : void
     {
         self::assertFalse($this->type->convertToPHPValue(serialize(false), $this->platform));
     }

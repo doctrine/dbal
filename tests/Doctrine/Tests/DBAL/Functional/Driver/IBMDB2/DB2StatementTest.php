@@ -26,7 +26,7 @@ class DB2StatementTest extends DbalFunctionalTestCase
         $this->markTestSkipped('ibm_db2 only test.');
     }
 
-    public function testExecutionErrorsAreNotSuppressed()
+    public function testExecutionErrorsAreNotSuppressed() : void
     {
         $stmt = $this->connection->prepare('SELECT * FROM SYSIBM.SYSDUMMY1 WHERE \'foo\' = ?');
 

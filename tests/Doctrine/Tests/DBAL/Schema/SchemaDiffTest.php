@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
 
 class SchemaDiffTest extends TestCase
 {
-    public function testSchemaDiffToSql()
+    public function testSchemaDiffToSql() : void
     {
         $diff     = $this->createSchemaDiff();
         $platform = $this->createPlatform(true);
@@ -25,7 +25,7 @@ class SchemaDiffTest extends TestCase
         self::assertEquals($expected, $sql);
     }
 
-    public function testSchemaDiffToSaveSql()
+    public function testSchemaDiffToSaveSql() : void
     {
         $diff     = $this->createSchemaDiff();
         $platform = $this->createPlatform(false);
@@ -102,7 +102,7 @@ class SchemaDiffTest extends TestCase
         return $platform;
     }
 
-    public function createSchemaDiff()
+    public function createSchemaDiff() : SchemaDiff
     {
         $diff                              = new SchemaDiff();
         $diff->newNamespaces['foo_ns']     = 'foo_ns';

@@ -37,14 +37,14 @@ class MysqliConnectionTest extends DbalFunctionalTestCase
             ->getMockForAbstractClass();
     }
 
-    public function testDoesNotRequireQueryForServerVersion()
+    public function testDoesNotRequireQueryForServerVersion() : void
     {
         self::assertFalse($this->connectionMock->requiresQueryForServerVersion());
     }
 
-    public function testRestoresErrorHandlerOnException()
+    public function testRestoresErrorHandlerOnException() : void
     {
-        $handler         = static function () {
+        $handler         = static function () : void {
             self::fail('Never expected this to be called');
         };
         $default_handler = set_error_handler($handler);

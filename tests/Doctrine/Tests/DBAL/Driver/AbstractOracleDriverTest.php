@@ -3,13 +3,16 @@
 namespace Doctrine\Tests\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\AbstractOracleDriver;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
+use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\OracleSchemaManager;
 
 class AbstractOracleDriverTest extends AbstractDriverTest
 {
-    public function testReturnsDatabaseName()
+    public function testReturnsDatabaseName() : void
     {
         $params = [
             'user'     => 'foo',
@@ -26,7 +29,7 @@ class AbstractOracleDriverTest extends AbstractDriverTest
         self::assertSame($params['user'], $this->driver->getDatabase($connection));
     }
 
-    public function testReturnsDatabaseNameWithConnectDescriptor()
+    public function testReturnsDatabaseNameWithConnectDescriptor() : void
     {
         $params = [
             'user'             => 'foo',
@@ -45,17 +48,17 @@ class AbstractOracleDriverTest extends AbstractDriverTest
         self::assertSame($params['user'], $this->driver->getDatabase($connection));
     }
 
-    protected function createDriver()
+    protected function createDriver() : Driver
     {
         return $this->getMockForAbstractClass(AbstractOracleDriver::class);
     }
 
-    protected function createPlatform()
+    protected function createPlatform() : AbstractPlatform
     {
         return new OraclePlatform();
     }
 
-    protected function createSchemaManager(Connection $connection)
+    protected function createSchemaManager(Connection $connection) : AbstractSchemaManager
     {
         return new OracleSchemaManager($connection);
     }

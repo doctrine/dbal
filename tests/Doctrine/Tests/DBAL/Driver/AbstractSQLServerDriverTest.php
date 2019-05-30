@@ -3,31 +3,37 @@
 namespace Doctrine\Tests\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\AbstractSQLServerDriver;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLServer2005Platform;
 use Doctrine\DBAL\Platforms\SQLServer2008Platform;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
+use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\SQLServerSchemaManager;
 
 class AbstractSQLServerDriverTest extends AbstractDriverTest
 {
-    protected function createDriver()
+    protected function createDriver() : Driver
     {
         return $this->getMockForAbstractClass(AbstractSQLServerDriver::class);
     }
 
-    protected function createPlatform()
+    protected function createPlatform() : AbstractPlatform
     {
         return new SQLServer2008Platform();
     }
 
-    protected function createSchemaManager(Connection $connection)
+    protected function createSchemaManager(Connection $connection) : AbstractSchemaManager
     {
         return new SQLServerSchemaManager($connection);
     }
 
-    protected function getDatabasePlatformsForVersions()
+    /**
+     * {@inheritDoc}
+     */
+    protected function getDatabasePlatformsForVersions() : array
     {
         return [
             ['9', SQLServerPlatform::class],

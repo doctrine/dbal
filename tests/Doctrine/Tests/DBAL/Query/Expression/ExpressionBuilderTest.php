@@ -27,9 +27,11 @@ class ExpressionBuilderTest extends DbalTestCase
     }
 
     /**
+     * @param string[]|CompositeExpression[] $parts
+     *
      * @dataProvider provideDataForAndX
      */
-    public function testAndX($parts, $expected)
+    public function testAndX(array $parts, string $expected) : void
     {
         $composite = $this->expr->andX();
 
@@ -40,7 +42,10 @@ class ExpressionBuilderTest extends DbalTestCase
         self::assertEquals($expected, (string) $composite);
     }
 
-    public function provideDataForAndX()
+    /**
+     * @return mixed[][]
+     */
+    public static function provideDataForAndX() : iterable
     {
         return [
             [
@@ -83,9 +88,11 @@ class ExpressionBuilderTest extends DbalTestCase
     }
 
     /**
+     * @param string[]|CompositeExpression[] $parts
+     *
      * @dataProvider provideDataForOrX
      */
-    public function testOrX($parts, $expected)
+    public function testOrX(array $parts, string $expected) : void
     {
         $composite = $this->expr->orX();
 
@@ -96,7 +103,10 @@ class ExpressionBuilderTest extends DbalTestCase
         self::assertEquals($expected, (string) $composite);
     }
 
-    public function provideDataForOrX()
+    /**
+     * @return mixed[][]
+     */
+    public static function provideDataForOrX() : iterable
     {
         return [
             [
@@ -141,14 +151,17 @@ class ExpressionBuilderTest extends DbalTestCase
     /**
      * @dataProvider provideDataForComparison
      */
-    public function testComparison($leftExpr, $operator, $rightExpr, $expected)
+    public function testComparison(string $leftExpr, string $operator, string $rightExpr, string $expected) : void
     {
         $part = $this->expr->comparison($leftExpr, $operator, $rightExpr);
 
         self::assertEquals($expected, (string) $part);
     }
 
-    public function provideDataForComparison()
+    /**
+     * @return mixed[][]
+     */
+    public static function provideDataForComparison() : iterable
     {
         return [
             ['u.user_id', ExpressionBuilder::EQ, '1', 'u.user_id = 1'],
@@ -160,72 +173,72 @@ class ExpressionBuilderTest extends DbalTestCase
         ];
     }
 
-    public function testEq()
+    public function testEq() : void
     {
         self::assertEquals('u.user_id = 1', $this->expr->eq('u.user_id', '1'));
     }
 
-    public function testNeq()
+    public function testNeq() : void
     {
         self::assertEquals('u.user_id <> 1', $this->expr->neq('u.user_id', '1'));
     }
 
-    public function testLt()
+    public function testLt() : void
     {
         self::assertEquals('u.salary < 10000', $this->expr->lt('u.salary', '10000'));
     }
 
-    public function testLte()
+    public function testLte() : void
     {
         self::assertEquals('u.salary <= 10000', $this->expr->lte('u.salary', '10000'));
     }
 
-    public function testGt()
+    public function testGt() : void
     {
         self::assertEquals('u.salary > 10000', $this->expr->gt('u.salary', '10000'));
     }
 
-    public function testGte()
+    public function testGte() : void
     {
         self::assertEquals('u.salary >= 10000', $this->expr->gte('u.salary', '10000'));
     }
 
-    public function testIsNull()
+    public function testIsNull() : void
     {
         self::assertEquals('u.deleted IS NULL', $this->expr->isNull('u.deleted'));
     }
 
-    public function testIsNotNull()
+    public function testIsNotNull() : void
     {
         self::assertEquals('u.updated IS NOT NULL', $this->expr->isNotNull('u.updated'));
     }
 
-    public function testIn()
+    public function testIn() : void
     {
         self::assertEquals('u.groups IN (1, 3, 4, 7)', $this->expr->in('u.groups', [1, 3, 4, 7]));
     }
 
-    public function testInWithPlaceholder()
+    public function testInWithPlaceholder() : void
     {
         self::assertEquals('u.groups IN (?)', $this->expr->in('u.groups', '?'));
     }
 
-    public function testNotIn()
+    public function testNotIn() : void
     {
         self::assertEquals('u.groups NOT IN (1, 3, 4, 7)', $this->expr->notIn('u.groups', [1, 3, 4, 7]));
     }
 
-    public function testNotInWithPlaceholder()
+    public function testNotInWithPlaceholder() : void
     {
         self::assertEquals('u.groups NOT IN (:values)', $this->expr->notIn('u.groups', ':values'));
     }
 
-    public function testLikeWithoutEscape()
+    public function testLikeWithoutEscape() : void
     {
         self::assertEquals("a.song LIKE 'a virgin'", $this->expr->like('a.song', "'a virgin'"));
     }
 
-    public function testLikeWithEscape()
+    public function testLikeWithEscape() : void
     {
         self::assertEquals(
             "a.song LIKE 'a virgin' ESCAPE '💩'",
@@ -233,7 +246,7 @@ class ExpressionBuilderTest extends DbalTestCase
         );
     }
 
-    public function testNotLikeWithoutEscape()
+    public function testNotLikeWithoutEscape() : void
     {
         self::assertEquals(
             "s.last_words NOT LIKE 'this'",
@@ -241,7 +254,7 @@ class ExpressionBuilderTest extends DbalTestCase
         );
     }
 
-    public function testNotLikeWithEscape()
+    public function testNotLikeWithEscape() : void
     {
         self::assertEquals(
             "p.description NOT LIKE '20💩%' ESCAPE '💩'",

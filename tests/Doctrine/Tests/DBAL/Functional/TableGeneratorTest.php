@@ -38,7 +38,7 @@ class TableGeneratorTest extends DbalFunctionalTestCase
         $this->generator = new TableGenerator($this->connection);
     }
 
-    public function testNextVal()
+    public function testNextVal() : void
     {
         $id1 = $this->generator->nextValue('tbl1');
         $id2 = $this->generator->nextValue('tbl1');
@@ -49,7 +49,7 @@ class TableGeneratorTest extends DbalFunctionalTestCase
         self::assertEquals($id1, $id3, 'First ids from different tables are equal.');
     }
 
-    public function testNextValNotAffectedByOuterTransactions()
+    public function testNextValNotAffectedByOuterTransactions() : void
     {
         $this->connection->beginTransaction();
         $id1 = $this->generator->nextValue('tbl1');

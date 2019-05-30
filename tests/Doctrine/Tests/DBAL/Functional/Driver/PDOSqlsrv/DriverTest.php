@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Functional\Driver\PDOSqlsrv;
 
+use Doctrine\DBAL\Driver as DriverInterface;
 use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\PDOSqlsrv\Driver;
 use Doctrine\Tests\DBAL\Functional\Driver\AbstractDriverTest;
@@ -28,7 +29,7 @@ class DriverTest extends AbstractDriverTest
     /**
      * {@inheritdoc}
      */
-    protected function createDriver()
+    protected function createDriver() : DriverInterface
     {
         return new Driver();
     }

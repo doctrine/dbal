@@ -52,7 +52,7 @@ abstract class AbstractTestCase extends TestCase
         $this->sm = new SQLAzureShardManager($this->conn);
     }
 
-    public function createShopSchema()
+    protected function createShopSchema() : Schema
     {
         $schema = new Schema();
 

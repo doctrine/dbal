@@ -14,7 +14,10 @@ use Doctrine\Tests\DbalTestCase;
  */
 class SQLParserUtilsTest extends DbalTestCase
 {
-    public function dataGetPlaceholderPositions()
+    /**
+     * @return mixed[][]
+     */
+    public static function dataGetPlaceholderPositions() : iterable
     {
         return [
             // none
@@ -91,15 +94,20 @@ SQLDATA
     }
 
     /**
+     * @param int[] $expectedParamPos
+     *
      * @dataProvider dataGetPlaceholderPositions
      */
-    public function testGetPlaceholderPositions($query, $isPositional, $expectedParamPos)
+    public function testGetPlaceholderPositions(string $query, bool $isPositional, array $expectedParamPos) : void
     {
         $actualParamPos = SQLParserUtils::getPlaceholderPositions($query, $isPositional);
         self::assertEquals($expectedParamPos, $actualParamPos);
     }
 
-    public function dataExpandListParameters()
+    /**
+     * @return mixed[][]
+     */
+    public static function dataExpandListParameters() : iterable
     {
         return [
             // Positional: Very simple with one needle
@@ -413,18 +421,32 @@ SQLDATA
     }
 
     /**
+     * @param mixed[] $params
+     * @param mixed[] $types
+     * @param mixed[] $expectedParams
+     * @param mixed[] $expectedTypes
+     *
      * @dataProvider dataExpandListParameters
      */
-    public function testExpandListParameters($q, $p, $t, $expectedQuery, $expectedParams, $expectedTypes)
-    {
-        [$query, $params, $types] = SQLParserUtils::expandListParameters($q, $p, $t);
+    public function testExpandListParameters(
+        string $query,
+        array $params,
+        array $types,
+        string $expectedQuery,
+        array $expectedParams,
+        array $expectedTypes
+    ) : void {
+        [$query, $params, $types] = SQLParserUtils::expandListParameters($query, $params, $types);
 
         self::assertEquals($expectedQuery, $query, 'Query was not rewritten correctly.');
         self::assertEquals($expectedParams, $params, 'Params dont match');
         self::assertEquals($expectedTypes, $types, 'Types dont match');
     }
 
-    public function dataQueryWithMissingParameters()
+    /**
+     * @return mixed[][]
+     */
+    public static function dataQueryWithMissingParameters() : iterable
     {
         return [
             [
@@ -461,9 +483,12 @@ SQLDATA
     }
 
     /**
+     * @param mixed[] $params
+     * @param mixed[] $types
+     *
      * @dataProvider dataQueryWithMissingParameters
      */
-    public function testExceptionIsThrownForMissingParam($query, $params, $types = [])
+    public function testExceptionIsThrownForMissingParam(string $query, array $params, array $types = []) : void
     {
         $this->expectException(SQLParserUtilsException::class);
         $this->expectExceptionMessage('Value for :param not found in params array. Params array key should be "param"');

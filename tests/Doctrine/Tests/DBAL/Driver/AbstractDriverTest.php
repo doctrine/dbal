@@ -69,9 +69,11 @@ abstract class AbstractDriverTest extends DbalTestCase
     }
 
     /**
+     * @param int|string $errorCode
+     *
      * @dataProvider exceptionConversionProvider
      */
-    public function testConvertsException($errorCode, $sqlState, $message, string $expectedClass) : void
+    public function testConvertsException($errorCode, ?string $sqlState, ?string $message, string $expectedClass) : void
     {
         if (! $this->driver instanceof ExceptionConverterDriver) {
             $this->markTestSkipped('This test is only intended for exception converter drivers.');
@@ -97,7 +99,7 @@ abstract class AbstractDriverTest extends DbalTestCase
         self::assertSame($dbalMessage, $dbalException->getMessage());
     }
 
-    public function testCreatesDatabasePlatformForVersion()
+    public function testCreatesDatabasePlatformForVersion() : void
     {
         if (! $this->driver instanceof VersionAwarePlatformDriver) {
             $this->markTestSkipped('This test is only intended for version aware platform drivers.');
@@ -130,7 +132,7 @@ abstract class AbstractDriverTest extends DbalTestCase
         }
     }
 
-    public function testThrowsExceptionOnCreatingDatabasePlatformsForInvalidVersion()
+    public function testThrowsExceptionOnCreatingDatabasePlatformsForInvalidVersion() : void
     {
         if (! $this->driver instanceof VersionAwarePlatformDriver) {
             $this->markTestSkipped('This test is only intended for version aware platform drivers.');
@@ -140,7 +142,7 @@ abstract class AbstractDriverTest extends DbalTestCase
         $this->driver->createDatabasePlatformForVersion('foo');
     }
 
-    public function testReturnsDatabaseName()
+    public function testReturnsDatabaseName() : void
     {
         $params = [
             'user'     => 'foo',
@@ -157,12 +159,12 @@ abstract class AbstractDriverTest extends DbalTestCase
         self::assertSame($params['dbname'], $this->driver->getDatabase($connection));
     }
 
-    public function testReturnsDatabasePlatform()
+    public function testReturnsDatabasePlatform() : void
     {
         self::assertEquals($this->createPlatform(), $this->driver->getDatabasePlatform());
     }
 
-    public function testReturnsSchemaManager()
+    public function testReturnsSchemaManager() : void
     {
         $connection    = $this->getConnectionMock();
         $schemaManager = $this->driver->getSchemaManager($connection);
@@ -177,20 +179,16 @@ abstract class AbstractDriverTest extends DbalTestCase
 
     /**
      * Factory method for creating the driver instance under test.
-     *
-     * @return Driver
      */
-    abstract protected function createDriver();
+    abstract protected function createDriver() : Driver;
 
     /**
      * Factory method for creating the the platform instance return by the driver under test.
      *
      * The platform instance returned by this method must be the same as returned by
      * the driver's getDatabasePlatform() method.
-     *
-     * @return AbstractPlatform
      */
-    abstract protected function createPlatform();
+    abstract protected function createPlatform() : AbstractPlatform;
 
     /**
      * Factory method for creating the the schema manager instance return by the driver under test.
@@ -199,19 +197,20 @@ abstract class AbstractDriverTest extends DbalTestCase
      * the driver's getSchemaManager() method.
      *
      * @param Connection $connection The underlying connection to use.
-     *
-     * @return AbstractSchemaManager
      */
-    abstract protected function createSchemaManager(Connection $connection);
+    abstract protected function createSchemaManager(Connection $connection) : AbstractSchemaManager;
 
-    protected function getConnectionMock()
+    protected function getConnectionMock() : Connection
     {
         return $this->getMockBuilder(Connection::class)
             ->disableOriginalConstructor()
             ->getMock();
     }
 
-    protected function getDatabasePlatformsForVersions()
+    /**
+     * @return array<int, array<int, string>>
+     */
+    protected function getDatabasePlatformsForVersions() : array
     {
         return [];
     }

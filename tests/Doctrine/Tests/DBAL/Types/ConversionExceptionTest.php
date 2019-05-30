@@ -15,7 +15,7 @@ class ConversionExceptionTest extends TestCase
      *
      * @dataProvider scalarsProvider
      */
-    public function testConversionFailedInvalidTypeWithScalar($scalarValue)
+    public function testConversionFailedInvalidTypeWithScalar($scalarValue) : void
     {
         $exception = ConversionException::conversionFailedInvalidType($scalarValue, 'foo', ['bar', 'baz']);
 
@@ -32,7 +32,7 @@ class ConversionExceptionTest extends TestCase
      *
      * @dataProvider nonScalarsProvider
      */
-    public function testConversionFailedInvalidTypeWithNonScalar($nonScalar)
+    public function testConversionFailedInvalidTypeWithNonScalar($nonScalar) : void
     {
         $exception = ConversionException::conversionFailedInvalidType($nonScalar, 'foo', ['bar', 'baz']);
 
@@ -44,7 +44,7 @@ class ConversionExceptionTest extends TestCase
         );
     }
 
-    public function testConversionFailedFormatPreservesPreviousException()
+    public function testConversionFailedFormatPreservesPreviousException() : void
     {
         $previous = new Exception();
 
@@ -57,13 +57,12 @@ class ConversionExceptionTest extends TestCase
     /**
      * @return mixed[][]
      */
-    public function nonScalarsProvider()
+    public static function nonScalarsProvider() : iterable
     {
         return [
             [[]],
             [['foo']],
             [null],
-            [$this],
             [new stdClass()],
             [tmpfile()],
         ];
@@ -72,7 +71,7 @@ class ConversionExceptionTest extends TestCase
     /**
      * @return mixed[][]
      */
-    public function scalarsProvider()
+    public static function scalarsProvider() : iterable
     {
         return [
             [''],

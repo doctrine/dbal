@@ -7,12 +7,15 @@ use PHPUnit\Framework\TestCase;
 
 class IndexTest extends TestCase
 {
-    public function createIndex($unique = false, $primary = false, $options = [])
+    /**
+     * @param mixed[] $options
+     */
+    private function createIndex(bool $unique = false, bool $primary = false, array $options = []) : Index
     {
         return new Index('foo', ['bar', 'baz'], $unique, $primary, [], $options);
     }
 
-    public function testCreateIndex()
+    public function testCreateIndex() : void
     {
         $idx = $this->createIndex();
         self::assertEquals('foo', $idx->getName());
@@ -23,14 +26,14 @@ class IndexTest extends TestCase
         self::assertFalse($idx->isPrimary());
     }
 
-    public function testCreatePrimary()
+    public function testCreatePrimary() : void
     {
         $idx = $this->createIndex(false, true);
         self::assertTrue($idx->isUnique());
         self::assertTrue($idx->isPrimary());
     }
 
-    public function testCreateUnique()
+    public function testCreateUnique() : void
     {
         $idx = $this->createIndex(true, false);
         self::assertTrue($idx->isUnique());
@@ -40,7 +43,7 @@ class IndexTest extends TestCase
     /**
      * @group DBAL-50
      */
-    public function testFulfilledByUnique()
+    public function testFulfilledByUnique() : void
     {
         $idx1 = $this->createIndex(true, false);
         $idx2 = $this->createIndex(true, false);
@@ -53,7 +56,7 @@ class IndexTest extends TestCase
     /**
      * @group DBAL-50
      */
-    public function testFulfilledByPrimary()
+    public function testFulfilledByPrimary() : void
     {
         $idx1 = $this->createIndex(true, true);
         $idx2 = $this->createIndex(true, true);
@@ -66,7 +69,7 @@ class IndexTest extends TestCase
     /**
      * @group DBAL-50
      */
-    public function testFulfilledByIndex()
+    public function testFulfilledByIndex() : void
     {
         $idx1 = $this->createIndex();
         $idx2 = $this->createIndex();
@@ -78,7 +81,7 @@ class IndexTest extends TestCase
         self::assertTrue($idx1->isFullfilledBy($uniq));
     }
 
-    public function testFulfilledWithPartial()
+    public function testFulfilledWithPartial() : void
     {
         $without = new Index('without', ['col1', 'col2'], true, false, [], []);
         $partial = new Index('partial', ['col1', 'col2'], true, false, [], ['where' => 'col1 IS NULL']);
@@ -93,7 +96,7 @@ class IndexTest extends TestCase
         self::assertTrue($another->isFullfilledBy($partial));
     }
 
-    public function testOverrulesWithPartial()
+    public function testOverrulesWithPartial() : void
     {
         $without = new Index('without', ['col1', 'col2'], true, false, [], []);
         $partial = new Index('partial', ['col1', 'col2'], true, false, [], ['where' => 'col1 IS NULL']);
@@ -141,7 +144,7 @@ class IndexTest extends TestCase
     /**
      * @group DBAL-220
      */
-    public function testFlags()
+    public function testFlags() : void
     {
         $idx1 = $this->createIndex();
         self::assertFalse($idx1->hasFlag('clustered'));
@@ -160,7 +163,7 @@ class IndexTest extends TestCase
     /**
      * @group DBAL-285
      */
-    public function testIndexQuotes()
+    public function testIndexQuotes() : void
     {
         $index = new Index('foo', ['`bar`', '`baz`']);
 
@@ -172,7 +175,7 @@ class IndexTest extends TestCase
         self::assertFalse($index->hasColumnAtPosition('baz', 0));
     }
 
-    public function testOptions()
+    public function testOptions() : void
     {
         $idx1 = $this->createIndex();
         self::assertFalse($idx1->hasOption('where'));

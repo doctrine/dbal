@@ -43,6 +43,8 @@ class TypeConversionTest extends DbalFunctionalTestCase
     }
 
     /**
+     * @param mixed $originalValue
+     *
      * @dataProvider booleanProvider
      */
     public function testIdempotentConversionToBoolean(string $type, $originalValue) : void
@@ -65,6 +67,8 @@ class TypeConversionTest extends DbalFunctionalTestCase
     }
 
     /**
+     * @param mixed $originalValue
+     *
      * @dataProvider integerProvider
      */
     public function testIdempotentConversionToInteger(string $type, $originalValue) : void
@@ -86,6 +90,8 @@ class TypeConversionTest extends DbalFunctionalTestCase
     }
 
     /**
+     * @param mixed $originalValue
+     *
      * @dataProvider floatProvider
      */
     public function testIdempotentConversionToFloat(string $type, $originalValue) : void
@@ -107,6 +113,8 @@ class TypeConversionTest extends DbalFunctionalTestCase
     }
 
     /**
+     * @param mixed $originalValue
+     *
      * @dataProvider toStringProvider
      */
     public function testIdempotentConversionToString(string $type, $originalValue) : void
@@ -137,6 +145,8 @@ class TypeConversionTest extends DbalFunctionalTestCase
     }
 
     /**
+     * @param mixed $originalValue
+     *
      * @dataProvider toArrayProvider
      */
     public function testIdempotentConversionToArray(string $type, $originalValue) : void
@@ -159,6 +169,8 @@ class TypeConversionTest extends DbalFunctionalTestCase
     }
 
     /**
+     * @param mixed $originalValue
+     *
      * @dataProvider toObjectProvider
      */
     public function testIdempotentConversionToObject(string $type, $originalValue) : void
@@ -218,6 +230,8 @@ class TypeConversionTest extends DbalFunctionalTestCase
 
     /**
      * @param mixed $originalValue
+     *
+     * @return mixed
      */
     private function processValue(string $type, $originalValue)
     {

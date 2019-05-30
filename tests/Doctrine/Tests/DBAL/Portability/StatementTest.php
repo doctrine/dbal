@@ -36,7 +36,7 @@ class StatementTest extends DbalTestCase
     /**
      * @group DBAL-726
      */
-    public function testBindParam()
+    public function testBindParam() : void
     {
         $column   = 'mycolumn';
         $variable = 'myvalue';
@@ -51,7 +51,7 @@ class StatementTest extends DbalTestCase
         self::assertTrue($this->stmt->bindParam($column, $variable, $type, $length));
     }
 
-    public function testBindValue()
+    public function testBindValue() : void
     {
         $param = 'myparam';
         $value = 'myvalue';
@@ -65,7 +65,7 @@ class StatementTest extends DbalTestCase
         self::assertTrue($this->stmt->bindValue($param, $value, $type));
     }
 
-    public function testCloseCursor()
+    public function testCloseCursor() : void
     {
         $this->wrappedStmt->expects($this->once())
             ->method('closeCursor')
@@ -74,7 +74,7 @@ class StatementTest extends DbalTestCase
         self::assertTrue($this->stmt->closeCursor());
     }
 
-    public function testColumnCount()
+    public function testColumnCount() : void
     {
         $columnCount = 666;
 
@@ -85,7 +85,7 @@ class StatementTest extends DbalTestCase
         self::assertSame($columnCount, $this->stmt->columnCount());
     }
 
-    public function testErrorCode()
+    public function testErrorCode() : void
     {
         $errorCode = '666';
 
@@ -96,7 +96,7 @@ class StatementTest extends DbalTestCase
         self::assertSame($errorCode, $this->stmt->errorCode());
     }
 
-    public function testErrorInfo()
+    public function testErrorInfo() : void
     {
         $errorInfo = ['666', 'Evil error.'];
 
@@ -107,7 +107,7 @@ class StatementTest extends DbalTestCase
         self::assertSame($errorInfo, $this->stmt->errorInfo());
     }
 
-    public function testExecute()
+    public function testExecute() : void
     {
         $params = [
             'foo',
@@ -122,7 +122,7 @@ class StatementTest extends DbalTestCase
         self::assertTrue($this->stmt->execute($params));
     }
 
-    public function testSetFetchMode()
+    public function testSetFetchMode() : void
     {
         $fetchMode = FetchMode::CUSTOM_OBJECT;
         $arg1      = 'MyClass';
@@ -141,7 +141,7 @@ class StatementTest extends DbalTestCase
         self::assertSame($fetchMode, $re->getValue($this->stmt));
     }
 
-    public function testGetIterator()
+    public function testGetIterator() : void
     {
         $this->wrappedStmt->expects($this->exactly(3))
             ->method('fetch')
@@ -150,7 +150,7 @@ class StatementTest extends DbalTestCase
         self::assertSame(['foo', 'bar'], iterator_to_array($this->stmt->getIterator()));
     }
 
-    public function testRowCount()
+    public function testRowCount() : void
     {
         $rowCount = 666;
 
@@ -171,10 +171,7 @@ class StatementTest extends DbalTestCase
             ->getMock();
     }
 
-    /**
-     * @return Statement
-     */
-    protected function createStatement(DriverStatement $wrappedStatement, Connection $connection)
+    protected function createStatement(DriverStatement $wrappedStatement, Connection $connection) : Statement
     {
         return new Statement($wrappedStatement, $connection);
     }

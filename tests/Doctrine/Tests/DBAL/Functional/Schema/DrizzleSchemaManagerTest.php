@@ -7,7 +7,7 @@ use Doctrine\DBAL\Types\BinaryType;
 
 class DrizzleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
-    public function testListTableWithBinary()
+    public function testListTableWithBinary() : void
     {
         $tableName = 'test_binary_table';
 
@@ -28,7 +28,7 @@ class DrizzleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertFalse($table->getColumn('column_binary')->getFixed());
     }
 
-    public function testColumnCollation()
+    public function testColumnCollation() : void
     {
         $table                                  = new Table('test_collation');
         $table->addOption('collate', $collation = 'utf8_unicode_ci');

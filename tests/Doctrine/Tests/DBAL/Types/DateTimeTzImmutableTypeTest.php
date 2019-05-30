@@ -27,22 +27,22 @@ class DateTimeTzImmutableTypeTest extends TestCase
         $this->platform = $this->prophesize(AbstractPlatform::class);
     }
 
-    public function testFactoryCreatesCorrectType()
+    public function testFactoryCreatesCorrectType() : void
     {
         self::assertSame(DateTimeTzImmutableType::class, get_class($this->type));
     }
 
-    public function testReturnsName()
+    public function testReturnsName() : void
     {
         self::assertSame('datetimetz_immutable', $this->type->getName());
     }
 
-    public function testReturnsBindingType()
+    public function testReturnsBindingType() : void
     {
         self::assertSame(ParameterType::STRING, $this->type->getBindingType());
     }
 
-    public function testConvertsDateTimeImmutableInstanceToDatabaseValue()
+    public function testConvertsDateTimeImmutableInstanceToDatabaseValue() : void
     {
         $date = $this->prophesize(DateTimeImmutable::class);
 
@@ -55,31 +55,31 @@ class DateTimeTzImmutableTypeTest extends TestCase
         );
     }
 
-    public function testConvertsNullToDatabaseValue()
+    public function testConvertsNullToDatabaseValue() : void
     {
         self::assertNull($this->type->convertToDatabaseValue(null, $this->platform->reveal()));
     }
 
-    public function testDoesNotSupportMutableDateTimeToDatabaseValueConversion()
+    public function testDoesNotSupportMutableDateTimeToDatabaseValueConversion() : void
     {
         $this->expectException(ConversionException::class);
 
         $this->type->convertToDatabaseValue(new DateTime(), $this->platform->reveal());
     }
 
-    public function testConvertsDateTimeImmutableInstanceToPHPValue()
+    public function testConvertsDateTimeImmutableInstanceToPHPValue() : void
     {
         $date = new DateTimeImmutable();
 
         self::assertSame($date, $this->type->convertToPHPValue($date, $this->platform->reveal()));
     }
 
-    public function testConvertsNullToPHPValue()
+    public function testConvertsNullToPHPValue() : void
     {
         self::assertNull($this->type->convertToPHPValue(null, $this->platform->reveal()));
     }
 
-    public function testConvertsDateTimeWithTimezoneStringToPHPValue()
+    public function testConvertsDateTimeWithTimezoneStringToPHPValue() : void
     {
         $this->platform->getDateTimeTzFormatString()->willReturn('Y-m-d H:i:s T')->shouldBeCalled();
 
@@ -89,14 +89,14 @@ class DateTimeTzImmutableTypeTest extends TestCase
         self::assertSame('2016-01-01 15:58:59 UTC', $date->format('Y-m-d H:i:s T'));
     }
 
-    public function testThrowsExceptionDuringConversionToPHPValueWithInvalidDateTimeWithTimezoneString()
+    public function testThrowsExceptionDuringConversionToPHPValueWithInvalidDateTimeWithTimezoneString() : void
     {
         $this->expectException(ConversionException::class);
 
         $this->type->convertToPHPValue('invalid datetime with timezone string', $this->platform->reveal());
     }
 
-    public function testRequiresSQLCommentHint()
+    public function testRequiresSQLCommentHint() : void
     {
         self::assertTrue($this->type->requiresSQLCommentHint($this->platform->reveal()));
     }

@@ -36,7 +36,7 @@ class BinaryTest extends DbalFunctionalTestCase
         $sm->dropAndCreateTable($table);
     }
 
-    public function testInsertAndSelect()
+    public function testInsertAndSelect() : void
     {
         $id1 = random_bytes(16);
         $id2 = random_bytes(16);
@@ -70,6 +70,9 @@ class BinaryTest extends DbalFunctionalTestCase
         self::assertSame(1, $result);
     }
 
+    /**
+     * @return mixed
+     */
     private function select(string $id)
     {
         $value = $this->connection->fetchColumn(

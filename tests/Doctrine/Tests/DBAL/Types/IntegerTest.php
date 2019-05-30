@@ -22,13 +22,13 @@ class IntegerTest extends DbalTestCase
         $this->type     = Type::getType('integer');
     }
 
-    public function testIntegerConvertsToPHPValue()
+    public function testIntegerConvertsToPHPValue() : void
     {
         self::assertIsInt($this->type->convertToPHPValue('1', $this->platform));
         self::assertIsInt($this->type->convertToPHPValue('0', $this->platform));
     }
 
-    public function testIntegerNullConvertsToPHPValue()
+    public function testIntegerNullConvertsToPHPValue() : void
     {
         self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }

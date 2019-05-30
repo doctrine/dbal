@@ -55,7 +55,7 @@ class StatementTest extends DbalTestCase
             ->will($this->returnValue($driver));
     }
 
-    public function testExecuteCallsLoggerStartQueryWithParametersWhenValuesBound()
+    public function testExecuteCallsLoggerStartQueryWithParametersWhenValuesBound() : void
     {
         $name   = 'foo';
         $var    = 'bar';
@@ -78,7 +78,7 @@ class StatementTest extends DbalTestCase
         $statement->execute();
     }
 
-    public function testExecuteCallsLoggerStartQueryWithParametersWhenParamsPassedToExecute()
+    public function testExecuteCallsLoggerStartQueryWithParametersWhenParamsPassedToExecute() : void
     {
         $name   = 'foo';
         $var    = 'bar';
@@ -99,7 +99,7 @@ class StatementTest extends DbalTestCase
         $statement->execute($values);
     }
 
-    public function testExecuteCallsStartQueryWithTheParametersBoundViaBindParam()
+    public function testExecuteCallsStartQueryWithTheParametersBoundViaBindParam() : void
     {
         $name   = 'foo';
         $var    = 'bar';
@@ -121,7 +121,7 @@ class StatementTest extends DbalTestCase
         $statement->execute();
     }
 
-    public function testExecuteCallsLoggerStopQueryOnException()
+    public function testExecuteCallsLoggerStopQueryOnException() : void
     {
         $logger = $this->createMock(SQLLogger::class);
 

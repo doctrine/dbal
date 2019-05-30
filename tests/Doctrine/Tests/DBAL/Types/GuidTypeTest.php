@@ -22,18 +22,18 @@ class GuidTypeTest extends DbalTestCase
         $this->type     = Type::getType('guid');
     }
 
-    public function testConvertToPHPValue()
+    public function testConvertToPHPValue() : void
     {
         self::assertIsString($this->type->convertToPHPValue('foo', $this->platform));
         self::assertIsString($this->type->convertToPHPValue('', $this->platform));
     }
 
-    public function testNullConversion()
+    public function testNullConversion() : void
     {
         self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }
 
-    public function testNativeGuidSupport()
+    public function testNativeGuidSupport() : void
     {
         self::assertTrue($this->type->requiresSQLCommentHint($this->platform));
 

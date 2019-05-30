@@ -28,7 +28,7 @@ class SingleDatabaseSynchronizerTest extends TestCase
         $this->synchronizer = new SingleDatabaseSynchronizer($this->conn);
     }
 
-    public function testGetCreateSchema()
+    public function testGetCreateSchema() : void
     {
         $schema = new Schema();
         $table  = $schema->createTable('test');
@@ -39,7 +39,7 @@ class SingleDatabaseSynchronizerTest extends TestCase
         self::assertEquals(['CREATE TABLE test (id INTEGER NOT NULL, PRIMARY KEY(id))'], $sql);
     }
 
-    public function testGetUpdateSchema()
+    public function testGetUpdateSchema() : void
     {
         $schema = new Schema();
         $table  = $schema->createTable('test');
@@ -50,7 +50,7 @@ class SingleDatabaseSynchronizerTest extends TestCase
         self::assertEquals(['CREATE TABLE test (id INTEGER NOT NULL, PRIMARY KEY(id))'], $sql);
     }
 
-    public function testGetDropSchema()
+    public function testGetDropSchema() : void
     {
         $schema = new Schema();
         $table  = $schema->createTable('test');
@@ -63,7 +63,7 @@ class SingleDatabaseSynchronizerTest extends TestCase
         self::assertEquals(['DROP TABLE test'], $sql);
     }
 
-    public function testGetDropAllSchema()
+    public function testGetDropAllSchema() : void
     {
         $schema = new Schema();
         $table  = $schema->createTable('test');

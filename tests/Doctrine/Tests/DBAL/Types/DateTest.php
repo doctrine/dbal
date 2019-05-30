@@ -19,7 +19,7 @@ class DateTest extends BaseDateTypeTestCase
         parent::setUp();
     }
 
-    public function testDateConvertsToPHPValue()
+    public function testDateConvertsToPHPValue() : void
     {
         // Birthday of jwage and also birthday of Doctrine. Send him a present ;)
         self::assertInstanceOf(
@@ -28,14 +28,14 @@ class DateTest extends BaseDateTypeTestCase
         );
     }
 
-    public function testDateResetsNonDatePartsToZeroUnixTimeValues()
+    public function testDateResetsNonDatePartsToZeroUnixTimeValues() : void
     {
         $date = $this->type->convertToPHPValue('1985-09-01', $this->platform);
 
         self::assertEquals('00:00:00', $date->format('H:i:s'));
     }
 
-    public function testDateRestsSummerTimeAffection()
+    public function testDateRestsSummerTimeAffection() : void
     {
         date_default_timezone_set('Europe/Berlin');
 
@@ -48,7 +48,7 @@ class DateTest extends BaseDateTypeTestCase
         self::assertEquals('2009-11-01', $date->format('Y-m-d'));
     }
 
-    public function testInvalidDateFormatConversion()
+    public function testInvalidDateFormatConversion() : void
     {
         $this->expectException(ConversionException::class);
         $this->type->convertToPHPValue('abcdefg', $this->platform);
