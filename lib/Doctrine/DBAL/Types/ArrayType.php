@@ -21,7 +21,7 @@ class ArrayType extends Type
     /**
      * {@inheritdoc}
      */
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
+    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform) : string
     {
         return $platform->getClobTypeDeclarationSQL($fieldDeclaration);
     }
@@ -60,7 +60,7 @@ class ArrayType extends Type
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName() : string
     {
         return Types::ARRAY;
     }
@@ -68,7 +68,7 @@ class ArrayType extends Type
     /**
      * {@inheritdoc}
      */
-    public function requiresSQLCommentHint(AbstractPlatform $platform)
+    public function requiresSQLCommentHint(AbstractPlatform $platform) : bool
     {
         return true;
     }
