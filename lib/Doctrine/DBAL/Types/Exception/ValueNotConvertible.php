@@ -15,7 +15,10 @@ use function substr;
  */
 final class ValueNotConvertible extends ConversionException implements TypesException
 {
-    public static function new($value, $toType, ?string $message = null) : self
+    /**
+     * @param mixed $value
+     */
+    public static function new($value, string $toType, ?string $message = null) : self
     {
         if ($message !== null) {
             return new self(

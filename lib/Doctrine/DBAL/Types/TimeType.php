@@ -18,7 +18,7 @@ class TimeType extends Type
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName() : string
     {
         return Types::TIME_MUTABLE;
     }
@@ -26,7 +26,7 @@ class TimeType extends Type
     /**
      * {@inheritdoc}
      */
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
+    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform) : string
     {
         return $platform->getTimeTypeDeclarationSQL($fieldDeclaration);
     }

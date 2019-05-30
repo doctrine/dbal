@@ -17,7 +17,7 @@ class DateTimeTzImmutableType extends DateTimeTzType
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName() : string
     {
         return Types::DATETIMETZ_IMMUTABLE;
     }
@@ -67,7 +67,7 @@ class DateTimeTzImmutableType extends DateTimeTzType
     /**
      * {@inheritdoc}
      */
-    public function requiresSQLCommentHint(AbstractPlatform $platform)
+    public function requiresSQLCommentHint(AbstractPlatform $platform) : bool
     {
         return true;
     }
