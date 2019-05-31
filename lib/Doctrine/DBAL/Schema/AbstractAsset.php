@@ -25,7 +25,7 @@ use function substr;
 abstract class AbstractAsset
 {
     /** @var string */
-    protected $_name;
+    protected $_name = '';
 
     /**
      * Namespace of the asset. If none isset the default namespace is assumed.
@@ -138,7 +138,7 @@ abstract class AbstractAsset
             return $this->_namespace . '.' . $this->_name;
         }
 
-        return $this->_name ?? '';
+        return $this->_name;
     }
 
     /**
@@ -167,7 +167,7 @@ abstract class AbstractAsset
      */
     protected function _generateIdentifierName(array $columnNames, string $prefix = '', int $maxSize = 30) : string
     {
-        $hash = implode('', array_map(static function ($column) {
+        $hash = implode('', array_map(static function ($column) : string {
             return dechex(crc32($column));
         }, $columnNames));
 

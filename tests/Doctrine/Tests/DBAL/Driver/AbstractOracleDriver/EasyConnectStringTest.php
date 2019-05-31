@@ -22,7 +22,7 @@ class EasyConnectStringTest extends TestCase
     }
 
     /**
-     * @return mixed[]
+     * @return iterable<string, array<int, mixed>>
      */
     public static function connectionParametersProvider() : iterable
     {

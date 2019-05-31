@@ -120,7 +120,7 @@ class SchemaDiff
             }
         }
 
-        if ($platform->supportsSequences() === true) {
+        if ($platform->supportsSequences()) {
             foreach ($this->changedSequences as $sequence) {
                 $sql[] = $platform->getAlterSequenceSQL($sequence);
             }
