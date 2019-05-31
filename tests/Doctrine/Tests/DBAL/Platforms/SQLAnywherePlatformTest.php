@@ -234,11 +234,9 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * @param int|bool|null $lockMode
-     *
      * @dataProvider getLockHints
      */
-    public function testAppendsLockHint($lockMode, string $lockHint) : void
+    public function testAppendsLockHint(?int $lockMode, string $lockHint) : void
     {
         $fromClause     = 'FROM users';
         $expectedResult = $fromClause . $lockHint;
