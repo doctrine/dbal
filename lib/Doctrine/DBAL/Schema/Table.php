@@ -462,8 +462,8 @@ class Table extends AbstractAsset
 
         $colNames = array_unique(array_merge($pkCols, $fkCols, array_keys($columns)));
 
-        uksort($columns, static function ($a, $b) use ($colNames) {
-            return array_search($a, $colNames) >= array_search($b, $colNames);
+        uksort($columns, static function ($a, $b) use ($colNames) : int {
+            return array_search($a, $colNames) <=> array_search($b, $colNames);
         });
 
         return $columns;
@@ -580,7 +580,7 @@ class Table extends AbstractAsset
      *
      * @return array<string, ForeignKeyConstraint>
      */
-    public function getForeignKeys()
+    public function getForeignKeys() : array
     {
         return $this->_fkConstraints;
     }
@@ -625,8 +625,6 @@ class Table extends AbstractAsset
 
     /**
      * Clone of a Table triggers a deep clone of all affected assets.
-     *
-     * @return void
      */
     public function __clone()
     {

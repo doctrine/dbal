@@ -92,7 +92,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         $names = $this->getSchemaNames();
         $paths = $this->getSchemaSearchPaths();
 
-        $this->existingSchemaPaths = array_filter($paths, static function ($v) use ($names) {
+        $this->existingSchemaPaths = array_filter($paths, static function ($v) use ($names) : bool {
             return in_array($v, $names);
         });
     }
@@ -159,14 +159,6 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             $tableForeignKey['conname'],
             ['onUpdate' => $onUpdate, 'onDelete' => $onDelete]
         );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function _getPortableTriggerDefinition(array $trigger) : string
-    {
-        return $trigger['trigger_name'];
     }
 
     /**
