@@ -13,6 +13,7 @@ use function array_merge;
 use function array_unique;
 use function assert;
 use function count;
+use function strcasecmp;
 use function strtolower;
 
 /**
@@ -258,7 +259,7 @@ class Comparator
                 if ($this->diffForeignKey($constraint1, $constraint2) === false) {
                     unset($fromFkeys[$key1], $toFkeys[$key2]);
                 } else {
-                    if (strtolower($constraint1->getName()) === strtolower($constraint2->getName())) {
+                    if (strcasecmp($constraint1->getName(), $constraint2->getName()) === 0) {
                         $tableDifferences->changedForeignKeys[] = $constraint2;
                         $changes++;
                         unset($fromFkeys[$key1], $toFkeys[$key2]);

@@ -6,7 +6,6 @@ namespace Doctrine\Tests\DBAL\Schema\Visitor;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
-use Doctrine\DBAL\Schema\SchemaException;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\Visitor\DropSchemaSqlCollector;
 use PHPUnit\Framework\TestCase;
@@ -64,18 +63,5 @@ class DropSchemaSqlCollectorTest extends TestCase
             ->will($this->returnValue([]));
 
         return $constraint;
-    }
-
-    public function testGivenForeignKeyWithZeroLengthAcceptForeignKeyThrowsException() : void
-    {
-        $collector = new DropSchemaSqlCollector(
-            $this->getMockForAbstractClass(AbstractPlatform::class)
-        );
-
-        $this->expectException(SchemaException::class);
-        $collector->acceptForeignKey(
-            $this->createMock(Table::class),
-            $this->getStubKeyConstraint('')
-        );
     }
 }
