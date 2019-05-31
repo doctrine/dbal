@@ -45,7 +45,7 @@ class BlobType extends Type
         }
 
         if (! is_resource($value)) {
-            throw ValueNotConvertible::new($value, self::BLOB);
+            throw ValueNotConvertible::new($value, Types::BLOB);
         }
 
         return $value;
