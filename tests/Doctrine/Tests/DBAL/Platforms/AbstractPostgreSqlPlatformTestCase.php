@@ -426,16 +426,14 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     }
 
     /**
-     * @param string|bool $databaseValue
-     *
      * @group DBAL-457
      * @dataProvider pgBooleanProvider
      */
     public function testConvertBooleanAsLiteralStrings(
-        $databaseValue,
+        string $databaseValue,
         string $preparedStatementValue,
-        ?int $integerValue,
-        ?bool $booleanValue
+        int $integerValue,
+        bool $booleanValue
     ) : void {
         $platform = $this->createPlatform();
 
@@ -458,16 +456,14 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     }
 
     /**
-     * @param string|bool $databaseValue
-     *
      * @group DBAL-630
      * @dataProvider pgBooleanProvider
      */
     public function testConvertBooleanAsDatabaseValueStrings(
-        $databaseValue,
+        string $databaseValue,
         string $preparedStatementValue,
-        ?int $integerValue,
-        ?bool $booleanValue
+        int $integerValue,
+        bool $booleanValue
     ) : void {
         $platform = $this->createPlatform();
 
@@ -487,11 +483,9 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     }
 
     /**
-     * @param string|bool $databaseValue
-     *
      * @dataProvider pgBooleanProvider
      */
-    public function testConvertFromBoolean($databaseValue, string $prepareStatementValue, ?int $integerValue, ?bool $booleanValue) : void
+    public function testConvertFromBoolean(string $databaseValue, string $prepareStatementValue, int $integerValue, bool $booleanValue) : void
     {
         $platform = $this->createPlatform();
 
@@ -730,7 +724,6 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     {
         return [
             // Database value, prepared statement value, boolean integer value, boolean value.
-            [true, 'true', 1, true],
             ['t', 'true', 1, true],
             ['true', 'true', 1, true],
             ['y', 'true', 1, true],
@@ -738,15 +731,12 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
             ['on', 'true', 1, true],
             ['1', 'true', 1, true],
 
-            [false, 'false', 0, false],
             ['f', 'false', 0, false],
             ['false', 'false', 0, false],
             [ 'n', 'false', 0, false],
             ['no', 'false', 0, false],
             ['off', 'false', 0, false],
             ['0', 'false', 0, false],
-
-            [null, 'NULL', null, null],
         ];
     }
 
@@ -809,14 +799,6 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     protected function getQuotesDropForeignKeySQL() : string
     {
         return 'ALTER TABLE "table" DROP CONSTRAINT "select"';
-    }
-
-    public function testGetNullCommentOnColumnSQL() : void
-    {
-        self::assertEquals(
-            'COMMENT ON COLUMN mytable.id IS NULL',
-            $this->platform->getCommentOnColumnSQL('mytable', 'id', null)
-        );
     }
 
     /**
