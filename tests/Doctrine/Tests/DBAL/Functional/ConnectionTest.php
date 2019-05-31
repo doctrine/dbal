@@ -285,17 +285,6 @@ class ConnectionTest extends DbalFunctionalTestCase
         self::assertEquals(42, $res);
     }
 
-    /**
-     * Tests that the quote function accepts DBAL and PDO types.
-     */
-    public function testQuote() : void
-    {
-        self::assertEquals(
-            $this->connection->quote('foo'),
-            $this->connection->quote('foo')
-        );
-    }
-
     public function testPingDoesTriggersConnect() : void
     {
         $this->connection->close();

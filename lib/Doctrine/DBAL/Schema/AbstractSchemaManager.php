@@ -223,7 +223,7 @@ abstract class AbstractSchemaManager
      *
      * @return array<int, mixed>
      */
-    protected function filterAssetNames(array $assetNames)
+    protected function filterAssetNames(array $assetNames) : array
     {
         $filter = $this->_conn->getConfiguration()->getSchemaAssetsFilter();
         if (! $filter) {
@@ -603,35 +603,6 @@ abstract class AbstractSchemaManager
     protected function getPortableNamespaceDefinition(array $namespace) : string
     {
         return array_shift($namespace);
-    }
-
-    /**
-     * @param array<int, array<int, mixed>> $triggers
-     *
-     * @return array<int, string>
-     */
-    protected function _getPortableTriggersList(array $triggers)
-    {
-        $list = [];
-        foreach ($triggers as $value) {
-            $value = $this->_getPortableTriggerDefinition($value);
-
-            if (! $value) {
-                continue;
-            }
-
-            $list[] = $value;
-        }
-
-        return $list;
-    }
-
-    /**
-     * @param array<string|int, mixed> $trigger
-     */
-    protected function _getPortableTriggerDefinition(array $trigger) : string
-    {
-        return array_shift($trigger);
     }
 
     /**

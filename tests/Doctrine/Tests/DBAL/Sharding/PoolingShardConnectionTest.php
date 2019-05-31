@@ -11,6 +11,7 @@ use Doctrine\DBAL\Sharding\ShardingException;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use stdClass;
+use function array_merge;
 
 /**
  * @requires extension pdo_sqlite
@@ -19,8 +20,7 @@ class PoolingShardConnectionTest extends TestCase
 {
     public function testConnect() : void
     {
-        $conn = DriverManager::getConnection([
-            'wrapperClass' => PoolingShardConnection::class,
+        $conn = $this->createConnection([
             'driver' => 'pdo_sqlite',
             'global' => ['memory' => true],
             'shards' => [
@@ -56,8 +56,7 @@ class PoolingShardConnectionTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Connection Parameters require "global" and "shards" configurations.');
 
-        DriverManager::getConnection([
-            'wrapperClass' => PoolingShardConnection::class,
+        $this->createConnection([
             'driver' => 'pdo_sqlite',
             'shards' => [
                 ['id' => 1, 'memory' => true],
@@ -72,8 +71,7 @@ class PoolingShardConnectionTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Connection Parameters require "global" and "shards" configurations.');
 
-        DriverManager::getConnection([
-            'wrapperClass' => PoolingShardConnection::class,
+        $this->createConnection([
             'driver' => 'pdo_sqlite',
             'global' => ['memory' => true],
             'shardChoser' => MultiTenantShardChoser::class,
@@ -85,8 +83,7 @@ class PoolingShardConnectionTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Missing Shard Choser configuration "shardChoser".');
 
-        DriverManager::getConnection([
-            'wrapperClass' => PoolingShardConnection::class,
+        $this->createConnection([
             'driver' => 'pdo_sqlite',
             'global' => ['memory' => true],
             'shards' => [
@@ -101,8 +98,7 @@ class PoolingShardConnectionTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('The "shardChoser" configuration is not a valid instance of Doctrine\DBAL\Sharding\ShardChoser\ShardChoser');
 
-        DriverManager::getConnection([
-            'wrapperClass' => PoolingShardConnection::class,
+        $this->createConnection([
             'driver' => 'pdo_sqlite',
             'global' => ['memory' => true],
             'shards' => [
@@ -118,8 +114,7 @@ class PoolingShardConnectionTest extends TestCase
         $this->expectException('InvalidArgumentException');
         $this->expectExceptionMessage('Shard Id has to be a non-negative number.');
 
-        DriverManager::getConnection([
-            'wrapperClass' => PoolingShardConnection::class,
+        $this->createConnection([
             'driver' => 'pdo_sqlite',
             'global' => ['memory' => true],
             'shards' => [
@@ -134,8 +129,7 @@ class PoolingShardConnectionTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Missing "id" for one configured shard. Please specify a unique shard-id.');
 
-        DriverManager::getConnection([
-            'wrapperClass' => PoolingShardConnection::class,
+        $this->createConnection([
             'driver' => 'pdo_sqlite',
             'global' => ['memory' => true],
             'shards' => [
@@ -150,8 +144,7 @@ class PoolingShardConnectionTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Shard "1" is duplicated in the configuration.');
 
-        DriverManager::getConnection([
-            'wrapperClass' => PoolingShardConnection::class,
+        $this->createConnection([
             'driver' => 'pdo_sqlite',
             'global' => ['memory' => true],
             'shards' => [
@@ -164,8 +157,7 @@ class PoolingShardConnectionTest extends TestCase
 
     public function testSwitchShardWithOpenTransactionException() : void
     {
-        $conn = DriverManager::getConnection([
-            'wrapperClass' => PoolingShardConnection::class,
+        $conn = $this->createConnection([
             'driver' => 'pdo_sqlite',
             'global' => ['memory' => true],
             'shards' => [
@@ -183,8 +175,7 @@ class PoolingShardConnectionTest extends TestCase
 
     public function testGetActiveShardId() : void
     {
-        $conn = DriverManager::getConnection([
-            'wrapperClass' => PoolingShardConnection::class,
+        $conn = $this->createConnection([
             'driver' => 'pdo_sqlite',
             'global' => ['memory' => true],
             'shards' => [
@@ -207,8 +198,7 @@ class PoolingShardConnectionTest extends TestCase
 
     public function testGetParamsOverride() : void
     {
-        $conn = DriverManager::getConnection([
-            'wrapperClass' => PoolingShardConnection::class,
+        $conn = $this->createConnection([
             'driver' => 'pdo_sqlite',
             'global' => ['memory' => true, 'host' => 'localhost'],
             'shards' => [
@@ -242,5 +232,16 @@ class PoolingShardConnectionTest extends TestCase
             'memory' => true,
             'host' => 'foo',
         ], $conn->getParams());
+    }
+
+    /**
+     * @param array<string, mixed> $parameters
+     */
+    private function createConnection(array $parameters) : PoolingShardConnection
+    {
+        return DriverManager::getConnection(array_merge(
+            ['wrapperClass' => PoolingShardConnection::class],
+            $parameters
+        ));
     }
 }
