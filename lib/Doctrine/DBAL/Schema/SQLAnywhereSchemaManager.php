@@ -45,13 +45,13 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
         parent::dropDatabase($database);
     }
 
-    public function startDatabase(string $database)
+    public function startDatabase(string $database) : void
     {
         assert($this->_platform instanceof SQLAnywherePlatform);
         $this->_execSql($this->_platform->getStartDatabaseSQL($database));
     }
 
-    public function stopDatabase(string $database)
+    public function stopDatabase(string $database) : void
     {
         assert($this->_platform instanceof SQLAnywherePlatform);
         $this->_execSql($this->_platform->getStopDatabaseSQL($database));

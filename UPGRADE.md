@@ -1,5 +1,11 @@
 # Upgrade to 3.0
 
+## BC BREAK: Changes in the `Doctrine\DBAL\Schema` API
+
+- Column precision no longer defaults to 10. The default value is NULL.
+- Asset names are no longer nullable. An empty asset name should be represented as an empty string.
+- `Doctrine\DBAL\Schema\AbstractSchemaManager::_getPortableTriggersList()` and `::_getPortableTriggerDefinition()` have been removed.
+
 ## BC BREAK: Changes in the `Doctrine\DBAL\Event` API
 
 - `SchemaAlterTableAddColumnEventArgs::addSql()` and the same method in other `SchemaEventArgs`-based classes no longer accept an array of SQL statements. They accept a variadic string.

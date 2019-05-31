@@ -408,8 +408,6 @@ class Schema extends AbstractAsset
 
     /**
      * Cloning a Schema triggers a deep clone of all related assets.
-     *
-     * @return void
      */
     public function __clone()
     {

@@ -154,7 +154,6 @@ class WriteTest extends DbalFunctionalTestCase
         self::assertEquals(1, $this->connection->insert('write_table', ['test_int' => 2, 'test_string' => 'bar']));
         $num = $this->lastInsertId();
 
-        self::assertNotNull($num, 'LastInsertId() should not be null.');
         self::assertGreaterThan(0, $num, 'LastInsertId() should be non-negative number.');
     }
 
@@ -343,11 +342,9 @@ class WriteTest extends DbalFunctionalTestCase
      * Returns the ID of the last inserted row or skips the test if the currently used driver
      * doesn't support this feature
      *
-     * @return string|false
-     *
      * @throws DriverException
      */
-    private function lastInsertId(?string $name = null)
+    private function lastInsertId(?string $name = null) : string
     {
         try {
             return $this->connection->lastInsertId($name);

@@ -512,11 +512,9 @@ class DataAccessTest extends DbalFunctionalTestCase
     }
 
     /**
-     * @param string|false $char
-     *
      * @dataProvider getTrimExpressionData
      */
-    public function testTrimExpression(string $value, int $position, $char, string $expectedResult) : void
+    public function testTrimExpression(string $value, int $position, ?string $char, string $expectedResult) : void
     {
         $sql = 'SELECT ' .
             $this->connection->getDatabasePlatform()->getTrimExpression($value, $position, $char) . ' AS trimmed ' .
