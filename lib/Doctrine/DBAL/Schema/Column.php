@@ -23,7 +23,7 @@ class Column extends AbstractAsset
     protected $_length;
 
     /** @var int|null */
-    protected $_precision = 10;
+    protected $_precision;
 
     /** @var int */
     protected $_scale = 0;
@@ -106,10 +106,6 @@ class Column extends AbstractAsset
 
     public function setPrecision(?int $precision) : self
     {
-        if ($precision === null) {
-            $precision = 10; // defaults to 10 when no precision is given.
-        }
-
         $this->_precision = $precision;
 
         return $this;
@@ -195,7 +191,7 @@ class Column extends AbstractAsset
         return $this->_precision;
     }
 
-    public function getScale() : ?int
+    public function getScale() : int
     {
         return $this->_scale;
     }
