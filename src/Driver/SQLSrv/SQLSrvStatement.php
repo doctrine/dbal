@@ -70,10 +70,8 @@ final class SQLSrvStatement implements Statement
 
     /**
      * Append to any INSERT query to retrieve the last insert id.
-     *
-     * @deprecated This constant has been deprecated and will be made private in 3.0
      */
-    public const LAST_INSERT_ID_SQL = ';SELECT SCOPE_IDENTITY() AS LastInsertId;';
+    private const LAST_INSERT_ID_SQL = ';SELECT SCOPE_IDENTITY() AS LastInsertId;';
 
     /**
      * @param resource $conn

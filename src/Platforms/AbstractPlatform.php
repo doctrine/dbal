@@ -2322,7 +2322,7 @@ abstract class AbstractPlatform
         }
 
         return 'CONSTRAINT ' . $name->getQuotedName($this) . ' UNIQUE ('
-            . $this->getIndexFieldDeclarationListSQL($index)
+            . $this->getColumnsFieldDeclarationListSQL($columns)
             . ')' . $this->getPartialIndexSQL($index);
     }
 
@@ -2368,22 +2368,23 @@ abstract class AbstractPlatform
     /**
      * Obtains DBMS specific SQL code portion needed to set an index
      * declaration to be used in statements like CREATE TABLE.
-     *
-     * @param mixed[]|Index $columnsOrIndex array declaration is deprecated, prefer passing Index to this method
      */
-    public function getIndexFieldDeclarationListSQL($columnsOrIndex): string
+    public function getIndexFieldDeclarationListSQL(Index $index): string
     {
-        if ($columnsOrIndex instanceof Index) {
-            return implode(', ', $columnsOrIndex->getQuotedColumns($this));
-        }
+        return implode(', ', $index->getQuotedColumns($this));
+    }
 
-        if (! is_array($columnsOrIndex)) {
-            throw new InvalidArgumentException('Fields argument should be an Index or array.');
-        }
-
+    /**
+     * Obtains DBMS specific SQL code portion needed to set an index
+     * declaration to be used in statements like CREATE TABLE.
+     *
+     * @param mixed[] $columns
+     */
+    public function getColumnsFieldDeclarationListSQL(array $columns): string
+    {
         $ret = [];
 
-        foreach ($columnsOrIndex as $column => $definition) {
+        foreach ($columns as $column => $definition) {
             if (is_array($definition)) {
                 $ret[] = $column;
             } else {

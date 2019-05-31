@@ -32,15 +32,12 @@ class SQLParserUtils
 
     /**#@+
      * Quote characters within string literals can be preceded by a backslash.
-     *
-     * @deprecated Will be removed as internal implementation details.
      */
-    public const ESCAPED_SINGLE_QUOTED_TEXT   = "(?:'(?:\\\\)+'|'(?:[^'\\\\]|\\\\'?|'')*')";
-    public const ESCAPED_DOUBLE_QUOTED_TEXT   = '(?:"(?:\\\\)+"|"(?:[^"\\\\]|\\\\"?)*")';
-    public const ESCAPED_BACKTICK_QUOTED_TEXT = '(?:`(?:\\\\)+`|`(?:[^`\\\\]|\\\\`?)*`)';
+    private const ESCAPED_SINGLE_QUOTED_TEXT   = "(?:'(?:\\\\)+'|'(?:[^'\\\\]|\\\\'?|'')*')";
+    private const ESCAPED_DOUBLE_QUOTED_TEXT   = '(?:"(?:\\\\)+"|"(?:[^"\\\\]|\\\\"?)*")';
+    private const ESCAPED_BACKTICK_QUOTED_TEXT = '(?:`(?:\\\\)+`|`(?:[^`\\\\]|\\\\`?)*`)';
+    private const ESCAPED_BRACKET_QUOTED_TEXT  = '(?<!\b(?i:ARRAY))\[(?:[^\]])*\]';
     /**#@-*/
-
-    private const ESCAPED_BRACKET_QUOTED_TEXT = '(?<!\b(?i:ARRAY))\[(?:[^\]])*\]';
 
     /**
      * Returns a zero-indexed list of placeholder position.
