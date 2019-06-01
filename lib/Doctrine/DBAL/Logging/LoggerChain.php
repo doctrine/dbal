@@ -9,25 +9,15 @@ namespace Doctrine\DBAL\Logging;
  */
 final class LoggerChain implements SQLLogger
 {
-    /** @var SQLLogger[] */
+    /** @var iterable<SQLLogger> */
     private $loggers = [];
 
     /**
-     * @param SQLLogger[] $loggers
+     * @param iterable<SQLLogger> $loggers
      */
-    public function __construct(array $loggers = [])
+    public function __construct(iterable $loggers = [])
     {
         $this->loggers = $loggers;
-    }
-
-    /**
-     * Adds a logger in the chain.
-     *
-     * @deprecated Inject list of loggers via constructor instead
-     */
-    public function addLogger(SQLLogger $logger) : void
-    {
-        $this->loggers[] = $logger;
     }
 
     /**
