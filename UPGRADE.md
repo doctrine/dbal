@@ -53,6 +53,7 @@ The `Doctrine\DBAL\Driver::getName()` has been removed.
  * Removed `Table::addUnnamedForeignKeyConstraint()` and `Table::addNamedForeignKeyConstraint()`.
  * Removed `Table::renameColumn()`.
  * Removed `SQLParserUtils::getPlaceholderPositions()`.
+ * Removed `LoggerChain::addLogger`.
  * Removed `AbstractSchemaManager::getFilterSchemaAssetsExpression()`, `Configuration::getFilterSchemaAssetsExpression()`
    and `Configuration::getFilterSchemaAssetsExpression()`.
  * `SQLParserUtils::*_TOKEN` constants made private.
