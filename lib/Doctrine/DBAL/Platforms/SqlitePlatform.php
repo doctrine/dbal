@@ -360,8 +360,10 @@ class SqlitePlatform extends AbstractPlatform
         $keyColumns = array_unique(array_values($options['primary']));
 
         foreach ($keyColumns as $keyColumn) {
-            if (! empty($columns[$keyColumn]['autoincrement'])) {
-                return '';
+            foreach ($columns as $column) {
+                if ($column['name'] === $keyColumn && ! empty($column['autoincrement'])) {
+                    return '';
+                }
             }
         }
 
