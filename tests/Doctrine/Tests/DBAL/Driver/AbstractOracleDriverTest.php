@@ -14,42 +14,6 @@ use Doctrine\DBAL\Schema\OracleSchemaManager;
 
 class AbstractOracleDriverTest extends AbstractDriverTest
 {
-    public function testReturnsDatabaseName() : void
-    {
-        $params = [
-            'user'     => 'foo',
-            'password' => 'bar',
-            'dbname'   => 'baz',
-        ];
-
-        $connection = $this->getConnectionMock();
-
-        $connection->expects($this->once())
-            ->method('getParams')
-            ->will($this->returnValue($params));
-
-        self::assertSame($params['user'], $this->driver->getDatabase($connection));
-    }
-
-    public function testReturnsDatabaseNameWithConnectDescriptor() : void
-    {
-        $params = [
-            'user'             => 'foo',
-            'password'         => 'bar',
-            'connectionstring' => '(DESCRIPTION=' .
-                '(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=1521))' .
-                '(CONNECT_DATA=(SERVICE_NAME=baz)))',
-        ];
-
-        $connection = $this->getConnectionMock();
-
-        $connection->expects($this->once())
-            ->method('getParams')
-            ->will($this->returnValue($params));
-
-        self::assertSame($params['user'], $this->driver->getDatabase($connection));
-    }
-
     protected function createDriver() : Driver
     {
         return $this->getMockForAbstractClass(AbstractOracleDriver::class);
