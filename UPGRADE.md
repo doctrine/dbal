@@ -1,5 +1,11 @@
 # Upgrade to 3.0
 
+## BC BREAK: Changes in obtaining the currently selected database name
+
+- The `Doctrine\DBAL\Driver::getDatabase()` method has been removed. Please use `Doctrine\DBAL\Connection::getDatabase()` instead.
+- `Doctrine\DBAL\Connection::getDatabase()` will always return the name of the database currently connected to, regardless of the configuration parameters and will initialize a database connection if it's not yet established.
+- A call to `Doctrine\DBAL\Connection::getDatabase()`, when connected to an SQLite database, will no longer return the database file path.
+
 ## BC BREAK: `Doctrine\DBAL\Driver::getName()` removed
 
 The `Doctrine\DBAL\Driver::getName()` has been removed.

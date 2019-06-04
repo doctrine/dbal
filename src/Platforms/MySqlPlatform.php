@@ -127,6 +127,11 @@ class MySqlPlatform extends AbstractPlatform
         return 'DATEDIFF(' . $date1 . ', ' . $date2 . ')';
     }
 
+    public function getCurrentDatabaseExpression(): string
+    {
+        return 'DATABASE()';
+    }
+
     /**
      * {@inheritDoc}
      */

@@ -1072,7 +1072,13 @@ abstract class AbstractSchemaManager
      */
     public function getSchemaSearchPaths()
     {
-        return [$this->_conn->getDatabase()];
+        $database = $this->_conn->getDatabase();
+
+        if ($database !== null) {
+            return [$database];
+        }
+
+        return [];
     }
 
     /**

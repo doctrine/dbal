@@ -1203,6 +1203,11 @@ SQL
         return 'LEN(' . $column . ')';
     }
 
+    public function getCurrentDatabaseExpression(): string
+    {
+        return 'DB_NAME()';
+    }
+
     /**
      * {@inheritDoc}
      */

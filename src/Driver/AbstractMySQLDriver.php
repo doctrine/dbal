@@ -197,18 +197,6 @@ abstract class AbstractMySQLDriver implements ExceptionConverterDriver, VersionA
     /**
      * {@inheritdoc}
      *
-     * @deprecated Use Connection::getDatabase() instead.
-     */
-    public function getDatabase(Connection $conn)
-    {
-        $params = $conn->getParams();
-
-        return $params['dbname'] ?? $conn->query('SELECT DATABASE()')->fetchOne();
-    }
-
-    /**
-     * {@inheritdoc}
-     *
      * @return MySqlPlatform
      */
     public function getDatabasePlatform()

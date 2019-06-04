@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Tests;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\OraclePlatform;
 use PHPUnit\Framework\Assert;
 
 use function array_keys;
@@ -87,7 +88,12 @@ class TestUtil
         $platform = $privConn->getDatabasePlatform();
 
         if ($platform->supportsCreateDropDatabase()) {
-            $dbname = $testConn->getDatabase();
+            if (! $platform instanceof OraclePlatform) {
+                $dbname = $testConnParams['dbname'];
+            } else {
+                $dbname = $testConnParams['user'];
+            }
+
             $testConn->close();
 
             $privConn->getSchemaManager()->dropAndCreateDatabase($dbname);

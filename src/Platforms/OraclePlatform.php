@@ -161,6 +161,11 @@ class OraclePlatform extends AbstractPlatform
         return 'BITAND(' . $value1 . ', ' . $value2 . ')';
     }
 
+    public function getCurrentDatabaseExpression(): string
+    {
+        return "SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')";
+    }
+
     /**
      * {@inheritDoc}
      */

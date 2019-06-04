@@ -104,18 +104,6 @@ abstract class AbstractPostgreSQLDriver implements ExceptionConverterDriver, Ver
 
     /**
      * {@inheritdoc}
-     *
-     * @deprecated Use Connection::getDatabase() instead.
-     */
-    public function getDatabase(Connection $conn)
-    {
-        $params = $conn->getParams();
-
-        return $params['dbname'] ?? $conn->query('SELECT CURRENT_DATABASE()')->fetchOne();
-    }
-
-    /**
-     * {@inheritdoc}
      */
     public function getDatabasePlatform()
     {

@@ -164,6 +164,19 @@ class SqlitePlatform extends AbstractPlatform
 
     /**
      * {@inheritDoc}
+     *
+     * The SQLite platform doesn't support the concept of a database, therefore, it always returns an empty string
+     * as an indicator of an implicitly selected database.
+     *
+     * @see \Doctrine\DBAL\Connection::getDatabase()
+     */
+    public function getCurrentDatabaseExpression(): string
+    {
+        return "''";
+    }
+
+    /**
+     * {@inheritDoc}
      */
     protected function _getTransactionIsolationLevelSQL($level)
     {

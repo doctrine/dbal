@@ -139,6 +139,11 @@ class PostgreSQL94Platform extends AbstractPlatform
         return '(DATE(' . $date1 . ')-DATE(' . $date2 . '))';
     }
 
+    public function getCurrentDatabaseExpression(): string
+    {
+        return 'CURRENT_DATABASE()';
+    }
+
     /**
      * {@inheritDoc}
      */

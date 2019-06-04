@@ -48,7 +48,7 @@ class DriverTest extends AbstractDriverTest
 
         self::assertSame(
             $expectedDatabaseName,
-            $this->driver->getDatabase($connection)
+            $connection->getDatabase()
         );
     }
 

@@ -12,24 +12,6 @@ use Doctrine\DBAL\Schema\SqliteSchemaManager;
 
 class AbstractSQLiteDriverTest extends AbstractDriverTest
 {
-    public function testReturnsDatabaseName(): void
-    {
-        $params = [
-            'user'     => 'foo',
-            'password' => 'bar',
-            'dbname'   => 'baz',
-            'path'     => 'bloo',
-        ];
-
-        $connection = $this->getConnectionMock();
-
-        $connection->expects(self::once())
-            ->method('getParams')
-            ->will(self::returnValue($params));
-
-        self::assertSame($params['path'], $this->driver->getDatabase($connection));
-    }
-
     protected function createDriver(): Driver
     {
         return $this->getMockForAbstractClass(AbstractSQLiteDriver::class);
