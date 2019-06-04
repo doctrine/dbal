@@ -1113,6 +1113,11 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Returns the SQL expression which represents the currently selected database.
+     */
+    abstract public function getCurrentDatabaseExpression() : string;
+
+    /**
      * Returns the FOR UPDATE expression.
      */
     public function getForUpdateSQL() : string

@@ -195,16 +195,6 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
 
     /**
      * {@inheritdoc}
-     */
-    public function getDatabase(Connection $conn) : ?string
-    {
-        $params = $conn->getParams();
-
-        return $params['dbname'] ?? $conn->query('SELECT DATABASE()')->fetchColumn();
-    }
-
-    /**
-     * {@inheritdoc}
      *
      * @return MySqlPlatform
      */

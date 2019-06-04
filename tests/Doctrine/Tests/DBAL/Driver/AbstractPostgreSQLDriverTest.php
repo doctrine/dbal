@@ -7,7 +7,6 @@ namespace Doctrine\Tests\DBAL\Driver;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\AbstractPostgreSQLDriver;
-use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQL100Platform;
 use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
@@ -17,35 +16,6 @@ use Doctrine\DBAL\Schema\PostgreSqlSchemaManager;
 
 class AbstractPostgreSQLDriverTest extends AbstractDriverTest
 {
-    public function testReturnsDatabaseName() : void
-    {
-        parent::testReturnsDatabaseName();
-
-        $database = 'bloo';
-        $params   = [
-            'user'     => 'foo',
-            'password' => 'bar',
-        ];
-
-        $statement = $this->createMock(ResultStatement::class);
-
-        $statement->expects($this->once())
-            ->method('fetchColumn')
-            ->will($this->returnValue($database));
-
-        $connection = $this->getConnectionMock();
-
-        $connection->expects($this->once())
-            ->method('getParams')
-            ->will($this->returnValue($params));
-
-        $connection->expects($this->once())
-            ->method('query')
-            ->will($this->returnValue($statement));
-
-        self::assertSame($database, $this->driver->getDatabase($connection));
-    }
-
     protected function createDriver() : Driver
     {
         return $this->getMockForAbstractClass(AbstractPostgreSQLDriver::class);
