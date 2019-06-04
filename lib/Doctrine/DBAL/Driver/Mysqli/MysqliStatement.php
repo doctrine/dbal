@@ -54,10 +54,10 @@ final class MysqliStatement implements IteratorAggregate, Statement
     private $columnNames;
 
     /** @var mixed[] */
-    private $rowBindedValues = [];
+    private $rowBoundValues = [];
 
     /** @var mixed[] */
-    private $bindedValues = [];
+    private $boundValues = [];
 
     /** @var string */
     private $types;
@@ -99,8 +99,8 @@ final class MysqliStatement implements IteratorAggregate, Statement
             return;
         }
 
-        $this->types        = str_repeat('s', $paramCount);
-        $this->bindedValues = array_fill(1, $paramCount, null);
+        $this->types       = str_repeat('s', $paramCount);
+        $this->boundValues = array_fill(1, $paramCount, null);
     }
 
     /**
@@ -114,8 +114,8 @@ final class MysqliStatement implements IteratorAggregate, Statement
             throw UnknownType::new($type);
         }
 
-        $this->bindedValues[$param] =& $variable;
-        $this->types[$param - 1]    = self::$paramTypeMap[$type];
+        $this->boundValues[$param] =& $variable;
+        $this->types[$param - 1]   = self::$paramTypeMap[$type];
     }
 
     /**
@@ -129,9 +129,9 @@ final class MysqliStatement implements IteratorAggregate, Statement
             throw UnknownType::new($type);
         }
 
-        $this->values[$param]       = $value;
-        $this->bindedValues[$param] =& $this->values[$param];
-        $this->types[$param - 1]    = self::$paramTypeMap[$type];
+        $this->values[$param]      = $value;
+        $this->boundValues[$param] =& $this->values[$param];
+        $this->types[$param - 1]   = self::$paramTypeMap[$type];
     }
 
     /**
@@ -187,10 +187,10 @@ final class MysqliStatement implements IteratorAggregate, Statement
             // It's also important that row values are bound after _each_ call to store_result(). Otherwise,
             // if mysqli is compiled with libmysql, subsequently fetched string values will get truncated
             // to the length of the ones fetched during the previous execution.
-            $this->rowBindedValues = array_fill(0, count($this->columnNames), null);
+            $this->rowBoundValues = array_fill(0, count($this->columnNames), null);
 
             $refs = [];
-            foreach ($this->rowBindedValues as $key => &$value) {
+            foreach ($this->rowBoundValues as $key => &$value) {
                 $refs[$key] =& $value;
             }
 
@@ -212,7 +212,7 @@ final class MysqliStatement implements IteratorAggregate, Statement
         $streams = $values = [];
         $types   = $this->types;
 
-        foreach ($this->bindedValues as $parameter => $value) {
+        foreach ($this->boundValues as $parameter => $value) {
             if (! isset($types[$parameter - 1])) {
                 $types[$parameter - 1] = self::$paramTypeMap[ParameterType::STRING];
             }
@@ -290,7 +290,7 @@ final class MysqliStatement implements IteratorAggregate, Statement
 
         if ($ret === true) {
             $values = [];
-            foreach ($this->rowBindedValues as $v) {
+            foreach ($this->rowBoundValues as $v) {
                 $values[] = $v;
             }
 
