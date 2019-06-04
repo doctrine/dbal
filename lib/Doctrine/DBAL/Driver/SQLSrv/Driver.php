@@ -10,7 +10,7 @@ use Doctrine\DBAL\Driver\Connection;
 /**
  * Driver for ext/sqlsrv.
  */
-class Driver extends AbstractSQLServerDriver
+final class Driver extends AbstractSQLServerDriver
 {
     /**
      * {@inheritdoc}

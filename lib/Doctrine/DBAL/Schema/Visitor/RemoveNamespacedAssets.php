@@ -20,7 +20,7 @@ use Doctrine\DBAL\Schema\Table;
  * This visitor filters all these non-default namespaced tables and sequences
  * and removes them from the SChema instance.
  */
-class RemoveNamespacedAssets extends AbstractVisitor
+final class RemoveNamespacedAssets extends AbstractVisitor
 {
     /** @var Schema */
     private $schema;

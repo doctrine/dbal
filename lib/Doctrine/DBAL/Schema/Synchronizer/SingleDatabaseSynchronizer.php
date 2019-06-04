@@ -14,7 +14,7 @@ use function count;
 /**
  * Schema Synchronizer for Default DBAL Connection.
  */
-class SingleDatabaseSynchronizer extends AbstractSchemaSynchronizer
+final class SingleDatabaseSynchronizer extends AbstractSchemaSynchronizer
 {
     /** @var AbstractPlatform */
     private $platform;

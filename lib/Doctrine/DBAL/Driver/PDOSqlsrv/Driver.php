@@ -13,7 +13,7 @@ use function sprintf;
 /**
  * The PDO-based Sqlsrv driver.
  */
-class Driver extends AbstractSQLServerDriver
+final class Driver extends AbstractSQLServerDriver
 {
     /**
      * {@inheritdoc}
@@ -39,7 +39,7 @@ class Driver extends AbstractSQLServerDriver
         }
 
         return new Connection(
-            $this->_constructPdoDsn($params, $dsnOptions),
+            $this->constructPdoDsn($params, $dsnOptions),
             $username,
             $password,
             $pdoOptions
@@ -54,7 +54,7 @@ class Driver extends AbstractSQLServerDriver
      *
      * @return string The DSN.
      */
-    private function _constructPdoDsn(array $params, array $connectionOptions) : string
+    private function constructPdoDsn(array $params, array $connectionOptions) : string
     {
         $dsn = 'sqlsrv:server=';
 

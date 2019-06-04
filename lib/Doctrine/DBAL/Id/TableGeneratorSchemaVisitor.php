@@ -12,7 +12,7 @@ use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\Visitor\Visitor;
 
-class TableGeneratorSchemaVisitor implements Visitor
+final class TableGeneratorSchemaVisitor implements Visitor
 {
     /** @var string */
     private $generatorTableName;

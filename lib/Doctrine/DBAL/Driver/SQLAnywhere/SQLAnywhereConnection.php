@@ -23,7 +23,7 @@ use function sasql_set_option;
 /**
  * SAP Sybase SQL Anywhere implementation of the Connection interface.
  */
-class SQLAnywhereConnection implements ServerInfoAwareConnection
+final class SQLAnywhereConnection implements ServerInfoAwareConnection
 {
     /** @var resource The SQL Anywhere connection resource. */
     private $connection;

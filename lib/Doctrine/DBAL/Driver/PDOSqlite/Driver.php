@@ -15,10 +15,10 @@ use function array_merge;
 /**
  * The PDO Sqlite driver.
  */
-class Driver extends AbstractSQLiteDriver
+final class Driver extends AbstractSQLiteDriver
 {
     /** @var mixed[] */
-    protected $_userDefinedFunctions = [
+    private $userDefinedFunctions = [
         'sqrt' => ['callback' => [SqlitePlatform::class, 'udfSqrt'], 'numArgs' => 1],
         'mod'  => ['callback' => [SqlitePlatform::class, 'udfMod'], 'numArgs' => 2],
         'locate'  => ['callback' => [SqlitePlatform::class, 'udfLocate'], 'numArgs' => -1],
@@ -34,8 +34,8 @@ class Driver extends AbstractSQLiteDriver
         array $driverOptions = []
     ) : Connection {
         if (isset($driverOptions['userDefinedFunctions'])) {
-            $this->_userDefinedFunctions = array_merge(
-                $this->_userDefinedFunctions,
+            $this->userDefinedFunctions = array_merge(
+                $this->userDefinedFunctions,
                 $driverOptions['userDefinedFunctions']
             );
             unset($driverOptions['userDefinedFunctions']);
@@ -43,7 +43,7 @@ class Driver extends AbstractSQLiteDriver
 
         try {
             $connection = new PDOConnection(
-                $this->_constructPdoDsn($params),
+                $this->constructPdoDsn($params),
                 $username,
                 $password,
                 $driverOptions
@@ -54,7 +54,7 @@ class Driver extends AbstractSQLiteDriver
 
         $pdo = $connection->getWrappedConnection();
 
-        foreach ($this->_userDefinedFunctions as $fn => $data) {
+        foreach ($this->userDefinedFunctions as $fn => $data) {
             $pdo->sqliteCreateFunction($fn, $data['callback'], $data['numArgs']);
         }
 
@@ -68,7 +68,7 @@ class Driver extends AbstractSQLiteDriver
      *
      * @return string The DSN.
      */
-    protected function _constructPdoDsn(array $params) : string
+    private function constructPdoDsn(array $params) : string
     {
         $dsn = 'sqlite:';
         if (isset($params['path'])) {

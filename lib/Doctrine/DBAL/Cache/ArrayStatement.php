@@ -17,7 +17,7 @@ use function count;
 use function reset;
 use function sprintf;
 
-class ArrayStatement implements IteratorAggregate, ResultStatement
+final class ArrayStatement implements IteratorAggregate, ResultStatement
 {
     /** @var mixed[] */
     private $data;

@@ -14,7 +14,7 @@ use PDO;
 /**
  * PDO MySql driver.
  */
-class Driver extends AbstractMySQLDriver
+final class Driver extends AbstractMySQLDriver
 {
     /**
      * {@inheritdoc}
@@ -50,7 +50,7 @@ class Driver extends AbstractMySQLDriver
      *
      * @return string The DSN.
      */
-    protected function constructPdoDsn(array $params) : string
+    private function constructPdoDsn(array $params) : string
     {
         $dsn = 'mysql:';
         if (isset($params['host']) && $params['host'] !== '') {

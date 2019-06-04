@@ -48,7 +48,7 @@ use function stream_get_meta_data;
 use function strtolower;
 use function tmpfile;
 
-class DB2Statement implements IteratorAggregate, Statement
+final class DB2Statement implements IteratorAggregate, Statement
 {
     /** @var resource */
     private $stmt;
@@ -125,21 +125,6 @@ class DB2Statement implements IteratorAggregate, Statement
             default:
                 $this->bind($param, $variable, DB2_PARAM_IN, DB2_CHAR);
                 break;
-        }
-    }
-
-    /**
-     * @param int   $position Parameter position
-     * @param mixed $variable
-     *
-     * @throws DB2Exception
-     */
-    private function bind(int $position, &$variable, int $parameterType, int $dataType) : void
-    {
-        $this->bindParam[$position] =& $variable;
-
-        if (! db2_bind_param($this->stmt, $position, 'variable', $parameterType, $dataType)) {
-            throw DB2Exception::fromStatementError($this->stmt);
         }
     }
 
@@ -334,6 +319,21 @@ class DB2Statement implements IteratorAggregate, Statement
     public function rowCount() : int
     {
         return @db2_num_rows($this->stmt) ? : 0;
+    }
+
+    /**
+     * @param int   $position Parameter position
+     * @param mixed $variable
+     *
+     * @throws DB2Exception
+     */
+    private function bind(int $position, &$variable, int $parameterType, int $dataType) : void
+    {
+        $this->bindParam[$position] =& $variable;
+
+        if (! db2_bind_param($this->stmt, $position, 'variable', $parameterType, $dataType)) {
+            throw DB2Exception::fromStatementError($this->stmt);
+        }
     }
 
     /**
