@@ -1100,6 +1100,14 @@ SQL
     /**
      * {@inheritDoc}
      */
+    public function getCurrentDatabaseExpression() : string
+    {
+        return 'DB_NAME()';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getSetTransactionIsolationSQL(int $level) : string
     {
         return 'SET TRANSACTION ISOLATION LEVEL ' . $this->_getTransactionIsolationLevelSQL($level);
