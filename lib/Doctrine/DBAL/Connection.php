@@ -1266,6 +1266,8 @@ class Connection implements DriverConnection
             throw ConnectionException::commitFailedRollbackOnly();
         }
 
+        $result = true;
+
         $connection = $this->getWrappedConnection();
 
         $logger = $this->_config->getSQLLogger();
@@ -1275,7 +1277,7 @@ class Connection implements DriverConnection
                 $logger->startQuery('"COMMIT"');
             }
 
-            $connection->commit();
+            $result = $connection->commit();
 
             if ($logger) {
                 $logger->stopQuery();
@@ -1293,12 +1295,12 @@ class Connection implements DriverConnection
         --$this->transactionNestingLevel;
 
         if ($this->autoCommit !== false || $this->transactionNestingLevel !== 0) {
-            return true;
+            return $result;
         }
 
         $this->beginTransaction();
 
-        return true;
+        return $result;
     }
 
     /**
