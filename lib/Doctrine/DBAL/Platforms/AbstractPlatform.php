@@ -1345,10 +1345,7 @@ abstract class AbstractPlatform
                 $columnData['primary'] = true;
             }
 
-            $columnName = $columnData['name'];
-            assert(is_string($columnName));
-
-            $columns[$columnName] = $columnData;
+            $columns[] = $columnData;
         }
 
         if ($this->_eventManager !== null && $this->_eventManager->hasListeners(Events::onSchemaCreateTable)) {
@@ -1875,9 +1872,9 @@ abstract class AbstractPlatform
     /**
      * Gets declaration of a number of fields in bulk.
      *
-     * @param mixed[][] $fields A multidimensional associative array.
-     *                          The first dimension determines the field name, while the second
-     *                          dimension is keyed with the name of the properties
+     * @param mixed[][] $fields A multidimensional array.
+     *                          The first dimension determines the ordinal position of the field,
+     *                          while the second dimension is keyed with the name of the properties
      *                          of the field being declared as array indexes. Currently, the types
      *                          of supported field properties are as follows:
      *
@@ -1903,8 +1900,8 @@ abstract class AbstractPlatform
     {
         $queryFields = [];
 
-        foreach ($fields as $fieldName => $field) {
-            $queryFields[] = $this->getColumnDeclarationSQL($fieldName, $field);
+        foreach ($fields as $field) {
+            $queryFields[] = $this->getColumnDeclarationSQL($field['name'], $field);
         }
 
         return implode(', ', $queryFields);
@@ -2050,19 +2047,19 @@ abstract class AbstractPlatform
     public function getCheckDeclarationSQL(array $definition) : string
     {
         $constraints = [];
-        foreach ($definition as $field => $def) {
+        foreach ($definition as $def) {
             if (is_string($def)) {
                 $constraints[] = 'CHECK (' . $def . ')';
             } else {
                 if (isset($def['min'])) {
-                    $constraints[] = 'CHECK (' . $field . ' >= ' . $def['min'] . ')';
+                    $constraints[] = 'CHECK (' . $def['name'] . ' >= ' . $def['min'] . ')';
                 }
 
                 if (! isset($def['max'])) {
                     continue;
                 }
 
-                $constraints[] = 'CHECK (' . $field . ' <= ' . $def['max'] . ')';
+                $constraints[] = 'CHECK (' . $def['name'] . ' <= ' . $def['max'] . ')';
             }
         }
 
