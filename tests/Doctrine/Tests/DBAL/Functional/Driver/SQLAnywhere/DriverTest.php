@@ -41,7 +41,7 @@ class DriverTest extends AbstractDriverTest
 
         // SQL Anywhere has no "default" database. The name of the default database
         // is defined on server startup and therefore can be arbitrary.
-        self::assertIsString($this->driver->getDatabase($connection));
+        self::assertIsString($connection->getDatabase());
     }
 
     /**

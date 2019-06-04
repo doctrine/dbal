@@ -128,6 +128,14 @@ class PostgreSqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    public function getCurrentDatabaseExpression() : string
+    {
+        return 'CURRENT_DATABASE()';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function supportsSequences() : bool
     {
         return true;

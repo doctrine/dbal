@@ -1125,6 +1125,14 @@ SQL
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public function getCurrentDatabaseExpression() : string
+    {
+        return 'DB_NAME()';
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function getTruncateTableSQL(string $tableName, bool $cascade = false) : string
