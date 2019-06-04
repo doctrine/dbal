@@ -288,8 +288,23 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         } else {
             $sequenceName = $sequence['relname'];
         }
-
-        $data = $this->_conn->fetchAll('SELECT min_value, increment_by FROM ' . $this->_platform->quoteIdentifier($sequenceName));
+        $serverVersion = $this->_conn->getWrappedConnection()->getServerVersion();
+        if (version_compare($serverVersion, '10') >= 0) {
+            // PostgreSQL >= 10 must use pg_sequences for sequence metadata. Can no longer
+            // select from the sequence name directly.
+            // @link https://github.com/doctrine/dbal/issues/2868
+            // @link https://www.postgresql.org/docs/10/release-10.html#id-1.11.6.13.4
+            $sql = 'SELECT min_value, increment_by FROM pg_sequences WHERE schemaname = :schemaName AND sequencename = :sequenceName';
+            $params = array(
+                ':sequenceName' => $sequence['relname'],
+                ':schemaName' => $sequence['schemaname'],
+            );
+        } else {
+            // PostgreSQL <= 9
+            $sql = 'SELECT min_value, increment_by FROM ' . $this->_platform->quoteIdentifier($sequenceName);
+            $params = array();
+        }
+        $data = $this->_conn->fetchAll($sql, $params);
 
         return new Sequence($sequenceName, $data[0]['increment_by'], $data[0]['min_value']);
     }
