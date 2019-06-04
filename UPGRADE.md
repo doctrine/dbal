@@ -1,5 +1,9 @@
 # Upgrade to 3.0
 
+## BC BREAK: Changes in `Doctrine\DBAL\Event\SchemaCreateTableEventArgs`
+
+Table columns are no longer indexed by column name. Use the `name` attribute of the column instead.
+
 ## BC BREAK: Changes in the `Doctrine\DBAL\Schema` API
 
 - Column precision no longer defaults to 10. The default value is NULL.
