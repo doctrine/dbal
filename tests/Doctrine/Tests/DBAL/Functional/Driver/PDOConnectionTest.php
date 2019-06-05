@@ -30,13 +30,13 @@ class PDOConnectionTest extends DbalFunctionalTestCase
     {
         parent::setUp();
 
-        $this->driverConnection = $this->connection->getWrappedConnection();
+        $wrappedConnection = $this->connection->getWrappedConnection();
 
-        if ($this->driverConnection instanceof PDOConnection) {
-            return;
+        if (! $wrappedConnection instanceof PDOConnection) {
+            $this->markTestSkipped('PDO connection only test.');
         }
 
-        $this->markTestSkipped('PDO connection only test.');
+        $this->driverConnection = $wrappedConnection;
     }
 
     protected function tearDown() : void

@@ -6,6 +6,7 @@ namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Exception\ColumnLengthRequired;
+use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Index;
@@ -13,6 +14,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
+use function assert;
 use function sprintf;
 
 abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCase
@@ -1122,6 +1124,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     public function testGeneratesIdentifierNamesInDefaultConstraintDeclarationSQL(string $table, array $column, string $expectedSql) : void
     {
+        assert($this->platform instanceof SQLServerPlatform);
         self::assertSame($expectedSql, $this->platform->getDefaultConstraintDeclarationSQL($table, $column));
     }
 
@@ -1236,7 +1239,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
                 new TableDiff(
                     'mytable',
                     [
-                        new Column('addcolumn', Type::getType('string'), [
+                        'addcolumn' => new Column('addcolumn', Type::getType('string'), [
                             'length' => 255,
                             'default' => 'foo',
                         ]),
@@ -1256,7 +1259,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
                         ),
                     ],
                     [
-                        new Column('removecolumn', Type::getType('string'), [
+                        'removecolumn' => new Column('removecolumn', Type::getType('string'), [
                             'length' => 255,
                             'default' => 'foo',
                         ]),
@@ -1276,7 +1279,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
                 new TableDiff(
                     '`mytable`',
                     [
-                        new Column('`addcolumn`', Type::getType('string'), [
+                        'addcolumn' => new Column('`addcolumn`', Type::getType('string'), [
                             'length' => 255,
                             'default' => 'foo',
                         ]),
@@ -1296,7 +1299,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
                         ),
                     ],
                     [
-                        new Column('`removecolumn`', Type::getType('string'), [
+                        'removecolumn' => new Column('`removecolumn`', Type::getType('string'), [
                             'length' => 255,
                             'default' => 'foo',
                         ]),
@@ -1316,7 +1319,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
                 new TableDiff(
                     'table',
                     [
-                        new Column('add', Type::getType('string'), [
+                        'add' => new Column('add', Type::getType('string'), [
                             'length' => 255,
                             'default' => 'foo',
                         ]),
@@ -1336,7 +1339,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
                         ),
                     ],
                     [
-                        new Column('drop', Type::getType('string'), [
+                        'drop' => new Column('drop', Type::getType('string'), [
                             'length' => 255,
                             'default' => 'foo',
                         ]),
@@ -1356,7 +1359,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
                 new TableDiff(
                     '`table`',
                     [
-                        new Column('`add`', Type::getType('string'), [
+                        'add' => new Column('`add`', Type::getType('string'), [
                             'length' => 255,
                             'default' => 'foo',
                         ]),
@@ -1376,7 +1379,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
                         ),
                     ],
                     [
-                        new Column('`drop`', Type::getType('string'), [
+                        'drop' => new Column('`drop`', Type::getType('string'), [
                             'length' => 255,
                             'default' => 'foo',
                         ]),

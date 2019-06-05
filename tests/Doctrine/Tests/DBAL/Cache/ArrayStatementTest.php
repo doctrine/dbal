@@ -136,8 +136,8 @@ class ArrayStatementTest extends TestCase
 
         $statement = $this->createTestArrayStatement();
 
-        self::assertSame(true, $statement->fetchColumn(1));
-        self::assertSame(false, $statement->fetchColumn(1));
+        self::assertTrue($statement->fetchColumn(1));
+        self::assertFalse($statement->fetchColumn(1));
     }
 
     private function createTestArrayStatement() : ArrayStatement

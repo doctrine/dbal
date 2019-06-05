@@ -8,6 +8,7 @@ use Doctrine\DBAL\Driver\OCI8\Driver;
 use Doctrine\DBAL\Driver\OCI8\OCI8Connection;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\Tests\DbalFunctionalTestCase;
+use function assert;
 use function extension_loaded;
 
 class OCI8ConnectionTest extends DbalFunctionalTestCase
@@ -27,7 +28,10 @@ class OCI8ConnectionTest extends DbalFunctionalTestCase
             $this->markTestSkipped('oci8 only test.');
         }
 
-        $this->driverConnection = $this->connection->getWrappedConnection();
+        $wrappedConnection = $this->connection->getWrappedConnection();
+        assert($wrappedConnection instanceof OCI8Connection);
+
+        $this->driverConnection = $wrappedConnection;
     }
 
     /**

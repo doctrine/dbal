@@ -304,13 +304,17 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
-    public function getIsCommentedDoctrineType() : array
+    public function getIsCommentedDoctrineType() : iterable
     {
-        $data = parent::getIsCommentedDoctrineType();
+        $types = [];
 
-        $data[Types::BOOLEAN] = [Type::getType(Types::BOOLEAN), true];
+        foreach (parent::getIsCommentedDoctrineType() as $key => $value) {
+            $types[$key] = $value;
+        }
 
-        return $data;
+        $types[Types::BOOLEAN] = [Type::getType(Types::BOOLEAN), true];
+
+        return $types;
     }
 
     public function testGeneratesDDLSnippets() : void

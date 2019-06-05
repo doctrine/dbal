@@ -44,7 +44,12 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $tableNew->setPrimaryKey(['bar_id', 'foo_id']);
 
         $comparator = new Comparator();
-        $this->schemaManager->alterTable($comparator->diffTable($tableFetched, $tableNew));
+
+        $diff = $comparator->diffTable($tableFetched, $tableNew);
+
+        self::assertNotNull($diff);
+
+        $this->schemaManager->alterTable($diff);
 
         $table      = $this->schemaManager->listTableDetails('switch_primary_key_columns');
         $primaryKey = $table->getPrimaryKeyColumns();
@@ -119,7 +124,11 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $diffTable->dropIndex('idx_id');
         $diffTable->setPrimaryKey(['id']);
 
-        $this->schemaManager->alterTable($comparator->diffTable($table, $diffTable));
+        $diff = $comparator->diffTable($table, $diffTable);
+
+        self::assertNotNull($diff);
+
+        $this->schemaManager->alterTable($diff);
 
         $table = $this->schemaManager->listTableDetails('alter_table_add_pk');
 
@@ -145,7 +154,11 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $comparator = new Comparator();
 
-        $this->schemaManager->alterTable($comparator->diffTable($table, $diffTable));
+        $diff = $comparator->diffTable($table, $diffTable);
+
+        self::assertNotNull($diff);
+
+        $this->schemaManager->alterTable($diff);
 
         $table = $this->schemaManager->listTableDetails('drop_primary_key');
 
@@ -183,7 +196,11 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $comparator = new Comparator();
 
-        $this->schemaManager->alterTable($comparator->diffTable($table, $onlineTable));
+        $diff = $comparator->diffTable($table, $onlineTable);
+
+        self::assertNotNull($diff);
+
+        $this->schemaManager->alterTable($diff);
 
         $onlineTable = $this->schemaManager->listTableDetails('text_blob_default_value');
 
@@ -226,7 +243,11 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $comparator = new Comparator();
 
-        $this->schemaManager->alterTable($comparator->diffTable($table, $diffTable));
+        $diff = $comparator->diffTable($table, $diffTable);
+
+        self::assertNotNull($diff);
+
+        $this->schemaManager->alterTable($diff);
 
         $table = $this->schemaManager->listTableDetails($tableName);
 
