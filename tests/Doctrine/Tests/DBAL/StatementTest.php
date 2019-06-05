@@ -15,17 +15,17 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Statement;
 use Doctrine\Tests\DbalTestCase;
 use Exception;
-use PDOStatement;
+use PHPUnit\Framework\MockObject\MockObject;
 
 class StatementTest extends DbalTestCase
 {
-    /** @var Connection */
+    /** @var Connection|MockObject */
     private $conn;
 
-    /** @var Configuration */
+    /** @var Configuration|MockObject */
     private $configuration;
 
-    /** @var PDOStatement */
+    /** @var DriverStatement|MockObject */
     private $driverStatement;
 
     protected function setUp() : void

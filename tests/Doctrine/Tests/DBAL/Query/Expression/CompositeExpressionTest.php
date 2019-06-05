@@ -37,10 +37,6 @@ class CompositeExpressionTest extends DbalTestCase
 
         self::assertCount(2, $expr);
 
-        $expr->add(null);
-
-        self::assertCount(2, $expr);
-
         $expr->add('u.user_id = 1');
 
         self::assertCount(3, $expr);

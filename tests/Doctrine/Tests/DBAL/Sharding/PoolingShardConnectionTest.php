@@ -12,6 +12,7 @@ use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 use function array_merge;
+use function assert;
 
 /**
  * @requires extension pdo_sqlite
@@ -29,6 +30,8 @@ class PoolingShardConnectionTest extends TestCase
             ],
             'shardChoser' => MultiTenantShardChoser::class,
         ]);
+
+        assert($conn instanceof PoolingShardConnection);
 
         self::assertFalse($conn->isConnected(0));
         $conn->connect(0);
@@ -166,6 +169,8 @@ class PoolingShardConnectionTest extends TestCase
             'shardChoser' => MultiTenantShardChoser::class,
         ]);
 
+        assert($conn instanceof PoolingShardConnection);
+
         $conn->beginTransaction();
 
         $this->expectException(ShardingException::class);
@@ -183,6 +188,8 @@ class PoolingShardConnectionTest extends TestCase
             ],
             'shardChoser' => MultiTenantShardChoser::class,
         ]);
+
+        assert($conn instanceof PoolingShardConnection);
 
         self::assertNull($conn->getActiveShardId());
 
@@ -206,6 +213,8 @@ class PoolingShardConnectionTest extends TestCase
             ],
             'shardChoser' => MultiTenantShardChoser::class,
         ]);
+
+        assert($conn instanceof PoolingShardConnection);
 
         self::assertEquals([
             'wrapperClass' => PoolingShardConnection::class,
@@ -239,9 +248,13 @@ class PoolingShardConnectionTest extends TestCase
      */
     private function createConnection(array $parameters) : PoolingShardConnection
     {
-        return DriverManager::getConnection(array_merge(
+        $connection = DriverManager::getConnection(array_merge(
             ['wrapperClass' => PoolingShardConnection::class],
             $parameters
         ));
+
+        self::assertInstanceOf(PoolingShardConnection::class, $connection);
+
+        return $connection;
     }
 }

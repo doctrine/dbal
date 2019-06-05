@@ -29,7 +29,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->schemaManager->createTable($table);
 
-        $diff = new TableDiff('sqlsrv_drop_column', [], [], [new Column('todrop', Type::getType('decimal'))]);
+        $diff = new TableDiff('sqlsrv_drop_column', [], [], ['todrop' => new Column('todrop', Type::getType('decimal'))]);
         $this->schemaManager->alterTable($diff);
 
         $columns = $this->schemaManager->listTableColumns('sqlsrv_drop_column');

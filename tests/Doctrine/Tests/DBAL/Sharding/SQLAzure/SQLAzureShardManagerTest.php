@@ -7,6 +7,7 @@ namespace Doctrine\Tests\DBAL\Sharding\SQLAzure;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Sharding\ShardingException;
 use Doctrine\DBAL\Sharding\SQLAzure\SQLAzureShardManager;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class SQLAzureShardManagerTest extends TestCase
@@ -83,6 +84,8 @@ class SQLAzureShardManagerTest extends TestCase
 
     /**
      * @param mixed[] $params
+     *
+     * @return Connection|MockObject
      */
     private function createConnection(array $params) : Connection
     {
