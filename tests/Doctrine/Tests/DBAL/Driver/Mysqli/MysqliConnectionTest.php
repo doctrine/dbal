@@ -58,7 +58,7 @@ class MysqliConnectionTest extends DbalFunctionalTestCase
             // Do nothing
         }
 
-        self::assertSame($handler, set_error_handler($default_handler), 'Restoring error handler failed.');
+        self::assertSame($handler, set_error_handler($handler), 'Restoring error handler failed.');
         restore_error_handler();
         restore_error_handler();
     }

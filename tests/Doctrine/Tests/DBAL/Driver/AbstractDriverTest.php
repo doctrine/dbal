@@ -198,6 +198,9 @@ abstract class AbstractDriverTest extends DbalTestCase
      */
     abstract protected function createSchemaManager(Connection $connection) : AbstractSchemaManager;
 
+    /**
+     * @return Connection|MockObject
+     */
     protected function getConnectionMock() : Connection
     {
         return $this->getMockBuilder(Connection::class)

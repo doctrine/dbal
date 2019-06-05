@@ -6,6 +6,7 @@ namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\DBAL\Exception\ColumnLengthRequired;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
@@ -157,6 +158,8 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $c    = new Comparator();
         $diff = $c->diffTable($oldTable, $keyTable);
 
+        self::assertNotNull($diff);
+
         $sql = $this->platform->getAlterTableSQL($diff);
 
         self::assertEquals([
@@ -219,11 +222,11 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $index  = new Index('idx', ['col'], false);
         $unique = new Index('uniq', ['col'], true);
 
-        $diff = new TableDiff('test', [], [], [], [$unique], [], [$index]);
+        $diff = new TableDiff('test', [], [], [], ['uniq' => $unique], [], ['idx' => $index]);
         $sql  = $this->platform->getAlterTableSQL($diff);
         self::assertEquals(['ALTER TABLE test DROP INDEX idx, ADD UNIQUE INDEX uniq (col)'], $sql);
 
-        $diff = new TableDiff('test', [], [], [], [$index], [], [$unique]);
+        $diff = new TableDiff('test', [], [], [], ['idx' => $index], [], ['unique' => $unique]);
         $sql  = $this->platform->getAlterTableSQL($diff);
         self::assertEquals(['ALTER TABLE test DROP INDEX uniq, ADD INDEX idx (col)'], $sql);
     }
@@ -333,9 +336,13 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $diffTable->dropIndex('idx_id');
         $diffTable->setPrimaryKey(['id']);
 
+        $diff = $comparator->diffTable($table, $diffTable);
+
+        self::assertNotNull($diff);
+
         self::assertEquals(
             ['DROP INDEX idx_id ON alter_table_add_pk', 'ALTER TABLE alter_table_add_pk ADD PRIMARY KEY (id)'],
-            $this->platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
+            $this->platform->getAlterTableSQL($diff)
         );
     }
 
@@ -355,13 +362,17 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $diffTable->dropPrimaryKey();
         $diffTable->setPrimaryKey(['foo']);
 
+        $diff = $comparator->diffTable($table, $diffTable);
+
+        self::assertNotNull($diff);
+
         self::assertEquals(
             [
                 'ALTER TABLE alter_primary_key MODIFY id INT NOT NULL',
                 'ALTER TABLE alter_primary_key DROP PRIMARY KEY',
                 'ALTER TABLE alter_primary_key ADD PRIMARY KEY (foo)',
             ],
-            $this->platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
+            $this->platform->getAlterTableSQL($diff)
         );
     }
 
@@ -381,12 +392,16 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
         $diffTable->dropPrimaryKey();
 
+        $diff = $comparator->diffTable($table, $diffTable);
+
+        self::assertNotNull($diff);
+
         self::assertEquals(
             [
                 'ALTER TABLE drop_primary_key MODIFY id INT NOT NULL',
                 'ALTER TABLE drop_primary_key DROP PRIMARY KEY',
             ],
-            $this->platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
+            $this->platform->getAlterTableSQL($diff)
         );
     }
 
@@ -407,13 +422,17 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $diffTable->dropPrimaryKey();
         $diffTable->setPrimaryKey(['id']);
 
+        $diff = $comparator->diffTable($table, $diffTable);
+
+        self::assertNotNull($diff);
+
         self::assertSame(
             [
                 'ALTER TABLE tbl MODIFY id INT NOT NULL',
                 'ALTER TABLE tbl DROP PRIMARY KEY',
                 'ALTER TABLE tbl ADD PRIMARY KEY (id)',
             ],
-            $this->platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
+            $this->platform->getAlterTableSQL($diff)
         );
     }
 
@@ -434,13 +453,17 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $diffTable->dropPrimaryKey();
         $diffTable->setPrimaryKey(['id', 'foo']);
 
+        $diff = $comparator->diffTable($table, $diffTable);
+
+        self::assertNotNull($diff);
+
         self::assertSame(
             [
                 'ALTER TABLE tbl MODIFY id INT NOT NULL',
                 'ALTER TABLE tbl DROP PRIMARY KEY',
                 'ALTER TABLE tbl ADD PRIMARY KEY (id, foo)',
             ],
-            $this->platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
+            $this->platform->getAlterTableSQL($diff)
         );
     }
 
@@ -459,6 +482,8 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
         $c    = new Comparator();
         $diff = $c->diffTable($oldTable, $keyTable);
+
+        self::assertNotNull($diff);
 
         $sql = $this->platform->getAlterTableSQL($diff);
 
@@ -492,13 +517,17 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $diffTable->dropPrimaryKey();
         $diffTable->setPrimaryKey(['pkc1', 'pkc2']);
 
+        $diff = $comparator->diffTable($table, $diffTable);
+
+        self::assertNotNull($diff);
+
         self::assertSame(
             [
                 'ALTER TABLE yolo DROP PRIMARY KEY',
                 'ALTER TABLE yolo ADD pkc2 INT NOT NULL',
                 'ALTER TABLE yolo ADD PRIMARY KEY (pkc1, pkc2)',
             ],
-            $this->platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
+            $this->platform->getAlterTableSQL($diff)
         );
     }
 
@@ -684,7 +713,11 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
         $comparator = new Comparator();
 
-        self::assertEmpty($this->platform->getAlterTableSQL($comparator->diffTable($table, $diffTable)));
+        $diff = $comparator->diffTable($table, $diffTable);
+
+        self::assertNotNull($diff);
+
+        self::assertEmpty($this->platform->getAlterTableSQL($diff));
     }
 
     /**
