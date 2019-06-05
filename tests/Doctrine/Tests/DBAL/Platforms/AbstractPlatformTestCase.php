@@ -1070,9 +1070,13 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
 
         $comparator = new Comparator();
 
+        $diff = $comparator->diffTable($fromTable, $toTable);
+
+        self::assertNotNull($diff);
+
         self::assertEquals(
             $this->getQuotedAlterTableRenameColumnSQL(),
-            $this->platform->getAlterTableSQL($comparator->diffTable($fromTable, $toTable))
+            $this->platform->getAlterTableSQL($diff)
         );
     }
 
@@ -1112,9 +1116,13 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
 
         $comparator = new Comparator();
 
+        $diff = $comparator->diffTable($fromTable, $toTable);
+
+        self::assertNotNull($diff);
+
         self::assertEquals(
             $this->getQuotedAlterTableChangeColumnLengthSQL(),
-            $this->platform->getAlterTableSQL($comparator->diffTable($fromTable, $toTable))
+            $this->platform->getAlterTableSQL($diff)
         );
     }
 

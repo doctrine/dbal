@@ -12,6 +12,7 @@ use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\MySqlSchemaManager;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use function array_map;
 
@@ -20,7 +21,7 @@ class MySqlSchemaManagerTest extends TestCase
     /** @var AbstractSchemaManager */
     private $manager;
 
-    /** @var Connection */
+    /** @var Connection|MockObject */
     private $conn;
 
     protected function setUp() : void
