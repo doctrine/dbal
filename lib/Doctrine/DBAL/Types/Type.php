@@ -162,6 +162,8 @@ abstract class Type
      *
      * @param array<string, mixed> $fieldDeclaration The field declaration.
      * @param AbstractPlatform     $platform         The currently used database platform.
+     *
+     * @throws DBALException
      */
     abstract public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform) : string;
 

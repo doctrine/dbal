@@ -15,6 +15,7 @@ use Doctrine\DBAL\Event\SchemaCreateTableColumnEventArgs;
 use Doctrine\DBAL\Event\SchemaCreateTableEventArgs;
 use Doctrine\DBAL\Event\SchemaDropTableEventArgs;
 use Doctrine\DBAL\Events;
+use Doctrine\DBAL\Exception\ColumnLengthRequired;
 use Doctrine\DBAL\Platforms\Exception\NoColumnsSpecifiedForTable;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
@@ -168,43 +169,39 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Returns the SQL snippet used to declare a VARCHAR column type.
+     * Returns the SQL snippet used to declare a string column type.
      *
-     * @param mixed[] $field
+     * @param array<string, mixed> $column The column definition.
+     *
+     * @throws ColumnLengthRequired
      */
-    public function getVarcharTypeDeclarationSQL(array $field) : string
+    public function getStringTypeDeclarationSQL(array $column) : string
     {
-        if (! isset($field['length'])) {
-            $field['length'] = $this->getVarcharDefaultLength();
+        $length = $column['length'] ?? null;
+
+        if (empty($column['fixed'])) {
+            return $this->getVarcharTypeDeclarationSQLSnippet($length);
         }
 
-        $fixed = $field['fixed'] ?? false;
-
-        $maxLength = $fixed
-            ? $this->getCharMaxLength()
-            : $this->getVarcharMaxLength();
-
-        if ($field['length'] > $maxLength) {
-            return $this->getClobTypeDeclarationSQL($field);
-        }
-
-        return $this->getVarcharTypeDeclarationSQLSnippet($field['length'], $fixed);
+        return $this->getCharTypeDeclarationSQLSnippet($length);
     }
 
     /**
-     * Returns the SQL snippet used to declare a BINARY/VARBINARY column type.
+     * Returns the SQL snippet used to declare a binary string column type.
      *
-     * @param mixed[] $field The column definition.
+     * @param array<string, mixed> $column The column definition.
+     *
+     * @throws ColumnLengthRequired
      */
-    public function getBinaryTypeDeclarationSQL(array $field) : string
+    public function getBinaryTypeDeclarationSQL(array $column) : string
     {
-        if (! isset($field['length'])) {
-            $field['length'] = $this->getBinaryDefaultLength();
+        $length = $column['length'] ?? null;
+
+        if (empty($column['fixed'])) {
+            return $this->getVarbinaryTypeDeclarationSQLSnippet($length);
         }
 
-        $fixed = $field['fixed'] ?? false;
-
-        return $this->getBinaryTypeDeclarationSQLSnippet($field['length'], $fixed);
+        return $this->getBinaryTypeDeclarationSQLSnippet($length);
     }
 
     /**
@@ -213,14 +210,16 @@ abstract class AbstractPlatform
      * By default this maps directly to a CHAR(36) and only maps to more
      * special datatypes when the underlying databases support this datatype.
      *
-     * @param mixed[] $field
+     * @param array<string, mixed> $column The column definition.
+     *
+     * @throws DBALException
      */
-    public function getGuidTypeDeclarationSQL(array $field) : string
+    public function getGuidTypeDeclarationSQL(array $column) : string
     {
-        $field['length'] = 36;
-        $field['fixed']  = true;
+        $column['length'] = 36;
+        $column['fixed']  = true;
 
-        return $this->getVarcharTypeDeclarationSQL($field);
+        return $this->getStringTypeDeclarationSQL($column);
     }
 
     /**
@@ -237,27 +236,71 @@ abstract class AbstractPlatform
     }
 
     /**
-     * @param int  $length The length of the column.
-     * @param bool $fixed  Whether the column length is fixed.
+     * @param int|null $length The length of the column in characters
+     *                         or NULL if the length should be omitted.
      *
-     * @throws DBALException If not supported on this platform.
+     * @throws ColumnLengthRequired
      */
-    protected function getVarcharTypeDeclarationSQLSnippet(int $length, bool $fixed) : string
+    protected function getCharTypeDeclarationSQLSnippet(?int $length) : string
     {
-        throw NotSupported::new('VARCHARs not supported by Platform.');
+        $sql = 'CHAR';
+
+        if ($length !== null) {
+            $sql .= sprintf('(%d)', $length);
+        }
+
+        return $sql;
     }
 
     /**
-     * Returns the SQL snippet used to declare a BINARY/VARBINARY column type.
+     * @param int|null $length The length of the column in characters
+     *                         or NULL if the length should be omitted.
      *
-     * @param int  $length The length of the column.
-     * @param bool $fixed  Whether the column length is fixed.
-     *
-     * @throws DBALException If not supported on this platform.
+     * @throws ColumnLengthRequired
      */
-    protected function getBinaryTypeDeclarationSQLSnippet(int $length, bool $fixed) : string
+    protected function getVarcharTypeDeclarationSQLSnippet(?int $length) : string
     {
-        throw NotSupported::new('BINARY/VARBINARY column types are not supported by this platform.');
+        if ($length === null) {
+            throw ColumnLengthRequired::new($this, 'VARCHAR');
+        }
+
+        return sprintf('VARCHAR(%d)', $length);
+    }
+
+    /**
+     * Returns the SQL snippet used to declare a fixed length binary column type.
+     *
+     * @param int|null $length The length of the column in bytes
+     *                         or NULL if the length should be omitted.
+     *
+     * @throws ColumnLengthRequired
+     */
+    protected function getBinaryTypeDeclarationSQLSnippet(?int $length) : string
+    {
+        $sql = 'BINARY';
+
+        if ($length !== null) {
+            $sql .= sprintf('(%d)', $length);
+        }
+
+        return $sql;
+    }
+
+    /**
+     * Returns the SQL snippet used to declare a variable length binary column type.
+     *
+     * @param int|null $length The length of the column in bytes
+     *                         or NULL if the length should be omitted.
+     *
+     * @throws ColumnLengthRequired
+     */
+    protected function getVarbinaryTypeDeclarationSQLSnippet(?int $length) : string
+    {
+        if ($length === null) {
+            throw ColumnLengthRequired::new($this, 'VARBINARY');
+        }
+
+        return sprintf('VARBINARY(%d)', $length);
     }
 
     /**
@@ -436,46 +479,6 @@ abstract class AbstractPlatform
     public function getSqlCommentEndString() : string
     {
         return "\n";
-    }
-
-    /**
-     * Gets the maximum length of a char field.
-     */
-    public function getCharMaxLength() : int
-    {
-        return $this->getVarcharMaxLength();
-    }
-
-    /**
-     * Gets the maximum length of a varchar field.
-     */
-    public function getVarcharMaxLength() : int
-    {
-        return 4000;
-    }
-
-    /**
-     * Gets the default length of a varchar field.
-     */
-    public function getVarcharDefaultLength() : int
-    {
-        return 255;
-    }
-
-    /**
-     * Gets the maximum length of a binary field.
-     */
-    public function getBinaryMaxLength() : int
-    {
-        return 4000;
-    }
-
-    /**
-     * Gets the default length of a binary field.
-     */
-    public function getBinaryDefaultLength() : int
-    {
-        return 255;
     }
 
     /**
@@ -1336,10 +1339,6 @@ abstract class AbstractPlatform
             $columnData['name']    = $column->getQuotedName($this);
             $columnData['version'] = $column->hasPlatformOption('version') ? $column->getPlatformOption('version') : false;
             $columnData['comment'] = $this->getColumnComment($column);
-
-            if ($columnData['type'] instanceof Types\StringType && $columnData['length'] === null) {
-                $columnData['length'] = 255;
-            }
 
             if (in_array($column->getName(), $options['primary'])) {
                 $columnData['primary'] = true;
