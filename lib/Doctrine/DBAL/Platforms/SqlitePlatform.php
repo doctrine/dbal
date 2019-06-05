@@ -379,19 +379,9 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
-     */
-    protected function getVarcharTypeDeclarationSQLSnippet(int $length, bool $fixed) : string
-    {
-        return $fixed
-            ? ($length ? 'CHAR(' . $length . ')' : 'CHAR(255)')
-            : ($length ? 'VARCHAR(' . $length . ')' : 'TEXT');
-    }
-
-    /**
      * {@inheritdoc}
      */
-    protected function getBinaryTypeDeclarationSQLSnippet(int $length, bool $fixed) : string
+    protected function getBinaryTypeDeclarationSQLSnippet(?int $length) : string
     {
         return 'BLOB';
     }
@@ -399,17 +389,23 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    public function getBinaryMaxLength() : int
+    protected function getVarcharTypeDeclarationSQLSnippet(?int $length) : string
     {
-        return 0;
+        $sql = 'VARCHAR';
+
+        if ($length !== null) {
+            $sql .= sprintf('(%d)', $length);
+        }
+
+        return $sql;
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
-    public function getBinaryDefaultLength() : int
+    protected function getVarbinaryTypeDeclarationSQLSnippet(?int $length) : string
     {
-        return 0;
+        return 'BLOB';
     }
 
     /**

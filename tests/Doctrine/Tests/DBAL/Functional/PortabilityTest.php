@@ -11,7 +11,6 @@ use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Portability\Connection as ConnectionPortability;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\Tests\DbalFunctionalTestCase;
-use Throwable;
 use function strlen;
 
 /**
@@ -44,20 +43,31 @@ class PortabilityTest extends DbalFunctionalTestCase
 
             $this->portableConnection = DriverManager::getConnection($params, $this->connection->getConfiguration(), $this->connection->getEventManager());
 
-            try {
-                $table = new Table('portability_table');
-                $table->addColumn('Test_Int', 'integer');
-                $table->addColumn('Test_String', 'string', ['fixed' => true, 'length' => 32]);
-                $table->addColumn('Test_Null', 'string', ['notnull' => false]);
-                $table->setPrimaryKey(['Test_Int']);
+            $table = new Table('portability_table');
+            $table->addColumn('Test_Int', 'integer');
+            $table->addColumn('Test_String', 'string', [
+                'length' => 8,
+                'fixed' => true,
+            ]);
+            $table->addColumn('Test_Null', 'string', [
+                'length' => 1,
+                'notnull' => false,
+            ]);
+            $table->setPrimaryKey(['Test_Int']);
 
-                $sm = $this->portableConnection->getSchemaManager();
-                $sm->createTable($table);
+            $sm = $this->portableConnection->getSchemaManager();
+            $sm->dropAndCreateTable($table);
 
-                $this->portableConnection->insert('portability_table', ['Test_Int' => 1, 'Test_String' => 'foo', 'Test_Null' => '']);
-                $this->portableConnection->insert('portability_table', ['Test_Int' => 2, 'Test_String' => 'foo  ', 'Test_Null' => null]);
-            } catch (Throwable $e) {
-            }
+            $this->portableConnection->insert('portability_table', [
+                'Test_Int'    => 1,
+                'Test_String' => 'foo',
+                'Test_Null'   => '',
+            ]);
+            $this->portableConnection->insert('portability_table', [
+                'Test_Int'    => 2,
+                'Test_String' => 'foo  ',
+                'Test_Null'   => null,
+            ]);
         }
 
         return $this->portableConnection;

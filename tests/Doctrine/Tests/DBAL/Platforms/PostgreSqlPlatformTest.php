@@ -28,7 +28,7 @@ class PostgreSqlPlatformTest extends AbstractPostgreSqlPlatformTestCase
         $table->addOption('comment', 'foo');
         self::assertSame(
             [
-                'CREATE TABLE foo (id VARCHAR(255) NOT NULL)',
+                'CREATE TABLE foo (id VARCHAR NOT NULL)',
                 "COMMENT ON TABLE foo IS 'foo'",
             ],
             $this->platform->getCreateTableSQL($table),

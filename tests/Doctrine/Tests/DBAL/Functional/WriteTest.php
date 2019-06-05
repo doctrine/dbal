@@ -21,16 +21,17 @@ class WriteTest extends DbalFunctionalTestCase
     {
         parent::setUp();
 
-        try {
-            $table = new Table('write_table');
-            $table->addColumn('id', 'integer', ['autoincrement' => true]);
-            $table->addColumn('test_int', 'integer');
-            $table->addColumn('test_string', 'string', ['notnull' => false]);
-            $table->setPrimaryKey(['id']);
+        $table = new Table('write_table');
+        $table->addColumn('id', 'integer', ['autoincrement' => true]);
+        $table->addColumn('test_int', 'integer');
+        $table->addColumn('test_string', 'string', [
+            'length' => 32,
+            'notnull' => false,
+        ]);
+        $table->setPrimaryKey(['id']);
 
-            $this->connection->getSchemaManager()->createTable($table);
-        } catch (Throwable $e) {
-        }
+        $this->connection->getSchemaManager()->dropAndCreateTable($table);
+
         $this->connection->executeUpdate('DELETE FROM write_table');
     }
 

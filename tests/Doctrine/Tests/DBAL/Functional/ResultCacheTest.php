@@ -35,11 +35,14 @@ class ResultCacheTest extends DbalFunctionalTestCase
 
         $table = new Table('caching');
         $table->addColumn('test_int', 'integer');
-        $table->addColumn('test_string', 'string', ['notnull' => false]);
+        $table->addColumn('test_string', 'string', [
+            'length' => 8,
+            'notnull' => false,
+        ]);
         $table->setPrimaryKey(['test_int']);
 
         $sm = $this->connection->getSchemaManager();
-        $sm->createTable($table);
+        $sm->dropAndCreateTable($table);
 
         foreach ($this->expectedResult as $row) {
             $this->connection->insert('caching', $row);
@@ -50,13 +53,6 @@ class ResultCacheTest extends DbalFunctionalTestCase
 
         $cache = new ArrayCache();
         $config->setResultCacheImpl($cache);
-    }
-
-    protected function tearDown() : void
-    {
-        $this->connection->getSchemaManager()->dropTable('caching');
-
-        parent::tearDown();
     }
 
     public function testCacheFetchAssoc() : void

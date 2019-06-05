@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\Tests\DBAL\Platforms;
 
+use Doctrine\DBAL\Exception\ColumnLengthRequired;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
@@ -105,26 +106,6 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
             $this->platform->getIntegerTypeDeclarationSQL(
                 ['autoincrement' => true, 'primary' => true]
             )
-        );
-    }
-
-    public function testGeneratesTypeDeclarationForStrings() : void
-    {
-        self::assertEquals(
-            'CHAR(10)',
-            $this->platform->getVarcharTypeDeclarationSQL(
-                ['length' => 10, 'fixed' => true]
-            )
-        );
-        self::assertEquals(
-            'VARCHAR(50)',
-            $this->platform->getVarcharTypeDeclarationSQL(['length' => 50]),
-            'Variable string declaration is not correct'
-        );
-        self::assertEquals(
-            'VARCHAR(255)',
-            $this->platform->getVarcharTypeDeclarationSQL([]),
-            'Long string declaration is not correct'
         );
     }
 
@@ -530,31 +511,18 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         self::assertSame('binary', $this->platform->getDoctrineTypeMapping('varbinary'));
     }
 
-    protected function getBinaryMaxLength() : int
+    public function testGetVariableLengthStringTypeDeclarationSQLNoLength() : void
     {
-        return 65535;
+        $this->expectException(ColumnLengthRequired::class);
+
+        parent::testGetVariableLengthStringTypeDeclarationSQLNoLength();
     }
 
-    public function testReturnsBinaryTypeDeclarationSQL() : void
+    public function testGetVariableLengthBinaryTypeDeclarationSQLNoLength() : void
     {
-        self::assertSame('VARBINARY(255)', $this->platform->getBinaryTypeDeclarationSQL([]));
-        self::assertSame('VARBINARY(255)', $this->platform->getBinaryTypeDeclarationSQL(['length' => 0]));
-        self::assertSame('VARBINARY(65535)', $this->platform->getBinaryTypeDeclarationSQL(['length' => 65535]));
-        self::assertSame('VARBINARY(65536)', $this->platform->getBinaryTypeDeclarationSQL(['length' => 65536]));
+        $this->expectException(ColumnLengthRequired::class);
 
-        self::assertSame('BINARY(255)', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true]));
-        self::assertSame('BINARY(255)', $this->platform->getBinaryTypeDeclarationSQL([
-            'fixed' => true,
-            'length' => 0,
-        ]));
-        self::assertSame('BINARY(65535)', $this->platform->getBinaryTypeDeclarationSQL([
-            'fixed' => true,
-            'length' => 65535,
-        ]));
-        self::assertSame('BINARY(65536)', $this->platform->getBinaryTypeDeclarationSQL([
-            'fixed' => true,
-            'length' => 65536,
-        ]));
+        parent::testGetVariableLengthBinaryTypeDeclarationSQLNoLength();
     }
 
     public function testDoesNotPropagateForeignKeyCreationForNonSupportingEngines() : void
@@ -983,8 +951,8 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     public function testGetCreateTableSQLWithColumnCollation() : void
     {
         $table = new Table('foo');
-        $table->addColumn('no_collation', 'string');
-        $table->addColumn('column_collation', 'string')->setPlatformOption('collation', 'ascii_general_ci');
+        $table->addColumn('no_collation', 'string', ['length' => 255]);
+        $table->addColumn('column_collation', 'string', ['length' => 255])->setPlatformOption('collation', 'ascii_general_ci');
 
         self::assertSame(
             ['CREATE TABLE foo (no_collation VARCHAR(255) NOT NULL, column_collation VARCHAR(255) NOT NULL COLLATE `ascii_general_ci`) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB'],

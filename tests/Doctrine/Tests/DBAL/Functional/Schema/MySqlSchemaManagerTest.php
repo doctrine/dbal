@@ -55,29 +55,6 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertContains('foo_id', $primaryKey);
     }
 
-    public function testDiffTableBug() : void
-    {
-        $schema = new Schema();
-        $table  = $schema->createTable('diffbug_routing_translations');
-        $table->addColumn('id', 'integer');
-        $table->addColumn('route', 'string');
-        $table->addColumn('locale', 'string');
-        $table->addColumn('attribute', 'string');
-        $table->addColumn('localized_value', 'string');
-        $table->addColumn('original_value', 'string');
-        $table->setPrimaryKey(['id']);
-        $table->addUniqueIndex(['route', 'locale', 'attribute']);
-        $table->addIndex(['localized_value']); // this is much more selective than the unique index
-
-        $this->schemaManager->createTable($table);
-        $tableFetched = $this->schemaManager->listTableDetails('diffbug_routing_translations');
-
-        $comparator = new Comparator();
-        $diff       = $comparator->diffTable($tableFetched, $table);
-
-        self::assertNull($diff, 'no changes expected.');
-    }
-
     public function testFulltextIndex() : void
     {
         $table = new Table('fulltext_index');
@@ -457,7 +434,10 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('col_datetime_null', 'datetime', ['notnull' => false, 'default' => null]);
         $table->addColumn('col_int', 'integer', ['default' => 1]);
         $table->addColumn('col_neg_int', 'integer', ['default' => -1]);
-        $table->addColumn('col_string', 'string', ['default' => 'A']);
+        $table->addColumn('col_string', 'string', [
+            'length' => 1,
+            'default' => 'A',
+        ]);
         $table->addColumn('col_decimal', 'decimal', ['scale' => 3, 'precision' => 6, 'default' => -2.3]);
         $table->addColumn('col_date', 'date', ['default' => '2012-12-12']);
 
