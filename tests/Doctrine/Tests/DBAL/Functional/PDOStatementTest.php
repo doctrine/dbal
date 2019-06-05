@@ -24,7 +24,7 @@ class PDOStatementTest extends DbalFunctionalTestCase
 
         $table = new Table('stmt_test');
         $table->addColumn('id', 'integer');
-        $table->addColumn('name', 'string');
+        $table->addColumn('name', 'string', ['length' => 8]);
         $this->connection->getSchemaManager()->dropAndCreateTable($table);
     }
 

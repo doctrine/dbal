@@ -202,23 +202,6 @@ class MySqlPlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
-     */
-    protected function getVarcharTypeDeclarationSQLSnippet(int $length, bool $fixed) : string
-    {
-        return $fixed ? ($length ? 'CHAR(' . $length . ')' : 'CHAR(255)')
-                : ($length ? 'VARCHAR(' . $length . ')' : 'VARCHAR(255)');
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function getBinaryTypeDeclarationSQLSnippet(int $length, bool $fixed) : string
-    {
-        return $fixed ? 'BINARY(' . ($length ?: 255) . ')' : 'VARBINARY(' . ($length ?: 255) . ')';
-    }
-
-    /**
      * Gets the SQL snippet used to declare a CLOB column type.
      *     TINYTEXT   : 2 ^  8 - 1 = 255
      *     TEXT       : 2 ^ 16 - 1 = 65535
@@ -1028,22 +1011,6 @@ SQL
             'varchar'    => 'string',
             'year'       => 'date',
         ];
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getVarcharMaxLength() : int
-    {
-        return 65535;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getBinaryMaxLength() : int
-    {
-        return 65535;
     }
 
     /**

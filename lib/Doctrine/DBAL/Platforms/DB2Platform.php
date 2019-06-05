@@ -23,43 +23,6 @@ use function strtoupper;
 class DB2Platform extends AbstractPlatform
 {
     /**
-     * {@inheritdoc}
-     */
-    public function getCharMaxLength() : int
-    {
-        return 254;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getBinaryMaxLength() : int
-    {
-        return 32704;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getBinaryDefaultLength() : int
-    {
-        return 1;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getVarcharTypeDeclarationSQL(array $field) : string
-    {
-        // for IBM DB2, the CHAR max length is less than VARCHAR default length
-        if (! isset($field['length']) && ! empty($field['fixed'])) {
-            $field['length'] = $this->getCharMaxLength();
-        }
-
-        return parent::getVarcharTypeDeclarationSQL($field);
-    }
-
-    /**
      * {@inheritDoc}
      */
     public function getBlobTypeDeclarationSQL(array $field) : string
@@ -109,18 +72,17 @@ class DB2Platform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function getVarcharTypeDeclarationSQLSnippet(int $length, bool $fixed) : string
+    protected function getBinaryTypeDeclarationSQLSnippet(?int $length) : string
     {
-        return $fixed ? ($length ? 'CHAR(' . $length . ')' : 'CHAR(254)')
-                : ($length ? 'VARCHAR(' . $length . ')' : 'VARCHAR(255)');
+        return $this->getCharTypeDeclarationSQLSnippet($length) . ' FOR BIT DATA';
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
-    protected function getBinaryTypeDeclarationSQLSnippet(int $length, bool $fixed) : string
+    protected function getVarbinaryTypeDeclarationSQLSnippet(?int $length) : string
     {
-        return $this->getVarcharTypeDeclarationSQLSnippet($length, $fixed) . ' FOR BIT DATA';
+        return $this->getVarcharTypeDeclarationSQLSnippet($length) . ' FOR BIT DATA';
     }
 
     /**

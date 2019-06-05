@@ -959,7 +959,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getGuidTypeDeclarationSQL(array $field) : string
+    public function getGuidTypeDeclarationSQL(array $column) : string
     {
         return 'UUID';
     }
@@ -1007,16 +1007,29 @@ SQL
     /**
      * {@inheritDoc}
      */
-    protected function getVarcharTypeDeclarationSQLSnippet(int $length, bool $fixed) : string
+    protected function getVarcharTypeDeclarationSQLSnippet(?int $length) : string
     {
-        return $fixed ? ($length ? 'CHAR(' . $length . ')' : 'CHAR(255)')
-            : ($length ? 'VARCHAR(' . $length . ')' : 'VARCHAR(255)');
+        $sql = 'VARCHAR';
+
+        if ($length !== null) {
+            $sql .= sprintf('(%d)', $length);
+        }
+
+        return $sql;
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
-    protected function getBinaryTypeDeclarationSQLSnippet(int $length, bool $fixed) : string
+    protected function getBinaryTypeDeclarationSQLSnippet(?int $length) : string
+    {
+        return 'BYTEA';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function getVarbinaryTypeDeclarationSQLSnippet(?int $length) : string
     {
         return 'BYTEA';
     }
@@ -1133,30 +1146,6 @@ SQL
             'year'             => 'date',
             '_varchar'         => 'string',
         ];
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getVarcharMaxLength() : int
-    {
-        return 65535;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getBinaryMaxLength() : int
-    {
-        return 0;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getBinaryDefaultLength() : int
-    {
-        return 0;
     }
 
     /**
