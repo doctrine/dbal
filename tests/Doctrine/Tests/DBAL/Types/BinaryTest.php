@@ -45,13 +45,39 @@ class BinaryTest extends DbalTestCase
         self::assertSame(Types::BINARY, $this->type->getName());
     }
 
-    public function testReturnsSQLDeclaration() : void
+    /**
+     * @param mixed[][] $definition
+     *
+     * @dataProvider definitionProvider()
+     */
+    public function testReturnsSQLDeclaration(array $definition, string $expectedDeclaration) : void
     {
-        $this->platform->expects($this->once())
-            ->method('getBinaryTypeDeclarationSQL')
-            ->willReturn('TEST_BINARY');
+        $platform = $this->getMockForAbstractClass(AbstractPlatform::class);
+        self::assertSame($expectedDeclaration, $this->type->getSQLDeclaration($definition, $platform));
+    }
 
-        self::assertSame('TEST_BINARY', $this->type->getSQLDeclaration([], $this->platform));
+    /**
+     * @return mixed[][]
+     */
+    public static function definitionProvider() : iterable
+    {
+        return [
+            'fixed-unspecified-length' => [
+                ['fixed' => true],
+                'BINARY',
+            ],
+            'fixed-specified-length' => [
+                [
+                    'fixed' => true,
+                    'length' => 20,
+                ],
+                'BINARY(20)',
+            ],
+            'variable-length' => [
+                ['length' => 20],
+                'VARBINARY(20)',
+            ],
+        ];
     }
 
     public function testBinaryNullConvertsToPHPValue() : void

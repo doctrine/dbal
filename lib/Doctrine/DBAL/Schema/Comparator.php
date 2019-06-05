@@ -417,10 +417,10 @@ class Comparator
         if (($properties1['type'] instanceof Types\StringType && ! $properties1['type'] instanceof Types\GuidType) ||
             $properties1['type'] instanceof Types\BinaryType
         ) {
-            // check if value of length is set at all, default value assumed otherwise.
-            $length1 = $properties1['length'] ?: 255;
-            $length2 = $properties2['length'] ?: 255;
-            if ($length1 !== $length2) {
+            if ((isset($properties1['length']) !== isset($properties2['length']))
+                || (isset($properties1['length']) && isset($properties2['length'])
+                    && $properties1['length'] !== $properties2['length'])
+            ) {
                 $changedProperties[] = 'length';
             }
 

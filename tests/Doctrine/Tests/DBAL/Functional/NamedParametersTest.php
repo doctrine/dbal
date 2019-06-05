@@ -163,8 +163,8 @@ class NamedParametersTest extends DbalFunctionalTestCase
         try {
             $table = new Table('ddc1372_foobar');
             $table->addColumn('id', 'integer');
-            $table->addColumn('foo', 'string');
-            $table->addColumn('bar', 'string');
+            $table->addColumn('foo', 'string', ['length' => 1]);
+            $table->addColumn('bar', 'string', ['length' => 1]);
             $table->setPrimaryKey(['id']);
 
             $sm = $this->connection->getSchemaManager();
