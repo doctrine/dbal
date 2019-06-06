@@ -11,7 +11,6 @@ use Doctrine\DBAL\Sharding\Exception\MissingDefaultFederationName;
 use Doctrine\DBAL\Sharding\Exception\MissingDistributionType;
 use Doctrine\DBAL\Sharding\ShardingException;
 use Doctrine\DBAL\Sharding\ShardManager;
-use Doctrine\DBAL\Types\Type;
 use RuntimeException;
 use function sprintf;
 
@@ -192,8 +191,6 @@ class SQLAzureShardManager implements ShardManager
      */
     public function splitFederation($splitDistributionValue) : void
     {
-        $type = Type::getType($this->distributionType);
-
         $sql = 'ALTER FEDERATION ' . $this->getFederationName() . ' ' .
                'SPLIT AT (' . $this->getDistributionKey() . ' = ' .
                $this->conn->quote($splitDistributionValue) . ')';
