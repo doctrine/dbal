@@ -60,13 +60,6 @@ class OCI8Statement implements IteratorAggregate, Statement
     /** @var OCI8Connection */
     protected $_conn;
 
-    /**
-     * @deprecated
-     *
-     * @var string
-     */
-    protected static $_PARAM = ':param';
-
     /** @var int[] */
     protected static $fetchModeMap = [
         FetchMode::MIXED       => OCI_BOTH,
