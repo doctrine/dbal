@@ -2108,18 +2108,6 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Common code for alter table statement generation that updates the changed Index and Foreign Key definitions.
-     *
-     * @deprecated
-     *
-     * @return string[]
-     */
-    protected function _getAlterTableIndexForeignKeySQL(TableDiff $diff)
-    {
-        return array_merge($this->getPreAlterTableIndexForeignKeySQL($diff), $this->getPostAlterTableIndexForeignKeySQL($diff));
-    }
-
-    /**
      * Gets declaration of a number of fields in bulk.
      *
      * @param mixed[][] $fields A multidimensional associative array.
