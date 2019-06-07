@@ -13,8 +13,6 @@
     reference/schema-representation
     reference/events
     reference/security
-    reference/sharding
-    reference/sharding_azure_tutorial
     reference/supporting-other-databases
     reference/portability
     reference/caching
