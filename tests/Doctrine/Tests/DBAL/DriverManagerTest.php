@@ -11,8 +11,6 @@ use Doctrine\DBAL\Driver\PDOSqlite\Driver as PDOSqliteDriver;
 use Doctrine\DBAL\Driver\SQLSrv\Driver as SQLSrvDriver;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Sharding\PoolingShardConnection;
-use Doctrine\DBAL\Sharding\ShardChoser\MultiTenantShardChoser;
 use Doctrine\Tests\DbalTestCase;
 use stdClass;
 use function get_class;
@@ -129,42 +127,6 @@ class DriverManagerTest extends DbalTestCase
 
         self::assertEquals('baz', $params['master']['dbname']);
         self::assertEquals('baz_slave', $params['slaves']['slave1']['dbname']);
-    }
-
-    public function testDatabaseUrlShard() : void
-    {
-        $options = [
-            'driver' => 'pdo_mysql',
-            'shardChoser' => MultiTenantShardChoser::class,
-            'global' => ['url' => 'mysql://foo:bar@localhost:11211/baz'],
-            'shards' => [
-                [
-                    'id' => 1,
-                    'url' => 'mysql://foo:bar@localhost:11211/baz_slave',
-                ],
-            ],
-            'wrapperClass' => PoolingShardConnection::class,
-        ];
-
-        $conn = DriverManager::getConnection($options);
-
-        $params = $conn->getParams();
-        self::assertInstanceOf(PDOMySQLDriver::class, $conn->getDriver());
-
-        $expected = [
-            'user'     => 'foo',
-            'password' => 'bar',
-            'host'     => 'localhost',
-            'port'     => 11211,
-        ];
-
-        foreach ($expected as $key => $value) {
-            self::assertEquals($value, $params['global'][$key]);
-            self::assertEquals($value, $params['shards'][0][$key]);
-        }
-
-        self::assertEquals('baz', $params['global']['dbname']);
-        self::assertEquals('baz_slave', $params['shards'][0]['dbname']);
     }
 
     /**

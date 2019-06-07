@@ -144,17 +144,6 @@ final class DriverManager
             }
         }
 
-        // URL support for PoolingShardConnection
-        if (isset($params['global'])) {
-            $params['global'] = self::parseDatabaseUrl($params['global']);
-        }
-
-        if (isset($params['shards'])) {
-            foreach ($params['shards'] as $key => $shardParams) {
-                $params['shards'][$key] = self::parseDatabaseUrl($shardParams);
-            }
-        }
-
         self::_checkParams($params);
 
         $className = $params['driverClass'] ?? self::$_driverMap[$params['driver']];
