@@ -18,22 +18,53 @@ abstract class ColumnTest extends DbalFunctionalTestCase
         $this->assertColumn(Types::STRING, [], 'Test', ParameterType::STRING);
     }
 
-    public function testVariableLengthStringWithLength() : void
+    /**
+     * @dataProvider string8Provider
+     */
+    public function testVariableLengthStringWithLength(string $value) : void
     {
-        $this->assertColumn(Types::STRING, ['length' => 8], 'Doctrine', ParameterType::STRING);
+        $this->assertColumn(Types::STRING, ['length' => 8], $value, ParameterType::STRING);
     }
 
-    public function testFixedLengthStringNoLength() : void
+    /**
+     * @dataProvider string1Provider
+     */
+    public function testFixedLengthStringNoLength(string $value) : void
     {
-        $this->assertColumn(Types::STRING, ['fixed' => true], 'Z', ParameterType::STRING);
+        $this->assertColumn(Types::STRING, ['fixed' => true], $value, ParameterType::STRING);
     }
 
-    public function testFixedLengthStringWithLength() : void
+    /**
+     * @dataProvider string8Provider
+     */
+    public function testFixedLengthStringWithLength(string $value) : void
     {
         $this->assertColumn(Types::STRING, [
             'fixed' => true,
             'length' => 8,
-        ], 'Doctrine', ParameterType::STRING);
+        ], $value, ParameterType::STRING);
+    }
+
+    /**
+     * @return iterable<string, array<int, mixed>>
+     */
+    public static function string1Provider() : iterable
+    {
+        return [
+            'ansi' => ['Z'],
+            'unicode' => ['Я'],
+        ];
+    }
+
+    /**
+     * @return iterable<string, array<int, mixed>>
+     */
+    public static function string8Provider() : iterable
+    {
+        return [
+            'ansi' => ['Doctrine'],
+            'unicode' => ['Доктрина'],
+        ];
     }
 
     public function testVariableLengthBinaryNoLength() : void
