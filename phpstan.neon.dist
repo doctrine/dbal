@@ -28,11 +28,8 @@ parameters:
         - '~^Method Doctrine\\DBAL\\Driver\\OCI8\\OCI8Connection::lastInsertId\(\) should return string but returns (int|false)\.\z~'
         - '~^Method Doctrine\\DBAL\\Driver\\SQLSrv\\SQLSrvConnection::errorCode\(\) should return string\|null but returns false\.\z~'
 
-        # http://php.net/manual/en/pdo.sqlitecreatefunction.php
+        # https://bugs.php.net/bug.php?id=78126
         - '~^Call to an undefined method Doctrine\\DBAL\\Driver\\PDOConnection::sqliteCreateFunction\(\)\.\z~'
-
-        # https://github.com/JetBrains/phpstorm-stubs/pull/488
-        - '~^Parameter #1 \$byteCount of function SQLSRV_SQLTYPE_VARBINARY expects int, string given\.\z~'
 
         # https://github.com/phpstan/phpstan/issues/1847
         - '~^Parameter #2 \$registeredAliases of static method Doctrine\\DBAL\\Query\\QueryException::unknownAlias\(\) expects array<string>, array<int, int|string> given\.\z~'
@@ -42,7 +39,7 @@ parameters:
         - '~^Method Doctrine\\DBAL\\Platforms\\AbstractPlatform::escapeStringForLike\(\) should return string but returns string|null\.\z~'
 
         # legacy variadic-like signature
-        - '~^Method Doctrine\\DBAL\\Driver\\Connection::query\(\) invoked with \d+ parameters?, 0 required\.\z~'
+        - '~^Method Doctrine\\DBAL(\\.*)?Connection::query\(\) invoked with \d+ parameters?, 0 required\.\z~'
 
         # some drivers actually do accept 2nd parameter...
         - '~^Method Doctrine\\DBAL\\Platforms\\AbstractPlatform::getListTableForeignKeysSQL\(\) invoked with \d+ parameters, 1 required\.\z~'
@@ -54,8 +51,8 @@ parameters:
         # inheritance variance inference issue
         - '~^Method Doctrine\\DBAL\\Driver\\PDOConnection::\w+\(\) should return Doctrine\\DBAL\\Driver\\Statement but returns PDOStatement\.\z~'
 
-        # may not exist when pdo_sqlsrv is not loaded
+        # may not exist when pdo_sqlsrv is not loaded but PDO is
         - '~^Access to undefined constant PDO::SQLSRV_ENCODING_BINARY\.\z~'
 
-        # weird class name, doesn't exist in stubs either
+        # weird class name, represented in stubs as OCI_(Lob|Collection)
         - '~unknown class OCI-(Lob|Collection)~'
