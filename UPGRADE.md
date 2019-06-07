@@ -1,5 +1,13 @@
 # Upgrade to 2.10
 
+## Deprecated `Doctrine\DBAL\Platforms::_getAlterTableIndexForeignKeySQL()`
+
+Method `Doctrine\DBAL\Platforms::_getAlterTableIndexForeignKeySQL()` has been deprecated as no longer used.
+
+## Deprecated `Doctrine\DBAL\Driver\OCI8\OCI8Statement::$_PARAM`
+
+Property `Doctrine\DBAL\Driver\OCI8\OCI8Statement::$_PARAM` has been deprecated as not used.
+
 ## Deprecated `Doctrine\DBAL\Driver::getName()`
 
 Relying on the name of the driver is discouraged. For referencing the driver, use its class name.

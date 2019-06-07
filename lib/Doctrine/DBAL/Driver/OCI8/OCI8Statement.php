@@ -58,7 +58,11 @@ class OCI8Statement implements IteratorAggregate, Statement
     /** @var OCI8Connection */
     protected $_conn;
 
-    /** @var string */
+    /**
+     * @deprecated
+     *
+     * @var string
+     */
     protected static $_PARAM = ':param';
 
     /** @var int[] */
