@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "20970a03470d26a047432b1e25bb4a2a",
+    "content-hash": "9612eb03f704eeb9e5e8099f7e096443",
     "packages": [
         {
             "name": "doctrine/cache",
@@ -436,20 +436,21 @@
         },
         {
             "name": "jetbrains/phpstorm-stubs",
-            "version": "v2018.1.2",
+            "version": "v2019.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/JetBrains/phpstorm-stubs.git",
-                "reference": "d5fd088949a717b477a08ed8e24e7e64a814ae10"
+                "reference": "9e309771f362e979ecfb429303ad7a402c657234"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/JetBrains/phpstorm-stubs/zipball/d5fd088949a717b477a08ed8e24e7e64a814ae10",
-                "reference": "d5fd088949a717b477a08ed8e24e7e64a814ae10",
+                "url": "https://api.github.com/repos/JetBrains/phpstorm-stubs/zipball/9e309771f362e979ecfb429303ad7a402c657234",
+                "reference": "9e309771f362e979ecfb429303ad7a402c657234",
                 "shasum": ""
             },
             "require-dev": {
                 "nikic/php-parser": "v4.0.1",
+                "php": "^7.1",
                 "phpdocumentor/reflection-docblock": "^4.3",
                 "phpunit/phpunit": "7.1.4"
             },
@@ -470,7 +471,7 @@
                 "stubs",
                 "type"
             ],
-            "time": "2018-04-25T12:26:46+00:00"
+            "time": "2019-03-25T16:59:23+00:00"
         },
         {
             "name": "myclabs/deep-copy",
@@ -2931,7 +2932,7 @@
                 },
                 {
                     "name": "Gert de Pagter",
-                    "email": "backendtea@gmail.com"
+                    "email": "BackEndTea@gmail.com"
                 }
             ],
             "description": "Symfony polyfill for ctype functions",
