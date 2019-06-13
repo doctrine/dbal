@@ -148,6 +148,14 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    public function getCurrentDatabaseExpression() : string
+    {
+        return "SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')";
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getBitOrComparisonExpression(string $value1, string $value2) : string
     {
         return '(' . $value1 . '-' .

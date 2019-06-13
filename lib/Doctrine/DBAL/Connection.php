@@ -205,11 +205,23 @@ class Connection implements DriverConnection
     }
 
     /**
-     * Gets the name of the database this Connection is connected to.
+     * Gets the name of the currently selected database.
+     *
+     * @return string|null The name of the database or NULL if a database is not selected.
+     *                     The platforms which don't support the concept of a database (e.g. embedded databases)
+     *                     must always return a string as an indicator of an implicitly selected database.
+     *
+     * @throws DBALException
      */
     public function getDatabase() : ?string
     {
-        return $this->_driver->getDatabase($this);
+        $platform = $this->getDatabasePlatform();
+        $query    = $platform->getDummySelectSQL($platform->getCurrentDatabaseExpression());
+        $database = $this->query($query)->fetchColumn();
+
+        assert(is_string($database) || $database === null);
+
+        return $database;
     }
 
     /**

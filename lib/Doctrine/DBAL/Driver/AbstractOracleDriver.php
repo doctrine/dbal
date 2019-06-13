@@ -66,16 +66,6 @@ abstract class AbstractOracleDriver implements Driver, ExceptionConverterDriver
     /**
      * {@inheritdoc}
      */
-    public function getDatabase(Connection $conn) : ?string
-    {
-        $params = $conn->getParams();
-
-        return $params['user'];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getDatabasePlatform() : AbstractPlatform
     {
         return new OraclePlatform();
