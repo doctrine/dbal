@@ -56,8 +56,7 @@ Microsoft SQL Server
 PostgreSQL
 ^^^^^^^^^^
 
--  ``PostgreSqlPlatform`` for all versions.
--  ``PostgreSQL94Platform`` for version 9.4 and above.
+-  ``PostgreSqlPlatform`` for version 9.4 and above.
 -  ``PostgreSQL100Platform`` for version 10.0 and above.
 
 SAP Sybase SQL Anywhere
