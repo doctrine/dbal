@@ -54,16 +54,6 @@ abstract class AbstractSQLServerDriver implements Driver, VersionAwarePlatformDr
     /**
      * {@inheritdoc}
      */
-    public function getDatabase(Connection $conn) : ?string
-    {
-        $params = $conn->getParams();
-
-        return $params['dbname'] ?? $conn->query('SELECT DB_NAME()')->fetchColumn();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getDatabasePlatform() : AbstractPlatform
     {
         return new SQLServerPlatform();

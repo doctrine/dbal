@@ -44,11 +44,4 @@ interface Driver
      * database schema of the platform this driver connects to.
      */
     public function getSchemaManager(Connection $conn) : AbstractSchemaManager;
-
-    /**
-     * Gets the name of the database connected to for this driver.
-     *
-     * @return string|null The name of the database or NULL if no database is currently selected.
-     */
-    public function getDatabase(Connection $conn) : ?string;
 }

@@ -140,23 +140,6 @@ abstract class AbstractDriverTest extends DbalTestCase
         $this->driver->createDatabasePlatformForVersion('foo');
     }
 
-    public function testReturnsDatabaseName() : void
-    {
-        $params = [
-            'user'     => 'foo',
-            'password' => 'bar',
-            'dbname'   => 'baz',
-        ];
-
-        $connection = $this->getConnectionMock();
-
-        $connection->expects($this->once())
-            ->method('getParams')
-            ->will($this->returnValue($params));
-
-        self::assertSame($params['dbname'], $this->driver->getDatabase($connection));
-    }
-
     public function testReturnsDatabasePlatform() : void
     {
         self::assertEquals($this->createPlatform(), $this->driver->getDatabasePlatform());
