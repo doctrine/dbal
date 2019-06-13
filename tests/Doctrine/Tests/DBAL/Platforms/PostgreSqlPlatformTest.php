@@ -56,6 +56,8 @@ class PostgreSqlPlatformTest extends AbstractPostgreSqlPlatformTestCase
     public function testReturnsJsonTypeDeclarationSQL() : void
     {
         self::assertSame('JSON', $this->platform->getJsonTypeDeclarationSQL([]));
+        self::assertSame('JSON', $this->platform->getJsonTypeDeclarationSQL(['jsonb' => false]));
+        self::assertSame('JSONB', $this->platform->getJsonTypeDeclarationSQL(['jsonb' => true]));
     }
 
     public function testReturnsSmallIntTypeDeclarationSQL() : void
@@ -83,6 +85,8 @@ class PostgreSqlPlatformTest extends AbstractPostgreSqlPlatformTestCase
     {
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('json'));
         self::assertEquals(Type::JSON, $this->platform->getDoctrineTypeMapping('json'));
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('jsonb'));
+        self::assertEquals(Type::JSON, $this->platform->getDoctrineTypeMapping('jsonb'));
     }
 
     /**

@@ -1,5 +1,21 @@
 # Upgrade to 3.0
 
+## BC BREAK: Removed support for PostgreSQL 9.3 and older
+
+DBAL now requires PostgeSQL 9.4 or newer, support for unmaintained versions has been dropped.
+If you are using any of the legacy versions, you have to upgrade to a newer PostgreSQL version (9.6+ is recommended).
+`Doctrine\DBAL\Platforms\PostgreSqlPlatform` and `Doctrine\DBAL\Platforms\Keywords\PostgreSQLKeywords` now represent PostgreSQL 9.4.
+
+The following classes have been removed:
+
+ * `Doctrine\DBAL\Platforms\PostgreSQL94Platform`
+ * `Doctrine\DBAL\Platforms\Keywords\PostgreSQL94Keywords`
+
+## BC BREAK: Removed support for MariaDB 10.0 and older
+
+DBAL now requires MariaDB 10.1 or newer, support for unmaintained versions has been dropped.
+If you are using any of the legacy versions, you have to upgrade to a newer MariaDB version (10.1+ is recommended).
+
 ## BC BREAK: PingableConnection and ServerInfoAwareConnection interfaces now extend Connection
 
 All implementations of the `PingableConnection` and `ServerInfoAwareConnection` interfaces have to implement the methods defined in the `Connection` interface as well.

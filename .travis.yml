@@ -96,14 +96,6 @@ jobs:
       php: 7.3
       env: DB=mariadb.mysqli.docker IMAGE=mariadb:10.3 COVERAGE=yes
     - stage: Test
-      dist: trusty
-      php: 7.3
-      env: DB=pgsql POSTGRESQL_VERSION=9.3 COVERAGE=yes
-      services:
-        - postgresql
-      addons:
-        postgresql: "9.3"
-    - stage: Test
       php: 7.3
       env: DB=pgsql POSTGRESQL_VERSION=9.4 COVERAGE=yes
       addons:
