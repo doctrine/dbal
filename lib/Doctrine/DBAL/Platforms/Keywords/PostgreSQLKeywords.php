@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Platforms\Keywords;
 
 /**
- * PostgreSQL 9.3 keywords list.
+ * PostgreSQL keywords list.
  */
 class PostgreSQLKeywords extends KeywordList
 {
@@ -79,6 +79,7 @@ class PostgreSQLKeywords extends KeywordList
             'IS',
             'ISNULL',
             'JOIN',
+            'LATERAL',
             'LEADING',
             'LEFT',
             'LIKE',
@@ -95,7 +96,6 @@ class PostgreSQLKeywords extends KeywordList
             'OR',
             'ORDER',
             'OUTER',
-            'OVER',
             'OVERLAPS',
             'PLACING',
             'PRIMARY',
