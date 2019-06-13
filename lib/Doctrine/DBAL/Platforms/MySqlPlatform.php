@@ -120,6 +120,14 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    public function getCurrentDatabaseExpression() : string
+    {
+        return 'DATABASE()';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getListDatabasesSQL() : string
     {
         return 'SHOW DATABASES';

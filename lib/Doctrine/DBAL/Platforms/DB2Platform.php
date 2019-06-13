@@ -797,6 +797,14 @@ class DB2Platform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    public function getCurrentDatabaseExpression() : string
+    {
+        return 'CURRENT_USER';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function supportsIdentityColumns() : bool
     {
         return true;

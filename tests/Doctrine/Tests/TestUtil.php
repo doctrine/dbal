@@ -6,6 +6,7 @@ namespace Doctrine\Tests;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Platforms\OraclePlatform;
 use InvalidArgumentException;
 use PHPUnit\Framework\Assert;
 use function explode;
@@ -99,7 +100,12 @@ class TestUtil
         $platform = $tmpConn->getDatabasePlatform();
 
         if ($platform->supportsCreateDropDatabase()) {
-            $dbname = $realConn->getDatabase();
+            if (! $platform instanceof OraclePlatform) {
+                $dbname = $realDbParams['dbname'];
+            } else {
+                $dbname = $realDbParams['user'];
+            }
+
             $realConn->close();
 
             if ($dbname === null) {
