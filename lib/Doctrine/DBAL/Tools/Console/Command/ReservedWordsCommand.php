@@ -6,12 +6,12 @@ namespace Doctrine\DBAL\Tools\Console\Command;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\Keywords\DB2Keywords;
+use Doctrine\DBAL\Platforms\Keywords\MariaDb102Keywords;
 use Doctrine\DBAL\Platforms\Keywords\MySQL57Keywords;
 use Doctrine\DBAL\Platforms\Keywords\MySQL80Keywords;
 use Doctrine\DBAL\Platforms\Keywords\MySQLKeywords;
 use Doctrine\DBAL\Platforms\Keywords\OracleKeywords;
 use Doctrine\DBAL\Platforms\Keywords\PostgreSQL100Keywords;
-use Doctrine\DBAL\Platforms\Keywords\PostgreSQL94Keywords;
 use Doctrine\DBAL\Platforms\Keywords\PostgreSQLKeywords;
 use Doctrine\DBAL\Platforms\Keywords\ReservedKeywordsValidator;
 use Doctrine\DBAL\Platforms\Keywords\SQLAnywhereKeywords;
@@ -36,9 +36,9 @@ class ReservedWordsCommand extends Command
         'mysql'         => MySQLKeywords::class,
         'mysql57'       => MySQL57Keywords::class,
         'mysql80'       => MySQL80Keywords::class,
+        'mariadb102'    => MariaDb102Keywords::class,
         'oracle'        => OracleKeywords::class,
         'pgsql'         => PostgreSQLKeywords::class,
-        'pgsql94'       => PostgreSQL94Keywords::class,
         'pgsql100'      => PostgreSQL100Keywords::class,
         'sqlanywhere'   => SQLAnywhereKeywords::class,
         'sqlite'        => SQLiteKeywords::class,
@@ -88,8 +88,8 @@ The following keyword lists are currently shipped with Doctrine:
     * mysql
     * mysql57
     * mysql80
+    * mariadb102
     * pgsql
-    * pgsql94
     * pgsql100
     * sqlite
     * oracle
