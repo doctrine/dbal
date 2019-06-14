@@ -1136,6 +1136,7 @@ SQL
             'integer'          => 'integer',
             'interval'         => 'string',
             'json'             => Type::JSON,
+            'jsonb'            => Type::JSON,
             'money'            => 'decimal',
             'numeric'          => 'decimal',
             'serial'           => 'integer',
@@ -1213,6 +1214,10 @@ SQL
      */
     public function getJsonTypeDeclarationSQL(array $field) : string
     {
+        if (! empty($field['jsonb'])) {
+            return 'JSONB';
+        }
+
         return 'JSON';
     }
 
