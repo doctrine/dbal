@@ -25,8 +25,8 @@ use Doctrine\DBAL\DriverManager;
     $file = $_SERVER['argv'][$pos + 1];
 
     register_shutdown_function(static function () use ($file) : void {
-        $cmd = 'wget https://github.com/scrutinizer-ci/ocular/releases/download/1.5.2/ocular.phar'
-            . ' && php ocular.phar code-coverage:upload --format=php-clover ' . escapeshellarg($file);
+        $cmd = 'wget https://github.com/php-coveralls/php-coveralls/releases/latest/download/php-coveralls.phar'
+            . ' && php php-coveralls.phar -v -x' . escapeshellarg($file) . ' -o ' . escapeshellarg(dirname($file));
 
         passthru($cmd);
     });

@@ -24,16 +24,16 @@ install:
 script:
   - |
     if [ "x$COVERAGE" == "xyes" ]; then
-       ./vendor/bin/phpunit --configuration tests/travis/$DB.travis.xml --coverage-clover clover.xml
+      ./vendor/bin/phpunit --configuration tests/travis/$DB.travis.xml --coverage-clover build/logs/clover.xml
     else
-       ./vendor/bin/phpunit --configuration tests/travis/$DB.travis.xml
+      ./vendor/bin/phpunit --configuration tests/travis/$DB.travis.xml
     fi
 
 after_script:
   - |
     if [ "x$COVERAGE" == "xyes" ]; then
-      travis_retry wget https://github.com/scrutinizer-ci/ocular/releases/download/1.5.2/ocular.phar
-      travis_retry php ocular.phar code-coverage:upload --format=php-clover clover.xml
+      wget https://github.com/php-coveralls/php-coveralls/releases/latest/download/php-coveralls.phar
+      php php-coveralls.phar -v
     fi
 
 jobs:

@@ -12,7 +12,7 @@ cache:
   - C:\tools\php -> .appveyor.yml
   - C:\tools\cacert -> .appveyor.yml
   - C:\tools\composer -> .appveyor.yml
-  - C:\tools\ocular -> .appveyor.yml
+  - C:\tools\php-coveralls -> .appveyor.yml
   - '%LOCALAPPDATA%\Composer\files -> composer.json'
 
 ## Build matrix for lowest and highest possible targets
@@ -35,7 +35,7 @@ environment:
     coverage: yes
 
 init:
-  - SET PATH=C:\Program Files\OpenSSL;c:\tools\php;C:\tools\composer;C:\tools\ocular;%PATH%
+  - SET PATH=C:\Program Files\OpenSSL;c:\tools\php;C:\tools\composer;C:\tools\php-coveralls;%PATH%
   - SET COMPOSER_NO_INTERACTION=1
   - SET ANSICON=121x90 (121x90)
 
@@ -94,13 +94,13 @@ install:
             Set-Content -path 'C:\tools\composer\composer.bat' -Value ('@php C:\tools\composer\composer.phar %*')
           }
 
-          # download Scrutinizer's Ocular
-          if (!(Test-Path C:\tools\ocular)) {
-            New-Item -path c:\tools -name ocular -itemtype directory
+          # download php-coveralls
+          if (!(Test-Path C:\tools\php-coveralls)) {
+            New-Item -path c:\tools -name php-coveralls -itemtype directory
           }
-          if (!(Test-Path c:\tools\ocular\ocular.phar)) {
-            appveyor-retry appveyor DownloadFile https://github.com/scrutinizer-ci/ocular/releases/download/1.5.2/ocular.phar -Filename C:\tools\ocular\ocular.phar
-            Set-Content -path 'C:\tools\ocular\ocular.bat' -Value ('@php C:\tools\ocular\ocular.phar %*')
+          if (!(Test-Path C:\tools\php-coveralls\php-coveralls.phar)) {
+            appveyor-retry appveyor DownloadFile https://github.com/php-coveralls/php-coveralls/releases/latest/download/php-coveralls.phar -Filename C:\tools\php-coveralls\php-coveralls.phar
+            Set-Content -path 'C:\tools\php-coveralls\php-coveralls.bat' -Value ('@php C:\tools\php-coveralls\php-coveralls.phar %*')
           }
 
           # download CA bundle
@@ -134,7 +134,7 @@ test_script:
       }
 
       if ($env:coverage -eq "yes") {
-        vendor\bin\phpunit -c $($env:phpunit_config) --coverage-clover clover.xml
+        vendor\bin\phpunit -c $($env:phpunit_config) --coverage-clover build\logs\clover.xml
       } else {
         vendor\bin\phpunit -c $($env:phpunit_config)
       }
@@ -146,5 +146,5 @@ test_script:
 after_test:
   - ps: >-
       if ($env:coverage -eq "yes") {
-        appveyor-retry ocular code-coverage:upload --format=php-clover clover.xml
+        php-coveralls -v
       }
