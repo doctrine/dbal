@@ -12,6 +12,7 @@ use function array_shift;
 use function array_unique;
 use function assert;
 use function count;
+use function get_class;
 use function strtolower;
 
 /**
@@ -421,7 +422,11 @@ class Comparator
 
         $changedProperties = [];
 
-        foreach (['type', 'notnull', 'unsigned', 'autoincrement'] as $property) {
+        if (get_class($properties1['type']) !== get_class($properties2['type'])) {
+            $changedProperties[] = 'type';
+        }
+
+        foreach (['notnull', 'unsigned', 'autoincrement'] as $property) {
             if ($properties1[$property] === $properties2[$property]) {
                 continue;
             }
