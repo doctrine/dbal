@@ -16,6 +16,7 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
 use PHPUnit\Framework\TestCase;
 use function array_keys;
+use function get_class;
 
 class ComparatorTest extends TestCase
 {
@@ -191,6 +192,36 @@ class ComparatorTest extends TestCase
         $c = new Comparator();
         self::assertEquals(['type'], $c->diffColumn($column1, $column2));
         self::assertEquals([], $c->diffColumn($column1, $column1));
+    }
+
+    public function testCompareColumnsMultipleTypeInstances() : void
+    {
+        $integerType1 = Type::getType('integer');
+        Type::overrideType('integer', get_class($integerType1));
+        $integerType2 = Type::getType('integer');
+
+        $column1 = new Column('integerfield1', $integerType1);
+        $column2 = new Column('integerfield1', $integerType2);
+
+        $c = new Comparator();
+        self::assertEquals([], $c->diffColumn($column1, $column2));
+    }
+
+    public function testCompareColumnsOverriddenType() : void
+    {
+        $oldStringInstance = Type::getType('string');
+        $integerType       = Type::getType('integer');
+
+        Type::overrideType('string', get_class($integerType));
+        $overriddenStringType = Type::getType('string');
+
+        Type::overrideType('string', get_class($oldStringInstance));
+
+        $column1 = new Column('integerfield1', $integerType);
+        $column2 = new Column('integerfield1', $overriddenStringType);
+
+        $c = new Comparator();
+        self::assertEquals([], $c->diffColumn($column1, $column2));
     }
 
     public function testCompareChangedColumnsChangeCustomSchemaOption()
