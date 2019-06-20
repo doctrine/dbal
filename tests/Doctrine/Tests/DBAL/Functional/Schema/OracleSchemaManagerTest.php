@@ -292,22 +292,22 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testCreateSchemaNumberOfQueriesInvariable() : void
     {
         // Introspect the db schema.
-        $preCount        = $this->_sqlLoggerStack->currentQuery;
-        $schema          = $this->_sm->createSchema();
-        $firstQueryCount = $this->_sqlLoggerStack->currentQuery - $preCount;
+        $preCount        = $this->sqlLoggerStack->currentQuery;
+        $schema          = $this->schemaManager->createSchema();
+        $firstQueryCount = $this->sqlLoggerStack->currentQuery - $preCount;
 
         // Create a couple of additional tables.
-        $this->_conn->executeUpdate("CREATE TABLE tbl_test_2766_0 (x_id VARCHAR2(255) DEFAULT 'x' NOT NULL, x_data CLOB DEFAULT NULL NULL, x_number NUMBER(10) DEFAULT 0 NOT NULL, PRIMARY KEY(x_id))");
-        $this->_conn->executeUpdate("CREATE TABLE tbl_test_2766_1 (x_id VARCHAR2(255) DEFAULT 'x' NOT NULL, x_data CLOB DEFAULT NULL NULL, x_number NUMBER(10) DEFAULT 0 NOT NULL, x_parent_id VARCHAR2(255) DEFAULT 'x' NOT NULL, CONSTRAINT tbl_test_2766_fk_1 FOREIGN KEY (x_parent_id) REFERENCES tbl_test_2766_0(x_id), PRIMARY KEY(x_id))");
-        $this->_conn->executeUpdate('CREATE UNIQUE INDEX tbl_test_2766_uix_1 ON tbl_test_2766_1 (x_number)');
+        $this->connection->executeUpdate("CREATE TABLE tbl_test_2766_0 (x_id VARCHAR2(255) DEFAULT 'x' NOT NULL, x_data CLOB DEFAULT NULL NULL, x_number NUMBER(10) DEFAULT 0 NOT NULL, PRIMARY KEY(x_id))");
+        $this->connection->executeUpdate("CREATE TABLE tbl_test_2766_1 (x_id VARCHAR2(255) DEFAULT 'x' NOT NULL, x_data CLOB DEFAULT NULL NULL, x_number NUMBER(10) DEFAULT 0 NOT NULL, x_parent_id VARCHAR2(255) DEFAULT 'x' NOT NULL, CONSTRAINT tbl_test_2766_fk_1 FOREIGN KEY (x_parent_id) REFERENCES tbl_test_2766_0(x_id), PRIMARY KEY(x_id))");
+        $this->connection->executeUpdate('CREATE UNIQUE INDEX tbl_test_2766_uix_1 ON tbl_test_2766_1 (x_number)');
 
         // Introspect the db schema again.
-        $preCount         = $this->_sqlLoggerStack->currentQuery;
-        $schema           = $this->_sm->createSchema();
-        $secondQueryCount = $this->_sqlLoggerStack->currentQuery - $preCount;
+        $preCount         = $this->sqlLoggerStack->currentQuery;
+        $schema           = $this->schemaManager->createSchema();
+        $secondQueryCount = $this->sqlLoggerStack->currentQuery - $preCount;
 
         // The number of queries needed to execute createSchema should be the
         // same regardless of additional tables added.
-        $this->assertEquals($firstQueryCount, $secondQueryCount);
+        self::assertEquals($firstQueryCount, $secondQueryCount);
     }
 }
