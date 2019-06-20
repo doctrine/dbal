@@ -2,43 +2,41 @@
 
 namespace Doctrine\Tests\DBAL\Platforms;
 
+use Doctrine\DBAL\Platforms\Keywords\MySQLKeywords;
 use Doctrine\DBAL\Platforms\Keywords\ReservedKeywordsValidator;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\Tests\DbalTestCase;
 
-class ReservedKeywordsValidatorTest extends \Doctrine\Tests\DbalTestCase
+class ReservedKeywordsValidatorTest extends DbalTestCase
 {
-    /**
-     * @var ReservedKeywordsValidator
-     */
+    /** @var ReservedKeywordsValidator */
     private $validator;
 
-    protected function setUp()
+    protected function setUp() : void
     {
-        $this->validator = new ReservedKeywordsValidator(array(
-            new \Doctrine\DBAL\Platforms\Keywords\MySQLKeywords()
-        ));
+        $this->validator = new ReservedKeywordsValidator([new MySQLKeywords()]);
     }
 
-    public function testReservedTableName()
+    public function testReservedTableName() : void
     {
-        $table = new Table("TABLE");
+        $table = new Table('TABLE');
         $this->validator->acceptTable($table);
 
-        $this->assertEquals(
-            array('Table TABLE keyword violations: MySQL'),
+        self::assertEquals(
+            ['Table TABLE keyword violations: MySQL'],
             $this->validator->getViolations()
         );
     }
 
-    public function testReservedColumnName()
+    public function testReservedColumnName() : void
     {
-        $table = new Table("TABLE");
+        $table  = new Table('TABLE');
         $column = $table->addColumn('table', 'string');
 
         $this->validator->acceptColumn($table, $column);
 
-        $this->assertEquals(
-            array('Table TABLE column table keyword violations: MySQL'),
+        self::assertEquals(
+            ['Table TABLE column table keyword violations: MySQL'],
             $this->validator->getViolations()
         );
     }

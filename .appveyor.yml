@@ -1,0 +1,154 @@
+build: false
+platform:
+  - x64
+#matrix:
+#  fast_finish: true # kills the build at the first failure
+clone_folder: C:\projects\dbal
+clone_depth: 2
+
+cache:
+  - C:\ProgramData\chocolatey\bin -> .appveyor.yml
+  - C:\ProgramData\chocolatey\lib -> .appveyor.yml
+  - C:\tools\php -> .appveyor.yml
+  - C:\tools\cacert -> .appveyor.yml
+  - C:\tools\composer -> .appveyor.yml
+  - C:\tools\ocular -> .appveyor.yml
+  - '%LOCALAPPDATA%\Composer\files -> composer.json'
+
+## Build matrix for lowest and highest possible targets
+environment:
+  matrix:
+  - db: mssql
+    driver: sqlsrv
+    db_version: sql2008r2sp2
+    coverage: yes
+    php: 7.2
+  - db: mssql
+    driver: sqlsrv
+    db_version: sql2012sp1
+    php: 7.2
+    coverage: yes
+  - db: mssql
+    driver: sqlsrv
+    db_version: sql2017
+    coverage: no
+    php: 7.2
+  - db: mssql
+    driver: pdo_sqlsrv
+    db_version: sql2017
+    php: 7.2
+    coverage: yes
+
+init:
+  - SET PATH=C:\Program Files\OpenSSL;c:\tools\php;C:\tools\composer;C:\tools\ocular;%PATH%
+  - SET COMPOSER_NO_INTERACTION=1
+  - SET ANSICON=121x90 (121x90)
+
+## Install PHP and composer, and run the appropriate composer command
+install:
+    - ps: |
+        # Check if installation is cached
+        if (!(Test-Path c:\tools\php)) {
+          appveyor-retry cinst --params '""/InstallDir:C:\tools\php""' --ignore-checksums -y php --version ((choco search php --exact --all-versions -r | select-string -pattern $env:php | sort { [version]($_ -split '\|' | select -last 1) } -Descending | Select-Object -first 1) -replace '[php|]','')
+          # install sqlite
+          appveyor-retry cinst -y sqlite
+          Get-ChildItem -Path c:\tools\php
+          cd c:\tools\php
+
+          # Set PHP environment items that are always needed
+          copy php.ini-production php.ini
+          Add-Content php.ini "`n date.timezone=UTC"
+          Add-Content php.ini "`n extension_dir=ext"
+          Add-Content php.ini "`n memory_limit=1G"
+          Add-Content php.ini "`n extension=php_openssl.dll"
+          Add-Content php.ini "`n extension=php_mbstring.dll"
+          Add-Content php.ini "`n extension=php_fileinfo.dll"
+          Add-Content php.ini "`n extension=php_pdo_sqlite.dll"
+          Add-Content php.ini "`n extension=php_sqlite3.dll"
+          Add-Content php.ini "`n extension=php_curl.dll"
+          Add-Content php.ini "`n curl.cainfo=C:\tools\cacert\bundle.pem"
+
+          $DLLVersion = "5.5.0preview"
+          cd c:\tools\php\ext
+          $source = "https://windows.php.net/downloads/pecl/releases/sqlsrv/$($DLLVersion)/php_sqlsrv-$($DLLVersion)-$($env:php)-nts-vc15-x64.zip"
+          $destination = "c:\tools\php\ext\php_sqlsrv-$($DLLVersion)-$($env:php)-nts-vc15-x64.zip"
+          Invoke-WebRequest $source -OutFile $destination
+          7z x -y php_sqlsrv-$($DLLVersion)-$($env:php)-nts-vc15-x64.zip > $null
+          $source = "https://windows.php.net/downloads/pecl/releases/pdo_sqlsrv/$($DLLVersion)/php_pdo_sqlsrv-$($DLLVersion)-$($env:php)-nts-vc15-x64.zip"
+          $destination = "c:\tools\php\ext\php_pdo_sqlsrv-$($DLLVersion)-$($env:php)-nts-vc15-x64.zip"
+          Invoke-WebRequest $source -OutFile $destination
+          7z x -y php_pdo_sqlsrv-$($DLLVersion)-$($env:php)-nts-vc15-x64.zip > $null
+          $DLLVersion = (Invoke-WebRequest "https://pecl.php.net/rest/r/xdebug/stable.txt").Content
+          $source = "https://xdebug.org/files/php_xdebug-$($DLLVersion)-$($env:php)-vc15-nts-x86_64.dll"
+          $destination = "c:\tools\php\ext\php_xdebug.dll"
+          Invoke-WebRequest $source -OutFile $destination
+          Remove-Item c:\tools\php\* -include .zip
+          cd c:\tools\php
+          Add-Content php.ini "`nextension=php_sqlsrv.dll"
+          Add-Content php.ini "`nextension=php_pdo_sqlsrv.dll"
+          Add-Content php.ini "`nzend_extension=php_xdebug.dll"
+          Add-Content php.ini "`n"
+
+          # download Composer
+          if (!(Test-Path C:\tools\composer)) {
+            New-Item -path c:\tools -name composer -itemtype directory
+          }
+          if (!(Test-Path c:\tools\composer\composer.phar)) {
+            appveyor-retry appveyor DownloadFile https://getcomposer.org/composer.phar -Filename C:\tools\composer\composer.phar
+            Set-Content -path 'C:\tools\composer\composer.bat' -Value ('@php C:\tools\composer\composer.phar %*')
+          }
+
+          # download Scrutinizer's Ocular
+          if (!(Test-Path C:\tools\ocular)) {
+            New-Item -path c:\tools -name ocular -itemtype directory
+          }
+          if (!(Test-Path c:\tools\ocular\ocular.phar)) {
+            appveyor-retry appveyor DownloadFile https://github.com/scrutinizer-ci/ocular/releases/download/1.5.2/ocular.phar -Filename C:\tools\ocular\ocular.phar
+            Set-Content -path 'C:\tools\ocular\ocular.bat' -Value ('@php C:\tools\ocular\ocular.phar %*')
+          }
+
+          # download CA bundle
+          if (!(Test-Path C:\tools\cacert)) {
+            New-Item -path c:\tools\ -name cacert -itemtype directory
+          }
+          if (!(Test-Path c:\tools\cacert\bundle.pem)) {
+            appveyor-retry appveyor DownloadFile https://curl.haxx.se/ca/cacert.pem -Filename C:\tools\cacert\bundle.pem
+          }
+        }
+    # install composer dependencies
+    - cd C:\projects\dbal
+    - rm composer.lock
+    - appveyor-retry composer self-update
+    - appveyor-retry composer install --no-progress --prefer-dist
+
+before_test:
+# Selectively start the services
+  - ps: >-
+      if ($env:db -eq "mssql") {
+        $instanceName = $env:db_version.ToUpper()
+        net start "MSSQL`$$instanceName"
+      }
+
+test_script:
+  - ps: >-
+      if ($env:db_version) {
+        $env:phpunit_config = "tests\appveyor\$($env:db).$($env:db_version).$($env:driver).appveyor.xml"
+      } else {
+        $env:phpunit_config = "tests\appveyor\$($env:db).$($env:driver).appveyor.xml"
+      }
+
+      if ($env:coverage -eq "yes") {
+        vendor\bin\phpunit -c $($env:phpunit_config) --coverage-clover clover.xml
+      } else {
+        vendor\bin\phpunit -c $($env:phpunit_config)
+      }
+
+      if ($LastExitCode -ne 0) {
+        $host.SetShouldExit($LastExitCode)
+      }
+
+after_test:
+  - ps: >-
+      if ($env:coverage -eq "yes") {
+        appveyor-retry ocular code-coverage:upload --format=php-clover clover.xml
+      }

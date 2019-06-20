@@ -1,81 +1,65 @@
 <?php
-/*
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
- * <http://www.doctrine-project.org>.
- */
 
 namespace Doctrine\DBAL\Portability;
 
+use Doctrine\DBAL\Driver\ResultStatement;
+use Doctrine\DBAL\Driver\Statement as DriverStatement;
+use Doctrine\DBAL\Driver\StatementIterator;
+use Doctrine\DBAL\FetchMode;
+use Doctrine\DBAL\ParameterType;
+use IteratorAggregate;
 use PDO;
+use function array_change_key_case;
+use function assert;
+use function is_string;
+use function rtrim;
 
 /**
  * Portability wrapper for a Statement.
- *
- * @link   www.doctrine-project.org
- * @since  2.0
- * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
-class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
+class Statement implements IteratorAggregate, DriverStatement
 {
-    /**
-     * @var integer
-     */
+    /** @var int */
     private $portability;
 
-    /**
-     * @var \Doctrine\DBAL\Driver\Statement
-     */
+    /** @var DriverStatement|ResultStatement */
     private $stmt;
 
-    /**
-     * @var integer
-     */
+    /** @var int */
     private $case;
 
-    /**
-     * @var integer
-     */
-    private $defaultFetchMode = PDO::FETCH_BOTH;
+    /** @var int */
+    private $defaultFetchMode = FetchMode::MIXED;
 
     /**
      * Wraps <tt>Statement</tt> and applies portability measures.
      *
-     * @param \Doctrine\DBAL\Driver\Statement       $stmt
-     * @param \Doctrine\DBAL\Portability\Connection $conn
+     * @param DriverStatement|ResultStatement $stmt
      */
     public function __construct($stmt, Connection $conn)
     {
-        $this->stmt = $stmt;
+        $this->stmt        = $stmt;
         $this->portability = $conn->getPortability();
-        $this->case = $conn->getFetchCase();
+        $this->case        = $conn->getFetchCase();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function bindParam($column, &$variable, $type = null, $length = null)
+    public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null)
     {
+        assert($this->stmt instanceof DriverStatement);
+
         return $this->stmt->bindParam($column, $variable, $type, $length);
     }
+
     /**
      * {@inheritdoc}
      */
-
-    public function bindValue($param, $value, $type = null)
+    public function bindValue($param, $value, $type = ParameterType::STRING)
     {
+        assert($this->stmt instanceof DriverStatement);
+
         return $this->stmt->bindValue($param, $value, $type);
     }
 
@@ -100,6 +84,8 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
      */
     public function errorCode()
     {
+        assert($this->stmt instanceof DriverStatement);
+
         return $this->stmt->errorCode();
     }
 
@@ -108,6 +94,8 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
      */
     public function errorInfo()
     {
+        assert($this->stmt instanceof DriverStatement);
+
         return $this->stmt->errorInfo();
     }
 
@@ -116,6 +104,8 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
      */
     public function execute($params = null)
     {
+        assert($this->stmt instanceof DriverStatement);
+
         return $this->stmt->execute($params);
     }
 
@@ -134,24 +124,24 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
      */
     public function getIterator()
     {
-        $data = $this->fetchAll();
-
-        return new \ArrayIterator($data);
+        return new StatementIterator($this);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null, $cursorOrientation = \PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
+    public function fetch($fetchMode = null, $cursorOrientation = PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
     {
         $fetchMode = $fetchMode ?: $this->defaultFetchMode;
 
         $row = $this->stmt->fetch($fetchMode);
 
-        $row = $this->fixRow($row,
-            $this->portability & (Connection::PORTABILITY_EMPTY_TO_NULL|Connection::PORTABILITY_RTRIM),
-            !is_null($this->case) && ($fetchMode == PDO::FETCH_ASSOC || $fetchMode == PDO::FETCH_BOTH) && ($this->portability & Connection::PORTABILITY_FIX_CASE)
-        );
+        $iterateRow = $this->portability & (Connection::PORTABILITY_EMPTY_TO_NULL|Connection::PORTABILITY_RTRIM);
+        $fixCase    = $this->case !== null
+            && ($fetchMode === FetchMode::ASSOCIATIVE || $fetchMode === FetchMode::MIXED)
+            && ($this->portability & Connection::PORTABILITY_FIX_CASE);
+
+        $row = $this->fixRow($row, $iterateRow, $fixCase);
 
         return $row;
     }
@@ -170,14 +160,17 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
         }
 
         $iterateRow = $this->portability & (Connection::PORTABILITY_EMPTY_TO_NULL|Connection::PORTABILITY_RTRIM);
-        $fixCase = !is_null($this->case) && ($fetchMode == PDO::FETCH_ASSOC || $fetchMode == PDO::FETCH_BOTH) && ($this->portability & Connection::PORTABILITY_FIX_CASE);
-        if ( ! $iterateRow && !$fixCase) {
+        $fixCase    = $this->case !== null
+            && ($fetchMode === FetchMode::ASSOCIATIVE || $fetchMode === FetchMode::MIXED)
+            && ($this->portability & Connection::PORTABILITY_FIX_CASE);
+
+        if (! $iterateRow && ! $fixCase) {
             return $rows;
         }
 
-        if ($fetchMode === PDO::FETCH_COLUMN) {
+        if ($fetchMode === FetchMode::COLUMN) {
             foreach ($rows as $num => $row) {
-                $rows[$num] = array($row);
+                $rows[$num] = [$row];
             }
         }
 
@@ -185,7 +178,7 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
             $rows[$num] = $this->fixRow($row, $iterateRow, $fixCase);
         }
 
-        if ($fetchMode === PDO::FETCH_COLUMN) {
+        if ($fetchMode === FetchMode::COLUMN) {
             foreach ($rows as $num => $row) {
                 $rows[$num] = $row[0];
             }
@@ -195,15 +188,15 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
     }
 
     /**
-     * @param mixed   $row
-     * @param integer $iterateRow
-     * @param boolean $fixCase
+     * @param mixed $row
+     * @param int   $iterateRow
+     * @param bool  $fixCase
      *
-     * @return array
+     * @return mixed
      */
     protected function fixRow($row, $iterateRow, $fixCase)
     {
-        if ( ! $row) {
+        if (! $row) {
             return $row;
         }
 
@@ -247,6 +240,8 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
      */
     public function rowCount()
     {
+        assert($this->stmt instanceof DriverStatement);
+
         return $this->stmt->rowCount();
     }
 }

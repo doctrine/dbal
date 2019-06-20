@@ -1,44 +1,22 @@
 <?php
-/*
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
- * <http://www.doctrine-project.org>.
- */
 
 namespace Doctrine\DBAL\Schema\Synchronizer;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Comparator;
+use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Visitor\DropSchemaSqlCollector;
+use function count;
 
 /**
  * Schema Synchronizer for Default DBAL Connection.
- *
- * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
 class SingleDatabaseSynchronizer extends AbstractSchemaSynchronizer
 {
-    /**
-     * @var \Doctrine\DBAL\Platforms\AbstractPlatform
-     */
+    /** @var AbstractPlatform */
     private $platform;
 
-    /**
-     * @param \Doctrine\DBAL\Connection $conn
-     */
     public function __construct(Connection $conn)
     {
         parent::__construct($conn);
@@ -52,7 +30,6 @@ class SingleDatabaseSynchronizer extends AbstractSchemaSynchronizer
     {
         return $createSchema->toSql($this->platform);
     }
-
 
     /**
      * {@inheritdoc}
@@ -77,8 +54,8 @@ class SingleDatabaseSynchronizer extends AbstractSchemaSynchronizer
      */
     public function getDropSchema(Schema $dropSchema)
     {
-        $visitor    = new DropSchemaSqlCollector($this->platform);
-        $sm         = $this->conn->getSchemaManager();
+        $visitor = new DropSchemaSqlCollector($this->platform);
+        $sm      = $this->conn->getSchemaManager();
 
         $fullSchema = $sm->createSchema();
 
@@ -88,11 +65,11 @@ class SingleDatabaseSynchronizer extends AbstractSchemaSynchronizer
             }
 
             foreach ($table->getForeignKeys() as $foreignKey) {
-                if ( ! $dropSchema->hasTable($table->getName())) {
+                if (! $dropSchema->hasTable($table->getName())) {
                     continue;
                 }
 
-                if ( ! $dropSchema->hasTable($foreignKey->getForeignTableName())) {
+                if (! $dropSchema->hasTable($foreignKey->getForeignTableName())) {
                     continue;
                 }
 
@@ -100,7 +77,7 @@ class SingleDatabaseSynchronizer extends AbstractSchemaSynchronizer
             }
         }
 
-        if ( ! $this->platform->supportsSequences()) {
+        if (! $this->platform->supportsSequences()) {
             return $visitor->getQueries();
         }
 
@@ -109,19 +86,24 @@ class SingleDatabaseSynchronizer extends AbstractSchemaSynchronizer
         }
 
         foreach ($dropSchema->getTables() as $table) {
-            if ( ! $table->hasPrimaryKey()) {
+            $primaryKey = $table->getPrimaryKey();
+
+            if ($primaryKey === null) {
                 continue;
             }
 
-            $columns = $table->getPrimaryKey()->getColumns();
+            $columns = $primaryKey->getColumns();
+
             if (count($columns) > 1) {
                 continue;
             }
 
-            $checkSequence = $table->getName() . "_" . $columns[0] . "_seq";
-            if ($fullSchema->hasSequence($checkSequence)) {
-                $visitor->acceptSequence($fullSchema->getSequence($checkSequence));
+            $checkSequence = $table->getName() . '_' . $columns[0] . '_seq';
+            if (! $fullSchema->hasSequence($checkSequence)) {
+                continue;
             }
+
+            $visitor->acceptSequence($fullSchema->getSequence($checkSequence));
         }
 
         return $visitor->getQueries();
@@ -135,8 +117,7 @@ class SingleDatabaseSynchronizer extends AbstractSchemaSynchronizer
         $sm      = $this->conn->getSchemaManager();
         $visitor = new DropSchemaSqlCollector($this->platform);
 
-        /* @var $schema \Doctrine\DBAL\Schema\Schema */
-        $schema  = $sm->createSchema();
+        $schema = $sm->createSchema();
         $schema->visit($visitor);
 
         return $visitor->getQueries();

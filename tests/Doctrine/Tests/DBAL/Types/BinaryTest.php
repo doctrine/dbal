@@ -2,87 +2,102 @@
 
 namespace Doctrine\Tests\DBAL\Types;
 
+use Doctrine\DBAL\ParameterType;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Types\BinaryType;
+use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Tests\DBAL\Mocks\MockPlatform;
+use Doctrine\DBAL\Types\Types;
+use Doctrine\Tests\DbalTestCase;
+use PHPUnit\Framework\MockObject\MockObject;
+use function base64_encode;
+use function fopen;
+use function stream_get_contents;
 
-class BinaryTest extends \Doctrine\Tests\DbalTestCase
+class BinaryTest extends DbalTestCase
 {
-    /**
-     * @var \Doctrine\Tests\DBAL\Mocks\MockPlatform
-     */
+    /** @var AbstractPlatform|MockObject */
     protected $platform;
 
-    /**
-     * @var \Doctrine\DBAL\Types\BinaryType
-     */
+    /** @var BinaryType */
     protected $type;
 
     /**
      * {@inheritdoc}
      */
-    protected function setUp()
+    protected function setUp() : void
     {
-        $this->platform = new MockPlatform();
+        $this->platform = $this->createMock(AbstractPlatform::class);
         $this->type     = Type::getType('binary');
     }
 
-    public function testReturnsBindingType()
+    public function testReturnsBindingType() : void
     {
-        $this->assertSame(\PDO::PARAM_LOB, $this->type->getBindingType());
+        self::assertSame(ParameterType::BINARY, $this->type->getBindingType());
     }
 
-    public function testReturnsName()
+    public function testReturnsName() : void
     {
-        $this->assertSame(Type::BINARY, $this->type->getName());
+        self::assertSame(Types::BINARY, $this->type->getName());
     }
 
-    public function testReturnsSQLDeclaration()
+    public function testReturnsSQLDeclaration() : void
     {
-        $this->assertSame('DUMMYBINARY', $this->type->getSQLDeclaration(array(), $this->platform));
+        $this->platform->expects($this->once())
+            ->method('getBinaryTypeDeclarationSQL')
+            ->willReturn('TEST_BINARY');
+
+        self::assertSame('TEST_BINARY', $this->type->getSQLDeclaration([], $this->platform));
     }
 
-    public function testBinaryNullConvertsToPHPValue()
+    public function testBinaryNullConvertsToPHPValue() : void
     {
-        $this->assertNull($this->type->convertToPHPValue(null, $this->platform));
+        self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }
 
-    public function testBinaryStringConvertsToPHPValue()
+    public function testBinaryStringConvertsToPHPValue() : void
     {
         $databaseValue = 'binary string';
         $phpValue      = $this->type->convertToPHPValue($databaseValue, $this->platform);
 
-        $this->assertInternalType('resource', $phpValue);
-        $this->assertEquals($databaseValue, stream_get_contents($phpValue));
+        self::assertIsResource($phpValue);
+        self::assertEquals($databaseValue, stream_get_contents($phpValue));
     }
 
-    public function testBinaryResourceConvertsToPHPValue()
+    public function testBinaryResourceConvertsToPHPValue() : void
     {
         $databaseValue = fopen('data://text/plain;base64,' . base64_encode('binary string'), 'r');
         $phpValue      = $this->type->convertToPHPValue($databaseValue, $this->platform);
 
-        $this->assertSame($databaseValue, $phpValue);
+        self::assertSame($databaseValue, $phpValue);
     }
 
     /**
+     * @param mixed $value
+     *
      * @dataProvider getInvalidDatabaseValues
-     * @expectedException \Doctrine\DBAL\Types\ConversionException
      */
-    public function testThrowsConversionExceptionOnInvalidDatabaseValue($value)
+    public function testThrowsConversionExceptionOnInvalidDatabaseValue($value) : void
     {
+        $this->expectException(ConversionException::class);
+
         $this->type->convertToPHPValue($value, $this->platform);
     }
 
-    public function getInvalidDatabaseValues()
+    /**
+     * @return mixed[][]
+     */
+    public static function getInvalidDatabaseValues() : iterable
     {
-        return array(
-            array(false),
-            array(true),
-            array(0),
-            array(1),
-            array(-1),
-            array(0.0),
-            array(1.1),
-            array(-1.1),
-        );
+        return [
+            [false],
+            [true],
+            [0],
+            [1],
+            [-1],
+            [0.0],
+            [1.1],
+            [-1.1],
+        ];
     }
 }

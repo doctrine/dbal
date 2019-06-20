@@ -3,7 +3,7 @@ Sharding
 
 .. note::
 
-    The sharding extension is currently in transition from a seperate Project
+    The sharding extension is currently in transition from a separate Project
     into DBAL. Class names may differ.
 
 Starting with 2.3 Doctrine DBAL contains some functionality to simplify the
@@ -84,8 +84,7 @@ Use GUID/UUIDs
 The most simple ID-generation mechanism for sharding are
 universally unique identifiers. These are 16-byte
 (128-bit) numbers that are guaranteed to be unique across different servers.
-You can `read up on UUIDs on Wikipedia
-<http://en.wikipedia.org/wiki/Universally_unique_identifier>`_.
+You can `read up on UUIDs on Wikipedia <http://en.wikipedia.org/wiki/Universally_unique_identifier>`_.
 
 The drawback of UUIDs is the segmentation they cause on indexes. Because UUIDs
 are not sequentially generated, they can have negative impact on index access
@@ -100,11 +99,15 @@ platforms:
 
     <?php
     use Doctrine\DBAL\DriverManager;
+    use Ramsey\Uuid\Uuid;
 
     $conn = DriverManager::getConnection(/**..**/);
-    $guid = $conn->fetchColumn('SELECT ' . $conn->getDatabasePlatform()->getGuidExpression());
+    $guid = Uuid::uuid1();
 
-    $conn->insert("my_table", array("id" => $guid, "foo" => "bar"));
+    $conn->insert('my_table', [
+        'id'  => $guid->toString(),
+        'foo' => 'bar',
+    ]);
 
 In your application you should hide this details in Id-Generation services:
 
@@ -113,21 +116,18 @@ In your application you should hide this details in Id-Generation services:
     <?php
     namespace MyApplication;
 
+    use Ramsey\Uuid\Uuid;
+
     class IdGenerationService
     {
-        private $conn;
-
-        public function generateCustomerId()
+        public function generateCustomerId() : Uuid
         {
-            return $this->conn->fetchColumn('SELECT ' .
-                $this->conn->getDatabasePlatform()->getGuidExpression()
-            );
+            return Uuid::uuid1();
         }
     }
 
 A good starting point to read up on GUIDs (vs numerical ids) is this blog post
-`Coding Horror: Primary Keys: IDs vs GUIDs
-<http://www.codinghorror.com/blog/2007/03/primary-keys-ids-versus-guids.html>`_.
+`Coding Horror: Primary Keys: IDs vs GUIDs <http://www.codinghorror.com/blog/2007/03/primary-keys-ids-versus-guids.html>`_.
 
 Table Generator
 ~~~~~~~~~~~~~~~
@@ -268,7 +268,6 @@ you have to sort the data in the application.
     <?php
     $sql = "SELECT * FROM customers";
     $rows = $shardManager->queryAll($sql, $params);
-
 
 Schema Operations: SchemaSynchronizer Interface
 -----------------------------------------------

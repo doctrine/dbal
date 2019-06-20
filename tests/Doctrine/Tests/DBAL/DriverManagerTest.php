@@ -2,261 +2,541 @@
 
 namespace Doctrine\Tests\DBAL;
 
-class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Connections\MasterSlaveConnection;
+use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver;
+use Doctrine\DBAL\Driver\DrizzlePDOMySql\Driver as DrizzlePDOMySqlDriver;
+use Doctrine\DBAL\Driver\PDOMySql\Driver as PDOMySQLDriver;
+use Doctrine\DBAL\Driver\PDOSqlite\Driver as PDOSqliteDriver;
+use Doctrine\DBAL\Driver\SQLSrv\Driver as SQLSrvDriver;
+use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Sharding\PoolingShardConnection;
+use Doctrine\DBAL\Sharding\ShardChoser\MultiTenantShardChoser;
+use Doctrine\Tests\DbalTestCase;
+use PDO;
+use stdClass;
+use function extension_loaded;
+use function get_class;
+use function in_array;
+use function is_array;
+
+class DriverManagerTest extends DbalTestCase
 {
     /**
-     * @expectedException \Doctrine\DBAL\DBALException
+     * @requires extension pdo_sqlite
      */
-    public function testInvalidPdoInstance()
+    public function testInvalidPdoInstance() : void
     {
-        $options = array(
-            'pdo' => 'test'
-        );
-        $test = \Doctrine\DBAL\DriverManager::getConnection($options);
+        $this->expectException(DBALException::class);
+        DriverManager::getConnection(['pdo' => 'test']);
     }
 
-    public function testValidPdoInstance()
+    /**
+     * @requires extension pdo_sqlite
+     */
+    public function testValidPdoInstance() : void
     {
-        $options = array(
-            'pdo' => new \PDO('sqlite::memory:')
-        );
-        $conn = \Doctrine\DBAL\DriverManager::getConnection($options);
-        $this->assertEquals('sqlite', $conn->getDatabasePlatform()->getName());
+        $conn = DriverManager::getConnection([
+            'pdo' => new PDO('sqlite::memory:'),
+        ]);
+
+        self::assertEquals('sqlite', $conn->getDatabasePlatform()->getName());
     }
 
     /**
      * @group DBAL-32
+     * @requires extension pdo_sqlite
      */
-    public function testPdoInstanceSetErrorMode()
+    public function testPdoInstanceSetErrorMode() : void
     {
-        $pdo = new \PDO('sqlite::memory:');
-        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_SILENT);
-        $options = array(
-            'pdo' => $pdo
-        );
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_SILENT);
+        $options = ['pdo' => $pdo];
 
-        $conn = \Doctrine\DBAL\DriverManager::getConnection($options);
-        $this->assertEquals(\PDO::ERRMODE_EXCEPTION, $pdo->getAttribute(\PDO::ATTR_ERRMODE));
+        DriverManager::getConnection($options);
+        self::assertEquals(PDO::ERRMODE_EXCEPTION, $pdo->getAttribute(PDO::ATTR_ERRMODE));
+    }
+
+    public function testCheckParams() : void
+    {
+        $this->expectException(DBALException::class);
+
+        DriverManager::getConnection([]);
+    }
+
+    public function testInvalidDriver() : void
+    {
+        $this->expectException(DBALException::class);
+
+        DriverManager::getConnection(['driver' => 'invalid_driver']);
     }
 
     /**
-     * @expectedException \Doctrine\DBAL\DBALException
+     * @requires extension pdo_sqlite
      */
-    public function testCheckParams()
+    public function testCustomPlatform() : void
     {
-        $conn = \Doctrine\DBAL\DriverManager::getConnection(array());
+        $platform = $this->createMock(AbstractPlatform::class);
+        $options  = [
+            'pdo'      => new PDO('sqlite::memory:'),
+            'platform' => $platform,
+        ];
+
+        $conn = DriverManager::getConnection($options);
+        self::assertSame($platform, $conn->getDatabasePlatform());
     }
 
     /**
-     * @expectedException \Doctrine\DBAL\DBALException
+     * @requires extension pdo_sqlite
      */
-    public function testInvalidDriver()
+    public function testCustomWrapper() : void
     {
-        $conn = \Doctrine\DBAL\DriverManager::getConnection(array('driver' => 'invalid_driver'));
-    }
+        $wrapper      = $this->createMock(Connection::class);
+        $wrapperClass = get_class($wrapper);
 
-    public function testCustomPlatform()
-    {
-        $mockPlatform = new \Doctrine\Tests\DBAL\Mocks\MockPlatform();
-        $options = array(
-            'pdo' => new \PDO('sqlite::memory:'),
-            'platform' => $mockPlatform
-        );
-
-        $conn = \Doctrine\DBAL\DriverManager::getConnection($options);
-        $this->assertSame($mockPlatform, $conn->getDatabasePlatform());
-    }
-
-    public function testCustomWrapper()
-    {
-        $wrapperClass = 'Doctrine\Tests\Mocks\ConnectionMock';
-
-        $options = array(
-            'pdo' => new \PDO('sqlite::memory:'),
+        $options = [
+            'pdo' => new PDO('sqlite::memory:'),
             'wrapperClass' => $wrapperClass,
-        );
+        ];
 
-        $conn = \Doctrine\DBAL\DriverManager::getConnection($options);
-        $this->assertInstanceOf($wrapperClass, $conn);
-    }
-
-    public function testInvalidWrapperClass()
-    {
-        $this->setExpectedException('\Doctrine\DBAL\DBALException');
-
-        $options = array(
-            'pdo' => new \PDO('sqlite::memory:'),
-            'wrapperClass' => 'stdClass',
-        );
-
-        $conn = \Doctrine\DBAL\DriverManager::getConnection($options);
-    }
-
-    public function testInvalidDriverClass()
-    {
-        $this->setExpectedException('\Doctrine\DBAL\DBALException');
-
-        $options = array(
-            'driverClass' => 'stdClass'
-        );
-
-        $conn = \Doctrine\DBAL\DriverManager::getConnection($options);
-    }
-
-    public function testValidDriverClass()
-    {
-        $options = array(
-            'driverClass' => 'Doctrine\DBAL\Driver\PDOMySql\Driver',
-        );
-
-        $conn = \Doctrine\DBAL\DriverManager::getConnection($options);
-        $this->assertInstanceOf('Doctrine\DBAL\Driver\PDOMySql\Driver', $conn->getDriver());
+        $conn = DriverManager::getConnection($options);
+        self::assertInstanceOf($wrapperClass, $conn);
     }
 
     /**
-     * @dataProvider databaseUrls
+     * @requires extension pdo_sqlite
      */
-    public function testDatabaseUrl($url, $expected)
+    public function testInvalidWrapperClass() : void
     {
-        $options = is_array($url) ? $url : array(
-            'url' => $url,
-        );
+        $this->expectException(DBALException::class);
 
-        if ($expected === false) {
-            $this->setExpectedException('Doctrine\DBAL\DBALException');
+        $options = [
+            'pdo' => new PDO('sqlite::memory:'),
+            'wrapperClass' => stdClass::class,
+        ];
+
+        DriverManager::getConnection($options);
+    }
+
+    public function testInvalidDriverClass() : void
+    {
+        $this->expectException(DBALException::class);
+
+        $options = ['driverClass' => stdClass::class];
+
+        DriverManager::getConnection($options);
+    }
+
+    public function testValidDriverClass() : void
+    {
+        $options = ['driverClass' => PDOMySQLDriver::class];
+
+        $conn = DriverManager::getConnection($options);
+        self::assertInstanceOf(PDOMySQLDriver::class, $conn->getDriver());
+    }
+
+    public function testDatabaseUrlMasterSlave() : void
+    {
+        $options = [
+            'driver' => 'pdo_mysql',
+            'master' => ['url' => 'mysql://foo:bar@localhost:11211/baz'],
+            'slaves' => [
+                'slave1' => ['url' => 'mysql://foo:bar@localhost:11211/baz_slave'],
+            ],
+            'wrapperClass' => MasterSlaveConnection::class,
+        ];
+
+        $conn = DriverManager::getConnection($options);
+
+        $params = $conn->getParams();
+        self::assertInstanceOf(PDOMySQLDriver::class, $conn->getDriver());
+
+        $expected = [
+            'user'     => 'foo',
+            'password' => 'bar',
+            'host'     => 'localhost',
+            'port'     => 11211,
+        ];
+
+        foreach ($expected as $key => $value) {
+            self::assertEquals($value, $params['master'][$key]);
+            self::assertEquals($value, $params['slaves']['slave1'][$key]);
         }
 
-        $conn = \Doctrine\DBAL\DriverManager::getConnection($options);
+        self::assertEquals('baz', $params['master']['dbname']);
+        self::assertEquals('baz_slave', $params['slaves']['slave1']['dbname']);
+    }
+
+    public function testDatabaseUrlShard() : void
+    {
+        $options = [
+            'driver' => 'pdo_mysql',
+            'shardChoser' => MultiTenantShardChoser::class,
+            'global' => ['url' => 'mysql://foo:bar@localhost:11211/baz'],
+            'shards' => [
+                [
+                    'id' => 1,
+                    'url' => 'mysql://foo:bar@localhost:11211/baz_slave',
+                ],
+            ],
+            'wrapperClass' => PoolingShardConnection::class,
+        ];
+
+        $conn = DriverManager::getConnection($options);
+
+        $params = $conn->getParams();
+        self::assertInstanceOf(PDOMySQLDriver::class, $conn->getDriver());
+
+        $expected = [
+            'user'     => 'foo',
+            'password' => 'bar',
+            'host'     => 'localhost',
+            'port'     => 11211,
+        ];
+
+        foreach ($expected as $key => $value) {
+            self::assertEquals($value, $params['global'][$key]);
+            self::assertEquals($value, $params['shards'][0][$key]);
+        }
+
+        self::assertEquals('baz', $params['global']['dbname']);
+        self::assertEquals('baz_slave', $params['shards'][0]['dbname']);
+    }
+
+    /**
+     * @param mixed $url
+     * @param mixed $expected
+     *
+     * @dataProvider databaseUrls
+     */
+    public function testDatabaseUrl($url, $expected) : void
+    {
+        $options = is_array($url) ? $url : ['url' => $url];
+
+        if (isset($options['pdo'])) {
+            if (! extension_loaded('pdo')) {
+                $this->markTestSkipped('PDO is not installed');
+            }
+
+            $options['pdo'] = $this->createMock(PDO::class);
+        }
+
+        $options = is_array($url) ? $url : ['url' => $url];
+
+        if ($expected === false) {
+            $this->expectException(DBALException::class);
+        }
+
+        $conn = DriverManager::getConnection($options);
 
         $params = $conn->getParams();
         foreach ($expected as $key => $value) {
-            if (in_array($key, array('pdo', 'driver', 'driverClass'), true)) {
-                $this->assertInstanceOf($value, $conn->getDriver());
+            if (in_array($key, ['pdo', 'driver', 'driverClass'], true)) {
+                self::assertInstanceOf($value, $conn->getDriver());
             } else {
-                $this->assertEquals($value, $params[$key]);
+                self::assertEquals($value, $params[$key]);
             }
         }
     }
 
-    public function databaseUrls()
+    /**
+     * @return array<string, array<int, mixed>>
+     */
+    public function databaseUrls() : iterable
     {
-        $pdoMock = $this->getMock('Doctrine\Tests\Mocks\PDOMock');
+        $driver      = $this->createMock(Driver::class);
+        $driverClass = get_class($driver);
 
-        return array(
-            'simple URL' => array(
+        return [
+            'simple URL' => [
                 'mysql://foo:bar@localhost/baz',
-                array('user' => 'foo', 'password' => 'bar', 'host' => 'localhost', 'dbname' => 'baz', 'driver' => 'Doctrine\DBAL\Driver\PDOMySQL\Driver'),
-            ),
-            'simple URL with port' => array(
+                [
+                    'user'     => 'foo',
+                    'password' => 'bar',
+                    'host'     => 'localhost',
+                    'dbname'   => 'baz',
+                    'driver'   => PDOMySQLDriver::class,
+                ],
+            ],
+            'simple URL with port' => [
                 'mysql://foo:bar@localhost:11211/baz',
-                array('user' => 'foo', 'password' => 'bar', 'host' => 'localhost', 'port' => 11211, 'dbname' => 'baz', 'driver' => 'Doctrine\DBAL\Driver\PDOMySQL\Driver'),
-            ),
-            'sqlite relative URL with host' => array(
+                [
+                    'user'     => 'foo',
+                    'password' => 'bar',
+                    'host'     => 'localhost',
+                    'port'     => 11211,
+                    'dbname'   => 'baz',
+                    'driver'   => PDOMySQLDriver::class,
+                ],
+            ],
+            'sqlite relative URL with host' => [
                 'sqlite://localhost/foo/dbname.sqlite',
-                array('path' => 'foo/dbname.sqlite', 'driver' => 'Doctrine\DBAL\Driver\PDOSqlite\Driver'),
-            ),
-            'sqlite absolute URL with host' => array(
+                [
+                    'path'   => 'foo/dbname.sqlite',
+                    'driver' => PDOSqliteDriver::class,
+                ],
+            ],
+            'sqlite absolute URL with host' => [
                 'sqlite://localhost//tmp/dbname.sqlite',
-                array('path' => '/tmp/dbname.sqlite', 'driver' => 'Doctrine\DBAL\Driver\PDOSqlite\Driver'),
-            ),
-            'sqlite relative URL without host' => array(
+                [
+                    'path'   => '/tmp/dbname.sqlite',
+                    'driver' => PDOSqliteDriver::class,
+                ],
+            ],
+            'sqlite relative URL without host' => [
                 'sqlite:///foo/dbname.sqlite',
-                array('path' => 'foo/dbname.sqlite', 'driver' => 'Doctrine\DBAL\Driver\PDOSqlite\Driver'),
-            ),
-            'sqlite absolute URL without host' => array(
+                [
+                    'path'   => 'foo/dbname.sqlite',
+                    'driver' => PDOSqliteDriver::class,
+                ],
+            ],
+            'sqlite absolute URL without host' => [
                 'sqlite:////tmp/dbname.sqlite',
-                array('path' => '/tmp/dbname.sqlite', 'driver' => 'Doctrine\DBAL\Driver\PDOSqlite\Driver'),
-            ),
-            'sqlite memory' => array(
+                [
+                    'path'   => '/tmp/dbname.sqlite',
+                    'driver' => PDOSqliteDriver::class,
+                ],
+            ],
+            'sqlite memory' => [
                 'sqlite:///:memory:',
-                array('memory' => true, 'driver' => 'Doctrine\DBAL\Driver\PDOSqlite\Driver'),
-            ),
-            'sqlite memory with host' => array(
+                [
+                    'memory' => true,
+                    'driver' => PDOSqliteDriver::class,
+                ],
+            ],
+            'sqlite memory with host' => [
                 'sqlite://localhost/:memory:',
-                array('memory' => true, 'driver' => 'Doctrine\DBAL\Driver\PDOSqlite\Driver'),
-            ),
-            'params parsed from URL override individual params' => array(
-                array('url' => 'mysql://foo:bar@localhost/baz', 'password' => 'lulz'),
-                array('user' => 'foo', 'password' => 'bar', 'host' => 'localhost', 'dbname' => 'baz', 'driver' => 'Doctrine\DBAL\Driver\PDOMySQL\Driver'),
-            ),
-            'params not parsed from URL but individual params are preserved' => array(
-                array('url' => 'mysql://foo:bar@localhost/baz', 'port' => 1234),
-                array('user' => 'foo', 'password' => 'bar', 'host' => 'localhost', 'port' => 1234, 'dbname' => 'baz', 'driver' => 'Doctrine\DBAL\Driver\PDOMySQL\Driver'),
-            ),
-            'query params from URL are used as extra params' => array(
+                [
+                    'memory' => true,
+                    'driver' => PDOSqliteDriver::class,
+                ],
+            ],
+            'params parsed from URL override individual params' => [
+                [
+                    'url'      => 'mysql://foo:bar@localhost/baz',
+                    'password' => 'lulz',
+                ],
+                [
+                    'user'     => 'foo',
+                    'password' => 'bar',
+                    'host'     => 'localhost',
+                    'dbname'   => 'baz',
+                    'driver'   => PDOMySQLDriver::class,
+                ],
+            ],
+            'params not parsed from URL but individual params are preserved' => [
+                [
+                    'url'  => 'mysql://foo:bar@localhost/baz',
+                    'port' => 1234,
+                ],
+                [
+                    'user'     => 'foo',
+                    'password' => 'bar',
+                    'host'     => 'localhost',
+                    'port'     => 1234,
+                    'dbname'   => 'baz',
+                    'driver'   => PDOMySQLDriver::class,
+                ],
+            ],
+            'query params from URL are used as extra params' => [
                 'url' => 'mysql://foo:bar@localhost/dbname?charset=UTF-8',
-                array('charset' => 'UTF-8'),
-            ),
-            'simple URL with fallthrough scheme not defined in map' => array(
+                ['charset' => 'UTF-8'],
+            ],
+            'simple URL with fallthrough scheme not defined in map' => [
                 'sqlsrv://foo:bar@localhost/baz',
-                array('user' => 'foo', 'password' => 'bar', 'host' => 'localhost', 'dbname' => 'baz', 'driver' => 'Doctrine\DBAL\Driver\SQLSrv\Driver'),
-            ),
-            'simple URL with fallthrough scheme containing underscores fails' => array(
+                [
+                    'user'     => 'foo',
+                    'password' => 'bar',
+                    'host'     => 'localhost',
+                    'dbname'   => 'baz',
+                    'driver'   => SQLSrvDriver::class,
+                ],
+            ],
+            'simple URL with fallthrough scheme containing underscores fails' => [
                 'drizzle_pdo_mysql://foo:bar@localhost/baz',
                 false,
-            ),
-            'simple URL with fallthrough scheme containing dashes works' => array(
+            ],
+            'simple URL with fallthrough scheme containing dashes works' => [
                 'drizzle-pdo-mysql://foo:bar@localhost/baz',
-                array('user' => 'foo', 'password' => 'bar', 'host' => 'localhost', 'dbname' => 'baz', 'driver' => 'Doctrine\DBAL\Driver\DrizzlePDOMySql\Driver'),
-            ),
-            'simple URL with percent encoding' => array(
+                [
+                    'user'     => 'foo',
+                    'password' => 'bar',
+                    'host'     => 'localhost',
+                    'dbname'   => 'baz',
+                    'driver'   => DrizzlePDOMySqlDriver::class,
+                ],
+            ],
+            'simple URL with percent encoding' => [
                 'mysql://foo%3A:bar%2F@localhost/baz+baz%40',
-                array('user' => 'foo:', 'password' => 'bar/', 'host' => 'localhost', 'dbname' => 'baz+baz@', 'driver' => 'Doctrine\DBAL\Driver\PDOMySQL\Driver'),
-            ),
-            'simple URL with percent sign in password' => array(
+                [
+                    'user'     => 'foo:',
+                    'password' => 'bar/',
+                    'host'     => 'localhost',
+                    'dbname'   => 'baz+baz@',
+                    'driver'   => PDOMySQLDriver::class,
+                ],
+            ],
+            'simple URL with percent sign in password' => [
                 'mysql://foo:bar%25bar@localhost/baz',
-                array('user' => 'foo', 'password' => 'bar%bar', 'host' => 'localhost', 'dbname' => 'baz', 'driver' => 'Doctrine\DBAL\Driver\PDOMySQL\Driver'),
-            ),
+                [
+                    'user'     => 'foo',
+                    'password' => 'bar%bar',
+                    'host'     => 'localhost',
+                    'dbname'   => 'baz',
+                    'driver'   => PDOMySQLDriver::class,
+                ],
+            ],
 
             // DBAL-1234
-            'URL without scheme and without any driver information' => array(
-                array('url' => '//foo:bar@localhost/baz'),
+            'URL without scheme and without any driver information' => [
+                ['url' => '//foo:bar@localhost/baz'],
                 false,
-            ),
-            'URL without scheme but default PDO driver' => array(
-                array('url' => '//foo:bar@localhost/baz', 'pdo' => $pdoMock),
+            ],
+            'URL without scheme but default PDO driver' => [
+                [
+                    'url' => '//foo:bar@localhost/baz',
+                    'pdo' => true,
+                ],
                 false,
-            ),
-            'URL without scheme but default driver' => array(
-                array('url' => '//foo:bar@localhost/baz', 'driver' => 'pdo_mysql'),
-                array('user' => 'foo', 'password' => 'bar', 'host' => 'localhost', 'dbname' => 'baz', 'driver' => 'Doctrine\DBAL\Driver\PDOMySQL\Driver'),
-            ),
-            'URL without scheme but custom driver' => array(
-                array('url' => '//foo:bar@localhost/baz', 'driverClass' => 'Doctrine\Tests\Mocks\DriverMock'),
-                array('user' => 'foo', 'password' => 'bar', 'host' => 'localhost', 'dbname' => 'baz', 'driverClass' => 'Doctrine\Tests\Mocks\DriverMock'),
-            ),
-            'URL without scheme but default PDO driver and default driver' => array(
-                array('url' => '//foo:bar@localhost/baz', 'pdo' => $pdoMock, 'driver' => 'pdo_mysql'),
-                array('user' => 'foo', 'password' => 'bar', 'host' => 'localhost', 'dbname' => 'baz', 'driver' => 'Doctrine\DBAL\Driver\PDOMySQL\Driver'),
-            ),
-            'URL without scheme but driver and custom driver' => array(
-                array('url' => '//foo:bar@localhost/baz', 'driver' => 'pdo_mysql', 'driverClass' => 'Doctrine\Tests\Mocks\DriverMock'),
-                array('user' => 'foo', 'password' => 'bar', 'host' => 'localhost', 'dbname' => 'baz', 'driverClass' => 'Doctrine\Tests\Mocks\DriverMock'),
-            ),
-            'URL with default PDO driver' => array(
-                array('url' => 'mysql://foo:bar@localhost/baz', 'pdo' => $pdoMock),
-                array('user' => 'foo', 'password' => 'bar', 'host' => 'localhost', 'dbname' => 'baz', 'driver' => 'Doctrine\DBAL\Driver\PDOMySQL\Driver'),
-            ),
-            'URL with default driver' => array(
-                array('url' => 'mysql://foo:bar@localhost/baz', 'driver' => 'sqlite'),
-                array('user' => 'foo', 'password' => 'bar', 'host' => 'localhost', 'dbname' => 'baz', 'driver' => 'Doctrine\DBAL\Driver\PDOMySQL\Driver'),
-            ),
-            'URL with default custom driver' => array(
-                array('url' => 'mysql://foo:bar@localhost/baz', 'driverClass' => 'Doctrine\Tests\Mocks\DriverMock'),
-                array('user' => 'foo', 'password' => 'bar', 'host' => 'localhost', 'dbname' => 'baz', 'driver' => 'Doctrine\DBAL\Driver\PDOMySQL\Driver'),
-            ),
-            'URL with default PDO driver and default driver' => array(
-                array('url' => 'mysql://foo:bar@localhost/baz', 'pdo' => $pdoMock, 'driver' => 'sqlite'),
-                array('user' => 'foo', 'password' => 'bar', 'host' => 'localhost', 'dbname' => 'baz', 'driver' => 'Doctrine\DBAL\Driver\PDOMySQL\Driver'),
-            ),
-            'URL with default driver and default custom driver' => array(
-                array('url' => 'mysql://foo:bar@localhost/baz', 'driver' => 'sqlite',  'driverClass' => 'Doctrine\Tests\Mocks\DriverMock'),
-                array('user' => 'foo', 'password' => 'bar', 'host' => 'localhost', 'dbname' => 'baz', 'driver' => 'Doctrine\DBAL\Driver\PDOMySQL\Driver'),
-            ),
-            'URL with default PDO driver and default driver and default custom driver' => array(
-                array('url' => 'mysql://foo:bar@localhost/baz', 'pdo' => $pdoMock, 'driver' => 'sqlite', 'driverClass' => 'Doctrine\Tests\Mocks\DriverMock'),
-                array('user' => 'foo', 'password' => 'bar', 'host' => 'localhost', 'dbname' => 'baz', 'driver' => 'Doctrine\DBAL\Driver\PDOMySQL\Driver'),
-            ),
-        );
+            ],
+            'URL without scheme but default driver' => [
+                [
+                    'url'    => '//foo:bar@localhost/baz',
+                    'driver' => 'pdo_mysql',
+                ],
+                [
+                    'user'     => 'foo',
+                    'password' => 'bar',
+                    'host'     => 'localhost',
+                    'dbname'   => 'baz',
+                    'driver'   => PDOMySQLDriver::class,
+                ],
+            ],
+            'URL without scheme but custom driver' => [
+                [
+                    'url'         => '//foo:bar@localhost/baz',
+                    'driverClass' => $driverClass,
+                ],
+                [
+                    'user'        => 'foo',
+                    'password'    => 'bar',
+                    'host'        => 'localhost',
+                    'dbname'      => 'baz',
+                    'driverClass' => $driverClass,
+                ],
+            ],
+            'URL without scheme but default PDO driver and default driver' => [
+                [
+                    'url'    => '//foo:bar@localhost/baz',
+                    'pdo'    => true,
+                    'driver' => 'pdo_mysql',
+                ],
+                [
+                    'user'     => 'foo',
+                    'password' => 'bar',
+                    'host'     => 'localhost',
+                    'dbname'   => 'baz',
+                    'driver'   => PDOMySQLDriver::class,
+                ],
+            ],
+            'URL without scheme but driver and custom driver' => [
+                [
+                    'url'         => '//foo:bar@localhost/baz',
+                    'driver'      => 'pdo_mysql',
+                    'driverClass' => $driverClass,
+                ],
+                [
+                    'user'        => 'foo',
+                    'password'    => 'bar',
+                    'host'        => 'localhost',
+                    'dbname'      => 'baz',
+                    'driverClass' => $driverClass,
+                ],
+            ],
+            'URL with default PDO driver' => [
+                [
+                    'url' => 'mysql://foo:bar@localhost/baz',
+                    'pdo' => true,
+                ],
+                [
+                    'user'     => 'foo',
+                    'password' => 'bar',
+                    'host'     => 'localhost',
+                    'dbname'   => 'baz',
+                    'driver'   => PDOMySQLDriver::class,
+                ],
+            ],
+            'URL with default driver' => [
+                [
+                    'url'    => 'mysql://foo:bar@localhost/baz',
+                    'driver' => 'sqlite',
+                ],
+                [
+                    'user'     => 'foo',
+                    'password' => 'bar',
+                    'host'     => 'localhost',
+                    'dbname'   => 'baz',
+                    'driver'   => PDOMySQLDriver::class,
+                ],
+            ],
+            'URL with default custom driver' => [
+                [
+                    'url'         => 'mysql://foo:bar@localhost/baz',
+                    'driverClass' => $driverClass,
+                ],
+                [
+                    'user'     => 'foo',
+                    'password' => 'bar',
+                    'host'     => 'localhost',
+                    'dbname'   => 'baz',
+                    'driver'   => PDOMySQLDriver::class,
+                ],
+            ],
+            'URL with default PDO driver and default driver' => [
+                [
+                    'url'    => 'mysql://foo:bar@localhost/baz',
+                    'pdo'    => true,
+                    'driver' => 'sqlite',
+                ],
+                [
+                    'user'     => 'foo',
+                    'password' => 'bar',
+                    'host'     => 'localhost',
+                    'dbname'   => 'baz',
+                    'driver'   => PDOMySQLDriver::class,
+                ],
+            ],
+            'URL with default driver and default custom driver' => [
+                [
+                    'url'         => 'mysql://foo:bar@localhost/baz',
+                    'driver'      => 'sqlite',
+                    'driverClass' => $driverClass,
+                ],
+                [
+                    'user'     => 'foo',
+                    'password' => 'bar',
+                    'host'     => 'localhost',
+                    'dbname'   => 'baz',
+                    'driver'   => PDOMySQLDriver::class,
+                ],
+            ],
+            'URL with default PDO driver and default driver and default custom driver' => [
+                [
+                    'url'         => 'mysql://foo:bar@localhost/baz',
+                    'pdo'         => true,
+                    'driver'      => 'sqlite',
+                    'driverClass' => $driverClass,
+                ],
+                [
+                    'user'     => 'foo',
+                    'password' => 'bar',
+                    'host'     => 'localhost',
+                    'dbname'   => 'baz',
+                    'driver'   => PDOMySQLDriver::class,
+                ],
+            ],
+        ];
     }
 }

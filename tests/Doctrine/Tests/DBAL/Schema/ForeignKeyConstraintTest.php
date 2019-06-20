@@ -3,54 +3,57 @@
 namespace Doctrine\Tests\DBAL\Schema;
 
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\Index;
+use PHPUnit\Framework\TestCase;
 
-class ForeignKeyConstraintTest extends \PHPUnit_Framework_TestCase
+class ForeignKeyConstraintTest extends TestCase
 {
     /**
-     * @group DBAL-1062
+     * @param string[] $indexColumns
      *
+     * @group DBAL-1062
      * @dataProvider getIntersectsIndexColumnsData
      */
-    public function testIntersectsIndexColumns(array $indexColumns, $expectedResult)
+    public function testIntersectsIndexColumns(array $indexColumns, bool $expectedResult) : void
     {
-        $foreignKey = new ForeignKeyConstraint(array('foo', 'bar'), 'foreign_table', array('fk_foo', 'fk_bar'));
+        $foreignKey = new ForeignKeyConstraint(['foo', 'bar'], 'foreign_table', ['fk_foo', 'fk_bar']);
 
-        $index = $this->getMockBuilder('Doctrine\DBAL\Schema\Index')
+        $index = $this->getMockBuilder(Index::class)
             ->disableOriginalConstructor()
             ->getMock();
         $index->expects($this->once())
             ->method('getColumns')
             ->will($this->returnValue($indexColumns));
 
-        $this->assertSame($expectedResult, $foreignKey->intersectsIndexColumns($index));
+        self::assertSame($expectedResult, $foreignKey->intersectsIndexColumns($index));
     }
 
     /**
-     * @return array
+     * @return mixed[][]
      */
-    public function getIntersectsIndexColumnsData()
+    public static function getIntersectsIndexColumnsData() : iterable
     {
-        return array(
-            array(array('baz'), false),
-            array(array('baz', 'bloo'), false),
+        return [
+            [['baz'], false],
+            [['baz', 'bloo'], false],
 
-            array(array('foo'), true),
-            array(array('bar'), true),
+            [['foo'], true],
+            [['bar'], true],
 
-            array(array('foo', 'bar'), true),
-            array(array('bar', 'foo'), true),
+            [['foo', 'bar'], true],
+            [['bar', 'foo'], true],
 
-            array(array('foo', 'baz'), true),
-            array(array('baz', 'foo'), true),
+            [['foo', 'baz'], true],
+            [['baz', 'foo'], true],
 
-            array(array('bar', 'baz'), true),
-            array(array('baz', 'bar'), true),
+            [['bar', 'baz'], true],
+            [['baz', 'bar'], true],
 
-            array(array('foo', 'bloo', 'baz'), true),
-            array(array('bloo', 'foo', 'baz'), true),
-            array(array('bloo', 'baz', 'foo'), true),
+            [['foo', 'bloo', 'baz'], true],
+            [['bloo', 'foo', 'baz'], true],
+            [['bloo', 'baz', 'foo'], true],
 
-            array(array('FOO'), true),
-        );
+            [['FOO'], true],
+        ];
     }
 }

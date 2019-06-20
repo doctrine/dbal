@@ -2,54 +2,64 @@
 
 namespace Doctrine\Tests\DBAL\Schema;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Identifier;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
-use Doctrine\Tests\DBAL\Mocks\MockPlatform;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-class TableDiffTest extends \PHPUnit_Framework_TestCase
+class TableDiffTest extends TestCase
 {
+    /** @var AbstractPlatform|MockObject */
+    private $platform;
+
+    public function setUp() : void
+    {
+        $this->platform = $this->createMock(AbstractPlatform::class);
+    }
+
     /**
      * @group DBAL-1013
      */
-    public function testReturnsName()
+    public function testReturnsName() : void
     {
         $tableDiff = new TableDiff('foo');
 
-        $this->assertEquals(new Identifier('foo'), $tableDiff->getName(new MockPlatform()));
+        self::assertEquals(new Identifier('foo'), $tableDiff->getName($this->platform));
     }
 
     /**
      * @group DBAL-1016
      */
-    public function testPrefersNameFromTableObject()
+    public function testPrefersNameFromTableObject() : void
     {
-        $platformMock = new MockPlatform();
-        $tableMock = $this->getMockBuilder('Doctrine\DBAL\Schema\Table')
+        $tableMock = $this->getMockBuilder(Table::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $tableDiff = new TableDiff('foo');
+        $tableDiff            = new TableDiff('foo');
         $tableDiff->fromTable = $tableMock;
 
         $tableMock->expects($this->once())
             ->method('getQuotedName')
-            ->with($platformMock)
+            ->with($this->platform)
             ->will($this->returnValue('foo'));
 
-        $this->assertEquals(new Identifier('foo'), $tableDiff->getName($platformMock));
+        self::assertEquals(new Identifier('foo'), $tableDiff->getName($this->platform));
     }
 
     /**
      * @group DBAL-1013
      */
-    public function testReturnsNewName()
+    public function testReturnsNewName() : void
     {
         $tableDiff = new TableDiff('foo');
 
-        $this->assertFalse($tableDiff->getNewName());
+        self::assertFalse($tableDiff->getNewName());
 
         $tableDiff->newName = 'bar';
 
-        $this->assertEquals(new Identifier('bar'), $tableDiff->getNewName());
+        self::assertEquals(new Identifier('bar'), $tableDiff->getNewName());
     }
 }

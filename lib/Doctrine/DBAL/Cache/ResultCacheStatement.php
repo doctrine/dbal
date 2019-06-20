@@ -1,28 +1,19 @@
 <?php
-/*
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
- * <http://www.doctrine-project.org>.
- */
 
 namespace Doctrine\DBAL\Cache;
 
-use Doctrine\DBAL\Driver\Statement;
-use Doctrine\DBAL\Driver\ResultStatement;
+use ArrayIterator;
 use Doctrine\Common\Cache\Cache;
+use Doctrine\DBAL\Driver\ResultStatement;
+use Doctrine\DBAL\Driver\Statement;
+use Doctrine\DBAL\FetchMode;
+use InvalidArgumentException;
+use IteratorAggregate;
 use PDO;
+use function array_merge;
+use function array_values;
+use function assert;
+use function reset;
 
 /**
  * Cache statement for SQL results.
@@ -37,65 +28,48 @@ use PDO;
  * Also you have to realize that the cache will load the whole result into memory at once to ensure 2.
  * This means that the memory usage for cached results might increase by using this feature.
  */
-class ResultCacheStatement implements \IteratorAggregate, ResultStatement
+class ResultCacheStatement implements IteratorAggregate, ResultStatement
 {
-    /**
-     * @var \Doctrine\Common\Cache\Cache
-     */
+    /** @var Cache */
     private $resultCache;
 
-    /**
-     *
-     * @var string
-     */
+    /** @var string */
     private $cacheKey;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $realKey;
 
-    /**
-     * @var integer
-     */
+    /** @var int */
     private $lifetime;
 
-    /**
-     * @var \Doctrine\DBAL\Driver\Statement
-     */
+    /** @var ResultStatement */
     private $statement;
 
     /**
      * Did we reach the end of the statement?
      *
-     * @var boolean
+     * @var bool
      */
     private $emptied = false;
 
-    /**
-     * @var array
-     */
+    /** @var mixed[] */
     private $data;
 
-    /**
-     * @var integer
-     */
-    private $defaultFetchMode = PDO::FETCH_BOTH;
+    /** @var int */
+    private $defaultFetchMode = FetchMode::MIXED;
 
     /**
-     * @param \Doctrine\DBAL\Driver\Statement $stmt
-     * @param \Doctrine\Common\Cache\Cache    $resultCache
-     * @param string                          $cacheKey
-     * @param string                          $realKey
-     * @param integer                         $lifetime
+     * @param string $cacheKey
+     * @param string $realKey
+     * @param int    $lifetime
      */
-    public function __construct(Statement $stmt, Cache $resultCache, $cacheKey, $realKey, $lifetime)
+    public function __construct(ResultStatement $stmt, Cache $resultCache, $cacheKey, $realKey, $lifetime)
     {
-        $this->statement = $stmt;
+        $this->statement   = $stmt;
         $this->resultCache = $resultCache;
-        $this->cacheKey = $cacheKey;
-        $this->realKey = $realKey;
-        $this->lifetime = $lifetime;
+        $this->cacheKey    = $cacheKey;
+        $this->realKey     = $realKey;
+        $this->lifetime    = $lifetime;
     }
 
     /**
@@ -104,16 +78,20 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
     public function closeCursor()
     {
         $this->statement->closeCursor();
-        if ($this->emptied && $this->data !== null) {
-            $data = $this->resultCache->fetch($this->cacheKey);
-            if ( ! $data) {
-                $data = array();
-            }
-            $data[$this->realKey] = $this->data;
-
-            $this->resultCache->save($this->cacheKey, $data, $this->lifetime);
-            unset($this->data);
+        if (! $this->emptied || $this->data === null) {
+            return true;
         }
+
+        $data = $this->resultCache->fetch($this->cacheKey);
+        if (! $data) {
+            $data = [];
+        }
+        $data[$this->realKey] = $this->data;
+
+        $this->resultCache->save($this->cacheKey, $data, $this->lifetime);
+        unset($this->data);
+
+        return true;
     }
 
     /**
@@ -141,36 +119,44 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
     {
         $data = $this->fetchAll();
 
-        return new \ArrayIterator($data);
+        return new ArrayIterator($data);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null, $cursorOrientation = \PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
+    public function fetch($fetchMode = null, $cursorOrientation = PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
     {
         if ($this->data === null) {
-            $this->data = array();
+            $this->data = [];
         }
 
-        $row = $this->statement->fetch(PDO::FETCH_ASSOC);
+        $row = $this->statement->fetch(FetchMode::ASSOCIATIVE);
+
         if ($row) {
             $this->data[] = $row;
 
             $fetchMode = $fetchMode ?: $this->defaultFetchMode;
 
-            if ($fetchMode == PDO::FETCH_ASSOC) {
+            if ($fetchMode === FetchMode::ASSOCIATIVE) {
                 return $row;
-            } elseif ($fetchMode == PDO::FETCH_NUM) {
-                return array_values($row);
-            } elseif ($fetchMode == PDO::FETCH_BOTH) {
-                return array_merge($row, array_values($row));
-            } elseif ($fetchMode == PDO::FETCH_COLUMN) {
-                return reset($row);
-            } else {
-                throw new \InvalidArgumentException("Invalid fetch-style given for caching result.");
             }
+
+            if ($fetchMode === FetchMode::NUMERIC) {
+                return array_values($row);
+            }
+
+            if ($fetchMode === FetchMode::MIXED) {
+                return array_merge($row, array_values($row));
+            }
+
+            if ($fetchMode === FetchMode::COLUMN) {
+                return reset($row);
+            }
+
+            throw new InvalidArgumentException('Invalid fetch-style given for caching result.');
         }
+
         $this->emptied = true;
 
         return false;
@@ -181,12 +167,10 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
      */
     public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
     {
-        $rows = array();
-        while ($row = $this->fetch($fetchMode)) {
-            $rows[] = $row;
-        }
+        $this->data    = $this->statement->fetchAll($fetchMode, $fetchArgument, $ctorArgs);
+        $this->emptied = true;
 
-        return $rows;
+        return $this->data;
     }
 
     /**
@@ -194,13 +178,10 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
      */
     public function fetchColumn($columnIndex = 0)
     {
-        $row = $this->fetch(PDO::FETCH_NUM);
-        if (!isset($row[$columnIndex])) {
-            // TODO: verify this is correct behavior
-            return false;
-        }
+        $row = $this->fetch(FetchMode::NUMERIC);
 
-        return $row[$columnIndex];
+        // TODO: verify that return false is the correct behavior
+        return $row[$columnIndex] ?? false;
     }
 
     /**
@@ -212,10 +193,12 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
      * this behaviour is not guaranteed for all databases and should not be
      * relied on for portable applications.
      *
-     * @return integer The number of rows.
+     * @return int The number of rows.
      */
     public function rowCount()
     {
+        assert($this->statement instanceof Statement);
+
         return $this->statement->rowCount();
     }
 }

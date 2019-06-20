@@ -2,65 +2,72 @@
 
 namespace Doctrine\Tests\DBAL\Types;
 
+use DateTime;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Tests\DBAL\Mocks\MockPlatform;
+use Doctrine\DBAL\Types\VarDateTimeType;
+use Doctrine\Tests\DbalTestCase;
+use PHPUnit\Framework\MockObject\MockObject;
 
-class VarDateTimeTest extends \Doctrine\Tests\DbalTestCase
+class VarDateTimeTest extends DbalTestCase
 {
-    protected
-        $_platform,
-        $_type;
+    /** @var AbstractPlatform|MockObject */
+    private $platform;
 
-    protected function setUp()
+    /** @var VarDateTimeType */
+    private $type;
+
+    protected function setUp() : void
     {
-        $this->_platform = new MockPlatform();
-        if (!Type::hasType('vardatetime')) {
-            Type::addType('vardatetime', 'Doctrine\DBAL\Types\VarDateTimeType');
+        $this->platform = $this->createMock(AbstractPlatform::class);
+        if (! Type::hasType('vardatetime')) {
+            Type::addType('vardatetime', VarDateTimeType::class);
         }
-        $this->_type = Type::getType('vardatetime');
+        $this->type = Type::getType('vardatetime');
     }
 
-    public function testDateTimeConvertsToDatabaseValue()
+    public function testDateTimeConvertsToDatabaseValue() : void
     {
-        $date = new \DateTime('1985-09-01 10:10:10');
+        $date = new DateTime('1985-09-01 10:10:10');
 
-        $expected = $date->format($this->_platform->getDateTimeTzFormatString());
-        $actual = $this->_type->convertToDatabaseValue($date, $this->_platform);
+        $expected = $date->format($this->platform->getDateTimeTzFormatString());
+        $actual   = $this->type->convertToDatabaseValue($date, $this->platform);
 
-        $this->assertEquals($expected, $actual);
+        self::assertEquals($expected, $actual);
     }
 
-    public function testDateTimeConvertsToPHPValue()
+    public function testDateTimeConvertsToPHPValue() : void
     {
         // Birthday of jwage and also birthday of Doctrine. Send him a present ;)
-        $date = $this->_type->convertToPHPValue('1985-09-01 00:00:00', $this->_platform);
-        $this->assertInstanceOf('DateTime', $date);
-        $this->assertEquals('1985-09-01 00:00:00', $date->format('Y-m-d H:i:s'));
-        $this->assertEquals('000000', $date->format('u'));
+        $date = $this->type->convertToPHPValue('1985-09-01 00:00:00', $this->platform);
+        self::assertInstanceOf('DateTime', $date);
+        self::assertEquals('1985-09-01 00:00:00', $date->format('Y-m-d H:i:s'));
+        self::assertEquals('000000', $date->format('u'));
     }
 
-    public function testInvalidDateTimeFormatConversion()
+    public function testInvalidDateTimeFormatConversion() : void
     {
-        $this->setExpectedException('Doctrine\DBAL\Types\ConversionException');
-        $this->_type->convertToPHPValue('abcdefg', $this->_platform);
+        $this->expectException(ConversionException::class);
+        $this->type->convertToPHPValue('abcdefg', $this->platform);
     }
 
-    public function testConversionWithMicroseconds()
+    public function testConversionWithMicroseconds() : void
     {
-        $date = $this->_type->convertToPHPValue('1985-09-01 00:00:00.123456', $this->_platform);
-        $this->assertInstanceOf('DateTime', $date);
-        $this->assertEquals('1985-09-01 00:00:00', $date->format('Y-m-d H:i:s'));
-        $this->assertEquals('123456', $date->format('u'));
+        $date = $this->type->convertToPHPValue('1985-09-01 00:00:00.123456', $this->platform);
+        self::assertInstanceOf('DateTime', $date);
+        self::assertEquals('1985-09-01 00:00:00', $date->format('Y-m-d H:i:s'));
+        self::assertEquals('123456', $date->format('u'));
     }
 
-    public function testNullConversion()
+    public function testNullConversion() : void
     {
-        $this->assertNull($this->_type->convertToPHPValue(null, $this->_platform));
+        self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }
 
-    public function testConvertDateTimeToPHPValue()
+    public function testConvertDateTimeToPHPValue() : void
     {
-        $date = new \DateTime("now");
-        $this->assertSame($date, $this->_type->convertToPHPValue($date, $this->_platform));
+        $date = new DateTime('now');
+        self::assertSame($date, $this->type->convertToPHPValue($date, $this->platform));
     }
 }

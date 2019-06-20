@@ -3,54 +3,59 @@
 namespace Doctrine\Tests\DBAL\Functional\Driver;
 
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
 use Doctrine\Tests\DbalFunctionalTestCase;
+use function extension_loaded;
 
 class PDOPgsqlConnectionTest extends DbalFunctionalTestCase
 {
-    protected function setUp()
+    protected function setUp() : void
     {
-        if ( ! extension_loaded('pdo_pgsql')) {
+        if (! extension_loaded('pdo_pgsql')) {
             $this->markTestSkipped('pdo_pgsql is not loaded.');
         }
 
         parent::setUp();
 
-        if ( ! $this->_conn->getDatabasePlatform() instanceof PostgreSqlPlatform) {
-            $this->markTestSkipped('PDOPgsql only test.');
+        if ($this->connection->getDatabasePlatform() instanceof PostgreSqlPlatform) {
+            return;
         }
+
+        $this->markTestSkipped('PDOPgsql only test.');
     }
 
     /**
      * @group DBAL-1183
      * @group DBAL-1189
-     *
      * @dataProvider getValidCharsets
-     *
-     * @param string $charset
      */
-    public function testConnectsWithValidCharsetOption($charset)
+    public function testConnectsWithValidCharsetOption(string $charset) : void
     {
-        $params = $this->_conn->getParams();
+        $params            = $this->connection->getParams();
         $params['charset'] = $charset;
 
         $connection = DriverManager::getConnection(
             $params,
-            $this->_conn->getConfiguration(),
-            $this->_conn->getEventManager()
+            $this->connection->getConfiguration(),
+            $this->connection->getEventManager()
         );
 
-        $this->assertEquals($charset, $connection->query("SHOW client_encoding")->fetch(\PDO::FETCH_COLUMN));
+        self::assertEquals(
+            $charset,
+            $connection->query('SHOW client_encoding')
+                ->fetch(FetchMode::COLUMN)
+        );
     }
 
     /**
-     * @return array
+     * @return mixed[][]
      */
-    public function getValidCharsets()
+    public static function getValidCharsets() : iterable
     {
-        return array(
-           array("UTF8"),
-           array("LATIN1")
-        );
+        return [
+            ['UTF8'],
+            ['LATIN1'],
+        ];
     }
 }

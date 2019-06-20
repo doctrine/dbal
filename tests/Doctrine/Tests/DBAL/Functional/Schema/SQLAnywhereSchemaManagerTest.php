@@ -8,57 +8,57 @@ use Doctrine\DBAL\Schema\View;
 
 class SQLAnywhereSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
-    public function testCreateAndListViews()
+    public function testCreateAndListViews() : void
     {
         $this->createTestTable('view_test_table');
 
-        $name = "doctrine_test_view";
-        $sql = "SELECT * from DBA.view_test_table";
+        $name = 'doctrine_test_view';
+        $sql  = 'SELECT * from DBA.view_test_table';
 
         $view = new View($name, $sql);
 
-        $this->_sm->dropAndCreateView($view);
+        $this->schemaManager->dropAndCreateView($view);
 
-        $views = $this->_sm->listViews();
+        $views = $this->schemaManager->listViews();
 
-        $this->assertEquals(1, count($views), "Database has to have one view.");
-        $this->assertInstanceOf('Doctrine\DBAL\Schema\View', $views[$name]);
-        $this->assertEquals($name, $views[$name]->getName());
-        $this->assertEquals($sql, $views[$name]->getSql());
+        self::assertCount(1, $views, 'Database has to have one view.');
+        self::assertInstanceOf(View::class, $views[$name]);
+        self::assertEquals($name, $views[$name]->getName());
+        self::assertRegExp('/^SELECT \* from "?DBA"?\."?view_test_table"?$/', $views[$name]->getSql());
     }
 
-    public function testDropAndCreateAdvancedIndex()
+    public function testDropAndCreateAdvancedIndex() : void
     {
         $table = $this->getTestTable('test_create_advanced_index');
-        $this->_sm->dropAndCreateTable($table);
-        $this->_sm->dropAndCreateIndex(
-            new Index('test', array('test'), true, false, array('clustered', 'with_nulls_not_distinct', 'for_olap_workload')),
+        $this->schemaManager->dropAndCreateTable($table);
+        $this->schemaManager->dropAndCreateIndex(
+            new Index('test', ['test'], true, false, ['clustered', 'with_nulls_not_distinct', 'for_olap_workload']),
             $table->getName()
         );
 
-        $tableIndexes = $this->_sm->listTableIndexes('test_create_advanced_index');
-        $this->assertInternalType('array', $tableIndexes);
-        $this->assertEquals('test', $tableIndexes['test']->getName());
-        $this->assertEquals(array('test'), $tableIndexes['test']->getColumns());
-        $this->assertTrue($tableIndexes['test']->isUnique());
-        $this->assertFalse($tableIndexes['test']->isPrimary());
-        $this->assertTrue($tableIndexes['test']->hasFlag('clustered'));
-        $this->assertTrue($tableIndexes['test']->hasFlag('with_nulls_not_distinct'));
-        $this->assertTrue($tableIndexes['test']->hasFlag('for_olap_workload'));
+        $tableIndexes = $this->schemaManager->listTableIndexes('test_create_advanced_index');
+        self::assertIsArray($tableIndexes);
+        self::assertEquals('test', $tableIndexes['test']->getName());
+        self::assertEquals(['test'], $tableIndexes['test']->getColumns());
+        self::assertTrue($tableIndexes['test']->isUnique());
+        self::assertFalse($tableIndexes['test']->isPrimary());
+        self::assertTrue($tableIndexes['test']->hasFlag('clustered'));
+        self::assertTrue($tableIndexes['test']->hasFlag('with_nulls_not_distinct'));
+        self::assertTrue($tableIndexes['test']->hasFlag('for_olap_workload'));
     }
 
-    public function testListTableColumnsWithFixedStringTypeColumn()
+    public function testListTableColumnsWithFixedStringTypeColumn() : void
     {
         $table = new Table('list_table_columns_char');
-        $table->addColumn('id', 'integer', array('notnull' => true));
-        $table->addColumn('test', 'string', array('fixed' => true));
-        $table->setPrimaryKey(array('id'));
+        $table->addColumn('id', 'integer', ['notnull' => true]);
+        $table->addColumn('test', 'string', ['fixed' => true]);
+        $table->setPrimaryKey(['id']);
 
-        $this->_sm->dropAndCreateTable($table);
+        $this->schemaManager->dropAndCreateTable($table);
 
-        $columns = $this->_sm->listTableColumns('list_table_columns_char');
+        $columns = $this->schemaManager->listTableColumns('list_table_columns_char');
 
-        $this->assertArrayHasKey('test', $columns);
-        $this->assertTrue($columns['test']->getFixed());
+        self::assertArrayHasKey('test', $columns);
+        self::assertTrue($columns['test']->getFixed());
     }
 }

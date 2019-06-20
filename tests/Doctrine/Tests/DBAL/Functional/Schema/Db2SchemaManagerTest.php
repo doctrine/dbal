@@ -3,26 +3,32 @@
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Types\BooleanType;
 
 class Db2SchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
     /**
      * @group DBAL-939
      */
-    public function testGetBooleanColumn()
+    public function testGetBooleanColumn() : void
     {
         $table = new Table('boolean_column_test');
         $table->addColumn('bool', 'boolean');
-        $table->addColumn('bool_commented', 'boolean', array('comment' => "That's a comment"));
+        $table->addColumn('bool_commented', 'boolean', ['comment' => "That's a comment"]);
 
-        $this->_sm->createTable($table);
+        $this->schemaManager->createTable($table);
 
-        $columns = $this->_sm->listTableColumns('boolean_column_test');
+        $columns = $this->schemaManager->listTableColumns('boolean_column_test');
 
-        $this->assertInstanceOf('Doctrine\DBAL\Types\BooleanType', $columns['bool']->getType());
-        $this->assertInstanceOf('Doctrine\DBAL\Types\BooleanType', $columns['bool_commented']->getType());
+        self::assertInstanceOf(BooleanType::class, $columns['bool']->getType());
+        self::assertInstanceOf(BooleanType::class, $columns['bool_commented']->getType());
 
-        $this->assertNull($columns['bool']->getComment());
-        $this->assertSame("That's a comment", $columns['bool_commented']->getComment());
+        self::assertNull($columns['bool']->getComment());
+        self::assertSame("That's a comment", $columns['bool_commented']->getComment());
+    }
+
+    public function testListTableWithBinary() : void
+    {
+        self::markTestSkipped('Binary data type is currently not supported on DB2 LUW');
     }
 }

@@ -2,29 +2,34 @@
 
 namespace Doctrine\Tests\DBAL\Types;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Types\SmallIntType;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Tests\DBAL\Mocks\MockPlatform;
+use Doctrine\Tests\DbalTestCase;
+use PHPUnit\Framework\MockObject\MockObject;
 
-class SmallIntTest extends \Doctrine\Tests\DbalTestCase
+class SmallIntTest extends DbalTestCase
 {
-    protected
-        $_platform,
-        $_type;
+    /** @var AbstractPlatform|MockObject */
+    private $platform;
 
-    protected function setUp()
+    /** @var SmallIntType */
+    private $type;
+
+    protected function setUp() : void
     {
-        $this->_platform = new MockPlatform();
-        $this->_type = Type::getType('smallint');
+        $this->platform = $this->createMock(AbstractPlatform::class);
+        $this->type     = Type::getType('smallint');
     }
 
-    public function testSmallIntConvertsToPHPValue()
+    public function testSmallIntConvertsToPHPValue() : void
     {
-        $this->assertInternalType('integer', $this->_type->convertToPHPValue('1', $this->_platform));
-        $this->assertInternalType('integer', $this->_type->convertToPHPValue('0', $this->_platform));
+        self::assertIsInt($this->type->convertToPHPValue('1', $this->platform));
+        self::assertIsInt($this->type->convertToPHPValue('0', $this->platform));
     }
 
-    public function testSmallIntNullConvertsToPHPValue()
+    public function testSmallIntNullConvertsToPHPValue() : void
     {
-        $this->assertNull($this->_type->convertToPHPValue(null, $this->_platform));
+        self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }
 }

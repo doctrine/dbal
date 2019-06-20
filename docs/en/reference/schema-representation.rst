@@ -13,7 +13,7 @@ system this allows you to generate SQL code that makes your Domain
 model work.
 
 You will be pleased to hear, that Schema representation is
-completly decoupled from the Doctrine ORM though, that is you can
+completely decoupled from the Doctrine ORM though, that is you can
 also use it in any other project to implement database migrations
 or for SQL schema generation for any metadata model that your
 application has. You can easily generate a Schema, as a simple
@@ -53,13 +53,13 @@ foreign key, sequence and index changes.
     $saveQueries = $schemaDiff->toSaveSql($myPlatform);
 
 The Save Diff mode is a specific mode that prevents the deletion of
-tables and sequences that might occour when making a diff of your
+tables and sequences that might occur when making a diff of your
 schema. This is often necessary when your target schema is not
 complete but only describes a subset of your application.
 
 All methods that generate SQL queries for you make much effort to
 get the order of generation correct, so that no problems will ever
-occour with missing links of foreign keys.
+occur with missing links of foreign keys.
 
 Schema Assets
 -------------

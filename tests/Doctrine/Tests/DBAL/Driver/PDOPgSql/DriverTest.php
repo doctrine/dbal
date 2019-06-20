@@ -2,38 +2,41 @@
 
 namespace Doctrine\Tests\DBAL\Driver\PDOPgSql;
 
+use Doctrine\DBAL\Driver as DriverInterface;
+use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\Driver\PDOPgSql\Driver;
 use Doctrine\Tests\DBAL\Driver\AbstractPostgreSQLDriverTest;
 use PDO;
 use PDOException;
+use function defined;
 
 class DriverTest extends AbstractPostgreSQLDriverTest
 {
-    public function testReturnsName()
+    public function testReturnsName() : void
     {
-        $this->assertSame('pdo_pgsql', $this->driver->getName());
+        self::assertSame('pdo_pgsql', $this->driver->getName());
     }
 
     /**
      * @group DBAL-920
      */
-    public function testConnectionDisablesPreparesOnPhp56()
+    public function testConnectionDisablesPreparesOnPhp56() : void
     {
         $this->skipWhenNotUsingPhp56AndPdoPgsql();
 
         $connection = $this->createDriver()->connect(
-            array(
+            [
                 'host' => $GLOBALS['db_host'],
-                'port' => $GLOBALS['db_port']
-            ),
+                'port' => $GLOBALS['db_port'],
+            ],
             $GLOBALS['db_username'],
             $GLOBALS['db_password']
         );
 
-        $this->assertInstanceOf('Doctrine\DBAL\Driver\PDOConnection', $connection);
+        self::assertInstanceOf(PDOConnection::class, $connection);
 
         try {
-            $this->assertTrue($connection->getAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES));
+            self::assertTrue($connection->getAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES));
         } catch (PDOException $ignored) {
             /** @link https://bugs.php.net/bug.php?id=68371 */
             $this->markTestIncomplete('See https://bugs.php.net/bug.php?id=68371');
@@ -43,24 +46,24 @@ class DriverTest extends AbstractPostgreSQLDriverTest
     /**
      * @group DBAL-920
      */
-    public function testConnectionDoesNotDisablePreparesOnPhp56WhenAttributeDefined()
+    public function testConnectionDoesNotDisablePreparesOnPhp56WhenAttributeDefined() : void
     {
         $this->skipWhenNotUsingPhp56AndPdoPgsql();
 
         $connection = $this->createDriver()->connect(
-            array(
+            [
                 'host' => $GLOBALS['db_host'],
-                'port' => $GLOBALS['db_port']
-            ),
+                'port' => $GLOBALS['db_port'],
+            ],
             $GLOBALS['db_username'],
             $GLOBALS['db_password'],
-            array(PDO::PGSQL_ATTR_DISABLE_PREPARES => false)
+            [PDO::PGSQL_ATTR_DISABLE_PREPARES => false]
         );
 
-        $this->assertInstanceOf('Doctrine\DBAL\Driver\PDOConnection', $connection);
+        self::assertInstanceOf(PDOConnection::class, $connection);
 
         try {
-            $this->assertNotSame(true, $connection->getAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES));
+            self::assertNotSame(true, $connection->getAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES));
         } catch (PDOException $ignored) {
             /** @link https://bugs.php.net/bug.php?id=68371 */
             $this->markTestIncomplete('See https://bugs.php.net/bug.php?id=68371');
@@ -70,24 +73,24 @@ class DriverTest extends AbstractPostgreSQLDriverTest
     /**
      * @group DBAL-920
      */
-    public function testConnectionDisablePreparesOnPhp56WhenDisablePreparesIsExplicitlyDefined()
+    public function testConnectionDisablePreparesOnPhp56WhenDisablePreparesIsExplicitlyDefined() : void
     {
         $this->skipWhenNotUsingPhp56AndPdoPgsql();
 
         $connection = $this->createDriver()->connect(
-            array(
+            [
                 'host' => $GLOBALS['db_host'],
-                'port' => $GLOBALS['db_port']
-            ),
+                'port' => $GLOBALS['db_port'],
+            ],
             $GLOBALS['db_username'],
             $GLOBALS['db_password'],
-            array(PDO::PGSQL_ATTR_DISABLE_PREPARES => true)
+            [PDO::PGSQL_ATTR_DISABLE_PREPARES => true]
         );
 
-        $this->assertInstanceOf('Doctrine\DBAL\Driver\PDOConnection', $connection);
+        self::assertInstanceOf(PDOConnection::class, $connection);
 
         try {
-            $this->assertTrue($connection->getAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES));
+            self::assertTrue($connection->getAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES));
         } catch (PDOException $ignored) {
             /** @link https://bugs.php.net/bug.php?id=68371 */
             $this->markTestIncomplete('See https://bugs.php.net/bug.php?id=68371');
@@ -97,22 +100,21 @@ class DriverTest extends AbstractPostgreSQLDriverTest
     /**
      * {@inheritDoc}
      */
-    protected function createDriver()
+    protected function createDriver() : DriverInterface
     {
         return new Driver();
     }
 
-    /**
-     * @throws \PHPUnit_Framework_SkippedTestError
-     */
-    private function skipWhenNotUsingPhp56AndPdoPgsql()
+    private function skipWhenNotUsingPhp56AndPdoPgsql() : void
     {
         if (! defined('PDO::PGSQL_ATTR_DISABLE_PREPARES')) {
             $this->markTestSkipped('Test requires PHP 5.6+');
         }
 
-        if (! (isset($GLOBALS['db_type']) && $GLOBALS['db_type'] === 'pdo_pgsql')) {
-            $this->markTestSkipped('Test enabled only when using pdo_pgsql specific phpunit.xml');
+        if (isset($GLOBALS['db_type']) && $GLOBALS['db_type'] === 'pdo_pgsql') {
+            return;
         }
+
+        $this->markTestSkipped('Test enabled only when using pdo_pgsql specific phpunit.xml');
     }
 }

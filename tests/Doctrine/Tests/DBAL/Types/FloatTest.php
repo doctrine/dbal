@@ -2,36 +2,43 @@
 
 namespace Doctrine\Tests\DBAL\Types;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Types\FloatType;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Tests\DBAL\Mocks\MockPlatform;
+use Doctrine\Tests\DbalTestCase;
+use PHPUnit\Framework\MockObject\MockObject;
 
-class FloatTest extends \Doctrine\Tests\DbalTestCase
+class FloatTest extends DbalTestCase
 {
-    protected $_platform, $_type;
+    /** @var AbstractPlatform|MockObject */
+    private $platform;
 
-    protected function setUp()
+    /** @var FloatType */
+    private $type;
+
+    protected function setUp() : void
     {
-        $this->_platform = new MockPlatform();
-        $this->_type = Type::getType('float');
+        $this->platform = $this->createMock(AbstractPlatform::class);
+        $this->type     = Type::getType('float');
     }
 
-    public function testFloatConvertsToPHPValue()
+    public function testFloatConvertsToPHPValue() : void
     {
-        $this->assertInternalType('float', $this->_type->convertToPHPValue('5.5', $this->_platform));
+        self::assertIsFloat($this->type->convertToPHPValue('5.5', $this->platform));
     }
 
-    public function testFloatNullConvertsToPHPValue()
+    public function testFloatNullConvertsToPHPValue() : void
     {
-        $this->assertNull($this->_type->convertToPHPValue(null, $this->_platform));
+        self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }
 
-    public function testFloatConvertToDatabaseValue()
+    public function testFloatConvertToDatabaseValue() : void
     {
-        $this->assertInternalType('float', $this->_type->convertToDatabaseValue(5.5, $this->_platform));
+        self::assertIsFloat($this->type->convertToDatabaseValue(5.5, $this->platform));
     }
 
-    public function testFloatNullConvertToDatabaseValue()
+    public function testFloatNullConvertToDatabaseValue() : void
     {
-        $this->assertNull($this->_type->convertToDatabaseValue(null, $this->_platform));
+        self::assertNull($this->type->convertToDatabaseValue(null, $this->platform));
     }
 }

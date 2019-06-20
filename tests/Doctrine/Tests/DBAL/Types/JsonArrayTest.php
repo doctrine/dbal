@@ -2,75 +2,83 @@
 
 namespace Doctrine\Tests\DBAL\Types;
 
+use Doctrine\DBAL\ParameterType;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Types\JsonArrayType;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Tests\DBAL\Mocks\MockPlatform;
+use Doctrine\DBAL\Types\Types;
+use Doctrine\Tests\DbalTestCase;
+use PHPUnit\Framework\MockObject\MockObject;
+use function base64_encode;
+use function fopen;
+use function json_encode;
 
-class JsonArrayTest extends \Doctrine\Tests\DbalTestCase
+class JsonArrayTest extends DbalTestCase
 {
-    /**
-     * @var \Doctrine\Tests\DBAL\Mocks\MockPlatform
-     */
+    /** @var AbstractPlatform|MockObject */
     protected $platform;
 
-    /**
-     * @var \Doctrine\DBAL\Types\JsonArrayType
-     */
+    /** @var JsonArrayType */
     protected $type;
 
     /**
      * {@inheritdoc}
      */
-    protected function setUp()
+    protected function setUp() : void
     {
-        $this->platform = new MockPlatform();
+        $this->platform = $this->createMock(AbstractPlatform::class);
         $this->type     = Type::getType('json_array');
     }
 
-    public function testReturnsBindingType()
+    public function testReturnsBindingType() : void
     {
-        $this->assertSame(\PDO::PARAM_STR, $this->type->getBindingType());
+        self::assertSame(ParameterType::STRING, $this->type->getBindingType());
     }
 
-    public function testReturnsName()
+    public function testReturnsName() : void
     {
-        $this->assertSame(Type::JSON_ARRAY, $this->type->getName());
+        self::assertSame(Types::JSON_ARRAY, $this->type->getName());
     }
 
-    public function testReturnsSQLDeclaration()
+    public function testReturnsSQLDeclaration() : void
     {
-        $this->assertSame('DUMMYJSON', $this->type->getSQLDeclaration(array(), $this->platform));
+        $this->platform->expects($this->once())
+            ->method('getJsonTypeDeclarationSQL')
+            ->willReturn('TEST_JSON');
+
+        self::assertSame('TEST_JSON', $this->type->getSQLDeclaration([], $this->platform));
     }
 
-    public function testJsonNullConvertsToPHPValue()
+    public function testJsonNullConvertsToPHPValue() : void
     {
-        $this->assertSame(array(), $this->type->convertToPHPValue(null, $this->platform));
+        self::assertSame([], $this->type->convertToPHPValue(null, $this->platform));
     }
 
-    public function testJsonEmptyStringConvertsToPHPValue()
+    public function testJsonEmptyStringConvertsToPHPValue() : void
     {
-        $this->assertSame(array(), $this->type->convertToPHPValue('', $this->platform));
+        self::assertSame([], $this->type->convertToPHPValue('', $this->platform));
     }
 
-    public function testJsonStringConvertsToPHPValue()
+    public function testJsonStringConvertsToPHPValue() : void
     {
-        $value         = array('foo' => 'bar', 'bar' => 'foo');
+        $value         = ['foo' => 'bar', 'bar' => 'foo'];
         $databaseValue = json_encode($value);
         $phpValue      = $this->type->convertToPHPValue($databaseValue, $this->platform);
 
-        $this->assertEquals($value, $phpValue);
+        self::assertEquals($value, $phpValue);
     }
 
-    public function testJsonResourceConvertsToPHPValue()
+    public function testJsonResourceConvertsToPHPValue() : void
     {
-        $value         = array('foo' => 'bar', 'bar' => 'foo');
+        $value         = ['foo' => 'bar', 'bar' => 'foo'];
         $databaseValue = fopen('data://text/plain;base64,' . base64_encode(json_encode($value)), 'r');
         $phpValue      = $this->type->convertToPHPValue($databaseValue, $this->platform);
 
-        $this->assertSame($value, $phpValue);
+        self::assertSame($value, $phpValue);
     }
 
-    public function testRequiresSQLCommentHint()
+    public function testRequiresSQLCommentHint() : void
     {
-        $this->assertTrue($this->type->requiresSQLCommentHint($this->platform));
+        self::assertTrue($this->type->requiresSQLCommentHint($this->platform));
     }
 }

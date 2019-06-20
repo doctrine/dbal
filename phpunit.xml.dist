@@ -2,7 +2,7 @@
 <!--
     Use this configuration file as a template to run the tests against any dbms.
     Procedure:
-        1) Save a copy of this file with a name of your chosing. It doesn't matter
+        1) Save a copy of this file with a name of your choosing. It doesn't matter
            where you place it as long as you know where it is.
            i.e. "mysqlconf.xml" (It needs the ending .xml).
         2) Edit the file and fill in your settings (database name, type, username, etc.)
@@ -12,10 +12,12 @@
            Example: phpunit -c mysqlconf.xml
 -->
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/4.8/phpunit.xsd"
-         backupGlobals="false"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
          colors="true"
-         bootstrap="vendor/autoload.php"
+         beStrictAboutOutputDuringTests="true"
+         beStrictAboutTodoAnnotatedTests="true"
+         failOnRisky="true"
+         failOnWarning="true"
 >
     <php>
         <ini name="error_reporting" value="-1" />
@@ -30,7 +32,7 @@
         <var name="db_port" value="3306"/>
         -->
         <!--<var name="db_event_subscribers" value="Doctrine\DBAL\Event\Listeners\OracleSessionInit">-->
-    
+
         <!-- Database for temporary connections (i.e. to drop/create the main database) -->
         <var name="tmpdb_type" value="pdo_mysql"/>
         <var name="tmpdb_host" value="localhost" />
@@ -49,8 +51,16 @@
             <directory>./tests/Doctrine/Tests/DBAL/Performance</directory>
         </testsuite>
     </testsuites>
+
+    <filter>
+        <whitelist>
+            <directory suffix=".php">lib/Doctrine</directory>
+        </whitelist>
+    </filter>
+
     <listeners>
         <listener class="Doctrine\Tests\DbalPerformanceTestListener"/>
+        <listener class="Symfony\Bridge\PhpUnit\SymfonyTestsListener" />
     </listeners>
 
     <groups>

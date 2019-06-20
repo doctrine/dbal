@@ -2,109 +2,120 @@
 
 namespace Doctrine\Tests\DBAL\Types;
 
+use DateTime;
+use DateTimeImmutable;
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\TimeImmutableType;
 use Doctrine\DBAL\Types\Type;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
+use function get_class;
 
-class TimeImmutableTypeTest extends \PHPUnit_Framework_TestCase
+class TimeImmutableTypeTest extends TestCase
 {
-    /**
-     * @var \Doctrine\DBAL\Platforms\AbstractPlatform|\Prophecy\Prophecy\ObjectProphecy
-     */
+    /** @var AbstractPlatform|MockObject */
     private $platform;
 
-    /**
-     * @var TimeImmutableType
-     */
+    /** @var TimeImmutableType */
     private $type;
 
-    protected function setUp()
+    protected function setUp() : void
     {
-        $this->type = Type::getType('time_immutable');
-        $this->platform = $this->prophesize(AbstractPlatform::class);
+        $this->type     = Type::getType('time_immutable');
+        $this->platform = $this->getMockBuilder(AbstractPlatform::class)->getMock();
     }
 
-    public function testFactoryCreatesCorrectType()
+    public function testFactoryCreatesCorrectType() : void
     {
-        $this->assertSame(TimeImmutableType::class, get_class($this->type));
+        self::assertSame(TimeImmutableType::class, get_class($this->type));
     }
 
-    public function testReturnsName()
+    public function testReturnsName() : void
     {
-        $this->assertSame('time_immutable', $this->type->getName());
+        self::assertSame('time_immutable', $this->type->getName());
     }
 
-    public function testReturnsBindingType()
+    public function testReturnsBindingType() : void
     {
-        $this->assertSame(\PDO::PARAM_STR, $this->type->getBindingType());
+        self::assertSame(ParameterType::STRING, $this->type->getBindingType());
     }
 
-    public function testConvertsDateTimeImmutableInstanceToDatabaseValue()
+    public function testConvertsDateTimeImmutableInstanceToDatabaseValue() : void
     {
-        $date = $this->prophesize(\DateTimeImmutable::class);
+        $date = $this->getMockBuilder(DateTimeImmutable::class)->getMock();
 
-        $this->platform->getTimeFormatString()->willReturn('H:i:s')->shouldBeCalled();
-        $date->format('H:i:s')->willReturn('15:58:59')->shouldBeCalled();
+        $this->platform->expects($this->once())
+            ->method('getTimeFormatString')
+            ->willReturn('H:i:s');
+        $date->expects($this->once())
+            ->method('format')
+            ->with('H:i:s')
+            ->willReturn('15:58:59');
 
-        $this->assertSame(
+        self::assertSame(
             '15:58:59',
-            $this->type->convertToDatabaseValue($date->reveal(), $this->platform->reveal())
+            $this->type->convertToDatabaseValue($date, $this->platform)
         );
     }
 
-    public function testConvertsNullToDatabaseValue()
+    public function testConvertsNullToDatabaseValue() : void
     {
-        $this->assertNull($this->type->convertToDatabaseValue(null, $this->platform->reveal()));
+        self::assertNull($this->type->convertToDatabaseValue(null, $this->platform));
     }
 
-    public function testDoesNotSupportMutableDateTimeToDatabaseValueConversion()
+    public function testDoesNotSupportMutableDateTimeToDatabaseValueConversion() : void
     {
         $this->expectException(ConversionException::class);
 
-        $this->type->convertToDatabaseValue(new \DateTime(), $this->platform->reveal());
+        $this->type->convertToDatabaseValue(new DateTime(), $this->platform);
     }
 
-    public function testConvertsDateTimeImmutableInstanceToPHPValue()
+    public function testConvertsDateTimeImmutableInstanceToPHPValue() : void
     {
-        $date = new \DateTimeImmutable();
+        $date = new DateTimeImmutable();
 
-        $this->assertSame($date, $this->type->convertToPHPValue($date, $this->platform->reveal()));
+        self::assertSame($date, $this->type->convertToPHPValue($date, $this->platform));
     }
 
-    public function testConvertsNullToPHPValue()
+    public function testConvertsNullToPHPValue() : void
     {
-        $this->assertNull($this->type->convertToPHPValue(null, $this->platform->reveal()));
+        self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }
 
-    public function testConvertsTimeStringToPHPValue()
+    public function testConvertsTimeStringToPHPValue() : void
     {
-        $this->platform->getTimeFormatString()->willReturn('H:i:s')->shouldBeCalled();
+        $this->platform->expects($this->once())
+            ->method('getTimeFormatString')
+            ->willReturn('H:i:s');
 
-        $date = $this->type->convertToPHPValue('15:58:59', $this->platform->reveal());
+        $date = $this->type->convertToPHPValue('15:58:59', $this->platform);
 
-        $this->assertInstanceOf(\DateTimeImmutable::class, $date);
-        $this->assertSame('15:58:59', $date->format('H:i:s'));
+        self::assertInstanceOf(DateTimeImmutable::class, $date);
+        self::assertSame('15:58:59', $date->format('H:i:s'));
     }
 
-    public function testResetDateFractionsWhenConvertingToPHPValue()
+    public function testResetDateFractionsWhenConvertingToPHPValue() : void
     {
-        $this->platform->getTimeFormatString()->willReturn('H:i:s');
+        $this->platform->expects($this->any())
+            ->method('getTimeFormatString')
+            ->willReturn('H:i:s');
 
-        $date = $this->type->convertToPHPValue('15:58:59', $this->platform->reveal());
+        $date = $this->type->convertToPHPValue('15:58:59', $this->platform);
 
-        $this->assertSame('1970-01-01 15:58:59', $date->format('Y-m-d H:i:s'));
+        self::assertSame('1970-01-01 15:58:59', $date->format('Y-m-d H:i:s'));
     }
 
-    public function testThrowsExceptionDuringConversionToPHPValueWithInvalidTimeString()
+    public function testThrowsExceptionDuringConversionToPHPValueWithInvalidTimeString() : void
     {
         $this->expectException(ConversionException::class);
 
-        $this->type->convertToPHPValue('invalid time string', $this->platform->reveal());
+        $this->type->convertToPHPValue('invalid time string', $this->platform);
     }
 
-    public function testRequiresSQLCommentHint()
+    public function testRequiresSQLCommentHint() : void
     {
-        $this->assertTrue($this->type->requiresSQLCommentHint($this->platform->reveal()));
+        self::assertTrue($this->type->requiresSQLCommentHint($this->platform));
     }
 }

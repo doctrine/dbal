@@ -1,207 +1,251 @@
 <?php
 
 namespace Doctrine\Tests\DBAL\Functional;
+
+use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
-use PDO;
+use Doctrine\DBAL\Driver\ResultStatement;
+use Doctrine\DBAL\FetchMode;
+use Doctrine\DBAL\Logging\DebugStack;
+use Doctrine\DBAL\Schema\Table;
+use Doctrine\Tests\DbalFunctionalTestCase;
+use const CASE_LOWER;
+use function array_change_key_case;
+use function array_merge;
+use function array_shift;
+use function array_values;
+use function is_array;
 
 /**
  * @group DDC-217
  */
-class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
+class ResultCacheTest extends DbalFunctionalTestCase
 {
-    private $expectedResult = array(array('test_int' => 100, 'test_string' => 'foo'), array('test_int' => 200, 'test_string' => 'bar'), array('test_int' => 300, 'test_string' => 'baz'));
+    /** @var array<int, array<int, int|string>> */
+    private $expectedResult = [['test_int' => 100, 'test_string' => 'foo'], ['test_int' => 200, 'test_string' => 'bar'], ['test_int' => 300, 'test_string' => 'baz']];
+
+    /** @var DebugStack */
     private $sqlLogger;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         parent::setUp();
 
-        $table = new \Doctrine\DBAL\Schema\Table("caching");
+        $table = new Table('caching');
         $table->addColumn('test_int', 'integer');
-        $table->addColumn('test_string', 'string', array('notnull' => false));
-        $table->setPrimaryKey(array('test_int'));
+        $table->addColumn('test_string', 'string', ['notnull' => false]);
+        $table->setPrimaryKey(['test_int']);
 
-        $sm = $this->_conn->getSchemaManager();
+        $sm = $this->connection->getSchemaManager();
         $sm->createTable($table);
 
         foreach ($this->expectedResult as $row) {
-            $this->_conn->insert('caching', $row);
+            $this->connection->insert('caching', $row);
         }
 
-        $config = $this->_conn->getConfiguration();
-        $config->setSQLLogger($this->sqlLogger = new \Doctrine\DBAL\Logging\DebugStack);
+        $config                                = $this->connection->getConfiguration();
+        $config->setSQLLogger($this->sqlLogger = new DebugStack());
 
-        $cache = new \Doctrine\Common\Cache\ArrayCache;
+        $cache = new ArrayCache();
         $config->setResultCacheImpl($cache);
     }
 
-    protected function tearDown()
+    protected function tearDown() : void
     {
-        $this->_conn->getSchemaManager()->dropTable('caching');
+        $this->connection->getSchemaManager()->dropTable('caching');
 
         parent::tearDown();
     }
 
-    public function testCacheFetchAssoc()
+    public function testCacheFetchAssoc() : void
     {
-        $this->assertCacheNonCacheSelectSameFetchModeAreEqual($this->expectedResult, \PDO::FETCH_ASSOC);
+        $this->assertCacheNonCacheSelectSameFetchModeAreEqual(
+            $this->expectedResult,
+            FetchMode::ASSOCIATIVE
+        );
     }
 
-    public function testFetchNum()
+    public function testFetchNum() : void
     {
-        $expectedResult = array();
+        $expectedResult = [];
         foreach ($this->expectedResult as $v) {
             $expectedResult[] = array_values($v);
         }
-        $this->assertCacheNonCacheSelectSameFetchModeAreEqual($expectedResult, \PDO::FETCH_NUM);
+
+        $this->assertCacheNonCacheSelectSameFetchModeAreEqual($expectedResult, FetchMode::NUMERIC);
     }
 
-    public function testFetchBoth()
+    public function testFetchBoth() : void
     {
-        $expectedResult = array();
+        $expectedResult = [];
         foreach ($this->expectedResult as $v) {
             $expectedResult[] = array_merge($v, array_values($v));
         }
-        $this->assertCacheNonCacheSelectSameFetchModeAreEqual($expectedResult, \PDO::FETCH_BOTH);
+
+        $this->assertCacheNonCacheSelectSameFetchModeAreEqual($expectedResult, FetchMode::MIXED);
     }
 
-    public function testFetchColumn()
+    public function testFetchColumn() : void
     {
-        $expectedResult = array();
+        $expectedResult = [];
         foreach ($this->expectedResult as $v) {
             $expectedResult[] = array_shift($v);
         }
-        $this->assertCacheNonCacheSelectSameFetchModeAreEqual($expectedResult, \PDO::FETCH_COLUMN);
+
+        $this->assertCacheNonCacheSelectSameFetchModeAreEqual($expectedResult, FetchMode::COLUMN);
     }
 
-    public function testMixingFetch()
+    public function testMixingFetch() : void
     {
-        $numExpectedResult = array();
+        $numExpectedResult = [];
         foreach ($this->expectedResult as $v) {
             $numExpectedResult[] = array_values($v);
         }
-        $stmt = $this->_conn->executeQuery("SELECT * FROM caching ORDER BY test_int ASC", array(), array(), new QueryCacheProfile(10, "testcachekey"));
+        $stmt = $this->connection->executeQuery('SELECT * FROM caching ORDER BY test_int ASC', [], [], new QueryCacheProfile(10, 'testcachekey'));
 
-        $data = $this->hydrateStmt($stmt, \PDO::FETCH_ASSOC);
+        $data = $this->hydrateStmt($stmt, FetchMode::ASSOCIATIVE);
 
-        $this->assertEquals($this->expectedResult, $data);
+        self::assertEquals($this->expectedResult, $data);
 
-        $stmt = $this->_conn->executeQuery("SELECT * FROM caching ORDER BY test_int ASC", array(), array(), new QueryCacheProfile(10, "testcachekey"));
+        $stmt = $this->connection->executeQuery('SELECT * FROM caching ORDER BY test_int ASC', [], [], new QueryCacheProfile(10, 'testcachekey'));
 
-        $data = $this->hydrateStmt($stmt, \PDO::FETCH_NUM);
+        $data = $this->hydrateStmt($stmt, FetchMode::NUMERIC);
 
-        $this->assertEquals($numExpectedResult, $data);
+        self::assertEquals($numExpectedResult, $data);
     }
 
-    public function testIteratorFetch()
+    public function testIteratorFetch() : void
     {
-        $this->assertStandardAndIteratorFetchAreEqual(\PDO::FETCH_BOTH);
-        $this->assertStandardAndIteratorFetchAreEqual(\PDO::FETCH_ASSOC);
-        $this->assertStandardAndIteratorFetchAreEqual(\PDO::FETCH_NUM);
+        self::assertStandardAndIteratorFetchAreEqual(FetchMode::MIXED);
+        self::assertStandardAndIteratorFetchAreEqual(FetchMode::ASSOCIATIVE);
+        self::assertStandardAndIteratorFetchAreEqual(FetchMode::NUMERIC);
     }
 
-    public function assertStandardAndIteratorFetchAreEqual($fetchMode)
+    private function assertStandardAndIteratorFetchAreEqual(int $fetchMode) : void
     {
-        $stmt = $this->_conn->executeQuery("SELECT * FROM caching ORDER BY test_int ASC", array(), array(), new QueryCacheProfile(10, "testcachekey"));
+        $stmt = $this->connection->executeQuery('SELECT * FROM caching ORDER BY test_int ASC', [], [], new QueryCacheProfile(10, 'testcachekey'));
         $data = $this->hydrateStmt($stmt, $fetchMode);
 
-        $stmt = $this->_conn->executeQuery("SELECT * FROM caching ORDER BY test_int ASC", array(), array(), new QueryCacheProfile(10, "testcachekey"));
+        $stmt          = $this->connection->executeQuery('SELECT * FROM caching ORDER BY test_int ASC', [], [], new QueryCacheProfile(10, 'testcachekey'));
         $data_iterator = $this->hydrateStmtIterator($stmt, $fetchMode);
 
-        $this->assertEquals($data, $data_iterator);
+        self::assertEquals($data, $data_iterator);
     }
 
-    public function testDontCloseNoCache()
+    public function testDontCloseNoCache() : void
     {
-        $stmt = $this->_conn->executeQuery("SELECT * FROM caching ORDER BY test_int ASC", array(), array(), new QueryCacheProfile(10, "testcachekey"));
+        $stmt = $this->connection->executeQuery('SELECT * FROM caching ORDER BY test_int ASC', [], [], new QueryCacheProfile(10, 'testcachekey'));
 
-        $data = array();
-        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+        $data = [];
+
+        while ($row = $stmt->fetch(FetchMode::ASSOCIATIVE)) {
             $data[] = $row;
         }
 
-        $stmt = $this->_conn->executeQuery("SELECT * FROM caching ORDER BY test_int ASC", array(), array(), new QueryCacheProfile(10, "testcachekey"));
+        $stmt = $this->connection->executeQuery('SELECT * FROM caching ORDER BY test_int ASC', [], [], new QueryCacheProfile(10, 'testcachekey'));
 
-        $data = array();
-        while ($row = $stmt->fetch(\PDO::FETCH_NUM)) {
+        $data = [];
+
+        while ($row = $stmt->fetch(FetchMode::NUMERIC)) {
             $data[] = $row;
         }
 
-        $this->assertEquals(2, count($this->sqlLogger->queries));
+        self::assertCount(2, $this->sqlLogger->queries);
     }
 
-    public function testDontFinishNoCache()
+    public function testDontFinishNoCache() : void
     {
-        $stmt = $this->_conn->executeQuery("SELECT * FROM caching ORDER BY test_int ASC", array(), array(), new QueryCacheProfile(10, "testcachekey"));
+        $stmt = $this->connection->executeQuery('SELECT * FROM caching ORDER BY test_int ASC', [], [], new QueryCacheProfile(10, 'testcachekey'));
 
-        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $stmt->fetch(FetchMode::ASSOCIATIVE);
         $stmt->closeCursor();
 
-        $stmt = $this->_conn->executeQuery("SELECT * FROM caching ORDER BY test_int ASC", array(), array(), new QueryCacheProfile(10, "testcachekey"));
+        $stmt = $this->connection->executeQuery('SELECT * FROM caching ORDER BY test_int ASC', [], [], new QueryCacheProfile(10, 'testcachekey'));
 
-        $data = $this->hydrateStmt($stmt, \PDO::FETCH_NUM);
+        $this->hydrateStmt($stmt, FetchMode::NUMERIC);
 
-        $this->assertEquals(2, count($this->sqlLogger->queries));
+        self::assertCount(2, $this->sqlLogger->queries);
     }
 
-    public function assertCacheNonCacheSelectSameFetchModeAreEqual($expectedResult, $fetchMode)
+    public function testFetchAllAndFinishSavesCache() : void
     {
-        $stmt = $this->_conn->executeQuery("SELECT * FROM caching ORDER BY test_int ASC", array(), array(), new QueryCacheProfile(10, "testcachekey"));
+        $layerCache = new ArrayCache();
+        $stmt       = $this->connection->executeQuery('SELECT * FROM caching WHERE test_int > 500', [], [], new QueryCacheProfile(10, 'testcachekey', $layerCache));
+        $stmt->fetchAll();
+        $stmt->closeCursor();
 
-        $this->assertEquals(2, $stmt->columnCount());
+        self::assertCount(1, $layerCache->fetch('testcachekey'));
+    }
+
+    /**
+     * @param array<int, array<int, int|string>> $expectedResult
+     */
+    private function assertCacheNonCacheSelectSameFetchModeAreEqual(array $expectedResult, int $fetchMode) : void
+    {
+        $stmt = $this->connection->executeQuery('SELECT * FROM caching ORDER BY test_int ASC', [], [], new QueryCacheProfile(10, 'testcachekey'));
+
+        self::assertEquals(2, $stmt->columnCount());
         $data = $this->hydrateStmt($stmt, $fetchMode);
-        $this->assertEquals($expectedResult, $data);
+        self::assertEquals($expectedResult, $data);
 
-        $stmt = $this->_conn->executeQuery("SELECT * FROM caching ORDER BY test_int ASC", array(), array(), new QueryCacheProfile(10, "testcachekey"));
+        $stmt = $this->connection->executeQuery('SELECT * FROM caching ORDER BY test_int ASC', [], [], new QueryCacheProfile(10, 'testcachekey'));
 
-        $this->assertEquals(2, $stmt->columnCount());
+        self::assertEquals(2, $stmt->columnCount());
         $data = $this->hydrateStmt($stmt, $fetchMode);
-        $this->assertEquals($expectedResult, $data);
-        $this->assertEquals(1, count($this->sqlLogger->queries), "just one dbal hit");
+        self::assertEquals($expectedResult, $data);
+        self::assertCount(1, $this->sqlLogger->queries, 'just one dbal hit');
     }
 
-    public function testEmptyResultCache()
+    public function testEmptyResultCache() : void
     {
-        $stmt = $this->_conn->executeQuery("SELECT * FROM caching WHERE test_int > 500", array(), array(), new QueryCacheProfile(10, "emptycachekey"));
+        $stmt = $this->connection->executeQuery('SELECT * FROM caching WHERE test_int > 500', [], [], new QueryCacheProfile(10, 'emptycachekey'));
         $data = $this->hydrateStmt($stmt);
 
-        $stmt = $this->_conn->executeQuery("SELECT * FROM caching WHERE test_int > 500", array(), array(), new QueryCacheProfile(10, "emptycachekey"));
+        $stmt = $this->connection->executeQuery('SELECT * FROM caching WHERE test_int > 500', [], [], new QueryCacheProfile(10, 'emptycachekey'));
         $data = $this->hydrateStmt($stmt);
 
-        $this->assertEquals(1, count($this->sqlLogger->queries), "just one dbal hit");
+        self::assertCount(1, $this->sqlLogger->queries, 'just one dbal hit');
     }
 
-    public function testChangeCacheImpl()
+    public function testChangeCacheImpl() : void
     {
-        $stmt = $this->_conn->executeQuery("SELECT * FROM caching WHERE test_int > 500", array(), array(), new QueryCacheProfile(10, "emptycachekey"));
+        $stmt = $this->connection->executeQuery('SELECT * FROM caching WHERE test_int > 500', [], [], new QueryCacheProfile(10, 'emptycachekey'));
         $data = $this->hydrateStmt($stmt);
 
-        $secondCache = new \Doctrine\Common\Cache\ArrayCache;
-        $stmt = $this->_conn->executeQuery("SELECT * FROM caching WHERE test_int > 500", array(), array(), new QueryCacheProfile(10, "emptycachekey", $secondCache));
-        $data = $this->hydrateStmt($stmt);
+        $secondCache = new ArrayCache();
+        $stmt        = $this->connection->executeQuery('SELECT * FROM caching WHERE test_int > 500', [], [], new QueryCacheProfile(10, 'emptycachekey', $secondCache));
+        $data        = $this->hydrateStmt($stmt);
 
-        $this->assertEquals(2, count($this->sqlLogger->queries), "two hits");
-        $this->assertEquals(1, count($secondCache->fetch("emptycachekey")));
+        self::assertCount(2, $this->sqlLogger->queries, 'two hits');
+        self::assertCount(1, $secondCache->fetch('emptycachekey'));
     }
 
-    private function hydrateStmt($stmt, $fetchMode = \PDO::FETCH_ASSOC)
+    /**
+     * @return array<int, mixed>
+     */
+    private function hydrateStmt(ResultStatement $stmt, int $fetchMode = FetchMode::ASSOCIATIVE) : array
     {
-        $data = array();
+        $data = [];
         while ($row = $stmt->fetch($fetchMode)) {
             $data[] = is_array($row) ? array_change_key_case($row, CASE_LOWER) : $row;
         }
         $stmt->closeCursor();
+
         return $data;
     }
 
-    private function hydrateStmtIterator($stmt, $fetchMode = \PDO::FETCH_ASSOC)
+    /**
+     * @return array<int, mixed>
+     */
+    private function hydrateStmtIterator(ResultStatement $stmt, int $fetchMode = FetchMode::ASSOCIATIVE) : array
     {
-        $data = array();
+        $data = [];
         $stmt->setFetchMode($fetchMode);
         foreach ($stmt as $row) {
             $data[] = is_array($row) ? array_change_key_case($row, CASE_LOWER) : $row;
         }
         $stmt->closeCursor();
+
         return $data;
     }
 }

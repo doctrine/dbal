@@ -1,57 +1,68 @@
 <?php
+
 namespace Doctrine\Tests\DBAL\Functional\Driver\Mysqli;
 
-class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
+use Doctrine\DBAL\Driver\Mysqli\Driver;
+use Doctrine\DBAL\Driver\Mysqli\MysqliConnection;
+use Doctrine\DBAL\Driver\Mysqli\MysqliException;
+use Doctrine\Tests\DbalFunctionalTestCase;
+use const MYSQLI_OPT_CONNECT_TIMEOUT;
+use function extension_loaded;
+
+class ConnectionTest extends DbalFunctionalTestCase
 {
-    protected function setUp()
+    protected function setUp() : void
     {
-        if (!extension_loaded('mysqli')) {
+        if (! extension_loaded('mysqli')) {
             $this->markTestSkipped('mysqli is not installed.');
         }
 
         parent::setUp();
 
-        if ( !($this->_conn->getDriver() instanceof \Doctrine\DBAL\Driver\Mysqli\Driver)) {
-            $this->markTestSkipped('MySQLi only test.');
+        if ($this->connection->getDriver() instanceof Driver) {
+            return;
         }
+
+        $this->markTestSkipped('MySQLi only test.');
     }
 
-    protected function tearDown()
+    protected function tearDown() : void
     {
         parent::tearDown();
     }
 
-    public function testDriverOptions()
+    public function testDriverOptions() : void
     {
-        $driverOptions = array(
-            \MYSQLI_OPT_CONNECT_TIMEOUT => 1,
-        );
+        $driverOptions = [MYSQLI_OPT_CONNECT_TIMEOUT => 1];
 
         $connection = $this->getConnection($driverOptions);
-        $this->assertInstanceOf("\Doctrine\DBAL\Driver\Mysqli\MysqliConnection", $connection);
+        self::assertInstanceOf(MysqliConnection::class, $connection);
+    }
+
+    public function testUnsupportedDriverOption() : void
+    {
+        $this->expectException(MysqliException::class);
+
+        $this->getConnection(['hello' => 'world']); // use local infile
+    }
+
+    public function testPing() : void
+    {
+        $conn = $this->getConnection([]);
+        self::assertTrue($conn->ping());
     }
 
     /**
-     * @expectedException \Doctrine\DBAL\Driver\Mysqli\MysqliException
+     * @param mixed[] $driverOptions
      */
-    public function testUnsupportedDriverOption()
+    private function getConnection(array $driverOptions) : MysqliConnection
     {
-        $this->getConnection(array('hello' => 'world')); // use local infile
-    }
-
-    public function testPing()
-    {
-        $conn = $this->getConnection(array());
-        $this->assertTrue($conn->ping());
-    }
-
-    private function getConnection(array $driverOptions)
-    {
-        return new \Doctrine\DBAL\Driver\Mysqli\MysqliConnection(
-            array(
-                 'host' => $GLOBALS['db_host'],
-                 'dbname' => $GLOBALS['db_name'],
-            ),
+        return new MysqliConnection(
+            [
+                'host' => $GLOBALS['db_host'],
+                'dbname' => $GLOBALS['db_name'],
+                'port' => $GLOBALS['db_port'],
+            ],
             $GLOBALS['db_username'],
             $GLOBALS['db_password'],
             $driverOptions

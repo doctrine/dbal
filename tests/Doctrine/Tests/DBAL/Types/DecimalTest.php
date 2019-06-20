@@ -2,28 +2,33 @@
 
 namespace Doctrine\Tests\DBAL\Types;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Types\DecimalType;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Tests\DBAL\Mocks\MockPlatform;
+use Doctrine\Tests\DbalTestCase;
+use PHPUnit\Framework\MockObject\MockObject;
 
-class DecimalTest extends \Doctrine\Tests\DbalTestCase
+class DecimalTest extends DbalTestCase
 {
-    protected
-        $_platform,
-        $_type;
+    /** @var AbstractPlatform|MockObject */
+    private $platform;
 
-    protected function setUp()
+    /** @var DecimalType */
+    private $type;
+
+    protected function setUp() : void
     {
-        $this->_platform = new MockPlatform();
-        $this->_type = Type::getType('decimal');
+        $this->platform = $this->createMock(AbstractPlatform::class);
+        $this->type     = Type::getType('decimal');
     }
 
-    public function testDecimalConvertsToPHPValue()
+    public function testDecimalConvertsToPHPValue() : void
     {
-        $this->assertInternalType('string', $this->_type->convertToPHPValue('5.5', $this->_platform));
+        self::assertIsString($this->type->convertToPHPValue('5.5', $this->platform));
     }
 
-    public function testDecimalNullConvertsToPHPValue()
+    public function testDecimalNullConvertsToPHPValue() : void
     {
-        $this->assertNull($this->_type->convertToPHPValue(null, $this->_platform));
+        self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }
 }

@@ -51,12 +51,16 @@ Using the following code block in your initialization will:
 .. code-block:: php
 
     <?php
+
+    use Doctrine\DBAL\ColumnCase;
+    use Doctrine\DBAL\Portability\Connection as PortableConnection;
+
     $params = array(
         // vendor specific configuration
         //...
-        'wrapperClass' => 'Doctrine\DBAL\Portability\Connection',
-        'portability' => \Doctrine\DBAL\Portability\Connection::PORTABILITY_ALL,
-        'fetch_case' => \PDO::CASE_LOWER,
+        'wrapperClass' => PortableConnection::class,
+        'portability'  => PortableConnection::PORTABILITY_ALL,
+        'fetch_case'   => ColumnCase::LOWER,
     );
 
 This sort of portability handling is pretty expensive because all the result

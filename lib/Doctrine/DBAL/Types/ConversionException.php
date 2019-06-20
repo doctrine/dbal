@@ -1,35 +1,22 @@
 <?php
-/*
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
- * <http://www.doctrine-project.org>.
- */
+
+namespace Doctrine\DBAL\Types;
+
+use Doctrine\DBAL\DBALException;
+use Throwable;
+use function get_class;
+use function gettype;
+use function implode;
+use function is_object;
+use function is_scalar;
+use function sprintf;
+use function strlen;
+use function substr;
 
 /**
  * Conversion Exception is thrown when the database to PHP conversion fails.
- *
- * @link   www.doctrine-project.org
- * @since  2.0
- * @author Benjamin Eberlei <kontakt@beberlei.de>
- * @author Guilherme Blanco <guilhermeblanco@hotmail.com>
- * @author Jonathan Wage <jonwage@gmail.com>
- * @author Roman Borschel <roman@code-factory.org>
  */
-namespace Doctrine\DBAL\Types;
-
-class ConversionException extends \Doctrine\DBAL\DBALException
+class ConversionException extends DBALException
 {
     /**
      * Thrown when a Database to Doctrine Type Conversion fails.
@@ -39,9 +26,9 @@ class ConversionException extends \Doctrine\DBAL\DBALException
      *
      * @return \Doctrine\DBAL\Types\ConversionException
      */
-    static public function conversionFailed($value, $toType)
+    public static function conversionFailed($value, $toType)
     {
-        $value = (strlen($value) > 32) ? substr($value, 0, 20) . '...' : $value;
+        $value = strlen($value) > 32 ? substr($value, 0, 20) . '...' : $value;
 
         return new self('Could not convert database value "' . $value . '" to Doctrine Type ' . $toType);
     }
@@ -50,16 +37,15 @@ class ConversionException extends \Doctrine\DBAL\DBALException
      * Thrown when a Database to Doctrine Type Conversion fails and we can make a statement
      * about the expected format.
      *
-     * @param string          $value
-     * @param string          $toType
-     * @param string          $expectedFormat
-     * @param \Exception|null $previous
+     * @param string $value
+     * @param string $toType
+     * @param string $expectedFormat
      *
      * @return \Doctrine\DBAL\Types\ConversionException
      */
-    static public function conversionFailedFormat($value, $toType, $expectedFormat, \Exception $previous = null)
+    public static function conversionFailedFormat($value, $toType, $expectedFormat, ?Throwable $previous = null)
     {
-        $value = (strlen($value) > 32) ? substr($value, 0, 20) . '...' : $value;
+        $value = strlen($value) > 32 ? substr($value, 0, 20) . '...' : $value;
 
         return new self(
             'Could not convert database value "' . $value . '" to Doctrine Type ' .
@@ -78,7 +64,7 @@ class ConversionException extends \Doctrine\DBAL\DBALException
      *
      * @return \Doctrine\DBAL\Types\ConversionException
      */
-    static public function conversionFailedInvalidType($value, $toType, array $possibleTypes)
+    public static function conversionFailedInvalidType($value, $toType, array $possibleTypes)
     {
         $actualType = is_object($value) ? get_class($value) : gettype($value);
 
@@ -100,13 +86,22 @@ class ConversionException extends \Doctrine\DBAL\DBALException
         ));
     }
 
-    static public function conversionFailedSerialization($value, $format, $error)
+    public static function conversionFailedSerialization($value, $format, $error)
     {
         $actualType = is_object($value) ? get_class($value) : gettype($value);
 
         return new self(sprintf(
             "Could not convert PHP type '%s' to '%s', as an '%s' error was triggered by the serialization",
             $actualType,
+            $format,
+            $error
+        ));
+    }
+
+    public static function conversionFailedUnserialization(string $format, string $error) : self
+    {
+        return new self(sprintf(
+            "Could not convert database value to '%s' as an error was triggered by the unserialization: '%s'",
             $format,
             $error
         ));

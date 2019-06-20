@@ -2,14 +2,16 @@
 
 namespace Doctrine\Tests\DBAL\Platforms;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQL92Platform;
+use Doctrine\DBAL\Types\Types;
 
 class PostgreSQL92PlatformTest extends AbstractPostgreSqlPlatformTestCase
 {
     /**
      * {@inheritdoc}
      */
-    public function createPlatform()
+    public function createPlatform() : AbstractPlatform
     {
         return new PostgreSQL92Platform();
     }
@@ -17,54 +19,54 @@ class PostgreSQL92PlatformTest extends AbstractPostgreSqlPlatformTestCase
     /**
      * @group DBAL-553
      */
-    public function testHasNativeJsonType()
+    public function testHasNativeJsonType() : void
     {
-        $this->assertTrue($this->_platform->hasNativeJsonType());
+        self::assertTrue($this->platform->hasNativeJsonType());
     }
 
     /**
      * @group DBAL-553
      */
-    public function testReturnsJsonTypeDeclarationSQL()
+    public function testReturnsJsonTypeDeclarationSQL() : void
     {
-        $this->assertSame('JSON', $this->_platform->getJsonTypeDeclarationSQL(array()));
+        self::assertSame('JSON', $this->platform->getJsonTypeDeclarationSQL([]));
     }
 
-    public function testReturnsSmallIntTypeDeclarationSQL()
+    public function testReturnsSmallIntTypeDeclarationSQL() : void
     {
-        $this->assertSame(
+        self::assertSame(
             'SMALLSERIAL',
-            $this->_platform->getSmallIntTypeDeclarationSQL(array('autoincrement' => true))
+            $this->platform->getSmallIntTypeDeclarationSQL(['autoincrement' => true])
         );
 
-        $this->assertSame(
+        self::assertSame(
             'SMALLINT',
-            $this->_platform->getSmallIntTypeDeclarationSQL(array('autoincrement' => false))
+            $this->platform->getSmallIntTypeDeclarationSQL(['autoincrement' => false])
         );
 
-        $this->assertSame(
+        self::assertSame(
             'SMALLINT',
-            $this->_platform->getSmallIntTypeDeclarationSQL(array())
+            $this->platform->getSmallIntTypeDeclarationSQL([])
         );
     }
 
     /**
      * @group DBAL-553
      */
-    public function testInitializesJsonTypeMapping()
+    public function testInitializesJsonTypeMapping() : void
     {
-        $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('json'));
-        $this->assertEquals('json_array', $this->_platform->getDoctrineTypeMapping('json'));
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('json'));
+        self::assertEquals(Types::JSON, $this->platform->getDoctrineTypeMapping('json'));
     }
 
     /**
      * @group DBAL-1220
      */
-    public function testReturnsCloseActiveDatabaseConnectionsSQL()
+    public function testReturnsCloseActiveDatabaseConnectionsSQL() : void
     {
-        $this->assertSame(
+        self::assertSame(
             "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'foo'",
-            $this->_platform->getCloseActiveDatabaseConnectionsSQL('foo')
+            $this->platform->getCloseActiveDatabaseConnectionsSQL('foo')
         );
     }
 }

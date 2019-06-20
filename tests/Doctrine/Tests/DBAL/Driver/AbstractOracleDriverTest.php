@@ -3,18 +3,22 @@
 namespace Doctrine\Tests\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver;
+use Doctrine\DBAL\Driver\AbstractOracleDriver;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
+use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\OracleSchemaManager;
 
 class AbstractOracleDriverTest extends AbstractDriverTest
 {
-    public function testReturnsDatabaseName()
+    public function testReturnsDatabaseName() : void
     {
-        $params = array(
+        $params = [
             'user'     => 'foo',
             'password' => 'bar',
             'dbname'   => 'baz',
-        );
+        ];
 
         $connection = $this->getConnectionMock();
 
@@ -22,18 +26,18 @@ class AbstractOracleDriverTest extends AbstractDriverTest
             ->method('getParams')
             ->will($this->returnValue($params));
 
-        $this->assertSame($params['user'], $this->driver->getDatabase($connection));
+        self::assertSame($params['user'], $this->driver->getDatabase($connection));
     }
 
-    public function testReturnsDatabaseNameWithConnectDescriptor()
+    public function testReturnsDatabaseNameWithConnectDescriptor() : void
     {
-        $params = array(
+        $params = [
             'user'             => 'foo',
             'password'         => 'bar',
             'connectionstring' => '(DESCRIPTION=' .
                 '(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=1521))' .
-                '(CONNECT_DATA=(SERVICE_NAME=baz)))'
-        );
+                '(CONNECT_DATA=(SERVICE_NAME=baz)))',
+        ];
 
         $connection = $this->getConnectionMock();
 
@@ -41,58 +45,61 @@ class AbstractOracleDriverTest extends AbstractDriverTest
             ->method('getParams')
             ->will($this->returnValue($params));
 
-        $this->assertSame($params['user'], $this->driver->getDatabase($connection));
+        self::assertSame($params['user'], $this->driver->getDatabase($connection));
     }
 
-    protected function createDriver()
+    protected function createDriver() : Driver
     {
-        return $this->getMockForAbstractClass('Doctrine\DBAL\Driver\AbstractOracleDriver');
+        return $this->getMockForAbstractClass(AbstractOracleDriver::class);
     }
 
-    protected function createPlatform()
+    protected function createPlatform() : AbstractPlatform
     {
         return new OraclePlatform();
     }
 
-    protected function createSchemaManager(Connection $connection)
+    protected function createSchemaManager(Connection $connection) : AbstractSchemaManager
     {
         return new OracleSchemaManager($connection);
     }
 
-    protected function getExceptionConversionData()
+    /**
+     * {@inheritDoc}
+     */
+    protected static function getExceptionConversionData() : array
     {
-        return array(
-            self::EXCEPTION_CONNECTION => array(
-                array('1017', null, null),
-                array('12545', null, null),
-            ),
-            self::EXCEPTION_FOREIGN_KEY_CONSTRAINT_VIOLATION => array(
-                array('2292', null, null),
-            ),
-            self::EXCEPTION_INVALID_FIELD_NAME => array(
-                array('904', null, null),
-            ),
-            self::EXCEPTION_NON_UNIQUE_FIELD_NAME => array(
-                array('918', null, null),
-                array('960', null, null),
-            ),
-            self::EXCEPTION_NOT_NULL_CONSTRAINT_VIOLATION => array(
-                array('1400', null, null),
-            ),
-            self::EXCEPTION_SYNTAX_ERROR => array(
-                array('923', null, null),
-            ),
-            self::EXCEPTION_TABLE_EXISTS => array(
-                array('955', null, null),
-            ),
-            self::EXCEPTION_TABLE_NOT_FOUND => array(
-                array('942', null, null),
-            ),
-            self::EXCEPTION_UNIQUE_CONSTRAINT_VIOLATION => array(
-                array('1', null, null),
-                array('2299', null, null),
-                array('38911', null, null),
-            ),
-        );
+        return [
+            self::EXCEPTION_CONNECTION => [
+                ['1017', null, null],
+                ['12545', null, null],
+            ],
+            self::EXCEPTION_FOREIGN_KEY_CONSTRAINT_VIOLATION => [
+                ['2292', null, null],
+            ],
+            self::EXCEPTION_INVALID_FIELD_NAME => [
+                ['904', null, null],
+            ],
+            self::EXCEPTION_NON_UNIQUE_FIELD_NAME => [
+                ['918', null, null],
+                ['960', null, null],
+            ],
+            self::EXCEPTION_NOT_NULL_CONSTRAINT_VIOLATION => [
+                ['1400', null, null],
+            ],
+            self::EXCEPTION_SYNTAX_ERROR => [
+                ['923', null, null],
+            ],
+            self::EXCEPTION_TABLE_EXISTS => [
+                ['955', null, null],
+            ],
+            self::EXCEPTION_TABLE_NOT_FOUND => [
+                ['942', null, null],
+            ],
+            self::EXCEPTION_UNIQUE_CONSTRAINT_VIOLATION => [
+                ['1', null, null],
+                ['2299', null, null],
+                ['38911', null, null],
+            ],
+        ];
     }
 }

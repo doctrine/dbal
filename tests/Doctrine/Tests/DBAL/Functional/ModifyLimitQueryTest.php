@@ -2,134 +2,140 @@
 
 namespace Doctrine\Tests\DBAL\Functional;
 
-class ModifyLimitQueryTest extends \Doctrine\Tests\DbalFunctionalTestCase
+use Doctrine\DBAL\Schema\Table;
+use Doctrine\Tests\DbalFunctionalTestCase;
+use const CASE_LOWER;
+use function array_change_key_case;
+use function count;
+
+class ModifyLimitQueryTest extends DbalFunctionalTestCase
 {
+    /** @var bool */
     private static $tableCreated = false;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         parent::setUp();
 
-        if (!self::$tableCreated) {
-            /* @var $sm \Doctrine\DBAL\Schema\AbstractSchemaManager */
-            $table = new \Doctrine\DBAL\Schema\Table("modify_limit_table");
+        if (! self::$tableCreated) {
+            $table = new Table('modify_limit_table');
             $table->addColumn('test_int', 'integer');
-            $table->setPrimaryKey(array('test_int'));
+            $table->setPrimaryKey(['test_int']);
 
-            $table2 = new \Doctrine\DBAL\Schema\Table("modify_limit_table2");
-            $table2->addColumn('id', 'integer', array('autoincrement' => true));
+            $table2 = new Table('modify_limit_table2');
+            $table2->addColumn('id', 'integer', ['autoincrement' => true]);
             $table2->addColumn('test_int', 'integer');
-            $table2->setPrimaryKey(array('id'));
+            $table2->setPrimaryKey(['id']);
 
-            $sm = $this->_conn->getSchemaManager();
+            $sm = $this->connection->getSchemaManager();
             $sm->createTable($table);
             $sm->createTable($table2);
             self::$tableCreated = true;
         }
-        $this->_conn->exec($this->_conn->getDatabasePlatform()->getTruncateTableSQL('modify_limit_table'));
-        $this->_conn->exec($this->_conn->getDatabasePlatform()->getTruncateTableSQL('modify_limit_table2'));
+        $this->connection->exec($this->connection->getDatabasePlatform()->getTruncateTableSQL('modify_limit_table'));
+        $this->connection->exec($this->connection->getDatabasePlatform()->getTruncateTableSQL('modify_limit_table2'));
     }
 
-    public function testModifyLimitQuerySimpleQuery()
+    public function testModifyLimitQuerySimpleQuery() : void
     {
-        $this->_conn->insert('modify_limit_table', array('test_int' => 1));
-        $this->_conn->insert('modify_limit_table', array('test_int' => 2));
-        $this->_conn->insert('modify_limit_table', array('test_int' => 3));
-        $this->_conn->insert('modify_limit_table', array('test_int' => 4));
+        $this->connection->insert('modify_limit_table', ['test_int' => 1]);
+        $this->connection->insert('modify_limit_table', ['test_int' => 2]);
+        $this->connection->insert('modify_limit_table', ['test_int' => 3]);
+        $this->connection->insert('modify_limit_table', ['test_int' => 4]);
 
-        $sql = "SELECT * FROM modify_limit_table ORDER BY test_int ASC";
+        $sql = 'SELECT * FROM modify_limit_table ORDER BY test_int ASC';
 
-        $this->assertLimitResult(array(1, 2, 3, 4), $sql, 10, 0);
-        $this->assertLimitResult(array(1, 2), $sql, 2, 0);
-        $this->assertLimitResult(array(3, 4), $sql, 2, 2);
-        $this->assertLimitResult(array(2, 3, 4), $sql, null, 1);
+        $this->assertLimitResult([1, 2, 3, 4], $sql, 10, 0);
+        $this->assertLimitResult([1, 2], $sql, 2, 0);
+        $this->assertLimitResult([3, 4], $sql, 2, 2);
+        $this->assertLimitResult([2, 3, 4], $sql, null, 1);
     }
 
-    public function testModifyLimitQueryJoinQuery()
+    public function testModifyLimitQueryJoinQuery() : void
     {
-        $this->_conn->insert('modify_limit_table', array('test_int' => 1));
-        $this->_conn->insert('modify_limit_table', array('test_int' => 2));
+        $this->connection->insert('modify_limit_table', ['test_int' => 1]);
+        $this->connection->insert('modify_limit_table', ['test_int' => 2]);
 
-        $this->_conn->insert('modify_limit_table2', array('test_int' => 1));
-        $this->_conn->insert('modify_limit_table2', array('test_int' => 1));
-        $this->_conn->insert('modify_limit_table2', array('test_int' => 1));
-        $this->_conn->insert('modify_limit_table2', array('test_int' => 2));
-        $this->_conn->insert('modify_limit_table2', array('test_int' => 2));
+        $this->connection->insert('modify_limit_table2', ['test_int' => 1]);
+        $this->connection->insert('modify_limit_table2', ['test_int' => 1]);
+        $this->connection->insert('modify_limit_table2', ['test_int' => 1]);
+        $this->connection->insert('modify_limit_table2', ['test_int' => 2]);
+        $this->connection->insert('modify_limit_table2', ['test_int' => 2]);
 
-        $sql = "SELECT modify_limit_table.test_int FROM modify_limit_table INNER JOIN modify_limit_table2 ON modify_limit_table.test_int = modify_limit_table2.test_int ORDER BY modify_limit_table.test_int DESC";
+        $sql = 'SELECT modify_limit_table.test_int FROM modify_limit_table INNER JOIN modify_limit_table2 ON modify_limit_table.test_int = modify_limit_table2.test_int ORDER BY modify_limit_table.test_int DESC';
 
-        $this->assertLimitResult(array(2, 2, 1, 1, 1), $sql, 10, 0);
-        $this->assertLimitResult(array(1, 1, 1), $sql, 3, 2);
-        $this->assertLimitResult(array(2, 2), $sql, 2, 0);
+        $this->assertLimitResult([2, 2, 1, 1, 1], $sql, 10, 0);
+        $this->assertLimitResult([1, 1, 1], $sql, 3, 2);
+        $this->assertLimitResult([2, 2], $sql, 2, 0);
     }
 
-    public function testModifyLimitQueryNonDeterministic()
+    public function testModifyLimitQueryNonDeterministic() : void
     {
-        $this->_conn->insert('modify_limit_table', array('test_int' => 1));
-        $this->_conn->insert('modify_limit_table', array('test_int' => 2));
-        $this->_conn->insert('modify_limit_table', array('test_int' => 3));
-        $this->_conn->insert('modify_limit_table', array('test_int' => 4));
+        $this->connection->insert('modify_limit_table', ['test_int' => 1]);
+        $this->connection->insert('modify_limit_table', ['test_int' => 2]);
+        $this->connection->insert('modify_limit_table', ['test_int' => 3]);
+        $this->connection->insert('modify_limit_table', ['test_int' => 4]);
 
-        $sql = "SELECT * FROM modify_limit_table";
+        $sql = 'SELECT * FROM modify_limit_table';
 
-        $this->assertLimitResult(array(4, 3, 2, 1), $sql, 10, 0, false);
-        $this->assertLimitResult(array(4, 3), $sql, 2, 0, false);
-        $this->assertLimitResult(array(2, 1), $sql, 2, 2, false);
+        $this->assertLimitResult([4, 3, 2, 1], $sql, 10, 0, false);
+        $this->assertLimitResult([4, 3], $sql, 2, 0, false);
+        $this->assertLimitResult([2, 1], $sql, 2, 2, false);
     }
 
-    public function testModifyLimitQueryGroupBy()
+    public function testModifyLimitQueryGroupBy() : void
     {
-        $this->_conn->insert('modify_limit_table', array('test_int' => 1));
-        $this->_conn->insert('modify_limit_table', array('test_int' => 2));
+        $this->connection->insert('modify_limit_table', ['test_int' => 1]);
+        $this->connection->insert('modify_limit_table', ['test_int' => 2]);
 
-        $this->_conn->insert('modify_limit_table2', array('test_int' => 1));
-        $this->_conn->insert('modify_limit_table2', array('test_int' => 1));
-        $this->_conn->insert('modify_limit_table2', array('test_int' => 1));
-        $this->_conn->insert('modify_limit_table2', array('test_int' => 2));
-        $this->_conn->insert('modify_limit_table2', array('test_int' => 2));
+        $this->connection->insert('modify_limit_table2', ['test_int' => 1]);
+        $this->connection->insert('modify_limit_table2', ['test_int' => 1]);
+        $this->connection->insert('modify_limit_table2', ['test_int' => 1]);
+        $this->connection->insert('modify_limit_table2', ['test_int' => 2]);
+        $this->connection->insert('modify_limit_table2', ['test_int' => 2]);
 
-        $sql = "SELECT modify_limit_table.test_int FROM modify_limit_table " .
-               "INNER JOIN modify_limit_table2 ON modify_limit_table.test_int = modify_limit_table2.test_int ".
-               "GROUP BY modify_limit_table.test_int " .
-               "ORDER BY modify_limit_table.test_int ASC";
-        $this->assertLimitResult(array(1, 2), $sql, 10, 0);
-        $this->assertLimitResult(array(1), $sql, 1, 0);
-        $this->assertLimitResult(array(2), $sql, 1, 1);
+        $sql = 'SELECT modify_limit_table.test_int FROM modify_limit_table ' .
+               'INNER JOIN modify_limit_table2 ON modify_limit_table.test_int = modify_limit_table2.test_int ' .
+               'GROUP BY modify_limit_table.test_int ' .
+               'ORDER BY modify_limit_table.test_int ASC';
+        $this->assertLimitResult([1, 2], $sql, 10, 0);
+        $this->assertLimitResult([1], $sql, 1, 0);
+        $this->assertLimitResult([2], $sql, 1, 1);
     }
 
-    public function testModifyLimitQuerySubSelect()
+    public function testModifyLimitQuerySubSelect() : void
     {
-        $this->_conn->insert('modify_limit_table', array('test_int' => 1));
-        $this->_conn->insert('modify_limit_table', array('test_int' => 2));
-        $this->_conn->insert('modify_limit_table', array('test_int' => 3));
-        $this->_conn->insert('modify_limit_table', array('test_int' => 4));
+        $this->connection->insert('modify_limit_table', ['test_int' => 1]);
+        $this->connection->insert('modify_limit_table', ['test_int' => 2]);
+        $this->connection->insert('modify_limit_table', ['test_int' => 3]);
+        $this->connection->insert('modify_limit_table', ['test_int' => 4]);
 
-        $sql = "SELECT modify_limit_table.*, (SELECT COUNT(*) FROM modify_limit_table) AS cnt FROM modify_limit_table ORDER BY test_int DESC";
+        $sql = 'SELECT modify_limit_table.*, (SELECT COUNT(*) FROM modify_limit_table) AS cnt FROM modify_limit_table ORDER BY test_int DESC';
 
-        $this->assertLimitResult(array(4, 3, 2, 1), $sql, 10, 0);
-        $this->assertLimitResult(array(4, 3), $sql, 2, 0);
-        $this->assertLimitResult(array(2, 1), $sql, 2, 2);
+        $this->assertLimitResult([4, 3, 2, 1], $sql, 10, 0);
+        $this->assertLimitResult([4, 3], $sql, 2, 0);
+        $this->assertLimitResult([2, 1], $sql, 2, 2);
     }
 
-    public function testModifyLimitQueryFromSubSelect()
+    public function testModifyLimitQueryFromSubSelect() : void
     {
-        $this->_conn->insert('modify_limit_table', array('test_int' => 1));
-        $this->_conn->insert('modify_limit_table', array('test_int' => 2));
-        $this->_conn->insert('modify_limit_table', array('test_int' => 3));
-        $this->_conn->insert('modify_limit_table', array('test_int' => 4));
+        $this->connection->insert('modify_limit_table', ['test_int' => 1]);
+        $this->connection->insert('modify_limit_table', ['test_int' => 2]);
+        $this->connection->insert('modify_limit_table', ['test_int' => 3]);
+        $this->connection->insert('modify_limit_table', ['test_int' => 4]);
 
-        $sql = "SELECT * FROM (SELECT * FROM modify_limit_table) sub ORDER BY test_int DESC";
+        $sql = 'SELECT * FROM (SELECT * FROM modify_limit_table) sub ORDER BY test_int DESC';
 
-        $this->assertLimitResult(array(4, 3, 2, 1), $sql, 10, 0);
-        $this->assertLimitResult(array(4, 3), $sql, 2, 0);
-        $this->assertLimitResult(array(2, 1), $sql, 2, 2);
+        $this->assertLimitResult([4, 3, 2, 1], $sql, 10, 0);
+        $this->assertLimitResult([4, 3], $sql, 2, 0);
+        $this->assertLimitResult([2, 1], $sql, 2, 2);
     }
 
-    public function testModifyLimitQueryLineBreaks()
+    public function testModifyLimitQueryLineBreaks() : void
     {
-        $this->_conn->insert('modify_limit_table', array('test_int' => 1));
-        $this->_conn->insert('modify_limit_table', array('test_int' => 2));
-        $this->_conn->insert('modify_limit_table', array('test_int' => 3));
+        $this->connection->insert('modify_limit_table', ['test_int' => 1]);
+        $this->connection->insert('modify_limit_table', ['test_int' => 2]);
+        $this->connection->insert('modify_limit_table', ['test_int' => 3]);
 
         $sql = <<<SQL
 SELECT
@@ -142,25 +148,28 @@ test_int
 ASC
 SQL;
 
-        $this->assertLimitResult(array(2), $sql, 1, 1);
+        $this->assertLimitResult([2], $sql, 1, 1);
     }
 
-    public function testModifyLimitQueryZeroOffsetNoLimit()
+    public function testModifyLimitQueryZeroOffsetNoLimit() : void
     {
-        $this->_conn->insert('modify_limit_table', array('test_int' => 1));
-        $this->_conn->insert('modify_limit_table', array('test_int' => 2));
+        $this->connection->insert('modify_limit_table', ['test_int' => 1]);
+        $this->connection->insert('modify_limit_table', ['test_int' => 2]);
 
-        $sql = "SELECT test_int FROM modify_limit_table ORDER BY test_int ASC";
+        $sql = 'SELECT test_int FROM modify_limit_table ORDER BY test_int ASC';
 
-        $this->assertLimitResult(array(1, 2), $sql, null, 0);
+        $this->assertLimitResult([1, 2], $sql, null, 0);
     }
 
-    public function assertLimitResult($expectedResults, $sql, $limit, $offset, $deterministic = true)
+    /**
+     * @param array<int, int> $expectedResults
+     */
+    private function assertLimitResult(array $expectedResults, string $sql, ?int $limit, int $offset, bool $deterministic = true) : void
     {
-        $p = $this->_conn->getDatabasePlatform();
-        $data = array();
-        foreach ($this->_conn->fetchAll($p->modifyLimitQuery($sql, $limit, $offset)) as $row) {
-            $row = array_change_key_case($row, CASE_LOWER);
+        $p    = $this->connection->getDatabasePlatform();
+        $data = [];
+        foreach ($this->connection->fetchAll($p->modifyLimitQuery($sql, $limit, $offset)) as $row) {
+            $row    = array_change_key_case($row, CASE_LOWER);
             $data[] = $row['test_int'];
         }
 
@@ -168,9 +177,9 @@ SQL;
          * Do not assert the order of results when results are non-deterministic
          */
         if ($deterministic) {
-            $this->assertEquals($expectedResults, $data);
+            self::assertEquals($expectedResults, $data);
         } else {
-            $this->assertCount(count($expectedResults), $data);
+            self::assertCount(count($expectedResults), $data);
         }
     }
 }

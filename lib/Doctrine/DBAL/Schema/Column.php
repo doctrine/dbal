@@ -1,108 +1,66 @@
 <?php
-/*
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
- * <http://www.doctrine-project.org>.
- */
 
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Types\Type;
+use const E_USER_DEPRECATED;
+use function array_merge;
+use function is_numeric;
+use function method_exists;
+use function sprintf;
+use function trigger_error;
 
 /**
  * Object representation of a database column.
- *
- * @link   www.doctrine-project.org
- * @since  2.0
- * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
 class Column extends AbstractAsset
 {
-    /**
-     * @var Type
-     */
+    /** @var Type */
     protected $_type;
 
-    /**
-     * @var integer|null
-     */
+    /** @var int|null */
     protected $_length = null;
 
-    /**
-     * @var integer
-     */
+    /** @var int */
     protected $_precision = 10;
 
-    /**
-     * @var integer
-     */
+    /** @var int */
     protected $_scale = 0;
 
-    /**
-     * @var boolean
-     */
+    /** @var bool */
     protected $_unsigned = false;
 
-    /**
-     * @var boolean
-     */
+    /** @var bool */
     protected $_fixed = false;
 
-    /**
-     * @var boolean
-     */
+    /** @var bool */
     protected $_notnull = true;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     protected $_default = null;
 
-    /**
-     * @var boolean
-     */
+    /** @var bool */
     protected $_autoincrement = false;
 
-    /**
-     * @var array
-     */
-    protected $_platformOptions = array();
+    /** @var mixed[] */
+    protected $_platformOptions = [];
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     protected $_columnDefinition = null;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     protected $_comment = null;
 
-    /**
-     * @var array
-     */
-    protected $_customSchemaOptions = array();
+    /** @var mixed[] */
+    protected $_customSchemaOptions = [];
 
     /**
      * Creates a new Column.
      *
-     * @param string $columnName
-     * @param Type   $type
-     * @param array  $options
+     * @param string  $columnName
+     * @param mixed[] $options
      */
-    public function __construct($columnName, Type $type, array $options=array())
+    public function __construct($columnName, Type $type, array $options = [])
     {
         $this->_setName($columnName);
         $this->setType($type);
@@ -110,25 +68,31 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @param array $options
+     * @param mixed[] $options
      *
      * @return Column
      */
     public function setOptions(array $options)
     {
         foreach ($options as $name => $value) {
-            $method = "set".$name;
-            if (method_exists($this, $method)) {
-                $this->$method($value);
+            $method = 'set' . $name;
+            if (! method_exists($this, $method)) {
+                // next major: throw an exception
+                @trigger_error(sprintf(
+                    'The "%s" column option is not supported,' .
+                    ' setting it is deprecated and will cause an error in Doctrine 3.0',
+                    $name
+                ), E_USER_DEPRECATED);
+
+                continue;
             }
+            $this->$method($value);
         }
 
         return $this;
     }
 
     /**
-     * @param Type $type
-     *
      * @return Column
      */
     public function setType(Type $type)
@@ -139,7 +103,7 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @param integer|null $length
+     * @param int|null $length
      *
      * @return Column
      */
@@ -155,13 +119,13 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @param integer $precision
+     * @param int $precision
      *
      * @return Column
      */
     public function setPrecision($precision)
     {
-        if (!is_numeric($precision)) {
+        if (! is_numeric($precision)) {
             $precision = 10; // defaults to 10 when no valid precision is given.
         }
 
@@ -171,13 +135,13 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @param integer $scale
+     * @param int $scale
      *
      * @return Column
      */
     public function setScale($scale)
     {
-        if (!is_numeric($scale)) {
+        if (! is_numeric($scale)) {
             $scale = 0;
         }
 
@@ -187,7 +151,7 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @param boolean $unsigned
+     * @param bool $unsigned
      *
      * @return Column
      */
@@ -199,7 +163,7 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @param boolean $fixed
+     * @param bool $fixed
      *
      * @return Column
      */
@@ -211,7 +175,7 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @param boolean $notnull
+     * @param bool $notnull
      *
      * @return Column
      */
@@ -235,7 +199,7 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @param array $platformOptions
+     * @param mixed[] $platformOptions
      *
      * @return Column
      */
@@ -280,7 +244,7 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @return integer|null
+     * @return int|null
      */
     public function getLength()
     {
@@ -288,7 +252,7 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @return integer
+     * @return int
      */
     public function getPrecision()
     {
@@ -296,7 +260,7 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @return integer
+     * @return int
      */
     public function getScale()
     {
@@ -304,7 +268,7 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function getUnsigned()
     {
@@ -312,7 +276,7 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function getFixed()
     {
@@ -320,7 +284,7 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function getNotnull()
     {
@@ -336,7 +300,7 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @return array
+     * @return mixed[]
      */
     public function getPlatformOptions()
     {
@@ -346,7 +310,7 @@ class Column extends AbstractAsset
     /**
      * @param string $name
      *
-     * @return boolean
+     * @return bool
      */
     public function hasPlatformOption($name)
     {
@@ -372,7 +336,7 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function getAutoincrement()
     {
@@ -380,7 +344,7 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @param boolean $flag
+     * @param bool $flag
      *
      * @return Column
      */
@@ -392,7 +356,7 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @param string $comment
+     * @param string|null $comment
      *
      * @return Column
      */
@@ -427,7 +391,7 @@ class Column extends AbstractAsset
     /**
      * @param string $name
      *
-     * @return boolean
+     * @return bool
      */
     public function hasCustomSchemaOption($name)
     {
@@ -445,7 +409,7 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @param array $customSchemaOptions
+     * @param mixed[] $customSchemaOptions
      *
      * @return Column
      */
@@ -457,7 +421,7 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @return array
+     * @return mixed[]
      */
     public function getCustomSchemaOptions()
     {
@@ -465,11 +429,11 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @return array
+     * @return mixed[]
      */
     public function toArray()
     {
-        return array_merge(array(
+        return array_merge([
             'name'          => $this->_name,
             'type'          => $this->_type,
             'default'       => $this->_default,
@@ -482,6 +446,6 @@ class Column extends AbstractAsset
             'autoincrement' => $this->_autoincrement,
             'columnDefinition' => $this->_columnDefinition,
             'comment' => $this->_comment,
-        ), $this->_platformOptions, $this->_customSchemaOptions);
+        ], $this->_platformOptions, $this->_customSchemaOptions);
     }
 }

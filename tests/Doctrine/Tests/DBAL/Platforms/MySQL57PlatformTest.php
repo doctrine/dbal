@@ -2,83 +2,87 @@
 
 namespace Doctrine\Tests\DBAL\Platforms;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MySQL57Platform;
+use Doctrine\DBAL\Types\Types;
 
 class MySQL57PlatformTest extends AbstractMySQLPlatformTestCase
 {
     /**
      * {@inheritdoc}
      */
-    public function createPlatform()
+    public function createPlatform() : AbstractPlatform
     {
         return new MySQL57Platform();
     }
 
-    public function testHasNativeJsonType()
+    public function testHasNativeJsonType() : void
     {
-        $this->assertTrue($this->_platform->hasNativeJsonType());
+        self::assertTrue($this->platform->hasNativeJsonType());
     }
 
-    public function testReturnsJsonTypeDeclarationSQL()
+    public function testReturnsJsonTypeDeclarationSQL() : void
     {
-        $this->assertSame('JSON', $this->_platform->getJsonTypeDeclarationSQL(array()));
+        self::assertSame('JSON', $this->platform->getJsonTypeDeclarationSQL([]));
     }
 
-    public function testInitializesJsonTypeMapping()
+    public function testInitializesJsonTypeMapping() : void
     {
-        $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('json'));
-        $this->assertSame('json_array', $this->_platform->getDoctrineTypeMapping('json'));
-    }
-
-    /**
-     * @group DBAL-234
-     */
-    protected function getAlterTableRenameIndexSQL()
-    {
-        return array(
-            'ALTER TABLE mytable RENAME INDEX idx_foo TO idx_bar',
-        );
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('json'));
+        self::assertSame(Types::JSON, $this->platform->getDoctrineTypeMapping('json'));
     }
 
     /**
+     * @return string[]
+     *
      * @group DBAL-234
      */
-    protected function getQuotedAlterTableRenameIndexSQL()
+    protected function getAlterTableRenameIndexSQL() : array
     {
-        return array(
+        return ['ALTER TABLE mytable RENAME INDEX idx_foo TO idx_bar'];
+    }
+
+    /**
+     * @return string[]
+     *
+     * @group DBAL-234
+     */
+    protected function getQuotedAlterTableRenameIndexSQL() : array
+    {
+        return [
             'ALTER TABLE `table` RENAME INDEX `create` TO `select`',
             'ALTER TABLE `table` RENAME INDEX `foo` TO `bar`',
-        );
+        ];
     }
 
     /**
+     * @return string[]
+     *
      * @group DBAL-807
      */
-    protected function getAlterTableRenameIndexInSchemaSQL()
+    protected function getAlterTableRenameIndexInSchemaSQL() : array
     {
-        return array(
-            'ALTER TABLE myschema.mytable RENAME INDEX idx_foo TO idx_bar',
-        );
+        return ['ALTER TABLE myschema.mytable RENAME INDEX idx_foo TO idx_bar'];
     }
 
     /**
+     * @return string[]
+     *
      * @group DBAL-807
      */
-    protected function getQuotedAlterTableRenameIndexInSchemaSQL()
+    protected function getQuotedAlterTableRenameIndexInSchemaSQL() : array
     {
-        return array(
+        return [
             'ALTER TABLE `schema`.`table` RENAME INDEX `create` TO `select`',
             'ALTER TABLE `schema`.`table` RENAME INDEX `foo` TO `bar`',
-        );
+        ];
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL()
+    protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL() : array
     {
-        return array(
-            'ALTER TABLE mytable RENAME INDEX idx_foo TO idx_foo_renamed',
-        );
+        return ['ALTER TABLE mytable RENAME INDEX idx_foo TO idx_foo_renamed'];
     }
 }

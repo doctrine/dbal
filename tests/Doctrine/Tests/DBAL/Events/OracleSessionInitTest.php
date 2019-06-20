@@ -2,22 +2,23 @@
 
 namespace Doctrine\Tests\DBAL\Events;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Event\ConnectionEventArgs;
 use Doctrine\DBAL\Event\Listeners\OracleSessionInit;
 use Doctrine\DBAL\Events;
 use Doctrine\Tests\DbalTestCase;
+use function sprintf;
 
 class OracleSessionInitTest extends DbalTestCase
 {
-    public function testPostConnect()
+    public function testPostConnect() : void
     {
-        $connectionMock = $this->createMock('Doctrine\DBAL\Connection');
+        $connectionMock = $this->createMock(Connection::class);
         $connectionMock->expects($this->once())
                        ->method('executeUpdate')
                        ->with($this->isType('string'));
 
         $eventArgs = new ConnectionEventArgs($connectionMock);
-
 
         $listener = new OracleSessionInit();
         $listener->postConnect($eventArgs);
@@ -25,12 +26,11 @@ class OracleSessionInitTest extends DbalTestCase
 
     /**
      * @group DBAL-1824
-     *
      * @dataProvider getPostConnectWithSessionParameterValuesData
      */
-    public function testPostConnectQuotesSessionParameterValues($name, $value)
+    public function testPostConnectQuotesSessionParameterValues(string $name, string $value) : void
     {
-        $connectionMock = $this->getMockBuilder('Doctrine\DBAL\Connection')
+        $connectionMock = $this->getMockBuilder(Connection::class)
             ->disableOriginalConstructor()
             ->getMock();
         $connectionMock->expects($this->once())
@@ -39,21 +39,23 @@ class OracleSessionInitTest extends DbalTestCase
 
         $eventArgs = new ConnectionEventArgs($connectionMock);
 
-
-        $listener = new OracleSessionInit(array($name => $value));
+        $listener = new OracleSessionInit([$name => $value]);
         $listener->postConnect($eventArgs);
     }
 
-    public function getPostConnectWithSessionParameterValuesData()
+    /**
+     * @return array<int, array<int, mixed>>
+     */
+    public static function getPostConnectWithSessionParameterValuesData() : iterable
     {
-        return array(
-            array('CURRENT_SCHEMA', 'foo'),
-        );
+        return [
+            ['CURRENT_SCHEMA', 'foo'],
+        ];
     }
 
-    public function testGetSubscribedEvents()
+    public function testGetSubscribedEvents() : void
     {
         $listener = new OracleSessionInit();
-        $this->assertEquals(array(Events::postConnect), $listener->getSubscribedEvents());
+        self::assertEquals([Events::postConnect], $listener->getSubscribedEvents());
     }
 }

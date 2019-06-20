@@ -2,40 +2,46 @@
 
 namespace Doctrine\Tests\DBAL\Sharding\SQLAzure;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Sharding\SQLAzure\SQLAzureShardManager;
+use PHPUnit\Framework\TestCase;
+use function strpos;
 
-abstract class AbstractTestCase extends \PHPUnit_Framework_TestCase
+abstract class AbstractTestCase extends TestCase
 {
+    /** @var Connection */
     protected $conn;
+
+    /** @var SQLAzureShardManager */
     protected $sm;
 
-    protected function setUp()
+    protected function setUp() : void
     {
-        if (!isset($GLOBALS['db_type']) || strpos($GLOBALS['db_type'], "sqlsrv") === false) {
+        if (! isset($GLOBALS['db_type']) || strpos($GLOBALS['db_type'], 'sqlsrv') === false) {
             $this->markTestSkipped('No driver or sqlserver driver specified.');
         }
 
-        $params = array(
+        $params     = [
             'driver' => $GLOBALS['db_type'],
             'dbname' => $GLOBALS['db_name'],
             'user' => $GLOBALS['db_username'],
             'password' => $GLOBALS['db_password'],
             'host' => $GLOBALS['db_host'],
-            'sharding' => array(
+            'sharding' => [
                 'federationName' => 'Orders_Federation',
                 'distributionKey' => 'CustID',
                 'distributionType' => 'integer',
                 'filteringEnabled' => false,
-            ),
-            'driverOptions' => array('MultipleActiveResultSets' => false)
-        );
+            ],
+            'driverOptions' => ['MultipleActiveResultSets' => false],
+        ];
         $this->conn = DriverManager::getConnection($params);
 
         $serverEdition = $this->conn->fetchColumn("SELECT CONVERT(NVARCHAR(128), SERVERPROPERTY('Edition'))");
 
-        if (0 !== strpos($serverEdition, 'SQL Azure')) {
+        if (strpos($serverEdition, 'SQL Azure') !== 0) {
             $this->markTestSkipped('SQL Azure only test.');
         }
 
@@ -46,7 +52,7 @@ abstract class AbstractTestCase extends \PHPUnit_Framework_TestCase
         $this->sm = new SQLAzureShardManager($this->conn);
     }
 
-    public function createShopSchema()
+    protected function createShopSchema() : Schema
     {
         $schema = new Schema();
 
@@ -54,8 +60,8 @@ abstract class AbstractTestCase extends \PHPUnit_Framework_TestCase
         $products->addColumn('ProductID', 'integer');
         $products->addColumn('SupplierID', 'integer');
         $products->addColumn('ProductName', 'string');
-        $products->addColumn('Price', 'decimal', array('scale' => 2, 'precision' => 12));
-        $products->setPrimaryKey(array('ProductID'));
+        $products->addColumn('Price', 'decimal', ['scale' => 2, 'precision' => 12]);
+        $products->setPrimaryKey(['ProductID']);
         $products->addOption('azure.federated', true);
 
         $customers = $schema->createTable('Customers');
@@ -63,7 +69,7 @@ abstract class AbstractTestCase extends \PHPUnit_Framework_TestCase
         $customers->addColumn('CompanyName', 'string');
         $customers->addColumn('FirstName', 'string');
         $customers->addColumn('LastName', 'string');
-        $customers->setPrimaryKey(array('CustomerID'));
+        $customers->setPrimaryKey(['CustomerID']);
         $customers->addOption('azure.federated', true);
         $customers->addOption('azure.federatedOnColumnName', 'CustomerID');
 
@@ -71,7 +77,7 @@ abstract class AbstractTestCase extends \PHPUnit_Framework_TestCase
         $orders->addColumn('CustomerID', 'integer');
         $orders->addColumn('OrderID', 'integer');
         $orders->addColumn('OrderDate', 'datetime');
-        $orders->setPrimaryKey(array('CustomerID', 'OrderID'));
+        $orders->setPrimaryKey(['CustomerID', 'OrderID']);
         $orders->addOption('azure.federated', true);
         $orders->addOption('azure.federatedOnColumnName', 'CustomerID');
 
@@ -80,7 +86,7 @@ abstract class AbstractTestCase extends \PHPUnit_Framework_TestCase
         $orderItems->addColumn('OrderID', 'integer');
         $orderItems->addColumn('ProductID', 'integer');
         $orderItems->addColumn('Quantity', 'integer');
-        $orderItems->setPrimaryKey(array('CustomerID', 'OrderID', 'ProductID'));
+        $orderItems->setPrimaryKey(['CustomerID', 'OrderID', 'ProductID']);
         $orderItems->addOption('azure.federated', true);
         $orderItems->addOption('azure.federatedOnColumnName', 'CustomerID');
 

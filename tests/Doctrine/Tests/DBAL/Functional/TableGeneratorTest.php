@@ -3,57 +3,60 @@
 namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\Id\TableGenerator;
+use Doctrine\DBAL\Id\TableGeneratorSchemaVisitor;
+use Doctrine\DBAL\Schema\Schema;
+use Doctrine\Tests\DbalFunctionalTestCase;
+use Throwable;
 
 /**
  * @group DDC-450
  */
-class TableGeneratorTest extends \Doctrine\Tests\DbalFunctionalTestCase
+class TableGeneratorTest extends DbalFunctionalTestCase
 {
+    /** @var TableGenerator */
     private $generator;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         parent::setUp();
 
-        $platform = $this->_conn->getDatabasePlatform();
-        if ($platform->getName() == "sqlite") {
+        $platform = $this->connection->getDatabasePlatform();
+        if ($platform->getName() === 'sqlite') {
             $this->markTestSkipped('TableGenerator does not work with SQLite');
         }
 
         try {
-            $schema = new \Doctrine\DBAL\Schema\Schema();
-            $visitor = new \Doctrine\DBAL\Id\TableGeneratorSchemaVisitor();
+            $schema  = new Schema();
+            $visitor = new TableGeneratorSchemaVisitor();
             $schema->visit($visitor);
 
             foreach ($schema->toSql($platform) as $sql) {
-                $this->_conn->exec($sql);
+                $this->connection->exec($sql);
             }
-
-        } catch(\Exception $e) {
+        } catch (Throwable $e) {
         }
-        $this->generator = new TableGenerator($this->_conn);
+        $this->generator = new TableGenerator($this->connection);
     }
 
-    public function testNextVal()
+    public function testNextVal() : void
     {
-        $id1 = $this->generator->nextValue("tbl1");
-        $id2 = $this->generator->nextValue("tbl1");
-        $id3 = $this->generator->nextValue("tbl2");
+        $id1 = $this->generator->nextValue('tbl1');
+        $id2 = $this->generator->nextValue('tbl1');
+        $id3 = $this->generator->nextValue('tbl2');
 
-        $this->assertTrue($id1 > 0, "First id has to be larger than 0");
-        $this->assertEquals($id1 + 1, $id2, "Second id is one larger than first one.");
-        $this->assertEquals($id1, $id3, "First ids from different tables are equal.");
+        self::assertGreaterThan(0, $id1, 'First id has to be larger than 0');
+        self::assertEquals($id1 + 1, $id2, 'Second id is one larger than first one.');
+        self::assertEquals($id1, $id3, 'First ids from different tables are equal.');
     }
 
-    public function testNextValNotAffectedByOuterTransactions()
+    public function testNextValNotAffectedByOuterTransactions() : void
     {
-        $this->_conn->beginTransaction();
-        $id1 = $this->generator->nextValue("tbl1");
-        $this->_conn->rollBack();
-        $id2 = $this->generator->nextValue("tbl1");
+        $this->connection->beginTransaction();
+        $id1 = $this->generator->nextValue('tbl1');
+        $this->connection->rollBack();
+        $id2 = $this->generator->nextValue('tbl1');
 
-        $this->assertTrue($id1 > 0, "First id has to be larger than 0");
-        $this->assertEquals($id1 + 1, $id2, "Second id is one larger than first one.");
+        self::assertGreaterThan(0, $id1, 'First id has to be larger than 0');
+        self::assertEquals($id1 + 1, $id2, 'Second id is one larger than first one.');
     }
 }
-

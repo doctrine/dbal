@@ -1,21 +1,4 @@
 <?php
-/*
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
- * <http://www.doctrine-project.org>.
- */
 
 namespace Doctrine\DBAL\Driver\SQLSrv;
 
@@ -31,7 +14,7 @@ class Driver extends AbstractSQLServerDriver
      */
     public function connect(array $params, $username = null, $password = null, array $driverOptions = [])
     {
-        if (!isset($params['host'])) {
+        if (! isset($params['host'])) {
             throw new SQLSrvException("Missing 'host' in configuration for sqlsrv driver.");
         }
 
@@ -43,15 +26,20 @@ class Driver extends AbstractSQLServerDriver
         if (isset($params['dbname'])) {
             $driverOptions['Database'] = $params['dbname'];
         }
-        
+
         if (isset($params['charset'])) {
             $driverOptions['CharacterSet'] = $params['charset'];
         }
 
-        $driverOptions['UID'] = $username;
-        $driverOptions['PWD'] = $password;
+        if ($username !== null) {
+            $driverOptions['UID'] = $username;
+        }
 
-        if (!isset($driverOptions['ReturnDatesAsStrings'])) {
+        if ($password !== null) {
+            $driverOptions['PWD'] = $password;
+        }
+
+        if (! isset($driverOptions['ReturnDatesAsStrings'])) {
             $driverOptions['ReturnDatesAsStrings'] = 1;
         }
 
@@ -60,6 +48,8 @@ class Driver extends AbstractSQLServerDriver
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated
      */
     public function getName()
     {

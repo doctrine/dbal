@@ -2,12 +2,14 @@
 
 namespace Doctrine\Tests\DBAL\Functional\Driver\PDOMySql;
 
+use Doctrine\DBAL\Driver as DriverInterface;
 use Doctrine\DBAL\Driver\PDOMySql\Driver;
 use Doctrine\Tests\DBAL\Functional\Driver\AbstractDriverTest;
+use function extension_loaded;
 
 class DriverTest extends AbstractDriverTest
 {
-    protected function setUp()
+    protected function setUp() : void
     {
         if (! extension_loaded('pdo_mysql')) {
             $this->markTestSkipped('pdo_mysql is not installed.');
@@ -15,15 +17,17 @@ class DriverTest extends AbstractDriverTest
 
         parent::setUp();
 
-        if (! $this->_conn->getDriver() instanceof Driver) {
-            $this->markTestSkipped('pdo_mysql only test.');
+        if ($this->connection->getDriver() instanceof Driver) {
+            return;
         }
+
+        $this->markTestSkipped('pdo_mysql only test.');
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function createDriver()
+    protected function createDriver() : DriverInterface
     {
         return new Driver();
     }

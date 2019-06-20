@@ -4,10 +4,11 @@ namespace Doctrine\Tests\DBAL\Functional\Driver\OCI8;
 
 use Doctrine\DBAL\Driver\OCI8\Driver;
 use Doctrine\Tests\DbalFunctionalTestCase;
+use function extension_loaded;
 
 class StatementTest extends DbalFunctionalTestCase
 {
-    protected function setUp()
+    protected function setUp() : void
     {
         if (! extension_loaded('oci8')) {
             $this->markTestSkipped('oci8 is not installed.');
@@ -15,71 +16,73 @@ class StatementTest extends DbalFunctionalTestCase
 
         parent::setUp();
 
-        if (! $this->_conn->getDriver() instanceof Driver) {
-            $this->markTestSkipped('oci8 only test.');
+        if ($this->connection->getDriver() instanceof Driver) {
+            return;
         }
+
+        $this->markTestSkipped('oci8 only test.');
     }
 
     /**
+     * @param mixed[] $params
+     * @param mixed[] $expected
+     *
      * @dataProvider queryConversionProvider
      */
-    public function testQueryConversion($query, array $params, array $expected)
+    public function testQueryConversion(string $query, array $params, array $expected) : void
     {
-        $this->assertEquals(
+        self::assertEquals(
             $expected,
-            $this->_conn->executeQuery($query, $params)->fetch()
+            $this->connection->executeQuery($query, $params)->fetch()
         );
     }
 
-    public static function queryConversionProvider()
+    /**
+     * @return array<string, array<int, mixed>>
+     */
+    public static function queryConversionProvider() : iterable
     {
-        return array(
-            'simple' => array(
+        return [
+            'simple' => [
                 'SELECT ? COL1 FROM DUAL',
-                array(1),
-                array(
-                    'COL1' => 1,
-                ),
-            ),
-            'literal-with-placeholder' => array(
+                [1],
+                ['COL1' => 1],
+            ],
+            'literal-with-placeholder' => [
                 "SELECT '?' COL1, ? COL2 FROM DUAL",
-                array(2),
-                array(
+                [2],
+                [
                     'COL1' => '?',
                     'COL2' => 2,
-                ),
-            ),
-            'literal-with-quotes' => array(
+                ],
+            ],
+            'literal-with-quotes' => [
                 "SELECT ? COL1, '?\"?''?' \"COL?\" FROM DUAL",
-                array(3),
-                array(
+                [3],
+                [
                     'COL1' => 3,
                     'COL?' => '?"?\'?',
-                ),
-            ),
-            'placeholder-at-the-end' => array(
+                ],
+            ],
+            'placeholder-at-the-end' => [
                 'SELECT ? COL1 FROM DUAL WHERE 1 = ?',
-                array(4, 1),
-                array(
-                    'COL1' => 4,
-                ),
-            ),
-            'multi-line-literal' => array(
+                [4, 1],
+                ['COL1' => 4],
+            ],
+            'multi-line-literal' => [
                 "SELECT 'Hello,
 World?!' COL1 FROM DUAL WHERE 1 = ?",
-                array(1),
-                array(
+                [1],
+                [
                     'COL1' => 'Hello,
 World?!',
-                ),
-            ),
-            'empty-literal' => array(
+                ],
+            ],
+            'empty-literal' => [
                 "SELECT '' COL1 FROM DUAL",
-                array(),
-                array(
-                    'COL1' => '',
-                ),
-            ),
-        );
+                [],
+                ['COL1' => ''],
+            ],
+        ];
     }
 }

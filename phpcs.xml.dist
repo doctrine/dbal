@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+<ruleset>
+    <arg name="basepath" value="."/>
+    <arg name="extensions" value="php"/>
+    <arg name="parallel" value="80"/>
+    <arg name="cache" value=".phpcs-cache"/>
+    <arg name="colors"/>
+
+    <!-- Ignore warnings, show progress of the run and show sniff names -->
+    <arg value="nps"/>
+
+    <file>bin</file>
+    <file>lib</file>
+    <file>tests</file>
+
+    <rule ref="Doctrine">
+        <exclude name="SlevomatCodingStandard.TypeHints.DeclareStrictTypes"/>
+        <exclude name="SlevomatCodingStandard.Classes.SuperfluousAbstractClassNaming"/>
+        <exclude name="SlevomatCodingStandard.Classes.SuperfluousExceptionNaming"/>
+        <exclude name="SlevomatCodingStandard.ControlStructures.ControlStructureSpacing.IncorrectLinesCountAfterLastControlStructure"/>
+        <exclude name="SlevomatCodingStandard.Classes.DisallowLateStaticBindingForConstants.DisallowedLateStaticBindingForConstant"/>
+    </rule>
+
+    <rule ref="SlevomatCodingStandard.TypeHints.TypeHintDeclaration.MissingParameterTypeHint">
+        <exclude-pattern>*/lib/*</exclude-pattern>
+    </rule>
+
+    <rule ref="SlevomatCodingStandard.TypeHints.TypeHintDeclaration.MissingReturnTypeHint">
+        <exclude-pattern>*/lib/*</exclude-pattern>
+    </rule>
+
+    <rule ref="PSR1.Classes.ClassDeclaration.MultipleClasses">
+        <exclude-pattern>*/tests/*</exclude-pattern>
+    </rule>
+
+    <rule ref="Squiz.Classes.ClassFileName.NoMatch">
+        <exclude-pattern>*/tests/*</exclude-pattern>
+    </rule>
+
+    <rule ref="Generic.NamingConventions.UpperCaseConstantName.ClassConstantNotUpperCase">
+        <exclude-pattern>lib/Doctrine/DBAL/Events.php</exclude-pattern>
+    </rule>
+
+    <rule ref="SlevomatCodingStandard.Classes.UnusedPrivateElements.UnusedProperty">
+        <exclude-pattern>tests/Doctrine/Tests/DBAL/Tools/TestAsset/*</exclude-pattern>
+    </rule>
+
+    <!-- see https://github.com/squizlabs/PHP_CodeSniffer/issues/2099 -->
+    <rule ref="Squiz.Commenting.FunctionComment.InvalidNoReturn">
+        <exclude-pattern>lib/Doctrine/DBAL/Platforms/AbstractPlatform.php</exclude-pattern>
+        <exclude-pattern>lib/Doctrine/DBAL/Schema/AbstractSchemaManager.php</exclude-pattern>
+        <exclude-pattern>tests/Doctrine/Tests/DBAL/Platforms/AbstractPlatformTestCase.php</exclude-pattern>
+    </rule>
+
+    <!-- some statement classes close cursor using an empty while-loop -->
+    <rule ref="Generic.CodeAnalysis.EmptyStatement.DetectedWhile">
+        <exclude-pattern>lib/Doctrine/DBAL/Driver/SQLSrv/SQLSrvStatement.php</exclude-pattern>
+    </rule>
+
+    <!-- sqlsrv functions are documented in upper case but reflected in lower case -->
+    <rule ref="Squiz.PHP.LowercasePHPFunctions.CallUppercase">
+        <exclude-pattern>lib/Doctrine/DBAL/Driver/SQLSrv/SQLSrvStatement.php</exclude-pattern>
+    </rule>
+
+    <!-- see https://github.com/squizlabs/PHP_CodeSniffer/issues/2165 -->
+    <rule ref="Squiz.Arrays.ArrayDeclaration.SpaceBeforeComma">
+        <exclude-pattern>tests/Doctrine/Tests/DBAL/Platforms/OraclePlatformTest.php</exclude-pattern>
+        <exclude-pattern>tests/Doctrine/Tests/DBAL/SQLParserUtilsTest.php</exclude-pattern>
+    </rule>
+
+    <!-- see https://github.com/doctrine/dbal/issues/3377 -->
+    <rule ref="SlevomatCodingStandard.Operators.DisallowEqualOperators.DisallowedNotEqualOperator">
+        <exclude-pattern>lib/Doctrine/DBAL/Schema/Comparator.php</exclude-pattern>
+    </rule>
+</ruleset>

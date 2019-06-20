@@ -2,58 +2,55 @@
 
 namespace Doctrine\Tests\DBAL\Types;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Types\ArrayType;
+use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Tests\DBAL\Mocks\MockPlatform;
+use Doctrine\Tests\DbalTestCase;
+use PHPUnit\Framework\MockObject\MockObject;
+use function serialize;
 
-class ArrayTest extends \Doctrine\Tests\DbalTestCase
+class ArrayTest extends DbalTestCase
 {
-    protected
-        $_platform,
-        $_type;
+    /** @var AbstractPlatform|MockObject */
+    private $platform;
 
-    protected function setUp()
+    /** @var ArrayType */
+    private $type;
+
+    protected function setUp() : void
     {
-        $this->_platform = new MockPlatform();
-        $this->_type = Type::getType('array');
+        $this->platform = $this->createMock(AbstractPlatform::class);
+        $this->type     = Type::getType('array');
     }
 
-    protected function tearDown()
+    public function testArrayConvertsToDatabaseValue() : void
     {
-        error_reporting(-1); // reactive all error levels
+        self::assertIsString($this->type->convertToDatabaseValue([], $this->platform));
     }
 
-
-    public function testArrayConvertsToDatabaseValue()
+    public function testArrayConvertsToPHPValue() : void
     {
-        $this->assertTrue(
-            is_string($this->_type->convertToDatabaseValue(array(), $this->_platform))
-        );
+        self::assertIsArray($this->type->convertToPHPValue(serialize([]), $this->platform));
     }
 
-    public function testArrayConvertsToPHPValue()
+    public function testConversionFailure() : void
     {
-        $this->assertTrue(
-            is_array($this->_type->convertToPHPValue(serialize(array()), $this->_platform))
-        );
+        $this->expectException(ConversionException::class);
+        $this->expectExceptionMessage("Could not convert database value to 'array' as an error was triggered by the unserialization: 'unserialize(): Error at offset 0 of 7 bytes'");
+        $this->type->convertToPHPValue('abcdefg', $this->platform);
     }
 
-    public function testConversionFailure()
+    public function testNullConversion() : void
     {
-        error_reporting( (E_ALL | E_STRICT) - \E_NOTICE );
-        $this->setExpectedException('Doctrine\DBAL\Types\ConversionException');
-        $this->_type->convertToPHPValue('abcdefg', $this->_platform);
-    }
-
-    public function testNullConversion()
-    {
-        $this->assertNull($this->_type->convertToPHPValue(null, $this->_platform));
+        self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }
 
     /**
      * @group DBAL-73
      */
-    public function testFalseConversion()
+    public function testFalseConversion() : void
     {
-        $this->assertFalse($this->_type->convertToPHPValue(serialize(false), $this->_platform));
+        self::assertFalse($this->type->convertToPHPValue(serialize(false), $this->platform));
     }
 }

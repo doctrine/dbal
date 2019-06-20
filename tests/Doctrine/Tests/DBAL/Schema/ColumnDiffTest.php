@@ -5,24 +5,26 @@ namespace Doctrine\Tests\DBAL\Schema;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
+use PHPUnit\Framework\TestCase;
 
-class ColumnDiffTest extends \PHPUnit_Framework_TestCase
+class ColumnDiffTest extends TestCase
 {
     /**
      * @group DBAL-1255
      */
-    public function testPreservesOldColumnNameQuotation()
+    public function testPreservesOldColumnNameQuotation() : void
     {
-        $fromColumn = new Column('"foo"', Type::getType(Type::INTEGER));
-        $toColumn = new Column('bar', Type::getType(Type::INTEGER));
+        $fromColumn = new Column('"foo"', Type::getType(Types::INTEGER));
+        $toColumn   = new Column('bar', Type::getType(Types::INTEGER));
 
-        $columnDiff = new ColumnDiff('"foo"', $toColumn, array());
-        $this->assertTrue($columnDiff->getOldColumnName()->isQuoted());
+        $columnDiff = new ColumnDiff('"foo"', $toColumn, []);
+        self::assertTrue($columnDiff->getOldColumnName()->isQuoted());
 
-        $columnDiff = new ColumnDiff('"foo"', $toColumn, array(), $fromColumn);
-        $this->assertTrue($columnDiff->getOldColumnName()->isQuoted());
+        $columnDiff = new ColumnDiff('"foo"', $toColumn, [], $fromColumn);
+        self::assertTrue($columnDiff->getOldColumnName()->isQuoted());
 
-        $columnDiff = new ColumnDiff('foo', $toColumn, array(), $fromColumn);
-        $this->assertTrue($columnDiff->getOldColumnName()->isQuoted());
+        $columnDiff = new ColumnDiff('foo', $toColumn, [], $fromColumn);
+        self::assertTrue($columnDiff->getOldColumnName()->isQuoted());
     }
 }

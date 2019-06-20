@@ -35,6 +35,12 @@ MySQL
 
 -  ``MySqlPlatform`` for version 5.0 and above.
 -  ``MySQL57Platform`` for version 5.7 (5.7.9 GA) and above.
+-  ``MySQL80Platform`` for version 8.0 (8.0 GA) and above.
+
+MariaDB
+^^^^^
+
+-  ``MariaDb1027Platform`` for version 10.2 (10.2.7 GA) and above.
 
 Oracle
 ^^^^^^
@@ -107,5 +113,4 @@ all the different database vendors, for example MySQL BIGINT and
 Oracle NUMBER should be handled as integer. Doctrine 2 offers a
 powerful way to abstract the database to php and back conversion,
 which is described in the next section.
-
 

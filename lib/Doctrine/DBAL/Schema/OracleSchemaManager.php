@@ -1,35 +1,26 @@
 <?php
-/*
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
- * <http://www.doctrine-project.org>.
- */
 
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\DriverException;
+use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Types\Type;
+use Throwable;
+use const CASE_LOWER;
+use function array_change_key_case;
+use function array_values;
+use function assert;
+use function preg_match;
+use function sprintf;
+use function str_replace;
+use function strpos;
+use function strtolower;
+use function strtoupper;
+use function trim;
 
 /**
  * Oracle Schema Manager.
- *
- * @author Konsta Vesterinen <kvesteri@cc.hut.fi>
- * @author Lukas Smith <smith@pooteeweet.org> (PEAR MDB2 library)
- * @author Benjamin Eberlei <kontakt@beberlei.de>
- * @since  2.0
  */
 class OracleSchemaManager extends AbstractSchemaManager
 {
@@ -108,6 +99,7 @@ class OracleSchemaManager extends AbstractSchemaManager
             parent::dropDatabase($database);
         } catch (DBALException $exception) {
             $exception = $exception->getPrevious();
+            assert($exception instanceof Throwable);
 
             if (! $exception instanceof DriverException) {
                 throw $exception;
@@ -132,7 +124,7 @@ class OracleSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableViewDefinition($view)
     {
-        $view = \array_change_key_case($view, CASE_LOWER);
+        $view = array_change_key_case($view, CASE_LOWER);
 
         return new View($this->getQuotedIdentifierName($view['view_name']), $view['text']);
     }
@@ -142,11 +134,11 @@ class OracleSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableUserDefinition($user)
     {
-        $user = \array_change_key_case($user, CASE_LOWER);
+        $user = array_change_key_case($user, CASE_LOWER);
 
-        return array(
+        return [
             'user' => $user['username'],
-        );
+        ];
     }
 
     /**
@@ -154,7 +146,7 @@ class OracleSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableTableDefinition($table)
     {
-        $table = \array_change_key_case($table, CASE_LOWER);
+        $table = array_change_key_case($table, CASE_LOWER);
 
         return $this->getQuotedIdentifierName($table['table_name']);
     }
@@ -162,28 +154,28 @@ class OracleSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      *
-     * @license New BSD License
      * @link http://ezcomponents.org/docs/api/trunk/DatabaseSchema/ezcDbSchemaPgsqlReader.html
      */
-    protected function _getPortableTableIndexesList($tableIndexes, $tableName=null)
+    protected function _getPortableTableIndexesList($tableIndexes, $tableName = null)
     {
-        $indexBuffer = array();
+        $indexBuffer = [];
         foreach ($tableIndexes as $tableIndex) {
-            $tableIndex = \array_change_key_case($tableIndex, CASE_LOWER);
+            $tableIndex = array_change_key_case($tableIndex, CASE_LOWER);
 
             $keyName = strtolower($tableIndex['name']);
+            $buffer  = [];
 
-            if (strtolower($tableIndex['is_primary']) == "p") {
-                $keyName = 'primary';
-                $buffer['primary'] = true;
+            if (strtolower($tableIndex['is_primary']) === 'p') {
+                $keyName              = 'primary';
+                $buffer['primary']    = true;
                 $buffer['non_unique'] = false;
             } else {
-                $buffer['primary'] = false;
-                $buffer['non_unique'] = ($tableIndex['is_unique'] == 0) ? true : false;
+                $buffer['primary']    = false;
+                $buffer['non_unique'] = ! $tableIndex['is_unique'];
             }
-            $buffer['key_name'] = $keyName;
+            $buffer['key_name']    = $keyName;
             $buffer['column_name'] = $this->getQuotedIdentifierName($tableIndex['column_name']);
-            $indexBuffer[] = $buffer;
+            $indexBuffer[]         = $buffer;
         }
 
         return parent::_getPortableTableIndexesList($indexBuffer, $tableName);
@@ -194,20 +186,20 @@ class OracleSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableTableColumnDefinition($tableColumn)
     {
-        $tableColumn = \array_change_key_case($tableColumn, CASE_LOWER);
+        $tableColumn = array_change_key_case($tableColumn, CASE_LOWER);
 
         $dbType = strtolower($tableColumn['data_type']);
-        if (strpos($dbType, "timestamp(") === 0) {
-            if (strpos($dbType, "with time zone")) {
-                $dbType = "timestamptz";
+        if (strpos($dbType, 'timestamp(') === 0) {
+            if (strpos($dbType, 'with time zone')) {
+                $dbType = 'timestamptz';
             } else {
-                $dbType = "timestamp";
+                $dbType = 'timestamp';
             }
         }
 
-        $unsigned = $fixed = null;
+        $unsigned = $fixed = $precision = $scale = $length = null;
 
-        if ( ! isset($tableColumn['column_name'])) {
+        if (! isset($tableColumn['column_name'])) {
             $tableColumn['column_name'] = '';
         }
 
@@ -218,82 +210,52 @@ class OracleSchemaManager extends AbstractSchemaManager
             $tableColumn['data_default'] = null;
         }
 
-        if (null !== $tableColumn['data_default']) {
-            // Default values returned from database are enclosed in single quotes.
-            $tableColumn['data_default'] = trim($tableColumn['data_default'], "'");
+        if ($tableColumn['data_default'] !== null) {
+            // Default values returned from database are represented as literal expressions
+            if (preg_match('/^\'(.*)\'$/s', $tableColumn['data_default'], $matches)) {
+                $tableColumn['data_default'] = str_replace("''", "'", $matches[1]);
+            }
         }
 
-        $precision = null;
-        $scale = null;
+        if ($tableColumn['data_precision'] !== null) {
+            $precision = (int) $tableColumn['data_precision'];
+        }
 
-        $type = $this->_platform->getDoctrineTypeMapping($dbType);
-        $type = $this->extractDoctrineTypeFromComment($tableColumn['comments'], $type);
+        if ($tableColumn['data_scale'] !== null) {
+            $scale = (int) $tableColumn['data_scale'];
+        }
+
+        $type                    = $this->_platform->getDoctrineTypeMapping($dbType);
+        $type                    = $this->extractDoctrineTypeFromComment($tableColumn['comments'], $type);
         $tableColumn['comments'] = $this->removeDoctrineTypeFromComment($tableColumn['comments'], $type);
 
         switch ($dbType) {
             case 'number':
-                if ($tableColumn['data_precision'] == 20 && $tableColumn['data_scale'] == 0) {
-                    $precision = 20;
-                    $scale = 0;
+                if ($precision === 20 && $scale === 0) {
                     $type = 'bigint';
-                } elseif ($tableColumn['data_precision'] == 5 && $tableColumn['data_scale'] == 0) {
+                } elseif ($precision === 5 && $scale === 0) {
                     $type = 'smallint';
-                    $precision = 5;
-                    $scale = 0;
-                } elseif ($tableColumn['data_precision'] == 1 && $tableColumn['data_scale'] == 0) {
-                    $precision = 1;
-                    $scale = 0;
+                } elseif ($precision === 1 && $scale === 0) {
                     $type = 'boolean';
-                } elseif ($tableColumn['data_scale'] > 0) {
-                    $precision = $tableColumn['data_precision'];
-                    $scale = $tableColumn['data_scale'];
+                } elseif ($scale > 0) {
                     $type = 'decimal';
                 }
-                $length = null;
-                break;
-            case 'pls_integer':
-            case 'binary_integer':
-                $length = null;
+
                 break;
             case 'varchar':
             case 'varchar2':
             case 'nvarchar2':
                 $length = $tableColumn['char_length'];
-                $fixed = false;
+                $fixed  = false;
                 break;
             case 'char':
             case 'nchar':
                 $length = $tableColumn['char_length'];
-                $fixed = true;
+                $fixed  = true;
                 break;
-            case 'date':
-            case 'timestamp':
-                $length = null;
-                break;
-            case 'float':
-            case 'binary_float':
-            case 'binary_double':
-                $precision = $tableColumn['data_precision'];
-                $scale = $tableColumn['data_scale'];
-                $length = null;
-                break;
-            case 'clob':
-            case 'nclob':
-                $length = null;
-                break;
-            case 'blob':
-            case 'raw':
-            case 'long raw':
-            case 'bfile':
-                $length = null;
-                break;
-            case 'rowid':
-            case 'urowid':
-            default:
-                $length = null;
         }
 
-        $options = array(
+        $options = [
             'notnull'    => (bool) ($tableColumn['nullable'] === 'N'),
             'fixed'      => (bool) $fixed,
             'unsigned'   => (bool) $unsigned,
@@ -301,11 +263,10 @@ class OracleSchemaManager extends AbstractSchemaManager
             'length'     => $length,
             'precision'  => $precision,
             'scale'      => $scale,
-            'comment'    => isset($tableColumn['comments']) && '' !== $tableColumn['comments']
+            'comment'    => isset($tableColumn['comments']) && $tableColumn['comments'] !== ''
                 ? $tableColumn['comments']
                 : null,
-            'platformDetails' => array(),
-        );
+        ];
 
         return new Column($this->getQuotedIdentifierName($tableColumn['column_name']), Type::getType($type), $options);
     }
@@ -315,36 +276,38 @@ class OracleSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableTableForeignKeysList($tableForeignKeys)
     {
-        $list = array();
+        $list = [];
         foreach ($tableForeignKeys as $value) {
-            $value = \array_change_key_case($value, CASE_LOWER);
-            if (!isset($list[$value['constraint_name']])) {
-                if ($value['delete_rule'] == "NO ACTION") {
+            $value = array_change_key_case($value, CASE_LOWER);
+            if (! isset($list[$value['constraint_name']])) {
+                if ($value['delete_rule'] === 'NO ACTION') {
                     $value['delete_rule'] = null;
                 }
 
-                $list[$value['constraint_name']] = array(
+                $list[$value['constraint_name']] = [
                     'name' => $this->getQuotedIdentifierName($value['constraint_name']),
-                    'local' => array(),
-                    'foreign' => array(),
+                    'local' => [],
+                    'foreign' => [],
                     'foreignTable' => $value['references_table'],
                     'onDelete' => $value['delete_rule'],
-                );
+                ];
             }
 
-            $localColumn = $this->getQuotedIdentifierName($value['local_column']);
+            $localColumn   = $this->getQuotedIdentifierName($value['local_column']);
             $foreignColumn = $this->getQuotedIdentifierName($value['foreign_column']);
 
-            $list[$value['constraint_name']]['local'][$value['position']] = $localColumn;
+            $list[$value['constraint_name']]['local'][$value['position']]   = $localColumn;
             $list[$value['constraint_name']]['foreign'][$value['position']] = $foreignColumn;
         }
 
-        $result = array();
+        $result = [];
         foreach ($list as $constraint) {
             $result[] = new ForeignKeyConstraint(
-                array_values($constraint['local']), $this->getQuotedIdentifierName($constraint['foreignTable']),
-                array_values($constraint['foreign']), $this->getQuotedIdentifierName($constraint['name']),
-                array('onDelete' => $constraint['onDelete'])
+                array_values($constraint['local']),
+                $this->getQuotedIdentifierName($constraint['foreignTable']),
+                array_values($constraint['foreign']),
+                $this->getQuotedIdentifierName($constraint['name']),
+                ['onDelete' => $constraint['onDelete']]
             );
         }
 
@@ -356,12 +319,12 @@ class OracleSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableSequenceDefinition($sequence)
     {
-        $sequence = \array_change_key_case($sequence, CASE_LOWER);
+        $sequence = array_change_key_case($sequence, CASE_LOWER);
 
         return new Sequence(
             $this->getQuotedIdentifierName($sequence['sequence_name']),
-            $sequence['increment_by'],
-            $sequence['min_value']
+            (int) $sequence['increment_by'],
+            (int) $sequence['min_value']
         );
     }
 
@@ -370,7 +333,7 @@ class OracleSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableFunctionDefinition($function)
     {
-        $function = \array_change_key_case($function, CASE_LOWER);
+        $function = array_change_key_case($function, CASE_LOWER);
 
         return $function['name'];
     }
@@ -380,7 +343,7 @@ class OracleSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableDatabaseDefinition($database)
     {
-        $database = \array_change_key_case($database, CASE_LOWER);
+        $database = array_change_key_case($database, CASE_LOWER);
 
         return $database['username'];
     }
@@ -390,30 +353,30 @@ class OracleSchemaManager extends AbstractSchemaManager
      */
     public function createDatabase($database = null)
     {
-        if (is_null($database)) {
+        if ($database === null) {
             $database = $this->_conn->getDatabase();
         }
 
-        $params = $this->_conn->getParams();
-        $username   = $database;
-        $password   = $params['password'];
+        $params   = $this->_conn->getParams();
+        $username = $database;
+        $password = $params['password'];
 
-        $query  = 'CREATE USER ' . $username . ' IDENTIFIED BY ' . $password;
+        $query = 'CREATE USER ' . $username . ' IDENTIFIED BY ' . $password;
         $this->_conn->executeUpdate($query);
 
         $query = 'GRANT DBA TO ' . $username;
         $this->_conn->executeUpdate($query);
-
-        return true;
     }
 
     /**
      * @param string $table
      *
-     * @return boolean
+     * @return bool
      */
     public function dropAutoincrement($table)
     {
+        assert($this->_platform instanceof OraclePlatform);
+
         $sql = $this->_platform->getDropAutoincrementSql($table);
         foreach ($sql as $query) {
             $this->_conn->executeUpdate($query);
@@ -474,10 +437,10 @@ WHERE
     AND p.addr(+) = s.paddr
 SQL;
 
-        $activeUserSessions = $this->_conn->fetchAll($sql, array(strtoupper($user)));
+        $activeUserSessions = $this->_conn->fetchAll($sql, [strtoupper($user)]);
 
         foreach ($activeUserSessions as $activeUserSession) {
-            $activeUserSession = array_change_key_case($activeUserSession, \CASE_LOWER);
+            $activeUserSession = array_change_key_case($activeUserSession, CASE_LOWER);
 
             $this->_execSql(
                 sprintf(

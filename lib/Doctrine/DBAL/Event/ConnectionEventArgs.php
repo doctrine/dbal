@@ -1,78 +1,55 @@
 <?php
-/*
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
- * <http://www.doctrine-project.org>.
- */
 
 namespace Doctrine\DBAL\Event;
 
 use Doctrine\Common\EventArgs;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Schema\AbstractSchemaManager;
 
 /**
  * Event Arguments used when a Driver connection is established inside Doctrine\DBAL\Connection.
- *
- * @link   www.doctrine-project.org
- * @since  1.0
- * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
 class ConnectionEventArgs extends EventArgs
 {
-    /**
-     * @var \Doctrine\DBAL\Connection
-     */
-    private $_connection;
+    /** @var Connection */
+    private $connection;
 
-    /**
-     * @param \Doctrine\DBAL\Connection $connection
-     */
     public function __construct(Connection $connection)
     {
-        $this->_connection = $connection;
+        $this->connection = $connection;
     }
 
     /**
-     * @return \Doctrine\DBAL\Connection
+     * @return Connection
      */
     public function getConnection()
     {
-        return $this->_connection;
+        return $this->connection;
     }
 
     /**
-     * @return \Doctrine\DBAL\Driver
+     * @return Driver
      */
     public function getDriver()
     {
-        return $this->_connection->getDriver();
+        return $this->connection->getDriver();
     }
 
     /**
-     * @return \Doctrine\DBAL\Platforms\AbstractPlatform
+     * @return AbstractPlatform
      */
     public function getDatabasePlatform()
     {
-        return $this->_connection->getDatabasePlatform();
+        return $this->connection->getDatabasePlatform();
     }
 
     /**
-     * @return \Doctrine\DBAL\Schema\AbstractSchemaManager
+     * @return AbstractSchemaManager
      */
     public function getSchemaManager()
     {
-        return $this->_connection->getSchemaManager();
+        return $this->connection->getSchemaManager();
     }
 }

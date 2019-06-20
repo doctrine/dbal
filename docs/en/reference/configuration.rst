@@ -77,7 +77,7 @@ If you wanted to use the ``drizzle_pdo__mysql`` driver instead::
 
     drizzle-pdo-mysql://localhost:4486/foo?charset=UTF-8
 
-In the two last example above, mind the dashes instead of the
+In the last two examples above, mind the dashes instead of the
 underscores in the URL schemes.
 
 For connecting to an SQLite database, the authority portion of the
@@ -117,31 +117,28 @@ database name::
     ``charset`` connection parameter next to ``url``, to provide a
     default value in case the URL doesn't contain a charset value.
 
-
 Driver
 ~~~~~~
 
 The driver specifies the actual implementations of the DBAL
 interfaces to use. It can be configured in one of three ways:
 
-
 -  ``driver``: The built-in driver implementation to use. The
    following drivers are currently available:
 
-   -  ``pdo_mysql``: A MySQL driver that uses the pdo\_mysql PDO
+   -  ``pdo_mysql``: A MySQL driver that uses the pdo_mysql PDO
       extension.
-   -  ``drizzle_pdo_mysql``: A Drizzle driver that uses pdo\_mysql PDO
+   -  ``drizzle_pdo_mysql``: A Drizzle driver that uses pdo_mysql PDO
       extension.
    -  ``mysqli``: A MySQL driver that uses the mysqli extension.
-   -  ``pdo_sqlite``: An SQLite driver that uses the pdo\_sqlite PDO
+   -  ``pdo_sqlite``: An SQLite driver that uses the pdo_sqlite PDO
       extension.
-   -  ``pdo_pgsql``: A PostgreSQL driver that uses the pdo\_pgsql PDO
+   -  ``pdo_pgsql``: A PostgreSQL driver that uses the pdo_pgsql PDO
       extension.
-   -  ``pdo_oci``: An Oracle driver that uses the pdo\_oci PDO
+   -  ``pdo_oci``: An Oracle driver that uses the pdo_oci PDO
       extension.
       **Note that this driver caused problems in our tests. Prefer the oci8 driver if possible.**
-   -  ``pdo_sqlsrv``: A Microsoft SQL Server driver that uses pdo\_sqlsrv PDO
-      **Note that this driver caused problems in our tests. Prefer the sqlsrv driver if possible.**
+   -  ``pdo_sqlsrv``: A Microsoft SQL Server driver that uses pdo_sqlsrv PDO
    -  ``sqlsrv``: A Microsoft SQL Server driver that uses the sqlsrv PHP extension.
    -  ``oci8``: An Oracle driver that uses the oci8 PHP extension.
    -  ``sqlanywhere``: A SAP Sybase SQL Anywhere driver that uses the sqlanywhere PHP extension.
@@ -155,8 +152,8 @@ Wrapper Class
 ~~~~~~~~~~~~~
 
 By default a ``Doctrine\DBAL\Connection`` is wrapped around a
-driver ``Connection``. The ``wrapperClass`` option allows to
-specify a custom wrapper implementation to use, however, a custom
+driver ``Connection``. The ``wrapperClass`` option allows
+specifying a custom wrapper implementation to use, however, a custom
 wrapper class must be a subclass of ``Doctrine\DBAL\Connection``.
 
 Connection Details
@@ -172,10 +169,8 @@ options recognized by each built-in driver.
     When using an existing PDO instance through the ``pdo``
     option, specifying connection details is obviously not necessary.
 
-
-pdo\_sqlite
-^^^^^^^^^^^
-
+pdo_sqlite
+^^^^^^^^^^
 
 -  ``user`` (string): Username to use when connecting to the
    database.
@@ -187,9 +182,8 @@ pdo\_sqlite
    in-memory (non-persistent). Mutually exclusive with ``path``.
    ``path`` takes precedence.
 
-pdo\_mysql
-^^^^^^^^^^
-
+pdo_mysql
+^^^^^^^^^
 
 -  ``user`` (string): Username to use when connecting to the
    database.
@@ -203,12 +197,12 @@ pdo\_mysql
 -  ``charset`` (string): The charset used when connecting to the
    database.
 
-drizzle\_pdo\_mysql
-^^^^^^^^^^^^^^^^^^^
+drizzle_pdo_mysql
+^^^^^^^^^^^^^^^^^
 
 **Requires** drizzle plugin ``mysql_protocol`` or ``mysql_unix_socket_protocol`` to be enabled.
 On Ubuntu this can be done by editing ``/etc/drizzle/conf.d/mysql-protocol.cnf``
-or ``/etc/drizzle/conf.d/mysql-unix-socket-protocol.cnf`` and restart drizzled daemon.
+or ``/etc/drizzle/conf.d/mysql-unix-socket-protocol.cnf`` and restarting the drizzled daemon.
 
 -  ``user`` (string): Username to use when connecting to the
    database. Only needed if authentication is configured for drizzled.
@@ -222,7 +216,6 @@ or ``/etc/drizzle/conf.d/mysql-unix-socket-protocol.cnf`` and restart drizzled d
 
 mysqli
 ^^^^^^
-
 
 -  ``user`` (string): Username to use when connecting to the
    database.
@@ -242,9 +235,8 @@ mysqli
 -  ``ssl_cipher`` (string): A list of allowable ciphers to use for SSL encryption.
 -  ``driverOptions`` Any supported flags for mysqli found on `http://www.php.net/manual/en/mysqli.real-connect.php`
 
-pdo\_pgsql
-^^^^^^^^^^
-
+pdo_pgsql
+^^^^^^^^^
 
 -  ``user`` (string): Username to use when connecting to the
    database.
@@ -268,11 +260,11 @@ pdo\_pgsql
    See http://www.postgresql.org/docs/9.0/static/libpq-connect.html#LIBPQ-CONNECT-SSLROOTCERT
 -  ``sslcert`` (string): specifies the file name of the client SSL certificate.
    See `https://www.postgresql.org/docs/9.1/static/libpq-connect.html#LIBPQ-CONNECT-SSLCERT`
--  ``sslkey`` (string): specifies the location for the secret key used for the 
+-  ``sslkey`` (string): specifies the location for the secret key used for the
    client certificate.
    See `https://www.postgresql.org/docs/9.1/static/libpq-connect.html#LIBPQ-CONNECT-SSLKEY`
--  ``sslcrl`` (string): specifies the file name of the SSL certificate 
-   revocation list (CRL). 
+-  ``sslcrl`` (string): specifies the file name of the SSL certificate
+   revocation list (CRL).
    See `https://www.postgresql.org/docs/9.1/static/libpq-connect.html#LIBPQ-CONNECT-SSLCRL`
 -  ``application_name`` (string): Name of the application that is
    connecting to database. Optional. It will be displayed at ``pg_stat_activity``.
@@ -282,9 +274,8 @@ PostgreSQL behaves differently with regard to booleans when you use
 and ``'false'`` as strings you can change to integers by using:
 ``$conn->getDatabasePlatform()->setUseBooleanTrueFalseStrings($flag)``.
 
-pdo\_oci / oci8
-^^^^^^^^^^^^^^^
-
+pdo_oci / oci8
+^^^^^^^^^^^^^^
 
 -  ``user`` (string): Username to use when connecting to the
    database.
@@ -315,9 +306,8 @@ pdo\_oci / oci8
    and ``getPort`` methods from ``Doctrine\DBAL\Connection`` will no longer function as expected.
 -  ``persistent`` (boolean): Whether to establish a persistent connection.
 
-pdo\_sqlsrv / sqlsrv
-^^^^^^^^^^^^^^^^^^^^
-
+pdo_sqlsrv / sqlsrv
+^^^^^^^^^^^^^^^^^^^
 
 -  ``user`` (string): Username to use when connecting to the
    database.
@@ -329,7 +319,6 @@ pdo\_sqlsrv / sqlsrv
 
 sqlanywhere
 ^^^^^^^^^^^
-
 
 -  ``user`` (string): Username to use when connecting to the
    database.
@@ -391,6 +380,9 @@ database server version you are using.
 You can also pass this option if you want to disable automatic database platform
 detection for a driver that natively supports it and choose the platform version
 implementation explicitly.
+
+If you are running a MariaDB database, you should prefix the ``serverVersion`` 
+with ``mariadb-`` (ex: ``mariadb-10.2.12``).
 
 Custom Platform
 ~~~~~~~~~~~~~~~

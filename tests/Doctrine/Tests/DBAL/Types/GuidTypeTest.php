@@ -2,41 +2,45 @@
 
 namespace Doctrine\Tests\DBAL\Types;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Types\GuidType;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Tests\DBAL\Mocks\MockPlatform;
+use Doctrine\Tests\DbalTestCase;
+use PHPUnit\Framework\MockObject\MockObject;
 
-class GuidTest extends \Doctrine\Tests\DbalTestCase
+class GuidTypeTest extends DbalTestCase
 {
-    protected
-        $_platform,
-        $_type;
+    /** @var AbstractPlatform|MockObject */
+    private $platform;
 
-    protected function setUp()
+    /** @var GuidType */
+    private $type;
+
+    protected function setUp() : void
     {
-        $this->_platform = new MockPlatform();
-        $this->_type = Type::getType('guid');
+        $this->platform = $this->createMock(AbstractPlatform::class);
+        $this->type     = Type::getType('guid');
     }
 
-    public function testConvertToPHPValue()
+    public function testConvertToPHPValue() : void
     {
-        $this->assertInternalType("string", $this->_type->convertToPHPValue("foo", $this->_platform));
-        $this->assertInternalType("string", $this->_type->convertToPHPValue("", $this->_platform));
+        self::assertIsString($this->type->convertToPHPValue('foo', $this->platform));
+        self::assertIsString($this->type->convertToPHPValue('', $this->platform));
     }
 
-    public function testNullConversion()
+    public function testNullConversion() : void
     {
-        $this->assertNull($this->_type->convertToPHPValue(null, $this->_platform));
+        self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }
 
-    public function testNativeGuidSupport()
+    public function testNativeGuidSupport() : void
     {
-        $this->assertTrue($this->_type->requiresSQLCommentHint($this->_platform));
+        self::assertTrue($this->type->requiresSQLCommentHint($this->platform));
 
-        $mock = $this->createMock(get_class($this->_platform));
-        $mock->expects($this->any())
+        $this->platform->expects($this->any())
              ->method('hasNativeGuidType')
              ->will($this->returnValue(true));
 
-        $this->assertFalse($this->_type->requiresSQLCommentHint($mock));
+        self::assertFalse($this->type->requiresSQLCommentHint($this->platform));
     }
 }
