@@ -434,7 +434,7 @@ class OraclePlatform extends AbstractPlatform
         if ($table !== null) {
             $tableIdentifier       = $this->normalizeIdentifier($table);
             $quotedTableIdentifier = $this->quoteStringLiteral($tableIdentifier->getName());
-            $tableCondition        = " AND ind_col.table_name = " . $quotedTableIdentifier;
+            $tableCondition        = ' AND ind_col.table_name = ' . $quotedTableIdentifier;
         }
 
         return <<<SQL
@@ -642,7 +642,7 @@ END;';
         if ($table !== null) {
             $tableIdentifier       = $this->normalizeIdentifier($table);
             $quotedTableIdentifier = $this->quoteStringLiteral($tableIdentifier->getName());
-            $tableCondition        = " AND cols.table_name = " . $quotedTableIdentifier;
+            $tableCondition        = ' AND cols.table_name = ' . $quotedTableIdentifier;
         }
 
         return <<<SQL
@@ -704,7 +704,7 @@ SQL;
         if ($table !== null) {
             $tableIdentifier       = $this->normalizeIdentifier($table);
             $quotedTableIdentifier = $this->quoteStringLiteral($tableIdentifier->getName());
-            $tableCondition        = " AND c.table_name = " . $quotedTableIdentifier;
+            $tableCondition        = ' AND c.table_name = ' . $quotedTableIdentifier;
         }
 
         return <<<SQL
