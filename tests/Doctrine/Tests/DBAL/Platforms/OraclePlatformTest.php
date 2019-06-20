@@ -837,7 +837,7 @@ EOD;
             FROM all_tab_columns c
        LEFT JOIN all_col_comments d ON d.OWNER = c.OWNER AND d.TABLE_NAME = c.TABLE_NAME AND d.COLUMN_NAME = c.COLUMN_NAME
            WHERE c.owner = (SELECT SYS_CONTEXT('userenv', 'current_schema') FROM DUAL) AND c.table_name = 'test'
-        ORDER BY c.table_name, c.column_id"
+        ORDER BY c.table_name, c.column_id",
             ],
             [
                 '/',
@@ -846,7 +846,7 @@ EOD;
             FROM all_tab_columns c
        LEFT JOIN all_col_comments d ON d.OWNER = c.OWNER AND d.TABLE_NAME = c.TABLE_NAME AND d.COLUMN_NAME = c.COLUMN_NAME
            WHERE c.owner = (SELECT SYS_CONTEXT('userenv', 'current_schema') FROM DUAL) AND c.table_name = 'test'
-        ORDER BY c.table_name, c.column_id"
+        ORDER BY c.table_name, c.column_id",
             ],
             [
                 'scott',
@@ -855,7 +855,7 @@ EOD;
             FROM all_tab_columns c
        LEFT JOIN all_col_comments d ON d.OWNER = c.OWNER AND d.TABLE_NAME = c.TABLE_NAME AND d.COLUMN_NAME = c.COLUMN_NAME
            WHERE c.owner = 'SCOTT' AND c.table_name = 'test'
-        ORDER BY c.table_name, c.column_id"
+        ORDER BY c.table_name, c.column_id",
             ],
         ];
     }

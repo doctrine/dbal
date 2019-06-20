@@ -358,10 +358,11 @@ class OraclePlatform extends AbstractPlatform
      *
      * @param string $database The database schema. If NULL or '/', the currently active schema will be queried.
      */
-    private function getDatabaseCondition(?string $database): string
+    private function getDatabaseCondition(?string $database) : string
     {
         if ($database !== null && $database !== '/') {
             $databaseIdentifier = $this->normalizeIdentifier($database);
+
             return $this->quoteStringLiteral($databaseIdentifier->getName());
         }
 
@@ -425,15 +426,15 @@ class OraclePlatform extends AbstractPlatform
      * @param string $database The database schema. If NULL or '/', the currently active schema will be queried.
      * @param string $table    The table. If left NULL, the SQL will return all the indexes in the database.
      */
-    private function getListIndexesSQL(?string $database, ?string $table): string
+    private function getListIndexesSQL(?string $database, ?string $table) : string
     {
         $databaseCondition = $this->getDatabaseCondition($database);
-        $tableCondition = '';
+        $tableCondition    = '';
 
         if ($table !== null) {
-            $tableIdentifier = $this->normalizeIdentifier($table);
+            $tableIdentifier       = $this->normalizeIdentifier($table);
             $quotedTableIdentifier = $this->quoteStringLiteral($tableIdentifier->getName());
-            $tableCondition = " AND ind_col.table_name = $quotedTableIdentifier";
+            $tableCondition        = " AND ind_col.table_name = " . $quotedTableIdentifier;
         }
 
         return <<<SQL
@@ -467,7 +468,7 @@ SQL;
      *
      * @param string $database The database schema. If NULL or '/', the currently active schema will be queried.
      */
-    public function getListAllIndexesSQL(?string $database = null): string
+    public function getListAllIndexesSQL(?string $database = null) : string
     {
         return $this->getListIndexesSQL($database, null);
     }
@@ -633,15 +634,15 @@ END;';
      * @param string $database The database schema. If NULL or '/', the currently active schema will be queried.
      * @param string $table    The table. If left NULL, the SQL will return all the indexes in the database.
      */
-    private function getListForeignKeysSQL(?string $database, ?string $table): string
+    private function getListForeignKeysSQL(?string $database, ?string $table) : string
     {
         $databaseCondition = $this->getDatabaseCondition($database);
-        $tableCondition = '';
+        $tableCondition    = '';
 
         if ($table !== null) {
-            $tableIdentifier = $this->normalizeIdentifier($table);
+            $tableIdentifier       = $this->normalizeIdentifier($table);
             $quotedTableIdentifier = $this->quoteStringLiteral($tableIdentifier->getName());
-            $tableCondition = " AND cols.table_name = $quotedTableIdentifier";
+            $tableCondition        = " AND cols.table_name = " . $quotedTableIdentifier;
         }
 
         return <<<SQL
@@ -673,7 +674,7 @@ SQL;
      *
      * @param string $database The database schema. If NULL or '/', the currently active schema will be queried.
      */
-    public function getListAllForeignKeysSQL(?string $database = null): string
+    public function getListAllForeignKeysSQL(?string $database = null) : string
     {
         return $this->getListForeignKeysSQL($database, null);
     }
@@ -695,15 +696,15 @@ SQL;
      * @param string $database The database schema. If NULL or '/', the currently active schema will be queried.
      * @param string $table    The table. If left NULL, the SQL will return all the indexes in the database.
      */
-    private function getListColumnsSQL(?string $database, ?string $table): string
+    private function getListColumnsSQL(?string $database, ?string $table) : string
     {
         $databaseCondition = $this->getDatabaseCondition($database);
-        $tableCondition = '';
+        $tableCondition    = '';
 
         if ($table !== null) {
-            $tableIdentifier = $this->normalizeIdentifier($table);
+            $tableIdentifier       = $this->normalizeIdentifier($table);
             $quotedTableIdentifier = $this->quoteStringLiteral($tableIdentifier->getName());
-            $tableCondition = " AND c.table_name = $quotedTableIdentifier";
+            $tableCondition        = " AND c.table_name = " . $quotedTableIdentifier;
         }
 
         return <<<SQL
@@ -729,7 +730,7 @@ SQL;
      *
      * @param string $database The database schema. If NULL or '/', the currently active schema will be queried.
      */
-    public function getListAllColumnsSQL(?string $database = null): string
+    public function getListAllColumnsSQL(?string $database = null) : string
     {
         return $this->getListColumnsSQL($database, null);
     }

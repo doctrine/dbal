@@ -27,7 +27,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     /**
      * Holds instance of the database platform used for this schema manager.
      *
-     * @var \Doctrine\DBAL\Platforms\OraclePlatform
+     * @var OraclePlatform
      */
     protected $_platform;
 
@@ -53,7 +53,7 @@ class OracleSchemaManager extends AbstractSchemaManager
         foreach ($tableNames as $quotedTableName) {
             $tableName = trim($quotedTableName, $this->_platform->getIdentifierQuoteCharacter());
 
-            $columns = $this->_getPortableTableColumnList($quotedTableName, null, $columnsByTable[$tableName]);
+            $columns = $this->_getPortableTableColumnList($quotedTableName, '', $columnsByTable[$tableName]);
 
             $foreignKeys = [];
             if (isset($foreignKeysByTable[$tableName])) {
@@ -65,7 +65,7 @@ class OracleSchemaManager extends AbstractSchemaManager
                 $indexes = $this->_getPortableTableIndexesList($indexesByTable[$tableName], $quotedTableName);
             }
 
-            $tables[] = new Table($quotedTableName, $columns, $indexes, $foreignKeys, false, []);
+            $tables[] = new Table($quotedTableName, $columns, $indexes, $foreignKeys);
         }
 
         return $tables;
@@ -77,16 +77,17 @@ class OracleSchemaManager extends AbstractSchemaManager
      * @param string $sql An SQL statement to be executed, that contains a
      *                    TABLE_NAME field for grouping.
      *
-     * @return array An associative array with key being the table name, and
-     *               value a simple array of records associated with the table.
+     * @return mixed[] An associative array with key being the table name, and
+     *                 value a simple array of records associated with the table.
      */
-    private function getAssetRecordsByTable(string $sql): array
+    private function getAssetRecordsByTable(string $sql) : array
     {
-        $input = $this->_conn->fetchAll($sql);
+        $input  = $this->_conn->fetchAll($sql);
         $output = [];
         foreach ($input as $record) {
             $output[$record['TABLE_NAME']][] = $record;
         }
+
         return $output;
     }
 
