@@ -24,7 +24,7 @@ Before reporting a BC break, please consult the upgrading document to make sure 
 
 <!-- What was the previous (working) behaviour? -->
 
-#### Current behavior
+#### Current behaviour
 
 <!-- What is the current (broken) behaviour? -->
 
