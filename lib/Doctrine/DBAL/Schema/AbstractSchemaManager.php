@@ -146,7 +146,7 @@ abstract class AbstractSchemaManager
      * this column definition does try to contain the 'primary' field for
      * the reason that it is not portable across different RDBMS. Use
      * {@see listTableIndexes($tableName)} to retrieve the primary key
-     * of a table. We're a RDBMS specifies more details these are held
+     * of a table. Where a RDBMS specifies more details, these are held
      * in the platformDetails array.
      *
      * @param string      $table    The name of the table.
