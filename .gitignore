@@ -8,3 +8,4 @@ vendor/
 composer.lock
 /phpunit.xml
 /.phpcs-cache
+.idea/
