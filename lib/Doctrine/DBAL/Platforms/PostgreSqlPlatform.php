@@ -546,11 +546,10 @@ SQL
                 $columnDefinition['autoincrement'] = false;
 
                 // here was a server version check before, but DBAL API does not support this anymore.
-                $customUsing = '';
+                $query = 'ALTER ' . $oldColumnName . ' TYPE ' . $type->getSQLDeclaration($columnDefinition, $this);
                 if ($columnDiff->hasChanged('using')) {
-                    $customUsing = ' USING ' . $column->getCustomSchemaOption('using');
+                    $query = $query . ' USING ' . $column->getCustomSchemaOption('using');
                 }
-                $query = 'ALTER ' . $oldColumnName . ' TYPE ' . $type->getSQLDeclaration($columnDefinition, $this) . $customUsing;
                 $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
             }
 
