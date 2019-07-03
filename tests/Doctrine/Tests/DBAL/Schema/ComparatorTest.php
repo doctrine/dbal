@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Schema;
 
+use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Comparator;
@@ -14,7 +15,6 @@ use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
 use PHPUnit\Framework\TestCase;
 use function array_keys;
 use function get_class;
@@ -1345,7 +1345,7 @@ class ComparatorTest extends TestCase
             $newTable
         );
 
-        $pgsql  = new \Doctrine\DBAL\Platforms\PostgreSqlPlatform();
+        $pgsql  = new PostgreSqlPlatform();
         $result = $pgsql->getAlterTableSQL($tableDiff);
 
         $expected = [
