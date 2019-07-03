@@ -1326,4 +1326,31 @@ class ComparatorTest extends TestCase
         self::assertCount(1, $actual->changedTables['table2']->addedForeignKeys, 'FK to table3 should be added.');
         self::assertEquals('table3', $actual->changedTables['table2']->addedForeignKeys[0]->getForeignTableName());
     }
+
+    public function testCompareChangedColumnTypeWithUsing() : void
+    {
+        $oldSchema = new Schema();
+
+        $oldTable = $oldSchema->createTable('foo');
+        $oldTable->addColumn('special_price', 'boolean');
+
+        $newSchema = new Schema();
+        $newTable = $newSchema->createTable('foo');
+        $newColumn = $newTable->addColumn('special_price', 'decimal', ['precision' => 12, 'scale' => 4]);
+        $newColumn->setCustomSchemaOption('using', 'special_price::int::numeric(12,4)');
+
+        $tableDiff = (new Comparator)->diffTable(
+            $oldTable, $newTable
+        );
+
+        $pgsql = new \Doctrine\DBAL\Platforms\PostgreSqlPlatform();
+        $result = $pgsql->getAlterTableSQL($tableDiff);
+
+        $expected = array (
+            0 => 'ALTER TABLE foo ALTER special_price TYPE NUMERIC(12, 4) USING special_price::int::numeric(12,4)',
+            1 => 'ALTER TABLE foo ALTER special_price DROP DEFAULT',
+        );
+
+        self::assertEquals($expected, $result);
+    }
 }
