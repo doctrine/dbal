@@ -14,6 +14,7 @@ use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
 use PHPUnit\Framework\TestCase;
 use function array_keys;
 use function get_class;
@@ -1330,26 +1331,27 @@ class ComparatorTest extends TestCase
     public function testCompareChangedColumnTypeWithUsing() : void
     {
         $oldSchema = new Schema();
-
-        $oldTable = $oldSchema->createTable('foo');
+        $oldTable  = $oldSchema->createTable('foo');
         $oldTable->addColumn('special_price', 'boolean');
 
         $newSchema = new Schema();
-        $newTable = $newSchema->createTable('foo');
+        $newTable  = $newSchema->createTable('foo');
         $newColumn = $newTable->addColumn('special_price', 'decimal', ['precision' => 12, 'scale' => 4]);
         $newColumn->setCustomSchemaOption('using', 'special_price::int::numeric(12,4)');
 
-        $tableDiff = (new Comparator)->diffTable(
-            $oldTable, $newTable
+        $comparator = new Comparator();
+        $tableDiff  = $comparator->diffTable(
+            $oldTable,
+            $newTable
         );
 
-        $pgsql = new \Doctrine\DBAL\Platforms\PostgreSqlPlatform();
+        $pgsql  = new \Doctrine\DBAL\Platforms\PostgreSqlPlatform();
         $result = $pgsql->getAlterTableSQL($tableDiff);
 
-        $expected = array (
+        $expected = [
             0 => 'ALTER TABLE foo ALTER special_price TYPE NUMERIC(12, 4) USING special_price::int::numeric(12,4)',
             1 => 'ALTER TABLE foo ALTER special_price DROP DEFAULT',
-        );
+        ];
 
         self::assertEquals($expected, $result);
     }

@@ -548,7 +548,7 @@ SQL
                 // here was a server version check before, but DBAL API does not support this anymore.
                 $query = 'ALTER ' . $oldColumnName . ' TYPE ' . $type->getSQLDeclaration($columnDefinition, $this);
                 if ($columnDiff->hasChanged('using')) {
-                    $query = $query . ' USING ' . $column->getCustomSchemaOption('using');
+                    $query .= ' USING ' . $column->getCustomSchemaOption('using');
                 }
                 $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
             }
