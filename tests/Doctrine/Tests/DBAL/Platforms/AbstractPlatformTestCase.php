@@ -589,44 +589,14 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         }
     }
 
-    /**
-     * @throws DBALException
-     * @dataProvider provideTypes
-     */
-    public function testGetDefaultValueDeclarationSQLForCompositeExpression(
-        string $type,
-        CompositeExpression $default,
-        string $expected
-    ) : void {
+    public function testGetDefaultValueDeclarationSQLForCompositeExpression() : void
+    {
         $field = [
-            'type'    => Type::getType($type),
-            'default' => $default,
+            'type'    => Type::getType('string'),
+            'default' => new CompositeExpression(CompositeExpression::TYPE_AND, (array) '"string"'),
         ];
 
-        self::assertEquals(
-            ' DEFAULT ' . $expected,
-            $this->platform->getDefaultValueDeclarationSQL($field)
-        );
-    }
-
-    public function provideTypes() : Generator
-    {
-        yield ['integer', $this->getExpression(1), '1'];
-        yield [
-            'datetime',
-            $this->getExpression($this->platform->getCurrentTimestampSQL()),
-            $this->platform->getCurrentTimestampSQL(),
-        ];
-        yield ['string', $this->getExpression("'non_timestamp'"), "'not_timestamp'"];
-        yield ['string', $this->getExpression('"non_timestamp"'), '"non_timestamp"'];
-    }
-
-    /**
-     * @param int|string $value
-     */
-    private function getExpression($value) : CompositeExpression
-    {
-        return new CompositeExpression(CompositeExpression::TYPE_AND, (array) $value);
+        self::assertEquals(' DEFAULT "string"', $this->platform->getDefaultValueDeclarationSQL($field));
     }
 
     public function testGetDefaultValueDeclarationSQLForIntegerTypes() : void
