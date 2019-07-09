@@ -7,6 +7,7 @@ use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
+use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Comparator;
@@ -17,6 +18,7 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DbalTestCase;
 use Doctrine\Tests\Types\CommentedType;
+use Generator;
 use function get_class;
 use function implode;
 use function sprintf;
@@ -585,6 +587,32 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
                 $this->platform->getDefaultValueDeclarationSQL($field)
             );
         }
+    }
+
+    /**
+     * @dataProvider provideTypes
+     */
+    public function testGetDefaultValueDeclarationSQLForCompositeExpression(string $type, $default, $expected) : void
+    {
+        $field = array_merge(compact('default'), ['type' => Type::getType($type)]);
+        self::assertEquals(' DEFAULT ' . $expected, $this->platform->getDefaultValueDeclarationSQL($field));
+    }
+
+    public function provideTypes(): Generator
+    {
+        yield ['integer', $this->getExpression(1), '1'];
+        yield [
+            'datetime',
+            $this->getExpression($this->platform->getCurrentTimestampSQL()),
+            $this->platform->getCurrentTimestampSQL()
+        ];
+        yield ['string', $this->getExpression("'non_timestamp'"), "'not_timestamp'"];
+        yield ['string', $this->getExpression('"non_timestamp"'), '"non_timestamp"'];
+    }
+
+    private function getExpression($value): CompositeExpression
+    {
+        return new CompositeExpression(CompositeExpression::TYPE_AND, (array) $value);
     }
 
     public function testGetDefaultValueDeclarationSQLForIntegerTypes() : void
