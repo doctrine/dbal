@@ -590,26 +590,47 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
     }
 
     /**
+     * @param string $type
+     * @param CompositeExpression $default
+     * @param string $expected
+     * @throws DBALException
      * @dataProvider provideTypes
      */
-    public function testGetDefaultValueDeclarationSQLForCompositeExpression(string $type, $default, $expected) : void
-    {
-        $field = array_merge(compact('default'), ['type' => Type::getType($type)]);
-        self::assertEquals(' DEFAULT ' . $expected, $this->platform->getDefaultValueDeclarationSQL($field));
+    public function testGetDefaultValueDeclarationSQLForCompositeExpression(
+        string $type,
+        CompositeExpression $default,
+        string $expected
+    ) : void {
+        $field = [
+            'type' => Type::getType($type),
+            'default' => $default,
+        ];
+
+        self::assertEquals(
+            ' DEFAULT ' . $expected,
+            $this->platform->getDefaultValueDeclarationSQL($field)
+        );
     }
 
+    /**
+     * @return Generator
+     */
     public function provideTypes(): Generator
     {
         yield ['integer', $this->getExpression(1), '1'];
         yield [
             'datetime',
             $this->getExpression($this->platform->getCurrentTimestampSQL()),
-            $this->platform->getCurrentTimestampSQL()
+            $this->platform->getCurrentTimestampSQL(),
         ];
         yield ['string', $this->getExpression("'non_timestamp'"), "'not_timestamp'"];
         yield ['string', $this->getExpression('"non_timestamp"'), '"non_timestamp"'];
     }
 
+    /**
+     * @param int|string $value
+     * @return CompositeExpression
+     */
     private function getExpression($value): CompositeExpression
     {
         return new CompositeExpression(CompositeExpression::TYPE_AND, (array) $value);
