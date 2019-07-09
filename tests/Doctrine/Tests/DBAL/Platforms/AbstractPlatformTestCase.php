@@ -590,9 +590,6 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
     }
 
     /**
-     * @param string $type
-     * @param CompositeExpression $default
-     * @param string $expected
      * @throws DBALException
      * @dataProvider provideTypes
      */
@@ -602,7 +599,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         string $expected
     ) : void {
         $field = [
-            'type' => Type::getType($type),
+            'type'    => Type::getType($type),
             'default' => $default,
         ];
 
@@ -612,10 +609,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         );
     }
 
-    /**
-     * @return Generator
-     */
-    public function provideTypes(): Generator
+    public function provideTypes() : Generator
     {
         yield ['integer', $this->getExpression(1), '1'];
         yield [
@@ -629,9 +623,8 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
 
     /**
      * @param int|string $value
-     * @return CompositeExpression
      */
-    private function getExpression($value): CompositeExpression
+    private function getExpression($value) : CompositeExpression
     {
         return new CompositeExpression(CompositeExpression::TYPE_AND, (array) $value);
     }
