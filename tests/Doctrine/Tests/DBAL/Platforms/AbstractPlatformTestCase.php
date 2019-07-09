@@ -18,7 +18,6 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DbalTestCase;
 use Doctrine\Tests\Types\CommentedType;
-use Generator;
 use function get_class;
 use function implode;
 use function sprintf;
