@@ -103,6 +103,10 @@ class Driver extends AbstractPostgreSQLDriver
             $dsn .= 'application_name=' . $params['application_name'] . ';';
         }
 
+        if (isset($params['unix_socket'])) {
+            $dsn .= 'unix_socket=' . $params['unix_socket'] . ';';
+        }
+
         return $dsn;
     }
 
