@@ -4,9 +4,7 @@ namespace Doctrine\DBAL\Schema\Exceptions;
 
 class Expression
 {
-    /**
-     * @var mixed $value
-     */
+    /** @var mixed $value */
     protected $value;
 
     /**
@@ -25,7 +23,7 @@ class Expression
         return $this->value;
     }
 
-    public function __toString(): string
+    public function __toString() : string
     {
         return (string) $this->getValue();
     }
