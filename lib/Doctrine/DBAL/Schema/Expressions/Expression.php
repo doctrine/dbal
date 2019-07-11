@@ -1,6 +1,6 @@
 <?php
 
-namespace Doctrine\DBAL\Schema\Exceptions;
+namespace Doctrine\DBAL\Schema\Expressions;
 
 class Expression
 {
