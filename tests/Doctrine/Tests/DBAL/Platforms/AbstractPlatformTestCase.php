@@ -15,6 +15,7 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DbalTestCase;
 use Doctrine\Tests\Types\CommentedType;
 use function get_class;
