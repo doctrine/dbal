@@ -14,10 +14,10 @@ use Doctrine\DBAL\Event\SchemaCreateTableEventArgs;
 use Doctrine\DBAL\Event\SchemaDropTableEventArgs;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
-use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Constraint;
+use Doctrine\DBAL\Schema\Exceptions\Expression;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
@@ -2292,7 +2292,7 @@ abstract class AbstractPlatform
             return " DEFAULT '" . $default . "'";
         }
 
-        if ($default instanceof CompositeExpression) {
+        if ($default instanceof Expression) {
             return ' DEFAULT ' . $default;
         }
 
