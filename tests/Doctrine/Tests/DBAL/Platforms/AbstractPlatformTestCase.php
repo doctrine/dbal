@@ -7,15 +7,14 @@ use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
-use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Comparator;
+use Doctrine\DBAL\Schema\Exceptions\Expression;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DbalTestCase;
 use Doctrine\Tests\Types\CommentedType;
 use function get_class;
@@ -588,11 +587,11 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         }
     }
 
-    public function testGetDefaultValueDeclarationSQLForCompositeExpression() : void
+    public function testGetDefaultValueDeclarationSQLForExpression() : void
     {
         $field = [
             'type'    => Type::getType('string'),
-            'default' => new CompositeExpression(CompositeExpression::TYPE_AND, (array) '"string"'),
+            'default' => new Expression('"string"'),
         ];
 
         self::assertEquals(' DEFAULT "string"', $this->platform->getDefaultValueDeclarationSQL($field));
