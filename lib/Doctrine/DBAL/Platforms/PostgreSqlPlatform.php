@@ -486,6 +486,73 @@ SQL
         return $query;
     }
 
+    public function getAlterTableAddColumnSQL(string $table, string $column) : string
+    {
+        return sprintf('ALTER TABLE %s ADD %s', $table, $column);
+    }
+
+    public function getAlterTableDropColumnSQL(string $table, string $column) : string
+    {
+        return sprintf('ALTER TABLE %s DROP %s', $table, $column);
+    }
+
+    public function getAlterTableAlterTypeColumnSQL(
+        string $table,
+        string $column,
+        string $type,
+        array $columnDefinition
+    ) : string {
+        $using = '';
+        if ($columnDefinition['using'] ?? false) {
+            $using = 'USING ' . $columnDefinition['using'];
+        }
+        return trim(sprintf('ALTER TABLE %s ALTER %s TYPE %s %s', $table, $column, $type, $using));
+    }
+
+    public function getAlterTableAlterDefaultSQL(string $table, string $columnName, Column $column) : string
+    {
+        if ($column->getDefault() === null) {
+            return sprintf('ALTER TABLE %s ALTER %s DROP DEFAULT', $table, $columnName);
+        }
+
+        return sprintf(
+            'ALTER TABLE %s ALTER %s SET %s',
+            $table,
+            $columnName,
+            trim($this->getDefaultValueDeclarationSQL($column->toArray()))
+        );
+    }
+
+    public function getAlterTableRenameColumnSQL(string $table, string $oldColumn, string $newColumn) : string
+    {
+        return sprintf('ALTER TABLE %s RENAME COLUMN %s TO %s', $table, $oldColumn, $newColumn);
+    }
+
+    public function getAlterTableAlterNotNullSQL(string $table, string $columnName, Column $column) : string
+    {
+        return sprintf(
+            'ALTER TABLE %s ALTER %s %s NOT NULL',
+            $table,
+            $columnName,
+            $column->getNotnull() ? 'SET' : 'DROP'
+        );
+    }
+
+    public function getAlterTableRenameToSQL(string $table, string $name) : string
+    {
+        return sprintf('ALTER TABLE %s RENAME TO %s', $table, $name);
+    }
+
+    public function getSetSequenceValueSQL(string $table, string $column, string $sequence) : string
+    {
+        return sprintf("SELECT setval('%s', (SELECT MAX(%s) FROM %s))", $sequence, $column, $table);
+    }
+
+    public function getCreateSimpleSequenceSQL(string $sequence) : string
+    {
+        return sprintf('CREATE SEQUENCE %s', $sequence);
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -500,8 +567,10 @@ SQL
                 continue;
             }
 
-            $query = 'ADD ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
-            $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
+            $sql[] = $this->getAlterTableAddColumnSQL(
+                $diff->getName($this)->getQuotedName($this),
+                $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray())
+            );
 
             $comment = $this->getColumnComment($column);
 
@@ -521,8 +590,10 @@ SQL
                 continue;
             }
 
-            $query = 'DROP ' . $column->getQuotedName($this);
-            $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
+            $sql[] = $this->getAlterTableDropColumnSQL(
+                $diff->getName($this)->getQuotedName($this),
+                $column->getQuotedName($this)
+            );
         }
 
         foreach ($diff->changedColumns as $columnDiff) {
@@ -546,21 +617,28 @@ SQL
                 $columnDefinition['autoincrement'] = false;
 
                 // here was a server version check before, but DBAL API does not support this anymore.
-                $query = 'ALTER ' . $oldColumnName . ' TYPE ' . $type->getSQLDeclaration($columnDefinition, $this);
-                $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
+                $sql[] = $this->getAlterTableAlterTypeColumnSQL(
+                    $diff->getName($this)->getQuotedName($this),
+                    $oldColumnName,
+                    $type->getSQLDeclaration($columnDefinition, $this),
+                    $columnDefinition
+                );
             }
 
             if ($columnDiff->hasChanged('default') || $this->typeChangeBreaksDefaultValue($columnDiff)) {
-                $defaultClause = $column->getDefault() === null
-                    ? ' DROP DEFAULT'
-                    : ' SET' . $this->getDefaultValueDeclarationSQL($column->toArray());
-                $query         = 'ALTER ' . $oldColumnName . $defaultClause;
-                $sql[]         = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
+                $sql[] = $this->getAlterTableAlterDefaultSQL(
+                    $diff->getName($this)->getQuotedName($this),
+                    $oldColumnName,
+                    $column
+                );
             }
 
             if ($columnDiff->hasChanged('notnull')) {
-                $query = 'ALTER ' . $oldColumnName . ' ' . ($column->getNotnull() ? 'SET' : 'DROP') . ' NOT NULL';
-                $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
+                $sql[] = $this->getAlterTableAlterNotNullSQL(
+                    $diff->getName($this)->getQuotedName($this),
+                    $oldColumnName,
+                    $column
+                );
             }
 
             if ($columnDiff->hasChanged('autoincrement')) {
@@ -568,14 +646,24 @@ SQL
                     // add autoincrement
                     $seqName = $this->getIdentitySequenceName($diff->name, $oldColumnName);
 
-                    $sql[] = 'CREATE SEQUENCE ' . $seqName;
-                    $sql[] = "SELECT setval('" . $seqName . "', (SELECT MAX(" . $oldColumnName . ') FROM ' . $diff->getName($this)->getQuotedName($this) . '))';
-                    $query = 'ALTER ' . $oldColumnName . " SET DEFAULT nextval('" . $seqName . "')";
-                    $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
+                    $sql[] = $this->getCreateSimpleSequenceSQL($seqName);
+                    $sql[] = $this->getSetSequenceValueSQL(
+                        $diff->getName($this)->getQuotedName($this),
+                        $oldColumnName,
+                        $seqName
+                    );
+                    $sql[] = $this->getAlterTableAlterDefaultSQL(
+                        $diff->getName($this)->getQuotedName($this),
+                        $oldColumnName,
+                        $column->setDefault("nextval('{$seqName}')")
+                    );
                 } else {
                     // Drop autoincrement, but do NOT drop the sequence. It might be re-used by other tables or have
-                    $query = 'ALTER ' . $oldColumnName . ' DROP DEFAULT';
-                    $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
+                    $sql[] = $this->getAlterTableAlterDefaultSQL(
+                        $diff->getName($this)->getQuotedName($this),
+                        $oldColumnName,
+                        $column->setDefault(null)
+                    );
                 }
             }
 
@@ -594,8 +682,12 @@ SQL
                 continue;
             }
 
-            $query = 'ALTER ' . $oldColumnName . ' TYPE ' . $column->getType()->getSQLDeclaration($column->toArray(), $this);
-            $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
+            $sql[] = $this->getAlterTableAlterTypeColumnSQL(
+                $diff->getName($this)->getQuotedName($this),
+                $oldColumnName,
+                $column->getType()->getSQLDeclaration($column->toArray(), $this),
+                $column->toArray()
+            );
         }
 
         foreach ($diff->renamedColumns as $oldColumnName => $column) {
@@ -605,8 +697,11 @@ SQL
 
             $oldColumnName = new Identifier($oldColumnName);
 
-            $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) .
-                ' RENAME COLUMN ' . $oldColumnName->getQuotedName($this) . ' TO ' . $column->getQuotedName($this);
+            $sql[] = $this->getAlterTableRenameColumnSQL(
+                $diff->getName($this)->getQuotedName($this),
+                $oldColumnName->getQuotedName($this),
+                $column->getQuotedName($this)
+            );
         }
 
         $tableSql = [];
@@ -617,8 +712,7 @@ SQL
             $newName = $diff->getNewName();
 
             if ($newName !== false) {
-                $sql[] = sprintf(
-                    'ALTER TABLE %s RENAME TO %s',
+                $sql[] = $this->getAlterTableRenameToSQL(
                     $diff->getName($this)->getQuotedName($this),
                     $newName->getQuotedName($this)
                 );
