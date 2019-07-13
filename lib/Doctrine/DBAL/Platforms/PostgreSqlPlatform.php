@@ -14,6 +14,7 @@ use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\IntegerType;
 use Doctrine\DBAL\Types\Type;
+use Traversable;
 use UnexpectedValueException;
 use function array_diff;
 use function array_merge;
@@ -496,7 +497,10 @@ SQL
         return sprintf('ALTER TABLE %s DROP %s', $table, $column);
     }
 
-    public function getAlterTableAlterTypeColumnSQL(string $table, string $column, string $type, array $columnDefinition) : string
+    /**
+     * @param array|Traversable $columnDefinition
+     */
+    public function getAlterTableAlterTypeColumnSQL(string $table, string $column, string $type, $columnDefinition) : string
     {
         $using = '';
 
@@ -543,7 +547,7 @@ SQL
 
     public function getSetSequenceValueSQL(string $table, string $column, string $sequence) : string
     {
-        return "SELECT setval('{$sequence}', (SELECT MAX({$column}) FROM {$table}))";
+        return 'SELECT setval(' . "'" . $sequence . "'" . ', (SELECT MAX(' . $column . ') FROM ' . $table . '))';
     }
 
     public function getCreateSimpleSequenceSQL(string $sequence) : string
@@ -653,7 +657,7 @@ SQL
                     $sql[] = $this->getAlterTableAlterDefaultSQL(
                         $diff->getName($this)->getQuotedName($this),
                         $oldColumnName,
-                        $column->setDefault("nextval('{$seqName}')")
+                        $column->setDefault('nextval(' . "'" . $seqName . "'" . ')')
                     );
                 } else {
                     // Drop autoincrement, but do NOT drop the sequence. It might be re-used by other tables or have
