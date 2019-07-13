@@ -498,9 +498,9 @@ SQL
     }
 
     /**
-     * @param array|Traversable $columnDefinition
+     * @param string[] $columnDefinition
      */
-    public function getAlterTableAlterTypeColumnSQL(string $table, string $column, string $type, $columnDefinition) : string
+    public function getAlterTableAlterTypeColumnSQL(string $table, string $column, string $type, array $columnDefinition) : string
     {
         $using = '';
 
