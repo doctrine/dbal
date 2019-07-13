@@ -14,7 +14,6 @@ use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\IntegerType;
 use Doctrine\DBAL\Types\Type;
-use Traversable;
 use UnexpectedValueException;
 use function array_diff;
 use function array_merge;
