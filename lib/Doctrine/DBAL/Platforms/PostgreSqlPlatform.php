@@ -496,6 +496,9 @@ SQL
         return sprintf('ALTER TABLE %s DROP %s', $table, $column);
     }
 
+    /**
+     * @param array $columnDefinition
+     */
     public function getAlterTableAlterTypeColumnSQL(
         string $table,
         string $column,
@@ -514,7 +517,6 @@ SQL
         if ($column->getDefault() === null) {
             return sprintf('ALTER TABLE %s ALTER %s DROP DEFAULT', $table, $columnName);
         }
-
         return sprintf(
             'ALTER TABLE %s ALTER %s SET %s',
             $table,
@@ -545,7 +547,7 @@ SQL
 
     public function getSetSequenceValueSQL(string $table, string $column, string $sequence) : string
     {
-        return sprintf("SELECT setval('%s', (SELECT MAX(%s) FROM %s))", $sequence, $column, $table);
+        return sprintf('SELECT setval(\'%s\', (SELECT MAX(%s) FROM %s))', $sequence, $column, $table);
     }
 
     public function getCreateSimpleSequenceSQL(string $sequence) : string
