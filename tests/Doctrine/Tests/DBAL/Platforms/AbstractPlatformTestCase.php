@@ -592,10 +592,10 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
     {
         $field = [
             'type'    => Type::getType('string'),
-            'default' => new Expression('"string"'),
+            'default' => new Expression('"some string"'),
         ];
 
-        self::assertEquals(' DEFAULT "string"', $this->platform->getDefaultValueDeclarationSQL($field));
+        self::assertEquals(' DEFAULT "some string"', $this->platform->getDefaultValueDeclarationSQL($field));
     }
 
     public function testGetDefaultValueDeclarationSQLForIntegerTypes() : void
