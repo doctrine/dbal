@@ -618,6 +618,9 @@ class Connection implements DriverConnection
             if ($value === null) {
                 $conditions[] = $platform->getIsNullExpression($columnName);
                 continue;
+            } elseif (strtoupper($value) === 'NOT NULL') {
+                $conditions[] = $platform->getIsNotNullExpression($columnName);
+                continue;
             }
 
             $columns[]    = $columnName;
