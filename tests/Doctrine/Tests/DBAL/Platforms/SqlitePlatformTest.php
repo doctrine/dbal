@@ -9,8 +9,6 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
 
-require_once __DIR__ . '/../../TestInit.php';
-
 class SqlitePlatformTest extends AbstractPlatformTestCase
 {
     public function createPlatform()
@@ -33,26 +31,32 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
 
     public function testGeneratesSqlSnippets()
     {
+<<<<<<< HEAD
         $this->assertEquals('REGEXP', $this->_platform->getRegexpExpression(), 'Regular expression operator is not correct');
         $this->assertEquals('SUBSTR(column, 5, LENGTH(column))', $this->_platform->getSubstringExpression('column', 5), 'Substring expression without length is not correct');
         $this->assertEquals('SUBSTR(column, 0, 5)', $this->_platform->getSubstringExpression('column', 0, 5), 'Substring expression with length is not correct');
+=======
+        self::assertEquals('REGEXP', $this->_platform->getRegexpExpression(), 'Regular expression operator is not correct');
+        self::assertEquals('SUBSTR(column, 5, LENGTH(column))', $this->_platform->getSubstringExpression('column', 5), 'Substring expression without length is not correct');
+        self::assertEquals('SUBSTR(column, 0, 5)', $this->_platform->getSubstringExpression('column', 0, 5), 'Substring expression with length is not correct');
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
     public function testGeneratesTransactionCommands()
     {
-        $this->assertEquals(
+        self::assertEquals(
             'PRAGMA read_uncommitted = 0',
             $this->_platform->getSetTransactionIsolationSQL(\Doctrine\DBAL\Connection::TRANSACTION_READ_UNCOMMITTED)
         );
-        $this->assertEquals(
+        self::assertEquals(
             'PRAGMA read_uncommitted = 1',
             $this->_platform->getSetTransactionIsolationSQL(\Doctrine\DBAL\Connection::TRANSACTION_READ_COMMITTED)
         );
-        $this->assertEquals(
+        self::assertEquals(
             'PRAGMA read_uncommitted = 1',
             $this->_platform->getSetTransactionIsolationSQL(\Doctrine\DBAL\Connection::TRANSACTION_REPEATABLE_READ)
         );
-        $this->assertEquals(
+        self::assertEquals(
             'PRAGMA read_uncommitted = 1',
             $this->_platform->getSetTransactionIsolationSQL(\Doctrine\DBAL\Connection::TRANSACTION_SERIALIZABLE)
         );
@@ -60,12 +64,12 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
 
     public function testPrefersIdentityColumns()
     {
-        $this->assertTrue($this->_platform->prefersIdentityColumns());
+        self::assertTrue($this->_platform->prefersIdentityColumns());
     }
 
     public function testIgnoresUnsignedIntegerDeclarationForAutoIncrementalIntegers()
     {
-        $this->assertSame(
+        self::assertSame(
             'INTEGER',
             $this->_platform->getIntegerTypeDeclarationSQL(array('autoincrement' => true, 'unsigned' => true))
         );
@@ -77,24 +81,24 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
      */
     public function testGeneratesTypeDeclarationForTinyIntegers()
     {
-        $this->assertEquals(
+        self::assertEquals(
             'TINYINT',
             $this->_platform->getTinyIntTypeDeclarationSQL(array())
         );
-        $this->assertEquals(
+        self::assertEquals(
             'INTEGER',
             $this->_platform->getTinyIntTypeDeclarationSQL(array('autoincrement' => true))
         );
-        $this->assertEquals(
+        self::assertEquals(
             'INTEGER',
             $this->_platform->getTinyIntTypeDeclarationSQL(
                 array('autoincrement' => true, 'primary' => true))
         );
-        $this->assertEquals(
+        self::assertEquals(
             'TINYINT',
             $this->_platform->getTinyIntTypeDeclarationSQL(array('unsigned' => false))
         );
-        $this->assertEquals(
+        self::assertEquals(
             'TINYINT UNSIGNED',
             $this->_platform->getTinyIntTypeDeclarationSQL(array('unsigned' => true))
         );
@@ -106,28 +110,28 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
      */
     public function testGeneratesTypeDeclarationForSmallIntegers()
     {
-        $this->assertEquals(
+        self::assertEquals(
             'SMALLINT',
             $this->_platform->getSmallIntTypeDeclarationSQL(array())
         );
-        $this->assertEquals(
+        self::assertEquals(
             'INTEGER',
             $this->_platform->getSmallIntTypeDeclarationSQL(array('autoincrement' => true))
         );
-        $this->assertEquals(
+        self::assertEquals(
             'INTEGER',
             $this->_platform->getTinyIntTypeDeclarationSQL(array('autoincrement' => true, 'unsigned' => true))
         );
-        $this->assertEquals(
+        self::assertEquals(
             'INTEGER',
             $this->_platform->getSmallIntTypeDeclarationSQL(
                 array('autoincrement' => true, 'primary' => true))
         );
-        $this->assertEquals(
+        self::assertEquals(
             'SMALLINT',
             $this->_platform->getSmallIntTypeDeclarationSQL(array('unsigned' => false))
         );
-        $this->assertEquals(
+        self::assertEquals(
             'SMALLINT UNSIGNED',
             $this->_platform->getSmallIntTypeDeclarationSQL(array('unsigned' => true))
         );
@@ -139,28 +143,28 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
      */
     public function testGeneratesTypeDeclarationForMediumIntegers()
     {
-        $this->assertEquals(
+        self::assertEquals(
             'MEDIUMINT',
             $this->_platform->getMediumIntTypeDeclarationSQL(array())
         );
-        $this->assertEquals(
+        self::assertEquals(
             'INTEGER',
             $this->_platform->getMediumIntTypeDeclarationSQL(array('autoincrement' => true))
         );
-        $this->assertEquals(
+        self::assertEquals(
             'INTEGER',
             $this->_platform->getMediumIntTypeDeclarationSQL(array('autoincrement' => true, 'unsigned' => true))
         );
-        $this->assertEquals(
+        self::assertEquals(
             'INTEGER',
             $this->_platform->getMediumIntTypeDeclarationSQL(
                 array('autoincrement' => true, 'primary' => true))
         );
-        $this->assertEquals(
+        self::assertEquals(
             'MEDIUMINT',
             $this->_platform->getMediumIntTypeDeclarationSQL(array('unsigned' => false))
         );
-        $this->assertEquals(
+        self::assertEquals(
             'MEDIUMINT UNSIGNED',
             $this->_platform->getMediumIntTypeDeclarationSQL(array('unsigned' => true))
         );
@@ -168,28 +172,28 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
 
     public function testGeneratesTypeDeclarationForIntegers()
     {
-        $this->assertEquals(
+        self::assertEquals(
             'INTEGER',
             $this->_platform->getIntegerTypeDeclarationSQL(array())
         );
-        $this->assertEquals(
+        self::assertEquals(
             'INTEGER',
             $this->_platform->getIntegerTypeDeclarationSQL(array('autoincrement' => true))
         );
-        $this->assertEquals(
+        self::assertEquals(
             'INTEGER',
             $this->_platform->getIntegerTypeDeclarationSQL(array('autoincrement' => true, 'unsigned' => true))
         );
-        $this->assertEquals(
+        self::assertEquals(
             'INTEGER',
             $this->_platform->getIntegerTypeDeclarationSQL(
                 array('autoincrement' => true, 'primary' => true))
         );
-        $this->assertEquals(
+        self::assertEquals(
             'INTEGER',
             $this->_platform->getIntegerTypeDeclarationSQL(array('unsigned' => false))
         );
-        $this->assertEquals(
+        self::assertEquals(
             'INTEGER UNSIGNED',
             $this->_platform->getIntegerTypeDeclarationSQL(array('unsigned' => true))
         );
@@ -201,28 +205,28 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
      */
     public function testGeneratesTypeDeclarationForBigIntegers()
     {
-        $this->assertEquals(
+        self::assertEquals(
             'BIGINT',
             $this->_platform->getBigIntTypeDeclarationSQL(array())
         );
-        $this->assertEquals(
+        self::assertEquals(
             'INTEGER',
             $this->_platform->getBigIntTypeDeclarationSQL(array('autoincrement' => true))
         );
-        $this->assertEquals(
+        self::assertEquals(
             'INTEGER',
             $this->_platform->getBigIntTypeDeclarationSQL(array('autoincrement' => true, 'unsigned' => true))
         );
-        $this->assertEquals(
+        self::assertEquals(
             'INTEGER',
             $this->_platform->getBigIntTypeDeclarationSQL(
                 array('autoincrement' => true, 'primary' => true))
         );
-        $this->assertEquals(
+        self::assertEquals(
             'BIGINT',
             $this->_platform->getBigIntTypeDeclarationSQL(array('unsigned' => false))
         );
-        $this->assertEquals(
+        self::assertEquals(
             'BIGINT UNSIGNED',
             $this->_platform->getBigIntTypeDeclarationSQL(array('unsigned' => true))
         );
@@ -230,17 +234,17 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
 
     public function testGeneratesTypeDeclarationForStrings()
     {
-        $this->assertEquals(
+        self::assertEquals(
             'CHAR(10)',
             $this->_platform->getVarcharTypeDeclarationSQL(
                 array('length' => 10, 'fixed' => true))
         );
-        $this->assertEquals(
+        self::assertEquals(
             'VARCHAR(50)',
             $this->_platform->getVarcharTypeDeclarationSQL(array('length' => 50)),
             'Variable string declaration is not correct'
         );
-        $this->assertEquals(
+        self::assertEquals(
             'VARCHAR(255)',
             $this->_platform->getVarcharTypeDeclarationSQL(array()),
             'Long string declaration is not correct'
@@ -281,13 +285,19 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     public function testModifyLimitQuery()
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user', 10, 0);
-        $this->assertEquals('SELECT * FROM user LIMIT 10 OFFSET 0', $sql);
+        self::assertEquals('SELECT * FROM user LIMIT 10 OFFSET 0', $sql);
     }
 
     public function testModifyLimitQueryWithEmptyOffset()
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user', 10);
-        $this->assertEquals('SELECT * FROM user LIMIT 10', $sql);
+        self::assertEquals('SELECT * FROM user LIMIT 10', $sql);
+    }
+
+    public function testModifyLimitQueryWithOffsetAndEmptyLimit()
+    {
+        $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user', null, 10);
+        self::assertEquals('SELECT * FROM user LIMIT -1 OFFSET 10', $sql);
     }
 
     public function testModifyLimitQueryWithOffsetAndEmptyLimit()
@@ -318,7 +328,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         $table->setPrimaryKey(array('"like"'));
 
         $createTableSQL = $this->_platform->getCreateTableSQL($table);
-        $this->assertEquals(
+        self::assertEquals(
             'CREATE TABLE test ("like" INTEGER NOT NULL, PRIMARY KEY("like"))',
             $createTableSQL[0]
         );
@@ -335,28 +345,32 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
             'ALTER TABLE user ADD COLUMN count INTEGER DEFAULT 1',
         );
 
-        $this->assertEquals($expected, $this->_platform->getAlterTableSQL($diff));
+        self::assertEquals($expected, $this->_platform->getAlterTableSQL($diff));
     }
 
-    public function testAlterTableAddComplexColumns()
+    /**
+     * @dataProvider complexDiffProvider
+     */
+    public function testAlterTableAddComplexColumns(TableDiff $diff) : void
     {
-        $diff = new TableDiff('user');
-        $diff->addedColumns['time'] = new Column('time', Type::getType('date'), array('default' => 'CURRENT_DATE'));
+        $this->expectException(DBALException::class);
 
-        try {
-            $this->_platform->getAlterTableSQL($diff);
-            $this->fail();
-        } catch (DBALException $e) {
-        }
+        $this->_platform->getAlterTableSQL($diff);
+    }
 
-        $diff = new TableDiff('user');
-        $diff->addedColumns['id'] = new Column('id', Type::getType('integer'), array('autoincrement' => true));
+    public function complexDiffProvider() : array
+    {
+        $date = new TableDiff('user');
+        $date->addedColumns['time'] = new Column('time', Type::getType('date'), array('default' => 'CURRENT_DATE'));
 
-        try {
-            $this->_platform->getAlterTableSQL($diff);
-            $this->fail();
-        } catch (DBALException $e) {
-        }
+
+        $id = new TableDiff('user');
+        $id->addedColumns['id'] = new Column('id', Type::getType('integer'), array('autoincrement' => true));
+
+        return [
+            'date column with default value' => [$date],
+            'id column with auto increment'  => [$id],
+        ];
     }
 
     public function testCreateTableWithDeferredForeignKeys()
@@ -384,7 +398,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
             'CREATE INDEX IDX_8D93D6493D8E604F ON user (parent)',
         );
 
-        $this->assertEquals($sql, $this->_platform->getCreateTableSQL($table));
+        self::assertEquals($sql, $this->_platform->getCreateTableSQL($table));
     }
 
     public function testAlterTable()
@@ -428,7 +442,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
             'CREATE INDEX IDX_8D93D6495A8A6C8D ON client (comment)',
         );
 
-        $this->assertEquals($sql, $this->_platform->getAlterTableSQL($diff));
+        self::assertEquals($sql, $this->_platform->getAlterTableSQL($diff));
     }
 
     protected function getQuotedColumnInPrimaryKeySQL()
@@ -477,13 +491,13 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
 
     public function testReturnsBinaryTypeDeclarationSQL()
     {
-        $this->assertSame('BLOB', $this->_platform->getBinaryTypeDeclarationSQL(array()));
-        $this->assertSame('BLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 0)));
-        $this->assertSame('BLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 9999999)));
+        self::assertSame('BLOB', $this->_platform->getBinaryTypeDeclarationSQL(array()));
+        self::assertSame('BLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 0)));
+        self::assertSame('BLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 9999999)));
 
-        $this->assertSame('BLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true)));
-        $this->assertSame('BLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 0)));
-        $this->assertSame('BLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 9999999)));
+        self::assertSame('BLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true)));
+        self::assertSame('BLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 0)));
+        self::assertSame('BLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 9999999)));
     }
 
     /**
@@ -525,11 +539,20 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         return array(
             'CREATE TEMPORARY TABLE __temp__mytable AS SELECT unquoted1, unquoted2, unquoted3, "create", "table", "select", "quoted1", "quoted2", "quoted3" FROM mytable',
             'DROP TABLE mytable',
-            'CREATE TABLE mytable (unquoted INTEGER NOT NULL, "where" INTEGER NOT NULL, "foo" INTEGER NOT NULL, reserved_keyword INTEGER NOT NULL, "from" INTEGER NOT NULL, "bar" INTEGER NOT NULL, quoted INTEGER NOT NULL, "and" INTEGER NOT NULL, "baz" INTEGER NOT NULL)',
+            'CREATE TABLE mytable (unquoted INTEGER NOT NULL --Unquoted 1
+, "where" INTEGER NOT NULL --Unquoted 2
+, "foo" INTEGER NOT NULL --Unquoted 3
+, reserved_keyword INTEGER NOT NULL --Reserved keyword 1
+, "from" INTEGER NOT NULL --Reserved keyword 2
+, "bar" INTEGER NOT NULL --Reserved keyword 3
+, quoted INTEGER NOT NULL --Quoted 1
+, "and" INTEGER NOT NULL --Quoted 2
+, "baz" INTEGER NOT NULL --Quoted 3
+)',
             'INSERT INTO mytable (unquoted, "where", "foo", reserved_keyword, "from", "bar", quoted, "and", "baz") SELECT unquoted1, unquoted2, unquoted3, "create", "table", "select", "quoted1", "quoted2", "quoted3" FROM __temp__mytable',
             'DROP TABLE __temp__mytable',
         );
-	}
+    }
 
     /**
      * {@inheritdoc}
@@ -539,7 +562,13 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         return array(
             'CREATE TEMPORARY TABLE __temp__mytable AS SELECT unquoted1, unquoted2, unquoted3, "create", "table", "select" FROM mytable',
             'DROP TABLE mytable',
-            'CREATE TABLE mytable (unquoted1 VARCHAR(255) NOT NULL, unquoted2 VARCHAR(255) NOT NULL, unquoted3 VARCHAR(255) NOT NULL, "create" VARCHAR(255) NOT NULL, "table" VARCHAR(255) NOT NULL, "select" VARCHAR(255) NOT NULL)',
+            'CREATE TABLE mytable (unquoted1 VARCHAR(255) NOT NULL --Unquoted 1
+, unquoted2 VARCHAR(255) NOT NULL --Unquoted 2
+, unquoted3 VARCHAR(255) NOT NULL --Unquoted 3
+, "create" VARCHAR(255) NOT NULL --Reserved keyword 1
+, "table" VARCHAR(255) NOT NULL --Reserved keyword 2
+, "select" VARCHAR(255) NOT NULL --Reserved keyword 3
+)',
             'INSERT INTO mytable (unquoted1, unquoted2, unquoted3, "create", "table", "select") SELECT unquoted1, unquoted2, unquoted3, "create", "table", "select" FROM __temp__mytable',
             'DROP TABLE __temp__mytable',
         );
@@ -572,7 +601,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
      */
     public function testReturnsGuidTypeDeclarationSQL()
     {
-        $this->assertSame('CHAR(36)', $this->_platform->getGuidTypeDeclarationSQL(array()));
+        self::assertSame('CHAR(36)', $this->_platform->getGuidTypeDeclarationSQL(array()));
     }
 
     /**
@@ -583,7 +612,8 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         return array(
             'CREATE TEMPORARY TABLE __temp__foo AS SELECT bar FROM foo',
             'DROP TABLE foo',
-            'CREATE TABLE foo (baz INTEGER DEFAULT 666 NOT NULL)',
+            'CREATE TABLE foo (baz INTEGER DEFAULT 666 NOT NULL --rename test
+)',
             'INSERT INTO foo (baz) SELECT bar FROM __temp__foo',
             'DROP TABLE __temp__foo',
         );
@@ -623,6 +653,29 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         );
     }
 
+<<<<<<< HEAD
+=======
+    protected function getInlineColumnCommentDelimiter()
+    {
+        return "\n";
+    }
+
+    protected function getInlineColumnRegularCommentSQL()
+    {
+        return "--Regular comment\n";
+    }
+
+    protected function getInlineColumnCommentRequiringEscapingSQL()
+    {
+        return "--Using inline comment delimiter \n-- works\n";
+    }
+
+    protected function getInlineColumnEmptyCommentSQL()
+    {
+        return "--\n";
+    }
+
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     /**
      * {@inheritdoc}
      */
@@ -684,7 +737,11 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
      */
     public function testQuotesTableNameInListTableConstraintsSQL()
     {
+<<<<<<< HEAD
         $this->assertContains("'Foo''Bar\\'", $this->_platform->getListTableConstraintsSQL("Foo'Bar\\"), '', true);
+=======
+        self::assertContains("'Foo''Bar\\'", $this->_platform->getListTableConstraintsSQL("Foo'Bar\\"), '', true);
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
     /**
@@ -692,7 +749,11 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
      */
     public function testQuotesTableNameInListTableColumnsSQL()
     {
+<<<<<<< HEAD
         $this->assertContains("'Foo''Bar\\'", $this->_platform->getListTableColumnsSQL("Foo'Bar\\"), '', true);
+=======
+        self::assertContains("'Foo''Bar\\'", $this->_platform->getListTableColumnsSQL("Foo'Bar\\"), '', true);
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
     /**
@@ -700,7 +761,11 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
      */
     public function testQuotesTableNameInListTableIndexesSQL()
     {
+<<<<<<< HEAD
         $this->assertContains("'Foo''Bar\\'", $this->_platform->getListTableIndexesSQL("Foo'Bar\\"), '', true);
+=======
+        self::assertContains("'Foo''Bar\\'", $this->_platform->getListTableIndexesSQL("Foo'Bar\\"), '', true);
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
     /**
@@ -708,6 +773,10 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
      */
     public function testQuotesTableNameInListTableForeignKeysSQL()
     {
+<<<<<<< HEAD
         $this->assertContains("'Foo''Bar\\'", $this->_platform->getListTableForeignKeysSQL("Foo'Bar\\"), '', true);
+=======
+        self::assertContains("'Foo''Bar\\'", $this->_platform->getListTableForeignKeysSQL("Foo'Bar\\"), '', true);
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 }

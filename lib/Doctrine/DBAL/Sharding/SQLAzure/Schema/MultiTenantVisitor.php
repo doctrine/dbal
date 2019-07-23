@@ -41,8 +41,8 @@ use Doctrine\DBAL\Schema\Index;
  * - You always have to work with `filtering=On` when using federations with this
  *   multi-tenant approach.
  * - Primary keys are either using globally unique ids (GUID, Table Generator)
- *   or you explicitly add the tenent_id in every UPDATE or DELETE statement
- *   (otherwise they will affect the same-id rows from other tenents as well).
+ *   or you explicitly add the tenant_id in every UPDATE or DELETE statement
+ *   (otherwise they will affect the same-id rows from other tenants as well).
  *   SQLAzure throws errors when you try to create IDENTIY columns on federated
  *   tables.
  *
@@ -53,7 +53,7 @@ class MultiTenantVisitor implements Visitor
     /**
      * @var array
      */
-    private $excludedTables = array();
+    private $excludedTables = [];
 
     /**
      * @var string
@@ -78,7 +78,7 @@ class MultiTenantVisitor implements Visitor
      * @param string      $tenantColumnName
      * @param string|null $distributionName
      */
-    public function __construct(array $excludedTables = array(), $tenantColumnName = 'tenant_id', $distributionName = null)
+    public function __construct(array $excludedTables = [], $tenantColumnName = 'tenant_id', $distributionName = null)
     {
         $this->excludedTables = $excludedTables;
         $this->tenantColumnName = $tenantColumnName;
@@ -94,9 +94,9 @@ class MultiTenantVisitor implements Visitor
             return;
         }
 
-        $table->addColumn($this->tenantColumnName, $this->tenantColumnType, array(
+        $table->addColumn($this->tenantColumnName, $this->tenantColumnType, [
             'default' => "federation_filtering_value('". $this->distributionName ."')",
-        ));
+        ]);
 
         $clusteredIndex = $this->getClusteredIndex($table);
 

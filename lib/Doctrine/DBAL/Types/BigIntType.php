@@ -27,7 +27,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
  * @author robo
  * @since 2.0
  */
-class BigIntType extends Type
+class BigIntType extends Type implements PhpIntegerMappingType
 {
     /**
      * {@inheritdoc}

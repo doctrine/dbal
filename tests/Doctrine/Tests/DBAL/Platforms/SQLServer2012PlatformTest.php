@@ -14,30 +14,30 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
 
     public function testSupportsSequences()
     {
-        $this->assertTrue($this->_platform->supportsSequences());
+        self::assertTrue($this->_platform->supportsSequences());
     }
 
     public function testDoesNotPreferSequences()
     {
-        $this->assertFalse($this->_platform->prefersSequences());
+        self::assertFalse($this->_platform->prefersSequences());
     }
 
     public function testGeneratesSequenceSqlCommands()
     {
         $sequence = new Sequence('myseq', 20, 1);
-        $this->assertEquals(
+        self::assertEquals(
             'CREATE SEQUENCE myseq START WITH 1 INCREMENT BY 20 MINVALUE 1',
             $this->_platform->getCreateSequenceSQL($sequence)
         );
-        $this->assertEquals(
+        self::assertEquals(
             'ALTER SEQUENCE myseq INCREMENT BY 20',
             $this->_platform->getAlterSequenceSQL($sequence)
         );
-        $this->assertEquals(
+        self::assertEquals(
             'DROP SEQUENCE myseq',
             $this->_platform->getDropSequenceSQL('myseq')
         );
-        $this->assertEquals(
+        self::assertEquals(
             "SELECT NEXT VALUE FOR myseq",
             $this->_platform->getSequenceNextValSQL('myseq')
         );
@@ -47,63 +47,103 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
     public function testModifyLimitQuery()
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user', 10, 0);
+<<<<<<< HEAD
         $this->assertEquals('SELECT * FROM user ORDER BY (SELECT 0) OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
+=======
+        self::assertEquals('SELECT * FROM user ORDER BY (SELECT 0) OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
     public function testModifyLimitQueryWithEmptyOffset()
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user', 10);
+<<<<<<< HEAD
         $this->assertEquals('SELECT * FROM user ORDER BY (SELECT 0) OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
+=======
+        self::assertEquals('SELECT * FROM user ORDER BY (SELECT 0) OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
     public function testModifyLimitQueryWithOffset()
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user ORDER BY username DESC', 10, 5);
+<<<<<<< HEAD
         $this->assertEquals('SELECT * FROM user ORDER BY username DESC OFFSET 5 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
+=======
+        self::assertEquals('SELECT * FROM user ORDER BY username DESC OFFSET 5 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
     public function testModifyLimitQueryWithAscOrderBy()
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user ORDER BY username ASC', 10);
+<<<<<<< HEAD
         $this->assertEquals('SELECT * FROM user ORDER BY username ASC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
+=======
+        self::assertEquals('SELECT * FROM user ORDER BY username ASC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
     public function testModifyLimitQueryWithLowercaseOrderBy()
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user order by username', 10);
+<<<<<<< HEAD
         $this->assertEquals('SELECT * FROM user order by username OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
+=======
+        self::assertEquals('SELECT * FROM user order by username OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
     public function testModifyLimitQueryWithDescOrderBy()
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user ORDER BY username DESC', 10);
+<<<<<<< HEAD
         $this->assertEquals('SELECT * FROM user ORDER BY username DESC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
+=======
+        self::assertEquals('SELECT * FROM user ORDER BY username DESC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
     public function testModifyLimitQueryWithMultipleOrderBy()
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user ORDER BY username DESC, usereamil ASC', 10);
+<<<<<<< HEAD
         $this->assertEquals('SELECT * FROM user ORDER BY username DESC, usereamil ASC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
+=======
+        self::assertEquals('SELECT * FROM user ORDER BY username DESC, usereamil ASC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
     public function testModifyLimitQueryWithSubSelect()
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM (SELECT u.id as uid, u.name as uname) dctrn_result', 10);
+<<<<<<< HEAD
         $this->assertEquals('SELECT * FROM (SELECT u.id as uid, u.name as uname) dctrn_result ORDER BY (SELECT 0) OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
+=======
+        self::assertEquals('SELECT * FROM (SELECT u.id as uid, u.name as uname) dctrn_result ORDER BY (SELECT 0) OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
     public function testModifyLimitQueryWithSubSelectAndOrder()
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM (SELECT u.id as uid, u.name as uname) dctrn_result ORDER BY uname DESC', 10);
+<<<<<<< HEAD
         $this->assertEquals('SELECT * FROM (SELECT u.id as uid, u.name as uname) dctrn_result ORDER BY uname DESC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
 
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM (SELECT u.id, u.name) dctrn_result ORDER BY name DESC', 10);
         $this->assertEquals('SELECT * FROM (SELECT u.id, u.name) dctrn_result ORDER BY name DESC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
+=======
+        self::assertEquals('SELECT * FROM (SELECT u.id as uid, u.name as uname) dctrn_result ORDER BY uname DESC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
+
+        $sql = $this->_platform->modifyLimitQuery('SELECT * FROM (SELECT u.id, u.name) dctrn_result ORDER BY name DESC', 10);
+        self::assertEquals('SELECT * FROM (SELECT u.id, u.name) dctrn_result ORDER BY name DESC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
     public function testModifyLimitQueryWithSubSelectAndMultipleOrder()
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM (SELECT u.id as uid, u.name as uname) dctrn_result ORDER BY uname DESC, uid ASC', 10, 5);
+<<<<<<< HEAD
         $this->assertEquals('SELECT * FROM (SELECT u.id as uid, u.name as uname) dctrn_result ORDER BY uname DESC, uid ASC OFFSET 5 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
 
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM (SELECT u.id uid, u.name uname) dctrn_result ORDER BY uname DESC, uid ASC', 10, 5);
@@ -111,12 +151,25 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
 
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM (SELECT u.id, u.name) dctrn_result ORDER BY name DESC, id ASC', 10, 5);
         $this->assertEquals('SELECT * FROM (SELECT u.id, u.name) dctrn_result ORDER BY name DESC, id ASC OFFSET 5 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
+=======
+        self::assertEquals('SELECT * FROM (SELECT u.id as uid, u.name as uname) dctrn_result ORDER BY uname DESC, uid ASC OFFSET 5 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
+
+        $sql = $this->_platform->modifyLimitQuery('SELECT * FROM (SELECT u.id uid, u.name uname) dctrn_result ORDER BY uname DESC, uid ASC', 10, 5);
+        self::assertEquals('SELECT * FROM (SELECT u.id uid, u.name uname) dctrn_result ORDER BY uname DESC, uid ASC OFFSET 5 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
+
+        $sql = $this->_platform->modifyLimitQuery('SELECT * FROM (SELECT u.id, u.name) dctrn_result ORDER BY name DESC, id ASC', 10, 5);
+        self::assertEquals('SELECT * FROM (SELECT u.id, u.name) dctrn_result ORDER BY name DESC, id ASC OFFSET 5 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
     public function testModifyLimitQueryWithFromColumnNames()
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT a.fromFoo, fromBar FROM foo', 10);
+<<<<<<< HEAD
         $this->assertEquals('SELECT a.fromFoo, fromBar FROM foo ORDER BY (SELECT 0) OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
+=======
+        self::assertEquals('SELECT a.fromFoo, fromBar FROM foo ORDER BY (SELECT 0) OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
     /**
@@ -138,7 +191,11 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
         $expected.= 'ORDER BY (SELECT 0) OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY';
 
 
+<<<<<<< HEAD
         $this->assertEquals($expected, $sql);
+=======
+        self::assertEquals($expected, $sql);
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
     /**
@@ -150,7 +207,11 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
         $expected = 'SELECT m0_.NOMBRE AS NOMBRE0, m0_.FECHAINICIO AS FECHAINICIO1, m0_.FECHAFIN AS FECHAFIN2 FROM MEDICION m0_ WITH (NOLOCK) INNER JOIN ESTUDIO e1_ ON m0_.ESTUDIO_ID = e1_.ID INNER JOIN CLIENTE c2_ ON e1_.CLIENTE_ID = c2_.ID INNER JOIN USUARIO u3_ ON c2_.ID = u3_.CLIENTE_ID WHERE u3_.ID = ? ORDER BY m0_.FECHAINICIO DESC OFFSET 5 ROWS FETCH NEXT 10 ROWS ONLY';
         $actual   = $this->_platform->modifyLimitQuery($sql, 10, 5);
 
+<<<<<<< HEAD
         $this->assertEquals($expected, $actual);
+=======
+        self::assertEquals($expected, $actual);
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
     /**
@@ -169,7 +230,11 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
             10
         );
 
+<<<<<<< HEAD
         $this->assertEquals(
+=======
+        self::assertEquals(
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
 
             "SELECT " .
             "u.id, " .
@@ -201,7 +266,11 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
             5
         );
 
+<<<<<<< HEAD
         $this->assertEquals(
+=======
+        self::assertEquals(
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
             "SELECT " .
             "u.id, " .
             "(u.foo/2) foodiv, " .
@@ -231,7 +300,11 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
             0
         );
 
+<<<<<<< HEAD
         $this->assertEquals(
+=======
+        self::assertEquals(
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
             "SELECT " .
             "MAX(heading_id) aliased, " .
             "code " .
@@ -249,7 +322,11 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
 
         $expected = "SELECT DISTINCT id_0 FROM (SELECT k0_.id AS id_0 FROM key_measure k0_ WHERE (k0_.id_zone in(2))) dctrn_result ORDER BY 1 OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY";
 
+<<<<<<< HEAD
         $this->assertEquals($sql, $expected);
+=======
+        self::assertEquals($sql, $expected);
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
     public function testModifyLimitQueryWithFromSubqueryAndOrder()
@@ -258,7 +335,11 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
 
         $expected = "SELECT DISTINCT id_0, value_1 FROM (SELECT k0_.id AS id_0, k0_.value AS value_1 FROM key_measure k0_ WHERE (k0_.id_zone in(2))) dctrn_result ORDER BY value_1 DESC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY";
 
+<<<<<<< HEAD
         $this->assertEquals($sql, $expected);
+=======
+        self::assertEquals($sql, $expected);
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
     public function testModifyLimitQueryWithComplexOrderByExpression()
@@ -267,7 +348,11 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
 
         $expected = "SELECT * FROM table ORDER BY (table.x * table.y) DESC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY";
 
+<<<<<<< HEAD
         $this->assertEquals($sql, $expected);
+=======
+        self::assertEquals($sql, $expected);
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
 
@@ -291,7 +376,11 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
             . ") dctrn_result "
             . "ORDER BY id_0 ASC OFFSET 0 ROWS FETCH NEXT 5 ROWS ONLY";
         $sql = $this->_platform->modifyLimitQuery($querySql, 5);
+<<<<<<< HEAD
         $this->assertEquals($alteredSql, $sql);
+=======
+        self::assertEquals($alteredSql, $sql);
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
     /**
@@ -314,7 +403,11 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
             . ") dctrn_result "
             . "ORDER BY name_1 ASC OFFSET 0 ROWS FETCH NEXT 5 ROWS ONLY";
         $sql = $this->_platform->modifyLimitQuery($querySql, 5);
+<<<<<<< HEAD
         $this->assertEquals($alteredSql, $sql);
+=======
+        self::assertEquals($alteredSql, $sql);
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
     /**
@@ -337,7 +430,11 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
             . ") dctrn_result "
             . "ORDER BY name_1 ASC, foo_2 DESC OFFSET 0 ROWS FETCH NEXT 5 ROWS ONLY";
         $sql = $this->_platform->modifyLimitQuery($querySql, 5);
+<<<<<<< HEAD
         $this->assertEquals($alteredSql, $sql);
+=======
+        self::assertEquals($alteredSql, $sql);
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
     public function testModifyLimitSubquerySimple()
@@ -348,7 +445,11 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
         $alteredSql = "SELECT DISTINCT id_0 FROM (SELECT k0_.id AS id_0, k0_.field AS field_1 "
             . "FROM key_table k0_ WHERE (k0_.where_field IN (1))) dctrn_result ORDER BY 1 OFFSET 0 ROWS FETCH NEXT 20 ROWS ONLY";
         $sql = $this->_platform->modifyLimitQuery($querySql, 20);
+<<<<<<< HEAD
         $this->assertEquals($alteredSql, $sql);
+=======
+        self::assertEquals($alteredSql, $sql);
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
     public function testModifyLimitQueryWithTopNSubQueryWithOrderBy()
@@ -356,12 +457,20 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
         $querySql = 'SELECT * FROM test t WHERE t.id = (SELECT TOP 1 t2.id FROM test t2 ORDER BY t2.data DESC)';
         $expectedSql = 'SELECT * FROM test t WHERE t.id = (SELECT TOP 1 t2.id FROM test t2 ORDER BY t2.data DESC) ORDER BY (SELECT 0) OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY';
         $sql = $this->_platform->modifyLimitQuery($querySql, 10);
+<<<<<<< HEAD
         $this->assertEquals($expectedSql, $sql);
+=======
+        self::assertEquals($expectedSql, $sql);
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
 
         $querySql = 'SELECT * FROM test t WHERE t.id = (SELECT TOP 1 t2.id FROM test t2 ORDER BY t2.data DESC) ORDER BY t.data2 DESC';
         $expectedSql = 'SELECT * FROM test t WHERE t.id = (SELECT TOP 1 t2.id FROM test t2 ORDER BY t2.data DESC) ORDER BY t.data2 DESC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY';
         $sql = $this->_platform->modifyLimitQuery($querySql, 10);
+<<<<<<< HEAD
         $this->assertEquals($expectedSql, $sql);
+=======
+        self::assertEquals($expectedSql, $sql);
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
     public function testModifyLimitQueryWithNewlineBeforeOrderBy()
@@ -369,6 +478,10 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
         $querySql = "SELECT * FROM test\nORDER BY col DESC";
         $expectedSql = "SELECT * FROM test\nORDER BY col DESC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY";
         $sql = $this->_platform->modifyLimitQuery($querySql, 10);
+<<<<<<< HEAD
         $this->assertEquals($expectedSql, $sql);
+=======
+        self::assertEquals($expectedSql, $sql);
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 }

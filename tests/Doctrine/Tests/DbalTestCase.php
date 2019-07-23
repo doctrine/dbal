@@ -5,6 +5,6 @@ namespace Doctrine\Tests;
 /**
  * Base testcase class for all dbal testcases.
  */
-class DbalTestCase extends DoctrineTestCase
+abstract class DbalTestCase extends \PHPUnit\Framework\TestCase
 {
 }

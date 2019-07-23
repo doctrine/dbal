@@ -23,12 +23,12 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Synchronizer\SingleDatabaseSynchronizer;
 
-class SingleDatabaseSynchronizerTest extends \PHPUnit_Framework_TestCase
+class SingleDatabaseSynchronizerTest extends \PHPUnit\Framework\TestCase
 {
     private $conn;
     private $synchronizer;
 
-    public function setUp()
+    protected function setUp()
     {
         $this->conn = DriverManager::getConnection(array(
             'driver' => 'pdo_sqlite',
@@ -45,7 +45,7 @@ class SingleDatabaseSynchronizerTest extends \PHPUnit_Framework_TestCase
         $table->setPrimaryKey(array('id'));
 
         $sql = $this->synchronizer->getCreateSchema($schema);
-        $this->assertEquals(array('CREATE TABLE test (id INTEGER NOT NULL, PRIMARY KEY(id))'), $sql);
+        self::assertEquals(array('CREATE TABLE test (id INTEGER NOT NULL, PRIMARY KEY(id))'), $sql);
     }
 
     public function testGetUpdateSchema()
@@ -56,7 +56,7 @@ class SingleDatabaseSynchronizerTest extends \PHPUnit_Framework_TestCase
         $table->setPrimaryKey(array('id'));
 
         $sql = $this->synchronizer->getUpdateSchema($schema);
-        $this->assertEquals(array('CREATE TABLE test (id INTEGER NOT NULL, PRIMARY KEY(id))'), $sql);
+        self::assertEquals(array('CREATE TABLE test (id INTEGER NOT NULL, PRIMARY KEY(id))'), $sql);
     }
 
     public function testGetDropSchema()
@@ -69,7 +69,7 @@ class SingleDatabaseSynchronizerTest extends \PHPUnit_Framework_TestCase
         $this->synchronizer->createSchema($schema);
 
         $sql = $this->synchronizer->getDropSchema($schema);
-        $this->assertEquals(array('DROP TABLE test'), $sql);
+        self::assertEquals(array('DROP TABLE test'), $sql);
     }
 
     public function testGetDropAllSchema()
@@ -82,7 +82,7 @@ class SingleDatabaseSynchronizerTest extends \PHPUnit_Framework_TestCase
         $this->synchronizer->createSchema($schema);
 
         $sql = $this->synchronizer->getDropAllSchema();
-        $this->assertEquals(array('DROP TABLE test'), $sql);
+        self::assertEquals(array('DROP TABLE test'), $sql);
     }
 }
 

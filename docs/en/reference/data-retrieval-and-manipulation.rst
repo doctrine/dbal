@@ -59,7 +59,7 @@ several drawbacks:
     you will trigger the optimization process over and over again, although
     it could re-use this information easily using a technique called **prepared statements**.
 
-This three arguments and some more technical details hopefully convinced you to investigate
+These three arguments and some more technical details hopefully convinced you to investigate
 prepared statements for accessing your database. 
 
 Dynamic Parameters and Prepared Statements
@@ -179,7 +179,7 @@ on the Connection, which are all described in the API section below.
 Binding Types
 -------------
 
-Doctrine DBAL extends PDOs handling of binding types in prepared statement
+Doctrine DBAL extends PDOs handling of binding types in prepared statements
 considerably. Besides the well known ``\PDO::PARAM_*`` constants you
 can make use of two very powerful additional features.
 
@@ -202,7 +202,7 @@ to the appropriate vendors database format:
     $stmt->execute();
 
 If you take a look at ``Doctrine\DBAL\Types\DateTimeType`` you will see that
-parts of the conversion is delegated to a method on the current database platform,
+parts of the conversion are delegated to a method on the current database platform,
 which means this code works independent of the database you are using.
 
 .. note::
@@ -250,7 +250,7 @@ There are two special binding types that describe a list of integers or strings:
 -   ``\Doctrine\DBAL\Connection::PARAM_INT_ARRAY``
 -   ``\Doctrine\DBAL\Connection::PARAM_STR_ARRAY``
 
-Using one of this constants as a type you can activate the SQLParser inside Doctrine that rewrites
+Using one of these constants as a type you can activate the SQLParser inside Doctrine that rewrites
 the SQL and flattens the specified values into the set of parameters. Consider our previous example:
 
 .. code-block:: php
@@ -327,7 +327,7 @@ returns the affected rows count:
 The ``$types`` variable contains the PDO or Doctrine Type constants
 to perform necessary type conversions between actual input
 parameters and expected database values. See the
-`Types <./types#type-conversion>`_ section for more information.
+:ref:`Types <mappingMatrix>` section for more information.
 
 executeQuery()
 ~~~~~~~~~~~~~~
@@ -351,7 +351,7 @@ parameters to the execute method, then returning the statement:
 The ``$types`` variable contains the PDO or Doctrine Type constants
 to perform necessary type conversions between actual input
 parameters and expected database values. See the
-`Types <./types#type-conversion>`_ section for more information.
+:ref:`Types <mappingMatrix>` section for more information.
 
 fetchAll()
 ~~~~~~~~~~

@@ -22,8 +22,6 @@ namespace Doctrine\Tests\DBAL;
 use Doctrine\DBAL\Configuration;
 use Doctrine\Tests\DbalTestCase;
 
-require_once __DIR__ . '/../TestInit.php';
-
 /**
  * Unit tests for the configuration container.
  *
@@ -41,7 +39,7 @@ class ConfigurationTest extends DbalTestCase
     /**
      * {@inheritdoc}
      */
-    public function setUp()
+    protected function setUp()
     {
         $this->config = new Configuration();
     }
@@ -53,7 +51,7 @@ class ConfigurationTest extends DbalTestCase
      */
     public function testReturnsDefaultConnectionAutoCommitMode()
     {
-        $this->assertTrue($this->config->getAutoCommit());
+        self::assertTrue($this->config->getAutoCommit());
     }
 
     /**
@@ -65,10 +63,10 @@ class ConfigurationTest extends DbalTestCase
     {
         $this->config->setAutoCommit(false);
 
-        $this->assertFalse($this->config->getAutoCommit());
+        self::assertFalse($this->config->getAutoCommit());
 
         $this->config->setAutoCommit(0);
 
-        $this->assertFalse($this->config->getAutoCommit());
+        self::assertFalse($this->config->getAutoCommit());
     }
 }

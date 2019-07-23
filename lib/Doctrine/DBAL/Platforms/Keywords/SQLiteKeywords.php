@@ -41,7 +41,7 @@ class SQLiteKeywords extends KeywordList
      */
     protected function getKeywords()
     {
-        return array(
+        return [
             'ABORT',
             'ACTION',
             'ADD',
@@ -163,6 +163,6 @@ class SQLiteKeywords extends KeywordList
             'VIRTUAL',
             'WHEN',
             'WHERE'
-        );
+        ];
     }
 }

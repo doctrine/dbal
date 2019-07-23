@@ -26,7 +26,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
  *
  * @since 2.0
  */
-class DateTimeType extends Type
+class DateTimeType extends Type implements PhpDateTimeMappingType
 {
     /**
      * {@inheritdoc}
@@ -49,8 +49,15 @@ class DateTimeType extends Type
      */
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
-        return ($value !== null)
-            ? $value->format($platform->getDateTimeFormatString()) : null;
+        if (null === $value) {
+            return $value;
+        }
+
+        if ($value instanceof \DateTimeInterface) {
+            return $value->format($platform->getDateTimeFormatString());
+        }
+
+        throw ConversionException::conversionFailedInvalidType($value, $this->getName(), ['null', 'DateTime']);
     }
 
     /**
@@ -58,7 +65,7 @@ class DateTimeType extends Type
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
-        if ($value === null || $value instanceof \DateTime) {
+        if ($value === null || $value instanceof \DateTimeInterface) {
             return $value;
         }
 

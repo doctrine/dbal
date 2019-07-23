@@ -37,11 +37,11 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
      *
      * @throws \Doctrine\DBAL\Driver\IBMDB2\DB2Exception
      */
-    public function __construct(array $params, $username, $password, $driverOptions = array())
+    public function __construct(array $params, $username, $password, $driverOptions = [])
     {
-        $isPersistant = (isset($params['persistent']) && $params['persistent'] == true);
+        $isPersistent = (isset($params['persistent']) && $params['persistent'] == true);
 
-        if ($isPersistant) {
+        if ($isPersistent) {
             $this->_conn = db2_pconnect($params['dbname'], $username, $password, $driverOptions);
         } else {
             $this->_conn = db2_connect($params['dbname'], $username, $password, $driverOptions);
@@ -113,10 +113,20 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
      */
     public function exec($statement)
     {
+<<<<<<< HEAD
         $stmt = $this->prepare($statement);
         $stmt->execute();
 
         return $stmt->rowCount();
+=======
+        $stmt = @db2_exec($this->_conn, $statement);
+
+        if (false === $stmt) {
+            throw new DB2Exception(db2_stmt_errormsg());
+        }
+
+        return db2_num_rows($stmt);
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
     /**
@@ -170,9 +180,9 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
      */
     public function errorInfo()
     {
-        return array(
+        return [
             0 => db2_conn_errormsg($this->_conn),
             1 => $this->errorCode(),
-        );
+        ];
     }
 }

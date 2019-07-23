@@ -7,7 +7,7 @@ use Doctrine\DBAL\Schema\Visitor\DropSchemaSqlCollector;
 /**
  * @covers Doctrine\DBAL\Schema\Visitor\DropSchemaSqlCollector
  */
-class DropSchemaSqlCollectorTest extends \PHPUnit_Framework_TestCase
+class DropSchemaSqlCollectorTest extends \PHPUnit\Framework\TestCase
 {
     public function testGetQueriesUsesAcceptedForeignKeys()
     {
@@ -75,7 +75,7 @@ class DropSchemaSqlCollectorTest extends \PHPUnit_Framework_TestCase
             $this->getMockForAbstractClass('Doctrine\DBAL\Platforms\AbstractPlatform')
         );
 
-        $this->setExpectedException( 'Doctrine\DBAL\Schema\SchemaException' );
+        $this->expectException( 'Doctrine\DBAL\Schema\SchemaException' );
         $collector->acceptForeignKey($this->getTableMock(), $this->getStubKeyConstraint(''));
     }
 }

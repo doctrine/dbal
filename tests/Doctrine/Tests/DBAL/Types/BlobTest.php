@@ -5,8 +5,6 @@ namespace Doctrine\Tests\DBAL\Types;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DBAL\Mocks\MockPlatform;
 
-require_once __DIR__ . '/../../TestInit.php';
-
 class BlobTest extends \Doctrine\Tests\DbalTestCase
 {
     /**
@@ -30,7 +28,7 @@ class BlobTest extends \Doctrine\Tests\DbalTestCase
 
     public function testBlobNullConvertsToPHPValue()
     {
-        $this->assertNull($this->type->convertToPHPValue(null, $this->platform));
+        self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }
 
     public function testBinaryStringConvertsToPHPValue()
@@ -38,8 +36,8 @@ class BlobTest extends \Doctrine\Tests\DbalTestCase
         $databaseValue = $this->getBinaryString();
         $phpValue      = $this->type->convertToPHPValue($databaseValue, $this->platform);
 
-        $this->assertInternalType('resource', $phpValue);
-        $this->assertSame($databaseValue, stream_get_contents($phpValue));
+        self::assertInternalType('resource', $phpValue);
+        self::assertSame($databaseValue, stream_get_contents($phpValue));
     }
 
     public function testBinaryResourceConvertsToPHPValue()
@@ -47,7 +45,7 @@ class BlobTest extends \Doctrine\Tests\DbalTestCase
         $databaseValue = fopen('data://text/plain;base64,' . base64_encode($this->getBinaryString()), 'r');
         $phpValue      = $this->type->convertToPHPValue($databaseValue, $this->platform);
 
-        $this->assertSame($databaseValue, $phpValue);
+        self::assertSame($databaseValue, $phpValue);
     }
 
     /**

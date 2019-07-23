@@ -1,38 +1,34 @@
 language: php
+sudo: false
+dist: trusty
+
+cache:
+    directories:
+        - vendor
+        - $HOME/.composer/cache
 
 php:
-  - 5.3
-  - 5.4
-  - 5.5
-  - 5.6
-  - hhvm
-  - hhvm-nightly
+  - 7.1
+  - 7.2
+  - nightly
 
 env:
-  - DB=mysql
-  - DB=pgsql POSTGRESQL_VERSION=9.1
-  - DB=pgsql POSTGRESQL_VERSION=9.2
-  - DB=pgsql POSTGRESQL_VERSION=9.3
   - DB=sqlite
+  - DB=mysql
   - DB=mysqli
 
 before_install:
-  - composer self-update
-
-install:
-  - composer update --prefer-source
+  - mv ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini{,.disabled} || echo "xdebug not available"
 
 before_script:
-  - sh -c "if [ '$DB' = 'pgsql' ]; then psql -c 'DROP DATABASE IF EXISTS doctrine_tests;' -U postgres; fi"
-  - sh -c "if [ '$DB' = 'pgsql' ]; then psql -c 'DROP DATABASE IF EXISTS doctrine_tests_tmp;' -U postgres; fi"
-  - sh -c "if [ '$DB' = 'pgsql' ]; then psql -c 'create database doctrine_tests;' -U postgres; fi"
-  - sh -c "if [ '$DB' = 'pgsql' ]; then psql -c 'create database doctrine_tests_tmp;' -U postgres; fi"
-  - sh -c "if [ '$DB' = 'pgsql' ]; then sudo service postgresql stop; sudo service postgresql start $POSTGRESQL_VERSION; fi"
-  - sh -c "if [ '$DB' = 'mysql' ]; then mysql -e 'create database IF NOT EXISTS doctrine_tests_tmp;create database IF NOT EXISTS doctrine_tests;'; fi"
-  - sh -c "if [ '$DB' = 'mysqli' ]; then mysql -e 'create database IF NOT EXISTS doctrine_tests_tmp;create database IF NOT EXISTS doctrine_tests;'; fi"
+  - if [[ "$DB" == "mysql" || "$DB" == "mysqli" || "$DB" == *"mariadb"* ]]; then mysql < tests/travis/create-mysql-schema.sql; fi;
+
+install:
+  - travis_retry composer -n install
 
 script: ./vendor/bin/phpunit --configuration tests/travis/$DB.travis.xml
 
+<<<<<<< HEAD
 matrix:
   include:
     - php: 5.3
@@ -132,3 +128,238 @@ matrix:
         env: DB=pgsql POSTGRESQL_VERSION=9.2 # driver currently unsupported by HHVM
       - php: hhvm-nightly
         env: DB=pgsql POSTGRESQL_VERSION=9.3 # driver currently unsupported by HHVM
+=======
+jobs:
+  allow_failures:
+    - php: nightly
+
+  include:
+    - stage: Test
+      php: 7.1
+      env: DB=mysql MYSQL_VERSION=5.7
+      sudo: required
+      before_script:
+        - bash ./tests/travis/install-mysql-5.7.sh
+    - stage: Test
+      php: 7.2
+      env: DB=mysql MYSQL_VERSION=5.7
+      sudo: required
+      before_script:
+        - bash ./tests/travis/install-mysql-5.7.sh
+    - stage: Test
+      php: nightly
+      env: DB=mysql MYSQL_VERSION=5.7
+      sudo: required
+      before_script:
+        - bash ./tests/travis/install-mysql-5.7.sh
+
+    - stage: Test
+      php: 7.1
+      env: DB=mysqli MYSQL_VERSION=5.7
+      sudo: required
+      before_script:
+        - bash ./tests/travis/install-mysql-5.7.sh
+    - stage: Test
+      php: 7.2
+      env: DB=mysqli MYSQL_VERSION=5.7
+      sudo: required
+      before_script:
+        - bash ./tests/travis/install-mysql-5.7.sh
+    - stage: Test
+      php: nightly
+      env: DB=mysqli MYSQL_VERSION=5.7
+      sudo: required
+      before_script:
+        - bash ./tests/travis/install-mysql-5.7.sh
+
+    - stage: Test
+      php: 7.1
+      env: DB=mariadb MARIADB_VERSION=10.0
+      addons:
+        mariadb: 10.0
+    - stage: Test
+      php: 7.2
+      env: DB=mariadb MARIADB_VERSION=10.0
+      addons:
+        mariadb: 10.0
+    - stage: Test
+      php: nightly
+      env: DB=mariadb MARIADB_VERSION=10.0
+      addons:
+        mariadb: 10.0
+
+    - stage: Test
+      php: 7.1
+      env: DB=mariadb MARIADB_VERSION=10.1
+      addons:
+        mariadb: 10.1
+    - stage: Test
+      php: 7.2
+      env: DB=mariadb MARIADB_VERSION=10.1
+      addons:
+        mariadb: 10.1
+    - stage: Test
+      php: nightly
+      env: DB=mariadb MARIADB_VERSION=10.1
+      addons:
+        mariadb: 10.1
+
+    - stage: Test
+      php: 7.1
+      env: DB=mariadb MARIADB_VERSION=10.2
+      addons:
+        mariadb: 10.2
+    - stage: Test
+      php: 7.2
+      env: DB=mariadb MARIADB_VERSION=10.2
+      addons:
+        mariadb: 10.2
+    - stage: Test
+      php: nightly
+      env: DB=mariadb MARIADB_VERSION=10.2
+      addons:
+        mariadb: 10.2
+
+    - stage: Test
+      php: 7.1
+      env: DB=mariadb.mysqli MARIADB_VERSION=10.2
+      addons:
+        mariadb: 10.2
+    - stage: Test
+      php: 7.2
+      env: DB=mariadb.mysqli MARIADB_VERSION=10.2
+      addons:
+        mariadb: 10.2
+    - stage: Test
+      php: nightly
+      env: DB=mariadb.mysqli MARIADB_VERSION=10.2
+      addons:
+        mariadb: 10.2
+
+    - stage: Test
+      php: 7.1
+      env: DB=pgsql POSTGRESQL_VERSION=9.2
+      services:
+        - postgresql
+      addons:
+        postgresql: "9.2"
+    - stage: Test
+      php: 7.2
+      env: DB=pgsql POSTGRESQL_VERSION=9.2
+      services:
+        - postgresql
+      addons:
+        postgresql: "9.2"
+    - stage: Test
+      php: nightly
+      env: DB=pgsql POSTGRESQL_VERSION=9.2
+      services:
+        - postgresql
+      addons:
+        postgresql: "9.2"
+
+    - stage: Test
+      php: 7.1
+      env: DB=pgsql POSTGRESQL_VERSION=9.3
+      services:
+        - postgresql
+      addons:
+        postgresql: "9.3"
+    - stage: Test
+      php: 7.2
+      env: DB=pgsql POSTGRESQL_VERSION=9.3
+      services:
+        - postgresql
+      addons:
+        postgresql: "9.3"
+    - stage: Test
+      php: nightly
+      env: DB=pgsql POSTGRESQL_VERSION=9.3
+      services:
+        - postgresql
+      addons:
+        postgresql: "9.3"
+
+    - stage: Test
+      php: 7.1
+      env: DB=pgsql POSTGRESQL_VERSION=9.4
+      services:
+        - postgresql
+      addons:
+        postgresql: "9.4"
+    - stage: Test
+      php: 7.2
+      env: DB=pgsql POSTGRESQL_VERSION=9.4
+      services:
+        - postgresql
+      addons:
+        postgresql: "9.4"
+    - stage: Test
+      php: nightly
+      env: DB=pgsql POSTGRESQL_VERSION=9.4
+      services:
+        - postgresql
+      addons:
+        postgresql: "9.4"
+
+    - stage: Test
+      php: 7.1
+      env: DB=pgsql POSTGRESQL_VERSION=9.5
+      services:
+        - postgresql
+      addons:
+        postgresql: "9.5"
+    - stage: Test
+      php: 7.2
+      env: DB=pgsql POSTGRESQL_VERSION=9.5
+      services:
+        - postgresql
+      addons:
+        postgresql: "9.5"
+    - stage: Test
+      php: nightly
+      env: DB=pgsql POSTGRESQL_VERSION=9.5
+      services:
+        - postgresql
+      addons:
+        postgresql: "9.5"
+
+    - stage: Test
+      php: 7.1
+      env: DB=pgsql POSTGRESQL_VERSION=9.6
+      services:
+        - postgresql
+      addons:
+        postgresql: "9.6"
+    - stage: Test
+      php: 7.2
+      env: DB=pgsql POSTGRESQL_VERSION=9.6
+      services:
+        - postgresql
+      addons:
+        postgresql: "9.6"
+    - stage: Test
+      php: nightly
+      env: DB=pgsql POSTGRESQL_VERSION=9.6
+      services:
+        - postgresql
+      addons:
+        postgresql: "9.6"
+
+    - stage: Coverage
+      php: 7.1
+      env: DB=sqlite
+      before_script:
+        - mv ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini{.disabled,}
+        - if [[ ! $(php -m | grep -si xdebug) ]]; then echo "xdebug required for coverage"; exit 1; fi
+      script:
+        - ./vendor/bin/phpunit --configuration tests/travis/$DB.travis.xml --coverage-clover clover.xml
+      after_script:
+        - wget https://scrutinizer-ci.com/ocular.phar
+        - php ocular.phar code-coverage:upload --format=php-clover clover.xml
+
+    - stage: Coding standard
+      php: nightly
+      script:
+        - ./vendor/bin/phpcs
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01

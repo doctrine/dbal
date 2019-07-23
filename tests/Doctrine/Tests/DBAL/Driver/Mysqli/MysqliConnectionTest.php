@@ -2,6 +2,8 @@
 
 namespace Doctrine\Tests\DBAL\Driver\Mysqli;
 
+use Doctrine\DBAL\Driver\Mysqli\MysqliConnection;
+use Doctrine\DBAL\Driver\Mysqli\MysqliException;
 use Doctrine\Tests\DbalTestCase;
 
 class MysqliConnectionTest extends DbalTestCase
@@ -21,13 +23,32 @@ class MysqliConnectionTest extends DbalTestCase
 
         parent::setUp();
 
-        $this->connectionMock = $this->getMockBuilder('Doctrine\DBAL\Driver\Mysqli\MysqliConnection')
+        $this->connectionMock = $this->getMockBuilder(MysqliConnection::class)
             ->disableOriginalConstructor()
             ->getMockForAbstractClass();
     }
 
     public function testDoesNotRequireQueryForServerVersion()
     {
-        $this->assertFalse($this->connectionMock->requiresQueryForServerVersion());
+        self::assertFalse($this->connectionMock->requiresQueryForServerVersion());
     }
+
+    public function testRestoresErrorHandlerOnException()
+    {
+        $handler = function () { self::fail('Never expected this to be called'); };
+        $default_handler = set_error_handler($handler);
+
+        try {
+            new MysqliConnection(['host' => '255.255.255.255'], 'user', 'pass');
+            self::fail('An exception was supposed to be raised');
+        } catch (MysqliException $e) {
+            self::assertSame('Network is unreachable', $e->getMessage());
+        }
+
+        self::assertSame($handler, set_error_handler($default_handler), 'Restoring error handler failed.');
+        restore_error_handler();
+        restore_error_handler();
+    }
+
 }
+

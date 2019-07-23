@@ -34,7 +34,7 @@ MySQL
 ^^^^^
 
 -  ``MySqlPlatform`` for version 5.0 and above.
--  ``MySQL57Platform`` for version 5.7 and above.
+-  ``MySQL57Platform`` for version 5.7 (5.7.9 GA) and above.
 
 Oracle
 ^^^^^^
@@ -55,6 +55,7 @@ PostgreSQL
 -  ``PostgreSqlPlatform`` for all versions.
 -  ``PostgreSQL91Platform`` for version 9.1 and above.
 -  ``PostgreSQL92Platform`` for version 9.2 and above.
+-  ``PostgreSQL94Platform`` for version 9.4 and above.
 
 SAP Sybase SQL Anywhere
 ^^^^^^^^^^^^^^^^^^^^^^^

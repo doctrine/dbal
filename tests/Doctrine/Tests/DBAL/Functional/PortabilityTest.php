@@ -7,8 +7,6 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Portability\Connection as ConnectionPortability;
 use PDO;
 
-require_once __DIR__ . '/../../TestInit.php';
-
 /**
  * @group DBAL-56
  */
@@ -16,7 +14,7 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
     private $portableConnection;
 
-    public function tearDown()
+    protected function tearDown()
     {
         if ($this->portableConnection) {
             $this->portableConnection->close();
@@ -110,7 +108,7 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function assertFetchResultRows($rows)
     {
-        $this->assertEquals(2, count($rows));
+        self::assertEquals(2, count($rows));
         foreach ($rows as $row) {
             $this->assertFetchResultRow($row);
         }
@@ -118,11 +116,11 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function assertFetchResultRow($row)
     {
-        $this->assertTrue(in_array($row['test_int'], array(1, 2)), "Primary key test_int should either be 1 or 2.");
-        $this->assertArrayHasKey('test_string', $row, "Case should be lowered.");
-        $this->assertEquals(3, strlen($row['test_string']), "test_string should be rtrimed to length of three for CHAR(32) column.");
-        $this->assertNull($row['test_null']);
-        $this->assertArrayNotHasKey(0, $row, "PDO::FETCH_ASSOC should not return numerical keys.");
+        self::assertTrue(in_array($row['test_int'], array(1, 2)), "Primary key test_int should either be 1 or 2.");
+        self::assertArrayHasKey('test_string', $row, "Case should be lowered.");
+        self::assertEquals(3, strlen($row['test_string']), "test_string should be rtrimed to length of three for CHAR(32) column.");
+        self::assertNull($row['test_null']);
+        self::assertArrayNotHasKey(0, $row, "PDO::FETCH_ASSOC should not return numerical keys.");
     }
 
     public function testPortabilitySqlServer()
@@ -132,7 +130,9 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
             'portability' => $portability
         );
 
-        $driverMock = $this->getMock('Doctrine\\DBAL\\Driver\\PDOSqlsrv\\Driver', array('connect'));
+        $driverMock = $this->getMockBuilder('Doctrine\\DBAL\\Driver\\PDOSqlsrv\\Driver')
+            ->setMethods(array('connect'))
+            ->getMock();
 
         $driverMock->expects($this->once())
                    ->method('connect')
@@ -142,7 +142,42 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $connection->connect($params);
 
-        $this->assertEquals($portability, $connection->getPortability());
+        self::assertEquals($portability, $connection->getPortability());
+    }
+
+    /**
+     * @dataProvider fetchAllColumnProvider
+     */
+    public function testFetchAllColumn($field, array $expected)
+    {
+        $conn = $this->getPortableConnection();
+        $stmt = $conn->query('SELECT ' . $field . ' FROM portability_table');
+
+        $column = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        self::assertEquals($expected, $column);
+    }
+
+    public static function fetchAllColumnProvider()
+    {
+        return array(
+            'int' => array(
+                'Test_Int',
+                array(1, 2),
+            ),
+            'string' => array(
+                'Test_String',
+                array('foo', 'foo'),
+            ),
+        );
+    }
+
+    public function testFetchAllNullColumn()
+    {
+        $conn = $this->getPortableConnection();
+        $stmt = $conn->query('SELECT Test_Null FROM portability_table');
+
+        $column = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        self::assertSame(array(null, null), $column);
     }
 
     /**

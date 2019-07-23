@@ -49,8 +49,15 @@ class DateType extends Type
      */
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
-        return ($value !== null)
-            ? $value->format($platform->getDateFormatString()) : null;
+        if (null === $value) {
+            return $value;
+        }
+
+        if ($value instanceof \DateTimeInterface) {
+            return $value->format($platform->getDateFormatString());
+        }
+
+        throw ConversionException::conversionFailedInvalidType($value, $this->getName(), ['null', 'DateTime']);
     }
 
     /**
@@ -58,7 +65,7 @@ class DateType extends Type
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
-        if ($value === null || $value instanceof \DateTime) {
+        if ($value === null || $value instanceof \DateTimeInterface) {
             return $value;
         }
 

@@ -29,7 +29,11 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $conn->connect();
 
+<<<<<<< HEAD
         $this->assertTrue($conn->isConnected(), 'No SQLAnywhere-nonpersistent connection established');
+=======
+        self::assertTrue($conn->isConnected(), 'No SQLAnywhere-nonpersistent connection established');
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
     public function testPersistentConnection()
@@ -41,6 +45,10 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $conn->connect();
 
+<<<<<<< HEAD
         $this->assertTrue($conn->isConnected(), 'No SQLAnywhere-persistent connection established');
+=======
+        self::assertTrue($conn->isConnected(), 'No SQLAnywhere-persistent connection established');
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 }

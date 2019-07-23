@@ -42,55 +42,55 @@ class SchemaDiff
      *
      * @var string[]
      */
-    public $newNamespaces = array();
+    public $newNamespaces = [];
 
     /**
      * All removed namespaces.
      *
      * @var string[]
      */
-    public $removedNamespaces = array();
+    public $removedNamespaces = [];
 
     /**
      * All added tables.
      *
      * @var \Doctrine\DBAL\Schema\Table[]
      */
-    public $newTables = array();
+    public $newTables = [];
 
     /**
      * All changed tables.
      *
      * @var \Doctrine\DBAL\Schema\TableDiff[]
      */
-    public $changedTables = array();
+    public $changedTables = [];
 
     /**
      * All removed tables.
      *
      * @var \Doctrine\DBAL\Schema\Table[]
      */
-    public $removedTables = array();
+    public $removedTables = [];
 
     /**
      * @var \Doctrine\DBAL\Schema\Sequence[]
      */
-    public $newSequences = array();
+    public $newSequences = [];
 
     /**
      * @var \Doctrine\DBAL\Schema\Sequence[]
      */
-    public $changedSequences = array();
+    public $changedSequences = [];
 
     /**
      * @var \Doctrine\DBAL\Schema\Sequence[]
      */
-    public $removedSequences = array();
+    public $removedSequences = [];
 
     /**
      * @var \Doctrine\DBAL\Schema\ForeignKeyConstraint[]
      */
-    public $orphanedForeignKeys = array();
+    public $orphanedForeignKeys = [];
 
     /**
      * Constructs an SchemaDiff object.
@@ -100,7 +100,7 @@ class SchemaDiff
      * @param \Doctrine\DBAL\Schema\Table[]     $removedTables
      * @param \Doctrine\DBAL\Schema\Schema|null $fromSchema
      */
-    public function __construct($newTables = array(), $changedTables = array(), $removedTables = array(), Schema $fromSchema = null)
+    public function __construct($newTables = [], $changedTables = [], $removedTables = [], Schema $fromSchema = null)
     {
         $this->newTables     = $newTables;
         $this->changedTables = $changedTables;
@@ -144,7 +144,7 @@ class SchemaDiff
      */
     protected function _toSql(AbstractPlatform $platform, $saveMode = false)
     {
-        $sql = array();
+        $sql = [];
 
         if ($platform->supportsSchemas()) {
             foreach ($this->newNamespaces as $newNamespace) {
@@ -174,7 +174,7 @@ class SchemaDiff
             }
         }
 
-        $foreignKeySql = array();
+        $foreignKeySql = [];
         foreach ($this->newTables as $table) {
             $sql = array_merge(
                 $sql,

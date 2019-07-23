@@ -58,6 +58,6 @@ class SQLServer2005Platform extends SQLServerPlatform
      */
     protected function getReservedKeywordsClass()
     {
-        return 'Doctrine\DBAL\Platforms\Keywords\SQLServer2005Keywords';
+        return Keywords\SQLServer2005Keywords::class;
     }
 }

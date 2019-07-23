@@ -4,8 +4,11 @@ namespace Doctrine\Tests\DBAL\Functional\Schema;
 
 use Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Types\Type;
+<<<<<<< HEAD
 
 require_once __DIR__ . '/../../../TestInit.php';
+=======
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
 
 class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
@@ -24,9 +27,35 @@ class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $path = dirname(__FILE__).'/test_create_and_drop_sqlite_database.sqlite';
 
         $this->_sm->createDatabase($path);
-        $this->assertEquals(true, file_exists($path));
+        self::assertFileExists($path);
         $this->_sm->dropDatabase($path);
-        $this->assertEquals(false, file_exists($path));
+        self::assertFileNotExists($path);
+    }
+
+    /**
+     * @group DBAL-1220
+     */
+    public function testDropsDatabaseWithActiveConnections()
+    {
+        $this->_sm->dropAndCreateDatabase('test_drop_database');
+
+        self::assertFileExists('test_drop_database');
+
+        $params = $this->_conn->getParams();
+        $params['dbname'] = 'test_drop_database';
+
+        $user = $params['user'] ?? null;
+        $password = $params['password'] ?? null;
+
+        $connection = $this->_conn->getDriver()->connect($params, $user, $password);
+
+        self::assertInstanceOf('Doctrine\DBAL\Driver\Connection', $connection);
+
+        $this->_sm->dropDatabase('test_drop_database');
+
+        self::assertFileNotExists('test_drop_database');
+
+        unset($connection);
     }
 
     /**
@@ -61,8 +90,8 @@ class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->_sm->renameTable('oldname', 'newname');
 
         $tables = $this->_sm->listTableNames();
-        $this->assertContains('newname', $tables);
-        $this->assertNotContains('oldname', $tables);
+        self::assertContains('newname', $tables);
+        self::assertNotContains('oldname', $tables);
     }
 
     public function createListTableColumns()
@@ -75,7 +104,7 @@ class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testListForeignKeysFromExistingDatabase()
     {
-        $this->_conn->executeQuery(<<<EOS
+        $this->_conn->exec(<<<EOS
 CREATE TABLE user (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     page INTEGER CONSTRAINT FK_1 REFERENCES page (key) DEFERRABLE INITIALLY DEFERRED,
@@ -95,7 +124,7 @@ EOS
                 array('onUpdate' => 'NO ACTION', 'onDelete' => 'NO ACTION', 'deferrable' => true, 'deferred' => true)),
         );
 
-        $this->assertEquals($expected, $this->_sm->listTableForeignKeys('user'));
+        self::assertEquals($expected, $this->_sm->listTableForeignKeys('user'));
     }
 
     public function testColumnCollation()
@@ -109,10 +138,10 @@ EOS
 
         $columns = $this->_sm->listTableColumns('test_collation');
 
-        $this->assertArrayNotHasKey('collation', $columns['id']->getPlatformOptions());
-        $this->assertEquals('BINARY', $columns['text']->getPlatformOption('collation'));
-        $this->assertEquals('BINARY', $columns['foo']->getPlatformOption('collation'));
-        $this->assertEquals('NOCASE', $columns['bar']->getPlatformOption('collation'));
+        self::assertArrayNotHasKey('collation', $columns['id']->getPlatformOptions());
+        self::assertEquals('BINARY', $columns['text']->getPlatformOption('collation'));
+        self::assertEquals('BINARY', $columns['foo']->getPlatformOption('collation'));
+        self::assertEquals('NOCASE', $columns['bar']->getPlatformOption('collation'));
     }
 
     public function testListTableWithBinary()
@@ -129,20 +158,24 @@ EOS
 
         $table = $this->_sm->listTableDetails($tableName);
 
-        $this->assertInstanceOf('Doctrine\DBAL\Types\BlobType', $table->getColumn('column_varbinary')->getType());
-        $this->assertFalse($table->getColumn('column_varbinary')->getFixed());
+        self::assertInstanceOf('Doctrine\DBAL\Types\BlobType', $table->getColumn('column_varbinary')->getType());
+        self::assertFalse($table->getColumn('column_varbinary')->getFixed());
 
-        $this->assertInstanceOf('Doctrine\DBAL\Types\BlobType', $table->getColumn('column_binary')->getType());
-        $this->assertFalse($table->getColumn('column_binary')->getFixed());
+        self::assertInstanceOf('Doctrine\DBAL\Types\BlobType', $table->getColumn('column_binary')->getType());
+        self::assertFalse($table->getColumn('column_binary')->getFixed());
     }
 
     public function testNonDefaultPKOrder()
     {
+        if ( ! extension_loaded('sqlite3')) {
+            $this->markTestSkipped('This test requires the SQLite3 extension.');
+        }
+
         $version = \SQLite3::version();
         if(version_compare($version['versionString'], '3.7.16', '<')) {
             $this->markTestSkipped('This version of sqlite doesn\'t return the order of the Primary Key.');
         }
-        $this->_conn->executeQuery(<<<EOS
+        $this->_conn->exec(<<<EOS
 CREATE TABLE non_default_pk_order (
     id INTEGER,
     other_id INTEGER,
@@ -153,10 +186,38 @@ EOS
 
         $tableIndexes = $this->_sm->listTableIndexes('non_default_pk_order');
 
-         $this->assertEquals(1, count($tableIndexes));
+         self::assertEquals(1, count($tableIndexes));
 
-        $this->assertArrayHasKey('primary', $tableIndexes, 'listTableIndexes() has to return a "primary" array key.');
-        $this->assertEquals(array('other_id', 'id'), array_map('strtolower', $tableIndexes['primary']->getColumns()));
+        self::assertArrayHasKey('primary', $tableIndexes, 'listTableIndexes() has to return a "primary" array key.');
+        self::assertEquals(array('other_id', 'id'), array_map('strtolower', $tableIndexes['primary']->getColumns()));
+    }
+
+    /**
+     * @group DBAL-1779
+     */
+    public function testListTableColumnsWithWhitespacesInTypeDeclarations()
+    {
+        $sql = <<<SQL
+CREATE TABLE dbal_1779 (
+    foo VARCHAR (64) ,
+    bar TEXT (100)
+)
+SQL;
+
+        $this->_conn->exec($sql);
+
+        $columns = $this->_sm->listTableColumns('dbal_1779');
+
+        self::assertCount(2, $columns);
+
+        self::assertArrayHasKey('foo', $columns);
+        self::assertArrayHasKey('bar', $columns);
+
+        self::assertSame(Type::getType(Type::STRING), $columns['foo']->getType());
+        self::assertSame(Type::getType(Type::TEXT), $columns['bar']->getType());
+
+        self::assertSame(64, $columns['foo']->getLength());
+        self::assertSame(100, $columns['bar']->getLength());
     }
 
     /**
@@ -206,9 +267,9 @@ SQL;
         $diff = $comparator->diffTable($offlineTable, $onlineTable);
 
         if ($expectedComparatorDiff) {
-            $this->assertEmpty($this->_sm->getDatabasePlatform()->getAlterTableSQL($diff));
+            self::assertEmpty($this->_sm->getDatabasePlatform()->getAlterTableSQL($diff));
         } else {
-            $this->assertFalse($diff);
+            self::assertFalse($diff);
         }
     }
 

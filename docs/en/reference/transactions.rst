@@ -4,7 +4,7 @@ Transactions
 A ``Doctrine\DBAL\Connection`` provides a PDO-like API for
 transaction management, with the methods
 ``Connection#beginTransaction()``, ``Connection#commit()`` and
-``Connection#rollback()``.
+``Connection#rollBack()``.
 
 Transaction demarcation with the Doctrine DBAL looks as follows:
 
@@ -15,8 +15,8 @@ Transaction demarcation with the Doctrine DBAL looks as follows:
     try{
         // do stuff
         $conn->commit();
-    } catch(Exception $e) {
-        $conn->rollback();
+    } catch (\Exception $e) {
+        $conn->rollBack();
         throw $e;
     }
 
@@ -60,9 +60,9 @@ transactions, or rather propagating transaction control up the call
 stack. For that purpose, the ``Connection`` class keeps an internal
 counter that represents the nesting level and is
 increased/decreased as ``beginTransaction()``, ``commit()`` and
- ``rollback()`` are invoked. ``beginTransaction()`` increases the
+``rollBack()`` are invoked. ``beginTransaction()`` increases the
 nesting level whilst
- ``commit()`` and ``rollback()`` decrease the nesting level. The nesting level starts at 0. Whenever the nesting level transitions from 0 to 1, ``beginTransaction()`` is invoked on the underlying driver connection and whenever the nesting level transitions from 1 to 0, ``commit()`` or ``rollback()`` is invoked on the underlying driver, depending on whether the transition was caused by ``Connection#commit()`` or ``Connection#rollback()``.
+``commit()`` and ``rollBack()`` decrease the nesting level. The nesting level starts at 0. Whenever the nesting level transitions from 0 to 1, ``beginTransaction()`` is invoked on the underlying driver connection and whenever the nesting level transitions from 1 to 0, ``commit()`` or ``rollBack()`` is invoked on the underlying driver, depending on whether the transition was caused by ``Connection#commit()`` or ``Connection#rollBack()``.
 
 What this means is that transaction control is basically passed to
 code higher up in the call stack and the inner transaction block is
@@ -90,16 +90,16 @@ example:
             ...
 
             $conn->commit(); // 2 => 1
-        } catch (Exception $e) {
-            $conn->rollback(); // 2 => 1, transaction marked for rollback only
+        } catch (\Exception $e) {
+            $conn->rollBack(); // 2 => 1, transaction marked for rollback only
             throw $e;
         }
 
         ...
 
         $conn->commit(); // 1 => 0, "real" transaction committed
-    } catch (Exception $e) {
-        $conn->rollback(); // 1 => 0, "real" transaction rollback
+    } catch (\Exception $e) {
+        $conn->rollBack(); // 1 => 0, "real" transaction rollback
         throw $e;
     }
 
@@ -120,7 +120,7 @@ to avoid nesting transaction blocks. If this is not possible
 because the nested transaction blocks are in a third-party API
 you're out of luck.
 
-All that is guaruanteed to the inner transaction is that it still
+All that is guaranteed to the inner transaction is that it still
 happens atomically, all or nothing, the transaction just gets a
 wider scope and the control is handed to the outer scope.
 
@@ -136,7 +136,7 @@ wider scope and the control is handed to the outer scope.
 .. warning::
 
     Directly invoking ``PDO#beginTransaction()``,
-    ``PDO#commit()`` or ``PDO#rollback()`` or the corresponding methods
+    ``PDO#commit()`` or ``PDO#rollBack()`` or the corresponding methods
     on the particular ``Doctrine\DBAL\Driver\Connection`` instance in
     use bypasses the transparent transaction nesting that is provided
     by ``Doctrine\DBAL\Connection`` and can therefore corrupt the
@@ -152,7 +152,7 @@ transaction or directly be committed to the database.
 By default a connection runs in auto-commit mode which means
 that it is non-transactional unless you start a transaction explicitly
 via ``beginTransaction()``. To have a connection automatically open up
-a new transaction on ``connect()`` and after ``commit()`` or ``rollback()``,
+a new transaction on ``connect()`` and after ``commit()`` or ``rollBack()``,
 you can disable auto-commit mode with ``setAutoCommit(false)``.
 
 ::
@@ -169,7 +169,7 @@ you can disable auto-commit mode with ``setAutoCommit(false)``.
         // do stuff
         $conn->commit(); // commits transaction and immediately starts a new one
     } catch (\Exception $e) {
-        $conn->rollback(); // rolls back transaction and immediately starts a new one
+        $conn->rollBack(); // rolls back transaction and immediately starts a new one
     }
 
     // still transactional
@@ -220,14 +220,14 @@ by this behaviour.
             // do stuff
             $conn->commit(); // commits inner transaction, does not start a new one
         } catch (\Exception $e) {
-            $conn->rollback(); // rolls back inner transaction, does not start a new one
+            $conn->rollBack(); // rolls back inner transaction, does not start a new one
         }
 
         // do stuff
 
         $conn->commit(); // commits outer transaction, and immediately starts a new one
     } catch (\Exception $e) {
-        $conn->rollback(); // rolls back outer transaction, and immediately starts a new one
+        $conn->rollBack(); // rolls back outer transaction, and immediately starts a new one
     }
 
 
@@ -235,4 +235,32 @@ To initialize a ``Doctrine\DBAL\Connection`` with auto-commit disabled,
 you can also use the ``Doctrine\DBAL\Configuration`` container to modify the
 default auto-commit mode via ``Doctrine\DBAL\Configuration::setAutoCommit(false)``
 and pass it to a ``Doctrine\DBAL\Connection`` when instantiating.
+
+
+Error handling
+--------------
+
+In order to handle errors related to deadlocks or lock wait timeouts,
+you can use Doctrine built-in transaction exceptions.
+All transaction exceptions where retrying makes sense have a marker interface: ``Doctrine\DBAL\Exception\RetryableException``.
+A practical example is as follows:
+
+::
+
+    <?php
+
+    try {
+        // process stuff
+    } catch (\Doctrine\DBAL\Exception\RetryableException $e) {
+        // retry the processing
+    }
+
+
+If you need stricter control, you can catch the concrete exceptions directly:
+
+- ``Doctrine\DBAL\Exception\DeadlockException``: this can happen when each member
+  of a group of actions is waiting for some other member to release a shared lock.
+- ``Doctrine\DBAL\Exception\LockWaitTimeoutException``: this exception happens when 
+  a transaction has to wait a considerable amount of time to obtain a lock, even if
+  a deadlock is not involved.
 

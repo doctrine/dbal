@@ -121,7 +121,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
     public function testHasCorrectPlatformName()
     {
-        $this->assertEquals('sqlanywhere', $this->_platform->getName());
+        self::assertEquals('sqlanywhere', $this->_platform->getName());
     }
 
     public function testGeneratesCreateTableSQLWithCommonIndexes()
@@ -133,7 +133,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         $table->addIndex(array('name'));
         $table->addIndex(array('id', 'name'), 'composite_idx');
 
-        $this->assertEquals(
+        self::assertEquals(
             array(
                 'CREATE TABLE test (id INT NOT NULL, name VARCHAR(50) NOT NULL, PRIMARY KEY (id))',
                 'CREATE INDEX IDX_D87F7E0C5E237E06 ON test (name)',
@@ -159,7 +159,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
             'named_fk'
         );
 
-        $this->assertEquals(
+        self::assertEquals(
             array(
                 'CREATE TABLE test (id INT NOT NULL, fk_1 INT NOT NULL, fk_2 INT NOT NULL, ' .
                 'CONSTRAINT FK_D87F7E0C177612A38E7F4319 FOREIGN KEY (fk_1, fk_2) REFERENCES foreign_table (pk_1, pk_2), ' .
@@ -177,7 +177,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         $table->addColumn('check_min', 'integer', array('platformOptions' => array('min' => 10)));
         $table->setPrimaryKey(array('id'));
 
-        $this->assertEquals(
+        self::assertEquals(
             array(
                 'CREATE TABLE test (id INT NOT NULL, check_max INT NOT NULL, check_min INT NOT NULL, PRIMARY KEY (id), CHECK (check_max <= 10), CHECK (check_min >= 10))'
             ),
@@ -198,7 +198,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
             array('comment')
         );
 
-        $this->assertEquals(
+        self::assertEquals(
             array(
                 "COMMENT ON COLUMN mytable.foo IS NULL"
             ),
@@ -214,7 +214,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         $fromClause = 'FROM users';
         $expectedResult = $fromClause . $lockHint;
 
-        $this->assertSame($expectedResult, $this->_platform->appendLockHint($fromClause, $lockMode));
+        self::assertSame($expectedResult, $this->_platform->appendLockHint($fromClause, $lockMode));
     }
 
     public function getLockHints()
@@ -232,7 +232,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
     public function testHasCorrectMaxIdentifierLength()
     {
-        $this->assertEquals(128, $this->_platform->getMaxIdentifierLength());
+        self::assertEquals(128, $this->_platform->getMaxIdentifierLength());
     }
 
     public function testFixesSchemaElementNames()
@@ -247,11 +247,11 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
         $fixedSchemaElementName = substr($schemaElementName, 0, $maxIdentifierLength);
 
-        $this->assertEquals(
+        self::assertEquals(
             $fixedSchemaElementName,
             $this->_platform->fixSchemaElementName($schemaElementName)
         );
-        $this->assertEquals(
+        self::assertEquals(
             $fixedSchemaElementName,
             $this->_platform->fixSchemaElementName($fixedSchemaElementName)
         );
@@ -266,40 +266,41 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
             'autoincrement' => true
         );
 
-        $this->assertEquals('SMALLINT', $this->_platform->getSmallIntTypeDeclarationSQL(array()));
-        $this->assertEquals('UNSIGNED SMALLINT', $this->_platform->getSmallIntTypeDeclarationSQL(array(
+        self::assertEquals('SMALLINT', $this->_platform->getSmallIntTypeDeclarationSQL(array()));
+        self::assertEquals('UNSIGNED SMALLINT', $this->_platform->getSmallIntTypeDeclarationSQL(array(
             'unsigned' => true
         )));
-        $this->assertEquals('UNSIGNED SMALLINT IDENTITY', $this->_platform->getSmallIntTypeDeclarationSQL($fullColumnDef));
-        $this->assertEquals('INT', $this->_platform->getIntegerTypeDeclarationSQL(array()));
-        $this->assertEquals('UNSIGNED INT', $this->_platform->getIntegerTypeDeclarationSQL(array(
+        self::assertEquals('UNSIGNED SMALLINT IDENTITY', $this->_platform->getSmallIntTypeDeclarationSQL($fullColumnDef));
+        self::assertEquals('INT', $this->_platform->getIntegerTypeDeclarationSQL(array()));
+        self::assertEquals('UNSIGNED INT', $this->_platform->getIntegerTypeDeclarationSQL(array(
             'unsigned' => true
         )));
-        $this->assertEquals('UNSIGNED INT IDENTITY', $this->_platform->getIntegerTypeDeclarationSQL($fullColumnDef));
-        $this->assertEquals('BIGINT', $this->_platform->getBigIntTypeDeclarationSQL(array()));
-        $this->assertEquals('UNSIGNED BIGINT', $this->_platform->getBigIntTypeDeclarationSQL(array(
+        self::assertEquals('UNSIGNED INT IDENTITY', $this->_platform->getIntegerTypeDeclarationSQL($fullColumnDef));
+        self::assertEquals('BIGINT', $this->_platform->getBigIntTypeDeclarationSQL(array()));
+        self::assertEquals('UNSIGNED BIGINT', $this->_platform->getBigIntTypeDeclarationSQL(array(
             'unsigned' => true
         )));
-        $this->assertEquals('UNSIGNED BIGINT IDENTITY', $this->_platform->getBigIntTypeDeclarationSQL($fullColumnDef));
-        $this->assertEquals('LONG BINARY', $this->_platform->getBlobTypeDeclarationSQL($fullColumnDef));
-        $this->assertEquals('BIT', $this->_platform->getBooleanTypeDeclarationSQL($fullColumnDef));
-        $this->assertEquals('TEXT', $this->_platform->getClobTypeDeclarationSQL($fullColumnDef));
-        $this->assertEquals('DATE', $this->_platform->getDateTypeDeclarationSQL($fullColumnDef));
-        $this->assertEquals('DATETIME', $this->_platform->getDateTimeTypeDeclarationSQL($fullColumnDef));
-        $this->assertEquals('TIME', $this->_platform->getTimeTypeDeclarationSQL($fullColumnDef));
-        $this->assertEquals('UNIQUEIDENTIFIER', $this->_platform->getGuidTypeDeclarationSQL($fullColumnDef));
+        self::assertEquals('UNSIGNED BIGINT IDENTITY', $this->_platform->getBigIntTypeDeclarationSQL($fullColumnDef));
+        self::assertEquals('LONG BINARY', $this->_platform->getBlobTypeDeclarationSQL($fullColumnDef));
+        self::assertEquals('BIT', $this->_platform->getBooleanTypeDeclarationSQL($fullColumnDef));
+        self::assertEquals('TEXT', $this->_platform->getClobTypeDeclarationSQL($fullColumnDef));
+        self::assertEquals('DATE', $this->_platform->getDateTypeDeclarationSQL($fullColumnDef));
+        self::assertEquals('DATETIME', $this->_platform->getDateTimeTypeDeclarationSQL($fullColumnDef));
+        self::assertEquals('TIME', $this->_platform->getTimeTypeDeclarationSQL($fullColumnDef));
+        self::assertEquals('UNIQUEIDENTIFIER', $this->_platform->getGuidTypeDeclarationSQL($fullColumnDef));
 
-        $this->assertEquals(1, $this->_platform->getVarcharDefaultLength());
-        $this->assertEquals(32767, $this->_platform->getVarcharMaxLength());
+        self::assertEquals(1, $this->_platform->getVarcharDefaultLength());
+        self::assertEquals(32767, $this->_platform->getVarcharMaxLength());
     }
 
     public function testHasNativeGuidType()
     {
-        $this->assertTrue($this->_platform->hasNativeGuidType());
+        self::assertTrue($this->_platform->hasNativeGuidType());
     }
 
     public function testGeneratesDDLSnippets()
     {
+<<<<<<< HEAD
         $this->assertEquals("CREATE DATABASE 'foobar'", $this->_platform->getCreateDatabaseSQL('foobar'));
         $this->assertEquals("CREATE DATABASE 'foobar'", $this->_platform->getCreateDatabaseSQL('"foobar"'));
         $this->assertEquals("CREATE DATABASE 'create'", $this->_platform->getCreateDatabaseSQL('create'));
@@ -315,22 +316,39 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         $this->assertEquals('STOP DATABASE "create" UNCONDITIONALLY', $this->_platform->getStopDatabaseSQL('create'));
         $this->assertEquals('TRUNCATE TABLE foobar', $this->_platform->getTruncateTableSQL('foobar'));
         $this->assertEquals('TRUNCATE TABLE foobar', $this->_platform->getTruncateTableSQL('foobar'), true);
+=======
+        self::assertEquals("CREATE DATABASE 'foobar'", $this->_platform->getCreateDatabaseSQL('foobar'));
+        self::assertEquals("CREATE DATABASE 'foobar'", $this->_platform->getCreateDatabaseSQL('"foobar"'));
+        self::assertEquals("CREATE DATABASE 'create'", $this->_platform->getCreateDatabaseSQL('create'));
+        self::assertEquals("DROP DATABASE 'foobar'", $this->_platform->getDropDatabaseSQL('foobar'));
+        self::assertEquals("DROP DATABASE 'foobar'", $this->_platform->getDropDatabaseSQL('"foobar"'));
+        self::assertEquals("DROP DATABASE 'create'", $this->_platform->getDropDatabaseSQL('create'));
+        self::assertEquals('CREATE GLOBAL TEMPORARY TABLE', $this->_platform->getCreateTemporaryTableSnippetSQL());
+        self::assertEquals("START DATABASE 'foobar' AUTOSTOP OFF", $this->_platform->getStartDatabaseSQL('foobar'));
+        self::assertEquals("START DATABASE 'foobar' AUTOSTOP OFF", $this->_platform->getStartDatabaseSQL('"foobar"'));
+        self::assertEquals("START DATABASE 'create' AUTOSTOP OFF", $this->_platform->getStartDatabaseSQL('create'));
+        self::assertEquals('STOP DATABASE "foobar" UNCONDITIONALLY', $this->_platform->getStopDatabaseSQL('foobar'));
+        self::assertEquals('STOP DATABASE "foobar" UNCONDITIONALLY', $this->_platform->getStopDatabaseSQL('"foobar"'));
+        self::assertEquals('STOP DATABASE "create" UNCONDITIONALLY', $this->_platform->getStopDatabaseSQL('create'));
+        self::assertEquals('TRUNCATE TABLE foobar', $this->_platform->getTruncateTableSQL('foobar'));
+        self::assertEquals('TRUNCATE TABLE foobar', $this->_platform->getTruncateTableSQL('foobar'), true);
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
 
         $viewSql = 'SELECT * FROM footable';
-        $this->assertEquals('CREATE VIEW fooview AS ' . $viewSql, $this->_platform->getCreateViewSQL('fooview', $viewSql));
-        $this->assertEquals('DROP VIEW fooview', $this->_platform->getDropViewSQL('fooview'));
+        self::assertEquals('CREATE VIEW fooview AS ' . $viewSql, $this->_platform->getCreateViewSQL('fooview', $viewSql));
+        self::assertEquals('DROP VIEW fooview', $this->_platform->getDropViewSQL('fooview'));
     }
 
     public function testGeneratesPrimaryKeyDeclarationSQL()
     {
-        $this->assertEquals(
+        self::assertEquals(
             'CONSTRAINT pk PRIMARY KEY CLUSTERED (a, b)',
             $this->_platform->getPrimaryKeyDeclarationSQL(
                 new Index(null, array('a', 'b'), true, true, array('clustered')),
                 'pk'
             )
         );
-        $this->assertEquals(
+        self::assertEquals(
             'PRIMARY KEY (a, b)',
             $this->_platform->getPrimaryKeyDeclarationSQL(
                 new Index(null, array('a', 'b'), true, true)
@@ -340,21 +358,21 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
     public function testCannotGeneratePrimaryKeyDeclarationSQLWithEmptyColumns()
     {
-        $this->setExpectedException('\InvalidArgumentException');
+        $this->expectException('\InvalidArgumentException');
 
         $this->_platform->getPrimaryKeyDeclarationSQL(new Index('pk', array(), true, true));
     }
 
     public function testGeneratesCreateUnnamedPrimaryKeySQL()
     {
-        $this->assertEquals(
+        self::assertEquals(
             'ALTER TABLE foo ADD PRIMARY KEY CLUSTERED (a, b)',
             $this->_platform->getCreatePrimaryKeySQL(
                 new Index('pk', array('a', 'b'), true, true, array('clustered')),
                 'foo'
             )
         );
-        $this->assertEquals(
+        self::assertEquals(
             'ALTER TABLE foo ADD PRIMARY KEY (a, b)',
             $this->_platform->getCreatePrimaryKeySQL(
                 new Index('any_pk_name', array('a', 'b'), true, true),
@@ -365,14 +383,14 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
     public function testGeneratesUniqueConstraintDeclarationSQL()
     {
-        $this->assertEquals(
+        self::assertEquals(
             'CONSTRAINT unique_constraint UNIQUE CLUSTERED (a, b)',
             $this->_platform->getUniqueConstraintDeclarationSQL(
                 'unique_constraint',
                 new Index(null, array('a', 'b'), true, false, array('clustered'))
             )
         );
-        $this->assertEquals(
+        self::assertEquals(
             'UNIQUE (a, b)',
             $this->_platform->getUniqueConstraintDeclarationSQL(null, new Index(null, array('a', 'b'), true, false))
         );
@@ -380,14 +398,14 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
     public function testCannotGenerateUniqueConstraintDeclarationSQLWithEmptyColumns()
     {
-        $this->setExpectedException('\InvalidArgumentException');
+        $this->expectException('\InvalidArgumentException');
 
         $this->_platform->getUniqueConstraintDeclarationSQL('constr', new Index('constr', array(), true));
     }
 
     public function testGeneratesForeignKeyConstraintsWithAdvancedPlatformOptionsSQL()
     {
-        $this->assertEquals(
+        self::assertEquals(
             'CONSTRAINT fk ' .
                 'NOT NULL FOREIGN KEY (a, b) ' .
                 'REFERENCES foreign_table (c, d) ' .
@@ -404,7 +422,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
                 ))
             )
         );
-        $this->assertEquals(
+        self::assertEquals(
             'FOREIGN KEY (a, b) REFERENCES foreign_table (c, d)',
             $this->_platform->getForeignKeyDeclarationSQL(
                 new ForeignKeyConstraint(array('a', 'b'), 'foreign_table', array('c', 'd'))
@@ -414,54 +432,54 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
     public function testGeneratesForeignKeyMatchClausesSQL()
     {
-        $this->assertEquals('SIMPLE', $this->_platform->getForeignKeyMatchClauseSQL(1));
-        $this->assertEquals('FULL', $this->_platform->getForeignKeyMatchClauseSQL(2));
-        $this->assertEquals('UNIQUE SIMPLE', $this->_platform->getForeignKeyMatchClauseSQL(129));
-        $this->assertEquals('UNIQUE FULL', $this->_platform->getForeignKeyMatchClauseSQL(130));
+        self::assertEquals('SIMPLE', $this->_platform->getForeignKeyMatchClauseSQL(1));
+        self::assertEquals('FULL', $this->_platform->getForeignKeyMatchClauseSQL(2));
+        self::assertEquals('UNIQUE SIMPLE', $this->_platform->getForeignKeyMatchClauseSQL(129));
+        self::assertEquals('UNIQUE FULL', $this->_platform->getForeignKeyMatchClauseSQL(130));
     }
 
     public function testCannotGenerateInvalidForeignKeyMatchClauseSQL()
     {
-        $this->setExpectedException('\InvalidArgumentException');
+        $this->expectException('\InvalidArgumentException');
 
         $this->_platform->getForeignKeyMatchCLauseSQL(3);
     }
 
     public function testCannotGenerateForeignKeyConstraintSQLWithEmptyLocalColumns()
     {
-        $this->setExpectedException('\InvalidArgumentException');
+        $this->expectException('\InvalidArgumentException');
         $this->_platform->getForeignKeyDeclarationSQL(new ForeignKeyConstraint(array(), 'foreign_tbl', array('c', 'd')));
     }
 
     public function testCannotGenerateForeignKeyConstraintSQLWithEmptyForeignColumns()
     {
-        $this->setExpectedException('\InvalidArgumentException');
+        $this->expectException('\InvalidArgumentException');
         $this->_platform->getForeignKeyDeclarationSQL(new ForeignKeyConstraint(array('a', 'b'), 'foreign_tbl', array()));
     }
 
     public function testCannotGenerateForeignKeyConstraintSQLWithEmptyForeignTableName()
     {
-        $this->setExpectedException('\InvalidArgumentException');
+        $this->expectException('\InvalidArgumentException');
         $this->_platform->getForeignKeyDeclarationSQL(new ForeignKeyConstraint(array('a', 'b'), '', array('c', 'd')));
     }
 
     public function testCannotGenerateCommonIndexWithCreateConstraintSQL()
     {
-        $this->setExpectedException('\InvalidArgumentException');
+        $this->expectException('\InvalidArgumentException');
 
         $this->_platform->getCreateConstraintSQL(new Index('fooindex', array()), new Table('footable'));
     }
 
     public function testCannotGenerateCustomConstraintWithCreateConstraintSQL()
     {
-        $this->setExpectedException('\InvalidArgumentException');
+        $this->expectException('\InvalidArgumentException');
 
-        $this->_platform->getCreateConstraintSQL($this->getMock('\Doctrine\DBAL\Schema\Constraint'), 'footable');
+        $this->_platform->getCreateConstraintSQL($this->createMock('\Doctrine\DBAL\Schema\Constraint'), 'footable');
     }
 
     public function testGeneratesCreateIndexWithAdvancedPlatformOptionsSQL()
     {
-        $this->assertEquals(
+        self::assertEquals(
             'CREATE VIRTUAL UNIQUE CLUSTERED INDEX fooindex ON footable (a, b) FOR OLAP WORKLOAD',
             $this->_platform->getCreateIndexSQL(
                 new Index(
@@ -478,7 +496,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
     public function testDoesNotSupportIndexDeclarationInCreateAlterTableStatements()
     {
-        $this->setExpectedException('\Doctrine\DBAL\DBALException');
+        $this->expectException('\Doctrine\DBAL\DBALException');
 
         $this->_platform->getIndexDeclarationSQL('index', new Index('index', array()));
     }
@@ -487,9 +505,9 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
     {
         $index = new Index('fooindex', array());
 
-        $this->assertEquals('DROP INDEX fooindex', $this->_platform->getDropIndexSQL($index));
-        $this->assertEquals('DROP INDEX footable.fooindex', $this->_platform->getDropIndexSQL($index, 'footable'));
-        $this->assertEquals('DROP INDEX footable.fooindex', $this->_platform->getDropIndexSQL(
+        self::assertEquals('DROP INDEX fooindex', $this->_platform->getDropIndexSQL($index));
+        self::assertEquals('DROP INDEX footable.fooindex', $this->_platform->getDropIndexSQL($index, 'footable'));
+        self::assertEquals('DROP INDEX footable.fooindex', $this->_platform->getDropIndexSQL(
             $index,
             new Table('footable')
         ));
@@ -497,86 +515,86 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
     public function testCannotGenerateDropIndexSQLWithInvalidIndexParameter()
     {
-        $this->setExpectedException('\InvalidArgumentException');
+        $this->expectException('\InvalidArgumentException');
 
         $this->_platform->getDropIndexSQL(array('index'), 'table');
     }
 
     public function testCannotGenerateDropIndexSQLWithInvalidTableParameter()
     {
-        $this->setExpectedException('\InvalidArgumentException');
+        $this->expectException('\InvalidArgumentException');
 
         $this->_platform->getDropIndexSQL('index', array('table'));
     }
 
     public function testGeneratesSQLSnippets()
     {
-        $this->assertEquals('STRING(column1, "string1", column2, "string2")', $this->_platform->getConcatExpression(
+        self::assertEquals('STRING(column1, "string1", column2, "string2")', $this->_platform->getConcatExpression(
             'column1',
             '"string1"',
             'column2',
             '"string2"'
         ));
-        $this->assertEquals('CURRENT DATE', $this->_platform->getCurrentDateSQL());
-        $this->assertEquals('CURRENT TIME', $this->_platform->getCurrentTimeSQL());
-        $this->assertEquals('CURRENT TIMESTAMP', $this->_platform->getCurrentTimestampSQL());
-        $this->assertEquals("DATEADD(DAY, 4, '1987/05/02')", $this->_platform->getDateAddDaysExpression("'1987/05/02'", 4));
-        $this->assertEquals("DATEADD(HOUR, 12, '1987/05/02')", $this->_platform->getDateAddHourExpression("'1987/05/02'", 12));
-        $this->assertEquals("DATEADD(MINUTE, 2, '1987/05/02')", $this->_platform->getDateAddMinutesExpression("'1987/05/02'", 2));
-        $this->assertEquals("DATEADD(MONTH, 102, '1987/05/02')", $this->_platform->getDateAddMonthExpression("'1987/05/02'", 102));
-        $this->assertEquals("DATEADD(QUARTER, 5, '1987/05/02')", $this->_platform->getDateAddQuartersExpression("'1987/05/02'", 5));
-        $this->assertEquals("DATEADD(SECOND, 1, '1987/05/02')", $this->_platform->getDateAddSecondsExpression("'1987/05/02'", 1));
-        $this->assertEquals("DATEADD(WEEK, 3, '1987/05/02')", $this->_platform->getDateAddWeeksExpression("'1987/05/02'", 3));
-        $this->assertEquals("DATEADD(YEAR, 10, '1987/05/02')", $this->_platform->getDateAddYearsExpression("'1987/05/02'", 10));
-        $this->assertEquals("DATEDIFF(day, '1987/04/01', '1987/05/02')", $this->_platform->getDateDiffExpression("'1987/05/02'", "'1987/04/01'"));
-        $this->assertEquals("DATEADD(DAY, -1 * 4, '1987/05/02')", $this->_platform->getDateSubDaysExpression("'1987/05/02'", 4));
-        $this->assertEquals("DATEADD(HOUR, -1 * 12, '1987/05/02')", $this->_platform->getDateSubHourExpression("'1987/05/02'", 12));
-        $this->assertEquals("DATEADD(MINUTE, -1 * 2, '1987/05/02')", $this->_platform->getDateSubMinutesExpression("'1987/05/02'", 2));
-        $this->assertEquals("DATEADD(MONTH, -1 * 102, '1987/05/02')", $this->_platform->getDateSubMonthExpression("'1987/05/02'", 102));
-        $this->assertEquals("DATEADD(QUARTER, -1 * 5, '1987/05/02')", $this->_platform->getDateSubQuartersExpression("'1987/05/02'", 5));
-        $this->assertEquals("DATEADD(SECOND, -1 * 1, '1987/05/02')", $this->_platform->getDateSubSecondsExpression("'1987/05/02'", 1));
-        $this->assertEquals("DATEADD(WEEK, -1 * 3, '1987/05/02')", $this->_platform->getDateSubWeeksExpression("'1987/05/02'", 3));
-        $this->assertEquals("DATEADD(YEAR, -1 * 10, '1987/05/02')", $this->_platform->getDateSubYearsExpression("'1987/05/02'", 10));
-        $this->assertEquals("Y-m-d H:i:s.u", $this->_platform->getDateTimeFormatString());
-        $this->assertEquals("H:i:s.u", $this->_platform->getTimeFormatString());
-        $this->assertEquals('', $this->_platform->getForUpdateSQL());
-        $this->assertEquals('NEWID()', $this->_platform->getGuidExpression());
-        $this->assertEquals('LOCATE(string_column, substring_column)', $this->_platform->getLocateExpression('string_column', 'substring_column'));
-        $this->assertEquals('LOCATE(string_column, substring_column, 1)', $this->_platform->getLocateExpression('string_column', 'substring_column', 1));
-        $this->assertEquals("HASH(column, 'MD5')", $this->_platform->getMd5Expression('column'));
-        $this->assertEquals('SUBSTRING(column, 5)', $this->_platform->getSubstringExpression('column', 5));
-        $this->assertEquals('SUBSTRING(column, 5, 2)', $this->_platform->getSubstringExpression('column', 5, 2));
-        $this->assertEquals('GLOBAL TEMPORARY', $this->_platform->getTemporaryTableSQL());
-        $this->assertEquals(
+        self::assertEquals('CURRENT DATE', $this->_platform->getCurrentDateSQL());
+        self::assertEquals('CURRENT TIME', $this->_platform->getCurrentTimeSQL());
+        self::assertEquals('CURRENT TIMESTAMP', $this->_platform->getCurrentTimestampSQL());
+        self::assertEquals("DATEADD(DAY, 4, '1987/05/02')", $this->_platform->getDateAddDaysExpression("'1987/05/02'", 4));
+        self::assertEquals("DATEADD(HOUR, 12, '1987/05/02')", $this->_platform->getDateAddHourExpression("'1987/05/02'", 12));
+        self::assertEquals("DATEADD(MINUTE, 2, '1987/05/02')", $this->_platform->getDateAddMinutesExpression("'1987/05/02'", 2));
+        self::assertEquals("DATEADD(MONTH, 102, '1987/05/02')", $this->_platform->getDateAddMonthExpression("'1987/05/02'", 102));
+        self::assertEquals("DATEADD(QUARTER, 5, '1987/05/02')", $this->_platform->getDateAddQuartersExpression("'1987/05/02'", 5));
+        self::assertEquals("DATEADD(SECOND, 1, '1987/05/02')", $this->_platform->getDateAddSecondsExpression("'1987/05/02'", 1));
+        self::assertEquals("DATEADD(WEEK, 3, '1987/05/02')", $this->_platform->getDateAddWeeksExpression("'1987/05/02'", 3));
+        self::assertEquals("DATEADD(YEAR, 10, '1987/05/02')", $this->_platform->getDateAddYearsExpression("'1987/05/02'", 10));
+        self::assertEquals("DATEDIFF(day, '1987/04/01', '1987/05/02')", $this->_platform->getDateDiffExpression("'1987/05/02'", "'1987/04/01'"));
+        self::assertEquals("DATEADD(DAY, -1 * 4, '1987/05/02')", $this->_platform->getDateSubDaysExpression("'1987/05/02'", 4));
+        self::assertEquals("DATEADD(HOUR, -1 * 12, '1987/05/02')", $this->_platform->getDateSubHourExpression("'1987/05/02'", 12));
+        self::assertEquals("DATEADD(MINUTE, -1 * 2, '1987/05/02')", $this->_platform->getDateSubMinutesExpression("'1987/05/02'", 2));
+        self::assertEquals("DATEADD(MONTH, -1 * 102, '1987/05/02')", $this->_platform->getDateSubMonthExpression("'1987/05/02'", 102));
+        self::assertEquals("DATEADD(QUARTER, -1 * 5, '1987/05/02')", $this->_platform->getDateSubQuartersExpression("'1987/05/02'", 5));
+        self::assertEquals("DATEADD(SECOND, -1 * 1, '1987/05/02')", $this->_platform->getDateSubSecondsExpression("'1987/05/02'", 1));
+        self::assertEquals("DATEADD(WEEK, -1 * 3, '1987/05/02')", $this->_platform->getDateSubWeeksExpression("'1987/05/02'", 3));
+        self::assertEquals("DATEADD(YEAR, -1 * 10, '1987/05/02')", $this->_platform->getDateSubYearsExpression("'1987/05/02'", 10));
+        self::assertEquals("Y-m-d H:i:s.u", $this->_platform->getDateTimeFormatString());
+        self::assertEquals("H:i:s.u", $this->_platform->getTimeFormatString());
+        self::assertEquals('', $this->_platform->getForUpdateSQL());
+        self::assertEquals('NEWID()', $this->_platform->getGuidExpression());
+        self::assertEquals('LOCATE(string_column, substring_column)', $this->_platform->getLocateExpression('string_column', 'substring_column'));
+        self::assertEquals('LOCATE(string_column, substring_column, 1)', $this->_platform->getLocateExpression('string_column', 'substring_column', 1));
+        self::assertEquals("HASH(column, 'MD5')", $this->_platform->getMd5Expression('column'));
+        self::assertEquals('SUBSTRING(column, 5)', $this->_platform->getSubstringExpression('column', 5));
+        self::assertEquals('SUBSTRING(column, 5, 2)', $this->_platform->getSubstringExpression('column', 5, 2));
+        self::assertEquals('GLOBAL TEMPORARY', $this->_platform->getTemporaryTableSQL());
+        self::assertEquals(
             'LTRIM(column)',
             $this->_platform->getTrimExpression('column', AbstractPlatform::TRIM_LEADING)
         );
-        $this->assertEquals(
+        self::assertEquals(
             'RTRIM(column)',
             $this->_platform->getTrimExpression('column', AbstractPlatform::TRIM_TRAILING)
         );
-        $this->assertEquals(
+        self::assertEquals(
             'TRIM(column)',
             $this->_platform->getTrimExpression('column')
         );
-        $this->assertEquals(
+        self::assertEquals(
             'TRIM(column)',
             $this->_platform->getTrimExpression('column', AbstractPlatform::TRIM_UNSPECIFIED)
         );
-        $this->assertEquals(
+        self::assertEquals(
             "SUBSTR(column, PATINDEX('%[^' + c + ']%', column))",
             $this->_platform->getTrimExpression('column', AbstractPlatform::TRIM_LEADING, 'c')
         );
-        $this->assertEquals(
+        self::assertEquals(
             "REVERSE(SUBSTR(REVERSE(column), PATINDEX('%[^' + c + ']%', REVERSE(column))))",
             $this->_platform->getTrimExpression('column', AbstractPlatform::TRIM_TRAILING, 'c')
         );
-        $this->assertEquals(
+        self::assertEquals(
             "REVERSE(SUBSTR(REVERSE(SUBSTR(column, PATINDEX('%[^' + c + ']%', column))), PATINDEX('%[^' + c + ']%', " .
             "REVERSE(SUBSTR(column, PATINDEX('%[^' + c + ']%', column))))))",
             $this->_platform->getTrimExpression('column', null, 'c')
         );
-        $this->assertEquals(
+        self::assertEquals(
             "REVERSE(SUBSTR(REVERSE(SUBSTR(column, PATINDEX('%[^' + c + ']%', column))), PATINDEX('%[^' + c + ']%', " .
             "REVERSE(SUBSTR(column, PATINDEX('%[^' + c + ']%', column))))))",
             $this->_platform->getTrimExpression('column', AbstractPlatform::TRIM_UNSPECIFIED, 'c')
@@ -585,7 +603,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
     public function testDoesNotSupportRegexp()
     {
-        $this->setExpectedException('\Doctrine\DBAL\DBALException');
+        $this->expectException('\Doctrine\DBAL\DBALException');
 
         $this->_platform->getRegexpExpression();
     }
@@ -595,12 +613,12 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         // Date time type with timezone is not supported before version 12.
         // For versions before we have to ensure that the date time with timezone format
         // equals the normal date time format so that it corresponds to the declaration SQL equality (datetimetz -> datetime).
-        $this->assertEquals($this->_platform->getDateTimeFormatString(), $this->_platform->getDateTimeTzFormatString());
+        self::assertEquals($this->_platform->getDateTimeFormatString(), $this->_platform->getDateTimeTzFormatString());
     }
 
     public function testHasCorrectDefaultTransactionIsolationLevel()
     {
-        $this->assertEquals(
+        self::assertEquals(
             Connection::TRANSACTION_READ_UNCOMMITTED,
             $this->_platform->getDefaultTransactionIsolationLevel()
         );
@@ -608,19 +626,19 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
     public function testGeneratesTransactionsCommands()
     {
-        $this->assertEquals(
+        self::assertEquals(
             'SET TEMPORARY OPTION isolation_level = 0',
             $this->_platform->getSetTransactionIsolationSQL(Connection::TRANSACTION_READ_UNCOMMITTED)
         );
-        $this->assertEquals(
+        self::assertEquals(
             'SET TEMPORARY OPTION isolation_level = 1',
             $this->_platform->getSetTransactionIsolationSQL(Connection::TRANSACTION_READ_COMMITTED)
         );
-        $this->assertEquals(
+        self::assertEquals(
             'SET TEMPORARY OPTION isolation_level = 2',
             $this->_platform->getSetTransactionIsolationSQL(Connection::TRANSACTION_REPEATABLE_READ)
         );
-        $this->assertEquals(
+        self::assertEquals(
             'SET TEMPORARY OPTION isolation_level = 3',
             $this->_platform->getSetTransactionIsolationSQL(Connection::TRANSACTION_SERIALIZABLE)
         );
@@ -628,14 +646,14 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
     public function testCannotGenerateTransactionCommandWithInvalidIsolationLevel()
     {
-        $this->setExpectedException('\InvalidArgumentException');
+        $this->expectException('\InvalidArgumentException');
 
         $this->_platform->getSetTransactionIsolationSQL('invalid_transaction_isolation_level');
     }
 
     public function testModifiesLimitQuery()
     {
-        $this->assertEquals(
+        self::assertEquals(
             'SELECT TOP 10 * FROM user',
             $this->_platform->modifyLimitQuery('SELECT * FROM user', 10, 0)
         );
@@ -643,7 +661,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
     public function testModifiesLimitQueryWithEmptyOffset()
     {
-        $this->assertEquals(
+        self::assertEquals(
             'SELECT TOP 10 * FROM user',
             $this->_platform->modifyLimitQuery('SELECT * FROM user', 10)
         );
@@ -651,11 +669,11 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
     public function testModifiesLimitQueryWithOffset()
     {
-        $this->assertEquals(
+        self::assertEquals(
             'SELECT TOP 10 START AT 6 * FROM user',
             $this->_platform->modifyLimitQuery('SELECT * FROM user', 10, 5)
         );
-        $this->assertEquals(
+        self::assertEquals(
             'SELECT TOP ALL START AT 6 * FROM user',
             $this->_platform->modifyLimitQuery('SELECT * FROM user', 0, 5)
         );
@@ -663,7 +681,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
     public function testModifiesLimitQueryWithSubSelect()
     {
-        $this->assertEquals(
+        self::assertEquals(
             'SELECT TOP 10 * FROM (SELECT u.id as uid, u.name as uname FROM user) AS doctrine_tbl',
             $this->_platform->modifyLimitQuery('SELECT * FROM (SELECT u.id as uid, u.name as uname FROM user) AS doctrine_tbl', 10)
         );
@@ -671,104 +689,104 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
     public function testPrefersIdentityColumns()
     {
-        $this->assertTrue($this->_platform->prefersIdentityColumns());
+        self::assertTrue($this->_platform->prefersIdentityColumns());
     }
 
     public function testDoesNotPreferSequences()
     {
-        $this->assertFalse($this->_platform->prefersSequences());
+        self::assertFalse($this->_platform->prefersSequences());
     }
 
     public function testSupportsIdentityColumns()
     {
-        $this->assertTrue($this->_platform->supportsIdentityColumns());
+        self::assertTrue($this->_platform->supportsIdentityColumns());
     }
 
     public function testSupportsPrimaryConstraints()
     {
-        $this->assertTrue($this->_platform->supportsPrimaryConstraints());
+        self::assertTrue($this->_platform->supportsPrimaryConstraints());
     }
 
     public function testSupportsForeignKeyConstraints()
     {
-        $this->assertTrue($this->_platform->supportsForeignKeyConstraints());
+        self::assertTrue($this->_platform->supportsForeignKeyConstraints());
     }
 
     public function testSupportsForeignKeyOnUpdate()
     {
-        $this->assertTrue($this->_platform->supportsForeignKeyOnUpdate());
+        self::assertTrue($this->_platform->supportsForeignKeyOnUpdate());
     }
 
     public function testSupportsAlterTable()
     {
-        $this->assertTrue($this->_platform->supportsAlterTable());
+        self::assertTrue($this->_platform->supportsAlterTable());
     }
 
     public function testSupportsTransactions()
     {
-        $this->assertTrue($this->_platform->supportsTransactions());
+        self::assertTrue($this->_platform->supportsTransactions());
     }
 
     public function testSupportsSchemas()
     {
-        $this->assertFalse($this->_platform->supportsSchemas());
+        self::assertFalse($this->_platform->supportsSchemas());
     }
 
     public function testSupportsIndexes()
     {
-        $this->assertTrue($this->_platform->supportsIndexes());
+        self::assertTrue($this->_platform->supportsIndexes());
     }
 
     public function testSupportsCommentOnStatement()
     {
-        $this->assertTrue($this->_platform->supportsCommentOnStatement());
+        self::assertTrue($this->_platform->supportsCommentOnStatement());
     }
 
     public function testSupportsSavePoints()
     {
-        $this->assertTrue($this->_platform->supportsSavepoints());
+        self::assertTrue($this->_platform->supportsSavepoints());
     }
 
     public function testSupportsReleasePoints()
     {
-        $this->assertTrue($this->_platform->supportsReleaseSavepoints());
+        self::assertTrue($this->_platform->supportsReleaseSavepoints());
     }
 
     public function testSupportsCreateDropDatabase()
     {
-        $this->assertTrue($this->_platform->supportsCreateDropDatabase());
+        self::assertTrue($this->_platform->supportsCreateDropDatabase());
     }
 
     public function testSupportsGettingAffectedRows()
     {
-        $this->assertTrue($this->_platform->supportsGettingAffectedRows());
+        self::assertTrue($this->_platform->supportsGettingAffectedRows());
     }
 
     public function testDoesNotSupportSequences()
     {
-        $this->assertFalse($this->_platform->supportsSequences());
+        self::assertFalse($this->_platform->supportsSequences());
     }
 
     public function testDoesNotSupportInlineColumnComments()
     {
-        $this->assertFalse($this->_platform->supportsInlineColumnComments());
+        self::assertFalse($this->_platform->supportsInlineColumnComments());
     }
 
     public function testCannotEmulateSchemas()
     {
-        $this->assertFalse($this->_platform->canEmulateSchemas());
+        self::assertFalse($this->_platform->canEmulateSchemas());
     }
 
     public function testInitializesDoctrineTypeMappings()
     {
-        $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('integer'));
-        $this->assertSame('integer', $this->_platform->getDoctrineTypeMapping('integer'));
+        self::assertTrue($this->_platform->hasDoctrineTypeMappingFor('integer'));
+        self::assertSame('integer', $this->_platform->getDoctrineTypeMapping('integer'));
 
-        $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('binary'));
-        $this->assertSame('binary', $this->_platform->getDoctrineTypeMapping('binary'));
+        self::assertTrue($this->_platform->hasDoctrineTypeMappingFor('binary'));
+        self::assertSame('binary', $this->_platform->getDoctrineTypeMapping('binary'));
 
-        $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('varbinary'));
-        $this->assertSame('binary', $this->_platform->getDoctrineTypeMapping('varbinary'));
+        self::assertTrue($this->_platform->hasDoctrineTypeMappingFor('varbinary'));
+        self::assertSame('binary', $this->_platform->getDoctrineTypeMapping('varbinary'));
     }
 
     protected function getBinaryDefaultLength()
@@ -783,15 +801,15 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
     public function testReturnsBinaryTypeDeclarationSQL()
     {
-        $this->assertSame('VARBINARY(1)', $this->_platform->getBinaryTypeDeclarationSQL(array()));
-        $this->assertSame('VARBINARY(1)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 0)));
-        $this->assertSame('VARBINARY(32767)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 32767)));
-        $this->assertSame('LONG BINARY', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 32768)));
+        self::assertSame('VARBINARY(1)', $this->_platform->getBinaryTypeDeclarationSQL(array()));
+        self::assertSame('VARBINARY(1)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 0)));
+        self::assertSame('VARBINARY(32767)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 32767)));
+        self::assertSame('LONG BINARY', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 32768)));
 
-        $this->assertSame('BINARY(1)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true)));
-        $this->assertSame('BINARY(1)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 0)));
-        $this->assertSame('BINARY(32767)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 32767)));
-        $this->assertSame('LONG BINARY', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 32768)));
+        self::assertSame('BINARY(1)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true)));
+        self::assertSame('BINARY(1)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 0)));
+        self::assertSame('BINARY(32767)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 32767)));
+        self::assertSame('LONG BINARY', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 32768)));
     }
 
     /**
@@ -867,7 +885,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
      */
     public function testReturnsGuidTypeDeclarationSQL()
     {
-        $this->assertSame('UNIQUEIDENTIFIER', $this->_platform->getGuidTypeDeclarationSQL(array()));
+        self::assertSame('UNIQUEIDENTIFIER', $this->_platform->getGuidTypeDeclarationSQL(array()));
     }
 
     /**
@@ -920,8 +938,8 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
         $tableDiff = $comparator->diffTable($table1, $table2);
 
-        $this->assertInstanceOf('Doctrine\DBAL\Schema\TableDiff', $tableDiff);
-        $this->assertSame(
+        self::assertInstanceOf('Doctrine\DBAL\Schema\TableDiff', $tableDiff);
+        self::assertSame(
             array(
                 'COMMENT ON COLUMN "foo"."bar" IS \'baz\'',
             ),
@@ -1001,7 +1019,11 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
      */
     public function testQuotesSchemaNameInListTableColumnsSQL()
     {
+<<<<<<< HEAD
         $this->assertContains(
+=======
+        self::assertContains(
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
             "'Foo''Bar\\'",
             $this->_platform->getListTableColumnsSQL("Foo'Bar\\.baz_table"),
             '',
@@ -1014,7 +1036,11 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
      */
     public function testQuotesTableNameInListTableConstraintsSQL()
     {
+<<<<<<< HEAD
         $this->assertContains("'Foo''Bar\\'", $this->_platform->getListTableConstraintsSQL("Foo'Bar\\"), '', true);
+=======
+        self::assertContains("'Foo''Bar\\'", $this->_platform->getListTableConstraintsSQL("Foo'Bar\\"), '', true);
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
     /**
@@ -1022,7 +1048,11 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
      */
     public function testQuotesSchemaNameInListTableConstraintsSQL()
     {
+<<<<<<< HEAD
         $this->assertContains(
+=======
+        self::assertContains(
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
             "'Foo''Bar\\'",
             $this->_platform->getListTableConstraintsSQL("Foo'Bar\\.baz_table"),
             '',
@@ -1035,7 +1065,11 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
      */
     public function testQuotesTableNameInListTableForeignKeysSQL()
     {
+<<<<<<< HEAD
         $this->assertContains("'Foo''Bar\\'", $this->_platform->getListTableForeignKeysSQL("Foo'Bar\\"), '', true);
+=======
+        self::assertContains("'Foo''Bar\\'", $this->_platform->getListTableForeignKeysSQL("Foo'Bar\\"), '', true);
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
     /**
@@ -1043,7 +1077,11 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
      */
     public function testQuotesSchemaNameInListTableForeignKeysSQL()
     {
+<<<<<<< HEAD
         $this->assertContains(
+=======
+        self::assertContains(
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
             "'Foo''Bar\\'",
             $this->_platform->getListTableForeignKeysSQL("Foo'Bar\\.baz_table"),
             '',
@@ -1056,7 +1094,11 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
      */
     public function testQuotesTableNameInListTableIndexesSQL()
     {
+<<<<<<< HEAD
         $this->assertContains("'Foo''Bar\\'", $this->_platform->getListTableIndexesSQL("Foo'Bar\\"), '', true);
+=======
+        self::assertContains("'Foo''Bar\\'", $this->_platform->getListTableIndexesSQL("Foo'Bar\\"), '', true);
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
     /**
@@ -1064,7 +1106,11 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
      */
     public function testQuotesSchemaNameInListTableIndexesSQL()
     {
+<<<<<<< HEAD
         $this->assertContains(
+=======
+        self::assertContains(
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
             "'Foo''Bar\\'",
             $this->_platform->getListTableIndexesSQL("Foo'Bar\\.baz_table"),
             '',

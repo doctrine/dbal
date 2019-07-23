@@ -2,14 +2,12 @@
 
 namespace Doctrine\Tests\DBAL\Schema;
 
-require_once __DIR__ . '/../../TestInit.php';
-
 use Doctrine\DBAL\Schema\SchemaDiff;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 
-class SchemaDiffTest extends \PHPUnit_Framework_TestCase
+class SchemaDiffTest extends \PHPUnit\Framework\TestCase
 {
     public function testSchemaDiffToSql()
     {
@@ -20,7 +18,7 @@ class SchemaDiffTest extends \PHPUnit_Framework_TestCase
 
         $expected = array('create_schema', 'drop_orphan_fk', 'alter_seq', 'drop_seq', 'create_seq', 'create_table', 'create_foreign_key', 'drop_table', 'alter_table');
 
-        $this->assertEquals($expected, $sql);
+        self::assertEquals($expected, $sql);
     }
 
     public function testSchemaDiffToSaveSql()
@@ -32,12 +30,12 @@ class SchemaDiffTest extends \PHPUnit_Framework_TestCase
 
         $expected = array('create_schema', 'alter_seq', 'create_seq', 'create_table', 'create_foreign_key', 'alter_table');
 
-        $this->assertEquals($expected, $sql);
+        self::assertEquals($expected, $sql);
     }
 
     public function createPlatform($unsafe = false)
     {
-        $platform = $this->getMock('Doctrine\Tests\DBAL\Mocks\MockPlatform');
+        $platform = $this->createMock('Doctrine\Tests\DBAL\Mocks\MockPlatform');
         $platform->expects($this->exactly(1))
             ->method('getCreateSchemaSQL')
             ->with('foo_ns')

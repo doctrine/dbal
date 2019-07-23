@@ -4,7 +4,11 @@ namespace Doctrine\Tests\DBAL\Schema;
 
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 
+<<<<<<< HEAD
 class ForeignKeyConstraintTest extends \PHPUnit_Framework_TestCase
+=======
+class ForeignKeyConstraintTest extends \PHPUnit\Framework\TestCase
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
 {
     /**
      * @group DBAL-1062
@@ -22,7 +26,11 @@ class ForeignKeyConstraintTest extends \PHPUnit_Framework_TestCase
             ->method('getColumns')
             ->will($this->returnValue($indexColumns));
 
+<<<<<<< HEAD
         $this->assertSame($expectedResult, $foreignKey->intersectsIndexColumns($index));
+=======
+        self::assertSame($expectedResult, $foreignKey->intersectsIndexColumns($index));
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
     /**

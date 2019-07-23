@@ -46,7 +46,7 @@ The drivers abstract a PHP specific database API by enforcing two
 interfaces:
 
 
--  ``\Doctrine\DBAL\Driver\Driver``
+-  ``\Doctrine\DBAL\Driver\Connection``
 -  ``\Doctrine\DBAL\Driver\Statement``
 
 The above two interfaces require exactly the same methods as PDO.

@@ -63,7 +63,7 @@ interface ShardManager
     /**
      * Gets the distribution value currently used for sharding.
      *
-     * @return string
+     * @return string|null
      */
     function getCurrentDistributionValue();
 

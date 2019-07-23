@@ -1,6 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
+<<<<<<< HEAD
 <phpunit bootstrap="../Doctrine/Tests/TestInit.php">
     <php>
+=======
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="../../vendor/phpunit/phpunit/phpunit.xsd"
+         colors="true"
+         verbose="true"
+         beStrictAboutOutputDuringTests="true"
+         beStrictAboutTodoAnnotatedTests="true"
+         failOnRisky="true"
+>
+    <php>
+        <ini name="error_reporting" value="-1" />
+
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
         <var name="db_type" value="pdo_mysql"/>
         <var name="db_host" value="localhost" />
         <var name="db_username" value="travis" />
@@ -20,12 +34,20 @@
             <directory>../Doctrine/Tests/DBAL</directory>
         </testsuite>
     </testsuites>
+<<<<<<< HEAD
+=======
+
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     <groups>
         <exclude>
             <group>performance</group>
             <group>locking_functional</group>
         </exclude>
     </groups>
+<<<<<<< HEAD
 
 </phpunit>
 
+=======
+</phpunit>
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01

@@ -9,7 +9,7 @@ class DriverTest extends AbstractMySQLDriverTest
 {
     public function testReturnsName()
     {
-        $this->assertSame('pdo_mysql', $this->driver->getName());
+        self::assertSame('pdo_mysql', $this->driver->getName());
     }
 
     protected function createDriver()

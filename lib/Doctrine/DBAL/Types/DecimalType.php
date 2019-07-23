@@ -49,6 +49,6 @@ class DecimalType extends Type
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
-        return (null === $value) ? null : $value;
+        return $value;
     }
 }

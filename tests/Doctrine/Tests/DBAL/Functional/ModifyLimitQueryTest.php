@@ -2,13 +2,11 @@
 
 namespace Doctrine\Tests\DBAL\Functional;
 
-require_once __DIR__ . '/../../TestInit.php';
-
 class ModifyLimitQueryTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
     private static $tableCreated = false;
 
-    public function setUp()
+    protected function setUp()
     {
         parent::setUp();
 
@@ -106,11 +104,55 @@ class ModifyLimitQueryTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->_conn->insert('modify_limit_table', array('test_int' => 3));
         $this->_conn->insert('modify_limit_table', array('test_int' => 4));
 
-        $sql = "SELECT *, (SELECT COUNT(*) FROM modify_limit_table) AS cnt FROM modify_limit_table";
+        $sql = "SELECT modify_limit_table.*, (SELECT COUNT(*) FROM modify_limit_table) AS cnt FROM modify_limit_table ORDER BY test_int DESC";
 
-        $this->assertLimitResult(array(4, 3, 2, 1), $sql, 10, 0, false);
-        $this->assertLimitResult(array(4, 3), $sql, 2, 0, false);
-        $this->assertLimitResult(array(2, 1), $sql, 2, 2, false);
+        $this->assertLimitResult(array(4, 3, 2, 1), $sql, 10, 0);
+        $this->assertLimitResult(array(4, 3), $sql, 2, 0);
+        $this->assertLimitResult(array(2, 1), $sql, 2, 2);
+    }
+
+    public function testModifyLimitQueryFromSubSelect()
+    {
+        $this->_conn->insert('modify_limit_table', array('test_int' => 1));
+        $this->_conn->insert('modify_limit_table', array('test_int' => 2));
+        $this->_conn->insert('modify_limit_table', array('test_int' => 3));
+        $this->_conn->insert('modify_limit_table', array('test_int' => 4));
+
+        $sql = "SELECT * FROM (SELECT * FROM modify_limit_table) sub ORDER BY test_int DESC";
+
+        $this->assertLimitResult(array(4, 3, 2, 1), $sql, 10, 0);
+        $this->assertLimitResult(array(4, 3), $sql, 2, 0);
+        $this->assertLimitResult(array(2, 1), $sql, 2, 2);
+    }
+
+    public function testModifyLimitQueryLineBreaks()
+    {
+        $this->_conn->insert('modify_limit_table', array('test_int' => 1));
+        $this->_conn->insert('modify_limit_table', array('test_int' => 2));
+        $this->_conn->insert('modify_limit_table', array('test_int' => 3));
+
+        $sql = <<<SQL
+SELECT
+*
+FROM
+modify_limit_table
+ORDER
+BY
+test_int
+ASC
+SQL;
+
+        $this->assertLimitResult(array(2), $sql, 1, 1);
+    }
+
+    public function testModifyLimitQueryZeroOffsetNoLimit()
+    {
+        $this->_conn->insert('modify_limit_table', array('test_int' => 1));
+        $this->_conn->insert('modify_limit_table', array('test_int' => 2));
+
+        $sql = "SELECT test_int FROM modify_limit_table ORDER BY test_int ASC";
+
+        $this->assertLimitResult(array(1, 2), $sql, null, 0);
     }
 
     public function testModifyLimitQueryZeroOffsetNoLimit()
@@ -136,9 +178,9 @@ class ModifyLimitQueryTest extends \Doctrine\Tests\DbalFunctionalTestCase
          * Do not assert the order of results when results are non-deterministic
          */
         if ($deterministic) {
-            $this->assertEquals($expectedResults, $data);
+            self::assertEquals($expectedResults, $data);
         } else {
-            $this->assertCount(count($expectedResults), $data);
+            self::assertCount(count($expectedResults), $data);
         }
     }
 }

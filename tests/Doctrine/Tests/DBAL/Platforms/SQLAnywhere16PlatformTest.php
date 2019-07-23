@@ -14,7 +14,7 @@ class SQLAnywhere16PlatformTest extends SQLAnywhere12PlatformTest
 
     public function testGeneratesCreateIndexWithAdvancedPlatformOptionsSQL()
     {
-        $this->assertEquals(
+        self::assertEquals(
             'CREATE UNIQUE INDEX fooindex ON footable (a, b) WITH NULLS DISTINCT',
             $this->_platform->getCreateIndexSQL(
                 new Index(
@@ -29,7 +29,7 @@ class SQLAnywhere16PlatformTest extends SQLAnywhere12PlatformTest
         );
 
         // WITH NULLS DISTINCT clause not available on primary indexes.
-        $this->assertEquals(
+        self::assertEquals(
             'ALTER TABLE footable ADD PRIMARY KEY (a, b)',
             $this->_platform->getCreateIndexSQL(
                 new Index(
@@ -44,7 +44,7 @@ class SQLAnywhere16PlatformTest extends SQLAnywhere12PlatformTest
         );
 
         // WITH NULLS DISTINCT clause not available on non-unique indexes.
-        $this->assertEquals(
+        self::assertEquals(
             'CREATE INDEX fooindex ON footable (a, b)',
             $this->_platform->getCreateIndexSQL(
                 new Index(
@@ -63,7 +63,7 @@ class SQLAnywhere16PlatformTest extends SQLAnywhere12PlatformTest
 
     public function testThrowsExceptionOnInvalidWithNullsNotDistinctIndexOptions()
     {
-        $this->setExpectedException('UnexpectedValueException');
+        $this->expectException('UnexpectedValueException');
 
         $this->_platform->getCreateIndexSQL(
             new Index(

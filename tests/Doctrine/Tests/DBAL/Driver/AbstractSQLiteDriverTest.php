@@ -23,7 +23,7 @@ class AbstractSQLiteDriverTest extends AbstractDriverTest
             ->method('getParams')
             ->will($this->returnValue($params));
 
-        $this->assertSame($params['path'], $this->driver->getDatabase($connection));
+        self::assertSame($params['path'], $this->driver->getDatabase($connection));
     }
 
     protected function createDriver()
@@ -72,6 +72,12 @@ class AbstractSQLiteDriverTest extends AbstractDriverTest
                 array(null, null, 'must be unique'),
                 array(null, null, 'is not unique'),
                 array(null, null, 'are not unique'),
+<<<<<<< HEAD
+=======
+            ),
+            self::EXCEPTION_LOCK_WAIT_TIMEOUT => array(
+                array(null, null, 'database is locked'),
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
             ),
         );
     }

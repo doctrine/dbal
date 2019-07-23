@@ -5,9 +5,6 @@ namespace Doctrine\Tests\DBAL\Functional\Ticket;
 use Doctrine\DBAL\Connection;
 use PDO;
 
-require_once __DIR__ . '/../../TestInit.php';
-
-
 /**
  * @group DDC-1372
  */
@@ -104,7 +101,7 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
         );
     }
 
-    public function setUp()
+    protected function setUp()
     {
         parent::setUp();
 
@@ -160,7 +157,7 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $result[$k] = array_change_key_case($v, CASE_LOWER);
         }
 
-        $this->assertEquals($result, $expected);
+        self::assertEquals($result, $expected);
     }
 
 }

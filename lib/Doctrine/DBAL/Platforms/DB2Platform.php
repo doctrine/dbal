@@ -20,7 +20,10 @@
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\DBALException;
+<<<<<<< HEAD
 use Doctrine\DBAL\Schema\Column;
+=======
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
@@ -60,7 +63,7 @@ class DB2Platform extends AbstractPlatform
      */
     public function initializeDoctrineTypeMappings()
     {
-        $this->doctrineTypeMapping = array(
+        $this->doctrineTypeMapping = [
             'smallint'      => 'smallint',
             'bigint'        => 'bigint',
             'integer'       => 'integer',
@@ -76,7 +79,21 @@ class DB2Platform extends AbstractPlatform
             'double'        => 'float',
             'real'          => 'float',
             'timestamp'     => 'datetime',
-        );
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isCommentedDoctrineType(Type $doctrineType)
+    {
+        if ($doctrineType->getName() === Type::BOOLEAN) {
+            // We require a commented boolean type in order to distinguish between boolean and smallint
+            // as both (have to) map to the same native type.
+            return true;
+        }
+
+        return parent::isCommentedDoctrineType($doctrineType);
     }
 
     /**
@@ -478,13 +495,13 @@ class DB2Platform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function _getCreateTableSQL($tableName, array $columns, array $options = array())
+    protected function _getCreateTableSQL($tableName, array $columns, array $options = [])
     {
-        $indexes = array();
+        $indexes = [];
         if (isset($options['indexes'])) {
             $indexes = $options['indexes'];
         }
-        $options['indexes'] = array();
+        $options['indexes'] = [];
 
         $sqls = parent::_getCreateTableSQL($tableName, $columns, $options);
 
@@ -499,11 +516,11 @@ class DB2Platform extends AbstractPlatform
      */
     public function getAlterTableSQL(TableDiff $diff)
     {
-        $sql = array();
-        $columnSql = array();
-        $commentsSQL = array();
+        $sql = [];
+        $columnSql = [];
+        $commentsSQL = [];
 
-        $queryParts = array();
+        $queryParts = [];
         foreach ($diff->addedColumns as $column) {
             if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
                 continue;
@@ -572,7 +589,7 @@ class DB2Platform extends AbstractPlatform
                 ' TO ' . $column->getQuotedName($this);
         }
 
-        $tableSql = array();
+        $tableSql = [];
 
         if ( ! $this->onSchemaAlterTable($diff, $tableSql)) {
             if (count($queryParts) > 0) {
@@ -645,10 +662,10 @@ class DB2Platform extends AbstractPlatform
         $alterClause = 'ALTER COLUMN ' . $columnDiff->column->getQuotedName($this);
 
         if ($column['columnDefinition']) {
-            return array($alterClause . ' ' . $column['columnDefinition']);
+            return [$alterClause . ' ' . $column['columnDefinition']];
         }
 
-        $clauses = array();
+        $clauses = [];
 
         if ($columnDiff->hasChanged('type') ||
             $columnDiff->hasChanged('length') ||
@@ -683,7 +700,7 @@ class DB2Platform extends AbstractPlatform
      */
     protected function getPreAlterTableIndexForeignKeySQL(TableDiff $diff)
     {
-        $sql = array();
+        $sql = [];
         $table = $diff->getName($this)->getQuotedName($this);
 
         foreach ($diff->removedIndexes as $remKey => $remIndex) {
@@ -722,7 +739,7 @@ class DB2Platform extends AbstractPlatform
             $oldIndexName = $schema . '.' . $oldIndexName;
         }
 
-        return array('RENAME INDEX ' . $oldIndexName . ' TO ' . $index->getQuotedName($this));
+        return ['RENAME INDEX ' . $oldIndexName . ' TO ' . $index->getQuotedName($this)];
     }
 
     /**
@@ -772,7 +789,11 @@ class DB2Platform extends AbstractPlatform
      */
     protected function doModifyLimitQuery($query, $limit, $offset = null)
     {
+<<<<<<< HEAD
         $where = array();
+=======
+        $where = [];
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
 
         if ($offset > 0) {
             $where[] = sprintf('db22.DC_ROWNUM >= %d', $offset + 1);
@@ -877,6 +898,6 @@ class DB2Platform extends AbstractPlatform
      */
     protected function getReservedKeywordsClass()
     {
-        return 'Doctrine\DBAL\Platforms\Keywords\DB2Keywords';
+        return Keywords\DB2Keywords::class;
     }
 }

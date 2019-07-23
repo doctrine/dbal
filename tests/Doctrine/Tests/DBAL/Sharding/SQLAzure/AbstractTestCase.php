@@ -6,12 +6,12 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Sharding\SQLAzure\SQLAzureShardManager;
 
-abstract class AbstractTestCase extends \PHPUnit_Framework_TestCase
+abstract class AbstractTestCase extends \PHPUnit\Framework\TestCase
 {
     protected $conn;
     protected $sm;
 
-    public function setUp()
+    protected function setUp()
     {
         if (!isset($GLOBALS['db_type']) || strpos($GLOBALS['db_type'], "sqlsrv") === false) {
             $this->markTestSkipped('No driver or sqlserver driver specified.');
@@ -32,6 +32,13 @@ abstract class AbstractTestCase extends \PHPUnit_Framework_TestCase
             'driverOptions' => array('MultipleActiveResultSets' => false)
         );
         $this->conn = DriverManager::getConnection($params);
+
+        $serverEdition = $this->conn->fetchColumn("SELECT CONVERT(NVARCHAR(128), SERVERPROPERTY('Edition'))");
+
+        if (0 !== strpos($serverEdition, 'SQL Azure')) {
+            $this->markTestSkipped('SQL Azure only test.');
+        }
+
         // assume database is created and schema is:
         // Global products table
         // Customers, Orders, OrderItems federation tables.

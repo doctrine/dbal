@@ -26,8 +26,8 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Constraint;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
-use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Identifier;
+use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 
@@ -127,11 +127,11 @@ class SQLAnywherePlatform extends AbstractPlatform
      */
     public function getAlterTableSQL(TableDiff $diff)
     {
-        $sql          = array();
-        $columnSql    = array();
-        $commentsSQL  = array();
-        $tableSql     = array();
-        $alterClauses = array();
+        $sql          = [];
+        $columnSql    = [];
+        $commentsSQL  = [];
+        $tableSql     = [];
+        $alterClauses = [];
 
         /** @var \Doctrine\DBAL\Schema\Column $column */
         foreach ($diff->addedColumns as $column) {
@@ -303,6 +303,8 @@ class SQLAnywherePlatform extends AbstractPlatform
 
             return $columnAlterationClause;
         }
+
+        return null;
     }
 
     /**
@@ -1221,10 +1223,10 @@ class SQLAnywherePlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    protected function _getCreateTableSQL($tableName, array $columns, array $options = array())
+    protected function _getCreateTableSQL($tableName, array $columns, array $options = [])
     {
         $columnListSql = $this->getColumnDeclarationListSQL($columns);
-        $indexSql = array();
+        $indexSql = [];
 
         if ( ! empty($options['uniqueConstraints'])) {
             foreach ((array) $options['uniqueConstraints'] as $name => $definition) {
@@ -1264,7 +1266,7 @@ class SQLAnywherePlatform extends AbstractPlatform
 
         $query .= ')';
 
-        return array_merge(array($query), $indexSql);
+        return array_merge([$query], $indexSql);
     }
 
     /**
@@ -1419,9 +1421,9 @@ class SQLAnywherePlatform extends AbstractPlatform
      */
     protected function getRenameIndexSQL($oldIndexName, Index $index, $tableName)
     {
-        return array(
+        return [
             'ALTER INDEX ' . $oldIndexName . ' ON ' . $tableName . ' RENAME TO ' . $index->getQuotedName($this)
-        );
+        ];
     }
 
     /**
@@ -1429,7 +1431,7 @@ class SQLAnywherePlatform extends AbstractPlatform
      */
     protected function getReservedKeywordsClass()
     {
-        return 'Doctrine\DBAL\Platforms\Keywords\SQLAnywhereKeywords';
+        return Keywords\SQLAnywhereKeywords::class;
     }
 
     /**
@@ -1447,7 +1449,7 @@ class SQLAnywherePlatform extends AbstractPlatform
      */
     protected function initializeDoctrineTypeMappings()
     {
-        $this->doctrineTypeMapping = array(
+        $this->doctrineTypeMapping = [
             'char' => 'string',
             'long nvarchar' => 'text',
             'long varchar' => 'text',
@@ -1486,6 +1488,6 @@ class SQLAnywherePlatform extends AbstractPlatform
             'long binary' => 'blob',
             'uniqueidentifier' => 'guid',
             'varbinary' => 'binary',
-        );
+        ];
     }
 }

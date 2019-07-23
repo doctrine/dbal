@@ -23,7 +23,7 @@ use Doctrine\DBAL\Platforms\SQLAzurePlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Sharding\SQLAzure\Schema\MultiTenantVisitor;
 
-class MultiTenantVisitorTest extends \PHPUnit_Framework_TestCase
+class MultiTenantVisitorTest extends \PHPUnit\Framework\TestCase
 {
     public function testMultiTenantPrimaryKey()
     {
@@ -36,8 +36,8 @@ class MultiTenantVisitorTest extends \PHPUnit_Framework_TestCase
         $foo->setPrimaryKey(array('id'));
         $schema->visit($visitor);
 
-        $this->assertEquals(array('id', 'tenant_id'), $foo->getPrimaryKey()->getColumns());
-        $this->assertTrue($foo->hasColumn('tenant_id'));
+        self::assertEquals(array('id', 'tenant_id'), $foo->getPrimaryKey()->getColumns());
+        self::assertTrue($foo->hasColumn('tenant_id'));
     }
 
     public function testMultiTenantNonPrimaryKey()
@@ -57,9 +57,9 @@ class MultiTenantVisitorTest extends \PHPUnit_Framework_TestCase
 
         $schema->visit($visitor);
 
-        $this->assertEquals(array('id'), $foo->getPrimaryKey()->getColumns());
-        $this->assertTrue($foo->hasColumn('tenant_id'));
-        $this->assertEquals(array('created', 'tenant_id'), $foo->getIndex('idx')->getColumns());
+        self::assertEquals(array('id'), $foo->getPrimaryKey()->getColumns());
+        self::assertTrue($foo->hasColumn('tenant_id'));
+        self::assertEquals(array('created', 'tenant_id'), $foo->getIndex('idx')->getColumns());
     }
 }
 

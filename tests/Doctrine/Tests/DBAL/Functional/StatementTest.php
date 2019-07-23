@@ -2,7 +2,10 @@
 
 namespace Doctrine\Tests\DBAL\Functional;
 
+<<<<<<< HEAD
 use Closure;
+=======
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
@@ -29,15 +32,25 @@ class StatementTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $stmt->execute();
 
         $id = $stmt->fetchColumn();
+<<<<<<< HEAD
         $this->assertEquals(1, $id);
+=======
+        self::assertEquals(1, $id);
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
 
         $stmt->closeCursor();
 
         $stmt->execute();
         $id = $stmt->fetchColumn();
+<<<<<<< HEAD
         $this->assertEquals(1, $id);
         $id = $stmt->fetchColumn();
         $this->assertEquals(2, $id);
+=======
+        self::assertEquals(1, $id);
+        $id = $stmt->fetchColumn();
+        self::assertEquals(2, $id);
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
     public function testReuseStatementWithLongerResults()
@@ -56,7 +69,11 @@ class StatementTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $stmt = $this->_conn->prepare('SELECT param, val FROM stmt_longer_results ORDER BY param');
         $stmt->execute();
+<<<<<<< HEAD
         $this->assertArraySubset(array(
+=======
+        self::assertArraySubset(array(
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
             array('param1', 'X'),
         ), $stmt->fetchAll(\PDO::FETCH_NUM));
 
@@ -67,7 +84,11 @@ class StatementTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->_conn->insert('stmt_longer_results', $row2);
 
         $stmt->execute();
+<<<<<<< HEAD
         $this->assertArraySubset(array(
+=======
+        self::assertArraySubset(array(
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
             array('param1', 'X'),
             array('param2', 'A bit longer value'),
         ), $stmt->fetchAll(\PDO::FETCH_NUM));
@@ -120,7 +141,11 @@ EOF
             $this->markTestSkipped('Skipping on pdo_sqlsrv due to https://github.com/Microsoft/msphpsql/issues/270');
         }
 
+<<<<<<< HEAD
         $this->assertSame($contents, stream_get_contents($stream));
+=======
+        self::assertSame($contents, stream_get_contents($stream));
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
     public function testIncompletelyFetchedStatementDoesNotBlockConnection()
@@ -137,7 +162,11 @@ EOF
 
         $stmt2 = $this->_conn->prepare('SELECT id FROM stmt_test WHERE id = ?');
         $stmt2->execute(array(1));
+<<<<<<< HEAD
         $this->assertEquals(1, $stmt2->fetchColumn());
+=======
+        self::assertEquals(1, $stmt2->fetchColumn());
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
     public function testReuseStatementAfterClosingCursor()
@@ -149,13 +178,21 @@ EOF
 
         $stmt->execute(array(1));
         $id = $stmt->fetchColumn();
+<<<<<<< HEAD
         $this->assertEquals(1, $id);
+=======
+        self::assertEquals(1, $id);
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
 
         $stmt->closeCursor();
 
         $stmt->execute(array(2));
         $id = $stmt->fetchColumn();
+<<<<<<< HEAD
         $this->assertEquals(2, $id);
+=======
+        self::assertEquals(2, $id);
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
     public function testReuseStatementWithParameterBoundByReference()
@@ -168,11 +205,19 @@ EOF
 
         $id = 1;
         $stmt->execute();
+<<<<<<< HEAD
         $this->assertEquals(1, $stmt->fetchColumn());
 
         $id = 2;
         $stmt->execute();
         $this->assertEquals(2, $stmt->fetchColumn());
+=======
+        self::assertEquals(1, $stmt->fetchColumn());
+
+        $id = 2;
+        $stmt->execute();
+        self::assertEquals(2, $stmt->fetchColumn());
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
     public function testReuseStatementWithReboundValue()
@@ -184,11 +229,19 @@ EOF
 
         $stmt->bindValue(1, 1);
         $stmt->execute();
+<<<<<<< HEAD
         $this->assertEquals(1, $stmt->fetchColumn());
 
         $stmt->bindValue(1, 2);
         $stmt->execute();
         $this->assertEquals(2, $stmt->fetchColumn());
+=======
+        self::assertEquals(1, $stmt->fetchColumn());
+
+        $stmt->bindValue(1, 2);
+        $stmt->execute();
+        self::assertEquals(2, $stmt->fetchColumn());
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
     public function testReuseStatementWithReboundParam()
@@ -201,29 +254,49 @@ EOF
         $x = 1;
         $stmt->bindParam(1, $x);
         $stmt->execute();
+<<<<<<< HEAD
         $this->assertEquals(1, $stmt->fetchColumn());
+=======
+        self::assertEquals(1, $stmt->fetchColumn());
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
 
         $y = 2;
         $stmt->bindParam(1, $y);
         $stmt->execute();
+<<<<<<< HEAD
         $this->assertEquals(2, $stmt->fetchColumn());
+=======
+        self::assertEquals(2, $stmt->fetchColumn());
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
     /**
      * @dataProvider emptyFetchProvider
      */
+<<<<<<< HEAD
     public function testFetchFromNonExecutedStatement(Closure $fetch, $expected)
     {
         $stmt = $this->_conn->prepare('SELECT id FROM stmt_test');
 
         $this->assertSame($expected, $fetch($stmt));
+=======
+    public function testFetchFromNonExecutedStatement(callable $fetch, $expected)
+    {
+        $stmt = $this->_conn->prepare('SELECT id FROM stmt_test');
+
+        self::assertSame($expected, $fetch($stmt));
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
     public function testCloseCursorOnNonExecutedStatement()
     {
         $stmt = $this->_conn->prepare('SELECT id FROM stmt_test');
 
+<<<<<<< HEAD
         $this->assertTrue($stmt->closeCursor());
+=======
+        self::assertTrue($stmt->closeCursor());
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
     /**
@@ -236,24 +309,40 @@ EOF
         $stmt->execute();
         $stmt->fetch();
 
+<<<<<<< HEAD
         $this->assertTrue($stmt->closeCursor());
+=======
+        self::assertTrue($stmt->closeCursor());
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
     /**
      * @dataProvider emptyFetchProvider
      */
+<<<<<<< HEAD
     public function testFetchFromNonExecutedStatementWithClosedCursor(Closure $fetch, $expected)
+=======
+    public function testFetchFromNonExecutedStatementWithClosedCursor(callable $fetch, $expected)
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     {
         $stmt = $this->_conn->prepare('SELECT id FROM stmt_test');
         $stmt->closeCursor();
 
+<<<<<<< HEAD
         $this->assertSame($expected, $fetch($stmt));
+=======
+        self::assertSame($expected, $fetch($stmt));
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
     /**
      * @dataProvider emptyFetchProvider
      */
+<<<<<<< HEAD
     public function testFetchFromExecutedStatementWithClosedCursor(Closure $fetch, $expected)
+=======
+    public function testFetchFromExecutedStatementWithClosedCursor(callable $fetch, $expected)
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     {
         $this->_conn->insert('stmt_test', array('id' => 1));
 
@@ -261,7 +350,11 @@ EOF
         $stmt->execute();
         $stmt->closeCursor();
 
+<<<<<<< HEAD
         $this->assertSame($expected, $fetch($stmt));
+=======
+        self::assertSame($expected, $fetch($stmt));
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
     public static function emptyFetchProvider()

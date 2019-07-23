@@ -2,8 +2,15 @@
 
 namespace Doctrine\Tests\DBAL\Functional\Driver\PDOPgSql;
 
+<<<<<<< HEAD
 use Doctrine\DBAL\Driver\PDOPgSql\Driver;
 use Doctrine\Tests\DBAL\Functional\Driver\AbstractDriverTest;
+=======
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\PDOPgSql\Driver;
+use Doctrine\Tests\DBAL\Functional\Driver\AbstractDriverTest;
+use Doctrine\Tests\TestUtil;
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
 
 class DriverTest extends AbstractDriverTest
 {
@@ -21,6 +28,78 @@ class DriverTest extends AbstractDriverTest
     }
 
     /**
+<<<<<<< HEAD
+=======
+     * @dataProvider getDatabaseParameter
+     */
+    public function testDatabaseParameters($databaseName, $defaultDatabaseName, $expectedDatabaseName)
+    {
+        $params = $this->_conn->getParams();
+        $params['dbname'] = $databaseName;
+        $params['default_dbname'] = $defaultDatabaseName;
+
+        $connection = new Connection(
+            $params,
+            $this->_conn->getDriver(),
+            $this->_conn->getConfiguration(),
+            $this->_conn->getEventManager()
+        );
+
+        self::assertSame(
+            $expectedDatabaseName,
+            $this->driver->getDatabase($connection)
+        );
+    }
+
+    public function getDatabaseParameter()
+    {
+        $params = TestUtil::getConnection()->getParams();
+        $realDatabaseName = isset($params['dbname']) ? $params['dbname'] : '';
+        $dummyDatabaseName = $realDatabaseName . 'a';
+
+        return array(
+            // dbname, default_dbname, expected
+            array($realDatabaseName, null, $realDatabaseName),
+            array($realDatabaseName, $dummyDatabaseName, $realDatabaseName),
+            array(null, $realDatabaseName, $realDatabaseName),
+            array(null, null, $this->getDatabaseNameForConnectionWithoutDatabaseNameParameter()),
+        );
+    }
+
+    /**
+     * @group DBAL-1146
+     */
+    public function testConnectsWithApplicationNameParameter()
+    {
+        $parameters = $this->_conn->getParams();
+        $parameters['application_name'] = 'doctrine';
+
+        $user = isset($parameters['user']) ? $parameters['user'] : null;
+        $password = isset($parameters['password']) ? $parameters['password'] : null;
+
+        $connection = $this->driver->connect($parameters, $user, $password);
+
+        $hash = microtime(true); // required to identify the record in the results uniquely
+        $sql = sprintf('SELECT * FROM pg_stat_activity WHERE %d = %d', $hash, $hash);
+        $statement = $connection->query($sql);
+        $records = $statement->fetchAll();
+
+        foreach ($records as $record) {
+            // The query column is named "current_query" on PostgreSQL < 9.2
+            $queryColumnName = array_key_exists('current_query', $record) ? 'current_query' : 'query';
+
+            if ($record[$queryColumnName] === $sql) {
+                self::assertSame('doctrine', $record['application_name']);
+
+                return;
+            }
+        }
+
+        $this->fail(sprintf('Query result does not contain a record where column "query" equals "%s".', $sql));
+    }
+
+    /**
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
      * {@inheritdoc}
      */
     protected function createDriver()

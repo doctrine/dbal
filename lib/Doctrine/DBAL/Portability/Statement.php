@@ -142,7 +142,7 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null)
+    public function fetch($fetchMode = null, $cursorOrientation = \PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
     {
         $fetchMode = $fetchMode ?: $this->defaultFetchMode;
 
@@ -159,12 +159,12 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, $columnIndex = 0)
+    public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
     {
         $fetchMode = $fetchMode ?: $this->defaultFetchMode;
 
-        if ($columnIndex != 0) {
-            $rows = $this->stmt->fetchAll($fetchMode, $columnIndex);
+        if ($fetchArgument) {
+            $rows = $this->stmt->fetchAll($fetchMode, $fetchArgument);
         } else {
             $rows = $this->stmt->fetchAll($fetchMode);
         }
@@ -177,7 +177,11 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
 
         if ($fetchMode === PDO::FETCH_COLUMN) {
             foreach ($rows as $num => $row) {
+<<<<<<< HEAD
                 $rows[$num] = array($row);
+=======
+                $rows[$num] = [$row];
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
             }
         }
 

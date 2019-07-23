@@ -13,6 +13,11 @@ use Doctrine\DBAL\DriverManager;
 class TestUtil
 {
     /**
+     * @var boolean Whether the database schema is initialized.
+     */
+    private static $initialized = false;
+
+    /**
      * Gets a <b>real</b> database connection using the following parameters
      * of the $GLOBALS array:
      *
@@ -29,9 +34,7 @@ class TestUtil
      * on an XML configuration file. If no such parameters exist, an SQLite
      * in-memory database is used.
      *
-     * IMPORTANT:
-     * 1) Each invocation of this method returns a NEW database connection.
-     * 2) The database is dropped and recreated to ensure it's clean.
+     * IMPORTANT: Each invocation of this method returns a NEW database connection.
      *
      * @return Connection The database connection instance.
      */
@@ -82,22 +85,26 @@ class TestUtil
 
         $platform  = $tmpConn->getDatabasePlatform();
 
-        if ($platform->supportsCreateDropDatabase()) {
-            $dbname = $realConn->getDatabase();
-            $realConn->close();
+        if (! self::$initialized) {
+            if ($platform->supportsCreateDropDatabase()) {
+                $dbname = $realConn->getDatabase();
+                $realConn->close();
 
-            $tmpConn->getSchemaManager()->dropAndCreateDatabase($dbname);
+                $tmpConn->getSchemaManager()->dropAndCreateDatabase($dbname);
 
-            $tmpConn->close();
-        } else {
-            $sm = $realConn->getSchemaManager();
+                $tmpConn->close();
+            } else {
+                $sm = $realConn->getSchemaManager();
 
-            $schema = $sm->createSchema();
-            $stmts = $schema->toDropSql($realConn->getDatabasePlatform());
+                $schema = $sm->createSchema();
+                $stmts = $schema->toDropSql($realConn->getDatabasePlatform());
 
-            foreach ($stmts as $stmt) {
-                $realConn->exec($stmt);
+                foreach ($stmts as $stmt) {
+                    $realConn->exec($stmt);
+                }
             }
+
+            self::$initialized = true;
         }
 
         return $realDbParams;

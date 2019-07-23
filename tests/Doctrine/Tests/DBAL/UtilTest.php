@@ -2,11 +2,9 @@
 
 namespace Doctrine\Tests\DBAL;
 
-require_once __DIR__ . '/../TestInit.php';
-
 class UtilTest extends \Doctrine\Tests\DbalTestCase
 {
-    static public function dataConvertPositionalToNamedParameters()
+    public static function dataConvertPositionalToNamedParameters()
     {
         return array(
             array(
@@ -72,7 +70,7 @@ class UtilTest extends \Doctrine\Tests\DbalTestCase
     {
         list($statement, $params) = \Doctrine\DBAL\Driver\OCI8\OCI8Statement::convertPositionalToNamedPlaceholders($inputSQL);
 
-        $this->assertEquals($expectedOutputSQL, $statement);
-        $this->assertEquals($expectedOutputParamsMap, $params);
+        self::assertEquals($expectedOutputSQL, $statement);
+        self::assertEquals($expectedOutputParamsMap, $params);
     }
 }

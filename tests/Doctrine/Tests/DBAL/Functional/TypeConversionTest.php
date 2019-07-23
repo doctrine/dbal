@@ -4,13 +4,11 @@ namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\Types\Type;
 
-require_once __DIR__ . '/../../TestInit.php';
-
 class TypeConversionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
     static private $typeCounter = 0;
 
-    public function setUp()
+    protected function setUp()
     {
         parent::setUp();
 
@@ -36,15 +34,13 @@ class TypeConversionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $table->setPrimaryKey(array('id'));
 
         try {
-            foreach ($this->_conn->getDatabasePlatform()->getCreateTableSQL($table) as $sql) {
-                $this->_conn->executeQuery($sql);
-            }
+            $this->_conn->getSchemaManager()->createTable($table);
         } catch(\Exception $e) {
 
         }
     }
 
-    static public function dataIdempotentDataConversion()
+    public static function dataIdempotentDataConversion()
     {
         $obj = new \stdClass();
         $obj->foo = "bar";
@@ -87,16 +83,16 @@ class TypeConversionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $actualDbValue = $typeInstance->convertToPHPValue($this->_conn->fetchColumn($sql), $this->_conn->getDatabasePlatform());
 
         if ($originalValue instanceof \DateTime) {
-            $this->assertInstanceOf($expectedPhpType, $actualDbValue, "The expected type from the conversion to and back from the database should be " . $expectedPhpType);
+            self::assertInstanceOf($expectedPhpType, $actualDbValue, "The expected type from the conversion to and back from the database should be " . $expectedPhpType);
         } else {
-            $this->assertInternalType($expectedPhpType, $actualDbValue, "The expected type from the conversion to and back from the database should be " . $expectedPhpType);
+            self::assertInternalType($expectedPhpType, $actualDbValue, "The expected type from the conversion to and back from the database should be " . $expectedPhpType);
         }
 
         if ($type !== "datetimetz") {
-            $this->assertEquals($originalValue, $actualDbValue, "Conversion between values should produce the same out as in value, but doesnt!");
+            self::assertEquals($originalValue, $actualDbValue, "Conversion between values should produce the same out as in value, but doesnt!");
 
             if ($originalValue instanceof \DateTime) {
-                $this->assertEquals($originalValue->getTimezone()->getName(), $actualDbValue->getTimezone()->getName(), "Timezones should be the same.");
+                self::assertEquals($originalValue->getTimezone()->getName(), $actualDbValue->getTimezone()->getName(), "Timezones should be the same.");
             }
         }
     }

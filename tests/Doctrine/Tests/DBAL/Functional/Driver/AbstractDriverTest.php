@@ -29,12 +29,21 @@ abstract class AbstractDriverTest extends DbalFunctionalTestCase
         $params = $this->_conn->getParams();
         unset($params['dbname']);
 
+<<<<<<< HEAD
         $user = isset($params['user']) ? $params['user'] : null;
         $password = isset($params['password']) ? $params['password'] : null;
 
         $connection = $this->driver->connect($params, $user, $password);
 
         $this->assertInstanceOf('Doctrine\DBAL\Driver\Connection', $connection);
+=======
+        $user = $params['user'] ?? null;
+        $password = $params['password'] ?? null;
+
+        $connection = $this->driver->connect($params, $user, $password);
+
+        self::assertInstanceOf('Doctrine\DBAL\Driver\Connection', $connection);
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
     /**
@@ -52,7 +61,11 @@ abstract class AbstractDriverTest extends DbalFunctionalTestCase
             $this->_conn->getEventManager()
         );
 
+<<<<<<< HEAD
         $this->assertSame(
+=======
+        self::assertSame(
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
             $this->getDatabaseNameForConnectionWithoutDatabaseNameParameter(),
             $this->driver->getDatabase($connection)
         );

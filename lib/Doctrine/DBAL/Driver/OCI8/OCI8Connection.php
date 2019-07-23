@@ -21,7 +21,6 @@ namespace Doctrine\DBAL\Driver\OCI8;
 
 use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
-use Doctrine\DBAL\Platforms\OraclePlatform;
 
 /**
  * OCI8 implementation of the Connection interface.
@@ -150,8 +149,6 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
         if ($name === null) {
             return false;
         }
-
-        OraclePlatform::assertValidIdentifier($name);
 
         $sql    = 'SELECT ' . $name . '.CURRVAL FROM DUAL';
         $stmt   = $this->query($sql);

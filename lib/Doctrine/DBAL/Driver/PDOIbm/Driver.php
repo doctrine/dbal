@@ -37,7 +37,7 @@ class Driver extends AbstractDB2Driver
     /**
      * {@inheritdoc}
      */
-    public function connect(array $params, $username = null, $password = null, array $driverOptions = array())
+    public function connect(array $params, $username = null, $password = null, array $driverOptions = [])
     {
         $conn = new PDOConnection(
             $this->_constructPdoDsn($params),

@@ -12,7 +12,7 @@ DateTime, DateTimeTz and Time Types
 
 Postgres has a variable return format for the datatype TIMESTAMP(n)
 and TIME(n) if microseconds are allowed (n > 0). Whenever you save
-a value with microseconds = 0. PostgreSQL will return this value in
+a value with microseconds = 0, PostgreSQL will return this value in
 the format:
 
 ::
@@ -26,7 +26,7 @@ full representation:
 
     2010-10-10 10:10:10.123456 (Y-m-d H:i:s.u)
 
-Using the DateTime, DateTimeTz or Time type with microseconds
+Using the DateTime, DateTimeTz or Time type (and immutable variants) with microseconds
 enabled columns can lead to errors because internally types expect
 the exact format 'Y-m-d H:i:s' in combination with
 ``DateTime::createFromFormat()``. This method is twice a fast as
@@ -42,8 +42,8 @@ without microseconds:
 
 If you do not let Doctrine create the date column types and rather
 use types with microseconds you have replace the "DateTime",
-"DateTimeTz" and "Time" types with a more liberal DateTime parser
-that detects the format automatically:
+"DateTimeTz" and "Time" types (and immutable variants) with a more
+liberal DateTime parser that detects the format automatically:
 
 ::
 
@@ -52,6 +52,10 @@ that detects the format automatically:
     Type::overrideType('datetime', 'Doctrine\DBAL\Types\VarDateTimeType');
     Type::overrideType('datetimetz', 'Doctrine\DBAL\Types\VarDateTimeType');
     Type::overrideType('time', 'Doctrine\DBAL\Types\VarDateTimeType');
+
+    Type::overrideType('datetime_immutable', 'Doctrine\DBAL\Types\VarDateTimeImmutableType');
+    Type::overrideType('datetimetz_immutable', 'Doctrine\DBAL\Types\VarDateTimeImmutableType');
+    Type::overrideType('time_immutable', 'Doctrine\DBAL\Types\VarDateTimeImmutableType');
 
 Timezones and DateTimeTz
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -68,10 +72,19 @@ DateTimeTz
 ~~~~~~~~~~
 
 MySQL does not support saving timezones or offsets. The DateTimeTz
-type therefore behave like the DateTime type.
+type therefore behaves like the DateTime type.
 
 Sqlite
 ------
+
+Buffered Queries and Isolation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Be careful if you execute a ``SELECT`` query and do not iterate over the
+statements results immediately. ``UPDATE`` statements executed before iteration
+affect only the rows that have not been buffered into PHP memory yet. This
+breaks the SERIALIZABLE transaction isolation property that SQLite supposedly
+has.
 
 DateTime
 ~~~~~~~~~~
@@ -93,7 +106,7 @@ DateTimeTz
 ~~~~~~~~~~
 
 Sqlite does not support saving timezones or offsets. The DateTimeTz
-type therefore behave like the DateTime type.
+type therefore behaves like the DateTime type.
 
 Reverse engineering primary key order
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -182,8 +195,8 @@ a value with microseconds = 0.
 
 If you do not let Doctrine create the date column types and rather
 use types with microseconds you have replace the "DateTime",
-"DateTimeTz" and "Time" types with a more liberal DateTime parser
-that detects the format automatically:
+"DateTimeTz" and "Time" types (and immutable variants) with a more
+liberal DateTime parser that detects the format automatically:
 
 ::
 
@@ -192,6 +205,10 @@ that detects the format automatically:
     Type::overrideType('datetime', 'Doctrine\DBAL\Types\VarDateTime');
     Type::overrideType('datetimetz', 'Doctrine\DBAL\Types\VarDateTime');
     Type::overrideType('time', 'Doctrine\DBAL\Types\VarDateTime');
+
+    Type::overrideType('datetime_immutable', 'Doctrine\DBAL\Types\VarDateTimeImmutableType');
+    Type::overrideType('datetimetz_immutable', 'Doctrine\DBAL\Types\VarDateTimeImmutableType');
+    Type::overrideType('time_immutable', 'Doctrine\DBAL\Types\VarDateTimeImmutableType');
 
 PDO_SQLSRV: VARBINARY/BLOB columns
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

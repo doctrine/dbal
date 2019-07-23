@@ -10,7 +10,7 @@ use Doctrine\DBAL\Schema\Table;
  */
 class DBAL510Test extends \Doctrine\Tests\DbalFunctionalTestCase
 {
-    public function setUp()
+    protected function setUp()
     {
         parent::setUp();
 
@@ -32,6 +32,6 @@ class DBAL510Test extends \Doctrine\Tests\DbalFunctionalTestCase
         $comparator = new Comparator();
         $diff = $comparator->diffTable($onlineTable, $table);
 
-        $this->assertFalse($diff);
+        self::assertFalse($diff);
     }
 }

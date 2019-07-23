@@ -5,8 +5,6 @@ namespace Doctrine\Tests\DBAL\Query\Expression;
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 
-require_once __DIR__ . '/../../../TestInit.php';
-
 /**
  * @group DBAL-12
  */
@@ -14,9 +12,9 @@ class ExpressionBuilderTest extends \Doctrine\Tests\DbalTestCase
 {
     protected $expr;
 
-    public function setUp()
+    protected function setUp()
     {
-        $conn = $this->getMock('Doctrine\DBAL\Connection', array(), array(), '', false);
+        $conn = $this->createMock('Doctrine\DBAL\Connection');
 
         $this->expr = new ExpressionBuilder($conn);
 
@@ -36,7 +34,7 @@ class ExpressionBuilderTest extends \Doctrine\Tests\DbalTestCase
             $composite->add($part);
         }
 
-        $this->assertEquals($expected, (string) $composite);
+        self::assertEquals($expected, (string) $composite);
     }
 
     public function provideDataForAndX()
@@ -92,7 +90,7 @@ class ExpressionBuilderTest extends \Doctrine\Tests\DbalTestCase
             $composite->add($part);
         }
 
-        $this->assertEquals($expected, (string) $composite);
+        self::assertEquals($expected, (string) $composite);
     }
 
     public function provideDataForOrX()
@@ -144,7 +142,7 @@ class ExpressionBuilderTest extends \Doctrine\Tests\DbalTestCase
     {
         $part = $this->expr->comparison($leftExpr, $operator, $rightExpr);
 
-        $this->assertEquals($expected, (string) $part);
+        self::assertEquals($expected, (string) $part);
     }
 
     public function provideDataForComparison()
@@ -161,61 +159,61 @@ class ExpressionBuilderTest extends \Doctrine\Tests\DbalTestCase
 
     public function testEq()
     {
-        $this->assertEquals('u.user_id = 1', $this->expr->eq('u.user_id', '1'));
+        self::assertEquals('u.user_id = 1', $this->expr->eq('u.user_id', '1'));
     }
 
     public function testNeq()
     {
-        $this->assertEquals('u.user_id <> 1', $this->expr->neq('u.user_id', '1'));
+        self::assertEquals('u.user_id <> 1', $this->expr->neq('u.user_id', '1'));
     }
 
     public function testLt()
     {
-        $this->assertEquals('u.salary < 10000', $this->expr->lt('u.salary', '10000'));
+        self::assertEquals('u.salary < 10000', $this->expr->lt('u.salary', '10000'));
     }
 
     public function testLte()
     {
-        $this->assertEquals('u.salary <= 10000', $this->expr->lte('u.salary', '10000'));
+        self::assertEquals('u.salary <= 10000', $this->expr->lte('u.salary', '10000'));
     }
 
     public function testGt()
     {
-        $this->assertEquals('u.salary > 10000', $this->expr->gt('u.salary', '10000'));
+        self::assertEquals('u.salary > 10000', $this->expr->gt('u.salary', '10000'));
     }
 
     public function testGte()
     {
-        $this->assertEquals('u.salary >= 10000', $this->expr->gte('u.salary', '10000'));
+        self::assertEquals('u.salary >= 10000', $this->expr->gte('u.salary', '10000'));
     }
 
     public function testIsNull()
     {
-        $this->assertEquals('u.deleted IS NULL', $this->expr->isNull('u.deleted'));
+        self::assertEquals('u.deleted IS NULL', $this->expr->isNull('u.deleted'));
     }
 
     public function testIsNotNull()
     {
-        $this->assertEquals('u.updated IS NOT NULL', $this->expr->isNotNull('u.updated'));
+        self::assertEquals('u.updated IS NOT NULL', $this->expr->isNotNull('u.updated'));
     }
 
     public function testIn()
     {
-        $this->assertEquals('u.groups IN (1, 3, 4, 7)', $this->expr->in('u.groups', array(1,3,4,7)));
+        self::assertEquals('u.groups IN (1, 3, 4, 7)', $this->expr->in('u.groups', array(1,3,4,7)));
     }
 
     public function testInWithPlaceholder()
     {
-        $this->assertEquals('u.groups IN (?)', $this->expr->in('u.groups', '?'));
+        self::assertEquals('u.groups IN (?)', $this->expr->in('u.groups', '?'));
     }
 
     public function testNotIn()
     {
-        $this->assertEquals('u.groups NOT IN (1, 3, 4, 7)', $this->expr->notIn('u.groups', array(1,3,4,7)));
+        self::assertEquals('u.groups NOT IN (1, 3, 4, 7)', $this->expr->notIn('u.groups', array(1,3,4,7)));
     }
 
     public function testNotInWithPlaceholder()
     {
-        $this->assertEquals('u.groups NOT IN (:values)', $this->expr->notIn('u.groups', ':values'));
+        self::assertEquals('u.groups NOT IN (:values)', $this->expr->notIn('u.groups', ':values'));
     }
 }

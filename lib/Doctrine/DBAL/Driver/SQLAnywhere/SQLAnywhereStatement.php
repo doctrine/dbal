@@ -19,6 +19,7 @@
 
 namespace Doctrine\DBAL\Driver\SQLAnywhere;
 
+use Doctrine\DBAL\Driver\StatementIterator;
 use IteratorAggregate;
 use PDO;
 use Doctrine\DBAL\Driver\Statement;
@@ -45,7 +46,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
     /**
      * @var string Constructor arguments for the default class to instantiate when fetch mode is \PDO::FETCH_CLASS.
      */
-    private $defaultFetchClassCtorArgs = array();
+    private $defaultFetchClassCtorArgs = [];
 
     /**
      * @var int Default fetch mode to use.
@@ -193,7 +194,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
      *
      * @throws SQLAnywhereException
      */
-    public function fetch($fetchMode = null)
+    public function fetch($fetchMode = null, $cursorOrientation = \PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
     {
         if ( ! is_resource($this->result)) {
             return false;
@@ -213,7 +214,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
                 if (func_num_args() >= 2) {
                     $args      = func_get_args();
                     $className = $args[1];
-                    $ctorArgs  = isset($args[2]) ? $args[2] : array();
+                    $ctorArgs  = isset($args[2]) ? $args[2] : [];
                 }
 
                 $result = sasql_fetch_object($this->result);
@@ -235,13 +236,13 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null)
+    public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
     {
-        $rows = array();
+        $rows = [];
 
         switch ($fetchMode) {
             case PDO::FETCH_CLASS:
-                while ($row = call_user_func_array(array($this, 'fetch'), func_get_args())) {
+                while ($row = call_user_func_array([$this, 'fetch'], func_get_args())) {
                     $rows[] = $row;
                 }
                 break;
@@ -278,7 +279,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
      */
     public function getIterator()
     {
-        return new \ArrayIterator($this->fetchAll());
+        return new StatementIterator($this);
     }
 
     /**
@@ -310,7 +311,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
      *
      * @throws SQLAnywhereException
      */
-    private function castObject(\stdClass $sourceObject, $destinationClass, array $ctorArgs = array())
+    private function castObject(\stdClass $sourceObject, $destinationClass, array $ctorArgs = [])
     {
         if ( ! is_string($destinationClass)) {
             if ( ! is_object($destinationClass)) {

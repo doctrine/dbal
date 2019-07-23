@@ -36,7 +36,7 @@ class Driver extends AbstractOracleDriver
     /**
      * {@inheritdoc}
      */
-    public function connect(array $params, $username = null, $password = null, array $driverOptions = array())
+    public function connect(array $params, $username = null, $password = null, array $driverOptions = [])
     {
         try {
             return new PDOConnection(

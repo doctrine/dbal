@@ -5,8 +5,6 @@ namespace Doctrine\Tests\DBAL;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\SQLParserUtils;
 
-require_once __DIR__ . '/../TestInit.php';
-
 /**
  * @group DBAL-78
  * @group DDC-1372
@@ -42,13 +40,7 @@ class SQLParserUtilsTest extends \Doctrine\Tests\DbalTestCase
             array('SELECT "Doctrine\DBAL?" FROM foo WHERE bar = ?', true, array(45)), // Ticket DBAL-558
             array('SELECT `Doctrine\DBAL?` FROM foo WHERE bar = ?', true, array(45)), // Ticket DBAL-558
             array('SELECT [Doctrine\DBAL?] FROM foo WHERE bar = ?', true, array(45)), // Ticket DBAL-558
-            array(
-<<<'SQLDATA'
-SELECT * FROM foo WHERE bar = 'it\'s a trap? \\' OR bar = ?
-AND baz = "\"quote\" me on it? \\" OR baz = ?
-SQLDATA
-                , true, array(58, 104)
-            ),
+            array("SELECT * FROM FOO WHERE bar = 'it\\'s a trap? \\\\' OR bar = ?\nAND baz = \"\\\"quote\\\" me on it? \\\\\" OR baz = ?", true, array(58, 104)),
             array('SELECT * FROM foo WHERE foo = ? AND bar = ?', true, array(1 => 42, 0 => 30)), // explicit keys
 
             // named
@@ -76,7 +68,16 @@ OR bar=:a_param3
 SQLDATA
                 , false, array(74 => 'a_param1', 91 => 'a_param2', 190 => 'a_param3')
             ),
+<<<<<<< HEAD
             
+=======
+            array("SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE '\\\\') AND (data.description LIKE :condition_1 ESCAPE '\\\\') ORDER BY id ASC", false, array(121 => 'condition_0', 174 => 'condition_1')),
+            array('SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE "\\\\") AND (data.description LIKE :condition_1 ESCAPE "\\\\") ORDER BY id ASC', false, array(121 => 'condition_0', 174 => 'condition_1')),
+            array('SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE "\\\\") AND (data.description LIKE :condition_1 ESCAPE \'\\\\\') ORDER BY id ASC', false, array(121 => 'condition_0', 174 => 'condition_1')),
+            array('SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE `\\\\`) AND (data.description LIKE :condition_1 ESCAPE `\\\\`) ORDER BY id ASC', false, array(121 => 'condition_0', 174 => 'condition_1')),
+            array('SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE \'\\\\\') AND (data.description LIKE :condition_1 ESCAPE `\\\\`) ORDER BY id ASC', false, array(121 => 'condition_0', 174 => 'condition_1')),
+
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
         );
     }
 
@@ -86,7 +87,7 @@ SQLDATA
     public function testGetPlaceholderPositions($query, $isPositional, $expectedParamPos)
     {
         $actualParamPos = SQLParserUtils::getPlaceholderPositions($query, $isPositional);
-        $this->assertEquals($expectedParamPos, $actualParamPos);
+        self::assertEquals($expectedParamPos, $actualParamPos);
     }
 
     public function dataExpandListParameters()
@@ -396,9 +397,9 @@ SQLDATA
     {
         list($query, $params, $types) = SQLParserUtils::expandListParameters($q, $p, $t);
 
-        $this->assertEquals($expectedQuery, $query, "Query was not rewritten correctly.");
-        $this->assertEquals($expectedParams, $params, "Params dont match");
-        $this->assertEquals($expectedTypes, $types, "Types dont match");
+        self::assertEquals($expectedQuery, $query, "Query was not rewritten correctly.");
+        self::assertEquals($expectedParams, $params, "Params dont match");
+        self::assertEquals($expectedTypes, $types, "Types dont match");
     }
 
     public function dataQueryWithMissingParameters()
@@ -442,7 +443,7 @@ SQLDATA
      */
     public function testExceptionIsThrownForMissingParam($query, $params, $types = array())
     {
-        $this->setExpectedException(
+        $this->expectException(
             'Doctrine\DBAL\SQLParserUtilsException',
             'Value for :param not found in params array. Params array key should be "param"'
         );

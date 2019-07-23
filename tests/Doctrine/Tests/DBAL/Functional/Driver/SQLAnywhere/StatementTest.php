@@ -29,10 +29,17 @@ class StatementTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $conn->connect();
 
+<<<<<<< HEAD
         $this->assertTrue($conn->isConnected(),'No SQLAnywhere-Connection established');
 
         $prepStmt = $conn->prepare('SELECT 1');
         $this->assertTrue($prepStmt->execute(),' Statement non-persistent failed');
+=======
+        self::assertTrue($conn->isConnected(),'No SQLAnywhere-Connection established');
+
+        $prepStmt = $conn->prepare('SELECT 1');
+        self::assertTrue($prepStmt->execute(),' Statement non-persistent failed');
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
     public function testPersistentStatement()
@@ -44,10 +51,17 @@ class StatementTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $conn->connect();
 
+<<<<<<< HEAD
         $this->assertTrue($conn->isConnected(),'No SQLAnywhere-Connection established');
 
         $prepStmt = $conn->prepare('SELECT 1');
         $this->assertTrue($prepStmt->execute(),' Statement persistent failed');
+=======
+        self::assertTrue($conn->isConnected(),'No SQLAnywhere-Connection established');
+
+        $prepStmt = $conn->prepare('SELECT 1');
+        self::assertTrue($prepStmt->execute(),' Statement persistent failed');
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
 }

@@ -106,7 +106,7 @@ class DropSchemaSqlCollector extends AbstractVisitor
      */
     public function getQueries()
     {
-        $sql = array();
+        $sql = [];
 
         foreach ($this->constraints as $fkConstraint) {
             $localTable = $this->constraints[$fkConstraint];

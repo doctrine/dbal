@@ -2,7 +2,8 @@
 
 namespace Doctrine\Tests\DBAL;
 
-require_once __DIR__ . '/../TestInit.php';
+use Doctrine\DBAL\DBALException;
+use Doctrine\Tests\Mocks\PDOMock;
 
 class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
 {
@@ -23,7 +24,7 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
             'pdo' => new \PDO('sqlite::memory:')
         );
         $conn = \Doctrine\DBAL\DriverManager::getConnection($options);
-        $this->assertEquals('sqlite', $conn->getDatabasePlatform()->getName());
+        self::assertEquals('sqlite', $conn->getDatabasePlatform()->getName());
     }
 
     /**
@@ -38,7 +39,7 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
         );
 
         $conn = \Doctrine\DBAL\DriverManager::getConnection($options);
-        $this->assertEquals(\PDO::ERRMODE_EXCEPTION, $pdo->getAttribute(\PDO::ATTR_ERRMODE));
+        self::assertEquals(\PDO::ERRMODE_EXCEPTION, $pdo->getAttribute(\PDO::ATTR_ERRMODE));
     }
 
     /**
@@ -66,7 +67,7 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
         );
 
         $conn = \Doctrine\DBAL\DriverManager::getConnection($options);
-        $this->assertSame($mockPlatform, $conn->getDatabasePlatform());
+        self::assertSame($mockPlatform, $conn->getDatabasePlatform());
     }
 
     public function testCustomWrapper()
@@ -79,12 +80,12 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
         );
 
         $conn = \Doctrine\DBAL\DriverManager::getConnection($options);
-        $this->assertInstanceOf($wrapperClass, $conn);
+        self::assertInstanceOf($wrapperClass, $conn);
     }
 
     public function testInvalidWrapperClass()
     {
-        $this->setExpectedException('\Doctrine\DBAL\DBALException');
+        $this->expectException(DBALException::class);
 
         $options = array(
             'pdo' => new \PDO('sqlite::memory:'),
@@ -96,7 +97,7 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
 
     public function testInvalidDriverClass()
     {
-        $this->setExpectedException('\Doctrine\DBAL\DBALException');
+        $this->expectException(DBALException::class);
 
         $options = array(
             'driverClass' => 'stdClass'
@@ -112,9 +113,9 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
         );
 
         $conn = \Doctrine\DBAL\DriverManager::getConnection($options);
-        $this->assertInstanceOf('Doctrine\DBAL\Driver\PDOMySql\Driver', $conn->getDriver());
+        self::assertInstanceOf('Doctrine\DBAL\Driver\PDOMySql\Driver', $conn->getDriver());
     }
-    
+
     /**
      * @dataProvider databaseUrls
      */
@@ -123,26 +124,34 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
         $options = is_array($url) ? $url : array(
             'url' => $url,
         );
-        
+
         if ($expected === false) {
-            $this->setExpectedException('Doctrine\DBAL\DBALException');
+            $this->expectException(DBALException::class);
         }
-        
+
         $conn = \Doctrine\DBAL\DriverManager::getConnection($options);
-        
+
         $params = $conn->getParams();
         foreach ($expected as $key => $value) {
             if (in_array($key, array('pdo', 'driver', 'driverClass'), true)) {
+<<<<<<< HEAD
                 $this->assertInstanceOf($value, $conn->getDriver());
+=======
+                self::assertInstanceOf($value, $conn->getDriver());
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
             } else {
-                $this->assertEquals($value, $params[$key]);
+                self::assertEquals($value, $params[$key]);
             }
         }
     }
-    
+
     public function databaseUrls()
     {
+<<<<<<< HEAD
         $pdoMock = $this->getMock('Doctrine\Tests\Mocks\PDOMock');
+=======
+        $pdoMock = $this->createMock(PDOMock::class);
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
 
         return array(
             'simple URL' => array(
@@ -201,6 +210,17 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
                 'drizzle-pdo-mysql://foo:bar@localhost/baz',
                 array('user' => 'foo', 'password' => 'bar', 'host' => 'localhost', 'dbname' => 'baz', 'driver' => 'Doctrine\DBAL\Driver\DrizzlePDOMySql\Driver'),
             ),
+<<<<<<< HEAD
+=======
+            'simple URL with percent encoding' => array(
+                'mysql://foo%3A:bar%2F@localhost/baz+baz%40',
+                array('user' => 'foo:', 'password' => 'bar/', 'host' => 'localhost', 'dbname' => 'baz+baz@', 'driver' => 'Doctrine\DBAL\Driver\PDOMySQL\Driver'),
+            ),
+            'simple URL with percent sign in password' => array(
+                'mysql://foo:bar%25bar@localhost/baz',
+                array('user' => 'foo', 'password' => 'bar%bar', 'host' => 'localhost', 'dbname' => 'baz', 'driver' => 'Doctrine\DBAL\Driver\PDOMySQL\Driver'),
+            ),
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
 
             // DBAL-1234
             'URL without scheme and without any driver information' => array(

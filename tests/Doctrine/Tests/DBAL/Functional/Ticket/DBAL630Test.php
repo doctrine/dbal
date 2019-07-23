@@ -49,22 +49,22 @@ class DBAL630Test extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         $this->_conn->executeUpdate('INSERT INTO dbal630 (bool_col) VALUES(false)');
         $id = $this->_conn->lastInsertId('dbal630_id_seq');
-        $this->assertNotEmpty($id);
+        self::assertNotEmpty($id);
 
         $row = $this->_conn->fetchAssoc('SELECT bool_col FROM dbal630 WHERE id = ?', array($id));
 
-        $this->assertFalse($row['bool_col']);
+        self::assertFalse($row['bool_col']);
     }
 
     public function testBooleanConversionBoolParamRealPrepares()
     {
         $this->_conn->executeUpdate('INSERT INTO dbal630 (bool_col) VALUES(?)', array('false'), array(PDO::PARAM_BOOL));
         $id = $this->_conn->lastInsertId('dbal630_id_seq');
-        $this->assertNotEmpty($id);
+        self::assertNotEmpty($id);
 
         $row = $this->_conn->fetchAssoc('SELECT bool_col FROM dbal630 WHERE id = ?', array($id));
 
-        $this->assertFalse($row['bool_col']);
+        self::assertFalse($row['bool_col']);
     }
 
     public function testBooleanConversionBoolParamEmulatedPrepares()
@@ -85,11 +85,11 @@ class DBAL630Test extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $id = $this->_conn->lastInsertId('dbal630_id_seq');
 
-        $this->assertNotEmpty($id);
+        self::assertNotEmpty($id);
 
         $row = $this->_conn->fetchAssoc('SELECT bool_col FROM dbal630 WHERE id = ?', array($id));
 
-        $this->assertFalse($row['bool_col']);
+        self::assertFalse($row['bool_col']);
     }
 
     /**
@@ -115,11 +115,11 @@ class DBAL630Test extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $id = $this->_conn->lastInsertId('dbal630_allow_nulls_id_seq');
 
-        $this->assertNotEmpty($id);
+        self::assertNotEmpty($id);
 
         $row = $this->_conn->fetchAssoc('SELECT bool_col FROM dbal630_allow_nulls WHERE id = ?', array($id));
 
-        $this->assertSame($databaseConvertedValue, $row['bool_col']);
+        self::assertSame($databaseConvertedValue, $row['bool_col']);
     }
 
     /**
@@ -145,11 +145,11 @@ class DBAL630Test extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $id = $this->_conn->lastInsertId('dbal630_allow_nulls_id_seq');
 
-        $this->assertNotEmpty($id);
+        self::assertNotEmpty($id);
 
         $row = $this->_conn->fetchAssoc('SELECT bool_col FROM dbal630_allow_nulls WHERE id = ?', array($id));
 
-        $this->assertSame($databaseConvertedValue, $row['bool_col']);
+        self::assertSame($databaseConvertedValue, $row['bool_col']);
     }
 
     /**

@@ -248,6 +248,17 @@ without time and timezone information, you should consider using this type.
 Values retrieved from the database are always converted to PHP's ``\DateTime`` object
 or ``null`` if no data is present.
 
+date_immutable
+^^^^^^^^^^^^^^
+
+The immutable variant of the ``date`` type.
+Values retrieved from the database are always converted to PHP's ``\DateTimeImmutable``
+object or ``null`` if no data is present.
+
+.. note::
+
+    Available since version ``2.6``.
+
 datetime
 ^^^^^^^^
 
@@ -271,6 +282,17 @@ or ``null`` if no data is present.
     and not parsed correctly by ``date_create()``, however since
     databases are rather strict on dates there should be no problem.
 
+datetime_immutable
+^^^^^^^^^^^^^^^^^^
+
+The immutable variant of the ``datetime`` type.
+Values retrieved from the database are always converted to PHP's ``\DateTimeImmutable``
+object or ``null`` if no data is present.
+
+.. note::
+
+    Available since version ``2.6``.
+
 datetimetz
 ^^^^^^^^^^
 
@@ -279,6 +301,17 @@ If you know that the data to be stored always contains date, time and timezone
 information, you should consider using this type.
 Values retrieved from the database are always converted to PHP's ``\DateTime`` object
 or ``null`` if no data is present.
+
+datetimetz_immutable
+^^^^^^^^^^^^^^^^^^^^
+
+The immutable variant of the ``datetimetz`` type.
+Values retrieved from the database are always converted to PHP's ``\DateTimeImmutable``
+object or ``null`` if no data is present.
+
+.. note::
+
+    Available since version ``2.6``.
 
 time
 ^^^^
@@ -289,9 +322,29 @@ without date, time and timezone information, you should consider using this type
 Values retrieved from the database are always converted to PHP's ``\DateTime`` object
 or ``null`` if no data is present.
 
+time_immutable
+^^^^^^^^^^^^^^
+
+The immutable variant of the ``time`` type.
+Values retrieved from the database are always converted to PHP's ``\DateTimeImmutable``
+object or ``null`` if no data is present.
+
 .. note::
 
-    See the `Known Vendor Issue <./known-vendor-issues>`_ section
+    Available since version ``2.6``.
+
+dateinterval
+^^^^^^^^^^^^
+
+Maps and converts date and time difference data without timezone information.
+If you know that the data to be stored is the difference between two date and time values,
+you should consider using this type.
+Values retrieved from the database are always converted to PHP's ``\DateInterval`` object
+or ``null`` if no data is present.
+
+.. note::
+
+    See the Known Vendor Issue :doc:`known-vendor-issues` section
     for details about the different handling of microseconds and
     timezones across all the different vendors.
 
@@ -325,7 +378,7 @@ using deserialization or ``null`` if no data is present.
     This type will always be mapped to the database vendor's ``text`` type
     internally as there is no way of storing a PHP array representation
     natively in the database.
-    Furthermore this type requires a SQL column comment hint so that it can be
+    Furthermore this type requires an SQL column comment hint so that it can be
     reverse engineered from the database. Doctrine cannot map back this type
     properly on vendors not supporting column comments and will fall back to
     ``text`` type instead.
@@ -345,7 +398,7 @@ using comma delimited ``explode()`` or ``null`` if no data is present.
     This type will always be mapped to the database vendor's ``text`` type
     internally as there is no way of storing a PHP array representation
     natively in the database.
-    Furthermore this type requires a SQL column comment hint so that it can be
+    Furthermore this type requires an SQL column comment hint so that it can be
     reverse engineered from the database. Doctrine cannot map back this type
     properly on vendors not supporting column comments and will fall back to
     ``text`` type instead.
@@ -357,10 +410,33 @@ using comma delimited ``explode()`` or ``null`` if no data is present.
     the database as the ``explode()`` deserialization technique used
     by this type converts every single array item to ``string``.
     This basically means that every array item other than ``string``
-    will loose its type awareness.
+    will lose its type awareness.
+
+json
+^^^^
+
+Maps and converts array data based on PHP's JSON encoding functions.
+If you know that the data to be stored always is in a valid UTF-8
+encoded JSON format string, you should consider using this type.
+Values retrieved from the database are always converted to PHP's ``array`` or
+``null`` types using PHP's ``json_decode()`` function.
+
+.. note::
+
+    Some vendors have a native JSON type and Doctrine will use it if possible
+    and otherwise silently fall back to the vendor's ``text`` type to ensure
+    the most efficient storage requirements.
+    If the vendor does not have a native JSON type, this type requires an SQL
+    column comment hint so that it can be reverse engineered from the database.
+    Doctrine cannot map back this type properly on vendors not supporting column
+    comments and will fall back to ``text`` type instead.
 
 json_array
 ^^^^^^^^^^
+
+.. warning::
+
+    This type is deprecated since 2.6, you should use ``json`` instead.
 
 Maps and converts array data based on PHP's JSON encoding functions.
 If you know that the data to be stored always is in a valid UTF-8
@@ -373,7 +449,7 @@ using PHP's ``json_decode()`` function.
     Some vendors have a native JSON type and Doctrine will use it if possible
     and otherwise silently fall back to the vendor's ``text`` type to ensure
     the most efficient storage requirements.
-    If the vendor does not have a native JSON type, this type requires a SQL
+    If the vendor does not have a native JSON type, this type requires an SQL
     column comment hint so that it can be reverse engineered from the database.
     Doctrine cannot map back this type properly on vendors not supporting column
     comments and will fall back to ``text`` type instead.
@@ -398,17 +474,19 @@ using deserialization or ``null`` if no data is present.
     This type will always be mapped to the database vendor's ``text`` type
     internally as there is no way of storing a PHP object representation
     natively in the database.
-    Furthermore this type requires a SQL column comment hint so that it can be
+    Furthermore this type requires an SQL column comment hint so that it can be
     reverse engineered from the database. Doctrine cannot map back this type
     properly on vendors not supporting column comments and will fall back to
     ``text`` type instead.
 
 .. warning::
 
-    Because the build-in ``text`` type of PostgreSQL does not support NULL bytes,
+    Because the built-in ``text`` type of PostgreSQL does not support NULL bytes,
     the object type will cause deserialization errors on PostgreSQL. A workaround is
     to ``serialize()``/``unserialize()`` and ``base64_encode()``/``base64_decode()`` PHP objects and store
     them into a ``text`` field manually.
+
+.. _mappingMatrix:
 
 Mapping Matrix
 --------------
@@ -469,9 +547,9 @@ Please also notice the mapping specific footnotes for additional information.
 |                   |               +--------------------------+---------+----------------------------------------------------------+
 |                   |               | **SQLite**               | *all*   | ``INTEGER`` [16]_                                        |
 +-------------------+---------------+--------------------------+---------+----------------------------------------------------------+
-| **decimal** [7]_  | ``string``    | **MySQL**                | *all*   | ``NUMERIC(p, s)``                                        |
-|                   | [9]_          +--------------------------+         |                                                          |
-|                   |               | **PostgreSQL**           |         |                                                          |
+| **decimal** [7]_  | ``string``    | **MySQL**                | *all*   | ``NUMERIC(p, s)`` ``UNSIGNED`` [10]_                     |
+|                   | [9]_          +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **PostgreSQL**           | *all*   | ``NUMERIC(p, s)``                                        |
 |                   |               +--------------------------+         |                                                          |
 |                   |               | **Oracle**               |         |                                                          |
 |                   |               +--------------------------+         |                                                          |
@@ -483,9 +561,9 @@ Please also notice the mapping specific footnotes for additional information.
 |                   |               +--------------------------+         |                                                          |
 |                   |               | **Drizzle**              |         |                                                          |
 +-------------------+---------------+--------------------------+---------+----------------------------------------------------------+
-| **float**         | ``float``     | **MySQL**                | *all*   | ``DOUBLE PRECISION``                                     |
-|                   |               +--------------------------+         |                                                          |
-|                   |               | **PostgreSQL**           |         |                                                          |
+| **float**         | ``float``     | **MySQL**                | *all*   | ``DOUBLE PRECISION`` ``UNSIGNED`` [10]_                  |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **PostgreSQL**           | *all*   | ``DOUBLE PRECISION``                                     |
 |                   |               +--------------------------+         |                                                          |
 |                   |               | **Oracle**               |         |                                                          |
 |                   |               +--------------------------+         |                                                          |
@@ -535,7 +613,7 @@ Please also notice the mapping specific footnotes for additional information.
 |                   |               +--------------------------+---------+----------------------------------------------------------+
 |                   |               | **SQL Server**           | *all*   | ``VARCHAR(MAX)``                                         |
 +-------------------+---------------+--------------------------+---------+----------------------------------------------------------+
-| **guid **         | ``string``    | **MySQL**                | *all*   | ``VARCHAR(255)`` [1]_                                    |
+| **guid**          | ``string``    | **MySQL**                | *all*   | ``VARCHAR(255)`` [1]_                                    |
 |                   |               +--------------------------+         |                                                          |
 |                   |               | **Oracle**               |         |                                                          |
 |                   |               +--------------------------+         |                                                          |
@@ -689,11 +767,15 @@ Please also notice the mapping specific footnotes for additional information.
 |                   |               |                          |         +----------------------------------------------------------+
 |                   |               |                          |         | ``LONGTEXT`` [20]_                                       |
 |                   |               +--------------------------+---------+----------------------------------------------------------+
-|                   |               | **PostgreSQL**           | >= 9.2  | ``JSON``                                                 |
+|                   |               | **PostgreSQL**           | < 9.2   | ``TEXT`` [1]_                                            |
 |                   |               |                          +---------+----------------------------------------------------------+
-|                   |               |                          | < 9.2   | ``TEXT`` [1]_                                            |
-|                   |               +--------------------------+---------+                                                          |
-|                   |               | **SQL Anywhere**         | *all*   |                                                          |
+|                   |               |                          | < 9.4   | ``JSON``                                                 |
+|                   |               |                          +---------+----------------------------------------------------------+
+|                   |               |                          | >= 9.4  | ``JSON`` [21]_                                           |
+|                   |               |                          |         +----------------------------------------------------------+
+|                   |               |                          |         | ``JSONB`` [22]_                                          |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **SQL Anywhere**         | *all*   | ``TEXT`` [1]_                                            |
 |                   |               +--------------------------+         |                                                          |
 |                   |               | **Drizzle**              |         |                                                          |
 |                   |               +--------------------------+---------+----------------------------------------------------------+
@@ -744,7 +826,7 @@ Please also notice the mapping specific footnotes for additional information.
 .. [10] Used if **unsigned** attribute is set to ``true`` in the column definition (default ``false``).
 .. [11] Used if **autoincrement** attribute is set to ``true`` in the column definition (default ``false``).
 .. [12] Chosen if the column definition has the **autoincrement** attribute set to ``false`` (default).
-.. [13] Chosen if the column definition not contains the **version** option inside the **platformOptions**
+.. [13] Chosen if the column definition does not contain the **version** option inside the **platformOptions**
         attribute array or is set to ``false`` which marks it as a non-locking information column.
 .. [14] Chosen if the column definition contains the **version** option inside the **platformOptions**
         attribute array and is set to ``true`` which marks it as a locking information column.
@@ -759,6 +841,10 @@ Please also notice the mapping specific footnotes for additional information.
 .. [18] Chosen if the column length is less or equal to **2 ^ 16 - 1 = 65535**.
 .. [19] Chosen if the column length is less or equal to **2 ^ 24 - 1 = 16777215**.
 .. [20] Chosen if the column length is less or equal to **2 ^ 32 - 1 = 4294967295** or empty.
+.. [21] Chosen if the column definition does not contain the **jsonb** option inside the **platformOptions**
+        attribute array or is set to ``false``.
+.. [22] Chosen if the column definition contains the **jsonb** option inside the **platformOptions**
+        attribute array and is set to ``true``.
 
 Detection of Database Types
 ---------------------------
@@ -820,7 +906,7 @@ Now we implement our ``Doctrine\DBAL\Types\Type`` instance:
     {
         const MONEY = 'money'; // modify to match your type name
 
-        public function getSqlDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
+        public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
         {
             return 'MyMoney';
         }
@@ -841,7 +927,10 @@ Now we implement our ``Doctrine\DBAL\Types\Type`` instance:
         }
     }
 
-The job of Doctrine-DBAL is to transform your type into SQL declaration. You can modify the SQL declaration Doctrine will produce. At first, you must to enable this feature by overriding the canRequireSQLConversion method:
+The job of Doctrine-DBAL is to transform your type into an SQL
+declaration. You can modify the SQL declaration Doctrine will produce.
+At first, to enable this feature, you must override the
+``canRequireSQLConversion`` method:
 
 ::
 
@@ -851,7 +940,8 @@ The job of Doctrine-DBAL is to transform your type into SQL declaration. You can
         return true;
     }
 
-Then you override the methods convertToPhpValueSQL and convertToDatabaseValueSQL :
+Then you override the ``convertToPhpValueSQL`` and
+``convertToDatabaseValueSQL`` methods :
 
 ::
 
@@ -876,8 +966,6 @@ hook it into the database platform:
     Type::addType('money', 'My\Project\Types\MoneyType');
     $conn->getDatabasePlatform()->registerDoctrineTypeMapping('MyMoney', 'money');
 
-This would allow to use a money type in the ORM for example and
+This would allow using a money type in the ORM for example and
 have Doctrine automatically convert it back and forth to the
 database.
-
-

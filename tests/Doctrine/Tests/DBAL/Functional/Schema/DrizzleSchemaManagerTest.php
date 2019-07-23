@@ -4,8 +4,6 @@ namespace Doctrine\Tests\DBAL\Functional\Schema;
 
 use Doctrine\DBAL\Schema\Table;
 
-require_once __DIR__ . '/../../../TestInit.php';
-
 class DrizzleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
     public function testListTableWithBinary()
@@ -22,11 +20,11 @@ class DrizzleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $table = $this->_sm->listTableDetails($tableName);
 
-        $this->assertInstanceOf('Doctrine\DBAL\Types\BinaryType', $table->getColumn('column_varbinary')->getType());
-        $this->assertFalse($table->getColumn('column_varbinary')->getFixed());
+        self::assertInstanceOf('Doctrine\DBAL\Types\BinaryType', $table->getColumn('column_varbinary')->getType());
+        self::assertFalse($table->getColumn('column_varbinary')->getFixed());
 
-        $this->assertInstanceOf('Doctrine\DBAL\Types\BinaryType', $table->getColumn('column_binary')->getType());
-        $this->assertFalse($table->getColumn('column_binary')->getFixed());
+        self::assertInstanceOf('Doctrine\DBAL\Types\BinaryType', $table->getColumn('column_binary')->getType());
+        self::assertFalse($table->getColumn('column_binary')->getFixed());
     }
 
     public function testColumnCollation()
@@ -41,9 +39,9 @@ class DrizzleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $columns = $this->_sm->listTableColumns('test_collation');
 
-        $this->assertArrayNotHasKey('collation', $columns['id']->getPlatformOptions());
-        $this->assertEquals('utf8_unicode_ci', $columns['text']->getPlatformOption('collation'));
-        $this->assertEquals('utf8_swedish_ci', $columns['foo']->getPlatformOption('collation'));
-        $this->assertEquals('utf8_general_ci', $columns['bar']->getPlatformOption('collation'));
+        self::assertArrayNotHasKey('collation', $columns['id']->getPlatformOptions());
+        self::assertEquals('utf8_unicode_ci', $columns['text']->getPlatformOption('collation'));
+        self::assertEquals('utf8_swedish_ci', $columns['foo']->getPlatformOption('collation'));
+        self::assertEquals('utf8_general_ci', $columns['bar']->getPlatformOption('collation'));
     }
 }

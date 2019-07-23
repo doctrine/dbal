@@ -151,7 +151,11 @@ class PoolingShardConnection extends Connection
     {
         $params = $this->getParams();
 
+<<<<<<< HEAD
         return isset($params['host']) ? $params['host'] : parent::getHost();
+=======
+        return $params['host'] ?? parent::getHost();
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
     /**
@@ -161,7 +165,11 @@ class PoolingShardConnection extends Connection
     {
         $params = $this->getParams();
 
+<<<<<<< HEAD
         return isset($params['port']) ? $params['port'] : parent::getPort();
+=======
+        return $params['port'] ?? parent::getPort();
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
     /**
@@ -171,7 +179,11 @@ class PoolingShardConnection extends Connection
     {
         $params = $this->getParams();
 
+<<<<<<< HEAD
         return isset($params['user']) ? $params['user'] : parent::getUsername();
+=======
+        return $params['user'] ?? parent::getUsername();
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
     /**
@@ -181,7 +193,11 @@ class PoolingShardConnection extends Connection
     {
         $params = $this->getParams();
 
+<<<<<<< HEAD
         return isset($params['password']) ? $params['password'] : parent::getPassword();
+=======
+        return $params['password'] ?? parent::getPassword();
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     }
 
     /**
@@ -236,7 +252,7 @@ class PoolingShardConnection extends Connection
     {
         $params = $this->getParams();
 
-        $driverOptions = isset($params['driverOptions']) ? $params['driverOptions'] : array();
+        $driverOptions = isset($params['driverOptions']) ? $params['driverOptions'] : [];
 
         $connectionParams = $this->connections[$shardId];
 

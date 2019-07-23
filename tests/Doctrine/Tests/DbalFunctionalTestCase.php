@@ -41,6 +41,7 @@ class DbalFunctionalTestCase extends DbalTestCase
     }
 
     protected function tearDown()
+<<<<<<< HEAD
     {
         while ($this->_conn && $this->_conn->isTransactionActive()) {
             $this->_conn->rollBack();
@@ -48,21 +49,38 @@ class DbalFunctionalTestCase extends DbalTestCase
     }
 
     protected function onNotSuccessfulTest(\Exception $e)
+=======
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
     {
-        if ($e instanceof \PHPUnit_Framework_AssertionFailedError) {
-            throw $e;
+        while ($this->_conn->isTransactionActive()) {
+            $this->_conn->rollBack();
+        }
+    }
+
+    protected function onNotSuccessfulTest(\Throwable $t)
+    {
+        if ($t instanceof \PHPUnit\Framework\AssertionFailedError) {
+            throw $t;
         }
 
         if(isset($this->_sqlLoggerStack->queries) && count($this->_sqlLoggerStack->queries)) {
             $queries = "";
             $i = count($this->_sqlLoggerStack->queries);
             foreach (array_reverse($this->_sqlLoggerStack->queries) as $query) {
-                $params = array_map(function($p) { if (is_object($p)) return get_class($p); else return "'".$p."'"; }, $query['params'] ?: array());
-                $queries .= ($i+1).". SQL: '".$query['sql']."' Params: ".implode(", ", $params).PHP_EOL;
+                $params = array_map(function($p) {
+                    if (is_object($p)) {
+                        return get_class($p);
+                    } elseif (is_scalar($p)) {
+                        return "'".$p."'";
+                    } else {
+                        return var_export($p, true);
+                    }
+                }, $query['params'] ?: array());
+                $queries .= $i.". SQL: '".$query['sql']."' Params: ".implode(", ", $params).PHP_EOL;
                 $i--;
             }
 
-            $trace = $e->getTrace();
+            $trace = $t->getTrace();
             $traceMsg = "";
             foreach($trace as $part) {
                 if(isset($part['file'])) {
@@ -75,10 +93,10 @@ class DbalFunctionalTestCase extends DbalTestCase
                 }
             }
 
-            $message = "[".get_class($e)."] ".$e->getMessage().PHP_EOL.PHP_EOL."With queries:".PHP_EOL.$queries.PHP_EOL."Trace:".PHP_EOL.$traceMsg;
+            $message = "[".get_class($t)."] ".$t->getMessage().PHP_EOL.PHP_EOL."With queries:".PHP_EOL.$queries.PHP_EOL."Trace:".PHP_EOL.$traceMsg;
 
-            throw new \Exception($message, (int)$e->getCode(), $e);
+            throw new \Exception($message, (int)$t->getCode(), $t);
         }
-        throw $e;
+        throw $t;
     }
 }

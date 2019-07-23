@@ -25,37 +25,22 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
  * Array Type which can be used to generate json arrays.
  *
  * @since  2.3
+ * @deprecated Use JsonType instead
  * @author Johannes M. Schmitt <schmittjoh@gmail.com>
  */
-class JsonArrayType extends Type
+class JsonArrayType extends JsonType
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
-    {
-        return $platform->getJsonTypeDeclarationSQL($fieldDeclaration);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function convertToDatabaseValue($value, AbstractPlatform $platform)
-    {
-        if (null === $value) {
-            return null;
-        }
-
-        return json_encode($value);
-    }
-
     /**
      * {@inheritdoc}
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
         if ($value === null || $value === '') {
+<<<<<<< HEAD
             return array();
+=======
+            return [];
+>>>>>>> 7f80c8e1eb3f302166387e2015709aafd77ddd01
         }
 
         $value = (is_resource($value)) ? stream_get_contents($value) : $value;
@@ -76,6 +61,6 @@ class JsonArrayType extends Type
      */
     public function requiresSQLCommentHint(AbstractPlatform $platform)
     {
-        return ! $platform->hasNativeJsonType();
+        return true;
     }
 }
