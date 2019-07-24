@@ -615,14 +615,14 @@ class Connection implements DriverConnection
         $platform = $this->getDatabasePlatform();
 
         foreach ($identifier as $columnName => $value) {
-            if (!is_array($value)) {
-                if ($value === null) {
-                    $conditions[] = $platform->getIsNullExpression($columnName);
-                    continue;
-                } elseif (strtoupper($value) === 'NOT NULL') {
+            if ($value === null) {
+                if (substr(strtoupper($columnName), -6) === 'IS NOT') {
+                    $columnName = substr($columnName, 0, -7);
                     $conditions[] = $platform->getIsNotNullExpression($columnName);
                     continue;
                 }
+                $conditions[] = $platform->getIsNullExpression($columnName);
+                continue;
             }
 
             $columns[]    = $columnName;
