@@ -620,7 +620,7 @@ class Connection implements DriverConnection
                 continue;
             }
 
-            $columns[]    = $columnName;
+            $columns[]    = $this->quoteIdentifier($columnName);
             $values[]     = $value;
             $conditions[] = $columnName . ' = ?';
         }
@@ -718,9 +718,9 @@ class Connection implements DriverConnection
         $set        = [];
 
         foreach ($data as $columnName => $value) {
-            $setColumns[] = $columnName;
+            $setColumns[] = $this->quoteIdentifier($columnName);
             $setValues[]  = $value;
-            $set[]        = $columnName . ' = ?';
+            $set[]        = $this->quoteIdentifier($columnName) . ' = ?';
         }
 
         [$conditionColumns, $conditionValues, $conditions] = $this->gatherConditions($identifier);
@@ -761,7 +761,7 @@ class Connection implements DriverConnection
         $set     = [];
 
         foreach ($data as $columnName => $value) {
-            $columns[] = $columnName;
+            $columns[] = $this->quoteIdentifier($columnName);
             $values[]  = $value;
             $set[]     = '?';
         }
