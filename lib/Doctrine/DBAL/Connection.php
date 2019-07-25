@@ -18,6 +18,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
+use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Types\Type;
 use Exception;
 use Throwable;
@@ -620,9 +621,12 @@ class Connection implements DriverConnection
                 continue;
             }
 
-            $columns[]    = $this->quoteIdentifier($columnName);
+            $identifier       = new Identifier($columnName);
+            $quotedColumnName = $identifier->getQuotedName($this->platform);
+
+            $columns[]    = $quotedColumnName;
             $values[]     = $value;
-            $conditions[] = $columnName . ' = ?';
+            $conditions[] = $quotedColumnName . ' = ?';
         }
 
         return [$columns, $values, $conditions];
@@ -718,9 +722,11 @@ class Connection implements DriverConnection
         $set        = [];
 
         foreach ($data as $columnName => $value) {
-            $setColumns[] = $this->quoteIdentifier($columnName);
+            $quotedColumnName = (new Identifier($columnName))->getQuotedName($this->platform);
+
+            $setColumns[] = $quotedColumnName;
             $setValues[]  = $value;
-            $set[]        = $this->quoteIdentifier($columnName) . ' = ?';
+            $set[]        = $quotedColumnName . ' = ?';
         }
 
         [$conditionColumns, $conditionValues, $conditions] = $this->gatherConditions($identifier);
@@ -761,7 +767,7 @@ class Connection implements DriverConnection
         $set     = [];
 
         foreach ($data as $columnName => $value) {
-            $columns[] = $this->quoteIdentifier($columnName);
+            $columns[] = (new Identifier($columnName))->getQuotedName($this->platform);
             $values[]  = $value;
             $set[]     = '?';
         }
