@@ -50,6 +50,11 @@ final class ParameterType
     public const BINARY = 16;
 
     /**
+     * Represents a double data type.
+     */
+    public const DOUBLE = 32;
+
+    /**
      * This class cannot be instantiated.
      */
     private function __construct()
