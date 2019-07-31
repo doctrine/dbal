@@ -34,6 +34,7 @@ class MysqliStatement implements IteratorAggregate, Statement
         ParameterType::NULL         => 's',
         ParameterType::INTEGER      => 'i',
         ParameterType::LARGE_OBJECT => 'b',
+        ParameterType::DOUBLE       => 'd',
     ];
 
     /** @var mysqli */
