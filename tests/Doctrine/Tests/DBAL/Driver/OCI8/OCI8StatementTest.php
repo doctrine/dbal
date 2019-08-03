@@ -60,6 +60,11 @@ class OCI8StatementTest extends DbalTestCase
                 $this->equalTo($params[2])
             );
 
+        // the return value is irrelevant to the test
+        // but it has to be compatible with the method signature
+        $statement->method('errorInfo')
+            ->willReturn(false);
+
         // can't pass to constructor since we don't have a real database handle,
         // but execute must check the connection for the executeMode
         $conn = $this->getMockBuilder(OCI8Connection::class)
