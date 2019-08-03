@@ -39,10 +39,6 @@
     </whitelist>
   </filter>
 
-  <listeners>
-      <listener class="Symfony\Bridge\PhpUnit\SymfonyTestsListener" />
-  </listeners>
-
   <groups>
     <exclude>
       <group>performance</group>
