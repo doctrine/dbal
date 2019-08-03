@@ -66,6 +66,8 @@ class ColumnTest extends TestCase
      */
     public function testSettingUnknownOptionIsStillSupported() : void
     {
+        $this->expectNotToPerformAssertions();
+
         new Column('foo', $this->createMock(Type::class), ['unknown_option' => 'bar']);
     }
 
