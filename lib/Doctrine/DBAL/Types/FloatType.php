@@ -36,6 +36,6 @@ class FloatType extends Type
      */
     public function getBindingType()
     {
-        return ParameterType::INTEGER;
+        return ParameterType::DOUBLE;
     }
 }

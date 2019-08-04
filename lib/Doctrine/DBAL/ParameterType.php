@@ -52,7 +52,7 @@ final class ParameterType
     /**
      * Represents a double data type.
      */
-    public const DOUBLE = 32;
+    public const DOUBLE = 17;
 
     /**
      * This class cannot be instantiated.
