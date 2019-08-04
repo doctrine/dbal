@@ -23,16 +23,22 @@ install:
 
 script:
   - |
+    phpflags=
+    phpexe=
+    if [ "x$LANGUAGE" != "x" ]; then
+       phpflags=-dauto_prepend_file=$PWD/tests/travis/setlocale-de.php
+       phpexe=php
+    fi
     if [ "x$COVERAGE" == "xyes" ]; then
-       ./vendor/bin/phpunit --configuration tests/travis/$DB.travis.xml --coverage-clover clover.xml
+       $phpexe $phpflags ./vendor/bin/phpunit --configuration tests/travis/$DB.travis.xml --coverage-clover clover.xml
     else
-       ./vendor/bin/phpunit --configuration tests/travis/$DB.travis.xml
+       $phpexe $phpflags ./vendor/bin/phpunit --configuration tests/travis/$DB.travis.xml
     fi
 
 after_script:
   - |
     if [ "x$COVERAGE" == "xyes" ]; then
-      travis_retry wget https://github.com/scrutinizer-ci/ocular/releases/download/1.5.2/ocular.phar
+      travis_retry wget https://github.com/scrutinizer-ci/ocular/releases/download/1.6.0/ocular.phar
       travis_retry php ocular.phar code-coverage:upload --format=php-clover clover.xml
     fi
 
@@ -339,3 +345,99 @@ jobs:
       install:
         - composer config minimum-stability dev
         - travis_retry composer update --prefer-dist
+
+    - stage: Test
+      php: 7.2
+      env: LANGUAGE=de_DE.UTF-8 LC_ALL=de_DE.UTF-8 LANG=de_DE.UTF-8 DB=mysqli.docker MYSQL_VERSION=8.0
+      sudo: required
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-language.sh
+        - bash ./tests/travis/install-mysql-8.0.sh
+
+    - stage: Test
+      php: 7.3
+      env: LANGUAGE=de_DE.UTF-8 LC_ALL=de_DE.UTF-8 LANG=de_DE.UTF-8 DB=mysqli.docker MYSQL_VERSION=8.0 COVERAGE=yes
+      sudo: required
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-language.sh
+        - bash ./tests/travis/install-mysql-8.0.sh
+
+    - stage: Test
+      php: 7.3
+      env: LANGUAGE=de_DE.UTF-8 LC_ALL=de_DE.UTF-8 LANG=de_DE.UTF-8 DB=mysqli.docker MYSQL_VERSION=5.7
+      sudo: required
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-language.sh
+        - bash ./tests/travis/install-mysql-5.7.sh
+
+    - stage: Test
+      php: 7.3
+      env: LANGUAGE=de_DE.UTF-8 LC_ALL=de_DE.UTF-8 LANG=de_DE.UTF-8 DB=sqlite COVERAGE=yes
+      sudo: required
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-language.sh
+
+    - stage: Test
+      php: 7.3
+      env: LANGUAGE=de_DE.UTF-8 LC_ALL=de_DE.UTF-8 LANG=de_DE.UTF-8 DB=pgsql POSTGRESQL_VERSION=10.0
+      sudo: required
+      services:
+        - postgresql
+      addons:
+        postgresql: "9.6"
+      before_script:
+        - bash ./tests/travis/install-language.sh
+        - bash ./tests/travis/install-postgres-10.sh
+
+    - stage: Test
+      php: 7.3
+      env: LANGUAGE=de_DE.UTF-8 LC_ALL=de_DE.UTF-8 LANG=de_DE.UTF-8 DB=pgsql POSTGRESQL_VERSION=11.0
+      sudo: required
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-language.sh
+        - bash ./tests/travis/install-postgres-11.sh
+
+    - stage: Test
+      php: 7.3
+      env: LANGUAGE=de_DE.UTF-8 LC_ALL=de_DE.UTF-8 LANG=de_DE.UTF-8 DB=sqlsrv
+      sudo: required
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-language.sh
+        - bash ./tests/travis/install-sqlsrv-dependencies.sh
+        - bash ./tests/travis/install-mssql-sqlsrv.sh
+        - bash ./tests/travis/install-mssql.sh
+
+    - stage: Test
+      php: 7.3
+      env: LANGUAGE=de_DE.UTF-8 LC_ALL=de_DE.UTF-8 LANG=de_DE.UTF-8 DB=pdo_sqlsrv
+      sudo: required
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-language.sh
+        - bash ./tests/travis/install-sqlsrv-dependencies.sh
+        - bash ./tests/travis/install-mssql-pdo_sqlsrv.sh
+        - bash ./tests/travis/install-mssql.sh
+
+    - stage: Test
+      php: 7.3
+      env: LANGUAGE=de_DE.UTF-8 LC_ALL=de_DE.UTF-8 LANG=de_DE.UTF-8 DB=ibm_db2
+      sudo: required
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-language.sh
+        - bash ./tests/travis/install-db2.sh
+        - bash ./tests/travis/install-db2-ibm_db2.sh

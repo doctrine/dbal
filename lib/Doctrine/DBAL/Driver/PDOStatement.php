@@ -26,6 +26,7 @@ class PDOStatement extends \PDOStatement implements Statement
         ParameterType::BINARY       => PDO::PARAM_LOB,
         ParameterType::LARGE_OBJECT => PDO::PARAM_LOB,
         ParameterType::BOOLEAN      => PDO::PARAM_BOOL,
+        ParameterType::DOUBLE       => PDO::PARAM_STR,
     ];
 
     private const FETCH_MODE_MAP = [

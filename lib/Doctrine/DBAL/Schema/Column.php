@@ -5,9 +5,13 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Types\Type;
 use const E_USER_DEPRECATED;
 use function array_merge;
+use function is_float;
 use function is_numeric;
+use function localeconv;
 use function method_exists;
 use function sprintf;
+use function str_replace;
+use function strval;
 use function trigger_error;
 
 /**
@@ -193,6 +197,16 @@ class Column extends AbstractAsset
      */
     public function setDefault($default)
     {
+        if (is_float($default)) {
+            $localeInfo = localeconv();
+            $decimal    = $localeInfo['decimal_point'] ?? '.';
+            if ($decimal !== '.') {
+                // SQL standard is '.' for all decimal points so convert to string (issue #3631)
+                // Also see https://stackoverflow.com/questions/6627239/insert-non-english-decimal-points-in-mysql/6627551#6627551
+                $default = strval($default);
+                $default = str_replace($decimal, '.', $default);
+            }
+        }
         $this->_default = $default;
 
         return $this;

@@ -18,6 +18,7 @@ use function count;
 use function feof;
 use function fread;
 use function get_resource_type;
+use function gettype;
 use function is_array;
 use function is_int;
 use function is_resource;
@@ -34,6 +35,7 @@ class MysqliStatement implements IteratorAggregate, Statement
         ParameterType::NULL         => 's',
         ParameterType::INTEGER      => 'i',
         ParameterType::LARGE_OBJECT => 'b',
+        ParameterType::DOUBLE       => 'd',
     ];
 
     /** @var mysqli */
@@ -272,10 +274,20 @@ class MysqliStatement implements IteratorAggregate, Statement
     private function bindUntypedValues(array $values)
     {
         $params = [];
-        $types  = str_repeat('s', count($values));
-
+        $types  = '';
         foreach ($values as &$v) {
             $params[] =& $v;
+            // fix for issue #3631 - detect parameter types as they have to be bound differently
+            switch (gettype($v)) {
+                case 'boolean':
+                    $types .= self::$_paramTypeMap[ParameterType::BOOLEAN];
+                    break;
+                case 'double':
+                    $types .= self::$_paramTypeMap[ParameterType::DOUBLE];
+                    break;
+                default:
+                    $types .= self::$_paramTypeMap[ParameterType::STRING];
+            }
         }
 
         return $this->_stmt->bind_param($types, ...$params);

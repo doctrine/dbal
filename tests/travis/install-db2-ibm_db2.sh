@@ -5,6 +5,7 @@ set -ex
 echo "Installing extension"
 (
     # updating APT packages as per support recommendation
+    sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 6B05F25D762E3157
     sudo apt -y -q update
     sudo apt install ksh
 

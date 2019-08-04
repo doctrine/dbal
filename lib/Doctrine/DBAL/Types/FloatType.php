@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Types;
 
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 class FloatType extends Type
@@ -28,5 +29,13 @@ class FloatType extends Type
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
         return $value === null ? null : (float) $value;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBindingType()
+    {
+        return ParameterType::DOUBLE;
     }
 }

@@ -12,6 +12,7 @@ sudo docker run \
     -p 33306:3306 \
     --name mysql80 \
     mysql:8.0 \
+    mysqld \
     --default-authentication-plugin=mysql_native_password
 
 sudo docker exec -i mysql80 bash <<< 'until echo \\q | mysql doctrine_tests > /dev/null 2>&1 ; do sleep 1; done'

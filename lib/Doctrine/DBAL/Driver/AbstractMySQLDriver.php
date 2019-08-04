@@ -90,8 +90,13 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
             case '1429':
             case '2002':
             case '2005':
+            case '2054':
                 return new Exception\ConnectionException($message, $exception);
-
+            case '2006':
+                if ($exception instanceof Driver\Mysqli\MysqliConnectionException || $exception instanceof PDOConnectionException) {
+                    return new Exception\ConnectionException($message, $exception);
+                }
+                break;
             case '1048':
             case '1121':
             case '1138':
