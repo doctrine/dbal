@@ -28,6 +28,7 @@ example shows:
     $myTable->addColumn("username", "string", array("length" => 32));
     $myTable->setPrimaryKey(array("id"));
     $myTable->addUniqueIndex(array("username"));
+    $myTable->setComment('Some comment');
     $schema->createSequence("my_table_seq");
 
     $myForeign = $schema->createTable("my_foreign");

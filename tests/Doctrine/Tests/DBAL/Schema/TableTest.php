@@ -885,4 +885,13 @@ class TableTest extends DbalTestCase
             ['"FOO"'],
         ];
     }
+
+    public function testTableComment() : void
+    {
+        $table = new Table('bar');
+        self::assertNull($table->getComment());
+
+        $table->setComment('foo');
+        self::assertEquals('foo', $table->getComment());
+    }
 }

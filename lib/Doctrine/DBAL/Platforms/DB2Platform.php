@@ -900,4 +900,17 @@ class DB2Platform extends AbstractPlatform
     {
         return Keywords\DB2Keywords::class;
     }
+
+    public function getListTableCommentsSQL(string $table) : string
+    {
+        return sprintf(
+            <<<'SQL'
+SELECT REMARKS
+  FROM SYSIBM.SYSTABLES
+  WHERE NAME = UPPER( %s )
+SQL
+            ,
+            $this->quoteStringLiteral($table)
+        );
+    }
 }

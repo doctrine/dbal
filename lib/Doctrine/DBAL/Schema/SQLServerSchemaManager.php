@@ -4,6 +4,7 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\DriverException;
+use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Types\Type;
 use PDOException;
 use Throwable;
@@ -324,5 +325,23 @@ class SQLServerSchemaManager extends AbstractSchemaManager
                 $database->getQuotedName($this->_platform)
             )
         );
+    }
+
+    /**
+     * @param string $tableName
+     */
+    public function listTableDetails($tableName) : Table
+    {
+        $table = parent::listTableDetails($tableName);
+
+        /** @var SQLServerPlatform $platform */
+        $platform = $this->_platform;
+        $sql      = $platform->getListTableMetadataSQL($tableName);
+
+        $tableOptions = $this->_conn->fetchAssoc($sql);
+
+        $table->addOption('comment', $tableOptions['table_comment']);
+
+        return $table;
     }
 }
