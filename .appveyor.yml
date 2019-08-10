@@ -22,21 +22,21 @@ environment:
     driver: sqlsrv
     db_version: sql2008r2sp2
     coverage: yes
-    php: 7.2
+    php: 7.3
   - db: mssql
     driver: sqlsrv
     db_version: sql2012sp1
-    php: 7.2
+    php: 7.3
     coverage: yes
   - db: mssql
     driver: sqlsrv
     db_version: sql2017
     coverage: no
-    php: 7.2
+    php: 7.3
   - db: mssql
     driver: pdo_sqlsrv
     db_version: sql2017
-    php: 7.2
+    php: 7.3
     coverage: yes
 
 init:
@@ -103,7 +103,7 @@ install:
             New-Item -path c:\tools -name ocular -itemtype directory
           }
           if (!(Test-Path c:\tools\ocular\ocular.phar)) {
-            appveyor-retry appveyor DownloadFile https://github.com/scrutinizer-ci/ocular/releases/download/1.5.2/ocular.phar -Filename C:\tools\ocular\ocular.phar
+            appveyor-retry appveyor DownloadFile https://github.com/scrutinizer-ci/ocular/releases/download/1.6.0/ocular.phar -Filename C:\tools\ocular\ocular.phar
             Set-Content -path 'C:\tools\ocular\ocular.bat' -Value ('@php C:\tools\ocular\ocular.phar %*')
           }
 

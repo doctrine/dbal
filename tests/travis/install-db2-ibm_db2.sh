@@ -4,6 +4,9 @@ set -ex
 
 echo "Installing extension"
 (
+    # https://travis-ci.community/t/then-sudo-apt-get-update-failed-public-key-is-not-available-no-pubkey-6b05f25d762e3157-in-ubuntu-xenial/1728/12
+    sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 6B05F25D762E3157
+
     # updating APT packages as per support recommendation
     sudo apt -y -q update
     sudo apt install ksh

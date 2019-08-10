@@ -28,7 +28,7 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
             $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, [PDOStatement::class, []]);
             $this->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+            throw new PDOConnectionException($exception);
         }
     }
 
