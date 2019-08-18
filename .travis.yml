@@ -16,6 +16,7 @@ before_install:
 
 before_script:
   - if [[ "$DB" == "mysql" || "$DB" == "mysqli" || "$DB" == *"mariadb"* ]]; then mysql < tests/travis/create-mysql-schema.sql; fi;
+  - tests/travis/install-language-de.sh
 
 install:
   - rm composer.lock
