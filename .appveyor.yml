@@ -22,21 +22,21 @@ environment:
     driver: sqlsrv
     db_version: sql2008r2sp2
     coverage: yes
-    php: 7.2
+    php: 7.3
   - db: mssql
     driver: sqlsrv
     db_version: sql2012sp1
-    php: 7.2
+    php: 7.3
     coverage: yes
   - db: mssql
     driver: sqlsrv
     db_version: sql2017
     coverage: no
-    php: 7.2
+    php: 7.3
   - db: mssql
     driver: pdo_sqlsrv
     db_version: sql2017
-    php: 7.2
+    php: 7.3
     coverage: yes
 
 init:
