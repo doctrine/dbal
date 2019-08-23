@@ -617,7 +617,7 @@ class ComparatorTest extends TestCase
         $c    = new Comparator();
         $diff = $c->compare($schemaA, $schemaB);
 
-        self::assertSchemaTableChangeCount($diff, 1, 0, 1);
+        $this->assertSchemaTableChangeCount($diff, 1, 0, 1);
     }
 
     public function testSequencesCaseInsensitive() : void
@@ -637,7 +637,7 @@ class ComparatorTest extends TestCase
         $c    = new Comparator();
         $diff = $c->compare($schemaA, $schemaB);
 
-        self::assertSchemaSequenceChangeCount($diff, 1, 0, 1);
+        $this->assertSchemaSequenceChangeCount($diff, 1, 0, 1);
     }
 
     public function testCompareColumnCompareCaseInsensitive() : void
