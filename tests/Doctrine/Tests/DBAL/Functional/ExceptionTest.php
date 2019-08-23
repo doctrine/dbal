@@ -3,13 +3,19 @@
 namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\Driver\ExceptionConverterDriver;
+use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Platforms\DrizzlePlatform;
+use Doctrine\DBAL\Platforms\MySqlPlatform;
+use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
+use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use Throwable;
 use function array_merge;
+use function assert;
 use function chmod;
 use function defined;
 use function file_exists;
@@ -17,6 +23,7 @@ use function sprintf;
 use function sys_get_temp_dir;
 use function touch;
 use function unlink;
+use function version_compare;
 
 class ExceptionTest extends DbalFunctionalTestCase
 {
@@ -289,7 +296,7 @@ class ExceptionTest extends DbalFunctionalTestCase
      */
     public function testConnectionExceptionSqLite($mode, $exceptionClass)
     {
-        if ($this->connection->getDatabasePlatform()->getName() !== 'sqlite') {
+        if ($this->connection->getDatabasePlatform() instanceof SqlitePlatform) {
             $this->markTestSkipped('Only fails this way on sqlite');
         }
 
@@ -333,16 +340,27 @@ class ExceptionTest extends DbalFunctionalTestCase
      */
     public function testConnectionException($params)
     {
-        if ($this->connection->getDatabasePlatform()->getName() === 'sqlite') {
+        $platform = $this->connection->getDatabasePlatform();
+
+        if ($platform instanceof SqlitePlatform) {
             $this->markTestSkipped('Only skipped if platform is not sqlite');
         }
 
-        if ($this->connection->getDatabasePlatform()->getName() === 'drizzle') {
+        if ($platform instanceof DrizzlePlatform) {
             $this->markTestSkipped('Drizzle does not always support authentication');
         }
 
-        if ($this->connection->getDatabasePlatform()->getName() === 'postgresql' && isset($params['password'])) {
+        if ($platform instanceof PostgreSqlPlatform && isset($params['password'])) {
             $this->markTestSkipped('Does not work on Travis');
+        }
+
+        if ($platform instanceof MySqlPlatform && isset($params['user'])) {
+            $wrappedConnection = $this->connection->getWrappedConnection();
+            assert($wrappedConnection instanceof ServerInfoAwareConnection);
+
+            if (version_compare($wrappedConnection->getServerVersion(), '8', '>=')) {
+                $this->markTestIncomplete('PHP currently does not completely support MySQL 8');
+            }
         }
 
         $defaultParams = $this->connection->getParams();
