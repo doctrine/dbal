@@ -27,7 +27,7 @@ class MySqlSchemaManagerTest extends TestCase
         $driverMock    = $this->createMock(Driver::class);
         $platform      = $this->createMock(MySqlPlatform::class);
         $this->conn    = $this->getMockBuilder(Connection::class)
-            ->setMethods(['fetchAll'])
+            ->onlyMethods(['fetchAll'])
             ->setConstructorArgs([['platform' => $platform], $driverMock, new Configuration(), $eventManager])
             ->getMock();
         $this->manager = new MySqlSchemaManager($this->conn);

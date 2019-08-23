@@ -85,7 +85,7 @@ class SQLAzureShardManagerTest extends TestCase
     private function createConnection(array $params) : Connection
     {
         $conn = $this->getMockBuilder(Connection::class)
-            ->setMethods(['getParams', 'exec', 'isTransactionActive'])
+            ->onlyMethods(['getParams', 'exec', 'isTransactionActive'])
             ->disableOriginalConstructor()
             ->getMock();
         $conn->expects($this->at(0))->method('getParams')->will($this->returnValue($params));

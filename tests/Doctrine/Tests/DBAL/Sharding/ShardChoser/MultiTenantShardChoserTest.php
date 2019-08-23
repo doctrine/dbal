@@ -20,7 +20,7 @@ class MultiTenantShardChoserTest extends TestCase
     private function createConnectionMock() : PoolingShardConnection
     {
         return $this->getMockBuilder(PoolingShardConnection::class)
-            ->setMethods(['connect', 'getParams', 'fetchAll'])
+            ->onlyMethods(['connect', 'getParams', 'fetchAll'])
             ->disableOriginalConstructor()
             ->getMock();
     }

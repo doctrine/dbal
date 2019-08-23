@@ -1172,10 +1172,10 @@ class ComparatorTest extends TestCase
     {
         $comparator = new Comparator();
         $fromSchema = $this->getMockBuilder(Schema::class)
-            ->setMethods(['getNamespaces', 'hasNamespace'])
+            ->onlyMethods(['getNamespaces', 'hasNamespace'])
             ->getMock();
         $toSchema   = $this->getMockBuilder(Schema::class)
-            ->setMethods(['getNamespaces', 'hasNamespace'])
+            ->onlyMethods(['getNamespaces', 'hasNamespace'])
             ->getMock();
 
         $fromSchema->expects($this->once())

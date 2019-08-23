@@ -36,7 +36,7 @@ class OCI8StatementTest extends DbalTestCase
     public function testExecute(array $params) : void
     {
         $statement = $this->getMockBuilder(OCI8Statement::class)
-            ->setMethods(['bindValue', 'errorInfo'])
+            ->onlyMethods(['bindValue', 'errorInfo'])
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -67,7 +67,7 @@ class OCI8StatementTest extends DbalTestCase
         // can't pass to constructor since we don't have a real database handle,
         // but execute must check the connection for the executeMode
         $conn = $this->getMockBuilder(OCI8Connection::class)
-            ->setMethods(['getExecuteMode'])
+            ->onlyMethods(['getExecuteMode'])
             ->disableOriginalConstructor()
             ->getMock();
         $conn->expects($this->once())

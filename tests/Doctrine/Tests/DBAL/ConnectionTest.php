@@ -67,7 +67,7 @@ class ConnectionTest extends DbalTestCase
         $platform = $this->getMockForAbstractClass(AbstractPlatform::class);
 
         return $this->getMockBuilder(Connection::class)
-            ->setMethods(['executeUpdate'])
+            ->onlyMethods(['executeUpdate'])
             ->setConstructorArgs([['platform' => $platform], $driverMock])
             ->getMock();
     }
@@ -145,8 +145,8 @@ class ConnectionTest extends DbalTestCase
 
     public function testConnectDispatchEvent() : void
     {
-        $listenerMock = $this->getMockBuilder('ConnectDispatchEventListener')
-            ->setMethods(['postConnect'])
+        $listenerMock = $this->getMockBuilder($this->getMockClass('ConnectDispatchEventListener'))
+            ->addMethods(['postConnect'])
             ->getMock();
         $listenerMock->expects($this->once())->method('postConnect');
 
@@ -566,7 +566,7 @@ class ConnectionTest extends DbalTestCase
 
         /** @var Connection|MockObject $conn */
         $conn = $this->getMockBuilder(Connection::class)
-            ->setMethods(['executeQuery'])
+            ->onlyMethods(['executeQuery'])
             ->setConstructorArgs([[], $driverMock])
             ->getMock();
 
@@ -602,7 +602,7 @@ class ConnectionTest extends DbalTestCase
 
         /** @var Connection|MockObject $conn */
         $conn = $this->getMockBuilder(Connection::class)
-            ->setMethods(['executeQuery'])
+            ->onlyMethods(['executeQuery'])
             ->setConstructorArgs([[], $driverMock])
             ->getMock();
 
@@ -639,7 +639,7 @@ class ConnectionTest extends DbalTestCase
 
         /** @var Connection|MockObject $conn */
         $conn = $this->getMockBuilder(Connection::class)
-            ->setMethods(['executeQuery'])
+            ->onlyMethods(['executeQuery'])
             ->setConstructorArgs([[], $driverMock])
             ->getMock();
 
@@ -674,7 +674,7 @@ class ConnectionTest extends DbalTestCase
 
         /** @var Connection|MockObject $conn */
         $conn = $this->getMockBuilder(Connection::class)
-            ->setMethods(['executeQuery'])
+            ->onlyMethods(['executeQuery'])
             ->setConstructorArgs([[], $driverMock])
             ->getMock();
 
@@ -756,7 +756,7 @@ class ConnectionTest extends DbalTestCase
 
         $conn = $this->getMockBuilder(Connection::class)
             ->setConstructorArgs([['pdo' => $pdoMock, 'platform' => $platformMock], $driverMock])
-            ->setMethods(['connect'])
+            ->onlyMethods(['connect'])
             ->getMock();
 
         $conn->expects($this->once())->method('connect');

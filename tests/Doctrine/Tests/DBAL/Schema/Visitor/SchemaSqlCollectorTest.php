@@ -11,7 +11,7 @@ class SchemaSqlCollectorTest extends TestCase
     public function testCreateSchema() : void
     {
         $platformMock = $this->getMockBuilder(MySqlPlatform::class)
-            ->setMethods(['getCreateTableSql', 'getCreateSequenceSql', 'getCreateForeignKeySql'])
+            ->onlyMethods(['getCreateTableSql', 'getCreateSequenceSql', 'getCreateForeignKeySql'])
             ->getMock();
         $platformMock->expects($this->exactly(2))
                      ->method('getCreateTableSql')
@@ -33,7 +33,7 @@ class SchemaSqlCollectorTest extends TestCase
     public function testDropSchema() : void
     {
         $platformMock = $this->getMockBuilder(MySqlPlatform::class)
-            ->setMethods(['getDropTableSql', 'getDropSequenceSql', 'getDropForeignKeySql'])
+            ->onlyMethods(['getDropTableSql', 'getDropSequenceSql', 'getDropForeignKeySql'])
             ->getMock();
         $platformMock->expects($this->exactly(2))
                      ->method('getDropTableSql')
