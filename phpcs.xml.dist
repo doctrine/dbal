@@ -72,4 +72,10 @@
     <rule ref="SlevomatCodingStandard.Operators.DisallowEqualOperators.DisallowedNotEqualOperator">
         <exclude-pattern>lib/Doctrine/DBAL/Schema/Comparator.php</exclude-pattern>
     </rule>
+
+    <!-- see https://github.com/slevomat/coding-standard/issues/737 -->
+    <rule ref="SlevomatCodingStandard.TypeHints.TypeHintDeclaration.IncorrectReturnTypeHint">
+        <exclude-pattern>lib/Doctrine/DBAL/Types/ArrayType.php</exclude-pattern>
+        <exclude-pattern>lib/Doctrine/DBAL/Types/ObjectType.php</exclude-pattern>
+    </rule>
 </ruleset>
