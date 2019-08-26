@@ -297,7 +297,7 @@ class ExceptionTest extends DbalFunctionalTestCase
 
     public function testConnectionExceptionSqLite() : void
     {
-        if ($this->connection instanceof SqlitePlatform) {
+        if ($this->connection->getDatabasePlatform() instanceof SqlitePlatform) {
             $this->markTestSkipped('Only fails this way on sqlite');
         }
 

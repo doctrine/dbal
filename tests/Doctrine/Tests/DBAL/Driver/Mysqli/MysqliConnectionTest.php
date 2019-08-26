@@ -46,7 +46,7 @@ class MysqliConnectionTest extends DbalFunctionalTestCase
 
     public function testRestoresErrorHandlerOnException() : void
     {
-        $handler         = static function () : void {
+        $handler         = static function () : bool {
             self::fail('Never expected this to be called');
         };
         $default_handler = set_error_handler($handler);

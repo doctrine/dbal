@@ -68,6 +68,7 @@
     <rule ref="SlevomatCodingStandard.TypeHints.TypeHintDeclaration.IncorrectReturnTypeHint">
         <exclude-pattern>lib/Doctrine/DBAL/Types/ArrayType.php</exclude-pattern>
         <exclude-pattern>lib/Doctrine/DBAL/Types/ObjectType.php</exclude-pattern>
+        <exclude-pattern>tests/Doctrine/Tests/DBAL/Driver/Mysqli/MysqliConnectionTest.php</exclude-pattern>
     </rule>
 
     <!-- DB2_AUTOCOMMIT_ON/DB2_AUTOCOMMIT_OFF are of int type but db2_autocommit() incorrectly expects bool,
