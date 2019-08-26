@@ -380,8 +380,8 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
 
     public function testGetCreateTableSqlDispatchEvent() : void
     {
-        $listenerMock = $this->getMockBuilder('GetCreateTableSqlDispatchEvenListener')
-            ->setMethods(['onSchemaCreateTable', 'onSchemaCreateTableColumn'])
+        $listenerMock = $this->getMockBuilder($this->getMockClass('GetCreateTableSqlDispatchEvenListener'))
+            ->addMethods(['onSchemaCreateTable', 'onSchemaCreateTableColumn'])
             ->getMock();
         $listenerMock
             ->expects($this->once())
@@ -404,8 +404,8 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
 
     public function testGetDropTableSqlDispatchEvent() : void
     {
-        $listenerMock = $this->getMockBuilder('GetDropTableSqlDispatchEventListener')
-            ->setMethods(['onSchemaDropTable'])
+        $listenerMock = $this->getMockBuilder($this->getMockClass('GetDropTableSqlDispatchEventListener'))
+            ->addMethods(['onSchemaDropTable'])
             ->getMock();
         $listenerMock
             ->expects($this->once())
@@ -429,8 +429,8 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
             'onSchemaAlterTableRenameColumn',
         ];
 
-        $listenerMock = $this->getMockBuilder('GetAlterTableSqlDispatchEvenListener')
-            ->setMethods($events)
+        $listenerMock = $this->getMockBuilder($this->getMockClass('GetAlterTableSqlDispatchEvenListener'))
+            ->addMethods($events)
             ->getMock();
         $listenerMock
             ->expects($this->once())

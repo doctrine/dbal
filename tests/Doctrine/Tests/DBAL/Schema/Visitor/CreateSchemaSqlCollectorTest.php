@@ -26,7 +26,7 @@ class CreateSchemaSqlCollectorTest extends TestCase
         parent::setUp();
 
         $this->platformMock = $this->getMockBuilder(AbstractPlatform::class)
-            ->setMethods(
+            ->onlyMethods(
                 [
                     'getCreateForeignKeySQL',
                     'getCreateSchemaSQL',

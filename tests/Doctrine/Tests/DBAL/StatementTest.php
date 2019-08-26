@@ -28,7 +28,7 @@ class StatementTest extends DbalTestCase
     protected function setUp() : void
     {
         $this->pdoStatement = $this->getMockBuilder(PDOStatement::class)
-            ->setMethods(['execute', 'bindParam', 'bindValue'])
+            ->onlyMethods(['execute', 'bindParam', 'bindValue'])
             ->getMock();
 
         $driverConnection = $this->createMock(DriverConnection::class);

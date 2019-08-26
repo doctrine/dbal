@@ -367,10 +367,10 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
 
         $this->schemaManager->dropAndCreateTable($table);
 
-        $listenerMock = $this
-            ->getMockBuilder('ListTableColumnsDispatchEventListener')
-            ->setMethods(['onSchemaColumnDefinition'])
+        $listenerMock = $this->getMockBuilder($this->getMockClass('ListTableColumnsDispatchEventListener'))
+            ->addMethods(['onSchemaColumnDefinition'])
             ->getMock();
+
         $listenerMock
             ->expects($this->exactly(7))
             ->method('onSchemaColumnDefinition');
@@ -395,9 +395,8 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
 
         $this->schemaManager->dropAndCreateTable($table);
 
-        $listenerMock = $this
-            ->getMockBuilder('ListTableIndexesDispatchEventListener')
-            ->setMethods(['onSchemaIndexDefinition'])
+        $listenerMock = $this->getMockBuilder($this->getMockClass('ListTableIndexesDispatchEventListener'))
+            ->addMethods(['onSchemaIndexDefinition'])
             ->getMock();
         $listenerMock
             ->expects($this->exactly(3))
