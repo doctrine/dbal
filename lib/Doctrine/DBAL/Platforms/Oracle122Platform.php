@@ -2,6 +2,9 @@
 
 namespace Doctrine\DBAL\Platforms;
 
+use function strlen;
+use function substr;
+
 /**
  * Provides behaviour name longer than 32 chars since Oracle 12.2
  *
