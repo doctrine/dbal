@@ -14,7 +14,7 @@ class Oracle122PlatformTest extends OraclePlatformTest
     }
 
     public function testMaxIdentifierLength() : void
-    {    
+    {
         self::assertSame(128, $this->platform->getMaxIdentifierLength());
     }
 
