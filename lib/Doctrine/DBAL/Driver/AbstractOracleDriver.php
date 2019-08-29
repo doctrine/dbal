@@ -9,6 +9,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Platforms\Oracle122Platform;
 use Doctrine\DBAL\Schema\OracleSchemaManager;
+use Doctrine\DBAL\VersionAwarePlatformDriver;
 
 /**
  * Abstract base implementation of the {@link Doctrine\DBAL\Driver} interface for Oracle based drivers.
