@@ -7,8 +7,8 @@ use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\AbstractOracleDriver\EasyConnectString;
 use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Platforms\Oracle122Platform;
+use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\OracleSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
 use function preg_match;
@@ -74,7 +74,7 @@ abstract class AbstractOracleDriver implements Driver, ExceptionConverterDriver,
                 '<major_version>.<minor_version>.<patch_version>'
             );
         }
-        
+
         $majorVersion = $versionParts['major'];
         $minorVersion = $versionParts['minor'] ?? 0;
         $patchVersion = $versionParts['patch'] ?? 0;
@@ -87,7 +87,7 @@ abstract class AbstractOracleDriver implements Driver, ExceptionConverterDriver,
                 return new OraclePlatform();
         }
     }
-    
+
     /**
      * {@inheritdoc}
      */

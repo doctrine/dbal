@@ -12,9 +12,9 @@ class Oracle122Platform extends OraclePlatform
 {
     /**
      * {@inheritDoc}
-     * 
+     *
      * @param string $schemaElementName
-     * 
+     *
      * @return string
      */
     public function fixSchemaElementName($schemaElementName)
@@ -29,7 +29,7 @@ class Oracle122Platform extends OraclePlatform
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @return int
      */
     public function getMaxIdentifierLength()
