@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\AbstractOracleDriver\EasyConnectString;
 use Doctrine\DBAL\Exception;
@@ -10,6 +11,8 @@ use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Platforms\Oracle122Platform;
 use Doctrine\DBAL\Schema\OracleSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
+use function preg_match;
+use function version_compare;
 
 /**
  * Abstract base implementation of the {@link Doctrine\DBAL\Driver} interface for Oracle based drivers.
@@ -59,7 +62,7 @@ abstract class AbstractOracleDriver implements Driver, ExceptionConverterDriver,
         return new Exception\DriverException($message, $exception);
     }
 
-/**
+    /**
      * {@inheritdoc}
      */
     public function createDatabasePlatformForVersion($version)
