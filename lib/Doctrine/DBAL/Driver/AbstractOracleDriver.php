@@ -7,12 +7,13 @@ use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\AbstractOracleDriver\EasyConnectString;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\OraclePlatform;
+use Doctrine\DBAL\Platforms\Oracle122Platform;
 use Doctrine\DBAL\Schema\OracleSchemaManager;
 
 /**
  * Abstract base implementation of the {@link Doctrine\DBAL\Driver} interface for Oracle based drivers.
  */
-abstract class AbstractOracleDriver implements Driver, ExceptionConverterDriver
+abstract class AbstractOracleDriver implements Driver, ExceptionConverterDriver, VersionAwarePlatformDriver
 {
     /**
      * {@inheritdoc}
@@ -57,6 +58,32 @@ abstract class AbstractOracleDriver implements Driver, ExceptionConverterDriver
         return new Exception\DriverException($message, $exception);
     }
 
+/**
+     * {@inheritdoc}
+     */
+    public function createDatabasePlatformForVersion($version)
+    {
+        //Example: "Oracle Database 12c Enterprise Edition Release 12.2.0.1.0 - 64bit Production"
+        if (! preg_match('/\s+((?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)\.(\d+)\.(\d+))\s+/', $version, $versionParts)) {
+            throw DBALException::invalidPlatformVersionSpecified(
+                $version,
+                '<major_version>.<minor_version>.<patch_version>'
+            );
+        }
+        
+        $majorVersion = $versionParts['major'];
+        $minorVersion = $versionParts['minor'] ?? 0;
+        $patchVersion = $versionParts['patch'] ?? 0;
+        $version      = $majorVersion . '.' . $minorVersion . '.' . $patchVersion;
+
+        switch (true) {
+            case version_compare($version, '12.2', '>='):
+                return new Oracle122Platform();
+            default:
+                return new OraclePlatform();
+        }
+    }
+    
     /**
      * {@inheritdoc}
      */
