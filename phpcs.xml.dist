@@ -77,5 +77,6 @@
     <rule ref="SlevomatCodingStandard.TypeHints.TypeHintDeclaration.IncorrectReturnTypeHint">
         <exclude-pattern>lib/Doctrine/DBAL/Types/ArrayType.php</exclude-pattern>
         <exclude-pattern>lib/Doctrine/DBAL/Types/ObjectType.php</exclude-pattern>
+        <exclude-pattern>tests/Doctrine/Tests/DBAL/Driver/Mysqli/MysqliConnectionTest.php</exclude-pattern>
     </rule>
 </ruleset>
