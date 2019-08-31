@@ -503,7 +503,7 @@ SQL
             $options['collate'] = $options['charset'] . '_unicode_ci';
         }
 
-        $tableOptions[] = sprintf('COLLATE %s', $options['collate']);
+        $tableOptions[] = $this->getColumnCollationDeclarationSQL($options['collate']);
 
         // Engine
         if (! isset($options['engine'])) {
@@ -963,6 +963,14 @@ SQL
     public function getColumnCharsetDeclarationSQL($charset)
     {
         return 'CHARACTER SET ' . $charset;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getColumnCollationDeclarationSQL($collation)
+    {
+        return 'COLLATE ' . $this->quoteSingleIdentifier($collation);
     }
 
     /**

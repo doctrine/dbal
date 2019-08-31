@@ -45,7 +45,7 @@ class MySqlInheritCharsetTest extends TestCase
         $table = new Table('foobar', [new Column('aa', Type::getType('integer'))]);
         self::assertSame(
             $platform->getCreateTableSQL($table),
-            ['CREATE TABLE foobar (aa INT NOT NULL) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB']
+            ['CREATE TABLE foobar (aa INT NOT NULL) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB']
         );
 
         // explicit utf8
@@ -53,7 +53,7 @@ class MySqlInheritCharsetTest extends TestCase
         $table->addOption('charset', 'utf8');
         self::assertSame(
             $platform->getCreateTableSQL($table),
-            ['CREATE TABLE foobar (aa INT NOT NULL) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB']
+            ['CREATE TABLE foobar (aa INT NOT NULL) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB']
         );
 
         // explicit utf8mb4
@@ -61,7 +61,7 @@ class MySqlInheritCharsetTest extends TestCase
         $table->addOption('charset', 'utf8mb4');
         self::assertSame(
             $platform->getCreateTableSQL($table),
-            ['CREATE TABLE foobar (aa INT NOT NULL) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB']
+            ['CREATE TABLE foobar (aa INT NOT NULL) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB']
         );
     }
 

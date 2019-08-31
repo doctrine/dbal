@@ -8,6 +8,7 @@ use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Tests\Types\MySqlPointType;
@@ -275,6 +276,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('text', 'text');
         $table->addColumn('foo', 'text')->setPlatformOption('collation', 'latin1_swedish_ci');
         $table->addColumn('bar', 'text')->setPlatformOption('collation', 'utf8_general_ci');
+        $table->addColumn('baz', 'text')->setPlatformOption('collation', 'binary');
         $this->schemaManager->dropAndCreateTable($table);
 
         $columns = $this->schemaManager->listTableColumns('test_collation');
@@ -283,6 +285,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertEquals('latin1_swedish_ci', $columns['text']->getPlatformOption('collation'));
         self::assertEquals('latin1_swedish_ci', $columns['foo']->getPlatformOption('collation'));
         self::assertEquals('utf8_general_ci', $columns['bar']->getPlatformOption('collation'));
+        self::assertInstanceOf(BlobType::class, $columns['baz']->getType());
     }
 
     /**
