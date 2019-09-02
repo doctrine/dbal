@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\AbstractOracleDriver;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\Oracle122Platform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\OracleSchemaManager;
@@ -63,6 +64,29 @@ class AbstractOracleDriverTest extends AbstractDriverTest
         return new OracleSchemaManager($connection);
     }
 
+/**
+     * {@inheritDoc}
+     */
+    protected function getDatabasePlatformsForVersions() : array
+    {
+        return [
+            ['9', OraclePlatform::class],
+            ['9.0.1.0', OraclePlatform::class],
+            ['9.2.0.1', OraclePlatform::class],
+            ['10', OraclePlatform::class],
+            ['10.1.0.2', OraclePlatform::class],
+            ['10.2.0.1', OraclePlatform::class],
+            ['11', OraclePlatform::class],
+            ['11.1.0.6', OraclePlatform::class],
+            ['11.2.0.1', OraclePlatform::class],
+            ['12.1', OraclePlatform::class],
+            ['12.1.0.1', OraclePlatform::class],
+            ['12.2', Oracle122Platform::class],
+            ['12.2.0.1', Oracle122Platform::class],
+            ['18.1.0', Oracle122Platform::class],
+        ];
+    }
+    
     /**
      * {@inheritDoc}
      */
