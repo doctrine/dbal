@@ -76,6 +76,7 @@ class AbstractOracleDriverTest extends AbstractDriverTest
             [' 10.2.0.1.0 ', OraclePlatform::class],
             [' 11.1.0.6.0 ', OraclePlatform::class],
             [' 11.2.0.1.0 ', OraclePlatform::class],
+            [' 11.2.0.2.0 ', OraclePlatform::class],
             [' 12.1.0.1.0 ', OraclePlatform::class],
             [' 12.2.0.1.0 ', Oracle122Platform::class],
             ['Oracle Database 12c Enterprise Edition Release 12.2.0.1.0 - 64bit Production', Oracle122Platform::class],
