@@ -64,7 +64,7 @@ class AbstractOracleDriverTest extends AbstractDriverTest
         return new OracleSchemaManager($connection);
     }
 
-/**
+    /**
      * {@inheritDoc}
      */
     protected function getDatabasePlatformsForVersions() : array
@@ -86,7 +86,7 @@ class AbstractOracleDriverTest extends AbstractDriverTest
             ['18.1.0', Oracle122Platform::class],
         ];
     }
-    
+
     /**
      * {@inheritDoc}
      */
