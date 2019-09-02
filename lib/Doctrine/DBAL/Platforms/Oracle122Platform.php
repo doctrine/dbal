@@ -19,9 +19,9 @@ class Oracle122Platform extends OraclePlatform
      */
     public function fixSchemaElementName($schemaElementName)
     {
-        if (strlen($schemaElementName) > 128) {
+        if (strlen($schemaElementName) > $this->getMaxIdentifierLength()) {
             // Trim it
-            return substr($schemaElementName, 0, 128);
+            return substr($schemaElementName, 0, $this->getMaxIdentifierLength());
         }
 
         return $schemaElementName;
