@@ -85,7 +85,7 @@ Oracle
 ^^^^^^
 
 - ``OraclePlatform`` for all versions.
-- ``Oracke122Platform`` forversion 12.2 and above.
+- ``Oracle122Platform`` forversion 12.2 and above.
 
 It is highly encouraged to use the platform class that matches your
 database vendor and version best. Otherwise it is not guaranteed
