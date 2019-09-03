@@ -70,7 +70,7 @@ interface ResultStatement extends Traversable
      * @param int|null     $fetchMode     Controls how the next row will be returned to the caller.
      *                                    The value must be one of the {@link \Doctrine\DBAL\FetchMode} constants,
      *                                    defaulting to {@link \Doctrine\DBAL\FetchMode::MIXED}.
-     * @param int|null     $fetchArgument This argument has a different meaning depending on the value of the $fetchMode parameter:
+     * @param mixed|null   $fetchArgument This argument has a different meaning depending on the value of the $fetchMode parameter:
      *                                    * {@link \Doctrine\DBAL\FetchMode::COLUMN}:
      *                                      Returns the indicated 0-indexed column.
      *                                    * {@link \Doctrine\DBAL\FetchMode::CUSTOM_OBJECT}:
