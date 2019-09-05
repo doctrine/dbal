@@ -1094,6 +1094,43 @@ SQL
     }
 
     /**
+     * Whether the platform supports multi table truncate.
+     *
+     * @return bool
+     */
+    public function supportsTruncateMultiTable()
+    {
+        return true;
+    }
+
+    /**
+     * Generates a Truncate Table SQL statement for the given list of tables.
+     *
+     * Cascade is not supported on many platforms but would optionally cascade the truncate by
+     * following the foreign keys.
+     *
+     * @param string[] $tableNames
+     * @param bool     $cascade
+     *
+     * @return string
+     */
+    public function getTruncateMultiTableSQL(array $tableNames, $cascade = false)
+    {
+        $quotedTableNames = [];
+        foreach ($tableNames as $tableName) {
+            $tableIdentifier    = new Identifier($tableName);
+            $quotedTableNames[] = $tableIdentifier->getQuotedName($this);
+        }
+        $sql = 'TRUNCATE ' . implode(', ', $quotedTableNames);
+
+        if ($cascade) {
+            $sql .= ' CASCADE';
+        }
+
+        return $sql;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function getTruncateTableSQL($tableName, $cascade = false)

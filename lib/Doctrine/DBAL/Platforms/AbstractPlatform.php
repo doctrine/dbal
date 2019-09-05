@@ -3103,6 +3103,16 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Whether the platform supports multi table truncate.
+     *
+     * @return bool
+     */
+    public function supportsTruncateMultiTable()
+    {
+        return false;
+    }
+
+    /**
      * Whether the platform supports partial indexes.
      *
      * @return bool
@@ -3476,6 +3486,22 @@ abstract class AbstractPlatform
     public function getEmptyIdentityInsertSQL($tableName, $identifierColumnName)
     {
         return 'INSERT INTO ' . $tableName . ' (' . $identifierColumnName . ') VALUES (null)';
+    }
+
+    /**
+     * Generates a Truncate Table SQL statement for the given list of tables.
+     *
+     * Cascade is not supported on many platforms but would optionally cascade the truncate by
+     * following the foreign keys.
+     *
+     * @param string[] $tableNames
+     * @param bool     $cascade
+     *
+     * @return string
+     */
+    public function getTruncateMultiTableSQL(array $tableNames, $cascade = false)
+    {
+        throw DBALException::notSupported(__METHOD__);
     }
 
     /**

@@ -60,6 +60,11 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         return 'ALTER TABLE test ADD FOREIGN KEY (fk_name_id) REFERENCES other_table (id) NOT DEFERRABLE INITIALLY IMMEDIATE';
     }
 
+    public function testSupportsTruncateMultiTable() : void
+    {
+        self::assertTrue($this->platform->supportsTruncateMultiTable());
+    }
+
     public function testGeneratesForeignKeySqlForNonStandardOptions() : void
     {
         $foreignKey = new ForeignKeyConstraint(
@@ -945,6 +950,14 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL() : array
     {
         return ['ALTER INDEX idx_foo RENAME TO idx_foo_renamed'];
+    }
+
+    public function testGetTruncateMultiTableSQL() : void
+    {
+        self::assertSame(
+            'TRUNCATE foo, foo.bar, "default" CASCADE',
+            $this->platform->getTruncateMultiTableSQL(['foo', 'foo.bar', 'default'], true)
+        );
     }
 
     /**
