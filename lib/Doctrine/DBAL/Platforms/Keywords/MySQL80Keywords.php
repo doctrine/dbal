@@ -28,6 +28,7 @@ class MySQL80Keywords extends MySQL57Keywords
 
         $keywords = array_merge($keywords, [
             'ADMIN',
+            'ARRAY',
             'CUBE',
             'CUME_DIST',
             'DENSE_RANK',
@@ -40,7 +41,9 @@ class MySQL80Keywords extends MySQL57Keywords
             'JSON_TABLE',
             'LAG',
             'LAST_VALUE',
+            'LATERAL',
             'LEAD',
+            'MEMBER',
             'NTH_VALUE',
             'NTILE',
             'OF',
