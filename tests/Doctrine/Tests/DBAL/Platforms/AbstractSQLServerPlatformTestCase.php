@@ -6,6 +6,7 @@ use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
@@ -1585,5 +1586,54 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     {
         $pattern = 'WITH dctrn_cte AS (%s) SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY (SELECT 0)) AS doctrine_rownum FROM dctrn_cte) AS doctrine_tbl WHERE doctrine_rownum >= %d AND doctrine_rownum <= %d ORDER BY doctrine_rownum ASC';
         self::assertEquals(sprintf($pattern, $expectedSql, $expectedMin, $expectedMax), $sql);
+    }
+
+    public function testIndexCreationSyntax(): void {
+        $table = new Table(
+            'foo',
+            [
+                'id' => new Column(
+                    'id',
+                    Type::getType(Type::INTEGER),
+                    ['autoincrement' => true, 'notNull' => true]
+                ),
+                'idA' => new Column(
+                    'workspace_id',
+                    Type::getType(Type::INTEGER),
+                    ['default' => null, 'notNull' => false]
+                ),
+                'idB' => new Column(
+                    'search_engine_id',
+                    Type::getType(Type::INTEGER),
+                    ['default' => null, 'notNull' => false]
+                ),
+            ],
+            [
+                new Index(
+                    'key_COMPOUND',
+                    [
+                        'idA',
+                        'idB'
+                    ],
+                    true
+                ),
+                new Index(
+                    'PRIMARY',
+                    ['id'],
+                    true,
+                    true
+                )
+            ]
+        );
+        $schema = new Schema([$table]);
+        $queries = $schema->toSql($this->platform);
+
+        self::assertSame(
+            [
+                'CREATE TABLE foo (id INT IDENTITY NOT NULL, workspace_id INT, search_engine_id INT, PRIMARY KEY (id))',
+                'CREATE UNIQUE INDEX key_COMPOUND ON foo (idA, idB)'
+            ],
+            $queries
+        );
     }
 }
