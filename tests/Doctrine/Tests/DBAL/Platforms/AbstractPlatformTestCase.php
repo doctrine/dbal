@@ -1301,7 +1301,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
 
         $this->expectException(DBALException::class);
         $this->expectExceptionMessage("Operation 'Doctrine\\DBAL\\Platforms\\AbstractPlatform::getInlineColumnCommentSQL' is not supported by platform.");
-        $this->expectExceptionCode(0);
+        $this->expectExceptionCode(DBALException::NOT_SUPPORTED_METHOD);
 
         $this->platform->getInlineColumnCommentSQL('unsupported');
     }

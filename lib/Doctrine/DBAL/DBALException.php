@@ -24,6 +24,27 @@ use function sprintf;
 
 class DBALException extends Exception
 {
+    // Exception codes. Dedicated 0-99 numbers
+    public const NOT_SUPPORTED_METHOD               = 1;
+    public const INVALID_PLATFORM_SPECIFIED         = 5;
+    public const INVALID_PLATFORM_TYPE              = 10;
+    public const INVALID_PLATFORM_VERSION_SPECIFIED = 15;
+    public const INVALID_PDO_INSTANCE               = 20;
+    public const DRIVER_REQUIRED                    = 25;
+    public const UNKNOWN_DRIVER                     = 30;
+    public const DRIVER_EXCEPTION_DURING_QUERY      = 35;
+    public const DRIVER_EXCEPTION                   = 40;
+    public const INVALID_WRAPPER_CLASS              = 45;
+    public const INVALID_DRIVER_CLASS               = 50;
+    public const INVALID_TABLE_NAME                 = 55;
+    public const NO_COLUMNS_SPECIFIED_FOR_TABLE     = 60;
+    public const LIMIT_OFFSET_INVALID               = 65;
+    public const TYPE_ALREADY_EXISTS                = 70;
+    public const UNKNOWN_COLUMN_TYPE                = 75;
+    public const TYPE_NOT_FOUND                     = 80;
+    public const TYPE_NOT_REGISTERED                = 85;
+    public const TYPE_ALREADY_REGISTERED            = 90;
+
     /**
      * @param string $method
      *
@@ -31,13 +52,14 @@ class DBALException extends Exception
      */
     public static function notSupported($method)
     {
-        return new self(sprintf("Operation '%s' is not supported by platform.", $method));
+        return new self(sprintf("Operation '%s' is not supported by platform.", $method), self::NOT_SUPPORTED_METHOD);
     }
 
     public static function invalidPlatformSpecified() : self
     {
         return new self(
-            "Invalid 'platform' option specified, need to give an instance of " . AbstractPlatform::class . '.'
+            "Invalid 'platform' option specified, need to give an instance of " . AbstractPlatform::class . '.',
+            self::INVALID_PLATFORM_SPECIFIED
         );
     }
 
@@ -52,7 +74,8 @@ class DBALException extends Exception
                     "Option 'platform' must be a subtype of '%s', instance of '%s' given",
                     AbstractPlatform::class,
                     get_class($invalidPlatform)
-                )
+                ),
+                self::INVALID_PLATFORM_TYPE
             );
         }
 
@@ -61,7 +84,8 @@ class DBALException extends Exception
                 "Option 'platform' must be an object and subtype of '%s'. Got '%s'",
                 AbstractPlatform::class,
                 gettype($invalidPlatform)
-            )
+            ),
+            self::INVALID_PLATFORM_TYPE
         );
     }
 
@@ -81,7 +105,8 @@ class DBALException extends Exception
                 'The platform version has to be specified in the format: "%s".',
                 $version,
                 $expectedFormat
-            )
+            ),
+            self::INVALID_PLATFORM_VERSION_SPECIFIED
         );
     }
 
@@ -92,7 +117,8 @@ class DBALException extends Exception
     {
         return new self(
             "The 'pdo' option was used in DriverManager::getConnection() but no " .
-            'instance of PDO was given.'
+            'instance of PDO was given.',
+            self::INVALID_PDO_INSTANCE
         );
     }
 
@@ -109,12 +135,16 @@ class DBALException extends Exception
                     "The options 'driver' or 'driverClass' are mandatory if a connection URL without scheme " .
                     'is given to DriverManager::getConnection(). Given URL: %s',
                     $url
-                )
+                ),
+                self::DRIVER_REQUIRED
             );
         }
 
-        return new self("The options 'driver' or 'driverClass' are mandatory if no PDO " .
-            'instance is given to DriverManager::getConnection().');
+        return new self(
+            "The options 'driver' or 'driverClass' are mandatory if no PDO " .
+            'instance is given to DriverManager::getConnection().',
+            self::DRIVER_REQUIRED
+        );
     }
 
     /**
@@ -125,8 +155,11 @@ class DBALException extends Exception
      */
     public static function unknownDriver($unknownDriverName, array $knownDrivers)
     {
-        return new self("The given 'driver' " . $unknownDriverName . ' is unknown, ' .
-            'Doctrine currently supports only the following drivers: ' . implode(', ', $knownDrivers));
+        return new self(
+            "The given 'driver' " . $unknownDriverName . ' is unknown, ' .
+            'Doctrine currently supports only the following drivers: ' . implode(', ', $knownDrivers),
+            self::UNKNOWN_DRIVER
+        );
     }
 
     /**
@@ -143,7 +176,7 @@ class DBALException extends Exception
         }
         $msg .= ":\n\n" . $driverEx->getMessage();
 
-        return static::wrapException($driver, $driverEx, $msg);
+        return static::wrapException($driver, $driverEx, $msg, self::DRIVER_EXCEPTION_DURING_QUERY);
     }
 
     /**
@@ -151,13 +184,18 @@ class DBALException extends Exception
      */
     public static function driverException(Driver $driver, Throwable $driverEx)
     {
-        return static::wrapException($driver, $driverEx, 'An exception occurred in driver: ' . $driverEx->getMessage());
+        return static::wrapException(
+            $driver,
+            $driverEx,
+            'An exception occurred in driver: ' . $driverEx->getMessage(),
+            self::DRIVER_EXCEPTION
+        );
     }
 
     /**
      * @return self
      */
-    private static function wrapException(Driver $driver, Throwable $driverEx, $msg)
+    private static function wrapException(Driver $driver, Throwable $driverEx, $msg, $code = 0)
     {
         if ($driverEx instanceof DriverException) {
             return $driverEx;
@@ -166,7 +204,7 @@ class DBALException extends Exception
             return $driver->convertException($msg, $driverEx);
         }
 
-        return new self($msg, 0, $driverEx);
+        return new self($msg, $code, $driverEx);
     }
 
     /**
@@ -202,8 +240,10 @@ class DBALException extends Exception
      */
     public static function invalidWrapperClass($wrapperClass)
     {
-        return new self("The given 'wrapperClass' " . $wrapperClass . ' has to be a ' .
-            'subtype of \Doctrine\DBAL\Connection.');
+        return new self(
+            "The given 'wrapperClass' " . $wrapperClass . ' has to be a ' . 'subtype of \Doctrine\DBAL\Connection.',
+            self::INVALID_WRAPPER_CLASS
+        );
     }
 
     /**
@@ -213,7 +253,10 @@ class DBALException extends Exception
      */
     public static function invalidDriverClass($driverClass)
     {
-        return new self("The given 'driverClass' " . $driverClass . ' has to implement the ' . Driver::class . ' interface.');
+        return new self(
+            "The given 'driverClass' " . $driverClass . ' has to implement the ' . Driver::class . ' interface.',
+            self::INVALID_DRIVER_CLASS
+        );
     }
 
     /**
@@ -223,7 +266,7 @@ class DBALException extends Exception
      */
     public static function invalidTableName($tableName)
     {
-        return new self('Invalid table name specified: ' . $tableName);
+        return new self('Invalid table name specified: ' . $tableName, self::INVALID_TABLE_NAME);
     }
 
     /**
@@ -233,7 +276,7 @@ class DBALException extends Exception
      */
     public static function noColumnsSpecifiedForTable($tableName)
     {
-        return new self('No columns specified for table ' . $tableName);
+        return new self('No columns specified for table ' . $tableName, self::NO_COLUMNS_SPECIFIED_FOR_TABLE);
     }
 
     /**
@@ -241,7 +284,10 @@ class DBALException extends Exception
      */
     public static function limitOffsetInvalid()
     {
-        return new self('Invalid Offset in Limit Query, it has to be larger than or equal to 0.');
+        return new self(
+            'Invalid Offset in Limit Query, it has to be larger than or equal to 0.',
+            self::LIMIT_OFFSET_INVALID
+        );
     }
 
     /**
@@ -251,7 +297,7 @@ class DBALException extends Exception
      */
     public static function typeExists($name)
     {
-        return new self('Type ' . $name . ' already exists.');
+        return new self('Type ' . $name . ' already exists.', self::TYPE_ALREADY_EXISTS);
     }
 
     /**
@@ -261,13 +307,16 @@ class DBALException extends Exception
      */
     public static function unknownColumnType($name)
     {
-        return new self('Unknown column type "' . $name . '" requested. Any Doctrine type that you use has ' .
+        return new self(
+            'Unknown column type "' . $name . '" requested. Any Doctrine type that you use has ' .
             'to be registered with \Doctrine\DBAL\Types\Type::addType(). You can get a list of all the ' .
             'known types with \Doctrine\DBAL\Types\Type::getTypesMap(). If this error occurs during database ' .
             'introspection then you might have forgotten to register all database types for a Doctrine Type. Use ' .
             'AbstractPlatform#registerDoctrineTypeMapping() or have your custom types implement ' .
             'Type#getMappedDatabaseTypes(). If the type name is empty you might ' .
-            'have a problem with the cache or forgot some mapping information.');
+            'have a problem with the cache or forgot some mapping information.',
+            self::UNKNOWN_COLUMN_TYPE
+        );
     }
 
     /**
@@ -277,18 +326,22 @@ class DBALException extends Exception
      */
     public static function typeNotFound($name)
     {
-        return new self('Type to be overwritten ' . $name . ' does not exist.');
+        return new self('Type to be overwritten ' . $name . ' does not exist.', self::TYPE_NOT_FOUND);
     }
 
     public static function typeNotRegistered(Type $type) : self
     {
-        return new self(sprintf('Type of the class %s@%s is not registered.', get_class($type), spl_object_hash($type)));
+        return new self(
+            sprintf('Type of the class %s@%s is not registered.', get_class($type), spl_object_hash($type)),
+            self::TYPE_NOT_REGISTERED
+        );
     }
 
     public static function typeAlreadyRegistered(Type $type) : self
     {
         return new self(
-            sprintf('Type of the class %s@%s is already registered.', get_class($type), spl_object_hash($type))
+            sprintf('Type of the class %s@%s is already registered.', get_class($type), spl_object_hash($type)),
+            self::TYPE_ALREADY_REGISTERED
         );
     }
 }
