@@ -356,6 +356,8 @@ class Connection implements DriverConnection
         $this->_conn       = $this->_driver->connect($this->params, $user, $password, $driverOptions);
         $this->isConnected = true;
 
+        $this->transactionNestingLevel = 0;
+
         if ($this->autoCommit === false) {
             $this->beginTransaction();
         }
