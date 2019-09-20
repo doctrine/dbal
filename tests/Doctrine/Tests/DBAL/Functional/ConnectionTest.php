@@ -62,6 +62,18 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
     }
 
+    public function testTransactionNestingLevelIsResetOnReconnect()
+    {
+        $this->connection->beginTransaction();
+        $this->connection->beginTransaction();
+        self::assertEquals(2, $this->connection->getTransactionNestingLevel());
+        $this->connection->close(); // connection is lost
+        $this->connection->beginTransaction(); // should connect, reset nesting level and increase it once
+        self::assertEquals(1, $this->connection->getTransactionNestingLevel());
+        $this->connection->commit();
+        self::assertEquals(0, $this->connection->getTransactionNestingLevel());
+    }
+
     public function testTransactionNestingBehaviorWithSavepoints()
     {
         if (!$this->_conn->getDatabasePlatform()->supportsSavepoints()) {
