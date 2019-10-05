@@ -899,4 +899,60 @@ class QueryBuilderTest extends DbalTestCase
 
         $qb->getSQL();
     }
+
+    /**
+     * @return void
+     */
+    public function testUpdateWithJoin(): void
+    {
+        $qb   = new QueryBuilder($this->conn);
+        $expr = $qb->expr();
+
+        $qb->update('users', 'u')
+            ->join('u', 'phones', 'p', $expr->eq('p.user_id', 'u.id'))
+            ->set('u.foo', '?')
+            ->set('u.bar', '?');
+
+        $this->expectException(QueryException::class);
+
+        $qb->getSQL();
+    }
+
+    /**
+     * @return void
+     */
+    public function testDeleteWithJoin(): void
+    {
+        $qb   = new QueryBuilder($this->conn);
+        $expr = $qb->expr();
+
+        $qb->delete('users', 'u')
+            ->join('u', 'phones', 'p', $expr->eq('p.user_id', 'u.id'));
+
+        $this->expectException(QueryException::class);
+
+        $qb->getSQL();
+    }
+
+    /**
+     * @return void
+     */
+    public function testInsertWithJoin(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+        $expr = $qb->expr();
+
+        $qb->insert('users')
+            ->join('u', 'phones', 'p', $expr->eq('p.user_id', 'u.id'))
+            ->values(
+                [
+                    'foo' => '?',
+                    'bar' => '?',
+                ]
+            );
+
+        $this->expectException(QueryException::class);
+
+        $qb->getSQL();
+    }
 }

@@ -214,6 +214,8 @@ class QueryBuilder
      * </code>
      *
      * @return string The SQL query string.
+     *
+     * @throws QueryException
      */
     public function getSQL()
     {
@@ -1174,6 +1176,10 @@ class QueryBuilder
      */
     private function getSQLForInsert()
     {
+        if ($this->usesJoin()) {
+            throw QueryException::joinNotAllowed('INSERT');
+        }
+
         return 'INSERT INTO ' . $this->sqlParts['from']['table'] .
         ' (' . implode(', ', array_keys($this->sqlParts['values'])) . ')' .
         ' VALUES(' . implode(', ', $this->sqlParts['values']) . ')';
@@ -1183,9 +1189,14 @@ class QueryBuilder
      * Converts this instance into an UPDATE string in SQL.
      *
      * @return string
+     *
+     * @throws QueryException
      */
     private function getSQLForUpdate()
     {
+        if ($this->usesJoin()) {
+            throw QueryException::joinNotAllowed('UPDATE');
+        }
         $table = $this->sqlParts['from']['table'] . ($this->sqlParts['from']['alias'] ? ' ' . $this->sqlParts['from']['alias'] : '');
 
         return 'UPDATE ' . $table
@@ -1197,12 +1208,26 @@ class QueryBuilder
      * Converts this instance into a DELETE string in SQL.
      *
      * @return string
+     *
+     * @throws QueryException
      */
     private function getSQLForDelete()
     {
+        if ($this->usesJoin()) {
+            throw QueryException::joinNotAllowed('DELETE');
+        }
+
         $table = $this->sqlParts['from']['table'] . ($this->sqlParts['from']['alias'] ? ' ' . $this->sqlParts['from']['alias'] : '');
 
         return 'DELETE FROM ' . $table . ($this->sqlParts['where'] !== null ? ' WHERE ' . ((string) $this->sqlParts['where']) : '');
+    }
+
+    /**
+     * @return bool
+     */
+    private function usesJoin(): bool
+    {
+        return !empty($this->sqlParts['join']);
     }
 
     /**

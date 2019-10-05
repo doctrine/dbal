@@ -32,4 +32,14 @@ class QueryException extends DBALException
             'in FROM and JOIN clause table. The currently registered ' .
             'aliases are: ' . implode(', ', $registeredAliases) . '.');
     }
+
+    /**
+     * @param string $action
+     *
+     * @return \Doctrine\DBAL\Query\QueryException
+     */
+    public static function joinNotAllowed(string $action): self
+    {
+        return new self('JOIN is not allowed for ' . $action);
+    }
 }
