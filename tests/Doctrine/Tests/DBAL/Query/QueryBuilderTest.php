@@ -900,10 +900,7 @@ class QueryBuilderTest extends DbalTestCase
         $qb->getSQL();
     }
 
-    /**
-     * @return void
-     */
-    public function testUpdateWithJoin(): void
+    public function testUpdateWithJoin() : void
     {
         $qb   = new QueryBuilder($this->conn);
         $expr = $qb->expr();
@@ -918,10 +915,7 @@ class QueryBuilderTest extends DbalTestCase
         $qb->getSQL();
     }
 
-    /**
-     * @return void
-     */
-    public function testDeleteWithJoin(): void
+    public function testDeleteWithJoin() : void
     {
         $qb   = new QueryBuilder($this->conn);
         $expr = $qb->expr();
@@ -934,12 +928,9 @@ class QueryBuilderTest extends DbalTestCase
         $qb->getSQL();
     }
 
-    /**
-     * @return void
-     */
-    public function testInsertWithJoin(): void
+    public function testInsertWithJoin() : void
     {
-        $qb = new QueryBuilder($this->conn);
+        $qb   = new QueryBuilder($this->conn);
         $expr = $qb->expr();
 
         $qb->insert('users')

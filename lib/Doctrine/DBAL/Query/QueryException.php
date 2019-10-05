@@ -38,7 +38,7 @@ class QueryException extends DBALException
      *
      * @return \Doctrine\DBAL\Query\QueryException
      */
-    public static function joinNotAllowed(string $action): self
+    public static function joinNotAllowed(string $action) : self
     {
         return new self('JOIN is not allowed for ' . $action);
     }

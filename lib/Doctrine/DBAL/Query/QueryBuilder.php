@@ -1222,12 +1222,9 @@ class QueryBuilder
         return 'DELETE FROM ' . $table . ($this->sqlParts['where'] !== null ? ' WHERE ' . ((string) $this->sqlParts['where']) : '');
     }
 
-    /**
-     * @return bool
-     */
-    private function usesJoin(): bool
+    private function usesJoin() : bool
     {
-        return !empty($this->sqlParts['join']);
+        return ! empty($this->sqlParts['join']);
     }
 
     /**
