@@ -217,7 +217,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
      */
     private function getMariaDb1027ColumnDefault(MariaDb1027Platform $platform, ?string $columnDefault) : ?string
     {
-        if ($columnDefault === 'NULL' || $columnDefault === null) {
+        if ($columnDefault === 'NULL' || $columnDefault === null || $columnDefault === '') {
             return null;
         }
         if ($columnDefault[0] === "'") {
