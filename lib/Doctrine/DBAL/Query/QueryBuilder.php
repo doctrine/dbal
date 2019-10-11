@@ -62,6 +62,7 @@ class QueryBuilder
      * @var array<string, mixed>
      */
     private $sqlParts = [
+        'distinct' => false,
         'select'  => [],
         'from'    => [],
         'join'    => [],
@@ -464,6 +465,28 @@ class QueryBuilder
 
         return $this->add('select', $selects);
     }
+
+    /**
+     * Adds a DISTINCT flag to this query.
+     *
+     * <code>
+     *     $qb = $conn->createQueryBuilder()
+     *         ->select('u.id')
+     *         ->distinct()
+     *         ->from('users', 'u');
+     * </code>
+     *
+     * @param bool $flag
+     *
+     * @return $this This QueryBuilder instance.
+     */
+    public function distinct($flag = true)
+    {
+        $this->sqlParts['distinct'] = (bool) $flag;
+
+        return $this;
+    }
+
 
     /**
      * Adds an item that is to be returned in the query result.
@@ -1088,7 +1111,8 @@ class QueryBuilder
      */
     private function getSQLForSelect() : string
     {
-        $query = 'SELECT ' . implode(', ', $this->sqlParts['select']);
+        $query = 'SELECT ' . ($this->sqlParts['distinct'] === true ? 'DISTINCT ' : '') .
+            implode(', ', $this->sqlParts['select']);
 
         $query .= ($this->sqlParts['from'] ? ' FROM ' . implode(', ', $this->getFromClauses()) : '')
             . ($this->sqlParts['where'] !== null ? ' WHERE ' . ((string) $this->sqlParts['where']) : '')
