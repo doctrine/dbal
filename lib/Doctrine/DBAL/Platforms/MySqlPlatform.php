@@ -1059,6 +1059,7 @@ SQL
             'smallint'      => 'smallint',
             'mediumint'     => 'integer',
             'int'           => 'integer',
+            'bit'           => 'integer',
             'integer'       => 'integer',
             'bigint'        => 'bigint',
             'tinytext'      => 'text',
