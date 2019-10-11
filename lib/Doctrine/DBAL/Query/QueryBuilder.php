@@ -480,13 +480,12 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function distinct($flag = true)
+    public function distinct(bool $flag = true)
     {
         $this->sqlParts['distinct'] = (bool) $flag;
 
         return $this;
     }
-
 
     /**
      * Adds an item that is to be returned in the query result.
