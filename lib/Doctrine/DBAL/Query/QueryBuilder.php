@@ -476,7 +476,7 @@ class QueryBuilder
      *         ->from('users', 'u');
      * </code>
      *
-     * @param bool $flag
+     * @param bool $flag If true, then DISTINCT is added to the query
      *
      * @return $this This QueryBuilder instance.
      */
