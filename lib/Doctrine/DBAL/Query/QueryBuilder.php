@@ -482,7 +482,7 @@ class QueryBuilder
      */
     public function distinct(bool $flag = true)
     {
-        $this->sqlParts['distinct'] = (bool) $flag;
+        $this->sqlParts['distinct'] = $flag;
 
         return $this;
     }
