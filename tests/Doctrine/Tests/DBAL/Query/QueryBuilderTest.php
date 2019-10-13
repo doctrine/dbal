@@ -50,6 +50,17 @@ class QueryBuilderTest extends DbalTestCase
         self::assertEquals('SELECT u.id FROM users u', (string) $qb);
     }
 
+    public function testSimpleSelectWithDistinct() : void
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('u.id')
+           ->distinct()
+           ->from('users', 'u');
+
+        self::assertEquals('SELECT DISTINCT u.id FROM users u', (string) $qb);
+    }
+
     public function testSelectWithSimpleWhere() : void
     {
         $qb   = new QueryBuilder($this->conn);

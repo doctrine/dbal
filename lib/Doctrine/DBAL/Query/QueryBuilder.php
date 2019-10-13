@@ -52,22 +52,28 @@ class QueryBuilder
      */
     private $connection;
 
+    /*
+     * The default values of SQL parts collection
+     */
+    private const SQL_PARTS_DEFAULTS = [
+        'select'   => [],
+        'distinct' => false,
+        'from'     => [],
+        'join'     => [],
+        'set'      => [],
+        'where'    => null,
+        'groupBy'  => [],
+        'having'   => null,
+        'orderBy'  => [],
+        'values'   => [],
+    ];
+
     /**
      * The array of SQL parts collected.
      *
      * @var mixed[]
      */
-    private $sqlParts = [
-        'select'  => [],
-        'from'    => [],
-        'join'    => [],
-        'set'     => [],
-        'where'   => null,
-        'groupBy' => [],
-        'having'  => null,
-        'orderBy' => [],
-        'values'  => [],
-    ];
+    private $sqlParts = self::SQL_PARTS_DEFAULTS;
 
     /**
      * The complete SQL string for this query.
@@ -467,6 +473,25 @@ class QueryBuilder
         $selects = is_array($select) ? $select : func_get_args();
 
         return $this->add('select', $selects);
+    }
+
+    /**
+     * Adds DISTINCT to the query.
+     *
+     * <code>
+     *     $qb = $conn->createQueryBuilder()
+     *         ->select('u.id')
+     *         ->distinct()
+     *         ->from('users', 'u')
+     * </code>
+     *
+     * @return $this This QueryBuilder instance.
+     */
+    public function distinct() : self
+    {
+        $this->sqlParts['distinct'] = true;
+
+        return $this;
     }
 
     /**
@@ -1083,8 +1108,7 @@ class QueryBuilder
      */
     public function resetQueryPart($queryPartName)
     {
-        $this->sqlParts[$queryPartName] = is_array($this->sqlParts[$queryPartName])
-            ? [] : null;
+        $this->sqlParts[$queryPartName] = self::SQL_PARTS_DEFAULTS[$queryPartName];
 
         $this->state = self::STATE_DIRTY;
 
@@ -1098,7 +1122,8 @@ class QueryBuilder
      */
     private function getSQLForSelect()
     {
-        $query = 'SELECT ' . implode(', ', $this->sqlParts['select']);
+        $query = 'SELECT ' . ($this->sqlParts['distinct'] ? 'DISTINCT ' : '') .
+                  implode(', ', $this->sqlParts['select']);
 
         $query .= ($this->sqlParts['from'] ? ' FROM ' . implode(', ', $this->getFromClauses()) : '')
             . ($this->sqlParts['where'] !== null ? ' WHERE ' . ((string) $this->sqlParts['where']) : '')
