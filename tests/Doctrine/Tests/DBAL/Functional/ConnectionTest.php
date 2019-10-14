@@ -69,6 +69,40 @@ class ConnectionTest extends DbalFunctionalTestCase
             $this->connection->rollBack();
             self::assertEquals(0, $this->connection->getTransactionNestingLevel());
         }
+
+        $this->connection->beginTransaction();
+        $this->connection->close();
+        $this->connection->beginTransaction();
+        self::assertEquals(1, $this->connection->getTransactionNestingLevel());
+    }
+
+    public function testTransactionNestingLevelIsResetOnReconnect() : void
+    {
+        if ($this->connection->getDatabasePlatform()->getName() === 'sqlite') {
+            $params           = $this->connection->getParams();
+            $params['memory'] = false;
+            $params['path']   = '/tmp/test_nesting.sqlite';
+
+            $connection = DriverManager::getConnection(
+                $params,
+                $this->connection->getConfiguration(),
+                $this->connection->getEventManager()
+            );
+        } else {
+            $connection = $this->connection;
+        }
+
+        $connection->executeQuery('CREATE TABLE test_nesting(test int not null)');
+
+        $this->connection->beginTransaction();
+        $this->connection->beginTransaction();
+        $connection->close(); // connection closed in runtime (for example if lost or another application logic)
+
+        $connection->beginTransaction();
+        $connection->executeQuery('insert into test_nesting values (33)');
+        $connection->rollback();
+
+        self::assertEquals(0, $connection->fetchColumn('select count(*) from test_nesting'));
     }
 
     public function testTransactionNestingBehaviorWithSavepoints()
