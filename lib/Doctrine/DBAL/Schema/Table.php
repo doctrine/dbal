@@ -466,7 +466,7 @@ class Table extends AbstractAsset
         $replacedImplicitIndexes = [];
 
         foreach ($this->implicitIndexes as $name => $implicitIndex) {
-            if (! $implicitIndex->isFullfilledBy($indexCandidate) || ! isset($this->_indexes[$name])) {
+            if (! $implicitIndex->isFulfilledBy($indexCandidate) || ! isset($this->_indexes[$name])) {
                 continue;
             }
 
@@ -523,7 +523,7 @@ class Table extends AbstractAsset
         $indexCandidate = $this->_createIndex($constraint->getColumns(), $indexName, false, false);
 
         foreach ($this->_indexes as $existingIndex) {
-            if ($indexCandidate->isFullfilledBy($existingIndex)) {
+            if ($indexCandidate->isFulfilledBy($existingIndex)) {
                 return;
             }
         }

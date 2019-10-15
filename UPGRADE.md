@@ -175,7 +175,7 @@ should be encoded as ``foo%25foo``.
 
 When adding indexes to ``Doctrine\DBAL\Schema\Table`` via ``addIndex()`` or ``addUniqueIndex()``,
 duplicate indexes are not silently ignored/dropped anymore (based on semantics, not naming!).
-Duplicate indexes are considered indexes that pass ``isFullfilledBy()`` or ``overrules()``
+Duplicate indexes are considered indexes that pass ``isFulfilledBy()`` or ``overrules()``
 in ``Doctrine\DBAL\Schema\Index``.
 This is required to make the index renaming feature introduced in 2.5.0 work properly and avoid
 issues in the ORM schema tool / DBAL schema manager which pretends users from updating
