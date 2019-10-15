@@ -4,6 +4,7 @@ namespace Doctrine\DBAL\Tools\Console;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Tools\Console\Command\ImportCommand;
+use Doctrine\DBAL\Tools\Console\Command\PingCommand;
 use Doctrine\DBAL\Tools\Console\Command\ReservedWordsCommand;
 use Doctrine\DBAL\Tools\Console\Command\RunSqlCommand;
 use Doctrine\DBAL\Tools\Console\Helper\ConnectionHelper;
@@ -58,6 +59,7 @@ class ConsoleRunner
             new RunSqlCommand(),
             new ImportCommand(),
             new ReservedWordsCommand(),
+            new PingCommand(),
         ]);
     }
 
