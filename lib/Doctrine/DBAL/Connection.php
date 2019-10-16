@@ -467,6 +467,10 @@ class Connection implements DriverConnection
             return $this->_conn->getServerVersion();
         }
 
+        if ($this->_conn instanceof \PDO) {
+            return $this->_conn->getAttribute(\PDO::ATTR_SERVER_VERSION);
+        }
+
         // Unable to detect platform version.
         return null;
     }
