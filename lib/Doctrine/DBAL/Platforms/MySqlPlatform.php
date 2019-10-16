@@ -1028,6 +1028,7 @@ SQL
             'tinyint'       => 'boolean',
             'smallint'      => 'smallint',
             'mediumint'     => 'integer',
+            'bit'           => 'integer',
             'int'           => 'integer',
             'integer'       => 'integer',
             'bigint'        => 'bigint',
