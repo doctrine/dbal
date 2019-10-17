@@ -4,4 +4,4 @@ set -ex
 
 echo "Installing extension"
 
-pecl install pdo_sqlsrv
+pecl install pdo_sqlsrv-5.7.0preview
