@@ -340,7 +340,9 @@ class SQLServerSchemaManager extends AbstractSchemaManager
 
         $tableOptions = $this->_conn->fetchAssoc($sql);
 
-        $table->addOption('comment', $tableOptions['table_comment']);
+        if ($tableOptions !== false) {
+            $table->addOption('comment', $tableOptions['table_comment']);
+        }
 
         return $table;
     }

@@ -4,4 +4,4 @@ set -ex
 
 echo "Installing extension"
 
-pecl install sqlsrv
+pecl install sqlsrv-5.7.0preview
