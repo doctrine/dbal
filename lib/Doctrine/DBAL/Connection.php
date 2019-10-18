@@ -968,13 +968,14 @@ class Connection implements DriverConnection
      * @param Closure $function The transformation function that is applied on each row.
      *                           The function receives a single parameter, an array, that
      *                           represents a row of the result set.
+     * @param mixed[] $types    The types the previous parameters are in.
      *
      * @return mixed[] The projected result of the query.
      */
-    public function project($query, array $params, Closure $function)
+    public function project($query, array $params, Closure $function, array $types = [])
     {
         $result = [];
-        $stmt   = $this->executeQuery($query, $params);
+        $stmt   = $this->executeQuery($query, $params, $types);
 
         while ($row = $stmt->fetch()) {
             $result[] = $function($row);

@@ -968,4 +968,43 @@ class ConnectionTest extends DbalTestCase
 
         $connection->executeCacheQuery($query, [], [], $queryCacheProfile);
     }
+
+    public function testProject() : void
+    {
+        $statement     = 'SELECT * FROM foo WHERE bar = ?';
+        $params        = [666];
+        $closure       = static function (array $result) : int {
+            return (int) $result[0];
+        };
+        $types         = [ParameterType::INTEGER];
+        $queryResult   = ['123'];
+        $closureResult = [123];
+
+        $driverMock = $this->createMock(Driver::class);
+
+        $driverMock->expects($this->any())
+            ->method('connect')
+            ->will($this->returnValue(
+                $this->createMock(DriverConnection::class)
+            ));
+
+        $driverStatementMock = $this->createMock(Statement::class);
+
+        $driverStatementMock->expects($this->exactly(2))
+            ->method('fetch')
+            ->willReturn($queryResult, null);
+
+        /** @var Connection|MockObject $conn */
+        $conn = $this->getMockBuilder(Connection::class)
+            ->onlyMethods(['executeQuery'])
+            ->setConstructorArgs([[], $driverMock])
+            ->getMock();
+
+        $conn->expects($this->once())
+            ->method('executeQuery')
+            ->with($statement, $params, $types)
+            ->willReturn($driverStatementMock);
+
+        self::assertSame($closureResult, $conn->project($statement, $params, $closure, $types));
+    }
 }
