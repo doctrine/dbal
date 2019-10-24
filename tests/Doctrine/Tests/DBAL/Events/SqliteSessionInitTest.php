@@ -15,7 +15,7 @@ class SqliteSessionInitTest extends DbalTestCase
         $connectionMock = $this->createMock(Connection::class);
         $connectionMock->expects($this->once())
                        ->method('exec')
-                       ->with($this->equalTo('PRAGMA foreign_keys = on'));
+                       ->with('PRAGMA foreign_keys = on');
 
         $listener = new SqliteSessionInit();
         $listener->postConnect(new ConnectionEventArgs($connectionMock));
