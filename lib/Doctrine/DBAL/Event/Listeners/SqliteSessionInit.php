@@ -2,19 +2,16 @@
 
 namespace Doctrine\DBAL\Event\Listeners;
 
+use Doctrine\Common\EventSubscriber;
 use Doctrine\DBAL\Event\ConnectionEventArgs;
 use Doctrine\DBAL\Events;
-use Doctrine\Common\EventSubscriber;
 
 /**
  * Sqlite session init event subscriber enable foreign key constraints.
  */
 class SqliteSessionInit implements EventSubscriber
 {
-    /**
-     * @param \Doctrine\DBAL\Event\ConnectionEventArgs $args
-     */
-    public function postConnect(ConnectionEventArgs $args): void
+    public function postConnect(ConnectionEventArgs $args) : void
     {
         $args->getConnection()->exec('PRAGMA foreign_keys = on');
     }
@@ -22,7 +19,7 @@ class SqliteSessionInit implements EventSubscriber
     /**
      * @return string[]
      */
-    public function getSubscribedEvents(): array
+    public function getSubscribedEvents() : array
     {
         return [Events::postConnect];
     }

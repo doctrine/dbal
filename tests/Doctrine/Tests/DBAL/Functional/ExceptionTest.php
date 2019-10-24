@@ -6,8 +6,8 @@ use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Driver\ExceptionConverterDriver;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\DriverManager;
-use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Event\Listeners\SqliteSessionInit;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\DrizzlePlatform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
@@ -113,12 +113,12 @@ class ExceptionTest extends DbalFunctionalTestCase
 
     public function testSqliteForeignKeyConstraintViolationExceptionOnInsert() : void
     {
-        if (!($this->connection->getDatabasePlatform() instanceof SqlitePlatform)) {
+        if (! ($this->connection->getDatabasePlatform() instanceof SqlitePlatform)) {
             $this->markTestSkipped('Only fails this way on sqlite');
         }
 
         $tmpFilename = sprintf('%s/%s', sys_get_temp_dir(), 'doctrine_sqlite_foreign_key_constraint_violation.db');
-        
+
         if (file_exists($tmpFilename)) {
             $this->cleanupReadOnlyFile($tmpFilename);
         }

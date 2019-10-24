@@ -10,7 +10,7 @@ use Doctrine\Tests\DbalTestCase;
 
 class SqliteSessionInitTest extends DbalTestCase
 {
-    public function testPostConnect(): void
+    public function testPostConnect() : void
     {
         $connectionMock = $this->createMock(Connection::class);
         $connectionMock->expects($this->once())
@@ -21,9 +21,9 @@ class SqliteSessionInitTest extends DbalTestCase
         $listener->postConnect(new ConnectionEventArgs($connectionMock));
     }
 
-    public function testGetSubscribedEvents(): void
+    public function testGetSubscribedEvents() : void
     {
         $listener = new SqliteSessionInit();
-        self::assertEquals(array(Events::postConnect), $listener->getSubscribedEvents());
+        self::assertEquals([Events::postConnect], $listener->getSubscribedEvents());
     }
 }
