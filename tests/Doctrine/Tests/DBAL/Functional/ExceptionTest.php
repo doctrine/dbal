@@ -2,10 +2,12 @@
 
 namespace Doctrine\Tests\DBAL\Functional;
 
+use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Driver\ExceptionConverterDriver;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Event\Listeners\SqliteSessionInit;
 use Doctrine\DBAL\Platforms\DrizzlePlatform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
@@ -107,6 +109,52 @@ class ExceptionTest extends DbalFunctionalTestCase
         }
 
         $this->tearDownForeignKeyConstraintViolationExceptionTest();
+    }
+
+    public function testSqliteForeignKeyConstraintViolationExceptionOnInsert() : void
+    {
+        if (!($this->connection->getDatabasePlatform() instanceof SqlitePlatform)) {
+            $this->markTestSkipped('Only fails this way on sqlite');
+        }
+
+        $tmpFilename = sprintf('%s/%s', sys_get_temp_dir(), 'doctrine_sqlite_foreign_key_constraint_violation.db');
+        
+        if (file_exists($tmpFilename)) {
+            $this->cleanupReadOnlyFile($tmpFilename);
+        }
+
+        $evm = new EventManager();
+        $evm->addEventSubscriber(new SqliteSessionInit());
+
+        $connection = DriverManager::getConnection([
+            'driver' => 'pdo_sqlite',
+            'path'   => $tmpFilename,
+        ], null, $evm);
+
+        $schemaManager = $connection->getSchemaManager();
+
+        $table = new Table('constraint_error_table');
+        $table->addColumn('id', 'integer', []);
+        $table->setPrimaryKey(['id']);
+
+        $owningTable = new Table('owning_table');
+        $owningTable->addColumn('id', 'integer', []);
+        $owningTable->addColumn('constraint_id', 'integer', []);
+        $owningTable->setPrimaryKey(['id']);
+        $owningTable->addForeignKeyConstraint($table, ['constraint_id'], ['id']);
+
+        $schemaManager->createTable($table);
+        $schemaManager->createTable($owningTable);
+
+        $this->expectException(Exception\ForeignKeyConstraintViolationException::class);
+
+        try {
+            $connection->insert('constraint_error_table', ['id' => 1]);
+            $connection->insert('owning_table', ['id' => 1, 'constraint_id' => 1]);
+            $connection->insert('owning_table', ['id' => 2, 'constraint_id' => 2]);
+        } finally {
+            $this->cleanupReadOnlyFile($tmpFilename);
+        }
     }
 
     public function testForeignKeyConstraintViolationExceptionOnUpdate() : void
@@ -327,7 +375,8 @@ class ExceptionTest extends DbalFunctionalTestCase
         $table->addColumn('id', 'integer');
 
         $this->expectException(Exception\ReadOnlyException::class);
-        $this->expectExceptionMessage(<<<EOT
+        $this->expectExceptionMessage(
+            <<<EOT
 An exception occurred while executing 'CREATE TABLE no_connection (id INTEGER NOT NULL)':
 
 SQLSTATE[HY000]: General error: 8 attempt to write a readonly database
