@@ -10,7 +10,7 @@ use Doctrine\DBAL\Platforms\SqlitePlatform;
 /**
  * Sqlite session init event subscriber enable foreign key constraints.
  */
-class SqliteSessionInit implements EventSubscriber
+final class SqliteSessionInit implements EventSubscriber
 {
     public function postConnect(ConnectionEventArgs $args) : void
     {
