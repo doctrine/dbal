@@ -296,7 +296,7 @@ class ExceptionTest extends DbalFunctionalTestCase
 
     public function testConnectionExceptionSqLite() : void
     {
-        if ($this->connection->getDatabasePlatform() instanceof SqlitePlatform) {
+        if (! ($this->connection->getDatabasePlatform() instanceof SqlitePlatform)) {
             $this->markTestSkipped('Only fails this way on sqlite');
         }
 
@@ -327,7 +327,8 @@ class ExceptionTest extends DbalFunctionalTestCase
         $table->addColumn('id', 'integer');
 
         $this->expectException(Exception\ReadOnlyException::class);
-        $this->expectExceptionMessage(<<<EOT
+        $this->expectExceptionMessage(
+            <<<EOT
 An exception occurred while executing 'CREATE TABLE no_connection (id INTEGER NOT NULL)':
 
 SQLSTATE[HY000]: General error: 8 attempt to write a readonly database
