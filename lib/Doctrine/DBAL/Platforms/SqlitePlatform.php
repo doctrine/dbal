@@ -33,6 +33,8 @@ use function trim;
  */
 class SqlitePlatform extends AbstractPlatform
 {
+    private $supportsForeignKeyConstraints = false;
+
     /**
      * {@inheritDoc}
      */
@@ -764,7 +766,12 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function supportsForeignKeyConstraints()
     {
-        return false;
+        return $this->supportsForeignKeyConstraints;
+    }
+
+    public function enableForeignKeyConstraintsSupport()
+    {
+        $this->supportsForeignKeyConstraints = true;
     }
 
     /**
