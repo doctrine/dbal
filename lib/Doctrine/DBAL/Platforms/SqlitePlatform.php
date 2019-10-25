@@ -33,6 +33,7 @@ use function trim;
  */
 class SqlitePlatform extends AbstractPlatform
 {
+    /** @var bool */
     private $supportsForeignKeyConstraints = false;
 
     /**
