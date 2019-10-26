@@ -41,6 +41,10 @@ class PoolingShardManagerTest extends TestCase
     {
         $conn = $this->createConnectionMock();
         $conn->expects($this->once())->method('connect')->with($this->equalTo(0));
+        $conn->method('getParams')
+            ->willReturn([
+                'shardChoser' => $this->createMock(ShardChoser::class),
+            ]);
 
         $shardManager = new PoolingShardManager($conn);
         $shardManager->selectGlobal();
