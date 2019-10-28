@@ -68,5 +68,7 @@ EOT
         }
 
         $output->write(Dumper::dump($resultSet, (int) $depth));
+
+        return 0;
     }
 }

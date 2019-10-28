@@ -58,7 +58,7 @@ EOT
         $fileNames = $input->getArgument('file');
 
         if ($fileNames === null) {
-            return null;
+            return 0;
         }
 
         foreach ((array) $fileNames as $fileName) {
@@ -133,6 +133,6 @@ EOT
             }
         }
 
-        return null;
+        return 0;
     }
 }
