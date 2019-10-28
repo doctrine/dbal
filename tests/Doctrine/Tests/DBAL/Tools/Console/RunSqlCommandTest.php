@@ -70,10 +70,11 @@ class RunSqlCommandTest extends TestCase
     {
         $this->expectConnectionFetchAll();
 
-        $this->commandTester->execute([
+        $exitCode = $this->commandTester->execute([
             'command' => $this->command->getName(),
             'sql' => 'SELECT 1',
         ]);
+        $this->assertSame(0, $exitCode);
 
         self::assertRegExp('@int.*1.*@', $this->commandTester->getDisplay());
         self::assertRegExp('@array.*1.*@', $this->commandTester->getDisplay());
