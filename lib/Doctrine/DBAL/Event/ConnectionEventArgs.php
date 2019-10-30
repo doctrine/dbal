@@ -30,6 +30,8 @@ class ConnectionEventArgs extends EventArgs
     }
 
     /**
+     * @deprecated Use ConnectionEventArgs::getConnection() and Connection::getDriver() instead.
+     *
      * @return Driver
      */
     public function getDriver()
@@ -38,6 +40,8 @@ class ConnectionEventArgs extends EventArgs
     }
 
     /**
+     * @deprecated Use ConnectionEventArgs::getConnection() and Connection::getDatabasePlatform() instead.
+     *
      * @return AbstractPlatform
      */
     public function getDatabasePlatform()
@@ -46,6 +50,8 @@ class ConnectionEventArgs extends EventArgs
     }
 
     /**
+     * @deprecated Use ConnectionEventArgs::getConnection() and Connection::getSchemaManager() instead.
+     *
      * @return AbstractSchemaManager
      */
     public function getSchemaManager()
