@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\MySqlPlatform;
+use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Column;
@@ -125,6 +126,11 @@ class ColumnTest extends TestCase
 
         self::assertEquals('bar', $column->getName());
         self::assertEquals('[bar]', $column->getQuotedName($sqlServerPlatform));
+
+        $columnMixedCase = new Column('fooBar', $string, []);
+        $postgresqlPlatform = new PostgreSqlPlatform();
+
+        self::assertEquals('"fooBar"', $columnMixedCase->getQuotedName($postgresqlPlatform));
     }
 
     /**
