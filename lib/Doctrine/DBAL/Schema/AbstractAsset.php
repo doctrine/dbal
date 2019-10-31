@@ -178,9 +178,9 @@ abstract class AbstractAsset
      */
     public function getQuotedName(AbstractPlatform $platform)
     {
-        $keywords = $platform->getReservedKeywordsList();
+        $keywords     = $platform->getReservedKeywordsList();
         $isCaseFolded = $platform->isCaseFoldedForUnquotedAssets();
-        $parts    = explode('.', $this->getName());
+        $parts        = explode('.', $this->getName());
         foreach ($parts as $k => $v) {
             $caseNeedsQuoting = $isCaseFolded && preg_match('/(\p{Ll}.*\p{Lu}|\p{Lu}.*\p{Ll})/u', $v);
             $parts[$k] = $this->_quoted || $keywords->isKeyword($v) || $caseNeedsQuoting ? $platform->quoteIdentifier($v) : $v;
