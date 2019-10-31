@@ -28,7 +28,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $table->addColumn('Bar', 'integer');
 
         $sql = $this->platform->getCreateTableSQL($table);
-        self::assertEquals('CREATE TABLE `Foo` (`Bar` INT NOT NULL) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB', array_shift($sql));
+        self::assertEquals('CREATE TABLE Foo (Bar INT NOT NULL) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB', array_shift($sql));
     }
 
     public function getGenerateTableSql() : string
