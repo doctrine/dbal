@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types=2);
 
 (static function () : void {
     foreach (['ibm_db2', 'mysqli', 'oci8', 'sqlsrv', 'pgsql'] as $extension) {
