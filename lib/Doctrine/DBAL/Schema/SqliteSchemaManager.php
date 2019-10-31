@@ -224,6 +224,8 @@ class SqliteSchemaManager extends AbstractSchemaManager
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated
      */
     protected function _getPortableTableIndexDefinition($tableIndex)
     {

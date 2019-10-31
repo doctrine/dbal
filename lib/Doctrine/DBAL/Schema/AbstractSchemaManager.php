@@ -188,6 +188,8 @@ abstract class AbstractSchemaManager
     /**
      * Returns true if all the given tables exist.
      *
+     * The usage of a string $tableNames is deprecated. Pass a one-element array instead.
+     *
      * @param string|string[] $tableNames
      *
      * @return bool
@@ -683,6 +685,8 @@ abstract class AbstractSchemaManager
     }
 
     /**
+     * @deprecated
+     *
      * @param mixed[][] $functions
      *
      * @return mixed[][]
@@ -704,6 +708,8 @@ abstract class AbstractSchemaManager
     }
 
     /**
+     * @deprecated
+     *
      * @param mixed[] $function
      *
      * @return mixed

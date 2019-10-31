@@ -97,6 +97,8 @@ class SchemaColumnDefinitionEventArgs extends SchemaEventArgs
     }
 
     /**
+     * @deprecated Use SchemaColumnDefinitionEventArgs::getConnection() and Connection::getDatabasePlatform() instead.
+     *
      * @return AbstractPlatform
      */
     public function getDatabasePlatform()

@@ -264,6 +264,8 @@ class OracleSchemaManager extends AbstractSchemaManager
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated
      */
     protected function _getPortableFunctionDefinition($function)
     {
@@ -284,6 +286,8 @@ class OracleSchemaManager extends AbstractSchemaManager
 
     /**
      * {@inheritdoc}
+     *
+     * Calling this method without an argument or by passing NULL is deprecated.
      */
     public function createDatabase($database = null)
     {
