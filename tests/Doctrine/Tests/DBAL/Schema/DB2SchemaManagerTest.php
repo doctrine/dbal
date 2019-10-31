@@ -10,6 +10,7 @@ use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Schema\DB2SchemaManager;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+
 use function in_array;
 
 /**
@@ -58,6 +59,64 @@ final class DB2SchemaManagerTest extends TestCase
             ],
             $this->manager->listTableNames()
         );
+    }
+
+    /**
+     * @return void
+     *
+     * @group DBAL-3692
+     */
+    public function testListAllTableNamesFiltersAssetNamesCorrectly()  : void
+    {
+        $this->conn->getConfiguration()->setFilterSchemaAssetsExpression('/^(?!T_)/');
+        $this->conn->expects($this->once())->method('fetchAll')->will($this->returnValue([
+            ['name' => 'FOO'],
+            ['name' => 'T_FOO'],
+            ['name' => 'BAR'],
+            ['name' => 'T_BAR'],
+        ]));
+
+        self::assertSame(
+            [
+                'FOO',
+                'T_FOO',
+                'BAR',
+                'T_BAR',
+            ],
+            $this->manager->listAllTableNames()
+        );
+    }
+
+    /**
+     * @return void
+     *
+     * @group DBAL-3692
+     */
+    public function testTablesExistWithoutFilteredParameter() : void
+    {
+        $this->conn->getConfiguration()->setFilterSchemaAssetsExpression('/^(?!T_)/');
+        $this->conn->expects($this->once())->method('fetchAll')->will($this->returnValue([
+            ['name' => 'FOO'],
+            ['name' => 'T_FOO'],
+        ]));
+
+        self::assertEquals(false, $this->manager->tablesExist('T_FOO'));
+    }
+
+    /**
+     * @return void
+     *
+     * @group DBAL-3692
+     */
+    public function testTablesExistWhithFilteredFalseParameter() : void
+    {
+        $this->conn->getConfiguration()->setFilterSchemaAssetsExpression('/^(?!T_)/');
+        $this->conn->expects($this->once())->method('fetchAll')->will($this->returnValue([
+            ['name' => 'FOO'],
+            ['name' => 'T_FOO'],
+        ]));
+
+        self::assertEquals(true, $this->manager->allTablesExistInSchema(['T_FOO']));
     }
 
     /**

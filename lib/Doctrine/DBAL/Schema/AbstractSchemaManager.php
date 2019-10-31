@@ -200,18 +200,41 @@ abstract class AbstractSchemaManager
     }
 
     /**
+    * Returns true if all the given tables exist. This method ignores filters.
+    *
+    * @param string[] $tableNames
+    *
+    * @return bool
+    */
+    public function allTablesExistInSchema(array $tableNames) : bool
+    {
+       $tableNames = array_map('strtolower', $tableNames);
+
+       return count($tableNames) === count(array_intersect($tableNames, array_map('strtolower', $this->listAllTableNames())));
+    }
+
+    /**
      * Returns a list of all tables in the current database.
      *
      * @return string[]
      */
     public function listTableNames()
     {
+        return $this->filterAssetNames($this->listAllTableNames());
+    }
+
+    /**
+     * Returns a list of all tables in the current database.
+     *
+     * @return string[]
+     */
+    final public function listAllTableNames(): iterable
+    {
         $sql = $this->_platform->getListTablesSQL();
 
-        $tables     = $this->_conn->fetchAll($sql);
-        $tableNames = $this->_getPortableTablesList($tables);
+        $tables = $this->_conn->fetchAll($sql);
 
-        return $this->filterAssetNames($tableNames);
+        return $this->_getPortableTablesList($tables);
     }
 
     /**
