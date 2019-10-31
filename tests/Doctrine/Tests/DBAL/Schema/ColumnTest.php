@@ -127,7 +127,7 @@ class ColumnTest extends TestCase
         self::assertEquals('bar', $column->getName());
         self::assertEquals('[bar]', $column->getQuotedName($sqlServerPlatform));
 
-        $columnMixedCase = new Column('fooBar', $string, []);
+        $columnMixedCase    = new Column('fooBar', $string, []);
         $postgresqlPlatform = new PostgreSqlPlatform();
 
         self::assertEquals('"fooBar"', $columnMixedCase->getQuotedName($postgresqlPlatform));
