@@ -1267,4 +1267,14 @@ SQL
             $this->quoteStringLiteral($table)
         );
     }
+
+    /**
+     * Whether case is folded for unquoted asset names.
+     *
+     * @return bool
+     */
+    public function isCaseFoldedForUnquotedAssets() : bool
+    {
+        return true;
+    }
 }

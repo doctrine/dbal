@@ -3630,4 +3630,14 @@ abstract class AbstractPlatform
     {
         return '%_';
     }
+
+    /**
+     * Whether case is folded for unquoted asset names.
+     *
+     * @return bool
+     */
+    public function isCaseFoldedForUnquotedAssets() : bool
+    {
+        return false;
+    }
 }
