@@ -183,7 +183,7 @@ abstract class AbstractAsset
         $parts        = explode('.', $this->getName());
         foreach ($parts as $k => $v) {
             $caseNeedsQuoting = $isCaseFolded && preg_match('/(\p{Ll}.*\p{Lu}|\p{Lu}.*\p{Ll})/u', $v);
-            $parts[$k] = $this->_quoted || $keywords->isKeyword($v) || $caseNeedsQuoting ? $platform->quoteIdentifier($v) : $v;
+            $parts[$k]        = $this->_quoted || $keywords->isKeyword($v) || $caseNeedsQuoting ? $platform->quoteIdentifier($v) : $v;
         }
 
         return implode('.', $parts);
