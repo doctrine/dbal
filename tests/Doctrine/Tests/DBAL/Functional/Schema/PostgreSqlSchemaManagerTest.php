@@ -16,6 +16,7 @@ use Doctrine\DBAL\Types\Types;
 use function array_map;
 use function array_pop;
 use function count;
+use function current;
 use function strtolower;
 
 class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
@@ -517,7 +518,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testQuotingMixedCaseAssets() : void
     {
-        $table  = new Table('mixedCaseTable');
+        $table = new Table('mixedCaseTable');
         $table->addColumn('mixedCaseColumn', 'text');
         $this->schemaManager->createTable($table);
         $columns = $this->schemaManager->listTableColumns('mixedCaseTable');
