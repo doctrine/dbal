@@ -143,7 +143,7 @@ class PortabilityTest extends DbalFunctionalTestCase
     public function testFetchAllColumn(string $field, array $expected) : void
     {
         $conn = $this->getPortableConnection();
-        $stmt = $conn->query('SELECT ' . $field . ' FROM portability_table');
+        $stmt = $conn->query('SELECT "' . $field . '" FROM portability_table');
 
         $column = $stmt->fetchAll(FetchMode::COLUMN);
         self::assertEquals($expected, $column);
@@ -169,7 +169,7 @@ class PortabilityTest extends DbalFunctionalTestCase
     public function testFetchAllNullColumn() : void
     {
         $conn = $this->getPortableConnection();
-        $stmt = $conn->query('SELECT Test_Null FROM portability_table');
+        $stmt = $conn->query('SELECT "Test_Null" FROM portability_table');
 
         $column = $stmt->fetchAll(FetchMode::COLUMN);
         self::assertSame([null, null], $column);
