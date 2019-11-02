@@ -515,6 +515,16 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertTrue($tableFinal->getColumn('id')->getAutoincrement());
     }
 
+    public function testQuotingMixedCaseAssets() : void
+    {
+        $table  = new Table('mixedCaseTable');
+        $table->addColumn('mixedCaseColumn', 'text');
+        $this->schemaManager->createTable($table);
+        $columns = $this->schemaManager->listTableColumns('mixedCaseTable');
+        self::assertCount(1, $columns);
+        self::assertSame('mixedCaseColumn', current($columns)->getName());
+    }
+
     /**
      * @return mixed[][]
      */
