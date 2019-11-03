@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Platforms\Keywords;
 
 use function array_merge;
@@ -12,7 +14,7 @@ class MySQL80Keywords extends MySQL57Keywords
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName() : string
     {
         return 'MySQL80';
     }
@@ -22,7 +24,7 @@ class MySQL80Keywords extends MySQL57Keywords
      *
      * @link https://dev.mysql.com/doc/refman/8.0/en/keywords.html
      */
-    protected function getKeywords()
+    protected function getKeywords() : array
     {
         $keywords = parent::getKeywords();
 

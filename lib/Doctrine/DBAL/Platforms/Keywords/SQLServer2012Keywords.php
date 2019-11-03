@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Platforms\Keywords;
 
 use function array_merge;
@@ -9,12 +11,12 @@ use function array_merge;
  *
  * @link    www.doctrine-project.com
  */
-class SQLServer2012Keywords extends SQLServer2008Keywords
+class SQLServer2012Keywords extends SQLServerKeywords
 {
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName() : string
     {
         return 'SQLServer2012';
     }
@@ -24,7 +26,7 @@ class SQLServer2012Keywords extends SQLServer2008Keywords
      *
      * @link http://msdn.microsoft.com/en-us/library/ms189822.aspx
      */
-    protected function getKeywords()
+    protected function getKeywords() : array
     {
         return array_merge(parent::getKeywords(), [
             'SEMANTICKEYPHRASETABLE',

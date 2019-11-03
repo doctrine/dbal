@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Types;
 
 use Doctrine\DBAL\ParameterType;
@@ -12,7 +14,6 @@ use Doctrine\Tests\DbalTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 use function base64_encode;
 use function fopen;
-use function json_encode;
 
 class JsonTest extends DbalTestCase
 {
@@ -62,9 +63,11 @@ class JsonTest extends DbalTestCase
 
     public function testJsonStringConvertsToPHPValue() : void
     {
-        $value         = ['foo' => 'bar', 'bar' => 'foo'];
-        $databaseValue = json_encode($value);
-        $phpValue      = $this->type->convertToPHPValue($databaseValue, $this->platform);
+        $value = ['foo' => 'bar', 'bar' => 'foo'];
+
+        $databaseValue = '{"foo":"bar","bar":"foo"}';
+
+        $phpValue = $this->type->convertToPHPValue($databaseValue, $this->platform);
 
         self::assertEquals($value, $phpValue);
     }
@@ -86,8 +89,11 @@ class JsonTest extends DbalTestCase
 
     public function testJsonResourceConvertsToPHPValue() : void
     {
-        $value         = ['foo' => 'bar', 'bar' => 'foo'];
-        $databaseValue = fopen('data://text/plain;base64,' . base64_encode(json_encode($value)), 'r');
+        $value = ['foo' => 'bar', 'bar' => 'foo'];
+
+        $json = '{"foo":"bar","bar":"foo"}';
+
+        $databaseValue = fopen('data://text/plain;base64,' . base64_encode($json), 'r');
         $phpValue      = $this->type->convertToPHPValue($databaseValue, $this->platform);
 
         self::assertSame($value, $phpValue);

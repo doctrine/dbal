@@ -1,11 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Types;
 
 use Doctrine\DBAL\Types\ConversionException;
+use Doctrine\DBAL\Types\Exception\InvalidFormat;
+use Doctrine\DBAL\Types\Exception\InvalidType;
 use Exception;
 use PHPUnit\Framework\TestCase;
 use stdClass;
+use function get_class;
+use function gettype;
+use function is_object;
+use function sprintf;
 use function tmpfile;
 
 class ConversionExceptionTest extends TestCase
@@ -17,12 +25,17 @@ class ConversionExceptionTest extends TestCase
      */
     public function testConversionFailedInvalidTypeWithScalar($scalarValue) : void
     {
-        $exception = ConversionException::conversionFailedInvalidType($scalarValue, 'foo', ['bar', 'baz']);
+        $exception = InvalidType::new($scalarValue, 'foo', ['bar', 'baz']);
+
+        $type = is_object($scalarValue) ? get_class($scalarValue) : gettype($scalarValue);
 
         self::assertInstanceOf(ConversionException::class, $exception);
-        self::assertRegExp(
-            '/^Could not convert PHP value \'.*\' of type \'(string|boolean|float|double|integer)\' to type \'foo\'. '
-            . 'Expected one of the following types: bar, baz$/',
+        self::assertSame(
+            sprintf(
+                'Could not convert PHP value "%s" of type "%s" to type "foo". Expected one of the following types: bar, baz.',
+                $scalarValue,
+                $type
+            ),
             $exception->getMessage()
         );
     }
@@ -34,12 +47,13 @@ class ConversionExceptionTest extends TestCase
      */
     public function testConversionFailedInvalidTypeWithNonScalar($nonScalar) : void
     {
-        $exception = ConversionException::conversionFailedInvalidType($nonScalar, 'foo', ['bar', 'baz']);
+        $exception = InvalidType::new($nonScalar, 'foo', ['bar', 'baz']);
+
+        $type = is_object($nonScalar) ? get_class($nonScalar) : gettype($nonScalar);
 
         self::assertInstanceOf(ConversionException::class, $exception);
-        self::assertRegExp(
-            '/^Could not convert PHP value of type \'(.*)\' to type \'foo\'. '
-            . 'Expected one of the following types: bar, baz$/',
+        self::assertSame(
+            sprintf('Could not convert PHP value of type "%s" to type "foo". Expected one of the following types: bar, baz.', $type),
             $exception->getMessage()
         );
     }
@@ -48,7 +62,7 @@ class ConversionExceptionTest extends TestCase
     {
         $previous = new Exception();
 
-        $exception = ConversionException::conversionFailedFormat('foo', 'bar', 'baz', $previous);
+        $exception = InvalidFormat::new('foo', 'bar', 'baz', $previous);
 
         self::assertInstanceOf(ConversionException::class, $exception);
         self::assertSame($previous, $exception->getPrevious());

@@ -1,20 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Driver\SQLSrv;
 
 use Doctrine\DBAL\Driver\Connection;
+use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
-use Doctrine\DBAL\ParameterType;
-use const SQLSRV_ERR_ERRORS;
-use function func_get_args;
-use function is_float;
-use function is_int;
-use function sprintf;
+use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use function sqlsrv_begin_transaction;
 use function sqlsrv_commit;
 use function sqlsrv_configure;
 use function sqlsrv_connect;
-use function sqlsrv_errors;
 use function sqlsrv_query;
 use function sqlsrv_rollback;
 use function sqlsrv_rows_affected;
@@ -33,12 +30,11 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
     protected $lastInsertId;
 
     /**
-     * @param string  $serverName
-     * @param mixed[] $connectionOptions
+     * @param array<string, mixed> $connectionOptions
      *
      * @throws SQLSrvException
      */
-    public function __construct($serverName, $connectionOptions)
+    public function __construct(string $serverName, array $connectionOptions)
     {
         if (! sqlsrv_configure('WarningsReturnAsErrors', 0)) {
             throw SQLSrvException::fromSqlSrvErrors();
@@ -57,7 +53,7 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function getServerVersion()
+    public function getServerVersion() : string
     {
         $serverInfo = sqlsrv_server_info($this->conn);
 
@@ -67,7 +63,7 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function requiresQueryForServerVersion()
+    public function requiresQueryForServerVersion() : bool
     {
         return false;
     }
@@ -75,7 +71,7 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritDoc}
      */
-    public function prepare($sql)
+    public function prepare(string $sql) : DriverStatement
     {
         return new SQLSrvStatement($this->conn, $sql, $this->lastInsertId);
     }
@@ -83,10 +79,8 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritDoc}
      */
-    public function query()
+    public function query(string $sql) : ResultStatement
     {
-        $args = func_get_args();
-        $sql  = $args[0];
         $stmt = $this->prepare($sql);
         $stmt->execute();
 
@@ -96,23 +90,15 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritDoc}
      */
-    public function quote($value, $type = ParameterType::STRING)
+    public function quote(string $input) : string
     {
-        if (is_int($value)) {
-            return $value;
-        }
-
-        if (is_float($value)) {
-            return sprintf('%F', $value);
-        }
-
-        return "'" . str_replace("'", "''", $value) . "'";
+        return "'" . str_replace("'", "''", $input) . "'";
     }
 
     /**
      * {@inheritDoc}
      */
-    public function exec($statement)
+    public function exec(string $statement) : int
     {
         $stmt = sqlsrv_query($this->conn, $statement);
 
@@ -132,7 +118,7 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritDoc}
      */
-    public function lastInsertId($name = null)
+    public function lastInsertId(?string $name = null) : string
     {
         if ($name !== null) {
             $stmt = $this->prepare('SELECT CONVERT(VARCHAR(MAX), current_value) FROM sys.sequences WHERE name = ?');
@@ -147,7 +133,7 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritDoc}
      */
-    public function beginTransaction()
+    public function beginTransaction() : void
     {
         if (! sqlsrv_begin_transaction($this->conn)) {
             throw SQLSrvException::fromSqlSrvErrors();
@@ -157,7 +143,7 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritDoc}
      */
-    public function commit()
+    public function commit() : void
     {
         if (! sqlsrv_commit($this->conn)) {
             throw SQLSrvException::fromSqlSrvErrors();
@@ -167,31 +153,10 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritDoc}
      */
-    public function rollBack()
+    public function rollBack() : void
     {
         if (! sqlsrv_rollback($this->conn)) {
             throw SQLSrvException::fromSqlSrvErrors();
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function errorCode()
-    {
-        $errors = sqlsrv_errors(SQLSRV_ERR_ERRORS);
-        if ($errors) {
-            return $errors[0]['code'];
-        }
-
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function errorInfo()
-    {
-        return (array) sqlsrv_errors(SQLSRV_ERR_ERRORS);
     }
 }

@@ -1,19 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Driver;
 
 use Doctrine\DBAL\Driver\PDOException;
 use Doctrine\Tests\DbalTestCase;
-use PHPUnit\Framework\MockObject\MockObject;
-use function extension_loaded;
 
+/**
+ * @requires extension pdo
+ */
 class PDOExceptionTest extends DbalTestCase
 {
     public const ERROR_CODE = 666;
 
     public const MESSAGE = 'PDO Exception';
 
-    public const SQLSTATE = 28000;
+    public const SQLSTATE = 'HY000';
 
     /**
      * The PDO exception wrapper under test.
@@ -25,19 +28,15 @@ class PDOExceptionTest extends DbalTestCase
     /**
      * The wrapped PDO exception mock.
      *
-     * @var \PDOException|MockObject
+     * @var \PDOException
      */
     private $wrappedException;
 
     protected function setUp() : void
     {
-        if (! extension_loaded('PDO')) {
-            $this->markTestSkipped('PDO is not installed.');
-        }
-
         parent::setUp();
 
-        $this->wrappedException = new \PDOException(self::MESSAGE, self::SQLSTATE);
+        $this->wrappedException = new \PDOException(self::MESSAGE);
 
         $this->wrappedException->errorInfo = [self::SQLSTATE, self::ERROR_CODE];
 
@@ -46,12 +45,7 @@ class PDOExceptionTest extends DbalTestCase
 
     public function testReturnsCode() : void
     {
-        self::assertSame(self::SQLSTATE, $this->exception->getCode());
-    }
-
-    public function testReturnsErrorCode() : void
-    {
-        self::assertSame(self::ERROR_CODE, $this->exception->getErrorCode());
+        self::assertSame(self::ERROR_CODE, $this->exception->getCode());
     }
 
     public function testReturnsMessage() : void

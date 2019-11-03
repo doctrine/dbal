@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -22,22 +24,13 @@ class StringTest extends DbalTestCase
         $this->type     = Type::getType('string');
     }
 
-    public function testReturnsSqlDeclarationFromPlatformVarchar() : void
+    public function testReturnsSQLDeclaration() : void
     {
         $this->platform->expects($this->once())
-            ->method('getVarcharTypeDeclarationSQL')
+            ->method('getStringTypeDeclarationSQL')
             ->willReturn('TEST_VARCHAR');
 
         self::assertEquals('TEST_VARCHAR', $this->type->getSqlDeclaration([], $this->platform));
-    }
-
-    public function testReturnsDefaultLengthFromPlatformVarchar() : void
-    {
-        $this->platform->expects($this->once())
-            ->method('getVarcharDefaultLength')
-            ->willReturn(255);
-
-        self::assertEquals(255, $this->type->getDefaultLength($this->platform));
     }
 
     public function testConvertToPHPValue() : void

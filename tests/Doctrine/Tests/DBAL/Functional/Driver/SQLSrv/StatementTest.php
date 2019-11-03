@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Functional\Driver\SQLSrv;
 
 use Doctrine\DBAL\Driver\SQLSrv\Driver;
@@ -27,7 +29,7 @@ class StatementTest extends DbalFunctionalTestCase
     public function testFailureToPrepareResultsInException() : void
     {
         // use the driver connection directly to avoid having exception wrapped
-        $stmt = $this->connection->getWrappedConnection()->prepare(null);
+        $stmt = $this->connection->getWrappedConnection()->prepare('');
 
         // it's impossible to prepare the statement without bound variables for SQL Server,
         // so the preparation happens before the first execution when variables are already in place
