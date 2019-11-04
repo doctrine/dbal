@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\Connection;
@@ -16,7 +18,10 @@ use function array_change_key_case;
  */
 class NamedParametersTest extends DbalFunctionalTestCase
 {
-    public function ticketProvider()
+    /**
+     * @return iterable<int, array<int, mixed>>
+     */
+    public static function ticketProvider() : iterable
     {
         return [
             [
@@ -147,19 +152,19 @@ class NamedParametersTest extends DbalFunctionalTestCase
         ];
     }
 
-    protected function setUp()
+    protected function setUp() : void
     {
         parent::setUp();
 
-        if ($this->connection->getSchemaManager()->tablesExist('ddc1372_foobar')) {
+        if ($this->connection->getSchemaManager()->tableExists('ddc1372_foobar')) {
             return;
         }
 
         try {
             $table = new Table('ddc1372_foobar');
             $table->addColumn('id', 'integer');
-            $table->addColumn('foo', 'string');
-            $table->addColumn('bar', 'string');
+            $table->addColumn('foo', 'string', ['length' => 1]);
+            $table->addColumn('bar', 'string', ['length' => 1]);
             $table->setPrimaryKey(['id']);
 
             $sm = $this->connection->getSchemaManager();
@@ -201,14 +206,13 @@ class NamedParametersTest extends DbalFunctionalTestCase
     }
 
     /**
-     * @param string  $query
      * @param mixed[] $params
      * @param int[]   $types
      * @param int[]   $expected
      *
      * @dataProvider ticketProvider
      */
-    public function testTicket($query, $params, $types, $expected)
+    public function testTicket(string $query, array $params, array $types, array $expected) : void
     {
         $stmt   = $this->connection->executeQuery($query, $params, $types);
         $result = $stmt->fetchAll(FetchMode::ASSOCIATIVE);

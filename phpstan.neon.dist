@@ -1,7 +1,8 @@
 parameters:
-    level: 3
+    level: 7
     paths:
         - %currentWorkingDirectory%/lib
+        - %currentWorkingDirectory%/tests
     autoload_files:
         - %currentWorkingDirectory%/tests/phpstan-polyfill.php
     reportUnmatchedIgnoredErrors: false
@@ -12,7 +13,12 @@ parameters:
         # removing it would be BC break
         - '~^Constructor of class Doctrine\\DBAL\\Schema\\Table has an unused parameter \$idGeneratorType\.\z~'
 
+        # declaring $tableName in AbstractSchemaManager::_getPortableTableIndexesList() non-optional will be a BC break
+        - '~^Parameter #2 \$table of class Doctrine\\DBAL\\Event\\SchemaIndexDefinitionEventArgs constructor expects string, string\|null given\.\z~'
+
         # changing these would be a BC break, to be done in next major
+        - "~^Casting to bool something that's already bool.~"
+        - "~^Casting to int something that's already int.~"
         - '~^Method Doctrine\\DBAL\\Driver\\IBMDB2\\DB2Connection::exec\(\) should return int but returns bool\.\z~'
         - '~^Method Doctrine\\DBAL\\Query\\QueryBuilder::execute\(\) should return Doctrine\\DBAL\\Driver\\Statement\|int but returns Doctrine\\DBAL\\Driver\\ResultStatement\.\z~'
         - '~^Property Doctrine\\DBAL\\Schema\\Table::\$_primaryKeyName \(string\) does not accept (default value of type )?false\.\z~'
@@ -21,13 +27,19 @@ parameters:
         - '~^Method Doctrine\\DBAL\\Schema\\(Oracle|PostgreSql|SQLServer)SchemaManager::_getPortableTableDefinition\(\) should return array but returns string\.\z~'
         - '~^Method Doctrine\\DBAL\\Platforms\\(|SQLAnywhere|Sqlite)Platform::_getTransactionIsolationLevelSQL\(\) should return string but returns int\.\z~'
         - '~^Method Doctrine\\DBAL\\Driver\\OCI8\\OCI8Connection::lastInsertId\(\) should return string but returns (int|false)\.\z~'
-        - '~^Method Doctrine\\DBAL\\Driver\\SQLSrv\\SQLSrvConnection::errorCode\(\) should return string\|null but returns false\.\z~'
 
-        # http://php.net/manual/en/pdo.sqlitecreatefunction.php
-        - '~^Call to an undefined method Doctrine\\DBAL\\Driver\\PDOConnection::sqliteCreateFunction\(\)\.\z~'
+        # https://bugs.php.net/bug.php?id=78126
+        - '~^Call to an undefined method PDO::sqliteCreateFunction\(\)\.\z~'
+
+        # https://github.com/phpstan/phpstan/issues/1847
+        - '~^Parameter #2 \$registeredAliases of static method Doctrine\\DBAL\\Query\\QueryException::unknownAlias\(\) expects array<string>, array<int, int|string> given\.\z~'
+        - '~^Parameter #2 \$registeredAliases of static method Doctrine\\DBAL\\Query\\QueryException::nonUniqueAlias\(\) expects array<string>, array<int, int|string> given\.\z~'
+
+        # PHPStan is too strict about preg_replace(): https://phpstan.org/r/993dc99f-0d43-4b51-868b-d01f982c1463
+        - '~^Method Doctrine\\DBAL\\Platforms\\AbstractPlatform::escapeStringForLike\(\) should return string but returns string|null\.\z~'
 
         # legacy variadic-like signature
-        - '~^Method Doctrine\\DBAL\\Driver\\Connection::query\(\) invoked with \d+ parameters?, 0 required\.\z~'
+        - '~^Method Doctrine\\DBAL(\\.*)?Connection::query\(\) invoked with \d+ parameters?, 0 required\.\z~'
 
         # some drivers actually do accept 2nd parameter...
         - '~^Method Doctrine\\DBAL\\Platforms\\AbstractPlatform::getListTableForeignKeysSQL\(\) invoked with \d+ parameters, 1 required\.\z~'
@@ -39,8 +51,39 @@ parameters:
         # inheritance variance inference issue
         - '~^Method Doctrine\\DBAL\\Driver\\PDOConnection::\w+\(\) should return Doctrine\\DBAL\\Driver\\Statement but returns PDOStatement\.\z~'
 
-        # may not exist when pdo_sqlsrv is not loaded
+        # may not exist when pdo_sqlsrv is not loaded but PDO is
         - '~^Access to undefined constant PDO::SQLSRV_ENCODING_BINARY\.\z~'
 
-        # weird class name, doesn't exist in stubs either
+        # weird class name, represented in stubs as OCI_(Lob|Collection)
         - '~unknown class OCI-(Lob|Collection)~'
+
+        # https://github.com/doctrine/dbal/issues/3237
+        - '~^Call to an undefined method Doctrine\\DBAL\\Driver\\PDOStatement::nextRowset\(\)~'
+
+        # https://github.com/phpstan/phpstan/pull/1886
+        -
+            message: '~^Strict comparison using === between string|false and null will always evaluate to false\.~'
+            path: %currentWorkingDirectory%/lib/Doctrine/DBAL/Driver/PDOStatement.php
+
+        # impossible inference for covariance
+        - '~^Property Doctrine\\Tests\\DBAL\\Types\\\S+Test::\$type \(Doctrine\\DBAL\\Types\\\S+Type\) does not accept Doctrine\\DBAL\\Types\\Type\.\z~'
+        - '~^Property Doctrine\\Tests\\DBAL\\Tools\\Console\\RunSqlCommandTest::\$command \(Doctrine\\DBAL\\Tools\\Console\\Command\\RunSqlCommand\) does not accept Symfony\\Component\\Console\\Command\\Command\.\z~'
+
+        # https://github.com/phpstan/phpstan-phpunit/pull/28
+        -
+            message: '~Call to method expects\(\) on an unknown class \S+~'
+            path: %currentWorkingDirectory%/tests/Doctrine/Tests/DBAL/Platforms/AbstractPlatformTestCase.php
+        -
+            message: '~Call to method expects\(\) on an unknown class \S+~'
+            path: %currentWorkingDirectory%/tests/Doctrine/Tests/DBAL/ConnectionTest.php
+        -
+            message: '~Call to method expects\(\) on an unknown class \S+~'
+            path: %currentWorkingDirectory%/tests/Doctrine/Tests/DBAL/Functional/Schema/SchemaManagerFunctionalTestCase.php
+
+        # https://github.com/doctrine/dbal/pull/3582/files#r290847062
+        -
+            message: '~Parameter #3 \$type of method Doctrine\\DBAL\\Driver\\Statement::bindValue\(\) expects int, string given\.~'
+            path: %currentWorkingDirectory%/tests/Doctrine/Tests/DBAL/Functional/DataAccessTest.php
+includes:
+    - vendor/phpstan/phpstan-phpunit/extension.neon
+    - vendor/phpstan/phpstan-phpunit/rules.neon

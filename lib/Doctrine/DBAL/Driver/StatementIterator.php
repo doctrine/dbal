@@ -1,15 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Driver;
 
 use IteratorAggregate;
 
 class StatementIterator implements IteratorAggregate
 {
-    /** @var Statement */
+    /** @var ResultStatement */
     private $statement;
 
-    public function __construct(Statement $statement)
+    public function __construct(ResultStatement $statement)
     {
         $this->statement = $statement;
     }

@@ -1,14 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use function fopen;
-use function fseek;
-use function fwrite;
+use Doctrine\DBAL\Types\Exception\ValueNotConvertible;
 use function is_resource;
 use function is_string;
+use function stream_get_contents;
 
 /**
  * Type that maps ab SQL BINARY/VARBINARY to a PHP resource stream.
@@ -18,7 +19,7 @@ class BinaryType extends Type
     /**
      * {@inheritdoc}
      */
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
+    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform) : string
     {
         return $platform->getBinaryTypeDeclarationSQL($fieldDeclaration);
     }
@@ -32,15 +33,12 @@ class BinaryType extends Type
             return null;
         }
 
-        if (is_string($value)) {
-            $fp = fopen('php://temp', 'rb+');
-            fwrite($fp, $value);
-            fseek($fp, 0);
-            $value = $fp;
+        if (is_resource($value)) {
+            $value = stream_get_contents($value);
         }
 
-        if (! is_resource($value)) {
-            throw ConversionException::conversionFailed($value, self::BINARY);
+        if (! is_string($value)) {
+            throw ValueNotConvertible::new($value, self::BINARY);
         }
 
         return $value;
@@ -49,15 +47,15 @@ class BinaryType extends Type
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName() : string
     {
-        return Type::BINARY;
+        return Types::BINARY;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getBindingType()
+    public function getBindingType() : int
     {
         return ParameterType::BINARY;
     }

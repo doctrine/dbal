@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Functional\Ticket;
 
 use Doctrine\DBAL\Connection;
@@ -14,7 +16,7 @@ use ReflectionMethod;
  */
 class DBAL461Test extends TestCase
 {
-    public function testIssue()
+    public function testIssue() : void
     {
         $conn     = $this->createMock(Connection::class);
         $platform = $this->getMockForAbstractClass(AbstractPlatform::class);

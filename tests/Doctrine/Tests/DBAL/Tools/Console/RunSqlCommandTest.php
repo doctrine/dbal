@@ -1,11 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Tools\Console;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Tools\Console\Command\RunSqlCommand;
 use Doctrine\DBAL\Tools\Console\ConsoleRunner;
 use LogicException;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Symfony\Component\Console\Application;
@@ -18,10 +21,10 @@ class RunSqlCommandTest extends TestCase
     /** @var RunSqlCommand */
     private $command;
 
-    /** @var Connection */
+    /** @var Connection|MockObject */
     private $connectionMock;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $application = new Application();
         $application->add(new RunSqlCommand());
@@ -39,47 +42,44 @@ class RunSqlCommandTest extends TestCase
         $this->command->setHelperSet($helperSet);
     }
 
-    public function testMissingSqlArgument()
+    public function testMissingSqlArgument() : void
     {
-        try {
-            $this->commandTester->execute([
-                'command' => $this->command->getName(),
-                'sql' => null,
-            ]);
-            $this->fail('Expected a runtime exception when omitting sql argument');
-        } catch (RuntimeException $e) {
-            self::assertContains("Argument 'SQL", $e->getMessage());
-        }
+        self::expectException(RuntimeException::class);
+        self::expectExceptionMessage('Argument "sql" is required in order to execute this command correctly.');
+
+        $this->commandTester->execute([
+            'command' => $this->command->getName(),
+            'sql' => null,
+        ]);
     }
 
-    public function testIncorrectDepthOption()
+    public function testIncorrectDepthOption() : void
     {
-        try {
-            $this->commandTester->execute([
-                'command' => $this->command->getName(),
-                'sql' => 'SELECT 1',
-                '--depth' => 'string',
-            ]);
-            $this->fail('Expected a logic exception when executing with a stringy depth');
-        } catch (LogicException $e) {
-            self::assertContains("Option 'depth'", $e->getMessage());
-        }
-    }
-
-    public function testSelectStatementsPrintsResult()
-    {
-        $this->expectConnectionFetchAll();
+        self::expectException(LogicException::class);
+        self::expectExceptionMessage('Option "depth" must contains an integer value.');
 
         $this->commandTester->execute([
             'command' => $this->command->getName(),
             'sql' => 'SELECT 1',
+            '--depth' => 'string',
         ]);
+    }
+
+    public function testSelectStatementsPrintsResult() : void
+    {
+        $this->expectConnectionFetchAll();
+
+        $exitCode = $this->commandTester->execute([
+            'command' => $this->command->getName(),
+            'sql' => 'SELECT 1',
+        ]);
+        $this->assertSame(0, $exitCode);
 
         self::assertRegExp('@int.*1.*@', $this->commandTester->getDisplay());
         self::assertRegExp('@array.*1.*@', $this->commandTester->getDisplay());
     }
 
-    public function testUpdateStatementsPrintsAffectedLines()
+    public function testUpdateStatementsPrintsAffectedLines() : void
     {
         $this->expectConnectionExecuteUpdate();
 
@@ -92,7 +92,7 @@ class RunSqlCommandTest extends TestCase
         self::assertNotRegExp('@array.*1.*@', $this->commandTester->getDisplay());
     }
 
-    private function expectConnectionExecuteUpdate()
+    private function expectConnectionExecuteUpdate() : void
     {
         $this->connectionMock
             ->expects($this->exactly(1))
@@ -102,7 +102,7 @@ class RunSqlCommandTest extends TestCase
             ->method('fetchAll');
     }
 
-    private function expectConnectionFetchAll()
+    private function expectConnectionFetchAll() : void
     {
         $this->connectionMock
             ->expects($this->exactly(0))
@@ -112,7 +112,7 @@ class RunSqlCommandTest extends TestCase
             ->method('fetchAll');
     }
 
-    public function testStatementsWithFetchResultPrintsResult()
+    public function testStatementsWithFetchResultPrintsResult() : void
     {
         $this->expectConnectionFetchAll();
 

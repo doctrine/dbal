@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Functional\Ticket;
 
 use Doctrine\DBAL\Schema\Comparator;
@@ -11,7 +13,7 @@ use Doctrine\Tests\DbalFunctionalTestCase;
  */
 class DBAL510Test extends DbalFunctionalTestCase
 {
-    protected function setUp()
+    protected function setUp() : void
     {
         parent::setUp();
 
@@ -22,7 +24,7 @@ class DBAL510Test extends DbalFunctionalTestCase
         $this->markTestSkipped('PostgreSQL Only test');
     }
 
-    public function testSearchPathSchemaChanges()
+    public function testSearchPathSchemaChanges() : void
     {
         $table = new Table('dbal510tbl');
         $table->addColumn('id', 'integer');
@@ -35,6 +37,6 @@ class DBAL510Test extends DbalFunctionalTestCase
         $comparator = new Comparator();
         $diff       = $comparator->diffTable($onlineTable, $table);
 
-        self::assertFalse($diff);
+        self::assertNull($diff);
     }
 }

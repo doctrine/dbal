@@ -1,36 +1,37 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Event;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Table;
 use function array_merge;
-use function is_array;
 
 /**
- * Event Arguments used when SQL queries for creating tables are generated inside Doctrine\DBAL\Platform\AbstractPlatform.
+ * Event Arguments used when SQL queries for creating tables are generated
+ * inside Doctrine\DBAL\Platform\AbstractPlatform.
  */
 class SchemaCreateTableEventArgs extends SchemaEventArgs
 {
     /** @var Table */
     private $table;
 
-    /** @var Column[] */
+    /** @var array<int, array<string, mixed>> */
     private $columns;
 
-    /** @var mixed[] */
+    /** @var array<string, mixed> */
     private $options;
 
     /** @var AbstractPlatform */
     private $platform;
 
-    /** @var string[] */
+    /** @var array<int, string> */
     private $sql = [];
 
     /**
-     * @param Column[] $columns
-     * @param mixed[]  $options
+     * @param array<int, array<string, mixed>> $columns
+     * @param array<string, mixed>             $options
      */
     public function __construct(Table $table, array $columns, array $options, AbstractPlatform $platform)
     {
@@ -40,58 +41,46 @@ class SchemaCreateTableEventArgs extends SchemaEventArgs
         $this->platform = $platform;
     }
 
-    /**
-     * @return Table
-     */
-    public function getTable()
+    public function getTable() : Table
     {
         return $this->table;
     }
 
     /**
-     * @return Column[]
+     * @return array<int, array<string, mixed>>
      */
-    public function getColumns()
+    public function getColumns() : array
     {
         return $this->columns;
     }
 
     /**
-     * @return mixed[]
+     * @return array<string, mixed>
      */
-    public function getOptions()
+    public function getOptions() : array
     {
         return $this->options;
     }
 
-    /**
-     * @return AbstractPlatform
-     */
-    public function getPlatform()
+    public function getPlatform() : AbstractPlatform
     {
         return $this->platform;
     }
 
     /**
-     * @param string|string[] $sql
-     *
-     * @return \Doctrine\DBAL\Event\SchemaCreateTableEventArgs
+     * @return $this
      */
-    public function addSql($sql)
+    public function addSql(string ...$sql) : self
     {
-        if (is_array($sql)) {
-            $this->sql = array_merge($this->sql, $sql);
-        } else {
-            $this->sql[] = $sql;
-        }
+        $this->sql = array_merge($this->sql, $sql);
 
         return $this;
     }
 
     /**
-     * @return string[]
+     * @return array<int, string>
      */
-    public function getSql()
+    public function getSql() : array
     {
         return $this->sql;
     }

@@ -1,10 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Driver\PDOSqlsrv;
 
 use Doctrine\DBAL\Driver\PDOConnection;
-use Doctrine\DBAL\ParameterType;
-use PDO;
+use Doctrine\DBAL\Driver\PDOStatement;
 use function strpos;
 use function substr;
 
@@ -14,18 +15,9 @@ use function substr;
 class Connection extends PDOConnection
 {
     /**
-     * {@inheritdoc}
-     */
-    public function __construct($dsn, $user = null, $password = null, ?array $options = null)
-    {
-        parent::__construct($dsn, $user, $password, $options);
-        $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, [Statement::class, []]);
-    }
-
-    /**
      * {@inheritDoc}
      */
-    public function lastInsertId($name = null)
+    public function lastInsertId(?string $name = null) : string
     {
         if ($name === null) {
             return parent::lastInsertId($name);
@@ -40,9 +32,9 @@ class Connection extends PDOConnection
     /**
      * {@inheritDoc}
      */
-    public function quote($value, $type = ParameterType::STRING)
+    public function quote(string $input) : string
     {
-        $val = parent::quote($value, $type);
+        $val = parent::quote($input);
 
         // Fix for a driver version terminating all values with null byte
         if (strpos($val, "\0") !== false) {
@@ -50,5 +42,13 @@ class Connection extends PDOConnection
         }
 
         return $val;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function createStatement(\PDOStatement $stmt) : PDOStatement
+    {
+        return new Statement($stmt);
     }
 }

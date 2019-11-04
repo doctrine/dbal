@@ -1,19 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Driver;
 
 use Doctrine\DBAL\Driver\PDOException;
 use Doctrine\Tests\DbalTestCase;
-use PHPUnit_Framework_MockObject_MockObject;
-use function extension_loaded;
 
+/**
+ * @requires extension pdo
+ */
 class PDOExceptionTest extends DbalTestCase
 {
     public const ERROR_CODE = 666;
 
     public const MESSAGE = 'PDO Exception';
 
-    public const SQLSTATE = 28000;
+    public const SQLSTATE = 'HY000';
 
     /**
      * The PDO exception wrapper under test.
@@ -25,46 +28,37 @@ class PDOExceptionTest extends DbalTestCase
     /**
      * The wrapped PDO exception mock.
      *
-     * @var \PDOException|PHPUnit_Framework_MockObject_MockObject
+     * @var \PDOException
      */
     private $wrappedException;
 
-    protected function setUp()
+    protected function setUp() : void
     {
-        if (! extension_loaded('PDO')) {
-            $this->markTestSkipped('PDO is not installed.');
-        }
-
         parent::setUp();
 
-        $this->wrappedException = new \PDOException(self::MESSAGE, self::SQLSTATE);
+        $this->wrappedException = new \PDOException(self::MESSAGE);
 
         $this->wrappedException->errorInfo = [self::SQLSTATE, self::ERROR_CODE];
 
         $this->exception = new PDOException($this->wrappedException);
     }
 
-    public function testReturnsCode()
+    public function testReturnsCode() : void
     {
-        self::assertSame(self::SQLSTATE, $this->exception->getCode());
+        self::assertSame(self::ERROR_CODE, $this->exception->getCode());
     }
 
-    public function testReturnsErrorCode()
-    {
-        self::assertSame(self::ERROR_CODE, $this->exception->getErrorCode());
-    }
-
-    public function testReturnsMessage()
+    public function testReturnsMessage() : void
     {
         self::assertSame(self::MESSAGE, $this->exception->getMessage());
     }
 
-    public function testReturnsSQLState()
+    public function testReturnsSQLState() : void
     {
         self::assertSame(self::SQLSTATE, $this->exception->getSQLState());
     }
 
-    public function testOriginalExceptionIsInChain()
+    public function testOriginalExceptionIsInChain() : void
     {
         self::assertSame($this->wrappedException, $this->exception->getPrevious());
     }

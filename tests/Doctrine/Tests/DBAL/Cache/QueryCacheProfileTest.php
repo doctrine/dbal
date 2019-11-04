@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Cache;
 
 use Doctrine\DBAL\Cache\QueryCacheProfile;
@@ -21,7 +23,7 @@ class QueryCacheProfileTest extends DbalTestCase
     /** @var int[] */
     private $params = [666];
 
-    /** @var string[] */
+    /** @var int[] */
     private $types = [ParameterType::INTEGER];
 
     /** @var string[] */
@@ -33,12 +35,12 @@ class QueryCacheProfileTest extends DbalTestCase
         'driver'   => 'database_driver',
     ];
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->queryCacheProfile = new QueryCacheProfile(self::LIFETIME, self::CACHE_KEY);
     }
 
-    public function testShouldUseTheGivenCacheKeyIfPresent()
+    public function testShouldUseTheGivenCacheKeyIfPresent() : void
     {
         [$cacheKey] = $this->queryCacheProfile->generateCacheKeys(
             $this->query,
@@ -50,7 +52,7 @@ class QueryCacheProfileTest extends DbalTestCase
         self::assertEquals(self::CACHE_KEY, $cacheKey, 'The returned cache key should match the given one');
     }
 
-    public function testShouldGenerateAnAutomaticKeyIfNoKeyHasBeenGiven()
+    public function testShouldGenerateAnAutomaticKeyIfNoKeyHasBeenGiven() : void
     {
         $this->queryCacheProfile = $this->queryCacheProfile->setCacheKey(null);
 
@@ -70,7 +72,7 @@ class QueryCacheProfileTest extends DbalTestCase
         self::assertNotEmpty($cacheKey, 'The generated cache key should not be empty');
     }
 
-    public function testShouldGenerateDifferentKeysForSameQueryAndParamsAndDifferentConnections()
+    public function testShouldGenerateDifferentKeysForSameQueryAndParamsAndDifferentConnections() : void
     {
         $this->queryCacheProfile = $this->queryCacheProfile->setCacheKey(null);
 
@@ -93,7 +95,7 @@ class QueryCacheProfileTest extends DbalTestCase
         self::assertNotEquals($firstCacheKey, $secondCacheKey, 'Cache keys should be different');
     }
 
-    public function testConnectionParamsShouldBeHashed()
+    public function testConnectionParamsShouldBeHashed() : void
     {
         $this->queryCacheProfile = $this->queryCacheProfile->setCacheKey(null);
 
@@ -110,11 +112,11 @@ class QueryCacheProfileTest extends DbalTestCase
         self::assertArrayHasKey('connectionParams', $params);
 
         foreach ($this->connectionParams as $param) {
-            self::assertNotContains($param, $params['connectionParams']);
+            self::assertStringNotContainsString($param, $params['connectionParams']);
         }
     }
 
-    public function testShouldGenerateSameKeysIfNoneOfTheParamsChanges()
+    public function testShouldGenerateSameKeysIfNoneOfTheParamsChanges() : void
     {
         $this->queryCacheProfile = $this->queryCacheProfile->setCacheKey(null);
 

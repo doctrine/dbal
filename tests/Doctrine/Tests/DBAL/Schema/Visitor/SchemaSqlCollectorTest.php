@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Schema\Visitor;
 
 use Doctrine\DBAL\Platforms\MySqlPlatform;
@@ -8,10 +10,10 @@ use PHPUnit\Framework\TestCase;
 
 class SchemaSqlCollectorTest extends TestCase
 {
-    public function testCreateSchema()
+    public function testCreateSchema() : void
     {
         $platformMock = $this->getMockBuilder(MySqlPlatform::class)
-            ->setMethods(['getCreateTableSql', 'getCreateSequenceSql', 'getCreateForeignKeySql'])
+            ->onlyMethods(['getCreateTableSql', 'getCreateSequenceSql', 'getCreateForeignKeySql'])
             ->getMock();
         $platformMock->expects($this->exactly(2))
                      ->method('getCreateTableSql')
@@ -30,10 +32,10 @@ class SchemaSqlCollectorTest extends TestCase
         self::assertEquals(['foo', 'foo', 'bar', 'baz'], $sql);
     }
 
-    public function testDropSchema()
+    public function testDropSchema() : void
     {
         $platformMock = $this->getMockBuilder(MySqlPlatform::class)
-            ->setMethods(['getDropTableSql', 'getDropSequenceSql', 'getDropForeignKeySql'])
+            ->onlyMethods(['getDropTableSql', 'getDropSequenceSql', 'getDropForeignKeySql'])
             ->getMock();
         $platformMock->expects($this->exactly(2))
                      ->method('getDropTableSql')
@@ -52,10 +54,7 @@ class SchemaSqlCollectorTest extends TestCase
         self::assertEquals(['fk', 'seq', 'tbl', 'tbl'], $sql);
     }
 
-    /**
-     * @return Schema
-     */
-    public function createFixtureSchema()
+    public function createFixtureSchema() : Schema
     {
         $schema = new Schema();
         $tableA = $schema->createTable('foo');

@@ -1,39 +1,43 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
+use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
 use Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\PostgreSqlSchemaManager;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\DecimalType;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use function array_map;
 use function array_pop;
 use function count;
+use function preg_match;
 use function strtolower;
 
 class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
-    protected function tearDown()
+    /** @var PostgreSqlSchemaManager */
+    protected $schemaManager;
+
+    protected function tearDown() : void
     {
         parent::tearDown();
 
-        if (! $this->connection) {
-            return;
-        }
-
-        $this->connection->getConfiguration()->setFilterSchemaAssetsExpression(null);
+        $this->connection->getConfiguration()->setSchemaAssetsFilter(null);
     }
 
     /**
      * @group DBAL-177
      */
-    public function testGetSearchPath()
+    public function testGetSearchPath() : void
     {
         $params = $this->connection->getParams();
 
@@ -44,11 +48,11 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     /**
      * @group DBAL-244
      */
-    public function testGetSchemaNames()
+    public function testGetSchemaNames() : void
     {
         $names = $this->schemaManager->getSchemaNames();
 
-        self::assertInternalType('array', $names);
+        self::assertIsArray($names);
         self::assertNotEmpty($names);
         self::assertContains('public', $names, 'The public schema should be found.');
     }
@@ -56,7 +60,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     /**
      * @group DBAL-21
      */
-    public function testSupportDomainTypeFallback()
+    public function testSupportDomainTypeFallback() : void
     {
         $createDomainTypeSQL = 'CREATE DOMAIN MyMoney AS DECIMAL(18,2)';
         $this->connection->exec($createDomainTypeSQL);
@@ -77,7 +81,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     /**
      * @group DBAL-37
      */
-    public function testDetectsAutoIncrement()
+    public function testDetectsAutoIncrement() : void
     {
         $autoincTable = new Table('autoinc_table');
         $column       = $autoincTable->addColumn('id', 'integer');
@@ -91,7 +95,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     /**
      * @group DBAL-37
      */
-    public function testAlterTableAutoIncrementAdd()
+    public function testAlterTableAutoIncrementAdd() : void
     {
         $tableFrom = new Table('autoinc_table_add');
         $column    = $tableFrom->addColumn('id', 'integer');
@@ -105,7 +109,10 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $c    = new Comparator();
         $diff = $c->diffTable($tableFrom, $tableTo);
-        $sql  = $this->connection->getDatabasePlatform()->getAlterTableSQL($diff);
+
+        self::assertNotNull($diff);
+
+        $sql = $this->connection->getDatabasePlatform()->getAlterTableSQL($diff);
         self::assertEquals([
             'CREATE SEQUENCE autoinc_table_add_id_seq',
             "SELECT setval('autoinc_table_add_id_seq', (SELECT MAX(id) FROM autoinc_table_add))",
@@ -120,7 +127,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     /**
      * @group DBAL-37
      */
-    public function testAlterTableAutoIncrementDrop()
+    public function testAlterTableAutoIncrementDrop() : void
     {
         $tableFrom = new Table('autoinc_table_drop');
         $column    = $tableFrom->addColumn('id', 'integer');
@@ -134,6 +141,9 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $c    = new Comparator();
         $diff = $c->diffTable($tableFrom, $tableTo);
+
+        self::assertNotNull($diff);
+
         self::assertInstanceOf(TableDiff::class, $diff, 'There should be a difference and not false being returned from the table comparison');
         self::assertEquals(['ALTER TABLE autoinc_table_drop ALTER id DROP DEFAULT'], $this->connection->getDatabasePlatform()->getAlterTableSQL($diff));
 
@@ -145,7 +155,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     /**
      * @group DBAL-75
      */
-    public function testTableWithSchema()
+    public function testTableWithSchema() : void
     {
         $this->connection->exec('CREATE SCHEMA nested');
 
@@ -158,7 +168,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $column            = $nestedSchemaTable->addColumn('id', 'integer');
         $column->setAutoincrement(true);
         $nestedSchemaTable->setPrimaryKey(['id']);
-        $nestedSchemaTable->addUnnamedForeignKeyConstraint($nestedRelatedTable, ['id'], ['id']);
+        $nestedSchemaTable->addForeignKeyConstraint($nestedRelatedTable, ['id'], ['id']);
 
         $this->schemaManager->createTable($nestedRelatedTable);
         $this->schemaManager->createTable($nestedSchemaTable);
@@ -180,7 +190,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
      * @group DBAL-91
      * @group DBAL-88
      */
-    public function testReturnQuotedAssets()
+    public function testReturnQuotedAssets() : void
     {
         $sql = 'create table dbal91_something ( id integer  CONSTRAINT id_something PRIMARY KEY NOT NULL  ,"table"   integer );';
         $this->connection->exec($sql);
@@ -202,7 +212,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     /**
      * @group DBAL-204
      */
-    public function testFilterSchemaExpression()
+    public function testFilterSchemaExpression() : void
     {
         $testTable = new Table('dbal204_test_prefix');
         $column    = $testTable->addColumn('id', 'integer');
@@ -211,16 +221,20 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $column    = $testTable->addColumn('id', 'integer');
         $this->schemaManager->createTable($testTable);
 
-        $this->connection->getConfiguration()->setFilterSchemaAssetsExpression('#^dbal204_#');
+        $this->connection->getConfiguration()->setSchemaAssetsFilter(static function (string $name) : bool {
+            return preg_match('#^dbal204_#', $name) === 1;
+        });
         $names = $this->schemaManager->listTableNames();
         self::assertCount(2, $names);
 
-        $this->connection->getConfiguration()->setFilterSchemaAssetsExpression('#^dbal204_test#');
+        $this->connection->getConfiguration()->setSchemaAssetsFilter(static function (string $name) : bool {
+            return preg_match('#^dbal204_test#', $name) === 1;
+        });
         $names = $this->schemaManager->listTableNames();
         self::assertCount(1, $names);
     }
 
-    public function testListForeignKeys()
+    public function testListForeignKeys() : void
     {
         if (! $this->connection->getDatabasePlatform()->supportsForeignKeyConstraints()) {
             $this->markTestSkipped('Does not support foreign key constraints.');
@@ -262,7 +276,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     /**
      * @group DBAL-511
      */
-    public function testDefaultValueCharacterVarying()
+    public function testDefaultValueCharacterVarying() : void
     {
         $testTable = new Table('dbal511_default');
         $testTable->addColumn('id', 'integer');
@@ -279,7 +293,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     /**
      * @group DDC-2843
      */
-    public function testBooleanDefault()
+    public function testBooleanDefault() : void
     {
         $table = new Table('ddc2843_bools');
         $table->addColumn('id', 'integer');
@@ -292,10 +306,10 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $c    = new Comparator();
         $diff = $c->diffTable($table, $databaseTable);
 
-        self::assertFalse($diff);
+        self::assertNull($diff);
     }
 
-    public function testListTableWithBinary()
+    public function testListTableWithBinary() : void
     {
         $tableName = 'test_binary_table';
 
@@ -316,7 +330,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertFalse($table->getColumn('column_binary')->getFixed());
     }
 
-    public function testListQuotedTable()
+    public function testListQuotedTable() : void
     {
         $offlineTable = new Schema\Table('user');
         $offlineTable->addColumn('id', 'integer');
@@ -331,10 +345,10 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $comparator = new Schema\Comparator();
 
-        self::assertFalse($comparator->diffTable($offlineTable, $onlineTable));
+        self::assertNull($comparator->diffTable($offlineTable, $onlineTable));
     }
 
-    public function testListTablesExcludesViews()
+    public function testListTablesExcludesViews() : void
     {
         $this->createTestTable('list_tables_excludes_views');
 
@@ -363,7 +377,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     /**
      * @group DBAL-1033
      */
-    public function testPartialIndexes()
+    public function testPartialIndexes() : void
     {
         $offlineTable = new Schema\Table('person');
         $offlineTable->addColumn('id', 'integer');
@@ -377,47 +391,34 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $comparator = new Schema\Comparator();
 
-        self::assertFalse($comparator->diffTable($offlineTable, $onlineTable));
+        self::assertNull($comparator->diffTable($offlineTable, $onlineTable));
         self::assertTrue($onlineTable->hasIndex('simple_partial_index'));
         self::assertTrue($onlineTable->getIndex('simple_partial_index')->hasOption('where'));
         self::assertSame('(id IS NULL)', $onlineTable->getIndex('simple_partial_index')->getOption('where'));
     }
 
-    /**
-     * @dataProvider jsonbColumnTypeProvider
-     */
-    public function testJsonbColumn(string $type) : void
+    public function testJsonbColumn() : void
     {
-        if (! $this->schemaManager->getDatabasePlatform() instanceof PostgreSQL94Platform) {
+        if (! $this->schemaManager->getDatabasePlatform() instanceof PostgreSqlPlatform) {
             $this->markTestSkipped('Requires PostgresSQL 9.4+');
+
             return;
         }
 
         $table = new Schema\Table('test_jsonb');
-        $table->addColumn('foo', $type)->setPlatformOption('jsonb', true);
+        $table->addColumn('foo', Types::JSON)->setPlatformOption('jsonb', true);
         $this->schemaManager->dropAndCreateTable($table);
 
         $columns = $this->schemaManager->listTableColumns('test_jsonb');
 
-        self::assertSame($type, $columns['foo']->getType()->getName());
-        self::assertTrue(true, $columns['foo']->getPlatformOption('jsonb'));
-    }
-
-    /**
-     * @return mixed[][]
-     */
-    public function jsonbColumnTypeProvider() : array
-    {
-        return [
-            [Type::JSON],
-            [Type::JSON_ARRAY],
-        ];
+        self::assertSame(Types::JSON, $columns['foo']->getType()->getName());
+        self::assertTrue($columns['foo']->getPlatformOption('jsonb'));
     }
 
     /**
      * @group DBAL-2427
      */
-    public function testListNegativeColumnDefaultValue()
+    public function testListNegativeColumnDefaultValue() : void
     {
         $table = new Schema\Table('test_default_negative');
         $table->addColumn('col_smallint', 'smallint', ['default' => -1]);
@@ -442,7 +443,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     /**
      * @return mixed[][]
      */
-    public static function serialTypes() : array
+    public static function serialTypes() : iterable
     {
         return [
             ['integer'],
@@ -516,7 +517,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     /**
      * @return mixed[][]
      */
-    public function autoIncrementTypeMigrations() : array
+    public static function autoIncrementTypeMigrations() : iterable
     {
         return [
             'int->bigint' => ['integer', 'bigint', 'BIGINT'],
@@ -527,7 +528,10 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
 class MoneyType extends Type
 {
-    public function getName()
+    /**
+     * {@inheritDoc}
+     */
+    public function getName() : string
     {
         return 'MyMoney';
     }
@@ -535,7 +539,7 @@ class MoneyType extends Type
     /**
      * {@inheritDoc}
      */
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
+    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform) : string
     {
         return 'MyMoney';
     }

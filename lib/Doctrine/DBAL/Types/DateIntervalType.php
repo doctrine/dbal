@@ -1,9 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Types;
 
 use DateInterval;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Types\Exception\InvalidFormat;
+use Doctrine\DBAL\Types\Exception\InvalidType;
 use Throwable;
 use function substr;
 
@@ -17,19 +21,19 @@ class DateIntervalType extends Type
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName() : string
     {
-        return Type::DATEINTERVAL;
+        return Types::DATEINTERVAL;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
+    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform) : string
     {
         $fieldDeclaration['length'] = 255;
 
-        return $platform->getVarcharTypeDeclarationSQL($fieldDeclaration);
+        return $platform->getStringTypeDeclarationSQL($fieldDeclaration);
     }
 
     /**
@@ -45,7 +49,7 @@ class DateIntervalType extends Type
             return $value->format(self::FORMAT);
         }
 
-        throw ConversionException::conversionFailedInvalidType($value, $this->getName(), ['null', 'DateInterval']);
+        throw InvalidType::new($value, $this->getName(), ['null', 'DateInterval']);
     }
 
     /**
@@ -73,14 +77,14 @@ class DateIntervalType extends Type
 
             return $interval;
         } catch (Throwable $exception) {
-            throw ConversionException::conversionFailedFormat($value, $this->getName(), self::FORMAT, $exception);
+            throw InvalidFormat::new($value, $this->getName(), self::FORMAT, $exception);
         }
     }
 
     /**
      * {@inheritdoc}
      */
-    public function requiresSQLCommentHint(AbstractPlatform $platform)
+    public function requiresSQLCommentHint(AbstractPlatform $platform) : bool
     {
         return true;
     }

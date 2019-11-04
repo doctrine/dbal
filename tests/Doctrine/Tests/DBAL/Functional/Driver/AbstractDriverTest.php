@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Functional\Driver;
 
 use Doctrine\DBAL\Connection;
@@ -16,7 +18,7 @@ abstract class AbstractDriverTest extends DbalFunctionalTestCase
      */
     protected $driver;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         parent::setUp();
 
@@ -26,13 +28,13 @@ abstract class AbstractDriverTest extends DbalFunctionalTestCase
     /**
      * @group DBAL-1215
      */
-    public function testConnectsWithoutDatabaseNameParameter()
+    public function testConnectsWithoutDatabaseNameParameter() : void
     {
         $params = $this->connection->getParams();
         unset($params['dbname']);
 
-        $user     = $params['user'] ?? null;
-        $password = $params['password'] ?? null;
+        $user     = $params['user'] ?? '';
+        $password = $params['password'] ?? '';
 
         $connection = $this->driver->connect($params, $user, $password);
 
@@ -42,7 +44,7 @@ abstract class AbstractDriverTest extends DbalFunctionalTestCase
     /**
      * @group DBAL-1215
      */
-    public function testReturnsDatabaseNameWithoutDatabaseNameParameter()
+    public function testReturnsDatabaseNameWithoutDatabaseNameParameter() : void
     {
         $params = $this->connection->getParams();
         unset($params['dbname']);
@@ -55,20 +57,14 @@ abstract class AbstractDriverTest extends DbalFunctionalTestCase
         );
 
         self::assertSame(
-            $this->getDatabaseNameForConnectionWithoutDatabaseNameParameter(),
-            $this->driver->getDatabase($connection)
+            static::getDatabaseNameForConnectionWithoutDatabaseNameParameter(),
+            $connection->getDatabase()
         );
     }
 
-    /**
-     * @return Driver
-     */
-    abstract protected function createDriver();
+    abstract protected function createDriver() : Driver;
 
-    /**
-     * @return string|null
-     */
-    protected function getDatabaseNameForConnectionWithoutDatabaseNameParameter()
+    protected static function getDatabaseNameForConnectionWithoutDatabaseNameParameter() : ?string
     {
         return null;
     }

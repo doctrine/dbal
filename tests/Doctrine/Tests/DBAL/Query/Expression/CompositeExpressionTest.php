@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Query\Expression;
 
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
@@ -10,7 +12,7 @@ use Doctrine\Tests\DbalTestCase;
  */
 class CompositeExpressionTest extends DbalTestCase
 {
-    public function testCount()
+    public function testCount() : void
     {
         $expr = new CompositeExpression(CompositeExpression::TYPE_OR, ['u.group_id = 1']);
 
@@ -21,7 +23,7 @@ class CompositeExpressionTest extends DbalTestCase
         self::assertCount(2, $expr);
     }
 
-    public function testAdd()
+    public function testAdd() : void
     {
         $expr = new CompositeExpression(CompositeExpression::TYPE_OR, ['u.group_id = 1']);
 
@@ -35,26 +37,27 @@ class CompositeExpressionTest extends DbalTestCase
 
         self::assertCount(2, $expr);
 
-        $expr->add(null);
-
-        self::assertCount(2, $expr);
-
         $expr->add('u.user_id = 1');
 
         self::assertCount(3, $expr);
     }
 
     /**
+     * @param string[]|CompositeExpression[] $parts
+     *
      * @dataProvider provideDataForConvertToString
      */
-    public function testCompositeUsageAndGeneration($type, $parts, $expects)
+    public function testCompositeUsageAndGeneration(string $type, array $parts, string $expects) : void
     {
         $expr = new CompositeExpression($type, $parts);
 
         self::assertEquals($expects, (string) $expr);
     }
 
-    public function provideDataForConvertToString()
+    /**
+     * @return mixed[][]
+     */
+    public static function provideDataForConvertToString() : iterable
     {
         return [
             [

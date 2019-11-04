@@ -8,15 +8,14 @@ use Doctrine\DBAL\Driver\IBMDB2\DB2Driver;
 use Doctrine\DBAL\Driver\PDOOracle\Driver as PDOOracleDriver;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DbalFunctionalTestCase;
-use function is_resource;
 use function random_bytes;
 use function str_replace;
-use function stream_get_contents;
 
 class BinaryTest extends DbalFunctionalTestCase
 {
-    protected function setUp()
+    protected function setUp() : void
     {
         parent::setUp();
 
@@ -36,7 +35,7 @@ class BinaryTest extends DbalFunctionalTestCase
         $sm->dropAndCreateTable($table);
     }
 
-    public function testInsertAndSelect()
+    public function testInsertAndSelect() : void
     {
         $id1 = random_bytes(16);
         $id2 = random_bytes(16);
@@ -70,6 +69,9 @@ class BinaryTest extends DbalFunctionalTestCase
         self::assertSame(1, $result);
     }
 
+    /**
+     * @return mixed
+     */
     private function select(string $id)
     {
         $value = $this->connection->fetchColumn(
@@ -79,14 +81,6 @@ class BinaryTest extends DbalFunctionalTestCase
             [ParameterType::BINARY]
         );
 
-        // Currently, `BinaryType` mistakenly converts string values fetched from the DB to a stream.
-        // It should be the opposite. Streams should be used to represent large objects, not binary
-        // strings. The confusion comes from the PostgreSQL's type system where binary strings and
-        // large objects are represented by the same BYTEA type
-        if (is_resource($value)) {
-            $value = stream_get_contents($value);
-        }
-
-        return $value;
+        return Type::getType('binary')->convertToPHPValue($value, $this->connection->getDatabasePlatform());
     }
 }

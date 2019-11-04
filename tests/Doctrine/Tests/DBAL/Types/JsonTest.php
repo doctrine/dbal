@@ -1,20 +1,23 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Types;
 
 use Doctrine\DBAL\ParameterType;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\JsonType;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Tests\DBAL\Mocks\MockPlatform;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\Tests\DbalTestCase;
+use PHPUnit\Framework\MockObject\MockObject;
 use function base64_encode;
 use function fopen;
-use function json_encode;
 
 class JsonTest extends DbalTestCase
 {
-    /** @var MockPlatform */
+    /** @var AbstractPlatform|MockObject */
     protected $platform;
 
     /** @var JsonType */
@@ -23,68 +26,80 @@ class JsonTest extends DbalTestCase
     /**
      * {@inheritdoc}
      */
-    protected function setUp()
+    protected function setUp() : void
     {
-        $this->platform = new MockPlatform();
+        $this->platform = $this->createMock(AbstractPlatform::class);
         $this->type     = Type::getType('json');
     }
 
-    public function testReturnsBindingType()
+    public function testReturnsBindingType() : void
     {
         self::assertSame(ParameterType::STRING, $this->type->getBindingType());
     }
 
-    public function testReturnsName()
+    public function testReturnsName() : void
     {
-        self::assertSame(Type::JSON, $this->type->getName());
+        self::assertSame(Types::JSON, $this->type->getName());
     }
 
-    public function testReturnsSQLDeclaration()
+    public function testReturnsSQLDeclaration() : void
     {
-        self::assertSame('DUMMYJSON', $this->type->getSQLDeclaration([], $this->platform));
+        $this->platform->expects($this->once())
+            ->method('getJsonTypeDeclarationSQL')
+            ->willReturn('TEST_JSON');
+
+        self::assertSame('TEST_JSON', $this->type->getSQLDeclaration([], $this->platform));
     }
 
-    public function testJsonNullConvertsToPHPValue()
+    public function testJsonNullConvertsToPHPValue() : void
     {
         self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }
 
-    public function testJsonEmptyStringConvertsToPHPValue()
+    public function testJsonEmptyStringConvertsToPHPValue() : void
     {
         self::assertNull($this->type->convertToPHPValue('', $this->platform));
     }
 
-    public function testJsonStringConvertsToPHPValue()
+    public function testJsonStringConvertsToPHPValue() : void
     {
-        $value         = ['foo' => 'bar', 'bar' => 'foo'];
-        $databaseValue = json_encode($value);
-        $phpValue      = $this->type->convertToPHPValue($databaseValue, $this->platform);
+        $value = ['foo' => 'bar', 'bar' => 'foo'];
+
+        $databaseValue = '{"foo":"bar","bar":"foo"}';
+
+        $phpValue = $this->type->convertToPHPValue($databaseValue, $this->platform);
 
         self::assertEquals($value, $phpValue);
     }
 
     /** @dataProvider providerFailure */
-    public function testConversionFailure($data)
+    public function testConversionFailure(string $data) : void
     {
         $this->expectException(ConversionException::class);
         $this->type->convertToPHPValue($data, $this->platform);
     }
 
-    public function providerFailure()
+    /**
+     * @return mixed[][]
+     */
+    public static function providerFailure() : iterable
     {
         return [['a'], ['{']];
     }
 
-    public function testJsonResourceConvertsToPHPValue()
+    public function testJsonResourceConvertsToPHPValue() : void
     {
-        $value         = ['foo' => 'bar', 'bar' => 'foo'];
-        $databaseValue = fopen('data://text/plain;base64,' . base64_encode(json_encode($value)), 'r');
+        $value = ['foo' => 'bar', 'bar' => 'foo'];
+
+        $json = '{"foo":"bar","bar":"foo"}';
+
+        $databaseValue = fopen('data://text/plain;base64,' . base64_encode($json), 'r');
         $phpValue      = $this->type->convertToPHPValue($databaseValue, $this->platform);
 
         self::assertSame($value, $phpValue);
     }
 
-    public function testRequiresSQLCommentHint()
+    public function testRequiresSQLCommentHint() : void
     {
         self::assertTrue($this->type->requiresSQLCommentHint($this->platform));
     }

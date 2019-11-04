@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL;
 
 use Doctrine\DBAL\Connection;
@@ -7,6 +9,7 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\SQLParserUtils;
 use Doctrine\DBAL\SQLParserUtilsException;
 use Doctrine\Tests\DbalTestCase;
+use ReflectionMethod;
 
 /**
  * @group DBAL-78
@@ -14,58 +17,72 @@ use Doctrine\Tests\DbalTestCase;
  */
 class SQLParserUtilsTest extends DbalTestCase
 {
-    public function dataGetPlaceholderPositions()
+    /**
+     * @return mixed[][]
+     */
+    public static function dataGetPlaceholderPositionalPositions() : iterable
     {
         return [
             // none
-            ['SELECT * FROM Foo', true, []],
-            ['SELECT * FROM Foo', false, []],
+            ['SELECT * FROM Foo', []],
 
             // Positionals
-            ['SELECT ?', true, [7]],
-            ['SELECT * FROM Foo WHERE bar IN (?, ?, ?)', true, [32, 35, 38]],
-            ['SELECT ? FROM ?', true, [7, 14]],
-            ['SELECT "?" FROM foo', true, []],
-            ["SELECT '?' FROM foo", true, []],
-            ['SELECT `?` FROM foo', true, []], // Ticket DBAL-552
-            ['SELECT [?] FROM foo', true, []],
-            ["SELECT 'Doctrine\DBAL?' FROM foo", true, []], // Ticket DBAL-558
-            ['SELECT "Doctrine\DBAL?" FROM foo', true, []], // Ticket DBAL-558
-            ['SELECT `Doctrine\DBAL?` FROM foo', true, []], // Ticket DBAL-558
-            ['SELECT [Doctrine\DBAL?] FROM foo', true, []], // Ticket DBAL-558
-            ['SELECT "?" FROM foo WHERE bar = ?', true, [32]],
-            ["SELECT '?' FROM foo WHERE bar = ?", true, [32]],
-            ['SELECT `?` FROM foo WHERE bar = ?', true, [32]], // Ticket DBAL-552
-            ['SELECT [?] FROM foo WHERE bar = ?', true, [32]],
-            ['SELECT * FROM foo WHERE jsonb_exists_any(foo.bar, ARRAY[?])', true, [56]], // Ticket GH-2295
-            ["SELECT 'Doctrine\DBAL?' FROM foo WHERE bar = ?", true, [45]], // Ticket DBAL-558
-            ['SELECT "Doctrine\DBAL?" FROM foo WHERE bar = ?', true, [45]], // Ticket DBAL-558
-            ['SELECT `Doctrine\DBAL?` FROM foo WHERE bar = ?', true, [45]], // Ticket DBAL-558
-            ['SELECT [Doctrine\DBAL?] FROM foo WHERE bar = ?', true, [45]], // Ticket DBAL-558
-            ["SELECT * FROM FOO WHERE bar = 'it\\'s a trap? \\\\' OR bar = ?\nAND baz = \"\\\"quote\\\" me on it? \\\\\" OR baz = ?", true, [58, 104]],
-            ['SELECT * FROM foo WHERE foo = ? AND bar = ?', true, [1 => 42, 0 => 30]], // explicit keys
+            ['SELECT ?', [7]],
+            ['SELECT * FROM Foo WHERE bar IN (?, ?, ?)', [32, 35, 38]],
+            ['SELECT ? FROM ?', [7, 14]],
+            ['SELECT "?" FROM foo', []],
+            ["SELECT '?' FROM foo", []],
+            ['SELECT `?` FROM foo', []], // Ticket DBAL-552
+            ['SELECT [?] FROM foo', []],
+            ["SELECT 'Doctrine\DBAL?' FROM foo", []], // Ticket DBAL-558
+            ['SELECT "Doctrine\DBAL?" FROM foo', []], // Ticket DBAL-558
+            ['SELECT `Doctrine\DBAL?` FROM foo', []], // Ticket DBAL-558
+            ['SELECT [Doctrine\DBAL?] FROM foo', []], // Ticket DBAL-558
+            ['SELECT "?" FROM foo WHERE bar = ?', [32]],
+            ["SELECT '?' FROM foo WHERE bar = ?", [32]],
+            ['SELECT `?` FROM foo WHERE bar = ?', [32]], // Ticket DBAL-552
+            ['SELECT [?] FROM foo WHERE bar = ?', [32]],
+            ['SELECT * FROM foo WHERE jsonb_exists_any(foo.bar, ARRAY[?])', [56]], // Ticket GH-2295
+            ["SELECT 'Doctrine\DBAL?' FROM foo WHERE bar = ?", [45]], // Ticket DBAL-558
+            ['SELECT "Doctrine\DBAL?" FROM foo WHERE bar = ?', [45]], // Ticket DBAL-558
+            ['SELECT `Doctrine\DBAL?` FROM foo WHERE bar = ?', [45]], // Ticket DBAL-558
+            ['SELECT [Doctrine\DBAL?] FROM foo WHERE bar = ?', [45]], // Ticket DBAL-558
+            ["SELECT * FROM FOO WHERE bar = 'it\\'s a trap? \\\\' OR bar = ?\nAND baz = \"\\\"quote\\\" me on it? \\\\\" OR baz = ?", [58, 104]],
+            ['SELECT * FROM foo WHERE foo = ? AND bar = ?', [1 => 42, 0 => 30]], // explicit keys
+
+        ];
+    }
+
+    /**
+     * @return iterable<int, array<int, mixed>>
+     */
+    public function dataGetPlaceholderNamedPositions() : iterable
+    {
+        return [
+            // none
+            ['SELECT * FROM Foo', []],
 
             // named
-            ['SELECT :foo FROM :bar', false, [7 => 'foo', 17 => 'bar']],
-            ['SELECT * FROM Foo WHERE bar IN (:name1, :name2)', false, [32 => 'name1', 40 => 'name2']],
-            ['SELECT ":foo" FROM Foo WHERE bar IN (:name1, :name2)', false, [37 => 'name1', 45 => 'name2']],
-            ["SELECT ':foo' FROM Foo WHERE bar IN (:name1, :name2)", false, [37 => 'name1', 45 => 'name2']],
-            ['SELECT :foo_id', false, [7 => 'foo_id']], // Ticket DBAL-231
-            ['SELECT @rank := 1', false, []], // Ticket DBAL-398
-            ['SELECT @rank := 1 AS rank, :foo AS foo FROM :bar', false, [27 => 'foo', 44 => 'bar']], // Ticket DBAL-398
-            ['SELECT * FROM Foo WHERE bar > :start_date AND baz > :start_date', false, [30 => 'start_date', 52 => 'start_date']], // Ticket GH-113
-            ['SELECT foo::date as date FROM Foo WHERE bar > :start_date AND baz > :start_date', false, [46 => 'start_date', 68 => 'start_date']], // Ticket GH-259
-            ['SELECT `d.ns:col_name` FROM my_table d WHERE `d.date` >= :param1', false, [57 => 'param1']], // Ticket DBAL-552
-            ['SELECT [d.ns:col_name] FROM my_table d WHERE [d.date] >= :param1', false, [57 => 'param1']], // Ticket DBAL-552
-            ['SELECT * FROM foo WHERE jsonb_exists_any(foo.bar, ARRAY[:foo])', false, [56 => 'foo']], // Ticket GH-2295
-            ['SELECT * FROM foo WHERE jsonb_exists_any(foo.bar, array[:foo])', false, [56 => 'foo']],
-            ['SELECT table.field1, ARRAY[\'3\'] FROM schema.table table WHERE table.f1 = :foo AND ARRAY[\'3\']', false, [73 => 'foo']],
-            ['SELECT table.field1, ARRAY[\'3\']::integer[] FROM schema.table table WHERE table.f1 = :foo AND ARRAY[\'3\']::integer[]', false, [84 => 'foo']],
-            ['SELECT table.field1, ARRAY[:foo] FROM schema.table table WHERE table.f1 = :bar AND ARRAY[\'3\']', false, [27 => 'foo', 74 => 'bar']],
-            ['SELECT table.field1, ARRAY[:foo]::integer[] FROM schema.table table WHERE table.f1 = :bar AND ARRAY[\'3\']::integer[]', false, [27 => 'foo', 85 => 'bar']],
+            ['SELECT :foo FROM :bar', [7 => 'foo', 17 => 'bar']],
+            ['SELECT * FROM Foo WHERE bar IN (:name1, :name2)', [32 => 'name1', 40 => 'name2']],
+            ['SELECT ":foo" FROM Foo WHERE bar IN (:name1, :name2)', [37 => 'name1', 45 => 'name2']],
+            ["SELECT ':foo' FROM Foo WHERE bar IN (:name1, :name2)", [37 => 'name1', 45 => 'name2']],
+            ['SELECT :foo_id', [7 => 'foo_id']], // Ticket DBAL-231
+            ['SELECT @rank := 1', []], // Ticket DBAL-398
+            ['SELECT @rank := 1 AS rank, :foo AS foo FROM :bar', [27 => 'foo', 44 => 'bar']], // Ticket DBAL-398
+            ['SELECT * FROM Foo WHERE bar > :start_date AND baz > :start_date', [30 => 'start_date', 52 => 'start_date']], // Ticket GH-113
+            ['SELECT foo::date as date FROM Foo WHERE bar > :start_date AND baz > :start_date', [46 => 'start_date', 68 => 'start_date']], // Ticket GH-259
+            ['SELECT `d.ns:col_name` FROM my_table d WHERE `d.date` >= :param1', [57 => 'param1']], // Ticket DBAL-552
+            ['SELECT [d.ns:col_name] FROM my_table d WHERE [d.date] >= :param1', [57 => 'param1']], // Ticket DBAL-552
+            ['SELECT * FROM foo WHERE jsonb_exists_any(foo.bar, ARRAY[:foo])', [56 => 'foo']], // Ticket GH-2295
+            ['SELECT * FROM foo WHERE jsonb_exists_any(foo.bar, array[:foo])', [56 => 'foo']],
+            ['SELECT table.field1, ARRAY[\'3\'] FROM schema.table table WHERE table.f1 = :foo AND ARRAY[\'3\']', [73 => 'foo']],
+            ['SELECT table.field1, ARRAY[\'3\']::integer[] FROM schema.table table WHERE table.f1 = :foo AND ARRAY[\'3\']::integer[]', [84 => 'foo']],
+            ['SELECT table.field1, ARRAY[:foo] FROM schema.table table WHERE table.f1 = :bar AND ARRAY[\'3\']', [27 => 'foo', 74 => 'bar']],
+            ['SELECT table.field1, ARRAY[:foo]::integer[] FROM schema.table table WHERE table.f1 = :bar AND ARRAY[\'3\']::integer[]', [27 => 'foo', 85 => 'bar']],
             [
                 <<<'SQLDATA'
-SELECT * FROM foo WHERE 
+SELECT * FROM foo WHERE
 bar = ':not_a_param1 ''":not_a_param2"'''
 OR bar=:a_param1
 OR bar=:a_param2||':not_a_param3'
@@ -74,32 +91,51 @@ OR bar=''
 OR bar=:a_param3
 SQLDATA
                 ,
-                false,
                 [
-                    74 => 'a_param1',
-                    91 => 'a_param2',
-                    190 => 'a_param3',
+                    73 => 'a_param1',
+                    90 => 'a_param2',
+                    189 => 'a_param3',
                 ],
             ],
-            ["SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE '\\\\') AND (data.description LIKE :condition_1 ESCAPE '\\\\') ORDER BY id ASC", false, [121 => 'condition_0', 174 => 'condition_1']],
-            ['SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE "\\\\") AND (data.description LIKE :condition_1 ESCAPE "\\\\") ORDER BY id ASC', false, [121 => 'condition_0', 174 => 'condition_1']],
-            ['SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE "\\\\") AND (data.description LIKE :condition_1 ESCAPE \'\\\\\') ORDER BY id ASC', false, [121 => 'condition_0', 174 => 'condition_1']],
-            ['SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE `\\\\`) AND (data.description LIKE :condition_1 ESCAPE `\\\\`) ORDER BY id ASC', false, [121 => 'condition_0', 174 => 'condition_1']],
-            ['SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE \'\\\\\') AND (data.description LIKE :condition_1 ESCAPE `\\\\`) ORDER BY id ASC', false, [121 => 'condition_0', 174 => 'condition_1']],
+            ["SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE '\\\\') AND (data.description LIKE :condition_1 ESCAPE '\\\\') ORDER BY id ASC", [121 => 'condition_0', 174 => 'condition_1']],
+            ['SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE "\\\\") AND (data.description LIKE :condition_1 ESCAPE "\\\\") ORDER BY id ASC', [121 => 'condition_0', 174 => 'condition_1']],
+            ['SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE "\\\\") AND (data.description LIKE :condition_1 ESCAPE \'\\\\\') ORDER BY id ASC', [121 => 'condition_0', 174 => 'condition_1']],
+            ['SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE `\\\\`) AND (data.description LIKE :condition_1 ESCAPE `\\\\`) ORDER BY id ASC', [121 => 'condition_0', 174 => 'condition_1']],
+            ['SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE \'\\\\\') AND (data.description LIKE :condition_1 ESCAPE `\\\\`) ORDER BY id ASC', [121 => 'condition_0', 174 => 'condition_1']],
 
         ];
     }
 
     /**
-     * @dataProvider dataGetPlaceholderPositions
+     * @param int[] $expectedParamPos
+     *
+     * @dataProvider dataGetPlaceholderPositionalPositions
      */
-    public function testGetPlaceholderPositions($query, $isPositional, $expectedParamPos)
+    public function testGetPositionalPlaceholderPositions(string $query, array $expectedParamPos) : void
     {
-        $actualParamPos = SQLParserUtils::getPlaceholderPositions($query, $isPositional);
-        self::assertEquals($expectedParamPos, $actualParamPos);
+        $reflection = new ReflectionMethod(SQLParserUtils::class, 'getPositionalPlaceholderPositions');
+        $reflection->setAccessible(true);
+
+        self::assertEquals($expectedParamPos, $reflection->invoke(null, $query));
     }
 
-    public function dataExpandListParameters()
+    /**
+     * @param array<int, string> $expectedParamPos
+     *
+     * @dataProvider dataGetPlaceholderNamedPositions
+     */
+    public function testGetNamedPlaceholderPositions(string $query, array $expectedParamPos) : void
+    {
+        $reflection = new ReflectionMethod(SQLParserUtils::class, 'getNamedPlaceholderPositions');
+        $reflection->setAccessible(true);
+
+        self::assertEquals($expectedParamPos, $reflection->invoke(null, $query));
+    }
+
+    /**
+     * @return mixed[][]
+     */
+    public static function dataExpandListParameters() : iterable
     {
         return [
             // Positional: Very simple with one needle
@@ -413,18 +449,32 @@ SQLDATA
     }
 
     /**
+     * @param mixed[] $params
+     * @param mixed[] $types
+     * @param mixed[] $expectedParams
+     * @param mixed[] $expectedTypes
+     *
      * @dataProvider dataExpandListParameters
      */
-    public function testExpandListParameters($q, $p, $t, $expectedQuery, $expectedParams, $expectedTypes)
-    {
-        [$query, $params, $types] = SQLParserUtils::expandListParameters($q, $p, $t);
+    public function testExpandListParameters(
+        string $query,
+        array $params,
+        array $types,
+        string $expectedQuery,
+        array $expectedParams,
+        array $expectedTypes
+    ) : void {
+        [$query, $params, $types] = SQLParserUtils::expandListParameters($query, $params, $types);
 
         self::assertEquals($expectedQuery, $query, 'Query was not rewritten correctly.');
         self::assertEquals($expectedParams, $params, 'Params dont match');
         self::assertEquals($expectedTypes, $types, 'Types dont match');
     }
 
-    public function dataQueryWithMissingParameters()
+    /**
+     * @return mixed[][]
+     */
+    public static function dataQueryWithMissingParameters() : iterable
     {
         return [
             [
@@ -461,12 +511,15 @@ SQLDATA
     }
 
     /**
+     * @param mixed[] $params
+     * @param mixed[] $types
+     *
      * @dataProvider dataQueryWithMissingParameters
      */
-    public function testExceptionIsThrownForMissingParam($query, $params, $types = [])
+    public function testExceptionIsThrownForMissingParam(string $query, array $params, array $types = []) : void
     {
         $this->expectException(SQLParserUtilsException::class);
-        $this->expectExceptionMessage('Value for :param not found in params array. Params array key should be "param"');
+        $this->expectExceptionMessage('Parameter "param" is missing.');
 
         SQLParserUtils::expandListParameters($query, $params, $types);
     }

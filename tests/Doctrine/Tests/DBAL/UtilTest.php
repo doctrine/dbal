@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL;
 
 use Doctrine\DBAL\Driver\OCI8\OCI8Statement;
@@ -7,7 +9,10 @@ use Doctrine\Tests\DbalTestCase;
 
 class UtilTest extends DbalTestCase
 {
-    public static function dataConvertPositionalToNamedParameters()
+    /**
+     * @return mixed[][]
+     */
+    public static function dataConvertPositionalToNamedParameters() : iterable
     {
         return [
             [
@@ -64,13 +69,11 @@ class UtilTest extends DbalTestCase
     }
 
     /**
-     * @param string  $inputSQL
-     * @param string  $expectedOutputSQL
      * @param mixed[] $expectedOutputParamsMap
      *
      * @dataProvider dataConvertPositionalToNamedParameters
      */
-    public function testConvertPositionalToNamedParameters($inputSQL, $expectedOutputSQL, $expectedOutputParamsMap)
+    public function testConvertPositionalToNamedParameters(string $inputSQL, string $expectedOutputSQL, array $expectedOutputParamsMap) : void
     {
         [$statement, $params] = OCI8Statement::convertPositionalToNamedPlaceholders($inputSQL);
 

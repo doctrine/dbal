@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Driver\OCI8;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\AbstractOracleDriver;
+use Doctrine\DBAL\Driver\Connection;
 use const OCI_DEFAULT;
 
 /**
@@ -14,14 +17,18 @@ class Driver extends AbstractOracleDriver
     /**
      * {@inheritdoc}
      */
-    public function connect(array $params, $username = null, $password = null, array $driverOptions = [])
-    {
+    public function connect(
+        array $params,
+        string $username = '',
+        string $password = '',
+        array $driverOptions = []
+    ) : Connection {
         try {
             return new OCI8Connection(
                 $username,
                 $password,
                 $this->_constructDsn($params),
-                $params['charset'] ?? null,
+                $params['charset'] ?? '',
                 $params['sessionMode'] ?? OCI_DEFAULT,
                 $params['persistent'] ?? false
             );
@@ -37,16 +44,8 @@ class Driver extends AbstractOracleDriver
      *
      * @return string The DSN.
      */
-    protected function _constructDsn(array $params)
+    protected function _constructDsn(array $params) : string
     {
         return $this->getEasyConnectString($params);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
-    {
-        return 'oci8';
     }
 }

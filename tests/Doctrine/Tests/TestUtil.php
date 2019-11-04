@@ -1,9 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Platforms\OraclePlatform;
+use InvalidArgumentException;
 use PHPUnit\Framework\Assert;
 use function explode;
 use function extension_loaded;
@@ -38,8 +42,13 @@ class TestUtil
      *
      * @return Connection The database connection instance.
      */
-    public static function getConnection()
+    public static function getConnection() : Connection
     {
+        if (self::hasRequiredConnectionParams() && ! self::$initialized) {
+            self::initializeDatabase();
+            self::$initialized = true;
+        }
+
         $conn = DriverManager::getConnection(self::getConnectionParams());
 
         self::addDbEventSubscribers($conn);
@@ -47,16 +56,19 @@ class TestUtil
         return $conn;
     }
 
-    private static function getConnectionParams()
+    /**
+     * @return mixed[]
+     */
+    public static function getConnectionParams() : array
     {
         if (self::hasRequiredConnectionParams()) {
-            return self::getSpecifiedConnectionParams();
+            return self::getParamsForMainConnection();
         }
 
         return self::getFallbackConnectionParams();
     }
 
-    private static function hasRequiredConnectionParams()
+    private static function hasRequiredConnectionParams() : bool
     {
         return isset(
             $GLOBALS['db_type'],
@@ -75,7 +87,7 @@ class TestUtil
         );
     }
 
-    private static function getSpecifiedConnectionParams()
+    private static function initializeDatabase() : void
     {
         $realDbParams = self::getParamsForMainConnection();
         $tmpDbParams  = self::getParamsForTemporaryConnection();
@@ -87,32 +99,40 @@ class TestUtil
 
         $platform = $tmpConn->getDatabasePlatform();
 
-        if (! self::$initialized) {
-            if ($platform->supportsCreateDropDatabase()) {
-                $dbname = $realConn->getDatabase();
-                $realConn->close();
-
-                $tmpConn->getSchemaManager()->dropAndCreateDatabase($dbname);
-
-                $tmpConn->close();
+        if ($platform->supportsCreateDropDatabase()) {
+            if (! $platform instanceof OraclePlatform) {
+                $dbname = $realDbParams['dbname'];
             } else {
-                $sm = $realConn->getSchemaManager();
-
-                $schema = $sm->createSchema();
-                $stmts  = $schema->toDropSql($realConn->getDatabasePlatform());
-
-                foreach ($stmts as $stmt) {
-                    $realConn->exec($stmt);
-                }
+                $dbname = $realDbParams['user'];
             }
 
-            self::$initialized = true;
-        }
+            $realConn->close();
 
-        return $realDbParams;
+            if ($dbname === null) {
+                throw new InvalidArgumentException(
+                    'You must have a database configured in your connection.'
+                );
+            }
+
+            $tmpConn->getSchemaManager()->dropAndCreateDatabase($dbname);
+
+            $tmpConn->close();
+        } else {
+            $sm = $realConn->getSchemaManager();
+
+            $schema = $sm->createSchema();
+            $stmts  = $schema->toDropSql($realConn->getDatabasePlatform());
+
+            foreach ($stmts as $stmt) {
+                $realConn->exec($stmt);
+            }
+        }
     }
 
-    private static function getFallbackConnectionParams()
+    /**
+     * @return mixed[]
+     */
+    private static function getFallbackConnectionParams() : array
     {
         if (! extension_loaded('pdo_sqlite')) {
             Assert::markTestSkipped('PDO SQLite extension is not loaded');
@@ -131,7 +151,7 @@ class TestUtil
         return $params;
     }
 
-    private static function addDbEventSubscribers(Connection $conn)
+    private static function addDbEventSubscribers(Connection $conn) : void
     {
         if (! isset($GLOBALS['db_event_subscribers'])) {
             return;
@@ -144,7 +164,10 @@ class TestUtil
         }
     }
 
-    private static function getParamsForTemporaryConnection()
+    /**
+     * @return mixed[]
+     */
+    private static function getParamsForTemporaryConnection() : array
     {
         $connectionParams = [
             'driver' => $GLOBALS['tmpdb_type'],
@@ -152,7 +175,7 @@ class TestUtil
             'password' => $GLOBALS['tmpdb_password'],
             'host' => $GLOBALS['tmpdb_host'],
             'dbname' => null,
-            'port' => $GLOBALS['tmpdb_port'],
+            'port' => (int) $GLOBALS['tmpdb_port'],
         ];
 
         if (isset($GLOBALS['tmpdb_name'])) {
@@ -170,7 +193,10 @@ class TestUtil
         return $connectionParams;
     }
 
-    private static function getParamsForMainConnection()
+    /**
+     * @return mixed[]
+     */
+    private static function getParamsForMainConnection() : array
     {
         $connectionParams = [
             'driver' => $GLOBALS['db_type'],
@@ -178,7 +204,7 @@ class TestUtil
             'password' => $GLOBALS['db_password'],
             'host' => $GLOBALS['db_host'],
             'dbname' => $GLOBALS['db_name'],
-            'port' => $GLOBALS['db_port'],
+            'port' => (int) $GLOBALS['db_port'],
         ];
 
         if (isset($GLOBALS['db_server'])) {
@@ -192,10 +218,7 @@ class TestUtil
         return $connectionParams;
     }
 
-    /**
-     * @return Connection
-     */
-    public static function getTempConnection()
+    public static function getTempConnection() : Connection
     {
         return DriverManager::getConnection(self::getParamsForTemporaryConnection());
     }

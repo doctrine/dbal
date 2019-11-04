@@ -1,18 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Schema;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\SchemaDiff;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
-use Doctrine\Tests\DBAL\Mocks\MockPlatform;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class SchemaDiffTest extends TestCase
 {
-    public function testSchemaDiffToSql()
+    public function testSchemaDiffToSql() : void
     {
         $diff     = $this->createSchemaDiff();
         $platform = $this->createPlatform(true);
@@ -24,7 +27,7 @@ class SchemaDiffTest extends TestCase
         self::assertEquals($expected, $sql);
     }
 
-    public function testSchemaDiffToSaveSql()
+    public function testSchemaDiffToSaveSql() : void
     {
         $diff     = $this->createSchemaDiff();
         $platform = $this->createPlatform(false);
@@ -36,9 +39,13 @@ class SchemaDiffTest extends TestCase
         self::assertEquals($expected, $sql);
     }
 
-    public function createPlatform($unsafe = false)
+    /**
+     * @return AbstractPlatform|MockObject
+     */
+    private function createPlatform(bool $unsafe)
     {
-        $platform = $this->createMock(MockPlatform::class);
+        /** @var AbstractPlatform|MockObject $platform */
+        $platform = $this->createMock(AbstractPlatform::class);
         $platform->expects($this->exactly(1))
             ->method('getCreateSchemaSQL')
             ->with('foo_ns')
@@ -93,17 +100,18 @@ class SchemaDiffTest extends TestCase
         $platform->expects($this->exactly(2))
                 ->method('supportsForeignKeyConstraints')
                 ->will($this->returnValue(true));
+
         return $platform;
     }
 
-    public function createSchemaDiff()
+    public function createSchemaDiff() : SchemaDiff
     {
         $diff                              = new SchemaDiff();
         $diff->newNamespaces['foo_ns']     = 'foo_ns';
         $diff->removedNamespaces['bar_ns'] = 'bar_ns';
-        $diff->changedSequences['foo_seq'] = new Sequence('foo_seq');
-        $diff->newSequences['bar_seq']     = new Sequence('bar_seq');
-        $diff->removedSequences['baz_seq'] = new Sequence('baz_seq');
+        $diff->changedSequences[]          = new Sequence('foo_seq');
+        $diff->newSequences[]              = new Sequence('bar_seq');
+        $diff->removedSequences[]          = new Sequence('baz_seq');
         $diff->newTables['foo_table']      = new Table('foo_table');
         $diff->removedTables['bar_table']  = new Table('bar_table');
         $diff->changedTables['baz_table']  = new TableDiff('baz_table');
@@ -112,6 +120,7 @@ class SchemaDiffTest extends TestCase
         $fk = new ForeignKeyConstraint(['id'], 'foreign_table', ['id']);
         $fk->setLocalTable(new Table('local_table'));
         $diff->orphanedForeignKeys[] = $fk;
+
         return $diff;
     }
 }

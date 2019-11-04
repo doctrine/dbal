@@ -1,48 +1,45 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL;
 
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
+use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Logging\SQLLogger;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Statement;
-use Doctrine\Tests\DBAL\Mocks\MockPlatform;
 use Doctrine\Tests\DbalTestCase;
 use Exception;
-use PDOStatement;
+use PHPUnit\Framework\MockObject\MockObject;
 
 class StatementTest extends DbalTestCase
 {
-    /** @var Connection */
+    /** @var Connection|MockObject */
     private $conn;
 
-    /** @var Configuration */
+    /** @var Configuration|MockObject */
     private $configuration;
 
-    /** @var PDOStatement */
-    private $pdoStatement;
+    /** @var DriverStatement|MockObject */
+    private $driverStatement;
 
-    protected function setUp()
+    protected function setUp() : void
     {
-        $this->pdoStatement = $this->getMockBuilder(PDOStatement::class)
-            ->setMethods(['execute', 'bindParam', 'bindValue'])
-            ->getMock();
-        $platform           = new MockPlatform();
-        $driverConnection   = $this->createMock(DriverConnection::class);
-        $driverConnection->expects($this->any())
-                ->method('prepare')
-                ->will($this->returnValue($this->pdoStatement));
+        $this->driverStatement = $this->createMock(DriverStatement::class);
 
-        $driver          = $this->createMock(Driver::class);
-        $constructorArgs = [
-            ['platform' => $platform],
-            $driver,
-        ];
-        $this->conn      = $this->getMockBuilder(Connection::class)
-            ->setConstructorArgs($constructorArgs)
+        $driverConnection = $this->createConfiguredMock(DriverConnection::class, [
+            'prepare' => $this->driverStatement,
+        ]);
+
+        $driver = $this->createMock(Driver::class);
+
+        $this->conn = $this->getMockBuilder(Connection::class)
+            ->setConstructorArgs([[], $driver])
             ->getMock();
         $this->conn->expects($this->atLeastOnce())
                 ->method('getWrappedConnection')
@@ -58,7 +55,7 @@ class StatementTest extends DbalTestCase
             ->will($this->returnValue($driver));
     }
 
-    public function testExecuteCallsLoggerStartQueryWithParametersWhenValuesBound()
+    public function testExecuteCallsLoggerStartQueryWithParametersWhenValuesBound() : void
     {
         $name   = 'foo';
         $var    = 'bar';
@@ -81,7 +78,7 @@ class StatementTest extends DbalTestCase
         $statement->execute();
     }
 
-    public function testExecuteCallsLoggerStartQueryWithParametersWhenParamsPassedToExecute()
+    public function testExecuteCallsLoggerStartQueryWithParametersWhenParamsPassedToExecute() : void
     {
         $name   = 'foo';
         $var    = 'bar';
@@ -102,7 +99,7 @@ class StatementTest extends DbalTestCase
         $statement->execute($values);
     }
 
-    public function testExecuteCallsStartQueryWithTheParametersBoundViaBindParam()
+    public function testExecuteCallsStartQueryWithTheParametersBoundViaBindParam() : void
     {
         $name   = 'foo';
         $var    = 'bar';
@@ -124,10 +121,7 @@ class StatementTest extends DbalTestCase
         $statement->execute();
     }
 
-    /**
-     * @expectedException \Doctrine\DBAL\DBALException
-     */
-    public function testExecuteCallsLoggerStopQueryOnException()
+    public function testExecuteCallsLoggerStopQueryOnException() : void
     {
         $logger = $this->createMock(SQLLogger::class);
 
@@ -146,11 +140,14 @@ class StatementTest extends DbalTestCase
         $logger->expects($this->once())
             ->method('stopQuery');
 
-        $this->pdoStatement->expects($this->once())
+        $this->driverStatement->expects($this->once())
             ->method('execute')
             ->will($this->throwException(new Exception('Mock test exception')));
 
         $statement = new Statement('', $this->conn);
+
+        $this->expectException(DBALException::class);
+
         $statement->execute();
     }
 }

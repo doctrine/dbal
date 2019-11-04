@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Schema;
 
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Types\StringType;
@@ -10,11 +11,11 @@ use Doctrine\DBAL\Types\TextType;
 use Doctrine\DBAL\Types\Type;
 use const CASE_LOWER;
 use function array_change_key_case;
-use function array_map;
 use function array_reverse;
 use function array_values;
-use function explode;
+use function count;
 use function file_exists;
+use function is_string;
 use function preg_match;
 use function preg_match_all;
 use function preg_quote;
@@ -36,7 +37,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    public function dropDatabase($database)
+    public function dropDatabase(string $database) : void
     {
         if (! file_exists($database)) {
             return;
@@ -48,7 +49,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    public function createDatabase($database)
+    public function createDatabase(string $database) : void
     {
         $params  = $this->_conn->getParams();
         $driver  = $params['driver'];
@@ -64,7 +65,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    public function renameTable($name, $newName)
+    public function renameTable(string $name, string $newName) : void
     {
         $tableDiff            = new TableDiff($name);
         $tableDiff->fromTable = $this->listTableDetails($name);
@@ -75,9 +76,12 @@ class SqliteSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    public function createForeignKey(ForeignKeyConstraint $foreignKey, $table)
+    public function createForeignKey(ForeignKeyConstraint $foreignKey, $table) : void
     {
-        $tableDiff                     = $this->getTableDiffForAlterForeignKey($foreignKey, $table);
+        $table = $this->ensureTable($table);
+
+        $tableDiff = $this->getTableDiffForAlterForeignKey($table);
+
         $tableDiff->addedForeignKeys[] = $foreignKey;
 
         $this->alterTable($tableDiff);
@@ -86,9 +90,12 @@ class SqliteSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    public function dropAndCreateForeignKey(ForeignKeyConstraint $foreignKey, $table)
+    public function dropAndCreateForeignKey(ForeignKeyConstraint $foreignKey, $table) : void
     {
-        $tableDiff                       = $this->getTableDiffForAlterForeignKey($foreignKey, $table);
+        $table = $this->ensureTable($table);
+
+        $tableDiff = $this->getTableDiffForAlterForeignKey($table);
+
         $tableDiff->changedForeignKeys[] = $foreignKey;
 
         $this->alterTable($tableDiff);
@@ -97,10 +104,17 @@ class SqliteSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    public function dropForeignKey($foreignKey, $table)
+    public function dropForeignKey($foreignKey, $table) : void
     {
-        $tableDiff                       = $this->getTableDiffForAlterForeignKey($foreignKey, $table);
-        $tableDiff->removedForeignKeys[] = $foreignKey;
+        $table = $this->ensureTable($table);
+
+        $tableDiff = $this->getTableDiffForAlterForeignKey($table);
+
+        if (is_string($foreignKey)) {
+            $tableDiff->removedForeignKeys[] = $table->getForeignKey($foreignKey);
+        } else {
+            $tableDiff->removedForeignKeys[] = $foreignKey;
+        }
 
         $this->alterTable($tableDiff);
     }
@@ -108,7 +122,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    public function listTableForeignKeys($table, $database = null)
+    public function listTableForeignKeys(string $table, ?string $database = null) : array
     {
         if ($database === null) {
             $database = $this->_conn->getDatabase();
@@ -153,7 +167,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableDefinition($table)
+    protected function _getPortableTableDefinition(array $table) : string
     {
         return $table['name'];
     }
@@ -163,7 +177,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
      *
      * @link http://ezcomponents.org/docs/api/trunk/DatabaseSchema/ezcDbSchemaPgsqlReader.html
      */
-    protected function _getPortableTableIndexesList($tableIndexes, $tableName = null)
+    protected function _getPortableTableIndexesList(array $tableIndexRows, string $tableName) : array
     {
         $indexBuffer = [];
 
@@ -195,7 +209,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
         }
 
         // fetch regular indexes
-        foreach ($tableIndexes as $tableIndex) {
+        foreach ($tableIndexRows as $tableIndex) {
             // Ignore indexes with reserved names, e.g. autoindexes
             if (strpos($tableIndex['name'], 'sqlite_') === 0) {
                 continue;
@@ -205,7 +219,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
             $idx               = [];
             $idx['key_name']   = $keyName;
             $idx['primary']    = false;
-            $idx['non_unique'] = $tableIndex['unique']?false:true;
+            $idx['non_unique'] = ! $tableIndex['unique'];
 
                 $stmt       = $this->_conn->executeQuery(sprintf(
                     'PRAGMA INDEX_INFO (%s)',
@@ -224,19 +238,10 @@ class SqliteSchemaManager extends AbstractSchemaManager
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated
      */
-    protected function _getPortableTableIndexDefinition($tableIndex)
-    {
-        return [
-            'name' => $tableIndex['name'],
-            'unique' => (bool) $tableIndex['unique'],
-        ];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function _getPortableTableColumnList($table, $database, $tableColumns)
+    protected function _getPortableTableColumnList(string $table, string $database, array $tableColumns) : array
     {
         $list = parent::_getPortableTableColumnList($table, $database, $tableColumns);
 
@@ -279,16 +284,10 @@ class SqliteSchemaManager extends AbstractSchemaManager
 
             $comment = $this->parseColumnCommentFromSQL($columnName, $createSql);
 
-            if ($comment === null) {
-                continue;
-            }
-
-            $type = $this->extractDoctrineTypeFromComment($comment, null);
+            $type = $this->extractDoctrineTypeFromComment($comment);
 
             if ($type !== null) {
                 $column->setType(Type::getType($type));
-
-                $comment = $this->removeDoctrineTypeFromComment($comment, $type);
             }
 
             $column->setComment($comment);
@@ -300,65 +299,54 @@ class SqliteSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableColumnDefinition($tableColumn)
+    protected function _getPortableTableColumnDefinition(array $tableColumn) : Column
     {
-        $parts               = explode('(', $tableColumn['type']);
-        $tableColumn['type'] = trim($parts[0]);
-        if (isset($parts[1])) {
-            $length                = trim($parts[1], ')');
-            $tableColumn['length'] = $length;
-        }
+        preg_match('/^([^()]*)\\s*(\\(((\\d+)(,\\s*(\\d+))?)\\))?/', $tableColumn['type'], $matches);
 
-        $dbType   = strtolower($tableColumn['type']);
-        $length   = $tableColumn['length'] ?? null;
-        $unsigned = false;
+        $dbType = trim(strtolower($matches[1]));
+
+        $length = $precision = $unsigned = null;
+        $fixed  = $unsigned = false;
+        $scale  = 0;
+
+        if (count($matches) >= 6) {
+            $precision = (int) $matches[4];
+            $scale     = (int) $matches[6];
+        } elseif (count($matches) >= 4) {
+            $length = (int) $matches[4];
+        }
 
         if (strpos($dbType, ' unsigned') !== false) {
             $dbType   = str_replace(' unsigned', '', $dbType);
             $unsigned = true;
         }
 
-        $fixed   = false;
         $type    = $this->_platform->getDoctrineTypeMapping($dbType);
         $default = $tableColumn['dflt_value'];
         if ($default === 'NULL') {
             $default = null;
         }
+
         if ($default !== null) {
-            // SQLite returns strings wrapped in single quotes, so we need to strip them
-            $default = preg_replace("/^'(.*)'$/", '\1', $default);
+            // SQLite returns the default value as a literal expression, so we need to parse it
+            if (preg_match('/^\'(.*)\'$/s', $default, $matches)) {
+                $default = str_replace("''", "'", $matches[1]);
+            }
         }
+
         $notnull = (bool) $tableColumn['notnull'];
 
         if (! isset($tableColumn['name'])) {
             $tableColumn['name'] = '';
         }
 
-        $precision = null;
-        $scale     = null;
-
-        switch ($dbType) {
-            case 'char':
-                $fixed = true;
-                break;
-            case 'float':
-            case 'double':
-            case 'real':
-            case 'decimal':
-            case 'numeric':
-                if (isset($tableColumn['length'])) {
-                    if (strpos($tableColumn['length'], ',') === false) {
-                        $tableColumn['length'] .= ',0';
-                    }
-                    [$precision, $scale] = array_map('trim', explode(',', $tableColumn['length']));
-                }
-                $length = null;
-                break;
+        if ($dbType === 'char') {
+            $fixed = true;
         }
 
         $options = [
             'length'   => $length,
-            'unsigned' => (bool) $unsigned,
+            'unsigned' => $unsigned,
             'fixed'    => $fixed,
             'notnull'  => $notnull,
             'default'  => $default,
@@ -373,7 +361,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableViewDefinition($view)
+    protected function _getPortableViewDefinition(array $view) : View
     {
         return new View($view['name'], $view['sql']);
     }
@@ -381,7 +369,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableForeignKeysList($tableForeignKeys)
+    protected function _getPortableTableForeignKeysList(array $tableForeignKeys) : array
     {
         $list = [];
         foreach ($tableForeignKeys as $value) {
@@ -429,28 +417,24 @@ class SqliteSchemaManager extends AbstractSchemaManager
         return $result;
     }
 
-    /**
-     * @param Table|string $table
-     *
-     * @return TableDiff
-     *
-     * @throws DBALException
-     */
-    private function getTableDiffForAlterForeignKey(ForeignKeyConstraint $foreignKey, $table)
+    private function getTableDiffForAlterForeignKey(Table $table) : TableDiff
     {
-        if (! $table instanceof Table) {
-            $tableDetails = $this->tryMethod('listTableDetails', $table);
-            if ($table === false) {
-                throw new DBALException(sprintf('Sqlite schema manager requires to modify foreign keys table definition "%s".', $table));
-            }
-
-            $table = $tableDetails;
-        }
-
         $tableDiff            = new TableDiff($table->getName());
         $tableDiff->fromTable = $table;
 
         return $tableDiff;
+    }
+
+    /**
+     * @param string|Table $table
+     */
+    private function ensureTable($table) : Table
+    {
+        if (is_string($table)) {
+            $table = $this->listTableDetails($table);
+        }
+
+        return $table;
     }
 
     private function parseColumnCollationFromSQL(string $column, string $sql) : ?string
@@ -463,6 +447,25 @@ class SqliteSchemaManager extends AbstractSchemaManager
         }
 
         return $match[1];
+    }
+
+    private function parseTableCommentFromSQL(string $table, string $sql) : ?string
+    {
+        $pattern = '/\s* # Allow whitespace characters at start of line
+CREATE\sTABLE # Match "CREATE TABLE"
+(?:\W"' . preg_quote($this->_platform->quoteSingleIdentifier($table), '/') . '"\W|\W' . preg_quote($table, '/')
+            . '\W) # Match table name (quoted and unquoted)
+( # Start capture
+   (?:\s*--[^\n]*\n?)+ # Capture anything that starts with whitespaces followed by -- until the end of the line(s)
+)/ix';
+
+        if (preg_match($pattern, $sql, $match) !== 1) {
+            return null;
+        }
+
+        $comment = preg_replace('{^\s*--}m', '', rtrim($match[1], "\n"));
+
+        return $comment === '' ? null : $comment;
     }
 
     private function parseColumnCommentFromSQL(string $column, string $sql) : ?string
@@ -497,5 +500,20 @@ SQL
             ,
             [$table]
         ) ?: null;
+    }
+
+    public function listTableDetails(string $tableName) : Table
+    {
+        $table = parent::listTableDetails($tableName);
+
+        $tableCreateSql = $this->getCreateTableSQL($tableName) ?? '';
+
+        $comment = $this->parseTableCommentFromSQL($tableName, $tableCreateSql);
+
+        if ($comment !== null) {
+            $table->addOption('comment', $comment);
+        }
+
+        return $table;
     }
 }

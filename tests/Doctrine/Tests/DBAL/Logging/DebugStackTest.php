@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Logging;
 
 use Doctrine\DBAL\Logging\DebugStack;
@@ -10,25 +12,25 @@ class DebugStackTest extends DbalTestCase
     /** @var DebugStack */
     private $logger;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->logger = new DebugStack();
     }
 
-    protected function tearDown()
+    protected function tearDown() : void
     {
         unset($this->logger);
     }
 
-    public function testLoggedQuery()
+    public function testLoggedQuery() : void
     {
         $this->logger->startQuery('SELECT column FROM table');
         self::assertEquals(
             [
                 1 => [
                     'sql' => 'SELECT column FROM table',
-                    'params' => null,
-                    'types' => null,
+                    'params' => [],
+                    'types' => [],
                     'executionMS' => 0,
                 ],
             ],
@@ -39,7 +41,7 @@ class DebugStackTest extends DbalTestCase
         self::assertGreaterThan(0, $this->logger->queries[1]['executionMS']);
     }
 
-    public function testLoggedQueryDisabled()
+    public function testLoggedQueryDisabled() : void
     {
         $this->logger->enabled = false;
         $this->logger->startQuery('SELECT column FROM table');

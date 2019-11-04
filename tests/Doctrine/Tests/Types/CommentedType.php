@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -11,7 +13,7 @@ class CommentedType extends Type
     /**
      * {@inheritDoc}
      */
-    public function getName()
+    public function getName() : string
     {
         return 'my_commented';
     }
@@ -19,7 +21,7 @@ class CommentedType extends Type
     /**
      * {@inheritDoc}
      */
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
+    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform) : string
     {
         return strtoupper($this->getName());
     }
@@ -27,7 +29,7 @@ class CommentedType extends Type
     /**
      * {@inheritDoc}
      */
-    public function requiresSQLCommentHint(AbstractPlatform $platform)
+    public function requiresSQLCommentHint(AbstractPlatform $platform) : bool
     {
         return true;
     }

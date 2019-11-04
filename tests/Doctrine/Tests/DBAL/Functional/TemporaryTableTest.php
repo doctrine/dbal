@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\Schema\Table;
@@ -9,7 +11,7 @@ use Throwable;
 
 class TemporaryTableTest extends DbalFunctionalTestCase
 {
-    protected function setUp()
+    protected function setUp() : void
     {
         parent::setUp();
         try {
@@ -18,25 +20,21 @@ class TemporaryTableTest extends DbalFunctionalTestCase
         }
     }
 
-    protected function tearDown()
+    protected function tearDown() : void
     {
-        if ($this->connection) {
-            try {
-                $tempTable = $this->connection->getDatabasePlatform()->getTemporaryTableName('my_temporary');
-                $this->connection->exec($this->connection->getDatabasePlatform()->getDropTemporaryTableSQL($tempTable));
-            } catch (Throwable $e) {
-            }
+        try {
+            $tempTable = $this->connection->getDatabasePlatform()->getTemporaryTableName('my_temporary');
+            $this->connection->exec($this->connection->getDatabasePlatform()->getDropTemporaryTableSQL($tempTable));
+        } catch (Throwable $e) {
         }
 
         parent::tearDown();
     }
 
     /**
-     * @return void
-     *
      * @group DDC-1337
      */
-    public function testDropTemporaryTableNotAutoCommitTransaction()
+    public function testDropTemporaryTableNotAutoCommitTransaction() : void
     {
         if ($this->connection->getDatabasePlatform()->getName() === 'sqlanywhere' ||
             $this->connection->getDatabasePlatform()->getName() === 'oracle') {
@@ -44,8 +42,15 @@ class TemporaryTableTest extends DbalFunctionalTestCase
         }
 
         $platform          = $this->connection->getDatabasePlatform();
-        $columnDefinitions = ['id' => ['type' => Type::getType('integer'), 'notnull' => true]];
-        $tempTable         = $platform->getTemporaryTableName('my_temporary');
+        $columnDefinitions = [
+            [
+                'name' => 'id',
+                'type' => Type::getType('integer'),
+                'notnull' => true,
+            ],
+        ];
+
+        $tempTable = $platform->getTemporaryTableName('my_temporary');
 
         $createTempTableSQL = $platform->getCreateTemporaryTableSnippetSQL() . ' ' . $tempTable . ' ('
                 . $platform->getColumnDeclarationListSQL($columnDefinitions) . ')';
@@ -69,11 +74,9 @@ class TemporaryTableTest extends DbalFunctionalTestCase
     }
 
     /**
-     * @return void
-     *
      * @group DDC-1337
      */
-    public function testCreateTemporaryTableNotAutoCommitTransaction()
+    public function testCreateTemporaryTableNotAutoCommitTransaction() : void
     {
         if ($this->connection->getDatabasePlatform()->getName() === 'sqlanywhere' ||
             $this->connection->getDatabasePlatform()->getName() === 'oracle') {
@@ -81,8 +84,15 @@ class TemporaryTableTest extends DbalFunctionalTestCase
         }
 
         $platform          = $this->connection->getDatabasePlatform();
-        $columnDefinitions = ['id' => ['type' => Type::getType('integer'), 'notnull' => true]];
-        $tempTable         = $platform->getTemporaryTableName('my_temporary');
+        $columnDefinitions = [
+            [
+                'name' => 'id',
+                'type' => Type::getType('integer'),
+                'notnull' => true,
+            ],
+        ];
+
+        $tempTable = $platform->getTemporaryTableName('my_temporary');
 
         $createTempTableSQL = $platform->getCreateTemporaryTableSnippetSQL() . ' ' . $tempTable . ' ('
                 . $platform->getColumnDeclarationListSQL($columnDefinitions) . ')';

@@ -1,14 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
-use Doctrine\DBAL\Platforms\SQLServer2005Platform;
-use Doctrine\DBAL\Platforms\SQLServer2008Platform;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\Exception\InvalidPlatformVersion;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
+use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\SQLServerSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
 use function preg_match;
@@ -22,14 +24,14 @@ abstract class AbstractSQLServerDriver implements Driver, VersionAwarePlatformDr
     /**
      * {@inheritdoc}
      */
-    public function createDatabasePlatformForVersion($version)
+    public function createDatabasePlatformForVersion(string $version) : AbstractPlatform
     {
         if (! preg_match(
             '/^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+)(?:\.(?P<build>\d+))?)?)?/',
             $version,
             $versionParts
         )) {
-            throw DBALException::invalidPlatformVersionSpecified(
+            throw InvalidPlatformVersion::new(
                 $version,
                 '<major_version>.<minor_version>.<patch_version>.<build_version>'
             );
@@ -44,10 +46,6 @@ abstract class AbstractSQLServerDriver implements Driver, VersionAwarePlatformDr
         switch (true) {
             case version_compare($version, '11.00.2100', '>='):
                 return new SQLServer2012Platform();
-            case version_compare($version, '10.00.1600', '>='):
-                return new SQLServer2008Platform();
-            case version_compare($version, '9.00.1399', '>='):
-                return new SQLServer2005Platform();
             default:
                 return new SQLServerPlatform();
         }
@@ -56,25 +54,15 @@ abstract class AbstractSQLServerDriver implements Driver, VersionAwarePlatformDr
     /**
      * {@inheritdoc}
      */
-    public function getDatabase(Connection $conn)
+    public function getDatabasePlatform() : AbstractPlatform
     {
-        $params = $conn->getParams();
-
-        return $params['dbname'] ?? $conn->query('SELECT DB_NAME()')->fetchColumn();
+        return new SQLServerPlatform();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getDatabasePlatform()
-    {
-        return new SQLServer2008Platform();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getSchemaManager(Connection $conn)
+    public function getSchemaManager(Connection $conn) : AbstractSchemaManager
     {
         return new SQLServerSchemaManager($conn);
     }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests;
 
 use Doctrine\DBAL\Connection;
@@ -18,12 +20,12 @@ use function is_scalar;
 use function strpos;
 use function var_export;
 
-class DbalFunctionalTestCase extends DbalTestCase
+abstract class DbalFunctionalTestCase extends DbalTestCase
 {
     /**
      * Shared connection when a TestCase is run alone (outside of it's functional suite)
      *
-     * @var Connection
+     * @var Connection|null
      */
     private static $sharedConnection;
 
@@ -33,9 +35,9 @@ class DbalFunctionalTestCase extends DbalTestCase
     /** @var DebugStack */
     protected $sqlLoggerStack;
 
-    protected function resetSharedConn()
+    protected function resetSharedConn() : void
     {
-        if (! self::$sharedConnection) {
+        if (self::$sharedConnection === null) {
             return;
         }
 
@@ -43,7 +45,7 @@ class DbalFunctionalTestCase extends DbalTestCase
         self::$sharedConnection = null;
     }
 
-    protected function setUp()
+    protected function setUp() : void
     {
         if (! isset(self::$sharedConnection)) {
             self::$sharedConnection = TestUtil::getConnection();
@@ -54,14 +56,14 @@ class DbalFunctionalTestCase extends DbalTestCase
         $this->connection->getConfiguration()->setSQLLogger($this->sqlLoggerStack);
     }
 
-    protected function tearDown()
+    protected function tearDown() : void
     {
         while ($this->connection->isTransactionActive()) {
             $this->connection->rollBack();
         }
     }
 
-    protected function onNotSuccessfulTest(Throwable $t)
+    protected function onNotSuccessfulTest(Throwable $t) : void
     {
         if ($t instanceof AssertionFailedError) {
             throw $t;
@@ -74,7 +76,9 @@ class DbalFunctionalTestCase extends DbalTestCase
                 $params   = array_map(static function ($p) {
                     if (is_object($p)) {
                         return get_class($p);
-                    } elseif (is_scalar($p)) {
+                    }
+
+                    if (is_scalar($p)) {
                         return "'" . $p . "'";
                     }
 

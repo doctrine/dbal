@@ -1,11 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Schema\Sequence;
 use const PREG_OFFSET_CAPTURE;
 use function preg_match;
 use function preg_match_all;
+use function sprintf;
 use function substr_count;
 
 /**
@@ -14,12 +17,12 @@ use function substr_count;
  * Differences to SQL Server 2008 and before are that sequences are introduced,
  * and support for the new OFFSET... FETCH syntax for result pagination has been added.
  */
-class SQLServer2012Platform extends SQLServer2008Platform
+class SQLServer2012Platform extends SQLServerPlatform
 {
     /**
      * {@inheritdoc}
      */
-    public function getAlterSequenceSQL(Sequence $sequence)
+    public function getAlterSequenceSQL(Sequence $sequence) : string
     {
         return 'ALTER SEQUENCE ' . $sequence->getQuotedName($this) .
                ' INCREMENT BY ' . $sequence->getAllocationSize();
@@ -28,7 +31,7 @@ class SQLServer2012Platform extends SQLServer2008Platform
     /**
      * {@inheritdoc}
      */
-    public function getCreateSequenceSQL(Sequence $sequence)
+    public function getCreateSequenceSQL(Sequence $sequence) : string
     {
         return 'CREATE SEQUENCE ' . $sequence->getQuotedName($this) .
                ' START WITH ' . $sequence->getInitialValue() .
@@ -39,7 +42,7 @@ class SQLServer2012Platform extends SQLServer2008Platform
     /**
      * {@inheritdoc}
      */
-    public function getDropSequenceSQL($sequence)
+    public function getDropSequenceSQL($sequence) : string
     {
         if ($sequence instanceof Sequence) {
             $sequence = $sequence->getQuotedName($this);
@@ -51,7 +54,7 @@ class SQLServer2012Platform extends SQLServer2008Platform
     /**
      * {@inheritdoc}
      */
-    public function getListSequencesSQL($database)
+    public function getListSequencesSQL(string $database) : string
     {
         return 'SELECT seq.name,
                        CAST(
@@ -66,7 +69,7 @@ class SQLServer2012Platform extends SQLServer2008Platform
     /**
      * {@inheritdoc}
      */
-    public function getSequenceNextValSQL($sequenceName)
+    public function getSequenceNextValSQL(string $sequenceName) : string
     {
         return 'SELECT NEXT VALUE FOR ' . $sequenceName;
     }
@@ -74,7 +77,7 @@ class SQLServer2012Platform extends SQLServer2008Platform
     /**
      * {@inheritdoc}
      */
-    public function supportsSequences()
+    public function supportsSequences() : bool
     {
         return true;
     }
@@ -84,7 +87,7 @@ class SQLServer2012Platform extends SQLServer2008Platform
      *
      * Returns Microsoft SQL Server 2012 specific keywords class
      */
-    protected function getReservedKeywordsClass()
+    protected function getReservedKeywordsClass() : string
     {
         return Keywords\SQLServer2012Keywords::class;
     }
@@ -92,7 +95,7 @@ class SQLServer2012Platform extends SQLServer2008Platform
     /**
      * {@inheritdoc}
      */
-    protected function doModifyLimitQuery($query, $limit, $offset = null)
+    protected function doModifyLimitQuery(string $query, ?int $limit, int $offset) : string
     {
         if ($limit === null && $offset <= 0) {
             return $query;
@@ -125,17 +128,13 @@ class SQLServer2012Platform extends SQLServer2008Platform
             }
         }
 
-        if ($offset === null) {
-            $offset = 0;
-        }
-
         // This looks somewhat like MYSQL, but limit/offset are in inverse positions
         // Supposedly SQL:2008 core standard.
         // Per TSQL spec, FETCH NEXT n ROWS ONLY is not valid without OFFSET n ROWS.
-        $query .= ' OFFSET ' . (int) $offset . ' ROWS';
+        $query .= sprintf(' OFFSET %d ROWS', $offset);
 
         if ($limit !== null) {
-            $query .= ' FETCH NEXT ' . (int) $limit . ' ROWS ONLY';
+            $query .= sprintf(' FETCH NEXT %d ROWS ONLY', $limit);
         }
 
         return $query;

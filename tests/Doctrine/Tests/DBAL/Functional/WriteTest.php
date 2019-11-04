@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Functional;
 
 use DateTime;
@@ -7,7 +9,6 @@ use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use Throwable;
 use function array_filter;
@@ -15,44 +16,33 @@ use function strtolower;
 
 class WriteTest extends DbalFunctionalTestCase
 {
-    protected function setUp()
+    protected function setUp() : void
     {
         parent::setUp();
 
-        try {
-            $table = new Table('write_table');
-            $table->addColumn('id', 'integer', ['autoincrement' => true]);
-            $table->addColumn('test_int', 'integer');
-            $table->addColumn('test_string', 'string', ['notnull' => false]);
-            $table->setPrimaryKey(['id']);
+        $table = new Table('write_table');
+        $table->addColumn('id', 'integer', ['autoincrement' => true]);
+        $table->addColumn('test_int', 'integer');
+        $table->addColumn('test_string', 'string', [
+            'length' => 32,
+            'notnull' => false,
+        ]);
+        $table->setPrimaryKey(['id']);
 
-            $this->connection->getSchemaManager()->createTable($table);
-        } catch (Throwable $e) {
-        }
+        $this->connection->getSchemaManager()->dropAndCreateTable($table);
+
         $this->connection->executeUpdate('DELETE FROM write_table');
     }
 
-    /**
-     * @group DBAL-80
-     */
-    public function testExecuteUpdateFirstTypeIsNull()
+    public function testExecuteUpdate() : void
     {
-        $sql = 'INSERT INTO write_table (test_string, test_int) VALUES (?, ?)';
-        $this->connection->executeUpdate($sql, ['text', 1111], [null, ParameterType::INTEGER]);
-
-        $sql = 'SELECT * FROM write_table WHERE test_string = ? AND test_int = ?';
-        self::assertTrue((bool) $this->connection->fetchColumn($sql, ['text', 1111]));
-    }
-
-    public function testExecuteUpdate()
-    {
-        $sql      = 'INSERT INTO write_table (test_int) VALUES ( ' . $this->connection->quote(1) . ')';
+        $sql      = 'INSERT INTO write_table (test_int) VALUES (1)';
         $affected = $this->connection->executeUpdate($sql);
 
         self::assertEquals(1, $affected, 'executeUpdate() should return the number of affected rows!');
     }
 
-    public function testExecuteUpdateWithTypes()
+    public function testExecuteUpdateWithTypes() : void
     {
         $sql      = 'INSERT INTO write_table (test_int, test_string) VALUES (?, ?)';
         $affected = $this->connection->executeUpdate(
@@ -64,7 +54,7 @@ class WriteTest extends DbalFunctionalTestCase
         self::assertEquals(1, $affected, 'executeUpdate() should return the number of affected rows!');
     }
 
-    public function testPrepareRowCountReturnsAffectedRows()
+    public function testPrepareRowCountReturnsAffectedRows() : void
     {
         $sql  = 'INSERT INTO write_table (test_int, test_string) VALUES (?, ?)';
         $stmt = $this->connection->prepare($sql);
@@ -76,7 +66,7 @@ class WriteTest extends DbalFunctionalTestCase
         self::assertEquals(1, $stmt->rowCount());
     }
 
-    public function testPrepareWithPdoTypes()
+    public function testPrepareWithPdoTypes() : void
     {
         $sql  = 'INSERT INTO write_table (test_int, test_string) VALUES (?, ?)';
         $stmt = $this->connection->prepare($sql);
@@ -88,42 +78,42 @@ class WriteTest extends DbalFunctionalTestCase
         self::assertEquals(1, $stmt->rowCount());
     }
 
-    public function testPrepareWithDbalTypes()
+    public function testPrepareWithDbalTypes() : void
     {
         $sql  = 'INSERT INTO write_table (test_int, test_string) VALUES (?, ?)';
         $stmt = $this->connection->prepare($sql);
 
-        $stmt->bindValue(1, 1, Type::getType('integer'));
-        $stmt->bindValue(2, 'foo', Type::getType('string'));
+        $stmt->bindValue(1, 1, ParameterType::INTEGER);
+        $stmt->bindValue(2, 'foo', ParameterType::STRING);
         $stmt->execute();
 
         self::assertEquals(1, $stmt->rowCount());
     }
 
-    public function testPrepareWithDbalTypeNames()
+    public function testPrepareWithDbalTypeNames() : void
     {
         $sql  = 'INSERT INTO write_table (test_int, test_string) VALUES (?, ?)';
         $stmt = $this->connection->prepare($sql);
 
-        $stmt->bindValue(1, 1, 'integer');
-        $stmt->bindValue(2, 'foo', 'string');
+        $stmt->bindValue(1, 1, ParameterType::INTEGER);
+        $stmt->bindValue(2, 'foo', ParameterType::STRING);
         $stmt->execute();
 
         self::assertEquals(1, $stmt->rowCount());
     }
 
-    public function insertRows()
+    public function insertRows() : void
     {
         self::assertEquals(1, $this->connection->insert('write_table', ['test_int' => 1, 'test_string' => 'foo']));
         self::assertEquals(1, $this->connection->insert('write_table', ['test_int' => 2, 'test_string' => 'bar']));
     }
 
-    public function testInsert()
+    public function testInsert() : void
     {
         $this->insertRows();
     }
 
-    public function testDelete()
+    public function testDelete() : void
     {
         $this->insertRows();
 
@@ -134,7 +124,7 @@ class WriteTest extends DbalFunctionalTestCase
         self::assertCount(0, $this->connection->fetchAll('SELECT * FROM write_table'));
     }
 
-    public function testUpdate()
+    public function testUpdate() : void
     {
         $this->insertRows();
 
@@ -143,7 +133,7 @@ class WriteTest extends DbalFunctionalTestCase
         self::assertEquals(0, $this->connection->update('write_table', ['test_string' => 'baz'], ['test_string' => 'bar']));
     }
 
-    public function testLastInsertId()
+    public function testLastInsertId() : void
     {
         if (! $this->connection->getDatabasePlatform()->prefersIdentityColumns()) {
             $this->markTestSkipped('Test only works on platforms with identity columns.');
@@ -152,11 +142,10 @@ class WriteTest extends DbalFunctionalTestCase
         self::assertEquals(1, $this->connection->insert('write_table', ['test_int' => 2, 'test_string' => 'bar']));
         $num = $this->lastInsertId();
 
-        self::assertNotNull($num, 'LastInsertId() should not be null.');
         self::assertGreaterThan(0, $num, 'LastInsertId() should be non-negative number.');
     }
 
-    public function testLastInsertIdSequence()
+    public function testLastInsertIdSequence() : void
     {
         if (! $this->connection->getDatabasePlatform()->supportsSequences()) {
             $this->markTestSkipped('Test only works on platforms with sequences.');
@@ -182,19 +171,20 @@ class WriteTest extends DbalFunctionalTestCase
         self::assertEquals($nextSequenceVal, $lastInsertId);
     }
 
-    public function testLastInsertIdNoSequenceGiven()
+    public function testLastInsertIdNoSequenceGiven() : void
     {
         if (! $this->connection->getDatabasePlatform()->supportsSequences() || $this->connection->getDatabasePlatform()->supportsIdentityColumns()) {
             $this->markTestSkipped("Test only works consistently on platforms that support sequences and don't support identity columns.");
         }
 
-        self::assertFalse($this->lastInsertId());
+        $this->expectException(DriverException::class);
+        $this->lastInsertId();
     }
 
     /**
      * @group DBAL-445
      */
-    public function testInsertWithKeyValueTypes()
+    public function testInsertWithKeyValueTypes() : void
     {
         $testString = new DateTime('2013-04-14 10:10:10');
 
@@ -212,7 +202,7 @@ class WriteTest extends DbalFunctionalTestCase
     /**
      * @group DBAL-445
      */
-    public function testUpdateWithKeyValueTypes()
+    public function testUpdateWithKeyValueTypes() : void
     {
         $testString = new DateTime('2013-04-14 10:10:10');
 
@@ -239,7 +229,7 @@ class WriteTest extends DbalFunctionalTestCase
     /**
      * @group DBAL-445
      */
-    public function testDeleteWithKeyValueTypes()
+    public function testDeleteWithKeyValueTypes() : void
     {
         $val = new DateTime('2013-04-14 10:10:10');
         $this->connection->insert(
@@ -255,7 +245,7 @@ class WriteTest extends DbalFunctionalTestCase
         self::assertFalse($data);
     }
 
-    public function testEmptyIdentityInsert()
+    public function testEmptyIdentityInsert() : void
     {
         $platform = $this->connection->getDatabasePlatform();
 
@@ -298,7 +288,7 @@ class WriteTest extends DbalFunctionalTestCase
     /**
      * @group DBAL-2688
      */
-    public function testUpdateWhereIsNull()
+    public function testUpdateWhereIsNull() : void
     {
         $this->connection->insert(
             'write_table',
@@ -317,7 +307,7 @@ class WriteTest extends DbalFunctionalTestCase
         self::assertCount(0, $data);
     }
 
-    public function testDeleteWhereIsNull()
+    public function testDeleteWhereIsNull() : void
     {
         $this->connection->insert(
             'write_table',
@@ -340,16 +330,14 @@ class WriteTest extends DbalFunctionalTestCase
      * Returns the ID of the last inserted row or skips the test if the currently used driver
      * doesn't support this feature
      *
-     * @return string
-     *
      * @throws DriverException
      */
-    private function lastInsertId(?string $name = null)
+    private function lastInsertId(?string $name = null) : string
     {
         try {
             return $this->connection->lastInsertId($name);
         } catch (DriverException $e) {
-            if ($e->getCode() === 'IM001') {
+            if ($e->getSQLState() === 'IM001') {
                 $this->markTestSkipped($e->getMessage());
             }
 

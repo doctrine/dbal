@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Performance;
 
 use DateTime;
@@ -8,8 +10,6 @@ use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DbalPerformanceTestCase;
 
 /**
- * Class TypeConversionPerformanceTest
- *
  * @group performance
  */
 class TypeConversionPerformanceTest extends DbalPerformanceTestCase
@@ -19,7 +19,7 @@ class TypeConversionPerformanceTest extends DbalPerformanceTestCase
      *
      * @dataProvider itemCountProvider
      */
-    public function testDateTimeTypeConversionPerformance($count)
+    public function testDateTimeTypeConversionPerformance(int $count) : void
     {
         $value    = new DateTime();
         $type     = Type::getType('datetime');
@@ -31,7 +31,10 @@ class TypeConversionPerformanceTest extends DbalPerformanceTestCase
         $this->stopTiming();
     }
 
-    public function itemCountProvider()
+    /**
+     * @return mixed[][]
+     */
+    public static function itemCountProvider() : iterable
     {
         return [
             '100 items' => [100],

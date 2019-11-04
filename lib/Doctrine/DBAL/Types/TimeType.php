@@ -1,10 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Types;
 
 use DateTime;
 use DateTimeInterface;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Types\Exception\InvalidFormat;
+use Doctrine\DBAL\Types\Exception\InvalidType;
 
 /**
  * Type that maps an SQL TIME to a PHP DateTime object.
@@ -14,15 +18,15 @@ class TimeType extends Type
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName() : string
     {
-        return Type::TIME;
+        return Types::TIME_MUTABLE;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
+    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform) : string
     {
         return $platform->getTimeTypeDeclarationSQL($fieldDeclaration);
     }
@@ -40,7 +44,7 @@ class TimeType extends Type
             return $value->format($platform->getTimeFormatString());
         }
 
-        throw ConversionException::conversionFailedInvalidType($value, $this->getName(), ['null', 'DateTime']);
+        throw InvalidType::new($value, $this->getName(), ['null', 'DateTime']);
     }
 
     /**
@@ -54,7 +58,7 @@ class TimeType extends Type
 
         $val = DateTime::createFromFormat('!' . $platform->getTimeFormatString(), $value);
         if (! $val) {
-            throw ConversionException::conversionFailedFormat($value, $this->getName(), $platform->getTimeFormatString());
+            throw InvalidFormat::new($value, $this->getName(), $platform->getTimeFormatString());
         }
 
         return $val;

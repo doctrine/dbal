@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Schema\Platforms;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -16,13 +18,13 @@ class MySQLSchemaTest extends TestCase
     /** @var AbstractPlatform */
     private $platform;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->comparator = new Comparator();
         $this->platform   = new MySqlPlatform();
     }
 
-    public function testSwitchPrimaryKeyOrder()
+    public function testSwitchPrimaryKeyOrder() : void
     {
         $tableOld = new Table('test');
         $tableOld->addColumn('foo_id', 'integer');
@@ -33,7 +35,10 @@ class MySQLSchemaTest extends TestCase
         $tableNew->setPrimaryKey(['bar_id', 'foo_id']);
 
         $diff = $this->comparator->diffTable($tableOld, $tableNew);
-        $sql  = $this->platform->getAlterTableSQL($diff);
+
+        self::assertNotNull($diff);
+
+        $sql = $this->platform->getAlterTableSQL($diff);
 
         self::assertEquals(
             [
@@ -47,11 +52,11 @@ class MySQLSchemaTest extends TestCase
     /**
      * @group DBAL-132
      */
-    public function testGenerateForeignKeySQL()
+    public function testGenerateForeignKeySQL() : void
     {
         $tableOld = new Table('test');
         $tableOld->addColumn('foo_id', 'integer');
-        $tableOld->addUnnamedForeignKeyConstraint('test_foreign', ['foo_id'], ['foo_id']);
+        $tableOld->addForeignKeyConstraint('test_foreign', ['foo_id'], ['foo_id']);
 
         $sqls = [];
         foreach ($tableOld->getForeignKeys() as $fk) {
@@ -64,7 +69,7 @@ class MySQLSchemaTest extends TestCase
     /**
      * @group DDC-1737
      */
-    public function testClobNoAlterTable()
+    public function testClobNoAlterTable() : void
     {
         $tableOld = new Table('test');
         $tableOld->addColumn('id', 'integer');
@@ -74,7 +79,10 @@ class MySQLSchemaTest extends TestCase
         $tableNew->setPrimaryKey(['id']);
 
         $diff = $this->comparator->diffTable($tableOld, $tableNew);
-        $sql  = $this->platform->getAlterTableSQL($diff);
+
+        self::assertNotNull($diff);
+
+        $sql = $this->platform->getAlterTableSQL($diff);
 
         self::assertEquals(
             ['ALTER TABLE test ADD PRIMARY KEY (id)'],

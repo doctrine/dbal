@@ -1,17 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Cache;
 
 use ArrayIterator;
 use Doctrine\Common\Cache\Cache;
 use Doctrine\DBAL\Driver\ResultStatement;
-use Doctrine\DBAL\Driver\Statement;
+use Doctrine\DBAL\Exception\InvalidColumnIndex;
 use Doctrine\DBAL\FetchMode;
 use InvalidArgumentException;
 use IteratorAggregate;
-use PDO;
+use function array_key_exists;
 use function array_merge;
 use function array_values;
+use function count;
 use function reset;
 
 /**
@@ -41,7 +44,7 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
     /** @var int */
     private $lifetime;
 
-    /** @var Statement */
+    /** @var ResultStatement */
     private $statement;
 
     /**
@@ -57,12 +60,7 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
     /** @var int */
     private $defaultFetchMode = FetchMode::MIXED;
 
-    /**
-     * @param string $cacheKey
-     * @param string $realKey
-     * @param int    $lifetime
-     */
-    public function __construct(Statement $stmt, Cache $resultCache, $cacheKey, $realKey, $lifetime)
+    public function __construct(ResultStatement $stmt, Cache $resultCache, string $cacheKey, string $realKey, int $lifetime)
     {
         $this->statement   = $stmt;
         $this->resultCache = $resultCache;
@@ -74,11 +72,12 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function closeCursor()
+    public function closeCursor() : void
     {
         $this->statement->closeCursor();
+
         if (! $this->emptied || $this->data === null) {
-            return true;
+            return;
         }
 
         $data = $this->resultCache->fetch($this->cacheKey);
@@ -89,14 +88,12 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
 
         $this->resultCache->save($this->cacheKey, $data, $this->lifetime);
         unset($this->data);
-
-        return true;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function columnCount()
+    public function columnCount() : int
     {
         return $this->statement->columnCount();
     }
@@ -104,11 +101,9 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
+    public function setFetchMode(int $fetchMode, ...$args) : void
     {
         $this->defaultFetchMode = $fetchMode;
-
-        return true;
     }
 
     /**
@@ -124,7 +119,7 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null, $cursorOrientation = PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
+    public function fetch(?int $fetchMode = null, ...$args)
     {
         if ($this->data === null) {
             $this->data = [];
@@ -164,9 +159,17 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
+    public function fetchAll(?int $fetchMode = null, ...$args) : array
     {
-        $this->data    = $this->statement->fetchAll($fetchMode, $fetchArgument, $ctorArgs);
+        $data = $this->statement->fetchAll($fetchMode, ...$args);
+
+        if ($fetchMode === FetchMode::COLUMN) {
+            foreach ($data as $key => $value) {
+                $data[$key] = [$value];
+            }
+        }
+
+        $this->data    = $data;
         $this->emptied = true;
 
         return $this->data;
@@ -175,12 +178,19 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function fetchColumn($columnIndex = 0)
+    public function fetchColumn(int $columnIndex = 0)
     {
         $row = $this->fetch(FetchMode::NUMERIC);
 
-        // TODO: verify that return false is the correct behavior
-        return $row[$columnIndex] ?? false;
+        if ($row === false) {
+            return false;
+        }
+
+        if (! array_key_exists($columnIndex, $row)) {
+            throw InvalidColumnIndex::new($columnIndex, count($row));
+        }
+
+        return $row[$columnIndex];
     }
 
     /**
@@ -194,7 +204,7 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
      *
      * @return int The number of rows.
      */
-    public function rowCount()
+    public function rowCount() : int
     {
         return $this->statement->rowCount();
     }

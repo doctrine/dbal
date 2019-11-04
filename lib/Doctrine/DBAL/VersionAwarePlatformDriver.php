@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -20,9 +22,7 @@ interface VersionAwarePlatformDriver
      * @param string $version The platform/server version string to evaluate. This should be given in the notation
      *                        the underlying database vendor uses.
      *
-     * @return AbstractPlatform
-     *
      * @throws DBALException If the given version string could not be evaluated.
      */
-    public function createDatabasePlatformForVersion($version);
+    public function createDatabasePlatformForVersion(string $version) : AbstractPlatform;
 }

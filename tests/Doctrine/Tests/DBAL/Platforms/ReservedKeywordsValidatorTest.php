@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\DBAL\Platforms\Keywords\MySQLKeywords;
@@ -12,12 +14,12 @@ class ReservedKeywordsValidatorTest extends DbalTestCase
     /** @var ReservedKeywordsValidator */
     private $validator;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->validator = new ReservedKeywordsValidator([new MySQLKeywords()]);
     }
 
-    public function testReservedTableName()
+    public function testReservedTableName() : void
     {
         $table = new Table('TABLE');
         $this->validator->acceptTable($table);
@@ -28,7 +30,7 @@ class ReservedKeywordsValidatorTest extends DbalTestCase
         );
     }
 
-    public function testReservedColumnName()
+    public function testReservedColumnName() : void
     {
         $table  = new Table('TABLE');
         $column = $table->addColumn('table', 'string');

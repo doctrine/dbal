@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -12,108 +14,107 @@ class TableDiff
     /** @var string */
     public $name = null;
 
-    /** @var string|bool */
-    public $newName = false;
+    /** @var string|null */
+    public $newName = null;
 
     /**
      * All added fields.
      *
-     * @var Column[]
+     * @var array<string, Column>
      */
     public $addedColumns;
 
     /**
      * All changed fields.
      *
-     * @var ColumnDiff[]
+     * @var array<string, ColumnDiff>
      */
     public $changedColumns = [];
 
     /**
      * All removed fields.
      *
-     * @var Column[]
+     * @var array<string, Column>
      */
     public $removedColumns = [];
 
     /**
      * Columns that are only renamed from key to column instance name.
      *
-     * @var Column[]
+     * @var array<string, Column>
      */
     public $renamedColumns = [];
 
     /**
      * All added indexes.
      *
-     * @var Index[]
+     * @var array<string, Index>
      */
     public $addedIndexes = [];
 
     /**
      * All changed indexes.
      *
-     * @var Index[]
+     * @var array<string, Index>
      */
     public $changedIndexes = [];
 
     /**
      * All removed indexes
      *
-     * @var Index[]
+     * @var array<string, Index>
      */
     public $removedIndexes = [];
 
     /**
      * Indexes that are only renamed but are identical otherwise.
      *
-     * @var Index[]
+     * @var array<string, Index>
      */
     public $renamedIndexes = [];
 
     /**
      * All added foreign key definitions
      *
-     * @var ForeignKeyConstraint[]
+     * @var array<int, ForeignKeyConstraint>
      */
     public $addedForeignKeys = [];
 
     /**
      * All changed foreign keys
      *
-     * @var ForeignKeyConstraint[]
+     * @var array<int, ForeignKeyConstraint>
      */
     public $changedForeignKeys = [];
 
     /**
      * All removed foreign keys
      *
-     * @var ForeignKeyConstraint[]|string[]
+     * @var array<int, ForeignKeyConstraint>
      */
     public $removedForeignKeys = [];
 
-    /** @var Table */
+    /** @var Table|null */
     public $fromTable;
 
     /**
      * Constructs an TableDiff object.
      *
-     * @param string       $tableName
-     * @param Column[]     $addedColumns
-     * @param ColumnDiff[] $changedColumns
-     * @param Column[]     $removedColumns
-     * @param Index[]      $addedIndexes
-     * @param Index[]      $changedIndexes
-     * @param Index[]      $removedIndexes
+     * @param array<string, Column>     $addedColumns
+     * @param array<string, ColumnDiff> $changedColumns
+     * @param array<string, Column>     $removedColumns
+     * @param array<string, Index>      $addedIndexes
+     * @param array<string, Index>      $changedIndexes
+     * @param array<string, Index>      $removedIndexes
      */
     public function __construct(
-        $tableName,
-        $addedColumns = [],
-        $changedColumns = [],
-        $removedColumns = [],
-        $addedIndexes = [],
-        $changedIndexes = [],
-        $removedIndexes = [],
+        string $tableName,
+        array $addedColumns = [],
+        array $changedColumns = [],
+        array $removedColumns = [],
+        array $addedIndexes = [],
+        array $changedIndexes = [],
+        array $removedIndexes = [],
         ?Table $fromTable = null
     ) {
         $this->name           = $tableName;
@@ -128,21 +129,20 @@ class TableDiff
 
     /**
      * @param AbstractPlatform $platform The platform to use for retrieving this table diff's name.
-     *
-     * @return Identifier
      */
-    public function getName(AbstractPlatform $platform)
+    public function getName(AbstractPlatform $platform) : Identifier
     {
         return new Identifier(
             $this->fromTable instanceof Table ? $this->fromTable->getQuotedName($platform) : $this->name
         );
     }
 
-    /**
-     * @return Identifier|string|bool
-     */
-    public function getNewName()
+    public function getNewName() : ?Identifier
     {
-        return $this->newName ? new Identifier($this->newName) : $this->newName;
+        if ($this->newName === null) {
+            return null;
+        }
+
+        return new Identifier($this->newName);
     }
 }

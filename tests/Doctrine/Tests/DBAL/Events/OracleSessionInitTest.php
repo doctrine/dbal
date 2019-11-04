@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Events;
 
 use Doctrine\DBAL\Connection;
@@ -11,7 +13,7 @@ use function sprintf;
 
 class OracleSessionInitTest extends DbalTestCase
 {
-    public function testPostConnect()
+    public function testPostConnect() : void
     {
         $connectionMock = $this->createMock(Connection::class);
         $connectionMock->expects($this->once())
@@ -28,7 +30,7 @@ class OracleSessionInitTest extends DbalTestCase
      * @group DBAL-1824
      * @dataProvider getPostConnectWithSessionParameterValuesData
      */
-    public function testPostConnectQuotesSessionParameterValues($name, $value)
+    public function testPostConnectQuotesSessionParameterValues(string $name, string $value) : void
     {
         $connectionMock = $this->getMockBuilder(Connection::class)
             ->disableOriginalConstructor()
@@ -43,14 +45,17 @@ class OracleSessionInitTest extends DbalTestCase
         $listener->postConnect($eventArgs);
     }
 
-    public function getPostConnectWithSessionParameterValuesData()
+    /**
+     * @return array<int, array<int, mixed>>
+     */
+    public static function getPostConnectWithSessionParameterValuesData() : iterable
     {
         return [
             ['CURRENT_SCHEMA', 'foo'],
         ];
     }
 
-    public function testGetSubscribedEvents()
+    public function testGetSubscribedEvents() : void
     {
         $listener = new OracleSessionInit();
         self::assertEquals([Events::postConnect], $listener->getSubscribedEvents());

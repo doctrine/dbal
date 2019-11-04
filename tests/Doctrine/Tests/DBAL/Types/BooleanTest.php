@@ -1,36 +1,40 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Types;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Types\BooleanType;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Tests\DBAL\Mocks\MockPlatform;
 use Doctrine\Tests\DbalTestCase;
+use PHPUnit\Framework\MockObject\MockObject;
 
 class BooleanTest extends DbalTestCase
 {
-    /** @var MockPlatform */
+    /** @var AbstractPlatform|MockObject */
     private $platform;
 
-    /** @var Type */
+    /** @var BooleanType */
     private $type;
 
-    protected function setUp()
+    protected function setUp() : void
     {
-        $this->platform = new MockPlatform();
+        $this->platform = $this->getMockForAbstractClass(AbstractPlatform::class);
         $this->type     = Type::getType('boolean');
     }
 
-    public function testBooleanConvertsToDatabaseValue()
+    public function testBooleanConvertsToDatabaseValue() : void
     {
-        self::assertInternalType('integer', $this->type->convertToDatabaseValue(1, $this->platform));
+        self::assertIsInt($this->type->convertToDatabaseValue(1, $this->platform));
     }
 
-    public function testBooleanConvertsToPHPValue()
+    public function testBooleanConvertsToPHPValue() : void
     {
-        self::assertInternalType('bool', $this->type->convertToPHPValue(0, $this->platform));
+        self::assertIsBool($this->type->convertToPHPValue(0, $this->platform));
     }
 
-    public function testBooleanNullConvertsToPHPValue()
+    public function testBooleanNullConvertsToPHPValue() : void
     {
         self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }

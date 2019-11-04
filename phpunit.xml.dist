@@ -60,7 +60,6 @@
 
     <listeners>
         <listener class="Doctrine\Tests\DbalPerformanceTestListener"/>
-        <listener class="Symfony\Bridge\PhpUnit\SymfonyTestsListener" />
     </listeners>
 
     <groups>

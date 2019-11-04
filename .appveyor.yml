@@ -22,21 +22,21 @@ environment:
     driver: sqlsrv
     db_version: sql2008r2sp2
     coverage: yes
-    php: 7.2
+    php: 7.3
   - db: mssql
     driver: sqlsrv
     db_version: sql2012sp1
-    php: 7.2
+    php: 7.3
     coverage: yes
   - db: mssql
     driver: sqlsrv
     db_version: sql2017
     coverage: no
-    php: 7.2
+    php: 7.3
   - db: mssql
     driver: pdo_sqlsrv
     db_version: sql2017
-    php: 7.2
+    php: 7.3
     coverage: yes
 
 init:
@@ -68,8 +68,7 @@ install:
           Add-Content php.ini "`n extension=php_curl.dll"
           Add-Content php.ini "`n curl.cainfo=C:\tools\cacert\bundle.pem"
 
-          # Get and install the latest stable sqlsrv DLL's
-          $DLLVersion = (Invoke-WebRequest "https://pecl.php.net/rest/r/sqlsrv/stable.txt").Content
+          $DLLVersion = "5.5.0preview"
           cd c:\tools\php\ext
           $source = "https://windows.php.net/downloads/pecl/releases/sqlsrv/$($DLLVersion)/php_sqlsrv-$($DLLVersion)-$($env:php)-nts-vc15-x64.zip"
           $destination = "c:\tools\php\ext\php_sqlsrv-$($DLLVersion)-$($env:php)-nts-vc15-x64.zip"
@@ -79,7 +78,7 @@ install:
           $destination = "c:\tools\php\ext\php_pdo_sqlsrv-$($DLLVersion)-$($env:php)-nts-vc15-x64.zip"
           Invoke-WebRequest $source -OutFile $destination
           7z x -y php_pdo_sqlsrv-$($DLLVersion)-$($env:php)-nts-vc15-x64.zip > $null
-          $DLLVersion = "2.6.0"
+          $DLLVersion = (Invoke-WebRequest "https://pecl.php.net/rest/r/xdebug/stable.txt").Content
           $source = "https://xdebug.org/files/php_xdebug-$($DLLVersion)-$($env:php)-vc15-nts-x86_64.dll"
           $destination = "c:\tools\php\ext\php_xdebug.dll"
           Invoke-WebRequest $source -OutFile $destination
@@ -131,17 +130,25 @@ before_test:
       }
 
 test_script:
-  - cd C:\projects\dbal
   - ps: >-
       if ($env:db_version) {
         $env:phpunit_config = "tests\appveyor\$($env:db).$($env:db_version).$($env:driver).appveyor.xml"
       } else {
         $env:phpunit_config = "tests\appveyor\$($env:db).$($env:driver).appveyor.xml"
       }
-  - ps: >-
+
       if ($env:coverage -eq "yes") {
         vendor\bin\phpunit -c $($env:phpunit_config) --coverage-clover clover.xml
-        appveyor-retry ocular code-coverage:upload --format=php-clover clover.xml
       } else {
         vendor\bin\phpunit -c $($env:phpunit_config)
+      }
+
+      if ($LastExitCode -ne 0) {
+        $host.SetShouldExit($LastExitCode)
+      }
+
+after_test:
+  - ps: >-
+      if ($env:coverage -eq "yes") {
+        appveyor-retry ocular code-coverage:upload --format=php-clover clover.xml
       }

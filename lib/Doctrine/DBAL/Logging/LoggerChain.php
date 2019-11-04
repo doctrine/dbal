@@ -1,29 +1,29 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Logging;
 
 /**
  * Chains multiple SQLLogger.
  */
-class LoggerChain implements SQLLogger
+final class LoggerChain implements SQLLogger
 {
-    /** @var SQLLogger[] */
+    /** @var iterable<SQLLogger> */
     private $loggers = [];
 
     /**
-     * Adds a logger in the chain.
-     *
-     * @return void
+     * @param iterable<SQLLogger> $loggers
      */
-    public function addLogger(SQLLogger $logger)
+    public function __construct(iterable $loggers = [])
     {
-        $this->loggers[] = $logger;
+        $this->loggers = $loggers;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function startQuery($sql, ?array $params = null, ?array $types = null)
+    public function startQuery(string $sql, array $params = [], array $types = []) : void
     {
         foreach ($this->loggers as $logger) {
             $logger->startQuery($sql, $params, $types);
@@ -33,7 +33,7 @@ class LoggerChain implements SQLLogger
     /**
      * {@inheritdoc}
      */
-    public function stopQuery()
+    public function stopQuery() : void
     {
         foreach ($this->loggers as $logger) {
             $logger->stopQuery();

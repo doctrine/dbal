@@ -1,10 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Types;
 
 use DateTime;
 use DateTimeInterface;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Types\Exception\InvalidFormat;
+use Doctrine\DBAL\Types\Exception\InvalidType;
 use function date_create;
 
 /**
@@ -15,15 +19,15 @@ class DateTimeType extends Type implements PhpDateTimeMappingType
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName() : string
     {
-        return Type::DATETIME;
+        return Types::DATETIME_MUTABLE;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
+    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform) : string
     {
         return $platform->getDateTimeTypeDeclarationSQL($fieldDeclaration);
     }
@@ -41,7 +45,7 @@ class DateTimeType extends Type implements PhpDateTimeMappingType
             return $value->format($platform->getDateTimeFormatString());
         }
 
-        throw ConversionException::conversionFailedInvalidType($value, $this->getName(), ['null', 'DateTime']);
+        throw InvalidType::new($value, $this->getName(), ['null', 'DateTime']);
     }
 
     /**
@@ -60,7 +64,7 @@ class DateTimeType extends Type implements PhpDateTimeMappingType
         }
 
         if (! $val) {
-            throw ConversionException::conversionFailedFormat($value, $this->getName(), $platform->getDateTimeFormatString());
+            throw InvalidFormat::new($value, $this->getName(), $platform->getDateTimeFormatString());
         }
 
         return $val;

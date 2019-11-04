@@ -1,17 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Cache;
 
 use ArrayIterator;
 use Doctrine\DBAL\Driver\ResultStatement;
+use Doctrine\DBAL\Exception\InvalidColumnIndex;
 use Doctrine\DBAL\FetchMode;
 use InvalidArgumentException;
 use IteratorAggregate;
-use PDO;
+use function array_key_exists;
 use function array_merge;
 use function array_values;
 use function count;
 use function reset;
+use function sprintf;
 
 class ArrayStatement implements IteratorAggregate, ResultStatement
 {
@@ -43,15 +47,15 @@ class ArrayStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function closeCursor()
+    public function closeCursor() : void
     {
-        unset($this->data);
+        $this->data = null;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function columnCount()
+    public function columnCount() : int
     {
         return $this->columnCount;
     }
@@ -59,15 +63,25 @@ class ArrayStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
+    public function rowCount() : int
     {
-        if ($arg2 !== null || $arg3 !== null) {
-            throw new InvalidArgumentException('Caching layer does not support 2nd/3rd argument to setFetchMode()');
+        if ($this->data === null) {
+            return 0;
+        }
+
+        return count($this->data);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setFetchMode(int $fetchMode, ...$args) : void
+    {
+        if (count($args) > 0) {
+            throw new InvalidArgumentException('Caching layer does not support 2nd/3rd argument to setFetchMode().');
         }
 
         $this->defaultFetchMode = $fetchMode;
-
-        return true;
     }
 
     /**
@@ -83,7 +97,7 @@ class ArrayStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null, $cursorOrientation = PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
+    public function fetch(?int $fetchMode = null, ...$args)
     {
         if (! isset($this->data[$this->num])) {
             return false;
@@ -108,16 +122,18 @@ class ArrayStatement implements IteratorAggregate, ResultStatement
             return reset($row);
         }
 
-        throw new InvalidArgumentException('Invalid fetch-style given for fetching result.');
+        throw new InvalidArgumentException(
+            sprintf('Invalid fetch mode given for fetching result, %d given.', $fetchMode)
+        );
     }
 
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
+    public function fetchAll(?int $fetchMode = null, ...$args) : array
     {
         $rows = [];
-        while ($row = $this->fetch($fetchMode)) {
+        while ($row = $this->fetch($fetchMode, ...$args)) {
             $rows[] = $row;
         }
 
@@ -127,11 +143,18 @@ class ArrayStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function fetchColumn($columnIndex = 0)
+    public function fetchColumn(int $columnIndex = 0)
     {
         $row = $this->fetch(FetchMode::NUMERIC);
 
-        // TODO: verify that return false is the correct behavior
-        return $row[$columnIndex] ?? false;
+        if ($row === false) {
+            return false;
+        }
+
+        if (! array_key_exists($columnIndex, $row)) {
+            throw InvalidColumnIndex::new($columnIndex, count($row));
+        }
+
+        return $row[$columnIndex];
     }
 }

@@ -1,13 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Functional\Driver;
 
 use Doctrine\DBAL\Driver\PDOConnection;
+use Doctrine\DBAL\Driver\PDOException;
+use Doctrine\DBAL\Driver\PDOOracle\Driver as PDOOracleDriver;
+use Doctrine\DBAL\Driver\PDOPgSql\Driver as PDOPgSQLDriver;
+use Doctrine\DBAL\Driver\PDOSqlsrv\Driver as PDOSQLSRVDriver;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use PDO;
-use function extension_loaded;
+use function get_class;
 use function sprintf;
 
+/**
+ * @requires extension pdo
+ */
 class PDOConnectionTest extends DbalFunctionalTestCase
 {
     /**
@@ -17,85 +26,83 @@ class PDOConnectionTest extends DbalFunctionalTestCase
      */
     protected $driverConnection;
 
-    protected function setUp()
+    protected function setUp() : void
     {
-        if (! extension_loaded('PDO')) {
-            $this->markTestSkipped('PDO is not installed.');
-        }
-
         parent::setUp();
 
-        $this->driverConnection = $this->connection->getWrappedConnection();
+        $wrappedConnection = $this->connection->getWrappedConnection();
 
-        if ($this->driverConnection instanceof PDOConnection) {
-            return;
+        if (! $wrappedConnection instanceof PDOConnection) {
+            $this->markTestSkipped('PDO connection only test.');
         }
 
-        $this->markTestSkipped('PDO connection only test.');
+        $this->driverConnection = $wrappedConnection;
     }
 
-    protected function tearDown()
+    protected function tearDown() : void
     {
         $this->resetSharedConn();
 
         parent::tearDown();
     }
 
-    public function testDoesNotRequireQueryForServerVersion()
+    public function testDoesNotRequireQueryForServerVersion() : void
     {
         self::assertFalse($this->driverConnection->requiresQueryForServerVersion());
     }
 
-    /**
-     * @expectedException \Doctrine\DBAL\Driver\PDOException
-     */
-    public function testThrowsWrappedExceptionOnConstruct()
+    public function testThrowsWrappedExceptionOnConstruct() : void
     {
+        $this->expectException(PDOException::class);
+
         new PDOConnection('foo');
     }
 
     /**
      * @group DBAL-1022
-     * @expectedException \Doctrine\DBAL\Driver\PDOException
      */
-    public function testThrowsWrappedExceptionOnExec()
+    public function testThrowsWrappedExceptionOnExec() : void
     {
+        $this->expectException(PDOException::class);
+
         $this->driverConnection->exec('foo');
     }
 
-    /**
-     * @expectedException \Doctrine\DBAL\Driver\PDOException
-     */
-    public function testThrowsWrappedExceptionOnPrepare()
+    public function testThrowsWrappedExceptionOnPrepare() : void
     {
-        if ($this->connection->getDriver()->getName() === 'pdo_sqlsrv') {
+        $driver = $this->connection->getDriver();
+
+        if ($driver instanceof PDOSQLSRVDriver) {
             $this->markTestSkipped('pdo_sqlsrv does not allow setting PDO::ATTR_EMULATE_PREPARES at connection level.');
+        }
+
+        // Some PDO adapters do not check the query server-side
+        // even though emulated prepared statements are disabled,
+        // so an exception is thrown only eventually.
+        if ($driver instanceof PDOOracleDriver
+            || $driver instanceof PDOPgSQLDriver
+        ) {
+            self::markTestSkipped(sprintf(
+                'The underlying implementation of the %s driver does not check the query to be prepared server-side.',
+                get_class($driver)
+            ));
         }
 
         // Emulated prepared statements have to be disabled for this test
         // so that PDO actually communicates with the database server to check the query.
-        $this->driverConnection->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+        $this->driverConnection
+            ->getWrappedConnection()
+            ->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+
+        $this->expectException(PDOException::class);
 
         $this->driverConnection->prepare('foo');
-
-        // Some PDO adapters like PostgreSQL do not check the query server-side
-        // even though emulated prepared statements are disabled,
-        // so an exception is thrown only eventually.
-        // Skip the test otherwise.
-        $this->markTestSkipped(
-            sprintf(
-                'The PDO adapter %s does not check the query to be prepared server-side, ' .
-                'so no assertions can be made.',
-                $this->connection->getDriver()->getName()
-            )
-        );
     }
 
-    /**
-     * @expectedException \Doctrine\DBAL\Driver\PDOException
-     */
-    public function testThrowsWrappedExceptionOnQuery()
+    public function testThrowsWrappedExceptionOnQuery() : void
     {
+        $this->expectException(PDOException::class);
+
         $this->driverConnection->query('foo');
     }
 }

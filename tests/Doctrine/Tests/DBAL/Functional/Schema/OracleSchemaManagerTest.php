@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
 use Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\BinaryType;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\Tests\TestUtil;
 use function array_map;
 
@@ -14,7 +16,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
     /** @var bool */
     private static $privilegesGranted = false;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         parent::setUp();
 
@@ -32,7 +34,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::$privilegesGranted = true;
     }
 
-    public function testRenameTable()
+    public function testRenameTable() : void
     {
         $this->schemaManager->tryMethod('DropTable', 'list_tables_test');
         $this->schemaManager->tryMethod('DropTable', 'list_tables_test_new_name');
@@ -42,17 +44,20 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $tables = $this->schemaManager->listTables();
 
-        self::assertHasTable($tables, 'list_tables_test_new_name');
+        self::assertHasTable($tables);
     }
 
-    public function testListTableWithBinary()
+    public function testListTableWithBinary() : void
     {
         $tableName = 'test_binary_table';
 
         $table = new Table($tableName);
         $table->addColumn('id', 'integer');
-        $table->addColumn('column_varbinary', 'binary', []);
-        $table->addColumn('column_binary', 'binary', ['fixed' => true]);
+        $table->addColumn('column_varbinary', 'binary', ['length' => 32]);
+        $table->addColumn('column_binary', 'binary', [
+            'length' => 32,
+            'fixed' => true,
+        ]);
         $table->setPrimaryKey(['id']);
 
         $this->schemaManager->createTable($table);
@@ -70,7 +75,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
      * @group DBAL-472
      * @group DBAL-1001
      */
-    public function testAlterTableColumnNotNull()
+    public function testAlterTableColumnNotNull() : void
     {
         $comparator = new Schema\Comparator();
         $tableName  = 'list_table_column_notnull';
@@ -78,7 +83,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $table->addColumn('id', 'integer');
         $table->addColumn('foo', 'integer');
-        $table->addColumn('bar', 'string');
+        $table->addColumn('bar', 'string', ['length' => 32]);
         $table->setPrimaryKey(['id']);
 
         $this->schemaManager->dropAndCreateTable($table);
@@ -93,7 +98,11 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $diffTable->changeColumn('foo', ['notnull' => false]);
         $diffTable->changeColumn('bar', ['length' => 1024]);
 
-        $this->schemaManager->alterTable($comparator->diffTable($table, $diffTable));
+        $diff = $comparator->diffTable($table, $diffTable);
+
+        self::assertNotNull($diff);
+
+        $this->schemaManager->alterTable($diff);
 
         $columns = $this->schemaManager->listTableColumns($tableName);
 
@@ -102,7 +111,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertTrue($columns['bar']->getNotnull());
     }
 
-    public function testListDatabases()
+    public function testListDatabases() : void
     {
         // We need the temp connection that has privileges to create a database.
         $sm = TestUtil::getTempConnection()->getSchemaManager();
@@ -118,7 +127,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
     /**
      * @group DBAL-831
      */
-    public function testListTableDetailsWithDifferentIdentifierQuotingRequirements()
+    public function testListTableDetailsWithDifferentIdentifierQuotingRequirements() : void
     {
         $primaryTableName    = '"Primary_Table"';
         $offlinePrimaryTable = new Schema\Table($primaryTableName);
@@ -226,23 +235,23 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         );
     }
 
-    public function testListTableColumnsSameTableNamesInDifferentSchemas()
+    public function testListTableColumnsSameTableNamesInDifferentSchemas() : void
     {
         $table = $this->createListTableColumns();
         $this->schemaManager->dropAndCreateTable($table);
 
         $otherTable = new Table($table->getName());
-        $otherTable->addColumn('id', Type::STRING);
+        $otherTable->addColumn('id', Types::STRING, ['length' => 32]);
         TestUtil::getTempConnection()->getSchemaManager()->dropAndCreateTable($otherTable);
 
-        $columns = $this->schemaManager->listTableColumns($table->getName(), $this->connection->getUsername());
+        $columns = $this->schemaManager->listTableColumns($table->getName(), $this->connection->getDatabase());
         self::assertCount(7, $columns);
     }
 
     /**
      * @group DBAL-1234
      */
-    public function testListTableIndexesPrimaryKeyConstraintNameDiffersFromIndexName()
+    public function testListTableIndexesPrimaryKeyConstraintNameDiffersFromIndexName() : void
     {
         $table = new Table('list_table_indexes_pk_id_test');
         $table->setSchemaConfig($this->schemaManager->createSchemaConfig());
@@ -265,7 +274,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
     /**
      * @group DBAL-2555
      */
-    public function testListTableDateTypeColumns()
+    public function testListTableDateTypeColumns() : void
     {
         $table = new Table('tbl_date');
         $table->addColumn('col_date', 'date');

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Tools\Console\Command;
 
 use Doctrine\DBAL\Tools\Dumper;
@@ -10,7 +12,9 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use function assert;
 use function is_numeric;
+use function is_string;
 use function stripos;
 
 /**
@@ -22,7 +26,7 @@ class RunSqlCommand extends Command
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure() : void
     {
         $this
         ->setName('dbal:run-sql')
@@ -48,13 +52,15 @@ EOT
         $sql = $input->getArgument('sql');
 
         if ($sql === null) {
-            throw new RuntimeException("Argument 'SQL' is required in order to execute this command correctly.");
+            throw new RuntimeException('Argument "sql" is required in order to execute this command correctly.');
         }
+
+        assert(is_string($sql));
 
         $depth = $input->getOption('depth');
 
         if (! is_numeric($depth)) {
-            throw new LogicException("Option 'depth' must contains an integer value");
+            throw new LogicException('Option "depth" must contains an integer value.');
         }
 
         if (stripos($sql, 'select') === 0 || $input->getOption('force-fetch')) {
@@ -64,5 +70,7 @@ EOT
         }
 
         $output->write(Dumper::dump($resultSet, (int) $depth));
+
+        return 0;
     }
 }

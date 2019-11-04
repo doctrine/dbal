@@ -1,32 +1,36 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Types;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Types\IntegerType;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Tests\DBAL\Mocks\MockPlatform;
 use Doctrine\Tests\DbalTestCase;
+use PHPUnit\Framework\MockObject\MockObject;
 
 class IntegerTest extends DbalTestCase
 {
-    /** @var MockPlatform */
+    /** @var AbstractPlatform|MockObject */
     private $platform;
 
-    /** @var Type */
+    /** @var IntegerType */
     private $type;
 
-    protected function setUp()
+    protected function setUp() : void
     {
-        $this->platform = new MockPlatform();
+        $this->platform = $this->createMock(AbstractPlatform::class);
         $this->type     = Type::getType('integer');
     }
 
-    public function testIntegerConvertsToPHPValue()
+    public function testIntegerConvertsToPHPValue() : void
     {
-        self::assertInternalType('integer', $this->type->convertToPHPValue('1', $this->platform));
-        self::assertInternalType('integer', $this->type->convertToPHPValue('0', $this->platform));
+        self::assertIsInt($this->type->convertToPHPValue('1', $this->platform));
+        self::assertIsInt($this->type->convertToPHPValue('0', $this->platform));
     }
 
-    public function testIntegerNullConvertsToPHPValue()
+    public function testIntegerNullConvertsToPHPValue() : void
     {
         self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }

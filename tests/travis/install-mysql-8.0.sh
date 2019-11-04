@@ -2,15 +2,16 @@
 
 set -ex
 
-echo "Installing MySQL 8.0..."
+echo "Starting MySQL 8.0..."
 
-echo mysql-apt-config mysql-apt-config/select-server select mysql-8.0 | sudo debconf-set-selections
-wget https://dev.mysql.com/get/mysql-apt-config_0.8.10-1_all.deb
-sudo dpkg --install mysql-apt-config_0.8.10-1_all.deb
-sudo apt-get update -q
-sudo apt-get install -q -y --force-yes -o Dpkg::Options::=--force-confnew mysql-server
-echo -e "[mysqld]\ndefault_authentication_plugin=mysql_native_password" | sudo tee --append /etc/mysql/my.cnf
-sudo /etc/init.d/mysql start
-sudo mysql_upgrade
+sudo docker pull mysql:8.0
+sudo docker run \
+    -d \
+    -e MYSQL_ALLOW_EMPTY_PASSWORD=yes \
+    -e MYSQL_DATABASE=doctrine_tests \
+    -p 33306:3306 \
+    --name mysql80 \
+    mysql:8.0 \
+    --default-authentication-plugin=mysql_native_password
 
-mysql --version
+sudo docker exec -i mysql80 bash <<< 'until echo \\q | mysql doctrine_tests > /dev/null 2>&1 ; do sleep 1; done'

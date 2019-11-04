@@ -1,8 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Functional;
 
+use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver\IBMDB2\DB2Driver;
+use Doctrine\DBAL\Driver\PDOConnection;
+use Doctrine\DBAL\Driver\PDOMySql\Driver as PDOMySQLDriver;
 use Doctrine\DBAL\Driver\PDOOracle\Driver as PDOOracleDriver;
+use Doctrine\DBAL\Driver\PDOSqlsrv\Driver as PDOSQLSRVDriver;
+use Doctrine\DBAL\Driver\SQLSrv\Driver as SQLSRVDriver;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
@@ -10,11 +18,13 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use function base64_decode;
+use function get_class;
+use function sprintf;
 use function stream_get_contents;
 
 class StatementTest extends DbalFunctionalTestCase
 {
-    protected function setUp()
+    protected function setUp() : void
     {
         parent::setUp();
 
@@ -24,7 +34,7 @@ class StatementTest extends DbalFunctionalTestCase
         $this->connection->getSchemaManager()->dropAndCreateTable($table);
     }
 
-    public function testStatementIsReusableAfterClosingCursor()
+    public function testStatementIsReusableAfterClosingCursor() : void
     {
         if ($this->connection->getDriver() instanceof PDOOracleDriver) {
             $this->markTestIncomplete('See https://bugs.php.net/bug.php?id=77181');
@@ -49,7 +59,7 @@ class StatementTest extends DbalFunctionalTestCase
         self::assertEquals(2, $id);
     }
 
-    public function testReuseStatementWithLongerResults()
+    public function testReuseStatementWithLongerResults() : void
     {
         if ($this->connection->getDriver() instanceof PDOOracleDriver) {
             $this->markTestIncomplete('PDO_OCI doesn\'t support fetching blobs via PDOStatement::fetchAll()');
@@ -57,7 +67,7 @@ class StatementTest extends DbalFunctionalTestCase
 
         $sm    = $this->connection->getSchemaManager();
         $table = new Table('stmt_longer_results');
-        $table->addColumn('param', 'string');
+        $table->addColumn('param', 'string', ['length' => 24]);
         $table->addColumn('val', 'text');
         $sm->createTable($table);
 
@@ -69,7 +79,7 @@ class StatementTest extends DbalFunctionalTestCase
 
         $stmt = $this->connection->prepare('SELECT param, val FROM stmt_longer_results ORDER BY param');
         $stmt->execute();
-        self::assertArraySubset([
+        self::assertEquals([
             ['param1', 'X'],
         ], $stmt->fetchAll(FetchMode::NUMERIC));
 
@@ -80,13 +90,13 @@ class StatementTest extends DbalFunctionalTestCase
         $this->connection->insert('stmt_longer_results', $row2);
 
         $stmt->execute();
-        self::assertArraySubset([
+        self::assertEquals([
             ['param1', 'X'],
             ['param2', 'A bit longer value'],
         ], $stmt->fetchAll(FetchMode::NUMERIC));
     }
 
-    public function testFetchLongBlob()
+    public function testFetchLongBlob() : void
     {
         if ($this->connection->getDriver() instanceof PDOOracleDriver) {
             // inserting BLOBs as streams on Oracle requires Oracle-specific SQL syntax which is currently not supported
@@ -134,7 +144,7 @@ EOF
         self::assertSame($contents, stream_get_contents($stream));
     }
 
-    public function testIncompletelyFetchedStatementDoesNotBlockConnection()
+    public function testIncompletelyFetchedStatementDoesNotBlockConnection() : void
     {
         $this->connection->insert('stmt_test', ['id' => 1]);
         $this->connection->insert('stmt_test', ['id' => 2]);
@@ -151,7 +161,7 @@ EOF
         self::assertEquals(1, $stmt2->fetchColumn());
     }
 
-    public function testReuseStatementAfterClosingCursor()
+    public function testReuseStatementAfterClosingCursor() : void
     {
         if ($this->connection->getDriver() instanceof PDOOracleDriver) {
             $this->markTestIncomplete('See https://bugs.php.net/bug.php?id=77181');
@@ -173,7 +183,7 @@ EOF
         self::assertEquals(2, $id);
     }
 
-    public function testReuseStatementWithParameterBoundByReference()
+    public function testReuseStatementWithParameterBoundByReference() : void
     {
         $this->connection->insert('stmt_test', ['id' => 1]);
         $this->connection->insert('stmt_test', ['id' => 2]);
@@ -190,7 +200,7 @@ EOF
         self::assertEquals(2, $stmt->fetchColumn());
     }
 
-    public function testReuseStatementWithReboundValue()
+    public function testReuseStatementWithReboundValue() : void
     {
         $this->connection->insert('stmt_test', ['id' => 1]);
         $this->connection->insert('stmt_test', ['id' => 2]);
@@ -206,7 +216,7 @@ EOF
         self::assertEquals(2, $stmt->fetchColumn());
     }
 
-    public function testReuseStatementWithReboundParam()
+    public function testReuseStatementWithReboundParam() : void
     {
         $this->connection->insert('stmt_test', ['id' => 1]);
         $this->connection->insert('stmt_test', ['id' => 2]);
@@ -225,39 +235,56 @@ EOF
     }
 
     /**
+     * @param mixed $expected
+     *
      * @dataProvider emptyFetchProvider
      */
-    public function testFetchFromNonExecutedStatement(callable $fetch, $expected)
+    public function testFetchFromNonExecutedStatement(callable $fetch, $expected) : void
     {
         $stmt = $this->connection->prepare('SELECT id FROM stmt_test');
 
         self::assertSame($expected, $fetch($stmt));
     }
 
-    public function testCloseCursorOnNonExecutedStatement()
+    public function testCloseCursorOnNonExecutedStatement() : void
     {
+        $this->expectNotToPerformAssertions();
+
         $stmt = $this->connection->prepare('SELECT id FROM stmt_test');
 
-        self::assertTrue($stmt->closeCursor());
+        $stmt->closeCursor();
     }
 
     /**
      * @group DBAL-2637
      */
-    public function testCloseCursorAfterCursorEnd()
+    public function testCloseCursorAfterCursorEnd() : void
     {
+        $this->expectNotToPerformAssertions();
+
         $stmt = $this->connection->prepare('SELECT name FROM stmt_test');
 
         $stmt->execute();
         $stmt->fetch();
 
-        self::assertTrue($stmt->closeCursor());
+        $stmt->closeCursor();
+    }
+
+    public function testCloseCursorAfterClosingCursor() : void
+    {
+        $this->expectNotToPerformAssertions();
+
+        $stmt = $this->connection->executeQuery('SELECT name FROM stmt_test');
+        $stmt->closeCursor();
+        $stmt->closeCursor();
     }
 
     /**
+     * @param mixed $expected
+     *
      * @dataProvider emptyFetchProvider
      */
-    public function testFetchFromNonExecutedStatementWithClosedCursor(callable $fetch, $expected)
+    public function testFetchFromNonExecutedStatementWithClosedCursor(callable $fetch, $expected) : void
     {
         $stmt = $this->connection->prepare('SELECT id FROM stmt_test');
         $stmt->closeCursor();
@@ -266,9 +293,11 @@ EOF
     }
 
     /**
+     * @param mixed $expected
+     *
      * @dataProvider emptyFetchProvider
      */
-    public function testFetchFromExecutedStatementWithClosedCursor(callable $fetch, $expected)
+    public function testFetchFromExecutedStatementWithClosedCursor(callable $fetch, $expected) : void
     {
         $this->connection->insert('stmt_test', ['id' => 1]);
 
@@ -279,7 +308,10 @@ EOF
         self::assertSame($expected, $fetch($stmt));
     }
 
-    public static function emptyFetchProvider()
+    /**
+     * @return mixed[][]
+     */
+    public static function emptyFetchProvider() : iterable
     {
         return [
             'fetch' => [
@@ -310,5 +342,69 @@ EOF
         $result   = $this->connection->executeQuery($query)->fetch(FetchMode::COLUMN);
 
         self::assertEquals(1, $result);
+    }
+
+    public function testExecWithRedundantParameters() : void
+    {
+        $driver = $this->connection->getDriver();
+
+        if ($driver instanceof PDOMySQLDriver
+            || $driver instanceof PDOOracleDriver
+            || $driver instanceof PDOSQLSRVDriver
+        ) {
+            self::markTestSkipped(sprintf(
+                'The underlying implementation of the "%s" driver does not report redundant parameters',
+                get_class($driver)
+            ));
+        }
+
+        if ($driver instanceof DB2Driver) {
+            self::markTestSkipped('db2_execute() does not report redundant parameters');
+        }
+
+        if ($driver instanceof SQLSRVDriver) {
+            self::markTestSkipped('sqlsrv_prepare() does not report redundant parameters');
+        }
+
+        $platform = $this->connection->getDatabasePlatform();
+        $query    = $platform->getDummySelectSQL();
+        $stmt     = $this->connection->prepare($query);
+
+        // we want to make sure the exception is thrown by the DBAL code, not by PHPUnit due to a PHP-level error,
+        // but the wrapper connection wraps everything in a DBAL exception
+        $this->iniSet('error_reporting', '0');
+
+        self::expectException(DBALException::class);
+        $stmt->execute([null]);
+    }
+
+    /**
+     * @throws DBALException
+     *
+     * @dataProvider nonExistingIndexProvider
+     */
+    public function testFetchColumnNonExistingIndex(int $index) : void
+    {
+        if ($this->connection->getWrappedConnection() instanceof PDOConnection) {
+            $this->markTestSkipped('PDO supports this behavior natively but throws a different exception');
+        }
+
+        $platform = $this->connection->getDatabasePlatform();
+        $query    = $platform->getDummySelectSQL();
+        $stmt     = $this->connection->query($query);
+
+        self::expectException(DBALException::class);
+        $stmt->fetchColumn($index);
+    }
+
+    /**
+     * @return mixed[][]
+     */
+    public static function nonExistingIndexProvider() : iterable
+    {
+        return [
+            [1],
+            [-1],
+        ];
     }
 }

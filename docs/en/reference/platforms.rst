@@ -50,18 +50,14 @@ Oracle
 Microsoft SQL Server
 ^^^^^^^^^^^^^^^^^^^^
 
--  ``SQLServerPlatform`` for version 2000 and above.
--  ``SQLServer2005Platform`` for version 2005 and above.
--  ``SQLServer2008Platform`` for version 2008 and above.
+-  ``SQLServerPlatform`` for version 2008 and above.
 -  ``SQLServer2012Platform`` for version 2012 and above.
 
 PostgreSQL
 ^^^^^^^^^^
 
--  ``PostgreSqlPlatform`` for all versions.
--  ``PostgreSQL91Platform`` for version 9.1 and above.
--  ``PostgreSQL92Platform`` for version 9.2 and above.
--  ``PostgreSQL94Platform`` for version 9.4 and above.
+-  ``PostgreSqlPlatform`` for version 9.4 and above.
+-  ``PostgreSQL100Platform`` for version 10.0 and above.
 
 SAP Sybase SQL Anywhere
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -75,11 +71,6 @@ SQLite
 ^^^^^^
 
 -  ``SqlitePlatform`` for all versions.
-
-Drizzle
-^^^^^^
-
--  ``DrizzlePlatform`` for all versions.
 
 It is highly encouraged to use the platform class that matches your
 database vendor and version best. Otherwise it is not guaranteed

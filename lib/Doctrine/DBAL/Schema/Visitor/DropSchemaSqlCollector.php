@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Schema\Visitor;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Schema\Exception\NamedForeignKeyRequired;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
-use Doctrine\DBAL\Schema\SchemaException;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use SplObjectStorage;
@@ -36,7 +38,7 @@ class DropSchemaSqlCollector extends AbstractVisitor
     /**
      * {@inheritdoc}
      */
-    public function acceptTable(Table $table)
+    public function acceptTable(Table $table) : void
     {
         $this->tables->attach($table);
     }
@@ -44,10 +46,10 @@ class DropSchemaSqlCollector extends AbstractVisitor
     /**
      * {@inheritdoc}
      */
-    public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint)
+    public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint) : void
     {
         if (strlen($fkConstraint->getName()) === 0) {
-            throw SchemaException::namedForeignKeyRequired($localTable, $fkConstraint);
+            throw NamedForeignKeyRequired::new($localTable, $fkConstraint);
         }
 
         $this->constraints->attach($fkConstraint, $localTable);
@@ -56,15 +58,12 @@ class DropSchemaSqlCollector extends AbstractVisitor
     /**
      * {@inheritdoc}
      */
-    public function acceptSequence(Sequence $sequence)
+    public function acceptSequence(Sequence $sequence) : void
     {
         $this->sequences->attach($sequence);
     }
 
-    /**
-     * @return void
-     */
-    public function clearQueries()
+    public function clearQueries() : void
     {
         $this->constraints = new SplObjectStorage();
         $this->sequences   = new SplObjectStorage();
@@ -72,21 +71,24 @@ class DropSchemaSqlCollector extends AbstractVisitor
     }
 
     /**
-     * @return string[]
+     * @return array<int, string>
      */
-    public function getQueries()
+    public function getQueries() : array
     {
         $sql = [];
 
+        /** @var ForeignKeyConstraint $fkConstraint */
         foreach ($this->constraints as $fkConstraint) {
             $localTable = $this->constraints[$fkConstraint];
             $sql[]      = $this->platform->getDropForeignKeySQL($fkConstraint, $localTable);
         }
 
+        /** @var Sequence $sequence */
         foreach ($this->sequences as $sequence) {
             $sql[] = $this->platform->getDropSequenceSQL($sequence);
         }
 
+        /** @var Table $table */
         foreach ($this->tables as $table) {
             $sql[] = $this->platform->getDropTableSQL($table);
         }

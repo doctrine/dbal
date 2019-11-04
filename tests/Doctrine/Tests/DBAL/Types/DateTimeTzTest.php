@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Types;
 
 use DateTime;
@@ -11,14 +13,14 @@ class DateTimeTzTest extends BaseDateTypeTestCase
     /**
      * {@inheritDoc}
      */
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->type = Type::getType('datetimetz');
 
         parent::setUp();
     }
 
-    public function testDateTimeConvertsToDatabaseValue()
+    public function testDateTimeConvertsToDatabaseValue() : void
     {
         $date = new DateTime('1985-09-01 10:10:10');
 
@@ -28,7 +30,7 @@ class DateTimeTzTest extends BaseDateTypeTestCase
         self::assertEquals($expected, $actual);
     }
 
-    public function testDateTimeConvertsToPHPValue()
+    public function testDateTimeConvertsToPHPValue() : void
     {
         // Birthday of jwage and also birthday of Doctrine. Send him a present ;)
         $date = $this->type->convertToPHPValue('1985-09-01 00:00:00', $this->platform);
@@ -36,7 +38,7 @@ class DateTimeTzTest extends BaseDateTypeTestCase
         self::assertEquals('1985-09-01 00:00:00', $date->format('Y-m-d H:i:s'));
     }
 
-    public function testInvalidDateFormatConversion()
+    public function testInvalidDateFormatConversion() : void
     {
         $this->expectException(ConversionException::class);
         $this->type->convertToPHPValue('abcdefg', $this->platform);

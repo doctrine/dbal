@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Functional\Driver\OCI8;
 
 use Doctrine\DBAL\Driver\OCI8\Driver;
@@ -8,7 +10,7 @@ use function extension_loaded;
 
 class StatementTest extends DbalFunctionalTestCase
 {
-    protected function setUp()
+    protected function setUp() : void
     {
         if (! extension_loaded('oci8')) {
             $this->markTestSkipped('oci8 is not installed.');
@@ -29,7 +31,7 @@ class StatementTest extends DbalFunctionalTestCase
      *
      * @dataProvider queryConversionProvider
      */
-    public function testQueryConversion($query, array $params, array $expected)
+    public function testQueryConversion(string $query, array $params, array $expected) : void
     {
         self::assertEquals(
             $expected,
@@ -37,7 +39,10 @@ class StatementTest extends DbalFunctionalTestCase
         );
     }
 
-    public static function queryConversionProvider()
+    /**
+     * @return array<string, array<int, mixed>>
+     */
+    public static function queryConversionProvider() : iterable
     {
         return [
             'simple' => [

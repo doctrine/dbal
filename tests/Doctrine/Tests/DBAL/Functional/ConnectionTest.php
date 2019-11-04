@@ -1,41 +1,46 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
+use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\DriverManager;
-use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Platforms\SqlitePlatform;
+use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\Tests\DbalFunctionalTestCase;
+use Doctrine\Tests\TestUtil;
 use Error;
 use Exception;
+use PDO;
 use RuntimeException;
 use Throwable;
 use function in_array;
 
 class ConnectionTest extends DbalFunctionalTestCase
 {
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->resetSharedConn();
         parent::setUp();
     }
 
-    protected function tearDown()
+    protected function tearDown() : void
     {
         parent::tearDown();
         $this->resetSharedConn();
     }
 
-    public function testGetWrappedConnection()
+    public function testGetWrappedConnection() : void
     {
         self::assertInstanceOf(DriverConnection::class, $this->connection->getWrappedConnection());
     }
 
-    public function testCommitWithRollbackOnlyThrowsException()
+    public function testCommitWithRollbackOnlyThrowsException() : void
     {
         $this->connection->beginTransaction();
         $this->connection->setRollbackOnly();
@@ -44,7 +49,7 @@ class ConnectionTest extends DbalFunctionalTestCase
         $this->connection->commit();
     }
 
-    public function testTransactionNestingBehavior()
+    public function testTransactionNestingBehavior() : void
     {
         try {
             $this->connection->beginTransaction();
@@ -69,9 +74,43 @@ class ConnectionTest extends DbalFunctionalTestCase
             $this->connection->rollBack();
             self::assertEquals(0, $this->connection->getTransactionNestingLevel());
         }
+
+        $this->connection->beginTransaction();
+        $this->connection->close();
+        $this->connection->beginTransaction();
+        self::assertEquals(1, $this->connection->getTransactionNestingLevel());
     }
 
-    public function testTransactionNestingBehaviorWithSavepoints()
+    public function testTransactionNestingLevelIsResetOnReconnect() : void
+    {
+        if ($this->connection->getDatabasePlatform()->getName() === 'sqlite') {
+            $params           = $this->connection->getParams();
+            $params['memory'] = false;
+            $params['path']   = '/tmp/test_nesting.sqlite';
+
+            $connection = DriverManager::getConnection(
+                $params,
+                $this->connection->getConfiguration(),
+                $this->connection->getEventManager()
+            );
+        } else {
+            $connection = $this->connection;
+        }
+
+        $connection->executeQuery('CREATE TABLE test_nesting(test int not null)');
+
+        $this->connection->beginTransaction();
+        $this->connection->beginTransaction();
+        $connection->close(); // connection closed in runtime (for example if lost or another application logic)
+
+        $connection->beginTransaction();
+        $connection->executeQuery('insert into test_nesting values (33)');
+        $connection->rollback();
+
+        self::assertEquals(0, $connection->fetchColumn('select count(*) from test_nesting'));
+    }
+
+    public function testTransactionNestingBehaviorWithSavepoints() : void
     {
         if (! $this->connection->getDatabasePlatform()->supportsSavepoints()) {
             $this->markTestSkipped('This test requires the platform to support savepoints.');
@@ -110,7 +149,7 @@ class ConnectionTest extends DbalFunctionalTestCase
         }
     }
 
-    public function testTransactionNestingBehaviorCantBeChangedInActiveTransaction()
+    public function testTransactionNestingBehaviorCantBeChangedInActiveTransaction() : void
     {
         if (! $this->connection->getDatabasePlatform()->supportsSavepoints()) {
             $this->markTestSkipped('This test requires the platform to support savepoints.');
@@ -121,7 +160,7 @@ class ConnectionTest extends DbalFunctionalTestCase
         $this->connection->setNestTransactionsWithSavepoints(true);
     }
 
-    public function testSetNestedTransactionsThroughSavepointsNotSupportedThrowsException()
+    public function testSetNestedTransactionsThroughSavepointsNotSupportedThrowsException() : void
     {
         if ($this->connection->getDatabasePlatform()->supportsSavepoints()) {
             $this->markTestSkipped('This test requires the platform not to support savepoints.');
@@ -133,7 +172,7 @@ class ConnectionTest extends DbalFunctionalTestCase
         $this->connection->setNestTransactionsWithSavepoints(true);
     }
 
-    public function testCreateSavepointsNotSupportedThrowsException()
+    public function testCreateSavepointsNotSupportedThrowsException() : void
     {
         if ($this->connection->getDatabasePlatform()->supportsSavepoints()) {
             $this->markTestSkipped('This test requires the platform not to support savepoints.');
@@ -145,7 +184,7 @@ class ConnectionTest extends DbalFunctionalTestCase
         $this->connection->createSavepoint('foo');
     }
 
-    public function testReleaseSavepointsNotSupportedThrowsException()
+    public function testReleaseSavepointsNotSupportedThrowsException() : void
     {
         if ($this->connection->getDatabasePlatform()->supportsSavepoints()) {
             $this->markTestSkipped('This test requires the platform not to support savepoints.');
@@ -157,7 +196,7 @@ class ConnectionTest extends DbalFunctionalTestCase
         $this->connection->releaseSavepoint('foo');
     }
 
-    public function testRollbackSavepointsNotSupportedThrowsException()
+    public function testRollbackSavepointsNotSupportedThrowsException() : void
     {
         if ($this->connection->getDatabasePlatform()->supportsSavepoints()) {
             $this->markTestSkipped('This test requires the platform not to support savepoints.');
@@ -169,7 +208,7 @@ class ConnectionTest extends DbalFunctionalTestCase
         $this->connection->rollbackSavepoint('foo');
     }
 
-    public function testTransactionBehaviorWithRollback()
+    public function testTransactionBehaviorWithRollback() : void
     {
         try {
             $this->connection->beginTransaction();
@@ -185,7 +224,7 @@ class ConnectionTest extends DbalFunctionalTestCase
         }
     }
 
-    public function testTransactionBehaviour()
+    public function testTransactionBehaviour() : void
     {
         try {
             $this->connection->beginTransaction();
@@ -199,10 +238,10 @@ class ConnectionTest extends DbalFunctionalTestCase
         self::assertEquals(0, $this->connection->getTransactionNestingLevel());
     }
 
-    public function testTransactionalWithException()
+    public function testTransactionalWithException() : void
     {
         try {
-            $this->connection->transactional(static function ($conn) {
+            $this->connection->transactional(static function ($conn) : void {
                 /** @var Connection $conn */
                 $conn->executeQuery($conn->getDatabasePlatform()->getDummySelectSQL());
                 throw new RuntimeException('Ooops!');
@@ -213,10 +252,10 @@ class ConnectionTest extends DbalFunctionalTestCase
         }
     }
 
-    public function testTransactionalWithThrowable()
+    public function testTransactionalWithThrowable() : void
     {
         try {
-            $this->connection->transactional(static function ($conn) {
+            $this->connection->transactional(static function ($conn) : void {
                 /** @var Connection $conn */
                 $conn->executeQuery($conn->getDatabasePlatform()->getDummySelectSQL());
                 throw new Error('Ooops!');
@@ -227,9 +266,9 @@ class ConnectionTest extends DbalFunctionalTestCase
         }
     }
 
-    public function testTransactional()
+    public function testTransactional() : void
     {
-        $res = $this->connection->transactional(static function ($conn) {
+        $res = $this->connection->transactional(static function ($conn) : void {
             /** @var Connection $conn */
             $conn->executeQuery($conn->getDatabasePlatform()->getDummySelectSQL());
         });
@@ -237,7 +276,7 @@ class ConnectionTest extends DbalFunctionalTestCase
         self::assertNull($res);
     }
 
-    public function testTransactionalReturnValue()
+    public function testTransactionalReturnValue() : void
     {
         $res = $this->connection->transactional(static function () {
             return 42;
@@ -246,27 +285,19 @@ class ConnectionTest extends DbalFunctionalTestCase
         self::assertEquals(42, $res);
     }
 
-    /**
-     * Tests that the quote function accepts DBAL and PDO types.
-     */
-    public function testQuote()
+    public function testPingDoesTriggersConnect() : void
     {
-        self::assertEquals(
-            $this->connection->quote('foo', Type::STRING),
-            $this->connection->quote('foo', ParameterType::STRING)
-        );
-    }
+        $this->connection->close();
+        self::assertFalse($this->connection->isConnected());
 
-    public function testPingDoesTriggersConnect()
-    {
-        self::assertTrue($this->connection->ping());
+        $this->connection->ping();
         self::assertTrue($this->connection->isConnected());
     }
 
     /**
      * @group DBAL-1025
      */
-    public function testConnectWithoutExplicitDatabaseName()
+    public function testConnectWithoutExplicitDatabaseName() : void
     {
         if (in_array($this->connection->getDatabasePlatform()->getName(), ['oracle', 'db2'], true)) {
             $this->markTestSkipped('Platform does not support connecting without database name.');
@@ -281,7 +312,9 @@ class ConnectionTest extends DbalFunctionalTestCase
             $this->connection->getEventManager()
         );
 
-        self::assertTrue($connection->connect());
+        $connection->connect();
+
+        self::assertTrue($connection->isConnected());
 
         $connection->close();
     }
@@ -289,7 +322,7 @@ class ConnectionTest extends DbalFunctionalTestCase
     /**
      * @group DBAL-990
      */
-    public function testDeterminesDatabasePlatformWhenConnectingToNonExistentDatabase()
+    public function testDeterminesDatabasePlatformWhenConnectingToNonExistentDatabase() : void
     {
         if (in_array($this->connection->getDatabasePlatform()->getName(), ['oracle', 'db2'], true)) {
             $this->markTestSkipped('Platform does not support connecting without database name.');
@@ -310,5 +343,29 @@ class ConnectionTest extends DbalFunctionalTestCase
         self::assertSame($params, $connection->getParams());
 
         $connection->close();
+    }
+
+    public function testPersistentConnection() : void
+    {
+        $platform = $this->connection->getDatabasePlatform();
+
+        if ($platform instanceof SqlitePlatform
+            || $platform instanceof SQLServerPlatform) {
+            self::markTestSkipped('The platform does not support persistent connections');
+        }
+
+        $params               = TestUtil::getConnectionParams();
+        $params['persistent'] = true;
+
+        $connection       = DriverManager::getConnection($params);
+        $driverConnection = $connection->getWrappedConnection();
+
+        if (! $driverConnection instanceof PDOConnection) {
+            self::markTestSkipped('Unable to test if the connection is persistent');
+        }
+
+        $pdo = $driverConnection->getWrappedConnection();
+
+        self::assertTrue($pdo->getAttribute(PDO::ATTR_PERSISTENT));
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Schema\Visitor;
 
 use Doctrine\DBAL\Schema\Column;
@@ -14,34 +16,34 @@ use Doctrine\DBAL\Schema\Table;
  */
 class AbstractVisitor implements Visitor, NamespaceVisitor
 {
-    public function acceptSchema(Schema $schema)
+    public function acceptSchema(Schema $schema) : void
     {
     }
 
     /**
      * {@inheritdoc}
      */
-    public function acceptNamespace($namespaceName)
+    public function acceptNamespace(string $namespaceName) : void
     {
     }
 
-    public function acceptTable(Table $table)
+    public function acceptTable(Table $table) : void
     {
     }
 
-    public function acceptColumn(Table $table, Column $column)
+    public function acceptColumn(Table $table, Column $column) : void
     {
     }
 
-    public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint)
+    public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint) : void
     {
     }
 
-    public function acceptIndex(Table $table, Index $index)
+    public function acceptIndex(Table $table, Index $index) : void
     {
     }
 
-    public function acceptSequence(Sequence $sequence)
+    public function acceptSequence(Sequence $sequence) : void
     {
     }
 }

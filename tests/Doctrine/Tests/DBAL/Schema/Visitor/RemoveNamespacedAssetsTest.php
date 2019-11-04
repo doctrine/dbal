@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Schema\Visitor;
 
 use Doctrine\DBAL\Platforms\MySqlPlatform;
@@ -14,7 +16,7 @@ class RemoveNamespacedAssetsTest extends TestCase
     /**
      * @group DBAL-204
      */
-    public function testRemoveNamespacedAssets()
+    public function testRemoveNamespacedAssets() : void
     {
         $config = new SchemaConfig();
         $config->setName('test');
@@ -33,7 +35,7 @@ class RemoveNamespacedAssetsTest extends TestCase
     /**
      * @group DBAL-204
      */
-    public function testCleanupForeignKeys()
+    public function testCleanupForeignKeys() : void
     {
         $config = new SchemaConfig();
         $config->setName('test');
@@ -56,7 +58,7 @@ class RemoveNamespacedAssetsTest extends TestCase
     /**
      * @group DBAL-204
      */
-    public function testCleanupForeignKeysDifferentOrder()
+    public function testCleanupForeignKeysDifferentOrder() : void
     {
         $config = new SchemaConfig();
         $config->setName('test');
