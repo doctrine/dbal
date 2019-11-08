@@ -18,79 +18,79 @@ use function substr;
  */
 abstract class Type
 {
-    /** @deprecated Use {@see DefaultTypes::BIGINT} instead. */
+    /** @deprecated Use {@see Types::BIGINT} instead. */
     public const BIGINT = Types::BIGINT;
 
-    /** @deprecated Use {@see DefaultTypes::BINARY} instead. */
+    /** @deprecated Use {@see Types::BINARY} instead. */
     public const BINARY = Types::BINARY;
 
-    /** @deprecated Use {@see DefaultTypes::BLOB} instead. */
+    /** @deprecated Use {@see Types::BLOB} instead. */
     public const BLOB = Types::BLOB;
 
-    /** @deprecated Use {@see DefaultTypes::BOOLEAN} instead. */
+    /** @deprecated Use {@see Types::BOOLEAN} instead. */
     public const BOOLEAN = Types::BOOLEAN;
 
-    /** @deprecated Use {@see DefaultTypes::DATE_MUTABLE} instead. */
+    /** @deprecated Use {@see Types::DATE_MUTABLE} instead. */
     public const DATE = Types::DATE_MUTABLE;
 
-    /** @deprecated Use {@see DefaultTypes::DATE_IMMUTABLE} instead. */
+    /** @deprecated Use {@see Types::DATE_IMMUTABLE} instead. */
     public const DATE_IMMUTABLE = Types::DATE_IMMUTABLE;
 
-    /** @deprecated Use {@see DefaultTypes::DATEINTERVAL} instead. */
+    /** @deprecated Use {@see Types::DATEINTERVAL} instead. */
     public const DATEINTERVAL = Types::DATEINTERVAL;
 
-    /** @deprecated Use {@see DefaultTypes::DATETIME_MUTABLE} instead. */
+    /** @deprecated Use {@see Types::DATETIME_MUTABLE} instead. */
     public const DATETIME = Types::DATETIME_MUTABLE;
 
-    /** @deprecated Use {@see DefaultTypes::DATETIME_IMMUTABLE} instead. */
+    /** @deprecated Use {@see Types::DATETIME_IMMUTABLE} instead. */
     public const DATETIME_IMMUTABLE = Types::DATETIME_IMMUTABLE;
 
-    /** @deprecated Use {@see DefaultTypes::DATETIMETZ_MUTABLE} instead. */
+    /** @deprecated Use {@see Types::DATETIMETZ_MUTABLE} instead. */
     public const DATETIMETZ = Types::DATETIMETZ_MUTABLE;
 
-    /** @deprecated Use {@see DefaultTypes::DATETIMETZ_IMMUTABLE} instead. */
+    /** @deprecated Use {@see Types::DATETIMETZ_IMMUTABLE} instead. */
     public const DATETIMETZ_IMMUTABLE = Types::DATETIMETZ_IMMUTABLE;
 
-    /** @deprecated Use {@see DefaultTypes::DECIMAL} instead. */
+    /** @deprecated Use {@see Types::DECIMAL} instead. */
     public const DECIMAL = Types::DECIMAL;
 
-    /** @deprecated Use {@see DefaultTypes::FLOAT} instead. */
+    /** @deprecated Use {@see Types::FLOAT} instead. */
     public const FLOAT = Types::FLOAT;
 
-    /** @deprecated Use {@see DefaultTypes::GUID} instead. */
+    /** @deprecated Use {@see Types::GUID} instead. */
     public const GUID = Types::GUID;
 
-    /** @deprecated Use {@see DefaultTypes::INTEGER} instead. */
+    /** @deprecated Use {@see Types::INTEGER} instead. */
     public const INTEGER = Types::INTEGER;
 
-    /** @deprecated Use {@see DefaultTypes::JSON} instead. */
+    /** @deprecated Use {@see Types::JSON} instead. */
     public const JSON = Types::JSON;
 
-    /** @deprecated Use {@see DefaultTypes::JSON_ARRAY} instead. */
+    /** @deprecated Use {@see Types::JSON_ARRAY} instead. */
     public const JSON_ARRAY = Types::JSON_ARRAY;
 
-    /** @deprecated Use {@see DefaultTypes::OBJECT} instead. */
+    /** @deprecated Use {@see Types::OBJECT} instead. */
     public const OBJECT = Types::OBJECT;
 
-    /** @deprecated Use {@see DefaultTypes::SIMPLE_ARRAY} instead. */
+    /** @deprecated Use {@see Types::SIMPLE_ARRAY} instead. */
     public const SIMPLE_ARRAY = Types::SIMPLE_ARRAY;
 
-    /** @deprecated Use {@see DefaultTypes::SMALLINT} instead. */
+    /** @deprecated Use {@see Types::SMALLINT} instead. */
     public const SMALLINT = Types::SMALLINT;
 
-    /** @deprecated Use {@see DefaultTypes::STRING} instead. */
+    /** @deprecated Use {@see Types::STRING} instead. */
     public const STRING = Types::STRING;
 
-    /** @deprecated Use {@see DefaultTypes::ARRAY} instead. */
+    /** @deprecated Use {@see Types::ARRAY} instead. */
     public const TARRAY = Types::ARRAY;
 
-    /** @deprecated Use {@see DefaultTypes::TEXT} instead. */
+    /** @deprecated Use {@see Types::TEXT} instead. */
     public const TEXT = Types::TEXT;
 
-    /** @deprecated Use {@see DefaultTypes::TIME_MUTABLE} instead. */
+    /** @deprecated Use {@see Types::TIME_MUTABLE} instead. */
     public const TIME = Types::TIME_MUTABLE;
 
-    /** @deprecated Use {@see DefaultTypes::TIME_IMMUTABLE} instead. */
+    /** @deprecated Use {@see Types::TIME_IMMUTABLE} instead. */
     public const TIME_IMMUTABLE = Types::TIME_IMMUTABLE;
 
     /**
