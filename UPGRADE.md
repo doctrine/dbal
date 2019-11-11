@@ -14,7 +14,7 @@ The following classes have been removed:
 ## BC BREAK: Removed support for MariaDB 10.0 and older
 
 DBAL now requires MariaDB 10.1 or newer, support for unmaintained versions has been dropped.
-If you are using any of the legacy versions, you have to upgrade to newer PostgreSQL version (10.1+ is recommended).
+If you are using any of the legacy versions, you have to upgrade to newer MariaDB version (10.1+ is recommended).
 
 ## BC BREAK: Changes in obtaining the currently selected database name
 
