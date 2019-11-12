@@ -1282,6 +1282,6 @@ SQL
      */
     public function isCaseFoldedForUnquoted(string $asset_name) : bool
     {
-        return preg_match('/\p{Lu}/u', $asset_name);
+        return !! preg_match('/\p{Lu}/u', $asset_name);
     }
 }
