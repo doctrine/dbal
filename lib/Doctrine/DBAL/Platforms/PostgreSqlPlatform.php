@@ -1271,8 +1271,8 @@ SQL
     /**
      * Whether case is folded for unquoted asset names.
      */
-    public function isCaseFoldedForUnquotedAssets() : bool
+    public function isCaseFoldedForUnquoted(stirng $asset_name) : bool
     {
-        return true;
+        return preg_match('/\p{Lu}/u', $asset_name);
     }
 }

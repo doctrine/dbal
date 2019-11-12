@@ -3634,7 +3634,7 @@ abstract class AbstractPlatform
     /**
      * Whether case is folded for unquoted asset names.
      */
-    public function isCaseFoldedForUnquotedAssets() : bool
+    public function isCaseFoldedForUnquoted(string $asset_name) : bool
     {
         return false;
     }
