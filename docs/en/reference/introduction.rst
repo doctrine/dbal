@@ -21,7 +21,6 @@ The following database vendors are currently supported:
 - PostgreSQL
 - SAP Sybase SQL Anywhere
 - SQLite
-- Drizzle
 
 The Doctrine 2 database layer can be used independently of the
 object-relational mapper. In order to use the DBAL all you need is

@@ -1,11 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Event;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\TableDiff;
 use function array_merge;
-use function is_array;
 
 /**
  * Event Arguments used when SQL queries for creating tables are generated inside Doctrine\DBAL\Platform\*Platform.
@@ -18,7 +19,7 @@ class SchemaAlterTableEventArgs extends SchemaEventArgs
     /** @var AbstractPlatform */
     private $platform;
 
-    /** @var string[] */
+    /** @var array<int, string> */
     private $sql = [];
 
     public function __construct(TableDiff $tableDiff, AbstractPlatform $platform)
@@ -27,42 +28,30 @@ class SchemaAlterTableEventArgs extends SchemaEventArgs
         $this->platform  = $platform;
     }
 
-    /**
-     * @return TableDiff
-     */
-    public function getTableDiff()
+    public function getTableDiff() : TableDiff
     {
         return $this->tableDiff;
     }
 
-    /**
-     * @return AbstractPlatform
-     */
-    public function getPlatform()
+    public function getPlatform() : AbstractPlatform
     {
         return $this->platform;
     }
 
     /**
-     * @param string|string[] $sql
-     *
-     * @return \Doctrine\DBAL\Event\SchemaAlterTableEventArgs
+     * @return $this
      */
-    public function addSql($sql)
+    public function addSql(string ...$sql) : self
     {
-        if (is_array($sql)) {
-            $this->sql = array_merge($this->sql, $sql);
-        } else {
-            $this->sql[] = $sql;
-        }
+        $this->sql = array_merge($this->sql, $sql);
 
         return $this;
     }
 
     /**
-     * @return string[]
+     * @return array<int, string>
      */
-    public function getSql()
+    public function getSql() : array
     {
         return $this->sql;
     }

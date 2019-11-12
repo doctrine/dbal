@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Query;
 
 use Doctrine\DBAL\Connection;
@@ -422,6 +424,16 @@ class QueryBuilderTest extends DbalTestCase
         self::assertEquals('UPDATE users SET foo = ?, bar = ?', (string) $qb);
     }
 
+    public function testUpdateWithMatchingAlias() : void
+    {
+        $qb = new QueryBuilder($this->conn);
+        $qb->update('users', 'users')
+           ->set('foo', '?')
+           ->set('bar', '?');
+
+        self::assertEquals('UPDATE users SET foo = ?, bar = ?', (string) $qb);
+    }
+
     public function testUpdateWhere() : void
     {
         $qb = new QueryBuilder($this->conn);
@@ -454,6 +466,15 @@ class QueryBuilderTest extends DbalTestCase
     {
         $qb = new QueryBuilder($this->conn);
         $qb->delete('users');
+
+        self::assertEquals(QueryBuilder::DELETE, $qb->getType());
+        self::assertEquals('DELETE FROM users', (string) $qb);
+    }
+
+    public function testDeleteWithMatchingAlias() : void
+    {
+        $qb = new QueryBuilder($this->conn);
+        $qb->delete('users', 'users');
 
         self::assertEquals(QueryBuilder::DELETE, $qb->getType());
         self::assertEquals('DELETE FROM users', (string) $qb);
@@ -663,7 +684,7 @@ class QueryBuilderTest extends DbalTestCase
             ->where('nt.lang = :lang AND n.deleted != 1');
 
         $this->expectException(QueryException::class);
-        $this->expectExceptionMessage("The given alias 'invalid' is not part of any FROM or JOIN clause table. The currently registered aliases are: news, nv.");
+        $this->expectExceptionMessage('The given alias "invalid" is not part of any FROM or JOIN clause table. The currently registered aliases are: news, nv.');
         self::assertEquals('', $qb->getSQL());
     }
 
@@ -787,6 +808,16 @@ class QueryBuilderTest extends DbalTestCase
         self::assertEquals('SELECT id FROM users', (string) $qb);
     }
 
+    public function testSimpleSelectWithMatchingTableAlias() : void
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('id')
+            ->from('users', 'users');
+
+        self::assertEquals('SELECT id FROM users', (string) $qb);
+    }
+
     public function testSelectWithSimpleWhereWithoutTableAlias() : void
     {
         $qb = new QueryBuilder($this->conn);
@@ -906,7 +937,7 @@ class QueryBuilderTest extends DbalTestCase
             ->join('a', 'table_b', 'a', 'a.fk_b = a.id');
 
         $this->expectException(QueryException::class);
-        $this->expectExceptionMessage("The given alias 'a' is not unique in FROM and JOIN clause table. The currently registered aliases are: a.");
+        $this->expectExceptionMessage('The given alias "a" is not unique in FROM and JOIN clause table. The currently registered aliases are: a.');
 
         $qb->getSQL();
     }

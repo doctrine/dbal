@@ -1,12 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
+use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
 use Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\PostgreSqlSchemaManager;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\BlobType;
@@ -21,15 +24,14 @@ use function strtolower;
 
 class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
+    /** @var PostgreSqlSchemaManager */
+    protected $schemaManager;
+
     protected function tearDown() : void
     {
         parent::tearDown();
 
-        if (! $this->connection) {
-            return;
-        }
-
-        $this->connection->getConfiguration()->setFilterSchemaAssetsExpression(null);
+        $this->connection->getConfiguration()->setSchemaAssetsFilter(null);
     }
 
     /**
@@ -107,7 +109,10 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $c    = new Comparator();
         $diff = $c->diffTable($tableFrom, $tableTo);
-        $sql  = $this->connection->getDatabasePlatform()->getAlterTableSQL($diff);
+
+        self::assertNotNull($diff);
+
+        $sql = $this->connection->getDatabasePlatform()->getAlterTableSQL($diff);
         self::assertEquals([
             'CREATE SEQUENCE autoinc_table_add_id_seq',
             "SELECT setval('autoinc_table_add_id_seq', (SELECT MAX(id) FROM autoinc_table_add))",
@@ -136,6 +141,9 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $c    = new Comparator();
         $diff = $c->diffTable($tableFrom, $tableTo);
+
+        self::assertNotNull($diff);
+
         self::assertInstanceOf(TableDiff::class, $diff, 'There should be a difference and not false being returned from the table comparison');
         self::assertEquals(['ALTER TABLE autoinc_table_drop ALTER id DROP DEFAULT'], $this->connection->getDatabasePlatform()->getAlterTableSQL($diff));
 
@@ -160,7 +168,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $column            = $nestedSchemaTable->addColumn('id', 'integer');
         $column->setAutoincrement(true);
         $nestedSchemaTable->setPrimaryKey(['id']);
-        $nestedSchemaTable->addUnnamedForeignKeyConstraint($nestedRelatedTable, ['id'], ['id']);
+        $nestedSchemaTable->addForeignKeyConstraint($nestedRelatedTable, ['id'], ['id']);
 
         $this->schemaManager->createTable($nestedRelatedTable);
         $this->schemaManager->createTable($nestedSchemaTable);
@@ -213,11 +221,15 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $column    = $testTable->addColumn('id', 'integer');
         $this->schemaManager->createTable($testTable);
 
-        $this->connection->getConfiguration()->setFilterSchemaAssetsExpression('#^dbal204_#');
+        $this->connection->getConfiguration()->setSchemaAssetsFilter(static function (string $name) : bool {
+            return preg_match('#^dbal204_#', $name) === 1;
+        });
         $names = $this->schemaManager->listTableNames();
         self::assertCount(2, $names);
 
-        $this->connection->getConfiguration()->setFilterSchemaAssetsExpression('#^dbal204_test#');
+        $this->connection->getConfiguration()->setSchemaAssetsFilter(static function (string $name) : bool {
+            return preg_match('#^dbal204_test#', $name) === 1;
+        });
         $names = $this->schemaManager->listTableNames();
         self::assertCount(1, $names);
     }
@@ -294,7 +306,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $c    = new Comparator();
         $diff = $c->diffTable($table, $databaseTable);
 
-        self::assertFalse($diff);
+        self::assertNull($diff);
     }
 
     public function testListTableWithBinary() : void
@@ -333,7 +345,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $comparator = new Schema\Comparator();
 
-        self::assertFalse($comparator->diffTable($offlineTable, $onlineTable));
+        self::assertNull($comparator->diffTable($offlineTable, $onlineTable));
     }
 
     public function testListTablesExcludesViews() : void
@@ -379,42 +391,28 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $comparator = new Schema\Comparator();
 
-        self::assertFalse($comparator->diffTable($offlineTable, $onlineTable));
+        self::assertNull($comparator->diffTable($offlineTable, $onlineTable));
         self::assertTrue($onlineTable->hasIndex('simple_partial_index'));
         self::assertTrue($onlineTable->getIndex('simple_partial_index')->hasOption('where'));
         self::assertSame('(id IS NULL)', $onlineTable->getIndex('simple_partial_index')->getOption('where'));
     }
 
-    /**
-     * @dataProvider jsonbColumnTypeProvider
-     */
-    public function testJsonbColumn(string $type) : void
+    public function testJsonbColumn() : void
     {
-        if (! $this->schemaManager->getDatabasePlatform() instanceof PostgreSQL94Platform) {
+        if (! $this->schemaManager->getDatabasePlatform() instanceof PostgreSqlPlatform) {
             $this->markTestSkipped('Requires PostgresSQL 9.4+');
 
             return;
         }
 
         $table = new Schema\Table('test_jsonb');
-        $table->addColumn('foo', $type)->setPlatformOption('jsonb', true);
+        $table->addColumn('foo', Types::JSON)->setPlatformOption('jsonb', true);
         $this->schemaManager->dropAndCreateTable($table);
 
         $columns = $this->schemaManager->listTableColumns('test_jsonb');
 
-        self::assertSame($type, $columns['foo']->getType()->getName());
-        self::assertTrue(true, $columns['foo']->getPlatformOption('jsonb'));
-    }
-
-    /**
-     * @return mixed[][]
-     */
-    public function jsonbColumnTypeProvider() : array
-    {
-        return [
-            [Types::JSON],
-            [Types::JSON_ARRAY],
-        ];
+        self::assertSame(Types::JSON, $columns['foo']->getType()->getName());
+        self::assertTrue($columns['foo']->getPlatformOption('jsonb'));
     }
 
     /**
@@ -543,7 +541,7 @@ class MoneyType extends Type
     /**
      * {@inheritDoc}
      */
-    public function getName()
+    public function getName() : string
     {
         return 'MyMoney';
     }
@@ -551,7 +549,7 @@ class MoneyType extends Type
     /**
      * {@inheritDoc}
      */
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
+    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform) : string
     {
         return 'MyMoney';
     }

@@ -1,12 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\Driver\ExceptionConverterDriver;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\Platforms\DrizzlePlatform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
@@ -329,7 +330,7 @@ class ExceptionTest extends DbalFunctionalTestCase
         $this->expectException(Exception\ReadOnlyException::class);
         $this->expectExceptionMessage(
             <<<EOT
-An exception occurred while executing 'CREATE TABLE no_connection (id INTEGER NOT NULL)':
+An exception occurred while executing "CREATE TABLE no_connection (id INTEGER NOT NULL)":
 
 SQLSTATE[HY000]: General error: 8 attempt to write a readonly database
 EOT
@@ -355,10 +356,6 @@ EOT
 
         if ($platform instanceof SqlitePlatform) {
             $this->markTestSkipped('Only skipped if platform is not sqlite');
-        }
-
-        if ($platform instanceof DrizzlePlatform) {
-            $this->markTestSkipped('Drizzle does not always support authentication');
         }
 
         if ($platform instanceof PostgreSqlPlatform && isset($params['password'])) {

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Query\Expression;
 
 use Doctrine\DBAL\Connection;
@@ -215,7 +217,7 @@ class ExpressionBuilderTest extends DbalTestCase
 
     public function testIn() : void
     {
-        self::assertEquals('u.groups IN (1, 3, 4, 7)', $this->expr->in('u.groups', [1, 3, 4, 7]));
+        self::assertEquals('u.groups IN (1, 3, 4, 7)', $this->expr->in('u.groups', ['1', '3', '4', '7']));
     }
 
     public function testInWithPlaceholder() : void
@@ -225,7 +227,7 @@ class ExpressionBuilderTest extends DbalTestCase
 
     public function testNotIn() : void
     {
-        self::assertEquals('u.groups NOT IN (1, 3, 4, 7)', $this->expr->notIn('u.groups', [1, 3, 4, 7]));
+        self::assertEquals('u.groups NOT IN (1, 3, 4, 7)', $this->expr->notIn('u.groups', ['1', '3', '4', '7']));
     }
 
     public function testNotInWithPlaceholder() : void

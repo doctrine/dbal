@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\Common\Cache\ArrayCache;
@@ -21,7 +23,7 @@ use function is_array;
  */
 class ResultCacheTest extends DbalFunctionalTestCase
 {
-    /** @var array<int, array<int, int|string>> */
+    /** @var array<int, array<string, int|string>> */
     private $expectedResult = [['test_int' => 100, 'test_string' => 'foo'], ['test_int' => 200, 'test_string' => 'bar'], ['test_int' => 300, 'test_string' => 'baz']];
 
     /** @var DebugStack */
@@ -33,11 +35,14 @@ class ResultCacheTest extends DbalFunctionalTestCase
 
         $table = new Table('caching');
         $table->addColumn('test_int', 'integer');
-        $table->addColumn('test_string', 'string', ['notnull' => false]);
+        $table->addColumn('test_string', 'string', [
+            'length' => 8,
+            'notnull' => false,
+        ]);
         $table->setPrimaryKey(['test_int']);
 
         $sm = $this->connection->getSchemaManager();
-        $sm->createTable($table);
+        $sm->dropAndCreateTable($table);
 
         foreach ($this->expectedResult as $row) {
             $this->connection->insert('caching', $row);
@@ -48,13 +53,6 @@ class ResultCacheTest extends DbalFunctionalTestCase
 
         $cache = new ArrayCache();
         $config->setResultCacheImpl($cache);
-    }
-
-    protected function tearDown() : void
-    {
-        $this->connection->getSchemaManager()->dropTable('caching');
-
-        parent::tearDown();
     }
 
     public function testCacheFetchAssoc() : void
@@ -182,7 +180,7 @@ class ResultCacheTest extends DbalFunctionalTestCase
         $query = $this->connection->getDatabasePlatform()
             ->getDummySelectSQL('1');
 
-        $qcp = new QueryCacheProfile(0, 0, new ArrayCache());
+        $qcp = new QueryCacheProfile(0, null, new ArrayCache());
 
         $stmt = $this->connection->executeCacheQuery($query, [], [], $qcp);
         $stmt->fetchAll(FetchMode::COLUMN);
@@ -194,7 +192,7 @@ class ResultCacheTest extends DbalFunctionalTestCase
     }
 
     /**
-     * @param array<int, array<int, int|string>> $expectedResult
+     * @param array<int, mixed> $expectedResult
      */
     private function assertCacheNonCacheSelectSameFetchModeAreEqual(array $expectedResult, int $fetchMode) : void
     {

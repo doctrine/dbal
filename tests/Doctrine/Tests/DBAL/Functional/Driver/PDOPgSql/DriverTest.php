@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Functional\Driver\PDOPgSql;
 
 use Doctrine\DBAL\Connection;
@@ -47,7 +49,7 @@ class DriverTest extends AbstractDriverTest
 
         self::assertSame(
             $expectedDatabaseName,
-            $this->driver->getDatabase($connection)
+            $connection->getDatabase()
         );
     }
 
@@ -77,8 +79,8 @@ class DriverTest extends AbstractDriverTest
         $parameters                     = $this->connection->getParams();
         $parameters['application_name'] = 'doctrine';
 
-        $user     = $parameters['user'] ?? null;
-        $password = $parameters['password'] ?? null;
+        $user     = $parameters['user'] ?? '';
+        $password = $parameters['password'] ?? '';
 
         $connection = $this->driver->connect($parameters, $user, $password);
 

@@ -1,14 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Driver\OCI8;
 
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\StatementIterator;
+use Doctrine\DBAL\Exception\InvalidColumnIndex;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use InvalidArgumentException;
 use IteratorAggregate;
-use PDO;
 use const OCI_ASSOC;
 use const OCI_B_BIN;
 use const OCI_B_BLOB;
@@ -58,13 +60,6 @@ class OCI8Statement implements IteratorAggregate, Statement
     /** @var OCI8Connection */
     protected $_conn;
 
-    /**
-     * @deprecated
-     *
-     * @var string
-     */
-    protected static $_PARAM = ':param';
-
     /** @var int[] */
     protected static $fetchModeMap = [
         FetchMode::MIXED       => OCI_BOTH,
@@ -101,7 +96,7 @@ class OCI8Statement implements IteratorAggregate, Statement
      * @param resource $dbh   The connection handle.
      * @param string   $query The SQL query.
      */
-    public function __construct($dbh, $query, OCI8Connection $conn)
+    public function __construct($dbh, string $query, OCI8Connection $conn)
     {
         [$query, $paramMap] = self::convertPositionalToNamedPlaceholders($query);
 
@@ -135,14 +130,14 @@ class OCI8Statement implements IteratorAggregate, Statement
      * @todo extract into utility class in Doctrine\DBAL\Util namespace
      * @todo review and test for lost spaces. we experienced missing spaces with oci8 in some sql statements.
      */
-    public static function convertPositionalToNamedPlaceholders($statement)
+    public static function convertPositionalToNamedPlaceholders(string $statement) : array
     {
         $fragmentOffset          = $tokenOffset = 0;
         $fragments               = $paramMap = [];
         $currentLiteralDelimiter = null;
 
         do {
-            if (! $currentLiteralDelimiter) {
+            if ($currentLiteralDelimiter === null) {
                 $result = self::findPlaceholderOrOpeningQuote(
                     $statement,
                     $tokenOffset,
@@ -158,7 +153,7 @@ class OCI8Statement implements IteratorAggregate, Statement
 
         if ($currentLiteralDelimiter) {
             throw new OCI8Exception(sprintf(
-                'The statement contains non-terminated string literal starting at offset %d',
+                'The statement contains non-terminated string literal starting at offset %d.',
                 $tokenOffset - 1
             ));
         }
@@ -172,24 +167,24 @@ class OCI8Statement implements IteratorAggregate, Statement
     /**
      * Finds next placeholder or opening quote.
      *
-     * @param string             $statement               The SQL statement to parse
-     * @param string             $tokenOffset             The offset to start searching from
-     * @param int                $fragmentOffset          The offset to build the next fragment from
-     * @param string[]           $fragments               Fragments of the original statement not containing placeholders
-     * @param string|null        $currentLiteralDelimiter The delimiter of the current string literal
-     *                                                    or NULL if not currently in a literal
-     * @param array<int, string> $paramMap                Mapping of the original parameter positions to their named replacements
+     * @param string      $statement               The SQL statement to parse
+     * @param int         $tokenOffset             The offset to start searching from
+     * @param int         $fragmentOffset          The offset to build the next fragment from
+     * @param string[]    $fragments               Fragments of the original statement not containing placeholders
+     * @param string|null $currentLiteralDelimiter The delimiter of the current string literal
+     *                                             or NULL if not currently in a literal
+     * @param string[]    $paramMap                Mapping of the original parameter positions to their named replacements
      *
      * @return bool Whether the token was found
      */
     private static function findPlaceholderOrOpeningQuote(
-        $statement,
-        &$tokenOffset,
-        &$fragmentOffset,
-        &$fragments,
-        &$currentLiteralDelimiter,
-        &$paramMap
-    ) {
+        string $statement,
+        int &$tokenOffset,
+        int &$fragmentOffset,
+        array &$fragments,
+        ?string &$currentLiteralDelimiter,
+        array &$paramMap
+    ) : bool {
         $token = self::findToken($statement, $tokenOffset, '/[?\'"]/');
 
         if (! $token) {
@@ -218,16 +213,16 @@ class OCI8Statement implements IteratorAggregate, Statement
      * Finds closing quote
      *
      * @param string $statement               The SQL statement to parse
-     * @param string $tokenOffset             The offset to start searching from
+     * @param int    $tokenOffset             The offset to start searching from
      * @param string $currentLiteralDelimiter The delimiter of the current string literal
      *
      * @return bool Whether the token was found
      */
     private static function findClosingQuote(
-        $statement,
-        &$tokenOffset,
-        &$currentLiteralDelimiter
-    ) {
+        string $statement,
+        int &$tokenOffset,
+        string &$currentLiteralDelimiter
+    ) : bool {
         $token = self::findToken(
             $statement,
             $tokenOffset,
@@ -238,7 +233,7 @@ class OCI8Statement implements IteratorAggregate, Statement
             return false;
         }
 
-        $currentLiteralDelimiter = false;
+        $currentLiteralDelimiter = null;
         ++$tokenOffset;
 
         return true;
@@ -254,7 +249,7 @@ class OCI8Statement implements IteratorAggregate, Statement
      *
      * @return string|null Token or NULL if not found
      */
-    private static function findToken($statement, &$offset, $regex)
+    private static function findToken(string $statement, int &$offset, string $regex) : ?string
     {
         if (preg_match($regex, $statement, $matches, PREG_OFFSET_CAPTURE, $offset)) {
             $offset = $matches[0][1];
@@ -268,17 +263,17 @@ class OCI8Statement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function bindValue($param, $value, $type = ParameterType::STRING)
+    public function bindValue($param, $value, int $type = ParameterType::STRING) : void
     {
-        return $this->bindParam($param, $value, $type, null);
+        $this->bindParam($param, $value, $type, null);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null)
+    public function bindParam($param, &$variable, int $type = ParameterType::STRING, ?int $length = null) : void
     {
-        $column = $this->_paramMap[$column];
+        $param = $this->_paramMap[$param];
 
         if ($type === ParameterType::LARGE_OBJECT) {
             $lob = oci_new_descriptor($this->_dbh, OCI_D_LOB);
@@ -291,15 +286,17 @@ class OCI8Statement implements IteratorAggregate, Statement
             $variable =& $lob;
         }
 
-        $this->boundValues[$column] =& $variable;
+        $this->boundValues[$param] =& $variable;
 
-        return oci_bind_by_name(
+        if (! oci_bind_by_name(
             $this->_sth,
-            $column,
+            $param,
             $variable,
             $length ?? -1,
             $this->convertParameterType($type)
-        );
+        )) {
+            throw OCI8Exception::fromErrorInfo(oci_error($this->_sth));
+        }
     }
 
     /**
@@ -322,24 +319,22 @@ class OCI8Statement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function closeCursor()
+    public function closeCursor() : void
     {
         // not having the result means there's nothing to close
         if (! $this->result) {
-            return true;
+            return;
         }
 
         oci_cancel($this->_sth);
 
         $this->result = false;
-
-        return true;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function columnCount()
+    public function columnCount() : int
     {
         return oci_num_fields($this->_sth) ?: 0;
     }
@@ -347,65 +342,36 @@ class OCI8Statement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function errorCode()
-    {
-        $error = oci_error($this->_sth);
-        if ($error !== false) {
-            $error = $error['code'];
-        }
-
-        return $error;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function errorInfo()
-    {
-        $error = oci_error($this->_sth);
-
-        if ($error === false) {
-            return [];
-        }
-
-        return $error;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function execute($params = null)
+    public function execute(?array $params = null) : void
     {
         if ($params) {
             $hasZeroIndex = array_key_exists(0, $params);
 
             foreach ($params as $key => $val) {
                 if ($hasZeroIndex && is_int($key)) {
-                    $this->bindValue($key + 1, $val);
+                    $param = $key + 1;
                 } else {
-                    $this->bindValue($key, $val);
+                    $param = $key;
                 }
+
+                $this->bindValue($param, $val);
             }
         }
 
         $ret = @oci_execute($this->_sth, $this->_conn->getExecuteMode());
         if (! $ret) {
-            throw OCI8Exception::fromErrorInfo($this->errorInfo());
+            throw OCI8Exception::fromErrorInfo(oci_error($this->_sth));
         }
 
         $this->result = true;
-
-        return $ret;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
+    public function setFetchMode(int $fetchMode, ...$args) : void
     {
         $this->_defaultFetchMode = $fetchMode;
-
-        return true;
     }
 
     /**
@@ -419,7 +385,7 @@ class OCI8Statement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null, $cursorOrientation = PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
+    public function fetch(?int $fetchMode = null, ...$args)
     {
         // do not try fetching from the statement if it's not expected to contain result
         // in order to prevent exceptional situation
@@ -438,7 +404,7 @@ class OCI8Statement implements IteratorAggregate, Statement
         }
 
         if (! isset(self::$fetchModeMap[$fetchMode])) {
-            throw new InvalidArgumentException('Invalid fetch style: ' . $fetchMode);
+            throw new InvalidArgumentException(sprintf('Invalid fetch mode %d.', $fetchMode));
         }
 
         return oci_fetch_array(
@@ -450,7 +416,7 @@ class OCI8Statement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
+    public function fetchAll(?int $fetchMode = null, ...$args) : array
     {
         $fetchMode = $fetchMode ?: $this->_defaultFetchMode;
 
@@ -465,7 +431,7 @@ class OCI8Statement implements IteratorAggregate, Statement
         }
 
         if (! isset(self::$fetchModeMap[$fetchMode])) {
-            throw new InvalidArgumentException('Invalid fetch style: ' . $fetchMode);
+            throw new InvalidArgumentException(sprintf('Invalid fetch mode %d.', $fetchMode));
         }
 
         if (self::$fetchModeMap[$fetchMode] === OCI_BOTH) {
@@ -504,7 +470,7 @@ class OCI8Statement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchColumn($columnIndex = 0)
+    public function fetchColumn(int $columnIndex = 0)
     {
         // do not try fetching from the statement if it's not expected to contain result
         // in order to prevent exceptional situation
@@ -518,13 +484,17 @@ class OCI8Statement implements IteratorAggregate, Statement
             return false;
         }
 
-        return $row[$columnIndex] ?? null;
+        if (! array_key_exists($columnIndex, $row)) {
+            throw InvalidColumnIndex::new($columnIndex, count($row));
+        }
+
+        return $row[$columnIndex];
     }
 
     /**
      * {@inheritdoc}
      */
-    public function rowCount()
+    public function rowCount() : int
     {
         return oci_num_rows($this->_sth) ?: 0;
     }

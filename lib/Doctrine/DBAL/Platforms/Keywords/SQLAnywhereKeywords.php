@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Platforms\Keywords;
 
 /**
@@ -10,7 +12,7 @@ class SQLAnywhereKeywords extends KeywordList
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName() : string
     {
         return 'SQLAnywhere';
     }
@@ -20,7 +22,7 @@ class SQLAnywhereKeywords extends KeywordList
      *
      * @link http://infocenter.sybase.com/help/topic/com.sybase.dbrfen10/pdf/dbrfen10.pdf?noframes=true
      */
-    protected function getKeywords()
+    protected function getKeywords() : array
     {
         return [
             'ADD',
@@ -28,6 +30,7 @@ class SQLAnywhereKeywords extends KeywordList
             'ALTER',
             'AND',
             'ANY',
+            'ARRAY',
             'AS',
             'ASC',
             'ATTACH',
@@ -68,6 +71,7 @@ class SQLAnywhereKeywords extends KeywordList
             'CURRENT_USER',
             'CURSOR',
             'DATE',
+            'DATETIMEOFFSET',
             'DBSPACE',
             'DEALLOCATE',
             'DEC',
@@ -114,7 +118,6 @@ class SQLAnywhereKeywords extends KeywordList
             'IF',
             'IN',
             'INDEX',
-            'INDEX_LPAREN',
             'INNER',
             'INOUT',
             'INSENSITIVE',
@@ -127,20 +130,22 @@ class SQLAnywhereKeywords extends KeywordList
             'INTEGRATED',
             'INTERSECT',
             'INTO',
-            'IQ',
             'IS',
             'ISOLATION',
             'JOIN',
+            'JSON',
             'KERBEROS',
             'KEY',
             'LATERAL',
             'LEFT',
             'LIKE',
+            'LIMIT',
             'LOCK',
             'LOGIN',
             'LONG',
             'MATCH',
             'MEMBERSHIP',
+            'MERGE',
             'MESSAGE',
             'MODE',
             'MODIFY',
@@ -158,6 +163,8 @@ class SQLAnywhereKeywords extends KeywordList
             'OFF',
             'ON',
             'OPEN',
+            'OPENSTRING',
+            'OPENXML',
             'OPTION',
             'OPTIONS',
             'OR',
@@ -194,6 +201,8 @@ class SQLAnywhereKeywords extends KeywordList
             'RIGHT',
             'ROLLBACK',
             'ROLLUP',
+            'ROW',
+            'ROWTYPE',
             'SAVE',
             'SAVEPOINT',
             'SCROLL',
@@ -205,6 +214,7 @@ class SQLAnywhereKeywords extends KeywordList
             'SHARE',
             'SMALLINT',
             'SOME',
+            'SPATIAL',
             'SQLCODE',
             'SQLSTATE',
             'START',
@@ -212,7 +222,6 @@ class SQLAnywhereKeywords extends KeywordList
             'SUBTRANS',
             'SUBTRANSACTION',
             'SYNCHRONIZE',
-            'SYNTAX_ERROR',
             'TABLE',
             'TEMPORARY',
             'THEN',
@@ -222,6 +231,7 @@ class SQLAnywhereKeywords extends KeywordList
             'TO',
             'TOP',
             'TRAN',
+            'TREAT',
             'TRIGGER',
             'TRUNCATE',
             'TSEQUAL',
@@ -230,6 +240,7 @@ class SQLAnywhereKeywords extends KeywordList
             'UNIQUE',
             'UNIQUEIDENTIFIER',
             'UNKNOWN',
+            'UNNEST',
             'UNSIGNED',
             'UPDATE',
             'UPDATING',
@@ -241,6 +252,7 @@ class SQLAnywhereKeywords extends KeywordList
             'VARBIT',
             'VARCHAR',
             'VARIABLE',
+            'VARRAY',
             'VARYING',
             'VIEW',
             'WAIT',
@@ -250,9 +262,6 @@ class SQLAnywhereKeywords extends KeywordList
             'WHILE',
             'WINDOW',
             'WITH',
-            'WITH_CUBE',
-            'WITH_LPAREN',
-            'WITH_ROLLUP',
             'WITHIN',
             'WORK',
             'WRITETEXT',

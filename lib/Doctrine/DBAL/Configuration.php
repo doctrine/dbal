@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL;
 
 use Doctrine\Common\Cache\Cache;
+use Doctrine\DBAL\Logging\NullLogger;
 use Doctrine\DBAL\Logging\SQLLogger;
 use Doctrine\DBAL\Schema\AbstractAsset;
 use function preg_match;
@@ -24,41 +27,33 @@ class Configuration
     protected $_attributes = [];
 
     /**
-     * Sets the SQL logger to use. Defaults to NULL which means SQL logging is disabled.
-     *
-     * @return void
+     * Sets the SQL logger to use.
      */
-    public function setSQLLogger(?SQLLogger $logger = null)
+    public function setSQLLogger(?SQLLogger $logger) : void
     {
         $this->_attributes['sqlLogger'] = $logger;
     }
 
     /**
      * Gets the SQL logger that is used.
-     *
-     * @return SQLLogger|null
      */
-    public function getSQLLogger()
+    public function getSQLLogger() : SQLLogger
     {
-        return $this->_attributes['sqlLogger'] ?? null;
+        return $this->_attributes['sqlLogger'] ?? $this->_attributes['sqlLogger'] = new NullLogger();
     }
 
     /**
      * Gets the cache driver implementation that is used for query result caching.
-     *
-     * @return Cache|null
      */
-    public function getResultCacheImpl()
+    public function getResultCacheImpl() : ?Cache
     {
         return $this->_attributes['resultCacheImpl'] ?? null;
     }
 
     /**
      * Sets the cache driver implementation that is used for query result caching.
-     *
-     * @return void
      */
-    public function setResultCacheImpl(Cache $cacheImpl)
+    public function setResultCacheImpl(Cache $cacheImpl) : void
     {
         $this->_attributes['resultCacheImpl'] = $cacheImpl;
     }
@@ -71,12 +66,8 @@ class Configuration
      * {AbstractSchemaManager#createSchema()}.
      *
      * @deprecated Use Configuration::setSchemaAssetsFilter() instead
-     *
-     * @param string $filterExpression
-     *
-     * @return void
      */
-    public function setFilterSchemaAssetsExpression($filterExpression)
+    public function setFilterSchemaAssetsExpression(?string $filterExpression) : void
     {
         $this->_attributes['filterSchemaAssetsExpression'] = $filterExpression;
         if ($filterExpression) {
@@ -86,29 +77,14 @@ class Configuration
         }
     }
 
-    /**
-     * Returns filter schema assets expression.
-     *
-     * @deprecated Use Configuration::getSchemaAssetsFilter() instead
-     *
-     * @return string|null
-     */
-    public function getFilterSchemaAssetsExpression()
+    private function buildSchemaAssetsFilterFromExpression(string $filterExpression) : callable
     {
-        return $this->_attributes['filterSchemaAssetsExpression'] ?? null;
-    }
-
-    /**
-     * @param string $filterExpression
-     */
-    private function buildSchemaAssetsFilterFromExpression($filterExpression) : callable
-    {
-        return static function ($assetName) use ($filterExpression) {
+        return static function ($assetName) use ($filterExpression) : bool {
             if ($assetName instanceof AbstractAsset) {
                 $assetName = $assetName->getName();
             }
 
-            return preg_match($filterExpression, $assetName);
+            return preg_match($filterExpression, $assetName) > 0;
         };
     }
 
@@ -137,13 +113,13 @@ class Configuration
      * transactions. Otherwise, its SQL statements are grouped into transactions that are terminated by a call to either
      * the method commit or the method rollback. By default, new connections are in auto-commit mode.
      *
-     * @see   getAutoCommit
+     * @see getAutoCommit
      *
      * @param bool $autoCommit True to enable auto-commit mode; false to disable it.
      */
-    public function setAutoCommit($autoCommit)
+    public function setAutoCommit(bool $autoCommit) : void
     {
-        $this->_attributes['autoCommit'] = (bool) $autoCommit;
+        $this->_attributes['autoCommit'] = $autoCommit;
     }
 
     /**
@@ -153,7 +129,7 @@ class Configuration
      *
      * @return bool True if auto-commit mode is enabled by default for connections, false otherwise.
      */
-    public function getAutoCommit()
+    public function getAutoCommit() : bool
     {
         return $this->_attributes['autoCommit'] ?? true;
     }

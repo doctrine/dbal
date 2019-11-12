@@ -1,10 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\Connection;
+use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\AbstractAsset;
@@ -30,16 +33,19 @@ use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DbalFunctionalTestCase;
+use ReflectionMethod;
 use function array_filter;
 use function array_keys;
 use function array_map;
 use function array_search;
 use function array_values;
+use function assert;
 use function count;
 use function current;
 use function end;
 use function explode;
 use function in_array;
+use function is_string;
 use function sprintf;
 use function str_replace;
 use function strcasecmp;
@@ -57,8 +63,9 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         $class     = static::class;
         $e         = explode('\\', $class);
         $testClass = end($e);
+        assert(is_string($testClass));
 
-        return strtolower(str_replace('SchemaManagerTest', null, $testClass));
+        return strtolower(str_replace('SchemaManagerTest', '', $testClass));
     }
 
     protected function setUp() : void
@@ -114,8 +121,8 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
             $params['dbname'] = 'test_drop_database';
         }
 
-        $user     = $params['user'] ?? null;
-        $password = $params['password'] ?? null;
+        $user     = $params['user'] ?? '';
+        $password = $params['password'] ?? '';
 
         $connection = $this->connection->getDriver()->connect($params, $user, $password);
 
@@ -290,54 +297,54 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
 
         self::assertArrayHasKey('test', $columns);
         self::assertEquals(1, array_search('test', $columnsKeys));
-        self::assertEquals('test', strtolower($columns['test']->getname()));
-        self::assertInstanceOf(StringType::class, $columns['test']->gettype());
-        self::assertEquals(255, $columns['test']->getlength());
-        self::assertEquals(false, $columns['test']->getfixed());
-        self::assertEquals(false, $columns['test']->getnotnull());
-        self::assertEquals('expected default', $columns['test']->getdefault());
+        self::assertEquals('test', strtolower($columns['test']->getName()));
+        self::assertInstanceOf(StringType::class, $columns['test']->getType());
+        self::assertEquals(255, $columns['test']->getLength());
+        self::assertEquals(false, $columns['test']->getFixed());
+        self::assertEquals(false, $columns['test']->getNotnull());
+        self::assertEquals('expected default', $columns['test']->getDefault());
         self::assertIsArray($columns['test']->getPlatformOptions());
 
-        self::assertEquals('foo', strtolower($columns['foo']->getname()));
+        self::assertEquals('foo', strtolower($columns['foo']->getName()));
         self::assertEquals(2, array_search('foo', $columnsKeys));
-        self::assertInstanceOf(TextType::class, $columns['foo']->gettype());
-        self::assertEquals(false, $columns['foo']->getunsigned());
-        self::assertEquals(false, $columns['foo']->getfixed());
-        self::assertEquals(true, $columns['foo']->getnotnull());
-        self::assertEquals(null, $columns['foo']->getdefault());
+        self::assertInstanceOf(TextType::class, $columns['foo']->getType());
+        self::assertEquals(false, $columns['foo']->getUnsigned());
+        self::assertEquals(false, $columns['foo']->getFixed());
+        self::assertEquals(true, $columns['foo']->getNotnull());
+        self::assertEquals(null, $columns['foo']->getDefault());
         self::assertIsArray($columns['foo']->getPlatformOptions());
 
-        self::assertEquals('bar', strtolower($columns['bar']->getname()));
+        self::assertEquals('bar', strtolower($columns['bar']->getName()));
         self::assertEquals(3, array_search('bar', $columnsKeys));
-        self::assertInstanceOf(DecimalType::class, $columns['bar']->gettype());
-        self::assertEquals(null, $columns['bar']->getlength());
-        self::assertEquals(10, $columns['bar']->getprecision());
-        self::assertEquals(4, $columns['bar']->getscale());
-        self::assertEquals(false, $columns['bar']->getunsigned());
-        self::assertEquals(false, $columns['bar']->getfixed());
-        self::assertEquals(false, $columns['bar']->getnotnull());
-        self::assertEquals(null, $columns['bar']->getdefault());
+        self::assertInstanceOf(DecimalType::class, $columns['bar']->getType());
+        self::assertEquals(null, $columns['bar']->getLength());
+        self::assertEquals(10, $columns['bar']->getPrecision());
+        self::assertEquals(4, $columns['bar']->getScale());
+        self::assertEquals(false, $columns['bar']->getUnsigned());
+        self::assertEquals(false, $columns['bar']->getFixed());
+        self::assertEquals(false, $columns['bar']->getNotnull());
+        self::assertEquals(null, $columns['bar']->getDefault());
         self::assertIsArray($columns['bar']->getPlatformOptions());
 
-        self::assertEquals('baz1', strtolower($columns['baz1']->getname()));
+        self::assertEquals('baz1', strtolower($columns['baz1']->getName()));
         self::assertEquals(4, array_search('baz1', $columnsKeys));
-        self::assertInstanceOf(DateTimeType::class, $columns['baz1']->gettype());
-        self::assertEquals(true, $columns['baz1']->getnotnull());
-        self::assertEquals(null, $columns['baz1']->getdefault());
+        self::assertInstanceOf(DateTimeType::class, $columns['baz1']->getType());
+        self::assertEquals(true, $columns['baz1']->getNotnull());
+        self::assertEquals(null, $columns['baz1']->getDefault());
         self::assertIsArray($columns['baz1']->getPlatformOptions());
 
-        self::assertEquals('baz2', strtolower($columns['baz2']->getname()));
+        self::assertEquals('baz2', strtolower($columns['baz2']->getName()));
         self::assertEquals(5, array_search('baz2', $columnsKeys));
-        self::assertContains($columns['baz2']->gettype()->getName(), ['time', 'date', 'datetime']);
-        self::assertEquals(true, $columns['baz2']->getnotnull());
-        self::assertEquals(null, $columns['baz2']->getdefault());
+        self::assertContains($columns['baz2']->getType()->getName(), ['time', 'date', 'datetime']);
+        self::assertEquals(true, $columns['baz2']->getNotnull());
+        self::assertEquals(null, $columns['baz2']->getDefault());
         self::assertIsArray($columns['baz2']->getPlatformOptions());
 
-        self::assertEquals('baz3', strtolower($columns['baz3']->getname()));
+        self::assertEquals('baz3', strtolower($columns['baz3']->getName()));
         self::assertEquals(6, array_search('baz3', $columnsKeys));
-        self::assertContains($columns['baz3']->gettype()->getName(), ['time', 'date', 'datetime']);
-        self::assertEquals(true, $columns['baz3']->getnotnull());
-        self::assertEquals(null, $columns['baz3']->getdefault());
+        self::assertContains($columns['baz3']->getType()->getName(), ['time', 'date', 'datetime']);
+        self::assertEquals(true, $columns['baz3']->getNotnull());
+        self::assertEquals(null, $columns['baz3']->getDefault());
         self::assertIsArray($columns['baz3']->getPlatformOptions());
     }
 
@@ -376,6 +383,7 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
             ->method('onSchemaColumnDefinition');
 
         $oldEventManager = $this->schemaManager->getDatabasePlatform()->getEventManager();
+        assert($oldEventManager instanceof EventManager);
 
         $eventManager = new EventManager();
         $eventManager->addEventListener([Events::onSchemaColumnDefinition], $listenerMock);
@@ -403,6 +411,7 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
             ->method('onSchemaIndexDefinition');
 
         $oldEventManager = $this->schemaManager->getDatabasePlatform()->getEventManager();
+        assert($oldEventManager instanceof EventManager);
 
         $eventManager = new EventManager();
         $eventManager->addEventListener([Events::onSchemaIndexDefinition], $listenerMock);
@@ -427,7 +436,7 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         $comparator = new Comparator();
         $diff       = $comparator->diffTable($offlineTable, $onlineTable);
 
-        self::assertFalse($diff, 'No differences should be detected with the offline vs online schema.');
+        self::assertNull($diff, 'No differences should be detected with the offline vs online schema.');
     }
 
     public function testListTableIndexes() : void
@@ -577,9 +586,9 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         self::assertFalse($table->hasColumn('test'));
         self::assertTrue($table->hasColumn('foo'));
 
-        $tableDiff                 = new TableDiff('alter_table');
-        $tableDiff->fromTable      = $table;
-        $tableDiff->addedIndexes[] = new Index('foo_idx', ['foo']);
+        $tableDiff                          = new TableDiff('alter_table');
+        $tableDiff->fromTable               = $table;
+        $tableDiff->addedIndexes['foo_idx'] = new Index('foo_idx', ['foo']);
 
         $this->schemaManager->alterTable($tableDiff);
 
@@ -590,9 +599,9 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         self::assertFalse($table->getIndex('foo_idx')->isPrimary());
         self::assertFalse($table->getIndex('foo_idx')->isUnique());
 
-        $tableDiff                   = new TableDiff('alter_table');
-        $tableDiff->fromTable        = $table;
-        $tableDiff->changedIndexes[] = new Index('foo_idx', ['foo', 'foreign_key_test']);
+        $tableDiff                            = new TableDiff('alter_table');
+        $tableDiff->fromTable                 = $table;
+        $tableDiff->changedIndexes['foo_idx'] = new Index('foo_idx', ['foo', 'foreign_key_test']);
 
         $this->schemaManager->alterTable($tableDiff);
 
@@ -615,11 +624,11 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         self::assertFalse($table->getIndex('bar_idx')->isPrimary());
         self::assertFalse($table->getIndex('bar_idx')->isUnique());
 
-        $tableDiff                     = new TableDiff('alter_table');
-        $tableDiff->fromTable          = $table;
-        $tableDiff->removedIndexes[]   = new Index('bar_idx', ['foo', 'foreign_key_test']);
-        $fk                            = new ForeignKeyConstraint(['foreign_key_test'], 'alter_table_foreign', ['id']);
-        $tableDiff->addedForeignKeys[] = $fk;
+        $tableDiff                            = new TableDiff('alter_table');
+        $tableDiff->fromTable                 = $table;
+        $tableDiff->removedIndexes['bar_idx'] = new Index('bar_idx', ['foo', 'foreign_key_test']);
+        $fk                                   = new ForeignKeyConstraint(['foreign_key_test'], 'alter_table_foreign', ['id']);
+        $tableDiff->addedForeignKeys[]        = $fk;
 
         $this->schemaManager->alterTable($tableDiff);
         $table = $this->schemaManager->listTableDetails('alter_table');
@@ -646,8 +655,8 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         }
 
         //create schema
-        $diff                  = new SchemaDiff();
-        $diff->newNamespaces[] = 'testschema';
+        $diff                              = new SchemaDiff();
+        $diff->newNamespaces['testschema'] = 'testschema';
 
         foreach ($diff->toSql($this->schemaManager->getDatabasePlatform()) as $sql) {
             $this->connection->exec($sql);
@@ -756,6 +765,8 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         $c         = new Comparator();
         $tableDiff = $c->diffTable($tableFK, $tableFKNew);
 
+        self::assertNotNull($tableDiff);
+
         $this->schemaManager->alterTable($tableDiff);
 
         $table       = $this->schemaManager->listTableDetails('test_fk_rename');
@@ -798,7 +809,11 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
 
         $comparator = new Comparator();
 
-        $this->schemaManager->alterTable($comparator->diffTable($foreignTable, $foreignTable2));
+        $diff = $comparator->diffTable($foreignTable, $foreignTable2);
+
+        self::assertNotNull($diff);
+
+        $this->schemaManager->alterTable($diff);
 
         $foreignTable = $this->schemaManager->listTableDetails('test_rename_index_foreign');
 
@@ -913,7 +928,10 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         $table     = new Table($tableName);
 
         $table->addColumn('col_int', 'smallint', ['default' => 666]);
-        $table->addColumn('col_string', 'string', ['default' => 'foo']);
+        $table->addColumn('col_string', 'string', [
+            'length' => 3,
+            'default' => 'foo',
+        ]);
 
         $this->schemaManager->dropAndCreateTable($table);
 
@@ -928,9 +946,16 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
 
         $tableDiff->changedColumns['col_string'] = new ColumnDiff(
             'col_string',
-            new Column('col_string', Type::getType('string'), ['default' => 'foo', 'fixed' => true]),
+            new Column('col_string', Type::getType('string'), [
+                'length' => 3,
+                'fixed' => true,
+                'default' => 'foo',
+            ]),
             ['fixed'],
-            new Column('col_string', Type::getType('string'), ['default' => 'foo'])
+            new Column('col_string', Type::getType('string'), [
+                'length' => 3,
+                'default' => 'foo',
+            ])
         );
 
         $this->schemaManager->alterTable($tableDiff);
@@ -982,7 +1007,7 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
      */
     protected function getTestTable(string $name, array $options = []) : Table
     {
-        $table = new Table($name, [], [], [], false, $options);
+        $table = new Table($name, [], [], [], [], $options);
         $table->setSchemaConfig($this->schemaManager->createSchemaConfig());
         $table->addColumn('id', 'integer', ['notnull' => true]);
         $table->setPrimaryKey(['id']);
@@ -994,7 +1019,7 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
 
     protected function getTestCompositeTable(string $name) : Table
     {
-        $table = new Table($name, [], [], [], false, []);
+        $table = new Table($name, [], [], [], [], []);
         $table->setSchemaConfig($this->schemaManager->createSchemaConfig());
         $table->addColumn('id', 'integer', ['notnull' => true]);
         $table->addColumn('other_id', 'integer', ['notnull' => true]);
@@ -1010,14 +1035,17 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
     protected function assertHasTable(array $tables) : void
     {
         $foundTable = false;
+
         foreach ($tables as $table) {
             self::assertInstanceOf(Table::class, $table, 'No Table instance was found in tables array.');
+
             if (strtolower($table->getName()) !== 'list_tables_test_new_name') {
                 continue;
             }
 
             $foundTable = true;
         }
+
         self::assertTrue($foundTable, 'Could not find new table');
     }
 
@@ -1055,13 +1083,22 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
     {
         $table = new Table('col_def_lifecycle');
         $table->addColumn('id', 'integer', ['autoincrement' => true]);
-        $table->addColumn('column1', 'string', ['default' => null]);
-        $table->addColumn('column2', 'string', ['default' => false]);
-        $table->addColumn('column3', 'string', ['default' => true]);
-        $table->addColumn('column4', 'string', ['default' => 0]);
-        $table->addColumn('column5', 'string', ['default' => '']);
-        $table->addColumn('column6', 'string', ['default' => 'def']);
-        $table->addColumn('column7', 'integer', ['default' => 0]);
+        $table->addColumn('column1', 'string', [
+            'length' => 1,
+            'default' => null,
+        ]);
+        $table->addColumn('column2', 'string', [
+            'length' => 1,
+            'default' => '',
+        ]);
+        $table->addColumn('column3', 'string', [
+            'length' => 8,
+            'default' => 'default1',
+        ]);
+        $table->addColumn('column4', 'integer', [
+            'length' => 1,
+            'default' => 0,
+        ]);
         $table->setPrimaryKey(['id']);
 
         $this->schemaManager->dropAndCreateTable($table);
@@ -1071,35 +1108,30 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         self::assertNull($columns['id']->getDefault());
         self::assertNull($columns['column1']->getDefault());
         self::assertSame('', $columns['column2']->getDefault());
-        self::assertSame('1', $columns['column3']->getDefault());
+        self::assertSame('default1', $columns['column3']->getDefault());
         self::assertSame('0', $columns['column4']->getDefault());
-        self::assertSame('', $columns['column5']->getDefault());
-        self::assertSame('def', $columns['column6']->getDefault());
-        self::assertSame('0', $columns['column7']->getDefault());
 
         $diffTable = clone $table;
 
-        $diffTable->changeColumn('column1', ['default' => false]);
+        $diffTable->changeColumn('column1', ['default' => '']);
         $diffTable->changeColumn('column2', ['default' => null]);
-        $diffTable->changeColumn('column3', ['default' => false]);
+        $diffTable->changeColumn('column3', ['default' => 'default2']);
         $diffTable->changeColumn('column4', ['default' => null]);
-        $diffTable->changeColumn('column5', ['default' => false]);
-        $diffTable->changeColumn('column6', ['default' => 666]);
-        $diffTable->changeColumn('column7', ['default' => null]);
 
         $comparator = new Comparator();
 
-        $this->schemaManager->alterTable($comparator->diffTable($table, $diffTable));
+        $diff = $comparator->diffTable($table, $diffTable);
+
+        self::assertNotNull($diff);
+
+        $this->schemaManager->alterTable($diff);
 
         $columns = $this->schemaManager->listTableColumns('col_def_lifecycle');
 
         self::assertSame('', $columns['column1']->getDefault());
         self::assertNull($columns['column2']->getDefault());
-        self::assertSame('', $columns['column3']->getDefault());
+        self::assertSame('default2', $columns['column3']->getDefault());
         self::assertNull($columns['column4']->getDefault());
-        self::assertSame('', $columns['column5']->getDefault());
-        self::assertSame('666', $columns['column6']->getDefault());
-        self::assertNull($columns['column7']->getDefault());
     }
 
     public function testListTableWithBinary() : void
@@ -1108,7 +1140,7 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
 
         $table = new Table($tableName);
         $table->addColumn('id', 'integer');
-        $table->addColumn('column_varbinary', 'binary', []);
+        $table->addColumn('column_varbinary', 'binary', ['length' => 16]);
         $table->addColumn('column_binary', 'binary', ['fixed' => true]);
         $table->setPrimaryKey(['id']);
 
@@ -1142,7 +1174,7 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         $table = new Table($primaryTableName);
         $table->addColumn('id', 'integer', ['autoincrement' => true]);
         $table->addColumn('foo', 'integer');
-        $table->addColumn('bar', 'string');
+        $table->addColumn('bar', 'string', ['length' => 32]);
         $table->addForeignKeyConstraint($foreignTableName, ['foo'], ['id']);
         $table->addIndex(['bar']);
         $table->setPrimaryKey(['id']);
@@ -1306,129 +1338,6 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
     }
 
     /**
-     * @after
-     */
-    public function removeJsonArrayTable() : void
-    {
-        if (! $this->schemaManager->tablesExist(['json_array_test'])) {
-            return;
-        }
-
-        $this->schemaManager->dropTable('json_array_test');
-    }
-
-    /**
-     * @group 2782
-     * @group 6654
-     */
-    public function testComparatorShouldReturnFalseWhenLegacyJsonArrayColumnHasComment() : void
-    {
-        $table = new Table('json_array_test');
-        $table->addColumn('parameters', 'json_array');
-
-        $this->schemaManager->createTable($table);
-
-        $comparator = new Comparator();
-        $tableDiff  = $comparator->diffTable($this->schemaManager->listTableDetails('json_array_test'), $table);
-
-        self::assertFalse($tableDiff);
-    }
-
-    /**
-     * @group 2782
-     * @group 6654
-     */
-    public function testComparatorShouldModifyOnlyTheCommentWhenUpdatingFromJsonArrayTypeOnLegacyPlatforms() : void
-    {
-        if ($this->schemaManager->getDatabasePlatform()->hasNativeJsonType()) {
-            $this->markTestSkipped('This test is only supported on platforms that do not have native JSON type.');
-        }
-
-        $table = new Table('json_array_test');
-        $table->addColumn('parameters', 'json_array');
-
-        $this->schemaManager->createTable($table);
-
-        $table = new Table('json_array_test');
-        $table->addColumn('parameters', 'json');
-
-        $comparator = new Comparator();
-        $tableDiff  = $comparator->diffTable($this->schemaManager->listTableDetails('json_array_test'), $table);
-
-        self::assertInstanceOf(TableDiff::class, $tableDiff);
-
-        $changedColumn = $tableDiff->changedColumns['parameters'] ?? $tableDiff->changedColumns['PARAMETERS'];
-
-        self::assertSame(['comment'], $changedColumn->changedProperties);
-    }
-
-    /**
-     * @group 2782
-     * @group 6654
-     */
-    public function testComparatorShouldAddCommentToLegacyJsonArrayTypeThatDoesNotHaveIt() : void
-    {
-        if (! $this->schemaManager->getDatabasePlatform()->hasNativeJsonType()) {
-            $this->markTestSkipped('This test is only supported on platforms that have native JSON type.');
-        }
-
-        $this->connection->executeQuery('CREATE TABLE json_array_test (parameters JSON NOT NULL)');
-
-        $table = new Table('json_array_test');
-        $table->addColumn('parameters', 'json_array');
-
-        $comparator = new Comparator();
-        $tableDiff  = $comparator->diffTable($this->schemaManager->listTableDetails('json_array_test'), $table);
-
-        self::assertInstanceOf(TableDiff::class, $tableDiff);
-        self::assertSame(['comment'], $tableDiff->changedColumns['parameters']->changedProperties);
-    }
-
-    /**
-     * @group 2782
-     * @group 6654
-     */
-    public function testComparatorShouldReturnAllChangesWhenUsingLegacyJsonArrayType() : void
-    {
-        if (! $this->schemaManager->getDatabasePlatform()->hasNativeJsonType()) {
-            $this->markTestSkipped('This test is only supported on platforms that have native JSON type.');
-        }
-
-        $this->connection->executeQuery('CREATE TABLE json_array_test (parameters JSON DEFAULT NULL)');
-
-        $table = new Table('json_array_test');
-        $table->addColumn('parameters', 'json_array');
-
-        $comparator = new Comparator();
-        $tableDiff  = $comparator->diffTable($this->schemaManager->listTableDetails('json_array_test'), $table);
-
-        self::assertInstanceOf(TableDiff::class, $tableDiff);
-        self::assertSame(['notnull', 'comment'], $tableDiff->changedColumns['parameters']->changedProperties);
-    }
-
-    /**
-     * @group 2782
-     * @group 6654
-     */
-    public function testComparatorShouldReturnAllChangesWhenUsingLegacyJsonArrayTypeEvenWhenPlatformHasJsonSupport() : void
-    {
-        if (! $this->schemaManager->getDatabasePlatform()->hasNativeJsonType()) {
-            $this->markTestSkipped('This test is only supported on platforms that have native JSON type.');
-        }
-
-        $this->connection->executeQuery('CREATE TABLE json_array_test (parameters JSON DEFAULT NULL)');
-
-        $table = new Table('json_array_test');
-        $table->addColumn('parameters', 'json_array');
-
-        $comparator = new Comparator();
-        $tableDiff  = $comparator->diffTable($this->schemaManager->listTableDetails('json_array_test'), $table);
-
-        self::assertInstanceOf(TableDiff::class, $tableDiff);
-        self::assertSame(['notnull', 'comment'], $tableDiff->changedColumns['parameters']->changedProperties);
-    }
-
-    /**
      * @group 2782
      * @group 6654
      */
@@ -1446,34 +1355,33 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         $comparator = new Comparator();
         $tableDiff  = $comparator->diffTable($this->schemaManager->listTableDetails('json_test'), $table);
 
-        self::assertFalse($tableDiff);
+        self::assertNull($tableDiff);
     }
 
     /**
      * @dataProvider commentsProvider
      * @group 2596
      */
-    public function testExtractDoctrineTypeFromComment(string $comment, string $expected, string $currentType) : void
+    public function testExtractDoctrineTypeFromComment(?string $comment, ?string $expectedType) : void
     {
-        $result = $this->schemaManager->extractDoctrineTypeFromComment($comment, $currentType);
+        $re = new ReflectionMethod($this->schemaManager, 'extractDoctrineTypeFromComment');
+        $re->setAccessible(true);
 
-        self::assertSame($expected, $result);
+        self::assertSame($expectedType, $re->invokeArgs($this->schemaManager, [&$comment]));
     }
 
     /**
-     * @return string[][]
+     * @return mixed[][]
      */
-    public function commentsProvider() : array
+    public static function commentsProvider() : iterable
     {
-        $currentType = 'current type';
-
         return [
-            'invalid custom type comments'      => ['should.return.current.type', $currentType, $currentType],
-            'valid doctrine type'               => ['(DC2Type:guid)', 'guid', $currentType],
-            'valid with dots'                   => ['(DC2Type:type.should.return)', 'type.should.return', $currentType],
-            'valid with namespace'              => ['(DC2Type:Namespace\Class)', 'Namespace\Class', $currentType],
-            'valid with extra closing bracket'  => ['(DC2Type:should.stop)).before)', 'should.stop', $currentType],
-            'valid with extra opening brackets' => ['(DC2Type:should((.stop)).before)', 'should((.stop', $currentType],
+            'invalid custom type comments'      => ['should.return.null', null],
+            'valid doctrine type'               => ['(DC2Type:guid)', 'guid'],
+            'valid with dots'                   => ['(DC2Type:type.should.return)', 'type.should.return'],
+            'valid with namespace'              => ['(DC2Type:Namespace\Class)', 'Namespace\Class'],
+            'valid with extra closing bracket'  => ['(DC2Type:should.stop)).before)', 'should.stop'],
+            'valid with extra opening brackets' => ['(DC2Type:should((.stop)).before)', 'should((.stop'],
         ];
     }
 
@@ -1553,13 +1461,15 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
     {
         $table = new Table('test_pk_auto_increment');
         $table->addColumn('id', 'integer', ['autoincrement' => true]);
-        $table->addColumn('text', 'string');
+        $table->addColumn('text', 'string', ['length' => 1]);
         $table->setPrimaryKey(['id']);
         $this->schemaManager->dropAndCreateTable($table);
 
         $this->connection->insert('test_pk_auto_increment', ['text' => '1']);
 
         $query = $this->connection->query('SELECT id FROM test_pk_auto_increment WHERE text = \'1\'');
+        assert($query instanceof Statement);
+
         $query->execute();
         $lastUsedIdBeforeDelete = (int) $query->fetchColumn();
 
@@ -1568,6 +1478,8 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         $this->connection->insert('test_pk_auto_increment', ['text' => '2']);
 
         $query = $this->connection->query('SELECT id FROM test_pk_auto_increment WHERE text = \'2\'');
+        assert($query instanceof Statement);
+
         $query->execute();
         $lastUsedIdAfterDelete = (int) $query->fetchColumn();
 

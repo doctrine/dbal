@@ -1,12 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Driver\PDOSqlite;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\AbstractSQLiteDriver;
+use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\PDOConnection;
+use Doctrine\DBAL\Driver\PDOException;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
-use PDOException;
 use function array_merge;
 
 /**
@@ -24,8 +27,12 @@ class Driver extends AbstractSQLiteDriver
     /**
      * {@inheritdoc}
      */
-    public function connect(array $params, $username = null, $password = null, array $driverOptions = [])
-    {
+    public function connect(
+        array $params,
+        string $username = '',
+        string $password = '',
+        array $driverOptions = []
+    ) : Connection {
         if (isset($driverOptions['userDefinedFunctions'])) {
             $this->_userDefinedFunctions = array_merge(
                 $this->_userDefinedFunctions,
@@ -35,7 +42,7 @@ class Driver extends AbstractSQLiteDriver
         }
 
         try {
-            $pdo = new PDOConnection(
+            $connection = new PDOConnection(
                 $this->_constructPdoDsn($params),
                 $username,
                 $password,
@@ -45,11 +52,13 @@ class Driver extends AbstractSQLiteDriver
             throw DBALException::driverException($this, $ex);
         }
 
+        $pdo = $connection->getWrappedConnection();
+
         foreach ($this->_userDefinedFunctions as $fn => $data) {
             $pdo->sqliteCreateFunction($fn, $data['callback'], $data['numArgs']);
         }
 
-        return $pdo;
+        return $connection;
     }
 
     /**
@@ -59,7 +68,7 @@ class Driver extends AbstractSQLiteDriver
      *
      * @return string The DSN.
      */
-    protected function _constructPdoDsn(array $params)
+    protected function _constructPdoDsn(array $params) : string
     {
         $dsn = 'sqlite:';
         if (isset($params['path'])) {
@@ -69,15 +78,5 @@ class Driver extends AbstractSQLiteDriver
         }
 
         return $dsn;
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated
-     */
-    public function getName()
-    {
-        return 'pdo_sqlite';
     }
 }

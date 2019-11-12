@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Driver\SQLSrv;
 
 /**
@@ -7,21 +9,15 @@ namespace Doctrine\DBAL\Driver\SQLSrv;
  */
 class LastInsertId
 {
-    /** @var int */
+    /** @var string|null */
     private $id;
 
-    /**
-     * @param int $id
-     */
-    public function setId($id)
+    public function setId(?string $id) : void
     {
         $this->id = $id;
     }
 
-    /**
-     * @return int
-     */
-    public function getId()
+    public function getId() : ?string
     {
         return $this->id;
     }

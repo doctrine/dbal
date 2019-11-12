@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Schema;
 
 use Doctrine\DBAL\Schema\Column;
@@ -482,13 +484,11 @@ class ComparatorTest extends TestCase
         $seq1 = new Sequence('foo', 1, 1);
         $seq2 = new Sequence('foo', 1, 2);
         $seq3 = new Sequence('foo', 2, 1);
-        $seq4 = new Sequence('foo', '1', '1');
 
         $c = new Comparator();
 
         self::assertTrue($c->diffSequence($seq1, $seq2));
         self::assertTrue($c->diffSequence($seq1, $seq3));
-        self::assertFalse($c->diffSequence($seq1, $seq4));
     }
 
     public function testRemovedSequence() : void
@@ -651,7 +651,7 @@ class ComparatorTest extends TestCase
         $c         = new Comparator();
         $tableDiff = $c->diffTable($tableA, $tableB);
 
-        self::assertFalse($tableDiff);
+        self::assertNull($tableDiff);
     }
 
     public function testCompareIndexBasedOnPropertiesNotName() : void
@@ -679,16 +679,16 @@ class ComparatorTest extends TestCase
     {
         $tableA = new Table('foo');
         $tableA->addColumn('id', 'integer');
-        $tableA->addNamedForeignKeyConstraint('foo_constraint', 'bar', ['id'], ['id']);
+        $tableA->addForeignKeyConstraint('bar', ['id'], ['id'], [], 'foo_constraint');
 
         $tableB = new Table('foo');
         $tableB->addColumn('ID', 'integer');
-        $tableB->addNamedForeignKeyConstraint('bar_constraint', 'bar', ['id'], ['id']);
+        $tableB->addForeignKeyConstraint('bar', ['id'], ['id'], [], 'bar_constraint');
 
         $c         = new Comparator();
         $tableDiff = $c->diffTable($tableA, $tableB);
 
-        self::assertFalse($tableDiff);
+        self::assertNull($tableDiff);
     }
 
     public function testCompareForeignKeyRestrictNoActionAreTheSame() : void
@@ -1222,7 +1222,7 @@ class ComparatorTest extends TestCase
         $column2 = new Column(
             'foo',
             Type::getType('guid'),
-            ['notnull' => false, 'length' => '36', 'fixed' => true, 'default' => 'NEWID()', 'comment' => 'GUID 2.']
+            ['notnull' => false, 'length' => 36, 'fixed' => true, 'default' => 'NEWID()', 'comment' => 'GUID 2.']
         );
 
         self::assertEquals(['notnull', 'default', 'comment'], $comparator->diffColumn($column1, $column2));
@@ -1295,6 +1295,7 @@ class ComparatorTest extends TestCase
                     'id_table1' => new Column('id_table1', Type::getType('integer')),
                 ],
                 [],
+                [],
                 [
                     new ForeignKeyConstraint(['id_table1'], 'table1', ['id'], 'fk_table2_table1'),
                 ]
@@ -1307,6 +1308,7 @@ class ComparatorTest extends TestCase
                     'id' => new Column('id', Type::getType('integer')),
                     'id_table3' => new Column('id_table3', Type::getType('integer')),
                 ],
+                [],
                 [],
                 [
                     new ForeignKeyConstraint(['id_table3'], 'table3', ['id'], 'fk_table2_table3'),

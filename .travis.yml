@@ -146,11 +146,6 @@ jobs:
         - bash ./tests/travis/install-mysql-8.0.sh
     - stage: Test
       php: 7.3
-      env: DB=mariadb MARIADB_VERSION=10.0 COVERAGE=yes
-      addons:
-        mariadb: 10.0
-    - stage: Test
-      php: 7.3
       env: DB=mariadb MARIADB_VERSION=10.1 COVERAGE=yes
       addons:
         mariadb: 10.1
@@ -166,11 +161,6 @@ jobs:
         mariadb: 10.3
     - stage: Test
       php: 7.3
-      env: DB=mariadb.mysqli MARIADB_VERSION=10.0 COVERAGE=yes
-      addons:
-        mariadb: 10.0
-    - stage: Test
-      php: 7.3
       env: DB=mariadb.mysqli MARIADB_VERSION=10.1 COVERAGE=yes
       addons:
         mariadb: 10.1
@@ -184,20 +174,6 @@ jobs:
       env: DB=mariadb.mysqli MARIADB_VERSION=10.3 COVERAGE=yes
       addons:
         mariadb: 10.3
-    - stage: Test
-      php: 7.3
-      env: DB=pgsql POSTGRESQL_VERSION=9.2 COVERAGE=yes
-      services:
-        - postgresql
-      addons:
-        postgresql: "9.2"
-    - stage: Test
-      php: 7.3
-      env: DB=pgsql POSTGRESQL_VERSION=9.3 COVERAGE=yes
-      services:
-        - postgresql
-      addons:
-        postgresql: "9.3"
     - stage: Test
       php: 7.3
       env: DB=pgsql POSTGRESQL_VERSION=9.4 COVERAGE=yes
@@ -226,7 +202,7 @@ jobs:
       services:
         - postgresql
       addons:
-        postgresql: "9.6"
+        postgresql: "10.0"
       before_script:
         - bash ./tests/travis/install-postgres-10.sh
     - stage: Test

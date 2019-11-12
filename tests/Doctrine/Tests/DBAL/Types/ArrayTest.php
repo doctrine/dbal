@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -37,7 +39,7 @@ class ArrayTest extends DbalTestCase
     public function testConversionFailure() : void
     {
         $this->expectException(ConversionException::class);
-        $this->expectExceptionMessage("Could not convert database value to 'array' as an error was triggered by the unserialization: 'unserialize(): Error at offset 0 of 7 bytes'");
+        $this->expectExceptionMessage('Could not convert database value to "array" as an error was triggered by the unserialization: unserialize(): Error at offset 0 of 7 bytes');
         $this->type->convertToPHPValue('abcdefg', $this->platform);
     }
 
