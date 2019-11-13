@@ -7,13 +7,13 @@
     "versions": [
         {
             "name": "3.0",
-            "branchName": "develop",
+            "branchName": "master",
             "slug": "latest",
             "upcoming": true
         },
         {
             "name": "2.10",
-            "branchName": "master",
+            "branchName": "2.10",
             "slug": "2.10",
             "current": true,
             "aliases": [
