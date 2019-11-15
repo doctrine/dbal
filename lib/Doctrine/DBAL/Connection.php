@@ -1261,9 +1261,7 @@ class Connection implements DriverConnection
     }
 
     /**
-     * Commits the current transaction.
-     *
-     * @return void
+     * {@inheritDoc}
      *
      * @throws ConnectionException If the commit failed due to no active transaction or
      *                                            because the transaction was marked for rollback only.
@@ -1277,7 +1275,9 @@ class Connection implements DriverConnection
             throw ConnectionException::commitFailedRollbackOnly();
         }
 
-        $this->connect();
+        $result = true;
+
+        $connection = $this->getWrappedConnection();
 
         $logger = $this->_config->getSQLLogger();
 
@@ -1285,7 +1285,9 @@ class Connection implements DriverConnection
             if ($logger) {
                 $logger->startQuery('"COMMIT"');
             }
-            $this->_conn->commit();
+
+            $result = $connection->commit();
+
             if ($logger) {
                 $logger->stopQuery();
             }
@@ -1302,10 +1304,12 @@ class Connection implements DriverConnection
         --$this->transactionNestingLevel;
 
         if ($this->autoCommit !== false || $this->transactionNestingLevel !== 0) {
-            return;
+            return $result;
         }
 
         $this->beginTransaction();
+
+        return $result;
     }
 
     /**
