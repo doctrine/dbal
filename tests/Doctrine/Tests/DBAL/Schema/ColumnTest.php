@@ -62,7 +62,7 @@ class ColumnTest extends TestCase
 
     /**
      * @group legacy
-     * @expectedDeprecation The "unknown_option" column option is not supported, setting it is deprecated and will cause an error in Doctrine 3.0
+     * @expectedDeprecation The "unknown_option" column option is not supported, setting it is deprecated and will cause an error in Doctrine DBAL 3.0
      */
     public function testSettingUnknownOptionIsStillSupported() : void
     {
@@ -73,7 +73,7 @@ class ColumnTest extends TestCase
 
     /**
      * @group legacy
-     * @expectedDeprecation The "unknown_option" column option is not supported, setting it is deprecated and will cause an error in Doctrine 3.0
+     * @expectedDeprecation The "unknown_option" column option is not supported, setting it is deprecated and will cause an error in Doctrine DBAL 3.0
      */
     public function testOptionsShouldNotBeIgnored() : void
     {
