@@ -103,6 +103,17 @@ SQLDATA
             ['SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE `\\\\`) AND (data.description LIKE :condition_1 ESCAPE `\\\\`) ORDER BY id ASC', [121 => 'condition_0', 174 => 'condition_1']],
             ['SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE \'\\\\\') AND (data.description LIKE :condition_1 ESCAPE `\\\\`) ORDER BY id ASC', [121 => 'condition_0', 174 => 'condition_1']],
 
+            // SQL comments are parsable
+            ['SELECT :foo -- some comment' . \PHP_EOL . "FROM :bar WHERE slug = 'hardcoded'", [7 => 'foo', 33 => 'bar']],
+            ["SELECT :foo -- comment with two quotes. One here ->' and one here ->' " . \PHP_EOL . "FROM :bar WHERE slug = 'hardcoded'",
+                [7 => 'foo', 76 => 'bar']],
+            ["SELECT :foo -- comment with one quote. This one ->'" . \PHP_EOL . "FROM :bar WHERE slug = 'hardcoded'",
+                [7 => 'foo', 57 => 'bar']], // Regression test for #3742
+            ["SELECT :foo /* some comment */ FROM :bar WHERE slug = 'hardcoded'", [7 => 'foo', 36 => 'bar']],
+            ["SELECT :foo /* some comment with two quotes. One here ->' and one here ->' */ FROM :bar WHERE slug = 'hardcoded'",
+                [7 => 'foo', 83 => 'bar']],
+            ["SELECT :foo /* some comment with one quote. This one ->' */ FROM :bar WHERE slug = 'hardcoded'",
+                [7 => 'foo', 65 => 'bar']], // Regression test for #3742
         ];
     }
 
