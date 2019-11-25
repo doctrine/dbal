@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\DriverException as DriverExceptionInterface;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\DriverException;
@@ -20,7 +19,7 @@ use function preg_match;
 /**
  * Abstract base implementation of the {@link Doctrine\DBAL\Driver} interface for SAP Sybase SQL Anywhere based drivers.
  */
-abstract class AbstractSQLAnywhereDriver implements Driver, ExceptionConverterDriver, VersionAwarePlatformDriver
+abstract class AbstractSQLAnywhereDriver implements ExceptionConverterDriver, VersionAwarePlatformDriver
 {
     /**
      * {@inheritdoc}

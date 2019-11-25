@@ -1,5 +1,9 @@
 # Upgrade to 3.0
 
+## BC BREAK: VersionAwarePlatformDriver interface now extends Driver
+
+All implementations of the `VersionAwarePlatformDriver` interface have to implement the methods defined in the `Driver` interface as well.
+
 ## BC BREAK: Removed support for PostgreSQL 9.3 and older
 
 DBAL now requires PostgeSQL 9.4 or newer, support for unmaintained versions has been dropped.
