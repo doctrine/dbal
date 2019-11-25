@@ -2,4 +2,5 @@
 
 set -euo pipefail
 
-phpbrew ext install pdo_oci -- --with-pdo-oci=instantclient,/usr/local/instantclient
+docker-php-ext-configure pdo_oci --with-pdo-oci=instantclient,/usr/local/instantclient
+sudo -E env PHP_INI_DIR=/usr/local/etc/php docker-php-ext-install pdo_oci
