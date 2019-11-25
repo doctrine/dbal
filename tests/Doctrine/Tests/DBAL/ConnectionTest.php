@@ -714,8 +714,8 @@ class ConnectionTest extends DbalTestCase
      */
     public function testPlatformDetectionIsTriggerOnlyOnceOnRetrievingPlatform() : void
     {
-        /** @var Driver|VersionAwarePlatformDriver|MockObject $driverMock */
-        $driverMock = $this->createMock([Driver::class, VersionAwarePlatformDriver::class]);
+        /** @var VersionAwarePlatformDriver|MockObject $driverMock */
+        $driverMock = $this->createMock(VersionAwarePlatformDriver::class);
 
         /** @var ServerInfoAwareConnection|MockObject $driverConnectionMock */
         $driverConnectionMock = $this->createMock(ServerInfoAwareConnection::class);
@@ -843,8 +843,8 @@ class ConnectionTest extends DbalTestCase
      */
     public function testRethrowsOriginalExceptionOnDeterminingPlatformWhenConnectingToNonExistentDatabase() : void
     {
-        /** @var Driver|VersionAwarePlatformDriver|MockObject $driverMock */
-        $driverMock = $this->createMock([Driver::class, VersionAwarePlatformDriver::class]);
+        /** @var VersionAwarePlatformDriver|MockObject $driverMock */
+        $driverMock = $this->createMock(VersionAwarePlatformDriver::class);
 
         $connection        = new Connection(['dbname' => 'foo'], $driverMock);
         $originalException = new Exception('Original exception');
