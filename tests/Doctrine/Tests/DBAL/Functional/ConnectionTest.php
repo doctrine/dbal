@@ -381,7 +381,7 @@ class ConnectionTest extends DbalFunctionalTestCase
      */
     public function testTypeConversionWithNumericalParams() : void
     {
-        $this->connection->executeQuery('CREATE TABLE users(name varchar not null, last_login datetime not null)');
+        $this->connection->executeQuery('CREATE TABLE users(name varchar(40) not null, last_login datetime not null)');
 
         $query = 'INSERT INTO users (name, last_login) VALUES(?, ?)';
 
@@ -390,9 +390,7 @@ class ConnectionTest extends DbalFunctionalTestCase
             1 => new DateTime(),
         ];
 
-        $types = [
-            1 => 'datetime',
-        ];
+        $types = [1 => 'datetime'];
 
         $this->connection->executeUpdate($query, $params, $types);
     }
