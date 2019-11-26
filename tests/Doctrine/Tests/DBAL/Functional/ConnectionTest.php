@@ -374,4 +374,24 @@ class ConnectionTest extends DbalFunctionalTestCase
 
         self::assertTrue($pdo->getAttribute(PDO::ATTR_PERSISTENT));
     }
+
+    /**
+     * @doesNotPerformAssertions
+     */
+    public function testTypeConversionWithNumericalParams() : void
+    {
+        $this->connection->executeQuery('CREATE TABLE users(name varchar not null, last_login datetime not null)');
+
+        $query = 'INSERT INTO users (name, last_login) VALUES(?, ?)';
+        $params = [
+            0 => 'John Smith',
+            1 => new \DateTime()
+        ];
+
+        $types = [
+            1 => 'datetime'
+        ];
+
+        $this->connection->executeUpdate($query, $params, $types);
+    }
 }
