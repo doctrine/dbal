@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\Tests\DBAL\Functional;
 
+use DateTime;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
@@ -383,13 +384,14 @@ class ConnectionTest extends DbalFunctionalTestCase
         $this->connection->executeQuery('CREATE TABLE users(name varchar not null, last_login datetime not null)');
 
         $query = 'INSERT INTO users (name, last_login) VALUES(?, ?)';
+
         $params = [
             0 => 'John Smith',
-            1 => new \DateTime()
+            1 => new DateTime(),
         ];
 
         $types = [
-            1 => 'datetime'
+            1 => 'datetime',
         ];
 
         $this->connection->executeUpdate($query, $params, $types);
