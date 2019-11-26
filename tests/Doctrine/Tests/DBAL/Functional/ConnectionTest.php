@@ -19,7 +19,9 @@ use Exception;
 use PDO;
 use RuntimeException;
 use Throwable;
+use function file_exists;
 use function in_array;
+use function unlink;
 
 class ConnectionTest extends DbalFunctionalTestCase
 {
@@ -31,6 +33,10 @@ class ConnectionTest extends DbalFunctionalTestCase
 
     protected function tearDown() : void
     {
+        if (file_exists('/tmp/test_nesting.sqlite')) {
+            unlink('/tmp/test_nesting.sqlite');
+        }
+
         parent::tearDown();
         $this->resetSharedConn();
     }
