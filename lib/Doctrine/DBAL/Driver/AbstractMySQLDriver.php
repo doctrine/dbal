@@ -6,7 +6,6 @@ namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\DriverException as DriverExceptionInterface;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\DriverException;
@@ -26,7 +25,7 @@ use function version_compare;
 /**
  * Abstract base implementation of the {@link Doctrine\DBAL\Driver} interface for MySQL based drivers.
  */
-abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, VersionAwarePlatformDriver
+abstract class AbstractMySQLDriver implements ExceptionConverterDriver, VersionAwarePlatformDriver
 {
     /**
      * {@inheritdoc}

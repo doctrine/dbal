@@ -14,7 +14,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
  * This interface should be implemented by drivers that are capable to do this
  * distinction.
  */
-interface VersionAwarePlatformDriver
+interface VersionAwarePlatformDriver extends Driver
 {
     /**
      * Factory method for creating the appropriate platform instance for the given version.
