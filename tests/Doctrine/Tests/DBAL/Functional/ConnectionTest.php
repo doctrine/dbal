@@ -383,12 +383,7 @@ class ConnectionTest extends DbalFunctionalTestCase
      */
     public function testTypeConversionWithNumericalParams() : void
     {
-        $table = new Table('users');
-        $table->addColumn('name', Types::STRING, ['length' => 40]);
-        $table->addColumn('last_login', Types::DATETIME_MUTABLE);
-        $this->connection->getSchemaManager()->createTable($table);
-
-        $query = 'INSERT INTO users (name, last_login) VALUES(?, ?)';
+        $query = $this->connection->getDatabasePlatform()->getDummySelectSQL('?, ?');
 
         $params = [
             0 => 'John Smith',
