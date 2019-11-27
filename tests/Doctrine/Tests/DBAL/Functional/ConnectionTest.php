@@ -390,6 +390,6 @@ class ConnectionTest extends DbalFunctionalTestCase
 
         $types = [1 => 'datetime'];
 
-        $this->connection->executeUpdate($query, $params, $types);
+        $this->connection->executeQuery($query, $params, $types);
     }
 }
