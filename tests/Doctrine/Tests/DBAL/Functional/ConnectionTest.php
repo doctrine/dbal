@@ -13,6 +13,8 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
+use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use Doctrine\Tests\TestUtil;
 use Error;
@@ -381,7 +383,10 @@ class ConnectionTest extends DbalFunctionalTestCase
      */
     public function testTypeConversionWithNumericalParams() : void
     {
-        $this->connection->executeQuery('CREATE TABLE users(name varchar(40) not null, last_login datetime not null)');
+        $table = new Table('users');
+        $table->addColumn('name', Types::STRING, ['length' => 40]);
+        $table->addColumn('last_login', Types::DATETIME_MUTABLE);
+        $this->connection->getSchemaManager()->createTable($table);
 
         $query = 'INSERT INTO users (name, last_login) VALUES(?, ?)';
 
