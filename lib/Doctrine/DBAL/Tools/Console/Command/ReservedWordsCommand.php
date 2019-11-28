@@ -16,7 +16,6 @@ use Doctrine\DBAL\Platforms\Keywords\PostgreSQLKeywords;
 use Doctrine\DBAL\Platforms\Keywords\ReservedKeywordsValidator;
 use Doctrine\DBAL\Platforms\Keywords\SQLAnywhereKeywords;
 use Doctrine\DBAL\Platforms\Keywords\SQLiteKeywords;
-use Doctrine\DBAL\Platforms\Keywords\SQLServer2012Keywords;
 use Doctrine\DBAL\Platforms\Keywords\SQLServerKeywords;
 use InvalidArgumentException;
 use Symfony\Component\Console\Command\Command;
@@ -43,7 +42,6 @@ class ReservedWordsCommand extends Command
         'sqlanywhere'   => SQLAnywhereKeywords::class,
         'sqlite'        => SQLiteKeywords::class,
         'sqlserver'     => SQLServerKeywords::class,
-        'sqlserver2012' => SQLServer2012Keywords::class,
     ];
 
     /**
