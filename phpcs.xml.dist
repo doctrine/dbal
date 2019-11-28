@@ -76,4 +76,10 @@
     <rule ref="SlevomatCodingStandard.TypeHints.DeclareStrictTypes.DeclareStrictTypesMissing">
         <exclude-pattern>lib/Doctrine/DBAL/Driver/IBMDB2/DB2Connection.php</exclude-pattern>
     </rule>
+
+    <!-- The SQLSRV_* functions are defined in the upper case by the sqlsrv extension and violate the standard
+         see https://docs.microsoft.com/en-us/sql/connect/php/constants-microsoft-drivers-for-php-for-sql-server -->
+    <rule ref="Squiz.PHP.LowercasePHPFunctions.UseStatementUppercase">
+        <exclude-pattern>lib/Doctrine/DBAL/Driver/SQLSrv/SQLSrvStatement.php</exclude-pattern>
+    </rule>
 </ruleset>
