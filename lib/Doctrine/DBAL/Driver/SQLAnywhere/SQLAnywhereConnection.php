@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver\SQLAnywhere;
 
-use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
@@ -24,7 +23,7 @@ use function sasql_set_option;
 /**
  * SAP Sybase SQL Anywhere implementation of the Connection interface.
  */
-class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
+class SQLAnywhereConnection implements ServerInfoAwareConnection
 {
     /** @var resource The SQL Anywhere connection resource. */
     private $connection;

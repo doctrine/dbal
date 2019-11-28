@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver\SQLSrv;
 
-use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
@@ -21,7 +20,7 @@ use function str_replace;
 /**
  * SQL Server implementation for the Connection interface.
  */
-class SQLSrvConnection implements Connection, ServerInfoAwareConnection
+class SQLSrvConnection implements ServerInfoAwareConnection
 {
     /** @var resource */
     protected $conn;

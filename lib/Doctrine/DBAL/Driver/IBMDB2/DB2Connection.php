@@ -4,7 +4,6 @@ declare(strict_types=0);
 
 namespace Doctrine\DBAL\Driver\IBMDB2;
 
-use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
@@ -23,7 +22,7 @@ use function db2_prepare;
 use function db2_rollback;
 use function db2_server_info;
 
-class DB2Connection implements Connection, ServerInfoAwareConnection
+class DB2Connection implements ServerInfoAwareConnection
 {
     /** @var resource */
     private $conn = null;
