@@ -336,3 +336,6 @@ jobs:
       install:
         - composer config minimum-stability dev
         - travis_retry composer update --prefer-dist
+
+  allow_failures:
+    - env: DEPENDENCIES=dev
