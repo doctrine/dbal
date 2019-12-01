@@ -6,7 +6,9 @@ namespace Doctrine\Tests\DBAL\Functional;
 
 use DateTime;
 use Doctrine\DBAL\Driver\DriverException;
+use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\ParameterType;
+use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\Tests\DbalFunctionalTestCase;
@@ -168,8 +170,14 @@ class WriteTest extends DbalFunctionalTestCase
 
     public function testGetSequenceNumber() : void
     {
-        if (! $this->connection->getDatabasePlatform()->supportsSequences()) {
+        $platform = $this->connection->getDatabasePlatform();
+
+        if (! $platform->supportsSequences()) {
             $this->markTestSkipped('This test targets platforms that support sequences.');
+        }
+
+        if ($platform instanceof OraclePlatform && $this->connection->getWrappedConnection() instanceof PDOConnection) {
+            $this->markTestSkipped('Oracle supports sequences, but PDO Oracle driver does not support lastInsertId()');
         }
 
         $sequence = new Sequence('write_table_id_seq');
@@ -269,6 +277,13 @@ class WriteTest extends DbalFunctionalTestCase
         if (! ($platform->supportsIdentityColumns() || $platform->usesSequenceEmulatedIdentityColumns())) {
             $this->markTestSkipped(
                 'Test only works on platforms with identity columns or sequence emulated identity columns.'
+            );
+        }
+
+        if ($platform instanceof OraclePlatform && $this->connection->getWrappedConnection() instanceof PDOConnection) {
+            $this->markTestSkipped(
+                'Oracle supports emulated identity columns through sequences, ' .
+                'but PDO Oracle driver does not support lastInsertId()'
             );
         }
 
