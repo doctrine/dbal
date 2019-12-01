@@ -177,7 +177,7 @@ class WriteTest extends DbalFunctionalTestCase
         }
 
         if ($platform instanceof OraclePlatform && $this->connection->getWrappedConnection() instanceof PDOConnection) {
-            $this->markTestSkipped('Oracle supports sequences, but PDO Oracle driver does not support lastInsertId()');
+            $this->markTestSkipped('Oracle supports sequences, but PDO OCI driver does not support lastInsertId()');
         }
 
         $sequence = new Sequence('write_table_id_seq');
@@ -283,7 +283,7 @@ class WriteTest extends DbalFunctionalTestCase
         if ($platform instanceof OraclePlatform && $this->connection->getWrappedConnection() instanceof PDOConnection) {
             $this->markTestSkipped(
                 'Oracle supports emulated identity columns through sequences, ' .
-                'but PDO Oracle driver does not support lastInsertId()'
+                'but PDO OCI driver does not support lastInsertId()'
             );
         }
 
