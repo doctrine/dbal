@@ -993,20 +993,33 @@ class Connection implements DriverConnection
     }
 
     /**
-     * Returns the ID of the last inserted row, or the last value from a sequence object,
-     * depending on the underlying driver.
+     * Returns the ID of the last inserted row.
      *
-     * Note: This method may not return a meaningful or consistent result across different drivers,
-     * because the underlying database may not even support the notion of AUTO_INCREMENT/IDENTITY
-     * columns or sequences.
-     *
-     * @param string|null $name Name of the sequence object from which the ID should be returned.
+     * If the underlying driver does not support identity columns, an exception is thrown.
      *
      * @return string A string representation of the last inserted ID.
+     *
+     * @throws Driver\DriverException
      */
-    public function lastInsertId(?string $name = null) : string
+    public function lastInsertId() : string
     {
-        return $this->getWrappedConnection()->lastInsertId($name);
+        return $this->getWrappedConnection()->lastInsertId();
+    }
+
+    /**
+     * Returns the current sequence value for the given sequence name.
+     *
+     * If the underlying driver does not support sequences, an exception is thrown.
+     *
+     * @param string $name The sequence name.
+     *
+     * @return string The current sequence value.
+     *
+     * @throws Driver\DriverException
+     */
+    public function getSequenceNumber(string $name) : string
+    {
+        return $this->getWrappedConnection()->getSequenceNumber($name);
     }
 
     /**

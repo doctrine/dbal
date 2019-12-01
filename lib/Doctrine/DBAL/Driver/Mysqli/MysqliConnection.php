@@ -167,9 +167,17 @@ class MysqliConnection implements PingableConnection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function lastInsertId(?string $name = null) : string
+    public function lastInsertId() : string
     {
         return (string) $this->conn->insert_id;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSequenceNumber(string $name) : string
+    {
+        throw new MysqliException('MySQL does not support sequences.');
     }
 
     /**

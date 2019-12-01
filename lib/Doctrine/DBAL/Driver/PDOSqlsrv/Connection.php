@@ -17,12 +17,8 @@ class Connection extends PDOConnection
     /**
      * {@inheritDoc}
      */
-    public function lastInsertId(?string $name = null) : string
+    public function getSequenceNumber(string $name) : string
     {
-        if ($name === null) {
-            return parent::lastInsertId($name);
-        }
-
         $stmt = $this->prepare('SELECT CONVERT(VARCHAR(MAX), current_value) FROM sys.sequences WHERE name = ?');
         $stmt->execute([$name]);
 

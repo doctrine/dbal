@@ -9,10 +9,7 @@ namespace Doctrine\DBAL\Driver;
  */
 class PDOException extends AbstractDriverException
 {
-    /**
-     * @param \PDOException $exception The PDO exception to wrap.
-     */
-    public function __construct(\PDOException $exception)
+    public static function fromNativePDOException(\PDOException $exception)
     {
         if ($exception->errorInfo !== null) {
             [$sqlState, $code] = $exception->errorInfo;
@@ -21,6 +18,6 @@ class PDOException extends AbstractDriverException
             $sqlState = null;
         }
 
-        parent::__construct($exception->getMessage(), $sqlState, $code, $exception);
+        return new self($exception->getMessage(), $sqlState, $code, $exception);
     }
 }

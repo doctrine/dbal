@@ -39,9 +39,40 @@ interface Connection
     public function exec(string $statement) : int;
 
     /**
-     * Returns the ID of the last inserted row or sequence value.
+     * Returns the ID of the last inserted row.
+     *
+     * This method returns a string representing the value of the auto-increment field from the last row inserted into
+     * the database, if any, or throws a DriverException if a value cannot be returned, in particular when:
+     *
+     * - the driver does not support identity columns;
+     * - the last statement dit not return an identity (caution: see note below).
+     *
+     * Note: if the last statement was not an INSERT to an autoincrement column, this method MAY return an ID from a
+     * previous statement. DO NOT RELY ON THIS BEHAVIOR which is driver-dependent: always use lastInsertId() right after
+     * executing an INSERT statement.
+     *
+     * @return string The last insert ID.
+     *
+     * @throws DriverException If an error occurs.
      */
-    public function lastInsertId(?string $name = null) : string;
+    public function lastInsertId() : string;
+
+    /**
+     * Returns the current sequence value for the given sequence name.
+     *
+     * This method returns a string representing the current value of the sequence, or throws a DriverException if a
+     * value cannot be returned, in particular when:
+     *
+     * - the driver does not support sequences;
+     * - the sequence does not exist.
+     *
+     * @param string $name The sequence name.
+     *
+     * @return string The current sequence value.
+     *
+     * @throws DriverException If an error occurs.
+     */
+    public function getSequenceNumber(string $name) : string;
 
     /**
      * Initiates a transaction.

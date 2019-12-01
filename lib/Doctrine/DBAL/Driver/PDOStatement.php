@@ -60,7 +60,7 @@ class PDOStatement implements IteratorAggregate, Statement
         try {
             $this->stmt->setFetchMode($fetchMode, ...$args);
         } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+            throw PDOException::fromNativePDOException($exception);
         }
     }
 
@@ -74,7 +74,7 @@ class PDOStatement implements IteratorAggregate, Statement
         try {
             $this->stmt->bindValue($param, $value, $type);
         } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+            throw PDOException::fromNativePDOException($exception);
         }
     }
 
@@ -93,7 +93,7 @@ class PDOStatement implements IteratorAggregate, Statement
         try {
             $this->stmt->bindParam($param, $variable, $type, ...$extraParameters);
         } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+            throw PDOException::fromNativePDOException($exception);
         }
     }
 
@@ -121,7 +121,7 @@ class PDOStatement implements IteratorAggregate, Statement
         try {
             $this->stmt->execute($params);
         } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+            throw PDOException::fromNativePDOException($exception);
         }
     }
 
@@ -147,7 +147,7 @@ class PDOStatement implements IteratorAggregate, Statement
 
             return $this->stmt->fetch($fetchMode, ...$args);
         } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+            throw PDOException::fromNativePDOException($exception);
         }
     }
 
@@ -166,7 +166,7 @@ class PDOStatement implements IteratorAggregate, Statement
                 );
             }
         } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+            throw PDOException::fromNativePDOException($exception);
         }
 
         assert(is_array($data));
@@ -192,7 +192,7 @@ class PDOStatement implements IteratorAggregate, Statement
 
             return $value;
         } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+            throw PDOException::fromNativePDOException($exception);
         }
     }
 

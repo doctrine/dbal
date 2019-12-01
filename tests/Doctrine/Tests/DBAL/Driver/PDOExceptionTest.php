@@ -40,7 +40,7 @@ class PDOExceptionTest extends DbalTestCase
 
         $this->wrappedException->errorInfo = [self::SQLSTATE, self::ERROR_CODE];
 
-        $this->exception = new PDOException($this->wrappedException);
+        $this->exception = PDOException::fromNativePDOException($this->wrappedException);
     }
 
     public function testReturnsCode() : void
