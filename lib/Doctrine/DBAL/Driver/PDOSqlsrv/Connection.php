@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver\PDOSqlsrv;
 
 use Doctrine\DBAL\Driver\PDOConnection;
+use Doctrine\DBAL\Driver\PDOException;
 use Doctrine\DBAL\Driver\PDOStatement;
 use function strpos;
 use function substr;
@@ -22,7 +23,13 @@ class Connection extends PDOConnection
         $stmt = $this->prepare('SELECT CONVERT(VARCHAR(MAX), current_value) FROM sys.sequences WHERE name = ?');
         $stmt->execute([$name]);
 
-        return $stmt->fetchColumn();
+        $sequenceNumber = $stmt->fetchColumn();
+
+        if ($sequenceNumber === false) {
+            throw new PDOException('No sequence with name "' . $name . '" found.');
+        }
+
+        return (string) $sequenceNumber;
     }
 
     /**
