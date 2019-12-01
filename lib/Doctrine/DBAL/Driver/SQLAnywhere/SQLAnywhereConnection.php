@@ -134,7 +134,7 @@ class SQLAnywhereConnection implements ServerInfoAwareConnection
         $result = $this->query('SELECT ' . $name . '.CURRVAL')->fetchColumn();
 
         if ($result === false) {
-            throw SQLAnywhereException('No sequence with name "' . $name . '" found.');
+            throw new SQLAnywhereException('No sequence with name "' . $name . '" found.');
         }
 
         return (string) $result;

@@ -146,7 +146,7 @@ class WriteTest extends DbalFunctionalTestCase
         self::assertGreaterThan(0, $num, 'LastInsertId() should be non-negative number.');
     }
 
-    public function testLastInsertIdNotSupported()
+    public function testLastInsertIdNotSupported() : void
     {
         if ($this->connection->getDatabasePlatform()->supportsIdentityColumns()) {
             $this->markTestSkipped('This test targets platforms that don\'t support identity columns.');
@@ -158,7 +158,7 @@ class WriteTest extends DbalFunctionalTestCase
         $this->connection->lastInsertId();
     }
 
-    public function testLastInsertIdNewConnection()
+    public function testLastInsertIdNewConnection() : void
     {
         $connection = TestUtil::getConnection();
 
@@ -192,7 +192,7 @@ class WriteTest extends DbalFunctionalTestCase
         self::assertEquals($nextSequenceVal, $sequenceNumber);
     }
 
-    public function testGetSequenceNumberNotSupportedOrSequenceDoesNotExist()
+    public function testGetSequenceNumberNotSupportedOrSequenceDoesNotExist() : void
     {
         $this->expectException(DriverException::class);
         $this->connection->getSequenceNumber('unknown-sequence');

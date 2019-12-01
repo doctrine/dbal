@@ -9,7 +9,7 @@ namespace Doctrine\DBAL\Driver;
  */
 class PDOException extends AbstractDriverException
 {
-    public static function fromNativePDOException(\PDOException $exception)
+    public static function fromNativePDOException(\PDOException $exception) : PDOException
     {
         if ($exception->errorInfo !== null) {
             [$sqlState, $code] = $exception->errorInfo;

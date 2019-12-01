@@ -7,7 +7,6 @@ namespace Doctrine\DBAL\Driver\PDOSqlite;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\AbstractSQLiteDriver;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
-use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\Driver\PDOException;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use function array_merge;
