@@ -3148,6 +3148,16 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Wheather the platform can support foreign key constraints through emulation using triggers.
+     *
+     * @return bool
+     */
+    public function supportsForeignKeyConstraintsThroughEmulation() : bool
+    {
+        return false;
+    }
+
+    /**
      * Whether this platform supports onUpdate in foreign key constraints.
      *
      * @return bool

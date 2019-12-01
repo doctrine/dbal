@@ -263,7 +263,7 @@ abstract class AbstractSchemaManager
     {
         $columns     = $this->listTableColumns($tableName);
         $foreignKeys = [];
-        if ($this->_platform->supportsForeignKeyConstraints()) {
+        if ($this->_platform->supportsForeignKeyConstraints() || $this->_platform->supportsForeignKeyConstraintsThroughEmulation()) {
             $foreignKeys = $this->listTableForeignKeys($tableName);
         }
         $indexes = $this->listTableIndexes($tableName);
