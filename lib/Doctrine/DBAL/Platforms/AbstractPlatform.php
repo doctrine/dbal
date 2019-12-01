@@ -3185,6 +3185,16 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Whether foreign key constraints can be dropped.
+     *
+     * If false, then getDropForeignKeySQL() throws exception.
+     */
+    public function supportsCreateDropForeignKeyConstraints() : bool
+    {
+        return true;
+    }
+
+    /**
      * Whether this platform supports onUpdate in foreign key constraints.
      *
      * @return bool

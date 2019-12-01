@@ -77,3 +77,9 @@ parameters:
         -
             message: '~^Access to undefined constant PDO::PGSQL_ATTR_DISABLE_PREPARES\.$~'
             path: %currentWorkingDirectory%/lib/Doctrine/DBAL/Driver/PDOPgSql/Driver.php
+
+        # False Positive
+        - '~Strict comparison using === between 1 and 2 will always evaluate to false~'
+
+        # Needs Generics
+        - '~Method Doctrine\\DBAL\\Schema\\SchemaDiff::getNewTablesSortedByDependencies\(\) should return array<Doctrine\\DBAL\\Schema\\Table> but returns array<object>.~'
