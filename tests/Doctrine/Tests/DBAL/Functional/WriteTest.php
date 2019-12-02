@@ -274,9 +274,43 @@ class WriteTest extends DbalFunctionalTestCase
     {
         $platform = $this->connection->getDatabasePlatform();
 
-        if (! ($platform->supportsIdentityColumns() || $platform->usesSequenceEmulatedIdentityColumns())) {
+        if (! $platform->supportsIdentityColumns() || $platform->usesSequenceEmulatedIdentityColumns()) {
             $this->markTestSkipped(
-                'Test only works on platforms with identity columns or sequence emulated identity columns.'
+                'Test only works on platforms with native support for identity columns.'
+            );
+        }
+
+        $table = new Table('test_empty_identity');
+        $table->addColumn('id', 'integer', ['autoincrement' => true]);
+        $table->setPrimaryKey(['id']);
+
+        try {
+            $this->connection->getSchemaManager()->dropTable($table->getQuotedName($platform));
+        } catch (Throwable $e) {
+        }
+
+        foreach ($platform->getCreateTableSQL($table) as $sql) {
+            $this->connection->exec($sql);
+        }
+
+        $sql = $platform->getEmptyIdentityInsertSQL('test_empty_identity', 'id');
+
+        $this->connection->exec($sql);
+        $firstId = $this->connection->lastInsertId();
+
+        $this->connection->exec($sql);
+        $secondId = $this->connection->lastInsertId();
+
+        self::assertGreaterThan($firstId, $secondId);
+    }
+
+    public function testEmptyIdentityInsertEmulated() : void
+    {
+        $platform = $this->connection->getDatabasePlatform();
+
+        if (! $platform->usesSequenceEmulatedIdentityColumns()) {
+            $this->markTestSkipped(
+                'Test only works on platforms with emulated identity columns.'
             );
         }
 
@@ -300,23 +334,15 @@ class WriteTest extends DbalFunctionalTestCase
             $this->connection->exec($sql);
         }
 
-        $seqName = $platform->usesSequenceEmulatedIdentityColumns()
-            ? $platform->getIdentitySequenceName('test_empty_identity', 'id')
-            : null;
+        $seqName = $platform->getIdentitySequenceName('test_empty_identity', 'id');
 
         $sql = $platform->getEmptyIdentityInsertSQL('test_empty_identity', 'id');
 
         $this->connection->exec($sql);
-
-        $firstId = $seqName !== null
-            ? $this->connection->getSequenceNumber($seqName)
-            : $this->connection->lastInsertId();
+        $firstId = $this->connection->getSequenceNumber($seqName);
 
         $this->connection->exec($sql);
-
-        $secondId = $seqName !== null
-            ? $this->connection->getSequenceNumber($seqName)
-            : $this->connection->lastInsertId();
+        $secondId = $this->connection->getSequenceNumber($seqName);
 
         self::assertGreaterThan($firstId, $secondId);
     }
