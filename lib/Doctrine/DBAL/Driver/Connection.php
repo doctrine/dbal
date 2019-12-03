@@ -51,11 +51,11 @@ interface Connection
      * previous statement. DO NOT RELY ON THIS BEHAVIOR which is driver-dependent: always use lastInsertId() right after
      * executing an INSERT statement.
      *
-     * @return string The last insert ID.
+     * @return int|string The last insert ID, as an integer or a numeric string.
      *
      * @throws DriverException If an error occurs.
      */
-    public function lastInsertId() : string;
+    public function lastInsertId();
 
     /**
      * Returns the current sequence value for the given sequence name.
@@ -68,11 +68,11 @@ interface Connection
      *
      * @param string $name The sequence name.
      *
-     * @return string The current sequence value.
+     * @return int|string The sequence number, as an integer or a numeric string.
      *
      * @throws DriverException If an error occurs.
      */
-    public function getSequenceNumber(string $name) : string;
+    public function getSequenceNumber(string $name);
 
     /**
      * Initiates a transaction.

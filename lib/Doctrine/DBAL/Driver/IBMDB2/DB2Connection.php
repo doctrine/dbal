@@ -116,7 +116,7 @@ class DB2Connection implements ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function lastInsertId() : string
+    public function lastInsertId()
     {
         $lastInsertId = db2_last_insert_id($this->conn);
 
@@ -130,7 +130,7 @@ class DB2Connection implements ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function getSequenceNumber(string $name) : string
+    public function getSequenceNumber(string $name)
     {
         throw new DB2Exception('Sequences on IBM DB2 are not currently supported.');
     }

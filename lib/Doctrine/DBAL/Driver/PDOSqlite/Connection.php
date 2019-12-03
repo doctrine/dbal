@@ -15,7 +15,7 @@ class Connection extends PDOConnection
     /**
      * {@inheritdoc}
      */
-    public function getSequenceNumber(string $name) : string
+    public function getSequenceNumber(string $name)
     {
         // SQLite does not support sequences. However, PDO::lastInsertId() ignores the name parameter, and returns
         // the last insert ID even if a sequence name is given. We expect an exception in that case.

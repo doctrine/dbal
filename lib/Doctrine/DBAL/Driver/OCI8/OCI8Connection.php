@@ -134,7 +134,7 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function lastInsertId() : string
+    public function lastInsertId()
     {
         throw new OCI8Exception('The driver does not support identity columns.');
     }
@@ -142,7 +142,7 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function getSequenceNumber(string $name) : string
+    public function getSequenceNumber(string $name)
     {
         $sql    = 'SELECT ' . $name . '.CURRVAL FROM DUAL';
         $stmt   = $this->query($sql);

@@ -997,11 +997,11 @@ class Connection implements DriverConnection
      *
      * If the underlying driver does not support identity columns, an exception is thrown.
      *
-     * @return string A string representation of the last inserted ID.
+     * @return int|string The last insert ID, as an integer or a numeric string.
      *
      * @throws Driver\DriverException
      */
-    public function lastInsertId() : string
+    public function lastInsertId()
     {
         return $this->getWrappedConnection()->lastInsertId();
     }
@@ -1013,11 +1013,11 @@ class Connection implements DriverConnection
      *
      * @param string $name The sequence name.
      *
-     * @return string The current sequence value.
+     * @return int|string The sequence number, as an integer or a numeric string.
      *
      * @throws Driver\DriverException
      */
-    public function getSequenceNumber(string $name) : string
+    public function getSequenceNumber(string $name)
     {
         return $this->getWrappedConnection()->getSequenceNumber($name);
     }

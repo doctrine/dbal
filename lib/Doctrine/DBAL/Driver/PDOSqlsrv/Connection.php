@@ -18,7 +18,7 @@ class Connection extends PDOConnection
     /**
      * {@inheritDoc}
      */
-    public function getSequenceNumber(string $name) : string
+    public function getSequenceNumber(string $name)
     {
         $stmt = $this->prepare('SELECT CONVERT(VARCHAR(MAX), current_value) FROM sys.sequences WHERE name = ?');
         $stmt->execute([$name]);
@@ -29,7 +29,7 @@ class Connection extends PDOConnection
             throw new PDOException('No sequence with name "' . $name . '" found.');
         }
 
-        return (string) $sequenceNumber;
+        return $sequenceNumber;
     }
 
     /**

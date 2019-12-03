@@ -92,10 +92,10 @@ class PDOConnection implements ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function lastInsertId() : string
+    public function lastInsertId()
     {
         try {
-            $lastInsertId = (string) $this->connection->lastInsertId();
+            $lastInsertId = $this->connection->lastInsertId();
         } catch (\PDOException $exception) {
             throw PDOException::fromNativePDOException($exception);
         }
@@ -110,10 +110,10 @@ class PDOConnection implements ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function getSequenceNumber(string $name) : string
+    public function getSequenceNumber(string $name)
     {
         try {
-            $sequenceNumber = (string) $this->connection->lastInsertId($name);
+            $sequenceNumber = $this->connection->lastInsertId($name);
         } catch (\PDOException $exception) {
             throw PDOException::fromNativePDOException($exception);
         }
@@ -125,10 +125,13 @@ class PDOConnection implements ServerInfoAwareConnection
         return $sequenceNumber;
     }
 
-    private function isValidLastInsertIdOrSequenceNumber(string $value) : bool
+    /**
+     * @param int|string $value
+     */
+    private function isValidLastInsertIdOrSequenceNumber($value) : bool
     {
-        // pdo_mysql & pdo_sqlite return '0', pdo_sqlsrv returns ''
-        return $value !== '0' && $value !== '';
+        // pdo_mysql & pdo_sqlite return 0 or '0', pdo_sqlsrv returns ''
+        return $value !== 0 && $value !== '0' && $value !== '';
     }
 
     /**
