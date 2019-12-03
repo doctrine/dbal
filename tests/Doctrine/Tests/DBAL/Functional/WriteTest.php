@@ -249,9 +249,9 @@ class WriteTest extends DbalFunctionalTestCase
     {
         $platform = $this->connection->getDatabasePlatform();
 
-        if (! ($platform->supportsIdentityColumns() || $platform->usesSequenceEmulatedIdentityColumns())) {
+        if (! $platform->supportsIdentityColumns()) {
             $this->markTestSkipped(
-                'Test only works on platforms with identity columns or sequence emulated identity columns.'
+                'Test only works on platforms with identity columns.'
             );
         }
 
@@ -268,19 +268,15 @@ class WriteTest extends DbalFunctionalTestCase
             $this->connection->exec($sql);
         }
 
-        $seqName = $platform->usesSequenceEmulatedIdentityColumns()
-            ? $platform->getIdentitySequenceName('test_empty_identity', 'id')
-            : null;
-
         $sql = $platform->getEmptyIdentityInsertSQL('test_empty_identity', 'id');
 
         $this->connection->exec($sql);
 
-        $firstId = $this->lastInsertId($seqName);
+        $firstId = $this->lastInsertId();
 
         $this->connection->exec($sql);
 
-        $secondId = $this->lastInsertId($seqName);
+        $secondId = $this->lastInsertId();
 
         self::assertGreaterThan($firstId, $secondId);
     }

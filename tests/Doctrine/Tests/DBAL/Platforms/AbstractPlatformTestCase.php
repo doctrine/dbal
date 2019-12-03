@@ -818,14 +818,6 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
     /**
      * @group DBAL-563
      */
-    public function testUsesSequenceEmulatedIdentityColumns() : void
-    {
-        self::assertFalse($this->platform->usesSequenceEmulatedIdentityColumns());
-    }
-
-    /**
-     * @group DBAL-563
-     */
     public function testReturnsIdentitySequenceName() : void
     {
         $this->expectException(DBALException::class);

@@ -176,14 +176,6 @@ class PostgreSqlPlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    public function usesSequenceEmulatedIdentityColumns() : bool
-    {
-        return true;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getIdentitySequenceName(string $tableName, string $columnName) : string
     {
         return $tableName . '_' . $columnName . '_seq';

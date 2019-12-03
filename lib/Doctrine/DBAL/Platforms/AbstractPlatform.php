@@ -2680,18 +2680,6 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Whether the platform emulates identity columns through sequences.
-     *
-     * Some platforms that do not support identity columns natively
-     * but support sequences can emulate identity columns by using
-     * sequences.
-     */
-    public function usesSequenceEmulatedIdentityColumns() : bool
-    {
-        return false;
-    }
-
-    /**
      * Gets the sequence name prefix based on table information.
      */
     public function getSequencePrefix(string $tableName, ?string $schemaName = null) : string
@@ -2708,8 +2696,6 @@ abstract class AbstractPlatform
 
     /**
      * Returns the name of the sequence for a particular identity column in a particular table.
-     *
-     * @see    usesSequenceEmulatedIdentityColumns
      *
      * @param string $tableName  The name of the table to return the sequence name for.
      * @param string $columnName The name of the identity column in the table to return the sequence name for.

@@ -575,14 +575,6 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     /**
      * @group DBAL-563
      */
-    public function testUsesSequenceEmulatedIdentityColumns() : void
-    {
-        self::assertTrue($this->platform->usesSequenceEmulatedIdentityColumns());
-    }
-
-    /**
-     * @group DBAL-563
-     */
     public function testReturnsIdentitySequenceName() : void
     {
         self::assertSame('mytable_mycolumn_seq', $this->platform->getIdentitySequenceName('mytable', 'mycolumn'));

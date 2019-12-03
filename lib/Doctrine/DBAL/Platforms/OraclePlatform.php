@@ -940,14 +940,6 @@ SQL
     /**
      * {@inheritdoc}
      */
-    public function usesSequenceEmulatedIdentityColumns() : bool
-    {
-        return true;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getIdentitySequenceName(string $tableName, string $columnName) : string
     {
         $table = new Identifier($tableName);

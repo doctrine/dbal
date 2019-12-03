@@ -557,14 +557,6 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 
     /**
      * @group DBAL-563
-     */
-    public function testUsesSequenceEmulatedIdentityColumns() : void
-    {
-        self::assertTrue($this->platform->usesSequenceEmulatedIdentityColumns());
-    }
-
-    /**
-     * @group DBAL-563
      * @group DBAL-831
      */
     public function testReturnsIdentitySequenceName() : void
