@@ -132,7 +132,7 @@ class DB2Connection implements ServerInfoAwareConnection
      */
     public function getSequenceNumber(string $name)
     {
-        throw new DB2Exception('Sequences on IBM DB2 are not currently supported.');
+        throw new DB2Exception('Sequences on IBM DB2 are not currently supported by the DBAL.');
     }
 
     /**
