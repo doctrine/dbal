@@ -67,7 +67,7 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function query()
+    public function query($statement = null)
     {
         $args = func_get_args();
 
