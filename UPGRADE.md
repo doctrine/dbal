@@ -248,18 +248,22 @@ The following classes have been removed:
  * `Doctrine\DBAL\Platforms\Keywords\SQLAnywhere12Keywords`
  * `Doctrine\DBAL\Platforms\Keywords\SQLAnywhere16Keywords`
 
-## BC BREAK: Removed support for SQL Server 2005 and older
+## BC BREAK: Removed support for SQL Server 2008 and older
 
-DBAL now requires SQL Server 2008 or newer, support for unmaintained versions has been dropped.
-If you are using any of the legacy versions, you have to upgrade to newer SQL Server version (2012+ is recommended).
-`Doctrine\DBAL\Platforms\SQLServerPlatform` and `Doctrine\DBAL\Platforms\Keywords\SQLServerKeywords` now represent the SQL Server 2008.
+DBAL now requires SQL Server 2012 or newer, support for unmaintained versions has been dropped.
+If you are using any of the legacy versions, you have to upgrade to newer SQL Server version.
+`Doctrine\DBAL\Platforms\SQLServerPlatform` and `Doctrine\DBAL\Platforms\Keywords\SQLServerKeywords` now represent the SQL Server 2012.
 
 The following classes have been removed:
 
  * `Doctrine\DBAL\Platforms\SQLServer2005Platform`
  * `Doctrine\DBAL\Platforms\SQLServer2008Platform`
+ * `Doctrine\DBAL\Platforms\SQLServer2012Platform`
  * `Doctrine\DBAL\Platforms\Keywords\SQLServer2005Keywords`
  * `Doctrine\DBAL\Platforms\Keywords\SQLServer2008Keywords`
+ * `Doctrine\DBAL\Platforms\Keywords\SQLServer2012Keywords`
+
+The `AbstractSQLServerDriver` class and its subclasses no longer implement the `VersionAwarePlatformDriver` interface.
 
 ## BC BREAK: Removed support for PostgreSQL 9.2 and older
 

@@ -11,9 +11,11 @@ use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use InvalidArgumentException;
+use const PREG_OFFSET_CAPTURE;
 use function array_merge;
 use function array_unique;
 use function array_values;
@@ -28,14 +30,11 @@ use function is_bool;
 use function is_numeric;
 use function is_string;
 use function preg_match;
+use function preg_match_all;
 use function sprintf;
 use function str_replace;
-use function stripos;
-use function stristr;
-use function strlen;
 use function strpos;
 use function strtoupper;
-use function substr;
 use function substr_count;
 
 /**
@@ -144,6 +143,69 @@ class SQLServerPlatform extends AbstractPlatform
     public function supportsColumnCollation() : bool
     {
         return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function supportsSequences() : bool
+    {
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAlterSequenceSQL(Sequence $sequence) : string
+    {
+        return 'ALTER SEQUENCE ' . $sequence->getQuotedName($this) .
+            ' INCREMENT BY ' . $sequence->getAllocationSize();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getCreateSequenceSQL(Sequence $sequence) : string
+    {
+        return 'CREATE SEQUENCE ' . $sequence->getQuotedName($this) .
+            ' START WITH ' . $sequence->getInitialValue() .
+            ' INCREMENT BY ' . $sequence->getAllocationSize() .
+            ' MINVALUE ' . $sequence->getInitialValue();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDropSequenceSQL($sequence) : string
+    {
+        if ($sequence instanceof Sequence) {
+            $sequence = $sequence->getQuotedName($this);
+        }
+
+        return 'DROP SEQUENCE ' . $sequence;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getListSequencesSQL(string $database) : string
+    {
+        return 'SELECT seq.name,
+                       CAST(
+                           seq.increment AS VARCHAR(MAX)
+                       ) AS increment, -- CAST avoids driver error for sql_variant type
+                       CAST(
+                           seq.start_value AS VARCHAR(MAX)
+                       ) AS start_value -- CAST avoids driver error for sql_variant type
+                FROM   sys.sequences AS seq';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSequenceNextValSQL(string $sequenceName) : string
+    {
+        return 'SELECT NEXT VALUE FOR ' . $sequenceName;
     }
 
     /**
@@ -1239,128 +1301,47 @@ SQL
      */
     protected function doModifyLimitQuery(string $query, ?int $limit, int $offset) : string
     {
-        $where = [];
-
-        if ($offset > 0) {
-            $where[] = sprintf('doctrine_rownum >= %d', $offset + 1);
+        if ($limit === null && $offset <= 0) {
+            return $query;
         }
+
+        // Queries using OFFSET... FETCH MUST have an ORDER BY clause
+        // Find the position of the last instance of ORDER BY and ensure it is not within a parenthetical statement
+        // but can be in a newline
+        $matches      = [];
+        $matchesCount = preg_match_all('/[\\s]+order\\s+by\\s/im', $query, $matches, PREG_OFFSET_CAPTURE);
+        $orderByPos   = false;
+        if ($matchesCount > 0) {
+            $orderByPos = $matches[0][($matchesCount - 1)][1];
+        }
+
+        if ($orderByPos === false
+            || substr_count($query, '(', $orderByPos) - substr_count($query, ')', $orderByPos)
+        ) {
+            if (preg_match('/^SELECT\s+DISTINCT/im', $query)) {
+                // SQL Server won't let us order by a non-selected column in a DISTINCT query,
+                // so we have to do this madness. This says, order by the first column in the
+                // result. SQL Server's docs say that a nonordered query's result order is non-
+                // deterministic anyway, so this won't do anything that a bunch of update and
+                // deletes to the table wouldn't do anyway.
+                $query .= ' ORDER BY 1';
+            } else {
+                // In another DBMS, we could do ORDER BY 0, but SQL Server gets angry if you
+                // use constant expressions in the order by list.
+                $query .= ' ORDER BY (SELECT 0)';
+            }
+        }
+
+        // This looks somewhat like MYSQL, but limit/offset are in inverse positions
+        // Supposedly SQL:2008 core standard.
+        // Per TSQL spec, FETCH NEXT n ROWS ONLY is not valid without OFFSET n ROWS.
+        $query .= sprintf(' OFFSET %d ROWS', $offset);
 
         if ($limit !== null) {
-            $where[] = sprintf('doctrine_rownum <= %d', $offset + $limit);
-            $top     = sprintf('TOP %d', $offset + $limit);
-        } else {
-            $top = 'TOP 9223372036854775807';
-        }
-
-        if (empty($where)) {
-            return $query;
-        }
-
-        // We'll find a SELECT or SELECT distinct and prepend TOP n to it
-        // Even if the TOP n is very large, the use of a CTE will
-        // allow the SQL Server query planner to optimize it so it doesn't
-        // actually scan the entire range covered by the TOP clause.
-        if (! preg_match('/^(\s*SELECT\s+(?:DISTINCT\s+)?)(.*)$/is', $query, $matches)) {
-            return $query;
-        }
-
-        $query = $matches[1] . $top . ' ' . $matches[2];
-
-        if (stristr($query, 'ORDER BY')) {
-            // Inner order by is not valid in SQL Server for our purposes
-            // unless it's in a TOP N subquery.
-            $query = $this->scrubInnerOrderBy($query);
-        }
-
-        // Build a new limited query around the original, using a CTE
-        return sprintf(
-            'WITH dctrn_cte AS (%s) '
-            . 'SELECT * FROM ('
-            . 'SELECT *, ROW_NUMBER() OVER (ORDER BY (SELECT 0)) AS doctrine_rownum FROM dctrn_cte'
-            . ') AS doctrine_tbl '
-            . 'WHERE %s ORDER BY doctrine_rownum ASC',
-            $query,
-            implode(' AND ', $where)
-        );
-    }
-
-    /**
-     * Remove ORDER BY clauses in subqueries - they're not supported by SQL Server.
-     * Caveat: will leave ORDER BY in TOP N subqueries.
-     */
-    private function scrubInnerOrderBy(string $query) : string
-    {
-        $count  = substr_count(strtoupper($query), 'ORDER BY');
-        $offset = 0;
-
-        while ($count-- > 0) {
-            $orderByPos = stripos($query, ' ORDER BY', $offset);
-            if ($orderByPos === false) {
-                break;
-            }
-
-            $qLen            = strlen($query);
-            $parenCount      = 0;
-            $currentPosition = $orderByPos;
-
-            while ($parenCount >= 0 && $currentPosition < $qLen) {
-                if ($query[$currentPosition] === '(') {
-                    $parenCount++;
-                } elseif ($query[$currentPosition] === ')') {
-                    $parenCount--;
-                }
-
-                $currentPosition++;
-            }
-
-            if ($this->isOrderByInTopNSubquery($query, $orderByPos)) {
-                // If the order by clause is in a TOP N subquery, do not remove
-                // it and continue iteration from the current position.
-                $offset = $currentPosition;
-                continue;
-            }
-
-            if ($currentPosition >= $qLen - 1) {
-                continue;
-            }
-
-            $query  = substr($query, 0, $orderByPos) . substr($query, $currentPosition - 1);
-            $offset = $orderByPos;
+            $query .= sprintf(' FETCH NEXT %d ROWS ONLY', $limit);
         }
 
         return $query;
-    }
-
-    /**
-     * Check an ORDER BY clause to see if it is in a TOP N query or subquery.
-     *
-     * @param string $query           The query
-     * @param int    $currentPosition Start position of ORDER BY clause
-     *
-     * @return bool true if ORDER BY is in a TOP N query, false otherwise
-     */
-    private function isOrderByInTopNSubquery(string $query, int $currentPosition) : bool
-    {
-        // Grab query text on the same nesting level as the ORDER BY clause we're examining.
-        $subQueryBuffer = '';
-        $parenCount     = 0;
-
-        // If $parenCount goes negative, we've exited the subquery we're examining.
-        // If $currentPosition goes negative, we've reached the beginning of the query.
-        while ($parenCount >= 0 && $currentPosition >= 0) {
-            if ($query[$currentPosition] === '(') {
-                $parenCount--;
-            } elseif ($query[$currentPosition] === ')') {
-                $parenCount++;
-            }
-
-            // Only yank query text on the same nesting level as the ORDER BY clause.
-            $subQueryBuffer = ($parenCount === 0 ? $query[$currentPosition] : ' ') . $subQueryBuffer;
-
-            $currentPosition--;
-        }
-
-        return (bool) preg_match('/SELECT\s+(DISTINCT\s+)?TOP\s/i', $subQueryBuffer);
     }
 
     /**

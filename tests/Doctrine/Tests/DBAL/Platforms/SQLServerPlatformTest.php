@@ -28,15 +28,6 @@ class SQLServerPlatformTest extends AbstractSQLServerPlatformTestCase
     }
 
     /**
-     * @group DBAL-2408
-     * @dataProvider getModifyLimitQueries
-     */
-    public function testScrubInnerOrderBy(string $query, int $limit, int $offset, string $expectedResult) : void
-    {
-        self::assertSame($expectedResult, $this->platform->modifyLimitQuery($query, $limit, $offset));
-    }
-
-    /**
      * @return mixed[][]
      */
     public static function getLockHints() : iterable
@@ -47,30 +38,6 @@ class SQLServerPlatformTest extends AbstractSQLServerPlatformTestCase
             [LockMode::OPTIMISTIC, ''],
             [LockMode::PESSIMISTIC_READ, ' WITH (HOLDLOCK, ROWLOCK)'],
             [LockMode::PESSIMISTIC_WRITE, ' WITH (UPDLOCK, ROWLOCK)'],
-        ];
-    }
-
-    /**
-     * @return mixed[][]
-     */
-    public static function getModifyLimitQueries() : iterable
-    {
-        return [
-            // Test re-ordered query with correctly-scrubbed ORDER BY clause
-            [
-                'SELECT id_0, MIN(sclr_2) AS dctrn_minrownum FROM (SELECT c0_.id AS id_0, c0_.title AS title_1, ROW_NUMBER() OVER(ORDER BY c0_.title ASC) AS sclr_2 FROM TestTable c0_ ORDER BY c0_.title ASC) dctrn_result GROUP BY id_0 ORDER BY dctrn_minrownum ASC',
-                30,
-                0,
-                'WITH dctrn_cte AS (SELECT TOP 30 id_0, MIN(sclr_2) AS dctrn_minrownum FROM (SELECT c0_.id AS id_0, c0_.title AS title_1, ROW_NUMBER() OVER(ORDER BY c0_.title ASC) AS sclr_2 FROM TestTable c0_) dctrn_result GROUP BY id_0 ORDER BY dctrn_minrownum ASC) SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY (SELECT 0)) AS doctrine_rownum FROM dctrn_cte) AS doctrine_tbl WHERE doctrine_rownum <= 30 ORDER BY doctrine_rownum ASC',
-            ],
-
-            // Test re-ordered query with no scrubbed ORDER BY clause
-            [
-                'SELECT id_0, MIN(sclr_2) AS dctrn_minrownum FROM (SELECT c0_.id AS id_0, c0_.title AS title_1, ROW_NUMBER() OVER(ORDER BY c0_.title ASC) AS sclr_2 FROM TestTable c0_) dctrn_result GROUP BY id_0 ORDER BY dctrn_minrownum ASC',
-                30,
-                0,
-                'WITH dctrn_cte AS (SELECT TOP 30 id_0, MIN(sclr_2) AS dctrn_minrownum FROM (SELECT c0_.id AS id_0, c0_.title AS title_1, ROW_NUMBER() OVER(ORDER BY c0_.title ASC) AS sclr_2 FROM TestTable c0_) dctrn_result GROUP BY id_0 ORDER BY dctrn_minrownum ASC) SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY (SELECT 0)) AS doctrine_rownum FROM dctrn_cte) AS doctrine_tbl WHERE doctrine_rownum <= 30 ORDER BY doctrine_rownum ASC',
-            ],
         ];
     }
 
