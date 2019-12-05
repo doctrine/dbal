@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
 use Doctrine\DBAL\Schema\Index;
@@ -60,5 +62,10 @@ class SQLAnywhereSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         self::assertArrayHasKey('test', $columns);
         self::assertTrue($columns['test']->getFixed());
+    }
+
+    public function testCommentInTable() : void
+    {
+        self::markTestSkipped('Table level comments are not supported on SQLAnywhere');
     }
 }

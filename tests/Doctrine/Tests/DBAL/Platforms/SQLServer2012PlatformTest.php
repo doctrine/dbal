@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\DBAL\DBALException;
@@ -170,7 +172,6 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
         );
 
         self::assertEquals(
-
             'SELECT ' .
             'u.id, ' .
             '(u.foo/2) foodiv, ' .

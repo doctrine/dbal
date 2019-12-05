@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\DBAL\DBALException;
@@ -10,6 +12,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
+use function assert;
 
 class SqlitePlatformTest extends AbstractPlatformTestCase
 {
@@ -37,8 +40,8 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     public function testGeneratesSqlSnippets() : void
     {
         self::assertEquals('REGEXP', $this->platform->getRegexpExpression(), 'Regular expression operator is not correct');
-        self::assertEquals('SUBSTR(column, 5, LENGTH(column))', $this->platform->getSubstringExpression('column', 5), 'Substring expression without length is not correct');
-        self::assertEquals('SUBSTR(column, 0, 5)', $this->platform->getSubstringExpression('column', 0, 5), 'Substring expression with length is not correct');
+        self::assertEquals('SUBSTR(column, 5)', $this->platform->getSubstringExpression('column', '5'), 'Substring expression without length is not correct');
+        self::assertEquals('SUBSTR(column, 0, 5)', $this->platform->getSubstringExpression('column', '0', '5'), 'Substring expression with length is not correct');
     }
 
     public function testGeneratesTransactionCommands() : void
@@ -80,6 +83,8 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
      */
     public function testGeneratesTypeDeclarationForTinyIntegers() : void
     {
+        assert($this->platform instanceof SqlitePlatform);
+
         self::assertEquals(
             'TINYINT',
             $this->platform->getTinyIntTypeDeclarationSQL([])
@@ -110,6 +115,8 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
      */
     public function testGeneratesTypeDeclarationForSmallIntegers() : void
     {
+        assert($this->platform instanceof SqlitePlatform);
+
         self::assertEquals(
             'SMALLINT',
             $this->platform->getSmallIntTypeDeclarationSQL([])
@@ -144,6 +151,8 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
      */
     public function testGeneratesTypeDeclarationForMediumIntegers() : void
     {
+        assert($this->platform instanceof SqlitePlatform);
+
         self::assertEquals(
             'MEDIUMINT',
             $this->platform->getMediumIntTypeDeclarationSQL([])
@@ -233,26 +242,6 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         self::assertEquals(
             'BIGINT UNSIGNED',
             $this->platform->getBigIntTypeDeclarationSQL(['unsigned' => true])
-        );
-    }
-
-    public function testGeneratesTypeDeclarationForStrings() : void
-    {
-        self::assertEquals(
-            'CHAR(10)',
-            $this->platform->getVarcharTypeDeclarationSQL(
-                ['length' => 10, 'fixed' => true]
-            )
-        );
-        self::assertEquals(
-            'VARCHAR(50)',
-            $this->platform->getVarcharTypeDeclarationSQL(['length' => 50]),
-            'Variable string declaration is not correct'
-        );
-        self::assertEquals(
-            'VARCHAR(255)',
-            $this->platform->getVarcharTypeDeclarationSQL([]),
-            'Long string declaration is not correct'
         );
     }
 
@@ -491,25 +480,24 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    protected function getBinaryDefaultLength() : int
+    public function getExpectedFixedLengthBinaryTypeDeclarationSQLNoLength() : string
     {
-        return 0;
+        return 'BLOB';
     }
 
-    protected function getBinaryMaxLength() : int
+    public function getExpectedFixedLengthBinaryTypeDeclarationSQLWithLength() : string
     {
-        return 0;
+        return 'BLOB';
     }
 
-    public function testReturnsBinaryTypeDeclarationSQL() : void
+    public function getExpectedVariableLengthBinaryTypeDeclarationSQLNoLength() : string
     {
-        self::assertSame('BLOB', $this->platform->getBinaryTypeDeclarationSQL([]));
-        self::assertSame('BLOB', $this->platform->getBinaryTypeDeclarationSQL(['length' => 0]));
-        self::assertSame('BLOB', $this->platform->getBinaryTypeDeclarationSQL(['length' => 9999999]));
+        return 'BLOB';
+    }
 
-        self::assertSame('BLOB', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true]));
-        self::assertSame('BLOB', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 0]));
-        self::assertSame('BLOB', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 9999999]));
+    public function getExpectedVariableLengthBinaryTypeDeclarationSQLWithLength() : string
+    {
+        return 'BLOB';
     }
 
     /**
@@ -686,7 +674,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
 
     protected static function getInlineColumnEmptyCommentSQL() : string
     {
-        return "--\n";
+        return '';
     }
 
     /**
@@ -791,12 +779,12 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
 
     public function testDateAddStaticNumberOfDays() : void
     {
-        self::assertSame("DATE(rentalBeginsOn,'+12 DAY')", $this->platform->getDateAddDaysExpression('rentalBeginsOn', 12));
+        self::assertSame("DATETIME(rentalBeginsOn,'+' || 12 || ' DAY')", $this->platform->getDateAddDaysExpression('rentalBeginsOn', '12'));
     }
 
     public function testDateAddNumberOfDaysFromColumn() : void
     {
-        self::assertSame("DATE(rentalBeginsOn,'+' || duration || ' DAY')", $this->platform->getDateAddDaysExpression('rentalBeginsOn', 'duration'));
+        self::assertSame("DATETIME(rentalBeginsOn,'+' || duration || ' DAY')", $this->platform->getDateAddDaysExpression('rentalBeginsOn', 'duration'));
     }
 
     public function testSupportsColumnCollation() : void
@@ -815,8 +803,8 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     public function testGetCreateTableSQLWithColumnCollation() : void
     {
         $table = new Table('foo');
-        $table->addColumn('no_collation', 'string');
-        $table->addColumn('column_collation', 'string')->setPlatformOption('collation', 'NOCASE');
+        $table->addColumn('no_collation', 'string', ['length' => 255]);
+        $table->addColumn('column_collation', 'string', ['length' => 255])->setPlatformOption('collation', 'NOCASE');
 
         self::assertSame(
             ['CREATE TABLE foo (no_collation VARCHAR(255) NOT NULL, column_collation VARCHAR(255) NOT NULL COLLATE NOCASE)'],

@@ -87,6 +87,21 @@ and ``delete($tableName)``:
 You can convert a query builder to its SQL string representation
 by calling ``$queryBuilder->getSQL()`` or casting the object to string.
 
+DISTINCT-Clause
+~~~~~~~~~~~~~~~
+
+The ``SELECT`` statement can be specified with a ``DISTINCT`` clause:
+
+.. code-block:: php
+
+    <?php
+
+    $queryBuilder
+        ->select('name')
+        ->distinct()
+        ->from('users')
+    ;
+
 WHERE-Clause
 ~~~~~~~~~~~~
 

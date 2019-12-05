@@ -1,15 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Driver;
+use Doctrine\DBAL\Driver\DriverException as DriverExceptionInterface;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Exception\DriverException;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\Exception\InvalidPlatformVersion;
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
 use Doctrine\DBAL\Platforms\MySQL57Platform;
 use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
+use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\MySqlSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
 use function preg_match;
@@ -19,7 +25,7 @@ use function version_compare;
 /**
  * Abstract base implementation of the {@link Doctrine\DBAL\Driver} interface for MySQL based drivers.
  */
-abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, VersionAwarePlatformDriver
+abstract class AbstractMySQLDriver implements ExceptionConverterDriver, VersionAwarePlatformDriver
 {
     /**
      * {@inheritdoc}
@@ -27,83 +33,83 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
      * @link http://dev.mysql.com/doc/refman/5.7/en/error-messages-client.html
      * @link http://dev.mysql.com/doc/refman/5.7/en/error-messages-server.html
      */
-    public function convertException($message, DriverException $exception)
+    public function convertException(string $message, DriverExceptionInterface $exception) : DriverException
     {
-        switch ($exception->getErrorCode()) {
-            case '1213':
+        switch ($exception->getCode()) {
+            case 1213:
                 return new Exception\DeadlockException($message, $exception);
-            case '1205':
+            case 1205:
                 return new Exception\LockWaitTimeoutException($message, $exception);
-            case '1050':
+            case 1050:
                 return new Exception\TableExistsException($message, $exception);
 
-            case '1051':
-            case '1146':
+            case 1051:
+            case 1146:
                 return new Exception\TableNotFoundException($message, $exception);
 
-            case '1216':
-            case '1217':
-            case '1451':
-            case '1452':
-            case '1701':
+            case 1216:
+            case 1217:
+            case 1451:
+            case 1452:
+            case 1701:
                 return new Exception\ForeignKeyConstraintViolationException($message, $exception);
 
-            case '1062':
-            case '1557':
-            case '1569':
-            case '1586':
+            case 1062:
+            case 1557:
+            case 1569:
+            case 1586:
                 return new Exception\UniqueConstraintViolationException($message, $exception);
 
-            case '1054':
-            case '1166':
-            case '1611':
+            case 1054:
+            case 1166:
+            case 1611:
                 return new Exception\InvalidFieldNameException($message, $exception);
 
-            case '1052':
-            case '1060':
-            case '1110':
+            case 1052:
+            case 1060:
+            case 1110:
                 return new Exception\NonUniqueFieldNameException($message, $exception);
 
-            case '1064':
-            case '1149':
-            case '1287':
-            case '1341':
-            case '1342':
-            case '1343':
-            case '1344':
-            case '1382':
-            case '1479':
-            case '1541':
-            case '1554':
-            case '1626':
+            case 1064:
+            case 1149:
+            case 1287:
+            case 1341:
+            case 1342:
+            case 1343:
+            case 1344:
+            case 1382:
+            case 1479:
+            case 1541:
+            case 1554:
+            case 1626:
                 return new Exception\SyntaxErrorException($message, $exception);
 
-            case '1044':
-            case '1045':
-            case '1046':
-            case '1049':
-            case '1095':
-            case '1142':
-            case '1143':
-            case '1227':
-            case '1370':
-            case '1429':
-            case '2002':
-            case '2005':
+            case 1044:
+            case 1045:
+            case 1046:
+            case 1049:
+            case 1095:
+            case 1142:
+            case 1143:
+            case 1227:
+            case 1370:
+            case 1429:
+            case 2002:
+            case 2005:
                 return new Exception\ConnectionException($message, $exception);
 
-            case '1048':
-            case '1121':
-            case '1138':
-            case '1171':
-            case '1252':
-            case '1263':
-            case '1364':
-            case '1566':
+            case 1048:
+            case 1121:
+            case 1138:
+            case 1171:
+            case 1252:
+            case 1263:
+            case 1364:
+            case 1566:
                 return new Exception\NotNullConstraintViolationException($message, $exception);
         }
 
-        return new Exception\DriverException($message, $exception);
+        return new DriverException($message, $exception);
     }
 
     /**
@@ -111,7 +117,7 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
      *
      * @throws DBALException
      */
-    public function createDatabasePlatformForVersion($version)
+    public function createDatabasePlatformForVersion(string $version) : AbstractPlatform
     {
         $mariadb = stripos($version, 'mariadb') !== false;
         if ($mariadb && version_compare($this->getMariaDbMysqlVersionNumber($version), '10.2.7', '>=')) {
@@ -146,7 +152,7 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
             $versionString,
             $versionParts
         )) {
-            throw DBALException::invalidPlatformVersionSpecified(
+            throw InvalidPlatformVersion::new(
                 $versionString,
                 '<major_version>.<minor_version>.<patch_version>'
             );
@@ -177,7 +183,7 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
             $versionString,
             $versionParts
         )) {
-            throw DBALException::invalidPlatformVersionSpecified(
+            throw InvalidPlatformVersion::new(
                 $versionString,
                 '^(?:5\.5\.5-)?(mariadb-)?<major_version>.<minor_version>.<patch_version>'
             );
@@ -188,20 +194,10 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
 
     /**
      * {@inheritdoc}
-     */
-    public function getDatabase(Connection $conn)
-    {
-        $params = $conn->getParams();
-
-        return $params['dbname'] ?? $conn->query('SELECT DATABASE()')->fetchColumn();
-    }
-
-    /**
-     * {@inheritdoc}
      *
      * @return MySqlPlatform
      */
-    public function getDatabasePlatform()
+    public function getDatabasePlatform() : AbstractPlatform
     {
         return new MySqlPlatform();
     }
@@ -211,7 +207,7 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
      *
      * @return MySqlSchemaManager
      */
-    public function getSchemaManager(Connection $conn)
+    public function getSchemaManager(Connection $conn) : AbstractSchemaManager
     {
         return new MySqlSchemaManager($conn);
     }

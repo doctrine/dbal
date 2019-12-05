@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Event\Listeners;
 
 use Doctrine\Common\EventSubscriber;
@@ -23,7 +25,7 @@ use function implode;
  */
 class OracleSessionInit implements EventSubscriber
 {
-    /** @var string[] */
+    /** @var array<string, string> */
     protected $_defaultSessionVars = [
         'NLS_TIME_FORMAT' => 'HH24:MI:SS',
         'NLS_DATE_FORMAT' => 'YYYY-MM-DD HH24:MI:SS',
@@ -33,17 +35,14 @@ class OracleSessionInit implements EventSubscriber
     ];
 
     /**
-     * @param string[] $oracleSessionVars
+     * @param array<string, string> $oracleSessionVars
      */
     public function __construct(array $oracleSessionVars = [])
     {
         $this->_defaultSessionVars = array_merge($this->_defaultSessionVars, $oracleSessionVars);
     }
 
-    /**
-     * @return void
-     */
-    public function postConnect(ConnectionEventArgs $args)
+    public function postConnect(ConnectionEventArgs $args) : void
     {
         if (! count($this->_defaultSessionVars)) {
             return;
@@ -65,7 +64,7 @@ class OracleSessionInit implements EventSubscriber
     /**
      * {@inheritdoc}
      */
-    public function getSubscribedEvents()
+    public function getSubscribedEvents() : array
     {
         return [Events::postConnect];
     }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
 use Doctrine\DBAL\Schema;
@@ -42,7 +44,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $tables = $this->schemaManager->listTables();
 
-        self::assertHasTable($tables, 'list_tables_test_new_name');
+        self::assertHasTable($tables);
     }
 
     public function testListTableWithBinary() : void
@@ -51,8 +53,11 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $table = new Table($tableName);
         $table->addColumn('id', 'integer');
-        $table->addColumn('column_varbinary', 'binary', []);
-        $table->addColumn('column_binary', 'binary', ['fixed' => true]);
+        $table->addColumn('column_varbinary', 'binary', ['length' => 32]);
+        $table->addColumn('column_binary', 'binary', [
+            'length' => 32,
+            'fixed' => true,
+        ]);
         $table->setPrimaryKey(['id']);
 
         $this->schemaManager->createTable($table);
@@ -78,7 +83,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $table->addColumn('id', 'integer');
         $table->addColumn('foo', 'integer');
-        $table->addColumn('bar', 'string');
+        $table->addColumn('bar', 'string', ['length' => 32]);
         $table->setPrimaryKey(['id']);
 
         $this->schemaManager->dropAndCreateTable($table);
@@ -93,7 +98,11 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $diffTable->changeColumn('foo', ['notnull' => false]);
         $diffTable->changeColumn('bar', ['length' => 1024]);
 
-        $this->schemaManager->alterTable($comparator->diffTable($table, $diffTable));
+        $diff = $comparator->diffTable($table, $diffTable);
+
+        self::assertNotNull($diff);
+
+        $this->schemaManager->alterTable($diff);
 
         $columns = $this->schemaManager->listTableColumns($tableName);
 
@@ -232,10 +241,10 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->schemaManager->dropAndCreateTable($table);
 
         $otherTable = new Table($table->getName());
-        $otherTable->addColumn('id', Types::STRING);
+        $otherTable->addColumn('id', Types::STRING, ['length' => 32]);
         TestUtil::getTempConnection()->getSchemaManager()->dropAndCreateTable($otherTable);
 
-        $columns = $this->schemaManager->listTableColumns($table->getName(), $this->connection->getUsername());
+        $columns = $this->schemaManager->listTableColumns($table->getName(), $this->connection->getDatabase());
         self::assertCount(7, $columns);
     }
 

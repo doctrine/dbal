@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Schema\Visitor;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -26,7 +28,7 @@ class CreateSchemaSqlCollectorTest extends TestCase
         parent::setUp();
 
         $this->platformMock = $this->getMockBuilder(AbstractPlatform::class)
-            ->setMethods(
+            ->onlyMethods(
                 [
                     'getCreateForeignKeySQL',
                     'getCreateSchemaSQL',

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Query\Expression;
 
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
@@ -32,10 +34,6 @@ class CompositeExpressionTest extends DbalTestCase
         self::assertCount(1, $expr);
 
         $expr->add(new CompositeExpression(CompositeExpression::TYPE_OR, ['u.user_id = 1']));
-
-        self::assertCount(2, $expr);
-
-        $expr->add(null);
 
         self::assertCount(2, $expr);
 

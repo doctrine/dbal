@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Platforms\Keywords;
 
 /**
@@ -12,7 +14,7 @@ class SQLServerKeywords extends KeywordList
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName() : string
     {
         return 'SQLServer';
     }
@@ -22,7 +24,7 @@ class SQLServerKeywords extends KeywordList
      *
      * @link http://msdn.microsoft.com/en-us/library/aa238507%28v=sql.80%29.aspx
      */
-    protected function getKeywords()
+    protected function getKeywords() : array
     {
         return [
             'ADD',
@@ -121,6 +123,7 @@ class SQLServerKeywords extends KeywordList
             'LIKE',
             'LINENO',
             'LOAD',
+            'MERGE',
             'NATIONAL',
             'NOCHECK ',
             'NONCLUSTERED',

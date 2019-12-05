@@ -1,8 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Types\Exception\SerializationFailed;
+use Doctrine\DBAL\Types\Exception\ValueNotConvertible;
 use const JSON_ERROR_NONE;
 use function is_resource;
 use function json_decode;
@@ -19,7 +23,7 @@ class JsonType extends Type
     /**
      * {@inheritdoc}
      */
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
+    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform) : string
     {
         return $platform->getJsonTypeDeclarationSQL($fieldDeclaration);
     }
@@ -36,7 +40,7 @@ class JsonType extends Type
         $encoded = json_encode($value);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
-            throw ConversionException::conversionFailedSerialization($value, 'json', json_last_error_msg());
+            throw SerializationFailed::new($value, 'json', json_last_error_msg());
         }
 
         return $encoded;
@@ -58,7 +62,7 @@ class JsonType extends Type
         $val = json_decode($value, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
-            throw ConversionException::conversionFailed($value, $this->getName());
+            throw ValueNotConvertible::new($value, $this->getName());
         }
 
         return $val;
@@ -67,7 +71,7 @@ class JsonType extends Type
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName() : string
     {
         return Types::JSON;
     }
@@ -75,7 +79,7 @@ class JsonType extends Type
     /**
      * {@inheritdoc}
      */
-    public function requiresSQLCommentHint(AbstractPlatform $platform)
+    public function requiresSQLCommentHint(AbstractPlatform $platform) : bool
     {
         return ! $platform->hasNativeJsonType();
     }

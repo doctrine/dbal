@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Schema\Visitor;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -23,7 +25,7 @@ class DropSchemaSqlCollectorTest extends TestCase
         $keyConstraintTwo = $this->getStubKeyConstraint('second');
 
         $platform = $this->getMockBuilder(AbstractPlatform::class)
-            ->setMethods(['getDropForeignKeySQL'])
+            ->onlyMethods(['getDropForeignKeySQL'])
             ->getMockForAbstractClass();
 
         $collector = new DropSchemaSqlCollector($platform);

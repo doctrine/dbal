@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Types;
@@ -8,7 +10,6 @@ use function array_key_exists;
 use function array_keys;
 use function array_map;
 use function array_merge;
-use function array_shift;
 use function array_unique;
 use function assert;
 use function count;
@@ -20,10 +21,7 @@ use function strtolower;
  */
 class Comparator
 {
-    /**
-     * @return SchemaDiff
-     */
-    public static function compareSchemas(Schema $fromSchema, Schema $toSchema)
+    public static function compareSchemas(Schema $fromSchema, Schema $toSchema) : SchemaDiff
     {
         $c = new self();
 
@@ -36,10 +34,8 @@ class Comparator
      * The returned differences are returned in such a way that they contain the
      * operations to change the schema stored in $fromSchema to the schema that is
      * stored in $toSchema.
-     *
-     * @return SchemaDiff
      */
-    public function compare(Schema $fromSchema, Schema $toSchema)
+    public function compare(Schema $fromSchema, Schema $toSchema) : SchemaDiff
     {
         $diff             = new SchemaDiff();
         $diff->fromSchema = $fromSchema;
@@ -68,7 +64,7 @@ class Comparator
                 $diff->newTables[$tableName] = $toSchema->getTable($tableName);
             } else {
                 $tableDifferences = $this->diffTable($fromSchema->getTable($tableName), $toSchema->getTable($tableName));
-                if ($tableDifferences !== false) {
+                if ($tableDifferences !== null) {
                     $diff->changedTables[$tableName] = $tableDifferences;
                 }
             }
@@ -151,13 +147,7 @@ class Comparator
         return $diff;
     }
 
-    /**
-     * @param Schema   $schema
-     * @param Sequence $sequence
-     *
-     * @return bool
-     */
-    private function isAutoIncrementSequenceInSchema($schema, $sequence)
+    private function isAutoIncrementSequenceInSchema(Schema $schema, Sequence $sequence) : bool
     {
         foreach ($schema->getTables() as $table) {
             if ($sequence->isAutoIncrementsFor($table)) {
@@ -168,10 +158,7 @@ class Comparator
         return false;
     }
 
-    /**
-     * @return bool
-     */
-    public function diffSequence(Sequence $sequence1, Sequence $sequence2)
+    public function diffSequence(Sequence $sequence1, Sequence $sequence2) : bool
     {
         if ($sequence1->getAllocationSize() !== $sequence2->getAllocationSize()) {
             return true;
@@ -184,10 +171,8 @@ class Comparator
      * Returns the difference between the tables $table1 and $table2.
      *
      * If there are no differences this method returns the boolean false.
-     *
-     * @return TableDiff|false
      */
-    public function diffTable(Table $table1, Table $table2)
+    public function diffTable(Table $table1, Table $table2) : ?TableDiff
     {
         $changes                     = 0;
         $tableDifferences            = new TableDiff($table1->getName());
@@ -293,16 +278,14 @@ class Comparator
             $changes++;
         }
 
-        return $changes ? $tableDifferences : false;
+        return $changes ? $tableDifferences : null;
     }
 
     /**
      * Try to find columns that only changed their name, rename operations maybe cheaper than add/drop
      * however ambiguities between different possibilities should not lead to renaming at all.
-     *
-     * @return void
      */
-    private function detectColumnRenamings(TableDiff $tableDifferences)
+    private function detectColumnRenamings(TableDiff $tableDifferences) : void
     {
         $renameCandidates = [];
         foreach ($tableDifferences->addedColumns as $addedColumnName => $addedColumn) {
@@ -339,10 +322,8 @@ class Comparator
     /**
      * Try to find indexes that only changed their name, rename operations maybe cheaper than add/drop
      * however ambiguities between different possibilities should not lead to renaming at all.
-     *
-     * @return void
      */
-    private function detectIndexRenamings(TableDiff $tableDifferences)
+    private function detectIndexRenamings(TableDiff $tableDifferences) : void
     {
         $renameCandidates = [];
 
@@ -383,10 +364,7 @@ class Comparator
         }
     }
 
-    /**
-     * @return bool
-     */
-    public function diffForeignKey(ForeignKeyConstraint $key1, ForeignKeyConstraint $key2)
+    public function diffForeignKey(ForeignKeyConstraint $key1, ForeignKeyConstraint $key2) : bool
     {
         if (array_map('strtolower', $key1->getUnquotedLocalColumns()) !== array_map('strtolower', $key2->getUnquotedLocalColumns())) {
             return true;
@@ -413,9 +391,9 @@ class Comparator
      * If there are differences this method returns $field2, otherwise the
      * boolean false.
      *
-     * @return string[]
+     * @return array<int, string>
      */
-    public function diffColumn(Column $column1, Column $column2)
+    public function diffColumn(Column $column1, Column $column2) : array
     {
         $properties1 = $column1->toArray();
         $properties2 = $column2->toArray();
@@ -434,13 +412,6 @@ class Comparator
             $changedProperties[] = $property;
         }
 
-        // This is a very nasty hack to make comparator work with the legacy json_array type, which should be killed in v3
-        if ($this->isALegacyJsonComparison($properties1['type'], $properties2['type'])) {
-            array_shift($changedProperties);
-
-            $changedProperties[] = 'comment';
-        }
-
         // Null values need to be checked additionally as they tell whether to create or drop a default value.
         // null != 0, null != false, null != '' etc. This affects platform's table alteration SQL generation.
         if (($properties1['default'] === null) !== ($properties2['default'] === null)
@@ -451,10 +422,10 @@ class Comparator
         if (($properties1['type'] instanceof Types\StringType && ! $properties1['type'] instanceof Types\GuidType) ||
             $properties1['type'] instanceof Types\BinaryType
         ) {
-            // check if value of length is set at all, default value assumed otherwise.
-            $length1 = $properties1['length'] ?: 255;
-            $length2 = $properties2['length'] ?: 255;
-            if ($length1 !== $length2) {
+            if ((isset($properties1['length']) !== isset($properties2['length']))
+                || (isset($properties1['length']) && isset($properties2['length'])
+                    && $properties1['length'] !== $properties2['length'])
+            ) {
                 $changedProperties[] = 'length';
             }
 
@@ -504,29 +475,12 @@ class Comparator
     }
 
     /**
-     * TODO: kill with fire on v3.0
-     *
-     * @deprecated
-     */
-    private function isALegacyJsonComparison(Types\Type $one, Types\Type $other) : bool
-    {
-        if (! $one instanceof Types\JsonType || ! $other instanceof Types\JsonType) {
-            return false;
-        }
-
-        return ( ! $one instanceof Types\JsonArrayType && $other instanceof Types\JsonArrayType)
-            || ( ! $other instanceof Types\JsonArrayType && $one instanceof Types\JsonArrayType);
-    }
-
-    /**
      * Finds the difference between the indexes $index1 and $index2.
      *
      * Compares $index1 with $index2 and returns $index2 if there are any
      * differences or false in case there are no differences.
-     *
-     * @return bool
      */
-    public function diffIndex(Index $index1, Index $index2)
+    public function diffIndex(Index $index1, Index $index2) : bool
     {
         return ! ($index1->isFullfilledBy($index2) && $index2->isFullfilledBy($index1));
     }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Driver;
 
 use Doctrine\DBAL\Driver\IBMDB2\DB2Statement;
@@ -13,7 +15,6 @@ use Doctrine\DBAL\Portability\Statement as PortabilityStatement;
 use Doctrine\Tests\DbalTestCase;
 use IteratorAggregate;
 use PHPUnit\Framework\MockObject\MockObject;
-use Traversable;
 use function extension_loaded;
 
 class StatementIteratorTest extends DbalTestCase
@@ -49,10 +50,12 @@ class StatementIteratorTest extends DbalTestCase
      */
     public function testStatementIterationCallsFetchOncePerStep(string $class) : void
     {
+        /** @var iterable<int, mixed>|MockObject $stmt */
         $stmt = $this->createPartialMock($class, ['fetch']);
 
         $calls = 0;
         $this->configureStatement($stmt, $calls);
+
         $this->assertIterationCallsFetchOncePerStep($stmt, $calls);
     }
 
@@ -69,13 +72,6 @@ class StatementIteratorTest extends DbalTestCase
 
                 return $value;
             });
-    }
-
-    private function assertIterationCallsFetchOncePerStep(Traversable $iterator, int &$calls) : void
-    {
-        foreach ($iterator as $i => $_) {
-            $this->assertEquals($i + 1, $calls);
-        }
     }
 
     /**
@@ -98,6 +94,16 @@ class StatementIteratorTest extends DbalTestCase
 
         if (extension_loaded('sqlsrv')) {
             yield [SQLSrvStatement::class];
+        }
+    }
+
+    /**
+     * @param iterable<int, mixed> $iterator
+     */
+    private function assertIterationCallsFetchOncePerStep(iterable $iterator, int &$calls) : void
+    {
+        foreach ($iterator as $i => $_) {
+            $this->assertEquals($i + 1, $calls);
         }
     }
 }

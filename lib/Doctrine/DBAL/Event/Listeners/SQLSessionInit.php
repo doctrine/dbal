@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Event\Listeners;
 
 use Doctrine\Common\EventSubscriber;
@@ -14,18 +16,12 @@ class SQLSessionInit implements EventSubscriber
     /** @var string */
     protected $sql;
 
-    /**
-     * @param string $sql
-     */
-    public function __construct($sql)
+    public function __construct(string $sql)
     {
         $this->sql = $sql;
     }
 
-    /**
-     * @return void
-     */
-    public function postConnect(ConnectionEventArgs $args)
+    public function postConnect(ConnectionEventArgs $args) : void
     {
         $conn = $args->getConnection();
         $conn->exec($this->sql);
@@ -34,7 +30,7 @@ class SQLSessionInit implements EventSubscriber
     /**
      * {@inheritdoc}
      */
-    public function getSubscribedEvents()
+    public function getSubscribedEvents() : array
     {
         return [Events::postConnect];
     }
