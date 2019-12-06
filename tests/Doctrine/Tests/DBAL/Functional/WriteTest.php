@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\Tests\DBAL\Functional;
 
 use DateTime;
+use Doctrine\DBAL\Driver\AbstractOracleDriver;
 use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\ParameterType;
@@ -314,11 +315,8 @@ class WriteTest extends DbalFunctionalTestCase
             );
         }
 
-        if ($platform instanceof OraclePlatform && $this->connection->getWrappedConnection() instanceof PDOConnection) {
-            $this->markTestSkipped(
-                'Oracle supports emulated identity columns through sequences, ' .
-                'but PDO OCI driver does not support lastInsertId()'
-            );
+        if ($this->connection->getDriver() instanceof AbstractOracleDriver) {
+            $this->markTestSkipped('The driver does not support lastInsertId()');
         }
 
         $table = new Table('test_empty_identity');
