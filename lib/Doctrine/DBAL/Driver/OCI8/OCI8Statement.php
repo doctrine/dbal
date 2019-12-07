@@ -278,7 +278,7 @@ class OCI8Statement implements IteratorAggregate, Statement
      */
     public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null)
     {
-        $column = $this->_paramMap[$column];
+        $column = $this->_paramMap[$column] ?? $column;
 
         if ($type === ParameterType::LARGE_OBJECT) {
             $lob = oci_new_descriptor($this->_dbh, OCI_D_LOB);
