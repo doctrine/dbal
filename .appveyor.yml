@@ -49,7 +49,7 @@ install:
     - ps: |
         # Check if installation is cached
         if (!(Test-Path c:\tools\php)) {
-          appveyor-retry cinst --params '""/InstallDir:C:\tools\php""' --ignore-checksums -y php --version ((choco search php --exact --all-versions -r | select-string -pattern $env:php | sort { [version]($_ -split '\|' | select -last 1) } -Descending | Select-Object -first 1) -replace '[php|]','')
+          appveyor-retry cinst --params '""/InstallDir:C:\tools\php""' --ignore-checksums -y php --version 7.3.12
           # install sqlite
           appveyor-retry cinst -y sqlite
           Get-ChildItem -Path c:\tools\php
@@ -68,7 +68,8 @@ install:
           Add-Content php.ini "`n extension=php_curl.dll"
           Add-Content php.ini "`n curl.cainfo=C:\tools\cacert\bundle.pem"
 
-          $DLLVersion = "5.5.0preview"
+          # Get and install the latest stable sqlsrv DLL's
+          $DLLVersion = (Invoke-WebRequest "https://pecl.php.net/rest/r/sqlsrv/stable.txt").Content
           cd c:\tools\php\ext
           $source = "https://windows.php.net/downloads/pecl/releases/sqlsrv/$($DLLVersion)/php_sqlsrv-$($DLLVersion)-$($env:php)-nts-vc15-x64.zip"
           $destination = "c:\tools\php\ext\php_sqlsrv-$($DLLVersion)-$($env:php)-nts-vc15-x64.zip"
@@ -117,7 +118,6 @@ install:
         }
     # install composer dependencies
     - cd C:\projects\dbal
-    - rm composer.lock
     - appveyor-retry composer self-update
     - appveyor-retry composer install --no-progress --prefer-dist
 
