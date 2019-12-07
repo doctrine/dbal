@@ -18,8 +18,7 @@ before_script:
   - if [[ "$DB" == "mysql" || "$DB" == "mysqli" || "$DB" == *"mariadb"* ]]; then mysql < tests/travis/create-mysql-schema.sql; fi;
 
 install:
-  - rm composer.lock
-  - travis_retry composer -n update --prefer-dist
+  - travis_retry composer -n install --prefer-dist
 
 script:
   - |
