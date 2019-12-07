@@ -43,9 +43,14 @@ class StatementTest extends DbalFunctionalTestCase
     public static function queryConversionProvider() : iterable
     {
         return [
-            'simple' => [
+            'positional' => [
                 'SELECT ? COL1 FROM DUAL',
                 [1],
+                ['COL1' => 1],
+            ],
+            'named' => [
+                'SELECT :COL1 COL1 FROM DUAL',
+                [':COL1' => 1],
                 ['COL1' => 1],
             ],
             'literal-with-placeholder' => [
