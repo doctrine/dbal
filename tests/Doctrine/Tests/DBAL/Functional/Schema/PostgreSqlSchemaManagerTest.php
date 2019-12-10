@@ -20,6 +20,7 @@ use function array_map;
 use function array_pop;
 use function count;
 use function current;
+use function preg_match;
 use function strtolower;
 
 class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
