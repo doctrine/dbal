@@ -10,7 +10,6 @@ use function crc32;
 use function dechex;
 use function explode;
 use function implode;
-use function preg_match;
 use function str_replace;
 use function strpos;
 use function strtolower;
