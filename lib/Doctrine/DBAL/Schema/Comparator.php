@@ -14,6 +14,7 @@ use function assert;
 use function count;
 use function get_class;
 use function strtolower;
+use function preg_match;
 
 /**
  * Compares two Schemas and return an instance of SchemaDiff.
@@ -442,10 +443,10 @@ class Comparator
         }
 
         // Fix to handle default values in columnDefinition
-        if (!empty($properties2['columnDefinition'] ?? '')
-            && $properties2['type']->getName() == $properties2['type']->getName()
-            && $properties2['type']->getName() == \Doctrine\DBAL\Types\Type::INTEGER
-            && (1 === preg_match('/DEFAULT\s(\d+)$/', $properties2['columnDefinition'], $matches))
+        if (! empty($properties2['columnDefinition'] ?? '')
+            && $properties2['type']->getName() === $properties2['type']->getName()
+            && $properties2['type']->getName() === Types\Type::INTEGER
+            && preg_match('/DEFAULT\s(\d+)$/', $properties2['columnDefinition'], $matches)
         ) {
             $properties2['default'] = $matches[1][0];
         }
