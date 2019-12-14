@@ -23,7 +23,6 @@ use function array_values;
 use function count;
 use function explode;
 use function implode;
-use function in_array;
 use function is_array;
 use function is_bool;
 use function is_numeric;
@@ -43,24 +42,21 @@ class PostgreSqlPlatform extends AbstractPlatform
     /** @var bool */
     private $useBooleanTrueFalseStrings = true;
 
-    /** @var string[][] PostgreSQL booleans literals */
+    /** @var bool[] PostgreSQL booleans literals */
     private $booleanLiterals = [
-        'true' => [
-            't',
-            'true',
-            'y',
-            'yes',
-            'on',
-            '1',
-        ],
-        'false' => [
-            'f',
-            'false',
-            'n',
-            'no',
-            'off',
-            '0',
-        ],
+        't'     => true,
+        'true'  => true,
+        'y'     => true,
+        'yes'   => true,
+        'on'    => true,
+        '1'     => true,
+
+        'f'     => false,
+        'false' => false,
+        'n'     => false,
+        'no'    => false,
+        'off'   => false,
+        '0'     => false,
     ];
 
     /**
@@ -809,15 +805,9 @@ SQL
             return $callback(true);
         }
 
-        /**
-         * Better safe than sorry: http://php.net/in_array#106319
-         */
-        if (in_array(strtolower(trim($value)), $this->booleanLiterals['false'], true)) {
-            return $callback(false);
-        }
-
-        if (in_array(strtolower(trim($value)), $this->booleanLiterals['true'], true)) {
-            return $callback(true);
+        $boolean = $this->booleanLiterals[strtolower(trim($value))] ?? null;
+        if ($boolean !== null) {
+            return $callback($boolean);
         }
 
         throw new UnexpectedValueException(sprintf(
@@ -896,7 +886,7 @@ SQL
      */
     public function convertFromBoolean($item) : ?bool
     {
-        if (in_array($item, $this->booleanLiterals['false'], true)) {
+        if (($this->booleanLiterals[$item] ?? null) === false) {
             return false;
         }
 
