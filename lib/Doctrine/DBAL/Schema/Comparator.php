@@ -13,8 +13,8 @@ use function array_unique;
 use function assert;
 use function count;
 use function get_class;
-use function strtolower;
 use function preg_match;
+use function strtolower;
 
 /**
  * Compares two Schemas and return an instance of SchemaDiff.
