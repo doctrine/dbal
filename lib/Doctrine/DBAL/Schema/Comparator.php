@@ -442,15 +442,14 @@ class Comparator
         }
 
         // Fix to handle default values in columnDefinition
-        if (!empty($properties2['columnDefinition'] ?? '') &&
-            $properties2['type']->getName() == $properties2['type']->getName() &&
-            $properties2['type']->getName() == \Doctrine\DBAL\Types\Type::INTEGER &&
-            (1 === preg_match('/DEFAULT\s(\d+)$/', $properties2['columnDefinition'],
-                $matches, PREG_OFFSET_CAPTURE, 0))
+        if (!empty($properties2['columnDefinition'] ?? '')
+            && $properties2['type']->getName() == $properties2['type']->getName()
+            && $properties2['type']->getName() == \Doctrine\DBAL\Types\Type::INTEGER
+            && (1 === preg_match('/DEFAULT\s(\d+)$/', $properties2['columnDefinition'], $matches))
         ) {
             $properties2['default'] = $matches[1][0];
         }
-        
+
         // Null values need to be checked additionally as they tell whether to create or drop a default value.
         // null != 0, null != false, null != '' etc. This affects platform's table alteration SQL generation.
         if (($properties1['default'] === null) !== ($properties2['default'] === null)
