@@ -102,7 +102,7 @@ SQLDATA
             ['SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE "\\\\") AND (data.description LIKE :condition_1 ESCAPE \'\\\\\') ORDER BY id ASC', [121 => 'condition_0', 174 => 'condition_1']],
             ['SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE `\\\\`) AND (data.description LIKE :condition_1 ESCAPE `\\\\`) ORDER BY id ASC', [121 => 'condition_0', 174 => 'condition_1']],
             ['SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE \'\\\\\') AND (data.description LIKE :condition_1 ESCAPE `\\\\`) ORDER BY id ASC', [121 => 'condition_0', 174 => 'condition_1']],
-
+            ["SELECT * FROM Foo WHERE (foo.bar LIKE :condition_0 ESCAPE '\') AND (foo.baz = :condition_1) AND (foo.bak LIKE :condition_2 ESCAPE '\')", [38 => 'condition_0', 78 => 'condition_1', 110 => 'condition_2']], // Ticket GH-3640
         ];
     }
 
