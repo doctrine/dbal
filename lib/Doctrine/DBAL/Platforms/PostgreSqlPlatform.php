@@ -39,11 +39,7 @@ use function trim;
  */
 class PostgreSqlPlatform extends AbstractPlatform
 {
-    /** @var bool */
-    private $useBooleanTrueFalseStrings = true;
-
-    /** @var bool[] PostgreSQL booleans literals */
-    private $booleanLiterals = [
+    private const BOOLEAN_LITERALS = [
         't'     => true,
         'true'  => true,
         'y'     => true,
@@ -58,6 +54,9 @@ class PostgreSqlPlatform extends AbstractPlatform
         'off'   => false,
         '0'     => false,
     ];
+
+    /** @var bool */
+    private $useBooleanTrueFalseStrings = true;
 
     /**
      * PostgreSQL has different behavior with some drivers
@@ -805,7 +804,7 @@ SQL
             return $callback(true);
         }
 
-        $boolean = $this->booleanLiterals[strtolower(trim($value))] ?? null;
+        $boolean = self::BOOLEAN_LITERALS[strtolower(trim($value))] ?? null;
         if ($boolean !== null) {
             return $callback($boolean);
         }
@@ -886,7 +885,7 @@ SQL
      */
     public function convertFromBoolean($item) : ?bool
     {
-        if (($this->booleanLiterals[$item] ?? null) === false) {
+        if ((self::BOOLEAN_LITERALS[$item] ?? null) === false) {
             return false;
         }
 
