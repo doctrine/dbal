@@ -1,11 +1,10 @@
 language: php
-sudo: false
-dist: xenial
+dist: bionic
 
 cache:
-    directories:
-        - vendor
-        - $HOME/.composer/cache
+  directories:
+    - vendor
+    - $HOME/.composer/cache
 
 before_install:
   - phpenv config-rm xdebug.ini || true
