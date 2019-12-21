@@ -185,4 +185,12 @@ class IndexTest extends TestCase
         self::assertSame('name IS NULL', $idx2->getOption('WHERE'));
         self::assertSame(['where' => 'name IS NULL'], $idx2->getOptions());
     }
+
+    public function testGetNameWithMultipleDots() : void
+    {
+        $name  = 'my.index.name';
+        $index = new Index($name, ['col1', 'col2']);
+        self::assertEquals('my', $index->getNamespaceName());
+        self::assertEquals($name, $index->getName());
+    }
 }
