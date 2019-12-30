@@ -64,6 +64,9 @@ class AbstractSQLiteDriverTest extends AbstractDriverTest
                 [0, null, 'is not unique'],
                 [0, null, 'are not unique'],
             ],
+            self::EXCEPTION_FOREIGN_KEY_CONSTRAINT_VIOLATION => [
+                [0, null, 'FOREIGN KEY constraint failed'],
+            ],
             self::EXCEPTION_LOCK_WAIT_TIMEOUT => [
                 [0, null, 'database is locked'],
             ],

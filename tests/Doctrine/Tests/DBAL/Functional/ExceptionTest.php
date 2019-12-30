@@ -78,7 +78,11 @@ class ExceptionTest extends DbalFunctionalTestCase
 
     public function testForeignKeyConstraintViolationExceptionOnInsert() : void
     {
-        if (! $this->connection->getDatabasePlatform()->supportsForeignKeyConstraints()) {
+        $platform = $this->connection->getDatabasePlatform();
+
+        if ($platform instanceof SqlitePlatform) {
+            $this->connection->exec('PRAGMA foreign_keys = ON');
+        } elseif (! $platform->supportsForeignKeyConstraints()) {
             $this->markTestSkipped('Only fails on platforms with foreign key constraints.');
         }
 
@@ -112,7 +116,11 @@ class ExceptionTest extends DbalFunctionalTestCase
 
     public function testForeignKeyConstraintViolationExceptionOnUpdate() : void
     {
-        if (! $this->connection->getDatabasePlatform()->supportsForeignKeyConstraints()) {
+        $platform = $this->connection->getDatabasePlatform();
+
+        if ($platform instanceof SqlitePlatform) {
+            $this->connection->exec('PRAGMA foreign_keys = ON');
+        } elseif (! $platform->supportsForeignKeyConstraints()) {
             $this->markTestSkipped('Only fails on platforms with foreign key constraints.');
         }
 
@@ -146,7 +154,11 @@ class ExceptionTest extends DbalFunctionalTestCase
 
     public function testForeignKeyConstraintViolationExceptionOnDelete() : void
     {
-        if (! $this->connection->getDatabasePlatform()->supportsForeignKeyConstraints()) {
+        $platform = $this->connection->getDatabasePlatform();
+
+        if ($platform instanceof SqlitePlatform) {
+            $this->connection->exec('PRAGMA foreign_keys = ON');
+        } elseif (! $platform->supportsForeignKeyConstraints()) {
             $this->markTestSkipped('Only fails on platforms with foreign key constraints.');
         }
 
@@ -182,7 +194,9 @@ class ExceptionTest extends DbalFunctionalTestCase
     {
         $platform = $this->connection->getDatabasePlatform();
 
-        if (! $platform->supportsForeignKeyConstraints()) {
+        if ($platform instanceof SqlitePlatform) {
+            $this->connection->exec('PRAGMA foreign_keys = ON');
+        } elseif (! $platform->supportsForeignKeyConstraints()) {
             $this->markTestSkipped('Only fails on platforms with foreign key constraints.');
         }
 
