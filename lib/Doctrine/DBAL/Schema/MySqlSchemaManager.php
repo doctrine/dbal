@@ -9,7 +9,6 @@ use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Types\Type;
 use const CASE_LOWER;
 use function array_change_key_case;
-use function array_shift;
 use function array_values;
 use function assert;
 use function explode;
@@ -51,14 +50,6 @@ class MySqlSchemaManager extends AbstractSchemaManager
     protected function _getPortableViewDefinition(array $view) : View
     {
         return new View($view['TABLE_NAME'], $view['VIEW_DEFINITION']);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function _getPortableTableDefinition(array $table) : string
-    {
-        return array_shift($table);
     }
 
     /**

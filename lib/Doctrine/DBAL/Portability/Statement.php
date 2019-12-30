@@ -26,7 +26,7 @@ final class Statement implements IteratorAggregate, DriverStatement
     /** @var DriverStatement|ResultStatement */
     private $stmt;
 
-    /** @var int */
+    /** @var int|null */
     private $case;
 
     /** @var int */
@@ -204,6 +204,7 @@ final class Statement implements IteratorAggregate, DriverStatement
         }
 
         if ($fixCase) {
+            assert($this->case !== null);
             $row = array_change_key_case($row, $this->case);
         }
 

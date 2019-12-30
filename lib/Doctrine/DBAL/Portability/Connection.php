@@ -35,7 +35,7 @@ class Connection extends \Doctrine\DBAL\Connection
     /** @var int */
     private $portability = self::PORTABILITY_NONE;
 
-    /** @var int */
+    /** @var int|null */
     private $case;
 
     /**

@@ -41,8 +41,6 @@ class DefaultValueTest extends DbalFunctionalTestCase
     }
 
     /**
-     * @param mixed $expectedDefault
-     *
      * @dataProvider columnProvider
      */
     public function testEscapedDefaultValueCanBeIntrospected(string $name, ?string $expectedDefault) : void
@@ -58,8 +56,6 @@ class DefaultValueTest extends DbalFunctionalTestCase
     }
 
     /**
-     * @param mixed $expectedDefault
-     *
      * @dataProvider columnProvider
      */
     public function testEscapedDefaultValueCanBeInserted(string $name, ?string $expectedDefault) : void

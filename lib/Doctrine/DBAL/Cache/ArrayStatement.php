@@ -49,7 +49,7 @@ final class ArrayStatement implements IteratorAggregate, ResultStatement
      */
     public function closeCursor() : void
     {
-        $this->data = null;
+        $this->data = [];
     }
 
     /**
@@ -65,10 +65,6 @@ final class ArrayStatement implements IteratorAggregate, ResultStatement
      */
     public function rowCount() : int
     {
-        if ($this->data === null) {
-            return 0;
-        }
-
         return count($this->data);
     }
 

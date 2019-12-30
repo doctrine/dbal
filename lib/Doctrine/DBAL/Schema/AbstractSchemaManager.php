@@ -592,6 +592,8 @@ abstract class AbstractSchemaManager
      */
     protected function _getPortableDatabaseDefinition(array $database) : string
     {
+        assert(! empty($database));
+
         return array_shift($database);
     }
 
@@ -774,6 +776,8 @@ abstract class AbstractSchemaManager
      */
     protected function _getPortableTableDefinition(array $table) : string
     {
+        assert(! empty($table));
+
         return array_shift($table);
     }
 
