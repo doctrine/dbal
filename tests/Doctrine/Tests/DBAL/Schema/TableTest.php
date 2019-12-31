@@ -14,6 +14,7 @@ use Doctrine\DBAL\Schema\SchemaException;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\Tests\DbalTestCase;
 use function array_keys;
 use function current;
@@ -905,10 +906,10 @@ class TableTest extends DbalTestCase
     public function testUniqueConstraintWithEmptyName() : void
     {
         $columns = [
-            new Column('column1', Type::getType(Type::STRING)),
-            new Column('column2', Type::getType(Type::STRING)),
-            new Column('column3', Type::getType(Type::STRING)),
-            new Column('column4', Type::getType(Type::STRING)),
+            new Column('column1', Type::getType(Types::STRING)),
+            new Column('column2', Type::getType(Types::STRING)),
+            new Column('column3', Type::getType(Types::STRING)),
+            new Column('column4', Type::getType(Types::STRING)),
         ];
 
         $uniqueConstraints = [

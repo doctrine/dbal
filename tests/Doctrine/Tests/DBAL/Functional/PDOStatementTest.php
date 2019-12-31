@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\Tests\DBAL\Functional;
 
+use Doctrine\DBAL\Driver\Exception\UnknownFetchMode;
 use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\Tests\DbalFunctionalTestCase;
@@ -38,6 +39,9 @@ class PDOStatementTest extends DbalFunctionalTestCase
             'id' => 2,
             'name' => 'Bob',
         ]);
+
+        self::expectException(UnknownFetchMode::class);
+        self::expectExceptionMessage('Unknown fetch mode 12.');
 
         $data = $this->connection->query('SELECT id, name FROM stmt_test ORDER BY id')
             ->fetchAll(PDO::FETCH_KEY_PAIR);

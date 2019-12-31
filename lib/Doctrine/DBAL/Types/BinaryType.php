@@ -38,7 +38,7 @@ class BinaryType extends Type
         }
 
         if (! is_string($value)) {
-            throw ValueNotConvertible::new($value, self::BINARY);
+            throw ValueNotConvertible::new($value, Types::BINARY);
         }
 
         return $value;

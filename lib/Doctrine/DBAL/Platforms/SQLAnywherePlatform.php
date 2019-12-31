@@ -584,9 +584,9 @@ class SQLAnywherePlatform extends AbstractPlatform
         }
 
         return $sql .
-            'FOREIGN KEY (' . $this->getIndexFieldDeclarationListSQL($localColumns) . ') ' .
+            'FOREIGN KEY (' . $this->getColumnsFieldDeclarationListSQL($localColumns) . ') ' .
             'REFERENCES ' . $foreignKey->getQuotedForeignTableName($this) .
-            ' (' . $this->getIndexFieldDeclarationListSQL($foreignColumns) . ')';
+            ' (' . $this->getColumnsFieldDeclarationListSQL($foreignColumns) . ')';
     }
 
     /**
@@ -1419,10 +1419,10 @@ SQL
         }
 
         if ($constraint->isPrimary()) {
-            return $sql . 'PRIMARY KEY ' . $flags . '(' . $this->getIndexFieldDeclarationListSQL($constraintColumns) . ')';
+            return $sql . 'PRIMARY KEY ' . $flags . '(' . $this->getColumnsFieldDeclarationListSQL($constraintColumns) . ')';
         }
 
-        return $sql . 'UNIQUE ' . $flags . '(' . $this->getIndexFieldDeclarationListSQL($constraintColumns) . ')';
+        return $sql . 'UNIQUE ' . $flags . '(' . $this->getColumnsFieldDeclarationListSQL($constraintColumns) . ')';
     }
 
     /**

@@ -7,8 +7,6 @@ namespace Doctrine\DBAL;
 use Doctrine\Common\Cache\Cache;
 use Doctrine\DBAL\Logging\NullLogger;
 use Doctrine\DBAL\Logging\SQLLogger;
-use Doctrine\DBAL\Schema\AbstractAsset;
-use function preg_match;
 
 /**
  * Configuration container for the Doctrine DBAL.
@@ -56,36 +54,6 @@ class Configuration
     public function setResultCacheImpl(Cache $cacheImpl) : void
     {
         $this->_attributes['resultCacheImpl'] = $cacheImpl;
-    }
-
-    /**
-     * Sets the filter schema assets expression.
-     *
-     * Only include tables/sequences matching the filter expression regexp in
-     * schema instances generated for the active connection when calling
-     * {AbstractSchemaManager#createSchema()}.
-     *
-     * @deprecated Use Configuration::setSchemaAssetsFilter() instead
-     */
-    public function setFilterSchemaAssetsExpression(?string $filterExpression) : void
-    {
-        $this->_attributes['filterSchemaAssetsExpression'] = $filterExpression;
-        if ($filterExpression) {
-            $this->_attributes['filterSchemaAssetsExpressionCallable'] = $this->buildSchemaAssetsFilterFromExpression($filterExpression);
-        } else {
-            $this->_attributes['filterSchemaAssetsExpressionCallable'] = null;
-        }
-    }
-
-    private function buildSchemaAssetsFilterFromExpression(string $filterExpression) : callable
-    {
-        return static function ($assetName) use ($filterExpression) : bool {
-            if ($assetName instanceof AbstractAsset) {
-                $assetName = $assetName->getName();
-            }
-
-            return preg_match($filterExpression, $assetName) > 0;
-        };
     }
 
     /**
