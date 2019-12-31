@@ -91,6 +91,10 @@ class ConversionException extends DBALException
     }
 
     /**
+     * @param mixed  $value
+     * @param string $format
+     * @param string $error
+     *
      * @return ConversionException
      */
     public static function conversionFailedSerialization($value, $format, $error)

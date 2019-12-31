@@ -213,6 +213,8 @@ class MysqliStatement implements IteratorAggregate, Statement
         $types   = $this->types;
 
         foreach ($this->_bindedValues as $parameter => $value) {
+            assert(is_int($parameter));
+
             if (! isset($types[$parameter - 1])) {
                 $types[$parameter - 1] = static::$_paramTypeMap[ParameterType::STRING];
             }
@@ -243,9 +245,11 @@ class MysqliStatement implements IteratorAggregate, Statement
     /**
      * Handle $this->_longData after regular query parameters have been bound
      *
+     * @param array<int, resource> $streams
+     *
      * @throws MysqliException
      */
-    private function sendLongData($streams) : void
+    private function sendLongData(array $streams) : void
     {
         foreach ($streams as $paramNr => $stream) {
             while (! feof($stream)) {

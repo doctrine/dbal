@@ -61,6 +61,7 @@ class OraclePlatform extends AbstractPlatform
     }
 
     /**
+     * @param string $type
      *
      * @return string
      */

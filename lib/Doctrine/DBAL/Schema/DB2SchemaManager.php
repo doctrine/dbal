@@ -178,6 +178,7 @@ class DB2SchemaManager extends AbstractSchemaManager
     }
 
     /**
+     * @param string $def
      *
      * @return string|null
      */

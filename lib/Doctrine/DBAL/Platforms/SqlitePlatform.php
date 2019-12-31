@@ -55,7 +55,9 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     * @param string $type
+     *
+     * @return string
      */
     public function getNowExpression($type = 'timestamp')
     {
@@ -222,6 +224,7 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
+     * @param array<string, mixed> $field
      *
      * @return string
      */
@@ -249,6 +252,7 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
+     * @param array<string, mixed> $field
      *
      * @return string
      */
@@ -602,7 +606,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getForUpdateSql()
+    public function getForUpdateSQL()
     {
         return '';
     }
@@ -812,7 +816,10 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     * @param string      $table
+     * @param string|null $database
+     *
+     * @return string
      */
     public function getListTableForeignKeysSQL($table, $database = null)
     {
