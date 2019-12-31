@@ -223,9 +223,9 @@ class SqliteSchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @deprecated
+     *
+     * @return array<string, bool|string>
      */
     protected function _getPortableTableIndexDefinition($tableIndex)
     {

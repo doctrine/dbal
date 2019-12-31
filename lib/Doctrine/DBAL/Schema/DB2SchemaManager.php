@@ -178,7 +178,8 @@ class DB2SchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * {@inheritdoc}
+     *
+     * @return string|null
      */
     protected function _getPortableForeignKeyRuleDef($def)
     {

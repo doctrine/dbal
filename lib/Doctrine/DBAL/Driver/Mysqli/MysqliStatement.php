@@ -207,7 +207,7 @@ class MysqliStatement implements IteratorAggregate, Statement
     /**
      * Binds parameters with known types previously bound to the statement
      */
-    private function bindTypedParameters()
+    private function bindTypedParameters() : void
     {
         $streams = $values = [];
         $types   = $this->types;
@@ -245,7 +245,7 @@ class MysqliStatement implements IteratorAggregate, Statement
      *
      * @throws MysqliException
      */
-    private function sendLongData($streams)
+    private function sendLongData($streams) : void
     {
         foreach ($streams as $paramNr => $stream) {
             while (! feof($stream)) {

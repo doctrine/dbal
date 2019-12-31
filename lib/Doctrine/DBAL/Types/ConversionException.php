@@ -90,6 +90,9 @@ class ConversionException extends DBALException
         ), 0, $previous);
     }
 
+    /**
+     * @return ConversionException
+     */
     public static function conversionFailedSerialization($value, $format, $error)
     {
         $actualType = is_object($value) ? get_class($value) : gettype($value);

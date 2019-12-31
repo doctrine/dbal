@@ -222,7 +222,8 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     *
+     * @return string
      */
     public function getTinyIntTypeDeclarationSql(array $field)
     {
@@ -248,7 +249,8 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     *
+     * @return string
      */
     public function getMediumIntTypeDeclarationSql(array $field)
     {

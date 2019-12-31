@@ -435,7 +435,8 @@ class DrizzlePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     *
+     * @return string
      */
     protected function getDropPrimaryKeySQL($table)
     {
