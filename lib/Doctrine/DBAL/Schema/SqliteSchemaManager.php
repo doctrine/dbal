@@ -238,8 +238,6 @@ class SqliteSchemaManager extends AbstractSchemaManager
 
     /**
      * {@inheritdoc}
-     *
-     * @deprecated
      */
     protected function _getPortableTableColumnList(string $table, string $database, array $tableColumns) : array
     {

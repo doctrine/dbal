@@ -267,8 +267,6 @@ class OracleSchemaManager extends AbstractSchemaManager
 
     /**
      * {@inheritdoc}
-     *
-     * @deprecated
      */
     protected function _getPortableDatabaseDefinition(array $database) : string
     {
@@ -279,8 +277,6 @@ class OracleSchemaManager extends AbstractSchemaManager
 
     /**
      * {@inheritdoc}
-     *
-     * Calling this method without an argument or by passing NULL is deprecated.
      */
     public function createDatabase(string $database) : void
     {
