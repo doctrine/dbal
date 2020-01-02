@@ -10,7 +10,6 @@ You can get a DBAL Connection through the
 .. code-block:: php
 
     <?php
-    $config = new \Doctrine\DBAL\Configuration();
     //..
     $connectionParams = array(
         'dbname' => 'mydb',
@@ -19,19 +18,18 @@ You can get a DBAL Connection through the
         'host' => 'localhost',
         'driver' => 'pdo_mysql',
     );
-    $conn = \Doctrine\DBAL\DriverManager::getConnection($connectionParams, $config);
+    $conn = \Doctrine\DBAL\DriverManager::getConnection($connectionParams);
 
 Or, using the simpler URL form:
 
 .. code-block:: php
 
     <?php
-    $config = new \Doctrine\DBAL\Configuration();
     //..
     $connectionParams = array(
         'url' => 'mysql://user:secret@localhost/mydb',
     );
-    $conn = \Doctrine\DBAL\DriverManager::getConnection($connectionParams, $config);
+    $conn = \Doctrine\DBAL\DriverManager::getConnection($connectionParams);
 
 The ``DriverManager`` returns an instance of
 ``Doctrine\DBAL\Connection`` which is a wrapper around the

@@ -273,7 +273,13 @@ class OCI8Statement implements IteratorAggregate, Statement
      */
     public function bindParam($param, &$variable, int $type = ParameterType::STRING, ?int $length = null) : void
     {
-        $param = $this->_paramMap[$param];
+        if (is_int($param)) {
+            if (! isset($this->_paramMap[$param])) {
+                throw new OCI8Exception(sprintf('Could not find variable mapping with index %d, in the SQL statement', $param));
+            }
+
+            $param = $this->_paramMap[$param];
+        }
 
         if ($type === ParameterType::LARGE_OBJECT) {
             $lob = oci_new_descriptor($this->_dbh, OCI_D_LOB);

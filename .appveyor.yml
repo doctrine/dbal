@@ -113,7 +113,6 @@ install:
         }
     # install composer dependencies
     - cd C:\projects\dbal
-    - rm composer.lock
     - appveyor-retry composer self-update
     - appveyor-retry composer install --no-progress --prefer-dist
 
