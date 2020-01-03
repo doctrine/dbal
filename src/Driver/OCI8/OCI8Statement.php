@@ -24,7 +24,9 @@ use function substr;
 
 use const OCI_B_BIN;
 use const OCI_B_BLOB;
+use const OCI_COMMIT_ON_SUCCESS;
 use const OCI_D_LOB;
+use const OCI_NO_AUTO_COMMIT;
 use const OCI_TEMP_BLOB;
 use const PREG_OFFSET_CAPTURE;
 use const SQLT_CHR;
@@ -42,8 +44,8 @@ class OCI8Statement implements StatementInterface
     /** @var resource */
     protected $_sth;
 
-    /** @var OCI8Connection */
-    protected $_conn;
+    /** @var ExecutionMode */
+    private $executionMode;
 
     /** @var string[] */
     protected $_paramMap = [];
@@ -63,17 +65,17 @@ class OCI8Statement implements StatementInterface
      * @param resource $dbh   The connection handle.
      * @param string   $query The SQL query.
      */
-    public function __construct($dbh, $query, OCI8Connection $conn)
+    public function __construct($dbh, $query, ExecutionMode $executionMode)
     {
         [$query, $paramMap] = self::convertPositionalToNamedPlaceholders($query);
 
         $stmt = oci_parse($dbh, $query);
         assert(is_resource($stmt));
 
-        $this->_sth      = $stmt;
-        $this->_dbh      = $dbh;
-        $this->_paramMap = $paramMap;
-        $this->_conn     = $conn;
+        $this->_sth          = $stmt;
+        $this->_dbh          = $dbh;
+        $this->_paramMap     = $paramMap;
+        $this->executionMode = $executionMode;
     }
 
     /**
@@ -299,7 +301,13 @@ class OCI8Statement implements StatementInterface
             }
         }
 
-        $ret = @oci_execute($this->_sth, $this->_conn->getExecuteMode());
+        if ($this->executionMode->isAutoCommitEnabled()) {
+            $mode = OCI_COMMIT_ON_SUCCESS;
+        } else {
+            $mode = OCI_NO_AUTO_COMMIT;
+        }
+
+        $ret = @oci_execute($this->_sth, $mode);
         if (! $ret) {
             throw OCI8Exception::fromErrorInfo(oci_error($this->_sth));
         }
