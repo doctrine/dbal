@@ -10,7 +10,6 @@ use Doctrine\DBAL\ForwardCompatibility\Driver\ResultStatement as ForwardCompatib
 use Doctrine\DBAL\ParameterType;
 use InvalidArgumentException;
 use IteratorAggregate;
-use function array_key_exists;
 use function assert;
 use function count;
 use function implode;
@@ -362,9 +361,8 @@ class OCI8Statement implements IteratorAggregate, Statement, ForwardCompatibleRe
     public function execute($params = null)
     {
         if ($params !== null) {
-            $hasZeroIndex = array_key_exists(0, $params);
             foreach ($params as $key => $val) {
-                if ($hasZeroIndex && is_int($key)) {
+                if (is_int($key)) {
                     $this->bindValue($key + 1, $val);
                 } else {
                     $this->bindValue($key, $val);

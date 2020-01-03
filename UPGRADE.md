@@ -1,5 +1,9 @@
 # Upgrade to 3.0
 
+## BC BREAK: Dropped handling of one-based numeric arrays of parameters in `Statement::execute()`
+
+The statement implementations no longer detect whether `$params` is a zero- or one-based array. A zero-based numeric array is expected.
+
 ## BC BREAK `Statement::project()` has been removed
 
 - The `Statement::project()` method has been removed. Use `::executeQuery()` and fetch the data from the statement using one of the `Statement::fetch*()` methods instead.

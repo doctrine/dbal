@@ -9,7 +9,6 @@ use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ForwardCompatibility\Driver\ResultStatement as ForwardCompatibleResultStatement;
 use Doctrine\DBAL\ParameterType;
 use IteratorAggregate;
-use function array_key_exists;
 use function is_int;
 use function is_numeric;
 use function sqlsrv_execute;
@@ -207,9 +206,8 @@ class SQLSrvStatement implements IteratorAggregate, Statement, ForwardCompatible
     public function execute($params = null)
     {
         if ($params !== null) {
-            $hasZeroIndex = array_key_exists(0, $params);
             foreach ($params as $key => $val) {
-                if ($hasZeroIndex && is_int($key)) {
+                if (is_int($key)) {
                     $this->bindValue($key + 1, $val);
                 } else {
                     $this->bindValue($key, $val);
