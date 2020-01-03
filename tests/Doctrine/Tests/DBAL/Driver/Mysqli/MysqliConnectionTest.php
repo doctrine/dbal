@@ -8,20 +8,12 @@ use Doctrine\DBAL\Driver\Mysqli\Exception\ConnectionError;
 use Doctrine\DBAL\Driver\Mysqli\MysqliConnection;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\Tests\DbalFunctionalTestCase;
-use PHPUnit\Framework\MockObject\MockObject;
 use function extension_loaded;
 use function restore_error_handler;
 use function set_error_handler;
 
 class MysqliConnectionTest extends DbalFunctionalTestCase
 {
-    /**
-     * The mysqli driver connection mock under test.
-     *
-     * @var MysqliConnection|MockObject
-     */
-    private $connectionMock;
-
     protected function setUp() : void
     {
         if (! extension_loaded('mysqli')) {
@@ -30,18 +22,11 @@ class MysqliConnectionTest extends DbalFunctionalTestCase
 
         parent::setUp();
 
-        if (! $this->connection->getDatabasePlatform() instanceof MySqlPlatform) {
-            $this->markTestSkipped('MySQL only test.');
+        if ($this->connection->getDatabasePlatform() instanceof MySqlPlatform) {
+            return;
         }
 
-        $this->connectionMock = $this->getMockBuilder(MysqliConnection::class)
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
-    }
-
-    public function testDoesNotRequireQueryForServerVersion() : void
-    {
-        self::assertFalse($this->connectionMock->requiresQueryForServerVersion());
+        $this->markTestSkipped('MySQL only test.');
     }
 
     public function testRestoresErrorHandlerOnException() : void

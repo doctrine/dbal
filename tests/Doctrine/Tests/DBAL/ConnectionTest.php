@@ -688,10 +688,6 @@ class ConnectionTest extends DbalTestCase
             ->will($this->returnValue($driverConnectionMock));
 
         $driverConnectionMock->expects($this->once())
-            ->method('requiresQueryForServerVersion')
-            ->will($this->returnValue(false));
-
-        $driverConnectionMock->expects($this->once())
             ->method('getServerVersion')
             ->will($this->returnValue('6.6.6'));
 

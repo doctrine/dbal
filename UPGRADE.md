@@ -1,5 +1,9 @@
 # Upgrade to 3.0
 
+## BC BREAK: `ServerInfoAwareConnection::requiresQueryForServerVersion()` is removed.
+
+The `ServerInfoAwareConnection::requiresQueryForServerVersion()` method has been removed as an implementation detail which is the same for almost all supported drivers.
+
 ## BC BREAK: PingableConnection and ServerInfoAwareConnection interfaces now extends Connection
 
 All implementations of the `PingableConnection` and `ServerInfoAwareConnection` interfaces have to implement the methods defined in the `Connection` interface as well.
