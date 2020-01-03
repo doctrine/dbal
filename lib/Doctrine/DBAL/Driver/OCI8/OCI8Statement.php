@@ -351,10 +351,8 @@ class OCI8Statement implements IteratorAggregate, Statement
     public function execute(?array $params = null) : void
     {
         if ($params) {
-            $hasZeroIndex = array_key_exists(0, $params);
-
             foreach ($params as $key => $val) {
-                if ($hasZeroIndex && is_int($key)) {
+                if (is_int($key)) {
                     $param = $key + 1;
                 } else {
                     $param = $key;

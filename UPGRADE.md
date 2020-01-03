@@ -1,5 +1,9 @@
 # Upgrade to 3.0
 
+## BC BREAK: Dropped handling of one-based numeric arrays of parameters in `Statement::execute()`
+
+The statement implementations no longer detect whether `$params` is a zero- or one-based array. A zero-based numeric array is expected.
+
 ## BC BREAK: `ServerInfoAwareConnection::requiresQueryForServerVersion()` is removed.
 
 The `ServerInfoAwareConnection::requiresQueryForServerVersion()` method has been removed as an implementation detail which is the same for almost all supported drivers.
