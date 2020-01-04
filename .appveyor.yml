@@ -17,6 +17,9 @@ cache:
 
 ## Build matrix for lowest and highest possible targets
 environment:
+  global:
+    COVERALLS_REPO_TOKEN:
+      secure: tXvGhixQ9xPL8o8x6bsdxE62oESRc5L6qEJXX6hWsHQpkb
   matrix:
   - db: mssql
     driver: sqlsrv
