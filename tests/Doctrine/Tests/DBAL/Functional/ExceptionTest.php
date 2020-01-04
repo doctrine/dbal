@@ -14,7 +14,6 @@ use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\Tests\DbalFunctionalTestCase;
-use Throwable;
 use const PHP_OS;
 use function array_merge;
 use function assert;
@@ -74,158 +73,6 @@ class ExceptionTest extends DbalFunctionalTestCase
         $this->expectException(Exception\TableExistsException::class);
         $schemaManager->createTable($table);
         $schemaManager->createTable($table);
-    }
-
-    public function testForeignKeyConstraintViolationExceptionOnInsert() : void
-    {
-        $platform = $this->connection->getDatabasePlatform();
-
-        if ($platform instanceof SqlitePlatform) {
-            $this->connection->exec('PRAGMA foreign_keys = ON');
-        } elseif (! $platform->supportsForeignKeyConstraints()) {
-            $this->markTestSkipped('Only fails on platforms with foreign key constraints.');
-        }
-
-        $this->setUpForeignKeyConstraintViolationExceptionTest();
-
-        try {
-            $this->connection->insert('constraint_error_table', ['id' => 1]);
-            $this->connection->insert('owning_table', ['id' => 1, 'constraint_id' => 1]);
-        } catch (Throwable $exception) {
-            $this->tearDownForeignKeyConstraintViolationExceptionTest();
-
-            throw $exception;
-        }
-
-        $this->expectException(Exception\ForeignKeyConstraintViolationException::class);
-
-        try {
-            $this->connection->insert('owning_table', ['id' => 2, 'constraint_id' => 2]);
-        } catch (Exception\ForeignKeyConstraintViolationException $exception) {
-            $this->tearDownForeignKeyConstraintViolationExceptionTest();
-
-            throw $exception;
-        } catch (Throwable $exception) {
-            $this->tearDownForeignKeyConstraintViolationExceptionTest();
-
-            throw $exception;
-        }
-
-        $this->tearDownForeignKeyConstraintViolationExceptionTest();
-    }
-
-    public function testForeignKeyConstraintViolationExceptionOnUpdate() : void
-    {
-        $platform = $this->connection->getDatabasePlatform();
-
-        if ($platform instanceof SqlitePlatform) {
-            $this->connection->exec('PRAGMA foreign_keys = ON');
-        } elseif (! $platform->supportsForeignKeyConstraints()) {
-            $this->markTestSkipped('Only fails on platforms with foreign key constraints.');
-        }
-
-        $this->setUpForeignKeyConstraintViolationExceptionTest();
-
-        try {
-            $this->connection->insert('constraint_error_table', ['id' => 1]);
-            $this->connection->insert('owning_table', ['id' => 1, 'constraint_id' => 1]);
-        } catch (Throwable $exception) {
-            $this->tearDownForeignKeyConstraintViolationExceptionTest();
-
-            throw $exception;
-        }
-
-        $this->expectException(Exception\ForeignKeyConstraintViolationException::class);
-
-        try {
-            $this->connection->update('constraint_error_table', ['id' => 2], ['id' => 1]);
-        } catch (Exception\ForeignKeyConstraintViolationException $exception) {
-            $this->tearDownForeignKeyConstraintViolationExceptionTest();
-
-            throw $exception;
-        } catch (Throwable $exception) {
-            $this->tearDownForeignKeyConstraintViolationExceptionTest();
-
-            throw $exception;
-        }
-
-        $this->tearDownForeignKeyConstraintViolationExceptionTest();
-    }
-
-    public function testForeignKeyConstraintViolationExceptionOnDelete() : void
-    {
-        $platform = $this->connection->getDatabasePlatform();
-
-        if ($platform instanceof SqlitePlatform) {
-            $this->connection->exec('PRAGMA foreign_keys = ON');
-        } elseif (! $platform->supportsForeignKeyConstraints()) {
-            $this->markTestSkipped('Only fails on platforms with foreign key constraints.');
-        }
-
-        $this->setUpForeignKeyConstraintViolationExceptionTest();
-
-        try {
-            $this->connection->insert('constraint_error_table', ['id' => 1]);
-            $this->connection->insert('owning_table', ['id' => 1, 'constraint_id' => 1]);
-        } catch (Throwable $exception) {
-            $this->tearDownForeignKeyConstraintViolationExceptionTest();
-
-            throw $exception;
-        }
-
-        $this->expectException(Exception\ForeignKeyConstraintViolationException::class);
-
-        try {
-            $this->connection->delete('constraint_error_table', ['id' => 1]);
-        } catch (Exception\ForeignKeyConstraintViolationException $exception) {
-            $this->tearDownForeignKeyConstraintViolationExceptionTest();
-
-            throw $exception;
-        } catch (Throwable $exception) {
-            $this->tearDownForeignKeyConstraintViolationExceptionTest();
-
-            throw $exception;
-        }
-
-        $this->tearDownForeignKeyConstraintViolationExceptionTest();
-    }
-
-    public function testForeignKeyConstraintViolationExceptionOnTruncate() : void
-    {
-        $platform = $this->connection->getDatabasePlatform();
-
-        if ($platform instanceof SqlitePlatform) {
-            $this->connection->exec('PRAGMA foreign_keys = ON');
-        } elseif (! $platform->supportsForeignKeyConstraints()) {
-            $this->markTestSkipped('Only fails on platforms with foreign key constraints.');
-        }
-
-        $this->setUpForeignKeyConstraintViolationExceptionTest();
-
-        try {
-            $this->connection->insert('constraint_error_table', ['id' => 1]);
-            $this->connection->insert('owning_table', ['id' => 1, 'constraint_id' => 1]);
-        } catch (Throwable $exception) {
-            $this->tearDownForeignKeyConstraintViolationExceptionTest();
-
-            throw $exception;
-        }
-
-        $this->expectException(Exception\ForeignKeyConstraintViolationException::class);
-
-        try {
-            $this->connection->executeUpdate($platform->getTruncateTableSQL('constraint_error_table'));
-        } catch (Exception\ForeignKeyConstraintViolationException $exception) {
-            $this->tearDownForeignKeyConstraintViolationExceptionTest();
-
-            throw $exception;
-        } catch (Throwable $exception) {
-            $this->tearDownForeignKeyConstraintViolationExceptionTest();
-
-            throw $exception;
-        }
-
-        $this->tearDownForeignKeyConstraintViolationExceptionTest();
     }
 
     public function testNotNullConstraintViolationException() : void
@@ -411,32 +258,6 @@ EOT
             [['password' => 'really_not']],
             [['host' => 'localnope']],
         ];
-    }
-
-    private function setUpForeignKeyConstraintViolationExceptionTest() : void
-    {
-        $schemaManager = $this->connection->getSchemaManager();
-
-        $table = new Table('constraint_error_table');
-        $table->addColumn('id', 'integer', []);
-        $table->setPrimaryKey(['id']);
-
-        $owningTable = new Table('owning_table');
-        $owningTable->addColumn('id', 'integer', []);
-        $owningTable->addColumn('constraint_id', 'integer', []);
-        $owningTable->setPrimaryKey(['id']);
-        $owningTable->addForeignKeyConstraint($table, ['constraint_id'], ['id']);
-
-        $schemaManager->createTable($table);
-        $schemaManager->createTable($owningTable);
-    }
-
-    private function tearDownForeignKeyConstraintViolationExceptionTest() : void
-    {
-        $schemaManager = $this->connection->getSchemaManager();
-
-        $schemaManager->dropTable('owning_table');
-        $schemaManager->dropTable('constraint_error_table');
     }
 
     private function isLinuxRoot() : bool
