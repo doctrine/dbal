@@ -22,6 +22,9 @@ use function preg_replace;
 use function spl_object_hash;
 use function sprintf;
 
+/**
+ * Exception class responsible for technical errors of DBAL infrastructure
+ */
 class DBALException extends Exception
 {
     // Exception codes. Dedicated 0-99 numbers
@@ -55,6 +58,9 @@ class DBALException extends Exception
         return new self(sprintf("Operation '%s' is not supported by platform.", $method), self::NOT_SUPPORTED_METHOD);
     }
 
+    /**
+     * @return DBALException
+     */
     public static function invalidPlatformSpecified() : self
     {
         return new self(
@@ -65,6 +71,8 @@ class DBALException extends Exception
 
     /**
      * @param mixed $invalidPlatform
+     *
+     * @return DBALException
      */
     public static function invalidPlatformType($invalidPlatform) : self
     {
@@ -111,7 +119,7 @@ class DBALException extends Exception
     }
 
     /**
-     * @return \Doctrine\DBAL\DBALException
+     * @return DBALException
      */
     public static function invalidPdoInstance()
     {
@@ -125,7 +133,7 @@ class DBALException extends Exception
     /**
      * @param string|null $url The URL that was provided in the connection parameters (if any).
      *
-     * @return \Doctrine\DBAL\DBALException
+     * @return DBALException
      */
     public static function driverRequired($url = null)
     {
@@ -151,7 +159,7 @@ class DBALException extends Exception
      * @param string   $unknownDriverName
      * @param string[] $knownDrivers
      *
-     * @return \Doctrine\DBAL\DBALException
+     * @return DBALException
      */
     public static function unknownDriver($unknownDriverName, array $knownDrivers)
     {
@@ -166,7 +174,7 @@ class DBALException extends Exception
      * @param string  $sql
      * @param mixed[] $params
      *
-     * @return self
+     * @return DBALException|DriverException|Throwable
      */
     public static function driverExceptionDuringQuery(Driver $driver, Throwable $driverEx, $sql, array $params = [])
     {
@@ -180,7 +188,10 @@ class DBALException extends Exception
     }
 
     /**
-     * @return self
+     * @param Driver    $driver
+     * @param Throwable $driverEx
+     *
+     * @return DBALException|DriverException|Throwable
      */
     public static function driverException(Driver $driver, Throwable $driverEx)
     {
@@ -193,7 +204,12 @@ class DBALException extends Exception
     }
 
     /**
-     * @return self
+     * @param Driver    $driver
+     * @param Throwable $driverEx
+     * @param string    $msg
+     * @param int       $code
+     *
+     * @return DBALException|DriverException|Throwable
      */
     private static function wrapException(Driver $driver, Throwable $driverEx, $msg, $code = 0)
     {
@@ -236,7 +252,7 @@ class DBALException extends Exception
     /**
      * @param string $wrapperClass
      *
-     * @return \Doctrine\DBAL\DBALException
+     * @return DBALException
      */
     public static function invalidWrapperClass($wrapperClass)
     {
@@ -249,7 +265,7 @@ class DBALException extends Exception
     /**
      * @param string $driverClass
      *
-     * @return \Doctrine\DBAL\DBALException
+     * @return DBALException
      */
     public static function invalidDriverClass($driverClass)
     {
@@ -262,7 +278,7 @@ class DBALException extends Exception
     /**
      * @param string $tableName
      *
-     * @return \Doctrine\DBAL\DBALException
+     * @return DBALException
      */
     public static function invalidTableName($tableName)
     {
@@ -272,7 +288,7 @@ class DBALException extends Exception
     /**
      * @param string $tableName
      *
-     * @return \Doctrine\DBAL\DBALException
+     * @return DBALException
      */
     public static function noColumnsSpecifiedForTable($tableName)
     {
@@ -280,7 +296,7 @@ class DBALException extends Exception
     }
 
     /**
-     * @return \Doctrine\DBAL\DBALException
+     * @return DBALException
      */
     public static function limitOffsetInvalid()
     {
@@ -293,7 +309,7 @@ class DBALException extends Exception
     /**
      * @param string $name
      *
-     * @return \Doctrine\DBAL\DBALException
+     * @return DBALException
      */
     public static function typeExists($name)
     {
@@ -303,7 +319,7 @@ class DBALException extends Exception
     /**
      * @param string $name
      *
-     * @return \Doctrine\DBAL\DBALException
+     * @return DBALException
      */
     public static function unknownColumnType($name)
     {
@@ -322,13 +338,18 @@ class DBALException extends Exception
     /**
      * @param string $name
      *
-     * @return \Doctrine\DBAL\DBALException
+     * @return DBALException
      */
     public static function typeNotFound($name)
     {
         return new self('Type to be overwritten ' . $name . ' does not exist.', self::TYPE_NOT_FOUND);
     }
 
+    /**
+     * @param Type $type
+     *
+     * @return DBALException
+     */
     public static function typeNotRegistered(Type $type) : self
     {
         return new self(
@@ -337,6 +358,11 @@ class DBALException extends Exception
         );
     }
 
+    /**
+     * @param Type $type
+     *
+     * @return DBALException
+     */
     public static function typeAlreadyRegistered(Type $type) : self
     {
         return new self(
