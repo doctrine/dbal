@@ -14,7 +14,6 @@ use Doctrine\DBAL\Driver\PDOSqlite\Driver as PDOSQLiteDriver;
 use Doctrine\DBAL\Driver\PDOSqlsrv\Driver as PDOSQLSrvDriver;
 use Doctrine\DBAL\Driver\SQLAnywhere\Driver as SQLAnywhereDriver;
 use Doctrine\DBAL\Driver\SQLSrv\Driver as SQLSrvDriver;
-use PDO;
 use function array_keys;
 use function array_map;
 use function array_merge;
@@ -171,17 +170,7 @@ final class DriverManager
             }
         }
 
-        // check for existing pdo object
-        if (isset($params['pdo']) && ! $params['pdo'] instanceof PDO) {
-            throw DBALException::invalidPdoInstance();
-        }
-
-        if (isset($params['pdo'])) {
-            $params['pdo']->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $params['driver'] = 'pdo_' . $params['pdo']->getAttribute(PDO::ATTR_DRIVER_NAME);
-        } else {
-            self::_checkParams($params);
-        }
+        self::_checkParams($params);
 
         $className = $params['driverClass'] ?? self::$_driverMap[$params['driver']];
 
@@ -276,10 +265,6 @@ final class DriverManager
         }
 
         $url = array_map('rawurldecode', $url);
-
-        // If we have a connection URL, we have to unset the default PDO instance connection parameter (if any)
-        // as we cannot merge connection details from the URL into the PDO instance (URL takes precedence).
-        unset($params['pdo']);
 
         $params = self::parseDatabaseUrlScheme($url, $params);
 

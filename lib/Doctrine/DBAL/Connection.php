@@ -23,7 +23,6 @@ use Exception;
 use Throwable;
 use function array_key_exists;
 use function assert;
-use function func_get_args;
 use function implode;
 use function is_int;
 use function is_string;
@@ -187,12 +186,6 @@ class Connection implements DriverConnection
     ) {
         $this->_driver = $driver;
         $this->params  = $params;
-
-        if (isset($params['pdo'])) {
-            $this->_conn       = $params['pdo'];
-            $this->isConnected = true;
-            unset($this->params['pdo']);
-        }
 
         if (isset($params['platform'])) {
             if (! $params['platform'] instanceof Platforms\AbstractPlatform) {
@@ -847,18 +840,16 @@ class Connection implements DriverConnection
     /**
      * Prepares an SQL statement.
      *
-     * @param string $statement The SQL statement to prepare.
-     *
-     * @return DriverStatement The prepared statement.
+     * @param string $sql The SQL statement to prepare.
      *
      * @throws DBALException
      */
-    public function prepare($statement)
+    public function prepare(string $sql) : DriverStatement
     {
         try {
-            $stmt = new Statement($statement, $this);
+            $stmt = new Statement($sql, $this);
         } catch (Throwable $ex) {
-            throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $statement);
+            throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $sql);
         }
 
         $stmt->setFetchMode($this->defaultFetchMode);
@@ -881,7 +872,7 @@ class Connection implements DriverConnection
      *
      * @throws DBALException
      */
-    public function executeQuery($query, array $params = [], $types = [], ?QueryCacheProfile $qcp = null)
+    public function executeQuery(string $query, array $params = [], $types = [], ?QueryCacheProfile $qcp = null) : ResultStatement
     {
         if ($qcp !== null) {
             return $this->executeCacheQuery($query, $params, $types, $qcp);
@@ -929,11 +920,9 @@ class Connection implements DriverConnection
      * @param int[]|string[]    $types  The types the previous parameters are in.
      * @param QueryCacheProfile $qcp    The query cache profile.
      *
-     * @return ResultStatement
-     *
      * @throws CacheException
      */
-    public function executeCacheQuery($query, $params, $types, QueryCacheProfile $qcp)
+    public function executeCacheQuery($query, $params, $types, QueryCacheProfile $qcp) : ResultStatement
     {
         $resultCache = $qcp->getResultCacheDriver() ?? $this->_config->getResultCacheImpl();
 
@@ -994,27 +983,21 @@ class Connection implements DriverConnection
     }
 
     /**
-     * Executes an SQL statement, returning a result set as a Statement object.
-     *
-     * @return \Doctrine\DBAL\Driver\Statement
-     *
-     * @throws DBALException
+     * {@inheritDoc}
      */
-    public function query()
+    public function query(string $sql) : ResultStatement
     {
         $connection = $this->getWrappedConnection();
 
-        $args = func_get_args();
-
         $logger = $this->_config->getSQLLogger();
         if ($logger) {
-            $logger->startQuery($args[0]);
+            $logger->startQuery($sql);
         }
 
         try {
-            $statement = $connection->query(...$args);
+            $statement = $connection->query($sql);
         } catch (Throwable $ex) {
-            throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $args[0]);
+            throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $sql);
         }
 
         $statement->setFetchMode($this->defaultFetchMode);
@@ -1036,11 +1019,9 @@ class Connection implements DriverConnection
      * @param mixed[]        $params The query parameters.
      * @param int[]|string[] $types  The parameter types.
      *
-     * @return int The number of affected rows.
-     *
      * @throws DBALException
      */
-    public function executeUpdate($query, array $params = [], array $types = [])
+    public function executeUpdate(string $query, array $params = [], array $types = []) : int
     {
         $connection = $this->getWrappedConnection();
 
@@ -1077,15 +1058,9 @@ class Connection implements DriverConnection
     }
 
     /**
-     * Executes an SQL statement and return the number of affected rows.
-     *
-     * @param string $statement
-     *
-     * @return int The number of affected rows.
-     *
-     * @throws DBALException
+     * {@inheritDoc}
      */
-    public function exec($statement)
+    public function exec(string $statement) : int
     {
         $connection = $this->getWrappedConnection();
 
@@ -1527,13 +1502,11 @@ class Connection implements DriverConnection
      * @internal Duck-typing used on the $stmt parameter to support driver statements as well as
      *           raw PDOStatement instances.
      *
-     * @param \Doctrine\DBAL\Driver\Statement $stmt   The statement to bind the values to.
-     * @param mixed[]                         $params The map/list of named/positional parameters.
-     * @param int[]|string[]                  $types  The parameter types (PDO binding types or DBAL mapping types).
-     *
-     * @return void
+     * @param DriverStatement $stmt   The statement to bind the values to.
+     * @param mixed[]         $params The map/list of named/positional parameters.
+     * @param int[]|string[]  $types  The parameter types (PDO binding types or DBAL mapping types).
      */
-    private function _bindTypedValues($stmt, array $params, array $types)
+    private function _bindTypedValues(DriverStatement $stmt, array $params, array $types) : void
     {
         // Check whether parameters are positional or named. Mixing is not allowed, just like in PDO.
         if (is_int(key($params))) {

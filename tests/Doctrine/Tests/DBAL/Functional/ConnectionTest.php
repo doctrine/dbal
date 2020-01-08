@@ -5,11 +5,15 @@ namespace Doctrine\Tests\DBAL\Functional;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
+use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\SqlitePlatform;
+use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Tests\DbalFunctionalTestCase;
+use Doctrine\Tests\TestUtil;
 use Error;
 use Exception;
 use PDO;
@@ -353,15 +357,27 @@ class ConnectionTest extends DbalFunctionalTestCase
         $connection->close();
     }
 
-    /**
-     * @requires extension pdo_sqlite
-     */
-    public function testUserProvidedPDOConnection() : void
+    public function testPersistentConnection() : void
     {
-        self::assertTrue(
-            DriverManager::getConnection([
-                'pdo' => new PDO('sqlite::memory:'),
-            ])->ping()
-        );
+        $platform = $this->connection->getDatabasePlatform();
+
+        if ($platform instanceof SqlitePlatform
+            || $platform instanceof SQLServerPlatform) {
+            self::markTestSkipped('The platform does not support persistent connections');
+        }
+
+        $params               = TestUtil::getConnectionParams();
+        $params['persistent'] = true;
+
+        $connection       = DriverManager::getConnection($params);
+        $driverConnection = $connection->getWrappedConnection();
+
+        if (! $driverConnection instanceof PDOConnection) {
+            self::markTestSkipped('Unable to test if the connection is persistent');
+        }
+
+        $pdo = $driverConnection->getWrappedConnection();
+
+        self::assertTrue($pdo->getAttribute(PDO::ATTR_PERSISTENT));
     }
 }

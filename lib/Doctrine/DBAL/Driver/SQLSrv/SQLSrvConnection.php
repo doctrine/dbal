@@ -3,10 +3,11 @@
 namespace Doctrine\DBAL\Driver\SQLSrv;
 
 use Doctrine\DBAL\Driver\Connection;
+use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
+use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\ParameterType;
 use const SQLSRV_ERR_ERRORS;
-use function func_get_args;
 use function is_float;
 use function is_int;
 use function sprintf;
@@ -75,7 +76,7 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritDoc}
      */
-    public function prepare($sql)
+    public function prepare(string $sql) : DriverStatement
     {
         return new SQLSrvStatement($this->conn, $sql, $this->lastInsertId);
     }
@@ -83,10 +84,8 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritDoc}
      */
-    public function query()
+    public function query(string $sql) : ResultStatement
     {
-        $args = func_get_args();
-        $sql  = $args[0];
         $stmt = $this->prepare($sql);
         $stmt->execute();
 
@@ -112,7 +111,7 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritDoc}
      */
-    public function exec($statement)
+    public function exec(string $statement) : int
     {
         $stmt = sqlsrv_query($this->conn, $statement);
 

@@ -5,14 +5,17 @@ namespace Doctrine\DBAL\Driver;
 use Doctrine\DBAL\ParameterType;
 use PDO;
 use function assert;
-use function func_get_args;
 
 /**
  * PDO implementation of the Connection interface.
+ *
  * Used by all PDO-based drivers.
  */
-class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
+class PDOConnection implements Connection, ServerInfoAwareConnection
 {
+    /** @var PDO */
+    private $connection;
+
     /**
      * @param string       $dsn
      * @param string|null  $user
@@ -24,9 +27,8 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
     public function __construct($dsn, $user = null, $password = null, ?array $options = null)
     {
         try {
-            parent::__construct($dsn, (string) $user, (string) $password, (array) $options);
-            $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, [PDOStatement::class, []]);
-            $this->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $this->connection = new PDO($dsn, (string) $user, (string) $password, (array) $options);
+            $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
         }
@@ -35,10 +37,10 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function exec($statement)
+    public function exec(string $statement) : int
     {
         try {
-            return parent::exec($statement);
+            return $this->connection->exec($statement);
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
         }
@@ -49,16 +51,18 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
      */
     public function getServerVersion()
     {
-        return PDO::getAttribute(PDO::ATTR_SERVER_VERSION);
+        return $this->connection->getAttribute(PDO::ATTR_SERVER_VERSION);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function prepare($prepareString, $driverOptions = [])
+    public function prepare(string $sql) : Statement
     {
         try {
-            return parent::prepare($prepareString, $driverOptions);
+            return $this->createStatement(
+                $this->connection->prepare($sql)
+            );
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
         }
@@ -67,15 +71,13 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function query()
+    public function query(string $sql) : ResultStatement
     {
-        $args = func_get_args();
-
         try {
-            $stmt = parent::query(...$args);
+            $stmt = $this->connection->query($sql);
             assert($stmt instanceof \PDOStatement);
 
-            return $stmt;
+            return $this->createStatement($stmt);
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
         }
@@ -86,7 +88,7 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
      */
     public function quote($input, $type = ParameterType::STRING)
     {
-        return parent::quote($input, $type);
+        return $this->connection->quote($input, $type);
     }
 
     /**
@@ -96,10 +98,10 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
     {
         try {
             if ($name === null) {
-                return parent::lastInsertId();
+                return $this->connection->lastInsertId();
             }
 
-            return parent::lastInsertId($name);
+            return $this->connection->lastInsertId($name);
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
         }
@@ -111,5 +113,58 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
     public function requiresQueryForServerVersion()
     {
         return false;
+    }
+
+    /**
+     * Creates a wrapped statement
+     */
+    protected function createStatement(\PDOStatement $stmt) : PDOStatement
+    {
+        return new PDOStatement($stmt);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function beginTransaction()
+    {
+        return $this->connection->beginTransaction();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function commit()
+    {
+        return $this->connection->commit();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function rollBack()
+    {
+        return $this->connection->rollBack();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function errorCode()
+    {
+        return $this->connection->errorCode();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function errorInfo()
+    {
+        return $this->connection->errorInfo();
+    }
+
+    public function getWrappedConnection() : PDO
+    {
+        return $this->connection;
     }
 }

@@ -9,10 +9,12 @@ use Doctrine\DBAL\Driver\PDOPgSql\Driver as PDOPgSQLDriver;
 use Doctrine\DBAL\Driver\PDOSqlsrv\Driver as PDOSQLSRVDriver;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use PDO;
-use function extension_loaded;
 use function get_class;
 use function sprintf;
 
+/**
+ * @requires extension pdo
+ */
 class PDOConnectionTest extends DbalFunctionalTestCase
 {
     /**
@@ -24,10 +26,6 @@ class PDOConnectionTest extends DbalFunctionalTestCase
 
     protected function setUp() : void
     {
-        if (! extension_loaded('PDO')) {
-            $this->markTestSkipped('PDO is not installed.');
-        }
-
         parent::setUp();
 
         $this->driverConnection = $this->connection->getWrappedConnection();
@@ -90,7 +88,9 @@ class PDOConnectionTest extends DbalFunctionalTestCase
 
         // Emulated prepared statements have to be disabled for this test
         // so that PDO actually communicates with the database server to check the query.
-        $this->driverConnection->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+        $this->driverConnection
+            ->getWrappedConnection()
+            ->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
 
         $this->expectException(PDOException::class);
 

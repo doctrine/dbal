@@ -1,3 +1,51 @@
+# Upgrade to 3.0
+
+## BC BREAK User-provided `PDO` instance is no longer supported
+
+In order to share the same `PDO` instances between DBAL and other components, initialize the connection in DBAL and access it using `Connection::getWrappedConnection()->getWrappedConnection()`.
+
+## BC BREAK: the PDO symbols are no longer part of the DBAL API
+
+1. The support of `PDO::PARAM_*`, `PDO::FETCH_*`, `PDO::CASE_*` and `PDO::PARAM_INPUT_OUTPUT` constants in the DBAL API is removed.
+2. `\Doctrine\DBAL\Driver\PDOConnection` does not extend `\PDO` anymore. Please use `\Doctrine\DBAL\Driver\PDOConnection::getWrappedConnection()` to access the underlying `PDO` object.
+3. `\Doctrine\DBAL\Driver\PDOStatement` does not extend `\PDOStatement` anymore.
+
+Before:
+
+    use Doctrine\DBAL\Portability\Connection;
+
+    $params = array(
+        'wrapperClass' => Connection::class,
+        'fetch_case' => PDO::CASE_LOWER,
+    );
+
+    $stmt->bindValue(1, 1, PDO::PARAM_INT);
+    $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+After:
+
+    use Doctrine\DBAL\ColumnCase;
+    use Doctrine\DBAL\FetchMode;
+    use Doctrine\DBAL\ParameterType;
+    use Doctrine\DBAL\Portability\Connection;
+
+    $params = array(
+        'wrapperClass' => Connection::class,
+        'fetch_case' => ColumnCase::LOWER,
+    );
+
+    $stmt->bindValue(1, 1, ParameterType::INTEGER);
+    $stmt->fetchAll(FetchMode::COLUMN);
+
+## BC BREAK: Removed dbal:import CLI command
+
+The `dbal:import` CLI command has been removed since it only worked with PDO-based drivers by relying on a non-documented behavior of the extension, and it was impossible to make it work with other drivers.
+Please use other database client applications for import, e.g.:
+
+ * For MySQL and MariaDB: `mysql [dbname] < data.sql`.
+ * For PostgreSQL: `psql [dbname] < data.sql`.
+ * For SQLite: `sqlite3 /path/to/file.db < data.sql`.
+
 # Upgrade to 2.10
 
 ## Deprecated `Doctrine\DBAL\Event\ConnectionEventArgs` methods

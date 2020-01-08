@@ -5,10 +5,11 @@ namespace Doctrine\DBAL\Portability;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\ColumnCase;
 use Doctrine\DBAL\Driver\PDOConnection;
+use Doctrine\DBAL\Driver\ResultStatement;
+use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use PDO;
 use const CASE_LOWER;
 use const CASE_UPPER;
-use function func_get_args;
 
 /**
  * Portability wrapper for a Connection.
@@ -68,7 +69,7 @@ class Connection extends \Doctrine\DBAL\Connection
             if (isset($params['fetch_case']) && $this->portability & self::PORTABILITY_FIX_CASE) {
                 if ($this->_conn instanceof PDOConnection) {
                     // make use of c-level support for case handling
-                    $this->_conn->setAttribute(PDO::ATTR_CASE, $params['fetch_case']);
+                    $this->_conn->getWrappedConnection()->setAttribute(PDO::ATTR_CASE, $params['fetch_case']);
                 } else {
                     $this->case = $params['fetch_case'] === ColumnCase::LOWER ? CASE_LOWER : CASE_UPPER;
                 }
@@ -97,7 +98,7 @@ class Connection extends \Doctrine\DBAL\Connection
     /**
      * {@inheritdoc}
      */
-    public function executeQuery($query, array $params = [], $types = [], ?QueryCacheProfile $qcp = null)
+    public function executeQuery(string $query, array $params = [], $types = [], ?QueryCacheProfile $qcp = null) : ResultStatement
     {
         $stmt = new Statement(parent::executeQuery($query, $params, $types, $qcp), $this);
         $stmt->setFetchMode($this->defaultFetchMode);
@@ -108,9 +109,9 @@ class Connection extends \Doctrine\DBAL\Connection
     /**
      * {@inheritdoc}
      */
-    public function prepare($statement)
+    public function prepare(string $sql) : DriverStatement
     {
-        $stmt = new Statement(parent::prepare($statement), $this);
+        $stmt = new Statement(parent::prepare($sql), $this);
         $stmt->setFetchMode($this->defaultFetchMode);
 
         return $stmt;
@@ -119,11 +120,11 @@ class Connection extends \Doctrine\DBAL\Connection
     /**
      * {@inheritdoc}
      */
-    public function query()
+    public function query(string $sql) : ResultStatement
     {
         $connection = $this->getWrappedConnection();
 
-        $stmt = $connection->query(...func_get_args());
+        $stmt = $connection->query($sql);
         $stmt = new Statement($stmt, $this);
         $stmt->setFetchMode($this->defaultFetchMode);
 
