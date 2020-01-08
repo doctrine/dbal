@@ -17,7 +17,11 @@ before_script:
   - if [[ "$DB" == "mysql" || "$DB" == "mysqli" || "$DB" == *"mariadb"* ]]; then mysql < tests/travis/create-mysql-schema.sql; fi;
 
 install:
-  - travis_retry composer -n install --prefer-dist
+  - |
+    if [[ $TRAVIS_PHP_VERSION = "nightly" ]]; then
+      export COMPOSER_FLAGS="--ignore-platform-reqs"
+    fi
+  - travis_retry composer -n install --prefer-dist $COMPOSER_FLAGS
 
 script:
   - |
@@ -302,6 +306,63 @@ jobs:
       before_script:
         - bash ./tests/travis/install-db2.sh
         - bash ./tests/travis/install-db2-ibm_db2.sh
+    - stage: Test
+      php: nightly
+      env: DB=mysql.docker MYSQL_VERSION=8.0
+      sudo: required
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-mysql-8.0.sh
+    - stage: Test
+      php: nightly
+      env: DB=mysqli.docker MYSQL_VERSION=8.0
+      sudo: required
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-mysql-8.0.sh
+    - stage: Test
+      php: nightly
+      env: DB=mariadb MARIADB_VERSION=10.3
+      addons:
+        mariadb: 10.3
+    - stage: Test
+      php: nightly
+      env: DB=mariadb.mysqli MARIADB_VERSION=10.3
+      addons:
+        mariadb: 10.3
+    - stage: Test
+      php: nightly
+      env: DB=pgsql POSTGRESQL_VERSION=11.0
+      sudo: required
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-postgres-11.sh
+    - stage: Test
+      php: nightly
+      env: DB=sqlite
+    - stage: Test
+      php: nightly
+      env: DB=sqlsrv
+      sudo: required
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-sqlsrv-dependencies.sh
+        - bash ./tests/travis/install-mssql-sqlsrv.sh
+        - bash ./tests/travis/install-mssql.sh
+    - stage: Test
+      php: nightly
+      env: DB=pdo_sqlsrv
+      sudo: required
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-sqlsrv-dependencies.sh
+        - bash ./tests/travis/install-mssql-pdo_sqlsrv.sh
+        - bash ./tests/travis/install-mssql.sh
 
     - stage: Test
       if: type = cron
@@ -313,3 +374,4 @@ jobs:
 
   allow_failures:
     - env: DEPENDENCIES=dev
+    - php: nightly
