@@ -88,14 +88,6 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function requiresQueryForServerVersion() : bool
-    {
-        return false;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function prepare(string $sql) : DriverStatement
     {
         return new OCI8Statement($this->dbh, $sql, $this);

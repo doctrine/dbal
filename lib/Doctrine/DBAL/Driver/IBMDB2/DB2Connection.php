@@ -62,14 +62,6 @@ class DB2Connection implements ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function requiresQueryForServerVersion() : bool
-    {
-        return false;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function prepare(string $sql) : DriverStatement
     {
         $stmt = @db2_prepare($this->conn, $sql);

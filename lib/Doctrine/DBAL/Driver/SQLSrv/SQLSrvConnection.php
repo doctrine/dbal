@@ -60,14 +60,6 @@ class SQLSrvConnection implements ServerInfoAwareConnection
     }
 
     /**
-     * {@inheritdoc}
-     */
-    public function requiresQueryForServerVersion() : bool
-    {
-        return false;
-    }
-
-    /**
      * {@inheritDoc}
      */
     public function prepare(string $sql) : DriverStatement

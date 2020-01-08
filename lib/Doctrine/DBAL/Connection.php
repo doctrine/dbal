@@ -393,7 +393,7 @@ class Connection implements DriverConnection
         $connection = $this->getWrappedConnection();
 
         // Automatic platform version detection.
-        if ($connection instanceof ServerInfoAwareConnection && ! $connection->requiresQueryForServerVersion()) {
+        if ($connection instanceof ServerInfoAwareConnection) {
             return $connection->getServerVersion();
         }
 

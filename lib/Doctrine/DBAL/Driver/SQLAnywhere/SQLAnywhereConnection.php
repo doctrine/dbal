@@ -146,14 +146,6 @@ class SQLAnywhereConnection implements ServerInfoAwareConnection
 
     /**
      * {@inheritdoc}
-     */
-    public function requiresQueryForServerVersion() : bool
-    {
-        return true;
-    }
-
-    /**
-     * {@inheritdoc}
      *
      * @throws SQLAnywhereException
      */

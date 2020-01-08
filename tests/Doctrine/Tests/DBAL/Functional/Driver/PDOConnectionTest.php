@@ -46,11 +46,6 @@ class PDOConnectionTest extends DbalFunctionalTestCase
         parent::tearDown();
     }
 
-    public function testDoesNotRequireQueryForServerVersion() : void
-    {
-        self::assertFalse($this->driverConnection->requiresQueryForServerVersion());
-    }
-
     public function testThrowsWrappedExceptionOnConstruct() : void
     {
         $this->expectException(PDOException::class);
