@@ -170,7 +170,7 @@ class Comparator
     /**
      * Returns the difference between the tables $table1 and $table2.
      *
-     * If there are no differences this method returns the boolean false.
+     * If there are no differences this method returns null.
      */
     public function diffTable(Table $table1, Table $table2) : ?TableDiff
     {
