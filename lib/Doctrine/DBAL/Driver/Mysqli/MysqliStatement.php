@@ -19,9 +19,11 @@ use Doctrine\DBAL\ParameterType;
 use IteratorAggregate;
 use mysqli;
 use mysqli_stmt;
+use stdClass;
 use function array_combine;
 use function array_fill;
 use function array_key_exists;
+use function array_map;
 use function assert;
 use function count;
 use function feof;
@@ -50,8 +52,28 @@ final class MysqliStatement implements IteratorAggregate, Statement
     /** @var mysqli_stmt */
     private $stmt;
 
-    /** @var string[]|false|null */
-    private $columnNames;
+    /**
+     * Whether the statement result metadata has been fetched.
+     *
+     * @var bool
+     */
+    private $metadataFetched = false;
+
+    /**
+     * Whether the statement result has columns. The property should be used only after the result metadata
+     * has been fetched ({@see $metadataFetched}). Otherwise, the property value is undetermined.
+     *
+     * @var bool
+     */
+    private $hasColumns = false;
+
+    /**
+     * Mapping of statement result column indexes to their names. The property should be used only
+     * if the statement result has columns ({@see $hasColumns}). Otherwise, the property value is undetermined.
+     *
+     * @var array<int,string>
+     */
+    private $columnNames = [];
 
     /** @var mixed[] */
     private $rowBoundValues = [];
@@ -151,26 +173,27 @@ final class MysqliStatement implements IteratorAggregate, Statement
             throw StatementError::new($this->stmt);
         }
 
-        if ($this->columnNames === null) {
+        if (! $this->metadataFetched) {
             $meta = $this->stmt->result_metadata();
             if ($meta !== false) {
+                $this->hasColumns = true;
+
                 $fields = $meta->fetch_fields();
                 assert(is_array($fields));
 
-                $columnNames = [];
-                foreach ($fields as $col) {
-                    $columnNames[] = $col->name;
-                }
+                $this->columnNames = array_map(static function (stdClass $field) : string {
+                    return $field->name;
+                }, $fields);
 
                 $meta->free();
-
-                $this->columnNames = $columnNames;
             } else {
-                $this->columnNames = false;
+                $this->hasColumns = false;
             }
+
+            $this->metadataFetched = true;
         }
 
-        if ($this->columnNames !== false) {
+        if ($this->hasColumns) {
             // Store result of every execution which has it. Otherwise it will be impossible
             // to execute a new statement in case if the previous one has non-fetched rows
             // @link http://dev.mysql.com/doc/refman/5.7/en/commands-out-of-sync.html
@@ -331,7 +354,6 @@ final class MysqliStatement implements IteratorAggregate, Statement
             return $values;
         }
 
-        assert(is_array($this->columnNames));
         $assoc = array_combine($this->columnNames, $values);
         assert(is_array($assoc));
 
@@ -404,11 +426,11 @@ final class MysqliStatement implements IteratorAggregate, Statement
      */
     public function rowCount() : int
     {
-        if ($this->columnNames === false) {
-            return $this->stmt->affected_rows;
+        if ($this->hasColumns) {
+            return $this->stmt->num_rows;
         }
 
-        return $this->stmt->num_rows;
+        return $this->stmt->affected_rows;
     }
 
     /**
