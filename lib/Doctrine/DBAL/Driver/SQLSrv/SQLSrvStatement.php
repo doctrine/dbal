@@ -37,7 +37,7 @@ use function stripos;
 /**
  * SQL Server Statement.
  */
-class SQLSrvStatement implements IteratorAggregate, Statement
+final class SQLSrvStatement implements IteratorAggregate, Statement
 {
     /**
      * The SQLSRV Resource.
@@ -233,51 +233,6 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     }
 
     /**
-     * Prepares SQL Server statement resource
-     *
-     * @return resource
-     *
-     * @throws SQLSrvException
-     */
-    private function prepare()
-    {
-        $params = [];
-
-        foreach ($this->variables as $column => &$variable) {
-            switch ($this->types[$column]) {
-                case ParameterType::LARGE_OBJECT:
-                    $params[$column - 1] = [
-                        &$variable,
-                        SQLSRV_PARAM_IN,
-                        SQLSRV_PHPTYPE_STREAM(SQLSRV_ENC_BINARY),
-                        SQLSRV_SQLTYPE_VARBINARY('max'),
-                    ];
-                    break;
-
-                case ParameterType::BINARY:
-                    $params[$column - 1] = [
-                        &$variable,
-                        SQLSRV_PARAM_IN,
-                        SQLSRV_PHPTYPE_STRING(SQLSRV_ENC_BINARY),
-                    ];
-                    break;
-
-                default:
-                    $params[$column - 1] =& $variable;
-                    break;
-            }
-        }
-
-        $stmt = sqlsrv_prepare($this->conn, $this->sql, $params);
-
-        if (! $stmt) {
-            throw SQLSrvException::fromSqlSrvErrors();
-        }
-
-        return $stmt;
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function setFetchMode(int $fetchMode, ...$args) : void
@@ -398,5 +353,50 @@ class SQLSrvStatement implements IteratorAggregate, Statement
         }
 
         return sqlsrv_rows_affected($this->stmt) ?: 0;
+    }
+
+    /**
+     * Prepares SQL Server statement resource
+     *
+     * @return resource
+     *
+     * @throws SQLSrvException
+     */
+    private function prepare()
+    {
+        $params = [];
+
+        foreach ($this->variables as $column => &$variable) {
+            switch ($this->types[$column]) {
+                case ParameterType::LARGE_OBJECT:
+                    $params[$column - 1] = [
+                        &$variable,
+                        SQLSRV_PARAM_IN,
+                        SQLSRV_PHPTYPE_STREAM(SQLSRV_ENC_BINARY),
+                        SQLSRV_SQLTYPE_VARBINARY('max'),
+                    ];
+                    break;
+
+                case ParameterType::BINARY:
+                    $params[$column - 1] = [
+                        &$variable,
+                        SQLSRV_PARAM_IN,
+                        SQLSRV_PHPTYPE_STRING(SQLSRV_ENC_BINARY),
+                    ];
+                    break;
+
+                default:
+                    $params[$column - 1] =& $variable;
+                    break;
+            }
+        }
+
+        $stmt = sqlsrv_prepare($this->conn, $this->sql, $params);
+
+        if (! $stmt) {
+            throw SQLSrvException::fromSqlSrvErrors();
+        }
+
+        return $stmt;
     }
 }

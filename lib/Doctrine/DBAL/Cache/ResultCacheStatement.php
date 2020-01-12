@@ -30,7 +30,7 @@ use function reset;
  * Also you have to realize that the cache will load the whole result into memory at once to ensure 2.
  * This means that the memory usage for cached results might increase by using this feature.
  */
-class ResultCacheStatement implements IteratorAggregate, ResultStatement
+final class ResultCacheStatement implements IteratorAggregate, ResultStatement
 {
     /** @var Cache */
     private $resultCache;

@@ -20,13 +20,13 @@ use function str_replace;
 /**
  * SQL Server implementation for the Connection interface.
  */
-class SQLSrvConnection implements ServerInfoAwareConnection
+final class SQLSrvConnection implements ServerInfoAwareConnection
 {
     /** @var resource */
-    protected $conn;
+    private $conn;
 
     /** @var LastInsertId */
-    protected $lastInsertId;
+    private $lastInsertId;
 
     /**
      * @param array<string, mixed> $connectionOptions

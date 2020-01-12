@@ -18,7 +18,7 @@ use function rtrim;
 /**
  * Portability wrapper for a Statement.
  */
-class Statement implements IteratorAggregate, DriverStatement
+final class Statement implements IteratorAggregate, DriverStatement
 {
     /** @var int */
     private $portability;
@@ -165,34 +165,6 @@ class Statement implements IteratorAggregate, DriverStatement
     }
 
     /**
-     * @param mixed $row
-     *
-     * @return mixed
-     */
-    protected function fixRow($row, bool $iterateRow, bool $fixCase)
-    {
-        if (! $row) {
-            return $row;
-        }
-
-        if ($fixCase) {
-            $row = array_change_key_case($row, $this->case);
-        }
-
-        if ($iterateRow) {
-            foreach ($row as $k => $v) {
-                if (($this->portability & Connection::PORTABILITY_EMPTY_TO_NULL) && $v === '') {
-                    $row[$k] = null;
-                } elseif (($this->portability & Connection::PORTABILITY_RTRIM) && is_string($v)) {
-                    $row[$k] = rtrim($v);
-                }
-            }
-        }
-
-        return $row;
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function fetchColumn(int $columnIndex = 0)
@@ -218,5 +190,33 @@ class Statement implements IteratorAggregate, DriverStatement
         assert($this->stmt instanceof DriverStatement);
 
         return $this->stmt->rowCount();
+    }
+
+    /**
+     * @param mixed $row
+     *
+     * @return mixed
+     */
+    private function fixRow($row, bool $iterateRow, bool $fixCase)
+    {
+        if (! $row) {
+            return $row;
+        }
+
+        if ($fixCase) {
+            $row = array_change_key_case($row, $this->case);
+        }
+
+        if ($iterateRow) {
+            foreach ($row as $k => $v) {
+                if (($this->portability & Connection::PORTABILITY_EMPTY_TO_NULL) && $v === '') {
+                    $row[$k] = null;
+                } elseif (($this->portability & Connection::PORTABILITY_RTRIM) && is_string($v)) {
+                    $row[$k] = rtrim($v);
+                }
+            }
+        }
+
+        return $row;
     }
 }

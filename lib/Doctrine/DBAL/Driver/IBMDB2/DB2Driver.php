@@ -14,7 +14,7 @@ use function sprintf;
 /**
  * IBM DB2 Driver.
  */
-class DB2Driver extends AbstractDB2Driver
+final class DB2Driver extends AbstractDB2Driver
 {
     /**
      * {@inheritdoc}

@@ -44,6 +44,39 @@ If you are using any of the legacy versions, you have to upgrade to newer MariaD
 
 Table columns are no longer indexed by column name. Use the `name` attribute of the column instead.
 
+## BC BREAK: Classes made final
+
+- Class constant `SQLSrvStatement::LAST_INSERT_ID_SQL` was changed from public to private.
+- Class `Doctrine\DBAL\Sharding\ShardChoser\MultiTenantShardChoser` was made final.
+- Class `Doctrine\DBAL\Sharding\SQLAzure\Schema\MultiTenantVisitor` was made final.
+- Class `Doctrine\DBAL\Sharding\SQLAzure\SQLAzureFederationsSynchronizer` was made final.
+- Class `Doctrine\DBAL\Sharding\PoolingShardManager` was made final.
+- Class `Doctrine\DBAL\Id\TableGeneratorSchemaVisitor` was made final.
+- Class `Doctrine\DBAL\Driver\OCI8\Driver` was made final.
+- Class `Doctrine\DBAL\Driver\Mysqli\Driver` was made final.
+- Class `Doctrine\DBAL\Driver\Mysqli\MysqliStatement` was made final.
+- Class `Doctrine\DBAL\Driver\PDOSqlsrv\Driver` was made final.
+- Class `Doctrine\DBAL\Driver\PDOSqlsrv\Statement` was made final.
+- Class `Doctrine\DBAL\Driver\PDOMySql\Driver` was made final.
+- Class `Doctrine\DBAL\Driver\IBMDB2\DB2Connection` was made final.
+- Class `Doctrine\DBAL\Driver\IBMDB2\DB2Statement` was made final.
+- Class `Doctrine\DBAL\Driver\IBMDB2\DB2Driver` was made final.
+- Class `Doctrine\DBAL\Driver\SQLSrv\SQLSrvStatement` was made final.
+- Class `Doctrine\DBAL\Driver\SQLSrv\Driver` was made final.
+- Class `Doctrine\DBAL\Driver\SQLSrv\SQLSrvConnection` was made final.
+- Class `Doctrine\DBAL\Driver\SQLAnywhere\SQLAnywhereConnection` was made final.
+- Class `Doctrine\DBAL\Driver\SQLAnywhere\Driver` was made final.
+- Class `Doctrine\DBAL\Driver\SQLAnywhere\SQLAnywhereStatement` was made final.
+- Class `Doctrine\DBAL\Driver\PDOPgSql\Driver` was made final.
+- Class `Doctrine\DBAL\Driver\PDOOracle\Driver` was made final.
+- Class `Doctrine\DBAL\Driver\PDOSqlite\Driver` was made final.
+- Class `Doctrine\DBAL\Driver\StatementIterator` was made final.
+- Class `Doctrine\DBAL\Cache\ResultCacheStatement` was made final.
+- Class `Doctrine\DBAL\Cache\ArrayStatement` was made final.
+- Class `Doctrine\DBAL\Schema\Synchronizer\SingleDatabaseSynchronizer` was made final.
+- Class `Doctrine\DBAL\Schema\Visitor\RemoveNamespacedAssets` was made final.
+- Class `Doctrine\DBAL\Portability\Statement` was made final.
+
 ## BC BREAK: Changes in the `Doctrine\DBAL\Schema` API
 
 - Column precision no longer defaults to 10. The default value is NULL.

@@ -8,7 +8,7 @@ use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\AbstractMySQLDriver;
 use Doctrine\DBAL\Driver\Connection;
 
-class Driver extends AbstractMySQLDriver
+final class Driver extends AbstractMySQLDriver
 {
     /**
      * {@inheritdoc}

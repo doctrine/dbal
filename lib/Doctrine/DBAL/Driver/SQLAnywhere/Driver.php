@@ -16,7 +16,7 @@ use function sprintf;
 /**
  * A Doctrine DBAL driver for the SAP Sybase SQL Anywhere PHP extension.
  */
-class Driver extends AbstractSQLAnywhereDriver
+final class Driver extends AbstractSQLAnywhereDriver
 {
     /**
      * {@inheritdoc}

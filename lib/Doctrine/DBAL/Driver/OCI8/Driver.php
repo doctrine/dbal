@@ -12,7 +12,7 @@ use const OCI_DEFAULT;
 /**
  * A Doctrine DBAL driver for the Oracle OCI8 PHP extensions.
  */
-class Driver extends AbstractOracleDriver
+final class Driver extends AbstractOracleDriver
 {
     /**
      * {@inheritdoc}
@@ -27,7 +27,7 @@ class Driver extends AbstractOracleDriver
             return new OCI8Connection(
                 $username,
                 $password,
-                $this->_constructDsn($params),
+                $this->constructDsn($params),
                 $params['charset'] ?? '',
                 $params['sessionMode'] ?? OCI_DEFAULT,
                 $params['persistent'] ?? false
@@ -44,7 +44,7 @@ class Driver extends AbstractOracleDriver
      *
      * @return string The DSN.
      */
-    protected function _constructDsn(array $params) : string
+    private function constructDsn(array $params) : string
     {
         return $this->getEasyConnectString($params);
     }

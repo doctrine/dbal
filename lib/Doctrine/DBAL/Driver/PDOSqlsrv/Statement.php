@@ -11,7 +11,7 @@ use PDO;
 /**
  * PDO SQL Server Statement
  */
-class Statement extends PDOStatement
+final class Statement extends PDOStatement
 {
     /**
      * {@inheritdoc}

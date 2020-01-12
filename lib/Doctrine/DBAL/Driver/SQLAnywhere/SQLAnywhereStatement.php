@@ -40,7 +40,7 @@ use function sprintf;
 /**
  * SAP SQL Anywhere implementation of the Statement interface.
  */
-class SQLAnywhereStatement implements IteratorAggregate, Statement
+final class SQLAnywhereStatement implements IteratorAggregate, Statement
 {
     /** @var resource The connection resource. */
     private $conn;

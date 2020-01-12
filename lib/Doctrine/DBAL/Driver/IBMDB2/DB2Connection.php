@@ -22,10 +22,10 @@ use function db2_prepare;
 use function db2_rollback;
 use function db2_server_info;
 
-class DB2Connection implements ServerInfoAwareConnection
+final class DB2Connection implements ServerInfoAwareConnection
 {
     /** @var resource */
-    private $conn = null;
+    private $conn;
 
     /**
      * @param array<string, mixed> $params
