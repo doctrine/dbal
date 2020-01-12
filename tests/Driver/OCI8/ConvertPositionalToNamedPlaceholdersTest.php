@@ -1,16 +1,40 @@
 <?php
 
-namespace Doctrine\DBAL\Tests;
+declare(strict_types=1);
 
-use Doctrine\DBAL\Driver\OCI8\Statement;
+namespace Doctrine\Tests\DBAL\Driver\OCI8;
+
+use Doctrine\DBAL\Driver\OCI8\ConvertPositionalToNamedPlaceholders;
+use Doctrine\DBAL\Driver\OCI8\OCI8Exception;
 use PHPUnit\Framework\TestCase;
 
-class UtilTest extends TestCase
+class ConvertPositionalToNamedPlaceholdersTest extends TestCase
 {
+    /** @var ConvertPositionalToNamedPlaceholders */
+    private $convertPositionalToNamedPlaceholders;
+
+    protected function setUp(): void
+    {
+        $this->convertPositionalToNamedPlaceholders = new ConvertPositionalToNamedPlaceholders();
+    }
+
+    /**
+     * @param mixed[] $expectedOutputParamsMap
+     *
+     * @dataProvider positionalToNamedPlaceholdersProvider
+     */
+    public function testConvertPositionalToNamedParameters(string $inputSQL, string $expectedOutputSQL, array $expectedOutputParamsMap): void
+    {
+        [$statement, $params] = ($this->convertPositionalToNamedPlaceholders)($inputSQL);
+
+        self::assertEquals($expectedOutputSQL, $statement);
+        self::assertEquals($expectedOutputParamsMap, $params);
+    }
+
     /**
      * @return mixed[][]
      */
-    public static function dataConvertPositionalToNamedParameters(): iterable
+    public static function positionalToNamedPlaceholdersProvider(): iterable
     {
         return [
             [
@@ -67,15 +91,33 @@ class UtilTest extends TestCase
     }
 
     /**
-     * @param mixed[] $expectedOutputParamsMap
-     *
-     * @dataProvider dataConvertPositionalToNamedParameters
+     * @dataProvider nonTerminatedLiteralProvider
      */
-    public function testConvertPositionalToNamedParameters(string $inputSQL, string $expectedOutputSQL, array $expectedOutputParamsMap): void
+    public function testConvertNonTerminatedLiteral(string $sql, string $expectedExceptionMessageRegExp): void
     {
-        [$statement, $params] = Statement::convertPositionalToNamedPlaceholders($inputSQL);
+        $this->expectException(OCI8Exception::class);
+        $this->expectExceptionMessageMatches($expectedExceptionMessageRegExp);
+        ($this->convertPositionalToNamedPlaceholders)($sql);
+    }
 
-        self::assertEquals($expectedOutputSQL, $statement);
-        self::assertEquals($expectedOutputParamsMap, $params);
+    /**
+     * @return array<string, array<int, mixed>>
+     */
+    public static function nonTerminatedLiteralProvider(): iterable
+    {
+        return [
+            'no-matching-quote' => [
+                "SELECT 'literal FROM DUAL",
+                '/offset 7./',
+            ],
+            'no-matching-double-quote' => [
+                'SELECT 1 "COL1 FROM DUAL',
+                '/offset 9./',
+            ],
+            'incorrect-escaping-syntax' => [
+                "SELECT 'quoted \\'string' FROM DUAL",
+                '/offset 23./',
+            ],
+        ];
     }
 }

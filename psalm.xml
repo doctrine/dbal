@@ -29,7 +29,7 @@
                     This one is just too convoluted for Psalm to figure out, by
                     its author's own admission
                 -->
-                <file name="src/Driver/OCI8/OCI8Statement.php"/>
+                <file name="src/Driver/OCI8/ConvertPositionalToNamedPlaceholders.php"/>
             </errorLevel>
         </ConflictingReferenceConstraint>
         <FalsableReturnStatement>
