@@ -15,9 +15,11 @@ use const OCI_ASSOC;
 use const OCI_B_BIN;
 use const OCI_B_BLOB;
 use const OCI_BOTH;
+use const OCI_COMMIT_ON_SUCCESS;
 use const OCI_D_LOB;
 use const OCI_FETCHSTATEMENT_BY_COLUMN;
 use const OCI_FETCHSTATEMENT_BY_ROW;
+use const OCI_NO_AUTO_COMMIT;
 use const OCI_NUM;
 use const OCI_RETURN_LOBS;
 use const OCI_RETURN_NULLS;
@@ -52,8 +54,8 @@ final class OCI8Statement implements IteratorAggregate, Statement
     /** @var resource */
     protected $_sth;
 
-    /** @var OCI8Connection */
-    protected $_conn;
+    /** @var ExecutionMode */
+    protected $executionMode;
 
     /** @var int[] */
     protected static $fetchModeMap = [
@@ -93,17 +95,17 @@ final class OCI8Statement implements IteratorAggregate, Statement
      *
      * @throws OCI8Exception
      */
-    public function __construct($dbh, string $query, OCI8Connection $conn)
+    public function __construct($dbh, string $query, ExecutionMode $executionMode)
     {
         [$query, $paramMap] = (new ConvertPositionalToNamedPlaceholders())($query);
 
         $stmt = oci_parse($dbh, $query);
         assert(is_resource($stmt));
 
-        $this->_sth      = $stmt;
-        $this->_dbh      = $dbh;
-        $this->_paramMap = $paramMap;
-        $this->_conn     = $conn;
+        $this->_sth          = $stmt;
+        $this->_dbh          = $dbh;
+        $this->_paramMap     = $paramMap;
+        $this->executionMode = $executionMode;
     }
 
     /**
@@ -208,7 +210,13 @@ final class OCI8Statement implements IteratorAggregate, Statement
             }
         }
 
-        $ret = @oci_execute($this->_sth, $this->_conn->getExecuteMode());
+        if ($this->executionMode->isAutoCommitEnabled()) {
+            $mode = OCI_COMMIT_ON_SUCCESS;
+        } else {
+            $mode = OCI_NO_AUTO_COMMIT;
+        }
+
+        $ret = @oci_execute($this->_sth, $mode);
         if (! $ret) {
             throw OCI8Exception::fromErrorInfo(oci_error($this->_sth));
         }

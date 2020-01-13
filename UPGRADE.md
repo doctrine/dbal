@@ -63,6 +63,7 @@ Table columns are no longer indexed by column name. Use the `name` attribute of 
 - Class `Doctrine\DBAL\Driver\Mysqli\Driver` was made final.
 - Class `Doctrine\DBAL\Driver\Mysqli\MysqliStatement` was made final.
 - Class `Doctrine\DBAL\Driver\OCI8\Driver` was made final.
+- Class `Doctrine\DBAL\Driver\OCI8\OCI8Connection` was made final.
 - Class `Doctrine\DBAL\Driver\OCI8\OCI8Statement` was made final.
 - Class `Doctrine\DBAL\Driver\PDOSqlsrv\Driver` was made final.
 - Class `Doctrine\DBAL\Driver\PDOSqlsrv\Statement` was made final.
