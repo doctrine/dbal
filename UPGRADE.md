@@ -1,5 +1,13 @@
 # Upgrade to 3.0
 
+## BC BREAK: `OCI8Statement::convertPositionalToNamedPlaceholders()` is removed.
+
+The `OCI8Statement::convertPositionalToNamedPlaceholders()` method has been extracted to an internal utility class.
+
+## BC BREAK: Dropped handling of one-based numeric arrays of parameters in `Statement::execute()`
+
+The statement implementations no longer detect whether `$params` is a zero- or one-based array. A zero-based numeric array is expected.
+
 ## BC BREAK: `ServerInfoAwareConnection::requiresQueryForServerVersion()` is removed.
 
 The `ServerInfoAwareConnection::requiresQueryForServerVersion()` method has been removed as an implementation detail which is the same for almost all supported drivers.
@@ -52,9 +60,10 @@ Table columns are no longer indexed by column name. Use the `name` attribute of 
 - Class `Doctrine\DBAL\Sharding\SQLAzure\SQLAzureFederationsSynchronizer` was made final.
 - Class `Doctrine\DBAL\Sharding\PoolingShardManager` was made final.
 - Class `Doctrine\DBAL\Id\TableGeneratorSchemaVisitor` was made final.
-- Class `Doctrine\DBAL\Driver\OCI8\Driver` was made final.
 - Class `Doctrine\DBAL\Driver\Mysqli\Driver` was made final.
 - Class `Doctrine\DBAL\Driver\Mysqli\MysqliStatement` was made final.
+- Class `Doctrine\DBAL\Driver\OCI8\Driver` was made final.
+- Class `Doctrine\DBAL\Driver\OCI8\OCI8Statement` was made final.
 - Class `Doctrine\DBAL\Driver\PDOSqlsrv\Driver` was made final.
 - Class `Doctrine\DBAL\Driver\PDOSqlsrv\Statement` was made final.
 - Class `Doctrine\DBAL\Driver\PDOMySql\Driver` was made final.
