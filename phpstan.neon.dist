@@ -35,7 +35,6 @@ parameters:
 
         # impossible inference for covariance
         - '~^Property Doctrine\\Tests\\DBAL\\Types\\\S+Test::\$type \(Doctrine\\DBAL\\Types\\\S+Type\) does not accept Doctrine\\DBAL\\Types\\Type\.\z~'
-        - '~^Property Doctrine\\Tests\\DBAL\\Tools\\Console\\RunSqlCommandTest::\$command \(Doctrine\\DBAL\\Tools\\Console\\Command\\RunSqlCommand\) does not accept Symfony\\Component\\Console\\Command\\Command\.\z~'
 
         # https://github.com/doctrine/dbal/pull/3582/files#r290847062
         -
