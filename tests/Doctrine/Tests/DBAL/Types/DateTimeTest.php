@@ -6,7 +6,7 @@ namespace Doctrine\Tests\DBAL\Types;
 
 use DateTime;
 use Doctrine\DBAL\Types\ConversionException;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\DateTimeType;
 
 class DateTimeTest extends BaseDateTypeTestCase
 {
@@ -15,7 +15,7 @@ class DateTimeTest extends BaseDateTypeTestCase
      */
     protected function setUp() : void
     {
-        $this->type = Type::getType('datetime');
+        $this->type = new DateTimeType();
 
         parent::setUp();
     }

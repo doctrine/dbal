@@ -33,9 +33,6 @@ parameters:
         # weird class name, represented in stubs as OCI_(Lob|Collection)
         - '~unknown class OCI-(Lob|Collection)~'
 
-        # impossible inference for covariance
-        - '~^Property Doctrine\\Tests\\DBAL\\Types\\\S+Test::\$type \(Doctrine\\DBAL\\Types\\\S+Type\) does not accept Doctrine\\DBAL\\Types\\Type\.\z~'
-
         # https://github.com/doctrine/dbal/pull/3582/files#r290847062
         -
             message: '~Parameter #3 \$type of method Doctrine\\DBAL\\Driver\\Statement::bindValue\(\) expects int, string given\.~'
