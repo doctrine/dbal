@@ -12,7 +12,6 @@ parameters:
 
         # changing these would be a BC break, to be done in next major
         - '~^Method Doctrine\\DBAL\\Query\\QueryBuilder::execute\(\) should return Doctrine\\DBAL\\Driver\\Statement\|int but returns Doctrine\\DBAL\\Driver\\ResultStatement\.\z~'
-        - '~^Property Doctrine\\DBAL\\Schema\\Table::\$_primaryKeyName \(string\) does not accept (default value of type )?false\.\z~'
 
         # https://bugs.php.net/bug.php?id=78126
         - '~^Call to an undefined method PDO::sqliteCreateFunction\(\)\.\z~'

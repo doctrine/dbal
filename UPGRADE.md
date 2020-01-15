@@ -112,6 +112,7 @@ Table columns are no longer indexed by column name. Use the `name` attribute of 
 
 - Method `Doctrine\DBAL\Schema\AbstractSchemaManager::_getPortableViewDefinition()` no longer optionally returns false. It will always return a `Doctrine\DBAL\Schema\View` instance.
 - Method `Doctrine\DBAL\Schema\Comparator::diffTable()` now optionally returns null instead of false.
+- Property `Doctrine\DBAL\Schema\Table::$_primaryKeyName` is now optionally null instead of false.
 - Property `Doctrine\DBAL\Schema\TableDiff::$newName` is now optionally null instead of false.
 - Method `Doctrine\DBAL\Schema\AbstractSchemaManager::tablesExist()` no longer accepts a string. Use `Doctrine\DBAL\Schema\AbstractSchemaManager::tableExists()` instead.
 - Method `Doctrine\DBAL\Schema\OracleSchemaManager::createDatabase()` no longer accepts `null` for `$database` argument.
