@@ -954,7 +954,7 @@ class QueryBuilder
      *         );
      * </code>
      *
-     * @param array<int, mixed> $values The values to specify for the insert query indexed by column names.
+     * @param array<string, mixed> $values The values to specify for the insert query indexed by column names.
      *
      * @return $this This QueryBuilder instance.
      */

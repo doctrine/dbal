@@ -840,9 +840,9 @@ class Table extends AbstractAsset
     }
 
     /**
-     * @param array<string|int, string> $columns
-     * @param array<int, string>        $flags
-     * @param array<string, mixed>      $options
+     * @param array<int, string>   $columns
+     * @param array<int, string>   $flags
+     * @param array<string, mixed> $options
      *
      * @throws SchemaException
      */
@@ -852,13 +852,7 @@ class Table extends AbstractAsset
             throw IndexNameInvalid::new($indexName);
         }
 
-        foreach ($columns as $index => $value) {
-            if (is_string($index)) {
-                $columnName = $index;
-            } else {
-                $columnName = $value;
-            }
-
+        foreach ($columns as $columnName) {
             if (! $this->hasColumn($columnName)) {
                 throw ColumnDoesNotExist::new($columnName, $this->_name);
             }

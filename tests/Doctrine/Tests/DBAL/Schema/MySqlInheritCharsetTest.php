@@ -66,7 +66,7 @@ class MySqlInheritCharsetTest extends TestCase
     }
 
     /**
-     * @param string[] $overrideOptions
+     * @param array<string, mixed> $overrideOptions
      *
      * @return string[]
      */

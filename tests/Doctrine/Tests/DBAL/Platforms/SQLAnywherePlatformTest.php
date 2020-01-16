@@ -617,20 +617,6 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         ));
     }
 
-    public function testCannotGenerateDropIndexSQLWithInvalidIndexParameter() : void
-    {
-        $this->expectException(InvalidArgumentException::class);
-
-        $this->platform->getDropIndexSQL(['index'], 'table');
-    }
-
-    public function testCannotGenerateDropIndexSQLWithInvalidTableParameter() : void
-    {
-        $this->expectException(InvalidArgumentException::class);
-
-        $this->platform->getDropIndexSQL('index', ['table']);
-    }
-
     public function testGeneratesSQLSnippets() : void
     {
         self::assertEquals('STRING(column1, "string1", column2, "string2")', $this->platform->getConcatExpression(
