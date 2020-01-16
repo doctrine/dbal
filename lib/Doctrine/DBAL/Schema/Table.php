@@ -41,8 +41,8 @@ class Table extends AbstractAsset
     /** @var Index[] */
     protected $_indexes = [];
 
-    /** @var string */
-    protected $_primaryKeyName = false;
+    /** @var string|null */
+    protected $_primaryKeyName;
 
     /** @var UniqueConstraint[] */
     protected $_uniqueConstraints = [];
@@ -163,8 +163,12 @@ class Table extends AbstractAsset
      */
     public function dropPrimaryKey() : void
     {
+        if ($this->_primaryKeyName === null) {
+            return;
+        }
+
         $this->dropIndex($this->_primaryKeyName);
-        $this->_primaryKeyName = false;
+        $this->_primaryKeyName = null;
     }
 
     /**
@@ -500,9 +504,11 @@ class Table extends AbstractAsset
      */
     public function getPrimaryKey() : ?Index
     {
-        return $this->hasPrimaryKey()
-            ? $this->getIndex($this->_primaryKeyName)
-            : null;
+        if ($this->_primaryKeyName !== null) {
+            return $this->getIndex($this->_primaryKeyName);
+        }
+
+        return null;
     }
 
     /**
@@ -528,7 +534,7 @@ class Table extends AbstractAsset
      */
     public function hasPrimaryKey() : bool
     {
-        return $this->_primaryKeyName && $this->hasIndex($this->_primaryKeyName);
+        return $this->_primaryKeyName !== null && $this->hasIndex($this->_primaryKeyName);
     }
 
     /**
@@ -684,7 +690,7 @@ class Table extends AbstractAsset
         }
 
         if ((isset($this->_indexes[$indexName]) && ! in_array($indexName, $replacedImplicitIndexes, true)) ||
-            ($this->_primaryKeyName !== false && $indexCandidate->isPrimary())
+            ($this->_primaryKeyName !== null && $indexCandidate->isPrimary())
         ) {
             throw IndexAlreadyExists::new($indexName, $this->_name);
         }

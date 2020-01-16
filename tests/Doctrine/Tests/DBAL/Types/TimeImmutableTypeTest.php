@@ -10,7 +10,6 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\TimeImmutableType;
-use Doctrine\DBAL\Types\Type;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use function get_class;
@@ -25,8 +24,8 @@ class TimeImmutableTypeTest extends TestCase
 
     protected function setUp() : void
     {
-        $this->type     = Type::getType('time_immutable');
-        $this->platform = $this->getMockBuilder(AbstractPlatform::class)->getMock();
+        $this->platform = $this->createMock(AbstractPlatform::class);
+        $this->type     = new TimeImmutableType();
     }
 
     public function testFactoryCreatesCorrectType() : void
@@ -46,7 +45,7 @@ class TimeImmutableTypeTest extends TestCase
 
     public function testConvertsDateTimeImmutableInstanceToDatabaseValue() : void
     {
-        $date = $this->getMockBuilder(DateTimeImmutable::class)->getMock();
+        $date = $this->createMock(DateTimeImmutable::class);
 
         $this->platform->expects($this->once())
             ->method('getTimeFormatString')

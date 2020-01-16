@@ -3141,11 +3141,15 @@ abstract class AbstractPlatform
      */
     final public function escapeStringForLike(string $inputString, string $escapeChar) : string
     {
-        return preg_replace(
+        $sql = preg_replace(
             '~([' . preg_quote($this->getLikeWildcardCharacters() . $escapeChar, '~') . '])~u',
             addcslashes($escapeChar, '\\') . '$1',
             $inputString
         );
+
+        assert(is_string($sql));
+
+        return $sql;
     }
 
     protected function getLikeWildcardCharacters() : string
