@@ -869,32 +869,6 @@ class Connection implements DriverConnection
     }
 
     /**
-     * Executes an, optionally parametrized, SQL query and returns the result,
-     * applying a given projection/transformation function on each row of the result.
-     *
-     * @param string                                 $query    The SQL query to execute.
-     * @param array<int, mixed>|array<string, mixed> $params   The parameters, if any.
-     * @param Closure                                $function The transformation function that is applied on each row.
-     *                                                          The function receives a single parameter, an array, that
-     *                                                          represents a row of the result set.
-     *
-     * @return array<int, mixed> The projected result of the query.
-     */
-    public function project(string $query, array $params, Closure $function) : array
-    {
-        $result = [];
-        $stmt   = $this->executeQuery($query, $params);
-
-        while ($row = $stmt->fetch()) {
-            $result[] = $function($row);
-        }
-
-        $stmt->closeCursor();
-
-        return $result;
-    }
-
-    /**
      * {@inheritDoc}
      */
     public function query(string $sql) : ResultStatement

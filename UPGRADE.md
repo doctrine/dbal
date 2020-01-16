@@ -103,6 +103,7 @@ Table columns are no longer indexed by column name. Use the `name` attribute of 
 
 - The following methods have been removed as leaking internal implementation details: `::getHost()`, `::getPort()`, `::getUsername()`, `::getPassword()`.
 - The `::getDatabase()` method can now return null which means that no database is currently selected.
+- The `::project()` method has been removed. Use `::executeQuery()` and fetch the data from the statement using one of the `Statement::fetch*()` methods instead.
 
 ## BC BREAK: Changes in `Doctrine\DBAL\Driver\SQLSrv\LastInsertId`
 
