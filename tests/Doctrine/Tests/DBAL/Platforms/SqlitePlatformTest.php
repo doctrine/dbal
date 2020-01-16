@@ -271,7 +271,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
 
     public function getGenerateForeignKeySql() : string
     {
-        return null;
+        $this->fail('Foreign key constraints are not yet supported for SQLite.');
     }
 
     public function testModifyLimitQuery() : void

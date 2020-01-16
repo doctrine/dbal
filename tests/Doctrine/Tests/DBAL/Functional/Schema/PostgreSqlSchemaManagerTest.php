@@ -178,11 +178,15 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $nestedSchemaTable = $this->schemaManager->listTableDetails('nested.schematable');
         self::assertTrue($nestedSchemaTable->hasColumn('id'));
-        self::assertEquals(['id'], $nestedSchemaTable->getPrimaryKey()->getColumns());
+
+        $primaryKey = $nestedSchemaTable->getPrimaryKey();
+        self::assertNotNull($primaryKey);
+        self::assertEquals(['id'], $primaryKey->getColumns());
 
         $relatedFks = $nestedSchemaTable->getForeignKeys();
         self::assertCount(1, $relatedFks);
         $relatedFk = array_pop($relatedFks);
+        self::assertNotNull($relatedFk);
         self::assertEquals('nested.schemarelated', $relatedFk->getForeignTableName());
     }
 

@@ -254,6 +254,7 @@ class ComparatorTest extends TestCase
         $c         = new Comparator();
         $tableDiff = $c->diffTable($tableA, $tableB);
 
+        self::assertNotNull($tableDiff);
         self::assertCount(1, $tableDiff->renamedColumns, 'we should have one rename datefield1 => new_datefield1.');
         self::assertArrayHasKey('datefield1', $tableDiff->renamedColumns, "'datefield1' should be set to be renamed to new_datefield1");
         self::assertCount(1, $tableDiff->addedColumns, "'new_datefield2' should be added");
@@ -723,6 +724,7 @@ class ComparatorTest extends TestCase
         $c         = new Comparator();
         $tableDiff = $c->diffTable($tableA, $tableB);
 
+        self::assertNotNull($tableDiff);
         self::assertCount(0, $tableDiff->addedColumns);
         self::assertCount(0, $tableDiff->removedColumns);
         self::assertArrayHasKey('foo', $tableDiff->renamedColumns);
@@ -748,6 +750,7 @@ class ComparatorTest extends TestCase
         $c         = new Comparator();
         $tableDiff = $c->diffTable($tableA, $tableB);
 
+        self::assertNotNull($tableDiff);
         self::assertCount(1, $tableDiff->addedColumns, "'baz' should be added, not created through renaming!");
         self::assertArrayHasKey('baz', $tableDiff->addedColumns, "'baz' should be added, not created through renaming!");
         self::assertCount(2, $tableDiff->removedColumns, "'foo' and 'bar' should both be dropped, an ambiguity exists which one could be renamed to 'baz'.");
@@ -773,6 +776,7 @@ class ComparatorTest extends TestCase
         $comparator = new Comparator();
         $tableDiff  = $comparator->diffTable($table1, $table2);
 
+        self::assertNotNull($tableDiff);
         self::assertCount(0, $tableDiff->addedIndexes);
         self::assertCount(0, $tableDiff->removedIndexes);
         self::assertArrayHasKey('idx_foo', $tableDiff->renamedIndexes);
@@ -801,6 +805,7 @@ class ComparatorTest extends TestCase
         $comparator = new Comparator();
         $tableDiff  = $comparator->diffTable($table1, $table2);
 
+        self::assertNotNull($tableDiff);
         self::assertCount(1, $tableDiff->addedIndexes);
         self::assertArrayHasKey('idx_baz', $tableDiff->addedIndexes);
         self::assertCount(2, $tableDiff->removedIndexes);

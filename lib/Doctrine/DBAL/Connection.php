@@ -1264,6 +1264,8 @@ class Connection implements DriverConnection
     {
         $this->connect();
 
+        assert($this->_conn !== null);
+
         return $this->_conn;
     }
 
