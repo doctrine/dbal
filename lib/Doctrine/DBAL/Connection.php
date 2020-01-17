@@ -558,9 +558,9 @@ class Connection implements DriverConnection
      *
      * Table expression and columns are not escaped and are not safe for user-input.
      *
-     * @param string                                           $table      The SQL expression of the table on which to delete.
-     * @param array<string, mixed>                             $identifier The deletion criteria. An associative array containing column-value pairs.
-     * @param array<int, int|string>|array<string, int|string> $types      The query parameter types.
+     * @param string                        $table      The SQL expression of the table on which to delete.
+     * @param array<string, mixed>          $identifier The deletion criteria. An associative array containing column-value pairs.
+     * @param array<int|string, int|string> $types      The query parameter types.
      *
      * @return int The number of affected rows.
      *
@@ -696,8 +696,8 @@ class Connection implements DriverConnection
     /**
      * Extract ordered type list from an ordered column list and type map.
      *
-     * @param array<int, string>     $columnList
-     * @param array<int, int|string> $types      The query parameter types.
+     * @param array<int, string>            $columnList
+     * @param array<int|string, int|string> $types      The query parameter types.
      *
      * @return array<int, int>|array<int, string>
      */
@@ -1358,8 +1358,8 @@ class Connection implements DriverConnection
     /**
      * Gets the binding type of a given type. The given type can be a PDO or DBAL mapping type.
      *
-     * @param mixed           $value The value to bind.
-     * @param int|string|null $type  The type to bind (PDO or DBAL).
+     * @param mixed                $value The value to bind.
+     * @param int|string|Type|null $type  The type to bind (PDO or DBAL).
      *
      * @return array<int, mixed> [0] => the (escaped) value, [1] => the binding type.
      */
@@ -1384,8 +1384,8 @@ class Connection implements DriverConnection
      * @internal This is a purely internal method. If you rely on this method, you are advised to
      *           copy/paste the code as this method may change, or be removed without prior notice.
      *
-     * @param array<int, mixed>|array<string, mixed>           $params
-     * @param array<int, int|string>|array<string, int|string> $types  The query parameter types.
+     * @param array<int, mixed>|array<string, mixed>                     $params
+     * @param array<int, int|string|Type>|array<string, int|string|Type> $types  The query parameter types.
      *
      * @return array<int, mixed>|array<string, mixed>
      */
