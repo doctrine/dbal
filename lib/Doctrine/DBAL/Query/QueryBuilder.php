@@ -14,13 +14,14 @@ use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use InvalidArgumentException;
 use function array_key_exists;
 use function array_keys;
+use function array_merge;
 use function array_unshift;
 use function func_get_args;
 use function func_num_args;
 use function implode;
 use function is_array;
 use function is_object;
-use function key;
+use function sprintf;
 use function strtoupper;
 use function substr;
 
@@ -529,7 +530,7 @@ class QueryBuilder
             return $this;
         }
 
-        $queryPartFrom = new QueryPartFrom();
+        $queryPartFrom        = new QueryPartFrom();
         $queryPartFrom->table = $update;
         $queryPartFrom->alias = $alias;
 
@@ -567,7 +568,7 @@ class QueryBuilder
             return $this;
         }
 
-        $queryPartFrom = new QueryPartFrom();
+        $queryPartFrom        = new QueryPartFrom();
         $queryPartFrom->table = $insert;
 
         $this->queryParts->from = [$queryPartFrom];
@@ -594,7 +595,7 @@ class QueryBuilder
      */
     public function from(string $from, ?string $alias = null)
     {
-        $queryPartFrom = new QueryPartFrom();
+        $queryPartFrom        = new QueryPartFrom();
         $queryPartFrom->table = $from;
         $queryPartFrom->alias = $alias;
 
@@ -1101,13 +1102,13 @@ class QueryBuilder
     /**
      * Resets SQL parts.
      *
-     * @todo Should we leave this function? We could just call getQueryParts()->resetXXX(), but this means that we
-     *       return our internal QueryParts object and allow the outside world to modify it directly.
-     *       Should we even keep this method, which is only used in tests?
-     *
      * @param array<int, string>|null $queryPartNames
      *
      * @return $this This QueryBuilder instance.
+     *
+     * @todo Should we leave this function? We could just call getQueryParts()->resetXXX(), but this means that we
+     *       return our internal QueryParts object and allow the outside world to modify it directly.
+     *       Should we even keep this method, which is only used in tests?
      */
     public function resetQueryParts(?array $queryPartNames = null) : self
     {
@@ -1125,13 +1126,13 @@ class QueryBuilder
     /**
      * Resets a single SQL part.
      *
-     * @todo Should we leave this function? We could just call getQueryParts()->resetXXX(), but this means that we
-     *       return our internal QueryParts object and allow the outside world to modify it directly.
-     *       Should we even keep this method, which is only used in tests?
-     *
      * @return $this This QueryBuilder instance.
      *
      * @throws InvalidArgumentException If the query part name is not known.
+     *
+     * @todo Should we leave this function? We could just call getQueryParts()->resetXXX(), but this means that we
+     *       return our internal QueryParts object and allow the outside world to modify it directly.
+     *       Should we even keep this method, which is only used in tests?
      */
     public function resetQueryPart(string $queryPartName) : self
     {
@@ -1401,7 +1402,7 @@ class QueryBuilder
                 if (array_key_exists($join->joinAlias, $knownAliases)) {
                     throw NonUniqueAlias::new($join->joinAlias, array_keys($knownAliases));
                 }
-                $sql                             .= ' ' . strtoupper($join->joinType)
+                $sql                           .= ' ' . strtoupper($join->joinType)
                     . ' JOIN ' . $join->joinTable . ' ' . $join->joinAlias
                     . ' ON ' . ((string) $join->joinCondition); // @todo (string) null would be a syntax error?
                 $knownAliases[$join->joinAlias] = true;

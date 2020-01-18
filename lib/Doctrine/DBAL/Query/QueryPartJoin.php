@@ -6,23 +6,15 @@ namespace Doctrine\DBAL\Query;
 
 class QueryPartJoin
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     public $joinType;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     public $joinTable;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     public $joinAlias;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public $joinCondition;
 }

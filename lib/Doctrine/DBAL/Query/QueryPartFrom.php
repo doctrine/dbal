@@ -6,13 +6,9 @@ namespace Doctrine\DBAL\Query;
 
 class QueryPartFrom
 {
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public $table;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public $alias;
 }

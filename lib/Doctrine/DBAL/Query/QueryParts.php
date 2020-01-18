@@ -8,19 +8,13 @@ use Doctrine\DBAL\Query\Expression\CompositeExpression;
 
 class QueryParts
 {
-    /**
-     * @var string[]
-     */
+    /** @var string[] */
     public $select = [];
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     public $distinct = false;
 
-    /**
-     * @var QueryPartFrom[]
-     */
+    /** @var QueryPartFrom[] */
     public $from = [];
 
     /**
@@ -30,34 +24,22 @@ class QueryParts
      */
     public $join = [];
 
-    /**
-     * @var string[]
-     */
+    /** @var string[] */
     public $set = [];
 
-    /**
-     * @var CompositeExpression|null
-     */
+    /** @var CompositeExpression|null */
     public $where = null;
 
-    /**
-     * @var string[]
-     */
+    /** @var string[] */
     public $groupBy = [];
 
-    /**
-     * @var CompositeExpression|null
-     */
+    /** @var CompositeExpression|null */
     public $having = null;
 
-    /**
-     * @var string[]
-     */
+    /** @var string[] */
     public $orderBy = [];
 
-    /**
-     * @var array<string, mixed>
-     */
+    /** @var array<string, mixed> */
     public $values = [];
 
     public function reset() : void
