@@ -13,9 +13,9 @@ use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use function array_key_exists;
 use function array_keys;
-use function array_unshift;
-use function func_get_args;
-use function func_num_args;
+use function array_merge;
+use function array_shift;
+use function count;
 use function implode;
 use function is_array;
 use function is_object;
@@ -454,21 +454,19 @@ class QueryBuilder
      *         ->leftJoin('u', 'phonenumbers', 'p', 'u.id = p.user_id');
      * </code>
      *
-     * @param mixed $select The selection expressions.
+     * @param string ...$expressions The selection expressions.
      *
      * @return $this This QueryBuilder instance.
      */
-    public function select($select = null) : self
+    public function select(string ...$expressions) : self
     {
         $this->type = self::SELECT;
 
-        if (empty($select)) {
+        if (count($expressions) < 1) {
             return $this;
         }
 
-        $selects = is_array($select) ? $select : func_get_args();
-
-        return $this->add('select', $selects);
+        return $this->add('select', $expressions);
     }
 
     /**
@@ -501,21 +499,16 @@ class QueryBuilder
      *         ->leftJoin('u', 'phonenumbers', 'u.id = p.user_id');
      * </code>
      *
-     * @param mixed $select The selection expression.
+     * @param string $expression     The selection expression.
+     * @param string ...$expressions Additional selection expressions.
      *
      * @return $this This QueryBuilder instance.
      */
-    public function addSelect($select = null) : self
+    public function addSelect(string $expression, string ...$expressions) : self
     {
         $this->type = self::SELECT;
 
-        if (empty($select)) {
-            return $this;
-        }
-
-        $selects = is_array($select) ? $select : func_get_args();
-
-        return $this->add('select', $selects, true);
+        return $this->add('select', array_merge([$expression], $expressions), true);
     }
 
     /**
@@ -744,17 +737,14 @@ class QueryBuilder
      *         ->where($or);
      * </code>
      *
-     * @param mixed $predicates The restriction predicates.
+     * @param string|CompositeExpression $predicate     The WHERE clause predicate.
+     * @param string|CompositeExpression ...$predicates Additional WHERE clause predicates.
      *
      * @return $this This QueryBuilder instance.
      */
-    public function where($predicates)
+    public function where($predicate, ...$predicates)
     {
-        if (! (func_num_args() === 1 && $predicates instanceof CompositeExpression)) {
-            $predicates = new CompositeExpression(CompositeExpression::TYPE_AND, func_get_args());
-        }
-
-        return $this->add('where', $predicates);
+        return $this->setPredicates('where', $predicate, ...$predicates);
     }
 
     /**
@@ -771,23 +761,14 @@ class QueryBuilder
      *
      * @see where()
      *
-     * @param mixed $where The query restrictions.
+     * @param string|CompositeExpression $predicate     The predicate to append.
+     * @param string|CompositeExpression ...$predicates Additional predicates to append.
      *
      * @return $this This QueryBuilder instance.
      */
-    public function andWhere($where)
+    public function andWhere($predicate, ...$predicates)
     {
-        $args  = func_get_args();
-        $where = $this->getQueryPart('where');
-
-        if ($where instanceof CompositeExpression && $where->getType() === CompositeExpression::TYPE_AND) {
-            $where->addMultiple($args);
-        } else {
-            array_unshift($args, $where);
-            $where = new CompositeExpression(CompositeExpression::TYPE_AND, $args);
-        }
-
-        return $this->add('where', $where, true);
+        return $this->appendPredicates('where', CompositeExpression::TYPE_AND, $predicate, ...$predicates);
     }
 
     /**
@@ -804,27 +785,18 @@ class QueryBuilder
      *
      * @see where()
      *
-     * @param mixed $where The WHERE statement.
+     * @param string|CompositeExpression $predicate     The predicate to append.
+     * @param string|CompositeExpression ...$predicates Additional predicates to append.
      *
      * @return $this This QueryBuilder instance.
      */
-    public function orWhere($where)
+    public function orWhere($predicate, ...$predicates)
     {
-        $args  = func_get_args();
-        $where = $this->getQueryPart('where');
-
-        if ($where instanceof CompositeExpression && $where->getType() === CompositeExpression::TYPE_OR) {
-            $where->addMultiple($args);
-        } else {
-            array_unshift($args, $where);
-            $where = new CompositeExpression(CompositeExpression::TYPE_OR, $args);
-        }
-
-        return $this->add('where', $where, true);
+        return $this->appendPredicates('where', CompositeExpression::TYPE_OR, $predicate, ...$predicates);
     }
 
     /**
-     * Specifies a grouping over the results of the query.
+     * Specifies one or more grouping expressions over the results of the query.
      * Replaces any previously specified groupings, if any.
      *
      * <code>
@@ -834,23 +806,18 @@ class QueryBuilder
      *         ->groupBy('u.id');
      * </code>
      *
-     * @param mixed $groupBy The grouping expression.
+     * @param string $expression     The grouping expression
+     * @param string ...$expressions Additional grouping expressions
      *
      * @return $this This QueryBuilder instance.
      */
-    public function groupBy($groupBy) : self
+    public function groupBy(string $expression, string ...$expressions) : self
     {
-        if (empty($groupBy)) {
-            return $this;
-        }
-
-        $groupBy = is_array($groupBy) ? $groupBy : func_get_args();
-
-        return $this->add('groupBy', $groupBy, false);
+        return $this->add('groupBy', array_merge([$expression], $expressions), false);
     }
 
     /**
-     * Adds a grouping expression to the query.
+     * Adds one or more grouping expressions to the query.
      *
      * <code>
      *     $qb = $conn->createQueryBuilder()
@@ -860,19 +827,14 @@ class QueryBuilder
      *         ->addGroupBy('u.createdAt');
      * </code>
      *
-     * @param mixed $groupBy The grouping expression.
+     * @param string $expression     The grouping expression
+     * @param string ...$expressions Additional grouping expressions
      *
      * @return $this This QueryBuilder instance.
      */
-    public function addGroupBy($groupBy) : self
+    public function addGroupBy(string $expression, string ...$expressions) : self
     {
-        if (empty($groupBy)) {
-            return $this;
-        }
-
-        $groupBy = is_array($groupBy) ? $groupBy : func_get_args();
-
-        return $this->add('groupBy', $groupBy, true);
+        return $this->add('groupBy', array_merge([$expression], $expressions), true);
     }
 
     /**
@@ -929,63 +891,87 @@ class QueryBuilder
      * Specifies a restriction over the groups of the query.
      * Replaces any previous having restrictions, if any.
      *
-     * @param mixed $having The restriction over the groups.
+     * @param string|CompositeExpression $predicate     The HAVING clause predicate.
+     * @param string|CompositeExpression ...$predicates Additional HAVING clause predicates.
      *
      * @return $this This QueryBuilder instance.
      */
-    public function having($having)
+    public function having($predicate, ...$predicates)
     {
-        if (! (func_num_args() === 1 && $having instanceof CompositeExpression)) {
-            $having = new CompositeExpression(CompositeExpression::TYPE_AND, func_get_args());
-        }
-
-        return $this->add('having', $having);
+        return $this->setPredicates('having', $predicate, ...$predicates);
     }
 
     /**
      * Adds a restriction over the groups of the query, forming a logical
      * conjunction with any existing having restrictions.
      *
-     * @param mixed $having The restriction to append.
+     * @param string|CompositeExpression $predicate     The predicate to append.
+     * @param string|CompositeExpression ...$predicates Additional predicates to append.
      *
      * @return $this This QueryBuilder instance.
      */
-    public function andHaving($having)
+    public function andHaving($predicate, ...$predicates)
     {
-        $args   = func_get_args();
-        $having = $this->getQueryPart('having');
-
-        if ($having instanceof CompositeExpression && $having->getType() === CompositeExpression::TYPE_AND) {
-            $having->addMultiple($args);
-        } else {
-            array_unshift($args, $having);
-            $having = new CompositeExpression(CompositeExpression::TYPE_AND, $args);
-        }
-
-        return $this->add('having', $having);
+        return $this->appendPredicates('having', CompositeExpression::TYPE_AND, $predicate, ...$predicates);
     }
 
     /**
      * Adds a restriction over the groups of the query, forming a logical
      * disjunction with any existing having restrictions.
      *
-     * @param mixed $having The restriction to add.
+     * @param string|CompositeExpression $predicate     The predicate to append.
+     * @param string|CompositeExpression ...$predicates Additional predicates to append.
      *
      * @return $this This QueryBuilder instance.
      */
-    public function orHaving($having)
+    public function orHaving($predicate, ...$predicates)
     {
-        $args   = func_get_args();
-        $having = $this->getQueryPart('having');
+        return $this->appendPredicates('having', CompositeExpression::TYPE_OR, $predicate, ...$predicates);
+    }
 
-        if ($having instanceof CompositeExpression && $having->getType() === CompositeExpression::TYPE_OR) {
-            $having->addMultiple($args);
+    /**
+     * Sets one or more predicates combined by the AND logic as the given query clause.
+     * Replaces any previously specified predicates.
+     *
+     * @param string|CompositeExpression ...$predicates
+     *
+     * @return $this This QueryBuilder instance.
+     */
+    private function setPredicates(string $clause, ...$predicates) : self
+    {
+        if (count($predicates) > 1) {
+            $predicate = new CompositeExpression(
+                CompositeExpression::TYPE_AND,
+                $predicates
+            );
         } else {
-            array_unshift($args, $having);
-            $having = new CompositeExpression(CompositeExpression::TYPE_OR, $args);
+            $predicate = array_shift($predicates);
         }
 
-        return $this->add('having', $having);
+        return $this->add($clause, $predicate);
+    }
+
+    /**
+     * Appends the given predicates combined by the given type of logic to the given query clause.
+     *
+     * @param string|CompositeExpression ...$predicates
+     *
+     * @return $this This QueryBuilder instance.
+     */
+    private function appendPredicates(string $clause, string $type, ...$predicates) : self
+    {
+        $predicate = $this->getQueryPart($clause);
+
+        if ($predicate instanceof CompositeExpression && $predicate->getType() === $type) {
+            $predicate->addMultiple($predicates);
+        } else {
+            $predicate = new CompositeExpression(
+                $type,
+                array_merge([$predicate], $predicates)
+            );
+        }
+
+        return $this->add($clause, $predicate, true);
     }
 
     /**

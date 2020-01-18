@@ -36,8 +36,8 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testRenameTable() : void
     {
-        $this->schemaManager->tryMethod('DropTable', 'list_tables_test');
-        $this->schemaManager->tryMethod('DropTable', 'list_tables_test_new_name');
+        $this->schemaManager->tryMethod('dropTable', 'list_tables_test');
+        $this->schemaManager->tryMethod('dropTable', 'list_tables_test_new_name');
 
         $this->createTestTable('list_tables_test');
         $this->schemaManager->renameTable('list_tables_test', 'list_tables_test_new_name');

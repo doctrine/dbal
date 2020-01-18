@@ -5,9 +5,6 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Query\Expression;
 
 use Doctrine\DBAL\Connection;
-use function func_get_arg;
-use function func_get_args;
-use function func_num_args;
 use function implode;
 use function sprintf;
 
@@ -41,7 +38,7 @@ class ExpressionBuilder
     }
 
     /**
-     * Creates a conjunction of the given boolean expressions.
+     * Creates a conjunction of the given expressions.
      *
      * Example:
      *
@@ -49,16 +46,15 @@ class ExpressionBuilder
      *     // (u.type = ?) AND (u.role = ?)
      *     $expr->andX('u.type = ?', 'u.role = ?'));
      *
-     * @param mixed $x Optional clause. Defaults = null, but requires
-     *                 at least one defined when converting to string.
+     * @param string|CompositeExpression ...$expressions Requires at least one defined when converting to string.
      */
-    public function andX($x = null) : CompositeExpression
+    public function andX(...$expressions) : CompositeExpression
     {
-        return new CompositeExpression(CompositeExpression::TYPE_AND, func_get_args());
+        return new CompositeExpression(CompositeExpression::TYPE_AND, $expressions);
     }
 
     /**
-     * Creates a disjunction of the given boolean expressions.
+     * Creates a disjunction of the given expressions.
      *
      * Example:
      *
@@ -66,12 +62,11 @@ class ExpressionBuilder
      *     // (u.type = ?) OR (u.role = ?)
      *     $qb->where($qb->expr()->orX('u.type = ?', 'u.role = ?'));
      *
-     * @param mixed $x Optional clause. Defaults = null, but requires
-     *                 at least one defined when converting to string.
+     * @param string|CompositeExpression ...$expressions Requires at least one defined when converting to string.
      */
-    public function orX($x = null) : CompositeExpression
+    public function orX(...$expressions) : CompositeExpression
     {
-        return new CompositeExpression(CompositeExpression::TYPE_OR, func_get_args());
+        return new CompositeExpression(CompositeExpression::TYPE_OR, $expressions);
     }
 
     /**
@@ -210,27 +205,27 @@ class ExpressionBuilder
     }
 
     /**
-     * Creates a LIKE() comparison expression with the given arguments.
+     * Creates a LIKE comparison expression.
      *
      * @param string $x Field in string format to be inspected by LIKE() comparison.
      * @param mixed  $y Argument to be used in LIKE() comparison.
      */
-    public function like(string $x, $y/*, ?string $escapeChar = null */) : string
+    public function like(string $x, $y, ?string $escapeChar = null) : string
     {
         return $this->comparison($x, 'LIKE', $y) .
-            (func_num_args() >= 3 ? sprintf(' ESCAPE %s', func_get_arg(2)) : '');
+            ($escapeChar !== null ? sprintf(' ESCAPE %s', $escapeChar) : '');
     }
 
     /**
-     * Creates a NOT LIKE() comparison expression with the given arguments.
+     * Creates a NOT LIKE comparison expression
      *
      * @param string $x Field in string format to be inspected by NOT LIKE() comparison.
      * @param mixed  $y Argument to be used in NOT LIKE() comparison.
      */
-    public function notLike(string $x, $y/*, ?string $escapeChar = null */) : string
+    public function notLike(string $x, $y, ?string $escapeChar = null) : string
     {
         return $this->comparison($x, 'NOT LIKE', $y) .
-            (func_num_args() >= 3 ? sprintf(' ESCAPE %s', func_get_arg(2)) : '');
+            ($escapeChar !== null ? sprintf(' ESCAPE %s', $escapeChar) : '');
     }
 
     /**
