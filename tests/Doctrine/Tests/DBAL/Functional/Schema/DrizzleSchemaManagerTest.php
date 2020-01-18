@@ -30,7 +30,7 @@ class DrizzleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testColumnCollation() : void
     {
-        $table                                  = new Table('test_collation');
+        $table = new Table('test_collation');
         $table->addOption('collate', $collation = 'utf8_unicode_ci');
         $table->addColumn('id', 'integer');
         $table->addColumn('text', 'text');

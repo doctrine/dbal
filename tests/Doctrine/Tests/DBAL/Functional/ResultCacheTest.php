@@ -43,7 +43,7 @@ class ResultCacheTest extends DbalFunctionalTestCase
             $this->connection->insert('caching', $row);
         }
 
-        $config                                = $this->connection->getConfiguration();
+        $config = $this->connection->getConfiguration();
         $config->setSQLLogger($this->sqlLogger = new DebugStack());
 
         $cache = new ArrayCache();
