@@ -20,7 +20,6 @@ use function implode;
 use function is_array;
 use function is_object;
 use function key;
-use function strtoupper;
 use function substr;
 
 /**
@@ -426,7 +425,7 @@ class QueryBuilder
                 foreach ($sqlPart as $part) {
                     $this->sqlParts[$sqlPartName][] = $part;
                 }
-            } elseif ($isArray && is_array($sqlPart[key($sqlPart)])) {
+            } elseif ($isArray && (is_array($sqlPart[key($sqlPart)]) || is_object($sqlPart[key($sqlPart)]))) {
                 $key                                  = key($sqlPart);
                 $this->sqlParts[$sqlPartName][$key][] = $sqlPart[$key];
             } elseif ($isMultiple) {
@@ -673,12 +672,7 @@ class QueryBuilder
     public function innerJoin(string $fromAlias, string $join, string $alias, ?string $condition = null)
     {
         return $this->add('join', [
-            $fromAlias => [
-                'joinType'      => 'inner',
-                'joinTable'     => $join,
-                'joinAlias'     => $alias,
-                'joinCondition' => $condition,
-            ],
+            $fromAlias => Join::inner($join, $alias, $condition),
         ], true);
     }
 
@@ -702,12 +696,7 @@ class QueryBuilder
     public function leftJoin(string $fromAlias, string $join, string $alias, ?string $condition = null)
     {
         return $this->add('join', [
-            $fromAlias => [
-                'joinType'      => 'left',
-                'joinTable'     => $join,
-                'joinAlias'     => $alias,
-                'joinCondition' => $condition,
-            ],
+            $fromAlias => Join::left($join, $alias, $condition),
         ], true);
     }
 
@@ -731,12 +720,7 @@ class QueryBuilder
     public function rightJoin(string $fromAlias, string $join, string $alias, ?string $condition = null)
     {
         return $this->add('join', [
-            $fromAlias => [
-                'joinType'      => 'right',
-                'joinTable'     => $join,
-                'joinAlias'     => $alias,
-                'joinCondition' => $condition,
-            ],
+            $fromAlias => Join::right($join, $alias, $condition),
         ], true);
     }
 
@@ -770,7 +754,7 @@ class QueryBuilder
      *         ->from('counters', 'c')
      *         ->where('c.id = ?');
      *
-     *     // You can optionally programatically build and/or expressions
+     *     // You can optionally programmatically build and/or expressions
      *     $qb = $conn->createQueryBuilder();
      *
      *     $or = $qb->expr()->orx();
@@ -1315,17 +1299,19 @@ class QueryBuilder
 
         if (isset($this->sqlParts['join'][$fromAlias])) {
             foreach ($this->sqlParts['join'][$fromAlias] as $join) {
-                if (array_key_exists($join['joinAlias'], $knownAliases)) {
-                    throw NonUniqueAlias::new($join['joinAlias'], array_keys($knownAliases));
+                /** @var Join $join */
+                if (array_key_exists($join->alias, $knownAliases)) {
+                    throw NonUniqueAlias::new($join->alias, array_keys($knownAliases));
                 }
-                $sql                             .= ' ' . strtoupper($join['joinType'])
-                    . ' JOIN ' . $join['joinTable'] . ' ' . $join['joinAlias']
-                    . ' ON ' . ((string) $join['joinCondition']);
-                $knownAliases[$join['joinAlias']] = true;
+                $sql                       .= ' ' . $join->type
+                    . ' JOIN ' . $join->table . ' ' . $join->alias
+                    . ' ON ' . ((string) $join->condition);
+                $knownAliases[$join->alias] = true;
             }
 
             foreach ($this->sqlParts['join'][$fromAlias] as $join) {
-                $sql .= $this->getSQLForJoins($join['joinAlias'], $knownAliases);
+                /** @var Join $join */
+                $sql .= $this->getSQLForJoins($join->alias, $knownAliases);
             }
         }
 
