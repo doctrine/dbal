@@ -406,63 +406,25 @@ class QueryBuilderTest extends DbalTestCase
     public function testUpdate() : void
     {
         $qb = new QueryBuilder($this->conn);
-        $qb->update('users', 'u')
-           ->set('u.foo', '?')
-           ->set('u.bar', '?');
-
-        self::assertEquals(QueryBuilder::UPDATE, $qb->getType());
-        self::assertEquals('UPDATE users u SET u.foo = ?, u.bar = ?', (string) $qb);
-    }
-
-    public function testUpdateWithoutAlias() : void
-    {
-        $qb = new QueryBuilder($this->conn);
         $qb->update('users')
            ->set('foo', '?')
            ->set('bar', '?');
 
-        self::assertEquals('UPDATE users SET foo = ?, bar = ?', (string) $qb);
-    }
-
-    public function testUpdateWithMatchingAlias() : void
-    {
-        $qb = new QueryBuilder($this->conn);
-        $qb->update('users', 'users')
-           ->set('foo', '?')
-           ->set('bar', '?');
-
+        self::assertEquals(QueryBuilder::UPDATE, $qb->getType());
         self::assertEquals('UPDATE users SET foo = ?, bar = ?', (string) $qb);
     }
 
     public function testUpdateWhere() : void
     {
         $qb = new QueryBuilder($this->conn);
-        $qb->update('users', 'u')
-           ->set('u.foo', '?')
-           ->where('u.foo = ?');
+        $qb->update('users')
+           ->set('foo', '?')
+           ->where('foo = ?');
 
-        self::assertEquals('UPDATE users u SET u.foo = ? WHERE u.foo = ?', (string) $qb);
-    }
-
-    public function testEmptyUpdate() : void
-    {
-        $qb  = new QueryBuilder($this->conn);
-        $qb2 = $qb->update();
-
-        self::assertEquals(QueryBuilder::UPDATE, $qb->getType());
-        self::assertSame($qb2, $qb);
+        self::assertEquals('UPDATE users SET foo = ? WHERE foo = ?', (string) $qb);
     }
 
     public function testDelete() : void
-    {
-        $qb = new QueryBuilder($this->conn);
-        $qb->delete('users', 'u');
-
-        self::assertEquals(QueryBuilder::DELETE, $qb->getType());
-        self::assertEquals('DELETE FROM users u', (string) $qb);
-    }
-
-    public function testDeleteWithoutAlias() : void
     {
         $qb = new QueryBuilder($this->conn);
         $qb->delete('users');
@@ -471,31 +433,13 @@ class QueryBuilderTest extends DbalTestCase
         self::assertEquals('DELETE FROM users', (string) $qb);
     }
 
-    public function testDeleteWithMatchingAlias() : void
-    {
-        $qb = new QueryBuilder($this->conn);
-        $qb->delete('users', 'users');
-
-        self::assertEquals(QueryBuilder::DELETE, $qb->getType());
-        self::assertEquals('DELETE FROM users', (string) $qb);
-    }
-
     public function testDeleteWhere() : void
     {
         $qb = new QueryBuilder($this->conn);
-        $qb->delete('users', 'u')
+        $qb->delete('users')
            ->where('u.foo = ?');
 
-        self::assertEquals('DELETE FROM users u WHERE u.foo = ?', (string) $qb);
-    }
-
-    public function testEmptyDelete() : void
-    {
-        $qb  = new QueryBuilder($this->conn);
-        $qb2 = $qb->delete();
-
-        self::assertEquals(QueryBuilder::DELETE, $qb->getType());
-        self::assertSame($qb2, $qb);
+        self::assertEquals('DELETE FROM users WHERE u.foo = ?', (string) $qb);
     }
 
     public function testInsertValues() : void
@@ -557,15 +501,6 @@ class QueryBuilderTest extends DbalTestCase
 
         self::assertEquals(QueryBuilder::INSERT, $qb->getType());
         self::assertEquals('INSERT INTO users (foo, bar) VALUES(?, ?)', (string) $qb);
-    }
-
-    public function testEmptyInsert() : void
-    {
-        $qb  = new QueryBuilder($this->conn);
-        $qb2 = $qb->insert();
-
-        self::assertEquals(QueryBuilder::INSERT, $qb->getType());
-        self::assertSame($qb2, $qb);
     }
 
     public function testGetConnection() : void

@@ -1,5 +1,9 @@
 # Upgrade to 3.0
 
+## BC BREAK: `QueryBuilder::insert()`, `update()` and `delete()` signatures changed
+
+These methods now require the `$table` parameter, and do not support aliases anymore.
+
 ## BC BREAK: `OCI8Statement::convertPositionalToNamedPlaceholders()` is removed.
 
 The `OCI8Statement::convertPositionalToNamedPlaceholders()` method has been extracted to an internal utility class.
