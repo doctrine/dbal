@@ -1298,8 +1298,8 @@ class QueryBuilder
         $sql = '';
 
         if (isset($this->sqlParts['join'][$fromAlias])) {
+            /** @var Join $join */
             foreach ($this->sqlParts['join'][$fromAlias] as $join) {
-                /** @var Join $join */
                 if (array_key_exists($join->alias, $knownAliases)) {
                     throw NonUniqueAlias::new($join->alias, array_keys($knownAliases));
                 }
