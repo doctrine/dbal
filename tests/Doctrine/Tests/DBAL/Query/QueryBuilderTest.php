@@ -125,8 +125,7 @@ class QueryBuilderTest extends DbalTestCase
 
     public function testSelectWithAndWhereConditions() : void
     {
-        $qb   = new QueryBuilder($this->conn);
-        $expr = $qb->expr();
+        $qb = new QueryBuilder($this->conn);
 
         $qb->select('u.*', 'p.*')
            ->from('users', 'u')
@@ -138,8 +137,7 @@ class QueryBuilderTest extends DbalTestCase
 
     public function testSelectWithOrWhereConditions() : void
     {
-        $qb   = new QueryBuilder($this->conn);
-        $expr = $qb->expr();
+        $qb = new QueryBuilder($this->conn);
 
         $qb->select('u.*', 'p.*')
            ->from('users', 'u')
@@ -151,8 +149,7 @@ class QueryBuilderTest extends DbalTestCase
 
     public function testSelectWithOrOrWhereConditions() : void
     {
-        $qb   = new QueryBuilder($this->conn);
-        $expr = $qb->expr();
+        $qb = new QueryBuilder($this->conn);
 
         $qb->select('u.*', 'p.*')
            ->from('users', 'u')
@@ -164,8 +161,7 @@ class QueryBuilderTest extends DbalTestCase
 
     public function testSelectWithAndOrWhereConditions() : void
     {
-        $qb   = new QueryBuilder($this->conn);
-        $expr = $qb->expr();
+        $qb = new QueryBuilder($this->conn);
 
         $qb->select('u.*', 'p.*')
            ->from('users', 'u')
@@ -179,8 +175,7 @@ class QueryBuilderTest extends DbalTestCase
 
     public function testSelectGroupBy() : void
     {
-        $qb   = new QueryBuilder($this->conn);
-        $expr = $qb->expr();
+        $qb = new QueryBuilder($this->conn);
 
         $qb->select('u.*', 'p.*')
            ->from('users', 'u')
@@ -189,34 +184,9 @@ class QueryBuilderTest extends DbalTestCase
         self::assertEquals('SELECT u.*, p.* FROM users u GROUP BY u.id', (string) $qb);
     }
 
-    public function testSelectEmptyGroupBy() : void
-    {
-        $qb   = new QueryBuilder($this->conn);
-        $expr = $qb->expr();
-
-        $qb->select('u.*', 'p.*')
-           ->groupBy([])
-           ->from('users', 'u');
-
-        self::assertEquals('SELECT u.*, p.* FROM users u', (string) $qb);
-    }
-
-    public function testSelectEmptyAddGroupBy() : void
-    {
-        $qb   = new QueryBuilder($this->conn);
-        $expr = $qb->expr();
-
-        $qb->select('u.*', 'p.*')
-           ->addGroupBy([])
-           ->from('users', 'u');
-
-        self::assertEquals('SELECT u.*, p.* FROM users u', (string) $qb);
-    }
-
     public function testSelectAddGroupBy() : void
     {
-        $qb   = new QueryBuilder($this->conn);
-        $expr = $qb->expr();
+        $qb = new QueryBuilder($this->conn);
 
         $qb->select('u.*', 'p.*')
            ->from('users', 'u')
@@ -228,8 +198,7 @@ class QueryBuilderTest extends DbalTestCase
 
     public function testSelectAddGroupBys() : void
     {
-        $qb   = new QueryBuilder($this->conn);
-        $expr = $qb->expr();
+        $qb = new QueryBuilder($this->conn);
 
         $qb->select('u.*', 'p.*')
            ->from('users', 'u')
@@ -241,8 +210,7 @@ class QueryBuilderTest extends DbalTestCase
 
     public function testSelectHaving() : void
     {
-        $qb   = new QueryBuilder($this->conn);
-        $expr = $qb->expr();
+        $qb = new QueryBuilder($this->conn);
 
         $qb->select('u.*', 'p.*')
            ->from('users', 'u')
@@ -254,8 +222,7 @@ class QueryBuilderTest extends DbalTestCase
 
     public function testSelectAndHaving() : void
     {
-        $qb   = new QueryBuilder($this->conn);
-        $expr = $qb->expr();
+        $qb = new QueryBuilder($this->conn);
 
         $qb->select('u.*', 'p.*')
            ->from('users', 'u')
@@ -267,8 +234,7 @@ class QueryBuilderTest extends DbalTestCase
 
     public function testSelectHavingAndHaving() : void
     {
-        $qb   = new QueryBuilder($this->conn);
-        $expr = $qb->expr();
+        $qb = new QueryBuilder($this->conn);
 
         $qb->select('u.*', 'p.*')
            ->from('users', 'u')
@@ -281,8 +247,7 @@ class QueryBuilderTest extends DbalTestCase
 
     public function testSelectHavingOrHaving() : void
     {
-        $qb   = new QueryBuilder($this->conn);
-        $expr = $qb->expr();
+        $qb = new QueryBuilder($this->conn);
 
         $qb->select('u.*', 'p.*')
            ->from('users', 'u')
@@ -295,8 +260,7 @@ class QueryBuilderTest extends DbalTestCase
 
     public function testSelectOrHavingOrHaving() : void
     {
-        $qb   = new QueryBuilder($this->conn);
-        $expr = $qb->expr();
+        $qb = new QueryBuilder($this->conn);
 
         $qb->select('u.*', 'p.*')
            ->from('users', 'u')
@@ -309,8 +273,7 @@ class QueryBuilderTest extends DbalTestCase
 
     public function testSelectHavingAndOrHaving() : void
     {
-        $qb   = new QueryBuilder($this->conn);
-        $expr = $qb->expr();
+        $qb = new QueryBuilder($this->conn);
 
         $qb->select('u.*', 'p.*')
            ->from('users', 'u')
@@ -324,8 +287,7 @@ class QueryBuilderTest extends DbalTestCase
 
     public function testSelectOrderBy() : void
     {
-        $qb   = new QueryBuilder($this->conn);
-        $expr = $qb->expr();
+        $qb = new QueryBuilder($this->conn);
 
         $qb->select('u.*', 'p.*')
            ->from('users', 'u')
@@ -336,8 +298,7 @@ class QueryBuilderTest extends DbalTestCase
 
     public function testSelectAddOrderBy() : void
     {
-        $qb   = new QueryBuilder($this->conn);
-        $expr = $qb->expr();
+        $qb = new QueryBuilder($this->conn);
 
         $qb->select('u.*', 'p.*')
            ->from('users', 'u')
@@ -349,8 +310,7 @@ class QueryBuilderTest extends DbalTestCase
 
     public function testSelectAddAddOrderBy() : void
     {
-        $qb   = new QueryBuilder($this->conn);
-        $expr = $qb->expr();
+        $qb = new QueryBuilder($this->conn);
 
         $qb->select('u.*', 'p.*')
            ->from('users', 'u')
@@ -371,8 +331,7 @@ class QueryBuilderTest extends DbalTestCase
 
     public function testSelectAddSelect() : void
     {
-        $qb   = new QueryBuilder($this->conn);
-        $expr = $qb->expr();
+        $qb = new QueryBuilder($this->conn);
 
         $qb->select('u.*')
            ->addSelect('p.*')
@@ -381,19 +340,9 @@ class QueryBuilderTest extends DbalTestCase
         self::assertEquals('SELECT u.*, p.* FROM users u', (string) $qb);
     }
 
-    public function testEmptyAddSelect() : void
-    {
-        $qb  = new QueryBuilder($this->conn);
-        $qb2 = $qb->addSelect();
-
-        self::assertSame($qb, $qb2);
-        self::assertEquals(QueryBuilder::SELECT, $qb->getType());
-    }
-
     public function testSelectMultipleFrom() : void
     {
-        $qb   = new QueryBuilder($this->conn);
-        $expr = $qb->expr();
+        $qb = new QueryBuilder($this->conn);
 
         $qb->select('u.*')
            ->addSelect('p.*')

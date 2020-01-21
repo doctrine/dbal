@@ -1,5 +1,11 @@
 # Upgrade to 3.0
 
+## BC BREAK: Changes in the QueryBuilder API.
+
+1. The `select()`, `addSelect()`, `groupBy()` and `addGroupBy()` methods no longer accept an array of arguments. Pass each expression as an individual argument or expand an array of expressions using the `...` operator.
+2. The `select()`, `addSelect()`, `groupBy()` and `addGroupBy()` methods no longer ignore the first argument if it's empty.
+3. The `addSelect()` method can be no longer called without arguments.
+
 ## BC BREAK: `QueryBuilder::insert()`, `update()` and `delete()` signatures changed
 
 These methods now require the `$table` parameter, and do not support aliases anymore.

@@ -20,11 +20,8 @@ use function array_map;
 use function array_shift;
 use function array_values;
 use function assert;
-use function call_user_func_array;
 use function count;
-use function func_get_args;
 use function is_array;
-use function is_callable;
 use function preg_match;
 use function strtolower;
 
@@ -75,20 +72,14 @@ abstract class AbstractSchemaManager
      * $result = $sm->tryMethod('dropView', 'view_name');
      * </code>
      *
+     * @param mixed ...$arguments
+     *
      * @return mixed
      */
-    public function tryMethod()
+    public function tryMethod(string $method, ...$arguments)
     {
-        $args   = func_get_args();
-        $method = $args[0];
-        unset($args[0]);
-        $args = array_values($args);
-
-        $callback = [$this, $method];
-        assert(is_callable($callback));
-
         try {
-            return call_user_func_array($callback, $args);
+            return $this->$method(...$arguments);
         } catch (Throwable $e) {
             return false;
         }
