@@ -5,10 +5,9 @@
 1. The `select()`, `addSelect()`, `groupBy()` and `addGroupBy()` methods no longer accept an array of arguments. Pass each expression as an individual argument or expand an array of expressions using the `...` operator.
 2. The `select()`, `addSelect()`, `groupBy()` and `addGroupBy()` methods no longer ignore the first argument if it's empty.
 3. The `addSelect()` method can be no longer called without arguments.
-
-## BC BREAK: `QueryBuilder::insert()`, `update()` and `delete()` signatures changed
-
-These methods now require the `$table` parameter, and do not support aliases anymore.
+4. The `insert()`, `update()` and `delete()` methods now require the `$table` parameter, and do not support aliases anymore.
+5. The `add()`, `getQueryPart()`, `getQueryParts()`, `resetQueryPart()` and `resetQueryParts()` methods are removed.
+6. For a `select()` query, the `getSQL()` method now throws an expression if no `SELECT` expressions have been provided.
 
 ## BC BREAK: `OCI8Statement::convertPositionalToNamedPlaceholders()` is removed.
 
