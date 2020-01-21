@@ -62,6 +62,7 @@ class QueryBuilder
         'select'   => [],
         'distinct' => false,
         'from'     => [],
+        'table'    => null,
         'join'     => [],
         'set'      => [],
         'where'    => null,
@@ -421,7 +422,7 @@ class QueryBuilder
         $this->state = self::STATE_DIRTY;
 
         if ($append) {
-            if ($sqlPartName === 'orderBy' || $sqlPartName === 'groupBy' || $sqlPartName === 'select' || $sqlPartName === 'set') {
+            if ($sqlPartName === 'orderBy' || $sqlPartName === 'groupBy' || $sqlPartName === 'select' || $sqlPartName === 'set' || $sqlPartName === 'from') {
                 foreach ($sqlPart as $part) {
                     $this->sqlParts[$sqlPartName][] = $part;
                 }
@@ -528,23 +529,15 @@ class QueryBuilder
      *         ->setParameter(':user_id', 1);
      * </code>
      *
-     * @param string $delete The table whose rows are subject to the deletion.
-     * @param string $alias  The table alias used in the constructed query.
+     * @param string $table The table whose rows are subject to the deletion.
      *
      * @return $this This QueryBuilder instance.
      */
-    public function delete(?string $delete = null, ?string $alias = null) : self
+    public function delete(string $table) : self
     {
         $this->type = self::DELETE;
 
-        if (! $delete) {
-            return $this;
-        }
-
-        return $this->add('from', [
-            'table' => $delete,
-            'alias' => $alias,
-        ]);
+        return $this->add('table', $table);
     }
 
     /**
@@ -558,23 +551,15 @@ class QueryBuilder
      *         ->where('c.id = ?');
      * </code>
      *
-     * @param string $update The table whose rows are subject to the update.
-     * @param string $alias  The table alias used in the constructed query.
+     * @param string $table The table whose rows are subject to the update.
      *
      * @return $this This QueryBuilder instance.
      */
-    public function update(?string $update = null, ?string $alias = null) : self
+    public function update(string $table) : self
     {
         $this->type = self::UPDATE;
 
-        if (! $update) {
-            return $this;
-        }
-
-        return $this->add('from', [
-            'table' => $update,
-            'alias' => $alias,
-        ]);
+        return $this->add('table', $table);
     }
 
     /**
@@ -592,19 +577,15 @@ class QueryBuilder
      *         );
      * </code>
      *
-     * @param string $insert The table into which the rows should be inserted.
+     * @param string $table The table into which the rows should be inserted.
      *
      * @return $this This QueryBuilder instance.
      */
-    public function insert(?string $insert = null) : self
+    public function insert(string $table) : self
     {
         $this->type = self::INSERT;
 
-        if (! $insert) {
-            return $this;
-        }
-
-        return $this->add('from', ['table' => $insert]);
+        return $this->add('table', $table);
     }
 
     /**
@@ -624,10 +605,7 @@ class QueryBuilder
      */
     public function from(string $from, ?string $alias = null)
     {
-        return $this->add('from', [
-            'table' => $from,
-            'alias' => $alias,
-        ], true);
+        return $this->add('from', new From($from, $alias), true);
     }
 
     /**
@@ -1125,17 +1103,14 @@ class QueryBuilder
         $knownAliases = [];
 
         // Loop through all FROM clauses
+        /** @var From $from */
         foreach ($this->sqlParts['from'] as $from) {
-            if ($from['alias'] === null || $from['alias'] === $from['table']) {
-                $tableSql = $from['table'];
-
-                /** @var string $tableReference */
-                $tableReference = $from['table'];
+            if ($from->alias === null || $from->alias === $from->table) {
+                $tableSql       = $from->table;
+                $tableReference = $from->table;
             } else {
-                $tableSql = $from['table'] . ' ' . $from['alias'];
-
-                /** @var string $tableReference */
-                $tableReference = $from['alias'];
+                $tableSql       = $from->table . ' ' . $from->alias;
+                $tableReference = $from->alias;
             }
 
             $knownAliases[$tableReference] = true;
@@ -1172,7 +1147,7 @@ class QueryBuilder
      */
     private function getSQLForInsert() : string
     {
-        return 'INSERT INTO ' . $this->sqlParts['from']['table'] .
+        return 'INSERT INTO ' . $this->sqlParts['table'] .
         ' (' . implode(', ', array_keys($this->sqlParts['values'])) . ')' .
         ' VALUES(' . implode(', ', $this->sqlParts['values']) . ')';
     }
@@ -1182,15 +1157,7 @@ class QueryBuilder
      */
     private function getSQLForUpdate() : string
     {
-        $from = $this->sqlParts['from'];
-
-        if ($from['alias'] === null || $from['alias'] === $from['table']) {
-            $table = $from['table'];
-        } else {
-            $table = $from['table'] . ' ' . $from['alias'];
-        }
-
-        return 'UPDATE ' . $table
+        return 'UPDATE ' . $this->sqlParts['table']
             . ' SET ' . implode(', ', $this->sqlParts['set'])
             . ($this->sqlParts['where'] !== null ? ' WHERE ' . ((string) $this->sqlParts['where']) : '');
     }
@@ -1200,15 +1167,7 @@ class QueryBuilder
      */
     private function getSQLForDelete() : string
     {
-        $from = $this->sqlParts['from'];
-
-        if ($from['alias'] === null || $from['alias'] === $from['table']) {
-            $table = $from['table'];
-        } else {
-            $table = $from['table'] . ' ' . $from['alias'];
-        }
-
-        return 'DELETE FROM ' . $table . ($this->sqlParts['where'] !== null ? ' WHERE ' . ((string) $this->sqlParts['where']) : '');
+        return 'DELETE FROM ' . $this->sqlParts['table'] . ($this->sqlParts['where'] !== null ? ' WHERE ' . ((string) $this->sqlParts['where']) : '');
     }
 
     /**
