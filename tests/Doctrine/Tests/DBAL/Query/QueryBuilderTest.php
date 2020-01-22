@@ -569,13 +569,27 @@ class QueryBuilderTest extends DbalTestCase
         self::assertEquals($sql1, $qb->getSQL());
     }
 
-    public function testSetMaxResults() : void
+    /**
+     * @dataProvider maxResultsProvider
+     */
+    public function testSetMaxResults(?int $maxResults) : void
     {
         $qb = new QueryBuilder($this->conn);
-        $qb->setMaxResults(10);
+        $qb->setMaxResults($maxResults);
 
         self::assertEquals(QueryBuilder::STATE_DIRTY, $qb->getState());
-        self::assertEquals(10, $qb->getMaxResults());
+        self::assertEquals($maxResults, $qb->getMaxResults());
+    }
+
+    /**
+     * @return mixed[][]
+     */
+    public static function maxResultsProvider() : iterable
+    {
+        return [
+            'non-null' => [10],
+            'null' => [null],
+        ];
     }
 
     public function testSetFirstResult() : void
