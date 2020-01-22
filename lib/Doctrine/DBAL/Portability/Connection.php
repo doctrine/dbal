@@ -95,8 +95,12 @@ class Connection extends \Doctrine\DBAL\Connection
     /**
      * {@inheritdoc}
      */
-    public function executeQuery(string $query, array $params = [], $types = [], ?QueryCacheProfile $qcp = null) : ResultStatement
-    {
+    public function executeQuery(
+        string $query,
+        array $params = [],
+        array $types = [],
+        ?QueryCacheProfile $qcp = null
+    ) : ResultStatement {
         $stmt = new Statement(parent::executeQuery($query, $params, $types, $qcp), $this);
         $stmt->setFetchMode($this->defaultFetchMode);
 
