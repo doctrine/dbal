@@ -596,7 +596,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function from(string $from, ?string $alias = null)
+    public function from(string $from, ?string $alias = null) : self
     {
         return $this->add('from', new From($from, $alias), true);
     }
@@ -618,7 +618,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function join(string $fromAlias, string $join, string $alias, ?string $condition = null)
+    public function join(string $fromAlias, string $join, string $alias, ?string $condition = null) : self
     {
         return $this->innerJoin($fromAlias, $join, $alias, $condition);
     }
@@ -640,7 +640,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function innerJoin(string $fromAlias, string $join, string $alias, ?string $condition = null)
+    public function innerJoin(string $fromAlias, string $join, string $alias, ?string $condition = null) : self
     {
         return $this->add('join', [
             $fromAlias => Join::inner($join, $alias, $condition),
@@ -664,7 +664,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function leftJoin(string $fromAlias, string $join, string $alias, ?string $condition = null)
+    public function leftJoin(string $fromAlias, string $join, string $alias, ?string $condition = null) : self
     {
         return $this->add('join', [
             $fromAlias => Join::left($join, $alias, $condition),
@@ -688,7 +688,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function rightJoin(string $fromAlias, string $join, string $alias, ?string $condition = null)
+    public function rightJoin(string $fromAlias, string $join, string $alias, ?string $condition = null) : self
     {
         return $this->add('join', [
             $fromAlias => Join::right($join, $alias, $condition),
@@ -710,7 +710,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function set(string $key, string $value)
+    public function set(string $key, string $value) : self
     {
         return $this->add('set', $key . ' = ' . $value, true);
     }
@@ -742,7 +742,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function where($predicate, ...$predicates)
+    public function where($predicate, ...$predicates) : self
     {
         return $this->setPredicates('where', $predicate, ...$predicates);
     }
@@ -766,7 +766,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function andWhere($predicate, ...$predicates)
+    public function andWhere($predicate, ...$predicates) : self
     {
         return $this->appendPredicates('where', CompositeExpression::TYPE_AND, $predicate, ...$predicates);
     }
@@ -790,7 +790,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function orWhere($predicate, ...$predicates)
+    public function orWhere($predicate, ...$predicates) : self
     {
         return $this->appendPredicates('where', CompositeExpression::TYPE_OR, $predicate, ...$predicates);
     }
@@ -882,7 +882,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function values(array $values)
+    public function values(array $values) : self
     {
         return $this->add('values', $values);
     }
@@ -896,7 +896,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function having($predicate, ...$predicates)
+    public function having($predicate, ...$predicates) : self
     {
         return $this->setPredicates('having', $predicate, ...$predicates);
     }
@@ -910,7 +910,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function andHaving($predicate, ...$predicates)
+    public function andHaving($predicate, ...$predicates) : self
     {
         return $this->appendPredicates('having', CompositeExpression::TYPE_AND, $predicate, ...$predicates);
     }
@@ -924,7 +924,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function orHaving($predicate, ...$predicates)
+    public function orHaving($predicate, ...$predicates) : self
     {
         return $this->appendPredicates('having', CompositeExpression::TYPE_OR, $predicate, ...$predicates);
     }
@@ -983,7 +983,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function orderBy(string $sort, ?string $order = null)
+    public function orderBy(string $sort, ?string $order = null) : self
     {
         return $this->add('orderBy', $sort . ' ' . (! $order ? 'ASC' : $order), false);
     }
@@ -996,7 +996,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function addOrderBy(string $sort, ?string $order = null)
+    public function addOrderBy(string $sort, ?string $order = null) : self
     {
         return $this->add('orderBy', $sort . ' ' . (! $order ? 'ASC' : $order), true);
     }
