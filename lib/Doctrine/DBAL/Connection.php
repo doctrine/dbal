@@ -788,8 +788,12 @@ class Connection implements DriverConnection
      *
      * @throws DBALException
      */
-    public function executeQuery(string $query, array $params = [], $types = [], ?QueryCacheProfile $qcp = null) : ResultStatement
-    {
+    public function executeQuery(
+        string $query,
+        array $params = [],
+        array $types = [],
+        ?QueryCacheProfile $qcp = null
+    ) : ResultStatement {
         if ($qcp !== null) {
             return $this->executeCacheQuery($query, $params, $types, $qcp);
         }
