@@ -72,11 +72,11 @@ class ExpressionBuilder
     /**
      * Creates a comparison expression.
      *
-     * @param mixed  $x        The left expression.
-     * @param string $operator One of the ExpressionBuilder::* constants.
-     * @param mixed  $y        The right expression.
+     * @param string $x        The left expression.
+     * @param string $operator The comparison operator.
+     * @param string $y        The right expression.
      */
-    public function comparison($x, string $operator, $y) : string
+    public function comparison(string $x, string $operator, string $y) : string
     {
         return $x . ' ' . $operator . ' ' . $y;
     }
@@ -91,10 +91,10 @@ class ExpressionBuilder
      *     // u.id = ?
      *     $expr->eq('u.id', '?');
      *
-     * @param mixed $x The left expression.
-     * @param mixed $y The right expression.
+     * @param string $x The left expression.
+     * @param string $y The right expression.
      */
-    public function eq($x, $y) : string
+    public function eq(string $x, string $y) : string
     {
         return $this->comparison($x, self::EQ, $y);
     }
@@ -108,10 +108,10 @@ class ExpressionBuilder
      *     // u.id <> 1
      *     $q->where($q->expr()->neq('u.id', '1'));
      *
-     * @param mixed $x The left expression.
-     * @param mixed $y The right expression.
+     * @param string $x The left expression.
+     * @param string $y The right expression.
      */
-    public function neq($x, $y) : string
+    public function neq(string $x, string $y) : string
     {
         return $this->comparison($x, self::NEQ, $y);
     }
@@ -125,10 +125,10 @@ class ExpressionBuilder
      *     // u.id < ?
      *     $q->where($q->expr()->lt('u.id', '?'));
      *
-     * @param mixed $x The left expression.
-     * @param mixed $y The right expression.
+     * @param string $x The left expression.
+     * @param string $y The right expression.
      */
-    public function lt($x, $y) : string
+    public function lt(string $x, string $y) : string
     {
         return $this->comparison($x, self::LT, $y);
     }
@@ -142,10 +142,10 @@ class ExpressionBuilder
      *     // u.id <= ?
      *     $q->where($q->expr()->lte('u.id', '?'));
      *
-     * @param mixed $x The left expression.
-     * @param mixed $y The right expression.
+     * @param string $x The left expression.
+     * @param string $y The right expression.
      */
-    public function lte($x, $y) : string
+    public function lte(string $x, string $y) : string
     {
         return $this->comparison($x, self::LTE, $y);
     }
@@ -159,10 +159,10 @@ class ExpressionBuilder
      *     // u.id > ?
      *     $q->where($q->expr()->gt('u.id', '?'));
      *
-     * @param mixed $x The left expression.
-     * @param mixed $y The right expression.
+     * @param string $x The left expression.
+     * @param string $y The right expression.
      */
-    public function gt($x, $y) : string
+    public function gt(string $x, string $y) : string
     {
         return $this->comparison($x, self::GT, $y);
     }
@@ -176,10 +176,10 @@ class ExpressionBuilder
      *     // u.id >= ?
      *     $q->where($q->expr()->gte('u.id', '?'));
      *
-     * @param mixed $x The left expression.
-     * @param mixed $y The right expression.
+     * @param string $x The left expression.
+     * @param string $y The right expression.
      */
-    public function gte($x, $y) : string
+    public function gte(string $x, string $y) : string
     {
         return $this->comparison($x, self::GTE, $y);
     }
@@ -207,24 +207,24 @@ class ExpressionBuilder
     /**
      * Creates a LIKE comparison expression.
      *
-     * @param string $x Field in string format to be inspected by LIKE() comparison.
-     * @param mixed  $y Argument to be used in LIKE() comparison.
+     * @param string $expression The expression to be inspected by the LIKE comparison
+     * @param string $pattern    The pattern to compare against
      */
-    public function like(string $x, $y, ?string $escapeChar = null) : string
+    public function like(string $expression, string $pattern, ?string $escapeChar = null) : string
     {
-        return $this->comparison($x, 'LIKE', $y) .
+        return $this->comparison($expression, 'LIKE', $pattern) .
             ($escapeChar !== null ? sprintf(' ESCAPE %s', $escapeChar) : '');
     }
 
     /**
      * Creates a NOT LIKE comparison expression
      *
-     * @param string $x Field in string format to be inspected by NOT LIKE() comparison.
-     * @param mixed  $y Argument to be used in NOT LIKE() comparison.
+     * @param string $expression The expression to be inspected by the NOT LIKE comparison
+     * @param string $pattern    The pattern to compare against
      */
-    public function notLike(string $x, $y, ?string $escapeChar = null) : string
+    public function notLike(string $expression, string $pattern, ?string $escapeChar = null) : string
     {
-        return $this->comparison($x, 'NOT LIKE', $y) .
+        return $this->comparison($expression, 'NOT LIKE', $pattern) .
             ($escapeChar !== null ? sprintf(' ESCAPE %s', $escapeChar) : '');
     }
 
