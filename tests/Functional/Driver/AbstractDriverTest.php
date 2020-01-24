@@ -6,7 +6,6 @@ namespace Doctrine\DBAL\Tests\Functional\Driver;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
-use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 
 abstract class AbstractDriverTest extends FunctionalTestCase
@@ -36,9 +35,8 @@ abstract class AbstractDriverTest extends FunctionalTestCase
         $user     = $params['user'] ?? '';
         $password = $params['password'] ?? '';
 
-        $connection = $this->driver->connect($params, $user, $password);
-
-        self::assertInstanceOf(DriverConnection::class, $connection);
+        $this->expectNotToPerformAssertions();
+        $this->driver->connect($params, $user, $password);
     }
 
     /**

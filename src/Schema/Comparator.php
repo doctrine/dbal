@@ -107,8 +107,6 @@ class Comparator
                 }
 
                 foreach ($diff->changedTables[$localTableName]->removedForeignKeys as $key => $removedForeignKey) {
-                    assert($removedForeignKey instanceof ForeignKeyConstraint);
-
                     // We check if the key is from the removed table if not we skip.
                     if ($tableName !== strtolower($removedForeignKey->getForeignTableName())) {
                         continue;

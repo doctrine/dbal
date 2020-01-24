@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Exception;
 
 use Doctrine\DBAL\Exception\EmptyCriteriaNotAllowed;
-use Doctrine\DBAL\Exception\InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
 class EmptyCriteriaNotAllowedTest extends TestCase
@@ -14,7 +13,6 @@ class EmptyCriteriaNotAllowedTest extends TestCase
     {
         $exception = EmptyCriteriaNotAllowed::new();
 
-        self::assertInstanceOf(InvalidArgumentException::class, $exception);
         self::assertSame('Empty criteria was used, expected non-empty criteria.', $exception->getMessage());
     }
 }

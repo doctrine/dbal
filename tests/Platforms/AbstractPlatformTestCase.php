@@ -8,7 +8,6 @@ use Doctrine\Common\EventManager;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Comparator;
@@ -266,14 +265,15 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testGeneratesForeignKeySqlOnlyWhenSupportingForeignKeys() : void
     {
-        $fk = new ForeignKeyConstraint(['fk_name'], 'foreign', ['id'], 'constraint_fk');
-
         if ($this->platform->supportsForeignKeyConstraints()) {
-            self::assertIsString($this->platform->getCreateForeignKeySQL($fk, 'test'));
-        } else {
-            $this->expectException(DBALException::class);
-            $this->platform->getCreateForeignKeySQL($fk, 'test');
+            self::markTestSkipped('The platform supports foreign key constraints');
         }
+
+        $this->expectException(DBALException::class);
+        $this->platform->getCreateForeignKeySQL(
+            new ForeignKeyConstraint(['fk_name'], 'foreign', ['id'], 'constraint_fk'),
+            'test'
+        );
     }
 
     protected function getBitAndComparisonExpressionSql(string $value1, string $value2) : string
@@ -619,7 +619,6 @@ abstract class AbstractPlatformTestCase extends TestCase
     public function testKeywordList() : void
     {
         $keywordList = $this->platform->getReservedKeywordsList();
-        self::assertInstanceOf(KeywordList::class, $keywordList);
 
         self::assertTrue($keywordList->isKeyword('table'));
     }

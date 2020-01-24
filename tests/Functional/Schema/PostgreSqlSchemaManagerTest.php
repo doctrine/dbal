@@ -51,7 +51,6 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     {
         $names = $this->schemaManager->getSchemaNames();
 
-        self::assertIsArray($names);
         self::assertNotEmpty($names);
         self::assertContains('public', $names, 'The public schema should be found.');
     }
@@ -143,7 +142,6 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         self::assertNotNull($diff);
 
-        self::assertInstanceOf(TableDiff::class, $diff, 'There should be a difference and not false being returned from the table comparison');
         self::assertEquals(['ALTER TABLE autoinc_table_drop ALTER id DROP DEFAULT'], $this->connection->getDatabasePlatform()->getAlterTableSQL($diff));
 
         $this->schemaManager->alterTable($diff);
@@ -380,7 +378,6 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $foundTable = false;
         foreach ($tables as $table) {
-            self::assertInstanceOf(Table::class, $table, 'No Table instance was found in tables array.');
             if (strtolower($table->getName()) !== 'list_tables_excludes_views_test_view') {
                 continue;
             }

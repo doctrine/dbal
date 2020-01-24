@@ -46,8 +46,8 @@ class TableTest extends TestCase
         self::assertTrue($table->hasColumn('bar'));
         self::assertFalse($table->hasColumn('baz'));
 
-        self::assertInstanceOf(Column::class, $table->getColumn('foo'));
-        self::assertInstanceOf(Column::class, $table->getColumn('bar'));
+        self::assertSame('foo', $table->getColumn('foo')->getName());
+        self::assertSame('bar', $table->getColumn('bar')->getName());
 
         self::assertCount(2, $table->getColumns());
     }
@@ -161,9 +161,9 @@ class TableTest extends TestCase
         self::assertTrue($table->hasIndex('bar_idx'));
         self::assertFalse($table->hasIndex('some_idx'));
 
-        self::assertInstanceOf(Index::class, $table->getPrimaryKey());
-        self::assertInstanceOf(Index::class, $table->getIndex('the_primary'));
-        self::assertInstanceOf(Index::class, $table->getIndex('bar_idx'));
+        self::assertNotNull($table->getPrimaryKey());
+        self::assertSame('the_primary', $table->getIndex('the_primary')->getName());
+        self::assertSame('bar_idx', $table->getIndex('bar_idx')->getName());
     }
 
     public function testGetUnknownIndexThrowsException() : void
@@ -833,18 +833,12 @@ class TableTest extends TestCase
 
         self::assertTrue($table->hasColumn($assetName));
         self::assertTrue($table->hasColumn('foo'));
-        self::assertInstanceOf(Column::class, $table->getColumn($assetName));
-        self::assertInstanceOf(Column::class, $table->getColumn('foo'));
 
         self::assertTrue($table->hasIndex($assetName));
         self::assertTrue($table->hasIndex('foo'));
-        self::assertInstanceOf(Index::class, $table->getIndex($assetName));
-        self::assertInstanceOf(Index::class, $table->getIndex('foo'));
 
         self::assertTrue($table->hasForeignKey($assetName));
         self::assertTrue($table->hasForeignKey('foo'));
-        self::assertInstanceOf(ForeignKeyConstraint::class, $table->getForeignKey($assetName));
-        self::assertInstanceOf(ForeignKeyConstraint::class, $table->getForeignKey('foo'));
 
         $table->renameIndex($assetName, $assetName);
         self::assertTrue($table->hasIndex($assetName));

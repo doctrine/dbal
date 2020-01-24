@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional\Schema;
 
 use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Schema\Table;
@@ -57,8 +56,6 @@ class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $password = $params['password'] ?? '';
 
         $connection = $this->connection->getDriver()->connect($params, $user, $password);
-
-        self::assertInstanceOf(Connection::class, $connection);
 
         $this->schemaManager->dropDatabase('test_drop_database');
 

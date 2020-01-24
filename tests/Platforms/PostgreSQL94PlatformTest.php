@@ -8,7 +8,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
-use function assert;
 
 class PostgreSQL94PlatformTest extends AbstractPostgreSQLPlatformTestCase
 {
@@ -97,8 +96,6 @@ class PostgreSQL94PlatformTest extends AbstractPostgreSQLPlatformTestCase
      */
     public function testReturnsCloseActiveDatabaseConnectionsSQL() : void
     {
-        assert($this->platform instanceof PostgreSQL94Platform);
-
         self::assertSame(
             "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'foo'",
             $this->platform->getCloseActiveDatabaseConnectionsSQL('foo')

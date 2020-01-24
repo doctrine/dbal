@@ -24,7 +24,6 @@ class SQLAnywhereSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $views = $this->schemaManager->listViews();
 
         self::assertCount(1, $views, 'Database has to have one view.');
-        self::assertInstanceOf(View::class, $views[$name]);
         self::assertEquals($name, $views[$name]->getName());
         self::assertRegExp('/^SELECT \* from "?DBA"?\."?view_test_table"?$/', $views[$name]->getSql());
     }
@@ -39,7 +38,6 @@ class SQLAnywhereSchemaManagerTest extends SchemaManagerFunctionalTestCase
         );
 
         $tableIndexes = $this->schemaManager->listTableIndexes('test_create_advanced_index');
-        self::assertIsArray($tableIndexes);
         self::assertEquals('test', $tableIndexes['test']->getName());
         self::assertEquals(['test'], $tableIndexes['test']->getColumns());
         self::assertTrue($tableIndexes['test']->isUnique());

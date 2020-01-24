@@ -10,7 +10,6 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
-use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\MySqlSchemaManager;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -42,7 +41,6 @@ class MySqlSchemaManagerTest extends TestCase
         $fkeys = $this->manager->listTableForeignKeys('dummy');
         self::assertCount(1, $fkeys, 'Table has to have one foreign key.');
 
-        self::assertInstanceOf(ForeignKeyConstraint::class, $fkeys[0]);
         self::assertEquals(['column_1', 'column_2', 'column_3'], array_map('strtolower', $fkeys[0]->getLocalColumns()));
         self::assertEquals(['column_1', 'column_2', 'column_3'], array_map('strtolower', $fkeys[0]->getForeignColumns()));
     }

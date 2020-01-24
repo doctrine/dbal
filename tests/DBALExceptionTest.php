@@ -53,7 +53,6 @@ class DBALExceptionTest extends TestCase
         $url       = 'mysql://localhost';
         $exception = DriverRequired::new($url);
 
-        self::assertInstanceOf(DBALException::class, $exception);
         self::assertSame(
             sprintf(
                 'The options "driver" or "driverClass" are mandatory if a connection URL without scheme ' .

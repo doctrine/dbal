@@ -15,7 +15,6 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
 use UnexpectedValueException;
-use function assert;
 use function sprintf;
 
 abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCase
@@ -921,8 +920,6 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
      */
     public function testReturnsDisallowDatabaseConnectionsSQL() : void
     {
-        assert($this->platform instanceof PostgreSQL94Platform);
-
         self::assertSame(
             "UPDATE pg_database SET datallowconn = 'false' WHERE datname = 'foo'",
             $this->platform->getDisallowDatabaseConnectionsSQL('foo')
@@ -934,8 +931,6 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
      */
     public function testReturnsCloseActiveDatabaseConnectionsSQL() : void
     {
-        assert($this->platform instanceof PostgreSQL94Platform);
-
         self::assertSame(
             "SELECT pg_terminate_backend(procpid) FROM pg_stat_activity WHERE datname = 'foo'",
             $this->platform->getCloseActiveDatabaseConnectionsSQL('foo')
@@ -1024,8 +1019,6 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
      */
     public function testQuotesDatabaseNameInCloseActiveDatabaseConnectionsSQL() : void
     {
-        assert($this->platform instanceof PostgreSQL94Platform);
-
         self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",
             $this->platform->getCloseActiveDatabaseConnectionsSQL("Foo'Bar\\")

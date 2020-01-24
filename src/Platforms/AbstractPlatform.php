@@ -1300,7 +1300,6 @@ abstract class AbstractPlatform
 
         if (($createFlags & self::CREATE_INDEXES) > 0) {
             foreach ($table->getIndexes() as $index) {
-                assert($index instanceof Index);
                 if (! $index->isPrimary()) {
                     $options['indexes'][$index->getQuotedName($this)] = $index;
 

@@ -6,7 +6,6 @@ namespace Doctrine\DBAL\Tests\Functional\Schema;
 
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Platforms\OraclePlatform;
@@ -126,8 +125,6 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $connection = $this->connection->getDriver()->connect($params, $user, $password);
 
-        self::assertInstanceOf(Connection::class, $connection);
-
         $this->schemaManager->dropDatabase('test_drop_database');
 
         self::assertNotContains('test_drop_database', $this->schemaManager->listDatabases());
@@ -181,12 +178,8 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $sequence = new Sequence('list_sequences_test_seq', 20, 10);
         $this->schemaManager->createSequence($sequence);
 
-        $sequences = $this->schemaManager->listSequences();
-
-        self::assertIsArray($sequences, 'listSequences() should return an array.');
-
         $foundSequence = null;
-        foreach ($sequences as $sequence) {
+        foreach ($sequences = $this->schemaManager->listSequences() as $sequence) {
             self::assertInstanceOf(Sequence::class, $sequence, 'Array elements of listSequences() should be Sequence instances.');
             if (strtolower($sequence->getName()) !== 'list_sequences_test_seq') {
                 continue;
@@ -242,12 +235,10 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $this->createTestTable('list_tables_test');
         $tables = $this->schemaManager->listTables();
 
-        self::assertIsArray($tables);
-        self::assertTrue(count($tables) > 0, "List Tables has to find at least one table named 'list_tables_test'.");
+        self::assertNotEmpty($tables, "List Tables has to find at least one table named 'list_tables_test'.");
 
         $foundTable = false;
         foreach ($tables as $table) {
-            self::assertInstanceOf(Table::class, $table);
             if (strtolower($table->getName()) !== 'list_tables_test') {
                 continue;
             }
@@ -293,7 +284,6 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertEquals(false, $columns['id']->getunsigned());
         self::assertEquals(true, $columns['id']->getnotnull());
         self::assertEquals(null, $columns['id']->getdefault());
-        self::assertIsArray($columns['id']->getPlatformOptions());
 
         self::assertArrayHasKey('test', $columns);
         self::assertEquals(1, array_search('test', $columnsKeys));
@@ -303,7 +293,6 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertEquals(false, $columns['test']->getFixed());
         self::assertEquals(false, $columns['test']->getNotnull());
         self::assertEquals('expected default', $columns['test']->getDefault());
-        self::assertIsArray($columns['test']->getPlatformOptions());
 
         self::assertEquals('foo', strtolower($columns['foo']->getName()));
         self::assertEquals(2, array_search('foo', $columnsKeys));
@@ -312,7 +301,6 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertEquals(false, $columns['foo']->getFixed());
         self::assertEquals(true, $columns['foo']->getNotnull());
         self::assertEquals(null, $columns['foo']->getDefault());
-        self::assertIsArray($columns['foo']->getPlatformOptions());
 
         self::assertEquals('bar', strtolower($columns['bar']->getName()));
         self::assertEquals(3, array_search('bar', $columnsKeys));
@@ -324,28 +312,24 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertEquals(false, $columns['bar']->getFixed());
         self::assertEquals(false, $columns['bar']->getNotnull());
         self::assertEquals(null, $columns['bar']->getDefault());
-        self::assertIsArray($columns['bar']->getPlatformOptions());
 
         self::assertEquals('baz1', strtolower($columns['baz1']->getName()));
         self::assertEquals(4, array_search('baz1', $columnsKeys));
         self::assertInstanceOf(DateTimeType::class, $columns['baz1']->getType());
         self::assertEquals(true, $columns['baz1']->getNotnull());
         self::assertEquals(null, $columns['baz1']->getDefault());
-        self::assertIsArray($columns['baz1']->getPlatformOptions());
 
         self::assertEquals('baz2', strtolower($columns['baz2']->getName()));
         self::assertEquals(5, array_search('baz2', $columnsKeys));
         self::assertContains($columns['baz2']->getType()->getName(), ['time', 'date', 'datetime']);
         self::assertEquals(true, $columns['baz2']->getNotnull());
         self::assertEquals(null, $columns['baz2']->getDefault());
-        self::assertIsArray($columns['baz2']->getPlatformOptions());
 
         self::assertEquals('baz3', strtolower($columns['baz3']->getName()));
         self::assertEquals(6, array_search('baz3', $columnsKeys));
         self::assertContains($columns['baz3']->getType()->getName(), ['time', 'date', 'datetime']);
         self::assertEquals(true, $columns['baz3']->getNotnull());
         self::assertEquals(null, $columns['baz3']->getDefault());
-        self::assertIsArray($columns['baz3']->getPlatformOptions());
     }
 
     /**
@@ -475,7 +459,6 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $this->schemaManager->dropAndCreateIndex($table->getIndex('test'), $table);
         $tableIndexes = $this->schemaManager->listTableIndexes('test_create_index');
-        self::assertIsArray($tableIndexes);
 
         self::assertEquals('test', strtolower($tableIndexes['test']->getName()));
         self::assertEquals(['test'], array_map('strtolower', $tableIndexes['test']->getColumns()));
@@ -532,9 +515,8 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $fkeys = $this->schemaManager->listTableForeignKeys('test_create_fk1');
 
-        self::assertEquals(1, count($fkeys), "Table 'test_create_fk1' has to have one foreign key.");
+        self::assertCount(1, $fkeys, "Table 'test_create_fk1' has to have one foreign key.");
 
-        self::assertInstanceOf(ForeignKeyConstraint::class, $fkeys[0]);
         self::assertEquals(['foreign_key_test'], array_map('strtolower', $fkeys[0]->getLocalColumns()));
         self::assertEquals(['id'], array_map('strtolower', $fkeys[0]->getForeignColumns()));
         self::assertEquals('test_create_fk2', strtolower($fkeys[0]->getForeignTableName()));
@@ -1037,8 +1019,6 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $foundTable = false;
 
         foreach ($tables as $table) {
-            self::assertInstanceOf(Table::class, $table, 'No Table instance was found in tables array.');
-
             if (strtolower($table->getName()) !== 'list_tables_test_new_name') {
                 continue;
             }
@@ -1069,9 +1049,8 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $fkeys = $this->schemaManager->listTableForeignKeys('test_create_fk3');
 
-        self::assertEquals(1, count($fkeys), "Table 'test_create_fk3' has to have one foreign key.");
+        self::assertCount(1, $fkeys, "Table 'test_create_fk3' has to have one foreign key.");
 
-        self::assertInstanceOf(ForeignKeyConstraint::class, $fkeys[0]);
         self::assertEquals(['id', 'foreign_key_test'], array_map('strtolower', $fkeys[0]->getLocalColumns()));
         self::assertEquals(['id', 'other_id'], array_map('strtolower', $fkeys[0]->getForeignColumns()));
     }

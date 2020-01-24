@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Types;
 
-use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\Exception\InvalidFormat;
 use Doctrine\DBAL\Types\Exception\InvalidType;
 use Doctrine\DBAL\Types\Exception\ValueNotConvertible;
@@ -25,7 +24,6 @@ class ConversionExceptionTest extends TestCase
 
         $exception = ValueNotConvertible::new('foo', 'foo', null, $previous);
 
-        self::assertInstanceOf(ConversionException::class, $exception);
         self::assertSame($previous, $exception->getPrevious());
     }
 
@@ -40,7 +38,6 @@ class ConversionExceptionTest extends TestCase
 
         $type = is_object($scalarValue) ? get_class($scalarValue) : gettype($scalarValue);
 
-        self::assertInstanceOf(ConversionException::class, $exception);
         self::assertSame(
             sprintf(
                 'Could not convert PHP value "%s" of type "%s" to type "foo". Expected one of the following types: bar, baz.',
@@ -62,7 +59,6 @@ class ConversionExceptionTest extends TestCase
 
         $type = is_object($nonScalar) ? get_class($nonScalar) : gettype($nonScalar);
 
-        self::assertInstanceOf(ConversionException::class, $exception);
         self::assertSame(
             sprintf('Could not convert PHP value of type "%s" to type "foo". Expected one of the following types: bar, baz.', $type),
             $exception->getMessage()
@@ -75,7 +71,6 @@ class ConversionExceptionTest extends TestCase
 
         $exception = InvalidType::new('foo', 'foo', ['bar', 'baz'], $previous);
 
-        self::assertInstanceOf(ConversionException::class, $exception);
         self::assertSame($previous, $exception->getPrevious());
     }
 
@@ -85,7 +80,6 @@ class ConversionExceptionTest extends TestCase
 
         $exception = InvalidFormat::new('foo', 'bar', 'baz', $previous);
 
-        self::assertInstanceOf(ConversionException::class, $exception);
         self::assertSame($previous, $exception->getPrevious());
     }
 

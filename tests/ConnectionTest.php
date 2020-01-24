@@ -107,21 +107,9 @@ class ConnectionTest extends TestCase
         $this->connection->isRollbackOnly();
     }
 
-    public function testGetConfiguration() : void
-    {
-        $config = $this->connection->getConfiguration();
-
-        self::assertInstanceOf(Configuration::class, $config);
-    }
-
     public function testGetDriver() : void
     {
         self::assertInstanceOf(\Doctrine\DBAL\Driver\PDOMySql\Driver::class, $this->connection->getDriver());
-    }
-
-    public function testGetEventManager() : void
-    {
-        self::assertInstanceOf(EventManager::class, $this->connection->getEventManager());
     }
 
     public function testConnectDispatchEvent() : void

@@ -1050,10 +1050,6 @@ class SqlitePlatform extends AbstractPlatform
         }
 
         foreach ($diff->removedForeignKeys as $constraint) {
-            if (! $constraint instanceof ForeignKeyConstraint) {
-                $constraint = new Identifier($constraint);
-            }
-
             $constraintName = $constraint->getName();
 
             if ($constraintName === '') {

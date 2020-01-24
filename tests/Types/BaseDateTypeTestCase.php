@@ -30,8 +30,6 @@ abstract class BaseDateTypeTestCase extends TestCase
     {
         $this->platform        = $this->getMockForAbstractClass(AbstractPlatform::class);
         $this->currentTimezone = date_default_timezone_get();
-
-        self::assertInstanceOf(Type::class, $this->type);
     }
 
     protected function tearDown() : void

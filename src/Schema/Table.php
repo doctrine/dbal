@@ -19,7 +19,6 @@ use function array_keys;
 use function array_merge;
 use function array_search;
 use function array_unique;
-use function assert;
 use function in_array;
 use function is_string;
 use function preg_match;
@@ -257,7 +256,6 @@ class Table extends AbstractAsset
     public function columnsAreIndexed(array $columnNames) : bool
     {
         foreach ($this->getIndexes() as $index) {
-            assert($index instanceof Index);
             if ($index->spansColumns($columnNames)) {
                 return true;
             }

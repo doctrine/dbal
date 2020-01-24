@@ -100,7 +100,6 @@ class SchemaTest extends TestCase
 
         $table = $schema->createTable('foo');
 
-        self::assertInstanceOf(Table::class, $table);
         self::assertEquals('foo', $table->getName());
         self::assertTrue($schema->hasTable('foo'));
     }
@@ -112,7 +111,7 @@ class SchemaTest extends TestCase
         $schema = new Schema([], [$sequence]);
 
         self::assertTrue($schema->hasSequence('a_seq'));
-        self::assertInstanceOf(Sequence::class, $schema->getSequence('a_seq'));
+        self::assertSame('a_seq', $schema->getSequence('a_seq')->getName());
 
         $sequences = $schema->getSequences();
         self::assertArrayHasKey('public.a_seq', $sequences);
@@ -150,7 +149,7 @@ class SchemaTest extends TestCase
         self::assertEquals(20, $sequence->getInitialValue());
 
         self::assertTrue($schema->hasSequence('a_seq'));
-        self::assertInstanceOf(Sequence::class, $schema->getSequence('a_seq'));
+        self::assertSame('a_seq', $schema->getSequence('a_seq')->getName());
 
         $sequences = $schema->getSequences();
         self::assertArrayHasKey('public.a_seq', $sequences);

@@ -6,10 +6,8 @@ namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
-use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\DriverManager;
-use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -39,11 +37,6 @@ class ConnectionTest extends FunctionalTestCase
 
         parent::tearDown();
         $this->resetSharedConn();
-    }
-
-    public function testGetWrappedConnection() : void
-    {
-        self::assertInstanceOf(DriverConnection::class, $this->connection->getWrappedConnection());
     }
 
     public function testCommitWithRollbackOnlyThrowsException() : void
@@ -346,7 +339,6 @@ class ConnectionTest extends FunctionalTestCase
             $this->connection->getEventManager()
         );
 
-        self::assertInstanceOf(AbstractPlatform::class, $connection->getDatabasePlatform());
         self::assertFalse($connection->isConnected());
         self::assertSame($params, $connection->getParams());
 
