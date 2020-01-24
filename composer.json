@@ -1,5 +1,5 @@
 {
-    "name": "doctrine/dbal",
+    "name": "julienheroux/dbal",
     "type": "library",
     "description": "Powerful PHP database abstraction layer (DBAL) with many features for database schema introspection and management.",
     "keywords": [
@@ -26,14 +26,13 @@
     "homepage": "https://www.doctrine-project.org/projects/dbal.html",
     "license": "MIT",
     "authors": [
-        {"name": "Guilherme Blanco", "email": "guilhermeblanco@gmail.com"},
-        {"name": "Roman Borschel", "email": "roman@code-factory.org"},
-        {"name": "Benjamin Eberlei", "email": "kontakt@beberlei.de"},
-        {"name": "Jonathan Wage", "email": "jonwage@gmail.com"}
+        {"name": "Julien Heroux", "email": "heroux.julien@gmail.com"},
     ],
     "require": {
         "php": "^7.2",
-        "ext-pdo": "*"
+        "ext-pdo": "*",
+        "doctrine/cache": "^1.0",
+        "doctrine/event-manager": "^1.0"
     },
     "require-dev": {
         "doctrine/coding-standard": "^6.0",
@@ -54,11 +53,5 @@
     },
     "autoload-dev": {
         "psr-4": { "Doctrine\\Tests\\": "tests/Doctrine/Tests" }
-    },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "2.10.x-dev",
-            "dev-develop": "3.0.x-dev"
-        }
     }
 }
