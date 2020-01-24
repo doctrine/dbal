@@ -73,5 +73,10 @@ parameters:
         -
             message: '~^Cannot cast array<string>\|bool\|string\|null to int\.$~'
             path: %currentWorkingDirectory%/src/Tools/Console/Command/RunSqlCommand.php
+
+        # https://github.com/phpstan/phpstan/issues/3134
+        -
+            message: '~^Call to static method PHPUnit\\Framework\\Assert::assertSame\(\) with Doctrine\\DBAL\\Types\\Type and Doctrine\\DBAL\\Types\\Type will always evaluate to true\.$~'
+            path: %currentWorkingDirectory%/tests/Types/TypeRegistryTest.php
 includes:
     - vendor/phpstan/phpstan-strict-rules/rules.neon

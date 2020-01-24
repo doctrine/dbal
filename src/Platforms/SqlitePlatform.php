@@ -3,7 +3,6 @@
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Constraint;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Identifier;
@@ -958,8 +957,7 @@ class SqlitePlatform extends AbstractPlatform
     {
         // Suppress changes on integer type autoincrement columns.
         foreach ($diff->changedColumns as $oldColumnName => $columnDiff) {
-            if (! $columnDiff->fromColumn instanceof Column ||
-                ! $columnDiff->column instanceof Column ||
+            if ($columnDiff->fromColumn === null ||
                 ! $columnDiff->column->getAutoincrement() ||
                 ! $columnDiff->column->getType() instanceof Types\IntegerType
             ) {

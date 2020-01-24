@@ -31,12 +31,10 @@ class ConnectionTest extends FunctionalTestCase
         parent::tearDown();
     }
 
-    public function testDriverOptions() : void
+    public function testSupportedDriverOptions() : void
     {
-        $driverOptions = [MYSQLI_OPT_CONNECT_TIMEOUT => 1];
-
-        $connection = $this->getConnection($driverOptions);
-        self::assertInstanceOf(MysqliConnection::class, $connection);
+        $this->expectNotToPerformAssertions();
+        $this->getConnection([MYSQLI_OPT_CONNECT_TIMEOUT => 1]);
     }
 
     public function testUnsupportedDriverOption() : void

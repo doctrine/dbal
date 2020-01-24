@@ -27,7 +27,7 @@ class Table extends AbstractAsset
     /** @var Index[] */
     protected $_indexes = [];
 
-    /** @var string */
+    /** @var string|false */
     protected $_primaryKeyName = false;
 
     /** @var ForeignKeyConstraint[] */
@@ -142,6 +142,10 @@ class Table extends AbstractAsset
      */
     public function dropPrimaryKey()
     {
+        if ($this->_primaryKeyName === false) {
+            return;
+        }
+
         $this->dropIndex($this->_primaryKeyName);
         $this->_primaryKeyName = false;
     }
@@ -672,11 +676,11 @@ class Table extends AbstractAsset
      */
     public function getPrimaryKey()
     {
-        if (! $this->hasPrimaryKey()) {
-            return null;
+        if ($this->_primaryKeyName !== false) {
+            return $this->getIndex($this->_primaryKeyName);
         }
 
-        return $this->getIndex($this->_primaryKeyName);
+        return null;
     }
 
     /**

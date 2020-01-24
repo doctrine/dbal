@@ -51,7 +51,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
     /** @var int Default fetch mode to use. */
     private $defaultFetchMode = FetchMode::MIXED;
 
-    /** @var resource The result set resource to fetch. */
+    /** @var resource|null The result set resource to fetch. */
     private $result;
 
     /** @var resource The prepared SQL statement to execute. */
