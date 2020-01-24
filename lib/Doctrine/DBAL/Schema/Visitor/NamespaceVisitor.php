@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\DBAL\Schema\Visitor;
 
 /**
@@ -14,5 +12,5 @@ interface NamespaceVisitor
      *
      * @param string $namespaceName The schema namespace name to accept.
      */
-    public function acceptNamespace(string $namespaceName) : void;
+    public function acceptNamespace($namespaceName);
 }

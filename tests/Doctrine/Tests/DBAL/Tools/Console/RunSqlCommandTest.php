@@ -1,14 +1,11 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\Tests\DBAL\Tools\Console;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Tools\Console\Command\RunSqlCommand;
 use Doctrine\DBAL\Tools\Console\ConsoleRunner;
 use LogicException;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Symfony\Component\Console\Application;
@@ -21,15 +18,15 @@ class RunSqlCommandTest extends TestCase
     /** @var RunSqlCommand */
     private $command;
 
-    /** @var Connection|MockObject */
+    /** @var Connection */
     private $connectionMock;
 
     protected function setUp() : void
     {
-        $this->command = new RunSqlCommand();
+        $application = new Application();
+        $application->add(new RunSqlCommand());
 
-        (new Application())->add($this->command);
-
+        $this->command       = $application->find('dbal:run-sql');
         $this->commandTester = new CommandTester($this->command);
 
         $this->connectionMock = $this->createMock(Connection::class);
@@ -44,25 +41,29 @@ class RunSqlCommandTest extends TestCase
 
     public function testMissingSqlArgument() : void
     {
-        self::expectException(RuntimeException::class);
-        self::expectExceptionMessage('Argument "sql" is required in order to execute this command correctly.');
-
-        $this->commandTester->execute([
-            'command' => $this->command->getName(),
-            'sql' => null,
-        ]);
+        try {
+            $this->commandTester->execute([
+                'command' => $this->command->getName(),
+                'sql' => null,
+            ]);
+            $this->fail('Expected a runtime exception when omitting sql argument');
+        } catch (RuntimeException $e) {
+            self::assertStringContainsString("Argument 'SQL", $e->getMessage());
+        }
     }
 
     public function testIncorrectDepthOption() : void
     {
-        self::expectException(LogicException::class);
-        self::expectExceptionMessage('Option "depth" must contains an integer value.');
-
-        $this->commandTester->execute([
-            'command' => $this->command->getName(),
-            'sql' => 'SELECT 1',
-            '--depth' => 'string',
-        ]);
+        try {
+            $this->commandTester->execute([
+                'command' => $this->command->getName(),
+                'sql' => 'SELECT 1',
+                '--depth' => 'string',
+            ]);
+            $this->fail('Expected a logic exception when executing with a stringy depth');
+        } catch (LogicException $e) {
+            self::assertStringContainsString("Option 'depth'", $e->getMessage());
+        }
     }
 
     public function testSelectStatementsPrintsResult() : void

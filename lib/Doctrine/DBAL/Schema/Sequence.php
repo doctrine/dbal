@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Schema\Visitor\Visitor;
@@ -22,7 +20,13 @@ class Sequence extends AbstractAsset
     /** @var int|null */
     protected $cache = null;
 
-    public function __construct(string $name, int $allocationSize = 1, int $initialValue = 1, ?int $cache = null)
+    /**
+     * @param string   $name
+     * @param int      $allocationSize
+     * @param int      $initialValue
+     * @param int|null $cache
+     */
+    public function __construct($name, $allocationSize = 1, $initialValue = 1, $cache = null)
     {
         $this->_setName($name);
         $this->setAllocationSize($allocationSize);
@@ -30,36 +34,60 @@ class Sequence extends AbstractAsset
         $this->cache = $cache;
     }
 
-    public function getAllocationSize() : int
+    /**
+     * @return int
+     */
+    public function getAllocationSize()
     {
         return $this->allocationSize;
     }
 
-    public function getInitialValue() : int
+    /**
+     * @return int
+     */
+    public function getInitialValue()
     {
         return $this->initialValue;
     }
 
-    public function getCache() : ?int
+    /**
+     * @return int|null
+     */
+    public function getCache()
     {
         return $this->cache;
     }
 
-    public function setAllocationSize(int $allocationSize) : self
+    /**
+     * @param int $allocationSize
+     *
+     * @return \Doctrine\DBAL\Schema\Sequence
+     */
+    public function setAllocationSize($allocationSize)
     {
-        $this->allocationSize = $allocationSize;
+        $this->allocationSize = (int) $allocationSize ?: 1;
 
         return $this;
     }
 
-    public function setInitialValue(int $initialValue) : self
+    /**
+     * @param int $initialValue
+     *
+     * @return \Doctrine\DBAL\Schema\Sequence
+     */
+    public function setInitialValue($initialValue)
     {
-        $this->initialValue = $initialValue;
+        $this->initialValue = (int) $initialValue ?: 1;
 
         return $this;
     }
 
-    public function setCache(int $cache) : self
+    /**
+     * @param int $cache
+     *
+     * @return \Doctrine\DBAL\Schema\Sequence
+     */
+    public function setCache($cache)
     {
         $this->cache = $cache;
 
@@ -71,8 +99,10 @@ class Sequence extends AbstractAsset
      *
      * This is used inside the comparator to not report sequences as missing,
      * when the "from" schema implicitly creates the sequences.
+     *
+     * @return bool
      */
-    public function isAutoIncrementsFor(Table $table) : bool
+    public function isAutoIncrementsFor(Table $table)
     {
         $primaryKey = $table->getPrimaryKey();
 
@@ -99,7 +129,10 @@ class Sequence extends AbstractAsset
         return $tableSequenceName === $sequenceName;
     }
 
-    public function visit(Visitor $visitor) : void
+    /**
+     * @return void
+     */
+    public function visit(Visitor $visitor)
     {
         $visitor->acceptSequence($this);
     }

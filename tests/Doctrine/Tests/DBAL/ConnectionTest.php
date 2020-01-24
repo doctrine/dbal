@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\Tests\DBAL;
 
 use Doctrine\Common\Cache\Cache;
@@ -29,6 +27,7 @@ use Doctrine\Tests\DbalTestCase;
 use Exception;
 use PHPUnit\Framework\MockObject\MockObject;
 use stdClass;
+use function call_user_func_array;
 
 /**
  * @requires extension pdo_mysql
@@ -38,13 +37,13 @@ class ConnectionTest extends DbalTestCase
     /** @var Connection */
     private $connection;
 
-    /** @var array<string, mixed> */
+    /** @var string[] */
     protected $params = [
         'driver' => 'pdo_mysql',
         'host' => 'localhost',
         'user' => 'root',
         'password' => 'password',
-        'port' => 1234,
+        'port' => '1234',
     ];
 
     protected function setUp() : void
@@ -114,6 +113,26 @@ class ConnectionTest extends DbalTestCase
         self::assertInstanceOf(Configuration::class, $config);
     }
 
+    public function testGetHost() : void
+    {
+        self::assertEquals('localhost', $this->connection->getHost());
+    }
+
+    public function testGetPort() : void
+    {
+        self::assertEquals('1234', $this->connection->getPort());
+    }
+
+    public function testGetUsername() : void
+    {
+        self::assertEquals('root', $this->connection->getUsername());
+    }
+
+    public function testGetPassword() : void
+    {
+        self::assertEquals('password', $this->connection->getPassword());
+    }
+
     public function testGetDriver() : void
     {
         self::assertInstanceOf(\Doctrine\DBAL\Driver\PDOMySql\Driver::class, $this->connection->getDriver());
@@ -169,7 +188,7 @@ class ConnectionTest extends DbalTestCase
     public function testDriverExceptionIsWrapped(string $method) : void
     {
         $this->expectException(DBALException::class);
-        $this->expectExceptionMessage("An exception occurred while executing \"MUUHAAAAHAAAA\":\n\nSQLSTATE[HY000]: General error: 1 near \"MUUHAAAAHAAAA\"");
+        $this->expectExceptionMessage("An exception occurred while executing 'MUUHAAAAHAAAA':\n\nSQLSTATE[HY000]: General error: 1 near \"MUUHAAAAHAAAA\"");
 
         $connection = DriverManager::getConnection([
             'driver' => 'pdo_sqlite',
@@ -232,6 +251,8 @@ class ConnectionTest extends DbalTestCase
     {
         $this->connection->setAutoCommit(false);
         self::assertFalse($this->connection->isAutoCommit());
+        $this->connection->setAutoCommit(0);
+        self::assertFalse($this->connection->isAutoCommit());
     }
 
     /**
@@ -274,6 +295,28 @@ class ConnectionTest extends DbalTestCase
         $conn->commit();
 
         self::assertTrue($conn->isTransactionActive());
+    }
+
+    /**
+     * @dataProvider resultProvider
+     */
+    public function testCommitReturn(bool $expectedResult) : void
+    {
+        $driverConnection = $this->createMock(DriverConnection::class);
+        $driverConnection->expects($this->once())
+            ->method('commit')->willReturn($expectedResult);
+
+        $driverMock = $this->createMock(Driver::class);
+        $driverMock->expects($this->any())
+            ->method('connect')
+            ->will($this->returnValue($driverConnection));
+
+        $conn = new Connection([], $driverMock);
+
+        $conn->connect();
+        $conn->beginTransaction();
+
+        self::assertSame($expectedResult, $conn->commit());
     }
 
     /**
@@ -643,28 +686,82 @@ class ConnectionTest extends DbalTestCase
         self::assertSame($result, $conn->fetchAll($statement, $params, $types));
     }
 
+    public function testConnectionDoesNotMaintainTwoReferencesToExternalPDO() : void
+    {
+        $params['pdo'] = new stdClass();
+
+        $driverMock = $this->createMock(Driver::class);
+
+        $conn = new Connection($params, $driverMock);
+
+        self::assertArrayNotHasKey('pdo', $conn->getParams(), 'Connection is maintaining additional reference to the PDO connection');
+    }
+
+    public function testPassingExternalPDOMeansConnectionIsConnected() : void
+    {
+        $params['pdo'] = new stdClass();
+
+        $driverMock = $this->createMock(Driver::class);
+
+        $conn = new Connection($params, $driverMock);
+
+        self::assertTrue($conn->isConnected(), 'Connection is not connected after passing external PDO');
+    }
+
     public function testCallingDeleteWithNoDeletionCriteriaResultsInInvalidArgumentException() : void
     {
         /** @var Driver $driver */
-        $driver = $this->createMock(Driver::class);
-        $conn   = new Connection([], $driver);
+        $driver  = $this->createMock(Driver::class);
+        $pdoMock = $this->createMock(\Doctrine\DBAL\Driver\Connection::class);
+
+        // should never execute queries with invalid arguments
+        $pdoMock->expects($this->never())->method('exec');
+        $pdoMock->expects($this->never())->method('prepare');
+
+        $conn = new Connection(['pdo' => $pdoMock], $driver);
 
         $this->expectException(InvalidArgumentException::class);
         $conn->delete('kittens', []);
     }
 
-    public function testCallConnectOnce() : void
+    /**
+     * @return array<int, array<int, mixed>>
+     */
+    public static function dataCallConnectOnce() : iterable
     {
-        /** @var Driver|MockObject $driver */
-        $driver = $this->createMock(Driver::class);
-        $driver->expects($this->once())
-            ->method('connect');
+        return [
+            ['delete', ['tbl', ['id' => 12345]]],
+            ['insert', ['tbl', ['data' => 'foo']]],
+            ['update', ['tbl', ['data' => 'bar'], ['id' => 12345]]],
+            ['prepare', ['select * from dual']],
+            ['executeUpdate', ['insert into tbl (id) values (?)'], [123]],
+        ];
+    }
 
-        $platform = $this->createMock(AbstractPlatform::class);
+    /**
+     * @param array<int, mixed> $params
+     *
+     * @dataProvider dataCallConnectOnce
+     */
+    public function testCallConnectOnce(string $method, array $params) : void
+    {
+        $driverMock   = $this->createMock(Driver::class);
+        $pdoMock      = $this->createMock(Connection::class);
+        $platformMock = $this->createMock(AbstractPlatform::class);
+        $stmtMock     = $this->createMock(Statement::class);
 
-        $conn = new Connection(['platform' => $platform], $driver);
-        $conn->connect();
-        $conn->connect();
+        $pdoMock->expects($this->any())
+            ->method('prepare')
+            ->will($this->returnValue($stmtMock));
+
+        $conn = $this->getMockBuilder(Connection::class)
+            ->setConstructorArgs([['pdo' => $pdoMock, 'platform' => $platformMock], $driverMock])
+            ->onlyMethods(['connect'])
+            ->getMock();
+
+        $conn->expects($this->once())->method('connect');
+
+        call_user_func_array([$conn, $method], $params);
     }
 
     /**
@@ -672,10 +769,10 @@ class ConnectionTest extends DbalTestCase
      */
     public function testPlatformDetectionIsTriggerOnlyOnceOnRetrievingPlatform() : void
     {
-        /** @var VersionAwarePlatformDriver|MockObject $driverMock */
-        $driverMock = $this->createMock(VersionAwarePlatformDriver::class);
+        /** @var Driver|VersionAwarePlatformDriver|MockObject $driverMock */
+        $driverMock = $this->createMock([Driver::class, VersionAwarePlatformDriver::class]);
 
-        /** @var DriverConnection|ServerInfoAwareConnection|MockObject $driverConnectionMock */
+        /** @var ServerInfoAwareConnection|MockObject $driverConnectionMock */
         $driverConnectionMock = $this->createMock(ServerInfoAwareConnection::class);
 
         /** @var AbstractPlatform|MockObject $platformMock */
@@ -686,6 +783,10 @@ class ConnectionTest extends DbalTestCase
         $driverMock->expects($this->once())
             ->method('connect')
             ->will($this->returnValue($driverConnectionMock));
+
+        $driverConnectionMock->expects($this->once())
+            ->method('requiresQueryForServerVersion')
+            ->will($this->returnValue(false));
 
         $driverConnectionMock->expects($this->once())
             ->method('getServerVersion')
@@ -797,8 +898,8 @@ class ConnectionTest extends DbalTestCase
      */
     public function testRethrowsOriginalExceptionOnDeterminingPlatformWhenConnectingToNonExistentDatabase() : void
     {
-        /** @var VersionAwarePlatformDriver|MockObject $driverMock */
-        $driverMock = $this->createMock(VersionAwarePlatformDriver::class);
+        /** @var Driver|VersionAwarePlatformDriver|MockObject $driverMock */
+        $driverMock = $this->createMock([Driver::class, VersionAwarePlatformDriver::class]);
 
         $connection        = new Connection(['dbname' => 'foo'], $driverMock);
         $originalException = new Exception('Original exception');

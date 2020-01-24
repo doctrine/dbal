@@ -1,11 +1,9 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\Tests\DBAL\Types;
 
 use Doctrine\DBAL\Types\ConversionException;
-use Doctrine\DBAL\Types\TimeType;
+use Doctrine\DBAL\Types\Type;
 
 class TimeTest extends BaseDateTypeTestCase
 {
@@ -14,7 +12,7 @@ class TimeTest extends BaseDateTypeTestCase
      */
     protected function setUp() : void
     {
-        $this->type = new TimeType();
+        $this->type = Type::getType('time');
 
         parent::setUp();
     }

@@ -1,14 +1,10 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\DBAL\Types;
 
 use DateTime;
 use DateTimeInterface;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Types\Exception\InvalidFormat;
-use Doctrine\DBAL\Types\Exception\InvalidType;
 
 /**
  * DateTime type saving additional timezone information.
@@ -31,7 +27,7 @@ class DateTimeTzType extends Type implements PhpDateTimeMappingType
     /**
      * {@inheritdoc}
      */
-    public function getName() : string
+    public function getName()
     {
         return Types::DATETIMETZ_MUTABLE;
     }
@@ -39,7 +35,7 @@ class DateTimeTzType extends Type implements PhpDateTimeMappingType
     /**
      * {@inheritdoc}
      */
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform) : string
+    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
     {
         return $platform->getDateTimeTzTypeDeclarationSQL($fieldDeclaration);
     }
@@ -57,7 +53,7 @@ class DateTimeTzType extends Type implements PhpDateTimeMappingType
             return $value->format($platform->getDateTimeTzFormatString());
         }
 
-        throw InvalidType::new($value, $this->getName(), ['null', 'DateTime']);
+        throw ConversionException::conversionFailedInvalidType($value, $this->getName(), ['null', 'DateTime']);
     }
 
     /**
@@ -71,7 +67,7 @@ class DateTimeTzType extends Type implements PhpDateTimeMappingType
 
         $val = DateTime::createFromFormat($platform->getDateTimeTzFormatString(), $value);
         if (! $val) {
-            throw InvalidFormat::new($value, $this->getName(), $platform->getDateTimeTzFormatString());
+            throw ConversionException::conversionFailedFormat($value, $this->getName(), $platform->getDateTimeTzFormatString());
         }
 
         return $val;

@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -18,58 +16,58 @@ class SchemaDiff
     /**
      * All added namespaces.
      *
-     * @var array<string, string>
+     * @var string[]
      */
     public $newNamespaces = [];
 
     /**
      * All removed namespaces.
      *
-     * @var array<string, string>
+     * @var string[]
      */
     public $removedNamespaces = [];
 
     /**
      * All added tables.
      *
-     * @var array<string, Table>
+     * @var Table[]
      */
     public $newTables = [];
 
     /**
      * All changed tables.
      *
-     * @var array<string, TableDiff>
+     * @var TableDiff[]
      */
     public $changedTables = [];
 
     /**
      * All removed tables.
      *
-     * @var array<string, Table>
+     * @var Table[]
      */
     public $removedTables = [];
 
-    /** @var array<int, Sequence> */
+    /** @var Sequence[] */
     public $newSequences = [];
 
-    /** @var array<int, Sequence> */
+    /** @var Sequence[] */
     public $changedSequences = [];
 
-    /** @var array<int, Sequence> */
+    /** @var Sequence[] */
     public $removedSequences = [];
 
-    /** @var array<string|int, ForeignKeyConstraint> */
+    /** @var ForeignKeyConstraint[] */
     public $orphanedForeignKeys = [];
 
     /**
      * Constructs an SchemaDiff object.
      *
-     * @param array<string, Table>     $newTables
-     * @param array<string, TableDiff> $changedTables
-     * @param array<string, Table>     $removedTables
+     * @param Table[]     $newTables
+     * @param TableDiff[] $changedTables
+     * @param Table[]     $removedTables
      */
-    public function __construct(array $newTables = [], array $changedTables = [], array $removedTables = [], ?Schema $fromSchema = null)
+    public function __construct($newTables = [], $changedTables = [], $removedTables = [], ?Schema $fromSchema = null)
     {
         $this->newTables     = $newTables;
         $this->changedTables = $changedTables;
@@ -86,25 +84,27 @@ class SchemaDiff
      *
      * This way it is ensured that assets are deleted which might not be relevant to the metadata schema at all.
      *
-     * @return array<int, string>
+     * @return string[]
      */
-    public function toSaveSql(AbstractPlatform $platform) : array
+    public function toSaveSql(AbstractPlatform $platform)
     {
         return $this->_toSql($platform, true);
     }
 
     /**
-     * @return array<int, string>
+     * @return string[]
      */
-    public function toSql(AbstractPlatform $platform) : array
+    public function toSql(AbstractPlatform $platform)
     {
         return $this->_toSql($platform, false);
     }
 
     /**
-     * @return array<int, string>
+     * @param bool $saveMode
+     *
+     * @return string[]
      */
-    protected function _toSql(AbstractPlatform $platform, bool $saveMode = false) : array
+    protected function _toSql(AbstractPlatform $platform, $saveMode = false)
     {
         $sql = [];
 
@@ -120,7 +120,7 @@ class SchemaDiff
             }
         }
 
-        if ($platform->supportsSequences()) {
+        if ($platform->supportsSequences() === true) {
             foreach ($this->changedSequences as $sequence) {
                 $sql[] = $platform->getAlterSequenceSQL($sequence);
             }

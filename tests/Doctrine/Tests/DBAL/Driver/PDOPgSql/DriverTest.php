@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\Tests\DBAL\Driver\PDOPgSql;
 
 use Doctrine\DBAL\Driver as DriverInterface;
@@ -9,25 +7,23 @@ use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\Driver\PDOPgSql\Driver;
 use Doctrine\Tests\DBAL\Driver\AbstractPostgreSQLDriverTest;
 use PDO;
+use PDOException;
+use function defined;
 
 class DriverTest extends AbstractPostgreSQLDriverTest
 {
-    protected function setUp() : void
+    public function testReturnsName() : void
     {
-        parent::setUp();
-
-        if (isset($GLOBALS['db_type']) && $GLOBALS['db_type'] === 'pdo_pgsql') {
-            return;
-        }
-
-        $this->markTestSkipped('Test enabled only when using pdo_pgsql specific phpunit.xml');
+        self::assertSame('pdo_pgsql', $this->driver->getName());
     }
 
     /**
      * @group DBAL-920
      */
-    public function testConnectionDisablesPrepares() : void
+    public function testConnectionDisablesPreparesOnPhp56() : void
     {
+        $this->skipWhenNotUsingPhp56AndPdoPgsql();
+
         $connection = $this->createDriver()->connect(
             [
                 'host' => $GLOBALS['db_host'],
@@ -38,16 +34,22 @@ class DriverTest extends AbstractPostgreSQLDriverTest
         );
 
         self::assertInstanceOf(PDOConnection::class, $connection);
-        self::assertTrue(
-            $connection->getWrappedConnection()->getAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES)
-        );
+
+        try {
+            self::assertTrue($connection->getAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES));
+        } catch (PDOException $ignored) {
+            /** @link https://bugs.php.net/bug.php?id=68371 */
+            $this->markTestIncomplete('See https://bugs.php.net/bug.php?id=68371');
+        }
     }
 
     /**
      * @group DBAL-920
      */
-    public function testConnectionDoesNotDisablePreparesWhenAttributeDefined() : void
+    public function testConnectionDoesNotDisablePreparesOnPhp56WhenAttributeDefined() : void
     {
+        $this->skipWhenNotUsingPhp56AndPdoPgsql();
+
         $connection = $this->createDriver()->connect(
             [
                 'host' => $GLOBALS['db_host'],
@@ -59,16 +61,22 @@ class DriverTest extends AbstractPostgreSQLDriverTest
         );
 
         self::assertInstanceOf(PDOConnection::class, $connection);
-        self::assertNotTrue(
-            $connection->getWrappedConnection()->getAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES)
-        );
+
+        try {
+            self::assertNotSame(true, $connection->getAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES));
+        } catch (PDOException $ignored) {
+            /** @link https://bugs.php.net/bug.php?id=68371 */
+            $this->markTestIncomplete('See https://bugs.php.net/bug.php?id=68371');
+        }
     }
 
     /**
      * @group DBAL-920
      */
-    public function testConnectionDisablePreparesWhenDisablePreparesIsExplicitlyDefined() : void
+    public function testConnectionDisablePreparesOnPhp56WhenDisablePreparesIsExplicitlyDefined() : void
     {
+        $this->skipWhenNotUsingPhp56AndPdoPgsql();
+
         $connection = $this->createDriver()->connect(
             [
                 'host' => $GLOBALS['db_host'],
@@ -80,9 +88,13 @@ class DriverTest extends AbstractPostgreSQLDriverTest
         );
 
         self::assertInstanceOf(PDOConnection::class, $connection);
-        self::assertTrue(
-            $connection->getWrappedConnection()->getAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES)
-        );
+
+        try {
+            self::assertTrue($connection->getAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES));
+        } catch (PDOException $ignored) {
+            /** @link https://bugs.php.net/bug.php?id=68371 */
+            $this->markTestIncomplete('See https://bugs.php.net/bug.php?id=68371');
+        }
     }
 
     /**
@@ -91,5 +103,18 @@ class DriverTest extends AbstractPostgreSQLDriverTest
     protected function createDriver() : DriverInterface
     {
         return new Driver();
+    }
+
+    private function skipWhenNotUsingPhp56AndPdoPgsql() : void
+    {
+        if (! defined('PDO::PGSQL_ATTR_DISABLE_PREPARES')) {
+            $this->markTestSkipped('Test requires PHP 5.6+');
+        }
+
+        if (isset($GLOBALS['db_type']) && $GLOBALS['db_type'] === 'pdo_pgsql') {
+            return;
+        }
+
+        $this->markTestSkipped('Test enabled only when using pdo_pgsql specific phpunit.xml');
     }
 }

@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\Tests;
 
 use Doctrine\DBAL\Connection;
@@ -25,7 +23,7 @@ abstract class DbalFunctionalTestCase extends DbalTestCase
     /**
      * Shared connection when a TestCase is run alone (outside of it's functional suite)
      *
-     * @var Connection|null
+     * @var Connection
      */
     private static $sharedConnection;
 
@@ -37,7 +35,7 @@ abstract class DbalFunctionalTestCase extends DbalTestCase
 
     protected function resetSharedConn() : void
     {
-        if (self::$sharedConnection === null) {
+        if (! self::$sharedConnection) {
             return;
         }
 

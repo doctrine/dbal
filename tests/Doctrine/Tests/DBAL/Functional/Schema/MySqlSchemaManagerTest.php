@@ -1,12 +1,8 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
 use DateTime;
-use Doctrine\DBAL\DriverManager;
-use Doctrine\DBAL\Exception\DatabaseRequired;
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Schema\Comparator;
@@ -15,7 +11,6 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
-use Doctrine\Tests\TestUtil;
 use Doctrine\Tests\Types\MySqlPointType;
 
 class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
@@ -45,12 +40,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $tableNew->setPrimaryKey(['bar_id', 'foo_id']);
 
         $comparator = new Comparator();
-
-        $diff = $comparator->diffTable($tableFetched, $tableNew);
-
-        self::assertNotNull($diff);
-
-        $this->schemaManager->alterTable($diff);
+        $this->schemaManager->alterTable($comparator->diffTable($tableFetched, $tableNew));
 
         $table      = $this->schemaManager->listTableDetails('switch_primary_key_columns');
         $primaryKey = $table->getPrimaryKeyColumns();
@@ -58,6 +48,29 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertCount(2, $primaryKey);
         self::assertContains('bar_id', $primaryKey);
         self::assertContains('foo_id', $primaryKey);
+    }
+
+    public function testDiffTableBug() : void
+    {
+        $schema = new Schema();
+        $table  = $schema->createTable('diffbug_routing_translations');
+        $table->addColumn('id', 'integer');
+        $table->addColumn('route', 'string');
+        $table->addColumn('locale', 'string');
+        $table->addColumn('attribute', 'string');
+        $table->addColumn('localized_value', 'string');
+        $table->addColumn('original_value', 'string');
+        $table->setPrimaryKey(['id']);
+        $table->addUniqueIndex(['route', 'locale', 'attribute']);
+        $table->addIndex(['localized_value']); // this is much more selective than the unique index
+
+        $this->schemaManager->createTable($table);
+        $tableFetched = $this->schemaManager->listTableDetails('diffbug_routing_translations');
+
+        $comparator = new Comparator();
+        $diff       = $comparator->diffTable($tableFetched, $table);
+
+        self::assertFalse($diff, 'no changes expected.');
     }
 
     public function testFulltextIndex() : void
@@ -125,11 +138,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $diffTable->dropIndex('idx_id');
         $diffTable->setPrimaryKey(['id']);
 
-        $diff = $comparator->diffTable($table, $diffTable);
-
-        self::assertNotNull($diff);
-
-        $this->schemaManager->alterTable($diff);
+        $this->schemaManager->alterTable($comparator->diffTable($table, $diffTable));
 
         $table = $this->schemaManager->listTableDetails('alter_table_add_pk');
 
@@ -155,11 +164,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $comparator = new Comparator();
 
-        $diff = $comparator->diffTable($table, $diffTable);
-
-        self::assertNotNull($diff);
-
-        $this->schemaManager->alterTable($diff);
+        $this->schemaManager->alterTable($comparator->diffTable($table, $diffTable));
 
         $table = $this->schemaManager->listTableDetails('drop_primary_key');
 
@@ -197,11 +202,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $comparator = new Comparator();
 
-        $diff = $comparator->diffTable($table, $onlineTable);
-
-        self::assertNotNull($diff);
-
-        $this->schemaManager->alterTable($diff);
+        $this->schemaManager->alterTable($comparator->diffTable($table, $onlineTable));
 
         $onlineTable = $this->schemaManager->listTableDetails('text_blob_default_value');
 
@@ -244,11 +245,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $comparator = new Comparator();
 
-        $diff = $comparator->diffTable($table, $diffTable);
-
-        self::assertNotNull($diff);
-
-        $this->schemaManager->alterTable($diff);
+        $this->schemaManager->alterTable($comparator->diffTable($table, $diffTable));
 
         $table = $this->schemaManager->listTableDetails($tableName);
 
@@ -272,7 +269,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testColumnCollation() : void
     {
-        $table = new Table('test_collation');
+        $table                                  = new Table('test_collation');
         $table->addOption('collate', $collation = 'latin1_swedish_ci');
         $table->addOption('charset', 'latin1');
         $table->addColumn('id', 'integer');
@@ -364,7 +361,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $comparator = new Comparator();
 
-        self::assertNull(
+        self::assertFalse(
             $comparator->diffTable($offlineTable, $onlineTable),
             'No differences should be detected with the offline vs online schema.'
         );
@@ -443,7 +440,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $comparator = new Comparator();
 
         $diff = $comparator->diffTable($table, $onlineTable);
-        self::assertNull($diff, 'Tables should be identical with column defaults.');
+        self::assertFalse($diff, 'Tables should be identical with column defaults.');
     }
 
     public function testColumnDefaultsAreValid() : void
@@ -455,10 +452,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('col_datetime_null', 'datetime', ['notnull' => false, 'default' => null]);
         $table->addColumn('col_int', 'integer', ['default' => 1]);
         $table->addColumn('col_neg_int', 'integer', ['default' => -1]);
-        $table->addColumn('col_string', 'string', [
-            'length' => 1,
-            'default' => 'A',
-        ]);
+        $table->addColumn('col_string', 'string', ['default' => 'A']);
         $table->addColumn('col_decimal', 'decimal', ['scale' => 3, 'precision' => 6, 'default' => -2.3]);
         $table->addColumn('col_date', 'date', ['default' => '2012-12-12']);
 
@@ -521,7 +515,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $comparator = new Comparator();
 
         $diff = $comparator->diffTable($table, $onlineTable);
-        self::assertNull($diff, 'Tables should be identical with column defauts time and date.');
+        self::assertFalse($diff, 'Tables should be identical with column defauts time and date.');
     }
 
     public function testEnsureTableOptionsAreReflectedInMetadata() : void
@@ -572,19 +566,5 @@ SQL;
         $table = $this->schemaManager->listTableDetails('sys.processlist');
 
         self::assertEquals([], $table->getOption('create_options'));
-    }
-
-    public function testListTableColumnsThrowsDatabaseRequired() : void
-    {
-        $params = TestUtil::getConnectionParams();
-        unset($params['dbname']);
-
-        $connection    = DriverManager::getConnection($params);
-        $schemaManager = $connection->getSchemaManager();
-
-        self::expectException(DatabaseRequired::class);
-        self::expectExceptionMessage('A database is required for the method: Doctrine\DBAL\Schema\AbstractSchemaManager::listTableColumns');
-
-        $schemaManager->listTableColumns('users');
     }
 }

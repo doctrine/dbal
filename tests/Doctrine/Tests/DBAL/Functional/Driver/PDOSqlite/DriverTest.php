@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\Tests\DBAL\Functional\Driver\PDOSqlite;
 
 use Doctrine\DBAL\Driver as DriverInterface;
@@ -29,21 +27,8 @@ class DriverTest extends AbstractDriverTest
     /**
      * {@inheritdoc}
      */
-    public function testReturnsDatabaseNameWithoutDatabaseNameParameter() : void
-    {
-        $this->markTestSkipped('SQLite does not support the concept of a database.');
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     protected function createDriver() : DriverInterface
     {
         return new Driver();
-    }
-
-    protected static function getDatabaseNameForConnectionWithoutDatabaseNameParameter() : ?string
-    {
-        return '';
     }
 }

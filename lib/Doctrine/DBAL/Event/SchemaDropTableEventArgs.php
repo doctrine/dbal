@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\DBAL\Event;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -41,22 +39,30 @@ class SchemaDropTableEventArgs extends SchemaEventArgs
         return $this->table;
     }
 
-    public function getPlatform() : AbstractPlatform
+    /**
+     * @return AbstractPlatform
+     */
+    public function getPlatform()
     {
         return $this->platform;
     }
 
     /**
-     * @return $this
+     * @param string $sql
+     *
+     * @return \Doctrine\DBAL\Event\SchemaDropTableEventArgs
      */
-    public function setSql(string $sql) : self
+    public function setSql($sql)
     {
         $this->sql = $sql;
 
         return $this;
     }
 
-    public function getSql() : ?string
+    /**
+     * @return string|null
+     */
+    public function getSql()
     {
         return $this->sql;
     }

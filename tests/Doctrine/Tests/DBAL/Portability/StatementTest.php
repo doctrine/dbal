@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\Tests\DBAL\Portability;
 
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
@@ -47,9 +45,10 @@ class StatementTest extends DbalTestCase
 
         $this->wrappedStmt->expects($this->once())
             ->method('bindParam')
-            ->with($column, $variable, $type, $length);
+            ->with($column, $variable, $type, $length)
+            ->will($this->returnValue(true));
 
-        $this->stmt->bindParam($column, $variable, $type, $length);
+        self::assertTrue($this->stmt->bindParam($column, $variable, $type, $length));
     }
 
     public function testBindValue() : void
@@ -60,17 +59,19 @@ class StatementTest extends DbalTestCase
 
         $this->wrappedStmt->expects($this->once())
             ->method('bindValue')
-            ->with($param, $value, $type);
+            ->with($param, $value, $type)
+            ->will($this->returnValue(true));
 
-        $this->stmt->bindValue($param, $value, $type);
+        self::assertTrue($this->stmt->bindValue($param, $value, $type));
     }
 
     public function testCloseCursor() : void
     {
         $this->wrappedStmt->expects($this->once())
-            ->method('closeCursor');
+            ->method('closeCursor')
+            ->will($this->returnValue(true));
 
-        $this->stmt->closeCursor();
+        self::assertTrue($this->stmt->closeCursor());
     }
 
     public function testColumnCount() : void
@@ -84,6 +85,28 @@ class StatementTest extends DbalTestCase
         self::assertSame($columnCount, $this->stmt->columnCount());
     }
 
+    public function testErrorCode() : void
+    {
+        $errorCode = '666';
+
+        $this->wrappedStmt->expects($this->once())
+            ->method('errorCode')
+            ->will($this->returnValue($errorCode));
+
+        self::assertSame($errorCode, $this->stmt->errorCode());
+    }
+
+    public function testErrorInfo() : void
+    {
+        $errorInfo = ['666', 'Evil error.'];
+
+        $this->wrappedStmt->expects($this->once())
+            ->method('errorInfo')
+            ->will($this->returnValue($errorInfo));
+
+        self::assertSame($errorInfo, $this->stmt->errorInfo());
+    }
+
     public function testExecute() : void
     {
         $params = [
@@ -93,9 +116,10 @@ class StatementTest extends DbalTestCase
 
         $this->wrappedStmt->expects($this->once())
             ->method('execute')
-            ->with($params);
+            ->with($params)
+            ->will($this->returnValue(true));
 
-        $this->stmt->execute($params);
+        self::assertTrue($this->stmt->execute($params));
     }
 
     public function testSetFetchMode() : void
@@ -113,7 +137,7 @@ class StatementTest extends DbalTestCase
         $re->setAccessible(true);
 
         self::assertSame(FetchMode::MIXED, $re->getValue($this->stmt));
-        $this->stmt->setFetchMode($fetchMode, $arg1, $arg2);
+        self::assertTrue($this->stmt->setFetchMode($fetchMode, $arg1, $arg2));
         self::assertSame($fetchMode, $re->getValue($this->stmt));
     }
 

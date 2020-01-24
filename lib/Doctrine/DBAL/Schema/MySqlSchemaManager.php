@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
@@ -9,6 +7,7 @@ use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Types\Type;
 use const CASE_LOWER;
 use function array_change_key_case;
+use function array_shift;
 use function array_values;
 use function assert;
 use function explode;
@@ -47,7 +46,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableViewDefinition(array $view) : View
+    protected function _getPortableViewDefinition($view)
     {
         return new View($view['TABLE_NAME'], $view['VIEW_DEFINITION']);
     }
@@ -55,7 +54,15 @@ class MySqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableUserDefinition(array $user) : array
+    protected function _getPortableTableDefinition($table)
+    {
+        return array_shift($table);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function _getPortableUserDefinition($user)
     {
         return [
             'user' => $user['User'],
@@ -66,9 +73,9 @@ class MySqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableIndexesList(array $tableIndexRows, string $tableName) : array
+    protected function _getPortableTableIndexesList($tableIndexes, $tableName = null)
     {
-        foreach ($tableIndexRows as $k => $v) {
+        foreach ($tableIndexes as $k => $v) {
             $v = array_change_key_case($v, CASE_LOWER);
             if ($v['key_name'] === 'PRIMARY') {
                 $v['primary'] = true;
@@ -82,16 +89,16 @@ class MySqlSchemaManager extends AbstractSchemaManager
             }
             $v['length'] = isset($v['sub_part']) ? (int) $v['sub_part'] : null;
 
-            $tableIndexRows[$k] = $v;
+            $tableIndexes[$k] = $v;
         }
 
-        return parent::_getPortableTableIndexesList($tableIndexRows, $tableName);
+        return parent::_getPortableTableIndexesList($tableIndexes, $tableName);
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableDatabaseDefinition(array $database) : string
+    protected function _getPortableDatabaseDefinition($database)
     {
         return $database['Database'];
     }
@@ -99,7 +106,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableColumnDefinition(array $tableColumn) : Column
+    protected function _getPortableTableColumnDefinition($tableColumn)
     {
         $tableColumn = array_change_key_case($tableColumn, CASE_LOWER);
 
@@ -109,17 +116,22 @@ class MySqlSchemaManager extends AbstractSchemaManager
 
         $length = $tableColumn['length'] ?? strtok('(), ');
 
-        $fixed = false;
+        $fixed = null;
 
         if (! isset($tableColumn['name'])) {
             $tableColumn['name'] = '';
         }
 
-        $scale     = 0;
+        $scale     = null;
         $precision = null;
 
-        $type = $this->extractDoctrineTypeFromComment($tableColumn['comment'])
-            ?? $this->_platform->getDoctrineTypeMapping($dbType);
+        $type = $this->_platform->getDoctrineTypeMapping($dbType);
+
+        // In cases where not connected to a database DESCRIBE $table does not return 'Comment'
+        if (isset($tableColumn['comment'])) {
+            $type                   = $this->extractDoctrineTypeFromComment($tableColumn['comment'], $type);
+            $tableColumn['comment'] = $this->removeDoctrineTypeFromComment($tableColumn['comment'], $type);
+        }
 
         switch ($dbType) {
             case 'char':
@@ -132,8 +144,8 @@ class MySqlSchemaManager extends AbstractSchemaManager
             case 'numeric':
             case 'decimal':
                 if (preg_match('([A-Za-z]+\(([0-9]+)\,([0-9]+)\))', $tableColumn['type'], $match)) {
-                    $precision = (int) $match[1];
-                    $scale     = (int) $match[2];
+                    $precision = $match[1];
+                    $scale     = $match[2];
                     $length    = null;
                 }
                 break;
@@ -175,16 +187,21 @@ class MySqlSchemaManager extends AbstractSchemaManager
         $options = [
             'length'        => $length !== null ? (int) $length : null,
             'unsigned'      => strpos($tableColumn['type'], 'unsigned') !== false,
-            'fixed'         => $fixed,
+            'fixed'         => (bool) $fixed,
             'default'       => $columnDefault,
             'notnull'       => $tableColumn['null'] !== 'YES',
-            'scale'         => $scale,
-            'precision'     => $precision,
+            'scale'         => null,
+            'precision'     => null,
             'autoincrement' => strpos($tableColumn['extra'], 'auto_increment') !== false,
             'comment'       => isset($tableColumn['comment']) && $tableColumn['comment'] !== ''
                 ? $tableColumn['comment']
                 : null,
         ];
+
+        if ($scale !== null && $precision !== null) {
+            $options['scale']     = (int) $scale;
+            $options['precision'] = (int) $precision;
+        }
 
         $column = new Column($tableColumn['field'], Type::getType($type), $options);
 
@@ -239,7 +256,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableForeignKeysList(array $tableForeignKeys) : array
+    protected function _getPortableTableForeignKeysList($tableForeignKeys)
     {
         $list = [];
         foreach ($tableForeignKeys as $value) {
@@ -282,10 +299,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
         return $result;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function listTableDetails(string $tableName) : Table
+    public function listTableDetails($tableName)
     {
         $table = parent::listTableDetails($tableName);
 
@@ -316,7 +330,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * @return array<string, string>|array<string, true>
+     * @return string[]|true[]
      */
     private function parseCreateOptions(?string $string) : array
     {

@@ -1,10 +1,9 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\DBAL\Event;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Index;
 
 /**
@@ -13,12 +12,12 @@ use Doctrine\DBAL\Schema\Index;
 class SchemaIndexDefinitionEventArgs extends SchemaEventArgs
 {
     /** @var Index|null */
-    private $index;
+    private $index = null;
 
     /**
      * Raw index data as fetched from the database.
      *
-     * @var array<string, mixed>
+     * @var mixed[]
      */
     private $tableIndex;
 
@@ -29,9 +28,10 @@ class SchemaIndexDefinitionEventArgs extends SchemaEventArgs
     private $connection;
 
     /**
-     * @param array<string, mixed> $tableIndex
+     * @param mixed[] $tableIndex
+     * @param string  $table
      */
-    public function __construct(array $tableIndex, string $table, Connection $connection)
+    public function __construct(array $tableIndex, $table, Connection $connection)
     {
         $this->tableIndex = $tableIndex;
         $this->table      = $table;
@@ -41,35 +41,52 @@ class SchemaIndexDefinitionEventArgs extends SchemaEventArgs
     /**
      * Allows to clear the index which means the index will be excluded from tables index list.
      *
-     * @return $this
+     * @return SchemaIndexDefinitionEventArgs
      */
-    public function setIndex(?Index $index) : self
+    public function setIndex(?Index $index = null)
     {
         $this->index = $index;
 
         return $this;
     }
 
-    public function getIndex() : ?Index
+    /**
+     * @return Index|null
+     */
+    public function getIndex()
     {
         return $this->index;
     }
 
     /**
-     * @return array<string, mixed>
+     * @return mixed[]
      */
-    public function getTableIndex() : array
+    public function getTableIndex()
     {
         return $this->tableIndex;
     }
 
-    public function getTable() : string
+    /**
+     * @return string
+     */
+    public function getTable()
     {
         return $this->table;
     }
 
-    public function getConnection() : Connection
+    /**
+     * @return Connection
+     */
+    public function getConnection()
     {
         return $this->connection;
+    }
+
+    /**
+     * @return AbstractPlatform
+     */
+    public function getDatabasePlatform()
+    {
+        return $this->connection->getDatabasePlatform();
     }
 }

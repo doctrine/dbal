@@ -7,25 +7,25 @@
     "versions": [
         {
             "name": "3.0",
-            "branchName": "master",
+            "branchName": "develop",
             "slug": "latest",
             "upcoming": true
         },
         {
             "name": "2.10",
-            "branchName": "2.10",
+            "branchName": "master",
             "slug": "2.10",
-            "current": true,
-            "aliases": [
-                "current",
-                "stable"
-            ]
+            "upcoming": true
         },
         {
             "name": "2.9",
             "branchName": "2.9",
             "slug": "2.9",
-            "maintained": false
+            "current": true,
+            "aliases": [
+                "current",
+                "stable"
+            ]
         },
         {
             "name": "2.8",

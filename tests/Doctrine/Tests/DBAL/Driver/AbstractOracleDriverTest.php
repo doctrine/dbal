@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\Tests\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
@@ -14,6 +12,42 @@ use Doctrine\DBAL\Schema\OracleSchemaManager;
 
 class AbstractOracleDriverTest extends AbstractDriverTest
 {
+    public function testReturnsDatabaseName() : void
+    {
+        $params = [
+            'user'     => 'foo',
+            'password' => 'bar',
+            'dbname'   => 'baz',
+        ];
+
+        $connection = $this->getConnectionMock();
+
+        $connection->expects($this->once())
+            ->method('getParams')
+            ->will($this->returnValue($params));
+
+        self::assertSame($params['user'], $this->driver->getDatabase($connection));
+    }
+
+    public function testReturnsDatabaseNameWithConnectDescriptor() : void
+    {
+        $params = [
+            'user'             => 'foo',
+            'password'         => 'bar',
+            'connectionstring' => '(DESCRIPTION=' .
+                '(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=1521))' .
+                '(CONNECT_DATA=(SERVICE_NAME=baz)))',
+        ];
+
+        $connection = $this->getConnectionMock();
+
+        $connection->expects($this->once())
+            ->method('getParams')
+            ->will($this->returnValue($params));
+
+        self::assertSame($params['user'], $this->driver->getDatabase($connection));
+    }
+
     protected function createDriver() : Driver
     {
         return $this->getMockForAbstractClass(AbstractOracleDriver::class);
@@ -36,35 +70,35 @@ class AbstractOracleDriverTest extends AbstractDriverTest
     {
         return [
             self::EXCEPTION_CONNECTION => [
-                [1017],
-                [12545],
+                ['1017', null, null],
+                ['12545', null, null],
             ],
             self::EXCEPTION_FOREIGN_KEY_CONSTRAINT_VIOLATION => [
-                [2292],
+                ['2292', null, null],
             ],
             self::EXCEPTION_INVALID_FIELD_NAME => [
-                [904],
+                ['904', null, null],
             ],
             self::EXCEPTION_NON_UNIQUE_FIELD_NAME => [
-                [918],
-                [960],
+                ['918', null, null],
+                ['960', null, null],
             ],
             self::EXCEPTION_NOT_NULL_CONSTRAINT_VIOLATION => [
-                [1400],
+                ['1400', null, null],
             ],
             self::EXCEPTION_SYNTAX_ERROR => [
-                [923],
+                ['923', null, null],
             ],
             self::EXCEPTION_TABLE_EXISTS => [
-                [955],
+                ['955', null, null],
             ],
             self::EXCEPTION_TABLE_NOT_FOUND => [
-                [942],
+                ['942', null, null],
             ],
             self::EXCEPTION_UNIQUE_CONSTRAINT_VIOLATION => [
-                [1],
-                [2299],
-                [38911],
+                ['1', null, null],
+                ['2299', null, null],
+                ['38911', null, null],
             ],
         ];
     }

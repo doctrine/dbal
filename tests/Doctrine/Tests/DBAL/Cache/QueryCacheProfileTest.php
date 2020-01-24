@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\Tests\DBAL\Cache;
 
 use Doctrine\DBAL\Cache\QueryCacheProfile;
@@ -23,7 +21,7 @@ class QueryCacheProfileTest extends DbalTestCase
     /** @var int[] */
     private $params = [666];
 
-    /** @var int[] */
+    /** @var string[] */
     private $types = [ParameterType::INTEGER];
 
     /** @var string[] */

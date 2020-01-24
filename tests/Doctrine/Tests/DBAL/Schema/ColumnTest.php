@@ -1,14 +1,11 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\Tests\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Column;
-use Doctrine\DBAL\Schema\Exception\UnknownColumnOption;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\TestCase;
@@ -63,19 +60,23 @@ class ColumnTest extends TestCase
         self::assertEquals($expected, $this->createColumn()->toArray());
     }
 
+    /**
+     * @group legacy
+     * @expectedDeprecation The "unknown_option" column option is not supported, setting it is deprecated and will cause an error in Doctrine 3.0
+     */
     public function testSettingUnknownOptionIsStillSupported() : void
     {
-        self::expectException(UnknownColumnOption::class);
-        self::expectExceptionMessage('The "unknown_option" column option is not supported.');
+        $this->expectNotToPerformAssertions();
 
         new Column('foo', $this->createMock(Type::class), ['unknown_option' => 'bar']);
     }
 
+    /**
+     * @group legacy
+     * @expectedDeprecation The "unknown_option" column option is not supported, setting it is deprecated and will cause an error in Doctrine 3.0
+     */
     public function testOptionsShouldNotBeIgnored() : void
     {
-        self::expectException(UnknownColumnOption::class);
-        self::expectExceptionMessage('The "unknown_option" column option is not supported.');
-
         $col1 = new Column('bar', Type::getType(Types::INTEGER), ['unknown_option' => 'bar', 'notnull' => true]);
         self::assertTrue($col1->getNotnull());
 

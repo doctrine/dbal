@@ -1,12 +1,10 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\Tests\DBAL\Types;
 
 use DateTime;
 use Doctrine\DBAL\Types\ConversionException;
-use Doctrine\DBAL\Types\DateType;
+use Doctrine\DBAL\Types\Type;
 use function date_default_timezone_set;
 
 class DateTest extends BaseDateTypeTestCase
@@ -16,7 +14,7 @@ class DateTest extends BaseDateTypeTestCase
      */
     protected function setUp() : void
     {
-        $this->type = new DateType();
+        $this->type = Type::getType('date');
 
         parent::setUp();
     }

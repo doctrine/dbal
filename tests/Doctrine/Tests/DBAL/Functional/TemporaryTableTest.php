@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\Schema\Table;
@@ -22,10 +20,12 @@ class TemporaryTableTest extends DbalFunctionalTestCase
 
     protected function tearDown() : void
     {
-        try {
-            $tempTable = $this->connection->getDatabasePlatform()->getTemporaryTableName('my_temporary');
-            $this->connection->exec($this->connection->getDatabasePlatform()->getDropTemporaryTableSQL($tempTable));
-        } catch (Throwable $e) {
+        if ($this->connection) {
+            try {
+                $tempTable = $this->connection->getDatabasePlatform()->getTemporaryTableName('my_temporary');
+                $this->connection->exec($this->connection->getDatabasePlatform()->getDropTemporaryTableSQL($tempTable));
+            } catch (Throwable $e) {
+            }
         }
 
         parent::tearDown();
@@ -42,15 +42,8 @@ class TemporaryTableTest extends DbalFunctionalTestCase
         }
 
         $platform          = $this->connection->getDatabasePlatform();
-        $columnDefinitions = [
-            [
-                'name' => 'id',
-                'type' => Type::getType('integer'),
-                'notnull' => true,
-            ],
-        ];
-
-        $tempTable = $platform->getTemporaryTableName('my_temporary');
+        $columnDefinitions = ['id' => ['type' => Type::getType('integer'), 'notnull' => true]];
+        $tempTable         = $platform->getTemporaryTableName('my_temporary');
 
         $createTempTableSQL = $platform->getCreateTemporaryTableSnippetSQL() . ' ' . $tempTable . ' ('
                 . $platform->getColumnDeclarationListSQL($columnDefinitions) . ')';
@@ -84,15 +77,8 @@ class TemporaryTableTest extends DbalFunctionalTestCase
         }
 
         $platform          = $this->connection->getDatabasePlatform();
-        $columnDefinitions = [
-            [
-                'name' => 'id',
-                'type' => Type::getType('integer'),
-                'notnull' => true,
-            ],
-        ];
-
-        $tempTable = $platform->getTemporaryTableName('my_temporary');
+        $columnDefinitions = ['id' => ['type' => Type::getType('integer'), 'notnull' => true]];
+        $tempTable         = $platform->getTemporaryTableName('my_temporary');
 
         $createTempTableSQL = $platform->getCreateTemporaryTableSnippetSQL() . ' ' . $tempTable . ' ('
                 . $platform->getColumnDeclarationListSQL($columnDefinitions) . ')';

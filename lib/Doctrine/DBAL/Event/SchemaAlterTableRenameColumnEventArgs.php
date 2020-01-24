@@ -1,13 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\DBAL\Event;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\TableDiff;
 use function array_merge;
+use function func_get_args;
+use function is_array;
 
 /**
  * Event Arguments used when SQL queries for renaming table columns are generated inside Doctrine\DBAL\Platform\*Platform.
@@ -26,10 +26,13 @@ class SchemaAlterTableRenameColumnEventArgs extends SchemaEventArgs
     /** @var AbstractPlatform */
     private $platform;
 
-    /** @var array<int, string> */
+    /** @var string[] */
     private $sql = [];
 
-    public function __construct(string $oldColumnName, Column $column, TableDiff $tableDiff, AbstractPlatform $platform)
+    /**
+     * @param string $oldColumnName
+     */
+    public function __construct($oldColumnName, Column $column, TableDiff $tableDiff, AbstractPlatform $platform)
     {
         $this->oldColumnName = $oldColumnName;
         $this->column        = $column;
@@ -37,40 +40,56 @@ class SchemaAlterTableRenameColumnEventArgs extends SchemaEventArgs
         $this->platform      = $platform;
     }
 
-    public function getOldColumnName() : string
+    /**
+     * @return string
+     */
+    public function getOldColumnName()
     {
         return $this->oldColumnName;
     }
 
-    public function getColumn() : Column
+    /**
+     * @return Column
+     */
+    public function getColumn()
     {
         return $this->column;
     }
 
-    public function getTableDiff() : TableDiff
+    /**
+     * @return TableDiff
+     */
+    public function getTableDiff()
     {
         return $this->tableDiff;
     }
 
-    public function getPlatform() : AbstractPlatform
+    /**
+     * @return AbstractPlatform
+     */
+    public function getPlatform()
     {
         return $this->platform;
     }
 
     /**
-     * @return $this
+     * Passing multiple SQL statements as an array is deprecated. Pass each statement as an individual argument instead.
+     *
+     * @param string|string[] $sql
+     *
+     * @return \Doctrine\DBAL\Event\SchemaAlterTableRenameColumnEventArgs
      */
-    public function addSql(string ...$sql) : self
+    public function addSql($sql)
     {
-        $this->sql = array_merge($this->sql, $sql);
+        $this->sql = array_merge($this->sql, is_array($sql) ? $sql : func_get_args());
 
         return $this;
     }
 
     /**
-     * @return array<int, string>
+     * @return string[]
      */
-    public function getSql() : array
+    public function getSql()
     {
         return $this->sql;
     }

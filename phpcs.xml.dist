@@ -14,10 +14,19 @@
     <file>tests</file>
 
     <rule ref="Doctrine">
+        <exclude name="SlevomatCodingStandard.TypeHints.DeclareStrictTypes"/>
         <exclude name="SlevomatCodingStandard.Classes.SuperfluousAbstractClassNaming"/>
         <exclude name="SlevomatCodingStandard.Classes.SuperfluousExceptionNaming"/>
         <exclude name="SlevomatCodingStandard.ControlStructures.ControlStructureSpacing.IncorrectLinesCountAfterLastControlStructure"/>
         <exclude name="SlevomatCodingStandard.Classes.DisallowLateStaticBindingForConstants.DisallowedLateStaticBindingForConstant"/>
+    </rule>
+
+    <rule ref="SlevomatCodingStandard.TypeHints.TypeHintDeclaration.MissingParameterTypeHint">
+        <exclude-pattern>*/lib/*</exclude-pattern>
+    </rule>
+
+    <rule ref="SlevomatCodingStandard.TypeHints.TypeHintDeclaration.MissingReturnTypeHint">
+        <exclude-pattern>*/lib/*</exclude-pattern>
     </rule>
 
     <rule ref="PSR1.Classes.ClassDeclaration.MultipleClasses">
@@ -69,17 +78,5 @@
         <exclude-pattern>lib/Doctrine/DBAL/Types/ArrayType.php</exclude-pattern>
         <exclude-pattern>lib/Doctrine/DBAL/Types/ObjectType.php</exclude-pattern>
         <exclude-pattern>tests/Doctrine/Tests/DBAL/Driver/Mysqli/MysqliConnectionTest.php</exclude-pattern>
-    </rule>
-
-    <!-- DB2_AUTOCOMMIT_ON/DB2_AUTOCOMMIT_OFF are of int type but db2_autocommit() incorrectly expects bool,
-         see https://bugs.php.net/bug.php?id=77591 -->
-    <rule ref="SlevomatCodingStandard.TypeHints.DeclareStrictTypes.DeclareStrictTypesMissing">
-        <exclude-pattern>lib/Doctrine/DBAL/Driver/IBMDB2/DB2Connection.php</exclude-pattern>
-    </rule>
-
-    <!-- The SQLSRV_* functions are defined in the upper case by the sqlsrv extension and violate the standard
-         see https://docs.microsoft.com/en-us/sql/connect/php/constants-microsoft-drivers-for-php-for-sql-server -->
-    <rule ref="Squiz.PHP.LowercasePHPFunctions.UseStatementUppercase">
-        <exclude-pattern>lib/Doctrine/DBAL/Driver/SQLSrv/SQLSrvStatement.php</exclude-pattern>
     </rule>
 </ruleset>

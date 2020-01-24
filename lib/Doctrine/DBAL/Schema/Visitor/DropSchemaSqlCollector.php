@@ -1,12 +1,10 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\DBAL\Schema\Visitor;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Schema\Exception\NamedForeignKeyRequired;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\SchemaException;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use SplObjectStorage;
@@ -38,7 +36,7 @@ class DropSchemaSqlCollector extends AbstractVisitor
     /**
      * {@inheritdoc}
      */
-    public function acceptTable(Table $table) : void
+    public function acceptTable(Table $table)
     {
         $this->tables->attach($table);
     }
@@ -46,10 +44,10 @@ class DropSchemaSqlCollector extends AbstractVisitor
     /**
      * {@inheritdoc}
      */
-    public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint) : void
+    public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint)
     {
         if (strlen($fkConstraint->getName()) === 0) {
-            throw NamedForeignKeyRequired::new($localTable, $fkConstraint);
+            throw SchemaException::namedForeignKeyRequired($localTable, $fkConstraint);
         }
 
         $this->constraints->attach($fkConstraint, $localTable);
@@ -58,12 +56,15 @@ class DropSchemaSqlCollector extends AbstractVisitor
     /**
      * {@inheritdoc}
      */
-    public function acceptSequence(Sequence $sequence) : void
+    public function acceptSequence(Sequence $sequence)
     {
         $this->sequences->attach($sequence);
     }
 
-    public function clearQueries() : void
+    /**
+     * @return void
+     */
+    public function clearQueries()
     {
         $this->constraints = new SplObjectStorage();
         $this->sequences   = new SplObjectStorage();
@@ -71,9 +72,9 @@ class DropSchemaSqlCollector extends AbstractVisitor
     }
 
     /**
-     * @return array<int, string>
+     * @return string[]
      */
-    public function getQueries() : array
+    public function getQueries()
     {
         $sql = [];
 

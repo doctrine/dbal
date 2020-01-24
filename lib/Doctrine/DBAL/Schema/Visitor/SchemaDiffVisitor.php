@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\DBAL\Schema\Visitor;
 
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
@@ -17,25 +15,25 @@ interface SchemaDiffVisitor
     /**
      * Visit an orphaned foreign key whose table was deleted.
      */
-    public function visitOrphanedForeignKey(ForeignKeyConstraint $foreignKey) : void;
+    public function visitOrphanedForeignKey(ForeignKeyConstraint $foreignKey);
 
     /**
      * Visit a sequence that has changed.
      */
-    public function visitChangedSequence(Sequence $sequence) : void;
+    public function visitChangedSequence(Sequence $sequence);
 
     /**
      * Visit a sequence that has been removed.
      */
-    public function visitRemovedSequence(Sequence $sequence) : void;
+    public function visitRemovedSequence(Sequence $sequence);
 
-    public function visitNewSequence(Sequence $sequence) : void;
+    public function visitNewSequence(Sequence $sequence);
 
-    public function visitNewTable(Table $table) : void;
+    public function visitNewTable(Table $table);
 
-    public function visitNewTableForeignKey(Table $table, ForeignKeyConstraint $foreignKey) : void;
+    public function visitNewTableForeignKey(Table $table, ForeignKeyConstraint $foreignKey);
 
-    public function visitRemovedTable(Table $table) : void;
+    public function visitRemovedTable(Table $table);
 
-    public function visitChangedTable(TableDiff $tableDiff) : void;
+    public function visitChangedTable(TableDiff $tableDiff);
 }

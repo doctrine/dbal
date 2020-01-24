@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\SQLAnywherePlatform;
@@ -24,7 +22,7 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
      *
      * @see startDatabase
      */
-    public function createDatabase(string $database) : void
+    public function createDatabase($database)
     {
         parent::createDatabase($database);
         $this->startDatabase($database);
@@ -39,19 +37,29 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
      *
      * @see stopDatabase
      */
-    public function dropDatabase(string $database) : void
+    public function dropDatabase($database)
     {
         $this->tryMethod('stopDatabase', $database);
         parent::dropDatabase($database);
     }
 
-    public function startDatabase(string $database) : void
+    /**
+     * Starts a database.
+     *
+     * @param string $database The name of the database to start.
+     */
+    public function startDatabase($database)
     {
         assert($this->_platform instanceof SQLAnywherePlatform);
         $this->_execSql($this->_platform->getStartDatabaseSQL($database));
     }
 
-    public function stopDatabase(string $database) : void
+    /**
+     * Stops a database.
+     *
+     * @param string $database The name of the database to stop.
+     */
+    public function stopDatabase($database)
     {
         assert($this->_platform instanceof SQLAnywherePlatform);
         $this->_execSql($this->_platform->getStopDatabaseSQL($database));
@@ -60,7 +68,7 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableDatabaseDefinition(array $database) : string
+    protected function _getPortableDatabaseDefinition($database)
     {
         return $database['name'];
     }
@@ -68,7 +76,7 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableSequenceDefinition(array $sequence) : Sequence
+    protected function _getPortableSequenceDefinition($sequence)
     {
         return new Sequence($sequence['sequence_name'], $sequence['increment_by'], $sequence['start_with']);
     }
@@ -76,15 +84,15 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableColumnDefinition(array $tableColumn) : Column
+    protected function _getPortableTableColumnDefinition($tableColumn)
     {
-        $type = $this->extractDoctrineTypeFromComment($tableColumn['comment'])
-            ?? $this->_platform->getDoctrineTypeMapping($tableColumn['type']);
-
-        $precision = null;
-        $scale     = null;
-        $fixed     = false;
-        $default   = null;
+        $type                   = $this->_platform->getDoctrineTypeMapping($tableColumn['type']);
+        $type                   = $this->extractDoctrineTypeFromComment($tableColumn['comment'], $type);
+        $tableColumn['comment'] = $this->removeDoctrineTypeFromComment($tableColumn['comment'], $type);
+        $precision              = null;
+        $scale                  = null;
+        $fixed                  = false;
+        $default                = null;
 
         if ($tableColumn['default'] !== null) {
             // Strip quotes from default value.
@@ -131,7 +139,7 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableDefinition(array $table) : string
+    protected function _getPortableTableDefinition($table)
     {
         return $table['table_name'];
     }
@@ -139,7 +147,7 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableForeignKeyDefinition(array $tableForeignKey) : ForeignKeyConstraint
+    protected function _getPortableTableForeignKeyDefinition($tableForeignKey)
     {
         return new ForeignKeyConstraint(
             $tableForeignKey['local_columns'],
@@ -153,7 +161,7 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableForeignKeysList(array $tableForeignKeys) : array
+    protected function _getPortableTableForeignKeysList($tableForeignKeys)
     {
         $foreignKeys = [];
 
@@ -186,7 +194,7 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableIndexesList(array $tableIndexRows, string $tableName) : array
+    protected function _getPortableTableIndexesList($tableIndexRows, $tableName = null)
     {
         foreach ($tableIndexRows as &$tableIndex) {
             $tableIndex['primary'] = (bool) $tableIndex['primary'];
@@ -213,7 +221,7 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableViewDefinition(array $view) : View
+    protected function _getPortableViewDefinition($view)
     {
         $definition = preg_replace('/^.*\s+as\s+SELECT(.*)/i', 'SELECT$1', $view['view_def']);
         assert(is_string($definition));

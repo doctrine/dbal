@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\Tests\DBAL\Functional\Driver\SQLAnywhere;
 
 use Doctrine\DBAL\Driver\SQLAnywhere\Driver;
@@ -38,7 +36,7 @@ class StatementTest extends DbalFunctionalTestCase
         self::assertTrue($conn->isConnected(), 'No SQLAnywhere-Connection established');
 
         $prepStmt = $conn->prepare('SELECT 1');
-        $prepStmt->execute();
+        self::assertTrue($prepStmt->execute(), ' Statement non-persistent failed');
     }
 
     public function testPersistentStatement() : void
@@ -53,6 +51,6 @@ class StatementTest extends DbalFunctionalTestCase
         self::assertTrue($conn->isConnected(), 'No SQLAnywhere-Connection established');
 
         $prepStmt = $conn->prepare('SELECT 1');
-        $prepStmt->execute();
+        self::assertTrue($prepStmt->execute(), ' Statement persistent failed');
     }
 }

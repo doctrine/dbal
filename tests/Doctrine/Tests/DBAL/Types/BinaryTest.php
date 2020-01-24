@@ -1,21 +1,18 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\Tests\DBAL\Types;
 
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\ConversionException;
+use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Tests\DbalTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
-use function array_map;
 use function base64_encode;
 use function fopen;
-use function implode;
-use function range;
+use function stream_get_contents;
 
 class BinaryTest extends DbalTestCase
 {
@@ -31,7 +28,7 @@ class BinaryTest extends DbalTestCase
     protected function setUp() : void
     {
         $this->platform = $this->createMock(AbstractPlatform::class);
-        $this->type     = new BinaryType();
+        $this->type     = Type::getType('binary');
     }
 
     public function testReturnsBindingType() : void
@@ -44,39 +41,13 @@ class BinaryTest extends DbalTestCase
         self::assertSame(Types::BINARY, $this->type->getName());
     }
 
-    /**
-     * @param mixed[][] $definition
-     *
-     * @dataProvider definitionProvider()
-     */
-    public function testReturnsSQLDeclaration(array $definition, string $expectedDeclaration) : void
+    public function testReturnsSQLDeclaration() : void
     {
-        $platform = $this->getMockForAbstractClass(AbstractPlatform::class);
-        self::assertSame($expectedDeclaration, $this->type->getSQLDeclaration($definition, $platform));
-    }
+        $this->platform->expects($this->once())
+            ->method('getBinaryTypeDeclarationSQL')
+            ->willReturn('TEST_BINARY');
 
-    /**
-     * @return mixed[][]
-     */
-    public static function definitionProvider() : iterable
-    {
-        return [
-            'fixed-unspecified-length' => [
-                ['fixed' => true],
-                'BINARY',
-            ],
-            'fixed-specified-length' => [
-                [
-                    'fixed' => true,
-                    'length' => 20,
-                ],
-                'BINARY(20)',
-            ],
-            'variable-length' => [
-                ['length' => 20],
-                'VARBINARY(20)',
-            ],
-        ];
+        self::assertSame('TEST_BINARY', $this->type->getSQLDeclaration([], $this->platform));
     }
 
     public function testBinaryNullConvertsToPHPValue() : void
@@ -86,10 +57,11 @@ class BinaryTest extends DbalTestCase
 
     public function testBinaryStringConvertsToPHPValue() : void
     {
-        $databaseValue = $this->getBinaryString();
+        $databaseValue = 'binary string';
         $phpValue      = $this->type->convertToPHPValue($databaseValue, $this->platform);
 
-        self::assertSame($databaseValue, $phpValue);
+        self::assertIsResource($phpValue);
+        self::assertEquals($databaseValue, stream_get_contents($phpValue));
     }
 
     public function testBinaryResourceConvertsToPHPValue() : void
@@ -97,15 +69,7 @@ class BinaryTest extends DbalTestCase
         $databaseValue = fopen('data://text/plain;base64,' . base64_encode('binary string'), 'r');
         $phpValue      = $this->type->convertToPHPValue($databaseValue, $this->platform);
 
-        self::assertSame('binary string', $phpValue);
-    }
-
-    /**
-     * Creates a binary string containing all possible byte values.
-     */
-    private function getBinaryString() : string
-    {
-        return implode(array_map('chr', range(0, 255)));
+        self::assertSame($databaseValue, $phpValue);
     }
 
     /**

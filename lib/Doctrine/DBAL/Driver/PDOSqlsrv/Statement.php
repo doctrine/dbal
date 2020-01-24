@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\DBAL\Driver\PDOSqlsrv;
 
 use Doctrine\DBAL\Driver\PDOStatement;
@@ -11,12 +9,12 @@ use PDO;
 /**
  * PDO SQL Server Statement
  */
-final class Statement extends PDOStatement
+class Statement extends PDOStatement
 {
     /**
      * {@inheritdoc}
      */
-    public function bindParam($param, &$variable, int $type = ParameterType::STRING, ?int $length = null, $driverOptions = null) : void
+    public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null, $driverOptions = null)
     {
         if (($type === ParameterType::LARGE_OBJECT || $type === ParameterType::BINARY)
             && $driverOptions === null
@@ -24,14 +22,14 @@ final class Statement extends PDOStatement
             $driverOptions = PDO::SQLSRV_ENCODING_BINARY;
         }
 
-        parent::bindParam($param, $variable, $type, $length, $driverOptions);
+        return parent::bindParam($column, $variable, $type, $length, $driverOptions);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function bindValue($param, $value, int $type = ParameterType::STRING) : void
+    public function bindValue($param, $value, $type = ParameterType::STRING)
     {
-        $this->bindParam($param, $value, $type);
+        return $this->bindParam($param, $value, $type);
     }
 }

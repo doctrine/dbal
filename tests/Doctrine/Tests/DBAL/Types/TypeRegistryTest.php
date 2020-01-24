@@ -7,7 +7,6 @@ namespace Doctrine\Tests\DBAL\Types;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\BlobType;
-use Doctrine\DBAL\Types\Exception\TypeNotRegistered;
 use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
 use Doctrine\DBAL\Types\TypeRegistry;
@@ -65,7 +64,7 @@ class TypeRegistryTest extends TestCase
             $this->registry->lookupName($this->otherTestType)
         );
 
-        $this->expectException(TypeNotRegistered::class);
+        $this->expectException(DBALException::class);
         $this->registry->lookupName(new TextType());
     }
 

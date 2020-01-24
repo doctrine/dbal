@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\Tests\DBAL\Types;
 
 use DateTime;
@@ -10,6 +8,7 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\DateTimeImmutableType;
+use Doctrine\DBAL\Types\Type;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use function get_class;
@@ -24,8 +23,8 @@ class DateTimeImmutableTypeTest extends TestCase
 
     protected function setUp() : void
     {
-        $this->platform = $this->createMock(AbstractPlatform::class);
-        $this->type     = new DateTimeImmutableType();
+        $this->type     = Type::getType('datetime_immutable');
+        $this->platform = $this->getMockBuilder(AbstractPlatform::class)->getMock();
     }
 
     public function testFactoryCreatesCorrectType() : void
@@ -45,7 +44,7 @@ class DateTimeImmutableTypeTest extends TestCase
 
     public function testConvertsDateTimeImmutableInstanceToDatabaseValue() : void
     {
-        $date = $this->createMock(DateTimeImmutable::class);
+        $date = $this->getMockBuilder(DateTimeImmutable::class)->getMock();
 
         $this->platform->expects($this->once())
             ->method('getDateTimeFormatString')

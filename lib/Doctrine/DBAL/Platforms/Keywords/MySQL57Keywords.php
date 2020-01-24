@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\DBAL\Platforms\Keywords;
 
 /**
@@ -12,7 +10,7 @@ class MySQL57Keywords extends MySQLKeywords
     /**
      * {@inheritdoc}
      */
-    public function getName() : string
+    public function getName()
     {
         return 'MySQL57';
     }
@@ -22,7 +20,7 @@ class MySQL57Keywords extends MySQLKeywords
      *
      * @link http://dev.mysql.com/doc/mysqld-version-reference/en/mysqld-version-reference-reservedwords-5-7.html
      */
-    protected function getKeywords() : array
+    protected function getKeywords()
     {
         return [
             'ACCESSIBLE',

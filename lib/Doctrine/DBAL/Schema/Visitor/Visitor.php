@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\DBAL\Schema\Visitor;
 
 use Doctrine\DBAL\Schema\Column;
@@ -16,15 +14,33 @@ use Doctrine\DBAL\Schema\Table;
  */
 interface Visitor
 {
-    public function acceptSchema(Schema $schema) : void;
+    /**
+     * @return void
+     */
+    public function acceptSchema(Schema $schema);
 
-    public function acceptTable(Table $table) : void;
+    /**
+     * @return void
+     */
+    public function acceptTable(Table $table);
 
-    public function acceptColumn(Table $table, Column $column) : void;
+    /**
+     * @return void
+     */
+    public function acceptColumn(Table $table, Column $column);
 
-    public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint) : void;
+    /**
+     * @return void
+     */
+    public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint);
 
-    public function acceptIndex(Table $table, Index $index) : void;
+    /**
+     * @return void
+     */
+    public function acceptIndex(Table $table, Index $index);
 
-    public function acceptSequence(Sequence $sequence) : void;
+    /**
+     * @return void
+     */
+    public function acceptSequence(Sequence $sequence);
 }

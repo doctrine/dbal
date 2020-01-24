@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\DBAL\Schema;
 
 /**
@@ -15,44 +13,66 @@ class SchemaConfig
     /** @var int */
     protected $maxIdentifierLength = 63;
 
-    /** @var string|null */
+    /** @var string */
     protected $name;
 
-    /** @var array<string, mixed> */
+    /** @var mixed[] */
     protected $defaultTableOptions = [];
 
-    public function hasExplicitForeignKeyIndexes() : bool
+    /**
+     * @return bool
+     */
+    public function hasExplicitForeignKeyIndexes()
     {
         return $this->hasExplicitForeignKeyIndexes;
     }
 
-    public function setExplicitForeignKeyIndexes(bool $flag) : void
+    /**
+     * @param bool $flag
+     *
+     * @return void
+     */
+    public function setExplicitForeignKeyIndexes($flag)
     {
-        $this->hasExplicitForeignKeyIndexes = $flag;
+        $this->hasExplicitForeignKeyIndexes = (bool) $flag;
     }
 
-    public function setMaxIdentifierLength(int $length) : void
+    /**
+     * @param int $length
+     *
+     * @return void
+     */
+    public function setMaxIdentifierLength($length)
     {
-        $this->maxIdentifierLength = $length;
+        $this->maxIdentifierLength = (int) $length;
     }
 
-    public function getMaxIdentifierLength() : int
+    /**
+     * @return int
+     */
+    public function getMaxIdentifierLength()
     {
         return $this->maxIdentifierLength;
     }
 
     /**
      * Gets the default namespace of schema objects.
+     *
+     * @return string
      */
-    public function getName() : ?string
+    public function getName()
     {
         return $this->name;
     }
 
     /**
      * Sets the default namespace name of schema objects.
+     *
+     * @param string $name The value to set.
+     *
+     * @return void
      */
-    public function setName(string $name) : void
+    public function setName($name)
     {
         $this->name = $name;
     }
@@ -61,17 +81,19 @@ class SchemaConfig
      * Gets the default options that are passed to Table instances created with
      * Schema#createTable().
      *
-     * @return array<string, mixed>
+     * @return mixed[]
      */
-    public function getDefaultTableOptions() : array
+    public function getDefaultTableOptions()
     {
         return $this->defaultTableOptions;
     }
 
     /**
-     * @param array<string, mixed> $defaultTableOptions
+     * @param mixed[] $defaultTableOptions
+     *
+     * @return void
      */
-    public function setDefaultTableOptions(array $defaultTableOptions) : void
+    public function setDefaultTableOptions(array $defaultTableOptions)
     {
         $this->defaultTableOptions = $defaultTableOptions;
     }

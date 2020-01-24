@@ -9,7 +9,7 @@ use Doctrine\DBAL\Platforms\Keywords\PostgreSQL100Keywords;
 /**
  * Provides the behavior, features and SQL dialect of the PostgreSQL 10.0 database platform.
  */
-class PostgreSQL100Platform extends PostgreSqlPlatform
+class PostgreSQL100Platform extends PostgreSQL94Platform
 {
     /**
      * {@inheritdoc}
@@ -19,7 +19,7 @@ class PostgreSQL100Platform extends PostgreSqlPlatform
         return PostgreSQL100Keywords::class;
     }
 
-    public function getListSequencesSQL(string $database) : string
+    public function getListSequencesSQL($database) : string
     {
         return 'SELECT sequence_name AS relname,
                        sequence_schema AS schemaname,

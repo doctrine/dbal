@@ -20,18 +20,23 @@ environment:
   matrix:
   - db: mssql
     driver: sqlsrv
+    db_version: sql2008r2sp2
+    coverage: yes
+    php: 7.3
+  - db: mssql
+    driver: sqlsrv
     db_version: sql2012sp1
-    php: 7.4
+    php: 7.3
     coverage: yes
   - db: mssql
     driver: sqlsrv
     db_version: sql2017
     coverage: no
-    php: 7.4
+    php: 7.3
   - db: mssql
     driver: pdo_sqlsrv
     db_version: sql2017
-    php: 7.4
+    php: 7.3
     coverage: yes
 
 init:
@@ -63,8 +68,7 @@ install:
           Add-Content php.ini "`n extension=php_curl.dll"
           Add-Content php.ini "`n curl.cainfo=C:\tools\cacert\bundle.pem"
 
-          # Use a preview version of the extension that supports PHP 7.4
-          $DLLVersion = "5.7.1preview"
+          $DLLVersion = "5.5.0preview"
           cd c:\tools\php\ext
           $source = "https://windows.php.net/downloads/pecl/releases/sqlsrv/$($DLLVersion)/php_sqlsrv-$($DLLVersion)-$($env:php)-nts-vc15-x64.zip"
           $destination = "c:\tools\php\ext\php_sqlsrv-$($DLLVersion)-$($env:php)-nts-vc15-x64.zip"
@@ -113,6 +117,7 @@ install:
         }
     # install composer dependencies
     - cd C:\projects\dbal
+    - rm composer.lock
     - appveyor-retry composer self-update
     - appveyor-retry composer install --no-progress --prefer-dist
 

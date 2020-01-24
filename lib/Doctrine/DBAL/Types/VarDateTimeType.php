@@ -1,12 +1,9 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\DBAL\Types;
 
 use DateTime;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Types\Exception\ValueNotConvertible;
 use function date_create;
 
 /**
@@ -29,7 +26,7 @@ class VarDateTimeType extends DateTimeType
 
         $val = date_create($value);
         if (! $val) {
-            throw ValueNotConvertible::new($value, $this->getName());
+            throw ConversionException::conversionFailed($value, $this->getName());
         }
 
         return $val;

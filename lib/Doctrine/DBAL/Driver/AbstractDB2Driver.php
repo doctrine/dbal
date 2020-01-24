@@ -1,14 +1,10 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
-use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\DB2Platform;
-use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\DB2SchemaManager;
 
 /**
@@ -19,7 +15,17 @@ abstract class AbstractDB2Driver implements Driver
     /**
      * {@inheritdoc}
      */
-    public function getDatabasePlatform() : AbstractPlatform
+    public function getDatabase(Connection $conn)
+    {
+        $params = $conn->getParams();
+
+        return $params['dbname'];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDatabasePlatform()
     {
         return new DB2Platform();
     }
@@ -27,7 +33,7 @@ abstract class AbstractDB2Driver implements Driver
     /**
      * {@inheritdoc}
      */
-    public function getSchemaManager(Connection $conn) : AbstractSchemaManager
+    public function getSchemaManager(Connection $conn)
     {
         return new DB2SchemaManager($conn);
     }

@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -14,15 +12,23 @@ class StringType extends Type
     /**
      * {@inheritdoc}
      */
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform) : string
+    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
     {
-        return $platform->getStringTypeDeclarationSQL($fieldDeclaration);
+        return $platform->getVarcharTypeDeclarationSQL($fieldDeclaration);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getName() : string
+    public function getDefaultLength(AbstractPlatform $platform)
+    {
+        return $platform->getVarcharDefaultLength();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getName()
     {
         return Types::STRING;
     }

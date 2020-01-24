@@ -1,17 +1,21 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\DBAL\Driver;
 
 use Exception;
-use Throwable;
 
 /**
  * Abstract base implementation of the {@link DriverException} interface.
  */
 abstract class AbstractDriverException extends Exception implements DriverException
 {
+    /**
+     * The driver specific error code.
+     *
+     * @var int|string|null
+     */
+    private $errorCode;
+
     /**
      * The SQLSTATE of the driver.
      *
@@ -20,22 +24,30 @@ abstract class AbstractDriverException extends Exception implements DriverExcept
     private $sqlState;
 
     /**
-     * @param string         $message  The driver error message.
-     * @param string|null    $sqlState The SQLSTATE the driver is in at the time the error occurred, if any.
-     * @param int            $code     The driver specific error code if any.
-     * @param Throwable|null $previous The previous throwable used for the exception chaining.
+     * @param string          $message   The driver error message.
+     * @param string|null     $sqlState  The SQLSTATE the driver is in at the time the error occurred, if any.
+     * @param int|string|null $errorCode The driver specific error code if any.
      */
-    public function __construct(string $message, ?string $sqlState = null, int $code = 0, ?Throwable $previous = null)
+    public function __construct($message, $sqlState = null, $errorCode = null)
     {
-        parent::__construct($message, $code, $previous);
+        parent::__construct($message);
 
-        $this->sqlState = $sqlState;
+        $this->errorCode = $errorCode;
+        $this->sqlState  = $sqlState;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getSQLState() : ?string
+    public function getErrorCode()
+    {
+        return $this->errorCode;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSQLState()
     {
         return $this->sqlState;
     }

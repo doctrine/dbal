@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\Tests\DBAL\Schema;
 
 use Doctrine\DBAL\Schema\Schema;
@@ -401,7 +399,7 @@ class SchemaTest extends TestCase
         $visitor->expects($this->exactly(2))
             ->method('acceptSequence');
 
-        $schema->visit($visitor);
+        self::assertNull($schema->visit($visitor));
     }
 
     /**
@@ -462,8 +460,6 @@ class SchemaTest extends TestCase
         $visitor->expects($this->exactly(2))
             ->method('acceptSequence');
 
-        $schema->visit($visitor);
-
-        self::doesNotPerformAssertions(); // FIXME
+        self::assertNull($schema->visit($visitor));
     }
 }

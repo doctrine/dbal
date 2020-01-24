@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\Connections\MasterSlaveConnection;
@@ -12,7 +10,6 @@ use Doctrine\Tests\DbalFunctionalTestCase;
 use Throwable;
 use const CASE_LOWER;
 use function array_change_key_case;
-use function assert;
 use function sprintf;
 use function strlen;
 use function strtolower;
@@ -50,10 +47,7 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
 
     private function createMasterSlaveConnection(bool $keepSlave = false) : MasterSlaveConnection
     {
-        $connection = DriverManager::getConnection($this->createMasterSlaveConnectionParams($keepSlave));
-        assert($connection instanceof MasterSlaveConnection);
-
-        return $connection;
+        return DriverManager::getConnection($this->createMasterSlaveConnectionParams($keepSlave));
     }
 
     /**

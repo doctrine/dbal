@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\DBAL\Event;
 
 use Doctrine\Common\EventArgs;
@@ -15,16 +13,19 @@ class SchemaEventArgs extends EventArgs
     private $preventDefault = false;
 
     /**
-     * @return $this
+     * @return \Doctrine\DBAL\Event\SchemaEventArgs
      */
-    public function preventDefault() : self
+    public function preventDefault()
     {
         $this->preventDefault = true;
 
         return $this;
     }
 
-    public function isDefaultPrevented() : bool
+    /**
+     * @return bool
+     */
+    public function isDefaultPrevented()
     {
         return $this->preventDefault;
     }

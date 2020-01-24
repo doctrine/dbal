@@ -1,16 +1,8 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\Tests\DBAL\Functional;
 
-use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Driver\IBMDB2\DB2Driver;
-use Doctrine\DBAL\Driver\PDOConnection;
-use Doctrine\DBAL\Driver\PDOMySql\Driver as PDOMySQLDriver;
 use Doctrine\DBAL\Driver\PDOOracle\Driver as PDOOracleDriver;
-use Doctrine\DBAL\Driver\PDOSqlsrv\Driver as PDOSQLSRVDriver;
-use Doctrine\DBAL\Driver\SQLSrv\Driver as SQLSRVDriver;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
@@ -18,8 +10,6 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use function base64_decode;
-use function get_class;
-use function sprintf;
 use function stream_get_contents;
 
 class StatementTest extends DbalFunctionalTestCase
@@ -67,7 +57,7 @@ class StatementTest extends DbalFunctionalTestCase
 
         $sm    = $this->connection->getSchemaManager();
         $table = new Table('stmt_longer_results');
-        $table->addColumn('param', 'string', ['length' => 24]);
+        $table->addColumn('param', 'string');
         $table->addColumn('val', 'text');
         $sm->createTable($table);
 
@@ -248,11 +238,8 @@ EOF
 
     public function testCloseCursorOnNonExecutedStatement() : void
     {
-        $this->expectNotToPerformAssertions();
-
         $stmt = $this->connection->prepare('SELECT id FROM stmt_test');
-
-        $stmt->closeCursor();
+        self::assertTrue($stmt->closeCursor());
     }
 
     /**
@@ -260,23 +247,12 @@ EOF
      */
     public function testCloseCursorAfterCursorEnd() : void
     {
-        $this->expectNotToPerformAssertions();
-
         $stmt = $this->connection->prepare('SELECT name FROM stmt_test');
 
         $stmt->execute();
         $stmt->fetch();
 
-        $stmt->closeCursor();
-    }
-
-    public function testCloseCursorAfterClosingCursor() : void
-    {
-        $this->expectNotToPerformAssertions();
-
-        $stmt = $this->connection->executeQuery('SELECT name FROM stmt_test');
-        $stmt->closeCursor();
-        $stmt->closeCursor();
+        self::assertTrue($stmt->closeCursor());
     }
 
     /**
@@ -342,69 +318,5 @@ EOF
         $result   = $this->connection->executeQuery($query)->fetch(FetchMode::COLUMN);
 
         self::assertEquals(1, $result);
-    }
-
-    public function testExecWithRedundantParameters() : void
-    {
-        $driver = $this->connection->getDriver();
-
-        if ($driver instanceof PDOMySQLDriver
-            || $driver instanceof PDOOracleDriver
-            || $driver instanceof PDOSQLSRVDriver
-        ) {
-            self::markTestSkipped(sprintf(
-                'The underlying implementation of the "%s" driver does not report redundant parameters',
-                get_class($driver)
-            ));
-        }
-
-        if ($driver instanceof DB2Driver) {
-            self::markTestSkipped('db2_execute() does not report redundant parameters');
-        }
-
-        if ($driver instanceof SQLSRVDriver) {
-            self::markTestSkipped('sqlsrv_prepare() does not report redundant parameters');
-        }
-
-        $platform = $this->connection->getDatabasePlatform();
-        $query    = $platform->getDummySelectSQL();
-        $stmt     = $this->connection->prepare($query);
-
-        // we want to make sure the exception is thrown by the DBAL code, not by PHPUnit due to a PHP-level error,
-        // but the wrapper connection wraps everything in a DBAL exception
-        $this->iniSet('error_reporting', '0');
-
-        self::expectException(DBALException::class);
-        $stmt->execute([null]);
-    }
-
-    /**
-     * @throws DBALException
-     *
-     * @dataProvider nonExistingIndexProvider
-     */
-    public function testFetchColumnNonExistingIndex(int $index) : void
-    {
-        if ($this->connection->getWrappedConnection() instanceof PDOConnection) {
-            $this->markTestSkipped('PDO supports this behavior natively but throws a different exception');
-        }
-
-        $platform = $this->connection->getDatabasePlatform();
-        $query    = $platform->getDummySelectSQL();
-        $stmt     = $this->connection->query($query);
-
-        self::expectException(DBALException::class);
-        $stmt->fetchColumn($index);
-    }
-
-    /**
-     * @return mixed[][]
-     */
-    public static function nonExistingIndexProvider() : iterable
-    {
-        return [
-            [1],
-            [-1],
-        ];
     }
 }

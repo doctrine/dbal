@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\Tests\DBAL\Tools;
 
 use ArrayIterator;
@@ -100,8 +98,8 @@ class DumperTest extends DbalTestCase
         $print_r_class    = print_r($class, true);
         $print_r_expected = print_r($expected, true);
 
-        $print_r_class    = substr($print_r_class, (int) strpos($print_r_class, '('));
-        $print_r_expected = substr($print_r_expected, (int) strpos($print_r_expected, '('));
+        $print_r_class    = substr($print_r_class, strpos($print_r_class, '('));
+        $print_r_expected = substr($print_r_expected, strpos($print_r_expected, '('));
 
         self::assertSame($print_r_class, $print_r_expected);
 

@@ -1,34 +1,22 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\DBAL\Driver\PDOMySql;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\AbstractMySQLDriver;
-use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\PDOConnection;
-use Doctrine\DBAL\Driver\PDOException;
-use PDO;
+use PDOException;
 
 /**
  * PDO MySql driver.
  */
-final class Driver extends AbstractMySQLDriver
+class Driver extends AbstractMySQLDriver
 {
     /**
      * {@inheritdoc}
      */
-    public function connect(
-        array $params,
-        string $username = '',
-        string $password = '',
-        array $driverOptions = []
-    ) : Connection {
-        if (! empty($params['persistent'])) {
-            $driverOptions[PDO::ATTR_PERSISTENT] = true;
-        }
-
+    public function connect(array $params, $username = null, $password = null, array $driverOptions = [])
+    {
         try {
             $conn = new PDOConnection(
                 $this->constructPdoDsn($params),
@@ -50,7 +38,7 @@ final class Driver extends AbstractMySQLDriver
      *
      * @return string The DSN.
      */
-    private function constructPdoDsn(array $params) : string
+    protected function constructPdoDsn(array $params)
     {
         $dsn = 'mysql:';
         if (isset($params['host']) && $params['host'] !== '') {
@@ -70,5 +58,15 @@ final class Driver extends AbstractMySQLDriver
         }
 
         return $dsn;
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @deprecated
+     */
+    public function getName()
+    {
+        return 'pdo_mysql';
     }
 }

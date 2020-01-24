@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
 use Doctrine\DBAL\Schema;
@@ -36,15 +34,15 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testRenameTable() : void
     {
-        $this->schemaManager->tryMethod('dropTable', 'list_tables_test');
-        $this->schemaManager->tryMethod('dropTable', 'list_tables_test_new_name');
+        $this->schemaManager->tryMethod('DropTable', 'list_tables_test');
+        $this->schemaManager->tryMethod('DropTable', 'list_tables_test_new_name');
 
         $this->createTestTable('list_tables_test');
         $this->schemaManager->renameTable('list_tables_test', 'list_tables_test_new_name');
 
         $tables = $this->schemaManager->listTables();
 
-        self::assertHasTable($tables);
+        self::assertHasTable($tables, 'list_tables_test_new_name');
     }
 
     public function testListTableWithBinary() : void
@@ -53,11 +51,8 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $table = new Table($tableName);
         $table->addColumn('id', 'integer');
-        $table->addColumn('column_varbinary', 'binary', ['length' => 32]);
-        $table->addColumn('column_binary', 'binary', [
-            'length' => 32,
-            'fixed' => true,
-        ]);
+        $table->addColumn('column_varbinary', 'binary', []);
+        $table->addColumn('column_binary', 'binary', ['fixed' => true]);
         $table->setPrimaryKey(['id']);
 
         $this->schemaManager->createTable($table);
@@ -83,7 +78,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $table->addColumn('id', 'integer');
         $table->addColumn('foo', 'integer');
-        $table->addColumn('bar', 'string', ['length' => 32]);
+        $table->addColumn('bar', 'string');
         $table->setPrimaryKey(['id']);
 
         $this->schemaManager->dropAndCreateTable($table);
@@ -98,11 +93,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $diffTable->changeColumn('foo', ['notnull' => false]);
         $diffTable->changeColumn('bar', ['length' => 1024]);
 
-        $diff = $comparator->diffTable($table, $diffTable);
-
-        self::assertNotNull($diff);
-
-        $this->schemaManager->alterTable($diff);
+        $this->schemaManager->alterTable($comparator->diffTable($table, $diffTable));
 
         $columns = $this->schemaManager->listTableColumns($tableName);
 
@@ -177,10 +168,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertTrue($onlinePrimaryTable->hasColumn('"Id"'));
         self::assertSame('"Id"', $onlinePrimaryTable->getColumn('"Id"')->getQuotedName($platform));
         self::assertTrue($onlinePrimaryTable->hasPrimaryKey());
-
-        $onlinePrimaryTablePrimaryKey = $onlinePrimaryTable->getPrimaryKey();
-        self::assertNotNull($onlinePrimaryTablePrimaryKey);
-        self::assertSame(['"Id"'], $onlinePrimaryTablePrimaryKey->getQuotedColumns($platform));
+        self::assertSame(['"Id"'], $onlinePrimaryTable->getPrimaryKey()->getQuotedColumns($platform));
 
         self::assertTrue($onlinePrimaryTable->hasColumn('select'));
         self::assertSame('"select"', $onlinePrimaryTable->getColumn('select')->getQuotedName($platform));
@@ -214,10 +202,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertTrue($onlineForeignTable->hasColumn('id'));
         self::assertSame('ID', $onlineForeignTable->getColumn('id')->getQuotedName($platform));
         self::assertTrue($onlineForeignTable->hasPrimaryKey());
-
-        $onlineForeignTablePrimaryKey = $onlineForeignTable->getPrimaryKey();
-        self::assertNotNull($onlineForeignTablePrimaryKey);
-        self::assertSame(['ID'], $onlineForeignTablePrimaryKey->getQuotedColumns($platform));
+        self::assertSame(['ID'], $onlineForeignTable->getPrimaryKey()->getQuotedColumns($platform));
 
         self::assertTrue($onlineForeignTable->hasColumn('"Fk"'));
         self::assertSame('"Fk"', $onlineForeignTable->getColumn('"Fk"')->getQuotedName($platform));
@@ -247,10 +232,10 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->schemaManager->dropAndCreateTable($table);
 
         $otherTable = new Table($table->getName());
-        $otherTable->addColumn('id', Types::STRING, ['length' => 32]);
+        $otherTable->addColumn('id', Types::STRING);
         TestUtil::getTempConnection()->getSchemaManager()->dropAndCreateTable($otherTable);
 
-        $columns = $this->schemaManager->listTableColumns($table->getName(), $this->connection->getDatabase());
+        $columns = $this->schemaManager->listTableColumns($table->getName(), $this->connection->getUsername());
         self::assertCount(7, $columns);
     }
 

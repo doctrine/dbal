@@ -1,24 +1,21 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\DBAL\Driver\PDOSqlite;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\AbstractSQLiteDriver;
-use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\PDOConnection;
-use Doctrine\DBAL\Driver\PDOException;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
+use PDOException;
 use function array_merge;
 
 /**
  * The PDO Sqlite driver.
  */
-final class Driver extends AbstractSQLiteDriver
+class Driver extends AbstractSQLiteDriver
 {
     /** @var mixed[] */
-    private $userDefinedFunctions = [
+    protected $_userDefinedFunctions = [
         'sqrt' => ['callback' => [SqlitePlatform::class, 'udfSqrt'], 'numArgs' => 1],
         'mod'  => ['callback' => [SqlitePlatform::class, 'udfMod'], 'numArgs' => 2],
         'locate'  => ['callback' => [SqlitePlatform::class, 'udfLocate'], 'numArgs' => -1],
@@ -27,23 +24,19 @@ final class Driver extends AbstractSQLiteDriver
     /**
      * {@inheritdoc}
      */
-    public function connect(
-        array $params,
-        string $username = '',
-        string $password = '',
-        array $driverOptions = []
-    ) : Connection {
+    public function connect(array $params, $username = null, $password = null, array $driverOptions = [])
+    {
         if (isset($driverOptions['userDefinedFunctions'])) {
-            $this->userDefinedFunctions = array_merge(
-                $this->userDefinedFunctions,
+            $this->_userDefinedFunctions = array_merge(
+                $this->_userDefinedFunctions,
                 $driverOptions['userDefinedFunctions']
             );
             unset($driverOptions['userDefinedFunctions']);
         }
 
         try {
-            $connection = new PDOConnection(
-                $this->constructPdoDsn($params),
+            $pdo = new PDOConnection(
+                $this->_constructPdoDsn($params),
                 $username,
                 $password,
                 $driverOptions
@@ -52,13 +45,11 @@ final class Driver extends AbstractSQLiteDriver
             throw DBALException::driverException($this, $ex);
         }
 
-        $pdo = $connection->getWrappedConnection();
-
-        foreach ($this->userDefinedFunctions as $fn => $data) {
+        foreach ($this->_userDefinedFunctions as $fn => $data) {
             $pdo->sqliteCreateFunction($fn, $data['callback'], $data['numArgs']);
         }
 
-        return $connection;
+        return $pdo;
     }
 
     /**
@@ -68,7 +59,7 @@ final class Driver extends AbstractSQLiteDriver
      *
      * @return string The DSN.
      */
-    private function constructPdoDsn(array $params) : string
+    protected function _constructPdoDsn(array $params)
     {
         $dsn = 'sqlite:';
         if (isset($params['path'])) {
@@ -78,5 +69,15 @@ final class Driver extends AbstractSQLiteDriver
         }
 
         return $dsn;
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @deprecated
+     */
+    public function getName()
+    {
+        return 'pdo_sqlite';
     }
 }

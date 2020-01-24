@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\DBAL\Schema;
 
 use function in_array;
@@ -17,16 +15,17 @@ class ColumnDiff
     /** @var Column */
     public $column;
 
-    /** @var array<int, string> */
+    /** @var string[] */
     public $changedProperties = [];
 
     /** @var Column|null */
     public $fromColumn;
 
     /**
-     * @param array<string> $changedProperties
+     * @param string   $oldColumnName
+     * @param string[] $changedProperties
      */
-    public function __construct(string $oldColumnName, Column $column, array $changedProperties = [], ?Column $fromColumn = null)
+    public function __construct($oldColumnName, Column $column, array $changedProperties = [], ?Column $fromColumn = null)
     {
         $this->oldColumnName     = $oldColumnName;
         $this->column            = $column;
@@ -34,12 +33,20 @@ class ColumnDiff
         $this->fromColumn        = $fromColumn;
     }
 
-    public function hasChanged(string $propertyName) : bool
+    /**
+     * @param string $propertyName
+     *
+     * @return bool
+     */
+    public function hasChanged($propertyName)
     {
         return in_array($propertyName, $this->changedProperties);
     }
 
-    public function getOldColumnName() : Identifier
+    /**
+     * @return Identifier
+     */
+    public function getOldColumnName()
     {
         $quote = $this->fromColumn && $this->fromColumn->isQuoted();
 

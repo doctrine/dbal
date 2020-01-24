@@ -1,22 +1,21 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\Tests\DBAL\Functional;
 
-use Doctrine\DBAL\Driver\Exception\UnknownFetchMode;
 use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use PDO;
+use function extension_loaded;
 
-/**
- * @requires extension pdo
- */
 class PDOStatementTest extends DbalFunctionalTestCase
 {
     protected function setUp() : void
     {
+        if (! extension_loaded('pdo')) {
+            $this->markTestSkipped('PDO is not installed');
+        }
+
         parent::setUp();
 
         if (! $this->connection->getWrappedConnection() instanceof PDOConnection) {
@@ -25,10 +24,14 @@ class PDOStatementTest extends DbalFunctionalTestCase
 
         $table = new Table('stmt_test');
         $table->addColumn('id', 'integer');
-        $table->addColumn('name', 'string', ['length' => 8]);
+        $table->addColumn('name', 'string');
         $this->connection->getSchemaManager()->dropAndCreateTable($table);
     }
 
+    /**
+     * @group legacy
+     * @expectedDeprecation Using a PDO fetch mode or their combination (%d given) is deprecated and will cause an error in Doctrine 3.0
+     */
     public function testPDOSpecificModeIsAccepted() : void
     {
         $this->connection->insert('stmt_test', [
@@ -39,9 +42,6 @@ class PDOStatementTest extends DbalFunctionalTestCase
             'id' => 2,
             'name' => 'Bob',
         ]);
-
-        self::expectException(UnknownFetchMode::class);
-        self::expectExceptionMessage('Unknown fetch mode 12.');
 
         $data = $this->connection->query('SELECT id, name FROM stmt_test ORDER BY id')
             ->fetchAll(PDO::FETCH_KEY_PAIR);

@@ -1,8 +1,8 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\DBAL;
+
+use PDO;
 
 /**
  * Contains statement parameter types.
@@ -14,35 +14,35 @@ final class ParameterType
      *
      * @see \PDO::PARAM_NULL
      */
-    public const NULL = 0;
+    public const NULL = PDO::PARAM_NULL;
 
     /**
      * Represents the SQL INTEGER data type.
      *
      * @see \PDO::PARAM_INT
      */
-    public const INTEGER = 1;
+    public const INTEGER = PDO::PARAM_INT;
 
     /**
      * Represents the SQL CHAR, VARCHAR, or other string data type.
      *
      * @see \PDO::PARAM_STR
      */
-    public const STRING = 2;
+    public const STRING = PDO::PARAM_STR;
 
     /**
      * Represents the SQL large object data type.
      *
      * @see \PDO::PARAM_LOB
      */
-    public const LARGE_OBJECT = 3;
+    public const LARGE_OBJECT = PDO::PARAM_LOB;
 
     /**
      * Represents a boolean data type.
      *
      * @see \PDO::PARAM_BOOL
      */
-    public const BOOLEAN = 5;
+    public const BOOLEAN = PDO::PARAM_BOOL;
 
     /**
      * Represents a binary string data type.

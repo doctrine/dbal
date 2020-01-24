@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\ParameterType;
@@ -15,7 +13,7 @@ class BooleanType extends Type
     /**
      * {@inheritdoc}
      */
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform) : string
+    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
     {
         return $platform->getBooleanTypeDeclarationSQL($fieldDeclaration);
     }
@@ -39,7 +37,7 @@ class BooleanType extends Type
     /**
      * {@inheritdoc}
      */
-    public function getName() : string
+    public function getName()
     {
         return Types::BOOLEAN;
     }
@@ -47,7 +45,7 @@ class BooleanType extends Type
     /**
      * {@inheritdoc}
      */
-    public function getBindingType() : int
+    public function getBindingType()
     {
         return ParameterType::BOOLEAN;
     }

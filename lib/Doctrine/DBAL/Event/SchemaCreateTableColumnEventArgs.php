@@ -1,13 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\DBAL\Event;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Table;
 use function array_merge;
+use function func_get_args;
+use function is_array;
 
 /**
  * Event Arguments used when SQL queries for creating table columns are generated inside Doctrine\DBAL\Platform\AbstractPlatform.
@@ -23,7 +23,7 @@ class SchemaCreateTableColumnEventArgs extends SchemaEventArgs
     /** @var AbstractPlatform */
     private $platform;
 
-    /** @var array<int, string> */
+    /** @var string[] */
     private $sql = [];
 
     public function __construct(Column $column, Table $table, AbstractPlatform $platform)
@@ -33,35 +33,48 @@ class SchemaCreateTableColumnEventArgs extends SchemaEventArgs
         $this->platform = $platform;
     }
 
-    public function getColumn() : Column
+    /**
+     * @return Column
+     */
+    public function getColumn()
     {
         return $this->column;
     }
 
-    public function getTable() : Table
+    /**
+     * @return Table
+     */
+    public function getTable()
     {
         return $this->table;
     }
 
-    public function getPlatform() : AbstractPlatform
+    /**
+     * @return AbstractPlatform
+     */
+    public function getPlatform()
     {
         return $this->platform;
     }
 
     /**
-     * @return $this
+     * Passing multiple SQL statements as an array is deprecated. Pass each statement as an individual argument instead.
+     *
+     * @param string|string[] $sql
+     *
+     * @return \Doctrine\DBAL\Event\SchemaCreateTableColumnEventArgs
      */
-    public function addSql(string ...$sql) : self
+    public function addSql($sql)
     {
-        $this->sql = array_merge($this->sql, $sql);
+        $this->sql = array_merge($this->sql, is_array($sql) ? $sql : func_get_args());
 
         return $this;
     }
 
     /**
-     * @return array<int, string>
+     * @return string[]
      */
-    public function getSql() : array
+    public function getSql()
     {
         return $this->sql;
     }

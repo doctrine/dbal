@@ -1,18 +1,21 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\DBAL\Driver\SQLAnywhere;
 
-use Doctrine\DBAL\Driver\ResultStatement;
+use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
-use Doctrine\DBAL\Driver\Statement as DriverStatement;
+use Doctrine\DBAL\ParameterType;
 use function assert;
+use function func_get_args;
+use function is_float;
+use function is_int;
 use function is_resource;
 use function is_string;
 use function sasql_affected_rows;
 use function sasql_commit;
 use function sasql_connect;
+use function sasql_error;
+use function sasql_errorcode;
 use function sasql_escape_string;
 use function sasql_insert_id;
 use function sasql_pconnect;
@@ -23,7 +26,7 @@ use function sasql_set_option;
 /**
  * SAP Sybase SQL Anywhere implementation of the Connection interface.
  */
-final class SQLAnywhereConnection implements ServerInfoAwareConnection
+class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
 {
     /** @var resource The SQL Anywhere connection resource. */
     private $connection;
@@ -36,7 +39,7 @@ final class SQLAnywhereConnection implements ServerInfoAwareConnection
      *
      * @throws SQLAnywhereException
      */
-    public function __construct(string $dsn, bool $persistent = false)
+    public function __construct($dsn, $persistent = false)
     {
         $this->connection = $persistent ? @sasql_pconnect($dsn) : @sasql_connect($dsn);
 
@@ -60,11 +63,13 @@ final class SQLAnywhereConnection implements ServerInfoAwareConnection
      *
      * @throws SQLAnywhereException
      */
-    public function beginTransaction() : void
+    public function beginTransaction()
     {
         if (! sasql_set_option($this->connection, 'auto_commit', 'off')) {
             throw SQLAnywhereException::fromSQLAnywhereError($this->connection);
         }
+
+        return true;
     }
 
     /**
@@ -72,19 +77,37 @@ final class SQLAnywhereConnection implements ServerInfoAwareConnection
      *
      * @throws SQLAnywhereException
      */
-    public function commit() : void
+    public function commit()
     {
         if (! sasql_commit($this->connection)) {
             throw SQLAnywhereException::fromSQLAnywhereError($this->connection);
         }
 
         $this->endTransaction();
+
+        return true;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function exec(string $statement) : int
+    public function errorCode()
+    {
+        return sasql_errorcode($this->connection);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function errorInfo()
+    {
+        return sasql_error($this->connection);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function exec($statement)
     {
         if (sasql_real_query($this->connection, $statement) === false) {
             throw SQLAnywhereException::fromSQLAnywhereError($this->connection);
@@ -96,7 +119,7 @@ final class SQLAnywhereConnection implements ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function getServerVersion() : string
+    public function getServerVersion()
     {
         $version = $this->query("SELECT PROPERTY('ProductVersion')")->fetchColumn();
 
@@ -108,7 +131,7 @@ final class SQLAnywhereConnection implements ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function lastInsertId(?string $name = null) : string
+    public function lastInsertId($name = null)
     {
         if ($name === null) {
             return sasql_insert_id($this->connection);
@@ -120,17 +143,19 @@ final class SQLAnywhereConnection implements ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function prepare(string $sql) : DriverStatement
+    public function prepare($prepareString)
     {
-        return new SQLAnywhereStatement($this->connection, $sql);
+        return new SQLAnywhereStatement($this->connection, $prepareString);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function query(string $sql) : ResultStatement
+    public function query()
     {
-        $stmt = $this->prepare($sql);
+        $args = func_get_args();
+        $stmt = $this->prepare($args[0]);
+
         $stmt->execute();
 
         return $stmt;
@@ -139,9 +164,21 @@ final class SQLAnywhereConnection implements ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function quote(string $input) : string
+    public function quote($input, $type = ParameterType::STRING)
     {
+        if (is_int($input) || is_float($input)) {
+            return $input;
+        }
+
         return "'" . sasql_escape_string($this->connection, $input) . "'";
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function requiresQueryForServerVersion()
+    {
+        return true;
     }
 
     /**
@@ -149,24 +186,30 @@ final class SQLAnywhereConnection implements ServerInfoAwareConnection
      *
      * @throws SQLAnywhereException
      */
-    public function rollBack() : void
+    public function rollBack()
     {
         if (! sasql_rollback($this->connection)) {
             throw SQLAnywhereException::fromSQLAnywhereError($this->connection);
         }
 
         $this->endTransaction();
+
+        return true;
     }
 
     /**
      * Ends transactional mode and enables auto commit again.
      *
+     * @return bool Whether or not ending transactional mode succeeded.
+     *
      * @throws SQLAnywhereException
      */
-    private function endTransaction() : void
+    private function endTransaction()
     {
         if (! sasql_set_option($this->connection, 'auto_commit', 'on')) {
             throw SQLAnywhereException::fromSQLAnywhereError($this->connection);
         }
+
+        return true;
     }
 }

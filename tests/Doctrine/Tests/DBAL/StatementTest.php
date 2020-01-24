@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\Tests\DBAL;
 
 use Doctrine\DBAL\Configuration;
@@ -9,32 +7,34 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
-use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Logging\SQLLogger;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Statement;
 use Doctrine\Tests\DbalTestCase;
 use Exception;
-use PHPUnit\Framework\MockObject\MockObject;
+use PDOStatement;
 
 class StatementTest extends DbalTestCase
 {
-    /** @var Connection|MockObject */
+    /** @var Connection */
     private $conn;
 
-    /** @var Configuration|MockObject */
+    /** @var Configuration */
     private $configuration;
 
-    /** @var DriverStatement|MockObject */
-    private $driverStatement;
+    /** @var PDOStatement */
+    private $pdoStatement;
 
     protected function setUp() : void
     {
-        $this->driverStatement = $this->createMock(DriverStatement::class);
+        $this->pdoStatement = $this->getMockBuilder(PDOStatement::class)
+            ->onlyMethods(['execute', 'bindParam', 'bindValue'])
+            ->getMock();
 
-        $driverConnection = $this->createConfiguredMock(DriverConnection::class, [
-            'prepare' => $this->driverStatement,
-        ]);
+        $driverConnection = $this->createMock(DriverConnection::class);
+        $driverConnection->expects($this->any())
+                ->method('prepare')
+                ->will($this->returnValue($this->pdoStatement));
 
         $driver = $this->createMock(Driver::class);
 
@@ -140,7 +140,7 @@ class StatementTest extends DbalTestCase
         $logger->expects($this->once())
             ->method('stopQuery');
 
-        $this->driverStatement->expects($this->once())
+        $this->pdoStatement->expects($this->once())
             ->method('execute')
             ->will($this->throwException(new Exception('Mock test exception')));
 

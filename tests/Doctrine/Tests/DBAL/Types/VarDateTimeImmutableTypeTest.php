@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\Tests\DBAL\Types;
 
 use DateTime;
@@ -9,6 +7,7 @@ use DateTimeImmutable;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
+use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\VarDateTimeImmutableType;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -23,8 +22,12 @@ class VarDateTimeImmutableTypeTest extends TestCase
 
     protected function setUp() : void
     {
-        $this->platform = $this->createMock(AbstractPlatform::class);
-        $this->type     = new VarDateTimeImmutableType();
+        if (! Type::hasType('vardatetime_immutable')) {
+            Type::addType('vardatetime_immutable', VarDateTimeImmutableType::class);
+        }
+
+        $this->type     = Type::getType('vardatetime_immutable');
+        $this->platform = $this->getMockForAbstractClass(AbstractPlatform::class);
     }
 
     public function testReturnsName() : void
@@ -39,11 +42,7 @@ class VarDateTimeImmutableTypeTest extends TestCase
 
     public function testConvertsDateTimeImmutableInstanceToDatabaseValue() : void
     {
-        $this->platform->expects($this->any())
-            ->method('getDateTimeFormatString')
-            ->will($this->returnValue('Y-m-d H:i:s'));
-
-        $date = $this->createMock(DateTimeImmutable::class);
+        $date = $this->getMockBuilder(DateTimeImmutable::class)->getMock();
 
         $date->expects($this->once())
             ->method('format')

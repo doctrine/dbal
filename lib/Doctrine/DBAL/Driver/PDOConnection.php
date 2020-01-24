@@ -1,32 +1,32 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\DBAL\Driver;
 
+use Doctrine\DBAL\ParameterType;
 use PDO;
 use function assert;
+use function func_get_args;
 
 /**
  * PDO implementation of the Connection interface.
- *
  * Used by all PDO-based drivers.
  */
-class PDOConnection implements ServerInfoAwareConnection
+class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
 {
-    /** @var PDO */
-    private $connection;
-
     /**
-     * @param array<int, mixed> $options
+     * @param string       $dsn
+     * @param string|null  $user
+     * @param string|null  $password
+     * @param mixed[]|null $options
      *
      * @throws PDOException In case of an error.
      */
-    public function __construct(string $dsn, string $username = '', string $password = '', array $options = [])
+    public function __construct($dsn, $user = null, $password = null, ?array $options = null)
     {
         try {
-            $this->connection = new PDO($dsn, $username, $password, $options);
-            $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            parent::__construct($dsn, (string) $user, (string) $password, (array) $options);
+            $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, [PDOStatement::class, []]);
+            $this->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
         }
@@ -35,10 +35,10 @@ class PDOConnection implements ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function exec(string $statement) : int
+    public function exec($statement)
     {
         try {
-            return $this->connection->exec($statement);
+            return parent::exec($statement);
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
         }
@@ -47,20 +47,18 @@ class PDOConnection implements ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function getServerVersion() : string
+    public function getServerVersion()
     {
-        return $this->connection->getAttribute(PDO::ATTR_SERVER_VERSION);
+        return PDO::getAttribute(PDO::ATTR_SERVER_VERSION);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function prepare(string $sql) : Statement
+    public function prepare($prepareString, $driverOptions = [])
     {
         try {
-            return $this->createStatement(
-                $this->connection->prepare($sql)
-            );
+            return parent::prepare($prepareString, $driverOptions);
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
         }
@@ -69,13 +67,15 @@ class PDOConnection implements ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function query(string $sql) : ResultStatement
+    public function query()
     {
+        $args = func_get_args();
+
         try {
-            $stmt = $this->connection->query($sql);
+            $stmt = parent::query(...$args);
             assert($stmt instanceof \PDOStatement);
 
-            return $this->createStatement($stmt);
+            return $stmt;
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
         }
@@ -84,61 +84,32 @@ class PDOConnection implements ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function quote(string $input) : string
+    public function quote($input, $type = ParameterType::STRING)
     {
-        return $this->connection->quote($input);
+        return parent::quote($input, $type);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function lastInsertId(?string $name = null) : string
+    public function lastInsertId($name = null)
     {
         try {
             if ($name === null) {
-                return $this->connection->lastInsertId();
+                return parent::lastInsertId();
             }
 
-            return $this->connection->lastInsertId($name);
+            return parent::lastInsertId($name);
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
         }
     }
 
     /**
-     * Creates a wrapped statement
+     * {@inheritdoc}
      */
-    protected function createStatement(\PDOStatement $stmt) : PDOStatement
+    public function requiresQueryForServerVersion()
     {
-        return new PDOStatement($stmt);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function beginTransaction() : void
-    {
-        $this->connection->beginTransaction();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function commit() : void
-    {
-        $this->connection->commit();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function rollBack() : void
-    {
-        $this->connection->rollBack();
-    }
-
-    public function getWrappedConnection() : PDO
-    {
-        return $this->connection;
+        return false;
     }
 }

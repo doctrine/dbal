@@ -1,11 +1,7 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\DBAL;
 
-use Doctrine\DBAL\Exception\MissingArrayParameter;
-use Doctrine\DBAL\Exception\MissingArrayParameterType;
 use const PREG_OFFSET_CAPTURE;
 use function array_fill;
 use function array_key_exists;
@@ -28,17 +24,39 @@ use function substr;
  */
 class SQLParserUtils
 {
-    private const POSITIONAL_TOKEN = '\?';
-    private const NAMED_TOKEN      = '(?<!:):[a-zA-Z_][a-zA-Z0-9_]*';
-
     /**#@+
-     * Quote characters within string literals can be preceded by a backslash.
+     *
+     * @deprecated Will be removed as internal implementation details.
      */
-    private const ESCAPED_SINGLE_QUOTED_TEXT   = "(?:'(?:\\\\)+'|'(?:[^'\\\\]|\\\\'?|'')*')";
-    private const ESCAPED_DOUBLE_QUOTED_TEXT   = '(?:"(?:\\\\)+"|"(?:[^"\\\\]|\\\\"?)*")';
-    private const ESCAPED_BACKTICK_QUOTED_TEXT = '(?:`(?:\\\\)+`|`(?:[^`\\\\]|\\\\`?)*`)';
-    private const ESCAPED_BRACKET_QUOTED_TEXT  = '(?<!\b(?i:ARRAY))\[(?:[^\]])*\]';
+    public const POSITIONAL_TOKEN = '\?';
+    public const NAMED_TOKEN      = '(?<!:):[a-zA-Z_][a-zA-Z0-9_]*';
+    // Quote characters within string literals can be preceded by a backslash.
+    public const ESCAPED_SINGLE_QUOTED_TEXT   = "(?:'(?:\\\\\\\\)+'|'(?:[^'\\\\]|\\\\'?|'')*')";
+    public const ESCAPED_DOUBLE_QUOTED_TEXT   = '(?:"(?:\\\\\\\\)+"|"(?:[^"\\\\]|\\\\"?)*")';
+    public const ESCAPED_BACKTICK_QUOTED_TEXT = '(?:`(?:\\\\\\\\)+`|`(?:[^`\\\\]|\\\\`?)*`)';
     /**#@-*/
+
+    private const ESCAPED_BRACKET_QUOTED_TEXT = '(?<!\b(?i:ARRAY))\[(?:[^\]])*\]';
+
+    /**
+     * Gets an array of the placeholders in an sql statements as keys and their positions in the query string.
+     *
+     * For a statement with positional parameters, returns a zero-indexed list of placeholder position.
+     * For a statement with named parameters, returns a map of placeholder positions to their parameter names.
+     *
+     * @deprecated Will be removed as internal implementation detail.
+     *
+     * @param string $statement
+     * @param bool   $isPositional
+     *
+     * @return int[]|string[]
+     */
+    public static function getPlaceholderPositions($statement, $isPositional = true)
+    {
+        return $isPositional
+            ? self::getPositionalPlaceholderPositions($statement)
+            : self::getNamedPlaceholderPositions($statement);
+    }
 
     /**
      * Returns a zero-indexed list of placeholder position.
@@ -106,7 +124,7 @@ class SQLParserUtils
      *
      * @throws SQLParserUtilsException
      */
-    public static function expandListParameters(string $query, array $params, array $types) : array
+    public static function expandListParameters($query, $params, $types)
     {
         $isPositional   = is_int(key($params));
         $arrayPositions = [];
@@ -222,9 +240,11 @@ class SQLParserUtils
      * 0 => matched fragment string,
      * 1 => offset of fragment in $statement
      *
+     * @param string $statement
+     *
      * @return mixed[][]
      */
-    private static function getUnquotedStatementFragments(string $statement) : array
+    private static function getUnquotedStatementFragments($statement)
     {
         $literal    = self::ESCAPED_SINGLE_QUOTED_TEXT . '|' .
             self::ESCAPED_DOUBLE_QUOTED_TEXT . '|' .
@@ -240,13 +260,14 @@ class SQLParserUtils
     /**
      * @param string $paramName     The name of the parameter (without a colon in front)
      * @param mixed  $paramsOrTypes A hash of parameters or types
+     * @param bool   $isParam
      * @param mixed  $defaultValue  An optional default value. If omitted, an exception is thrown
      *
      * @return mixed
      *
      * @throws SQLParserUtilsException
      */
-    private static function extractParam(string $paramName, $paramsOrTypes, bool $isParam, $defaultValue = null)
+    private static function extractParam($paramName, $paramsOrTypes, $isParam, $defaultValue = null)
     {
         if (array_key_exists($paramName, $paramsOrTypes)) {
             return $paramsOrTypes[$paramName];
@@ -262,9 +283,9 @@ class SQLParserUtils
         }
 
         if ($isParam) {
-            throw MissingArrayParameter::new($paramName);
+            throw SQLParserUtilsException::missingParam($paramName);
         }
 
-        throw MissingArrayParameterType::new($paramName);
+        throw SQLParserUtilsException::missingType($paramName);
     }
 }

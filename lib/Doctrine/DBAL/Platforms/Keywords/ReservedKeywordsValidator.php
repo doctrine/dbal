@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\DBAL\Platforms\Keywords;
 
 use Doctrine\DBAL\Schema\Column;
@@ -33,15 +31,17 @@ class ReservedKeywordsValidator implements Visitor
     /**
      * @return string[]
      */
-    public function getViolations() : array
+    public function getViolations()
     {
         return $this->violations;
     }
 
     /**
+     * @param string $word
+     *
      * @return string[]
      */
-    private function isReservedWord(string $word) : array
+    private function isReservedWord($word)
     {
         if ($word[0] === '`') {
             $word = str_replace('`', '', $word);
@@ -60,9 +60,12 @@ class ReservedKeywordsValidator implements Visitor
     }
 
     /**
+     * @param string   $asset
      * @param string[] $violatedPlatforms
+     *
+     * @return void
      */
-    private function addViolation(string $asset, array $violatedPlatforms) : void
+    private function addViolation($asset, $violatedPlatforms)
     {
         if (! $violatedPlatforms) {
             return;
@@ -74,7 +77,7 @@ class ReservedKeywordsValidator implements Visitor
     /**
      * {@inheritdoc}
      */
-    public function acceptColumn(Table $table, Column $column) : void
+    public function acceptColumn(Table $table, Column $column)
     {
         $this->addViolation(
             'Table ' . $table->getName() . ' column ' . $column->getName(),
@@ -85,35 +88,35 @@ class ReservedKeywordsValidator implements Visitor
     /**
      * {@inheritdoc}
      */
-    public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint) : void
+    public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint)
     {
     }
 
     /**
      * {@inheritdoc}
      */
-    public function acceptIndex(Table $table, Index $index) : void
+    public function acceptIndex(Table $table, Index $index)
     {
     }
 
     /**
      * {@inheritdoc}
      */
-    public function acceptSchema(Schema $schema) : void
+    public function acceptSchema(Schema $schema)
     {
     }
 
     /**
      * {@inheritdoc}
      */
-    public function acceptSequence(Sequence $sequence) : void
+    public function acceptSequence(Sequence $sequence)
     {
     }
 
     /**
      * {@inheritdoc}
      */
-    public function acceptTable(Table $table) : void
+    public function acceptTable(Table $table)
     {
         $this->addViolation(
             'Table ' . $table->getName(),

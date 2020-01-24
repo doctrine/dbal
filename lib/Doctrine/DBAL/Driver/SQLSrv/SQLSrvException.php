@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\DBAL\Driver\SQLSrv;
 
 use Doctrine\DBAL\Driver\AbstractDriverException;
@@ -13,12 +11,14 @@ class SQLSrvException extends AbstractDriverException
 {
     /**
      * Helper method to turn sql server errors into exception.
+     *
+     * @return \Doctrine\DBAL\Driver\SQLSrv\SQLSrvException
      */
-    public static function fromSqlSrvErrors() : self
+    public static function fromSqlSrvErrors()
     {
-        $message  = '';
-        $sqlState = null;
-        $code     = null;
+        $message   = '';
+        $sqlState  = null;
+        $errorCode = null;
 
         foreach ((array) sqlsrv_errors(SQLSRV_ERR_ERRORS) as $error) {
             $message .= 'SQLSTATE [' . $error['SQLSTATE'] . ', ' . $error['code'] . ']: ' . $error['message'] . "\n";
@@ -27,17 +27,17 @@ class SQLSrvException extends AbstractDriverException
                 $sqlState = $error['SQLSTATE'];
             }
 
-            if ($code !== null) {
+            if ($errorCode !== null) {
                 continue;
             }
 
-            $code = $error['code'];
+            $errorCode = $error['code'];
         }
 
         if (! $message) {
             $message = 'SQL Server error occurred but no error message was retrieved from driver.';
         }
 
-        return new self(rtrim($message), $sqlState, $code);
+        return new self(rtrim($message), $sqlState, $errorCode);
     }
 }

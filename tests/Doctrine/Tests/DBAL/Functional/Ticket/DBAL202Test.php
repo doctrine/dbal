@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\Tests\DBAL\Functional\Ticket;
 
 use Doctrine\DBAL\Schema\Table;
@@ -20,7 +18,7 @@ class DBAL202Test extends DbalFunctionalTestCase
             $this->markTestSkipped('OCI8 only test');
         }
 
-        if ($this->connection->getSchemaManager()->tableExists('DBAL202')) {
+        if ($this->connection->getSchemaManager()->tablesExist('DBAL202')) {
             $this->connection->exec('DELETE FROM DBAL202');
         } else {
             $table = new Table('DBAL202');

@@ -1,11 +1,10 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\Tests\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\SmallIntType;
+use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DbalTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 
@@ -20,7 +19,7 @@ class SmallIntTest extends DbalTestCase
     protected function setUp() : void
     {
         $this->platform = $this->createMock(AbstractPlatform::class);
-        $this->type     = new SmallIntType();
+        $this->type     = Type::getType('smallint');
     }
 
     public function testSmallIntConvertsToPHPValue() : void

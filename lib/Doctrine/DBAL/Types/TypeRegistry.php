@@ -5,11 +5,6 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Types\Exception\TypeAlreadyRegistered;
-use Doctrine\DBAL\Types\Exception\TypeNotFound;
-use Doctrine\DBAL\Types\Exception\TypeNotRegistered;
-use Doctrine\DBAL\Types\Exception\TypesAlreadyExists;
-use Doctrine\DBAL\Types\Exception\UnknownColumnType;
 use function array_search;
 use function in_array;
 
@@ -21,11 +16,7 @@ use function in_array;
  */
 final class TypeRegistry
 {
-    /**
-     * Map of type names and their corresponding flyweight objects.
-     *
-     * @var array<string, Type>
-     */
+    /** @var array<string, Type> Map of type names and their corresponding flyweight objects. */
     private $instances = [];
 
     /**
@@ -36,7 +27,7 @@ final class TypeRegistry
     public function get(string $name) : Type
     {
         if (! isset($this->instances[$name])) {
-            throw UnknownColumnType::new($name);
+            throw DBALException::unknownColumnType($name);
         }
 
         return $this->instances[$name];
@@ -52,7 +43,7 @@ final class TypeRegistry
         $name = $this->findTypeName($type);
 
         if ($name === null) {
-            throw TypeNotRegistered::new($type);
+            throw DBALException::typeNotRegistered($type);
         }
 
         return $name;
@@ -74,11 +65,11 @@ final class TypeRegistry
     public function register(string $name, Type $type) : void
     {
         if (isset($this->instances[$name])) {
-            throw TypesAlreadyExists::new($name);
+            throw DBALException::typeExists($name);
         }
 
         if ($this->findTypeName($type) !== null) {
-            throw TypeAlreadyRegistered::new($type);
+            throw DBALException::typeAlreadyRegistered($type);
         }
 
         $this->instances[$name] = $type;
@@ -92,11 +83,11 @@ final class TypeRegistry
     public function override(string $name, Type $type) : void
     {
         if (! isset($this->instances[$name])) {
-            throw TypeNotFound::new($name);
+            throw DBALException::typeNotFound($name);
         }
 
         if (! in_array($this->findTypeName($type), [$name, null], true)) {
-            throw TypeAlreadyRegistered::new($type);
+            throw DBALException::typeAlreadyRegistered($type);
         }
 
         $this->instances[$name] = $type;

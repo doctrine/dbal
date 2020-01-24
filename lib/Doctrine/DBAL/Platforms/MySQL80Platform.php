@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\DBAL\Platforms;
 
 /**
@@ -12,7 +10,7 @@ class MySQL80Platform extends MySQL57Platform
     /**
      * {@inheritdoc}
      */
-    protected function getReservedKeywordsClass() : string
+    protected function getReservedKeywordsClass()
     {
         return Keywords\MySQL80Keywords::class;
     }

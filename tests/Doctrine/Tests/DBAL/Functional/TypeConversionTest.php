@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\Tests\DBAL\Functional;
 
 use DateTime;
@@ -23,10 +21,7 @@ class TypeConversionTest extends DbalFunctionalTestCase
 
         $table = new Table('type_conversion');
         $table->addColumn('id', 'integer', ['notnull' => false]);
-        $table->addColumn('test_string', 'string', [
-            'length' => 16,
-            'notnull' => false,
-        ]);
+        $table->addColumn('test_string', 'string', ['notnull' => false]);
         $table->addColumn('test_boolean', 'boolean', ['notnull' => false]);
         $table->addColumn('test_bigint', 'bigint', ['notnull' => false]);
         $table->addColumn('test_smallint', 'bigint', ['notnull' => false]);
@@ -36,7 +31,7 @@ class TypeConversionTest extends DbalFunctionalTestCase
         $table->addColumn('test_time', 'time', ['notnull' => false]);
         $table->addColumn('test_text', 'text', ['notnull' => false]);
         $table->addColumn('test_array', 'array', ['notnull' => false]);
-        $table->addColumn('test_json', 'json', ['notnull' => false]);
+        $table->addColumn('test_json_array', 'json_array', ['notnull' => false]);
         $table->addColumn('test_object', 'object', ['notnull' => false]);
         $table->addColumn('test_float', 'float', ['notnull' => false]);
         $table->addColumn('test_decimal', 'decimal', ['notnull' => false, 'scale' => 2, 'precision' => 10]);
@@ -169,7 +164,7 @@ class TypeConversionTest extends DbalFunctionalTestCase
     {
         return [
             'array' => ['array', ['foo' => 'bar']],
-            'json' => ['json', ['foo' => 'bar']],
+            'json_array' => ['json_array', ['foo' => 'bar']],
         ];
     }
 

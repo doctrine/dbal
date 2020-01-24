@@ -1,11 +1,8 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Exception\ColumnLengthRequired;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\Column;
@@ -18,7 +15,6 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
 use function array_walk;
-use function assert;
 use function preg_replace;
 use function sprintf;
 use function strtoupper;
@@ -49,7 +45,8 @@ class OraclePlatformTest extends AbstractPlatformTestCase
      */
     public function testValidIdentifiers(string $identifier) : void
     {
-        OraclePlatform::assertValidIdentifier($identifier);
+        $platform = $this->createPlatform();
+        $platform->assertValidIdentifier($identifier);
 
         $this->addToAssertionCount(1);
     }
@@ -75,7 +72,8 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     {
         $this->expectException(DBALException::class);
 
-        OraclePlatform::assertValidIdentifier($identifier);
+        $platform = $this->createPlatform();
+        $platform->assertValidIdentifier($identifier);
     }
 
     public function createPlatform() : AbstractPlatform
@@ -180,6 +178,26 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         );
     }
 
+    public function testGeneratesTypeDeclarationsForStrings() : void
+    {
+        self::assertEquals(
+            'CHAR(10)',
+            $this->platform->getVarcharTypeDeclarationSQL(
+                ['length' => 10, 'fixed' => true]
+            )
+        );
+        self::assertEquals(
+            'VARCHAR2(50)',
+            $this->platform->getVarcharTypeDeclarationSQL(['length' => 50]),
+            'Variable string declaration is not correct'
+        );
+        self::assertEquals(
+            'VARCHAR2(255)',
+            $this->platform->getVarcharTypeDeclarationSQL([]),
+            'Long string declaration is not correct'
+        );
+    }
+
     public function testPrefersIdentityColumns() : void
     {
         self::assertFalse($this->platform->prefersIdentityColumns());
@@ -226,7 +244,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
      */
     public function testGeneratesAdvancedForeignKeyOptionsSQL(array $options, string $expectedSql) : void
     {
-        $foreignKey = new ForeignKeyConstraint(['foo'], 'foreign_table', ['bar'], '', $options);
+        $foreignKey = new ForeignKeyConstraint(['foo'], 'foreign_table', ['bar'], null, $options);
 
         self::assertSame($expectedSql, $this->platform->getAdvancedForeignKeyOptionsSQL($foreignKey));
     }
@@ -301,8 +319,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         $columnName = strtoupper('id' . uniqid());
         $tableName  = strtoupper('table' . uniqid());
         $table      = new Table($tableName);
-
-        $column = $table->addColumn($columnName, 'integer');
+        $column     = $table->addColumn($columnName, 'integer');
         $column->setAutoincrement(true);
         $targets    = [
             sprintf('CREATE TABLE %s (%s NUMBER(10) NOT NULL)', $tableName, $columnName),
@@ -436,45 +453,31 @@ class OraclePlatformTest extends AbstractPlatformTestCase
      */
     public function testAlterTableNotNULL() : void
     {
-        $tableDiff = new TableDiff('mytable');
-
-        $tableDiff->changedColumns['foo'] = new ColumnDiff(
+        $tableDiff                          = new TableDiff('mytable');
+        $tableDiff->changedColumns['foo']   = new ColumnDiff(
             'foo',
             new Column(
                 'foo',
                 Type::getType('string'),
-                [
-                    'length' => 255,
-                    'default' => 'bla',
-                    'notnull' => true,
-                ]
+                ['default' => 'bla', 'notnull' => true]
             ),
             ['type']
         );
-
-        $tableDiff->changedColumns['bar'] = new ColumnDiff(
+        $tableDiff->changedColumns['bar']   = new ColumnDiff(
             'bar',
             new Column(
                 'baz',
                 Type::getType('string'),
-                [
-                    'length' => 255,
-                    'default' => 'bla',
-                    'notnull' => true,
-                ]
+                ['default' => 'bla', 'notnull' => true]
             ),
             ['type', 'notnull']
         );
-
         $tableDiff->changedColumns['metar'] = new ColumnDiff(
             'metar',
             new Column(
                 'metar',
                 Type::getType('string'),
-                [
-                    'length' => 2000,
-                    'notnull' => false,
-                ]
+                ['length' => 2000, 'notnull' => false]
             ),
             ['notnull']
         );
@@ -498,40 +501,30 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         self::assertSame('date', $this->platform->getDoctrineTypeMapping('date'));
     }
 
-    public function testGetVariableLengthStringTypeDeclarationSQLNoLength() : void
+    protected function getBinaryMaxLength() : int
     {
-        $this->expectException(ColumnLengthRequired::class);
-
-        parent::testGetVariableLengthStringTypeDeclarationSQLNoLength();
+        return 2000;
     }
 
-    protected function getExpectedVariableLengthStringTypeDeclarationSQLWithLength() : string
+    public function testReturnsBinaryTypeDeclarationSQL() : void
     {
-        return 'VARCHAR2(16)';
+        self::assertSame('RAW(255)', $this->platform->getBinaryTypeDeclarationSQL([]));
+        self::assertSame('RAW(2000)', $this->platform->getBinaryTypeDeclarationSQL(['length' => 0]));
+        self::assertSame('RAW(2000)', $this->platform->getBinaryTypeDeclarationSQL(['length' => 2000]));
+
+        self::assertSame('RAW(255)', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true]));
+        self::assertSame('RAW(2000)', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 0]));
+        self::assertSame('RAW(2000)', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 2000]));
     }
 
-    public function testGetFixedLengthBinaryTypeDeclarationSQLNoLength() : void
+    /**
+     * @group legacy
+     * @expectedDeprecation Binary field length 2001 is greater than supported by the platform (2000). Reduce the field length or use a BLOB field instead.
+     */
+    public function testReturnsBinaryTypeLongerThanMaxDeclarationSQL() : void
     {
-        $this->expectException(ColumnLengthRequired::class);
-
-        parent::testGetFixedLengthBinaryTypeDeclarationSQLNoLength();
-    }
-
-    public function getExpectedFixedLengthBinaryTypeDeclarationSQLWithLength() : string
-    {
-        return 'RAW(16)';
-    }
-
-    public function testGetVariableLengthBinaryTypeDeclarationSQLNoLength() : void
-    {
-        $this->expectException(ColumnLengthRequired::class);
-
-        parent::testGetVariableLengthBinaryTypeDeclarationSQLNoLength();
-    }
-
-    public function getExpectedVariableLengthBinaryTypeDeclarationSQLWithLength() : string
-    {
-        return 'RAW(16)';
+        self::assertSame('BLOB', $this->platform->getBinaryTypeDeclarationSQL(['length' => 2001]));
+        self::assertSame('BLOB', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 2001]));
     }
 
     public function testDoesNotPropagateUnnecessaryTableAlterationOnBinaryType() : void
@@ -546,13 +539,9 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 
         $comparator = new Comparator();
 
-        $diff = $comparator->diffTable($table1, $table2);
-
-        self::assertNotNull($diff);
-
         // VARBINARY -> BINARY
         // BINARY    -> VARBINARY
-        self::assertEmpty($this->platform->getAlterTableSQL($diff));
+        self::assertEmpty($this->platform->getAlterTableSQL($comparator->diffTable($table1, $table2)));
     }
 
     /**
@@ -698,8 +687,6 @@ class OraclePlatformTest extends AbstractPlatformTestCase
      */
     public function testReturnsDropAutoincrementSQL(string $table, array $expectedSql) : void
     {
-        assert($this->platform instanceof OraclePlatform);
-
         self::assertSame($expectedSql, $this->platform->getDropAutoincrementSql($table));
     }
 

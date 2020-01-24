@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\Tests\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -109,9 +107,9 @@ class SchemaDiffTest extends TestCase
         $diff                              = new SchemaDiff();
         $diff->newNamespaces['foo_ns']     = 'foo_ns';
         $diff->removedNamespaces['bar_ns'] = 'bar_ns';
-        $diff->changedSequences[]          = new Sequence('foo_seq');
-        $diff->newSequences[]              = new Sequence('bar_seq');
-        $diff->removedSequences[]          = new Sequence('baz_seq');
+        $diff->changedSequences['foo_seq'] = new Sequence('foo_seq');
+        $diff->newSequences['bar_seq']     = new Sequence('bar_seq');
+        $diff->removedSequences['baz_seq'] = new Sequence('baz_seq');
         $diff->newTables['foo_table']      = new Table('foo_table');
         $diff->removedTables['bar_table']  = new Table('bar_table');
         $diff->changedTables['baz_table']  = new TableDiff('baz_table');

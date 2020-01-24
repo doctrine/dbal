@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\DBAL\Tools\Console\Helper;
 
 use Doctrine\DBAL\Connection;
@@ -29,8 +27,10 @@ class ConnectionHelper extends Helper
 
     /**
      * Retrieves the Doctrine database Connection.
+     *
+     * @return Connection
      */
-    public function getConnection() : Connection
+    public function getConnection()
     {
         return $this->_connection;
     }

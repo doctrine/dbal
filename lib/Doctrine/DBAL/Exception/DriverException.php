@@ -1,35 +1,60 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\DBAL\Exception;
 
 use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Driver\DriverException as DriverExceptionInterface;
-use function assert;
+use Exception;
 
 /**
  * Base class for all errors detected in the driver.
  */
-class DriverException extends DBALException implements DriverExceptionInterface
+class DriverException extends DBALException
 {
     /**
-     * @param string                   $message         The exception message.
-     * @param DriverExceptionInterface $driverException The DBAL driver exception to chain.
+     * The previous DBAL driver exception.
+     *
+     * @var \Doctrine\DBAL\Driver\DriverException
      */
-    public function __construct(string $message, DriverExceptionInterface $driverException)
+    private $driverException;
+
+    /**
+     * @param string                                $message         The exception message.
+     * @param \Doctrine\DBAL\Driver\DriverException $driverException The DBAL driver exception to chain.
+     */
+    public function __construct($message, \Doctrine\DBAL\Driver\DriverException $driverException)
     {
-        parent::__construct($message, $driverException->getCode(), $driverException);
+        $exception = null;
+
+        if ($driverException instanceof Exception) {
+            $exception = $driverException;
+        }
+
+        parent::__construct($message, 0, $exception);
+
+        $this->driverException = $driverException;
     }
 
     /**
-     * {@inheritDoc}
+     * Returns the driver specific error code if given.
+     *
+     * Returns null if no error code was given by the driver.
+     *
+     * @return int|string|null
      */
-    public function getSQLState() : ?string
+    public function getErrorCode()
     {
-        $previous = $this->getPrevious();
-        assert($previous instanceof DriverExceptionInterface);
+        return $this->driverException->getErrorCode();
+    }
 
-        return $previous->getSQLState();
+    /**
+     * Returns the SQLSTATE the driver was in at the time the error occurred, if given.
+     *
+     * Returns null if no SQLSTATE was given by the driver.
+     *
+     * @return string|null
+     */
+    public function getSQLState()
+    {
+        return $this->driverException->getSQLState();
     }
 }

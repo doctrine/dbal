@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Connection;
@@ -10,19 +8,20 @@ use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Event\SchemaColumnDefinitionEventArgs;
 use Doctrine\DBAL\Event\SchemaIndexDefinitionEventArgs;
 use Doctrine\DBAL\Events;
-use Doctrine\DBAL\Exception\DatabaseRequired;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Throwable;
 use function array_filter;
 use function array_intersect;
 use function array_map;
-use function array_shift;
 use function array_values;
 use function assert;
+use function call_user_func_array;
 use function count;
+use function func_get_args;
 use function is_array;
+use function is_callable;
 use function preg_match;
+use function str_replace;
 use function strtolower;
 
 /**
@@ -56,8 +55,10 @@ abstract class AbstractSchemaManager
 
     /**
      * Returns the associated platform.
+     *
+     * @return AbstractPlatform
      */
-    public function getDatabasePlatform() : AbstractPlatform
+    public function getDatabasePlatform()
     {
         return $this->_platform;
     }
@@ -72,14 +73,20 @@ abstract class AbstractSchemaManager
      * $result = $sm->tryMethod('dropView', 'view_name');
      * </code>
      *
-     * @param mixed ...$arguments
-     *
      * @return mixed
      */
-    public function tryMethod(string $method, ...$arguments)
+    public function tryMethod()
     {
+        $args   = func_get_args();
+        $method = $args[0];
+        unset($args[0]);
+        $args = array_values($args);
+
+        $callback = [$this, $method];
+        assert(is_callable($callback));
+
         try {
-            return $this->$method(...$arguments);
+            return call_user_func_array($callback, $args);
         } catch (Throwable $e) {
             return false;
         }
@@ -88,9 +95,9 @@ abstract class AbstractSchemaManager
     /**
      * Lists the available databases for this connection.
      *
-     * @return array<int, string>
+     * @return string[]
      */
-    public function listDatabases() : array
+    public function listDatabases()
     {
         $sql = $this->_platform->getListDatabasesSQL();
 
@@ -102,9 +109,9 @@ abstract class AbstractSchemaManager
     /**
      * Returns a list of all namespaces in the current database.
      *
-     * @return array<int, string>
+     * @return string[]
      */
-    public function listNamespaceNames() : array
+    public function listNamespaceNames()
     {
         $sql = $this->_platform->getListNamespacesSQL();
 
@@ -116,15 +123,15 @@ abstract class AbstractSchemaManager
     /**
      * Lists the available sequences for this connection.
      *
-     * @return array<int, Sequence>
+     * @param string|null $database
+     *
+     * @return Sequence[]
      */
-    public function listSequences(?string $database = null) : array
+    public function listSequences($database = null)
     {
-        $database = $this->ensureDatabase(
-            $database ?? $this->_conn->getDatabase(),
-            __METHOD__
-        );
-
+        if ($database === null) {
+            $database = $this->_conn->getDatabase();
+        }
         $sql = $this->_platform->getListSequencesSQL($database);
 
         $sequences = $this->_conn->fetchAll($sql);
@@ -142,14 +149,16 @@ abstract class AbstractSchemaManager
      * of a table. Where a RDBMS specifies more details, these are held
      * in the platformDetails array.
      *
-     * @return array<string, Column>
+     * @param string      $table    The name of the table.
+     * @param string|null $database
+     *
+     * @return Column[]
      */
-    public function listTableColumns(string $table, ?string $database = null) : array
+    public function listTableColumns($table, $database = null)
     {
-        $database = $this->ensureDatabase(
-            $database ?? $this->_conn->getDatabase(),
-            __METHOD__
-        );
+        if (! $database) {
+            $database = $this->_conn->getDatabase();
+        }
 
         $sql = $this->_platform->getListTableColumnsSQL($table, $database);
 
@@ -163,9 +172,11 @@ abstract class AbstractSchemaManager
      *
      * Keys of the portable indexes list are all lower-cased.
      *
-     * @return array<string, Index>
+     * @param string $table The name of the table.
+     *
+     * @return Index[]
      */
-    public function listTableIndexes(string $table) : array
+    public function listTableIndexes($table)
     {
         $sql = $this->_platform->getListTableIndexesSQL($table, $this->_conn->getDatabase());
 
@@ -177,26 +188,25 @@ abstract class AbstractSchemaManager
     /**
      * Returns true if all the given tables exist.
      *
-     * @param array<int, string> $tableNames
+     * The usage of a string $tableNames is deprecated. Pass a one-element array instead.
+     *
+     * @param string|string[] $tableNames
+     *
+     * @return bool
      */
-    public function tablesExist(array $tableNames) : bool
+    public function tablesExist($tableNames)
     {
-        $tableNames = array_map('strtolower', $tableNames);
+        $tableNames = array_map('strtolower', (array) $tableNames);
 
         return count($tableNames) === count(array_intersect($tableNames, array_map('strtolower', $this->listTableNames())));
-    }
-
-    public function tableExists(string $tableName) : bool
-    {
-        return $this->tablesExist([$tableName]);
     }
 
     /**
      * Returns a list of all tables in the current database.
      *
-     * @return array<int, string>
+     * @return string[]
      */
-    public function listTableNames() : array
+    public function listTableNames()
     {
         $sql = $this->_platform->getListTablesSQL();
 
@@ -210,11 +220,11 @@ abstract class AbstractSchemaManager
      * Filters asset names if they are configured to return only a subset of all
      * the found elements.
      *
-     * @param array<int, mixed> $assetNames
+     * @param mixed[] $assetNames
      *
-     * @return array<int, mixed>
+     * @return mixed[]
      */
-    protected function filterAssetNames(array $assetNames) : array
+    protected function filterAssetNames($assetNames)
     {
         $filter = $this->_conn->getConfiguration()->getSchemaAssetsFilter();
         if (! $filter) {
@@ -225,11 +235,21 @@ abstract class AbstractSchemaManager
     }
 
     /**
+     * @deprecated Use Configuration::getSchemaAssetsFilter() instead
+     *
+     * @return string|null
+     */
+    protected function getFilterSchemaAssetsExpression()
+    {
+        return $this->_conn->getConfiguration()->getFilterSchemaAssetsExpression();
+    }
+
+    /**
      * Lists the tables for this connection.
      *
-     * @return array<int, Table>
+     * @return Table[]
      */
-    public function listTables() : array
+    public function listTables()
     {
         $tableNames = $this->listTableNames();
 
@@ -241,34 +261,33 @@ abstract class AbstractSchemaManager
         return $tables;
     }
 
-    public function listTableDetails(string $tableName) : Table
+    /**
+     * @param string $tableName
+     *
+     * @return Table
+     */
+    public function listTableDetails($tableName)
     {
         $columns     = $this->listTableColumns($tableName);
         $foreignKeys = [];
-
         if ($this->_platform->supportsForeignKeyConstraints()) {
             $foreignKeys = $this->listTableForeignKeys($tableName);
         }
-
         $indexes = $this->listTableIndexes($tableName);
 
-        return new Table($tableName, $columns, $indexes, [], $foreignKeys, []);
+        return new Table($tableName, $columns, $indexes, $foreignKeys);
     }
 
     /**
      * Lists the views this connection has.
      *
-     * @return array<string, View>
+     * @return View[]
      */
-    public function listViews() : array
+    public function listViews()
     {
-        $database = $this->ensureDatabase(
-            $this->_conn->getDatabase(),
-            __METHOD__
-        );
-
-        $sql   = $this->_platform->getListViewsSQL($database);
-        $views = $this->_conn->fetchAll($sql);
+        $database = $this->_conn->getDatabase();
+        $sql      = $this->_platform->getListViewsSQL($database);
+        $views    = $this->_conn->fetchAll($sql);
 
         return $this->_getPortableViewsList($views);
     }
@@ -276,9 +295,12 @@ abstract class AbstractSchemaManager
     /**
      * Lists the foreign keys for the given table.
      *
-     * @return array<int|string, ForeignKeyConstraint>
+     * @param string      $table    The name of the table.
+     * @param string|null $database
+     *
+     * @return ForeignKeyConstraint[]
      */
-    public function listTableForeignKeys(string $table, ?string $database = null) : array
+    public function listTableForeignKeys($table, $database = null)
     {
         if ($database === null) {
             $database = $this->_conn->getDatabase();
@@ -295,16 +317,24 @@ abstract class AbstractSchemaManager
      * Drops a database.
      *
      * NOTE: You can not drop the database this SchemaManager is currently connected to.
+     *
+     * @param string $database The name of the database to drop.
+     *
+     * @return void
      */
-    public function dropDatabase(string $database) : void
+    public function dropDatabase($database)
     {
         $this->_execSql($this->_platform->getDropDatabaseSQL($database));
     }
 
     /**
      * Drops the given table.
+     *
+     * @param string $tableName The name of the table to drop.
+     *
+     * @return void
      */
-    public function dropTable(string $tableName) : void
+    public function dropTable($tableName)
     {
         $this->_execSql($this->_platform->getDropTableSQL($tableName));
     }
@@ -314,8 +344,10 @@ abstract class AbstractSchemaManager
      *
      * @param Index|string $index The name of the index.
      * @param Table|string $table The name of the table.
+     *
+     * @return void
      */
-    public function dropIndex($index, $table) : void
+    public function dropIndex($index, $table)
     {
         if ($index instanceof Index) {
             $index = $index->getQuotedName($this->_platform);
@@ -328,8 +360,10 @@ abstract class AbstractSchemaManager
      * Drops the constraint from the given table.
      *
      * @param Table|string $table The name of the table.
+     *
+     * @return void
      */
-    public function dropConstraint(Constraint $constraint, $table) : void
+    public function dropConstraint(Constraint $constraint, $table)
     {
         $this->_execSql($this->_platform->getDropConstraintSQL($constraint, $table));
     }
@@ -339,24 +373,34 @@ abstract class AbstractSchemaManager
      *
      * @param ForeignKeyConstraint|string $foreignKey The name of the foreign key.
      * @param Table|string                $table      The name of the table with the foreign key.
+     *
+     * @return void
      */
-    public function dropForeignKey($foreignKey, $table) : void
+    public function dropForeignKey($foreignKey, $table)
     {
         $this->_execSql($this->_platform->getDropForeignKeySQL($foreignKey, $table));
     }
 
     /**
      * Drops a sequence with a given name.
+     *
+     * @param string $name The name of the sequence to drop.
+     *
+     * @return void
      */
-    public function dropSequence(string $name) : void
+    public function dropSequence($name)
     {
         $this->_execSql($this->_platform->getDropSequenceSQL($name));
     }
 
     /**
      * Drops a view.
+     *
+     * @param string $name The name of the view.
+     *
+     * @return void
      */
-    public function dropView(string $name) : void
+    public function dropView($name)
     {
         $this->_execSql($this->_platform->getDropViewSQL($name));
     }
@@ -365,16 +409,22 @@ abstract class AbstractSchemaManager
 
     /**
      * Creates a new database.
+     *
+     * @param string $database The name of the database to create.
+     *
+     * @return void
      */
-    public function createDatabase(string $database) : void
+    public function createDatabase($database)
     {
         $this->_execSql($this->_platform->getCreateDatabaseSQL($database));
     }
 
     /**
      * Creates a new table.
+     *
+     * @return void
      */
-    public function createTable(Table $table) : void
+    public function createTable(Table $table)
     {
         $createFlags = AbstractPlatform::CREATE_INDEXES|AbstractPlatform::CREATE_FOREIGNKEYS;
         $this->_execSql($this->_platform->getCreateTableSQL($table, $createFlags));
@@ -383,9 +433,13 @@ abstract class AbstractSchemaManager
     /**
      * Creates a new sequence.
      *
+     * @param Sequence $sequence
+     *
+     * @return void
+     *
      * @throws ConnectionException If something fails at database level.
      */
-    public function createSequence(Sequence $sequence) : void
+    public function createSequence($sequence)
     {
         $this->_execSql($this->_platform->getCreateSequenceSQL($sequence));
     }
@@ -394,8 +448,10 @@ abstract class AbstractSchemaManager
      * Creates a constraint on a table.
      *
      * @param Table|string $table
+     *
+     * @return void
      */
-    public function createConstraint(Constraint $constraint, $table) : void
+    public function createConstraint(Constraint $constraint, $table)
     {
         $this->_execSql($this->_platform->getCreateConstraintSQL($constraint, $table));
     }
@@ -404,8 +460,10 @@ abstract class AbstractSchemaManager
      * Creates a new index on a table.
      *
      * @param Table|string $table The name of the table on which the index is to be created.
+     *
+     * @return void
      */
-    public function createIndex(Index $index, $table) : void
+    public function createIndex(Index $index, $table)
     {
         $this->_execSql($this->_platform->getCreateIndexSQL($index, $table));
     }
@@ -415,16 +473,20 @@ abstract class AbstractSchemaManager
      *
      * @param ForeignKeyConstraint $foreignKey The ForeignKey instance.
      * @param Table|string         $table      The name of the table on which the foreign key is to be created.
+     *
+     * @return void
      */
-    public function createForeignKey(ForeignKeyConstraint $foreignKey, $table) : void
+    public function createForeignKey(ForeignKeyConstraint $foreignKey, $table)
     {
         $this->_execSql($this->_platform->getCreateForeignKeySQL($foreignKey, $table));
     }
 
     /**
      * Creates a new view.
+     *
+     * @return void
      */
-    public function createView(View $view) : void
+    public function createView(View $view)
     {
         $this->_execSql($this->_platform->getCreateViewSQL($view->getQuotedName($this->_platform), $view->getSql()));
     }
@@ -438,8 +500,10 @@ abstract class AbstractSchemaManager
      * @see createConstraint()
      *
      * @param Table|string $table
+     *
+     * @return void
      */
-    public function dropAndCreateConstraint(Constraint $constraint, $table) : void
+    public function dropAndCreateConstraint(Constraint $constraint, $table)
     {
         $this->tryMethod('dropConstraint', $constraint, $table);
         $this->createConstraint($constraint, $table);
@@ -449,8 +513,10 @@ abstract class AbstractSchemaManager
      * Drops and creates a new index on a table.
      *
      * @param Table|string $table The name of the table on which the index is to be created.
+     *
+     * @return void
      */
-    public function dropAndCreateIndex(Index $index, $table) : void
+    public function dropAndCreateIndex(Index $index, $table)
     {
         $this->tryMethod('dropIndex', $index->getQuotedName($this->_platform), $table);
         $this->createIndex($index, $table);
@@ -461,8 +527,10 @@ abstract class AbstractSchemaManager
      *
      * @param ForeignKeyConstraint $foreignKey An associative array that defines properties of the foreign key to be created.
      * @param Table|string         $table      The name of the table on which the foreign key is to be created.
+     *
+     * @return void
      */
-    public function dropAndCreateForeignKey(ForeignKeyConstraint $foreignKey, $table) : void
+    public function dropAndCreateForeignKey(ForeignKeyConstraint $foreignKey, $table)
     {
         $this->tryMethod('dropForeignKey', $foreignKey, $table);
         $this->createForeignKey($foreignKey, $table);
@@ -471,9 +539,11 @@ abstract class AbstractSchemaManager
     /**
      * Drops and create a new sequence.
      *
+     * @return void
+     *
      * @throws ConnectionException If something fails at database level.
      */
-    public function dropAndCreateSequence(Sequence $sequence) : void
+    public function dropAndCreateSequence(Sequence $sequence)
     {
         $this->tryMethod('dropSequence', $sequence->getQuotedName($this->_platform));
         $this->createSequence($sequence);
@@ -481,8 +551,10 @@ abstract class AbstractSchemaManager
 
     /**
      * Drops and creates a new table.
+     *
+     * @return void
      */
-    public function dropAndCreateTable(Table $table) : void
+    public function dropAndCreateTable(Table $table)
     {
         $this->tryMethod('dropTable', $table->getQuotedName($this->_platform));
         $this->createTable($table);
@@ -490,8 +562,12 @@ abstract class AbstractSchemaManager
 
     /**
      * Drops and creates a new database.
+     *
+     * @param string $database The name of the database to create.
+     *
+     * @return void
      */
-    public function dropAndCreateDatabase(string $database) : void
+    public function dropAndCreateDatabase($database)
     {
         $this->tryMethod('dropDatabase', $database);
         $this->createDatabase($database);
@@ -499,8 +575,10 @@ abstract class AbstractSchemaManager
 
     /**
      * Drops and creates a new view.
+     *
+     * @return void
      */
-    public function dropAndCreateView(View $view) : void
+    public function dropAndCreateView(View $view)
     {
         $this->tryMethod('dropView', $view->getQuotedName($this->_platform));
         $this->createView($view);
@@ -510,11 +588,12 @@ abstract class AbstractSchemaManager
 
     /**
      * Alters an existing tables schema.
+     *
+     * @return void
      */
-    public function alterTable(TableDiff $tableDiff) : void
+    public function alterTable(TableDiff $tableDiff)
     {
         $queries = $this->_platform->getAlterTableSQL($tableDiff);
-
         if (! is_array($queries) || ! count($queries)) {
             return;
         }
@@ -526,8 +605,13 @@ abstract class AbstractSchemaManager
 
     /**
      * Renames a given table to another name.
+     *
+     * @param string $name    The current name of the table.
+     * @param string $newName The new name of the table.
+     *
+     * @return void
      */
-    public function renameTable(string $name, string $newName) : void
+    public function renameTable($name, $newName)
     {
         $tableDiff          = new TableDiff($name);
         $tableDiff->newName = $newName;
@@ -540,11 +624,11 @@ abstract class AbstractSchemaManager
      */
 
     /**
-     * @param array<int, mixed> $databases
+     * @param mixed[] $databases
      *
-     * @return array<int, string>
+     * @return string[]
      */
-    protected function _getPortableDatabasesList(array $databases) : array
+    protected function _getPortableDatabasesList($databases)
     {
         $list = [];
         foreach ($databases as $value) {
@@ -563,11 +647,11 @@ abstract class AbstractSchemaManager
     /**
      * Converts a list of namespace names from the native DBMS data definition to a portable Doctrine definition.
      *
-     * @param array<int, array<int, mixed>> $namespaces The list of namespace names in the native DBMS data definition.
+     * @param mixed[][] $namespaces The list of namespace names in the native DBMS data definition.
      *
-     * @return array<int, string>
+     * @return string[]
      */
-    protected function getPortableNamespacesList(array $namespaces) : array
+    protected function getPortableNamespacesList(array $namespaces)
     {
         $namespacesList = [];
 
@@ -579,31 +663,99 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * @param array<string, string> $database
+     * @param mixed $database
+     *
+     * @return mixed
      */
-    protected function _getPortableDatabaseDefinition(array $database) : string
+    protected function _getPortableDatabaseDefinition($database)
     {
-        assert(! empty($database));
-
-        return array_shift($database);
+        return $database;
     }
 
     /**
      * Converts a namespace definition from the native DBMS data definition to a portable Doctrine definition.
      *
-     * @param array<string|int, mixed> $namespace The native DBMS namespace definition.
+     * @param mixed[] $namespace The native DBMS namespace definition.
+     *
+     * @return mixed
      */
-    protected function getPortableNamespaceDefinition(array $namespace) : string
+    protected function getPortableNamespaceDefinition(array $namespace)
     {
-        return array_shift($namespace);
+        return $namespace;
     }
 
     /**
-     * @param array<int, array<string, mixed>> $sequences
+     * @deprecated
      *
-     * @return array<int, Sequence>
+     * @param mixed[][] $functions
+     *
+     * @return mixed[][]
      */
-    protected function _getPortableSequencesList(array $sequences) : array
+    protected function _getPortableFunctionsList($functions)
+    {
+        $list = [];
+        foreach ($functions as $value) {
+            $value = $this->_getPortableFunctionDefinition($value);
+
+            if (! $value) {
+                continue;
+            }
+
+            $list[] = $value;
+        }
+
+        return $list;
+    }
+
+    /**
+     * @deprecated
+     *
+     * @param mixed[] $function
+     *
+     * @return mixed
+     */
+    protected function _getPortableFunctionDefinition($function)
+    {
+        return $function;
+    }
+
+    /**
+     * @param mixed[][] $triggers
+     *
+     * @return mixed[][]
+     */
+    protected function _getPortableTriggersList($triggers)
+    {
+        $list = [];
+        foreach ($triggers as $value) {
+            $value = $this->_getPortableTriggerDefinition($value);
+
+            if (! $value) {
+                continue;
+            }
+
+            $list[] = $value;
+        }
+
+        return $list;
+    }
+
+    /**
+     * @param mixed[] $trigger
+     *
+     * @return mixed
+     */
+    protected function _getPortableTriggerDefinition($trigger)
+    {
+        return $trigger;
+    }
+
+    /**
+     * @param mixed[][] $sequences
+     *
+     * @return Sequence[]
+     */
+    protected function _getPortableSequencesList($sequences)
     {
         $list = [];
 
@@ -615,13 +767,15 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * @param array<string, mixed> $sequence
+     * @param mixed[] $sequence
+     *
+     * @return Sequence
      *
      * @throws DBALException
      */
-    protected function _getPortableSequenceDefinition(array $sequence) : Sequence
+    protected function _getPortableSequenceDefinition($sequence)
     {
-        throw NotSupported::new('Sequences');
+        throw DBALException::notSupported('Sequences');
     }
 
     /**
@@ -629,11 +783,13 @@ abstract class AbstractSchemaManager
      *
      * The name of the created column instance however is kept in its case.
      *
-     * @param array<int, array<string, mixed>> $tableColumns
+     * @param string    $table        The name of the table.
+     * @param string    $database
+     * @param mixed[][] $tableColumns
      *
-     * @return array<string, Column>
+     * @return Column[]
      */
-    protected function _getPortableTableColumnList(string $table, string $database, array $tableColumns) : array
+    protected function _getPortableTableColumnList($table, $database, $tableColumns)
     {
         $eventManager = $this->_platform->getEventManager();
 
@@ -668,18 +824,21 @@ abstract class AbstractSchemaManager
     /**
      * Gets Table Column Definition.
      *
-     * @param array<string, mixed> $tableColumn
+     * @param mixed[] $tableColumn
+     *
+     * @return Column
      */
-    abstract protected function _getPortableTableColumnDefinition(array $tableColumn) : Column;
+    abstract protected function _getPortableTableColumnDefinition($tableColumn);
 
     /**
      * Aggregates and groups the index results according to the required data result.
      *
-     * @param array<int, array<string, mixed>> $tableIndexRows
+     * @param mixed[][]   $tableIndexRows
+     * @param string|null $tableName
      *
-     * @return array<string, Index>
+     * @return Index[]
      */
-    protected function _getPortableTableIndexesList(array $tableIndexRows, string $tableName) : array
+    protected function _getPortableTableIndexesList($tableIndexRows, $tableName = null)
     {
         $result = [];
         foreach ($tableIndexRows as $tableIndex) {
@@ -742,11 +901,11 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * @param array<int, array<string, mixed>> $tables
+     * @param mixed[][] $tables
      *
-     * @return array<int, string>
+     * @return string[]
      */
-    protected function _getPortableTablesList(array $tables) : array
+    protected function _getPortableTablesList($tables)
     {
         $list = [];
         foreach ($tables as $value) {
@@ -763,21 +922,21 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * @param array<string, string> $table
+     * @param mixed $table
+     *
+     * @return string
      */
-    protected function _getPortableTableDefinition(array $table) : string
+    protected function _getPortableTableDefinition($table)
     {
-        assert(! empty($table));
-
-        return array_shift($table);
+        return $table;
     }
 
     /**
-     * @param array<int, array<string, mixed>> $users
+     * @param mixed[][] $users
      *
-     * @return array<int, array<string, mixed>>
+     * @return string[][]
      */
-    protected function _getPortableUsersList(array $users) : array
+    protected function _getPortableUsersList($users)
     {
         $list = [];
         foreach ($users as $value) {
@@ -794,46 +953,53 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * @param array<string, mixed> $user
+     * @param string[] $user
      *
-     * @return array<string, mixed>
+     * @return string[]
      */
-    protected function _getPortableUserDefinition(array $user) : array
+    protected function _getPortableUserDefinition($user)
     {
         return $user;
     }
 
     /**
-     * @param array<int, array<string, mixed>> $views
+     * @param mixed[][] $views
      *
-     * @return array<string, View>
+     * @return View[]
      */
-    protected function _getPortableViewsList(array $views) : array
+    protected function _getPortableViewsList($views)
     {
         $list = [];
         foreach ($views as $value) {
-            $view        = $this->_getPortableViewDefinition($value);
-            $name        = strtolower($view->getQuotedName($this->_platform));
-            $list[$name] = $view;
+            $view = $this->_getPortableViewDefinition($value);
+
+            if (! $view) {
+                continue;
+            }
+
+            $viewName        = strtolower($view->getQuotedName($this->_platform));
+            $list[$viewName] = $view;
         }
 
         return $list;
     }
 
     /**
-     * @param array<string, mixed> $view
+     * @param mixed[] $view
+     *
+     * @return View|false
      */
-    protected function _getPortableViewDefinition(array $view) : View
+    protected function _getPortableViewDefinition($view)
     {
-        throw NotSupported::new('Views');
+        return false;
     }
 
     /**
-     * @param array<int|string, array<string, mixed>> $tableForeignKeys
+     * @param mixed[][] $tableForeignKeys
      *
-     * @return array<int, ForeignKeyConstraint>
+     * @return ForeignKeyConstraint[]
      */
-    protected function _getPortableTableForeignKeysList(array $tableForeignKeys) : array
+    protected function _getPortableTableForeignKeysList($tableForeignKeys)
     {
         $list = [];
 
@@ -845,17 +1011,21 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * @param array<string, mixed> $tableForeignKey
+     * @param mixed $tableForeignKey
+     *
+     * @return ForeignKeyConstraint
      */
-    protected function _getPortableTableForeignKeyDefinition(array $tableForeignKey) : ForeignKeyConstraint
+    protected function _getPortableTableForeignKeyDefinition($tableForeignKey)
     {
-        throw NotSupported::new('ForeignKey');
+        return $tableForeignKey;
     }
 
     /**
-     * @param array<int, string>|string $sql
+     * @param string[]|string $sql
+     *
+     * @return void
      */
-    protected function _execSql($sql) : void
+    protected function _execSql($sql)
     {
         foreach ((array) $sql as $query) {
             $this->_conn->executeUpdate($query);
@@ -864,8 +1034,10 @@ abstract class AbstractSchemaManager
 
     /**
      * Creates a schema instance for the current database.
+     *
+     * @return Schema
      */
-    public function createSchema() : Schema
+    public function createSchema()
     {
         $namespaces = [];
 
@@ -886,8 +1058,10 @@ abstract class AbstractSchemaManager
 
     /**
      * Creates the configuration for this schema.
+     *
+     * @return SchemaConfig
      */
-    public function createSchemaConfig() : SchemaConfig
+    public function createSchemaConfig()
     {
         $schemaConfig = new SchemaConfig();
         $schemaConfig->setMaxIdentifierLength($this->_platform->getMaxIdentifierLength());
@@ -919,45 +1093,43 @@ abstract class AbstractSchemaManager
      * For databases that don't support subschema/namespaces this method
      * returns the name of the currently connected database.
      *
-     * @return array<int, string>
+     * @return string[]
      */
-    public function getSchemaSearchPaths() : array
+    public function getSchemaSearchPaths()
     {
-        $database = $this->_conn->getDatabase();
-
-        if ($database !== null) {
-            return [$database];
-        }
-
-        return [];
+        return [$this->_conn->getDatabase()];
     }
 
     /**
-     * Given a table comment this method tries to extract a type hint for Doctrine Type. If the type hint is found,
-     * it's removed from the comment.
+     * Given a table comment this method tries to extract a typehint for Doctrine Type, or returns
+     * the type given as default.
      *
-     * @return string|null The extracted Doctrine type or NULL of the type hint was not found.
+     * @param string|null $comment
+     * @param string      $currentType
+     *
+     * @return string
      */
-    final protected function extractDoctrineTypeFromComment(?string &$comment) : ?string
+    public function extractDoctrineTypeFromComment($comment, $currentType)
     {
-        if ($comment === null || ! preg_match('/(.*)\(DC2Type:(((?!\)).)+)\)(.*)/', $comment, $match)) {
+        if ($comment !== null && preg_match('(\(DC2Type:(((?!\)).)+)\))', $comment, $match)) {
+            return $match[1];
+        }
+
+        return $currentType;
+    }
+
+    /**
+     * @param string|null $comment
+     * @param string|null $type
+     *
+     * @return string|null
+     */
+    public function removeDoctrineTypeFromComment($comment, $type)
+    {
+        if ($comment === null) {
             return null;
         }
 
-        $comment = $match[1] . $match[4];
-
-        return $match[2];
-    }
-
-    /**
-     * @throws DatabaseRequired
-     */
-    private function ensureDatabase(?string $database, string $methodName) : string
-    {
-        if ($database === null) {
-            throw DatabaseRequired::new($methodName);
-        }
-
-        return $database;
+        return str_replace('(DC2Type:' . $type . ')', '', $comment);
     }
 }

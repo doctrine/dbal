@@ -1,11 +1,8 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Exception\ColumnLengthRequired;
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLAnywherePlatform;
@@ -16,10 +13,8 @@ use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Constraint;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
-use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
-use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
 use InvalidArgumentException;
@@ -43,7 +38,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
     public function getGenerateAlterTableSql() : array
     {
         return [
-            "ALTER TABLE mytable ADD quota INT DEFAULT NULL, DROP foo, ALTER baz VARCHAR(255) DEFAULT 'def' NOT NULL, ALTER bloo BIT DEFAULT '0' NOT NULL",
+            "ALTER TABLE mytable ADD quota INT DEFAULT NULL, DROP foo, ALTER baz VARCHAR(1) DEFAULT 'def' NOT NULL, ALTER bloo BIT DEFAULT '0' NOT NULL",
             'ALTER TABLE mytable RENAME userlist',
         ];
     }
@@ -235,9 +230,11 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
     }
 
     /**
+     * @param int|bool|null $lockMode
+     *
      * @dataProvider getLockHints
      */
-    public function testAppendsLockHint(?int $lockMode, string $lockHint) : void
+    public function testAppendsLockHint($lockMode, string $lockHint) : void
     {
         $fromClause     = 'FROM users';
         $expectedResult = $fromClause . $lockHint;
@@ -252,6 +249,8 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
     {
         return [
             [null, ''],
+            [false, ''],
+            [true, ''],
             [LockMode::NONE, ' WITH (NOLOCK)'],
             [LockMode::OPTIMISTIC, ''],
             [LockMode::PESSIMISTIC_READ, ' WITH (UPDLOCK)'],
@@ -311,6 +310,9 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         self::assertEquals('DATETIME', $this->platform->getDateTimeTypeDeclarationSQL($fullColumnDef));
         self::assertEquals('TIME', $this->platform->getTimeTypeDeclarationSQL($fullColumnDef));
         self::assertEquals('UNIQUEIDENTIFIER', $this->platform->getGuidTypeDeclarationSQL($fullColumnDef));
+
+        self::assertEquals(1, $this->platform->getVarcharDefaultLength());
+        self::assertEquals(32767, $this->platform->getVarcharMaxLength());
     }
 
     public function testHasNativeGuidType() : void
@@ -334,6 +336,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         self::assertEquals('STOP DATABASE "foobar" UNCONDITIONALLY', $this->platform->getStopDatabaseSQL('"foobar"'));
         self::assertEquals('STOP DATABASE "create" UNCONDITIONALLY', $this->platform->getStopDatabaseSQL('create'));
         self::assertEquals('TRUNCATE TABLE foobar', $this->platform->getTruncateTableSQL('foobar'));
+        self::assertEquals('TRUNCATE TABLE foobar', $this->platform->getTruncateTableSQL('foobar'), true);
 
         $viewSql = 'SELECT * FROM footable';
         self::assertEquals('CREATE VIEW fooview AS ' . $viewSql, $this->platform->getCreateViewSQL('fooview', $viewSql));
@@ -388,12 +391,12 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
             'CONSTRAINT unique_constraint UNIQUE CLUSTERED (a, b)',
             $this->platform->getUniqueConstraintDeclarationSQL(
                 'unique_constraint',
-                new UniqueConstraint('', ['a', 'b'], ['clustered'])
+                new Index(null, ['a', 'b'], true, false, ['clustered'])
             )
         );
         self::assertEquals(
-            'CONSTRAINT UNIQUE (a, b)',
-            $this->platform->getUniqueConstraintDeclarationSQL('', new UniqueConstraint('', ['a', 'b']))
+            'UNIQUE (a, b)',
+            $this->platform->getUniqueConstraintDeclarationSQL(null, new Index(null, ['a', 'b'], true, false))
         );
     }
 
@@ -401,7 +404,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
     {
         $this->expectException(InvalidArgumentException::class);
 
-        $this->platform->getUniqueConstraintDeclarationSQL('constr', new UniqueConstraint('constr', []));
+        $this->platform->getUniqueConstraintDeclarationSQL('constr', new Index('constr', [], true));
     }
 
     public function testGeneratesForeignKeyConstraintsWithAdvancedPlatformOptionsSQL() : void
@@ -481,120 +484,17 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
     public function testGeneratesCreateIndexWithAdvancedPlatformOptionsSQL() : void
     {
         self::assertEquals(
-            'CREATE UNIQUE INDEX fooindex ON footable (a, b) WITH NULLS DISTINCT',
+            'CREATE VIRTUAL UNIQUE CLUSTERED INDEX fooindex ON footable (a, b) FOR OLAP WORKLOAD',
             $this->platform->getCreateIndexSQL(
                 new Index(
                     'fooindex',
                     ['a', 'b'],
                     true,
                     false,
-                    ['with_nulls_distinct']
+                    ['virtual', 'clustered', 'for_olap_workload']
                 ),
                 'footable'
             )
-        );
-
-        // WITH NULLS DISTINCT clause not available on primary indexes.
-        self::assertEquals(
-            'ALTER TABLE footable ADD PRIMARY KEY (a, b)',
-            $this->platform->getCreateIndexSQL(
-                new Index(
-                    'fooindex',
-                    ['a', 'b'],
-                    false,
-                    true,
-                    ['with_nulls_distinct']
-                ),
-                'footable'
-            )
-        );
-
-        // WITH NULLS DISTINCT clause not available on non-unique indexes.
-        self::assertEquals(
-            'CREATE INDEX fooindex ON footable (a, b)',
-            $this->platform->getCreateIndexSQL(
-                new Index(
-                    'fooindex',
-                    ['a', 'b'],
-                    false,
-                    false,
-                    ['with_nulls_distinct']
-                ),
-                'footable'
-            )
-        );
-
-        self::assertEquals(
-            'CREATE VIRTUAL UNIQUE CLUSTERED INDEX fooindex ON footable (a, b) WITH NULLS NOT DISTINCT FOR OLAP WORKLOAD',
-            $this->platform->getCreateIndexSQL(
-                new Index(
-                    'fooindex',
-                    ['a', 'b'],
-                    true,
-                    false,
-                    ['virtual', 'clustered', 'with_nulls_not_distinct', 'for_olap_workload']
-                ),
-                'footable'
-            )
-        );
-        self::assertEquals(
-            'CREATE VIRTUAL CLUSTERED INDEX fooindex ON footable (a, b) FOR OLAP WORKLOAD',
-            $this->platform->getCreateIndexSQL(
-                new Index(
-                    'fooindex',
-                    ['a', 'b'],
-                    false,
-                    false,
-                    ['virtual', 'clustered', 'with_nulls_not_distinct', 'for_olap_workload']
-                ),
-                'footable'
-            )
-        );
-
-        // WITH NULLS NOT DISTINCT clause not available on primary indexes.
-        self::assertEquals(
-            'ALTER TABLE footable ADD PRIMARY KEY (a, b)',
-            $this->platform->getCreateIndexSQL(
-                new Index(
-                    'fooindex',
-                    ['a', 'b'],
-                    false,
-                    true,
-                    ['with_nulls_not_distinct']
-                ),
-                'footable'
-            )
-        );
-
-        // WITH NULLS NOT DISTINCT clause not available on non-unique indexes.
-        self::assertEquals(
-            'CREATE INDEX fooindex ON footable (a, b)',
-            $this->platform->getCreateIndexSQL(
-                new Index(
-                    'fooindex',
-                    ['a', 'b'],
-                    false,
-                    false,
-                    ['with_nulls_not_distinct']
-                ),
-                'footable'
-            )
-        );
-    }
-
-    public function testThrowsExceptionOnInvalidWithNullsNotDistinctIndexOptions() : void
-    {
-        $this->expectException('UnexpectedValueException');
-
-        $this->platform->getCreateIndexSQL(
-            new Index(
-                'fooindex',
-                ['a', 'b'],
-                false,
-                false,
-                ['with_nulls_distinct', 'with_nulls_not_distinct']
-            ),
-            'footable'
         );
     }
 
@@ -617,6 +517,20 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         ));
     }
 
+    public function testCannotGenerateDropIndexSQLWithInvalidIndexParameter() : void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        $this->platform->getDropIndexSQL(['index'], 'table');
+    }
+
+    public function testCannotGenerateDropIndexSQLWithInvalidTableParameter() : void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        $this->platform->getDropIndexSQL('index', ['table']);
+    }
+
     public function testGeneratesSQLSnippets() : void
     {
         self::assertEquals('STRING(column1, "string1", column2, "string2")', $this->platform->getConcatExpression(
@@ -628,31 +542,32 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         self::assertEquals('CURRENT DATE', $this->platform->getCurrentDateSQL());
         self::assertEquals('CURRENT TIME', $this->platform->getCurrentTimeSQL());
         self::assertEquals('CURRENT TIMESTAMP', $this->platform->getCurrentTimestampSQL());
-        self::assertEquals("DATEADD(DAY, 4, '1987/05/02')", $this->platform->getDateAddDaysExpression("'1987/05/02'", '4'));
-        self::assertEquals("DATEADD(HOUR, 12, '1987/05/02')", $this->platform->getDateAddHourExpression("'1987/05/02'", '12'));
-        self::assertEquals("DATEADD(MINUTE, 2, '1987/05/02')", $this->platform->getDateAddMinutesExpression("'1987/05/02'", '2'));
-        self::assertEquals("DATEADD(MONTH, 102, '1987/05/02')", $this->platform->getDateAddMonthExpression("'1987/05/02'", '102'));
-        self::assertEquals("DATEADD(QUARTER, 5, '1987/05/02')", $this->platform->getDateAddQuartersExpression("'1987/05/02'", '5'));
-        self::assertEquals("DATEADD(SECOND, 1, '1987/05/02')", $this->platform->getDateAddSecondsExpression("'1987/05/02'", '1'));
-        self::assertEquals("DATEADD(WEEK, 3, '1987/05/02')", $this->platform->getDateAddWeeksExpression("'1987/05/02'", '3'));
-        self::assertEquals("DATEADD(YEAR, 10, '1987/05/02')", $this->platform->getDateAddYearsExpression("'1987/05/02'", '10'));
+        self::assertEquals("DATEADD(DAY, 4, '1987/05/02')", $this->platform->getDateAddDaysExpression("'1987/05/02'", 4));
+        self::assertEquals("DATEADD(HOUR, 12, '1987/05/02')", $this->platform->getDateAddHourExpression("'1987/05/02'", 12));
+        self::assertEquals("DATEADD(MINUTE, 2, '1987/05/02')", $this->platform->getDateAddMinutesExpression("'1987/05/02'", 2));
+        self::assertEquals("DATEADD(MONTH, 102, '1987/05/02')", $this->platform->getDateAddMonthExpression("'1987/05/02'", 102));
+        self::assertEquals("DATEADD(QUARTER, 5, '1987/05/02')", $this->platform->getDateAddQuartersExpression("'1987/05/02'", 5));
+        self::assertEquals("DATEADD(SECOND, 1, '1987/05/02')", $this->platform->getDateAddSecondsExpression("'1987/05/02'", 1));
+        self::assertEquals("DATEADD(WEEK, 3, '1987/05/02')", $this->platform->getDateAddWeeksExpression("'1987/05/02'", 3));
+        self::assertEquals("DATEADD(YEAR, 10, '1987/05/02')", $this->platform->getDateAddYearsExpression("'1987/05/02'", 10));
         self::assertEquals("DATEDIFF(day, '1987/04/01', '1987/05/02')", $this->platform->getDateDiffExpression("'1987/05/02'", "'1987/04/01'"));
-        self::assertEquals("DATEADD(DAY, -1 * 4, '1987/05/02')", $this->platform->getDateSubDaysExpression("'1987/05/02'", '4'));
-        self::assertEquals("DATEADD(HOUR, -1 * 12, '1987/05/02')", $this->platform->getDateSubHourExpression("'1987/05/02'", '12'));
-        self::assertEquals("DATEADD(MINUTE, -1 * 2, '1987/05/02')", $this->platform->getDateSubMinutesExpression("'1987/05/02'", '2'));
-        self::assertEquals("DATEADD(MONTH, -1 * 102, '1987/05/02')", $this->platform->getDateSubMonthExpression("'1987/05/02'", '102'));
-        self::assertEquals("DATEADD(QUARTER, -1 * 5, '1987/05/02')", $this->platform->getDateSubQuartersExpression("'1987/05/02'", '5'));
-        self::assertEquals("DATEADD(SECOND, -1 * 1, '1987/05/02')", $this->platform->getDateSubSecondsExpression("'1987/05/02'", '1'));
-        self::assertEquals("DATEADD(WEEK, -1 * 3, '1987/05/02')", $this->platform->getDateSubWeeksExpression("'1987/05/02'", '3'));
-        self::assertEquals("DATEADD(YEAR, -1 * 10, '1987/05/02')", $this->platform->getDateSubYearsExpression("'1987/05/02'", '10'));
+        self::assertEquals("DATEADD(DAY, -1 * 4, '1987/05/02')", $this->platform->getDateSubDaysExpression("'1987/05/02'", 4));
+        self::assertEquals("DATEADD(HOUR, -1 * 12, '1987/05/02')", $this->platform->getDateSubHourExpression("'1987/05/02'", 12));
+        self::assertEquals("DATEADD(MINUTE, -1 * 2, '1987/05/02')", $this->platform->getDateSubMinutesExpression("'1987/05/02'", 2));
+        self::assertEquals("DATEADD(MONTH, -1 * 102, '1987/05/02')", $this->platform->getDateSubMonthExpression("'1987/05/02'", 102));
+        self::assertEquals("DATEADD(QUARTER, -1 * 5, '1987/05/02')", $this->platform->getDateSubQuartersExpression("'1987/05/02'", 5));
+        self::assertEquals("DATEADD(SECOND, -1 * 1, '1987/05/02')", $this->platform->getDateSubSecondsExpression("'1987/05/02'", 1));
+        self::assertEquals("DATEADD(WEEK, -1 * 3, '1987/05/02')", $this->platform->getDateSubWeeksExpression("'1987/05/02'", 3));
+        self::assertEquals("DATEADD(YEAR, -1 * 10, '1987/05/02')", $this->platform->getDateSubYearsExpression("'1987/05/02'", 10));
         self::assertEquals('Y-m-d H:i:s.u', $this->platform->getDateTimeFormatString());
         self::assertEquals('H:i:s.u', $this->platform->getTimeFormatString());
         self::assertEquals('', $this->platform->getForUpdateSQL());
+        self::assertEquals('NEWID()', $this->platform->getGuidExpression());
         self::assertEquals('LOCATE(string_column, substring_column)', $this->platform->getLocateExpression('string_column', 'substring_column'));
-        self::assertEquals('LOCATE(string_column, substring_column, 1)', $this->platform->getLocateExpression('string_column', 'substring_column', '1'));
+        self::assertEquals('LOCATE(string_column, substring_column, 1)', $this->platform->getLocateExpression('string_column', 'substring_column', 1));
         self::assertEquals("HASH(column, 'MD5')", $this->platform->getMd5Expression('column'));
-        self::assertEquals('SUBSTRING(column, 5)', $this->platform->getSubstringExpression('column', '5'));
-        self::assertEquals('SUBSTRING(column, 5, 2)', $this->platform->getSubstringExpression('column', '5', '2'));
+        self::assertEquals('SUBSTRING(column, 5)', $this->platform->getSubstringExpression('column', 5));
+        self::assertEquals('SUBSTRING(column, 5, 2)', $this->platform->getSubstringExpression('column', 5, 2));
         self::assertEquals('GLOBAL TEMPORARY', $this->platform->getTemporaryTableSQL());
         self::assertEquals(
             'LTRIM(column)',
@@ -681,32 +596,28 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         self::assertEquals(
             "REVERSE(SUBSTR(REVERSE(SUBSTR(column, PATINDEX('%[^' + c + ']%', column))), PATINDEX('%[^' + c + ']%', " .
             "REVERSE(SUBSTR(column, PATINDEX('%[^' + c + ']%', column))))))",
+            $this->platform->getTrimExpression('column', null, 'c')
+        );
+        self::assertEquals(
+            "REVERSE(SUBSTR(REVERSE(SUBSTR(column, PATINDEX('%[^' + c + ']%', column))), PATINDEX('%[^' + c + ']%', " .
+            "REVERSE(SUBSTR(column, PATINDEX('%[^' + c + ']%', column))))))",
             $this->platform->getTrimExpression('column', TrimMode::UNSPECIFIED, 'c')
         );
     }
 
+    public function testDoesNotSupportRegexp() : void
+    {
+        $this->expectException(DBALException::class);
+
+        $this->platform->getRegexpExpression();
+    }
+
     public function testHasCorrectDateTimeTzFormatString() : void
     {
-        self::assertEquals('Y-m-d H:i:s.uP', $this->platform->getDateTimeTzFormatString());
-    }
-
-    public function testGeneratesDateTimeTzColumnTypeDeclarationSQL() : void
-    {
-        self::assertEquals(
-            'TIMESTAMP WITH TIME ZONE',
-            $this->platform->getDateTimeTzTypeDeclarationSQL([
-                'length' => 10,
-                'fixed' => true,
-                'unsigned' => true,
-                'autoincrement' => true,
-            ])
-        );
-    }
-
-    public function testInitializesDateTimeTzTypeMapping() : void
-    {
-        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('timestamp with time zone'));
-        self::assertEquals('datetime', $this->platform->getDoctrineTypeMapping('timestamp with time zone'));
+        // Date time type with timezone is not supported before version 12.
+        // For versions before we have to ensure that the date time with timezone format
+        // equals the normal date time format so that it corresponds to the declaration SQL equality (datetimetz -> datetime).
+        self::assertEquals($this->platform->getDateTimeFormatString(), $this->platform->getDateTimeTzFormatString());
     }
 
     public function testHasCorrectDefaultTransactionIsolationLevel() : void
@@ -735,6 +646,13 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
             'SET TEMPORARY OPTION isolation_level = 3',
             $this->platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::SERIALIZABLE)
         );
+    }
+
+    public function testCannotGenerateTransactionCommandWithInvalidIsolationLevel() : void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        $this->platform->getSetTransactionIsolationSQL('invalid_transaction_isolation_level');
     }
 
     public function testModifiesLimitQuery() : void
@@ -858,37 +776,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
     public function testDoesNotSupportSequences() : void
     {
-        self::markTestSkipped('This version of the platform now supports sequences.');
-    }
-
-    public function testSupportsSequences() : void
-    {
-        self::assertTrue($this->platform->supportsSequences());
-    }
-
-    public function testGeneratesSequenceSqlCommands() : void
-    {
-        $sequence = new Sequence('myseq', 20, 1);
-        self::assertEquals(
-            'CREATE SEQUENCE myseq INCREMENT BY 20 START WITH 1 MINVALUE 1',
-            $this->platform->getCreateSequenceSQL($sequence)
-        );
-        self::assertEquals(
-            'ALTER SEQUENCE myseq INCREMENT BY 20',
-            $this->platform->getAlterSequenceSQL($sequence)
-        );
-        self::assertEquals(
-            'DROP SEQUENCE myseq',
-            $this->platform->getDropSequenceSQL('myseq')
-        );
-        self::assertEquals(
-            'DROP SEQUENCE myseq',
-            $this->platform->getDropSequenceSQL($sequence)
-        );
-        self::assertEquals(
-            'SELECT myseq.NEXTVAL',
-            $this->platform->getSequenceNextValSQL('myseq')
-        );
+        self::assertFalse($this->platform->supportsSequences());
     }
 
     public function testDoesNotSupportInlineColumnComments() : void
@@ -913,18 +801,35 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         self::assertSame('binary', $this->platform->getDoctrineTypeMapping('varbinary'));
     }
 
-    public function testGetVariableLengthStringTypeDeclarationSQLNoLength() : void
+    protected function getBinaryDefaultLength() : int
     {
-        $this->expectException(ColumnLengthRequired::class);
-
-        parent::testGetVariableLengthStringTypeDeclarationSQLNoLength();
+        return 1;
     }
 
-    public function testGetVariableLengthBinaryTypeDeclarationSQLNoLength() : void
+    protected function getBinaryMaxLength() : int
     {
-        $this->expectException(ColumnLengthRequired::class);
+        return 32767;
+    }
 
-        parent::testGetVariableLengthBinaryTypeDeclarationSQLNoLength();
+    public function testReturnsBinaryTypeDeclarationSQL() : void
+    {
+        self::assertSame('VARBINARY(1)', $this->platform->getBinaryTypeDeclarationSQL([]));
+        self::assertSame('VARBINARY(1)', $this->platform->getBinaryTypeDeclarationSQL(['length' => 0]));
+        self::assertSame('VARBINARY(32767)', $this->platform->getBinaryTypeDeclarationSQL(['length' => 32767]));
+
+        self::assertSame('BINARY(1)', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true]));
+        self::assertSame('BINARY(1)', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 0]));
+        self::assertSame('BINARY(32767)', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 32767]));
+    }
+
+    /**
+     * @group legacy
+     * @expectedDeprecation Binary field length 32768 is greater than supported by the platform (32767). Reduce the field length or use a BLOB field instead.
+     */
+    public function testReturnsBinaryTypeLongerThanMaxDeclarationSQL() : void
+    {
+        self::assertSame('LONG BINARY', $this->platform->getBinaryTypeDeclarationSQL(['length' => 32768]));
+        self::assertSame('LONG BINARY', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 32768]));
     }
 
     /**
@@ -1141,7 +1046,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
      */
     public function testQuotesTableNameInListTableConstraintsSQL() : void
     {
-        self::assertStringContainsStringIgnoringCase("'Foo''Bar\\'", $this->platform->getListTableConstraintsSQL("Foo'Bar\\"), '');
+        self::assertStringContainsStringIgnoringCase("'Foo''Bar\\'", $this->platform->getListTableConstraintsSQL("Foo'Bar\\"), '', true);
     }
 
     /**

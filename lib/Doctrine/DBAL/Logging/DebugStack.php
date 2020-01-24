@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\DBAL\Logging;
 
 use function microtime;
@@ -9,7 +7,7 @@ use function microtime;
 /**
  * Includes executed SQLs in a Debug Stack.
  */
-final class DebugStack implements SQLLogger
+class DebugStack implements SQLLogger
 {
     /**
      * Executed SQL queries.
@@ -34,7 +32,7 @@ final class DebugStack implements SQLLogger
     /**
      * {@inheritdoc}
      */
-    public function startQuery(string $sql, array $params = [], array $types = []) : void
+    public function startQuery($sql, ?array $params = null, ?array $types = null)
     {
         if (! $this->enabled) {
             return;
@@ -47,7 +45,7 @@ final class DebugStack implements SQLLogger
     /**
      * {@inheritdoc}
      */
-    public function stopQuery() : void
+    public function stopQuery()
     {
         if (! $this->enabled) {
             return;

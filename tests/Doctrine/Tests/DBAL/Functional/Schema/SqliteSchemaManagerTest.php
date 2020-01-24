@@ -1,12 +1,9 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\Connection;
-use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\BlobType;
@@ -14,7 +11,6 @@ use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use SQLite3;
 use function array_map;
-use function assert;
 use function dirname;
 use function extension_loaded;
 use function version_compare;
@@ -53,8 +49,8 @@ class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $params           = $this->connection->getParams();
         $params['dbname'] = 'test_drop_database';
 
-        $user     = $params['user'] ?? '';
-        $password = $params['password'] ?? '';
+        $user     = $params['user'] ?? null;
+        $password = $params['password'] ?? null;
 
         $connection = $this->connection->getDriver()->connect($params, $user, $password);
 
@@ -102,7 +98,7 @@ EOS
             new Schema\ForeignKeyConstraint(
                 ['log'],
                 'log',
-                [''],
+                [null],
                 'FK_3',
                 ['onUpdate' => 'SET NULL', 'onDelete' => 'NO ACTION', 'deferrable' => false, 'deferred' => false]
             ),
@@ -237,11 +233,9 @@ SQL;
         $diff        = $comparator->diffTable($offlineTable, $onlineTable);
 
         if ($expectedComparatorDiff) {
-            self::assertNotNull($diff);
-
             self::assertEmpty($this->schemaManager->getDatabasePlatform()->getAlterTableSQL($diff));
         } else {
-            self::assertNull($diff);
+            self::assertFalse($diff);
         }
     }
 
@@ -278,8 +272,6 @@ SQL;
         $this->connection->insert('test_pk_auto_increment', ['text' => '2']);
 
         $query = $this->connection->query('SELECT id FROM test_pk_auto_increment WHERE text = "2"');
-        assert($query instanceof Statement);
-
         $query->execute();
         $lastUsedIdAfterDelete = (int) $query->fetchColumn();
 

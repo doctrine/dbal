@@ -1,11 +1,10 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\Tests\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\BooleanType;
+use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DbalTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 
@@ -19,28 +18,18 @@ class BooleanTest extends DbalTestCase
 
     protected function setUp() : void
     {
-        $this->platform = $this->createMock(AbstractPlatform::class);
-        $this->type     = new BooleanType();
+        $this->platform = $this->getMockForAbstractClass(AbstractPlatform::class);
+        $this->type     = Type::getType('boolean');
     }
 
     public function testBooleanConvertsToDatabaseValue() : void
     {
-        $this->platform->expects($this->once())
-            ->method('convertBooleansToDatabaseValue')
-            ->with(true)
-            ->willReturn(1);
-
-        self::assertSame(1, $this->type->convertToDatabaseValue(true, $this->platform));
+        self::assertIsInt($this->type->convertToDatabaseValue(1, $this->platform));
     }
 
     public function testBooleanConvertsToPHPValue() : void
     {
-        $this->platform->expects($this->once())
-            ->method('convertFromBoolean')
-            ->with(0)
-            ->willReturn(false);
-
-        self::assertFalse($this->type->convertToPHPValue(0, $this->platform));
+        self::assertIsBool($this->type->convertToPHPValue(0, $this->platform));
     }
 
     public function testBooleanNullConvertsToPHPValue() : void

@@ -10,6 +10,7 @@ You can get a DBAL Connection through the
 .. code-block:: php
 
     <?php
+    $config = new \Doctrine\DBAL\Configuration();
     //..
     $connectionParams = array(
         'dbname' => 'mydb',
@@ -18,18 +19,19 @@ You can get a DBAL Connection through the
         'host' => 'localhost',
         'driver' => 'pdo_mysql',
     );
-    $conn = \Doctrine\DBAL\DriverManager::getConnection($connectionParams);
+    $conn = \Doctrine\DBAL\DriverManager::getConnection($connectionParams, $config);
 
 Or, using the simpler URL form:
 
 .. code-block:: php
 
     <?php
+    $config = new \Doctrine\DBAL\Configuration();
     //..
     $connectionParams = array(
         'url' => 'mysql://user:secret@localhost/mydb',
     );
-    $conn = \Doctrine\DBAL\DriverManager::getConnection($connectionParams);
+    $conn = \Doctrine\DBAL\DriverManager::getConnection($connectionParams, $config);
 
 The ``DriverManager`` returns an instance of
 ``Doctrine\DBAL\Connection`` which is a wrapper around the
@@ -71,8 +73,12 @@ full driver name::
 
     pdo-mysql://localhost:4486/foo?charset=UTF-8
 
-In the example above, mind the dashes instead of the
-underscores in the URL scheme.
+If you wanted to use the ``drizzle_pdo__mysql`` driver instead::
+
+    drizzle-pdo-mysql://localhost:4486/foo?charset=UTF-8
+
+In the last two examples above, mind the dashes instead of the
+underscores in the URL schemes.
 
 For connecting to an SQLite database, the authority portion of the
 URL is obviously irrelevant and thus can be omitted. The path part
@@ -121,6 +127,8 @@ interfaces to use. It can be configured in one of three ways:
    following drivers are currently available:
 
    -  ``pdo_mysql``: A MySQL driver that uses the pdo_mysql PDO
+      extension.
+   -  ``drizzle_pdo_mysql``: A Drizzle driver that uses pdo_mysql PDO
       extension.
    -  ``mysqli``: A MySQL driver that uses the mysqli extension.
    -  ``pdo_sqlite``: An SQLite driver that uses the pdo_sqlite PDO
@@ -189,6 +197,23 @@ pdo_mysql
 -  ``charset`` (string): The charset used when connecting to the
    database.
 
+drizzle_pdo_mysql
+^^^^^^^^^^^^^^^^^
+
+**Requires** drizzle plugin ``mysql_protocol`` or ``mysql_unix_socket_protocol`` to be enabled.
+On Ubuntu this can be done by editing ``/etc/drizzle/conf.d/mysql-protocol.cnf``
+or ``/etc/drizzle/conf.d/mysql-unix-socket-protocol.cnf`` and restarting the drizzled daemon.
+
+-  ``user`` (string): Username to use when connecting to the
+   database. Only needed if authentication is configured for drizzled.
+-  ``password`` (string): Password to use when connecting to the
+   database. Only needed if authentication is configured for drizzled.
+-  ``host`` (string): Hostname of the database to connect to.
+-  ``port`` (integer): Port of the database to connect to.
+-  ``dbname`` (string): Name of the database/schema to connect to.
+-  ``unix_socket`` (string): Name of the socket used to connect to
+   the database.
+
 mysqli
 ^^^^^^
 
@@ -227,20 +252,20 @@ pdo_pgsql
 -  ``sslmode`` (string): Determines whether or with what priority
    a SSL TCP/IP connection will be negotiated with the server.
    See the list of available modes:
-   `https://www.postgresql.org/docs/9.4/static/libpq-connect.html#LIBPQ-CONNECT-SSLMODE`
+   `http://www.postgresql.org/docs/9.1/static/libpq-connect.html#LIBPQ-CONNECT-SSLMODE`
 -  ``sslrootcert`` (string): specifies the name of a file containing
    SSL certificate authority (CA) certificate(s). If the file exists,
    the server's certificate will be verified to be signed by one of these
    authorities.
-   See https://www.postgresql.org/docs/9.4/static/libpq-connect.html#LIBPQ-CONNECT-SSLROOTCERT
+   See http://www.postgresql.org/docs/9.0/static/libpq-connect.html#LIBPQ-CONNECT-SSLROOTCERT
 -  ``sslcert`` (string): specifies the file name of the client SSL certificate.
-   See `https://www.postgresql.org/docs/9.4/static/libpq-connect.html#LIBPQ-CONNECT-SSLCERT`
+   See `https://www.postgresql.org/docs/9.1/static/libpq-connect.html#LIBPQ-CONNECT-SSLCERT`
 -  ``sslkey`` (string): specifies the location for the secret key used for the
    client certificate.
-   See `https://www.postgresql.org/docs/9.4/static/libpq-connect.html#LIBPQ-CONNECT-SSLKEY`
+   See `https://www.postgresql.org/docs/9.1/static/libpq-connect.html#LIBPQ-CONNECT-SSLKEY`
 -  ``sslcrl`` (string): specifies the file name of the SSL certificate
    revocation list (CRL).
-   See `https://www.postgresql.org/docs/9.4/static/libpq-connect.html#LIBPQ-CONNECT-SSLCRL`
+   See `https://www.postgresql.org/docs/9.1/static/libpq-connect.html#LIBPQ-CONNECT-SSLCRL`
 -  ``application_name`` (string): Name of the application that is
    connecting to database. Optional. It will be displayed at ``pg_stat_activity``.
 
@@ -308,9 +333,14 @@ sqlanywhere
 Depending on the used underlying platform version, you can specify
 any other connection parameter that is supported by the particular
 platform version via the ``driverOptions`` option.
-You can find a list of supported connection parameters for the
-currently supported platform here:
+You can find a list of supported connection parameters for each
+platform version here:
 
+- `SQL Anywhere 10.0.1 <http://dcx.sybase.com/index.html#1001/en/dbdaen10/da-conmean.html>`_
+- `SQL Anywhere 11.0.0 <http://dcx.sybase.com/index.html#1100/en/dbadmin_en11/conmean.html>`_
+- `SQL Anywhere 11.0.1 <http://dcx.sybase.com/index.html#1101/en/dbadmin_en11/conmean.html>`_
+- `SQL Anywhere 12.0.0 <http://dcx.sybase.com/index.html#1200/en/dbadmin/da-conparm.html>`_
+- `SQL Anywhere 12.0.1 <http://dcx.sybase.com/index.html#1201/en/dbadmin/da-conparm.html>`_
 - `SAP Sybase SQL Anywhere 16.0 <http://dcx.sybase.com/index.html#sa160/en/dbadmin/da-conparm.html>`_
 
 Automatic platform version detection

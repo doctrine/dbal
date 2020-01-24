@@ -20,8 +20,6 @@ use Doctrine\DBAL\DriverManager;
         return;
     }
 
-    assert(is_int($pos));
-
     $file = $_SERVER['argv'][$pos + 1];
 
     register_shutdown_function(static function () use ($file) : void {

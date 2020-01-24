@@ -1,11 +1,8 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Types\Exception\ValueNotConvertible;
 use function is_resource;
 use function restore_error_handler;
 use function serialize;
@@ -21,7 +18,7 @@ class ObjectType extends Type
     /**
      * {@inheritdoc}
      */
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform) : string
+    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
     {
         return $platform->getClobTypeDeclarationSQL($fieldDeclaration);
     }
@@ -45,8 +42,8 @@ class ObjectType extends Type
 
         $value = is_resource($value) ? stream_get_contents($value) : $value;
 
-        set_error_handler(function (int $code, string $message) use ($value) : bool {
-            throw ValueNotConvertible::new($value, $this->getName(), $message);
+        set_error_handler(function (int $code, string $message) : bool {
+            throw ConversionException::conversionFailedUnserialization($this->getName(), $message);
         });
 
         try {
@@ -59,7 +56,7 @@ class ObjectType extends Type
     /**
      * {@inheritdoc}
      */
-    public function getName() : string
+    public function getName()
     {
         return Types::OBJECT;
     }
@@ -67,7 +64,7 @@ class ObjectType extends Type
     /**
      * {@inheritdoc}
      */
-    public function requiresSQLCommentHint(AbstractPlatform $platform) : bool
+    public function requiresSQLCommentHint(AbstractPlatform $platform)
     {
         return true;
     }

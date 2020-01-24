@@ -28,7 +28,6 @@ class DefaultValueTest extends DbalFunctionalTestCase
 
         foreach (self::columnProvider() as [$name, $default]) {
             $table->addColumn($name, 'string', [
-                'length' => 32,
                 'default' => $default,
                 'notnull' => false,
             ]);
@@ -41,6 +40,8 @@ class DefaultValueTest extends DbalFunctionalTestCase
     }
 
     /**
+     * @param mixed $expectedDefault
+     *
      * @dataProvider columnProvider
      */
     public function testEscapedDefaultValueCanBeIntrospected(string $name, ?string $expectedDefault) : void
@@ -56,6 +57,8 @@ class DefaultValueTest extends DbalFunctionalTestCase
     }
 
     /**
+     * @param mixed $expectedDefault
+     *
      * @dataProvider columnProvider
      */
     public function testEscapedDefaultValueCanBeInserted(string $name, ?string $expectedDefault) : void

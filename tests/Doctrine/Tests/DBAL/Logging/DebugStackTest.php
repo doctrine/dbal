@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\Tests\DBAL\Logging;
 
 use Doctrine\DBAL\Logging\DebugStack;
@@ -29,8 +27,8 @@ class DebugStackTest extends DbalTestCase
             [
                 1 => [
                     'sql' => 'SELECT column FROM table',
-                    'params' => [],
-                    'types' => [],
+                    'params' => null,
+                    'types' => null,
                     'executionMS' => 0,
                 ],
             ],

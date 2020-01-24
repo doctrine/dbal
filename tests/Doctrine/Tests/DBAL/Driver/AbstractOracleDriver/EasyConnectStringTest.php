@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\Tests\DBAL\Driver\AbstractOracleDriver;
 
 use Doctrine\DBAL\Driver\AbstractOracleDriver\EasyConnectString;
@@ -22,7 +20,7 @@ class EasyConnectStringTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array<int, mixed>>
+     * @return mixed[]
      */
     public static function connectionParametersProvider() : iterable
     {

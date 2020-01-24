@@ -1,11 +1,10 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\Tests\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\GuidType;
+use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DbalTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 
@@ -20,7 +19,7 @@ class GuidTypeTest extends DbalTestCase
     protected function setUp() : void
     {
         $this->platform = $this->createMock(AbstractPlatform::class);
-        $this->type     = new GuidType();
+        $this->type     = Type::getType('guid');
     }
 
     public function testConvertToPHPValue() : void

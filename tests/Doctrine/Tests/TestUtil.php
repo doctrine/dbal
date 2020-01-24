@@ -1,13 +1,9 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\Tests;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
-use Doctrine\DBAL\Platforms\OraclePlatform;
-use InvalidArgumentException;
 use PHPUnit\Framework\Assert;
 use function explode;
 use function extension_loaded;
@@ -100,19 +96,8 @@ class TestUtil
         $platform = $tmpConn->getDatabasePlatform();
 
         if ($platform->supportsCreateDropDatabase()) {
-            if (! $platform instanceof OraclePlatform) {
-                $dbname = $realDbParams['dbname'];
-            } else {
-                $dbname = $realDbParams['user'];
-            }
-
+            $dbname = $realConn->getDatabase();
             $realConn->close();
-
-            if ($dbname === null) {
-                throw new InvalidArgumentException(
-                    'You must have a database configured in your connection.'
-                );
-            }
 
             $tmpConn->getSchemaManager()->dropAndCreateDatabase($dbname);
 
@@ -175,7 +160,7 @@ class TestUtil
             'password' => $GLOBALS['tmpdb_password'],
             'host' => $GLOBALS['tmpdb_host'],
             'dbname' => null,
-            'port' => (int) $GLOBALS['tmpdb_port'],
+            'port' => $GLOBALS['tmpdb_port'],
         ];
 
         if (isset($GLOBALS['tmpdb_name'])) {
@@ -204,7 +189,7 @@ class TestUtil
             'password' => $GLOBALS['db_password'],
             'host' => $GLOBALS['db_host'],
             'dbname' => $GLOBALS['db_name'],
-            'port' => (int) $GLOBALS['db_port'],
+            'port' => $GLOBALS['db_port'],
         ];
 
         if (isset($GLOBALS['db_server'])) {

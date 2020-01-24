@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 use Doctrine\DBAL\Tools\Console\ConsoleRunner;
 use Symfony\Component\Console\Helper\HelperSet;
 

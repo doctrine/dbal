@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\Tests\DBAL\Functional\Driver;
 
 use Doctrine\DBAL\Connection;
@@ -33,8 +31,8 @@ abstract class AbstractDriverTest extends DbalFunctionalTestCase
         $params = $this->connection->getParams();
         unset($params['dbname']);
 
-        $user     = $params['user'] ?? '';
-        $password = $params['password'] ?? '';
+        $user     = $params['user'] ?? null;
+        $password = $params['password'] ?? null;
 
         $connection = $this->driver->connect($params, $user, $password);
 
@@ -58,7 +56,7 @@ abstract class AbstractDriverTest extends DbalFunctionalTestCase
 
         self::assertSame(
             static::getDatabaseNameForConnectionWithoutDatabaseNameParameter(),
-            $connection->getDatabase()
+            $this->driver->getDatabase($connection)
         );
     }
 

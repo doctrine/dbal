@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Schema\Index;
@@ -16,7 +14,7 @@ class MySQL57Platform extends MySqlPlatform
     /**
      * {@inheritdoc}
      */
-    public function hasNativeJsonType() : bool
+    public function hasNativeJsonType()
     {
         return true;
     }
@@ -24,7 +22,7 @@ class MySQL57Platform extends MySqlPlatform
     /**
      * {@inheritdoc}
      */
-    public function getJsonTypeDeclarationSQL(array $field) : string
+    public function getJsonTypeDeclarationSQL(array $field)
     {
         return 'JSON';
     }
@@ -32,7 +30,7 @@ class MySQL57Platform extends MySqlPlatform
     /**
      * {@inheritdoc}
      */
-    protected function getPreAlterTableRenameIndexForeignKeySQL(TableDiff $diff) : array
+    protected function getPreAlterTableRenameIndexForeignKeySQL(TableDiff $diff)
     {
         return [];
     }
@@ -40,7 +38,7 @@ class MySQL57Platform extends MySqlPlatform
     /**
      * {@inheritdoc}
      */
-    protected function getPostAlterTableRenameIndexForeignKeySQL(TableDiff $diff) : array
+    protected function getPostAlterTableRenameIndexForeignKeySQL(TableDiff $diff)
     {
         return [];
     }
@@ -48,7 +46,7 @@ class MySQL57Platform extends MySqlPlatform
     /**
      * {@inheritdoc}
      */
-    protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName) : array
+    protected function getRenameIndexSQL($oldIndexName, Index $index, $tableName)
     {
         return ['ALTER TABLE ' . $tableName . ' RENAME INDEX ' . $oldIndexName . ' TO ' . $index->getQuotedName($this)];
     }
@@ -56,7 +54,7 @@ class MySQL57Platform extends MySqlPlatform
     /**
      * {@inheritdoc}
      */
-    protected function getReservedKeywordsClass() : string
+    protected function getReservedKeywordsClass()
     {
         return Keywords\MySQL57Keywords::class;
     }
@@ -64,7 +62,7 @@ class MySQL57Platform extends MySqlPlatform
     /**
      * {@inheritdoc}
      */
-    protected function initializeDoctrineTypeMappings() : void
+    protected function initializeDoctrineTypeMappings()
     {
         parent::initializeDoctrineTypeMappings();
 

@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\Tests\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -58,7 +56,7 @@ class TableDiffTest extends TestCase
     {
         $tableDiff = new TableDiff('foo');
 
-        self::assertNull($tableDiff->getNewName());
+        self::assertFalse($tableDiff->getNewName());
 
         $tableDiff->newName = 'bar';
 

@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\Tests\DBAL\Schema\Platforms;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -35,10 +33,7 @@ class MySQLSchemaTest extends TestCase
         $tableNew->setPrimaryKey(['bar_id', 'foo_id']);
 
         $diff = $this->comparator->diffTable($tableOld, $tableNew);
-
-        self::assertNotNull($diff);
-
-        $sql = $this->platform->getAlterTableSQL($diff);
+        $sql  = $this->platform->getAlterTableSQL($diff);
 
         self::assertEquals(
             [
@@ -56,7 +51,7 @@ class MySQLSchemaTest extends TestCase
     {
         $tableOld = new Table('test');
         $tableOld->addColumn('foo_id', 'integer');
-        $tableOld->addForeignKeyConstraint('test_foreign', ['foo_id'], ['foo_id']);
+        $tableOld->addUnnamedForeignKeyConstraint('test_foreign', ['foo_id'], ['foo_id']);
 
         $sqls = [];
         foreach ($tableOld->getForeignKeys() as $fk) {
@@ -79,10 +74,7 @@ class MySQLSchemaTest extends TestCase
         $tableNew->setPrimaryKey(['id']);
 
         $diff = $this->comparator->diffTable($tableOld, $tableNew);
-
-        self::assertNotNull($diff);
-
-        $sql = $this->platform->getAlterTableSQL($diff);
+        $sql  = $this->platform->getAlterTableSQL($diff);
 
         self::assertEquals(
             ['ALTER TABLE test ADD PRIMARY KEY (id)'],
