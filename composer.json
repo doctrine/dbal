@@ -1,7 +1,7 @@
 {
     "name": "julienheroux/dbal",
     "type": "library",
-    "description": "Powerful PHP database abstraction layer (DBAL) with many features for database schema introspection and management.",
+    "description": "Doctrine/dbal with for firebird 2.5 support.",
     "keywords": [
         "abstraction",
         "database",
