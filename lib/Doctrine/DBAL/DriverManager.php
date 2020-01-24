@@ -15,10 +15,12 @@ use Doctrine\DBAL\Driver\PDOSqlite\Driver as PDOSQLiteDriver;
 use Doctrine\DBAL\Driver\PDOSqlsrv\Driver as PDOSQLSrvDriver;
 use Doctrine\DBAL\Driver\SQLAnywhere\Driver as SQLAnywhereDriver;
 use Doctrine\DBAL\Driver\SQLSrv\Driver as SQLSrvDriver;
+use Doctrine\DBAL\Driver\Ibase\Firebird\Driver as SQLFirebirdDriver;
 use Doctrine\DBAL\Exception\DriverRequired;
 use Doctrine\DBAL\Exception\InvalidDriverClass;
 use Doctrine\DBAL\Exception\InvalidWrapperClass;
 use Doctrine\DBAL\Exception\UnknownDriver;
+use PDO;
 use function array_keys;
 use function array_map;
 use function array_merge;
@@ -58,6 +60,8 @@ final class DriverManager
         'mysqli'      => MySQLiDriver::class,
         'sqlanywhere' => SQLAnywhereDriver::class,
         'sqlsrv'      => SQLSrvDriver::class,
+		'ibase_firebird' => SQLFirebirdDriver::class,
+																	
     ];
 
     /**
@@ -75,6 +79,7 @@ final class DriverManager
         'pgsql'      => 'pdo_pgsql',
         'sqlite'     => 'pdo_sqlite',
         'sqlite3'    => 'pdo_sqlite',
+		'firebird'   => 'ibase_firebird'								 
     ];
 
     /**
@@ -103,6 +108,7 @@ final class DriverManager
      *     sqlanywhere
      *     sqlsrv
      *     ibm_db2 (unstable)
+	 *     firebird (unstable)						
      *
      * OR 'driverClass' that contains the full class name (with namespace) of the
      * driver class to instantiate.
