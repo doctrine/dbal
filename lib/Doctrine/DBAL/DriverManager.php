@@ -55,7 +55,6 @@ final class DriverManager
         'drizzle_pdo_mysql'  => DrizzlePDOMySQLDriver::class,
         'sqlanywhere'        => SQLAnywhereDriver::class,
         'sqlsrv'             => SQLSrvDriver::class,
-        'ibase_firebird'     => 'Doctrine\DBAL\Driver\Ibase\Firebird\Driver'
     ];
 
     /**
@@ -73,7 +72,6 @@ final class DriverManager
         'pgsql'      => 'pdo_pgsql',
         'sqlite'     => 'pdo_sqlite',
         'sqlite3'    => 'pdo_sqlite',
-        'firebird'    => 'ibase_firebird'
     ];
 
     /**
