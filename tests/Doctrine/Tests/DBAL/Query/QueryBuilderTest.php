@@ -293,7 +293,7 @@ class QueryBuilderTest extends DbalTestCase
            ->from('users', 'u')
            ->orderBy('u.name');
 
-        self::assertEquals('SELECT u.*, p.* FROM users u ORDER BY u.name ASC', (string) $qb);
+        self::assertEquals('SELECT u.*, p.* FROM users u ORDER BY u.name', (string) $qb);
     }
 
     public function testSelectAddOrderBy() : void
@@ -305,7 +305,7 @@ class QueryBuilderTest extends DbalTestCase
            ->orderBy('u.name')
            ->addOrderBy('u.username', 'DESC');
 
-        self::assertEquals('SELECT u.*, p.* FROM users u ORDER BY u.name ASC, u.username DESC', (string) $qb);
+        self::assertEquals('SELECT u.*, p.* FROM users u ORDER BY u.name, u.username DESC', (string) $qb);
     }
 
     public function testSelectAddAddOrderBy() : void
@@ -317,7 +317,7 @@ class QueryBuilderTest extends DbalTestCase
            ->addOrderBy('u.name')
            ->addOrderBy('u.username', 'DESC');
 
-        self::assertEquals('SELECT u.*, p.* FROM users u ORDER BY u.name ASC, u.username DESC', (string) $qb);
+        self::assertEquals('SELECT u.*, p.* FROM users u ORDER BY u.name, u.username DESC', (string) $qb);
     }
 
     public function testEmptySelect() : void
@@ -327,6 +327,9 @@ class QueryBuilderTest extends DbalTestCase
 
         self::assertSame($qb, $qb2);
         self::assertEquals(QueryBuilder::SELECT, $qb->getType());
+
+        $this->expectException(QueryException::class);
+        $qb->getSQL();
     }
 
     public function testSelectAddSelect() : void
@@ -506,28 +509,6 @@ class QueryBuilderTest extends DbalTestCase
         self::assertEquals(10, $qb->getFirstResult());
     }
 
-    public function testResetQueryPart() : void
-    {
-        $qb = new QueryBuilder($this->conn);
-
-        $qb->select('u.*')->from('users', 'u')->where('u.name = ?');
-
-        self::assertEquals('SELECT u.* FROM users u WHERE u.name = ?', (string) $qb);
-        $qb->resetQueryPart('where');
-        self::assertEquals('SELECT u.* FROM users u', (string) $qb);
-    }
-
-    public function testResetQueryParts() : void
-    {
-        $qb = new QueryBuilder($this->conn);
-
-        $qb->select('u.*')->from('users', 'u')->where('u.name = ?')->orderBy('u.name');
-
-        self::assertEquals('SELECT u.* FROM users u WHERE u.name = ? ORDER BY u.name ASC', (string) $qb);
-        $qb->resetQueryParts(['where', 'orderBy']);
-        self::assertEquals('SELECT u.* FROM users u', (string) $qb);
-    }
-
     public function testCreateNamedParameter() : void
     {
         $qb = new QueryBuilder($this->conn);
@@ -692,7 +673,6 @@ class QueryBuilderTest extends DbalTestCase
 
         $qb->andWhere('u.id = 1');
 
-        self::assertNotSame($qb->getQueryParts(), $qb_clone->getQueryParts());
         self::assertNotSame($qb->getParameters(), $qb_clone->getParameters());
     }
 

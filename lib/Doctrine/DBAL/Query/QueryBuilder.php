@@ -14,12 +14,10 @@ use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use function array_key_exists;
 use function array_keys;
 use function array_merge;
-use function array_shift;
+use function array_unshift;
 use function count;
 use function implode;
-use function is_array;
 use function is_object;
-use function key;
 use function substr;
 
 /**
@@ -54,30 +52,6 @@ class QueryBuilder
      * @var Connection
      */
     private $connection;
-
-    /*
-     * The default values of SQL parts collection
-     */
-    private const SQL_PARTS_DEFAULTS = [
-        'select'   => [],
-        'distinct' => false,
-        'from'     => [],
-        'table'    => null,
-        'join'     => [],
-        'set'      => [],
-        'where'    => null,
-        'groupBy'  => [],
-        'having'   => null,
-        'orderBy'  => [],
-        'values'   => [],
-    ];
-
-    /**
-     * The array of SQL parts collected.
-     *
-     * @var array<string, mixed>
-     */
-    private $sqlParts = self::SQL_PARTS_DEFAULTS;
 
     /**
      * The complete SQL string for this query.
@@ -134,6 +108,83 @@ class QueryBuilder
      * @var int
      */
     private $boundCounter = 0;
+
+    /**
+     * The SELECT parts of the query.
+     *
+     * @var string[]
+     */
+    private $select = [];
+
+    /**
+     * Whether this is a SELECT DISTINCT query.
+     *
+     * @var bool
+     */
+    private $distinct = false;
+
+    /**
+     * The FROM parts of a SELECT query.
+     *
+     * @var From[]
+     */
+    private $from = [];
+
+    /**
+     * The table name for an INSERT, UPDATE or DELETE query.
+     *
+     * @var string|null
+     */
+    private $table;
+
+    /**
+     * The list of joins, indexed by from alias.
+     *
+     * @var array<string, Join[]>
+     */
+    private $join = [];
+
+    /**
+     * The SET parts of an UPDATE query.
+     *
+     * @var string[]
+     */
+    private $set = [];
+
+    /**
+     * The WHERE part of a SELECT, UPDATE or DELETE query.
+     *
+     * @var string|CompositeExpression|null
+     */
+    private $where;
+
+    /**
+     * The GROUP BY part of a SELECT query.
+     *
+     * @var string[]
+     */
+    private $groupBy = [];
+
+    /**
+     * The HAVING part of a SELECT query.
+     *
+     * @var string|CompositeExpression|null
+     */
+    private $having;
+
+    /**
+     * The ORDER BY parts of a SELECT query.
+     *
+     * @var string[]
+     */
+    private $orderBy = [];
+
+    /**
+     * The values of an INSERT query.
+     *
+     * @var array<string, mixed>
+     */
+    private $values = [];
 
     /**
      * Initializes a new <tt>QueryBuilder</tt>.
@@ -218,6 +269,8 @@ class QueryBuilder
      * </code>
      *
      * @return string The SQL query string.
+     *
+     * @throws QueryException If the object doesn't represent a valid query in its current state.
      */
     public function getSQL() : string
     {
@@ -400,49 +453,6 @@ class QueryBuilder
     }
 
     /**
-     * Either appends to or replaces a single, generic query part.
-     *
-     * The available parts are: 'select', 'from', 'set', 'where',
-     * 'groupBy', 'having' and 'orderBy'.
-     *
-     * @param mixed $sqlPart
-     *
-     * @return $this This QueryBuilder instance.
-     */
-    public function add(string $sqlPartName, $sqlPart, bool $append = false) : self
-    {
-        $isArray    = is_array($sqlPart);
-        $isMultiple = is_array($this->sqlParts[$sqlPartName]);
-
-        if ($isMultiple && ! $isArray) {
-            $sqlPart = [$sqlPart];
-        }
-
-        $this->state = self::STATE_DIRTY;
-
-        if ($append) {
-            if ($sqlPartName === 'orderBy' || $sqlPartName === 'groupBy' || $sqlPartName === 'select' || $sqlPartName === 'set' || $sqlPartName === 'from') {
-                foreach ($sqlPart as $part) {
-                    $this->sqlParts[$sqlPartName][] = $part;
-                }
-            } elseif ($isArray && (is_array($sqlPart[key($sqlPart)]) || is_object($sqlPart[key($sqlPart)]))) {
-                $key                                  = key($sqlPart);
-                $this->sqlParts[$sqlPartName][$key][] = $sqlPart[$key];
-            } elseif ($isMultiple) {
-                $this->sqlParts[$sqlPartName][] = $sqlPart;
-            } else {
-                $this->sqlParts[$sqlPartName] = $sqlPart;
-            }
-
-            return $this;
-        }
-
-        $this->sqlParts[$sqlPartName] = $sqlPart;
-
-        return $this;
-    }
-
-    /**
      * Specifies an item that is to be returned in the query result.
      * Replaces any previously specified selections, if any.
      *
@@ -465,7 +475,11 @@ class QueryBuilder
             return $this;
         }
 
-        return $this->add('select', $expressions);
+        $this->select = $expressions;
+
+        $this->state = self::STATE_DIRTY;
+
+        return $this;
     }
 
     /**
@@ -482,7 +496,9 @@ class QueryBuilder
      */
     public function distinct() : self
     {
-        $this->sqlParts['distinct'] = true;
+        $this->distinct = true;
+
+        $this->state = self::STATE_DIRTY;
 
         return $this;
     }
@@ -507,7 +523,11 @@ class QueryBuilder
     {
         $this->type = self::SELECT;
 
-        return $this->add('select', array_merge([$expression], $expressions), true);
+        $this->select = array_merge($this->select, [$expression], $expressions);
+
+        $this->state = self::STATE_DIRTY;
+
+        return $this;
     }
 
     /**
@@ -529,7 +549,11 @@ class QueryBuilder
     {
         $this->type = self::DELETE;
 
-        return $this->add('table', $table);
+        $this->table = $table;
+
+        $this->state = self::STATE_DIRTY;
+
+        return $this;
     }
 
     /**
@@ -551,7 +575,11 @@ class QueryBuilder
     {
         $this->type = self::UPDATE;
 
-        return $this->add('table', $table);
+        $this->table = $table;
+
+        $this->state = self::STATE_DIRTY;
+
+        return $this;
     }
 
     /**
@@ -577,7 +605,11 @@ class QueryBuilder
     {
         $this->type = self::INSERT;
 
-        return $this->add('table', $table);
+        $this->table = $table;
+
+        $this->state = self::STATE_DIRTY;
+
+        return $this;
     }
 
     /**
@@ -590,14 +622,18 @@ class QueryBuilder
      *         ->from('users', 'u')
      * </code>
      *
-     * @param string      $from  The table.
+     * @param string      $table The table.
      * @param string|null $alias The alias of the table.
      *
      * @return $this This QueryBuilder instance.
      */
-    public function from(string $from, ?string $alias = null) : self
+    public function from(string $table, ?string $alias = null) : self
     {
-        return $this->add('from', new From($from, $alias), true);
+        $this->from[] = new From($table, $alias);
+
+        $this->state = self::STATE_DIRTY;
+
+        return $this;
     }
 
     /**
@@ -641,9 +677,11 @@ class QueryBuilder
      */
     public function innerJoin(string $fromAlias, string $join, string $alias, ?string $condition = null) : self
     {
-        return $this->add('join', [
-            $fromAlias => Join::inner($join, $alias, $condition),
-        ], true);
+        $this->join[$fromAlias][] = Join::inner($join, $alias, $condition);
+
+        $this->state = self::STATE_DIRTY;
+
+        return $this;
     }
 
     /**
@@ -665,9 +703,11 @@ class QueryBuilder
      */
     public function leftJoin(string $fromAlias, string $join, string $alias, ?string $condition = null) : self
     {
-        return $this->add('join', [
-            $fromAlias => Join::left($join, $alias, $condition),
-        ], true);
+        $this->join[$fromAlias][] = Join::left($join, $alias, $condition);
+
+        $this->state = self::STATE_DIRTY;
+
+        return $this;
     }
 
     /**
@@ -689,9 +729,11 @@ class QueryBuilder
      */
     public function rightJoin(string $fromAlias, string $join, string $alias, ?string $condition = null) : self
     {
-        return $this->add('join', [
-            $fromAlias => Join::right($join, $alias, $condition),
-        ], true);
+        $this->join[$fromAlias][] = Join::right($join, $alias, $condition);
+
+        $this->state = self::STATE_DIRTY;
+
+        return $this;
     }
 
     /**
@@ -711,7 +753,11 @@ class QueryBuilder
      */
     public function set(string $key, string $value) : self
     {
-        return $this->add('set', $key . ' = ' . $value, true);
+        $this->set[] = $key . ' = ' . $value;
+
+        $this->state = self::STATE_DIRTY;
+
+        return $this;
     }
 
     /**
@@ -743,7 +789,11 @@ class QueryBuilder
      */
     public function where($predicate, ...$predicates) : self
     {
-        return $this->setPredicates('where', $predicate, ...$predicates);
+        $this->where = $this->createPredicate($predicate, ...$predicates);
+
+        $this->state = self::STATE_DIRTY;
+
+        return $this;
     }
 
     /**
@@ -767,7 +817,11 @@ class QueryBuilder
      */
     public function andWhere($predicate, ...$predicates) : self
     {
-        return $this->appendPredicates('where', CompositeExpression::TYPE_AND, $predicate, ...$predicates);
+        $this->where = $this->appendToPredicate($this->where, CompositeExpression::TYPE_AND, $predicate, ...$predicates);
+
+        $this->state = self::STATE_DIRTY;
+
+        return $this;
     }
 
     /**
@@ -791,7 +845,11 @@ class QueryBuilder
      */
     public function orWhere($predicate, ...$predicates) : self
     {
-        return $this->appendPredicates('where', CompositeExpression::TYPE_OR, $predicate, ...$predicates);
+        $this->where = $this->appendToPredicate($this->where, CompositeExpression::TYPE_OR, $predicate, ...$predicates);
+
+        $this->state = self::STATE_DIRTY;
+
+        return $this;
     }
 
     /**
@@ -812,7 +870,11 @@ class QueryBuilder
      */
     public function groupBy(string $expression, string ...$expressions) : self
     {
-        return $this->add('groupBy', array_merge([$expression], $expressions), false);
+        $this->groupBy = array_merge([$expression], $expressions);
+
+        $this->state = self::STATE_DIRTY;
+
+        return $this;
     }
 
     /**
@@ -833,7 +895,11 @@ class QueryBuilder
      */
     public function addGroupBy(string $expression, string ...$expressions) : self
     {
-        return $this->add('groupBy', array_merge([$expression], $expressions), true);
+        $this->groupBy = array_merge($this->groupBy, [$expression], $expressions);
+
+        $this->state = self::STATE_DIRTY;
+
+        return $this;
     }
 
     /**
@@ -857,7 +923,7 @@ class QueryBuilder
      */
     public function setValue(string $column, string $value) : self
     {
-        $this->sqlParts['values'][$column] = $value;
+        $this->values[$column] = $value;
 
         return $this;
     }
@@ -883,7 +949,11 @@ class QueryBuilder
      */
     public function values(array $values) : self
     {
-        return $this->add('values', $values);
+        $this->values = $values;
+
+        $this->state = self::STATE_DIRTY;
+
+        return $this;
     }
 
     /**
@@ -897,7 +967,11 @@ class QueryBuilder
      */
     public function having($predicate, ...$predicates) : self
     {
-        return $this->setPredicates('having', $predicate, ...$predicates);
+        $this->having = $this->createPredicate($predicate, ...$predicates);
+
+        $this->state = self::STATE_DIRTY;
+
+        return $this;
     }
 
     /**
@@ -911,7 +985,11 @@ class QueryBuilder
      */
     public function andHaving($predicate, ...$predicates) : self
     {
-        return $this->appendPredicates('having', CompositeExpression::TYPE_AND, $predicate, ...$predicates);
+        $this->having = $this->appendToPredicate($this->having, CompositeExpression::TYPE_AND, $predicate, ...$predicates);
+
+        $this->state = self::STATE_DIRTY;
+
+        return $this;
     }
 
     /**
@@ -925,52 +1003,51 @@ class QueryBuilder
      */
     public function orHaving($predicate, ...$predicates) : self
     {
-        return $this->appendPredicates('having', CompositeExpression::TYPE_OR, $predicate, ...$predicates);
+        $this->having = $this->appendToPredicate($this->having, CompositeExpression::TYPE_OR, $predicate, ...$predicates);
+
+        $this->state = self::STATE_DIRTY;
+
+        return $this;
     }
 
     /**
-     * Sets one or more predicates combined by the AND logic as the given query clause.
-     * Replaces any previously specified predicates.
+     * Creates a CompositeExpression from one or more predicates combined by the AND logic.
      *
+     * @param string|CompositeExpression $predicate
      * @param string|CompositeExpression ...$predicates
      *
-     * @return $this This QueryBuilder instance.
+     * @return string|CompositeExpression
      */
-    private function setPredicates(string $clause, ...$predicates) : self
+    private function createPredicate($predicate, ...$predicates)
     {
-        if (count($predicates) > 1) {
-            $predicate = new CompositeExpression(
-                CompositeExpression::TYPE_AND,
-                $predicates
-            );
-        } else {
-            $predicate = array_shift($predicates);
+        if (count($predicates) === 0) {
+            return $predicate;
         }
 
-        return $this->add($clause, $predicate);
+        return new CompositeExpression(CompositeExpression::TYPE_AND, array_merge([$predicate], $predicates));
     }
 
     /**
-     * Appends the given predicates combined by the given type of logic to the given query clause.
+     * Appends the given predicates combined by the given type of logic to the current predicate.
      *
-     * @param string|CompositeExpression ...$predicates
+     * @param string|CompositeExpression|null $currentPredicate
+     * @param string|CompositeExpression      ...$predicates
      *
-     * @return $this This QueryBuilder instance.
+     * @return string|CompositeExpression
      */
-    private function appendPredicates(string $clause, string $type, ...$predicates) : self
+    private function appendToPredicate($currentPredicate, string $type, ...$predicates)
     {
-        $predicate = $this->getQueryPart($clause);
-
-        if ($predicate instanceof CompositeExpression && $predicate->getType() === $type) {
-            $predicate->addMultiple($predicates);
-        } else {
-            $predicate = new CompositeExpression(
-                $type,
-                array_merge([$predicate], $predicates)
-            );
+        if ($currentPredicate instanceof CompositeExpression && $currentPredicate->getType() === $type) {
+            return $currentPredicate->addMultiple($predicates);
         }
 
-        return $this->add($clause, $predicate, true);
+        if ($currentPredicate !== null) {
+            array_unshift($predicates, $currentPredicate);
+        } elseif (count($predicates) === 1) {
+            return $predicates[0];
+        }
+
+        return new CompositeExpression($type, $predicates);
     }
 
     /**
@@ -984,7 +1061,17 @@ class QueryBuilder
      */
     public function orderBy(string $sort, ?string $order = null) : self
     {
-        return $this->add('orderBy', $sort . ' ' . (! $order ? 'ASC' : $order), false);
+        $orderBy = $sort;
+
+        if ($order !== null) {
+            $orderBy .= ' ' . $order;
+        }
+
+        $this->orderBy = [$orderBy];
+
+        $this->state = self::STATE_DIRTY;
+
+        return $this;
     }
 
     /**
@@ -997,57 +1084,13 @@ class QueryBuilder
      */
     public function addOrderBy(string $sort, ?string $order = null) : self
     {
-        return $this->add('orderBy', $sort . ' ' . (! $order ? 'ASC' : $order), true);
-    }
+        $orderBy = $sort;
 
-    /**
-     * Gets a query part by its name.
-     *
-     * @return mixed
-     */
-    public function getQueryPart(string $queryPartName)
-    {
-        return $this->sqlParts[$queryPartName];
-    }
-
-    /**
-     * Gets all query parts.
-     *
-     * @return array<string, mixed>
-     */
-    public function getQueryParts() : array
-    {
-        return $this->sqlParts;
-    }
-
-    /**
-     * Resets SQL parts.
-     *
-     * @param array<int, string>|null $queryPartNames
-     *
-     * @return $this This QueryBuilder instance.
-     */
-    public function resetQueryParts(?array $queryPartNames = null) : self
-    {
-        if ($queryPartNames === null) {
-            $queryPartNames = array_keys($this->sqlParts);
+        if ($order !== null) {
+            $orderBy .= ' ' . $order;
         }
 
-        foreach ($queryPartNames as $queryPartName) {
-            $this->resetQueryPart($queryPartName);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Resets a single SQL part.
-     *
-     * @return $this This QueryBuilder instance.
-     */
-    public function resetQueryPart(string $queryPartName) : self
-    {
-        $this->sqlParts[$queryPartName] = self::SQL_PARTS_DEFAULTS[$queryPartName];
+        $this->orderBy[] = $orderBy;
 
         $this->state = self::STATE_DIRTY;
 
@@ -1059,14 +1102,37 @@ class QueryBuilder
      */
     private function getSQLForSelect() : string
     {
-        $query = 'SELECT ' . ($this->sqlParts['distinct'] ? 'DISTINCT ' : '') .
-                  implode(', ', $this->sqlParts['select']);
+        if (count($this->select) === 0) {
+            throw new QueryException('No SELECT expressions given. Please use select() or addSelect().');
+        }
 
-        $query .= ($this->sqlParts['from'] ? ' FROM ' . implode(', ', $this->getFromClauses()) : '')
-            . ($this->sqlParts['where'] !== null ? ' WHERE ' . ((string) $this->sqlParts['where']) : '')
-            . ($this->sqlParts['groupBy'] ? ' GROUP BY ' . implode(', ', $this->sqlParts['groupBy']) : '')
-            . ($this->sqlParts['having'] !== null ? ' HAVING ' . ((string) $this->sqlParts['having']) : '')
-            . ($this->sqlParts['orderBy'] ? ' ORDER BY ' . implode(', ', $this->sqlParts['orderBy']) : '');
+        $query = 'SELECT';
+
+        if ($this->distinct) {
+            $query .= ' DISTINCT';
+        }
+
+        $query .= ' ' . implode(', ', $this->select);
+
+        if (count($this->from) !== 0) {
+            $query .= ' FROM ' . implode(', ', $this->getFromClauses());
+        }
+
+        if ($this->where !== null) {
+            $query .= ' WHERE ' . $this->where;
+        }
+
+        if (count($this->groupBy) !== 0) {
+            $query .= ' GROUP BY ' . implode(', ', $this->groupBy);
+        }
+
+        if ($this->having !== null) {
+            $query .= ' HAVING ' . $this->having;
+        }
+
+        if (count($this->orderBy) !== 0) {
+            $query .= ' ORDER BY ' . implode(', ', $this->orderBy);
+        }
 
         if ($this->isLimitQuery()) {
             return $this->connection->getDatabasePlatform()->modifyLimitQuery(
@@ -1087,9 +1153,7 @@ class QueryBuilder
         $fromClauses  = [];
         $knownAliases = [];
 
-        // Loop through all FROM clauses
-        /** @var From $from */
-        foreach ($this->sqlParts['from'] as $from) {
+        foreach ($this->from as $from) {
             if ($from->alias === null || $from->alias === $from->table) {
                 $tableSql       = $from->table;
                 $tableReference = $from->table;
@@ -1115,7 +1179,7 @@ class QueryBuilder
      */
     private function verifyAllAliasesAreKnown(array $knownAliases) : void
     {
-        foreach ($this->sqlParts['join'] as $fromAlias => $joins) {
+        foreach ($this->join as $fromAlias => $joins) {
             if (! isset($knownAliases[$fromAlias])) {
                 throw UnknownAlias::new($fromAlias, array_keys($knownAliases));
             }
@@ -1132,9 +1196,9 @@ class QueryBuilder
      */
     private function getSQLForInsert() : string
     {
-        return 'INSERT INTO ' . $this->sqlParts['table'] .
-        ' (' . implode(', ', array_keys($this->sqlParts['values'])) . ')' .
-        ' VALUES(' . implode(', ', $this->sqlParts['values']) . ')';
+        return 'INSERT INTO ' . $this->table .
+        ' (' . implode(', ', array_keys($this->values)) . ')' .
+        ' VALUES(' . implode(', ', $this->values) . ')';
     }
 
     /**
@@ -1142,9 +1206,13 @@ class QueryBuilder
      */
     private function getSQLForUpdate() : string
     {
-        return 'UPDATE ' . $this->sqlParts['table']
-            . ' SET ' . implode(', ', $this->sqlParts['set'])
-            . ($this->sqlParts['where'] !== null ? ' WHERE ' . ((string) $this->sqlParts['where']) : '');
+        $query = 'UPDATE ' . $this->table . ' SET ' . implode(', ', $this->set);
+
+        if ($this->where !== null) {
+            $query .= ' WHERE ' . $this->where;
+        }
+
+        return $query;
     }
 
     /**
@@ -1152,7 +1220,13 @@ class QueryBuilder
      */
     private function getSQLForDelete() : string
     {
-        return 'DELETE FROM ' . $this->sqlParts['table'] . ($this->sqlParts['where'] !== null ? ' WHERE ' . ((string) $this->sqlParts['where']) : '');
+        $query = 'DELETE FROM ' . $this->table;
+
+        if ($this->where !== null) {
+            $query .= ' WHERE ' . $this->where;
+        }
+
+        return $query;
     }
 
     /**
@@ -1241,22 +1315,22 @@ class QueryBuilder
     {
         $sql = '';
 
-        if (isset($this->sqlParts['join'][$fromAlias])) {
-            /** @var Join $join */
-            foreach ($this->sqlParts['join'][$fromAlias] as $join) {
-                if (array_key_exists($join->alias, $knownAliases)) {
-                    throw NonUniqueAlias::new($join->alias, array_keys($knownAliases));
-                }
-                $sql                       .= ' ' . $join->type
-                    . ' JOIN ' . $join->table . ' ' . $join->alias
-                    . ' ON ' . ((string) $join->condition);
-                $knownAliases[$join->alias] = true;
-            }
+        if (! isset($this->join[$fromAlias])) {
+            return $sql;
+        }
 
-            foreach ($this->sqlParts['join'][$fromAlias] as $join) {
-                /** @var Join $join */
-                $sql .= $this->getSQLForJoins($join->alias, $knownAliases);
+        foreach ($this->join[$fromAlias] as $join) {
+            if (array_key_exists($join->alias, $knownAliases)) {
+                throw NonUniqueAlias::new($join->alias, array_keys($knownAliases));
             }
+            $sql                       .= ' ' . $join->type
+                . ' JOIN ' . $join->table . ' ' . $join->alias
+                . ' ON ' . ((string) $join->condition);
+            $knownAliases[$join->alias] = true;
+        }
+
+        foreach ($this->join[$fromAlias] as $join) {
+            $sql .= $this->getSQLForJoins($join->alias, $knownAliases);
         }
 
         return $sql;
@@ -1267,18 +1341,22 @@ class QueryBuilder
      */
     public function __clone()
     {
-        foreach ($this->sqlParts as $part => $elements) {
-            if (is_array($this->sqlParts[$part])) {
-                foreach ($this->sqlParts[$part] as $idx => $element) {
-                    if (! is_object($element)) {
-                        continue;
-                    }
+        foreach ($this->from as $key => $from) {
+            $this->from[$key] = clone $from;
+        }
 
-                    $this->sqlParts[$part][$idx] = clone $element;
-                }
-            } elseif (is_object($elements)) {
-                $this->sqlParts[$part] = clone $elements;
+        foreach ($this->join as $fromAlias => $joins) {
+            foreach ($joins as $key => $join) {
+                $this->join[$fromAlias][$key] = clone $join;
             }
+        }
+
+        if (is_object($this->where)) {
+            $this->where = clone $this->where;
+        }
+
+        if (is_object($this->having)) {
+            $this->having = clone $this->having;
         }
 
         foreach ($this->params as $name => $param) {
