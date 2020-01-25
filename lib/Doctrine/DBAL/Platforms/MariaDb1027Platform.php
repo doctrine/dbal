@@ -23,17 +23,11 @@ final class MariaDb1027Platform extends MySqlPlatform
         return 'LONGTEXT';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getReservedKeywordsClass() : string
     {
         return Keywords\MariaDb102Keywords::class;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function initializeDoctrineTypeMappings() : void
     {
         parent::initializeDoctrineTypeMappings();

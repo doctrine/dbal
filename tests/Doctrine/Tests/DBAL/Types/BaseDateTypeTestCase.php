@@ -26,9 +26,6 @@ abstract class BaseDateTypeTestCase extends TestCase
     /** @var string */
     private $currentTimezone;
 
-    /**
-     * {@inheritDoc}
-     */
     protected function setUp() : void
     {
         $this->platform        = $this->getMockForAbstractClass(AbstractPlatform::class);
@@ -37,9 +34,6 @@ abstract class BaseDateTypeTestCase extends TestCase
         self::assertInstanceOf(Type::class, $this->type);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected function tearDown() : void
     {
         date_default_timezone_set($this->currentTimezone);

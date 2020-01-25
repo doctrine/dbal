@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver\OCI8;
 
-use const PREG_OFFSET_CAPTURE;
 use function count;
 use function implode;
 use function preg_match;
 use function preg_quote;
 use function substr;
+use const PREG_OFFSET_CAPTURE;
 
 /**
  * Converts positional (?) into named placeholders (:param<num>).

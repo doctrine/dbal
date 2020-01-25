@@ -10,9 +10,6 @@ use Doctrine\DBAL\Types\DateTimeType;
 
 class DateTimeTest extends BaseDateTypeTestCase
 {
-    /**
-     * {@inheritDoc}
-     */
     protected function setUp() : void
     {
         $this->type = new DateTimeType();

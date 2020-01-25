@@ -20,9 +20,6 @@ use Doctrine\DBAL\Schema\OracleSchemaManager;
  */
 abstract class AbstractOracleDriver implements Driver, ExceptionConverterDriver
 {
-    /**
-     * {@inheritdoc}
-     */
     public function convertException(string $message, DriverExceptionInterface $exception) : DriverException
     {
         switch ($exception->getCode()) {
@@ -30,30 +27,22 @@ abstract class AbstractOracleDriver implements Driver, ExceptionConverterDriver
             case 2299:
             case 38911:
                 return new Exception\UniqueConstraintViolationException($message, $exception);
-
             case 904:
                 return new Exception\InvalidFieldNameException($message, $exception);
-
             case 918:
             case 960:
                 return new Exception\NonUniqueFieldNameException($message, $exception);
-
             case 923:
                 return new Exception\SyntaxErrorException($message, $exception);
-
             case 942:
                 return new Exception\TableNotFoundException($message, $exception);
-
             case 955:
                 return new Exception\TableExistsException($message, $exception);
-
             case 1017:
             case 12545:
                 return new Exception\ConnectionException($message, $exception);
-
             case 1400:
                 return new Exception\NotNullConstraintViolationException($message, $exception);
-
             case 2266:
             case 2291:
             case 2292:
@@ -63,17 +52,11 @@ abstract class AbstractOracleDriver implements Driver, ExceptionConverterDriver
         return new DriverException($message, $exception);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getDatabasePlatform() : AbstractPlatform
     {
         return new OraclePlatform();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getSchemaManager(Connection $conn) : AbstractSchemaManager
     {
         return new OracleSchemaManager($conn);

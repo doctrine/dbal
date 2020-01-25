@@ -18,9 +18,6 @@ class DateIntervalType extends Type
 {
     public const FORMAT = '%RP%YY%MM%DDT%HH%IM%SS';
 
-    /**
-     * {@inheritdoc}
-     */
     public function getName() : string
     {
         return Types::DATEINTERVAL;
@@ -81,9 +78,6 @@ class DateIntervalType extends Type
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function requiresSQLCommentHint(AbstractPlatform $platform) : bool
     {
         return true;

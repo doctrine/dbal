@@ -32,9 +32,6 @@ class CreateSchemaSqlCollector extends AbstractVisitor
         $this->platform = $platform;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function acceptNamespace(string $namespaceName) : void
     {
         if (! $this->platform->supportsSchemas()) {
@@ -44,17 +41,11 @@ class CreateSchemaSqlCollector extends AbstractVisitor
         $this->createNamespaceQueries[] = $this->platform->getCreateSchemaSQL($namespaceName);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function acceptTable(Table $table) : void
     {
         $this->createTableQueries = array_merge($this->createTableQueries, $this->platform->getCreateTableSQL($table));
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint) : void
     {
         if (! $this->platform->supportsForeignKeyConstraints()) {
@@ -64,9 +55,6 @@ class CreateSchemaSqlCollector extends AbstractVisitor
         $this->createFkConstraintQueries[] = $this->platform->getCreateForeignKeySQL($fkConstraint, $localTable);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function acceptSequence(Sequence $sequence) : void
     {
         $this->createSequenceQueries[] = $this->platform->getCreateSequenceSQL($sequence);

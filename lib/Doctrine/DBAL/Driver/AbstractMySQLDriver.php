@@ -93,9 +93,6 @@ abstract class AbstractMySQLDriver implements ExceptionConverterDriver, VersionA
     private const CR_UNKNOWN_HOST     = 2005;
     /**#@-*/
 
-    /**
-     * {@inheritdoc}
-     */
     public function convertException(string $message, DriverExceptionInterface $exception) : DriverException
     {
         switch ($exception->getCode()) {
@@ -105,34 +102,28 @@ abstract class AbstractMySQLDriver implements ExceptionConverterDriver, VersionA
                 return new Exception\LockWaitTimeoutException($message, $exception);
             case self::ER_TABLE_EXISTS_ERROR:
                 return new Exception\TableExistsException($message, $exception);
-
             case self::ER_BAD_TABLE_ERROR:
             case self::ER_NO_SUCH_TABLE:
                 return new Exception\TableNotFoundException($message, $exception);
-
             case self::ER_NO_REFERENCED_ROW:
             case self::ER_ROW_IS_REFERENCED:
             case self::ER_ROW_IS_REFERENCED_2:
             case self::ER_NO_REFERENCED_ROW_2:
             case self::ER_TRUNCATE_ILLEGAL_FK:
                 return new Exception\ForeignKeyConstraintViolationException($message, $exception);
-
             case self::ER_DUP_ENTRY:
             case self::ER_FOREIGN_DUPLICATE_KEY_OLD_UNUSED:
             case self::ER_DUP_ENTRY_AUTOINCREMENT_CASE:
             case self::ER_DUP_ENTRY_WITH_KEY_NAME:
                 return new Exception\UniqueConstraintViolationException($message, $exception);
-
             case self::ER_BAD_FIELD_ERROR:
             case self::ER_WRONG_COLUMN_NAME:
             case self::ER_LOAD_DATA_INVALID_COLUMN:
                 return new Exception\InvalidFieldNameException($message, $exception);
-
             case self::ER_NON_UNIQ_ERROR:
             case self::ER_DUP_FIELDNAME:
             case self::ER_FIELD_SPECIFIED_TWICE:
                 return new Exception\NonUniqueFieldNameException($message, $exception);
-
             case self::ER_PARSE_ERROR:
             case self::ER_SYNTAX_ERROR:
             case self::ER_WARN_DEPRECATED_SYNTAX:
@@ -146,7 +137,6 @@ abstract class AbstractMySQLDriver implements ExceptionConverterDriver, VersionA
             case self::ER_WARN_DEPRECATED_SYNTAX_WITH_VER:
             case self::ER_CONFLICT_FN_PARSE_ERROR:
                 return new Exception\SyntaxErrorException($message, $exception);
-
             case self::ER_DBACCESS_DENIED_ERROR:
             case self::ER_ACCESS_DENIED_ERROR:
             case self::ER_NO_DB_ERROR:
@@ -160,7 +150,6 @@ abstract class AbstractMySQLDriver implements ExceptionConverterDriver, VersionA
             case self::CR_CONNECTION_ERROR:
             case self::CR_UNKNOWN_HOST:
                 return new Exception\ConnectionException($message, $exception);
-
             case self::ER_BAD_NULL_ERROR:
             case self::ER_NULL_COLUMN_IN_INDEX:
             case self::ER_INVALID_USE_OF_NULL:
@@ -192,6 +181,7 @@ abstract class AbstractMySQLDriver implements ExceptionConverterDriver, VersionA
             if (version_compare($oracleMysqlVersion, '8', '>=')) {
                 return new MySQL80Platform();
             }
+
             if (version_compare($oracleMysqlVersion, '5.7.9', '>=')) {
                 return new MySQL57Platform();
             }
@@ -220,6 +210,7 @@ abstract class AbstractMySQLDriver implements ExceptionConverterDriver, VersionA
                 '<major_version>.<minor_version>.<patch_version>'
             );
         }
+
         $majorVersion = $versionParts['major'];
         $minorVersion = $versionParts['minor'] ?? 0;
         $patchVersion = $versionParts['patch'] ?? null;

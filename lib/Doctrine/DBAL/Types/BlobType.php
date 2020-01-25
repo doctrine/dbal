@@ -51,17 +51,11 @@ class BlobType extends Type
         return $value;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getName() : string
     {
         return Types::BLOB;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getBindingType() : int
     {
         return ParameterType::LARGE_OBJECT;

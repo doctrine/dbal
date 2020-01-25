@@ -20,9 +20,6 @@ class Graphviz extends AbstractVisitor
     /** @var string */
     private $output = '';
 
-    /**
-     * {@inheritdoc}
-     */
     public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint) : void
     {
         $this->output .= $this->createNodeRelation(
@@ -36,9 +33,6 @@ class Graphviz extends AbstractVisitor
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function acceptSchema(Schema $schema) : void
     {
         $this->output  = 'digraph "' . $schema->getName() . '" {' . "\n";
@@ -49,9 +43,6 @@ class Graphviz extends AbstractVisitor
         $this->output .= 'sep = .2;' . "\n";
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function acceptTable(Table $table) : void
     {
         $this->output .= $this->createNode(
@@ -86,6 +77,7 @@ class Graphviz extends AbstractVisitor
             if ($primaryKey !== null && in_array($column->getName(), $primaryKey->getColumns())) {
                 $label .= "\xe2\x9c\xb7";
             }
+
             $label .= '</TD></TR>';
         }
 
@@ -104,6 +96,7 @@ class Graphviz extends AbstractVisitor
         foreach ($options as $key => $value) {
             $node .= $key . '=' . $value . ' ';
         }
+
         $node .= "]\n";
 
         return $node;
@@ -118,6 +111,7 @@ class Graphviz extends AbstractVisitor
         foreach ($options as $key => $value) {
             $relation .= $key . '=' . $value . ' ';
         }
+
         $relation .= "]\n";
 
         return $relation;

@@ -6,9 +6,9 @@ namespace Doctrine\Tests\DBAL\Types\Exception;
 
 use Doctrine\DBAL\Types\Exception\SerializationFailed;
 use PHPUnit\Framework\TestCase;
-use const NAN;
 use function json_encode;
 use function json_last_error_msg;
+use const NAN;
 
 class SerializationFailedTest extends TestCase
 {

@@ -49,9 +49,6 @@ final class SQLSrvConnection implements ServerInfoAwareConnection
         $this->lastInsertId = new LastInsertId();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getServerVersion() : string
     {
         $serverInfo = sqlsrv_server_info($this->conn);
@@ -59,17 +56,11 @@ final class SQLSrvConnection implements ServerInfoAwareConnection
         return $serverInfo['SQLServerVersion'];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function prepare(string $sql) : DriverStatement
     {
         return new SQLSrvStatement($this->conn, $sql, $this->lastInsertId);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function query(string $sql) : ResultStatement
     {
         $stmt = $this->prepare($sql);
@@ -78,17 +69,11 @@ final class SQLSrvConnection implements ServerInfoAwareConnection
         return $stmt;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function quote(string $input) : string
     {
         return "'" . str_replace("'", "''", $input) . "'";
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function exec(string $statement) : int
     {
         $stmt = sqlsrv_query($this->conn, $statement);
@@ -106,9 +91,6 @@ final class SQLSrvConnection implements ServerInfoAwareConnection
         return $rowsAffected;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function lastInsertId(?string $name = null) : string
     {
         if ($name !== null) {
@@ -121,9 +103,6 @@ final class SQLSrvConnection implements ServerInfoAwareConnection
         return $stmt->fetchColumn();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function beginTransaction() : void
     {
         if (! sqlsrv_begin_transaction($this->conn)) {
@@ -131,9 +110,6 @@ final class SQLSrvConnection implements ServerInfoAwareConnection
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function commit() : void
     {
         if (! sqlsrv_commit($this->conn)) {
@@ -141,9 +117,6 @@ final class SQLSrvConnection implements ServerInfoAwareConnection
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function rollBack() : void
     {
         if (! sqlsrv_rollback($this->conn)) {

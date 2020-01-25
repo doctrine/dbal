@@ -151,6 +151,7 @@ class SchemaDiff
                 $foreignKeySql[] = $platform->getCreateForeignKeySQL($foreignKey, $table);
             }
         }
+
         $sql = array_merge($sql, $foreignKeySql);
 
         if ($saveMode === false) {

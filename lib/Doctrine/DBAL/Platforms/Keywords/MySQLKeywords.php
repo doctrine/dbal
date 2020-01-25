@@ -9,9 +9,6 @@ namespace Doctrine\DBAL\Platforms\Keywords;
  */
 class MySQLKeywords extends KeywordList
 {
-    /**
-     * {@inheritdoc}
-     */
     public function getName() : string
     {
         return 'MySQL';

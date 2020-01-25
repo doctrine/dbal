@@ -35,6 +35,10 @@
         <exclude-pattern>*/tests/*</exclude-pattern>
     </rule>
 
+    <rule ref="SlevomatCodingStandard.PHP.RequireExplicitAssertion.RequiredExplicitAssertion">
+        <exclude-pattern>tests/*</exclude-pattern>
+    </rule>
+
     <rule ref="Squiz.Classes.ClassFileName.NoMatch">
         <exclude-pattern>*/tests/*</exclude-pattern>
     </rule>

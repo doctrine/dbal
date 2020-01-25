@@ -11,9 +11,6 @@ namespace Doctrine\DBAL\Platforms\Keywords;
  */
 class SQLServerKeywords extends KeywordList
 {
-    /**
-     * {@inheritdoc}
-     */
     public function getName() : string
     {
         return 'SQLServer';

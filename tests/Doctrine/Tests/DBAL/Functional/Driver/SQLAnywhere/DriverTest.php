@@ -44,9 +44,6 @@ class DriverTest extends AbstractDriverTest
         self::assertIsString($connection->getDatabase());
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function createDriver() : DriverInterface
     {
         return new Driver();

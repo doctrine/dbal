@@ -10,12 +10,6 @@ use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use mysqli;
-use const MYSQLI_INIT_COMMAND;
-use const MYSQLI_OPT_CONNECT_TIMEOUT;
-use const MYSQLI_OPT_LOCAL_INFILE;
-use const MYSQLI_READ_DEFAULT_FILE;
-use const MYSQLI_READ_DEFAULT_GROUP;
-use const MYSQLI_SERVER_PUBLIC_KEY;
 use function defined;
 use function floor;
 use function in_array;
@@ -26,6 +20,12 @@ use function restore_error_handler;
 use function set_error_handler;
 use function sprintf;
 use function stripos;
+use const MYSQLI_INIT_COMMAND;
+use const MYSQLI_OPT_CONNECT_TIMEOUT;
+use const MYSQLI_OPT_LOCAL_INFILE;
+use const MYSQLI_READ_DEFAULT_FILE;
+use const MYSQLI_READ_DEFAULT_GROUP;
+use const MYSQLI_SERVER_PUBLIC_KEY;
 
 class MysqliConnection implements PingableConnection, ServerInfoAwareConnection
 {
@@ -117,17 +117,11 @@ class MysqliConnection implements PingableConnection, ServerInfoAwareConnection
         return $majorVersion . '.' . $minorVersion . '.' . $patchVersion;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function prepare(string $sql) : DriverStatement
     {
         return new MysqliStatement($this->conn, $sql);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function query(string $sql) : ResultStatement
     {
         $stmt = $this->prepare($sql);
@@ -136,17 +130,11 @@ class MysqliConnection implements PingableConnection, ServerInfoAwareConnection
         return $stmt;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function quote(string $input) : string
     {
         return "'" . $this->conn->escape_string($input) . "'";
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function exec(string $statement) : int
     {
         if ($this->conn->query($statement) === false) {
@@ -156,25 +144,16 @@ class MysqliConnection implements PingableConnection, ServerInfoAwareConnection
         return $this->conn->affected_rows;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function lastInsertId(?string $name = null) : string
     {
         return (string) $this->conn->insert_id;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function beginTransaction() : void
     {
         $this->conn->query('START TRANSACTION');
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function commit() : void
     {
         if (! $this->conn->commit()) {
@@ -182,9 +161,6 @@ class MysqliConnection implements PingableConnection, ServerInfoAwareConnection
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function rollBack() : void
     {
         if (! $this->conn->rollback()) {

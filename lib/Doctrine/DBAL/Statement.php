@@ -168,9 +168,6 @@ class Statement implements IteratorAggregate, DriverStatement
         $this->types  = [];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function closeCursor() : void
     {
         $this->stmt->closeCursor();

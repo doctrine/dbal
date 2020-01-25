@@ -23,6 +23,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use function array_keys;
+use function assert;
 use function count;
 use function implode;
 use function sprintf;
@@ -52,9 +53,6 @@ class ReservedWordsCommand extends Command
         $this->keywordListClasses[$name] = $class;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function configure() : void
     {
         $this
@@ -104,8 +102,8 @@ EOT
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        /** @var Connection $conn */
         $conn = $this->getHelper('db')->getConnection();
+        assert($conn instanceof Connection);
 
         $keywordLists = (array) $input->getOption('list');
         if (! $keywordLists) {
@@ -121,6 +119,7 @@ EOT
                     implode(', ', array_keys($this->keywordListClasses))
                 ));
             }
+
             $class      = $this->keywordListClasses[$keywordList];
             $keywords[] = new $class();
         }

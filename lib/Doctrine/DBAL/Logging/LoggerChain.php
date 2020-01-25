@@ -30,9 +30,6 @@ final class LoggerChain implements SQLLogger
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function stopQuery() : void
     {
         foreach ($this->loggers as $logger) {

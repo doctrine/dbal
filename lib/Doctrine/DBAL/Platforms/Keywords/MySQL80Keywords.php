@@ -11,9 +11,6 @@ use function array_merge;
  */
 class MySQL80Keywords extends MySQL57Keywords
 {
-    /**
-     * {@inheritdoc}
-     */
     public function getName() : string
     {
         return 'MySQL80';

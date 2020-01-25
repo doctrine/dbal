@@ -56,17 +56,11 @@ class ObjectType extends Type
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getName() : string
     {
         return Types::OBJECT;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function requiresSQLCommentHint(AbstractPlatform $platform) : bool
     {
         return true;

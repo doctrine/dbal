@@ -14,12 +14,6 @@ use ReflectionClass;
 use ReflectionObject;
 use ReflectionProperty;
 use stdClass;
-use const CASE_LOWER;
-use const DB2_BINARY;
-use const DB2_CHAR;
-use const DB2_LONG;
-use const DB2_PARAM_FILE;
-use const DB2_PARAM_IN;
 use function array_change_key_case;
 use function array_key_exists;
 use function assert;
@@ -47,6 +41,12 @@ use function stream_copy_to_stream;
 use function stream_get_meta_data;
 use function strtolower;
 use function tmpfile;
+use const CASE_LOWER;
+use const DB2_BINARY;
+use const DB2_CHAR;
+use const DB2_LONG;
+use const DB2_PARAM_FILE;
+use const DB2_PARAM_IN;
 
 final class DB2Statement implements IteratorAggregate, Statement
 {
@@ -128,9 +128,6 @@ final class DB2Statement implements IteratorAggregate, Statement
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function closeCursor() : void
     {
         $this->bindParam = [];
@@ -144,9 +141,6 @@ final class DB2Statement implements IteratorAggregate, Statement
         $this->result = false;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function columnCount() : int
     {
         return db2_num_fields($this->stmt) ?: 0;
@@ -233,13 +227,10 @@ final class DB2Statement implements IteratorAggregate, Statement
         switch ($fetchMode) {
             case FetchMode::COLUMN:
                 return $this->fetchColumn();
-
             case FetchMode::MIXED:
                 return db2_fetch_both($this->stmt);
-
             case FetchMode::ASSOCIATIVE:
                 return db2_fetch_assoc($this->stmt);
-
             case FetchMode::CUSTOM_OBJECT:
                 $className = $this->defaultFetchClass;
                 $ctorArgs  = $this->defaultFetchClassCtorArgs;
@@ -256,13 +247,10 @@ final class DB2Statement implements IteratorAggregate, Statement
                 }
 
                 return $result;
-
             case FetchMode::NUMERIC:
                 return db2_fetch_array($this->stmt);
-
             case FetchMode::STANDARD_OBJECT:
                 return db2_fetch_object($this->stmt);
-
             default:
                 throw new DB2Exception('Given Fetch-Style ' . $fetchMode . ' is not supported.');
         }
@@ -280,11 +268,13 @@ final class DB2Statement implements IteratorAggregate, Statement
                 while (($row = $this->fetch($fetchMode, ...$args)) !== false) {
                     $rows[] = $row;
                 }
+
                 break;
             case FetchMode::COLUMN:
                 while (($row = $this->fetchColumn()) !== false) {
                     $rows[] = $row;
                 }
+
                 break;
             default:
                 while (($row = $this->fetch($fetchMode)) !== false) {
@@ -313,9 +303,6 @@ final class DB2Statement implements IteratorAggregate, Statement
         return $row[$columnIndex];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function rowCount() : int
     {
         return @db2_num_rows($this->stmt) ? : 0;

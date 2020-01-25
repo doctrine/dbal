@@ -677,25 +677,16 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         return '';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL() : string
     {
         return 'CONSTRAINT "select" UNIQUE (foo)';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getQuotesReservedKeywordInIndexDeclarationSQL() : string
     {
         return 'INDEX "select" (foo)';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getQuotesReservedKeywordInTruncateTableSQL() : string
     {
         return 'DELETE FROM "select"';

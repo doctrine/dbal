@@ -16,17 +16,11 @@ use Doctrine\DBAL\Schema\SQLServerSchemaManager;
  */
 abstract class AbstractSQLServerDriver implements Driver
 {
-    /**
-     * {@inheritdoc}
-     */
     public function getDatabasePlatform() : AbstractPlatform
     {
         return new SQLServerPlatform();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getSchemaManager(Connection $conn) : AbstractSchemaManager
     {
         return new SQLServerSchemaManager($conn);

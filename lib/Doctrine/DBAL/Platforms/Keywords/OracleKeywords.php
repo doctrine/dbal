@@ -9,9 +9,6 @@ namespace Doctrine\DBAL\Platforms\Keywords;
  */
 class OracleKeywords extends KeywordList
 {
-    /**
-     * {@inheritdoc}
-     */
     public function getName() : string
     {
         return 'Oracle';

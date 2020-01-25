@@ -71,9 +71,6 @@ class ReservedKeywordsValidator implements Visitor
         $this->violations[] = $asset . ' keyword violations: ' . implode(', ', $violatedPlatforms);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function acceptColumn(Table $table, Column $column) : void
     {
         $this->addViolation(
@@ -82,37 +79,22 @@ class ReservedKeywordsValidator implements Visitor
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint) : void
     {
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function acceptIndex(Table $table, Index $index) : void
     {
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function acceptSchema(Schema $schema) : void
     {
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function acceptSequence(Sequence $sequence) : void
     {
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function acceptTable(Table $table) : void
     {
         $this->addViolation(

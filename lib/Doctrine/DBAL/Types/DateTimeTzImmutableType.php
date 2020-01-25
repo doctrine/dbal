@@ -14,9 +14,6 @@ use Doctrine\DBAL\Types\Exception\InvalidType;
  */
 class DateTimeTzImmutableType extends DateTimeTzType
 {
-    /**
-     * {@inheritdoc}
-     */
     public function getName() : string
     {
         return Types::DATETIMETZ_IMMUTABLE;
@@ -64,9 +61,6 @@ class DateTimeTzImmutableType extends DateTimeTzType
         return $dateTime;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function requiresSQLCommentHint(AbstractPlatform $platform) : bool
     {
         return true;

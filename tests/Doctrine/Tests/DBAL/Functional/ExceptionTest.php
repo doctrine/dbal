@@ -14,7 +14,6 @@ use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\Tests\DbalFunctionalTestCase;
-use const PHP_OS;
 use function array_merge;
 use function assert;
 use function chmod;
@@ -27,6 +26,7 @@ use function sys_get_temp_dir;
 use function touch;
 use function unlink;
 use function version_compare;
+use const PHP_OS;
 
 class ExceptionTest extends DbalFunctionalTestCase
 {

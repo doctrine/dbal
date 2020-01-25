@@ -96,17 +96,11 @@ class PDOStatement implements IteratorAggregate, Statement
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function closeCursor() : void
     {
         $this->stmt->closeCursor();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function columnCount() : int
     {
         return $this->stmt->columnCount();
@@ -124,9 +118,6 @@ class PDOStatement implements IteratorAggregate, Statement
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function rowCount() : int
     {
         return $this->stmt->rowCount();

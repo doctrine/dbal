@@ -51,17 +51,11 @@ class SimpleArrayType extends Type
         return explode(',', $value);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getName() : string
     {
         return Types::SIMPLE_ARRAY;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function requiresSQLCommentHint(AbstractPlatform $platform) : bool
     {
         return true;

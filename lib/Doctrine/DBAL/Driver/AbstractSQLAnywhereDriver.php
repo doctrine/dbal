@@ -66,9 +66,6 @@ abstract class AbstractSQLAnywhereDriver implements ExceptionConverterDriver, Ve
         return new DriverException($message, $exception);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function createDatabasePlatformForVersion(string $version) : AbstractPlatform
     {
         if (! preg_match(
@@ -88,17 +85,11 @@ abstract class AbstractSQLAnywhereDriver implements ExceptionConverterDriver, Ve
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getDatabasePlatform() : AbstractPlatform
     {
         return new SQLAnywherePlatform();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getSchemaManager(Connection $conn) : AbstractSchemaManager
     {
         return new SQLAnywhereSchemaManager($conn);

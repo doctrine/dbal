@@ -64,17 +64,11 @@ final class Statement implements IteratorAggregate, DriverStatement
         $this->stmt->bindValue($param, $value, $type);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function closeCursor() : void
     {
         $this->stmt->closeCursor();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function columnCount() : int
     {
         return $this->stmt->columnCount();
@@ -182,9 +176,6 @@ final class Statement implements IteratorAggregate, DriverStatement
         return $value;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function rowCount() : int
     {
         assert($this->stmt instanceof DriverStatement);

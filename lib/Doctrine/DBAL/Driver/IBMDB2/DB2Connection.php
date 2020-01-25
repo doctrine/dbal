@@ -8,8 +8,7 @@ use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use stdClass;
-use const DB2_AUTOCOMMIT_OFF;
-use const DB2_AUTOCOMMIT_ON;
+use function assert;
 use function db2_autocommit;
 use function db2_commit;
 use function db2_connect;
@@ -21,6 +20,8 @@ use function db2_pconnect;
 use function db2_prepare;
 use function db2_rollback;
 use function db2_server_info;
+use const DB2_AUTOCOMMIT_OFF;
+use const DB2_AUTOCOMMIT_ON;
 
 final class DB2Connection implements ServerInfoAwareConnection
 {
@@ -48,20 +49,14 @@ final class DB2Connection implements ServerInfoAwareConnection
         $this->conn = $conn;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getServerVersion() : string
     {
-        /** @var stdClass $serverInfo */
         $serverInfo = db2_server_info($this->conn);
+        assert($serverInfo instanceof stdClass);
 
         return $serverInfo->DBMS_VER;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function prepare(string $sql) : DriverStatement
     {
         $stmt = @db2_prepare($this->conn, $sql);
@@ -72,9 +67,6 @@ final class DB2Connection implements ServerInfoAwareConnection
         return new DB2Statement($stmt);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function query(string $sql) : ResultStatement
     {
         $stmt = $this->prepare($sql);
@@ -83,17 +75,11 @@ final class DB2Connection implements ServerInfoAwareConnection
         return $stmt;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function quote(string $input) : string
     {
         return "'" . db2_escape_string($input) . "'";
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function exec(string $statement) : int
     {
         $stmt = @db2_exec($this->conn, $statement);
@@ -105,17 +91,11 @@ final class DB2Connection implements ServerInfoAwareConnection
         return db2_num_rows($stmt);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function lastInsertId(?string $name = null) : string
     {
         return db2_last_insert_id($this->conn);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function beginTransaction() : void
     {
         if (! db2_autocommit($this->conn, DB2_AUTOCOMMIT_OFF)) {
@@ -123,9 +103,6 @@ final class DB2Connection implements ServerInfoAwareConnection
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function commit() : void
     {
         if (! db2_commit($this->conn)) {
@@ -137,9 +114,6 @@ final class DB2Connection implements ServerInfoAwareConnection
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function rollBack() : void
     {
         if (! db2_rollback($this->conn)) {

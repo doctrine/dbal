@@ -10,9 +10,6 @@ use function strtoupper;
 
 class CommentedType extends Type
 {
-    /**
-     * {@inheritDoc}
-     */
     public function getName() : string
     {
         return 'my_commented';
@@ -26,9 +23,6 @@ class CommentedType extends Type
         return strtoupper($this->getName());
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function requiresSQLCommentHint(AbstractPlatform $platform) : bool
     {
         return true;

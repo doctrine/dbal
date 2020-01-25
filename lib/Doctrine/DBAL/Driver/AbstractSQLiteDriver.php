@@ -80,17 +80,11 @@ abstract class AbstractSQLiteDriver implements Driver, ExceptionConverterDriver
         return new DriverException($message, $exception);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getDatabasePlatform() : AbstractPlatform
     {
         return new SqlitePlatform();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getSchemaManager(Connection $conn) : AbstractSchemaManager
     {
         return new SqliteSchemaManager($conn);

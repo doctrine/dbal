@@ -20,6 +20,7 @@ use function array_diff;
 use function array_merge;
 use function array_unique;
 use function array_values;
+use function assert;
 use function count;
 use function explode;
 use function implode;
@@ -74,25 +75,16 @@ class PostgreSqlPlatform extends AbstractPlatform
         $this->useBooleanTrueFalseStrings = $flag;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getNowExpression() : string
     {
         return 'LOCALTIMESTAMP(0)';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getRegexpExpression() : string
     {
         return 'SIMILAR TO';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getLocateExpression(string $string, string $substring, ?string $start = null) : string
     {
         if ($start !== null) {
@@ -104,9 +96,6 @@ class PostgreSqlPlatform extends AbstractPlatform
         return sprintf('POSITION(%s IN %s)', $substring, $string);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getDateArithmeticIntervalExpression(string $date, string $operator, string $interval, string $unit) : string
     {
         if ($unit === DateIntervalUnit::QUARTER) {
@@ -117,113 +106,71 @@ class PostgreSqlPlatform extends AbstractPlatform
         return '(' . $date . ' ' . $operator . ' (' . $interval . " || ' " . $unit . "')::interval)";
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getDateDiffExpression(string $date1, string $date2) : string
     {
         return '(DATE(' . $date1 . ')-DATE(' . $date2 . '))';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getCurrentDatabaseExpression() : string
     {
         return 'CURRENT_DATABASE()';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function supportsSequences() : bool
     {
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function supportsSchemas() : bool
     {
         return true;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getDefaultSchemaName() : string
     {
         return 'public';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function supportsIdentityColumns() : bool
     {
         return true;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function supportsPartialIndexes() : bool
     {
         return true;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function usesSequenceEmulatedIdentityColumns() : bool
     {
         return true;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getIdentitySequenceName(string $tableName, string $columnName) : string
     {
         return $tableName . '_' . $columnName . '_seq';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function supportsCommentOnStatement() : bool
     {
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function prefersSequences() : bool
     {
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function hasNativeGuidType() : bool
     {
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getListDatabasesSQL() : string
     {
         return 'SELECT datname FROM pg_database';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getListNamespacesSQL() : string
     {
         return "SELECT schema_name AS nspname
@@ -232,9 +179,6 @@ class PostgreSqlPlatform extends AbstractPlatform
                 AND    schema_name != 'information_schema'";
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getListSequencesSQL(string $database) : string
     {
         return "SELECT sequence_name AS relname,
@@ -244,9 +188,6 @@ class PostgreSqlPlatform extends AbstractPlatform
                 AND    sequence_schema != 'information_schema'";
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getListTablesSQL() : string
     {
         return "SELECT quote_ident(table_name) AS table_name,
@@ -259,9 +200,6 @@ class PostgreSqlPlatform extends AbstractPlatform
                 AND    table_type != 'VIEW'";
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getListViewsSQL(string $database) : string
     {
         return 'SELECT quote_ident(table_name) AS viewname,
@@ -271,9 +209,6 @@ class PostgreSqlPlatform extends AbstractPlatform
                 WHERE  view_definition IS NOT NULL';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getListTableForeignKeysSQL(string $table, ?string $database = null) : string
     {
         return 'SELECT quote_ident(r.conname) as conname, pg_catalog.pg_get_constraintdef(r.oid, true) as condef
@@ -287,25 +222,16 @@ class PostgreSqlPlatform extends AbstractPlatform
                   AND r.contype = 'f'";
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getCreateViewSQL(string $name, string $sql) : string
     {
         return 'CREATE VIEW ' . $name . ' AS ' . $sql;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getDropViewSQL(string $name) : string
     {
         return 'DROP VIEW ' . $name;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getListTableConstraintsSQL(string $table) : string
     {
         $table = new Identifier($table);
@@ -370,9 +296,6 @@ SQL
         );
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getListTableColumnsSQL(string $table, ?string $database = null) : string
     {
         return "SELECT
@@ -408,9 +331,6 @@ SQL
                     ORDER BY a.attnum';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getCreateDatabaseSQL(string $database) : string
     {
         return 'CREATE DATABASE ' . $database;
@@ -441,9 +361,6 @@ SQL
             . $this->quoteStringLiteral($database);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey) : string
     {
         $query = '';
@@ -509,7 +426,7 @@ SQL
         }
 
         foreach ($diff->changedColumns as $columnDiff) {
-            /** @var $columnDiff \Doctrine\DBAL\Schema\ColumnDiff */
+            assert($columnDiff instanceof ColumnDiff);
             if ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
                 continue;
             }
@@ -671,9 +588,6 @@ SQL
         return ['ALTER INDEX ' . $oldIndexName . ' RENAME TO ' . $index->getQuotedName($this)];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getCommentOnColumnSQL(string $tableName, string $columnName, ?string $comment) : string
     {
         $tableName  = new Identifier($tableName);
@@ -688,9 +602,6 @@ SQL
         );
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getCreateSequenceSQL(Sequence $sequence) : string
     {
         return 'CREATE SEQUENCE ' . $sequence->getQuotedName($this) .
@@ -700,9 +611,6 @@ SQL
             $this->getSequenceCacheSQL($sequence);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getAlterSequenceSQL(Sequence $sequence) : string
     {
         return 'ALTER SEQUENCE ' . $sequence->getQuotedName($this) .
@@ -734,9 +642,6 @@ SQL
         return 'DROP SEQUENCE ' . $sequence . ' CASCADE';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getCreateSchemaSQL(string $schemaName) : string
     {
         return 'CREATE SCHEMA ' . $schemaName;
@@ -903,17 +808,11 @@ SQL
         return parent::convertFromBoolean($item);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getSequenceNextValSQL(string $sequenceName) : string
     {
         return "SELECT NEXTVAL('" . $sequenceName . "')";
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getSetTransactionIsolationSQL(int $level) : string
     {
         return 'SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL '
@@ -1012,9 +911,6 @@ SQL
         return '';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected function getVarcharTypeDeclarationSQLSnippet(?int $length) : string
     {
         $sql = 'VARCHAR';
@@ -1026,17 +922,11 @@ SQL
         return $sql;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected function getBinaryTypeDeclarationSQLSnippet(?int $length) : string
     {
         return 'BYTEA';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected function getVarbinaryTypeDeclarationSQLSnippet(?int $length) : string
     {
         return 'BYTEA';
@@ -1050,9 +940,6 @@ SQL
         return 'TEXT';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getName() : string
     {
         return 'postgresql';
@@ -1068,25 +955,16 @@ SQL
         return strtolower($column);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getDateTimeTzFormatString() : string
     {
         return 'Y-m-d H:i:sO';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getEmptyIdentityInsertSQL(string $tableName, string $identifierColumnName) : string
     {
         return 'INSERT INTO ' . $tableName . ' (' . $identifierColumnName . ') VALUES (DEFAULT)';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getTruncateTableSQL(string $tableName, bool $cascade = false) : string
     {
         $tableIdentifier = new Identifier($tableName);
@@ -1099,17 +977,11 @@ SQL
         return $sql;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getReadLockSQL() : string
     {
         return 'FOR SHARE';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected function initializeDoctrineTypeMappings() : void
     {
         $this->doctrineTypeMapping = [
@@ -1157,17 +1029,11 @@ SQL
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function hasNativeJsonType() : bool
     {
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected function getReservedKeywordsClass() : string
     {
         return Keywords\PostgreSQLKeywords::class;
@@ -1193,17 +1059,11 @@ SQL
         return parent::getDefaultValueDeclarationSQL($field);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function supportsColumnCollation() : bool
     {
         return true;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getColumnCollationDeclarationSQL(string $collation) : string
     {
         return 'COLLATE ' . $this->quoteSingleIdentifier($collation);

@@ -10,13 +10,13 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use Throwable;
-use const CASE_LOWER;
 use function array_change_key_case;
 use function assert;
 use function sprintf;
 use function strlen;
 use function strtolower;
 use function substr;
+use const CASE_LOWER;
 
 /**
  * @group DBAL-20

@@ -11,20 +11,6 @@ use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use InvalidArgumentException;
 use IteratorAggregate;
-use const OCI_ASSOC;
-use const OCI_B_BIN;
-use const OCI_B_BLOB;
-use const OCI_BOTH;
-use const OCI_COMMIT_ON_SUCCESS;
-use const OCI_D_LOB;
-use const OCI_FETCHSTATEMENT_BY_COLUMN;
-use const OCI_FETCHSTATEMENT_BY_ROW;
-use const OCI_NO_AUTO_COMMIT;
-use const OCI_NUM;
-use const OCI_RETURN_LOBS;
-use const OCI_RETURN_NULLS;
-use const OCI_TEMP_BLOB;
-use const SQLT_CHR;
 use function array_key_exists;
 use function assert;
 use function count;
@@ -42,6 +28,20 @@ use function oci_num_fields;
 use function oci_num_rows;
 use function oci_parse;
 use function sprintf;
+use const OCI_ASSOC;
+use const OCI_B_BIN;
+use const OCI_B_BLOB;
+use const OCI_BOTH;
+use const OCI_COMMIT_ON_SUCCESS;
+use const OCI_D_LOB;
+use const OCI_FETCHSTATEMENT_BY_COLUMN;
+use const OCI_FETCHSTATEMENT_BY_ROW;
+use const OCI_NO_AUTO_COMMIT;
+use const OCI_NUM;
+use const OCI_RETURN_LOBS;
+use const OCI_RETURN_NULLS;
+use const OCI_TEMP_BLOB;
+use const SQLT_CHR;
 
 /**
  * The OCI8 implementation of the Statement interface.
@@ -161,18 +161,13 @@ final class OCI8Statement implements IteratorAggregate, Statement
         switch ($type) {
             case ParameterType::BINARY:
                 return OCI_B_BIN;
-
             case ParameterType::LARGE_OBJECT:
                 return OCI_B_BLOB;
-
             default:
                 return SQLT_CHR;
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function closeCursor() : void
     {
         // not having the result means there's nothing to close
@@ -185,9 +180,6 @@ final class OCI8Statement implements IteratorAggregate, Statement
         $this->result = false;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function columnCount() : int
     {
         return oci_num_fields($this->_sth) ?: 0;
@@ -349,9 +341,6 @@ final class OCI8Statement implements IteratorAggregate, Statement
         return $row[$columnIndex];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function rowCount() : int
     {
         return oci_num_rows($this->_sth) ?: 0;

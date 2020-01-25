@@ -9,7 +9,6 @@ use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Types\Type;
 use Throwable;
-use const CASE_LOWER;
 use function array_change_key_case;
 use function array_values;
 use function assert;
@@ -20,15 +19,13 @@ use function strpos;
 use function strtolower;
 use function strtoupper;
 use function trim;
+use const CASE_LOWER;
 
 /**
  * Oracle Schema Manager.
  */
 class OracleSchemaManager extends AbstractSchemaManager
 {
-    /**
-     * {@inheritdoc}
-     */
     public function dropDatabase(string $database) : void
     {
         try {
@@ -109,6 +106,7 @@ class OracleSchemaManager extends AbstractSchemaManager
                 $buffer['primary']    = false;
                 $buffer['non_unique'] = ! $tableIndex['is_unique'];
             }
+
             $buffer['key_name']    = $keyName;
             $buffer['column_name'] = $this->getQuotedIdentifierName($tableIndex['column_name']);
             $indexBuffer[]         = $buffer;
@@ -275,9 +273,6 @@ class OracleSchemaManager extends AbstractSchemaManager
         return $database['username'];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function createDatabase(string $database) : void
     {
         $params   = $this->_conn->getParams();
@@ -303,9 +298,6 @@ class OracleSchemaManager extends AbstractSchemaManager
         return true;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function dropTable(string $name) : void
     {
         $this->tryMethod('dropAutoincrement', $name);
@@ -368,9 +360,9 @@ SQL;
     {
         $table = parent::listTableDetails($tableName);
 
-        /** @var OraclePlatform $platform */
         $platform = $this->_platform;
-        $sql      = $platform->getListTableCommentsSQL($tableName);
+        assert($platform instanceof OraclePlatform);
+        $sql = $platform->getListTableCommentsSQL($tableName);
 
         $tableOptions = $this->_conn->fetchAssoc($sql);
         $table->addOption('comment', $tableOptions['COMMENTS']);

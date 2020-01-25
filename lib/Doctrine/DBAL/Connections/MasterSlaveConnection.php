@@ -103,6 +103,7 @@ class MasterSlaveConnection extends Connection
         if (! isset($params['slaves'], $params['master'])) {
             throw new InvalidArgumentException('master or slaves configuration missing');
         }
+
         if (count($params['slaves']) === 0) {
             throw new InvalidArgumentException('You have to configure at least one slaves.');
         }
@@ -227,9 +228,6 @@ class MasterSlaveConnection extends Connection
         return parent::executeUpdate($query, $params, $types);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function beginTransaction() : void
     {
         $this->connect('master');
@@ -237,9 +235,6 @@ class MasterSlaveConnection extends Connection
         parent::beginTransaction();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function commit() : void
     {
         $this->connect('master');
@@ -247,9 +242,6 @@ class MasterSlaveConnection extends Connection
         parent::commit();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function rollBack() : void
     {
         $this->connect('master');
@@ -267,9 +259,6 @@ class MasterSlaveConnection extends Connection
         return parent::delete($table, $identifier, $types);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function close() : void
     {
         unset($this->connections['master'], $this->connections['slave']);
@@ -300,9 +289,6 @@ class MasterSlaveConnection extends Connection
         return parent::insert($table, $data, $types);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function exec(string $statement) : int
     {
         $this->connect('master');
@@ -310,9 +296,6 @@ class MasterSlaveConnection extends Connection
         return parent::exec($statement);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function createSavepoint(string $savepoint) : void
     {
         $this->connect('master');
@@ -320,9 +303,6 @@ class MasterSlaveConnection extends Connection
         parent::createSavepoint($savepoint);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function releaseSavepoint(string $savepoint) : void
     {
         $this->connect('master');
@@ -330,9 +310,6 @@ class MasterSlaveConnection extends Connection
         parent::releaseSavepoint($savepoint);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function rollbackSavepoint(string $savepoint) : void
     {
         $this->connect('master');
@@ -340,9 +317,6 @@ class MasterSlaveConnection extends Connection
         parent::rollbackSavepoint($savepoint);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function query(string $sql) : ResultStatement
     {
         $this->connect('master');
@@ -360,9 +334,6 @@ class MasterSlaveConnection extends Connection
         return $statement;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function prepare(string $sql) : Statement
     {
         $this->connect('master');

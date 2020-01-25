@@ -32,9 +32,6 @@ abstract class AbstractDriverException extends Exception implements DriverExcept
         $this->sqlState = $sqlState;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getSQLState() : ?string
     {
         return $this->sqlState;

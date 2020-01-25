@@ -45,25 +45,18 @@ abstract class AbstractPostgreSQLDriver implements ExceptionConverterDriver, Ver
                 break;
             case '23502':
                 return new Exception\NotNullConstraintViolationException($message, $exception);
-
             case '23503':
                 return new Exception\ForeignKeyConstraintViolationException($message, $exception);
-
             case '23505':
                 return new Exception\UniqueConstraintViolationException($message, $exception);
-
             case '42601':
                 return new Exception\SyntaxErrorException($message, $exception);
-
             case '42702':
                 return new Exception\NonUniqueFieldNameException($message, $exception);
-
             case '42703':
                 return new Exception\InvalidFieldNameException($message, $exception);
-
             case '42P01':
                 return new Exception\TableNotFoundException($message, $exception);
-
             case '42P07':
                 return new Exception\TableExistsException($message, $exception);
         }
@@ -78,9 +71,6 @@ abstract class AbstractPostgreSQLDriver implements ExceptionConverterDriver, Ver
         return new DriverException($message, $exception);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function createDatabasePlatformForVersion(string $version) : AbstractPlatform
     {
         if (! preg_match('/^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?)?/', $version, $versionParts)) {
@@ -102,17 +92,11 @@ abstract class AbstractPostgreSQLDriver implements ExceptionConverterDriver, Ver
         return new PostgreSqlPlatform();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getDatabasePlatform() : AbstractPlatform
     {
         return new PostgreSqlPlatform();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getSchemaManager(Connection $conn) : AbstractSchemaManager
     {
         return new PostgreSqlSchemaManager($conn);

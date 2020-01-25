@@ -12,9 +12,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
  */
 class BigIntType extends Type implements PhpIntegerMappingType
 {
-    /**
-     * {@inheritdoc}
-     */
     public function getName() : string
     {
         return Types::BIGINT;
@@ -28,9 +25,6 @@ class BigIntType extends Type implements PhpIntegerMappingType
         return $platform->getBigIntTypeDeclarationSQL($fieldDeclaration);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getBindingType() : int
     {
         return ParameterType::STRING;

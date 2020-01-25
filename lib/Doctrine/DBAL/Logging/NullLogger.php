@@ -18,9 +18,6 @@ final class NullLogger implements SQLLogger
     {
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function stopQuery() : void
     {
     }

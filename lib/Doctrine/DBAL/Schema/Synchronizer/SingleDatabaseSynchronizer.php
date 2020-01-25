@@ -125,33 +125,21 @@ final class SingleDatabaseSynchronizer extends AbstractSchemaSynchronizer
         return $visitor->getQueries();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function createSchema(Schema $createSchema) : void
     {
         $this->processSql($this->getCreateSchema($createSchema));
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function updateSchema(Schema $toSchema, bool $noDrops = false) : void
     {
         $this->processSql($this->getUpdateSchema($toSchema, $noDrops));
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function dropSchema(Schema $dropSchema) : void
     {
         $this->processSqlSafely($this->getDropSchema($dropSchema));
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function dropAllSchema() : void
     {
         $this->processSql($this->getDropAllSchema());

@@ -10,11 +10,6 @@ use Doctrine\DBAL\Exception\InvalidColumnIndex;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use IteratorAggregate;
-use const SQLSRV_ENC_BINARY;
-use const SQLSRV_FETCH_ASSOC;
-use const SQLSRV_FETCH_BOTH;
-use const SQLSRV_FETCH_NUMERIC;
-use const SQLSRV_PARAM_IN;
 use function array_key_exists;
 use function assert;
 use function count;
@@ -33,6 +28,11 @@ use function sqlsrv_prepare;
 use function sqlsrv_rows_affected;
 use function SQLSRV_SQLTYPE_VARBINARY;
 use function stripos;
+use const SQLSRV_ENC_BINARY;
+use const SQLSRV_FETCH_ASSOC;
+use const SQLSRV_FETCH_BOTH;
+use const SQLSRV_FETCH_NUMERIC;
+use const SQLSRV_PARAM_IN;
 
 /**
  * SQL Server Statement.
@@ -166,9 +166,6 @@ final class SQLSrvStatement implements IteratorAggregate, Statement
         $this->stmt = null;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function closeCursor() : void
     {
         // not having the result means there's nothing to close
@@ -186,9 +183,6 @@ final class SQLSrvStatement implements IteratorAggregate, Statement
         $this->result = false;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function columnCount() : int
     {
         if ($this->stmt === null) {
@@ -306,12 +300,14 @@ final class SQLSrvStatement implements IteratorAggregate, Statement
                 while (($row = $this->fetch($fetchMode, ...$args)) !== false) {
                     $rows[] = $row;
                 }
+
                 break;
 
             case FetchMode::COLUMN:
                 while (($row = $this->fetchColumn()) !== false) {
                     $rows[] = $row;
                 }
+
                 break;
 
             default:
@@ -341,9 +337,6 @@ final class SQLSrvStatement implements IteratorAggregate, Statement
         return $row[$columnIndex];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function rowCount() : int
     {
         if ($this->stmt === null) {

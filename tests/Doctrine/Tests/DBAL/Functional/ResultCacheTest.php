@@ -11,12 +11,12 @@ use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Logging\DebugStack;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\Tests\DbalFunctionalTestCase;
-use const CASE_LOWER;
 use function array_change_key_case;
 use function array_merge;
 use function array_shift;
 use function array_values;
 use function is_array;
+use const CASE_LOWER;
 
 /**
  * @group DDC-217
@@ -99,6 +99,7 @@ class ResultCacheTest extends DbalFunctionalTestCase
         foreach ($this->expectedResult as $v) {
             $numExpectedResult[] = array_values($v);
         }
+
         $stmt = $this->connection->executeQuery('SELECT * FROM caching ORDER BY test_int ASC', [], [], new QueryCacheProfile(10, 'testcachekey'));
 
         $data = $this->hydrateStmt($stmt, FetchMode::ASSOCIATIVE);
@@ -243,6 +244,7 @@ class ResultCacheTest extends DbalFunctionalTestCase
         while ($row = $stmt->fetch($fetchMode)) {
             $data[] = is_array($row) ? array_change_key_case($row, CASE_LOWER) : $row;
         }
+
         $stmt->closeCursor();
 
         return $data;
@@ -258,6 +260,7 @@ class ResultCacheTest extends DbalFunctionalTestCase
         foreach ($stmt as $row) {
             $data[] = is_array($row) ? array_change_key_case($row, CASE_LOWER) : $row;
         }
+
         $stmt->closeCursor();
 
         return $data;

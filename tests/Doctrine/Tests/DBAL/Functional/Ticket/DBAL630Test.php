@@ -35,6 +35,7 @@ class DBAL630Test extends DbalFunctionalTestCase
             $this->connection->exec('CREATE TABLE dbal630_allow_nulls (id SERIAL, bool_col BOOLEAN);');
         } catch (DBALException $e) {
         }
+
         $this->running = true;
     }
 

@@ -36,17 +36,11 @@ class BooleanType extends Type
         return $platform->convertFromBoolean($value);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getName() : string
     {
         return Types::BOOLEAN;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getBindingType() : int
     {
         return ParameterType::BOOLEAN;

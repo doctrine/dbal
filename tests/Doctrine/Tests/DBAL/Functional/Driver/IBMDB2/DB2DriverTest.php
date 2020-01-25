@@ -26,25 +26,16 @@ class DB2DriverTest extends AbstractDriverTest
         $this->markTestSkipped('ibm_db2 only test.');
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function testConnectsWithoutDatabaseNameParameter() : void
     {
         $this->markTestSkipped('IBM DB2 does not support connecting without database name.');
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function testReturnsDatabaseNameWithoutDatabaseNameParameter() : void
     {
         $this->markTestSkipped('IBM DB2 does not support connecting without database name.');
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function createDriver() : Driver
     {
         return new DB2Driver();

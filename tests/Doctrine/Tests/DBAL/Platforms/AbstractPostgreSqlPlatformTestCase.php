@@ -312,9 +312,6 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         self::assertTrue($this->platform->supportsSequences());
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function supportsCommentOnStatement() : bool
     {
         return true;
@@ -879,25 +876,16 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL() : string
     {
         return 'CONSTRAINT "select" UNIQUE (foo)';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getQuotesReservedKeywordInIndexDeclarationSQL() : string
     {
         return 'INDEX "select" (foo)';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getQuotesReservedKeywordInTruncateTableSQL() : string
     {
         return 'TRUNCATE "select"';

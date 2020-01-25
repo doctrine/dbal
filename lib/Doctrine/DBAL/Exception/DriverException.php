@@ -22,9 +22,6 @@ class DriverException extends DBALException implements DriverExceptionInterface
         parent::__construct($message, $driverException->getCode(), $driverException);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getSQLState() : ?string
     {
         $previous = $this->getPrevious();

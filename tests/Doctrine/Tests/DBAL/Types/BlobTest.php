@@ -17,9 +17,6 @@ class BlobTest extends DbalTestCase
     /** @var BlobType */
     protected $type;
 
-    /**
-     * {@inheritdoc}
-     */
     protected function setUp() : void
     {
         $this->platform = $this->createMock(AbstractPlatform::class);

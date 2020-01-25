@@ -1300,7 +1300,7 @@ abstract class AbstractPlatform
 
         if (($createFlags & self::CREATE_INDEXES) > 0) {
             foreach ($table->getIndexes() as $index) {
-                /** @var $index Index */
+                assert($index instanceof Index);
                 if (! $index->isPrimary()) {
                     $options['indexes'][$index->getQuotedName($this)] = $index;
 
@@ -1366,6 +1366,7 @@ abstract class AbstractPlatform
             if ($table->hasOption('comment')) {
                 $sql[] = $this->getCommentOnTableSQL($tableName, $table->getOption('comment'));
             }
+
             foreach ($table->getColumns() as $column) {
                 $comment = $this->getColumnComment($column);
 
@@ -1452,6 +1453,7 @@ abstract class AbstractPlatform
         if (! empty($check)) {
             $query .= ', ' . $check;
         }
+
         $query .= ')';
 
         $sql = [$query];
@@ -1524,6 +1526,7 @@ abstract class AbstractPlatform
             $referencesClause = ' REFERENCES ' . $constraint->getQuotedForeignTableName($this) .
                 ' (' . implode(', ', $constraint->getQuotedForeignColumns($this)) . ')';
         }
+
         $query .= ' ' . $columnList . $referencesClause;
 
         return $query;
@@ -1541,6 +1544,7 @@ abstract class AbstractPlatform
         if ($table instanceof Table) {
             $table = $table->getQuotedName($this);
         }
+
         $name    = $index->getQuotedName($this);
         $columns = $index->getColumns();
 
@@ -1786,6 +1790,7 @@ abstract class AbstractPlatform
             foreach ($diff->removedForeignKeys as $foreignKey) {
                 $sql[] = $this->getDropForeignKeySQL($foreignKey, $tableName);
             }
+
             foreach ($diff->changedForeignKeys as $foreignKey) {
                 $sql[] = $this->getDropForeignKeySQL($foreignKey, $tableName);
             }
@@ -1794,6 +1799,7 @@ abstract class AbstractPlatform
         foreach ($diff->removedIndexes as $index) {
             $sql[] = $this->getDropIndexSQL($index, $tableName);
         }
+
         foreach ($diff->changedIndexes as $index) {
             $sql[] = $this->getDropIndexSQL($index, $tableName);
         }
@@ -2215,6 +2221,7 @@ abstract class AbstractPlatform
         if ($this->supportsForeignKeyOnUpdate() && $foreignKey->hasOption('onUpdate')) {
             $query .= ' ON UPDATE ' . $this->getForeignKeyReferentialActionSQL($foreignKey->getOption('onUpdate'));
         }
+
         if ($foreignKey->hasOption('onDelete')) {
             $query .= ' ON DELETE ' . $this->getForeignKeyReferentialActionSQL($foreignKey->getOption('onDelete'));
         }
@@ -2256,14 +2263,17 @@ abstract class AbstractPlatform
         if ($foreignKey->getName() !== '') {
             $sql .= 'CONSTRAINT ' . $foreignKey->getQuotedName($this) . ' ';
         }
+
         $sql .= 'FOREIGN KEY (';
 
         if (count($foreignKey->getLocalColumns()) === 0) {
             throw new InvalidArgumentException('Incomplete definition. "local" required.');
         }
+
         if (count($foreignKey->getForeignColumns()) === 0) {
             throw new InvalidArgumentException('Incomplete definition. "foreign" required.');
         }
+
         if (strlen($foreignKey->getForeignTableName()) === 0) {
             throw new InvalidArgumentException('Incomplete definition. "foreignTable" required.');
         }
