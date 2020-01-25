@@ -1093,8 +1093,6 @@ class Connection implements DriverConnection
             throw CommitFailedRollbackOnly::new();
         }
 
-        $result = true;
-
         $connection = $this->getWrappedConnection();
 
         $logger = $this->_config->getSQLLogger();

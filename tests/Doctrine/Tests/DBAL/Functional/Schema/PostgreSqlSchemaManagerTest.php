@@ -98,7 +98,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testAlterTableAutoIncrementAdd() : void
     {
         $tableFrom = new Table('autoinc_table_add');
-        $column    = $tableFrom->addColumn('id', 'integer');
+        $tableFrom->addColumn('id', 'integer');
         $this->schemaManager->createTable($tableFrom);
         $tableFrom = $this->schemaManager->listTableDetails('autoinc_table_add');
         self::assertFalse($tableFrom->getColumn('id')->getAutoincrement());
@@ -137,7 +137,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertTrue($tableFrom->getColumn('id')->getAutoincrement());
 
         $tableTo = new Table('autoinc_table_drop');
-        $column  = $tableTo->addColumn('id', 'integer');
+        $tableTo->addColumn('id', 'integer');
 
         $c    = new Comparator();
         $diff = $c->diffTable($tableFrom, $tableTo);
@@ -219,10 +219,10 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testFilterSchemaExpression() : void
     {
         $testTable = new Table('dbal204_test_prefix');
-        $column    = $testTable->addColumn('id', 'integer');
+        $testTable->addColumn('id', 'integer');
         $this->schemaManager->createTable($testTable);
         $testTable = new Table('dbal204_without_prefix');
-        $column    = $testTable->addColumn('id', 'integer');
+        $testTable->addColumn('id', 'integer');
         $this->schemaManager->createTable($testTable);
 
         $this->connection->getConfiguration()->setSchemaAssetsFilter(static function (string $name) : bool {
