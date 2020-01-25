@@ -667,13 +667,13 @@ class QueryBuilderTest extends DbalTestCase
 
         $qb->setParameter(':test', (object) 1);
 
-        $qb_clone = clone $qb;
+        $clone = clone $qb;
 
-        self::assertEquals((string) $qb, (string) $qb_clone);
+        self::assertEquals((string) $qb, (string) $clone);
 
         $qb->andWhere('u.id = 1');
 
-        self::assertNotSame($qb->getParameters(), $qb_clone->getParameters());
+        self::assertNotSame($qb->getParameters(), $clone->getParameters());
     }
 
     public function testSimpleSelectWithoutTableAlias() : void

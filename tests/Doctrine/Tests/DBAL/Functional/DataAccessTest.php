@@ -20,6 +20,7 @@ use Doctrine\DBAL\Platforms\TrimMode;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Statement;
 use Doctrine\DBAL\Types\Types;
+use Doctrine\Tests\DBAL\Functional\DataAccess\FetchClass;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use InvalidArgumentException;
 use PDO;
@@ -1106,11 +1107,11 @@ class DataAccessTest extends DbalFunctionalTestCase
 
         $results = $stmt->fetchAll(
             FetchMode::CUSTOM_OBJECT,
-            MyFetchClass::class
+            FetchClass::class
         );
 
         self::assertCount(1, $results);
-        self::assertInstanceOf(MyFetchClass::class, $results[0]);
+        self::assertInstanceOf(FetchClass::class, $results[0]);
 
         self::assertEquals(1, $results[0]->test_int);
         self::assertEquals('foo', $results[0]->test_string);
@@ -1144,12 +1145,12 @@ class DataAccessTest extends DbalFunctionalTestCase
 
         $sql  = 'SELECT * FROM fetch_table';
         $stmt = $this->connection->query($sql);
-        $stmt->setFetchMode(FetchMode::CUSTOM_OBJECT, MyFetchClass::class);
+        $stmt->setFetchMode(FetchMode::CUSTOM_OBJECT, FetchClass::class);
 
         $results = $stmt->fetchAll();
 
         self::assertCount(1, $results);
-        self::assertInstanceOf(MyFetchClass::class, $results[0]);
+        self::assertInstanceOf(FetchClass::class, $results[0]);
 
         self::assertEquals(1, $results[0]->test_int);
         self::assertEquals('foo', $results[0]->test_string);
@@ -1166,7 +1167,7 @@ class DataAccessTest extends DbalFunctionalTestCase
 
         $sql  = 'SELECT * FROM fetch_table';
         $stmt = $this->connection->query($sql);
-        $stmt->setFetchMode(FetchMode::CUSTOM_OBJECT, MyFetchClass::class);
+        $stmt->setFetchMode(FetchMode::CUSTOM_OBJECT, FetchClass::class);
 
         $results = [];
         while ($row = $stmt->fetch()) {
@@ -1174,7 +1175,7 @@ class DataAccessTest extends DbalFunctionalTestCase
         }
 
         self::assertCount(1, $results);
-        self::assertInstanceOf(MyFetchClass::class, $results[0]);
+        self::assertInstanceOf(FetchClass::class, $results[0]);
 
         self::assertEquals(1, $results[0]->test_int);
         self::assertEquals('foo', $results[0]->test_string);
@@ -1277,16 +1278,4 @@ class DataAccessTest extends DbalFunctionalTestCase
             ->getWrappedConnection();
         $connection->getWrappedConnection()->setAttribute(PDO::ATTR_CASE, PDO::CASE_LOWER);
     }
-}
-
-class MyFetchClass
-{
-    /** @var int */
-    public $test_int;
-
-    /** @var string */
-    public $test_string;
-
-    /** @var string */
-    public $test_datetime;
 }
