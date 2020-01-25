@@ -310,11 +310,13 @@ class DB2Statement implements IteratorAggregate, Statement
                     $rows[] = $row;
                 }
                 break;
+
             case FetchMode::COLUMN:
                 while (($row = $this->fetchColumn()) !== false) {
                     $rows[] = $row;
                 }
                 break;
+
             default:
                 while (($row = $this->fetch($fetchMode)) !== false) {
                     $rows[] = $row;

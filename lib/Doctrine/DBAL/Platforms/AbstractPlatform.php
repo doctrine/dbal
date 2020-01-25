@@ -2541,6 +2541,7 @@ abstract class AbstractPlatform
             case 'RESTRICT':
             case 'SET DEFAULT':
                 return $upper;
+
             default:
                 throw new InvalidArgumentException('Invalid foreign key action: ' . $upper);
         }
@@ -2744,12 +2745,16 @@ abstract class AbstractPlatform
         switch ($level) {
             case TransactionIsolationLevel::READ_UNCOMMITTED:
                 return 'READ UNCOMMITTED';
+
             case TransactionIsolationLevel::READ_COMMITTED:
                 return 'READ COMMITTED';
+
             case TransactionIsolationLevel::REPEATABLE_READ:
                 return 'REPEATABLE READ';
+
             case TransactionIsolationLevel::SERIALIZABLE:
                 return 'SERIALIZABLE';
+
             default:
                 throw new InvalidArgumentException('Invalid isolation level:' . $level);
         }

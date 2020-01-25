@@ -87,6 +87,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
                 // Unicode data requires 2 bytes per character
                 $length /= 2;
                 break;
+
             case 'varchar':
                 // TEXT type is returned as VARCHAR(MAX) with a length of -1
                 if ($length === -1) {

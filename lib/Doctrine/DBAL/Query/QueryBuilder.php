@@ -231,6 +231,7 @@ class QueryBuilder
             case self::INSERT:
                 $sql = $this->getSQLForInsert();
                 break;
+
             case self::DELETE:
                 $sql = $this->getSQLForDelete();
                 break;
