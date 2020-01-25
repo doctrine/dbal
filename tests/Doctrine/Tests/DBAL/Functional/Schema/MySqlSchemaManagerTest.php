@@ -582,8 +582,8 @@ SQL;
         $connection    = DriverManager::getConnection($params);
         $schemaManager = $connection->getSchemaManager();
 
-        self::expectException(DatabaseRequired::class);
-        self::expectExceptionMessage('A database is required for the method: Doctrine\DBAL\Schema\AbstractSchemaManager::listTableColumns');
+        $this->expectException(DatabaseRequired::class);
+        $this->expectExceptionMessage('A database is required for the method: Doctrine\DBAL\Schema\AbstractSchemaManager::listTableColumns');
 
         $schemaManager->listTableColumns('users');
     }

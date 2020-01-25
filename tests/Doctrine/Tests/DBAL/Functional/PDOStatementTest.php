@@ -40,8 +40,8 @@ class PDOStatementTest extends DbalFunctionalTestCase
             'name' => 'Bob',
         ]);
 
-        self::expectException(UnknownFetchMode::class);
-        self::expectExceptionMessage('Unknown fetch mode 12.');
+        $this->expectException(UnknownFetchMode::class);
+        $this->expectExceptionMessage('Unknown fetch mode 12.');
 
         $data = $this->connection->query('SELECT id, name FROM stmt_test ORDER BY id')
             ->fetchAll(PDO::FETCH_KEY_PAIR);

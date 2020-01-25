@@ -374,7 +374,7 @@ EOF
         // but the wrapper connection wraps everything in a DBAL exception
         $this->iniSet('error_reporting', '0');
 
-        self::expectException(DBALException::class);
+        $this->expectException(DBALException::class);
         $stmt->execute([null]);
     }
 
@@ -393,7 +393,7 @@ EOF
         $query    = $platform->getDummySelectSQL();
         $stmt     = $this->connection->query($query);
 
-        self::expectException(DBALException::class);
+        $this->expectException(DBALException::class);
         $stmt->fetchColumn($index);
     }
 
