@@ -44,8 +44,8 @@ class RunSqlCommandTest extends TestCase
 
     public function testMissingSqlArgument() : void
     {
-        self::expectException(RuntimeException::class);
-        self::expectExceptionMessage('Argument "sql" is required in order to execute this command correctly.');
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Argument "sql" is required in order to execute this command correctly.');
 
         $this->commandTester->execute([
             'command' => $this->command->getName(),
@@ -55,8 +55,8 @@ class RunSqlCommandTest extends TestCase
 
     public function testIncorrectDepthOption() : void
     {
-        self::expectException(LogicException::class);
-        self::expectExceptionMessage('Option "depth" must contains an integer value.');
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage('Option "depth" must contains an integer value.');
 
         $this->commandTester->execute([
             'command' => $this->command->getName(),

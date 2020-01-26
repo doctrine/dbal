@@ -65,16 +65,16 @@ class ColumnTest extends TestCase
 
     public function testSettingUnknownOptionIsStillSupported() : void
     {
-        self::expectException(UnknownColumnOption::class);
-        self::expectExceptionMessage('The "unknown_option" column option is not supported.');
+        $this->expectException(UnknownColumnOption::class);
+        $this->expectExceptionMessage('The "unknown_option" column option is not supported.');
 
         new Column('foo', $this->createMock(Type::class), ['unknown_option' => 'bar']);
     }
 
     public function testOptionsShouldNotBeIgnored() : void
     {
-        self::expectException(UnknownColumnOption::class);
-        self::expectExceptionMessage('The "unknown_option" column option is not supported.');
+        $this->expectException(UnknownColumnOption::class);
+        $this->expectExceptionMessage('The "unknown_option" column option is not supported.');
 
         $col1 = new Column('bar', Type::getType(Types::INTEGER), ['unknown_option' => 'bar', 'notnull' => true]);
         self::assertTrue($col1->getNotnull());

@@ -63,8 +63,8 @@ class ArrayStatementTest extends TestCase
     {
         $statement = $this->createTestArrayStatement();
 
-        self::expectException(InvalidArgumentException::class);
-        self::expectExceptionMessage('Caching layer does not support 2nd/3rd argument to setFetchMode().');
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Caching layer does not support 2nd/3rd argument to setFetchMode().');
 
         $statement->setFetchMode(FetchMode::ASSOCIATIVE, 'arg1', 'arg2');
     }
@@ -114,8 +114,8 @@ class ArrayStatementTest extends TestCase
     {
         $statement = $this->createTestArrayStatement();
 
-        self::expectException(InvalidArgumentException::class);
-        self::expectExceptionMessage('Invalid fetch mode given for fetching result, 9999 given.');
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Invalid fetch mode given for fetching result, 9999 given.');
 
         $statement->fetch(9999);
     }
