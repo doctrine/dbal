@@ -863,8 +863,8 @@ class ComparatorTest extends TestCase
      */
     public function testChangedSequence() : void
     {
-        $schema   = new Schema();
-        $sequence = $schema->createSequence('baz');
+        $schema = new Schema();
+        $schema->createSequence('baz');
 
         $schemaNew = clone $schema;
         $schemaNew->getSequence('baz')->setAllocationSize(20);

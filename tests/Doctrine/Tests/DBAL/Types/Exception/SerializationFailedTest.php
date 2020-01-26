@@ -14,8 +14,8 @@ class SerializationFailedTest extends TestCase
 {
     public function testNew() : void
     {
-        $value   = NAN;
-        $encoded = json_encode($value);
+        $value = NAN;
+        json_encode($value);
 
         $exception = SerializationFailed::new($value, 'json', json_last_error_msg());
 

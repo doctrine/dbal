@@ -213,10 +213,10 @@ class ResultCacheTest extends DbalFunctionalTestCase
     public function testEmptyResultCache() : void
     {
         $stmt = $this->connection->executeQuery('SELECT * FROM caching WHERE test_int > 500', [], [], new QueryCacheProfile(10, 'emptycachekey'));
-        $data = $this->hydrateStmt($stmt);
+        $this->hydrateStmt($stmt);
 
         $stmt = $this->connection->executeQuery('SELECT * FROM caching WHERE test_int > 500', [], [], new QueryCacheProfile(10, 'emptycachekey'));
-        $data = $this->hydrateStmt($stmt);
+        $this->hydrateStmt($stmt);
 
         self::assertCount(1, $this->sqlLogger->queries, 'just one dbal hit');
     }
@@ -224,11 +224,11 @@ class ResultCacheTest extends DbalFunctionalTestCase
     public function testChangeCacheImpl() : void
     {
         $stmt = $this->connection->executeQuery('SELECT * FROM caching WHERE test_int > 500', [], [], new QueryCacheProfile(10, 'emptycachekey'));
-        $data = $this->hydrateStmt($stmt);
+        $this->hydrateStmt($stmt);
 
         $secondCache = new ArrayCache();
         $stmt        = $this->connection->executeQuery('SELECT * FROM caching WHERE test_int > 500', [], [], new QueryCacheProfile(10, 'emptycachekey', $secondCache));
-        $data        = $this->hydrateStmt($stmt);
+        $this->hydrateStmt($stmt);
 
         self::assertCount(2, $this->sqlLogger->queries, 'two hits');
         self::assertCount(1, $secondCache->fetch('emptycachekey'));

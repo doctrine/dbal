@@ -99,7 +99,7 @@ class QueryCacheProfileTest extends DbalTestCase
     {
         $this->queryCacheProfile = $this->queryCacheProfile->setCacheKey(null);
 
-        [$cacheKey, $queryString] = $this->queryCacheProfile->generateCacheKeys(
+        [, $queryString] = $this->queryCacheProfile->generateCacheKeys(
             $this->query,
             $this->params,
             $this->types,

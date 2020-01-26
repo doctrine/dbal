@@ -165,7 +165,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         $table = new Table('test');
 
         $this->expectException(DBALException::class);
-        $sql = $this->platform->getCreateTableSQL($table);
+        $this->platform->getCreateTableSQL($table);
     }
 
     public function testGeneratesTableCreationSql() : void
