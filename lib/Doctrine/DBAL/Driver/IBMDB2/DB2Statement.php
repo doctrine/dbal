@@ -227,10 +227,13 @@ final class DB2Statement implements IteratorAggregate, Statement
         switch ($fetchMode) {
             case FetchMode::COLUMN:
                 return $this->fetchColumn();
+
             case FetchMode::MIXED:
                 return db2_fetch_both($this->stmt);
+
             case FetchMode::ASSOCIATIVE:
                 return db2_fetch_assoc($this->stmt);
+
             case FetchMode::CUSTOM_OBJECT:
                 $className = $this->defaultFetchClass;
                 $ctorArgs  = $this->defaultFetchClassCtorArgs;
@@ -247,10 +250,13 @@ final class DB2Statement implements IteratorAggregate, Statement
                 }
 
                 return $result;
+
             case FetchMode::NUMERIC:
                 return db2_fetch_array($this->stmt);
+
             case FetchMode::STANDARD_OBJECT:
                 return db2_fetch_object($this->stmt);
+
             default:
                 throw new DB2Exception('Given Fetch-Style ' . $fetchMode . ' is not supported.');
         }
@@ -270,12 +276,14 @@ final class DB2Statement implements IteratorAggregate, Statement
                 }
 
                 break;
+
             case FetchMode::COLUMN:
                 while (($row = $this->fetchColumn()) !== false) {
                     $rows[] = $row;
                 }
 
                 break;
+
             default:
                 while (($row = $this->fetch($fetchMode)) !== false) {
                     $rows[] = $row;

@@ -100,6 +100,7 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
             case 'char':
             case 'nchar':
                 $fixed = true;
+                break;
         }
 
         switch ($type) {
@@ -107,6 +108,7 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
             case 'float':
                 $precision = $tableColumn['length'];
                 $scale     = $tableColumn['scale'];
+                break;
         }
 
         return new Column(

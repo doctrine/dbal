@@ -179,11 +179,13 @@ class OracleSchemaManager extends AbstractSchemaManager
                 }
 
                 break;
+
             case 'varchar':
             case 'varchar2':
             case 'nvarchar2':
                 $length = (int) $tableColumn['char_length'];
                 break;
+
             case 'char':
             case 'nchar':
                 $length = (int) $tableColumn['char_length'];

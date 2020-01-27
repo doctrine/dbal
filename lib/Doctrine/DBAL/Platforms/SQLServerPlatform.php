@@ -1001,8 +1001,10 @@ SQL
             switch ($mode) {
                 case TrimMode::LEADING:
                     return 'LTRIM(' . $str . ')';
+
                 case TrimMode::TRAILING:
                     return 'RTRIM(' . $str . ')';
+
                 default:
                     return 'LTRIM(RTRIM(' . $str . '))';
             }
@@ -1349,10 +1351,13 @@ SQL
         switch (true) {
             case $lockMode === LockMode::NONE:
                 return $fromClause . ' WITH (NOLOCK)';
+
             case $lockMode === LockMode::PESSIMISTIC_READ:
                 return $fromClause . ' WITH (HOLDLOCK, ROWLOCK)';
+
             case $lockMode === LockMode::PESSIMISTIC_WRITE:
                 return $fromClause . ' WITH (UPDLOCK, ROWLOCK)';
+
             default:
                 return $fromClause;
         }

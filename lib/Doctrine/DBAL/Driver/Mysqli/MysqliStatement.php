@@ -361,10 +361,13 @@ final class MysqliStatement implements IteratorAggregate, Statement
         switch ($fetchMode) {
             case FetchMode::ASSOCIATIVE:
                 return $assoc;
+
             case FetchMode::MIXED:
                 return $assoc + $values;
+
             case FetchMode::STANDARD_OBJECT:
                 return (object) $assoc;
+
             default:
                 throw UnknownFetchMode::new($fetchMode);
         }

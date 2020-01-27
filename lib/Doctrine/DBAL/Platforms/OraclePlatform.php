@@ -91,6 +91,7 @@ class OraclePlatform extends AbstractPlatform
                 }
 
                 return 'ADD_MONTHS(' . $date . ', ' . $operator . $interval . ')';
+
             default:
                 $calculationClause = '';
 
@@ -196,11 +197,14 @@ class OraclePlatform extends AbstractPlatform
         switch ($level) {
             case TransactionIsolationLevel::READ_UNCOMMITTED:
                 return 'READ UNCOMMITTED';
+
             case TransactionIsolationLevel::READ_COMMITTED:
                 return 'READ COMMITTED';
+
             case TransactionIsolationLevel::REPEATABLE_READ:
             case TransactionIsolationLevel::SERIALIZABLE:
                 return 'SERIALIZABLE';
+
             default:
                 return parent::_getTransactionIsolationLevelSQL($level);
         }
@@ -658,9 +662,11 @@ SQL
                 // NO ACTION cannot be declared explicitly,
                 // therefore returning empty string to indicate to OMIT the referential clause.
                 return '';
+
             case 'CASCADE':
             case 'SET NULL':
                 return $action;
+
             default:
                 // SET DEFAULT is not supported, throw exception instead.
                 throw new InvalidArgumentException(sprintf('Invalid foreign key action "%s".', $action));

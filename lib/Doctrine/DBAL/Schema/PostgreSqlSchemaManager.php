@@ -363,17 +363,20 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
                 $tableColumn['default'] = $this->fixVersion94NegativeNumericDefaultValue($tableColumn['default']);
                 $length                 = null;
                 break;
+
             case 'int':
             case 'int4':
             case 'integer':
                 $tableColumn['default'] = $this->fixVersion94NegativeNumericDefaultValue($tableColumn['default']);
                 $length                 = null;
                 break;
+
             case 'bigint':
             case 'int8':
                 $tableColumn['default'] = $this->fixVersion94NegativeNumericDefaultValue($tableColumn['default']);
                 $length                 = null;
                 break;
+
             case 'bool':
             case 'boolean':
                 if ($tableColumn['default'] === 'true') {
@@ -386,15 +389,18 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
 
                 $length = null;
                 break;
+
             case 'text':
             case '_varchar':
             case 'varchar':
                 $tableColumn['default'] = $this->parseDefaultExpression($tableColumn['default']);
                 break;
+
             case 'char':
             case 'bpchar':
                 $fixed = true;
                 break;
+
             case 'float':
             case 'float4':
             case 'float8':
@@ -413,6 +419,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
                 }
 
                 break;
+
             case 'year':
                 $length = null;
                 break;

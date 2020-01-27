@@ -51,10 +51,13 @@ class SQLAnywherePlatform extends AbstractPlatform
         switch (true) {
             case $lockMode === LockMode::NONE:
                 return $fromClause . ' WITH (NOLOCK)';
+
             case $lockMode === LockMode::PESSIMISTIC_READ:
                 return $fromClause . ' WITH (UPDLOCK)';
+
             case $lockMode === LockMode::PESSIMISTIC_WRITE:
                 return $fromClause . ' WITH (XLOCK)';
+
             default:
                 return $fromClause;
         }
@@ -546,17 +549,15 @@ class SQLAnywherePlatform extends AbstractPlatform
             case self::FOREIGN_KEY_MATCH_SIMPLE:
                 return 'SIMPLE';
 
-                break;
             case self::FOREIGN_KEY_MATCH_FULL:
                 return 'FULL';
 
-                break;
             case self::FOREIGN_KEY_MATCH_SIMPLE_UNIQUE:
                 return 'UNIQUE SIMPLE';
 
-                break;
             case self::FOREIGN_KEY_MATCH_FULL_UNIQUE:
                 return 'UNIQUE FULL';
+
             default:
                 throw new InvalidArgumentException(sprintf('Invalid foreign key match type "%s".', $type));
         }
@@ -991,8 +992,10 @@ SQL
             switch ($mode) {
                 case TrimMode::LEADING:
                     return $this->getLtrimExpression($str);
+
                 case TrimMode::TRAILING:
                     return $this->getRtrimExpression($str);
+
                 default:
                     return 'TRIM(' . $str . ')';
             }
@@ -1003,8 +1006,10 @@ SQL
         switch ($mode) {
             case TrimMode::LEADING:
                 return 'SUBSTR(' . $str . ', PATINDEX(' . $pattern . ', ' . $str . '))';
+
             case TrimMode::TRAILING:
                 return 'REVERSE(SUBSTR(REVERSE(' . $str . '), PATINDEX(' . $pattern . ', REVERSE(' . $str . '))))';
+
             default:
                 return 'REVERSE(SUBSTR(REVERSE(SUBSTR(' . $str . ', PATINDEX(' . $pattern . ', ' . $str . '))), ' .
                     'PATINDEX(' . $pattern . ', REVERSE(SUBSTR(' . $str . ', PATINDEX(' . $pattern . ', ' . $str . '))))))';
@@ -1157,12 +1162,16 @@ SQL
         switch ($level) {
             case TransactionIsolationLevel::READ_UNCOMMITTED:
                 return '0';
+
             case TransactionIsolationLevel::READ_COMMITTED:
                 return '1';
+
             case TransactionIsolationLevel::REPEATABLE_READ:
                 return '2';
+
             case TransactionIsolationLevel::SERIALIZABLE:
                 return '3';
+
             default:
                 throw new InvalidArgumentException(sprintf('Invalid isolation level %d.', $level));
         }

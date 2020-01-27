@@ -62,13 +62,16 @@ class DB2SchemaManager extends AbstractSchemaManager
             case 'varchar':
                 $length = $tableColumn['length'];
                 break;
+
             case 'character':
                 $length = $tableColumn['length'];
                 $fixed  = true;
                 break;
+
             case 'clob':
                 $length = $tableColumn['length'];
                 break;
+
             case 'decimal':
             case 'double':
             case 'real':

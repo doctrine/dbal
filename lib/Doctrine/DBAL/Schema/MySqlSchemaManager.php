@@ -128,6 +128,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
             case 'binary':
                 $fixed = true;
                 break;
+
             case 'float':
             case 'double':
             case 'real':
@@ -140,24 +141,31 @@ class MySqlSchemaManager extends AbstractSchemaManager
                 }
 
                 break;
+
             case 'tinytext':
                 $length = MySqlPlatform::LENGTH_LIMIT_TINYTEXT;
                 break;
+
             case 'text':
                 $length = MySqlPlatform::LENGTH_LIMIT_TEXT;
                 break;
+
             case 'mediumtext':
                 $length = MySqlPlatform::LENGTH_LIMIT_MEDIUMTEXT;
                 break;
+
             case 'tinyblob':
                 $length = MySqlPlatform::LENGTH_LIMIT_TINYBLOB;
                 break;
+
             case 'blob':
                 $length = MySqlPlatform::LENGTH_LIMIT_BLOB;
                 break;
+
             case 'mediumblob':
                 $length = MySqlPlatform::LENGTH_LIMIT_MEDIUMBLOB;
                 break;
+
             case 'tinyint':
             case 'smallint':
             case 'mediumint':
@@ -231,8 +239,10 @@ class MySqlSchemaManager extends AbstractSchemaManager
         switch ($columnDefault) {
             case 'current_timestamp()':
                 return $platform->getCurrentTimestampSQL();
+
             case 'curdate()':
                 return $platform->getCurrentDateSQL();
+
             case 'curtime()':
                 return $platform->getCurrentTimeSQL();
         }
