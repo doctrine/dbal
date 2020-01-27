@@ -39,13 +39,27 @@ class ExpressionBuilder
     }
 
     /**
-     * Creates a conjunction of the given boolean expressions.
+     * Creates a conjunction of the given expressions.
      *
-     * Example:
+     * @param string|CompositeExpression ...$expressions Requires at least one defined when converting to string.
+     */
+    public function and(...$expressions) : CompositeExpression
+    {
+        return new CompositeExpression(CompositeExpression::TYPE_AND, $expressions);
+    }
+
+    /**
+     * Creates a disjunction of the given expressions.
      *
-     *     [php]
-     *     // (u.type = ?) AND (u.role = ?)
-     *     $expr->andX('u.type = ?', 'u.role = ?'));
+     * @param string|CompositeExpression ...$expressions Requires at least one defined when converting to string.
+     */
+    public function or(...$expressions) : CompositeExpression
+    {
+        return new CompositeExpression(CompositeExpression::TYPE_OR, $expressions);
+    }
+
+    /**
+     * @deprecated Use `and()` instead.
      *
      * @param mixed $x Optional clause. Defaults = null, but requires
      *                 at least one defined when converting to string.
@@ -54,17 +68,11 @@ class ExpressionBuilder
      */
     public function andX($x = null)
     {
-        return new CompositeExpression(CompositeExpression::TYPE_AND, func_get_args());
+        return $this->and(...func_get_args());
     }
 
     /**
-     * Creates a disjunction of the given boolean expressions.
-     *
-     * Example:
-     *
-     *     [php]
-     *     // (u.type = ?) OR (u.role = ?)
-     *     $qb->where($qb->expr()->orX('u.type = ?', 'u.role = ?'));
+     * @deprecated Use `or()` instead.
      *
      * @param mixed $x Optional clause. Defaults = null, but requires
      *                 at least one defined when converting to string.
@@ -73,7 +81,7 @@ class ExpressionBuilder
      */
     public function orX($x = null)
     {
-        return new CompositeExpression(CompositeExpression::TYPE_OR, func_get_args());
+        return $this->or(...func_get_args());
     }
 
     /**

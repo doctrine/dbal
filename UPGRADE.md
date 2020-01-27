@@ -1,3 +1,9 @@
+# Upgrade to 2.11
+
+## Deprecated `ExpressionBuilder` methods
+
+The usage of the `andX()` and `orX()` methods of the `ExpressionBuilder` class has been deprecated. Use `and()` and `or()` instead.
+
 # Upgrade to 2.10
 
 ## Deprecated `Doctrine\DBAL\Event\ConnectionEventArgs` methods
