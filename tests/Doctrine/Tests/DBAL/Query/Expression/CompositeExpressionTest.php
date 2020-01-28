@@ -16,7 +16,7 @@ class CompositeExpressionTest extends DbalTestCase
 
         self::assertCount(1, $expr);
 
-        $expr->add('u.group_id = 2');
+        $expr = $expr->with('u.group_id = 2');
 
         self::assertCount(2, $expr);
     }
@@ -40,6 +40,26 @@ class CompositeExpressionTest extends DbalTestCase
         self::assertCount(2, $expr);
 
         $expr->add('u.user_id = 1');
+
+        self::assertCount(3, $expr);
+    }
+
+    public function testWith() : void
+    {
+        $expr = new CompositeExpression(CompositeExpression::TYPE_OR, ['u.group_id = 1']);
+
+        self::assertCount(1, $expr);
+
+        // test immutability
+        $expr->with(new CompositeExpression(CompositeExpression::TYPE_OR, ['u.user_id = 1']));
+
+        self::assertCount(1, $expr);
+
+        $expr = $expr->with(new CompositeExpression(CompositeExpression::TYPE_OR, ['u.user_id = 1']));
+
+        self::assertCount(2, $expr);
+
+        $expr = $expr->with('u.user_id = 1');
 
         self::assertCount(3, $expr);
     }
