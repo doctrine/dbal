@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Query\Expression;
 
 use Doctrine\DBAL\Connection;
+use function array_merge;
 use function func_get_arg;
 use function func_get_args;
 use function func_num_args;
@@ -41,21 +42,23 @@ class ExpressionBuilder
     /**
      * Creates a conjunction of the given expressions.
      *
-     * @param string|CompositeExpression ...$expressions Requires at least one defined when converting to string.
+     * @param string|CompositeExpression $expression
+     * @param string|CompositeExpression ...$expressions
      */
-    public function and(...$expressions) : CompositeExpression
+    public function and($expression, ...$expressions) : CompositeExpression
     {
-        return new CompositeExpression(CompositeExpression::TYPE_AND, $expressions);
+        return new CompositeExpression(CompositeExpression::TYPE_AND, array_merge([$expression], $expressions));
     }
 
     /**
      * Creates a disjunction of the given expressions.
      *
-     * @param string|CompositeExpression ...$expressions Requires at least one defined when converting to string.
+     * @param string|CompositeExpression $expression
+     * @param string|CompositeExpression ...$expressions
      */
-    public function or(...$expressions) : CompositeExpression
+    public function or($expression, ...$expressions) : CompositeExpression
     {
-        return new CompositeExpression(CompositeExpression::TYPE_OR, $expressions);
+        return new CompositeExpression(CompositeExpression::TYPE_OR, array_merge([$expression], $expressions));
     }
 
     /**
@@ -68,7 +71,7 @@ class ExpressionBuilder
      */
     public function andX($x = null)
     {
-        return $this->and(...func_get_args());
+        return new CompositeExpression(CompositeExpression::TYPE_AND, func_get_args());
     }
 
     /**
@@ -81,7 +84,7 @@ class ExpressionBuilder
      */
     public function orX($x = null)
     {
-        return $this->or(...func_get_args());
+        return new CompositeExpression(CompositeExpression::TYPE_OR, func_get_args());
     }
 
     /**
