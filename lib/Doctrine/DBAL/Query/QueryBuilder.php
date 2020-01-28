@@ -451,6 +451,8 @@ class QueryBuilder
      * Specifies an item that is to be returned in the query result.
      * Replaces any previously specified selections, if any.
      *
+     * USING AN ARRAY ARGUMENT IS DEPRECATED. Pass each value as an individual argument.
+     *
      * <code>
      *     $qb = $conn->createQueryBuilder()
      *         ->select('u.id', 'p.id')
@@ -458,11 +460,12 @@ class QueryBuilder
      *         ->leftJoin('u', 'phonenumbers', 'p', 'u.id = p.user_id');
      * </code>
      *
-     * @param mixed $select The selection expressions.
+     * @param string|string[]|null $select The selection expression. USING AN ARRAY OR NULL IS DEPRECATED.
+     *                                     Pass each value as an individual argument.
      *
      * @return $this This QueryBuilder instance.
      */
-    public function select($select = null)
+    public function select($select = null/*, string ...$selects*/)
     {
         $this->type = self::SELECT;
 
@@ -497,6 +500,8 @@ class QueryBuilder
     /**
      * Adds an item that is to be returned in the query result.
      *
+     * USING AN ARRAY ARGUMENT IS DEPRECATED. Pass each value as an individual argument.
+     *
      * <code>
      *     $qb = $conn->createQueryBuilder()
      *         ->select('u.id')
@@ -505,11 +510,12 @@ class QueryBuilder
      *         ->leftJoin('u', 'phonenumbers', 'u.id = p.user_id');
      * </code>
      *
-     * @param mixed $select The selection expression.
+     * @param string|string[]|null $select The selection expression. USING AN ARRAY OR NULL IS DEPRECATED.
+     *                                     Pass each value as an individual argument.
      *
      * @return $this This QueryBuilder instance.
      */
-    public function addSelect($select = null)
+    public function addSelect($select = null/*, string ...$selects*/)
     {
         $this->type = self::SELECT;
 
@@ -869,6 +875,8 @@ class QueryBuilder
      * Specifies a grouping over the results of the query.
      * Replaces any previously specified groupings, if any.
      *
+     * USING AN ARRAY ARGUMENT IS DEPRECATED. Pass each value as an individual argument.
+     *
      * <code>
      *     $qb = $conn->createQueryBuilder()
      *         ->select('u.name')
@@ -876,11 +884,12 @@ class QueryBuilder
      *         ->groupBy('u.id');
      * </code>
      *
-     * @param mixed $groupBy The grouping expression.
+     * @param string|string[] $groupBy The grouping expression. USING AN ARRAY IS DEPRECATED.
+     *                                 Pass each value as an individual argument.
      *
      * @return $this This QueryBuilder instance.
      */
-    public function groupBy($groupBy)
+    public function groupBy($groupBy/*, string ...$groupBys*/)
     {
         if (empty($groupBy)) {
             return $this;
@@ -894,6 +903,8 @@ class QueryBuilder
     /**
      * Adds a grouping expression to the query.
      *
+     * USING AN ARRAY ARGUMENT IS DEPRECATED. Pass each value as an individual argument.
+     *
      * <code>
      *     $qb = $conn->createQueryBuilder()
      *         ->select('u.name')
@@ -902,11 +913,12 @@ class QueryBuilder
      *         ->addGroupBy('u.createdAt');
      * </code>
      *
-     * @param mixed $groupBy The grouping expression.
+     * @param string|string[] $groupBy The grouping expression. USING AN ARRAY IS DEPRECATED.
+     *                                 Pass each value as an individual argument.
      *
      * @return $this This QueryBuilder instance.
      */
-    public function addGroupBy($groupBy)
+    public function addGroupBy($groupBy/*, string ...$groupBys*/)
     {
         if (empty($groupBy)) {
             return $this;
