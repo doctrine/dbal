@@ -823,7 +823,7 @@ class QueryBuilder
         $where = $this->getQueryPart('where');
 
         if ($where instanceof CompositeExpression && $where->getType() === CompositeExpression::TYPE_AND) {
-            $where->addMultiple($args);
+            $where = $where->with(...$args);
         } else {
             array_unshift($args, $where);
             $where = new CompositeExpression(CompositeExpression::TYPE_AND, $args);
@@ -856,7 +856,7 @@ class QueryBuilder
         $where = $this->getQueryPart('where');
 
         if ($where instanceof CompositeExpression && $where->getType() === CompositeExpression::TYPE_OR) {
-            $where->addMultiple($args);
+            $where = $where->with(...$args);
         } else {
             array_unshift($args, $where);
             $where = new CompositeExpression(CompositeExpression::TYPE_OR, $args);
@@ -998,7 +998,7 @@ class QueryBuilder
         $having = $this->getQueryPart('having');
 
         if ($having instanceof CompositeExpression && $having->getType() === CompositeExpression::TYPE_AND) {
-            $having->addMultiple($args);
+            $having = $having->with(...$args);
         } else {
             array_unshift($args, $having);
             $having = new CompositeExpression(CompositeExpression::TYPE_AND, $args);
@@ -1021,7 +1021,7 @@ class QueryBuilder
         $having = $this->getQueryPart('having');
 
         if ($having instanceof CompositeExpression && $having->getType() === CompositeExpression::TYPE_OR) {
-            $having->addMultiple($args);
+            $having = $having->with(...$args);
         } else {
             array_unshift($args, $having);
             $having = new CompositeExpression(CompositeExpression::TYPE_OR, $args);

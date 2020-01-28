@@ -4,6 +4,11 @@
 
 The usage of the `andX()` and `orX()` methods of the `ExpressionBuilder` class has been deprecated. Use `and()` and `or()` instead.
 
+## Deprecated `CompositeExpression` methods
+
+The usage of the `add()` and `addMultiple()` methods of the `CompositeExpression` class has been deprecated. Use `with()` instead, which returns a new instance.
+In the future, the `add*()` methods will be removed and the class will be effectively immutable.
+
 # Upgrade to 2.10
 
 ## Deprecated `Doctrine\DBAL\Event\ConnectionEventArgs` methods
