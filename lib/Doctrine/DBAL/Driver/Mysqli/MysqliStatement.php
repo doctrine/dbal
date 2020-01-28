@@ -245,6 +245,7 @@ final class MysqliStatement implements IteratorAggregate, Statement
                     if (get_resource_type($value) !== 'stream') {
                         throw new InvalidArgumentException('Resources passed with the LARGE_OBJECT parameter type must be stream resources.');
                     }
+
                     $streams[$parameter] = $value;
                     $values[$parameter]  = null;
                     continue;
@@ -412,18 +413,12 @@ final class MysqliStatement implements IteratorAggregate, Statement
         return $row[$columnIndex];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function closeCursor() : void
     {
         $this->stmt->free_result();
         $this->result = false;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function rowCount() : int
     {
         if ($this->hasColumns) {
@@ -433,9 +428,6 @@ final class MysqliStatement implements IteratorAggregate, Statement
         return $this->stmt->affected_rows;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function columnCount() : int
     {
         return $this->stmt->field_count;

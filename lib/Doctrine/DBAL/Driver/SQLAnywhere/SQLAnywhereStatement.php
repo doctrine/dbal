@@ -14,7 +14,6 @@ use IteratorAggregate;
 use ReflectionClass;
 use ReflectionObject;
 use stdClass;
-use const SASQL_BOTH;
 use function array_key_exists;
 use function assert;
 use function count;
@@ -36,6 +35,7 @@ use function sasql_stmt_field_count;
 use function sasql_stmt_reset;
 use function sasql_stmt_result_metadata;
 use function sprintf;
+use const SASQL_BOTH;
 
 /**
  * SAP SQL Anywhere implementation of the Statement interface.
@@ -132,17 +132,11 @@ final class SQLAnywhereStatement implements IteratorAggregate, Statement
         $this->bindParam($param, $value, $type);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function closeCursor() : void
     {
         sasql_stmt_reset($this->stmt);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function columnCount() : int
     {
         return sasql_stmt_field_count($this->stmt);
@@ -237,12 +231,14 @@ final class SQLAnywhereStatement implements IteratorAggregate, Statement
                 while (($row = $this->fetch(...func_get_args())) !== false) {
                     $rows[] = $row;
                 }
+
                 break;
 
             case FetchMode::COLUMN:
                 while (($row = $this->fetchColumn()) !== false) {
                     $rows[] = $row;
                 }
+
                 break;
 
             default:
@@ -280,9 +276,6 @@ final class SQLAnywhereStatement implements IteratorAggregate, Statement
         return new StatementIterator($this);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function rowCount() : int
     {
         return sasql_stmt_affected_rows($this->stmt);

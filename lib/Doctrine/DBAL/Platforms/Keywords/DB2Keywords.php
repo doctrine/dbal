@@ -9,9 +9,6 @@ namespace Doctrine\DBAL\Platforms\Keywords;
  */
 class DB2Keywords extends KeywordList
 {
-    /**
-     * {@inheritdoc}
-     */
     public function getName() : string
     {
         return 'DB2';

@@ -85,9 +85,6 @@ class DriverTest extends AbstractPostgreSQLDriverTest
         );
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected function createDriver() : DriverInterface
     {
         return new Driver();

@@ -28,6 +28,7 @@ class TypeConversionPerformanceTest extends DbalPerformanceTestCase
         for ($i = 0; $i < $count; $i++) {
             $type->convertToDatabaseValue($value, $platform);
         }
+
         $this->stopTiming();
     }
 

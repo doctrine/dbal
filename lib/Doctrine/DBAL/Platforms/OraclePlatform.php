@@ -45,9 +45,6 @@ class OraclePlatform extends AbstractPlatform
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getSubstringExpression(string $string, string $start, ?string $length = null) : string
     {
         if ($length === null) {
@@ -57,9 +54,6 @@ class OraclePlatform extends AbstractPlatform
         return sprintf('SUBSTR(%s, %s, %s)', $string, $start, $length);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getNowExpression(string $type = 'timestamp') : string
     {
         switch ($type) {
@@ -71,9 +65,6 @@ class OraclePlatform extends AbstractPlatform
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getLocateExpression(string $string, string $substring, ?string $start = null) : string
     {
         if ($start === null) {
@@ -83,9 +74,6 @@ class OraclePlatform extends AbstractPlatform
         return sprintf('INSTR(%s, %s, %s)', $string, $substring, $start);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getDateArithmeticIntervalExpression(string $date, string $operator, string $interval, string $unit) : string
     {
         switch ($unit) {
@@ -129,33 +117,21 @@ class OraclePlatform extends AbstractPlatform
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getDateDiffExpression(string $date1, string $date2) : string
     {
         return sprintf('TRUNC(%s) - TRUNC(%s)', $date1, $date2);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getBitAndComparisonExpression(string $value1, string $value2) : string
     {
         return 'BITAND(' . $value1 . ', ' . $value2 . ')';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getCurrentDatabaseExpression() : string
     {
         return "SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')";
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getBitOrComparisonExpression(string $value1, string $value2) : string
     {
         return '(' . $value1 . '-' .
@@ -179,9 +155,6 @@ class OraclePlatform extends AbstractPlatform
                $this->getSequenceCacheSQL($sequence);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getAlterSequenceSQL(Sequence $sequence) : string
     {
         return 'ALTER SEQUENCE ' . $sequence->getQuotedName($this) .
@@ -209,35 +182,29 @@ class OraclePlatform extends AbstractPlatform
         return '';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getSequenceNextValSQL(string $sequenceName) : string
     {
         return 'SELECT ' . $sequenceName . '.nextval FROM DUAL';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getSetTransactionIsolationSQL(int $level) : string
     {
         return 'SET TRANSACTION ISOLATION LEVEL ' . $this->_getTransactionIsolationLevelSQL($level);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected function _getTransactionIsolationLevelSQL(int $level) : string
     {
         switch ($level) {
             case TransactionIsolationLevel::READ_UNCOMMITTED:
                 return 'READ UNCOMMITTED';
+
             case TransactionIsolationLevel::READ_COMMITTED:
                 return 'READ COMMITTED';
+
             case TransactionIsolationLevel::REPEATABLE_READ:
             case TransactionIsolationLevel::SERIALIZABLE:
                 return 'SERIALIZABLE';
+
             default:
                 return parent::_getTransactionIsolationLevelSQL($level);
         }
@@ -315,9 +282,6 @@ class OraclePlatform extends AbstractPlatform
         return '';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected function getVarcharTypeDeclarationSQLSnippet(?int $length) : string
     {
         if ($length === null) {
@@ -327,9 +291,6 @@ class OraclePlatform extends AbstractPlatform
         return sprintf('VARCHAR2(%d)', $length);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected function getBinaryTypeDeclarationSQLSnippet(?int $length) : string
     {
         if ($length === null) {
@@ -339,9 +300,6 @@ class OraclePlatform extends AbstractPlatform
         return sprintf('RAW(%d)', $length);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected function getVarbinaryTypeDeclarationSQLSnippet(?int $length) : string
     {
         return $this->getBinaryTypeDeclarationSQLSnippet($length);
@@ -355,17 +313,11 @@ class OraclePlatform extends AbstractPlatform
         return 'CLOB';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getListDatabasesSQL() : string
     {
         return 'SELECT username FROM all_users';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getListSequencesSQL(string $database) : string
     {
         return 'SELECT SEQUENCE_NAME, MIN_VALUE, INCREMENT_BY FROM SYS.ALL_SEQUENCES WHERE SEQUENCE_OWNER = '
@@ -443,33 +395,21 @@ class OraclePlatform extends AbstractPlatform
              ORDER BY  uind_col.column_position ASC';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getListTablesSQL() : string
     {
         return 'SELECT * FROM sys.user_tables';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getListViewsSQL(string $database) : string
     {
         return 'SELECT view_name, text FROM sys.user_views';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getCreateViewSQL(string $name, string $sql) : string
     {
         return 'CREATE VIEW ' . $name . ' AS ' . $sql;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getDropViewSQL(string $name) : string
     {
         return 'DROP VIEW ' . $name;
@@ -592,9 +532,6 @@ END;';
             : $identifierName;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getListTableForeignKeysSQL(string $table, ?string $database = null) : string
     {
         $table = $this->normalizeIdentifier($table);
@@ -624,9 +561,6 @@ END;';
     ORDER BY cols.constraint_name ASC, cols.position ASC';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getListTableConstraintsSQL(string $table) : string
     {
         $table = $this->normalizeIdentifier($table);
@@ -635,9 +569,6 @@ END;';
         return 'SELECT * FROM user_constraints WHERE table_name = ' . $table;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getListTableColumnsSQL(string $table, ?string $database = null) : string
     {
         $table = $this->normalizeIdentifier($table);
@@ -710,9 +641,6 @@ SQL
         return 'ALTER TABLE ' . $table . ' DROP CONSTRAINT ' . $foreignKey;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey) : string
     {
         $referentialAction = null;
@@ -724,9 +652,6 @@ SQL
         return $referentialAction ? ' ON DELETE ' . $referentialAction : '';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getForeignKeyReferentialActionSQL(string $action) : string
     {
         $action = strtoupper($action);
@@ -748,9 +673,6 @@ SQL
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getDropDatabaseSQL(string $database) : string
     {
         return 'DROP USER ' . $database . ' CASCADE';
@@ -929,25 +851,16 @@ SQL
         return ['ALTER INDEX ' . $oldIndexName . ' RENAME TO ' . $index->getQuotedName($this)];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function prefersSequences() : bool
     {
         return true;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function usesSequenceEmulatedIdentityColumns() : bool
     {
         return true;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getIdentitySequenceName(string $tableName, string $columnName) : string
     {
         $table = new Identifier($tableName);
@@ -964,25 +877,16 @@ SQL
         return $identitySequenceIdentifier->getQuotedName($this);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function supportsCommentOnStatement() : bool
     {
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getName() : string
     {
         return 'oracle';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected function doModifyLimitQuery(string $query, ?int $limit, int $offset) : string
     {
         if ($limit === null && $offset <= 0) {
@@ -1024,41 +928,26 @@ SQL
         return strtoupper($column);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getCreateTemporaryTableSnippetSQL() : string
     {
         return 'CREATE GLOBAL TEMPORARY TABLE';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getDateTimeTzFormatString() : string
     {
         return 'Y-m-d H:i:sP';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getDateFormatString() : string
     {
         return 'Y-m-d 00:00:00';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getTimeFormatString() : string
     {
         return '1900-01-01 H:i:s';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function fixSchemaElementName(string $schemaElementName) : string
     {
         if (strlen($schemaElementName) > 30) {
@@ -1069,41 +958,26 @@ SQL
         return $schemaElementName;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getMaxIdentifierLength() : int
     {
         return 30;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function supportsSequences() : bool
     {
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function supportsForeignKeyOnUpdate() : bool
     {
         return false;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function supportsReleaseSavepoints() : bool
     {
         return false;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getTruncateTableSQL(string $tableName, bool $cascade = false) : string
     {
         $tableIdentifier = new Identifier($tableName);
@@ -1111,17 +985,11 @@ SQL
         return 'TRUNCATE TABLE ' . $tableIdentifier->getQuotedName($this);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getDummySelectSQL(string $expression = '1') : string
     {
         return sprintf('SELECT %s FROM DUAL', $expression);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected function initializeDoctrineTypeMappings() : void
     {
         $this->doctrineTypeMapping = [
@@ -1151,17 +1019,11 @@ SQL
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function releaseSavePoint(string $savepoint) : string
     {
         return '';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected function getReservedKeywordsClass() : string
     {
         return Keywords\OracleKeywords::class;

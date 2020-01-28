@@ -22,9 +22,6 @@ final class TableGeneratorSchemaVisitor implements Visitor
         $this->generatorTableName = $generatorTableName;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function acceptSchema(Schema $schema) : void
     {
         $table = $schema->createTable($this->generatorTableName);
@@ -34,37 +31,22 @@ final class TableGeneratorSchemaVisitor implements Visitor
         $table->addColumn('sequence_increment_by', 'integer', ['default' => 1]);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function acceptTable(Table $table) : void
     {
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function acceptColumn(Table $table, Column $column) : void
     {
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint) : void
     {
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function acceptIndex(Table $table, Index $index) : void
     {
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function acceptSequence(Sequence $sequence) : void
     {
     }

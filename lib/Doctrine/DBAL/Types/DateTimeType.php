@@ -16,9 +16,6 @@ use function date_create;
  */
 class DateTimeType extends Type implements PhpDateTimeMappingType
 {
-    /**
-     * {@inheritdoc}
-     */
     public function getName() : string
     {
         return Types::DATETIME_MUTABLE;

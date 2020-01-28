@@ -74,6 +74,7 @@ class Schema extends AbstractAsset
         if ($schemaConfig === null) {
             $schemaConfig = new SchemaConfig();
         }
+
         $this->_schemaConfig = $schemaConfig;
         $this->_setName($schemaConfig->getName() ?: 'public');
 
@@ -414,6 +415,7 @@ class Schema extends AbstractAsset
         foreach ($this->_tables as $k => $table) {
             $this->_tables[$k] = clone $table;
         }
+
         foreach ($this->_sequences as $k => $sequence) {
             $this->_sequences[$k] = clone $sequence;
         }

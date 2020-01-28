@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver\SQLSrv;
 
 use Doctrine\DBAL\Driver\AbstractDriverException;
-use const SQLSRV_ERR_ERRORS;
 use function rtrim;
 use function sqlsrv_errors;
+use const SQLSRV_ERR_ERRORS;
 
 class SQLSrvException extends AbstractDriverException
 {

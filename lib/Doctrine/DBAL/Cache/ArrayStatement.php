@@ -44,25 +44,16 @@ final class ArrayStatement implements IteratorAggregate, ResultStatement
         $this->columnCount = count($data[0]);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function closeCursor() : void
     {
         $this->data = [];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function columnCount() : int
     {
         return $this->columnCount;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function rowCount() : int
     {
         return count($this->data);

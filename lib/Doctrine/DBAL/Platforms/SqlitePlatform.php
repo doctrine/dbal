@@ -34,33 +34,26 @@ use function trim;
  */
 class SqlitePlatform extends AbstractPlatform
 {
-    /**
-     * {@inheritDoc}
-     */
     public function getRegexpExpression() : string
     {
         return 'REGEXP';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getNowExpression(string $type = 'timestamp') : string
     {
         switch ($type) {
             case 'time':
                 return 'time(\'now\')';
+
             case 'date':
                 return 'date(\'now\')';
+
             case 'timestamp':
             default:
                 return 'datetime(\'now\')';
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getTrimExpression(string $str, int $mode = TrimMode::UNSPECIFIED, ?string $char = null) : string
     {
         switch ($mode) {
@@ -95,9 +88,6 @@ class SqlitePlatform extends AbstractPlatform
         return sprintf('%s(%s)', $trimFn, implode(', ', $arguments));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getSubstringExpression(string $string, string $start, ?string $length = null) : string
     {
         if ($length === null) {
@@ -107,9 +97,6 @@ class SqlitePlatform extends AbstractPlatform
         return sprintf('SUBSTR(%s, %s, %s)', $string, $start, $length);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getLocateExpression(string $string, string $substring, ?string $start = null) : string
     {
         if ($start === null) {
@@ -119,9 +106,6 @@ class SqlitePlatform extends AbstractPlatform
         return sprintf('LOCATE(%s, %s, %s)', $string, $substring, $start);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getDateArithmeticIntervalExpression(string $date, string $operator, string $interval, string $unit) : string
     {
         switch ($unit) {
@@ -143,9 +127,6 @@ class SqlitePlatform extends AbstractPlatform
         ) . ')';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getDateDiffExpression(string $date1, string $date2) : string
     {
         return sprintf("JULIANDAY(%s, 'start of day') - JULIANDAY(%s, 'start of day')", $date1, $date2);
@@ -164,34 +145,27 @@ class SqlitePlatform extends AbstractPlatform
         return "''";
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected function _getTransactionIsolationLevelSQL(int $level) : string
     {
         switch ($level) {
             case TransactionIsolationLevel::READ_UNCOMMITTED:
                 return '0';
+
             case TransactionIsolationLevel::READ_COMMITTED:
             case TransactionIsolationLevel::REPEATABLE_READ:
             case TransactionIsolationLevel::SERIALIZABLE:
                 return '1';
+
             default:
                 return parent::_getTransactionIsolationLevelSQL($level);
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getSetTransactionIsolationSQL(int $level) : string
     {
         return 'PRAGMA read_uncommitted = ' . $this->_getTransactionIsolationLevelSQL($level);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function prefersIdentityColumns() : bool
     {
         return true;
@@ -302,9 +276,6 @@ class SqlitePlatform extends AbstractPlatform
         return ! empty($columnDef['unsigned']) ? ' UNSIGNED' : '';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getForeignKeyDeclarationSQL(ForeignKeyConstraint $foreignKey) : string
     {
         return parent::getForeignKeyDeclarationSQL(new ForeignKeyConstraint(
@@ -391,17 +362,11 @@ class SqlitePlatform extends AbstractPlatform
         return ', PRIMARY KEY(' . implode(', ', $keyColumns) . ')';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getBinaryTypeDeclarationSQLSnippet(?int $length) : string
     {
         return 'BLOB';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getVarcharTypeDeclarationSQLSnippet(?int $length) : string
     {
         $sql = 'VARCHAR';
@@ -413,9 +378,6 @@ class SqlitePlatform extends AbstractPlatform
         return $sql;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected function getVarbinaryTypeDeclarationSQLSnippet(?int $length) : string
     {
         return 'BLOB';
@@ -429,9 +391,6 @@ class SqlitePlatform extends AbstractPlatform
         return 'CLOB';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getListTableConstraintsSQL(string $table) : string
     {
         $table = str_replace('.', '__', $table);
@@ -442,9 +401,6 @@ class SqlitePlatform extends AbstractPlatform
         );
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getListTableColumnsSQL(string $table, ?string $database = null) : string
     {
         $table = str_replace('.', '__', $table);
@@ -452,9 +408,6 @@ class SqlitePlatform extends AbstractPlatform
         return sprintf('PRAGMA table_info(%s)', $this->quoteStringLiteral($table));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getListTableIndexesSQL(string $table, ?string $currentDatabase = null) : string
     {
         $table = str_replace('.', '__', $table);
@@ -462,9 +415,6 @@ class SqlitePlatform extends AbstractPlatform
         return sprintf('PRAGMA index_list(%s)', $this->quoteStringLiteral($table));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getListTablesSQL() : string
     {
         return "SELECT name FROM sqlite_master WHERE type = 'table' AND name != 'sqlite_sequence' AND name != 'geometry_columns' AND name != 'spatial_ref_sys' "
@@ -472,33 +422,21 @@ class SqlitePlatform extends AbstractPlatform
              . "WHERE type = 'table' ORDER BY name";
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getListViewsSQL(string $database) : string
     {
         return "SELECT name, sql FROM sqlite_master WHERE type='view' AND sql NOT NULL";
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getCreateViewSQL(string $name, string $sql) : string
     {
         return 'CREATE VIEW ' . $name . ' AS ' . $sql;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getDropViewSQL(string $name) : string
     {
         return 'DROP VIEW ' . $name;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey) : string
     {
         $query = parent::getAdvancedForeignKeyOptionsSQL($foreignKey);
@@ -509,41 +447,26 @@ class SqlitePlatform extends AbstractPlatform
         return $query;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function supportsIdentityColumns() : bool
     {
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function supportsColumnCollation() : bool
     {
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function supportsInlineColumnComments() : bool
     {
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getName() : string
     {
         return 'sqlite';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getTruncateTableSQL(string $tableName, bool $cascade = false) : string
     {
         $tableIdentifier = new Identifier($tableName);
@@ -587,17 +510,11 @@ class SqlitePlatform extends AbstractPlatform
         return 0;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getForUpdateSql() : string
     {
         return '';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getInlineColumnCommentSQL(?string $comment) : string
     {
         if ($comment === null || $comment === '') {
@@ -612,9 +529,6 @@ class SqlitePlatform extends AbstractPlatform
         return $this->getInlineColumnCommentSQL($comment);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected function initializeDoctrineTypeMappings() : void
     {
         $this->doctrineTypeMapping = [
@@ -654,9 +568,6 @@ class SqlitePlatform extends AbstractPlatform
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected function getReservedKeywordsClass() : string
     {
         return Keywords\SQLiteKeywords::class;
@@ -710,9 +621,6 @@ class SqlitePlatform extends AbstractPlatform
         return $sql;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected function doModifyLimitQuery(string $query, ?int $limit, int $offset) : string
     {
         if ($limit === null && $offset > 0) {
@@ -730,9 +638,6 @@ class SqlitePlatform extends AbstractPlatform
         return 'BLOB';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getTemporaryTableName(string $tableName) : string
     {
         $tableName = str_replace('.', '__', $tableName);
@@ -754,9 +659,6 @@ class SqlitePlatform extends AbstractPlatform
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function supportsForeignKeyConstraints() : bool
     {
         return false;
@@ -802,9 +704,6 @@ class SqlitePlatform extends AbstractPlatform
         return parent::getCreateTableSQL($table, $createFlags);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getListTableForeignKeysSQL(string $table, ?string $database = null) : string
     {
         $table = str_replace('.', '__', $table);

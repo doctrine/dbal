@@ -12,9 +12,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
  */
 class IntegerType extends Type implements PhpIntegerMappingType
 {
-    /**
-     * {@inheritdoc}
-     */
     public function getName() : string
     {
         return Types::INTEGER;
@@ -36,9 +33,6 @@ class IntegerType extends Type implements PhpIntegerMappingType
         return $value === null ? null : (int) $value;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getBindingType() : int
     {
         return ParameterType::INTEGER;

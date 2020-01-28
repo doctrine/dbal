@@ -56,6 +56,7 @@ class SchemaDiffTest extends TestCase
                  ->with($this->isInstanceOf(Sequence::class))
                  ->will($this->returnValue('drop_seq'));
         }
+
         $platform->expects($this->exactly(1))
                  ->method('getAlterSequenceSql')
                  ->with($this->isInstanceOf(Sequence::class))
@@ -70,6 +71,7 @@ class SchemaDiffTest extends TestCase
                      ->with($this->isInstanceOf(Table::class))
                      ->will($this->returnValue('drop_table'));
         }
+
         $platform->expects($this->exactly(1))
                  ->method('getCreateTableSql')
                  ->with($this->isInstanceOf(Table::class))
@@ -91,6 +93,7 @@ class SchemaDiffTest extends TestCase
                      )
                      ->will($this->returnValue('drop_orphan_fk'));
         }
+
         $platform->expects($this->exactly(1))
                 ->method('supportsSchemas')
                 ->will($this->returnValue(true));

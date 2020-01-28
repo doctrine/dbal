@@ -14,9 +14,6 @@ use function substr;
  */
 class Connection extends PDOConnection
 {
-    /**
-     * {@inheritDoc}
-     */
     public function lastInsertId(?string $name = null) : string
     {
         if ($name === null) {
@@ -29,9 +26,6 @@ class Connection extends PDOConnection
         return $stmt->fetchColumn();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function quote(string $input) : string
     {
         $val = parent::quote($input);
@@ -44,9 +38,6 @@ class Connection extends PDOConnection
         return $val;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected function createStatement(\PDOStatement $stmt) : PDOStatement
     {
         return new Statement($stmt);

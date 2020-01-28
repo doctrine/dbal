@@ -19,9 +19,6 @@ class StringType extends Type
         return $platform->getStringTypeDeclarationSQL($fieldDeclaration);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getName() : string
     {
         return Types::STRING;

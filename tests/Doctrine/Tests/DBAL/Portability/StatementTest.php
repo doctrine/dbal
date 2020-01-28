@@ -25,9 +25,6 @@ class StatementTest extends DbalTestCase
     /** @var DriverStatement|MockObject */
     protected $wrappedStmt;
 
-    /**
-     * {@inheritdoc}
-     */
     protected function setUp() : void
     {
         $this->wrappedStmt = $this->createMock(DriverStatement::class);

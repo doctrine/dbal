@@ -25,9 +25,6 @@ use function strtok;
  */
 class SQLServerSchemaManager extends AbstractSchemaManager
 {
-    /**
-     * {@inheritdoc}
-     */
     public function dropDatabase(string $database) : void
     {
         try {
@@ -100,11 +97,13 @@ class SQLServerSchemaManager extends AbstractSchemaManager
                 // Unicode data requires 2 bytes per character
                 $length /= 2;
                 break;
+
             case 'varchar':
                 // TEXT type is returned as VARCHAR(MAX) with a length of -1
                 if ($length === -1) {
                     $dbType = 'text';
                 }
+
                 break;
         }
 
@@ -275,9 +274,6 @@ class SQLServerSchemaManager extends AbstractSchemaManager
         return $this->_getPortableTableIndexesList($tableIndexes, $table);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function alterTable(TableDiff $tableDiff) : void
     {
         if (count($tableDiff->removedColumns) > 0) {
@@ -333,9 +329,9 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     {
         $table = parent::listTableDetails($tableName);
 
-        /** @var SQLServerPlatform $platform */
         $platform = $this->_platform;
-        $sql      = $platform->getListTableMetadataSQL($tableName);
+        assert($platform instanceof SQLServerPlatform);
+        $sql = $platform->getListTableMetadataSQL($tableName);
 
         $tableOptions = $this->_conn->fetchAssoc($sql);
 

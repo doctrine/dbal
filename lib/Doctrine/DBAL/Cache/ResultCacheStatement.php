@@ -69,9 +69,6 @@ final class ResultCacheStatement implements IteratorAggregate, ResultStatement
         $this->lifetime    = $lifetime;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function closeCursor() : void
     {
         $this->statement->closeCursor();
@@ -84,15 +81,13 @@ final class ResultCacheStatement implements IteratorAggregate, ResultStatement
         if (! $data) {
             $data = [];
         }
+
         $data[$this->realKey] = $this->data;
 
         $this->resultCache->save($this->cacheKey, $data, $this->lifetime);
         unset($this->data);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function columnCount() : int
     {
         return $this->statement->columnCount();

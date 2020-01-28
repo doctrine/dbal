@@ -12,9 +12,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
  */
 class SmallIntType extends Type implements PhpIntegerMappingType
 {
-    /**
-     * {@inheritdoc}
-     */
     public function getName() : string
     {
         return Types::SMALLINT;
@@ -36,9 +33,6 @@ class SmallIntType extends Type implements PhpIntegerMappingType
         return $value === null ? null : (int) $value;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getBindingType() : int
     {
         return ParameterType::INTEGER;

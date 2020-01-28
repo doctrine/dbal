@@ -731,9 +731,6 @@ class Connection implements DriverConnection
         return $this->getDatabasePlatform()->quoteIdentifier($identifier);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function quote(string $input) : string
     {
         return $this->getWrappedConnection()->quote($input);
@@ -872,9 +869,6 @@ class Connection implements DriverConnection
         return $stmt;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function query(string $sql) : ResultStatement
     {
         $connection = $this->getWrappedConnection();
@@ -926,6 +920,7 @@ class Connection implements DriverConnection
                 } else {
                     $stmt->execute($params);
                 }
+
                 $result = $stmt->rowCount();
             } else {
                 $result = $connection->exec($query);
@@ -939,9 +934,6 @@ class Connection implements DriverConnection
         return $result;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function exec(string $statement) : int
     {
         $connection = $this->getWrappedConnection();
@@ -1011,6 +1003,7 @@ class Connection implements DriverConnection
             return $res;
         } catch (Throwable $e) {
             $this->rollBack();
+
             throw $e;
         }
     }
@@ -1052,9 +1045,6 @@ class Connection implements DriverConnection
         return 'DOCTRINE2_SAVEPOINT_' . $this->transactionNestingLevel;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function beginTransaction() : void
     {
         $connection = $this->getWrappedConnection();
@@ -1089,6 +1079,7 @@ class Connection implements DriverConnection
         if ($this->transactionNestingLevel === 0) {
             throw NoActiveTransaction::new();
         }
+
         if ($this->isRollbackOnly) {
             throw CommitFailedRollbackOnly::new();
         }
@@ -1269,6 +1260,7 @@ class Connection implements DriverConnection
         if ($this->transactionNestingLevel === 0) {
             throw NoActiveTransaction::new();
         }
+
         $this->isRollbackOnly = true;
     }
 
@@ -1341,6 +1333,7 @@ class Connection implements DriverConnection
                 } else {
                     $stmt->bindValue($bindIndex, $value);
                 }
+
                 ++$bindIndex;
             }
         } else {
@@ -1370,6 +1363,7 @@ class Connection implements DriverConnection
         if (is_string($type)) {
             $type = Type::getType($type);
         }
+
         if ($type instanceof Type) {
             $value       = $type->convertToDatabaseValue($value, $this->getDatabasePlatform());
             $bindingType = $type->getBindingType();
@@ -1409,6 +1403,7 @@ class Connection implements DriverConnection
                 } else {
                     $resolvedParams[$bindIndex] = $value;
                 }
+
                 ++$bindIndex;
             }
         } else {

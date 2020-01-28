@@ -15,9 +15,6 @@ use Doctrine\DBAL\Types\Exception\InvalidType;
  */
 class DateType extends Type
 {
-    /**
-     * {@inheritdoc}
-     */
     public function getName() : string
     {
         return Types::DATE_MUTABLE;

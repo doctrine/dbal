@@ -15,9 +15,6 @@ use Doctrine\DBAL\Types\Exception\InvalidType;
  */
 class TimeType extends Type
 {
-    /**
-     * {@inheritdoc}
-     */
     public function getName() : string
     {
         return Types::TIME_MUTABLE;

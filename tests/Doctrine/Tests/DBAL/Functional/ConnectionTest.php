@@ -64,13 +64,16 @@ class ConnectionTest extends DbalFunctionalTestCase
             try {
                 $this->connection->beginTransaction();
                 self::assertEquals(2, $this->connection->getTransactionNestingLevel());
+
                 throw new Exception();
+
                 $this->connection->commit(); // never reached
             } catch (Throwable $e) {
                 $this->connection->rollBack();
                 self::assertEquals(1, $this->connection->getTransactionNestingLevel());
                 //no rethrow
             }
+
             self::assertTrue($this->connection->isRollbackOnly());
 
             $this->connection->commit(); // should throw exception
@@ -134,13 +137,16 @@ class ConnectionTest extends DbalFunctionalTestCase
                 self::assertEquals(3, $this->connection->getTransactionNestingLevel());
                 $this->connection->commit();
                 self::assertEquals(2, $this->connection->getTransactionNestingLevel());
+
                 throw new Exception();
+
                 $this->connection->commit(); // never reached
             } catch (Throwable $e) {
                 $this->connection->rollBack();
                 self::assertEquals(1, $this->connection->getTransactionNestingLevel());
                 //no rethrow
             }
+
             self::assertFalse($this->connection->isRollbackOnly());
             try {
                 $this->connection->setNestTransactionsWithSavepoints(false);
@@ -148,6 +154,7 @@ class ConnectionTest extends DbalFunctionalTestCase
             } catch (ConnectionException $e) {
                 self::assertTrue($this->connection->getNestTransactionsWithSavepoints());
             }
+
             $this->connection->commit(); // should not throw exception
         } catch (ConnectionException $e) {
             $this->fail('Transaction commit after failed nested transaction should not fail when using savepoints.');
@@ -250,6 +257,7 @@ class ConnectionTest extends DbalFunctionalTestCase
             $this->connection->transactional(static function ($conn) : void {
                 /** @var Connection $conn */
                 $conn->executeQuery($conn->getDatabasePlatform()->getDummySelectSQL());
+
                 throw new RuntimeException('Ooops!');
             });
             $this->fail('Expected exception');
@@ -264,6 +272,7 @@ class ConnectionTest extends DbalFunctionalTestCase
             $this->connection->transactional(static function ($conn) : void {
                 /** @var Connection $conn */
                 $conn->executeQuery($conn->getDatabasePlatform()->getDummySelectSQL());
+
                 throw new Error('Ooops!');
             });
             $this->fail('Expected exception');

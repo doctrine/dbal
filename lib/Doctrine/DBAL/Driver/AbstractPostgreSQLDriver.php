@@ -35,6 +35,7 @@ abstract class AbstractPostgreSQLDriver implements ExceptionConverterDriver, Ver
             case '40001':
             case '40P01':
                 return new Exception\DeadlockException($message, $exception);
+
             case '0A000':
                 // Foreign key constraint violations during a TRUNCATE operation
                 // are considered "feature not supported" in PostgreSQL.
@@ -43,6 +44,7 @@ abstract class AbstractPostgreSQLDriver implements ExceptionConverterDriver, Ver
                 }
 
                 break;
+
             case '23502':
                 return new Exception\NotNullConstraintViolationException($message, $exception);
 
@@ -78,9 +80,6 @@ abstract class AbstractPostgreSQLDriver implements ExceptionConverterDriver, Ver
         return new DriverException($message, $exception);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function createDatabasePlatformForVersion(string $version) : AbstractPlatform
     {
         if (! preg_match('/^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?)?/', $version, $versionParts)) {
@@ -102,17 +101,11 @@ abstract class AbstractPostgreSQLDriver implements ExceptionConverterDriver, Ver
         return new PostgreSqlPlatform();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getDatabasePlatform() : AbstractPlatform
     {
         return new PostgreSqlPlatform();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getSchemaManager(Connection $conn) : AbstractSchemaManager
     {
         return new PostgreSqlSchemaManager($conn);

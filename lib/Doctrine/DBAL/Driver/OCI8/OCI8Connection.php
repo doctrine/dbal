@@ -9,7 +9,6 @@ use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use UnexpectedValueException;
-use const OCI_DEFAULT;
 use function addcslashes;
 use function oci_commit;
 use function oci_connect;
@@ -20,6 +19,7 @@ use function oci_server_version;
 use function preg_match;
 use function sprintf;
 use function str_replace;
+use const OCI_DEFAULT;
 
 /**
  * OCI8 implementation of the Connection interface.
@@ -84,17 +84,11 @@ final class OCI8Connection implements Connection, ServerInfoAwareConnection
         return $matches[1];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function prepare(string $sql) : DriverStatement
     {
         return new OCI8Statement($this->dbh, $sql, $this->executionMode);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function query(string $sql) : ResultStatement
     {
         $stmt = $this->prepare($sql);
@@ -103,17 +97,11 @@ final class OCI8Connection implements Connection, ServerInfoAwareConnection
         return $stmt;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function quote(string $input) : string
     {
         return "'" . addcslashes(str_replace("'", "''", $input), "\000\n\r\\\032") . "'";
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function exec(string $statement) : int
     {
         $stmt = $this->prepare($statement);
@@ -122,9 +110,6 @@ final class OCI8Connection implements Connection, ServerInfoAwareConnection
         return $stmt->rowCount();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function lastInsertId(?string $name = null) : string
     {
         if ($name === null) {
@@ -142,17 +127,11 @@ final class OCI8Connection implements Connection, ServerInfoAwareConnection
         return $result;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function beginTransaction() : void
     {
         $this->executionMode->disableAutoCommit();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function commit() : void
     {
         if (! oci_commit($this->dbh)) {
@@ -162,9 +141,6 @@ final class OCI8Connection implements Connection, ServerInfoAwareConnection
         $this->executionMode->enableAutoCommit();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function rollBack() : void
     {
         if (! oci_rollback($this->dbh)) {

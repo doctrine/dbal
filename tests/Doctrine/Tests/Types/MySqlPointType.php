@@ -10,9 +10,6 @@ use function strtoupper;
 
 class MySqlPointType extends Type
 {
-    /**
-     * {@inheritDoc}
-     */
     public function getName() : string
     {
         return 'point';

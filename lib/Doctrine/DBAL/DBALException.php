@@ -51,6 +51,7 @@ MESSAGE;
         if ($driverEx instanceof DriverException) {
             return $driverEx;
         }
+
         if ($driver instanceof ExceptionConverterDriver && $driverEx instanceof DriverExceptionInterface) {
             return $driver->convertException($msg, $driverEx);
         }

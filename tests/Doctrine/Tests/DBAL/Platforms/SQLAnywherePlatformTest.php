@@ -1077,33 +1077,21 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL() : string
     {
         return 'CONSTRAINT "select" UNIQUE (foo)';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getQuotesReservedKeywordInIndexDeclarationSQL() : string
     {
         return ''; // not supported by this platform
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getQuotesReservedKeywordInTruncateTableSQL() : string
     {
         return 'TRUNCATE TABLE "select"';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function supportsInlineIndexDeclaration() : bool
     {
         return false;

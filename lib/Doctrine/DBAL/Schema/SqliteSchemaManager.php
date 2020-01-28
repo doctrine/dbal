@@ -9,7 +9,6 @@ use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
 use Doctrine\DBAL\Types\Type;
-use const CASE_LOWER;
 use function array_change_key_case;
 use function array_reverse;
 use function array_values;
@@ -28,15 +27,13 @@ use function strtolower;
 use function trim;
 use function unlink;
 use function usort;
+use const CASE_LOWER;
 
 /**
  * Sqlite SchemaManager.
  */
 class SqliteSchemaManager extends AbstractSchemaManager
 {
-    /**
-     * {@inheritdoc}
-     */
     public function dropDatabase(string $database) : void
     {
         if (! file_exists($database)) {
@@ -46,9 +43,6 @@ class SqliteSchemaManager extends AbstractSchemaManager
         unlink($database);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function createDatabase(string $database) : void
     {
         $params  = $this->_conn->getParams();
@@ -62,9 +56,6 @@ class SqliteSchemaManager extends AbstractSchemaManager
         $conn->close();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function renameTable(string $name, string $newName) : void
     {
         $tableDiff            = new TableDiff($name);
@@ -127,6 +118,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
         if ($database === null) {
             $database = $this->_conn->getDatabase();
         }
+
         $sql              = $this->_platform->getListTableForeignKeysSQL($table, $database);
         $tableForeignKeys = $this->_conn->fetchAll($sql);
 
@@ -377,6 +369,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
                 if (! isset($value['on_delete']) || $value['on_delete'] === 'RESTRICT') {
                     $value['on_delete'] = null;
                 }
+
                 if (! isset($value['on_update']) || $value['on_update'] === 'RESTRICT') {
                     $value['on_update'] = null;
                 }
@@ -392,6 +385,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
                     'deferred'=> $value['deferred'],
                 ];
             }
+
             $list[$name]['local'][]   = $value['from'];
             $list[$name]['foreign'][] = $value['to'];
         }

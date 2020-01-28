@@ -13,9 +13,6 @@ use Doctrine\DBAL\Types\Types;
  */
 class MySQL57Platform extends MySqlPlatform
 {
-    /**
-     * {@inheritdoc}
-     */
     public function hasNativeJsonType() : bool
     {
         return true;
@@ -53,17 +50,11 @@ class MySQL57Platform extends MySqlPlatform
         return ['ALTER TABLE ' . $tableName . ' RENAME INDEX ' . $oldIndexName . ' TO ' . $index->getQuotedName($this)];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getReservedKeywordsClass() : string
     {
         return Keywords\MySQL57Keywords::class;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function initializeDoctrineTypeMappings() : void
     {
         parent::initializeDoctrineTypeMappings();

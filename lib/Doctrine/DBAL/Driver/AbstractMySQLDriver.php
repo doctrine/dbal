@@ -93,16 +93,15 @@ abstract class AbstractMySQLDriver implements ExceptionConverterDriver, VersionA
     private const CR_UNKNOWN_HOST     = 2005;
     /**#@-*/
 
-    /**
-     * {@inheritdoc}
-     */
     public function convertException(string $message, DriverExceptionInterface $exception) : DriverException
     {
         switch ($exception->getCode()) {
             case self::ER_LOCK_DEADLOCK:
                 return new Exception\DeadlockException($message, $exception);
+
             case self::ER_LOCK_WAIT_TIMEOUT:
                 return new Exception\LockWaitTimeoutException($message, $exception);
+
             case self::ER_TABLE_EXISTS_ERROR:
                 return new Exception\TableExistsException($message, $exception);
 
@@ -192,6 +191,7 @@ abstract class AbstractMySQLDriver implements ExceptionConverterDriver, VersionA
             if (version_compare($oracleMysqlVersion, '8', '>=')) {
                 return new MySQL80Platform();
             }
+
             if (version_compare($oracleMysqlVersion, '5.7.9', '>=')) {
                 return new MySQL57Platform();
             }
@@ -220,6 +220,7 @@ abstract class AbstractMySQLDriver implements ExceptionConverterDriver, VersionA
                 '<major_version>.<minor_version>.<patch_version>'
             );
         }
+
         $majorVersion = $versionParts['major'];
         $minorVersion = $versionParts['minor'] ?? 0;
         $patchVersion = $versionParts['patch'] ?? null;

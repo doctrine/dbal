@@ -15,9 +15,6 @@ use function date_create_immutable;
  */
 class DateTimeImmutableType extends DateTimeType
 {
-    /**
-     * {@inheritdoc}
-     */
     public function getName() : string
     {
         return Types::DATETIME_IMMUTABLE;
@@ -69,9 +66,6 @@ class DateTimeImmutableType extends DateTimeType
         return $dateTime;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function requiresSQLCommentHint(AbstractPlatform $platform) : bool
     {
         return true;

@@ -21,9 +21,6 @@ final class DateIntervalTest extends DbalTestCase
     /** @var DateIntervalType */
     private $type;
 
-    /**
-     * {@inheritDoc}
-     */
     protected function setUp() : void
     {
         $this->platform = $this->createMock(AbstractPlatform::class);

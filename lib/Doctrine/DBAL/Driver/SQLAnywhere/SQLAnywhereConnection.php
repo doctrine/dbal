@@ -81,9 +81,6 @@ final class SQLAnywhereConnection implements ServerInfoAwareConnection
         $this->endTransaction();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function exec(string $statement) : int
     {
         if (sasql_real_query($this->connection, $statement) === false) {
@@ -93,9 +90,6 @@ final class SQLAnywhereConnection implements ServerInfoAwareConnection
         return sasql_affected_rows($this->connection);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getServerVersion() : string
     {
         $version = $this->query("SELECT PROPERTY('ProductVersion')")->fetchColumn();
@@ -105,9 +99,6 @@ final class SQLAnywhereConnection implements ServerInfoAwareConnection
         return $version;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function lastInsertId(?string $name = null) : string
     {
         if ($name === null) {
@@ -117,17 +108,11 @@ final class SQLAnywhereConnection implements ServerInfoAwareConnection
         return $this->query('SELECT ' . $name . '.CURRVAL')->fetchColumn();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function prepare(string $sql) : DriverStatement
     {
         return new SQLAnywhereStatement($this->connection, $sql);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function query(string $sql) : ResultStatement
     {
         $stmt = $this->prepare($sql);
@@ -136,9 +121,6 @@ final class SQLAnywhereConnection implements ServerInfoAwareConnection
         return $stmt;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function quote(string $input) : string
     {
         return "'" . sasql_escape_string($this->connection, $input) . "'";

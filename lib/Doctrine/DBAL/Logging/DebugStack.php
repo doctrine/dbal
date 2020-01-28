@@ -44,9 +44,6 @@ final class DebugStack implements SQLLogger
         $this->queries[++$this->currentQuery] = ['sql' => $sql, 'params' => $params, 'types' => $types, 'executionMS' => 0];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function stopQuery() : void
     {
         if (! $this->enabled) {

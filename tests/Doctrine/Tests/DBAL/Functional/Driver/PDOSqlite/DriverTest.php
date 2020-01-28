@@ -26,17 +26,11 @@ class DriverTest extends AbstractDriverTest
         $this->markTestSkipped('pdo_sqlite only test.');
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function testReturnsDatabaseNameWithoutDatabaseNameParameter() : void
     {
         $this->markTestSkipped('SQLite does not support the concept of a database.');
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function createDriver() : DriverInterface
     {
         return new Driver();

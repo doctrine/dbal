@@ -20,9 +20,6 @@ use Doctrine\DBAL\Schema\OracleSchemaManager;
  */
 abstract class AbstractOracleDriver implements Driver, ExceptionConverterDriver
 {
-    /**
-     * {@inheritdoc}
-     */
     public function convertException(string $message, DriverExceptionInterface $exception) : DriverException
     {
         switch ($exception->getCode()) {
@@ -63,17 +60,11 @@ abstract class AbstractOracleDriver implements Driver, ExceptionConverterDriver
         return new DriverException($message, $exception);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getDatabasePlatform() : AbstractPlatform
     {
         return new OraclePlatform();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getSchemaManager(Connection $conn) : AbstractSchemaManager
     {
         return new OracleSchemaManager($conn);

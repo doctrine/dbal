@@ -44,9 +44,6 @@ class MySqlPlatform extends AbstractPlatform
     public const LENGTH_LIMIT_BLOB       = 65535;
     public const LENGTH_LIMIT_MEDIUMBLOB = 16777215;
 
-    /**
-     * {@inheritDoc}
-     */
     protected function doModifyLimitQuery(string $query, ?int $limit, int $offset) : string
     {
         if ($limit !== null) {
@@ -63,25 +60,16 @@ class MySqlPlatform extends AbstractPlatform
         return $query;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getIdentifierQuoteCharacter() : string
     {
         return '`';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getRegexpExpression() : string
     {
         return 'RLIKE';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getLocateExpression(string $string, string $substring, ?string $start = null) : string
     {
         if ($start === null) {
@@ -91,17 +79,11 @@ class MySqlPlatform extends AbstractPlatform
         return sprintf('LOCATE(%s, %s, %s)', $substring, $string, $start);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getConcatExpression(string ...$string) : string
     {
         return sprintf('CONCAT(%s)', implode(', ', $string));
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getDateArithmeticIntervalExpression(string $date, string $operator, string $interval, string $unit) : string
     {
         $function = $operator === '+' ? 'DATE_ADD' : 'DATE_SUB';
@@ -109,33 +91,21 @@ class MySqlPlatform extends AbstractPlatform
         return $function . '(' . $date . ', INTERVAL ' . $interval . ' ' . $unit . ')';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getDateDiffExpression(string $date1, string $date2) : string
     {
         return 'DATEDIFF(' . $date1 . ', ' . $date2 . ')';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getCurrentDatabaseExpression() : string
     {
         return 'DATABASE()';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getListDatabasesSQL() : string
     {
         return 'SHOW DATABASES';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getListTableConstraintsSQL(string $table) : string
     {
         return 'SHOW INDEX FROM ' . $table;
@@ -163,17 +133,11 @@ class MySqlPlatform extends AbstractPlatform
         return 'SHOW INDEX FROM ' . $table;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getListViewsSQL(string $database) : string
     {
         return 'SELECT * FROM information_schema.VIEWS WHERE TABLE_SCHEMA = ' . $this->quoteStringLiteral($database);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getListTableForeignKeysSQL(string $table, ?string $database = null) : string
     {
         $table = $this->quoteStringLiteral($table);
@@ -193,17 +157,11 @@ class MySqlPlatform extends AbstractPlatform
         return $sql;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getCreateViewSQL(string $name, string $sql) : string
     {
         return 'CREATE VIEW ' . $name . ' AS ' . $sql;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getDropViewSQL(string $name) : string
     {
         return 'DROP VIEW ' . $name;
@@ -296,33 +254,21 @@ class MySqlPlatform extends AbstractPlatform
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function supportsInlineColumnComments() : bool
     {
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function supportsColumnCollation() : bool
     {
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getListTablesSQL() : string
     {
         return "SHOW FULL TABLES WHERE Table_type = 'BASE TABLE'";
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getListTableColumnsSQL(string $table, ?string $database = null) : string
     {
         return 'SELECT COLUMN_NAME AS Field, COLUMN_TYPE AS Type, IS_NULLABLE AS `Null`, ' .
@@ -346,17 +292,11 @@ SQL
         );
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getCreateDatabaseSQL(string $database) : string
     {
         return 'CREATE DATABASE ' . $database;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getDropDatabaseSQL(string $database) : string
     {
         return 'DROP DATABASE ' . $database;
@@ -580,6 +520,7 @@ SQL
             if (count($queryParts) > 0) {
                 $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . implode(', ', $queryParts);
             }
+
             $sql = array_merge(
                 $this->getPreAlterTableIndexForeignKeySQL($diff),
                 $sql,
@@ -823,9 +764,6 @@ SQL
         return $sql;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected function getCreateIndexSQLFlags(Index $index) : string
     {
         $type = '';
@@ -903,31 +841,23 @@ SQL
         return $this->getUnsignedDeclaration($columnDef) . $autoinc;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getColumnCharsetDeclarationSQL(string $charset) : string
     {
         return 'CHARACTER SET ' . $charset;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getColumnCollationDeclarationSQL(string $collation) : string
     {
         return 'COLLATE ' . $this->quoteSingleIdentifier($collation);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey) : string
     {
         $query = '';
         if ($foreignKey->hasOption('match')) {
             $query .= ' MATCH ' . $foreignKey->getOption('match');
         }
+
         $query .= parent::getAdvancedForeignKeyOptionsSQL($foreignKey);
 
         return $query;
@@ -966,33 +896,21 @@ SQL
         return 'ALTER TABLE ' . $table . ' DROP PRIMARY KEY';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getSetTransactionIsolationSQL(int $level) : string
     {
         return 'SET SESSION TRANSACTION ISOLATION LEVEL ' . $this->_getTransactionIsolationLevelSQL($level);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getName() : string
     {
         return 'mysql';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getReadLockSQL() : string
     {
         return 'LOCK IN SHARE MODE';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected function initializeDoctrineTypeMappings() : void
     {
         $this->doctrineTypeMapping = [
@@ -1029,9 +947,6 @@ SQL
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected function getReservedKeywordsClass() : string
     {
         return Keywords\MySQLKeywords::class;
@@ -1084,9 +999,6 @@ SQL
         return 'LONGBLOB';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function quoteStringLiteral(string $str) : string
     {
         $str = str_replace('\\', '\\\\', $str); // MySQL requires backslashes to be escaped aswell.
@@ -1094,17 +1006,11 @@ SQL
         return parent::quoteStringLiteral($str);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getDefaultTransactionIsolationLevel() : int
     {
         return TransactionIsolationLevel::REPEATABLE_READ;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function supportsColumnLengthIndexes() : bool
     {
         return true;

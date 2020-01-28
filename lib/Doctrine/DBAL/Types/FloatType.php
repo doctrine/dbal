@@ -8,9 +8,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 class FloatType extends Type
 {
-    /**
-     * {@inheritdoc}
-     */
     public function getName() : string
     {
         return Types::FLOAT;

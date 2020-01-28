@@ -15,7 +15,6 @@ use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use InvalidArgumentException;
-use const PREG_OFFSET_CAPTURE;
 use function array_merge;
 use function array_unique;
 use function array_values;
@@ -36,6 +35,7 @@ use function str_replace;
 use function strpos;
 use function strtoupper;
 use function substr_count;
+use const PREG_OFFSET_CAPTURE;
 
 /**
  * The SQLServerPlatform provides the behavior, features and SQL dialect of the
@@ -43,17 +43,11 @@ use function substr_count;
  */
 class SQLServerPlatform extends AbstractPlatform
 {
-    /**
-     * {@inheritdoc}
-     */
     public function getCurrentDateSQL() : string
     {
         return $this->getConvertExpression('date', 'GETDATE()');
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getCurrentTimeSQL() : string
     {
         return $this->getConvertExpression('time', 'GETDATE()');
@@ -70,9 +64,6 @@ class SQLServerPlatform extends AbstractPlatform
         return sprintf('CONVERT(%s, %s)', $dataType, $expression);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getDateArithmeticIntervalExpression(string $date, string $operator, string $interval, string $unit) : string
     {
         $factorClause = '';
@@ -84,9 +75,6 @@ class SQLServerPlatform extends AbstractPlatform
         return 'DATEADD(' . $unit . ', ' . $factorClause . $interval . ', ' . $date . ')';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getDateDiffExpression(string $date1, string $date2) : string
     {
         return 'DATEDIFF(day, ' . $date2 . ',' . $date1 . ')';
@@ -113,58 +101,37 @@ class SQLServerPlatform extends AbstractPlatform
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function supportsReleaseSavepoints() : bool
     {
         return false;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function supportsSchemas() : bool
     {
         return true;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getDefaultSchemaName() : string
     {
         return 'dbo';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function supportsColumnCollation() : bool
     {
         return true;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function supportsSequences() : bool
     {
         return true;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getAlterSequenceSQL(Sequence $sequence) : string
     {
         return 'ALTER SEQUENCE ' . $sequence->getQuotedName($this) .
             ' INCREMENT BY ' . $sequence->getAllocationSize();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getCreateSequenceSQL(Sequence $sequence) : string
     {
         return 'CREATE SEQUENCE ' . $sequence->getQuotedName($this) .
@@ -185,9 +152,6 @@ class SQLServerPlatform extends AbstractPlatform
         return 'DROP SEQUENCE ' . $sequence;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getListSequencesSQL(string $database) : string
     {
         return 'SELECT seq.name,
@@ -200,49 +164,31 @@ class SQLServerPlatform extends AbstractPlatform
                 FROM   sys.sequences AS seq';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getSequenceNextValSQL(string $sequenceName) : string
     {
         return 'SELECT NEXT VALUE FOR ' . $sequenceName;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function hasNativeGuidType() : bool
     {
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getCreateDatabaseSQL(string $database) : string
     {
         return 'CREATE DATABASE ' . $database;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getDropDatabaseSQL(string $database) : string
     {
         return 'DROP DATABASE ' . $database;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function supportsCreateDropDatabase() : bool
     {
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getCreateSchemaSQL(string $schemaName) : string
     {
         return 'CREATE SCHEMA ' . $schemaName;
@@ -351,6 +297,7 @@ SQL
             if (isset($options['primary_index']) && $options['primary_index']->hasFlag('nonclustered')) {
                 $flags = ' NONCLUSTERED';
             }
+
             $columnListSql .= ', PRIMARY KEY' . $flags . ' (' . implode(', ', array_unique(array_values($options['primary']))) . ')';
         }
 
@@ -360,6 +307,7 @@ SQL
         if (! empty($check)) {
             $query .= ', ' . $check;
         }
+
         $query .= ')';
 
         $sql = [$query];
@@ -473,9 +421,6 @@ SQL
         return $constraint;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected function getCreateIndexSQLFlags(Index $index) : string
     {
         $type = '';
@@ -913,17 +858,11 @@ SQL
             'N' . $this->quoteStringLiteral((string) $level2Type) . ', ' . $level2Name;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getEmptyIdentityInsertSQL(string $tableName, string $identifierColumnName) : string
     {
         return 'INSERT INTO ' . $tableName . ' DEFAULT VALUES';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getListTablesSQL() : string
     {
         // "sysdiagrams" table must be ignored as it's internal SQL Server table for Database Diagrams
@@ -931,9 +870,6 @@ SQL
         return "SELECT name, SCHEMA_NAME (uid) AS schema_name FROM sysobjects WHERE type = 'U' AND name != 'sysdiagrams' AND category != 2 ORDER BY name";
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getListTableColumnsSQL(string $table, ?string $database = null) : string
     {
         return "SELECT    col.name,
@@ -964,9 +900,6 @@ SQL
                 AND       " . $this->getTableWhereClause($table, 'scm.name', 'obj.name');
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getListTableForeignKeysSQL(string $table, ?string $database = null) : string
     {
         return 'SELECT f.name AS ForeignKey,
@@ -986,9 +919,6 @@ SQL
                 $this->getTableWhereClause($table, 'SCHEMA_NAME (f.schema_id)', 'OBJECT_NAME (f.parent_object_id)');
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getListTableIndexesSQL(string $table, ?string $currentDatabase = null) : string
     {
         return "SELECT idx.name AS key_name,
@@ -1009,17 +939,11 @@ SQL
                 ORDER BY idx.index_id ASC, idxcol.key_ordinal ASC';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getCreateViewSQL(string $name, string $sql) : string
     {
         return 'CREATE VIEW ' . $name . ' AS ' . $sql;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getListViewsSQL(string $database) : string
     {
         return "SELECT name FROM sysobjects WHERE type = 'V' ORDER BY name";
@@ -1046,17 +970,11 @@ SQL
         return sprintf('(%s = %s AND %s = %s)', $tableColumn, $table, $schemaColumn, $schema);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getDropViewSQL(string $name) : string
     {
         return 'DROP VIEW ' . $name;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getLocateExpression(string $string, string $substring, ?string $start = null) : string
     {
         if ($start === null) {
@@ -1066,17 +984,11 @@ SQL
         return sprintf('CHARINDEX(%s, %s, %s)', $substring, $string, $start);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getModExpression(string $dividend, string $divisor) : string
     {
         return $dividend . ' % ' . $divisor;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getTrimExpression(string $str, int $mode = TrimMode::UNSPECIFIED, ?string $char = null) : string
     {
         if (! in_array($mode, [TrimMode::UNSPECIFIED, TrimMode::LEADING, TrimMode::TRAILING, TrimMode::BOTH], true)) {
@@ -1120,33 +1032,21 @@ SQL
         return 'reverse(stuff(reverse(stuff(' . $str . ', 1, patindex(' . $pattern . ', ' . $str . ') - 1, null)), 1, patindex(' . $pattern . ', reverse(stuff(' . $str . ', 1, patindex(' . $pattern . ', ' . $str . ') - 1, null))) - 1, null))';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getConcatExpression(string ...$string) : string
     {
         return '(' . implode(' + ', $string) . ')';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getListDatabasesSQL() : string
     {
         return 'SELECT * FROM sys.databases';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getListNamespacesSQL() : string
     {
         return "SELECT name FROM sys.schemas WHERE name NOT IN('guest', 'INFORMATION_SCHEMA', 'sys')";
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getSubstringExpression(string $string, string $start, ?string $length = null) : string
     {
         if ($length === null) {
@@ -1156,25 +1056,16 @@ SQL
         return sprintf('SUBSTRING(%s, %s, %s)', $string, $start, $length);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getLengthExpression(string $string) : string
     {
         return 'LEN(' . $string . ')';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getCurrentDatabaseExpression() : string
     {
         return 'DB_NAME()';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getSetTransactionIsolationSQL(int $level) : string
     {
         return 'SET TRANSACTION ISOLATION LEVEL ' . $this->_getTransactionIsolationLevelSQL($level);
@@ -1220,9 +1111,6 @@ SQL
         return 'DATETIMEOFFSET(6)';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected function getCharTypeDeclarationSQLSnippet(?int $length) : string
     {
         $sql = 'NCHAR';
@@ -1234,9 +1122,6 @@ SQL
         return $sql;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected function getVarcharTypeDeclarationSQLSnippet(?int $length) : string
     {
         if ($length === null) {
@@ -1296,9 +1181,6 @@ SQL
         return 'BIT';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected function doModifyLimitQuery(string $query, ?int $limit, int $offset) : string
     {
         if ($limit === null && $offset <= 0) {
@@ -1312,7 +1194,7 @@ SQL
         $matchesCount = preg_match_all('/[\\s]+order\\s+by\\s/im', $query, $matches, PREG_OFFSET_CAPTURE);
         $orderByPos   = false;
         if ($matchesCount > 0) {
-            $orderByPos = $matches[0][($matchesCount - 1)][1];
+            $orderByPos = $matches[0][$matchesCount - 1][1];
         }
 
         if ($orderByPos === false
@@ -1344,9 +1226,6 @@ SQL
         return $query;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function supportsLimitOffset() : bool
     {
         return true;
@@ -1372,65 +1251,41 @@ SQL
         return $item;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getCreateTemporaryTableSnippetSQL() : string
     {
         return 'CREATE TABLE';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getTemporaryTableName(string $tableName) : string
     {
         return '#' . $tableName;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getDateTimeFormatString() : string
     {
         return 'Y-m-d H:i:s.u';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getDateFormatString() : string
     {
         return 'Y-m-d';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getTimeFormatString() : string
     {
         return 'H:i:s';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getDateTimeTzFormatString() : string
     {
         return 'Y-m-d H:i:s.u P';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getName() : string
     {
         return 'mssql';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected function initializeDoctrineTypeMappings() : void
     {
         $this->doctrineTypeMapping = [
@@ -1466,33 +1321,21 @@ SQL
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function createSavePoint(string $savepoint) : string
     {
         return 'SAVE TRANSACTION ' . $savepoint;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function releaseSavePoint(string $savepoint) : string
     {
         return '';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function rollbackSavePoint(string $savepoint) : string
     {
         return 'ROLLBACK TRANSACTION ' . $savepoint;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getForeignKeyReferentialActionSQL(string $action) : string
     {
         // RESTRICT is not supported, therefore falling back to NO ACTION.
@@ -1503,9 +1346,6 @@ SQL
         return parent::getForeignKeyReferentialActionSQL($action);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function appendLockHint(string $fromClause, ?int $lockMode) : string
     {
         switch (true) {
@@ -1523,33 +1363,21 @@ SQL
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getForUpdateSQL() : string
     {
         return ' ';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected function getReservedKeywordsClass() : string
     {
         return Keywords\SQLServerKeywords::class;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function quoteSingleIdentifier(string $str) : string
     {
         return '[' . str_replace(']', '][', $str) . ']';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getTruncateTableSQL(string $tableName, bool $cascade = false) : string
     {
         $tableIdentifier = new Identifier($tableName);
@@ -1593,9 +1421,6 @@ SQL
         return $name . ' ' . $columnDef;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getLikeWildcardCharacters() : string
     {
         return parent::getLikeWildcardCharacters() . '[]^';

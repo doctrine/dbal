@@ -11,9 +11,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
  */
 class DecimalType extends Type
 {
-    /**
-     * {@inheritdoc}
-     */
     public function getName() : string
     {
         return Types::DECIMAL;

@@ -25,17 +25,11 @@ final class RemoveNamespacedAssets extends AbstractVisitor
     /** @var Schema */
     private $schema;
 
-    /**
-     * {@inheritdoc}
-     */
     public function acceptSchema(Schema $schema) : void
     {
         $this->schema = $schema;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function acceptTable(Table $table) : void
     {
         if ($table->isInDefaultNamespace($this->schema->getName())) {
@@ -45,9 +39,6 @@ final class RemoveNamespacedAssets extends AbstractVisitor
         $this->schema->dropTable($table->getName());
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function acceptSequence(Sequence $sequence) : void
     {
         if ($sequence->isInDefaultNamespace($this->schema->getName())) {
@@ -57,9 +48,6 @@ final class RemoveNamespacedAssets extends AbstractVisitor
         $this->schema->dropSequence($sequence->getName());
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint) : void
     {
         // The table may already be deleted in a previous

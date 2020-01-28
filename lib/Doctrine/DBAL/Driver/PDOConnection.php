@@ -32,9 +32,6 @@ class PDOConnection implements ServerInfoAwareConnection
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function exec(string $statement) : int
     {
         try {
@@ -44,17 +41,11 @@ class PDOConnection implements ServerInfoAwareConnection
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getServerVersion() : string
     {
         return $this->connection->getAttribute(PDO::ATTR_SERVER_VERSION);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function prepare(string $sql) : Statement
     {
         try {
@@ -66,9 +57,6 @@ class PDOConnection implements ServerInfoAwareConnection
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function query(string $sql) : ResultStatement
     {
         try {
@@ -81,17 +69,11 @@ class PDOConnection implements ServerInfoAwareConnection
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function quote(string $input) : string
     {
         return $this->connection->quote($input);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function lastInsertId(?string $name = null) : string
     {
         try {
@@ -113,25 +95,16 @@ class PDOConnection implements ServerInfoAwareConnection
         return new PDOStatement($stmt);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function beginTransaction() : void
     {
         $this->connection->beginTransaction();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function commit() : void
     {
         $this->connection->commit();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function rollBack() : void
     {
         $this->connection->rollBack();
