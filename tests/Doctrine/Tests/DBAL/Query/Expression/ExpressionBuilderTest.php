@@ -33,7 +33,19 @@ class ExpressionBuilderTest extends DbalTestCase
      */
     public function testAnd(array $parts, string $expected) : void
     {
-        $composite = $this->expr->and();
+        $composite = $this->expr->and(...$parts);
+
+        self::assertEquals($expected, (string) $composite);
+    }
+
+    /**
+     * @param string[]|CompositeExpression[] $parts
+     *
+     * @dataProvider provideDataForAnd
+     */
+    public function testAndX(array $parts, string $expected) : void
+    {
+        $composite = $this->expr->andX();
 
         foreach ($parts as $part) {
             $composite->add($part);
@@ -94,7 +106,19 @@ class ExpressionBuilderTest extends DbalTestCase
      */
     public function testOr(array $parts, string $expected) : void
     {
-        $composite = $this->expr->or();
+        $composite = $this->expr->or(...$parts);
+
+        self::assertEquals($expected, (string) $composite);
+    }
+
+    /**
+     * @param string[]|CompositeExpression[] $parts
+     *
+     * @dataProvider provideDataForOr
+     */
+    public function testOrX(array $parts, string $expected) : void
+    {
+        $composite = $this->expr->orX();
 
         foreach ($parts as $part) {
             $composite->add($part);
