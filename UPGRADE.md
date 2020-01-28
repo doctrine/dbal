@@ -9,6 +9,10 @@ The usage of the `andX()` and `orX()` methods of the `ExpressionBuilder` class h
 The usage of the `add()` and `addMultiple()` methods of the `CompositeExpression` class has been deprecated. Use `with()` instead, which returns a new instance.
 In the future, the `add*()` methods will be removed and the class will be effectively immutable.
 
+## Deprecated calling `QueryBuilder` methods with an array argument
+
+Calling the `select()`, `addSelect()`, `groupBy()` and `addGroupBy()` methods with an array argument is deprecated.
+
 # Upgrade to 2.10
 
 ## Deprecated `Doctrine\DBAL\Event\ConnectionEventArgs` methods
