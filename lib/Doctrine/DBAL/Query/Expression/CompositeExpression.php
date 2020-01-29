@@ -51,6 +51,8 @@ class CompositeExpression implements Countable
     /**
      * Adds multiple parts to composite expression.
      *
+     * @deprecated This class will be made immutable. Use with() instead.
+     *
      * @param array<int, self|string> $parts
      *
      * @return $this
@@ -66,6 +68,8 @@ class CompositeExpression implements Countable
 
     /**
      * Adds an expression to composite expression.
+     *
+     * @deprecated This class will be made immutable. Use with() instead.
      *
      * @param self|string $part
      *
@@ -84,6 +88,25 @@ class CompositeExpression implements Countable
         $this->parts[] = $part;
 
         return $this;
+    }
+
+    /**
+     * Returns a new CompositeExpression with the given parts added.
+     *
+     * @param self|string $part
+     * @param self|string ...$parts
+     */
+    public function with($part, ...$parts) : self
+    {
+        $that = clone $this;
+
+        $that->parts[] = $part;
+
+        foreach ($parts as $part) {
+            $that->parts[] = $part;
+        }
+
+        return $that;
     }
 
     /**

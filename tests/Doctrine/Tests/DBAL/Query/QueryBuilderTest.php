@@ -70,7 +70,7 @@ class QueryBuilderTest extends DbalTestCase
 
         $qb->select('u.id')
            ->from('users', 'u')
-           ->where($expr->andX($expr->eq('u.nickname', '?')));
+           ->where($expr->and($expr->eq('u.nickname', '?')));
 
         self::assertEquals('SELECT u.id FROM users u WHERE u.nickname = ?', (string) $qb);
     }

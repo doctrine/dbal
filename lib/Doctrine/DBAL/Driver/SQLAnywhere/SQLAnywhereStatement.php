@@ -17,7 +17,6 @@ use stdClass;
 use function array_key_exists;
 use function assert;
 use function count;
-use function func_get_args;
 use function is_array;
 use function is_int;
 use function is_object;
@@ -228,7 +227,7 @@ final class SQLAnywhereStatement implements IteratorAggregate, Statement
 
         switch ($fetchMode) {
             case FetchMode::CUSTOM_OBJECT:
-                while (($row = $this->fetch(...func_get_args())) !== false) {
+                while (($row = $this->fetch($fetchMode, ...$args)) !== false) {
                     $rows[] = $row;
                 }
 

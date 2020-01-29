@@ -390,6 +390,21 @@ The Drizzle project is abandoned and is therefore not supported by Doctrine DBAL
   Use binary fields of a size which fits all target platforms, or use blob explicitly instead.
 - Binary fields are no longer represented as streams in PHP. They are represented as strings.
 
+# Upgrade to 2.11
+
+## Deprecated `ExpressionBuilder` methods
+
+The usage of the `andX()` and `orX()` methods of the `ExpressionBuilder` class has been deprecated. Use `and()` and `or()` instead.
+
+## Deprecated `CompositeExpression` methods
+
+The usage of the `add()` and `addMultiple()` methods of the `CompositeExpression` class has been deprecated. Use `with()` instead, which returns a new instance.
+In the future, the `add*()` methods will be removed and the class will be effectively immutable.
+
+## Deprecated calling `QueryBuilder` methods with an array argument
+
+Calling the `select()`, `addSelect()`, `groupBy()` and `addGroupBy()` methods with an array argument is deprecated.
+
 # Upgrade to 2.10
 
 ## Deprecated `Doctrine\DBAL\Event\ConnectionEventArgs` methods

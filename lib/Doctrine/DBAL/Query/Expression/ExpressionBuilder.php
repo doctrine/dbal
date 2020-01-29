@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Query\Expression;
 
 use Doctrine\DBAL\Connection;
+use function array_merge;
 use function implode;
 use function sprintf;
 
@@ -40,11 +41,27 @@ class ExpressionBuilder
     /**
      * Creates a conjunction of the given expressions.
      *
-     * Example:
+     * @param string|CompositeExpression $expression
+     * @param string|CompositeExpression ...$expressions
+     */
+    public function and($expression, ...$expressions) : CompositeExpression
+    {
+        return new CompositeExpression(CompositeExpression::TYPE_AND, array_merge([$expression], $expressions));
+    }
+
+    /**
+     * Creates a disjunction of the given expressions.
      *
-     *     [php]
-     *     // (u.type = ?) AND (u.role = ?)
-     *     $expr->andX('u.type = ?', 'u.role = ?'));
+     * @param string|CompositeExpression $expression
+     * @param string|CompositeExpression ...$expressions
+     */
+    public function or($expression, ...$expressions) : CompositeExpression
+    {
+        return new CompositeExpression(CompositeExpression::TYPE_OR, array_merge([$expression], $expressions));
+    }
+
+    /**
+     * @deprecated Use `and()` instead.
      *
      * @param string|CompositeExpression ...$expressions Requires at least one defined when converting to string.
      */
@@ -54,13 +71,7 @@ class ExpressionBuilder
     }
 
     /**
-     * Creates a disjunction of the given expressions.
-     *
-     * Example:
-     *
-     *     [php]
-     *     // (u.type = ?) OR (u.role = ?)
-     *     $qb->where($qb->expr()->orX('u.type = ?', 'u.role = ?'));
+     * @deprecated Use `or()` instead.
      *
      * @param string|CompositeExpression ...$expressions Requires at least one defined when converting to string.
      */
