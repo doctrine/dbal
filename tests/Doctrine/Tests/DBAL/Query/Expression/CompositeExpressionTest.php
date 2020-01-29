@@ -23,25 +23,6 @@ class CompositeExpressionTest extends DbalTestCase
         self::assertCount(2, $expr);
     }
 
-    public function testAdd() : void
-    {
-        $expr = new CompositeExpression(CompositeExpression::TYPE_OR, ['u.group_id = 1']);
-
-        self::assertCount(1, $expr);
-
-        $expr->add(new CompositeExpression(CompositeExpression::TYPE_AND, []));
-
-        self::assertCount(1, $expr);
-
-        $expr->add(new CompositeExpression(CompositeExpression::TYPE_OR, ['u.user_id = 1']));
-
-        self::assertCount(2, $expr);
-
-        $expr->add('u.user_id = 1');
-
-        self::assertCount(3, $expr);
-    }
-
     public function testWith() : void
     {
         $expr = new CompositeExpression(CompositeExpression::TYPE_OR, ['u.group_id = 1']);

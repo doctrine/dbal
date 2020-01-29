@@ -1039,7 +1039,7 @@ class QueryBuilder
     private function appendToPredicate($currentPredicate, string $type, ...$predicates)
     {
         if ($currentPredicate instanceof CompositeExpression && $currentPredicate->getType() === $type) {
-            return $currentPredicate->addMultiple($predicates);
+            return $currentPredicate->with(...$predicates);
         }
 
         if ($currentPredicate !== null) {
