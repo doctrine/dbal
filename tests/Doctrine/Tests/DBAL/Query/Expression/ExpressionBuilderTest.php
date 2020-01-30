@@ -50,7 +50,7 @@ class ExpressionBuilderTest extends DbalTestCase
         $composite = $this->expr->andX();
 
         foreach ($parts as $part) {
-            $composite->add($part);
+            $composite = $composite->with($part);
         }
 
         self::assertEquals($expected, (string) $composite);
@@ -123,7 +123,7 @@ class ExpressionBuilderTest extends DbalTestCase
         $composite = $this->expr->orX();
 
         foreach ($parts as $part) {
-            $composite->add($part);
+            $composite = $composite->with($part);
         }
 
         self::assertEquals($expected, (string) $composite);

@@ -5,11 +5,15 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Query\Expression;
 
 use Countable;
+use function array_filter;
+use function array_values;
 use function count;
 use function implode;
 
 /**
  * Composite expression is responsible to build a group of similar expression.
+ *
+ * This class is immutable.
  */
 class CompositeExpression implements Countable
 {
@@ -43,51 +47,10 @@ class CompositeExpression implements Countable
      */
     public function __construct(string $type, array $parts = [])
     {
-        $this->type = $type;
-
-        $this->addMultiple($parts);
-    }
-
-    /**
-     * Adds multiple parts to composite expression.
-     *
-     * @deprecated This class will be made immutable. Use with() instead.
-     *
-     * @param array<int, self|string> $parts
-     *
-     * @return $this
-     */
-    public function addMultiple(array $parts = []) : self
-    {
-        foreach ($parts as $part) {
-            $this->add($part);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Adds an expression to composite expression.
-     *
-     * @deprecated This class will be made immutable. Use with() instead.
-     *
-     * @param self|string $part
-     *
-     * @return $this
-     */
-    public function add($part) : self
-    {
-        if (empty($part)) {
-            return $this;
-        }
-
-        if ($part instanceof self && count($part) === 0) {
-            return $this;
-        }
-
-        $this->parts[] = $part;
-
-        return $this;
+        $this->type  = $type;
+        $this->parts = array_values(array_filter($parts, static function ($part) {
+            return ! ($part instanceof self && count($part) === 0);
+        }));
     }
 
     /**

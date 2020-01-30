@@ -1,5 +1,10 @@
 # Upgrade to 3.0
 
+## BC BREAK: Removed `CompositeExpression` methods
+
+The `add()` and `addMultiple()` methods of the `CompositeExpression` class have been removed. Use `with()` instead, which returns a new instance.
+The `CompositeExpression` class is now immutable.
+
 ## BC BREAK: Changes in the QueryBuilder API.
 
 1. The `select()`, `addSelect()`, `groupBy()` and `addGroupBy()` methods no longer accept an array of arguments. Pass each expression as an individual argument or expand an array of expressions using the `...` operator.
