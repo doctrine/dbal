@@ -52,14 +52,19 @@ Please use other database client applications for import, e.g.:
 
 # Upgrade to 2.11
 
+## Deprecated `Doctrine\DBAL\Version` class
+
+The usage of the `Doctrine\DBAL\Version` class is deprecated as internal implementation detail. Please refrain from checking the DBAL version at runtime.
+
 ## Deprecated `ExpressionBuilder` methods
 
 The usage of the `andX()` and `orX()` methods of the `ExpressionBuilder` class has been deprecated. Use `and()` and `or()` instead.
 
 ## Deprecated `CompositeExpression` methods
 
-The usage of the `add()` and `addMultiple()` methods of the `CompositeExpression` class has been deprecated. Use `with()` instead, which returns a new instance.
+- The usage of the `add()` and `addMultiple()` methods of the `CompositeExpression` class has been deprecated. Use `with()` instead, which returns a new instance.
 In the future, the `add*()` methods will be removed and the class will be effectively immutable.
+- The usage of the `CompositeExpression` constructor has been deprecated. Use the `and()` / `or()` factory methods.
 
 ## Deprecated calling `QueryBuilder` methods with an array argument
 
