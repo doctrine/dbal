@@ -6,8 +6,9 @@ The usage of the `andX()` and `orX()` methods of the `ExpressionBuilder` class h
 
 ## Deprecated `CompositeExpression` methods
 
-The usage of the `add()` and `addMultiple()` methods of the `CompositeExpression` class has been deprecated. Use `with()` instead, which returns a new instance.
+- The usage of the `add()` and `addMultiple()` methods of the `CompositeExpression` class has been deprecated. Use `with()` instead, which returns a new instance.
 In the future, the `add*()` methods will be removed and the class will be effectively immutable.
+- The usage of the `CompositeExpression` constructor has been deprecated. Use the `and()` / `or()` factory methods.
 
 ## Deprecated calling `QueryBuilder` methods with an array argument
 

@@ -799,7 +799,7 @@ class QueryBuilder
     public function where($predicates)
     {
         if (! (func_num_args() === 1 && $predicates instanceof CompositeExpression)) {
-            $predicates = new CompositeExpression(CompositeExpression::TYPE_AND, func_get_args());
+            $predicates = CompositeExpression::and(...func_get_args());
         }
 
         return $this->add('where', $predicates);
@@ -832,7 +832,7 @@ class QueryBuilder
             $where = $where->with(...$args);
         } else {
             array_unshift($args, $where);
-            $where = new CompositeExpression(CompositeExpression::TYPE_AND, $args);
+            $where = CompositeExpression::and(...$args);
         }
 
         return $this->add('where', $where, true);
@@ -865,7 +865,7 @@ class QueryBuilder
             $where = $where->with(...$args);
         } else {
             array_unshift($args, $where);
-            $where = new CompositeExpression(CompositeExpression::TYPE_OR, $args);
+            $where = CompositeExpression::or(...$args);
         }
 
         return $this->add('where', $where, true);
@@ -990,7 +990,7 @@ class QueryBuilder
     public function having($having)
     {
         if (! (func_num_args() === 1 && $having instanceof CompositeExpression)) {
-            $having = new CompositeExpression(CompositeExpression::TYPE_AND, func_get_args());
+            $having = CompositeExpression::and(...func_get_args());
         }
 
         return $this->add('having', $having);
@@ -1013,7 +1013,7 @@ class QueryBuilder
             $having = $having->with(...$args);
         } else {
             array_unshift($args, $having);
-            $having = new CompositeExpression(CompositeExpression::TYPE_AND, $args);
+            $having = CompositeExpression::and(...$args);
         }
 
         return $this->add('having', $having);
@@ -1036,7 +1036,7 @@ class QueryBuilder
             $having = $having->with(...$args);
         } else {
             array_unshift($args, $having);
-            $having = new CompositeExpression(CompositeExpression::TYPE_OR, $args);
+            $having = CompositeExpression::or(...$args);
         }
 
         return $this->add('having', $having);
