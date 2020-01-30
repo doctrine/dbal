@@ -48,6 +48,9 @@
     },
     "bin": ["bin/doctrine-dbal"],
     "config": {
+        "platform": {
+            "php": "7.2.0"
+        },
         "sort-packages": true
     },
     "autoload": {
