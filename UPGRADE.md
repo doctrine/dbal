@@ -1,4 +1,4 @@
-# Upgrade to 3.0
+# Upgrade to 4.0
 
 ## BC BREAK: Removed `CompositeExpression` methods
 
@@ -165,10 +165,6 @@ The `Doctrine\DBAL\Driver::getName()` has been removed.
 
 `Connection::ping()` and `PingableConnection::ping()` no longer return a boolean value. They will throw an exception in case of failure.
 
-## BC BREAK User-provided `PDO` instance is no longer supported
-
-In order to share the same `PDO` instances between DBAL and other components, initialize the connection in DBAL and access it using `Connection::getWrappedConnection()->getWrappedConnection()`.
-
 ## BC BREAK PostgreSqlPlatform ForeignKeyConstraint support for `feferred` misspelling removed
 
 `PostgreSqlPlatform::getAdvancedForeignKeyOptionsSQL()` had a typo in it in 2.x. Both the option name
@@ -269,15 +265,6 @@ Relying on string representation was discouraged and has been removed.
 
 The `NULL` value of the `$offset` argument in `AbstractPlatform::(do)?ModifyLimitQuery()` methods is no longer allowed. The absence of the offset should be indicated with a `0` which is now the default value.
 
-## BC BREAK: Removed dbal:import CLI command
-
-The `dbal:import` CLI command has been removed since it only worked with PDO-based drivers by relying on a non-documented behavior of the extension, and it was impossible to make it work with other drivers.
-Please use other database client applications for import, e.g.:
-
- * For MySQL and MariaDB: `mysql [dbname] < data.sql`.
- * For PostgreSQL: `psql [dbname] < data.sql`.
- * For SQLite: `sqlite3 /path/to/file.db < data.sql`.
-
 ## BC BREAK: Removed support for DB-generated UUIDs
 
 The support for DB-generated UUIDs was removed as non-portable.
@@ -345,6 +332,29 @@ The following classes have been removed:
 
 The Doctrine\DBAL\Version class is no longer available: please refrain from checking the DBAL version at runtime.
 
+## BC BREAK: Removed Drizzle support
+
+The Drizzle project is abandoned and is therefore not supported by Doctrine DBAL anymore.
+
+## BC BREAK: SQLLogger changes
+
+- The `SQLLogger` interface has changed; the methods are the same but use scalar type hints, return types, and non-nullable arrays.
+- `SQLLogger` implementations: `DebugStack`, `EchoSQLLogger`, `LoggerChain` are now final.
+- `Configuration::getSQLLogger()` does not return `null` anymore, but a `NullLogger` implementation.
+- `Configuration::setSQLLogger()` does not allow `null` anymore.
+
+## BC BREAK: Changes to handling binary fields
+
+- Binary fields whose length exceeds the maximum field size on a given platform are no longer represented as `BLOB`s.
+  Use binary fields of a size which fits all target platforms, or use blob explicitly instead.
+- Binary fields are no longer represented as streams in PHP. They are represented as strings.
+
+# Upgrade to 3.0
+
+## BC BREAK User-provided `PDO` instance is no longer supported
+
+In order to share the same `PDO` instances between DBAL and other components, initialize the connection in DBAL and access it using `Connection::getWrappedConnection()->getWrappedConnection()`.
+
 ## BC BREAK: the PDO symbols are no longer part of the DBAL API
 
 1. The support of `PDO::PARAM_*`, `PDO::FETCH_*`, `PDO::CASE_*` and `PDO::PARAM_INPUT_OUTPUT` constants in the DBAL API is removed.
@@ -378,22 +388,14 @@ After:
     $stmt->bindValue(1, 1, ParameterType::INTEGER);
     $stmt->fetchAll(FetchMode::COLUMN);
 
-## BC BREAK: Removed Drizzle support
+## BC BREAK: Removed dbal:import CLI command
 
-The Drizzle project is abandoned and is therefore not supported by Doctrine DBAL anymore.
+The `dbal:import` CLI command has been removed since it only worked with PDO-based drivers by relying on a non-documented behavior of the extension, and it was impossible to make it work with other drivers.
+Please use other database client applications for import, e.g.:
 
-## BC BREAK: SQLLogger changes
-
-- The `SQLLogger` interface has changed; the methods are the same but use scalar type hints, return types, and non-nullable arrays.
-- `SQLLogger` implementations: `DebugStack`, `EchoSQLLogger`, `LoggerChain` are now final.
-- `Configuration::getSQLLogger()` does not return `null` anymore, but a `NullLogger` implementation.
-- `Configuration::setSQLLogger()` does not allow `null` anymore.
-
-## BC BREAK: Changes to handling binary fields
-
-- Binary fields whose length exceeds the maximum field size on a given platform are no longer represented as `BLOB`s.
-  Use binary fields of a size which fits all target platforms, or use blob explicitly instead.
-- Binary fields are no longer represented as streams in PHP. They are represented as strings.
+ * For MySQL and MariaDB: `mysql [dbname] < data.sql`.
+ * For PostgreSQL: `psql [dbname] < data.sql`.
+ * For SQLite: `sqlite3 /path/to/file.db < data.sql`.
 
 # Upgrade to 2.11
 
