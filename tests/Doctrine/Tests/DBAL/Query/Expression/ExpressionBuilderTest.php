@@ -41,22 +41,6 @@ class ExpressionBuilderTest extends DbalTestCase
     }
 
     /**
-     * @param string[]|CompositeExpression[] $parts
-     *
-     * @dataProvider provideDataForAnd
-     */
-    public function testAndX(array $parts, string $expected) : void
-    {
-        $composite = $this->expr->andX();
-
-        foreach ($parts as $part) {
-            $composite = $composite->with($part);
-        }
-
-        self::assertEquals($expected, (string) $composite);
-    }
-
-    /**
      * @return mixed[][]
      */
     public static function provideDataForAnd() : iterable
@@ -109,22 +93,6 @@ class ExpressionBuilderTest extends DbalTestCase
     public function testOr(array $parts, string $expected) : void
     {
         $composite = $this->expr->or(...$parts);
-
-        self::assertEquals($expected, (string) $composite);
-    }
-
-    /**
-     * @param string[]|CompositeExpression[] $parts
-     *
-     * @dataProvider provideDataForOr
-     */
-    public function testOrX(array $parts, string $expected) : void
-    {
-        $composite = $this->expr->orX();
-
-        foreach ($parts as $part) {
-            $composite = $composite->with($part);
-        }
 
         self::assertEquals($expected, (string) $composite);
     }

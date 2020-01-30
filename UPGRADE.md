@@ -1,5 +1,9 @@
 # Upgrade to 3.0
 
+## BC BREAK: Removed `ExpressionBuilder` methods
+
+The `andX()` and `orX()` methods of the `ExpressionBuilder` class have been removed. Use `and()` and `or()` instead.
+
 ## BC BREAK: Removed `CompositeExpression` methods
 
 The `add()` and `addMultiple()` methods of the `CompositeExpression` class have been removed. Use `with()` instead, which returns a new instance.

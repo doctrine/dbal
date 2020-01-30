@@ -61,26 +61,6 @@ class ExpressionBuilder
     }
 
     /**
-     * @deprecated Use `and()` instead.
-     *
-     * @param string|CompositeExpression ...$expressions Requires at least one defined when converting to string.
-     */
-    public function andX(...$expressions) : CompositeExpression
-    {
-        return new CompositeExpression(CompositeExpression::TYPE_AND, $expressions);
-    }
-
-    /**
-     * @deprecated Use `or()` instead.
-     *
-     * @param string|CompositeExpression ...$expressions Requires at least one defined when converting to string.
-     */
-    public function orX(...$expressions) : CompositeExpression
-    {
-        return new CompositeExpression(CompositeExpression::TYPE_OR, $expressions);
-    }
-
-    /**
      * Creates a comparison expression.
      *
      * @param string $x        The left expression.
