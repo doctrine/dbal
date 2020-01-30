@@ -1,5 +1,9 @@
 # Upgrade to 2.11
 
+## Deprecated `Doctrine\DBAL\Version` class
+
+The usage of the `Doctrine\DBAL\Version` class is deprecated as internal implementation detail. Please refrain from checking the DBAL version at runtime.
+
 ## Deprecated `ExpressionBuilder` methods
 
 The usage of the `andX()` and `orX()` methods of the `ExpressionBuilder` class has been deprecated. Use `and()` and `or()` instead.
