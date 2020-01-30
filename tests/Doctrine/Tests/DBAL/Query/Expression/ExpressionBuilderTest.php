@@ -65,9 +65,9 @@ class ExpressionBuilderTest extends DbalTestCase
             [
                 [
                     'u.user = 1',
-                    new CompositeExpression(
-                        CompositeExpression::TYPE_OR,
-                        ['u.group_id = 1', 'u.group_id = 2']
+                    CompositeExpression::or(
+                        'u.group_id = 1',
+                        'u.group_id = 2'
                     ),
                 ],
                 '(u.user = 1) AND ((u.group_id = 1) OR (u.group_id = 2))',
@@ -75,9 +75,9 @@ class ExpressionBuilderTest extends DbalTestCase
             [
                 [
                     'u.group_id = 1',
-                    new CompositeExpression(
-                        CompositeExpression::TYPE_AND,
-                        ['u.user = 1', 'u.group_id = 2']
+                    CompositeExpression::and(
+                        'u.user = 1',
+                        'u.group_id = 2'
                     ),
                 ],
                 '(u.group_id = 1) AND ((u.user = 1) AND (u.group_id = 2))',
@@ -122,9 +122,9 @@ class ExpressionBuilderTest extends DbalTestCase
             [
                 [
                     'u.user = 1',
-                    new CompositeExpression(
-                        CompositeExpression::TYPE_OR,
-                        ['u.group_id = 1', 'u.group_id = 2']
+                    CompositeExpression::or(
+                        'u.group_id = 1',
+                        'u.group_id = 2'
                     ),
                 ],
                 '(u.user = 1) OR ((u.group_id = 1) OR (u.group_id = 2))',
@@ -132,9 +132,9 @@ class ExpressionBuilderTest extends DbalTestCase
             [
                 [
                     'u.group_id = 1',
-                    new CompositeExpression(
-                        CompositeExpression::TYPE_AND,
-                        ['u.user = 1', 'u.group_id = 2']
+                    CompositeExpression::and(
+                        'u.user = 1',
+                        'u.group_id = 2'
                     ),
                 ],
                 '(u.group_id = 1) OR ((u.user = 1) AND (u.group_id = 2))',

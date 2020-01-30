@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Query\Expression;
 
 use Countable;
 use function array_filter;
+use function array_merge;
 use function array_values;
 use function count;
 use function implode;
@@ -42,6 +43,8 @@ class CompositeExpression implements Countable
     private $parts = [];
 
     /**
+     * @internal Use the and() / or() factory methods.
+     *
      * @param string          $type  Instance type of composite expression.
      * @param self[]|string[] $parts Composition of expressions to be joined on composite expression.
      */
@@ -51,6 +54,24 @@ class CompositeExpression implements Countable
         $this->parts = array_values(array_filter($parts, static function ($part) {
             return ! ($part instanceof self && count($part) === 0);
         }));
+    }
+
+    /**
+     * @param self|string $part
+     * @param self|string ...$parts
+     */
+    public static function and($part, ...$parts) : self
+    {
+        return new self(self::TYPE_AND, array_merge([$part], $parts));
+    }
+
+    /**
+     * @param self|string $part
+     * @param self|string ...$parts
+     */
+    public static function or($part, ...$parts) : self
+    {
+        return new self(self::TYPE_OR, array_merge([$part], $parts));
     }
 
     /**

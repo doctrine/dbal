@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Query\Expression;
 
 use Doctrine\DBAL\Connection;
-use function array_merge;
 use function implode;
 use function sprintf;
 
@@ -46,7 +45,7 @@ class ExpressionBuilder
      */
     public function and($expression, ...$expressions) : CompositeExpression
     {
-        return new CompositeExpression(CompositeExpression::TYPE_AND, array_merge([$expression], $expressions));
+        return CompositeExpression::and($expression, ...$expressions);
     }
 
     /**
@@ -57,7 +56,7 @@ class ExpressionBuilder
      */
     public function or($expression, ...$expressions) : CompositeExpression
     {
-        return new CompositeExpression(CompositeExpression::TYPE_OR, array_merge([$expression], $expressions));
+        return CompositeExpression::or($expression, ...$expressions);
     }
 
     /**

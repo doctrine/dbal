@@ -35,7 +35,7 @@
         "php": "^7.2",
         "doctrine/cache": "^1.0",
         "doctrine/event-manager": "^1.0",
-        "ocramius/package-versions": "^1.2"
+        "ocramius/package-versions": "^1.4"
     },
     "require-dev": {
         "doctrine/coding-standard": "^7.0",
@@ -50,6 +50,9 @@
     },
     "bin": ["bin/doctrine-dbal"],
     "config": {
+        "platform": {
+            "php": "7.2.0"
+        },
         "sort-packages": true
     },
     "autoload": {
