@@ -9,10 +9,7 @@ use function sprintf;
 
 final class UnknownFetchMode extends DBALException
 {
-    /**
-     * @param mixed $fetchMode
-     */
-    public static function new($fetchMode) : self
+    public static function new(int $fetchMode) : self
     {
         return new self(sprintf('Unknown fetch mode %d.', $fetchMode));
     }
