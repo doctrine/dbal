@@ -1025,7 +1025,7 @@ class QueryBuilder
             return $predicate;
         }
 
-        return new CompositeExpression(CompositeExpression::TYPE_AND, array_merge([$predicate], $predicates));
+        return new CompositeExpression(CompositeExpression::TYPE_AND, $predicate, ...$predicates);
     }
 
     /**
@@ -1048,7 +1048,7 @@ class QueryBuilder
             return $predicates[0];
         }
 
-        return new CompositeExpression($type, $predicates);
+        return new CompositeExpression($type, ...$predicates);
     }
 
     /**
