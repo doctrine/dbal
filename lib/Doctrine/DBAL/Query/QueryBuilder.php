@@ -14,7 +14,6 @@ use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use function array_key_exists;
 use function array_keys;
 use function array_merge;
-use function array_unshift;
 use function count;
 use function implode;
 use function is_object;
@@ -790,7 +789,7 @@ class QueryBuilder
      */
     public function where($predicate, ...$predicates) : self
     {
-        $this->where = $this->createPredicate($predicate, ...$predicates);
+        $this->where = CompositeExpression::createPredicate($predicate, ...$predicates);
 
         $this->state = self::STATE_DIRTY;
 
@@ -818,7 +817,7 @@ class QueryBuilder
      */
     public function andWhere($predicate, ...$predicates) : self
     {
-        $this->where = $this->appendToPredicate($this->where, CompositeExpression::TYPE_AND, $predicate, ...$predicates);
+        $this->where = CompositeExpression::appendToPredicate($this->where, CompositeExpression::TYPE_AND, $predicate, ...$predicates);
 
         $this->state = self::STATE_DIRTY;
 
@@ -846,7 +845,7 @@ class QueryBuilder
      */
     public function orWhere($predicate, ...$predicates) : self
     {
-        $this->where = $this->appendToPredicate($this->where, CompositeExpression::TYPE_OR, $predicate, ...$predicates);
+        $this->where = CompositeExpression::appendToPredicate($this->where, CompositeExpression::TYPE_OR, $predicate, ...$predicates);
 
         $this->state = self::STATE_DIRTY;
 
@@ -968,7 +967,7 @@ class QueryBuilder
      */
     public function having($predicate, ...$predicates) : self
     {
-        $this->having = $this->createPredicate($predicate, ...$predicates);
+        $this->having = CompositeExpression::createPredicate($predicate, ...$predicates);
 
         $this->state = self::STATE_DIRTY;
 
@@ -986,7 +985,7 @@ class QueryBuilder
      */
     public function andHaving($predicate, ...$predicates) : self
     {
-        $this->having = $this->appendToPredicate($this->having, CompositeExpression::TYPE_AND, $predicate, ...$predicates);
+        $this->having = CompositeExpression::appendToPredicate($this->having, CompositeExpression::TYPE_AND, $predicate, ...$predicates);
 
         $this->state = self::STATE_DIRTY;
 
@@ -1004,51 +1003,11 @@ class QueryBuilder
      */
     public function orHaving($predicate, ...$predicates) : self
     {
-        $this->having = $this->appendToPredicate($this->having, CompositeExpression::TYPE_OR, $predicate, ...$predicates);
+        $this->having = CompositeExpression::appendToPredicate($this->having, CompositeExpression::TYPE_OR, $predicate, ...$predicates);
 
         $this->state = self::STATE_DIRTY;
 
         return $this;
-    }
-
-    /**
-     * Creates a CompositeExpression from one or more predicates combined by the AND logic.
-     *
-     * @param string|CompositeExpression $predicate
-     * @param string|CompositeExpression ...$predicates
-     *
-     * @return string|CompositeExpression
-     */
-    private function createPredicate($predicate, ...$predicates)
-    {
-        if (count($predicates) === 0) {
-            return $predicate;
-        }
-
-        return new CompositeExpression(CompositeExpression::TYPE_AND, $predicate, ...$predicates);
-    }
-
-    /**
-     * Appends the given predicates combined by the given type of logic to the current predicate.
-     *
-     * @param string|CompositeExpression|null $currentPredicate
-     * @param string|CompositeExpression      ...$predicates
-     *
-     * @return string|CompositeExpression
-     */
-    private function appendToPredicate($currentPredicate, string $type, ...$predicates)
-    {
-        if ($currentPredicate instanceof CompositeExpression && $currentPredicate->getType() === $type) {
-            return $currentPredicate->with(...$predicates);
-        }
-
-        if ($currentPredicate !== null) {
-            array_unshift($predicates, $currentPredicate);
-        } elseif (count($predicates) === 1) {
-            return $predicates[0];
-        }
-
-        return new CompositeExpression($type, ...$predicates);
     }
 
     /**

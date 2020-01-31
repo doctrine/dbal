@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Query\Expression;
 
 use Countable;
 use function array_merge;
+use function array_unshift;
 use function count;
 use function implode;
 
@@ -46,10 +47,50 @@ class CompositeExpression implements Countable
      * @param self|string $part
      * @param self|string ...$parts
      */
-    public function __construct(string $type, $part, ...$parts)
+    private function __construct(string $type, $part, ...$parts)
     {
         $this->type  = $type;
         $this->parts = array_merge([$part], $parts);
+    }
+
+    /**
+     * Creates a predicate from one or more predicates combined by the AND logic.
+     *
+     * @param self|string $predicate
+     * @param self|string ...$predicates
+     *
+     * @return self|string
+     */
+    public static function createPredicate($predicate, ...$predicates)
+    {
+        if (count($predicates) === 0) {
+            return $predicate;
+        }
+
+        return new self(self::TYPE_AND, $predicate, ...$predicates);
+    }
+
+    /**
+     * Appends the given predicates combined by the given type of logic to the current predicate.
+     *
+     * @param self|string|null $currentPredicate
+     * @param self|string      ...$predicates
+     *
+     * @return self|string
+     */
+    public static function appendToPredicate($currentPredicate, string $type, ...$predicates)
+    {
+        if ($currentPredicate instanceof self && $currentPredicate->type === $type) {
+            return $currentPredicate->with(...$predicates);
+        }
+
+        if ($currentPredicate !== null) {
+            array_unshift($predicates, $currentPredicate);
+        } elseif (count($predicates) === 1) {
+            return $predicates[0];
+        }
+
+        return new self($type, ...$predicates);
     }
 
     /**
@@ -107,13 +148,5 @@ class CompositeExpression implements Countable
         }
 
         return '(' . implode(') ' . $this->type . ' (', $this->parts) . ')';
-    }
-
-    /**
-     * Returns the type of this composite expression (AND/OR).
-     */
-    public function getType() : string
-    {
-        return $this->type;
     }
 }
