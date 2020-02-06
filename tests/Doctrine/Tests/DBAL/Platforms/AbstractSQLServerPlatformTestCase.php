@@ -549,9 +549,9 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     /**
      * {@inheritDoc}
      */
-    protected function getQuotedColumnInPrimaryKeySQL() : array
+    protected function getQuotedColumnInPrimaryKeySQL(string $columnName) : array
     {
-        return ['CREATE TABLE [quoted] ([create] NVARCHAR(255) NOT NULL, PRIMARY KEY ([create]))'];
+        return ['CREATE TABLE [quoted] ([' . $columnName . '] NVARCHAR(255) NOT NULL, PRIMARY KEY ([' . $columnName . ']))'];
     }
 
     /**
@@ -579,13 +579,13 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     /**
      * {@inheritDoc}
      */
-    protected function getQuotedColumnInForeignKeySQL() : array
+    protected function getQuotedColumnInForeignKeySQL(string $columnName) : array
     {
         return [
-            'CREATE TABLE [quoted] ([create] NVARCHAR(255) NOT NULL, foo NVARCHAR(255) NOT NULL, [bar] NVARCHAR(255) NOT NULL)',
-            'ALTER TABLE [quoted] ADD CONSTRAINT FK_WITH_RESERVED_KEYWORD FOREIGN KEY ([create], foo, [bar]) REFERENCES [foreign] ([create], bar, [foo-bar])',
-            'ALTER TABLE [quoted] ADD CONSTRAINT FK_WITH_NON_RESERVED_KEYWORD FOREIGN KEY ([create], foo, [bar]) REFERENCES foo ([create], bar, [foo-bar])',
-            'ALTER TABLE [quoted] ADD CONSTRAINT FK_WITH_INTENDED_QUOTATION FOREIGN KEY ([create], foo, [bar]) REFERENCES [foo-bar] ([create], bar, [foo-bar])',
+            'CREATE TABLE [quoted] ([' . $columnName . '] NVARCHAR(255) NOT NULL, foo NVARCHAR(255) NOT NULL, [bar] NVARCHAR(255) NOT NULL)',
+            'ALTER TABLE [quoted] ADD CONSTRAINT FK_WITH_RESERVED_KEYWORD FOREIGN KEY ([' . $columnName . '], foo, [bar]) REFERENCES [foreign] ([' . $columnName . '], bar, [foo-bar])',
+            'ALTER TABLE [quoted] ADD CONSTRAINT FK_WITH_NON_RESERVED_KEYWORD FOREIGN KEY ([' . $columnName . '], foo, [bar]) REFERENCES foo ([' . $columnName . '], bar, [foo-bar])',
+            'ALTER TABLE [quoted] ADD CONSTRAINT FK_WITH_INTENDED_QUOTATION FOREIGN KEY ([' . $columnName . '], foo, [bar]) REFERENCES [foo-bar] ([' . $columnName . '], bar, [foo-bar])',
         ];
     }
 
@@ -1414,25 +1414,25 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     /**
      * {@inheritdoc}
      */
-    protected function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL() : string
+    protected function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL(string $constraintName) : string
     {
-        return 'CONSTRAINT [select] UNIQUE (foo) WHERE foo IS NOT NULL';
+        return 'CONSTRAINT [' . $constraintName . '] UNIQUE (foo) WHERE foo IS NOT NULL';
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function getQuotesReservedKeywordInIndexDeclarationSQL() : string
+    protected function getQuotesReservedKeywordInIndexDeclarationSQL(string $indexName) : string
     {
-        return 'INDEX [select] (foo)';
+        return 'INDEX [' . $indexName . '] (foo)';
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function getQuotesReservedKeywordInTruncateTableSQL() : string
+    protected function getQuotesReservedKeywordInTruncateTableSQL(string $tableName) : string
     {
-        return 'TRUNCATE TABLE [select]';
+        return 'TRUNCATE TABLE [' . $tableName . ']';
     }
 
     /**

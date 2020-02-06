@@ -248,9 +248,9 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     /**
      * @return string[]
      */
-    protected function getQuotedColumnInPrimaryKeySQL() : array
+    protected function getQuotedColumnInPrimaryKeySQL(string $columnName) : array
     {
-        return ['CREATE TABLE `quoted` (`create` VARCHAR(255) NOT NULL, PRIMARY KEY(`create`)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB'];
+        return ['CREATE TABLE `quoted` (`' . $columnName . '` VARCHAR(255) NOT NULL, PRIMARY KEY(`' . $columnName . '`)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB'];
     }
 
     /**
@@ -272,13 +272,13 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     /**
      * @return string[]
      */
-    protected function getQuotedColumnInForeignKeySQL() : array
+    protected function getQuotedColumnInForeignKeySQL(string $columnName) : array
     {
         return [
-            'CREATE TABLE `quoted` (`create` VARCHAR(255) NOT NULL, foo VARCHAR(255) NOT NULL, `bar` VARCHAR(255) NOT NULL) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB',
-            'ALTER TABLE `quoted` ADD CONSTRAINT FK_WITH_RESERVED_KEYWORD FOREIGN KEY (`create`, foo, `bar`) REFERENCES `foreign` (`create`, bar, `foo-bar`)',
-            'ALTER TABLE `quoted` ADD CONSTRAINT FK_WITH_NON_RESERVED_KEYWORD FOREIGN KEY (`create`, foo, `bar`) REFERENCES foo (`create`, bar, `foo-bar`)',
-            'ALTER TABLE `quoted` ADD CONSTRAINT FK_WITH_INTENDED_QUOTATION FOREIGN KEY (`create`, foo, `bar`) REFERENCES `foo-bar` (`create`, bar, `foo-bar`)',
+            'CREATE TABLE `quoted` (`' . $columnName . '` VARCHAR(255) NOT NULL, foo VARCHAR(255) NOT NULL, `bar` VARCHAR(255) NOT NULL) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB',
+            'ALTER TABLE `quoted` ADD CONSTRAINT FK_WITH_RESERVED_KEYWORD FOREIGN KEY (`' . $columnName . '`, foo, `bar`) REFERENCES `foreign` (`' . $columnName . '`, bar, `foo-bar`)',
+            'ALTER TABLE `quoted` ADD CONSTRAINT FK_WITH_NON_RESERVED_KEYWORD FOREIGN KEY (`' . $columnName . '`, foo, `bar`) REFERENCES foo (`' . $columnName . '`, bar, `foo-bar`)',
+            'ALTER TABLE `quoted` ADD CONSTRAINT FK_WITH_INTENDED_QUOTATION FOREIGN KEY (`' . $columnName . '`, foo, `bar`) REFERENCES `foo-bar` (`' . $columnName . '`, bar, `foo-bar`)',
         ];
     }
 
@@ -802,25 +802,25 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     /**
      * {@inheritdoc}
      */
-    protected function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL() : string
+    protected function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL(string $constraintName) : string
     {
-        return 'CONSTRAINT `select` UNIQUE (foo)';
+        return 'CONSTRAINT `' . $constraintName . '` UNIQUE (foo)';
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function getQuotesReservedKeywordInIndexDeclarationSQL() : string
+    protected function getQuotesReservedKeywordInIndexDeclarationSQL(string $indexName) : string
     {
-        return 'INDEX `select` (foo)';
+        return 'INDEX `' . $indexName . '` (foo)';
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function getQuotesReservedKeywordInTruncateTableSQL() : string
+    protected function getQuotesReservedKeywordInTruncateTableSQL(string $tableName) : string
     {
-        return 'TRUNCATE `select`';
+        return 'TRUNCATE `' . $tableName . '`';
     }
 
     /**

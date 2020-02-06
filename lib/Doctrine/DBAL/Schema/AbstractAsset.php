@@ -8,6 +8,7 @@ use function crc32;
 use function dechex;
 use function explode;
 use function implode;
+use function preg_match;
 use function str_replace;
 use function strpos;
 use function strtolower;
@@ -180,7 +181,7 @@ abstract class AbstractAsset
         $keywords = $platform->getReservedKeywordsList();
         $parts    = explode('.', $this->getName());
         foreach ($parts as $k => $v) {
-            $parts[$k] = $this->_quoted || $keywords->isKeyword($v) ? $platform->quoteIdentifier($v) : $v;
+            $parts[$k] = $this->_quoted || $keywords->isKeyword($v) || preg_match('/\W/', $v) ? $platform->quoteIdentifier($v) : $v;
         }
 
         return implode('.', $parts);

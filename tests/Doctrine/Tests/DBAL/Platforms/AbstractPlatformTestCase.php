@@ -633,22 +633,38 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
     }
 
     /**
-     * @group DBAL-374
+     * @return string[][]
      */
-    public function testQuotedColumnInPrimaryKeyPropagation() : void
+    public function getAutoQuotedIdentifiers() : array
+    {
+        return [
+            ['create'],
+            ['select'],
+            ['a name with spaces'],
+            ['a name with/slash'],
+            ['name-with-dash'],
+        ];
+    }
+
+    /**
+     * @group DBAL-374
+     * @group DBAL-2979
+     * @dataProvider getAutoQuotedIdentifiers
+     */
+    public function testAutoQuotedColumnInPrimaryKeyPropagation(string $columnName) : void
     {
         $table = new Table('`quoted`');
-        $table->addColumn('create', 'string');
-        $table->setPrimaryKey(['create']);
+        $table->addColumn($columnName, 'string');
+        $table->setPrimaryKey([$columnName]);
 
         $sql = $this->platform->getCreateTableSQL($table);
-        self::assertEquals($this->getQuotedColumnInPrimaryKeySQL(), $sql);
+        self::assertEquals($this->getQuotedColumnInPrimaryKeySQL($columnName), $sql);
     }
 
     /**
      * @return string[]
      */
-    abstract protected function getQuotedColumnInPrimaryKeySQL() : array;
+    abstract protected function getQuotedColumnInPrimaryKeySQL(string $columnName) : array;
 
     /**
      * @return string[]
@@ -663,7 +679,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
     /**
      * @return string[]
      */
-    abstract protected function getQuotedColumnInForeignKeySQL() : array;
+    abstract protected function getQuotedColumnInForeignKeySQL(string $columnName) : array;
 
     /**
      * @group DBAL-374
@@ -690,88 +706,96 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
 
     /**
      * @group DBAL-374
+     * @group DBAL-2979
+     * @dataProvider getAutoQuotedIdentifiers
      */
-    public function testQuotedColumnInForeignKeyPropagation() : void
+    public function testQuotedColumnInForeignKeyPropagation(string $columnName) : void
     {
         $table = new Table('`quoted`');
-        $table->addColumn('create', 'string');
+        $table->addColumn($columnName, 'string');
         $table->addColumn('foo', 'string');
         $table->addColumn('`bar`', 'string');
 
         // Foreign table with reserved keyword as name (needs quotation).
         $foreignTable = new Table('foreign');
-        $foreignTable->addColumn('create', 'string');    // Foreign column with reserved keyword as name (needs quotation).
+        $foreignTable->addColumn($columnName, 'string');    // Foreign column with reserved keyword as name (needs quotation).
         $foreignTable->addColumn('bar', 'string');       // Foreign column with non-reserved keyword as name (does not need quotation).
         $foreignTable->addColumn('`foo-bar`', 'string'); // Foreign table with special character in name (needs quotation on some platforms, e.g. Sqlite).
 
-        $table->addForeignKeyConstraint($foreignTable, ['create', 'foo', '`bar`'], ['create', 'bar', '`foo-bar`'], [], 'FK_WITH_RESERVED_KEYWORD');
+        $table->addForeignKeyConstraint($foreignTable, [$columnName, 'foo', '`bar`'], [$columnName, 'bar', '`foo-bar`'], [], 'FK_WITH_RESERVED_KEYWORD');
 
         // Foreign table with non-reserved keyword as name (does not need quotation).
         $foreignTable = new Table('foo');
-        $foreignTable->addColumn('create', 'string');    // Foreign column with reserved keyword as name (needs quotation).
+        $foreignTable->addColumn($columnName, 'string');    // Foreign column with reserved keyword as name (needs quotation).
         $foreignTable->addColumn('bar', 'string');       // Foreign column with non-reserved keyword as name (does not need quotation).
         $foreignTable->addColumn('`foo-bar`', 'string'); // Foreign table with special character in name (needs quotation on some platforms, e.g. Sqlite).
 
-        $table->addForeignKeyConstraint($foreignTable, ['create', 'foo', '`bar`'], ['create', 'bar', '`foo-bar`'], [], 'FK_WITH_NON_RESERVED_KEYWORD');
+        $table->addForeignKeyConstraint($foreignTable, [$columnName, 'foo', '`bar`'], [$columnName, 'bar', '`foo-bar`'], [], 'FK_WITH_NON_RESERVED_KEYWORD');
 
         // Foreign table with special character in name (needs quotation on some platforms, e.g. Sqlite).
         $foreignTable = new Table('`foo-bar`');
-        $foreignTable->addColumn('create', 'string');    // Foreign column with reserved keyword as name (needs quotation).
+        $foreignTable->addColumn($columnName, 'string');    // Foreign column with reserved keyword as name (needs quotation).
         $foreignTable->addColumn('bar', 'string');       // Foreign column with non-reserved keyword as name (does not need quotation).
         $foreignTable->addColumn('`foo-bar`', 'string'); // Foreign table with special character in name (needs quotation on some platforms, e.g. Sqlite).
 
-        $table->addForeignKeyConstraint($foreignTable, ['create', 'foo', '`bar`'], ['create', 'bar', '`foo-bar`'], [], 'FK_WITH_INTENDED_QUOTATION');
+        $table->addForeignKeyConstraint($foreignTable, [$columnName, 'foo', '`bar`'], [$columnName, 'bar', '`foo-bar`'], [], 'FK_WITH_INTENDED_QUOTATION');
 
         $sql = $this->platform->getCreateTableSQL($table, AbstractPlatform::CREATE_FOREIGNKEYS);
-        self::assertEquals($this->getQuotedColumnInForeignKeySQL(), $sql);
+        self::assertEquals($this->getQuotedColumnInForeignKeySQL($columnName), $sql);
     }
 
     /**
      * @group DBAL-1051
+     * @group DBAL-2979
+     * @dataProvider getAutoQuotedIdentifiers
      */
-    public function testQuotesReservedKeywordInUniqueConstraintDeclarationSQL() : void
+    public function testQuotesReservedKeywordInUniqueConstraintDeclarationSQL(string $constraintName) : void
     {
-        $index = new Index('select', ['foo'], true);
+        $index = new Index($constraintName, ['foo'], true);
 
         self::assertSame(
-            $this->getQuotesReservedKeywordInUniqueConstraintDeclarationSQL(),
-            $this->platform->getUniqueConstraintDeclarationSQL('select', $index)
+            $this->getQuotesReservedKeywordInUniqueConstraintDeclarationSQL($constraintName),
+            $this->platform->getUniqueConstraintDeclarationSQL($constraintName, $index)
         );
     }
 
-    abstract protected function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL() : string;
+    abstract protected function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL(string $constraintName) : string;
 
     /**
      * @group DBAL-2270
+     * @group DBAL-2979
+     * @dataProvider getAutoQuotedIdentifiers
      */
-    public function testQuotesReservedKeywordInTruncateTableSQL() : void
+    public function testQuotesReservedKeywordInTruncateTableSQL(string $tableName) : void
     {
         self::assertSame(
-            $this->getQuotesReservedKeywordInTruncateTableSQL(),
-            $this->platform->getTruncateTableSQL('select')
+            $this->getQuotesReservedKeywordInTruncateTableSQL($tableName),
+            $this->platform->getTruncateTableSQL($tableName)
         );
     }
 
-    abstract protected function getQuotesReservedKeywordInTruncateTableSQL() : string;
+    abstract protected function getQuotesReservedKeywordInTruncateTableSQL(string $tableName) : string;
 
     /**
      * @group DBAL-1051
+     * @group DBAL-2979
+     * @dataProvider getAutoQuotedIdentifiers
      */
-    public function testQuotesReservedKeywordInIndexDeclarationSQL() : void
+    public function testQuotesReservedKeywordInIndexDeclarationSQL(string $indexName) : void
     {
-        $index = new Index('select', ['foo']);
+        $index = new Index($indexName, ['foo']);
 
         if (! $this->supportsInlineIndexDeclaration()) {
             $this->expectException(DBALException::class);
         }
 
         self::assertSame(
-            $this->getQuotesReservedKeywordInIndexDeclarationSQL(),
-            $this->platform->getIndexDeclarationSQL('select', $index)
+            $this->getQuotesReservedKeywordInIndexDeclarationSQL($indexName),
+            $this->platform->getIndexDeclarationSQL($indexName, $index)
         );
     }
 
-    abstract protected function getQuotesReservedKeywordInIndexDeclarationSQL() : string;
+    abstract protected function getQuotesReservedKeywordInIndexDeclarationSQL(string $indexName) : string;
 
     protected function supportsInlineIndexDeclaration() : bool
     {
