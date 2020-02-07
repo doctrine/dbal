@@ -632,17 +632,30 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         self::assertTrue($keywordList->isKeyword('table'));
     }
 
+    public function getAutoQuotedIdentifiers() {
+        return [
+            ['create'],
+            ['select'],
+            ['a name with spaces'],
+            ['a name with/slash'],
+            ['name-with-dash'],
+        ];
+    }
+
     /**
      * @group DBAL-374
+     * @group DBAL-2979
+     * @dataProvider getAutoQuotedIdentifiers
      */
-    public function testQuotedColumnInPrimaryKeyPropagation() : void
+    public function testAutoQuotedColumnInPrimaryKeyPropagation(string $identifier) : void
     {
         $table = new Table('`quoted`');
-        $table->addColumn('create', 'string');
-        $table->setPrimaryKey(['create']);
+        $table->addColumn($identifier, 'string');
+        $table->setPrimaryKey([$identifier]);
 
+        $expected = preg_replace('/create/', $identifier, $this->getQuotedColumnInPrimaryKeySQL());
         $sql = $this->platform->getCreateTableSQL($table);
-        self::assertEquals($this->getQuotedColumnInPrimaryKeySQL(), $sql);
+        self::assertEquals($expected, $sql);
     }
 
     /**
@@ -690,52 +703,58 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
 
     /**
      * @group DBAL-374
+     * @group DBAL-2979
+     * @dataProvider getAutoQuotedIdentifiers
      */
-    public function testQuotedColumnInForeignKeyPropagation() : void
+    public function testQuotedColumnInForeignKeyPropagation($identifier) : void
     {
         $table = new Table('`quoted`');
-        $table->addColumn('create', 'string');
+        $table->addColumn($identifier, 'string');
         $table->addColumn('foo', 'string');
         $table->addColumn('`bar`', 'string');
 
         // Foreign table with reserved keyword as name (needs quotation).
         $foreignTable = new Table('foreign');
-        $foreignTable->addColumn('create', 'string');    // Foreign column with reserved keyword as name (needs quotation).
+        $foreignTable->addColumn($identifier, 'string');    // Foreign column with reserved keyword as name (needs quotation).
         $foreignTable->addColumn('bar', 'string');       // Foreign column with non-reserved keyword as name (does not need quotation).
         $foreignTable->addColumn('`foo-bar`', 'string'); // Foreign table with special character in name (needs quotation on some platforms, e.g. Sqlite).
 
-        $table->addForeignKeyConstraint($foreignTable, ['create', 'foo', '`bar`'], ['create', 'bar', '`foo-bar`'], [], 'FK_WITH_RESERVED_KEYWORD');
+        $table->addForeignKeyConstraint($foreignTable, [$identifier, 'foo', '`bar`'], [$identifier, 'bar', '`foo-bar`'], [], 'FK_WITH_RESERVED_KEYWORD');
 
         // Foreign table with non-reserved keyword as name (does not need quotation).
         $foreignTable = new Table('foo');
-        $foreignTable->addColumn('create', 'string');    // Foreign column with reserved keyword as name (needs quotation).
+        $foreignTable->addColumn($identifier, 'string');    // Foreign column with reserved keyword as name (needs quotation).
         $foreignTable->addColumn('bar', 'string');       // Foreign column with non-reserved keyword as name (does not need quotation).
         $foreignTable->addColumn('`foo-bar`', 'string'); // Foreign table with special character in name (needs quotation on some platforms, e.g. Sqlite).
 
-        $table->addForeignKeyConstraint($foreignTable, ['create', 'foo', '`bar`'], ['create', 'bar', '`foo-bar`'], [], 'FK_WITH_NON_RESERVED_KEYWORD');
+        $table->addForeignKeyConstraint($foreignTable, [$identifier, 'foo', '`bar`'], [$identifier, 'bar', '`foo-bar`'], [], 'FK_WITH_NON_RESERVED_KEYWORD');
 
         // Foreign table with special character in name (needs quotation on some platforms, e.g. Sqlite).
         $foreignTable = new Table('`foo-bar`');
-        $foreignTable->addColumn('create', 'string');    // Foreign column with reserved keyword as name (needs quotation).
+        $foreignTable->addColumn($identifier, 'string');    // Foreign column with reserved keyword as name (needs quotation).
         $foreignTable->addColumn('bar', 'string');       // Foreign column with non-reserved keyword as name (does not need quotation).
         $foreignTable->addColumn('`foo-bar`', 'string'); // Foreign table with special character in name (needs quotation on some platforms, e.g. Sqlite).
 
-        $table->addForeignKeyConstraint($foreignTable, ['create', 'foo', '`bar`'], ['create', 'bar', '`foo-bar`'], [], 'FK_WITH_INTENDED_QUOTATION');
+        $table->addForeignKeyConstraint($foreignTable, [$identifier, 'foo', '`bar`'], [$identifier, 'bar', '`foo-bar`'], [], 'FK_WITH_INTENDED_QUOTATION');
 
+        $expected = preg_replace('/create/', $identifier, $this->getQuotedColumnInForeignKeySQL());
         $sql = $this->platform->getCreateTableSQL($table, AbstractPlatform::CREATE_FOREIGNKEYS);
-        self::assertEquals($this->getQuotedColumnInForeignKeySQL(), $sql);
+        self::assertEquals($expected, $sql);
     }
 
     /**
      * @group DBAL-1051
+     * @group DBAL-2979
+     * @dataProvider getAutoQuotedIdentifiers
      */
-    public function testQuotesReservedKeywordInUniqueConstraintDeclarationSQL() : void
+    public function testQuotesReservedKeywordInUniqueConstraintDeclarationSQL($identifier) : void
     {
-        $index = new Index('select', ['foo'], true);
+        $index = new Index($identifier, ['foo'], true);
 
+        $expected = preg_replace('/select/', $identifier, $this->getQuotesReservedKeywordInUniqueConstraintDeclarationSQL());
         self::assertSame(
-            $this->getQuotesReservedKeywordInUniqueConstraintDeclarationSQL(),
-            $this->platform->getUniqueConstraintDeclarationSQL('select', $index)
+            $expected,
+            $this->platform->getUniqueConstraintDeclarationSQL($identifier, $index)
         );
     }
 
@@ -743,12 +762,15 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
 
     /**
      * @group DBAL-2270
+     * @group DBAL-2979
+     * @dataProvider getAutoQuotedIdentifiers
      */
-    public function testQuotesReservedKeywordInTruncateTableSQL() : void
+    public function testQuotesReservedKeywordInTruncateTableSQL($identifier) : void
     {
+        $expected = preg_replace('/select/', $identifier, $this->getQuotesReservedKeywordInTruncateTableSQL());
         self::assertSame(
-            $this->getQuotesReservedKeywordInTruncateTableSQL(),
-            $this->platform->getTruncateTableSQL('select')
+            $expected,
+            $this->platform->getTruncateTableSQL($identifier)
         );
     }
 
@@ -756,18 +778,21 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
 
     /**
      * @group DBAL-1051
+     * @group DBAL-2979
+     * @dataProvider getAutoQuotedIdentifiers
      */
-    public function testQuotesReservedKeywordInIndexDeclarationSQL() : void
+    public function testQuotesReservedKeywordInIndexDeclarationSQL($identifier) : void
     {
-        $index = new Index('select', ['foo']);
+        $index = new Index($identifier, ['foo']);
 
         if (! $this->supportsInlineIndexDeclaration()) {
             $this->expectException(DBALException::class);
         }
 
+        $expected = preg_replace('/select/', $identifier, $this->getQuotesReservedKeywordInIndexDeclarationSQL());
         self::assertSame(
-            $this->getQuotesReservedKeywordInIndexDeclarationSQL(),
-            $this->platform->getIndexDeclarationSQL('select', $index)
+            $expected,
+            $this->platform->getIndexDeclarationSQL($identifier, $index)
         );
     }
 
