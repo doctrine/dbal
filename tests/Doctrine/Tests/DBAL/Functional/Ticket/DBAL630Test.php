@@ -1,11 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Functional\Ticket;
 
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use PDO;
+use function assert;
 use function in_array;
 
 /**
@@ -31,13 +35,16 @@ class DBAL630Test extends DbalFunctionalTestCase
             $this->connection->exec('CREATE TABLE dbal630_allow_nulls (id SERIAL, bool_col BOOLEAN);');
         } catch (DBALException $e) {
         }
+
         $this->running = true;
     }
 
     protected function tearDown() : void
     {
         if ($this->running) {
-            $this->connection->getWrappedConnection()->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+            $pdo = $this->getPDO();
+
+            $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
         }
 
         parent::tearDown();
@@ -71,7 +78,8 @@ class DBAL630Test extends DbalFunctionalTestCase
 
     public function testBooleanConversionBoolParamEmulatedPrepares() : void
     {
-        $this->connection->getWrappedConnection()->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
+        $pdo = $this->getPDO();
+        $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
 
         $platform = $this->connection->getDatabasePlatform();
 
@@ -95,7 +103,8 @@ class DBAL630Test extends DbalFunctionalTestCase
         ?bool $statementValue,
         ?bool $databaseConvertedValue
     ) : void {
-        $this->connection->getWrappedConnection()->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
+        $pdo = $this->getPDO();
+        $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
 
         $platform = $this->connection->getDatabasePlatform();
 
@@ -119,7 +128,8 @@ class DBAL630Test extends DbalFunctionalTestCase
         ?bool $statementValue,
         bool $databaseConvertedValue
     ) : void {
-        $this->connection->getWrappedConnection()->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
+        $pdo = $this->getPDO();
+        $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
 
         $platform = $this->connection->getDatabasePlatform();
 
@@ -168,5 +178,13 @@ class DBAL630Test extends DbalFunctionalTestCase
             [false, false],
             [null, null],
         ];
+    }
+
+    private function getPDO() : PDO
+    {
+        $wrappedConnection = $this->connection->getWrappedConnection();
+        assert($wrappedConnection instanceof PDOConnection);
+
+        return $wrappedConnection->getWrappedConnection();
     }
 }

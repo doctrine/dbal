@@ -20,23 +20,18 @@ environment:
   matrix:
   - db: mssql
     driver: sqlsrv
-    db_version: sql2008r2sp2
-    coverage: yes
-    php: 7.3
-  - db: mssql
-    driver: sqlsrv
     db_version: sql2012sp1
-    php: 7.3
+    php: 7.4
     coverage: yes
   - db: mssql
     driver: sqlsrv
     db_version: sql2017
     coverage: no
-    php: 7.3
+    php: 7.4
   - db: mssql
     driver: pdo_sqlsrv
     db_version: sql2017
-    php: 7.3
+    php: 7.4
     coverage: yes
 
 init:
@@ -49,7 +44,7 @@ install:
     - ps: |
         # Check if installation is cached
         if (!(Test-Path c:\tools\php)) {
-          appveyor-retry cinst --params '""/InstallDir:C:\tools\php""' --ignore-checksums -y php --version 7.3.12
+          appveyor-retry cinst --params '""/InstallDir:C:\tools\php""' --ignore-checksums -y php --version ((choco search php --exact --all-versions -r | select-string -pattern $env:php | sort { [version]($_ -split '\|' | select -last 1) } -Descending | Select-Object -first 1) -replace '[php|]','')
           # install sqlite
           appveyor-retry cinst -y sqlite
           Get-ChildItem -Path c:\tools\php
@@ -68,8 +63,8 @@ install:
           Add-Content php.ini "`n extension=php_curl.dll"
           Add-Content php.ini "`n curl.cainfo=C:\tools\cacert\bundle.pem"
 
-          # Get and install the latest stable sqlsrv DLL's
-          $DLLVersion = (Invoke-WebRequest "https://pecl.php.net/rest/r/sqlsrv/stable.txt").Content
+          # Use a preview version of the extension that supports PHP 7.4
+          $DLLVersion = "5.7.1preview"
           cd c:\tools\php\ext
           $source = "https://windows.php.net/downloads/pecl/releases/sqlsrv/$($DLLVersion)/php_sqlsrv-$($DLLVersion)-$($env:php)-nts-vc15-x64.zip"
           $destination = "c:\tools\php\ext\php_sqlsrv-$($DLLVersion)-$($env:php)-nts-vc15-x64.zip"

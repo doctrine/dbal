@@ -1,27 +1,38 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Driver\PDOPgSql;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\AbstractPostgreSQLDriver;
+use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\PDOConnection;
+use Doctrine\DBAL\Driver\PDOException;
 use PDO;
-use PDOException;
 use function defined;
 
 /**
  * Driver that connects through pdo_pgsql.
  */
-class Driver extends AbstractPostgreSQLDriver
+final class Driver extends AbstractPostgreSQLDriver
 {
     /**
      * {@inheritdoc}
      */
-    public function connect(array $params, $username = null, $password = null, array $driverOptions = [])
-    {
+    public function connect(
+        array $params,
+        string $username = '',
+        string $password = '',
+        array $driverOptions = []
+    ) : Connection {
+        if (! empty($params['persistent'])) {
+            $driverOptions[PDO::ATTR_PERSISTENT] = true;
+        }
+
         try {
-            $pdo = new PDOConnection(
-                $this->_constructPdoDsn($params),
+            $connection = new PDOConnection(
+                $this->constructPdoDsn($params),
                 $username,
                 $password,
                 $driverOptions
@@ -32,7 +43,7 @@ class Driver extends AbstractPostgreSQLDriver
                     || $driverOptions[PDO::PGSQL_ATTR_DISABLE_PREPARES] === true
                 )
             ) {
-                $pdo->setAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES, true);
+                $connection->getWrappedConnection()->setAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES, true);
             }
 
             /* defining client_encoding via SET NAMES to avoid inconsistent DSN support
@@ -40,10 +51,10 @@ class Driver extends AbstractPostgreSQLDriver
              * - passing client_encoding via the 'options' param breaks pgbouncer support
              */
             if (isset($params['charset'])) {
-                $pdo->exec('SET NAMES \'' . $params['charset'] . '\'');
+                $connection->exec('SET NAMES \'' . $params['charset'] . '\'');
             }
 
-            return $pdo;
+            return $connection;
         } catch (PDOException $e) {
             throw DBALException::driverException($this, $e);
         }
@@ -56,7 +67,7 @@ class Driver extends AbstractPostgreSQLDriver
      *
      * @return string The DSN.
      */
-    private function _constructPdoDsn(array $params)
+    private function constructPdoDsn(array $params) : string
     {
         $dsn = 'pgsql:';
 
@@ -104,15 +115,5 @@ class Driver extends AbstractPostgreSQLDriver
         }
 
         return $dsn;
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated
-     */
-    public function getName()
-    {
-        return 'pdo_pgsql';
     }
 }

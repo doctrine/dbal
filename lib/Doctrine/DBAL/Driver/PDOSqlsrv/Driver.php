@@ -1,21 +1,29 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Driver\PDOSqlsrv;
 
 use Doctrine\DBAL\Driver\AbstractSQLServerDriver;
+use Doctrine\DBAL\Driver\Connection as DriverConnection;
+use PDO;
 use function is_int;
 use function sprintf;
 
 /**
  * The PDO-based Sqlsrv driver.
  */
-class Driver extends AbstractSQLServerDriver
+final class Driver extends AbstractSQLServerDriver
 {
     /**
      * {@inheritdoc}
      */
-    public function connect(array $params, $username = null, $password = null, array $driverOptions = [])
-    {
+    public function connect(
+        array $params,
+        string $username = '',
+        string $password = '',
+        array $driverOptions = []
+    ) : DriverConnection {
         $pdoOptions = $dsnOptions = [];
 
         foreach ($driverOptions as $option => $value) {
@@ -26,8 +34,12 @@ class Driver extends AbstractSQLServerDriver
             }
         }
 
+        if (! empty($params['persistent'])) {
+            $pdoOptions[PDO::ATTR_PERSISTENT] = true;
+        }
+
         return new Connection(
-            $this->_constructPdoDsn($params, $dsnOptions),
+            $this->constructPdoDsn($params, $dsnOptions),
             $username,
             $password,
             $pdoOptions
@@ -42,7 +54,7 @@ class Driver extends AbstractSQLServerDriver
      *
      * @return string The DSN.
      */
-    private function _constructPdoDsn(array $params, array $connectionOptions)
+    private function constructPdoDsn(array $params, array $connectionOptions) : string
     {
         $dsn = 'sqlsrv:server=';
 
@@ -79,15 +91,5 @@ class Driver extends AbstractSQLServerDriver
         }
 
         return $connectionOptionsDsn;
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated
-     */
-    public function getName()
-    {
-        return 'pdo_sqlsrv';
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\Id\TableGenerator;
@@ -35,6 +37,7 @@ class TableGeneratorTest extends DbalFunctionalTestCase
             }
         } catch (Throwable $e) {
         }
+
         $this->generator = new TableGenerator($this->connection);
     }
 

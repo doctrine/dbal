@@ -37,9 +37,7 @@ class MySqlInheritCharsetTest extends TestCase
 
     public function testTableOptions() : void
     {
-        $eventManager = new EventManager();
-        $driverMock   = $this->createMock(Driver::class);
-        $platform     = new MySqlPlatform();
+        $platform = new MySqlPlatform();
 
         // default, no overrides
         $table = new Table('foobar', [new Column('aa', Type::getType('integer'))]);
@@ -66,7 +64,7 @@ class MySqlInheritCharsetTest extends TestCase
     }
 
     /**
-     * @param string[] $overrideOptions
+     * @param array<string, mixed> $overrideOptions
      *
      * @return string[]
      */

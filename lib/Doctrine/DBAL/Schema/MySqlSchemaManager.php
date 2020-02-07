@@ -1,13 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Types\Type;
-use const CASE_LOWER;
 use function array_change_key_case;
-use function array_shift;
 use function array_values;
 use function assert;
 use function explode;
@@ -17,6 +17,7 @@ use function strpos;
 use function strtok;
 use function strtolower;
 use function strtr;
+use const CASE_LOWER;
 
 /**
  * Schema manager for the MySql RDBMS.
@@ -46,7 +47,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableViewDefinition($view)
+    protected function _getPortableViewDefinition(array $view) : View
     {
         return new View($view['TABLE_NAME'], $view['VIEW_DEFINITION']);
     }
@@ -54,15 +55,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableDefinition($table)
-    {
-        return array_shift($table);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function _getPortableUserDefinition($user)
+    protected function _getPortableUserDefinition(array $user) : array
     {
         return [
             'user' => $user['User'],
@@ -73,32 +66,34 @@ class MySqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableIndexesList($tableIndexes, $tableName = null)
+    protected function _getPortableTableIndexesList(array $tableIndexRows, string $tableName) : array
     {
-        foreach ($tableIndexes as $k => $v) {
+        foreach ($tableIndexRows as $k => $v) {
             $v = array_change_key_case($v, CASE_LOWER);
             if ($v['key_name'] === 'PRIMARY') {
                 $v['primary'] = true;
             } else {
                 $v['primary'] = false;
             }
+
             if (strpos($v['index_type'], 'FULLTEXT') !== false) {
                 $v['flags'] = ['FULLTEXT'];
             } elseif (strpos($v['index_type'], 'SPATIAL') !== false) {
                 $v['flags'] = ['SPATIAL'];
             }
+
             $v['length'] = isset($v['sub_part']) ? (int) $v['sub_part'] : null;
 
-            $tableIndexes[$k] = $v;
+            $tableIndexRows[$k] = $v;
         }
 
-        return parent::_getPortableTableIndexesList($tableIndexes, $tableName);
+        return parent::_getPortableTableIndexesList($tableIndexRows, $tableName);
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableDatabaseDefinition($database)
+    protected function _getPortableDatabaseDefinition(array $database) : string
     {
         return $database['Database'];
     }
@@ -106,7 +101,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableColumnDefinition($tableColumn)
+    protected function _getPortableTableColumnDefinition(array $tableColumn) : Column
     {
         $tableColumn = array_change_key_case($tableColumn, CASE_LOWER);
 
@@ -116,57 +111,61 @@ class MySqlSchemaManager extends AbstractSchemaManager
 
         $length = $tableColumn['length'] ?? strtok('(), ');
 
-        $fixed = null;
+        $fixed = false;
 
         if (! isset($tableColumn['name'])) {
             $tableColumn['name'] = '';
         }
 
-        $scale     = null;
+        $scale     = 0;
         $precision = null;
 
-        $type = $this->_platform->getDoctrineTypeMapping($dbType);
-
-        // In cases where not connected to a database DESCRIBE $table does not return 'Comment'
-        if (isset($tableColumn['comment'])) {
-            $type                   = $this->extractDoctrineTypeFromComment($tableColumn['comment'], $type);
-            $tableColumn['comment'] = $this->removeDoctrineTypeFromComment($tableColumn['comment'], $type);
-        }
+        $type = $this->extractDoctrineTypeFromComment($tableColumn['comment'])
+            ?? $this->_platform->getDoctrineTypeMapping($dbType);
 
         switch ($dbType) {
             case 'char':
             case 'binary':
                 $fixed = true;
                 break;
+
             case 'float':
             case 'double':
             case 'real':
             case 'numeric':
             case 'decimal':
                 if (preg_match('([A-Za-z]+\(([0-9]+)\,([0-9]+)\))', $tableColumn['type'], $match)) {
-                    $precision = $match[1];
-                    $scale     = $match[2];
+                    $precision = (int) $match[1];
+                    $scale     = (int) $match[2];
                     $length    = null;
                 }
+
                 break;
+
             case 'tinytext':
                 $length = MySqlPlatform::LENGTH_LIMIT_TINYTEXT;
                 break;
+
             case 'text':
                 $length = MySqlPlatform::LENGTH_LIMIT_TEXT;
                 break;
+
             case 'mediumtext':
                 $length = MySqlPlatform::LENGTH_LIMIT_MEDIUMTEXT;
                 break;
+
             case 'tinyblob':
                 $length = MySqlPlatform::LENGTH_LIMIT_TINYBLOB;
                 break;
+
             case 'blob':
                 $length = MySqlPlatform::LENGTH_LIMIT_BLOB;
                 break;
+
             case 'mediumblob':
                 $length = MySqlPlatform::LENGTH_LIMIT_MEDIUMBLOB;
                 break;
+
             case 'tinyint':
             case 'smallint':
             case 'mediumint':
@@ -187,27 +186,23 @@ class MySqlSchemaManager extends AbstractSchemaManager
         $options = [
             'length'        => $length !== null ? (int) $length : null,
             'unsigned'      => strpos($tableColumn['type'], 'unsigned') !== false,
-            'fixed'         => (bool) $fixed,
+            'fixed'         => $fixed,
             'default'       => $columnDefault,
             'notnull'       => $tableColumn['null'] !== 'YES',
-            'scale'         => null,
-            'precision'     => null,
+            'scale'         => $scale,
+            'precision'     => $precision,
             'autoincrement' => strpos($tableColumn['extra'], 'auto_increment') !== false,
             'comment'       => isset($tableColumn['comment']) && $tableColumn['comment'] !== ''
                 ? $tableColumn['comment']
                 : null,
         ];
 
-        if ($scale !== null && $precision !== null) {
-            $options['scale']     = (int) $scale;
-            $options['precision'] = (int) $precision;
-        }
-
         $column = new Column($tableColumn['field'], Type::getType($type), $options);
 
         if (isset($tableColumn['characterset'])) {
             $column->setPlatformOption('charset', $tableColumn['characterset']);
         }
+
         if (isset($tableColumn['collation'])) {
             $column->setPlatformOption('collation', $tableColumn['collation']);
         }
@@ -244,8 +239,10 @@ class MySqlSchemaManager extends AbstractSchemaManager
         switch ($columnDefault) {
             case 'current_timestamp()':
                 return $platform->getCurrentTimestampSQL();
+
             case 'curdate()':
                 return $platform->getCurrentDateSQL();
+
             case 'curtime()':
                 return $platform->getCurrentTimeSQL();
         }
@@ -256,7 +253,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableForeignKeysList($tableForeignKeys)
+    protected function _getPortableTableForeignKeysList(array $tableForeignKeys) : array
     {
         $list = [];
         foreach ($tableForeignKeys as $value) {
@@ -265,6 +262,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
                 if (! isset($value['delete_rule']) || $value['delete_rule'] === 'RESTRICT') {
                     $value['delete_rule'] = null;
                 }
+
                 if (! isset($value['update_rule']) || $value['update_rule'] === 'RESTRICT') {
                     $value['update_rule'] = null;
                 }
@@ -278,6 +276,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
                     'onUpdate' => $value['update_rule'],
                 ];
             }
+
             $list[$value['constraint_name']]['local'][]   = $value['column_name'];
             $list[$value['constraint_name']]['foreign'][] = $value['referenced_column_name'];
         }
@@ -299,13 +298,13 @@ class MySqlSchemaManager extends AbstractSchemaManager
         return $result;
     }
 
-    public function listTableDetails($tableName)
+    public function listTableDetails(string $tableName) : Table
     {
         $table = parent::listTableDetails($tableName);
 
-        /** @var MySqlPlatform $platform */
         $platform = $this->_platform;
-        $sql      = $platform->getListTableMetadataSQL($tableName);
+        assert($platform instanceof MySqlPlatform);
+        $sql = $platform->getListTableMetadataSQL($tableName);
 
         $tableOptions = $this->_conn->fetchAssoc($sql);
 
@@ -330,7 +329,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * @return string[]|true[]
+     * @return array<string, string>|array<string, true>
      */
     private function parseCreateOptions(?string $string) : array
     {

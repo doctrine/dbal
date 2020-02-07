@@ -1,17 +1,16 @@
 <?php
 
+declare(strict_types=0);
+
 namespace Doctrine\DBAL\Driver\IBMDB2;
 
-use Doctrine\DBAL\Driver\Connection;
+use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
-use Doctrine\DBAL\ParameterType;
+use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use stdClass;
-use const DB2_AUTOCOMMIT_OFF;
-use const DB2_AUTOCOMMIT_ON;
+use function assert;
 use function db2_autocommit;
 use function db2_commit;
-use function db2_conn_error;
-use function db2_conn_errormsg;
 use function db2_connect;
 use function db2_escape_string;
 use function db2_exec;
@@ -21,166 +20,108 @@ use function db2_pconnect;
 use function db2_prepare;
 use function db2_rollback;
 use function db2_server_info;
-use function db2_stmt_errormsg;
-use function func_get_args;
+use const DB2_AUTOCOMMIT_OFF;
+use const DB2_AUTOCOMMIT_ON;
 
-class DB2Connection implements Connection, ServerInfoAwareConnection
+final class DB2Connection implements ServerInfoAwareConnection
 {
     /** @var resource */
-    private $conn = null;
+    private $conn;
 
     /**
-     * @param mixed[] $params
-     * @param string  $username
-     * @param string  $password
-     * @param mixed[] $driverOptions
+     * @param array<string, mixed> $params
+     * @param array<string, mixed> $driverOptions
      *
      * @throws DB2Exception
      */
-    public function __construct(array $params, $username, $password, $driverOptions = [])
+    public function __construct(array $params, string $username, string $password, array $driverOptions = [])
     {
-        $isPersistent = (isset($params['persistent']) && $params['persistent'] === true);
-
-        if ($isPersistent) {
+        if (isset($params['persistent']) && $params['persistent'] === true) {
             $conn = db2_pconnect($params['dbname'], $username, $password, $driverOptions);
         } else {
             $conn = db2_connect($params['dbname'], $username, $password, $driverOptions);
         }
 
         if ($conn === false) {
-            throw new DB2Exception(db2_conn_errormsg());
+            throw DB2Exception::fromConnectionError();
         }
 
         $this->conn = $conn;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getServerVersion()
+    public function getServerVersion() : string
     {
-        /** @var stdClass $serverInfo */
         $serverInfo = db2_server_info($this->conn);
+        assert($serverInfo instanceof stdClass);
 
         return $serverInfo->DBMS_VER;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function requiresQueryForServerVersion()
-    {
-        return false;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function prepare($sql)
+    public function prepare(string $sql) : DriverStatement
     {
         $stmt = @db2_prepare($this->conn, $sql);
         if (! $stmt) {
-            throw new DB2Exception(db2_stmt_errormsg());
+            throw DB2Exception::fromStatementError();
         }
 
         return new DB2Statement($stmt);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function query()
+    public function query(string $sql) : ResultStatement
     {
-        $args = func_get_args();
-        $sql  = $args[0];
         $stmt = $this->prepare($sql);
         $stmt->execute();
 
         return $stmt;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function quote($input, $type = ParameterType::STRING)
+    public function quote(string $input) : string
     {
-        $input = db2_escape_string($input);
-
-        if ($type === ParameterType::INTEGER) {
-            return $input;
-        }
-
-        return "'" . $input . "'";
+        return "'" . db2_escape_string($input) . "'";
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function exec($statement)
+    public function exec(string $statement) : int
     {
         $stmt = @db2_exec($this->conn, $statement);
 
         if ($stmt === false) {
-            throw new DB2Exception(db2_stmt_errormsg());
+            throw DB2Exception::fromStatementError();
         }
 
         return db2_num_rows($stmt);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function lastInsertId($name = null)
+    public function lastInsertId(?string $name = null) : string
     {
         return db2_last_insert_id($this->conn);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function beginTransaction()
+    public function beginTransaction() : void
     {
-        db2_autocommit($this->conn, DB2_AUTOCOMMIT_OFF);
+        if (! db2_autocommit($this->conn, DB2_AUTOCOMMIT_OFF)) {
+            throw DB2Exception::fromConnectionError($this->conn);
+        }
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function commit()
+    public function commit() : void
     {
         if (! db2_commit($this->conn)) {
-            throw new DB2Exception(db2_conn_errormsg($this->conn));
+            throw DB2Exception::fromConnectionError($this->conn);
         }
-        db2_autocommit($this->conn, DB2_AUTOCOMMIT_ON);
+
+        if (! db2_autocommit($this->conn, DB2_AUTOCOMMIT_ON)) {
+            throw DB2Exception::fromConnectionError($this->conn);
+        }
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function rollBack()
+    public function rollBack() : void
     {
         if (! db2_rollback($this->conn)) {
-            throw new DB2Exception(db2_conn_errormsg($this->conn));
+            throw DB2Exception::fromConnectionError($this->conn);
         }
-        db2_autocommit($this->conn, DB2_AUTOCOMMIT_ON);
-    }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function errorCode()
-    {
-        return db2_conn_error($this->conn);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function errorInfo()
-    {
-        return [
-            0 => db2_conn_errormsg($this->conn),
-            1 => $this->errorCode(),
-        ];
+        if (! db2_autocommit($this->conn, DB2_AUTOCOMMIT_ON)) {
+            throw DB2Exception::fromConnectionError($this->conn);
+        }
     }
 }

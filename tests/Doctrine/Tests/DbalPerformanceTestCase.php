@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests;
 
 use function microtime;
@@ -27,9 +29,6 @@ abstract class DbalPerformanceTestCase extends DbalFunctionalTestCase
      */
     private $runTime;
 
-    /**
-     * {@inheritdoc}
-     */
     protected function assertPostConditions() : void
     {
         // If a perf test doesn't start or stop, it fails.

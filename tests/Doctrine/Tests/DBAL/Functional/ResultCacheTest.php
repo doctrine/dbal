@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\Common\Cache\ArrayCache;
@@ -9,19 +11,19 @@ use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Logging\DebugStack;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\Tests\DbalFunctionalTestCase;
-use const CASE_LOWER;
 use function array_change_key_case;
 use function array_merge;
 use function array_shift;
 use function array_values;
 use function is_array;
+use const CASE_LOWER;
 
 /**
  * @group DDC-217
  */
 class ResultCacheTest extends DbalFunctionalTestCase
 {
-    /** @var array<int, array<int, int|string>> */
+    /** @var array<int, array<string, int|string>> */
     private $expectedResult = [['test_int' => 100, 'test_string' => 'foo'], ['test_int' => 200, 'test_string' => 'bar'], ['test_int' => 300, 'test_string' => 'baz']];
 
     /** @var DebugStack */
@@ -33,28 +35,24 @@ class ResultCacheTest extends DbalFunctionalTestCase
 
         $table = new Table('caching');
         $table->addColumn('test_int', 'integer');
-        $table->addColumn('test_string', 'string', ['notnull' => false]);
+        $table->addColumn('test_string', 'string', [
+            'length' => 8,
+            'notnull' => false,
+        ]);
         $table->setPrimaryKey(['test_int']);
 
         $sm = $this->connection->getSchemaManager();
-        $sm->createTable($table);
+        $sm->dropAndCreateTable($table);
 
         foreach ($this->expectedResult as $row) {
             $this->connection->insert('caching', $row);
         }
 
-        $config                                = $this->connection->getConfiguration();
+        $config = $this->connection->getConfiguration();
         $config->setSQLLogger($this->sqlLogger = new DebugStack());
 
         $cache = new ArrayCache();
         $config->setResultCacheImpl($cache);
-    }
-
-    protected function tearDown() : void
-    {
-        $this->connection->getSchemaManager()->dropTable('caching');
-
-        parent::tearDown();
     }
 
     public function testCacheFetchAssoc() : void
@@ -101,6 +99,7 @@ class ResultCacheTest extends DbalFunctionalTestCase
         foreach ($this->expectedResult as $v) {
             $numExpectedResult[] = array_values($v);
         }
+
         $stmt = $this->connection->executeQuery('SELECT * FROM caching ORDER BY test_int ASC', [], [], new QueryCacheProfile(10, 'testcachekey'));
 
         $data = $this->hydrateStmt($stmt, FetchMode::ASSOCIATIVE);
@@ -126,10 +125,10 @@ class ResultCacheTest extends DbalFunctionalTestCase
         $stmt = $this->connection->executeQuery('SELECT * FROM caching ORDER BY test_int ASC', [], [], new QueryCacheProfile(10, 'testcachekey'));
         $data = $this->hydrateStmt($stmt, $fetchMode);
 
-        $stmt          = $this->connection->executeQuery('SELECT * FROM caching ORDER BY test_int ASC', [], [], new QueryCacheProfile(10, 'testcachekey'));
-        $data_iterator = $this->hydrateStmtIterator($stmt, $fetchMode);
+        $stmt     = $this->connection->executeQuery('SELECT * FROM caching ORDER BY test_int ASC', [], [], new QueryCacheProfile(10, 'testcachekey'));
+        $iterator = $this->hydrateStmtIterator($stmt, $fetchMode);
 
-        self::assertEquals($data, $data_iterator);
+        self::assertEquals($data, $iterator);
     }
 
     public function testDontCloseNoCache() : void
@@ -182,7 +181,7 @@ class ResultCacheTest extends DbalFunctionalTestCase
         $query = $this->connection->getDatabasePlatform()
             ->getDummySelectSQL('1');
 
-        $qcp = new QueryCacheProfile(0, 0, new ArrayCache());
+        $qcp = new QueryCacheProfile(0, null, new ArrayCache());
 
         $stmt = $this->connection->executeCacheQuery($query, [], [], $qcp);
         $stmt->fetchAll(FetchMode::COLUMN);
@@ -194,7 +193,7 @@ class ResultCacheTest extends DbalFunctionalTestCase
     }
 
     /**
-     * @param array<int, array<int, int|string>> $expectedResult
+     * @param array<int, mixed> $expectedResult
      */
     private function assertCacheNonCacheSelectSameFetchModeAreEqual(array $expectedResult, int $fetchMode) : void
     {
@@ -215,10 +214,10 @@ class ResultCacheTest extends DbalFunctionalTestCase
     public function testEmptyResultCache() : void
     {
         $stmt = $this->connection->executeQuery('SELECT * FROM caching WHERE test_int > 500', [], [], new QueryCacheProfile(10, 'emptycachekey'));
-        $data = $this->hydrateStmt($stmt);
+        $this->hydrateStmt($stmt);
 
         $stmt = $this->connection->executeQuery('SELECT * FROM caching WHERE test_int > 500', [], [], new QueryCacheProfile(10, 'emptycachekey'));
-        $data = $this->hydrateStmt($stmt);
+        $this->hydrateStmt($stmt);
 
         self::assertCount(1, $this->sqlLogger->queries, 'just one dbal hit');
     }
@@ -226,11 +225,11 @@ class ResultCacheTest extends DbalFunctionalTestCase
     public function testChangeCacheImpl() : void
     {
         $stmt = $this->connection->executeQuery('SELECT * FROM caching WHERE test_int > 500', [], [], new QueryCacheProfile(10, 'emptycachekey'));
-        $data = $this->hydrateStmt($stmt);
+        $this->hydrateStmt($stmt);
 
         $secondCache = new ArrayCache();
         $stmt        = $this->connection->executeQuery('SELECT * FROM caching WHERE test_int > 500', [], [], new QueryCacheProfile(10, 'emptycachekey', $secondCache));
-        $data        = $this->hydrateStmt($stmt);
+        $this->hydrateStmt($stmt);
 
         self::assertCount(2, $this->sqlLogger->queries, 'two hits');
         self::assertCount(1, $secondCache->fetch('emptycachekey'));
@@ -245,6 +244,7 @@ class ResultCacheTest extends DbalFunctionalTestCase
         while ($row = $stmt->fetch($fetchMode)) {
             $data[] = is_array($row) ? array_change_key_case($row, CASE_LOWER) : $row;
         }
+
         $stmt->closeCursor();
 
         return $data;
@@ -260,6 +260,7 @@ class ResultCacheTest extends DbalFunctionalTestCase
         foreach ($stmt as $row) {
             $data[] = is_array($row) ? array_change_key_case($row, CASE_LOWER) : $row;
         }
+
         $stmt->closeCursor();
 
         return $data;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Schema;
 
 use Doctrine\DBAL\Schema\Schema;
@@ -61,7 +63,7 @@ class SchemaTest extends TestCase
         $table     = new Table($tableName);
         $tables    = [$table, $table];
 
-        $schema = new Schema($tables);
+        new Schema($tables);
     }
 
     public function testRenameTable() : void
@@ -170,7 +172,7 @@ class SchemaTest extends TestCase
 
         $sequence = new Sequence('a_seq', 1, 1);
 
-        $schema = new Schema([], [$sequence, $sequence]);
+        new Schema([], [$sequence, $sequence]);
     }
 
     public function testConfigMaxIdentifierLength() : void
@@ -399,7 +401,7 @@ class SchemaTest extends TestCase
         $visitor->expects($this->exactly(2))
             ->method('acceptSequence');
 
-        self::assertNull($schema->visit($visitor));
+        $schema->visit($visitor);
     }
 
     /**
@@ -460,6 +462,8 @@ class SchemaTest extends TestCase
         $visitor->expects($this->exactly(2))
             ->method('acceptSequence');
 
-        self::assertNull($schema->visit($visitor));
+        $schema->visit($visitor);
+
+        self::doesNotPerformAssertions(); // FIXME
     }
 }

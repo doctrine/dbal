@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Types\Exception\ValueNotConvertible;
 use function assert;
 use function fopen;
 use function fseek;
@@ -19,7 +22,7 @@ class BlobType extends Type
     /**
      * {@inheritdoc}
      */
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
+    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform) : string
     {
         return $platform->getBlobTypeDeclarationSQL($fieldDeclaration);
     }
@@ -42,24 +45,18 @@ class BlobType extends Type
         }
 
         if (! is_resource($value)) {
-            throw ConversionException::conversionFailed($value, Types::BLOB);
+            throw ValueNotConvertible::new($value, Types::BLOB);
         }
 
         return $value;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
+    public function getName() : string
     {
         return Types::BLOB;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getBindingType()
+    public function getBindingType() : int
     {
         return ParameterType::LARGE_OBJECT;
     }

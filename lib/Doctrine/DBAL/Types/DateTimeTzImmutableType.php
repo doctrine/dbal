@@ -1,19 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Types;
 
 use DateTimeImmutable;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Types\Exception\InvalidFormat;
+use Doctrine\DBAL\Types\Exception\InvalidType;
 
 /**
  * Immutable type of {@see DateTimeTzType}.
  */
 class DateTimeTzImmutableType extends DateTimeTzType
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
+    public function getName() : string
     {
         return Types::DATETIMETZ_IMMUTABLE;
     }
@@ -31,7 +32,7 @@ class DateTimeTzImmutableType extends DateTimeTzType
             return $value->format($platform->getDateTimeTzFormatString());
         }
 
-        throw ConversionException::conversionFailedInvalidType(
+        throw InvalidType::new(
             $value,
             $this->getName(),
             ['null', DateTimeImmutable::class]
@@ -50,7 +51,7 @@ class DateTimeTzImmutableType extends DateTimeTzType
         $dateTime = DateTimeImmutable::createFromFormat($platform->getDateTimeTzFormatString(), $value);
 
         if (! $dateTime) {
-            throw ConversionException::conversionFailedFormat(
+            throw InvalidFormat::new(
                 $value,
                 $this->getName(),
                 $platform->getDateTimeTzFormatString()
@@ -60,10 +61,7 @@ class DateTimeTzImmutableType extends DateTimeTzType
         return $dateTime;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function requiresSQLCommentHint(AbstractPlatform $platform)
+    public function requiresSQLCommentHint(AbstractPlatform $platform) : bool
     {
         return true;
     }

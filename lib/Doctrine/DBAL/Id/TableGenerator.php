@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Id;
 
 use Doctrine\DBAL\Connection;
@@ -8,8 +10,9 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\LockMode;
 use Throwable;
-use const CASE_LOWER;
 use function array_change_key_case;
+use function sprintf;
+use const CASE_LOWER;
 
 /**
  * Table ID Generator for those poor languages that are missing sequences.
@@ -56,20 +59,19 @@ class TableGenerator
     /** @var string */
     private $generatorTableName;
 
-    /** @var mixed[][] */
+    /** @var array<string, array<string, int>> */
     private $sequences = [];
 
     /**
-     * @param string $generatorTableName
-     *
      * @throws DBALException
      */
-    public function __construct(Connection $conn, $generatorTableName = 'sequences')
+    public function __construct(Connection $conn, string $generatorTableName = 'sequences')
     {
         $params = $conn->getParams();
         if ($params['driver'] === 'pdo_sqlite') {
             throw new DBALException('Cannot use TableGenerator with SQLite.');
         }
+
         $this->conn               = DriverManager::getConnection($params, $conn->getConfiguration(), $conn->getEventManager());
         $this->generatorTableName = $generatorTableName;
     }
@@ -77,13 +79,9 @@ class TableGenerator
     /**
      * Generates the next unused value for the given sequence name.
      *
-     * @param string $sequenceName
-     *
-     * @return int
-     *
      * @throws DBALException
      */
-    public function nextValue($sequenceName)
+    public function nextValue(string $sequenceName) : int
     {
         if (isset($this->sequences[$sequenceName])) {
             $value = $this->sequences[$sequenceName]['value'];
@@ -124,7 +122,7 @@ class TableGenerator
                 $rows = $this->conn->executeUpdate($sql, [$sequenceName, $row['sequence_value']]);
 
                 if ($rows !== 1) {
-                    throw new DBALException('Race-condition detected while updating sequence. Aborting generation');
+                    throw new DBALException('Race condition detected while updating sequence. Aborting generation.');
                 }
             } else {
                 $this->conn->insert(
@@ -137,7 +135,8 @@ class TableGenerator
             $this->conn->commit();
         } catch (Throwable $e) {
             $this->conn->rollBack();
-            throw new DBALException('Error occurred while generating ID with TableGenerator, aborted generation: ' . $e->getMessage(), 0, $e);
+
+            throw new DBALException(sprintf('Error occurred while generating ID with TableGenerator, aborted generation with error: %s', $e->getMessage()), 0, $e);
         }
 
         return $value;

@@ -1,12 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Functional\Driver\PDOSqlsrv;
 
 use Doctrine\DBAL\Driver as DriverInterface;
 use Doctrine\DBAL\Driver\Connection;
+use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\Driver\PDOSqlsrv\Driver;
 use Doctrine\Tests\DBAL\Functional\Driver\AbstractDriverTest;
 use PDO;
+use function assert;
 use function extension_loaded;
 
 class DriverTest extends AbstractDriverTest
@@ -26,17 +30,11 @@ class DriverTest extends AbstractDriverTest
         $this->markTestSkipped('pdo_sqlsrv only test.');
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function createDriver() : DriverInterface
     {
         return new Driver();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected static function getDatabaseNameForConnectionWithoutDatabaseNameParameter() : ?string
     {
         return 'master';
@@ -70,6 +68,13 @@ class DriverTest extends AbstractDriverTest
     {
         $connection = $this->getConnection([PDO::ATTR_CASE => PDO::CASE_UPPER]);
 
-        self::assertSame(PDO::CASE_UPPER, $connection->getAttribute(PDO::ATTR_CASE));
+        assert($connection instanceof PDOConnection);
+
+        self::assertSame(
+            PDO::CASE_UPPER,
+            $connection
+                ->getWrappedConnection()
+                ->getAttribute(PDO::ATTR_CASE)
+        );
     }
 }

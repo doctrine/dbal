@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Tools;
 
 use ArrayIterator;
@@ -57,12 +59,12 @@ final class Dumper
     {
         $html = ini_get('html_errors');
 
-        if ($html !== true) {
-            ini_set('html_errors', true);
+        if ($html !== '1') {
+            ini_set('html_errors', '1');
         }
 
         if (extension_loaded('xdebug')) {
-            ini_set('xdebug.var_display_max_depth', $maxDepth);
+            ini_set('xdebug.var_display_max_depth', (string) $maxDepth);
         }
 
         $var = self::export($var, $maxDepth);
@@ -140,30 +142,26 @@ final class Dumper
      * Fill the $return variable with class attributes
      * Based on obj2array function from {@see https://secure.php.net/manual/en/function.get-object-vars.php#47075}
      *
-     * @param object $var
-     *
      * @return mixed
      */
-    private static function fillReturnWithClassAttributes($var, stdClass $return, int $maxDepth)
+    private static function fillReturnWithClassAttributes(object $var, stdClass $return, int $maxDepth)
     {
         $clone = (array) $var;
 
         foreach (array_keys($clone) as $key) {
-            $aux  = explode("\0", $key);
+            $aux  = explode("\0", (string) $key);
             $name = end($aux);
             if ($aux[0] === '') {
                 $name .= ':' . ($aux[1] === '*' ? 'protected' : $aux[1] . ':private');
             }
+
             $return->$name = self::export($clone[$key], $maxDepth - 1);
         }
 
         return $return;
     }
 
-    /**
-     * @param object $object
-     */
-    private static function getClass($object) : string
+    private static function getClass(object $object) : string
     {
         $class = get_class($object);
 

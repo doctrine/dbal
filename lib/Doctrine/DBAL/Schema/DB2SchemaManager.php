@@ -1,17 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Types\Type;
-use const CASE_LOWER;
 use function array_change_key_case;
+use function assert;
 use function is_resource;
 use function preg_match;
 use function str_replace;
 use function strpos;
 use function strtolower;
 use function substr;
+use const CASE_LOWER;
 
 /**
  * IBM Db2 Schema Manager.
@@ -24,10 +27,9 @@ class DB2SchemaManager extends AbstractSchemaManager
      * Apparently creator is the schema not the user who created it:
      * {@link http://publib.boulder.ibm.com/infocenter/dzichelp/v2r2/index.jsp?topic=/com.ibm.db29.doc.sqlref/db2z_sysibmsystablestable.htm}
      */
-    public function listTableNames()
+    public function listTableNames() : array
     {
-        $sql  = $this->_platform->getListTablesSQL();
-        $sql .= ' AND CREATOR = UPPER(' . $this->_conn->quote($this->_conn->getUsername()) . ')';
+        $sql = $this->_platform->getListTablesSQL() . ' AND CREATOR = CURRENT_USER';
 
         $tables = $this->_conn->fetchAll($sql);
 
@@ -37,16 +39,13 @@ class DB2SchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableColumnDefinition($tableColumn)
+    protected function _getPortableTableColumnDefinition(array $tableColumn) : Column
     {
         $tableColumn = array_change_key_case($tableColumn, CASE_LOWER);
 
-        $length    = null;
-        $fixed     = null;
-        $scale     = false;
-        $precision = false;
-
-        $default = null;
+        $length = $precision = $default = null;
+        $scale  = 0;
+        $fixed  = false;
 
         if ($tableColumn['default'] !== null && $tableColumn['default'] !== 'NULL') {
             $default = $tableColumn['default'];
@@ -56,25 +55,23 @@ class DB2SchemaManager extends AbstractSchemaManager
             }
         }
 
-        $type = $this->_platform->getDoctrineTypeMapping($tableColumn['typename']);
-
-        if (isset($tableColumn['comment'])) {
-            $type                   = $this->extractDoctrineTypeFromComment($tableColumn['comment'], $type);
-            $tableColumn['comment'] = $this->removeDoctrineTypeFromComment($tableColumn['comment'], $type);
-        }
+        $type = $this->extractDoctrineTypeFromComment($tableColumn['comment'])
+            ?? $this->_platform->getDoctrineTypeMapping($tableColumn['typename']);
 
         switch (strtolower($tableColumn['typename'])) {
             case 'varchar':
                 $length = $tableColumn['length'];
-                $fixed  = false;
                 break;
+
             case 'character':
                 $length = $tableColumn['length'];
                 $fixed  = true;
                 break;
+
             case 'clob':
                 $length = $tableColumn['length'];
                 break;
+
             case 'decimal':
             case 'double':
             case 'real':
@@ -86,12 +83,10 @@ class DB2SchemaManager extends AbstractSchemaManager
         $options = [
             'length'        => $length,
             'unsigned'      => false,
-            'fixed'         => (bool) $fixed,
+            'fixed'         => $fixed,
             'default'       => $default,
             'autoincrement' => (bool) $tableColumn['autoincrement'],
-            'notnull'       => (bool) ($tableColumn['nulls'] === 'N'),
-            'scale'         => null,
-            'precision'     => null,
+            'notnull'       => $tableColumn['nulls'] === 'N',
             'comment'       => isset($tableColumn['comment']) && $tableColumn['comment'] !== ''
                 ? $tableColumn['comment']
                 : null,
@@ -109,7 +104,7 @@ class DB2SchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTablesList($tables)
+    protected function _getPortableTablesList(array $tables) : array
     {
         $tableNames = [];
         foreach ($tables as $tableRow) {
@@ -123,7 +118,7 @@ class DB2SchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableIndexesList($tableIndexRows, $tableName = null)
+    protected function _getPortableTableIndexesList(array $tableIndexRows, string $tableName) : array
     {
         foreach ($tableIndexRows as &$tableIndexRow) {
             $tableIndexRow            = array_change_key_case($tableIndexRow, CASE_LOWER);
@@ -136,7 +131,7 @@ class DB2SchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableForeignKeyDefinition($tableForeignKey)
+    protected function _getPortableTableForeignKeyDefinition(array $tableForeignKey) : ForeignKeyConstraint
     {
         return new ForeignKeyConstraint(
             $tableForeignKey['local_columns'],
@@ -150,7 +145,7 @@ class DB2SchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableForeignKeysList($tableForeignKeys)
+    protected function _getPortableTableForeignKeysList(array $tableForeignKeys) : array
     {
         $foreignKeys = [];
 
@@ -180,23 +175,7 @@ class DB2SchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableForeignKeyRuleDef($def)
-    {
-        if ($def === 'C') {
-            return 'CASCADE';
-        }
-
-        if ($def === 'N') {
-            return 'SET NULL';
-        }
-
-        return null;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function _getPortableViewDefinition($view)
+    protected function _getPortableViewDefinition(array $view) : View
     {
         $view = array_change_key_case($view, CASE_LOWER);
         // sadly this still segfaults on PDO_IBM, see http://pecl.php.net/bugs/bug.php?id=17199
@@ -211,13 +190,13 @@ class DB2SchemaManager extends AbstractSchemaManager
         return new View($view['name'], $sql);
     }
 
-    public function listTableDetails($tableName) : Table
+    public function listTableDetails(string $tableName) : Table
     {
         $table = parent::listTableDetails($tableName);
 
-        /** @var DB2Platform $platform */
         $platform = $this->_platform;
-        $sql      = $platform->getListTableCommentsSQL($tableName);
+        assert($platform instanceof DB2Platform);
+        $sql = $platform->getListTableCommentsSQL($tableName);
 
         $tableOptions = $this->_conn->fetchAssoc($sql);
         $table->addOption('comment', $tableOptions['REMARKS']);

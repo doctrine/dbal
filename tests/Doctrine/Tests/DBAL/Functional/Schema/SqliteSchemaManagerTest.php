@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\Connection;
+use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\BlobType;
@@ -11,6 +14,7 @@ use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use SQLite3;
 use function array_map;
+use function assert;
 use function dirname;
 use function extension_loaded;
 use function version_compare;
@@ -49,8 +53,8 @@ class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $params           = $this->connection->getParams();
         $params['dbname'] = 'test_drop_database';
 
-        $user     = $params['user'] ?? null;
-        $password = $params['password'] ?? null;
+        $user     = $params['user'] ?? '';
+        $password = $params['password'] ?? '';
 
         $connection = $this->connection->getDriver()->connect($params, $user, $password);
 
@@ -98,7 +102,7 @@ EOS
             new Schema\ForeignKeyConstraint(
                 ['log'],
                 'log',
-                [null],
+                [''],
                 'FK_3',
                 ['onUpdate' => 'SET NULL', 'onDelete' => 'NO ACTION', 'deferrable' => false, 'deferred' => false]
             ),
@@ -169,6 +173,7 @@ EOS
         if (version_compare($version['versionString'], '3.7.16', '<')) {
             $this->markTestSkipped('This version of sqlite doesn\'t return the order of the Primary Key.');
         }
+
         $this->connection->exec(<<<EOS
 CREATE TABLE non_default_pk_order (
     id INTEGER,
@@ -233,9 +238,11 @@ SQL;
         $diff        = $comparator->diffTable($offlineTable, $onlineTable);
 
         if ($expectedComparatorDiff) {
+            self::assertNotNull($diff);
+
             self::assertEmpty($this->schemaManager->getDatabasePlatform()->getAlterTableSQL($diff));
         } else {
-            self::assertFalse($diff);
+            self::assertNull($diff);
         }
     }
 
@@ -272,6 +279,8 @@ SQL;
         $this->connection->insert('test_pk_auto_increment', ['text' => '2']);
 
         $query = $this->connection->query('SELECT id FROM test_pk_auto_increment WHERE text = "2"');
+        assert($query instanceof Statement);
+
         $query->execute();
         $lastUsedIdAfterDelete = (int) $query->fetchColumn();
 

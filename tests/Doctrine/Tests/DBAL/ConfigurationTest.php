@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL;
 
 use Doctrine\DBAL\Configuration;
@@ -17,9 +19,6 @@ class ConfigurationTest extends DbalTestCase
      */
     protected $config;
 
-    /**
-     * {@inheritdoc}
-     */
     protected function setUp() : void
     {
         $this->config = new Configuration();
@@ -43,10 +42,6 @@ class ConfigurationTest extends DbalTestCase
     public function testSetsDefaultConnectionAutoCommitMode() : void
     {
         $this->config->setAutoCommit(false);
-
-        self::assertFalse($this->config->getAutoCommit());
-
-        $this->config->setAutoCommit(0);
 
         self::assertFalse($this->config->getAutoCommit());
     }

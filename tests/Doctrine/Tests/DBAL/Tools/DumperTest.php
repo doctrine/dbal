@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Tools;
 
 use ArrayIterator;
@@ -95,13 +97,13 @@ class DumperTest extends DbalTestCase
      */
     public function testExportParentAttributes(TestAsset\ParentClass $class, array $expected) : void
     {
-        $print_r_class    = print_r($class, true);
-        $print_r_expected = print_r($expected, true);
+        $printedClass    = print_r($class, true);
+        $printedExpected = print_r($expected, true);
 
-        $print_r_class    = substr($print_r_class, strpos($print_r_class, '('));
-        $print_r_expected = substr($print_r_expected, strpos($print_r_expected, '('));
+        $printedClass    = substr($printedClass, (int) strpos($printedClass, '('));
+        $printedExpected = substr($printedExpected, (int) strpos($printedExpected, '('));
 
-        self::assertSame($print_r_class, $print_r_expected);
+        self::assertSame($printedClass, $printedExpected);
 
         $var = Dumper::export($class, 3);
         $var = (array) $var;

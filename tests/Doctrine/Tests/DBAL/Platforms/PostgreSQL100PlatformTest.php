@@ -7,11 +7,8 @@ namespace Doctrine\Tests\DBAL\Platforms;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQL100Platform;
 
-class PostgreSQL100PlatformTest extends PostgreSQL94PlatformTest
+class PostgreSQL100PlatformTest extends PostgreSqlPlatformTest
 {
-    /**
-     * {@inheritdoc}
-     */
     public function createPlatform() : AbstractPlatform
     {
         return new PostgreSQL100Platform();

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Functional\Driver\SQLSrv;
 
 use Doctrine\DBAL\Driver as DriverInterface;
@@ -24,17 +26,11 @@ class DriverTest extends AbstractDriverTest
         $this->markTestSkipped('sqlsrv only test.');
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function createDriver() : DriverInterface
     {
         return new Driver();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected static function getDatabaseNameForConnectionWithoutDatabaseNameParameter() : ?string
     {
         return 'master';

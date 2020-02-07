@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Performance;
 
 use DateTime;
@@ -26,6 +28,7 @@ class TypeConversionPerformanceTest extends DbalPerformanceTestCase
         for ($i = 0; $i < $count; $i++) {
             $type->convertToDatabaseValue($value, $platform);
         }
+
         $this->stopTiming();
     }
 

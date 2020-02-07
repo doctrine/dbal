@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Functional\Platform;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -9,9 +11,6 @@ use function in_array;
 
 final class NewPrimaryKeyWithNewAutoIncrementColumnTest extends DbalFunctionalTestCase
 {
-    /**
-     * {@inheritDoc}
-     */
     protected function setUp() : void
     {
         parent::setUp();

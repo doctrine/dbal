@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Query\Expression;
 
 use Doctrine\DBAL\Connection;
@@ -34,22 +36,6 @@ class ExpressionBuilderTest extends DbalTestCase
     public function testAnd(array $parts, string $expected) : void
     {
         $composite = $this->expr->and(...$parts);
-
-        self::assertEquals($expected, (string) $composite);
-    }
-
-    /**
-     * @param string[]|CompositeExpression[] $parts
-     *
-     * @dataProvider provideDataForAnd
-     */
-    public function testAndX(array $parts, string $expected) : void
-    {
-        $composite = $this->expr->andX();
-
-        foreach ($parts as $part) {
-            $composite->add($part);
-        }
 
         self::assertEquals($expected, (string) $composite);
     }
@@ -107,22 +93,6 @@ class ExpressionBuilderTest extends DbalTestCase
     public function testOr(array $parts, string $expected) : void
     {
         $composite = $this->expr->or(...$parts);
-
-        self::assertEquals($expected, (string) $composite);
-    }
-
-    /**
-     * @param string[]|CompositeExpression[] $parts
-     *
-     * @dataProvider provideDataForOr
-     */
-    public function testOrX(array $parts, string $expected) : void
-    {
-        $composite = $this->expr->orX();
-
-        foreach ($parts as $part) {
-            $composite->add($part);
-        }
 
         self::assertEquals($expected, (string) $composite);
     }
@@ -239,7 +209,7 @@ class ExpressionBuilderTest extends DbalTestCase
 
     public function testIn() : void
     {
-        self::assertEquals('u.groups IN (1, 3, 4, 7)', $this->expr->in('u.groups', [1, 3, 4, 7]));
+        self::assertEquals('u.groups IN (1, 3, 4, 7)', $this->expr->in('u.groups', ['1', '3', '4', '7']));
     }
 
     public function testInWithPlaceholder() : void
@@ -249,7 +219,7 @@ class ExpressionBuilderTest extends DbalTestCase
 
     public function testNotIn() : void
     {
-        self::assertEquals('u.groups NOT IN (1, 3, 4, 7)', $this->expr->notIn('u.groups', [1, 3, 4, 7]));
+        self::assertEquals('u.groups NOT IN (1, 3, 4, 7)', $this->expr->notIn('u.groups', ['1', '3', '4', '7']));
     }
 
     public function testNotInWithPlaceholder() : void

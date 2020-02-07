@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Functional\Ticket;
 
 use Doctrine\DBAL\Schema\Comparator;
@@ -35,6 +37,6 @@ class DBAL510Test extends DbalFunctionalTestCase
         $comparator = new Comparator();
         $diff       = $comparator->diffTable($onlineTable, $table);
 
-        self::assertFalse($diff);
+        self::assertNull($diff);
     }
 }

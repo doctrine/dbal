@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests;
 
 use Doctrine\DBAL\Connection;
@@ -7,7 +9,6 @@ use Doctrine\DBAL\Logging\DebugStack;
 use Exception;
 use PHPUnit\Framework\AssertionFailedError;
 use Throwable;
-use const PHP_EOL;
 use function array_map;
 use function array_reverse;
 use function count;
@@ -17,13 +18,14 @@ use function is_object;
 use function is_scalar;
 use function strpos;
 use function var_export;
+use const PHP_EOL;
 
 abstract class DbalFunctionalTestCase extends DbalTestCase
 {
     /**
      * Shared connection when a TestCase is run alone (outside of it's functional suite)
      *
-     * @var Connection
+     * @var Connection|null
      */
     private static $sharedConnection;
 
@@ -35,7 +37,7 @@ abstract class DbalFunctionalTestCase extends DbalTestCase
 
     protected function resetSharedConn() : void
     {
-        if (! self::$sharedConnection) {
+        if (self::$sharedConnection === null) {
             return;
         }
 
@@ -48,6 +50,7 @@ abstract class DbalFunctionalTestCase extends DbalTestCase
         if (! isset(self::$sharedConnection)) {
             self::$sharedConnection = TestUtil::getConnection();
         }
+
         $this->connection = self::$sharedConnection;
 
         $this->sqlLoggerStack = new DebugStack();
@@ -105,6 +108,7 @@ abstract class DbalFunctionalTestCase extends DbalTestCase
 
             throw new Exception($message, (int) $t->getCode(), $t);
         }
+
         throw $t;
     }
 }

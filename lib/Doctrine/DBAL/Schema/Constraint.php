@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -9,23 +11,17 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
  */
 interface Constraint
 {
-    /**
-     * @return string
-     */
-    public function getName();
+    public function getName() : string;
 
-    /**
-     * @return string
-     */
-    public function getQuotedName(AbstractPlatform $platform);
+    public function getQuotedName(AbstractPlatform $platform) : string;
 
     /**
      * Returns the names of the referencing table columns
      * the constraint is associated with.
      *
-     * @return string[]
+     * @return array<int, string>
      */
-    public function getColumns();
+    public function getColumns() : array;
 
     /**
      * Returns the quoted representation of the column names
@@ -37,7 +33,7 @@ interface Constraint
      *
      * @param AbstractPlatform $platform The platform to use for quotation.
      *
-     * @return string[]
+     * @return array<int, string>
      */
-    public function getQuotedColumns(AbstractPlatform $platform);
+    public function getQuotedColumns(AbstractPlatform $platform) : array;
 }

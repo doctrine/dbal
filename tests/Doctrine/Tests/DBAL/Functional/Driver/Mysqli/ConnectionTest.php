@@ -1,13 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Functional\Driver\Mysqli;
 
 use Doctrine\DBAL\Driver\Mysqli\Driver;
 use Doctrine\DBAL\Driver\Mysqli\MysqliConnection;
 use Doctrine\DBAL\Driver\Mysqli\MysqliException;
 use Doctrine\Tests\DbalFunctionalTestCase;
-use const MYSQLI_OPT_CONNECT_TIMEOUT;
 use function extension_loaded;
+use const MYSQLI_OPT_CONNECT_TIMEOUT;
 
 class ConnectionTest extends DbalFunctionalTestCase
 {
@@ -46,12 +48,6 @@ class ConnectionTest extends DbalFunctionalTestCase
         $this->getConnection(['hello' => 'world']); // use local infile
     }
 
-    public function testPing() : void
-    {
-        $conn = $this->getConnection([]);
-        self::assertTrue($conn->ping());
-    }
-
     /**
      * @param mixed[] $driverOptions
      */
@@ -61,7 +57,7 @@ class ConnectionTest extends DbalFunctionalTestCase
             [
                 'host' => $GLOBALS['db_host'],
                 'dbname' => $GLOBALS['db_name'],
-                'port' => $GLOBALS['db_port'],
+                'port' => (int) $GLOBALS['db_port'],
             ],
             $GLOBALS['db_username'],
             $GLOBALS['db_password'],

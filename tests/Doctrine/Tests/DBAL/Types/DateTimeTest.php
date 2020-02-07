@@ -1,19 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Types;
 
 use DateTime;
 use Doctrine\DBAL\Types\ConversionException;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\DateTimeType;
 
 class DateTimeTest extends BaseDateTypeTestCase
 {
-    /**
-     * {@inheritDoc}
-     */
     protected function setUp() : void
     {
-        $this->type = Type::getType('datetime');
+        $this->type = new DateTimeType();
 
         parent::setUp();
     }

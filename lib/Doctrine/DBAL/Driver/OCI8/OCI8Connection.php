@@ -1,18 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Driver\OCI8;
 
 use Doctrine\DBAL\Driver\Connection;
+use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
-use Doctrine\DBAL\ParameterType;
+use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use UnexpectedValueException;
-use const OCI_COMMIT_ON_SUCCESS;
-use const OCI_DEFAULT;
-use const OCI_NO_AUTO_COMMIT;
 use function addcslashes;
-use function func_get_args;
-use function is_float;
-use function is_int;
 use function oci_commit;
 use function oci_connect;
 use function oci_error;
@@ -22,37 +19,31 @@ use function oci_server_version;
 use function preg_match;
 use function sprintf;
 use function str_replace;
+use const OCI_DEFAULT;
 
 /**
  * OCI8 implementation of the Connection interface.
  */
-class OCI8Connection implements Connection, ServerInfoAwareConnection
+final class OCI8Connection implements Connection, ServerInfoAwareConnection
 {
     /** @var resource */
     protected $dbh;
 
-    /** @var int */
-    protected $executeMode = OCI_COMMIT_ON_SUCCESS;
+    /** @var ExecutionMode */
+    private $executionMode;
 
     /**
      * Creates a Connection to an Oracle Database using oci8 extension.
      *
-     * @param string $username
-     * @param string $password
-     * @param string $db
-     * @param string $charset
-     * @param int    $sessionMode
-     * @param bool   $persistent
-     *
      * @throws OCI8Exception
      */
     public function __construct(
-        $username,
-        $password,
-        $db,
-        $charset = '',
-        $sessionMode = OCI_DEFAULT,
-        $persistent = false
+        string $username,
+        string $password,
+        string $db,
+        string $charset = '',
+        int $sessionMode = OCI_DEFAULT,
+        bool $persistent = false
     ) {
         $dbh = $persistent
             ? @oci_pconnect($username, $password, $db, $charset, $sessionMode)
@@ -62,7 +53,8 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
             throw OCI8Exception::fromErrorInfo(oci_error());
         }
 
-        $this->dbh = $dbh;
+        $this->dbh           = $dbh;
+        $this->executionMode = new ExecutionMode();
     }
 
     /**
@@ -71,7 +63,7 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
      * @throws UnexpectedValueException If the version string returned by the database server
      *                                  does not contain a parsable version number.
      */
-    public function getServerVersion()
+    public function getServerVersion() : string
     {
         $version = oci_server_version($this->dbh);
 
@@ -92,53 +84,25 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
         return $matches[1];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function requiresQueryForServerVersion()
+    public function prepare(string $sql) : DriverStatement
     {
-        return false;
+        return new OCI8Statement($this->dbh, $sql, $this->executionMode);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function prepare($prepareString)
+    public function query(string $sql) : ResultStatement
     {
-        return new OCI8Statement($this->dbh, $prepareString, $this);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function query()
-    {
-        $args = func_get_args();
-        $sql  = $args[0];
-        //$fetchMode = $args[1];
         $stmt = $this->prepare($sql);
         $stmt->execute();
 
         return $stmt;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function quote($value, $type = ParameterType::STRING)
+    public function quote(string $input) : string
     {
-        if (is_int($value) || is_float($value)) {
-            return $value;
-        }
-        $value = str_replace("'", "''", $value);
-
-        return "'" . addcslashes($value, "\000\n\r\\\032") . "'";
+        return "'" . addcslashes(str_replace("'", "''", $input), "\000\n\r\\\032") . "'";
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function exec($statement)
+    public function exec(string $statement) : int
     {
         $stmt = $this->prepare($statement);
         $stmt->execute();
@@ -146,13 +110,10 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
         return $stmt->rowCount();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function lastInsertId($name = null)
+    public function lastInsertId(?string $name = null) : string
     {
         if ($name === null) {
-            return false;
+            throw new OCI8Exception('The driver does not support identity columns.');
         }
 
         $sql    = 'SELECT ' . $name . '.CURRVAL FROM DUAL';
@@ -163,79 +124,29 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
             throw new OCI8Exception('lastInsertId failed: Query was executed but no result was returned.');
         }
 
-        return (int) $result;
+        return $result;
     }
 
-    /**
-     * Returns the current execution mode.
-     *
-     * @return int
-     */
-    public function getExecuteMode()
+    public function beginTransaction() : void
     {
-        return $this->executeMode;
+        $this->executionMode->disableAutoCommit();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function beginTransaction()
-    {
-        $this->executeMode = OCI_NO_AUTO_COMMIT;
-
-        return true;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function commit()
+    public function commit() : void
     {
         if (! oci_commit($this->dbh)) {
-            throw OCI8Exception::fromErrorInfo($this->errorInfo());
+            throw OCI8Exception::fromErrorInfo(oci_error($this->dbh));
         }
-        $this->executeMode = OCI_COMMIT_ON_SUCCESS;
 
-        return true;
+        $this->executionMode->enableAutoCommit();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function rollBack()
+    public function rollBack() : void
     {
         if (! oci_rollback($this->dbh)) {
-            throw OCI8Exception::fromErrorInfo($this->errorInfo());
-        }
-        $this->executeMode = OCI_COMMIT_ON_SUCCESS;
-
-        return true;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function errorCode()
-    {
-        $error = oci_error($this->dbh);
-        if ($error !== false) {
-            $error = $error['code'];
+            throw OCI8Exception::fromErrorInfo(oci_error($this->dbh));
         }
 
-        return $error;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function errorInfo()
-    {
-        $error = oci_error($this->dbh);
-
-        if ($error === false) {
-            return [];
-        }
-
-        return $error;
+        $this->executionMode->enableAutoCommit();
     }
 }

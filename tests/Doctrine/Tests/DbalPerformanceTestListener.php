@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests;
 
 use PHPUnit\Framework\Test;
@@ -19,9 +21,6 @@ class DbalPerformanceTestListener implements TestListener
     /** @var string[][] */
     private $timings = [];
 
-    /**
-     * {@inheritdoc}
-     */
     public function endTest(Test $test, float $time) : void
     {
         // This listener only applies to performance tests.

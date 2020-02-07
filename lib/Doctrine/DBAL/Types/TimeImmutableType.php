@@ -1,19 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Types;
 
 use DateTimeImmutable;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Types\Exception\InvalidFormat;
+use Doctrine\DBAL\Types\Exception\InvalidType;
 
 /**
  * Immutable type of {@see TimeType}.
  */
 class TimeImmutableType extends TimeType
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
+    public function getName() : string
     {
         return Types::TIME_IMMUTABLE;
     }
@@ -31,7 +32,7 @@ class TimeImmutableType extends TimeType
             return $value->format($platform->getTimeFormatString());
         }
 
-        throw ConversionException::conversionFailedInvalidType(
+        throw InvalidType::new(
             $value,
             $this->getName(),
             ['null', DateTimeImmutable::class]
@@ -50,7 +51,7 @@ class TimeImmutableType extends TimeType
         $dateTime = DateTimeImmutable::createFromFormat('!' . $platform->getTimeFormatString(), $value);
 
         if (! $dateTime) {
-            throw ConversionException::conversionFailedFormat(
+            throw InvalidFormat::new(
                 $value,
                 $this->getName(),
                 $platform->getTimeFormatString()
@@ -60,10 +61,7 @@ class TimeImmutableType extends TimeType
         return $dateTime;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function requiresSQLCommentHint(AbstractPlatform $platform)
+    public function requiresSQLCommentHint(AbstractPlatform $platform) : bool
     {
         return true;
     }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\DBALException;
@@ -7,7 +9,6 @@ use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Types\Type;
 use Throwable;
-use const CASE_LOWER;
 use function array_change_key_case;
 use function array_values;
 use function assert;
@@ -18,16 +19,14 @@ use function strpos;
 use function strtolower;
 use function strtoupper;
 use function trim;
+use const CASE_LOWER;
 
 /**
  * Oracle Schema Manager.
  */
 class OracleSchemaManager extends AbstractSchemaManager
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function dropDatabase($database)
+    public function dropDatabase(string $database) : void
     {
         try {
             parent::dropDatabase($database);
@@ -43,7 +42,7 @@ class OracleSchemaManager extends AbstractSchemaManager
             // because of active connections on the database.
             // To force dropping the database, we first have to close all active connections
             // on that database and issue the drop database operation again.
-            if ($exception->getErrorCode() !== 1940) {
+            if ($exception->getCode() !== 1940) {
                 throw $exception;
             }
 
@@ -56,7 +55,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableViewDefinition($view)
+    protected function _getPortableViewDefinition(array $view) : View
     {
         $view = array_change_key_case($view, CASE_LOWER);
 
@@ -66,7 +65,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableUserDefinition($user)
+    protected function _getPortableUserDefinition(array $user) : array
     {
         $user = array_change_key_case($user, CASE_LOWER);
 
@@ -78,7 +77,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableDefinition($table)
+    protected function _getPortableTableDefinition(array $table) : string
     {
         $table = array_change_key_case($table, CASE_LOWER);
 
@@ -90,16 +89,16 @@ class OracleSchemaManager extends AbstractSchemaManager
      *
      * @link http://ezcomponents.org/docs/api/trunk/DatabaseSchema/ezcDbSchemaPgsqlReader.html
      */
-    protected function _getPortableTableIndexesList($tableIndexes, $tableName = null)
+    protected function _getPortableTableIndexesList(array $tableIndexRows, string $tableName) : array
     {
         $indexBuffer = [];
-        foreach ($tableIndexes as $tableIndex) {
+        foreach ($tableIndexRows as $tableIndex) {
             $tableIndex = array_change_key_case($tableIndex, CASE_LOWER);
 
             $keyName = strtolower($tableIndex['name']);
             $buffer  = [];
 
-            if (strtolower($tableIndex['is_primary']) === 'p') {
+            if ($tableIndex['is_primary'] === 'P') {
                 $keyName              = 'primary';
                 $buffer['primary']    = true;
                 $buffer['non_unique'] = false;
@@ -107,6 +106,7 @@ class OracleSchemaManager extends AbstractSchemaManager
                 $buffer['primary']    = false;
                 $buffer['non_unique'] = ! $tableIndex['is_unique'];
             }
+
             $buffer['key_name']    = $keyName;
             $buffer['column_name'] = $this->getQuotedIdentifierName($tableIndex['column_name']);
             $indexBuffer[]         = $buffer;
@@ -118,7 +118,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableColumnDefinition($tableColumn)
+    protected function _getPortableTableColumnDefinition(array $tableColumn) : Column
     {
         $tableColumn = array_change_key_case($tableColumn, CASE_LOWER);
 
@@ -131,14 +131,18 @@ class OracleSchemaManager extends AbstractSchemaManager
             }
         }
 
-        $unsigned = $fixed = $precision = $scale = $length = null;
+        $length = $precision = null;
+        $scale  = 0;
+        $fixed  = false;
 
         if (! isset($tableColumn['column_name'])) {
             $tableColumn['column_name'] = '';
         }
 
         // Default values returned from database sometimes have trailing spaces.
-        $tableColumn['data_default'] = trim($tableColumn['data_default']);
+        if ($tableColumn['data_default'] !== null) {
+            $tableColumn['data_default'] = trim($tableColumn['data_default']);
+        }
 
         if ($tableColumn['data_default'] === '' || $tableColumn['data_default'] === 'NULL') {
             $tableColumn['data_default'] = null;
@@ -159,9 +163,8 @@ class OracleSchemaManager extends AbstractSchemaManager
             $scale = (int) $tableColumn['data_scale'];
         }
 
-        $type                    = $this->_platform->getDoctrineTypeMapping($dbType);
-        $type                    = $this->extractDoctrineTypeFromComment($tableColumn['comments'], $type);
-        $tableColumn['comments'] = $this->removeDoctrineTypeFromComment($tableColumn['comments'], $type);
+        $type = $this->extractDoctrineTypeFromComment($tableColumn['comments'])
+            ?? $this->_platform->getDoctrineTypeMapping($dbType);
 
         switch ($dbType) {
             case 'number':
@@ -176,23 +179,23 @@ class OracleSchemaManager extends AbstractSchemaManager
                 }
 
                 break;
+
             case 'varchar':
             case 'varchar2':
             case 'nvarchar2':
-                $length = $tableColumn['char_length'];
-                $fixed  = false;
+                $length = (int) $tableColumn['char_length'];
                 break;
+
             case 'char':
             case 'nchar':
-                $length = $tableColumn['char_length'];
+                $length = (int) $tableColumn['char_length'];
                 $fixed  = true;
                 break;
         }
 
         $options = [
-            'notnull'    => (bool) ($tableColumn['nullable'] === 'N'),
-            'fixed'      => (bool) $fixed,
-            'unsigned'   => (bool) $unsigned,
+            'notnull'    => $tableColumn['nullable'] === 'N',
+            'fixed'      => $fixed,
             'default'    => $tableColumn['data_default'],
             'length'     => $length,
             'precision'  => $precision,
@@ -208,7 +211,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableForeignKeysList($tableForeignKeys)
+    protected function _getPortableTableForeignKeysList(array $tableForeignKeys) : array
     {
         $list = [];
         foreach ($tableForeignKeys as $value) {
@@ -251,7 +254,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableSequenceDefinition($sequence)
+    protected function _getPortableSequenceDefinition(array $sequence) : Sequence
     {
         $sequence = array_change_key_case($sequence, CASE_LOWER);
 
@@ -264,37 +267,16 @@ class OracleSchemaManager extends AbstractSchemaManager
 
     /**
      * {@inheritdoc}
-     *
-     * @deprecated
      */
-    protected function _getPortableFunctionDefinition($function)
-    {
-        $function = array_change_key_case($function, CASE_LOWER);
-
-        return $function['name'];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function _getPortableDatabaseDefinition($database)
+    protected function _getPortableDatabaseDefinition(array $database) : string
     {
         $database = array_change_key_case($database, CASE_LOWER);
 
         return $database['username'];
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * Calling this method without an argument or by passing NULL is deprecated.
-     */
-    public function createDatabase($database = null)
+    public function createDatabase(string $database) : void
     {
-        if ($database === null) {
-            $database = $this->_conn->getDatabase();
-        }
-
         $params   = $this->_conn->getParams();
         $username = $database;
         $password = $params['password'];
@@ -306,12 +288,7 @@ class OracleSchemaManager extends AbstractSchemaManager
         $this->_conn->executeUpdate($query);
     }
 
-    /**
-     * @param string $table
-     *
-     * @return bool
-     */
-    public function dropAutoincrement($table)
+    public function dropAutoincrement(string $table) : bool
     {
         assert($this->_platform instanceof OraclePlatform);
 
@@ -323,10 +300,7 @@ class OracleSchemaManager extends AbstractSchemaManager
         return true;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function dropTable($name)
+    public function dropTable(string $name) : void
     {
         $this->tryMethod('dropAutoincrement', $name);
 
@@ -338,12 +312,8 @@ class OracleSchemaManager extends AbstractSchemaManager
      *
      * Quotes non-uppercase identifiers explicitly to preserve case
      * and thus make references to the particular identifier work.
-     *
-     * @param string $identifier The identifier to quote.
-     *
-     * @return string The quoted identifier.
      */
-    private function getQuotedIdentifierName($identifier)
+    private function getQuotedIdentifierName(string $identifier) : string
     {
         if (preg_match('/[a-z]/', $identifier)) {
             return $this->_platform->quoteIdentifier($identifier);
@@ -358,10 +328,8 @@ class OracleSchemaManager extends AbstractSchemaManager
      * This is useful to force DROP USER operations which could fail because of active user sessions.
      *
      * @param string $user The name of the user to kill sessions for.
-     *
-     * @return void
      */
-    private function killUserSessions($user)
+    private function killUserSessions(string $user) : void
     {
         $sql = <<<SQL
 SELECT
@@ -390,13 +358,13 @@ SQL;
         }
     }
 
-    public function listTableDetails($tableName) : Table
+    public function listTableDetails(string $tableName) : Table
     {
         $table = parent::listTableDetails($tableName);
 
-        /** @var OraclePlatform $platform */
         $platform = $this->_platform;
-        $sql      = $platform->getListTableCommentsSQL($tableName);
+        assert($platform instanceof OraclePlatform);
+        $sql = $platform->getListTableCommentsSQL($tableName);
 
         $tableOptions = $this->_conn->fetchAssoc($sql);
         $table->addOption('comment', $tableOptions['COMMENTS']);

@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Platforms;
 
+use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Comparator;
@@ -12,10 +15,14 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
 use UnexpectedValueException;
+use function assert;
 use function sprintf;
 
 abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCase
 {
+    /** @var PostgreSqlPlatform */
+    protected $platform;
+
     public function getGenerateTableSql() : string
     {
         return 'CREATE TABLE test (id SERIAL NOT NULL, test VARCHAR(255) DEFAULT NULL, PRIMARY KEY(id))';
@@ -115,7 +122,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
             'my_table',
             ['id'],
             'my_fk',
-            ['feferred' => true]
+            ['deferred' => true]
         );
         self::assertEquals(
             'CONSTRAINT my_fk FOREIGN KEY (foreign_id) REFERENCES my_table (id) NOT DEFERRABLE INITIALLY DEFERRED',
@@ -140,8 +147,8 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         self::assertEquals('SIMILAR TO', $this->platform->getRegexpExpression(), 'Regular expression operator is not correct');
         self::assertEquals('"', $this->platform->getIdentifierQuoteCharacter(), 'Identifier quote character is not correct');
         self::assertEquals('column1 || column2 || column3', $this->platform->getConcatExpression('column1', 'column2', 'column3'), 'Concatenation expression is not correct');
-        self::assertEquals('SUBSTRING(column FROM 5)', $this->platform->getSubstringExpression('column', 5), 'Substring expression without length is not correct');
-        self::assertEquals('SUBSTRING(column FROM 1 FOR 5)', $this->platform->getSubstringExpression('column', 1, 5), 'Substring expression with length is not correct');
+        self::assertEquals('SUBSTRING(column FROM 5)', $this->platform->getSubstringExpression('column', '5'), 'Substring expression without length is not correct');
+        self::assertEquals('SUBSTRING(column FROM 1 FOR 5)', $this->platform->getSubstringExpression('column', '1', '5'), 'Substring expression with length is not correct');
     }
 
     public function testGeneratesTransactionCommands() : void
@@ -258,26 +265,6 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         );
     }
 
-    public function testGeneratesTypeDeclarationForStrings() : void
-    {
-        self::assertEquals(
-            'CHAR(10)',
-            $this->platform->getVarcharTypeDeclarationSQL(
-                ['length' => 10, 'fixed' => true]
-            )
-        );
-        self::assertEquals(
-            'VARCHAR(50)',
-            $this->platform->getVarcharTypeDeclarationSQL(['length' => 50]),
-            'Variable string declaration is not correct'
-        );
-        self::assertEquals(
-            'VARCHAR(255)',
-            $this->platform->getVarcharTypeDeclarationSQL([]),
-            'Long string declaration is not correct'
-        );
-    }
-
     public function getGenerateUniqueIndexSql() : string
     {
         return 'CREATE UNIQUE INDEX index_name ON test (test, test2)';
@@ -325,9 +312,6 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         self::assertTrue($this->platform->supportsSequences());
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function supportsCommentOnStatement() : bool
     {
         return true;
@@ -424,20 +408,16 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     }
 
     /**
-     * @param string|bool $databaseValue
-     *
      * @group DBAL-457
      * @dataProvider pgBooleanProvider
      */
     public function testConvertBooleanAsLiteralStrings(
-        $databaseValue,
+        string $databaseValue,
         string $preparedStatementValue,
-        ?int $integerValue,
-        ?bool $booleanValue
+        int $integerValue,
+        bool $booleanValue
     ) : void {
-        $platform = $this->createPlatform();
-
-        self::assertEquals($preparedStatementValue, $platform->convertBooleans($databaseValue));
+        self::assertEquals($preparedStatementValue, $this->platform->convertBooleans($databaseValue));
     }
 
     /**
@@ -445,31 +425,26 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
      */
     public function testConvertBooleanAsLiteralIntegers() : void
     {
-        $platform = $this->createPlatform();
-        $platform->setUseBooleanTrueFalseStrings(false);
+        $this->platform->setUseBooleanTrueFalseStrings(false);
 
-        self::assertEquals(1, $platform->convertBooleans(true));
-        self::assertEquals(1, $platform->convertBooleans('1'));
+        self::assertEquals(1, $this->platform->convertBooleans(true));
+        self::assertEquals(1, $this->platform->convertBooleans('1'));
 
-        self::assertEquals(0, $platform->convertBooleans(false));
-        self::assertEquals(0, $platform->convertBooleans('0'));
+        self::assertEquals(0, $this->platform->convertBooleans(false));
+        self::assertEquals(0, $this->platform->convertBooleans('0'));
     }
 
     /**
-     * @param string|bool $databaseValue
-     *
      * @group DBAL-630
      * @dataProvider pgBooleanProvider
      */
     public function testConvertBooleanAsDatabaseValueStrings(
-        $databaseValue,
+        string $databaseValue,
         string $preparedStatementValue,
-        ?int $integerValue,
-        ?bool $booleanValue
+        int $integerValue,
+        bool $booleanValue
     ) : void {
-        $platform = $this->createPlatform();
-
-        self::assertSame($integerValue, $platform->convertBooleansToDatabaseValue($booleanValue));
+        self::assertSame($integerValue, $this->platform->convertBooleansToDatabaseValue($booleanValue));
     }
 
     /**
@@ -477,33 +452,26 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
      */
     public function testConvertBooleanAsDatabaseValueIntegers() : void
     {
-        $platform = $this->createPlatform();
-        $platform->setUseBooleanTrueFalseStrings(false);
+        $this->platform->setUseBooleanTrueFalseStrings(false);
 
-        self::assertSame(1, $platform->convertBooleansToDatabaseValue(true));
-        self::assertSame(0, $platform->convertBooleansToDatabaseValue(false));
+        self::assertSame(1, $this->platform->convertBooleansToDatabaseValue(true));
+        self::assertSame(0, $this->platform->convertBooleansToDatabaseValue(false));
     }
 
     /**
-     * @param string|bool $databaseValue
-     *
      * @dataProvider pgBooleanProvider
      */
-    public function testConvertFromBoolean($databaseValue, string $prepareStatementValue, ?int $integerValue, ?bool $booleanValue) : void
+    public function testConvertFromBoolean(string $databaseValue, string $prepareStatementValue, int $integerValue, bool $booleanValue) : void
     {
-        $platform = $this->createPlatform();
-
-        self::assertSame($booleanValue, $platform->convertFromBoolean($databaseValue));
+        self::assertSame($booleanValue, $this->platform->convertFromBoolean($databaseValue));
     }
 
     public function testThrowsExceptionWithInvalidBooleanLiteral() : void
     {
-        $platform = $this->createPlatform();
-
         $this->expectException(UnexpectedValueException::class);
-        $this->expectExceptionMessage("Unrecognized boolean literal 'my-bool'");
+        $this->expectExceptionMessage('Unrecognized boolean literal, my-bool given.');
 
-        $platform->convertBooleansToDatabaseValue('my-bool');
+        $this->platform->convertBooleansToDatabaseValue('my-bool');
     }
 
     public function testGetCreateSchemaSQL() : void
@@ -583,10 +551,12 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
 
         $oldTable = clone $newTable;
         $oldTable->addColumn('parent_id', 'integer');
-        $oldTable->addUnnamedForeignKeyConstraint('mytable', ['parent_id'], ['id']);
+        $oldTable->addForeignKeyConstraint('mytable', ['parent_id'], ['id']);
 
         $comparator = new Comparator();
         $tableDiff  = $comparator->diffTable($oldTable, $newTable);
+
+        self::assertNotNull($tableDiff);
 
         $sql = $this->platform->getAlterTableSQL($tableDiff);
 
@@ -635,25 +605,24 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         ];
     }
 
-    protected function getBinaryDefaultLength() : int
+    public function getExpectedFixedLengthBinaryTypeDeclarationSQLNoLength() : string
     {
-        return 0;
+        return 'BYTEA';
     }
 
-    protected function getBinaryMaxLength() : int
+    public function getExpectedFixedLengthBinaryTypeDeclarationSQLWithLength() : string
     {
-        return 0;
+        return 'BYTEA';
     }
 
-    public function testReturnsBinaryTypeDeclarationSQL() : void
+    public function getExpectedVariableLengthBinaryTypeDeclarationSQLNoLength() : string
     {
-        self::assertSame('BYTEA', $this->platform->getBinaryTypeDeclarationSQL([]));
-        self::assertSame('BYTEA', $this->platform->getBinaryTypeDeclarationSQL(['length' => 0]));
-        self::assertSame('BYTEA', $this->platform->getBinaryTypeDeclarationSQL(['length' => 9999999]));
+        return 'BYTEA';
+    }
 
-        self::assertSame('BYTEA', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true]));
-        self::assertSame('BYTEA', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 0]));
-        self::assertSame('BYTEA', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 9999999]));
+    public function getExpectedVariableLengthBinaryTypeDeclarationSQLWithLength() : string
+    {
+        return 'BYTEA';
     }
 
     public function testDoesNotPropagateUnnecessaryTableAlterationOnBinaryType() : void
@@ -670,30 +639,42 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
 
         $comparator = new Comparator();
 
+        $diff = $comparator->diffTable($table1, $table2);
+
+        self::assertNotNull($diff);
+
         // VARBINARY -> BINARY
         // BINARY    -> VARBINARY
         // BLOB      -> VARBINARY
-        self::assertEmpty($this->platform->getAlterTableSQL($comparator->diffTable($table1, $table2)));
+        self::assertEmpty($this->platform->getAlterTableSQL($diff));
 
         $table2 = new Table('mytable');
         $table2->addColumn('column_varbinary', 'binary', ['length' => 42]);
         $table2->addColumn('column_binary', 'blob');
         $table2->addColumn('column_blob', 'binary', ['length' => 11, 'fixed' => true]);
 
+        $diff = $comparator->diffTable($table1, $table2);
+
+        self::assertNotNull($diff);
+
         // VARBINARY -> VARBINARY with changed length
         // BINARY    -> BLOB
         // BLOB      -> BINARY
-        self::assertEmpty($this->platform->getAlterTableSQL($comparator->diffTable($table1, $table2)));
+        self::assertEmpty($this->platform->getAlterTableSQL($diff));
 
         $table2 = new Table('mytable');
         $table2->addColumn('column_varbinary', 'blob');
         $table2->addColumn('column_binary', 'binary', ['length' => 42, 'fixed' => true]);
         $table2->addColumn('column_blob', 'blob');
 
+        $diff = $comparator->diffTable($table1, $table2);
+
+        self::assertNotNull($diff);
+
         // VARBINARY -> BLOB
         // BINARY    -> BINARY with changed length
         // BLOB      -> BLOB
-        self::assertEmpty($this->platform->getAlterTableSQL($comparator->diffTable($table1, $table2)));
+        self::assertEmpty($this->platform->getAlterTableSQL($diff));
     }
 
     /**
@@ -728,7 +709,6 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     {
         return [
             // Database value, prepared statement value, boolean integer value, boolean value.
-            [true, 'true', 1, true],
             ['t', 'true', 1, true],
             ['true', 'true', 1, true],
             ['y', 'true', 1, true],
@@ -736,15 +716,12 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
             ['on', 'true', 1, true],
             ['1', 'true', 1, true],
 
-            [false, 'false', 0, false],
             ['f', 'false', 0, false],
             ['false', 'false', 0, false],
             [ 'n', 'false', 0, false],
             ['no', 'false', 0, false],
             ['off', 'false', 0, false],
             ['0', 'false', 0, false],
-
-            [null, 'NULL', null, null],
         ];
     }
 
@@ -807,14 +784,6 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     protected function getQuotesDropForeignKeySQL() : string
     {
         return 'ALTER TABLE "table" DROP CONSTRAINT "select"';
-    }
-
-    public function testGetNullCommentOnColumnSQL() : void
-    {
-        self::assertEquals(
-            'COMMENT ON COLUMN mytable.id IS NULL',
-            $this->platform->getCommentOnColumnSQL('mytable', 'id', null)
-        );
     }
 
     /**
@@ -907,25 +876,16 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL() : string
     {
         return 'CONSTRAINT "select" UNIQUE (foo)';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getQuotesReservedKeywordInIndexDeclarationSQL() : string
     {
         return 'INDEX "select" (foo)';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getQuotesReservedKeywordInTruncateTableSQL() : string
     {
         return 'TRUNCATE "select"';
@@ -961,6 +921,8 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
      */
     public function testReturnsDisallowDatabaseConnectionsSQL() : void
     {
+        assert($this->platform instanceof PostgreSqlPlatform);
+
         self::assertSame(
             "UPDATE pg_database SET datallowconn = 'false' WHERE datname = 'foo'",
             $this->platform->getDisallowDatabaseConnectionsSQL('foo')
@@ -972,6 +934,8 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
      */
     public function testReturnsCloseActiveDatabaseConnectionsSQL() : void
     {
+        assert($this->platform instanceof PostgreSqlPlatform);
+
         self::assertSame(
             "SELECT pg_terminate_backend(procpid) FROM pg_stat_activity WHERE datname = 'foo'",
             $this->platform->getCloseActiveDatabaseConnectionsSQL('foo')
@@ -1060,6 +1024,8 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
      */
     public function testQuotesDatabaseNameInCloseActiveDatabaseConnectionsSQL() : void
     {
+        assert($this->platform instanceof PostgreSqlPlatform);
+
         self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",
             $this->platform->getCloseActiveDatabaseConnectionsSQL("Foo'Bar\\")

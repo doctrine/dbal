@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Schema;
 
 use Doctrine\DBAL\DBALException;
@@ -10,9 +12,11 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\SchemaException;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\Tests\DbalTestCase;
-use function array_shift;
+use function array_keys;
 use function current;
 
 class TableTest extends DbalTestCase
@@ -107,7 +111,7 @@ class TableTest extends DbalTestCase
         $columns   = [];
         $columns[] = new Column('foo', $type);
         $columns[] = new Column('foo', $type);
-        $table     = new Table('foo', $columns, [], []);
+        new Table('foo', $columns, [], []);
     }
 
     public function testCreateIndex() : void
@@ -180,7 +184,7 @@ class TableTest extends DbalTestCase
             new Index('the_primary', ['foo'], true, true),
             new Index('other_primary', ['bar'], true, true),
         ];
-        $table   = new Table('foo', $columns, $indexes, []);
+        new Table('foo', $columns, $indexes, []);
     }
 
     public function testAddTwoIndexesWithSameNameThrowsException() : void
@@ -193,23 +197,27 @@ class TableTest extends DbalTestCase
             new Index('an_idx', ['foo'], false, false),
             new Index('an_idx', ['bar'], false, false),
         ];
-        $table   = new Table('foo', $columns, $indexes, []);
+        new Table('foo', $columns, $indexes, []);
     }
 
     public function testConstraints() : void
     {
         $constraint = new ForeignKeyConstraint([], 'foo', []);
 
-        $tableA      = new Table('foo', [], [], [$constraint]);
+        $tableA      = new Table('foo', [], [], [], [$constraint]);
         $constraints = $tableA->getForeignKeys();
 
         self::assertCount(1, $constraints);
-        self::assertSame($constraint, array_shift($constraints));
+
+        $constraintNames = array_keys($constraints);
+
+        self::assertSame('fk_8c736521', $constraintNames[0]);
+        self::assertSame($constraint, $constraints['fk_8c736521']);
     }
 
     public function testOptions() : void
     {
-        $table = new Table('foo', [], [], [], false, ['foo' => 'bar']);
+        $table = new Table('foo', [], [], [], [], ['foo' => 'bar']);
 
         self::assertTrue($table->hasOption('foo'));
         self::assertEquals('bar', $table->getOption('foo'));
@@ -893,5 +901,34 @@ class TableTest extends DbalTestCase
 
         $table->setComment('foo');
         self::assertEquals('foo', $table->getComment());
+    }
+
+    public function testUniqueConstraintWithEmptyName() : void
+    {
+        $columns = [
+            new Column('column1', Type::getType(Types::STRING)),
+            new Column('column2', Type::getType(Types::STRING)),
+            new Column('column3', Type::getType(Types::STRING)),
+            new Column('column4', Type::getType(Types::STRING)),
+        ];
+
+        $uniqueConstraints = [
+            new UniqueConstraint('', ['column1', 'column2']),
+            new UniqueConstraint('', ['column3', 'column4']),
+        ];
+
+        $table = new Table('test', $columns, [], $uniqueConstraints);
+
+        $constraints = $table->getUniqueConstraints();
+
+        self::assertCount(2, $constraints);
+
+        $constraintNames = array_keys($constraints);
+
+        self::assertSame('fk_d87f7e0c341ce00bad15b1b1', $constraintNames[0]);
+        self::assertSame('fk_d87f7e0cda12812744761484', $constraintNames[1]);
+
+        self::assertSame($uniqueConstraints[0], $constraints['fk_d87f7e0c341ce00bad15b1b1']);
+        self::assertSame($uniqueConstraints[1], $constraints['fk_d87f7e0cda12812744761484']);
     }
 }

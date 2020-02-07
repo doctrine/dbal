@@ -1,8 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Platforms;
 
+use Doctrine\DBAL\Exception\ColumnLengthRequired;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
@@ -106,26 +110,6 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         );
     }
 
-    public function testGeneratesTypeDeclarationForStrings() : void
-    {
-        self::assertEquals(
-            'CHAR(10)',
-            $this->platform->getVarcharTypeDeclarationSQL(
-                ['length' => 10, 'fixed' => true]
-            )
-        );
-        self::assertEquals(
-            'VARCHAR(50)',
-            $this->platform->getVarcharTypeDeclarationSQL(['length' => 50]),
-            'Variable string declaration is not correct'
-        );
-        self::assertEquals(
-            'VARCHAR(255)',
-            $this->platform->getVarcharTypeDeclarationSQL([]),
-            'Long string declaration is not correct'
-        );
-    }
-
     public function testPrefersIdentityColumns() : void
     {
         self::assertTrue($this->platform->prefersIdentityColumns());
@@ -173,6 +157,8 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
         $c    = new Comparator();
         $diff = $c->diffTable($oldTable, $keyTable);
+
+        self::assertNotNull($diff);
 
         $sql = $this->platform->getAlterTableSQL($diff);
 
@@ -236,11 +222,11 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $index  = new Index('idx', ['col'], false);
         $unique = new Index('uniq', ['col'], true);
 
-        $diff = new TableDiff('test', [], [], [], [$unique], [], [$index]);
+        $diff = new TableDiff('test', [], [], [], ['uniq' => $unique], [], ['idx' => $index]);
         $sql  = $this->platform->getAlterTableSQL($diff);
         self::assertEquals(['ALTER TABLE test DROP INDEX idx, ADD UNIQUE INDEX uniq (col)'], $sql);
 
-        $diff = new TableDiff('test', [], [], [], [$index], [], [$unique]);
+        $diff = new TableDiff('test', [], [], [], ['idx' => $index], [], ['unique' => $unique]);
         $sql  = $this->platform->getAlterTableSQL($diff);
         self::assertEquals(['ALTER TABLE test DROP INDEX uniq, ADD INDEX idx (col)'], $sql);
     }
@@ -350,9 +336,13 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $diffTable->dropIndex('idx_id');
         $diffTable->setPrimaryKey(['id']);
 
+        $diff = $comparator->diffTable($table, $diffTable);
+
+        self::assertNotNull($diff);
+
         self::assertEquals(
             ['DROP INDEX idx_id ON alter_table_add_pk', 'ALTER TABLE alter_table_add_pk ADD PRIMARY KEY (id)'],
-            $this->platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
+            $this->platform->getAlterTableSQL($diff)
         );
     }
 
@@ -372,13 +362,17 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $diffTable->dropPrimaryKey();
         $diffTable->setPrimaryKey(['foo']);
 
+        $diff = $comparator->diffTable($table, $diffTable);
+
+        self::assertNotNull($diff);
+
         self::assertEquals(
             [
                 'ALTER TABLE alter_primary_key MODIFY id INT NOT NULL',
                 'ALTER TABLE alter_primary_key DROP PRIMARY KEY',
                 'ALTER TABLE alter_primary_key ADD PRIMARY KEY (foo)',
             ],
-            $this->platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
+            $this->platform->getAlterTableSQL($diff)
         );
     }
 
@@ -398,12 +392,16 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
         $diffTable->dropPrimaryKey();
 
+        $diff = $comparator->diffTable($table, $diffTable);
+
+        self::assertNotNull($diff);
+
         self::assertEquals(
             [
                 'ALTER TABLE drop_primary_key MODIFY id INT NOT NULL',
                 'ALTER TABLE drop_primary_key DROP PRIMARY KEY',
             ],
-            $this->platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
+            $this->platform->getAlterTableSQL($diff)
         );
     }
 
@@ -424,13 +422,17 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $diffTable->dropPrimaryKey();
         $diffTable->setPrimaryKey(['id']);
 
+        $diff = $comparator->diffTable($table, $diffTable);
+
+        self::assertNotNull($diff);
+
         self::assertSame(
             [
                 'ALTER TABLE tbl MODIFY id INT NOT NULL',
                 'ALTER TABLE tbl DROP PRIMARY KEY',
                 'ALTER TABLE tbl ADD PRIMARY KEY (id)',
             ],
-            $this->platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
+            $this->platform->getAlterTableSQL($diff)
         );
     }
 
@@ -451,13 +453,17 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $diffTable->dropPrimaryKey();
         $diffTable->setPrimaryKey(['id', 'foo']);
 
+        $diff = $comparator->diffTable($table, $diffTable);
+
+        self::assertNotNull($diff);
+
         self::assertSame(
             [
                 'ALTER TABLE tbl MODIFY id INT NOT NULL',
                 'ALTER TABLE tbl DROP PRIMARY KEY',
                 'ALTER TABLE tbl ADD PRIMARY KEY (id, foo)',
             ],
-            $this->platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
+            $this->platform->getAlterTableSQL($diff)
         );
     }
 
@@ -476,6 +482,8 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
         $c    = new Comparator();
         $diff = $c->diffTable($oldTable, $keyTable);
+
+        self::assertNotNull($diff);
 
         $sql = $this->platform->getAlterTableSQL($diff);
 
@@ -509,13 +517,17 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $diffTable->dropPrimaryKey();
         $diffTable->setPrimaryKey(['pkc1', 'pkc2']);
 
+        $diff = $comparator->diffTable($table, $diffTable);
+
+        self::assertNotNull($diff);
+
         self::assertSame(
             [
                 'ALTER TABLE yolo DROP PRIMARY KEY',
                 'ALTER TABLE yolo ADD pkc2 INT NOT NULL',
                 'ALTER TABLE yolo ADD PRIMARY KEY (pkc1, pkc2)',
             ],
-            $this->platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
+            $this->platform->getAlterTableSQL($diff)
         );
     }
 
@@ -528,37 +540,18 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         self::assertSame('binary', $this->platform->getDoctrineTypeMapping('varbinary'));
     }
 
-    protected function getBinaryMaxLength() : int
+    public function testGetVariableLengthStringTypeDeclarationSQLNoLength() : void
     {
-        return 65535;
+        $this->expectException(ColumnLengthRequired::class);
+
+        parent::testGetVariableLengthStringTypeDeclarationSQLNoLength();
     }
 
-    public function testReturnsBinaryTypeDeclarationSQL() : void
+    public function testGetVariableLengthBinaryTypeDeclarationSQLNoLength() : void
     {
-        self::assertSame('VARBINARY(255)', $this->platform->getBinaryTypeDeclarationSQL([]));
-        self::assertSame('VARBINARY(255)', $this->platform->getBinaryTypeDeclarationSQL(['length' => 0]));
-        self::assertSame('VARBINARY(65535)', $this->platform->getBinaryTypeDeclarationSQL(['length' => 65535]));
+        $this->expectException(ColumnLengthRequired::class);
 
-        self::assertSame('BINARY(255)', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true]));
-        self::assertSame('BINARY(255)', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 0]));
-        self::assertSame('BINARY(65535)', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 65535]));
-    }
-
-    /**
-     * @group legacy
-     * @expectedDeprecation Binary field length 65536 is greater than supported by the platform (65535). Reduce the field length or use a BLOB field instead.
-     * @expectedDeprecation Binary field length 16777215 is greater than supported by the platform (65535). Reduce the field length or use a BLOB field instead.
-     * @expectedDeprecation Binary field length 16777216 is greater than supported by the platform (65535). Reduce the field length or use a BLOB field instead.
-     */
-    public function testReturnsBinaryTypeLongerThanMaxDeclarationSQL() : void
-    {
-        self::assertSame('MEDIUMBLOB', $this->platform->getBinaryTypeDeclarationSQL(['length' => 65536]));
-        self::assertSame('MEDIUMBLOB', $this->platform->getBinaryTypeDeclarationSQL(['length' => 16777215]));
-        self::assertSame('LONGBLOB', $this->platform->getBinaryTypeDeclarationSQL(['length' => 16777216]));
-
-        self::assertSame('MEDIUMBLOB', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 65536]));
-        self::assertSame('MEDIUMBLOB', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 16777215]));
-        self::assertSame('LONGBLOB', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 16777216]));
+        parent::testGetVariableLengthBinaryTypeDeclarationSQLNoLength();
     }
 
     public function testDoesNotPropagateForeignKeyCreationForNonSupportingEngines() : void
@@ -720,7 +713,11 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
         $comparator = new Comparator();
 
-        self::assertEmpty($this->platform->getAlterTableSQL($comparator->diffTable($table, $diffTable)));
+        $diff = $comparator->diffTable($table, $diffTable);
+
+        self::assertNotNull($diff);
+
+        self::assertEmpty($this->platform->getAlterTableSQL($diff));
     }
 
     /**
@@ -799,25 +796,16 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL() : string
     {
         return 'CONSTRAINT `select` UNIQUE (foo)';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getQuotesReservedKeywordInIndexDeclarationSQL() : string
     {
         return 'INDEX `select` (foo)';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getQuotesReservedKeywordInTruncateTableSQL() : string
     {
         return 'TRUNCATE `select`';
@@ -987,8 +975,8 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     public function testGetCreateTableSQLWithColumnCollation() : void
     {
         $table = new Table('foo');
-        $table->addColumn('no_collation', 'string');
-        $table->addColumn('column_collation', 'string')->setPlatformOption('collation', 'ascii_general_ci');
+        $table->addColumn('no_collation', 'string', ['length' => 255]);
+        $table->addColumn('column_collation', 'string', ['length' => 255])->setPlatformOption('collation', 'ascii_general_ci');
 
         self::assertSame(
             ['CREATE TABLE foo (no_collation VARCHAR(255) NOT NULL, column_collation VARCHAR(255) NOT NULL COLLATE `ascii_general_ci`) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB'],

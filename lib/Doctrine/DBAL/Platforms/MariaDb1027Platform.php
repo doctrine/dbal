@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Types\Types;
@@ -21,17 +23,11 @@ final class MariaDb1027Platform extends MySqlPlatform
         return 'LONGTEXT';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getReservedKeywordsClass() : string
     {
         return Keywords\MariaDb102Keywords::class;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function initializeDoctrineTypeMappings() : void
     {
         parent::initializeDoctrineTypeMappings();

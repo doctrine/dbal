@@ -1,19 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Logging;
 
-use const PHP_EOL;
 use function var_dump;
+use const PHP_EOL;
 
 /**
  * A SQL logger that logs to the standard output using echo/var_dump.
  */
-class EchoSQLLogger implements SQLLogger
+final class EchoSQLLogger implements SQLLogger
 {
     /**
      * {@inheritdoc}
      */
-    public function startQuery($sql, ?array $params = null, ?array $types = null)
+    public function startQuery(string $sql, array $params = [], array $types = []) : void
     {
         echo $sql . PHP_EOL;
 
@@ -28,10 +30,7 @@ class EchoSQLLogger implements SQLLogger
         var_dump($types);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function stopQuery()
+    public function stopQuery() : void
     {
     }
 }

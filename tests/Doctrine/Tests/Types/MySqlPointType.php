@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -8,10 +10,7 @@ use function strtoupper;
 
 class MySqlPointType extends Type
 {
-    /**
-     * {@inheritDoc}
-     */
-    public function getName()
+    public function getName() : string
     {
         return 'point';
     }
@@ -19,7 +18,7 @@ class MySqlPointType extends Type
     /**
      * {@inheritDoc}
      */
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
+    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform) : string
     {
         return strtoupper($this->getName());
     }
@@ -27,7 +26,7 @@ class MySqlPointType extends Type
     /**
      * {@inheritDoc}
      */
-    public function getMappedDatabaseTypes(AbstractPlatform $platform)
+    public function getMappedDatabaseTypes(AbstractPlatform $platform) : array
     {
         return ['point'];
     }

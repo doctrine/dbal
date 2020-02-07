@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Driver;
 
 use IteratorAggregate;
 
-class StatementIterator implements IteratorAggregate
+final class StatementIterator implements IteratorAggregate
 {
     /** @var ResultStatement */
     private $statement;

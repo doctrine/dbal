@@ -1,9 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL;
 
 use Doctrine\Common\EventManager;
-use Doctrine\DBAL\Driver\DrizzlePDOMySql\Driver as DrizzlePDOMySQLDriver;
 use Doctrine\DBAL\Driver\IBMDB2\DB2Driver;
 use Doctrine\DBAL\Driver\Mysqli\Driver as MySQLiDriver;
 use Doctrine\DBAL\Driver\OCI8\Driver as OCI8Driver;
@@ -14,7 +15,10 @@ use Doctrine\DBAL\Driver\PDOSqlite\Driver as PDOSQLiteDriver;
 use Doctrine\DBAL\Driver\PDOSqlsrv\Driver as PDOSQLSrvDriver;
 use Doctrine\DBAL\Driver\SQLAnywhere\Driver as SQLAnywhereDriver;
 use Doctrine\DBAL\Driver\SQLSrv\Driver as SQLSrvDriver;
-use PDO;
+use Doctrine\DBAL\Exception\DriverRequired;
+use Doctrine\DBAL\Exception\InvalidDriverClass;
+use Doctrine\DBAL\Exception\InvalidWrapperClass;
+use Doctrine\DBAL\Exception\UnknownDriver;
 use function array_keys;
 use function array_map;
 use function array_merge;
@@ -44,17 +48,16 @@ final class DriverManager
      * @var string[]
      */
     private static $_driverMap = [
-        'pdo_mysql'          => PDOMySQLDriver::class,
-        'pdo_sqlite'         => PDOSQLiteDriver::class,
-        'pdo_pgsql'          => PDOPgSQLDriver::class,
-        'pdo_oci'            => PDOOCIDriver::class,
-        'oci8'               => OCI8Driver::class,
-        'ibm_db2'            => DB2Driver::class,
-        'pdo_sqlsrv'         => PDOSQLSrvDriver::class,
-        'mysqli'             => MySQLiDriver::class,
-        'drizzle_pdo_mysql'  => DrizzlePDOMySQLDriver::class,
-        'sqlanywhere'        => SQLAnywhereDriver::class,
-        'sqlsrv'             => SQLSrvDriver::class,
+        'pdo_mysql'   => PDOMySQLDriver::class,
+        'pdo_sqlite'  => PDOSQLiteDriver::class,
+        'pdo_pgsql'   => PDOPgSQLDriver::class,
+        'pdo_oci'     => PDOOCIDriver::class,
+        'oci8'        => OCI8Driver::class,
+        'ibm_db2'     => DB2Driver::class,
+        'pdo_sqlsrv'  => PDOSQLSrvDriver::class,
+        'mysqli'      => MySQLiDriver::class,
+        'sqlanywhere' => SQLAnywhereDriver::class,
+        'sqlsrv'      => SQLSrvDriver::class,
     ];
 
     /**
@@ -100,7 +103,6 @@ final class DriverManager
      *     sqlanywhere
      *     sqlsrv
      *     ibm_db2 (unstable)
-     *     drizzle_pdo_mysql
      *
      * OR 'driverClass' that contains the full class name (with namespace) of the
      * driver class to instantiate.
@@ -143,6 +145,7 @@ final class DriverManager
         if (! $config) {
             $config = new Configuration();
         }
+
         if (! $eventManager) {
             $eventManager = new EventManager();
         }
@@ -160,28 +163,7 @@ final class DriverManager
             }
         }
 
-        // URL support for PoolingShardConnection
-        if (isset($params['global'])) {
-            $params['global'] = self::parseDatabaseUrl($params['global']);
-        }
-
-        if (isset($params['shards'])) {
-            foreach ($params['shards'] as $key => $shardParams) {
-                $params['shards'][$key] = self::parseDatabaseUrl($shardParams);
-            }
-        }
-
-        // check for existing pdo object
-        if (isset($params['pdo']) && ! $params['pdo'] instanceof PDO) {
-            throw DBALException::invalidPdoInstance();
-        }
-
-        if (isset($params['pdo'])) {
-            $params['pdo']->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $params['driver'] = 'pdo_' . $params['pdo']->getAttribute(PDO::ATTR_DRIVER_NAME);
-        } else {
-            self::_checkParams($params);
-        }
+        self::_checkParams($params);
 
         $className = $params['driverClass'] ?? self::$_driverMap[$params['driver']];
 
@@ -190,7 +172,7 @@ final class DriverManager
         $wrapperClass = Connection::class;
         if (isset($params['wrapperClass'])) {
             if (! is_subclass_of($params['wrapperClass'], $wrapperClass)) {
-                throw DBALException::invalidWrapperClass($params['wrapperClass']);
+                throw InvalidWrapperClass::new($params['wrapperClass']);
             }
 
             $wrapperClass = $params['wrapperClass'];
@@ -222,18 +204,18 @@ final class DriverManager
 
         // driver
         if (! isset($params['driver']) && ! isset($params['driverClass'])) {
-            throw DBALException::driverRequired();
+            throw DriverRequired::new();
         }
 
         // check validity of parameters
 
         // driver
         if (isset($params['driver']) && ! isset(self::$_driverMap[$params['driver']])) {
-            throw DBALException::unknownDriver($params['driver'], array_keys(self::$_driverMap));
+            throw UnknownDriver::new($params['driver'], array_keys(self::$_driverMap));
         }
 
         if (isset($params['driverClass']) && ! in_array(Driver::class, class_implements($params['driverClass'], true))) {
-            throw DBALException::invalidDriverClass($params['driverClass']);
+            throw InvalidDriverClass::new($params['driverClass']);
         }
     }
 
@@ -277,21 +259,20 @@ final class DriverManager
 
         $url = array_map('rawurldecode', $url);
 
-        // If we have a connection URL, we have to unset the default PDO instance connection parameter (if any)
-        // as we cannot merge connection details from the URL into the PDO instance (URL takes precedence).
-        unset($params['pdo']);
-
         $params = self::parseDatabaseUrlScheme($url, $params);
 
         if (isset($url['host'])) {
             $params['host'] = $url['host'];
         }
+
         if (isset($url['port'])) {
             $params['port'] = $url['port'];
         }
+
         if (isset($url['user'])) {
             $params['user'] = $url['user'];
         }
+
         if (isset($url['pass'])) {
             $params['password'] = $url['pass'];
         }
@@ -434,7 +415,7 @@ final class DriverManager
         // If a schemeless connection URL is given, we require a default driver or default custom driver
         // as connection parameter.
         if (! isset($params['driverClass']) && ! isset($params['driver'])) {
-            throw DBALException::driverRequired($params['url']);
+            throw DriverRequired::new($params['url']);
         }
 
         return $params;

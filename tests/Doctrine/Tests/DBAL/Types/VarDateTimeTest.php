@@ -1,11 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Types;
 
 use DateTime;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\VarDateTimeType;
 use Doctrine\Tests\DbalTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -21,17 +22,18 @@ class VarDateTimeTest extends DbalTestCase
     protected function setUp() : void
     {
         $this->platform = $this->createMock(AbstractPlatform::class);
-        if (! Type::hasType('vardatetime')) {
-            Type::addType('vardatetime', VarDateTimeType::class);
-        }
-        $this->type = Type::getType('vardatetime');
+        $this->platform->expects($this->any())
+            ->method('getDateTimeFormatString')
+            ->will($this->returnValue('U'));
+
+        $this->type = new VarDateTimeType();
     }
 
     public function testDateTimeConvertsToDatabaseValue() : void
     {
         $date = new DateTime('1985-09-01 10:10:10');
 
-        $expected = $date->format($this->platform->getDateTimeTzFormatString());
+        $expected = $date->format($this->platform->getDateTimeFormatString());
         $actual   = $this->type->convertToDatabaseValue($date, $this->platform);
 
         self::assertEquals($expected, $actual);

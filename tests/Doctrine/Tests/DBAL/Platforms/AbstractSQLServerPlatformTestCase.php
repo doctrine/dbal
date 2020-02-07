@@ -1,16 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception\ColumnLengthRequired;
+use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
-use function sprintf;
+use function assert;
 
 abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCase
 {
@@ -119,22 +124,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
 
     public function testGeneratesTypeDeclarationsForStrings() : void
     {
-        self::assertEquals(
-            'NCHAR(10)',
-            $this->platform->getVarcharTypeDeclarationSQL(
-                ['length' => 10, 'fixed' => true]
-            )
-        );
-        self::assertEquals(
-            'NVARCHAR(50)',
-            $this->platform->getVarcharTypeDeclarationSQL(['length' => 50]),
-            'Variable string declaration is not correct'
-        );
-        self::assertEquals(
-            'NVARCHAR(255)',
-            $this->platform->getVarcharTypeDeclarationSQL([]),
-            'Long string declaration is not correct'
-        );
         self::assertSame('VARCHAR(MAX)', $this->platform->getClobTypeDeclarationSQL([]));
         self::assertSame(
             'VARCHAR(MAX)',
@@ -184,115 +173,77 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
 
     public function testModifyLimitQuery() : void
     {
-        $querySql   = 'SELECT * FROM user';
-        $alteredSql = 'SELECT TOP 10 * FROM user';
-        $sql        = $this->platform->modifyLimitQuery($querySql, 10, 0);
-        $this->expectCteWithMaxRowNum($alteredSql, 10, $sql);
+        $sql = $this->platform->modifyLimitQuery('SELECT * FROM user', 10, 0);
+        self::assertEquals('SELECT * FROM user ORDER BY (SELECT 0) OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
     }
 
     public function testModifyLimitQueryWithEmptyOffset() : void
     {
-        $querySql   = 'SELECT * FROM user';
-        $alteredSql = 'SELECT TOP 10 * FROM user';
-        $sql        = $this->platform->modifyLimitQuery($querySql, 10);
-        $this->expectCteWithMaxRowNum($alteredSql, 10, $sql);
+        $sql = $this->platform->modifyLimitQuery('SELECT * FROM user', 10);
+        self::assertEquals('SELECT * FROM user ORDER BY (SELECT 0) OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
     }
 
     public function testModifyLimitQueryWithOffset() : void
     {
-        if (! $this->platform->supportsLimitOffset()) {
-            $this->markTestSkipped(sprintf('Platform "%s" does not support offsets in result limiting.', $this->platform->getName()));
-        }
-
-        $querySql   = 'SELECT * FROM user ORDER BY username DESC';
-        $alteredSql = 'SELECT TOP 15 * FROM user ORDER BY username DESC';
-        $sql        = $this->platform->modifyLimitQuery($querySql, 10, 5);
-
-        $this->expectCteWithMinAndMaxRowNums($alteredSql, 6, 15, $sql);
+        $sql = $this->platform->modifyLimitQuery('SELECT * FROM user ORDER BY username DESC', 10, 5);
+        self::assertEquals('SELECT * FROM user ORDER BY username DESC OFFSET 5 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
     }
 
     public function testModifyLimitQueryWithAscOrderBy() : void
     {
-        $querySql   = 'SELECT * FROM user ORDER BY username ASC';
-        $alteredSql = 'SELECT TOP 10 * FROM user ORDER BY username ASC';
-        $sql        = $this->platform->modifyLimitQuery($querySql, 10);
-
-        $this->expectCteWithMaxRowNum($alteredSql, 10, $sql);
+        $sql = $this->platform->modifyLimitQuery('SELECT * FROM user ORDER BY username ASC', 10);
+        self::assertEquals('SELECT * FROM user ORDER BY username ASC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
     }
 
     public function testModifyLimitQueryWithLowercaseOrderBy() : void
     {
-        $querySql   = 'SELECT * FROM user order by username';
-        $alteredSql = 'SELECT TOP 10 * FROM user order by username';
-        $sql        = $this->platform->modifyLimitQuery($querySql, 10);
-        $this->expectCteWithMaxRowNum($alteredSql, 10, $sql);
+        $sql = $this->platform->modifyLimitQuery('SELECT * FROM user order by username', 10);
+        self::assertEquals('SELECT * FROM user order by username OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
     }
 
     public function testModifyLimitQueryWithDescOrderBy() : void
     {
-        $querySql   = 'SELECT * FROM user ORDER BY username DESC';
-        $alteredSql = 'SELECT TOP 10 * FROM user ORDER BY username DESC';
-        $sql        = $this->platform->modifyLimitQuery($querySql, 10);
-        $this->expectCteWithMaxRowNum($alteredSql, 10, $sql);
+        $sql = $this->platform->modifyLimitQuery('SELECT * FROM user ORDER BY username DESC', 10);
+        self::assertEquals('SELECT * FROM user ORDER BY username DESC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
     }
 
     public function testModifyLimitQueryWithMultipleOrderBy() : void
     {
-        $querySql   = 'SELECT * FROM user ORDER BY username DESC, usereamil ASC';
-        $alteredSql = 'SELECT TOP 10 * FROM user ORDER BY username DESC, usereamil ASC';
-        $sql        = $this->platform->modifyLimitQuery($querySql, 10);
-        $this->expectCteWithMaxRowNum($alteredSql, 10, $sql);
+        $sql = $this->platform->modifyLimitQuery('SELECT * FROM user ORDER BY username DESC, usereamil ASC', 10);
+        self::assertEquals('SELECT * FROM user ORDER BY username DESC, usereamil ASC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
     }
 
     public function testModifyLimitQueryWithSubSelect() : void
     {
-        $querySql   = 'SELECT * FROM (SELECT u.id as uid, u.name as uname) dctrn_result';
-        $alteredSql = 'SELECT TOP 10 * FROM (SELECT u.id as uid, u.name as uname) dctrn_result';
-        $sql        = $this->platform->modifyLimitQuery($querySql, 10);
-        $this->expectCteWithMaxRowNum($alteredSql, 10, $sql);
+        $sql = $this->platform->modifyLimitQuery('SELECT * FROM (SELECT u.id as uid, u.name as uname) dctrn_result', 10);
+        self::assertEquals('SELECT * FROM (SELECT u.id as uid, u.name as uname) dctrn_result ORDER BY (SELECT 0) OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
     }
 
     public function testModifyLimitQueryWithSubSelectAndOrder() : void
     {
-        $querySql   = 'SELECT * FROM (SELECT u.id as uid, u.name as uname ORDER BY u.name DESC) dctrn_result';
-        $alteredSql = 'SELECT TOP 10 * FROM (SELECT u.id as uid, u.name as uname) dctrn_result';
-        $sql        = $this->platform->modifyLimitQuery($querySql, 10);
-        $this->expectCteWithMaxRowNum($alteredSql, 10, $sql);
+        $sql = $this->platform->modifyLimitQuery('SELECT * FROM (SELECT u.id as uid, u.name as uname) dctrn_result ORDER BY uname DESC', 10);
+        self::assertEquals('SELECT * FROM (SELECT u.id as uid, u.name as uname) dctrn_result ORDER BY uname DESC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
 
-        $querySql   = 'SELECT * FROM (SELECT u.id, u.name ORDER BY u.name DESC) dctrn_result';
-        $alteredSql = 'SELECT TOP 10 * FROM (SELECT u.id, u.name) dctrn_result';
-        $sql        = $this->platform->modifyLimitQuery($querySql, 10);
-        $this->expectCteWithMaxRowNum($alteredSql, 10, $sql);
+        $sql = $this->platform->modifyLimitQuery('SELECT * FROM (SELECT u.id, u.name) dctrn_result ORDER BY name DESC', 10);
+        self::assertEquals('SELECT * FROM (SELECT u.id, u.name) dctrn_result ORDER BY name DESC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
     }
 
     public function testModifyLimitQueryWithSubSelectAndMultipleOrder() : void
     {
-        if (! $this->platform->supportsLimitOffset()) {
-            $this->markTestSkipped(sprintf('Platform "%s" does not support offsets in result limiting.', $this->platform->getName()));
-        }
+        $sql = $this->platform->modifyLimitQuery('SELECT * FROM (SELECT u.id as uid, u.name as uname) dctrn_result ORDER BY uname DESC, uid ASC', 10, 5);
+        self::assertEquals('SELECT * FROM (SELECT u.id as uid, u.name as uname) dctrn_result ORDER BY uname DESC, uid ASC OFFSET 5 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
 
-        $querySql   = 'SELECT * FROM (SELECT u.id as uid, u.name as uname ORDER BY u.name DESC, id ASC) dctrn_result';
-        $alteredSql = 'SELECT TOP 15 * FROM (SELECT u.id as uid, u.name as uname) dctrn_result';
-        $sql        = $this->platform->modifyLimitQuery($querySql, 10, 5);
-        $this->expectCteWithMinAndMaxRowNums($alteredSql, 6, 15, $sql);
+        $sql = $this->platform->modifyLimitQuery('SELECT * FROM (SELECT u.id uid, u.name uname) dctrn_result ORDER BY uname DESC, uid ASC', 10, 5);
+        self::assertEquals('SELECT * FROM (SELECT u.id uid, u.name uname) dctrn_result ORDER BY uname DESC, uid ASC OFFSET 5 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
 
-        $querySql   = 'SELECT * FROM (SELECT u.id uid, u.name uname ORDER BY u.name DESC, id ASC) dctrn_result';
-        $alteredSql = 'SELECT TOP 15 * FROM (SELECT u.id uid, u.name uname) dctrn_result';
-        $sql        = $this->platform->modifyLimitQuery($querySql, 10, 5);
-        $this->expectCteWithMinAndMaxRowNums($alteredSql, 6, 15, $sql);
-
-        $querySql   = 'SELECT * FROM (SELECT u.id, u.name ORDER BY u.name DESC, id ASC) dctrn_result';
-        $alteredSql = 'SELECT TOP 15 * FROM (SELECT u.id, u.name) dctrn_result';
-        $sql        = $this->platform->modifyLimitQuery($querySql, 10, 5);
-        $this->expectCteWithMinAndMaxRowNums($alteredSql, 6, 15, $sql);
+        $sql = $this->platform->modifyLimitQuery('SELECT * FROM (SELECT u.id, u.name) dctrn_result ORDER BY name DESC, id ASC', 10, 5);
+        self::assertEquals('SELECT * FROM (SELECT u.id, u.name) dctrn_result ORDER BY name DESC, id ASC OFFSET 5 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
     }
 
     public function testModifyLimitQueryWithFromColumnNames() : void
     {
-        $querySql   = 'SELECT a.fromFoo, fromBar FROM foo';
-        $alteredSql = 'SELECT TOP 10 a.fromFoo, fromBar FROM foo';
-        $sql        = $this->platform->modifyLimitQuery($querySql, 10);
-        $this->expectCteWithMaxRowNum($alteredSql, 10, $sql);
+        $sql = $this->platform->modifyLimitQuery('SELECT a.fromFoo, fromBar FROM foo', 10);
+        self::assertEquals('SELECT a.fromFoo, fromBar FROM foo ORDER BY (SELECT 0) OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
     }
 
     /**
@@ -305,13 +256,15 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $query .= 'AND (table2.column2 = table7.column7) AND (table2.column2 = table8.column8) AND (table3.column3 = table4.column4) AND (table3.column3 = table5.column5) AND (table3.column3 = table6.column6) AND (table3.column3 = table7.column7) AND (table3.column3 = table8.column8) AND (table4.column4 = table5.column5) AND (table4.column4 = table6.column6) AND (table4.column4 = table7.column7) AND (table4.column4 = table8.column8) ';
         $query .= 'AND (table5.column5 = table6.column6) AND (table5.column5 = table7.column7) AND (table5.column5 = table8.column8) AND (table6.column6 = table7.column7) AND (table6.column6 = table8.column8) AND (table7.column7 = table8.column8)';
 
-        $alteredSql  = 'SELECT TOP 10 table1.column1, table2.column2, table3.column3, table4.column4, table5.column5, table6.column6, table7.column7, table8.column8 FROM table1, table2, table3, table4, table5, table6, table7, table8 ';
-        $alteredSql .= 'WHERE (table1.column1 = table2.column2) AND (table1.column1 = table3.column3) AND (table1.column1 = table4.column4) AND (table1.column1 = table5.column5) AND (table1.column1 = table6.column6) AND (table1.column1 = table7.column7) AND (table1.column1 = table8.column8) AND (table2.column2 = table3.column3) AND (table2.column2 = table4.column4) AND (table2.column2 = table5.column5) AND (table2.column2 = table6.column6) ';
-        $alteredSql .= 'AND (table2.column2 = table7.column7) AND (table2.column2 = table8.column8) AND (table3.column3 = table4.column4) AND (table3.column3 = table5.column5) AND (table3.column3 = table6.column6) AND (table3.column3 = table7.column7) AND (table3.column3 = table8.column8) AND (table4.column4 = table5.column5) AND (table4.column4 = table6.column6) AND (table4.column4 = table7.column7) AND (table4.column4 = table8.column8) ';
-        $alteredSql .= 'AND (table5.column5 = table6.column6) AND (table5.column5 = table7.column7) AND (table5.column5 = table8.column8) AND (table6.column6 = table7.column7) AND (table6.column6 = table8.column8) AND (table7.column7 = table8.column8)';
-
         $sql = $this->platform->modifyLimitQuery($query, 10);
-        $this->expectCteWithMaxRowNum($alteredSql, 10, $sql);
+
+        $expected  = 'SELECT table1.column1, table2.column2, table3.column3, table4.column4, table5.column5, table6.column6, table7.column7, table8.column8 FROM table1, table2, table3, table4, table5, table6, table7, table8 ';
+        $expected .= 'WHERE (table1.column1 = table2.column2) AND (table1.column1 = table3.column3) AND (table1.column1 = table4.column4) AND (table1.column1 = table5.column5) AND (table1.column1 = table6.column6) AND (table1.column1 = table7.column7) AND (table1.column1 = table8.column8) AND (table2.column2 = table3.column3) AND (table2.column2 = table4.column4) AND (table2.column2 = table5.column5) AND (table2.column2 = table6.column6) ';
+        $expected .= 'AND (table2.column2 = table7.column7) AND (table2.column2 = table8.column8) AND (table3.column3 = table4.column4) AND (table3.column3 = table5.column5) AND (table3.column3 = table6.column6) AND (table3.column3 = table7.column7) AND (table3.column3 = table8.column8) AND (table4.column4 = table5.column5) AND (table4.column4 = table6.column6) AND (table4.column4 = table7.column7) AND (table4.column4 = table8.column8) ';
+        $expected .= 'AND (table5.column5 = table6.column6) AND (table5.column5 = table7.column7) AND (table5.column5 = table8.column8) AND (table6.column6 = table7.column7) AND (table6.column6 = table8.column8) AND (table7.column7 = table8.column8) ';
+        $expected .= 'ORDER BY (SELECT 0) OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY';
+
+        self::assertEquals($expected, $sql);
     }
 
     /**
@@ -319,15 +272,11 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     public function testModifyLimitQueryWithOrderByClause() : void
     {
-        if (! $this->platform->supportsLimitOffset()) {
-            $this->markTestSkipped(sprintf('Platform "%s" does not support offsets in result limiting.', $this->platform->getName()));
-        }
+        $sql      = 'SELECT m0_.NOMBRE AS NOMBRE0, m0_.FECHAINICIO AS FECHAINICIO1, m0_.FECHAFIN AS FECHAFIN2 FROM MEDICION m0_ WITH (NOLOCK) INNER JOIN ESTUDIO e1_ ON m0_.ESTUDIO_ID = e1_.ID INNER JOIN CLIENTE c2_ ON e1_.CLIENTE_ID = c2_.ID INNER JOIN USUARIO u3_ ON c2_.ID = u3_.CLIENTE_ID WHERE u3_.ID = ? ORDER BY m0_.FECHAINICIO DESC';
+        $expected = 'SELECT m0_.NOMBRE AS NOMBRE0, m0_.FECHAINICIO AS FECHAINICIO1, m0_.FECHAFIN AS FECHAFIN2 FROM MEDICION m0_ WITH (NOLOCK) INNER JOIN ESTUDIO e1_ ON m0_.ESTUDIO_ID = e1_.ID INNER JOIN CLIENTE c2_ ON e1_.CLIENTE_ID = c2_.ID INNER JOIN USUARIO u3_ ON c2_.ID = u3_.CLIENTE_ID WHERE u3_.ID = ? ORDER BY m0_.FECHAINICIO DESC OFFSET 5 ROWS FETCH NEXT 10 ROWS ONLY';
+        $actual   = $this->platform->modifyLimitQuery($sql, 10, 5);
 
-        $sql        = 'SELECT m0_.NOMBRE AS NOMBRE0, m0_.FECHAINICIO AS FECHAINICIO1, m0_.FECHAFIN AS FECHAFIN2 FROM MEDICION m0_ WITH (NOLOCK) INNER JOIN ESTUDIO e1_ ON m0_.ESTUDIO_ID = e1_.ID INNER JOIN CLIENTE c2_ ON e1_.CLIENTE_ID = c2_.ID INNER JOIN USUARIO u3_ ON c2_.ID = u3_.CLIENTE_ID WHERE u3_.ID = ? ORDER BY m0_.FECHAINICIO DESC';
-        $alteredSql = 'SELECT TOP 15 m0_.NOMBRE AS NOMBRE0, m0_.FECHAINICIO AS FECHAINICIO1, m0_.FECHAFIN AS FECHAFIN2 FROM MEDICION m0_ WITH (NOLOCK) INNER JOIN ESTUDIO e1_ ON m0_.ESTUDIO_ID = e1_.ID INNER JOIN CLIENTE c2_ ON e1_.CLIENTE_ID = c2_.ID INNER JOIN USUARIO u3_ ON c2_.ID = u3_.CLIENTE_ID WHERE u3_.ID = ? ORDER BY m0_.FECHAINICIO DESC';
-        $actual     = $this->platform->modifyLimitQuery($sql, 10, 5);
-
-        $this->expectCteWithMinAndMaxRowNums($alteredSql, 6, 15, $actual);
+        self::assertEquals($expected, $actual);
     }
 
     /**
@@ -335,23 +284,28 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     public function testModifyLimitQueryWithSubSelectInSelectList() : void
     {
-        $querySql   = 'SELECT ' .
+        $sql = $this->platform->modifyLimitQuery(
+            'SELECT ' .
             'u.id, ' .
             '(u.foo/2) foodiv, ' .
             'CONCAT(u.bar, u.baz) barbaz, ' .
             '(SELECT (SELECT COUNT(*) FROM login l WHERE l.profile_id = p.id) FROM profile p WHERE p.user_id = u.id) login_count ' .
             'FROM user u ' .
-            "WHERE u.status = 'disabled'";
-        $alteredSql = 'SELECT TOP 10 ' .
-            'u.id, ' .
-            '(u.foo/2) foodiv, ' .
-            'CONCAT(u.bar, u.baz) barbaz, ' .
-            '(SELECT (SELECT COUNT(*) FROM login l WHERE l.profile_id = p.id) FROM profile p WHERE p.user_id = u.id) login_count ' .
-            'FROM user u ' .
-            "WHERE u.status = 'disabled'";
-        $sql        = $this->platform->modifyLimitQuery($querySql, 10);
+            "WHERE u.status = 'disabled'",
+            10
+        );
 
-        $this->expectCteWithMaxRowNum($alteredSql, 10, $sql);
+        self::assertEquals(
+            'SELECT ' .
+            'u.id, ' .
+            '(u.foo/2) foodiv, ' .
+            'CONCAT(u.bar, u.baz) barbaz, ' .
+            '(SELECT (SELECT COUNT(*) FROM login l WHERE l.profile_id = p.id) FROM profile p WHERE p.user_id = u.id) login_count ' .
+            'FROM user u ' .
+            "WHERE u.status = 'disabled' " .
+            'ORDER BY (SELECT 0) OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY',
+            $sql
+        );
     }
 
     /**
@@ -359,28 +313,31 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     public function testModifyLimitQueryWithSubSelectInSelectListAndOrderByClause() : void
     {
-        if (! $this->platform->supportsLimitOffset()) {
-            $this->markTestSkipped(sprintf('Platform "%s" does not support offsets in result limiting.', $this->platform->getName()));
-        }
+        $sql = $this->platform->modifyLimitQuery(
+            'SELECT ' .
+            'u.id, ' .
+            '(u.foo/2) foodiv, ' .
+            'CONCAT(u.bar, u.baz) barbaz, ' .
+            '(SELECT (SELECT COUNT(*) FROM login l WHERE l.profile_id = p.id) FROM profile p WHERE p.user_id = u.id) login_count ' .
+            'FROM user u ' .
+            "WHERE u.status = 'disabled' " .
+            'ORDER BY u.username DESC',
+            10,
+            5
+        );
 
-        $querySql   = 'SELECT ' .
+        self::assertEquals(
+            'SELECT ' .
             'u.id, ' .
             '(u.foo/2) foodiv, ' .
             'CONCAT(u.bar, u.baz) barbaz, ' .
             '(SELECT (SELECT COUNT(*) FROM login l WHERE l.profile_id = p.id) FROM profile p WHERE p.user_id = u.id) login_count ' .
             'FROM user u ' .
             "WHERE u.status = 'disabled' " .
-            'ORDER BY u.username DESC';
-        $alteredSql = 'SELECT TOP 15 ' .
-            'u.id, ' .
-            '(u.foo/2) foodiv, ' .
-            'CONCAT(u.bar, u.baz) barbaz, ' .
-            '(SELECT (SELECT COUNT(*) FROM login l WHERE l.profile_id = p.id) FROM profile p WHERE p.user_id = u.id) login_count ' .
-            'FROM user u ' .
-            "WHERE u.status = 'disabled' " .
-            'ORDER BY u.username DESC';
-        $sql        = $this->platform->modifyLimitQuery($querySql, 10, 5);
-        $this->expectCteWithMinAndMaxRowNums($alteredSql, 6, 15, $sql);
+            'ORDER BY u.username DESC ' .
+            'OFFSET 5 ROWS FETCH NEXT 10 ROWS ONLY',
+            $sql
+        );
     }
 
     /**
@@ -388,20 +345,27 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     public function testModifyLimitQueryWithAggregateFunctionInOrderByClause() : void
     {
-        $querySql   = 'SELECT ' .
+        $sql = $this->platform->modifyLimitQuery(
+            'SELECT ' .
             'MAX(heading_id) aliased, ' .
             'code ' .
             'FROM operator_model_operator ' .
             'GROUP BY code ' .
-            'ORDER BY MAX(heading_id) DESC';
-        $alteredSql = 'SELECT TOP 1 ' .
+            'ORDER BY MAX(heading_id) DESC',
+            1,
+            0
+        );
+
+        self::assertEquals(
+            'SELECT ' .
             'MAX(heading_id) aliased, ' .
             'code ' .
             'FROM operator_model_operator ' .
             'GROUP BY code ' .
-            'ORDER BY MAX(heading_id) DESC';
-        $sql        = $this->platform->modifyLimitQuery($querySql, 1, 0);
-        $this->expectCteWithMaxRowNum($alteredSql, 1, $sql);
+            'ORDER BY MAX(heading_id) DESC ' .
+            'OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY',
+            $sql
+        );
     }
 
     /**
@@ -413,19 +377,18 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             . 'FROM ('
             . 'SELECT t1.id AS id_0, t2.name AS name_1 '
             . 'FROM table_parent t1 '
-            . 'LEFT JOIN join_table t2 ON t1.id = t2.table_id '
-            . 'ORDER BY t1.id ASC'
+            . 'LEFT JOIN join_table t2 ON t1.id = t2.table_id'
             . ') dctrn_result '
             . 'ORDER BY id_0 ASC';
-        $alteredSql = 'SELECT DISTINCT TOP 5 id_0, name_1 '
+        $alteredSql = 'SELECT DISTINCT id_0, name_1 '
             . 'FROM ('
             . 'SELECT t1.id AS id_0, t2.name AS name_1 '
             . 'FROM table_parent t1 '
             . 'LEFT JOIN join_table t2 ON t1.id = t2.table_id'
             . ') dctrn_result '
-            . 'ORDER BY id_0 ASC';
+            . 'ORDER BY id_0 ASC OFFSET 0 ROWS FETCH NEXT 5 ROWS ONLY';
         $sql        = $this->platform->modifyLimitQuery($querySql, 5);
-        $this->expectCteWithMaxRowNum($alteredSql, 5, $sql);
+        self::assertEquals($alteredSql, $sql);
     }
 
     /**
@@ -437,19 +400,18 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             . 'FROM ('
             . 'SELECT t1.id AS id_0, t2.name AS name_1 '
             . 'FROM table_parent t1 '
-            . 'LEFT JOIN join_table t2 ON t1.id = t2.table_id '
-            . 'ORDER BY t2.name ASC'
+            . 'LEFT JOIN join_table t2 ON t1.id = t2.table_id'
             . ') dctrn_result '
             . 'ORDER BY name_1 ASC';
-        $alteredSql = 'SELECT DISTINCT TOP 5 id_0, name_1 '
+        $alteredSql = 'SELECT DISTINCT id_0, name_1 '
             . 'FROM ('
             . 'SELECT t1.id AS id_0, t2.name AS name_1 '
             . 'FROM table_parent t1 '
             . 'LEFT JOIN join_table t2 ON t1.id = t2.table_id'
             . ') dctrn_result '
-            . 'ORDER BY name_1 ASC';
+            . 'ORDER BY name_1 ASC OFFSET 0 ROWS FETCH NEXT 5 ROWS ONLY';
         $sql        = $this->platform->modifyLimitQuery($querySql, 5);
-        $this->expectCteWithMaxRowNum($alteredSql, 5, $sql);
+        self::assertEquals($alteredSql, $sql);
     }
 
     /**
@@ -461,19 +423,18 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             . 'FROM ('
             . 'SELECT t1.id AS id_0, t2.name AS name_1, t2.foo AS foo_2 '
             . 'FROM table_parent t1 '
-            . 'LEFT JOIN join_table t2 ON t1.id = t2.table_id '
-            . 'ORDER BY t2.name ASC, t2.foo DESC'
+            . 'LEFT JOIN join_table t2 ON t1.id = t2.table_id'
             . ') dctrn_result '
             . 'ORDER BY name_1 ASC, foo_2 DESC';
-        $alteredSql = 'SELECT DISTINCT TOP 5 id_0, name_1, foo_2 '
+        $alteredSql = 'SELECT DISTINCT id_0, name_1, foo_2 '
             . 'FROM ('
             . 'SELECT t1.id AS id_0, t2.name AS name_1, t2.foo AS foo_2 '
             . 'FROM table_parent t1 '
             . 'LEFT JOIN join_table t2 ON t1.id = t2.table_id'
             . ') dctrn_result '
-            . 'ORDER BY name_1 ASC, foo_2 DESC';
+            . 'ORDER BY name_1 ASC, foo_2 DESC OFFSET 0 ROWS FETCH NEXT 5 ROWS ONLY';
         $sql        = $this->platform->modifyLimitQuery($querySql, 5);
-        $this->expectCteWithMaxRowNum($alteredSql, 5, $sql);
+        self::assertEquals($alteredSql, $sql);
     }
 
     public function testModifyLimitSubquerySimple() : void
@@ -481,10 +442,10 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $querySql   = 'SELECT DISTINCT id_0 FROM '
             . '(SELECT k0_.id AS id_0, k0_.field AS field_1 '
             . 'FROM key_table k0_ WHERE (k0_.where_field IN (1))) dctrn_result';
-        $alteredSql = 'SELECT DISTINCT TOP 20 id_0 FROM (SELECT k0_.id AS id_0, k0_.field AS field_1 '
-            . 'FROM key_table k0_ WHERE (k0_.where_field IN (1))) dctrn_result';
+        $alteredSql = 'SELECT DISTINCT id_0 FROM (SELECT k0_.id AS id_0, k0_.field AS field_1 '
+            . 'FROM key_table k0_ WHERE (k0_.where_field IN (1))) dctrn_result ORDER BY 1 OFFSET 0 ROWS FETCH NEXT 20 ROWS ONLY';
         $sql        = $this->platform->modifyLimitQuery($querySql, 20);
-        $this->expectCteWithMaxRowNum($alteredSql, 20, $sql);
+        self::assertEquals($alteredSql, $sql);
     }
 
     /**
@@ -702,24 +663,22 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $table = new Table('mytable');
         $table->addColumn('id', 'integer', ['autoincrement' => true]);
         $table->addColumn('comment_null', 'integer', ['comment' => null]);
-        $table->addColumn('comment_false', 'integer', ['comment' => false]);
         $table->addColumn('comment_empty_string', 'integer', ['comment' => '']);
-        $table->addColumn('comment_integer_0', 'integer', ['comment' => 0]);
-        $table->addColumn('comment_float_0', 'integer', ['comment' => 0.0]);
         $table->addColumn('comment_string_0', 'integer', ['comment' => '0']);
         $table->addColumn('comment', 'integer', ['comment' => 'Doctrine 0wnz you!']);
         $table->addColumn('`comment_quoted`', 'integer', ['comment' => 'Doctrine 0wnz comments for explicitly quoted columns!']);
         $table->addColumn('create', 'integer', ['comment' => 'Doctrine 0wnz comments for reserved keyword columns!']);
         $table->addColumn('commented_type', 'object');
         $table->addColumn('commented_type_with_comment', 'array', ['comment' => 'Doctrine array type.']);
-        $table->addColumn('comment_with_string_literal_char', 'string', ['comment' => "O'Reilly"]);
+        $table->addColumn('comment_with_string_literal_char', 'string', [
+            'length' => 255,
+            'comment' => "O'Reilly",
+        ]);
         $table->setPrimaryKey(['id']);
 
         self::assertEquals(
             [
-                'CREATE TABLE mytable (id INT IDENTITY NOT NULL, comment_null INT NOT NULL, comment_false INT NOT NULL, comment_empty_string INT NOT NULL, comment_integer_0 INT NOT NULL, comment_float_0 INT NOT NULL, comment_string_0 INT NOT NULL, comment INT NOT NULL, [comment_quoted] INT NOT NULL, [create] INT NOT NULL, commented_type VARCHAR(MAX) NOT NULL, commented_type_with_comment VARCHAR(MAX) NOT NULL, comment_with_string_literal_char NVARCHAR(255) NOT NULL, PRIMARY KEY (id))',
-                "EXEC sp_addextendedproperty N'MS_Description', N'0', N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', comment_integer_0",
-                "EXEC sp_addextendedproperty N'MS_Description', N'0', N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', comment_float_0",
+                'CREATE TABLE mytable (id INT IDENTITY NOT NULL, comment_null INT NOT NULL, comment_empty_string INT NOT NULL, comment_string_0 INT NOT NULL, comment INT NOT NULL, [comment_quoted] INT NOT NULL, [create] INT NOT NULL, commented_type VARCHAR(MAX) NOT NULL, commented_type_with_comment VARCHAR(MAX) NOT NULL, comment_with_string_literal_char NVARCHAR(255) NOT NULL, PRIMARY KEY (id))',
                 "EXEC sp_addextendedproperty N'MS_Description', N'0', N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', comment_string_0",
                 "EXEC sp_addextendedproperty N'MS_Description', N'Doctrine 0wnz you!', N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', comment",
                 "EXEC sp_addextendedproperty N'MS_Description', N'Doctrine 0wnz comments for explicitly quoted columns!', N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', [comment_quoted]",
@@ -741,36 +700,34 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $table = new Table('mytable');
         $table->addColumn('id', 'integer', ['autoincrement' => true]);
         $table->addColumn('comment_null', 'integer', ['comment' => null]);
-        $table->addColumn('comment_false', 'integer', ['comment' => false]);
         $table->addColumn('comment_empty_string', 'integer', ['comment' => '']);
-        $table->addColumn('comment_integer_0', 'integer', ['comment' => 0]);
-        $table->addColumn('comment_float_0', 'integer', ['comment' => 0.0]);
         $table->addColumn('comment_string_0', 'integer', ['comment' => '0']);
         $table->addColumn('comment', 'integer', ['comment' => 'Doctrine 0wnz you!']);
         $table->addColumn('`comment_quoted`', 'integer', ['comment' => 'Doctrine 0wnz comments for explicitly quoted columns!']);
         $table->addColumn('create', 'integer', ['comment' => 'Doctrine 0wnz comments for reserved keyword columns!']);
         $table->addColumn('commented_type', 'object');
         $table->addColumn('commented_type_with_comment', 'array', ['comment' => 'Doctrine array type.']);
-        $table->addColumn('comment_with_string_literal_quote_char', 'array', ['comment' => "O'Reilly"]);
+        $table->addColumn('comment_with_string_literal_quote_char', 'array', [
+            'length' => 255,
+            'comment' => "O'Reilly",
+        ]);
         $table->setPrimaryKey(['id']);
 
         $tableDiff                                                         = new TableDiff('mytable');
         $tableDiff->fromTable                                              = $table;
         $tableDiff->addedColumns['added_comment_none']                     = new Column('added_comment_none', Type::getType('integer'));
         $tableDiff->addedColumns['added_comment_null']                     = new Column('added_comment_null', Type::getType('integer'), ['comment' => null]);
-        $tableDiff->addedColumns['added_comment_false']                    = new Column('added_comment_false', Type::getType('integer'), ['comment' => false]);
         $tableDiff->addedColumns['added_comment_empty_string']             = new Column('added_comment_empty_string', Type::getType('integer'), ['comment' => '']);
-        $tableDiff->addedColumns['added_comment_integer_0']                = new Column('added_comment_integer_0', Type::getType('integer'), ['comment' => 0]);
-        $tableDiff->addedColumns['added_comment_float_0']                  = new Column('added_comment_float_0', Type::getType('integer'), ['comment' => 0.0]);
         $tableDiff->addedColumns['added_comment_string_0']                 = new Column('added_comment_string_0', Type::getType('integer'), ['comment' => '0']);
         $tableDiff->addedColumns['added_comment']                          = new Column('added_comment', Type::getType('integer'), ['comment' => 'Doctrine']);
         $tableDiff->addedColumns['`added_comment_quoted`']                 = new Column('`added_comment_quoted`', Type::getType('integer'), ['comment' => 'rulez']);
         $tableDiff->addedColumns['select']                                 = new Column('select', Type::getType('integer'), ['comment' => '666']);
         $tableDiff->addedColumns['added_commented_type']                   = new Column('added_commented_type', Type::getType('object'));
         $tableDiff->addedColumns['added_commented_type_with_comment']      = new Column('added_commented_type_with_comment', Type::getType('array'), ['comment' => '666']);
-        $tableDiff->addedColumns['added_comment_with_string_literal_char'] = new Column('added_comment_with_string_literal_char', Type::getType('string'), ['comment' => "''"]);
-
-        $tableDiff->renamedColumns['comment_float_0'] = new Column('comment_double_0', Type::getType('decimal'), ['comment' => 'Double for real!']);
+        $tableDiff->addedColumns['added_comment_with_string_literal_char'] = new Column('added_comment_with_string_literal_char', Type::getType('string'), [
+            'length' => 255,
+            'comment' => "''",
+        ]);
 
         // Add comment to non-commented column.
         $tableDiff->changedColumns['id'] = new ColumnDiff(
@@ -783,17 +740,9 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         // Remove comment from null-commented column.
         $tableDiff->changedColumns['comment_null'] = new ColumnDiff(
             'comment_null',
-            new Column('comment_null', Type::getType('string')),
+            new Column('comment_null', Type::getType('string'), ['length' => 255]),
             ['type'],
             new Column('comment_null', Type::getType('integer'), ['comment' => null])
-        );
-
-        // Add comment to false-commented column.
-        $tableDiff->changedColumns['comment_false'] = new ColumnDiff(
-            'comment_false',
-            new Column('comment_false', Type::getType('integer'), ['comment' => 'false']),
-            ['comment'],
-            new Column('comment_false', Type::getType('integer'), ['comment' => false])
         );
 
         // Change type to custom type from empty string commented column.
@@ -804,10 +753,10 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             new Column('comment_empty_string', Type::getType('integer'), ['comment' => ''])
         );
 
-        // Change comment to false-comment from zero-string commented column.
+        // Change comment to empty comment from zero-string commented column.
         $tableDiff->changedColumns['comment_string_0'] = new ColumnDiff(
             'comment_string_0',
-            new Column('comment_string_0', Type::getType('integer'), ['comment' => false]),
+            new Column('comment_string_0', Type::getType('integer'), ['comment' => '']),
             ['comment'],
             new Column('comment_string_0', Type::getType('integer'), ['comment' => '0'])
         );
@@ -860,20 +809,12 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             new Column('comment_with_string_literal_char', Type::getType('array'), ['comment' => "O'Reilly"])
         );
 
-        $tableDiff->removedColumns['comment_integer_0'] = new Column('comment_integer_0', Type::getType('integer'), ['comment' => 0]);
-
         self::assertEquals(
             [
-                // Renamed columns.
-                "sp_RENAME 'mytable.comment_float_0', 'comment_double_0', 'COLUMN'",
-
                 // Added columns.
                 'ALTER TABLE mytable ADD added_comment_none INT NOT NULL',
                 'ALTER TABLE mytable ADD added_comment_null INT NOT NULL',
-                'ALTER TABLE mytable ADD added_comment_false INT NOT NULL',
                 'ALTER TABLE mytable ADD added_comment_empty_string INT NOT NULL',
-                'ALTER TABLE mytable ADD added_comment_integer_0 INT NOT NULL',
-                'ALTER TABLE mytable ADD added_comment_float_0 INT NOT NULL',
                 'ALTER TABLE mytable ADD added_comment_string_0 INT NOT NULL',
                 'ALTER TABLE mytable ADD added_comment INT NOT NULL',
                 'ALTER TABLE mytable ADD [added_comment_quoted] INT NOT NULL',
@@ -881,7 +822,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
                 'ALTER TABLE mytable ADD added_commented_type VARCHAR(MAX) NOT NULL',
                 'ALTER TABLE mytable ADD added_commented_type_with_comment VARCHAR(MAX) NOT NULL',
                 'ALTER TABLE mytable ADD added_comment_with_string_literal_char NVARCHAR(255) NOT NULL',
-                'ALTER TABLE mytable DROP COLUMN comment_integer_0',
                 'ALTER TABLE mytable ALTER COLUMN comment_null NVARCHAR(255) NOT NULL',
                 'ALTER TABLE mytable ALTER COLUMN comment_empty_string VARCHAR(MAX) NOT NULL',
                 'ALTER TABLE mytable ALTER COLUMN [comment_quoted] VARCHAR(MAX) NOT NULL',
@@ -889,8 +829,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
                 'ALTER TABLE mytable ALTER COLUMN commented_type INT NOT NULL',
 
                 // Added columns.
-                "EXEC sp_addextendedproperty N'MS_Description', N'0', N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', added_comment_integer_0",
-                "EXEC sp_addextendedproperty N'MS_Description', N'0', N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', added_comment_float_0",
                 "EXEC sp_addextendedproperty N'MS_Description', N'0', N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', added_comment_string_0",
                 "EXEC sp_addextendedproperty N'MS_Description', N'Doctrine', N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', added_comment",
                 "EXEC sp_addextendedproperty N'MS_Description', N'rulez', N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', [added_comment_quoted]",
@@ -901,7 +839,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
 
                 // Changed columns.
                 "EXEC sp_addextendedproperty N'MS_Description', N'primary', N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', id",
-                "EXEC sp_addextendedproperty N'MS_Description', N'false', N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', comment_false",
                 "EXEC sp_addextendedproperty N'MS_Description', N'(DC2Type:object)', N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', comment_empty_string",
                 "EXEC sp_dropextendedproperty N'MS_Description', N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', comment_string_0",
                 "EXEC sp_dropextendedproperty N'MS_Description', N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', comment",
@@ -996,30 +933,33 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         self::assertSame('guid', $this->platform->getDoctrineTypeMapping('uniqueidentifier'));
     }
 
-    protected function getBinaryMaxLength() : int
+    protected function getExpectedFixedLengthStringTypeDeclarationSQLNoLength() : string
     {
-        return 8000;
+        return 'NCHAR';
     }
 
-    public function testReturnsBinaryTypeDeclarationSQL() : void
+    protected function getExpectedFixedLengthStringTypeDeclarationSQLWithLength() : string
     {
-        self::assertSame('VARBINARY(255)', $this->platform->getBinaryTypeDeclarationSQL([]));
-        self::assertSame('VARBINARY(255)', $this->platform->getBinaryTypeDeclarationSQL(['length' => 0]));
-        self::assertSame('VARBINARY(8000)', $this->platform->getBinaryTypeDeclarationSQL(['length' => 8000]));
-
-        self::assertSame('BINARY(255)', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true]));
-        self::assertSame('BINARY(255)', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 0]));
-        self::assertSame('BINARY(8000)', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 8000]));
+        return 'NCHAR(16)';
     }
 
-    /**
-     * @group legacy
-     * @expectedDeprecation Binary field length 8001 is greater than supported by the platform (8000). Reduce the field length or use a BLOB field instead.
-     */
-    public function testReturnsBinaryTypeLongerThanMaxDeclarationSQL() : void
+    public function testGetVariableLengthStringTypeDeclarationSQLNoLength() : void
     {
-        self::assertSame('VARBINARY(MAX)', $this->platform->getBinaryTypeDeclarationSQL(['length' => 8001]));
-        self::assertSame('VARBINARY(MAX)', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 8001]));
+        $this->expectException(ColumnLengthRequired::class);
+
+        parent::testGetVariableLengthStringTypeDeclarationSQLNoLength();
+    }
+
+    protected function getExpectedVariableLengthStringTypeDeclarationSQLWithLength() : string
+    {
+        return 'NVARCHAR(16)';
+    }
+
+    public function testGetVariableLengthBinaryTypeDeclarationSQLNoLength() : void
+    {
+        $this->expectException(ColumnLengthRequired::class);
+
+        parent::testGetVariableLengthBinaryTypeDeclarationSQLNoLength();
     }
 
     /**
@@ -1067,23 +1007,25 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
 
         $tableDiff->changedColumns['col_string'] = new ColumnDiff(
             'col_string',
-            new Column('col_string', Type::getType('string'), ['default' => 666, 'fixed' => true]),
+            new Column('col_string', Type::getType('string'), [
+                'length' => 255,
+                'fixed' => true,
+                'default' => 'foo',
+            ]),
             ['fixed'],
-            new Column('col_string', Type::getType('string'), ['default' => 666])
+            new Column('col_string', Type::getType('string'), ['default' => 'foo'])
         );
 
-        $expected = $this->platform->getAlterTableSQL($tableDiff);
-
         self::assertSame(
-            $expected,
             [
                 'ALTER TABLE column_def_change_type DROP CONSTRAINT DF_829302E0_FA2CB292',
                 'ALTER TABLE column_def_change_type ALTER COLUMN col_int INT NOT NULL',
                 'ALTER TABLE column_def_change_type ADD CONSTRAINT DF_829302E0_FA2CB292 DEFAULT 666 FOR col_int',
                 'ALTER TABLE column_def_change_type DROP CONSTRAINT DF_829302E0_2725A6D0',
                 'ALTER TABLE column_def_change_type ALTER COLUMN col_string NCHAR(255) NOT NULL',
-                "ALTER TABLE column_def_change_type ADD CONSTRAINT DF_829302E0_2725A6D0 DEFAULT '666' FOR col_string",
-            ]
+                "ALTER TABLE column_def_change_type ADD CONSTRAINT DF_829302E0_2725A6D0 DEFAULT 'foo' FOR col_string",
+            ],
+            $this->platform->getAlterTableSQL($tableDiff)
         );
     }
 
@@ -1154,6 +1096,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     public function testGeneratesIdentifierNamesInDefaultConstraintDeclarationSQL(string $table, array $column, string $expectedSql) : void
     {
+        assert($this->platform instanceof SQLServerPlatform);
         self::assertSame($expectedSql, $this->platform->getDefaultConstraintDeclarationSQL($table, $column));
     }
 
@@ -1193,7 +1136,12 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         return [
             // Unquoted identifiers non-reserved keywords.
             [
-                new Table('mytable', [new Column('mycolumn', Type::getType('string'), ['default' => 'foo'])]),
+                new Table('mytable', [
+                    new Column('mycolumn', Type::getType('string'), [
+                        'length' => 255,
+                        'default' => 'foo',
+                    ]),
+                ]),
                 [
                     'CREATE TABLE mytable (mycolumn NVARCHAR(255) NOT NULL)',
                     "ALTER TABLE mytable ADD CONSTRAINT DF_6B2BD609_9BADD926 DEFAULT 'foo' FOR mycolumn",
@@ -1201,7 +1149,12 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             ],
             // Quoted identifiers reserved keywords.
             [
-                new Table('`mytable`', [new Column('`mycolumn`', Type::getType('string'), ['default' => 'foo'])]),
+                new Table('`mytable`', [
+                    new Column('`mycolumn`', Type::getType('string'), [
+                        'length' => 255,
+                        'default' => 'foo',
+                    ]),
+                ]),
                 [
                     'CREATE TABLE [mytable] ([mycolumn] NVARCHAR(255) NOT NULL)',
                     "ALTER TABLE [mytable] ADD CONSTRAINT DF_6B2BD609_9BADD926 DEFAULT 'foo' FOR [mycolumn]",
@@ -1209,7 +1162,12 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             ],
             // Unquoted identifiers reserved keywords.
             [
-                new Table('table', [new Column('select', Type::getType('string'), ['default' => 'foo'])]),
+                new Table('table', [
+                    new Column('select', Type::getType('string'), [
+                        'length' => 255,
+                        'default' => 'foo',
+                    ]),
+                ]),
                 [
                     'CREATE TABLE [table] ([select] NVARCHAR(255) NOT NULL)',
                     "ALTER TABLE [table] ADD CONSTRAINT DF_F6298F46_4BF2EAC0 DEFAULT 'foo' FOR [select]",
@@ -1217,7 +1175,12 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             ],
             // Quoted identifiers reserved keywords.
             [
-                new Table('`table`', [new Column('`select`', Type::getType('string'), ['default' => 'foo'])]),
+                new Table('`table`', [
+                    new Column('`select`', Type::getType('string'), [
+                        'length' => 255,
+                        'default' => 'foo',
+                    ]),
+                ]),
                 [
                     'CREATE TABLE [table] ([select] NVARCHAR(255) NOT NULL)',
                     "ALTER TABLE [table] ADD CONSTRAINT DF_F6298F46_4BF2EAC0 DEFAULT 'foo' FOR [select]",
@@ -1247,16 +1210,32 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             [
                 new TableDiff(
                     'mytable',
-                    [new Column('addcolumn', Type::getType('string'), ['default' => 'foo'])],
+                    [
+                        'addcolumn' => new Column('addcolumn', Type::getType('string'), [
+                            'length' => 255,
+                            'default' => 'foo',
+                        ]),
+                    ],
                     [
                         'mycolumn' => new ColumnDiff(
                             'mycolumn',
-                            new Column('mycolumn', Type::getType('string'), ['default' => 'bar']),
+                            new Column('mycolumn', Type::getType('string'), [
+                                'length' => 255,
+                                'default' => 'bar',
+                            ]),
                             ['default'],
-                            new Column('mycolumn', Type::getType('string'), ['default' => 'foo'])
+                            new Column('mycolumn', Type::getType('string'), [
+                                'length' => 255,
+                                'default' => 'foo',
+                            ])
                         ),
                     ],
-                    [new Column('removecolumn', Type::getType('string'), ['default' => 'foo'])]
+                    [
+                        'removecolumn' => new Column('removecolumn', Type::getType('string'), [
+                            'length' => 255,
+                            'default' => 'foo',
+                        ]),
+                    ]
                 ),
                 [
                     'ALTER TABLE mytable ADD addcolumn NVARCHAR(255) NOT NULL',
@@ -1271,16 +1250,32 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             [
                 new TableDiff(
                     '`mytable`',
-                    [new Column('`addcolumn`', Type::getType('string'), ['default' => 'foo'])],
+                    [
+                        'addcolumn' => new Column('`addcolumn`', Type::getType('string'), [
+                            'length' => 255,
+                            'default' => 'foo',
+                        ]),
+                    ],
                     [
                         'mycolumn' => new ColumnDiff(
                             '`mycolumn`',
-                            new Column('`mycolumn`', Type::getType('string'), ['default' => 'bar']),
+                            new Column('`mycolumn`', Type::getType('string'), [
+                                'length' => 255,
+                                'default' => 'bar',
+                            ]),
                             ['default'],
-                            new Column('`mycolumn`', Type::getType('string'), ['default' => 'foo'])
+                            new Column('`mycolumn`', Type::getType('string'), [
+                                'length' => 255,
+                                'default' => 'foo',
+                            ])
                         ),
                     ],
-                    [new Column('`removecolumn`', Type::getType('string'), ['default' => 'foo'])]
+                    [
+                        'removecolumn' => new Column('`removecolumn`', Type::getType('string'), [
+                            'length' => 255,
+                            'default' => 'foo',
+                        ]),
+                    ]
                 ),
                 [
                     'ALTER TABLE [mytable] ADD [addcolumn] NVARCHAR(255) NOT NULL',
@@ -1295,16 +1290,32 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             [
                 new TableDiff(
                     'table',
-                    [new Column('add', Type::getType('string'), ['default' => 'foo'])],
+                    [
+                        'add' => new Column('add', Type::getType('string'), [
+                            'length' => 255,
+                            'default' => 'foo',
+                        ]),
+                    ],
                     [
                         'select' => new ColumnDiff(
                             'select',
-                            new Column('select', Type::getType('string'), ['default' => 'bar']),
+                            new Column('select', Type::getType('string'), [
+                                'length' => 255,
+                                'default' => 'bar',
+                            ]),
                             ['default'],
-                            new Column('select', Type::getType('string'), ['default' => 'foo'])
+                            new Column('select', Type::getType('string'), [
+                                'length' => 255,
+                                'default' => 'foo',
+                            ])
                         ),
                     ],
-                    [new Column('drop', Type::getType('string'), ['default' => 'foo'])]
+                    [
+                        'drop' => new Column('drop', Type::getType('string'), [
+                            'length' => 255,
+                            'default' => 'foo',
+                        ]),
+                    ]
                 ),
                 [
                     'ALTER TABLE [table] ADD [add] NVARCHAR(255) NOT NULL',
@@ -1319,16 +1330,32 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             [
                 new TableDiff(
                     '`table`',
-                    [new Column('`add`', Type::getType('string'), ['default' => 'foo'])],
+                    [
+                        'add' => new Column('`add`', Type::getType('string'), [
+                            'length' => 255,
+                            'default' => 'foo',
+                        ]),
+                    ],
                     [
                         'select' => new ColumnDiff(
                             '`select`',
-                            new Column('`select`', Type::getType('string'), ['default' => 'bar']),
+                            new Column('`select`', Type::getType('string'), [
+                                'length' => 255,
+                                'default' => 'bar',
+                            ]),
                             ['default'],
-                            new Column('`select`', Type::getType('string'), ['default' => 'foo'])
+                            new Column('`select`', Type::getType('string'), [
+                                'length' => 255,
+                                'default' => 'foo',
+                            ])
                         ),
                     ],
-                    [new Column('`drop`', Type::getType('string'), ['default' => 'foo'])]
+                    [
+                        'drop' => new Column('`drop`', Type::getType('string'), [
+                            'length' => 255,
+                            'default' => 'foo',
+                        ]),
+                    ]
                 ),
                 [
                     'ALTER TABLE [table] ADD [add] NVARCHAR(255) NOT NULL',
@@ -1411,25 +1438,16 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL() : string
     {
-        return 'CONSTRAINT [select] UNIQUE (foo) WHERE foo IS NOT NULL';
+        return 'CONSTRAINT [select] UNIQUE (foo)';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getQuotesReservedKeywordInIndexDeclarationSQL() : string
     {
         return 'INDEX [select] (foo)';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getQuotesReservedKeywordInTruncateTableSQL() : string
     {
         return 'TRUNCATE TABLE [select]';
@@ -1453,15 +1471,50 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
 
     public function testModifyLimitQueryWithTopNSubQueryWithOrderBy() : void
     {
-        $querySql   = 'SELECT * FROM test t WHERE t.id = (SELECT TOP 1 t2.id FROM test t2 ORDER BY t2.data DESC)';
-        $alteredSql = 'SELECT TOP 10 * FROM test t WHERE t.id = (SELECT TOP 1 t2.id FROM test t2 ORDER BY t2.data DESC)';
-        $sql        = $this->platform->modifyLimitQuery($querySql, 10);
-        $this->expectCteWithMaxRowNum($alteredSql, 10, $sql);
+        $querySql    = 'SELECT * FROM test t WHERE t.id = (SELECT TOP 1 t2.id FROM test t2 ORDER BY t2.data DESC)';
+        $expectedSql = 'SELECT * FROM test t WHERE t.id = (SELECT TOP 1 t2.id FROM test t2 ORDER BY t2.data DESC) ORDER BY (SELECT 0) OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY';
+        $sql         = $this->platform->modifyLimitQuery($querySql, 10);
+        self::assertEquals($expectedSql, $sql);
 
-        $querySql   = 'SELECT * FROM test t WHERE t.id = (SELECT TOP 1 t2.id FROM test t2 ORDER BY t2.data DESC) ORDER BY t.data2 DESC';
-        $alteredSql = 'SELECT TOP 10 * FROM test t WHERE t.id = (SELECT TOP 1 t2.id FROM test t2 ORDER BY t2.data DESC) ORDER BY t.data2 DESC';
-        $sql        = $this->platform->modifyLimitQuery($querySql, 10);
-        $this->expectCteWithMaxRowNum($alteredSql, 10, $sql);
+        $querySql    = 'SELECT * FROM test t WHERE t.id = (SELECT TOP 1 t2.id FROM test t2 ORDER BY t2.data DESC) ORDER BY t.data2 DESC';
+        $expectedSql = 'SELECT * FROM test t WHERE t.id = (SELECT TOP 1 t2.id FROM test t2 ORDER BY t2.data DESC) ORDER BY t.data2 DESC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY';
+        $sql         = $this->platform->modifyLimitQuery($querySql, 10);
+        self::assertEquals($expectedSql, $sql);
+    }
+
+    public function testModifyLimitQueryWithFromSubquery() : void
+    {
+        $sql = $this->platform->modifyLimitQuery('SELECT DISTINCT id_0 FROM (SELECT k0_.id AS id_0 FROM key_measure k0_ WHERE (k0_.id_zone in(2))) dctrn_result', 10);
+
+        $expected = 'SELECT DISTINCT id_0 FROM (SELECT k0_.id AS id_0 FROM key_measure k0_ WHERE (k0_.id_zone in(2))) dctrn_result ORDER BY 1 OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY';
+
+        self::assertEquals($sql, $expected);
+    }
+
+    public function testModifyLimitQueryWithFromSubqueryAndOrder() : void
+    {
+        $sql = $this->platform->modifyLimitQuery('SELECT DISTINCT id_0, value_1 FROM (SELECT k0_.id AS id_0, k0_.value AS value_1 FROM key_measure k0_ WHERE (k0_.id_zone in(2))) dctrn_result ORDER BY value_1 DESC', 10);
+
+        $expected = 'SELECT DISTINCT id_0, value_1 FROM (SELECT k0_.id AS id_0, k0_.value AS value_1 FROM key_measure k0_ WHERE (k0_.id_zone in(2))) dctrn_result ORDER BY value_1 DESC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY';
+
+        self::assertEquals($sql, $expected);
+    }
+
+    public function testModifyLimitQueryWithComplexOrderByExpression() : void
+    {
+        $sql = $this->platform->modifyLimitQuery('SELECT * FROM table ORDER BY (table.x * table.y) DESC', 10);
+
+        $expected = 'SELECT * FROM table ORDER BY (table.x * table.y) DESC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY';
+
+        self::assertEquals($sql, $expected);
+    }
+
+    public function testModifyLimitQueryWithNewlineBeforeOrderBy() : void
+    {
+        $querySql    = "SELECT * FROM test\nORDER BY col DESC";
+        $expectedSql = "SELECT * FROM test\nORDER BY col DESC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY";
+        $sql         = $this->platform->modifyLimitQuery($querySql, 10);
+        self::assertEquals($expectedSql, $sql);
     }
 
     /**
@@ -1565,8 +1618,8 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     public function testGetCreateTableSQLWithColumnCollation() : void
     {
         $table = new Table('foo');
-        $table->addColumn('no_collation', 'string');
-        $table->addColumn('column_collation', 'string')->setPlatformOption('collation', 'Latin1_General_CS_AS_KS_WS');
+        $table->addColumn('no_collation', 'string', ['length' => 255]);
+        $table->addColumn('column_collation', 'string', ['length' => 255])->setPlatformOption('collation', 'Latin1_General_CS_AS_KS_WS');
 
         self::assertSame(
             ['CREATE TABLE foo (no_collation NVARCHAR(255) NOT NULL, column_collation NVARCHAR(255) COLLATE Latin1_General_CS_AS_KS_WS NOT NULL)'],
@@ -1575,15 +1628,34 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         );
     }
 
-    private function expectCteWithMaxRowNum(string $expectedSql, int $expectedMax, string $sql) : void
+    public function testSupportsSequences() : void
     {
-        $pattern = 'WITH dctrn_cte AS (%s) SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY (SELECT 0)) AS doctrine_rownum FROM dctrn_cte) AS doctrine_tbl WHERE doctrine_rownum <= %d ORDER BY doctrine_rownum ASC';
-        self::assertEquals(sprintf($pattern, $expectedSql, $expectedMax), $sql);
+        self::assertTrue($this->platform->supportsSequences());
     }
 
-    private function expectCteWithMinAndMaxRowNums(string $expectedSql, int $expectedMin, int $expectedMax, string $sql) : void
+    public function testDoesNotPreferSequences() : void
     {
-        $pattern = 'WITH dctrn_cte AS (%s) SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY (SELECT 0)) AS doctrine_rownum FROM dctrn_cte) AS doctrine_tbl WHERE doctrine_rownum >= %d AND doctrine_rownum <= %d ORDER BY doctrine_rownum ASC';
-        self::assertEquals(sprintf($pattern, $expectedSql, $expectedMin, $expectedMax), $sql);
+        self::assertFalse($this->platform->prefersSequences());
+    }
+
+    public function testGeneratesSequenceSqlCommands() : void
+    {
+        $sequence = new Sequence('myseq', 20, 1);
+        self::assertEquals(
+            'CREATE SEQUENCE myseq START WITH 1 INCREMENT BY 20 MINVALUE 1',
+            $this->platform->getCreateSequenceSQL($sequence)
+        );
+        self::assertEquals(
+            'ALTER SEQUENCE myseq INCREMENT BY 20',
+            $this->platform->getAlterSequenceSQL($sequence)
+        );
+        self::assertEquals(
+            'DROP SEQUENCE myseq',
+            $this->platform->getDropSequenceSQL('myseq')
+        );
+        self::assertEquals(
+            'SELECT NEXT VALUE FOR myseq',
+            $this->platform->getSequenceNextValSQL('myseq')
+        );
     }
 }

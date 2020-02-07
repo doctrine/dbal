@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Functional\Driver\PDOMySql;
 
 use Doctrine\DBAL\Driver as DriverInterface;
@@ -24,9 +26,6 @@ class DriverTest extends AbstractDriverTest
         $this->markTestSkipped('pdo_mysql only test.');
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function createDriver() : DriverInterface
     {
         return new Driver();

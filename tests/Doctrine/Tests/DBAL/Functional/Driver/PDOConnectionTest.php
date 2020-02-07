@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Functional\Driver;
 
 use Doctrine\DBAL\Driver\PDOConnection;
@@ -9,10 +11,12 @@ use Doctrine\DBAL\Driver\PDOPgSql\Driver as PDOPgSQLDriver;
 use Doctrine\DBAL\Driver\PDOSqlsrv\Driver as PDOSQLSRVDriver;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use PDO;
-use function extension_loaded;
 use function get_class;
 use function sprintf;
 
+/**
+ * @requires extension pdo
+ */
 class PDOConnectionTest extends DbalFunctionalTestCase
 {
     /**
@@ -24,19 +28,15 @@ class PDOConnectionTest extends DbalFunctionalTestCase
 
     protected function setUp() : void
     {
-        if (! extension_loaded('PDO')) {
-            $this->markTestSkipped('PDO is not installed.');
-        }
-
         parent::setUp();
 
-        $this->driverConnection = $this->connection->getWrappedConnection();
+        $wrappedConnection = $this->connection->getWrappedConnection();
 
-        if ($this->driverConnection instanceof PDOConnection) {
-            return;
+        if (! $wrappedConnection instanceof PDOConnection) {
+            $this->markTestSkipped('PDO connection only test.');
         }
 
-        $this->markTestSkipped('PDO connection only test.');
+        $this->driverConnection = $wrappedConnection;
     }
 
     protected function tearDown() : void
@@ -44,11 +44,6 @@ class PDOConnectionTest extends DbalFunctionalTestCase
         $this->resetSharedConn();
 
         parent::tearDown();
-    }
-
-    public function testDoesNotRequireQueryForServerVersion() : void
-    {
-        self::assertFalse($this->driverConnection->requiresQueryForServerVersion());
     }
 
     public function testThrowsWrappedExceptionOnConstruct() : void
@@ -90,7 +85,9 @@ class PDOConnectionTest extends DbalFunctionalTestCase
 
         // Emulated prepared statements have to be disabled for this test
         // so that PDO actually communicates with the database server to check the query.
-        $this->driverConnection->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+        $this->driverConnection
+            ->getWrappedConnection()
+            ->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
 
         $this->expectException(PDOException::class);
 

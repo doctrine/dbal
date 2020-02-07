@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\ParameterType;
@@ -10,10 +12,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
  */
 class IntegerType extends Type implements PhpIntegerMappingType
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
+    public function getName() : string
     {
         return Types::INTEGER;
     }
@@ -21,7 +20,7 @@ class IntegerType extends Type implements PhpIntegerMappingType
     /**
      * {@inheritdoc}
      */
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
+    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform) : string
     {
         return $platform->getIntegerTypeDeclarationSQL($fieldDeclaration);
     }
@@ -34,10 +33,7 @@ class IntegerType extends Type implements PhpIntegerMappingType
         return $value === null ? null : (int) $value;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getBindingType()
+    public function getBindingType() : int
     {
         return ParameterType::INTEGER;
     }

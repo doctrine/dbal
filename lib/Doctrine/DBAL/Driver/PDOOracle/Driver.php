@@ -1,11 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Driver\PDOOracle;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\AbstractOracleDriver;
+use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\PDOConnection;
-use PDOException;
+use Doctrine\DBAL\Driver\PDOException;
+use PDO;
 
 /**
  * PDO Oracle driver.
@@ -15,13 +19,21 @@ use PDOException;
  * which leads us to the recommendation to use the "oci8" driver to connect
  * to Oracle instead.
  */
-class Driver extends AbstractOracleDriver
+final class Driver extends AbstractOracleDriver
 {
     /**
      * {@inheritdoc}
      */
-    public function connect(array $params, $username = null, $password = null, array $driverOptions = [])
-    {
+    public function connect(
+        array $params,
+        string $username = '',
+        string $password = '',
+        array $driverOptions = []
+    ) : Connection {
+        if (! empty($params['persistent'])) {
+            $driverOptions[PDO::ATTR_PERSISTENT] = true;
+        }
+
         try {
             return new PDOConnection(
                 $this->constructPdoDsn($params),
@@ -41,7 +53,7 @@ class Driver extends AbstractOracleDriver
      *
      * @return string The DSN.
      */
-    private function constructPdoDsn(array $params)
+    private function constructPdoDsn(array $params) : string
     {
         $dsn = 'oci:dbname=' . $this->getEasyConnectString($params);
 
@@ -50,13 +62,5 @@ class Driver extends AbstractOracleDriver
         }
 
         return $dsn;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
-    {
-        return 'pdo_oracle';
     }
 }

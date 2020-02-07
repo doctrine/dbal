@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Schema\Visitor;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -18,9 +20,6 @@ class CreateSchemaSqlCollectorTest extends TestCase
     /** @var CreateSchemaSqlCollector */
     private $visitor;
 
-    /**
-     * {@inheritdoc}
-     */
     protected function setUp() : void
     {
         parent::setUp();

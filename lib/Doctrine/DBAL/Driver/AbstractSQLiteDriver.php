@@ -1,11 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
+use Doctrine\DBAL\Driver\DriverException as DriverExceptionInterface;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Exception\DriverException;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
+use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\SqliteSchemaManager;
 use function strpos;
 
@@ -19,7 +25,7 @@ abstract class AbstractSQLiteDriver implements Driver, ExceptionConverterDriver
      *
      * @link http://www.sqlite.org/c3ref/c_abort.html
      */
-    public function convertException($message, DriverException $exception)
+    public function convertException(string $message, DriverExceptionInterface $exception) : DriverException
     {
         if (strpos($exception->getMessage(), 'database is locked') !== false) {
             return new Exception\LockWaitTimeoutException($message, $exception);
@@ -31,6 +37,10 @@ abstract class AbstractSQLiteDriver implements Driver, ExceptionConverterDriver
             strpos($exception->getMessage(), 'UNIQUE constraint failed') !== false
         ) {
             return new Exception\UniqueConstraintViolationException($message, $exception);
+        }
+
+        if (strpos($exception->getMessage(), 'FOREIGN KEY constraint failed') !== false) {
+            return new Exception\ForeignKeyConstraintViolationException($message, $exception);
         }
 
         if (strpos($exception->getMessage(), 'may not be NULL') !== false ||
@@ -67,31 +77,15 @@ abstract class AbstractSQLiteDriver implements Driver, ExceptionConverterDriver
             return new Exception\ConnectionException($message, $exception);
         }
 
-        return new Exception\DriverException($message, $exception);
+        return new DriverException($message, $exception);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getDatabase(Connection $conn)
-    {
-        $params = $conn->getParams();
-
-        return $params['path'] ?? null;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getDatabasePlatform()
+    public function getDatabasePlatform() : AbstractPlatform
     {
         return new SqlitePlatform();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getSchemaManager(Connection $conn)
+    public function getSchemaManager(Connection $conn) : AbstractSchemaManager
     {
         return new SqliteSchemaManager($conn);
     }
