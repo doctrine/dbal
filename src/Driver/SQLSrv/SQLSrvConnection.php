@@ -88,6 +88,13 @@ final class SQLSrvConnection implements ServerInfoAwareConnection
             throw SQLSrvException::fromSqlSrvErrors();
         }
 
+        if (stripos($statement, 'INSERT INTO ') === 0) {
+            if ($lastInsertStmt = sqlsrv_query($this->conn, 'SELECT SCOPE_IDENTITY() AS LastInsertId;')) {
+                sqlsrv_fetch($lastInsertStmt);
+                $this->lastInsertId->setId(sqlsrv_get_field($lastInsertStmt, 0));
+            }
+        }
+
         return $rowsAffected;
     }
 
