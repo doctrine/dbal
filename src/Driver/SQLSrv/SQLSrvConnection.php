@@ -91,16 +91,16 @@ final class SQLSrvConnection implements ServerInfoAwareConnection
         return $rowsAffected;
     }
 
-    public function lastInsertId(?string $name = null) : string
+    public function lastInsertId(?string $name = null): string
     {
         if ($name !== null) {
             $stmt = $this->prepare('SELECT CONVERT(VARCHAR(MAX), current_value) FROM sys.sequences WHERE name = ?');
             $stmt->execute([$name]);
-        } else {
-            $stmt = $this->query('SELECT @@IDENTITY');
+
+            return $stmt->fetchColumn();
         }
 
-        return $stmt->fetchColumn();
+        return $this->lastInsertId->getId();
     }
 
     public function beginTransaction() : void

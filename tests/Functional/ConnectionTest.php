@@ -368,4 +368,35 @@ class ConnectionTest extends FunctionalTestCase
 
         self::assertTrue($pdo->getAttribute(PDO::ATTR_PERSISTENT));
     }
+
+    /**
+     * @group DBAL-3516
+     */
+    public function testLastInsertIdRelatedToTheMainInsertStatement(): void
+    {
+        if ($this->connection->getDatabasePlatform()->getName() !== 'mssql') {
+            $this->markTestSkipped('Currently restricted to MSSQL');
+        }
+
+        $this->connection->query('CREATE TABLE dbal3516(id INT IDENTITY, test int);');
+        $this->connection->query('CREATE TABLE dbal3516help(id INT IDENTITY, test int);');
+
+        $this->connection->query(<<<SQL
+CREATE TRIGGER dbal3516_after_insert ON dbal3516 AFTER INSERT AS
+    SET NOCOUNT ON
+    DECLARE @i INT = 0;
+    
+    WHILE @i < 3
+    BEGIN
+        INSERT INTO dbal3516help (test) VALUES (1);
+        SET @i = @i + 1;
+    END;
+SQL
+        );
+
+        $this->connection->insert('dbal3516help', ['test' => 1]);
+        $this->connection->lastInsertId();
+        $this->connection->insert('dbal3516', ['test' => 1]);
+        $this->assertEquals(1, $this->connection->lastInsertId());
+    }
 }
