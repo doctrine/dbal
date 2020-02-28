@@ -69,14 +69,18 @@ jobs:
         - bash ./tests/travis/install-mysql-8.0.sh
     - stage: Test
       php: 7.2
-      env: DB=mariadb MARIADB_VERSION=10.3
-      addons:
-        mariadb: 10.3
+      env: DB=mariadb.docker MARIADB_VERSION=10.3
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-mariadb.sh
     - stage: Test
       php: 7.2
-      env: DB=mariadb.mysqli MARIADB_VERSION=10.3
-      addons:
-        mariadb: 10.3
+      env: DB=mariadb.mysqli.docker MARIADB_VERSION=10.3
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-mariadb.sh
     - stage: Test
       php: 7.2
       env: DB=pgsql POSTGRESQL_VERSION=11.0
@@ -110,11 +114,6 @@ jobs:
         - bash ./tests/travis/install-mssql.sh
     - stage: Test
       php: 7.3
-      env: DB=mysql COVERAGE=yes
-      services:
-        - mysql
-    - stage: Test
-      php: 7.3
       env: DB=mysql.docker MYSQL_VERSION=5.7 COVERAGE=yes
       sudo: required
       before_script:
@@ -127,11 +126,6 @@ jobs:
         - docker
       before_script:
         - bash ./tests/travis/install-mysql-8.0.sh
-    - stage: Test
-      php: 7.3
-      env: DB=mysqli COVERAGE=yes
-      services:
-        - mysql
     - stage: Test
       php: 7.3
       env: DB=mysqli.docker MYSQL_VERSION=5.7 COVERAGE=yes
@@ -155,14 +149,18 @@ jobs:
         - bash ./tests/travis/install-mariadb.sh
     - stage: Test
       php: 7.3
-      env: DB=mariadb MARIADB_VERSION=10.2 COVERAGE=yes
-      addons:
-        mariadb: 10.2
+      env: DB=mariadb.docker MARIADB_VERSION=10.2 COVERAGE=yes
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-mariadb.sh
     - stage: Test
       php: 7.3
-      env: DB=mariadb MARIADB_VERSION=10.3 COVERAGE=yes
-      addons:
-        mariadb: 10.3
+      env: DB=mariadb.docker MARIADB_VERSION=10.3 COVERAGE=yes
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-mariadb.sh
     - stage: Test
       php: 7.3
       env: DB=mariadb.mysqli.docker MARIADB_VERSION=10.1 COVERAGE=yes
@@ -172,14 +170,18 @@ jobs:
         - bash ./tests/travis/install-mariadb.sh
     - stage: Test
       php: 7.3
-      env: DB=mariadb.mysqli MARIADB_VERSION=10.2 COVERAGE=yes
-      addons:
-        mariadb: 10.2
+      env: DB=mariadb.mysqli.docker MARIADB_VERSION=10.2 COVERAGE=yes
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-mariadb.sh
     - stage: Test
       php: 7.3
-      env: DB=mariadb.mysqli MARIADB_VERSION=10.3 COVERAGE=yes
-      addons:
-        mariadb: 10.3
+      env: DB=mariadb.mysqli.docker MARIADB_VERSION=10.3 COVERAGE=yes
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-mariadb.sh
     - stage: Test
       php: 7.3
       env: DB=pgsql POSTGRESQL_VERSION=9.4 COVERAGE=yes
@@ -263,14 +265,18 @@ jobs:
         - bash ./tests/travis/install-mysql-8.0.sh
     - stage: Test
       php: 7.4snapshot
-      env: DB=mariadb MARIADB_VERSION=10.3
-      addons:
-        mariadb: 10.3
+      env: DB=mariadb.docker MARIADB_VERSION=10.3
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-mariadb.sh
     - stage: Test
       php: 7.4snapshot
-      env: DB=mariadb.mysqli MARIADB_VERSION=10.3
-      addons:
-        mariadb: 10.3
+      env: DB=mariadb.mysqli.docker MARIADB_VERSION=10.3
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-mariadb.sh
     - stage: Test
       php: 7.4snapshot
       env: DB=pgsql POSTGRESQL_VERSION=11.0
