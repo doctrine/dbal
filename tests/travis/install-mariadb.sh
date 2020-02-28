@@ -3,6 +3,7 @@
 set -ex
 
 sudo docker run \
+    --health-cmd='mysqladmin ping --silent' \
     -d \
     -e MYSQL_ALLOW_EMPTY_PASSWORD=yes \
     -e MYSQL_DATABASE=doctrine_tests \
@@ -10,4 +11,8 @@ sudo docker run \
     --name mariadb \
     mariadb:${MARIADB_VERSION}
 
-sudo docker exec -i mariadb bash <<< 'until echo \\q | mysql doctrine_tests > /dev/null 2>&1 ; do sleep 1; done'
+until [ "$(sudo docker inspect --format "{{json .State.Health.Status }}" mariadb)" == "\"healthy\"" ]
+do
+  echo "Waiting for MariaDB to become ready…"
+  sleep 1
+done

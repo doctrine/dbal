@@ -5,6 +5,7 @@ set -ex
 echo "Starting MySQL 5.7..."
 
 sudo docker run \
+    --health-cmd='mysqladmin ping --silent' \
     -d \
     -e MYSQL_ALLOW_EMPTY_PASSWORD=yes \
     -e MYSQL_DATABASE=doctrine_tests \
@@ -12,4 +13,8 @@ sudo docker run \
     --name mysql57 \
     mysql:5.7
 
-sudo docker exec -i mysql57 bash <<< 'until echo \\q | mysql doctrine_tests > /dev/null 2>&1 ; do sleep 1; done'
+until [ "$(sudo docker inspect --format "{{json .State.Health.Status }}" mysql57)" == "\"healthy\"" ]
+do
+  echo "Waiting for MySQL to become ready…"
+  sleep 1
+done

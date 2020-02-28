@@ -6,6 +6,7 @@ echo "Starting MySQL 8.0..."
 
 sudo docker pull mysql:8.0
 sudo docker run \
+    --health-cmd='mysqladmin ping --silent' \
     -d \
     -e MYSQL_ALLOW_EMPTY_PASSWORD=yes \
     -e MYSQL_DATABASE=doctrine_tests \
@@ -14,4 +15,8 @@ sudo docker run \
     mysql:8.0 \
     --default-authentication-plugin=mysql_native_password
 
-sudo docker exec -i mysql80 bash <<< 'until echo \\q | mysql doctrine_tests > /dev/null 2>&1 ; do sleep 1; done'
+until [ "$(sudo docker inspect --format "{{json .State.Health.Status }}" mysql80)" == "\"healthy\"" ]
+do
+  echo "Waiting for MySQL to become ready…"
+  sleep 1
+done
