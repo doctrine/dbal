@@ -248,7 +248,7 @@ jobs:
       install:
         - travis_retry composer update --prefer-dist --prefer-lowest
     - stage: Test
-      php: 7.4snapshot
+      php: 7.4
       env: DB=mysql.docker MYSQL_VERSION=8.0
       sudo: required
       services:
@@ -256,7 +256,7 @@ jobs:
       before_script:
         - bash ./tests/travis/install-mysql-8.0.sh
     - stage: Test
-      php: 7.4snapshot
+      php: 7.4
       env: DB=mysqli.docker MYSQL_VERSION=8.0
       sudo: required
       services:
@@ -264,21 +264,21 @@ jobs:
       before_script:
         - bash ./tests/travis/install-mysql-8.0.sh
     - stage: Test
-      php: 7.4snapshot
+      php: 7.4
       env: DB=mariadb.docker MARIADB_VERSION=10.3
       services:
         - docker
       before_script:
         - bash ./tests/travis/install-mariadb.sh
     - stage: Test
-      php: 7.4snapshot
+      php: 7.4
       env: DB=mariadb.mysqli.docker MARIADB_VERSION=10.3
       services:
         - docker
       before_script:
         - bash ./tests/travis/install-mariadb.sh
     - stage: Test
-      php: 7.4snapshot
+      php: 7.4
       env: DB=pgsql POSTGRESQL_VERSION=11.0
       sudo: required
       services:
@@ -286,10 +286,10 @@ jobs:
       before_script:
         - bash ./tests/travis/install-postgres-11.sh
     - stage: Test
-      php: 7.4snapshot
+      php: 7.4
       env: DB=sqlite
     - stage: Test
-      php: 7.4snapshot
+      php: 7.4
       env: DB=sqlsrv
       sudo: required
       services:
@@ -299,7 +299,7 @@ jobs:
         - bash ./tests/travis/install-mssql-sqlsrv.sh
         - bash ./tests/travis/install-mssql.sh
     - stage: Test
-      php: 7.4snapshot
+      php: 7.4
       env: DB=pdo_sqlsrv
       sudo: required
       services:
