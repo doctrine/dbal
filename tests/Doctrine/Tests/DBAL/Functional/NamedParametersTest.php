@@ -17,9 +17,9 @@ use function array_change_key_case;
 class NamedParametersTest extends DbalFunctionalTestCase
 {
     /**
-     * @return iterable<int, array<int, mixed>>
+     * @return iterable<int, array<string, array, array, array>>
      */
-    public static function ticketProvider() : iterable
+    public static function executeQueryProvider() : iterable
     {
         return [
             [
@@ -150,6 +150,60 @@ class NamedParametersTest extends DbalFunctionalTestCase
         ];
     }
 
+    /**
+     * @return iterable<string, array<string, array, array>>
+     */
+    public static function prepareProvider() : iterable
+    {
+        return [
+            'single named parameter' => [
+                'SELECT * FROM ddc1372_foobar f WHERE f.foo = :foo',
+                [
+                    'foo' => 1,
+                ],
+                [
+                    ['id' => 1, 'foo' => 1, 'bar' => 1],
+                    ['id' => 2, 'foo' => 1, 'bar' => 2],
+                    ['id' => 3, 'foo' => 1, 'bar' => 3],
+                    ['id' => 4, 'foo' => 1, 'bar' => 4],
+                ],
+            ],
+
+            'multiple parameters' => [
+                'SELECT * FROM ddc1372_foobar f WHERE f.foo = :foo AND f.bar = :bar',
+                [
+                    'foo' => 1,
+                    'bar' => 2,
+                ],
+                [
+                    ['id' => 2, 'foo' => 1, 'bar' => 2],
+                ],
+            ],
+
+            'same parameter at multiple positions' => [
+                'SELECT * FROM ddc1372_foobar f WHERE f.foo = :foo AND f.foo IN (:foo)',
+                [
+                    'foo' => 1,
+                ],
+                [
+                    ['id' => 1, 'foo' => 1, 'bar' => 1],
+                    ['id' => 2, 'foo' => 1, 'bar' => 2],
+                    ['id' => 3, 'foo' => 1, 'bar' => 3],
+                    ['id' => 4, 'foo' => 1, 'bar' => 4],
+                ],
+            ],
+
+            'parameter with string value' => [
+                'SELECT * FROM ddc1372_foobar f WHERE f.foo = :foo',
+                [
+                    'foo' => '"\'',
+                ],
+                [
+                ],
+            ],
+        ];
+    }
+
     protected function setUp() : void
     {
         parent::setUp();
@@ -204,15 +258,36 @@ class NamedParametersTest extends DbalFunctionalTestCase
     }
 
     /**
-     * @param mixed[] $params
-     * @param int[]   $types
-     * @param int[]   $expected
+     * @param string                           $query
+     * @param array<string, mixed>             $params
+     * @param array<string, int>               $types
+     * @param array<int, array<string, mixed>> $expected
      *
-     * @dataProvider ticketProvider
+     * @dataProvider executeQueryProvider
      */
-    public function testTicket(string $query, array $params, array $types, array $expected) : void
+    public function testExecuteQuery(string $query, array $params, array $types, array $expected) : void
     {
         $stmt   = $this->connection->executeQuery($query, $params, $types);
+        $result = $stmt->fetchAll(FetchMode::ASSOCIATIVE);
+
+        foreach ($result as $k => $v) {
+            $result[$k] = array_change_key_case($v, CASE_LOWER);
+        }
+
+        self::assertEquals($result, $expected);
+    }
+
+    /**
+     * @param string                           $query
+     * @param array<string, mixed>             $params
+     * @param array<int, array<string, mixed>> $expected
+     *
+     * @dataProvider prepareProvider
+     */
+    public function testPrepare(string $query, array $params, array $expected) : void
+    {
+        $stmt = $this->connection->prepare($query);
+        $stmt->execute($params);
         $result = $stmt->fetchAll(FetchMode::ASSOCIATIVE);
 
         foreach ($result as $k => $v) {
