@@ -335,6 +335,18 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertFalse($comparator->diffTable($offlineTable, $onlineTable));
     }
 
+    public function testListTableDetailsWhenCurrentSchemaNameQuoted() : void
+    {
+        $this->connection->exec('CREATE SCHEMA "001_test"');
+        $this->connection->exec('SET search_path TO "001_test"');
+
+        try {
+            $this->testListQuotedTable();
+        } finally {
+            $this->connection->close();
+        }
+    }
+
     public function testListTablesExcludesViews() : void
     {
         $this->createTestTable('list_tables_excludes_views');

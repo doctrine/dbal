@@ -118,9 +118,9 @@ class QueryBuilder
     private $firstResult = null;
 
     /**
-     * The maximum number of results to retrieve.
+     * The maximum number of results to retrieve or NULL to retrieve all results.
      *
-     * @var int
+     * @var int|null
      */
     private $maxResults = null;
 
@@ -367,7 +367,6 @@ class QueryBuilder
 
     /**
      * Gets the position of the first result the query object was set to retrieve (the "offset").
-     * Returns NULL if {@link setFirstResult} was not applied to this QueryBuilder.
      *
      * @return int The position of the first result.
      */
@@ -379,7 +378,7 @@ class QueryBuilder
     /**
      * Sets the maximum number of results to retrieve (the "limit").
      *
-     * @param int $maxResults The maximum number of results to retrieve.
+     * @param int|null $maxResults The maximum number of results to retrieve or NULL to retrieve all results.
      *
      * @return $this This QueryBuilder instance.
      */
@@ -393,7 +392,7 @@ class QueryBuilder
 
     /**
      * Gets the maximum number of results the query object was set to retrieve (the "limit").
-     * Returns NULL if {@link setMaxResults} was not applied to this query builder.
+     * Returns NULL if all results will be returned.
      *
      * @return int The maximum number of results.
      */
@@ -1327,9 +1326,11 @@ class QueryBuilder
                 if (array_key_exists($join['joinAlias'], $knownAliases)) {
                     throw QueryException::nonUniqueAlias($join['joinAlias'], array_keys($knownAliases));
                 }
-                $sql                             .= ' ' . strtoupper($join['joinType'])
-                    . ' JOIN ' . $join['joinTable'] . ' ' . $join['joinAlias']
-                    . ' ON ' . ((string) $join['joinCondition']);
+                $sql .= ' ' . strtoupper($join['joinType'])
+                    . ' JOIN ' . $join['joinTable'] . ' ' . $join['joinAlias'];
+                if ($join['joinCondition'] !== null) {
+                    $sql .= ' ON ' . $join['joinCondition'];
+                }
                 $knownAliases[$join['joinAlias']] = true;
             }
 
