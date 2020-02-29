@@ -36,7 +36,7 @@ while true; do
       exit 1
       ;;
     *)
-      echo "Unexpected health status $healthStatus…">&2
+      echo "Unexpected health status $healthStatus">&2
       ;;
   esac
 done
