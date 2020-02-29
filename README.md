@@ -26,11 +26,11 @@ Powerful database abstraction layer with many features for database schema intro
   [AppVeyor master image]: https://ci.appveyor.com/api/projects/status/i88kitq8qpbm0vie/branch/master?svg=true
   [ContinuousPHP]: https://continuousphp.com/git-hub/doctrine/dbal
 
-  [2.10 image]: https://img.shields.io/travis/doctrine/dbal/2.10.svg?style=flat-square
-  [Coverage 2.10 image]: https://img.shields.io/scrutinizer/coverage/g/doctrine/dbal/2.10.svg?style=flat-square
-  [Quality 2.10 image]: https://img.shields.io/scrutinizer/g/doctrine/dbal/2.10.svg?style=flat-square
-  [ContinuousPHP 2.10 image]: https://img.shields.io/continuousphp/git-hub/doctrine/dbal/2.10.svg?style=flat-square
-  [2.10]: https://github.com/doctrine/dbal/tree/2.10
-  [Scrutinizer 2.10]: https://scrutinizer-ci.com/g/doctrine/dbal/?branch=2.10
-  [AppVeyor 2.10]: https://ci.appveyor.com/project/doctrine/dbal/branch/2.10
-  [AppVeyor 2.10 image]: https://ci.appveyor.com/api/projects/status/i88kitq8qpbm0vie/branch/2.10?svg=true
+  [2.10 image]: https://img.shields.io/travis/doctrine/dbal/2.10.x.svg?style=flat-square
+  [Coverage 2.10 image]: https://img.shields.io/scrutinizer/coverage/g/doctrine/dbal/2.10.x.svg?style=flat-square
+  [Quality 2.10 image]: https://img.shields.io/scrutinizer/g/doctrine/dbal/2.10.x.svg?style=flat-square
+  [ContinuousPHP 2.10 image]: https://img.shields.io/continuousphp/git-hub/doctrine/dbal/2.10.x.svg?style=flat-square
+  [2.10]: https://github.com/doctrine/dbal/tree/2.10.x
+  [Scrutinizer 2.10]: https://scrutinizer-ci.com/g/doctrine/dbal/?branch=2.10.x
+  [AppVeyor 2.10]: https://ci.appveyor.com/project/doctrine/dbal/branch/2.10.x
+  [AppVeyor 2.10 image]: https://ci.appveyor.com/api/projects/status/i88kitq8qpbm0vie/branch/2.10.x?svg=true
