@@ -106,6 +106,9 @@ jobs:
       env: DB=mysqli.docker IMAGE=mysql:8.0 COVERAGE=yes
     - stage: Test
       php: 7.3
+      env: DB=mariadb.docker IMAGE=mariadb:10.0 COVERAGE=yes
+    - stage: Test
+      php: 7.3
       env: DB=mariadb.docker IMAGE=mariadb:10.1 COVERAGE=yes
     - stage: Test
       php: 7.3
@@ -115,6 +118,9 @@ jobs:
       env: DB=mariadb.docker IMAGE=mariadb:10.3 COVERAGE=yes
     - stage: Test
       php: 7.3
+      env: DB=mariadb.mysqli.docker IMAGE=mariadb:10.0 COVERAGE=yes
+    - stage: Test
+      php: 7.3
       env: DB=mariadb.mysqli.docker IMAGE=mariadb:10.1 COVERAGE=yes
     - stage: Test
       php: 7.3
@@ -122,6 +128,22 @@ jobs:
     - stage: Test
       php: 7.3
       env: DB=mariadb.mysqli.docker IMAGE=mariadb:10.3 COVERAGE=yes
+    - stage: Test
+      dist: trusty
+      php: 7.3
+      env: DB=pgsql POSTGRESQL_VERSION=9.2 COVERAGE=yes
+      services:
+        - postgresql
+      addons:
+        postgresql: "9.2"
+    - stage: Test
+      dist: trusty
+      php: 7.3
+      env: DB=pgsql POSTGRESQL_VERSION=9.3 COVERAGE=yes
+      services:
+        - postgresql
+      addons:
+        postgresql: "9.3"
     - stage: Test
       php: 7.3
       env: DB=pgsql POSTGRESQL_VERSION=9.4 COVERAGE=yes
