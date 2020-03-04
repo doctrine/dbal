@@ -118,6 +118,14 @@ class PostgreSqlPlatform extends AbstractPlatform
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public function getConcatExpression()
+    {
+        return sprintf('CONCAT(%s)', implode(', ', func_get_args()));
+    }
+
+    /**
      * {@inheritdoc}
      */
     protected function getDateArithmeticIntervalExpression($date, $operator, $interval, $unit)
