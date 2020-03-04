@@ -21,6 +21,7 @@ use function array_unique;
 use function array_values;
 use function count;
 use function explode;
+use function func_get_args;
 use function implode;
 use function in_array;
 use function is_array;
