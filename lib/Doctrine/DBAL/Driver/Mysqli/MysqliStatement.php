@@ -7,6 +7,7 @@ use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
+use Doctrine\DBAL\SQLParserUtils;
 use IteratorAggregate;
 use mysqli;
 use mysqli_stmt;
@@ -55,6 +56,11 @@ class MysqliStatement implements IteratorAggregate, Statement
     protected $types;
 
     /**
+     * @var array<string, array<int, int>> maps parameter names to their placeholder number(s).
+     */
+    protected $placeholderNamesToNumbers = [];
+
+    /**
      * Contains ref values for bindValue().
      *
      * @var mixed[]
@@ -80,7 +86,8 @@ class MysqliStatement implements IteratorAggregate, Statement
     {
         $this->_conn = $conn;
 
-        $stmt = $conn->prepare($prepareString);
+        $queryWithoutNamedParameters = $this->convertNamedToPositionalPlaceholders($prepareString);
+        $stmt = $conn->prepare($queryWithoutNamedParameters);
 
         if ($stmt === false) {
             throw new MysqliException($this->_conn->error, $this->_conn->sqlstate, $this->_conn->errno);
@@ -95,6 +102,33 @@ class MysqliStatement implements IteratorAggregate, Statement
 
         $this->types         = str_repeat('s', $paramCount);
         $this->_bindedValues = array_fill(1, $paramCount, null);
+    }
+
+    /**
+     * Converts named placeholders (":parameter") into positional ones ("?"), as MySQL does not support them.
+     *
+     * @param string $query The query string to create a prepared statement of.
+     * @return string
+     */
+    private function convertNamedToPositionalPlaceholders($query)
+    {
+        $numberOfCharsQueryIsShortenedBy = 0;
+        $placeholderNumber = 0;
+
+        foreach (SQLParserUtils::getPlaceholderPositions($query, false) as $placeholderPosition => $placeholderName) {
+            if (array_key_exists($placeholderName, $this->placeholderNamesToNumbers) === false) {
+                $this->placeholderNamesToNumbers[$placeholderName] = [];
+            }
+
+            $this->placeholderNamesToNumbers[$placeholderName][] = $placeholderNumber++;
+
+            $placeholderPositionInShortenedQuery = $placeholderPosition - $numberOfCharsQueryIsShortenedBy;
+            $placeholderNameLength = strlen($placeholderName);
+            $query = substr($query, 0, $placeholderPositionInShortenedQuery) . '?' . substr($query, ($placeholderPositionInShortenedQuery + $placeholderNameLength + 1));
+            $numberOfCharsQueryIsShortenedBy += $placeholderNameLength;
+        }
+
+        return $query;
     }
 
     /**
@@ -137,6 +171,10 @@ class MysqliStatement implements IteratorAggregate, Statement
      */
     public function execute($params = null)
     {
+        if (is_array($params) && count($params) > 0) {
+            $params = $this->convertNamedToPositionalParams($params);
+        }
+
         if ($this->_bindedValues !== null) {
             if ($params !== null) {
                 if (! $this->bindUntypedValues($params)) {
@@ -202,6 +240,32 @@ class MysqliStatement implements IteratorAggregate, Statement
         $this->result = true;
 
         return true;
+    }
+
+    /**
+     * Converts an array of named parameters, e.g. ['id' => 1, 'foo' => 'bar'] to the corresponding array with
+     * positional parameters referring to the prepared query, e.g. [1 => 1, 2 => 'bar', 3 => 'bar'] for a prepared query
+     * like "SELECT id FROM table WHERE foo = :foo and baz = :foo".
+     *
+     * @param array $params
+     * @return array
+     */
+    private function convertNamedToPositionalParams(array $params)
+    {
+        $namedParamsAreUsed = is_string(array_keys($params)[0]);
+        if ($namedParamsAreUsed === false) {
+            return $params;
+        }
+
+        $positionalParameters = [];
+
+        foreach ($params as $paramName => $paramValue) {
+            foreach ($this->placeholderNamesToNumbers[$paramName] as $number) {
+                $positionalParameters[$number] = $paramValue;
+            }
+        }
+
+        return $positionalParameters;
     }
 
     /**
