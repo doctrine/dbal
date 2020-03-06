@@ -338,7 +338,7 @@ SQL
             $identifier = $table;
         }
 
-        $sql = 'ALTER TABLE ' . $identifier . ' ADD PRIMARY KEY';
+        $sql = 'ALTER TABLE ' . $identifier . ' ADD CONSTRAINT ' . $index->getQuotedName($this) . ' PRIMARY KEY';
 
         if ($index->hasFlag('nonclustered')) {
             $sql .= ' NONCLUSTERED';
