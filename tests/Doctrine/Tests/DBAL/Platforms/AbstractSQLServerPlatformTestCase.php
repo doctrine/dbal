@@ -498,13 +498,13 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     {
         $idx = new Index('idx', ['id'], false, true);
         $idx->addFlag('nonclustered');
-        self::assertEquals('ALTER TABLE tbl ADD PRIMARY KEY NONCLUSTERED (id)', $this->platform->getCreatePrimaryKeySQL($idx, 'tbl'));
+        self::assertEquals('ALTER TABLE tbl ADD CONSTRAINT idx PRIMARY KEY NONCLUSTERED (id)', $this->platform->getCreatePrimaryKeySQL($idx, 'tbl'));
     }
 
     public function testAlterAddPrimaryKey() : void
     {
         $idx = new Index('idx', ['id'], false, true);
-        self::assertEquals('ALTER TABLE tbl ADD PRIMARY KEY (id)', $this->platform->getCreateIndexSQL($idx, 'tbl'));
+        self::assertEquals('ALTER TABLE tbl ADD CONSTRAINT idx PRIMARY KEY (id)', $this->platform->getCreateIndexSQL($idx, 'tbl'));
     }
 
     /**
