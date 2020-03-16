@@ -4,7 +4,9 @@ namespace Doctrine\DBAL;
 
 use const PREG_OFFSET_CAPTURE;
 use function array_fill;
+use function array_fill_keys;
 use function array_key_exists;
+use function array_keys;
 use function array_merge;
 use function array_slice;
 use function array_values;
@@ -31,9 +33,9 @@ class SQLParserUtils
     public const POSITIONAL_TOKEN = '\?';
     public const NAMED_TOKEN      = '(?<!:):[a-zA-Z_][a-zA-Z0-9_]*';
     // Quote characters within string literals can be preceded by a backslash.
-    public const ESCAPED_SINGLE_QUOTED_TEXT   = "(?:'(?:\\\\\\\\)+'|'(?:[^'\\\\]|\\\\'?|'')*')";
-    public const ESCAPED_DOUBLE_QUOTED_TEXT   = '(?:"(?:\\\\\\\\)+"|"(?:[^"\\\\]|\\\\"?)*")';
-    public const ESCAPED_BACKTICK_QUOTED_TEXT = '(?:`(?:\\\\\\\\)+`|`(?:[^`\\\\]|\\\\`?)*`)';
+    public const ESCAPED_SINGLE_QUOTED_TEXT   = "(?:'(?:\\\\)+'|'(?:[^'\\\\]|\\\\'?|'')*')";
+    public const ESCAPED_DOUBLE_QUOTED_TEXT   = '(?:"(?:\\\\)+"|"(?:[^"\\\\]|\\\\"?)*")';
+    public const ESCAPED_BACKTICK_QUOTED_TEXT = '(?:`(?:\\\\)+`|`(?:[^`\\\\]|\\\\`?)*`)';
     /**#@-*/
 
     private const ESCAPED_BRACKET_QUOTED_TEXT = '(?<!\b(?i:ARRAY))\[(?:[^\]])*\]';
@@ -131,6 +133,10 @@ class SQLParserUtils
         $bindIndex      = -1;
 
         if ($isPositional) {
+            // make sure that $types has the same keys as $params
+            // to allow omitting parameters with unspecified types
+            $types += array_fill_keys(array_keys($params), null);
+
             ksort($params);
             ksort($types);
         }

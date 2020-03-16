@@ -160,7 +160,7 @@ following code in Doctrine:
     use Doctrine\DBAL\DriverManager;
     use Doctrine\DBAL\Id\TableGenerator;
 
-    $conn = DriverManager::getConnection(/**..**); // connection 1
+    $conn = DriverManager::getConnection(/**..**/); // connection 1
 
     // creating the TableGenerator automatically opens a second connection.
     $tableGenerator = new TableGenerator($conn, "sequences_tbl_name");
