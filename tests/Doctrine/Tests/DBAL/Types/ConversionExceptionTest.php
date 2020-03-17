@@ -3,13 +3,23 @@
 namespace Doctrine\Tests\DBAL\Types;
 
 use Doctrine\DBAL\Types\ConversionException;
-use Exception;
 use PHPUnit\Framework\TestCase;
 use stdClass;
+use Throwable;
 use function tmpfile;
 
 class ConversionExceptionTest extends TestCase
 {
+    public function testConversionFailedPreviousException() : void
+    {
+        $previous = $this->createMock(Throwable::class);
+
+        $exception = ConversionException::conversionFailed('foo', 'foo', $previous);
+
+        self::assertInstanceOf(ConversionException::class, $exception);
+        self::assertSame($previous, $exception->getPrevious());
+    }
+
     /**
      * @param mixed $scalarValue
      *
@@ -44,9 +54,19 @@ class ConversionExceptionTest extends TestCase
         );
     }
 
+    public function testConversionFailedInvalidTypePreviousException() : void
+    {
+        $previous = $this->createMock(Throwable::class);
+
+        $exception = ConversionException::conversionFailedInvalidType('foo', 'foo', ['bar', 'baz'], $previous);
+
+        self::assertInstanceOf(ConversionException::class, $exception);
+        self::assertSame($previous, $exception->getPrevious());
+    }
+
     public function testConversionFailedFormatPreservesPreviousException() : void
     {
-        $previous = new Exception();
+        $previous = $this->createMock(Throwable::class);
 
         $exception = ConversionException::conversionFailedFormat('foo', 'bar', 'baz', $previous);
 

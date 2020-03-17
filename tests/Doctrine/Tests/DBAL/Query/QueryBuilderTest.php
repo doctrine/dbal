@@ -92,9 +92,20 @@ class QueryBuilderTest extends DbalTestCase
 
         $qb->select('u.*', 'p.*')
            ->from('users', 'u')
-           ->Join('u', 'phones', 'p', $expr->eq('p.user_id', 'u.id'));
+           ->join('u', 'phones', 'p', $expr->eq('p.user_id', 'u.id'));
 
         self::assertEquals('SELECT u.*, p.* FROM users u INNER JOIN phones p ON p.user_id = u.id', (string) $qb);
+    }
+
+    public function testSelectWithJoinNoCondition() : void
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('u.*', 'p.*')
+            ->from('users', 'u')
+            ->join('u', 'phones', 'p');
+
+        self::assertEquals('SELECT u.*, p.* FROM users u INNER JOIN phones p', (string) $qb);
     }
 
     public function testSelectWithInnerJoin() : void
@@ -569,13 +580,27 @@ class QueryBuilderTest extends DbalTestCase
         self::assertEquals($sql1, $qb->getSQL());
     }
 
-    public function testSetMaxResults() : void
+    /**
+     * @dataProvider maxResultsProvider
+     */
+    public function testSetMaxResults(?int $maxResults) : void
     {
         $qb = new QueryBuilder($this->conn);
-        $qb->setMaxResults(10);
+        $qb->setMaxResults($maxResults);
 
         self::assertEquals(QueryBuilder::STATE_DIRTY, $qb->getState());
-        self::assertEquals(10, $qb->getMaxResults());
+        self::assertEquals($maxResults, $qb->getMaxResults());
+    }
+
+    /**
+     * @return mixed[][]
+     */
+    public static function maxResultsProvider() : iterable
+    {
+        return [
+            'non-null' => [10],
+            'null' => [null],
+        ];
     }
 
     public function testSetFirstResult() : void
