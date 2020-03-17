@@ -2,7 +2,6 @@
 
 namespace Doctrine\DBAL\Driver\Mysqli;
 
-use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\PingableConnection;
 use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
@@ -28,7 +27,7 @@ use function set_error_handler;
 use function sprintf;
 use function stripos;
 
-class MysqliConnection implements Connection, PingableConnection, ServerInfoAwareConnection
+class MysqliConnection implements PingableConnection, ServerInfoAwareConnection
 {
     /**
      * Name of the option to set connection flags

@@ -1,5 +1,13 @@
 # Upgrade to 3.0
 
+## BC BREAK: PingableConnection and ServerInfoAwareConnection interfaces now extend Connection
+
+All implementations of the `PingableConnection` and `ServerInfoAwareConnection` interfaces have to implement the methods defined in the `Connection` interface as well.
+
+## BC BREAK: VersionAwarePlatformDriver interface now extends Driver
+
+All implementations of the `VersionAwarePlatformDriver` interface have to implement the methods defined in the `Driver` interface as well.
+
 ## BC BREAK: Removed Doctrine\DBAL\Version
 
 The `Doctrine\DBAL\Version` class is no longer available: please refrain from checking the DBAL version at runtime.

@@ -128,7 +128,11 @@ class PortabilityTest extends DbalFunctionalTestCase
      */
     public function assertFetchResultRow(array $row) : void
     {
-        self::assertContains($row['test_int'], [1, 2], 'Primary key test_int should either be 1 or 2.');
+        self::assertThat($row['test_int'], self::logicalOr(
+            self::equalTo(1),
+            self::equalTo(2)
+        ));
+
         self::assertArrayHasKey('test_string', $row, 'Case should be lowered.');
         self::assertEquals(3, strlen($row['test_string']), 'test_string should be rtrimed to length of three for CHAR(32) column.');
         self::assertNull($row['test_null']);

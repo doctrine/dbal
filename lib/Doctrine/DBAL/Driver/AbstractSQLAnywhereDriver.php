@@ -4,7 +4,6 @@ namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\SQLAnywhere11Platform;
 use Doctrine\DBAL\Platforms\SQLAnywhere12Platform;
@@ -18,7 +17,7 @@ use function version_compare;
 /**
  * Abstract base implementation of the {@link Doctrine\DBAL\Driver} interface for SAP Sybase SQL Anywhere based drivers.
  */
-abstract class AbstractSQLAnywhereDriver implements Driver, ExceptionConverterDriver, VersionAwarePlatformDriver
+abstract class AbstractSQLAnywhereDriver implements ExceptionConverterDriver, VersionAwarePlatformDriver
 {
     /**
      * {@inheritdoc}

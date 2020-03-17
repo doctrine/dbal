@@ -4,7 +4,6 @@ namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Platforms\SQLServer2005Platform;
 use Doctrine\DBAL\Platforms\SQLServer2008Platform;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
@@ -17,7 +16,7 @@ use function version_compare;
 /**
  * Abstract base implementation of the {@link Doctrine\DBAL\Driver} interface for Microsoft SQL Server based drivers.
  */
-abstract class AbstractSQLServerDriver implements Driver, VersionAwarePlatformDriver
+abstract class AbstractSQLServerDriver implements VersionAwarePlatformDriver
 {
     /**
      * {@inheritdoc}

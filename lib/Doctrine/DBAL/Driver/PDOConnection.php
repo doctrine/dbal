@@ -11,7 +11,7 @@ use function assert;
  *
  * Used by all PDO-based drivers.
  */
-class PDOConnection implements Connection, ServerInfoAwareConnection
+class PDOConnection implements ServerInfoAwareConnection
 {
     /** @var PDO */
     private $connection;
