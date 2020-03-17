@@ -7,7 +7,6 @@ namespace Doctrine\Tests\DBAL\Functional\Driver\IBMDB2;
 use Doctrine\DBAL\Driver\IBMDB2\DB2Driver;
 use Doctrine\DBAL\Statement;
 use Doctrine\Tests\DbalFunctionalTestCase;
-use PHPUnit\Framework\Error\Notice;
 use function assert;
 use function extension_loaded;
 
@@ -36,7 +35,7 @@ class DB2StatementTest extends DbalFunctionalTestCase
         // unwrap the statement to prevent the wrapper from handling the PHPUnit-originated exception
         $wrappedStmt = $stmt->getWrappedStatement();
 
-        $this->expectException(Notice::class);
+        $this->expectNotice();
         $wrappedStmt->execute([[]]);
     }
 }

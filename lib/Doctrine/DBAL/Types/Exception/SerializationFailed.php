@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Types\Exception;
 
 use Doctrine\DBAL\Types\ConversionException;
+use Throwable;
 use function get_class;
 use function gettype;
 use function is_object;
@@ -15,7 +16,7 @@ final class SerializationFailed extends ConversionException implements TypesExce
     /**
      * @param mixed $value
      */
-    public static function new($value, string $format, string $error) : self
+    public static function new($value, string $format, string $error, ?Throwable $previous = null) : self
     {
         $actualType = is_object($value) ? get_class($value) : gettype($value);
 
@@ -25,7 +26,9 @@ final class SerializationFailed extends ConversionException implements TypesExce
                 $actualType,
                 $format,
                 $error
-            )
+            ),
+            0,
+            $previous
         );
     }
 }

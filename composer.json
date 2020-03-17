@@ -32,7 +32,7 @@
         {"name": "Jonathan Wage", "email": "jonwage@gmail.com"}
     ],
     "require": {
-        "php": "^7.2",
+        "php": "^7.3",
         "doctrine/cache": "^1.0",
         "doctrine/event-manager": "^1.0",
         "ocramius/package-versions": "^1.4"
@@ -42,7 +42,7 @@
         "jetbrains/phpstorm-stubs": "^2019.1",
         "phpstan/phpstan": "^0.11.6",
         "phpstan/phpstan-phpunit": "^0.11",
-        "phpunit/phpunit": "^8.4.1",
+        "phpunit/phpunit": "^9.0",
         "symfony/console": "^2.0.5|^3.0|^4.0|^5.0"
     },
     "suggest": {
@@ -51,7 +51,7 @@
     "bin": ["bin/doctrine-dbal"],
     "config": {
         "platform": {
-            "php": "7.2.0"
+            "php": "7.3.0"
         },
         "sort-packages": true
     },

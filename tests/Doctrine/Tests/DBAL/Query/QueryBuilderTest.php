@@ -94,9 +94,20 @@ class QueryBuilderTest extends DbalTestCase
 
         $qb->select('u.*', 'p.*')
            ->from('users', 'u')
-           ->Join('u', 'phones', 'p', $expr->eq('p.user_id', 'u.id'));
+           ->join('u', 'phones', 'p', $expr->eq('p.user_id', 'u.id'));
 
         self::assertEquals('SELECT u.*, p.* FROM users u INNER JOIN phones p ON p.user_id = u.id', (string) $qb);
+    }
+
+    public function testSelectWithJoinNoCondition() : void
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('u.*', 'p.*')
+            ->from('users', 'u')
+            ->join('u', 'phones', 'p');
+
+        self::assertEquals('SELECT u.*, p.* FROM users u INNER JOIN phones p', (string) $qb);
     }
 
     public function testSelectWithInnerJoin() : void

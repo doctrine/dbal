@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Query;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Driver\Statement;
+use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\Exception\NonUniqueAlias;
 use Doctrine\DBAL\Query\Exception\UnknownAlias;
@@ -247,7 +247,7 @@ class QueryBuilder
      * Uses {@see Connection::executeQuery} for select statements and {@see Connection::executeUpdate}
      * for insert, update and delete statements.
      *
-     * @return Statement|int
+     * @return ResultStatement|int
      */
     public function execute()
     {
@@ -1326,9 +1326,12 @@ class QueryBuilder
                 throw NonUniqueAlias::new($join->alias, array_keys($knownAliases));
             }
 
-            $sql                       .= ' ' . $join->type
-                . ' JOIN ' . $join->table . ' ' . $join->alias
-                . ' ON ' . ((string) $join->condition);
+            $sql .= ' ' . $join->type . ' JOIN ' . $join->table . ' ' . $join->alias;
+
+            if ($join->condition !== null) {
+                $sql .= ' ON ' . $join->condition;
+            }
+
             $knownAliases[$join->alias] = true;
         }
 

@@ -7,9 +7,10 @@ namespace Doctrine\Tests\DBAL\Types;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\Exception\InvalidFormat;
 use Doctrine\DBAL\Types\Exception\InvalidType;
-use Exception;
+use Doctrine\DBAL\Types\Exception\ValueNotConvertible;
 use PHPUnit\Framework\TestCase;
 use stdClass;
+use Throwable;
 use function get_class;
 use function gettype;
 use function is_object;
@@ -18,6 +19,16 @@ use function tmpfile;
 
 class ConversionExceptionTest extends TestCase
 {
+    public function testConversionFailedPreviousException() : void
+    {
+        $previous = $this->createMock(Throwable::class);
+
+        $exception = ValueNotConvertible::new('foo', 'foo', null, $previous);
+
+        self::assertInstanceOf(ConversionException::class, $exception);
+        self::assertSame($previous, $exception->getPrevious());
+    }
+
     /**
      * @param mixed $scalarValue
      *
@@ -58,9 +69,19 @@ class ConversionExceptionTest extends TestCase
         );
     }
 
+    public function testConversionFailedInvalidTypePreviousException() : void
+    {
+        $previous = $this->createMock(Throwable::class);
+
+        $exception = InvalidType::new('foo', 'foo', ['bar', 'baz'], $previous);
+
+        self::assertInstanceOf(ConversionException::class, $exception);
+        self::assertSame($previous, $exception->getPrevious());
+    }
+
     public function testConversionFailedFormatPreservesPreviousException() : void
     {
-        $previous = new Exception();
+        $previous = $this->createMock(Throwable::class);
 
         $exception = InvalidFormat::new('foo', 'bar', 'baz', $previous);
 

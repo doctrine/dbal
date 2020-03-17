@@ -10,9 +10,6 @@ parameters:
         # extension not available
         - '~^(Used )?(Function|Constant) sasql_\S+ not found\.\z~i'
 
-        # changing these would be a BC break, to be done in next major
-        - '~^Method Doctrine\\DBAL\\Query\\QueryBuilder::execute\(\) should return Doctrine\\DBAL\\Driver\\Statement\|int but returns Doctrine\\DBAL\\Driver\\ResultStatement\.\z~'
-
         # https://bugs.php.net/bug.php?id=78126
         - '~^Call to an undefined method PDO::sqliteCreateFunction\(\)\.\z~'
 

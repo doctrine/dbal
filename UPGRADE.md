@@ -30,14 +30,6 @@ The statement implementations no longer detect whether `$params` is a zero- or o
 
 The `ServerInfoAwareConnection::requiresQueryForServerVersion()` method has been removed as an implementation detail which is the same for almost all supported drivers.
 
-## BC BREAK: PingableConnection and ServerInfoAwareConnection interfaces now extends Connection
-
-All implementations of the `PingableConnection` and `ServerInfoAwareConnection` interfaces have to implement the methods defined in the `Connection` interface as well.
-
-## BC BREAK: VersionAwarePlatformDriver interface now extends Driver
-
-All implementations of the `VersionAwarePlatformDriver` interface have to implement the methods defined in the `Driver` interface as well.
-
 ## BC BREAK: Removed support for PostgreSQL 9.3 and older
 
 DBAL now requires PostgeSQL 9.4 or newer, support for unmaintained versions has been dropped.
@@ -354,6 +346,14 @@ The Drizzle project is abandoned and is therefore not supported by Doctrine DBAL
 - Binary fields are no longer represented as streams in PHP. They are represented as strings.
 
 # Upgrade to 3.0
+
+## BC BREAK: PingableConnection and ServerInfoAwareConnection interfaces now extend Connection
+
+All implementations of the `PingableConnection` and `ServerInfoAwareConnection` interfaces have to implement the methods defined in the `Connection` interface as well.
+
+## BC BREAK: VersionAwarePlatformDriver interface now extends Driver
+
+All implementations of the `VersionAwarePlatformDriver` interface have to implement the methods defined in the `Driver` interface as well.
 
 ## BC BREAK: Removed Doctrine\DBAL\Version
 

@@ -102,7 +102,7 @@ SQLDATA
             ['SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE "\\\\") AND (data.description LIKE :condition_1 ESCAPE \'\\\\\') ORDER BY id ASC', [121 => 'condition_0', 174 => 'condition_1']],
             ['SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE `\\\\`) AND (data.description LIKE :condition_1 ESCAPE `\\\\`) ORDER BY id ASC', [121 => 'condition_0', 174 => 'condition_1']],
             ['SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE \'\\\\\') AND (data.description LIKE :condition_1 ESCAPE `\\\\`) ORDER BY id ASC', [121 => 'condition_0', 174 => 'condition_1']],
-            ["SELECT * FROM Foo WHERE (foo.bar LIKE :condition_0 ESCAPE '\') AND (foo.baz = :condition_1) AND (foo.bak LIKE :condition_2 ESCAPE '\')", [38 => 'condition_0', 78 => 'condition_1', 110 => 'condition_2']], // Ticket GH-3640
+            ["SELECT * FROM Foo WHERE (foo.bar LIKE :condition_0 ESCAPE '\') AND (foo.baz = :condition_1) AND (foo.bak LIKE :condition_2 ESCAPE '\')", [38 => 'condition_0', 78 => 'condition_1', 110 => 'condition_2']],
         ];
     }
 
@@ -138,8 +138,7 @@ SQLDATA
     public static function dataExpandListParameters() : iterable
     {
         return [
-            // Positional: Very simple with one needle
-            [
+            'Positional: Very simple with one needle' => [
                 'SELECT * FROM Foo WHERE foo IN (?)',
                 [[1, 2, 3]],
                 [Connection::PARAM_INT_ARRAY],
@@ -147,8 +146,7 @@ SQLDATA
                 [1, 2, 3],
                 [ParameterType::INTEGER, ParameterType::INTEGER, ParameterType::INTEGER],
             ],
-            // Positional: One non-list before d one after list-needle
-            [
+            'Positional: One non-list before d one after list-needle' => [
                 'SELECT * FROM Foo WHERE foo = ? AND bar IN (?)',
                 ['string', [1, 2, 3]],
                 [ParameterType::STRING, Connection::PARAM_INT_ARRAY],
@@ -156,8 +154,7 @@ SQLDATA
                 ['string', 1, 2, 3],
                 [ParameterType::STRING, ParameterType::INTEGER, ParameterType::INTEGER, ParameterType::INTEGER],
             ],
-            // Positional: One non-list after list-needle
-            [
+            'Positional: One non-list after list-needle' => [
                 'SELECT * FROM Foo WHERE bar IN (?) AND baz = ?',
                 [[1, 2, 3], 'foo'],
                 [Connection::PARAM_INT_ARRAY, ParameterType::STRING],
@@ -165,8 +162,7 @@ SQLDATA
                 [1, 2, 3, 'foo'],
                 [ParameterType::INTEGER, ParameterType::INTEGER, ParameterType::INTEGER, ParameterType::STRING],
             ],
-            // Positional: One non-list before and one after list-needle
-            [
+            'Positional: One non-list before and one after list-needle' => [
                 'SELECT * FROM Foo WHERE foo = ? AND bar IN (?) AND baz = ?',
                 [1, [1, 2, 3], 4],
                 [ParameterType::INTEGER, Connection::PARAM_INT_ARRAY, ParameterType::INTEGER],
@@ -180,8 +176,7 @@ SQLDATA
                     ParameterType::INTEGER,
                 ],
             ],
-            // Positional: Two lists
-            [
+            'Positional: Two lists' => [
                 'SELECT * FROM Foo WHERE foo IN (?, ?)',
                 [[1, 2, 3], [4, 5]],
                 [Connection::PARAM_INT_ARRAY, Connection::PARAM_INT_ARRAY],
@@ -195,8 +190,7 @@ SQLDATA
                     ParameterType::INTEGER,
                 ],
             ],
-            // Positional: Empty "integer" array DDC-1978
-            [
+            'Positional: Empty "integer" array (DDC-1978)' => [
                 'SELECT * FROM Foo WHERE foo IN (?)',
                 [[]],
                 [Connection::PARAM_INT_ARRAY],
@@ -204,8 +198,7 @@ SQLDATA
                 [],
                 [],
             ],
-            // Positional: Empty "str" array DDC-1978
-            [
+            'Positional: Empty "str" array (DDC-1978)' => [
                 'SELECT * FROM Foo WHERE foo IN (?)',
                 [[]],
                 [Connection::PARAM_STR_ARRAY],
@@ -213,17 +206,15 @@ SQLDATA
                 [],
                 [],
             ],
-            // Positional: explicit keys for params and types
-            [
+            'Positional: explicit keys for params and types' => [
                 'SELECT * FROM Foo WHERE foo = ? AND bar = ? AND baz = ?',
                 [1 => 'bar', 2 => 'baz', 0 => 1],
                 [2 => ParameterType::STRING, 1 => ParameterType::STRING],
                 'SELECT * FROM Foo WHERE foo = ? AND bar = ? AND baz = ?',
                 [1 => 'bar', 0 => 1, 2 => 'baz'],
-                [1 => ParameterType::STRING, 2 => ParameterType::STRING],
+                [1 => ParameterType::STRING, 2 => ParameterType::STRING, 0 => null],
             ],
-            // Positional: explicit keys for array params and array types
-            [
+            'Positional: explicit keys for array params and array types' => [
                 'SELECT * FROM Foo WHERE foo IN (?) AND bar IN (?) AND baz = ?',
                 [1 => ['bar1', 'bar2'], 2 => true, 0 => [1, 2, 3]],
                 [2 => ParameterType::BOOLEAN, 1 => Connection::PARAM_STR_ARRAY, 0 => Connection::PARAM_INT_ARRAY],
@@ -238,8 +229,7 @@ SQLDATA
                     ParameterType::BOOLEAN,
                 ],
             ],
-            // Positional starts from 1: One non-list before and one after list-needle
-            [
+            'Positional starts from 1: One non-list before and one after list-needle' => [
                 'SELECT * FROM Foo WHERE foo = ? AND bar IN (?) AND baz = ? AND foo IN (?)',
                 [1 => 1, 2 => [1, 2, 3], 3 => 4, 4 => [5, 6]],
                 [
@@ -260,8 +250,7 @@ SQLDATA
                     ParameterType::INTEGER,
                 ],
             ],
-            //  Named parameters : Very simple with param int
-            [
+            'Named: Very simple with param int' => [
                 'SELECT * FROM Foo WHERE foo = :foo',
                 ['foo' => 1],
                 ['foo' => ParameterType::INTEGER],
@@ -269,9 +258,7 @@ SQLDATA
                 [1],
                 [ParameterType::INTEGER],
             ],
-
-             //  Named parameters : Very simple with param int and string
-            [
+            'Named: Very simple with param int and string' => [
                 'SELECT * FROM Foo WHERE foo = :foo AND bar = :bar',
                 ['bar' => 'Some String','foo' => 1],
                 ['foo' => ParameterType::INTEGER, 'bar' => ParameterType::STRING],
@@ -279,8 +266,7 @@ SQLDATA
                 [1,'Some String'],
                 [ParameterType::INTEGER, ParameterType::STRING],
             ],
-            //  Named parameters : Very simple with one needle
-            [
+            'Named: Very simple with one needle' => [
                 'SELECT * FROM Foo WHERE foo IN (:foo)',
                 ['foo' => [1, 2, 3]],
                 ['foo' => Connection::PARAM_INT_ARRAY],
@@ -288,8 +274,7 @@ SQLDATA
                 [1, 2, 3],
                 [ParameterType::INTEGER, ParameterType::INTEGER, ParameterType::INTEGER],
             ],
-            // Named parameters: One non-list before d one after list-needle
-            [
+            'Named: One non-list before d one after list-needle' => [
                 'SELECT * FROM Foo WHERE foo = :foo AND bar IN (:bar)',
                 ['foo' => 'string', 'bar' => [1, 2, 3]],
                 ['foo' => ParameterType::STRING, 'bar' => Connection::PARAM_INT_ARRAY],
@@ -297,8 +282,7 @@ SQLDATA
                 ['string', 1, 2, 3],
                 [ParameterType::STRING, ParameterType::INTEGER, ParameterType::INTEGER, ParameterType::INTEGER],
             ],
-            // Named parameters: One non-list after list-needle
-            [
+            'Named: One non-list after list-needle' => [
                 'SELECT * FROM Foo WHERE bar IN (:bar) AND baz = :baz',
                 ['bar' => [1, 2, 3], 'baz' => 'foo'],
                 ['bar' => Connection::PARAM_INT_ARRAY, 'baz' => ParameterType::STRING],
@@ -306,26 +290,39 @@ SQLDATA
                 [1, 2, 3, 'foo'],
                 [ParameterType::INTEGER, ParameterType::INTEGER, ParameterType::INTEGER, ParameterType::STRING],
             ],
-            // Named parameters: One non-list before and one after list-needle
-            [
+            'Named: One non-list before and one after list-needle' => [
                 'SELECT * FROM Foo WHERE foo = :foo AND bar IN (:bar) AND baz = :baz',
                 ['bar' => [1, 2, 3],'foo' => 1, 'baz' => 4],
-                ['bar' => Connection::PARAM_INT_ARRAY, 'foo' => ParameterType::INTEGER, 'baz' => ParameterType::INTEGER],
+                [
+                    'bar' => Connection::PARAM_INT_ARRAY,
+                    'foo' => ParameterType::INTEGER,
+                    'baz' => ParameterType::INTEGER,
+                ],
                 'SELECT * FROM Foo WHERE foo = ? AND bar IN (?, ?, ?) AND baz = ?',
                 [1, 1, 2, 3, 4],
-                [ParameterType::INTEGER, ParameterType::INTEGER, ParameterType::INTEGER, ParameterType::INTEGER, ParameterType::INTEGER],
+                [
+                    ParameterType::INTEGER,
+                    ParameterType::INTEGER,
+                    ParameterType::INTEGER,
+                    ParameterType::INTEGER,
+                    ParameterType::INTEGER,
+                ],
             ],
-            // Named parameters: Two lists
-            [
+            'Named: Two lists' => [
                 'SELECT * FROM Foo WHERE foo IN (:a, :b)',
                 ['b' => [4, 5],'a' => [1, 2, 3]],
                 ['a' => Connection::PARAM_INT_ARRAY, 'b' => Connection::PARAM_INT_ARRAY],
                 'SELECT * FROM Foo WHERE foo IN (?, ?, ?, ?, ?)',
                 [1, 2, 3, 4, 5],
-                [ParameterType::INTEGER, ParameterType::INTEGER, ParameterType::INTEGER, ParameterType::INTEGER, ParameterType::INTEGER],
+                [
+                    ParameterType::INTEGER,
+                    ParameterType::INTEGER,
+                    ParameterType::INTEGER,
+                    ParameterType::INTEGER,
+                    ParameterType::INTEGER,
+                ],
             ],
-            //  Named parameters : With the same name arg type string
-            [
+            'Named: With the same name arg type string' => [
                 'SELECT * FROM Foo WHERE foo <> :arg AND bar = :arg',
                 ['arg' => 'Some String'],
                 ['arg' => ParameterType::STRING],
@@ -333,18 +330,22 @@ SQLDATA
                 ['Some String','Some String'],
                 [ParameterType::STRING,ParameterType::STRING],
             ],
-             //  Named parameters : With the same name arg
-            [
+            'Named: With the same name arg' => [
                 'SELECT * FROM Foo WHERE foo IN (:arg) AND NOT bar IN (:arg)',
                 ['arg' => [1, 2, 3]],
                 ['arg' => Connection::PARAM_INT_ARRAY],
                 'SELECT * FROM Foo WHERE foo IN (?, ?, ?) AND NOT bar IN (?, ?, ?)',
                 [1, 2, 3, 1, 2, 3],
-                [ParameterType::INTEGER,ParameterType::INTEGER, ParameterType::INTEGER,ParameterType::INTEGER,ParameterType::INTEGER, ParameterType::INTEGER],
+                [
+                    ParameterType::INTEGER,
+                    ParameterType::INTEGER,
+                    ParameterType::INTEGER,
+                    ParameterType::INTEGER,
+                    ParameterType::INTEGER,
+                    ParameterType::INTEGER,
+                ],
             ],
-
-             //  Named parameters : Same name, other name in between DBAL-299
-            [
+            'Named: Same name, other name in between (DBAL-299)' => [
                 'SELECT * FROM Foo WHERE (:foo = 2) AND (:bar = 3) AND (:foo = 2)',
                 ['foo' => 2,'bar' => 3],
                 ['foo' => ParameterType::INTEGER,'bar' => ParameterType::INTEGER],
@@ -352,8 +353,7 @@ SQLDATA
                 [2, 3, 2],
                 [ParameterType::INTEGER, ParameterType::INTEGER, ParameterType::INTEGER],
             ],
-             //  Named parameters : Empty "integer" array DDC-1978
-            [
+            'Named: Empty "integer" array (DDC-1978)' => [
                 'SELECT * FROM Foo WHERE foo IN (:foo)',
                 ['foo' => []],
                 ['foo' => Connection::PARAM_INT_ARRAY],
@@ -361,8 +361,7 @@ SQLDATA
                 [],
                 [],
             ],
-             //  Named parameters : Two empty "str" array DDC-1978
-            [
+            'Named: Two empty "str" array (DDC-1978)' => [
                 'SELECT * FROM Foo WHERE foo IN (:foo) OR bar IN (:bar)',
                 ['foo' => [], 'bar' => []],
                 ['foo' => Connection::PARAM_STR_ARRAY, 'bar' => Connection::PARAM_STR_ARRAY],
@@ -386,8 +385,7 @@ SQLDATA
                 [1, 2, 'bar'],
                 [ParameterType::INTEGER, ParameterType::INTEGER, ParameterType::STRING],
             ],
-            // Params/types with colons
-            [
+            'Params/types with colons' => [
                 'SELECT * FROM Foo WHERE foo = :foo OR bar = :bar',
                 [':foo' => 'foo', ':bar' => 'bar'],
                 [':foo' => ParameterType::INTEGER],
@@ -419,8 +417,7 @@ SQLDATA
                 [1, 2, 'bar'],
                 [ParameterType::INTEGER, ParameterType::INTEGER, ParameterType::STRING],
             ],
-            // DBAL-522 - null valued parameters are not considered
-            [
+            'Null valued parameters (DBAL-522)' => [
                 'INSERT INTO Foo (foo, bar) values (:foo, :bar)',
                 ['foo' => 1, 'bar' => null],
                 [':foo' => ParameterType::INTEGER, ':bar' => ParameterType::NULL],
@@ -436,14 +433,21 @@ SQLDATA
                 [1, null],
                 [ParameterType::INTEGER, ParameterType::NULL],
             ],
-            // DBAL-1205 - Escaped single quotes SQL- and C-Style
-            [
+            'Escaped single quotes SQL- and C-Style (DBAL-1205)' => [
                 "SELECT * FROM Foo WHERE foo = :foo||''':not_a_param''\\'' OR bar = ''':not_a_param''\\'':bar",
                 [':foo' => 1, ':bar' => 2],
                 [':foo' => ParameterType::INTEGER, 'bar' => ParameterType::INTEGER],
                 'SELECT * FROM Foo WHERE foo = ?||\'\'\':not_a_param\'\'\\\'\' OR bar = \'\'\':not_a_param\'\'\\\'\'?',
                 [1, 2],
                 [ParameterType::INTEGER, ParameterType::INTEGER],
+            ],
+            [
+                'SELECT NULL FROM dummy WHERE ? IN (?)',
+                ['foo', ['bar', 'baz']],
+                [1 => Connection::PARAM_STR_ARRAY],
+                'SELECT NULL FROM dummy WHERE ? IN (?, ?)',
+                ['foo', 'bar', 'baz'],
+                [null, ParameterType::STRING, ParameterType::STRING],
             ],
         ];
     }

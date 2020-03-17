@@ -7,7 +7,9 @@ namespace Doctrine\DBAL;
 use Doctrine\DBAL\Exception\MissingArrayParameter;
 use Doctrine\DBAL\Exception\MissingArrayParameterType;
 use function array_fill;
+use function array_fill_keys;
 use function array_key_exists;
+use function array_keys;
 use function array_merge;
 use function array_slice;
 use function array_values;
@@ -113,6 +115,10 @@ class SQLParserUtils
         $bindIndex      = -1;
 
         if ($isPositional) {
+            // make sure that $types has the same keys as $params
+            // to allow omitting parameters with unspecified types
+            $types += array_fill_keys(array_keys($params), null);
+
             ksort($params);
             ksort($types);
         }

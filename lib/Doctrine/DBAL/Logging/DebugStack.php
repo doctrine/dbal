@@ -14,7 +14,7 @@ final class DebugStack implements SQLLogger
     /**
      * Executed SQL queries.
      *
-     * @var mixed[][]
+     * @var array<int, array<string, mixed>>
      */
     public $queries = [];
 
