@@ -19,7 +19,6 @@ parameters:
         - "~^Casting to bool something that's already bool.~"
         - "~^Casting to int something that's already int.~"
         - '~^Method Doctrine\\DBAL\\Driver\\IBMDB2\\DB2Connection::exec\(\) should return int but returns bool\.\z~'
-        - '~^Method Doctrine\\DBAL\\Query\\QueryBuilder::execute\(\) should return Doctrine\\DBAL\\Driver\\Statement\|int but returns Doctrine\\DBAL\\Driver\\ResultStatement\.\z~'
         - '~^Property Doctrine\\DBAL\\Schema\\Table::\$_primaryKeyName \(string\) does not accept (default value of type )?false\.\z~'
         - '~^Property Doctrine\\DBAL\\Schema\\Schema::\$_schemaConfig \(Doctrine\\DBAL\\Schema\\SchemaConfig\) does not accept default value of type false\.\z~'
         - '~^Method Doctrine\\DBAL\\Schema\\ForeignKeyConstraint::onEvent\(\) should return string\|null but returns false\.\z~'

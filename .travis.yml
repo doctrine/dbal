@@ -14,7 +14,11 @@ before_install:
     fi
 
 before_script:
-  - if [[ "$DB" == "mysql" || "$DB" == "mysqli" || "$DB" == *"mariadb"* ]]; then mysql < tests/travis/create-mysql-schema.sql; fi;
+  - |
+    if [[ -n "$IMAGE" ]]
+    then
+        bash ./tests/travis/docker-run-mysql-or-mariadb.sh
+    fi
 
 install:
   - |
@@ -57,155 +61,73 @@ jobs:
 
     - stage: Test
       php: 7.3
-      env: DB=mysql.docker MYSQL_VERSION=8.0
-      sudo: required
-      services:
-        - docker
-      before_script:
-        - bash ./tests/travis/install-mysql-8.0.sh
+      env: DB=mysql.docker IMAGE=mysql:5.7 COVERAGE=yes
     - stage: Test
       php: 7.3
-      env: DB=mysqli.docker MYSQL_VERSION=8.0
-      sudo: required
-      services:
-        - docker
-      before_script:
-        - bash ./tests/travis/install-mysql-8.0.sh
+      env: DB=mysql.docker IMAGE=mysql:8.0 COVERAGE=yes
     - stage: Test
       php: 7.3
-      env: DB=mariadb MARIADB_VERSION=10.3
+      env: DB=mysqli.docker IMAGE=mysql:5.7 COVERAGE=yes
+    - stage: Test
+      php: 7.3
+      env: DB=mysqli.docker IMAGE=mysql:8.0 COVERAGE=yes
+    - stage: Test
+      php: 7.3
+      env: DB=mariadb.docker IMAGE=mariadb:10.0 COVERAGE=yes
+    - stage: Test
+      php: 7.3
+      env: DB=mariadb.docker IMAGE=mariadb:10.1 COVERAGE=yes
+    - stage: Test
+      php: 7.3
+      env: DB=mariadb.docker IMAGE=mariadb:10.2 COVERAGE=yes
+    - stage: Test
+      php: 7.3
+      env: DB=mariadb.docker IMAGE=mariadb:10.3 COVERAGE=yes
+    - stage: Test
+      php: 7.3
+      env: DB=mariadb.mysqli.docker IMAGE=mariadb:10.0 COVERAGE=yes
+    - stage: Test
+      php: 7.3
+      env: DB=mariadb.mysqli.docker IMAGE=mariadb:10.1 COVERAGE=yes
+    - stage: Test
+      php: 7.3
+      env: DB=mariadb.mysqli.docker IMAGE=mariadb:10.2 COVERAGE=yes
+    - stage: Test
+      php: 7.3
+      env: DB=mariadb.mysqli.docker IMAGE=mariadb:10.3 COVERAGE=yes
+    - stage: Test
+      dist: trusty
+      php: 7.3
+      env: DB=pgsql POSTGRESQL_VERSION=9.2 COVERAGE=yes
+      services:
+        - postgresql
       addons:
-        mariadb: 10.3
+        postgresql: "9.2"
     - stage: Test
+      dist: trusty
       php: 7.3
-      env: DB=mariadb.mysqli MARIADB_VERSION=10.3
+      env: DB=pgsql POSTGRESQL_VERSION=9.3 COVERAGE=yes
+      services:
+        - postgresql
       addons:
-        mariadb: 10.3
+        postgresql: "9.3"
     - stage: Test
       php: 7.3
-      env: DB=pgsql POSTGRESQL_VERSION=11.0
-      sudo: required
-      services:
-        - docker
-      before_script:
-        - bash ./tests/travis/install-postgres-11.sh
-    - stage: Test
-      php: 7.3
-      env: DB=sqlite
-    - stage: Test
-      php: 7.3
-      env: DB=sqlsrv
-      sudo: required
-      services:
-        - docker
-      before_script:
-        - bash ./tests/travis/install-sqlsrv-dependencies.sh
-        - bash ./tests/travis/install-mssql-sqlsrv.sh
-        - bash ./tests/travis/install-mssql.sh
-    - stage: Test
-      php: 7.3
-      env: DB=pdo_sqlsrv
-      sudo: required
-      services:
-        - docker
-      before_script:
-        - bash ./tests/travis/install-sqlsrv-dependencies.sh
-        - bash ./tests/travis/install-mssql-pdo_sqlsrv.sh
-        - bash ./tests/travis/install-mssql.sh
-    - stage: Test
-      php: 7.3
-      env: DB=sqlite DEPENDENCIES=low
-      install:
-        - travis_retry composer update --prefer-dist --prefer-lowest
-    - stage: Test
-      php: 7.4
-      env: DB=mysql COVERAGE=yes
-      services:
-        - mysql
-    - stage: Test
-      php: 7.4
-      env: DB=mysql.docker MYSQL_VERSION=5.7 COVERAGE=yes
-      sudo: required
-      before_script:
-        - bash ./tests/travis/install-mysql-5.7.sh
-    - stage: Test
-      php: 7.4
-      env: DB=mysql.docker MYSQL_VERSION=8.0 COVERAGE=yes
-      sudo: required
-      services:
-        - docker
-      before_script:
-        - bash ./tests/travis/install-mysql-8.0.sh
-    - stage: Test
-      php: 7.4
-      env: DB=mysqli COVERAGE=yes
-      services:
-        - mysql
-    - stage: Test
-      php: 7.4
-      env: DB=mysqli.docker MYSQL_VERSION=5.7 COVERAGE=yes
-      sudo: required
-      before_script:
-        - bash ./tests/travis/install-mysql-5.7.sh
-    - stage: Test
-      php: 7.4
-      env: DB=mysqli.docker MYSQL_VERSION=8.0 COVERAGE=yes
-      sudo: required
-      services:
-        - docker
-      before_script:
-        - bash ./tests/travis/install-mysql-8.0.sh
-    - stage: Test
-      php: 7.4
-      env: DB=mariadb.docker MARIADB_VERSION=10.1 COVERAGE=yes
-      services:
-        - docker
-      before_script:
-        - bash ./tests/travis/install-mariadb.sh
-    - stage: Test
-      php: 7.4
-      env: DB=mariadb MARIADB_VERSION=10.2 COVERAGE=yes
-      addons:
-        mariadb: 10.2
-    - stage: Test
-      php: 7.4
-      env: DB=mariadb MARIADB_VERSION=10.3 COVERAGE=yes
-      addons:
-        mariadb: 10.3
-    - stage: Test
-      php: 7.4
-      env: DB=mariadb.mysqli.docker MARIADB_VERSION=10.1 COVERAGE=yes
-      services:
-        - docker
-      before_script:
-        - bash ./tests/travis/install-mariadb.sh
-    - stage: Test
-      php: 7.4
-      env: DB=mariadb.mysqli MARIADB_VERSION=10.2 COVERAGE=yes
-      addons:
-        mariadb: 10.2
-    - stage: Test
-      php: 7.4
-      env: DB=mariadb.mysqli MARIADB_VERSION=10.3 COVERAGE=yes
-      addons:
-        mariadb: 10.3
-    - stage: Test
-      php: 7.4
       env: DB=pgsql POSTGRESQL_VERSION=9.4 COVERAGE=yes
       addons:
         postgresql: "9.4"
     - stage: Test
-      php: 7.4
+      php: 7.3
       env: DB=pgsql POSTGRESQL_VERSION=9.5 COVERAGE=yes
       addons:
         postgresql: "9.5"
     - stage: Test
-      php: 7.4
+      php: 7.3
       env: DB=pgsql POSTGRESQL_VERSION=9.6 COVERAGE=yes
       addons:
         postgresql: "9.6"
     - stage: Test
-      php: 7.4
+      php: 7.3
       env: DB=pgsql POSTGRESQL_VERSION=10.0 COVERAGE=yes
       sudo: required
       addons:
@@ -213,74 +135,93 @@ jobs:
       before_script:
         - bash ./tests/travis/install-postgres-10.sh
     - stage: Test
-      php: 7.4
+      php: 7.3
       env: DB=pgsql POSTGRESQL_VERSION=11.0 COVERAGE=yes
       sudo: required
-      services:
-        - docker
+      before_script:
+        - bash ./tests/travis/install-postgres-11.sh
+    - stage: Test
+      php: 7.3
+      env: DB=sqlsrv COVERAGE=yes
+      sudo: required
+      before_script:
+        - bash ./tests/travis/install-sqlsrv-dependencies.sh
+        - bash ./tests/travis/install-mssql-sqlsrv.sh
+        - bash ./tests/travis/install-mssql.sh
+    - stage: Test
+      php: 7.3
+      env: DB=pdo_sqlsrv COVERAGE=yes
+      sudo: required
+      before_script:
+        - bash ./tests/travis/install-sqlsrv-dependencies.sh
+        - bash ./tests/travis/install-mssql-pdo_sqlsrv.sh
+        - bash ./tests/travis/install-mssql.sh
+    - stage: Test
+      php: 7.3
+      env: DB=ibm_db2 COVERAGE=yes
+      sudo: required
+      before_script:
+        - bash ./tests/travis/install-db2.sh
+        - bash ./tests/travis/install-db2-ibm_db2.sh
+    - stage: Test
+      php: 7.3
+      env: DB=sqlite DEPENDENCIES=low
+      install:
+        - travis_retry composer update --prefer-dist --prefer-lowest
+    - stage: Test
+      php: 7.4
+      env: DB=mysql.docker IMAGE=mysql:8.0
+    - stage: Test
+      php: 7.4
+      env: DB=mysqli.docker IMAGE=mysql:8.0
+    - stage: Test
+      php: 7.4
+      env: DB=mariadb.docker IMAGE=mariadb:10.3
+    - stage: Test
+      php: 7.4
+      env: DB=mariadb.mysqli.docker IMAGE=mariadb:10.3
+    - stage: Test
+      php: 7.4
+      env: DB=pgsql POSTGRESQL_VERSION=11.0
+      sudo: required
       before_script:
         - bash ./tests/travis/install-postgres-11.sh
     - stage: Test
       php: 7.4
-      env: DB=sqlsrv COVERAGE=yes
+      env: DB=sqlite
+    - stage: Test
+      php: 7.4
+      env: DB=sqlsrv
       sudo: required
-      services:
-        - docker
       before_script:
         - bash ./tests/travis/install-sqlsrv-dependencies.sh
         - bash ./tests/travis/install-mssql-sqlsrv.sh
         - bash ./tests/travis/install-mssql.sh
     - stage: Test
       php: 7.4
-      env: DB=pdo_sqlsrv COVERAGE=yes
+      env: DB=pdo_sqlsrv
       sudo: required
-      services:
-        - docker
       before_script:
         - bash ./tests/travis/install-sqlsrv-dependencies.sh
         - bash ./tests/travis/install-mssql-pdo_sqlsrv.sh
         - bash ./tests/travis/install-mssql.sh
-    - stage: Test
-      php: 7.4
-      env: DB=ibm_db2 COVERAGE=yes
-      sudo: required
-      services:
-        - docker
-      before_script:
-        - bash ./tests/travis/install-db2.sh
-        - bash ./tests/travis/install-db2-ibm_db2.sh
+
     - stage: Test
       php: nightly
-      env: DB=mysql.docker MYSQL_VERSION=8.0
-      sudo: required
-      services:
-        - docker
-      before_script:
-        - bash ./tests/travis/install-mysql-8.0.sh
+      env: DB=mysql.docker IMAGE=mysql:8.0
     - stage: Test
       php: nightly
-      env: DB=mysqli.docker MYSQL_VERSION=8.0
-      sudo: required
-      services:
-        - docker
-      before_script:
-        - bash ./tests/travis/install-mysql-8.0.sh
+      env: DB=mysqli.docker IMAGE=mysql:8.0
     - stage: Test
       php: nightly
-      env: DB=mariadb MARIADB_VERSION=10.3
-      addons:
-        mariadb: 10.3
+      env: DB=mariadb.docker IMAGE=mariadb:10.3
     - stage: Test
       php: nightly
-      env: DB=mariadb.mysqli MARIADB_VERSION=10.3
-      addons:
-        mariadb: 10.3
+      env: DB=mariadb.mysqli.docker IMAGE=mariadb:10.3
     - stage: Test
       php: nightly
       env: DB=pgsql POSTGRESQL_VERSION=11.0
       sudo: required
-      services:
-        - docker
       before_script:
         - bash ./tests/travis/install-postgres-11.sh
     - stage: Test
@@ -290,8 +231,6 @@ jobs:
       php: nightly
       env: DB=sqlsrv
       sudo: required
-      services:
-        - docker
       before_script:
         - bash ./tests/travis/install-sqlsrv-dependencies.sh
         - bash ./tests/travis/install-mssql-sqlsrv.sh
@@ -300,8 +239,6 @@ jobs:
       php: nightly
       env: DB=pdo_sqlsrv
       sudo: required
-      services:
-        - docker
       before_script:
         - bash ./tests/travis/install-sqlsrv-dependencies.sh
         - bash ./tests/travis/install-mssql-pdo_sqlsrv.sh
