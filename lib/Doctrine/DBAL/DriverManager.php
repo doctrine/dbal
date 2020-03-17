@@ -98,7 +98,6 @@ final class DriverManager
      *     pdo_pgsql
      *     pdo_oci (unstable)
      *     pdo_sqlsrv
-     *     pdo_sqlsrv
      *     mysqli
      *     sqlanywhere
      *     sqlsrv
