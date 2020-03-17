@@ -56,7 +56,7 @@ jobs:
       script: vendor/bin/phpcs
 
     - stage: Test
-      php: 7.2
+      php: 7.3
       env: DB=mysql.docker MYSQL_VERSION=8.0
       sudo: required
       services:
@@ -64,7 +64,7 @@ jobs:
       before_script:
         - bash ./tests/travis/install-mysql-8.0.sh
     - stage: Test
-      php: 7.2
+      php: 7.3
       env: DB=mysqli.docker MYSQL_VERSION=8.0
       sudo: required
       services:
@@ -72,17 +72,17 @@ jobs:
       before_script:
         - bash ./tests/travis/install-mysql-8.0.sh
     - stage: Test
-      php: 7.2
+      php: 7.3
       env: DB=mariadb MARIADB_VERSION=10.3
       addons:
         mariadb: 10.3
     - stage: Test
-      php: 7.2
+      php: 7.3
       env: DB=mariadb.mysqli MARIADB_VERSION=10.3
       addons:
         mariadb: 10.3
     - stage: Test
-      php: 7.2
+      php: 7.3
       env: DB=pgsql POSTGRESQL_VERSION=11.0
       sudo: required
       services:
@@ -90,10 +90,10 @@ jobs:
       before_script:
         - bash ./tests/travis/install-postgres-11.sh
     - stage: Test
-      php: 7.2
+      php: 7.3
       env: DB=sqlite
     - stage: Test
-      php: 7.2
+      php: 7.3
       env: DB=sqlsrv
       sudo: required
       services:
@@ -103,7 +103,7 @@ jobs:
         - bash ./tests/travis/install-mssql-sqlsrv.sh
         - bash ./tests/travis/install-mssql.sh
     - stage: Test
-      php: 7.2
+      php: 7.3
       env: DB=pdo_sqlsrv
       sudo: required
       services:
@@ -113,67 +113,10 @@ jobs:
         - bash ./tests/travis/install-mssql-pdo_sqlsrv.sh
         - bash ./tests/travis/install-mssql.sh
     - stage: Test
-      php: 7.2
+      php: 7.3
       env: DB=sqlite DEPENDENCIES=low
       install:
         - travis_retry composer update --prefer-dist --prefer-lowest
-    - stage: Test
-      php: 7.3
-      env: DB=mysql.docker MYSQL_VERSION=8.0
-      sudo: required
-      services:
-        - docker
-      before_script:
-        - bash ./tests/travis/install-mysql-8.0.sh
-    - stage: Test
-      php: 7.3
-      env: DB=mysqli.docker MYSQL_VERSION=8.0
-      sudo: required
-      services:
-        - docker
-      before_script:
-        - bash ./tests/travis/install-mysql-8.0.sh
-    - stage: Test
-      php: 7.3
-      env: DB=mariadb MARIADB_VERSION=10.3
-      addons:
-        mariadb: 10.3
-    - stage: Test
-      php: 7.3
-      env: DB=mariadb.mysqli MARIADB_VERSION=10.3
-      addons:
-        mariadb: 10.3
-    - stage: Test
-      php: 7.3
-      env: DB=pgsql POSTGRESQL_VERSION=11.0
-      sudo: required
-      services:
-        - docker
-      before_script:
-        - bash ./tests/travis/install-postgres-11.sh
-    - stage: Test
-      php: 7.3
-      env: DB=sqlite
-    - stage: Test
-      php: 7.3
-      env: DB=sqlsrv
-      sudo: required
-      services:
-        - docker
-      before_script:
-        - bash ./tests/travis/install-sqlsrv-dependencies.sh
-        - bash ./tests/travis/install-mssql-sqlsrv.sh
-        - bash ./tests/travis/install-mssql.sh
-    - stage: Test
-      php: 7.3
-      env: DB=pdo_sqlsrv
-      sudo: required
-      services:
-        - docker
-      before_script:
-        - bash ./tests/travis/install-sqlsrv-dependencies.sh
-        - bash ./tests/travis/install-mssql-pdo_sqlsrv.sh
-        - bash ./tests/travis/install-mssql.sh
     - stage: Test
       php: 7.4
       env: DB=mysql COVERAGE=yes
@@ -366,7 +309,7 @@ jobs:
 
     - stage: Test
       if: type = cron
-      php: 7.2
+      php: 7.3
       env: DB=sqlite DEPENDENCIES=dev
       install:
         - composer config minimum-stability dev
