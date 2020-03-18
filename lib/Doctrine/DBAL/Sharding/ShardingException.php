@@ -6,6 +6,8 @@ use Doctrine\DBAL\DBALException;
 
 /**
  * Sharding related Exceptions
+ *
+ * @deprecated
  */
 class ShardingException extends DBALException
 {

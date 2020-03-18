@@ -7,6 +7,8 @@ use function sprintf;
 
 /**
  * Provides the behavior, features and SQL dialect of the PostgreSQL 9.2 database platform.
+ *
+ * @deprecated Use PostgreSQL 9.4 or newer
  */
 class PostgreSQL92Platform extends PostgreSQL91Platform
 {
