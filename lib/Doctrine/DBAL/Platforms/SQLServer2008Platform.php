@@ -7,6 +7,8 @@ namespace Doctrine\DBAL\Platforms;
  *
  * Differences to SQL Server 2005 and before are that a new DATETIME2 type was
  * introduced that has a higher precision.
+ *
+ * @deprecated Use SQL Server 2012 or newer
  */
 class SQLServer2008Platform extends SQLServer2005Platform
 {

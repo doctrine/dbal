@@ -11,6 +11,8 @@ use function sprintf;
 
 /**
  * Sharding using the SQL Azure Federations support.
+ *
+ * @deprecated
  */
 class SQLAzureShardManager implements ShardManager
 {

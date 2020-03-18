@@ -7,6 +7,8 @@ use RuntimeException;
 
 /**
  * Shard Manager for the Connection Pooling Shard Strategy
+ *
+ * @deprecated
  */
 class PoolingShardManager implements ShardManager
 {

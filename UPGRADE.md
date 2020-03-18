@@ -1,5 +1,23 @@
 # Upgrade to 2.11
 
+## Deprecated database platforms:
+
+1. PostgreSQL 9.3 and older
+2. MariaDB 10.0 and older
+3. SQL Server 2008 and older
+4. SQL Anywhere 12 and older
+5. Drizzle
+6. Azure SQL Database
+
+## Deprecated database drivers:
+
+1. PDO-based IBM DB2 driver
+2. Drizzle MySQL driver
+
+## Deprecated `Doctrine\DBAL\Sharding` package
+
+The sharding functionality in DBAL has been effectively unmaintained for a long time.
+
 ## Deprecated `Doctrine\DBAL\Version` class
 
 The usage of the `Doctrine\DBAL\Version` class is deprecated as internal implementation detail. Please refrain from checking the DBAL version at runtime.

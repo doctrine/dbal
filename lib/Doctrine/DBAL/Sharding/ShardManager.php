@@ -17,6 +17,8 @@ namespace Doctrine\DBAL\Sharding;
  * executed against the last shard that was selected. If a query is created for
  * a shard Y but then a shard X is selected when its actually executed you
  * will hit the wrong shard.
+ *
+ * @deprecated
  */
 interface ShardManager
 {
