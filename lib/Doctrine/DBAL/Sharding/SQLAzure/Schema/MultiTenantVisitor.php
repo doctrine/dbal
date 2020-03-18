@@ -30,6 +30,8 @@ use function in_array;
  *   (otherwise they will affect the same-id rows from other tenants as well).
  *   SQLAzure throws errors when you try to create IDENTIY columns on federated
  *   tables.
+ *
+ * @deprecated
  */
 class MultiTenantVisitor implements Visitor
 {

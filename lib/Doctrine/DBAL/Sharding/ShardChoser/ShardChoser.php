@@ -7,6 +7,8 @@ use Doctrine\DBAL\Sharding\PoolingShardConnection;
 /**
  * Given a distribution value this shard-choser strategy will pick the shard to
  * connect to for retrieving rows with the distribution value.
+ *
+ * @deprecated
  */
 interface ShardChoser
 {

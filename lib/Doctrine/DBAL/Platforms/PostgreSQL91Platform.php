@@ -6,6 +6,8 @@ use function explode;
 
 /**
  * Provides the behavior, features and SQL dialect of the PostgreSQL 9.1 database platform.
+ *
+ * @deprecated Use PostgreSQL 9.4 or newer
  */
 class PostgreSQL91Platform extends PostgreSqlPlatform
 {
