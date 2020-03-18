@@ -367,7 +367,10 @@ SQL;
         $sql = $platform->getListTableCommentsSQL($tableName);
 
         $tableOptions = $this->_conn->fetchAssoc($sql);
-        $table->addOption('comment', $tableOptions['COMMENTS']);
+        
+        $tableOptions = array_change_key_case($tableOptions, CASE_LOWER);
+
+        $table->addOption('comment', $tableOptions['comments']);
 
         return $table;
     }
