@@ -252,7 +252,7 @@ class MysqliStatement implements IteratorAggregate, Statement
      * positional parameters referring to the prepared query, e.g. [1 => 1, 2 => 'bar', 3 => 'bar'] for a prepared query
      * like "SELECT id FROM table WHERE foo = :foo and baz = :foo".
      *
-     * @param array<string, mixed> $params
+     * @param array<mixed, mixed> $params
      *
      * @return array<int, mixed>
      */
