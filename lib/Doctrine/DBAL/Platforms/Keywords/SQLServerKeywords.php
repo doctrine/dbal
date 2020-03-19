@@ -121,6 +121,7 @@ class SQLServerKeywords extends KeywordList
             'LIKE',
             'LINENO',
             'LOAD',
+            'MERGE',
             'NATIONAL',
             'NOCHECK ',
             'NONCLUSTERED',
@@ -170,6 +171,9 @@ class SQLServerKeywords extends KeywordList
             'SCHEMA',
             'SECURITYAUDIT',
             'SELECT',
+            'SEMANTICKEYPHRASETABLE',
+            'SEMANTICSIMILARITYDETAILSTABLE',
+            'SEMANTICSIMILARITYTABLE',
             'SESSION_USER',
             'SET',
             'SETUSER',
@@ -187,6 +191,7 @@ class SQLServerKeywords extends KeywordList
             'TRANSACTION',
             'TRIGGER',
             'TRUNCATE',
+            'TRY_CONVERT',
             'TSEQUAL',
             'UNION',
             'UNIQUE',
@@ -203,6 +208,7 @@ class SQLServerKeywords extends KeywordList
             'WHERE',
             'WHILE',
             'WITH',
+            'WITHIN GROUP',
             'WRITETEXT',
         ];
     }

@@ -8,9 +8,11 @@ use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use InvalidArgumentException;
+use const PREG_OFFSET_CAPTURE;
 use function array_merge;
 use function array_unique;
 use function array_values;
@@ -25,21 +27,16 @@ use function is_bool;
 use function is_numeric;
 use function is_string;
 use function preg_match;
+use function preg_match_all;
 use function sprintf;
 use function str_replace;
-use function stripos;
-use function stristr;
-use function strlen;
 use function strpos;
 use function strtoupper;
-use function substr;
 use function substr_count;
 
 /**
  * The SQLServerPlatform provides the behavior, features and SQL dialect of the
  * Microsoft SQL Server database platform.
- *
- * @deprecated Use SQL Server 2012 or newer
  */
 class SQLServerPlatform extends AbstractPlatform
 {
@@ -145,6 +142,69 @@ class SQLServerPlatform extends AbstractPlatform
     public function supportsColumnCollation()
     {
         return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function supportsSequences() : bool
+    {
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAlterSequenceSQL(Sequence $sequence) : string
+    {
+        return 'ALTER SEQUENCE ' . $sequence->getQuotedName($this) .
+            ' INCREMENT BY ' . $sequence->getAllocationSize();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getCreateSequenceSQL(Sequence $sequence) : string
+    {
+        return 'CREATE SEQUENCE ' . $sequence->getQuotedName($this) .
+            ' START WITH ' . $sequence->getInitialValue() .
+            ' INCREMENT BY ' . $sequence->getAllocationSize() .
+            ' MINVALUE ' . $sequence->getInitialValue();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDropSequenceSQL($sequence) : string
+    {
+        if ($sequence instanceof Sequence) {
+            $sequence = $sequence->getQuotedName($this);
+        }
+
+        return 'DROP SEQUENCE ' . $sequence;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getListSequencesSQL($database)
+    {
+        return 'SELECT seq.name,
+                       CAST(
+                           seq.increment AS VARCHAR(MAX)
+                       ) AS increment, -- CAST avoids driver error for sql_variant type
+                       CAST(
+                           seq.start_value AS VARCHAR(MAX)
+                       ) AS start_value -- CAST avoids driver error for sql_variant type
+                FROM   sys.sequences AS seq';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSequenceNextValSQL($sequenceName)
+    {
+        return 'SELECT NEXT VALUE FOR ' . $sequenceName;
     }
 
     /**
@@ -898,7 +958,7 @@ SQL
     {
         // "sysdiagrams" table must be ignored as it's internal SQL Server table for Database Diagrams
         // Category 2 must be ignored as it is "MS SQL Server 'pseudo-system' object[s]" for replication
-        return "SELECT name FROM sysobjects WHERE type = 'U' AND name != 'sysdiagrams' AND category != 2 ORDER BY name";
+        return "SELECT name, SCHEMA_NAME (uid) AS schema_name FROM sysobjects WHERE type = 'U' AND name != 'sysdiagrams' AND category != 2 ORDER BY name";
     }
 
     /**
@@ -1189,6 +1249,14 @@ SQL
     /**
      * {@inheritDoc}
      */
+    public function getDateTimeTzTypeDeclarationSQL(array $fieldDeclaration)
+    {
+        return 'DATETIMEOFFSET(6)';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)
     {
         return $fixed ? ($length ? 'NCHAR(' . $length . ')' : 'CHAR(255)') : ($length ? 'NVARCHAR(' . $length . ')' : 'NVARCHAR(255)');
@@ -1231,7 +1299,9 @@ SQL
      */
     public function getDateTimeTypeDeclarationSQL(array $fieldDeclaration)
     {
-        return 'DATETIME';
+        // 3 - microseconds precision length
+        // http://msdn.microsoft.com/en-us/library/ms187819.aspx
+        return 'DATETIME2(6)';
     }
 
     /**
@@ -1239,7 +1309,7 @@ SQL
      */
     public function getDateTypeDeclarationSQL(array $fieldDeclaration)
     {
-        return 'DATETIME';
+        return 'DATE';
     }
 
     /**
@@ -1247,7 +1317,7 @@ SQL
      */
     public function getTimeTypeDeclarationSQL(array $fieldDeclaration)
     {
-        return 'DATETIME';
+        return 'TIME(0)';
     }
 
     /**
@@ -1263,132 +1333,47 @@ SQL
      */
     protected function doModifyLimitQuery($query, $limit, $offset = null)
     {
-        $where = [];
-
-        if ($offset > 0) {
-            $where[] = sprintf('doctrine_rownum >= %d', $offset + 1);
+        if ($limit === null && $offset <= 0) {
+            return $query;
         }
+
+        // Queries using OFFSET... FETCH MUST have an ORDER BY clause
+        // Find the position of the last instance of ORDER BY and ensure it is not within a parenthetical statement
+        // but can be in a newline
+        $matches      = [];
+        $matchesCount = preg_match_all('/[\\s]+order\\s+by\\s/im', $query, $matches, PREG_OFFSET_CAPTURE);
+        $orderByPos   = false;
+        if ($matchesCount > 0) {
+            $orderByPos = $matches[0][($matchesCount - 1)][1];
+        }
+
+        if ($orderByPos === false
+            || substr_count($query, '(', $orderByPos) - substr_count($query, ')', $orderByPos)
+        ) {
+            if (preg_match('/^SELECT\s+DISTINCT/im', $query)) {
+                // SQL Server won't let us order by a non-selected column in a DISTINCT query,
+                // so we have to do this madness. This says, order by the first column in the
+                // result. SQL Server's docs say that a nonordered query's result order is non-
+                // deterministic anyway, so this won't do anything that a bunch of update and
+                // deletes to the table wouldn't do anyway.
+                $query .= ' ORDER BY 1';
+            } else {
+                // In another DBMS, we could do ORDER BY 0, but SQL Server gets angry if you
+                // use constant expressions in the order by list.
+                $query .= ' ORDER BY (SELECT 0)';
+            }
+        }
+
+        // This looks somewhat like MYSQL, but limit/offset are in inverse positions
+        // Supposedly SQL:2008 core standard.
+        // Per TSQL spec, FETCH NEXT n ROWS ONLY is not valid without OFFSET n ROWS.
+        $query .= sprintf(' OFFSET %d ROWS', $offset);
 
         if ($limit !== null) {
-            $where[] = sprintf('doctrine_rownum <= %d', $offset + $limit);
-            $top     = sprintf('TOP %d', $offset + $limit);
-        } else {
-            $top = 'TOP 9223372036854775807';
-        }
-
-        if (empty($where)) {
-            return $query;
-        }
-
-        // We'll find a SELECT or SELECT distinct and prepend TOP n to it
-        // Even if the TOP n is very large, the use of a CTE will
-        // allow the SQL Server query planner to optimize it so it doesn't
-        // actually scan the entire range covered by the TOP clause.
-        if (! preg_match('/^(\s*SELECT\s+(?:DISTINCT\s+)?)(.*)$/is', $query, $matches)) {
-            return $query;
-        }
-
-        $query = $matches[1] . $top . ' ' . $matches[2];
-
-        if (stristr($query, 'ORDER BY')) {
-            // Inner order by is not valid in SQL Server for our purposes
-            // unless it's in a TOP N subquery.
-            $query = $this->scrubInnerOrderBy($query);
-        }
-
-        // Build a new limited query around the original, using a CTE
-        return sprintf(
-            'WITH dctrn_cte AS (%s) '
-            . 'SELECT * FROM ('
-            . 'SELECT *, ROW_NUMBER() OVER (ORDER BY (SELECT 0)) AS doctrine_rownum FROM dctrn_cte'
-            . ') AS doctrine_tbl '
-            . 'WHERE %s ORDER BY doctrine_rownum ASC',
-            $query,
-            implode(' AND ', $where)
-        );
-    }
-
-    /**
-     * Remove ORDER BY clauses in subqueries - they're not supported by SQL Server.
-     * Caveat: will leave ORDER BY in TOP N subqueries.
-     *
-     * @param string $query
-     *
-     * @return string
-     */
-    private function scrubInnerOrderBy($query)
-    {
-        $count  = substr_count(strtoupper($query), 'ORDER BY');
-        $offset = 0;
-
-        while ($count-- > 0) {
-            $orderByPos = stripos($query, ' ORDER BY', $offset);
-            if ($orderByPos === false) {
-                break;
-            }
-
-            $qLen            = strlen($query);
-            $parenCount      = 0;
-            $currentPosition = $orderByPos;
-
-            while ($parenCount >= 0 && $currentPosition < $qLen) {
-                if ($query[$currentPosition] === '(') {
-                    $parenCount++;
-                } elseif ($query[$currentPosition] === ')') {
-                    $parenCount--;
-                }
-
-                $currentPosition++;
-            }
-
-            if ($this->isOrderByInTopNSubquery($query, $orderByPos)) {
-                // If the order by clause is in a TOP N subquery, do not remove
-                // it and continue iteration from the current position.
-                $offset = $currentPosition;
-                continue;
-            }
-
-            if ($currentPosition >= $qLen - 1) {
-                continue;
-            }
-
-            $query  = substr($query, 0, $orderByPos) . substr($query, $currentPosition - 1);
-            $offset = $orderByPos;
+            $query .= sprintf(' FETCH NEXT %d ROWS ONLY', $limit);
         }
 
         return $query;
-    }
-
-    /**
-     * Check an ORDER BY clause to see if it is in a TOP N query or subquery.
-     *
-     * @param string $query           The query
-     * @param int    $currentPosition Start position of ORDER BY clause
-     *
-     * @return bool true if ORDER BY is in a TOP N query, false otherwise
-     */
-    private function isOrderByInTopNSubquery($query, $currentPosition)
-    {
-        // Grab query text on the same nesting level as the ORDER BY clause we're examining.
-        $subQueryBuffer = '';
-        $parenCount     = 0;
-
-        // If $parenCount goes negative, we've exited the subquery we're examining.
-        // If $currentPosition goes negative, we've reached the beginning of the query.
-        while ($parenCount >= 0 && $currentPosition >= 0) {
-            if ($query[$currentPosition] === '(') {
-                $parenCount--;
-            } elseif ($query[$currentPosition] === ')') {
-                $parenCount++;
-            }
-
-            // Only yank query text on the same nesting level as the ORDER BY clause.
-            $subQueryBuffer = ($parenCount === 0 ? $query[$currentPosition] : ' ') . $subQueryBuffer;
-
-            $currentPosition--;
-        }
-
-        return (bool) preg_match('/SELECT\s+(DISTINCT\s+)?TOP\s/i', $subQueryBuffer);
     }
 
     /**
@@ -1396,7 +1381,7 @@ SQL
      */
     public function supportsLimitOffset()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -1440,7 +1425,7 @@ SQL
      */
     public function getDateTimeFormatString()
     {
-        return 'Y-m-d H:i:s.000';
+        return 'Y-m-d H:i:s.u';
     }
 
     /**
@@ -1448,7 +1433,7 @@ SQL
      */
     public function getDateFormatString()
     {
-        return 'Y-m-d H:i:s.000';
+        return 'Y-m-d';
     }
 
     /**
@@ -1456,7 +1441,7 @@ SQL
      */
     public function getTimeFormatString()
     {
-        return 'Y-m-d H:i:s.000';
+        return 'H:i:s';
     }
 
     /**
@@ -1464,7 +1449,7 @@ SQL
      */
     public function getDateTimeTzFormatString()
     {
-        return $this->getDateTimeFormatString();
+        return 'Y-m-d H:i:s.u P';
     }
 
     /**
@@ -1481,31 +1466,35 @@ SQL
     protected function initializeDoctrineTypeMappings()
     {
         $this->doctrineTypeMapping = [
-            'bigint' => 'bigint',
-            'numeric' => 'decimal',
-            'bit' => 'boolean',
-            'smallint' => 'smallint',
-            'decimal' => 'decimal',
-            'smallmoney' => 'integer',
-            'int' => 'integer',
-            'tinyint' => 'smallint',
-            'money' => 'integer',
-            'float' => 'float',
-            'real' => 'float',
-            'double' => 'float',
+            'bigint'           => 'bigint',
+            'binary'           => 'binary',
+            'bit'              => 'boolean',
+            'char'             => 'string',
+            'date'             => 'date',
+            'datetime'         => 'datetime',
+            'datetime2'        => 'datetime',
+            'datetimeoffset'   => 'datetimetz',
+            'decimal'          => 'decimal',
+            'double'           => 'float',
             'double precision' => 'float',
-            'smalldatetime' => 'datetime',
-            'datetime' => 'datetime',
-            'char' => 'string',
-            'varchar' => 'string',
-            'text' => 'text',
-            'nchar' => 'string',
-            'nvarchar' => 'string',
-            'ntext' => 'text',
-            'binary' => 'binary',
-            'varbinary' => 'binary',
-            'image' => 'blob',
+            'float'            => 'float',
+            'image'            => 'blob',
+            'int'              => 'integer',
+            'money'            => 'integer',
+            'nchar'            => 'string',
+            'ntext'            => 'text',
+            'numeric'          => 'decimal',
+            'nvarchar'         => 'string',
+            'real'             => 'float',
+            'smalldatetime'    => 'datetime',
+            'smallint'         => 'smallint',
+            'smallmoney'       => 'integer',
+            'text'             => 'text',
+            'time'             => 'time',
+            'tinyint'          => 'smallint',
             'uniqueidentifier' => 'guid',
+            'varbinary'        => 'binary',
+            'varchar'          => 'string',
         ];
     }
 
@@ -1634,6 +1623,14 @@ SQL
         }
 
         return $name . ' ' . $columnDef;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getLikeWildcardCharacters() : string
+    {
+        return parent::getLikeWildcardCharacters() . '[]^';
     }
 
     /**

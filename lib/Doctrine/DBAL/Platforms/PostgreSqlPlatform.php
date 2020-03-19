@@ -33,9 +33,7 @@ use function strtolower;
 use function trim;
 
 /**
- * PostgreSqlPlatform.
- *
- * @deprecated Use PostgreSQL 9.4 or newer
+ * Provides the behavior, features and SQL dialect of the PostgreSQL 9.4+ database platform.
  *
  * @todo   Rename: PostgreSQLPlatform
  */
@@ -394,6 +392,7 @@ SQL
                     quote_ident(a.attname) AS field,
                     t.typname AS type,
                     format_type(a.atttypid, a.atttypmod) AS complete_type,
+                    (SELECT tc.collcollate FROM pg_catalog.pg_collation tc WHERE tc.oid = a.attcollation) AS collation,
                     (SELECT t1.typname FROM pg_catalog.pg_type t1 WHERE t1.oid = t.typbasetype) AS domain_type,
                     (SELECT format_type(t2.typbasetype, t2.typtypmod) FROM
                       pg_catalog.pg_type t2 WHERE t2.typtype = 'd' AND t2.oid = a.atttypid) AS domain_complete_type,
@@ -454,7 +453,7 @@ SQL
      */
     public function getCloseActiveDatabaseConnectionsSQL($database)
     {
-        return 'SELECT pg_terminate_backend(procpid) FROM pg_stat_activity WHERE datname = '
+        return 'SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '
             . $this->quoteStringLiteral($database);
     }
 
@@ -975,6 +974,10 @@ SQL
      */
     public function getSmallIntTypeDeclarationSQL(array $field)
     {
+        if (! empty($field['autoincrement'])) {
+            return 'SMALLSERIAL';
+        }
+
         return 'SMALLINT';
     }
 
@@ -1124,45 +1127,47 @@ SQL
     protected function initializeDoctrineTypeMappings()
     {
         $this->doctrineTypeMapping = [
-            'smallint'      => 'smallint',
-            'int2'          => 'smallint',
-            'serial'        => 'integer',
-            'serial4'       => 'integer',
-            'int'           => 'integer',
-            'int4'          => 'integer',
-            'integer'       => 'integer',
-            'bigserial'     => 'bigint',
-            'serial8'       => 'bigint',
-            'bigint'        => 'bigint',
-            'int8'          => 'bigint',
-            'bool'          => 'boolean',
-            'boolean'       => 'boolean',
-            'text'          => 'text',
-            'tsvector'      => 'text',
-            'varchar'       => 'string',
-            'interval'      => 'string',
-            '_varchar'      => 'string',
-            'char'          => 'string',
-            'bpchar'        => 'string',
-            'inet'          => 'string',
-            'date'          => 'date',
-            'datetime'      => 'datetime',
-            'timestamp'     => 'datetime',
-            'timestamptz'   => 'datetimetz',
-            'time'          => 'time',
-            'timetz'        => 'time',
-            'float'         => 'float',
-            'float4'        => 'float',
-            'float8'        => 'float',
-            'double'        => 'float',
+            'bigint'           => 'bigint',
+            'bigserial'        => 'bigint',
+            'bool'             => 'boolean',
+            'boolean'          => 'boolean',
+            'bpchar'           => 'string',
+            'bytea'            => 'blob',
+            'char'             => 'string',
+            'date'             => 'date',
+            'datetime'         => 'datetime',
+            'decimal'          => 'decimal',
+            'double'           => 'float',
             'double precision' => 'float',
-            'real'          => 'float',
-            'decimal'       => 'decimal',
-            'money'         => 'decimal',
-            'numeric'       => 'decimal',
-            'year'          => 'date',
-            'uuid'          => 'guid',
-            'bytea'         => 'blob',
+            'float'            => 'float',
+            'float4'           => 'float',
+            'float8'           => 'float',
+            'inet'             => 'string',
+            'int'              => 'integer',
+            'int2'             => 'smallint',
+            'int4'             => 'integer',
+            'int8'             => 'bigint',
+            'integer'          => 'integer',
+            'interval'         => 'string',
+            'json'             => Type::JSON,
+            'jsonb'            => Type::JSON,
+            'money'            => 'decimal',
+            'numeric'          => 'decimal',
+            'serial'           => 'integer',
+            'serial4'          => 'integer',
+            'serial8'          => 'bigint',
+            'real'             => 'float',
+            'smallint'         => 'smallint',
+            'text'             => 'text',
+            'time'             => 'time',
+            'timestamp'        => 'datetime',
+            'timestamptz'      => 'datetimetz',
+            'timetz'           => 'time',
+            'tsvector'         => 'text',
+            'uuid'             => 'guid',
+            'varchar'          => 'string',
+            'year'             => 'date',
+            '_varchar'         => 'string',
         ];
     }
 
@@ -1191,6 +1196,14 @@ SQL
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function hasNativeJsonType()
+    {
+        return true;
+    }
+
+    /**
      * {@inheritDoc}
      */
     protected function getReservedKeywordsClass()
@@ -1216,6 +1229,34 @@ SQL
         }
 
         return parent::getDefaultValueDeclarationSQL($field);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function supportsColumnCollation()
+    {
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getColumnCollationDeclarationSQL($collation)
+    {
+        return 'COLLATE ' . $this->quoteSingleIdentifier($collation);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getJsonTypeDeclarationSQL(array $field)
+    {
+        if (! empty($field['jsonb'])) {
+            return 'JSONB';
+        }
+
+        return 'JSON';
     }
 
     /**

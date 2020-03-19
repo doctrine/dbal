@@ -50,36 +50,23 @@ Oracle
 Microsoft SQL Server
 ^^^^^^^^^^^^^^^^^^^^
 
--  ``SQLServerPlatform`` for version 2000 and above (deprecated).
--  ``SQLServer2005Platform`` for version 2005 and above (deprecated).
--  ``SQLServer2008Platform`` for version 2008 and above (deprecated).
--  ``SQLServer2012Platform`` for version 2012 and above.
+-  ``SQLServerPlatform`` for version 2012 and above.
 
 PostgreSQL
 ^^^^^^^^^^
 
--  ``PostgreSqlPlatform`` for version 9.0 and below (deprecated).
--  ``PostgreSQL91Platform`` for version 9.1 and above (deprecated).
--  ``PostgreSQL92Platform`` for version 9.2 and above (deprecated).
--  ``PostgreSQL94Platform`` for version 9.4 and above.
+-  ``PostgreSqlPlatform`` for version 9.4 and above.
+-  ``PostgreSQL100Platform`` for version 10.0 and above.
 
 SAP Sybase SQL Anywhere
 ^^^^^^^^^^^^^^^^^^^^^^^
 
--  ``SQLAnywherePlatform`` for version 10 and above (deprecated).
--  ``SQLAnywhere11Platform`` for version 11 and above (deprecated).
--  ``SQLAnywhere12Platform`` for version 12 and above (deprecated).
--  ``SQLAnywhere16Platform`` for version 16 and above.
+-  ``SQLAnywherePlatform`` for version 16 and above.
 
 SQLite
 ^^^^^^
 
 -  ``SqlitePlatform`` for all versions.
-
-Drizzle
-^^^^^^
-
--  ``DrizzlePlatform`` for all versions (deprecated).
 
 It is highly encouraged to use the platform class that matches your
 database vendor and version best. Otherwise it is not guaranteed

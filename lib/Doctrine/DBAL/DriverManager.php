@@ -3,7 +3,6 @@
 namespace Doctrine\DBAL;
 
 use Doctrine\Common\EventManager;
-use Doctrine\DBAL\Driver\DrizzlePDOMySql\Driver as DrizzlePDOMySQLDriver;
 use Doctrine\DBAL\Driver\IBMDB2\DB2Driver;
 use Doctrine\DBAL\Driver\Mysqli\Driver as MySQLiDriver;
 use Doctrine\DBAL\Driver\OCI8\Driver as OCI8Driver;
@@ -51,7 +50,6 @@ final class DriverManager
         'ibm_db2'            => DB2Driver::class,
         'pdo_sqlsrv'         => PDOSQLSrvDriver::class,
         'mysqli'             => MySQLiDriver::class,
-        'drizzle_pdo_mysql'  => DrizzlePDOMySQLDriver::class,
         'sqlanywhere'        => SQLAnywhereDriver::class,
         'sqlsrv'             => SQLSrvDriver::class,
     ];
@@ -143,17 +141,6 @@ final class DriverManager
         if (isset($params['slaves'])) {
             foreach ($params['slaves'] as $key => $slaveParams) {
                 $params['slaves'][$key] = self::parseDatabaseUrl($slaveParams);
-            }
-        }
-
-        // URL support for PoolingShardConnection
-        if (isset($params['global'])) {
-            $params['global'] = self::parseDatabaseUrl($params['global']);
-        }
-
-        if (isset($params['shards'])) {
-            foreach ($params['shards'] as $key => $shardParams) {
-                $params['shards'][$key] = self::parseDatabaseUrl($shardParams);
             }
         }
 

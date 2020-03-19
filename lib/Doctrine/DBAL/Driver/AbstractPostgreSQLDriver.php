@@ -6,9 +6,6 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\PostgreSQL100Platform;
-use Doctrine\DBAL\Platforms\PostgreSQL91Platform;
-use Doctrine\DBAL\Platforms\PostgreSQL92Platform;
-use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
 use Doctrine\DBAL\Schema\PostgreSqlSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
@@ -24,7 +21,7 @@ abstract class AbstractPostgreSQLDriver implements ExceptionConverterDriver, Ver
     /**
      * {@inheritdoc}
      *
-     * @link http://www.postgresql.org/docs/9.3/static/errcodes-appendix.html
+     * @link http://www.postgresql.org/docs/9.4/static/errcodes-appendix.html
      */
     public function convertException($message, DriverException $exception)
     {
@@ -95,18 +92,11 @@ abstract class AbstractPostgreSQLDriver implements ExceptionConverterDriver, Ver
         $patchVersion = $versionParts['patch'] ?? 0;
         $version      = $majorVersion . '.' . $minorVersion . '.' . $patchVersion;
 
-        switch (true) {
-            case version_compare($version, '10.0', '>='):
-                return new PostgreSQL100Platform();
-            case version_compare($version, '9.4', '>='):
-                return new PostgreSQL94Platform();
-            case version_compare($version, '9.2', '>='):
-                return new PostgreSQL92Platform();
-            case version_compare($version, '9.1', '>='):
-                return new PostgreSQL91Platform();
-            default:
-                return new PostgreSqlPlatform();
+        if (version_compare($version, '10.0', '>=')) {
+            return new PostgreSQL100Platform();
         }
+
+        return new PostgreSqlPlatform();
     }
 
     /**

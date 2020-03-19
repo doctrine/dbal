@@ -1,5 +1,21 @@
 # Upgrade to 3.0
 
+## BC BREAK: Removed support for PostgreSQL 9.3 and older
+
+DBAL now requires PostgeSQL 9.4 or newer, support for unmaintained versions has been dropped.
+If you are using any of the legacy versions, you have to upgrade to a newer PostgreSQL version (9.6+ is recommended).
+`Doctrine\DBAL\Platforms\PostgreSqlPlatform` and `Doctrine\DBAL\Platforms\Keywords\PostgreSQLKeywords` now represent PostgreSQL 9.4.
+
+The following classes have been removed:
+
+ * `Doctrine\DBAL\Platforms\PostgreSQL94Platform`
+ * `Doctrine\DBAL\Platforms\Keywords\PostgreSQL94Keywords`
+
+## BC BREAK: Removed support for MariaDB 10.0 and older
+
+DBAL now requires MariaDB 10.1 or newer, support for unmaintained versions has been dropped.
+If you are using any of the legacy versions, you have to upgrade to a newer MariaDB version (10.1+ is recommended).
+
 ## BC BREAK: PingableConnection and ServerInfoAwareConnection interfaces now extend Connection
 
 All implementations of the `PingableConnection` and `ServerInfoAwareConnection` interfaces have to implement the methods defined in the `Connection` interface as well.
@@ -7,6 +23,64 @@ All implementations of the `PingableConnection` and `ServerInfoAwareConnection` 
 ## BC BREAK: VersionAwarePlatformDriver interface now extends Driver
 
 All implementations of the `VersionAwarePlatformDriver` interface have to implement the methods defined in the `Driver` interface as well.
+
+## BC BREAK: Removed MsSQLKeywords class
+
+The `Doctrine\DBAL\Platforms\MsSQLKeywords` class has been removed.
+Please use `Doctrine\DBAL\Platforms\SQLServerPlatform `instead.
+
+## BC BREAK: Removed PDO DB2 driver
+
+This PDO-based IBM DB2 driver (built on top of `pdo_ibm` extension) has already been unsupported as of 2.5, it has been now removed.
+
+The following class has been removed:
+
+ * `Doctrine\DBAL\Driver\PDOIbm\Driver`
+
+## BC BREAK: Removed support for SQL Anywhere 12 and older
+
+DBAL now requires SQL Anywhere 16 or newer, support for unmaintained versions has been dropped.
+If you are using any of the legacy versions, you have to upgrade to a newer SQL Anywhere version (16+).
+`Doctrine\DBAL\Platforms\SQLAnywherePlatform` and `Doctrine\DBAL\Platforms\Keywords\SQLAnywhereKeywords` now represent SQL Anywhere 16.
+
+The following classes have been removed:
+
+ * `Doctrine\DBAL\Platforms\SQLAnywhere11Platform`
+ * `Doctrine\DBAL\Platforms\SQLAnywhere12Platform`
+ * `Doctrine\DBAL\Platforms\SQLAnywhere16Platform`
+ * `Doctrine\DBAL\Platforms\Keywords\SQLAnywhere11Keywords`
+ * `Doctrine\DBAL\Platforms\Keywords\SQLAnywhere12Keywords`
+ * `Doctrine\DBAL\Platforms\Keywords\SQLAnywhere16Keywords`
+
+## BC BREAK: Removed support for SQL Server 2008 and older
+
+DBAL now requires SQL Server 2012 or newer, support for unmaintained versions has been dropped.
+If you are using any of the legacy versions, you have to upgrade to a newer SQL Server version.
+`Doctrine\DBAL\Platforms\SQLServerPlatform` and `Doctrine\DBAL\Platforms\Keywords\SQLServerKeywords` now represent SQL Server 2012.
+
+The following classes have been removed:
+
+ * `Doctrine\DBAL\Platforms\SQLServer2005Platform`
+ * `Doctrine\DBAL\Platforms\SQLServer2008Platform`
+ * `Doctrine\DBAL\Platforms\SQLServer2012Platform`
+ * `Doctrine\DBAL\Platforms\Keywords\SQLServer2005Keywords`
+ * `Doctrine\DBAL\Platforms\Keywords\SQLServer2008Keywords`
+ * `Doctrine\DBAL\Platforms\Keywords\SQLServer2012Keywords`
+
+The `AbstractSQLServerDriver` class and its subclasses no longer implement the `VersionAwarePlatformDriver` interface.
+
+## BC BREAK: Removed support for PostgreSQL 9.2 and older
+
+DBAL now requires PostgeSQL 9.3 or newer, support for unmaintained versions has been dropped.
+If you are using any of the legacy versions, you have to upgrade to a newer PostgreSQL version (9.6+ is recommended).
+`Doctrine\DBAL\Platforms\PostgreSqlPlatform` and `Doctrine\DBAL\Platforms\Keywords\PostgreSQLKeywords` now represent PostgreSQL 9.3.
+
+The following classes have been removed:
+
+ * `Doctrine\DBAL\Platforms\PostgreSQL91Platform`
+ * `Doctrine\DBAL\Platforms\PostgreSQL92Platform`
+ * `Doctrine\DBAL\Platforms\Keywords\PostgreSQL91Keywords`
+ * `Doctrine\DBAL\Platforms\Keywords\PostgreSQL92Keywords`
 
 ## BC BREAK: Removed Doctrine\DBAL\Version
 
@@ -48,6 +122,10 @@ After:
 
     $stmt->bindValue(1, 1, ParameterType::INTEGER);
     $stmt->fetchAll(FetchMode::COLUMN);
+
+## BC BREAK: Removed Drizzle support
+
+The Drizzle project is abandoned and is therefore not supported by Doctrine DBAL anymore.
 
 ## BC BREAK: Removed dbal:import CLI command
 

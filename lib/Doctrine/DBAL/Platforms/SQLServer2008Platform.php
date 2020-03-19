@@ -10,7 +10,7 @@ namespace Doctrine\DBAL\Platforms;
  *
  * @deprecated Use SQL Server 2012 or newer
  */
-class SQLServer2008Platform extends SQLServer2005Platform
+class SQLServer2008Platform extends SQLServerPlatform
 {
     /**
      * {@inheritDoc}
