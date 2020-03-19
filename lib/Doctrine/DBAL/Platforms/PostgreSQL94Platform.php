@@ -34,10 +34,8 @@ use function trim;
 
 /**
  * Provides the behavior, features and SQL dialect of the PostgreSQL 9.4+ database platform.
- *
- * @todo   Rename: PostgreSQLPlatform
  */
-class PostgreSqlPlatform extends AbstractPlatform
+class PostgreSQL94Platform extends AbstractPlatform
 {
     /** @var bool */
     private $useBooleanTrueFalseStrings = true;
@@ -1208,7 +1206,7 @@ SQL
      */
     protected function getReservedKeywordsClass()
     {
-        return Keywords\PostgreSQLKeywords::class;
+        return Keywords\PostgreSQL94Keywords::class;
     }
 
     /**

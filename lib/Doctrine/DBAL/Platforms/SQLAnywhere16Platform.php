@@ -33,10 +33,9 @@ use function strtoupper;
 use function substr;
 
 /**
- * The SQLAnywherePlatform provides the behavior, features and SQL dialect of the
- * SAP Sybase SQL Anywhere 16 database platform.
+ * Provides the behavior, features and SQL dialect of the SAP Sybase SQL Anywhere 16 database platform.
  */
-class SQLAnywherePlatform extends AbstractPlatform
+class SQLAnywhere16Platform extends AbstractPlatform
 {
     public const FOREIGN_KEY_MATCH_SIMPLE        = 1;
     public const FOREIGN_KEY_MATCH_FULL          = 2;
@@ -549,7 +548,7 @@ class SQLAnywherePlatform extends AbstractPlatform
 
         if (! is_string($index)) {
             throw new InvalidArgumentException(
-                'SQLAnywherePlatform::getDropIndexSQL() expects $index parameter to be string or ' . Index::class . '.'
+                'AbstractPlatform::getDropIndexSQL() expects $index parameter to be string or ' . Index::class . '.'
             );
         }
 
@@ -563,7 +562,7 @@ class SQLAnywherePlatform extends AbstractPlatform
 
         if (! is_string($table)) {
             throw new InvalidArgumentException(
-                'SQLAnywherePlatform::getDropIndexSQL() expects $table parameter to be string or ' . Index::class . '.'
+                'AbstractPlatform::getDropIndexSQL() expects $table parameter to be string or ' . Index::class . '.'
             );
         }
 

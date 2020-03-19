@@ -2,7 +2,7 @@
 
 namespace Doctrine\DBAL\Schema;
 
-use Doctrine\DBAL\Platforms\SQLAnywherePlatform;
+use Doctrine\DBAL\Platforms\SQLAnywhere16Platform;
 use Doctrine\DBAL\Types\Type;
 use function assert;
 use function is_string;
@@ -50,7 +50,7 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
      */
     public function startDatabase($database)
     {
-        assert($this->_platform instanceof SQLAnywherePlatform);
+        assert($this->_platform instanceof SQLAnywhere16Platform);
         $this->_execSql($this->_platform->getStartDatabaseSQL($database));
     }
 
@@ -61,7 +61,7 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
      */
     public function stopDatabase($database)
     {
-        assert($this->_platform instanceof SQLAnywherePlatform);
+        assert($this->_platform instanceof SQLAnywhere16Platform);
         $this->_execSql($this->_platform->getStopDatabaseSQL($database));
     }
 

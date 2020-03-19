@@ -3,9 +3,9 @@
 namespace Doctrine\DBAL\Platforms\Keywords;
 
 /**
- * PostgreSQL keywords list.
+ * PostgreSQL 9.4 reserved keywords list.
  */
-class PostgreSQLKeywords extends KeywordList
+class PostgreSQL94Keywords extends KeywordList
 {
     /**
      * {@inheritdoc}

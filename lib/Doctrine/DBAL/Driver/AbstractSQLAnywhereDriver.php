@@ -5,7 +5,7 @@ namespace Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\Platforms\SQLAnywherePlatform;
+use Doctrine\DBAL\Platforms\SQLAnywhere16Platform;
 use Doctrine\DBAL\Schema\SQLAnywhereSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
 use function preg_match;
@@ -84,7 +84,7 @@ abstract class AbstractSQLAnywhereDriver implements ExceptionConverterDriver, Ve
 
         switch (true) {
             default:
-                return new SQLAnywherePlatform();
+                return new SQLAnywhere16Platform();
         }
     }
 
@@ -103,7 +103,7 @@ abstract class AbstractSQLAnywhereDriver implements ExceptionConverterDriver, Ve
      */
     public function getDatabasePlatform()
     {
-        return new SQLAnywherePlatform();
+        return new SQLAnywhere16Platform();
     }
 
     /**

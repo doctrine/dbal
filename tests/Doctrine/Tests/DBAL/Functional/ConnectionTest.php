@@ -10,7 +10,7 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
-use Doctrine\DBAL\Platforms\SQLServerPlatform;
+use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use Doctrine\Tests\TestUtil;
@@ -362,7 +362,7 @@ class ConnectionTest extends DbalFunctionalTestCase
         $platform = $this->connection->getDatabasePlatform();
 
         if ($platform instanceof SqlitePlatform
-            || $platform instanceof SQLServerPlatform) {
+            || $platform instanceof SQLServer2012Platform) {
             self::markTestSkipped('The platform does not support persistent connections');
         }
 

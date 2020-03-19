@@ -23,7 +23,7 @@ parameters:
         - '~^Property Doctrine\\DBAL\\Schema\\Schema::\$_schemaConfig \(Doctrine\\DBAL\\Schema\\SchemaConfig\) does not accept default value of type false\.\z~'
         - '~^Method Doctrine\\DBAL\\Schema\\ForeignKeyConstraint::onEvent\(\) should return string\|null but returns false\.\z~'
         - '~^Method Doctrine\\DBAL\\Schema\\(Oracle|PostgreSql|SQLServer)SchemaManager::_getPortableTableDefinition\(\) should return array but returns string\.\z~'
-        - '~^Method Doctrine\\DBAL\\Platforms\\(|SQLAnywhere|Sqlite)Platform::_getTransactionIsolationLevelSQL\(\) should return string but returns int\.\z~'
+        - '~^Method Doctrine\\DBAL\\Platforms\\(|SQLAnywhere16|Sqlite)Platform::_getTransactionIsolationLevelSQL\(\) should return string but returns int\.\z~'
         - '~^Method Doctrine\\DBAL\\Driver\\OCI8\\OCI8Connection::lastInsertId\(\) should return string but returns (int|false)\.\z~'
         - '~^Method Doctrine\\DBAL\\Driver\\SQLSrv\\SQLSrvConnection::errorCode\(\) should return string\|null but returns false\.\z~'
 

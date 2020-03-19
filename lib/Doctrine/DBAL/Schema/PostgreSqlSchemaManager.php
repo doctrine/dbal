@@ -4,7 +4,7 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\FetchMode;
-use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
+use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use const CASE_LOWER;
@@ -114,7 +114,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
                 throw $exception;
             }
 
-            assert($this->_platform instanceof PostgreSqlPlatform);
+            assert($this->_platform instanceof PostgreSQL94Platform);
 
             $this->_execSql(
                 [
@@ -494,7 +494,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     {
         $table = parent::listTableDetails($tableName);
 
-        /** @var PostgreSqlPlatform $platform */
+        /** @var PostgreSQL94Platform $platform */
         $platform = $this->_platform;
         $sql      = $platform->getListTableMetadataSQL($tableName);
 

@@ -14,7 +14,7 @@ use Doctrine\DBAL\Types\Type;
 use UnexpectedValueException;
 use function sprintf;
 
-abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCase
+abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCase
 {
     public function getGenerateTableSql() : string
     {

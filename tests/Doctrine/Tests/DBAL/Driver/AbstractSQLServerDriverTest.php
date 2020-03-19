@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\AbstractSQLServerDriver;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\SQLServerPlatform;
+use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\SQLServerSchemaManager;
 
@@ -19,7 +19,7 @@ class AbstractSQLServerDriverTest extends AbstractDriverTest
 
     protected function createPlatform() : AbstractPlatform
     {
-        return new SQLServerPlatform();
+        return new SQLServer2012Platform();
     }
 
     protected function createSchemaManager(Connection $connection) : AbstractSchemaManager
@@ -33,7 +33,7 @@ class AbstractSQLServerDriverTest extends AbstractDriverTest
     protected function getDatabasePlatformsForVersions() : array
     {
         return [
-            ['12', SQLServerPlatform::class],
+            ['12', SQLServer2012Platform::class],
         ];
     }
 }
