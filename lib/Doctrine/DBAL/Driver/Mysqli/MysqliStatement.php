@@ -14,8 +14,6 @@ use mysqli_stmt;
 use PDO;
 use function array_combine;
 use function array_fill;
-use function array_key_exists;
-use function array_keys;
 use function assert;
 use function count;
 use function feof;
@@ -24,11 +22,8 @@ use function get_resource_type;
 use function is_array;
 use function is_int;
 use function is_resource;
-use function is_string;
 use function sprintf;
 use function str_repeat;
-use function strlen;
-use function substr;
 
 class MysqliStatement implements IteratorAggregate, Statement
 {
@@ -60,7 +55,9 @@ class MysqliStatement implements IteratorAggregate, Statement
     /** @var string */
     protected $types;
 
-    /** @var array<string, array<int, int>> maps parameter names to their placeholder number(s). */
+    /**
+     * @var array<string, array<int, int>> maps parameter names to their placeholder number(s).
+     */
     protected $placeholderNamesToNumbers = [];
 
     /**
@@ -90,7 +87,7 @@ class MysqliStatement implements IteratorAggregate, Statement
         $this->_conn = $conn;
 
         $queryWithoutNamedParameters = $this->convertNamedToPositionalPlaceholders($prepareString);
-        $stmt                        = $conn->prepare($queryWithoutNamedParameters);
+        $stmt = $conn->prepare($queryWithoutNamedParameters);
 
         if ($stmt === false) {
             throw new MysqliException($this->_conn->error, $this->_conn->sqlstate, $this->_conn->errno);
@@ -111,17 +108,14 @@ class MysqliStatement implements IteratorAggregate, Statement
      * Converts named placeholders (":parameter") into positional ones ("?"), as MySQL does not support them.
      *
      * @param string $query The query string to create a prepared statement of.
-     *
      * @return string
      */
     private function convertNamedToPositionalPlaceholders($query)
     {
         $numberOfCharsQueryIsShortenedBy = 0;
-        $placeholderNumber               = 0;
+        $placeholderNumber = 0;
 
-        /** @var string[] $placeholderPositions */
-        $placeholderPositions = SQLParserUtils::getPlaceholderPositions($query, false);
-        foreach ($placeholderPositions as $placeholderPosition => $placeholderName) {
+        foreach (SQLParserUtils::getPlaceholderPositions($query, false) as $placeholderPosition => $placeholderName) {
             if (array_key_exists($placeholderName, $this->placeholderNamesToNumbers) === false) {
                 $this->placeholderNamesToNumbers[$placeholderName] = [];
             }
@@ -129,9 +123,9 @@ class MysqliStatement implements IteratorAggregate, Statement
             $this->placeholderNamesToNumbers[$placeholderName][] = $placeholderNumber++;
 
             $placeholderPositionInShortenedQuery = $placeholderPosition - $numberOfCharsQueryIsShortenedBy;
-            $placeholderNameLength               = strlen($placeholderName);
-            $query                               = substr($query, 0, $placeholderPositionInShortenedQuery) . '?' . substr($query, ($placeholderPositionInShortenedQuery + $placeholderNameLength + 1));
-            $numberOfCharsQueryIsShortenedBy    += $placeholderNameLength;
+            $placeholderNameLength = strlen($placeholderName);
+            $query = substr($query, 0, $placeholderPositionInShortenedQuery) . '?' . substr($query, ($placeholderPositionInShortenedQuery + $placeholderNameLength + 1));
+            $numberOfCharsQueryIsShortenedBy += $placeholderNameLength;
         }
 
         return $query;
@@ -253,9 +247,8 @@ class MysqliStatement implements IteratorAggregate, Statement
      * positional parameters referring to the prepared query, e.g. [1 => 1, 2 => 'bar', 3 => 'bar'] for a prepared query
      * like "SELECT id FROM table WHERE foo = :foo and baz = :foo".
      *
-     * @param mixed[] $params
-     *
-     * @return mixed[]
+     * @param array $params
+     * @return array
      */
     private function convertNamedToPositionalParams(array $params)
     {

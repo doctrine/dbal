@@ -17,7 +17,7 @@ use function array_change_key_case;
 class NamedParametersTest extends DbalFunctionalTestCase
 {
     /**
-     * @return iterable<int, array<string, mixed[], mixed[], mixed[]>>
+     * @return iterable<int, array<string, array, array, array>>
      */
     public static function executeQueryProvider() : iterable
     {
@@ -151,14 +151,16 @@ class NamedParametersTest extends DbalFunctionalTestCase
     }
 
     /**
-     * @return iterable<string, array<string, mixed[], mixed[]>>
+     * @return iterable<string, array<string, array, array>>
      */
     public static function prepareProvider() : iterable
     {
         return [
             'single named parameter' => [
                 'SELECT * FROM ddc1372_foobar f WHERE f.foo = :foo',
-                ['foo' => 1],
+                [
+                    'foo' => 1,
+                ],
                 [
                     ['id' => 1, 'foo' => 1, 'bar' => 1],
                     ['id' => 2, 'foo' => 1, 'bar' => 2],
@@ -180,7 +182,9 @@ class NamedParametersTest extends DbalFunctionalTestCase
 
             'same parameter at multiple positions' => [
                 'SELECT * FROM ddc1372_foobar f WHERE f.foo = :foo AND f.foo IN (:foo)',
-                ['foo' => 1],
+                [
+                    'foo' => 1,
+                ],
                 [
                     ['id' => 1, 'foo' => 1, 'bar' => 1],
                     ['id' => 2, 'foo' => 1, 'bar' => 2],
@@ -191,8 +195,11 @@ class NamedParametersTest extends DbalFunctionalTestCase
 
             'parameter with string value' => [
                 'SELECT * FROM ddc1372_foobar f WHERE f.foo = :foo',
-                ['foo' => '"\''],
-                [],
+                [
+                    'foo' => '"\'',
+                ],
+                [
+                ],
             ],
         ];
     }
@@ -251,6 +258,7 @@ class NamedParametersTest extends DbalFunctionalTestCase
     }
 
     /**
+     * @param string                           $query
      * @param array<string, mixed>             $params
      * @param array<string, int>               $types
      * @param array<int, array<string, mixed>> $expected
@@ -270,6 +278,7 @@ class NamedParametersTest extends DbalFunctionalTestCase
     }
 
     /**
+     * @param string                           $query
      * @param array<string, mixed>             $params
      * @param array<int, array<string, mixed>> $expected
      *
