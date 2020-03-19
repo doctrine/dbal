@@ -14,6 +14,7 @@ use mysqli_stmt;
 use PDO;
 use function array_combine;
 use function array_fill;
+use function array_filter;
 use function array_key_exists;
 use function array_keys;
 use function assert;
@@ -24,7 +25,6 @@ use function get_resource_type;
 use function is_array;
 use function is_int;
 use function is_resource;
-use function is_string;
 use function sprintf;
 use function str_repeat;
 use function strlen;
@@ -176,9 +176,7 @@ class MysqliStatement implements IteratorAggregate, Statement
      */
     public function execute($params = null)
     {
-        if (is_array($params) && count($params) > 0) {
-            $params = $this->convertNamedToPositionalParams($params);
-        }
+        $params = $this->convertNamedToPositionalParamsIfNeeded($params);
 
         if ($this->_bindedValues !== null) {
             if ($params !== null) {
@@ -194,52 +192,40 @@ class MysqliStatement implements IteratorAggregate, Statement
             throw new MysqliException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
         }
 
-        if ($this->_columnNames === null) {
-            $meta = $this->_stmt->result_metadata();
-            if ($meta !== false) {
-                $fields = $meta->fetch_fields();
-                assert(is_array($fields));
+        $this->initializeColumnNamesIfNeeded();
 
-                $columnNames = [];
-                foreach ($fields as $col) {
-                    $columnNames[] = $col->name;
-                }
+        if ($this->_columnNames === false) {
+            $this->result = true;
 
-                $meta->free();
-
-                $this->_columnNames = $columnNames;
-            } else {
-                $this->_columnNames = false;
-            }
+            return true;
         }
 
-        if ($this->_columnNames !== false) {
-            // Store result of every execution which has it. Otherwise it will be impossible
-            // to execute a new statement in case if the previous one has non-fetched rows
-            // @link http://dev.mysql.com/doc/refman/5.7/en/commands-out-of-sync.html
-            $this->_stmt->store_result();
+        // Store result of every execution which has it. Otherwise it will be impossible
+        // to execute a new statement in case if the previous one has non-fetched rows
+        // @link http://dev.mysql.com/doc/refman/5.7/en/commands-out-of-sync.html
+        $this->_stmt->store_result();
 
-            // Bind row values _after_ storing the result. Otherwise, if mysqli is compiled with libmysql,
-            // it will have to allocate as much memory as it may be needed for the given column type
-            // (e.g. for a LONGBLOB field it's 4 gigabytes)
-            // @link https://bugs.php.net/bug.php?id=51386#1270673122
-            //
-            // Make sure that the values are bound after each execution. Otherwise, if closeCursor() has been
-            // previously called on the statement, the values are unbound making the statement unusable.
-            //
-            // It's also important that row values are bound after _each_ call to store_result(). Otherwise,
-            // if mysqli is compiled with libmysql, subsequently fetched string values will get truncated
-            // to the length of the ones fetched during the previous execution.
-            $this->_rowBindedValues = array_fill(0, count($this->_columnNames), null);
+        // Bind row values _after_ storing the result. Otherwise, if mysqli is compiled with libmysql,
+        // it will have to allocate as much memory as it may be needed for the given column type
+        // (e.g. for a LONGBLOB field it's 4 gigabytes)
+        // @link https://bugs.php.net/bug.php?id=51386#1270673122
+        //
+        // Make sure that the values are bound after each execution. Otherwise, if closeCursor() has been
+        // previously called on the statement, the values are unbound making the statement unusable.
+        //
+        // It's also important that row values are bound after _each_ call to store_result(). Otherwise,
+        // if mysqli is compiled with libmysql, subsequently fetched string values will get truncated
+        // to the length of the ones fetched during the previous execution.
+        assert(is_array($this->_columnNames));
+        $this->_rowBindedValues = array_fill(0, count($this->_columnNames), null);
 
-            $refs = [];
-            foreach ($this->_rowBindedValues as $key => &$value) {
-                $refs[$key] =& $value;
-            }
+        $refs = [];
+        foreach ($this->_rowBindedValues as $key => &$value) {
+            $refs[$key] =& $value;
+        }
 
-            if (! $this->_stmt->bind_result(...$refs)) {
-                throw new MysqliException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
-            }
+        if (! $this->_stmt->bind_result(...$refs)) {
+            throw new MysqliException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
         }
 
         $this->result = true;
@@ -252,14 +238,17 @@ class MysqliStatement implements IteratorAggregate, Statement
      * positional parameters referring to the prepared query, e.g. [1 => 1, 2 => 'bar', 3 => 'bar'] for a prepared query
      * like "SELECT id FROM table WHERE foo = :foo and baz = :foo".
      *
-     * @param array<mixed, mixed> $params
+     * @param array<int|string, mixed>|null $params
      *
-     * @return array<int, mixed>
+     * @return mixed[]|null more specific: array<int, mixed>, I just don't know an elegant way to convince phpstan
      */
-    private function convertNamedToPositionalParams(array $params)
+    private function convertNamedToPositionalParamsIfNeeded(?array $params = null)
     {
-        $namedParamsAreUsed = is_string(array_keys($params)[0]);
-        if ($namedParamsAreUsed === false) {
+        if ($params === null || count($params) === 0) {
+            return $params;
+        }
+
+        if ($this->arrayHasOnlyIntegerKeys($params)) {
             return $params;
         }
 
@@ -272,6 +261,16 @@ class MysqliStatement implements IteratorAggregate, Statement
         }
 
         return $positionalParameters;
+    }
+
+    /**
+     * @param mixed[] $array
+     *
+     * @return bool
+     */
+    private function arrayHasOnlyIntegerKeys(array $array)
+    {
+        return count(array_filter(array_keys($array), 'is_int')) === count($array);
     }
 
     /**
@@ -519,5 +518,29 @@ class MysqliStatement implements IteratorAggregate, Statement
     public function getIterator()
     {
         return new StatementIterator($this);
+    }
+
+    private function initializeColumnNamesIfNeeded()
+    {
+        if ($this->_columnNames !== null) {
+            return;
+        }
+
+        $meta = $this->_stmt->result_metadata();
+        if ($meta === false) {
+            $this->_columnNames = false;
+
+            return;
+        }
+
+        $fields = $meta->fetch_fields();
+        assert(is_array($fields));
+
+        $this->_columnNames = [];
+        foreach ($fields as $col) {
+            $this->_columnNames[] = $col->name;
+        }
+
+        $meta->free();
     }
 }
