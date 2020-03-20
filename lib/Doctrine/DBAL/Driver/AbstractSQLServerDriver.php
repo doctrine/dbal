@@ -4,7 +4,7 @@ namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
-use Doctrine\DBAL\Platforms\SQLServerPlatform;
+use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Doctrine\DBAL\Schema\SQLServerSchemaManager;
 
 /**
@@ -27,7 +27,7 @@ abstract class AbstractSQLServerDriver implements Driver
      */
     public function getDatabasePlatform()
     {
-        return new SQLServerPlatform();
+        return new SQLServer2012Platform();
     }
 
     /**

@@ -35,10 +35,9 @@ use function strtoupper;
 use function substr_count;
 
 /**
- * The SQLServerPlatform provides the behavior, features and SQL dialect of the
- * Microsoft SQL Server database platform.
+ * Provides the behavior, features and SQL dialect of the Microsoft SQL Server 2012 database platform.
  */
-class SQLServerPlatform extends AbstractPlatform
+class SQLServer2012Platform extends AbstractPlatform
 {
     /**
      * {@inheritdoc}
@@ -1568,7 +1567,7 @@ SQL
      */
     protected function getReservedKeywordsClass()
     {
-        return Keywords\SQLServerKeywords::class;
+        return Keywords\SQLServer2012Keywords::class;
     }
 
     /**

@@ -4,7 +4,7 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\DriverException;
-use Doctrine\DBAL\Platforms\SQLServerPlatform;
+use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Doctrine\DBAL\Types\Type;
 use PDOException;
 use Throwable;
@@ -334,7 +334,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     {
         $table = parent::listTableDetails($tableName);
 
-        /** @var SQLServerPlatform $platform */
+        /** @var SQLServer2012Platform $platform */
         $platform = $this->_platform;
         $sql      = $platform->getListTableMetadataSQL($tableName);
 

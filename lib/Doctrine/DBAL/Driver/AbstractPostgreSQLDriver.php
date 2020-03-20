@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\PostgreSQL100Platform;
-use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
+use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Schema\PostgreSqlSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
 use function preg_match;
@@ -96,7 +96,7 @@ abstract class AbstractPostgreSQLDriver implements ExceptionConverterDriver, Ver
             return new PostgreSQL100Platform();
         }
 
-        return new PostgreSqlPlatform();
+        return new PostgreSQL94Platform();
     }
 
     /**
@@ -114,7 +114,7 @@ abstract class AbstractPostgreSQLDriver implements ExceptionConverterDriver, Ver
      */
     public function getDatabasePlatform()
     {
-        return new PostgreSqlPlatform();
+        return new PostgreSQL94Platform();
     }
 
     /**

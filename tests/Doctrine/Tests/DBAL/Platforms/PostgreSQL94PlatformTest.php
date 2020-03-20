@@ -3,15 +3,15 @@
 namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
+use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
 
-class PostgreSqlPlatformTest extends AbstractPostgreSqlPlatformTestCase
+class PostgreSQL94PlatformTest extends AbstractPostgreSQLPlatformTestCase
 {
     public function createPlatform() : AbstractPlatform
     {
-        return new PostgreSqlPlatform();
+        return new PostgreSQL94Platform();
     }
 
     public function testSupportsPartialIndexes() : void
