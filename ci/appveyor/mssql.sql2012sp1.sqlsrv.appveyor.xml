@@ -27,7 +27,7 @@
 
     <testsuites>
         <testsuite name="Doctrine DBAL Test Suite">
-            <directory>../Doctrine/Tests/DBAL</directory>
+            <directory>../../tests/Doctrine/Tests/DBAL</directory>
         </testsuite>
     </testsuites>
 

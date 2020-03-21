@@ -10,23 +10,23 @@
     <php>
         <ini name="error_reporting" value="-1" />
 
-        <var name="db_type" value="sqlsrv"/>
-        <var name="db_host" value="127.0.0.1" />
-        <var name="db_username" value="sa" />
-        <var name="db_password" value="Doctrine2018" />
-        <var name="db_name" value="doctrine" />
-        <var name="db_port" value="1433"/>
+        <var name="db_type" value="pdo_pgsql"/>
+        <var name="db_host" value="localhost" />
+        <var name="db_username" value="postgres" />
+        <var name="db_password" value="" />
+        <var name="db_name" value="doctrine_tests" />
+        <var name="db_port" value="5432"/>
 
-        <var name="tmpdb_type" value="sqlsrv"/>
-        <var name="tmpdb_host" value="127.0.0.1" />
-        <var name="tmpdb_username" value="sa" />
-        <var name="tmpdb_password" value="Doctrine2018" />
-        <var name="tmpdb_port" value="1433"/>
+        <var name="tmpdb_type" value="pdo_pgsql"/>
+        <var name="tmpdb_host" value="localhost" />
+        <var name="tmpdb_username" value="postgres" />
+        <var name="tmpdb_password" value="" />
+        <var name="tmpdb_port" value="5432"/>
     </php>
 
     <testsuites>
         <testsuite name="Doctrine DBAL Test Suite">
-            <directory>../Doctrine/Tests/DBAL</directory>
+            <directory>../../tests/Doctrine/Tests/DBAL</directory>
         </testsuite>
     </testsuites>
 
