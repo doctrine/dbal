@@ -4,12 +4,12 @@ namespace Doctrine\Tests\DBAL\Functional\Ticket;
 
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Table;
-use Doctrine\Tests\DbalFunctionalTestCase;
+use Doctrine\Tests\DBAL\FunctionalTestCase;
 
 /**
  * @group DBAL-510
  */
-class DBAL510Test extends DbalFunctionalTestCase
+class DBAL510Test extends FunctionalTestCase
 {
     protected function setUp() : void
     {

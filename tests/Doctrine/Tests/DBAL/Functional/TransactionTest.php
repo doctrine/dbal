@@ -3,10 +3,10 @@
 namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\Platforms\MySqlPlatform;
-use Doctrine\Tests\DbalFunctionalTestCase;
+use Doctrine\Tests\DBAL\FunctionalTestCase;
 use function sleep;
 
-class TransactionTest extends DbalFunctionalTestCase
+class TransactionTest extends FunctionalTestCase
 {
     protected function setUp() : void
     {

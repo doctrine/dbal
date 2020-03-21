@@ -5,9 +5,9 @@ namespace Doctrine\Tests\DBAL\Functional\Driver;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
-use Doctrine\Tests\DbalFunctionalTestCase;
+use Doctrine\Tests\DBAL\FunctionalTestCase;
 
-abstract class AbstractDriverTest extends DbalFunctionalTestCase
+abstract class AbstractDriverTest extends FunctionalTestCase
 {
     /**
      * The driver instance under test.

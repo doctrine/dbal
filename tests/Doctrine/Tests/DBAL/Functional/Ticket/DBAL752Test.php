@@ -2,13 +2,13 @@
 
 namespace Doctrine\Tests\DBAL\Functional\Ticket;
 
-use Doctrine\Tests\DbalFunctionalTestCase;
+use Doctrine\Tests\DBAL\FunctionalTestCase;
 use function in_array;
 
 /**
  * @group DBAL-752
  */
-class DBAL752Test extends DbalFunctionalTestCase
+class DBAL752Test extends FunctionalTestCase
 {
     protected function setUp() : void
     {

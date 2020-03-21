@@ -7,7 +7,7 @@ use Doctrine\DBAL\Driver\PDOException;
 use Doctrine\DBAL\Driver\PDOOracle\Driver as PDOOracleDriver;
 use Doctrine\DBAL\Driver\PDOPgSql\Driver as PDOPgSQLDriver;
 use Doctrine\DBAL\Driver\PDOSqlsrv\Driver as PDOSQLSRVDriver;
-use Doctrine\Tests\DbalFunctionalTestCase;
+use Doctrine\Tests\DBAL\FunctionalTestCase;
 use PDO;
 use function get_class;
 use function sprintf;
@@ -15,7 +15,7 @@ use function sprintf;
 /**
  * @requires extension pdo
  */
-class PDOConnectionTest extends DbalFunctionalTestCase
+class PDOConnectionTest extends FunctionalTestCase
 {
     /**
      * The PDO driver connection under test.

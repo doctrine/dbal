@@ -8,7 +8,7 @@ use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Logging\DebugStack;
 use Doctrine\DBAL\Schema\Table;
-use Doctrine\Tests\DbalFunctionalTestCase;
+use Doctrine\Tests\DBAL\FunctionalTestCase;
 use const CASE_LOWER;
 use function array_change_key_case;
 use function array_merge;
@@ -19,7 +19,7 @@ use function is_array;
 /**
  * @group DDC-217
  */
-class ResultCacheTest extends DbalFunctionalTestCase
+class ResultCacheTest extends FunctionalTestCase
 {
     /** @var array<int, array<int, int|string>> */
     private $expectedResult = [['test_int' => 100, 'test_string' => 'foo'], ['test_int' => 200, 'test_string' => 'bar'], ['test_int' => 300, 'test_string' => 'baz']];

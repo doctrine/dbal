@@ -8,12 +8,12 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Tests\DbalFunctionalTestCase;
+use Doctrine\Tests\DBAL\FunctionalTestCase;
 use Throwable;
 use function array_filter;
 use function strtolower;
 
-class WriteTest extends DbalFunctionalTestCase
+class WriteTest extends FunctionalTestCase
 {
     protected function setUp() : void
     {

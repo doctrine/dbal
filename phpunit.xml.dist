@@ -59,7 +59,7 @@
     </filter>
 
     <listeners>
-        <listener class="Doctrine\Tests\DbalPerformanceTestListener"/>
+        <listener class="Doctrine\Tests\DBAL\PerformanceTestListener"/>
     </listeners>
 
     <groups>

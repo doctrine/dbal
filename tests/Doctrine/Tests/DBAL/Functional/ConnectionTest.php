@@ -12,8 +12,8 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Doctrine\DBAL\Types\Types;
-use Doctrine\Tests\DbalFunctionalTestCase;
-use Doctrine\Tests\TestUtil;
+use Doctrine\Tests\DBAL\FunctionalTestCase;
+use Doctrine\Tests\DBAL\TestUtil;
 use Error;
 use Exception;
 use PDO;
@@ -23,7 +23,7 @@ use function file_exists;
 use function in_array;
 use function unlink;
 
-class ConnectionTest extends DbalFunctionalTestCase
+class ConnectionTest extends FunctionalTestCase
 {
     protected function setUp() : void
     {

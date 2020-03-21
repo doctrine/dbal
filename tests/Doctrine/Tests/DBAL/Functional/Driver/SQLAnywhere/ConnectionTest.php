@@ -4,10 +4,10 @@ namespace Doctrine\Tests\DBAL\Functional\Driver\SQLAnywhere;
 
 use Doctrine\DBAL\Driver\SQLAnywhere\Driver;
 use Doctrine\DBAL\DriverManager;
-use Doctrine\Tests\DbalFunctionalTestCase;
+use Doctrine\Tests\DBAL\FunctionalTestCase;
 use function extension_loaded;
 
-class ConnectionTest extends DbalFunctionalTestCase
+class ConnectionTest extends FunctionalTestCase
 {
     protected function setUp() : void
     {

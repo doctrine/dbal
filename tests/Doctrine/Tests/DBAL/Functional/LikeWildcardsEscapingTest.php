@@ -2,10 +2,10 @@
 
 namespace Doctrine\Tests\DBAL\Functional;
 
-use Doctrine\Tests\DbalFunctionalTestCase;
+use Doctrine\Tests\DBAL\FunctionalTestCase;
 use function sprintf;
 
-final class LikeWildcardsEscapingTest extends DbalFunctionalTestCase
+final class LikeWildcardsEscapingTest extends FunctionalTestCase
 {
     public function testFetchLikeExpressionResult() : void
     {

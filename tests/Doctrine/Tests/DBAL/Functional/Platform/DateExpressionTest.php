@@ -4,10 +4,10 @@ namespace Doctrine\Tests\DBAL\Functional\Platform;
 
 use DateTimeImmutable;
 use Doctrine\DBAL\Schema\Table;
-use Doctrine\Tests\DbalFunctionalTestCase;
+use Doctrine\Tests\DBAL\FunctionalTestCase;
 use function sprintf;
 
-class DateExpressionTest extends DbalFunctionalTestCase
+class DateExpressionTest extends FunctionalTestCase
 {
     /**
      * @dataProvider differenceProvider

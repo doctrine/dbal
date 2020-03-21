@@ -7,9 +7,9 @@ namespace Doctrine\Tests\DBAL\Functional\Schema;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Table;
-use Doctrine\Tests\DbalFunctionalTestCase;
+use Doctrine\Tests\DBAL\FunctionalTestCase;
 
-class ComparatorTest extends DbalFunctionalTestCase
+class ComparatorTest extends FunctionalTestCase
 {
     /** @var AbstractSchemaManager */
     private $schemaManager;

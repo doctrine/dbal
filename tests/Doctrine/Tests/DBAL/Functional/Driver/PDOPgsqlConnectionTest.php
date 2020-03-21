@@ -5,10 +5,10 @@ namespace Doctrine\Tests\DBAL\Functional\Driver;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
-use Doctrine\Tests\DbalFunctionalTestCase;
+use Doctrine\Tests\DBAL\FunctionalTestCase;
 use function extension_loaded;
 
-class PDOPgsqlConnectionTest extends DbalFunctionalTestCase
+class PDOPgsqlConnectionTest extends FunctionalTestCase
 {
     protected function setUp() : void
     {

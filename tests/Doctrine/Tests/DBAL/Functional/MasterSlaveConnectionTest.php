@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connections\MasterSlaveConnection;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Schema\Table;
-use Doctrine\Tests\DbalFunctionalTestCase;
+use Doctrine\Tests\DBAL\FunctionalTestCase;
 use Throwable;
 use const CASE_LOWER;
 use function array_change_key_case;
@@ -18,7 +18,7 @@ use function substr;
 /**
  * @group DBAL-20
  */
-class MasterSlaveConnectionTest extends DbalFunctionalTestCase
+class MasterSlaveConnectionTest extends FunctionalTestCase
 {
     protected function setUp() : void
     {

@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
 use Doctrine\DBAL\Schema\Table;
-use Doctrine\Tests\DbalFunctionalTestCase;
+use Doctrine\Tests\DBAL\FunctionalTestCase;
 use function sprintf;
 
-class DefaultValueTest extends DbalFunctionalTestCase
+class DefaultValueTest extends FunctionalTestCase
 {
     /** @var bool */
     private static $initialized = false;

@@ -8,14 +8,14 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Portability\Connection as ConnectionPortability;
 use Doctrine\DBAL\Schema\Table;
-use Doctrine\Tests\DbalFunctionalTestCase;
+use Doctrine\Tests\DBAL\FunctionalTestCase;
 use Throwable;
 use function strlen;
 
 /**
  * @group DBAL-56
  */
-class PortabilityTest extends DbalFunctionalTestCase
+class PortabilityTest extends FunctionalTestCase
 {
     /** @var Connection */
     private $portableConnection;

@@ -4,10 +4,10 @@ namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Tests\DbalFunctionalTestCase;
+use Doctrine\Tests\DBAL\FunctionalTestCase;
 use Throwable;
 
-class TemporaryTableTest extends DbalFunctionalTestCase
+class TemporaryTableTest extends FunctionalTestCase
 {
     protected function setUp() : void
     {

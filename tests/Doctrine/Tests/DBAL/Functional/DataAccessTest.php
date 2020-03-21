@@ -17,7 +17,7 @@ use Doctrine\DBAL\Platforms\TrimMode;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Statement;
 use Doctrine\DBAL\Types\Types;
-use Doctrine\Tests\DbalFunctionalTestCase;
+use Doctrine\Tests\DBAL\FunctionalTestCase;
 use PDO;
 use const CASE_LOWER;
 use const PHP_EOL;
@@ -33,7 +33,7 @@ use function property_exists;
 use function sprintf;
 use function strtotime;
 
-class DataAccessTest extends DbalFunctionalTestCase
+class DataAccessTest extends FunctionalTestCase
 {
     /** @var bool */
     private static $generated = false;

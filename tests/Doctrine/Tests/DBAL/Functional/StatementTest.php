@@ -8,11 +8,11 @@ use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Tests\DbalFunctionalTestCase;
+use Doctrine\Tests\DBAL\FunctionalTestCase;
 use function base64_decode;
 use function stream_get_contents;
 
-class StatementTest extends DbalFunctionalTestCase
+class StatementTest extends FunctionalTestCase
 {
     protected function setUp() : void
     {

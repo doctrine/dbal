@@ -10,10 +10,10 @@ use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
-use Doctrine\Tests\DbalFunctionalTestCase;
+use Doctrine\Tests\DBAL\FunctionalTestCase;
 use function sprintf;
 
-class DefaultExpressionTest extends DbalFunctionalTestCase
+class DefaultExpressionTest extends FunctionalTestCase
 {
     public function testCurrentDate() : void
     {

@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver as DriverInterface;
 use Doctrine\DBAL\Driver\PDOPgSql\Driver;
 use Doctrine\Tests\DBAL\Functional\Driver\AbstractDriverTest;
-use Doctrine\Tests\TestUtil;
+use Doctrine\Tests\DBAL\TestUtil;
 use function array_key_exists;
 use function extension_loaded;
 use function microtime;

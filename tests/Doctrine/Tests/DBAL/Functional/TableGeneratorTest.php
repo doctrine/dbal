@@ -5,13 +5,13 @@ namespace Doctrine\Tests\DBAL\Functional;
 use Doctrine\DBAL\Id\TableGenerator;
 use Doctrine\DBAL\Id\TableGeneratorSchemaVisitor;
 use Doctrine\DBAL\Schema\Schema;
-use Doctrine\Tests\DbalFunctionalTestCase;
+use Doctrine\Tests\DBAL\FunctionalTestCase;
 use Throwable;
 
 /**
  * @group DDC-450
  */
-class TableGeneratorTest extends DbalFunctionalTestCase
+class TableGeneratorTest extends FunctionalTestCase
 {
     /** @var TableGenerator */
     private $generator;

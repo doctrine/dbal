@@ -8,7 +8,7 @@ use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Tests\DbalFunctionalTestCase;
+use Doctrine\Tests\DBAL\FunctionalTestCase;
 use function fopen;
 use function str_repeat;
 use function stream_get_contents;
@@ -16,7 +16,7 @@ use function stream_get_contents;
 /**
  * @group DBAL-6
  */
-class BlobTest extends DbalFunctionalTestCase
+class BlobTest extends FunctionalTestCase
 {
     protected function setUp() : void
     {

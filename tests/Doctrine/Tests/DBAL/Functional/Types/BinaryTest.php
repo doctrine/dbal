@@ -8,13 +8,13 @@ use Doctrine\DBAL\Driver\IBMDB2\DB2Driver;
 use Doctrine\DBAL\Driver\PDOOracle\Driver as PDOOracleDriver;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Table;
-use Doctrine\Tests\DbalFunctionalTestCase;
+use Doctrine\Tests\DBAL\FunctionalTestCase;
 use function is_resource;
 use function random_bytes;
 use function str_replace;
 use function stream_get_contents;
 
-class BinaryTest extends DbalFunctionalTestCase
+class BinaryTest extends FunctionalTestCase
 {
     protected function setUp() : void
     {

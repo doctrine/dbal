@@ -1,6 +1,6 @@
 <?php
 
-namespace Doctrine\Tests;
+namespace Doctrine\Tests\DBAL;
 
 use PHPUnit\Framework\Test;
 use PHPUnit\Framework\TestListener;
@@ -12,7 +12,7 @@ use function str_replace;
 /**
  * Listener for collecting and reporting results of performance tests
  */
-class DbalPerformanceTestListener implements TestListener
+class PerformanceTestListener implements TestListener
 {
     use TestListenerDefaultImplementation;
 
@@ -25,7 +25,7 @@ class DbalPerformanceTestListener implements TestListener
     public function endTest(Test $test, float $time) : void
     {
         // This listener only applies to performance tests.
-        if (! ($test instanceof DbalPerformanceTestCase)) {
+        if (! ($test instanceof PerformanceTestCase)) {
             return;
         }
 

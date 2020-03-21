@@ -5,12 +5,12 @@ namespace Doctrine\Tests\DBAL\Performance;
 use DateTime;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Tests\DbalPerformanceTestCase;
+use Doctrine\Tests\DBAL\PerformanceTestCase;
 
 /**
  * @group performance
  */
-class TypeConversionPerformanceTest extends DbalPerformanceTestCase
+class TypeConversionPerformanceTest extends PerformanceTestCase
 {
     /**
      * @throws DBALException

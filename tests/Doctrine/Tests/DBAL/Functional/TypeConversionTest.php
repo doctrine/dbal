@@ -6,11 +6,11 @@ use DateTime;
 use Doctrine\DBAL\Driver\PDOOracle\Driver as PDOOracleDriver;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Tests\DbalFunctionalTestCase;
+use Doctrine\Tests\DBAL\FunctionalTestCase;
 use stdClass;
 use function str_repeat;
 
-class TypeConversionTest extends DbalFunctionalTestCase
+class TypeConversionTest extends FunctionalTestCase
 {
     /** @var int */
     private static $typeCounter = 0;

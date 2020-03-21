@@ -2,14 +2,14 @@
 
 namespace Doctrine\Tests\DBAL\Functional\Ticket;
 
-use Doctrine\Tests\DbalFunctionalTestCase;
+use Doctrine\Tests\DBAL\FunctionalTestCase;
 use function in_array;
 use function preg_match;
 
 /**
  * @group DBAL-421
  */
-class DBAL421Test extends DbalFunctionalTestCase
+class DBAL421Test extends FunctionalTestCase
 {
     protected function setUp() : void
     {

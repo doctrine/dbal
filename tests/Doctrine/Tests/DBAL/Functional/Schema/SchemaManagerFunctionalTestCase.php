@@ -29,7 +29,7 @@ use Doctrine\DBAL\Types\ObjectType;
 use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Tests\DbalFunctionalTestCase;
+use Doctrine\Tests\DBAL\FunctionalTestCase;
 use function array_filter;
 use function array_keys;
 use function array_map;
@@ -47,7 +47,7 @@ use function strlen;
 use function strtolower;
 use function substr;
 
-abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
+abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 {
     /** @var AbstractSchemaManager */
     protected $schemaManager;

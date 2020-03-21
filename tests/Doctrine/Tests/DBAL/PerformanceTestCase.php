@@ -1,6 +1,6 @@
 <?php
 
-namespace Doctrine\Tests;
+namespace Doctrine\Tests\DBAL;
 
 use function microtime;
 
@@ -11,7 +11,7 @@ use function microtime;
  * and stopTiming at the end of all tests. Tests that do not start or stop
  * timing will fail.
  */
-abstract class DbalPerformanceTestCase extends DbalFunctionalTestCase
+abstract class PerformanceTestCase extends FunctionalTestCase
 {
     /**
      * time the test started

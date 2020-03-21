@@ -3,9 +3,9 @@
 namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\Logging\SQLLogger;
-use Doctrine\Tests\DbalFunctionalTestCase;
+use Doctrine\Tests\DBAL\FunctionalTestCase;
 
-class LoggingTest extends DbalFunctionalTestCase
+class LoggingTest extends FunctionalTestCase
 {
     public function testLogExecuteQuery() : void
     {

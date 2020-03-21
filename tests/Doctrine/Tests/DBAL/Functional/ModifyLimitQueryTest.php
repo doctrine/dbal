@@ -3,12 +3,12 @@
 namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\Schema\Table;
-use Doctrine\Tests\DbalFunctionalTestCase;
+use Doctrine\Tests\DBAL\FunctionalTestCase;
 use const CASE_LOWER;
 use function array_change_key_case;
 use function count;
 
-class ModifyLimitQueryTest extends DbalFunctionalTestCase
+class ModifyLimitQueryTest extends FunctionalTestCase
 {
     /** @var bool */
     private static $tableCreated = false;

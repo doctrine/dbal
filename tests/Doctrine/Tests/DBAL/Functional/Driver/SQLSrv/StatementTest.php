@@ -4,10 +4,10 @@ namespace Doctrine\Tests\DBAL\Functional\Driver\SQLSrv;
 
 use Doctrine\DBAL\Driver\SQLSrv\Driver;
 use Doctrine\DBAL\Driver\SQLSrv\SQLSrvException;
-use Doctrine\Tests\DbalFunctionalTestCase;
+use Doctrine\Tests\DBAL\FunctionalTestCase;
 use function extension_loaded;
 
-class StatementTest extends DbalFunctionalTestCase
+class StatementTest extends FunctionalTestCase
 {
     protected function setUp() : void
     {

@@ -3,12 +3,12 @@
 namespace Doctrine\Tests\DBAL\Functional\Ticket;
 
 use Doctrine\DBAL\Schema\Table;
-use Doctrine\Tests\DbalFunctionalTestCase;
+use Doctrine\Tests\DBAL\FunctionalTestCase;
 
 /**
  * @group DBAL-168
  */
-class DBAL168Test extends DbalFunctionalTestCase
+class DBAL168Test extends FunctionalTestCase
 {
     public function testDomainsTable() : void
     {

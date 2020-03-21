@@ -2,9 +2,9 @@
 
 namespace Doctrine\Tests\DBAL\Functional\Platform;
 
-use Doctrine\Tests\DbalFunctionalTestCase;
+use Doctrine\Tests\DBAL\FunctionalTestCase;
 
-class QuotingTest extends DbalFunctionalTestCase
+class QuotingTest extends FunctionalTestCase
 {
     /**
      * @dataProvider stringLiteralProvider

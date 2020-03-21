@@ -11,7 +11,7 @@ use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
-use Doctrine\Tests\DbalFunctionalTestCase;
+use Doctrine\Tests\DBAL\FunctionalTestCase;
 use Throwable;
 use const PHP_OS;
 use function array_merge;
@@ -27,7 +27,7 @@ use function touch;
 use function unlink;
 use function version_compare;
 
-class ExceptionTest extends DbalFunctionalTestCase
+class ExceptionTest extends FunctionalTestCase
 {
     protected function setUp() : void
     {

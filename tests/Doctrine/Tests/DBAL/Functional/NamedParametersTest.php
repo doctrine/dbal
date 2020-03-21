@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Table;
-use Doctrine\Tests\DbalFunctionalTestCase;
+use Doctrine\Tests\DBAL\FunctionalTestCase;
 use Throwable;
 use const CASE_LOWER;
 use function array_change_key_case;
@@ -14,7 +14,7 @@ use function array_change_key_case;
 /**
  * @group DDC-1372
  */
-class NamedParametersTest extends DbalFunctionalTestCase
+class NamedParametersTest extends FunctionalTestCase
 {
     /**
      * @return iterable<int, array<int, mixed>>

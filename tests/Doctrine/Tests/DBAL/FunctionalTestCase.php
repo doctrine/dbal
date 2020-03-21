@@ -1,6 +1,6 @@
 <?php
 
-namespace Doctrine\Tests;
+namespace Doctrine\Tests\DBAL;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Logging\DebugStack;
@@ -19,7 +19,7 @@ use function is_scalar;
 use function strpos;
 use function var_export;
 
-abstract class DbalFunctionalTestCase extends TestCase
+abstract class FunctionalTestCase extends TestCase
 {
     /**
      * Shared connection when a TestCase is run alone (outside of it's functional suite)

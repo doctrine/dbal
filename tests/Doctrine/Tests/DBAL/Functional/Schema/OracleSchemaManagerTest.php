@@ -6,7 +6,7 @@ use Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\Types;
-use Doctrine\Tests\TestUtil;
+use Doctrine\Tests\DBAL\TestUtil;
 use function array_map;
 
 class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase

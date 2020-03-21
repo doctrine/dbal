@@ -1,6 +1,6 @@
 <?php
 
-namespace Doctrine\Tests;
+namespace Doctrine\Tests\DBAL;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;

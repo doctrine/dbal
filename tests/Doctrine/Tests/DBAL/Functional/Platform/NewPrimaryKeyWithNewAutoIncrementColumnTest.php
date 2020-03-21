@@ -4,10 +4,10 @@ namespace Doctrine\Tests\DBAL\Functional\Platform;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Comparator;
-use Doctrine\Tests\DbalFunctionalTestCase;
+use Doctrine\Tests\DBAL\FunctionalTestCase;
 use function in_array;
 
-final class NewPrimaryKeyWithNewAutoIncrementColumnTest extends DbalFunctionalTestCase
+final class NewPrimaryKeyWithNewAutoIncrementColumnTest extends FunctionalTestCase
 {
     /**
      * {@inheritDoc}

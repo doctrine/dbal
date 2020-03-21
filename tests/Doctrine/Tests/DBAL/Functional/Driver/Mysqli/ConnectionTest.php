@@ -5,11 +5,11 @@ namespace Doctrine\Tests\DBAL\Functional\Driver\Mysqli;
 use Doctrine\DBAL\Driver\Mysqli\Driver;
 use Doctrine\DBAL\Driver\Mysqli\MysqliConnection;
 use Doctrine\DBAL\Driver\Mysqli\MysqliException;
-use Doctrine\Tests\DbalFunctionalTestCase;
+use Doctrine\Tests\DBAL\FunctionalTestCase;
 use const MYSQLI_OPT_CONNECT_TIMEOUT;
 use function extension_loaded;
 
-class ConnectionTest extends DbalFunctionalTestCase
+class ConnectionTest extends FunctionalTestCase
 {
     protected function setUp() : void
     {

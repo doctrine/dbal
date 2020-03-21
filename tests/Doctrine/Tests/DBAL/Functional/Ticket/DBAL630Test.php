@@ -4,14 +4,14 @@ namespace Doctrine\Tests\DBAL\Functional\Ticket;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\ParameterType;
-use Doctrine\Tests\DbalFunctionalTestCase;
+use Doctrine\Tests\DBAL\FunctionalTestCase;
 use PDO;
 use function in_array;
 
 /**
  * @group DBAL-630
  */
-class DBAL630Test extends DbalFunctionalTestCase
+class DBAL630Test extends FunctionalTestCase
 {
     /** @var bool */
     private $running = false;
