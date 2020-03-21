@@ -11,7 +11,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
-use Doctrine\Tests\Types\MySqlPointType;
+use Doctrine\Tests\DBAL\Functional\Schema\MySQL\PointType;
 
 class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
@@ -25,7 +25,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->resetSharedConn();
 
-        Type::addType('point', MySqlPointType::class);
+        Type::addType('point', PointType::class);
     }
 
     public function testSwitchPrimaryKeyColumns() : void

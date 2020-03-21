@@ -1,12 +1,12 @@
 <?php
 
-namespace Doctrine\Tests\Types;
+namespace Doctrine\Tests\DBAL\Functional\Schema\MySQL;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
 use function strtoupper;
 
-class MySqlPointType extends Type
+class PointType extends Type
 {
     /**
      * {@inheritDoc}
