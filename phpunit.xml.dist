@@ -44,11 +44,11 @@
 
     <testsuites>
         <testsuite name="Doctrine DBAL Test Suite">
-            <directory>./tests/Doctrine/Tests/DBAL</directory>
-            <exclude>./tests/Doctrine/Tests/DBAL/Performance</exclude>
+            <directory>./tests</directory>
+            <exclude>./tests/Performance</exclude>
         </testsuite>
         <testsuite name="Doctrine DBAL Performance Test Suite">
-            <directory>./tests/Doctrine/Tests/DBAL/Performance</directory>
+            <directory>./tests/Performance</directory>
         </testsuite>
     </testsuites>
 

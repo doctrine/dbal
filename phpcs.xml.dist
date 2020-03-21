@@ -42,14 +42,14 @@
     </rule>
 
     <rule ref="SlevomatCodingStandard.Classes.UnusedPrivateElements.UnusedProperty">
-        <exclude-pattern>tests/Doctrine/Tests/DBAL/Tools/TestAsset/*</exclude-pattern>
+        <exclude-pattern>tests/Tools/TestAsset/*</exclude-pattern>
     </rule>
 
     <!-- see https://github.com/squizlabs/PHP_CodeSniffer/issues/2099 -->
     <rule ref="Squiz.Commenting.FunctionComment.InvalidNoReturn">
         <exclude-pattern>src/Platforms/AbstractPlatform.php</exclude-pattern>
         <exclude-pattern>src/Schema/AbstractSchemaManager.php</exclude-pattern>
-        <exclude-pattern>tests/Doctrine/Tests/DBAL/Platforms/AbstractPlatformTestCase.php</exclude-pattern>
+        <exclude-pattern>tests/Platforms/AbstractPlatformTestCase.php</exclude-pattern>
     </rule>
 
     <!-- some statement classes close cursor using an empty while-loop -->
@@ -64,8 +64,8 @@
 
     <!-- see https://github.com/squizlabs/PHP_CodeSniffer/issues/2165 -->
     <rule ref="Squiz.Arrays.ArrayDeclaration.SpaceBeforeComma">
-        <exclude-pattern>tests/Doctrine/Tests/DBAL/Platforms/OraclePlatformTest.php</exclude-pattern>
-        <exclude-pattern>tests/Doctrine/Tests/DBAL/SQLParserUtilsTest.php</exclude-pattern>
+        <exclude-pattern>tests/Platforms/OraclePlatformTest.php</exclude-pattern>
+        <exclude-pattern>tests/SQLParserUtilsTest.php</exclude-pattern>
     </rule>
 
     <!-- see https://github.com/doctrine/dbal/issues/3377 -->
@@ -77,7 +77,7 @@
     <rule ref="SlevomatCodingStandard.TypeHints.TypeHintDeclaration.IncorrectReturnTypeHint">
         <exclude-pattern>src/Types/ArrayType.php</exclude-pattern>
         <exclude-pattern>src/Types/ObjectType.php</exclude-pattern>
-        <exclude-pattern>tests/Doctrine/Tests/DBAL/Driver/Mysqli/MysqliConnectionTest.php</exclude-pattern>
+        <exclude-pattern>tests/Driver/Mysqli/MysqliConnectionTest.php</exclude-pattern>
     </rule>
 
     <!-- The SQLSRV_* functions are defined in the upper case by the sqlsrv extension and violate the standard

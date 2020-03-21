@@ -58,7 +58,7 @@
         "psr-4": { "Doctrine\\DBAL\\": "src" }
     },
     "autoload-dev": {
-        "psr-4": { "Doctrine\\Tests\\": "tests/Doctrine/Tests" }
+        "psr-4": { "Doctrine\\Tests\\DBAL\\": "tests" }
     },
     "extra": {
         "branch-alias": {
