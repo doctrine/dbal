@@ -3,12 +3,12 @@
 namespace Doctrine\Tests\DBAL;
 
 use Doctrine\DBAL\Configuration;
-use Doctrine\Tests\DbalTestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Unit tests for the configuration container.
  */
-class ConfigurationTest extends DbalTestCase
+class ConfigurationTest extends TestCase
 {
     /**
      * The configuration container instance under test.

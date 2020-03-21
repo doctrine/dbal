@@ -6,9 +6,9 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Event\ConnectionEventArgs;
 use Doctrine\DBAL\Event\Listeners\MysqlSessionInit;
 use Doctrine\DBAL\Events;
-use Doctrine\Tests\DbalTestCase;
+use PHPUnit\Framework\TestCase;
 
-class MysqlSessionInitTest extends DbalTestCase
+class MysqlSessionInitTest extends TestCase
 {
     public function testPostConnect() : void
     {

@@ -7,12 +7,12 @@ use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Portability\Connection;
 use Doctrine\DBAL\Portability\Statement;
-use Doctrine\Tests\DbalTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
 use function iterator_to_array;
 
-class StatementTest extends DbalTestCase
+class StatementTest extends TestCase
 {
     /** @var Connection|MockObject */
     protected $conn;

@@ -3,11 +3,11 @@
 namespace Doctrine\Tests\DBAL\Driver\OCI8;
 
 use Doctrine\DBAL\Driver\OCI8\OCI8Connection;
-use Doctrine\Tests\DbalTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use function extension_loaded;
 
-class OCI8ConnectionTest extends DbalTestCase
+class OCI8ConnectionTest extends TestCase
 {
     /**
      * The oci8 driver connection mock under test.

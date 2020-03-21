@@ -5,10 +5,10 @@ namespace Doctrine\Tests\DBAL\Types;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\SmallIntType;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Tests\DbalTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-class SmallIntTest extends DbalTestCase
+class SmallIntTest extends TestCase
 {
     /** @var AbstractPlatform|MockObject */
     private $platform;

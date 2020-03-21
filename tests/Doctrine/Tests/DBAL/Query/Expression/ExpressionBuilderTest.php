@@ -5,12 +5,12 @@ namespace Doctrine\Tests\DBAL\Query\Expression;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
-use Doctrine\Tests\DbalTestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @group DBAL-12
  */
-class ExpressionBuilderTest extends DbalTestCase
+class ExpressionBuilderTest extends TestCase
 {
     /** @var ExpressionBuilder */
     protected $expr;

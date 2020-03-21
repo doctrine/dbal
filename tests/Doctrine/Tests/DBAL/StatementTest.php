@@ -11,11 +11,11 @@ use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Logging\SQLLogger;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Statement;
-use Doctrine\Tests\DbalTestCase;
 use Exception;
 use PDOStatement;
+use PHPUnit\Framework\TestCase;
 
-class StatementTest extends DbalTestCase
+class StatementTest extends TestCase
 {
     /** @var Connection */
     private $conn;

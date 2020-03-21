@@ -23,15 +23,15 @@ use Doctrine\DBAL\Logging\EchoSQLLogger;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
-use Doctrine\Tests\DbalTestCase;
 use Exception;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use stdClass;
 
 /**
  * @requires extension pdo_mysql
  */
-class ConnectionTest extends DbalTestCase
+class ConnectionTest extends TestCase
 {
     /** @var Connection */
     private $connection;

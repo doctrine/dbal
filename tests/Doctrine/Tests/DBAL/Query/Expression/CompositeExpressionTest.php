@@ -3,12 +3,12 @@
 namespace Doctrine\Tests\DBAL\Query\Expression;
 
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
-use Doctrine\Tests\DbalTestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @group DBAL-12
  */
-class CompositeExpressionTest extends DbalTestCase
+class CompositeExpressionTest extends TestCase
 {
     public function testCount() : void
     {

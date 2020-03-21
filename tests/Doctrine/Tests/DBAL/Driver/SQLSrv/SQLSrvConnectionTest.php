@@ -3,11 +3,11 @@
 namespace Doctrine\Tests\DBAL\Driver\SQLSrv;
 
 use Doctrine\DBAL\Driver\SQLSrv\SQLSrvConnection;
-use Doctrine\Tests\DbalTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use function extension_loaded;
 
-class SQLSrvConnectionTest extends DbalTestCase
+class SQLSrvConnectionTest extends TestCase
 {
     /**
      * The sqlsrv driver connection mock under test.

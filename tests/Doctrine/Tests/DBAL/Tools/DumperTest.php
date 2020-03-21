@@ -8,13 +8,13 @@ use DateTime;
 use DateTimeImmutable;
 use DateTimeZone;
 use Doctrine\DBAL\Tools\Dumper;
-use Doctrine\Tests\DbalTestCase;
+use PHPUnit\Framework\TestCase;
 use stdClass;
 use function print_r;
 use function strpos;
 use function substr;
 
-class DumperTest extends DbalTestCase
+class DumperTest extends TestCase
 {
     public function testExportObject() : void
     {

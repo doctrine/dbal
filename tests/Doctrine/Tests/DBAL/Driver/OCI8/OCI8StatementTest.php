@@ -5,11 +5,11 @@ namespace Doctrine\Tests\DBAL\Driver\OCI8;
 use Doctrine\DBAL\Driver\OCI8\OCI8Connection;
 use Doctrine\DBAL\Driver\OCI8\OCI8Exception;
 use Doctrine\DBAL\Driver\OCI8\OCI8Statement;
-use Doctrine\Tests\DbalTestCase;
+use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
 use function extension_loaded;
 
-class OCI8StatementTest extends DbalTestCase
+class OCI8StatementTest extends TestCase
 {
     protected function setUp() : void
     {

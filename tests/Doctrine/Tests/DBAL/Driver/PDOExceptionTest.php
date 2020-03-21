@@ -3,13 +3,13 @@
 namespace Doctrine\Tests\DBAL\Driver;
 
 use Doctrine\DBAL\Driver\PDOException;
-use Doctrine\Tests\DbalTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @requires extension pdo
  */
-class PDOExceptionTest extends DbalTestCase
+class PDOExceptionTest extends TestCase
 {
     public const ERROR_CODE = 666;
 

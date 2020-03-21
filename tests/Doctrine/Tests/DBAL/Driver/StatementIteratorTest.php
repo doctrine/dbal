@@ -10,13 +10,13 @@ use Doctrine\DBAL\Driver\SQLSrv\SQLSrvStatement;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\Portability\Statement as PortabilityStatement;
-use Doctrine\Tests\DbalTestCase;
 use IteratorAggregate;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use Traversable;
 use function extension_loaded;
 
-class StatementIteratorTest extends DbalTestCase
+class StatementIteratorTest extends TestCase
 {
     /**
      * @dataProvider statementProvider()

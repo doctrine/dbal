@@ -4,10 +4,10 @@ namespace Doctrine\Tests\DBAL\Cache;
 
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\ParameterType;
-use Doctrine\Tests\DbalTestCase;
+use PHPUnit\Framework\TestCase;
 use function parse_str;
 
-class QueryCacheProfileTest extends DbalTestCase
+class QueryCacheProfileTest extends TestCase
 {
     private const LIFETIME  = 3600;
     private const CACHE_KEY = 'user_specified_cache_key';

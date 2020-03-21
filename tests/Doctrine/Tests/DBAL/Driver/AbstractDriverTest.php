@@ -27,14 +27,14 @@ use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
-use Doctrine\Tests\DbalTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
 use function array_merge;
 use function get_class;
 use function sprintf;
 
-abstract class AbstractDriverTest extends DbalTestCase
+abstract class AbstractDriverTest extends TestCase
 {
     public const EXCEPTION_CONNECTION                       = ConnectionException::class;
     public const EXCEPTION_CONSTRAINT_VIOLATION             = ConstraintViolationException::class;

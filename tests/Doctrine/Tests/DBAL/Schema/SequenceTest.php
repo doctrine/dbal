@@ -4,9 +4,9 @@ namespace Doctrine\Tests\DBAL\Schema;
 
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
-use Doctrine\Tests\DbalTestCase;
+use PHPUnit\Framework\TestCase;
 
-class SequenceTest extends DbalTestCase
+class SequenceTest extends TestCase
 {
     /**
      * @group DDC-1657

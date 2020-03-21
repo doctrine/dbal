@@ -5,14 +5,14 @@ namespace Doctrine\Tests\DBAL\Types;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Tests\DbalTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use function base64_encode;
 use function chr;
 use function fopen;
 use function stream_get_contents;
 
-class BlobTest extends DbalTestCase
+class BlobTest extends TestCase
 {
     /** @var AbstractPlatform|MockObject */
     protected $platform;

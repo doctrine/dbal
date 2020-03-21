@@ -6,12 +6,12 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Event\ConnectionEventArgs;
 use Doctrine\DBAL\Event\Listeners\SQLSessionInit;
 use Doctrine\DBAL\Events;
-use Doctrine\Tests\DbalTestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @group DBAL-169
  */
-class SQLSessionInitTest extends DbalTestCase
+class SQLSessionInitTest extends TestCase
 {
     public function testPostConnect() : void
     {

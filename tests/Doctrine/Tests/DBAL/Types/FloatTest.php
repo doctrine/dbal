@@ -5,10 +5,10 @@ namespace Doctrine\Tests\DBAL\Types;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\FloatType;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Tests\DbalTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-class FloatTest extends DbalTestCase
+class FloatTest extends TestCase
 {
     /** @var AbstractPlatform|MockObject */
     private $platform;

@@ -8,13 +8,13 @@ use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\JsonType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
-use Doctrine\Tests\DbalTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use function base64_encode;
 use function fopen;
 use function json_encode;
 
-class JsonTest extends DbalTestCase
+class JsonTest extends TestCase
 {
     /** @var AbstractPlatform|MockObject */
     protected $platform;

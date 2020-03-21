@@ -8,13 +8,13 @@ use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
-use Doctrine\Tests\DbalTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use function base64_encode;
 use function fopen;
 use function stream_get_contents;
 
-class BinaryTest extends DbalTestCase
+class BinaryTest extends TestCase
 {
     /** @var AbstractPlatform|MockObject */
     protected $platform;

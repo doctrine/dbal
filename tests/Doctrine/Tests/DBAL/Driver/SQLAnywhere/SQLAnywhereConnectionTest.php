@@ -3,11 +3,11 @@
 namespace Doctrine\Tests\DBAL\Driver\SQLAnywhere;
 
 use Doctrine\DBAL\Driver\SQLAnywhere\SQLAnywhereConnection;
-use Doctrine\Tests\DbalTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use function extension_loaded;
 
-class SQLAnywhereConnectionTest extends DbalTestCase
+class SQLAnywhereConnectionTest extends TestCase
 {
     /**
      * The sqlanywhere driver connection mock under test.

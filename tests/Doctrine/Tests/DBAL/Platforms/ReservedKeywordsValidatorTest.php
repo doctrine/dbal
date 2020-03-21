@@ -5,9 +5,9 @@ namespace Doctrine\Tests\DBAL\Platforms;
 use Doctrine\DBAL\Platforms\Keywords\MySQLKeywords;
 use Doctrine\DBAL\Platforms\Keywords\ReservedKeywordsValidator;
 use Doctrine\DBAL\Schema\Table;
-use Doctrine\Tests\DbalTestCase;
+use PHPUnit\Framework\TestCase;
 
-class ReservedKeywordsValidatorTest extends DbalTestCase
+class ReservedKeywordsValidatorTest extends TestCase
 {
     /** @var ReservedKeywordsValidator */
     private $validator;

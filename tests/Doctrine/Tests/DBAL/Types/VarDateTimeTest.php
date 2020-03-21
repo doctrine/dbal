@@ -7,10 +7,10 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\VarDateTimeType;
-use Doctrine\Tests\DbalTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-class VarDateTimeTest extends DbalTestCase
+class VarDateTimeTest extends TestCase
 {
     /** @var AbstractPlatform|MockObject */
     private $platform;

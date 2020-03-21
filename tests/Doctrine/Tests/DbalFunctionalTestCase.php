@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Logging\DebugStack;
 use Exception;
 use PHPUnit\Framework\AssertionFailedError;
+use PHPUnit\Framework\TestCase;
 use Throwable;
 use const PHP_EOL;
 use function array_map;
@@ -18,7 +19,7 @@ use function is_scalar;
 use function strpos;
 use function var_export;
 
-abstract class DbalFunctionalTestCase extends DbalTestCase
+abstract class DbalFunctionalTestCase extends TestCase
 {
     /**
      * Shared connection when a TestCase is run alone (outside of it's functional suite)

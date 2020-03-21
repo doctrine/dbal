@@ -11,11 +11,11 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\SchemaException;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Tests\DbalTestCase;
+use PHPUnit\Framework\TestCase;
 use function array_shift;
 use function current;
 
-class TableTest extends DbalTestCase
+class TableTest extends TestCase
 {
     public function testCreateWithInvalidTableName() : void
     {

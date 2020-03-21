@@ -7,12 +7,12 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Query\QueryException;
-use Doctrine\Tests\DbalTestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @group DBAL-12
  */
-class QueryBuilderTest extends DbalTestCase
+class QueryBuilderTest extends TestCase
 {
     /** @var Connection */
     protected $conn;

@@ -6,12 +6,12 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\ObjectType;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Tests\DbalTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use stdClass;
 use function serialize;
 
-class ObjectTest extends DbalTestCase
+class ObjectTest extends TestCase
 {
     /** @var AbstractPlatform|MockObject */
     private $platform;

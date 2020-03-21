@@ -3,9 +3,9 @@
 namespace Doctrine\Tests\DBAL\Logging;
 
 use Doctrine\DBAL\Logging\DebugStack;
-use Doctrine\Tests\DbalTestCase;
+use PHPUnit\Framework\TestCase;
 
-class DebugStackTest extends DbalTestCase
+class DebugStackTest extends TestCase
 {
     /** @var DebugStack */
     private $logger;

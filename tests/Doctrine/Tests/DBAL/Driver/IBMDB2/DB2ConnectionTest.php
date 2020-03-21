@@ -3,11 +3,11 @@
 namespace Doctrine\Tests\DBAL\Driver\IBMDB2;
 
 use Doctrine\DBAL\Driver\IBMDB2\DB2Connection;
-use Doctrine\Tests\DbalTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use function extension_loaded;
 
-class DB2ConnectionTest extends DbalTestCase
+class DB2ConnectionTest extends TestCase
 {
     /**
      * The ibm_db2 driver connection mock under test.

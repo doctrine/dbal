@@ -6,10 +6,10 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Event\ConnectionEventArgs;
 use Doctrine\DBAL\Event\Listeners\OracleSessionInit;
 use Doctrine\DBAL\Events;
-use Doctrine\Tests\DbalTestCase;
+use PHPUnit\Framework\TestCase;
 use function sprintf;
 
-class OracleSessionInitTest extends DbalTestCase
+class OracleSessionInitTest extends TestCase
 {
     public function testPostConnect() : void
     {

@@ -6,13 +6,13 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\SQLParserUtils;
 use Doctrine\DBAL\SQLParserUtilsException;
-use Doctrine\Tests\DbalTestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @group DBAL-78
  * @group DDC-1372
  */
-class SQLParserUtilsTest extends DbalTestCase
+class SQLParserUtilsTest extends TestCase
 {
     /**
      * @return mixed[][]

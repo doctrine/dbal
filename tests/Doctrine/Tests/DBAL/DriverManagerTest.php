@@ -11,13 +11,13 @@ use Doctrine\DBAL\Driver\PDOSqlite\Driver as PDOSqliteDriver;
 use Doctrine\DBAL\Driver\SQLSrv\Driver as SQLSrvDriver;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\Tests\DbalTestCase;
+use PHPUnit\Framework\TestCase;
 use stdClass;
 use function get_class;
 use function in_array;
 use function is_array;
 
-class DriverManagerTest extends DbalTestCase
+class DriverManagerTest extends TestCase
 {
     public function testCheckParams() : void
     {

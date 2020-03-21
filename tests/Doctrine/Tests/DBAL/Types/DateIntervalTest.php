@@ -8,11 +8,11 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\DateIntervalType;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Tests\DbalTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use stdClass;
 
-final class DateIntervalTest extends DbalTestCase
+final class DateIntervalTest extends TestCase
 {
     /** @var AbstractPlatform|MockObject */
     private $platform;

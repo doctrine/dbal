@@ -3,9 +3,9 @@
 namespace Doctrine\Tests\DBAL;
 
 use Doctrine\DBAL\Driver\OCI8\OCI8Statement;
-use Doctrine\Tests\DbalTestCase;
+use PHPUnit\Framework\TestCase;
 
-class UtilTest extends DbalTestCase
+class UtilTest extends TestCase
 {
     /**
      * @return mixed[][]

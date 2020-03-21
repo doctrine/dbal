@@ -6,14 +6,14 @@ use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\DriverException as InnerDriverException;
 use Doctrine\DBAL\Exception\DriverException;
-use Doctrine\Tests\DbalTestCase;
 use Exception;
+use PHPUnit\Framework\TestCase;
 use stdClass;
 use function chr;
 use function fopen;
 use function sprintf;
 
-class DBALExceptionTest extends DbalTestCase
+class DBALExceptionTest extends TestCase
 {
     public function testDriverExceptionDuringQueryAcceptsBinaryData() : void
     {

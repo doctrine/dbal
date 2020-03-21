@@ -15,14 +15,14 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Tests\DbalTestCase;
 use Doctrine\Tests\Types\CommentedType;
+use PHPUnit\Framework\TestCase;
 use function get_class;
 use function implode;
 use function sprintf;
 use function str_repeat;
 
-abstract class AbstractPlatformTestCase extends DbalTestCase
+abstract class AbstractPlatformTestCase extends TestCase
 {
     /** @var AbstractPlatform */
     protected $platform;
