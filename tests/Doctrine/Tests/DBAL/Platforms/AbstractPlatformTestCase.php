@@ -15,7 +15,6 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Tests\Types\CommentedType;
 use PHPUnit\Framework\TestCase;
 use function get_class;
 use function implode;
@@ -117,12 +116,8 @@ abstract class AbstractPlatformTestCase extends TestCase
      */
     public function testRegistersCommentedDoctrineMappingTypeImplicitly() : void
     {
-        if (! Type::hasType('my_commented')) {
-            Type::addType('my_commented', CommentedType::class);
-        }
-
-        $type = Type::getType('my_commented');
-        $this->platform->registerDoctrineTypeMapping('foo', 'my_commented');
+        $type = Type::getType('array');
+        $this->platform->registerDoctrineTypeMapping('foo', 'array');
 
         self::assertTrue($this->platform->isCommentedDoctrineType($type));
     }
