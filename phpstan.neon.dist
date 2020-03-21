@@ -1,7 +1,7 @@
 parameters:
     level: 7
     paths:
-        - %currentWorkingDirectory%/lib
+        - %currentWorkingDirectory%/src
     autoload_files:
         - %currentWorkingDirectory%/tests/phpstan-polyfill.php
     reportUnmatchedIgnoredErrors: false
