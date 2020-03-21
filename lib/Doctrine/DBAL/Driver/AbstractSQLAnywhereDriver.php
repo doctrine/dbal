@@ -10,7 +10,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\Exception\InvalidPlatformVersion;
-use Doctrine\DBAL\Platforms\SQLAnywherePlatform;
+use Doctrine\DBAL\Platforms\SQLAnywhere16Platform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\SQLAnywhereSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
@@ -89,12 +89,12 @@ abstract class AbstractSQLAnywhereDriver implements ExceptionConverterDriver, Ve
             );
         }
 
-        return new SQLAnywherePlatform();
+        return new SQLAnywhere16Platform();
     }
 
     public function getDatabasePlatform() : AbstractPlatform
     {
-        return new SQLAnywherePlatform();
+        return new SQLAnywhere16Platform();
     }
 
     public function getSchemaManager(Connection $conn) : AbstractSchemaManager

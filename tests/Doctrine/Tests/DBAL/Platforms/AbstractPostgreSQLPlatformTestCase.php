@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\Tests\DBAL\Platforms;
 
-use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
+use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Comparator;
@@ -18,9 +18,9 @@ use UnexpectedValueException;
 use function assert;
 use function sprintf;
 
-abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCase
+abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCase
 {
-    /** @var PostgreSqlPlatform */
+    /** @var PostgreSQL94Platform */
     protected $platform;
 
     public function getGenerateTableSql() : string
@@ -921,7 +921,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
      */
     public function testReturnsDisallowDatabaseConnectionsSQL() : void
     {
-        assert($this->platform instanceof PostgreSqlPlatform);
+        assert($this->platform instanceof PostgreSQL94Platform);
 
         self::assertSame(
             "UPDATE pg_database SET datallowconn = 'false' WHERE datname = 'foo'",
@@ -934,7 +934,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
      */
     public function testReturnsCloseActiveDatabaseConnectionsSQL() : void
     {
-        assert($this->platform instanceof PostgreSqlPlatform);
+        assert($this->platform instanceof PostgreSQL94Platform);
 
         self::assertSame(
             "SELECT pg_terminate_backend(procpid) FROM pg_stat_activity WHERE datname = 'foo'",
@@ -1024,7 +1024,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
      */
     public function testQuotesDatabaseNameInCloseActiveDatabaseConnectionsSQL() : void
     {
-        assert($this->platform instanceof PostgreSqlPlatform);
+        assert($this->platform instanceof PostgreSQL94Platform);
 
         self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",

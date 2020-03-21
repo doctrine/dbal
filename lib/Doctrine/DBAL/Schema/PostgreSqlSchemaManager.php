@@ -6,7 +6,7 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\FetchMode;
-use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
+use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use function array_change_key_case;
@@ -110,7 +110,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
                 throw $exception;
             }
 
-            assert($this->_platform instanceof PostgreSqlPlatform);
+            assert($this->_platform instanceof PostgreSQL94Platform);
 
             $this->_execSql(
                 [
@@ -494,7 +494,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         $table = parent::listTableDetails($tableName);
 
         $platform = $this->_platform;
-        assert($platform instanceof PostgreSqlPlatform);
+        assert($platform instanceof PostgreSQL94Platform);
         $sql = $platform->getListTableMetadataSQL($tableName);
 
         $tableOptions = $this->_conn->fetchAssoc($sql);

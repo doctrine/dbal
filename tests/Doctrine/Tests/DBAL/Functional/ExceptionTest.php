@@ -9,7 +9,7 @@ use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
-use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
+use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
@@ -219,7 +219,7 @@ EOT
             $this->markTestSkipped('Only skipped if platform is not sqlite');
         }
 
-        if ($platform instanceof PostgreSqlPlatform && isset($params['password'])) {
+        if ($platform instanceof PostgreSQL94Platform && isset($params['password'])) {
             $this->markTestSkipped('Does not work on Travis');
         }
 

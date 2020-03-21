@@ -38,10 +38,9 @@ use function substr_count;
 use const PREG_OFFSET_CAPTURE;
 
 /**
- * The SQLServerPlatform provides the behavior, features and SQL dialect of the
- * Microsoft SQL Server database platform.
+ * Provides the behavior, features and SQL dialect of the Microsoft SQL Server 2012 database platform.
  */
-class SQLServerPlatform extends AbstractPlatform
+class SQLServer2012Platform extends AbstractPlatform
 {
     public function getCurrentDateSQL() : string
     {
@@ -1370,7 +1369,7 @@ SQL
 
     protected function getReservedKeywordsClass() : string
     {
-        return Keywords\SQLServerKeywords::class;
+        return Keywords\SQLServer2012Keywords::class;
     }
 
     public function quoteSingleIdentifier(string $str) : string

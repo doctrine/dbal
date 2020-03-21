@@ -8,7 +8,7 @@ use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Exception\ColumnLengthRequired;
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\SQLAnywherePlatform;
+use Doctrine\DBAL\Platforms\SQLAnywhere16Platform;
 use Doctrine\DBAL\Platforms\TrimMode;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
@@ -27,14 +27,14 @@ use function mt_rand;
 use function strlen;
 use function substr;
 
-class SQLAnywherePlatformTest extends AbstractPlatformTestCase
+class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
 {
-    /** @var SQLAnywherePlatform */
+    /** @var SQLAnywhere16Platform */
     protected $platform;
 
     public function createPlatform() : AbstractPlatform
     {
-        return new SQLAnywherePlatform();
+        return new SQLAnywhere16Platform();
     }
 
     /**
@@ -414,7 +414,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
             $this->platform->getForeignKeyDeclarationSQL(
                 new ForeignKeyConstraint(['a', 'b'], 'foreign_table', ['c', 'd'], 'fk', [
                     'notnull' => true,
-                    'match' => SQLAnywherePlatform::FOREIGN_KEY_MATCH_SIMPLE_UNIQUE,
+                    'match' => SQLAnywhere16Platform::FOREIGN_KEY_MATCH_SIMPLE_UNIQUE,
                     'onUpdate' => 'CASCADE',
                     'onDelete' => 'SET NULL',
                     'check_on_commit' => true,

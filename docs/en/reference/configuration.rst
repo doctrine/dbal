@@ -351,7 +351,7 @@ You can also pass this option if you want to disable automatic database platform
 detection for a driver that natively supports it and choose the platform version
 implementation explicitly.
 
-If you are running a MariaDB database, you should prefix the ``serverVersion`` 
+If you are running a MariaDB database, you should prefix the ``serverVersion``
 with ``mariadb-`` (ex: ``mariadb-10.2.12``).
 
 Custom Platform

@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Platforms\Keywords;
 
 /**
- * SAP Sybase SQL Anywhere 10 reserved keywords list.
+ * SAP Sybase SQL Anywhere 16 reserved keywords list.
  */
-class SQLAnywhereKeywords extends KeywordList
+class SQLAnywhere16Keywords extends KeywordList
 {
     public function getName() : string
     {
-        return 'SQLAnywhere';
+        return 'SQLAnywhere16';
     }
 
     /**

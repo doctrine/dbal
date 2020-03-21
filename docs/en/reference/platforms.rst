@@ -50,20 +50,17 @@ Oracle
 Microsoft SQL Server
 ^^^^^^^^^^^^^^^^^^^^
 
--  ``SQLServerPlatform`` for version 2012 and above.
+-  ``SQLServer2012Platform`` for version 2012 and above.
 
 PostgreSQL
 ^^^^^^^^^^
 
--  ``PostgreSqlPlatform`` for version 9.4 and above.
+-  ``PostgreSQL94Platform`` for version 9.4 and above.
 -  ``PostgreSQL100Platform`` for version 10.0 and above.
 
 SAP Sybase SQL Anywhere
 ^^^^^^^^^^^^^^^^^^^^^^^
 
--  ``SQLAnywherePlatform`` for version 10 and above.
--  ``SQLAnywhere11Platform`` for version 11 and above.
--  ``SQLAnywhere12Platform`` for version 12 and above.
 -  ``SQLAnywhere16Platform`` for version 16 and above.
 
 SQLite
@@ -103,4 +100,3 @@ all the different database vendors, for example MySQL BIGINT and
 Oracle NUMBER should be handled as integer. Doctrine 2 offers a
 powerful way to abstract the database to php and back conversion,
 which is described in the next section.
-

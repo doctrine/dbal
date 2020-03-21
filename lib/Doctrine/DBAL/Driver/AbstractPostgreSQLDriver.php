@@ -11,7 +11,7 @@ use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\Exception\InvalidPlatformVersion;
 use Doctrine\DBAL\Platforms\PostgreSQL100Platform;
-use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
+use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\PostgreSqlSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
@@ -98,12 +98,12 @@ abstract class AbstractPostgreSQLDriver implements ExceptionConverterDriver, Ver
             return new PostgreSQL100Platform();
         }
 
-        return new PostgreSqlPlatform();
+        return new PostgreSQL94Platform();
     }
 
     public function getDatabasePlatform() : AbstractPlatform
     {
-        return new PostgreSqlPlatform();
+        return new PostgreSQL94Platform();
     }
 
     public function getSchemaManager(Connection $conn) : AbstractSchemaManager

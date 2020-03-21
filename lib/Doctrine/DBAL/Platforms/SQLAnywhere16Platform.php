@@ -36,10 +36,9 @@ use function strtoupper;
 use function substr;
 
 /**
- * The SQLAnywherePlatform provides the behavior, features and SQL dialect of the
- * SAP Sybase SQL Anywhere 12 database platform.
+ * Provides the behavior, features and SQL dialect of the SAP Sybase SQL Anywhere 16 database platform.
  */
-class SQLAnywherePlatform extends AbstractPlatform
+class SQLAnywhere16Platform extends AbstractPlatform
 {
     public const FOREIGN_KEY_MATCH_SIMPLE        = 1;
     public const FOREIGN_KEY_MATCH_FULL          = 2;
@@ -1310,7 +1309,7 @@ SQL
 
     protected function getReservedKeywordsClass() : string
     {
-        return Keywords\SQLAnywhereKeywords::class;
+        return Keywords\SQLAnywhere16Keywords::class;
     }
 
     protected function initializeDoctrineTypeMappings() : void

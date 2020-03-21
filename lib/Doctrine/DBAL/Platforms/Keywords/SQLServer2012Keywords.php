@@ -5,15 +5,13 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Platforms\Keywords;
 
 /**
- * Microsoft SQL Server 2000 reserved keyword dictionary.
- *
- * @link    www.doctrine-project.com
+ * Microsoft SQL Server 2012 reserved keyword dictionary.
  */
-class SQLServerKeywords extends KeywordList
+class SQLServer2012Keywords extends KeywordList
 {
     public function getName() : string
     {
-        return 'SQLServer';
+        return 'SQLServer2012';
     }
 
     /**

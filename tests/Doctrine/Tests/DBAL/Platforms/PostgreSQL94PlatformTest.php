@@ -5,16 +5,16 @@ declare(strict_types=1);
 namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
+use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use function assert;
 
-class PostgreSqlPlatformTest extends AbstractPostgreSqlPlatformTestCase
+class PostgreSQL94PlatformTest extends AbstractPostgreSQLPlatformTestCase
 {
     public function createPlatform() : AbstractPlatform
     {
-        return new PostgreSqlPlatform();
+        return new PostgreSQL94Platform();
     }
 
     public function testSupportsPartialIndexes() : void
@@ -97,7 +97,7 @@ class PostgreSqlPlatformTest extends AbstractPostgreSqlPlatformTestCase
      */
     public function testReturnsCloseActiveDatabaseConnectionsSQL() : void
     {
-        assert($this->platform instanceof PostgreSqlPlatform);
+        assert($this->platform instanceof PostgreSQL94Platform);
 
         self::assertSame(
             "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'foo'",

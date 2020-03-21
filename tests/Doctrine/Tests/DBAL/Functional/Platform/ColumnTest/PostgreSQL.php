@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\Tests\DBAL\Functional\Platform\ColumnTest;
 
-use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
+use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\Tests\DBAL\Functional\Platform\ColumnTest;
 
 final class PostgreSQL extends ColumnTest
@@ -13,6 +13,6 @@ final class PostgreSQL extends ColumnTest
     {
         parent::setUp();
 
-        $this->requirePlatform(PostgreSqlPlatform::class);
+        $this->requirePlatform(PostgreSQL94Platform::class);
     }
 }

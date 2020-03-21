@@ -12,11 +12,11 @@ use Doctrine\DBAL\Platforms\Keywords\MySQL80Keywords;
 use Doctrine\DBAL\Platforms\Keywords\MySQLKeywords;
 use Doctrine\DBAL\Platforms\Keywords\OracleKeywords;
 use Doctrine\DBAL\Platforms\Keywords\PostgreSQL100Keywords;
-use Doctrine\DBAL\Platforms\Keywords\PostgreSQLKeywords;
+use Doctrine\DBAL\Platforms\Keywords\PostgreSQL94Keywords;
 use Doctrine\DBAL\Platforms\Keywords\ReservedKeywordsValidator;
-use Doctrine\DBAL\Platforms\Keywords\SQLAnywhereKeywords;
+use Doctrine\DBAL\Platforms\Keywords\SQLAnywhere16Keywords;
 use Doctrine\DBAL\Platforms\Keywords\SQLiteKeywords;
-use Doctrine\DBAL\Platforms\Keywords\SQLServerKeywords;
+use Doctrine\DBAL\Platforms\Keywords\SQLServer2012Keywords;
 use InvalidArgumentException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -38,11 +38,11 @@ class ReservedWordsCommand extends Command
         'mysql80'       => MySQL80Keywords::class,
         'mariadb102'    => MariaDb102Keywords::class,
         'oracle'        => OracleKeywords::class,
-        'pgsql'         => PostgreSQLKeywords::class,
+        'pgsql'         => PostgreSQL94Keywords::class,
         'pgsql100'      => PostgreSQL100Keywords::class,
-        'sqlanywhere'   => SQLAnywhereKeywords::class,
+        'sqlanywhere'   => SQLAnywhere16Keywords::class,
         'sqlite'        => SQLiteKeywords::class,
-        'sqlserver'     => SQLServerKeywords::class,
+        'sqlserver'     => SQLServer2012Keywords::class,
     ];
 
     /**

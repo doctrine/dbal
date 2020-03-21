@@ -6,7 +6,7 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\DriverException;
-use Doctrine\DBAL\Platforms\SQLServerPlatform;
+use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Doctrine\DBAL\Types\Type;
 use PDOException;
 use Throwable;
@@ -330,7 +330,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
         $table = parent::listTableDetails($tableName);
 
         $platform = $this->_platform;
-        assert($platform instanceof SQLServerPlatform);
+        assert($platform instanceof SQLServer2012Platform);
         $sql = $platform->getListTableMetadataSQL($tableName);
 
         $tableOptions = $this->_conn->fetchAssoc($sql);

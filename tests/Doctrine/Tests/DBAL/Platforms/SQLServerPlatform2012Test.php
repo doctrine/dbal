@@ -6,13 +6,13 @@ namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\SQLServerPlatform;
+use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 
-class SQLServerPlatformTest extends AbstractSQLServerPlatformTestCase
+class SQLServerPlatform2012Test extends AbstractSQLServerPlatformTestCase
 {
     public function createPlatform() : AbstractPlatform
     {
-        return new SQLServerPlatform();
+        return new SQLServer2012Platform();
     }
 
     /**

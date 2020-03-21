@@ -8,7 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\AbstractSQLAnywhereDriver;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\SQLAnywherePlatform;
+use Doctrine\DBAL\Platforms\SQLAnywhere16Platform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\SQLAnywhereSchemaManager;
 
@@ -21,7 +21,7 @@ class AbstractSQLAnywhereDriverTest extends AbstractDriverTest
 
     protected function createPlatform() : AbstractPlatform
     {
-        return new SQLAnywherePlatform();
+        return new SQLAnywhere16Platform();
     }
 
     protected function createSchemaManager(Connection $connection) : AbstractSchemaManager
@@ -35,13 +35,13 @@ class AbstractSQLAnywhereDriverTest extends AbstractDriverTest
     protected function getDatabasePlatformsForVersions() : array
     {
         return [
-            ['16', SQLAnywherePlatform::class],
-            ['16.0', SQLAnywherePlatform::class],
-            ['16.0.0', SQLAnywherePlatform::class],
-            ['16.0.0.0', SQLAnywherePlatform::class],
-            ['16.1.2.3', SQLAnywherePlatform::class],
-            ['16.9.9.9', SQLAnywherePlatform::class],
-            ['17', SQLAnywherePlatform::class],
+            ['16', SQLAnywhere16Platform::class],
+            ['16.0', SQLAnywhere16Platform::class],
+            ['16.0.0', SQLAnywhere16Platform::class],
+            ['16.0.0.0', SQLAnywhere16Platform::class],
+            ['16.1.2.3', SQLAnywhere16Platform::class],
+            ['16.9.9.9', SQLAnywhere16Platform::class],
+            ['17', SQLAnywhere16Platform::class],
         ];
     }
 
