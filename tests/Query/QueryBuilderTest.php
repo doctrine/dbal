@@ -1,6 +1,6 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Query;
+namespace Doctrine\DBAL\Tests\Query;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;

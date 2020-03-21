@@ -1,8 +1,8 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Functional;
+namespace Doctrine\DBAL\Tests\Functional;
 
-use Doctrine\Tests\DBAL\FunctionalTestCase;
+use Doctrine\DBAL\Tests\FunctionalTestCase;
 use function sprintf;
 
 final class LikeWildcardsEscapingTest extends FunctionalTestCase

@@ -1,10 +1,10 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Functional\Platform;
+namespace Doctrine\DBAL\Tests\Functional\Platform;
 
 use DateTimeImmutable;
 use Doctrine\DBAL\Schema\Table;
-use Doctrine\Tests\DBAL\FunctionalTestCase;
+use Doctrine\DBAL\Tests\FunctionalTestCase;
 use function sprintf;
 
 class DateExpressionTest extends FunctionalTestCase

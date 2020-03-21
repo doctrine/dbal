@@ -1,12 +1,12 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Functional;
+namespace Doctrine\DBAL\Tests\Functional;
 
 use DateTime;
 use Doctrine\DBAL\Driver\PDOOracle\Driver as PDOOracleDriver;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Tests\DBAL\FunctionalTestCase;
 use stdClass;
 use function str_repeat;
 

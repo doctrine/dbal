@@ -1,9 +1,9 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Functional;
+namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\Schema\Table;
-use Doctrine\Tests\DBAL\FunctionalTestCase;
+use Doctrine\DBAL\Tests\FunctionalTestCase;
 use const CASE_LOWER;
 use function array_change_key_case;
 use function count;

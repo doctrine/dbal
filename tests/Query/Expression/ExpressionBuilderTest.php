@@ -1,6 +1,6 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Query\Expression;
+namespace Doctrine\DBAL\Tests\Query\Expression;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\Expression\CompositeExpression;

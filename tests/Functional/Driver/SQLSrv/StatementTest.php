@@ -1,10 +1,10 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Functional\Driver\SQLSrv;
+namespace Doctrine\DBAL\Tests\Functional\Driver\SQLSrv;
 
 use Doctrine\DBAL\Driver\SQLSrv\Driver;
 use Doctrine\DBAL\Driver\SQLSrv\SQLSrvException;
-use Doctrine\Tests\DBAL\FunctionalTestCase;
+use Doctrine\DBAL\Tests\FunctionalTestCase;
 use function extension_loaded;
 
 class StatementTest extends FunctionalTestCase

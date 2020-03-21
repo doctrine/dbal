@@ -1,8 +1,8 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Functional\Platform;
+namespace Doctrine\DBAL\Tests\Functional\Platform;
 
-use Doctrine\Tests\DBAL\FunctionalTestCase;
+use Doctrine\DBAL\Tests\FunctionalTestCase;
 
 class QuotingTest extends FunctionalTestCase
 {

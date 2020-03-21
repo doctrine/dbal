@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Doctrine\Tests\DBAL\Functional\Schema;
+namespace Doctrine\DBAL\Tests\Functional\Schema;
 
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Table;
-use Doctrine\Tests\DBAL\FunctionalTestCase;
+use Doctrine\DBAL\Tests\FunctionalTestCase;
 
 class ComparatorTest extends FunctionalTestCase
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Functional\Schema;
+namespace Doctrine\DBAL\Tests\Functional\Schema;
 
 use DateTime;
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
@@ -8,10 +8,10 @@ use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Tests\Functional\Schema\MySQL\PointType;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
-use Doctrine\Tests\DBAL\Functional\Schema\MySQL\PointType;
 
 class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {

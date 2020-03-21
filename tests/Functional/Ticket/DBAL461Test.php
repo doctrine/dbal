@@ -1,6 +1,6 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Functional\Ticket;
+namespace Doctrine\DBAL\Tests\Functional\Ticket;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\AbstractPlatform;

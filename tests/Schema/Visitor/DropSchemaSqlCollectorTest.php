@@ -1,6 +1,6 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Schema\Visitor;
+namespace Doctrine\DBAL\Tests\Schema\Visitor;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;

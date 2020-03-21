@@ -1,6 +1,6 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Driver\SQLSrv;
+namespace Doctrine\DBAL\Tests\Driver\SQLSrv;
 
 use Doctrine\DBAL\Driver\SQLSrv\SQLSrvConnection;
 use PHPUnit\Framework\MockObject\MockObject;

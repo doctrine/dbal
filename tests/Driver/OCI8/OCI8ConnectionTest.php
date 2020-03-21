@@ -1,6 +1,6 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Driver\OCI8;
+namespace Doctrine\DBAL\Tests\Driver\OCI8;
 
 use Doctrine\DBAL\Driver\OCI8\OCI8Connection;
 use PHPUnit\Framework\MockObject\MockObject;

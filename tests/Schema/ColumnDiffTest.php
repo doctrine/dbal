@@ -1,6 +1,6 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Schema;
+namespace Doctrine\DBAL\Tests\Schema;
 
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;

@@ -1,14 +1,14 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Functional;
+namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\Driver\OCI8\Driver as OCI8Driver;
 use Doctrine\DBAL\Driver\PDOOracle\Driver as PDOOracleDriver;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Tests\DBAL\FunctionalTestCase;
 use function fopen;
 use function str_repeat;
 use function stream_get_contents;

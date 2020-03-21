@@ -1,12 +1,12 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Functional;
+namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\Connections\MasterSlaveConnection;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Schema\Table;
-use Doctrine\Tests\DBAL\FunctionalTestCase;
+use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Throwable;
 use const CASE_LOWER;
 use function array_change_key_case;

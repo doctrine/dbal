@@ -1,9 +1,9 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Functional\Ticket;
+namespace Doctrine\DBAL\Tests\Functional\Ticket;
 
 use Doctrine\DBAL\Schema\Table;
-use Doctrine\Tests\DBAL\FunctionalTestCase;
+use Doctrine\DBAL\Tests\FunctionalTestCase;
 
 /**
  * @group DBAL-168

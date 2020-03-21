@@ -1,6 +1,6 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Cache;
+namespace Doctrine\DBAL\Tests\Cache;
 
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\ParameterType;

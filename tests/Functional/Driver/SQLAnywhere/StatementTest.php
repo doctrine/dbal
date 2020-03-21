@@ -1,10 +1,10 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Functional\Driver\SQLAnywhere;
+namespace Doctrine\DBAL\Tests\Functional\Driver\SQLAnywhere;
 
 use Doctrine\DBAL\Driver\SQLAnywhere\Driver;
 use Doctrine\DBAL\DriverManager;
-use Doctrine\Tests\DBAL\FunctionalTestCase;
+use Doctrine\DBAL\Tests\FunctionalTestCase;
 use function extension_loaded;
 
 class StatementTest extends FunctionalTestCase

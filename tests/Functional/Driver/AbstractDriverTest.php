@@ -1,11 +1,11 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Functional\Driver;
+namespace Doctrine\DBAL\Tests\Functional\Driver;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
-use Doctrine\Tests\DBAL\FunctionalTestCase;
+use Doctrine\DBAL\Tests\FunctionalTestCase;
 
 abstract class AbstractDriverTest extends FunctionalTestCase
 {

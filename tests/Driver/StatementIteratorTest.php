@@ -1,6 +1,6 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Driver;
+namespace Doctrine\DBAL\Tests\Driver;
 
 use Doctrine\DBAL\Driver\IBMDB2\DB2Statement;
 use Doctrine\DBAL\Driver\Mysqli\MysqliStatement;

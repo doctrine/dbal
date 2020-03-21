@@ -1,6 +1,6 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Events;
+namespace Doctrine\DBAL\Tests\Events;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Event\ConnectionEventArgs;

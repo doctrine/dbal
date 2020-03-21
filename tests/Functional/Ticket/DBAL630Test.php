@@ -1,10 +1,10 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Functional\Ticket;
+namespace Doctrine\DBAL\Tests\Functional\Ticket;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\ParameterType;
-use Doctrine\Tests\DBAL\FunctionalTestCase;
+use Doctrine\DBAL\Tests\FunctionalTestCase;
 use PDO;
 use function in_array;
 

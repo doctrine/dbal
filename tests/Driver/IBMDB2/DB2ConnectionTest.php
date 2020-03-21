@@ -1,6 +1,6 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Driver\IBMDB2;
+namespace Doctrine\DBAL\Tests\Driver\IBMDB2;
 
 use Doctrine\DBAL\Driver\IBMDB2\DB2Connection;
 use PHPUnit\Framework\MockObject\MockObject;

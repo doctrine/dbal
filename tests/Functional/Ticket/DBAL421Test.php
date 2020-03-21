@@ -1,8 +1,8 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Functional\Ticket;
+namespace Doctrine\DBAL\Tests\Functional\Ticket;
 
-use Doctrine\Tests\DBAL\FunctionalTestCase;
+use Doctrine\DBAL\Tests\FunctionalTestCase;
 use function in_array;
 use function preg_match;
 

@@ -1,9 +1,9 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Functional;
+namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\Platforms\MySqlPlatform;
-use Doctrine\Tests\DBAL\FunctionalTestCase;
+use Doctrine\DBAL\Tests\FunctionalTestCase;
 use function sleep;
 
 class TransactionTest extends FunctionalTestCase

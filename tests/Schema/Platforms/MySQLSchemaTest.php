@@ -1,6 +1,6 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Schema\Platforms;
+namespace Doctrine\DBAL\Tests\Schema\Platforms;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;

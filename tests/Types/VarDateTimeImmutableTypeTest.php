@@ -1,6 +1,6 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Types;
+namespace Doctrine\DBAL\Tests\Types;
 
 use DateTime;
 use DateTimeImmutable;

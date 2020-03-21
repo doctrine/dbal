@@ -1,10 +1,10 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Driver\Mysqli;
+namespace Doctrine\DBAL\Tests\Driver\Mysqli;
 
 use Doctrine\DBAL\Driver as DriverInterface;
 use Doctrine\DBAL\Driver\Mysqli\Driver;
-use Doctrine\Tests\DBAL\Driver\AbstractMySQLDriverTest;
+use Doctrine\DBAL\Tests\Driver\AbstractMySQLDriverTest;
 
 class DriverTest extends AbstractMySQLDriverTest
 {

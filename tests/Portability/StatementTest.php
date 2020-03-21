@@ -1,6 +1,6 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Portability;
+namespace Doctrine\DBAL\Tests\Portability;
 
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\FetchMode;

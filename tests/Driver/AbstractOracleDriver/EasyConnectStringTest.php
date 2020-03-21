@@ -1,6 +1,6 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Driver\AbstractOracleDriver;
+namespace Doctrine\DBAL\Tests\Driver\AbstractOracleDriver;
 
 use Doctrine\DBAL\Driver\AbstractOracleDriver\EasyConnectString;
 use PHPUnit\Framework\TestCase;

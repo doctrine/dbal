@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Doctrine\Tests\DBAL\Schema;
+namespace Doctrine\DBAL\Tests\Schema;
 
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Configuration;

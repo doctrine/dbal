@@ -1,12 +1,12 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Functional\Schema;
+namespace Doctrine\DBAL\Tests\Functional\Schema;
 
 use Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Tests\TestUtil;
 use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\Types;
-use Doctrine\Tests\DBAL\TestUtil;
 use function array_map;
 
 class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase

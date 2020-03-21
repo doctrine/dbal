@@ -1,10 +1,10 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Driver\SQLSrv;
+namespace Doctrine\DBAL\Tests\Driver\SQLSrv;
 
 use Doctrine\DBAL\Driver as DriverInterface;
 use Doctrine\DBAL\Driver\SQLSrv\Driver;
-use Doctrine\Tests\DBAL\Driver\AbstractSQLServerDriverTest;
+use Doctrine\DBAL\Tests\Driver\AbstractSQLServerDriverTest;
 
 class DriverTest extends AbstractSQLServerDriverTest
 {

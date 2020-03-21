@@ -1,10 +1,10 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Functional;
+namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Tests\DBAL\FunctionalTestCase;
 use Throwable;
 
 class TemporaryTableTest extends FunctionalTestCase

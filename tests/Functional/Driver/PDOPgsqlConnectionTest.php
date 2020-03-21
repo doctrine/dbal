@@ -1,11 +1,11 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Functional\Driver;
+namespace Doctrine\DBAL\Tests\Functional\Driver;
 
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
-use Doctrine\Tests\DBAL\FunctionalTestCase;
+use Doctrine\DBAL\Tests\FunctionalTestCase;
 use function extension_loaded;
 
 class PDOPgsqlConnectionTest extends FunctionalTestCase

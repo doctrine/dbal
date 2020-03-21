@@ -1,6 +1,6 @@
 <?php
 
-namespace Doctrine\Tests\DBAL;
+namespace Doctrine\DBAL\Tests;
 
 use Doctrine\DBAL\Driver\OCI8\OCI8Statement;
 use PHPUnit\Framework\TestCase;

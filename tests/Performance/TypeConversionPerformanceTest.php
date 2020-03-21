@@ -1,11 +1,11 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Performance;
+namespace Doctrine\DBAL\Tests\Performance;
 
 use DateTime;
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Tests\PerformanceTestCase;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Tests\DBAL\PerformanceTestCase;
 
 /**
  * @group performance

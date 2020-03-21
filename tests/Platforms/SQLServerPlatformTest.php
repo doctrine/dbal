@@ -1,6 +1,6 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Platforms;
+namespace Doctrine\DBAL\Tests\Platforms;
 
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Platforms\AbstractPlatform;

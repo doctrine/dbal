@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Doctrine\Tests\DBAL\Functional\Types;
+namespace Doctrine\DBAL\Tests\Functional\Types;
 
 use Doctrine\DBAL\Driver\IBMDB2\DB2Driver;
 use Doctrine\DBAL\Driver\PDOOracle\Driver as PDOOracleDriver;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Table;
-use Doctrine\Tests\DBAL\FunctionalTestCase;
+use Doctrine\DBAL\Tests\FunctionalTestCase;
 use function is_resource;
 use function random_bytes;
 use function str_replace;

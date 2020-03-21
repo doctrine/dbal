@@ -1,10 +1,10 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Driver\OCI8;
+namespace Doctrine\DBAL\Tests\Driver\OCI8;
 
 use Doctrine\DBAL\Driver as DriverInterface;
 use Doctrine\DBAL\Driver\OCI8\Driver;
-use Doctrine\Tests\DBAL\Driver\AbstractOracleDriverTest;
+use Doctrine\DBAL\Tests\Driver\AbstractOracleDriverTest;
 
 class DriverTest extends AbstractOracleDriverTest
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Schema\Synchronizer;
+namespace Doctrine\DBAL\Tests\Schema\Synchronizer;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;

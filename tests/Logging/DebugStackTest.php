@@ -1,6 +1,6 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Logging;
+namespace Doctrine\DBAL\Tests\Logging;
 
 use Doctrine\DBAL\Logging\DebugStack;
 use PHPUnit\Framework\TestCase;

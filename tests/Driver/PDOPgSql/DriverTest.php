@@ -1,11 +1,11 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Driver\PDOPgSql;
+namespace Doctrine\DBAL\Tests\Driver\PDOPgSql;
 
 use Doctrine\DBAL\Driver as DriverInterface;
 use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\Driver\PDOPgSql\Driver;
-use Doctrine\Tests\DBAL\Driver\AbstractPostgreSQLDriverTest;
+use Doctrine\DBAL\Tests\Driver\AbstractPostgreSQLDriverTest;
 use PDO;
 use PDOException;
 use function defined;

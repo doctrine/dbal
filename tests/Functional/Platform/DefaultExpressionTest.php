@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Doctrine\Tests\DBAL\Functional\Platform;
+namespace Doctrine\DBAL\Tests\Functional\Platform;
 
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
-use Doctrine\Tests\DBAL\FunctionalTestCase;
 use function sprintf;
 
 class DefaultExpressionTest extends FunctionalTestCase

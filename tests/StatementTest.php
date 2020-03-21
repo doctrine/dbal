@@ -1,6 +1,6 @@
 <?php
 
-namespace Doctrine\Tests\DBAL;
+namespace Doctrine\DBAL\Tests;
 
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;

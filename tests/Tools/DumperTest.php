@@ -1,6 +1,6 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Tools;
+namespace Doctrine\DBAL\Tests\Tools;
 
 use ArrayIterator;
 use ArrayObject;
@@ -121,10 +121,10 @@ class DumperTest extends TestCase
                 [
                     'childPublicAttribute' => 4,
                     'childProtectedAttribute:protected' => 5,
-                    'childPrivateAttribute:Doctrine\Tests\DBAL\Tools\TestAsset\ChildClass:private' => 6,
+                    'childPrivateAttribute:Doctrine\DBAL\Tests\Tools\TestAsset\ChildClass:private' => 6,
                     'parentPublicAttribute' => 1,
                     'parentProtectedAttribute:protected' => 2,
-                    'parentPrivateAttribute:Doctrine\Tests\DBAL\Tools\TestAsset\ParentClass:private' => 3,
+                    'parentPrivateAttribute:Doctrine\DBAL\Tests\Tools\TestAsset\ParentClass:private' => 3,
                 ],
             ],
             'same-attributes' => [
@@ -132,8 +132,8 @@ class DumperTest extends TestCase
                 [
                     'parentPublicAttribute' => 4,
                     'parentProtectedAttribute:protected' => 5,
-                    'parentPrivateAttribute:Doctrine\Tests\DBAL\Tools\TestAsset\ChildWithSameAttributesClass:private' => 6,
-                    'parentPrivateAttribute:Doctrine\Tests\DBAL\Tools\TestAsset\ParentClass:private' => 3,
+                    'parentPrivateAttribute:Doctrine\DBAL\Tests\Tools\TestAsset\ChildWithSameAttributesClass:private' => 6,
+                    'parentPrivateAttribute:Doctrine\DBAL\Tests\Tools\TestAsset\ParentClass:private' => 3,
                 ],
             ],
         ];

@@ -1,6 +1,6 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Schema;
+namespace Doctrine\DBAL\Tests\Schema;
 
 use Doctrine\DBAL\Schema\Index;
 use PHPUnit\Framework\TestCase;

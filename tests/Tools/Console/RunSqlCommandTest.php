@@ -1,6 +1,6 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Tools\Console;
+namespace Doctrine\DBAL\Tests\Tools\Console;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Tools\Console\Command\RunSqlCommand;

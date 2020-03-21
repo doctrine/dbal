@@ -1,6 +1,6 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Functional\Schema;
+namespace Doctrine\DBAL\Tests\Functional\Schema;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\Connection;

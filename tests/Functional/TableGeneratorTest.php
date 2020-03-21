@@ -1,11 +1,11 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Functional;
+namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\Id\TableGenerator;
 use Doctrine\DBAL\Id\TableGeneratorSchemaVisitor;
 use Doctrine\DBAL\Schema\Schema;
-use Doctrine\Tests\DBAL\FunctionalTestCase;
+use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Throwable;
 
 /**

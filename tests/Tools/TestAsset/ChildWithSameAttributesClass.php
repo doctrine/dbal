@@ -1,6 +1,6 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Tools\TestAsset;
+namespace Doctrine\DBAL\Tests\Tools\TestAsset;
 
 final class ChildWithSameAttributesClass extends ParentClass
 {

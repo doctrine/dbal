@@ -1,10 +1,10 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Functional\Driver\PDOSqlite;
+namespace Doctrine\DBAL\Tests\Functional\Driver\PDOSqlite;
 
 use Doctrine\DBAL\Driver as DriverInterface;
 use Doctrine\DBAL\Driver\PDOSqlite\Driver;
-use Doctrine\Tests\DBAL\Functional\Driver\AbstractDriverTest;
+use Doctrine\DBAL\Tests\Functional\Driver\AbstractDriverTest;
 use function extension_loaded;
 
 class DriverTest extends AbstractDriverTest

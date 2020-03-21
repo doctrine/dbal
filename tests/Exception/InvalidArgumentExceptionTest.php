@@ -1,6 +1,6 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Exception;
+namespace Doctrine\DBAL\Tests\Exception;
 
 use Doctrine\DBAL\Exception\InvalidArgumentException;
 use PHPUnit\Framework\TestCase;

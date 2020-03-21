@@ -1,6 +1,6 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Driver\SQLAnywhere;
+namespace Doctrine\DBAL\Tests\Driver\SQLAnywhere;
 
 use Doctrine\DBAL\Driver\SQLAnywhere\SQLAnywhereConnection;
 use PHPUnit\Framework\MockObject\MockObject;

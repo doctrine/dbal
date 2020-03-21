@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Doctrine\Tests\DBAL\Functional\Driver\IBMDB2;
+namespace Doctrine\DBAL\Tests\Functional\Driver\IBMDB2;
 
 use Doctrine\DBAL\Driver\IBMDB2\DB2Driver;
-use Doctrine\Tests\DBAL\FunctionalTestCase;
+use Doctrine\DBAL\Tests\FunctionalTestCase;
 use function extension_loaded;
 
 class DB2StatementTest extends FunctionalTestCase

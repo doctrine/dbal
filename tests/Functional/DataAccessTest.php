@@ -1,6 +1,6 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Functional;
+namespace Doctrine\DBAL\Tests\Functional;
 
 use DateTime;
 use Doctrine\DBAL\Connection;
@@ -16,8 +16,8 @@ use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Platforms\TrimMode;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Statement;
+use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
-use Doctrine\Tests\DBAL\FunctionalTestCase;
 use PDO;
 use const CASE_LOWER;
 use const PHP_EOL;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Types;
+namespace Doctrine\DBAL\Tests\Types;
 
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;

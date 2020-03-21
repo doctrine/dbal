@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Doctrine\Tests\DBAL\Types;
+namespace Doctrine\DBAL\Tests\Types;
 
 use Doctrine\DBAL\Types\Type;
 use PHPUnit\Framework\TestCase;

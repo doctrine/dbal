@@ -1,6 +1,6 @@
 <?php
 
-namespace Doctrine\Tests\DBAL;
+namespace Doctrine\DBAL\Tests;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;

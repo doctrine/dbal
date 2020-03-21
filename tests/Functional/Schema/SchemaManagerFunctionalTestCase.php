@@ -1,6 +1,6 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Functional\Schema;
+namespace Doctrine\DBAL\Tests\Functional\Schema;
 
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\DBALException;
@@ -19,6 +19,7 @@ use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\View;
+use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\ArrayType;
 use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\DateIntervalType;
@@ -29,7 +30,6 @@ use Doctrine\DBAL\Types\ObjectType;
 use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Tests\DBAL\FunctionalTestCase;
 use function array_filter;
 use function array_keys;
 use function array_map;

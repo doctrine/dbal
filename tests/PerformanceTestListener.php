@@ -1,6 +1,6 @@
 <?php
 
-namespace Doctrine\Tests\DBAL;
+namespace Doctrine\DBAL\Tests;
 
 use PHPUnit\Framework\Test;
 use PHPUnit\Framework\TestListener;
