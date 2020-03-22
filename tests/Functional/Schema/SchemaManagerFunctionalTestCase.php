@@ -22,13 +22,10 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\View;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
-use Doctrine\DBAL\Types\ArrayType;
 use Doctrine\DBAL\Types\BinaryType;
-use Doctrine\DBAL\Types\DateIntervalType;
 use Doctrine\DBAL\Types\DateTimeType;
 use Doctrine\DBAL\Types\DecimalType;
 use Doctrine\DBAL\Types\IntegerType;
-use Doctrine\DBAL\Types\ObjectType;
 use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
 use Doctrine\DBAL\Types\Type;
@@ -48,9 +45,7 @@ use function is_string;
 use function sprintf;
 use function str_replace;
 use function strcasecmp;
-use function strlen;
 use function strtolower;
-use function substr;
 
 abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 {
@@ -803,103 +798,6 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     }
 
     /**
-     * @group DBAL-42
-     */
-    public function testGetColumnComment() : void
-    {
-        if (! $this->connection->getDatabasePlatform()->supportsInlineColumnComments() &&
-             ! $this->connection->getDatabasePlatform()->supportsCommentOnStatement() &&
-            $this->connection->getDatabasePlatform()->getName() !== 'mssql') {
-            self::markTestSkipped('Database does not support column comments.');
-        }
-
-        $table = new Table('column_comment_test');
-        $table->addColumn('id', 'integer', ['comment' => 'This is a comment']);
-        $table->setPrimaryKey(['id']);
-
-        $this->schemaManager->createTable($table);
-
-        $columns = $this->schemaManager->listTableColumns('column_comment_test');
-        self::assertEquals(1, count($columns));
-        self::assertEquals('This is a comment', $columns['id']->getComment());
-
-        $tableDiff                       = new TableDiff('column_comment_test');
-        $tableDiff->fromTable            = $table;
-        $tableDiff->changedColumns['id'] = new ColumnDiff(
-            'id',
-            new Column(
-                'id',
-                Type::getType('integer')
-            ),
-            ['comment'],
-            new Column(
-                'id',
-                Type::getType('integer'),
-                ['comment' => 'This is a comment']
-            )
-        );
-
-        $this->schemaManager->alterTable($tableDiff);
-
-        $columns = $this->schemaManager->listTableColumns('column_comment_test');
-        self::assertEquals(1, count($columns));
-        self::assertEmpty($columns['id']->getComment());
-    }
-
-    /**
-     * @group DBAL-42
-     */
-    public function testAutomaticallyAppendCommentOnMarkedColumns() : void
-    {
-        if (! $this->connection->getDatabasePlatform()->supportsInlineColumnComments() &&
-             ! $this->connection->getDatabasePlatform()->supportsCommentOnStatement() &&
-            $this->connection->getDatabasePlatform()->getName() !== 'mssql') {
-            self::markTestSkipped('Database does not support column comments.');
-        }
-
-        $table = new Table('column_comment_test2');
-        $table->addColumn('id', 'integer', ['comment' => 'This is a comment']);
-        $table->addColumn('obj', 'object', ['comment' => 'This is a comment']);
-        $table->addColumn('arr', 'array', ['comment' => 'This is a comment']);
-        $table->setPrimaryKey(['id']);
-
-        $this->schemaManager->createTable($table);
-
-        $columns = $this->schemaManager->listTableColumns('column_comment_test2');
-        self::assertEquals(3, count($columns));
-        self::assertEquals('This is a comment', $columns['id']->getComment());
-        self::assertEquals('This is a comment', $columns['obj']->getComment(), 'The Doctrine2 Typehint should be stripped from comment.');
-        self::assertInstanceOf(ObjectType::class, $columns['obj']->getType(), 'The Doctrine2 should be detected from comment hint.');
-        self::assertEquals('This is a comment', $columns['arr']->getComment(), 'The Doctrine2 Typehint should be stripped from comment.');
-        self::assertInstanceOf(ArrayType::class, $columns['arr']->getType(), 'The Doctrine2 should be detected from comment hint.');
-    }
-
-    /**
-     * @group DBAL-1228
-     */
-    public function testCommentHintOnDateIntervalTypeColumn() : void
-    {
-        if (! $this->connection->getDatabasePlatform()->supportsInlineColumnComments() &&
-            ! $this->connection->getDatabasePlatform()->supportsCommentOnStatement() &&
-            $this->connection->getDatabasePlatform()->getName() !== 'mssql') {
-            self::markTestSkipped('Database does not support column comments.');
-        }
-
-        $table = new Table('column_dateinterval_comment');
-        $table->addColumn('id', 'integer', ['comment' => 'This is a comment']);
-        $table->addColumn('date_interval', 'dateinterval', ['comment' => 'This is a comment']);
-        $table->setPrimaryKey(['id']);
-
-        $this->schemaManager->createTable($table);
-
-        $columns = $this->schemaManager->listTableColumns('column_dateinterval_comment');
-        self::assertEquals(2, count($columns));
-        self::assertEquals('This is a comment', $columns['id']->getComment());
-        self::assertEquals('This is a comment', $columns['date_interval']->getComment(), 'The Doctrine2 Typehint should be stripped from comment.');
-        self::assertInstanceOf(DateIntervalType::class, $columns['date_interval']->getType(), 'The Doctrine2 should be detected from comment hint.');
-    }
-
-    /**
      * @group DBAL-825
      */
     public function testChangeColumnsTypeWithDefaultValue() : void
@@ -955,7 +853,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     public function testListTableWithBlob() : void
     {
         $table = new Table('test_blob_table');
-        $table->addColumn('id', 'integer', ['comment' => 'This is a comment']);
+        $table->addColumn('id', 'integer');
         $table->addColumn('binarydata', 'blob', []);
         $table->setPrimaryKey(['id']);
 
@@ -1172,118 +1070,6 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         );
     }
 
-    public function testCommentStringsAreQuoted() : void
-    {
-        if (! $this->connection->getDatabasePlatform()->supportsInlineColumnComments() &&
-            ! $this->connection->getDatabasePlatform()->supportsCommentOnStatement() &&
-            $this->connection->getDatabasePlatform()->getName() !== 'mssql') {
-            self::markTestSkipped('Database does not support column comments.');
-        }
-
-        $table = new Table('my_table');
-        $table->addColumn('id', 'integer', ['comment' => "It's a comment with a quote"]);
-        $table->setPrimaryKey(['id']);
-
-        $this->schemaManager->createTable($table);
-
-        $columns = $this->schemaManager->listTableColumns('my_table');
-        self::assertEquals("It's a comment with a quote", $columns['id']->getComment());
-    }
-
-    public function testCommentNotDuplicated() : void
-    {
-        if (! $this->connection->getDatabasePlatform()->supportsInlineColumnComments()) {
-            self::markTestSkipped('Database does not support column comments.');
-        }
-
-        $options          = [
-            'type' => Type::getType('integer'),
-            'default' => 0,
-            'notnull' => true,
-            'comment' => 'expected+column+comment',
-        ];
-        $columnDefinition = substr($this->connection->getDatabasePlatform()->getColumnDeclarationSQL('id', $options), strlen('id') + 1);
-
-        $table = new Table('my_table');
-        $table->addColumn('id', 'integer', ['columnDefinition' => $columnDefinition, 'comment' => 'unexpected_column_comment']);
-        $sql = $this->connection->getDatabasePlatform()->getCreateTableSQL($table);
-
-        self::assertStringContainsString('expected+column+comment', $sql[0]);
-        self::assertStringNotContainsString('unexpected_column_comment', $sql[0]);
-    }
-
-    /**
-     * @group DBAL-1009
-     * @dataProvider getAlterColumnComment
-     */
-    public function testAlterColumnComment(
-        ?string $comment1,
-        ?string $expectedComment1,
-        ?string $comment2,
-        ?string $expectedComment2
-    ) : void {
-        if (! $this->connection->getDatabasePlatform()->supportsInlineColumnComments() &&
-            ! $this->connection->getDatabasePlatform()->supportsCommentOnStatement() &&
-            $this->connection->getDatabasePlatform()->getName() !== 'mssql') {
-            self::markTestSkipped('Database does not support column comments.');
-        }
-
-        $offlineTable = new Table('alter_column_comment_test');
-        $offlineTable->addColumn('comment1', 'integer', ['comment' => $comment1]);
-        $offlineTable->addColumn('comment2', 'integer', ['comment' => $comment2]);
-        $offlineTable->addColumn('no_comment1', 'integer');
-        $offlineTable->addColumn('no_comment2', 'integer');
-        $this->schemaManager->dropAndCreateTable($offlineTable);
-
-        $onlineTable = $this->schemaManager->listTableDetails('alter_column_comment_test');
-
-        self::assertSame($expectedComment1, $onlineTable->getColumn('comment1')->getComment());
-        self::assertSame($expectedComment2, $onlineTable->getColumn('comment2')->getComment());
-        self::assertNull($onlineTable->getColumn('no_comment1')->getComment());
-        self::assertNull($onlineTable->getColumn('no_comment2')->getComment());
-
-        $onlineTable->changeColumn('comment1', ['comment' => $comment2]);
-        $onlineTable->changeColumn('comment2', ['comment' => $comment1]);
-        $onlineTable->changeColumn('no_comment1', ['comment' => $comment1]);
-        $onlineTable->changeColumn('no_comment2', ['comment' => $comment2]);
-
-        $comparator = new Comparator();
-
-        $tableDiff = $comparator->diffTable($offlineTable, $onlineTable);
-
-        self::assertInstanceOf(TableDiff::class, $tableDiff);
-
-        $this->schemaManager->alterTable($tableDiff);
-
-        $onlineTable = $this->schemaManager->listTableDetails('alter_column_comment_test');
-
-        self::assertSame($expectedComment2, $onlineTable->getColumn('comment1')->getComment());
-        self::assertSame($expectedComment1, $onlineTable->getColumn('comment2')->getComment());
-        self::assertSame($expectedComment1, $onlineTable->getColumn('no_comment1')->getComment());
-        self::assertSame($expectedComment2, $onlineTable->getColumn('no_comment2')->getComment());
-    }
-
-    /**
-     * @return mixed[][]
-     */
-    public static function getAlterColumnComment() : iterable
-    {
-        return [
-            [null, null, ' ', ' '],
-            [null, null, '0', '0'],
-            [null, null, 'foo', 'foo'],
-
-            ['', null, ' ', ' '],
-            ['', null, '0', '0'],
-            ['', null, 'foo', 'foo'],
-
-            [' ', ' ', '0', '0'],
-            [' ', ' ', 'foo', 'foo'],
-
-            ['0', '0', 'foo', 'foo'],
-        ];
-    }
-
     /**
      * @group DBAL-1095
      */
@@ -1339,7 +1125,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
      * @dataProvider commentsProvider
      * @group 2596
      */
-    public function testExtractDoctrineTypeFromComment(?string $comment, ?string $expectedType) : void
+    public function testExtractDoctrineTypeFromComment(string $comment, ?string $expectedType) : void
     {
         $re = new ReflectionMethod($this->schemaManager, 'extractDoctrineTypeFromComment');
         $re->setAccessible(true);

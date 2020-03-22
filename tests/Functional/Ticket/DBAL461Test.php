@@ -35,7 +35,6 @@ class DBAL461Test extends TestCase
             'precision' => 0,
             'autoincrement' => false,
             'collation' => 'foo',
-            'comment' => null,
         ]);
 
         self::assertInstanceOf(DecimalType::class, $column->getType());

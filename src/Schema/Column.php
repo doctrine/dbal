@@ -47,8 +47,8 @@ class Column extends AbstractAsset
     /** @var string|null */
     protected $_columnDefinition;
 
-    /** @var string|null */
-    protected $_comment;
+    /** @var string */
+    protected $_comment = '';
 
     /** @var array<string, mixed> */
     protected $_customSchemaOptions = [];
@@ -250,14 +250,14 @@ class Column extends AbstractAsset
         return $this;
     }
 
-    public function setComment(?string $comment) : self
+    public function setComment(string $comment) : self
     {
         $this->_comment = $comment;
 
         return $this;
     }
 
-    public function getComment() : ?string
+    public function getComment() : string
     {
         return $this->_comment;
     }

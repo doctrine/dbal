@@ -419,7 +419,7 @@ class DB2Platform extends AbstractPlatform
 
             $comment = $this->getColumnComment($column);
 
-            if ($comment === null || $comment === '') {
+            if ($comment === '') {
                 continue;
             }
 

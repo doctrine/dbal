@@ -200,10 +200,11 @@ class OracleSchemaManager extends AbstractSchemaManager
             'length'     => $length,
             'precision'  => $precision,
             'scale'      => $scale,
-            'comment'    => isset($tableColumn['comments']) && $tableColumn['comments'] !== ''
-                ? $tableColumn['comments']
-                : null,
         ];
+
+        if (isset($tableColumn['comments'])) {
+            $options['comment'] = $tableColumn['comments'];
+        }
 
         return new Column($this->getQuotedIdentifierName($tableColumn['column_name']), Type::getType($type), $options);
     }

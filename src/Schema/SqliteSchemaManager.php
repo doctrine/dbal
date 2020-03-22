@@ -12,6 +12,7 @@ use Doctrine\DBAL\Types\Type;
 use function array_change_key_case;
 use function array_reverse;
 use function array_values;
+use function assert;
 use function count;
 use function file_exists;
 use function is_string;
@@ -463,18 +464,19 @@ CREATE\sTABLE # Match "CREATE TABLE"
         return $comment === '' ? null : $comment;
     }
 
-    private function parseColumnCommentFromSQL(string $column, string $sql) : ?string
+    private function parseColumnCommentFromSQL(string $column, string $sql) : string
     {
         $pattern = '{[\s(,](?:\W' . preg_quote($this->_platform->quoteSingleIdentifier($column)) . '\W|\W' . preg_quote($column)
             . '\W)(?:\([^)]*?\)|[^,(])*?,?((?:(?!\n))(?:\s*--[^\n]*\n?)+)}i';
 
         if (preg_match($pattern, $sql, $match) !== 1) {
-            return null;
+            return '';
         }
 
         $comment = preg_replace('{^\s*--}m', '', rtrim($match[1], "\n"));
+        assert(is_string($comment));
 
-        return $comment === '' ? null : $comment;
+        return $comment;
     }
 
     private function getCreateTableSQL(string $table) : string

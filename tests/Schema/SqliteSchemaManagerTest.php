@@ -57,7 +57,7 @@ class SqliteSchemaManagerTest extends TestCase
      * @dataProvider getDataColumnComment
      * @group 2865
      */
-    public function testParseColumnCommentFromSQL(?string $comment, string $column, string $sql) : void
+    public function testParseColumnCommentFromSQL(string $comment, string $column, string $sql) : void
     {
         $conn = $this->createMock(Connection::class);
         $conn->method('getDatabasePlatform')->willReturn(new SqlitePlatform());
@@ -76,7 +76,7 @@ class SqliteSchemaManagerTest extends TestCase
     {
         return [
             'Single column with no comment' => [
-                null,
+                '',
                 'a',
                 'CREATE TABLE "a" ("a" TEXT DEFAULT "a" COLLATE RTRIM)',
             ],
@@ -87,7 +87,7 @@ class SqliteSchemaManagerTest extends TestCase
 )',
             ],
             'Multiple similar columns with type comment 1' => [
-                null,
+                '',
                 'b',
                 'CREATE TABLE "a" (a TEXT COLLATE RTRIM, "b" TEXT DEFAULT "a" COLLATE RTRIM, "bb" CLOB DEFAULT NULL COLLATE BINARY --(DC2Type:x)
 )',
@@ -99,7 +99,7 @@ class SqliteSchemaManagerTest extends TestCase
 )',
             ],
             'Multiple similar columns on different lines, with type comment 1' => [
-                null,
+                '',
                 'bb',
                 'CREATE TABLE "a" (a TEXT COLLATE RTRIM, "b" CLOB DEFAULT NULL COLLATE BINARY --(DC2Type:x)
 , "bb" TEXT DEFAULT "a" COLLATE RTRIM',
@@ -111,14 +111,14 @@ class SqliteSchemaManagerTest extends TestCase
 , "b" TEXT DEFAULT "a" COLLATE RTRIM',
             ],
             'Column with numeric but no comment 1' => [
-                null,
+                '',
                 'a',
                 'CREATE TABLE "a" ("a" NUMERIC(10, 0) NOT NULL, "b" CLOB NOT NULL --(DC2Type:array)
 , "c" CHAR(36) NOT NULL --(DC2Type:guid)
 )',
             ],
             'Column with numeric but no comment 2' => [
-                null,
+                '',
                 'a',
                 'CREATE TABLE "b" ("a" NUMERIC(10, 0) NOT NULL, "b" CLOB NOT NULL --(DC2Type:array)
 , "c" CHAR(36) NOT NULL --(DC2Type:guid)
@@ -140,7 +140,7 @@ class SqliteSchemaManagerTest extends TestCase
                 )',
             ],
             'Column "bar", select "bar" with no comment' => [
-                null,
+                '',
                 'bar',
                 'CREATE TABLE dummy_table (
                     id INTEGER NOT NULL,
@@ -162,7 +162,7 @@ class SqliteSchemaManagerTest extends TestCase
                 )',
             ],
             'Column "bar", select "baz" with no comment' => [
-                null,
+                '',
                 'baz',
                 'CREATE TABLE dummy_table (
                     id INTEGER NOT NULL,
@@ -185,7 +185,7 @@ class SqliteSchemaManagerTest extends TestCase
             ],
 
             'Column "bar#", select "bar#" with no comment' => [
-                null,
+                '',
                 'bar#',
                 'CREATE TABLE dummy_table (
                     id INTEGER NOT NULL,
@@ -207,7 +207,7 @@ class SqliteSchemaManagerTest extends TestCase
                 )',
             ],
             'Column "bar#", select "baz" with no comment' => [
-                null,
+                '',
                 'baz',
                 'CREATE TABLE dummy_table (
                     id INTEGER NOT NULL,
@@ -230,7 +230,7 @@ class SqliteSchemaManagerTest extends TestCase
             ],
 
             'Column "bar/", select "bar/" with no comment' => [
-                null,
+                '',
                 'bar/',
                 'CREATE TABLE dummy_table (
                     id INTEGER NOT NULL,
@@ -252,7 +252,7 @@ class SqliteSchemaManagerTest extends TestCase
                 )',
             ],
             'Column "bar/", select "baz" with no comment' => [
-                null,
+                '',
                 'baz',
                 'CREATE TABLE dummy_table (
                     id INTEGER NOT NULL,

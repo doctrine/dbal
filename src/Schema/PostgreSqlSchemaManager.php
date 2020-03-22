@@ -463,10 +463,11 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             'fixed'         => $fixed,
             'unsigned'      => false,
             'autoincrement' => $autoincrement,
-            'comment'       => isset($tableColumn['comment']) && $tableColumn['comment'] !== ''
-                ? $tableColumn['comment']
-                : null,
         ];
+
+        if (isset($tableColumn['comment'])) {
+            $options['comment'] = $tableColumn['comment'];
+        }
 
         $column = new Column($tableColumn['field'], Type::getType($type), $options);
 

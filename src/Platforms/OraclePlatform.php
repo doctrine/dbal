@@ -701,7 +701,7 @@ SQL
             $fields[] = $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
             $comment  = $this->getColumnComment($column);
 
-            if ($comment === null || $comment === '') {
+            if ($comment === '') {
                 continue;
             }
 
