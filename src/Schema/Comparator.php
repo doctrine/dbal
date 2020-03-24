@@ -20,6 +20,17 @@ use function strtolower;
  */
 class Comparator
 {
+    public const DETECT_COLUMN_RENAMINGS = 0b0001;
+    public const DETECT_INDEX_RENAMINGS  = 0b0010;
+
+    /** @var int */
+    private $flags;
+
+    public function __construct(int $flags = self::DETECT_COLUMN_RENAMINGS | self::DETECT_INDEX_RENAMINGS)
+    {
+        $this->flags = $flags;
+    }
+
     /**
      * @return SchemaDiff
      */
@@ -227,7 +238,9 @@ class Comparator
             $changes++;
         }
 
-        $this->detectColumnRenamings($tableDifferences);
+        if ($this->flags & self::DETECT_COLUMN_RENAMINGS) {
+            $this->detectColumnRenamings($tableDifferences);
+        }
 
         $table1Indexes = $table1->getIndexes();
         $table2Indexes = $table2->getIndexes();
@@ -264,7 +277,9 @@ class Comparator
             $changes++;
         }
 
-        $this->detectIndexRenamings($tableDifferences);
+        if ($this->flags & self::DETECT_INDEX_RENAMINGS) {
+            $this->detectIndexRenamings($tableDifferences);
+        }
 
         $fromFkeys = $table1->getForeignKeys();
         $toFkeys   = $table2->getForeignKeys();

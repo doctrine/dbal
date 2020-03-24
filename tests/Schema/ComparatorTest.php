@@ -729,6 +729,24 @@ class ComparatorTest extends TestCase
         self::assertEquals('bar', $tableDiff->renamedColumns['foo']->getName());
     }
 
+    public function testDetectColumnIsNotRenamedIfDisabled() : void
+    {
+        $tableA = new Table('foo');
+        $tableA->addColumn('foo', 'integer');
+
+        $tableB = new Table('foo');
+        $tableB->addColumn('bar', 'integer');
+
+        $c         = new Comparator(Comparator::DETECT_INDEX_RENAMINGS);
+        $tableDiff = $c->diffTable($tableA, $tableB);
+
+        self::assertCount(1, $tableDiff->addedColumns);
+        self::assertCount(1, $tableDiff->removedColumns);
+        self::assertCount(0, $tableDiff->renamedColumns);
+        self::assertArrayHasKey('bar', $tableDiff->addedColumns);
+        self::assertArrayHasKey('foo', $tableDiff->removedColumns);
+    }
+
     /**
      * You can easily have ambiguities in the column renaming. If these
      * are detected no renaming should take place, instead adding and dropping
@@ -777,6 +795,30 @@ class ComparatorTest extends TestCase
         self::assertCount(0, $tableDiff->removedIndexes);
         self::assertArrayHasKey('idx_foo', $tableDiff->renamedIndexes);
         self::assertEquals('idx_bar', $tableDiff->renamedIndexes['idx_foo']->getName());
+    }
+
+    /**
+     * @group DBAL-1063
+     */
+    public function testDetectIndexIsNotRenamedIfDisabled() : void
+    {
+        $table1 = new Table('foo');
+        $table1->addColumn('foo', 'integer');
+
+        $table2 = clone $table1;
+
+        $table1->addIndex(['foo'], 'idx_foo');
+
+        $table2->addIndex(['foo'], 'idx_bar');
+
+        $comparator = new Comparator(Comparator::DETECT_COLUMN_RENAMINGS);
+        $tableDiff  = $comparator->diffTable($table1, $table2);
+
+        self::assertCount(1, $tableDiff->addedIndexes);
+        self::assertCount(1, $tableDiff->removedIndexes);
+        self::assertCount(0, $tableDiff->renamedIndexes);
+        self::assertArrayHasKey('idx_bar', $tableDiff->addedIndexes);
+        self::assertArrayHasKey('idx_foo', $tableDiff->removedIndexes);
     }
 
     /**

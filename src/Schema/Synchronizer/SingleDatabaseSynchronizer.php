@@ -17,10 +17,14 @@ class SingleDatabaseSynchronizer extends AbstractSchemaSynchronizer
     /** @var AbstractPlatform */
     private $platform;
 
-    public function __construct(Connection $conn)
+    /** @var Comparator */
+    private $comparator;
+
+    public function __construct(Connection $conn, ?Comparator $comparator = null)
     {
         parent::__construct($conn);
-        $this->platform = $conn->getDatabasePlatform();
+        $this->platform   = $conn->getDatabasePlatform();
+        $this->comparator = $comparator ?? new Comparator();
     }
 
     /**
@@ -36,11 +40,10 @@ class SingleDatabaseSynchronizer extends AbstractSchemaSynchronizer
      */
     public function getUpdateSchema(Schema $toSchema, $noDrops = false)
     {
-        $comparator = new Comparator();
-        $sm         = $this->conn->getSchemaManager();
+        $sm = $this->conn->getSchemaManager();
 
         $fromSchema = $sm->createSchema();
-        $schemaDiff = $comparator->compare($fromSchema, $toSchema);
+        $schemaDiff = $this->comparator->compare($fromSchema, $toSchema);
 
         if ($noDrops) {
             return $schemaDiff->toSaveSql($this->platform);
