@@ -826,7 +826,13 @@ SQL
                     unset($columnInfo['notnull']);
                 }
 
-                $fields[] = $column->getQuotedName($this) . $this->getColumnDeclarationSQL('', $columnInfo);
+                if($columnDiff->hasChanged('type')) {
+                    $columnDeclaration = $this->getColumnDeclarationSQL('', $columnInfo);
+                }else{
+                    $columnDeclaration = $this->getColumnDeclarationWithoutTypeSQL('', $columnInfo);
+                }
+
+                $fields[] = $column->getQuotedName($this) . $columnDeclaration;
             }
 
             if (! $columnHasChangedComment) {
@@ -922,6 +928,37 @@ SQL
         return $name . ' ' . $columnDef;
     }
 
+    /**
+     * This function is a copy of getColumnDeclarationSQL.
+     * The only difference is that the data type is not in the column declaration.
+     * This declaration is particularly useful when some property of the column changes
+     *  (e.g. nullable, default value), but the data type does not change.
+     */
+    public function getColumnDeclarationWithoutTypeSQL($name, array $field)
+    {
+        if (isset($field['columnDefinition'])) {
+            $columnDef = $this->getCustomTypeDeclarationSQL($field);
+        } else {
+            $default = $this->getDefaultValueDeclarationSQL($field);
+
+            $notnull = '';
+
+            if (isset($field['notnull'])) {
+                $notnull = $field['notnull'] ? ' NOT NULL' : ' NULL';
+            }
+
+            $unique = isset($field['unique']) && $field['unique'] ?
+                ' ' . $this->getUniqueFieldDeclarationSQL() : '';
+
+            $check = isset($field['check']) && $field['check'] ?
+                ' ' . $field['check'] : '';
+
+            $columnDef = $default . $notnull . $unique . $check;
+        }
+
+        return $name . ' ' . $columnDef;
+    }
+    
     /**
      * {@inheritdoc}
      */
