@@ -354,6 +354,25 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertNull($comparator->diffTable($offlineTable, $onlineTable));
     }
 
+
+    public function testListTableContainingUppercaseLetters() : void
+    {
+        $offlineTable = new Schema\Table('"public"."user_Users"');
+        $offlineTable->addColumn('id', 'integer');
+        $offlineTable->addColumn('username', 'string');
+        $offlineTable->addColumn('fk', 'integer');
+        $offlineTable->setPrimaryKey(['id']);
+        $offlineTable->addForeignKeyConstraint($offlineTable, ['fk'], ['id']);
+
+        $this->schemaManager->dropAndCreateTable($offlineTable);
+
+        $onlineTable = $this->schemaManager->listTableDetails('public.user_Users');
+
+        $comparator = new Schema\Comparator();
+
+        self::assertNull($comparator->diffTable($offlineTable, $onlineTable));
+    }
+
     public function testListTableDetailsWhenCurrentSchemaNameQuoted() : void
     {
         $this->connection->exec('CREATE SCHEMA "001_test"');

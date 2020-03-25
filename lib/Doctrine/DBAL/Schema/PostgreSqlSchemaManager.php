@@ -495,7 +495,8 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
 
         $platform = $this->_platform;
         assert($platform instanceof PostgreSQL94Platform);
-        $sql = $platform->getListTableMetadataSQL($tableName);
+        $tableIdentifier = new Identifier($tableName, true);
+        $sql = $platform->getListTableMetadataSQL($tableIdentifier->getQuotedName($platform));
 
         $tableOptions = $this->_conn->fetchAssoc($sql);
 
