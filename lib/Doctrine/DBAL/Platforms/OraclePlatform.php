@@ -934,7 +934,7 @@ SQL
      * This declaration is particularly useful when some property of the column changes
      *  (e.g. nullable, default value), but the data type does not change.
      */
-    public function getColumnDeclarationWithoutTypeSQL($name, array $field)
+    private function getColumnDeclarationWithoutTypeSQL($name, array $field)
     {
         if (isset($field['columnDefinition'])) {
             $columnDef = $this->getCustomTypeDeclarationSQL($field);
