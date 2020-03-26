@@ -56,10 +56,10 @@
         "sort-packages": true
     },
     "autoload": {
-        "psr-4": { "Doctrine\\DBAL\\": "lib/Doctrine/DBAL" }
+        "psr-4": { "Doctrine\\DBAL\\": "src" }
     },
     "autoload-dev": {
-        "psr-4": { "Doctrine\\Tests\\": "tests/Doctrine/Tests" }
+        "psr-4": { "Doctrine\\DBAL\\Tests\\": "tests" }
     },
     "extra": {
         "branch-alias": {

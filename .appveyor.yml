@@ -127,9 +127,9 @@ before_test:
 test_script:
   - ps: >-
       if ($env:db_version) {
-        $env:phpunit_config = "tests\appveyor\$($env:db).$($env:db_version).$($env:driver).appveyor.xml"
+        $env:phpunit_config = "ci\appveyor\$($env:db).$($env:db_version).$($env:driver).appveyor.xml"
       } else {
-        $env:phpunit_config = "tests\appveyor\$($env:db).$($env:driver).appveyor.xml"
+        $env:phpunit_config = "ci\appveyor\$($env:db).$($env:driver).appveyor.xml"
       }
 
       if ($env:coverage -eq "yes") {
