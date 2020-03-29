@@ -168,11 +168,11 @@ class SqlitePlatform extends AbstractPlatform
     {
         switch ($level) {
             case TransactionIsolationLevel::READ_UNCOMMITTED:
-                return 0;
+                return '0';
             case TransactionIsolationLevel::READ_COMMITTED:
             case TransactionIsolationLevel::REPEATABLE_READ:
             case TransactionIsolationLevel::SERIALIZABLE:
-                return 1;
+                return '1';
             default:
                 return parent::_getTransactionIsolationLevelSQL($level);
         }
