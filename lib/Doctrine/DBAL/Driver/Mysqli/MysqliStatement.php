@@ -127,7 +127,8 @@ class MysqliStatement implements IteratorAggregate, Statement
 
             $placeholderPositionInShortenedQuery = $placeholderPosition - $numberOfCharsQueryIsShortenedBy;
             $placeholderNameLength               = strlen($placeholderName);
-            $query                               = substr($query, 0, $placeholderPositionInShortenedQuery) . '?' . substr($query, ($placeholderPositionInShortenedQuery + $placeholderNameLength + 1));
+            $query                               = substr($query, 0, $placeholderPositionInShortenedQuery) . '?' . 
+                substr($query, $placeholderPositionInShortenedQuery + $placeholderNameLength + 1);
             $numberOfCharsQueryIsShortenedBy    += $placeholderNameLength;
         }
 
