@@ -517,7 +517,7 @@ class MysqliStatement implements IteratorAggregate, Statement
         return new StatementIterator($this);
     }
 
-    private function initializeColumnNamesIfNeeded()
+    private function initializeColumnNamesIfNeeded() : void
     {
         if ($this->_columnNames !== null) {
             return;
