@@ -111,10 +111,8 @@ class MysqliStatement implements IteratorAggregate, Statement
      * Converts named placeholders (":parameter") into positional ones ("?"), as MySQL does not support them.
      *
      * @param string $query The query string to create a prepared statement of.
-     *
-     * @return string
      */
-    private function convertNamedToPositionalPlaceholders($query)
+    private function convertNamedToPositionalPlaceholders(string $query) : string
     {
         $numberOfCharsQueryIsShortenedBy = 0;
         $placeholderNumber               = 0;
