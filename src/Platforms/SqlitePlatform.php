@@ -55,7 +55,9 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     * @param string $type
+     *
+     * @return string
      */
     public function getNowExpression($type = 'timestamp')
     {
@@ -166,11 +168,11 @@ class SqlitePlatform extends AbstractPlatform
     {
         switch ($level) {
             case TransactionIsolationLevel::READ_UNCOMMITTED:
-                return 0;
+                return '0';
             case TransactionIsolationLevel::READ_COMMITTED:
             case TransactionIsolationLevel::REPEATABLE_READ:
             case TransactionIsolationLevel::SERIALIZABLE:
-                return 1;
+                return '1';
             default:
                 return parent::_getTransactionIsolationLevelSQL($level);
         }
@@ -222,7 +224,9 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     * @param array<string, mixed> $field
+     *
+     * @return string
      */
     public function getTinyIntTypeDeclarationSql(array $field)
     {
@@ -248,7 +252,9 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     * @param array<string, mixed> $field
+     *
+     * @return string
      */
     public function getMediumIntTypeDeclarationSql(array $field)
     {
@@ -600,7 +606,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getForUpdateSql()
+    public function getForUpdateSQL()
     {
         return '';
     }
@@ -810,7 +816,10 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     * @param string      $table
+     * @param string|null $database
+     *
+     * @return string
      */
     public function getListTableForeignKeysSQL($table, $database = null)
     {

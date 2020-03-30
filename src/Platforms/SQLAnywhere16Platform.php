@@ -629,15 +629,12 @@ class SQLAnywhere16Platform extends AbstractPlatform
             case self::FOREIGN_KEY_MATCH_SIMPLE:
                 return 'SIMPLE';
 
-                break;
             case self::FOREIGN_KEY_MATCH_FULL:
                 return 'FULL';
 
-                break;
             case self::FOREIGN_KEY_MATCH_SIMPLE_UNIQUE:
                 return 'UNIQUE SIMPLE';
 
-                break;
             case self::FOREIGN_KEY_MATCH_FULL_UNIQUE:
                 return 'UNIQUE FULL';
             default:
@@ -1369,13 +1366,13 @@ SQL
     {
         switch ($level) {
             case TransactionIsolationLevel::READ_UNCOMMITTED:
-                return 0;
+                return '0';
             case TransactionIsolationLevel::READ_COMMITTED:
-                return 1;
+                return '1';
             case TransactionIsolationLevel::REPEATABLE_READ:
-                return 2;
+                return '2';
             case TransactionIsolationLevel::SERIALIZABLE:
-                return 3;
+                return '3';
             default:
                 throw new InvalidArgumentException('Invalid isolation level:' . $level);
         }

@@ -150,6 +150,8 @@ class SQLSrvConnection implements ServerInfoAwareConnection
         if (! sqlsrv_begin_transaction($this->conn)) {
             throw SQLSrvException::fromSqlSrvErrors();
         }
+
+        return true;
     }
 
     /**
@@ -160,6 +162,8 @@ class SQLSrvConnection implements ServerInfoAwareConnection
         if (! sqlsrv_commit($this->conn)) {
             throw SQLSrvException::fromSqlSrvErrors();
         }
+
+        return true;
     }
 
     /**
@@ -170,6 +174,8 @@ class SQLSrvConnection implements ServerInfoAwareConnection
         if (! sqlsrv_rollback($this->conn)) {
             throw SQLSrvException::fromSqlSrvErrors();
         }
+
+        return true;
     }
 
     /**

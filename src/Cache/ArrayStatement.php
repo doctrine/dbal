@@ -45,6 +45,8 @@ class ArrayStatement implements IteratorAggregate, ResultStatement
     public function closeCursor()
     {
         unset($this->data);
+
+        return true;
     }
 
     /**
