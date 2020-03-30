@@ -63,6 +63,8 @@ class ConsoleRunner
 
     /**
      * Prints the instructions to create a configuration file
+     *
+     * @return void
      */
     public static function printCliConfigTemplate()
     {

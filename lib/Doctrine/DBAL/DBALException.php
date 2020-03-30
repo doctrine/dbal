@@ -157,7 +157,7 @@ class DBALException extends Exception
     /**
      * @return self
      */
-    private static function wrapException(Driver $driver, Throwable $driverEx, $msg)
+    private static function wrapException(Driver $driver, Throwable $driverEx, string $msg)
     {
         if ($driverEx instanceof DriverException) {
             return $driverEx;
