@@ -127,7 +127,7 @@ class MysqliStatement implements IteratorAggregate, Statement
 
             $placeholderPositionInShortenedQuery = $placeholderPosition - $numberOfCharsQueryIsShortenedBy;
             $placeholderNameLength               = strlen($placeholderName);
-            $query                               = substr($query, 0, $placeholderPositionInShortenedQuery) . '?' . 
+            $query                               = substr($query, 0, $placeholderPositionInShortenedQuery) . '?' .
                 substr($query, $placeholderPositionInShortenedQuery + $placeholderNameLength + 1);
             $numberOfCharsQueryIsShortenedBy    += $placeholderNameLength;
         }
@@ -241,7 +241,7 @@ class MysqliStatement implements IteratorAggregate, Statement
      *
      * @return mixed[]|null more specific: array<int, mixed>, I just don't know an elegant way to convince phpstan
      */
-    private function convertNamedToPositionalParamsIfNeeded(?array $params = null) : array
+    private function convertNamedToPositionalParamsIfNeeded(?array $params = null) : ?array
     {
         if ($params === null) {
             return $params;
