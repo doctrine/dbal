@@ -243,7 +243,7 @@ class MysqliStatement implements IteratorAggregate, Statement
      */
     private function convertNamedToPositionalParamsIfNeeded(?array $params = null) : array
     {
-        if ($params === null || count($params) === 0) {
+        if ($params === null) {
             return $params;
         }
 
