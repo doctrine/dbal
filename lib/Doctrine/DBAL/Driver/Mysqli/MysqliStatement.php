@@ -264,10 +264,8 @@ class MysqliStatement implements IteratorAggregate, Statement
 
     /**
      * @param mixed[] $array
-     *
-     * @return bool
      */
-    private function arrayHasOnlyIntegerKeys(array $array)
+    private function arrayHasOnlyIntegerKeys(array $array) : bool
     {
         return count(array_filter(array_keys($array), 'is_int')) === count($array);
     }
