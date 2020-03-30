@@ -35,11 +35,9 @@ class OraclePlatform extends AbstractPlatform
      *
      * @link http://docs.oracle.com/cd/B19306_01/server.102/b14200/sql_elements008.htm
      *
-     * @param string $identifier
-     *
      * @throws DBALException
      */
-    public static function assertValidIdentifier($identifier)
+    public static function assertValidIdentifier(string $identifier) : void
     {
         if (! preg_match('(^(([a-zA-Z]{1}[a-zA-Z0-9_$#]{0,})|("[^"]+"))$)', $identifier)) {
             throw new DBALException('Invalid Oracle identifier');
@@ -114,7 +112,6 @@ class OraclePlatform extends AbstractPlatform
                 }
 
                 return 'ADD_MONTHS(' . $date . ', ' . $operator . $interval . ')';
-
             default:
                 $calculationClause = '';
 
@@ -194,10 +191,8 @@ class OraclePlatform extends AbstractPlatform
 
     /**
      * Cache definition for sequences
-     *
-     * @return string
      */
-    private function getSequenceCacheSQL(Sequence $sequence)
+    private function getSequenceCacheSQL(Sequence $sequence) : string
     {
         if ($sequence->getCache() === 0) {
             return ' NOCACHE';
@@ -476,13 +471,9 @@ class OraclePlatform extends AbstractPlatform
     }
 
     /**
-     * @param string $name
-     * @param string $table
-     * @param int    $start
-     *
      * @return string[]
      */
-    public function getCreateAutoincrementSql($name, $table, $start = 1)
+    public function getCreateAutoincrementSql(string $name, string $table, int $start = 1) : array
     {
         $tableIdentifier   = $this->normalizeIdentifier($table);
         $quotedTableName   = $tableIdentifier->getQuotedName($this);
@@ -546,7 +537,7 @@ END;';
      *
      * @return string[]
      */
-    public function getDropAutoincrementSql($table)
+    public function getDropAutoincrementSql(string $table) : array
     {
         $table                       = $this->normalizeIdentifier($table);
         $autoincrementIdentifierName = $this->getAutoincrementIdentifierName($table);
@@ -572,7 +563,7 @@ END;';
      *
      * @return Identifier The normalized identifier.
      */
-    private function normalizeIdentifier($name)
+    private function normalizeIdentifier(string $name) : Identifier
     {
         $identifier = new Identifier($name);
 
@@ -586,10 +577,8 @@ END;';
      * if the given table name is quoted by intention.
      *
      * @param Identifier $table The table identifier to return the autoincrement primary key identifier name for.
-     *
-     * @return string
      */
-    private function getAutoincrementIdentifierName(Identifier $table)
+    private function getAutoincrementIdentifierName(Identifier $table) : string
     {
         $identifierName = $table->getName() . '_AI_PK';
 
@@ -743,11 +732,9 @@ SQL
                 // NO ACTION cannot be declared explicitly,
                 // therefore returning empty string to indicate to OMIT the referential clause.
                 return '';
-
             case 'CASCADE':
             case 'SET NULL':
                 return $action;
-
             default:
                 // SET DEFAULT is not supported, throw exception instead.
                 throw new InvalidArgumentException('Invalid foreign key action: ' . $action);
@@ -826,9 +813,9 @@ SQL
                     unset($columnInfo['notnull']);
                 }
 
-                if($columnDiff->hasChanged('type')) {
+                if ($columnDiff->hasChanged('type')) {
                     $columnDeclaration = $this->getColumnDeclarationSQL('', $columnInfo);
-                }else{
+                } else {
                     $columnDeclaration = $this->getColumnDeclarationWithoutTypeSQL('', $columnInfo);
                 }
 
@@ -932,9 +919,41 @@ SQL
      * This function is a copy of getColumnDeclarationSQL.
      * The only difference is that the data type is not in the column declaration.
      * This declaration is particularly useful when some property of the column changes
-     *  (e.g. nullable, default value), but the data type does not change.
+     * (e.g. nullable, default value), but the data type does not change.
+     *
+     * Obtains DBMS specific SQL code portion needed to declare a generic type
+     * field to be used in statements like CREATE TABLE.
+     *
+     * @param string  $name  The name the field to be declared.
+     * @param mixed[] $field An associative array with the name of the properties
+     *                       of the field being declared as array indexes. Currently, the types
+     *                       of supported field properties are as follows:
+     *
+     *      length
+     *          Integer value that determines the maximum length of the text
+     *          field. If this argument is missing the field should be
+     *          declared to have the longest length allowed by the DBMS.
+     *
+     *      default
+     *          Text value to be used as default for this field.
+     *
+     *      notnull
+     *          Boolean flag that indicates whether this field is constrained
+     *          to not be set to null.
+     *      charset
+     *          Text value with the default CHARACTER SET for this field.
+     *      collation
+     *          Text value with the default COLLATION for this field.
+     *      unique
+     *          unique constraint
+     *      check
+     *          column check constraint
+     *      columnDefinition
+     *          a string that defines the complete column
+     *
+     * @return string DBMS specific SQL code portion that should be used to declare the column.
      */
-    private function getColumnDeclarationWithoutTypeSQL($name, array $field)
+    private function getColumnDeclarationWithoutTypeSQL(string $name, array $field) : string
     {
         if (isset($field['columnDefinition'])) {
             $columnDef = $this->getCustomTypeDeclarationSQL($field);
@@ -958,7 +977,7 @@ SQL
 
         return $name . ' ' . $columnDef;
     }
-    
+
     /**
      * {@inheritdoc}
      */
