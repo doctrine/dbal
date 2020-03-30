@@ -737,7 +737,7 @@ class ComparatorTest extends TestCase
         $tableB = new Table('foo');
         $tableB->addColumn('bar', 'integer');
 
-        $c         = new Comparator(Comparator::DETECT_INDEX_RENAMINGS);
+        $c         = new Comparator(Comparator::SKIP_COLUMN_RENAMING_DETECTION);
         $tableDiff = $c->diffTable($tableA, $tableB);
 
         self::assertCount(1, $tableDiff->addedColumns);
@@ -811,7 +811,7 @@ class ComparatorTest extends TestCase
 
         $table2->addIndex(['foo'], 'idx_bar');
 
-        $comparator = new Comparator(Comparator::DETECT_COLUMN_RENAMINGS);
+        $comparator = new Comparator(Comparator::SKIP_INDEX_RENAMING_DETECTION);
         $tableDiff  = $comparator->diffTable($table1, $table2);
 
         self::assertCount(1, $tableDiff->addedIndexes);

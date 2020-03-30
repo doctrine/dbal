@@ -20,13 +20,13 @@ use function strtolower;
  */
 class Comparator
 {
-    public const DETECT_COLUMN_RENAMINGS = 0b0001;
-    public const DETECT_INDEX_RENAMINGS  = 0b0010;
+    public const SKIP_COLUMN_RENAMING_DETECTION = 0b0001;
+    public const SKIP_INDEX_RENAMING_DETECTION  = 0b0010;
 
     /** @var int */
     private $flags;
 
-    public function __construct(int $flags = self::DETECT_COLUMN_RENAMINGS | self::DETECT_INDEX_RENAMINGS)
+    public function __construct(int $flags = 0)
     {
         $this->flags = $flags;
     }
@@ -238,9 +238,7 @@ class Comparator
             $changes++;
         }
 
-        if ($this->flags & self::DETECT_COLUMN_RENAMINGS) {
-            $this->detectColumnRenamings($tableDifferences);
-        }
+        $this->detectColumnRenamings($tableDifferences);
 
         $table1Indexes = $table1->getIndexes();
         $table2Indexes = $table2->getIndexes();
@@ -277,9 +275,7 @@ class Comparator
             $changes++;
         }
 
-        if ($this->flags & self::DETECT_INDEX_RENAMINGS) {
-            $this->detectIndexRenamings($tableDifferences);
-        }
+        $this->detectIndexRenamings($tableDifferences);
 
         $fromFkeys = $table1->getForeignKeys();
         $toFkeys   = $table2->getForeignKeys();
@@ -319,6 +315,10 @@ class Comparator
      */
     private function detectColumnRenamings(TableDiff $tableDifferences)
     {
+        if ($this->flags & self::SKIP_COLUMN_RENAMING_DETECTION) {
+            return;
+        }
+
         $renameCandidates = [];
         foreach ($tableDifferences->addedColumns as $addedColumnName => $addedColumn) {
             foreach ($tableDifferences->removedColumns as $removedColumn) {
@@ -359,6 +359,10 @@ class Comparator
      */
     private function detectIndexRenamings(TableDiff $tableDifferences)
     {
+        if ($this->flags & self::SKIP_INDEX_RENAMING_DETECTION) {
+            return;
+        }
+
         $renameCandidates = [];
 
         // Gather possible rename candidates by comparing each added and removed index based on semantics.
