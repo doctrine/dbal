@@ -399,7 +399,10 @@ SQL;
         $sql      = $platform->getListTableCommentsSQL($tableName);
 
         $tableOptions = $this->_conn->fetchAssoc($sql);
-        $table->addOption('comment', $tableOptions['COMMENTS']);
+
+        if ($tableOptions !== false) {
+            $table->addOption('comment', $tableOptions['COMMENTS']);
+        }
 
         return $table;
     }
