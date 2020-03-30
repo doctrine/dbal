@@ -61,7 +61,7 @@ class MysqliStatement implements IteratorAggregate, Statement
     protected $types;
 
     /** @var array<string, array<int, int>> maps parameter names to their placeholder number(s). */
-    protected $placeholderNamesToNumbers = [];
+    private $placeholderNamesToNumbers = [];
 
     /**
      * Contains ref values for bindValue().
