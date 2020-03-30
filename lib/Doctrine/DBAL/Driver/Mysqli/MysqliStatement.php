@@ -241,7 +241,7 @@ class MysqliStatement implements IteratorAggregate, Statement
      *
      * @return mixed[]|null more specific: array<int, mixed>, I just don't know an elegant way to convince phpstan
      */
-    private function convertNamedToPositionalParamsIfNeeded(?array $params = null)
+    private function convertNamedToPositionalParamsIfNeeded(?array $params = null) : array
     {
         if ($params === null || count($params) === 0) {
             return $params;
