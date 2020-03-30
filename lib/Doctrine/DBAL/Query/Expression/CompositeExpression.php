@@ -49,11 +49,19 @@ class CompositeExpression implements Countable
         $this->addMultiple($parts);
     }
 
+    /**
+     * @param self|string $part
+     * @param self|string ...$parts
+     */
     public static function and($part, ...$parts) : self
     {
         return new self(self::TYPE_AND, array_merge([$part], $parts));
     }
 
+    /**
+     * @param self|string $part
+     * @param self|string ...$parts
+     */
     public static function or($part, ...$parts) : self
     {
         return new self(self::TYPE_OR, array_merge([$part], $parts));
