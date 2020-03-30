@@ -482,7 +482,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
             ['notnull']
         );
 
-        $expectedSql = ["ALTER TABLE mytable MODIFY (foo VARCHAR2(255) DEFAULT 'bla', baz VARCHAR2(255) DEFAULT 'bla' NOT NULL, metar VARCHAR2(2000) DEFAULT NULL NULL)"];
+        $expectedSql = ["ALTER TABLE mytable MODIFY (foo VARCHAR2(255) DEFAULT 'bla', baz VARCHAR2(255) DEFAULT 'bla' NOT NULL, metar DEFAULT NULL NULL)"];
         self::assertEquals($expectedSql, $this->platform->getAlterTableSQL($tableDiff));
     }
 
@@ -732,7 +732,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
             'ALTER TABLE "foo" DROP CONSTRAINT fk1',
             'ALTER TABLE "foo" DROP CONSTRAINT fk2',
             'ALTER TABLE "foo" ADD (bloo NUMBER(10) NOT NULL)',
-            'ALTER TABLE "foo" MODIFY (bar NUMBER(10) DEFAULT NULL NULL)',
+            'ALTER TABLE "foo" MODIFY (bar DEFAULT NULL NULL)',
             'ALTER TABLE "foo" RENAME COLUMN id TO war',
             'ALTER TABLE "foo" DROP (baz)',
             'ALTER TABLE "foo" RENAME TO "table"',
@@ -910,7 +910,7 @@ SQL
      */
     protected function getAlterStringToFixedStringSQL() : array
     {
-        return ['ALTER TABLE mytable MODIFY (name CHAR(2) DEFAULT NULL)'];
+        return ['ALTER TABLE mytable MODIFY (name DEFAULT NULL)'];
     }
 
     /**

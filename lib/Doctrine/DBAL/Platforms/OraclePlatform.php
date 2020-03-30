@@ -975,7 +975,7 @@ SQL
             $columnDef = $default . $notnull . $unique . $check;
         }
 
-        return $name . ' ' . $columnDef;
+        return $name . $columnDef;
     }
 
     /**
