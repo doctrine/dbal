@@ -85,7 +85,13 @@ class PDOStatement extends \PDOStatement implements Statement
     }
 
     /**
-     * {@inheritdoc}
+     * @param mixed    $column
+     * @param mixed    $variable
+     * @param int      $type
+     * @param int|null $length
+     * @param mixed    $driverOptions
+     *
+     * @return bool
      */
     public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null, $driverOptions = null)
     {

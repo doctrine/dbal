@@ -57,7 +57,9 @@ class OraclePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     * @param string $type
+     *
+     * @return string
      */
     public function getNowExpression($type = 'timestamp')
     {

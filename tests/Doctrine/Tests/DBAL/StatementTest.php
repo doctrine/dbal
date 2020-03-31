@@ -7,6 +7,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
+use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Logging\SQLLogger;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Statement;
@@ -28,7 +29,7 @@ class StatementTest extends DbalTestCase
     protected function setUp() : void
     {
         $this->pdoStatement = $this->getMockBuilder(PDOStatement::class)
-            ->onlyMethods(['execute', 'bindParam', 'bindValue'])
+            ->onlyMethods(['execute', 'bindParam', 'bindValue', 'fetchAll'])
             ->getMock();
 
         $driverConnection = $this->createMock(DriverConnection::class);
@@ -149,5 +150,16 @@ class StatementTest extends DbalTestCase
         $this->expectException(DBALException::class);
 
         $statement->execute();
+    }
+
+    public function testPDOCustomClassConstructorArgs() : void
+    {
+        $statement = new Statement('', $this->conn);
+
+        $this->pdoStatement->expects($this->once())
+            ->method('fetchAll')
+            ->with(self::equalTo(FetchMode::CUSTOM_OBJECT), self::equalTo('Example'), self::equalTo(['arg1']));
+
+        $statement->fetchAll(FetchMode::CUSTOM_OBJECT, 'Example', ['arg1']);
     }
 }

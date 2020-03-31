@@ -53,7 +53,10 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
     }
 
     /**
-     * {@inheritdoc}
+     * @param string          $prepareString
+     * @param array<int, int> $driverOptions
+     *
+     * @return Statement
      */
     public function prepare($prepareString, $driverOptions = [])
     {
