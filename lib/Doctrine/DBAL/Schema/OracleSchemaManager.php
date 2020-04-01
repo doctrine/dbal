@@ -368,9 +368,10 @@ SQL;
 
         $tableOptions = $this->_conn->fetchAssoc($sql);
         
-        $tableOptions = array_change_key_case($tableOptions, CASE_LOWER);
-
-        $table->addOption('comment', $tableOptions['comments']);
+        if ($tableOptions !== false) {
+            $tableOptionsLowerKeys = array_change_key_case($tableOptions, CASE_LOWER);
+            $table->addOption('comment', $tableOptionsLowerKeys['comments']);
+        }
 
         return $table;
     }
