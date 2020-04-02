@@ -126,10 +126,7 @@ class MasterSlaveConnection extends Connection
         return $this->_conn !== null && $this->_conn === $this->connections['master'];
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function connect($connectionName = null) : void
+    public function connect(?string $connectionName = null) : void
     {
         $requestedConnectionChange = ($connectionName !== null);
         $connectionName            = $connectionName ?: 'slave';
