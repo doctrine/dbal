@@ -66,8 +66,6 @@ class ConnectionTest extends FunctionalTestCase
                 self::assertEquals(2, $this->connection->getTransactionNestingLevel());
 
                 throw new Exception();
-
-                $this->connection->commit(); // never reached
             } catch (Throwable $e) {
                 $this->connection->rollBack();
                 self::assertEquals(1, $this->connection->getTransactionNestingLevel());
@@ -139,8 +137,6 @@ class ConnectionTest extends FunctionalTestCase
                 self::assertEquals(2, $this->connection->getTransactionNestingLevel());
 
                 throw new Exception();
-
-                $this->connection->commit(); // never reached
             } catch (Throwable $e) {
                 $this->connection->rollBack();
                 self::assertEquals(1, $this->connection->getTransactionNestingLevel());
@@ -158,7 +154,6 @@ class ConnectionTest extends FunctionalTestCase
             $this->connection->commit(); // should not throw exception
         } catch (ConnectionException $e) {
             $this->fail('Transaction commit after failed nested transaction should not fail when using savepoints.');
-            $this->connection->rollBack();
         }
     }
 
@@ -228,8 +223,6 @@ class ConnectionTest extends FunctionalTestCase
             self::assertEquals(1, $this->connection->getTransactionNestingLevel());
 
             throw new Exception();
-
-            $this->connection->commit(); // never reached
         } catch (Throwable $e) {
             self::assertEquals(1, $this->connection->getTransactionNestingLevel());
             $this->connection->rollBack();
