@@ -78,7 +78,9 @@ class PDOStatement implements IteratorAggregate, Statement
     }
 
     /**
-     * {@inheritdoc}
+     * @param mixed $param
+     * @param mixed $variable
+     * @param mixed $driverOptions
      */
     public function bindParam($param, &$variable, int $type = ParameterType::STRING, ?int $length = null, $driverOptions = null) : void
     {

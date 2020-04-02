@@ -199,7 +199,10 @@ class DB2SchemaManager extends AbstractSchemaManager
         $sql = $platform->getListTableCommentsSQL($tableName);
 
         $tableOptions = $this->_conn->fetchAssoc($sql);
-        $table->addOption('comment', $tableOptions['REMARKS']);
+
+        if ($tableOptions !== false) {
+            $table->addOption('comment', $tableOptions['REMARKS']);
+        }
 
         return $table;
     }

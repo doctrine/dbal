@@ -48,9 +48,8 @@ class OracleSessionInit implements EventSubscriber
             return;
         }
 
-        array_change_key_case($this->_defaultSessionVars, CASE_UPPER);
         $vars = [];
-        foreach ($this->_defaultSessionVars as $option => $value) {
+        foreach (array_change_key_case($this->_defaultSessionVars, CASE_UPPER) as $option => $value) {
             if ($option === 'CURRENT_SCHEMA') {
                 $vars[] = $option . ' = ' . $value;
             } else {

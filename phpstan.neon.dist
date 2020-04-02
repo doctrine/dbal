@@ -6,6 +6,8 @@ parameters:
     autoload_files:
         - %currentWorkingDirectory%/tests/phpstan-polyfill.php
     reportUnmatchedIgnoredErrors: false
+    checkMissingIterableValueType: false
+    checkGenericClassInNonGenericObjectType: false
     ignoreErrors:
         # extension not available
         - '~^(Used )?(Function|Constant) sasql_\S+ not found\.\z~i'
@@ -27,6 +29,36 @@ parameters:
         -
             message: '~Parameter #3 \$type of method Doctrine\\DBAL\\Driver\\Statement::bindValue\(\) expects int, string given\.~'
             path: %currentWorkingDirectory%/tests/Functional/DataAccessTest.php
+
+        # https://github.com/JetBrains/phpstorm-stubs/pull/766
+        - '~^Method Doctrine\\DBAL\\Driver\\Mysqli\\MysqliStatement::_fetch\(\) never returns null so it can be removed from the return typehint\.$~'
+
+        # The ReflectionException in the case when the class does not exist is acceptable and does not need to be handled
+        - '~^Parameter #1 \$argument of class ReflectionClass constructor expects class-string<T of object>\|T of object, string given\.$~'
+
+        # https://github.com/phpstan/phpstan/issues/3132
+        -
+            message: '~^Call to function in_array\(\) with arguments Doctrine\\DBAL\\Schema\\Column, array<string> and true will always evaluate to false\.$~'
+            path: %currentWorkingDirectory%/src/Schema/Table.php
+
+        # https://github.com/phpstan/phpstan/issues/3133
+        -
+            message: '~^Cannot cast array<string>\|bool\|string\|null to int\.$~'
+            path: %currentWorkingDirectory%/src/Tools/Console/Command/RunSqlCommand.php
+
+        # Temporaily suppressed during up-merging an upgrade PHPStan 0.12
+        - '~^Unable to resolve the template type ExpectedType in call to method static method PHPUnit\\Framework\\Assert::assertInstanceOf\(\)$~'
+        - '~^Unable to resolve the template type RealInstanceType in call to method PHPUnit\\Framework\\TestCase::getMockClass\(\)$~'
+
+        # Temporaily suppressed during up-merging an upgrade PHPStan 0.12
+        -
+            message: '~^Parameter #1 \$expected of static method PHPUnit\\Framework\\Assert::assertInstanceOf\(\) expects class-string<object>, string given\.$~'
+            path: %currentWorkingDirectory%/tests/Driver/AbstractDriverTest.php
+
+        # Temporaily suppressed during up-merging an upgrade PHPStan 0.12
+        -
+            message: '~^Call to an undefined method Doctrine\\DBAL\\Driver::createDatabasePlatformForVersion\(\)\.$~'
+            path: %currentWorkingDirectory%/tests/Driver/AbstractDriverTest.php
 includes:
     - vendor/phpstan/phpstan-phpunit/extension.neon
     - vendor/phpstan/phpstan-phpunit/rules.neon

@@ -10,6 +10,7 @@ use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
+use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Logging\SQLLogger;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Statement;
@@ -149,5 +150,16 @@ class StatementTest extends TestCase
         $this->expectException(DBALException::class);
 
         $statement->execute();
+    }
+
+    public function testPDOCustomClassConstructorArgs() : void
+    {
+        $statement = new Statement('', $this->conn);
+
+        $this->driverStatement->expects($this->once())
+            ->method('fetchAll')
+            ->with(self::equalTo(FetchMode::CUSTOM_OBJECT), self::equalTo('Example'), self::equalTo(['arg1']));
+
+        $statement->fetchAll(FetchMode::CUSTOM_OBJECT, 'Example', ['arg1']);
     }
 }
