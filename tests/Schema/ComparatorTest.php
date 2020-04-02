@@ -816,8 +816,6 @@ class ComparatorTest extends TestCase
 
     public function testDetectChangeIdentifierType() : void
     {
-        $this->markTestSkipped('DBAL-2 was reopened, this test cannot work anymore.');
-
         $tableA = new Table('foo');
         $tableA->addColumn('id', 'integer', ['autoincrement' => false]);
 
