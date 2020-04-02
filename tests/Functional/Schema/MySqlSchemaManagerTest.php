@@ -472,6 +472,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
             'SELECT *, DATEDIFF(CURRENT_TIMESTAMP(), col_datetime) as diff_seconds FROM test_column_defaults_are_valid'
         );
 
+        self::assertIsArray($row);
         self::assertInstanceOf(DateTime::class, DateTime::createFromFormat('Y-m-d H:i:s', $row['col_datetime']));
         self::assertNull($row['col_datetime_null']);
         self::assertSame('2012-12-12', $row['col_date']);

@@ -343,6 +343,7 @@ class DataAccessTest extends FunctionalTestCase
         $sql = 'SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?';
         $row = $this->connection->fetchArray($sql, [1, 'foo']);
 
+        self::assertIsArray($row);
         self::assertEquals(1, $row[0]);
         self::assertEquals('foo', $row[1]);
     }
