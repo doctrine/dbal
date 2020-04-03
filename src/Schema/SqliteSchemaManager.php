@@ -131,7 +131,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
                     )?#isx',
                 $createSql,
                 $match
-            )) {
+            ) > 0) {
                 $names      = array_reverse($match[1]);
                 $deferrable = array_reverse($match[2]);
                 $deferred   = array_reverse($match[3]);
@@ -334,7 +334,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
 
         if ($default !== null) {
             // SQLite returns the default value as a literal expression, so we need to parse it
-            if (preg_match('/^\'(.*)\'$/s', $default, $matches)) {
+            if (preg_match('/^\'(.*)\'$/s', $default, $matches) === 1) {
                 $default = str_replace("''", "'", $matches[1]);
             }
         }

@@ -32,7 +32,7 @@ class ArrayStatement implements IteratorAggregate, ResultStatement
     public function __construct(array $data)
     {
         $this->data = $data;
-        if (! count($data)) {
+        if (count($data) === 0) {
             return;
         }
 

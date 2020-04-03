@@ -11,6 +11,7 @@ use Exception;
 use Throwable;
 use function array_map;
 use function bin2hex;
+use function count;
 use function get_class;
 use function gettype;
 use function implode;
@@ -103,7 +104,7 @@ class DBALException extends Exception
      */
     public static function driverRequired($url = null)
     {
-        if ($url) {
+        if ($url !== null) {
             return new self(
                 sprintf(
                     "The options 'driver' or 'driverClass' are mandatory if a connection URL without scheme " .
@@ -138,7 +139,7 @@ class DBALException extends Exception
     public static function driverExceptionDuringQuery(Driver $driver, Throwable $driverEx, $sql, array $params = [])
     {
         $msg = "An exception occurred while executing '" . $sql . "'";
-        if ($params) {
+        if (count($params) > 0) {
             $msg .= ' with params ' . self::formatParameters($params);
         }
         $msg .= ":\n\n" . $driverEx->getMessage();

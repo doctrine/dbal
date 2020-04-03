@@ -662,7 +662,7 @@ SQL
 
         $fromColumn = $columnDiff->fromColumn instanceof Column ? $columnDiff->fromColumn : null;
 
-        if ($fromColumn) {
+        if ($fromColumn !== null) {
             $fromColumnType = $fromColumn->getType();
 
             if (! $fromColumnType instanceof BinaryType && ! $fromColumnType instanceof BlobType) {
@@ -1047,8 +1047,8 @@ SQL
      */
     protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)
     {
-        return $fixed ? ($length ? 'CHAR(' . $length . ')' : 'CHAR(255)')
-            : ($length ? 'VARCHAR(' . $length . ')' : 'VARCHAR(255)');
+        return $fixed ? ($length > 0 ? 'CHAR(' . $length . ')' : 'CHAR(255)')
+            : ($length > 0 ? 'VARCHAR(' . $length . ')' : 'VARCHAR(255)');
     }
 
     /**
@@ -1277,7 +1277,7 @@ SQL
      */
     private function typeChangeBreaksDefaultValue(ColumnDiff $columnDiff) : bool
     {
-        if (! $columnDiff->fromColumn) {
+        if ($columnDiff->fromColumn === null) {
             return $columnDiff->hasChanged('type');
         }
 
@@ -1296,7 +1296,7 @@ SQL
 
     private function getOldColumnComment(ColumnDiff $columnDiff) : ?string
     {
-        return $columnDiff->fromColumn ? $this->getColumnComment($columnDiff->fromColumn) : null;
+        return $columnDiff->fromColumn !== null ? $this->getColumnComment($columnDiff->fromColumn) : null;
     }
 
     public function getListTableMetadataSQL(string $table, ?string $schema = null) : string

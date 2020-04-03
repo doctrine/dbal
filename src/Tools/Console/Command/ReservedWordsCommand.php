@@ -108,7 +108,7 @@ EOT
         $conn = $this->getHelper('db')->getConnection();
 
         $keywordLists = (array) $input->getOption('list');
-        if (! $keywordLists) {
+        if (count($keywordLists) === 0) {
             $keywordLists = array_keys($this->keywordListClasses);
         }
 

@@ -49,7 +49,7 @@ class DateImmutableType extends DateType
 
         $dateTime = DateTimeImmutable::createFromFormat('!' . $platform->getDateFormatString(), $value);
 
-        if (! $dateTime) {
+        if ($dateTime === false) {
             throw ConversionException::conversionFailedFormat(
                 $value,
                 $this->getName(),

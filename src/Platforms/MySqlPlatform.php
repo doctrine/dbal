@@ -150,7 +150,7 @@ class MySqlPlatform extends AbstractPlatform
      */
     public function getListTableIndexesSQL($table, $currentDatabase = null)
     {
-        if ($currentDatabase) {
+        if ($currentDatabase !== null) {
             $currentDatabase = $this->quoteStringLiteral($currentDatabase);
             $table           = $this->quoteStringLiteral($table);
 
@@ -224,8 +224,8 @@ class MySqlPlatform extends AbstractPlatform
      */
     protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)
     {
-        return $fixed ? ($length ? 'CHAR(' . $length . ')' : 'CHAR(255)')
-                : ($length ? 'VARCHAR(' . $length . ')' : 'VARCHAR(255)');
+        return $fixed ? ($length > 0 ? 'CHAR(' . $length . ')' : 'CHAR(255)')
+                : ($length > 0 ? 'VARCHAR(' . $length . ')' : 'VARCHAR(255)');
     }
 
     /**
@@ -372,7 +372,7 @@ class MySqlPlatform extends AbstractPlatform
     {
         $table = $this->quoteStringLiteral($table);
 
-        if ($database) {
+        if ($database !== null) {
             $database = $this->quoteStringLiteral($database);
         } else {
             $database = 'DATABASE()';
@@ -394,7 +394,7 @@ FROM information_schema.TABLES
 WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_SCHEMA = %s AND TABLE_NAME = %s
 SQL
             ,
-            $database ? $this->quoteStringLiteral($database) : 'DATABASE()',
+            $database !== null ? $this->quoteStringLiteral($database) : 'DATABASE()',
             $this->quoteStringLiteral($table)
         );
     }

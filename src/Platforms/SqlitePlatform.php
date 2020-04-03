@@ -394,8 +394,8 @@ class SqlitePlatform extends AbstractPlatform
      */
     protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)
     {
-        return $fixed ? ($length ? 'CHAR(' . $length . ')' : 'CHAR(255)')
-                : ($length ? 'VARCHAR(' . $length . ')' : 'TEXT');
+        return $fixed ? ($length > 0 ? 'CHAR(' . $length . ')' : 'CHAR(255)')
+            : ($length > 0 ? 'VARCHAR(' . $length . ')' : 'TEXT');
     }
 
     /**
@@ -1109,7 +1109,7 @@ class SqlitePlatform extends AbstractPlatform
 
         foreach ($diff->removedIndexes as $index) {
             $indexName = strtolower($index->getName());
-            if (! strlen($indexName) || ! isset($indexes[$indexName])) {
+            if (strlen($indexName) === 0 || ! isset($indexes[$indexName])) {
                 continue;
             }
 
@@ -1118,7 +1118,7 @@ class SqlitePlatform extends AbstractPlatform
 
         foreach (array_merge($diff->changedIndexes, $diff->addedIndexes, $diff->renamedIndexes) as $index) {
             $indexName = strtolower($index->getName());
-            if (strlen($indexName)) {
+            if (strlen($indexName) > 0) {
                 $indexes[$indexName] = $index;
             } else {
                 $indexes[] = $index;
@@ -1167,7 +1167,7 @@ class SqlitePlatform extends AbstractPlatform
             }
 
             $constraintName = strtolower($constraint->getName());
-            if (! strlen($constraintName) || ! isset($foreignKeys[$constraintName])) {
+            if (strlen($constraintName) === 0 || ! isset($foreignKeys[$constraintName])) {
                 continue;
             }
 
@@ -1176,7 +1176,7 @@ class SqlitePlatform extends AbstractPlatform
 
         foreach (array_merge($diff->changedForeignKeys, $diff->addedForeignKeys) as $constraint) {
             $constraintName = strtolower($constraint->getName());
-            if (strlen($constraintName)) {
+            if (strlen($constraintName) > 0) {
                 $foreignKeys[$constraintName] = $constraint;
             } else {
                 $foreignKeys[] = $constraint;

@@ -134,7 +134,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
             return null;
         }
 
-        if (preg_match('/^\'(.*)\'$/s', $value, $matches)) {
+        if (preg_match('/^\'(.*)\'$/s', $value, $matches) === 1) {
             $value = str_replace("''", "'", $matches[1]);
         }
 

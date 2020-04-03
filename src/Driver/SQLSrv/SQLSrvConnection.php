@@ -184,7 +184,7 @@ class SQLSrvConnection implements ServerInfoAwareConnection
     public function errorCode()
     {
         $errors = sqlsrv_errors(SQLSRV_ERR_ERRORS);
-        if ($errors) {
+        if ($errors !== null) {
             return $errors[0]['code'];
         }
 

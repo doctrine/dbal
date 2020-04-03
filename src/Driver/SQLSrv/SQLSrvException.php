@@ -34,7 +34,7 @@ class SQLSrvException extends AbstractDriverException
             $errorCode = $error['code'];
         }
 
-        if (! $message) {
+        if ($message === '') {
             $message = 'SQL Server error occurred but no error message was retrieved from driver.';
         }
 

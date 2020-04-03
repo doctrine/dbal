@@ -191,7 +191,7 @@ class OCI8Statement implements IteratorAggregate, Statement
     ) {
         $token = self::findToken($statement, $tokenOffset, '/[?\'"]/');
 
-        if (! $token) {
+        if ($token === null) {
             return false;
         }
 
@@ -233,7 +233,7 @@ class OCI8Statement implements IteratorAggregate, Statement
             '/' . preg_quote($currentLiteralDelimiter, '/') . '/'
         );
 
-        if (! $token) {
+        if ($token === null) {
             return false;
         }
 
@@ -255,7 +255,7 @@ class OCI8Statement implements IteratorAggregate, Statement
      */
     private static function findToken($statement, &$offset, $regex)
     {
-        if (preg_match($regex, $statement, $matches, PREG_OFFSET_CAPTURE, $offset)) {
+        if (preg_match($regex, $statement, $matches, PREG_OFFSET_CAPTURE, $offset) === 1) {
             $offset = $matches[0][1];
 
             return $matches[0][0];
@@ -387,9 +387,8 @@ class OCI8Statement implements IteratorAggregate, Statement
      */
     public function execute($params = null)
     {
-        if ($params) {
+        if ($params !== null) {
             $hasZeroIndex = array_key_exists(0, $params);
-
             foreach ($params as $key => $val) {
                 if ($hasZeroIndex && is_int($key)) {
                     $this->bindValue($key + 1, $val);

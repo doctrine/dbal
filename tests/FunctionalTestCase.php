@@ -68,7 +68,7 @@ abstract class FunctionalTestCase extends TestCase
             throw $t;
         }
 
-        if (isset($this->sqlLoggerStack->queries) && count($this->sqlLoggerStack->queries)) {
+        if (count($this->sqlLoggerStack->queries) > 0) {
             $queries = '';
             $i       = count($this->sqlLoggerStack->queries);
             foreach (array_reverse($this->sqlLoggerStack->queries) as $query) {

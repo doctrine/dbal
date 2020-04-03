@@ -50,11 +50,11 @@ class DateTimeImmutableType extends DateTimeType
 
         $dateTime = DateTimeImmutable::createFromFormat($platform->getDateTimeFormatString(), $value);
 
-        if (! $dateTime) {
+        if ($dateTime === false) {
             $dateTime = date_create_immutable($value);
         }
 
-        if (! $dateTime) {
+        if ($dateTime === false) {
             throw ConversionException::conversionFailedFormat(
                 $value,
                 $this->getName(),

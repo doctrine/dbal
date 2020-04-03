@@ -14,7 +14,6 @@ use const SASQL_BOTH;
 use function array_key_exists;
 use function count;
 use function gettype;
-use function is_array;
 use function is_int;
 use function is_object;
 use function is_resource;
@@ -171,7 +170,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
      */
     public function execute($params = null)
     {
-        if (is_array($params)) {
+        if ($params !== null) {
             $hasZeroIndex = array_key_exists(0, $params);
 
             foreach ($params as $key => $val) {

@@ -48,7 +48,7 @@ class ColumnDiff
      */
     public function getOldColumnName()
     {
-        $quote = $this->fromColumn && $this->fromColumn->isQuoted();
+        $quote = $this->fromColumn !== null && $this->fromColumn->isQuoted();
 
         return new Identifier($this->oldColumnName, $quote);
     }

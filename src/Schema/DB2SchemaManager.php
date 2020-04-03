@@ -51,7 +51,7 @@ class DB2SchemaManager extends AbstractSchemaManager
         if ($tableColumn['default'] !== null && $tableColumn['default'] !== 'NULL') {
             $default = $tableColumn['default'];
 
-            if (preg_match('/^\'(.*)\'$/s', $default, $matches)) {
+            if (preg_match('/^\'(.*)\'$/s', $default, $matches) === 1) {
                 $default = str_replace("''", "'", $matches[1]);
             }
         }

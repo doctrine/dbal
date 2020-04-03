@@ -114,7 +114,7 @@ abstract class AbstractAsset
     public function getFullQualifiedName($defaultNamespaceName)
     {
         $name = $this->getName();
-        if (! $this->_namespace) {
+        if ($this->_namespace === null) {
             $name = $defaultNamespaceName . '.' . $name;
         }
 
@@ -162,7 +162,7 @@ abstract class AbstractAsset
      */
     public function getName()
     {
-        if ($this->_namespace) {
+        if ($this->_namespace !== null) {
             return $this->_namespace . '.' . $this->_name;
         }
 

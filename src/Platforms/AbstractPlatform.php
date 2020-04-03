@@ -814,7 +814,7 @@ abstract class AbstractPlatform
             $expression .= $char . ' ';
         }
 
-        if ($mode || $char !== false) {
+        if ($mode !== TrimMode::UNSPECIFIED || $char !== false) {
             $expression .= 'FROM ';
         }
 
@@ -2247,19 +2247,18 @@ abstract class AbstractPlatform
         } else {
             $default = $this->getDefaultValueDeclarationSQL($field);
 
-            $charset = isset($field['charset']) && $field['charset'] ?
+            $charset = ! empty($field['charset']) ?
                 ' ' . $this->getColumnCharsetDeclarationSQL($field['charset']) : '';
 
-            $collation = isset($field['collation']) && $field['collation'] ?
+            $collation = ! empty($field['collation']) ?
                 ' ' . $this->getColumnCollationDeclarationSQL($field['collation']) : '';
 
-            $notnull = isset($field['notnull']) && $field['notnull'] ? ' NOT NULL' : '';
+            $notnull = ! empty($field['notnull']) ? ' NOT NULL' : '';
 
-            $unique = isset($field['unique']) && $field['unique'] ?
+            $unique = ! empty($field['unique']) ?
                 ' ' . $this->getUniqueFieldDeclarationSQL() : '';
 
-            $check = isset($field['check']) && $field['check'] ?
-                ' ' . $field['check'] : '';
+            $check = ! empty($field['check']) ? ' ' . $field['check'] : '';
 
             $typeDecl  = $field['type']->getSQLDeclaration($field, $this);
             $columnDef = $typeDecl . $charset . $default . $notnull . $unique . $check . $collation;
@@ -2557,7 +2556,7 @@ abstract class AbstractPlatform
     public function getForeignKeyBaseDeclarationSQL(ForeignKeyConstraint $foreignKey)
     {
         $sql = '';
-        if (strlen($foreignKey->getName())) {
+        if (strlen($foreignKey->getName()) > 0) {
             $sql .= 'CONSTRAINT ' . $foreignKey->getQuotedName($this) . ' ';
         }
         $sql .= 'FOREIGN KEY (';
@@ -3560,7 +3559,7 @@ abstract class AbstractPlatform
     final public function getReservedKeywordsList()
     {
         // Check for an existing instantiation of the keywords class.
-        if ($this->_keywords) {
+        if ($this->_keywords !== null) {
             return $this->_keywords;
         }
 

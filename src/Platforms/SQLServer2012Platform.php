@@ -316,7 +316,7 @@ SQL
         // @todo does other code breaks because of this?
         // force primary keys to be not null
         foreach ($columns as &$column) {
-            if (isset($column['primary']) && $column['primary']) {
+            if (! empty($column['primary'])) {
                 $column['notnull'] = true;
             }
 
@@ -1123,7 +1123,7 @@ SQL
      */
     public function getTrimExpression($str, $pos = TrimMode::UNSPECIFIED, $char = false)
     {
-        if (! $char) {
+        if ($char === false) {
             switch ($pos) {
                 case TrimMode::LEADING:
                     $trimFn = 'LTRIM';
@@ -1261,7 +1261,9 @@ SQL
      */
     protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)
     {
-        return $fixed ? ($length ? 'NCHAR(' . $length . ')' : 'CHAR(255)') : ($length ? 'NVARCHAR(' . $length . ')' : 'NVARCHAR(255)');
+        return $fixed
+            ? ($length > 0 ? 'NCHAR(' . $length . ')' : 'CHAR(255)')
+            : ($length > 0 ? 'NVARCHAR(' . $length . ')' : 'NVARCHAR(255)');
     }
 
     /**
@@ -1352,9 +1354,9 @@ SQL
         }
 
         if ($orderByPos === false
-            || substr_count($query, '(', $orderByPos) - substr_count($query, ')', $orderByPos)
+            || substr_count($query, '(', $orderByPos) !== substr_count($query, ')', $orderByPos)
         ) {
-            if (preg_match('/^SELECT\s+DISTINCT/im', $query)) {
+            if (preg_match('/^SELECT\s+DISTINCT/im', $query) > 0) {
                 // SQL Server won't let us order by a non-selected column in a DISTINCT query,
                 // so we have to do this madness. This says, order by the first column in the
                 // result. SQL Server's docs say that a nonordered query's result order is non-
@@ -1399,10 +1401,10 @@ SQL
                     continue;
                 }
 
-                $item[$key] = $value ? 1 : 0;
+                $item[$key] = (int) (bool) $value;
             }
         } elseif (is_bool($item) || is_numeric($item)) {
-            $item = $item ? 1 : 0;
+            $item = (int) (bool) $item;
         }
 
         return $item;
@@ -1611,15 +1613,15 @@ SQL
         if (isset($field['columnDefinition'])) {
             $columnDef = $this->getCustomTypeDeclarationSQL($field);
         } else {
-            $collation = isset($field['collation']) && $field['collation'] ?
+            $collation = ! empty($field['collation']) ?
                 ' ' . $this->getColumnCollationDeclarationSQL($field['collation']) : '';
 
-            $notnull = isset($field['notnull']) && $field['notnull'] ? ' NOT NULL' : '';
+            $notnull = ! empty($field['notnull']) ? ' NOT NULL' : '';
 
-            $unique = isset($field['unique']) && $field['unique'] ?
+            $unique = ! empty($field['unique']) ?
                 ' ' . $this->getUniqueFieldDeclarationSQL() : '';
 
-            $check = isset($field['check']) && $field['check'] ?
+            $check = ! empty($field['check']) ?
                 ' ' . $field['check'] : '';
 
             $typeDecl  = $field['type']->getSQLDeclaration($field, $this);

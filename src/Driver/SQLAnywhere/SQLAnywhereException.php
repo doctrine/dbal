@@ -27,14 +27,14 @@ class SQLAnywhereException extends AbstractDriverException
      */
     public static function fromSQLAnywhereError($conn = null, $stmt = null)
     {
-        $state   = $conn ? sasql_sqlstate($conn) : sasql_sqlstate();
-        $code    = null;
+        $state   = $conn !== null ? sasql_sqlstate($conn) : sasql_sqlstate();
+        $code    = 0;
         $message = null;
 
         /**
          * Try retrieving the last error from statement resource if given
          */
-        if ($stmt) {
+        if ($stmt !== null) {
             $code    = sasql_stmt_errno($stmt);
             $message = sasql_stmt_error($stmt);
         }
@@ -47,7 +47,7 @@ class SQLAnywhereException extends AbstractDriverException
          * it from the connection resource even though it occurred during
          * a prepared statement.
          */
-        if ($conn && ! $code) {
+        if ($conn !== null && $code === 0) {
             $code    = sasql_errorcode($conn);
             $message = sasql_error($conn);
         }
@@ -57,7 +57,7 @@ class SQLAnywhereException extends AbstractDriverException
          * or the last error could not be retrieved from the given
          * connection / statement resource.
          */
-        if (! $conn || ! $code) {
+        if ($conn === null || $code === 0) {
             $code    = sasql_errorcode();
             $message = sasql_error();
         }

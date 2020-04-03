@@ -548,7 +548,7 @@ class QueryBuilder
     {
         $this->type = self::DELETE;
 
-        if (! $delete) {
+        if ($delete === null) {
             return $this;
         }
 
@@ -578,7 +578,7 @@ class QueryBuilder
     {
         $this->type = self::UPDATE;
 
-        if (! $update) {
+        if ($update === null) {
             return $this;
         }
 
@@ -611,7 +611,7 @@ class QueryBuilder
     {
         $this->type = self::INSERT;
 
-        if (! $insert) {
+        if ($insert === null) {
             return $this;
         }
 
@@ -1053,7 +1053,7 @@ class QueryBuilder
      */
     public function orderBy($sort, $order = null)
     {
-        return $this->add('orderBy', $sort . ' ' . (! $order ? 'ASC' : $order), false);
+        return $this->add('orderBy', $sort . ' ' . ($order ?? 'ASC'), false);
     }
 
     /**
@@ -1066,7 +1066,7 @@ class QueryBuilder
      */
     public function addOrderBy($sort, $order = null)
     {
-        return $this->add('orderBy', $sort . ' ' . (! $order ? 'ASC' : $order), true);
+        return $this->add('orderBy', $sort . ' ' . ($order ?? 'ASC'), true);
     }
 
     /**

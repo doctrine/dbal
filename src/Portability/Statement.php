@@ -135,10 +135,10 @@ class Statement implements IteratorAggregate, DriverStatement
 
         $row = $this->stmt->fetch($fetchMode, ...$args);
 
-        $iterateRow = $this->portability & (Connection::PORTABILITY_EMPTY_TO_NULL|Connection::PORTABILITY_RTRIM);
+        $iterateRow = ($this->portability & (Connection::PORTABILITY_EMPTY_TO_NULL|Connection::PORTABILITY_RTRIM)) !== 0;
         $fixCase    = $this->case !== null
             && ($fetchMode === FetchMode::ASSOCIATIVE || $fetchMode === FetchMode::MIXED)
-            && ($this->portability & Connection::PORTABILITY_FIX_CASE);
+            && ($this->portability & Connection::PORTABILITY_FIX_CASE) !== 0;
 
         $row = $this->fixRow($row, $iterateRow, $fixCase);
 
@@ -154,10 +154,10 @@ class Statement implements IteratorAggregate, DriverStatement
 
         $rows = $this->stmt->fetchAll($fetchMode, ...$args);
 
-        $iterateRow = $this->portability & (Connection::PORTABILITY_EMPTY_TO_NULL|Connection::PORTABILITY_RTRIM);
+        $iterateRow = ($this->portability & (Connection::PORTABILITY_EMPTY_TO_NULL|Connection::PORTABILITY_RTRIM)) !== 0;
         $fixCase    = $this->case !== null
             && ($fetchMode === FetchMode::ASSOCIATIVE || $fetchMode === FetchMode::MIXED)
-            && ($this->portability & Connection::PORTABILITY_FIX_CASE);
+            && ($this->portability & Connection::PORTABILITY_FIX_CASE) !== 0;
 
         if (! $iterateRow && ! $fixCase) {
             return $rows;
@@ -184,14 +184,14 @@ class Statement implements IteratorAggregate, DriverStatement
 
     /**
      * @param mixed $row
-     * @param int   $iterateRow
+     * @param bool  $iterateRow
      * @param bool  $fixCase
      *
      * @return mixed
      */
     protected function fixRow($row, $iterateRow, $fixCase)
     {
-        if (! $row) {
+        if ($row === false) {
             return $row;
         }
 
@@ -201,9 +201,9 @@ class Statement implements IteratorAggregate, DriverStatement
 
         if ($iterateRow) {
             foreach ($row as $k => $v) {
-                if (($this->portability & Connection::PORTABILITY_EMPTY_TO_NULL) && $v === '') {
+                if (($this->portability & Connection::PORTABILITY_EMPTY_TO_NULL) !== 0 && $v === '') {
                     $row[$k] = null;
-                } elseif (($this->portability & Connection::PORTABILITY_RTRIM) && is_string($v)) {
+                } elseif (($this->portability & Connection::PORTABILITY_RTRIM) !== 0 && is_string($v)) {
                     $row[$k] = rtrim($v);
                 }
             }
@@ -219,12 +219,10 @@ class Statement implements IteratorAggregate, DriverStatement
     {
         $value = $this->stmt->fetchColumn($columnIndex);
 
-        if ($this->portability & (Connection::PORTABILITY_EMPTY_TO_NULL|Connection::PORTABILITY_RTRIM)) {
-            if (($this->portability & Connection::PORTABILITY_EMPTY_TO_NULL) && $value === '') {
-                $value = null;
-            } elseif (($this->portability & Connection::PORTABILITY_RTRIM) && is_string($value)) {
-                $value = rtrim($value);
-            }
+        if (($this->portability & Connection::PORTABILITY_EMPTY_TO_NULL) !== 0 && $value === '') {
+            $value = null;
+        } elseif (($this->portability & Connection::PORTABILITY_RTRIM) !== 0 && is_string($value)) {
+            $value = rtrim($value);
         }
 
         return $value;

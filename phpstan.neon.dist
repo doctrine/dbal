@@ -88,5 +88,14 @@ parameters:
                 - %currentWorkingDirectory%/src/Driver/AbstractOracleDriver/EasyConnectString.php
                 - %currentWorkingDirectory%/src/Platforms/*Platform.php
                 - %currentWorkingDirectory%/src/Schema/*SchemaManager.php
+
+        # In some namespaces, we use array<string,mixed>, some elements of which are actually boolean
+        -
+            message: '~^Only booleans are allowed in .*, mixed given~'
+            paths:
+                - %currentWorkingDirectory%/src/Driver/*/Driver.php
+                - %currentWorkingDirectory%/src/Platforms/*Platform.php
+                - %currentWorkingDirectory%/src/Query/QueryBuilder.php
+                - %currentWorkingDirectory%/src/Schema/*SchemaManager.php
 includes:
     - vendor/phpstan/phpstan-strict-rules/rules.neon

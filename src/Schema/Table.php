@@ -271,7 +271,7 @@ class Table extends AbstractAsset
      */
     private function _createIndex(array $columnNames, $indexName, $isUnique, $isPrimary, array $flags = [], array $options = [])
     {
-        if (preg_match('(([^a-zA-Z0-9_]+))', $this->normalizeIdentifier($indexName))) {
+        if (preg_match('(([^a-zA-Z0-9_]+))', $this->normalizeIdentifier($indexName)) === 1) {
             throw SchemaException::indexNameInvalid($indexName);
         }
 
@@ -511,7 +511,7 @@ class Table extends AbstractAsset
     {
         $constraint->setLocalTable($this);
 
-        if (strlen($constraint->getName())) {
+        if (strlen($constraint->getName()) > 0) {
             $name = $constraint->getName();
         } else {
             $name = $this->_generateIdentifierName(
@@ -714,7 +714,7 @@ class Table extends AbstractAsset
      */
     public function hasPrimaryKey()
     {
-        return $this->_primaryKeyName && $this->hasIndex($this->_primaryKeyName);
+        return $this->_primaryKeyName !== false && $this->hasIndex($this->_primaryKeyName);
     }
 
     /**

@@ -293,7 +293,7 @@ class Comparator
             $changes++;
         }
 
-        return $changes ? $tableDifferences : false;
+        return $changes > 0 ? $tableDifferences : false;
     }
 
     /**

@@ -143,7 +143,11 @@ class MySqlSchemaManager extends AbstractSchemaManager
             case 'real':
             case 'numeric':
             case 'decimal':
-                if (preg_match('([A-Za-z]+\(([0-9]+)\,([0-9]+)\))', $tableColumn['type'], $match)) {
+                if (preg_match(
+                    '([A-Za-z]+\(([0-9]+),([0-9]+)\))',
+                    $tableColumn['type'],
+                    $match
+                ) === 1) {
                     $precision = $match[1];
                     $scale     = $match[2];
                     $length    = null;
@@ -237,7 +241,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
             return null;
         }
 
-        if (preg_match('/^\'(.*)\'$/', $columnDefault, $matches)) {
+        if (preg_match('/^\'(.*)\'$/', $columnDefault, $matches) === 1) {
             return strtr($matches[1], self::MARIADB_ESCAPE_SEQUENCES);
         }
 
