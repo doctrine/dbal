@@ -314,7 +314,7 @@ class Table extends AbstractAsset
      */
     public function addForeignKeyConstraint($foreignTable, array $localColumnNames, array $foreignColumnNames, array $options = [], ?string $name = null) : self
     {
-        if (! $name) {
+        if ($name === null) {
             $name = $this->_generateIdentifierName(
                 array_merge((array) $this->getName(), $localColumnNames),
                 'fk',
@@ -747,7 +747,7 @@ class Table extends AbstractAsset
     {
         $constraint->setLocalTable($this);
 
-        $name = strlen($constraint->getName())
+        $name = $constraint->getName() !== ''
             ? $constraint->getName()
             : $this->_generateIdentifierName(
                 array_merge((array) $this->getName(), $constraint->getLocalColumns()),
@@ -819,7 +819,7 @@ class Table extends AbstractAsset
      */
     private function _createUniqueConstraint(array $columns, string $indexName, array $flags = [], array $options = []) : UniqueConstraint
     {
-        if (preg_match('(([^a-zA-Z0-9_]+))', $this->normalizeIdentifier($indexName))) {
+        if (preg_match('(([^a-zA-Z0-9_]+))', $this->normalizeIdentifier($indexName)) === 1) {
             throw IndexNameInvalid::new($indexName);
         }
 
@@ -847,7 +847,7 @@ class Table extends AbstractAsset
      */
     private function _createIndex(array $columns, string $indexName, bool $isUnique, bool $isPrimary, array $flags = [], array $options = []) : Index
     {
-        if (preg_match('(([^a-zA-Z0-9_]+))', $this->normalizeIdentifier($indexName))) {
+        if (preg_match('(([^a-zA-Z0-9_]+))', $this->normalizeIdentifier($indexName)) === 1) {
             throw IndexNameInvalid::new($indexName);
         }
 

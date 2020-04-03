@@ -98,7 +98,7 @@ final class DB2Connection implements ServerInfoAwareConnection
 
     public function beginTransaction() : void
     {
-        if (! db2_autocommit($this->conn, DB2_AUTOCOMMIT_OFF)) {
+        if (db2_autocommit($this->conn, DB2_AUTOCOMMIT_OFF) !== true) {
             throw DB2Exception::fromConnectionError($this->conn);
         }
     }
@@ -109,7 +109,7 @@ final class DB2Connection implements ServerInfoAwareConnection
             throw DB2Exception::fromConnectionError($this->conn);
         }
 
-        if (! db2_autocommit($this->conn, DB2_AUTOCOMMIT_ON)) {
+        if (db2_autocommit($this->conn, DB2_AUTOCOMMIT_ON) !== true) {
             throw DB2Exception::fromConnectionError($this->conn);
         }
     }
@@ -120,7 +120,7 @@ final class DB2Connection implements ServerInfoAwareConnection
             throw DB2Exception::fromConnectionError($this->conn);
         }
 
-        if (! db2_autocommit($this->conn, DB2_AUTOCOMMIT_ON)) {
+        if (db2_autocommit($this->conn, DB2_AUTOCOMMIT_ON) !== true) {
             throw DB2Exception::fromConnectionError($this->conn);
         }
     }
