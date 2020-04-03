@@ -49,7 +49,7 @@ abstract class AbstractSchemaManager
     public function __construct(Connection $conn, ?AbstractPlatform $platform = null)
     {
         $this->_conn     = $conn;
-        $this->_platform = $platform ?: $this->_conn->getDatabasePlatform();
+        $this->_platform = $platform ?? $this->_conn->getDatabasePlatform();
     }
 
     /**

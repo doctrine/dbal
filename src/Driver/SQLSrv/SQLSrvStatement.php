@@ -209,7 +209,13 @@ class SQLSrvStatement implements IteratorAggregate, Statement
             return 0;
         }
 
-        return sqlsrv_num_fields($this->stmt) ?: 0;
+        $count = sqlsrv_num_fields($this->stmt);
+
+        if ($count !== false) {
+            return $count;
+        }
+
+        return 0;
     }
 
     /**
@@ -353,14 +359,14 @@ class SQLSrvStatement implements IteratorAggregate, Statement
             return false;
         }
 
-        $fetchMode = $fetchMode ?: $this->defaultFetchMode;
+        $fetchMode = $fetchMode ?? $this->defaultFetchMode;
 
         if ($fetchMode === FetchMode::COLUMN) {
             return $this->fetchColumn();
         }
 
         if (isset(self::$fetchMap[$fetchMode])) {
-            return sqlsrv_fetch_array($this->stmt, self::$fetchMap[$fetchMode]) ?: false;
+            return sqlsrv_fetch_array($this->stmt, self::$fetchMap[$fetchMode]) ?? false;
         }
 
         if (in_array($fetchMode, [FetchMode::STANDARD_OBJECT, FetchMode::CUSTOM_OBJECT], true)) {
@@ -372,7 +378,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
                 $ctorArgs  = $args[1] ?? [];
             }
 
-            return sqlsrv_fetch_object($this->stmt, $className, $ctorArgs) ?: false;
+            return sqlsrv_fetch_object($this->stmt, $className, $ctorArgs) ?? false;
         }
 
         throw new SQLSrvException('Fetch mode is not supported!');
@@ -430,6 +436,12 @@ class SQLSrvStatement implements IteratorAggregate, Statement
             return 0;
         }
 
-        return sqlsrv_rows_affected($this->stmt) ?: 0;
+        $count = sqlsrv_rows_affected($this->stmt);
+
+        if ($count !== false) {
+            return $count;
+        }
+
+        return 0;
     }
 }

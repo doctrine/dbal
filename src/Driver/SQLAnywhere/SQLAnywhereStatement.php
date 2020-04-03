@@ -203,7 +203,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
             return false;
         }
 
-        $fetchMode = $fetchMode ?: $this->defaultFetchMode;
+        $fetchMode = $fetchMode ?? $this->defaultFetchMode;
 
         switch ($fetchMode) {
             case FetchMode::COLUMN:

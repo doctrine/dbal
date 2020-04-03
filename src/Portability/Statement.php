@@ -131,7 +131,7 @@ class Statement implements IteratorAggregate, DriverStatement
      */
     public function fetch($fetchMode = null, ...$args)
     {
-        $fetchMode = $fetchMode ?: $this->defaultFetchMode;
+        $fetchMode = $fetchMode ?? $this->defaultFetchMode;
 
         $row = $this->stmt->fetch($fetchMode, ...$args);
 
@@ -150,7 +150,7 @@ class Statement implements IteratorAggregate, DriverStatement
      */
     public function fetchAll($fetchMode = null, ...$args)
     {
-        $fetchMode = $fetchMode ?: $this->defaultFetchMode;
+        $fetchMode = $fetchMode ?? $this->defaultFetchMode;
 
         $rows = $this->stmt->fetchAll($fetchMode, ...$args);
 

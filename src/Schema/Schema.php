@@ -68,7 +68,7 @@ class Schema extends AbstractAsset
             $schemaConfig = new SchemaConfig();
         }
         $this->_schemaConfig = $schemaConfig;
-        $this->_setName($schemaConfig->getName() ?: 'public');
+        $this->_setName($schemaConfig->getName() ?? 'public');
 
         foreach ($namespaces as $namespace) {
             $this->createNamespace($namespace);

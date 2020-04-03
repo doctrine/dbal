@@ -1444,8 +1444,8 @@ SQL
     protected function getBinaryTypeDeclarationSQLSnippet($length, $fixed)
     {
         return $fixed
-            ? 'BINARY(' . ($length ?: $this->getBinaryDefaultLength()) . ')'
-            : 'VARBINARY(' . ($length ?: $this->getBinaryDefaultLength()) . ')';
+            ? 'BINARY(' . ($length > 0 ? $length : $this->getBinaryDefaultLength()) . ')'
+            : 'VARBINARY(' . ($length > 0 ? $length : $this->getBinaryDefaultLength()) . ')';
     }
 
     /**

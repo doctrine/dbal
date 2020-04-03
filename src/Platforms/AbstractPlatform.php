@@ -335,8 +335,8 @@ abstract class AbstractPlatform
     }
 
     /**
-     * @param int  $length
-     * @param bool $fixed
+     * @param int|false $length
+     * @param bool      $fixed
      *
      * @return string
      *
@@ -350,8 +350,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL snippet used to declare a BINARY/VARBINARY column type.
      *
-     * @param int  $length The length of the column.
-     * @param bool $fixed  Whether the column length is fixed.
+     * @param int|false $length The length of the column.
+     * @param bool      $fixed  Whether the column length is fixed.
      *
      * @return string
      *

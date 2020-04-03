@@ -338,7 +338,7 @@ class OraclePlatform extends AbstractPlatform
      */
     protected function getBinaryTypeDeclarationSQLSnippet($length, $fixed)
     {
-        return 'RAW(' . ($length ?: $this->getBinaryMaxLength()) . ')';
+        return 'RAW(' . ($length > 0 ? $length : $this->getBinaryMaxLength()) . ')';
     }
 
     /**

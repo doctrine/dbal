@@ -346,7 +346,13 @@ class OCI8Statement implements IteratorAggregate, Statement
      */
     public function columnCount()
     {
-        return oci_num_fields($this->_sth) ?: 0;
+        $count = oci_num_fields($this->_sth);
+
+        if ($count !== false) {
+            return $count;
+        }
+
+        return 0;
     }
 
     /**
@@ -432,7 +438,7 @@ class OCI8Statement implements IteratorAggregate, Statement
             return false;
         }
 
-        $fetchMode = $fetchMode ?: $this->_defaultFetchMode;
+        $fetchMode = $fetchMode ?? $this->_defaultFetchMode;
 
         if ($fetchMode === FetchMode::COLUMN) {
             return $this->fetchColumn();
@@ -457,7 +463,7 @@ class OCI8Statement implements IteratorAggregate, Statement
      */
     public function fetchAll($fetchMode = null, ...$args)
     {
-        $fetchMode = $fetchMode ?: $this->_defaultFetchMode;
+        $fetchMode = $fetchMode ?? $this->_defaultFetchMode;
 
         $result = [];
 
@@ -531,6 +537,12 @@ class OCI8Statement implements IteratorAggregate, Statement
      */
     public function rowCount() : int
     {
-        return oci_num_rows($this->_sth) ?: 0;
+        $count = oci_num_rows($this->_sth);
+
+        if ($count !== false) {
+            return $count;
+        }
+
+        return 0;
     }
 }

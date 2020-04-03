@@ -119,7 +119,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
         if (! empty($tableForeignKeys)) {
             $createSql = $this->getCreateTableSQL($table);
 
-            if ($createSql !== null && preg_match_all(
+            if (preg_match_all(
                 '#
                     (?:CONSTRAINT\s+([^\s]+)\s+)?
                     (?:FOREIGN\s+KEY[^\)]+\)\s*)?
@@ -272,13 +272,16 @@ class SqliteSchemaManager extends AbstractSchemaManager
         }
 
         // inspect column collation and comments
-        $createSql = $this->getCreateTableSQL($table) ?? '';
+        $createSql = $this->getCreateTableSQL($table);
 
         foreach ($list as $columnName => $column) {
             $type = $column->getType();
 
             if ($type instanceof StringType || $type instanceof TextType) {
-                $column->setPlatformOption('collation', $this->parseColumnCollationFromSQL($columnName, $createSql) ?: 'BINARY');
+                $column->setPlatformOption(
+                    'collation',
+                    $this->parseColumnCollationFromSQL($columnName, $createSql) ?? 'BINARY'
+                );
             }
 
             $comment = $this->parseColumnCommentFromSQL($columnName, $createSql);
@@ -507,9 +510,9 @@ CREATE\sTABLE # Match "CREATE TABLE"
         return $comment === '' ? null : $comment;
     }
 
-    private function getCreateTableSQL(string $table) : ?string
+    private function getCreateTableSQL(string $table) : string
     {
-        return $this->_conn->fetchColumn(
+        $sql = $this->_conn->fetchColumn(
             <<<'SQL'
 SELECT sql
   FROM (
@@ -524,7 +527,13 @@ AND name = ?
 SQL
             ,
             [$table]
-        ) ?: null;
+        );
+
+        if ($sql !== false) {
+            return $sql;
+        }
+
+        return '';
     }
 
     /**
@@ -534,7 +543,7 @@ SQL
     {
         $table = parent::listTableDetails($tableName);
 
-        $tableCreateSql = $this->getCreateTableSQL($tableName) ?? '';
+        $tableCreateSql = $this->getCreateTableSQL($tableName);
 
         $comment = $this->parseTableCommentFromSQL($tableName, $tableCreateSql);
 

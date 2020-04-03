@@ -1269,7 +1269,9 @@ SQL
      */
     protected function getBinaryTypeDeclarationSQLSnippet($length, $fixed)
     {
-        return $fixed ? 'BINARY(' . ($length ?: 255) . ')' : 'VARBINARY(' . ($length ?: 255) . ')';
+        return $fixed
+            ? 'BINARY(' . ($length > 0 ? $length : 255) . ')'
+            : 'VARBINARY(' . ($length > 0 ? $length : 255) . ')';
     }
 
     /**

@@ -91,7 +91,7 @@ class ArrayStatement implements IteratorAggregate, ResultStatement
         }
 
         $row       = $this->data[$this->num++];
-        $fetchMode = $fetchMode ?: $this->defaultFetchMode;
+        $fetchMode = $fetchMode ?? $this->defaultFetchMode;
 
         if ($fetchMode === FetchMode::ASSOCIATIVE) {
             return $row;

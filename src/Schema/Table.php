@@ -104,7 +104,11 @@ class Table extends AbstractAsset
      */
     public function setPrimaryKey(array $columnNames, $indexName = false)
     {
-        $this->_addIndex($this->_createIndex($columnNames, $indexName ?: 'primary', true, true));
+        if ($indexName === false) {
+            $indexName = 'primary';
+        }
+
+        $this->_addIndex($this->_createIndex($columnNames, $indexName, true, true));
 
         foreach ($columnNames as $columnName) {
             $column = $this->getColumn($columnName);
@@ -361,7 +365,9 @@ class Table extends AbstractAsset
      */
     public function addForeignKeyConstraint($foreignTable, array $localColumnNames, array $foreignColumnNames, array $options = [], $constraintName = null)
     {
-        $constraintName = $constraintName ?: $this->_generateIdentifierName(array_merge((array) $this->getName(), $localColumnNames), 'fk', $this->_getMaxIdentifierLength());
+        if ($constraintName === null) {
+            $constraintName = $this->_generateIdentifierName(array_merge((array) $this->getName(), $localColumnNames), 'fk', $this->_getMaxIdentifierLength());
+        }
 
         return $this->addNamedForeignKeyConstraint($constraintName, $foreignTable, $localColumnNames, $foreignColumnNames, $options);
     }

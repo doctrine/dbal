@@ -135,7 +135,7 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
         if ($row) {
             $this->data[] = $row;
 
-            $fetchMode = $fetchMode ?: $this->defaultFetchMode;
+            $fetchMode = $fetchMode ?? $this->defaultFetchMode;
 
             if ($fetchMode === FetchMode::ASSOCIATIVE) {
                 return $row;

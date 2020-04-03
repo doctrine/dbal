@@ -82,7 +82,7 @@ abstract class FunctionalTestCase extends TestCase
                     }
 
                     return var_export($p, true);
-                }, $query['params'] ?: []);
+                }, $query['params'] ?? []);
                 $queries .= $i . ". SQL: '" . $query['sql'] . "' Params: " . implode(', ', $params) . PHP_EOL;
                 $i--;
             }

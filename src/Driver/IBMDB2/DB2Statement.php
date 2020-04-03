@@ -160,7 +160,13 @@ class DB2Statement implements IteratorAggregate, Statement
      */
     public function columnCount()
     {
-        return db2_num_fields($this->stmt) ?: 0;
+        $count = db2_num_fields($this->stmt);
+
+        if ($count !== false) {
+            return $count;
+        }
+
+        return 0;
     }
 
     /**
@@ -261,7 +267,7 @@ class DB2Statement implements IteratorAggregate, Statement
             return false;
         }
 
-        $fetchMode = $fetchMode ?: $this->defaultFetchMode;
+        $fetchMode = $fetchMode ?? $this->defaultFetchMode;
         switch ($fetchMode) {
             case FetchMode::COLUMN:
                 return $this->fetchColumn();
@@ -346,7 +352,7 @@ class DB2Statement implements IteratorAggregate, Statement
      */
     public function rowCount() : int
     {
-        return @db2_num_rows($this->stmt) ? : 0;
+        return @db2_num_rows($this->stmt);
     }
 
     /**
