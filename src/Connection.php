@@ -23,6 +23,7 @@ use Exception;
 use Throwable;
 use function array_key_exists;
 use function assert;
+use function count;
 use function implode;
 use function is_int;
 use function is_string;
@@ -420,7 +421,7 @@ class Connection implements DriverConnection
             try {
                 $this->connect();
             } catch (Throwable $originalException) {
-                if (empty($this->params['dbname'])) {
+                if (! isset($this->params['dbname'])) {
                     throw $originalException;
                 }
 
@@ -647,7 +648,7 @@ class Connection implements DriverConnection
      */
     public function delete($tableExpression, array $identifier, array $types = [])
     {
-        if (empty($identifier)) {
+        if (count($identifier) === 0) {
             throw InvalidArgumentException::fromEmptyCriteria();
         }
 
@@ -753,7 +754,7 @@ class Connection implements DriverConnection
      */
     public function insert($tableExpression, array $data, array $types = [])
     {
-        if (empty($data)) {
+        if (count($data) === 0) {
             return $this->executeUpdate('INSERT INTO ' . $tableExpression . ' () VALUES ()');
         }
 

@@ -217,7 +217,7 @@ class Comparator
             // See if column has changed properties in table 2.
             $changedProperties = $this->diffColumn($column, $table2->getColumn($columnName));
 
-            if (empty($changedProperties)) {
+            if (count($changedProperties) === 0) {
                 continue;
             }
 

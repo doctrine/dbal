@@ -78,5 +78,15 @@ parameters:
         -
             message: '~^Call to static method PHPUnit\\Framework\\Assert::assertSame\(\) with Doctrine\\DBAL\\Types\\Type and Doctrine\\DBAL\\Types\\Type will always evaluate to true\.$~'
             path: %currentWorkingDirectory%/tests/Types/TypeRegistryTest.php
+
+        # https://github.com/phpstan/phpstan-strict-rules/issues/103
+        -
+            message: '~^Construct empty\(\) is not allowed. Use more strict comparison\.~'
+            paths:
+                - %currentWorkingDirectory%/src/Driver/*/*Connection.php
+                - %currentWorkingDirectory%/src/Driver/*/Driver.php
+                - %currentWorkingDirectory%/src/Driver/AbstractOracleDriver/EasyConnectString.php
+                - %currentWorkingDirectory%/src/Platforms/*Platform.php
+                - %currentWorkingDirectory%/src/Schema/*SchemaManager.php
 includes:
     - vendor/phpstan/phpstan-strict-rules/rules.neon

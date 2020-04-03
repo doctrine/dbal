@@ -96,7 +96,7 @@ class CompositeExpression implements Countable
      */
     public function add($part)
     {
-        if (empty($part)) {
+        if ($part === null) {
             return $this;
         }
 

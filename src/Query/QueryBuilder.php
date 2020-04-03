@@ -10,6 +10,7 @@ use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use function array_key_exists;
 use function array_keys;
 use function array_unshift;
+use function count;
 use function func_get_args;
 use function func_num_args;
 use function implode;
@@ -468,7 +469,7 @@ class QueryBuilder
     {
         $this->type = self::SELECT;
 
-        if (empty($select)) {
+        if ($select === null) {
             return $this;
         }
 
@@ -518,7 +519,7 @@ class QueryBuilder
     {
         $this->type = self::SELECT;
 
-        if (empty($select)) {
+        if ($select === null) {
             return $this;
         }
 
@@ -890,7 +891,7 @@ class QueryBuilder
      */
     public function groupBy($groupBy/*, string ...$groupBys*/)
     {
-        if (empty($groupBy)) {
+        if (is_array($groupBy) && count($groupBy) === 0) {
             return $this;
         }
 
@@ -919,7 +920,7 @@ class QueryBuilder
      */
     public function addGroupBy($groupBy/*, string ...$groupBys*/)
     {
-        if (empty($groupBy)) {
+        if (is_array($groupBy) && count($groupBy) === 0) {
             return $this;
         }
 
