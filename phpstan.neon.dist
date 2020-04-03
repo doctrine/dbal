@@ -4,6 +4,7 @@ parameters:
         - %currentWorkingDirectory%/src
     autoload_files:
         - %currentWorkingDirectory%/tests/phpstan-polyfill.php
+    treatPhpDocTypesAsCertain: false
     reportUnmatchedIgnoredErrors: false
     checkMissingIterableValueType: false
     checkGenericClassInNonGenericObjectType: false
@@ -72,3 +73,5 @@ parameters:
         -
             message: '~^Cannot cast array<string>\|bool\|string\|null to int\.$~'
             path: %currentWorkingDirectory%/src/Tools/Console/Command/RunSqlCommand.php
+includes:
+    - vendor/phpstan/phpstan-strict-rules/rules.neon
