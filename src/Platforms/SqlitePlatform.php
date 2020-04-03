@@ -227,7 +227,7 @@ class SqlitePlatform extends AbstractPlatform
      *
      * @return string
      */
-    public function getTinyIntTypeDeclarationSql(array $field)
+    public function getTinyIntTypeDeclarationSQL(array $field)
     {
         //  SQLite autoincrement is implicit for INTEGER PKs, but not for TINYINT fields.
         if (! empty($field['autoincrement'])) {
@@ -255,7 +255,7 @@ class SqlitePlatform extends AbstractPlatform
      *
      * @return string
      */
-    public function getMediumIntTypeDeclarationSql(array $field)
+    public function getMediumIntTypeDeclarationSQL(array $field)
     {
         //  SQLite autoincrement is implicit for INTEGER PKs, but not for MEDIUMINT fields.
         if (! empty($field['autoincrement'])) {

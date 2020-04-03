@@ -199,8 +199,8 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
     {
         $table  = new Table('autoinc_table_notnull');
         $column = $table->addColumn('id', $type);
-        $column->setAutoIncrement(true);
-        $column->setNotNull(false);
+        $column->setAutoincrement(true);
+        $column->setNotnull(false);
 
         $sql = $this->platform->getCreateTableSQL($table);
 
@@ -215,8 +215,8 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
     {
         $table  = new Table('autoinc_table_notnull_enabled');
         $column = $table->addColumn('id', $type);
-        $column->setAutoIncrement(true);
-        $column->setNotNull(true);
+        $column->setAutoincrement(true);
+        $column->setNotnull(true);
 
         $sql = $this->platform->getCreateTableSQL($table);
 

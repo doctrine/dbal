@@ -281,11 +281,11 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         self::assertArrayHasKey('id', $columns);
         self::assertEquals(0, array_search('id', $columnsKeys));
-        self::assertEquals('id', strtolower($columns['id']->getname()));
-        self::assertInstanceOf(IntegerType::class, $columns['id']->gettype());
-        self::assertEquals(false, $columns['id']->getunsigned());
-        self::assertEquals(true, $columns['id']->getnotnull());
-        self::assertEquals(null, $columns['id']->getdefault());
+        self::assertEquals('id', strtolower($columns['id']->getName()));
+        self::assertInstanceOf(IntegerType::class, $columns['id']->getType());
+        self::assertEquals(false, $columns['id']->getUnsigned());
+        self::assertEquals(true, $columns['id']->getNotnull());
+        self::assertEquals(null, $columns['id']->getDefault());
         self::assertIsArray($columns['id']->getPlatformOptions());
 
         self::assertArrayHasKey('test', $columns);

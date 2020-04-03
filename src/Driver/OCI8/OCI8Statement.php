@@ -291,7 +291,7 @@ class OCI8Statement implements IteratorAggregate, Statement
             $class = 'OCI-Lob';
             assert($lob instanceof $class);
 
-            $lob->writeTemporary($variable, OCI_TEMP_BLOB);
+            $lob->writetemporary($variable, OCI_TEMP_BLOB);
 
             $variable =& $lob;
         }
