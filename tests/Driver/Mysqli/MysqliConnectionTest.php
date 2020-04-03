@@ -23,7 +23,7 @@ class MysqliConnectionTest extends FunctionalTestCase
     protected function setUp() : void
     {
         if (! extension_loaded('mysqli')) {
-            $this->markTestSkipped('mysqli is not installed.');
+            self::markTestSkipped('mysqli is not installed.');
         }
 
         parent::setUp();

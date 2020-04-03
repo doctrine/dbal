@@ -23,7 +23,7 @@ class DBAL630Test extends FunctionalTestCase
         $platform = $this->connection->getDatabasePlatform()->getName();
 
         if (! in_array($platform, ['postgresql'])) {
-            $this->markTestSkipped('Currently restricted to PostgreSQL');
+            self::markTestSkipped('Currently restricted to PostgreSQL');
         }
 
         try {

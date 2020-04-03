@@ -47,7 +47,7 @@ class LoggerChainTest extends TestCase
     private function createLogger(string $method, ...$args) : SQLLogger
     {
         $logger = $this->createMock(SQLLogger::class);
-        $logger->expects($this->once())
+        $logger->expects(self::once())
             ->method($method)
             ->with(...$args);
 

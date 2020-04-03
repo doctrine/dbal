@@ -28,14 +28,14 @@ class DropSchemaSqlCollectorTest extends TestCase
 
         $collector = new DropSchemaSqlCollector($platform);
 
-        $platform->expects($this->exactly(2))
+        $platform->expects(self::exactly(2))
             ->method('getDropForeignKeySQL');
 
-        $platform->expects($this->at(0))
+        $platform->expects(self::at(0))
             ->method('getDropForeignKeySQL')
             ->with($keyConstraintOne, $tableOne);
 
-        $platform->expects($this->at(1))
+        $platform->expects(self::at(1))
             ->method('getDropForeignKeySQL')
             ->with($keyConstraintTwo, $tableTwo);
 
@@ -49,17 +49,17 @@ class DropSchemaSqlCollectorTest extends TestCase
     {
         $constraint = $this->createMock(ForeignKeyConstraint::class);
 
-        $constraint->expects($this->any())
+        $constraint->expects(self::any())
             ->method('getName')
-            ->will($this->returnValue($name));
+            ->will(self::returnValue($name));
 
-        $constraint->expects($this->any())
+        $constraint->expects(self::any())
             ->method('getForeignColumns')
-            ->will($this->returnValue([]));
+            ->will(self::returnValue([]));
 
-        $constraint->expects($this->any())
+        $constraint->expects(self::any())
             ->method('getColumns')
-            ->will($this->returnValue([]));
+            ->will(self::returnValue([]));
 
         return $constraint;
     }

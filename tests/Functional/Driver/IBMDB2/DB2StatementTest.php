@@ -13,7 +13,7 @@ class DB2StatementTest extends FunctionalTestCase
     protected function setUp() : void
     {
         if (! extension_loaded('ibm_db2')) {
-            $this->markTestSkipped('ibm_db2 is not installed.');
+            self::markTestSkipped('ibm_db2 is not installed.');
         }
 
         parent::setUp();
@@ -22,7 +22,7 @@ class DB2StatementTest extends FunctionalTestCase
             return;
         }
 
-        $this->markTestSkipped('ibm_db2 only test.');
+        self::markTestSkipped('ibm_db2 only test.');
     }
 
     public function testExecutionErrorsAreNotSuppressed() : void

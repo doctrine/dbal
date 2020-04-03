@@ -13,7 +13,7 @@ class PDOPgsqlConnectionTest extends FunctionalTestCase
     protected function setUp() : void
     {
         if (! extension_loaded('pdo_pgsql')) {
-            $this->markTestSkipped('pdo_pgsql is not loaded.');
+            self::markTestSkipped('pdo_pgsql is not loaded.');
         }
 
         parent::setUp();
@@ -22,7 +22,7 @@ class PDOPgsqlConnectionTest extends FunctionalTestCase
             return;
         }
 
-        $this->markTestSkipped('PDOPgsql only test.');
+        self::markTestSkipped('PDOPgsql only test.');
     }
 
     /**

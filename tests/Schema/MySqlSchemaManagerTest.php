@@ -35,7 +35,7 @@ class MySqlSchemaManagerTest extends TestCase
 
     public function testCompositeForeignKeys() : void
     {
-        $this->conn->expects($this->once())->method('fetchAll')->will($this->returnValue($this->getFKDefinition()));
+        $this->conn->expects(self::once())->method('fetchAll')->will(self::returnValue($this->getFKDefinition()));
         $fkeys = $this->manager->listTableForeignKeys('dummy');
         self::assertCount(1, $fkeys, 'Table has to have one foreign key.');
 

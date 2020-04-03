@@ -38,7 +38,7 @@ class TemporaryTableTest extends FunctionalTestCase
     {
         if ($this->connection->getDatabasePlatform()->getName() === 'sqlanywhere' ||
             $this->connection->getDatabasePlatform()->getName() === 'oracle') {
-            $this->markTestSkipped('Test does not work on Oracle and SQL Anywhere.');
+            self::markTestSkipped('Test does not work on Oracle and SQL Anywhere.');
         }
 
         $platform          = $this->connection->getDatabasePlatform();
@@ -73,7 +73,7 @@ class TemporaryTableTest extends FunctionalTestCase
     {
         if ($this->connection->getDatabasePlatform()->getName() === 'sqlanywhere' ||
             $this->connection->getDatabasePlatform()->getName() === 'oracle') {
-            $this->markTestSkipped('Test does not work on Oracle and SQL Anywhere.');
+            self::markTestSkipped('Test does not work on Oracle and SQL Anywhere.');
         }
 
         $platform          = $this->connection->getDatabasePlatform();

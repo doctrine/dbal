@@ -46,10 +46,10 @@ class DateTimeImmutableTypeTest extends TestCase
     {
         $date = $this->getMockBuilder(DateTimeImmutable::class)->getMock();
 
-        $this->platform->expects($this->once())
+        $this->platform->expects(self::once())
             ->method('getDateTimeFormatString')
             ->willReturn('Y-m-d H:i:s');
-        $date->expects($this->once())
+        $date->expects(self::once())
             ->method('format')
             ->with('Y-m-d H:i:s')
             ->willReturn('2016-01-01 15:58:59');
@@ -86,7 +86,7 @@ class DateTimeImmutableTypeTest extends TestCase
 
     public function testConvertsDateTimeStringToPHPValue() : void
     {
-        $this->platform->expects($this->once())
+        $this->platform->expects(self::once())
             ->method('getDateTimeFormatString')
             ->willReturn('Y-m-d H:i:s');
 
@@ -101,7 +101,7 @@ class DateTimeImmutableTypeTest extends TestCase
      */
     public function testConvertsDateTimeStringWithMicrosecondsToPHPValue() : void
     {
-        $this->platform->expects($this->any())
+        $this->platform->expects(self::any())
             ->method('getDateTimeFormatString')
             ->willReturn('Y-m-d H:i:s');
 
@@ -112,7 +112,7 @@ class DateTimeImmutableTypeTest extends TestCase
 
     public function testThrowsExceptionDuringConversionToPHPValueWithInvalidDateTimeString() : void
     {
-        $this->platform->expects($this->atLeastOnce())
+        $this->platform->expects(self::atLeastOnce())
             ->method('getDateTimeFormatString')
             ->willReturn('Y-m-d H:i:s');
 

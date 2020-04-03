@@ -44,7 +44,7 @@ final class DB2SchemaManagerTest extends TestCase
     public function testListTableNamesFiltersAssetNamesCorrectly() : void
     {
         $this->conn->getConfiguration()->setFilterSchemaAssetsExpression('/^(?!T_)/');
-        $this->conn->expects($this->once())->method('fetchAll')->will($this->returnValue([
+        $this->conn->expects(self::once())->method('fetchAll')->will(self::returnValue([
             ['name' => 'FOO'],
             ['name' => 'T_FOO'],
             ['name' => 'BAR'],
@@ -67,7 +67,7 @@ final class DB2SchemaManagerTest extends TestCase
     {
         $filterExpression = '/^(?!T_)/';
         $this->conn->getConfiguration()->setFilterSchemaAssetsExpression($filterExpression);
-        $this->conn->expects($this->once())->method('fetchAll')->will($this->returnValue([
+        $this->conn->expects(self::once())->method('fetchAll')->will(self::returnValue([
             ['name' => 'FOO'],
             ['name' => 'T_FOO'],
             ['name' => 'BAR'],
@@ -86,7 +86,7 @@ final class DB2SchemaManagerTest extends TestCase
         self::assertIsCallable($callable);
 
         // BC check: Test that regexp expression is still preserved & accessible.
-        $this->assertEquals($filterExpression, $this->conn->getConfiguration()->getFilterSchemaAssetsExpression());
+        self::assertEquals($filterExpression, $this->conn->getConfiguration()->getFilterSchemaAssetsExpression());
     }
 
     public function testListTableNamesFiltersAssetNamesCorrectlyWithCallable() : void
@@ -95,8 +95,8 @@ final class DB2SchemaManagerTest extends TestCase
         $this->conn->getConfiguration()->setSchemaAssetsFilter(static function ($assetName) use ($accepted) {
             return in_array($assetName, $accepted);
         });
-        $this->conn->expects($this->any())->method('quote');
-        $this->conn->expects($this->once())->method('fetchAll')->will($this->returnValue([
+        $this->conn->expects(self::any())->method('quote');
+        $this->conn->expects(self::once())->method('fetchAll')->will(self::returnValue([
             ['name' => 'FOO'],
             ['name' => 'T_FOO'],
             ['name' => 'BAR'],
@@ -111,7 +111,7 @@ final class DB2SchemaManagerTest extends TestCase
             $this->manager->listTableNames()
         );
 
-        $this->assertNull($this->conn->getConfiguration()->getFilterSchemaAssetsExpression());
+        self::assertNull($this->conn->getConfiguration()->getFilterSchemaAssetsExpression());
     }
 
     public function testSettingNullExpressionWillResetCallable() : void
@@ -120,8 +120,8 @@ final class DB2SchemaManagerTest extends TestCase
         $this->conn->getConfiguration()->setSchemaAssetsFilter(static function ($assetName) use ($accepted) {
             return in_array($assetName, $accepted);
         });
-        $this->conn->expects($this->any())->method('quote');
-        $this->conn->expects($this->atLeastOnce())->method('fetchAll')->will($this->returnValue([
+        $this->conn->expects(self::any())->method('quote');
+        $this->conn->expects($this->atLeastOnce())->method('fetchAll')->will(self::returnValue([
             ['name' => 'FOO'],
             ['name' => 'T_FOO'],
             ['name' => 'BAR'],
@@ -148,7 +148,7 @@ final class DB2SchemaManagerTest extends TestCase
             $this->manager->listTableNames()
         );
 
-        $this->assertNull($this->conn->getConfiguration()->getSchemaAssetsFilter());
+        self::assertNull($this->conn->getConfiguration()->getSchemaAssetsFilter());
     }
 
     public function testSettingNullAsCallableClearsExpression() : void
@@ -156,7 +156,7 @@ final class DB2SchemaManagerTest extends TestCase
         $filterExpression = '/^(?!T_)/';
         $this->conn->getConfiguration()->setFilterSchemaAssetsExpression($filterExpression);
 
-        $this->conn->expects($this->exactly(2))->method('fetchAll')->will($this->returnValue([
+        $this->conn->expects(self::exactly(2))->method('fetchAll')->will(self::returnValue([
             ['name' => 'FOO'],
             ['name' => 'T_FOO'],
             ['name' => 'BAR'],

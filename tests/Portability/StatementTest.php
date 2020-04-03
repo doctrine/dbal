@@ -43,10 +43,10 @@ class StatementTest extends TestCase
         $type     = ParameterType::STRING;
         $length   = 666;
 
-        $this->wrappedStmt->expects($this->once())
+        $this->wrappedStmt->expects(self::once())
             ->method('bindParam')
             ->with($column, $variable, $type, $length)
-            ->will($this->returnValue(true));
+            ->will(self::returnValue(true));
 
         self::assertTrue($this->stmt->bindParam($column, $variable, $type, $length));
     }
@@ -57,19 +57,19 @@ class StatementTest extends TestCase
         $value = 'myvalue';
         $type  = ParameterType::STRING;
 
-        $this->wrappedStmt->expects($this->once())
+        $this->wrappedStmt->expects(self::once())
             ->method('bindValue')
             ->with($param, $value, $type)
-            ->will($this->returnValue(true));
+            ->will(self::returnValue(true));
 
         self::assertTrue($this->stmt->bindValue($param, $value, $type));
     }
 
     public function testCloseCursor() : void
     {
-        $this->wrappedStmt->expects($this->once())
+        $this->wrappedStmt->expects(self::once())
             ->method('closeCursor')
-            ->will($this->returnValue(true));
+            ->will(self::returnValue(true));
 
         self::assertTrue($this->stmt->closeCursor());
     }
@@ -78,9 +78,9 @@ class StatementTest extends TestCase
     {
         $columnCount = 666;
 
-        $this->wrappedStmt->expects($this->once())
+        $this->wrappedStmt->expects(self::once())
             ->method('columnCount')
-            ->will($this->returnValue($columnCount));
+            ->will(self::returnValue($columnCount));
 
         self::assertSame($columnCount, $this->stmt->columnCount());
     }
@@ -89,9 +89,9 @@ class StatementTest extends TestCase
     {
         $errorCode = '666';
 
-        $this->wrappedStmt->expects($this->once())
+        $this->wrappedStmt->expects(self::once())
             ->method('errorCode')
-            ->will($this->returnValue($errorCode));
+            ->will(self::returnValue($errorCode));
 
         self::assertSame($errorCode, $this->stmt->errorCode());
     }
@@ -100,9 +100,9 @@ class StatementTest extends TestCase
     {
         $errorInfo = ['666', 'Evil error.'];
 
-        $this->wrappedStmt->expects($this->once())
+        $this->wrappedStmt->expects(self::once())
             ->method('errorInfo')
-            ->will($this->returnValue($errorInfo));
+            ->will(self::returnValue($errorInfo));
 
         self::assertSame($errorInfo, $this->stmt->errorInfo());
     }
@@ -114,10 +114,10 @@ class StatementTest extends TestCase
             'bar',
         ];
 
-        $this->wrappedStmt->expects($this->once())
+        $this->wrappedStmt->expects(self::once())
             ->method('execute')
             ->with($params)
-            ->will($this->returnValue(true));
+            ->will(self::returnValue(true));
 
         self::assertTrue($this->stmt->execute($params));
     }
@@ -128,10 +128,10 @@ class StatementTest extends TestCase
         $arg1      = 'MyClass';
         $arg2      = [1, 2];
 
-        $this->wrappedStmt->expects($this->once())
+        $this->wrappedStmt->expects(self::once())
             ->method('setFetchMode')
             ->with($fetchMode, $arg1, $arg2)
-            ->will($this->returnValue(true));
+            ->will(self::returnValue(true));
 
         $re = new ReflectionProperty($this->stmt, 'defaultFetchMode');
         $re->setAccessible(true);
@@ -143,7 +143,7 @@ class StatementTest extends TestCase
 
     public function testGetIterator() : void
     {
-        $this->wrappedStmt->expects($this->exactly(3))
+        $this->wrappedStmt->expects(self::exactly(3))
             ->method('fetch')
             ->willReturnOnConsecutiveCalls('foo', 'bar', false);
 
@@ -154,9 +154,9 @@ class StatementTest extends TestCase
     {
         $rowCount = 666;
 
-        $this->wrappedStmt->expects($this->once())
+        $this->wrappedStmt->expects(self::once())
             ->method('rowCount')
-            ->will($this->returnValue($rowCount));
+            ->will(self::returnValue($rowCount));
 
         self::assertSame($rowCount, $this->stmt->rowCount());
     }

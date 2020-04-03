@@ -20,7 +20,7 @@ final class NewPrimaryKeyWithNewAutoIncrementColumnTest extends FunctionalTestCa
             return;
         }
 
-        $this->markTestSkipped('Restricted to MySQL.');
+        self::markTestSkipped('Restricted to MySQL.');
     }
 
     /**
@@ -57,10 +57,10 @@ final class NewPrimaryKeyWithNewAutoIncrementColumnTest extends FunctionalTestCa
         $validationSchema = $schemaManager->createSchema();
         $validationTable  = $validationSchema->getTable($table->getName());
 
-        $this->assertTrue($validationTable->hasColumn('new_id'));
-        $this->assertTrue($validationTable->getColumn('new_id')->getAutoincrement());
-        $this->assertTrue($validationTable->hasPrimaryKey());
-        $this->assertSame(['new_id'], $validationTable->getPrimaryKeyColumns());
+        self::assertTrue($validationTable->hasColumn('new_id'));
+        self::assertTrue($validationTable->getColumn('new_id')->getAutoincrement());
+        self::assertTrue($validationTable->hasPrimaryKey());
+        self::assertSame(['new_id'], $validationTable->getPrimaryKeyColumns());
     }
 
     private function getPlatform() : AbstractPlatform

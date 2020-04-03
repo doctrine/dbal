@@ -24,7 +24,7 @@ class StringTest extends TestCase
 
     public function testReturnsSqlDeclarationFromPlatformVarchar() : void
     {
-        $this->platform->expects($this->once())
+        $this->platform->expects(self::once())
             ->method('getVarcharTypeDeclarationSQL')
             ->willReturn('TEST_VARCHAR');
 
@@ -33,7 +33,7 @@ class StringTest extends TestCase
 
     public function testReturnsDefaultLengthFromPlatformVarchar() : void
     {
-        $this->platform->expects($this->once())
+        $this->platform->expects(self::once())
             ->method('getVarcharDefaultLength')
             ->willReturn(255);
 

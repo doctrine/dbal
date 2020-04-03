@@ -23,9 +23,9 @@ class AbstractSQLiteDriverTest extends AbstractDriverTest
 
         $connection = $this->getConnectionMock();
 
-        $connection->expects($this->once())
+        $connection->expects(self::once())
             ->method('getParams')
-            ->will($this->returnValue($params));
+            ->will(self::returnValue($params));
 
         self::assertSame($params['path'], $this->driver->getDatabase($connection));
     }

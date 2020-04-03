@@ -896,8 +896,8 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
 
         $tableDiff = $comparator->diffTable($table1, $table2);
 
-        $this->assertInstanceOf('Doctrine\DBAL\Schema\TableDiff', $tableDiff);
-        $this->assertSame(
+        self::assertInstanceOf('Doctrine\DBAL\Schema\TableDiff', $tableDiff);
+        self::assertSame(
             [
                 'ALTER TABLE "foo" ALTER "bar" TYPE TIMESTAMP(0) WITHOUT TIME ZONE',
                 'ALTER TABLE "foo" ALTER "bar" DROP DEFAULT',

@@ -40,23 +40,23 @@ class OCI8StatementTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $statement->expects($this->at(0))
+        $statement->expects(self::at(0))
             ->method('bindValue')
             ->with(
-                $this->equalTo(1),
-                $this->equalTo($params[0])
+                self::equalTo(1),
+                self::equalTo($params[0])
             );
-        $statement->expects($this->at(1))
+        $statement->expects(self::at(1))
             ->method('bindValue')
             ->with(
-                $this->equalTo(2),
-                $this->equalTo($params[1])
+                self::equalTo(2),
+                self::equalTo($params[1])
             );
-        $statement->expects($this->at(2))
+        $statement->expects(self::at(2))
             ->method('bindValue')
             ->with(
-                $this->equalTo(3),
-                $this->equalTo($params[2])
+                self::equalTo(3),
+                self::equalTo($params[2])
             );
 
         // the return value is irrelevant to the test
@@ -70,7 +70,7 @@ class OCI8StatementTest extends TestCase
             ->onlyMethods(['getExecuteMode'])
             ->disableOriginalConstructor()
             ->getMock();
-        $conn->expects($this->once())
+        $conn->expects(self::once())
             ->method('getExecuteMode');
 
         $reflProperty = new ReflectionProperty($statement, '_conn');

@@ -12,7 +12,7 @@ class StatementTest extends FunctionalTestCase
     protected function setUp() : void
     {
         if (! extension_loaded('sqlanywhere')) {
-            $this->markTestSkipped('sqlanywhere is not installed.');
+            self::markTestSkipped('sqlanywhere is not installed.');
         }
 
         parent::setUp();
@@ -21,7 +21,7 @@ class StatementTest extends FunctionalTestCase
             return;
         }
 
-        $this->markTestSkipped('sqlanywhere only test.');
+        self::markTestSkipped('sqlanywhere only test.');
     }
 
     public function testNonPersistentStatement() : void

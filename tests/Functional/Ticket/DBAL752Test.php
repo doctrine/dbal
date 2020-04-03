@@ -20,7 +20,7 @@ class DBAL752Test extends FunctionalTestCase
             return;
         }
 
-        $this->markTestSkipped('Related to SQLite only');
+        self::markTestSkipped('Related to SQLite only');
     }
 
     public function testUnsignedIntegerDetection() : void

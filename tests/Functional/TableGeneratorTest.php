@@ -22,7 +22,7 @@ class TableGeneratorTest extends FunctionalTestCase
 
         $platform = $this->connection->getDatabasePlatform();
         if ($platform->getName() === 'sqlite') {
-            $this->markTestSkipped('TableGenerator does not work with SQLite');
+            self::markTestSkipped('TableGenerator does not work with SQLite');
         }
 
         try {

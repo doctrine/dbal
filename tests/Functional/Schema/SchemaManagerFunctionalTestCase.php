@@ -68,7 +68,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $dbms = $this->getPlatformName();
 
         if ($this->connection->getDatabasePlatform()->getName() !== $dbms) {
-            $this->markTestSkipped(static::class . ' requires the use of ' . $dbms);
+            self::markTestSkipped(static::class . ' requires the use of ' . $dbms);
         }
 
         $this->schemaManager = $this->connection->getSchemaManager();
@@ -95,7 +95,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     public function testDropsDatabaseWithActiveConnections() : void
     {
         if (! $this->schemaManager->getDatabasePlatform()->supportsCreateDropDatabase()) {
-            $this->markTestSkipped('Cannot drop Database client side with this Driver.');
+            self::markTestSkipped('Cannot drop Database client side with this Driver.');
         }
 
         $this->schemaManager->dropAndCreateDatabase('test_drop_database');
@@ -134,7 +134,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $platform = $this->connection->getDatabasePlatform();
 
         if (! $platform->supportsSequences()) {
-            $this->markTestSkipped(
+            self::markTestSkipped(
                 sprintf('The "%s" platform does not support sequences.', $platform->getName())
             );
         }
@@ -166,7 +166,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $platform = $this->connection->getDatabasePlatform();
 
         if (! $platform->supportsSequences()) {
-            $this->markTestSkipped(
+            self::markTestSkipped(
                 sprintf('The "%s" platform does not support sequences.', $platform->getName())
             );
         }
@@ -196,7 +196,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     public function testListDatabases() : void
     {
         if (! $this->schemaManager->getDatabasePlatform()->supportsCreateDropDatabase()) {
-            $this->markTestSkipped('Cannot drop Database client side with this Driver.');
+            self::markTestSkipped('Cannot drop Database client side with this Driver.');
         }
 
         $this->schemaManager->dropAndCreateDatabase('test_create_database');
@@ -213,7 +213,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     public function testListNamespaceNames() : void
     {
         if (! $this->schemaManager->getDatabasePlatform()->supportsSchemas()) {
-            $this->markTestSkipped('Platform does not support schemas.');
+            self::markTestSkipped('Platform does not support schemas.');
         }
 
         // Currently dropping schemas is not supported, so we have to workaround here.
@@ -372,7 +372,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             ->getMock();
 
         $listenerMock
-            ->expects($this->exactly(7))
+            ->expects(self::exactly(7))
             ->method('onSchemaColumnDefinition');
 
         $oldEventManager = $this->schemaManager->getDatabasePlatform()->getEventManager();
@@ -399,7 +399,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             ->addMethods(['onSchemaIndexDefinition'])
             ->getMock();
         $listenerMock
-            ->expects($this->exactly(3))
+            ->expects(self::exactly(3))
             ->method('onSchemaIndexDefinition');
 
         $oldEventManager = $this->schemaManager->getDatabasePlatform()->getEventManager();
@@ -417,7 +417,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     public function testDiffListTableColumns() : void
     {
         if ($this->schemaManager->getDatabasePlatform()->getName() === 'oracle') {
-            $this->markTestSkipped('Does not work with Oracle, since it cannot detect DateTime, Date and Time differenecs (at the moment).');
+            self::markTestSkipped('Does not work with Oracle, since it cannot detect DateTime, Date and Time differenecs (at the moment).');
         }
 
         $offlineTable = $this->createListTableColumns();
@@ -477,7 +477,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     public function testCreateTableWithForeignKeys() : void
     {
         if (! $this->schemaManager->getDatabasePlatform()->supportsForeignKeyConstraints()) {
-            $this->markTestSkipped('Platform does not support foreign keys.');
+            self::markTestSkipped('Platform does not support foreign keys.');
         }
 
         $tableB = $this->getTestTable('test_foreign');
@@ -505,7 +505,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     public function testListForeignKeys() : void
     {
         if (! $this->connection->getDatabasePlatform()->supportsForeignKeyConstraints()) {
-            $this->markTestSkipped('Does not support foreign key constraints.');
+            self::markTestSkipped('Does not support foreign key constraints.');
         }
 
         $this->createTestTable('test_create_fk1');
@@ -539,7 +539,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
     protected function getCreateExampleViewSql() : void
     {
-        $this->markTestSkipped('No Create Example View SQL was defined for this SchemaManager');
+        self::markTestSkipped('No Create Example View SQL was defined for this SchemaManager');
     }
 
     public function testCreateSchema() : void
@@ -553,7 +553,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     public function testAlterTableScenario() : void
     {
         if (! $this->schemaManager->getDatabasePlatform()->supportsAlterTable()) {
-            $this->markTestSkipped('Alter Table is not supported by this platform.');
+            self::markTestSkipped('Alter Table is not supported by this platform.');
         }
 
         $alterTable = $this->createTestTable('alter_table');
@@ -642,7 +642,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     public function testTableInNamespace() : void
     {
         if (! $this->schemaManager->getDatabasePlatform()->supportsSchemas()) {
-            $this->markTestSkipped('Schema definition is not supported by this platform.');
+            self::markTestSkipped('Schema definition is not supported by this platform.');
         }
 
         //create schema
@@ -666,7 +666,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     public function testCreateAndListViews() : void
     {
         if (! $this->schemaManager->getDatabasePlatform()->supportsViews()) {
-            $this->markTestSkipped('Views is not supported by this platform.');
+            self::markTestSkipped('Views is not supported by this platform.');
         }
 
         $this->createTestTable('view_test_table');
@@ -684,7 +684,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     public function testAutoincrementDetection() : void
     {
         if (! $this->schemaManager->getDatabasePlatform()->supportsIdentityColumns()) {
-            $this->markTestSkipped('This test is only supported on platforms that have autoincrement');
+            self::markTestSkipped('This test is only supported on platforms that have autoincrement');
         }
 
         $table = new Table('test_autoincrement');
@@ -705,7 +705,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     public function testAutoincrementDetectionMulticolumns() : void
     {
         if (! $this->schemaManager->getDatabasePlatform()->supportsIdentityColumns()) {
-            $this->markTestSkipped('This test is only supported on platforms that have autoincrement');
+            self::markTestSkipped('This test is only supported on platforms that have autoincrement');
         }
 
         $table = new Table('test_not_autoincrement');
@@ -727,7 +727,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     public function testUpdateSchemaWithForeignKeyRenaming() : void
     {
         if (! $this->schemaManager->getDatabasePlatform()->supportsForeignKeyConstraints()) {
-            $this->markTestSkipped('This test is only supported on platforms that have foreign keys.');
+            self::markTestSkipped('This test is only supported on platforms that have foreign keys.');
         }
 
         $table = new Table('test_fk_base');
@@ -772,7 +772,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     public function testRenameIndexUsedInForeignKeyConstraint() : void
     {
         if (! $this->schemaManager->getDatabasePlatform()->supportsForeignKeyConstraints()) {
-            $this->markTestSkipped('This test is only supported on platforms that have foreign keys.');
+            self::markTestSkipped('This test is only supported on platforms that have foreign keys.');
         }
 
         $primaryTable = new Table('test_rename_index_primary');
@@ -815,7 +815,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         if (! $this->connection->getDatabasePlatform()->supportsInlineColumnComments() &&
              ! $this->connection->getDatabasePlatform()->supportsCommentOnStatement() &&
             $this->connection->getDatabasePlatform()->getName() !== 'mssql') {
-            $this->markTestSkipped('Database does not support column comments.');
+            self::markTestSkipped('Database does not support column comments.');
         }
 
         $table = new Table('column_comment_test');
@@ -859,7 +859,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         if (! $this->connection->getDatabasePlatform()->supportsInlineColumnComments() &&
              ! $this->connection->getDatabasePlatform()->supportsCommentOnStatement() &&
             $this->connection->getDatabasePlatform()->getName() !== 'mssql') {
-            $this->markTestSkipped('Database does not support column comments.');
+            self::markTestSkipped('Database does not support column comments.');
         }
 
         $table = new Table('column_comment_test2');
@@ -887,7 +887,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         if (! $this->connection->getDatabasePlatform()->supportsInlineColumnComments() &&
             ! $this->connection->getDatabasePlatform()->supportsCommentOnStatement() &&
             $this->connection->getDatabasePlatform()->getName() !== 'mssql') {
-            $this->markTestSkipped('Database does not support column comments.');
+            self::markTestSkipped('Database does not support column comments.');
         }
 
         $table = new Table('column_dateinterval_comment');
@@ -1024,7 +1024,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     public function testListForeignKeysComposite() : void
     {
         if (! $this->connection->getDatabasePlatform()->supportsForeignKeyConstraints()) {
-            $this->markTestSkipped('Does not support foreign key constraints.');
+            self::markTestSkipped('Does not support foreign key constraints.');
         }
 
         $this->schemaManager->createTable($this->getTestTable('test_create_fk3'));
@@ -1126,7 +1126,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     public function testListTableDetailsWithFullQualifiedTableName() : void
     {
         if (! $this->schemaManager->getDatabasePlatform()->supportsSchemas()) {
-            $this->markTestSkipped('Test only works on platforms that support schemas.');
+            self::markTestSkipped('Test only works on platforms that support schemas.');
         }
 
         $defaultSchemaName = $this->schemaManager->getDatabasePlatform()->getDefaultSchemaName();
@@ -1168,7 +1168,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         if (! $this->connection->getDatabasePlatform()->supportsInlineColumnComments() &&
             ! $this->connection->getDatabasePlatform()->supportsCommentOnStatement() &&
             $this->connection->getDatabasePlatform()->getName() !== 'mssql') {
-            $this->markTestSkipped('Database does not support column comments.');
+            self::markTestSkipped('Database does not support column comments.');
         }
 
         $table = new Table('my_table');
@@ -1184,7 +1184,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     public function testCommentNotDuplicated() : void
     {
         if (! $this->connection->getDatabasePlatform()->supportsInlineColumnComments()) {
-            $this->markTestSkipped('Database does not support column comments.');
+            self::markTestSkipped('Database does not support column comments.');
         }
 
         $options          = [
@@ -1216,7 +1216,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         if (! $this->connection->getDatabasePlatform()->supportsInlineColumnComments() &&
             ! $this->connection->getDatabasePlatform()->supportsCommentOnStatement() &&
             $this->connection->getDatabasePlatform()->getName() !== 'mssql') {
-            $this->markTestSkipped('Database does not support column comments.');
+            self::markTestSkipped('Database does not support column comments.');
         }
 
         $offlineTable = new Table('alter_column_comment_test');
@@ -1281,7 +1281,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     public function testDoesNotListIndexesImplicitlyCreatedByForeignKeys() : void
     {
         if (! $this->schemaManager->getDatabasePlatform()->supportsForeignKeyConstraints()) {
-            $this->markTestSkipped('This test is only supported on platforms that have foreign keys.');
+            self::markTestSkipped('This test is only supported on platforms that have foreign keys.');
         }
 
         $primaryTable = new Table('test_list_index_impl_primary');
@@ -1435,7 +1435,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     public function testComparatorShouldNotAddCommentToJsonTypeSinceItIsTheDefaultNow() : void
     {
         if (! $this->schemaManager->getDatabasePlatform()->hasNativeJsonType()) {
-            $this->markTestSkipped('This test is only supported on platforms that have native JSON type.');
+            self::markTestSkipped('This test is only supported on platforms that have native JSON type.');
         }
 
         $this->connection->executeQuery('CREATE TABLE json_test (parameters JSON NOT NULL)');
@@ -1571,7 +1571,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $query->execute();
         $lastUsedIdAfterDelete = (int) $query->fetchColumn();
 
-        $this->assertGreaterThan($lastUsedIdBeforeDelete, $lastUsedIdAfterDelete);
+        self::assertGreaterThan($lastUsedIdBeforeDelete, $lastUsedIdAfterDelete);
     }
 
     public function testGenerateAnIndexWithPartialColumnLength() : void

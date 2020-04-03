@@ -12,7 +12,7 @@ class DriverTest extends AbstractDriverTest
     protected function setUp() : void
     {
         if (! extension_loaded('sqlsrv')) {
-            $this->markTestSkipped('sqlsrv is not installed.');
+            self::markTestSkipped('sqlsrv is not installed.');
         }
 
         parent::setUp();
@@ -21,7 +21,7 @@ class DriverTest extends AbstractDriverTest
             return;
         }
 
-        $this->markTestSkipped('sqlsrv only test.');
+        self::markTestSkipped('sqlsrv only test.');
     }
 
     /**

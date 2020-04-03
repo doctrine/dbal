@@ -248,7 +248,7 @@ class DataAccessTest extends FunctionalTestCase
     {
         if ($this->connection->getDriver() instanceof MySQLiDriver ||
             $this->connection->getDriver() instanceof SQLSrvDriver) {
-            $this->markTestSkipped('mysqli and sqlsrv actually supports this');
+            self::markTestSkipped('mysqli and sqlsrv actually supports this');
         }
 
         $datetimeString = '2010-01-01 10:10:10';
@@ -319,7 +319,7 @@ class DataAccessTest extends FunctionalTestCase
     {
         if ($this->connection->getDriver() instanceof MySQLiDriver ||
             $this->connection->getDriver() instanceof SQLSrvDriver) {
-            $this->markTestSkipped('mysqli and sqlsrv actually supports this');
+            self::markTestSkipped('mysqli and sqlsrv actually supports this');
         }
 
         $datetimeString = '2010-01-01 10:10:10';
@@ -364,7 +364,7 @@ class DataAccessTest extends FunctionalTestCase
     {
         if ($this->connection->getDriver() instanceof MySQLiDriver ||
             $this->connection->getDriver() instanceof SQLSrvDriver) {
-            $this->markTestSkipped('mysqli and sqlsrv actually supports this');
+            self::markTestSkipped('mysqli and sqlsrv actually supports this');
         }
 
         $datetimeString = '2010-01-01 10:10:10';
@@ -411,7 +411,7 @@ class DataAccessTest extends FunctionalTestCase
     {
         if ($this->connection->getDriver() instanceof MySQLiDriver ||
             $this->connection->getDriver() instanceof SQLSrvDriver) {
-            $this->markTestSkipped('mysqli and sqlsrv actually supports this');
+            self::markTestSkipped('mysqli and sqlsrv actually supports this');
         }
 
         $datetimeString = '2010-01-01 10:10:10';
@@ -620,7 +620,7 @@ class DataAccessTest extends FunctionalTestCase
         $platform = $this->connection->getDatabasePlatform();
 
         if (! $platform instanceof SqlitePlatform) {
-            $this->markTestSkipped('test is for sqlite only');
+            self::markTestSkipped('test is for sqlite only');
         }
 
         $table = new Table('fetch_table_date_math');
@@ -639,7 +639,7 @@ class DataAccessTest extends FunctionalTestCase
 
         $rowCount = $this->connection->fetchColumn($sql, [], 0);
 
-        $this->assertEquals(1, $rowCount);
+        self::assertEquals(1, $rowCount);
     }
 
     public function testLocateExpression() : void
@@ -942,11 +942,11 @@ class DataAccessTest extends FunctionalTestCase
         $driver = $this->connection->getDriver();
 
         if ($driver instanceof Oci8Driver) {
-            $this->markTestSkipped('Not supported by OCI8');
+            self::markTestSkipped('Not supported by OCI8');
         }
 
         if ($driver instanceof MySQLiDriver) {
-            $this->markTestSkipped('Mysqli driver dont support this feature.');
+            self::markTestSkipped('Mysqli driver dont support this feature.');
         }
 
         if (! $driver instanceof PDOOracleDriver) {
