@@ -103,5 +103,12 @@ parameters:
             message: '~^Variable property access on object\.~'
             paths:
                 - %currentWorkingDirectory%/src/Driver/*/*Statement.php
+
+        # Some APIs use variable method calls internally
+        -
+            message: '~^Variable method call on .*~'
+            paths:
+                - %currentWorkingDirectory%/src/Schema/AbstractSchemaManager.php
+                - %currentWorkingDirectory%/src/Schema/Column.php
 includes:
     - vendor/phpstan/phpstan-strict-rules/rules.neon

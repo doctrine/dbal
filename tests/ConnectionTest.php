@@ -183,7 +183,7 @@ class ConnectionTest extends TestCase
      * @requires extension pdo_sqlite
      * @dataProvider getQueryMethods
      */
-    public function testDriverExceptionIsWrapped(string $method) : void
+    public function testDriverExceptionIsWrapped(callable $callback) : void
     {
         $this->expectException(DBALException::class);
         $this->expectExceptionMessage("An exception occurred while executing 'MUUHAAAAHAAAA':\n\nSQLSTATE[HY000]: General error: 1 near \"MUUHAAAAHAAAA\"");
@@ -193,20 +193,42 @@ class ConnectionTest extends TestCase
             'memory' => true,
         ]);
 
-        $connection->$method('MUUHAAAAHAAAA');
+        $callback($connection, 'MUUHAAAAHAAAA');
     }
 
     /**
-     * @return array<int, array<int, mixed>>
+     * @return iterable<string, array<int, callable>>
      */
     public static function getQueryMethods() : iterable
     {
-        return [
-            ['exec'],
-            ['query'],
-            ['executeQuery'],
-            ['executeUpdate'],
-            ['prepare'],
+        yield 'exec' => [
+            static function (Connection $connection, string $statement) : void {
+                $connection->exec($statement);
+            },
+        ];
+
+        yield 'query' => [
+            static function (Connection $connection, string $statement) : void {
+                $connection->query($statement);
+            },
+        ];
+
+        yield 'executeQuery' => [
+            static function (Connection $connection, string $statement) : void {
+                $connection->executeQuery($statement);
+            },
+        ];
+
+        yield 'executeUpdate' => [
+            static function (Connection $connection, string $statement) : void {
+                $connection->executeUpdate($statement);
+            },
+        ];
+
+        yield 'prepare' => [
+            static function (Connection $connection, string $statement) : void {
+                $connection->prepare($statement);
+            },
         ];
     }
 
