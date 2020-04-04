@@ -171,26 +171,24 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             );
         }
 
-        $sequence = new Sequence('list_sequences_test_seq', 20, 10);
-        $this->schemaManager->createSequence($sequence);
+        $this->schemaManager->createSequence(
+            new Sequence('list_sequences_test_seq', 20, 10)
+        );
 
         $sequences = $this->schemaManager->listSequences();
 
         self::assertIsArray($sequences, 'listSequences() should return an array.');
 
-        $foundSequence = null;
         foreach ($sequences as $sequence) {
-            self::assertInstanceOf(Sequence::class, $sequence, 'Array elements of listSequences() should be Sequence instances.');
-            if (strtolower($sequence->getName()) !== 'list_sequences_test_seq') {
-                continue;
-            }
+            if (strtolower($sequence->getName()) === 'list_sequences_test_seq') {
+                self::assertSame(20, $sequence->getAllocationSize());
+                self::assertSame(10, $sequence->getInitialValue());
 
-            $foundSequence = $sequence;
+                return;
+            }
         }
 
-        self::assertNotNull($foundSequence, "Sequence with name 'list_sequences_test_seq' was not found.");
-        self::assertSame(20, $foundSequence->getAllocationSize(), 'Allocation Size is expected to be 20.');
-        self::assertSame(10, $foundSequence->getInitialValue(), 'Initial Value is expected to be 10.');
+        self::fail('Sequence was not found.');
     }
 
     public function testListDatabases() : void
