@@ -280,7 +280,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $columnsKeys = array_keys($columns);
 
         self::assertArrayHasKey('id', $columns);
-        self::assertEquals(0, array_search('id', $columnsKeys));
+        self::assertEquals(0, array_search('id', $columnsKeys, true));
         self::assertEquals('id', strtolower($columns['id']->getName()));
         self::assertInstanceOf(IntegerType::class, $columns['id']->getType());
         self::assertEquals(false, $columns['id']->getUnsigned());
@@ -289,7 +289,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertIsArray($columns['id']->getPlatformOptions());
 
         self::assertArrayHasKey('test', $columns);
-        self::assertEquals(1, array_search('test', $columnsKeys));
+        self::assertEquals(1, array_search('test', $columnsKeys, true));
         self::assertEquals('test', strtolower($columns['test']->getname()));
         self::assertInstanceOf(StringType::class, $columns['test']->gettype());
         self::assertEquals(255, $columns['test']->getlength());
@@ -299,7 +299,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertIsArray($columns['test']->getPlatformOptions());
 
         self::assertEquals('foo', strtolower($columns['foo']->getname()));
-        self::assertEquals(2, array_search('foo', $columnsKeys));
+        self::assertEquals(2, array_search('foo', $columnsKeys, true));
         self::assertInstanceOf(TextType::class, $columns['foo']->gettype());
         self::assertEquals(false, $columns['foo']->getunsigned());
         self::assertEquals(false, $columns['foo']->getfixed());
@@ -308,7 +308,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertIsArray($columns['foo']->getPlatformOptions());
 
         self::assertEquals('bar', strtolower($columns['bar']->getname()));
-        self::assertEquals(3, array_search('bar', $columnsKeys));
+        self::assertEquals(3, array_search('bar', $columnsKeys, true));
         self::assertInstanceOf(DecimalType::class, $columns['bar']->gettype());
         self::assertEquals(null, $columns['bar']->getlength());
         self::assertEquals(10, $columns['bar']->getprecision());
@@ -320,21 +320,21 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertIsArray($columns['bar']->getPlatformOptions());
 
         self::assertEquals('baz1', strtolower($columns['baz1']->getname()));
-        self::assertEquals(4, array_search('baz1', $columnsKeys));
+        self::assertEquals(4, array_search('baz1', $columnsKeys, true));
         self::assertInstanceOf(DateTimeType::class, $columns['baz1']->gettype());
         self::assertEquals(true, $columns['baz1']->getnotnull());
         self::assertEquals(null, $columns['baz1']->getdefault());
         self::assertIsArray($columns['baz1']->getPlatformOptions());
 
         self::assertEquals('baz2', strtolower($columns['baz2']->getname()));
-        self::assertEquals(5, array_search('baz2', $columnsKeys));
+        self::assertEquals(5, array_search('baz2', $columnsKeys, true));
         self::assertContains($columns['baz2']->gettype()->getName(), ['time', 'date', 'datetime']);
         self::assertEquals(true, $columns['baz2']->getnotnull());
         self::assertEquals(null, $columns['baz2']->getdefault());
         self::assertIsArray($columns['baz2']->getPlatformOptions());
 
         self::assertEquals('baz3', strtolower($columns['baz3']->getname()));
-        self::assertEquals(6, array_search('baz3', $columnsKeys));
+        self::assertEquals(6, array_search('baz3', $columnsKeys, true));
         self::assertContains($columns['baz3']->gettype()->getName(), ['time', 'date', 'datetime']);
         self::assertEquals(true, $columns['baz3']->getnotnull());
         self::assertEquals(null, $columns['baz3']->getdefault());
