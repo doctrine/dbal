@@ -110,5 +110,11 @@ parameters:
             paths:
                 - %currentWorkingDirectory%/src/Schema/AbstractSchemaManager.php
                 - %currentWorkingDirectory%/src/Schema/Column.php
+
+        # https://github.com/phpstan/phpstan/issues/3146
+        -
+            message: '~^Only numeric types are allowed in -, int<1, max>\|false given on the left side\.~'
+            paths:
+                - %currentWorkingDirectory%/src/Platforms/SQLServer2012Platform.php
 includes:
     - vendor/phpstan/phpstan-strict-rules/rules.neon
