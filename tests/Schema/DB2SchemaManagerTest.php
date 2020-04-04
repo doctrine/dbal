@@ -92,7 +92,7 @@ final class DB2SchemaManagerTest extends TestCase
     public function testListTableNamesFiltersAssetNamesCorrectlyWithCallable() : void
     {
         $accepted = ['T_FOO', 'T_BAR'];
-        $this->conn->getConfiguration()->setSchemaAssetsFilter(static function ($assetName) use ($accepted) {
+        $this->conn->getConfiguration()->setSchemaAssetsFilter(static function ($assetName) use ($accepted) : bool {
             return in_array($assetName, $accepted, true);
         });
         $this->conn->expects(self::any())->method('quote');

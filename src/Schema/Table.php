@@ -637,7 +637,7 @@ class Table extends AbstractAsset
      */
     private function filterColumns(array $columnNames)
     {
-        return array_filter($this->_columns, static function ($columnName) use ($columnNames) {
+        return array_filter($this->_columns, static function ($columnName) use ($columnNames) : bool {
             return in_array($columnName, $columnNames, true);
         }, ARRAY_FILTER_USE_KEY);
     }

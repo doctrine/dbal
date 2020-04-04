@@ -72,7 +72,7 @@ abstract class FunctionalTestCase extends TestCase
             $queries = '';
             $i       = count($this->sqlLoggerStack->queries);
             foreach (array_reverse($this->sqlLoggerStack->queries) as $query) {
-                $params   = array_map(static function ($p) {
+                $params   = array_map(static function ($p) : string {
                     if (is_object($p)) {
                         return get_class($p);
                     }

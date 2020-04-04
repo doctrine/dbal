@@ -169,7 +169,7 @@ class WriteTest extends FunctionalTestCase
         }
 
         $sequences = $this->connection->getSchemaManager()->listSequences();
-        self::assertCount(1, array_filter($sequences, static function ($sequence) {
+        self::assertCount(1, array_filter($sequences, static function ($sequence) : bool {
             return strtolower($sequence->getName()) === 'write_table_id_seq';
         }));
 

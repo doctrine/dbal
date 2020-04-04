@@ -283,7 +283,7 @@ class ConnectionTest extends FunctionalTestCase
 
     public function testTransactionalReturnValue() : void
     {
-        $res = $this->connection->transactional(static function () {
+        $res = $this->connection->transactional(static function () : int {
             return 42;
         });
 

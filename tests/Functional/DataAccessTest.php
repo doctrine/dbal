@@ -737,7 +737,7 @@ class DataAccessTest extends FunctionalTestCase
         $stmt->setFetchMode(FetchMode::NUMERIC);
 
         $row = array_keys($stmt->fetch());
-        self::assertCount(0, array_filter($row, static function ($v) {
+        self::assertCount(0, array_filter($row, static function ($v) : bool {
             return ! is_numeric($v);
         }), 'should be no non-numerical elements in the result.');
     }

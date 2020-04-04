@@ -905,7 +905,7 @@ SQL
 
         return $this->doConvertBooleans(
             $item,
-            static function ($boolean) {
+            static function ($boolean) : ?int {
                 return $boolean === null ? null : (int) $boolean;
             }
         );

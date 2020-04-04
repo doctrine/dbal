@@ -303,7 +303,7 @@ EOF
                 false,
             ],
             'fetch-all' => [
-                static function (Statement $stmt) {
+                static function (Statement $stmt) : array {
                     return $stmt->fetchAll();
                 },
                 [],
