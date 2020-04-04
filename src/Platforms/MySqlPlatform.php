@@ -765,7 +765,7 @@ SQL
                 $column = $diff->fromTable->getColumn($columnName);
 
                 // Check if an autoincrement column was dropped from the primary key.
-                if (! $column->getAutoincrement() || in_array($columnName, $changedIndex->getColumns())) {
+                if (! $column->getAutoincrement() || in_array($columnName, $changedIndex->getColumns(), true)) {
                     continue;
                 }
 

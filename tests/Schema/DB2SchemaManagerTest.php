@@ -93,7 +93,7 @@ final class DB2SchemaManagerTest extends TestCase
     {
         $accepted = ['T_FOO', 'T_BAR'];
         $this->conn->getConfiguration()->setSchemaAssetsFilter(static function ($assetName) use ($accepted) {
-            return in_array($assetName, $accepted);
+            return in_array($assetName, $accepted, true);
         });
         $this->conn->expects(self::any())->method('quote');
         $this->conn->expects(self::once())->method('fetchAll')->will(self::returnValue([

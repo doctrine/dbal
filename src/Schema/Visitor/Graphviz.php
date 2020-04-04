@@ -84,7 +84,7 @@ class Graphviz extends AbstractVisitor
 
             $primaryKey = $table->getPrimaryKey();
 
-            if ($primaryKey !== null && in_array($column->getName(), $primaryKey->getColumns())) {
+            if ($primaryKey !== null && in_array($column->getName(), $primaryKey->getColumns(), true)) {
                 $label .= "\xe2\x9c\xb7";
             }
             $label .= '</TD></TR>';

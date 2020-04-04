@@ -220,7 +220,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $namespaces = $this->schemaManager->listNamespaceNames();
         $namespaces = array_map('strtolower', $namespaces);
 
-        if (! in_array('test_create_schema', $namespaces)) {
+        if (! in_array('test_create_schema', $namespaces, true)) {
             $this->connection->executeUpdate($this->schemaManager->getDatabasePlatform()->getCreateSchemaSQL('test_create_schema'));
 
             $namespaces = $this->schemaManager->listNamespaceNames();

@@ -94,7 +94,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         $paths = $this->getSchemaSearchPaths();
 
         $this->existingSchemaPaths = array_filter($paths, static function ($v) use ($names) {
-            return in_array($v, $names);
+            return in_array($v, $names, true);
         });
     }
 

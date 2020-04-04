@@ -40,7 +40,7 @@ class ColumnDiff
      */
     public function hasChanged($propertyName)
     {
-        return in_array($propertyName, $this->changedProperties);
+        return in_array($propertyName, $this->changedProperties, true);
     }
 
     /**
