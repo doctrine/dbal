@@ -20,13 +20,11 @@ use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
 use PDO;
 use const CASE_LOWER;
-use const PHP_EOL;
 use function array_change_key_case;
 use function array_filter;
 use function array_keys;
 use function count;
 use function date;
-use function implode;
 use function is_numeric;
 use function json_encode;
 use function property_exists;
@@ -701,14 +699,12 @@ class DataAccessTest extends FunctionalTestCase
             ]);
         }
 
-        $sql[] = 'SELECT ';
-        $sql[] = 'test_int, ';
-        $sql[] = 'test_string, ';
-        $sql[] = $platform->getBitOrComparisonExpression('test_int', 2) . ' AS bit_or, ';
-        $sql[] = $platform->getBitAndComparisonExpression('test_int', 2) . ' AS bit_and ';
-        $sql[] = 'FROM fetch_table';
+        $sql = 'SELECT test_int, test_string'
+            . ', ' . $platform->getBitOrComparisonExpression('test_int', 2) . ' AS bit_or'
+            . ', ' . $platform->getBitAndComparisonExpression('test_int', 2) . ' AS bit_and'
+            . ' FROM fetch_table';
 
-        $stmt = $this->connection->executeQuery(implode(PHP_EOL, $sql));
+        $stmt = $this->connection->executeQuery($sql);
         $data = $stmt->fetchAll(FetchMode::ASSOCIATIVE);
 
         self::assertCount(4, $data);

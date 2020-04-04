@@ -1714,7 +1714,7 @@ abstract class AbstractPlatform
         }
         $query .= ')';
 
-        $sql[] = $query;
+        $sql = [$query];
 
         if (isset($options['foreignKeys'])) {
             foreach ((array) $options['foreignKeys'] as $definition) {
