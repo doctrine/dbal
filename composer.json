@@ -35,7 +35,8 @@
         "php": "^7.3",
         "doctrine/cache": "^1.0",
         "doctrine/event-manager": "^1.0",
-        "ocramius/package-versions": "^1.4"
+        "ocramius/package-versions": "^1.4",
+        "psr/container": "^1.0"
     },
     "require-dev": {
         "doctrine/coding-standard": "^7.0",
