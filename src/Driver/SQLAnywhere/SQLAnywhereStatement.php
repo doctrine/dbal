@@ -12,6 +12,7 @@ use ReflectionObject;
 use stdClass;
 use const SASQL_BOTH;
 use function array_key_exists;
+use function assert;
 use function count;
 use function gettype;
 use function is_int;
@@ -88,6 +89,8 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
      */
     public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null)
     {
+        assert(is_int($column));
+
         switch ($type) {
             case ParameterType::INTEGER:
             case ParameterType::BOOLEAN:
