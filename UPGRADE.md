@@ -1,5 +1,9 @@
 # Upgrade to 3.0
 
+## BC BREAK: Removed `EchoSQLLogger`
+
+`EchoSQLLogger` is no longer available as part of the package.
+
 ## BC BREAK: Removed support for SQL Anywhere 12 and older
 
 DBAL now requires SQL Anywhere 16 or newer, support for unmaintained versions has been dropped.

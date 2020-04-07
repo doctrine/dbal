@@ -19,7 +19,6 @@ use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Logging\DebugStack;
-use Doctrine\DBAL\Logging\EchoSQLLogger;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
@@ -209,18 +208,6 @@ class ConnectionTest extends TestCase
             ['executeUpdate'],
             ['prepare'],
         ];
-    }
-
-    /**
-     * Pretty dumb test, however we want to check that the EchoSQLLogger correctly implements the interface.
-     *
-     * @group DBAL-11
-     */
-    public function testEchoSQLLogger() : void
-    {
-        $logger = new EchoSQLLogger();
-        $this->connection->getConfiguration()->setSQLLogger($logger);
-        self::assertSame($logger, $this->connection->getConfiguration()->getSQLLogger());
     }
 
     /**
