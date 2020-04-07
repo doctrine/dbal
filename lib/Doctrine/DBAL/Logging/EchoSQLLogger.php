@@ -7,6 +7,8 @@ use function var_dump;
 
 /**
  * A SQL logger that logs to the standard output using echo/var_dump.
+ *
+ * @deprecated
  */
 class EchoSQLLogger implements SQLLogger
 {
