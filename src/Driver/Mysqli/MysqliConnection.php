@@ -47,16 +47,10 @@ class MysqliConnection implements PingableConnection, ServerInfoAwareConnection
      */
     public function __construct(array $params, $username, $password, array $driverOptions = [])
     {
-        $port = $params['port'] ?? ini_get('mysqli.default_port');
-
-        // Fallback to default MySQL port if not given.
-        if (! $port) {
-            $port = 3306;
-        }
-
         $socket = $params['unix_socket'] ?? ini_get('mysqli.default_socket');
         $dbname = $params['dbname'] ?? null;
         $host   = $params['host'];
+        $port   = $params['port'] ?? null;
 
         if (! empty($params['persistent'])) {
             $host = 'p:' . $host;
