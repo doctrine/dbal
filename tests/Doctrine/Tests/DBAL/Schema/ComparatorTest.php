@@ -477,6 +477,29 @@ class ComparatorTest extends TestCase
         self::assertEquals($expected, Comparator::compareSchemas($schema1, $schema2));
     }
 
+    public function testCompareRenamePrimaryKeyAndChangeColumnsDropsItAndCreatesIt() : void
+    {
+        $table = new Table('users');
+        $table->addColumn('id', 'integer', ['notnull' => true]);
+        $table->addColumn('code', 'integer', ['notnull' => true]);
+        $table->setPrimaryKey(['id'], 'users_pkey');
+
+        $toTable = new Table('users');
+        $toTable->addColumn('id', 'integer', ['notnull' => true]);
+        $toTable->addColumn('code', 'integer', ['notnull' => true]);
+        $toTable->setPrimaryKey(['id', 'code'], 'pkey_test');
+
+        $c         = new Comparator();
+        $tableDiff = $c->diffTable($table, $toTable);
+
+        self::assertNotNull($tableDiff);
+        self::assertCount(1, $tableDiff->addedIndexes);
+        self::assertSame(['id', 'code'], $tableDiff->addedIndexes['pkey_test']->getColumns());
+
+        self::assertCount(1, $tableDiff->removedIndexes);
+        self::assertSame(['id'], $tableDiff->removedIndexes['users_pkey']->getColumns());
+    }
+
     public function testCompareSequences() : void
     {
         $seq1 = new Sequence('foo', 1, 1);

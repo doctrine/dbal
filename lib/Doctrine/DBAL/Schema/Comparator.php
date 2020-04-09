@@ -260,7 +260,12 @@ class Comparator
                 continue;
             }
 
-            $tableDifferences->changedIndexes[$indexName] = $table2Index;
+            if ($indexName !== $table2Index->getName()) {
+                $tableDifferences->removedIndexes[$index->getName()]     = $index;
+                $tableDifferences->addedIndexes[$table2Index->getName()] = $table2Index;
+            } else {
+                $tableDifferences->changedIndexes[$indexName] = $table2Index;
+            }
             $changes++;
         }
 
