@@ -55,7 +55,7 @@ class OracleSessionInit implements EventSubscriber
             } else {
                 if (is_numeric($value)) {
                     $vars[] = $option . " = " . $value;
-                else {
+                } else {
                     $vars[] = $option . " = '" . $value . "'";
                 }
             }
