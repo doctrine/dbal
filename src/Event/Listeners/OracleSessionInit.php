@@ -53,7 +53,11 @@ class OracleSessionInit implements EventSubscriber
             if ($option === 'CURRENT_SCHEMA') {
                 $vars[] = $option . ' = ' . $value;
             } else {
-                $vars[] = $option . " = '" . $value . "'";
+                if (is_numeric($value)) {
+                    $vars[] = $option . " = " . $value;
+                else {
+                    $vars[] = $option . " = '" . $value . "'";
+                }
             }
         }
 
