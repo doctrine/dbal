@@ -49,11 +49,16 @@ class MysqliConnection implements PingableConnection, ServerInfoAwareConnection
     {
         $socket = $params['unix_socket'] ?? ini_get('mysqli.default_socket');
         $dbname = $params['dbname'] ?? null;
-        $host   = $params['host'];
         $port   = $params['port'] ?? null;
 
         if (! empty($params['persistent'])) {
-            $host = 'p:' . $host;
+            if (! isset($params['host'])) {
+                throw HostRequired::forPersistentConnection();
+            }
+
+            $host = 'p:' . $params['host'];
+        } else {
+            $host = $params['host'] ?? null;
         }
 
         $flags = $driverOptions[static::OPTION_FLAGS] ?? null;
