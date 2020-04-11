@@ -209,7 +209,13 @@ class SQLSrvStatement implements IteratorAggregate, Statement
             return 0;
         }
 
-        return sqlsrv_num_fields($this->stmt) ?: 0;
+        $count = sqlsrv_num_fields($this->stmt);
+
+        if ($count !== false) {
+            return $count;
+        }
+
+        return 0;
     }
 
     /**
@@ -218,7 +224,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     public function errorCode()
     {
         $errors = sqlsrv_errors(SQLSRV_ERR_ERRORS);
-        if ($errors) {
+        if ($errors !== null) {
             return $errors[0]['code'];
         }
 
@@ -238,9 +244,8 @@ class SQLSrvStatement implements IteratorAggregate, Statement
      */
     public function execute($params = null)
     {
-        if ($params) {
+        if ($params !== null) {
             $hasZeroIndex = array_key_exists(0, $params);
-
             foreach ($params as $key => $val) {
                 if ($hasZeroIndex && is_int($key)) {
                     $this->bindValue($key + 1, $val);
@@ -250,7 +255,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
             }
         }
 
-        if (! $this->stmt) {
+        if ($this->stmt === null) {
             $this->stmt = $this->prepare();
         }
 
@@ -258,7 +263,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
             throw SQLSrvException::fromSqlSrvErrors();
         }
 
-        if ($this->lastInsertId) {
+        if ($this->lastInsertId !== null) {
             sqlsrv_next_result($this->stmt);
             sqlsrv_fetch($this->stmt);
             $this->lastInsertId->setId(sqlsrv_get_field($this->stmt, 0));
@@ -307,7 +312,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
 
         $stmt = sqlsrv_prepare($this->conn, $this->sql, $params);
 
-        if (! $stmt) {
+        if ($stmt === false) {
             throw SQLSrvException::fromSqlSrvErrors();
         }
 
@@ -353,14 +358,14 @@ class SQLSrvStatement implements IteratorAggregate, Statement
             return false;
         }
 
-        $fetchMode = $fetchMode ?: $this->defaultFetchMode;
+        $fetchMode = $fetchMode ?? $this->defaultFetchMode;
 
         if ($fetchMode === FetchMode::COLUMN) {
             return $this->fetchColumn();
         }
 
         if (isset(self::$fetchMap[$fetchMode])) {
-            return sqlsrv_fetch_array($this->stmt, self::$fetchMap[$fetchMode]) ?: false;
+            return sqlsrv_fetch_array($this->stmt, self::$fetchMap[$fetchMode]) ?? false;
         }
 
         if (in_array($fetchMode, [FetchMode::STANDARD_OBJECT, FetchMode::CUSTOM_OBJECT], true)) {
@@ -372,7 +377,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
                 $ctorArgs  = $args[1] ?? [];
             }
 
-            return sqlsrv_fetch_object($this->stmt, $className, $ctorArgs) ?: false;
+            return sqlsrv_fetch_object($this->stmt, $className, $ctorArgs) ?? false;
         }
 
         throw new SQLSrvException('Fetch mode is not supported!');
@@ -430,6 +435,12 @@ class SQLSrvStatement implements IteratorAggregate, Statement
             return 0;
         }
 
-        return sqlsrv_rows_affected($this->stmt) ?: 0;
+        $count = sqlsrv_rows_affected($this->stmt);
+
+        if ($count !== false) {
+            return $count;
+        }
+
+        return 0;
     }
 }

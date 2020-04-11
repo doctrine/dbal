@@ -199,7 +199,7 @@ class NamedParametersTest extends FunctionalTestCase
                 'bar' => 2,
             ]);
         } catch (Throwable $e) {
-            $this->fail($e->getMessage());
+            self::fail($e->getMessage());
         }
     }
 

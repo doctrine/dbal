@@ -12,7 +12,7 @@ class DriverTest extends AbstractDriverTest
     protected function setUp() : void
     {
         if (! extension_loaded('mysqli')) {
-            $this->markTestSkipped('mysqli is not installed.');
+            self::markTestSkipped('mysqli is not installed.');
         }
 
         parent::setUp();
@@ -21,7 +21,7 @@ class DriverTest extends AbstractDriverTest
             return;
         }
 
-        $this->markTestSkipped('MySQLi only test.');
+        self::markTestSkipped('MySQLi only test.');
     }
 
     /**

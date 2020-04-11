@@ -76,7 +76,7 @@ abstract class AbstractDriverTest extends TestCase
     public function testConvertsException($errorCode, ?string $sqlState, ?string $message, string $expectedClass) : void
     {
         if (! $this->driver instanceof ExceptionConverterDriver) {
-            $this->markTestSkipped('This test is only intended for exception converter drivers.');
+            self::markTestSkipped('This test is only intended for exception converter drivers.');
         }
 
         /** @var DriverExceptionInterface|MockObject $driverException */
@@ -102,7 +102,7 @@ abstract class AbstractDriverTest extends TestCase
     public function testCreatesDatabasePlatformForVersion() : void
     {
         if (! $this->driver instanceof VersionAwarePlatformDriver) {
-            $this->markTestSkipped('This test is only intended for version aware platform drivers.');
+            self::markTestSkipped('This test is only intended for version aware platform drivers.');
         }
 
         $data = $this->getDatabasePlatformsForVersions();
@@ -135,7 +135,7 @@ abstract class AbstractDriverTest extends TestCase
     public function testThrowsExceptionOnCreatingDatabasePlatformsForInvalidVersion() : void
     {
         if (! $this->driver instanceof VersionAwarePlatformDriver) {
-            $this->markTestSkipped('This test is only intended for version aware platform drivers.');
+            self::markTestSkipped('This test is only intended for version aware platform drivers.');
         }
 
         $this->expectException(DBALException::class);
@@ -152,9 +152,9 @@ abstract class AbstractDriverTest extends TestCase
 
         $connection = $this->getConnectionMock();
 
-        $connection->expects($this->once())
+        $connection->expects(self::once())
             ->method('getParams')
-            ->will($this->returnValue($params));
+            ->will(self::returnValue($params));
 
         self::assertSame($params['dbname'], $this->driver->getDatabase($connection));
     }

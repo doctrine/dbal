@@ -12,7 +12,7 @@ class DriverTest extends AbstractDriverTest
     protected function setUp() : void
     {
         if (! extension_loaded('oci8')) {
-            $this->markTestSkipped('oci8 is not installed.');
+            self::markTestSkipped('oci8 is not installed.');
         }
 
         parent::setUp();
@@ -21,7 +21,7 @@ class DriverTest extends AbstractDriverTest
             return;
         }
 
-        $this->markTestSkipped('oci8 only test.');
+        self::markTestSkipped('oci8 only test.');
     }
 
     /**
@@ -29,7 +29,7 @@ class DriverTest extends AbstractDriverTest
      */
     public function testConnectsWithoutDatabaseNameParameter() : void
     {
-        $this->markTestSkipped('Oracle does not support connecting without database name.');
+        self::markTestSkipped('Oracle does not support connecting without database name.');
     }
 
     /**
@@ -37,7 +37,7 @@ class DriverTest extends AbstractDriverTest
      */
     public function testReturnsDatabaseNameWithoutDatabaseNameParameter() : void
     {
-        $this->markTestSkipped('Oracle does not support connecting without database name.');
+        self::markTestSkipped('Oracle does not support connecting without database name.');
     }
 
     /**

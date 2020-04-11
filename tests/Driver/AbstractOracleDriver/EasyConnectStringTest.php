@@ -16,7 +16,7 @@ class EasyConnectStringTest extends TestCase
     {
         $string = EasyConnectString::fromConnectionParameters($params);
 
-        $this->assertSame($expected, (string) $string);
+        self::assertSame($expected, (string) $string);
     }
 
     /**

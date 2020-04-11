@@ -27,7 +27,7 @@ class StatementTest extends FunctionalTestCase
     public function testStatementIsReusableAfterClosingCursor() : void
     {
         if ($this->connection->getDriver() instanceof PDOOracleDriver) {
-            $this->markTestIncomplete('See https://bugs.php.net/bug.php?id=77181');
+            self::markTestIncomplete('See https://bugs.php.net/bug.php?id=77181');
         }
 
         $this->connection->insert('stmt_test', ['id' => 1]);
@@ -52,7 +52,7 @@ class StatementTest extends FunctionalTestCase
     public function testReuseStatementWithLongerResults() : void
     {
         if ($this->connection->getDriver() instanceof PDOOracleDriver) {
-            $this->markTestIncomplete('PDO_OCI doesn\'t support fetching blobs via PDOStatement::fetchAll()');
+            self::markTestIncomplete('PDO_OCI doesn\'t support fetching blobs via PDOStatement::fetchAll()');
         }
 
         $sm    = $this->connection->getSchemaManager();
@@ -91,7 +91,7 @@ class StatementTest extends FunctionalTestCase
         if ($this->connection->getDriver() instanceof PDOOracleDriver) {
             // inserting BLOBs as streams on Oracle requires Oracle-specific SQL syntax which is currently not supported
             // see http://php.net/manual/en/pdo.lobs.php#example-1035
-            $this->markTestSkipped('DBAL doesn\'t support storing LOBs represented as streams using PDO_OCI');
+            self::markTestSkipped('DBAL doesn\'t support storing LOBs represented as streams using PDO_OCI');
         }
 
         // make sure memory limit is large enough to not cause false positives,
@@ -118,7 +118,7 @@ sneNxmNb/POO1pRXc7vnF2nc13Rq0cFWiyXkuHmzxuOtzUYfC7fEmK/3mx4QZd5u4E7XJWz6+dey
 Za4tXHUiPyB8Vm781oaT+3fN6Y/eUFDfPkcNWetNxb+tlxEZsPqPdZMOzS4rxwJ8CDC+ABj1+Tu0
 d+N0hqezcjblboJ3Bj8ARJilHX4FAAA=
 EOF
-        );
+        , true);
 
         $this->connection->insert('stmt_long_blob', ['contents' => $contents], [ParameterType::LARGE_OBJECT]);
 
@@ -154,7 +154,7 @@ EOF
     public function testReuseStatementAfterClosingCursor() : void
     {
         if ($this->connection->getDriver() instanceof PDOOracleDriver) {
-            $this->markTestIncomplete('See https://bugs.php.net/bug.php?id=77181');
+            self::markTestIncomplete('See https://bugs.php.net/bug.php?id=77181');
         }
 
         $this->connection->insert('stmt_test', ['id' => 1]);
@@ -303,7 +303,7 @@ EOF
                 false,
             ],
             'fetch-all' => [
-                static function (Statement $stmt) {
+                static function (Statement $stmt) : array {
                     return $stmt->fetchAll();
                 },
                 [],

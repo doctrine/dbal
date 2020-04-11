@@ -13,9 +13,9 @@ class MysqlSessionInitTest extends TestCase
     public function testPostConnect() : void
     {
         $connectionMock = $this->createMock(Connection::class);
-        $connectionMock->expects($this->once())
+        $connectionMock->expects(self::once())
                        ->method('executeUpdate')
-                       ->with($this->equalTo('SET NAMES foo COLLATE bar'));
+                       ->with(self::equalTo('SET NAMES foo COLLATE bar'));
 
         $eventArgs = new ConnectionEventArgs($connectionMock);
 

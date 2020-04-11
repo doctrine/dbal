@@ -178,7 +178,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testDoesNotPropagateDefaultValuesForUnsupportedColumnTypes() : void
     {
         if ($this->schemaManager->getDatabasePlatform() instanceof MariaDb1027Platform) {
-            $this->markTestSkipped(
+            self::markTestSkipped(
                 'MariaDb102Platform supports default values for BLOB and TEXT columns and will propagate values'
             );
         }
@@ -489,7 +489,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testColumnDefaultValuesCurrentTimeAndDate() : void
     {
         if (! $this->schemaManager->getDatabasePlatform() instanceof MariaDb1027Platform) {
-            $this->markTestSkipped('Only relevant for MariaDb102Platform.');
+            self::markTestSkipped('Only relevant for MariaDb102Platform.');
         }
 
         $platform = $this->schemaManager->getDatabasePlatform();

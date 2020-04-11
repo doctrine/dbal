@@ -30,10 +30,10 @@ class TransactionTest extends FunctionalTestCase
     {
         $this->connection->query('SET SESSION wait_timeout=1');
 
-        $this->assertTrue($this->connection->beginTransaction());
+        self::assertTrue($this->connection->beginTransaction());
 
         sleep(2); // during the sleep mysql will close the connection
 
-        $this->assertFalse(@$this->connection->commit()); // we will ignore `MySQL server has gone away` warnings
+        self::assertFalse(@$this->connection->commit()); // we will ignore `MySQL server has gone away` warnings
     }
 }

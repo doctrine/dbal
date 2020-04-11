@@ -10,7 +10,6 @@ use PDOException;
 use Throwable;
 use function assert;
 use function count;
-use function in_array;
 use function is_string;
 use function preg_match;
 use function sprintf;
@@ -104,7 +103,6 @@ class SQLServerSchemaManager extends AbstractSchemaManager
         $tableColumn['comment'] = $this->removeDoctrineTypeFromComment($tableColumn['comment'], $type);
 
         $options = [
-            'length'        => $length === 0 || ! in_array($type, ['text', 'string']) ? null : $length,
             'unsigned'      => false,
             'fixed'         => (bool) $fixed,
             'default'       => $default,
@@ -114,6 +112,10 @@ class SQLServerSchemaManager extends AbstractSchemaManager
             'autoincrement' => (bool) $tableColumn['autoincrement'],
             'comment'       => $tableColumn['comment'] !== '' ? $tableColumn['comment'] : null,
         ];
+
+        if ($length !== 0 && ($type === 'text' || $type === 'string')) {
+            $options['length'] = $length;
+        }
 
         $column = new Column($tableColumn['name'], Type::getType($type), $options);
 
@@ -134,7 +136,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
             return null;
         }
 
-        if (preg_match('/^\'(.*)\'$/s', $value, $matches)) {
+        if (preg_match('/^\'(.*)\'$/s', $value, $matches) === 1) {
             $value = str_replace("''", "'", $matches[1]);
         }
 

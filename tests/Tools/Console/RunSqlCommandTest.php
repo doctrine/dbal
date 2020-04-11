@@ -46,7 +46,7 @@ class RunSqlCommandTest extends TestCase
                 'command' => $this->command->getName(),
                 'sql' => null,
             ]);
-            $this->fail('Expected a runtime exception when omitting sql argument');
+            self::fail('Expected a runtime exception when omitting sql argument');
         } catch (RuntimeException $e) {
             self::assertStringContainsString("Argument 'SQL", $e->getMessage());
         }
@@ -60,7 +60,7 @@ class RunSqlCommandTest extends TestCase
                 'sql' => 'SELECT 1',
                 '--depth' => 'string',
             ]);
-            $this->fail('Expected a logic exception when executing with a stringy depth');
+            self::fail('Expected a logic exception when executing with a stringy depth');
         } catch (LogicException $e) {
             self::assertStringContainsString("Option 'depth'", $e->getMessage());
         }
@@ -74,7 +74,7 @@ class RunSqlCommandTest extends TestCase
             'command' => $this->command->getName(),
             'sql' => 'SELECT 1',
         ]);
-        $this->assertSame(0, $exitCode);
+        self::assertSame(0, $exitCode);
 
         self::assertRegExp('@int.*1.*@', $this->commandTester->getDisplay());
         self::assertRegExp('@array.*1.*@', $this->commandTester->getDisplay());
@@ -96,20 +96,20 @@ class RunSqlCommandTest extends TestCase
     private function expectConnectionExecuteUpdate() : void
     {
         $this->connectionMock
-            ->expects($this->exactly(1))
+            ->expects(self::exactly(1))
             ->method('executeUpdate');
         $this->connectionMock
-            ->expects($this->exactly(0))
+            ->expects(self::exactly(0))
             ->method('fetchAll');
     }
 
     private function expectConnectionFetchAll() : void
     {
         $this->connectionMock
-            ->expects($this->exactly(0))
+            ->expects(self::exactly(0))
             ->method('executeUpdate');
         $this->connectionMock
-            ->expects($this->exactly(1))
+            ->expects(self::exactly(1))
             ->method('fetchAll');
     }
 

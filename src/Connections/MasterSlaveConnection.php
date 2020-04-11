@@ -128,7 +128,7 @@ class MasterSlaveConnection extends Connection
     public function connect($connectionName = null)
     {
         $requestedConnectionChange = ($connectionName !== null);
-        $connectionName            = $connectionName ?: 'slave';
+        $connectionName            = $connectionName ?? 'slave';
 
         if ($connectionName !== 'slave' && $connectionName !== 'master') {
             throw new InvalidArgumentException('Invalid option to connect(), only master or slave allowed.');
@@ -351,7 +351,7 @@ class MasterSlaveConnection extends Connection
         assert($this->_conn instanceof DriverConnection);
 
         $logger = $this->getConfiguration()->getSQLLogger();
-        if ($logger) {
+        if ($logger !== null) {
             $logger->startQuery($sql);
         }
 
@@ -359,7 +359,7 @@ class MasterSlaveConnection extends Connection
 
         $statement->setFetchMode($this->defaultFetchMode);
 
-        if ($logger) {
+        if ($logger !== null) {
             $logger->stopQuery();
         }
 

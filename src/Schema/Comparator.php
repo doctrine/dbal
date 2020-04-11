@@ -217,7 +217,7 @@ class Comparator
             // See if column has changed properties in table 2.
             $changedProperties = $this->diffColumn($column, $table2->getColumn($columnName));
 
-            if (empty($changedProperties)) {
+            if (count($changedProperties) === 0) {
                 continue;
             }
 
@@ -293,7 +293,7 @@ class Comparator
             $changes++;
         }
 
-        return $changes ? $tableDifferences : false;
+        return $changes > 0 ? $tableDifferences : false;
     }
 
     /**
@@ -452,8 +452,8 @@ class Comparator
             $properties1['type'] instanceof Types\BinaryType
         ) {
             // check if value of length is set at all, default value assumed otherwise.
-            $length1 = $properties1['length'] ?: 255;
-            $length2 = $properties2['length'] ?: 255;
+            $length1 = $properties1['length'] ?? 255;
+            $length2 = $properties2['length'] ?? 255;
             if ($length1 !== $length2) {
                 $changedProperties[] = 'length';
             }
@@ -462,7 +462,7 @@ class Comparator
                 $changedProperties[] = 'fixed';
             }
         } elseif ($properties1['type'] instanceof Types\DecimalType) {
-            if (($properties1['precision'] ?: 10) !== ($properties2['precision'] ?: 10)) {
+            if (($properties1['precision'] ?? 10) !== ($properties2['precision'] ?? 10)) {
                 $changedProperties[] = 'precision';
             }
             if ($properties1['scale'] !== $properties2['scale']) {

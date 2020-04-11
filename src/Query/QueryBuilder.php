@@ -10,6 +10,7 @@ use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use function array_key_exists;
 use function array_keys;
 use function array_unshift;
+use function count;
 use function func_get_args;
 use function func_num_args;
 use function implode;
@@ -468,7 +469,7 @@ class QueryBuilder
     {
         $this->type = self::SELECT;
 
-        if (empty($select)) {
+        if ($select === null) {
             return $this;
         }
 
@@ -518,7 +519,7 @@ class QueryBuilder
     {
         $this->type = self::SELECT;
 
-        if (empty($select)) {
+        if ($select === null) {
             return $this;
         }
 
@@ -547,7 +548,7 @@ class QueryBuilder
     {
         $this->type = self::DELETE;
 
-        if (! $delete) {
+        if ($delete === null) {
             return $this;
         }
 
@@ -577,7 +578,7 @@ class QueryBuilder
     {
         $this->type = self::UPDATE;
 
-        if (! $update) {
+        if ($update === null) {
             return $this;
         }
 
@@ -610,7 +611,7 @@ class QueryBuilder
     {
         $this->type = self::INSERT;
 
-        if (! $insert) {
+        if ($insert === null) {
             return $this;
         }
 
@@ -890,7 +891,7 @@ class QueryBuilder
      */
     public function groupBy($groupBy/*, string ...$groupBys*/)
     {
-        if (empty($groupBy)) {
+        if (is_array($groupBy) && count($groupBy) === 0) {
             return $this;
         }
 
@@ -919,7 +920,7 @@ class QueryBuilder
      */
     public function addGroupBy($groupBy/*, string ...$groupBys*/)
     {
-        if (empty($groupBy)) {
+        if (is_array($groupBy) && count($groupBy) === 0) {
             return $this;
         }
 
@@ -1052,7 +1053,7 @@ class QueryBuilder
      */
     public function orderBy($sort, $order = null)
     {
-        return $this->add('orderBy', $sort . ' ' . (! $order ? 'ASC' : $order), false);
+        return $this->add('orderBy', $sort . ' ' . ($order ?? 'ASC'), false);
     }
 
     /**
@@ -1065,7 +1066,7 @@ class QueryBuilder
      */
     public function addOrderBy($sort, $order = null)
     {
-        return $this->add('orderBy', $sort . ' ' . (! $order ? 'ASC' : $order), true);
+        return $this->add('orderBy', $sort . ' ' . ($order ?? 'ASC'), true);
     }
 
     /**

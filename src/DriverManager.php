@@ -124,10 +124,10 @@ final class DriverManager
         ?EventManager $eventManager = null
     ) : Connection {
         // create default config and event manager, if not set
-        if (! $config) {
+        if ($config === null) {
             $config = new Configuration();
         }
-        if (! $eventManager) {
+        if ($eventManager === null) {
             $eventManager = new EventManager();
         }
 
@@ -195,7 +195,7 @@ final class DriverManager
             throw DBALException::unknownDriver($params['driver'], array_keys(self::$_driverMap));
         }
 
-        if (isset($params['driverClass']) && ! in_array(Driver::class, class_implements($params['driverClass'], true))) {
+        if (isset($params['driverClass']) && ! in_array(Driver::class, class_implements($params['driverClass']), true)) {
             throw DBALException::invalidDriverClass($params['driverClass']);
         }
     }

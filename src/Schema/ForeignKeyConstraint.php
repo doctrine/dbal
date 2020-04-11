@@ -5,7 +5,6 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use function array_keys;
 use function array_map;
-use function in_array;
 use function strrpos;
 use function strtolower;
 use function strtoupper;
@@ -360,7 +359,7 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
         if (isset($this->_options[$event])) {
             $onEvent = strtoupper($this->_options[$event]);
 
-            if (! in_array($onEvent, ['NO ACTION', 'RESTRICT'])) {
+            if ($onEvent !== 'NO ACTION' && $onEvent !== 'RESTRICT') {
                 return $onEvent;
             }
         }

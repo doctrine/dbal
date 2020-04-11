@@ -25,7 +25,7 @@ class BlobTest extends FunctionalTestCase
         if ($this->connection->getDriver() instanceof PDOOracleDriver) {
             // inserting BLOBs as streams on Oracle requires Oracle-specific SQL syntax which is currently not supported
             // see http://php.net/manual/en/pdo.lobs.php#example-1035
-            $this->markTestSkipped('DBAL doesn\'t support storing LOBs represented as streams using PDO_OCI');
+            self::markTestSkipped('DBAL doesn\'t support storing LOBs represented as streams using PDO_OCI');
         }
 
         $table = new Table('blob_table');
@@ -57,7 +57,7 @@ class BlobTest extends FunctionalTestCase
     {
         // https://github.com/doctrine/dbal/issues/3290
         if ($this->connection->getDriver() instanceof OCI8Driver) {
-            $this->markTestIncomplete('The oci8 driver does not support stream resources as parameters');
+            self::markTestIncomplete('The oci8 driver does not support stream resources as parameters');
         }
 
         $longBlob = str_repeat('x', 4 * 8192); // send 4 chunks
@@ -113,7 +113,7 @@ class BlobTest extends FunctionalTestCase
     {
         // https://github.com/doctrine/dbal/issues/3290
         if ($this->connection->getDriver() instanceof OCI8Driver) {
-            $this->markTestIncomplete('The oci8 driver does not support stream resources as parameters');
+            self::markTestIncomplete('The oci8 driver does not support stream resources as parameters');
         }
 
         $this->connection->insert('blob_table', [
@@ -140,7 +140,7 @@ class BlobTest extends FunctionalTestCase
     public function testBindParamProcessesStream() : void
     {
         if ($this->connection->getDriver() instanceof OCI8Driver) {
-            $this->markTestIncomplete('The oci8 driver does not support stream resources as parameters');
+            self::markTestIncomplete('The oci8 driver does not support stream resources as parameters');
         }
 
         $stmt = $this->connection->prepare("INSERT INTO blob_table(id, clobfield, blobfield) VALUES (1, 'ignored', ?)");

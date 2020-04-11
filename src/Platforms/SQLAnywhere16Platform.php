@@ -373,7 +373,7 @@ class SQLAnywhere16Platform extends AbstractPlatform
      */
     public function getConcatExpression()
     {
-        return 'STRING(' . implode(', ', (array) func_get_args()) . ')';
+        return 'STRING(' . implode(', ', func_get_args()) . ')';
     }
 
     /**
@@ -1132,7 +1132,7 @@ SQL
      */
     public function getTrimExpression($str, $pos = TrimMode::UNSPECIFIED, $char = false)
     {
-        if (! $char) {
+        if ($char === false) {
             switch ($pos) {
                 case TrimMode::LEADING:
                     return $this->getLtrimExpression($str);
@@ -1389,7 +1389,7 @@ SQL
             return $query;
         }
 
-        if (! preg_match('/^\s*(SELECT\s+(DISTINCT\s+)?)(.*)/i', $query, $matches)) {
+        if (preg_match('/^\s*(SELECT\s+(DISTINCT\s+)?)(.*)/i', $query, $matches) === 0) {
             return $query;
         }
 
@@ -1444,8 +1444,8 @@ SQL
     protected function getBinaryTypeDeclarationSQLSnippet($length, $fixed)
     {
         return $fixed
-            ? 'BINARY(' . ($length ?: $this->getBinaryDefaultLength()) . ')'
-            : 'VARBINARY(' . ($length ?: $this->getBinaryDefaultLength()) . ')';
+            ? 'BINARY(' . ($length > 0 ? $length : $this->getBinaryDefaultLength()) . ')'
+            : 'VARBINARY(' . ($length > 0 ? $length : $this->getBinaryDefaultLength()) . ')';
     }
 
     /**
@@ -1543,8 +1543,8 @@ SQL
     protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)
     {
         return $fixed
-            ? ($length ? 'CHAR(' . $length . ')' : 'CHAR(' . $this->getVarcharDefaultLength() . ')')
-            : ($length ? 'VARCHAR(' . $length . ')' : 'VARCHAR(' . $this->getVarcharDefaultLength() . ')');
+            ? ($length > 0 ? 'CHAR(' . $length . ')' : 'CHAR(' . $this->getVarcharDefaultLength() . ')')
+            : ($length > 0 ? 'VARCHAR(' . $length . ')' : 'VARCHAR(' . $this->getVarcharDefaultLength() . ')');
     }
 
     /**

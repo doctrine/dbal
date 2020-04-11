@@ -7,7 +7,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
 use IteratorAggregate;
 use Throwable;
-use function is_array;
 use function is_string;
 
 /**
@@ -139,19 +138,19 @@ class Statement implements IteratorAggregate, DriverStatement
      */
     public function execute($params = null)
     {
-        if (is_array($params)) {
+        if ($params !== null) {
             $this->params = $params;
         }
 
         $logger = $this->conn->getConfiguration()->getSQLLogger();
-        if ($logger) {
+        if ($logger !== null) {
             $logger->startQuery($this->sql, $this->params, $this->types);
         }
 
         try {
             $stmt = $this->stmt->execute($params);
         } catch (Throwable $ex) {
-            if ($logger) {
+            if ($logger !== null) {
                 $logger->stopQuery();
             }
             throw DBALException::driverExceptionDuringQuery(
@@ -162,7 +161,7 @@ class Statement implements IteratorAggregate, DriverStatement
             );
         }
 
-        if ($logger) {
+        if ($logger !== null) {
             $logger->stopQuery();
         }
         $this->params = [];

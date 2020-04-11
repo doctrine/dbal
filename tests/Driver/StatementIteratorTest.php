@@ -25,9 +25,9 @@ class StatementIteratorTest extends TestCase
     {
         /** @var IteratorAggregate|MockObject $stmt */
         $stmt = $this->createPartialMock($class, ['fetch', 'fetchAll', 'fetchColumn']);
-        $stmt->expects($this->never())->method('fetch');
-        $stmt->expects($this->never())->method('fetchAll');
-        $stmt->expects($this->never())->method('fetchColumn');
+        $stmt->expects(self::never())->method('fetch');
+        $stmt->expects(self::never())->method('fetchAll');
+        $stmt->expects(self::never())->method('fetchColumn');
 
         $stmt->getIterator();
     }
@@ -61,7 +61,7 @@ class StatementIteratorTest extends TestCase
         $values = ['foo', '', 'bar', '0', 'baz', 0, 'qux', null, 'quz', false, 'impossible'];
         $calls  = 0;
 
-        $stmt->expects($this->exactly(10))
+        $stmt->expects(self::exactly(10))
             ->method('fetch')
             ->willReturnCallback(static function () use ($values, &$calls) {
                 $value = $values[$calls];
@@ -74,7 +74,7 @@ class StatementIteratorTest extends TestCase
     private function assertIterationCallsFetchOncePerStep(Traversable $iterator, int &$calls) : void
     {
         foreach ($iterator as $i => $_) {
-            $this->assertEquals($i + 1, $calls);
+            self::assertEquals($i + 1, $calls);
         }
     }
 

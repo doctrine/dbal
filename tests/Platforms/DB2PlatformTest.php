@@ -502,7 +502,7 @@ class DB2PlatformTest extends AbstractPlatformTestCase
      */
     protected function getQuotedAlterTableChangeColumnLengthSQL() : array
     {
-        $this->markTestIncomplete('Not implemented yet');
+        self::markTestIncomplete('Not implemented yet');
     }
 
     /**

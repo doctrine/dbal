@@ -19,7 +19,7 @@ class DBAL510Test extends FunctionalTestCase
             return;
         }
 
-        $this->markTestSkipped('PostgreSQL Only test');
+        self::markTestSkipped('PostgreSQL Only test');
     }
 
     public function testSearchPathSchemaChanges() : void

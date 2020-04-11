@@ -37,7 +37,7 @@ class ExceptionTest extends FunctionalTestCase
             return;
         }
 
-        $this->markTestSkipped('Driver does not support special exception handling.');
+        self::markTestSkipped('Driver does not support special exception handling.');
     }
 
     public function testPrimaryConstraintViolationException() : void
@@ -296,7 +296,7 @@ class ExceptionTest extends FunctionalTestCase
     public function testConnectionExceptionSqLite() : void
     {
         if (! ($this->connection->getDatabasePlatform() instanceof SqlitePlatform)) {
-            $this->markTestSkipped('Only fails this way on sqlite');
+            self::markTestSkipped('Only fails this way on sqlite');
         }
 
         // mode 0 is considered read-only on Windows
@@ -353,11 +353,11 @@ EOT
         $platform = $this->connection->getDatabasePlatform();
 
         if ($platform instanceof SqlitePlatform) {
-            $this->markTestSkipped('Only skipped if platform is not sqlite');
+            self::markTestSkipped('Only skipped if platform is not sqlite');
         }
 
         if ($platform instanceof PostgreSQL94Platform && isset($params['password'])) {
-            $this->markTestSkipped('Does not work on Travis');
+            self::markTestSkipped('Does not work on Travis');
         }
 
         if ($platform instanceof MySqlPlatform && isset($params['user'])) {
@@ -365,7 +365,7 @@ EOT
             assert($wrappedConnection instanceof ServerInfoAwareConnection);
 
             if (version_compare($wrappedConnection->getServerVersion(), '8', '>=')) {
-                $this->markTestIncomplete('PHP currently does not completely support MySQL 8');
+                self::markTestIncomplete('PHP currently does not completely support MySQL 8');
             }
         }
 

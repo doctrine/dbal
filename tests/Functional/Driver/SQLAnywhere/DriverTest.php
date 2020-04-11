@@ -13,7 +13,7 @@ class DriverTest extends AbstractDriverTest
     protected function setUp() : void
     {
         if (! extension_loaded('sqlanywhere')) {
-            $this->markTestSkipped('sqlanywhere is not installed.');
+            self::markTestSkipped('sqlanywhere is not installed.');
         }
 
         parent::setUp();
@@ -22,7 +22,7 @@ class DriverTest extends AbstractDriverTest
             return;
         }
 
-        $this->markTestSkipped('sqlanywhere only test.');
+        self::markTestSkipped('sqlanywhere only test.');
     }
 
     public function testReturnsDatabaseNameWithoutDatabaseNameParameter() : void

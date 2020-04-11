@@ -65,11 +65,11 @@ abstract class AbstractSQLAnywhereDriver implements ExceptionConverterDriver, Ve
      */
     public function createDatabasePlatformForVersion($version)
     {
-        if (! preg_match(
+        if (preg_match(
             '/^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+)(?:\.(?P<build>\d+))?)?)?/',
             $version,
             $versionParts
-        )) {
+        ) === 0) {
             throw DBALException::invalidPlatformVersionSpecified(
                 $version,
                 '<major_version>.<minor_version>.<patch_version>.<build_version>'

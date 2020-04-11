@@ -447,7 +447,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
     {
         $this->expectException(InvalidArgumentException::class);
 
-        $this->platform->getForeignKeyMatchCLauseSQL(3);
+        $this->platform->getForeignKeyMatchClauseSQL(3);
     }
 
     public function testCannotGenerateForeignKeyConstraintSQLWithEmptyLocalColumns() : void
@@ -1025,7 +1025,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
      */
     protected function getQuotedAlterTableChangeColumnLengthSQL() : array
     {
-        $this->markTestIncomplete('Not implemented yet');
+        self::markTestIncomplete('Not implemented yet');
     }
 
     /**

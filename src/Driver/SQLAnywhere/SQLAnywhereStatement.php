@@ -12,9 +12,9 @@ use ReflectionObject;
 use stdClass;
 use const SASQL_BOTH;
 use function array_key_exists;
+use function assert;
 use function count;
 use function gettype;
-use function is_array;
 use function is_int;
 use function is_object;
 use function is_resource;
@@ -51,7 +51,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
     /** @var int Default fetch mode to use. */
     private $defaultFetchMode = FetchMode::MIXED;
 
-    /** @var resource The result set resource to fetch. */
+    /** @var resource|null The result set resource to fetch. */
     private $result;
 
     /** @var resource The prepared SQL statement to execute. */
@@ -89,6 +89,8 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
      */
     public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null)
     {
+        assert(is_int($column));
+
         switch ($type) {
             case ParameterType::INTEGER:
             case ParameterType::BOOLEAN:
@@ -171,7 +173,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
      */
     public function execute($params = null)
     {
-        if (is_array($params)) {
+        if ($params !== null) {
             $hasZeroIndex = array_key_exists(0, $params);
 
             foreach ($params as $key => $val) {
@@ -203,7 +205,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
             return false;
         }
 
-        $fetchMode = $fetchMode ?: $this->defaultFetchMode;
+        $fetchMode = $fetchMode ?? $this->defaultFetchMode;
 
         switch ($fetchMode) {
             case FetchMode::COLUMN:

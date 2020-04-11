@@ -43,7 +43,7 @@ class BinaryTest extends TestCase
 
     public function testReturnsSQLDeclaration() : void
     {
-        $this->platform->expects($this->once())
+        $this->platform->expects(self::once())
             ->method('getBinaryTypeDeclarationSQL')
             ->willReturn('TEST_BINARY');
 

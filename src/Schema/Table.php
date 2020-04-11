@@ -27,7 +27,7 @@ class Table extends AbstractAsset
     /** @var Index[] */
     protected $_indexes = [];
 
-    /** @var string */
+    /** @var string|false */
     protected $_primaryKeyName = false;
 
     /** @var ForeignKeyConstraint[] */
@@ -104,7 +104,11 @@ class Table extends AbstractAsset
      */
     public function setPrimaryKey(array $columnNames, $indexName = false)
     {
-        $this->_addIndex($this->_createIndex($columnNames, $indexName ?: 'primary', true, true));
+        if ($indexName === false) {
+            $indexName = 'primary';
+        }
+
+        $this->_addIndex($this->_createIndex($columnNames, $indexName, true, true));
 
         foreach ($columnNames as $columnName) {
             $column = $this->getColumn($columnName);
@@ -142,6 +146,10 @@ class Table extends AbstractAsset
      */
     public function dropPrimaryKey()
     {
+        if ($this->_primaryKeyName === false) {
+            return;
+        }
+
         $this->dropIndex($this->_primaryKeyName);
         $this->_primaryKeyName = false;
     }
@@ -263,7 +271,7 @@ class Table extends AbstractAsset
      */
     private function _createIndex(array $columnNames, $indexName, $isUnique, $isPrimary, array $flags = [], array $options = [])
     {
-        if (preg_match('(([^a-zA-Z0-9_]+))', $this->normalizeIdentifier($indexName))) {
+        if (preg_match('(([^a-zA-Z0-9_]+))', $this->normalizeIdentifier($indexName)) === 1) {
             throw SchemaException::indexNameInvalid($indexName);
         }
 
@@ -357,7 +365,9 @@ class Table extends AbstractAsset
      */
     public function addForeignKeyConstraint($foreignTable, array $localColumnNames, array $foreignColumnNames, array $options = [], $constraintName = null)
     {
-        $constraintName = $constraintName ?: $this->_generateIdentifierName(array_merge((array) $this->getName(), $localColumnNames), 'fk', $this->_getMaxIdentifierLength());
+        if ($constraintName === null) {
+            $constraintName = $this->_generateIdentifierName(array_merge((array) $this->getName(), $localColumnNames), 'fk', $this->_getMaxIdentifierLength());
+        }
 
         return $this->addNamedForeignKeyConstraint($constraintName, $foreignTable, $localColumnNames, $foreignColumnNames, $options);
     }
@@ -501,7 +511,7 @@ class Table extends AbstractAsset
     {
         $constraint->setLocalTable($this);
 
-        if (strlen($constraint->getName())) {
+        if (strlen($constraint->getName()) > 0) {
             $name = $constraint->getName();
         } else {
             $name = $this->_generateIdentifierName(
@@ -627,7 +637,7 @@ class Table extends AbstractAsset
      */
     private function filterColumns(array $columnNames)
     {
-        return array_filter($this->_columns, static function ($columnName) use ($columnNames) {
+        return array_filter($this->_columns, static function ($columnName) use ($columnNames) : bool {
             return in_array($columnName, $columnNames, true);
         }, ARRAY_FILTER_USE_KEY);
     }
@@ -672,11 +682,11 @@ class Table extends AbstractAsset
      */
     public function getPrimaryKey()
     {
-        if (! $this->hasPrimaryKey()) {
-            return null;
+        if ($this->_primaryKeyName !== false) {
+            return $this->getIndex($this->_primaryKeyName);
         }
 
-        return $this->getIndex($this->_primaryKeyName);
+        return null;
     }
 
     /**
@@ -704,7 +714,7 @@ class Table extends AbstractAsset
      */
     public function hasPrimaryKey()
     {
-        return $this->_primaryKeyName && $this->hasIndex($this->_primaryKeyName);
+        return $this->_primaryKeyName !== false && $this->hasIndex($this->_primaryKeyName);
     }
 
     /**

@@ -3,7 +3,6 @@
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Constraint;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Identifier;
@@ -228,7 +227,7 @@ class SqlitePlatform extends AbstractPlatform
      *
      * @return string
      */
-    public function getTinyIntTypeDeclarationSql(array $field)
+    public function getTinyIntTypeDeclarationSQL(array $field)
     {
         //  SQLite autoincrement is implicit for INTEGER PKs, but not for TINYINT fields.
         if (! empty($field['autoincrement'])) {
@@ -256,7 +255,7 @@ class SqlitePlatform extends AbstractPlatform
      *
      * @return string
      */
-    public function getMediumIntTypeDeclarationSql(array $field)
+    public function getMediumIntTypeDeclarationSQL(array $field)
     {
         //  SQLite autoincrement is implicit for INTEGER PKs, but not for MEDIUMINT fields.
         if (! empty($field['autoincrement'])) {
@@ -326,8 +325,8 @@ class SqlitePlatform extends AbstractPlatform
         $queryFields = $this->getColumnDeclarationListSQL($columns);
 
         if (isset($options['uniqueConstraints']) && ! empty($options['uniqueConstraints'])) {
-            foreach ($options['uniqueConstraints'] as $name => $definition) {
-                $queryFields .= ', ' . $this->getUniqueConstraintDeclarationSQL($name, $definition);
+            foreach ($options['uniqueConstraints'] as $constraintName => $definition) {
+                $queryFields .= ', ' . $this->getUniqueConstraintDeclarationSQL($constraintName, $definition);
             }
         }
 
@@ -395,8 +394,8 @@ class SqlitePlatform extends AbstractPlatform
      */
     protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)
     {
-        return $fixed ? ($length ? 'CHAR(' . $length . ')' : 'CHAR(255)')
-                : ($length ? 'VARCHAR(' . $length . ')' : 'TEXT');
+        return $fixed ? ($length > 0 ? 'CHAR(' . $length . ')' : 'CHAR(255)')
+            : ($length > 0 ? 'VARCHAR(' . $length . ')' : 'TEXT');
     }
 
     /**
@@ -958,8 +957,7 @@ class SqlitePlatform extends AbstractPlatform
     {
         // Suppress changes on integer type autoincrement columns.
         foreach ($diff->changedColumns as $oldColumnName => $columnDiff) {
-            if (! $columnDiff->fromColumn instanceof Column ||
-                ! $columnDiff->column instanceof Column ||
+            if ($columnDiff->fromColumn === null ||
                 ! $columnDiff->column->getAutoincrement() ||
                 ! $columnDiff->column->getType() instanceof Types\IntegerType
             ) {
@@ -1111,7 +1109,7 @@ class SqlitePlatform extends AbstractPlatform
 
         foreach ($diff->removedIndexes as $index) {
             $indexName = strtolower($index->getName());
-            if (! strlen($indexName) || ! isset($indexes[$indexName])) {
+            if (strlen($indexName) === 0 || ! isset($indexes[$indexName])) {
                 continue;
             }
 
@@ -1120,7 +1118,7 @@ class SqlitePlatform extends AbstractPlatform
 
         foreach (array_merge($diff->changedIndexes, $diff->addedIndexes, $diff->renamedIndexes) as $index) {
             $indexName = strtolower($index->getName());
-            if (strlen($indexName)) {
+            if (strlen($indexName) > 0) {
                 $indexes[$indexName] = $index;
             } else {
                 $indexes[] = $index;
@@ -1169,7 +1167,7 @@ class SqlitePlatform extends AbstractPlatform
             }
 
             $constraintName = strtolower($constraint->getName());
-            if (! strlen($constraintName) || ! isset($foreignKeys[$constraintName])) {
+            if (strlen($constraintName) === 0 || ! isset($foreignKeys[$constraintName])) {
                 continue;
             }
 
@@ -1178,7 +1176,7 @@ class SqlitePlatform extends AbstractPlatform
 
         foreach (array_merge($diff->changedForeignKeys, $diff->addedForeignKeys) as $constraint) {
             $constraintName = strtolower($constraint->getName());
-            if (strlen($constraintName)) {
+            if (strlen($constraintName) > 0) {
                 $foreignKeys[$constraintName] = $constraint;
             } else {
                 $foreignKeys[] = $constraint;

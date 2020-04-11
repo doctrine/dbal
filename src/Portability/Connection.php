@@ -63,7 +63,7 @@ class Connection extends \Doctrine\DBAL\Connection
                 $this->portability = $params['portability'];
             }
 
-            if (isset($params['fetch_case']) && $this->portability & self::PORTABILITY_FIX_CASE) {
+            if (isset($params['fetch_case']) && ($this->portability & self::PORTABILITY_FIX_CASE) !== 0) {
                 if ($this->_conn instanceof PDOConnection) {
                     // make use of c-level support for case handling
                     $this->_conn->getWrappedConnection()->setAttribute(PDO::ATTR_CASE, $params['fetch_case']);

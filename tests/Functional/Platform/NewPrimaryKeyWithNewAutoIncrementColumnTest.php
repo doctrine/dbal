@@ -3,9 +3,9 @@
 namespace Doctrine\DBAL\Tests\Functional\Platform;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
-use function in_array;
 
 final class NewPrimaryKeyWithNewAutoIncrementColumnTest extends FunctionalTestCase
 {
@@ -16,11 +16,11 @@ final class NewPrimaryKeyWithNewAutoIncrementColumnTest extends FunctionalTestCa
     {
         parent::setUp();
 
-        if (in_array($this->getPlatform()->getName(), ['mysql'])) {
+        if ($this->getPlatform() instanceof MySqlPlatform) {
             return;
         }
 
-        $this->markTestSkipped('Restricted to MySQL.');
+        self::markTestSkipped('Restricted to MySQL.');
     }
 
     /**
@@ -57,10 +57,10 @@ final class NewPrimaryKeyWithNewAutoIncrementColumnTest extends FunctionalTestCa
         $validationSchema = $schemaManager->createSchema();
         $validationTable  = $validationSchema->getTable($table->getName());
 
-        $this->assertTrue($validationTable->hasColumn('new_id'));
-        $this->assertTrue($validationTable->getColumn('new_id')->getAutoincrement());
-        $this->assertTrue($validationTable->hasPrimaryKey());
-        $this->assertSame(['new_id'], $validationTable->getPrimaryKeyColumns());
+        self::assertTrue($validationTable->hasColumn('new_id'));
+        self::assertTrue($validationTable->getColumn('new_id')->getAutoincrement());
+        self::assertTrue($validationTable->hasPrimaryKey());
+        self::assertSame(['new_id'], $validationTable->getPrimaryKeyColumns());
     }
 
     private function getPlatform() : AbstractPlatform

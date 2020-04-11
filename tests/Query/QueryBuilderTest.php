@@ -23,9 +23,9 @@ class QueryBuilderTest extends TestCase
 
         $expressionBuilder = new ExpressionBuilder($this->conn);
 
-        $this->conn->expects($this->any())
+        $this->conn->expects(self::any())
                    ->method('getExpressionBuilder')
-                   ->will($this->returnValue($expressionBuilder));
+                   ->will(self::returnValue($expressionBuilder));
     }
 
     /**

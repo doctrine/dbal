@@ -23,6 +23,7 @@ use Exception;
 use Throwable;
 use function array_key_exists;
 use function assert;
+use function count;
 use function implode;
 use function is_int;
 use function is_string;
@@ -196,11 +197,11 @@ class Connection implements DriverConnection
         }
 
         // Create default config and event manager if none given
-        if (! $config) {
+        if ($config === null) {
             $config = new Configuration();
         }
 
-        if (! $eventManager) {
+        if ($eventManager === null) {
             $eventManager = new EventManager();
         }
 
@@ -420,7 +421,7 @@ class Connection implements DriverConnection
             try {
                 $this->connect();
             } catch (Throwable $originalException) {
-                if (empty($this->params['dbname'])) {
+                if (! isset($this->params['dbname'])) {
                     throw $originalException;
                 }
 
@@ -647,7 +648,7 @@ class Connection implements DriverConnection
      */
     public function delete($tableExpression, array $identifier, array $types = [])
     {
-        if (empty($identifier)) {
+        if (count($identifier) === 0) {
             throw InvalidArgumentException::fromEmptyCriteria();
         }
 
@@ -753,7 +754,7 @@ class Connection implements DriverConnection
      */
     public function insert($tableExpression, array $data, array $types = [])
     {
-        if (empty($data)) {
+        if (count($data) === 0) {
             return $this->executeUpdate('INSERT INTO ' . $tableExpression . ' () VALUES ()');
         }
 
@@ -883,16 +884,16 @@ class Connection implements DriverConnection
         $connection = $this->getWrappedConnection();
 
         $logger = $this->_config->getSQLLogger();
-        if ($logger) {
+        if ($logger !== null) {
             $logger->startQuery($query, $params, $types);
         }
 
         try {
-            if ($params) {
+            if (count($params) > 0) {
                 [$query, $params, $types] = SQLParserUtils::expandListParameters($query, $params, $types);
 
                 $stmt = $connection->prepare($query);
-                if ($types) {
+                if (count($types) > 0) {
                     $this->_bindTypedValues($stmt, $params, $types);
                     $stmt->execute();
                 } else {
@@ -907,7 +908,7 @@ class Connection implements DriverConnection
 
         $stmt->setFetchMode($this->defaultFetchMode);
 
-        if ($logger) {
+        if ($logger !== null) {
             $logger->stopQuery();
         }
 
@@ -992,7 +993,7 @@ class Connection implements DriverConnection
         $connection = $this->getWrappedConnection();
 
         $logger = $this->_config->getSQLLogger();
-        if ($logger) {
+        if ($logger !== null) {
             $logger->startQuery($sql);
         }
 
@@ -1004,7 +1005,7 @@ class Connection implements DriverConnection
 
         $statement->setFetchMode($this->defaultFetchMode);
 
-        if ($logger) {
+        if ($logger !== null) {
             $logger->stopQuery();
         }
 
@@ -1028,17 +1029,17 @@ class Connection implements DriverConnection
         $connection = $this->getWrappedConnection();
 
         $logger = $this->_config->getSQLLogger();
-        if ($logger) {
+        if ($logger !== null) {
             $logger->startQuery($query, $params, $types);
         }
 
         try {
-            if ($params) {
+            if (count($params) > 0) {
                 [$query, $params, $types] = SQLParserUtils::expandListParameters($query, $params, $types);
 
                 $stmt = $connection->prepare($query);
 
-                if ($types) {
+                if (count($types) > 0) {
                     $this->_bindTypedValues($stmt, $params, $types);
                     $stmt->execute();
                 } else {
@@ -1052,7 +1053,7 @@ class Connection implements DriverConnection
             throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $query, $this->resolveParams($params, $types));
         }
 
-        if ($logger) {
+        if ($logger !== null) {
             $logger->stopQuery();
         }
 
@@ -1067,7 +1068,7 @@ class Connection implements DriverConnection
         $connection = $this->getWrappedConnection();
 
         $logger = $this->_config->getSQLLogger();
-        if ($logger) {
+        if ($logger !== null) {
             $logger->startQuery($statement);
         }
 
@@ -1077,7 +1078,7 @@ class Connection implements DriverConnection
             throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $statement);
         }
 
-        if ($logger) {
+        if ($logger !== null) {
             $logger->stopQuery();
         }
 
@@ -1216,21 +1217,21 @@ class Connection implements DriverConnection
         $logger = $this->_config->getSQLLogger();
 
         if ($this->transactionNestingLevel === 1) {
-            if ($logger) {
+            if ($logger !== null) {
                 $logger->startQuery('"START TRANSACTION"');
             }
 
             $connection->beginTransaction();
 
-            if ($logger) {
+            if ($logger !== null) {
                 $logger->stopQuery();
             }
         } elseif ($this->nestTransactionsWithSavepoints) {
-            if ($logger) {
+            if ($logger !== null) {
                 $logger->startQuery('"SAVEPOINT"');
             }
             $this->createSavepoint($this->_getNestedTransactionSavePointName());
-            if ($logger) {
+            if ($logger !== null) {
                 $logger->stopQuery();
             }
         }
@@ -1260,21 +1261,21 @@ class Connection implements DriverConnection
         $logger = $this->_config->getSQLLogger();
 
         if ($this->transactionNestingLevel === 1) {
-            if ($logger) {
+            if ($logger !== null) {
                 $logger->startQuery('"COMMIT"');
             }
 
             $result = $connection->commit();
 
-            if ($logger) {
+            if ($logger !== null) {
                 $logger->stopQuery();
             }
         } elseif ($this->nestTransactionsWithSavepoints) {
-            if ($logger) {
+            if ($logger !== null) {
                 $logger->startQuery('"RELEASE SAVEPOINT"');
             }
             $this->releaseSavepoint($this->_getNestedTransactionSavePointName());
-            if ($logger) {
+            if ($logger !== null) {
                 $logger->stopQuery();
             }
         }
@@ -1326,13 +1327,13 @@ class Connection implements DriverConnection
         $logger = $this->_config->getSQLLogger();
 
         if ($this->transactionNestingLevel === 1) {
-            if ($logger) {
+            if ($logger !== null) {
                 $logger->startQuery('"ROLLBACK"');
             }
             $this->transactionNestingLevel = 0;
             $connection->rollBack();
             $this->isRollbackOnly = false;
-            if ($logger) {
+            if ($logger !== null) {
                 $logger->stopQuery();
             }
 
@@ -1340,12 +1341,12 @@ class Connection implements DriverConnection
                 $this->beginTransaction();
             }
         } elseif ($this->nestTransactionsWithSavepoints) {
-            if ($logger) {
+            if ($logger !== null) {
                 $logger->startQuery('"ROLLBACK TO SAVEPOINT"');
             }
             $this->rollbackSavepoint($this->_getNestedTransactionSavePointName());
             --$this->transactionNestingLevel;
-            if ($logger) {
+            if ($logger !== null) {
                 $logger->stopQuery();
             }
         } else {

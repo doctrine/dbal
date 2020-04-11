@@ -140,7 +140,7 @@ abstract class AbstractPlatform
      */
     protected $doctrineTypeComments = null;
 
-    /** @var EventManager */
+    /** @var EventManager|null */
     protected $_eventManager;
 
     /**
@@ -167,7 +167,7 @@ abstract class AbstractPlatform
     /**
      * Gets the EventManager used by the Platform.
      *
-     * @return EventManager
+     * @return EventManager|null
      */
     public function getEventManager()
     {
@@ -335,8 +335,8 @@ abstract class AbstractPlatform
     }
 
     /**
-     * @param int  $length
-     * @param bool $fixed
+     * @param int|false $length
+     * @param bool      $fixed
      *
      * @return string
      *
@@ -350,8 +350,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL snippet used to declare a BINARY/VARBINARY column type.
      *
-     * @param int  $length The length of the column.
-     * @param bool $fixed  Whether the column length is fixed.
+     * @param int|false $length The length of the column.
+     * @param bool      $fixed  Whether the column length is fixed.
      *
      * @return string
      *
@@ -494,7 +494,7 @@ abstract class AbstractPlatform
 
         assert(is_array($this->doctrineTypeComments));
 
-        return in_array($doctrineType->getName(), $this->doctrineTypeComments);
+        return in_array($doctrineType->getName(), $this->doctrineTypeComments, true);
     }
 
     /**
@@ -814,7 +814,7 @@ abstract class AbstractPlatform
             $expression .= $char . ' ';
         }
 
-        if ($mode || $char !== false) {
+        if ($mode !== TrimMode::UNSPECIFIED || $char !== false) {
             $expression .= 'FROM ';
         }
 
@@ -1586,7 +1586,7 @@ abstract class AbstractPlatform
                 $columnData['length'] = 255;
             }
 
-            if (in_array($column->getName(), $options['primary'])) {
+            if (in_array($column->getName(), $options['primary'], true)) {
                 $columnData['primary'] = true;
             }
 
@@ -1714,7 +1714,7 @@ abstract class AbstractPlatform
         }
         $query .= ')';
 
-        $sql[] = $query;
+        $sql = [$query];
 
         if (isset($options['foreignKeys'])) {
             foreach ((array) $options['foreignKeys'] as $definition) {
@@ -2247,19 +2247,18 @@ abstract class AbstractPlatform
         } else {
             $default = $this->getDefaultValueDeclarationSQL($field);
 
-            $charset = isset($field['charset']) && $field['charset'] ?
+            $charset = ! empty($field['charset']) ?
                 ' ' . $this->getColumnCharsetDeclarationSQL($field['charset']) : '';
 
-            $collation = isset($field['collation']) && $field['collation'] ?
+            $collation = ! empty($field['collation']) ?
                 ' ' . $this->getColumnCollationDeclarationSQL($field['collation']) : '';
 
-            $notnull = isset($field['notnull']) && $field['notnull'] ? ' NOT NULL' : '';
+            $notnull = ! empty($field['notnull']) ? ' NOT NULL' : '';
 
-            $unique = isset($field['unique']) && $field['unique'] ?
+            $unique = ! empty($field['unique']) ?
                 ' ' . $this->getUniqueFieldDeclarationSQL() : '';
 
-            $check = isset($field['check']) && $field['check'] ?
-                ' ' . $field['check'] : '';
+            $check = ! empty($field['check']) ? ' ' . $field['check'] : '';
 
             $typeDecl  = $field['type']->getSQLDeclaration($field, $this);
             $columnDef = $typeDecl . $charset . $default . $notnull . $unique . $check . $collation;
@@ -2557,7 +2556,7 @@ abstract class AbstractPlatform
     public function getForeignKeyBaseDeclarationSQL(ForeignKeyConstraint $foreignKey)
     {
         $sql = '';
-        if (strlen($foreignKey->getName())) {
+        if (strlen($foreignKey->getName()) > 0) {
             $sql .= 'CONSTRAINT ' . $foreignKey->getQuotedName($this) . ' ';
         }
         $sql .= 'FOREIGN KEY (';
@@ -3560,7 +3559,7 @@ abstract class AbstractPlatform
     final public function getReservedKeywordsList()
     {
         // Check for an existing instantiation of the keywords class.
-        if ($this->_keywords) {
+        if ($this->_keywords !== null) {
             return $this->_keywords;
         }
 

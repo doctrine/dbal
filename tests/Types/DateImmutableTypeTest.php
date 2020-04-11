@@ -46,10 +46,10 @@ class DateImmutableTypeTest extends TestCase
     {
         $date = $this->createMock(DateTimeImmutable::class);
 
-        $this->platform->expects($this->once())
+        $this->platform->expects(self::once())
             ->method('getDateFormatString')
             ->willReturn('Y-m-d');
-        $date->expects($this->once())
+        $date->expects(self::once())
             ->method('format')
             ->with('Y-m-d')
             ->willReturn('2016-01-01');
@@ -86,7 +86,7 @@ class DateImmutableTypeTest extends TestCase
 
     public function testConvertsDateStringToPHPValue() : void
     {
-        $this->platform->expects($this->once())
+        $this->platform->expects(self::once())
             ->method('getDateFormatString')
             ->willReturn('Y-m-d');
 
@@ -98,7 +98,7 @@ class DateImmutableTypeTest extends TestCase
 
     public function testResetTimeFractionsWhenConvertingToPHPValue() : void
     {
-        $this->platform->expects($this->any())
+        $this->platform->expects(self::any())
             ->method('getDateFormatString')
             ->willReturn('Y-m-d');
 

@@ -41,10 +41,10 @@ class TableDiffTest extends TestCase
         $tableDiff            = new TableDiff('foo');
         $tableDiff->fromTable = $tableMock;
 
-        $tableMock->expects($this->once())
+        $tableMock->expects(self::once())
             ->method('getQuotedName')
             ->with($this->platform)
-            ->will($this->returnValue('foo'));
+            ->will(self::returnValue('foo'));
 
         self::assertEquals(new Identifier('foo'), $tableDiff->getName($this->platform));
     }

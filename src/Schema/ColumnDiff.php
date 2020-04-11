@@ -40,7 +40,7 @@ class ColumnDiff
      */
     public function hasChanged($propertyName)
     {
-        return in_array($propertyName, $this->changedProperties);
+        return in_array($propertyName, $this->changedProperties, true);
     }
 
     /**
@@ -48,7 +48,7 @@ class ColumnDiff
      */
     public function getOldColumnName()
     {
-        $quote = $this->fromColumn && $this->fromColumn->isQuoted();
+        $quote = $this->fromColumn !== null && $this->fromColumn->isQuoted();
 
         return new Identifier($this->oldColumnName, $quote);
     }

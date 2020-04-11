@@ -24,16 +24,16 @@ class StringTest extends TestCase
 
     public function testReturnsSqlDeclarationFromPlatformVarchar() : void
     {
-        $this->platform->expects($this->once())
+        $this->platform->expects(self::once())
             ->method('getVarcharTypeDeclarationSQL')
             ->willReturn('TEST_VARCHAR');
 
-        self::assertEquals('TEST_VARCHAR', $this->type->getSqlDeclaration([], $this->platform));
+        self::assertEquals('TEST_VARCHAR', $this->type->getSQLDeclaration([], $this->platform));
     }
 
     public function testReturnsDefaultLengthFromPlatformVarchar() : void
     {
-        $this->platform->expects($this->once())
+        $this->platform->expects(self::once())
             ->method('getVarcharDefaultLength')
             ->willReturn(255);
 

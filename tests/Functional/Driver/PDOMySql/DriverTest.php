@@ -12,7 +12,7 @@ class DriverTest extends AbstractDriverTest
     protected function setUp() : void
     {
         if (! extension_loaded('pdo_mysql')) {
-            $this->markTestSkipped('pdo_mysql is not installed.');
+            self::markTestSkipped('pdo_mysql is not installed.');
         }
 
         parent::setUp();
@@ -21,7 +21,7 @@ class DriverTest extends AbstractDriverTest
             return;
         }
 
-        $this->markTestSkipped('pdo_mysql only test.');
+        self::markTestSkipped('pdo_mysql only test.');
     }
 
     /**

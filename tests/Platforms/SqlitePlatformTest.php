@@ -595,7 +595,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
      */
     public function testAlterTableRenameIndexInSchema() : void
     {
-        $this->markTestIncomplete(
+        self::markTestIncomplete(
             'Test currently produces broken SQL due to SQLLitePlatform::getAlterTable being broken ' .
             'when used with schemas.'
         );
@@ -606,7 +606,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
      */
     public function testQuotesAlterTableRenameIndexInSchema() : void
     {
-        $this->markTestIncomplete(
+        self::markTestIncomplete(
             'Test currently produces broken SQL due to SQLLitePlatform::getAlterTable being broken ' .
             'when used with schemas.'
         );

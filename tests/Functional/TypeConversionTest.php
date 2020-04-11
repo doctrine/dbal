@@ -122,7 +122,7 @@ class TypeConversionTest extends FunctionalTestCase
         if ($type === 'text' && $this->connection->getDriver() instanceof PDOOracleDriver) {
             // inserting BLOBs as streams on Oracle requires Oracle-specific SQL syntax which is currently not supported
             // see http://php.net/manual/en/pdo.lobs.php#example-1035
-            $this->markTestSkipped('DBAL doesn\'t support storing LOBs represented as streams using PDO_OCI');
+            self::markTestSkipped('DBAL doesn\'t support storing LOBs represented as streams using PDO_OCI');
         }
 
         $dbValue = $this->processValue($type, $originalValue);

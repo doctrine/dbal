@@ -18,6 +18,7 @@ use const DB2_LONG;
 use const DB2_PARAM_FILE;
 use const DB2_PARAM_IN;
 use function array_change_key_case;
+use function assert;
 use function count;
 use function db2_bind_param;
 use function db2_execute;
@@ -34,6 +35,7 @@ use function error_get_last;
 use function fclose;
 use function fwrite;
 use function gettype;
+use function is_int;
 use function is_object;
 use function is_resource;
 use function is_string;
@@ -97,6 +99,8 @@ class DB2Statement implements IteratorAggregate, Statement
      */
     public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null)
     {
+        assert(is_int($column));
+
         switch ($type) {
             case ParameterType::INTEGER:
                 $this->bind($column, $variable, DB2_PARAM_IN, DB2_LONG);
@@ -160,7 +164,13 @@ class DB2Statement implements IteratorAggregate, Statement
      */
     public function columnCount()
     {
-        return db2_num_fields($this->stmt) ?: 0;
+        $count = db2_num_fields($this->stmt);
+
+        if ($count !== false) {
+            return $count;
+        }
+
+        return 0;
     }
 
     /**
@@ -261,7 +271,7 @@ class DB2Statement implements IteratorAggregate, Statement
             return false;
         }
 
-        $fetchMode = $fetchMode ?: $this->defaultFetchMode;
+        $fetchMode = $fetchMode ?? $this->defaultFetchMode;
         switch ($fetchMode) {
             case FetchMode::COLUMN:
                 return $this->fetchColumn();
@@ -346,7 +356,7 @@ class DB2Statement implements IteratorAggregate, Statement
      */
     public function rowCount() : int
     {
-        return @db2_num_rows($this->stmt) ? : 0;
+        return @db2_num_rows($this->stmt);
     }
 
     /**

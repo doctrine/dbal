@@ -146,7 +146,7 @@ class WriteTest extends FunctionalTestCase
     public function testLastInsertId() : void
     {
         if (! $this->connection->getDatabasePlatform()->prefersIdentityColumns()) {
-            $this->markTestSkipped('Test only works on platforms with identity columns.');
+            self::markTestSkipped('Test only works on platforms with identity columns.');
         }
 
         self::assertEquals(1, $this->connection->insert('write_table', ['test_int' => 2, 'test_string' => 'bar']));
@@ -159,7 +159,7 @@ class WriteTest extends FunctionalTestCase
     public function testLastInsertIdSequence() : void
     {
         if (! $this->connection->getDatabasePlatform()->supportsSequences()) {
-            $this->markTestSkipped('Test only works on platforms with sequences.');
+            self::markTestSkipped('Test only works on platforms with sequences.');
         }
 
         $sequence = new Sequence('write_table_id_seq');
@@ -169,7 +169,7 @@ class WriteTest extends FunctionalTestCase
         }
 
         $sequences = $this->connection->getSchemaManager()->listSequences();
-        self::assertCount(1, array_filter($sequences, static function ($sequence) {
+        self::assertCount(1, array_filter($sequences, static function ($sequence) : bool {
             return strtolower($sequence->getName()) === 'write_table_id_seq';
         }));
 
@@ -185,7 +185,7 @@ class WriteTest extends FunctionalTestCase
     public function testLastInsertIdNoSequenceGiven() : void
     {
         if (! $this->connection->getDatabasePlatform()->supportsSequences() || $this->connection->getDatabasePlatform()->supportsIdentityColumns()) {
-            $this->markTestSkipped("Test only works consistently on platforms that support sequences and don't support identity columns.");
+            self::markTestSkipped("Test only works consistently on platforms that support sequences and don't support identity columns.");
         }
 
         self::assertFalse($this->lastInsertId());
@@ -260,7 +260,7 @@ class WriteTest extends FunctionalTestCase
         $platform = $this->connection->getDatabasePlatform();
 
         if (! ($platform->supportsIdentityColumns() || $platform->usesSequenceEmulatedIdentityColumns())) {
-            $this->markTestSkipped(
+            self::markTestSkipped(
                 'Test only works on platforms with identity columns or sequence emulated identity columns.'
             );
         }
@@ -350,7 +350,7 @@ class WriteTest extends FunctionalTestCase
             return $this->connection->lastInsertId($name);
         } catch (DriverException $e) {
             if ($e->getCode() === 'IM001') {
-                $this->markTestSkipped($e->getMessage());
+                self::markTestSkipped($e->getMessage());
             }
 
             throw $e;

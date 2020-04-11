@@ -45,6 +45,6 @@ class MariaDb1027PlatformTest extends AbstractMySQLPlatformTestCase
      */
     public function testDoesNotPropagateDefaultValuesForUnsupportedColumnTypes() : void
     {
-        $this->markTestSkipped('MariaDB102Platform support propagation of default values for BLOB and TEXT columns');
+        self::markTestSkipped('MariaDB102Platform support propagation of default values for BLOB and TEXT columns');
     }
 }

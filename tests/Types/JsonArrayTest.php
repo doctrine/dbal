@@ -42,7 +42,7 @@ class JsonArrayTest extends TestCase
 
     public function testReturnsSQLDeclaration() : void
     {
-        $this->platform->expects($this->once())
+        $this->platform->expects(self::once())
             ->method('getJsonTypeDeclarationSQL')
             ->willReturn('TEST_JSON');
 

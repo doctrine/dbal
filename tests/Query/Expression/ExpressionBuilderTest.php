@@ -21,9 +21,9 @@ class ExpressionBuilderTest extends TestCase
 
         $this->expr = new ExpressionBuilder($conn);
 
-        $conn->expects($this->any())
+        $conn->expects(self::any())
              ->method('getExpressionBuilder')
-             ->will($this->returnValue($this->expr));
+             ->will(self::returnValue($this->expr));
     }
 
     /**
@@ -179,7 +179,7 @@ class ExpressionBuilderTest extends TestCase
     {
         $part = $this->expr->comparison($leftExpr, $operator, $rightExpr);
 
-        self::assertEquals($expected, (string) $part);
+        self::assertEquals($expected, $part);
     }
 
     /**

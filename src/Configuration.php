@@ -72,14 +72,14 @@ class Configuration
      *
      * @deprecated Use Configuration::setSchemaAssetsFilter() instead
      *
-     * @param string $filterExpression
+     * @param string|null $filterExpression
      *
      * @return void
      */
     public function setFilterSchemaAssetsExpression($filterExpression)
     {
         $this->_attributes['filterSchemaAssetsExpression'] = $filterExpression;
-        if ($filterExpression) {
+        if ($filterExpression !== null) {
             $this->_attributes['filterSchemaAssetsExpressionCallable'] = $this->buildSchemaAssetsFilterFromExpression($filterExpression);
         } else {
             $this->_attributes['filterSchemaAssetsExpressionCallable'] = null;
