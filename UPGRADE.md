@@ -130,6 +130,10 @@ Please use other database client applications for import, e.g.:
 
 # Upgrade to 2.11
 
+## Deprecated `EchoSQLLogger`
+
+The `EchoSQLLogger` is has been deprecated. Implement your logger with the desired logic.
+
 ## Deprecated database platforms:
 
 1. PostgreSQL 9.3 and older

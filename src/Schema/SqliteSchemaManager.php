@@ -499,7 +499,7 @@ CREATE\sTABLE # Match "CREATE TABLE"
     private function parseColumnCommentFromSQL(string $column, string $sql) : ?string
     {
         $pattern = '{[\s(,](?:\W' . preg_quote($this->_platform->quoteSingleIdentifier($column)) . '\W|\W' . preg_quote($column)
-            . '\W)(?:\(.*?\)|[^,(])*?,?((?:(?!\n))(?:\s*--[^\n]*\n?)+)}i';
+            . '\W)(?:\([^)]*?\)|[^,(])*?,?((?:(?!\n))(?:\s*--[^\n]*\n?)+)}i';
 
         if (preg_match($pattern, $sql, $match) !== 1) {
             return null;
