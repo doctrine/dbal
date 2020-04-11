@@ -278,4 +278,19 @@ SQL;
         // with an empty table, non autoincrement rowid is always 1
         $this->assertEquals(1, $lastUsedIdAfterDelete);
     }
+
+    public function testOnlyOwnCommentIsParsed() : void
+    {
+        $table = new Table('own_column_comment');
+        $table->addColumn('col1', 'string', ['length' => 16]);
+        $table->addColumn('col2', 'string', ['length' => 16, 'comment' => 'Column #2']);
+        $table->addColumn('col3', 'string', ['length' => 16]);
+
+        $sm = $this->connection->getSchemaManager();
+        $sm->createTable($table);
+
+        $this->assertNull($sm->listTableDetails('own_column_comment')
+            ->getColumn('col1')
+            ->getComment());
+    }
 }
