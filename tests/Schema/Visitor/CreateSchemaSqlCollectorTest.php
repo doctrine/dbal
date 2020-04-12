@@ -49,13 +49,13 @@ class CreateSchemaSqlCollectorTest extends TestCase
 
     public function testAcceptsNamespace() : void
     {
-        $this->platformMock->expects($this->at(0))
+        $this->platformMock->expects(self::at(0))
             ->method('supportsSchemas')
-            ->will($this->returnValue(false));
+            ->will(self::returnValue(false));
 
-        $this->platformMock->expects($this->at(1))
+        $this->platformMock->expects(self::at(1))
             ->method('supportsSchemas')
-            ->will($this->returnValue(true));
+            ->will(self::returnValue(true));
 
         $this->visitor->acceptNamespace('foo');
 
@@ -77,13 +77,13 @@ class CreateSchemaSqlCollectorTest extends TestCase
 
     public function testAcceptsForeignKey() : void
     {
-        $this->platformMock->expects($this->at(0))
+        $this->platformMock->expects(self::at(0))
             ->method('supportsForeignKeyConstraints')
-            ->will($this->returnValue(false));
+            ->will(self::returnValue(false));
 
-        $this->platformMock->expects($this->at(1))
+        $this->platformMock->expects(self::at(1))
             ->method('supportsForeignKeyConstraints')
-            ->will($this->returnValue(true));
+            ->will(self::returnValue(true));
 
         $table      = $this->createTableMock();
         $foreignKey = $this->createForeignKeyConstraintMock();
@@ -109,9 +109,9 @@ class CreateSchemaSqlCollectorTest extends TestCase
     public function testResetsQueries() : void
     {
         foreach (['supportsSchemas', 'supportsForeignKeyConstraints'] as $method) {
-            $this->platformMock->expects($this->any())
+            $this->platformMock->expects(self::any())
                 ->method($method)
-                ->will($this->returnValue(true));
+                ->will(self::returnValue(true));
         }
 
         $table      = $this->createTableMock();

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Ticket;
 
+use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
-use function in_array;
 
 /**
  * @group DBAL-752
@@ -16,13 +16,11 @@ class DBAL752Test extends FunctionalTestCase
     {
         parent::setUp();
 
-        $platform = $this->connection->getDatabasePlatform()->getName();
-
-        if (in_array($platform, ['sqlite'])) {
+        if ($this->connection->getDatabasePlatform() instanceof SqlitePlatform) {
             return;
         }
 
-        $this->markTestSkipped('Related to SQLite only');
+        self::markTestSkipped('Related to SQLite only');
     }
 
     public function testUnsignedIntegerDetection() : void

@@ -84,7 +84,7 @@ final class ConvertPositionalToNamedPlaceholders
     ) : bool {
         $token = $this->findToken($statement, $tokenOffset, '/[?\'"]/');
 
-        if (! $token) {
+        if ($token === null) {
             return false;
         }
 
@@ -126,7 +126,7 @@ final class ConvertPositionalToNamedPlaceholders
             '/' . preg_quote($currentLiteralDelimiter, '/') . '/'
         );
 
-        if (! $token) {
+        if ($token === null) {
             return false;
         }
 
@@ -148,7 +148,7 @@ final class ConvertPositionalToNamedPlaceholders
      */
     private function findToken(string $statement, int &$offset, string $regex) : ?string
     {
-        if (preg_match($regex, $statement, $matches, PREG_OFFSET_CAPTURE, $offset)) {
+        if (preg_match($regex, $statement, $matches, PREG_OFFSET_CAPTURE, $offset) === 1) {
             $offset = $matches[0][1];
 
             return $matches[0][0];

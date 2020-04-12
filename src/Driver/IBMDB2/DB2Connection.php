@@ -60,7 +60,7 @@ final class DB2Connection implements ServerInfoAwareConnection
     public function prepare(string $sql) : DriverStatement
     {
         $stmt = @db2_prepare($this->conn, $sql);
-        if (! $stmt) {
+        if ($stmt === false) {
             throw DB2Exception::fromStatementError();
         }
 

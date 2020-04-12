@@ -17,7 +17,7 @@ class ForeignKeyExceptionTest extends FunctionalTestCase
         parent::setUp();
 
         if (! $this->connection->getDriver() instanceof ExceptionConverterDriver) {
-            $this->markTestSkipped('Driver does not support special exception handling.');
+            self::markTestSkipped('Driver does not support special exception handling.');
         }
 
         $schemaManager = $this->connection->getSchemaManager();
@@ -53,7 +53,7 @@ class ForeignKeyExceptionTest extends FunctionalTestCase
         if ($platform instanceof SqlitePlatform) {
             $this->connection->exec('PRAGMA foreign_keys = ON');
         } elseif (! $platform->supportsForeignKeyConstraints()) {
-            $this->markTestSkipped('Only fails on platforms with foreign key constraints.');
+            self::markTestSkipped('Only fails on platforms with foreign key constraints.');
         }
 
         $this->connection->insert('constraint_error_table', ['id' => 1]);
@@ -71,7 +71,7 @@ class ForeignKeyExceptionTest extends FunctionalTestCase
         if ($platform instanceof SqlitePlatform) {
             $this->connection->exec('PRAGMA foreign_keys = ON');
         } elseif (! $platform->supportsForeignKeyConstraints()) {
-            $this->markTestSkipped('Only fails on platforms with foreign key constraints.');
+            self::markTestSkipped('Only fails on platforms with foreign key constraints.');
         }
 
         $this->connection->insert('constraint_error_table', ['id' => 1]);
@@ -89,7 +89,7 @@ class ForeignKeyExceptionTest extends FunctionalTestCase
         if ($platform instanceof SqlitePlatform) {
             $this->connection->exec('PRAGMA foreign_keys = ON');
         } elseif (! $platform->supportsForeignKeyConstraints()) {
-            $this->markTestSkipped('Only fails on platforms with foreign key constraints.');
+            self::markTestSkipped('Only fails on platforms with foreign key constraints.');
         }
 
         $this->connection->insert('constraint_error_table', ['id' => 1]);
@@ -107,7 +107,7 @@ class ForeignKeyExceptionTest extends FunctionalTestCase
         if ($platform instanceof SqlitePlatform) {
             $this->connection->exec('PRAGMA foreign_keys = ON');
         } elseif (! $platform->supportsForeignKeyConstraints()) {
-            $this->markTestSkipped('Only fails on platforms with foreign key constraints.');
+            self::markTestSkipped('Only fails on platforms with foreign key constraints.');
         }
 
         $this->connection->insert('constraint_error_table', ['id' => 1]);

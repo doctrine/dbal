@@ -203,7 +203,7 @@ class Comparator
             // See if column has changed properties in table 2.
             $changedProperties = $this->diffColumn($column, $table2->getColumn($columnName));
 
-            if (empty($changedProperties)) {
+            if (count($changedProperties) === 0) {
                 continue;
             }
 
@@ -280,7 +280,7 @@ class Comparator
             $changes++;
         }
 
-        return $changes ? $tableDifferences : null;
+        return $changes > 0 ? $tableDifferences : null;
     }
 
     /**
@@ -435,7 +435,7 @@ class Comparator
                 $changedProperties[] = 'fixed';
             }
         } elseif ($properties1['type'] instanceof Types\DecimalType) {
-            if (($properties1['precision'] ?: 10) !== ($properties2['precision'] ?: 10)) {
+            if (($properties1['precision'] ?? 10) !== ($properties2['precision'] ?? 10)) {
                 $changedProperties[] = 'precision';
             }
 

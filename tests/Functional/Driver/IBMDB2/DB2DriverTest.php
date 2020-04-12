@@ -14,7 +14,7 @@ class DB2DriverTest extends AbstractDriverTest
     protected function setUp() : void
     {
         if (! extension_loaded('ibm_db2')) {
-            $this->markTestSkipped('ibm_db2 is not installed.');
+            self::markTestSkipped('ibm_db2 is not installed.');
         }
 
         parent::setUp();
@@ -23,17 +23,17 @@ class DB2DriverTest extends AbstractDriverTest
             return;
         }
 
-        $this->markTestSkipped('ibm_db2 only test.');
+        self::markTestSkipped('ibm_db2 only test.');
     }
 
     public function testConnectsWithoutDatabaseNameParameter() : void
     {
-        $this->markTestSkipped('IBM DB2 does not support connecting without database name.');
+        self::markTestSkipped('IBM DB2 does not support connecting without database name.');
     }
 
     public function testReturnsDatabaseNameWithoutDatabaseNameParameter() : void
     {
-        $this->markTestSkipped('IBM DB2 does not support connecting without database name.');
+        self::markTestSkipped('IBM DB2 does not support connecting without database name.');
     }
 
     protected function createDriver() : Driver

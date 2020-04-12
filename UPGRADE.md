@@ -269,6 +269,10 @@ The Doctrine\DBAL\Version class is no longer available: please refrain from chec
 
 # Upgrade to 3.0
 
+## BC BREAK: Removed `EchoSQLLogger`
+
+`EchoSQLLogger` is no longer available as part of the package.
+
 ## BC BREAK: Removed support for SQL Anywhere 12 and older
 
 DBAL now requires SQL Anywhere 16 or newer, support for unmaintained versions has been dropped.
@@ -394,6 +398,10 @@ Please use other database client applications for import, e.g.:
  * For SQLite: `sqlite3 /path/to/file.db < data.sql`.
 
 # Upgrade to 2.11
+
+## Deprecated `EchoSQLLogger`
+
+The `EchoSQLLogger` is has been deprecated. Implement your logger with the desired logic.
 
 ## Deprecated database platforms:
 

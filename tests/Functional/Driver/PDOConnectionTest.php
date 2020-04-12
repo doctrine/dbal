@@ -33,7 +33,7 @@ class PDOConnectionTest extends FunctionalTestCase
         $wrappedConnection = $this->connection->getWrappedConnection();
 
         if (! $wrappedConnection instanceof PDOConnection) {
-            $this->markTestSkipped('PDO connection only test.');
+            self::markTestSkipped('PDO connection only test.');
         }
 
         $this->driverConnection = $wrappedConnection;
@@ -68,7 +68,7 @@ class PDOConnectionTest extends FunctionalTestCase
         $driver = $this->connection->getDriver();
 
         if ($driver instanceof PDOSQLSRVDriver) {
-            $this->markTestSkipped('pdo_sqlsrv does not allow setting PDO::ATTR_EMULATE_PREPARES at connection level.');
+            self::markTestSkipped('pdo_sqlsrv does not allow setting PDO::ATTR_EMULATE_PREPARES at connection level.');
         }
 
         // Some PDO adapters do not check the query server-side

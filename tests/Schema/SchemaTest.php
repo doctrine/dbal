@@ -374,30 +374,30 @@ class SchemaTest extends TestCase
         $schema->createSequence('moo');
         $schema->createSequence('war');
 
-        $visitor->expects($this->once())
+        $visitor->expects(self::once())
             ->method('acceptSchema')
             ->with($schema);
 
-        $visitor->expects($this->at(1))
+        $visitor->expects(self::at(1))
             ->method('acceptTable')
             ->with($schema->getTable('baz'));
 
-        $visitor->expects($this->at(2))
+        $visitor->expects(self::at(2))
             ->method('acceptTable')
             ->with($schema->getTable('bla.bloo'));
 
-        $visitor->expects($this->exactly(2))
+        $visitor->expects(self::exactly(2))
             ->method('acceptTable');
 
-        $visitor->expects($this->at(3))
+        $visitor->expects(self::at(3))
             ->method('acceptSequence')
             ->with($schema->getSequence('moo'));
 
-        $visitor->expects($this->at(4))
+        $visitor->expects(self::at(4))
             ->method('acceptSequence')
             ->with($schema->getSequence('war'));
 
-        $visitor->expects($this->exactly(2))
+        $visitor->expects(self::exactly(2))
             ->method('acceptSequence');
 
         $schema->visit($visitor);
@@ -420,45 +420,45 @@ class SchemaTest extends TestCase
         $schema->createSequence('moo');
         $schema->createSequence('war');
 
-        $visitor->expects($this->once())
+        $visitor->expects(self::once())
             ->method('acceptSchema')
             ->with($schema);
 
-        $visitor->expects($this->at(1))
+        $visitor->expects(self::at(1))
             ->method('acceptNamespace')
             ->with('foo');
 
-        $visitor->expects($this->at(2))
+        $visitor->expects(self::at(2))
             ->method('acceptNamespace')
             ->with('bar');
 
-        $visitor->expects($this->at(3))
+        $visitor->expects(self::at(3))
             ->method('acceptNamespace')
             ->with('bla');
 
-        $visitor->expects($this->exactly(3))
+        $visitor->expects(self::exactly(3))
             ->method('acceptNamespace');
 
-        $visitor->expects($this->at(4))
+        $visitor->expects(self::at(4))
             ->method('acceptTable')
             ->with($schema->getTable('baz'));
 
-        $visitor->expects($this->at(5))
+        $visitor->expects(self::at(5))
             ->method('acceptTable')
             ->with($schema->getTable('bla.bloo'));
 
-        $visitor->expects($this->exactly(2))
+        $visitor->expects(self::exactly(2))
             ->method('acceptTable');
 
-        $visitor->expects($this->at(6))
+        $visitor->expects(self::at(6))
             ->method('acceptSequence')
             ->with($schema->getSequence('moo'));
 
-        $visitor->expects($this->at(7))
+        $visitor->expects(self::at(7))
             ->method('acceptSequence')
             ->with($schema->getSequence('war'));
 
-        $visitor->expects($this->exactly(2))
+        $visitor->expects(self::exactly(2))
             ->method('acceptSequence');
 
         $schema->visit($visitor);

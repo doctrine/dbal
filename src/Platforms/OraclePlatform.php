@@ -40,7 +40,7 @@ class OraclePlatform extends AbstractPlatform
      */
     public static function assertValidIdentifier(string $identifier) : void
     {
-        if (! preg_match('(^(([a-zA-Z]{1}[a-zA-Z0-9_$#]{0,})|("[^"]+"))$)', $identifier)) {
+        if (preg_match('(^(([a-zA-Z]{1}[a-zA-Z0-9_$#]{0,})|("[^"]+"))$)', $identifier) === 0) {
             throw new DBALException('Invalid Oracle identifier.');
         }
     }
@@ -643,13 +643,17 @@ SQL
 
     public function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey) : string
     {
-        $referentialAction = null;
+        $referentialAction = '';
 
         if ($foreignKey->hasOption('onDelete')) {
             $referentialAction = $this->getForeignKeyReferentialActionSQL($foreignKey->getOption('onDelete'));
         }
 
-        return $referentialAction ? ' ON DELETE ' . $referentialAction : '';
+        if ($referentialAction !== '') {
+            return ' ON DELETE ' . $referentialAction;
+        }
+
+        return '';
     }
 
     public function getForeignKeyReferentialActionSQL(string $action) : string
@@ -697,7 +701,7 @@ SQL
             $fields[] = $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
             $comment  = $this->getColumnComment($column);
 
-            if (! $comment) {
+            if ($comment === null || $comment === '') {
                 continue;
             }
 
@@ -708,7 +712,7 @@ SQL
             );
         }
 
-        if (count($fields)) {
+        if (count($fields) > 0) {
             $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ADD (' . implode(', ', $fields) . ')';
         }
 
@@ -756,7 +760,7 @@ SQL
             );
         }
 
-        if (count($fields)) {
+        if (count($fields) > 0) {
             $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' MODIFY (' . implode(', ', $fields) . ')';
         }
 
@@ -780,7 +784,7 @@ SQL
             $fields[] = $column->getQuotedName($this);
         }
 
-        if (count($fields)) {
+        if (count($fields) > 0) {
             $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' DROP (' . implode(', ', $fields) . ')';
         }
 
@@ -825,10 +829,10 @@ SQL
                 $notnull = $field['notnull'] ? ' NOT NULL' : ' NULL';
             }
 
-            $unique = isset($field['unique']) && $field['unique'] ?
+            $unique = ! empty($field['unique']) ?
                 ' ' . $this->getUniqueFieldDeclarationSQL() : '';
 
-            $check = isset($field['check']) && $field['check'] ?
+            $check = ! empty($field['check']) ?
                 ' ' . $field['check'] : '';
 
             $typeDecl  = $field['type']->getSQLDeclaration($field, $this);
@@ -893,8 +897,8 @@ SQL
             return $query;
         }
 
-        if (preg_match('/^\s*SELECT/i', $query)) {
-            if (! preg_match('/\sFROM\s/i', $query)) {
+        if (preg_match('/^\s*SELECT/i', $query) === 1) {
+            if (preg_match('/\sFROM\s/i', $query) === 0) {
                 $query .= ' FROM dual';
             }
 

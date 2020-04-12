@@ -163,12 +163,12 @@ EOS
     public function testNonDefaultPKOrder() : void
     {
         if (! extension_loaded('sqlite3')) {
-            $this->markTestSkipped('This test requires the SQLite3 extension.');
+            self::markTestSkipped('This test requires the SQLite3 extension.');
         }
 
         $version = SQLite3::version();
         if (version_compare($version['versionString'], '3.7.16', '<')) {
-            $this->markTestSkipped('This version of sqlite doesn\'t return the order of the Primary Key.');
+            self::markTestSkipped('This version of sqlite doesn\'t return the order of the Primary Key.');
         }
 
         $this->connection->exec(<<<EOS
@@ -282,6 +282,21 @@ SQL;
         $lastUsedIdAfterDelete = (int) $query->fetchColumn();
 
         // with an empty table, non autoincrement rowid is always 1
-        $this->assertEquals(1, $lastUsedIdAfterDelete);
+        self::assertEquals(1, $lastUsedIdAfterDelete);
+    }
+
+    public function testOnlyOwnCommentIsParsed() : void
+    {
+        $table = new Table('own_column_comment');
+        $table->addColumn('col1', 'string', ['length' => 16]);
+        $table->addColumn('col2', 'string', ['length' => 16, 'comment' => 'Column #2']);
+        $table->addColumn('col3', 'string', ['length' => 16]);
+
+        $sm = $this->connection->getSchemaManager();
+        $sm->createTable($table);
+
+        self::assertNull($sm->listTableDetails('own_column_comment')
+            ->getColumn('col1')
+            ->getComment());
     }
 }

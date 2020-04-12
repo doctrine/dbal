@@ -14,7 +14,7 @@ class DriverTest extends AbstractDriverTest
     protected function setUp() : void
     {
         if (! extension_loaded('pdo_sqlite')) {
-            $this->markTestSkipped('pdo_sqlite is not installed.');
+            self::markTestSkipped('pdo_sqlite is not installed.');
         }
 
         parent::setUp();
@@ -23,12 +23,12 @@ class DriverTest extends AbstractDriverTest
             return;
         }
 
-        $this->markTestSkipped('pdo_sqlite only test.');
+        self::markTestSkipped('pdo_sqlite only test.');
     }
 
     public function testReturnsDatabaseNameWithoutDatabaseNameParameter() : void
     {
-        $this->markTestSkipped('SQLite does not support the concept of a database.');
+        self::markTestSkipped('SQLite does not support the concept of a database.');
     }
 
     protected function createDriver() : DriverInterface

@@ -1181,33 +1181,33 @@ class ComparatorTest extends TestCase
             ->onlyMethods(['getNamespaces', 'hasNamespace'])
             ->getMock();
 
-        $fromSchema->expects($this->once())
+        $fromSchema->expects(self::once())
             ->method('getNamespaces')
-            ->will($this->returnValue(['foo', 'bar']));
+            ->will(self::returnValue(['foo', 'bar']));
 
-        $fromSchema->expects($this->at(0))
+        $fromSchema->expects(self::at(0))
             ->method('hasNamespace')
             ->with('bar')
-            ->will($this->returnValue(true));
+            ->will(self::returnValue(true));
 
-        $fromSchema->expects($this->at(1))
+        $fromSchema->expects(self::at(1))
             ->method('hasNamespace')
             ->with('baz')
-            ->will($this->returnValue(false));
+            ->will(self::returnValue(false));
 
-        $toSchema->expects($this->once())
+        $toSchema->expects(self::once())
             ->method('getNamespaces')
-            ->will($this->returnValue(['bar', 'baz']));
+            ->will(self::returnValue(['bar', 'baz']));
 
-        $toSchema->expects($this->at(1))
+        $toSchema->expects(self::at(1))
             ->method('hasNamespace')
             ->with('foo')
-            ->will($this->returnValue(false));
+            ->will(self::returnValue(false));
 
-        $toSchema->expects($this->at(2))
+        $toSchema->expects(self::at(2))
             ->method('hasNamespace')
             ->with('bar')
-            ->will($this->returnValue(true));
+            ->will(self::returnValue(true));
 
         $expected                    = new SchemaDiff();
         $expected->fromSchema        = $fromSchema;

@@ -17,7 +17,6 @@ use stdClass;
 use function array_key_exists;
 use function assert;
 use function count;
-use function is_array;
 use function is_int;
 use function is_object;
 use function is_resource;
@@ -53,7 +52,7 @@ final class SQLAnywhereStatement implements IteratorAggregate, Statement
     /** @var int Default fetch mode to use. */
     private $defaultFetchMode = FetchMode::MIXED;
 
-    /** @var resource The result set resource to fetch. */
+    /** @var resource|null The result set resource to fetch. */
     private $result;
 
     /** @var resource The prepared SQL statement to execute. */
@@ -148,7 +147,7 @@ final class SQLAnywhereStatement implements IteratorAggregate, Statement
      */
     public function execute(?array $params = null) : void
     {
-        if (is_array($params)) {
+        if ($params !== null) {
             $hasZeroIndex = array_key_exists(0, $params);
 
             foreach ($params as $key => $val) {
@@ -178,7 +177,7 @@ final class SQLAnywhereStatement implements IteratorAggregate, Statement
             return false;
         }
 
-        $fetchMode = $fetchMode ?: $this->defaultFetchMode;
+        $fetchMode = $fetchMode ?? $this->defaultFetchMode;
 
         switch ($fetchMode) {
             case FetchMode::COLUMN:

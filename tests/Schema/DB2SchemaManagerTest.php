@@ -50,7 +50,7 @@ final class DB2SchemaManagerTest extends TestCase
         $this->conn->getConfiguration()->setSchemaAssetsFilter(static function (string $name) : bool {
             return preg_match('/^(?!T_)/', $name) === 1;
         });
-        $this->conn->expects($this->once())->method('fetchAll')->will($this->returnValue([
+        $this->conn->expects(self::once())->method('fetchAll')->will(self::returnValue([
             ['name' => 'FOO'],
             ['name' => 'T_FOO'],
             ['name' => 'BAR'],
@@ -69,11 +69,11 @@ final class DB2SchemaManagerTest extends TestCase
     public function testListTableNamesFiltersAssetNamesCorrectlyWithCallable() : void
     {
         $accepted = ['T_FOO', 'T_BAR'];
-        $this->conn->getConfiguration()->setSchemaAssetsFilter(static function ($assetName) use ($accepted) {
-            return in_array($assetName, $accepted);
+        $this->conn->getConfiguration()->setSchemaAssetsFilter(static function ($assetName) use ($accepted) : bool {
+            return in_array($assetName, $accepted, true);
         });
 
-        $this->conn->expects($this->once())->method('fetchAll')->will($this->returnValue([
+        $this->conn->expects(self::once())->method('fetchAll')->will(self::returnValue([
             ['name' => 'FOO'],
             ['name' => 'T_FOO'],
             ['name' => 'BAR'],

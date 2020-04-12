@@ -15,7 +15,7 @@ class DBAL168Test extends FunctionalTestCase
     public function testDomainsTable() : void
     {
         if ($this->connection->getDatabasePlatform()->getName() !== 'postgresql') {
-            $this->markTestSkipped('PostgreSQL only test');
+            self::markTestSkipped('PostgreSQL only test');
         }
 
         $table = new Table('domains');

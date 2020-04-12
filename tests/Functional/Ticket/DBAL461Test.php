@@ -38,6 +38,6 @@ class DBAL461Test extends TestCase
             'comment' => null,
         ]);
 
-        $this->assertInstanceOf(DecimalType::class, $column->getType());
+        self::assertInstanceOf(DecimalType::class, $column->getType());
     }
 }

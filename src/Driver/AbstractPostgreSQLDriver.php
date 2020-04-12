@@ -82,7 +82,7 @@ abstract class AbstractPostgreSQLDriver implements ExceptionConverterDriver, Ver
 
     public function createDatabasePlatformForVersion(string $version) : AbstractPlatform
     {
-        if (! preg_match('/^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?)?/', $version, $versionParts)) {
+        if (preg_match('/^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?)?/', $version, $versionParts) === 0) {
             throw InvalidPlatformVersion::new(
                 $version,
                 '<major_version>.<minor_version>.<patch_version>'

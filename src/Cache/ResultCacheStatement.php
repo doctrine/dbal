@@ -78,7 +78,7 @@ final class ResultCacheStatement implements IteratorAggregate, ResultStatement
         }
 
         $data = $this->resultCache->fetch($this->cacheKey);
-        if (! $data) {
+        if ($data === false) {
             $data = [];
         }
 
@@ -122,10 +122,10 @@ final class ResultCacheStatement implements IteratorAggregate, ResultStatement
 
         $row = $this->statement->fetch(FetchMode::ASSOCIATIVE);
 
-        if ($row) {
+        if ($row !== false) {
             $this->data[] = $row;
 
-            $fetchMode = $fetchMode ?: $this->defaultFetchMode;
+            $fetchMode = $fetchMode ?? $this->defaultFetchMode;
 
             if ($fetchMode === FetchMode::ASSOCIATIVE) {
                 return $row;

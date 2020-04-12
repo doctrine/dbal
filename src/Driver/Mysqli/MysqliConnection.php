@@ -45,19 +45,18 @@ class MysqliConnection implements PingableConnection, ServerInfoAwareConnection
      */
     public function __construct(array $params, string $username, string $password, array $driverOptions = [])
     {
-        $port = $params['port'] ?? (int) ini_get('mysqli.default_port');
-
-        // Fallback to default MySQL port if not given.
-        if (! $port) {
-            $port = 3306;
-        }
-
         $socket = $params['unix_socket'] ?? ini_get('mysqli.default_socket');
         $dbname = $params['dbname'] ?? '';
-        $host   = $params['host'];
+        $port   = $params['port'] ?? 0;
 
         if (! empty($params['persistent'])) {
-            $host = 'p:' . $host;
+            if (! isset($params['host'])) {
+                throw HostRequired::forPersistentConnection();
+            }
+
+            $host = 'p:' . $params['host'];
+        } else {
+            $host = $params['host'] ?? null;
         }
 
         $flags = $driverOptions[static::OPTION_FLAGS] ?? 0;
@@ -70,6 +69,7 @@ class MysqliConnection implements PingableConnection, ServerInfoAwareConnection
         set_error_handler(static function () : bool {
             return true;
         });
+
         try {
             if (! $this->conn->real_connect($host, $username, $password, $dbname, $port, $socket, $flags)) {
                 throw ConnectionError::new($this->conn);

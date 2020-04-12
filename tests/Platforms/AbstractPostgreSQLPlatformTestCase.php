@@ -205,8 +205,8 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
     {
         $table  = new Table('autoinc_table_notnull');
         $column = $table->addColumn('id', $type);
-        $column->setAutoIncrement(true);
-        $column->setNotNull(false);
+        $column->setAutoincrement(true);
+        $column->setNotnull(false);
 
         $sql = $this->platform->getCreateTableSQL($table);
 
@@ -221,8 +221,8 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
     {
         $table  = new Table('autoinc_table_notnull_enabled');
         $column = $table->addColumn('id', $type);
-        $column->setAutoIncrement(true);
-        $column->setNotNull(true);
+        $column->setAutoincrement(true);
+        $column->setNotnull(true);
 
         $sql = $this->platform->getCreateTableSQL($table);
 
@@ -864,8 +864,8 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
 
         $tableDiff = $comparator->diffTable($table1, $table2);
 
-        $this->assertInstanceOf('Doctrine\DBAL\Schema\TableDiff', $tableDiff);
-        $this->assertSame(
+        self::assertInstanceOf('Doctrine\DBAL\Schema\TableDiff', $tableDiff);
+        self::assertSame(
             [
                 'ALTER TABLE "foo" ALTER "bar" TYPE TIMESTAMP(0) WITHOUT TIME ZONE',
                 'ALTER TABLE "foo" ALTER "bar" DROP DEFAULT',

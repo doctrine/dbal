@@ -271,7 +271,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
 
     public function getGenerateForeignKeySql() : string
     {
-        $this->fail('Foreign key constraints are not yet supported for SQLite.');
+        self::fail('Foreign key constraints are not yet supported for SQLite.');
     }
 
     public function testModifyLimitQuery() : void
@@ -583,7 +583,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
      */
     public function testAlterTableRenameIndexInSchema() : void
     {
-        $this->markTestIncomplete(
+        self::markTestIncomplete(
             'Test currently produces broken SQL due to SQLitePlatform::getAlterTable being broken ' .
             'when used with schemas.'
         );
@@ -594,7 +594,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
      */
     public function testQuotesAlterTableRenameIndexInSchema() : void
     {
-        $this->markTestIncomplete(
+        self::markTestIncomplete(
             'Test currently produces broken SQL due to SQLitePlatform::getAlterTable being broken ' .
             'when used with schemas.'
         );

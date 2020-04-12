@@ -11,6 +11,13 @@ final class ConnectionError extends MysqliException
 {
     public static function new(mysqli $connection) : self
     {
-        return new self($connection->error, $connection->sqlstate ?: null, $connection->errno);
+        $connectionSQLState = $connection->sqlstate;
+
+        $sqlState = null;
+        if ($connectionSQLState !== false) {
+            $sqlState = $connectionSQLState;
+        }
+
+        return new self($connection->error, $sqlState, $connection->errno);
     }
 }

@@ -31,7 +31,7 @@ class MasterSlaveConnectionTest extends FunctionalTestCase
 
         // This is a MySQL specific test, skip other vendors.
         if ($platformName !== 'mysql') {
-            $this->markTestSkipped(sprintf('Test does not work on %s.', $platformName));
+            self::markTestSkipped(sprintf('Test does not work on %s.', $platformName));
         }
 
         try {

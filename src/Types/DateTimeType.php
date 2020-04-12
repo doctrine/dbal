@@ -56,11 +56,11 @@ class DateTimeType extends Type implements PhpDateTimeMappingType
 
         $val = DateTime::createFromFormat($platform->getDateTimeFormatString(), $value);
 
-        if (! $val) {
+        if ($val === false) {
             $val = date_create($value);
         }
 
-        if (! $val) {
+        if ($val === false) {
             throw InvalidFormat::new($value, $this->getName(), $platform->getDateTimeFormatString());
         }
 

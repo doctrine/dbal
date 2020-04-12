@@ -13,6 +13,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use function assert;
+use function is_bool;
 use function is_numeric;
 use function is_string;
 use function stripos;
@@ -60,7 +61,10 @@ EOT
             throw new LogicException('Option "depth" must contains an integer value.');
         }
 
-        if (stripos($sql, 'select') === 0 || $input->getOption('force-fetch')) {
+        $forceFetch = $input->getOption('force-fetch');
+        assert(is_bool($forceFetch));
+
+        if (stripos($sql, 'select') === 0 || $forceFetch) {
             $resultSet = $conn->fetchAll($sql);
         } else {
             $resultSet = $conn->executeUpdate($sql);

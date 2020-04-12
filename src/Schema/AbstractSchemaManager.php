@@ -21,7 +21,6 @@ use function array_shift;
 use function array_values;
 use function assert;
 use function count;
-use function is_array;
 use function preg_match;
 use function strtolower;
 
@@ -51,7 +50,7 @@ abstract class AbstractSchemaManager
     public function __construct(Connection $conn, ?AbstractPlatform $platform = null)
     {
         $this->_conn     = $conn;
-        $this->_platform = $platform ?: $this->_conn->getDatabasePlatform();
+        $this->_platform = $platform ?? $this->_conn->getDatabasePlatform();
     }
 
     /**
@@ -217,7 +216,7 @@ abstract class AbstractSchemaManager
     protected function filterAssetNames(array $assetNames) : array
     {
         $filter = $this->_conn->getConfiguration()->getSchemaAssetsFilter();
-        if (! $filter) {
+        if ($filter === null) {
             return $assetNames;
         }
 
@@ -516,10 +515,6 @@ abstract class AbstractSchemaManager
     {
         $queries = $this->_platform->getAlterTableSQL($tableDiff);
 
-        if (! is_array($queries) || ! count($queries)) {
-            return;
-        }
-
         foreach ($queries as $ddlQuery) {
             $this->_execSql($ddlQuery);
         }
@@ -549,13 +544,7 @@ abstract class AbstractSchemaManager
     {
         $list = [];
         foreach ($databases as $value) {
-            $value = $this->_getPortableDatabaseDefinition($value);
-
-            if (! $value) {
-                continue;
-            }
-
-            $list[] = $value;
+            $list[] = $this->_getPortableDatabaseDefinition($value);
         }
 
         return $list;
@@ -655,7 +644,7 @@ abstract class AbstractSchemaManager
                 $column = $this->_getPortableTableColumnDefinition($tableColumn);
             }
 
-            if (! $column) {
+            if ($column === null) {
                 continue;
             }
 
@@ -733,7 +722,7 @@ abstract class AbstractSchemaManager
                 $index = new Index($data['name'], $data['columns'], $data['unique'], $data['primary'], $data['flags'], $data['options']);
             }
 
-            if (! $index) {
+            if ($index === null) {
                 continue;
             }
 
@@ -752,13 +741,7 @@ abstract class AbstractSchemaManager
     {
         $list = [];
         foreach ($tables as $value) {
-            $value = $this->_getPortableTableDefinition($value);
-
-            if (! $value) {
-                continue;
-            }
-
-            $list[] = $value;
+            $list[] = $this->_getPortableTableDefinition($value);
         }
 
         return $list;
@@ -783,13 +766,7 @@ abstract class AbstractSchemaManager
     {
         $list = [];
         foreach ($users as $value) {
-            $value = $this->_getPortableUserDefinition($value);
-
-            if (! $value) {
-                continue;
-            }
-
-            $list[] = $value;
+            $list[] = $this->_getPortableUserDefinition($value);
         }
 
         return $list;
@@ -944,7 +921,7 @@ abstract class AbstractSchemaManager
      */
     final protected function extractDoctrineTypeFromComment(?string &$comment) : ?string
     {
-        if ($comment === null || ! preg_match('/(.*)\(DC2Type:(((?!\)).)+)\)(.*)/', $comment, $match)) {
+        if ($comment === null || preg_match('/(.*)\(DC2Type:(((?!\)).)+)\)(.*)/', $comment, $match) === 0) {
             return null;
         }
 

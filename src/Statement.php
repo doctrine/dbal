@@ -10,7 +10,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
 use IteratorAggregate;
 use Throwable;
-use function is_array;
 use function is_string;
 
 /**
@@ -144,7 +143,7 @@ class Statement implements IteratorAggregate, DriverStatement
      */
     public function execute(?array $params = null) : void
     {
-        if (is_array($params)) {
+        if ($params !== null) {
             $this->params = $params;
         }
 

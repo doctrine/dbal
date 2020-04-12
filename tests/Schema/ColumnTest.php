@@ -26,7 +26,7 @@ class ColumnTest extends TestCase
         self::assertEquals(5, $column->getPrecision());
         self::assertEquals(2, $column->getScale());
         self::assertTrue($column->getUnsigned());
-        self::assertFalse($column->getNotNull());
+        self::assertFalse($column->getNotnull());
         self::assertTrue($column->getFixed());
         self::assertEquals('baz', $column->getDefault());
 

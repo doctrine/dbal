@@ -125,7 +125,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
         if (! empty($tableForeignKeys)) {
             $createSql = $this->getCreateTableSQL($table);
 
-            if ($createSql !== null && preg_match_all(
+            if (preg_match_all(
                 '#
                     (?:CONSTRAINT\s+([^\s]+)\s+)?
                     (?:FOREIGN\s+KEY[^\)]+\)\s*)?
@@ -137,7 +137,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
                     )?#isx',
                 $createSql,
                 $match
-            )) {
+            ) > 0) {
                 $names      = array_reverse($match[1]);
                 $deferrable = array_reverse($match[2]);
                 $deferred   = array_reverse($match[3]);
@@ -263,13 +263,16 @@ class SqliteSchemaManager extends AbstractSchemaManager
         }
 
         // inspect column collation and comments
-        $createSql = $this->getCreateTableSQL($table) ?? '';
+        $createSql = $this->getCreateTableSQL($table);
 
         foreach ($list as $columnName => $column) {
             $type = $column->getType();
 
             if ($type instanceof StringType || $type instanceof TextType) {
-                $column->setPlatformOption('collation', $this->parseColumnCollationFromSQL($columnName, $createSql) ?: 'BINARY');
+                $column->setPlatformOption(
+                    'collation',
+                    $this->parseColumnCollationFromSQL($columnName, $createSql) ?? 'BINARY'
+                );
             }
 
             $comment = $this->parseColumnCommentFromSQL($columnName, $createSql);
@@ -319,7 +322,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
 
         if ($default !== null) {
             // SQLite returns the default value as a literal expression, so we need to parse it
-            if (preg_match('/^\'(.*)\'$/s', $default, $matches)) {
+            if (preg_match('/^\'(.*)\'$/s', $default, $matches) === 1) {
                 $default = str_replace("''", "'", $matches[1]);
             }
         }
@@ -463,7 +466,7 @@ CREATE\sTABLE # Match "CREATE TABLE"
     private function parseColumnCommentFromSQL(string $column, string $sql) : ?string
     {
         $pattern = '{[\s(,](?:\W' . preg_quote($this->_platform->quoteSingleIdentifier($column)) . '\W|\W' . preg_quote($column)
-            . '\W)(?:\(.*?\)|[^,(])*?,?((?:(?!\n))(?:\s*--[^\n]*\n?)+)}i';
+            . '\W)(?:\([^)]*?\)|[^,(])*?,?((?:(?!\n))(?:\s*--[^\n]*\n?)+)}i';
 
         if (preg_match($pattern, $sql, $match) !== 1) {
             return null;
@@ -474,9 +477,9 @@ CREATE\sTABLE # Match "CREATE TABLE"
         return $comment === '' ? null : $comment;
     }
 
-    private function getCreateTableSQL(string $table) : ?string
+    private function getCreateTableSQL(string $table) : string
     {
-        return $this->_conn->fetchColumn(
+        $sql = $this->_conn->fetchColumn(
             <<<'SQL'
 SELECT sql
   FROM (
@@ -491,14 +494,20 @@ AND name = ?
 SQL
             ,
             [$table]
-        ) ?: null;
+        );
+
+        if ($sql !== false) {
+            return $sql;
+        }
+
+        return '';
     }
 
     public function listTableDetails(string $tableName) : Table
     {
         $table = parent::listTableDetails($tableName);
 
-        $tableCreateSql = $this->getCreateTableSQL($tableName) ?? '';
+        $tableCreateSql = $this->getCreateTableSQL($tableName);
 
         $comment = $this->parseTableCommentFromSQL($tableName, $tableCreateSql);
 

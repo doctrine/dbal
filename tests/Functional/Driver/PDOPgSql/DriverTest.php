@@ -19,7 +19,7 @@ class DriverTest extends AbstractDriverTest
     protected function setUp() : void
     {
         if (! extension_loaded('pdo_pgsql')) {
-            $this->markTestSkipped('pdo_pgsql is not installed.');
+            self::markTestSkipped('pdo_pgsql is not installed.');
         }
 
         parent::setUp();
@@ -28,7 +28,7 @@ class DriverTest extends AbstractDriverTest
             return;
         }
 
-        $this->markTestSkipped('pdo_pgsql only test.');
+        self::markTestSkipped('pdo_pgsql only test.');
     }
 
     /**
@@ -100,7 +100,7 @@ class DriverTest extends AbstractDriverTest
             }
         }
 
-        $this->fail(sprintf('Query result does not contain a record where column "query" equals "%s".', $sql));
+        self::fail(sprintf('Query result does not contain a record where column "query" equals "%s".', $sql));
     }
 
     protected function createDriver() : DriverInterface

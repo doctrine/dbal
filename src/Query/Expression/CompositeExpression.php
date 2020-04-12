@@ -80,11 +80,7 @@ class CompositeExpression implements Countable
     {
         $that = clone $this;
 
-        $that->parts[] = $part;
-
-        foreach ($parts as $part) {
-            $that->parts[] = $part;
-        }
+        $that->parts = array_merge($that->parts, [$part], $parts);
 
         return $that;
     }

@@ -45,11 +45,11 @@ final class EasyConnectString
      */
     public static function fromConnectionParameters(array $params) : self
     {
-        if (! empty($params['connectstring'])) {
+        if (isset($params['connectstring'])) {
             return new self($params['connectstring']);
         }
 
-        if (empty($params['host'])) {
+        if (! isset($params['host'])) {
             return new self($params['dbname'] ?? '');
         }
 
@@ -58,7 +58,7 @@ final class EasyConnectString
         if (isset($params['servicename']) || isset($params['dbname'])) {
             $serviceKey = 'SID';
 
-            if (! empty($params['service'])) {
+            if (isset($params['service'])) {
                 $serviceKey = 'SERVICE_NAME';
             }
 
@@ -67,7 +67,7 @@ final class EasyConnectString
             $connectData[$serviceKey] = $serviceName;
         }
 
-        if (! empty($params['instancename'])) {
+        if (isset($params['instancename'])) {
             $connectData['INSTANCE_NAME'] = $params['instancename'];
         }
 

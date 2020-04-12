@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Constraint;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Identifier;
@@ -203,7 +202,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * @param array<string, mixed> $field
      */
-    public function getTinyIntTypeDeclarationSql(array $field) : string
+    public function getTinyIntTypeDeclarationSQL(array $field) : string
     {
         //  SQLite autoincrement is implicit for INTEGER PKs, but not for TINYINT fields.
         if (! empty($field['autoincrement'])) {
@@ -229,7 +228,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * @param array<string, mixed> $field
      */
-    public function getMediumIntTypeDeclarationSql(array $field) : string
+    public function getMediumIntTypeDeclarationSQL(array $field) : string
     {
         //  SQLite autoincrement is implicit for INTEGER PKs, but not for MEDIUMINT fields.
         if (! empty($field['autoincrement'])) {
@@ -296,8 +295,8 @@ class SqlitePlatform extends AbstractPlatform
         $queryFields = $this->getColumnDeclarationListSQL($columns);
 
         if (isset($options['uniqueConstraints']) && ! empty($options['uniqueConstraints'])) {
-            foreach ($options['uniqueConstraints'] as $name => $definition) {
-                $queryFields .= ', ' . $this->getUniqueConstraintDeclarationSQL($name, $definition);
+            foreach ($options['uniqueConstraints'] as $constraintName => $definition) {
+                $queryFields .= ', ' . $this->getUniqueConstraintDeclarationSQL($constraintName, $definition);
             }
         }
 
@@ -842,8 +841,7 @@ class SqlitePlatform extends AbstractPlatform
     {
         // Suppress changes on integer type autoincrement columns.
         foreach ($diff->changedColumns as $oldColumnName => $columnDiff) {
-            if (! $columnDiff->fromColumn instanceof Column ||
-                ! $columnDiff->column instanceof Column ||
+            if ($columnDiff->fromColumn === null ||
                 ! $columnDiff->column->getAutoincrement() ||
                 ! $columnDiff->column->getType() instanceof Types\IntegerType
             ) {

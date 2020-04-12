@@ -11,6 +11,6 @@ final class StatementError extends MysqliException
 {
     public static function new(mysqli_stmt $statement) : self
     {
-        return new self($statement->error, $statement->sqlstate ?: null, $statement->errno);
+        return new self($statement->error, $statement->sqlstate, $statement->errno);
     }
 }

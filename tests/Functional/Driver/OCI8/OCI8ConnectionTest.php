@@ -19,13 +19,13 @@ class OCI8ConnectionTest extends FunctionalTestCase
     protected function setUp() : void
     {
         if (! extension_loaded('oci8')) {
-            $this->markTestSkipped('oci8 is not installed.');
+            self::markTestSkipped('oci8 is not installed.');
         }
 
         parent::setUp();
 
         if (! $this->connection->getDriver() instanceof Driver) {
-            $this->markTestSkipped('oci8 only test.');
+            self::markTestSkipped('oci8 only test.');
         }
 
         $wrappedConnection = $this->connection->getWrappedConnection();

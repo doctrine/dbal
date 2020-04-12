@@ -1184,7 +1184,7 @@ SQL
             return $query;
         }
 
-        if (! preg_match('/^\s*(SELECT\s+(DISTINCT\s+)?)(.*)/i', $query, $matches)) {
+        if (preg_match('/^\s*(SELECT\s+(DISTINCT\s+)?)(.*)/i', $query, $matches) === 0) {
             return $query;
         }
 

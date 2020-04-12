@@ -14,7 +14,7 @@ class DriverTest extends AbstractDriverTest
     protected function setUp() : void
     {
         if (! extension_loaded('PDO_OCI')) {
-            $this->markTestSkipped('PDO_OCI is not installed.');
+            self::markTestSkipped('PDO_OCI is not installed.');
         }
 
         parent::setUp();
@@ -23,17 +23,17 @@ class DriverTest extends AbstractDriverTest
             return;
         }
 
-        $this->markTestSkipped('PDO_OCI only test.');
+        self::markTestSkipped('PDO_OCI only test.');
     }
 
     public function testConnectsWithoutDatabaseNameParameter() : void
     {
-        $this->markTestSkipped('Oracle does not support connecting without database name.');
+        self::markTestSkipped('Oracle does not support connecting without database name.');
     }
 
     public function testReturnsDatabaseNameWithoutDatabaseNameParameter() : void
     {
-        $this->markTestSkipped('Oracle does not support connecting without database name.');
+        self::markTestSkipped('Oracle does not support connecting without database name.');
     }
 
     protected function createDriver() : DriverInterface

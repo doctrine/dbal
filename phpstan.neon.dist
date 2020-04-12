@@ -5,6 +5,7 @@ parameters:
         - %currentWorkingDirectory%/tests
     autoload_files:
         - %currentWorkingDirectory%/tests/phpstan-polyfill.php
+    treatPhpDocTypesAsCertain: false
     reportUnmatchedIgnoredErrors: false
     checkMissingIterableValueType: false
     checkGenericClassInNonGenericObjectType: false
@@ -46,6 +47,48 @@ parameters:
             message: '~^Cannot cast array<string>\|bool\|string\|null to int\.$~'
             path: %currentWorkingDirectory%/src/Tools/Console/Command/RunSqlCommand.php
 
+        # https://github.com/phpstan/phpstan/issues/3134
+        -
+            message: '~^Call to static method PHPUnit\\Framework\\Assert::assertSame\(\) with Doctrine\\DBAL\\Types\\Type and Doctrine\\DBAL\\Types\\Type will always evaluate to true\.$~'
+            path: %currentWorkingDirectory%/tests/Types/TypeRegistryTest.php
+
+        # https://github.com/phpstan/phpstan-strict-rules/issues/103
+        -
+            message: '~^Construct empty\(\) is not allowed. Use more strict comparison\.~'
+            paths:
+                - %currentWorkingDirectory%/src/Driver/*/*Connection.php
+                - %currentWorkingDirectory%/src/Driver/*/Driver.php
+                - %currentWorkingDirectory%/src/Driver/AbstractOracleDriver/EasyConnectString.php
+                - %currentWorkingDirectory%/src/Platforms/*Platform.php
+                - %currentWorkingDirectory%/src/Schema/*SchemaManager.php
+
+        # In some namespaces, we use array<string,mixed>, some elements of which are actually boolean
+        -
+            message: '~^Only booleans are allowed in .*, mixed given~'
+            paths:
+                - %currentWorkingDirectory%/src/Driver/*/Driver.php
+                - %currentWorkingDirectory%/src/Platforms/*Platform.php
+                - %currentWorkingDirectory%/src/Schema/*SchemaManager.php
+
+        # FetchMode::CUSTOM_OBJECT requires variable property access
+        -
+            message: '~^Variable property access on object\.~'
+            paths:
+                - %currentWorkingDirectory%/src/Driver/*/*Statement.php
+
+        # Some APIs use variable method calls internally
+        -
+            message: '~^Variable method call on .*~'
+            paths:
+                - %currentWorkingDirectory%/src/Schema/AbstractSchemaManager.php
+                - %currentWorkingDirectory%/src/Schema/Column.php
+
+        # https://github.com/phpstan/phpstan/issues/3146
+        -
+            message: '~^Only numeric types are allowed in -, int<1, max>\|false given on the left side\.~'
+            paths:
+                - %currentWorkingDirectory%/src/Platforms/SQLServer2012Platform.php
+
         # Temporaily suppressed during up-merging an upgrade PHPStan 0.12
         - '~^Unable to resolve the template type ExpectedType in call to method static method PHPUnit\\Framework\\Assert::assertInstanceOf\(\)$~'
         - '~^Unable to resolve the template type RealInstanceType in call to method PHPUnit\\Framework\\TestCase::getMockClass\(\)$~'
@@ -62,3 +105,4 @@ parameters:
 includes:
     - vendor/phpstan/phpstan-phpunit/extension.neon
     - vendor/phpstan/phpstan-phpunit/rules.neon
+    - vendor/phpstan/phpstan-strict-rules/rules.neon

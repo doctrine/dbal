@@ -18,10 +18,10 @@ use function assert;
 use function explode;
 use function implode;
 use function in_array;
+use function is_string;
 use function preg_match;
 use function sprintf;
 use function str_replace;
-use function strlen;
 use function strpos;
 use function strtolower;
 use function trim;
@@ -93,7 +93,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         $paths = $this->getSchemaSearchPaths();
 
         $this->existingSchemaPaths = array_filter($paths, static function ($v) use ($names) : bool {
-            return in_array($v, $names);
+            return in_array($v, $names, true);
         });
     }
 
@@ -134,15 +134,27 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         $foreignColumns = [];
         $foreignTable   = null;
 
-        if (preg_match('(ON UPDATE ([a-zA-Z0-9]+( (NULL|ACTION|DEFAULT))?))', $tableForeignKey['condef'], $match)) {
+        if (preg_match(
+            '(ON UPDATE ([a-zA-Z0-9]+( (NULL|ACTION|DEFAULT))?))',
+            $tableForeignKey['condef'],
+            $match
+        ) === 1) {
             $onUpdate = $match[1];
         }
 
-        if (preg_match('(ON DELETE ([a-zA-Z0-9]+( (NULL|ACTION|DEFAULT))?))', $tableForeignKey['condef'], $match)) {
+        if (preg_match(
+            '(ON DELETE ([a-zA-Z0-9]+( (NULL|ACTION|DEFAULT))?))',
+            $tableForeignKey['condef'],
+            $match
+        ) === 1) {
             $onDelete = $match[1];
         }
 
-        if (preg_match('/FOREIGN KEY \((.+)\) REFERENCES (.+)\((.+)\)/', $tableForeignKey['condef'], $values)) {
+        if (preg_match(
+            '/FOREIGN KEY \((.+)\) REFERENCES (.+)\((.+)\)/',
+            $tableForeignKey['condef'],
+            $values
+        ) === 1) {
             // PostgreSQL returns identifiers that are keywords with quotes, we need them later, don't get
             // the idea to trim them here.
             $localColumns   = array_map('trim', explode(',', $values[1]));
@@ -306,23 +318,23 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         $length = null;
 
         if (in_array(strtolower($tableColumn['type']), ['varchar', 'bpchar'], true)
-            && preg_match('/\((\d*)\)/', $tableColumn['complete_type'], $matches)) {
+            && preg_match('/\((\d*)\)/', $tableColumn['complete_type'], $matches) === 1) {
             $length = (int) $matches[1];
         }
 
         $matches = [];
 
         $autoincrement = false;
-        if ($tableColumn['default'] !== null && preg_match("/^nextval\('(.*)'(::.*)?\)$/", $tableColumn['default'], $matches)) {
+        if ($tableColumn['default'] !== null && preg_match("/^nextval\('(.*)'(::.*)?\)$/", $tableColumn['default'], $matches) === 1) {
             $tableColumn['sequence'] = $matches[1];
             $tableColumn['default']  = null;
             $autoincrement           = true;
         }
 
         if ($tableColumn['default'] !== null) {
-            if (preg_match("/^['(](.*)[')]::/", $tableColumn['default'], $matches)) {
+            if (preg_match("/^['(](.*)[')]::/", $tableColumn['default'], $matches) === 1) {
                 $tableColumn['default'] = $matches[1];
-            } elseif (preg_match('/^NULL::/', $tableColumn['default'])) {
+            } elseif (preg_match('/^NULL::/', $tableColumn['default']) === 1) {
                 $tableColumn['default'] = null;
             }
         }
@@ -347,7 +359,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
 
         $dbType = strtolower($tableColumn['type']);
         if ($tableColumn['domain_type'] !== null
-            && strlen($tableColumn['domain_type'])
+            && $tableColumn['domain_type'] !== ''
             && ! $this->_platform->hasDoctrineTypeMappingFor($tableColumn['type'])
         ) {
             $dbType                       = strtolower($tableColumn['domain_type']);
@@ -412,7 +424,11 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             case 'numeric':
                 $tableColumn['default'] = $this->fixVersion94NegativeNumericDefaultValue($tableColumn['default']);
 
-                if (preg_match('([A-Za-z]+\(([0-9]+)\,([0-9]+)\))', $tableColumn['complete_type'], $match)) {
+                if (preg_match(
+                    '([A-Za-z]+\(([0-9]+)\,([0-9]+)\))',
+                    $tableColumn['complete_type'],
+                    $match
+                ) === 1) {
                     $precision = (int) $match[1];
                     $scale     = (int) $match[2];
                     $length    = null;
@@ -430,7 +446,11 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
                 break;
         }
 
-        if ($tableColumn['default'] && preg_match("('([^']+)'::)", $tableColumn['default'], $match)) {
+        if (is_string($tableColumn['default']) && preg_match(
+            "('([^']+)'::)",
+            $tableColumn['default'],
+            $match
+        ) === 1) {
             $tableColumn['default'] = $match[1];
         }
 

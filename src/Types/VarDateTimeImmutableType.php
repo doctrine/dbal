@@ -51,7 +51,7 @@ class VarDateTimeImmutableType extends VarDateTimeType
 
         $dateTime = date_create_immutable($value);
 
-        if (! $dateTime) {
+        if ($dateTime === false) {
             throw ValueNotConvertible::new($value, $this->getName());
         }
 

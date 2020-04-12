@@ -20,7 +20,7 @@ class DriverTest extends AbstractPostgreSQLDriverTest
             return;
         }
 
-        $this->markTestSkipped('Test enabled only when using pdo_pgsql specific phpunit.xml');
+        self::markTestSkipped('Test enabled only when using pdo_pgsql specific phpunit.xml');
     }
 
     /**

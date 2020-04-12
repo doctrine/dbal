@@ -39,13 +39,13 @@ class VarDateTimeImmutableTypeTest extends TestCase
 
     public function testConvertsDateTimeImmutableInstanceToDatabaseValue() : void
     {
-        $this->platform->expects($this->any())
+        $this->platform->expects(self::any())
             ->method('getDateTimeFormatString')
-            ->will($this->returnValue('Y-m-d H:i:s'));
+            ->will(self::returnValue('Y-m-d H:i:s'));
 
         $date = $this->createMock(DateTimeImmutable::class);
 
-        $date->expects($this->once())
+        $date->expects(self::once())
             ->method('format')
             ->with('Y-m-d H:i:s')
             ->willReturn('2016-01-01 15:58:59');

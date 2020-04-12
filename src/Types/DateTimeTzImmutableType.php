@@ -50,7 +50,7 @@ class DateTimeTzImmutableType extends DateTimeTzType
 
         $dateTime = DateTimeImmutable::createFromFormat($platform->getDateTimeTzFormatString(), $value);
 
-        if (! $dateTime) {
+        if ($dateTime === false) {
             throw InvalidFormat::new(
                 $value,
                 $this->getName(),

@@ -76,7 +76,7 @@ abstract class AbstractDriverTest extends TestCase
     public function testConvertsException(string $expectedClass, int $errorCode, ?string $sqlState = null, string $message = '') : void
     {
         if (! $this->driver instanceof ExceptionConverterDriver) {
-            $this->markTestSkipped('This test is only intended for exception converter drivers.');
+            self::markTestSkipped('This test is only intended for exception converter drivers.');
         }
 
         /** @var DriverExceptionInterface|MockObject $driverException */
@@ -100,7 +100,7 @@ abstract class AbstractDriverTest extends TestCase
     public function testCreatesDatabasePlatformForVersion() : void
     {
         if (! $this->driver instanceof VersionAwarePlatformDriver) {
-            $this->markTestSkipped('This test is only intended for version aware platform drivers.');
+            self::markTestSkipped('This test is only intended for version aware platform drivers.');
         }
 
         $data = $this->getDatabasePlatformsForVersions();
@@ -133,7 +133,7 @@ abstract class AbstractDriverTest extends TestCase
     public function testThrowsExceptionOnCreatingDatabasePlatformsForInvalidVersion() : void
     {
         if (! $this->driver instanceof VersionAwarePlatformDriver) {
-            $this->markTestSkipped('This test is only intended for version aware platform drivers.');
+            self::markTestSkipped('This test is only intended for version aware platform drivers.');
         }
 
         $this->expectException(DBALException::class);

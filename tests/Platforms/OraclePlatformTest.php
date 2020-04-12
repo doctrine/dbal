@@ -89,7 +89,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * @return mixed[]
+     * {@inheritDoc}
      */
     public function getGenerateTableWithMultiColumnUniqueIndexSql() : array
     {
@@ -385,7 +385,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * @return mixed[]
+     * {@inheritDoc}
      */
     protected function getQuotedColumnInPrimaryKeySQL() : array
     {
@@ -393,7 +393,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * @return mixed[]
+     * {@inheritDoc}
      */
     protected function getQuotedColumnInIndexSQL() : array
     {
@@ -404,7 +404,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * @return mixed[]
+     * {@inheritDoc}
      */
     protected function getQuotedNameInIndexSQL() : array
     {
@@ -415,7 +415,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * @return mixed[]
+     * {@inheritDoc}
      */
     protected function getQuotedColumnInForeignKeySQL() : array
     {
@@ -640,7 +640,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
      */
     protected function getQuotedAlterTableChangeColumnLengthSQL() : array
     {
-        $this->markTestIncomplete('Not implemented yet');
+        self::markTestIncomplete('Not implemented yet');
     }
 
     /**

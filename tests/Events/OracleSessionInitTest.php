@@ -16,9 +16,9 @@ class OracleSessionInitTest extends TestCase
     public function testPostConnect() : void
     {
         $connectionMock = $this->createMock(Connection::class);
-        $connectionMock->expects($this->once())
+        $connectionMock->expects(self::once())
                        ->method('executeUpdate')
-                       ->with($this->isType('string'));
+                       ->with(self::isType('string'));
 
         $eventArgs = new ConnectionEventArgs($connectionMock);
 
@@ -35,9 +35,9 @@ class OracleSessionInitTest extends TestCase
         $connectionMock = $this->getMockBuilder(Connection::class)
             ->disableOriginalConstructor()
             ->getMock();
-        $connectionMock->expects($this->once())
+        $connectionMock->expects(self::once())
             ->method('executeUpdate')
-            ->with($this->stringContains(sprintf('%s = %s', $name, $value)));
+            ->with(self::stringContains(sprintf('%s = %s', $name, $value)));
 
         $eventArgs = new ConnectionEventArgs($connectionMock);
 

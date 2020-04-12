@@ -129,7 +129,7 @@ class MasterSlaveConnection extends Connection
     public function connect(?string $connectionName = null) : void
     {
         $requestedConnectionChange = ($connectionName !== null);
-        $connectionName            = $connectionName ?: 'slave';
+        $connectionName            = $connectionName ?? 'slave';
 
         if ($connectionName !== 'slave' && $connectionName !== 'master') {
             throw new InvalidArgumentException('Invalid option to connect(), only master or slave allowed.');

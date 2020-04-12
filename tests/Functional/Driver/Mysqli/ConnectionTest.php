@@ -16,7 +16,7 @@ class ConnectionTest extends FunctionalTestCase
     protected function setUp() : void
     {
         if (! extension_loaded('mysqli')) {
-            $this->markTestSkipped('mysqli is not installed.');
+            self::markTestSkipped('mysqli is not installed.');
         }
 
         parent::setUp();
@@ -25,7 +25,7 @@ class ConnectionTest extends FunctionalTestCase
             return;
         }
 
-        $this->markTestSkipped('MySQLi only test.');
+        self::markTestSkipped('MySQLi only test.');
     }
 
     protected function tearDown() : void
@@ -33,12 +33,10 @@ class ConnectionTest extends FunctionalTestCase
         parent::tearDown();
     }
 
-    public function testDriverOptions() : void
+    public function testSupportedDriverOptions() : void
     {
-        $driverOptions = [MYSQLI_OPT_CONNECT_TIMEOUT => 1];
-
-        $connection = $this->getConnection($driverOptions);
-        self::assertInstanceOf(MysqliConnection::class, $connection);
+        $this->expectNotToPerformAssertions();
+        $this->getConnection([MYSQLI_OPT_CONNECT_TIMEOUT => 1]);
     }
 
     public function testUnsupportedDriverOption() : void

@@ -14,10 +14,10 @@ class LoggingTest extends FunctionalTestCase
         $sql = $this->connection->getDatabasePlatform()->getDummySelectSQL();
 
         $logMock = $this->createMock(SQLLogger::class);
-        $logMock->expects($this->at(0))
+        $logMock->expects(self::at(0))
                 ->method('startQuery')
-                ->with($this->equalTo($sql), $this->equalTo([]), $this->equalTo([]));
-        $logMock->expects($this->at(1))
+                ->with(self::equalTo($sql), self::equalTo([]), self::equalTo([]));
+        $logMock->expects(self::at(1))
                 ->method('stopQuery');
         $this->connection->getConfiguration()->setSQLLogger($logMock);
         $this->connection->executeQuery($sql, []);
@@ -28,10 +28,10 @@ class LoggingTest extends FunctionalTestCase
         $sql = $this->connection->getDatabasePlatform()->getDummySelectSQL();
 
         $logMock = $this->createMock(SQLLogger::class);
-        $logMock->expects($this->once())
+        $logMock->expects(self::once())
                 ->method('startQuery')
-                ->with($this->equalTo($sql), $this->equalTo([]));
-        $logMock->expects($this->at(1))
+                ->with(self::equalTo($sql), self::equalTo([]));
+        $logMock->expects(self::at(1))
                 ->method('stopQuery');
         $this->connection->getConfiguration()->setSQLLogger($logMock);
 

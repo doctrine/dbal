@@ -119,7 +119,7 @@ class MySqlPlatform extends AbstractPlatform
      */
     public function getListTableIndexesSQL(string $table, ?string $currentDatabase = null) : string
     {
-        if ($currentDatabase) {
+        if ($currentDatabase !== null) {
             $currentDatabase = $this->quoteStringLiteral($currentDatabase);
             $table           = $this->quoteStringLiteral($table);
 
@@ -287,7 +287,7 @@ FROM information_schema.TABLES
 WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_SCHEMA = %s AND TABLE_NAME = %s
 SQL
             ,
-            $database ? $this->quoteStringLiteral($database) : 'DATABASE()',
+            $database !== null ? $this->quoteStringLiteral($database) : 'DATABASE()',
             $this->quoteStringLiteral($table)
         );
     }
@@ -649,7 +649,7 @@ SQL
                 $column = $diff->fromTable->getColumn($columnName);
 
                 // Check if an autoincrement column was dropped from the primary key.
-                if (! $column->getAutoincrement() || in_array($columnName, $changedIndex->getColumns())) {
+                if (! $column->getAutoincrement() || in_array($columnName, $changedIndex->getColumns(), true)) {
                     continue;
                 }
 

@@ -68,7 +68,7 @@ class ConnectionTest extends FunctionalTestCase
             self::assertTrue($this->connection->isRollbackOnly());
 
             $this->connection->commit(); // should throw exception
-            $this->fail('Transaction commit after failed nested transaction should fail.');
+            self::fail('Transaction commit after failed nested transaction should fail.');
         } catch (ConnectionException $e) {
             self::assertEquals(1, $this->connection->getTransactionNestingLevel());
             $this->connection->rollBack();
@@ -105,7 +105,7 @@ class ConnectionTest extends FunctionalTestCase
 
         $connection->beginTransaction();
         $connection->executeQuery('insert into test_nesting values (33)');
-        $connection->rollback();
+        $connection->rollBack();
 
         self::assertEquals(0, $connection->fetchColumn('select count(*) from test_nesting'));
     }
@@ -113,7 +113,7 @@ class ConnectionTest extends FunctionalTestCase
     public function testTransactionNestingBehaviorWithSavepoints() : void
     {
         if (! $this->connection->getDatabasePlatform()->supportsSavepoints()) {
-            $this->markTestSkipped('This test requires the platform to support savepoints.');
+            self::markTestSkipped('This test requires the platform to support savepoints.');
         }
 
         $this->connection->setNestTransactionsWithSavepoints(true);
@@ -139,21 +139,21 @@ class ConnectionTest extends FunctionalTestCase
             self::assertFalse($this->connection->isRollbackOnly());
             try {
                 $this->connection->setNestTransactionsWithSavepoints(false);
-                $this->fail('Should not be able to disable savepoints in usage for nested transactions inside an open transaction.');
+                self::fail('Should not be able to disable savepoints in usage for nested transactions inside an open transaction.');
             } catch (ConnectionException $e) {
                 self::assertTrue($this->connection->getNestTransactionsWithSavepoints());
             }
 
             $this->connection->commit(); // should not throw exception
         } catch (ConnectionException $e) {
-            $this->fail('Transaction commit after failed nested transaction should not fail when using savepoints.');
+            self::fail('Transaction commit after failed nested transaction should not fail when using savepoints.');
         }
     }
 
     public function testTransactionNestingBehaviorCantBeChangedInActiveTransaction() : void
     {
         if (! $this->connection->getDatabasePlatform()->supportsSavepoints()) {
-            $this->markTestSkipped('This test requires the platform to support savepoints.');
+            self::markTestSkipped('This test requires the platform to support savepoints.');
         }
 
         $this->connection->beginTransaction();
@@ -164,7 +164,7 @@ class ConnectionTest extends FunctionalTestCase
     public function testSetNestedTransactionsThroughSavepointsNotSupportedThrowsException() : void
     {
         if ($this->connection->getDatabasePlatform()->supportsSavepoints()) {
-            $this->markTestSkipped('This test requires the platform not to support savepoints.');
+            self::markTestSkipped('This test requires the platform not to support savepoints.');
         }
 
         $this->expectException(ConnectionException::class);
@@ -176,7 +176,7 @@ class ConnectionTest extends FunctionalTestCase
     public function testCreateSavepointsNotSupportedThrowsException() : void
     {
         if ($this->connection->getDatabasePlatform()->supportsSavepoints()) {
-            $this->markTestSkipped('This test requires the platform not to support savepoints.');
+            self::markTestSkipped('This test requires the platform not to support savepoints.');
         }
 
         $this->expectException(ConnectionException::class);
@@ -188,7 +188,7 @@ class ConnectionTest extends FunctionalTestCase
     public function testReleaseSavepointsNotSupportedThrowsException() : void
     {
         if ($this->connection->getDatabasePlatform()->supportsSavepoints()) {
-            $this->markTestSkipped('This test requires the platform not to support savepoints.');
+            self::markTestSkipped('This test requires the platform not to support savepoints.');
         }
 
         $this->expectException(ConnectionException::class);
@@ -200,7 +200,7 @@ class ConnectionTest extends FunctionalTestCase
     public function testRollbackSavepointsNotSupportedThrowsException() : void
     {
         if ($this->connection->getDatabasePlatform()->supportsSavepoints()) {
-            $this->markTestSkipped('This test requires the platform not to support savepoints.');
+            self::markTestSkipped('This test requires the platform not to support savepoints.');
         }
 
         $this->expectException(ConnectionException::class);
@@ -246,7 +246,7 @@ class ConnectionTest extends FunctionalTestCase
 
                 throw new RuntimeException('Ooops!');
             });
-            $this->fail('Expected exception');
+            self::fail('Expected exception');
         } catch (RuntimeException $expected) {
             self::assertEquals(0, $this->connection->getTransactionNestingLevel());
         }
@@ -261,7 +261,7 @@ class ConnectionTest extends FunctionalTestCase
 
                 throw new Error('Ooops!');
             });
-            $this->fail('Expected exception');
+            self::fail('Expected exception');
         } catch (Error $expected) {
             self::assertEquals(0, $this->connection->getTransactionNestingLevel());
         }
@@ -279,7 +279,7 @@ class ConnectionTest extends FunctionalTestCase
 
     public function testTransactionalReturnValue() : void
     {
-        $res = $this->connection->transactional(static function () {
+        $res = $this->connection->transactional(static function () : int {
             return 42;
         });
 
@@ -301,7 +301,7 @@ class ConnectionTest extends FunctionalTestCase
     public function testConnectWithoutExplicitDatabaseName() : void
     {
         if (in_array($this->connection->getDatabasePlatform()->getName(), ['oracle', 'db2'], true)) {
-            $this->markTestSkipped('Platform does not support connecting without database name.');
+            self::markTestSkipped('Platform does not support connecting without database name.');
         }
 
         $params = $this->connection->getParams();
@@ -326,7 +326,7 @@ class ConnectionTest extends FunctionalTestCase
     public function testDeterminesDatabasePlatformWhenConnectingToNonExistentDatabase() : void
     {
         if (in_array($this->connection->getDatabasePlatform()->getName(), ['oracle', 'db2'], true)) {
-            $this->markTestSkipped('Platform does not support connecting without database name.');
+            self::markTestSkipped('Platform does not support connecting without database name.');
         }
 
         $params = $this->connection->getParams();

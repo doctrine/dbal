@@ -68,7 +68,7 @@ class Connection extends \Doctrine\DBAL\Connection
             $this->portability = $params['portability'];
         }
 
-        if (! isset($params['fetch_case']) || ! ($this->portability & self::PORTABILITY_FIX_CASE)) {
+        if (! isset($params['fetch_case']) || ($this->portability & self::PORTABILITY_FIX_CASE) === 0) {
             return;
         }
 

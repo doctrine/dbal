@@ -416,7 +416,7 @@ abstract class AbstractPlatform
 
         assert(is_array($this->doctrineTypeComments));
 
-        return in_array($doctrineType->getName(), $this->doctrineTypeComments);
+        return in_array($doctrineType->getName(), $this->doctrineTypeComments, true);
     }
 
     /**
@@ -1344,7 +1344,7 @@ abstract class AbstractPlatform
             $columnData['version'] = $column->hasPlatformOption('version') ? $column->getPlatformOption('version') : false;
             $columnData['comment'] = $this->getColumnComment($column);
 
-            if (in_array($column->getName(), $options['primary'])) {
+            if (in_array($column->getName(), $options['primary'], true)) {
                 $columnData['primary'] = true;
             }
 
@@ -1944,19 +1944,18 @@ abstract class AbstractPlatform
         } else {
             $default = $this->getDefaultValueDeclarationSQL($field);
 
-            $charset = isset($field['charset']) && $field['charset'] ?
+            $charset = ! empty($field['charset']) ?
                 ' ' . $this->getColumnCharsetDeclarationSQL($field['charset']) : '';
 
-            $collation = isset($field['collation']) && $field['collation'] ?
+            $collation = ! empty($field['collation']) ?
                 ' ' . $this->getColumnCollationDeclarationSQL($field['collation']) : '';
 
-            $notnull = isset($field['notnull']) && $field['notnull'] ? ' NOT NULL' : '';
+            $notnull = ! empty($field['notnull']) ? ' NOT NULL' : '';
 
-            $unique = isset($field['unique']) && $field['unique'] ?
+            $unique = ! empty($field['unique']) ?
                 ' ' . $this->getUniqueFieldDeclarationSQL() : '';
 
-            $check = isset($field['check']) && $field['check'] ?
-                ' ' . $field['check'] : '';
+            $check = ! empty($field['check']) ? ' ' . $field['check'] : '';
 
             $typeDecl  = $field['type']->getSQLDeclaration($field, $this);
             $columnDef = $typeDecl . $charset . $default . $notnull . $unique . $check . $collation;
@@ -2711,7 +2710,7 @@ abstract class AbstractPlatform
      */
     public function getSequencePrefix(string $tableName, ?string $schemaName = null) : string
     {
-        if (! $schemaName) {
+        if ($schemaName === null) {
             return $tableName;
         }
 
@@ -3094,7 +3093,7 @@ abstract class AbstractPlatform
     final public function getReservedKeywordsList() : KeywordList
     {
         // Check for an existing instantiation of the keywords class.
-        if ($this->_keywords) {
+        if ($this->_keywords !== null) {
             return $this->_keywords;
         }
 

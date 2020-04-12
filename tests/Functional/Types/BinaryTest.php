@@ -20,7 +20,7 @@ class BinaryTest extends FunctionalTestCase
         parent::setUp();
 
         if ($this->connection->getDriver() instanceof PDOOracleDriver) {
-            $this->markTestSkipped('PDO_OCI doesn\'t support binding binary values');
+            self::markTestSkipped('PDO_OCI doesn\'t support binding binary values');
         }
 
         $table = new Table('binary_table');
@@ -52,8 +52,8 @@ class BinaryTest extends FunctionalTestCase
         $this->insert($id1, $value1);
         $this->insert($id2, $value2);
 
-        $this->assertSame($value1, $this->select($id1));
-        $this->assertSame($value2, $this->select($id2));
+        self::assertSame($value1, $this->select($id1));
+        self::assertSame($value2, $this->select($id2));
     }
 
     private function insert(string $id, string $value) : void

@@ -33,6 +33,7 @@ use Exception;
 use Throwable;
 use function array_key_exists;
 use function assert;
+use function count;
 use function implode;
 use function is_int;
 use function is_string;
@@ -178,11 +179,11 @@ class Connection implements DriverConnection
         }
 
         // Create default config and event manager if none given
-        if (! $config) {
+        if ($config === null) {
             $config = new Configuration();
         }
 
-        if (! $eventManager) {
+        if ($eventManager === null) {
             $eventManager = new EventManager();
         }
 
@@ -351,7 +352,7 @@ class Connection implements DriverConnection
             try {
                 $this->connect();
             } catch (Throwable $originalException) {
-                if (empty($this->params['dbname'])) {
+                if (! isset($this->params['dbname'])) {
                     throw $originalException;
                 }
 
@@ -569,7 +570,7 @@ class Connection implements DriverConnection
      */
     public function delete(string $table, array $identifier, array $types = []) : int
     {
-        if (empty($identifier)) {
+        if (count($identifier) === 0) {
             throw EmptyCriteriaNotAllowed::new();
         }
 
@@ -671,7 +672,7 @@ class Connection implements DriverConnection
      */
     public function insert(string $table, array $data, array $types = []) : int
     {
-        if (empty($data)) {
+        if (count($data) === 0) {
             return $this->executeUpdate('INSERT INTO ' . $table . ' () VALUES ()');
         }
 
@@ -801,11 +802,11 @@ class Connection implements DriverConnection
         $logger->startQuery($query, $params, $types);
 
         try {
-            if ($params) {
+            if (count($params) > 0) {
                 [$query, $params, $types] = SQLParserUtils::expandListParameters($query, $params, $types);
 
                 $stmt = $connection->prepare($query);
-                if ($types) {
+                if (count($types) > 0) {
                     $this->_bindTypedValues($stmt, $params, $types);
                     $stmt->execute();
                 } else {
@@ -909,12 +910,12 @@ class Connection implements DriverConnection
         $logger->startQuery($query, $params, $types);
 
         try {
-            if ($params) {
+            if (count($params) > 0) {
                 [$query, $params, $types] = SQLParserUtils::expandListParameters($query, $params, $types);
 
                 $stmt = $connection->prepare($query);
 
-                if ($types) {
+                if (count($types) > 0) {
                     $this->_bindTypedValues($stmt, $params, $types);
                     $stmt->execute();
                 } else {

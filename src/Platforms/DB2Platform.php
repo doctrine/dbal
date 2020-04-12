@@ -547,7 +547,7 @@ class DB2Platform extends AbstractPlatform
 
         $alterClause = 'ALTER COLUMN ' . $columnDiff->column->getQuotedName($this);
 
-        if ($column['columnDefinition']) {
+        if ($column['columnDefinition'] !== null) {
             return [$alterClause . ' ' . $column['columnDefinition']];
         }
 
@@ -570,7 +570,7 @@ class DB2Platform extends AbstractPlatform
             if (isset($column['default'])) {
                 $defaultClause = $this->getDefaultValueDeclarationSQL($column);
 
-                if ($defaultClause) {
+                if ($defaultClause !== '') {
                     $clauses[] = $alterClause . ' SET' . $defaultClause;
                 }
             } else {
@@ -636,7 +636,7 @@ class DB2Platform extends AbstractPlatform
             return '';
         }
 
-        if (isset($field['version']) && $field['version']) {
+        if (! empty($field['version'])) {
             if ((string) $field['type'] !== 'DateTime') {
                 $field['default'] = '1';
             }

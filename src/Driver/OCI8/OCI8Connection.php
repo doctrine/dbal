@@ -71,7 +71,7 @@ final class OCI8Connection implements Connection, ServerInfoAwareConnection
             throw OCI8Exception::fromErrorInfo(oci_error($this->dbh));
         }
 
-        if (! preg_match('/\s+(\d+\.\d+\.\d+\.\d+\.\d+)\s+/', $version, $matches)) {
+        if (preg_match('/\s+(\d+\.\d+\.\d+\.\d+\.\d+)\s+/', $version, $matches) === 0) {
             throw new UnexpectedValueException(
                 sprintf(
                     'Unexpected database version string "%s". Cannot parse an appropriate version number from it. ' .

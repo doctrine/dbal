@@ -42,18 +42,18 @@ class StatementTest extends TestCase
         $this->conn = $this->getMockBuilder(Connection::class)
             ->setConstructorArgs([[], $driver])
             ->getMock();
-        $this->conn->expects($this->atLeastOnce())
+        $this->conn->expects(self::atLeastOnce())
                 ->method('getWrappedConnection')
-                ->will($this->returnValue($driverConnection));
+                ->will(self::returnValue($driverConnection));
 
         $this->configuration = $this->createMock(Configuration::class);
-        $this->conn->expects($this->any())
+        $this->conn->expects(self::any())
                 ->method('getConfiguration')
-                ->will($this->returnValue($this->configuration));
+                ->will(self::returnValue($this->configuration));
 
-        $this->conn->expects($this->any())
+        $this->conn->expects(self::any())
             ->method('getDriver')
-            ->will($this->returnValue($driver));
+            ->will(self::returnValue($driver));
     }
 
     public function testExecuteCallsLoggerStartQueryWithParametersWhenValuesBound() : void
@@ -66,13 +66,13 @@ class StatementTest extends TestCase
         $sql    = '';
 
         $logger = $this->createMock(SQLLogger::class);
-        $logger->expects($this->once())
+        $logger->expects(self::once())
                 ->method('startQuery')
-                ->with($this->equalTo($sql), $this->equalTo($values), $this->equalTo($types));
+                ->with(self::equalTo($sql), self::equalTo($values), self::equalTo($types));
 
-        $this->configuration->expects($this->once())
+        $this->configuration->expects(self::once())
                 ->method('getSQLLogger')
-                ->will($this->returnValue($logger));
+                ->will(self::returnValue($logger));
 
         $statement = new Statement($sql, $this->conn);
         $statement->bindValue($name, $var, $type);
@@ -88,13 +88,13 @@ class StatementTest extends TestCase
         $sql    = '';
 
         $logger = $this->createMock(SQLLogger::class);
-        $logger->expects($this->once())
+        $logger->expects(self::once())
                 ->method('startQuery')
-                ->with($this->equalTo($sql), $this->equalTo($values), $this->equalTo($types));
+                ->with(self::equalTo($sql), self::equalTo($values), self::equalTo($types));
 
-        $this->configuration->expects($this->once())
+        $this->configuration->expects(self::once())
                 ->method('getSQLLogger')
-                ->will($this->returnValue($logger));
+                ->will(self::returnValue($logger));
 
         $statement = new Statement($sql, $this->conn);
         $statement->execute($values);
@@ -126,24 +126,24 @@ class StatementTest extends TestCase
     {
         $logger = $this->createMock(SQLLogger::class);
 
-        $this->configuration->expects($this->once())
+        $this->configuration->expects(self::once())
             ->method('getSQLLogger')
-            ->will($this->returnValue($logger));
+            ->will(self::returnValue($logger));
 
         // Needed to satisfy construction of DBALException
-        $this->conn->expects($this->any())
+        $this->conn->expects(self::any())
             ->method('resolveParams')
-            ->will($this->returnValue([]));
+            ->will(self::returnValue([]));
 
-        $logger->expects($this->once())
+        $logger->expects(self::once())
             ->method('startQuery');
 
-        $logger->expects($this->once())
+        $logger->expects(self::once())
             ->method('stopQuery');
 
-        $this->driverStatement->expects($this->once())
+        $this->driverStatement->expects(self::once())
             ->method('execute')
-            ->will($this->throwException(new Exception('Mock test exception')));
+            ->will(self::throwException(new Exception('Mock test exception')));
 
         $statement = new Statement('', $this->conn);
 
@@ -156,7 +156,7 @@ class StatementTest extends TestCase
     {
         $statement = new Statement('', $this->conn);
 
-        $this->driverStatement->expects($this->once())
+        $this->driverStatement->expects(self::once())
             ->method('fetchAll')
             ->with(self::equalTo(FetchMode::CUSTOM_OBJECT), self::equalTo('Example'), self::equalTo(['arg1']));
 

@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use function count;
 use function explode;
 use function implode;
+use function is_array;
 use function is_resource;
 use function stream_get_contents;
 
@@ -30,7 +32,7 @@ class SimpleArrayType extends Type
      */
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
-        if (! $value) {
+        if (! is_array($value) || count($value) === 0) {
             return null;
         }
 

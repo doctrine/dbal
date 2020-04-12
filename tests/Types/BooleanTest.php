@@ -25,7 +25,7 @@ class BooleanTest extends TestCase
 
     public function testBooleanConvertsToDatabaseValue() : void
     {
-        $this->platform->expects($this->once())
+        $this->platform->expects(self::once())
             ->method('convertBooleansToDatabaseValue')
             ->with(true)
             ->willReturn(1);
@@ -35,7 +35,7 @@ class BooleanTest extends TestCase
 
     public function testBooleanConvertsToPHPValue() : void
     {
-        $this->platform->expects($this->once())
+        $this->platform->expects(self::once())
             ->method('convertFromBoolean')
             ->with(0)
             ->willReturn(false);

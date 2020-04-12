@@ -37,7 +37,7 @@ final class ArrayStatement implements IteratorAggregate, ResultStatement
     public function __construct(array $data)
     {
         $this->data = $data;
-        if (! count($data)) {
+        if (count($data) === 0) {
             return;
         }
 
@@ -91,7 +91,7 @@ final class ArrayStatement implements IteratorAggregate, ResultStatement
         }
 
         $row       = $this->data[$this->num++];
-        $fetchMode = $fetchMode ?: $this->defaultFetchMode;
+        $fetchMode = $fetchMode ?? $this->defaultFetchMode;
 
         if ($fetchMode === FetchMode::ASSOCIATIVE) {
             return $row;

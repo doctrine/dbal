@@ -22,9 +22,9 @@ class VarDateTimeTest extends TestCase
     protected function setUp() : void
     {
         $this->platform = $this->createMock(AbstractPlatform::class);
-        $this->platform->expects($this->any())
+        $this->platform->expects(self::any())
             ->method('getDateTimeFormatString')
-            ->will($this->returnValue('U'));
+            ->will(self::returnValue('U'));
 
         $this->type = new VarDateTimeType();
     }

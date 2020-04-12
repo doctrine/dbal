@@ -11,6 +11,7 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\Visitor\Visitor;
+use function count;
 use function implode;
 use function str_replace;
 
@@ -64,7 +65,7 @@ class ReservedKeywordsValidator implements Visitor
      */
     private function addViolation(string $asset, array $violatedPlatforms) : void
     {
-        if (! $violatedPlatforms) {
+        if (count($violatedPlatforms) === 0) {
             return;
         }
 

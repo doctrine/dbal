@@ -135,7 +135,7 @@ final class OCI8Statement implements IteratorAggregate, Statement
             $class = 'OCI-Lob';
             assert($lob instanceof $class);
 
-            $lob->writeTemporary($variable, OCI_TEMP_BLOB);
+            $lob->writetemporary($variable, OCI_TEMP_BLOB);
 
             $variable =& $lob;
         }
@@ -184,7 +184,13 @@ final class OCI8Statement implements IteratorAggregate, Statement
 
     public function columnCount() : int
     {
-        return oci_num_fields($this->_sth) ?: 0;
+        $count = oci_num_fields($this->_sth);
+
+        if ($count !== false) {
+            return $count;
+        }
+
+        return 0;
     }
 
     /**
@@ -192,7 +198,7 @@ final class OCI8Statement implements IteratorAggregate, Statement
      */
     public function execute(?array $params = null) : void
     {
-        if ($params) {
+        if ($params !== null) {
             foreach ($params as $key => $val) {
                 if (is_int($key)) {
                     $param = $key + 1;
@@ -245,7 +251,7 @@ final class OCI8Statement implements IteratorAggregate, Statement
             return false;
         }
 
-        $fetchMode = $fetchMode ?: $this->_defaultFetchMode;
+        $fetchMode = $fetchMode ?? $this->_defaultFetchMode;
 
         if ($fetchMode === FetchMode::COLUMN) {
             return $this->fetchColumn();
@@ -270,7 +276,7 @@ final class OCI8Statement implements IteratorAggregate, Statement
      */
     public function fetchAll(?int $fetchMode = null, ...$args) : array
     {
-        $fetchMode = $fetchMode ?: $this->_defaultFetchMode;
+        $fetchMode = $fetchMode ?? $this->_defaultFetchMode;
 
         $result = [];
 
@@ -345,6 +351,12 @@ final class OCI8Statement implements IteratorAggregate, Statement
 
     public function rowCount() : int
     {
-        return oci_num_rows($this->_sth) ?: 0;
+        $count = oci_num_rows($this->_sth);
+
+        if ($count !== false) {
+            return $count;
+        }
+
+        return 0;
     }
 }

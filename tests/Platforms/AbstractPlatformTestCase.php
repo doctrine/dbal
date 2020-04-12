@@ -41,7 +41,7 @@ abstract class AbstractPlatformTestCase extends TestCase
     public function testQuoteIdentifier() : void
     {
         if ($this->platform->getName() === 'mssql') {
-            $this->markTestSkipped('Not working this way on mssql.');
+            self::markTestSkipped('Not working this way on mssql.');
         }
 
         $c = $this->platform->getIdentifierQuoteCharacter();
@@ -56,7 +56,7 @@ abstract class AbstractPlatformTestCase extends TestCase
     public function testQuoteSingleIdentifier() : void
     {
         if ($this->platform->getName() === 'mssql') {
-            $this->markTestSkipped('Not working this way on mssql.');
+            self::markTestSkipped('Not working this way on mssql.');
         }
 
         $c = $this->platform->getIdentifierQuoteCharacter();
@@ -230,7 +230,7 @@ abstract class AbstractPlatformTestCase extends TestCase
         $uniqueConstraintSQL = $this->platform->getUniqueConstraintDeclarationSQL('name', $uniqueConstraint);
         $indexSQL            = $this->platform->getCreateIndexSQL($indexDef, 'table');
 
-        $this->assertStringEndsNotWith($expected, $uniqueConstraintSQL, 'WHERE clause should NOT be present');
+        self::assertStringEndsNotWith($expected, $uniqueConstraintSQL, 'WHERE clause should NOT be present');
         if ($this->platform->supportsPartialIndexes()) {
             self::assertStringEndsWith($expected, $indexSQL, 'WHERE clause should be present');
         } else {
@@ -385,10 +385,10 @@ abstract class AbstractPlatformTestCase extends TestCase
             ->addMethods(['onSchemaCreateTable', 'onSchemaCreateTableColumn'])
             ->getMock();
         $listenerMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('onSchemaCreateTable');
         $listenerMock
-            ->expects($this->exactly(2))
+            ->expects(self::exactly(2))
             ->method('onSchemaCreateTableColumn');
 
         $eventManager = new EventManager();
@@ -409,7 +409,7 @@ abstract class AbstractPlatformTestCase extends TestCase
             ->addMethods(['onSchemaDropTable'])
             ->getMock();
         $listenerMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('onSchemaDropTable');
 
         $eventManager = new EventManager();
@@ -434,19 +434,19 @@ abstract class AbstractPlatformTestCase extends TestCase
             ->addMethods($events)
             ->getMock();
         $listenerMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('onSchemaAlterTable');
         $listenerMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('onSchemaAlterTableAddColumn');
         $listenerMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('onSchemaAlterTableRemoveColumn');
         $listenerMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('onSchemaAlterTableChangeColumn');
         $listenerMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('onSchemaAlterTableRenameColumn');
 
         $eventManager = new EventManager();
@@ -530,7 +530,7 @@ abstract class AbstractPlatformTestCase extends TestCase
      */
     public function getCreateTableColumnCommentsSQL() : array
     {
-        $this->markTestSkipped('Platform does not support Column comments.');
+        self::markTestSkipped('Platform does not support Column comments.');
     }
 
     /**
@@ -538,7 +538,7 @@ abstract class AbstractPlatformTestCase extends TestCase
      */
     public function getAlterTableColumnCommentsSQL() : array
     {
-        $this->markTestSkipped('Platform does not support Column comments.');
+        self::markTestSkipped('Platform does not support Column comments.');
     }
 
     /**
@@ -546,7 +546,7 @@ abstract class AbstractPlatformTestCase extends TestCase
      */
     public function getCreateTableColumnTypeCommentsSQL() : array
     {
-        $this->markTestSkipped('Platform does not support Column comments.');
+        self::markTestSkipped('Platform does not support Column comments.');
     }
 
     public function testGetDefaultValueDeclarationSQL() : void
@@ -1202,7 +1202,7 @@ abstract class AbstractPlatformTestCase extends TestCase
     public function testQuotesDropForeignKeySQL() : void
     {
         if (! $this->platform->supportsForeignKeyConstraints()) {
-            $this->markTestSkipped(
+            self::markTestSkipped(
                 sprintf('%s does not support foreign key constraints.', get_class($this->platform))
             );
         }
@@ -1309,7 +1309,7 @@ abstract class AbstractPlatformTestCase extends TestCase
     public function testGeneratesInlineColumnCommentSQL(?string $comment, string $expectedSql) : void
     {
         if (! $this->platform->supportsInlineColumnComments()) {
-            $this->markTestSkipped(sprintf('%s does not support inline column comments.', get_class($this->platform)));
+            self::markTestSkipped(sprintf('%s does not support inline column comments.', get_class($this->platform)));
         }
 
         self::assertSame($expectedSql, $this->platform->getInlineColumnCommentSQL($comment));
@@ -1374,7 +1374,7 @@ abstract class AbstractPlatformTestCase extends TestCase
     public function testThrowsExceptionOnGeneratingInlineColumnCommentSQLIfUnsupported() : void
     {
         if ($this->platform->supportsInlineColumnComments()) {
-            $this->markTestSkipped(sprintf('%s supports inline column comments.', get_class($this->platform)));
+            self::markTestSkipped(sprintf('%s supports inline column comments.', get_class($this->platform)));
         }
 
         $this->expectException(DBALException::class);

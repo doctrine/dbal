@@ -336,7 +336,7 @@ final class MysqliStatement implements IteratorAggregate, Statement
             return false;
         }
 
-        $fetchMode = $fetchMode ?: $this->defaultFetchMode;
+        $fetchMode = $fetchMode ?? $this->defaultFetchMode;
 
         if ($fetchMode === FetchMode::COLUMN) {
             return $this->fetchColumn();
@@ -379,7 +379,7 @@ final class MysqliStatement implements IteratorAggregate, Statement
      */
     public function fetchAll(?int $fetchMode = null, ...$args) : array
     {
-        $fetchMode = $fetchMode ?: $this->defaultFetchMode;
+        $fetchMode = $fetchMode ?? $this->defaultFetchMode;
 
         $rows = [];
 

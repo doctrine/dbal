@@ -112,7 +112,11 @@ class Table extends AbstractAsset
      */
     public function setPrimaryKey(array $columnNames, ?string $indexName = null) : self
     {
-        $this->_addIndex($this->_createIndex($columnNames, $indexName ?: 'primary', true, true));
+        if ($indexName === null) {
+            $indexName = 'primary';
+        }
+
+        $this->_addIndex($this->_createIndex($columnNames, $indexName, true, true));
 
         foreach ($columnNames as $columnName) {
             $column = $this->getColumn($columnName);
@@ -709,7 +713,7 @@ class Table extends AbstractAsset
 
     protected function _addUniqueConstraint(UniqueConstraint $constraint) : self
     {
-        $name = strlen($constraint->getName())
+        $name = $constraint->getName() !== ''
             ? $constraint->getName()
             : $this->_generateIdentifierName(
                 array_merge((array) $this->getName(), $constraint->getColumns()),

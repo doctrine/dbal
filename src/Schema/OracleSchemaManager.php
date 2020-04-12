@@ -124,7 +124,7 @@ class OracleSchemaManager extends AbstractSchemaManager
 
         $dbType = strtolower($tableColumn['data_type']);
         if (strpos($dbType, 'timestamp(') === 0) {
-            if (strpos($dbType, 'with time zone')) {
+            if (strpos($dbType, 'with time zone') !== false) {
                 $dbType = 'timestamptz';
             } else {
                 $dbType = 'timestamp';
@@ -150,7 +150,7 @@ class OracleSchemaManager extends AbstractSchemaManager
 
         if ($tableColumn['data_default'] !== null) {
             // Default values returned from database are represented as literal expressions
-            if (preg_match('/^\'(.*)\'$/s', $tableColumn['data_default'], $matches)) {
+            if (preg_match('/^\'(.*)\'$/s', $tableColumn['data_default'], $matches) === 1) {
                 $tableColumn['data_default'] = str_replace("''", "'", $matches[1]);
             }
         }
@@ -315,7 +315,7 @@ class OracleSchemaManager extends AbstractSchemaManager
      */
     private function getQuotedIdentifierName(string $identifier) : string
     {
-        if (preg_match('/[a-z]/', $identifier)) {
+        if (preg_match('/[a-z]/', $identifier) === 1) {
             return $this->_platform->quoteIdentifier($identifier);
         }
 

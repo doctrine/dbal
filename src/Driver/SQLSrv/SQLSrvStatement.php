@@ -189,7 +189,13 @@ final class SQLSrvStatement implements IteratorAggregate, Statement
             return 0;
         }
 
-        return sqlsrv_num_fields($this->stmt) ?: 0;
+        $count = sqlsrv_num_fields($this->stmt);
+
+        if ($count !== false) {
+            return $count;
+        }
+
+        return 0;
     }
 
     /**
@@ -197,7 +203,7 @@ final class SQLSrvStatement implements IteratorAggregate, Statement
      */
     public function execute(?array $params = null) : void
     {
-        if ($params) {
+        if ($params !== null) {
             foreach ($params as $key => $val) {
                 if (is_int($key)) {
                     $this->bindValue($key + 1, $val);
@@ -207,7 +213,7 @@ final class SQLSrvStatement implements IteratorAggregate, Statement
             }
         }
 
-        if (! $this->stmt) {
+        if ($this->stmt === null) {
             $this->stmt = $this->prepare();
         }
 
@@ -215,7 +221,7 @@ final class SQLSrvStatement implements IteratorAggregate, Statement
             throw SQLSrvException::fromSqlSrvErrors();
         }
 
-        if ($this->lastInsertId) {
+        if ($this->lastInsertId !== null) {
             sqlsrv_next_result($this->stmt);
             sqlsrv_fetch($this->stmt);
             $this->lastInsertId->setId(sqlsrv_get_field($this->stmt, 0));
@@ -263,14 +269,14 @@ final class SQLSrvStatement implements IteratorAggregate, Statement
             return false;
         }
 
-        $fetchMode = $fetchMode ?: $this->defaultFetchMode;
+        $fetchMode = $fetchMode ?? $this->defaultFetchMode;
 
         if ($fetchMode === FetchMode::COLUMN) {
             return $this->fetchColumn();
         }
 
         if (isset(self::$fetchMap[$fetchMode])) {
-            return sqlsrv_fetch_array($this->stmt, self::$fetchMap[$fetchMode]) ?: false;
+            return sqlsrv_fetch_array($this->stmt, self::$fetchMap[$fetchMode]) ?? false;
         }
 
         if (in_array($fetchMode, [FetchMode::STANDARD_OBJECT, FetchMode::CUSTOM_OBJECT], true)) {
@@ -282,7 +288,7 @@ final class SQLSrvStatement implements IteratorAggregate, Statement
                 $ctorArgs  = $args[1] ?? [];
             }
 
-            return sqlsrv_fetch_object($this->stmt, $className, $ctorArgs) ?: false;
+            return sqlsrv_fetch_object($this->stmt, $className, $ctorArgs) ?? false;
         }
 
         throw new SQLSrvException('Fetch mode is not supported.');
@@ -343,7 +349,13 @@ final class SQLSrvStatement implements IteratorAggregate, Statement
             return 0;
         }
 
-        return sqlsrv_rows_affected($this->stmt) ?: 0;
+        $count = sqlsrv_rows_affected($this->stmt);
+
+        if ($count !== false) {
+            return $count;
+        }
+
+        return 0;
     }
 
     /**
@@ -384,7 +396,7 @@ final class SQLSrvStatement implements IteratorAggregate, Statement
 
         $stmt = sqlsrv_prepare($this->conn, $this->sql, $params);
 
-        if (! $stmt) {
+        if ($stmt === false) {
             throw SQLSrvException::fromSqlSrvErrors();
         }
 

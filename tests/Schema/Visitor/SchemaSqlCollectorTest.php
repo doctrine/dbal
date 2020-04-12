@@ -15,15 +15,15 @@ class SchemaSqlCollectorTest extends TestCase
         $platformMock = $this->getMockBuilder(MySqlPlatform::class)
             ->onlyMethods(['getCreateTableSql', 'getCreateSequenceSql', 'getCreateForeignKeySql'])
             ->getMock();
-        $platformMock->expects($this->exactly(2))
+        $platformMock->expects(self::exactly(2))
                      ->method('getCreateTableSql')
-                     ->will($this->returnValue(['foo']));
-        $platformMock->expects($this->exactly(1))
+                     ->will(self::returnValue(['foo']));
+        $platformMock->expects(self::exactly(1))
                      ->method('getCreateSequenceSql')
-                     ->will($this->returnValue('bar'));
-        $platformMock->expects($this->exactly(1))
+                     ->will(self::returnValue('bar'));
+        $platformMock->expects(self::exactly(1))
                      ->method('getCreateForeignKeySql')
-                     ->will($this->returnValue('baz'));
+                     ->will(self::returnValue('baz'));
 
         $schema = $this->createFixtureSchema();
 
@@ -37,15 +37,15 @@ class SchemaSqlCollectorTest extends TestCase
         $platformMock = $this->getMockBuilder(MySqlPlatform::class)
             ->onlyMethods(['getDropTableSql', 'getDropSequenceSql', 'getDropForeignKeySql'])
             ->getMock();
-        $platformMock->expects($this->exactly(2))
+        $platformMock->expects(self::exactly(2))
                      ->method('getDropTableSql')
-                     ->will($this->returnValue('tbl'));
-        $platformMock->expects($this->exactly(1))
+                     ->will(self::returnValue('tbl'));
+        $platformMock->expects(self::exactly(1))
                      ->method('getDropSequenceSql')
-                     ->will($this->returnValue('seq'));
-        $platformMock->expects($this->exactly(1))
+                     ->will(self::returnValue('seq'));
+        $platformMock->expects(self::exactly(1))
                      ->method('getDropForeignKeySql')
-                     ->will($this->returnValue('fk'));
+                     ->will(self::returnValue('fk'));
 
         $schema = $this->createFixtureSchema();
 

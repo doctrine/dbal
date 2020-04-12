@@ -30,7 +30,6 @@ use function array_keys;
 use function assert;
 use function count;
 use function date;
-use function implode;
 use function is_array;
 use function is_numeric;
 use function json_encode;
@@ -38,7 +37,6 @@ use function property_exists;
 use function sprintf;
 use function strtotime;
 use const CASE_LOWER;
-use const PHP_EOL;
 
 class DataAccessTest extends FunctionalTestCase
 {
@@ -255,7 +253,7 @@ class DataAccessTest extends FunctionalTestCase
     {
         if ($this->connection->getDriver() instanceof MySQLiDriver ||
             $this->connection->getDriver() instanceof SQLSrvDriver) {
-            $this->markTestSkipped('mysqli and sqlsrv actually supports this');
+            self::markTestSkipped('mysqli and sqlsrv actually supports this');
         }
 
         $datetimeString = '2010-01-01 10:10:10';
@@ -326,7 +324,7 @@ class DataAccessTest extends FunctionalTestCase
     {
         if ($this->connection->getDriver() instanceof MySQLiDriver ||
             $this->connection->getDriver() instanceof SQLSrvDriver) {
-            $this->markTestSkipped('mysqli and sqlsrv actually supports this');
+            self::markTestSkipped('mysqli and sqlsrv actually supports this');
         }
 
         $datetimeString = '2010-01-01 10:10:10';
@@ -372,7 +370,7 @@ class DataAccessTest extends FunctionalTestCase
     {
         if ($this->connection->getDriver() instanceof MySQLiDriver ||
             $this->connection->getDriver() instanceof SQLSrvDriver) {
-            $this->markTestSkipped('mysqli and sqlsrv actually supports this');
+            self::markTestSkipped('mysqli and sqlsrv actually supports this');
         }
 
         $datetimeString = '2010-01-01 10:10:10';
@@ -419,7 +417,7 @@ class DataAccessTest extends FunctionalTestCase
     {
         if ($this->connection->getDriver() instanceof MySQLiDriver ||
             $this->connection->getDriver() instanceof SQLSrvDriver) {
-            $this->markTestSkipped('mysqli and sqlsrv actually supports this');
+            self::markTestSkipped('mysqli and sqlsrv actually supports this');
         }
 
         $datetimeString = '2010-01-01 10:10:10';
@@ -859,7 +857,7 @@ class DataAccessTest extends FunctionalTestCase
 
         $date = $stmt->fetchColumn();
 
-        $this->assertEquals($expected, date('Y-m-d H:i:s', strtotime($date)));
+        self::assertEquals($expected, date('Y-m-d H:i:s', strtotime($date)));
     }
 
     /**
@@ -898,7 +896,7 @@ class DataAccessTest extends FunctionalTestCase
         $platform = $this->connection->getDatabasePlatform();
 
         if (! $platform instanceof SqlitePlatform) {
-            $this->markTestSkipped('test is for sqlite only');
+            self::markTestSkipped('test is for sqlite only');
         }
 
         $table = new Table('fetch_table_date_math');
@@ -917,7 +915,7 @@ class DataAccessTest extends FunctionalTestCase
 
         $rowCount = $this->connection->fetchColumn($sql, [], 0);
 
-        $this->assertEquals(1, $rowCount);
+        self::assertEquals(1, $rowCount);
     }
 
     public function testLocateExpression() : void
@@ -963,7 +961,7 @@ class DataAccessTest extends FunctionalTestCase
             $platform->getSubstringExpression($string, $start, $length)
         );
 
-        $this->assertEquals($expected, $this->connection->fetchColumn($query));
+        self::assertEquals($expected, $this->connection->fetchColumn($query));
     }
 
     /**
@@ -1022,14 +1020,12 @@ class DataAccessTest extends FunctionalTestCase
             ]);
         }
 
-        $sql[] = 'SELECT ';
-        $sql[] = 'test_int, ';
-        $sql[] = 'test_string, ';
-        $sql[] = $platform->getBitOrComparisonExpression('test_int', '2') . ' AS bit_or, ';
-        $sql[] = $platform->getBitAndComparisonExpression('test_int', '2') . ' AS bit_and ';
-        $sql[] = 'FROM fetch_table';
+        $sql = 'SELECT test_int, test_string'
+            . ', ' . $platform->getBitOrComparisonExpression('test_int', '2') . ' AS bit_or'
+            . ', ' . $platform->getBitAndComparisonExpression('test_int', '2') . ' AS bit_and'
+            . ' FROM fetch_table';
 
-        $stmt = $this->connection->executeQuery(implode(PHP_EOL, $sql));
+        $stmt = $this->connection->executeQuery($sql);
         $data = $stmt->fetchAll(FetchMode::ASSOCIATIVE);
 
         self::assertCount(4, $data);
@@ -1058,7 +1054,7 @@ class DataAccessTest extends FunctionalTestCase
         $stmt->setFetchMode(FetchMode::NUMERIC);
 
         $row = array_keys($stmt->fetch());
-        self::assertCount(0, array_filter($row, static function ($v) {
+        self::assertCount(0, array_filter($row, static function ($v) : bool {
             return ! is_numeric($v);
         }), 'should be no non-numerical elements in the result.');
     }
@@ -1263,11 +1259,11 @@ class DataAccessTest extends FunctionalTestCase
         $driver = $this->connection->getDriver();
 
         if ($driver instanceof Oci8Driver) {
-            $this->markTestSkipped('Not supported by OCI8');
+            self::markTestSkipped('Not supported by OCI8');
         }
 
         if ($driver instanceof MySQLiDriver) {
-            $this->markTestSkipped('Mysqli driver dont support this feature.');
+            self::markTestSkipped('Mysqli driver dont support this feature.');
         }
 
         if (! $driver instanceof PDOOracleDriver) {

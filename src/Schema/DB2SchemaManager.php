@@ -8,7 +8,6 @@ use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Types\Type;
 use function array_change_key_case;
 use function assert;
-use function is_resource;
 use function preg_match;
 use function str_replace;
 use function strpos;
@@ -50,7 +49,7 @@ class DB2SchemaManager extends AbstractSchemaManager
         if ($tableColumn['default'] !== null && $tableColumn['default'] !== 'NULL') {
             $default = $tableColumn['default'];
 
-            if (preg_match('/^\'(.*)\'$/s', $default, $matches)) {
+            if (preg_match('/^\'(.*)\'$/s', $default, $matches) === 1) {
                 $default = str_replace("''", "'", $matches[1]);
             }
         }
@@ -178,11 +177,11 @@ class DB2SchemaManager extends AbstractSchemaManager
     protected function _getPortableViewDefinition(array $view) : View
     {
         $view = array_change_key_case($view, CASE_LOWER);
-        // sadly this still segfaults on PDO_IBM, see http://pecl.php.net/bugs/bug.php?id=17199
-        //$view['text'] = (is_resource($view['text']) ? stream_get_contents($view['text']) : $view['text']);
-        if (! is_resource($view['text'])) {
-            $pos = strpos($view['text'], ' AS ');
-            $sql = substr($view['text'], $pos+4);
+
+        $position = strpos($view['text'], ' AS ');
+
+        if ($position !== false) {
+            $sql = substr($view['text'], $position + 4);
         } else {
             $sql = '';
         }

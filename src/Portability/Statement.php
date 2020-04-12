@@ -107,14 +107,14 @@ final class Statement implements IteratorAggregate, DriverStatement
      */
     public function fetch(?int $fetchMode = null, ...$args)
     {
-        $fetchMode = $fetchMode ?: $this->defaultFetchMode;
+        $fetchMode = $fetchMode ?? $this->defaultFetchMode;
 
         $row = $this->stmt->fetch($fetchMode, ...$args);
 
         $iterateRow = ($this->portability & (Connection::PORTABILITY_EMPTY_TO_NULL|Connection::PORTABILITY_RTRIM)) !== 0;
         $fixCase    = $this->case !== null
             && ($fetchMode === FetchMode::ASSOCIATIVE || $fetchMode === FetchMode::MIXED)
-            && ($this->portability & Connection::PORTABILITY_FIX_CASE);
+            && ($this->portability & Connection::PORTABILITY_FIX_CASE) !== 0;
 
         $row = $this->fixRow($row, $iterateRow, $fixCase);
 
@@ -126,14 +126,14 @@ final class Statement implements IteratorAggregate, DriverStatement
      */
     public function fetchAll(?int $fetchMode = null, ...$args) : array
     {
-        $fetchMode = $fetchMode ?: $this->defaultFetchMode;
+        $fetchMode = $fetchMode ?? $this->defaultFetchMode;
 
         $rows = $this->stmt->fetchAll($fetchMode, ...$args);
 
         $iterateRow = ($this->portability & (Connection::PORTABILITY_EMPTY_TO_NULL|Connection::PORTABILITY_RTRIM)) !== 0;
         $fixCase    = $this->case !== null
             && ($fetchMode === FetchMode::ASSOCIATIVE || $fetchMode === FetchMode::MIXED)
-            && ($this->portability & Connection::PORTABILITY_FIX_CASE);
+            && ($this->portability & Connection::PORTABILITY_FIX_CASE) !== 0;
 
         if (! $iterateRow && ! $fixCase) {
             return $rows;
@@ -165,12 +165,10 @@ final class Statement implements IteratorAggregate, DriverStatement
     {
         $value = $this->stmt->fetchColumn($columnIndex);
 
-        if ($this->portability & (Connection::PORTABILITY_EMPTY_TO_NULL|Connection::PORTABILITY_RTRIM)) {
-            if (($this->portability & Connection::PORTABILITY_EMPTY_TO_NULL) && $value === '') {
-                $value = null;
-            } elseif (($this->portability & Connection::PORTABILITY_RTRIM) && is_string($value)) {
-                $value = rtrim($value);
-            }
+        if (($this->portability & Connection::PORTABILITY_EMPTY_TO_NULL) !== 0 && $value === '') {
+            $value = null;
+        } elseif (($this->portability & Connection::PORTABILITY_RTRIM) !== 0 && is_string($value)) {
+            $value = rtrim($value);
         }
 
         return $value;
@@ -190,7 +188,7 @@ final class Statement implements IteratorAggregate, DriverStatement
      */
     private function fixRow($row, bool $iterateRow, bool $fixCase)
     {
-        if (! $row) {
+        if ($row === false) {
             return $row;
         }
 
@@ -201,9 +199,9 @@ final class Statement implements IteratorAggregate, DriverStatement
 
         if ($iterateRow) {
             foreach ($row as $k => $v) {
-                if (($this->portability & Connection::PORTABILITY_EMPTY_TO_NULL) && $v === '') {
+                if (($this->portability & Connection::PORTABILITY_EMPTY_TO_NULL) !== 0 && $v === '') {
                     $row[$k] = null;
-                } elseif (($this->portability & Connection::PORTABILITY_RTRIM) && is_string($v)) {
+                } elseif (($this->portability & Connection::PORTABILITY_RTRIM) !== 0 && is_string($v)) {
                     $row[$k] = rtrim($v);
                 }
             }
