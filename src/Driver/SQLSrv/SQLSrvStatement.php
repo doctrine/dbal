@@ -6,19 +6,14 @@ namespace Doctrine\DBAL\Driver\SQLSrv;
 
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\StatementIterator;
-use Doctrine\DBAL\Exception\InvalidColumnIndex;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use IteratorAggregate;
-use function array_key_exists;
 use function assert;
-use function count;
-use function in_array;
 use function is_int;
 use function sqlsrv_execute;
 use function sqlsrv_fetch;
 use function sqlsrv_fetch_array;
-use function sqlsrv_fetch_object;
 use function sqlsrv_get_field;
 use function sqlsrv_next_result;
 use function sqlsrv_num_fields;
@@ -84,20 +79,6 @@ final class SQLSrvStatement implements IteratorAggregate, Statement
         FetchMode::ASSOCIATIVE => SQLSRV_FETCH_ASSOC,
         FetchMode::NUMERIC     => SQLSRV_FETCH_NUMERIC,
     ];
-
-    /**
-     * The name of the default class to instantiate when fetching class instances.
-     *
-     * @var string
-     */
-    private $defaultFetchClass = '\stdClass';
-
-    /**
-     * The constructor arguments for the default class to instantiate when fetching class instances.
-     *
-     * @var mixed[]
-     */
-    private $defaultFetchClassCtorArgs = [];
 
     /**
      * The fetch style.
@@ -230,22 +211,9 @@ final class SQLSrvStatement implements IteratorAggregate, Statement
         $this->result = true;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setFetchMode(int $fetchMode, ...$args) : void
+    public function setFetchMode(int $fetchMode) : void
     {
         $this->defaultFetchMode = $fetchMode;
-
-        if (isset($args[0])) {
-            $this->defaultFetchClass = $args[0];
-        }
-
-        if (! isset($args[1])) {
-            return;
-        }
-
-        $this->defaultFetchClassCtorArgs = (array) $args[1];
     }
 
     /**
@@ -261,7 +229,7 @@ final class SQLSrvStatement implements IteratorAggregate, Statement
      *
      * @throws SQLSrvException
      */
-    public function fetch(?int $fetchMode = null, ...$args)
+    public function fetch(?int $fetchMode = null)
     {
         // do not try fetching from the statement if it's not expected to contain result
         // in order to prevent exceptional situation
@@ -279,36 +247,17 @@ final class SQLSrvStatement implements IteratorAggregate, Statement
             return sqlsrv_fetch_array($this->stmt, self::$fetchMap[$fetchMode]) ?? false;
         }
 
-        if (in_array($fetchMode, [FetchMode::STANDARD_OBJECT, FetchMode::CUSTOM_OBJECT], true)) {
-            $className = $this->defaultFetchClass;
-            $ctorArgs  = $this->defaultFetchClassCtorArgs;
-
-            if (count($args) > 0) {
-                $className = $args[0];
-                $ctorArgs  = $args[1] ?? [];
-            }
-
-            return sqlsrv_fetch_object($this->stmt, $className, $ctorArgs) ?? false;
-        }
-
         throw new SQLSrvException('Fetch mode is not supported.');
     }
 
     /**
      * {@inheritdoc}
      */
-    public function fetchAll(?int $fetchMode = null, ...$args) : array
+    public function fetchAll(?int $fetchMode = null) : array
     {
         $rows = [];
 
         switch ($fetchMode) {
-            case FetchMode::CUSTOM_OBJECT:
-                while (($row = $this->fetch($fetchMode, ...$args)) !== false) {
-                    $rows[] = $row;
-                }
-
-                break;
-
             case FetchMode::COLUMN:
                 while (($row = $this->fetchColumn()) !== false) {
                     $rows[] = $row;
@@ -328,7 +277,7 @@ final class SQLSrvStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchColumn(int $columnIndex = 0)
+    public function fetchColumn()
     {
         $row = $this->fetch(FetchMode::NUMERIC);
 
@@ -336,11 +285,7 @@ final class SQLSrvStatement implements IteratorAggregate, Statement
             return false;
         }
 
-        if (! array_key_exists($columnIndex, $row)) {
-            throw InvalidColumnIndex::new($columnIndex, count($row));
-        }
-
-        return $row[$columnIndex];
+        return $row[0];
     }
 
     public function rowCount() : int

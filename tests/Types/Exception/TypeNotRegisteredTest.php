@@ -14,7 +14,7 @@ class TypeNotRegisteredTest extends TestCase
     {
         $exception = TypeNotRegistered::new(Type::getType('string'));
 
-        self::assertRegExp(
+        self::assertMatchesRegularExpression(
             '/Type of the class Doctrine\\\DBAL\\\Types\\\StringType@([0-9a-zA-Z]+) is not registered./',
             $exception->getMessage()
         );

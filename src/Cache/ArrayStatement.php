@@ -6,11 +6,9 @@ namespace Doctrine\DBAL\Cache;
 
 use ArrayIterator;
 use Doctrine\DBAL\Driver\ResultStatement;
-use Doctrine\DBAL\Exception\InvalidColumnIndex;
 use Doctrine\DBAL\FetchMode;
 use InvalidArgumentException;
 use IteratorAggregate;
-use function array_key_exists;
 use function array_merge;
 use function array_values;
 use function count;
@@ -59,15 +57,8 @@ final class ArrayStatement implements IteratorAggregate, ResultStatement
         return count($this->data);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setFetchMode(int $fetchMode, ...$args) : void
+    public function setFetchMode(int $fetchMode) : void
     {
-        if (count($args) > 0) {
-            throw new InvalidArgumentException('Caching layer does not support 2nd/3rd argument to setFetchMode().');
-        }
-
         $this->defaultFetchMode = $fetchMode;
     }
 
@@ -84,7 +75,7 @@ final class ArrayStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function fetch(?int $fetchMode = null, ...$args)
+    public function fetch(?int $fetchMode = null)
     {
         if (! isset($this->data[$this->num])) {
             return false;
@@ -117,10 +108,10 @@ final class ArrayStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll(?int $fetchMode = null, ...$args) : array
+    public function fetchAll(?int $fetchMode = null) : array
     {
         $rows = [];
-        while ($row = $this->fetch($fetchMode, ...$args)) {
+        while ($row = $this->fetch($fetchMode)) {
             $rows[] = $row;
         }
 
@@ -130,7 +121,7 @@ final class ArrayStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function fetchColumn(int $columnIndex = 0)
+    public function fetchColumn()
     {
         $row = $this->fetch(FetchMode::NUMERIC);
 
@@ -138,10 +129,6 @@ final class ArrayStatement implements IteratorAggregate, ResultStatement
             return false;
         }
 
-        if (! array_key_exists($columnIndex, $row)) {
-            throw InvalidColumnIndex::new($columnIndex, count($row));
-        }
-
-        return $row[$columnIndex];
+        return $row[0];
     }
 }

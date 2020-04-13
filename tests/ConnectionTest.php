@@ -573,7 +573,6 @@ class ConnectionTest extends TestCase
         $statement = 'SELECT * FROM foo WHERE bar = ?';
         $params    = [666];
         $types     = [ParameterType::INTEGER];
-        $column    = 0;
         $result    = [];
 
         $driverMock = $this->createMock(Driver::class);
@@ -588,7 +587,6 @@ class ConnectionTest extends TestCase
 
         $driverStatementMock->expects(self::once())
             ->method('fetchColumn')
-            ->with($column)
             ->will(self::returnValue($result));
 
         /** @var Connection|MockObject $conn */
@@ -602,7 +600,7 @@ class ConnectionTest extends TestCase
             ->with($statement, $params, $types)
             ->will(self::returnValue($driverStatementMock));
 
-        self::assertSame($result, $conn->fetchColumn($statement, $params, $column, $types));
+        self::assertSame($result, $conn->fetchColumn($statement, $params, $types));
     }
 
     public function testFetchAll() : void

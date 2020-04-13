@@ -13,7 +13,6 @@ use Doctrine\DBAL\Driver\Mysqli\Exception\UnknownType;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
-use Doctrine\DBAL\Exception\InvalidColumnIndex;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use IteratorAggregate;
@@ -22,7 +21,6 @@ use mysqli_stmt;
 use stdClass;
 use function array_combine;
 use function array_fill;
-use function array_key_exists;
 use function array_map;
 use function assert;
 use function count;
@@ -328,7 +326,7 @@ final class MysqliStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetch(?int $fetchMode = null, ...$args)
+    public function fetch(?int $fetchMode = null)
     {
         // do not try fetching from the statement if it's not expected to contain result
         // in order to prevent exceptional situation
@@ -366,9 +364,6 @@ final class MysqliStatement implements IteratorAggregate, Statement
             case FetchMode::MIXED:
                 return $assoc + $values;
 
-            case FetchMode::STANDARD_OBJECT:
-                return (object) $assoc;
-
             default:
                 throw UnknownFetchMode::new($fetchMode);
         }
@@ -377,7 +372,7 @@ final class MysqliStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll(?int $fetchMode = null, ...$args) : array
+    public function fetchAll(?int $fetchMode = null) : array
     {
         $fetchMode = $fetchMode ?? $this->defaultFetchMode;
 
@@ -399,7 +394,7 @@ final class MysqliStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchColumn(int $columnIndex = 0)
+    public function fetchColumn()
     {
         $row = $this->fetch(FetchMode::NUMERIC);
 
@@ -407,11 +402,7 @@ final class MysqliStatement implements IteratorAggregate, Statement
             return false;
         }
 
-        if (! array_key_exists($columnIndex, $row)) {
-            throw InvalidColumnIndex::new($columnIndex, count($row));
-        }
-
-        return $row[$columnIndex];
+        return $row[0];
     }
 
     public function closeCursor() : void
@@ -434,10 +425,7 @@ final class MysqliStatement implements IteratorAggregate, Statement
         return $this->stmt->field_count;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setFetchMode(int $fetchMode, ...$args) : void
+    public function setFetchMode(int $fetchMode) : void
     {
         $this->defaultFetchMode = $fetchMode;
     }

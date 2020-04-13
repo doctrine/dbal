@@ -84,14 +84,11 @@ final class Statement implements IteratorAggregate, DriverStatement
         $this->stmt->execute($params);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setFetchMode(int $fetchMode, ...$args) : void
+    public function setFetchMode(int $fetchMode) : void
     {
         $this->defaultFetchMode = $fetchMode;
 
-        $this->stmt->setFetchMode($fetchMode, ...$args);
+        $this->stmt->setFetchMode($fetchMode);
     }
 
     /**
@@ -105,11 +102,11 @@ final class Statement implements IteratorAggregate, DriverStatement
     /**
      * {@inheritdoc}
      */
-    public function fetch(?int $fetchMode = null, ...$args)
+    public function fetch(?int $fetchMode = null)
     {
         $fetchMode = $fetchMode ?? $this->defaultFetchMode;
 
-        $row = $this->stmt->fetch($fetchMode, ...$args);
+        $row = $this->stmt->fetch($fetchMode);
 
         $iterateRow = ($this->portability & (Connection::PORTABILITY_EMPTY_TO_NULL|Connection::PORTABILITY_RTRIM)) !== 0;
         $fixCase    = $this->case !== null
@@ -124,11 +121,11 @@ final class Statement implements IteratorAggregate, DriverStatement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll(?int $fetchMode = null, ...$args) : array
+    public function fetchAll(?int $fetchMode = null) : array
     {
         $fetchMode = $fetchMode ?? $this->defaultFetchMode;
 
-        $rows = $this->stmt->fetchAll($fetchMode, ...$args);
+        $rows = $this->stmt->fetchAll($fetchMode);
 
         $iterateRow = ($this->portability & (Connection::PORTABILITY_EMPTY_TO_NULL|Connection::PORTABILITY_RTRIM)) !== 0;
         $fixCase    = $this->case !== null
@@ -161,9 +158,9 @@ final class Statement implements IteratorAggregate, DriverStatement
     /**
      * {@inheritdoc}
      */
-    public function fetchColumn(int $columnIndex = 0)
+    public function fetchColumn()
     {
-        $value = $this->stmt->fetchColumn($columnIndex);
+        $value = $this->stmt->fetchColumn();
 
         if (($this->portability & Connection::PORTABILITY_EMPTY_TO_NULL) !== 0 && $value === '') {
             $value = null;
