@@ -430,6 +430,14 @@ class DB2Platform extends AbstractPlatform
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function supportsNamedPrimaryConstraints()
+    {
+        return false;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function supportsCreateDropDatabase()

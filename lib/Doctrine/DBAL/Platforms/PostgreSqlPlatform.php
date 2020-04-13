@@ -783,7 +783,12 @@ SQL
 
         if (isset($options['primary']) && ! empty($options['primary'])) {
             $keyColumns   = array_unique(array_values($options['primary']));
-            $queryFields .= ', PRIMARY KEY(' . implode(', ', $keyColumns) . ')';
+            $index        = $options['primary_index'];
+            $queryFields .= ',';
+            if ($index->getName()!=='primary') {
+                $queryFields .= ' CONSTRAINT ' . $index->getName();
+            }
+            $queryFields .= ' PRIMARY KEY(' . implode(', ', $keyColumns) . ')';
         }
 
         $query = 'CREATE TABLE ' . $tableName . ' (' . $queryFields . ')';

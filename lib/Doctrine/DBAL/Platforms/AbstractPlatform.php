@@ -1466,10 +1466,18 @@ abstract class AbstractPlatform
      */
     public function getDropIndexSQL($index, $table = null)
     {
+        $isPrimary = false;
         if ($index instanceof Index) {
-            $index = $index->getQuotedName($this);
+            $isPrimary = $index->isPrimary();
+            $index     = $index->getQuotedName($this);
         } elseif (! is_string($index)) {
             throw new InvalidArgumentException('AbstractPlatform::getDropIndexSQL() expects $index parameter to be string or \Doctrine\DBAL\Schema\Index.');
+        }
+
+        if ($isPrimary && $table !== null && $this->supportsNamedPrimaryConstraints()) {
+            $tableName = $table instanceof Table ? $table->getQuotedName($this) : $table;
+
+            return 'ALTER TABLE ' . $tableName . ' DROP CONSTRAINT ' . $index;
         }
 
         return 'DROP INDEX ' . $index;
@@ -1864,6 +1872,10 @@ abstract class AbstractPlatform
     {
         if ($table instanceof Table) {
             $table = $table->getQuotedName($this);
+        }
+
+        if ($index->getName() !=='primary' && $this->supportsNamedPrimaryConstraints()) {
+            return $this->getCreateConstraintSQL($index, $table);
         }
 
         return 'ALTER TABLE ' . $table . ' ADD PRIMARY KEY (' . $this->getIndexFieldDeclarationListSQL($index) . ')';
@@ -3170,6 +3182,16 @@ abstract class AbstractPlatform
      * @return bool
      */
     public function supportsPrimaryConstraints()
+    {
+        return true;
+    }
+
+    /**
+     * Whether the platform supports named primary key constraints.
+     *
+     * @return bool
+     */
+    public function supportsNamedPrimaryConstraints()
     {
         return true;
     }

@@ -430,6 +430,34 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         self::assertFalse($diff, 'No differences should be detected with the offline vs online schema.');
     }
 
+    public function testNamedPrimaryKeys() : void
+    {
+        if (! $this->schemaManager->getDatabasePlatform()->supportsNamedPrimaryConstraints()) {
+            $this->markTestSkipped('Named primary keys are not supported on this platform.');
+        }
+
+        $table = new Table('test_users');
+        $table->addColumn('id', 'integer', ['notnull' => true]);
+        $table->addColumn('other_id', 'integer', ['notnull' => true]);
+        $table->setPrimaryKey(['id'], 'test_users_key');
+
+        $this->schemaManager->dropAndCreateTable($table);
+
+        $newTable = new Table('test_users');
+        $newTable->addColumn('id', 'integer', ['notnull' => true]);
+        $newTable->addColumn('other_id', 'integer', ['notnull' => true]);
+        $newTable->setPrimaryKey(['id', 'other_id'], 'another_key');
+
+        $diff      = new Comparator();
+        $diffTable = $diff->diffTable($table, $newTable);
+        $this->schemaManager->alterTable($diffTable);
+
+        $table = $this->schemaManager->listTableDetails('test_users');
+
+        self::assertSame('another_key', $table->getPrimaryKey()->getName());
+        self::assertSame(['id', 'other_id'], $table->getPrimaryKey()->getColumns());
+    }
+
     public function testListTableIndexes() : void
     {
         $table = $this->getTestCompositeTable('list_table_indexes_test');

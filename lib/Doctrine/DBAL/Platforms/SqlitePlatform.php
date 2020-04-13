@@ -34,6 +34,14 @@ use function trim;
 class SqlitePlatform extends AbstractPlatform
 {
     /**
+     * {@inheritdoc}
+     */
+    public function supportsNamedPrimaryConstraints()
+    {
+        return false;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function getRegexpExpression()

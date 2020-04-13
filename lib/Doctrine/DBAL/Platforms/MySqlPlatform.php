@@ -330,6 +330,14 @@ class MySqlPlatform extends AbstractPlatform
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function supportsNamedPrimaryConstraints()
+    {
+        return false;
+    }
+
+    /**
      * {@inheritDoc}
      *
      * MySql supports this through AUTO_INCREMENT columns.
