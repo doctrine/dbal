@@ -173,7 +173,7 @@ EOS
 CREATE TABLE non_default_pk_order (
     id INTEGER,
     other_id INTEGER,
-    PRIMARY KEY(other_id, id)
+    PRIMARY KEY (other_id, id)
 )
 EOS
         );

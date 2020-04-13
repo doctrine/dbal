@@ -150,6 +150,31 @@ abstract class AbstractPlatform
      */
     protected $_keywords;
 
+    /**
+     * @param mixed[] $options
+     *
+     * @return string
+     */
+    protected function getPrimaryKeyColumnSQL(array $options)
+    {
+        $columnListSql = '';
+        $index         = $options['primary_index'];
+        if ($index->getName() !== 'primary') {
+            $columnListSql .= 'CONSTRAINT ' . $index->getQuotedName($this) . ' ';
+        }
+
+        $flags = '';
+        if (isset($options['primary_index']) && $options['primary_index']->hasFlag('nonclustered')) {
+            $flags .= ' NONCLUSTERED';
+        }
+
+        if (isset($options['primary_index']) && $options['primary_index']->hasFlag('clustered')) {
+            $flags .= ' CLUSTERED';
+        }
+
+        return $columnListSql . 'PRIMARY KEY' . ($flags ? $flags : '') . ' (' . implode(', ', array_unique(array_values($options['primary']))) . ')';
+    }
+
     public function __construct()
     {
     }
@@ -1705,7 +1730,7 @@ abstract class AbstractPlatform
         }
 
         if (isset($options['primary']) && ! empty($options['primary'])) {
-            $columnListSql .= ', PRIMARY KEY(' . implode(', ', array_unique(array_values($options['primary']))) . ')';
+            $columnListSql .= ', ' . $this->getPrimaryKeyColumnSQL($options);
         }
 
         if (isset($options['indexes']) && ! empty($options['indexes'])) {

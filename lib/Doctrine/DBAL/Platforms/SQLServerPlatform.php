@@ -12,8 +12,6 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use InvalidArgumentException;
 use function array_merge;
-use function array_unique;
-use function array_values;
 use function count;
 use function crc32;
 use function dechex;
@@ -281,11 +279,7 @@ SQL
         }
 
         if (isset($options['primary']) && ! empty($options['primary'])) {
-            $flags = '';
-            if (isset($options['primary_index']) && $options['primary_index']->hasFlag('nonclustered')) {
-                $flags = ' NONCLUSTERED';
-            }
-            $columnListSql .= ', PRIMARY KEY' . $flags . ' (' . implode(', ', array_unique(array_values($options['primary']))) . ')';
+            $columnListSql .= ', ' . $this->getPrimaryKeyColumnSQL($options);
         }
 
         $query = 'CREATE TABLE ' . $tableName . ' (' . $columnListSql;

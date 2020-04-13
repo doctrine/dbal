@@ -395,7 +395,7 @@ class SqlitePlatform extends AbstractPlatform
             }
         }
 
-        return ', PRIMARY KEY(' . implode(', ', $keyColumns) . ')';
+        return ', ' . $this->getPrimaryKeyColumnSQL($options);
     }
 
     /**

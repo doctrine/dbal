@@ -17,11 +17,8 @@ use Doctrine\DBAL\Types\Type;
 use UnexpectedValueException;
 use function array_diff;
 use function array_merge;
-use function array_unique;
-use function array_values;
 use function count;
 use function explode;
-use function implode;
 use function in_array;
 use function is_array;
 use function is_bool;
@@ -782,13 +779,7 @@ SQL
         $queryFields = $this->getColumnDeclarationListSQL($columns);
 
         if (isset($options['primary']) && ! empty($options['primary'])) {
-            $keyColumns   = array_unique(array_values($options['primary']));
-            $index        = $options['primary_index'];
-            $queryFields .= ',';
-            if ($index->getName()!=='primary') {
-                $queryFields .= ' CONSTRAINT ' . $index->getName();
-            }
-            $queryFields .= ' PRIMARY KEY(' . implode(', ', $keyColumns) . ')';
+            $queryFields .= ', ' . $this->getPrimaryKeyColumnSQL($options);
         }
 
         $query = 'CREATE TABLE ' . $tableName . ' (' . $queryFields . ')';

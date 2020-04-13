@@ -15,8 +15,6 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use InvalidArgumentException;
 use function array_merge;
-use function array_unique;
-use function array_values;
 use function count;
 use function explode;
 use function func_get_args;
@@ -1259,13 +1257,7 @@ SQL
         }
 
         if (! empty($options['primary'])) {
-            $flags = '';
-
-            if (isset($options['primary_index']) && $options['primary_index']->hasFlag('clustered')) {
-                $flags = ' CLUSTERED ';
-            }
-
-            $columnListSql .= ', PRIMARY KEY' . $flags . ' (' . implode(', ', array_unique(array_values((array) $options['primary']))) . ')';
+            $columnListSql .= ', ' . $this->getPrimaryKeyColumnSQL($options);
         }
 
         if (! empty($options['foreignKeys'])) {

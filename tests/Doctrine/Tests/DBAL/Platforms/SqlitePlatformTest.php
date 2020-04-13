@@ -390,7 +390,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         $sql = [
             'CREATE TABLE user ('
                 . 'id INTEGER NOT NULL, article INTEGER NOT NULL, post INTEGER NOT NULL, parent INTEGER NOT NULL'
-                . ', PRIMARY KEY(id)'
+                . ', PRIMARY KEY (id)'
                 . ', CONSTRAINT FK_8D93D64923A0E66 FOREIGN KEY (article) REFERENCES article (id) DEFERRABLE INITIALLY IMMEDIATE'
                 . ', CONSTRAINT FK_8D93D6495A8A6C8D FOREIGN KEY (post) REFERENCES post (id) NOT DEFERRABLE INITIALLY DEFERRED'
                 . ', CONSTRAINT FK_8D93D6493D8E604F FOREIGN KEY (parent) REFERENCES user (id) DEFERRABLE INITIALLY DEFERRED'
@@ -433,7 +433,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
             'DROP TABLE user',
             'CREATE TABLE user ('
                 . '"key" INTEGER NOT NULL, article INTEGER NOT NULL, comment INTEGER NOT NULL'
-                . ', PRIMARY KEY("key")'
+                . ', PRIMARY KEY ("key")'
                 . ', CONSTRAINT FK_8D93D64923A0E66 FOREIGN KEY (article) REFERENCES article (id) DEFERRABLE INITIALLY IMMEDIATE'
                 . ', CONSTRAINT FK_8D93D6495A8A6C8D FOREIGN KEY (comment) REFERENCES post (id) NOT DEFERRABLE INITIALLY DEFERRED'
                 . ')',
@@ -452,7 +452,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
      */
     protected function getQuotedColumnInPrimaryKeySQL() : array
     {
-        return ['CREATE TABLE "quoted" ("create" VARCHAR(255) NOT NULL, PRIMARY KEY("create"))'];
+        return ['CREATE TABLE "quoted" ("create" VARCHAR(255) NOT NULL, PRIMARY KEY ("create"))'];
     }
 
     /**
@@ -522,7 +522,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         return [
             'CREATE TEMPORARY TABLE __temp__mytable AS SELECT id FROM mytable',
             'DROP TABLE mytable',
-            'CREATE TABLE mytable (id INTEGER NOT NULL, PRIMARY KEY(id))',
+            'CREATE TABLE mytable (id INTEGER NOT NULL, PRIMARY KEY (id))',
             'INSERT INTO mytable (id) SELECT id FROM __temp__mytable',
             'DROP TABLE __temp__mytable',
             'CREATE INDEX idx_bar ON mytable (id)',
@@ -539,7 +539,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         return [
             'CREATE TEMPORARY TABLE __temp__table AS SELECT id FROM "table"',
             'DROP TABLE "table"',
-            'CREATE TABLE "table" (id INTEGER NOT NULL, PRIMARY KEY(id))',
+            'CREATE TABLE "table" (id INTEGER NOT NULL, PRIMARY KEY (id))',
             'INSERT INTO "table" (id) SELECT id FROM __temp__table',
             'DROP TABLE __temp__table',
             'CREATE INDEX "select" ON "table" (id)',

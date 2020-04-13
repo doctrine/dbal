@@ -36,7 +36,7 @@ class SingleDatabaseSynchronizerTest extends TestCase
         $table->setPrimaryKey(['id']);
 
         $sql = $this->synchronizer->getCreateSchema($schema);
-        self::assertEquals(['CREATE TABLE test (id INTEGER NOT NULL, PRIMARY KEY(id))'], $sql);
+        self::assertEquals(['CREATE TABLE test (id INTEGER NOT NULL, PRIMARY KEY (id))'], $sql);
     }
 
     public function testGetUpdateSchema() : void
@@ -47,7 +47,7 @@ class SingleDatabaseSynchronizerTest extends TestCase
         $table->setPrimaryKey(['id']);
 
         $sql = $this->synchronizer->getUpdateSchema($schema);
-        self::assertEquals(['CREATE TABLE test (id INTEGER NOT NULL, PRIMARY KEY(id))'], $sql);
+        self::assertEquals(['CREATE TABLE test (id INTEGER NOT NULL, PRIMARY KEY (id))'], $sql);
     }
 
     public function testGetDropSchema() : void
