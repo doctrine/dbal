@@ -570,16 +570,15 @@ class Connection implements DriverConnection
      *
      * @param string         $statement The SQL query to be executed.
      * @param mixed[]        $params    The prepared statement params.
-     * @param int            $column    The 0-indexed column number to retrieve.
      * @param int[]|string[] $types     The query parameter types.
      *
      * @return mixed|false False is returned if no rows are found.
      *
      * @throws DBALException
      */
-    public function fetchColumn($statement, array $params = [], $column = 0, array $types = [])
+    public function fetchColumn($statement, array $params = [], array $types = [])
     {
-        return $this->executeQuery($statement, $params, $types)->fetchColumn($column);
+        return $this->executeQuery($statement, $params, $types)->fetchColumn();
     }
 
     /**

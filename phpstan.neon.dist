@@ -98,12 +98,6 @@ parameters:
                 - %currentWorkingDirectory%/src/Query/QueryBuilder.php
                 - %currentWorkingDirectory%/src/Schema/*SchemaManager.php
 
-        # FetchMode::CUSTOM_OBJECT requires variable property access
-        -
-            message: '~^Variable property access on object\.~'
-            paths:
-                - %currentWorkingDirectory%/src/Driver/*/*Statement.php
-
         # Some APIs use variable method calls internally
         -
             message: '~^Variable method call on .*~'

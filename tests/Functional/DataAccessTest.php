@@ -6,9 +6,6 @@ use DateTime;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\Mysqli\Driver as MySQLiDriver;
-use Doctrine\DBAL\Driver\OCI8\Driver as Oci8Driver;
-use Doctrine\DBAL\Driver\PDOConnection;
-use Doctrine\DBAL\Driver\PDOOracle\Driver as PDOOracleDriver;
 use Doctrine\DBAL\Driver\SQLSrv\Driver as SQLSrvDriver;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
@@ -18,7 +15,6 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Statement;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
-use PDO;
 use const CASE_LOWER;
 use function array_change_key_case;
 use function array_filter;
@@ -27,7 +23,6 @@ use function count;
 use function date;
 use function is_numeric;
 use function json_encode;
-use function property_exists;
 use function sprintf;
 use function strtotime;
 
@@ -376,13 +371,13 @@ class DataAccessTest extends FunctionalTestCase
 
     public function testFetchColumn() : void
     {
-        $sql     = 'SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?';
-        $testInt = $this->connection->fetchColumn($sql, [1, 'foo'], 0);
+        $sql     = 'SELECT test_int FROM fetch_table WHERE test_int = ? AND test_string = ?';
+        $testInt = $this->connection->fetchColumn($sql, [1, 'foo']);
 
         self::assertEquals(1, $testInt);
 
-        $sql        = 'SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?';
-        $testString = $this->connection->fetchColumn($sql, [1, 'foo'], 1);
+        $sql        = 'SELECT test_string FROM fetch_table WHERE test_int = ? AND test_string = ?';
+        $testString = $this->connection->fetchColumn($sql, [1, 'foo']);
 
         self::assertEquals('foo', $testString);
     }
@@ -392,15 +387,14 @@ class DataAccessTest extends FunctionalTestCase
         $datetimeString = '2010-01-01 10:10:10';
         $datetime       = new DateTime($datetimeString);
 
-        $sql    = 'SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?';
+        $sql    = 'SELECT test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?';
         $column = $this->connection->fetchColumn(
             $sql,
             [1, $datetime],
-            1,
             [ParameterType::STRING, Types::DATETIME_MUTABLE]
         );
 
-        self::assertNotFalse($column);
+        self::assertIsString($column);
 
         self::assertStringStartsWith($datetimeString, $column);
     }
@@ -418,7 +412,7 @@ class DataAccessTest extends FunctionalTestCase
 
         $this->expectException(DBALException::class);
 
-        $this->connection->fetchColumn($sql, [1, $datetime], 1);
+        $this->connection->fetchColumn($sql, [1, $datetime]);
     }
 
     /**
@@ -635,7 +629,7 @@ class DataAccessTest extends FunctionalTestCase
         $sql  = 'SELECT COUNT(*) FROM fetch_table_date_math WHERE ';
         $sql .= $platform->getDateSubDaysExpression('test_date', 'test_days') . " < '2010-05-12'";
 
-        $rowCount = $this->connection->fetchColumn($sql, [], 0);
+        $rowCount = $this->connection->fetchColumn($sql);
 
         self::assertEquals(1, $rowCount);
     }
@@ -739,62 +733,6 @@ class DataAccessTest extends FunctionalTestCase
     }
 
     /**
-     * @group DBAL-1091
-     */
-    public function testFetchAllStyleObject() : void
-    {
-        $this->setupFixture();
-
-        $sql  = 'SELECT test_int, test_string, test_datetime FROM fetch_table';
-        $stmt = $this->connection->prepare($sql);
-
-        $stmt->execute();
-
-        $results = $stmt->fetchAll(FetchMode::STANDARD_OBJECT);
-
-        self::assertCount(1, $results);
-        self::assertInstanceOf('stdClass', $results[0]);
-
-        self::assertEquals(
-            1,
-            property_exists($results[0], 'test_int') ? $results[0]->test_int : $results[0]->TEST_INT
-        );
-        self::assertEquals(
-            'foo',
-            property_exists($results[0], 'test_string') ? $results[0]->test_string : $results[0]->TEST_STRING
-        );
-        self::assertStringStartsWith(
-            '2010-01-01 10:10:10',
-            property_exists($results[0], 'test_datetime') ? $results[0]->test_datetime : $results[0]->TEST_DATETIME
-        );
-    }
-
-    /**
-     * @group DBAL-196
-     */
-    public function testFetchAllSupportFetchClass() : void
-    {
-        $this->beforeFetchClassTest();
-        $this->setupFixture();
-
-        $sql  = 'SELECT test_int, test_string, test_datetime FROM fetch_table';
-        $stmt = $this->connection->prepare($sql);
-        $stmt->execute();
-
-        $results = $stmt->fetchAll(
-            FetchMode::CUSTOM_OBJECT,
-            MyFetchClass::class
-        );
-
-        self::assertCount(1, $results);
-        self::assertInstanceOf(MyFetchClass::class, $results[0]);
-
-        self::assertEquals(1, $results[0]->test_int);
-        self::assertEquals('foo', $results[0]->test_string);
-        self::assertStringStartsWith('2010-01-01 10:10:10', $results[0]->test_datetime);
-    }
-
-    /**
      * @group DBAL-241
      */
     public function testFetchAllStyleColumn() : void
@@ -809,53 +747,6 @@ class DataAccessTest extends FunctionalTestCase
         $rows = $this->connection->query($sql)->fetchAll(FetchMode::COLUMN);
 
         self::assertEquals([1, 10], $rows);
-    }
-
-    /**
-     * @group DBAL-214
-     */
-    public function testSetFetchModeClassFetchAll() : void
-    {
-        $this->beforeFetchClassTest();
-        $this->setupFixture();
-
-        $sql  = 'SELECT * FROM fetch_table';
-        $stmt = $this->connection->query($sql);
-        $stmt->setFetchMode(FetchMode::CUSTOM_OBJECT, MyFetchClass::class);
-
-        $results = $stmt->fetchAll();
-
-        self::assertCount(1, $results);
-        self::assertInstanceOf(MyFetchClass::class, $results[0]);
-
-        self::assertEquals(1, $results[0]->test_int);
-        self::assertEquals('foo', $results[0]->test_string);
-        self::assertStringStartsWith('2010-01-01 10:10:10', $results[0]->test_datetime);
-    }
-
-    /**
-     * @group DBAL-214
-     */
-    public function testSetFetchModeClassFetch() : void
-    {
-        $this->beforeFetchClassTest();
-        $this->setupFixture();
-
-        $sql  = 'SELECT * FROM fetch_table';
-        $stmt = $this->connection->query($sql);
-        $stmt->setFetchMode(FetchMode::CUSTOM_OBJECT, MyFetchClass::class);
-
-        $results = [];
-        while ($row = $stmt->fetch()) {
-            $results[] = $row;
-        }
-
-        self::assertCount(1, $results);
-        self::assertInstanceOf(MyFetchClass::class, $results[0]);
-
-        self::assertEquals(1, $results[0]->test_int);
-        self::assertEquals('foo', $results[0]->test_string);
-        self::assertStringStartsWith('2010-01-01 10:10:10', $results[0]->test_datetime);
     }
 
     /**
@@ -901,69 +792,10 @@ class DataAccessTest extends FunctionalTestCase
     /**
      * @group DBAL-1028
      */
-    public function testFetchColumnNullValue() : void
-    {
-        $this->connection->executeUpdate(
-            'INSERT INTO fetch_table (test_int, test_string) VALUES (?, ?)',
-            [2, 'foo']
-        );
-
-        self::assertNull(
-            $this->connection->fetchColumn('SELECT test_datetime FROM fetch_table WHERE test_int = ?', [2])
-        );
-    }
-
-    /**
-     * @group DBAL-1028
-     */
     public function testFetchColumnNoResult() : void
     {
         self::assertFalse(
             $this->connection->fetchColumn('SELECT test_int FROM fetch_table WHERE test_int = ?', [-1])
         );
     }
-
-    private function setupFixture() : void
-    {
-        $this->connection->exec('DELETE FROM fetch_table');
-        $this->connection->insert('fetch_table', [
-            'test_int'      => 1,
-            'test_string'   => 'foo',
-            'test_datetime' => '2010-01-01 10:10:10',
-        ]);
-    }
-
-    private function beforeFetchClassTest() : void
-    {
-        $driver = $this->connection->getDriver();
-
-        if ($driver instanceof Oci8Driver) {
-            self::markTestSkipped('Not supported by OCI8');
-        }
-
-        if ($driver instanceof MySQLiDriver) {
-            self::markTestSkipped('Mysqli driver dont support this feature.');
-        }
-
-        if (! $driver instanceof PDOOracleDriver) {
-            return;
-        }
-
-        /** @var PDOConnection $connection */
-        $connection = $this->connection
-            ->getWrappedConnection();
-        $connection->getWrappedConnection()->setAttribute(PDO::ATTR_CASE, PDO::CASE_LOWER);
-    }
-}
-
-class MyFetchClass
-{
-    /** @var int */
-    public $test_int;
-
-    /** @var string */
-    public $test_string;
-
-    /** @var string */
-    public $test_datetime;
 }
