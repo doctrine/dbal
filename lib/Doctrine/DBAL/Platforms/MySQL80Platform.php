@@ -14,12 +14,4 @@ class MySQL80Platform extends MySQL57Platform
     {
         return Keywords\MySQL80Keywords::class;
     }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function supportsNamedPrimaryConstraints()
-    {
-        return true;
-    }
 }
