@@ -1,0 +1,16 @@
+
+name: "Continuous Integration"
+
+on:
+  pull_request:
+
+jobs:
+  static-analysis-psalm:
+    name: Static Analysis with Psalm
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Psalm
+        uses: docker://vimeo/psalm-github-actions
