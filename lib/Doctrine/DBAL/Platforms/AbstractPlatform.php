@@ -151,28 +151,37 @@ abstract class AbstractPlatform
     protected $_keywords;
 
     /**
-     * @param mixed[] $options
+     * @param mixed[] $columns
      *
      * @return string
      */
-    protected function getPrimaryKeyColumnSQL(array $options)
+    protected function getPrimaryKeyAsConstraintSQL(array $columns, Index $index)
     {
         $columnListSql = '';
-        $index         = $options['primary_index'];
         if ($index->getName() !== 'primary') {
-            $columnListSql .= 'CONSTRAINT ' . $index->getQuotedName($this) . ' ';
+            $columnListSql = 'CONSTRAINT ' . $index->getQuotedName($this) . ' ';
         }
 
+        return $columnListSql . $this->getPrimaryKeyAsDefinitionSQL($columns, $index);
+    }
+
+    /**
+     * @param mixed[] $columns
+     *
+     * @return string
+     */
+    protected function getPrimaryKeyAsDefinitionSQL(array $columns, Index $index)
+    {
         $flags = '';
-        if (isset($options['primary_index']) && $options['primary_index']->hasFlag('nonclustered')) {
+        if ($index->hasFlag('nonclustered')) {
             $flags .= ' NONCLUSTERED';
         }
 
-        if (isset($options['primary_index']) && $options['primary_index']->hasFlag('clustered')) {
+        if ($index->hasFlag('clustered')) {
             $flags .= ' CLUSTERED';
         }
 
-        return $columnListSql . 'PRIMARY KEY' . ($flags ? $flags : '') . ' (' . implode(', ', array_unique(array_values($options['primary']))) . ')';
+        return 'PRIMARY KEY' . ($flags ? $flags : '') . ' (' . implode(', ', array_unique(array_values($columns))) . ')';
     }
 
     public function __construct()
@@ -1730,7 +1739,7 @@ abstract class AbstractPlatform
         }
 
         if (isset($options['primary']) && ! empty($options['primary'])) {
-            $columnListSql .= ', ' . $this->getPrimaryKeyColumnSQL($options);
+            $columnListSql .= ', ' . $this->getPrimaryKeyAsConstraintSQL($options['primary'], $options['primary_index']);
         }
 
         if (isset($options['indexes']) && ! empty($options['indexes'])) {
@@ -1812,14 +1821,16 @@ abstract class AbstractPlatform
         $referencesClause = '';
         if ($constraint instanceof Index) {
             if ($constraint->isPrimary()) {
-                $query .= ' PRIMARY KEY';
-            } elseif ($constraint->isUnique()) {
-                $query .= ' UNIQUE';
-            } else {
+                return $query . ' ' . $this->getPrimaryKeyAsDefinitionSQL($constraint->getColumns(), $constraint);
+            }
+
+            if (! $constraint->isUnique()) {
                 throw new InvalidArgumentException(
                     'Can only create primary or unique constraints, no common indexes with getCreateConstraintSQL().'
                 );
             }
+
+            $query .= ' UNIQUE';
         } elseif ($constraint instanceof ForeignKeyConstraint) {
             $query .= ' FOREIGN KEY';
 

@@ -395,7 +395,7 @@ class SqlitePlatform extends AbstractPlatform
             }
         }
 
-        return ', ' . $this->getPrimaryKeyColumnSQL($options);
+        return ', ' . $this->getPrimaryKeyAsConstraintSQL($options['primary'], $options['primary_index']);
     }
 
     /**

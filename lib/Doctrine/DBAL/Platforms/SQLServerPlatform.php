@@ -279,7 +279,7 @@ SQL
         }
 
         if (isset($options['primary']) && ! empty($options['primary'])) {
-            $columnListSql .= ', ' . $this->getPrimaryKeyColumnSQL($options);
+            $columnListSql .= ', ' . $this->getPrimaryKeyAsConstraintSQL($options['primary'], $options['primary_index']);
         }
 
         $query = 'CREATE TABLE ' . $tableName . ' (' . $columnListSql;
@@ -305,26 +305,6 @@ SQL
         }
 
         return array_merge($sql, $commentsSql, $defaultConstraintsSql);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getCreatePrimaryKeySQL(Index $index, $table)
-    {
-        if ($table instanceof Table) {
-            $identifier = $table->getQuotedName($this);
-        } else {
-            $identifier = $table;
-        }
-
-        $sql = 'ALTER TABLE ' . $identifier . ' ADD PRIMARY KEY';
-
-        if ($index->hasFlag('nonclustered')) {
-            $sql .= ' NONCLUSTERED';
-        }
-
-        return $sql . ' (' . $this->getIndexFieldDeclarationListSQL($index) . ')';
     }
 
     /**

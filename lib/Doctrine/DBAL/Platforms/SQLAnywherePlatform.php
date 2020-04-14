@@ -1257,7 +1257,7 @@ SQL
         }
 
         if (! empty($options['primary'])) {
-            $columnListSql .= ', ' . $this->getPrimaryKeyColumnSQL($options);
+            $columnListSql .= ', ' . $this->getPrimaryKeyAsConstraintSQL($options['primary'], $options['primary_index']);
         }
 
         if (! empty($options['foreignKeys'])) {

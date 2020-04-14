@@ -779,7 +779,7 @@ SQL
         $queryFields = $this->getColumnDeclarationListSQL($columns);
 
         if (isset($options['primary']) && ! empty($options['primary'])) {
-            $queryFields .= ', ' . $this->getPrimaryKeyColumnSQL($options);
+            $queryFields .= ', ' . $this->getPrimaryKeyAsConstraintSQL($options['primary'], $options['primary_index']);
         }
 
         $query = 'CREATE TABLE ' . $tableName . ' (' . $queryFields . ')';
