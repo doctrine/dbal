@@ -30,6 +30,7 @@ class RunSqlCommand extends Command
         ->setDescription('Executes arbitrary SQL directly from the command line.')
         ->setDefinition([
             new InputArgument('sql', InputArgument::REQUIRED, 'The SQL statement to execute.'),
+            new InputOption('connection', null, InputOption::VALUE_REQUIRED, 'The database connection on which to execute the SQL statement', 'db'),
             new InputOption('depth', null, InputOption::VALUE_REQUIRED, 'Dumping depth of result set.', 7),
             new InputOption('force-fetch', null, InputOption::VALUE_NONE, 'Forces fetching the result.'),
         ])
@@ -44,7 +45,9 @@ EOT
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $conn = $this->getHelper('db')->getConnection();
+        $connection = $this->getOption('connection');
+        
+        $conn = $this->getHelper($connection)->getConnection();
 
         $sql = $input->getArgument('sql');
 
