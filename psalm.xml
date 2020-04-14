@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<psalm
+    totallyTyped="false"
+    errorLevel="8"
+    resolveFromConfigFile="true"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="https://getpsalm.org/schema/config"
+    xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
+    errorBaseline="baseline.xml"
+>
+    <projectFiles>
+        <directory name="lib/Doctrine/DBAL" />
+        <directory name="tests/Doctrine/Tests" />
+        <ignoreFiles>
+            <directory name="vendor" />
+        </ignoreFiles>
+    </projectFiles>
+    <stubs>
+        <file name="vendor/jetbrains/phpstorm-stubs/ibm_db2/ibm_db2.php" />
+        <file name="vendor/jetbrains/phpstorm-stubs/mysqli/mysqli.php" />
+        <file name="vendor/jetbrains/phpstorm-stubs/oci8/oci8.php" />
+        <file name="vendor/jetbrains/phpstorm-stubs/pgsql/pgsql.php" />
+        <file name="vendor/jetbrains/phpstorm-stubs/sqlsrv/sqlsrv.php" />
+    </stubs>
+</psalm>
