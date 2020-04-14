@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<files psalm-version="3.11.2@d470903722cfcbc1cd04744c5491d3e6d13ec3d9">
+  <file src="src/Driver/Connection.php">
+    <InvalidParamDefault occurrences="1">
+      <code>int</code>
+    </InvalidParamDefault>
+  </file>
+  <file src="src/Driver/DriverException.php">
+    <MissingImmutableAnnotation occurrences="1">
+      <code>public function getMessage();</code>
+    </MissingImmutableAnnotation>
+  </file>
+  <file src="src/Driver/PDOSqlsrv/Statement.php">
+    <UndefinedConstant occurrences="1">
+      <code>PDO::SQLSRV_ENCODING_BINARY</code>
+    </UndefinedConstant>
+  </file>
+  <file src="src/Driver/SQLAnywhere/SQLAnywhereConnection.php">
+    <UndefinedFunction occurrences="14">
+      <code>sasql_pconnect($dsn)</code>
+      <code>sasql_connect($dsn)</code>
+      <code>sasql_set_option($this-&gt;connection, 'verbose_errors', false)</code>
+      <code>sasql_set_option($this-&gt;connection, 'auto_commit', 'on')</code>
+      <code>sasql_set_option($this-&gt;connection, 'auto_commit', 'off')</code>
+      <code>sasql_commit($this-&gt;connection)</code>
+      <code>sasql_errorcode($this-&gt;connection)</code>
+      <code>sasql_error($this-&gt;connection)</code>
+      <code>sasql_real_query($this-&gt;connection, $statement)</code>
+      <code>sasql_affected_rows($this-&gt;connection)</code>
+      <code>sasql_insert_id($this-&gt;connection)</code>
+      <code>sasql_escape_string($this-&gt;connection, $input)</code>
+      <code>sasql_rollback($this-&gt;connection)</code>
+      <code>sasql_set_option($this-&gt;connection, 'auto_commit', 'on')</code>
+    </UndefinedFunction>
+  </file>
+  <file src="src/Driver/SQLAnywhere/SQLAnywhereException.php">
+    <UndefinedFunction occurrences="8">
+      <code>sasql_sqlstate($conn)</code>
+      <code>sasql_sqlstate()</code>
+      <code>sasql_stmt_errno($stmt)</code>
+      <code>sasql_stmt_error($stmt)</code>
+      <code>sasql_errorcode($conn)</code>
+      <code>sasql_error($conn)</code>
+      <code>sasql_errorcode()</code>
+      <code>sasql_error()</code>
+    </UndefinedFunction>
+  </file>
+  <file src="src/Driver/SQLAnywhere/SQLAnywhereStatement.php">
+    <UndefinedConstant occurrences="1">
+      <code>SASQL_BOTH</code>
+    </UndefinedConstant>
+    <UndefinedFunction occurrences="12">
+      <code>sasql_prepare($conn, $sql)</code>
+      <code>sasql_stmt_bind_param_ex($this-&gt;stmt, $column - 1, $variable, $type, $variable === null)</code>
+      <code>sasql_stmt_reset($this-&gt;stmt)</code>
+      <code>sasql_stmt_field_count($this-&gt;stmt)</code>
+      <code>sasql_stmt_errno($this-&gt;stmt)</code>
+      <code>sasql_stmt_error($this-&gt;stmt)</code>
+      <code>sasql_stmt_execute($this-&gt;stmt)</code>
+      <code>sasql_stmt_result_metadata($this-&gt;stmt)</code>
+      <code>sasql_fetch_assoc($this-&gt;result)</code>
+      <code>sasql_fetch_array($this-&gt;result, SASQL_BOTH)</code>
+      <code>sasql_fetch_row($this-&gt;result)</code>
+      <code>sasql_stmt_affected_rows($this-&gt;stmt)</code>
+    </UndefinedFunction>
+  </file>
+  <file src="src/Driver/SQLSrv/SQLSrvStatement.php">
+    <TooFewArguments occurrences="1">
+      <code>sqlsrv_get_field($this-&gt;stmt, 0)</code>
+    </TooFewArguments>
+  </file>
+  <file src="src/Platforms/AbstractPlatform.php">
+    <InvalidParamDefault occurrences="1">
+      <code>int</code>
+    </InvalidParamDefault>
+  </file>
+  <file src="src/Schema/AbstractSchemaManager.php">
+    <InvalidParamDefault occurrences="1">
+      <code>string</code>
+    </InvalidParamDefault>
+  </file>
+  <file src="src/Tools/Dumper.php">
+    <UndefinedClass occurrences="1">
+      <code>Collection</code>
+    </UndefinedClass>
+  </file>
+  <file src="tests/Driver/PDOPgSql/DriverTest.php">
+    <UndefinedConstant occurrences="5">
+      <code>PDO::PGSQL_ATTR_DISABLE_PREPARES</code>
+      <code>PDO::PGSQL_ATTR_DISABLE_PREPARES</code>
+      <code>PDO::PGSQL_ATTR_DISABLE_PREPARES</code>
+      <code>PDO::PGSQL_ATTR_DISABLE_PREPARES</code>
+      <code>PDO::PGSQL_ATTR_DISABLE_PREPARES</code>
+    </UndefinedConstant>
+  </file>
+  <file src="tests/Platforms/AbstractMySQLPlatformTestCase.php">
+    <UndefinedDocblockClass occurrences="93">
+      <code>MySqlPlatform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+    </UndefinedDocblockClass>
+  </file>
+  <file src="tests/Platforms/MariaDb1027PlatformTest.php">
+    <UndefinedDocblockClass occurrences="4">
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+    </UndefinedDocblockClass>
+  </file>
+  <file src="tests/Platforms/MySQL57PlatformTest.php">
+    <UndefinedDocblockClass occurrences="4">
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+      <code>$this-&gt;platform</code>
+    </UndefinedDocblockClass>
+  </file>
+  <file src="tests/Platforms/MySqlPlatformTest.php">
+    <UndefinedDocblockClass occurrences="1">
+      <code>$this-&gt;platform</code>
+    </UndefinedDocblockClass>
+  </file>
+</files>
