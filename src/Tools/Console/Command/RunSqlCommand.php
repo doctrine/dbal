@@ -45,8 +45,8 @@ EOT
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $connection = $this->getOption('connection');
-        
+        $connection = $input->getOption('connection');
+
         $conn = $this->getHelper($connection)->getConnection();
 
         $sql = $input->getArgument('sql');
