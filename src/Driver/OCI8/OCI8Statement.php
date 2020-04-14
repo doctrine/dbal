@@ -6,14 +6,11 @@ namespace Doctrine\DBAL\Driver\OCI8;
 
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\StatementIterator;
-use Doctrine\DBAL\Exception\InvalidColumnIndex;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use InvalidArgumentException;
 use IteratorAggregate;
-use function array_key_exists;
 use function assert;
-use function count;
 use function is_int;
 use function is_resource;
 use function oci_bind_by_name;
@@ -22,7 +19,6 @@ use function oci_error;
 use function oci_execute;
 use function oci_fetch_all;
 use function oci_fetch_array;
-use function oci_fetch_object;
 use function oci_new_descriptor;
 use function oci_num_fields;
 use function oci_num_rows;
@@ -224,10 +220,7 @@ final class OCI8Statement implements IteratorAggregate, Statement
         $this->result = true;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setFetchMode(int $fetchMode, ...$args) : void
+    public function setFetchMode(int $fetchMode) : void
     {
         $this->_defaultFetchMode = $fetchMode;
     }
@@ -243,7 +236,7 @@ final class OCI8Statement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetch(?int $fetchMode = null, ...$args)
+    public function fetch(?int $fetchMode = null)
     {
         // do not try fetching from the statement if it's not expected to contain result
         // in order to prevent exceptional situation
@@ -255,10 +248,6 @@ final class OCI8Statement implements IteratorAggregate, Statement
 
         if ($fetchMode === FetchMode::COLUMN) {
             return $this->fetchColumn();
-        }
-
-        if ($fetchMode === FetchMode::STANDARD_OBJECT) {
-            return oci_fetch_object($this->_sth);
         }
 
         if (! isset(self::$fetchModeMap[$fetchMode])) {
@@ -274,19 +263,11 @@ final class OCI8Statement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll(?int $fetchMode = null, ...$args) : array
+    public function fetchAll(?int $fetchMode = null) : array
     {
         $fetchMode = $fetchMode ?? $this->_defaultFetchMode;
 
         $result = [];
-
-        if ($fetchMode === FetchMode::STANDARD_OBJECT) {
-            while ($row = $this->fetch($fetchMode)) {
-                $result[] = $row;
-            }
-
-            return $result;
-        }
 
         if (! isset(self::$fetchModeMap[$fetchMode])) {
             throw new InvalidArgumentException(sprintf('Invalid fetch mode %d.', $fetchMode));
@@ -328,7 +309,7 @@ final class OCI8Statement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchColumn(int $columnIndex = 0)
+    public function fetchColumn()
     {
         // do not try fetching from the statement if it's not expected to contain result
         // in order to prevent exceptional situation
@@ -342,11 +323,7 @@ final class OCI8Statement implements IteratorAggregate, Statement
             return false;
         }
 
-        if (! array_key_exists($columnIndex, $row)) {
-            throw InvalidColumnIndex::new($columnIndex, count($row));
-        }
-
-        return $row[$columnIndex];
+        return $row[0];
     }
 
     public function rowCount() : int

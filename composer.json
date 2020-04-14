@@ -43,7 +43,7 @@
         "phpstan/phpstan": "^0.12.18",
         "phpstan/phpstan-phpunit": "^0.12",
         "phpstan/phpstan-strict-rules": "^0.12.2",
-        "phpunit/phpunit": "^9.0",
+        "phpunit/phpunit": "^9.1.1",
         "symfony/console": "^2.0.5|^3.0|^4.0|^5.0"
     },
     "suggest": {

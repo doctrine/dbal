@@ -14,7 +14,7 @@ class TypeAlreadyRegisteredTest extends TestCase
     {
         $exception = TypeAlreadyRegistered::new(Type::getType('string'));
 
-        self::assertRegExp(
+        self::assertMatchesRegularExpression(
             '/Type of the class Doctrine\\\DBAL\\\Types\\\StringType@([0-9a-zA-Z]+) is already registered./',
             $exception->getMessage()
         );

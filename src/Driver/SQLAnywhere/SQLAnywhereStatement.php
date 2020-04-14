@@ -7,23 +7,15 @@ namespace Doctrine\DBAL\Driver\SQLAnywhere;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\Exception\GetVariableType;
-use Doctrine\DBAL\Exception\InvalidColumnIndex;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use IteratorAggregate;
-use ReflectionClass;
-use ReflectionObject;
-use stdClass;
 use function array_key_exists;
 use function assert;
-use function count;
 use function is_int;
-use function is_object;
 use function is_resource;
-use function is_string;
 use function sasql_fetch_array;
 use function sasql_fetch_assoc;
-use function sasql_fetch_object;
 use function sasql_fetch_row;
 use function sasql_prepare;
 use function sasql_stmt_affected_rows;
@@ -42,12 +34,6 @@ final class SQLAnywhereStatement implements IteratorAggregate, Statement
 {
     /** @var resource The connection resource. */
     private $conn;
-
-    /** @var string Name of the default class to instantiate when fetching class instances. */
-    private $defaultFetchClass = '\stdClass';
-
-    /** @var mixed[] Constructor arguments for the default class to instantiate when fetching class instances. */
-    private $defaultFetchClassCtorArgs = [];
 
     /** @var int Default fetch mode to use. */
     private $defaultFetchMode = FetchMode::MIXED;
@@ -171,7 +157,7 @@ final class SQLAnywhereStatement implements IteratorAggregate, Statement
      *
      * @throws SQLAnywhereException
      */
-    public function fetch(?int $fetchMode = null, ...$args)
+    public function fetch(?int $fetchMode = null)
     {
         if (! is_resource($this->result)) {
             return false;
@@ -189,28 +175,8 @@ final class SQLAnywhereStatement implements IteratorAggregate, Statement
             case FetchMode::MIXED:
                 return sasql_fetch_array($this->result, SASQL_BOTH);
 
-            case FetchMode::CUSTOM_OBJECT:
-                $className = $this->defaultFetchClass;
-                $ctorArgs  = $this->defaultFetchClassCtorArgs;
-
-                if (count($args) > 0) {
-                    $className = $args[0];
-                    $ctorArgs  = $args[1] ?? [];
-                }
-
-                $result = sasql_fetch_object($this->result);
-
-                if ($result instanceof stdClass) {
-                    $result = $this->castObject($result, $className, $ctorArgs);
-                }
-
-                return $result;
-
             case FetchMode::NUMERIC:
                 return sasql_fetch_row($this->result);
-
-            case FetchMode::STANDARD_OBJECT:
-                return sasql_fetch_object($this->result);
 
             default:
                 throw new SQLAnywhereException(sprintf('Fetch mode is not supported %d.', $fetchMode));
@@ -220,18 +186,11 @@ final class SQLAnywhereStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll(?int $fetchMode = null, ...$args) : array
+    public function fetchAll(?int $fetchMode = null) : array
     {
         $rows = [];
 
         switch ($fetchMode) {
-            case FetchMode::CUSTOM_OBJECT:
-                while (($row = $this->fetch($fetchMode, ...$args)) !== false) {
-                    $rows[] = $row;
-                }
-
-                break;
-
             case FetchMode::COLUMN:
                 while (($row = $this->fetchColumn()) !== false) {
                     $rows[] = $row;
@@ -251,7 +210,7 @@ final class SQLAnywhereStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchColumn(int $columnIndex = 0)
+    public function fetchColumn()
     {
         $row = $this->fetch(FetchMode::NUMERIC);
 
@@ -259,11 +218,7 @@ final class SQLAnywhereStatement implements IteratorAggregate, Statement
             return false;
         }
 
-        if (! array_key_exists($columnIndex, $row)) {
-            throw InvalidColumnIndex::new($columnIndex, count($row));
-        }
-
-        return $row[$columnIndex];
+        return $row[0];
     }
 
     /**
@@ -279,66 +234,8 @@ final class SQLAnywhereStatement implements IteratorAggregate, Statement
         return sasql_stmt_affected_rows($this->stmt);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setFetchMode(int $fetchMode, ...$args) : void
+    public function setFetchMode(int $fetchMode) : void
     {
         $this->defaultFetchMode = $fetchMode;
-
-        if (isset($args[0])) {
-            $this->defaultFetchClass = $args[0];
-        }
-
-        if (! isset($args[1])) {
-            return;
-        }
-
-        $this->defaultFetchClassCtorArgs = (array) $args[1];
-    }
-
-    /**
-     * Casts a stdClass object to the given class name mapping its' properties.
-     *
-     * @param stdClass      $sourceObject     Object to cast from.
-     * @param string|object $destinationClass Name of the class or class instance to cast to.
-     * @param mixed[]       $ctorArgs         Arguments to use for constructing the destination class instance.
-     *
-     * @throws SQLAnywhereException
-     */
-    private function castObject(stdClass $sourceObject, $destinationClass, array $ctorArgs = []) : object
-    {
-        if (! is_string($destinationClass)) {
-            if (! is_object($destinationClass)) {
-                throw new SQLAnywhereException(sprintf(
-                    'Destination class has to be of type string or object, "%s" given.',
-                    (new GetVariableType())->__invoke($destinationClass)
-                ));
-            }
-        } else {
-            $destinationClass = new ReflectionClass($destinationClass);
-            $destinationClass = $destinationClass->newInstanceArgs($ctorArgs);
-        }
-
-        $sourceReflection           = new ReflectionObject($sourceObject);
-        $destinationClassReflection = new ReflectionObject($destinationClass);
-
-        foreach ($sourceReflection->getProperties() as $sourceProperty) {
-            $sourceProperty->setAccessible(true);
-
-            $name  = $sourceProperty->getName();
-            $value = $sourceProperty->getValue($sourceObject);
-
-            if ($destinationClassReflection->hasProperty($name)) {
-                $destinationProperty = $destinationClassReflection->getProperty($name);
-
-                $destinationProperty->setAccessible(true);
-                $destinationProperty->setValue($destinationClass, $value);
-            } else {
-                $destinationClass->$name = $value;
-            }
-        }
-
-        return $destinationClass;
     }
 }

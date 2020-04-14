@@ -5,13 +5,11 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Portability;
 
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
-use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Portability\Connection;
 use Doctrine\DBAL\Portability\Statement;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use ReflectionProperty;
 use function iterator_to_array;
 
 class StatementTest extends TestCase
@@ -93,25 +91,6 @@ class StatementTest extends TestCase
             ->with($params);
 
         $this->stmt->execute($params);
-    }
-
-    public function testSetFetchMode() : void
-    {
-        $fetchMode = FetchMode::CUSTOM_OBJECT;
-        $arg1      = 'MyClass';
-        $arg2      = [1, 2];
-
-        $this->wrappedStmt->expects(self::once())
-            ->method('setFetchMode')
-            ->with($fetchMode, $arg1, $arg2)
-            ->will(self::returnValue(true));
-
-        $re = new ReflectionProperty($this->stmt, 'defaultFetchMode');
-        $re->setAccessible(true);
-
-        self::assertSame(FetchMode::MIXED, $re->getValue($this->stmt));
-        $this->stmt->setFetchMode($fetchMode, $arg1, $arg2);
-        self::assertSame($fetchMode, $re->getValue($this->stmt));
     }
 
     public function testGetIterator() : void

@@ -6,7 +6,6 @@ namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\Driver\Exception\UnknownFetchMode;
 use Doctrine\DBAL\Driver\Exception\UnknownParamType;
-use Doctrine\DBAL\Exception\InvalidColumnIndex;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use IteratorAggregate;
@@ -33,12 +32,10 @@ class PDOStatement implements IteratorAggregate, Statement
     ];
 
     private const FETCH_MODE_MAP = [
-        FetchMode::ASSOCIATIVE     => PDO::FETCH_ASSOC,
-        FetchMode::NUMERIC         => PDO::FETCH_NUM,
-        FetchMode::MIXED           => PDO::FETCH_BOTH,
-        FetchMode::STANDARD_OBJECT => PDO::FETCH_OBJ,
-        FetchMode::COLUMN          => PDO::FETCH_COLUMN,
-        FetchMode::CUSTOM_OBJECT   => PDO::FETCH_CLASS,
+        FetchMode::ASSOCIATIVE => PDO::FETCH_ASSOC,
+        FetchMode::NUMERIC     => PDO::FETCH_NUM,
+        FetchMode::MIXED       => PDO::FETCH_BOTH,
+        FetchMode::COLUMN      => PDO::FETCH_COLUMN,
     ];
 
     /** @var \PDOStatement */
@@ -49,15 +46,12 @@ class PDOStatement implements IteratorAggregate, Statement
         $this->stmt = $stmt;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setFetchMode(int $fetchMode, ...$args) : void
+    public function setFetchMode(int $fetchMode) : void
     {
         $fetchMode = $this->convertFetchMode($fetchMode);
 
         try {
-            $this->stmt->setFetchMode($fetchMode, ...$args);
+            $this->stmt->setFetchMode($fetchMode);
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
         }
@@ -128,16 +122,16 @@ class PDOStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetch(?int $fetchMode = null, ...$args)
+    public function fetch(?int $fetchMode = null)
     {
         try {
             if ($fetchMode === null) {
                 return $this->stmt->fetch();
             }
 
-            $fetchMode = $this->convertFetchMode($fetchMode);
-
-            return $this->stmt->fetch($fetchMode, ...$args);
+            return $this->stmt->fetch(
+                $this->convertFetchMode($fetchMode)
+            );
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
         }
@@ -146,15 +140,14 @@ class PDOStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll(?int $fetchMode = null, ...$args) : array
+    public function fetchAll(?int $fetchMode = null) : array
     {
         try {
             if ($fetchMode === null) {
                 $data = $this->stmt->fetchAll();
             } else {
                 $data = $this->stmt->fetchAll(
-                    $this->convertFetchMode($fetchMode),
-                    ...$args
+                    $this->convertFetchMode($fetchMode)
                 );
             }
         } catch (\PDOException $exception) {
@@ -169,20 +162,10 @@ class PDOStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchColumn(int $columnIndex = 0)
+    public function fetchColumn()
     {
         try {
-            $value = $this->stmt->fetchColumn($columnIndex);
-
-            if ($value === null) {
-                $columnCount = $this->columnCount();
-
-                if ($columnIndex < 0 || $columnIndex >= $columnCount) {
-                    throw InvalidColumnIndex::new($columnIndex, $columnCount);
-                }
-            }
-
-            return $value;
+            return $this->stmt->fetchColumn();
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
         }

@@ -59,16 +59,6 @@ class ArrayStatementTest extends TestCase
         self::assertSame($this->users[0], $statement->fetch());
     }
 
-    public function testSetFetchModeThrowsInvalidArgumentException() : void
-    {
-        $statement = $this->createTestArrayStatement();
-
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Caching layer does not support 2nd/3rd argument to setFetchMode().');
-
-        $statement->setFetchMode(FetchMode::ASSOCIATIVE, 'arg1', 'arg2');
-    }
-
     public function testGetIterator() : void
     {
         $statement = $this->createTestArrayStatement();
@@ -131,13 +121,8 @@ class ArrayStatementTest extends TestCase
     {
         $statement = $this->createTestArrayStatement();
 
-        self::assertSame('jwage', $statement->fetchColumn(0));
-        self::assertSame('romanb', $statement->fetchColumn(0));
-
-        $statement = $this->createTestArrayStatement();
-
-        self::assertTrue($statement->fetchColumn(1));
-        self::assertFalse($statement->fetchColumn(1));
+        self::assertSame('jwage', $statement->fetchColumn());
+        self::assertSame('romanb', $statement->fetchColumn());
     }
 
     private function createTestArrayStatement() : ArrayStatement
