@@ -15,6 +15,7 @@ use function assert;
 use function is_bool;
 use function is_numeric;
 use function is_string;
+use function sprintf;
 use function stripos;
 
 /**
@@ -48,14 +49,13 @@ EOT
     {
         $connection = $input->getOption('connection');
 
-        if (!is_string($connection)) {
+        if (! is_string($connection)) {
             throw new LogicException("Option 'connection' must contain a string value");
         }
 
-
         $connHelper = $this->getHelper($connection);
 
-        if (!$connHelper instanceof ConnectionHelper) {
+        if (! $connHelper instanceof ConnectionHelper) {
             throw new LogicException(sprintf(
                 "Helper '%s' must be a valid '%s' object.",
                 $connection,
