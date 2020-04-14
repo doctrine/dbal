@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Tools\Console\Command;
 
+use Doctrine\DBAL\Tools\Console\Helper\ConnectionHelper;
 use Doctrine\DBAL\Tools\Dumper;
 use LogicException;
 use RuntimeException;
@@ -47,7 +48,22 @@ EOT
     {
         $connection = $input->getOption('connection');
 
-        $conn = $this->getHelper($connection)->getConnection();
+        if (!is_string($connection)) {
+            throw new LogicException("Option 'connection' must contain a string value");
+        }
+
+
+        $connHelper = $this->getHelper($connection);
+
+        if (!$connHelper instanceof ConnectionHelper) {
+            throw new LogicException(sprintf(
+                "Helper '%s' must be a valid '%s' object.",
+                $connection,
+                ConnectionHelper::class
+            ));
+        }
+
+        $conn = $connHelper->getConnection();
 
         $sql = $input->getArgument('sql');
 
