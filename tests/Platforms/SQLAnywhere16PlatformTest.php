@@ -136,7 +136,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
         return [
             'ALTER TABLE mytable ADD quota INT NOT NULL',
             "COMMENT ON COLUMN mytable.quota IS 'A comment'",
-            'COMMENT ON COLUMN mytable.foo IS NULL',
+            "COMMENT ON COLUMN mytable.foo IS ''",
             "COMMENT ON COLUMN mytable.baz IS 'B comment'",
         ];
     }
@@ -229,7 +229,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
         );
 
         self::assertEquals(
-            ['COMMENT ON COLUMN mytable.foo IS NULL'],
+            ["COMMENT ON COLUMN mytable.foo IS ''"],
             $this->platform->getAlterTableSQL($tableDiff)
         );
     }

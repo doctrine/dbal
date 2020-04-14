@@ -1306,7 +1306,7 @@ abstract class AbstractPlatformTestCase extends TestCase
      * @group DBAL-1176
      * @dataProvider getGeneratesInlineColumnCommentSQL
      */
-    public function testGeneratesInlineColumnCommentSQL(?string $comment, string $expectedSql) : void
+    public function testGeneratesInlineColumnCommentSQL(string $comment, string $expectedSql) : void
     {
         if (! $this->platform->supportsInlineColumnComments()) {
             self::markTestSkipped(sprintf('%s does not support inline column comments.', get_class($this->platform)));

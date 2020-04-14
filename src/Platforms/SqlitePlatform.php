@@ -514,9 +514,9 @@ class SqlitePlatform extends AbstractPlatform
         return '';
     }
 
-    public function getInlineColumnCommentSQL(?string $comment) : string
+    public function getInlineColumnCommentSQL(string $comment) : string
     {
-        if ($comment === null || $comment === '') {
+        if ($comment === '') {
             return '';
         }
 

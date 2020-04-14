@@ -295,7 +295,7 @@ SQL;
         $sm = $this->connection->getSchemaManager();
         $sm->createTable($table);
 
-        self::assertNull($sm->listTableDetails('own_column_comment')
+        self::assertSame('', $sm->listTableDetails('own_column_comment')
             ->getColumn('col1')
             ->getComment());
     }

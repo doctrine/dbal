@@ -120,8 +120,11 @@ class SQLServerSchemaManager extends AbstractSchemaManager
             'scale'         => $scale,
             'precision'     => $precision,
             'autoincrement' => (bool) $tableColumn['autoincrement'],
-            'comment'       => $tableColumn['comment'] !== '' ? $tableColumn['comment'] : null,
         ];
+
+        if (isset($tableColumn['comment'])) {
+            $options['comment'] = $tableColumn['comment'];
+        }
 
         if ($length !== 0 && ($type === 'text' || $type === 'string')) {
             $options['length'] = $length;

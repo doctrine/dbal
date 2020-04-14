@@ -134,10 +134,10 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $offlinePrimaryTable->addColumn(
             '"Id"',
             'integer',
-            ['autoincrement' => true, 'comment' => 'Explicit casing.']
+            ['autoincrement' => true]
         );
-        $offlinePrimaryTable->addColumn('select', 'integer', ['comment' => 'Reserved keyword.']);
-        $offlinePrimaryTable->addColumn('foo', 'integer', ['comment' => 'Implicit uppercasing.']);
+        $offlinePrimaryTable->addColumn('select', 'integer');
+        $offlinePrimaryTable->addColumn('foo', 'integer');
         $offlinePrimaryTable->addColumn('BAR', 'integer');
         $offlinePrimaryTable->addColumn('"BAZ"', 'integer');
         $offlinePrimaryTable->addIndex(['select'], 'from');

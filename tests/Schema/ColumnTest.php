@@ -55,12 +55,12 @@ class ColumnTest extends TestCase
             'unsigned' => true,
             'autoincrement' => false,
             'columnDefinition' => null,
-            'comment' => null,
+            'comment' => '',
             'foo' => 'bar',
             'bar' => 'baz',
         ];
 
-        self::assertEquals($expected, $this->createColumn()->toArray());
+        self::assertSame($expected, $this->createColumn()->toArray());
     }
 
     public function testSettingUnknownOptionIsStillSupported() : void
@@ -157,7 +157,7 @@ class ColumnTest extends TestCase
     public function testColumnComment() : void
     {
         $column = new Column('bar', Type::getType('string'));
-        self::assertNull($column->getComment());
+        self::assertSame('', $column->getComment());
 
         $column->setComment('foo');
         self::assertEquals('foo', $column->getComment());

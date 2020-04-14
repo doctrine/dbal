@@ -196,10 +196,11 @@ class MySqlSchemaManager extends AbstractSchemaManager
             'scale'         => $scale,
             'precision'     => $precision,
             'autoincrement' => strpos($tableColumn['extra'], 'auto_increment') !== false,
-            'comment'       => isset($tableColumn['comment']) && $tableColumn['comment'] !== ''
-                ? $tableColumn['comment']
-                : null,
         ];
+
+        if (isset($tableColumn['comment'])) {
+            $options['comment'] = $tableColumn['comment'];
+        }
 
         $column = new Column($tableColumn['field'], Type::getType($type), $options);
 

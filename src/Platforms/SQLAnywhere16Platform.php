@@ -123,7 +123,7 @@ class SQLAnywhere16Platform extends AbstractPlatform
 
             $comment = $this->getColumnComment($column);
 
-            if ($comment === null || $comment === '') {
+            if ($comment === '') {
                 continue;
             }
 
@@ -318,20 +318,6 @@ class SQLAnywhere16Platform extends AbstractPlatform
     public function getClobTypeDeclarationSQL(array $field) : string
     {
         return 'TEXT';
-    }
-
-    public function getCommentOnColumnSQL(string $tableName, string $columnName, ?string $comment) : string
-    {
-        $tableName  = new Identifier($tableName);
-        $columnName = new Identifier($columnName);
-        $comment    = $comment === null ? 'NULL' : $this->quoteStringLiteral($comment);
-
-        return sprintf(
-            'COMMENT ON COLUMN %s.%s IS %s',
-            $tableName->getQuotedName($this),
-            $columnName->getQuotedName($this),
-            $comment
-        );
     }
 
     public function getConcatExpression(string ...$string) : string

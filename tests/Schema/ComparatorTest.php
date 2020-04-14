@@ -1236,7 +1236,7 @@ class ComparatorTest extends TestCase
      * @group DBAL-1009
      * @dataProvider getCompareColumnComments
      */
-    public function testCompareColumnComments(?string $comment1, ?string $comment2, bool $equals) : void
+    public function testCompareColumnComments(string $comment1, string $comment2, bool $equals) : void
     {
         $column1 = new Column('foo', Type::getType('integer'), ['comment' => $comment1]);
         $column2 = new Column('foo', Type::getType('integer'), ['comment' => $comment2]);
@@ -1260,16 +1260,10 @@ class ComparatorTest extends TestCase
     public static function getCompareColumnComments() : iterable
     {
         return [
-            [null, null, true],
             ['', '', true],
             [' ', ' ', true],
             ['0', '0', true],
             ['foo', 'foo', true],
-
-            [null, '', true],
-            [null, ' ', false],
-            [null, '0', false],
-            [null, 'foo', false],
 
             ['', ' ', false],
             ['', '0', false],

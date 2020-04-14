@@ -357,11 +357,11 @@ SQL
      * as column comments are stored in the same property there when
      * specifying a column's "Description" attribute.
      *
-     * @param string      $tableName  The quoted table name to which the column belongs.
-     * @param string      $columnName The quoted column name to create the comment for.
-     * @param string|null $comment    The column's comment.
+     * @param string $tableName  The quoted table name to which the column belongs.
+     * @param string $columnName The quoted column name to create the comment for.
+     * @param string $comment    The column's comment.
      */
-    protected function getCreateColumnCommentSQL(string $tableName, string $columnName, ?string $comment) : string
+    protected function getCreateColumnCommentSQL(string $tableName, string $columnName, string $comment) : string
     {
         if (strpos($tableName, '.') !== false) {
             [$schemaSQL, $tableSQL] = explode('.', $tableName);
@@ -474,7 +474,7 @@ SQL
 
             $comment = $this->getColumnComment($column);
 
-            if (empty($comment) && ! is_numeric($comment)) {
+            if ($comment === '') {
                 continue;
             }
 
@@ -500,11 +500,11 @@ SQL
 
             $column     = $columnDiff->column;
             $comment    = $this->getColumnComment($column);
-            $hasComment = ! empty($comment) || is_numeric($comment);
+            $hasComment = $comment !== '';
 
             if ($columnDiff->fromColumn instanceof Column) {
                 $fromComment    = $this->getColumnComment($columnDiff->fromColumn);
-                $hasFromComment = ! empty($fromComment) || is_numeric($fromComment);
+                $hasFromComment = $fromComment !== '';
 
                 if ($hasFromComment && $hasComment && $fromComment !== $comment) {
                     $commentsSql[] = $this->getAlterColumnCommentSQL(
@@ -689,11 +689,11 @@ SQL
      * as column comments are stored in the same property there when
      * specifying a column's "Description" attribute.
      *
-     * @param string      $tableName  The quoted table name to which the column belongs.
-     * @param string      $columnName The quoted column name to alter the comment for.
-     * @param string|null $comment    The column's comment.
+     * @param string $tableName  The quoted table name to which the column belongs.
+     * @param string $columnName The quoted column name to alter the comment for.
+     * @param string $comment    The column's comment.
      */
-    protected function getAlterColumnCommentSQL(string $tableName, string $columnName, ?string $comment) : string
+    protected function getAlterColumnCommentSQL(string $tableName, string $columnName, string $comment) : string
     {
         if (strpos($tableName, '.') !== false) {
             [$schemaSQL, $tableSQL] = explode('.', $tableName);
@@ -1449,7 +1449,7 @@ SQL
         return strtoupper(dechex(crc32($identifier->getName())));
     }
 
-    protected function getCommentOnTableSQL(string $tableName, ?string $comment) : string
+    protected function getCommentOnTableSQL(string $tableName, string $comment) : string
     {
         return sprintf(
             <<<'SQL'
@@ -1458,7 +1458,7 @@ EXEC sys.sp_addextendedproperty @name=N'MS_Description',
   @level1type=N'TABLE', @level1name=N%s
 SQL
             ,
-            $this->quoteStringLiteral((string) $comment),
+            $this->quoteStringLiteral($comment),
             $this->quoteStringLiteral($tableName)
         );
     }

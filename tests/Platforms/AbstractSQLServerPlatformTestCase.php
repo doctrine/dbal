@@ -662,7 +662,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     {
         $table = new Table('mytable');
         $table->addColumn('id', 'integer', ['autoincrement' => true]);
-        $table->addColumn('comment_null', 'integer', ['comment' => null]);
         $table->addColumn('comment_empty_string', 'integer', ['comment' => '']);
         $table->addColumn('comment_string_0', 'integer', ['comment' => '0']);
         $table->addColumn('comment', 'integer', ['comment' => 'Doctrine 0wnz you!']);
@@ -678,7 +677,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
 
         self::assertEquals(
             [
-                'CREATE TABLE mytable (id INT IDENTITY NOT NULL, comment_null INT NOT NULL, comment_empty_string INT NOT NULL, comment_string_0 INT NOT NULL, comment INT NOT NULL, [comment_quoted] INT NOT NULL, [create] INT NOT NULL, commented_type VARCHAR(MAX) NOT NULL, commented_type_with_comment VARCHAR(MAX) NOT NULL, comment_with_string_literal_char NVARCHAR(255) NOT NULL, PRIMARY KEY (id))',
+                'CREATE TABLE mytable (id INT IDENTITY NOT NULL, comment_empty_string INT NOT NULL, comment_string_0 INT NOT NULL, comment INT NOT NULL, [comment_quoted] INT NOT NULL, [create] INT NOT NULL, commented_type VARCHAR(MAX) NOT NULL, commented_type_with_comment VARCHAR(MAX) NOT NULL, comment_with_string_literal_char NVARCHAR(255) NOT NULL, PRIMARY KEY (id))',
                 "EXEC sp_addextendedproperty N'MS_Description', N'0', N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', comment_string_0",
                 "EXEC sp_addextendedproperty N'MS_Description', N'Doctrine 0wnz you!', N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', comment",
                 "EXEC sp_addextendedproperty N'MS_Description', N'Doctrine 0wnz comments for explicitly quoted columns!', N'SCHEMA', 'dbo', N'TABLE', 'mytable', N'COLUMN', [comment_quoted]",
@@ -699,7 +698,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     {
         $table = new Table('mytable');
         $table->addColumn('id', 'integer', ['autoincrement' => true]);
-        $table->addColumn('comment_null', 'integer', ['comment' => null]);
         $table->addColumn('comment_empty_string', 'integer', ['comment' => '']);
         $table->addColumn('comment_string_0', 'integer', ['comment' => '0']);
         $table->addColumn('comment', 'integer', ['comment' => 'Doctrine 0wnz you!']);
@@ -716,7 +714,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $tableDiff                                                         = new TableDiff('mytable');
         $tableDiff->fromTable                                              = $table;
         $tableDiff->addedColumns['added_comment_none']                     = new Column('added_comment_none', Type::getType('integer'));
-        $tableDiff->addedColumns['added_comment_null']                     = new Column('added_comment_null', Type::getType('integer'), ['comment' => null]);
         $tableDiff->addedColumns['added_comment_empty_string']             = new Column('added_comment_empty_string', Type::getType('integer'), ['comment' => '']);
         $tableDiff->addedColumns['added_comment_string_0']                 = new Column('added_comment_string_0', Type::getType('integer'), ['comment' => '0']);
         $tableDiff->addedColumns['added_comment']                          = new Column('added_comment', Type::getType('integer'), ['comment' => 'Doctrine']);
@@ -735,14 +732,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             new Column('id', Type::getType('integer'), ['autoincrement' => true, 'comment' => 'primary']),
             ['comment'],
             new Column('id', Type::getType('integer'), ['autoincrement' => true])
-        );
-
-        // Remove comment from null-commented column.
-        $tableDiff->changedColumns['comment_null'] = new ColumnDiff(
-            'comment_null',
-            new Column('comment_null', Type::getType('string'), ['length' => 255]),
-            ['type'],
-            new Column('comment_null', Type::getType('integer'), ['comment' => null])
         );
 
         // Change type to custom type from empty string commented column.
@@ -813,7 +802,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             [
                 // Added columns.
                 'ALTER TABLE mytable ADD added_comment_none INT NOT NULL',
-                'ALTER TABLE mytable ADD added_comment_null INT NOT NULL',
                 'ALTER TABLE mytable ADD added_comment_empty_string INT NOT NULL',
                 'ALTER TABLE mytable ADD added_comment_string_0 INT NOT NULL',
                 'ALTER TABLE mytable ADD added_comment INT NOT NULL',
@@ -822,7 +810,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
                 'ALTER TABLE mytable ADD added_commented_type VARCHAR(MAX) NOT NULL',
                 'ALTER TABLE mytable ADD added_commented_type_with_comment VARCHAR(MAX) NOT NULL',
                 'ALTER TABLE mytable ADD added_comment_with_string_literal_char NVARCHAR(255) NOT NULL',
-                'ALTER TABLE mytable ALTER COLUMN comment_null NVARCHAR(255) NOT NULL',
                 'ALTER TABLE mytable ALTER COLUMN comment_empty_string VARCHAR(MAX) NOT NULL',
                 'ALTER TABLE mytable ALTER COLUMN [comment_quoted] VARCHAR(MAX) NOT NULL',
                 'ALTER TABLE mytable ALTER COLUMN [create] VARCHAR(MAX) NOT NULL',

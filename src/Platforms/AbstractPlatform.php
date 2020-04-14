@@ -446,7 +446,7 @@ abstract class AbstractPlatform
     /**
      * Gets the comment of a passed column modified by potential doctrine type comment hints.
      */
-    protected function getColumnComment(Column $column) : ?string
+    protected function getColumnComment(Column $column) : string
     {
         $comment = $column->getComment();
 
@@ -1369,7 +1369,7 @@ abstract class AbstractPlatform
             foreach ($table->getColumns() as $column) {
                 $comment = $this->getColumnComment($column);
 
-                if ($comment === null || $comment === '') {
+                if ($comment === '') {
                     continue;
                 }
 
@@ -1380,18 +1380,18 @@ abstract class AbstractPlatform
         return array_merge($sql, $columnSql);
     }
 
-    protected function getCommentOnTableSQL(string $tableName, ?string $comment) : string
+    protected function getCommentOnTableSQL(string $tableName, string $comment) : string
     {
         $tableName = new Identifier($tableName);
 
         return sprintf(
             'COMMENT ON TABLE %s IS %s',
             $tableName->getQuotedName($this),
-            $this->quoteStringLiteral((string) $comment)
+            $this->quoteStringLiteral($comment)
         );
     }
 
-    public function getCommentOnColumnSQL(string $tableName, string $columnName, ?string $comment) : string
+    public function getCommentOnColumnSQL(string $tableName, string $columnName, string $comment) : string
     {
         $tableName  = new Identifier($tableName);
         $columnName = new Identifier($columnName);
@@ -1400,7 +1400,7 @@ abstract class AbstractPlatform
             'COMMENT ON COLUMN %s.%s IS %s',
             $tableName->getQuotedName($this),
             $columnName->getQuotedName($this),
-            $this->quoteStringLiteral((string) $comment)
+            $this->quoteStringLiteral($comment)
         );
     }
 
@@ -1409,13 +1409,13 @@ abstract class AbstractPlatform
      *
      * @throws DBALException If not supported on this platform.
      */
-    public function getInlineColumnCommentSQL(?string $comment) : string
+    public function getInlineColumnCommentSQL(string $comment) : string
     {
         if (! $this->supportsInlineColumnComments()) {
             throw NotSupported::new(__METHOD__);
         }
 
-        return 'COMMENT ' . $this->quoteStringLiteral((string) $comment);
+        return 'COMMENT ' . $this->quoteStringLiteral($comment);
     }
 
     /**
