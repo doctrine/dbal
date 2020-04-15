@@ -71,16 +71,6 @@
       <code>sqlsrv_get_field($this-&gt;stmt, 0)</code>
     </TooFewArguments>
   </file>
-  <file src="lib/Doctrine/DBAL/Platforms/AbstractPlatform.php">
-    <InvalidParamDefault occurrences="1">
-      <code>int</code>
-    </InvalidParamDefault>
-  </file>
-  <file src="lib/Doctrine/DBAL/Schema/AbstractSchemaManager.php">
-    <InvalidParamDefault occurrences="1">
-      <code>string</code>
-    </InvalidParamDefault>
-  </file>
   <file src="lib/Doctrine/DBAL/Tools/Dumper.php">
     <UndefinedClass occurrences="1">
       <code>Collection</code>
