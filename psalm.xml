@@ -24,9 +24,23 @@
         <file name="vendor/jetbrains/phpstorm-stubs/sqlsrv/sqlsrv.php" />
     </stubs>
     <issueHandlers>
+        <TooFewArguments>
+            <errorLevel type="suppress">
+                <!--
+                    Requires a release of
+                    https://github.com/JetBrains/phpstorm-stubs/pull/727
+                -->
+                <file name="lib/Doctrine/DBAL/Driver/SQLSrv/SQLSrvStatement.php"/>
+            </errorLevel>
+        </TooFewArguments>
         <UndefinedConstant>
             <errorLevel type="suppress">
                 <directory name="lib/Doctrine/DBAL/Driver/SQLAnywhere"/>
+                <!--
+                    Requires a release of
+                    https://github.com/JetBrains/phpstorm-stubs/pull/732
+                -->
+                <file name="tests/Doctrine/Tests/DBAL/Driver/PDOPgSql/DriverTest.php" />
             </errorLevel>
         </UndefinedConstant>
         <UndefinedFunction>
@@ -34,5 +48,11 @@
                 <directory name="lib/Doctrine/DBAL/Driver/SQLAnywhere"/>
             </errorLevel>
         </UndefinedFunction>
+        <UndefinedClass>
+            <errorLevel type="suppress">
+                <!-- Contains references to optional dependencies -->
+                <file name="lib/Doctrine/DBAL/Tools/Dumper.php"/>
+            </errorLevel>
+        </UndefinedClass>
     </issueHandlers>
 </psalm>

@@ -5,23 +5,4 @@
       <code>int</code>
     </InvalidParamDefault>
   </file>
-  <file src="lib/Doctrine/DBAL/Driver/SQLSrv/SQLSrvStatement.php">
-    <TooFewArguments occurrences="1">
-      <code>sqlsrv_get_field($this-&gt;stmt, 0)</code>
-    </TooFewArguments>
-  </file>
-  <file src="lib/Doctrine/DBAL/Tools/Dumper.php">
-    <UndefinedClass occurrences="1">
-      <code>Collection</code>
-    </UndefinedClass>
-  </file>
-  <file src="tests/Doctrine/Tests/DBAL/Driver/PDOPgSql/DriverTest.php">
-    <UndefinedConstant occurrences="5">
-      <code>PDO::PGSQL_ATTR_DISABLE_PREPARES</code>
-      <code>PDO::PGSQL_ATTR_DISABLE_PREPARES</code>
-      <code>PDO::PGSQL_ATTR_DISABLE_PREPARES</code>
-      <code>PDO::PGSQL_ATTR_DISABLE_PREPARES</code>
-      <code>PDO::PGSQL_ATTR_DISABLE_PREPARES</code>
-    </UndefinedConstant>
-  </file>
 </files>
