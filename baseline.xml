@@ -5,11 +5,6 @@
       <code>int</code>
     </InvalidParamDefault>
   </file>
-  <file src="lib/Doctrine/DBAL/Driver/DriverException.php">
-    <MissingImmutableAnnotation occurrences="1">
-      <code>public function getMessage();</code>
-    </MissingImmutableAnnotation>
-  </file>
   <file src="lib/Doctrine/DBAL/Driver/SQLAnywhere/SQLAnywhereConnection.php">
     <UndefinedFunction occurrences="14">
       <code>sasql_pconnect($dsn)</code>
