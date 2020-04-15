@@ -23,4 +23,16 @@
         <file name="vendor/jetbrains/phpstorm-stubs/pgsql/pgsql.php" />
         <file name="vendor/jetbrains/phpstorm-stubs/sqlsrv/sqlsrv.php" />
     </stubs>
+    <issueHandlers>
+        <UndefinedConstant>
+            <errorLevel type="suppress">
+                <directory name="lib/Doctrine/DBAL/Driver/SQLAnywhere"/>
+            </errorLevel>
+        </UndefinedConstant>
+        <UndefinedFunction>
+            <errorLevel type="suppress">
+                <directory name="lib/Doctrine/DBAL/Driver/SQLAnywhere"/>
+            </errorLevel>
+        </UndefinedFunction>
+    </issueHandlers>
 </psalm>
