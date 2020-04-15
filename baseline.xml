@@ -10,11 +10,6 @@
       <code>public function getMessage();</code>
     </MissingImmutableAnnotation>
   </file>
-  <file src="lib/Doctrine/DBAL/Driver/PDOSqlsrv/Statement.php">
-    <UndefinedConstant occurrences="1">
-      <code>PDO::SQLSRV_ENCODING_BINARY</code>
-    </UndefinedConstant>
-  </file>
   <file src="lib/Doctrine/DBAL/Driver/SQLAnywhere/SQLAnywhereConnection.php">
     <UndefinedFunction occurrences="14">
       <code>sasql_pconnect($dsn)</code>

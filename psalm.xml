@@ -16,6 +16,7 @@
         </ignoreFiles>
     </projectFiles>
     <stubs>
+        <file name="vendor/jetbrains/phpstorm-stubs/PDO/PDO.php" />
         <file name="vendor/jetbrains/phpstorm-stubs/ibm_db2/ibm_db2.php" />
         <file name="vendor/jetbrains/phpstorm-stubs/mysqli/mysqli.php" />
         <file name="vendor/jetbrains/phpstorm-stubs/oci8/oci8.php" />
