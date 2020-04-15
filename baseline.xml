@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<files psalm-version="3.11.2@d470903722cfcbc1cd04744c5491d3e6d13ec3d9">
-  <file src="lib/Doctrine/DBAL/Driver/Connection.php">
-    <InvalidParamDefault occurrences="1">
-      <code>int</code>
-    </InvalidParamDefault>
-  </file>
-</files>

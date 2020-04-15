@@ -823,7 +823,7 @@ class Connection implements DriverConnection
     /**
      * {@inheritDoc}
      */
-    public function quote($input, $type = null)
+    public function quote($input, $type = ParameterType::STRING)
     {
         $connection = $this->getWrappedConnection();
 
