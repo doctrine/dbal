@@ -9,8 +9,6 @@ use Throwable;
  *
  * Driver exceptions provide the SQLSTATE of the driver
  * and the driver specific error code at the time the error occurred.
- *
- * @psalm-immutable
  */
 interface DriverException extends Throwable
 {
@@ -28,6 +26,8 @@ interface DriverException extends Throwable
      * Returns the driver error message.
      *
      * @return string
+     *
+     * @psalm-mutation-free
      */
     public function getMessage();
 

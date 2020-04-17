@@ -4,9 +4,6 @@ namespace Doctrine\DBAL\Driver\OCI8;
 
 use Doctrine\DBAL\Driver\AbstractDriverException;
 
-/**
- * @psalm-immutable
- */
 class OCI8Exception extends AbstractDriverException
 {
     /**
