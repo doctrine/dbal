@@ -18,6 +18,9 @@ use function json_encode;
 use function preg_replace;
 use function sprintf;
 
+/**
+ * @psalm-immutable
+ */
 class DBALException extends Exception
 {
     /**

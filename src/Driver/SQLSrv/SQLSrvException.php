@@ -9,6 +9,9 @@ use function rtrim;
 use function sqlsrv_errors;
 use const SQLSRV_ERR_ERRORS;
 
+/**
+ * @psalm-immutable
+ */
 class SQLSrvException extends AbstractDriverException
 {
     /**

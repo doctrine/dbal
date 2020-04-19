@@ -13,6 +13,8 @@ use function substr;
 /**
  * Thrown when a Database to Doctrine Type Conversion fails and we can make a statement
  * about the expected format.
+ *
+ * @psalm-immutable
  */
 final class InvalidFormat extends ConversionException implements TypesException
 {

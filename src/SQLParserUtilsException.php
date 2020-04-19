@@ -6,6 +6,8 @@ namespace Doctrine\DBAL;
 
 /**
  * Doctrine\DBAL\ConnectionException
+ *
+ * @psalm-immutable
  */
 class SQLParserUtilsException extends DBALException
 {

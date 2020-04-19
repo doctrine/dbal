@@ -7,6 +7,9 @@ namespace Doctrine\DBAL\Exception;
 use Doctrine\DBAL\DBALException;
 use function sprintf;
 
+/**
+ * @psalm-immutable
+ */
 final class DriverRequired extends DBALException
 {
     /**

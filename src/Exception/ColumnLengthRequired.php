@@ -8,6 +8,9 @@ use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use function sprintf;
 
+/**
+ * @psalm-immutable
+ */
 final class ColumnLengthRequired extends DBALException
 {
     /**

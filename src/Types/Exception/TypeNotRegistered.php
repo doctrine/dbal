@@ -10,6 +10,9 @@ use function get_class;
 use function spl_object_hash;
 use function sprintf;
 
+/**
+ * @psalm-immutable
+ */
 final class TypeNotRegistered extends DBALException implements TypesException
 {
     public static function new(Type $type) : self

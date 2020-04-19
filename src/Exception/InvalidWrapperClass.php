@@ -8,6 +8,9 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use function sprintf;
 
+/**
+ * @psalm-immutable
+ */
 final class InvalidWrapperClass extends DBALException
 {
     public static function new(string $wrapperClass) : self

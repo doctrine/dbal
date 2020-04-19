@@ -7,6 +7,9 @@ namespace Doctrine\DBAL\Platforms\Exception;
 use Doctrine\DBAL\DBALException;
 use function sprintf;
 
+/**
+ * @psalm-immutable
+ */
 final class InvalidPlatformVersion extends DBALException implements PlatformException
 {
     /**

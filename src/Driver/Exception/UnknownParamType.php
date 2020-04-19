@@ -7,6 +7,9 @@ namespace Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\DBALException;
 use function sprintf;
 
+/**
+ * @psalm-immutable
+ */
 final class UnknownParamType extends DBALException
 {
     public static function new(int $type) : self

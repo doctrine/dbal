@@ -10,6 +10,9 @@ use function get_class;
 use function is_object;
 use function sprintf;
 
+/**
+ * @psalm-immutable
+ */
 final class InvalidPlatformType extends DBALException
 {
     /**

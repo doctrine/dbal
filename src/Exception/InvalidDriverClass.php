@@ -8,6 +8,9 @@ use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use function sprintf;
 
+/**
+ * @psalm-immutable
+ */
 final class InvalidDriverClass extends DBALException
 {
     public static function new(string $driverClass) : self

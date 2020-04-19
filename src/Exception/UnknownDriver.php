@@ -8,6 +8,9 @@ use Doctrine\DBAL\DBALException;
 use function implode;
 use function sprintf;
 
+/**
+ * @psalm-immutable
+ */
 final class UnknownDriver extends DBALException
 {
     /**

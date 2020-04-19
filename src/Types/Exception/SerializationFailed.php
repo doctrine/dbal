@@ -11,6 +11,9 @@ use function gettype;
 use function is_object;
 use function sprintf;
 
+/**
+ * @psalm-immutable
+ */
 final class SerializationFailed extends ConversionException implements TypesException
 {
     /**

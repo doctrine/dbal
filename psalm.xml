@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<psalm
+    totallyTyped="false"
+    errorLevel="8"
+    resolveFromConfigFile="true"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="https://getpsalm.org/schema/config"
+    xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
+>
+    <projectFiles>
+        <directory name="src" />
+        <directory name="tests" />
+        <ignoreFiles>
+            <directory name="vendor" />
+        </ignoreFiles>
+    </projectFiles>
+    <stubs>
+        <file name="vendor/jetbrains/phpstorm-stubs/PDO/PDO.php" />
+        <file name="vendor/jetbrains/phpstorm-stubs/ibm_db2/ibm_db2.php" />
+        <file name="vendor/jetbrains/phpstorm-stubs/mysqli/mysqli.php" />
+        <file name="vendor/jetbrains/phpstorm-stubs/oci8/oci8.php" />
+        <file name="vendor/jetbrains/phpstorm-stubs/pgsql/pgsql.php" />
+        <file name="vendor/jetbrains/phpstorm-stubs/sqlsrv/sqlsrv.php" />
+    </stubs>
+    <issueHandlers>
+        <ImpureMethodCall>
+            <errorLevel type="suppress">
+                <!--
+                    Requires a release of
+                    https://github.com/vimeo/psalm/pull/3171
+                -->
+                <file name="src/Exception/DriverException.php"/>
+            </errorLevel>
+        </ImpureMethodCall>
+        <TooFewArguments>
+            <errorLevel type="suppress">
+                <!--
+                    Requires a release of
+                    https://github.com/JetBrains/phpstorm-stubs/pull/727
+                -->
+                <file name="src/Driver/SQLSrv/SQLSrvStatement.php"/>
+            </errorLevel>
+        </TooFewArguments>
+        <UndefinedConstant>
+            <errorLevel type="suppress">
+                <directory name="src/Driver/SQLAnywhere"/>
+                <!--
+                    Requires a release of
+                    https://github.com/JetBrains/phpstorm-stubs/pull/732
+                -->
+                <file name="tests/Driver/PDOPgSql/DriverTest.php" />
+            </errorLevel>
+        </UndefinedConstant>
+        <UndefinedFunction>
+            <errorLevel type="suppress">
+                <directory name="src/Driver/SQLAnywhere"/>
+            </errorLevel>
+        </UndefinedFunction>
+        <UndefinedClass>
+            <errorLevel type="suppress">
+                <!-- Contains references to optional dependencies -->
+                <file name="src/Tools/Dumper.php"/>
+            </errorLevel>
+        </UndefinedClass>
+    </issueHandlers>
+</psalm>

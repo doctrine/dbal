@@ -10,6 +10,9 @@ use function db2_conn_errormsg;
 use function db2_stmt_error;
 use function db2_stmt_errormsg;
 
+/**
+ * @psalm-immutable
+ */
 class DB2Exception extends AbstractDriverException
 {
     /**

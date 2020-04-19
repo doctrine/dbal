@@ -7,6 +7,9 @@ namespace Doctrine\DBAL\Types\Exception;
 use Doctrine\DBAL\DBALException;
 use function sprintf;
 
+/**
+ * @psalm-immutable
+ */
 final class UnknownColumnType extends DBALException implements TypesException
 {
     public static function new(string $name) : self

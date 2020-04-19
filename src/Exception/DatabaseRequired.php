@@ -7,6 +7,9 @@ namespace Doctrine\DBAL\Exception;
 use Doctrine\DBAL\DBALException;
 use function sprintf;
 
+/**
+ * @psalm-immutable
+ */
 class DatabaseRequired extends DBALException
 {
     public static function new(string $methodName) : self

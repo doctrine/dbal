@@ -6,6 +6,9 @@ namespace Doctrine\DBAL\Driver\OCI8;
 
 use function sprintf;
 
+/**
+ * @psalm-immutable
+ */
 final class NonTerminatedStringLiteral extends OCI8Exception
 {
     public static function new(int $offset) : self

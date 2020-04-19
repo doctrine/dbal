@@ -7,6 +7,9 @@ namespace Doctrine\DBAL\Platforms\Exception;
 use Doctrine\DBAL\DBALException;
 use function sprintf;
 
+/**
+ * @psalm-immutable
+ */
 final class NotSupported extends DBALException implements PlatformException
 {
     public static function new(string $method) : self
