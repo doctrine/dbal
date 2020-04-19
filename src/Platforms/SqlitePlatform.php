@@ -698,7 +698,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      *
-     * @param int|null $createFlags
+     * @param int $createFlags
      */
     public function getCreateTableSQL(Table $table, int $createFlags = self::CREATE_INDEXES | self::CREATE_FOREIGNKEYS) : array
     {
