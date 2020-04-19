@@ -476,6 +476,10 @@ SQL
             $field['default'] = null;
         }
 
+        if ($field['type'] instanceof Types\DateTimeType && substr(strtoupper($field['default']), -27) === "ON UPDATE CURRENT_TIMESTAMP") {
+            return ' DEFAULT ' . $field['default'];
+        }
+
         return parent::getDefaultValueDeclarationSQL($field);
     }
 

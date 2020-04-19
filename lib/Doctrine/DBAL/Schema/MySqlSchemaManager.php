@@ -198,6 +198,10 @@ class MySqlSchemaManager extends AbstractSchemaManager
                 : null,
         ];
 
+        if (strpos($tableColumn['extra'], 'on update CURRENT_TIMESTAMP') !== false) {
+            $options['default'] .= strlen($options['default']) > 0 ? ' ' . strtoupper($tableColumn['extra']) : strtoupper($tableColumn['extra']);
+        }
+
         if ($scale !== null && $precision !== null) {
             $options['scale']     = (int) $scale;
             $options['precision'] = (int) $precision;
