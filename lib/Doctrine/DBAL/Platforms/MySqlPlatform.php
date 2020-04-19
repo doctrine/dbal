@@ -9,6 +9,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\BlobType;
+use Doctrine\DBAL\Types\DateTimeType;
 use Doctrine\DBAL\Types\TextType;
 use InvalidArgumentException;
 use function array_diff_key;
@@ -24,6 +25,7 @@ use function is_string;
 use function sprintf;
 use function str_replace;
 use function strtoupper;
+use function substr;
 use function trim;
 
 /**
@@ -476,7 +478,7 @@ SQL
             $field['default'] = null;
         }
 
-        if ($field['type'] instanceof \Doctrine\DBAL\Types\DateTimeType && substr(strtoupper($field['default']), -27) === "ON UPDATE CURRENT_TIMESTAMP") {
+        if ($field['type'] instanceof DateTimeType && substr(strtoupper($field['default']), -27) === 'ON UPDATE CURRENT_TIMESTAMP') {
             return ' DEFAULT ' . $field['default'];
         }
 

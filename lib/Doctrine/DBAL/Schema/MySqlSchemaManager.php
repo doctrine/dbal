@@ -13,9 +13,11 @@ use function assert;
 use function explode;
 use function is_string;
 use function preg_match;
+use function strlen;
 use function strpos;
 use function strtok;
 use function strtolower;
+use function strtoupper;
 use function strtr;
 
 /**
