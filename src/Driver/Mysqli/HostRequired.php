@@ -6,6 +6,8 @@ namespace Doctrine\DBAL\Driver\Mysqli;
 
 /**
  * @internal
+ *
+ * @psalm-immutable
  */
 final class HostRequired extends MysqliException
 {
