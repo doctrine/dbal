@@ -22,6 +22,9 @@ use function preg_replace;
 use function spl_object_hash;
 use function sprintf;
 
+/**
+ * @psalm-immutable
+ */
 class DBALException extends Exception
 {
     /**

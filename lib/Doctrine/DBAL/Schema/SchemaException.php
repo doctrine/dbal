@@ -6,6 +6,9 @@ use Doctrine\DBAL\DBALException;
 use function implode;
 use function sprintf;
 
+/**
+ * @psalm-immutable
+ */
 class SchemaException extends DBALException
 {
     public const TABLE_DOESNT_EXIST       = 10;
