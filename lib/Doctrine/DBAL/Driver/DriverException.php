@@ -25,13 +25,6 @@ interface DriverException extends Throwable
     public function getErrorCode();
 
     /**
-     * Returns the driver error message.
-     *
-     * @return string
-     */
-    public function getMessage();
-
-    /**
      * Returns the SQLSTATE the driver was in at the time the error occurred.
      *
      * Returns null if the driver does not provide a SQLSTATE for the error occurred.
