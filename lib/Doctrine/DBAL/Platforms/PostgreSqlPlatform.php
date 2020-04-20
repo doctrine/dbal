@@ -35,6 +35,8 @@ use function trim;
 /**
  * PostgreSqlPlatform.
  *
+ * @deprecated Use PostgreSQL 9.4 or newer
+ *
  * @todo   Rename: PostgreSQLPlatform
  */
 class PostgreSqlPlatform extends AbstractPlatform

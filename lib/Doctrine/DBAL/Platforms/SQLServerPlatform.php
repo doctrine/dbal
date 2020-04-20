@@ -38,6 +38,8 @@ use function substr_count;
 /**
  * The SQLServerPlatform provides the behavior, features and SQL dialect of the
  * Microsoft SQL Server database platform.
+ *
+ * @deprecated Use SQL Server 2012 or newer
  */
 class SQLServerPlatform extends AbstractPlatform
 {

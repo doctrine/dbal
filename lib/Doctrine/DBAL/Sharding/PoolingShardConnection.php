@@ -32,6 +32,8 @@ use function is_string;
  *
  * Instantiation through the DriverManager looks like:
  *
+ * @deprecated
+ *
  * @example
  *
  * $conn = DriverManager::getConnection(array(

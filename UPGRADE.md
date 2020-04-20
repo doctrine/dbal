@@ -1,3 +1,45 @@
+# Upgrade to 2.11
+
+## Deprecated `EchoSQLLogger`
+
+The `EchoSQLLogger` is has been deprecated. Implement your logger with the desired logic.
+
+## Deprecated database platforms:
+
+1. PostgreSQL 9.3 and older
+2. MariaDB 10.0 and older
+3. SQL Server 2008 and older
+4. SQL Anywhere 12 and older
+5. Drizzle
+6. Azure SQL Database
+
+## Deprecated database drivers:
+
+1. PDO-based IBM DB2 driver
+2. Drizzle MySQL driver
+
+## Deprecated `Doctrine\DBAL\Sharding` package
+
+The sharding functionality in DBAL has been effectively unmaintained for a long time.
+
+## Deprecated `Doctrine\DBAL\Version` class
+
+The usage of the `Doctrine\DBAL\Version` class is deprecated as internal implementation detail. Please refrain from checking the DBAL version at runtime.
+
+## Deprecated `ExpressionBuilder` methods
+
+The usage of the `andX()` and `orX()` methods of the `ExpressionBuilder` class has been deprecated. Use `and()` and `or()` instead.
+
+## Deprecated `CompositeExpression` methods
+
+- The usage of the `add()` and `addMultiple()` methods of the `CompositeExpression` class has been deprecated. Use `with()` instead, which returns a new instance.
+In the future, the `add*()` methods will be removed and the class will be effectively immutable.
+- The usage of the `CompositeExpression` constructor has been deprecated. Use the `and()` / `or()` factory methods.
+
+## Deprecated calling `QueryBuilder` methods with an array argument
+
+Calling the `select()`, `addSelect()`, `groupBy()` and `addGroupBy()` methods with an array argument is deprecated.
+
 # Upgrade to 2.10
 
 ## Deprecated `Doctrine\DBAL\Event\ConnectionEventArgs` methods

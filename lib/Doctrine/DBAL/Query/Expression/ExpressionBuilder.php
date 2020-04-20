@@ -39,13 +39,29 @@ class ExpressionBuilder
     }
 
     /**
-     * Creates a conjunction of the given boolean expressions.
+     * Creates a conjunction of the given expressions.
      *
-     * Example:
+     * @param string|CompositeExpression $expression
+     * @param string|CompositeExpression ...$expressions
+     */
+    public function and($expression, ...$expressions) : CompositeExpression
+    {
+        return CompositeExpression::and($expression, ...$expressions);
+    }
+
+    /**
+     * Creates a disjunction of the given expressions.
      *
-     *     [php]
-     *     // (u.type = ?) AND (u.role = ?)
-     *     $expr->andX('u.type = ?', 'u.role = ?'));
+     * @param string|CompositeExpression $expression
+     * @param string|CompositeExpression ...$expressions
+     */
+    public function or($expression, ...$expressions) : CompositeExpression
+    {
+        return CompositeExpression::or($expression, ...$expressions);
+    }
+
+    /**
+     * @deprecated Use `and()` instead.
      *
      * @param mixed $x Optional clause. Defaults = null, but requires
      *                 at least one defined when converting to string.
@@ -58,13 +74,7 @@ class ExpressionBuilder
     }
 
     /**
-     * Creates a disjunction of the given boolean expressions.
-     *
-     * Example:
-     *
-     *     [php]
-     *     // (u.type = ?) OR (u.role = ?)
-     *     $qb->where($qb->expr()->orX('u.type = ?', 'u.role = ?'));
+     * @deprecated Use `or()` instead.
      *
      * @param mixed $x Optional clause. Defaults = null, but requires
      *                 at least one defined when converting to string.
