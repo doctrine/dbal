@@ -32,6 +32,15 @@
                 <file name="lib/Doctrine/DBAL/Driver/OCI8/OCI8Statement.php"/>
             </errorLevel>
         </ConflictingReferenceConstraint>
+        <MethodSignatureMismatch>
+            <errorLevel type="suppress">
+                <!--
+                    This one is clearly deliberate; it's a hack to adapt \PDO to
+                    Doctrine\DBAL\Driver\Connection
+                -->
+                <file name="lib/Doctrine/DBAL/Driver/PDOConnection.php"/>
+            </errorLevel>
+        </MethodSignatureMismatch>
         <TooFewArguments>
             <errorLevel type="suppress">
                 <!--
