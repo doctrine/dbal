@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <psalm
     totallyTyped="false"
-    errorLevel="8"
+    errorLevel="7"
     resolveFromConfigFile="true"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns="https://getpsalm.org/schema/config"
@@ -23,6 +23,15 @@
         <file name="vendor/jetbrains/phpstorm-stubs/sqlsrv/sqlsrv.php" />
     </stubs>
     <issueHandlers>
+        <ConflictingReferenceConstraint>
+            <errorLevel type="suppress">
+                <!--
+                    This one is just too convoluted for Psalm to figure out, by
+                    its author's own admission
+                -->
+                <file name="src/Driver/OCI8/ConvertPositionalToNamedPlaceholders.php"/>
+            </errorLevel>
+        </ConflictingReferenceConstraint>
         <ImpureMethodCall>
             <errorLevel type="suppress">
                 <!--
