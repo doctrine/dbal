@@ -21,7 +21,7 @@ use const CASE_LOWER;
  */
 class ResultCacheTest extends DbalFunctionalTestCase
 {
-    /** @var array<int, array<int, int|string>> */
+    /** @var list<array{test_int: int, test_string: string}> */
     private $expectedResult = [['test_int' => 100, 'test_string' => 'foo'], ['test_int' => 200, 'test_string' => 'bar'], ['test_int' => 300, 'test_string' => 'baz']];
 
     /** @var DebugStack */

@@ -56,12 +56,15 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
      * @param string          $prepareString
      * @param array<int, int> $driverOptions
      *
-     * @return Statement
+     * @return \PDOStatement
      */
     public function prepare($prepareString, $driverOptions = [])
     {
         try {
-            return parent::prepare($prepareString, $driverOptions);
+            $statement = parent::prepare($prepareString, $driverOptions);
+            assert($statement instanceof \PDOStatement);
+
+            return $statement;
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
         }
@@ -69,6 +72,8 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
 
     /**
      * {@inheritdoc}
+     *
+     * @return \PDOStatement
      */
     public function query()
     {

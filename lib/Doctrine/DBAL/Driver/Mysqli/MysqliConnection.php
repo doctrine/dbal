@@ -200,6 +200,8 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
 
     /**
      * {@inheritdoc}
+     *
+     * @return int
      */
     public function errorCode()
     {
@@ -208,6 +210,8 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
 
     /**
      * {@inheritdoc}
+     *
+     * @return string
      */
     public function errorInfo()
     {
