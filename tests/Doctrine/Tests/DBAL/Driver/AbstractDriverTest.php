@@ -203,9 +203,7 @@ abstract class AbstractDriverTest extends DbalTestCase
      */
     protected function getConnectionMock() : Connection
     {
-        return $this->getMockBuilder(Connection::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        return $this->createMock(Connection::class);
     }
 
     /**
