@@ -72,3 +72,8 @@ parameters:
         -
             message: '~^Cannot cast array<string>\|bool\|string\|null to int\.$~'
             path: %currentWorkingDirectory%/lib/Doctrine/DBAL/Tools/Console/Command/RunSqlCommand.php
+
+        # Requires a release of https://github.com/JetBrains/phpstorm-stubs/pull/732
+        -
+            message: '~^Access to undefined constant PDO::PGSQL_ATTR_DISABLE_PREPARES\.$~'
+            path: %currentWorkingDirectory%/lib/Doctrine/DBAL/Driver/PDOPgSql/Driver.php
