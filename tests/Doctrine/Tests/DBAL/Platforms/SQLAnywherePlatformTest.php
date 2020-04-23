@@ -596,7 +596,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         self::assertEquals(
             "REVERSE(SUBSTR(REVERSE(SUBSTR(column, PATINDEX('%[^' + c + ']%', column))), PATINDEX('%[^' + c + ']%', " .
             "REVERSE(SUBSTR(column, PATINDEX('%[^' + c + ']%', column))))))",
-            $this->platform->getTrimExpression('column', null, 'c')
+            $this->platform->getTrimExpression('column', TrimMode::UNSPECIFIED, 'c')
         );
         self::assertEquals(
             "REVERSE(SUBSTR(REVERSE(SUBSTR(column, PATINDEX('%[^' + c + ']%', column))), PATINDEX('%[^' + c + ']%', " .
