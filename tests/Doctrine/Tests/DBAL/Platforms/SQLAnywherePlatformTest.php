@@ -348,14 +348,14 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         self::assertEquals(
             'CONSTRAINT pk PRIMARY KEY CLUSTERED (a, b)',
             $this->platform->getPrimaryKeyDeclarationSQL(
-                new Index(null, ['a', 'b'], true, true, ['clustered']),
+                new Index('', ['a', 'b'], true, true, ['clustered']),
                 'pk'
             )
         );
         self::assertEquals(
             'PRIMARY KEY (a, b)',
             $this->platform->getPrimaryKeyDeclarationSQL(
-                new Index(null, ['a', 'b'], true, true)
+                new Index('', ['a', 'b'], true, true)
             )
         );
     }
@@ -391,12 +391,12 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
             'CONSTRAINT unique_constraint UNIQUE CLUSTERED (a, b)',
             $this->platform->getUniqueConstraintDeclarationSQL(
                 'unique_constraint',
-                new Index(null, ['a', 'b'], true, false, ['clustered'])
+                new Index('', ['a', 'b'], true, false, ['clustered'])
             )
         );
         self::assertEquals(
             'UNIQUE (a, b)',
-            $this->platform->getUniqueConstraintDeclarationSQL(null, new Index(null, ['a', 'b'], true, false))
+            $this->platform->getUniqueConstraintDeclarationSQL('', new Index('', ['a', 'b'], true, false))
         );
     }
 
