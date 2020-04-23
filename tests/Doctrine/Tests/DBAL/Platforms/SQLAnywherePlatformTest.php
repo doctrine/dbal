@@ -517,6 +517,9 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         ));
     }
 
+    /**
+     * @psalm-suppress InvalidArgument
+     */
     public function testCannotGenerateDropIndexSQLWithInvalidIndexParameter() : void
     {
         $this->expectException(InvalidArgumentException::class);
@@ -524,6 +527,9 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         $this->platform->getDropIndexSQL(['index'], 'table');
     }
 
+    /**
+     * @psalm-suppress InvalidArgument
+     */
     public function testCannotGenerateDropIndexSQLWithInvalidTableParameter() : void
     {
         $this->expectException(InvalidArgumentException::class);
