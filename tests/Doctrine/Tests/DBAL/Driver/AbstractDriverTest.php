@@ -215,7 +215,7 @@ abstract class AbstractDriverTest extends DbalTestCase
     }
 
     /**
-     * @return mixed[][]
+     * @return iterable<mixed[]>
      */
     public static function exceptionConversionProvider() : iterable
     {
