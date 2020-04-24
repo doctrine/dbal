@@ -683,25 +683,30 @@
         },
         {
             "name": "jetbrains/phpstorm-stubs",
-            "version": "v2019.1",
+            "version": "v2019.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/JetBrains/phpstorm-stubs.git",
-                "reference": "9e309771f362e979ecfb429303ad7a402c657234"
+                "reference": "883b6facd78e01c0743b554af86fa590c2573f40"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/JetBrains/phpstorm-stubs/zipball/9e309771f362e979ecfb429303ad7a402c657234",
-                "reference": "9e309771f362e979ecfb429303ad7a402c657234",
+                "url": "https://api.github.com/repos/JetBrains/phpstorm-stubs/zipball/883b6facd78e01c0743b554af86fa590c2573f40",
+                "reference": "883b6facd78e01c0743b554af86fa590c2573f40",
                 "shasum": ""
             },
             "require-dev": {
-                "nikic/php-parser": "v4.0.1",
+                "nikic/php-parser": "^4",
                 "php": "^7.1",
                 "phpdocumentor/reflection-docblock": "^4.3",
-                "phpunit/phpunit": "7.1.4"
+                "phpunit/phpunit": "^7"
             },
             "type": "library",
+            "autoload": {
+                "files": [
+                    "PhpStormStubsMap.php"
+                ]
+            },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "Apache-2.0"
@@ -718,7 +723,7 @@
                 "stubs",
                 "type"
             ],
-            "time": "2019-03-25T16:59:23+00:00"
+            "time": "2019-12-05T16:56:26+00:00"
         },
         {
             "name": "myclabs/deep-copy",
