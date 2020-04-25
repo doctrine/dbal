@@ -7,6 +7,7 @@ use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\PostgreSqlSchemaManager;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\BlobType;
@@ -20,6 +21,9 @@ use function strtolower;
 
 class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
+    /** @var PostgreSqlSchemaManager */
+    protected $schemaManager;
+
     protected function tearDown() : void
     {
         parent::tearDown();
