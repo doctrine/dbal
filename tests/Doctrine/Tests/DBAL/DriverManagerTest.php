@@ -107,6 +107,7 @@ class DriverManagerTest extends DbalTestCase
 
     /**
      * @requires extension pdo_sqlite
+     * @psalm-suppress InvalidArgument
      */
     public function testInvalidWrapperClass() : void
     {
