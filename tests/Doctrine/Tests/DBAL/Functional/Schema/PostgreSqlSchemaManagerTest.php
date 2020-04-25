@@ -32,7 +32,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
             return;
         }
 
-        $this->connection->getConfiguration()->setFilterSchemaAssetsExpression(null);
+        $this->connection->getConfiguration()->setSchemaAssetsFilter(null);
     }
 
     /**
