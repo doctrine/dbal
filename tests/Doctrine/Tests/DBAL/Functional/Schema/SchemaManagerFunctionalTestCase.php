@@ -60,7 +60,7 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         $e         = explode('\\', $class);
         $testClass = end($e);
 
-        return strtolower(str_replace('SchemaManagerTest', null, $testClass));
+        return strtolower(str_replace('SchemaManagerTest', '', $testClass));
     }
 
     protected function setUp() : void
