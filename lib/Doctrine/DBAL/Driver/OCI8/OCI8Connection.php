@@ -7,7 +7,6 @@ use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\ParameterType;
 use UnexpectedValueException;
 use const OCI_COMMIT_ON_SUCCESS;
-use const OCI_DEFAULT;
 use const OCI_NO_AUTO_COMMIT;
 use function addcslashes;
 use function func_get_args;
@@ -51,7 +50,7 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
         $password,
         $db,
         $charset = '',
-        $sessionMode = OCI_DEFAULT,
+        $sessionMode = OCI_NO_AUTO_COMMIT,
         $persistent = false
     ) {
         $dbh = $persistent
