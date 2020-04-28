@@ -20,7 +20,7 @@ jobs:
           php-version: "7.4"
 
       - name: "Cache dependencies installed with composer"
-        uses: "actions/cache@v1.0.3"
+        uses: "actions/cache@v1"
         with:
           path: "~/.composer/cache"
           key: "composer-${{ hashFiles('composer.lock') }}"
