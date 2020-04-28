@@ -9,6 +9,11 @@ jobs:
     name: "Static Analysis with Psalm"
     runs-on: "ubuntu-latest"
 
+    strategy:
+      matrix:
+        php-version:
+          - "7.4"
+
     steps:
       - name: "Checkout code"
         uses: "actions/checkout@v2"
@@ -17,14 +22,14 @@ jobs:
         uses: "shivammathur/setup-php@v2"
         with:
           coverage: "none"
-          php-version: "7.4"
+          php-version: "${{ matrix.php-version }}"
 
       - name: "Cache dependencies installed with composer"
         uses: "actions/cache@v1"
         with:
           path: "~/.composer/cache"
-          key: "composer-${{ hashFiles('composer.lock') }}"
-          restore-keys: "composer-"
+          key: "${{ matrix.php-version }}-composer-locked-${{ hashFiles('composer.lock') }}"
+          restore-keys: "${{ matrix.php-version }}-composer-locked-"
 
       - name: "Install dependencies with composer"
         run: "composer install --no-interaction --no-progress --no-suggest"
