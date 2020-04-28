@@ -6,12 +6,12 @@ on:
 
 jobs:
   static-analysis-psalm:
-    name: Static Analysis with Psalm
-    runs-on: ubuntu-latest
+    name: "Static Analysis with Psalm"
+    runs-on: "ubuntu-latest"
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - name: "Checkout code"
+        uses: "actions/checkout@v2"
 
       - name: "Install PHP"
         uses: "shivammathur/setup-php@1.8.1"
@@ -29,5 +29,5 @@ jobs:
       - name: "Install dependencies with composer"
         run: "composer install --no-interaction --no-progress --no-suggest"
 
-      - name: Psalm
+      - name: "Psalm"
         run: "vendor/bin/psalm"
