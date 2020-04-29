@@ -28,7 +28,7 @@ use function touch;
 use function unlink;
 use function version_compare;
 
-use const PHP_OS;
+use const PHP_OS_FAMILY;
 
 class ExceptionTest extends FunctionalTestCase
 {
@@ -309,7 +309,7 @@ class ExceptionTest extends FunctionalTestCase
         }
 
         // mode 0 is considered read-only on Windows
-        $mode = PHP_OS === 'Linux' ? 0444 : 0000;
+        $mode = PHP_OS_FAMILY !== 'Windows' ? 0444 : 0000;
 
         $filename = sprintf('%s/%s', sys_get_temp_dir(), 'doctrine_failed_connection_' . $mode . '.db');
 
@@ -434,7 +434,7 @@ EOT
 
     private function isLinuxRoot(): bool
     {
-        return PHP_OS === 'Linux' && posix_getpwuid(posix_geteuid())['name'] === 'root';
+        return PHP_OS_FAMILY !== 'Windows' && posix_getpwuid(posix_geteuid())['name'] === 'root';
     }
 
     private function cleanupReadOnlyFile(string $filename): void

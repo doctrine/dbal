@@ -1,5 +1,16 @@
 # Upgrade to 3.0
 
+## BC BREAK: Doctrine\DBAL\Schema\Table constructor new parameter
+
+Deprecated parameter `$idGeneratorType` removed and added a new parameter `$uniqueConstraints`.
+Constructor changed from:
+
+`__construct($name, array $columns = [], array $indexes = [], array $fkConstraints = [], $idGeneratorType = 0, array $options = [])`
+
+To the new constructor:
+
+`__construct($name, array $columns = [], array $indexes = [], array $uniqueConstraints = [], array $fkConstraints = [], array $options = [])`
+
 ## BC BREAK: change in the behavior of `SchemaManager::dropDatabase()`
 
 When dropping a database, the DBAL no longer attempts to kill the client sessions that use the database.

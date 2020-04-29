@@ -23,6 +23,7 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Type;
@@ -1495,12 +1496,26 @@ abstract class AbstractPlatform
 
         if (($createFlags & self::CREATE_INDEXES) > 0) {
             foreach ($table->getIndexes() as $index) {
-                if ($index->isPrimary()) {
-                    $options['primary']       = $index->getQuotedColumns($this);
-                    $options['primary_index'] = $index;
-                } else {
+                if (! $index->isPrimary()) {
                     $options['indexes'][$index->getQuotedName($this)] = $index;
+
+                    continue;
                 }
+
+                $options['primary']       = $index->getQuotedColumns($this);
+                $options['primary_index'] = $index;
+            }
+
+            foreach ($table->getUniqueConstraints() as $uniqueConstraint) {
+                $options['uniqueConstraints'][$uniqueConstraint->getQuotedName($this)] = $uniqueConstraint;
+            }
+        }
+
+        if (($createFlags & self::CREATE_FOREIGNKEYS) > 0) {
+            $options['foreignKeys'] = [];
+
+            foreach ($table->getForeignKeys() as $fkConstraint) {
+                $options['foreignKeys'][] = $fkConstraint;
             }
         }
 
@@ -1513,6 +1528,7 @@ abstract class AbstractPlatform
                 && $this->_eventManager->hasListeners(Events::onSchemaCreateTableColumn)
             ) {
                 $eventArgs = new SchemaCreateTableColumnEventArgs($column, $table, $this);
+
                 $this->_eventManager->dispatchEvent(Events::onSchemaCreateTableColumn, $eventArgs);
 
                 $columnSql = array_merge($columnSql, $eventArgs->getSql());
@@ -1539,15 +1555,9 @@ abstract class AbstractPlatform
             $columns[$columnData['name']] = $columnData;
         }
 
-        if (($createFlags & self::CREATE_FOREIGNKEYS) > 0) {
-            $options['foreignKeys'] = [];
-            foreach ($table->getForeignKeys() as $fkConstraint) {
-                $options['foreignKeys'][] = $fkConstraint;
-            }
-        }
-
         if ($this->_eventManager !== null && $this->_eventManager->hasListeners(Events::onSchemaCreateTable)) {
             $eventArgs = new SchemaCreateTableEventArgs($table, $columns, $options, $this);
+
             $this->_eventManager->dispatchEvent(Events::onSchemaCreateTable, $eventArgs);
 
             if ($eventArgs->isDefaultPrevented()) {
@@ -1556,6 +1566,7 @@ abstract class AbstractPlatform
         }
 
         $sql = $this->_getCreateTableSQL($tableName, $columns, $options);
+
         if ($this->supportsCommentOnStatement()) {
             if ($table->hasOption('comment')) {
                 $sql[] = $this->getCommentOnTableSQL($tableName, $table->getOption('comment'));
@@ -1654,8 +1665,8 @@ abstract class AbstractPlatform
         }
 
         $query = 'CREATE TABLE ' . $name . ' (' . $columnListSql;
-
         $check = $this->getCheckDeclarationSQL($columns);
+
         if (! empty($check)) {
             $query .= ', ' . $check;
         }
@@ -2307,25 +2318,27 @@ abstract class AbstractPlatform
      * Obtains DBMS specific SQL code portion needed to set a unique
      * constraint declaration to be used in statements like CREATE TABLE.
      *
-     * @param string $name  The name of the unique constraint.
-     * @param Index  $index The index definition.
+     * @param string           $name       The name of the unique constraint.
+     * @param UniqueConstraint $constraint The unique constraint definition.
      *
      * @return string DBMS specific SQL code portion needed to set a constraint.
      *
      * @throws InvalidArgumentException
      */
-    public function getUniqueConstraintDeclarationSQL($name, Index $index)
+    public function getUniqueConstraintDeclarationSQL($name, UniqueConstraint $constraint)
     {
-        $columns = $index->getColumns();
+        $columns = $constraint->getQuotedColumns($this);
         $name    = new Identifier($name);
 
         if (count($columns) === 0) {
             throw new InvalidArgumentException("Incomplete definition. 'columns' required.");
         }
 
-        return 'CONSTRAINT ' . $name->getQuotedName($this) . ' UNIQUE ('
-            . $this->getColumnsFieldDeclarationListSQL($columns)
-            . ')' . $this->getPartialIndexSQL($index);
+        $constraintFlags = array_merge(['UNIQUE'], array_map('strtoupper', $constraint->getFlags()));
+        $constraintName  = $name->getQuotedName($this);
+        $columnListNames = $this->getColumnsFieldDeclarationListSQL($columns);
+
+        return sprintf('CONSTRAINT %s %s (%s)', $constraintName, implode(' ', $constraintFlags), $columnListNames);
     }
 
     /**
@@ -2348,9 +2361,8 @@ abstract class AbstractPlatform
             throw new InvalidArgumentException("Incomplete definition. 'columns' required.");
         }
 
-        return $this->getCreateIndexSQLFlags($index) . 'INDEX ' . $name->getQuotedName($this) . ' ('
-            . $this->getIndexFieldDeclarationListSQL($index)
-            . ')' . $this->getPartialIndexSQL($index);
+        return $this->getCreateIndexSQLFlags($index) . 'INDEX ' . $name->getQuotedName($this)
+            . ' (' . $this->getIndexFieldDeclarationListSQL($index) . ')' . $this->getPartialIndexSQL($index);
     }
 
     /**
@@ -3022,7 +3034,7 @@ abstract class AbstractPlatform
     /**
      * Returns the name of the sequence for a particular identity column in a particular table.
      *
-     * @see    usesSequenceEmulatedIdentityColumns
+     * @see usesSequenceEmulatedIdentityColumns
      *
      * @param string $tableName  The name of the table to return the sequence name for.
      * @param string $columnName The name of the identity column in the table to return the sequence name for.

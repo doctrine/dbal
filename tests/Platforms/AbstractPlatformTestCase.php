@@ -14,6 +14,7 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\Types\Type;
 use PHPUnit\Framework\TestCase;
 
@@ -203,9 +204,9 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testGeneratesPartialIndexesSqlOnlyWhenSupportingPartialIndexes(): void
     {
-        $where       = 'test IS NULL AND test2 IS NOT NULL';
-        $indexDef    = new Index('name', ['test', 'test2'], false, false, [], ['where' => $where]);
-        $uniqueIndex = new Index('name', ['test', 'test2'], true, false, [], ['where' => $where]);
+        $where            = 'test IS NULL AND test2 IS NOT NULL';
+        $indexDef         = new Index('name', ['test', 'test2'], false, false, [], ['where' => $where]);
+        $uniqueConstraint = new UniqueConstraint('name', ['test', 'test2'], [], []);
 
         $expected = ' WHERE ' . $where;
 
@@ -215,14 +216,16 @@ abstract class AbstractPlatformTestCase extends TestCase
             $actuals[] = $this->platform->getIndexDeclarationSQL('name', $indexDef);
         }
 
-        $actuals[] = $this->platform->getUniqueConstraintDeclarationSQL('name', $uniqueIndex);
-        $actuals[] = $this->platform->getCreateIndexSQL($indexDef, 'table');
+        $uniqueConstraintSQL = $this->platform->getUniqueConstraintDeclarationSQL('name', $uniqueConstraint);
+        $indexSQL            = $this->platform->getCreateIndexSQL($indexDef, 'table');
+
+        $this->assertStringEndsNotWith($expected, $uniqueConstraintSQL, 'WHERE clause should NOT be present');
 
         foreach ($actuals as $actual) {
             if ($this->platform->supportsPartialIndexes()) {
-                self::assertStringEndsWith($expected, $actual, 'WHERE clause should be present');
+                self::assertStringEndsWith($expected, $indexSQL, 'WHERE clause should be present');
             } else {
-                self::assertStringEndsNotWith($expected, $actual, 'WHERE clause should NOT be present');
+                self::assertStringEndsNotWith($expected, $indexSQL, 'WHERE clause should NOT be present');
             }
         }
     }
@@ -694,11 +697,11 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testQuotesReservedKeywordInUniqueConstraintDeclarationSQL(): void
     {
-        $index = new Index('select', ['foo'], true);
+        $constraint = new UniqueConstraint('select', ['foo'], [], []);
 
         self::assertSame(
             $this->getQuotesReservedKeywordInUniqueConstraintDeclarationSQL(),
-            $this->platform->getUniqueConstraintDeclarationSQL('select', $index)
+            $this->platform->getUniqueConstraintDeclarationSQL('select', $constraint)
         );
     }
 
@@ -776,6 +779,9 @@ abstract class AbstractPlatformTestCase extends TestCase
         self::assertFalse($this->platform->usesSequenceEmulatedIdentityColumns());
     }
 
+    /**
+     * @group DBAL-563
+     */
     public function testReturnsIdentitySequenceName(): void
     {
         $this->expectException(DBALException::class);

@@ -331,8 +331,8 @@ SQL
         $columnListSql = $this->getColumnDeclarationListSQL($columns);
 
         if (isset($options['uniqueConstraints']) && ! empty($options['uniqueConstraints'])) {
-            foreach ($options['uniqueConstraints'] as $indexName => $definition) {
-                $columnListSql .= ', ' . $this->getUniqueConstraintDeclarationSQL($indexName, $definition);
+            foreach ($options['uniqueConstraints'] as $constraintName => $definition) {
+                $columnListSql .= ', ' . $this->getUniqueConstraintDeclarationSQL($constraintName, $definition);
             }
         }
 
@@ -454,18 +454,6 @@ SQL
             $this->generateDefaultConstraintName($table, $column['name']) .
             $this->getDefaultValueDeclarationSQL($column) .
             ' FOR ' . $columnName->getQuotedName($this);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getUniqueConstraintDeclarationSQL($name, Index $index)
-    {
-        $constraint = parent::getUniqueConstraintDeclarationSQL($name, $index);
-
-        $constraint = $this->_appendUniqueConstraintDefinition($constraint, $index);
-
-        return $constraint;
     }
 
     /**
