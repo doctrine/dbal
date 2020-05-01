@@ -22,7 +22,6 @@ use Doctrine\DBAL\Logging\DebugStack;
 use Doctrine\DBAL\Logging\EchoSQLLogger;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\VersionAwarePlatformDriver;
 use Doctrine\Tests\DbalTestCase;
 use Exception;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -762,7 +761,7 @@ class ConnectionTest extends DbalTestCase
      */
     public function testPlatformDetectionIsTriggerOnlyOnceOnRetrievingPlatform() : void
     {
-        $driverMock = $this->createMock([Driver::class, VersionAwarePlatformDriver::class]);
+        $driverMock = $this->createMock(FutureVersionAwarePlatformDriver::class);
 
         $driverConnectionMock = $this->createMock(ServerInfoAwareConnection::class);
 
@@ -883,7 +882,7 @@ class ConnectionTest extends DbalTestCase
      */
     public function testRethrowsOriginalExceptionOnDeterminingPlatformWhenConnectingToNonExistentDatabase() : void
     {
-        $driverMock = $this->createMock([Driver::class, VersionAwarePlatformDriver::class]);
+        $driverMock = $this->createMock(FutureVersionAwarePlatformDriver::class);
 
         $connection        = new Connection(['dbname' => 'foo'], $driverMock);
         $originalException = new Exception('Original exception');
