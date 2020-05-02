@@ -127,10 +127,10 @@ class ResultCacheTest extends DbalFunctionalTestCase
         $stmt = $this->connection->executeQuery('SELECT * FROM caching ORDER BY test_int ASC', [], [], new QueryCacheProfile(10, 'testcachekey'));
         $data = $this->hydrateStmt($stmt, $fetchMode);
 
-        $stmt          = $this->connection->executeQuery('SELECT * FROM caching ORDER BY test_int ASC', [], [], new QueryCacheProfile(10, 'testcachekey'));
-        $data_iterator = $this->hydrateStmtIterator($stmt, $fetchMode);
+        $stmt         = $this->connection->executeQuery('SELECT * FROM caching ORDER BY test_int ASC', [], [], new QueryCacheProfile(10, 'testcachekey'));
+        $dataIterator = $this->hydrateStmtIterator($stmt, $fetchMode);
 
-        self::assertEquals($data, $data_iterator);
+        self::assertEquals($data, $dataIterator);
     }
 
     public function testDontCloseNoCache() : void
