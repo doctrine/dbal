@@ -7,7 +7,6 @@ use Doctrine\DBAL\Schema\Visitor\Visitor;
 use Doctrine\DBAL\Types\Type;
 use function array_filter;
 use function array_merge;
-use function assert;
 use function in_array;
 use function preg_match;
 use function strlen;
@@ -242,7 +241,6 @@ class Table extends AbstractAsset
     public function columnsAreIndexed(array $columnNames)
     {
         foreach ($this->getIndexes() as $index) {
-            assert($index instanceof Index);
             if ($index->spansColumns($columnNames)) {
                 return true;
             }

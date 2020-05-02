@@ -19,7 +19,6 @@ use function array_diff;
 use function array_merge;
 use function array_unique;
 use function array_values;
-use function assert;
 use function count;
 use function explode;
 use function implode;
@@ -532,7 +531,6 @@ SQL
         }
 
         foreach ($diff->changedColumns as $columnDiff) {
-            assert($columnDiff instanceof ColumnDiff);
             if ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
                 continue;
             }

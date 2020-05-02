@@ -10,7 +10,6 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use function assert;
 
 class SchemaDiffTest extends TestCase
 {
@@ -44,7 +43,6 @@ class SchemaDiffTest extends TestCase
     private function createPlatform(bool $unsafe)
     {
         $platform = $this->createMock(AbstractPlatform::class);
-        assert($platform instanceof AbstractPlatform || $platform instanceof MockObject);
         $platform->expects($this->exactly(1))
             ->method('getCreateSchemaSQL')
             ->with('foo_ns')

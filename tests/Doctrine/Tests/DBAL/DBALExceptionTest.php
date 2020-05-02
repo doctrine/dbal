@@ -9,7 +9,6 @@ use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\Tests\DbalTestCase;
 use Exception;
 use stdClass;
-use function assert;
 use function chr;
 use function fopen;
 use function sprintf;
@@ -19,26 +18,22 @@ class DBALExceptionTest extends DbalTestCase
     public function testDriverExceptionDuringQueryAcceptsBinaryData() : void
     {
         $driver = $this->createMock(Driver::class);
-        assert($driver instanceof Driver);
-        $e = DBALException::driverExceptionDuringQuery($driver, new Exception(), '', ['ABC', chr(128)]);
+        $e      = DBALException::driverExceptionDuringQuery($driver, new Exception(), '', ['ABC', chr(128)]);
         self::assertStringContainsString('with params ["ABC", "\x80"]', $e->getMessage());
     }
 
     public function testDriverExceptionDuringQueryAcceptsResource() : void
     {
         $driver = $this->createMock(Driver::class);
-        assert($driver instanceof Driver);
-        $e = DBALException::driverExceptionDuringQuery($driver, new Exception(), 'INSERT INTO file (`content`) VALUES (?)', [1 => fopen(__FILE__, 'r')]);
+        $e      = DBALException::driverExceptionDuringQuery($driver, new Exception(), 'INSERT INTO file (`content`) VALUES (?)', [1 => fopen(__FILE__, 'r')]);
         self::assertStringContainsString('Resource', $e->getMessage());
     }
 
     public function testAvoidOverWrappingOnDriverException() : void
     {
         $driver = $this->createMock(Driver::class);
-        assert($driver instanceof Driver);
 
         $inner = $this->createMock(InnerDriverException::class);
-        assert($inner instanceof InnerDriverException);
 
         $ex = new DriverException('', $inner);
         $e  = DBALException::driverExceptionDuringQuery($driver, $ex, '');

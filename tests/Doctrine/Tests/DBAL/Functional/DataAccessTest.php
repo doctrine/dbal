@@ -22,7 +22,6 @@ use PDO;
 use function array_change_key_case;
 use function array_filter;
 use function array_keys;
-use function assert;
 use function count;
 use function date;
 use function implode;
@@ -955,7 +954,7 @@ class DataAccessTest extends DbalFunctionalTestCase
         }
 
         $connection = $this->connection->getWrappedConnection();
-        assert($connection instanceof PDOConnection);
+        self::assertInstanceOf(PDOConnection::class, $connection);
         $connection->setAttribute(PDO::ATTR_CASE, PDO::CASE_LOWER);
     }
 }
