@@ -395,6 +395,9 @@ SQL;
         }
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function listTableDetails($tableName) : Table
     {
         $table = parent::listTableDetails($tableName);

@@ -315,6 +315,9 @@ class MySqlSchemaManager extends AbstractSchemaManager
         return $result;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function listTableDetails($tableName)
     {
         $table = parent::listTableDetails($tableName);

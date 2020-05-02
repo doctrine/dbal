@@ -217,6 +217,9 @@ class DB2SchemaManager extends AbstractSchemaManager
         return new View($view['name'], $sql);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function listTableDetails($tableName) : Table
     {
         $table = parent::listTableDetails($tableName);

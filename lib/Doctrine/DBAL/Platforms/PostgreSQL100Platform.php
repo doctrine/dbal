@@ -16,6 +16,9 @@ class PostgreSQL100Platform extends PostgreSQL94Platform
         return PostgreSQL100Keywords::class;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getListSequencesSQL($database) : string
     {
         return 'SELECT sequence_name AS relname,
