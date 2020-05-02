@@ -72,6 +72,9 @@ class StatementIteratorTest extends DbalTestCase
             });
     }
 
+    /**
+     * @param Traversable<int, mixed> $iterator
+     */
     private function assertIterationCallsFetchOncePerStep(Traversable $iterator, int &$calls) : void
     {
         foreach ($iterator as $i => $_) {
