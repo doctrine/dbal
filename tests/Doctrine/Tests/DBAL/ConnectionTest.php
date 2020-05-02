@@ -166,8 +166,8 @@ class ConnectionTest extends DbalTestCase
     {
         $eventManager = new EventManager();
 
-        /** @var AbstractPlatform|MockObject $driver */
         $platform = $this->createMock(AbstractPlatform::class);
+        assert($platform instanceof AbstractPlatform && $platform instanceof MockObject);
         $platform->expects($this->once())
             ->method('setEventManager')
             ->with($eventManager);
