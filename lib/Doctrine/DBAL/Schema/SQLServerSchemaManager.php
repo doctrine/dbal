@@ -93,6 +93,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
                 if ($length === -1) {
                     $dbType = 'text';
                 }
+
                 break;
         }
 
@@ -335,9 +336,9 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     {
         $table = parent::listTableDetails($tableName);
 
-        /** @var SQLServerPlatform $platform */
         $platform = $this->_platform;
-        $sql      = $platform->getListTableMetadataSQL($tableName);
+        assert($platform instanceof SQLServerPlatform);
+        $sql = $platform->getListTableMetadataSQL($tableName);
 
         $tableOptions = $this->_conn->fetchAssoc($sql);
 

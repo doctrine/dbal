@@ -10,6 +10,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use function assert;
 
 class SchemaDiffTest extends TestCase
 {
@@ -42,8 +43,8 @@ class SchemaDiffTest extends TestCase
      */
     private function createPlatform(bool $unsafe)
     {
-        /** @var AbstractPlatform|MockObject $platform */
         $platform = $this->createMock(AbstractPlatform::class);
+        assert($platform instanceof AbstractPlatform || $platform instanceof MockObject);
         $platform->expects($this->exactly(1))
             ->method('getCreateSchemaSQL')
             ->with('foo_ns')
@@ -58,6 +59,7 @@ class SchemaDiffTest extends TestCase
                  ->with($this->isInstanceOf(Sequence::class))
                  ->will($this->returnValue('drop_seq'));
         }
+
         $platform->expects($this->exactly(1))
                  ->method('getAlterSequenceSql')
                  ->with($this->isInstanceOf(Sequence::class))
@@ -72,6 +74,7 @@ class SchemaDiffTest extends TestCase
                      ->with($this->isInstanceOf(Table::class))
                      ->will($this->returnValue('drop_table'));
         }
+
         $platform->expects($this->exactly(1))
                  ->method('getCreateTableSql')
                  ->with($this->isInstanceOf(Table::class))
@@ -93,6 +96,7 @@ class SchemaDiffTest extends TestCase
                      )
                      ->will($this->returnValue('drop_orphan_fk'));
         }
+
         $platform->expects($this->exactly(1))
                 ->method('supportsSchemas')
                 ->will($this->returnValue(true));

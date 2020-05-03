@@ -9,9 +9,6 @@ use function date_default_timezone_set;
 
 class DateTest extends BaseDateTypeTestCase
 {
-    /**
-     * {@inheritDoc}
-     */
     protected function setUp() : void
     {
         $this->type = Type::getType('date');

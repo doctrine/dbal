@@ -11,9 +11,6 @@ use Doctrine\DBAL\Platforms\Keywords\PostgreSQL100Keywords;
  */
 class PostgreSQL100Platform extends PostgreSQL94Platform
 {
-    /**
-     * {@inheritdoc}
-     */
     protected function getReservedKeywordsClass() : string
     {
         return PostgreSQL100Keywords::class;

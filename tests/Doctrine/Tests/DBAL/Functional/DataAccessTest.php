@@ -19,11 +19,10 @@ use Doctrine\DBAL\Statement;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use PDO;
-use const CASE_LOWER;
-use const PHP_EOL;
 use function array_change_key_case;
 use function array_filter;
 use function array_keys;
+use function assert;
 use function count;
 use function date;
 use function implode;
@@ -32,6 +31,8 @@ use function json_encode;
 use function property_exists;
 use function sprintf;
 use function strtotime;
+use const CASE_LOWER;
+use const PHP_EOL;
 
 class DataAccessTest extends DbalFunctionalTestCase
 {
@@ -953,8 +954,8 @@ class DataAccessTest extends DbalFunctionalTestCase
             return;
         }
 
-        /** @var PDOConnection $connection */
         $connection = $this->connection->getWrappedConnection();
+        assert($connection instanceof PDOConnection);
         $connection->setAttribute(PDO::ATTR_CASE, PDO::CASE_LOWER);
     }
 }

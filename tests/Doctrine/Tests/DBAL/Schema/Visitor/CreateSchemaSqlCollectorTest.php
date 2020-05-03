@@ -18,9 +18,6 @@ class CreateSchemaSqlCollectorTest extends TestCase
     /** @var CreateSchemaSqlCollector */
     private $visitor;
 
-    /**
-     * {@inheritdoc}
-     */
     protected function setUp() : void
     {
         parent::setUp();

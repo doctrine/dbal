@@ -4,14 +4,15 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Types\Type;
-use const CASE_LOWER;
 use function array_change_key_case;
+use function assert;
 use function is_resource;
 use function preg_match;
 use function str_replace;
 use function strpos;
 use function strtolower;
 use function substr;
+use const CASE_LOWER;
 
 /**
  * IBM Db2 Schema Manager.
@@ -220,9 +221,9 @@ class DB2SchemaManager extends AbstractSchemaManager
     {
         $table = parent::listTableDetails($tableName);
 
-        /** @var DB2Platform $platform */
         $platform = $this->_platform;
-        $sql      = $platform->getListTableCommentsSQL($tableName);
+        assert($platform instanceof DB2Platform);
+        $sql = $platform->getListTableCommentsSQL($tableName);
 
         $tableOptions = $this->_conn->fetchAssoc($sql);
 

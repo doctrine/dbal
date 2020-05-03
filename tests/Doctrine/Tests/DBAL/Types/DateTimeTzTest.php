@@ -8,9 +8,6 @@ use Doctrine\DBAL\Types\Type;
 
 class DateTimeTzTest extends BaseDateTypeTestCase
 {
-    /**
-     * {@inheritDoc}
-     */
     protected function setUp() : void
     {
         $this->type = Type::getType('datetimetz');

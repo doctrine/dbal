@@ -22,9 +22,6 @@ use function strtoupper;
 
 class DB2Platform extends AbstractPlatform
 {
-    /**
-     * {@inheritdoc}
-     */
     public function getCharMaxLength() : int
     {
         return 254;
@@ -495,6 +492,7 @@ class DB2Platform extends AbstractPlatform
         if (isset($options['indexes'])) {
             $indexes = $options['indexes'];
         }
+
         $options['indexes'] = [];
 
         $sqls = parent::_getCreateTableSQL($tableName, $columns, $options);
@@ -708,21 +706,23 @@ class DB2Platform extends AbstractPlatform
 
         foreach ($diff->removedIndexes as $remKey => $remIndex) {
             foreach ($diff->addedIndexes as $addKey => $addIndex) {
-                if ($remIndex->getColumns() === $addIndex->getColumns()) {
-                    if ($remIndex->isPrimary()) {
-                        $sql[] = 'ALTER TABLE ' . $table . ' DROP PRIMARY KEY';
-                    } elseif ($remIndex->isUnique()) {
-                        $sql[] = 'ALTER TABLE ' . $table . ' DROP UNIQUE ' . $remIndex->getQuotedName($this);
-                    } else {
-                        $sql[] = $this->getDropIndexSQL($remIndex, $table);
-                    }
-
-                    $sql[] = $this->getCreateIndexSQL($addIndex, $table);
-
-                    unset($diff->removedIndexes[$remKey], $diff->addedIndexes[$addKey]);
-
-                    break;
+                if ($remIndex->getColumns() !== $addIndex->getColumns()) {
+                    continue;
                 }
+
+                if ($remIndex->isPrimary()) {
+                    $sql[] = 'ALTER TABLE ' . $table . ' DROP PRIMARY KEY';
+                } elseif ($remIndex->isUnique()) {
+                    $sql[] = 'ALTER TABLE ' . $table . ' DROP UNIQUE ' . $remIndex->getQuotedName($this);
+                } else {
+                    $sql[] = $this->getDropIndexSQL($remIndex, $table);
+                }
+
+                $sql[] = $this->getCreateIndexSQL($addIndex, $table);
+
+                unset($diff->removedIndexes[$remKey], $diff->addedIndexes[$addKey]);
+
+                break;
             }
         }
 

@@ -125,6 +125,7 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
             if (version_compare($oracleMysqlVersion, '8', '>=')) {
                 return new MySQL80Platform();
             }
+
             if (version_compare($oracleMysqlVersion, '5.7.9', '>=')) {
                 return new MySQL57Platform();
             }
@@ -153,6 +154,7 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
                 '<major_version>.<minor_version>.<patch_version>'
             );
         }
+
         $majorVersion = $versionParts['major'];
         $minorVersion = $versionParts['minor'] ?? 0;
         $patchVersion = $versionParts['patch'] ?? null;

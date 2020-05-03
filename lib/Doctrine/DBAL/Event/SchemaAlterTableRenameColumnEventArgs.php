@@ -77,7 +77,7 @@ class SchemaAlterTableRenameColumnEventArgs extends SchemaEventArgs
      *
      * @param string|string[] $sql
      *
-     * @return \Doctrine\DBAL\Event\SchemaAlterTableRenameColumnEventArgs
+     * @return SchemaAlterTableRenameColumnEventArgs
      */
     public function addSql($sql)
     {

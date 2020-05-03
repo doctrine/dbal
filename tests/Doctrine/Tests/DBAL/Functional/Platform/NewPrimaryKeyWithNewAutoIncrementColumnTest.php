@@ -9,9 +9,6 @@ use function in_array;
 
 final class NewPrimaryKeyWithNewAutoIncrementColumnTest extends DbalFunctionalTestCase
 {
-    /**
-     * {@inheritDoc}
-     */
     protected function setUp() : void
     {
         parent::setUp();

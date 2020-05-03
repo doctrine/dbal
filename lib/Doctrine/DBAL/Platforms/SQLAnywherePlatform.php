@@ -17,6 +17,7 @@ use InvalidArgumentException;
 use function array_merge;
 use function array_unique;
 use function array_values;
+use function assert;
 use function count;
 use function explode;
 use function func_get_args;
@@ -1257,8 +1258,8 @@ SQL
         }
 
         if (! empty($options['indexes'])) {
-            /** @var Index $index */
             foreach ((array) $options['indexes'] as $index) {
+                assert($index instanceof Index);
                 $indexSql[] = $this->getCreateIndexSQL($index, $tableName);
             }
         }

@@ -29,6 +29,7 @@ class WriteTest extends DbalFunctionalTestCase
             $this->connection->getSchemaManager()->createTable($table);
         } catch (Throwable $e) {
         }
+
         $this->connection->executeUpdate('DELETE FROM write_table');
     }
 

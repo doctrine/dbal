@@ -95,6 +95,7 @@ class MasterSlaveConnection extends Connection
         if (! isset($params['slaves'], $params['master'])) {
             throw new InvalidArgumentException('master or slaves configuration missing');
         }
+
         if (count($params['slaves']) === 0) {
             throw new InvalidArgumentException('You have to configure at least one slaves.');
         }

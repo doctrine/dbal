@@ -132,6 +132,7 @@ abstract class AbstractSchemaManager
         if ($database === null) {
             $database = $this->_conn->getDatabase();
         }
+
         $sql = $this->_platform->getListSequencesSQL($database);
 
         $sequences = $this->_conn->fetchAll($sql);
@@ -273,6 +274,7 @@ abstract class AbstractSchemaManager
         if ($this->_platform->supportsForeignKeyConstraints()) {
             $foreignKeys = $this->listTableForeignKeys($tableName);
         }
+
         $indexes = $this->listTableIndexes($tableName);
 
         return new Table($tableName, $columns, $indexes, $foreignKeys);
@@ -305,6 +307,7 @@ abstract class AbstractSchemaManager
         if ($database === null) {
             $database = $this->_conn->getDatabase();
         }
+
         $sql              = $this->_platform->getListTableForeignKeysSQL($table, $database);
         $tableForeignKeys = $this->_conn->fetchAll($sql);
 
@@ -846,6 +849,7 @@ abstract class AbstractSchemaManager
             if ($tableIndex['primary']) {
                 $keyName = 'primary';
             }
+
             $keyName = strtolower($keyName);
 
             if (! isset($result[$keyName])) {
@@ -1075,9 +1079,11 @@ abstract class AbstractSchemaManager
         if (! isset($params['defaultTableOptions'])) {
             $params['defaultTableOptions'] = [];
         }
+
         if (! isset($params['defaultTableOptions']['charset']) && isset($params['charset'])) {
             $params['defaultTableOptions']['charset'] = $params['charset'];
         }
+
         $schemaConfig->setDefaultTableOptions($params['defaultTableOptions']);
 
         return $schemaConfig;

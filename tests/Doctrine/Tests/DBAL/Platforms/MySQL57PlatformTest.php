@@ -8,9 +8,6 @@ use Doctrine\DBAL\Types\Types;
 
 class MySQL57PlatformTest extends AbstractMySQLPlatformTestCase
 {
-    /**
-     * {@inheritdoc}
-     */
     public function createPlatform() : AbstractPlatform
     {
         return new MySQL57Platform();

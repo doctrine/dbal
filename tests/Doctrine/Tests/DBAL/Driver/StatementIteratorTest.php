@@ -14,6 +14,7 @@ use Doctrine\Tests\DbalTestCase;
 use IteratorAggregate;
 use PHPUnit\Framework\MockObject\MockObject;
 use Traversable;
+use function assert;
 use function extension_loaded;
 
 class StatementIteratorTest extends DbalTestCase
@@ -23,8 +24,8 @@ class StatementIteratorTest extends DbalTestCase
      */
     public function testGettingIteratorDoesNotCallFetch(string $class) : void
     {
-        /** @var IteratorAggregate|MockObject $stmt */
         $stmt = $this->createPartialMock($class, ['fetch', 'fetchAll', 'fetchColumn']);
+        assert($stmt instanceof IteratorAggregate || $stmt instanceof MockObject);
         $stmt->expects($this->never())->method('fetch');
         $stmt->expects($this->never())->method('fetchAll');
         $stmt->expects($this->never())->method('fetchColumn');

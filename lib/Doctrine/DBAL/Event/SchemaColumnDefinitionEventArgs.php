@@ -47,7 +47,7 @@ class SchemaColumnDefinitionEventArgs extends SchemaEventArgs
      * Allows to clear the column which means the column will be excluded from
      * tables column list.
      *
-     * @return \Doctrine\DBAL\Event\SchemaColumnDefinitionEventArgs
+     * @return SchemaColumnDefinitionEventArgs
      */
     public function setColumn(?Column $column = null)
     {

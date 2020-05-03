@@ -14,7 +14,7 @@ class SQLParserUtilsException extends DBALException
     /**
      * @param string $paramName
      *
-     * @return \Doctrine\DBAL\SQLParserUtilsException
+     * @return SQLParserUtilsException
      */
     public static function missingParam($paramName)
     {
@@ -24,7 +24,7 @@ class SQLParserUtilsException extends DBALException
     /**
      * @param string $typeName
      *
-     * @return \Doctrine\DBAL\SQLParserUtilsException
+     * @return SQLParserUtilsException
      */
     public static function missingType($typeName)
     {

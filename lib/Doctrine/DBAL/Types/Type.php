@@ -222,7 +222,7 @@ abstract class Type
      *
      * @param string $name The name of the type (as returned by getName()).
      *
-     * @return \Doctrine\DBAL\Types\Type
+     * @return Type
      *
      * @throws DBALException
      */

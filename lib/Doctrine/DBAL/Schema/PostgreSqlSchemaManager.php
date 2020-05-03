@@ -7,7 +7,6 @@ use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
-use const CASE_LOWER;
 use function array_change_key_case;
 use function array_filter;
 use function array_keys;
@@ -25,6 +24,7 @@ use function strlen;
 use function strpos;
 use function strtolower;
 use function trim;
+use const CASE_LOWER;
 
 /**
  * PostgreSQL Schema Manager.
@@ -141,6 +141,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         if (preg_match('(ON UPDATE ([a-zA-Z0-9]+( (NULL|ACTION|DEFAULT))?))', $tableForeignKey['condef'], $match)) {
             $onUpdate = $match[1];
         }
+
         if (preg_match('(ON DELETE ([a-zA-Z0-9]+( (NULL|ACTION|DEFAULT))?))', $tableForeignKey['condef'], $match)) {
             $onDelete = $match[1];
         }
@@ -339,9 +340,11 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         if ($length === '-1' && isset($tableColumn['atttypmod'])) {
             $length = $tableColumn['atttypmod'] - 4;
         }
+
         if ((int) $length <= 0) {
             $length = null;
         }
+
         $fixed = null;
 
         if (! isset($tableColumn['name'])) {
@@ -426,6 +429,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
                     $scale     = $match[2];
                     $length    = null;
                 }
+
                 break;
 
             case 'year':
@@ -501,9 +505,9 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     {
         $table = parent::listTableDetails($tableName);
 
-        /** @var PostgreSqlPlatform $platform */
         $platform = $this->_platform;
-        $sql      = $platform->getListTableMetadataSQL($tableName);
+        assert($platform instanceof PostgreSqlPlatform);
+        $sql = $platform->getListTableMetadataSQL($tableName);
 
         $tableOptions = $this->_conn->fetchAssoc($sql);
 
