@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Platforms;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
@@ -19,6 +20,11 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
 {
     /** @var PostgreSqlPlatform */
     protected $platform;
+
+    /**
+     * @return PostgreSqlPlatform
+     */
+    abstract public function createPlatform() : AbstractPlatform;
 
     public function getGenerateTableSql() : string
     {
