@@ -26,7 +26,7 @@ class ConversionException extends DBALException
      * @param string $value
      * @param string $toType
      *
-     * @return \Doctrine\DBAL\Types\ConversionException
+     * @return ConversionException
      */
     public static function conversionFailed($value, $toType, ?Throwable $previous = null)
     {
@@ -43,7 +43,7 @@ class ConversionException extends DBALException
      * @param string $toType
      * @param string $expectedFormat
      *
-     * @return \Doctrine\DBAL\Types\ConversionException
+     * @return ConversionException
      */
     public static function conversionFailedFormat($value, $toType, $expectedFormat, ?Throwable $previous = null)
     {
@@ -64,7 +64,7 @@ class ConversionException extends DBALException
      * @param string   $toType
      * @param string[] $possibleTypes
      *
-     * @return \Doctrine\DBAL\Types\ConversionException
+     * @return ConversionException
      */
     public static function conversionFailedInvalidType(
         $value,

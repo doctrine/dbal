@@ -9,9 +9,6 @@ namespace Doctrine\DBAL\Platforms\Keywords;
  */
 final class MariaDb102Keywords extends MySQLKeywords
 {
-    /**
-     * {@inheritdoc}
-     */
     public function getName() : string
     {
         return 'MariaDb102';

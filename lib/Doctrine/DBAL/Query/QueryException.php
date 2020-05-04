@@ -14,7 +14,7 @@ class QueryException extends DBALException
      * @param string   $alias
      * @param string[] $registeredAliases
      *
-     * @return \Doctrine\DBAL\Query\QueryException
+     * @return QueryException
      */
     public static function unknownAlias($alias, $registeredAliases)
     {
@@ -27,7 +27,7 @@ class QueryException extends DBALException
      * @param string   $alias
      * @param string[] $registeredAliases
      *
-     * @return \Doctrine\DBAL\Query\QueryException
+     * @return QueryException
      */
     public static function nonUniqueAlias($alias, $registeredAliases)
     {

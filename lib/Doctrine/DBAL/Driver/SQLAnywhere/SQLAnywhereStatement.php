@@ -11,7 +11,6 @@ use PDO;
 use ReflectionClass;
 use ReflectionObject;
 use stdClass;
-use const SASQL_BOTH;
 use function array_key_exists;
 use function func_get_args;
 use function func_num_args;
@@ -35,6 +34,7 @@ use function sasql_stmt_field_count;
 use function sasql_stmt_reset;
 use function sasql_stmt_result_metadata;
 use function sprintf;
+use const SASQL_BOTH;
 
 /**
  * SAP SQL Anywhere implementation of the Statement interface.
@@ -258,12 +258,14 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
                 while (($row = $this->fetch(...func_get_args())) !== false) {
                     $rows[] = $row;
                 }
+
                 break;
 
             case FetchMode::COLUMN:
                 while (($row = $this->fetchColumn()) !== false) {
                     $rows[] = $row;
                 }
+
                 break;
 
             default:

@@ -6,8 +6,6 @@ use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\ParameterType;
 use stdClass;
-use const DB2_AUTOCOMMIT_OFF;
-use const DB2_AUTOCOMMIT_ON;
 use function assert;
 use function db2_autocommit;
 use function db2_commit;
@@ -25,6 +23,8 @@ use function db2_server_info;
 use function db2_stmt_errormsg;
 use function func_get_args;
 use function is_bool;
+use const DB2_AUTOCOMMIT_OFF;
+use const DB2_AUTOCOMMIT_ON;
 
 class DB2Connection implements Connection, ServerInfoAwareConnection
 {
@@ -61,8 +61,8 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
      */
     public function getServerVersion()
     {
-        /** @var stdClass $serverInfo */
         $serverInfo = db2_server_info($this->conn);
+        assert($serverInfo instanceof stdClass);
 
         return $serverInfo->DBMS_VER;
     }

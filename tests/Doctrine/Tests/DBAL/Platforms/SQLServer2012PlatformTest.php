@@ -170,7 +170,6 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
         );
 
         self::assertEquals(
-
             'SELECT ' .
             'u.id, ' .
             '(u.foo/2) foodiv, ' .

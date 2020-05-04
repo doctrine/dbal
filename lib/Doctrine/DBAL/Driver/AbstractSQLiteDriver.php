@@ -67,6 +67,10 @@ abstract class AbstractSQLiteDriver implements Driver, ExceptionConverterDriver
             return new Exception\ConnectionException($message, $exception);
         }
 
+        if (strpos($exception->getMessage(), 'FOREIGN KEY constraint failed') !== false) {
+            return new Exception\ForeignKeyConstraintViolationException($message, $exception);
+        }
+
         return new Exception\DriverException($message, $exception);
     }
 

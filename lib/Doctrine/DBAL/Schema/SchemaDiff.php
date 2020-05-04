@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\DBAL\Internal\DependencyOrderCalculator;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use function array_merge;
 
@@ -137,13 +138,16 @@ class SchemaDiff
         }
 
         $foreignKeySql = [];
-        foreach ($this->newTables as $table) {
-            $sql = array_merge(
-                $sql,
-                $platform->getCreateTableSQL($table, AbstractPlatform::CREATE_INDEXES)
-            );
+        $createFlags   = AbstractPlatform::CREATE_INDEXES;
 
-            if (! $platform->supportsForeignKeyConstraints()) {
+        if (! $platform->supportsCreateDropForeignKeyConstraints()) {
+            $createFlags |= AbstractPlatform::CREATE_FOREIGNKEYS;
+        }
+
+        foreach ($this->getNewTablesSortedByDependencies() as $table) {
+            $sql = array_merge($sql, $platform->getCreateTableSQL($table, $createFlags));
+
+            if (! $platform->supportsCreateDropForeignKeyConstraints()) {
                 continue;
             }
 
@@ -151,6 +155,7 @@ class SchemaDiff
                 $foreignKeySql[] = $platform->getCreateForeignKeySQL($foreignKey, $table);
             }
         }
+
         $sql = array_merge($sql, $foreignKeySql);
 
         if ($saveMode === false) {
@@ -164,5 +169,38 @@ class SchemaDiff
         }
 
         return $sql;
+    }
+
+    /**
+     * Sorts tables by dependencies so that they are created in the right order.
+     *
+     * This is necessary when one table depends on another while creating foreign key
+     * constraints directly during CREATE TABLE.
+     *
+     * @return array<Table>
+     */
+    private function getNewTablesSortedByDependencies()
+    {
+        $calculator = new DependencyOrderCalculator();
+        $newTables  = [];
+
+        foreach ($this->newTables as $table) {
+            $newTables[$table->getName()] = true;
+            $calculator->addNode($table->getName(), $table);
+        }
+
+        foreach ($this->newTables as $table) {
+            foreach ($table->getForeignKeys() as $foreignKey) {
+                $foreignTableName = $foreignKey->getForeignTableName();
+
+                if (! isset($newTables[$foreignTableName])) {
+                    continue;
+                }
+
+                $calculator->addDependency($foreignTableName, $table->getName());
+            }
+        }
+
+        return $calculator->sort();
     }
 }

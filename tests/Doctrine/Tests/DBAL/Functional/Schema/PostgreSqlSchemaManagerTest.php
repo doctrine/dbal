@@ -240,12 +240,14 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
                 ['onDelete' => $fkOptions[$i]]
             );
         }
+
         $this->schemaManager->dropAndCreateTable($fkTable);
         $this->createTestTable('test_create_fk2');
 
         foreach ($foreignKeys as $foreignKey) {
             $this->schemaManager->createForeignKey($foreignKey, 'test_create_fk1');
         }
+
         $fkeys = $this->schemaManager->listTableForeignKeys('test_create_fk1');
         self::assertEquals(count($foreignKeys), count($fkeys), "Table 'test_create_fk1' has to have " . count($foreignKeys) . ' foreign keys.');
         for ($i = 0; $i < count($fkeys); $i++) {

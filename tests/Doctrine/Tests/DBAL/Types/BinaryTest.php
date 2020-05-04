@@ -22,9 +22,6 @@ class BinaryTest extends DbalTestCase
     /** @var BinaryType */
     protected $type;
 
-    /**
-     * {@inheritdoc}
-     */
     protected function setUp() : void
     {
         $this->platform = $this->createMock(AbstractPlatform::class);

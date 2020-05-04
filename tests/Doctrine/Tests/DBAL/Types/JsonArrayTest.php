@@ -21,9 +21,6 @@ class JsonArrayTest extends DbalTestCase
     /** @var JsonArrayType */
     protected $type;
 
-    /**
-     * {@inheritdoc}
-     */
     protected function setUp() : void
     {
         $this->platform = $this->createMock(AbstractPlatform::class);

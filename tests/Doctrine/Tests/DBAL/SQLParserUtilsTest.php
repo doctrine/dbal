@@ -76,7 +76,7 @@ OR bar=':not_a_param4 '':not_a_param5'' :not_a_param6'
 OR bar=''
 OR bar=:a_param3
 SQLDATA
-                ,
+,
                 false,
                 [
                     74 => 'a_param1',

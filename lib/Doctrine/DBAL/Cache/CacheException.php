@@ -10,7 +10,7 @@ use Doctrine\DBAL\DBALException;
 class CacheException extends DBALException
 {
     /**
-     * @return \Doctrine\DBAL\Cache\CacheException
+     * @return CacheException
      */
     public static function noCacheKey()
     {
@@ -18,7 +18,7 @@ class CacheException extends DBALException
     }
 
     /**
-     * @return \Doctrine\DBAL\Cache\CacheException
+     * @return CacheException
      */
     public static function noResultDriverConfigured()
     {

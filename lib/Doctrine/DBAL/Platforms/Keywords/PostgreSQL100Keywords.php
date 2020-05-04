@@ -9,9 +9,6 @@ namespace Doctrine\DBAL\Platforms\Keywords;
  */
 class PostgreSQL100Keywords extends PostgreSQL94Keywords
 {
-    /**
-     * {@inheritdoc}
-     */
     public function getName() : string
     {
         return 'PostgreSQL100';

@@ -12,12 +12,6 @@ use ReflectionClass;
 use ReflectionObject;
 use ReflectionProperty;
 use stdClass;
-use const CASE_LOWER;
-use const DB2_BINARY;
-use const DB2_CHAR;
-use const DB2_LONG;
-use const DB2_PARAM_FILE;
-use const DB2_PARAM_IN;
 use function array_change_key_case;
 use function db2_bind_param;
 use function db2_execute;
@@ -45,6 +39,12 @@ use function stream_copy_to_stream;
 use function stream_get_meta_data;
 use function strtolower;
 use function tmpfile;
+use const CASE_LOWER;
+use const DB2_BINARY;
+use const DB2_CHAR;
+use const DB2_LONG;
+use const DB2_PARAM_FILE;
+use const DB2_PARAM_IN;
 
 class DB2Statement implements IteratorAggregate, Statement
 {
@@ -309,12 +309,16 @@ class DB2Statement implements IteratorAggregate, Statement
                 while (($row = $this->fetch(...func_get_args())) !== false) {
                     $rows[] = $row;
                 }
+
                 break;
+
             case FetchMode::COLUMN:
                 while (($row = $this->fetchColumn()) !== false) {
                     $rows[] = $row;
                 }
+
                 break;
+
             default:
                 while (($row = $this->fetch($fetchMode)) !== false) {
                     $rows[] = $row;

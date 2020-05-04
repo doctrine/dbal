@@ -24,6 +24,7 @@ class VarDateTimeTest extends DbalTestCase
         if (! Type::hasType('vardatetime')) {
             Type::addType('vardatetime', VarDateTimeType::class);
         }
+
         $this->type = Type::getType('vardatetime');
     }
 

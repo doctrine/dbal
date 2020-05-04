@@ -110,6 +110,7 @@ class MultiTenantVisitor implements Visitor
                 return $index;
             }
         }
+
         throw new RuntimeException('No clustered index found on table ' . $table->getName());
     }
 

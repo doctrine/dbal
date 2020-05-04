@@ -9,9 +9,6 @@ use Doctrine\DBAL\Platforms\PostgreSQL100Platform;
 
 class PostgreSQL100PlatformTest extends PostgreSQL94PlatformTest
 {
-    /**
-     * {@inheritdoc}
-     */
     public function createPlatform() : AbstractPlatform
     {
         return new PostgreSQL100Platform();

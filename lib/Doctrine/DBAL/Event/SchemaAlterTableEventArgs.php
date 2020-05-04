@@ -49,7 +49,7 @@ class SchemaAlterTableEventArgs extends SchemaEventArgs
      *
      * @param string|string[] $sql
      *
-     * @return \Doctrine\DBAL\Event\SchemaAlterTableEventArgs
+     * @return SchemaAlterTableEventArgs
      */
     public function addSql($sql)
     {

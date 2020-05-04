@@ -8,6 +8,7 @@ use Doctrine\DBAL\Schema\SchemaException;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use SplObjectStorage;
+use function assert;
 use function strlen;
 
 /**
@@ -46,6 +47,10 @@ class DropSchemaSqlCollector extends AbstractVisitor
      */
     public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint)
     {
+        if (! $this->platform->supportsCreateDropForeignKeyConstraints()) {
+            return;
+        }
+
         if (strlen($fkConstraint->getName()) === 0) {
             throw SchemaException::namedForeignKeyRequired($localTable, $fkConstraint);
         }
@@ -78,19 +83,19 @@ class DropSchemaSqlCollector extends AbstractVisitor
     {
         $sql = [];
 
-        /** @var ForeignKeyConstraint $fkConstraint */
         foreach ($this->constraints as $fkConstraint) {
+            assert($fkConstraint instanceof ForeignKeyConstraint);
             $localTable = $this->constraints[$fkConstraint];
             $sql[]      = $this->platform->getDropForeignKeySQL($fkConstraint, $localTable);
         }
 
-        /** @var Sequence $sequence */
         foreach ($this->sequences as $sequence) {
+            assert($sequence instanceof Sequence);
             $sql[] = $this->platform->getDropSequenceSQL($sequence);
         }
 
-        /** @var Table $table */
         foreach ($this->tables as $table) {
+            assert($table instanceof Table);
             $sql[] = $this->platform->getDropTableSQL($table);
         }
 
