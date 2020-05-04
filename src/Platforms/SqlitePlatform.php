@@ -660,6 +660,11 @@ class SqlitePlatform extends AbstractPlatform
 
     public function supportsForeignKeyConstraints() : bool
     {
+        return true;
+    }
+
+    public function supportsCreateDropForeignKeyConstraints() : bool
+    {
         return false;
     }
 
@@ -676,7 +681,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getCreateForeignKeySQL(ForeignKeyConstraint $foreignKey, $table) : string
     {
-        throw new DBALException('Sqlite platform does not support alter foreign key.');
+        throw new DBALException('Sqlite platform does not support alter foreign key, the table must be fully recreated using getAlterTableSQL.');
     }
 
     /**
@@ -684,7 +689,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getDropForeignKeySQL($foreignKey, $table) : string
     {
-        throw new DBALException('Sqlite platform does not support alter foreign key.');
+        throw new DBALException('Sqlite platform does not support alter foreign key, the table must be fully recreated using getAlterTableSQL.');
     }
 
     /**

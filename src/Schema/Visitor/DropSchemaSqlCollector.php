@@ -43,6 +43,10 @@ class DropSchemaSqlCollector extends AbstractVisitor
 
     public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint) : void
     {
+        if (! $this->platform->supportsCreateDropForeignKeyConstraints()) {
+            return;
+        }
+
         if (strlen($fkConstraint->getName()) === 0) {
             throw NamedForeignKeyRequired::new($localTable, $fkConstraint);
         }

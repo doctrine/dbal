@@ -133,13 +133,11 @@ class ConnectionTest extends TestCase
     {
         $eventManager = new EventManager();
 
-        /** @var AbstractPlatform|MockObject $platform */
         $platform = $this->createMock(AbstractPlatform::class);
         $platform->expects(self::once())
             ->method('setEventManager')
             ->with($eventManager);
 
-        /** @var Driver|MockObject $driver */
         $driver = $this->createMock(Driver::class);
         $driver->expects(self::any())
             ->method('getDatabasePlatform')
@@ -518,7 +516,6 @@ class ConnectionTest extends TestCase
             ->with(FetchMode::ASSOCIATIVE)
             ->will(self::returnValue($result));
 
-        /** @var Connection|MockObject $conn */
         $conn = $this->getMockBuilder(Connection::class)
             ->onlyMethods(['executeQuery'])
             ->setConstructorArgs([[], $driverMock])
@@ -554,7 +551,6 @@ class ConnectionTest extends TestCase
             ->with(FetchMode::NUMERIC)
             ->will(self::returnValue($result));
 
-        /** @var Connection|MockObject $conn */
         $conn = $this->getMockBuilder(Connection::class)
             ->onlyMethods(['executeQuery'])
             ->setConstructorArgs([[], $driverMock])
@@ -589,7 +585,6 @@ class ConnectionTest extends TestCase
             ->method('fetchColumn')
             ->will(self::returnValue($result));
 
-        /** @var Connection|MockObject $conn */
         $conn = $this->getMockBuilder(Connection::class)
             ->onlyMethods(['executeQuery'])
             ->setConstructorArgs([[], $driverMock])
@@ -624,7 +619,6 @@ class ConnectionTest extends TestCase
             ->method('fetchAll')
             ->will(self::returnValue($result));
 
-        /** @var Connection|MockObject $conn */
         $conn = $this->getMockBuilder(Connection::class)
             ->onlyMethods(['executeQuery'])
             ->setConstructorArgs([[], $driverMock])
@@ -640,7 +634,6 @@ class ConnectionTest extends TestCase
 
     public function testCallingDeleteWithNoDeletionCriteriaResultsInInvalidArgumentException() : void
     {
-        /** @var Driver $driver */
         $driver = $this->createMock(Driver::class);
         $conn   = new Connection([], $driver);
 
@@ -650,7 +643,6 @@ class ConnectionTest extends TestCase
 
     public function testCallConnectOnce() : void
     {
-        /** @var Driver|MockObject $driver */
         $driver = $this->createMock(Driver::class);
         $driver->expects(self::once())
             ->method('connect');
@@ -667,13 +659,10 @@ class ConnectionTest extends TestCase
      */
     public function testPlatformDetectionIsTriggerOnlyOnceOnRetrievingPlatform() : void
     {
-        /** @var VersionAwarePlatformDriver|MockObject $driverMock */
         $driverMock = $this->createMock(VersionAwarePlatformDriver::class);
 
-        /** @var DriverConnection|ServerInfoAwareConnection|MockObject $driverConnectionMock */
         $driverConnectionMock = $this->createMock(ServerInfoAwareConnection::class);
 
-        /** @var AbstractPlatform|MockObject $platformMock */
         $platformMock = $this->getMockForAbstractClass(AbstractPlatform::class);
 
         $connection = new Connection([], $driverMock);
@@ -708,7 +697,6 @@ class ConnectionTest extends TestCase
         $params = [666];
         $types  = [ParameterType::INTEGER];
 
-        /** @var QueryCacheProfile|MockObject $queryCacheProfileMock */
         $queryCacheProfileMock = $this->createMock(QueryCacheProfile::class);
 
         $queryCacheProfileMock
@@ -723,7 +711,6 @@ class ConnectionTest extends TestCase
             ->with($query, $params, $types, $this->params)
             ->will(self::returnValue(['cacheKey', 'realKey']));
 
-        /** @var Driver $driver */
         $driver = $this->createMock(Driver::class);
 
         self::assertInstanceOf(
@@ -745,7 +732,6 @@ class ConnectionTest extends TestCase
             ->with('cacheKey')
             ->will(self::returnValue(['realKey' => []]));
 
-        /** @var QueryCacheProfile|MockObject $queryCacheProfileMock */
         $queryCacheProfileMock = $this->createMock(QueryCacheProfile::class);
 
         $queryCacheProfileMock
@@ -765,7 +751,6 @@ class ConnectionTest extends TestCase
 
         $connectionParams['platform'] = $this->createMock(AbstractPlatform::class);
 
-        /** @var Driver $driver */
         $driver = $this->createMock(Driver::class);
 
         (new Connection($connectionParams, $driver))->executeCacheQuery($query, [], [], $queryCacheProfileMock);
@@ -779,7 +764,6 @@ class ConnectionTest extends TestCase
         $connectionParams             = $this->params;
         $connectionParams['platform'] = new stdClass();
 
-        /** @var Driver $driver */
         $driver = $this->createMock(Driver::class);
 
         $this->expectException(DBALException::class);
@@ -792,7 +776,6 @@ class ConnectionTest extends TestCase
      */
     public function testRethrowsOriginalExceptionOnDeterminingPlatformWhenConnectingToNonExistentDatabase() : void
     {
-        /** @var VersionAwarePlatformDriver|MockObject $driverMock */
         $driverMock = $this->createMock(VersionAwarePlatformDriver::class);
 
         $connection        = new Connection(['dbname' => 'foo'], $driverMock);
@@ -817,16 +800,12 @@ class ConnectionTest extends TestCase
      */
     public function testExecuteCacheQueryStripsPlatformFromConnectionParamsBeforeGeneratingCacheKeys() : void
     {
-        /** @var Driver|MockObject $driver */
         $driver = $this->createMock(Driver::class);
 
-        /** @var AbstractPlatform|MockObject $platform */
         $platform = $this->createMock(AbstractPlatform::class);
 
-        /** @var QueryCacheProfile|MockObject $queryCacheProfile */
         $queryCacheProfile = $this->createMock(QueryCacheProfile::class);
 
-        /** @var Cache|MockObject $resultCacheDriver */
         $resultCacheDriver = $this->createMock(Cache::class);
 
         $queryCacheProfile

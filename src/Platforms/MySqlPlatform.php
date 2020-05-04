@@ -547,25 +547,27 @@ SQL
             $sql = array_merge($sql, $this->getPreAlterTableAlterPrimaryKeySQL($diff, $remIndex));
 
             foreach ($diff->addedIndexes as $addKey => $addIndex) {
-                if ($remIndex->getColumns() === $addIndex->getColumns()) {
-                    $indexClause = 'INDEX ' . $addIndex->getName();
-
-                    if ($addIndex->isPrimary()) {
-                        $indexClause = 'PRIMARY KEY';
-                    } elseif ($addIndex->isUnique()) {
-                        $indexClause = 'UNIQUE INDEX ' . $addIndex->getName();
-                    }
-
-                    $query  = 'ALTER TABLE ' . $table . ' DROP INDEX ' . $remIndex->getName() . ', ';
-                    $query .= 'ADD ' . $indexClause;
-                    $query .= ' (' . $this->getIndexFieldDeclarationListSQL($addIndex) . ')';
-
-                    $sql[] = $query;
-
-                    unset($diff->removedIndexes[$remKey], $diff->addedIndexes[$addKey]);
-
-                    break;
+                if ($remIndex->getColumns() !== $addIndex->getColumns()) {
+                    continue;
                 }
+
+                $indexClause = 'INDEX ' . $addIndex->getName();
+
+                if ($addIndex->isPrimary()) {
+                    $indexClause = 'PRIMARY KEY';
+                } elseif ($addIndex->isUnique()) {
+                    $indexClause = 'UNIQUE INDEX ' . $addIndex->getName();
+                }
+
+                $query  = 'ALTER TABLE ' . $table . ' DROP INDEX ' . $remIndex->getName() . ', ';
+                $query .= 'ADD ' . $indexClause;
+                $query .= ' (' . $this->getIndexFieldDeclarationListSQL($addIndex) . ')';
+
+                $sql[] = $query;
+
+                unset($diff->removedIndexes[$remKey], $diff->addedIndexes[$addKey]);
+
+                break;
             }
         }
 

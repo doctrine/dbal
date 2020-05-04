@@ -40,7 +40,7 @@ class StatementIteratorTest extends TestCase
     }
 
     /**
-     * @param Traversable<mixed> $iterator
+     * @param Traversable<int, mixed> $iterator
      */
     private function assertIterationCallsFetchOncePerStep(Traversable $iterator, int &$calls) : void
     {

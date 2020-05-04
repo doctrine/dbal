@@ -1283,16 +1283,16 @@
         },
         {
             "name": "phpstan/phpdoc-parser",
-            "version": "0.4.2",
+            "version": "0.4.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpdoc-parser.git",
-                "reference": "a6d13524641bb780efc821d9e0a1e1bfb23cbd0e"
+                "reference": "d8d9d4645379e677466d407034436bb155b11c65"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpdoc-parser/zipball/a6d13524641bb780efc821d9e0a1e1bfb23cbd0e",
-                "reference": "a6d13524641bb780efc821d9e0a1e1bfb23cbd0e",
+                "url": "https://api.github.com/repos/phpstan/phpdoc-parser/zipball/d8d9d4645379e677466d407034436bb155b11c65",
+                "reference": "d8d9d4645379e677466d407034436bb155b11c65",
                 "shasum": ""
             },
             "require": {
@@ -1300,10 +1300,11 @@
             },
             "require-dev": {
                 "consistence/coding-standard": "^3.5",
+                "ergebnis/composer-normalize": "^2.0.2",
                 "jakub-onderka/php-parallel-lint": "^0.9.2",
                 "phing/phing": "^2.16.0",
                 "phpstan/extension-installer": "^1.0",
-                "phpstan/phpstan": "^0.12",
+                "phpstan/phpstan": "^0.12.19",
                 "phpstan/phpstan-strict-rules": "^0.12",
                 "phpunit/phpunit": "^6.3",
                 "slevomat/coding-standard": "^4.7.2",
@@ -1327,7 +1328,7 @@
                 "MIT"
             ],
             "description": "PHPDoc parser with support for nullable, intersection and generic types",
-            "time": "2019-12-13T12:03:22+00:00"
+            "time": "2020-04-13T16:28:46+00:00"
         },
         {
             "name": "phpstan/phpstan",
@@ -2586,33 +2587,39 @@
         },
         {
             "name": "slevomat/coding-standard",
-            "version": "6.1.1",
+            "version": "6.3.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/slevomat/coding-standard.git",
-                "reference": "0a7934d7ecdfe402079027513daa3b7e881f315d"
+                "reference": "b905a82255749de847fd4de607c7a4c8163f058d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/slevomat/coding-standard/zipball/0a7934d7ecdfe402079027513daa3b7e881f315d",
-                "reference": "0a7934d7ecdfe402079027513daa3b7e881f315d",
+                "url": "https://api.github.com/repos/slevomat/coding-standard/zipball/b905a82255749de847fd4de607c7a4c8163f058d",
+                "reference": "b905a82255749de847fd4de607c7a4c8163f058d",
                 "shasum": ""
             },
             "require": {
                 "php": "^7.1",
-                "phpstan/phpdoc-parser": "0.3.5 - 0.4.2",
-                "squizlabs/php_codesniffer": "^3.5.3"
+                "phpstan/phpdoc-parser": "0.4.0 - 0.4.4",
+                "squizlabs/php_codesniffer": "^3.5.5"
             },
             "require-dev": {
-                "dealerdirect/phpcodesniffer-composer-installer": "0.5.0",
-                "jakub-onderka/php-parallel-lint": "1.0.0",
-                "phing/phing": "2.16.2",
-                "phpstan/phpstan": "0.11.19|0.12.5",
-                "phpstan/phpstan-phpunit": "0.11.2|0.12.6",
-                "phpstan/phpstan-strict-rules": "0.11.1|0.12.1",
-                "phpunit/phpunit": "7.5.18|8.5.2"
+                "dealerdirect/phpcodesniffer-composer-installer": "0.6.2",
+                "phing/phing": "2.16.3",
+                "php-parallel-lint/php-parallel-lint": "1.2.0",
+                "phpstan/phpstan": "0.12.19",
+                "phpstan/phpstan-deprecation-rules": "0.12.2",
+                "phpstan/phpstan-phpunit": "0.12.8",
+                "phpstan/phpstan-strict-rules": "0.12.2",
+                "phpunit/phpunit": "7.5.20|8.5.2|9.1.2"
             },
             "type": "phpcodesniffer-standard",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "6.x-dev"
+                }
+            },
             "autoload": {
                 "psr-4": {
                     "SlevomatCodingStandard\\": "SlevomatCodingStandard"
@@ -2623,20 +2630,30 @@
                 "MIT"
             ],
             "description": "Slevomat Coding Standard for PHP_CodeSniffer complements Consistence Coding Standard by providing sniffs with additional checks.",
-            "time": "2020-01-23T15:37:30+00:00"
+            "funding": [
+                {
+                    "url": "https://github.com/kukulich",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/slevomat/coding-standard",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2020-04-28T07:15:08+00:00"
         },
         {
             "name": "squizlabs/php_codesniffer",
-            "version": "3.5.3",
+            "version": "3.5.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/squizlabs/PHP_CodeSniffer.git",
-                "reference": "557a1fc7ac702c66b0bbfe16ab3d55839ef724cb"
+                "reference": "73e2e7f57d958e7228fce50dc0c61f58f017f9f6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/557a1fc7ac702c66b0bbfe16ab3d55839ef724cb",
-                "reference": "557a1fc7ac702c66b0bbfe16ab3d55839ef724cb",
+                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/73e2e7f57d958e7228fce50dc0c61f58f017f9f6",
+                "reference": "73e2e7f57d958e7228fce50dc0c61f58f017f9f6",
                 "shasum": ""
             },
             "require": {
@@ -2674,7 +2691,7 @@
                 "phpcs",
                 "standards"
             ],
-            "time": "2019-12-04T04:46:47+00:00"
+            "time": "2020-04-17T01:09:41+00:00"
         },
         {
             "name": "symfony/console",

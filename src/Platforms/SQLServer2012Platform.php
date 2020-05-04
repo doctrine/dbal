@@ -1453,8 +1453,8 @@ SQL
     {
         return sprintf(
             <<<'SQL'
-EXEC sys.sp_addextendedproperty @name=N'MS_Description', 
-  @value=N%s, @level0type=N'SCHEMA', @level0name=N'dbo', 
+EXEC sys.sp_addextendedproperty @name=N'MS_Description',
+  @value=N%s, @level0type=N'SCHEMA', @level0name=N'dbo',
   @level1type=N'TABLE', @level1name=N%s
 SQL
             ,

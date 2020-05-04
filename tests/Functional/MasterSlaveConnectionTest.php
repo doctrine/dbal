@@ -89,8 +89,8 @@ class MasterSlaveConnectionTest extends FunctionalTestCase
                 unset($params['slaves'][$index]['charset']);
             }
 
-            /** @var MasterSlaveConnection $conn */
             $conn = DriverManager::getConnection($params);
+            self::assertInstanceOf(MasterSlaveConnection::class, $conn);
             $conn->connect('slave');
 
             self::assertFalse($conn->isConnectedToMaster());

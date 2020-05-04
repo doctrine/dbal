@@ -44,12 +44,15 @@ class SchemaDiffTest extends TestCase
      */
     private function createPlatform(bool $unsafe)
     {
-        /** @var AbstractPlatform|MockObject $platform */
         $platform = $this->createMock(AbstractPlatform::class);
         $platform->expects(self::exactly(1))
             ->method('getCreateSchemaSQL')
             ->with('foo_ns')
             ->will(self::returnValue('create_schema'));
+
+        $platform->method('supportsCreateDropForeignKeyConstraints')
+            ->will(self::returnValue(true));
+
         if ($unsafe) {
             $platform->expects(self::exactly(1))
                  ->method('getDropSequenceSql')
@@ -100,7 +103,7 @@ class SchemaDiffTest extends TestCase
         $platform->expects(self::exactly(1))
                 ->method('supportsSequences')
                 ->will(self::returnValue(true));
-        $platform->expects(self::exactly(2))
+        $platform->expects(self::any())
                 ->method('supportsForeignKeyConstraints')
                 ->will(self::returnValue(true));
 

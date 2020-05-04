@@ -250,6 +250,10 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testGeneratesConstraintCreationSql() : void
     {
+        if (! $this->platform->supportsCreateDropForeignKeyConstraints()) {
+            self::markTestSkipped('Platform does not support creating or dropping foreign key constraints.');
+        }
+
         $idx = new Index('constraint_name', ['test'], true, false);
         $sql = $this->platform->getCreateConstraintSQL($idx, 'test');
         self::assertEquals($this->getGenerateConstraintUniqueIndexSql(), $sql);
@@ -1201,9 +1205,9 @@ abstract class AbstractPlatformTestCase extends TestCase
      */
     public function testQuotesDropForeignKeySQL() : void
     {
-        if (! $this->platform->supportsForeignKeyConstraints()) {
+        if (! $this->platform->supportsCreateDropForeignKeyConstraints()) {
             self::markTestSkipped(
-                sprintf('%s does not support foreign key constraints.', get_class($this->platform))
+                sprintf('%s does not support modifying foreign key constraints.', get_class($this->platform))
             );
         }
 

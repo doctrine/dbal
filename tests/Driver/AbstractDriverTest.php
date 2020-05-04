@@ -79,7 +79,6 @@ abstract class AbstractDriverTest extends TestCase
             self::markTestSkipped('This test is only intended for exception converter drivers.');
         }
 
-        /** @var DriverExceptionInterface|MockObject $driverException */
         $driverException = $this->getMockBuilder(DriverExceptionInterface::class)
             ->setConstructorArgs([$message, $errorCode])
             ->getMock();
@@ -182,7 +181,7 @@ abstract class AbstractDriverTest extends TestCase
     abstract protected function createSchemaManager(Connection $connection) : AbstractSchemaManager;
 
     /**
-     * @return Connection|MockObject
+     * @return Connection&MockObject
      */
     protected function getConnectionMock() : Connection
     {

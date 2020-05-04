@@ -20,7 +20,7 @@ class PostgreSQL100Platform extends PostgreSQL94Platform
     {
         return 'SELECT sequence_name AS relname,
                        sequence_schema AS schemaname,
-                       minimum_value AS min_value, 
+                       minimum_value AS min_value,
                        increment AS increment_by
                 FROM   information_schema.sequences
                 WHERE  sequence_catalog = ' . $this->quoteStringLiteral($database) . "

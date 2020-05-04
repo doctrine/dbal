@@ -32,7 +32,6 @@ use const OCI_COMMIT_ON_SUCCESS;
 use const OCI_D_LOB;
 use const OCI_FETCHSTATEMENT_BY_COLUMN;
 use const OCI_FETCHSTATEMENT_BY_ROW;
-use const OCI_NO_AUTO_COMMIT;
 use const OCI_NUM;
 use const OCI_RETURN_LOBS;
 use const OCI_RETURN_NULLS;

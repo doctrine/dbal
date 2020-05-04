@@ -19,7 +19,7 @@ use function oci_server_version;
 use function preg_match;
 use function sprintf;
 use function str_replace;
-use const OCI_DEFAULT;
+use const OCI_NO_AUTO_COMMIT;
 
 /**
  * OCI8 implementation of the Connection interface.
@@ -42,7 +42,7 @@ final class OCI8Connection implements Connection, ServerInfoAwareConnection
         string $password,
         string $db,
         string $charset = '',
-        int $sessionMode = OCI_DEFAULT,
+        int $sessionMode = OCI_NO_AUTO_COMMIT,
         bool $persistent = false
     ) {
         $dbh = $persistent

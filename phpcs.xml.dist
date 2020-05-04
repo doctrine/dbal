@@ -24,6 +24,8 @@
 
         <!-- https://github.com/slevomat/coding-standard/issues/867 -->
         <exclude name="SlevomatCodingStandard.ControlStructures.JumpStatementsSpacing.IncorrectLinesCountAfterLastControlStructure"/>
+        <!-- See https://github.com/squizlabs/PHP_CodeSniffer/issues/2937 -->
+        <exclude name="Squiz.Arrays.ArrayDeclaration.ValueNoNewline"/>
         <exclude name="Squiz.NamingConventions.ValidVariableName.PublicHasUnderscore"/>
     </rule>
 
@@ -32,6 +34,18 @@
         <properties>
             <property name="enableNativeTypeHint" value="false"/>
         </properties>
+    </rule>
+
+    <rule ref="Squiz.NamingConventions.ValidVariableName.PublicHasUnderscore">
+        <exclude-pattern>*/src/*</exclude-pattern>
+    </rule>
+
+    <rule ref="SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint">
+        <exclude-pattern>*/src/*</exclude-pattern>
+    </rule>
+
+    <rule ref="SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingNativeTypeHint">
+        <exclude-pattern>*/src/*</exclude-pattern>
     </rule>
 
     <rule ref="PSR1.Classes.ClassDeclaration.MultipleClasses">
@@ -77,7 +91,13 @@
 
     <!-- https://github.com/squizlabs/PHP_CodeSniffer/issues/2837 -->
     <rule ref="Squiz.NamingConventions.ValidVariableName.NotCamelCaps">
+        <!--
+            This file uses the return value db2_server_info(), which does not follow conventions
+            phpcs wrongly complains about it, and that has been reported here:
+            https://github.com/squizlabs/PHP_CodeSniffer/issues/2950
+        -->
         <exclude-pattern>src/Driver/IBMDB2/DB2Connection.php</exclude-pattern>
+        <!-- See https://github.com/squizlabs/PHP_CodeSniffer/issues/2837 -->
         <exclude-pattern>src/SQLParserUtils.php</exclude-pattern>
         <exclude-pattern>src/Tools/Dumper.php</exclude-pattern>
         <exclude-pattern>tests/Driver/StatementIteratorTest.php</exclude-pattern>
