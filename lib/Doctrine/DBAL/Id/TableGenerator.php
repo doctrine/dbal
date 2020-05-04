@@ -8,10 +8,10 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\LockMode;
 use Throwable;
-use const CASE_LOWER;
 use function array_change_key_case;
 use function assert;
 use function is_int;
+use const CASE_LOWER;
 
 /**
  * Table ID Generator for those poor languages that are missing sequences.
@@ -72,6 +72,7 @@ class TableGenerator
         if ($params['driver'] === 'pdo_sqlite') {
             throw new DBALException('Cannot use TableGenerator with SQLite.');
         }
+
         $this->conn               = DriverManager::getConnection($params, $conn->getConfiguration(), $conn->getEventManager());
         $this->generatorTableName = $generatorTableName;
     }
@@ -141,6 +142,7 @@ class TableGenerator
             $this->conn->commit();
         } catch (Throwable $e) {
             $this->conn->rollBack();
+
             throw new DBALException('Error occurred while generating ID with TableGenerator, aborted generation: ' . $e->getMessage(), 0, $e);
         }
 

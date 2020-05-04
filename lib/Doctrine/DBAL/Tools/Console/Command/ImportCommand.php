@@ -11,7 +11,6 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use const PHP_EOL;
 use function assert;
 use function error_get_last;
 use function file_exists;
@@ -19,6 +18,7 @@ use function file_get_contents;
 use function is_readable;
 use function realpath;
 use function sprintf;
+use const PHP_EOL;
 
 /**
  * Task for executing arbitrary SQL that can come from a file or directly from

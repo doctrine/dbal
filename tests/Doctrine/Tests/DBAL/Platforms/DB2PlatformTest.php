@@ -661,41 +661,26 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL() : string
     {
         return 'CONSTRAINT "select" UNIQUE (foo)';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getQuotesReservedKeywordInIndexDeclarationSQL() : string
     {
         return ''; // not supported by this platform
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getQuotesReservedKeywordInTruncateTableSQL() : string
     {
         return 'TRUNCATE "select" IMMEDIATE';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function supportsInlineIndexDeclaration() : bool
     {
         return false;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function supportsCommentOnStatement() : bool
     {
         return true;

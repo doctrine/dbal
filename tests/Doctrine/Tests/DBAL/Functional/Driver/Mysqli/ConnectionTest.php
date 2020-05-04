@@ -6,8 +6,8 @@ use Doctrine\DBAL\Driver\Mysqli\Driver;
 use Doctrine\DBAL\Driver\Mysqli\MysqliConnection;
 use Doctrine\DBAL\Driver\Mysqli\MysqliException;
 use Doctrine\Tests\DbalFunctionalTestCase;
-use const MYSQLI_OPT_CONNECT_TIMEOUT;
 use function extension_loaded;
+use const MYSQLI_OPT_CONNECT_TIMEOUT;
 
 class ConnectionTest extends DbalFunctionalTestCase
 {

@@ -5,13 +5,13 @@ namespace Doctrine\DBAL\Driver;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use PDO;
-use const E_USER_DEPRECATED;
 use function array_slice;
 use function assert;
 use function func_get_args;
 use function is_array;
 use function sprintf;
 use function trigger_error;
+use const E_USER_DEPRECATED;
 
 /**
  * The PDO implementation of the Statement interface.

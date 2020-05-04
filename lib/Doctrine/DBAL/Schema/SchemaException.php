@@ -26,7 +26,7 @@ class SchemaException extends DBALException
     /**
      * @param string $tableName
      *
-     * @return \Doctrine\DBAL\Schema\SchemaException
+     * @return SchemaException
      */
     public static function tableDoesNotExist($tableName)
     {
@@ -36,7 +36,7 @@ class SchemaException extends DBALException
     /**
      * @param string $indexName
      *
-     * @return \Doctrine\DBAL\Schema\SchemaException
+     * @return SchemaException
      */
     public static function indexNameInvalid($indexName)
     {
@@ -50,7 +50,7 @@ class SchemaException extends DBALException
      * @param string $indexName
      * @param string $table
      *
-     * @return \Doctrine\DBAL\Schema\SchemaException
+     * @return SchemaException
      */
     public static function indexDoesNotExist($indexName, $table)
     {
@@ -64,7 +64,7 @@ class SchemaException extends DBALException
      * @param string $indexName
      * @param string $table
      *
-     * @return \Doctrine\DBAL\Schema\SchemaException
+     * @return SchemaException
      */
     public static function indexAlreadyExists($indexName, $table)
     {
@@ -78,7 +78,7 @@ class SchemaException extends DBALException
      * @param string $columnName
      * @param string $table
      *
-     * @return \Doctrine\DBAL\Schema\SchemaException
+     * @return SchemaException
      */
     public static function columnDoesNotExist($columnName, $table)
     {
@@ -91,7 +91,7 @@ class SchemaException extends DBALException
     /**
      * @param string $namespaceName
      *
-     * @return \Doctrine\DBAL\Schema\SchemaException
+     * @return SchemaException
      */
     public static function namespaceAlreadyExists($namespaceName)
     {
@@ -104,7 +104,7 @@ class SchemaException extends DBALException
     /**
      * @param string $tableName
      *
-     * @return \Doctrine\DBAL\Schema\SchemaException
+     * @return SchemaException
      */
     public static function tableAlreadyExists($tableName)
     {
@@ -115,7 +115,7 @@ class SchemaException extends DBALException
      * @param string $tableName
      * @param string $columnName
      *
-     * @return \Doctrine\DBAL\Schema\SchemaException
+     * @return SchemaException
      */
     public static function columnAlreadyExists($tableName, $columnName)
     {
@@ -128,7 +128,7 @@ class SchemaException extends DBALException
     /**
      * @param string $sequenceName
      *
-     * @return \Doctrine\DBAL\Schema\SchemaException
+     * @return SchemaException
      */
     public static function sequenceAlreadyExists($sequenceName)
     {
@@ -138,7 +138,7 @@ class SchemaException extends DBALException
     /**
      * @param string $sequenceName
      *
-     * @return \Doctrine\DBAL\Schema\SchemaException
+     * @return SchemaException
      */
     public static function sequenceDoesNotExist($sequenceName)
     {
@@ -149,7 +149,7 @@ class SchemaException extends DBALException
      * @param string $fkName
      * @param string $table
      *
-     * @return \Doctrine\DBAL\Schema\SchemaException
+     * @return SchemaException
      */
     public static function foreignKeyDoesNotExist($fkName, $table)
     {
@@ -160,7 +160,7 @@ class SchemaException extends DBALException
     }
 
     /**
-     * @return \Doctrine\DBAL\Schema\SchemaException
+     * @return SchemaException
      */
     public static function namedForeignKeyRequired(Table $localTable, ForeignKeyConstraint $foreignKey)
     {
@@ -175,7 +175,7 @@ class SchemaException extends DBALException
     /**
      * @param string $changeName
      *
-     * @return \Doctrine\DBAL\Schema\SchemaException
+     * @return SchemaException
      */
     public static function alterTableChangeNotSupported($changeName)
     {

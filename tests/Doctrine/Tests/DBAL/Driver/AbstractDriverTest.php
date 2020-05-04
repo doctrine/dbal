@@ -28,7 +28,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
 use Doctrine\Tests\DbalTestCase;
-use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionProperty;
 use function array_merge;
 use function get_class;
@@ -79,7 +78,6 @@ abstract class AbstractDriverTest extends DbalTestCase
             $this->markTestSkipped('This test is only intended for exception converter drivers.');
         }
 
-        /** @var DriverExceptionInterface|MockObject $driverException */
         $driverException = $this->getMockBuilder(DriverExceptionInterface::class)
             ->setConstructorArgs([$message])
             ->getMock();

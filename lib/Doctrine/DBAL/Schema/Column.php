@@ -3,12 +3,12 @@
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Types\Type;
-use const E_USER_DEPRECATED;
 use function array_merge;
 use function is_numeric;
 use function method_exists;
 use function sprintf;
 use function trigger_error;
+use const E_USER_DEPRECATED;
 
 /**
  * Object representation of a database column.
@@ -86,6 +86,7 @@ class Column extends AbstractAsset
 
                 continue;
             }
+
             $this->$method($value);
         }
 

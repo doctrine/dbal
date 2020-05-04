@@ -77,7 +77,7 @@ class SchemaCreateTableEventArgs extends SchemaEventArgs
      *
      * @param string|string[] $sql
      *
-     * @return \Doctrine\DBAL\Event\SchemaCreateTableEventArgs
+     * @return SchemaCreateTableEventArgs
      */
     public function addSql($sql)
     {

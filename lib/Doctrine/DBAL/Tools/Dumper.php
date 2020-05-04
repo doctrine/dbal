@@ -150,6 +150,7 @@ final class Dumper
             if ($aux[0] === '') {
                 $name .= ':' . ($aux[1] === '*' ? 'protected' : $aux[1] . ':private');
             }
+
             $return->$name = self::export($clone[$key], $maxDepth - 1);
         }
 

@@ -5,7 +5,6 @@ namespace Doctrine\DBAL\Driver\SQLSrv;
 use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\ParameterType;
-use const SQLSRV_ERR_ERRORS;
 use function func_get_args;
 use function is_float;
 use function is_int;
@@ -20,6 +19,7 @@ use function sqlsrv_rollback;
 use function sqlsrv_rows_affected;
 use function sqlsrv_server_info;
 use function str_replace;
+use const SQLSRV_ERR_ERRORS;
 
 /**
  * SQL Server implementation for the Connection interface.

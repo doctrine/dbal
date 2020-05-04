@@ -1020,6 +1020,7 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
 
             $foundTable = true;
         }
+
         self::assertTrue($foundTable, 'Could not find new table');
     }
 

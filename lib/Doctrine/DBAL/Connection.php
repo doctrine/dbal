@@ -1063,6 +1063,7 @@ class Connection implements DriverConnection
                 } else {
                     $stmt->execute($params);
                 }
+
                 $result = $stmt->rowCount();
             } else {
                 $result = $connection->exec($query);
@@ -1179,9 +1180,11 @@ class Connection implements DriverConnection
             return $res;
         } catch (Exception $e) {
             $this->rollBack();
+
             throw $e;
         } catch (Throwable $e) {
             $this->rollBack();
+
             throw $e;
         }
     }
@@ -1254,6 +1257,7 @@ class Connection implements DriverConnection
             if ($logger) {
                 $logger->startQuery('"SAVEPOINT"');
             }
+
             $this->createSavepoint($this->_getNestedTransactionSavePointName());
             if ($logger) {
                 $logger->stopQuery();
@@ -1274,6 +1278,7 @@ class Connection implements DriverConnection
         if ($this->transactionNestingLevel === 0) {
             throw ConnectionException::noActiveTransaction();
         }
+
         if ($this->isRollbackOnly) {
             throw ConnectionException::commitFailedRollbackOnly();
         }
@@ -1298,6 +1303,7 @@ class Connection implements DriverConnection
             if ($logger) {
                 $logger->startQuery('"RELEASE SAVEPOINT"');
             }
+
             $this->releaseSavepoint($this->_getNestedTransactionSavePointName());
             if ($logger) {
                 $logger->stopQuery();
@@ -1354,6 +1360,7 @@ class Connection implements DriverConnection
             if ($logger) {
                 $logger->startQuery('"ROLLBACK"');
             }
+
             $this->transactionNestingLevel = 0;
             $connection->rollBack();
             $this->isRollbackOnly = false;
@@ -1368,6 +1375,7 @@ class Connection implements DriverConnection
             if ($logger) {
                 $logger->startQuery('"ROLLBACK TO SAVEPOINT"');
             }
+
             $this->rollbackSavepoint($this->_getNestedTransactionSavePointName());
             --$this->transactionNestingLevel;
             if ($logger) {
@@ -1479,6 +1487,7 @@ class Connection implements DriverConnection
         if ($this->transactionNestingLevel === 0) {
             throw ConnectionException::noActiveTransaction();
         }
+
         $this->isRollbackOnly = true;
     }
 
@@ -1555,6 +1564,7 @@ class Connection implements DriverConnection
                 } else {
                     $stmt->bindValue($bindIndex, $value);
                 }
+
                 ++$bindIndex;
             }
         } else {
@@ -1584,6 +1594,7 @@ class Connection implements DriverConnection
         if (is_string($type)) {
             $type = Type::getType($type);
         }
+
         if ($type instanceof Type) {
             $value       = $type->convertToDatabaseValue($value, $this->getDatabasePlatform());
             $bindingType = $type->getBindingType();
@@ -1623,6 +1634,7 @@ class Connection implements DriverConnection
                 } else {
                     $resolvedParams[$bindIndex] = $value;
                 }
+
                 ++$bindIndex;
             }
         } else {
