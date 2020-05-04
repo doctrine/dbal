@@ -29,6 +29,7 @@ abstract class AbstractPostgreSQLDriver implements ExceptionConverterDriver, Ver
             case '40001':
             case '40P01':
                 return new Exception\DeadlockException($message, $exception);
+
             case '0A000':
                 // Foreign key constraint violations during a TRUNCATE operation
                 // are considered "feature not supported" in PostgreSQL.
@@ -37,6 +38,7 @@ abstract class AbstractPostgreSQLDriver implements ExceptionConverterDriver, Ver
                 }
 
                 break;
+
             case '23502':
                 return new Exception\NotNullConstraintViolationException($message, $exception);
 

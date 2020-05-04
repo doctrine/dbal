@@ -7,9 +7,6 @@ use Doctrine\DBAL\Types\Type;
 
 class TimeTest extends BaseDateTypeTestCase
 {
-    /**
-     * {@inheritDoc}
-     */
     protected function setUp() : void
     {
         $this->type = Type::getType('time');

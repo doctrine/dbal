@@ -104,9 +104,6 @@ class SQLAnywhereConnection implements ServerInfoAwareConnection
         return sasql_error($this->connection);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function exec(string $statement) : int
     {
         if (sasql_real_query($this->connection, $statement) === false) {
@@ -140,17 +137,11 @@ class SQLAnywhereConnection implements ServerInfoAwareConnection
         return $this->query('SELECT ' . $name . '.CURRVAL')->fetchColumn();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function prepare(string $sql) : DriverStatement
     {
         return new SQLAnywhereStatement($this->connection, $sql);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function query(string $sql) : ResultStatement
     {
         $stmt = $this->prepare($sql);

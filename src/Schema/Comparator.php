@@ -89,6 +89,7 @@ class Comparator
                 if (! isset($foreignKeysToTable[$foreignTable])) {
                     $foreignKeysToTable[$foreignTable] = [];
                 }
+
                 $foreignKeysToTable[$foreignTable][] = $foreignKey;
             }
         }
@@ -116,6 +117,7 @@ class Comparator
                     if ($tableName !== strtolower($removedForeignKey->getForeignTableName())) {
                         continue;
                     }
+
                     unset($diff->changedTables[$localTableName]->removedForeignKeys[$key]);
                 }
             }
@@ -205,6 +207,7 @@ class Comparator
             $tableDifferences->addedColumns[$columnName] = $column;
             $changes++;
         }
+
         /* See if there are any removed fields in table 2 */
         foreach ($table1Columns as $columnName => $column) {
             // See if column is removed in table 2.
@@ -241,6 +244,7 @@ class Comparator
             $tableDifferences->addedIndexes[$indexName] = $index;
             $changes++;
         }
+
         /* See if there are any removed indexes in table 2 */
         foreach ($table1Indexes as $indexName => $index) {
             // See if index is removed in table 2.
@@ -465,6 +469,7 @@ class Comparator
             if (($properties1['precision'] ?? 10) !== ($properties2['precision'] ?? 10)) {
                 $changedProperties[] = 'precision';
             }
+
             if ($properties1['scale'] !== $properties2['scale']) {
                 $changedProperties[] = 'scale';
             }

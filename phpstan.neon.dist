@@ -74,6 +74,17 @@ parameters:
             message: '~^Cannot cast array<string>\|bool\|string\|null to int\.$~'
             path: %currentWorkingDirectory%/src/Tools/Console/Command/RunSqlCommand.php
 
+        # Requires a release of https://github.com/JetBrains/phpstorm-stubs/pull/732
+        -
+            message: '~^Access to undefined constant PDO::PGSQL_ATTR_DISABLE_PREPARES\.$~'
+            path: %currentWorkingDirectory%/src/Driver/PDOPgSql/Driver.php
+
+        # False Positive
+        - '~Strict comparison using === between 1 and 2 will always evaluate to false~'
+
+        # Needs Generics
+        - '~Method Doctrine\\DBAL\\Schema\\SchemaDiff::getNewTablesSortedByDependencies\(\) should return array<Doctrine\\DBAL\\Schema\\Table> but returns array<object>.~'
+
         # https://github.com/phpstan/phpstan/issues/3134
         -
             message: '~^Call to static method PHPUnit\\Framework\\Assert::assertSame\(\) with Doctrine\\DBAL\\Types\\Type and Doctrine\\DBAL\\Types\\Type will always evaluate to true\.$~'

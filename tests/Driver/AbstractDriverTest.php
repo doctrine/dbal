@@ -27,7 +27,6 @@ use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
 use function array_merge;
@@ -79,7 +78,6 @@ abstract class AbstractDriverTest extends TestCase
             self::markTestSkipped('This test is only intended for exception converter drivers.');
         }
 
-        /** @var DriverExceptionInterface|MockObject $driverException */
         $driverException = $this->getMockBuilder(DriverExceptionInterface::class)
             ->setConstructorArgs([$message])
             ->getMock();

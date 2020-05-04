@@ -2,7 +2,6 @@
 
 namespace Doctrine\DBAL;
 
-use const PREG_OFFSET_CAPTURE;
 use function array_fill;
 use function array_fill_keys;
 use function array_key_exists;
@@ -20,6 +19,7 @@ use function sprintf;
 use function strlen;
 use function strpos;
 use function substr;
+use const PREG_OFFSET_CAPTURE;
 
 /**
  * Utility class that parses sql statements with regard to types and parameters.
@@ -195,8 +195,8 @@ class SQLParserUtils
                 $expandStr = $count > 0 ? implode(', ', array_fill(0, $count, '?')) : 'NULL';
                 $query     = substr($query, 0, $needlePos) . $expandStr . substr($query, $needlePos + 1);
 
-                $paramOffset += ($count - 1); // Grows larger by number of parameters minus the replaced needle.
-                $queryOffset += (strlen($expandStr) - 1);
+                $paramOffset += $count - 1; // Grows larger by number of parameters minus the replaced needle.
+                $queryOffset += strlen($expandStr) - 1;
             }
 
             return [$query, $params, $types];
@@ -214,10 +214,10 @@ class SQLParserUtils
 
             if (! isset($arrayPositions[$paramName]) && ! isset($arrayPositions[':' . $paramName])) {
                 $pos         += $queryOffset;
-                $queryOffset -= ($paramLen - 1);
+                $queryOffset -= $paramLen - 1;
                 $paramsOrd[]  = $value;
                 $typesOrd[]   = static::extractParam($paramName, $types, false, ParameterType::STRING);
-                $query        = substr($query, 0, $pos) . '?' . substr($query, ($pos + $paramLen));
+                $query        = substr($query, 0, $pos) . '?' . substr($query, $pos + $paramLen);
 
                 continue;
             }
@@ -231,8 +231,8 @@ class SQLParserUtils
             }
 
             $pos         += $queryOffset;
-            $queryOffset += (strlen($expandStr) - $paramLen);
-            $query        = substr($query, 0, $pos) . $expandStr . substr($query, ($pos + $paramLen));
+            $queryOffset += strlen($expandStr) - $paramLen;
+            $query        = substr($query, 0, $pos) . $expandStr . substr($query, $pos + $paramLen);
         }
 
         return [$query, $paramsOrd, $typesOrd];

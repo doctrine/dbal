@@ -7,7 +7,6 @@ use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use IteratorAggregate;
-use const SASQL_BOTH;
 use function array_key_exists;
 use function assert;
 use function is_int;
@@ -24,6 +23,7 @@ use function sasql_stmt_execute;
 use function sasql_stmt_field_count;
 use function sasql_stmt_reset;
 use function sasql_stmt_result_metadata;
+use const SASQL_BOTH;
 
 /**
  * SAP SQL Anywhere implementation of the Statement interface.
@@ -222,6 +222,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
                 while (($row = $this->fetchColumn()) !== false) {
                     $rows[] = $row;
                 }
+
                 break;
 
             default:
@@ -255,9 +256,6 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
         return new StatementIterator($this);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function rowCount() : int
     {
         return sasql_stmt_affected_rows($this->stmt);

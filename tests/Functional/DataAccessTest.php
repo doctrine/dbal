@@ -15,7 +15,6 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Statement;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
-use const CASE_LOWER;
 use function array_change_key_case;
 use function array_filter;
 use function array_keys;
@@ -25,6 +24,7 @@ use function is_numeric;
 use function json_encode;
 use function sprintf;
 use function strtotime;
+use const CASE_LOWER;
 
 class DataAccessTest extends FunctionalTestCase
 {

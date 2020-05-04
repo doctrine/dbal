@@ -8,19 +8,6 @@ use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use InvalidArgumentException;
 use IteratorAggregate;
-use const OCI_ASSOC;
-use const OCI_B_BIN;
-use const OCI_B_BLOB;
-use const OCI_BOTH;
-use const OCI_D_LOB;
-use const OCI_FETCHSTATEMENT_BY_COLUMN;
-use const OCI_FETCHSTATEMENT_BY_ROW;
-use const OCI_NUM;
-use const OCI_RETURN_LOBS;
-use const OCI_RETURN_NULLS;
-use const OCI_TEMP_BLOB;
-use const PREG_OFFSET_CAPTURE;
-use const SQLT_CHR;
 use function array_key_exists;
 use function assert;
 use function count;
@@ -41,6 +28,19 @@ use function preg_match;
 use function preg_quote;
 use function sprintf;
 use function substr;
+use const OCI_ASSOC;
+use const OCI_B_BIN;
+use const OCI_B_BLOB;
+use const OCI_BOTH;
+use const OCI_D_LOB;
+use const OCI_FETCHSTATEMENT_BY_COLUMN;
+use const OCI_FETCHSTATEMENT_BY_ROW;
+use const OCI_NUM;
+use const OCI_RETURN_LOBS;
+use const OCI_RETURN_NULLS;
+use const OCI_TEMP_BLOB;
+use const PREG_OFFSET_CAPTURE;
+use const SQLT_CHR;
 
 /**
  * The OCI8 implementation of the Statement interface.
@@ -518,9 +518,6 @@ class OCI8Statement implements IteratorAggregate, Statement
         return $row[0] ?? null;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function rowCount() : int
     {
         $count = oci_num_rows($this->_sth);

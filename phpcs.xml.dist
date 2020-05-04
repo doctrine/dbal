@@ -1,5 +1,8 @@
 <?xml version="1.0"?>
-<ruleset>
+<ruleset
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="vendor/squizlabs/php_codesniffer/phpcs.xsd"
+>
     <arg name="basepath" value="."/>
     <arg name="extensions" value="php"/>
     <arg name="parallel" value="80"/>
@@ -17,15 +20,32 @@
         <exclude name="SlevomatCodingStandard.TypeHints.DeclareStrictTypes"/>
         <exclude name="SlevomatCodingStandard.Classes.SuperfluousAbstractClassNaming"/>
         <exclude name="SlevomatCodingStandard.Classes.SuperfluousExceptionNaming"/>
-        <exclude name="SlevomatCodingStandard.ControlStructures.ControlStructureSpacing.IncorrectLinesCountAfterLastControlStructure"/>
         <exclude name="SlevomatCodingStandard.Classes.DisallowLateStaticBindingForConstants.DisallowedLateStaticBindingForConstant"/>
+        <exclude name="SlevomatCodingStandard.ControlStructures.ControlStructureSpacing.IncorrectLinesCountAfterLastControlStructure"/>
+
+        <!-- https://github.com/slevomat/coding-standard/issues/867 -->
+        <exclude name="SlevomatCodingStandard.ControlStructures.JumpStatementsSpacing.IncorrectLinesCountAfterLastControlStructure"/>
+        <!-- See https://github.com/squizlabs/PHP_CodeSniffer/issues/2937 -->
+        <exclude name="Squiz.Arrays.ArrayDeclaration.ValueNoNewline"/>
+        <exclude name="Squiz.NamingConventions.ValidVariableName.PublicHasUnderscore"/>
     </rule>
 
-    <rule ref="SlevomatCodingStandard.TypeHints.TypeHintDeclaration.MissingParameterTypeHint">
+    <!-- Disable the rules that will require PHP 7.4 -->
+    <rule ref="SlevomatCodingStandard.TypeHints.PropertyTypeHint">
+        <properties>
+            <property name="enableNativeTypeHint" value="false"/>
+        </properties>
+    </rule>
+
+    <rule ref="Squiz.NamingConventions.ValidVariableName.PublicHasUnderscore">
         <exclude-pattern>*/src/*</exclude-pattern>
     </rule>
 
-    <rule ref="SlevomatCodingStandard.TypeHints.TypeHintDeclaration.MissingReturnTypeHint">
+    <rule ref="SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint">
+        <exclude-pattern>*/src/*</exclude-pattern>
+    </rule>
+
+    <rule ref="SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingNativeTypeHint">
         <exclude-pattern>*/src/*</exclude-pattern>
     </rule>
 
@@ -45,11 +65,41 @@
         <exclude-pattern>tests/Tools/TestAsset/*</exclude-pattern>
     </rule>
 
+    <!-- https://github.com/slevomat/coding-standard/issues/868 -->
+    <rule ref="SlevomatCodingStandard.PHP.UselessParentheses.UselessParentheses">
+        <exclude-pattern>ci/continuousphp/bootstrap.php</exclude-pattern>
+    </rule>
+
     <!-- see https://github.com/squizlabs/PHP_CodeSniffer/issues/2099 -->
     <rule ref="Squiz.Commenting.FunctionComment.InvalidNoReturn">
         <exclude-pattern>src/Platforms/AbstractPlatform.php</exclude-pattern>
         <exclude-pattern>src/Schema/AbstractSchemaManager.php</exclude-pattern>
         <exclude-pattern>tests/Platforms/AbstractPlatformTestCase.php</exclude-pattern>
+    </rule>
+
+    <!-- see https://github.com/squizlabs/PHP_CodeSniffer/issues/2838 -->
+    <rule ref="Squiz.Commenting.FunctionComment.SpacingAfter">
+        <exclude-pattern>src/Driver/AbstractMySQLDriver.php</exclude-pattern>
+    </rule>
+
+    <rule ref="Squiz.NamingConventions.ValidVariableName.MemberNotCamelCaps">
+        <!-- This test contains a fixture class that should use snake case  -->
+        <exclude-pattern>tests/Functional/DataAccessTest.php</exclude-pattern>
+    </rule>
+
+    <!-- https://github.com/squizlabs/PHP_CodeSniffer/issues/2837 -->
+    <rule ref="Squiz.NamingConventions.ValidVariableName.NotCamelCaps">
+        <!--
+            This file uses the return value db2_server_info(), which does not follow conventions
+            phpcs wrongly complains about it, and that has been reported here:
+            https://github.com/squizlabs/PHP_CodeSniffer/issues/2950
+        -->
+        <exclude-pattern>src/Driver/IBMDB2/DB2Connection.php</exclude-pattern>
+        <!-- See https://github.com/squizlabs/PHP_CodeSniffer/issues/2837 -->
+        <exclude-pattern>src/SQLParserUtils.php</exclude-pattern>
+        <exclude-pattern>src/Tools/Dumper.php</exclude-pattern>
+        <exclude-pattern>tests/Driver/StatementIteratorTest.php</exclude-pattern>
+        <exclude-pattern>tests/Tools/DumperTest.php</exclude-pattern>
     </rule>
 
     <!-- some statement classes close cursor using an empty while-loop -->
@@ -62,22 +112,15 @@
         <exclude-pattern>src/Driver/SQLSrv/SQLSrvStatement.php</exclude-pattern>
     </rule>
 
-    <!-- see https://github.com/squizlabs/PHP_CodeSniffer/issues/2165 -->
-    <rule ref="Squiz.Arrays.ArrayDeclaration.SpaceBeforeComma">
-        <exclude-pattern>tests/Platforms/OraclePlatformTest.php</exclude-pattern>
-        <exclude-pattern>tests/SQLParserUtilsTest.php</exclude-pattern>
-    </rule>
-
     <!-- see https://github.com/doctrine/dbal/issues/3377 -->
     <rule ref="SlevomatCodingStandard.Operators.DisallowEqualOperators.DisallowedNotEqualOperator">
         <exclude-pattern>src/Schema/Comparator.php</exclude-pattern>
     </rule>
 
-    <!-- see https://github.com/slevomat/coding-standard/issues/737 -->
-    <rule ref="SlevomatCodingStandard.TypeHints.TypeHintDeclaration.IncorrectReturnTypeHint">
-        <exclude-pattern>src/Types/ArrayType.php</exclude-pattern>
-        <exclude-pattern>src/Types/ObjectType.php</exclude-pattern>
-        <exclude-pattern>tests/Driver/Mysqli/MysqliConnectionTest.php</exclude-pattern>
+    <!-- DB2_AUTOCOMMIT_ON/DB2_AUTOCOMMIT_OFF are of int type but db2_autocommit() incorrectly expects bool,
+         see https://bugs.php.net/bug.php?id=77591 -->
+    <rule ref="SlevomatCodingStandard.TypeHints.DeclareStrictTypes.DeclareStrictTypesMissing">
+        <exclude-pattern>src/Driver/IBMDB2/DB2Connection.php</exclude-pattern>
     </rule>
 
     <!-- The SQLSRV_* functions are defined in the upper case by the sqlsrv extension and violate the standard

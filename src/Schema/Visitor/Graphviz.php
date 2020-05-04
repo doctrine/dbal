@@ -87,6 +87,7 @@ class Graphviz extends AbstractVisitor
             if ($primaryKey !== null && in_array($column->getName(), $primaryKey->getColumns(), true)) {
                 $label .= "\xe2\x9c\xb7";
             }
+
             $label .= '</TD></TR>';
         }
 
@@ -108,6 +109,7 @@ class Graphviz extends AbstractVisitor
         foreach ($options as $key => $value) {
             $node .= $key . '=' . $value . ' ';
         }
+
         $node .= "]\n";
 
         return $node;
@@ -126,6 +128,7 @@ class Graphviz extends AbstractVisitor
         foreach ($options as $key => $value) {
             $relation .= $key . '=' . $value . ' ';
         }
+
         $relation .= "]\n";
 
         return $relation;

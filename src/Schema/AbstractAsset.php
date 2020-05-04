@@ -48,11 +48,13 @@ abstract class AbstractAsset
             $this->_quoted = true;
             $name          = $this->trimQuotes($name);
         }
+
         if (strpos($name, '.') !== false) {
             $parts            = explode('.', $name);
             $this->_namespace = $parts[0];
             $name             = $parts[1];
         }
+
         $this->_name = $name;
     }
 

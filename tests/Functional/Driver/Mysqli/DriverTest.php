@@ -24,9 +24,6 @@ class DriverTest extends AbstractDriverTest
         self::markTestSkipped('MySQLi only test.');
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function createDriver() : DriverInterface
     {
         return new Driver();

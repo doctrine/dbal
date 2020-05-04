@@ -20,9 +20,6 @@ final class DateIntervalTest extends TestCase
     /** @var DateIntervalType */
     private $type;
 
-    /**
-     * {@inheritDoc}
-     */
     protected function setUp() : void
     {
         $this->platform = $this->createMock(AbstractPlatform::class);

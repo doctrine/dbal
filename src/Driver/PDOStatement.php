@@ -104,16 +104,25 @@ class PDOStatement implements IteratorAggregate, Statement
         }
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function columnCount()
     {
         return $this->stmt->columnCount();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function errorCode()
     {
         return $this->stmt->errorCode();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function errorInfo()
     {
         return $this->stmt->errorInfo();

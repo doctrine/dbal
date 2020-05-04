@@ -60,6 +60,7 @@ class Connection extends \Doctrine\DBAL\Connection
                 } else {
                     $params['portability'] &= self::PORTABILITY_OTHERVENDORS;
                 }
+
                 $this->portability = $params['portability'];
             }
 
@@ -103,9 +104,6 @@ class Connection extends \Doctrine\DBAL\Connection
         return $stmt;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function prepare(string $sql) : DriverStatement
     {
         $stmt = new Statement(parent::prepare($sql), $this);
@@ -114,9 +112,6 @@ class Connection extends \Doctrine\DBAL\Connection
         return $stmt;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function query(string $sql) : ResultStatement
     {
         $connection = $this->getWrappedConnection();

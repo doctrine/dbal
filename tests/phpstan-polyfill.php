@@ -2,12 +2,9 @@
 
 declare(strict_types=1);
 
-(static function () : void {
-    foreach (['ibm_db2', 'mysqli', 'oci8', 'sqlsrv', 'pgsql'] as $extension) {
-        if (extension_loaded($extension)) {
-            continue;
-        }
+// PHPStan does not read global constants from the stubs yet, remove this when it does
+if (defined('OCI_NO_AUTO_COMMIT')) {
+    return;
+}
 
-        require sprintf(__DIR__ . '/../vendor/jetbrains/phpstorm-stubs/%1$s/%1$s.php', $extension);
-    }
-})();
+define('OCI_NO_AUTO_COMMIT', 0);

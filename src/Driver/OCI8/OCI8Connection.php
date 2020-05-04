@@ -8,9 +8,6 @@ use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\ParameterType;
 use UnexpectedValueException;
-use const OCI_COMMIT_ON_SUCCESS;
-use const OCI_DEFAULT;
-use const OCI_NO_AUTO_COMMIT;
 use function addcslashes;
 use function is_float;
 use function is_int;
@@ -23,6 +20,8 @@ use function oci_server_version;
 use function preg_match;
 use function sprintf;
 use function str_replace;
+use const OCI_COMMIT_ON_SUCCESS;
+use const OCI_NO_AUTO_COMMIT;
 
 /**
  * OCI8 implementation of the Connection interface.
@@ -52,7 +51,7 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
         $password,
         $db,
         $charset = '',
-        $sessionMode = OCI_DEFAULT,
+        $sessionMode = OCI_NO_AUTO_COMMIT,
         $persistent = false
     ) {
         $dbh = $persistent
@@ -101,17 +100,11 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
         return false;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function prepare(string $sql) : DriverStatement
     {
         return new OCI8Statement($this->dbh, $sql, $this);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function query(string $sql) : ResultStatement
     {
         $stmt = $this->prepare($sql);
@@ -128,14 +121,12 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
         if (is_int($value) || is_float($value)) {
             return $value;
         }
+
         $value = str_replace("'", "''", $value);
 
         return "'" . addcslashes($value, "\000\n\r\\\032") . "'";
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function exec(string $statement) : int
     {
         $stmt = $this->prepare($statement);
@@ -192,6 +183,7 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
         if (! oci_commit($this->dbh)) {
             throw OCI8Exception::fromErrorInfo($this->errorInfo());
         }
+
         $this->executeMode = OCI_COMMIT_ON_SUCCESS;
 
         return true;
@@ -205,6 +197,7 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
         if (! oci_rollback($this->dbh)) {
             throw OCI8Exception::fromErrorInfo($this->errorInfo());
         }
+
         $this->executeMode = OCI_COMMIT_ON_SUCCESS;
 
         return true;

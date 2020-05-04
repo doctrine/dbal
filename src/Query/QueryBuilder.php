@@ -232,6 +232,7 @@ class QueryBuilder
             case self::INSERT:
                 $sql = $this->getSQLForInsert();
                 break;
+
             case self::DELETE:
                 $sql = $this->getSQLForDelete();
                 break;
@@ -1287,6 +1288,7 @@ class QueryBuilder
             $this->boundCounter++;
             $placeHolder = ':dcValue' . $this->boundCounter;
         }
+
         $this->setParameter(substr($placeHolder, 1), $value, $type);
 
         return $placeHolder;
@@ -1339,11 +1341,13 @@ class QueryBuilder
                 if (array_key_exists($join['joinAlias'], $knownAliases)) {
                     throw QueryException::nonUniqueAlias($join['joinAlias'], array_keys($knownAliases));
                 }
+
                 $sql .= ' ' . strtoupper($join['joinType'])
                     . ' JOIN ' . $join['joinTable'] . ' ' . $join['joinAlias'];
                 if ($join['joinCondition'] !== null) {
                     $sql .= ' ON ' . $join['joinCondition'];
                 }
+
                 $knownAliases[$join['joinAlias']] = true;
             }
 

@@ -8,9 +8,6 @@ use Doctrine\DBAL\Types\Types;
 
 class MariaDb1027PlatformTest extends AbstractMySQLPlatformTestCase
 {
-    /**
-     * {@inheritdoc}
-     */
     public function createPlatform() : AbstractPlatform
     {
         return new MariaDb1027Platform();

@@ -85,6 +85,7 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
         if ($data === false) {
             $data = [];
         }
+
         $data[$this->realKey] = $this->data;
 
         $this->resultCache->save($this->cacheKey, $data, $this->lifetime);

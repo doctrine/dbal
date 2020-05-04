@@ -96,6 +96,7 @@ class MasterSlaveConnection extends Connection
         if (! isset($params['slaves'], $params['master'])) {
             throw new InvalidArgumentException('master or slaves configuration missing');
         }
+
         if (count($params['slaves']) === 0) {
             throw new InvalidArgumentException('You have to configure at least one slaves.');
         }
@@ -302,9 +303,6 @@ class MasterSlaveConnection extends Connection
         return parent::insert($tableName, $data, $types);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function exec(string $statement) : int
     {
         $this->connect('master');
@@ -342,9 +340,6 @@ class MasterSlaveConnection extends Connection
         parent::rollbackSavepoint($savepoint);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function query(string $sql) : ResultStatement
     {
         $this->connect('master');
@@ -366,9 +361,6 @@ class MasterSlaveConnection extends Connection
         return $statement;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function prepare(string $sql) : Statement
     {
         $this->connect('master');

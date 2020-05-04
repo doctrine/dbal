@@ -8,7 +8,6 @@ use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
 use Doctrine\DBAL\Types\Type;
-use const CASE_LOWER;
 use function array_change_key_case;
 use function array_map;
 use function array_reverse;
@@ -27,6 +26,7 @@ use function strtolower;
 use function trim;
 use function unlink;
 use function usort;
+use const CASE_LOWER;
 
 /**
  * Sqlite SchemaManager.
@@ -113,6 +113,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
         if ($database === null) {
             $database = $this->_conn->getDatabase();
         }
+
         $sql              = $this->_platform->getListTableForeignKeysSQL($table, $database);
         $tableForeignKeys = $this->_conn->fetchAll($sql);
 
@@ -361,8 +362,10 @@ class SqliteSchemaManager extends AbstractSchemaManager
                     if (strpos($tableColumn['length'], ',') === false) {
                         $tableColumn['length'] .= ',0';
                     }
+
                     [$precision, $scale] = array_map('trim', explode(',', $tableColumn['length']));
                 }
+
                 $length = null;
                 break;
         }
@@ -402,6 +405,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
                 if (! isset($value['on_delete']) || $value['on_delete'] === 'RESTRICT') {
                     $value['on_delete'] = null;
                 }
+
                 if (! isset($value['on_update']) || $value['on_update'] === 'RESTRICT') {
                     $value['on_update'] = null;
                 }
@@ -417,6 +421,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
                     'deferred'=> $value['deferred'],
                 ];
             }
+
             $list[$name]['local'][]   = $value['from'];
             $list[$name]['foreign'][] = $value['to'];
         }

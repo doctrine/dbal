@@ -24,17 +24,11 @@ class DriverTest extends AbstractDriverTest
         self::markTestSkipped('sqlsrv only test.');
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function createDriver() : DriverInterface
     {
         return new Driver();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected static function getDatabaseNameForConnectionWithoutDatabaseNameParameter() : ?string
     {
         return 'master';

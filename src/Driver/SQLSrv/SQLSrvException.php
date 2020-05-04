@@ -3,9 +3,9 @@
 namespace Doctrine\DBAL\Driver\SQLSrv;
 
 use Doctrine\DBAL\Driver\AbstractDriverException;
-use const SQLSRV_ERR_ERRORS;
 use function rtrim;
 use function sqlsrv_errors;
+use const SQLSRV_ERR_ERRORS;
 
 /**
  * @psalm-immutable
@@ -15,7 +15,7 @@ class SQLSrvException extends AbstractDriverException
     /**
      * Helper method to turn sql server errors into exception.
      *
-     * @return \Doctrine\DBAL\Driver\SQLSrv\SQLSrvException
+     * @return SQLSrvException
      */
     public static function fromSqlSrvErrors()
     {

@@ -45,10 +45,11 @@ class MysqliConnectionTest extends FunctionalTestCase
 
     public function testRestoresErrorHandlerOnException() : void
     {
-        $handler         = static function () : bool {
+        $handler = static function () : bool {
             self::fail('Never expected this to be called');
         };
-        $default_handler = set_error_handler($handler);
+
+        $defaultHandler = set_error_handler($handler);
 
         try {
             new MysqliConnection(['host' => '255.255.255.255'], 'user', 'pass');
@@ -57,7 +58,7 @@ class MysqliConnectionTest extends FunctionalTestCase
             self::assertSame('Network is unreachable', $e->getMessage());
         }
 
-        self::assertSame($handler, set_error_handler($default_handler), 'Restoring error handler failed.');
+        self::assertSame($handler, set_error_handler($defaultHandler), 'Restoring error handler failed.');
         restore_error_handler();
         restore_error_handler();
     }

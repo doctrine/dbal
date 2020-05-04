@@ -22,9 +22,6 @@ class JsonTest extends TestCase
     /** @var JsonType */
     protected $type;
 
-    /**
-     * {@inheritdoc}
-     */
     protected function setUp() : void
     {
         $this->platform = $this->createMock(AbstractPlatform::class);

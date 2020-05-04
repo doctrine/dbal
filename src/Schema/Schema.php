@@ -67,6 +67,7 @@ class Schema extends AbstractAsset
         if ($schemaConfig === null) {
             $schemaConfig = new SchemaConfig();
         }
+
         $this->_schemaConfig = $schemaConfig;
         $this->_setName($schemaConfig->getName() ?? 'public');
 
@@ -287,7 +288,7 @@ class Schema extends AbstractAsset
      *
      * @param string $namespaceName The name of the namespace to create.
      *
-     * @return \Doctrine\DBAL\Schema\Schema This schema instance.
+     * @return Schema This schema instance.
      *
      * @throws SchemaException
      */
@@ -329,7 +330,7 @@ class Schema extends AbstractAsset
      * @param string $oldTableName
      * @param string $newTableName
      *
-     * @return \Doctrine\DBAL\Schema\Schema
+     * @return Schema
      */
     public function renameTable($oldTableName, $newTableName)
     {
@@ -347,7 +348,7 @@ class Schema extends AbstractAsset
      *
      * @param string $tableName
      *
-     * @return \Doctrine\DBAL\Schema\Schema
+     * @return Schema
      */
     public function dropTable($tableName)
     {
@@ -378,7 +379,7 @@ class Schema extends AbstractAsset
     /**
      * @param string $sequenceName
      *
-     * @return \Doctrine\DBAL\Schema\Schema
+     * @return Schema
      */
     public function dropSequence($sequenceName)
     {
@@ -468,6 +469,7 @@ class Schema extends AbstractAsset
         foreach ($this->_tables as $k => $table) {
             $this->_tables[$k] = clone $table;
         }
+
         foreach ($this->_sequences as $k => $sequence) {
             $this->_sequences[$k] = clone $sequence;
         }

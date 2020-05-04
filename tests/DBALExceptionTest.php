@@ -17,7 +17,6 @@ class DBALExceptionTest extends TestCase
 {
     public function testDriverExceptionDuringQueryAcceptsBinaryData() : void
     {
-        /** @var Driver $driver */
         $driver = $this->createMock(Driver::class);
         $e      = DBALException::driverExceptionDuringQuery($driver, new Exception(), '', ['ABC', chr(128)]);
         self::assertStringContainsString('with params ["ABC", "\x80"]', $e->getMessage());
@@ -25,7 +24,6 @@ class DBALExceptionTest extends TestCase
 
     public function testDriverExceptionDuringQueryAcceptsResource() : void
     {
-        /** @var Driver $driver */
         $driver = $this->createMock(Driver::class);
         $e      = DBALException::driverExceptionDuringQuery($driver, new Exception(), 'INSERT INTO file (`content`) VALUES (?)', [1 => fopen(__FILE__, 'r')]);
         self::assertStringContainsString('Resource', $e->getMessage());
@@ -33,10 +31,8 @@ class DBALExceptionTest extends TestCase
 
     public function testAvoidOverWrappingOnDriverException() : void
     {
-        /** @var Driver $driver */
         $driver = $this->createMock(Driver::class);
 
-        /** @var InnerDriverException $inner */
         $inner = $this->createMock(InnerDriverException::class);
 
         $ex = new DriverException('', $inner);

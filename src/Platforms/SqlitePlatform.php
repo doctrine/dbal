@@ -63,8 +63,10 @@ class SqlitePlatform extends AbstractPlatform
         switch ($type) {
             case 'time':
                 return 'time(\'now\')';
+
             case 'date':
                 return 'date(\'now\')';
+
             case 'timestamp':
             default:
                 return 'datetime(\'now\')';
@@ -76,7 +78,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getTrimExpression($str, $pos = TrimMode::UNSPECIFIED, $char = false)
     {
-        $trimChar = $char !== false ? (', ' . $char) : '';
+        $trimChar = $char !== false ? ', ' . $char : '';
 
         switch ($pos) {
             case TrimMode::LEADING:
@@ -130,26 +132,25 @@ class SqlitePlatform extends AbstractPlatform
             case DateIntervalUnit::MINUTE:
             case DateIntervalUnit::HOUR:
                 return 'DATETIME(' . $date . ",'" . $operator . $interval . ' ' . $unit . "')";
-
-            default:
-                switch ($unit) {
-                    case DateIntervalUnit::WEEK:
-                        $interval *= 7;
-                        $unit      = DateIntervalUnit::DAY;
-                        break;
-
-                    case DateIntervalUnit::QUARTER:
-                        $interval *= 3;
-                        $unit      = DateIntervalUnit::MONTH;
-                        break;
-                }
-
-                if (! is_numeric($interval)) {
-                    $interval = "' || " . $interval . " || '";
-                }
-
-                return 'DATE(' . $date . ",'" . $operator . $interval . ' ' . $unit . "')";
         }
+
+        switch ($unit) {
+            case DateIntervalUnit::WEEK:
+                $interval *= 7;
+                $unit      = DateIntervalUnit::DAY;
+                break;
+
+            case DateIntervalUnit::QUARTER:
+                $interval *= 3;
+                $unit      = DateIntervalUnit::MONTH;
+                break;
+        }
+
+        if (! is_numeric($interval)) {
+            $interval = "' || " . $interval . " || '";
+        }
+
+        return 'DATE(' . $date . ",'" . $operator . $interval . ' ' . $unit . "')";
     }
 
     /**
@@ -168,10 +169,12 @@ class SqlitePlatform extends AbstractPlatform
         switch ($level) {
             case TransactionIsolationLevel::READ_UNCOMMITTED:
                 return '0';
+
             case TransactionIsolationLevel::READ_COMMITTED:
             case TransactionIsolationLevel::REPEATABLE_READ:
             case TransactionIsolationLevel::SERIALIZABLE:
                 return '1';
+
             default:
                 return parent::_getTransactionIsolationLevelSQL($level);
         }
@@ -769,6 +772,11 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function supportsForeignKeyConstraints()
     {
+        return true;
+    }
+
+    public function supportsCreateDropForeignKeyConstraints() : bool
+    {
         return false;
     }
 
@@ -785,7 +793,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getCreateForeignKeySQL(ForeignKeyConstraint $foreignKey, $table)
     {
-        throw new DBALException('Sqlite platform does not support alter foreign key.');
+        throw new DBALException('Sqlite platform does not support alter foreign key, the table must be fully recreated using getAlterTableSQL.');
     }
 
     /**
@@ -793,7 +801,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getDropForeignKeySQL($foreignKey, $table)
     {
-        throw new DBALException('Sqlite platform does not support alter foreign key.');
+        throw new DBALException('Sqlite platform does not support alter foreign key, the table must be fully recreated using getAlterTableSQL.');
     }
 
     /**

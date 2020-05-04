@@ -50,7 +50,7 @@ class SchemaDropTableEventArgs extends SchemaEventArgs
     /**
      * @param string $sql
      *
-     * @return \Doctrine\DBAL\Event\SchemaDropTableEventArgs
+     * @return SchemaDropTableEventArgs
      */
     public function setSql($sql)
     {

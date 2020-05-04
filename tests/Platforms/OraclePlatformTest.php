@@ -213,9 +213,6 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         self::assertTrue($this->platform->supportsSavepoints());
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function supportsCommentOnStatement() : bool
     {
         return true;
@@ -844,7 +841,7 @@ FROM     user_tab_columns c
 WHERE    c.table_name = 'test'
 ORDER BY c.column_id
 SQL
-                ,
+,
             ],
             [
                 '/',
@@ -860,7 +857,7 @@ FROM     user_tab_columns c
 WHERE    c.table_name = 'test'
 ORDER BY c.column_id
 SQL
-                ,
+,
             ],
             [
                 'scott',
@@ -876,30 +873,21 @@ FROM     all_tab_columns c
 WHERE    c.table_name = 'test' AND c.owner = 'SCOTT'
 ORDER BY c.column_id
 SQL
-                ,
+,
             ],
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL() : string
     {
         return 'CONSTRAINT "select" UNIQUE (foo)';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getQuotesReservedKeywordInIndexDeclarationSQL() : string
     {
         return 'INDEX "select" (foo)';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getQuotesReservedKeywordInTruncateTableSQL() : string
     {
         return 'TRUNCATE TABLE "select"';

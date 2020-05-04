@@ -6,7 +6,6 @@ use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\ParameterType;
-use const SQLSRV_ERR_ERRORS;
 use function is_float;
 use function is_int;
 use function sprintf;
@@ -20,6 +19,7 @@ use function sqlsrv_rollback;
 use function sqlsrv_rows_affected;
 use function sqlsrv_server_info;
 use function str_replace;
+use const SQLSRV_ERR_ERRORS;
 
 /**
  * SQL Server implementation for the Connection interface.
@@ -72,17 +72,11 @@ class SQLSrvConnection implements ServerInfoAwareConnection
         return false;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function prepare(string $sql) : DriverStatement
     {
         return new SQLSrvStatement($this->conn, $sql, $this->lastInsertId);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function query(string $sql) : ResultStatement
     {
         $stmt = $this->prepare($sql);
@@ -107,9 +101,6 @@ class SQLSrvConnection implements ServerInfoAwareConnection
         return "'" . str_replace("'", "''", $value) . "'";
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function exec(string $statement) : int
     {
         $stmt = sqlsrv_query($this->conn, $statement);

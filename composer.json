@@ -38,7 +38,7 @@
         "ocramius/package-versions": "^1.4"
     },
     "require-dev": {
-        "doctrine/coding-standard": "^6.0",
+        "doctrine/coding-standard": "^7.0",
         "jetbrains/phpstorm-stubs": "^2019.1",
         "nikic/php-parser": "^4.4",
         "phpstan/phpstan": "^0.12.18",

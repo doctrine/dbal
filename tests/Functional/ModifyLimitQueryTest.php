@@ -4,9 +4,9 @@ namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
-use const CASE_LOWER;
 use function array_change_key_case;
 use function count;
+use const CASE_LOWER;
 
 class ModifyLimitQueryTest extends FunctionalTestCase
 {
@@ -32,6 +32,7 @@ class ModifyLimitQueryTest extends FunctionalTestCase
             $sm->createTable($table2);
             self::$tableCreated = true;
         }
+
         $this->connection->exec($this->connection->getDatabasePlatform()->getTruncateTableSQL('modify_limit_table'));
         $this->connection->exec($this->connection->getDatabasePlatform()->getTruncateTableSQL('modify_limit_table2'));
     }

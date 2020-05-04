@@ -228,9 +228,6 @@ class Statement implements IteratorAggregate, DriverStatement
         return $value;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function rowCount() : int
     {
         assert($this->stmt instanceof DriverStatement);

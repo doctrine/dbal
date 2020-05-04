@@ -92,7 +92,7 @@ class QueryCacheProfile
     }
 
     /**
-     * @return \Doctrine\DBAL\Cache\QueryCacheProfile
+     * @return QueryCacheProfile
      */
     public function setResultCacheDriver(Cache $cache)
     {
@@ -102,7 +102,7 @@ class QueryCacheProfile
     /**
      * @param string|null $cacheKey
      *
-     * @return \Doctrine\DBAL\Cache\QueryCacheProfile
+     * @return QueryCacheProfile
      */
     public function setCacheKey($cacheKey)
     {
@@ -112,7 +112,7 @@ class QueryCacheProfile
     /**
      * @param int $lifetime
      *
-     * @return \Doctrine\DBAL\Cache\QueryCacheProfile
+     * @return QueryCacheProfile
      */
     public function setLifetime($lifetime)
     {

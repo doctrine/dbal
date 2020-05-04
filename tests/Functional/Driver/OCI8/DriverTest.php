@@ -24,25 +24,16 @@ class DriverTest extends AbstractDriverTest
         self::markTestSkipped('oci8 only test.');
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function testConnectsWithoutDatabaseNameParameter() : void
     {
         self::markTestSkipped('Oracle does not support connecting without database name.');
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function testReturnsDatabaseNameWithoutDatabaseNameParameter() : void
     {
         self::markTestSkipped('Oracle does not support connecting without database name.');
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function createDriver() : DriverInterface
     {
         return new Driver();

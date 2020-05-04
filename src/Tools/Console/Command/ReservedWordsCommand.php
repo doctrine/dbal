@@ -21,6 +21,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use function array_keys;
+use function assert;
 use function count;
 use function implode;
 
@@ -104,8 +105,8 @@ EOT
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        /** @var Connection $conn */
         $conn = $this->getHelper('db')->getConnection();
+        assert($conn instanceof Connection);
 
         $keywordLists = (array) $input->getOption('list');
         if (count($keywordLists) === 0) {
@@ -120,6 +121,7 @@ EOT
                     'Known lists: ' . implode(', ', array_keys($this->keywordListClasses))
                 );
             }
+
             $class      = $this->keywordListClasses[$keywordList];
             $keywords[] = new $class();
         }

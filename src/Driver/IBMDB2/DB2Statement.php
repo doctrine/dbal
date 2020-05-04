@@ -7,11 +7,6 @@ use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use IteratorAggregate;
-use const DB2_BINARY;
-use const DB2_CHAR;
-use const DB2_LONG;
-use const DB2_PARAM_FILE;
-use const DB2_PARAM_IN;
 use function assert;
 use function db2_bind_param;
 use function db2_execute;
@@ -32,6 +27,11 @@ use function ksort;
 use function stream_copy_to_stream;
 use function stream_get_meta_data;
 use function tmpfile;
+use const DB2_BINARY;
+use const DB2_CHAR;
+use const DB2_LONG;
+use const DB2_PARAM_FILE;
+use const DB2_PARAM_IN;
 
 class DB2Statement implements IteratorAggregate, Statement
 {
@@ -275,7 +275,9 @@ class DB2Statement implements IteratorAggregate, Statement
                 while (($row = $this->fetchColumn()) !== false) {
                     $rows[] = $row;
                 }
+
                 break;
+
             default:
                 while (($row = $this->fetch($fetchMode)) !== false) {
                     $rows[] = $row;
@@ -299,9 +301,6 @@ class DB2Statement implements IteratorAggregate, Statement
         return $row[0] ?? null;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function rowCount() : int
     {
         return @db2_num_rows($this->stmt);

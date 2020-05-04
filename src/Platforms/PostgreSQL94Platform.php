@@ -530,7 +530,6 @@ SQL
         }
 
         foreach ($diff->changedColumns as $columnDiff) {
-            /** @var $columnDiff \Doctrine\DBAL\Schema\ColumnDiff */
             if ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
                 continue;
             }

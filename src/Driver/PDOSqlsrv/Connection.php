@@ -43,9 +43,6 @@ class Connection extends PDOConnection
         return $val;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected function createStatement(\PDOStatement $stmt) : PDOStatement
     {
         return new Statement($stmt);

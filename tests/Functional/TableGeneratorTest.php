@@ -35,6 +35,7 @@ class TableGeneratorTest extends FunctionalTestCase
             }
         } catch (Throwable $e) {
         }
+
         $this->generator = new TableGenerator($this->connection);
     }
 

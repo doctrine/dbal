@@ -242,11 +242,14 @@ class OraclePlatform extends AbstractPlatform
         switch ($level) {
             case TransactionIsolationLevel::READ_UNCOMMITTED:
                 return 'READ UNCOMMITTED';
+
             case TransactionIsolationLevel::READ_COMMITTED:
                 return 'READ COMMITTED';
+
             case TransactionIsolationLevel::REPEATABLE_READ:
             case TransactionIsolationLevel::SERIALIZABLE:
                 return 'SERIALIZABLE';
+
             default:
                 return parent::_getTransactionIsolationLevelSQL($level);
         }

@@ -61,7 +61,7 @@ class Sequence extends AbstractAsset
     /**
      * @param int $allocationSize
      *
-     * @return \Doctrine\DBAL\Schema\Sequence
+     * @return Sequence
      */
     public function setAllocationSize($allocationSize)
     {
@@ -77,7 +77,7 @@ class Sequence extends AbstractAsset
     /**
      * @param int $initialValue
      *
-     * @return \Doctrine\DBAL\Schema\Sequence
+     * @return Sequence
      */
     public function setInitialValue($initialValue)
     {
@@ -93,7 +93,7 @@ class Sequence extends AbstractAsset
     /**
      * @param int $cache
      *
-     * @return \Doctrine\DBAL\Schema\Sequence
+     * @return Sequence
      */
     public function setCache($cache)
     {

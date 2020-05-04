@@ -8,7 +8,6 @@ use Exception;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\TestCase;
 use Throwable;
-use const PHP_EOL;
 use function array_map;
 use function array_reverse;
 use function count;
@@ -18,6 +17,7 @@ use function is_object;
 use function is_scalar;
 use function strpos;
 use function var_export;
+use const PHP_EOL;
 
 abstract class FunctionalTestCase extends TestCase
 {
@@ -49,6 +49,7 @@ abstract class FunctionalTestCase extends TestCase
         if (! isset(self::$sharedConnection)) {
             self::$sharedConnection = TestUtil::getConnection();
         }
+
         $this->connection = self::$sharedConnection;
 
         $this->sqlLoggerStack = new DebugStack();
@@ -106,6 +107,7 @@ abstract class FunctionalTestCase extends TestCase
 
             throw new Exception($message, (int) $t->getCode(), $t);
         }
+
         throw $t;
     }
 }

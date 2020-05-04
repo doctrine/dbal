@@ -4,13 +4,14 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Types\Type;
-use const CASE_LOWER;
 use function array_change_key_case;
+use function assert;
 use function preg_match;
 use function str_replace;
 use function strpos;
 use function strtolower;
 use function substr;
+use const CASE_LOWER;
 
 /**
  * IBM Db2 Schema Manager.
@@ -67,13 +68,16 @@ class DB2SchemaManager extends AbstractSchemaManager
                 $length = $tableColumn['length'];
                 $fixed  = false;
                 break;
+
             case 'character':
                 $length = $tableColumn['length'];
                 $fixed  = true;
                 break;
+
             case 'clob':
                 $length = $tableColumn['length'];
                 break;
+
             case 'decimal':
             case 'double':
             case 'real':
@@ -212,13 +216,16 @@ class DB2SchemaManager extends AbstractSchemaManager
         return new View($view['name'], $sql);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function listTableDetails($tableName) : Table
     {
         $table = parent::listTableDetails($tableName);
 
-        /** @var DB2Platform $platform */
         $platform = $this->_platform;
-        $sql      = $platform->getListTableCommentsSQL($tableName);
+        assert($platform instanceof DB2Platform);
+        $sql = $platform->getListTableCommentsSQL($tableName);
 
         $tableOptions = $this->_conn->fetchAssoc($sql);
 

@@ -31,7 +31,7 @@ class DBALException extends Exception
     /**
      * @param string $method
      *
-     * @return \Doctrine\DBAL\DBALException
+     * @return DBALException
      */
     public static function notSupported($method)
     {
@@ -90,7 +90,7 @@ class DBALException extends Exception
     }
 
     /**
-     * @return \Doctrine\DBAL\DBALException
+     * @return DBALException
      */
     public static function invalidPdoInstance()
     {
@@ -103,7 +103,7 @@ class DBALException extends Exception
     /**
      * @param string|null $url The URL that was provided in the connection parameters (if any).
      *
-     * @return \Doctrine\DBAL\DBALException
+     * @return DBALException
      */
     public static function driverRequired($url = null)
     {
@@ -125,7 +125,7 @@ class DBALException extends Exception
      * @param string   $unknownDriverName
      * @param string[] $knownDrivers
      *
-     * @return \Doctrine\DBAL\DBALException
+     * @return DBALException
      */
     public static function unknownDriver($unknownDriverName, array $knownDrivers)
     {
@@ -145,6 +145,7 @@ class DBALException extends Exception
         if (count($params) > 0) {
             $msg .= ' with params ' . self::formatParameters($params);
         }
+
         $msg .= ":\n\n" . $driverEx->getMessage();
 
         return static::wrapException($driver, $driverEx, $msg);
@@ -166,6 +167,7 @@ class DBALException extends Exception
         if ($driverEx instanceof DriverException) {
             return $driverEx;
         }
+
         if ($driver instanceof ExceptionConverterDriver && $driverEx instanceof DriverExceptionInterface) {
             return $driver->convertException($msg, $driverEx);
         }
@@ -202,7 +204,7 @@ class DBALException extends Exception
     /**
      * @param string $wrapperClass
      *
-     * @return \Doctrine\DBAL\DBALException
+     * @return DBALException
      */
     public static function invalidWrapperClass($wrapperClass)
     {
@@ -213,7 +215,7 @@ class DBALException extends Exception
     /**
      * @param string $driverClass
      *
-     * @return \Doctrine\DBAL\DBALException
+     * @return DBALException
      */
     public static function invalidDriverClass($driverClass)
     {
@@ -223,7 +225,7 @@ class DBALException extends Exception
     /**
      * @param string $tableName
      *
-     * @return \Doctrine\DBAL\DBALException
+     * @return DBALException
      */
     public static function invalidTableName($tableName)
     {
@@ -233,7 +235,7 @@ class DBALException extends Exception
     /**
      * @param string $tableName
      *
-     * @return \Doctrine\DBAL\DBALException
+     * @return DBALException
      */
     public static function noColumnsSpecifiedForTable($tableName)
     {
@@ -241,7 +243,7 @@ class DBALException extends Exception
     }
 
     /**
-     * @return \Doctrine\DBAL\DBALException
+     * @return DBALException
      */
     public static function limitOffsetInvalid()
     {
@@ -251,7 +253,7 @@ class DBALException extends Exception
     /**
      * @param string $name
      *
-     * @return \Doctrine\DBAL\DBALException
+     * @return DBALException
      */
     public static function typeExists($name)
     {
@@ -261,7 +263,7 @@ class DBALException extends Exception
     /**
      * @param string $name
      *
-     * @return \Doctrine\DBAL\DBALException
+     * @return DBALException
      */
     public static function unknownColumnType($name)
     {
@@ -277,7 +279,7 @@ class DBALException extends Exception
     /**
      * @param string $name
      *
-     * @return \Doctrine\DBAL\DBALException
+     * @return DBALException
      */
     public static function typeNotFound($name)
     {

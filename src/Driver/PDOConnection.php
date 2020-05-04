@@ -34,9 +34,6 @@ class PDOConnection implements ServerInfoAwareConnection
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function exec(string $statement) : int
     {
         try {
@@ -54,9 +51,6 @@ class PDOConnection implements ServerInfoAwareConnection
         return $this->connection->getAttribute(PDO::ATTR_SERVER_VERSION);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function prepare(string $sql) : Statement
     {
         try {
@@ -68,9 +62,6 @@ class PDOConnection implements ServerInfoAwareConnection
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function query(string $sql) : ResultStatement
     {
         try {

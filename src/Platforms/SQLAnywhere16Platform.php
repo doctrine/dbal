@@ -19,6 +19,7 @@ use UnexpectedValueException;
 use function array_merge;
 use function array_unique;
 use function array_values;
+use function assert;
 use function count;
 use function explode;
 use function func_get_args;
@@ -637,6 +638,7 @@ class SQLAnywhere16Platform extends AbstractPlatform
 
             case self::FOREIGN_KEY_MATCH_FULL_UNIQUE:
                 return 'UNIQUE FULL';
+
             default:
                 throw new InvalidArgumentException('Invalid foreign key match type: ' . $type);
         }
@@ -1136,8 +1138,10 @@ SQL
             switch ($pos) {
                 case TrimMode::LEADING:
                     return $this->getLtrimExpression($str);
+
                 case TrimMode::TRAILING:
                     return $this->getRtrimExpression($str);
+
                 default:
                     return 'TRIM(' . $str . ')';
             }
@@ -1148,8 +1152,10 @@ SQL
         switch ($pos) {
             case TrimMode::LEADING:
                 return 'SUBSTR(' . $str . ', PATINDEX(' . $pattern . ', ' . $str . '))';
+
             case TrimMode::TRAILING:
                 return 'REVERSE(SUBSTR(REVERSE(' . $str . '), PATINDEX(' . $pattern . ', REVERSE(' . $str . '))))';
+
             default:
                 return 'REVERSE(SUBSTR(REVERSE(SUBSTR(' . $str . ', PATINDEX(' . $pattern . ', ' . $str . '))), ' .
                     'PATINDEX(' . $pattern . ', REVERSE(SUBSTR(' . $str . ', PATINDEX(' . $pattern . ', ' . $str . '))))))';
@@ -1325,8 +1331,8 @@ SQL
         }
 
         if (! empty($options['indexes'])) {
-            /** @var Index $index */
             foreach ((array) $options['indexes'] as $index) {
+                assert($index instanceof Index);
                 $indexSql[] = $this->getCreateIndexSQL($index, $tableName);
             }
         }
@@ -1367,12 +1373,16 @@ SQL
         switch ($level) {
             case TransactionIsolationLevel::READ_UNCOMMITTED:
                 return '0';
+
             case TransactionIsolationLevel::READ_COMMITTED:
                 return '1';
+
             case TransactionIsolationLevel::REPEATABLE_READ:
                 return '2';
+
             case TransactionIsolationLevel::SERIALIZABLE:
                 return '3';
+
             default:
                 throw new InvalidArgumentException('Invalid isolation level:' . $level);
         }

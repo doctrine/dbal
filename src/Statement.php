@@ -93,6 +93,7 @@ class Statement implements IteratorAggregate, DriverStatement
             if (is_string($type)) {
                 $type = Type::getType($type);
             }
+
             if ($type instanceof Type) {
                 $value       = $type->convertToDatabaseValue($value, $this->platform);
                 $bindingType = $type->getBindingType();
@@ -153,6 +154,7 @@ class Statement implements IteratorAggregate, DriverStatement
             if ($logger !== null) {
                 $logger->stopQuery();
             }
+
             throw DBALException::driverExceptionDuringQuery(
                 $this->conn->getDriver(),
                 $ex,
@@ -164,6 +166,7 @@ class Statement implements IteratorAggregate, DriverStatement
         if ($logger !== null) {
             $logger->stopQuery();
         }
+
         $this->params = [];
         $this->types  = [];
 

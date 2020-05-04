@@ -42,18 +42,22 @@ class SchemaDiffTest extends TestCase
      */
     private function createPlatform(bool $unsafe)
     {
-        /** @var AbstractPlatform|MockObject $platform */
         $platform = $this->createMock(AbstractPlatform::class);
         $platform->expects(self::exactly(1))
             ->method('getCreateSchemaSQL')
             ->with('foo_ns')
             ->will(self::returnValue('create_schema'));
+
+        $platform->method('supportsCreateDropForeignKeyConstraints')
+            ->will(self::returnValue(true));
+
         if ($unsafe) {
             $platform->expects(self::exactly(1))
                  ->method('getDropSequenceSql')
                  ->with(self::isInstanceOf(Sequence::class))
                  ->will(self::returnValue('drop_seq'));
         }
+
         $platform->expects(self::exactly(1))
                  ->method('getAlterSequenceSql')
                  ->with(self::isInstanceOf(Sequence::class))
@@ -68,6 +72,7 @@ class SchemaDiffTest extends TestCase
                      ->with(self::isInstanceOf(Table::class))
                      ->will(self::returnValue('drop_table'));
         }
+
         $platform->expects(self::exactly(1))
                  ->method('getCreateTableSql')
                  ->with(self::isInstanceOf(Table::class))
@@ -89,13 +94,14 @@ class SchemaDiffTest extends TestCase
                      )
                      ->will(self::returnValue('drop_orphan_fk'));
         }
+
         $platform->expects(self::exactly(1))
                 ->method('supportsSchemas')
                 ->will(self::returnValue(true));
         $platform->expects(self::exactly(1))
                 ->method('supportsSequences')
                 ->will(self::returnValue(true));
-        $platform->expects(self::exactly(2))
+        $platform->expects(self::any())
                 ->method('supportsForeignKeyConstraints')
                 ->will(self::returnValue(true));
 

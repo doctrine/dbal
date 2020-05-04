@@ -792,14 +792,14 @@ class QueryBuilderTest extends TestCase
 
         $qb->setParameter(':test', (object) 1);
 
-        $qb_clone = clone $qb;
+        $qbClone = clone $qb;
 
-        self::assertEquals((string) $qb, (string) $qb_clone);
+        self::assertEquals((string) $qb, (string) $qbClone);
 
         $qb->andWhere('u.id = 1');
 
-        self::assertNotSame($qb->getQueryParts(), $qb_clone->getQueryParts());
-        self::assertNotSame($qb->getParameters(), $qb_clone->getParameters());
+        self::assertNotSame($qb->getQueryParts(), $qbClone->getQueryParts());
+        self::assertNotSame($qb->getParameters(), $qbClone->getParameters());
     }
 
     public function testSimpleSelectWithoutTableAlias() : void

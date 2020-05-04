@@ -223,6 +223,7 @@ class MysqliStatement implements IteratorAggregate, Statement
                     if (get_resource_type($value) !== 'stream') {
                         throw new InvalidArgumentException('Resources passed with the LARGE_OBJECT parameter type must be stream resources.');
                     }
+
                     $streams[$parameter] = $value;
                     $values[$parameter]  = null;
                     continue;
@@ -413,9 +414,6 @@ class MysqliStatement implements IteratorAggregate, Statement
         return true;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function rowCount() : int
     {
         if ($this->_columnNames === false) {

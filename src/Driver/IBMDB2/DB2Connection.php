@@ -7,8 +7,6 @@ use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\ParameterType;
 use stdClass;
-use const DB2_AUTOCOMMIT_OFF;
-use const DB2_AUTOCOMMIT_ON;
 use function assert;
 use function db2_autocommit;
 use function db2_commit;
@@ -25,6 +23,8 @@ use function db2_rollback;
 use function db2_server_info;
 use function db2_stmt_errormsg;
 use function is_bool;
+use const DB2_AUTOCOMMIT_OFF;
+use const DB2_AUTOCOMMIT_ON;
 
 class DB2Connection implements ServerInfoAwareConnection
 {
@@ -61,8 +61,8 @@ class DB2Connection implements ServerInfoAwareConnection
      */
     public function getServerVersion()
     {
-        /** @var stdClass $serverInfo */
         $serverInfo = db2_server_info($this->conn);
+        assert($serverInfo instanceof stdClass);
 
         return $serverInfo->DBMS_VER;
     }
@@ -75,9 +75,6 @@ class DB2Connection implements ServerInfoAwareConnection
         return false;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function prepare(string $sql) : DriverStatement
     {
         $stmt = @db2_prepare($this->conn, $sql);
@@ -88,9 +85,6 @@ class DB2Connection implements ServerInfoAwareConnection
         return new DB2Statement($stmt);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function query(string $sql) : ResultStatement
     {
         $stmt = $this->prepare($sql);
@@ -113,9 +107,6 @@ class DB2Connection implements ServerInfoAwareConnection
         return "'" . $input . "'";
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function exec(string $statement) : int
     {
         $stmt = @db2_exec($this->conn, $statement);

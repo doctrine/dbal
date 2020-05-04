@@ -637,6 +637,7 @@ SQL
             if (count($queryParts) > 0) {
                 $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . implode(', ', $queryParts);
             }
+
             $sql = array_merge(
                 $this->getPreAlterTableIndexForeignKeySQL($diff),
                 $sql,
@@ -663,25 +664,27 @@ SQL
             $sql = array_merge($sql, $this->getPreAlterTableAlterPrimaryKeySQL($diff, $remIndex));
 
             foreach ($diff->addedIndexes as $addKey => $addIndex) {
-                if ($remIndex->getColumns() === $addIndex->getColumns()) {
-                    $indexClause = 'INDEX ' . $addIndex->getName();
-
-                    if ($addIndex->isPrimary()) {
-                        $indexClause = 'PRIMARY KEY';
-                    } elseif ($addIndex->isUnique()) {
-                        $indexClause = 'UNIQUE INDEX ' . $addIndex->getName();
-                    }
-
-                    $query  = 'ALTER TABLE ' . $table . ' DROP INDEX ' . $remIndex->getName() . ', ';
-                    $query .= 'ADD ' . $indexClause;
-                    $query .= ' (' . $this->getIndexFieldDeclarationListSQL($addIndex) . ')';
-
-                    $sql[] = $query;
-
-                    unset($diff->removedIndexes[$remKey], $diff->addedIndexes[$addKey]);
-
-                    break;
+                if ($remIndex->getColumns() !== $addIndex->getColumns()) {
+                    continue;
                 }
+
+                $indexClause = 'INDEX ' . $addIndex->getName();
+
+                if ($addIndex->isPrimary()) {
+                    $indexClause = 'PRIMARY KEY';
+                } elseif ($addIndex->isUnique()) {
+                    $indexClause = 'UNIQUE INDEX ' . $addIndex->getName();
+                }
+
+                $query  = 'ALTER TABLE ' . $table . ' DROP INDEX ' . $remIndex->getName() . ', ';
+                $query .= 'ADD ' . $indexClause;
+                $query .= ' (' . $this->getIndexFieldDeclarationListSQL($addIndex) . ')';
+
+                $sql[] = $query;
+
+                unset($diff->removedIndexes[$remKey], $diff->addedIndexes[$addKey]);
+
+                break;
             }
         }
 
@@ -987,6 +990,7 @@ SQL
         if ($foreignKey->hasOption('match')) {
             $query .= ' MATCH ' . $foreignKey->getOption('match');
         }
+
         $query .= parent::getAdvancedForeignKeyOptionsSQL($foreignKey);
 
         return $query;
@@ -1182,9 +1186,6 @@ SQL
         return TransactionIsolationLevel::REPEATABLE_READ;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function supportsColumnLengthIndexes() : bool
     {
         return true;

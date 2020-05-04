@@ -101,17 +101,11 @@ class DriverTest extends AbstractDriverTest
         self::fail(sprintf('Query result does not contain a record where column "query" equals "%s".', $sql));
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function createDriver() : DriverInterface
     {
         return new Driver();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected static function getDatabaseNameForConnectionWithoutDatabaseNameParameter() : ?string
     {
         return 'postgres';

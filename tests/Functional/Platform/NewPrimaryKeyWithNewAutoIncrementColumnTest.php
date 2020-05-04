@@ -9,9 +9,6 @@ use Doctrine\DBAL\Tests\FunctionalTestCase;
 
 final class NewPrimaryKeyWithNewAutoIncrementColumnTest extends FunctionalTestCase
 {
-    /**
-     * {@inheritDoc}
-     */
     protected function setUp() : void
     {
         parent::setUp();

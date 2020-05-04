@@ -8,12 +8,12 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Throwable;
-use const CASE_LOWER;
 use function array_change_key_case;
 use function sprintf;
 use function strlen;
 use function strtolower;
 use function substr;
+use const CASE_LOWER;
 
 /**
  * @group DBAL-20
@@ -83,8 +83,8 @@ class MasterSlaveConnectionTest extends FunctionalTestCase
                 unset($params['slaves'][$index]['charset']);
             }
 
-            /** @var MasterSlaveConnection $conn */
             $conn = DriverManager::getConnection($params);
+            self::assertInstanceOf(MasterSlaveConnection::class, $conn);
             $conn->connect('slave');
 
             self::assertFalse($conn->isConnectedToMaster());
