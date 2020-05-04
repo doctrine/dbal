@@ -51,7 +51,6 @@ class Table extends AbstractAsset
     private $implicitIndexes = [];
 
     /**
-     * @param string                 $name
      * @param Column[]               $columns
      * @param Index[]                $indexes
      * @param UniqueConstraint[]     $uniqueConstraints
@@ -61,14 +60,14 @@ class Table extends AbstractAsset
      * @throws SchemaException
      */
     public function __construct(
-        $name,
+        string $name,
         array $columns = [],
         array $indexes = [],
         array $uniqueConstraints = [],
         array $fkConstraints = [],
         array $options = []
     ) {
-        if (strlen($name) === 0) {
+        if ($name === '') {
             throw InvalidTableName::new($name);
         }
 
