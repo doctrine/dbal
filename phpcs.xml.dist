@@ -61,11 +61,6 @@
         <exclude-pattern>tests/Doctrine/Tests/DBAL/Tools/TestAsset/*</exclude-pattern>
     </rule>
 
-    <!-- https://github.com/slevomat/coding-standard/issues/868 -->
-    <rule ref="SlevomatCodingStandard.PHP.UselessParentheses.UselessParentheses">
-        <exclude-pattern>tests/continuousphp/bootstrap.php</exclude-pattern>
-    </rule>
-
     <!-- see https://github.com/squizlabs/PHP_CodeSniffer/issues/2099 -->
     <rule ref="Squiz.Commenting.FunctionComment.InvalidNoReturn">
         <exclude-pattern>lib/Doctrine/DBAL/Platforms/AbstractPlatform.php</exclude-pattern>
