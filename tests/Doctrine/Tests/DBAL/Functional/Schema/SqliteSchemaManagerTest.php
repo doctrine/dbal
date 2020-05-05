@@ -294,4 +294,26 @@ SQL;
             ->getColumn('col1')
             ->getComment());
     }
+
+    /**
+     * @doesNotPerformAssertions
+     */
+    public function testCreatingATableWithAForeignKey() : void
+    {
+        $schema = new Schema\Schema();
+
+        $referencedTable = $schema->createTable('referenced');
+        $referencedTable->addColumn('id', 'integer');
+
+        $referencingTable = $schema->createTable('referencing');
+        $referencingTable->addColumn('id', 'integer');
+        $referencingTable->addColumn('referenced_id', 'integer');
+        $referencingTable->addForeignKeyConstraint(
+            $referencedTable,
+            ['referenced_id'],
+            ['id']
+        );
+
+        $schema->toSql($this->connection->getDatabasePlatform());
+    }
 }
