@@ -37,10 +37,6 @@
         </properties>
     </rule>
 
-    <rule ref="Squiz.NamingConventions.ValidVariableName.PublicHasUnderscore">
-        <exclude-pattern>*/lib/*</exclude-pattern>
-    </rule>
-
     <rule ref="SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint">
         <exclude-pattern>*/lib/*</exclude-pattern>
     </rule>
