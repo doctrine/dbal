@@ -98,11 +98,6 @@
         <exclude-pattern>lib/Doctrine/DBAL/Driver/SQLSrv/SQLSrvStatement.php</exclude-pattern>
     </rule>
 
-    <!-- sqlsrv functions are documented in upper case but reflected in lower case -->
-    <rule ref="Squiz.PHP.LowercasePHPFunctions.CallUppercase">
-        <exclude-pattern>lib/Doctrine/DBAL/Driver/SQLSrv/SQLSrvStatement.php</exclude-pattern>
-    </rule>
-
     <!-- see https://github.com/doctrine/dbal/issues/3377 -->
     <rule ref="SlevomatCodingStandard.Operators.DisallowEqualOperators.DisallowedNotEqualOperator">
         <exclude-pattern>lib/Doctrine/DBAL/Schema/Comparator.php</exclude-pattern>
