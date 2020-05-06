@@ -136,6 +136,7 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
 
         if ($row) {
             $this->data[] = $row;
+            $this->emptied = true;
 
             $fetchMode = $fetchMode ?: $this->defaultFetchMode;
 
@@ -157,8 +158,6 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
 
             throw new InvalidArgumentException('Invalid fetch-style given for caching result.');
         }
-
-        $this->emptied = true;
 
         return false;
     }
