@@ -135,7 +135,7 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
         $row = $this->statement->fetch(FetchMode::ASSOCIATIVE);
 
         $this->emptied = true;
-        
+
         if ($row) {
             $this->data[] = $row;
 
