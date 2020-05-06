@@ -49,11 +49,6 @@ jobs:
       env: PHPStan
       install: travis_retry composer install --prefer-dist
       script: vendor/bin/phpstan analyse
-    - stage: Smoke Testing
-      php: 7.3
-      env: PHP_CodeSniffer
-      install: travis_retry composer install --prefer-dist
-      script: vendor/bin/phpcs
 
     - stage: Test
       php: 7.2
