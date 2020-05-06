@@ -165,7 +165,7 @@ class ResultCacheTest extends DbalFunctionalTestCase
 
         $this->hydrateStmt($stmt, FetchMode::NUMERIC);
 
-        self::assertCount(2, $this->sqlLogger->queries);
+        self::assertCount(1, $this->sqlLogger->queries);
     }
 
     public function testFetchAllAndFinishSavesCache() : void
