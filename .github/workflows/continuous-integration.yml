@@ -34,8 +34,8 @@ jobs:
       - name: "Install dependencies with composer"
         run: "composer install --no-interaction --no-progress --no-suggest"
 
-      - name: "Psalm"
-        run: "vendor/bin/psalm"
+      - name: "Run a static analysis with vimeo/psalm"
+        run: "vendor/bin/psalm --show-info=false --stats --output-format=github --threads=4"
 
   coding-standards:
     name: "Coding Standards"
