@@ -44,11 +44,6 @@ jobs:
     - stage: Smoke Testing
       php: 7.3
       env: DB=sqlite COVERAGE=yes
-    - stage: Smoke Testing
-      php: 7.3
-      env: PHPStan
-      install: travis_retry composer install --prefer-dist
-      script: vendor/bin/phpstan analyse
 
     - stage: Test
       php: 7.2
