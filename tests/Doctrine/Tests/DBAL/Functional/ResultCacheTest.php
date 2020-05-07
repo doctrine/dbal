@@ -193,7 +193,21 @@ class ResultCacheTest extends DbalFunctionalTestCase
 
         self::assertEquals([1], $stmt->fetchAll(FetchMode::COLUMN));
     }
-
+    
+    public function testGetIterator(): void {
+        $query = $this->connection->getDatabasePlatform()
+                                  ->getDummySelectSQL('1');
+    
+        $qcp = new QueryCacheProfile(0, 0, new ArrayCache());
+    
+        $stmt = $this->connection->executeCacheQuery($query, [], [], $qcp);
+        $stmt->getIterator();
+        $stmt->closeCursor();
+    
+        $stmt = $this->connection->executeCacheQuery($query, [], [], $qcp);
+    
+        self::assertEquals(new \ArrayIterator([[1 => '1']]), $stmt->getIterator());
+    }
     /**
      * @param array<int, array<int, int|string>> $expectedResult
      */
