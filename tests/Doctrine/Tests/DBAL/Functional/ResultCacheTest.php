@@ -209,9 +209,9 @@ class ResultCacheTest extends DbalFunctionalTestCase
         $stmt = $this->connection->executeCacheQuery($query, [], [], $qcp);
 
         $iterator = $stmt->getIterator();
-        
+
         self::assertTrue($iterator instanceof ArrayIterator);
-    
+
         self::assertEquals(1, $iterator->count());
     }
 
