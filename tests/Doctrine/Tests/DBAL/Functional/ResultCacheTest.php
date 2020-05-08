@@ -212,9 +212,7 @@ class ResultCacheTest extends DbalFunctionalTestCase
         $iterator = $stmt->/** @scrutinizer ignore-call */
                             getIterator();
 
-        self::assertTrue($iterator instanceof ArrayIterator);
-
-        self::assertEquals(1, $iterator->count());
+        self::assertCount(1, $iterator);
     }
 
     /**
