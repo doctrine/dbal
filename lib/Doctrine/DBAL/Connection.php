@@ -922,7 +922,7 @@ class Connection implements DriverConnection
 
         return $stmt;
     }
-
+    
     /**
      * Executes a caching query.
      *
@@ -931,9 +931,10 @@ class Connection implements DriverConnection
      * @param int[]|string[]    $types  The types the previous parameters are in.
      * @param QueryCacheProfile $qcp    The query cache profile.
      *
-     * @return ResultStatement
+     * @return ResultCacheStatement|ArrayStatement
      *
      * @throws CacheException
+     * @throws DBALException
      */
     public function executeCacheQuery($query, $params, $types, QueryCacheProfile $qcp)
     {
@@ -980,6 +981,8 @@ class Connection implements DriverConnection
      *                           represents a row of the result set.
      *
      * @return mixed[] The projected result of the query.
+     *
+     * @throws DBALException
      */
     public function project($query, array $params, Closure $function)
     {
