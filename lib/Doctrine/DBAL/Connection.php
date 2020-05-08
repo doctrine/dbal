@@ -564,6 +564,8 @@ class Connection implements DriverConnection
      * @param int[]|string[] $types     The query parameter types.
      *
      * @return mixed[]|false False is returned if no rows are found.
+     *
+     * @throws DBALException
      */
     public function fetchArray($statement, array $params = [], array $types = [])
     {
@@ -687,6 +689,8 @@ class Connection implements DriverConnection
      * @param int $level The level to set.
      *
      * @return int
+     *
+     * @throws DBALException
      */
     public function setTransactionIsolation($level)
     {
@@ -699,6 +703,8 @@ class Connection implements DriverConnection
      * Gets the currently active transaction isolation level.
      *
      * @return int The current transaction isolation level.
+     *
+     * @throws DBALException
      */
     public function getTransactionIsolation()
     {
@@ -814,6 +820,8 @@ class Connection implements DriverConnection
      * @param string $str The name to be quoted.
      *
      * @return string The quoted name.
+     *
+     * @throws DBALException
      */
     public function quoteIdentifier($str)
     {
@@ -840,6 +848,8 @@ class Connection implements DriverConnection
      * @param int[]|string[] $types  The query parameter types.
      *
      * @return mixed[]
+     *
+     * @throws DBALException
      */
     public function fetchAll($sql, array $params = [], $types = [])
     {
@@ -1200,6 +1210,8 @@ class Connection implements DriverConnection
      * @return void
      *
      * @throws ConnectionException
+     *
+     * @throws DBALException
      */
     public function setNestTransactionsWithSavepoints($nestTransactionsWithSavepoints)
     {
@@ -1275,6 +1287,8 @@ class Connection implements DriverConnection
      *
      * @throws ConnectionException If the commit failed due to no active transaction or
      *                                            because the transaction was marked for rollback only.
+     *
+     * @throws DBALException
      */
     public function commit()
     {
@@ -1348,6 +1362,8 @@ class Connection implements DriverConnection
      * @return bool
      *
      * @throws ConnectionException If the rollback operation failed.
+     *
+     * @throws DBALException
      */
     public function rollBack()
     {
@@ -1400,6 +1416,8 @@ class Connection implements DriverConnection
      * @return void
      *
      * @throws ConnectionException
+     *
+     * @throws DBALException
      */
     public function createSavepoint($savepoint)
     {
@@ -1418,6 +1436,8 @@ class Connection implements DriverConnection
      * @return void
      *
      * @throws ConnectionException
+     *
+     * @throws DBALException
      */
     public function releaseSavepoint($savepoint)
     {
@@ -1440,6 +1460,8 @@ class Connection implements DriverConnection
      * @return void
      *
      * @throws ConnectionException
+     *
+     * @throws DBALException
      */
     public function rollbackSavepoint($savepoint)
     {
@@ -1518,6 +1540,8 @@ class Connection implements DriverConnection
      * @param string $type  The name of the DBAL mapping type.
      *
      * @return mixed The converted value.
+     *
+     * @throws DBALException
      */
     public function convertToDatabaseValue($value, $type)
     {
@@ -1532,6 +1556,8 @@ class Connection implements DriverConnection
      * @param string $type  The name of the DBAL mapping type.
      *
      * @return mixed The converted type.
+     *
+     * @throws DBALException
      */
     public function convertToPHPValue($value, $type)
     {
@@ -1550,6 +1576,8 @@ class Connection implements DriverConnection
      * @param int[]|string[]                  $types  The parameter types (PDO binding types or DBAL mapping types).
      *
      * @return void
+     *
+     * @throws DBALException
      */
     private function _bindTypedValues($stmt, array $params, array $types)
     {
@@ -1591,6 +1619,8 @@ class Connection implements DriverConnection
      * @param int|string|null $type  The type to bind (PDO or DBAL).
      *
      * @return mixed[] [0] => the (escaped) value, [1] => the binding type.
+     *
+     * @throws DBALException
      */
     private function getBindingInfo($value, $type)
     {
@@ -1618,6 +1648,8 @@ class Connection implements DriverConnection
      * @param int[]|string[] $types
      *
      * @return mixed[]
+     *
+     * @throws DBALException
      */
     public function resolveParams(array $params, array $types)
     {
