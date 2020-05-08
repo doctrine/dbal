@@ -922,7 +922,7 @@ class Connection implements DriverConnection
 
         return $stmt;
     }
-    
+
     /**
      * Executes a caching query.
      *
