@@ -2,7 +2,6 @@
 
 namespace Doctrine\Tests\DBAL\Functional;
 
-use ArrayIterator;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Driver\ResultStatement;
