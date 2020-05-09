@@ -49,6 +49,7 @@
         "vimeo/psalm": "^3.11"
     },
     "suggest": {
+        "doctrine/sql-formatter": "SQL statement formatter. Can be used for syntax highlighting too,",
         "symfony/console": "For helpful console commands such as SQL execution and import of files."
     },
     "bin": ["bin/doctrine-dbal"],
