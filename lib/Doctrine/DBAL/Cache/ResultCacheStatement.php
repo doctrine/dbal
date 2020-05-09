@@ -13,6 +13,7 @@ use Doctrine\DBAL\ForwardCompatibility\Driver\ResultStatement as ForwardCompatib
 use InvalidArgumentException;
 use IteratorAggregate;
 use PDO;
+use function array_map;
 use function array_merge;
 use function array_values;
 use function assert;
@@ -55,7 +56,7 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Forwar
      */
     private $emptied = false;
 
-    /** @var mixed[] */
+    /** @var array<int,array<string,mixed>> */
     private $data;
 
     /** @var int */
@@ -247,7 +248,9 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Forwar
             $data = $this->statement->fetchAll(FetchMode::ASSOCIATIVE);
         }
 
-        return $this->store($data);
+        $this->store($data);
+
+        return array_map('array_values', $this->data);
     }
 
     /**
@@ -261,7 +264,9 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Forwar
             $data = $this->statement->fetchAll(FetchMode::ASSOCIATIVE);
         }
 
-        return $this->store($data);
+        $this->store($data);
+
+        return $this->data;
     }
 
     /**
@@ -311,19 +316,11 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Forwar
     }
 
     /**
-     * @param  array<int,array<mixed>> $data
-     *
-     * @return array<int,array<mixed>>
+     * @param array<int,array<string,mixed>> $data
      */
-    private function store(array $data) : array
+    private function store(array $data) : void
     {
-        foreach ($data as $key => $value) {
-            $data[$key] = [$value];
-        }
-
         $this->data    = $data;
         $this->emptied = true;
-
-        return $this->data;
     }
 }
