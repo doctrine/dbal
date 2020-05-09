@@ -5,15 +5,18 @@ namespace Doctrine\DBAL\Connections;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Connections\Connector\Connector;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Event\ConnectionEventArgs;
 use Doctrine\DBAL\Events;
+use Doctrine\DBAL\Exception\ConnectorException;
 use InvalidArgumentException;
-use function array_rand;
 use function assert;
+use function call_user_func;
 use function count;
 use function func_get_args;
+use function is_callable;
 
 /**
  * Master-Slave Connection
@@ -83,6 +86,9 @@ class MasterSlaveConnection extends Connection
      */
     protected $keepSlave = false;
 
+    /** @var Connector */
+    protected $connector;
+
     /**
      * Creates Master Slave Connection.
      *
@@ -107,7 +113,33 @@ class MasterSlaveConnection extends Connection
 
         $this->keepSlave = (bool) ($params['keepSlave'] ?? false);
 
+        if (! isset($params['factory'])) {
+            $params['factory'] = ConnectorFactory::class;
+        }
+
+        $factoryMethod = [$params['factory'], 'create'];
+
+        if (! is_callable($factoryMethod)) {
+            throw new InvalidArgumentException('Invalid connector factory class given');
+        }
+
+        $this->connector = call_user_func($factoryMethod, $params, $driver);
+
         parent::__construct($params, $driver, $config, $eventManager);
+    }
+
+    /**
+     * @return void
+     *
+     * @throws ConnectorException If connection is already established
+     */
+    public function setConnector(Connector $connector)
+    {
+        if ($this->isConnected() || $this->isConnectedToMaster()) {
+            throw new ConnectorException('Connection already established.');
+        }
+
+        $this->connector = $connector;
     }
 
     /**
@@ -186,37 +218,7 @@ class MasterSlaveConnection extends Connection
      */
     protected function connectTo($connectionName)
     {
-        $params = $this->getParams();
-
-        $driverOptions = $params['driverOptions'] ?? [];
-
-        $connectionParams = $this->chooseConnectionConfiguration($connectionName, $params);
-
-        $user     = $connectionParams['user'] ?? null;
-        $password = $connectionParams['password'] ?? null;
-
-        return $this->_driver->connect($connectionParams, $user, $password, $driverOptions);
-    }
-
-    /**
-     * @param string  $connectionName
-     * @param mixed[] $params
-     *
-     * @return mixed
-     */
-    protected function chooseConnectionConfiguration($connectionName, $params)
-    {
-        if ($connectionName === 'master') {
-            return $params['master'];
-        }
-
-        $config = $params['slaves'][array_rand($params['slaves'])];
-
-        if (! isset($config['charset']) && isset($params['master']['charset'])) {
-            $config['charset'] = $params['master']['charset'];
-        }
-
-        return $config;
+        return $this->connector->connectTo($connectionName);
     }
 
     /**
