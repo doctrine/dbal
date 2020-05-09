@@ -1,5 +1,15 @@
 # Upgrade to 3.0
 
+## Removed `FetchMode` and the corresponding methods
+
+1. The `FetchMode` class and the `setFetchMode()` method of the `Connection` and `Statement` interfaces are removed.
+2. The `Statement::fetch()` method is replaced with `fetchNumeric()`, `fetchAssociative()` and `fetchOne()`.
+3. The `Statement::fetchAll()` method is replaced with `fetchAllNumeric()`, `fetchAllAssociative()` and `fechColumn()`.
+4. The `Statement::fetchColumn()` method is replaced with `fetchOne()`.
+5. The `Connection::fetchArray()` and `fetchAssoc()` methods are replaced with `fetchNumeric()` and `fetchAssociative()` respectively.
+6. The `StatementIterator` class is removed. The usage of a `Statement` object as `Traversable` is no longer possible. Use `iterateNumeric()`, `iterateAssociative()` and `iterateColumn()` instead.
+7. Fetching data in mixed mode (former `FetchMode::MIXED`) is no longer possible.
+
 ## BC BREAK: Dropped handling of one-based numeric arrays of parameters in `Statement::execute()`
 
 The statement implementations no longer detect whether `$params` is a zero- or one-based array. A zero-based numeric array is expected.

@@ -5,16 +5,11 @@ namespace Doctrine\DBAL\Driver\SQLAnywhere;
 use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Driver\FetchUtils;
 use Doctrine\DBAL\Driver\Statement;
-use Doctrine\DBAL\Driver\StatementIterator;
-use Doctrine\DBAL\FetchMode;
-use Doctrine\DBAL\ForwardCompatibility\Driver\ResultStatement as ForwardCompatibleResultStatement;
 use Doctrine\DBAL\ParameterType;
-use IteratorAggregate;
 use function array_key_exists;
 use function assert;
 use function is_int;
 use function is_resource;
-use function sasql_fetch_array;
 use function sasql_fetch_assoc;
 use function sasql_fetch_row;
 use function sasql_prepare;
@@ -24,18 +19,14 @@ use function sasql_stmt_execute;
 use function sasql_stmt_field_count;
 use function sasql_stmt_reset;
 use function sasql_stmt_result_metadata;
-use const SASQL_BOTH;
 
 /**
  * SAP SQL Anywhere implementation of the Statement interface.
  */
-class SQLAnywhereStatement implements IteratorAggregate, Statement, ForwardCompatibleResultStatement
+class SQLAnywhereStatement implements Statement
 {
     /** @var resource The connection resource. */
     private $conn;
-
-    /** @var int Default fetch mode to use. */
-    private $defaultFetchMode = FetchMode::MIXED;
 
     /** @var resource|null The result set resource to fetch. */
     private $result;
@@ -167,90 +158,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement, ForwardCompa
     /**
      * {@inheritdoc}
      *
-     * @deprecated Use fetchNumeric(), fetchAssociative() or fetchOne() instead.
-     *
      * @throws SQLAnywhereException
-     */
-    public function fetch($fetchMode = null)
-    {
-        if (! is_resource($this->result)) {
-            return false;
-        }
-
-        $fetchMode = $fetchMode ?? $this->defaultFetchMode;
-
-        switch ($fetchMode) {
-            case FetchMode::COLUMN:
-                return $this->fetchColumn();
-
-            case FetchMode::ASSOCIATIVE:
-                return sasql_fetch_assoc($this->result);
-
-            case FetchMode::MIXED:
-                return sasql_fetch_array($this->result, SASQL_BOTH);
-
-            case FetchMode::NUMERIC:
-                return sasql_fetch_row($this->result);
-
-            default:
-                throw new SQLAnywhereException('Fetch mode is not supported: ' . $fetchMode);
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated Use fetchAllNumeric(), fetchAllAssociative() or fetchColumn() instead.
-     */
-    public function fetchAll($fetchMode = null)
-    {
-        $rows = [];
-
-        switch ($fetchMode) {
-            case FetchMode::COLUMN:
-                while (($row = $this->fetchColumn()) !== false) {
-                    $rows[] = $row;
-                }
-
-                break;
-
-            default:
-                while (($row = $this->fetch($fetchMode)) !== false) {
-                    $rows[] = $row;
-                }
-        }
-
-        return $rows;
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated Use fetchOne() instead.
-     */
-    public function fetchColumn()
-    {
-        $row = $this->fetch(FetchMode::NUMERIC);
-
-        if ($row === false) {
-            return false;
-        }
-
-        return $row[0] ?? null;
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated Use iterateNumeric(), iterateAssociative() or iterateColumn() instead.
-     */
-    public function getIterator()
-    {
-        return new StatementIterator($this);
-    }
-
-    /**
-     * {@inheritDoc}
      */
     public function fetchNumeric()
     {
@@ -303,20 +211,18 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement, ForwardCompa
         return FetchUtils::fetchAllAssociative($this);
     }
 
+    /**
+     * @return array<int,mixed>
+     *
+     * @throws DriverException
+     */
+    public function fetchColumn() : array
+    {
+        return FetchUtils::fetchColumn($this);
+    }
+
     public function rowCount() : int
     {
         return sasql_stmt_affected_rows($this->stmt);
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated Use one of the fetch- or iterate-related methods.
-     */
-    public function setFetchMode($fetchMode)
-    {
-        $this->defaultFetchMode = $fetchMode;
-
-        return true;
     }
 }

@@ -17,7 +17,6 @@ use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
-use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Logging\DebugStack;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -548,7 +547,7 @@ class ConnectionTest extends TestCase
         );
     }
 
-    public function testFetchAssoc() : void
+    public function testFetchAssociative() : void
     {
         $statement = 'SELECT * FROM foo WHERE bar = ?';
         $params    = [666];
@@ -566,8 +565,7 @@ class ConnectionTest extends TestCase
         $driverStatementMock = $this->createMock(Statement::class);
 
         $driverStatementMock->expects(self::once())
-            ->method('fetch')
-            ->with(FetchMode::ASSOCIATIVE)
+            ->method('fetchAssociative')
             ->will(self::returnValue($result));
 
         $conn = $this->getMockBuilder(Connection::class)
@@ -580,10 +578,10 @@ class ConnectionTest extends TestCase
             ->with($statement, $params, $types)
             ->will(self::returnValue($driverStatementMock));
 
-        self::assertSame($result, $conn->fetchAssoc($statement, $params, $types));
+        self::assertSame($result, $conn->fetchAssociative($statement, $params, $types));
     }
 
-    public function testFetchArray() : void
+    public function testFetchNumeric() : void
     {
         $statement = 'SELECT * FROM foo WHERE bar = ?';
         $params    = [666];
@@ -601,8 +599,7 @@ class ConnectionTest extends TestCase
         $driverStatementMock = $this->createMock(Statement::class);
 
         $driverStatementMock->expects(self::once())
-            ->method('fetch')
-            ->with(FetchMode::NUMERIC)
+            ->method('fetchNumeric')
             ->will(self::returnValue($result));
 
         $conn = $this->getMockBuilder(Connection::class)
@@ -615,10 +612,10 @@ class ConnectionTest extends TestCase
             ->with($statement, $params, $types)
             ->will(self::returnValue($driverStatementMock));
 
-        self::assertSame($result, $conn->fetchArray($statement, $params, $types));
+        self::assertSame($result, $conn->fetchNumeric($statement, $params, $types));
     }
 
-    public function testFetchColumn() : void
+    public function testFetchOne() : void
     {
         $statement = 'SELECT * FROM foo WHERE bar = ?';
         $params    = [666];
@@ -636,7 +633,7 @@ class ConnectionTest extends TestCase
         $driverStatementMock = $this->createMock(Statement::class);
 
         $driverStatementMock->expects(self::once())
-            ->method('fetchColumn')
+            ->method('fetchOne')
             ->will(self::returnValue($result));
 
         $conn = $this->getMockBuilder(Connection::class)
@@ -649,10 +646,10 @@ class ConnectionTest extends TestCase
             ->with($statement, $params, $types)
             ->will(self::returnValue($driverStatementMock));
 
-        self::assertSame($result, $conn->fetchColumn($statement, $params, $types));
+        self::assertSame($result, $conn->fetchOne($statement, $params, $types));
     }
 
-    public function testFetchAll() : void
+    public function testFetchAllAssociative() : void
     {
         $statement = 'SELECT * FROM foo WHERE bar = ?';
         $params    = [666];
@@ -670,7 +667,7 @@ class ConnectionTest extends TestCase
         $driverStatementMock = $this->createMock(Statement::class);
 
         $driverStatementMock->expects(self::once())
-            ->method('fetchAll')
+            ->method('fetchAllAssociative')
             ->will(self::returnValue($result));
 
         $conn = $this->getMockBuilder(Connection::class)
@@ -683,7 +680,7 @@ class ConnectionTest extends TestCase
             ->with($statement, $params, $types)
             ->will(self::returnValue($driverStatementMock));
 
-        self::assertSame($result, $conn->fetchAll($statement, $params, $types));
+        self::assertSame($result, $conn->fetchAllAssociative($statement, $params, $types));
     }
 
     public function testCallingDeleteWithNoDeletionCriteriaResultsInInvalidArgumentException() : void

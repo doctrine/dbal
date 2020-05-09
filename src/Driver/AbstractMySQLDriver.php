@@ -196,7 +196,7 @@ abstract class AbstractMySQLDriver implements ExceptionConverterDriver, VersionA
     {
         $params = $conn->getParams();
 
-        return $params['dbname'] ?? $conn->query('SELECT DATABASE()')->fetchColumn();
+        return $params['dbname'] ?? $conn->query('SELECT DATABASE()')->fetchOne();
     }
 
     /**

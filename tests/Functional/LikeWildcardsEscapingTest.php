@@ -23,6 +23,6 @@ final class LikeWildcardsEscapingTest extends FunctionalTestCase
             )
         );
         $stmt->execute();
-        self::assertTrue((bool) $stmt->fetchColumn());
+        self::assertTrue((bool) $stmt->fetchOne());
     }
 }

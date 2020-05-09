@@ -4,12 +4,7 @@ namespace Doctrine\DBAL\Driver\OCI8;
 
 use Doctrine\DBAL\Driver\FetchUtils;
 use Doctrine\DBAL\Driver\Statement;
-use Doctrine\DBAL\Driver\StatementIterator;
-use Doctrine\DBAL\FetchMode;
-use Doctrine\DBAL\ForwardCompatibility\Driver\ResultStatement as ForwardCompatibleResultStatement;
 use Doctrine\DBAL\ParameterType;
-use InvalidArgumentException;
-use IteratorAggregate;
 use function assert;
 use function count;
 use function implode;
@@ -32,7 +27,6 @@ use function substr;
 use const OCI_ASSOC;
 use const OCI_B_BIN;
 use const OCI_B_BLOB;
-use const OCI_BOTH;
 use const OCI_D_LOB;
 use const OCI_FETCHSTATEMENT_BY_COLUMN;
 use const OCI_FETCHSTATEMENT_BY_ROW;
@@ -46,7 +40,7 @@ use const SQLT_CHR;
 /**
  * The OCI8 implementation of the Statement interface.
  */
-class OCI8Statement implements IteratorAggregate, Statement, ForwardCompatibleResultStatement
+class OCI8Statement implements Statement
 {
     /** @var resource */
     protected $_dbh;
@@ -63,17 +57,6 @@ class OCI8Statement implements IteratorAggregate, Statement, ForwardCompatibleRe
      * @var string
      */
     protected static $_PARAM = ':param';
-
-    /** @var int[] */
-    protected static $fetchModeMap = [
-        FetchMode::MIXED       => OCI_BOTH,
-        FetchMode::ASSOCIATIVE => OCI_ASSOC,
-        FetchMode::NUMERIC     => OCI_NUM,
-        FetchMode::COLUMN      => OCI_NUM,
-    ];
-
-    /** @var int */
-    protected $_defaultFetchMode = FetchMode::MIXED;
 
     /** @var string[] */
     protected $_paramMap = [];
@@ -380,127 +363,6 @@ class OCI8Statement implements IteratorAggregate, Statement, ForwardCompatibleRe
         return $ret;
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated Use one of the fetch- or iterate-related methods.
-     */
-    public function setFetchMode($fetchMode)
-    {
-        $this->_defaultFetchMode = $fetchMode;
-
-        return true;
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated Use iterateNumeric(), iterateAssociative() or iterateColumn() instead.
-     */
-    public function getIterator()
-    {
-        return new StatementIterator($this);
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated Use fetchNumeric(), fetchAssociative() or fetchOne() instead.
-     */
-    public function fetch($fetchMode = null)
-    {
-        // do not try fetching from the statement if it's not expected to contain result
-        // in order to prevent exceptional situation
-        if (! $this->result) {
-            return false;
-        }
-
-        $fetchMode = $fetchMode ?? $this->_defaultFetchMode;
-
-        if ($fetchMode === FetchMode::COLUMN) {
-            return $this->fetchColumn();
-        }
-
-        if (! isset(self::$fetchModeMap[$fetchMode])) {
-            throw new InvalidArgumentException('Invalid fetch style: ' . $fetchMode);
-        }
-
-        return oci_fetch_array(
-            $this->_sth,
-            self::$fetchModeMap[$fetchMode] | OCI_RETURN_NULLS | OCI_RETURN_LOBS
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated Use fetchAllNumeric(), fetchAllAssociative() or fetchColumn() instead.
-     */
-    public function fetchAll($fetchMode = null)
-    {
-        $fetchMode = $fetchMode ?? $this->_defaultFetchMode;
-
-        $result = [];
-
-        if (! isset(self::$fetchModeMap[$fetchMode])) {
-            throw new InvalidArgumentException('Invalid fetch style: ' . $fetchMode);
-        }
-
-        if (self::$fetchModeMap[$fetchMode] === OCI_BOTH) {
-            while ($row = $this->fetch($fetchMode)) {
-                $result[] = $row;
-            }
-        } else {
-            $fetchStructure = OCI_FETCHSTATEMENT_BY_ROW;
-
-            if ($fetchMode === FetchMode::COLUMN) {
-                $fetchStructure = OCI_FETCHSTATEMENT_BY_COLUMN;
-            }
-
-            // do not try fetching from the statement if it's not expected to contain result
-            // in order to prevent exceptional situation
-            if (! $this->result) {
-                return [];
-            }
-
-            oci_fetch_all(
-                $this->_sth,
-                $result,
-                0,
-                -1,
-                self::$fetchModeMap[$fetchMode] | OCI_RETURN_NULLS | $fetchStructure | OCI_RETURN_LOBS
-            );
-
-            if ($fetchMode === FetchMode::COLUMN) {
-                $result = $result[0];
-            }
-        }
-
-        return $result;
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated Use fetchOne() instead.
-     */
-    public function fetchColumn()
-    {
-        // do not try fetching from the statement if it's not expected to contain result
-        // in order to prevent exceptional situation
-        if (! $this->result) {
-            return false;
-        }
-
-        $row = oci_fetch_array($this->_sth, OCI_NUM | OCI_RETURN_NULLS | OCI_RETURN_LOBS);
-
-        if ($row === false) {
-            return false;
-        }
-
-        return $row[0] ?? null;
-    }
-
     public function rowCount() : int
     {
         $count = oci_num_rows($this->_sth);
@@ -517,7 +379,7 @@ class OCI8Statement implements IteratorAggregate, Statement, ForwardCompatibleRe
      */
     public function fetchNumeric()
     {
-        return $this->doFetch(OCI_NUM);
+        return $this->fetch(OCI_NUM);
     }
 
     /**
@@ -525,7 +387,7 @@ class OCI8Statement implements IteratorAggregate, Statement, ForwardCompatibleRe
      */
     public function fetchAssociative()
     {
-        return $this->doFetch(OCI_ASSOC);
+        return $this->fetch(OCI_ASSOC);
     }
 
     /**
@@ -541,7 +403,7 @@ class OCI8Statement implements IteratorAggregate, Statement, ForwardCompatibleRe
      */
     public function fetchAllNumeric() : array
     {
-        return $this->doFetchAll(OCI_NUM, OCI_FETCHSTATEMENT_BY_ROW);
+        return $this->fetchAll(OCI_NUM, OCI_FETCHSTATEMENT_BY_ROW);
     }
 
     /**
@@ -549,13 +411,21 @@ class OCI8Statement implements IteratorAggregate, Statement, ForwardCompatibleRe
      */
     public function fetchAllAssociative() : array
     {
-        return $this->doFetchAll(OCI_ASSOC, OCI_FETCHSTATEMENT_BY_ROW);
+        return $this->fetchAll(OCI_ASSOC, OCI_FETCHSTATEMENT_BY_ROW);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchColumn() : array
+    {
+        return $this->fetchAll(OCI_NUM, OCI_FETCHSTATEMENT_BY_COLUMN)[0];
     }
 
     /**
      * @return mixed|false
      */
-    private function doFetch(int $mode)
+    private function fetch(int $mode)
     {
         // do not try fetching from the statement if it's not expected to contain the result
         // in order to prevent exceptional situation
@@ -572,7 +442,7 @@ class OCI8Statement implements IteratorAggregate, Statement, ForwardCompatibleRe
     /**
      * @return array<mixed>
      */
-    private function doFetchAll(int $mode, int $fetchStructure) : array
+    private function fetchAll(int $mode, int $fetchStructure) : array
     {
         // do not try fetching from the statement if it's not expected to contain the result
         // in order to prevent exceptional situation

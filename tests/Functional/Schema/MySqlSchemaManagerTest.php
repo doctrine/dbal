@@ -462,7 +462,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
             'INSERT INTO test_column_defaults_are_valid () VALUES()'
         );
 
-        $row = $this->connection->fetchAssoc(
+        $row = $this->connection->fetchAssociative(
             'SELECT *, DATEDIFF(CURRENT_TIMESTAMP(), col_datetime) as diff_seconds FROM test_column_defaults_are_valid'
         );
 

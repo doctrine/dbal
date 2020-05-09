@@ -514,7 +514,7 @@ CREATE\sTABLE # Match "CREATE TABLE"
 
     private function getCreateTableSQL(string $table) : string
     {
-        $sql = $this->_conn->fetchColumn(
+        $sql = $this->_conn->fetchOne(
             <<<'SQL'
 SELECT sql
   FROM (

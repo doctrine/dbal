@@ -2,17 +2,14 @@
 
 namespace Doctrine\DBAL\Driver\IBMDB2;
 
+use Doctrine\DBAL\Driver\FetchUtils;
 use Doctrine\DBAL\Driver\Statement;
-use Doctrine\DBAL\Driver\StatementIterator;
-use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
-use IteratorAggregate;
 use function assert;
 use function db2_bind_param;
 use function db2_execute;
 use function db2_fetch_array;
 use function db2_fetch_assoc;
-use function db2_fetch_both;
 use function db2_free_result;
 use function db2_num_fields;
 use function db2_num_rows;
@@ -32,7 +29,7 @@ use const DB2_LONG;
 use const DB2_PARAM_FILE;
 use const DB2_PARAM_IN;
 
-class DB2Statement implements IteratorAggregate, Statement
+class DB2Statement implements Statement
 {
     /** @var resource */
     private $stmt;
@@ -47,9 +44,6 @@ class DB2Statement implements IteratorAggregate, Statement
      * @var mixed[][]
      */
     private $lobs = [];
-
-    /** @var int */
-    private $defaultFetchMode = FetchMode::MIXED;
 
     /**
      * Indicates whether the statement is in the state when fetching results is possible
@@ -196,99 +190,61 @@ class DB2Statement implements IteratorAggregate, Statement
     }
 
     /**
-     * {@inheritdoc}
-     *
-     * @deprecated Use one of the fetch- or iterate-related methods.
+     * {@inheritDoc}
      */
-    public function setFetchMode($fetchMode)
+    public function fetchNumeric()
     {
-        $this->defaultFetchMode = $fetchMode;
+        if (! $this->result) {
+            return false;
+        }
 
-        return true;
+        return db2_fetch_array($this->stmt);
     }
 
     /**
      * {@inheritdoc}
-     *
-     * @deprecated Use iterateNumeric(), iterateAssociative() or iterateColumn() instead.
      */
-    public function getIterator()
+    public function fetchAssociative()
     {
-        return new StatementIterator($this);
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated Use fetchNumeric(), fetchAssociative() or fetchOne() instead.
-     */
-    public function fetch($fetchMode = null)
-    {
-        // do not try fetching from the statement if it's not expected to contain result
+        // do not try fetching from the statement if it's not expected to contain the result
         // in order to prevent exceptional situation
         if (! $this->result) {
             return false;
         }
 
-        $fetchMode = $fetchMode ?? $this->defaultFetchMode;
-        switch ($fetchMode) {
-            case FetchMode::COLUMN:
-                return $this->fetchColumn();
-
-            case FetchMode::MIXED:
-                return db2_fetch_both($this->stmt);
-
-            case FetchMode::ASSOCIATIVE:
-                return db2_fetch_assoc($this->stmt);
-
-            case FetchMode::NUMERIC:
-                return db2_fetch_array($this->stmt);
-
-            default:
-                throw new DB2Exception('Given Fetch-Style ' . $fetchMode . ' is not supported.');
-        }
+        return db2_fetch_assoc($this->stmt);
     }
 
     /**
      * {@inheritdoc}
-     *
-     * @deprecated Use fetchAllNumeric(), fetchAllAssociative() or fetchColumn() instead.
      */
-    public function fetchAll($fetchMode = null)
+    public function fetchOne()
     {
-        $rows = [];
-
-        switch ($fetchMode) {
-            case FetchMode::COLUMN:
-                while (($row = $this->fetchColumn()) !== false) {
-                    $rows[] = $row;
-                }
-
-                break;
-
-            default:
-                while (($row = $this->fetch($fetchMode)) !== false) {
-                    $rows[] = $row;
-                }
-        }
-
-        return $rows;
+        return FetchUtils::fetchOne($this);
     }
 
     /**
      * {@inheritdoc}
-     *
-     * @deprecated Use fetchOne() instead.
      */
-    public function fetchColumn()
+    public function fetchAllNumeric() : array
     {
-        $row = $this->fetch(FetchMode::NUMERIC);
+        return FetchUtils::fetchAllNumeric($this);
+    }
 
-        if ($row === false) {
-            return false;
-        }
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchAllAssociative() : array
+    {
+        return FetchUtils::fetchAllAssociative($this);
+    }
 
-        return $row[0] ?? null;
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchColumn() : array
+    {
+        return FetchUtils::fetchColumn($this);
     }
 
     public function rowCount() : int

@@ -1,13 +1,13 @@
 <?php
 
-namespace Doctrine\DBAL\Driver;
+declare(strict_types=1);
 
-use Traversable;
+namespace Doctrine\DBAL\Driver;
 
 /**
  * Interface for the reading part of a prepare statement only.
  */
-interface ResultStatement extends Traversable
+interface ResultStatement
 {
     /**
      * Closes the cursor, enabling the statement to be executed again.
@@ -20,56 +20,62 @@ interface ResultStatement extends Traversable
      * Returns the number of columns in the result set
      *
      * @return int The number of columns in the result set represented
-     *                 by the PDOStatement object. If there is no result set,
-     *                 this method should return 0.
+     *             by the statement. If there is no result set,
+     *             this method should return 0.
      */
     public function columnCount();
 
     /**
-     * Sets the fetch mode to use while iterating this statement.
+     * Returns the next row of a result set as a numeric array or FALSE if there are no more rows.
      *
-     * @deprecated Use one of the fetch- or iterate-related methods.
+     * @return array<int,mixed>|false
      *
-     * @param int $fetchMode Controls how the next row will be returned to the caller.
-     *                       The value must be one of the {@link \Doctrine\DBAL\FetchMode} constants.
-     *
-     * @return bool
+     * @throws DriverException
      */
-    public function setFetchMode($fetchMode);
+    public function fetchNumeric();
 
     /**
-     * Returns the next row of a result set.
+     * Returns the next row of a result set as an associative array or FALSE if there are no more rows.
      *
-     * @deprecated Use fetchNumeric(), fetchAssociative() or fetchOne() instead.
+     * @return array<string,mixed>|false
      *
-     * @param int|null $fetchMode Controls how the next row will be returned to the caller.
-     *                            The value must be one of the {@link \Doctrine\DBAL\FetchMode} constants,
-     *                            defaulting to {@link \Doctrine\DBAL\FetchMode::MIXED}.
-     *
-     * @return mixed The return value of this method on success depends on the fetch mode. In all cases, FALSE is
-     *               returned on failure.
+     * @throws DriverException
      */
-    public function fetch($fetchMode = null);
+    public function fetchAssociative();
 
     /**
-     * Returns an array containing all of the result set rows.
+     * Returns the first value of the next row of a result set or FALSE if there are no more rows.
      *
-     * @deprecated Use fetchAllNumeric(), fetchAllAssociative() or fetchColumn() instead.
+     * @return mixed|false
      *
-     * @param int|null $fetchMode Controls how the next row will be returned to the caller.
-     *                            The value must be one of the {@link \Doctrine\DBAL\FetchMode} constants,
-     *                            defaulting to {@link \Doctrine\DBAL\FetchMode::MIXED}.
-     *
-     * @return mixed[]
+     * @throws DriverException
      */
-    public function fetchAll($fetchMode = null);
+    public function fetchOne();
 
     /**
-     * Returns a single column from the next row of a result set or FALSE if there are no more rows.
+     * Returns an array containing all of the result set rows represented as numeric arrays.
      *
-     * @deprecated Use fetchOne() instead.
+     * @return array<int,array<int,mixed>>
      *
-     * @return mixed|false A single column in the next row of a result set, or FALSE if there are no more rows.
+     * @throws DriverException
      */
-    public function fetchColumn();
+    public function fetchAllNumeric() : array;
+
+    /**
+     * Returns an array containing all of the result set rows represented as associative arrays.
+     *
+     * @return array<int,array<string,mixed>>
+     *
+     * @throws DriverException
+     */
+    public function fetchAllAssociative() : array;
+
+    /**
+     * Returns an array containing the values of the first column of the result set.
+     *
+     * @return array<int,mixed>
+     *
+     * @throws DriverException
+     */
+    public function fetchColumn() : array;
 }

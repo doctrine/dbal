@@ -1562,7 +1562,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $query = $this->connection->query('SELECT id FROM test_pk_auto_increment WHERE text = \'1\'');
         $query->execute();
-        $lastUsedIdBeforeDelete = (int) $query->fetchColumn();
+        $lastUsedIdBeforeDelete = (int) $query->fetchOne();
 
         $this->connection->query('DELETE FROM test_pk_auto_increment');
 
@@ -1570,7 +1570,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $query = $this->connection->query('SELECT id FROM test_pk_auto_increment WHERE text = \'2\'');
         $query->execute();
-        $lastUsedIdAfterDelete = (int) $query->fetchColumn();
+        $lastUsedIdAfterDelete = (int) $query->fetchOne();
 
         self::assertGreaterThan($lastUsedIdBeforeDelete, $lastUsedIdAfterDelete);
     }

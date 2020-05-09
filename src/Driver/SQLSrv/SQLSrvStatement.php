@@ -4,11 +4,7 @@ namespace Doctrine\DBAL\Driver\SQLSrv;
 
 use Doctrine\DBAL\Driver\FetchUtils;
 use Doctrine\DBAL\Driver\Statement;
-use Doctrine\DBAL\Driver\StatementIterator;
-use Doctrine\DBAL\FetchMode;
-use Doctrine\DBAL\ForwardCompatibility\Driver\ResultStatement as ForwardCompatibleResultStatement;
 use Doctrine\DBAL\ParameterType;
-use IteratorAggregate;
 use function is_int;
 use function is_numeric;
 use function sqlsrv_execute;
@@ -25,14 +21,13 @@ use function SQLSRV_SQLTYPE_VARBINARY;
 use function stripos;
 use const SQLSRV_ENC_BINARY;
 use const SQLSRV_FETCH_ASSOC;
-use const SQLSRV_FETCH_BOTH;
 use const SQLSRV_FETCH_NUMERIC;
 use const SQLSRV_PARAM_IN;
 
 /**
  * SQL Server Statement.
  */
-class SQLSrvStatement implements IteratorAggregate, Statement, ForwardCompatibleResultStatement
+final class SQLSrvStatement implements Statement
 {
     /**
      * The SQLSRV Resource.
@@ -68,24 +63,6 @@ class SQLSrvStatement implements IteratorAggregate, Statement, ForwardCompatible
      * @var int[]
      */
     private $types = [];
-
-    /**
-     * Translations.
-     *
-     * @var int[]
-     */
-    private static $fetchMap = [
-        FetchMode::MIXED       => SQLSRV_FETCH_BOTH,
-        FetchMode::ASSOCIATIVE => SQLSRV_FETCH_ASSOC,
-        FetchMode::NUMERIC     => SQLSRV_FETCH_NUMERIC,
-    ];
-
-    /**
-     * The fetch style.
-     *
-     * @var int
-     */
-    private $defaultFetchMode = FetchMode::MIXED;
 
     /**
      * The last insert ID.
@@ -281,102 +258,10 @@ class SQLSrvStatement implements IteratorAggregate, Statement, ForwardCompatible
 
     /**
      * {@inheritdoc}
-     *
-     * @deprecated Use one of the fetch- or iterate-related methods.
-     */
-    public function setFetchMode($fetchMode)
-    {
-        $this->defaultFetchMode = $fetchMode;
-
-        return true;
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated Use iterateNumeric(), iterateAssociative() or iterateColumn() instead.
-     */
-    public function getIterator()
-    {
-        return new StatementIterator($this);
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated Use fetchNumeric(), fetchAssociative() or fetchOne() instead.
-     *
-     * @throws SQLSrvException
-     */
-    public function fetch($fetchMode = null)
-    {
-        // do not try fetching from the statement if it's not expected to contain result
-        // in order to prevent exceptional situation
-        if ($this->stmt === null || ! $this->result) {
-            return false;
-        }
-
-        $fetchMode = $fetchMode ?? $this->defaultFetchMode;
-
-        if ($fetchMode === FetchMode::COLUMN) {
-            return $this->fetchColumn();
-        }
-
-        if (isset(self::$fetchMap[$fetchMode])) {
-            return sqlsrv_fetch_array($this->stmt, self::$fetchMap[$fetchMode]) ?? false;
-        }
-
-        throw new SQLSrvException('Fetch mode is not supported!');
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated Use fetchAllNumeric(), fetchAllAssociative() or fetchColumn() instead.
-     */
-    public function fetchAll($fetchMode = null)
-    {
-        $rows = [];
-
-        switch ($fetchMode) {
-            case FetchMode::COLUMN:
-                while (($row = $this->fetchColumn()) !== false) {
-                    $rows[] = $row;
-                }
-
-                break;
-
-            default:
-                while (($row = $this->fetch($fetchMode)) !== false) {
-                    $rows[] = $row;
-                }
-        }
-
-        return $rows;
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated Use fetchOne() instead.
-     */
-    public function fetchColumn()
-    {
-        $row = $this->fetch(FetchMode::NUMERIC);
-
-        if ($row === false) {
-            return false;
-        }
-
-        return $row[0] ?? null;
-    }
-
-    /**
-     * {@inheritdoc}
      */
     public function fetchNumeric()
     {
-        return $this->doFetch(SQLSRV_FETCH_NUMERIC);
+        return $this->fetch(SQLSRV_FETCH_NUMERIC);
     }
 
     /**
@@ -384,7 +269,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement, ForwardCompatible
      */
     public function fetchAssociative()
     {
-        return $this->doFetch(SQLSRV_FETCH_ASSOC);
+        return $this->fetch(SQLSRV_FETCH_ASSOC);
     }
 
     /**
@@ -411,6 +296,14 @@ class SQLSrvStatement implements IteratorAggregate, Statement, ForwardCompatible
         return FetchUtils::fetchAllAssociative($this);
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchColumn() : array
+    {
+        return FetchUtils::fetchColumn($this);
+    }
+
     public function rowCount() : int
     {
         if ($this->stmt === null) {
@@ -429,7 +322,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement, ForwardCompatible
     /**
      * @return mixed|false
      */
-    private function doFetch(int $fetchType)
+    private function fetch(int $fetchType)
     {
         // do not try fetching from the statement if it's not expected to contain the result
         // in order to prevent exceptional situation
