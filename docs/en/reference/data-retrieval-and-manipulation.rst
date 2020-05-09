@@ -41,7 +41,7 @@ the query until there are no more rows:
 
     <?php
 
-    while ($row = $stmt->fetch()) {
+    while (($row = $stmt->fetchAssociative()) !== false) {
         echo $row['headline'];
     }
 
@@ -308,7 +308,7 @@ Prepare a given SQL statement and return the
     <?php
     $statement = $conn->prepare('SELECT * FROM user');
     $statement->execute();
-    $users = $statement->fetchAll();
+    $users = $statement->fetchAllAssociative();
 
     /*
     array(
@@ -346,7 +346,7 @@ parameters to the execute method, then returning the statement:
 
     <?php
     $statement = $conn->executeQuery('SELECT * FROM user WHERE username = ?', array('jwage'));
-    $user = $statement->fetch();
+    $user = $statement->fetchAssociative();
 
     /*
     array(
@@ -360,15 +360,15 @@ to perform necessary type conversions between actual input
 parameters and expected database values. See the
 :ref:`Types <mappingMatrix>` section for more information.
 
-fetchAll()
-~~~~~~~~~~
+fetchAllAssociative()
+~~~~~~~~~~~~~~~~~~~~~
 
 Execute the query and fetch all results into an array:
 
 .. code-block:: php
 
     <?php
-    $users = $conn->fetchAll('SELECT * FROM user');
+    $users = $conn->fetchAllAssociative('SELECT * FROM user');
 
     /*
     array(
@@ -379,15 +379,15 @@ Execute the query and fetch all results into an array:
     )
     */
 
-fetchArray()
-~~~~~~~~~~~~
+fetchNumeric()
+~~~~~~~~~~~~~~
 
 Numeric index retrieval of first result row of the given query:
 
 .. code-block:: php
 
     <?php
-    $user = $conn->fetchArray('SELECT * FROM user WHERE username = ?', array('jwage'));
+    $user = $conn->fetchNumeric('SELECT * FROM user WHERE username = ?', array('jwage'));
 
     /*
     array(
@@ -396,26 +396,26 @@ Numeric index retrieval of first result row of the given query:
     )
     */
 
-fetchColumn()
-~~~~~~~~~~~~~
+fetchOne()
+~~~~~~~~~~
 
-Retrieve only the given column of the first result row.
+Retrieve only the value of the first column of the first result row.
 
 .. code-block:: php
 
     <?php
-    $username = $conn->fetchColumn('SELECT username FROM user WHERE id = ?', array(1), 0);
+    $username = $conn->fetchOne('SELECT username FROM user WHERE id = ?', array(1), 0);
     echo $username; // jwage
 
-fetchAssoc()
-~~~~~~~~~~~~
+fetchAssociative()
+~~~~~~~~~~~~~~~~~~
 
-Retrieve assoc row of the first result row.
+Retrieve associative array of the first result row.
 
 .. code-block:: php
 
     <?php
-    $user = $conn->fetchAssoc('SELECT * FROM user WHERE username = ?', array('jwage'));
+    $user = $conn->fetchAssociative('SELECT * FROM user WHERE username = ?', array('jwage'));
     /*
     array(
       'username' => 'jwage',
