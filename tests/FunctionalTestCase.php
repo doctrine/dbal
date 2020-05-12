@@ -46,13 +46,14 @@ abstract class FunctionalTestCase extends TestCase
 
     protected function setUp() : void
     {
+        $this->sqlLoggerStack = new DebugStack();
+
         if (! isset(self::$sharedConnection)) {
             self::$sharedConnection = TestUtil::getConnection();
         }
 
         $this->connection = self::$sharedConnection;
 
-        $this->sqlLoggerStack = new DebugStack();
         $this->connection->getConfiguration()->setSQLLogger($this->sqlLoggerStack);
     }
 
