@@ -48,12 +48,11 @@ class StatementTest extends FunctionalTestCase
      */
     public function testStatementBindParameters(string $query, array $params, array $expected): void
     {
-        $stmt = $this->connection->prepare($query);
-        $stmt->execute($params);
-
         self::assertEquals(
             $expected,
-            $stmt->fetchAssociative()
+            $this->connection->prepare($query)
+                ->execute($params)
+                ->fetchAssociative()
         );
     }
 

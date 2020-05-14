@@ -23,10 +23,9 @@ class Connection extends PDOConnection
             return parent::lastInsertId($name);
         }
 
-        $stmt = $this->prepare('SELECT CONVERT(VARCHAR(MAX), current_value) FROM sys.sequences WHERE name = ?');
-        $stmt->execute([$name]);
-
-        return $stmt->fetchOne();
+        return $this->prepare('SELECT CONVERT(VARCHAR(MAX), current_value) FROM sys.sequences WHERE name = ?')
+            ->execute([$name])
+            ->fetchOne();
     }
 
     /**

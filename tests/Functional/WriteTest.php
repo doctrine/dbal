@@ -74,24 +74,22 @@ class WriteTest extends FunctionalTestCase
 
         $stmt->bindValue(1, 1);
         $stmt->bindValue(2, 'foo');
-        $stmt->execute();
 
-        self::assertEquals(1, $stmt->rowCount());
+        self::assertEquals(1, $stmt->execute()->rowCount());
     }
 
-    public function testPrepareWithPdoTypes(): void
+    public function testPrepareWithPrimitiveTypes(): void
     {
         $sql  = 'INSERT INTO write_table (test_int, test_string) VALUES (?, ?)';
         $stmt = $this->connection->prepare($sql);
 
         $stmt->bindValue(1, 1, ParameterType::INTEGER);
         $stmt->bindValue(2, 'foo', ParameterType::STRING);
-        $stmt->execute();
 
-        self::assertEquals(1, $stmt->rowCount());
+        self::assertEquals(1, $stmt->execute()->rowCount());
     }
 
-    public function testPrepareWithDbalTypes(): void
+    public function testPrepareWithDoctrineMappingTypes(): void
     {
         $sql  = 'INSERT INTO write_table (test_int, test_string) VALUES (?, ?)';
         $stmt = $this->connection->prepare($sql);
@@ -99,12 +97,11 @@ class WriteTest extends FunctionalTestCase
         self::assertInstanceOf(Statement::class, $stmt);
         $stmt->bindValue(1, 1, Type::getType('integer'));
         $stmt->bindValue(2, 'foo', Type::getType('string'));
-        $stmt->execute();
 
-        self::assertEquals(1, $stmt->rowCount());
+        self::assertEquals(1, $stmt->execute()->rowCount());
     }
 
-    public function testPrepareWithDbalTypeNames(): void
+    public function testPrepareWithDoctrineMappingTypeNames(): void
     {
         $sql  = 'INSERT INTO write_table (test_int, test_string) VALUES (?, ?)';
         $stmt = $this->connection->prepare($sql);
@@ -112,9 +109,8 @@ class WriteTest extends FunctionalTestCase
         self::assertInstanceOf(Statement::class, $stmt);
         $stmt->bindValue(1, 1, 'integer');
         $stmt->bindValue(2, 'foo', 'string');
-        $stmt->execute();
 
-        self::assertEquals(1, $stmt->rowCount());
+        self::assertEquals(1, $stmt->execute()->rowCount());
     }
 
     public function insertRows(): void
@@ -178,8 +174,8 @@ class WriteTest extends FunctionalTestCase
             return strtolower($sequence->getName()) === 'write_table_id_seq';
         }));
 
-        $stmt            = $this->connection->query($this->connection->getDatabasePlatform()->getSequenceNextValSQL('write_table_id_seq'));
-        $nextSequenceVal = $stmt->fetchOne();
+        $result          = $this->connection->query($this->connection->getDatabasePlatform()->getSequenceNextValSQL('write_table_id_seq'));
+        $nextSequenceVal = $result->fetchOne();
 
         $lastInsertId = $this->lastInsertId('write_table_id_seq');
 

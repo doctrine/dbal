@@ -7,7 +7,7 @@ use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
-use Doctrine\DBAL\Driver\ResultStatement;
+use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Event\ConnectionEventArgs;
 use Doctrine\DBAL\Events;
@@ -341,7 +341,7 @@ class MasterSlaveConnection extends Connection
         parent::rollbackSavepoint($savepoint);
     }
 
-    public function query(string $sql): ResultStatement
+    public function query(string $sql): Result
     {
         $this->connect('master');
         assert($this->_conn instanceof DriverConnection);

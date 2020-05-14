@@ -1,5 +1,16 @@
 # Upgrade to 3.0
 
+## BC BREAK changes in fetching statement results
+
+1. The `Statement` interface no longer extends `ResultStatement`.
+2. The `ResultStatement` interface has been renamed to `Result`.
+3. Instead of returning `bool`, `Statement::execute()` now returns a `Result` that should be used for fetching the result data and metadata.
+4. The functionality previously available via `Statement::closeCursor()` is now available via `Result::free()`. The behavior of fetching data from a freed result is no longer portable. In this case, some drivers will return `false` while others may throw an exception.
+
+Additional related changes:
+
+1. The `ArrayStatement` and `ResultCacheStatement` classes from the `Cache` package have been renamed to `ArrayResult` and  `CachingResult` respectively and marked `@internal`.
+
 ## BC BREAK `Statement::rowCount()` is moved.
 
 `Statement::rowCount()` has been moved to the `ResultStatement` interface where it belongs by definition.

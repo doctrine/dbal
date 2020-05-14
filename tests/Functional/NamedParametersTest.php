@@ -213,13 +213,12 @@ class NamedParametersTest extends FunctionalTestCase
      */
     public function testTicket(string $query, array $params, array $types, array $expected): void
     {
-        $stmt   = $this->connection->executeQuery($query, $params, $types);
-        $result = $stmt->fetchAllAssociative();
+        $data = $this->connection->fetchAllAssociative($query, $params, $types);
 
-        foreach ($result as $k => $v) {
-            $result[$k] = array_change_key_case($v, CASE_LOWER);
+        foreach ($data as $k => $v) {
+            $data[$k] = array_change_key_case($v, CASE_LOWER);
         }
 
-        self::assertEquals($result, $expected);
+        self::assertEquals($data, $expected);
     }
 }

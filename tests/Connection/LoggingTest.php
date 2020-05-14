@@ -15,8 +15,6 @@ final class LoggingTest extends TestCase
     public function testLogExecuteQuery(): void
     {
         $driverConnection = $this->createStub(DriverConnection::class);
-        $driverConnection->method('query')
-            ->willReturn($this->createStub(Statement::class));
 
         $this->createConnection($driverConnection, 'SELECT * FROM table')
             ->executeQuery('SELECT * FROM table');

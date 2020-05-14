@@ -3,7 +3,7 @@
 namespace Doctrine\DBAL\Driver\OCI8;
 
 use Doctrine\DBAL\Driver\Connection;
-use Doctrine\DBAL\Driver\ResultStatement;
+use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\ParameterType;
@@ -107,12 +107,9 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
         return new OCI8Statement($this->dbh, $sql, $this);
     }
 
-    public function query(string $sql): ResultStatement
+    public function query(string $sql): ResultInterface
     {
-        $stmt = $this->prepare($sql);
-        $stmt->execute();
-
-        return $stmt;
+        return $this->prepare($sql)->execute();
     }
 
     /**
@@ -131,10 +128,7 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
 
     public function exec(string $statement): int
     {
-        $stmt = $this->prepare($statement);
-        $stmt->execute();
-
-        return $stmt->rowCount();
+        return $this->prepare($statement)->execute()->rowCount();
     }
 
     /**

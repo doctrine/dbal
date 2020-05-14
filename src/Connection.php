@@ -4,13 +4,14 @@ namespace Doctrine\DBAL;
 
 use Closure;
 use Doctrine\Common\EventManager;
-use Doctrine\DBAL\Cache\ArrayStatement;
+use Doctrine\DBAL\Abstraction\Result as AbstractionResult;
+use Doctrine\DBAL\Cache\ArrayResult;
 use Doctrine\DBAL\Cache\CacheException;
+use Doctrine\DBAL\Cache\CachingResult;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
-use Doctrine\DBAL\Cache\ResultCacheStatement;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Driver\PingableConnection;
-use Doctrine\DBAL\Driver\ResultStatement;
+use Doctrine\DBAL\Driver\Result as DriverResult;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
@@ -900,9 +901,9 @@ class Connection implements DriverConnection
     public function iterateNumeric(string $query, array $params = [], array $types = []): Traversable
     {
         try {
-            $stmt = $this->executeQuery($query, $params, $types);
+            $result = $this->executeQuery($query, $params, $types);
 
-            while (($row = $stmt->fetchNumeric()) !== false) {
+            while (($row = $result->fetchNumeric()) !== false) {
                 yield $row;
             }
         } catch (Throwable $e) {
@@ -924,9 +925,9 @@ class Connection implements DriverConnection
     public function iterateAssociative(string $query, array $params = [], array $types = []): Traversable
     {
         try {
-            $stmt = $this->executeQuery($query, $params, $types);
+            $result = $this->executeQuery($query, $params, $types);
 
-            while (($row = $stmt->fetchAssociative()) !== false) {
+            while (($row = $result->fetchAssociative()) !== false) {
                 yield $row;
             }
         } catch (Throwable $e) {
@@ -948,9 +949,9 @@ class Connection implements DriverConnection
     public function iterateColumn(string $query, array $params = [], array $types = []): Traversable
     {
         try {
-            $stmt = $this->executeQuery($query, $params, $types);
+            $result = $this->executeQuery($query, $params, $types);
 
-            while (($value = $stmt->fetchOne()) !== false) {
+            while (($value = $result->fetchOne()) !== false) {
                 yield $value;
             }
         } catch (Throwable $e) {
@@ -985,12 +986,14 @@ class Connection implements DriverConnection
      * @param int[]|string[]         $types  The types the previous parameters are in.
      * @param QueryCacheProfile|null $qcp    The query cache profile, optional.
      *
-     * @return ResultStatement The executed statement.
-     *
      * @throws DBALException
      */
-    public function executeQuery(string $query, array $params = [], $types = [], ?QueryCacheProfile $qcp = null): ResultStatement
-    {
+    public function executeQuery(
+        string $query,
+        array $params = [],
+        $types = [],
+        ?QueryCacheProfile $qcp = null
+    ): AbstractionResult {
         if ($qcp !== null) {
             return $this->executeCacheQuery($query, $params, $types, $qcp);
         }
@@ -1009,22 +1012,22 @@ class Connection implements DriverConnection
                 $stmt = $connection->prepare($query);
                 if (count($types) > 0) {
                     $this->_bindTypedValues($stmt, $params, $types);
-                    $stmt->execute();
+                    $result = $stmt->execute();
                 } else {
-                    $stmt->execute($params);
+                    $result = $stmt->execute($params);
                 }
             } else {
-                $stmt = $connection->query($query);
+                $result = $connection->query($query);
             }
+
+            return new Result($result, $this);
         } catch (Throwable $ex) {
             throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $query, $this->resolveParams($params, $types));
+        } finally {
+            if ($logger !== null) {
+                $logger->stopQuery();
+            }
         }
-
-        if ($logger !== null) {
-            $logger->stopQuery();
-        }
-
-        return $stmt;
     }
 
     /**
@@ -1036,8 +1039,9 @@ class Connection implements DriverConnection
      * @param QueryCacheProfile $qcp    The query cache profile.
      *
      * @throws CacheException
+     * @throws DBALException
      */
-    public function executeCacheQuery($query, $params, $types, QueryCacheProfile $qcp): ResultStatement
+    public function executeCacheQuery($query, $params, $types, QueryCacheProfile $qcp): Result
     {
         $resultCache = $qcp->getResultCacheDriver() ?? $this->_config->getResultCacheImpl();
 
@@ -1056,20 +1060,26 @@ class Connection implements DriverConnection
         if ($data !== false) {
             // is the real key part of this row pointers map or is the cache only pointing to other cache keys?
             if (isset($data[$realKey])) {
-                $stmt = new ArrayStatement($data[$realKey]);
+                $result = new ArrayResult($data[$realKey]);
             } elseif (array_key_exists($realKey, $data)) {
-                $stmt = new ArrayStatement([]);
+                $result = new ArrayResult([]);
             }
         }
 
-        if (! isset($stmt)) {
-            $stmt = new ResultCacheStatement($this->executeQuery($query, $params, $types), $resultCache, $cacheKey, $realKey, $qcp->getLifetime());
+        if (! isset($result)) {
+            $result = new CachingResult(
+                $this->executeQuery($query, $params, $types),
+                $resultCache,
+                $cacheKey,
+                $realKey,
+                $qcp->getLifetime()
+            );
         }
 
-        return $stmt;
+        return new Result($result, $this);
     }
 
-    public function query(string $sql): ResultStatement
+    public function query(string $sql): DriverResult
     {
         $connection = $this->getWrappedConnection();
 
@@ -1079,16 +1089,14 @@ class Connection implements DriverConnection
         }
 
         try {
-            $statement = $connection->query($sql);
+            return $connection->query($sql);
         } catch (Throwable $ex) {
             throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $sql);
+        } finally {
+            if ($logger !== null) {
+                $logger->stopQuery();
+            }
         }
-
-        if ($logger !== null) {
-            $logger->stopQuery();
-        }
-
-        return $statement;
     }
 
     /**
@@ -1120,24 +1128,23 @@ class Connection implements DriverConnection
 
                 if (count($types) > 0) {
                     $this->_bindTypedValues($stmt, $params, $types);
-                    $stmt->execute();
+
+                    $result = $stmt->execute();
                 } else {
-                    $stmt->execute($params);
+                    $result = $stmt->execute($params);
                 }
 
-                $result = $stmt->rowCount();
-            } else {
-                $result = $connection->exec($query);
+                return $result->rowCount();
             }
+
+            return $connection->exec($query);
         } catch (Throwable $ex) {
             throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $query, $this->resolveParams($params, $types));
+        } finally {
+            if ($logger !== null) {
+                $logger->stopQuery();
+            }
         }
-
-        if ($logger !== null) {
-            $logger->stopQuery();
-        }
-
-        return $result;
     }
 
     public function exec(string $statement): int
@@ -1150,16 +1157,14 @@ class Connection implements DriverConnection
         }
 
         try {
-            $result = $connection->exec($statement);
+            return $connection->exec($statement);
         } catch (Throwable $ex) {
             throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $statement);
+        } finally {
+            if ($logger !== null) {
+                $logger->stopQuery();
+            }
         }
-
-        if ($logger !== null) {
-            $logger->stopQuery();
-        }
-
-        return $result;
     }
 
     /**
@@ -1643,8 +1648,8 @@ class Connection implements DriverConnection
      * @internal This is a purely internal method. If you rely on this method, you are advised to
      *           copy/paste the code as this method may change, or be removed without prior notice.
      *
-     * @param mixed[]        $params
-     * @param int[]|string[] $types
+     * @param mixed[]                $params
+     * @param array<int|string|null> $types
      *
      * @return mixed[]
      */

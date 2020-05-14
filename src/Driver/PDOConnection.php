@@ -2,6 +2,8 @@
 
 namespace Doctrine\DBAL\Driver;
 
+use Doctrine\DBAL\Driver\PDO\Result;
+use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\ParameterType;
 use PDO;
 
@@ -63,13 +65,13 @@ class PDOConnection implements ServerInfoAwareConnection
         }
     }
 
-    public function query(string $sql): ResultStatement
+    public function query(string $sql): ResultInterface
     {
         try {
             $stmt = $this->connection->query($sql);
             assert($stmt instanceof \PDOStatement);
 
-            return $this->createStatement($stmt);
+            return new Result($stmt);
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
         }

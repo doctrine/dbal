@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver;
 
 /**
- * Driver-level result statement execution result.
+ * Driver-level statement execution result.
  */
 interface Result
 {
@@ -72,7 +72,7 @@ interface Result
      *
      * @return int The number of rows.
      */
-    public function rowCount();
+    public function rowCount(): int;
 
     /**
      * Returns the number of columns in the result
@@ -80,16 +80,7 @@ interface Result
      * @return int The number of columns in the result. If the columns cannot be counted,
      *             this method must return 0.
      */
-    public function columnCount();
-
-    /**
-     * Closes the cursor, enabling the statement to be executed again.
-     *
-     * @deprecated Use Result::free() instead.
-     *
-     * @return bool TRUE on success or FALSE on failure.
-     */
-    public function closeCursor();
+    public function columnCount(): int;
 
     /**
      * Discards the non-fetched portion of the result, enabling the originating statement to be executed again.

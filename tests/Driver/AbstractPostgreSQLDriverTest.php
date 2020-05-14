@@ -5,7 +5,7 @@ namespace Doctrine\DBAL\Tests\Driver;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\AbstractPostgreSQLDriver;
-use Doctrine\DBAL\Driver\ResultStatement;
+use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQL100Platform;
 use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
@@ -24,9 +24,9 @@ class AbstractPostgreSQLDriverTest extends AbstractDriverTest
             'password' => 'bar',
         ];
 
-        $statement = $this->createMock(ResultStatement::class);
+        $result = $this->createMock(Result::class);
 
-        $statement->expects(self::once())
+        $result->expects(self::once())
             ->method('fetchOne')
             ->will(self::returnValue($database));
 
@@ -38,7 +38,7 @@ class AbstractPostgreSQLDriverTest extends AbstractDriverTest
 
         $connection->expects(self::once())
             ->method('query')
-            ->will(self::returnValue($statement));
+            ->will(self::returnValue($result));
 
         self::assertSame($database, $this->driver->getDatabase($connection));
     }

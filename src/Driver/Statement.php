@@ -5,12 +5,9 @@ namespace Doctrine\DBAL\Driver;
 use Doctrine\DBAL\ParameterType;
 
 /**
- * Statement interface.
- * Drivers must implement this interface.
- *
- * This resembles (a subset of) the PDOStatement interface.
+ * Driver-level statement
  */
-interface Statement extends ResultStatement
+interface Statement
 {
     /**
      * Binds a value to a corresponding named (not supported by mysqli driver, see comment below) or positional
@@ -69,7 +66,7 @@ interface Statement extends ResultStatement
      * @param mixed[]|null $params A numeric array of values with as many elements as there are
      *                             bound parameters in the SQL statement being executed.
      *
-     * @return bool TRUE on success or FALSE on failure.
+     * @throws DriverException
      */
-    public function execute($params = null);
+    public function execute($params = null): Result;
 }
