@@ -11,6 +11,86 @@ use PHPUnit\Framework\TestCase;
 
 class ResultTest extends TestCase
 {
+    /**
+     * @param mixed $return
+     *
+     * @dataProvider fetchProvider
+     */
+    public function testFetch(string $source, callable $fetch, $return): void
+    {
+        $driverResult = $this->createMock(DriverResult::class);
+        $driverResult->expects(self::once())
+            ->method($source)
+            ->willReturn($return);
+
+        $result = $this->newResult($driverResult);
+
+        self::assertSame($return, $fetch($result));
+    }
+
+    /**
+     * @return iterable<string,array<int,mixed>>
+     */
+    public static function fetchProvider(): iterable
+    {
+        yield 'numeric' => [
+            'fetchNumeric',
+            static function (Result $result): array {
+                return $result->fetchNumeric();
+            },
+            ['bar'],
+        ];
+
+        yield 'associative' => [
+            'fetchAssociative',
+            static function (Result $result): array {
+                return $result->fetchAssociative();
+            },
+            ['foo' => 'bar'],
+        ];
+
+        yield 'one' => [
+            'fetchOne',
+            static function (Result $result) {
+                return $result->fetchOne();
+            },
+            'bar',
+        ];
+
+        yield 'all-numeric' => [
+            'fetchAllNumeric',
+            static function (Result $result): array {
+                return $result->fetchAllNumeric();
+            },
+            [
+                ['bar'],
+                ['baz'],
+            ],
+        ];
+
+        yield 'all-associative' => [
+            'fetchAllAssociative',
+            static function (Result $result): array {
+                return $result->fetchAllAssociative();
+            },
+            [
+                ['foo' => 'bar'],
+                ['foo' => 'baz'],
+            ],
+        ];
+
+        yield 'first-column' => [
+            'fetchFirstColumn',
+            static function (Result $result): array {
+                return $result->fetchFirstColumn();
+            },
+            [
+                'bar',
+                'baz',
+            ],
+        ];
+    }
+
     public function testRowCount(): void
     {
         $driverResult = $this->createMock(DriverResult::class);
