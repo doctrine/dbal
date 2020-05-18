@@ -36,8 +36,6 @@ script:
 after_script:
   - |
     if [ "x$COVERAGE" == "xyes" ]; then
-      travis_retry wget https://github.com/scrutinizer-ci/ocular/releases/download/1.5.2/ocular.phar
-      travis_retry php ocular.phar code-coverage:upload --format=php-clover clover.xml
       travis_retry coveralls -v
     fi
 
