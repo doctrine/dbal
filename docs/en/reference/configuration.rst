@@ -64,12 +64,12 @@ For example, to connect to a "foo" MySQL DB using the ``pdo_mysql``
 driver on localhost port 4486 with the charset set to UTF-8, you
 would use the following URL::
 
-    mysql://localhost:4486/foo?charset=UTF-8
+    mysql://localhost:4486/foo?charset=UTF8
 
 This is identical to the following connection string using the
 full driver name::
 
-    pdo-mysql://localhost:4486/foo?charset=UTF-8
+    pdo-mysql://localhost:4486/foo?charset=UTF8
 
 If you wanted to use the ``drizzle_pdo__mysql`` driver instead::
 
