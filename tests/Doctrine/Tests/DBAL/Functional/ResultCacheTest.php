@@ -7,9 +7,11 @@ use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Logging\DebugStack;
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\Tests\DbalFunctionalTestCase;
 
+use Generator;
 use function array_change_key_case;
 use function array_merge;
 use function array_shift;
@@ -167,6 +169,40 @@ class ResultCacheTest extends DbalFunctionalTestCase
         $this->hydrateStmt($stmt, FetchMode::NUMERIC);
 
         self::assertCount(2, $this->sqlLogger->queries);
+    }
+
+    /**
+     * @param array<string, int> $params
+     * @param array<string, int> $types
+     *
+     * @dataProvider provideParamsAndTypes
+     */
+    public function testCacheFetchWithParamsAndTypes(array $params, array $types): void
+    {
+        $sqlQuery = 'SELECT * FROM caching WHERE test_int = :number';
+
+        $stmt = $this->connection->executeQuery($sqlQuery, $params, $types, new QueryCacheProfile(10));
+
+        $stmt->fetch(FetchMode::ASSOCIATIVE);
+
+        $stmt = $this->connection->executeQuery($sqlQuery, $params, $types, new QueryCacheProfile(10));
+
+        $stmt->fetch(FetchMode::ASSOCIATIVE);
+
+        $stmt = $this->connection->executeQuery($sqlQuery, ['number' => 100], [], new QueryCacheProfile(10));
+
+        $stmt->fetch(FetchMode::ASSOCIATIVE);
+
+        self::assertCount(2, $this->sqlLogger->queries);
+    }
+
+    /**
+     * @return Generator<int, array<int, array<string, int>>, array<int, array<string, int>>>
+     */
+    public static function provideParamsAndTypes(): iterable
+    {
+        yield [['number' => 300], []];
+        yield [['number' => 300], ['number' => ParameterType::STRING]];
     }
 
     public function testFetchAllSavesCache(): void
