@@ -53,7 +53,10 @@ class RunSqlCommand extends Command
             new InputOption('force-fetch', null, InputOption::VALUE_NONE, 'Forces fetching the result.'),
         ])
         ->setHelp(<<<EOT
-Executes arbitrary SQL directly from the command line.
+The <info>%command.name%</info> command executes the given SQL query and
+outputs the results:
+
+<info>php %command.full_name% "SELECT * FROM users"</info>
 EOT
         );
     }
