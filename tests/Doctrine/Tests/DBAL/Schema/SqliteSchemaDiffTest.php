@@ -12,7 +12,10 @@ use PHPUnit\Framework\TestCase;
 
 class SqliteSchemaDiffTest extends TestCase
 {
-    private function getGenericPlatform() 
+    /**
+     * @return AbstractPlatform|MockObject
+     */
+    private function getGenericPlatform()
     {
         $platform = $this->createMock(AbstractPlatform::class);
 
@@ -36,7 +39,12 @@ class SqliteSchemaDiffTest extends TestCase
         return $platform;
     }
 
-    private function getForeignKeyConstraintsOnlyPlatform(bool $unsafe = false)
+    /**
+     * @param bool $safe Whether the method should output only safe SQL code or not
+     *
+     * @return AbstractPlatform|MockObject
+     */
+    private function getForeignKeyConstraintsOnlyPlatform(bool $safe = true)
     {
         $platform = $this->getGenericPlatform();
 
@@ -51,7 +59,7 @@ class SqliteSchemaDiffTest extends TestCase
                      new DBALException('This platform does not support alter foreign key, the table must be fully recreated using getAlterTableSQL.')
                  ));
 
-        if ($unsafe) {
+        if (! $safe) {
             $platform->expects($this->exactly(0))
                         ->method('getDropForeignKeySql')
                         ->with(
@@ -66,7 +74,12 @@ class SqliteSchemaDiffTest extends TestCase
         return $platform;
     }
 
-    private function getCreateDropForeignKeyConstraintsPlatform(bool $unsafe = false)
+    /**
+     * @param bool $safe Whether the method should output only safe SQL code or not
+     *
+     * @return AbstractPlatform|MockObject
+     */
+    private function getCreateDropForeignKeyConstraintsPlatform(bool $safe = true)
     {
         $platform = $this->getGenericPlatform();
 
@@ -79,12 +92,12 @@ class SqliteSchemaDiffTest extends TestCase
                  ->with($this->isInstanceOf(ForeignKeyConstraint::class))
                  ->will($this->returnValue('create_foreign_key'));
 
-        if ($unsafe) {
+        if (! $safe) {
             $platform->expects($this->exactly(1))
                      ->method('getDropForeignKeySql')
                      ->with(
-                        $this->isInstanceOf(ForeignKeyConstraint::class),
-                        $this->isInstanceOf(Table::class)
+                         $this->isInstanceOf(ForeignKeyConstraint::class),
+                         $this->isInstanceOf(Table::class)
                      )
                      ->will($this->returnValue('drop_orphan_fk'));
         }
@@ -92,14 +105,17 @@ class SqliteSchemaDiffTest extends TestCase
         return $platform;
     }
 
-    public function provider(): array 
+    /**
+     * @return mixed[]
+     */
+    public function provider() : array
     {
         $diff = $this->createSchemaDiff();
 
         return [
             'supportsForeignKeyConstraintsOnly' => [
                 ['create_table'],
-                $diff->toSql($this->getForeignKeyConstraintsOnlyPlatform(true)),
+                $diff->toSql($this->getForeignKeyConstraintsOnlyPlatform(false)),
             ],
             'supportsForeignKeyConstraintsOnlySaveSql' => [
                 ['create_table'],
@@ -107,7 +123,7 @@ class SqliteSchemaDiffTest extends TestCase
             ],
             'supportsCreateDropForeignKeyConstraints' => [
                 ['drop_orphan_fk', 'create_table', 'create_foreign_key'],
-                $diff->toSql($this->getCreateDropForeignKeyConstraintsPlatform(true)),
+                $diff->toSql($this->getCreateDropForeignKeyConstraintsPlatform(false)),
             ],
             'supportsCreateDropForeignKeyConstraintsSaveSql' => [
                 ['create_table', 'create_foreign_key'],
@@ -117,9 +133,12 @@ class SqliteSchemaDiffTest extends TestCase
     }
 
     /**
+     * @param string[] $expectedActions An array of actions to be taken on the database
+     * @param string[] $sql             An array of actions gnerated by the SchemaDiff
+     *
      * @dataProvider provider
      */
-    public function testSchemaDiff($expectedActions, $sql): void
+    public function testSchemaDiff(array $expectedActions, array $sql) : void
     {
         self::assertEquals($expectedActions, $sql);
     }
