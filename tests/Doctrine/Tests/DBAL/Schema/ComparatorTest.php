@@ -13,8 +13,12 @@ use Doctrine\DBAL\Schema\SchemaDiff;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\TypeRegistry;
+use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 use function array_keys;
 use function get_class;
 
@@ -222,6 +226,61 @@ class ComparatorTest extends TestCase
 
         $c = new Comparator();
         self::assertEquals([], $c->diffColumn($column1, $column2));
+    }
+
+    private function makeEnumType() : StringType
+    {
+        return new class extends StringType {
+            /**
+             * @inheritDoc
+             */
+            public function getName()
+            {
+                return 'custom_enum';
+            }
+        };
+    }
+
+    private function removeRegistryType(TypeRegistry $registry, string $type) : void
+    {
+        $reflection        = new ReflectionClass($registry);
+        $typesListProperty = $reflection->getProperty('instances');
+        $typesListProperty->setAccessible(true);
+        $typesList = $typesListProperty->getValue($registry);
+        unset($typesList[$type]);
+        $typesListProperty->setValue($registry, $typesList);
+    }
+
+    public function testCompareColumnsStringParentTypeShouldNotBeDiff() : void
+    {
+        $typeRegistry = Type::getTypeRegistry();
+        $typeRegistry->register('custom_enum', $this->makeEnumType());
+        $fromType = Type::getType(Types::STRING);
+        $toType   = Type::getType('custom_enum');
+
+        $sameOptions = ['length' => 50, 'default' => 'default_string'];
+        $column1     = new Column('column1', $fromType, $sameOptions);
+        $column2     = new Column('column2', $toType, $sameOptions);
+
+        $c = new Comparator();
+        self::assertEquals([], $c->diffColumn($column1, $column2));
+        $this->removeRegistryType($typeRegistry, 'custom_enum');
+    }
+
+    public function testCompareColumnsWithStringParentTypeShouldStillBeDiffWhenOptionsDiffer() : void
+    {
+        $typeRegistry = Type::getTypeRegistry();
+        $typeRegistry->register('custom_enum', $this->makeEnumType());
+        $fromType = Type::getType(Types::STRING);
+        $toType   = Type::getType('custom_enum');
+        $options1 = ['length' => 50, 'default' => 'default_string'];
+        $options2 = ['length' => 10, 'default' => 'default_string'];
+        $column1  = new Column('column1', $fromType, $options1);
+        $column2  = new Column('column2', $toType, $options2);
+
+        $c = new Comparator();
+        self::assertEquals(['length'], $c->diffColumn($column1, $column2));
+        $this->removeRegistryType($typeRegistry, 'custom_enum');
     }
 
     public function testCompareChangedColumnsChangeCustomSchemaOption() : void
