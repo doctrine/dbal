@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\FetchMode;
+use Doctrine\DBAL\ForwardCompatibility\Driver\ResultStatement as ForwardCompatibleResultStatement;
 use Doctrine\DBAL\ParameterType;
 use PDO;
 use function array_slice;
@@ -17,7 +18,7 @@ use const E_USER_DEPRECATED;
  * The PDO implementation of the Statement interface.
  * Used by all PDO-based drivers.
  */
-class PDOStatement extends \PDOStatement implements Statement
+class PDOStatement extends \PDOStatement implements Statement, ForwardCompatibleResultStatement
 {
     private const PARAM_TYPE_MAP = [
         ParameterType::NULL         => PDO::PARAM_NULL,
@@ -46,6 +47,8 @@ class PDOStatement extends \PDOStatement implements Statement
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use one of the fetch- or iterate-related methods.
      */
     public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
     {
@@ -132,6 +135,8 @@ class PDOStatement extends \PDOStatement implements Statement
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use fetchNumeric(), fetchAssociative() or fetchOne() instead.
      */
     public function fetch($fetchMode = null, $cursorOrientation = PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
     {
@@ -150,6 +155,8 @@ class PDOStatement extends \PDOStatement implements Statement
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use fetchAllNumeric(), fetchAllAssociative() or fetchColumn() instead.
      */
     public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
     {
@@ -181,6 +188,8 @@ class PDOStatement extends \PDOStatement implements Statement
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use fetchOne() instead.
      */
     public function fetchColumn($columnIndex = 0)
     {
@@ -189,6 +198,46 @@ class PDOStatement extends \PDOStatement implements Statement
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
         }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchNumeric()
+    {
+        return $this->fetch(PDO::FETCH_NUM);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchAssociative()
+    {
+        return $this->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchOne()
+    {
+        return $this->fetch(PDO::FETCH_COLUMN);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchAllNumeric() : array
+    {
+        return $this->fetchAll(PDO::FETCH_NUM);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchAllAssociative() : array
+    {
+        return $this->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**

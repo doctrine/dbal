@@ -159,7 +159,7 @@ class SQLAzureShardManager implements ShardManager
                       INNER JOIN sys.federations f ON f.federation_id = d.federation_id
                       WHERE f.name = ' . $this->conn->quote($this->federationName);
 
-        return $this->conn->fetchAll($sql);
+        return $this->conn->fetchAllAssociative($sql);
     }
 
      /**
@@ -177,7 +177,7 @@ class SQLAzureShardManager implements ShardManager
 
         foreach ($shards as $shard) {
             $this->selectShard($shard['rangeLow']);
-            foreach ($this->conn->fetchAll($sql, $params, $types) as $row) {
+            foreach ($this->conn->fetchAllAssociative($sql, $params, $types) as $row) {
                 $result[] = $row;
             }
         }

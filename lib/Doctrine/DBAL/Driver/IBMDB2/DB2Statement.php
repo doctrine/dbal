@@ -232,6 +232,8 @@ class DB2Statement implements IteratorAggregate, Statement
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use one of the fetch- or iterate-related methods.
      */
     public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
     {
@@ -244,6 +246,8 @@ class DB2Statement implements IteratorAggregate, Statement
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use iterateNumeric(), iterateAssociative() or iterateColumn() instead.
      */
     public function getIterator()
     {
@@ -252,6 +256,8 @@ class DB2Statement implements IteratorAggregate, Statement
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use fetchNumeric(), fetchAssociative() or fetchOne() instead.
      */
     public function fetch($fetchMode = null, $cursorOrientation = PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
     {
@@ -303,6 +309,8 @@ class DB2Statement implements IteratorAggregate, Statement
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use fetchAllNumeric(), fetchAllAssociative() or fetchColumn() instead.
      */
     public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
     {
@@ -334,6 +342,8 @@ class DB2Statement implements IteratorAggregate, Statement
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use fetchOne() instead.
      */
     public function fetchColumn($columnIndex = 0)
     {

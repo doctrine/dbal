@@ -6,6 +6,7 @@ use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\FetchMode;
+use Doctrine\DBAL\ForwardCompatibility\Driver\ResultStatement as ForwardCompatibleResultStatement;
 use Doctrine\DBAL\ParameterType;
 use IteratorAggregate;
 use PDO;
@@ -17,7 +18,7 @@ use function rtrim;
 /**
  * Portability wrapper for a Statement.
  */
-class Statement implements IteratorAggregate, DriverStatement
+class Statement implements IteratorAggregate, DriverStatement, ForwardCompatibleResultStatement
 {
     /** @var int */
     private $portability;
@@ -115,6 +116,8 @@ class Statement implements IteratorAggregate, DriverStatement
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use one of the fetch- or iterate-related methods.
      */
     public function setFetchMode($fetchMode, $arg1 = null, $arg2 = null)
     {
@@ -125,6 +128,8 @@ class Statement implements IteratorAggregate, DriverStatement
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use iterateNumeric(), iterateAssociative() or iterateColumn() instead.
      */
     public function getIterator()
     {
@@ -133,6 +138,8 @@ class Statement implements IteratorAggregate, DriverStatement
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use fetchNumeric(), fetchAssociative() or fetchOne() instead.
      */
     public function fetch($fetchMode = null, $cursorOrientation = PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
     {
@@ -140,7 +147,7 @@ class Statement implements IteratorAggregate, DriverStatement
 
         $row = $this->stmt->fetch($fetchMode);
 
-        $iterateRow = $this->portability & (Connection::PORTABILITY_EMPTY_TO_NULL|Connection::PORTABILITY_RTRIM);
+        $iterateRow = ($this->portability & (Connection::PORTABILITY_EMPTY_TO_NULL|Connection::PORTABILITY_RTRIM)) !== 0;
         $fixCase    = $this->case !== null
             && ($fetchMode === FetchMode::ASSOCIATIVE || $fetchMode === FetchMode::MIXED)
             && ($this->portability & Connection::PORTABILITY_FIX_CASE);
@@ -152,6 +159,8 @@ class Statement implements IteratorAggregate, DriverStatement
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use fetchAllNumeric(), fetchAllAssociative() or fetchColumn() instead.
      */
     public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
     {
@@ -163,37 +172,138 @@ class Statement implements IteratorAggregate, DriverStatement
             $rows = $this->stmt->fetchAll($fetchMode);
         }
 
-        $iterateRow = $this->portability & (Connection::PORTABILITY_EMPTY_TO_NULL|Connection::PORTABILITY_RTRIM);
-        $fixCase    = $this->case !== null
+        $fixCase = $this->case !== null
             && ($fetchMode === FetchMode::ASSOCIATIVE || $fetchMode === FetchMode::MIXED)
             && ($this->portability & Connection::PORTABILITY_FIX_CASE);
 
+        return $this->fixResultSet($rows, $fixCase, $fetchMode !== FetchMode::COLUMN);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchNumeric()
+    {
+        if ($this->stmt instanceof ForwardCompatibleResultStatement) {
+            $row = $this->stmt->fetchNumeric();
+        } else {
+            $row = $this->stmt->fetch(FetchMode::NUMERIC);
+        }
+
+        return $this->fixResult($row, false);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchAssociative()
+    {
+        if ($this->stmt instanceof ForwardCompatibleResultStatement) {
+            $row = $this->stmt->fetchAssociative();
+        } else {
+            $row = $this->stmt->fetch(FetchMode::ASSOCIATIVE);
+        }
+
+        return $this->fixResult($row, true);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchOne()
+    {
+        if ($this->stmt instanceof ForwardCompatibleResultStatement) {
+            $value = $this->stmt->fetchOne();
+        } else {
+            $value = $this->stmt->fetch(FetchMode::COLUMN);
+        }
+
+        if (($this->portability & Connection::PORTABILITY_EMPTY_TO_NULL) !== 0 && $value === '') {
+            $value = null;
+        } elseif (($this->portability & Connection::PORTABILITY_RTRIM) !== 0 && is_string($value)) {
+            $value = rtrim($value);
+        }
+
+        return $value;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchAllNumeric() : array
+    {
+        if ($this->stmt instanceof ForwardCompatibleResultStatement) {
+            $data = $this->stmt->fetchAllNumeric();
+        } else {
+            $data = $this->stmt->fetchAll(FetchMode::NUMERIC);
+        }
+
+        return $this->fixResultSet($data, false, true);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchAllAssociative() : array
+    {
+        if ($this->stmt instanceof ForwardCompatibleResultStatement) {
+            $data = $this->stmt->fetchAllAssociative();
+        } else {
+            $data = $this->stmt->fetchAll(FetchMode::ASSOCIATIVE);
+        }
+
+        return $this->fixResultSet($data, true, true);
+    }
+
+    /**
+     * @param mixed $result
+     *
+     * @return mixed
+     */
+    private function fixResult($result, bool $fixCase)
+    {
+        $iterateRow = ($this->portability & (Connection::PORTABILITY_EMPTY_TO_NULL|Connection::PORTABILITY_RTRIM)) !== 0;
+        $fixCase    = $fixCase && $this->case !== null && ($this->portability & Connection::PORTABILITY_FIX_CASE) !== 0;
+
+        return $this->fixRow($result, $iterateRow, $fixCase);
+    }
+
+    /**
+     * @param array<int,mixed> $resultSet
+     *
+     * @return array<int,mixed>
+     */
+    private function fixResultSet(array $resultSet, bool $fixCase, bool $isArray) : array
+    {
+        $iterateRow = ($this->portability & (Connection::PORTABILITY_EMPTY_TO_NULL|Connection::PORTABILITY_RTRIM)) !== 0;
+        $fixCase    = $fixCase && $this->case !== null && ($this->portability & Connection::PORTABILITY_FIX_CASE) !== 0;
+
         if (! $iterateRow && ! $fixCase) {
-            return $rows;
+            return $resultSet;
         }
 
-        if ($fetchMode === FetchMode::COLUMN) {
-            foreach ($rows as $num => $row) {
-                $rows[$num] = [$row];
+        if (! $isArray) {
+            foreach ($resultSet as $num => $value) {
+                $resultSet[$num] = [$value];
             }
         }
 
-        foreach ($rows as $num => $row) {
-            $rows[$num] = $this->fixRow($row, $iterateRow, $fixCase);
+        foreach ($resultSet as $num => $row) {
+            $resultSet[$num] = $this->fixRow($row, $iterateRow, $fixCase);
         }
 
-        if ($fetchMode === FetchMode::COLUMN) {
-            foreach ($rows as $num => $row) {
-                $rows[$num] = $row[0];
+        if (! $isArray) {
+            foreach ($resultSet as $num => $row) {
+                $resultSet[$num] = $row[0];
             }
         }
 
-        return $rows;
+        return $resultSet;
     }
 
     /**
      * @param mixed $row
-     * @param int   $iterateRow
+     * @param bool  $iterateRow
      * @param bool  $fixCase
      *
      * @return mixed
@@ -223,6 +333,8 @@ class Statement implements IteratorAggregate, DriverStatement
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use fetchOne() instead.
      */
     public function fetchColumn($columnIndex = 0)
     {
