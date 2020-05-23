@@ -43,6 +43,7 @@
         "nikic/php-parser": "^4.4",
         "phpstan/phpstan": "^0.12",
         "phpunit/phpunit": "^8.4.1",
+        "slevomat/coding-standard": "^6.3.6",
         "symfony/console": "^2.0.5|^3.0|^4.0|^5.0",
         "vimeo/psalm": "^3.11"
     },

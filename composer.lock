@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6bf4905b268231ccd58bdbe30d4ecf81",
+    "content-hash": "ae54b78f0088f88dbcfa8e179be7c43b",
     "packages": [
         {
             "name": "doctrine/cache",
@@ -2416,16 +2416,16 @@
         },
         {
             "name": "slevomat/coding-standard",
-            "version": "6.3.3",
+            "version": "6.3.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/slevomat/coding-standard.git",
-                "reference": "b905a82255749de847fd4de607c7a4c8163f058d"
+                "reference": "7876032a4f55acf2de2cf3cd538feaf98a8a0fee"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/slevomat/coding-standard/zipball/b905a82255749de847fd4de607c7a4c8163f058d",
-                "reference": "b905a82255749de847fd4de607c7a4c8163f058d",
+                "url": "https://api.github.com/repos/slevomat/coding-standard/zipball/7876032a4f55acf2de2cf3cd538feaf98a8a0fee",
+                "reference": "7876032a4f55acf2de2cf3cd538feaf98a8a0fee",
                 "shasum": ""
             },
             "require": {
@@ -2469,7 +2469,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2020-04-28T07:15:08+00:00"
+            "time": "2020-05-22T15:11:14+00:00"
         },
         {
             "name": "squizlabs/php_codesniffer",
@@ -2920,8 +2920,8 @@
             "authors": [
                 {
                     "name": "Arne Blankerts",
-                    "email": "arne@blankerts.de",
-                    "role": "Developer"
+                    "role": "Developer",
+                    "email": "arne@blankerts.de"
                 }
             ],
             "description": "A small library for converting tokenized PHP source code into XML and potentially other formats",
