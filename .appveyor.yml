@@ -12,7 +12,6 @@ cache:
   - C:\tools\php -> .appveyor.yml
   - C:\tools\cacert -> .appveyor.yml
   - C:\tools\composer -> .appveyor.yml
-  - C:\tools\ocular -> .appveyor.yml
   - '%LOCALAPPDATA%\Composer\files -> composer.json'
 
 ## Build matrix for lowest and highest possible targets
@@ -21,26 +20,22 @@ environment:
   - db: mssql
     driver: sqlsrv
     db_version: sql2008r2sp2
-    coverage: yes
     php: 7.3
   - db: mssql
     driver: sqlsrv
     db_version: sql2012sp1
     php: 7.3
-    coverage: yes
   - db: mssql
     driver: sqlsrv
     db_version: sql2017
-    coverage: no
     php: 7.3
   - db: mssql
     driver: pdo_sqlsrv
     db_version: sql2017
     php: 7.3
-    coverage: yes
 
 init:
-  - SET PATH=C:\Program Files\OpenSSL;c:\tools\php;C:\tools\composer;C:\tools\ocular;%PATH%
+  - SET PATH=C:\Program Files\OpenSSL;c:\tools\php;C:\tools\composer;%PATH%
   - SET COMPOSER_NO_INTERACTION=1
   - SET ANSICON=121x90 (121x90)
 
@@ -99,15 +94,6 @@ install:
             Set-Content -path 'C:\tools\composer\composer.bat' -Value ('@php C:\tools\composer\composer.phar %*')
           }
 
-          # download Scrutinizer's Ocular
-          if (!(Test-Path C:\tools\ocular)) {
-            New-Item -path c:\tools -name ocular -itemtype directory
-          }
-          if (!(Test-Path c:\tools\ocular\ocular.phar)) {
-            appveyor-retry appveyor DownloadFile https://github.com/scrutinizer-ci/ocular/releases/download/1.5.2/ocular.phar -Filename C:\tools\ocular\ocular.phar
-            Set-Content -path 'C:\tools\ocular\ocular.bat' -Value ('@php C:\tools\ocular\ocular.phar %*')
-          }
-
           # download CA bundle
           if (!(Test-Path C:\tools\cacert)) {
             New-Item -path c:\tools\ -name cacert -itemtype directory
@@ -137,18 +123,8 @@ test_script:
         $env:phpunit_config = "tests\appveyor\$($env:db).$($env:driver).appveyor.xml"
       }
 
-      if ($env:coverage -eq "yes") {
-        vendor\bin\phpunit -c $($env:phpunit_config) --coverage-clover clover.xml
-      } else {
-        vendor\bin\phpunit -c $($env:phpunit_config)
-      }
+      vendor\bin\phpunit -c $($env:phpunit_config)
 
       if ($LastExitCode -ne 0) {
         $host.SetShouldExit($LastExitCode)
-      }
-
-after_test:
-  - ps: >-
-      if ($env:coverage -eq "yes") {
-        appveyor-retry ocular code-coverage:upload --format=php-clover clover.xml
       }
