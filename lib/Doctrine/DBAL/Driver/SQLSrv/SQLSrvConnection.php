@@ -182,6 +182,8 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated The error information is available via exceptions.
      */
     public function errorCode()
     {
@@ -195,6 +197,8 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated The error information is available via exceptions.
      */
     public function errorInfo()
     {
