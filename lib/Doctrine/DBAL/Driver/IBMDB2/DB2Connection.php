@@ -180,6 +180,8 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated The error information is available via exceptions.
      */
     public function errorCode()
     {
@@ -188,6 +190,8 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated The error information is available via exceptions.
      */
     public function errorInfo()
     {

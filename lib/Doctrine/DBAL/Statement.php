@@ -198,6 +198,8 @@ class Statement implements IteratorAggregate, DriverStatement
     /**
      * Fetches the SQLSTATE associated with the last operation on the statement.
      *
+     * @deprecated The error information is available via exceptions.
+     *
      * @return string|int|bool
      */
     public function errorCode()
@@ -207,6 +209,8 @@ class Statement implements IteratorAggregate, DriverStatement
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated The error information is available via exceptions.
      */
     public function errorInfo()
     {

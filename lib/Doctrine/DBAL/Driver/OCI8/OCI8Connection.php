@@ -216,6 +216,8 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated The error information is available via exceptions.
      */
     public function errorCode()
     {
@@ -229,6 +231,8 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated The error information is available via exceptions.
      */
     public function errorInfo()
     {

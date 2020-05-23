@@ -167,6 +167,8 @@ class DB2Statement implements IteratorAggregate, Statement
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated The error information is available via exceptions.
      */
     public function errorCode()
     {
@@ -175,6 +177,8 @@ class DB2Statement implements IteratorAggregate, Statement
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated The error information is available via exceptions.
      */
     public function errorInfo()
     {

@@ -81,6 +81,8 @@ class Statement implements IteratorAggregate, DriverStatement
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated The error information is available via exceptions.
      */
     public function errorCode()
     {
@@ -91,6 +93,8 @@ class Statement implements IteratorAggregate, DriverStatement
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated The error information is available via exceptions.
      */
     public function errorInfo()
     {

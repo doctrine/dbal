@@ -973,6 +973,8 @@ class Connection implements DriverConnection
      * Executes an, optionally parametrized, SQL query and returns the result,
      * applying a given projection/transformation function on each row of the result.
      *
+     * @deprecated
+     *
      * @param string  $query    The SQL query to execute.
      * @param mixed[] $params   The parameters, if any.
      * @param Closure $function The transformation function that is applied on each row.
@@ -1123,6 +1125,8 @@ class Connection implements DriverConnection
     /**
      * Fetches the SQLSTATE associated with the last database operation.
      *
+     * @deprecated The error information is available via exceptions.
+     *
      * @return string|null The last error code.
      */
     public function errorCode()
@@ -1132,6 +1136,8 @@ class Connection implements DriverConnection
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated The error information is available via exceptions.
      */
     public function errorInfo()
     {
