@@ -432,6 +432,7 @@ class DataAccessTest extends FunctionalTestCase
     {
         $sql  = 'SELECT count(*) AS c FROM fetch_table WHERE test_datetime = ?';
         $stmt = $this->connection->prepare($sql);
+        self::assertInstanceOf(Statement::class, $stmt);
         $stmt->bindValue(1, new DateTime('2010-01-01 10:10:10'), Types::DATETIME_MUTABLE);
         $stmt->execute();
 
