@@ -34,7 +34,7 @@ class DateExpressionTest extends FunctionalTestCase
     }
 
     /**
-     * @return string[][]|int[][]
+     * @return  array<string, array<int, int|string|false>>
      */
     public static function differenceProvider() : iterable
     {

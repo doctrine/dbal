@@ -195,7 +195,7 @@ class ResultCacheTest extends FunctionalTestCase
     }
 
     /**
-     * @param array<int, array<int, int|string>>|list<int> $expectedResult
+     * @param array<int, array<int|string, int|string>>|list<int> $expectedResult
      */
     private function assertCacheNonCacheSelectSameFetchModeAreEqual(array $expectedResult, callable $fetchMode) : void
     {

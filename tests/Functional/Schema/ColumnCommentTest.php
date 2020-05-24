@@ -47,7 +47,7 @@ class ColumnCommentTest extends FunctionalTestCase
     }
 
     /**
-     * @return mixed[][]
+     * @return iterable<string,array{0: string, 1: string, 2: mixed[]}>
      */
     public static function columnProvider() : iterable
     {
