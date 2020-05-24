@@ -116,6 +116,18 @@ parameters:
             paths:
                 - %currentWorkingDirectory%/src/Id/TableGenerator.php
                 - %currentWorkingDirectory%/src/Schema/SqliteSchemaManager.php
+                - %currentWorkingDirectory%/tests/ConnectionTest.php
+                - %currentWorkingDirectory%/tests/DriverManagerTest.php
+                - %currentWorkingDirectory%/tests/Functional/ConnectionTest.php
+                - %currentWorkingDirectory%/tests/Functional/Driver/PDOPgsqlConnectionTest.php
+                - %currentWorkingDirectory%/tests/Functional/Driver/SQLAnywhere/ConnectionTest.php
+                - %currentWorkingDirectory%/tests/Functional/Driver/SQLAnywhere/StatementTest.php
+                - %currentWorkingDirectory%/tests/Functional/ExceptionTest.php
+                - %currentWorkingDirectory%/tests/Functional/MasterSlaveConnectionTest.php
+                - %currentWorkingDirectory%/tests/Functional/PortabilityTest.php
+                - %currentWorkingDirectory%/tests/Functional/Schema/MySqlSchemaManagerTest.php
+                - %currentWorkingDirectory%/tests/Schema/Synchronizer/SingleDatabaseSynchronizerTest.php
+                - %currentWorkingDirectory%/tests/TestUtil.php
 
         -
             message: '~Method Doctrine\\DBAL\\Driver\\PDOSqlsrv\\Connection\:\:lastInsertId\(\) should return string but returns string\|false\|null\.~'
