@@ -60,6 +60,8 @@ interface Statement extends ResultStatement
     /**
      * Fetches the SQLSTATE associated with the last operation on the statement handle.
      *
+     * @deprecated The error information is available via exceptions.
+     *
      * @see Doctrine_Adapter_Interface::errorCode()
      *
      * @return string|int|bool The error code string.
@@ -68,6 +70,8 @@ interface Statement extends ResultStatement
 
     /**
      * Fetches extended error information associated with the last operation on the statement handle.
+     *
+     * @deprecated The error information is available via exceptions.
      *
      * @return mixed[] The error info array.
      */

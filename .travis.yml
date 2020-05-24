@@ -11,6 +11,8 @@ before_install:
   - |
     if [ "x$COVERAGE" == "xyes" ]; then
       pecl install pcov-1.0.6
+      wget https://github.com/php-coveralls/php-coveralls/releases/download/v2.2.0/php-coveralls.phar --output-document="${HOME}/bin/coveralls"
+      chmod +x ${HOME}/bin/coveralls
     fi
 
 before_script:
@@ -38,8 +40,7 @@ script:
 after_script:
   - |
     if [ "x$COVERAGE" == "xyes" ]; then
-      travis_retry wget https://github.com/scrutinizer-ci/ocular/releases/download/1.5.2/ocular.phar
-      travis_retry php ocular.phar code-coverage:upload --format=php-clover clover.xml
+      travis_retry coveralls -v
     fi
 
 jobs:
