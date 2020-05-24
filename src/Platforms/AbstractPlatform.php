@@ -746,8 +746,6 @@ abstract class AbstractPlatform
 
     /**
      * Returns a SQL snippet to concatenate the given strings.
-     *
-     * @param string[] ...$string
      */
     public function getConcatExpression(string ...$string) : string
     {
