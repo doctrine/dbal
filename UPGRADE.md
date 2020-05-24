@@ -407,9 +407,17 @@ Please use other database client applications for import, e.g.:
 
 # Upgrade to 2.11
 
+## Deprecated `Connection::project()`
+
+The `Connection::project()` method is deprecated. Implement data transformation outside of DBAL.
+
+## Deprecated `Statement::errorCode()` and `errorInfo()`
+
+The `Statement::errorCode()` and `errorInfo()` methods are deprecated. The error information is available via exceptions.
+
 ## Deprecated `EchoSQLLogger`
 
-The `EchoSQLLogger` is has been deprecated. Implement your logger with the desired logic.
+The `EchoSQLLogger` class is deprecated. Implement your logger with the desired logic.
 
 ## Deprecated database platforms:
 

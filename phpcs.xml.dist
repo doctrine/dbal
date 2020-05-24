@@ -36,10 +36,6 @@
         </properties>
     </rule>
 
-    <rule ref="Squiz.NamingConventions.ValidVariableName.PublicHasUnderscore">
-        <exclude-pattern>*/src/*</exclude-pattern>
-    </rule>
-
     <rule ref="SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint">
         <exclude-pattern>*/src/*</exclude-pattern>
     </rule>
@@ -66,11 +62,6 @@
 
     <rule ref="SlevomatCodingStandard.Classes.UnusedPrivateElements.UnusedProperty">
         <exclude-pattern>tests/Tools/TestAsset/*</exclude-pattern>
-    </rule>
-
-    <!-- https://github.com/slevomat/coding-standard/issues/868 -->
-    <rule ref="SlevomatCodingStandard.PHP.UselessParentheses.UselessParentheses">
-        <exclude-pattern>ci/continuousphp/bootstrap.php</exclude-pattern>
     </rule>
 
     <!-- see https://github.com/squizlabs/PHP_CodeSniffer/issues/2099 -->
@@ -106,11 +97,6 @@
 
     <!-- some statement classes close cursor using an empty while-loop -->
     <rule ref="Generic.CodeAnalysis.EmptyStatement.DetectedWhile">
-        <exclude-pattern>src/Driver/SQLSrv/SQLSrvStatement.php</exclude-pattern>
-    </rule>
-
-    <!-- sqlsrv functions are documented in upper case but reflected in lower case -->
-    <rule ref="Squiz.PHP.LowercasePHPFunctions.CallUppercase">
         <exclude-pattern>src/Driver/SQLSrv/SQLSrvStatement.php</exclude-pattern>
     </rule>
 

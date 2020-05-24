@@ -181,6 +181,8 @@ final class SQLSrvStatement implements IteratorAggregate, Statement
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated The error information is available via exceptions.
      */
     public function execute(?array $params = null) : void
     {

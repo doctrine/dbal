@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Doctrine\DBAL\Tools\Console\ConnectionProvider;
 use Doctrine\DBAL\Tools\Console\ConsoleRunner;
 use Symfony\Component\Console\Helper\HelperSet;
 
@@ -43,17 +44,17 @@ if (! is_readable($configFile)) {
     exit(1);
 }
 
-$commands  = [];
-$helperSet = require $configFile;
+$commands                      = [];
+$helperSetOrConnectionProvider = require $configFile;
 
-if (! $helperSet instanceof HelperSet) {
-    foreach ($GLOBALS as $helperSetCandidate) {
-        if ($helperSetCandidate instanceof HelperSet) {
-            $helperSet = $helperSetCandidate;
+if (! $helperSetOrConnectionProvider instanceof HelperSet && ! $helperSetOrConnectionProvider instanceof ConnectionProvider) {
+    foreach ($GLOBALS as $candidate) {
+        if ($candidate instanceof HelperSet) {
+            $helperSetOrConnectionProvider = $candidate;
 
             break;
         }
     }
 }
 
-ConsoleRunner::run($helperSet, $commands);
+ConsoleRunner::run($helperSetOrConnectionProvider, $commands);
