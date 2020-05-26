@@ -2,9 +2,11 @@
 
 namespace Doctrine\DBAL\Driver\SQLSrv;
 
+use Doctrine\DBAL\Driver\FetchUtils;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\FetchMode;
+use Doctrine\DBAL\ForwardCompatibility\Driver\ResultStatement as ForwardCompatibleResultStatement;
 use Doctrine\DBAL\ParameterType;
 use IteratorAggregate;
 use function array_key_exists;
@@ -33,7 +35,7 @@ use const SQLSRV_PARAM_IN;
 /**
  * SQL Server Statement.
  */
-class SQLSrvStatement implements IteratorAggregate, Statement
+class SQLSrvStatement implements IteratorAggregate, Statement, ForwardCompatibleResultStatement
 {
     /**
      * The SQLSRV Resource.
@@ -308,6 +310,8 @@ class SQLSrvStatement implements IteratorAggregate, Statement
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use one of the fetch- or iterate-related methods.
      */
     public function setFetchMode($fetchMode)
     {
@@ -318,6 +322,8 @@ class SQLSrvStatement implements IteratorAggregate, Statement
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use iterateNumeric(), iterateAssociative() or iterateColumn() instead.
      */
     public function getIterator()
     {
@@ -326,6 +332,8 @@ class SQLSrvStatement implements IteratorAggregate, Statement
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use fetchNumeric(), fetchAssociative() or fetchOne() instead.
      *
      * @throws SQLSrvException
      */
@@ -352,6 +360,8 @@ class SQLSrvStatement implements IteratorAggregate, Statement
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use fetchAllNumeric(), fetchAllAssociative() or fetchColumn() instead.
      */
     public function fetchAll($fetchMode = null)
     {
@@ -376,6 +386,8 @@ class SQLSrvStatement implements IteratorAggregate, Statement
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use fetchOne() instead.
      */
     public function fetchColumn()
     {
@@ -386,6 +398,46 @@ class SQLSrvStatement implements IteratorAggregate, Statement
         }
 
         return $row[0] ?? null;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchNumeric()
+    {
+        return $this->doFetch(SQLSRV_FETCH_NUMERIC);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchAssociative()
+    {
+        return $this->doFetch(SQLSRV_FETCH_ASSOC);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchOne()
+    {
+        return FetchUtils::fetchOne($this);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchAllNumeric() : array
+    {
+        return FetchUtils::fetchAllNumeric($this);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchAllAssociative() : array
+    {
+        return FetchUtils::fetchAllAssociative($this);
     }
 
     public function rowCount() : int
@@ -401,5 +453,19 @@ class SQLSrvStatement implements IteratorAggregate, Statement
         }
 
         return 0;
+    }
+
+    /**
+     * @return mixed|false
+     */
+    private function doFetch(int $fetchType)
+    {
+        // do not try fetching from the statement if it's not expected to contain the result
+        // in order to prevent exceptional situation
+        if ($this->stmt === null || ! $this->result) {
+            return false;
+        }
+
+        return sqlsrv_fetch_array($this->stmt, $fetchType) ?? false;
     }
 }

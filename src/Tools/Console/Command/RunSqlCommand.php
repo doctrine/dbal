@@ -87,7 +87,7 @@ EOT
         assert(is_bool($forceFetch));
 
         if (stripos($sql, 'select') === 0 || $forceFetch) {
-            $resultSet = $conn->fetchAll($sql);
+            $resultSet = $conn->fetchAllAssociative($sql);
         } else {
             $resultSet = $conn->executeUpdate($sql);
         }

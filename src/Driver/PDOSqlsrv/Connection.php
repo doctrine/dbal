@@ -4,6 +4,7 @@ namespace Doctrine\DBAL\Driver\PDOSqlsrv;
 
 use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\Driver\PDOStatement;
+use Doctrine\DBAL\ForwardCompatibility\Driver\ResultStatement as ForwardCompatibleResultStatement;
 use Doctrine\DBAL\ParameterType;
 use function strpos;
 use function substr;
@@ -24,6 +25,10 @@ class Connection extends PDOConnection
 
         $stmt = $this->prepare('SELECT CONVERT(VARCHAR(MAX), current_value) FROM sys.sequences WHERE name = ?');
         $stmt->execute([$name]);
+
+        if ($stmt instanceof ForwardCompatibleResultStatement) {
+            return $stmt->fetchOne();
+        }
 
         return $stmt->fetchColumn();
     }

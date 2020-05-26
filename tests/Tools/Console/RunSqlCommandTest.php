@@ -30,7 +30,7 @@ class RunSqlCommandTest extends TestCase
         $this->commandTester = new CommandTester($this->command);
 
         $this->connectionMock = $this->createMock(Connection::class);
-        $this->connectionMock->method('fetchAll')
+        $this->connectionMock->method('fetchAllAssociative')
             ->willReturn([[1]]);
         $this->connectionMock->method('executeUpdate')
             ->willReturn(42);
@@ -68,7 +68,7 @@ class RunSqlCommandTest extends TestCase
 
     public function testSelectStatementsPrintsResult() : void
     {
-        $this->expectConnectionFetchAll();
+        $this->expectConnectionFetchAllAssociative();
 
         $exitCode = $this->commandTester->execute([
             'command' => $this->command->getName(),
@@ -100,22 +100,22 @@ class RunSqlCommandTest extends TestCase
             ->method('executeUpdate');
         $this->connectionMock
             ->expects(self::exactly(0))
-            ->method('fetchAll');
+            ->method('fetchAllAssociative');
     }
 
-    private function expectConnectionFetchAll() : void
+    private function expectConnectionFetchAllAssociative() : void
     {
         $this->connectionMock
             ->expects(self::exactly(0))
             ->method('executeUpdate');
         $this->connectionMock
             ->expects(self::exactly(1))
-            ->method('fetchAll');
+            ->method('fetchAllAssociative');
     }
 
     public function testStatementsWithFetchResultPrintsResult() : void
     {
-        $this->expectConnectionFetchAll();
+        $this->expectConnectionFetchAllAssociative();
 
         $this->commandTester->execute([
             'command' => $this->command->getName(),

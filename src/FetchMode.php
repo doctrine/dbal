@@ -4,6 +4,8 @@ namespace Doctrine\DBAL;
 
 /**
  * Contains statement fetch modes.
+ *
+ * @deprecated Use one of the fetch- or iterate-related methods on the Statement.
  */
 final class FetchMode
 {

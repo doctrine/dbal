@@ -4,9 +4,12 @@ namespace Doctrine\DBAL\Cache;
 
 use ArrayIterator;
 use Doctrine\Common\Cache\Cache;
+use Doctrine\DBAL\Driver\DriverException;
+use Doctrine\DBAL\Driver\FetchUtils;
 use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\FetchMode;
+use Doctrine\DBAL\ForwardCompatibility\Driver\ResultStatement as ForwardCompatibleResultStatement;
 use InvalidArgumentException;
 use IteratorAggregate;
 use function array_merge;
@@ -27,7 +30,7 @@ use function reset;
  * Also you have to realize that the cache will load the whole result into memory at once to ensure 2.
  * This means that the memory usage for cached results might increase by using this feature.
  */
-class ResultCacheStatement implements IteratorAggregate, ResultStatement
+class ResultCacheStatement implements IteratorAggregate, ResultStatement, ForwardCompatibleResultStatement
 {
     /** @var Cache */
     private $resultCache;
@@ -104,6 +107,8 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use one of the fetch- or iterate-related methods.
      */
     public function setFetchMode($fetchMode)
     {
@@ -114,6 +119,8 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use iterateNumeric(), iterateAssociative() or iterateColumn() instead.
      */
     public function getIterator()
     {
@@ -124,6 +131,8 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use fetchNumeric(), fetchAssociative() or fetchOne() instead.
      */
     public function fetch($fetchMode = null)
     {
@@ -164,6 +173,8 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use fetchAllNumeric(), fetchAllAssociative() or fetchColumn() instead.
      */
     public function fetchAll($fetchMode = null)
     {
@@ -183,6 +194,8 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use fetchOne() instead.
      */
     public function fetchColumn()
     {
@@ -190,6 +203,64 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
 
         // TODO: verify that return false is the correct behavior
         return $row[0] ?? false;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchNumeric()
+    {
+        $row = $this->doFetch();
+
+        if ($row === false) {
+            return false;
+        }
+
+        return array_values($row);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchAssociative()
+    {
+        return $this->doFetch();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchOne()
+    {
+        return FetchUtils::fetchOne($this);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchAllNumeric() : array
+    {
+        if ($this->statement instanceof ForwardCompatibleResultStatement) {
+            $data = $this->statement->fetchAllAssociative();
+        } else {
+            $data = $this->statement->fetchAll(FetchMode::ASSOCIATIVE);
+        }
+
+        return $this->store($data);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchAllAssociative() : array
+    {
+        if ($this->statement instanceof ForwardCompatibleResultStatement) {
+            $data = $this->statement->fetchAllAssociative();
+        } else {
+            $data = $this->statement->fetchAll(FetchMode::ASSOCIATIVE);
+        }
+
+        return $this->store($data);
     }
 
     /**
@@ -208,5 +279,50 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
         assert($this->statement instanceof Statement);
 
         return $this->statement->rowCount();
+    }
+
+    /**
+     * @return array<string,mixed>|false
+     *
+     * @throws DriverException
+     */
+    private function doFetch()
+    {
+        if ($this->data === null) {
+            $this->data = [];
+        }
+
+        if ($this->statement instanceof ForwardCompatibleResultStatement) {
+            $row = $this->statement->fetchAssociative();
+        } else {
+            $row = $this->statement->fetch(FetchMode::ASSOCIATIVE);
+        }
+
+        if ($row !== false) {
+            $this->data[] = $row;
+
+            return $row;
+        }
+
+        $this->emptied = true;
+
+        return false;
+    }
+
+    /**
+     * @param  array<int,array<mixed>> $data
+     *
+     * @return array<int,array<mixed>>
+     */
+    private function store(array $data) : array
+    {
+        foreach ($data as $key => $value) {
+            $data[$key] = [$value];
+        }
+
+        $this->data    = $data;
+        $this->emptied = true;
+
+        return $this->data;
     }
 }

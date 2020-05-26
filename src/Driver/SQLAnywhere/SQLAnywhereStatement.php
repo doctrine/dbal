@@ -2,9 +2,12 @@
 
 namespace Doctrine\DBAL\Driver\SQLAnywhere;
 
+use Doctrine\DBAL\Driver\DriverException;
+use Doctrine\DBAL\Driver\FetchUtils;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\FetchMode;
+use Doctrine\DBAL\ForwardCompatibility\Driver\ResultStatement as ForwardCompatibleResultStatement;
 use Doctrine\DBAL\ParameterType;
 use IteratorAggregate;
 use function array_key_exists;
@@ -28,7 +31,7 @@ use const SASQL_BOTH;
 /**
  * SAP SQL Anywhere implementation of the Statement interface.
  */
-class SQLAnywhereStatement implements IteratorAggregate, Statement
+class SQLAnywhereStatement implements IteratorAggregate, Statement, ForwardCompatibleResultStatement
 {
     /** @var resource The connection resource. */
     private $conn;
@@ -186,6 +189,8 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      *
+     * @deprecated Use fetchNumeric(), fetchAssociative() or fetchOne() instead.
+     *
      * @throws SQLAnywhereException
      */
     public function fetch($fetchMode = null)
@@ -216,6 +221,8 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use fetchAllNumeric(), fetchAllAssociative() or fetchColumn() instead.
      */
     public function fetchAll($fetchMode = null)
     {
@@ -240,6 +247,8 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use fetchOne() instead.
      */
     public function fetchColumn()
     {
@@ -254,10 +263,66 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use iterateNumeric(), iterateAssociative() or iterateColumn() instead.
      */
     public function getIterator()
     {
         return new StatementIterator($this);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function fetchNumeric()
+    {
+        if (! is_resource($this->result)) {
+            return false;
+        }
+
+        return sasql_fetch_row($this->result);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchAssociative()
+    {
+        if (! is_resource($this->result)) {
+            return false;
+        }
+
+        return sasql_fetch_assoc($this->result);
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @throws DriverException
+     */
+    public function fetchOne()
+    {
+        return FetchUtils::fetchOne($this);
+    }
+
+    /**
+     * @return array<int,array<int,mixed>>
+     *
+     * @throws DriverException
+     */
+    public function fetchAllNumeric() : array
+    {
+        return FetchUtils::fetchAllNumeric($this);
+    }
+
+    /**
+     * @return array<int,array<string,mixed>>
+     *
+     * @throws DriverException
+     */
+    public function fetchAllAssociative() : array
+    {
+        return FetchUtils::fetchAllAssociative($this);
     }
 
     public function rowCount() : int
@@ -267,6 +332,8 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use one of the fetch- or iterate-related methods.
      */
     public function setFetchMode($fetchMode)
     {

@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Driver\SQLAnywhere;
 use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
+use Doctrine\DBAL\ForwardCompatibility\Driver\ResultStatement as ForwardCompatibleResultStatement;
 use Doctrine\DBAL\ParameterType;
 use function assert;
 use function is_float;
@@ -122,7 +123,13 @@ class SQLAnywhereConnection implements ServerInfoAwareConnection
      */
     public function getServerVersion()
     {
-        $version = $this->query("SELECT PROPERTY('ProductVersion')")->fetchColumn();
+        $stmt = $this->query("SELECT PROPERTY('ProductVersion')");
+
+        if ($stmt instanceof ForwardCompatibleResultStatement) {
+            $version = $stmt->fetchOne();
+        } else {
+            $version = $stmt->fetchColumn();
+        }
 
         assert(is_string($version));
 
@@ -138,7 +145,13 @@ class SQLAnywhereConnection implements ServerInfoAwareConnection
             return sasql_insert_id($this->connection);
         }
 
-        return $this->query('SELECT ' . $name . '.CURRVAL')->fetchColumn();
+        $stmt = $this->query('SELECT ' . $name . '.CURRVAL');
+
+        if ($stmt instanceof ForwardCompatibleResultStatement) {
+            return $stmt->fetchOne();
+        }
+
+        return $stmt->fetchColumn();
     }
 
     public function prepare(string $sql) : DriverStatement

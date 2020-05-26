@@ -97,8 +97,10 @@ class StatementIteratorTest extends TestCase
         yield [PortabilityStatement::class];
         yield [SQLAnywhereStatement::class];
 
-        if (extension_loaded('sqlsrv')) {
-            yield [SQLSrvStatement::class];
+        if (! extension_loaded('sqlsrv')) {
+            return;
         }
+
+        yield [SQLSrvStatement::class];
     }
 }
