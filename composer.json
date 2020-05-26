@@ -32,7 +32,7 @@
         {"name": "Jonathan Wage", "email": "jonwage@gmail.com"}
     ],
     "require": {
-        "php": "^7.3",
+        "php": "^7.3 || ^8.0",
         "doctrine/cache": "^1.0",
         "doctrine/event-manager": "^1.0",
         "ocramius/package-versions": "^1.4"
