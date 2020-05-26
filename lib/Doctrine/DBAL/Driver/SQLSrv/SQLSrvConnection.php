@@ -4,6 +4,7 @@ namespace Doctrine\DBAL\Driver\SQLSrv;
 
 use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
+use Doctrine\DBAL\ForwardCompatibility\Driver\ResultStatement as ForwardCompatibleResultStatement;
 use Doctrine\DBAL\ParameterType;
 use function func_get_args;
 use function is_float;
@@ -139,6 +140,10 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
             $stmt->execute([$name]);
         } else {
             $stmt = $this->query('SELECT @@IDENTITY');
+        }
+
+        if ($stmt instanceof ForwardCompatibleResultStatement) {
+            return $stmt->fetchOne();
         }
 
         return $stmt->fetchColumn();

@@ -87,7 +87,7 @@ class PoolingShardManager implements ShardManager
 
         foreach ($shards as $shard) {
             $this->conn->connect($shard['id']);
-            foreach ($this->conn->fetchAll($sql, $params, $types) as $row) {
+            foreach ($this->conn->fetchAllAssociative($sql, $params, $types) as $row) {
                 $result[] = $row;
             }
         }

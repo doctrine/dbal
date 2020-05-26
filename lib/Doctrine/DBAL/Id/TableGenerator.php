@@ -5,7 +5,6 @@ namespace Doctrine\DBAL\Id;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\DriverManager;
-use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\LockMode;
 use Throwable;
 use function array_change_key_case;
@@ -105,8 +104,7 @@ class TableGenerator
             $sql      = 'SELECT sequence_value, sequence_increment_by'
                 . ' FROM ' . $platform->appendLockHint($this->generatorTableName, LockMode::PESSIMISTIC_WRITE)
                 . ' WHERE sequence_name = ? ' . $platform->getWriteLockSQL();
-            $stmt     = $this->conn->executeQuery($sql, [$sequenceName]);
-            $row      = $stmt->fetch(FetchMode::ASSOCIATIVE);
+            $row      = $this->conn->fetchAssociative($sql, [$sequenceName]);
 
             if ($row !== false) {
                 $row = array_change_key_case($row, CASE_LOWER);

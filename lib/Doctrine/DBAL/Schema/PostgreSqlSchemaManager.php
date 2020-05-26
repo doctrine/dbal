@@ -221,8 +221,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
                 implode(' ,', $colNumbers)
             );
 
-            $stmt         = $this->_conn->executeQuery($columnNameSql);
-            $indexColumns = $stmt->fetchAll();
+            $indexColumns = $this->_conn->fetchAllAssociative($columnNameSql);
 
             // required for getting the order of the columns right.
             foreach ($colNumbers as $colNum) {

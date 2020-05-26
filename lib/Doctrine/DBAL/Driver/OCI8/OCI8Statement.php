@@ -2,9 +2,11 @@
 
 namespace Doctrine\DBAL\Driver\OCI8;
 
+use Doctrine\DBAL\Driver\FetchUtils;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\FetchMode;
+use Doctrine\DBAL\ForwardCompatibility\Driver\ResultStatement as ForwardCompatibleResultStatement;
 use Doctrine\DBAL\ParameterType;
 use InvalidArgumentException;
 use IteratorAggregate;
@@ -47,7 +49,7 @@ use const SQLT_CHR;
 /**
  * The OCI8 implementation of the Statement interface.
  */
-class OCI8Statement implements IteratorAggregate, Statement
+class OCI8Statement implements IteratorAggregate, Statement, ForwardCompatibleResultStatement
 {
     /** @var resource */
     protected $_dbh;
@@ -410,6 +412,8 @@ class OCI8Statement implements IteratorAggregate, Statement
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use one of the fetch- or iterate-related methods.
      */
     public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
     {
@@ -420,6 +424,8 @@ class OCI8Statement implements IteratorAggregate, Statement
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use iterateNumeric(), iterateAssociative() or iterateColumn() instead.
      */
     public function getIterator()
     {
@@ -428,6 +434,8 @@ class OCI8Statement implements IteratorAggregate, Statement
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use fetchNumeric(), fetchAssociative() or fetchOne() instead.
      */
     public function fetch($fetchMode = null, $cursorOrientation = PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
     {
@@ -459,6 +467,8 @@ class OCI8Statement implements IteratorAggregate, Statement
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use fetchAllNumeric(), fetchAllAssociative() or fetchColumn() instead.
      */
     public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
     {
@@ -513,6 +523,8 @@ class OCI8Statement implements IteratorAggregate, Statement
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use fetchOne() instead.
      */
     public function fetchColumn($columnIndex = 0)
     {
@@ -537,5 +549,84 @@ class OCI8Statement implements IteratorAggregate, Statement
     public function rowCount()
     {
         return oci_num_rows($this->_sth) ?: 0;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchNumeric()
+    {
+        return $this->doFetch(OCI_NUM);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchAssociative()
+    {
+        return $this->doFetch(OCI_ASSOC);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchOne()
+    {
+        return FetchUtils::fetchOne($this);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchAllNumeric() : array
+    {
+        return $this->doFetchAll(OCI_NUM, OCI_FETCHSTATEMENT_BY_ROW);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchAllAssociative() : array
+    {
+        return $this->doFetchAll(OCI_ASSOC, OCI_FETCHSTATEMENT_BY_ROW);
+    }
+
+    /**
+     * @return mixed|false
+     */
+    private function doFetch(int $mode)
+    {
+        // do not try fetching from the statement if it's not expected to contain the result
+        // in order to prevent exceptional situation
+        if (! $this->result) {
+            return false;
+        }
+
+        return oci_fetch_array(
+            $this->_sth,
+            $mode | OCI_RETURN_NULLS | OCI_RETURN_LOBS
+        );
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    private function doFetchAll(int $mode, int $fetchStructure) : array
+    {
+        // do not try fetching from the statement if it's not expected to contain the result
+        // in order to prevent exceptional situation
+        if (! $this->result) {
+            return [];
+        }
+
+        oci_fetch_all(
+            $this->_sth,
+            $result,
+            0,
+            -1,
+            $mode | OCI_RETURN_NULLS | $fetchStructure | OCI_RETURN_LOBS
+        );
+
+        return $result;
     }
 }

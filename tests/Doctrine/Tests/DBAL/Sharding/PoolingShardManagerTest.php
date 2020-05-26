@@ -16,7 +16,7 @@ class PoolingShardManagerTest extends TestCase
     private function createConnectionMock() : PoolingShardConnection
     {
         return $this->getMockBuilder(PoolingShardConnection::class)
-            ->onlyMethods(['connect', 'getParams', 'fetchAll'])
+            ->onlyMethods(['connect', 'getParams', 'fetchAllAssociative'])
             ->disableOriginalConstructor()
             ->getMock();
     }
@@ -101,12 +101,12 @@ class PoolingShardManagerTest extends TestCase
         ));
         $conn->expects($this->at(2))->method('connect')->with($this->equalTo(1));
         $conn->expects($this->at(3))
-             ->method('fetchAll')
+             ->method('fetchAllAssociative')
              ->with($this->equalTo($sql), $this->equalTo($params), $this->equalTo($types))
              ->will($this->returnValue([ ['id' => 1] ]));
         $conn->expects($this->at(4))->method('connect')->with($this->equalTo(2));
         $conn->expects($this->at(5))
-             ->method('fetchAll')
+             ->method('fetchAllAssociative')
              ->with($this->equalTo($sql), $this->equalTo($params), $this->equalTo($types))
              ->will($this->returnValue([ ['id' => 2] ]));
 
@@ -131,12 +131,12 @@ class PoolingShardManagerTest extends TestCase
         ));
         $conn->expects($this->at(2))->method('connect')->with($this->equalTo(1));
         $conn->expects($this->at(3))
-            ->method('fetchAll')
+            ->method('fetchAllAssociative')
             ->with($this->equalTo($sql), $this->equalTo($params), $this->equalTo($types))
             ->will($this->returnValue([ ['id' => 1] ]));
         $conn->expects($this->at(4))->method('connect')->with($this->equalTo(2));
         $conn->expects($this->at(5))
-            ->method('fetchAll')
+            ->method('fetchAllAssociative')
             ->with($this->equalTo($sql), $this->equalTo($params), $this->equalTo($types))
             ->will($this->returnValue([ ['id' => 2] ]));
 

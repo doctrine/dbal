@@ -1,5 +1,15 @@
 # Upgrade to 2.11
 
+## Deprecated `FetchMode` and the corresponding methods
+
+1. The `FetchMode` class and the `setFetchMode()` method of the `Connection` and `Statement` interfaces are deprecated.
+2. The `Statement::fetch()` method is deprecated in favor of `fetchNumeric()`, `fetchAssociative()` and `fetchOne()`.
+3. The `Statement::fetchAll()` method is deprecated in favor of `fetchAllNumeric()` and `fetchAllAssociative()`. There is no currently replacement for `Statement::fetchAll(FETCH_MODE::COLUMN)`. In a future major version, `fetchColumn()` will be used as a replacement.
+4. The `Statement::fetchColumn()` method is deprecated in favor of `fetchOne()`.
+5. The `Connection::fetchArray()` and `fetchAssoc()` method are deprecated in favor of `fetchNumeric()` and `fetchAssociative()` respectively.
+6. The `StatementIterator` class and the usage of a `Statement` object as `Traversable` is deprecated in favor of `iterateNumeric()`, `iterateAssociative()` and `iterateColumn()`.
+7. Fetching data in mixed mode (`FetchMode::MIXED`) is deprecated.
+
 ## Deprecated `Connection::project()`
 
 The `Connection::project()` method is deprecated. Implement data transformation outside of DBAL.

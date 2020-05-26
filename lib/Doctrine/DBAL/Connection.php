@@ -14,6 +14,7 @@ use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
+use Doctrine\DBAL\ForwardCompatibility\ResultStatement as ForwardCompatibleResultStatement;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder;
@@ -21,6 +22,7 @@ use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Types\Type;
 use Exception;
 use Throwable;
+use Traversable;
 use function array_key_exists;
 use function assert;
 use function func_get_args;
@@ -529,6 +531,8 @@ class Connection implements DriverConnection
     /**
      * Sets the fetch mode.
      *
+     * @deprecated Use one of the fetch- or iterate-related methods.
+     *
      * @param int $fetchMode
      *
      * @return void
@@ -541,6 +545,8 @@ class Connection implements DriverConnection
     /**
      * Prepares and executes an SQL query and returns the first row of the result
      * as an associative array.
+     *
+     * @deprecated Use fetchAllAssociative()
      *
      * @param string         $statement The SQL query.
      * @param mixed[]        $params    The query parameters.
@@ -559,6 +565,8 @@ class Connection implements DriverConnection
      * Prepares and executes an SQL query and returns the first row of the result
      * as a numerically indexed array.
      *
+     * @deprecated Use fetchAllNumeric()
+     *
      * @param string         $statement The SQL query to be executed.
      * @param mixed[]        $params    The prepared statement params.
      * @param int[]|string[] $types     The query parameter types.
@@ -574,6 +582,8 @@ class Connection implements DriverConnection
      * Prepares and executes an SQL query and returns the value of a single column
      * of the first row of the result.
      *
+     * @deprecated Use fetchOne() instead.
+     *
      * @param string         $statement The SQL query to be executed.
      * @param mixed[]        $params    The prepared statement params.
      * @param int            $column    The 0-indexed column number to retrieve.
@@ -586,6 +596,87 @@ class Connection implements DriverConnection
     public function fetchColumn($statement, array $params = [], $column = 0, array $types = [])
     {
         return $this->executeQuery($statement, $params, $types)->fetchColumn($column);
+    }
+
+    /**
+     * Prepares and executes an SQL query and returns the first row of the result
+     * as an associative array.
+     *
+     * @param string                                           $query  The SQL query.
+     * @param array<int, mixed>|array<string, mixed>           $params The prepared statement params.
+     * @param array<int, int|string>|array<string, int|string> $types  The query parameter types.
+     *
+     * @return array<string, mixed>|false False is returned if no rows are found.
+     *
+     * @throws DBALException
+     */
+    public function fetchAssociative(string $query, array $params = [], array $types = [])
+    {
+        try {
+            $stmt = $this->executeQuery($query, $params, $types);
+
+            if ($stmt instanceof ForwardCompatibleResultStatement) {
+                return $stmt->fetchAssociative();
+            }
+
+            return $stmt->fetch(FetchMode::ASSOCIATIVE);
+        } catch (Throwable $e) {
+            throw DBALException::driverExceptionDuringQuery($this->_driver, $e, $query);
+        }
+    }
+
+    /**
+     * Prepares and executes an SQL query and returns the first row of the result
+     * as a numerically indexed array.
+     *
+     * @param string                                           $query  The SQL query to be executed.
+     * @param array<int, mixed>|array<string, mixed>           $params The prepared statement params.
+     * @param array<int, int|string>|array<string, int|string> $types  The query parameter types.
+     *
+     * @return array<int, mixed>|false False is returned if no rows are found.
+     *
+     * @throws DBALException
+     */
+    public function fetchNumeric(string $query, array $params = [], array $types = [])
+    {
+        try {
+            $stmt = $this->executeQuery($query, $params, $types);
+
+            if ($stmt instanceof ForwardCompatibleResultStatement) {
+                return $stmt->fetchNumeric();
+            }
+
+            return $stmt->fetch(FetchMode::NUMERIC);
+        } catch (Throwable $e) {
+            throw DBALException::driverExceptionDuringQuery($this->_driver, $e, $query);
+        }
+    }
+
+    /**
+     * Prepares and executes an SQL query and returns the value of a single column
+     * of the first row of the result.
+     *
+     * @param string                                           $query  The SQL query to be executed.
+     * @param array<int, mixed>|array<string, mixed>           $params The prepared statement params.
+     * @param array<int, int|string>|array<string, int|string> $types  The query parameter types.
+     *
+     * @return mixed|false False is returned if no rows are found.
+     *
+     * @throws DBALException
+     */
+    public function fetchOne(string $query, array $params = [], array $types = [])
+    {
+        try {
+            $stmt = $this->executeQuery($query, $params, $types);
+
+            if ($stmt instanceof ForwardCompatibleResultStatement) {
+                return $stmt->fetchOne();
+            }
+
+            return $stmt->fetch(FetchMode::COLUMN);
+        } catch (Throwable $e) {
+            throw DBALException::driverExceptionDuringQuery($this->_driver, $e, $query);
+        }
     }
 
     /**
@@ -835,6 +926,8 @@ class Connection implements DriverConnection
     /**
      * Prepares and executes an SQL query and returns the result as an associative array.
      *
+     * @deprecated Use fetchAllAssociative()
+     *
      * @param string         $sql    The SQL query.
      * @param mixed[]        $params The query parameters.
      * @param int[]|string[] $types  The query parameter types.
@@ -844,6 +937,142 @@ class Connection implements DriverConnection
     public function fetchAll($sql, array $params = [], $types = [])
     {
         return $this->executeQuery($sql, $params, $types)->fetchAll();
+    }
+
+    /**
+     * Prepares and executes an SQL query and returns the result as an array of numeric arrays.
+     *
+     * @param string                                           $query  The SQL query.
+     * @param array<int, mixed>|array<string, mixed>           $params The query parameters.
+     * @param array<int, int|string>|array<string, int|string> $types  The query parameter types.
+     *
+     * @return array<int,array<int,mixed>>
+     *
+     * @throws DBALException
+     */
+    public function fetchAllNumeric(string $query, array $params = [], array $types = []) : array
+    {
+        try {
+            $stmt = $this->executeQuery($query, $params, $types);
+
+            if ($stmt instanceof ForwardCompatibleResultStatement) {
+                return $stmt->fetchAllNumeric();
+            }
+
+            return $stmt->fetchAll(FetchMode::NUMERIC);
+        } catch (Throwable $e) {
+            throw DBALException::driverExceptionDuringQuery($this->_driver, $e, $query);
+        }
+    }
+
+    /**
+     * Prepares and executes an SQL query and returns the result as an array of associative arrays.
+     *
+     * @param string                                           $query  The SQL query.
+     * @param array<int, mixed>|array<string, mixed>           $params The query parameters.
+     * @param array<int, int|string>|array<string, int|string> $types  The query parameter types.
+     *
+     * @return array<int,array<string,mixed>>
+     *
+     * @throws DBALException
+     */
+    public function fetchAllAssociative(string $query, array $params = [], array $types = []) : array
+    {
+        try {
+            $stmt = $this->executeQuery($query, $params, $types);
+
+            if ($stmt instanceof ForwardCompatibleResultStatement) {
+                return $stmt->fetchAllAssociative();
+            }
+
+            return $stmt->fetchAll(FetchMode::ASSOCIATIVE);
+        } catch (Throwable $e) {
+            throw DBALException::driverExceptionDuringQuery($this->_driver, $e, $query);
+        }
+    }
+
+    /**
+     * Prepares and executes an SQL query and returns the result as an iterator over rows represented as numeric arrays.
+     *
+     * @param string                                           $query  The SQL query.
+     * @param array<int, mixed>|array<string, mixed>           $params The query parameters.
+     * @param array<int, int|string>|array<string, int|string> $types  The query parameter types.
+     *
+     * @return Traversable<int,array<int,mixed>>
+     *
+     * @throws DBALException
+     */
+    public function iterateNumeric(string $query, array $params = [], array $types = []) : Traversable
+    {
+        try {
+            $stmt = $this->executeQuery($query, $params, $types);
+
+            if ($stmt instanceof ForwardCompatibleResultStatement) {
+                yield from $stmt->iterateNumeric();
+            } else {
+                while (($row = $stmt->fetch(FetchMode::NUMERIC)) !== false) {
+                    yield $row;
+                }
+            }
+        } catch (Throwable $e) {
+            throw DBALException::driverExceptionDuringQuery($this->_driver, $e, $query);
+        }
+    }
+
+    /**
+     * Prepares and executes an SQL query and returns the result as an iterator over rows represented as associative arrays.
+     *
+     * @param string                                           $query  The SQL query.
+     * @param array<int, mixed>|array<string, mixed>           $params The query parameters.
+     * @param array<int, int|string>|array<string, int|string> $types  The query parameter types.
+     *
+     * @return Traversable<int,array<string,mixed>>
+     *
+     * @throws DBALException
+     */
+    public function iterateAssociative(string $query, array $params = [], array $types = []) : Traversable
+    {
+        try {
+            $stmt = $this->executeQuery($query, $params, $types);
+
+            if ($stmt instanceof ForwardCompatibleResultStatement) {
+                yield from $stmt->iterateAssociative();
+            } else {
+                while (($row = $stmt->fetch(FetchMode::ASSOCIATIVE)) !== false) {
+                    yield $row;
+                }
+            }
+        } catch (Throwable $e) {
+            throw DBALException::driverExceptionDuringQuery($this->_driver, $e, $query);
+        }
+    }
+
+    /**
+     * Prepares and executes an SQL query and returns the result as an iterator over the first column values.
+     *
+     * @param string                                           $query  The SQL query.
+     * @param array<int, mixed>|array<string, mixed>           $params The query parameters.
+     * @param array<int, int|string>|array<string, int|string> $types  The query parameter types.
+     *
+     * @return Traversable<int,mixed>
+     *
+     * @throws DBALException
+     */
+    public function iterateColumn(string $query, array $params = [], array $types = []) : Traversable
+    {
+        try {
+            $stmt = $this->executeQuery($query, $params, $types);
+
+            if ($stmt instanceof ForwardCompatibleResultStatement) {
+                yield from $stmt->iterateColumn();
+            } else {
+                while (($value = $stmt->fetch(FetchMode::COLUMN)) !== false) {
+                    yield $value;
+                }
+            }
+        } catch (Throwable $e) {
+            throw DBALException::driverExceptionDuringQuery($this->_driver, $e, $query);
+        }
     }
 
     /**
