@@ -4,12 +4,8 @@ namespace Doctrine\DBAL\Driver\Mysqli;
 
 use Doctrine\DBAL\Driver\FetchUtils;
 use Doctrine\DBAL\Driver\Statement;
-use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
-use Doctrine\DBAL\FetchMode;
-use Doctrine\DBAL\ForwardCompatibility\Driver\ResultStatement as ForwardCompatibleResultStatement;
 use Doctrine\DBAL\ParameterType;
-use IteratorAggregate;
 use mysqli;
 use mysqli_stmt;
 use function array_combine;
@@ -25,7 +21,7 @@ use function is_resource;
 use function sprintf;
 use function str_repeat;
 
-class MysqliStatement implements IteratorAggregate, Statement, ForwardCompatibleResultStatement
+class MysqliStatement implements Statement
 {
     /** @var string[] */
     protected static $_paramTypeMap = [
@@ -61,9 +57,6 @@ class MysqliStatement implements IteratorAggregate, Statement, ForwardCompatible
      * @var mixed[]
      */
     protected $_values = [];
-
-    /** @var int */
-    protected $_defaultFetchMode = FetchMode::MIXED;
 
     /**
      * Indicates whether the statement is in the state when fetching results is possible
@@ -308,97 +301,6 @@ class MysqliStatement implements IteratorAggregate, Statement, ForwardCompatible
 
     /**
      * {@inheritdoc}
-     *
-     * @deprecated Use fetchNumeric(), fetchAssociative() or fetchOne() instead.
-     */
-    public function fetch($fetchMode = null)
-    {
-        // do not try fetching from the statement if it's not expected to contain result
-        // in order to prevent exceptional situation
-        if (! $this->result) {
-            return false;
-        }
-
-        $fetchMode = $fetchMode ?? $this->_defaultFetchMode;
-
-        if ($fetchMode === FetchMode::COLUMN) {
-            return $this->fetchColumn();
-        }
-
-        $values = $this->_fetch();
-
-        if ($values === null) {
-            return false;
-        }
-
-        if ($values === false) {
-            throw new MysqliException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
-        }
-
-        if ($fetchMode === FetchMode::NUMERIC) {
-            return $values;
-        }
-
-        assert(is_array($this->_columnNames));
-        $assoc = array_combine($this->_columnNames, $values);
-        assert(is_array($assoc));
-
-        switch ($fetchMode) {
-            case FetchMode::ASSOCIATIVE:
-                return $assoc;
-
-            case FetchMode::MIXED:
-                return $assoc + $values;
-
-            default:
-                throw new MysqliException(sprintf("Unknown fetch type '%s'", $fetchMode));
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated Use fetchAllNumeric(), fetchAllAssociative() or fetchColumn() instead.
-     */
-    public function fetchAll($fetchMode = null)
-    {
-        $fetchMode = $fetchMode ?? $this->_defaultFetchMode;
-
-        $rows = [];
-
-        if ($fetchMode === FetchMode::COLUMN) {
-            while (($row = $this->fetchColumn()) !== false) {
-                $rows[] = $row;
-            }
-        } else {
-            while (($row = $this->fetch($fetchMode)) !== false) {
-                $rows[] = $row;
-            }
-        }
-
-        return $rows;
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated Use fetchOne() instead.
-     */
-    public function fetchColumn()
-    {
-        $row = $this->fetch(FetchMode::NUMERIC);
-
-        if ($row === false) {
-            return false;
-        }
-
-        return $row[0] ?? null;
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated The error information is available via exceptions.
      */
     public function fetchNumeric()
     {
@@ -466,6 +368,14 @@ class MysqliStatement implements IteratorAggregate, Statement, ForwardCompatible
     /**
      * {@inheritdoc}
      */
+    public function fetchColumn() : array
+    {
+        return FetchUtils::fetchColumn($this);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function closeCursor()
     {
         $this->_stmt->free_result();
@@ -489,27 +399,5 @@ class MysqliStatement implements IteratorAggregate, Statement, ForwardCompatible
     public function columnCount()
     {
         return $this->_stmt->field_count;
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated Use one of the fetch- or iterate-related methods.
-     */
-    public function setFetchMode($fetchMode)
-    {
-        $this->_defaultFetchMode = $fetchMode;
-
-        return true;
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated Use iterateNumeric(), iterateAssociative() or iterateColumn() instead.
-     */
-    public function getIterator()
-    {
-        return new StatementIterator($this);
     }
 }

@@ -2,19 +2,13 @@
 
 namespace Doctrine\DBAL\Cache;
 
-use ArrayIterator;
 use Doctrine\DBAL\Driver\FetchUtils;
 use Doctrine\DBAL\Driver\ResultStatement;
-use Doctrine\DBAL\FetchMode;
-use Doctrine\DBAL\ForwardCompatibility\Driver\ResultStatement as ForwardCompatibleResultStatement;
-use InvalidArgumentException;
-use IteratorAggregate;
-use function array_merge;
 use function array_values;
 use function count;
 use function reset;
 
-class ArrayStatement implements IteratorAggregate, ResultStatement, ForwardCompatibleResultStatement
+class ArrayStatement implements ResultStatement
 {
     /** @var mixed[] */
     private $data;
@@ -24,9 +18,6 @@ class ArrayStatement implements IteratorAggregate, ResultStatement, ForwardCompa
 
     /** @var int */
     private $num = 0;
-
-    /** @var int */
-    private $defaultFetchMode = FetchMode::MIXED;
 
     /**
      * @param mixed[] $data
@@ -61,95 +52,10 @@ class ArrayStatement implements IteratorAggregate, ResultStatement, ForwardCompa
 
     /**
      * {@inheritdoc}
-     *
-     * @deprecated Use one of the fetch- or iterate-related methods.
-     */
-    public function setFetchMode($fetchMode)
-    {
-        $this->defaultFetchMode = $fetchMode;
-
-        return true;
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated Use iterateNumeric(), iterateAssociative() or iterateColumn() instead.
-     */
-    public function getIterator()
-    {
-        $data = $this->fetchAll();
-
-        return new ArrayIterator($data);
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated Use fetchNumeric(), fetchAssociative() or fetchOne() instead.
-     */
-    public function fetch($fetchMode = null)
-    {
-        if (! isset($this->data[$this->num])) {
-            return false;
-        }
-
-        $row       = $this->data[$this->num++];
-        $fetchMode = $fetchMode ?? $this->defaultFetchMode;
-
-        if ($fetchMode === FetchMode::ASSOCIATIVE) {
-            return $row;
-        }
-
-        if ($fetchMode === FetchMode::NUMERIC) {
-            return array_values($row);
-        }
-
-        if ($fetchMode === FetchMode::MIXED) {
-            return array_merge($row, array_values($row));
-        }
-
-        if ($fetchMode === FetchMode::COLUMN) {
-            return reset($row);
-        }
-
-        throw new InvalidArgumentException('Invalid fetch-style given for fetching result.');
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated Use fetchAllNumeric(), fetchAllAssociative() or fetchColumn() instead.
-     */
-    public function fetchAll($fetchMode = null)
-    {
-        $rows = [];
-        while ($row = $this->fetch($fetchMode)) {
-            $rows[] = $row;
-        }
-
-        return $rows;
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated Use fetchOne() instead.
-     */
-    public function fetchColumn()
-    {
-        $row = $this->fetch(FetchMode::NUMERIC);
-
-        // TODO: verify that return false is the correct behavior
-        return $row[0] ?? false;
-    }
-
-    /**
-     * {@inheritdoc}
      */
     public function fetchNumeric()
     {
-        $row = $this->doFetch();
+        $row = $this->fetch();
 
         if ($row === false) {
             return false;
@@ -163,7 +69,7 @@ class ArrayStatement implements IteratorAggregate, ResultStatement, ForwardCompa
      */
     public function fetchAssociative()
     {
-        return $this->doFetch();
+        return $this->fetch();
     }
 
     /**
@@ -171,7 +77,7 @@ class ArrayStatement implements IteratorAggregate, ResultStatement, ForwardCompa
      */
     public function fetchOne()
     {
-        $row = $this->doFetch();
+        $row = $this->fetch();
 
         if ($row === false) {
             return false;
@@ -197,9 +103,17 @@ class ArrayStatement implements IteratorAggregate, ResultStatement, ForwardCompa
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function fetchColumn() : array
+    {
+        return FetchUtils::fetchColumn($this);
+    }
+
+    /**
      * @return mixed|false
      */
-    private function doFetch()
+    private function fetch()
     {
         if (! isset($this->data[$this->num])) {
             return false;

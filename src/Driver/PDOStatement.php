@@ -2,11 +2,8 @@
 
 namespace Doctrine\DBAL\Driver;
 
-use Doctrine\DBAL\FetchMode;
-use Doctrine\DBAL\ForwardCompatibility\Driver\ResultStatement as ForwardCompatibleResultStatement;
 use Doctrine\DBAL\ParameterType;
 use InvalidArgumentException;
-use IteratorAggregate;
 use PDO;
 use function array_slice;
 use function assert;
@@ -17,7 +14,7 @@ use function is_array;
  * The PDO implementation of the Statement interface.
  * Used by all PDO-based drivers.
  */
-class PDOStatement implements IteratorAggregate, Statement, ForwardCompatibleResultStatement
+class PDOStatement implements Statement
 {
     private const PARAM_TYPE_MAP = [
         ParameterType::NULL         => PDO::PARAM_NULL,
@@ -28,35 +25,12 @@ class PDOStatement implements IteratorAggregate, Statement, ForwardCompatibleRes
         ParameterType::BOOLEAN      => PDO::PARAM_BOOL,
     ];
 
-    private const FETCH_MODE_MAP = [
-        FetchMode::ASSOCIATIVE => PDO::FETCH_ASSOC,
-        FetchMode::NUMERIC     => PDO::FETCH_NUM,
-        FetchMode::MIXED       => PDO::FETCH_BOTH,
-        FetchMode::COLUMN      => PDO::FETCH_COLUMN,
-    ];
-
     /** @var \PDOStatement */
     private $stmt;
 
     public function __construct(\PDOStatement $stmt)
     {
         $this->stmt = $stmt;
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated Use one of the fetch- or iterate-related methods.
-     */
-    public function setFetchMode($fetchMode)
-    {
-        $fetchMode = $this->convertFetchMode($fetchMode);
-
-        try {
-            return $this->stmt->setFetchMode($fetchMode);
-        } catch (\PDOException $exception) {
-            throw new PDOException($exception);
-        }
     }
 
     /**
@@ -134,64 +108,6 @@ class PDOStatement implements IteratorAggregate, Statement, ForwardCompatibleRes
 
     /**
      * {@inheritdoc}
-     *
-     * @deprecated Use fetchNumeric(), fetchAssociative() or fetchOne() instead.
-     */
-    public function fetch($fetchMode = null)
-    {
-        try {
-            if ($fetchMode === null) {
-                return $this->stmt->fetch();
-            }
-
-            return $this->stmt->fetch(
-                $this->convertFetchMode($fetchMode)
-            );
-        } catch (\PDOException $exception) {
-            throw new PDOException($exception);
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated Use fetchAllNumeric(), fetchAllAssociative() or fetchColumn() instead.
-     */
-    public function fetchAll($fetchMode = null)
-    {
-        try {
-            if ($fetchMode === null) {
-                $data = $this->stmt->fetchAll();
-            } else {
-                $data = $this->stmt->fetchAll(
-                    $this->convertFetchMode($fetchMode)
-                );
-            }
-        } catch (\PDOException $exception) {
-            throw new PDOException($exception);
-        }
-
-        assert(is_array($data));
-
-        return $data;
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated Use fetchOne() instead.
-     */
-    public function fetchColumn()
-    {
-        try {
-            return $this->stmt->fetchColumn();
-        } catch (\PDOException $exception) {
-            throw new PDOException($exception);
-        }
-    }
-
-    /**
-     * {@inheritdoc}
      */
     public function fetchNumeric()
     {
@@ -231,6 +147,46 @@ class PDOStatement implements IteratorAggregate, Statement, ForwardCompatibleRes
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function fetchColumn() : array
+    {
+        return $this->fetchAll(PDO::FETCH_COLUMN);
+    }
+
+    /**
+     * @return mixed|false
+     *
+     * @throws PDOException
+     */
+    private function fetch(int $mode)
+    {
+        try {
+            return $this->stmt->fetch($mode);
+        } catch (\PDOException $exception) {
+            throw new PDOException($exception);
+        }
+    }
+
+    /**
+     * @return array<int,mixed>
+     *
+     * @throws PDOException
+     */
+    private function fetchAll(int $mode) : array
+    {
+        try {
+            $data = $this->stmt->fetchAll($mode);
+        } catch (\PDOException $exception) {
+            throw new PDOException($exception);
+        }
+
+        assert(is_array($data));
+
+        return $data;
+    }
+
+    /**
      * Converts DBAL parameter type to PDO parameter type
      *
      * @param int $type Parameter type
@@ -242,27 +198,5 @@ class PDOStatement implements IteratorAggregate, Statement, ForwardCompatibleRes
         }
 
         return self::PARAM_TYPE_MAP[$type];
-    }
-
-    /**
-     * Converts DBAL fetch mode to PDO fetch mode
-     *
-     * @param int $fetchMode Fetch mode
-     */
-    private function convertFetchMode(int $fetchMode) : int
-    {
-        if (! isset(self::FETCH_MODE_MAP[$fetchMode])) {
-            throw new InvalidArgumentException('Invalid fetch mode: ' . $fetchMode);
-        }
-
-        return self::FETCH_MODE_MAP[$fetchMode];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getIterator()
-    {
-        yield from $this->stmt;
     }
 }

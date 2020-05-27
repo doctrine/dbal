@@ -29,7 +29,7 @@ class AbstractMySQLDriverTest extends AbstractDriverTest
         $statement = $this->createMock(ResultStatement::class);
 
         $statement->expects(self::once())
-            ->method('fetchColumn')
+            ->method('fetchOne')
             ->will(self::returnValue($database));
 
         $connection = $this->getConnectionMock();

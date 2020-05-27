@@ -16,7 +16,7 @@ class QuotingTest extends FunctionalTestCase
             $platform->quoteStringLiteral($string)
         );
 
-        self::assertSame($string, $this->connection->fetchColumn($query));
+        self::assertSame($string, $this->connection->fetchOne($query));
     }
 
     /**

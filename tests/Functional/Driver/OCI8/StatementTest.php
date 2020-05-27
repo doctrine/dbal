@@ -33,7 +33,7 @@ class StatementTest extends FunctionalTestCase
     {
         self::assertEquals(
             $expected,
-            $this->connection->executeQuery($query, $params)->fetch()
+            $this->connection->executeQuery($query, $params)->fetchAssociative()
         );
     }
 
@@ -52,7 +52,7 @@ class StatementTest extends FunctionalTestCase
 
         self::assertEquals(
             $expected,
-            $stmt->fetch()
+            $stmt->fetchAssociative()
         );
     }
 
