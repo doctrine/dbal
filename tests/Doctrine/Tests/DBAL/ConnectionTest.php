@@ -144,9 +144,7 @@ class ConnectionTest extends DbalTestCase
 
     public function testConnectDispatchEvent() : void
     {
-        $listenerMock = $this->getMockBuilder($this->getMockClass('ConnectDispatchEventListener'))
-            ->addMethods(['postConnect'])
-            ->getMock();
+        $listenerMock = $this->createMock(ConnectDispatchEventListener::class);
         $listenerMock->expects($this->once())->method('postConnect');
 
         $eventManager = new EventManager();
@@ -947,4 +945,9 @@ class ConnectionTest extends DbalTestCase
 
         $connection->executeCacheQuery($query, [], [], $queryCacheProfile);
     }
+}
+
+interface ConnectDispatchEventListener
+{
+    public function postConnect() : void;
 }
