@@ -202,6 +202,8 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
      * {@inheritdoc}
      *
      * @deprecated The error information is available via exceptions.
+     *
+     * @return int
      */
     public function errorCode()
     {
@@ -212,6 +214,8 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
      * {@inheritdoc}
      *
      * @deprecated The error information is available via exceptions.
+     *
+     * @return string
      */
     public function errorInfo()
     {

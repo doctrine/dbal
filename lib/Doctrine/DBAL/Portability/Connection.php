@@ -108,6 +108,8 @@ class Connection extends \Doctrine\DBAL\Connection
 
     /**
      * {@inheritdoc}
+     *
+     * @return Statement
      */
     public function prepare($statement)
     {

@@ -83,3 +83,15 @@ parameters:
 
         # Needs Generics
         - '~Method Doctrine\\DBAL\\Schema\\SchemaDiff::getNewTablesSortedByDependencies\(\) should return array<Doctrine\\DBAL\\Schema\\Table> but returns array<object>.~'
+
+        # Caused by phpdoc annotations intended for Psalm
+        -
+            message: '~Unable to resolve the template type T in call to method static method Doctrine\\DBAL\\DriverManager::getConnection\(\)~'
+            paths:
+                - %currentWorkingDirectory%/lib/Doctrine/DBAL/Id/TableGenerator.php
+                - %currentWorkingDirectory%/lib/Doctrine/DBAL/Schema/SqliteSchemaManager.php
+
+        -
+            message: '~Method Doctrine\\DBAL\\Driver\\PDOSqlsrv\\Connection\:\:lastInsertId\(\) should return string but returns string\|false\|null\.~'
+            paths:
+                - %currentWorkingDirectory%/lib/Doctrine/DBAL/Driver/PDOSqlsrv/Connection.php

@@ -479,6 +479,8 @@ class MysqliStatement implements IteratorAggregate, Statement, ForwardCompatible
      * {@inheritdoc}
      *
      * @deprecated The error information is available via exceptions.
+     *
+     * @return string
      */
     public function errorInfo()
     {

@@ -2816,8 +2816,8 @@ abstract class AbstractPlatform
     }
 
     /**
-     * @param string      $table
-     * @param string|null $database
+     * @param string $table
+     * @param string $database
      *
      * @return string
      *

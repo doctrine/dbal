@@ -28,6 +28,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
 use Doctrine\Tests\DbalTestCase;
+use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionProperty;
 use function array_merge;
 use function get_class;
@@ -198,11 +199,12 @@ abstract class AbstractDriverTest extends DbalTestCase
      */
     abstract protected function createSchemaManager(Connection $connection) : AbstractSchemaManager;
 
+    /**
+     * @return Connection&MockObject
+     */
     protected function getConnectionMock() : Connection
     {
-        return $this->getMockBuilder(Connection::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        return $this->createMock(Connection::class);
     }
 
     /**
@@ -214,7 +216,7 @@ abstract class AbstractDriverTest extends DbalTestCase
     }
 
     /**
-     * @return mixed[][]
+     * @return iterable<mixed[]>
      */
     public static function exceptionConversionProvider() : iterable
     {

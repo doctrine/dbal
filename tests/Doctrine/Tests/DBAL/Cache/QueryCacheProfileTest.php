@@ -21,7 +21,7 @@ class QueryCacheProfileTest extends DbalTestCase
     /** @var int[] */
     private $params = [666];
 
-    /** @var string[] */
+    /** @var int[] */
     private $types = [ParameterType::INTEGER];
 
     /** @var string[] */

@@ -98,7 +98,7 @@ EOS
             new Schema\ForeignKeyConstraint(
                 ['log'],
                 'log',
-                [null],
+                [''],
                 'FK_3',
                 ['onUpdate' => 'SET NULL', 'onDelete' => 'NO ACTION', 'deferrable' => false, 'deferred' => false]
             ),

@@ -43,6 +43,8 @@ class StatementIteratorTest extends DbalTestCase
     }
 
     /**
+     * @param class-string<Statement> $class
+     *
      * @dataProvider statementProvider()
      */
     public function testStatementIterationCallsFetchOncePerStep(string $class) : void
@@ -80,7 +82,7 @@ class StatementIteratorTest extends DbalTestCase
     }
 
     /**
-     * @return string[][]
+     * @return iterable<array{0: class-string<Statement>}>
      */
     public static function statementProvider() : iterable
     {

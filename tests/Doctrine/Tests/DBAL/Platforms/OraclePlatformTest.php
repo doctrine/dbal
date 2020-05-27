@@ -22,6 +22,9 @@ use function uniqid;
 
 class OraclePlatformTest extends AbstractPlatformTestCase
 {
+    /** @var OraclePlatform */
+    protected $platform;
+
     /**
      * @return mixed[][]
      */
@@ -76,6 +79,9 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         $platform->assertValidIdentifier($identifier);
     }
 
+    /**
+     * @return OraclePlatform
+     */
     public function createPlatform() : AbstractPlatform
     {
         return new OraclePlatform();

@@ -52,7 +52,7 @@ class SQLAnywhere12PlatformTest extends SQLAnywhere11PlatformTest
         );
         self::assertEquals(
             'SELECT sequence_name, increment_by, start_with, min_value FROM SYS.SYSSEQUENCE',
-            $this->platform->getListSequencesSQL(null)
+            $this->platform->getListSequencesSQL('')
         );
     }
 
