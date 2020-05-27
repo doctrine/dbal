@@ -180,18 +180,26 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Forwar
      */
     public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
     {
-        $data = $this->statement->fetchAll($fetchMode, $fetchArgument, $ctorArgs);
-
-        if ($fetchMode === FetchMode::COLUMN) {
-            foreach ($data as $key => $value) {
-                $data[$key] = [$value];
-            }
-        }
+        $data = $this->statement->fetchAll(FetchMode::ASSOCIATIVE, $fetchArgument, $ctorArgs);
 
         $this->data    = $data;
         $this->emptied = true;
 
-        return $this->data;
+        if ($fetchMode === FetchMode::NUMERIC) {
+            foreach ($data as $i => $row) {
+                $data[$i] = array_values($row);
+            }
+        } elseif ($fetchMode === FetchMode::MIXED) {
+            foreach ($data as $i => $row) {
+                $data[$i] = array_merge($row, array_values($row));
+            }
+        } elseif ($fetchMode === FetchMode::COLUMN) {
+            foreach ($data as $i => $row) {
+                $data[$i] = reset($row);
+            }
+        }
+
+        return $data;
     }
 
     /**
