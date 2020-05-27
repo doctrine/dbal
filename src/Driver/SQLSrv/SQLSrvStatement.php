@@ -9,10 +9,8 @@ use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ForwardCompatibility\Driver\ResultStatement as ForwardCompatibleResultStatement;
 use Doctrine\DBAL\ParameterType;
 use IteratorAggregate;
-use function array_key_exists;
 use function is_int;
 use function is_numeric;
-use function sqlsrv_errors;
 use function sqlsrv_execute;
 use function sqlsrv_fetch;
 use function sqlsrv_fetch_array;
@@ -26,7 +24,6 @@ use function sqlsrv_rows_affected;
 use function SQLSRV_SQLTYPE_VARBINARY;
 use function stripos;
 use const SQLSRV_ENC_BINARY;
-use const SQLSRV_ERR_ERRORS;
 use const SQLSRV_FETCH_ASSOC;
 use const SQLSRV_FETCH_BOTH;
 use const SQLSRV_FETCH_NUMERIC;
@@ -205,38 +202,12 @@ class SQLSrvStatement implements IteratorAggregate, Statement, ForwardCompatible
 
     /**
      * {@inheritdoc}
-     *
-     * @deprecated The error information is available via exceptions.
-     */
-    public function errorCode()
-    {
-        $errors = sqlsrv_errors(SQLSRV_ERR_ERRORS);
-        if ($errors !== null) {
-            return $errors[0]['code'];
-        }
-
-        return false;
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated The error information is available via exceptions.
-     */
-    public function errorInfo()
-    {
-        return (array) sqlsrv_errors(SQLSRV_ERR_ERRORS);
-    }
-
-    /**
-     * {@inheritdoc}
      */
     public function execute($params = null)
     {
         if ($params !== null) {
-            $hasZeroIndex = array_key_exists(0, $params);
             foreach ($params as $key => $val) {
-                if ($hasZeroIndex && is_int($key)) {
+                if (is_int($key)) {
                     $this->bindValue($key + 1, $val);
                 } else {
                     $this->bindValue($key, $val);

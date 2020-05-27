@@ -27,7 +27,6 @@ parameters:
         - '~^Method Doctrine\\DBAL\\Schema\\ForeignKeyConstraint::onEvent\(\) should return string\|null but returns false\.\z~'
         - '~^Method Doctrine\\DBAL\\Schema\\(Oracle|PostgreSql|SQLServer)SchemaManager::_getPortableTableDefinition\(\) should return array but returns string\.\z~'
         - '~^Method Doctrine\\DBAL\\Driver\\OCI8\\OCI8Connection::lastInsertId\(\) should return string but returns (int|false)\.\z~'
-        - '~^Method Doctrine\\DBAL\\Driver\\SQLSrv\\SQLSrvConnection::errorCode\(\) should return string\|null but returns false\.\z~'
 
         # https://bugs.php.net/bug.php?id=78126
         - '~^Call to an undefined method PDO::sqliteCreateFunction\(\)\.\z~'

@@ -1187,34 +1187,6 @@ class Connection implements DriverConnection
         return $stmt;
     }
 
-    /**
-     * Executes an, optionally parametrized, SQL query and returns the result,
-     * applying a given projection/transformation function on each row of the result.
-     *
-     * @deprecated
-     *
-     * @param string  $query    The SQL query to execute.
-     * @param mixed[] $params   The parameters, if any.
-     * @param Closure $function The transformation function that is applied on each row.
-     *                           The function receives a single parameter, an array, that
-     *                           represents a row of the result set.
-     *
-     * @return mixed[] The projected result of the query.
-     */
-    public function project($query, array $params, Closure $function)
-    {
-        $result = [];
-        $stmt   = $this->executeQuery($query, $params);
-
-        while ($row = $stmt->fetch()) {
-            $result[] = $function($row);
-        }
-
-        $stmt->closeCursor();
-
-        return $result;
-    }
-
     public function query(string $sql) : ResultStatement
     {
         $connection = $this->getWrappedConnection();
@@ -1318,28 +1290,6 @@ class Connection implements DriverConnection
     public function getTransactionNestingLevel()
     {
         return $this->transactionNestingLevel;
-    }
-
-    /**
-     * Fetches the SQLSTATE associated with the last database operation.
-     *
-     * @deprecated The error information is available via exceptions.
-     *
-     * @return string|null The last error code.
-     */
-    public function errorCode()
-    {
-        return $this->getWrappedConnection()->errorCode();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @deprecated The error information is available via exceptions.
-     */
-    public function errorInfo()
-    {
-        return $this->getWrappedConnection()->errorInfo();
     }
 
     /**

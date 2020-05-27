@@ -181,7 +181,7 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
     public function commit()
     {
         if (! oci_commit($this->dbh)) {
-            throw OCI8Exception::fromErrorInfo($this->errorInfo());
+            throw OCI8Exception::fromErrorInfo(oci_error($this->dbh));
         }
 
         $this->executeMode = OCI_COMMIT_ON_SUCCESS;
@@ -195,42 +195,11 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
     public function rollBack()
     {
         if (! oci_rollback($this->dbh)) {
-            throw OCI8Exception::fromErrorInfo($this->errorInfo());
+            throw OCI8Exception::fromErrorInfo(oci_error($this->dbh));
         }
 
         $this->executeMode = OCI_COMMIT_ON_SUCCESS;
 
         return true;
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated The error information is available via exceptions.
-     */
-    public function errorCode()
-    {
-        $error = oci_error($this->dbh);
-        if ($error !== false) {
-            $error = $error['code'];
-        }
-
-        return $error;
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated The error information is available via exceptions.
-     */
-    public function errorInfo()
-    {
-        $error = oci_error($this->dbh);
-
-        if ($error === false) {
-            return [];
-        }
-
-        return $error;
     }
 }

@@ -197,28 +197,6 @@ class Statement implements IteratorAggregate, DriverStatement, ForwardCompatible
     }
 
     /**
-     * Fetches the SQLSTATE associated with the last operation on the statement.
-     *
-     * @deprecated The error information is available via exceptions.
-     *
-     * @return string|int|bool
-     */
-    public function errorCode()
-    {
-        return $this->stmt->errorCode();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @deprecated The error information is available via exceptions.
-     */
-    public function errorInfo()
-    {
-        return $this->stmt->errorInfo();
-    }
-
-    /**
      * {@inheritdoc}
      *
      * @deprecated Use one of the fetch- or iterate-related methods.

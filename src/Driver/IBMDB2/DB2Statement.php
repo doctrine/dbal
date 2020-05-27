@@ -16,7 +16,6 @@ use function db2_fetch_both;
 use function db2_free_result;
 use function db2_num_fields;
 use function db2_num_rows;
-use function db2_stmt_error;
 use function db2_stmt_errormsg;
 use function error_get_last;
 use function fclose;
@@ -152,29 +151,6 @@ class DB2Statement implements IteratorAggregate, Statement
         }
 
         return 0;
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated The error information is available via exceptions.
-     */
-    public function errorCode()
-    {
-        return db2_stmt_error();
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated The error information is available via exceptions.
-     */
-    public function errorInfo()
-    {
-        return [
-            db2_stmt_errormsg(),
-            db2_stmt_error(),
-        ];
     }
 
     /**

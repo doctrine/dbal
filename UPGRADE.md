@@ -1,5 +1,17 @@
 # Upgrade to 3.0
 
+## BC BREAK: Dropped handling of one-based numeric arrays of parameters in `Statement::execute()`
+
+The statement implementations no longer detect whether `$params` is a zero- or one-based array. A zero-based numeric array is expected.
+
+## BC BREAK `Statement::project()` has been removed
+
+- The `Statement::project()` method has been removed. Use `::executeQuery()` and fetch the data from the statement using one of the `Statement::fetch*()` methods instead.
+
+## BC BREAK `::errorCode()` and `::errorInfo()` removed from `Connection` and `Statement` APIs
+
+The error information is available in `DriverException` thrown in case of an error.
+
 ## BC BREAK: Dropped support for `FetchMode::CUSTOM_OBJECT` and `::STANDARD_OBJECT`
 
 Instead of fetching an object, fetch an array and map it to an object of the desired class.

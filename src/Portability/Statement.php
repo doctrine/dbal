@@ -81,30 +81,6 @@ class Statement implements IteratorAggregate, DriverStatement, ForwardCompatible
 
     /**
      * {@inheritdoc}
-     *
-     * @deprecated The error information is available via exceptions.
-     */
-    public function errorCode()
-    {
-        assert($this->stmt instanceof DriverStatement);
-
-        return $this->stmt->errorCode();
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated The error information is available via exceptions.
-     */
-    public function errorInfo()
-    {
-        assert($this->stmt instanceof DriverStatement);
-
-        return $this->stmt->errorInfo();
-    }
-
-    /**
-     * {@inheritdoc}
      */
     public function execute($params = null)
     {

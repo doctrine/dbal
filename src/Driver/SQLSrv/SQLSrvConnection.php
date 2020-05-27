@@ -14,13 +14,11 @@ use function sqlsrv_begin_transaction;
 use function sqlsrv_commit;
 use function sqlsrv_configure;
 use function sqlsrv_connect;
-use function sqlsrv_errors;
 use function sqlsrv_query;
 use function sqlsrv_rollback;
 use function sqlsrv_rows_affected;
 use function sqlsrv_server_info;
 use function str_replace;
-use const SQLSRV_ERR_ERRORS;
 
 /**
  * SQL Server implementation for the Connection interface.
@@ -172,30 +170,5 @@ class SQLSrvConnection implements ServerInfoAwareConnection
         }
 
         return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @deprecated The error information is available via exceptions.
-     */
-    public function errorCode()
-    {
-        $errors = sqlsrv_errors(SQLSRV_ERR_ERRORS);
-        if ($errors !== null) {
-            return $errors[0]['code'];
-        }
-
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @deprecated The error information is available via exceptions.
-     */
-    public function errorInfo()
-    {
-        return (array) sqlsrv_errors(SQLSRV_ERR_ERRORS);
     }
 }

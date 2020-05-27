@@ -466,24 +466,6 @@ class MysqliStatement implements IteratorAggregate, Statement, ForwardCompatible
     /**
      * {@inheritdoc}
      */
-    public function errorCode()
-    {
-        return $this->_stmt->errno;
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated The error information is available via exceptions.
-     */
-    public function errorInfo()
-    {
-        return $this->_stmt->error;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function closeCursor()
     {
         $this->_stmt->free_result();

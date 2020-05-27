@@ -58,26 +58,6 @@ interface Statement extends ResultStatement
     public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null);
 
     /**
-     * Fetches the SQLSTATE associated with the last operation on the statement handle.
-     *
-     * @deprecated The error information is available via exceptions.
-     *
-     * @see Doctrine_Adapter_Interface::errorCode()
-     *
-     * @return string|int|bool The error code string.
-     */
-    public function errorCode();
-
-    /**
-     * Fetches extended error information associated with the last operation on the statement handle.
-     *
-     * @deprecated The error information is available via exceptions.
-     *
-     * @return mixed[] The error info array.
-     */
-    public function errorInfo();
-
-    /**
      * Executes a prepared statement
      *
      * If the prepared statement included parameter markers, you must either:
@@ -86,7 +66,7 @@ interface Statement extends ResultStatement
      * if any, of their associated parameter markers or pass an array of input-only
      * parameter values.
      *
-     * @param mixed[]|null $params An array of values with as many elements as there are
+     * @param mixed[]|null $params A numeric array of values with as many elements as there are
      *                             bound parameters in the SQL statement being executed.
      *
      * @return bool TRUE on success or FALSE on failure.
