@@ -90,3 +90,8 @@ parameters:
             paths:
                 - %currentWorkingDirectory%/lib/Doctrine/DBAL/Id/TableGenerator.php
                 - %currentWorkingDirectory%/lib/Doctrine/DBAL/Schema/SqliteSchemaManager.php
+
+        -
+            message: '~Method Doctrine\\DBAL\\Driver\\PDOSqlsrv\\Connection\:\:lastInsertId\(\) should return string but returns string\|false\|null\.~'
+            paths:
+                - %currentWorkingDirectory%/lib/Doctrine/DBAL/Driver/PDOSqlsrv/Connection.php
