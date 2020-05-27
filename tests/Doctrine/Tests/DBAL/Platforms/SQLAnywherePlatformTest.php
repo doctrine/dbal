@@ -348,14 +348,14 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         self::assertEquals(
             'CONSTRAINT pk PRIMARY KEY CLUSTERED (a, b)',
             $this->platform->getPrimaryKeyDeclarationSQL(
-                new Index(null, ['a', 'b'], true, true, ['clustered']),
+                new Index('', ['a', 'b'], true, true, ['clustered']),
                 'pk'
             )
         );
         self::assertEquals(
             'PRIMARY KEY (a, b)',
             $this->platform->getPrimaryKeyDeclarationSQL(
-                new Index(null, ['a', 'b'], true, true)
+                new Index('', ['a', 'b'], true, true)
             )
         );
     }
@@ -391,12 +391,12 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
             'CONSTRAINT unique_constraint UNIQUE CLUSTERED (a, b)',
             $this->platform->getUniqueConstraintDeclarationSQL(
                 'unique_constraint',
-                new Index(null, ['a', 'b'], true, false, ['clustered'])
+                new Index('', ['a', 'b'], true, false, ['clustered'])
             )
         );
         self::assertEquals(
             'UNIQUE (a, b)',
-            $this->platform->getUniqueConstraintDeclarationSQL(null, new Index(null, ['a', 'b'], true, false))
+            $this->platform->getUniqueConstraintDeclarationSQL('', new Index('', ['a', 'b'], true, false))
         );
     }
 
@@ -517,6 +517,9 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         ));
     }
 
+    /**
+     * @psalm-suppress InvalidArgument
+     */
     public function testCannotGenerateDropIndexSQLWithInvalidIndexParameter() : void
     {
         $this->expectException(InvalidArgumentException::class);
@@ -524,6 +527,9 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         $this->platform->getDropIndexSQL(['index'], 'table');
     }
 
+    /**
+     * @psalm-suppress InvalidArgument
+     */
     public function testCannotGenerateDropIndexSQLWithInvalidTableParameter() : void
     {
         $this->expectException(InvalidArgumentException::class);
@@ -596,7 +602,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         self::assertEquals(
             "REVERSE(SUBSTR(REVERSE(SUBSTR(column, PATINDEX('%[^' + c + ']%', column))), PATINDEX('%[^' + c + ']%', " .
             "REVERSE(SUBSTR(column, PATINDEX('%[^' + c + ']%', column))))))",
-            $this->platform->getTrimExpression('column', null, 'c')
+            $this->platform->getTrimExpression('column', TrimMode::UNSPECIFIED, 'c')
         );
         self::assertEquals(
             "REVERSE(SUBSTR(REVERSE(SUBSTR(column, PATINDEX('%[^' + c + ']%', column))), PATINDEX('%[^' + c + ']%', " .

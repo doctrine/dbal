@@ -13,6 +13,12 @@ use Doctrine\DBAL\Types\Type;
 
 class SqlitePlatformTest extends AbstractPlatformTestCase
 {
+    /** @var SqlitePlatform */
+    protected $platform;
+
+    /**
+     * @return SqlitePlatform
+     */
     public function createPlatform() : AbstractPlatform
     {
         return new SqlitePlatform();

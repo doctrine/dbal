@@ -8,6 +8,14 @@ use Doctrine\DBAL\Types\Types;
 
 class PostgreSQL92PlatformTest extends AbstractPostgreSqlPlatformTestCase
 {
+    /** @var PostgreSQL92Platform */
+    protected $platform;
+
+    /**
+     * {@inheritdoc}
+     *
+     * @return PostgreSQL92Platform
+     */
     public function createPlatform() : AbstractPlatform
     {
         return new PostgreSQL92Platform();

@@ -16,7 +16,7 @@ class DbalPerformanceTestListener implements TestListener
 {
     use TestListenerDefaultImplementation;
 
-    /** @var string[][] */
+    /** @var array<string, array<string, float>> */
     private $timings = [];
 
     public function endTest(Test $test, float $time) : void

@@ -401,6 +401,8 @@ class MysqliStatement implements IteratorAggregate, Statement
 
     /**
      * {@inheritdoc}
+     *
+     * @return string
      */
     public function errorInfo()
     {
