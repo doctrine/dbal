@@ -94,6 +94,11 @@ class ResultCacheStatement implements ResultStatement
         return $this->statement->columnCount();
     }
 
+    public function rowCount() : int
+    {
+        return $this->statement->rowCount();
+    }
+
     /**
      * {@inheritdoc}
      */
