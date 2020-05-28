@@ -72,17 +72,4 @@ interface Statement extends ResultStatement
      * @return bool TRUE on success or FALSE on failure.
      */
     public function execute($params = null);
-
-    /**
-     * Returns the number of rows affected by the last DELETE, INSERT, or UPDATE statement
-     * executed by the corresponding object.
-     *
-     * If the last SQL statement executed by the associated Statement object was a SELECT statement,
-     * some databases may return the number of rows returned by that statement. However,
-     * this behaviour is not guaranteed for all databases and should not be
-     * relied on for portable applications.
-     *
-     * @return int The number of rows.
-     */
-    public function rowCount() : int;
 }
