@@ -1,5 +1,9 @@
 # Upgrade to 3.0
 
+## BC BREAK `Statement::rowCount()` is moved.
+
+`Statement::rowCount()` has been moved to the `ResultStatement` interface where it belongs by definition.
+
 ## Removed `FetchMode` and the corresponding methods
 
 1. The `FetchMode` class and the `setFetchMode()` method of the `Connection` and `Statement` interfaces are removed.

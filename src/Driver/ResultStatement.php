@@ -26,6 +26,17 @@ interface ResultStatement
     public function columnCount();
 
     /**
+     * Returns the number of rows affected by the last DELETE, INSERT, or UPDATE statement
+     * executed by the corresponding object.
+     *
+     * If the last SQL statement executed by the associated Statement object was a SELECT statement,
+     * some databases may return the number of rows returned by that statement. However,
+     * this behaviour is not guaranteed for all databases and should not be
+     * relied on for portable applications.
+     */
+    public function rowCount() : int;
+
+    /**
      * Returns the next row of a result set as a numeric array or FALSE if there are no more rows.
      *
      * @return array<int,mixed>|false
