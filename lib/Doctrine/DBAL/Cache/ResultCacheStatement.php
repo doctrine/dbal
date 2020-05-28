@@ -13,6 +13,7 @@ use Doctrine\DBAL\ForwardCompatibility\Driver\ResultStatement as ForwardCompatib
 use InvalidArgumentException;
 use IteratorAggregate;
 use PDO;
+use function array_map;
 use function array_merge;
 use function array_values;
 use function assert;
@@ -55,7 +56,7 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Forwar
      */
     private $emptied = false;
 
-    /** @var mixed[] */
+    /** @var array<int,array<string,mixed>> */
     private $data;
 
     /** @var int */
@@ -179,18 +180,26 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Forwar
      */
     public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
     {
-        $data = $this->statement->fetchAll($fetchMode, $fetchArgument, $ctorArgs);
-
-        if ($fetchMode === FetchMode::COLUMN) {
-            foreach ($data as $key => $value) {
-                $data[$key] = [$value];
-            }
-        }
+        $data = $this->statement->fetchAll(FetchMode::ASSOCIATIVE, $fetchArgument, $ctorArgs);
 
         $this->data    = $data;
         $this->emptied = true;
 
-        return $this->data;
+        if ($fetchMode === FetchMode::NUMERIC) {
+            foreach ($data as $i => $row) {
+                $data[$i] = array_values($row);
+            }
+        } elseif ($fetchMode === FetchMode::MIXED) {
+            foreach ($data as $i => $row) {
+                $data[$i] = array_merge($row, array_values($row));
+            }
+        } elseif ($fetchMode === FetchMode::COLUMN) {
+            foreach ($data as $i => $row) {
+                $data[$i] = reset($row);
+            }
+        }
+
+        return $data;
     }
 
     /**
@@ -247,7 +256,9 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Forwar
             $data = $this->statement->fetchAll(FetchMode::ASSOCIATIVE);
         }
 
-        return $this->store($data);
+        $this->store($data);
+
+        return array_map('array_values', $this->data);
     }
 
     /**
@@ -261,7 +272,9 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Forwar
             $data = $this->statement->fetchAll(FetchMode::ASSOCIATIVE);
         }
 
-        return $this->store($data);
+        $this->store($data);
+
+        return $this->data;
     }
 
     /**
@@ -311,19 +324,11 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Forwar
     }
 
     /**
-     * @param  array<int,array<mixed>> $data
-     *
-     * @return array<int,array<mixed>>
+     * @param array<int,array<string,mixed>> $data
      */
-    private function store(array $data) : array
+    private function store(array $data) : void
     {
-        foreach ($data as $key => $value) {
-            $data[$key] = [$value];
-        }
-
         $this->data    = $data;
         $this->emptied = true;
-
-        return $this->data;
     }
 }

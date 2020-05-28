@@ -42,7 +42,7 @@ object is closed:
 
     <?php
     $stmt = $conn->executeCacheQuery($query, $params, $types, new QueryCacheProfile(0, "some key"));
-    $data = $stmt->fetchAll();
+    $data = $stmt->fetchAllAssociative();
     $stmt->closeCursor(); // at this point the result is cached
 
 .. warning::
