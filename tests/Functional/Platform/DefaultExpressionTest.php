@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Platform;
 
-use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
@@ -71,7 +70,7 @@ class DefaultExpressionTest extends FunctionalTestCase
 
         [$actualValue, $defaultValue] = $this->connection->query(
             'SELECT default_value, actual_value FROM default_expr_test'
-        )->fetch(FetchMode::NUMERIC);
+        )->fetchNumeric();
 
         self::assertEquals($actualValue, $defaultValue);
     }

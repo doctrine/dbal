@@ -19,7 +19,7 @@ abstract class AbstractSQLServerDriver implements Driver
     {
         $params = $conn->getParams();
 
-        return $params['dbname'] ?? $conn->query('SELECT DB_NAME()')->fetchColumn();
+        return $params['dbname'] ?? $conn->query('SELECT DB_NAME()')->fetchOne();
     }
 
     /**

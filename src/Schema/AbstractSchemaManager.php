@@ -640,7 +640,7 @@ abstract class AbstractSchemaManager
     /**
      * Converts a list of namespace names from the native DBMS data definition to a portable Doctrine definition.
      *
-     * @param mixed[][] $namespaces The list of namespace names in the native DBMS data definition.
+     * @param array<int, array<string, mixed>> $namespaces The list of namespace names in the native DBMS data definition.
      *
      * @return string[]
      */
@@ -668,7 +668,7 @@ abstract class AbstractSchemaManager
     /**
      * Converts a namespace definition from the native DBMS data definition to a portable Doctrine definition.
      *
-     * @param mixed[] $namespace The native DBMS namespace definition.
+     * @param array<string, mixed> $namespace The native DBMS namespace definition.
      *
      * @return mixed
      */

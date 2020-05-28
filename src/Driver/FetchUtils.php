@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver;
 
-use Doctrine\DBAL\ForwardCompatibility\Driver\ResultStatement;
-
 /**
  * @internal
  */
@@ -53,6 +51,22 @@ final class FetchUtils
         $rows = [];
 
         while (($row = $stmt->fetchAssociative()) !== false) {
+            $rows[] = $row;
+        }
+
+        return $rows;
+    }
+
+    /**
+     * @return array<int,mixed>
+     *
+     * @throws DriverException
+     */
+    public static function fetchColumn(ResultStatement $stmt) : array
+    {
+        $rows = [];
+
+        while (($row = $stmt->fetchOne()) !== false) {
             $rows[] = $row;
         }
 

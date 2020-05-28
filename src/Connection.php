@@ -14,7 +14,6 @@ use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
-use Doctrine\DBAL\ForwardCompatibility\ResultStatement as ForwardCompatibleResultStatement;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder;
@@ -167,9 +166,6 @@ class Connection implements DriverConnection
      * @var bool
      */
     private $isRollbackOnly = false;
-
-    /** @var int */
-    protected $defaultFetchMode = FetchMode::ASSOCIATIVE;
 
     /**
      * Initializes a new instance of the Connection class.
@@ -523,75 +519,6 @@ class Connection implements DriverConnection
     }
 
     /**
-     * Sets the fetch mode.
-     *
-     * @deprecated Use one of the fetch- or iterate-related methods.
-     *
-     * @param int $fetchMode
-     *
-     * @return void
-     */
-    public function setFetchMode($fetchMode)
-    {
-        $this->defaultFetchMode = $fetchMode;
-    }
-
-    /**
-     * Prepares and executes an SQL query and returns the first row of the result
-     * as an associative array.
-     *
-     * @deprecated Use fetchAllAssociative()
-     *
-     * @param string         $statement The SQL query.
-     * @param mixed[]        $params    The query parameters.
-     * @param int[]|string[] $types     The query parameter types.
-     *
-     * @return mixed[]|false False is returned if no rows are found.
-     *
-     * @throws DBALException
-     */
-    public function fetchAssoc($statement, array $params = [], array $types = [])
-    {
-        return $this->executeQuery($statement, $params, $types)->fetch(FetchMode::ASSOCIATIVE);
-    }
-
-    /**
-     * Prepares and executes an SQL query and returns the first row of the result
-     * as a numerically indexed array.
-     *
-     * @deprecated Use fetchAllNumeric()
-     *
-     * @param string         $statement The SQL query to be executed.
-     * @param mixed[]        $params    The prepared statement params.
-     * @param int[]|string[] $types     The query parameter types.
-     *
-     * @return mixed[]|false False is returned if no rows are found.
-     */
-    public function fetchArray($statement, array $params = [], array $types = [])
-    {
-        return $this->executeQuery($statement, $params, $types)->fetch(FetchMode::NUMERIC);
-    }
-
-    /**
-     * Prepares and executes an SQL query and returns the value of a single column
-     * of the first row of the result.
-     *
-     * @deprecated Use fetchOne() instead.
-     *
-     * @param string         $statement The SQL query to be executed.
-     * @param mixed[]        $params    The prepared statement params.
-     * @param int[]|string[] $types     The query parameter types.
-     *
-     * @return mixed|false False is returned if no rows are found.
-     *
-     * @throws DBALException
-     */
-    public function fetchColumn($statement, array $params = [], array $types = [])
-    {
-        return $this->executeQuery($statement, $params, $types)->fetchColumn();
-    }
-
-    /**
      * Prepares and executes an SQL query and returns the first row of the result
      * as an associative array.
      *
@@ -606,13 +533,7 @@ class Connection implements DriverConnection
     public function fetchAssociative(string $query, array $params = [], array $types = [])
     {
         try {
-            $stmt = $this->executeQuery($query, $params, $types);
-
-            if ($stmt instanceof ForwardCompatibleResultStatement) {
-                return $stmt->fetchAssociative();
-            }
-
-            return $stmt->fetch(FetchMode::ASSOCIATIVE);
+            return $this->executeQuery($query, $params, $types)->fetchAssociative();
         } catch (Throwable $e) {
             throw DBALException::driverExceptionDuringQuery($this->_driver, $e, $query);
         }
@@ -633,13 +554,7 @@ class Connection implements DriverConnection
     public function fetchNumeric(string $query, array $params = [], array $types = [])
     {
         try {
-            $stmt = $this->executeQuery($query, $params, $types);
-
-            if ($stmt instanceof ForwardCompatibleResultStatement) {
-                return $stmt->fetchNumeric();
-            }
-
-            return $stmt->fetch(FetchMode::NUMERIC);
+            return $this->executeQuery($query, $params, $types)->fetchNumeric();
         } catch (Throwable $e) {
             throw DBALException::driverExceptionDuringQuery($this->_driver, $e, $query);
         }
@@ -660,13 +575,7 @@ class Connection implements DriverConnection
     public function fetchOne(string $query, array $params = [], array $types = [])
     {
         try {
-            $stmt = $this->executeQuery($query, $params, $types);
-
-            if ($stmt instanceof ForwardCompatibleResultStatement) {
-                return $stmt->fetchOne();
-            }
-
-            return $stmt->fetch(FetchMode::COLUMN);
+            return $this->executeQuery($query, $params, $types)->fetchOne();
         } catch (Throwable $e) {
             throw DBALException::driverExceptionDuringQuery($this->_driver, $e, $query);
         }
@@ -917,22 +826,6 @@ class Connection implements DriverConnection
     }
 
     /**
-     * Prepares and executes an SQL query and returns the result as an associative array.
-     *
-     * @deprecated Use fetchAllAssociative()
-     *
-     * @param string         $sql    The SQL query.
-     * @param mixed[]        $params The query parameters.
-     * @param int[]|string[] $types  The query parameter types.
-     *
-     * @return mixed[]
-     */
-    public function fetchAll($sql, array $params = [], $types = [])
-    {
-        return $this->executeQuery($sql, $params, $types)->fetchAll();
-    }
-
-    /**
      * Prepares and executes an SQL query and returns the result as an array of numeric arrays.
      *
      * @param string                                           $query  The SQL query.
@@ -946,13 +839,7 @@ class Connection implements DriverConnection
     public function fetchAllNumeric(string $query, array $params = [], array $types = []) : array
     {
         try {
-            $stmt = $this->executeQuery($query, $params, $types);
-
-            if ($stmt instanceof ForwardCompatibleResultStatement) {
-                return $stmt->fetchAllNumeric();
-            }
-
-            return $stmt->fetchAll(FetchMode::NUMERIC);
+            return $this->executeQuery($query, $params, $types)->fetchAllNumeric();
         } catch (Throwable $e) {
             throw DBALException::driverExceptionDuringQuery($this->_driver, $e, $query);
         }
@@ -972,13 +859,27 @@ class Connection implements DriverConnection
     public function fetchAllAssociative(string $query, array $params = [], array $types = []) : array
     {
         try {
-            $stmt = $this->executeQuery($query, $params, $types);
+            return $this->executeQuery($query, $params, $types)->fetchAllAssociative();
+        } catch (Throwable $e) {
+            throw DBALException::driverExceptionDuringQuery($this->_driver, $e, $query);
+        }
+    }
 
-            if ($stmt instanceof ForwardCompatibleResultStatement) {
-                return $stmt->fetchAllAssociative();
-            }
-
-            return $stmt->fetchAll(FetchMode::ASSOCIATIVE);
+    /**
+     * Prepares and executes an SQL query and returns the result as an array of the first column values.
+     *
+     * @param string                                           $query  The SQL query.
+     * @param array<int, mixed>|array<string, mixed>           $params The query parameters.
+     * @param array<int, int|string>|array<string, int|string> $types  The query parameter types.
+     *
+     * @return array<int,mixed>
+     *
+     * @throws DBALException
+     */
+    public function fetchColumn(string $query, array $params = [], array $types = []) : array
+    {
+        try {
+            return $this->executeQuery($query, $params, $types)->fetchColumn();
         } catch (Throwable $e) {
             throw DBALException::driverExceptionDuringQuery($this->_driver, $e, $query);
         }
@@ -1000,12 +901,8 @@ class Connection implements DriverConnection
         try {
             $stmt = $this->executeQuery($query, $params, $types);
 
-            if ($stmt instanceof ForwardCompatibleResultStatement) {
-                yield from $stmt->iterateNumeric();
-            } else {
-                while (($row = $stmt->fetch(FetchMode::NUMERIC)) !== false) {
-                    yield $row;
-                }
+            while (($row = $stmt->fetchNumeric()) !== false) {
+                yield $row;
             }
         } catch (Throwable $e) {
             throw DBALException::driverExceptionDuringQuery($this->_driver, $e, $query);
@@ -1028,12 +925,8 @@ class Connection implements DriverConnection
         try {
             $stmt = $this->executeQuery($query, $params, $types);
 
-            if ($stmt instanceof ForwardCompatibleResultStatement) {
-                yield from $stmt->iterateAssociative();
-            } else {
-                while (($row = $stmt->fetch(FetchMode::ASSOCIATIVE)) !== false) {
-                    yield $row;
-                }
+            while (($row = $stmt->fetchAssociative()) !== false) {
+                yield $row;
             }
         } catch (Throwable $e) {
             throw DBALException::driverExceptionDuringQuery($this->_driver, $e, $query);
@@ -1056,12 +949,8 @@ class Connection implements DriverConnection
         try {
             $stmt = $this->executeQuery($query, $params, $types);
 
-            if ($stmt instanceof ForwardCompatibleResultStatement) {
-                yield from $stmt->iterateColumn();
-            } else {
-                while (($value = $stmt->fetch(FetchMode::COLUMN)) !== false) {
-                    yield $value;
-                }
+            while (($value = $stmt->fetchOne()) !== false) {
+                yield $value;
             }
         } catch (Throwable $e) {
             throw DBALException::driverExceptionDuringQuery($this->_driver, $e, $query);
@@ -1078,14 +967,10 @@ class Connection implements DriverConnection
     public function prepare(string $sql) : DriverStatement
     {
         try {
-            $stmt = new Statement($sql, $this);
+            return new Statement($sql, $this);
         } catch (Throwable $ex) {
             throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $sql);
         }
-
-        $stmt->setFetchMode($this->defaultFetchMode);
-
-        return $stmt;
     }
 
     /**
@@ -1134,8 +1019,6 @@ class Connection implements DriverConnection
             throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $query, $this->resolveParams($params, $types));
         }
 
-        $stmt->setFetchMode($this->defaultFetchMode);
-
         if ($logger !== null) {
             $logger->stopQuery();
         }
@@ -1182,8 +1065,6 @@ class Connection implements DriverConnection
             $stmt = new ResultCacheStatement($this->executeQuery($query, $params, $types), $resultCache, $cacheKey, $realKey, $qcp->getLifetime());
         }
 
-        $stmt->setFetchMode($this->defaultFetchMode);
-
         return $stmt;
     }
 
@@ -1201,8 +1082,6 @@ class Connection implements DriverConnection
         } catch (Throwable $ex) {
             throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $sql);
         }
-
-        $statement->setFetchMode($this->defaultFetchMode);
 
         if ($logger !== null) {
             $logger->stopQuery();

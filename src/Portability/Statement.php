@@ -4,11 +4,7 @@ namespace Doctrine\DBAL\Portability;
 
 use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
-use Doctrine\DBAL\Driver\StatementIterator;
-use Doctrine\DBAL\FetchMode;
-use Doctrine\DBAL\ForwardCompatibility\Driver\ResultStatement as ForwardCompatibleResultStatement;
 use Doctrine\DBAL\ParameterType;
-use IteratorAggregate;
 use function array_change_key_case;
 use function assert;
 use function is_string;
@@ -17,7 +13,7 @@ use function rtrim;
 /**
  * Portability wrapper for a Statement.
  */
-class Statement implements IteratorAggregate, DriverStatement, ForwardCompatibleResultStatement
+class Statement implements DriverStatement
 {
     /** @var int */
     private $portability;
@@ -27,9 +23,6 @@ class Statement implements IteratorAggregate, DriverStatement, ForwardCompatible
 
     /** @var int */
     private $case;
-
-    /** @var int */
-    private $defaultFetchMode = FetchMode::MIXED;
 
     /**
      * Wraps <tt>Statement</tt> and applies portability measures.
@@ -91,77 +84,13 @@ class Statement implements IteratorAggregate, DriverStatement, ForwardCompatible
 
     /**
      * {@inheritdoc}
-     *
-     * @deprecated Use one of the fetch- or iterate-related methods.
-     */
-    public function setFetchMode($fetchMode)
-    {
-        $this->defaultFetchMode = $fetchMode;
-
-        return $this->stmt->setFetchMode($fetchMode);
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated Use iterateNumeric(), iterateAssociative() or iterateColumn() instead.
-     */
-    public function getIterator()
-    {
-        return new StatementIterator($this);
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated Use fetchNumeric(), fetchAssociative() or fetchOne() instead.
-     */
-    public function fetch($fetchMode = null)
-    {
-        $fetchMode = $fetchMode ?? $this->defaultFetchMode;
-
-        $row = $this->stmt->fetch($fetchMode);
-
-        $iterateRow = ($this->portability & (Connection::PORTABILITY_EMPTY_TO_NULL|Connection::PORTABILITY_RTRIM)) !== 0;
-        $fixCase    = $this->case !== null
-            && ($fetchMode === FetchMode::ASSOCIATIVE || $fetchMode === FetchMode::MIXED)
-            && ($this->portability & Connection::PORTABILITY_FIX_CASE) !== 0;
-
-        $row = $this->fixRow($row, $iterateRow, $fixCase);
-
-        return $row;
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated Use fetchAllNumeric(), fetchAllAssociative() or fetchColumn() instead.
-     */
-    public function fetchAll($fetchMode = null)
-    {
-        $fetchMode = $fetchMode ?? $this->defaultFetchMode;
-
-        $rows = $this->stmt->fetchAll($fetchMode);
-
-        $fixCase = $this->case !== null
-            && ($fetchMode === FetchMode::ASSOCIATIVE || $fetchMode === FetchMode::MIXED)
-            && ($this->portability & Connection::PORTABILITY_FIX_CASE) !== 0;
-
-        return $this->fixResultSet($rows, $fixCase, $fetchMode !== FetchMode::COLUMN);
-    }
-
-    /**
-     * {@inheritdoc}
      */
     public function fetchNumeric()
     {
-        if ($this->stmt instanceof ForwardCompatibleResultStatement) {
-            $row = $this->stmt->fetchNumeric();
-        } else {
-            $row = $this->stmt->fetch(FetchMode::NUMERIC);
-        }
-
-        return $this->fixResult($row, false);
+        return $this->fixResult(
+            $this->stmt->fetchAssociative(),
+            false
+        );
     }
 
     /**
@@ -169,13 +98,10 @@ class Statement implements IteratorAggregate, DriverStatement, ForwardCompatible
      */
     public function fetchAssociative()
     {
-        if ($this->stmt instanceof ForwardCompatibleResultStatement) {
-            $row = $this->stmt->fetchAssociative();
-        } else {
-            $row = $this->stmt->fetch(FetchMode::ASSOCIATIVE);
-        }
-
-        return $this->fixResult($row, true);
+        return $this->fixResult(
+            $this->stmt->fetchAssociative(),
+            true
+        );
     }
 
     /**
@@ -183,11 +109,7 @@ class Statement implements IteratorAggregate, DriverStatement, ForwardCompatible
      */
     public function fetchOne()
     {
-        if ($this->stmt instanceof ForwardCompatibleResultStatement) {
-            $value = $this->stmt->fetchOne();
-        } else {
-            $value = $this->stmt->fetch(FetchMode::COLUMN);
-        }
+        $value = $this->stmt->fetchOne();
 
         if (($this->portability & Connection::PORTABILITY_EMPTY_TO_NULL) !== 0 && $value === '') {
             $value = null;
@@ -203,13 +125,11 @@ class Statement implements IteratorAggregate, DriverStatement, ForwardCompatible
      */
     public function fetchAllNumeric() : array
     {
-        if ($this->stmt instanceof ForwardCompatibleResultStatement) {
-            $data = $this->stmt->fetchAllNumeric();
-        } else {
-            $data = $this->stmt->fetchAll(FetchMode::NUMERIC);
-        }
-
-        return $this->fixResultSet($data, false, true);
+        return $this->fixResultSet(
+            $this->stmt->fetchAllNumeric(),
+            false,
+            true
+        );
     }
 
     /**
@@ -217,13 +137,23 @@ class Statement implements IteratorAggregate, DriverStatement, ForwardCompatible
      */
     public function fetchAllAssociative() : array
     {
-        if ($this->stmt instanceof ForwardCompatibleResultStatement) {
-            $data = $this->stmt->fetchAllAssociative();
-        } else {
-            $data = $this->stmt->fetchAll(FetchMode::ASSOCIATIVE);
-        }
+        return $this->fixResultSet(
+            $this->stmt->fetchAllAssociative(),
+            true,
+            true
+        );
+    }
 
-        return $this->fixResultSet($data, true, true);
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchColumn() : array
+    {
+        return $this->fixResultSet(
+            $this->stmt->fetchColumn(),
+            true,
+            false
+        );
     }
 
     /**
@@ -300,24 +230,6 @@ class Statement implements IteratorAggregate, DriverStatement, ForwardCompatible
         }
 
         return $row;
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated Use fetchOne() instead.
-     */
-    public function fetchColumn()
-    {
-        $value = $this->stmt->fetchColumn();
-
-        if (($this->portability & Connection::PORTABILITY_EMPTY_TO_NULL) !== 0 && $value === '') {
-            $value = null;
-        } elseif (($this->portability & Connection::PORTABILITY_RTRIM) !== 0 && is_string($value)) {
-            $value = rtrim($value);
-        }
-
-        return $value;
     }
 
     public function rowCount() : int

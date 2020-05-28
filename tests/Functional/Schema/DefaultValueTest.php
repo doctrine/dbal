@@ -63,7 +63,7 @@ class DefaultValueTest extends FunctionalTestCase
      */
     public function testEscapedDefaultValueCanBeInserted(string $name, ?string $expectedDefault) : void
     {
-        $value = $this->connection->fetchColumn(
+        $value = $this->connection->fetchOne(
             sprintf('SELECT %s FROM default_value', $name)
         );
 
