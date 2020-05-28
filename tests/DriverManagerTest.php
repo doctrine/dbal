@@ -67,6 +67,7 @@ class DriverManagerTest extends TestCase
 
     /**
      * @requires extension pdo_sqlite
+     * @psalm-suppress InvalidArgument
      */
     public function testInvalidWrapperClass() : void
     {
@@ -156,7 +157,7 @@ class DriverManagerTest extends TestCase
     }
 
     /**
-     * @return array<string, array<int, mixed>>
+     * @return array<string, list<mixed>>
      */
     public function databaseUrls() : iterable
     {
@@ -255,7 +256,7 @@ class DriverManagerTest extends TestCase
                 ],
             ],
             'query params from URL are used as extra params' => [
-                'url' => 'mysql://foo:bar@localhost/dbname?charset=UTF-8',
+                'mysql://foo:bar@localhost/dbname?charset=UTF-8',
                 ['charset' => 'UTF-8'],
             ],
             'simple URL with fallthrough scheme not defined in map' => [

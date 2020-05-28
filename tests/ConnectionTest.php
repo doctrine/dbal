@@ -143,9 +143,7 @@ class ConnectionTest extends TestCase
 
     public function testConnectDispatchEvent() : void
     {
-        $listenerMock = $this->getMockBuilder($this->getMockClass('ConnectDispatchEventListener'))
-            ->addMethods(['postConnect'])
-            ->getMock();
+        $listenerMock = $this->createMock(ConnectDispatchEventListener::class);
         $listenerMock->expects(self::once())->method('postConnect');
 
         $eventManager = new EventManager();
@@ -899,4 +897,9 @@ class ConnectionTest extends TestCase
 
         $connection->executeCacheQuery($query, [], [], $queryCacheProfile);
     }
+}
+
+interface ConnectDispatchEventListener
+{
+    public function postConnect() : void;
 }

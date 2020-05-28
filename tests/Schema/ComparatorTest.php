@@ -872,6 +872,7 @@ class ComparatorTest extends TestCase
 
     /**
      * @group DBAL-106
+     * @psalm-suppress NullArgument
      */
     public function testDiffDecimalWithNullPrecision() : void
     {

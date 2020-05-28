@@ -60,7 +60,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $e         = explode('\\', $class);
         $testClass = end($e);
 
-        return strtolower(str_replace('SchemaManagerTest', null, $testClass));
+        return strtolower(str_replace('SchemaManagerTest', '', $testClass));
     }
 
     protected function setUp() : void
@@ -367,10 +367,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $this->schemaManager->dropAndCreateTable($table);
 
-        $listenerMock = $this->getMockBuilder($this->getMockClass('ListTableColumnsDispatchEventListener'))
-            ->addMethods(['onSchemaColumnDefinition'])
-            ->getMock();
-
+        $listenerMock = $this->createMock(ListTableColumnsDispatchEventListener::class);
         $listenerMock
             ->expects(self::exactly(7))
             ->method('onSchemaColumnDefinition');
@@ -395,9 +392,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $this->schemaManager->dropAndCreateTable($table);
 
-        $listenerMock = $this->getMockBuilder($this->getMockClass('ListTableIndexesDispatchEventListener'))
-            ->addMethods(['onSchemaIndexDefinition'])
-            ->getMock();
+        $listenerMock = $this->createMock(ListTableIndexesDispatchEventListener::class);
         $listenerMock
             ->expects(self::exactly(3))
             ->method('onSchemaIndexDefinition');
@@ -1650,4 +1645,14 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             );
         }
     }
+}
+
+interface ListTableColumnsDispatchEventListener
+{
+    public function onSchemaColumnDefinition() : void;
+}
+
+interface ListTableIndexesDispatchEventListener
+{
+    public function onSchemaIndexDefinition() : void;
 }

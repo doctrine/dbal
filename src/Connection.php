@@ -1217,9 +1217,9 @@ class Connection implements DriverConnection
      *
      * This method supports PDO binding types as well as DBAL mapping types.
      *
-     * @param string         $query  The SQL query.
-     * @param mixed[]        $params The query parameters.
-     * @param int[]|string[] $types  The parameter types.
+     * @param string                 $query  The SQL query.
+     * @param array<mixed>           $params The query parameters.
+     * @param array<int|string|null> $types  The parameter types.
      *
      * @throws DBALException
      */

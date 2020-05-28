@@ -12,18 +12,18 @@ use Doctrine\DBAL\Logging\SQLLogger;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Statement;
 use Exception;
-use PDOStatement;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class StatementTest extends TestCase
 {
-    /** @var Connection */
+    /** @var Connection&MockObject */
     private $conn;
 
-    /** @var Configuration */
+    /** @var Configuration&MockObject */
     private $configuration;
 
-    /** @var PDOStatement */
+    /** @var DriverStatement&MockObject */
     private $driverStatement;
 
     protected function setUp() : void

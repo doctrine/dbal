@@ -118,9 +118,9 @@ class SQLParserUtils
     /**
      * For a positional query this method can rewrite the sql statement with regard to array parameters.
      *
-     * @param string         $query  The SQL query to execute.
-     * @param mixed[]        $params The parameters to bind to the query.
-     * @param int[]|string[] $types  The types the previous parameters are in.
+     * @param string                 $query  The SQL query to execute.
+     * @param mixed[]                $params The parameters to bind to the query.
+     * @param array<string|int|null> $types  The types the previous parameters are in.
      *
      * @return mixed[]
      *

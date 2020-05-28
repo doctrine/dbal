@@ -137,6 +137,8 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
 
     /**
      * {@inheritdoc}
+     *
+     * @return int|false
      */
     public function lastInsertId($name = null)
     {

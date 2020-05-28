@@ -112,11 +112,15 @@ final class DriverManager
      * <b>driverClass</b>:
      * The driver class to use.
      *
-     * @param mixed[]            $params       The parameters.
-     * @param Configuration|null $config       The configuration to use.
-     * @param EventManager|null  $eventManager The event manager to use.
+     * @param  array{wrapperClass?: class-string<T>} $params
+     * @param Configuration|null                    $config       The configuration to use.
+     * @param EventManager|null                     $eventManager The event manager to use.
      *
      * @throws DBALException
+     *
+     * @phpstan-param mixed[] $params
+     * @psalm-return ($params is array{wrapperClass:mixed} ? T : Connection)
+     * @template T of Connection
      */
     public static function getConnection(
         array $params,

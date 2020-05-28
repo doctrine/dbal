@@ -27,6 +27,7 @@ use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
 use function array_merge;
@@ -198,11 +199,12 @@ abstract class AbstractDriverTest extends TestCase
      */
     abstract protected function createSchemaManager(Connection $connection) : AbstractSchemaManager;
 
+    /**
+     * @return Connection&MockObject
+     */
     protected function getConnectionMock() : Connection
     {
-        return $this->getMockBuilder(Connection::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        return $this->createMock(Connection::class);
     }
 
     /**
@@ -214,7 +216,7 @@ abstract class AbstractDriverTest extends TestCase
     }
 
     /**
-     * @return mixed[][]
+     * @return iterable<mixed[]>
      */
     public static function exceptionConversionProvider() : iterable
     {

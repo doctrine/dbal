@@ -7,6 +7,7 @@ use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Statement;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Type;
 use Throwable;
@@ -94,6 +95,7 @@ class WriteTest extends FunctionalTestCase
         $sql  = 'INSERT INTO write_table (test_int, test_string) VALUES (?, ?)';
         $stmt = $this->connection->prepare($sql);
 
+        self::assertInstanceOf(Statement::class, $stmt);
         $stmt->bindValue(1, 1, Type::getType('integer'));
         $stmt->bindValue(2, 'foo', Type::getType('string'));
         $stmt->execute();
@@ -106,6 +108,7 @@ class WriteTest extends FunctionalTestCase
         $sql  = 'INSERT INTO write_table (test_int, test_string) VALUES (?, ?)';
         $stmt = $this->connection->prepare($sql);
 
+        self::assertInstanceOf(Statement::class, $stmt);
         $stmt->bindValue(1, 1, 'integer');
         $stmt->bindValue(2, 'foo', 'string');
         $stmt->execute();

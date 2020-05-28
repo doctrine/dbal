@@ -120,5 +120,18 @@ parameters:
             message: '~^Only numeric types are allowed in -, int<1, max>\|false given on the left side\.~'
             paths:
                 - %currentWorkingDirectory%/src/Platforms/SQLServer2012Platform.php
+
+        # Caused by phpdoc annotations intended for Psalm
+        -
+            message: '~Unable to resolve the template type T in call to method static method Doctrine\\DBAL\\DriverManager::getConnection\(\)~'
+            paths:
+                - %currentWorkingDirectory%/src/Id/TableGenerator.php
+                - %currentWorkingDirectory%/src/Schema/SqliteSchemaManager.php
+
+        -
+            message: '~Method Doctrine\\DBAL\\Driver\\PDOSqlsrv\\Connection\:\:lastInsertId\(\) should return string but returns string\|false\|null\.~'
+            paths:
+                - %currentWorkingDirectory%/src/Driver/PDOSqlsrv/Connection.php
+
 includes:
     - vendor/phpstan/phpstan-strict-rules/rules.neon

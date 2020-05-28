@@ -367,9 +367,7 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testGetCreateTableSqlDispatchEvent() : void
     {
-        $listenerMock = $this->getMockBuilder($this->getMockClass('GetCreateTableSqlDispatchEvenListener'))
-            ->addMethods(['onSchemaCreateTable', 'onSchemaCreateTableColumn'])
-            ->getMock();
+        $listenerMock = $this->createMock(GetCreateTableSqlDispatchEventListener::class);
         $listenerMock
             ->expects(self::once())
             ->method('onSchemaCreateTable');
@@ -391,9 +389,7 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testGetDropTableSqlDispatchEvent() : void
     {
-        $listenerMock = $this->getMockBuilder($this->getMockClass('GetDropTableSqlDispatchEventListener'))
-            ->addMethods(['onSchemaDropTable'])
-            ->getMock();
+        $listenerMock = $this->createMock(GetDropTableSqlDispatchEventListener::class);
         $listenerMock
             ->expects(self::once())
             ->method('onSchemaDropTable');
@@ -408,17 +404,7 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testGetAlterTableSqlDispatchEvent() : void
     {
-        $events = [
-            'onSchemaAlterTable',
-            'onSchemaAlterTableAddColumn',
-            'onSchemaAlterTableRemoveColumn',
-            'onSchemaAlterTableChangeColumn',
-            'onSchemaAlterTableRenameColumn',
-        ];
-
-        $listenerMock = $this->getMockBuilder($this->getMockClass('GetAlterTableSqlDispatchEvenListener'))
-            ->addMethods($events)
-            ->getMock();
+        $listenerMock = $this->createMock(GetAlterTableSqlDispatchEventListener::class);
         $listenerMock
             ->expects(self::once())
             ->method('onSchemaAlterTable');
@@ -1526,4 +1512,29 @@ abstract class AbstractPlatformTestCase extends TestCase
             $this->platform->modifyLimitQuery($query, null, 0)
         );
     }
+}
+
+interface GetCreateTableSqlDispatchEventListener
+{
+    public function onSchemaCreateTable() : void;
+
+    public function onSchemaCreateTableColumn() : void;
+}
+
+interface GetAlterTableSqlDispatchEventListener
+{
+    public function onSchemaAlterTable() : void;
+
+    public function onSchemaAlterTableAddColumn() : void;
+
+    public function onSchemaAlterTableRemoveColumn() : void;
+
+    public function onSchemaAlterTableChangeColumn() : void;
+
+    public function onSchemaAlterTableRenameColumn() : void;
+}
+
+interface GetDropTableSqlDispatchEventListener
+{
+    public function onSchemaDropTable() : void;
 }

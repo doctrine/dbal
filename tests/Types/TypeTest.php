@@ -19,7 +19,7 @@ class TypeTest extends TestCase
     }
 
     /**
-     * @return string[][]
+     * @return iterable<string[]>
      */
     public function defaultTypesProvider() : iterable
     {
@@ -28,7 +28,10 @@ class TypeTest extends TestCase
                 continue;
             }
 
-            yield [$constant->getValue()];
+            $constantValue = $constant->getValue();
+            self::assertIsString($constantValue);
+
+            yield [$constantValue];
         }
     }
 }

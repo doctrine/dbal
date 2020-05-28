@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Tests\Platforms;
 
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Index;
@@ -14,6 +15,9 @@ use Doctrine\DBAL\Types\Type;
 
 abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCase
 {
+    /** @var SQLServer2012Platform */
+    protected $platform;
+
     public function getGenerateTableSql() : string
     {
         return 'CREATE TABLE test (id INT IDENTITY NOT NULL, test NVARCHAR(255), PRIMARY KEY (id))';
