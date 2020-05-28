@@ -28,6 +28,7 @@ use function sqlsrv_prepare;
 use function sqlsrv_rows_affected;
 use function SQLSRV_SQLTYPE_VARBINARY;
 use function stripos;
+use function strlen;
 use const SQLSRV_ENC_BINARY;
 use const SQLSRV_ERR_ERRORS;
 use const SQLSRV_FETCH_ASSOC;
@@ -298,6 +299,15 @@ class SQLSrvStatement implements IteratorAggregate, Statement
                         &$variable,
                         SQLSRV_PARAM_IN,
                         SQLSRV_PHPTYPE_STRING(SQLSRV_ENC_BINARY),
+                    ];
+                    break;
+
+                case ParameterType::STRING:
+                    $params[$column - 1] = [
+                        &$variable,
+                        SQLSRV_PARAM_IN,
+                        null,
+                        SQLSRV_SQLTYPE_NVARCHAR(strlen($variable) > 0 ? strlen($variable) : 1),
                     ];
                     break;
 
