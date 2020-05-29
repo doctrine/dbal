@@ -312,7 +312,7 @@ class DB2Statement implements IteratorAggregate, Statement, ForwardCompatibleRes
     /**
      * {@inheritdoc}
      *
-     * @deprecated Use fetchAllNumeric(), fetchAllAssociative() or fetchColumn() instead.
+     * @deprecated Use fetchAllNumeric(), fetchAllAssociative() or fetchFirstColumn() instead.
      */
     public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
     {
