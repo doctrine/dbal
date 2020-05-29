@@ -2,9 +2,11 @@
 
 namespace Doctrine\DBAL\Driver\IBMDB2;
 
+use Doctrine\DBAL\Driver\FetchUtils;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\FetchMode;
+use Doctrine\DBAL\ForwardCompatibility\Driver\ResultStatement as ForwardCompatibleResultStatement;
 use Doctrine\DBAL\ParameterType;
 use IteratorAggregate;
 use PDO;
@@ -46,7 +48,7 @@ use const DB2_LONG;
 use const DB2_PARAM_FILE;
 use const DB2_PARAM_IN;
 
-class DB2Statement implements IteratorAggregate, Statement
+class DB2Statement implements IteratorAggregate, Statement, ForwardCompatibleResultStatement
 {
     /** @var resource */
     private $stmt;
@@ -354,6 +356,56 @@ class DB2Statement implements IteratorAggregate, Statement
         }
 
         return $row[$columnIndex] ?? null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function fetchNumeric()
+    {
+        if (! $this->result) {
+            return false;
+        }
+
+        return db2_fetch_array($this->stmt);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchAssociative()
+    {
+        // do not try fetching from the statement if it's not expected to contain the result
+        // in order to prevent exceptional situation
+        if (! $this->result) {
+            return false;
+        }
+
+        return db2_fetch_assoc($this->stmt);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchOne()
+    {
+        return FetchUtils::fetchOne($this);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchAllNumeric() : array
+    {
+        return FetchUtils::fetchAllNumeric($this);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchAllAssociative() : array
+    {
+        return FetchUtils::fetchAllAssociative($this);
     }
 
     /**
