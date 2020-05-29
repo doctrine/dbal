@@ -202,6 +202,14 @@ class ArrayStatement implements IteratorAggregate, ResultStatement, ForwardCompa
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function fetchFirstColumn() : array
+    {
+        return FetchUtils::fetchFirstColumn($this);
+    }
+
+    /**
      * @return mixed|false
      */
     private function doFetch()

@@ -411,6 +411,14 @@ class DB2Statement implements IteratorAggregate, Statement, ForwardCompatibleRes
     /**
      * {@inheritdoc}
      */
+    public function fetchFirstColumn() : array
+    {
+        return FetchUtils::fetchFirstColumn($this);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function rowCount()
     {
         return @db2_num_rows($this->stmt) ? : 0;

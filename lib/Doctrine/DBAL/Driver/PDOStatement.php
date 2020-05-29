@@ -241,6 +241,14 @@ class PDOStatement extends \PDOStatement implements Statement, ForwardCompatible
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function fetchFirstColumn() : array
+    {
+        return $this->fetchAll(PDO::FETCH_COLUMN);
+    }
+
+    /**
      * Converts DBAL parameter type to PDO parameter type
      *
      * @param int $type Parameter type

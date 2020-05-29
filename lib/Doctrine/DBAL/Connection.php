@@ -992,6 +992,32 @@ class Connection implements DriverConnection
     }
 
     /**
+     * Prepares and executes an SQL query and returns the result as an array of the first column values.
+     *
+     * @param string                                           $query  The SQL query.
+     * @param array<int, mixed>|array<string, mixed>           $params The query parameters.
+     * @param array<int, int|string>|array<string, int|string> $types  The query parameter types.
+     *
+     * @return array<int,mixed>
+     *
+     * @throws DBALException
+     */
+    public function fetchFirstColumn(string $query, array $params = [], array $types = []) : array
+    {
+        try {
+            $stmt = $this->executeQuery($query, $params, $types);
+
+            if ($stmt instanceof ForwardCompatibleResultStatement) {
+                return $stmt->fetchFirstColumn();
+            }
+
+            return $stmt->fetchAll(FetchMode::COLUMN);
+        } catch (Throwable $e) {
+            throw DBALException::driverExceptionDuringQuery($this->_driver, $e, $query);
+        }
+    }
+
+    /**
      * Prepares and executes an SQL query and returns the result as an iterator over rows represented as numeric arrays.
      *
      * @param string                                           $query  The SQL query.

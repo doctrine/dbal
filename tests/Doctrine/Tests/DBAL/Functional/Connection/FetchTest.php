@@ -76,6 +76,15 @@ class FetchTest extends DbalFunctionalTestCase
         ], $this->connection->fetchAllAssociative($this->query));
     }
 
+    public function testFetchFirstColumn() : void
+    {
+        self::assertEquals([
+            'foo',
+            'bar',
+            'baz',
+        ], $this->connection->fetchFirstColumn($this->query));
+    }
+
     public function testIterateNumeric() : void
     {
         self::assertEquals([

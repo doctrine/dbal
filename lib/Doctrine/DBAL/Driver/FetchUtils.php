@@ -58,4 +58,20 @@ final class FetchUtils
 
         return $rows;
     }
+
+    /**
+     * @return array<int,mixed>
+     *
+     * @throws DriverException
+     */
+    public static function fetchFirstColumn(ResultStatement $stmt) : array
+    {
+        $rows = [];
+
+        while (($row = $stmt->fetchOne()) !== false) {
+            $rows[] = $row;
+        }
+
+        return $rows;
+    }
 }

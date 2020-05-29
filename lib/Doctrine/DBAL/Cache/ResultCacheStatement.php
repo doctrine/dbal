@@ -278,6 +278,14 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Forwar
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function fetchFirstColumn() : array
+    {
+        return FetchUtils::fetchFirstColumn($this);
+    }
+
+    /**
      * Returns the number of rows affected by the last DELETE, INSERT, or UPDATE statement
      * executed by the corresponding object.
      *

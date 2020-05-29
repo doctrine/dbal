@@ -479,6 +479,14 @@ class SQLSrvStatement implements IteratorAggregate, Statement, ForwardCompatible
     /**
      * {@inheritdoc}
      */
+    public function fetchFirstColumn() : array
+    {
+        return FetchUtils::fetchFirstColumn($this);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function rowCount()
     {
         if ($this->stmt === null) {

@@ -256,6 +256,20 @@ class Statement implements IteratorAggregate, DriverStatement, ForwardCompatible
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function fetchFirstColumn() : array
+    {
+        if ($this->stmt instanceof ForwardCompatibleResultStatement) {
+            $data = $this->stmt->fetchFirstColumn();
+        } else {
+            $data = $this->stmt->fetchAll(FetchMode::COLUMN);
+        }
+
+        return $this->fixResultSet($data, true, false);
+    }
+
+    /**
      * @param mixed $result
      *
      * @return mixed

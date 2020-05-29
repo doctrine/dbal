@@ -470,6 +470,14 @@ class MysqliStatement implements IteratorAggregate, Statement, ForwardCompatible
     /**
      * {@inheritdoc}
      */
+    public function fetchFirstColumn() : array
+    {
+        return FetchUtils::fetchFirstColumn($this);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function errorCode()
     {
         return $this->_stmt->errno;

@@ -369,6 +369,16 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement, ForwardCompa
     }
 
     /**
+     * @return array<int,mixed>
+     *
+     * @throws DriverException
+     */
+    public function fetchFirstColumn() : array
+    {
+        return FetchUtils::fetchFirstColumn($this);
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function rowCount()

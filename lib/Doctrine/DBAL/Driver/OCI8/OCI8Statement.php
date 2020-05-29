@@ -592,6 +592,14 @@ class OCI8Statement implements IteratorAggregate, Statement, ForwardCompatibleRe
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function fetchFirstColumn() : array
+    {
+        return $this->doFetchAll(OCI_NUM, OCI_FETCHSTATEMENT_BY_COLUMN)[0];
+    }
+
+    /**
      * @return mixed|false
      */
     private function doFetch(int $mode)

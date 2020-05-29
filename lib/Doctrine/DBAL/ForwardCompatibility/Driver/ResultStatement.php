@@ -56,4 +56,13 @@ interface ResultStatement extends BaseResultStatement
      * @throws DriverException
      */
     public function fetchAllAssociative() : array;
+
+    /**
+     * Returns an array containing the values of the first column of the result set.
+     *
+     * @return array<int,mixed>
+     *
+     * @throws DriverException
+     */
+    public function fetchFirstColumn() : array;
 }
