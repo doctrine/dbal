@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional\Driver;
 
 use Doctrine\DBAL\DriverManager;
-use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use function extension_loaded;
@@ -46,7 +45,7 @@ class PDOPgsqlConnectionTest extends FunctionalTestCase
         self::assertEquals(
             $charset,
             $connection->query('SHOW client_encoding')
-                ->fetch(FetchMode::COLUMN)
+                ->fetchOne()
         );
     }
 

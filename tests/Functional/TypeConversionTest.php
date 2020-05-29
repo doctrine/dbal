@@ -249,7 +249,7 @@ class TypeConversionTest extends FunctionalTestCase
         $sql = 'SELECT ' . $columnName . ' FROM type_conversion WHERE id = ' . self::$typeCounter;
 
         return $typeInstance->convertToPHPValue(
-            $this->connection->fetchColumn($sql),
+            $this->connection->fetchOne($sql),
             $this->connection->getDatabasePlatform()
         );
     }

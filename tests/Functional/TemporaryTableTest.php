@@ -69,7 +69,7 @@ class TemporaryTableTest extends FunctionalTestCase
 
         $this->connection->rollBack();
 
-        $rows = $this->connection->fetchAll('SELECT * FROM nontemporary');
+        $rows = $this->connection->fetchAllAssociative('SELECT * FROM nontemporary');
         self::assertEquals([], $rows, 'In an event of an error this result has one row, because of an implicit commit.');
     }
 
@@ -116,7 +116,7 @@ class TemporaryTableTest extends FunctionalTestCase
         } catch (Throwable $e) {
         }
 
-        $rows = $this->connection->fetchAll('SELECT * FROM nontemporary');
+        $rows = $this->connection->fetchAllAssociative('SELECT * FROM nontemporary');
         self::assertEquals([], $rows, 'In an event of an error this result has one row, because of an implicit commit.');
     }
 }

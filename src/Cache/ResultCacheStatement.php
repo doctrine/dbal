@@ -4,15 +4,12 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Cache;
 
-use ArrayIterator;
 use Doctrine\Common\Cache\Cache;
+use Doctrine\DBAL\Driver\DriverException;
+use Doctrine\DBAL\Driver\FetchUtils;
 use Doctrine\DBAL\Driver\ResultStatement;
-use Doctrine\DBAL\FetchMode;
-use InvalidArgumentException;
-use IteratorAggregate;
-use function array_merge;
+use function array_map;
 use function array_values;
-use function reset;
 
 /**
  * Cache statement for SQL results.
@@ -27,7 +24,7 @@ use function reset;
  * Also you have to realize that the cache will load the whole result into memory at once to ensure 2.
  * This means that the memory usage for cached results might increase by using this feature.
  */
-final class ResultCacheStatement implements IteratorAggregate, ResultStatement
+final class ResultCacheStatement implements ResultStatement
 {
     /** @var Cache */
     private $resultCache;
@@ -51,11 +48,8 @@ final class ResultCacheStatement implements IteratorAggregate, ResultStatement
      */
     private $emptied = false;
 
-    /** @var mixed[] */
+    /** @var array<int,array<string,mixed>> */
     private $data;
-
-    /** @var int */
-    private $defaultFetchMode = FetchMode::MIXED;
 
     public function __construct(ResultStatement $stmt, Cache $resultCache, string $cacheKey, string $realKey, int $lifetime)
     {
@@ -90,54 +84,90 @@ final class ResultCacheStatement implements IteratorAggregate, ResultStatement
         return $this->statement->columnCount();
     }
 
-    public function setFetchMode(int $fetchMode) : void
+    public function rowCount() : int
     {
-        $this->defaultFetchMode = $fetchMode;
+        return $this->statement->rowCount();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getIterator()
+    public function fetchNumeric()
     {
-        $data = $this->fetchAll();
+        $row = $this->fetch();
 
-        return new ArrayIterator($data);
+        if ($row === false) {
+            return false;
+        }
+
+        return array_values($row);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function fetch(?int $fetchMode = null)
+    public function fetchAssociative()
+    {
+        return $this->fetch();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchOne()
+    {
+        return FetchUtils::fetchOne($this);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchAllNumeric() : array
+    {
+        $this->store(
+            $this->statement->fetchAllAssociative()
+        );
+
+        return array_map('array_values', $this->data);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchAllAssociative() : array
+    {
+        $this->store(
+            $this->statement->fetchAllAssociative()
+        );
+
+        return $this->data;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchColumn() : array
+    {
+        return FetchUtils::fetchColumn($this);
+    }
+
+    /**
+     * @return array<string,mixed>|false
+     *
+     * @throws DriverException
+     */
+    private function fetch()
     {
         if ($this->data === null) {
             $this->data = [];
         }
 
-        $row = $this->statement->fetch(FetchMode::ASSOCIATIVE);
+        $row = $this->statement->fetchAssociative();
 
         if ($row !== false) {
             $this->data[] = $row;
 
-            $fetchMode = $fetchMode ?? $this->defaultFetchMode;
-
-            if ($fetchMode === FetchMode::ASSOCIATIVE) {
-                return $row;
-            }
-
-            if ($fetchMode === FetchMode::NUMERIC) {
-                return array_values($row);
-            }
-
-            if ($fetchMode === FetchMode::MIXED) {
-                return array_merge($row, array_values($row));
-            }
-
-            if ($fetchMode === FetchMode::COLUMN) {
-                return reset($row);
-            }
-
-            throw new InvalidArgumentException('Invalid fetch-style given for caching result.');
+            return $row;
         }
 
         $this->emptied = true;
@@ -146,51 +176,11 @@ final class ResultCacheStatement implements IteratorAggregate, ResultStatement
     }
 
     /**
-     * {@inheritdoc}
+     * @param array<int,array<string,mixed>> $data
      */
-    public function fetchAll(?int $fetchMode = null) : array
+    private function store(array $data) : void
     {
-        $data = $this->statement->fetchAll($fetchMode);
-
-        if ($fetchMode === FetchMode::COLUMN) {
-            foreach ($data as $key => $value) {
-                $data[$key] = [$value];
-            }
-        }
-
         $this->data    = $data;
         $this->emptied = true;
-
-        return $this->data;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchColumn()
-    {
-        $row = $this->fetch(FetchMode::NUMERIC);
-
-        if ($row === false) {
-            return false;
-        }
-
-        return $row[0];
-    }
-
-    /**
-     * Returns the number of rows affected by the last DELETE, INSERT, or UPDATE statement
-     * executed by the corresponding object.
-     *
-     * If the last SQL statement executed by the associated Statement object was a SELECT statement,
-     * some databases may return the number of rows returned by that statement. However,
-     * this behaviour is not guaranteed for all databases and should not be
-     * relied on for portable applications.
-     *
-     * @return int The number of rows.
-     */
-    public function rowCount() : int
-    {
-        return $this->statement->rowCount();
     }
 }

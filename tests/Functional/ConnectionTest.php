@@ -107,7 +107,7 @@ class ConnectionTest extends FunctionalTestCase
         $connection->executeQuery('insert into test_nesting values (33)');
         $connection->rollBack();
 
-        self::assertEquals(0, $connection->fetchColumn('select count(*) from test_nesting'));
+        self::assertEquals(0, $connection->fetchOne('select count(*) from test_nesting'));
     }
 
     public function testTransactionNestingBehaviorWithSavepoints() : void

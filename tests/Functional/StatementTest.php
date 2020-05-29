@@ -11,7 +11,6 @@ use Doctrine\DBAL\Driver\PDOOracle\Driver as PDOOracleDriver;
 use Doctrine\DBAL\Driver\PDOSqlsrv\Driver as PDOSQLSRVDriver;
 use Doctrine\DBAL\Driver\SQLSrv\Driver as SQLSRVDriver;
 use Doctrine\DBAL\Driver\Statement;
-use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -46,15 +45,15 @@ class StatementTest extends FunctionalTestCase
 
         $stmt->execute();
 
-        $id = $stmt->fetchColumn();
+        $id = $stmt->fetchOne();
         self::assertEquals(1, $id);
 
         $stmt->closeCursor();
 
         $stmt->execute();
-        $id = $stmt->fetchColumn();
+        $id = $stmt->fetchOne();
         self::assertEquals(1, $id);
-        $id = $stmt->fetchColumn();
+        $id = $stmt->fetchOne();
         self::assertEquals(2, $id);
     }
 
@@ -80,7 +79,7 @@ class StatementTest extends FunctionalTestCase
         $stmt->execute();
         self::assertEquals([
             ['param1', 'X'],
-        ], $stmt->fetchAll(FetchMode::NUMERIC));
+        ], $stmt->fetchAllNumeric());
 
         $row2 = [
             'param' => 'param2',
@@ -92,7 +91,7 @@ class StatementTest extends FunctionalTestCase
         self::assertEquals([
             ['param1', 'X'],
             ['param2', 'A bit longer value'],
-        ], $stmt->fetchAll(FetchMode::NUMERIC));
+        ], $stmt->fetchAllNumeric());
     }
 
     public function testFetchLongBlob() : void
@@ -136,7 +135,7 @@ EOF
 
         $stream = Type::getType('blob')
             ->convertToPHPValue(
-                $stmt->fetchColumn(),
+                $stmt->fetchOne(),
                 $this->connection->getDatabasePlatform()
             );
 
@@ -150,14 +149,14 @@ EOF
 
         $stmt1 = $this->connection->prepare('SELECT id FROM stmt_test');
         $stmt1->execute();
-        $stmt1->fetch();
+        $stmt1->fetchAssociative();
         $stmt1->execute();
         // fetching only one record out of two
-        $stmt1->fetch();
+        $stmt1->fetchAssociative();
 
         $stmt2 = $this->connection->prepare('SELECT id FROM stmt_test WHERE id = ?');
         $stmt2->execute([1]);
-        self::assertEquals(1, $stmt2->fetchColumn());
+        self::assertEquals(1, $stmt2->fetchOne());
     }
 
     public function testReuseStatementAfterClosingCursor() : void
@@ -172,13 +171,13 @@ EOF
         $stmt = $this->connection->prepare('SELECT id FROM stmt_test WHERE id = ?');
 
         $stmt->execute([1]);
-        $id = $stmt->fetchColumn();
+        $id = $stmt->fetchOne();
         self::assertEquals(1, $id);
 
         $stmt->closeCursor();
 
         $stmt->execute([2]);
-        $id = $stmt->fetchColumn();
+        $id = $stmt->fetchOne();
         self::assertEquals(2, $id);
     }
 
@@ -192,11 +191,11 @@ EOF
 
         $id = 1;
         $stmt->execute();
-        self::assertEquals(1, $stmt->fetchColumn());
+        self::assertEquals(1, $stmt->fetchOne());
 
         $id = 2;
         $stmt->execute();
-        self::assertEquals(2, $stmt->fetchColumn());
+        self::assertEquals(2, $stmt->fetchOne());
     }
 
     public function testReuseStatementWithReboundValue() : void
@@ -208,11 +207,11 @@ EOF
 
         $stmt->bindValue(1, 1);
         $stmt->execute();
-        self::assertEquals(1, $stmt->fetchColumn());
+        self::assertEquals(1, $stmt->fetchOne());
 
         $stmt->bindValue(1, 2);
         $stmt->execute();
-        self::assertEquals(2, $stmt->fetchColumn());
+        self::assertEquals(2, $stmt->fetchOne());
     }
 
     public function testReuseStatementWithReboundParam() : void
@@ -225,12 +224,12 @@ EOF
         $x = 1;
         $stmt->bindParam(1, $x);
         $stmt->execute();
-        self::assertEquals(1, $stmt->fetchColumn());
+        self::assertEquals(1, $stmt->fetchOne());
 
         $y = 2;
         $stmt->bindParam(1, $y);
         $stmt->execute();
-        self::assertEquals(2, $stmt->fetchColumn());
+        self::assertEquals(2, $stmt->fetchOne());
     }
 
     /**
@@ -264,7 +263,7 @@ EOF
         $stmt = $this->connection->prepare('SELECT name FROM stmt_test');
 
         $stmt->execute();
-        $stmt->fetch();
+        $stmt->fetchAssociative();
 
         $stmt->closeCursor();
     }
@@ -315,19 +314,19 @@ EOF
         return [
             'fetch' => [
                 static function (Statement $stmt) {
-                    return $stmt->fetch();
+                    return $stmt->fetchAssociative();
                 },
                 false,
             ],
             'fetch-column' => [
                 static function (Statement $stmt) {
-                    return $stmt->fetchColumn();
+                    return $stmt->fetchOne();
                 },
                 false,
             ],
             'fetch-all' => [
                 static function (Statement $stmt) : array {
-                    return $stmt->fetchAll();
+                    return $stmt->fetchAllAssociative();
                 },
                 [],
             ],
@@ -338,7 +337,7 @@ EOF
     {
         $platform = $this->connection->getDatabasePlatform();
         $query    = $platform->getDummySelectSQL();
-        $result   = $this->connection->executeQuery($query)->fetch(FetchMode::COLUMN);
+        $result   = $this->connection->executeQuery($query)->fetchOne();
 
         self::assertEquals(1, $result);
     }

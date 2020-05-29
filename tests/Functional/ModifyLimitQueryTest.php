@@ -171,7 +171,7 @@ SQL;
     {
         $p    = $this->connection->getDatabasePlatform();
         $data = [];
-        foreach ($this->connection->fetchAll($p->modifyLimitQuery($sql, $limit, $offset)) as $row) {
+        foreach ($this->connection->fetchAllAssociative($p->modifyLimitQuery($sql, $limit, $offset)) as $row) {
             $row    = array_change_key_case($row, CASE_LOWER);
             $data[] = $row['test_int'];
         }

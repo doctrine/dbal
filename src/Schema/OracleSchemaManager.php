@@ -344,7 +344,7 @@ WHERE
     AND p.addr(+) = s.paddr
 SQL;
 
-        $activeUserSessions = $this->_conn->fetchAll($sql, [strtoupper($user)]);
+        $activeUserSessions = $this->_conn->fetchAllAssociative($sql, [strtoupper($user)]);
 
         foreach ($activeUserSessions as $activeUserSession) {
             $activeUserSession = array_change_key_case($activeUserSession, CASE_LOWER);
@@ -367,7 +367,7 @@ SQL;
         assert($platform instanceof OraclePlatform);
         $sql = $platform->getListTableCommentsSQL($tableName);
 
-        $tableOptions = $this->_conn->fetchAssoc($sql);
+        $tableOptions = $this->_conn->fetchAssociative($sql);
 
         if ($tableOptions !== false) {
             $table->addOption('comment', $tableOptions['COMMENTS']);

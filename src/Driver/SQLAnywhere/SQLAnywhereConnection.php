@@ -92,8 +92,7 @@ final class SQLAnywhereConnection implements ServerInfoAwareConnection
 
     public function getServerVersion() : string
     {
-        $version = $this->query("SELECT PROPERTY('ProductVersion')")->fetchColumn();
-
+        $version = $this->query("SELECT PROPERTY('ProductVersion')")->fetchOne();
         assert(is_string($version));
 
         return $version;
@@ -105,7 +104,7 @@ final class SQLAnywhereConnection implements ServerInfoAwareConnection
             return sasql_insert_id($this->connection);
         }
 
-        return $this->query('SELECT ' . $name . '.CURRVAL')->fetchColumn();
+        return $this->query('SELECT ' . $name . '.CURRVAL')->fetchOne();
     }
 
     public function prepare(string $sql) : DriverStatement

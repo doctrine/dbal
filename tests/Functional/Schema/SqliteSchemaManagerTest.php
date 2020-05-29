@@ -279,7 +279,7 @@ SQL;
         assert($query instanceof Statement);
 
         $query->execute();
-        $lastUsedIdAfterDelete = (int) $query->fetchColumn();
+        $lastUsedIdAfterDelete = (int) $query->fetchOne();
 
         // with an empty table, non autoincrement rowid is always 1
         self::assertEquals(1, $lastUsedIdAfterDelete);

@@ -22,10 +22,6 @@ The `CompositeExpression` class is now immutable.
 
 The `OCI8Statement::convertPositionalToNamedPlaceholders()` method has been extracted to an internal utility class.
 
-## BC BREAK: Dropped handling of one-based numeric arrays of parameters in `Statement::execute()`
-
-The statement implementations no longer detect whether `$params` is a zero- or one-based array. A zero-based numeric array is expected.
-
 ## BC BREAK: `ServerInfoAwareConnection::requiresQueryForServerVersion()` is removed.
 
 The `ServerInfoAwareConnection::requiresQueryForServerVersion()` method has been removed as an implementation detail which is the same for almost all supported drivers.
@@ -97,7 +93,6 @@ Table columns are no longer indexed by column name. Use the `name` attribute of 
 
 - The following methods have been removed as leaking internal implementation details: `::getHost()`, `::getPort()`, `::getUsername()`, `::getPassword()`.
 - The `::getDatabase()` method can now return null which means that no database is currently selected.
-- The `::project()` method has been removed. Use `::executeQuery()` and fetch the data from the statement using one of the `Statement::fetch*()` methods instead.
 
 ## BC BREAK: Changes in `Doctrine\DBAL\Driver\SQLSrv\LastInsertId`
 
@@ -153,10 +148,6 @@ The `Doctrine\DBAL\Driver::getName()` has been removed.
 ## BC BREAK `AbstractSchemaManager::extractDoctrineTypeFromComment()` changed, `::removeDoctrineTypeFromComment()` removed
 
 `AbstractSchemaManager::extractDoctrineTypeFromComment()` made `protected`. It takes the comment by reference, removes the type annotation from it and returns the extracted Doctrine type.
-
-## BC BREAK `::errorCode()` and `::errorInfo()` removed from `Connection` and `Statement` APIs
-
-The error information is available in `DriverException` trown in case of an error.
 
 ## BC BREAK Changes in driver exceptions
 
@@ -268,6 +259,32 @@ The Doctrine\DBAL\Version class is no longer available: please refrain from chec
 - Binary fields are no longer represented as streams in PHP. They are represented as strings.
 
 # Upgrade to 3.0
+
+## BC BREAK `Statement::rowCount()` is moved.
+
+`Statement::rowCount()` has been moved to the `ResultStatement` interface where it belongs by definition.
+
+## Removed `FetchMode` and the corresponding methods
+
+1. The `FetchMode` class and the `setFetchMode()` method of the `Connection` and `Statement` interfaces are removed.
+2. The `Statement::fetch()` method is replaced with `fetchNumeric()`, `fetchAssociative()` and `fetchOne()`.
+3. The `Statement::fetchAll()` method is replaced with `fetchAllNumeric()`, `fetchAllAssociative()` and `fechColumn()`.
+4. The `Statement::fetchColumn()` method is replaced with `fetchOne()`.
+5. The `Connection::fetchArray()` and `fetchAssoc()` methods are replaced with `fetchNumeric()` and `fetchAssociative()` respectively.
+6. The `StatementIterator` class is removed. The usage of a `Statement` object as `Traversable` is no longer possible. Use `iterateNumeric()`, `iterateAssociative()` and `iterateColumn()` instead.
+7. Fetching data in mixed mode (former `FetchMode::MIXED`) is no longer possible.
+
+## BC BREAK: Dropped handling of one-based numeric arrays of parameters in `Statement::execute()`
+
+The statement implementations no longer detect whether `$params` is a zero- or one-based array. A zero-based numeric array is expected.
+
+## BC BREAK `Statement::project()` has been removed
+
+- The `Statement::project()` method has been removed. Use `::executeQuery()` and fetch the data from the statement using one of the `Statement::fetch*()` methods instead.
+
+## BC BREAK `::errorCode()` and `::errorInfo()` removed from `Connection` and `Statement` APIs
+
+The error information is available in `DriverException` thrown in case of an error.
 
 ## BC BREAK: Dropped support for `FetchMode::CUSTOM_OBJECT` and `::STANDARD_OBJECT`
 
@@ -406,6 +423,16 @@ Please use other database client applications for import, e.g.:
  * For SQLite: `sqlite3 /path/to/file.db < data.sql`.
 
 # Upgrade to 2.11
+
+## Deprecated `FetchMode` and the corresponding methods
+
+1. The `FetchMode` class and the `setFetchMode()` method of the `Connection` and `Statement` interfaces are deprecated.
+2. The `Statement::fetch()` method is deprecated in favor of `fetchNumeric()`, `fetchAssociative()` and `fetchOne()`.
+3. The `Statement::fetchAll()` method is deprecated in favor of `fetchAllNumeric()` and `fetchAllAssociative()`. There is no currently replacement for `Statement::fetchAll(FETCH_MODE::COLUMN)`. In a future major version, `fetchColumn()` will be used as a replacement.
+4. The `Statement::fetchColumn()` method is deprecated in favor of `fetchOne()`.
+5. The `Connection::fetchArray()` and `fetchAssoc()` method are deprecated in favor of `fetchNumeric()` and `fetchAssociative()` respectively.
+6. The `StatementIterator` class and the usage of a `Statement` object as `Traversable` is deprecated in favor of `iterateNumeric()`, `iterateAssociative()` and `iterateColumn()`.
+7. Fetching data in mixed mode (`FetchMode::MIXED`) is deprecated.
 
 ## Deprecated `Connection::project()`
 

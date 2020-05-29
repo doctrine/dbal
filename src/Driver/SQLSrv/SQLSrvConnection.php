@@ -100,7 +100,7 @@ final class SQLSrvConnection implements ServerInfoAwareConnection
             $stmt = $this->query('SELECT @@IDENTITY');
         }
 
-        return $stmt->fetchColumn();
+        return $stmt->fetchOne();
     }
 
     public function beginTransaction() : void

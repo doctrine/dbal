@@ -8,15 +8,15 @@ use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
-use IteratorAggregate;
 use Throwable;
+use Traversable;
 use function is_string;
 
 /**
  * A thin wrapper around a Doctrine\DBAL\Driver\Statement that adds support
  * for logging, DBAL mapping types, etc.
  */
-class Statement implements IteratorAggregate, DriverStatement
+class Statement implements DriverStatement, ResultStatement
 {
     /**
      * The SQL statement.
@@ -180,43 +180,140 @@ class Statement implements IteratorAggregate, DriverStatement
         return $this->stmt->columnCount();
     }
 
-    public function setFetchMode(int $fetchMode) : void
-    {
-        $this->stmt->setFetchMode($fetchMode);
-    }
-
     /**
-     * Required by interface IteratorAggregate.
+     * {@inheritdoc}
      *
-     * {@inheritdoc}
+     * @throws DBALException
      */
-    public function getIterator()
+    public function fetchNumeric()
     {
-        return $this->stmt;
+        try {
+            return $this->stmt->fetchNumeric();
+        } catch (DriverException $e) {
+            throw DBALException::driverException($this->conn->getDriver(), $e);
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @throws DBALException
+     */
+    public function fetchAssociative()
+    {
+        try {
+            return $this->stmt->fetchAssociative();
+        } catch (DriverException $e) {
+            throw DBALException::driverException($this->conn->getDriver(), $e);
+        }
     }
 
     /**
      * {@inheritdoc}
      */
-    public function fetch(?int $fetchMode = null)
+    public function fetchOne()
     {
-        return $this->stmt->fetch($fetchMode);
+        try {
+            return $this->stmt->fetchOne();
+        } catch (DriverException $e) {
+            throw DBALException::driverException($this->conn->getDriver(), $e);
+        }
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @throws DBALException
      */
-    public function fetchAll(?int $fetchMode = null) : array
+    public function fetchAllNumeric() : array
     {
-        return $this->stmt->fetchAll($fetchMode);
+        try {
+            return $this->stmt->fetchAllNumeric();
+        } catch (DriverException $e) {
+            throw DBALException::driverException($this->conn->getDriver(), $e);
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @throws DBALException
+     */
+    public function fetchAllAssociative() : array
+    {
+        try {
+            return $this->stmt->fetchAllAssociative();
+        } catch (DriverException $e) {
+            throw DBALException::driverException($this->conn->getDriver(), $e);
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @throws DBALException
+     */
+    public function fetchColumn() : array
+    {
+        try {
+            return $this->stmt->fetchColumn();
+        } catch (DriverException $e) {
+            throw DBALException::driverException($this->conn->getDriver(), $e);
+        }
     }
 
     /**
      * {@inheritDoc}
+     *
+     * @return Traversable<int,array<int,mixed>>
+     *
+     * @throws DBALException
      */
-    public function fetchColumn()
+    public function iterateNumeric() : Traversable
     {
-        return $this->stmt->fetchColumn();
+        try {
+            while (($row = $this->stmt->fetchNumeric()) !== false) {
+                yield $row;
+            }
+        } catch (DriverException $e) {
+            throw DBALException::driverException($this->conn->getDriver(), $e);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return Traversable<int,array<string,mixed>>
+     *
+     * @throws DBALException
+     */
+    public function iterateAssociative() : Traversable
+    {
+        try {
+            while (($row = $this->stmt->fetchAssociative()) !== false) {
+                yield $row;
+            }
+        } catch (DriverException $e) {
+            throw DBALException::driverException($this->conn->getDriver(), $e);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return Traversable<int,mixed>
+     *
+     * @throws DBALException
+     */
+    public function iterateColumn() : Traversable
+    {
+        try {
+            while (($value = $this->stmt->fetchOne()) !== false) {
+                yield $value;
+            }
+        } catch (DriverException $e) {
+            throw DBALException::driverException($this->conn->getDriver(), $e);
+        }
     }
 
     /**

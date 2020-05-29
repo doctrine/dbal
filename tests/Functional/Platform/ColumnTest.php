@@ -113,7 +113,7 @@ abstract class ColumnTest extends FunctionalTestCase
         self::assertSame(1, $this->connection->insert('column_test', ['val' => $value], [$bindType]));
 
         self::assertSame($value, Type::getType($type)->convertToPHPValue(
-            $this->connection->fetchColumn('SELECT val FROM column_test'),
+            $this->connection->fetchOne('SELECT val FROM column_test'),
             $this->connection->getDatabasePlatform()
         ));
     }

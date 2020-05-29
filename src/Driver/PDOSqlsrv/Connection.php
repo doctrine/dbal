@@ -23,7 +23,7 @@ class Connection extends PDOConnection
         $stmt = $this->prepare('SELECT CONVERT(VARCHAR(MAX), current_value) FROM sys.sequences WHERE name = ?');
         $stmt->execute([$name]);
 
-        return $stmt->fetchColumn();
+        return $stmt->fetchOne();
     }
 
     public function quote(string $input) : string

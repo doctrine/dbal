@@ -116,9 +116,7 @@ final class OCI8Connection implements Connection, ServerInfoAwareConnection
             throw new OCI8Exception('The driver does not support identity columns.');
         }
 
-        $sql    = 'SELECT ' . $name . '.CURRVAL FROM DUAL';
-        $stmt   = $this->query($sql);
-        $result = $stmt->fetchColumn();
+        $result = $this->query('SELECT ' . $name . '.CURRVAL FROM DUAL')->fetchOne();
 
         if ($result === false) {
             throw new OCI8Exception('lastInsertId failed: Query was executed but no result was returned.');

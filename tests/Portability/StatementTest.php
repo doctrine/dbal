@@ -10,7 +10,6 @@ use Doctrine\DBAL\Portability\Connection;
 use Doctrine\DBAL\Portability\Statement;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use function iterator_to_array;
 
 class StatementTest extends TestCase
 {
@@ -91,15 +90,6 @@ class StatementTest extends TestCase
             ->with($params);
 
         $this->stmt->execute($params);
-    }
-
-    public function testGetIterator() : void
-    {
-        $this->wrappedStmt->expects(self::exactly(3))
-            ->method('fetch')
-            ->willReturnOnConsecutiveCalls('foo', 'bar', false);
-
-        self::assertSame(['foo', 'bar'], iterator_to_array($this->stmt->getIterator()));
     }
 
     public function testRowCount() : void

@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver\SQLSrv;
 
+use Doctrine\DBAL\Driver\FetchUtils;
 use Doctrine\DBAL\Driver\Statement;
-use Doctrine\DBAL\Driver\StatementIterator;
-use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
-use IteratorAggregate;
 use function assert;
 use function is_int;
 use function sqlsrv_execute;
@@ -25,14 +23,13 @@ use function SQLSRV_SQLTYPE_VARBINARY;
 use function stripos;
 use const SQLSRV_ENC_BINARY;
 use const SQLSRV_FETCH_ASSOC;
-use const SQLSRV_FETCH_BOTH;
 use const SQLSRV_FETCH_NUMERIC;
 use const SQLSRV_PARAM_IN;
 
 /**
  * SQL Server Statement.
  */
-final class SQLSrvStatement implements IteratorAggregate, Statement
+final class SQLSrvStatement implements Statement
 {
     /**
      * The SQLSRV Resource.
@@ -68,24 +65,6 @@ final class SQLSrvStatement implements IteratorAggregate, Statement
      * @var int[]
      */
     private $types = [];
-
-    /**
-     * Translations.
-     *
-     * @var int[]
-     */
-    private static $fetchMap = [
-        FetchMode::MIXED       => SQLSRV_FETCH_BOTH,
-        FetchMode::ASSOCIATIVE => SQLSRV_FETCH_ASSOC,
-        FetchMode::NUMERIC     => SQLSRV_FETCH_NUMERIC,
-    ];
-
-    /**
-     * The fetch style.
-     *
-     * @var int
-     */
-    private $defaultFetchMode = FetchMode::MIXED;
 
     /**
      * The last insert ID.
@@ -181,8 +160,6 @@ final class SQLSrvStatement implements IteratorAggregate, Statement
 
     /**
      * {@inheritdoc}
-     *
-     * @deprecated The error information is available via exceptions.
      */
     public function execute(?array $params = null) : void
     {
@@ -213,81 +190,52 @@ final class SQLSrvStatement implements IteratorAggregate, Statement
         $this->result = true;
     }
 
-    public function setFetchMode(int $fetchMode) : void
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchNumeric()
     {
-        $this->defaultFetchMode = $fetchMode;
+        return $this->fetch(SQLSRV_FETCH_NUMERIC);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getIterator()
+    public function fetchAssociative()
     {
-        return new StatementIterator($this);
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @throws SQLSrvException
-     */
-    public function fetch(?int $fetchMode = null)
-    {
-        // do not try fetching from the statement if it's not expected to contain result
-        // in order to prevent exceptional situation
-        if ($this->stmt === null || ! $this->result) {
-            return false;
-        }
-
-        $fetchMode = $fetchMode ?? $this->defaultFetchMode;
-
-        if ($fetchMode === FetchMode::COLUMN) {
-            return $this->fetchColumn();
-        }
-
-        if (isset(self::$fetchMap[$fetchMode])) {
-            return sqlsrv_fetch_array($this->stmt, self::$fetchMap[$fetchMode]) ?? false;
-        }
-
-        throw new SQLSrvException('Fetch mode is not supported.');
+        return $this->fetch(SQLSRV_FETCH_ASSOC);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function fetchAll(?int $fetchMode = null) : array
+    public function fetchOne()
     {
-        $rows = [];
-
-        switch ($fetchMode) {
-            case FetchMode::COLUMN:
-                while (($row = $this->fetchColumn()) !== false) {
-                    $rows[] = $row;
-                }
-
-                break;
-
-            default:
-                while (($row = $this->fetch($fetchMode)) !== false) {
-                    $rows[] = $row;
-                }
-        }
-
-        return $rows;
+        return FetchUtils::fetchOne($this);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function fetchColumn()
+    public function fetchAllNumeric() : array
     {
-        $row = $this->fetch(FetchMode::NUMERIC);
+        return FetchUtils::fetchAllNumeric($this);
+    }
 
-        if ($row === false) {
-            return false;
-        }
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchAllAssociative() : array
+    {
+        return FetchUtils::fetchAllAssociative($this);
+    }
 
-        return $row[0];
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchColumn() : array
+    {
+        return FetchUtils::fetchColumn($this);
     }
 
     public function rowCount() : int
@@ -348,5 +296,19 @@ final class SQLSrvStatement implements IteratorAggregate, Statement
         }
 
         return $stmt;
+    }
+
+    /**
+     * @return mixed|false
+     */
+    private function fetch(int $fetchType)
+    {
+        // do not try fetching from the statement if it's not expected to contain the result
+        // in order to prevent exceptional situation
+        if ($this->stmt === null || ! $this->result) {
+            return false;
+        }
+
+        return sqlsrv_fetch_array($this->stmt, $fetchType) ?? false;
     }
 }

@@ -6,7 +6,6 @@ namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\Driver\OCI8\Driver as OCI8Driver;
 use Doctrine\DBAL\Driver\PDOOracle\Driver as PDOOracleDriver;
-use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -160,7 +159,7 @@ class BlobTest extends FunctionalTestCase
 
     private function assertBlobContains(string $text) : void
     {
-        $rows = $this->connection->query('SELECT blobfield FROM blob_table')->fetchAll(FetchMode::COLUMN);
+        $rows = $this->connection->query('SELECT blobfield FROM blob_table')->fetchColumn();
 
         self::assertCount(1, $rows);
 

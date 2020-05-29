@@ -74,7 +74,7 @@ class BinaryTest extends FunctionalTestCase
      */
     private function select(string $id)
     {
-        $value = $this->connection->fetchColumn(
+        $value = $this->connection->fetchOne(
             'SELECT val FROM binary_table WHERE id = ?',
             [$id],
             [ParameterType::BINARY]

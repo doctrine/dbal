@@ -95,7 +95,7 @@ class MasterSlaveConnectionTest extends FunctionalTestCase
 
             self::assertFalse($conn->isConnectedToMaster());
 
-            $clientCharset = $conn->fetchColumn('select @@character_set_client as c');
+            $clientCharset = $conn->fetchOne('select @@character_set_client as c');
 
             self::assertSame(
                 $charset,
@@ -120,7 +120,7 @@ class MasterSlaveConnectionTest extends FunctionalTestCase
         $conn = $this->createMasterSlaveConnection();
 
         $sql     = 'SELECT count(*) as num FROM master_slave_table';
-        $data    = $conn->fetchAll($sql);
+        $data    = $conn->fetchAllAssociative($sql);
         $data[0] = array_change_key_case($data[0], CASE_LOWER);
 
         self::assertEquals(1, $data[0]['num']);
@@ -135,7 +135,7 @@ class MasterSlaveConnectionTest extends FunctionalTestCase
         self::assertTrue($conn->isConnectedToMaster());
 
         $sql     = 'SELECT count(*) as num FROM master_slave_table';
-        $data    = $conn->fetchAll($sql);
+        $data    = $conn->fetchAllAssociative($sql);
         $data[0] = array_change_key_case($data[0], CASE_LOWER);
 
         self::assertEquals(2, $data[0]['num']);
@@ -208,9 +208,8 @@ class MasterSlaveConnectionTest extends FunctionalTestCase
         //Query must be executed only on Master
         self::assertTrue($conn->isConnectedToMaster());
 
-        $data = $statement->fetchAll();
+        $data = $statement->fetchAllAssociative();
 
-        //Default fetchmode is FetchMode::ASSOCIATIVE
         self::assertArrayHasKey(0, $data);
         self::assertArrayHasKey('num', $data[0]);
 
@@ -233,9 +232,8 @@ class MasterSlaveConnectionTest extends FunctionalTestCase
         //Query must be executed only on Master, even when we connect to the slave
         self::assertTrue($conn->isConnectedToMaster());
 
-        $data = $statement->fetchAll();
+        $data = $statement->fetchAllAssociative();
 
-        //Default fetchmode is FetchMode::ASSOCIATIVE
         self::assertArrayHasKey(0, $data);
         self::assertArrayHasKey('num', $data[0]);
 

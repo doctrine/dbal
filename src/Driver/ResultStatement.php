@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver;
 
-use Traversable;
-
 /**
  * Interface for the reading part of a prepare statement only.
  */
-interface ResultStatement extends Traversable
+interface ResultStatement
 {
     /**
      * Closes the cursor, enabling the statement to be executed again.
@@ -37,40 +35,56 @@ interface ResultStatement extends Traversable
     public function rowCount() : int;
 
     /**
-     * Sets the fetch mode to use while iterating this statement.
+     * Returns the next row of a result set as a numeric array or FALSE if there are no more rows.
      *
-     * @param int $fetchMode Controls how the next row will be returned to the caller.
-     *                       The value must be one of the {@link \Doctrine\DBAL\FetchMode} constants.
+     * @return array<int,mixed>|false
+     *
+     * @throws DriverException
      */
-    public function setFetchMode(int $fetchMode) : void;
+    public function fetchNumeric();
 
     /**
-     * Returns the next row of a result set.
+     * Returns the next row of a result set as an associative array or FALSE if there are no more rows.
      *
-     * @param int|null $fetchMode Controls how the next row will be returned to the caller.
-     *                            The value must be one of the {@link \Doctrine\DBAL\FetchMode} constants,
-     *                            defaulting to {@link \Doctrine\DBAL\FetchMode::MIXED}.
+     * @return array<string,mixed>|false
      *
-     * @return mixed The return value of this method on success depends on the fetch mode. In all cases, FALSE is
-     *               returned on failure.
+     * @throws DriverException
      */
-    public function fetch(?int $fetchMode = null);
+    public function fetchAssociative();
 
     /**
-     * Returns an array containing all of the result set rows.
+     * Returns the first value of the next row of a result set or FALSE if there are no more rows.
      *
-     * @param int|null $fetchMode Controls how the next row will be returned to the caller.
-     *                            The value must be one of the {@link \Doctrine\DBAL\FetchMode} constants,
-     *                            defaulting to {@link \Doctrine\DBAL\FetchMode::MIXED}.
+     * @return mixed|false
      *
-     * @return mixed[]
+     * @throws DriverException
      */
-    public function fetchAll(?int $fetchMode = null) : array;
+    public function fetchOne();
 
     /**
-     * Returns a single column from the next row of a result set or FALSE if there are no more rows.
+     * Returns an array containing all of the result set rows represented as numeric arrays.
      *
-     * @return mixed|false A single column in the next row of a result set, or FALSE if there are no more rows.
+     * @return array<int,array<int,mixed>>
+     *
+     * @throws DriverException
      */
-    public function fetchColumn();
+    public function fetchAllNumeric() : array;
+
+    /**
+     * Returns an array containing all of the result set rows represented as associative arrays.
+     *
+     * @return array<int,array<string,mixed>>
+     *
+     * @throws DriverException
+     */
+    public function fetchAllAssociative() : array;
+
+    /**
+     * Returns an array containing the values of the first column of the result set.
+     *
+     * @return array<int,mixed>
+     *
+     * @throws DriverException
+     */
+    public function fetchColumn() : array;
 }

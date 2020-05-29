@@ -261,7 +261,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
         $sql = $this->_platform->getListTableIndexesSQL($table, $this->_conn->getDatabase());
 
         try {
-            $tableIndexes = $this->_conn->fetchAll($sql);
+            $tableIndexes = $this->_conn->fetchAllAssociative($sql);
         } catch (PDOException $e) {
             if ($e->getCode() === 'IMSSP') {
                 return [];
@@ -284,7 +284,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
         if (count($tableDiff->removedColumns) > 0) {
             foreach ($tableDiff->removedColumns as $col) {
                 $columnConstraintSql = $this->getColumnConstraintSQL($tableDiff->name, $col->getName());
-                foreach ($this->_conn->fetchAll($columnConstraintSql) as $constraint) {
+                foreach ($this->_conn->fetchAllAssociative($columnConstraintSql) as $constraint) {
                     $this->_conn->exec(
                         sprintf(
                             'ALTER TABLE %s DROP CONSTRAINT %s',
@@ -338,7 +338,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
         assert($platform instanceof SQLServer2012Platform);
         $sql = $platform->getListTableMetadataSQL($tableName);
 
-        $tableOptions = $this->_conn->fetchAssoc($sql);
+        $tableOptions = $this->_conn->fetchAssociative($sql);
 
         if ($tableOptions !== false) {
             $table->addOption('comment', $tableOptions['table_comment']);

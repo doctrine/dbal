@@ -93,7 +93,7 @@ abstract class AbstractSchemaManager
     {
         $sql = $this->_platform->getListDatabasesSQL();
 
-        $databases = $this->_conn->fetchAll($sql);
+        $databases = $this->_conn->fetchAllAssociative($sql);
 
         return $this->_getPortableDatabasesList($databases);
     }
@@ -107,7 +107,7 @@ abstract class AbstractSchemaManager
     {
         $sql = $this->_platform->getListNamespacesSQL();
 
-        $namespaces = $this->_conn->fetchAll($sql);
+        $namespaces = $this->_conn->fetchAllAssociative($sql);
 
         return $this->getPortableNamespacesList($namespaces);
     }
@@ -126,7 +126,7 @@ abstract class AbstractSchemaManager
 
         $sql = $this->_platform->getListSequencesSQL($database);
 
-        $sequences = $this->_conn->fetchAll($sql);
+        $sequences = $this->_conn->fetchAllAssociative($sql);
 
         return $this->filterAssetNames($this->_getPortableSequencesList($sequences));
     }
@@ -152,7 +152,7 @@ abstract class AbstractSchemaManager
 
         $sql = $this->_platform->getListTableColumnsSQL($table, $database);
 
-        $tableColumns = $this->_conn->fetchAll($sql);
+        $tableColumns = $this->_conn->fetchAllAssociative($sql);
 
         return $this->_getPortableTableColumnList($table, $database, $tableColumns);
     }
@@ -168,7 +168,7 @@ abstract class AbstractSchemaManager
     {
         $sql = $this->_platform->getListTableIndexesSQL($table, $this->_conn->getDatabase());
 
-        $tableIndexes = $this->_conn->fetchAll($sql);
+        $tableIndexes = $this->_conn->fetchAllAssociative($sql);
 
         return $this->_getPortableTableIndexesList($tableIndexes, $table);
     }
@@ -199,7 +199,7 @@ abstract class AbstractSchemaManager
     {
         $sql = $this->_platform->getListTablesSQL();
 
-        $tables     = $this->_conn->fetchAll($sql);
+        $tables     = $this->_conn->fetchAllAssociative($sql);
         $tableNames = $this->_getPortableTablesList($tables);
 
         return $this->filterAssetNames($tableNames);
@@ -267,7 +267,7 @@ abstract class AbstractSchemaManager
         );
 
         $sql   = $this->_platform->getListViewsSQL($database);
-        $views = $this->_conn->fetchAll($sql);
+        $views = $this->_conn->fetchAllAssociative($sql);
 
         return $this->_getPortableViewsList($views);
     }
@@ -284,7 +284,7 @@ abstract class AbstractSchemaManager
         }
 
         $sql              = $this->_platform->getListTableForeignKeysSQL($table, $database);
-        $tableForeignKeys = $this->_conn->fetchAll($sql);
+        $tableForeignKeys = $this->_conn->fetchAllAssociative($sql);
 
         return $this->_getPortableTableForeignKeysList($tableForeignKeys);
     }
@@ -553,7 +553,7 @@ abstract class AbstractSchemaManager
     /**
      * Converts a list of namespace names from the native DBMS data definition to a portable Doctrine definition.
      *
-     * @param array<int, array<int, mixed>> $namespaces The list of namespace names in the native DBMS data definition.
+     * @param array<int, array<string, mixed>> $namespaces The list of namespace names in the native DBMS data definition.
      *
      * @return array<int, string>
      */
@@ -581,7 +581,7 @@ abstract class AbstractSchemaManager
     /**
      * Converts a namespace definition from the native DBMS data definition to a portable Doctrine definition.
      *
-     * @param array<string|int, mixed> $namespace The native DBMS namespace definition.
+     * @param array<string, mixed> $namespace The native DBMS namespace definition.
      */
     protected function getPortableNamespaceDefinition(array $namespace) : string
     {

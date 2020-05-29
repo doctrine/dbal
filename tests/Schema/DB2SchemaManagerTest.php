@@ -33,7 +33,7 @@ final class DB2SchemaManagerTest extends TestCase
         $platform     = $this->createMock(DB2Platform::class);
         $this->conn   = $this
             ->getMockBuilder(Connection::class)
-            ->onlyMethods(['fetchAll'])
+            ->onlyMethods(['fetchAllAssociative'])
             ->setConstructorArgs([['platform' => $platform], $driverMock, new Configuration(), $eventManager])
             ->getMock();
 
@@ -50,7 +50,7 @@ final class DB2SchemaManagerTest extends TestCase
         $this->conn->getConfiguration()->setSchemaAssetsFilter(static function (string $name) : bool {
             return preg_match('/^(?!T_)/', $name) === 1;
         });
-        $this->conn->expects(self::once())->method('fetchAll')->will(self::returnValue([
+        $this->conn->expects(self::once())->method('fetchAllAssociative')->will(self::returnValue([
             ['name' => 'FOO'],
             ['name' => 'T_FOO'],
             ['name' => 'BAR'],
@@ -73,7 +73,7 @@ final class DB2SchemaManagerTest extends TestCase
             return in_array($assetName, $accepted, true);
         });
 
-        $this->conn->expects(self::once())->method('fetchAll')->will(self::returnValue([
+        $this->conn->expects(self::once())->method('fetchAllAssociative')->will(self::returnValue([
             ['name' => 'FOO'],
             ['name' => 'T_FOO'],
             ['name' => 'BAR'],

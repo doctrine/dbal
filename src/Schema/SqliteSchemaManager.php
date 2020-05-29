@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\DriverManager;
-use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
 use Doctrine\DBAL\Types\Type;
@@ -121,7 +120,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
         }
 
         $sql              = $this->_platform->getListTableForeignKeysSQL($table, $database);
-        $tableForeignKeys = $this->_conn->fetchAll($sql);
+        $tableForeignKeys = $this->_conn->fetchAllAssociative($sql);
 
         if (! empty($tableForeignKeys)) {
             $createSql = $this->getCreateTableSQL($table);
@@ -175,11 +174,10 @@ class SqliteSchemaManager extends AbstractSchemaManager
         $indexBuffer = [];
 
         // fetch primary
-        $stmt       = $this->_conn->executeQuery(sprintf(
+        $indexArray = $this->_conn->fetchAllAssociative(sprintf(
             'PRAGMA TABLE_INFO (%s)',
             $this->_conn->quote($tableName)
         ));
-        $indexArray = $stmt->fetchAll(FetchMode::ASSOCIATIVE);
 
         usort($indexArray, static function ($a, $b) {
             if ($a['pk'] === $b['pk']) {
@@ -214,11 +212,10 @@ class SqliteSchemaManager extends AbstractSchemaManager
             $idx['primary']    = false;
             $idx['non_unique'] = ! $tableIndex['unique'];
 
-                $stmt       = $this->_conn->executeQuery(sprintf(
-                    'PRAGMA INDEX_INFO (%s)',
-                    $this->_conn->quote($keyName)
-                ));
-                $indexArray = $stmt->fetchAll(FetchMode::ASSOCIATIVE);
+            $indexArray = $this->_conn->fetchAllAssociative(sprintf(
+                'PRAGMA INDEX_INFO (%s)',
+                $this->_conn->quote($keyName)
+            ));
 
             foreach ($indexArray as $indexColumnRow) {
                 $idx['column_name'] = $indexColumnRow['name'];
@@ -481,7 +478,7 @@ CREATE\sTABLE # Match "CREATE TABLE"
 
     private function getCreateTableSQL(string $table) : string
     {
-        $sql = $this->_conn->fetchColumn(
+        $sql = $this->_conn->fetchOne(
             <<<'SQL'
 SELECT sql
   FROM (

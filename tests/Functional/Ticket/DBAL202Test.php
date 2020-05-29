@@ -38,7 +38,7 @@ class DBAL202Test extends FunctionalTestCase
         $stmt->execute();
         $this->connection->rollBack();
 
-        self::assertEquals(0, $this->connection->query('SELECT COUNT(1) FROM DBAL202')->fetchColumn());
+        self::assertEquals(0, $this->connection->query('SELECT COUNT(1) FROM DBAL202')->fetchOne());
     }
 
     public function testStatementCommit() : void
@@ -48,6 +48,6 @@ class DBAL202Test extends FunctionalTestCase
         $stmt->execute();
         $this->connection->commit();
 
-        self::assertEquals(1, $this->connection->query('SELECT COUNT(1) FROM DBAL202')->fetchColumn());
+        self::assertEquals(1, $this->connection->query('SELECT COUNT(1) FROM DBAL202')->fetchOne());
     }
 }

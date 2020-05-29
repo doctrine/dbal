@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -215,7 +214,7 @@ class NamedParametersTest extends FunctionalTestCase
     public function testTicket(string $query, array $params, array $types, array $expected) : void
     {
         $stmt   = $this->connection->executeQuery($query, $params, $types);
-        $result = $stmt->fetchAll(FetchMode::ASSOCIATIVE);
+        $result = $stmt->fetchAllAssociative();
 
         foreach ($result as $k => $v) {
             $result[$k] = array_change_key_case($v, CASE_LOWER);

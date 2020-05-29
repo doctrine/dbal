@@ -99,28 +99,20 @@ class Connection extends \Doctrine\DBAL\Connection
         array $types = [],
         ?QueryCacheProfile $qcp = null
     ) : ResultStatement {
-        $stmt = new Statement(parent::executeQuery($query, $params, $types, $qcp), $this);
-        $stmt->setFetchMode($this->defaultFetchMode);
-
-        return $stmt;
+        return new Statement(parent::executeQuery($query, $params, $types, $qcp), $this);
     }
 
     public function prepare(string $sql) : DriverStatement
     {
-        $stmt = new Statement(parent::prepare($sql), $this);
-        $stmt->setFetchMode($this->defaultFetchMode);
-
-        return $stmt;
+        return new Statement(parent::prepare($sql), $this);
     }
 
     public function query(string $sql) : ResultStatement
     {
-        $connection = $this->getWrappedConnection();
-
-        $stmt = $connection->query($sql);
-        $stmt = new Statement($stmt, $this);
-        $stmt->setFetchMode($this->defaultFetchMode);
-
-        return $stmt;
+        return new Statement(
+            $this->getWrappedConnection()
+                ->query($sql),
+            $this
+        );
     }
 }

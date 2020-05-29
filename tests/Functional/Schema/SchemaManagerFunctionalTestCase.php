@@ -1236,7 +1236,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         assert($query instanceof Statement);
 
         $query->execute();
-        $lastUsedIdBeforeDelete = (int) $query->fetchColumn();
+        $lastUsedIdBeforeDelete = (int) $query->fetchOne();
 
         $this->connection->query('DELETE FROM test_pk_auto_increment');
 
@@ -1246,7 +1246,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         assert($query instanceof Statement);
 
         $query->execute();
-        $lastUsedIdAfterDelete = (int) $query->fetchColumn();
+        $lastUsedIdAfterDelete = (int) $query->fetchOne();
 
         self::assertGreaterThan($lastUsedIdBeforeDelete, $lastUsedIdAfterDelete);
     }

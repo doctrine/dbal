@@ -31,6 +31,7 @@ use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Types\Type;
 use Exception;
 use Throwable;
+use Traversable;
 use function array_key_exists;
 use function assert;
 use function count;
@@ -148,9 +149,6 @@ class Connection implements DriverConnection
      */
     private $isRollbackOnly = false;
 
-    /** @var int */
-    protected $defaultFetchMode = FetchMode::ASSOCIATIVE;
-
     /**
      * Initializes a new instance of the Connection class.
      *
@@ -218,7 +216,7 @@ class Connection implements DriverConnection
     {
         $platform = $this->getDatabasePlatform();
         $query    = $platform->getDummySelectSQL($platform->getCurrentDatabaseExpression());
-        $database = $this->query($query)->fetchColumn();
+        $database = $this->query($query)->fetchOne();
 
         assert(is_string($database) || $database === null);
 
@@ -447,14 +445,6 @@ class Connection implements DriverConnection
     }
 
     /**
-     * Sets the fetch mode.
-     */
-    public function setFetchMode(int $fetchMode) : void
-    {
-        $this->defaultFetchMode = $fetchMode;
-    }
-
-    /**
      * Prepares and executes an SQL query and returns the first row of the result
      * as an associative array.
      *
@@ -466,9 +456,13 @@ class Connection implements DriverConnection
      *
      * @throws DBALException
      */
-    public function fetchAssoc(string $query, array $params = [], array $types = [])
+    public function fetchAssociative(string $query, array $params = [], array $types = [])
     {
-        return $this->executeQuery($query, $params, $types)->fetch(FetchMode::ASSOCIATIVE);
+        try {
+            return $this->executeQuery($query, $params, $types)->fetchAssociative();
+        } catch (Throwable $e) {
+            throw DBALException::driverExceptionDuringQuery($this->_driver, $e, $query);
+        }
     }
 
     /**
@@ -483,9 +477,13 @@ class Connection implements DriverConnection
      *
      * @throws DBALException
      */
-    public function fetchArray(string $query, array $params = [], array $types = [])
+    public function fetchNumeric(string $query, array $params = [], array $types = [])
     {
-        return $this->executeQuery($query, $params, $types)->fetch(FetchMode::NUMERIC);
+        try {
+            return $this->executeQuery($query, $params, $types)->fetchNumeric();
+        } catch (Throwable $e) {
+            throw DBALException::driverExceptionDuringQuery($this->_driver, $e, $query);
+        }
     }
 
     /**
@@ -500,9 +498,13 @@ class Connection implements DriverConnection
      *
      * @throws DBALException
      */
-    public function fetchColumn(string $query, array $params = [], array $types = [])
+    public function fetchOne(string $query, array $params = [], array $types = [])
     {
-        return $this->executeQuery($query, $params, $types)->fetchColumn();
+        try {
+            return $this->executeQuery($query, $params, $types)->fetchOne();
+        } catch (Throwable $e) {
+            throw DBALException::driverExceptionDuringQuery($this->_driver, $e, $query);
+        }
     }
 
     /**
@@ -737,17 +739,135 @@ class Connection implements DriverConnection
     }
 
     /**
-     * Prepares and executes an SQL query and returns the result as an associative array.
+     * Prepares and executes an SQL query and returns the result as an array of numeric arrays.
      *
      * @param string                                           $query  The SQL query.
      * @param array<int, mixed>|array<string, mixed>           $params The query parameters.
      * @param array<int, int|string>|array<string, int|string> $types  The query parameter types.
      *
-     * @return array<int, mixed>
+     * @return array<int,array<int,mixed>>
+     *
+     * @throws DBALException
      */
-    public function fetchAll(string $query, array $params = [], array $types = []) : array
+    public function fetchAllNumeric(string $query, array $params = [], array $types = []) : array
     {
-        return $this->executeQuery($query, $params, $types)->fetchAll();
+        try {
+            return $this->executeQuery($query, $params, $types)->fetchAllNumeric();
+        } catch (Throwable $e) {
+            throw DBALException::driverExceptionDuringQuery($this->_driver, $e, $query);
+        }
+    }
+
+    /**
+     * Prepares and executes an SQL query and returns the result as an array of associative arrays.
+     *
+     * @param string                                           $query  The SQL query.
+     * @param array<int, mixed>|array<string, mixed>           $params The query parameters.
+     * @param array<int, int|string>|array<string, int|string> $types  The query parameter types.
+     *
+     * @return array<int,array<string,mixed>>
+     *
+     * @throws DBALException
+     */
+    public function fetchAllAssociative(string $query, array $params = [], array $types = []) : array
+    {
+        try {
+            return $this->executeQuery($query, $params, $types)->fetchAllAssociative();
+        } catch (Throwable $e) {
+            throw DBALException::driverExceptionDuringQuery($this->_driver, $e, $query);
+        }
+    }
+
+    /**
+     * Prepares and executes an SQL query and returns the result as an array of the first column values.
+     *
+     * @param string                                           $query  The SQL query.
+     * @param array<int, mixed>|array<string, mixed>           $params The query parameters.
+     * @param array<int, int|string>|array<string, int|string> $types  The query parameter types.
+     *
+     * @return array<int,mixed>
+     *
+     * @throws DBALException
+     */
+    public function fetchColumn(string $query, array $params = [], array $types = []) : array
+    {
+        try {
+            return $this->executeQuery($query, $params, $types)->fetchColumn();
+        } catch (Throwable $e) {
+            throw DBALException::driverExceptionDuringQuery($this->_driver, $e, $query);
+        }
+    }
+
+    /**
+     * Prepares and executes an SQL query and returns the result as an iterator over rows represented as numeric arrays.
+     *
+     * @param string                                           $query  The SQL query.
+     * @param array<int, mixed>|array<string, mixed>           $params The query parameters.
+     * @param array<int, int|string>|array<string, int|string> $types  The query parameter types.
+     *
+     * @return Traversable<int,array<int,mixed>>
+     *
+     * @throws DBALException
+     */
+    public function iterateNumeric(string $query, array $params = [], array $types = []) : Traversable
+    {
+        try {
+            $stmt = $this->executeQuery($query, $params, $types);
+
+            while (($row = $stmt->fetchNumeric()) !== false) {
+                yield $row;
+            }
+        } catch (Throwable $e) {
+            throw DBALException::driverExceptionDuringQuery($this->_driver, $e, $query);
+        }
+    }
+
+    /**
+     * Prepares and executes an SQL query and returns the result as an iterator over rows represented as associative arrays.
+     *
+     * @param string                                           $query  The SQL query.
+     * @param array<int, mixed>|array<string, mixed>           $params The query parameters.
+     * @param array<int, int|string>|array<string, int|string> $types  The query parameter types.
+     *
+     * @return Traversable<int,array<string,mixed>>
+     *
+     * @throws DBALException
+     */
+    public function iterateAssociative(string $query, array $params = [], array $types = []) : Traversable
+    {
+        try {
+            $stmt = $this->executeQuery($query, $params, $types);
+
+            while (($row = $stmt->fetchAssociative()) !== false) {
+                yield $row;
+            }
+        } catch (Throwable $e) {
+            throw DBALException::driverExceptionDuringQuery($this->_driver, $e, $query);
+        }
+    }
+
+    /**
+     * Prepares and executes an SQL query and returns the result as an iterator over the first column values.
+     *
+     * @param string                                           $query  The SQL query.
+     * @param array<int, mixed>|array<string, mixed>           $params The query parameters.
+     * @param array<int, int|string>|array<string, int|string> $types  The query parameter types.
+     *
+     * @return Traversable<int,mixed>
+     *
+     * @throws DBALException
+     */
+    public function iterateColumn(string $query, array $params = [], array $types = []) : Traversable
+    {
+        try {
+            $stmt = $this->executeQuery($query, $params, $types);
+
+            while (($value = $stmt->fetchOne()) !== false) {
+                yield $value;
+            }
+        } catch (Throwable $e) {
+            throw DBALException::driverExceptionDuringQuery($this->_driver, $e, $query);
+        }
     }
 
     /**
@@ -760,14 +880,10 @@ class Connection implements DriverConnection
     public function prepare(string $sql) : DriverStatement
     {
         try {
-            $stmt = new Statement($sql, $this);
+            return new Statement($sql, $this);
         } catch (Throwable $ex) {
             throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $sql);
         }
-
-        $stmt->setFetchMode($this->defaultFetchMode);
-
-        return $stmt;
     }
 
     /**
@@ -818,8 +934,6 @@ class Connection implements DriverConnection
             throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $query, $this->resolveParams($params, $types));
         }
 
-        $stmt->setFetchMode($this->defaultFetchMode);
-
         $logger->stopQuery();
 
         return $stmt;
@@ -864,8 +978,6 @@ class Connection implements DriverConnection
             $stmt = new ResultCacheStatement($this->executeQuery($query, $params, $types), $resultCache, $cacheKey, $realKey, $qcp->getLifetime());
         }
 
-        $stmt->setFetchMode($this->defaultFetchMode);
-
         return $stmt;
     }
 
@@ -881,8 +993,6 @@ class Connection implements DriverConnection
         } catch (Throwable $ex) {
             throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $sql);
         }
-
-        $statement->setFetchMode($this->defaultFetchMode);
 
         $logger->stopQuery();
 

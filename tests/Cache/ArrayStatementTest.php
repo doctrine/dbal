@@ -5,11 +5,8 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Cache;
 
 use Doctrine\DBAL\Cache\ArrayStatement;
-use Doctrine\DBAL\FetchMode;
-use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use function array_values;
-use function iterator_to_array;
 
 class ArrayStatementTest extends TestCase
 {
@@ -50,79 +47,33 @@ class ArrayStatementTest extends TestCase
         self::assertSame(2, $statement->rowCount());
     }
 
-    public function testSetFetchMode() : void
+    public function testFetchAssociative() : void
     {
         $statement = $this->createTestArrayStatement();
 
-        $statement->setFetchMode(FetchMode::ASSOCIATIVE);
-
-        self::assertSame($this->users[0], $statement->fetch());
+        self::assertSame($this->users[0], $statement->fetchAssociative());
     }
 
-    public function testGetIterator() : void
+    public function testFetchNumeric() : void
     {
         $statement = $this->createTestArrayStatement();
-        $statement->setFetchMode(FetchMode::ASSOCIATIVE);
 
-        self::assertSame($this->users, iterator_to_array($statement->getIterator()));
+        self::assertSame(array_values($this->users[0]), $statement->fetchNumeric());
     }
 
-    public function testFetchModeAssociative() : void
+    public function testFetchOne() : void
     {
         $statement = $this->createTestArrayStatement();
 
-        self::assertSame($this->users[0], $statement->fetch(FetchMode::ASSOCIATIVE));
-    }
-
-    public function testFetchModeNumeric() : void
-    {
-        $statement = $this->createTestArrayStatement();
-
-        self::assertSame(array_values($this->users[0]), $statement->fetch(FetchMode::NUMERIC));
-    }
-
-    public function testFetchModeMixed() : void
-    {
-        $statement = $this->createTestArrayStatement();
-
-        self::assertSame([
-            'username' => 'jwage',
-            'active' => true,
-            0 => 'jwage',
-            1 => true,
-        ], $statement->fetch(FetchMode::MIXED));
-    }
-
-    public function testFetchModeColumn() : void
-    {
-        $statement = $this->createTestArrayStatement();
-
-        self::assertSame('jwage', $statement->fetch(FetchMode::COLUMN));
-    }
-
-    public function testFetchThrowsInvalidArgumentException() : void
-    {
-        $statement = $this->createTestArrayStatement();
-
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Invalid fetch mode given for fetching result, 9999 given.');
-
-        $statement->fetch(9999);
+        self::assertSame('jwage', $statement->fetchOne());
+        self::assertSame('romanb', $statement->fetchOne());
     }
 
     public function testFetchAll() : void
     {
         $statement = $this->createTestArrayStatement();
 
-        self::assertSame($this->users, $statement->fetchAll(FetchMode::ASSOCIATIVE));
-    }
-
-    public function testFetchColumn() : void
-    {
-        $statement = $this->createTestArrayStatement();
-
-        self::assertSame('jwage', $statement->fetchColumn());
-        self::assertSame('romanb', $statement->fetchColumn());
+        self::assertSame($this->users, $statement->fetchAllAssociative());
     }
 
     private function createTestArrayStatement() : ArrayStatement

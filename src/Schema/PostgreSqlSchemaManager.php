@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Exception\DriverException;
-use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
@@ -42,9 +41,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
      */
     public function getSchemaNames() : array
     {
-        $statement = $this->_conn->executeQuery("SELECT nspname FROM pg_namespace WHERE nspname !~ '^pg_.*' AND nspname != 'information_schema'");
-
-        return $statement->fetchAll(FetchMode::COLUMN);
+        return $this->_conn->fetchColumn("SELECT nspname FROM pg_namespace WHERE nspname !~ '^pg_.*' AND nspname != 'information_schema'");
     }
 
     /**
@@ -57,7 +54,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     public function getSchemaSearchPaths() : array
     {
         $params = $this->_conn->getParams();
-        $schema = explode(',', $this->_conn->fetchColumn('SHOW search_path'));
+        $schema = explode(',', $this->_conn->fetchOne('SHOW search_path'));
 
         if (isset($params['user'])) {
             $schema = str_replace('"$user"', $params['user'], $schema);
@@ -221,8 +218,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
                 implode(' ,', $colNumbers)
             );
 
-            $stmt         = $this->_conn->executeQuery($columnNameSql);
-            $indexColumns = $stmt->fetchAll();
+            $indexColumns = $this->_conn->fetchAllAssociative($columnNameSql);
 
             // required for getting the order of the columns right.
             foreach ($colNumbers as $colNum) {
@@ -300,7 +296,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
 
         if (! isset($sequence['increment_by'], $sequence['min_value'])) {
             /** @var string[] $data */
-            $data = $this->_conn->fetchAssoc('SELECT min_value, increment_by FROM ' . $this->_platform->quoteIdentifier($sequenceName));
+            $data = $this->_conn->fetchAssociative('SELECT min_value, increment_by FROM ' . $this->_platform->quoteIdentifier($sequenceName));
 
             $sequence += $data;
         }
@@ -518,7 +514,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         assert($platform instanceof PostgreSQL94Platform);
         $sql = $platform->getListTableMetadataSQL($tableName);
 
-        $tableOptions = $this->_conn->fetchAssoc($sql);
+        $tableOptions = $this->_conn->fetchAssociative($sql);
 
         if ($tableOptions !== false) {
             $table->addOption('comment', $tableOptions['table_comment']);

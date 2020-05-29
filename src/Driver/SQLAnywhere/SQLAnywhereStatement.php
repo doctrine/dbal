@@ -4,17 +4,15 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver\SQLAnywhere;
 
+use Doctrine\DBAL\Driver\DriverException;
+use Doctrine\DBAL\Driver\FetchUtils;
 use Doctrine\DBAL\Driver\Statement;
-use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\Exception\GetVariableType;
-use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
-use IteratorAggregate;
 use function array_key_exists;
 use function assert;
 use function is_int;
 use function is_resource;
-use function sasql_fetch_array;
 use function sasql_fetch_assoc;
 use function sasql_fetch_row;
 use function sasql_prepare;
@@ -25,18 +23,14 @@ use function sasql_stmt_field_count;
 use function sasql_stmt_reset;
 use function sasql_stmt_result_metadata;
 use function sprintf;
-use const SASQL_BOTH;
 
 /**
  * SAP SQL Anywhere implementation of the Statement interface.
  */
-final class SQLAnywhereStatement implements IteratorAggregate, Statement
+final class SQLAnywhereStatement implements Statement
 {
     /** @var resource The connection resource. */
     private $conn;
-
-    /** @var int Default fetch mode to use. */
-    private $defaultFetchMode = FetchMode::MIXED;
 
     /** @var resource|null The result set resource to fetch. */
     private $result;
@@ -157,85 +151,69 @@ final class SQLAnywhereStatement implements IteratorAggregate, Statement
      *
      * @throws SQLAnywhereException
      */
-    public function fetch(?int $fetchMode = null)
+    public function fetchNumeric()
     {
         if (! is_resource($this->result)) {
             return false;
         }
 
-        $fetchMode = $fetchMode ?? $this->defaultFetchMode;
-
-        switch ($fetchMode) {
-            case FetchMode::COLUMN:
-                return $this->fetchColumn();
-
-            case FetchMode::ASSOCIATIVE:
-                return sasql_fetch_assoc($this->result);
-
-            case FetchMode::MIXED:
-                return sasql_fetch_array($this->result, SASQL_BOTH);
-
-            case FetchMode::NUMERIC:
-                return sasql_fetch_row($this->result);
-
-            default:
-                throw new SQLAnywhereException(sprintf('Fetch mode is not supported %d.', $fetchMode));
-        }
+        return sasql_fetch_row($this->result);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function fetchAll(?int $fetchMode = null) : array
+    public function fetchAssociative()
     {
-        $rows = [];
-
-        switch ($fetchMode) {
-            case FetchMode::COLUMN:
-                while (($row = $this->fetchColumn()) !== false) {
-                    $rows[] = $row;
-                }
-
-                break;
-
-            default:
-                while (($row = $this->fetch($fetchMode)) !== false) {
-                    $rows[] = $row;
-                }
-        }
-
-        return $rows;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchColumn()
-    {
-        $row = $this->fetch(FetchMode::NUMERIC);
-
-        if ($row === false) {
+        if (! is_resource($this->result)) {
             return false;
         }
 
-        return $row[0];
+        return sasql_fetch_assoc($this->result);
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @throws DriverException
      */
-    public function getIterator()
+    public function fetchOne()
     {
-        return new StatementIterator($this);
+        return FetchUtils::fetchOne($this);
+    }
+
+    /**
+     * @return array<int,array<int,mixed>>
+     *
+     * @throws DriverException
+     */
+    public function fetchAllNumeric() : array
+    {
+        return FetchUtils::fetchAllNumeric($this);
+    }
+
+    /**
+     * @return array<int,array<string,mixed>>
+     *
+     * @throws DriverException
+     */
+    public function fetchAllAssociative() : array
+    {
+        return FetchUtils::fetchAllAssociative($this);
+    }
+
+    /**
+     * @return array<int,mixed>
+     *
+     * @throws DriverException
+     */
+    public function fetchColumn() : array
+    {
+        return FetchUtils::fetchColumn($this);
     }
 
     public function rowCount() : int
     {
         return sasql_stmt_affected_rows($this->stmt);
-    }
-
-    public function setFetchMode(int $fetchMode) : void
-    {
-        $this->defaultFetchMode = $fetchMode;
     }
 }

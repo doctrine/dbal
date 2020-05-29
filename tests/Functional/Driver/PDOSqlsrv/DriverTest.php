@@ -59,7 +59,7 @@ class DriverTest extends AbstractDriverTest
     public function testConnectionOptions() : void
     {
         $connection = $this->getConnection(['APP' => 'APP_NAME']);
-        $result     = $connection->query('SELECT APP_NAME()')->fetchColumn();
+        $result     = $connection->query('SELECT APP_NAME()')->fetchOne();
 
         self::assertSame('APP_NAME', $result);
     }

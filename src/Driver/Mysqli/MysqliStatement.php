@@ -5,17 +5,14 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver\Mysqli;
 
 use Doctrine\DBAL\Driver\DriverException;
+use Doctrine\DBAL\Driver\FetchUtils;
 use Doctrine\DBAL\Driver\Mysqli\Exception\ConnectionError;
 use Doctrine\DBAL\Driver\Mysqli\Exception\FailedReadingStreamOffset;
 use Doctrine\DBAL\Driver\Mysqli\Exception\StatementError;
-use Doctrine\DBAL\Driver\Mysqli\Exception\UnknownFetchMode;
 use Doctrine\DBAL\Driver\Mysqli\Exception\UnknownType;
 use Doctrine\DBAL\Driver\Statement;
-use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
-use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
-use IteratorAggregate;
 use mysqli;
 use mysqli_stmt;
 use stdClass;
@@ -32,7 +29,7 @@ use function is_int;
 use function is_resource;
 use function str_repeat;
 
-final class MysqliStatement implements IteratorAggregate, Statement
+final class MysqliStatement implements Statement
 {
     /** @var string[] */
     private static $paramTypeMap = [
@@ -88,9 +85,6 @@ final class MysqliStatement implements IteratorAggregate, Statement
      * @var mixed[]
      */
     private $values = [];
-
-    /** @var int */
-    private $defaultFetchMode = FetchMode::MIXED;
 
     /**
      * Indicates whether the statement is in the state when fetching results is possible
@@ -326,18 +320,12 @@ final class MysqliStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetch(?int $fetchMode = null)
+    public function fetchNumeric()
     {
-        // do not try fetching from the statement if it's not expected to contain result
+        // do not try fetching from the statement if it's not expected to contain the result
         // in order to prevent exceptional situation
         if (! $this->result) {
             return false;
-        }
-
-        $fetchMode = $fetchMode ?? $this->defaultFetchMode;
-
-        if ($fetchMode === FetchMode::COLUMN) {
-            return $this->fetchColumn();
         }
 
         $values = $this->_fetch();
@@ -350,59 +338,56 @@ final class MysqliStatement implements IteratorAggregate, Statement
             throw StatementError::new($this->stmt);
         }
 
-        if ($fetchMode === FetchMode::NUMERIC) {
-            return $values;
-        }
-
-        $assoc = array_combine($this->columnNames, $values);
-        assert(is_array($assoc));
-
-        switch ($fetchMode) {
-            case FetchMode::ASSOCIATIVE:
-                return $assoc;
-
-            case FetchMode::MIXED:
-                return $assoc + $values;
-
-            default:
-                throw UnknownFetchMode::new($fetchMode);
-        }
+        return $values;
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
-    public function fetchAll(?int $fetchMode = null) : array
+    public function fetchAssociative()
     {
-        $fetchMode = $fetchMode ?? $this->defaultFetchMode;
+        $values = $this->fetchNumeric();
 
-        $rows = [];
-
-        if ($fetchMode === FetchMode::COLUMN) {
-            while (($row = $this->fetchColumn()) !== false) {
-                $rows[] = $row;
-            }
-        } else {
-            while (($row = $this->fetch($fetchMode)) !== false) {
-                $rows[] = $row;
-            }
-        }
-
-        return $rows;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchColumn()
-    {
-        $row = $this->fetch(FetchMode::NUMERIC);
-
-        if ($row === false) {
+        if ($values === false) {
             return false;
         }
 
-        return $row[0];
+        $row = array_combine($this->columnNames, $values);
+        assert(is_array($row));
+
+        return $row;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchOne()
+    {
+        return FetchUtils::fetchOne($this);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchAllNumeric() : array
+    {
+        return FetchUtils::fetchAllNumeric($this);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchAllAssociative() : array
+    {
+        return FetchUtils::fetchAllAssociative($this);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchColumn() : array
+    {
+        return FetchUtils::fetchColumn($this);
     }
 
     public function closeCursor() : void
@@ -423,18 +408,5 @@ final class MysqliStatement implements IteratorAggregate, Statement
     public function columnCount() : int
     {
         return $this->stmt->field_count;
-    }
-
-    public function setFetchMode(int $fetchMode) : void
-    {
-        $this->defaultFetchMode = $fetchMode;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getIterator()
-    {
-        return new StatementIterator($this);
     }
 }
