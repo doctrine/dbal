@@ -263,7 +263,7 @@ class Statement implements IteratorAggregate, DriverStatement, ForwardCompatible
     /**
      * {@inheritdoc}
      *
-     * @deprecated Use fetchAllNumeric(), fetchAllAssociative() or fetchColumn() instead.
+     * @deprecated Use fetchAllNumeric(), fetchAllAssociative() or fetchFirstColumn() instead.
      */
     public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
     {
@@ -365,6 +365,24 @@ class Statement implements IteratorAggregate, DriverStatement, ForwardCompatible
             }
 
             return $this->stmt->fetchAll(FetchMode::ASSOCIATIVE);
+        } catch (DriverException $e) {
+            throw DBALException::driverException($this->conn->getDriver(), $e);
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @throws DBALException
+     */
+    public function fetchFirstColumn() : array
+    {
+        try {
+            if ($this->stmt instanceof ForwardCompatibleResultStatement) {
+                return $this->stmt->fetchFirstColumn();
+            }
+
+            return $this->stmt->fetchAll(FetchMode::COLUMN);
         } catch (DriverException $e) {
             throw DBALException::driverException($this->conn->getDriver(), $e);
         }

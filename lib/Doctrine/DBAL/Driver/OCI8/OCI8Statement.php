@@ -468,7 +468,7 @@ class OCI8Statement implements IteratorAggregate, Statement, ForwardCompatibleRe
     /**
      * {@inheritdoc}
      *
-     * @deprecated Use fetchAllNumeric(), fetchAllAssociative() or fetchColumn() instead.
+     * @deprecated Use fetchAllNumeric(), fetchAllAssociative() or fetchFirstColumn() instead.
      */
     public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
     {
@@ -589,6 +589,14 @@ class OCI8Statement implements IteratorAggregate, Statement, ForwardCompatibleRe
     public function fetchAllAssociative() : array
     {
         return $this->doFetchAll(OCI_ASSOC, OCI_FETCHSTATEMENT_BY_ROW);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchFirstColumn() : array
+    {
+        return $this->doFetchAll(OCI_NUM, OCI_FETCHSTATEMENT_BY_COLUMN)[0];
     }
 
     /**

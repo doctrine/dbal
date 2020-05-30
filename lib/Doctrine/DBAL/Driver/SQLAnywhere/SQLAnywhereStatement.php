@@ -258,7 +258,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement, ForwardCompa
     /**
      * {@inheritdoc}
      *
-     * @deprecated Use fetchAllNumeric(), fetchAllAssociative() or fetchColumn() instead.
+     * @deprecated Use fetchAllNumeric(), fetchAllAssociative() or fetchFirstColumn() instead.
      */
     public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
     {
@@ -366,6 +366,16 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement, ForwardCompa
     public function fetchAllAssociative() : array
     {
         return FetchUtils::fetchAllAssociative($this);
+    }
+
+    /**
+     * @return array<int,mixed>
+     *
+     * @throws DriverException
+     */
+    public function fetchFirstColumn() : array
+    {
+        return FetchUtils::fetchFirstColumn($this);
     }
 
     /**

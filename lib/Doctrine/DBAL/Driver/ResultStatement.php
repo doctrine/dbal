@@ -71,7 +71,7 @@ interface ResultStatement extends Traversable
     /**
      * Returns an array containing all of the result set rows.
      *
-     * @deprecated Use fetchAllNumeric(), fetchAllAssociative() or fetchColumn() instead.
+     * @deprecated Use fetchAllNumeric(), fetchAllAssociative() or fetchFirstColumn() instead.
      *
      * @param int|null     $fetchMode     Controls how the next row will be returned to the caller.
      *                                    The value must be one of the {@link \Doctrine\DBAL\FetchMode} constants,

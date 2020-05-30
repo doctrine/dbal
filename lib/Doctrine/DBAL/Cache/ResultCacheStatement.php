@@ -176,7 +176,7 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Forwar
     /**
      * {@inheritdoc}
      *
-     * @deprecated Use fetchAllNumeric(), fetchAllAssociative() or fetchColumn() instead.
+     * @deprecated Use fetchAllNumeric(), fetchAllAssociative() or fetchFirstColumn() instead.
      */
     public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
     {
@@ -275,6 +275,14 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Forwar
         $this->store($data);
 
         return $this->data;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchFirstColumn() : array
+    {
+        return FetchUtils::fetchFirstColumn($this);
     }
 
     /**

@@ -160,7 +160,7 @@ class Statement implements IteratorAggregate, DriverStatement, ForwardCompatible
     /**
      * {@inheritdoc}
      *
-     * @deprecated Use fetchAllNumeric(), fetchAllAssociative() or fetchColumn() instead.
+     * @deprecated Use fetchAllNumeric(), fetchAllAssociative() or fetchFirstColumn() instead.
      */
     public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
     {
@@ -253,6 +253,20 @@ class Statement implements IteratorAggregate, DriverStatement, ForwardCompatible
         }
 
         return $this->fixResultSet($data, true, true);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchFirstColumn() : array
+    {
+        if ($this->stmt instanceof ForwardCompatibleResultStatement) {
+            $data = $this->stmt->fetchFirstColumn();
+        } else {
+            $data = $this->stmt->fetchAll(FetchMode::COLUMN);
+        }
+
+        return $this->fixResultSet($data, true, false);
     }
 
     /**
