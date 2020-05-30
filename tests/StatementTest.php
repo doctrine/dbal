@@ -19,13 +19,13 @@ use PHPUnit\Framework\TestCase;
 
 class StatementTest extends TestCase
 {
-    /** @var Connection|MockObject */
+    /** @var Connection&MockObject */
     private $conn;
 
-    /** @var Configuration|MockObject */
+    /** @var Configuration&MockObject */
     private $configuration;
 
-    /** @var DriverStatement|MockObject */
+    /** @var DriverStatement&MockObject */
     private $driverStatement;
 
     protected function setUp() : void

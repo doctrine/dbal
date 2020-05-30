@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Platforms;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\PostgreSQL100Platform;
 use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
@@ -19,8 +21,11 @@ use function sprintf;
 
 abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCase
 {
-    /** @var PostgreSQL94Platform */
+    /** @var PostgreSQL94Platform|PostgreSQL100Platform */
     protected $platform;
+
+    /** @return PostgreSQL94Platform|PostgreSQL100Platform */
+    abstract public function createPlatform() : AbstractPlatform;
 
     public function getGenerateTableSql() : string
     {

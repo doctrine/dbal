@@ -20,7 +20,7 @@ class MySqlSchemaManagerTest extends TestCase
     /** @var AbstractSchemaManager */
     private $manager;
 
-    /** @var Connection|MockObject */
+    /** @var Connection&MockObject */
     private $conn;
 
     protected function setUp() : void

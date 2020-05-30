@@ -345,14 +345,14 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
         self::assertEquals(
             'CONSTRAINT pk PRIMARY KEY CLUSTERED (a, b)',
             $this->platform->getPrimaryKeyDeclarationSQL(
-                new Index(null, ['a', 'b'], true, true, ['clustered']),
+                new Index('', ['a', 'b'], true, true, ['clustered']),
                 'pk'
             )
         );
         self::assertEquals(
             'PRIMARY KEY (a, b)',
             $this->platform->getPrimaryKeyDeclarationSQL(
-                new Index(null, ['a', 'b'], true, true)
+                new Index('', ['a', 'b'], true, true)
             )
         );
     }

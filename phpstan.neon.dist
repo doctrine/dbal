@@ -109,6 +109,19 @@ parameters:
         -
             message: '~^Call to an undefined method Doctrine\\DBAL\\Driver::createDatabasePlatformForVersion\(\)\.$~'
             path: %currentWorkingDirectory%/tests/Driver/AbstractDriverTest.php
+
+        # Caused by phpdoc annotations intended for Psalm
+        -
+            message: '~Unable to resolve the template type T in call to method static method Doctrine\\DBAL\\DriverManager::getConnection\(\)~'
+            paths:
+                - %currentWorkingDirectory%/src/Id/TableGenerator.php
+                - %currentWorkingDirectory%/src/Schema/SqliteSchemaManager.php
+
+        -
+            message: '~Method Doctrine\\DBAL\\Driver\\PDOSqlsrv\\Connection\:\:lastInsertId\(\) should return string but returns string\|false\|null\.~'
+            paths:
+                - %currentWorkingDirectory%/src/Driver/PDOSqlsrv/Connection.php
+
 includes:
     - vendor/phpstan/phpstan-phpunit/extension.neon
     - vendor/phpstan/phpstan-phpunit/rules.neon

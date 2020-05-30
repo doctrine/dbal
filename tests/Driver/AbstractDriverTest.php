@@ -185,9 +185,7 @@ abstract class AbstractDriverTest extends TestCase
      */
     protected function getConnectionMock() : Connection
     {
-        return $this->getMockBuilder(Connection::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        return $this->createMock(Connection::class);
     }
 
     /**
@@ -199,7 +197,7 @@ abstract class AbstractDriverTest extends TestCase
     }
 
     /**
-     * @return mixed[][]
+     * @return iterable<mixed[]>
      */
     public static function exceptionConversionProvider() : iterable
     {

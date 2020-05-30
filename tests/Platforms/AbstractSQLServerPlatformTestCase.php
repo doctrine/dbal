@@ -19,6 +19,9 @@ use function assert;
 
 abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCase
 {
+    /** @var SQLServer2012Platform */
+    protected $platform;
+
     public function getGenerateTableSql() : string
     {
         return 'CREATE TABLE test (id INT IDENTITY NOT NULL, test NVARCHAR(255), PRIMARY KEY (id))';

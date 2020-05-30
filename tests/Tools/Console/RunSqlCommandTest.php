@@ -21,7 +21,7 @@ class RunSqlCommandTest extends TestCase
     /** @var RunSqlCommand */
     private $command;
 
-    /** @var Connection|MockObject */
+    /** @var Connection&MockObject */
     private $connectionMock;
 
     protected function setUp() : void
