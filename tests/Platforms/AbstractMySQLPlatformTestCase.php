@@ -62,6 +62,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         self::assertEquals('RLIKE', $this->platform->getRegexpExpression(), 'Regular expression operator is not correct');
         self::assertEquals('`', $this->platform->getIdentifierQuoteCharacter(), 'Quote character is not correct');
         self::assertEquals('CONCAT(column1, column2, column3)', $this->platform->getConcatExpression('column1', 'column2', 'column3'), 'Concatenation function is not correct');
+        self::assertEquals('GROUP_CONCAT(column1 SEPARATOR \',\')', $this->platform->getAggregateConcatExpression('column1', '\',\''), 'Aggregate concatenation function is not correct');
     }
 
     public function testGeneratesTransactionsCommands(): void
