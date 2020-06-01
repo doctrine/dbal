@@ -133,10 +133,10 @@ class DB2Platform extends AbstractPlatform
         return $autoinc;
     }
 
-	public function getAggregateConcatExpression(string $value, string $separator): string
-	{
-		return 'LISTAGG(' . $value . ', ' . $separator . ')';
-	}
+    public function getAggregateConcatExpression(string $value, string $separator): string
+    {
+        return 'LISTAGG(' . $value . ', ' . $separator . ')';
+    }
 
     public function getBitAndComparisonExpression(string $value1, string $value2): string
     {

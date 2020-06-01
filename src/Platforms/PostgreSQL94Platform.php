@@ -73,10 +73,10 @@ class PostgreSQL94Platform extends AbstractPlatform
         $this->useBooleanTrueFalseStrings = $flag;
     }
 
-	public function getAggregateConcatExpression(string $value, string $separator): string
-	{
-		return 'STRING_AGG(' . $value . ', ' . $separator . ')';
-	}
+    public function getAggregateConcatExpression(string $value, string $separator): string
+    {
+        return 'STRING_AGG(' . $value . ', ' . $separator . ')';
+    }
 
     public function getNowExpression(): string
     {

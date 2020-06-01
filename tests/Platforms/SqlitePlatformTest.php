@@ -47,7 +47,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         self::assertEquals('REGEXP', $this->platform->getRegexpExpression(), 'Regular expression operator is not correct');
         self::assertEquals('SUBSTR(column, 5)', $this->platform->getSubstringExpression('column', '5'), 'Substring expression without length is not correct');
         self::assertEquals('SUBSTR(column, 0, 5)', $this->platform->getSubstringExpression('column', '0', '5'), 'Substring expression with length is not correct');
-	    self::assertEquals('GROUP_CONCAT(column1, \',\')', $this->platform->getAggregateConcatExpression('column1', '\',\''), 'Aggregate concatenation function is not correct');
+        self::assertEquals('GROUP_CONCAT(column1, \',\')', $this->platform->getAggregateConcatExpression('column1', '\',\''), 'Aggregate concatenation function is not correct');
     }
 
     public function testGeneratesTransactionCommands(): void

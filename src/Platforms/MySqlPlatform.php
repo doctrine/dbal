@@ -66,10 +66,10 @@ class MySqlPlatform extends AbstractPlatform
         return '`';
     }
 
-	public function getAggregateConcatExpression(string $value, string $separator): string
-	{
-		return 'GROUP_CONCAT(' . $value . ' SEPARATOR ' . $separator . ')';
-	}
+    public function getAggregateConcatExpression(string $value, string $separator): string
+    {
+        return 'GROUP_CONCAT(' . $value . ' SEPARATOR ' . $separator . ')';
+    }
 
     public function getRegexpExpression(): string
     {

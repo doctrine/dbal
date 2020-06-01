@@ -34,10 +34,10 @@ use function trim;
  */
 class SqlitePlatform extends AbstractPlatform
 {
-	public function getAggregateConcatExpression(string $value, string $separator): string
-	{
-		return 'GROUP_CONCAT(' . $value . ', ' . $separator . ')';
-	}
+    public function getAggregateConcatExpression(string $value, string $separator): string
+    {
+        return 'GROUP_CONCAT(' . $value . ', ' . $separator . ')';
+    }
 
     public function getRegexpExpression(): string
     {
