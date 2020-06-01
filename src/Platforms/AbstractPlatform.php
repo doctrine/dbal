@@ -554,6 +554,14 @@ abstract class AbstractPlatform
         return 'SUM(' . $value . ')';
     }
 
+	/**
+	 * Returns the SQL snippet to get the concatenation of the values in a set with a separator.
+	 *
+	 * @param string $value SQL expression producing the value.
+	 * @param string $separator SQL expression producing the separator.
+	 */
+	abstract public function getAggregateConcatExpression(string $value, string $separator) : string;
+
     // scalar functions
 
     /**

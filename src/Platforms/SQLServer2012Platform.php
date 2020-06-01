@@ -44,6 +44,11 @@ use const PREG_OFFSET_CAPTURE;
  */
 class SQLServer2012Platform extends AbstractPlatform
 {
+	public function getAggregateConcatExpression(string $value, string $separator): string
+	{
+		return 'STRING_AGG(' . $value . ', ' . $separator . ')';
+	}
+
     public function getCurrentDateSQL(): string
     {
         return $this->getConvertExpression('date', 'GETDATE()');
