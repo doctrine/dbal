@@ -39,6 +39,12 @@ after_script:
       travis_retry coveralls -v
     fi
 
+after_success:
+  - |
+    if [ "x$COVERAGE" == "xyes" ]; then
+      bash <(curl -s https://codecov.io/bash)
+    fi
+
 jobs:
   include:
 

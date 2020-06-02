@@ -20,18 +20,22 @@ environment:
   - db: mssql
     driver: sqlsrv
     db_version: sql2008r2sp2
+    coverage: yes
     php: 7.3
   - db: mssql
     driver: sqlsrv
     db_version: sql2012sp1
+    coverage: yes
     php: 7.3
   - db: mssql
     driver: sqlsrv
     db_version: sql2017
+    coverage: no
     php: 7.3
   - db: mssql
     driver: pdo_sqlsrv
     db_version: sql2017
+    coverage: yes
     php: 7.3
 
 init:
@@ -123,8 +127,16 @@ test_script:
         $env:phpunit_config = "tests\appveyor\$($env:db).$($env:driver).appveyor.xml"
       }
 
-      vendor\bin\phpunit -c $($env:phpunit_config)
+      if ($env:coverage -eq "yes") {
+        vendor\bin\phpunit -c $($env:phpunit_config) --coverage-clover clover.xml
+      } else {
+        vendor\bin\phpunit -c $($env:phpunit_config)
+      }
 
       if ($LastExitCode -ne 0) {
         $host.SetShouldExit($LastExitCode)
       }
+
+after_test:
+  - appveyor DownloadFile https://codecov.io/bash -FileName codecov.sh
+  - bash codecov.sh -f clover.xml
