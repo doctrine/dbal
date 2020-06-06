@@ -14,6 +14,7 @@ use PDO;
 use ReflectionClass;
 use ReflectionObject;
 use stdClass;
+
 use function array_key_exists;
 use function func_get_args;
 use function func_num_args;
@@ -37,6 +38,7 @@ use function sasql_stmt_field_count;
 use function sasql_stmt_reset;
 use function sasql_stmt_result_metadata;
 use function sprintf;
+
 use const SASQL_BOTH;
 
 /**
@@ -353,7 +355,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement, ForwardCompa
      *
      * @throws DriverException
      */
-    public function fetchAllNumeric() : array
+    public function fetchAllNumeric(): array
     {
         return FetchUtils::fetchAllNumeric($this);
     }
@@ -363,7 +365,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement, ForwardCompa
      *
      * @throws DriverException
      */
-    public function fetchAllAssociative() : array
+    public function fetchAllAssociative(): array
     {
         return FetchUtils::fetchAllAssociative($this);
     }
@@ -373,7 +375,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement, ForwardCompa
      *
      * @throws DriverException
      */
-    public function fetchFirstColumn() : array
+    public function fetchFirstColumn(): array
     {
         return FetchUtils::fetchFirstColumn($this);
     }

@@ -8,19 +8,19 @@ use Doctrine\DBAL\Types\Types;
 
 class PostgreSQL94PlatformTest extends PostgreSQL92PlatformTest
 {
-    public function createPlatform() : AbstractPlatform
+    public function createPlatform(): AbstractPlatform
     {
         return new PostgreSQL94Platform();
     }
 
-    public function testReturnsJsonTypeDeclarationSQL() : void
+    public function testReturnsJsonTypeDeclarationSQL(): void
     {
         parent::testReturnsJsonTypeDeclarationSQL();
         self::assertSame('JSON', $this->platform->getJsonTypeDeclarationSQL(['jsonb' => false]));
         self::assertSame('JSONB', $this->platform->getJsonTypeDeclarationSQL(['jsonb' => true]));
     }
 
-    public function testInitializesJsonTypeMapping() : void
+    public function testInitializesJsonTypeMapping(): void
     {
         parent::testInitializesJsonTypeMapping();
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('jsonb'));

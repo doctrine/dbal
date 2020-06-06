@@ -12,7 +12,7 @@ use Doctrine\DBAL\Schema\OracleSchemaManager;
 
 class AbstractOracleDriverTest extends AbstractDriverTest
 {
-    public function testReturnsDatabaseName() : void
+    public function testReturnsDatabaseName(): void
     {
         $params = [
             'user'     => 'foo',
@@ -29,7 +29,7 @@ class AbstractOracleDriverTest extends AbstractDriverTest
         self::assertSame($params['user'], $this->driver->getDatabase($connection));
     }
 
-    public function testReturnsDatabaseNameWithConnectDescriptor() : void
+    public function testReturnsDatabaseNameWithConnectDescriptor(): void
     {
         $params = [
             'user'             => 'foo',
@@ -48,17 +48,17 @@ class AbstractOracleDriverTest extends AbstractDriverTest
         self::assertSame($params['user'], $this->driver->getDatabase($connection));
     }
 
-    protected function createDriver() : Driver
+    protected function createDriver(): Driver
     {
         return $this->getMockForAbstractClass(AbstractOracleDriver::class);
     }
 
-    protected function createPlatform() : AbstractPlatform
+    protected function createPlatform(): AbstractPlatform
     {
         return new OraclePlatform();
     }
 
-    protected function createSchemaManager(Connection $connection) : AbstractSchemaManager
+    protected function createSchemaManager(Connection $connection): AbstractSchemaManager
     {
         return new OracleSchemaManager($connection);
     }
@@ -66,7 +66,7 @@ class AbstractOracleDriverTest extends AbstractDriverTest
     /**
      * {@inheritDoc}
      */
-    protected static function getExceptionConversionData() : array
+    protected static function getExceptionConversionData(): array
     {
         return [
             self::EXCEPTION_CONNECTION => [

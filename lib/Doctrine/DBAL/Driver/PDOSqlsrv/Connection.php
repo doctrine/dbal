@@ -6,6 +6,7 @@ use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\ForwardCompatibility\Driver\ResultStatement as ForwardCompatibleResultStatement;
 use Doctrine\DBAL\ParameterType;
 use PDO;
+
 use function strpos;
 use function substr;
 

@@ -6,12 +6,14 @@ use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ForwardCompatibility\Driver\ResultStatement as ForwardCompatibleResultStatement;
 use Doctrine\DBAL\ParameterType;
 use PDO;
+
 use function array_slice;
 use function assert;
 use function func_get_args;
 use function is_array;
 use function sprintf;
 use function trigger_error;
+
 use const E_USER_DEPRECATED;
 
 /**
@@ -227,7 +229,7 @@ class PDOStatement extends \PDOStatement implements Statement, ForwardCompatible
     /**
      * {@inheritdoc}
      */
-    public function fetchAllNumeric() : array
+    public function fetchAllNumeric(): array
     {
         return $this->fetchAll(PDO::FETCH_NUM);
     }
@@ -235,7 +237,7 @@ class PDOStatement extends \PDOStatement implements Statement, ForwardCompatible
     /**
      * {@inheritdoc}
      */
-    public function fetchAllAssociative() : array
+    public function fetchAllAssociative(): array
     {
         return $this->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -243,7 +245,7 @@ class PDOStatement extends \PDOStatement implements Statement, ForwardCompatible
     /**
      * {@inheritdoc}
      */
-    public function fetchFirstColumn() : array
+    public function fetchFirstColumn(): array
     {
         return $this->fetchAll(PDO::FETCH_COLUMN);
     }
@@ -253,7 +255,7 @@ class PDOStatement extends \PDOStatement implements Statement, ForwardCompatible
      *
      * @param int $type Parameter type
      */
-    private function convertParamType(int $type) : int
+    private function convertParamType(int $type): int
     {
         if (! isset(self::PARAM_TYPE_MAP[$type])) {
             // TODO: next major: throw an exception
@@ -273,7 +275,7 @@ class PDOStatement extends \PDOStatement implements Statement, ForwardCompatible
      *
      * @param int $fetchMode Fetch mode
      */
-    private function convertFetchMode(int $fetchMode) : int
+    private function convertFetchMode(int $fetchMode): int
     {
         if (! isset(self::FETCH_MODE_MAP[$fetchMode])) {
             // TODO: next major: throw an exception

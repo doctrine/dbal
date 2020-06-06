@@ -9,7 +9,7 @@ use Throwable;
 
 class TemporaryTableTest extends DbalFunctionalTestCase
 {
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
         try {
@@ -18,7 +18,7 @@ class TemporaryTableTest extends DbalFunctionalTestCase
         }
     }
 
-    protected function tearDown() : void
+    protected function tearDown(): void
     {
         if ($this->connection) {
             try {
@@ -34,10 +34,12 @@ class TemporaryTableTest extends DbalFunctionalTestCase
     /**
      * @group DDC-1337
      */
-    public function testDropTemporaryTableNotAutoCommitTransaction() : void
+    public function testDropTemporaryTableNotAutoCommitTransaction(): void
     {
-        if ($this->connection->getDatabasePlatform()->getName() === 'sqlanywhere' ||
-            $this->connection->getDatabasePlatform()->getName() === 'oracle') {
+        if (
+            $this->connection->getDatabasePlatform()->getName() === 'sqlanywhere' ||
+            $this->connection->getDatabasePlatform()->getName() === 'oracle'
+        ) {
             $this->markTestSkipped('Test does not work on Oracle and SQL Anywhere.');
         }
 
@@ -69,10 +71,12 @@ class TemporaryTableTest extends DbalFunctionalTestCase
     /**
      * @group DDC-1337
      */
-    public function testCreateTemporaryTableNotAutoCommitTransaction() : void
+    public function testCreateTemporaryTableNotAutoCommitTransaction(): void
     {
-        if ($this->connection->getDatabasePlatform()->getName() === 'sqlanywhere' ||
-            $this->connection->getDatabasePlatform()->getName() === 'oracle') {
+        if (
+            $this->connection->getDatabasePlatform()->getName() === 'sqlanywhere' ||
+            $this->connection->getDatabasePlatform()->getName() === 'oracle'
+        ) {
             $this->markTestSkipped('Test does not work on Oracle and SQL Anywhere.');
         }
 

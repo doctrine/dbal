@@ -14,6 +14,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use InvalidArgumentException;
+
 use function array_merge;
 use function array_unique;
 use function array_values;
@@ -1335,7 +1336,7 @@ SQL
         return $matches[1] . $limitOffsetClause . ' ' . $matches[3];
     }
 
-    private function getTopClauseSQL(?int $limit, ?int $offset) : string
+    private function getTopClauseSQL(?int $limit, ?int $offset): string
     {
         if ($offset > 0) {
             return sprintf('TOP %s START AT %d', $limit ?? 'ALL', $offset + 1);

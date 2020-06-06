@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
 
 final class LoggingTest extends TestCase
 {
-    public function testLogExecuteQuery() : void
+    public function testLogExecuteQuery(): void
     {
         $driverConnection = $this->createStub(DriverConnection::class);
         $driverConnection->method('query')
@@ -22,7 +22,7 @@ final class LoggingTest extends TestCase
             ->executeQuery('SELECT * FROM table');
     }
 
-    public function testLogExecuteUpdate() : void
+    public function testLogExecuteUpdate(): void
     {
         $this->createConnection(
             $this->createStub(DriverConnection::class),
@@ -31,7 +31,7 @@ final class LoggingTest extends TestCase
             ->executeUpdate('UPDATE table SET foo = ?');
     }
 
-    public function testLogPrepareExecute() : void
+    public function testLogPrepareExecute(): void
     {
         $driverConnection = $this->createStub(DriverConnection::class);
         $driverConnection->method('prepare')
@@ -42,7 +42,7 @@ final class LoggingTest extends TestCase
             ->execute();
     }
 
-    private function createConnection(DriverConnection $driverConnection, string $expectedSQL) : Connection
+    private function createConnection(DriverConnection $driverConnection, string $expectedSQL): Connection
     {
         $driver = $this->createStub(Driver::class);
         $driver->method('connect')

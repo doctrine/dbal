@@ -13,6 +13,7 @@ use IteratorAggregate;
 use mysqli;
 use mysqli_stmt;
 use PDO;
+
 use function array_combine;
 use function array_fill;
 use function assert;
@@ -209,7 +210,7 @@ class MysqliStatement implements IteratorAggregate, Statement, ForwardCompatible
     /**
      * Binds parameters with known types previously bound to the statement
      */
-    private function bindTypedParameters() : void
+    private function bindTypedParameters(): void
     {
         $streams = $values = [];
         $types   = $this->types;
@@ -252,7 +253,7 @@ class MysqliStatement implements IteratorAggregate, Statement, ForwardCompatible
      *
      * @throws MysqliException
      */
-    private function sendLongData(array $streams) : void
+    private function sendLongData(array $streams): void
     {
         foreach ($streams as $paramNr => $stream) {
             while (! feof($stream)) {
@@ -454,7 +455,7 @@ class MysqliStatement implements IteratorAggregate, Statement, ForwardCompatible
     /**
      * {@inheritdoc}
      */
-    public function fetchAllNumeric() : array
+    public function fetchAllNumeric(): array
     {
         return FetchUtils::fetchAllNumeric($this);
     }
@@ -462,7 +463,7 @@ class MysqliStatement implements IteratorAggregate, Statement, ForwardCompatible
     /**
      * {@inheritdoc}
      */
-    public function fetchAllAssociative() : array
+    public function fetchAllAssociative(): array
     {
         return FetchUtils::fetchAllAssociative($this);
     }
@@ -470,7 +471,7 @@ class MysqliStatement implements IteratorAggregate, Statement, ForwardCompatible
     /**
      * {@inheritdoc}
      */
-    public function fetchFirstColumn() : array
+    public function fetchFirstColumn(): array
     {
         return FetchUtils::fetchFirstColumn($this);
     }

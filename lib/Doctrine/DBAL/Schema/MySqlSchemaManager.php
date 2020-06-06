@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Types\Type;
+
 use function array_change_key_case;
 use function array_shift;
 use function array_values;
@@ -16,6 +17,7 @@ use function strpos;
 use function strtok;
 use function strtolower;
 use function strtr;
+
 use const CASE_LOWER;
 
 /**
@@ -243,7 +245,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
      *
      * @param string|null $columnDefault default value as stored in information_schema for MariaDB >= 10.2.7
      */
-    private function getMariaDb1027ColumnDefault(MariaDb1027Platform $platform, ?string $columnDefault) : ?string
+    private function getMariaDb1027ColumnDefault(MariaDb1027Platform $platform, ?string $columnDefault): ?string
     {
         if ($columnDefault === 'NULL' || $columnDefault === null) {
             return null;
@@ -351,7 +353,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
     /**
      * @return string[]|true[]
      */
-    private function parseCreateOptions(?string $string) : array
+    private function parseCreateOptions(?string $string): array
     {
         $options = [];
 

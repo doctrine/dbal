@@ -8,6 +8,7 @@ use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\ParameterType;
 use IteratorAggregate;
 use PDO;
+
 use function assert;
 
 /**

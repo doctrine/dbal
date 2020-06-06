@@ -13,6 +13,7 @@ use Doctrine\DBAL\Portability\Statement as PortabilityStatement;
 use Doctrine\Tests\DbalTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 use Traversable;
+
 use function extension_loaded;
 
 class StatementIteratorTest extends DbalTestCase
@@ -20,7 +21,7 @@ class StatementIteratorTest extends DbalTestCase
     /**
      * @dataProvider statementProvider()
      */
-    public function testGettingIteratorDoesNotCallFetch(string $class) : void
+    public function testGettingIteratorDoesNotCallFetch(string $class): void
     {
         $stmt = $this->createPartialMock($class, ['fetch', 'fetchAll', 'fetchColumn']);
         $stmt->expects($this->never())->method('fetch');
@@ -30,7 +31,7 @@ class StatementIteratorTest extends DbalTestCase
         $stmt->getIterator();
     }
 
-    public function testIteratorIterationCallsFetchOncePerStep() : void
+    public function testIteratorIterationCallsFetchOncePerStep(): void
     {
         $stmt = $this->createMock(Statement::class);
 
@@ -47,7 +48,7 @@ class StatementIteratorTest extends DbalTestCase
      *
      * @dataProvider statementProvider()
      */
-    public function testStatementIterationCallsFetchOncePerStep(string $class) : void
+    public function testStatementIterationCallsFetchOncePerStep(string $class): void
     {
         $stmt = $this->createPartialMock($class, ['fetch']);
 
@@ -56,7 +57,7 @@ class StatementIteratorTest extends DbalTestCase
         $this->assertIterationCallsFetchOncePerStep($stmt, $calls);
     }
 
-    private function configureStatement(MockObject $stmt, int &$calls) : void
+    private function configureStatement(MockObject $stmt, int &$calls): void
     {
         $values = ['foo', '', 'bar', '0', 'baz', 0, 'qux', null, 'quz', false, 'impossible'];
         $calls  = 0;
@@ -74,7 +75,7 @@ class StatementIteratorTest extends DbalTestCase
     /**
      * @param Traversable<int, mixed> $iterator
      */
-    private function assertIterationCallsFetchOncePerStep(Traversable $iterator, int &$calls) : void
+    private function assertIterationCallsFetchOncePerStep(Traversable $iterator, int &$calls): void
     {
         foreach ($iterator as $i => $_) {
             $this->assertEquals($i + 1, $calls);
@@ -84,7 +85,7 @@ class StatementIteratorTest extends DbalTestCase
     /**
      * @return iterable<array{0: class-string<Statement>}>
      */
-    public static function statementProvider() : iterable
+    public static function statementProvider(): iterable
     {
         if (extension_loaded('ibm_db2')) {
             yield [DB2Statement::class];

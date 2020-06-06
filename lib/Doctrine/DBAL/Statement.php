@@ -11,6 +11,7 @@ use IteratorAggregate;
 use PDO;
 use Throwable;
 use Traversable;
+
 use function is_array;
 use function is_string;
 
@@ -339,7 +340,7 @@ class Statement implements IteratorAggregate, DriverStatement, ForwardCompatible
      *
      * @throws DBALException
      */
-    public function fetchAllNumeric() : array
+    public function fetchAllNumeric(): array
     {
         try {
             if ($this->stmt instanceof ForwardCompatibleResultStatement) {
@@ -357,7 +358,7 @@ class Statement implements IteratorAggregate, DriverStatement, ForwardCompatible
      *
      * @throws DBALException
      */
-    public function fetchAllAssociative() : array
+    public function fetchAllAssociative(): array
     {
         try {
             if ($this->stmt instanceof ForwardCompatibleResultStatement) {
@@ -375,7 +376,7 @@ class Statement implements IteratorAggregate, DriverStatement, ForwardCompatible
      *
      * @throws DBALException
      */
-    public function fetchFirstColumn() : array
+    public function fetchFirstColumn(): array
     {
         try {
             if ($this->stmt instanceof ForwardCompatibleResultStatement) {
@@ -395,7 +396,7 @@ class Statement implements IteratorAggregate, DriverStatement, ForwardCompatible
      *
      * @throws DBALException
      */
-    public function iterateNumeric() : Traversable
+    public function iterateNumeric(): Traversable
     {
         try {
             if ($this->stmt instanceof ForwardCompatibleResultStatement) {
@@ -419,7 +420,7 @@ class Statement implements IteratorAggregate, DriverStatement, ForwardCompatible
      *
      * @throws DBALException
      */
-    public function iterateAssociative() : Traversable
+    public function iterateAssociative(): Traversable
     {
         try {
             if ($this->stmt instanceof ForwardCompatibleResultStatement) {
@@ -443,7 +444,7 @@ class Statement implements IteratorAggregate, DriverStatement, ForwardCompatible
      *
      * @throws DBALException
      */
-    public function iterateColumn() : Traversable
+    public function iterateColumn(): Traversable
     {
         try {
             if ($this->stmt instanceof ForwardCompatibleResultStatement) {

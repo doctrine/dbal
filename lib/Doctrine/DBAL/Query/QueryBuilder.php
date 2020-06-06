@@ -7,6 +7,7 @@ use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
+
 use function array_key_exists;
 use function array_keys;
 use function array_unshift;
@@ -490,7 +491,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function distinct() : self
+    public function distinct(): self
     {
         $this->sqlParts['distinct'] = true;
 
@@ -1187,7 +1188,7 @@ class QueryBuilder
      *
      * @throws QueryException
      */
-    private function verifyAllAliasesAreKnown(array $knownAliases) : void
+    private function verifyAllAliasesAreKnown(array $knownAliases): void
     {
         foreach ($this->sqlParts['join'] as $fromAlias => $joins) {
             if (! isset($knownAliases[$fromAlias])) {

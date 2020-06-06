@@ -3,11 +3,12 @@
 namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\Tests\DbalFunctionalTestCase;
+
 use function sprintf;
 
 final class LikeWildcardsEscapingTest extends DbalFunctionalTestCase
 {
-    public function testFetchLikeExpressionResult() : void
+    public function testFetchLikeExpressionResult(): void
     {
         $string           = '_25% off_ your next purchase \o/ [$̲̅(̲̅5̲̅)̲̅$̲̅] (^̮^)';
         $escapeChar       = '!';

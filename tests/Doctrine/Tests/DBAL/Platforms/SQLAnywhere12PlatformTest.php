@@ -12,22 +12,22 @@ class SQLAnywhere12PlatformTest extends SQLAnywhere11PlatformTest
     /** @var SQLAnywhere12Platform */
     protected $platform;
 
-    public function createPlatform() : AbstractPlatform
+    public function createPlatform(): AbstractPlatform
     {
         return new SQLAnywhere12Platform();
     }
 
-    public function testDoesNotSupportSequences() : void
+    public function testDoesNotSupportSequences(): void
     {
         $this->markTestSkipped('This version of the platform now supports sequences.');
     }
 
-    public function testSupportsSequences() : void
+    public function testSupportsSequences(): void
     {
         self::assertTrue($this->platform->supportsSequences());
     }
 
-    public function testGeneratesSequenceSqlCommands() : void
+    public function testGeneratesSequenceSqlCommands(): void
     {
         $sequence = new Sequence('myseq', 20, 1);
         self::assertEquals(
@@ -56,7 +56,7 @@ class SQLAnywhere12PlatformTest extends SQLAnywhere11PlatformTest
         );
     }
 
-    public function testGeneratesDateTimeTzColumnTypeDeclarationSQL() : void
+    public function testGeneratesDateTimeTzColumnTypeDeclarationSQL(): void
     {
         self::assertEquals(
             'TIMESTAMP WITH TIME ZONE',
@@ -69,18 +69,18 @@ class SQLAnywhere12PlatformTest extends SQLAnywhere11PlatformTest
         );
     }
 
-    public function testHasCorrectDateTimeTzFormatString() : void
+    public function testHasCorrectDateTimeTzFormatString(): void
     {
         self::assertEquals('Y-m-d H:i:s.uP', $this->platform->getDateTimeTzFormatString());
     }
 
-    public function testInitializesDateTimeTzTypeMapping() : void
+    public function testInitializesDateTimeTzTypeMapping(): void
     {
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('timestamp with time zone'));
         self::assertEquals('datetime', $this->platform->getDoctrineTypeMapping('timestamp with time zone'));
     }
 
-    public function testGeneratesCreateIndexWithAdvancedPlatformOptionsSQL() : void
+    public function testGeneratesCreateIndexWithAdvancedPlatformOptionsSQL(): void
     {
         self::assertEquals(
             'CREATE VIRTUAL UNIQUE CLUSTERED INDEX fooindex ON footable (a, b) WITH NULLS NOT DISTINCT FOR OLAP WORKLOAD',

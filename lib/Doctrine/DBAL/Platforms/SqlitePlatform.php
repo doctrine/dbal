@@ -12,6 +12,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
+
 use function array_merge;
 use function array_unique;
 use function array_values;
@@ -376,7 +377,7 @@ class SqlitePlatform extends AbstractPlatform
      * @param mixed[][] $columns
      * @param mixed[]   $options
      */
-    private function getNonAutoincrementPrimaryKeyDefinition(array $columns, array $options) : string
+    private function getNonAutoincrementPrimaryKeyDefinition(array $columns, array $options): string
     {
         if (empty($options['primary'])) {
             return '';
@@ -622,7 +623,7 @@ class SqlitePlatform extends AbstractPlatform
         return '--' . str_replace("\n", "\n--", $comment) . "\n";
     }
 
-    private function getInlineTableCommentSQL(string $comment) : string
+    private function getInlineTableCommentSQL(string $comment): string
     {
         return $this->getInlineColumnCommentSQL($comment);
     }
@@ -776,7 +777,7 @@ class SqlitePlatform extends AbstractPlatform
         return true;
     }
 
-    public function supportsCreateDropForeignKeyConstraints() : bool
+    public function supportsCreateDropForeignKeyConstraints(): bool
     {
         return false;
     }
@@ -968,7 +969,8 @@ class SqlitePlatform extends AbstractPlatform
     {
         // Suppress changes on integer type autoincrement columns.
         foreach ($diff->changedColumns as $oldColumnName => $columnDiff) {
-            if (! $columnDiff->fromColumn instanceof Column ||
+            if (
+                ! $columnDiff->fromColumn instanceof Column ||
                 ! $columnDiff->column instanceof Column ||
                 ! $columnDiff->column->getAutoincrement() ||
                 ! $columnDiff->column->getType() instanceof Types\IntegerType
@@ -991,7 +993,8 @@ class SqlitePlatform extends AbstractPlatform
             unset($diff->changedColumns[$oldColumnName]);
         }
 
-        if (! empty($diff->renamedColumns) || ! empty($diff->addedForeignKeys) || ! empty($diff->addedIndexes)
+        if (
+            ! empty($diff->renamedColumns) || ! empty($diff->addedForeignKeys) || ! empty($diff->addedIndexes)
                 || ! empty($diff->changedColumns) || ! empty($diff->changedForeignKeys) || ! empty($diff->changedIndexes)
                 || ! empty($diff->removedColumns) || ! empty($diff->removedForeignKeys) || ! empty($diff->removedIndexes)
                 || ! empty($diff->renamedIndexes)

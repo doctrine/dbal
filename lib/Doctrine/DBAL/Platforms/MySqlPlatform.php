@@ -11,6 +11,7 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\TextType;
 use InvalidArgumentException;
+
 use function array_diff_key;
 use function array_merge;
 use function array_unique;
@@ -383,7 +384,7 @@ class MySqlPlatform extends AbstractPlatform
                ' ORDER BY ORDINAL_POSITION ASC';
     }
 
-    public function getListTableMetadataSQL(string $table, ?string $database = null) : string
+    public function getListTableMetadataSQL(string $table, ?string $database = null): string
     {
         return sprintf(
             <<<'SQL'
@@ -587,7 +588,8 @@ SQL
             $columnArray = $column->toArray();
 
             // Don't propagate default value changes for unsupported column types.
-            if ($columnDiff->hasChanged('default') &&
+            if (
+                $columnDiff->hasChanged('default') &&
                 count($columnDiff->changedProperties) === 1 &&
                 ($columnArray['type'] instanceof TextType || $columnArray['type'] instanceof BlobType)
             ) {
@@ -1184,7 +1186,7 @@ SQL
         return TransactionIsolationLevel::REPEATABLE_READ;
     }
 
-    public function supportsColumnLengthIndexes() : bool
+    public function supportsColumnLengthIndexes(): bool
     {
         return true;
     }

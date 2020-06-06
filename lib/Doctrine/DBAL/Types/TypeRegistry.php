@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\DBALException;
+
 use function array_search;
 use function in_array;
 
@@ -24,7 +25,7 @@ final class TypeRegistry
      *
      * @throws DBALException
      */
-    public function get(string $name) : Type
+    public function get(string $name): Type
     {
         if (! isset($this->instances[$name])) {
             throw DBALException::unknownColumnType($name);
@@ -38,7 +39,7 @@ final class TypeRegistry
      *
      * @throws DBALException
      */
-    public function lookupName(Type $type) : string
+    public function lookupName(Type $type): string
     {
         $name = $this->findTypeName($type);
 
@@ -52,7 +53,7 @@ final class TypeRegistry
     /**
      * Checks if there is a type of the given name.
      */
-    public function has(string $name) : bool
+    public function has(string $name): bool
     {
         return isset($this->instances[$name]);
     }
@@ -62,7 +63,7 @@ final class TypeRegistry
      *
      * @throws DBALException
      */
-    public function register(string $name, Type $type) : void
+    public function register(string $name, Type $type): void
     {
         if (isset($this->instances[$name])) {
             throw DBALException::typeExists($name);
@@ -80,7 +81,7 @@ final class TypeRegistry
      *
      * @throws DBALException
      */
-    public function override(string $name, Type $type) : void
+    public function override(string $name, Type $type): void
     {
         if (! isset($this->instances[$name])) {
             throw DBALException::typeNotFound($name);
@@ -100,12 +101,12 @@ final class TypeRegistry
      *
      * @return array<string, Type>
      */
-    public function getMap() : array
+    public function getMap(): array
     {
         return $this->instances;
     }
 
-    private function findTypeName(Type $type) : ?string
+    private function findTypeName(Type $type): ?string
     {
         $name = array_search($type, $this->instances, true);
 

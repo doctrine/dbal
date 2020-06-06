@@ -8,22 +8,22 @@ use Doctrine\DBAL\Types\Types;
 
 class MySQL57PlatformTest extends AbstractMySQLPlatformTestCase
 {
-    public function createPlatform() : AbstractPlatform
+    public function createPlatform(): AbstractPlatform
     {
         return new MySQL57Platform();
     }
 
-    public function testHasNativeJsonType() : void
+    public function testHasNativeJsonType(): void
     {
         self::assertTrue($this->platform->hasNativeJsonType());
     }
 
-    public function testReturnsJsonTypeDeclarationSQL() : void
+    public function testReturnsJsonTypeDeclarationSQL(): void
     {
         self::assertSame('JSON', $this->platform->getJsonTypeDeclarationSQL([]));
     }
 
-    public function testInitializesJsonTypeMapping() : void
+    public function testInitializesJsonTypeMapping(): void
     {
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('json'));
         self::assertSame(Types::JSON, $this->platform->getDoctrineTypeMapping('json'));
@@ -34,7 +34,7 @@ class MySQL57PlatformTest extends AbstractMySQLPlatformTestCase
      *
      * @group DBAL-234
      */
-    protected function getAlterTableRenameIndexSQL() : array
+    protected function getAlterTableRenameIndexSQL(): array
     {
         return ['ALTER TABLE mytable RENAME INDEX idx_foo TO idx_bar'];
     }
@@ -44,7 +44,7 @@ class MySQL57PlatformTest extends AbstractMySQLPlatformTestCase
      *
      * @group DBAL-234
      */
-    protected function getQuotedAlterTableRenameIndexSQL() : array
+    protected function getQuotedAlterTableRenameIndexSQL(): array
     {
         return [
             'ALTER TABLE `table` RENAME INDEX `create` TO `select`',
@@ -57,7 +57,7 @@ class MySQL57PlatformTest extends AbstractMySQLPlatformTestCase
      *
      * @group DBAL-807
      */
-    protected function getAlterTableRenameIndexInSchemaSQL() : array
+    protected function getAlterTableRenameIndexInSchemaSQL(): array
     {
         return ['ALTER TABLE myschema.mytable RENAME INDEX idx_foo TO idx_bar'];
     }
@@ -67,7 +67,7 @@ class MySQL57PlatformTest extends AbstractMySQLPlatformTestCase
      *
      * @group DBAL-807
      */
-    protected function getQuotedAlterTableRenameIndexInSchemaSQL() : array
+    protected function getQuotedAlterTableRenameIndexInSchemaSQL(): array
     {
         return [
             'ALTER TABLE `schema`.`table` RENAME INDEX `create` TO `select`',
@@ -78,7 +78,7 @@ class MySQL57PlatformTest extends AbstractMySQLPlatformTestCase
     /**
      * {@inheritdoc}
      */
-    protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL() : array
+    protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL(): array
     {
         return ['ALTER TABLE mytable RENAME INDEX idx_foo TO idx_foo_renamed'];
     }

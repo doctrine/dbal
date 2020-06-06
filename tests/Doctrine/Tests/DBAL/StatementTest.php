@@ -27,7 +27,7 @@ class StatementTest extends DbalTestCase
     /** @var PDOStatement&MockObject */
     private $pdoStatement;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->pdoStatement = $this->getMockBuilder(PDOStatement::class)
             ->onlyMethods(['execute', 'bindParam', 'bindValue', 'fetchAll'])
@@ -57,7 +57,7 @@ class StatementTest extends DbalTestCase
             ->will($this->returnValue($driver));
     }
 
-    public function testExecuteCallsLoggerStartQueryWithParametersWhenValuesBound() : void
+    public function testExecuteCallsLoggerStartQueryWithParametersWhenValuesBound(): void
     {
         $name   = 'foo';
         $var    = 'bar';
@@ -80,7 +80,7 @@ class StatementTest extends DbalTestCase
         $statement->execute();
     }
 
-    public function testExecuteCallsLoggerStartQueryWithParametersWhenParamsPassedToExecute() : void
+    public function testExecuteCallsLoggerStartQueryWithParametersWhenParamsPassedToExecute(): void
     {
         $name   = 'foo';
         $var    = 'bar';
@@ -101,7 +101,7 @@ class StatementTest extends DbalTestCase
         $statement->execute($values);
     }
 
-    public function testExecuteCallsStartQueryWithTheParametersBoundViaBindParam() : void
+    public function testExecuteCallsStartQueryWithTheParametersBoundViaBindParam(): void
     {
         $name   = 'foo';
         $var    = 'bar';
@@ -123,7 +123,7 @@ class StatementTest extends DbalTestCase
         $statement->execute();
     }
 
-    public function testExecuteCallsLoggerStopQueryOnException() : void
+    public function testExecuteCallsLoggerStopQueryOnException(): void
     {
         $logger = $this->createMock(SQLLogger::class);
 
@@ -153,7 +153,7 @@ class StatementTest extends DbalTestCase
         $statement->execute();
     }
 
-    public function testPDOCustomClassConstructorArgs() : void
+    public function testPDOCustomClassConstructorArgs(): void
     {
         $statement = new Statement('', $this->conn);
 

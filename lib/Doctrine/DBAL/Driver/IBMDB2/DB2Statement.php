@@ -14,6 +14,7 @@ use ReflectionClass;
 use ReflectionObject;
 use ReflectionProperty;
 use stdClass;
+
 use function array_change_key_case;
 use function db2_bind_param;
 use function db2_execute;
@@ -41,6 +42,7 @@ use function stream_copy_to_stream;
 use function stream_get_meta_data;
 use function strtolower;
 use function tmpfile;
+
 use const CASE_LOWER;
 use const DB2_BINARY;
 use const DB2_CHAR;
@@ -134,7 +136,7 @@ class DB2Statement implements IteratorAggregate, Statement, ForwardCompatibleRes
      *
      * @throws DB2Exception
      */
-    private function bind($position, &$variable, int $parameterType, int $dataType) : void
+    private function bind($position, &$variable, int $parameterType, int $dataType): void
     {
         $this->bindParam[$position] =& $variable;
 
@@ -395,7 +397,7 @@ class DB2Statement implements IteratorAggregate, Statement, ForwardCompatibleRes
     /**
      * {@inheritdoc}
      */
-    public function fetchAllNumeric() : array
+    public function fetchAllNumeric(): array
     {
         return FetchUtils::fetchAllNumeric($this);
     }
@@ -403,7 +405,7 @@ class DB2Statement implements IteratorAggregate, Statement, ForwardCompatibleRes
     /**
      * {@inheritdoc}
      */
-    public function fetchAllAssociative() : array
+    public function fetchAllAssociative(): array
     {
         return FetchUtils::fetchAllAssociative($this);
     }
@@ -411,7 +413,7 @@ class DB2Statement implements IteratorAggregate, Statement, ForwardCompatibleRes
     /**
      * {@inheritdoc}
      */
-    public function fetchFirstColumn() : array
+    public function fetchFirstColumn(): array
     {
         return FetchUtils::fetchFirstColumn($this);
     }
@@ -511,7 +513,7 @@ class DB2Statement implements IteratorAggregate, Statement, ForwardCompatibleRes
      *
      * @throws DB2Exception
      */
-    private function copyStreamToStream($source, $target) : void
+    private function copyStreamToStream($source, $target): void
     {
         if (@stream_copy_to_stream($source, $target) === false) {
             throw new DB2Exception('Could not copy source stream to temporary file: ' . error_get_last()['message']);
@@ -523,7 +525,7 @@ class DB2Statement implements IteratorAggregate, Statement, ForwardCompatibleRes
      *
      * @throws DB2Exception
      */
-    private function writeStringToStream(string $string, $target) : void
+    private function writeStringToStream(string $string, $target): void
     {
         if (@fwrite($target, $string) === false) {
             throw new DB2Exception('Could not write string to temporary file: ' . error_get_last()['message']);

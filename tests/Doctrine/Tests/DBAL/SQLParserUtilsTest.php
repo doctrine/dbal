@@ -17,7 +17,7 @@ class SQLParserUtilsTest extends DbalTestCase
     /**
      * @return mixed[][]
      */
-    public static function dataGetPlaceholderPositions() : iterable
+    public static function dataGetPlaceholderPositions(): iterable
     {
         return [
             // none
@@ -98,7 +98,7 @@ SQLDATA
      *
      * @dataProvider dataGetPlaceholderPositions
      */
-    public function testGetPlaceholderPositions(string $query, bool $isPositional, array $expectedParamPos) : void
+    public function testGetPlaceholderPositions(string $query, bool $isPositional, array $expectedParamPos): void
     {
         $actualParamPos = SQLParserUtils::getPlaceholderPositions($query, $isPositional);
         self::assertEquals($expectedParamPos, $actualParamPos);
@@ -107,7 +107,7 @@ SQLDATA
     /**
      * @return mixed[][]
      */
-    public static function dataExpandListParameters() : iterable
+    public static function dataExpandListParameters(): iterable
     {
         return [
             'Positional: Very simple with one needle' => [
@@ -439,7 +439,7 @@ SQLDATA
         string $expectedQuery,
         array $expectedParams,
         array $expectedTypes
-    ) : void {
+    ): void {
         [$query, $params, $types] = SQLParserUtils::expandListParameters($query, $params, $types);
 
         self::assertEquals($expectedQuery, $query, 'Query was not rewritten correctly.');
@@ -450,7 +450,7 @@ SQLDATA
     /**
      * @return mixed[][]
      */
-    public static function dataQueryWithMissingParameters() : iterable
+    public static function dataQueryWithMissingParameters(): iterable
     {
         return [
             [
@@ -492,7 +492,7 @@ SQLDATA
      *
      * @dataProvider dataQueryWithMissingParameters
      */
-    public function testExceptionIsThrownForMissingParam(string $query, array $params, array $types = []) : void
+    public function testExceptionIsThrownForMissingParam(string $query, array $params, array $types = []): void
     {
         $this->expectException(SQLParserUtilsException::class);
         $this->expectExceptionMessage('Value for :param not found in params array. Params array key should be "param"');

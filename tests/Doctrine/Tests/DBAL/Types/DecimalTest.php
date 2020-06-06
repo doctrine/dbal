@@ -16,18 +16,18 @@ class DecimalTest extends DbalTestCase
     /** @var DecimalType */
     private $type;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->platform = $this->createMock(AbstractPlatform::class);
         $this->type     = Type::getType('decimal');
     }
 
-    public function testDecimalConvertsToPHPValue() : void
+    public function testDecimalConvertsToPHPValue(): void
     {
         self::assertIsString($this->type->convertToPHPValue('5.5', $this->platform));
     }
 
-    public function testDecimalNullConvertsToPHPValue() : void
+    public function testDecimalNullConvertsToPHPValue(): void
     {
         self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }

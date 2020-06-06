@@ -6,7 +6,9 @@ use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\ColumnCase;
 use Doctrine\DBAL\Driver\PDOConnection;
 use PDO;
+
 use function func_get_args;
+
 use const CASE_LOWER;
 use const CASE_UPPER;
 

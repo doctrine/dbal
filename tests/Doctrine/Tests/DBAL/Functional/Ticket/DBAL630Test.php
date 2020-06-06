@@ -6,6 +6,7 @@ use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use PDO;
+
 use function in_array;
 
 /**
@@ -16,7 +17,7 @@ class DBAL630Test extends DbalFunctionalTestCase
     /** @var bool */
     private $running = false;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -35,7 +36,7 @@ class DBAL630Test extends DbalFunctionalTestCase
         $this->running = true;
     }
 
-    protected function tearDown() : void
+    protected function tearDown(): void
     {
         if ($this->running) {
             $this->connection->getWrappedConnection()->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
@@ -44,7 +45,7 @@ class DBAL630Test extends DbalFunctionalTestCase
         parent::tearDown();
     }
 
-    public function testBooleanConversionSqlLiteral() : void
+    public function testBooleanConversionSqlLiteral(): void
     {
         $this->connection->executeUpdate('INSERT INTO dbal630 (bool_col) VALUES(false)');
         $id = $this->connection->lastInsertId('dbal630_id_seq');
@@ -55,7 +56,7 @@ class DBAL630Test extends DbalFunctionalTestCase
         self::assertFalse($row['bool_col']);
     }
 
-    public function testBooleanConversionBoolParamRealPrepares() : void
+    public function testBooleanConversionBoolParamRealPrepares(): void
     {
         $this->connection->executeUpdate(
             'INSERT INTO dbal630 (bool_col) VALUES(?)',
@@ -70,7 +71,7 @@ class DBAL630Test extends DbalFunctionalTestCase
         self::assertFalse($row['bool_col']);
     }
 
-    public function testBooleanConversionBoolParamEmulatedPrepares() : void
+    public function testBooleanConversionBoolParamEmulatedPrepares(): void
     {
         $this->connection->getWrappedConnection()->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
 
@@ -95,7 +96,7 @@ class DBAL630Test extends DbalFunctionalTestCase
     public function testBooleanConversionNullParamEmulatedPrepares(
         ?bool $statementValue,
         ?bool $databaseConvertedValue
-    ) : void {
+    ): void {
         $this->connection->getWrappedConnection()->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
 
         $platform = $this->connection->getDatabasePlatform();
@@ -119,7 +120,7 @@ class DBAL630Test extends DbalFunctionalTestCase
     public function testBooleanConversionNullParamEmulatedPreparesWithBooleanTypeInBindValue(
         ?bool $statementValue,
         bool $databaseConvertedValue
-    ) : void {
+    ): void {
         $this->connection->getWrappedConnection()->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
 
         $platform = $this->connection->getDatabasePlatform();
@@ -146,7 +147,7 @@ class DBAL630Test extends DbalFunctionalTestCase
      *
      * @return mixed[][]
      */
-    public static function booleanTypeConversionUsingBooleanTypeProvider() : iterable
+    public static function booleanTypeConversionUsingBooleanTypeProvider(): iterable
     {
         return [
             // statement value, database converted value result
@@ -161,7 +162,7 @@ class DBAL630Test extends DbalFunctionalTestCase
      *
      * @return mixed[][]
      */
-    public static function booleanTypeConversionWithoutPdoTypeProvider() : iterable
+    public static function booleanTypeConversionWithoutPdoTypeProvider(): iterable
     {
         return [
             // statement value, database converted value result

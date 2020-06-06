@@ -4,6 +4,7 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use InvalidArgumentException;
+
 use function array_filter;
 use function array_keys;
 use function array_map;
@@ -348,9 +349,9 @@ class Index extends AbstractAsset implements Constraint
     /**
      * Returns whether the index has the same column lengths as the other
      */
-    private function hasSameColumnLengths(self $other) : bool
+    private function hasSameColumnLengths(self $other): bool
     {
-        $filter = static function (?int $length) : bool {
+        $filter = static function (?int $length): bool {
             return $length !== null;
         };
 

@@ -7,6 +7,7 @@ use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Types\Type;
 use Throwable;
+
 use function array_change_key_case;
 use function array_values;
 use function assert;
@@ -17,6 +18,7 @@ use function strpos;
 use function strtolower;
 use function strtoupper;
 use function trim;
+
 use const CASE_LOWER;
 
 /**
@@ -398,7 +400,7 @@ SQL;
     /**
      * {@inheritdoc}
      */
-    public function listTableDetails($tableName) : Table
+    public function listTableDetails($tableName): Table
     {
         $table = parent::listTableDetails($tableName);
 

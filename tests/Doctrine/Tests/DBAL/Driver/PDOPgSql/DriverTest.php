@@ -8,11 +8,12 @@ use Doctrine\DBAL\Driver\PDOPgSql\Driver;
 use Doctrine\Tests\DBAL\Driver\AbstractPostgreSQLDriverTest;
 use PDO;
 use PDOException;
+
 use function defined;
 
 class DriverTest extends AbstractPostgreSQLDriverTest
 {
-    public function testReturnsName() : void
+    public function testReturnsName(): void
     {
         self::assertSame('pdo_pgsql', $this->driver->getName());
     }
@@ -20,7 +21,7 @@ class DriverTest extends AbstractPostgreSQLDriverTest
     /**
      * @group DBAL-920
      */
-    public function testConnectionDisablesPreparesOnPhp56() : void
+    public function testConnectionDisablesPreparesOnPhp56(): void
     {
         $this->skipWhenNotUsingPhp56AndPdoPgsql();
 
@@ -46,7 +47,7 @@ class DriverTest extends AbstractPostgreSQLDriverTest
     /**
      * @group DBAL-920
      */
-    public function testConnectionDoesNotDisablePreparesOnPhp56WhenAttributeDefined() : void
+    public function testConnectionDoesNotDisablePreparesOnPhp56WhenAttributeDefined(): void
     {
         $this->skipWhenNotUsingPhp56AndPdoPgsql();
 
@@ -73,7 +74,7 @@ class DriverTest extends AbstractPostgreSQLDriverTest
     /**
      * @group DBAL-920
      */
-    public function testConnectionDisablePreparesOnPhp56WhenDisablePreparesIsExplicitlyDefined() : void
+    public function testConnectionDisablePreparesOnPhp56WhenDisablePreparesIsExplicitlyDefined(): void
     {
         $this->skipWhenNotUsingPhp56AndPdoPgsql();
 
@@ -97,12 +98,12 @@ class DriverTest extends AbstractPostgreSQLDriverTest
         }
     }
 
-    protected function createDriver() : DriverInterface
+    protected function createDriver(): DriverInterface
     {
         return new Driver();
     }
 
-    private function skipWhenNotUsingPhp56AndPdoPgsql() : void
+    private function skipWhenNotUsingPhp56AndPdoPgsql(): void
     {
         if (! defined('PDO::PGSQL_ATTR_DISABLE_PREPARES')) {
             $this->markTestSkipped('Test requires PHP 5.6+');
