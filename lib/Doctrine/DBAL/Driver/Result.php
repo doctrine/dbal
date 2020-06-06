@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver;
 
-use Doctrine\DBAL\Driver\ResultStatement as BaseResultStatement;
-
 /**
  * Driver-level result statement execution result.
  */
-interface Result extends BaseResultStatement
+interface Result
 {
     /**
      * Returns the next row of the result as a numeric array or FALSE if there are no more rows.
@@ -64,4 +62,19 @@ interface Result extends BaseResultStatement
      * @throws DriverException
      */
     public function fetchFirstColumn(): array;
+
+    /**
+     * Returns the number of columns in the result
+     *
+     * @return int The number of columns in the result. If the columns cannot be counted,
+     *             this method must return 0.
+     */
+    public function columnCount();
+
+    /**
+     * Closes the cursor, enabling the statement to be executed again.
+     *
+     * @return bool TRUE on success or FALSE on failure.
+     */
+    public function closeCursor();
 }
