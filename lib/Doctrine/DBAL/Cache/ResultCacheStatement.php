@@ -72,12 +72,12 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Result
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use free() instead.
      */
     public function closeCursor()
     {
-        $this->statement->closeCursor();
-
-        $this->data = null;
+        $this->free();
 
         return true;
     }
@@ -285,6 +285,11 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Result
         assert($this->statement instanceof Statement);
 
         return $this->statement->rowCount();
+    }
+
+    public function free(): void
+    {
+        $this->data = null;
     }
 
     /**

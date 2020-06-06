@@ -498,11 +498,12 @@ class MysqliStatement implements IteratorAggregate, Statement, Result
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use free() instead.
      */
     public function closeCursor()
     {
-        $this->_stmt->free_result();
-        $this->result = false;
+        $this->free();
 
         return true;
     }
@@ -525,6 +526,12 @@ class MysqliStatement implements IteratorAggregate, Statement, Result
     public function columnCount()
     {
         return $this->_stmt->field_count;
+    }
+
+    public function free(): void
+    {
+        $this->_stmt->free_result();
+        $this->result = false;
     }
 
     /**

@@ -147,6 +147,8 @@ class DB2Statement implements IteratorAggregate, Statement, Result
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use free() instead.
      */
     public function closeCursor()
     {
@@ -424,6 +426,15 @@ class DB2Statement implements IteratorAggregate, Statement, Result
     public function rowCount()
     {
         return @db2_num_rows($this->stmt) ? : 0;
+    }
+
+    public function free(): void
+    {
+        $this->bindParam = [];
+
+        db2_free_result($this->stmt);
+
+        $this->result = false;
     }
 
     /**

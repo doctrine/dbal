@@ -2,7 +2,8 @@
 
 ## Deprecated `ResultStatement` interface
 
-The `ResultStatement` interface is deprecated. Use the `Driver\Result` and `Abstraction\Result` interfaces instead.
+1. The `ResultStatement` interface is deprecated. Use the `Driver\Result` and `Abstraction\Result` interfaces instead.
+2. `ResultStatement::closeCursor()` is deprecated in favor of `Result::free()`.
 
 ## Deprecated `FetchMode` and the corresponding methods
 

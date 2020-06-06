@@ -45,10 +45,12 @@ class ArrayStatement implements IteratorAggregate, ResultStatement, Result
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use free() instead.
      */
     public function closeCursor()
     {
-        $this->data = [];
+        $this->free();
 
         return true;
     }
@@ -216,6 +218,11 @@ class ArrayStatement implements IteratorAggregate, ResultStatement, Result
     public function fetchFirstColumn(): array
     {
         return FetchUtils::fetchFirstColumn($this);
+    }
+
+    public function free(): void
+    {
+        $this->data = [];
     }
 
     /**

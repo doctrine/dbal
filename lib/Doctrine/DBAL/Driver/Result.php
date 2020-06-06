@@ -83,9 +83,7 @@ interface Result
     public function columnCount();
 
     /**
-     * Closes the cursor, enabling the statement to be executed again.
-     *
-     * @return bool TRUE on success or FALSE on failure.
+     * Discards the non-fetched portion of the result, enabling the originating statement to be executed again.
      */
-    public function closeCursor();
+    public function free(): void;
 }

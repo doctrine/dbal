@@ -67,6 +67,8 @@ class Statement implements IteratorAggregate, DriverStatement, Result
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use free() instead.
      */
     public function closeCursor()
     {
@@ -268,6 +270,17 @@ class Statement implements IteratorAggregate, DriverStatement, Result
         }
 
         return $this->fixResultSet($data, true, false);
+    }
+
+    public function free(): void
+    {
+        if ($this->stmt instanceof Result) {
+            $this->stmt->free();
+
+            return;
+        }
+
+        $this->stmt->closeCursor();
     }
 
     /**

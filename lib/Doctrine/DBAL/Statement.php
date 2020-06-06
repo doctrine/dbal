@@ -182,6 +182,8 @@ class Statement implements IteratorAggregate, DriverStatement, Result
     /**
      * Closes the cursor, freeing the database resources used by this statement.
      *
+     * @deprecated Use Result::free() instead.
+     *
      * @return bool TRUE on success, FALSE on failure.
      */
     public function closeCursor()
@@ -469,6 +471,17 @@ class Statement implements IteratorAggregate, DriverStatement, Result
     public function rowCount()
     {
         return $this->stmt->rowCount();
+    }
+
+    public function free(): void
+    {
+        if ($this->stmt instanceof Result) {
+            $this->stmt->free();
+
+            return;
+        }
+
+        $this->stmt->closeCursor();
     }
 
     /**

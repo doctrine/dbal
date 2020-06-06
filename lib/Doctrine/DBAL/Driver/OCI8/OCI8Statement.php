@@ -331,17 +331,12 @@ class OCI8Statement implements IteratorAggregate, Statement, Result
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use free() instead.
      */
     public function closeCursor()
     {
-        // not having the result means there's nothing to close
-        if (! $this->result) {
-            return true;
-        }
-
-        oci_cancel($this->_sth);
-
-        $this->result = false;
+        $this->free();
 
         return true;
     }
@@ -599,6 +594,18 @@ class OCI8Statement implements IteratorAggregate, Statement, Result
     public function fetchFirstColumn(): array
     {
         return $this->doFetchAll(OCI_NUM, OCI_FETCHSTATEMENT_BY_COLUMN)[0];
+    }
+
+    public function free(): void
+    {
+        // not having the result means there's nothing to close
+        if (! $this->result) {
+            return;
+        }
+
+        oci_cancel($this->_sth);
+
+        $this->result = false;
     }
 
     /**

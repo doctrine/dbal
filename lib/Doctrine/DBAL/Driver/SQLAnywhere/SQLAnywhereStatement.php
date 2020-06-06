@@ -136,6 +136,8 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement, Result
     /**
      * {@inheritdoc}
      *
+     * @deprecated Use free() instead.
+     *
      * @throws SQLAnywhereException
      */
     public function closeCursor()
@@ -386,6 +388,11 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement, Result
     public function rowCount()
     {
         return sasql_stmt_affected_rows($this->stmt);
+    }
+
+    public function free(): void
+    {
+        sasql_stmt_reset($this->stmt);
     }
 
     /**

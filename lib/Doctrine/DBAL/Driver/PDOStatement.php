@@ -110,6 +110,8 @@ class PDOStatement extends \PDOStatement implements Statement, Result
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use free() instead.
      */
     public function closeCursor()
     {
@@ -247,6 +249,11 @@ class PDOStatement extends \PDOStatement implements Statement, Result
     public function fetchFirstColumn(): array
     {
         return $this->fetchAll(PDO::FETCH_COLUMN);
+    }
+
+    public function free(): void
+    {
+        parent::closeCursor();
     }
 
     /**
