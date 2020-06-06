@@ -27,7 +27,7 @@ use const OCI_NO_AUTO_COMMIT;
 final class OCI8Connection implements Connection, ServerInfoAwareConnection
 {
     /** @var resource */
-    protected $dbh;
+    private $connection;
 
     /** @var ExecutionMode */
     private $executionMode;
@@ -45,15 +45,17 @@ final class OCI8Connection implements Connection, ServerInfoAwareConnection
         int $sessionMode = OCI_NO_AUTO_COMMIT,
         bool $persistent = false
     ) {
-        $dbh = $persistent
-            ? @oci_pconnect($username, $password, $db, $charset, $sessionMode)
-            : @oci_connect($username, $password, $db, $charset, $sessionMode);
+        if ($persistent) {
+            $connection = @oci_pconnect($username, $password, $db, $charset, $sessionMode);
+        } else {
+            $connection = @oci_connect($username, $password, $db, $charset, $sessionMode);
+        }
 
-        if ($dbh === false) {
+        if ($connection === false) {
             throw OCI8Exception::fromErrorInfo(oci_error());
         }
 
-        $this->dbh           = $dbh;
+        $this->connection    = $connection;
         $this->executionMode = new ExecutionMode();
     }
 
@@ -65,10 +67,10 @@ final class OCI8Connection implements Connection, ServerInfoAwareConnection
      */
     public function getServerVersion() : string
     {
-        $version = oci_server_version($this->dbh);
+        $version = oci_server_version($this->connection);
 
         if ($version === false) {
-            throw OCI8Exception::fromErrorInfo(oci_error($this->dbh));
+            throw OCI8Exception::fromErrorInfo(oci_error($this->connection));
         }
 
         if (preg_match('/\s+(\d+\.\d+\.\d+\.\d+\.\d+)\s+/', $version, $matches) === 0) {
@@ -86,7 +88,7 @@ final class OCI8Connection implements Connection, ServerInfoAwareConnection
 
     public function prepare(string $sql) : DriverStatement
     {
-        return new OCI8Statement($this->dbh, $sql, $this->executionMode);
+        return new OCI8Statement($this->connection, $sql, $this->executionMode);
     }
 
     public function query(string $sql) : ResultStatement
@@ -132,8 +134,8 @@ final class OCI8Connection implements Connection, ServerInfoAwareConnection
 
     public function commit() : void
     {
-        if (! oci_commit($this->dbh)) {
-            throw OCI8Exception::fromErrorInfo(oci_error($this->dbh));
+        if (! oci_commit($this->connection)) {
+            throw OCI8Exception::fromErrorInfo(oci_error($this->connection));
         }
 
         $this->executionMode->enableAutoCommit();
@@ -141,8 +143,8 @@ final class OCI8Connection implements Connection, ServerInfoAwareConnection
 
     public function rollBack() : void
     {
-        if (! oci_rollback($this->dbh)) {
-            throw OCI8Exception::fromErrorInfo(oci_error($this->dbh));
+        if (! oci_rollback($this->connection)) {
+            throw OCI8Exception::fromErrorInfo(oci_error($this->connection));
         }
 
         $this->executionMode->enableAutoCommit();

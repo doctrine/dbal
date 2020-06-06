@@ -41,16 +41,16 @@ use const SQLT_CHR;
 final class OCI8Statement implements Statement
 {
     /** @var resource */
-    protected $_dbh;
+    private $connection;
 
     /** @var resource */
-    protected $_sth;
+    private $statement;
 
     /** @var ExecutionMode */
-    protected $executionMode;
+    private $executionMode;
 
     /** @var string[] */
-    protected $_paramMap = [];
+    private $parameterMap = [];
 
     /**
      * Holds references to bound parameter values.
@@ -78,14 +78,14 @@ final class OCI8Statement implements Statement
      */
     public function __construct($dbh, string $query, ExecutionMode $executionMode)
     {
-        [$query, $paramMap] = (new ConvertPositionalToNamedPlaceholders())($query);
+        [$query, $parameterMap] = (new ConvertPositionalToNamedPlaceholders())($query);
 
-        $stmt = oci_parse($dbh, $query);
-        assert(is_resource($stmt));
+        $statement = oci_parse($dbh, $query);
+        assert(is_resource($statement));
 
-        $this->_sth          = $stmt;
-        $this->_dbh          = $dbh;
-        $this->_paramMap     = $paramMap;
+        $this->statement     = $statement;
+        $this->connection    = $dbh;
+        $this->parameterMap  = $parameterMap;
         $this->executionMode = $executionMode;
     }
 
@@ -103,15 +103,15 @@ final class OCI8Statement implements Statement
     public function bindParam($param, &$variable, int $type = ParameterType::STRING, ?int $length = null) : void
     {
         if (is_int($param)) {
-            if (! isset($this->_paramMap[$param])) {
+            if (! isset($this->parameterMap[$param])) {
                 throw new OCI8Exception(sprintf('Could not find variable mapping with index %d, in the SQL statement', $param));
             }
 
-            $param = $this->_paramMap[$param];
+            $param = $this->parameterMap[$param];
         }
 
         if ($type === ParameterType::LARGE_OBJECT) {
-            $lob = oci_new_descriptor($this->_dbh, OCI_D_LOB);
+            $lob = oci_new_descriptor($this->connection, OCI_D_LOB);
 
             $class = 'OCI-Lob';
             assert($lob instanceof $class);
@@ -124,13 +124,13 @@ final class OCI8Statement implements Statement
         $this->boundValues[$param] =& $variable;
 
         if (! oci_bind_by_name(
-            $this->_sth,
+            $this->statement,
             $param,
             $variable,
             $length ?? -1,
             $this->convertParameterType($type)
         )) {
-            throw OCI8Exception::fromErrorInfo(oci_error($this->_sth));
+            throw OCI8Exception::fromErrorInfo(oci_error($this->statement));
         }
     }
 
@@ -158,14 +158,14 @@ final class OCI8Statement implements Statement
             return;
         }
 
-        oci_cancel($this->_sth);
+        oci_cancel($this->statement);
 
         $this->result = false;
     }
 
     public function columnCount() : int
     {
-        $count = oci_num_fields($this->_sth);
+        $count = oci_num_fields($this->statement);
 
         if ($count !== false) {
             return $count;
@@ -197,9 +197,9 @@ final class OCI8Statement implements Statement
             $mode = OCI_NO_AUTO_COMMIT;
         }
 
-        $ret = @oci_execute($this->_sth, $mode);
+        $ret = @oci_execute($this->statement, $mode);
         if (! $ret) {
-            throw OCI8Exception::fromErrorInfo(oci_error($this->_sth));
+            throw OCI8Exception::fromErrorInfo(oci_error($this->statement));
         }
 
         $this->result = true;
@@ -207,7 +207,7 @@ final class OCI8Statement implements Statement
 
     public function rowCount() : int
     {
-        $count = oci_num_rows($this->_sth);
+        $count = oci_num_rows($this->statement);
 
         if ($count !== false) {
             return $count;
@@ -276,7 +276,7 @@ final class OCI8Statement implements Statement
         }
 
         return oci_fetch_array(
-            $this->_sth,
+            $this->statement,
             $mode | OCI_RETURN_NULLS | OCI_RETURN_LOBS
         );
     }
@@ -293,7 +293,7 @@ final class OCI8Statement implements Statement
         }
 
         oci_fetch_all(
-            $this->_sth,
+            $this->statement,
             $result,
             0,
             -1,

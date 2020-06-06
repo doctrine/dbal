@@ -301,7 +301,7 @@ final class MysqliStatement implements Statement
     /**
      * @return mixed[]|false|null
      */
-    private function _fetch()
+    private function fetch()
     {
         $ret = $this->stmt->fetch();
 
@@ -328,7 +328,7 @@ final class MysqliStatement implements Statement
             return false;
         }
 
-        $values = $this->_fetch();
+        $values = $this->fetch();
 
         if ($values === null) {
             return false;

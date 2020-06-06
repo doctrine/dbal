@@ -32,7 +32,7 @@ parameters:
             path: %currentWorkingDirectory%/tests/Functional/DataAccessTest.php
 
         # https://github.com/JetBrains/phpstorm-stubs/pull/766
-        - '~^Method Doctrine\\DBAL\\Driver\\Mysqli\\MysqliStatement::_fetch\(\) never returns null so it can be removed from the return typehint\.$~'
+        - '~^Method Doctrine\\DBAL\\Driver\\Mysqli\\MysqliStatement::fetch\(\) never returns null so it can be removed from the return typehint\.$~'
 
         # The ReflectionException in the case when the class does not exist is acceptable and does not need to be handled
         - '~^Parameter #1 \$argument of class ReflectionClass constructor expects class-string<T of object>\|T of object, string given\.$~'
