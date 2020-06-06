@@ -20,22 +20,18 @@ environment:
   - db: mssql
     driver: sqlsrv
     db_version: sql2008r2sp2
-    coverage: yes
     php: 7.3
   - db: mssql
     driver: sqlsrv
     db_version: sql2012sp1
-    coverage: yes
     php: 7.3
   - db: mssql
     driver: sqlsrv
     db_version: sql2017
-    coverage: no
     php: 7.3
   - db: mssql
     driver: pdo_sqlsrv
     db_version: sql2017
-    coverage: yes
     php: 7.3
 
 init:
@@ -78,15 +74,14 @@ install:
           $destination = "c:\tools\php\ext\php_pdo_sqlsrv-$($DLLVersion)-$($env:php)-nts-vc15-x64.zip"
           Invoke-WebRequest $source -OutFile $destination
           7z x -y php_pdo_sqlsrv-$($DLLVersion)-$($env:php)-nts-vc15-x64.zip > $null
-          $DLLVersion = (Invoke-WebRequest "https://pecl.php.net/rest/r/xdebug/stable.txt").Content
-          $source = "https://xdebug.org/files/php_xdebug-$($DLLVersion)-$($env:php)-vc15-nts-x86_64.dll"
-          $destination = "c:\tools\php\ext\php_xdebug.dll"
-          Invoke-WebRequest $source -OutFile $destination
+          $DLLVersion = (Invoke-WebRequest "https://pecl.php.net/rest/r/pcov/stable.txt").Content
+          Invoke-WebRequest https://windows.php.net/downloads/pecl/releases/pcov/$($DLLVersion)/php_pcov-$($DLLVersion)-7.3-nts-vc15-$($env:platform).zip -OutFile pcov.zip
+          7z x -y pcov.zip > $null
           Remove-Item c:\tools\php\* -include .zip
           cd c:\tools\php
           Add-Content php.ini "`nextension=php_sqlsrv.dll"
           Add-Content php.ini "`nextension=php_pdo_sqlsrv.dll"
-          Add-Content php.ini "`nzend_extension=php_xdebug.dll"
+          Add-Content php.ini "`nextension=php_pcov.dll"
           Add-Content php.ini "`n"
 
           # download Composer
@@ -127,11 +122,7 @@ test_script:
         $env:phpunit_config = "tests\appveyor\$($env:db).$($env:driver).appveyor.xml"
       }
 
-      if ($env:coverage -eq "yes") {
-        vendor\bin\phpunit -c $($env:phpunit_config) --coverage-clover clover.xml
-      } else {
-        vendor\bin\phpunit -c $($env:phpunit_config)
-      }
+      vendor\bin\phpunit -c $($env:phpunit_config) --coverage-clover clover.xml
 
       if ($LastExitCode -ne 0) {
         $host.SetShouldExit($LastExitCode)
