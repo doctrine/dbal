@@ -135,7 +135,7 @@ class ResultCacheTest extends DbalFunctionalTestCase
         self::assertEquals($data, $dataIterator);
     }
 
-    public function testDontCloseNoCache(): void
+    public function testFetchAndFinishSavesCache(): void
     {
         $stmt = $this->connection->executeQuery('SELECT * FROM caching ORDER BY test_int ASC', [], [], new QueryCacheProfile(0, 'testcachekey'));
 
@@ -153,7 +153,7 @@ class ResultCacheTest extends DbalFunctionalTestCase
             $data[] = $row;
         }
 
-        self::assertCount(2, $this->sqlLogger->queries);
+        self::assertCount(1, $this->sqlLogger->queries);
     }
 
     public function testDontFinishNoCache(): void
@@ -161,7 +161,6 @@ class ResultCacheTest extends DbalFunctionalTestCase
         $stmt = $this->connection->executeQuery('SELECT * FROM caching ORDER BY test_int ASC', [], [], new QueryCacheProfile(0, 'testcachekey'));
 
         $stmt->fetch(FetchMode::ASSOCIATIVE);
-        $stmt->closeCursor();
 
         $stmt = $this->connection->executeQuery('SELECT * FROM caching ORDER BY test_int ASC', [], [], new QueryCacheProfile(0, 'testcachekey'));
 
@@ -170,12 +169,11 @@ class ResultCacheTest extends DbalFunctionalTestCase
         self::assertCount(2, $this->sqlLogger->queries);
     }
 
-    public function testFetchAllAndFinishSavesCache(): void
+    public function testFetchAllSavesCache(): void
     {
         $layerCache = new ArrayCache();
         $stmt       = $this->connection->executeQuery('SELECT * FROM caching WHERE test_int > 500', [], [], new QueryCacheProfile(0, 'testcachekey', $layerCache));
         $stmt->fetchAll();
-        $stmt->closeCursor();
 
         self::assertCount(1, $layerCache->fetch('testcachekey'));
     }
@@ -189,7 +187,6 @@ class ResultCacheTest extends DbalFunctionalTestCase
 
         $stmt = $this->connection->executeCacheQuery($query, [], [], $qcp);
         $stmt->fetchAll(FetchMode::COLUMN);
-        $stmt->closeCursor();
 
         $stmt = $this->connection->executeCacheQuery($query, [], [], $qcp);
 
@@ -251,8 +248,6 @@ class ResultCacheTest extends DbalFunctionalTestCase
             $data[] = is_array($row) ? array_change_key_case($row, CASE_LOWER) : $row;
         }
 
-        $stmt->closeCursor();
-
         return $data;
     }
 
@@ -266,8 +261,6 @@ class ResultCacheTest extends DbalFunctionalTestCase
         foreach ($stmt as $row) {
             $data[] = is_array($row) ? array_change_key_case($row, CASE_LOWER) : $row;
         }
-
-        $stmt->closeCursor();
 
         return $data;
     }
