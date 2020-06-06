@@ -50,14 +50,7 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Forwar
     /** @var ResultStatement */
     private $statement;
 
-    /**
-     * Did we reach the end of the statement?
-     *
-     * @var bool
-     */
-    private $emptied = false;
-
-    /** @var array<int,array<string,mixed>> */
+    /** @var array<int,array<string,mixed>>|null */
     private $data;
 
     /** @var int */
@@ -83,19 +76,8 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Forwar
     public function closeCursor()
     {
         $this->statement->closeCursor();
-        if (! $this->emptied || $this->data === null) {
-            return true;
-        }
 
-        $data = $this->resultCache->fetch($this->cacheKey);
-        if (! $data) {
-            $data = [];
-        }
-
-        $data[$this->realKey] = $this->data;
-
-        $this->resultCache->save($this->cacheKey, $data, $this->lifetime);
-        unset($this->data);
+        $this->data = null;
 
         return true;
     }
@@ -169,7 +151,7 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Forwar
             throw new InvalidArgumentException('Invalid fetch-style given for caching result.');
         }
 
-        $this->emptied = true;
+        $this->saveToCache();
 
         return false;
     }
@@ -183,8 +165,9 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Forwar
     {
         $data = $this->statement->fetchAll(FetchMode::ASSOCIATIVE, $fetchArgument, $ctorArgs);
 
-        $this->data    = $data;
-        $this->emptied = true;
+        $this->data = $data;
+
+        $this->saveToCache();
 
         if ($fetchMode === FetchMode::NUMERIC) {
             foreach ($data as $i => $row) {
@@ -327,7 +310,7 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Forwar
             return $row;
         }
 
-        $this->emptied = true;
+        $this->saveToCache();
 
         return false;
     }
@@ -337,7 +320,22 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Forwar
      */
     private function store(array $data): void
     {
-        $this->data    = $data;
-        $this->emptied = true;
+        $this->data = $data;
+    }
+
+    private function saveToCache(): void
+    {
+        if ($this->data === null) {
+            return;
+        }
+
+        $data = $this->resultCache->fetch($this->cacheKey);
+        if (! $data) {
+            $data = [];
+        }
+
+        $data[$this->realKey] = $this->data;
+
+        $this->resultCache->save($this->cacheKey, $data, $this->lifetime);
     }
 }
