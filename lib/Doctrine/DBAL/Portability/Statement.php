@@ -2,11 +2,11 @@
 
 namespace Doctrine\DBAL\Portability;
 
+use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\FetchMode;
-use Doctrine\DBAL\ForwardCompatibility\Driver\ResultStatement as ForwardCompatibleResultStatement;
 use Doctrine\DBAL\ParameterType;
 use IteratorAggregate;
 use PDO;
@@ -19,7 +19,7 @@ use function rtrim;
 /**
  * Portability wrapper for a Statement.
  */
-class Statement implements IteratorAggregate, DriverStatement, ForwardCompatibleResultStatement
+class Statement implements IteratorAggregate, DriverStatement, Result
 {
     /** @var int */
     private $portability;
@@ -185,7 +185,7 @@ class Statement implements IteratorAggregate, DriverStatement, ForwardCompatible
      */
     public function fetchNumeric()
     {
-        if ($this->stmt instanceof ForwardCompatibleResultStatement) {
+        if ($this->stmt instanceof Result) {
             $row = $this->stmt->fetchNumeric();
         } else {
             $row = $this->stmt->fetch(FetchMode::NUMERIC);
@@ -199,7 +199,7 @@ class Statement implements IteratorAggregate, DriverStatement, ForwardCompatible
      */
     public function fetchAssociative()
     {
-        if ($this->stmt instanceof ForwardCompatibleResultStatement) {
+        if ($this->stmt instanceof Result) {
             $row = $this->stmt->fetchAssociative();
         } else {
             $row = $this->stmt->fetch(FetchMode::ASSOCIATIVE);
@@ -213,7 +213,7 @@ class Statement implements IteratorAggregate, DriverStatement, ForwardCompatible
      */
     public function fetchOne()
     {
-        if ($this->stmt instanceof ForwardCompatibleResultStatement) {
+        if ($this->stmt instanceof Result) {
             $value = $this->stmt->fetchOne();
         } else {
             $value = $this->stmt->fetch(FetchMode::COLUMN);
@@ -233,7 +233,7 @@ class Statement implements IteratorAggregate, DriverStatement, ForwardCompatible
      */
     public function fetchAllNumeric(): array
     {
-        if ($this->stmt instanceof ForwardCompatibleResultStatement) {
+        if ($this->stmt instanceof Result) {
             $data = $this->stmt->fetchAllNumeric();
         } else {
             $data = $this->stmt->fetchAll(FetchMode::NUMERIC);
@@ -247,7 +247,7 @@ class Statement implements IteratorAggregate, DriverStatement, ForwardCompatible
      */
     public function fetchAllAssociative(): array
     {
-        if ($this->stmt instanceof ForwardCompatibleResultStatement) {
+        if ($this->stmt instanceof Result) {
             $data = $this->stmt->fetchAllAssociative();
         } else {
             $data = $this->stmt->fetchAll(FetchMode::ASSOCIATIVE);
@@ -261,7 +261,7 @@ class Statement implements IteratorAggregate, DriverStatement, ForwardCompatible
      */
     public function fetchFirstColumn(): array
     {
-        if ($this->stmt instanceof ForwardCompatibleResultStatement) {
+        if ($this->stmt instanceof Result) {
             $data = $this->stmt->fetchFirstColumn();
         } else {
             $data = $this->stmt->fetchAll(FetchMode::COLUMN);

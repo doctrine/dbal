@@ -2,16 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Doctrine\DBAL\ForwardCompatibility;
+namespace Doctrine\DBAL\Abstraction;
 
 use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\ForwardCompatibility\Driver\ResultStatement as BaseResultStatement;
+use Doctrine\DBAL\Driver\Result as DriverResult;
 use Traversable;
 
 /**
- * Forward compatibility extension for the DBAL ResultStatement interface.
+ * Abstraction-level result statement execution result. Provides additional methods on top
+ * of the driver-level interface.
  */
-interface ResultStatement extends BaseResultStatement
+interface Result extends DriverResult
 {
     /**
      * Returns an iterator over the result set rows represented as numeric arrays.

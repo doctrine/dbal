@@ -3,7 +3,6 @@
 namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\FetchMode;
-use Doctrine\DBAL\ForwardCompatibility\Driver\ResultStatement as ForwardCompatibleResultStatement;
 use Doctrine\DBAL\ParameterType;
 use PDO;
 
@@ -20,7 +19,7 @@ use const E_USER_DEPRECATED;
  * The PDO implementation of the Statement interface.
  * Used by all PDO-based drivers.
  */
-class PDOStatement extends \PDOStatement implements Statement, ForwardCompatibleResultStatement
+class PDOStatement extends \PDOStatement implements Statement, Result
 {
     private const PARAM_TYPE_MAP = [
         ParameterType::NULL         => PDO::PARAM_NULL,

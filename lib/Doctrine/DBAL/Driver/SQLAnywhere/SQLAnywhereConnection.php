@@ -3,8 +3,8 @@
 namespace Doctrine\DBAL\Driver\SQLAnywhere;
 
 use Doctrine\DBAL\Driver\Connection;
+use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
-use Doctrine\DBAL\ForwardCompatibility\Driver\ResultStatement as ForwardCompatibleResultStatement;
 use Doctrine\DBAL\ParameterType;
 
 use function assert;
@@ -129,7 +129,7 @@ class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
     {
         $stmt = $this->query("SELECT PROPERTY('ProductVersion')");
 
-        if ($stmt instanceof ForwardCompatibleResultStatement) {
+        if ($stmt instanceof Result) {
             $version = $stmt->fetchOne();
         } else {
             $version = $stmt->fetchColumn();
@@ -151,7 +151,7 @@ class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
 
         $stmt = $this->query('SELECT ' . $name . '.CURRVAL');
 
-        if ($stmt instanceof ForwardCompatibleResultStatement) {
+        if ($stmt instanceof Result) {
             return $stmt->fetchOne();
         }
 

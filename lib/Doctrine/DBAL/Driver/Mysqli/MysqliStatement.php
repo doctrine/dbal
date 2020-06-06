@@ -3,11 +3,11 @@
 namespace Doctrine\DBAL\Driver\Mysqli;
 
 use Doctrine\DBAL\Driver\FetchUtils;
+use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\FetchMode;
-use Doctrine\DBAL\ForwardCompatibility\Driver\ResultStatement as ForwardCompatibleResultStatement;
 use Doctrine\DBAL\ParameterType;
 use IteratorAggregate;
 use mysqli;
@@ -27,7 +27,7 @@ use function is_resource;
 use function sprintf;
 use function str_repeat;
 
-class MysqliStatement implements IteratorAggregate, Statement, ForwardCompatibleResultStatement
+class MysqliStatement implements IteratorAggregate, Statement, Result
 {
     /** @var string[] */
     protected static $_paramTypeMap = [

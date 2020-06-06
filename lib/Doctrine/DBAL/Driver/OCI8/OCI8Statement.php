@@ -3,10 +3,10 @@
 namespace Doctrine\DBAL\Driver\OCI8;
 
 use Doctrine\DBAL\Driver\FetchUtils;
+use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\FetchMode;
-use Doctrine\DBAL\ForwardCompatibility\Driver\ResultStatement as ForwardCompatibleResultStatement;
 use Doctrine\DBAL\ParameterType;
 use InvalidArgumentException;
 use IteratorAggregate;
@@ -51,7 +51,7 @@ use const SQLT_CHR;
 /**
  * The OCI8 implementation of the Statement interface.
  */
-class OCI8Statement implements IteratorAggregate, Statement, ForwardCompatibleResultStatement
+class OCI8Statement implements IteratorAggregate, Statement, Result
 {
     /** @var resource */
     protected $_dbh;

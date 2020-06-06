@@ -2,18 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Doctrine\DBAL\ForwardCompatibility\Driver;
+namespace Doctrine\DBAL\Driver;
 
-use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Driver\ResultStatement as BaseResultStatement;
 
 /**
- * Forward compatibility extension for the ResultStatement interface.
+ * Driver-level result statement execution result.
  */
-interface ResultStatement extends BaseResultStatement
+interface Result extends BaseResultStatement
 {
     /**
-     * Returns the next row of a result set as a numeric array or FALSE if there are no more rows.
+     * Returns the next row of the result as a numeric array or FALSE if there are no more rows.
      *
      * @return array<int,mixed>|false
      *
@@ -22,7 +21,7 @@ interface ResultStatement extends BaseResultStatement
     public function fetchNumeric();
 
     /**
-     * Returns the next row of a result set as an associative array or FALSE if there are no more rows.
+     * Returns the next row of the result as an associative array or FALSE if there are no more rows.
      *
      * @return array<string,mixed>|false
      *
@@ -31,7 +30,7 @@ interface ResultStatement extends BaseResultStatement
     public function fetchAssociative();
 
     /**
-     * Returns the first value of the next row of a result set or FALSE if there are no more rows.
+     * Returns the first value of the next row of the result or FALSE if there are no more rows.
      *
      * @return mixed|false
      *
@@ -40,7 +39,7 @@ interface ResultStatement extends BaseResultStatement
     public function fetchOne();
 
     /**
-     * Returns an array containing all of the result set rows represented as numeric arrays.
+     * Returns an array containing all of the result rows represented as numeric arrays.
      *
      * @return array<int,array<int,mixed>>
      *
@@ -49,7 +48,7 @@ interface ResultStatement extends BaseResultStatement
     public function fetchAllNumeric(): array;
 
     /**
-     * Returns an array containing all of the result set rows represented as associative arrays.
+     * Returns an array containing all of the result rows represented as associative arrays.
      *
      * @return array<int,array<string,mixed>>
      *
@@ -58,7 +57,7 @@ interface ResultStatement extends BaseResultStatement
     public function fetchAllAssociative(): array;
 
     /**
-     * Returns an array containing the values of the first column of the result set.
+     * Returns an array containing the values of the first column of the result.
      *
      * @return array<int,mixed>
      *

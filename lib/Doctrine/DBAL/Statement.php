@@ -2,9 +2,9 @@
 
 namespace Doctrine\DBAL;
 
+use Doctrine\DBAL\Abstraction\Result;
 use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
-use Doctrine\DBAL\ForwardCompatibility\ResultStatement as ForwardCompatibleResultStatement;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
 use IteratorAggregate;
@@ -19,7 +19,7 @@ use function is_string;
  * A thin wrapper around a Doctrine\DBAL\Driver\Statement that adds support
  * for logging, DBAL mapping types, etc.
  */
-class Statement implements IteratorAggregate, DriverStatement, ForwardCompatibleResultStatement
+class Statement implements IteratorAggregate, DriverStatement, Result
 {
     /**
      * The SQL statement.
@@ -289,7 +289,7 @@ class Statement implements IteratorAggregate, DriverStatement, ForwardCompatible
     public function fetchNumeric()
     {
         try {
-            if ($this->stmt instanceof ForwardCompatibleResultStatement) {
+            if ($this->stmt instanceof Result) {
                 return $this->stmt->fetchNumeric();
             }
 
@@ -307,7 +307,7 @@ class Statement implements IteratorAggregate, DriverStatement, ForwardCompatible
     public function fetchAssociative()
     {
         try {
-            if ($this->stmt instanceof ForwardCompatibleResultStatement) {
+            if ($this->stmt instanceof Result) {
                 return $this->stmt->fetchAssociative();
             }
 
@@ -325,7 +325,7 @@ class Statement implements IteratorAggregate, DriverStatement, ForwardCompatible
     public function fetchOne()
     {
         try {
-            if ($this->stmt instanceof ForwardCompatibleResultStatement) {
+            if ($this->stmt instanceof Result) {
                 return $this->stmt->fetchOne();
             }
 
@@ -343,7 +343,7 @@ class Statement implements IteratorAggregate, DriverStatement, ForwardCompatible
     public function fetchAllNumeric(): array
     {
         try {
-            if ($this->stmt instanceof ForwardCompatibleResultStatement) {
+            if ($this->stmt instanceof Result) {
                 return $this->stmt->fetchAllNumeric();
             }
 
@@ -361,7 +361,7 @@ class Statement implements IteratorAggregate, DriverStatement, ForwardCompatible
     public function fetchAllAssociative(): array
     {
         try {
-            if ($this->stmt instanceof ForwardCompatibleResultStatement) {
+            if ($this->stmt instanceof Result) {
                 return $this->stmt->fetchAllAssociative();
             }
 
@@ -379,7 +379,7 @@ class Statement implements IteratorAggregate, DriverStatement, ForwardCompatible
     public function fetchFirstColumn(): array
     {
         try {
-            if ($this->stmt instanceof ForwardCompatibleResultStatement) {
+            if ($this->stmt instanceof Result) {
                 return $this->stmt->fetchFirstColumn();
             }
 
@@ -399,7 +399,7 @@ class Statement implements IteratorAggregate, DriverStatement, ForwardCompatible
     public function iterateNumeric(): Traversable
     {
         try {
-            if ($this->stmt instanceof ForwardCompatibleResultStatement) {
+            if ($this->stmt instanceof Result) {
                 while (($row = $this->stmt->fetchNumeric()) !== false) {
                     yield $row;
                 }
@@ -423,7 +423,7 @@ class Statement implements IteratorAggregate, DriverStatement, ForwardCompatible
     public function iterateAssociative(): Traversable
     {
         try {
-            if ($this->stmt instanceof ForwardCompatibleResultStatement) {
+            if ($this->stmt instanceof Result) {
                 while (($row = $this->stmt->fetchAssociative()) !== false) {
                     yield $row;
                 }
@@ -447,7 +447,7 @@ class Statement implements IteratorAggregate, DriverStatement, ForwardCompatible
     public function iterateColumn(): Traversable
     {
         try {
-            if ($this->stmt instanceof ForwardCompatibleResultStatement) {
+            if ($this->stmt instanceof Result) {
                 while (($value = $this->stmt->fetchOne()) !== false) {
                     yield $value;
                 }

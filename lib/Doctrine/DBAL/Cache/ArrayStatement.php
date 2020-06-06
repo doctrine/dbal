@@ -4,9 +4,9 @@ namespace Doctrine\DBAL\Cache;
 
 use ArrayIterator;
 use Doctrine\DBAL\Driver\FetchUtils;
+use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\FetchMode;
-use Doctrine\DBAL\ForwardCompatibility\Driver\ResultStatement as ForwardCompatibleResultStatement;
 use InvalidArgumentException;
 use IteratorAggregate;
 use PDO;
@@ -16,7 +16,7 @@ use function array_values;
 use function count;
 use function reset;
 
-class ArrayStatement implements IteratorAggregate, ResultStatement, ForwardCompatibleResultStatement
+class ArrayStatement implements IteratorAggregate, ResultStatement, Result
 {
     /** @var mixed[] */
     private $data;

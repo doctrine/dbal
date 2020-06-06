@@ -3,10 +3,10 @@
 namespace Doctrine\DBAL\Driver\SQLSrv;
 
 use Doctrine\DBAL\Driver\FetchUtils;
+use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\FetchMode;
-use Doctrine\DBAL\ForwardCompatibility\Driver\ResultStatement as ForwardCompatibleResultStatement;
 use Doctrine\DBAL\ParameterType;
 use IteratorAggregate;
 use PDO;
@@ -42,7 +42,7 @@ use const SQLSRV_PARAM_IN;
 /**
  * SQL Server Statement.
  */
-class SQLSrvStatement implements IteratorAggregate, Statement, ForwardCompatibleResultStatement
+class SQLSrvStatement implements IteratorAggregate, Statement, Result
 {
     /**
      * The SQLSRV Resource.
