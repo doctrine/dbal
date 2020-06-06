@@ -1,5 +1,9 @@
 # Upgrade to 2.11
 
+## Deprecated `ArrayStatement` and `ResultCacheStatement` classes.
+
+The `ArrayStatement` and `ResultCacheStatement` classes are deprecated. In a future major release they will be renamed and marked internal as implementation details of the caching layer.
+
 ## Deprecated `ResultStatement` interface
 
 1. The `ResultStatement` interface is deprecated. Use the `Driver\Result` and `Abstraction\Result` interfaces instead.

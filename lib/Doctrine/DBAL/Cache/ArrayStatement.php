@@ -16,6 +16,9 @@ use function array_values;
 use function count;
 use function reset;
 
+/**
+ * @deprecated
+ */
 class ArrayStatement implements IteratorAggregate, ResultStatement, Result
 {
     /** @var mixed[] */
