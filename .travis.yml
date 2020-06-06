@@ -11,8 +11,6 @@ before_install:
   - |
     if [ "x$COVERAGE" == "xyes" ]; then
       pecl install pcov-1.0.0
-      wget https://github.com/php-coveralls/php-coveralls/releases/download/v2.2.0/php-coveralls.phar --output-document="${HOME}/bin/coveralls"
-      chmod +x ${HOME}/bin/coveralls
     fi
 
 before_script:
@@ -33,10 +31,10 @@ script:
        ./vendor/bin/phpunit --configuration tests/travis/$DB.travis.xml
     fi
 
-after_script:
+after_success:
   - |
     if [ "x$COVERAGE" == "xyes" ]; then
-      travis_retry coveralls -v
+      bash <(curl -s https://codecov.io/bash)
     fi
 
 jobs:
