@@ -48,9 +48,17 @@ class ArrayStatement implements IteratorAggregate, ResultStatement, Result
      */
     public function closeCursor()
     {
-        unset($this->data);
+        $this->data = [];
 
         return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function rowCount()
+    {
+        return count($this->data);
     }
 
     /**

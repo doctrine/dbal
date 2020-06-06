@@ -64,6 +64,17 @@ interface Result
     public function fetchFirstColumn(): array;
 
     /**
+     * Returns the number of rows affected by the DELETE, INSERT, or UPDATE statement that produced the result.
+     *
+     * If the statement executed a SELECT query or a similar platform-specific SQL (e.g. DESCRIBE, SHOW, etc.),
+     * some database drivers may return the number of rows returned by that query. However, this behaviour
+     * is not guaranteed for all drivers and should not be relied on in portable applications.
+     *
+     * @return int The number of rows.
+     */
+    public function rowCount();
+
+    /**
      * Returns the number of columns in the result
      *
      * @return int The number of columns in the result. If the columns cannot be counted,
