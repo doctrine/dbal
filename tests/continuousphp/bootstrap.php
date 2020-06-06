@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Doctrine\DBAL\DriverManager;
 
-(static function () : void {
+(static function (): void {
     // workaround for https://bugs.php.net/bug.php?id=77120
     DriverManager::getConnection([
         'driver' => 'oci8',

@@ -20,7 +20,7 @@ final class DateIntervalTest extends DbalTestCase
     /** @var DateIntervalType */
     private $type;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->platform = $this->createMock(AbstractPlatform::class);
         $this->type     = Type::getType('dateinterval');
@@ -28,7 +28,7 @@ final class DateIntervalTest extends DbalTestCase
         self::assertInstanceOf(DateIntervalType::class, $this->type);
     }
 
-    public function testDateIntervalConvertsToDatabaseValue() : void
+    public function testDateIntervalConvertsToDatabaseValue(): void
     {
         $interval = new DateInterval('P2Y1DT1H2M3S');
 
@@ -38,7 +38,7 @@ final class DateIntervalTest extends DbalTestCase
         self::assertEquals($expected, $actual);
     }
 
-    public function testDateIntervalConvertsToPHPValue() : void
+    public function testDateIntervalConvertsToPHPValue(): void
     {
         $interval = $this->type->convertToPHPValue('+P02Y00M01DT01H02M03S', $this->platform);
 
@@ -46,7 +46,7 @@ final class DateIntervalTest extends DbalTestCase
         self::assertEquals('+P02Y00M01DT01H02M03S', $interval->format(DateIntervalType::FORMAT));
     }
 
-    public function testNegativeDateIntervalConvertsToDatabaseValue() : void
+    public function testNegativeDateIntervalConvertsToDatabaseValue(): void
     {
         $interval         = new DateInterval('P2Y1DT1H2M3S');
         $interval->invert = 1;
@@ -56,7 +56,7 @@ final class DateIntervalTest extends DbalTestCase
         self::assertEquals('-P02Y00M01DT01H02M03S', $actual);
     }
 
-    public function testNegativeDateIntervalConvertsToPHPValue() : void
+    public function testNegativeDateIntervalConvertsToPHPValue(): void
     {
         $interval = $this->type->convertToPHPValue('-P02Y00M01DT01H02M03S', $this->platform);
 
@@ -64,7 +64,7 @@ final class DateIntervalTest extends DbalTestCase
         self::assertEquals('-P02Y00M01DT01H02M03S', $interval->format(DateIntervalType::FORMAT));
     }
 
-    public function testDateIntervalFormatWithoutSignConvertsToPHPValue() : void
+    public function testDateIntervalFormatWithoutSignConvertsToPHPValue(): void
     {
         $interval = $this->type->convertToPHPValue('P02Y00M01DT01H02M03S', $this->platform);
 
@@ -72,19 +72,19 @@ final class DateIntervalTest extends DbalTestCase
         self::assertEquals('+P02Y00M01DT01H02M03S', $interval->format(DateIntervalType::FORMAT));
     }
 
-    public function testInvalidDateIntervalFormatConversion() : void
+    public function testInvalidDateIntervalFormatConversion(): void
     {
         $this->expectException(ConversionException::class);
 
         $this->type->convertToPHPValue('abcdefg', $this->platform);
     }
 
-    public function testDateIntervalNullConversion() : void
+    public function testDateIntervalNullConversion(): void
     {
         self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }
 
-    public function testDateIntervalEmptyStringConversion() : void
+    public function testDateIntervalEmptyStringConversion(): void
     {
         $this->expectException(ConversionException::class);
 
@@ -94,7 +94,7 @@ final class DateIntervalTest extends DbalTestCase
     /**
      * @group DBAL-1288
      */
-    public function testRequiresSQLCommentHint() : void
+    public function testRequiresSQLCommentHint(): void
     {
         self::assertTrue($this->type->requiresSQLCommentHint($this->platform));
     }
@@ -104,7 +104,7 @@ final class DateIntervalTest extends DbalTestCase
      *
      * @dataProvider invalidPHPValuesProvider
      */
-    public function testInvalidTypeConversionToDatabaseValue($value) : void
+    public function testInvalidTypeConversionToDatabaseValue($value): void
     {
         $this->expectException(ConversionException::class);
 
@@ -114,7 +114,7 @@ final class DateIntervalTest extends DbalTestCase
     /**
      * @return mixed[][]
      */
-    public static function invalidPHPValuesProvider() : iterable
+    public static function invalidPHPValuesProvider(): iterable
     {
         return [
             [0],

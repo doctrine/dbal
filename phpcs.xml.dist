@@ -23,6 +23,7 @@
         <exclude name="SlevomatCodingStandard.Classes.DisallowLateStaticBindingForConstants.DisallowedLateStaticBindingForConstant"/>
         <exclude name="SlevomatCodingStandard.ControlStructures.ControlStructureSpacing.IncorrectLinesCountAfterLastControlStructure"/>
 
+        <exclude name="PSR2.Methods.MethodDeclaration.Underscore"/>
         <!-- https://github.com/slevomat/coding-standard/issues/867 -->
         <exclude name="SlevomatCodingStandard.ControlStructures.JumpStatementsSpacing.IncorrectLinesCountAfterLastControlStructure"/>
         <!-- See https://github.com/squizlabs/PHP_CodeSniffer/issues/2937 -->

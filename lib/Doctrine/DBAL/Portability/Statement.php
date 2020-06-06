@@ -10,6 +10,7 @@ use Doctrine\DBAL\ForwardCompatibility\Driver\ResultStatement as ForwardCompatib
 use Doctrine\DBAL\ParameterType;
 use IteratorAggregate;
 use PDO;
+
 use function array_change_key_case;
 use function assert;
 use function is_string;
@@ -147,7 +148,7 @@ class Statement implements IteratorAggregate, DriverStatement, ForwardCompatible
 
         $row = $this->stmt->fetch($fetchMode);
 
-        $iterateRow = ($this->portability & (Connection::PORTABILITY_EMPTY_TO_NULL|Connection::PORTABILITY_RTRIM)) !== 0;
+        $iterateRow = ($this->portability & (Connection::PORTABILITY_EMPTY_TO_NULL | Connection::PORTABILITY_RTRIM)) !== 0;
         $fixCase    = $this->case !== null
             && ($fetchMode === FetchMode::ASSOCIATIVE || $fetchMode === FetchMode::MIXED)
             && ($this->portability & Connection::PORTABILITY_FIX_CASE);
@@ -230,7 +231,7 @@ class Statement implements IteratorAggregate, DriverStatement, ForwardCompatible
     /**
      * {@inheritdoc}
      */
-    public function fetchAllNumeric() : array
+    public function fetchAllNumeric(): array
     {
         if ($this->stmt instanceof ForwardCompatibleResultStatement) {
             $data = $this->stmt->fetchAllNumeric();
@@ -244,7 +245,7 @@ class Statement implements IteratorAggregate, DriverStatement, ForwardCompatible
     /**
      * {@inheritdoc}
      */
-    public function fetchAllAssociative() : array
+    public function fetchAllAssociative(): array
     {
         if ($this->stmt instanceof ForwardCompatibleResultStatement) {
             $data = $this->stmt->fetchAllAssociative();
@@ -258,7 +259,7 @@ class Statement implements IteratorAggregate, DriverStatement, ForwardCompatible
     /**
      * {@inheritdoc}
      */
-    public function fetchFirstColumn() : array
+    public function fetchFirstColumn(): array
     {
         if ($this->stmt instanceof ForwardCompatibleResultStatement) {
             $data = $this->stmt->fetchFirstColumn();
@@ -276,7 +277,7 @@ class Statement implements IteratorAggregate, DriverStatement, ForwardCompatible
      */
     private function fixResult($result, bool $fixCase)
     {
-        $iterateRow = ($this->portability & (Connection::PORTABILITY_EMPTY_TO_NULL|Connection::PORTABILITY_RTRIM)) !== 0;
+        $iterateRow = ($this->portability & (Connection::PORTABILITY_EMPTY_TO_NULL | Connection::PORTABILITY_RTRIM)) !== 0;
         $fixCase    = $fixCase && $this->case !== null && ($this->portability & Connection::PORTABILITY_FIX_CASE) !== 0;
 
         return $this->fixRow($result, $iterateRow, $fixCase);
@@ -287,9 +288,9 @@ class Statement implements IteratorAggregate, DriverStatement, ForwardCompatible
      *
      * @return array<int,mixed>
      */
-    private function fixResultSet(array $resultSet, bool $fixCase, bool $isArray) : array
+    private function fixResultSet(array $resultSet, bool $fixCase, bool $isArray): array
     {
-        $iterateRow = ($this->portability & (Connection::PORTABILITY_EMPTY_TO_NULL|Connection::PORTABILITY_RTRIM)) !== 0;
+        $iterateRow = ($this->portability & (Connection::PORTABILITY_EMPTY_TO_NULL | Connection::PORTABILITY_RTRIM)) !== 0;
         $fixCase    = $fixCase && $this->case !== null && ($this->portability & Connection::PORTABILITY_FIX_CASE) !== 0;
 
         if (! $iterateRow && ! $fixCase) {
@@ -354,7 +355,7 @@ class Statement implements IteratorAggregate, DriverStatement, ForwardCompatible
     {
         $value = $this->stmt->fetchColumn($columnIndex);
 
-        if ($this->portability & (Connection::PORTABILITY_EMPTY_TO_NULL|Connection::PORTABILITY_RTRIM)) {
+        if ($this->portability & (Connection::PORTABILITY_EMPTY_TO_NULL | Connection::PORTABILITY_RTRIM)) {
             if (($this->portability & Connection::PORTABILITY_EMPTY_TO_NULL) && $value === '') {
                 $value = null;
             } elseif (($this->portability & Connection::PORTABILITY_RTRIM) && is_string($value)) {

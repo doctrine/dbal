@@ -4,6 +4,7 @@ namespace Doctrine\Tests\DBAL\Functional\Connection\BackwardCompatibility;
 
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Connection as BaseConnection;
+
 use function func_get_args;
 
 /**

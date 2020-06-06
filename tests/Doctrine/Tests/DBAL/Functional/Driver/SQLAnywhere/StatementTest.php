@@ -5,11 +5,12 @@ namespace Doctrine\Tests\DBAL\Functional\Driver\SQLAnywhere;
 use Doctrine\DBAL\Driver\SQLAnywhere\Driver;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\Tests\DbalFunctionalTestCase;
+
 use function extension_loaded;
 
 class StatementTest extends DbalFunctionalTestCase
 {
-    protected function setUp() : void
+    protected function setUp(): void
     {
         if (! extension_loaded('sqlanywhere')) {
             $this->markTestSkipped('sqlanywhere is not installed.');
@@ -24,7 +25,7 @@ class StatementTest extends DbalFunctionalTestCase
         $this->markTestSkipped('sqlanywhere only test.');
     }
 
-    public function testNonPersistentStatement() : void
+    public function testNonPersistentStatement(): void
     {
         $params               = $this->connection->getParams();
         $params['persistent'] = false;
@@ -39,7 +40,7 @@ class StatementTest extends DbalFunctionalTestCase
         self::assertTrue($prepStmt->execute(), ' Statement non-persistent failed');
     }
 
-    public function testPersistentStatement() : void
+    public function testPersistentStatement(): void
     {
         $params               = $this->connection->getParams();
         $params['persistent'] = true;

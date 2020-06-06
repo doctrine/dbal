@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Types;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+
 use function array_map;
 use function get_class;
 use function str_replace;
@@ -196,7 +197,7 @@ abstract class Type
     /**
      * @internal This method is only to be used within DBAL for forward compatibility purposes. Do not use directly.
      */
-    final public static function getTypeRegistry() : TypeRegistry
+    final public static function getTypeRegistry(): TypeRegistry
     {
         if (self::$typeRegistry === null) {
             self::$typeRegistry = self::createTypeRegistry();
@@ -205,7 +206,7 @@ abstract class Type
         return self::$typeRegistry;
     }
 
-    private static function createTypeRegistry() : TypeRegistry
+    private static function createTypeRegistry(): TypeRegistry
     {
         $registry = new TypeRegistry();
 
@@ -295,7 +296,7 @@ abstract class Type
     public static function getTypesMap()
     {
         return array_map(
-            static function (Type $type) : string {
+            static function (Type $type): string {
                 return get_class($type);
             },
             self::getTypeRegistry()->getMap()

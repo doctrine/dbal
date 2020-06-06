@@ -4,11 +4,12 @@ namespace Doctrine\Tests\DBAL\Functional\Connection\BackwardCompatibility;
 
 use Doctrine\DBAL\DriverManager;
 use Doctrine\Tests\DBAL\Functional\Connection\FetchTest as BaseFetchTest;
+
 use function array_merge;
 
 class FetchTest extends BaseFetchTest
 {
-    public function setUp() : void
+    public function setUp(): void
     {
         parent::setUp();
 

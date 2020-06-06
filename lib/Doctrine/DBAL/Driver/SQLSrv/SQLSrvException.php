@@ -3,8 +3,10 @@
 namespace Doctrine\DBAL\Driver\SQLSrv;
 
 use Doctrine\DBAL\Driver\AbstractDriverException;
+
 use function rtrim;
 use function sqlsrv_errors;
+
 use const SQLSRV_ERR_ERRORS;
 
 /**

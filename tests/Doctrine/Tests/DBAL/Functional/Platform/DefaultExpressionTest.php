@@ -11,11 +11,12 @@ use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Tests\DbalFunctionalTestCase;
+
 use function sprintf;
 
 class DefaultExpressionTest extends DbalFunctionalTestCase
 {
-    public function testCurrentDate() : void
+    public function testCurrentDate(): void
     {
         $platform = $this->connection->getDatabasePlatform();
 
@@ -23,12 +24,12 @@ class DefaultExpressionTest extends DbalFunctionalTestCase
             self::markTestSkipped('Not supported on MySQL');
         }
 
-        $this->assertDefaultExpression(Types::DATE_MUTABLE, static function (AbstractPlatform $platform) : string {
+        $this->assertDefaultExpression(Types::DATE_MUTABLE, static function (AbstractPlatform $platform): string {
             return $platform->getCurrentDateSQL();
         });
     }
 
-    public function testCurrentTime() : void
+    public function testCurrentTime(): void
     {
         $platform = $this->connection->getDatabasePlatform();
 
@@ -40,19 +41,19 @@ class DefaultExpressionTest extends DbalFunctionalTestCase
             self::markTestSkipped('Not supported on Oracle');
         }
 
-        $this->assertDefaultExpression(Types::TIME_MUTABLE, static function (AbstractPlatform $platform) : string {
+        $this->assertDefaultExpression(Types::TIME_MUTABLE, static function (AbstractPlatform $platform): string {
             return $platform->getCurrentTimeSQL();
         });
     }
 
-    public function testCurrentTimestamp() : void
+    public function testCurrentTimestamp(): void
     {
-        $this->assertDefaultExpression(Types::DATETIME_MUTABLE, static function (AbstractPlatform $platform) : string {
+        $this->assertDefaultExpression(Types::DATETIME_MUTABLE, static function (AbstractPlatform $platform): string {
             return $platform->getCurrentTimestampSQL();
         });
     }
 
-    private function assertDefaultExpression(string $type, callable $expression) : void
+    private function assertDefaultExpression(string $type, callable $expression): void
     {
         $platform   = $this->connection->getDatabasePlatform();
         $defaultSql = $expression($platform, $this);

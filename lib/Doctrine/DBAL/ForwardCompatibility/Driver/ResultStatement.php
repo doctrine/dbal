@@ -46,7 +46,7 @@ interface ResultStatement extends BaseResultStatement
      *
      * @throws DriverException
      */
-    public function fetchAllNumeric() : array;
+    public function fetchAllNumeric(): array;
 
     /**
      * Returns an array containing all of the result set rows represented as associative arrays.
@@ -55,7 +55,7 @@ interface ResultStatement extends BaseResultStatement
      *
      * @throws DriverException
      */
-    public function fetchAllAssociative() : array;
+    public function fetchAllAssociative(): array;
 
     /**
      * Returns an array containing the values of the first column of the result set.
@@ -64,5 +64,5 @@ interface ResultStatement extends BaseResultStatement
      *
      * @throws DriverException
      */
-    public function fetchFirstColumn() : array;
+    public function fetchFirstColumn(): array;
 }

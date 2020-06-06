@@ -4,6 +4,7 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\SQLAnywherePlatform;
 use Doctrine\DBAL\Types\Type;
+
 use function assert;
 use function is_string;
 use function preg_replace;

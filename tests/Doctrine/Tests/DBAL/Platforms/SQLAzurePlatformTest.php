@@ -14,12 +14,12 @@ class SQLAzurePlatformTest extends DbalTestCase
     /** @var SQLAzurePlatform */
     private $platform;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->platform = new SQLAzurePlatform();
     }
 
-    public function testCreateFederatedOnTable() : void
+    public function testCreateFederatedOnTable(): void
     {
         $table = new Table('tbl');
         $table->addColumn('id', 'integer');

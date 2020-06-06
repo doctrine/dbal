@@ -9,6 +9,7 @@ use Doctrine\DBAL\Driver\PDOPgSql\Driver as PDOPgSQLDriver;
 use Doctrine\DBAL\Driver\PDOSqlsrv\Driver as PDOSQLSRVDriver;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use PDO;
+
 use function extension_loaded;
 use function get_class;
 use function sprintf;
@@ -22,7 +23,7 @@ class PDOConnectionTest extends DbalFunctionalTestCase
      */
     protected $driverConnection;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         if (! extension_loaded('PDO')) {
             $this->markTestSkipped('PDO is not installed.');
@@ -39,19 +40,19 @@ class PDOConnectionTest extends DbalFunctionalTestCase
         $this->markTestSkipped('PDO connection only test.');
     }
 
-    protected function tearDown() : void
+    protected function tearDown(): void
     {
         $this->resetSharedConn();
 
         parent::tearDown();
     }
 
-    public function testDoesNotRequireQueryForServerVersion() : void
+    public function testDoesNotRequireQueryForServerVersion(): void
     {
         self::assertFalse($this->driverConnection->requiresQueryForServerVersion());
     }
 
-    public function testThrowsWrappedExceptionOnConstruct() : void
+    public function testThrowsWrappedExceptionOnConstruct(): void
     {
         $this->expectException(PDOException::class);
 
@@ -61,14 +62,14 @@ class PDOConnectionTest extends DbalFunctionalTestCase
     /**
      * @group DBAL-1022
      */
-    public function testThrowsWrappedExceptionOnExec() : void
+    public function testThrowsWrappedExceptionOnExec(): void
     {
         $this->expectException(PDOException::class);
 
         $this->driverConnection->exec('foo');
     }
 
-    public function testThrowsWrappedExceptionOnPrepare() : void
+    public function testThrowsWrappedExceptionOnPrepare(): void
     {
         $driver = $this->connection->getDriver();
 
@@ -79,7 +80,8 @@ class PDOConnectionTest extends DbalFunctionalTestCase
         // Some PDO adapters do not check the query server-side
         // even though emulated prepared statements are disabled,
         // so an exception is thrown only eventually.
-        if ($driver instanceof PDOOracleDriver
+        if (
+            $driver instanceof PDOOracleDriver
             || $driver instanceof PDOPgSQLDriver
         ) {
             self::markTestSkipped(sprintf(
@@ -97,7 +99,7 @@ class PDOConnectionTest extends DbalFunctionalTestCase
         $this->driverConnection->prepare('foo');
     }
 
-    public function testThrowsWrappedExceptionOnQuery() : void
+    public function testThrowsWrappedExceptionOnQuery(): void
     {
         $this->expectException(PDOException::class);
 

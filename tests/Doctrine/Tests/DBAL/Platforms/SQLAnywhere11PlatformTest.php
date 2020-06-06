@@ -10,17 +10,17 @@ class SQLAnywhere11PlatformTest extends SQLAnywherePlatformTest
     /** @var SQLAnywhere11Platform */
     protected $platform;
 
-    public function createPlatform() : AbstractPlatform
+    public function createPlatform(): AbstractPlatform
     {
         return new SQLAnywhere11Platform();
     }
 
-    public function testDoesNotSupportRegexp() : void
+    public function testDoesNotSupportRegexp(): void
     {
         $this->markTestSkipped('This version of the platform now supports regular expressions.');
     }
 
-    public function testGeneratesRegularExpressionSQLSnippet() : void
+    public function testGeneratesRegularExpressionSQLSnippet(): void
     {
         self::assertEquals('REGEXP', $this->platform->getRegexpExpression());
     }

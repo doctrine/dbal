@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+
 use function array_keys;
 use function array_map;
 use function in_array;
@@ -85,7 +86,7 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
      *
      * @return Identifier[]
      */
-    private function createIdentifierMap(array $names) : array
+    private function createIdentifierMap(array $names): array
     {
         $identifiers = [];
 

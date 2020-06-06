@@ -4,6 +4,7 @@ namespace Doctrine\Tests\DBAL\Functional\Connection;
 
 use Doctrine\Tests\DbalFunctionalTestCase;
 use Doctrine\Tests\TestUtil;
+
 use function iterator_to_array;
 
 class FetchTest extends DbalFunctionalTestCase
@@ -11,7 +12,7 @@ class FetchTest extends DbalFunctionalTestCase
     /** @var string */
     private $query;
 
-    public function setUp() : void
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -31,17 +32,17 @@ class FetchTest extends DbalFunctionalTestCase
         ], $this->connection->getDatabasePlatform());
     }
 
-    public function testFetchNumeric() : void
+    public function testFetchNumeric(): void
     {
         self::assertEquals(['foo', 1], $this->connection->fetchNumeric($this->query));
     }
 
-    public function testFetchOne() : void
+    public function testFetchOne(): void
     {
         self::assertEquals('foo', $this->connection->fetchOne($this->query));
     }
 
-    public function testFetchAssociative() : void
+    public function testFetchAssociative(): void
     {
         self::assertEquals([
             'a' => 'foo',
@@ -49,7 +50,7 @@ class FetchTest extends DbalFunctionalTestCase
         ], $this->connection->fetchAssociative($this->query));
     }
 
-    public function testFetchAllNumeric() : void
+    public function testFetchAllNumeric(): void
     {
         self::assertEquals([
             ['foo', 1],
@@ -58,7 +59,7 @@ class FetchTest extends DbalFunctionalTestCase
         ], $this->connection->fetchAllNumeric($this->query));
     }
 
-    public function testFetchAllAssociative() : void
+    public function testFetchAllAssociative(): void
     {
         self::assertEquals([
             [
@@ -76,7 +77,7 @@ class FetchTest extends DbalFunctionalTestCase
         ], $this->connection->fetchAllAssociative($this->query));
     }
 
-    public function testFetchFirstColumn() : void
+    public function testFetchFirstColumn(): void
     {
         self::assertEquals([
             'foo',
@@ -85,7 +86,7 @@ class FetchTest extends DbalFunctionalTestCase
         ], $this->connection->fetchFirstColumn($this->query));
     }
 
-    public function testIterateNumeric() : void
+    public function testIterateNumeric(): void
     {
         self::assertEquals([
             ['foo', 1],
@@ -94,7 +95,7 @@ class FetchTest extends DbalFunctionalTestCase
         ], iterator_to_array($this->connection->iterateNumeric($this->query)));
     }
 
-    public function testIterateAssociative() : void
+    public function testIterateAssociative(): void
     {
         self::assertEquals([
             [
@@ -112,7 +113,7 @@ class FetchTest extends DbalFunctionalTestCase
         ], iterator_to_array($this->connection->iterateAssociative($this->query)));
     }
 
-    public function testIterateColumn() : void
+    public function testIterateColumn(): void
     {
         self::assertEquals([
             'foo',

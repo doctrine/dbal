@@ -8,12 +8,12 @@ use Doctrine\Tests\DBAL\Driver\AbstractSQLServerDriverTest;
 
 class DriverTest extends AbstractSQLServerDriverTest
 {
-    public function testReturnsName() : void
+    public function testReturnsName(): void
     {
         self::assertSame('pdo_sqlsrv', $this->driver->getName());
     }
 
-    protected function createDriver() : DriverInterface
+    protected function createDriver(): DriverInterface
     {
         return new Driver();
     }

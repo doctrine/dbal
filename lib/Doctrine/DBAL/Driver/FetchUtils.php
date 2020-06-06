@@ -32,7 +32,7 @@ final class FetchUtils
      *
      * @throws DriverException
      */
-    public static function fetchAllNumeric(ResultStatement $stmt) : array
+    public static function fetchAllNumeric(ResultStatement $stmt): array
     {
         $rows = [];
 
@@ -48,7 +48,7 @@ final class FetchUtils
      *
      * @throws DriverException
      */
-    public static function fetchAllAssociative(ResultStatement $stmt) : array
+    public static function fetchAllAssociative(ResultStatement $stmt): array
     {
         $rows = [];
 
@@ -64,7 +64,7 @@ final class FetchUtils
      *
      * @throws DriverException
      */
-    public static function fetchFirstColumn(ResultStatement $stmt) : array
+    public static function fetchFirstColumn(ResultStatement $stmt): array
     {
         $rows = [];
 

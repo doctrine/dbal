@@ -3,11 +3,12 @@
 namespace Doctrine\Tests\DBAL\Sharding\SQLAzure;
 
 use Doctrine\DBAL\Sharding\SQLAzure\SQLAzureFederationsSynchronizer;
+
 use function count;
 
 class FunctionalTest extends AbstractTestCase
 {
-    public function testSharding() : void
+    public function testSharding(): void
     {
         $schema = $this->createShopSchema();
 

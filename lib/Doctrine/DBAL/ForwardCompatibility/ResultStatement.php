@@ -20,7 +20,7 @@ interface ResultStatement extends BaseResultStatement
      *
      * @throws DBALException
      */
-    public function iterateNumeric() : Traversable;
+    public function iterateNumeric(): Traversable;
 
     /**
      * Returns an iterator over the result set rows represented as associative arrays.
@@ -29,7 +29,7 @@ interface ResultStatement extends BaseResultStatement
      *
      * @throws DBALException
      */
-    public function iterateAssociative() : Traversable;
+    public function iterateAssociative(): Traversable;
 
     /**
      * Returns an iterator over the values of the first column of the result set.
@@ -38,5 +38,5 @@ interface ResultStatement extends BaseResultStatement
      *
      * @throws DBALException
      */
-    public function iterateColumn() : Traversable;
+    public function iterateColumn(): Traversable;
 }

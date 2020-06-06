@@ -13,6 +13,7 @@ use Doctrine\DBAL\ForwardCompatibility\Driver\ResultStatement as ForwardCompatib
 use InvalidArgumentException;
 use IteratorAggregate;
 use PDO;
+
 use function array_map;
 use function array_merge;
 use function array_values;
@@ -248,7 +249,7 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Forwar
     /**
      * {@inheritdoc}
      */
-    public function fetchAllNumeric() : array
+    public function fetchAllNumeric(): array
     {
         if ($this->statement instanceof ForwardCompatibleResultStatement) {
             $data = $this->statement->fetchAllAssociative();
@@ -264,7 +265,7 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Forwar
     /**
      * {@inheritdoc}
      */
-    public function fetchAllAssociative() : array
+    public function fetchAllAssociative(): array
     {
         if ($this->statement instanceof ForwardCompatibleResultStatement) {
             $data = $this->statement->fetchAllAssociative();
@@ -280,7 +281,7 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Forwar
     /**
      * {@inheritdoc}
      */
-    public function fetchFirstColumn() : array
+    public function fetchFirstColumn(): array
     {
         return FetchUtils::fetchFirstColumn($this);
     }
@@ -334,7 +335,7 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Forwar
     /**
      * @param array<int,array<string,mixed>> $data
      */
-    private function store(array $data) : void
+    private function store(array $data): void
     {
         $this->data    = $data;
         $this->emptied = true;

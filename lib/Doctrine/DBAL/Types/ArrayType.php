@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+
 use function is_resource;
 use function restore_error_handler;
 use function serialize;
@@ -43,7 +44,7 @@ class ArrayType extends Type
 
         $value = is_resource($value) ? stream_get_contents($value) : $value;
 
-        set_error_handler(function (int $code, string $message) : bool {
+        set_error_handler(function (int $code, string $message): bool {
             throw ConversionException::conversionFailedUnserialization($this->getName(), $message);
         });
 

@@ -6,11 +6,12 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver as DriverInterface;
 use Doctrine\DBAL\Driver\SQLAnywhere\Driver;
 use Doctrine\Tests\DBAL\Functional\Driver\AbstractDriverTest;
+
 use function extension_loaded;
 
 class DriverTest extends AbstractDriverTest
 {
-    protected function setUp() : void
+    protected function setUp(): void
     {
         if (! extension_loaded('sqlanywhere')) {
             $this->markTestSkipped('sqlanywhere is not installed.');
@@ -25,7 +26,7 @@ class DriverTest extends AbstractDriverTest
         $this->markTestSkipped('sqlanywhere only test.');
     }
 
-    public function testReturnsDatabaseNameWithoutDatabaseNameParameter() : void
+    public function testReturnsDatabaseNameWithoutDatabaseNameParameter(): void
     {
         $params = $this->connection->getParams();
         unset($params['dbname']);
@@ -42,7 +43,7 @@ class DriverTest extends AbstractDriverTest
         self::assertIsString($this->driver->getDatabase($connection));
     }
 
-    protected function createDriver() : DriverInterface
+    protected function createDriver(): DriverInterface
     {
         return new Driver();
     }

@@ -7,12 +7,12 @@ use Doctrine\DBAL\Platforms\SQLServer2008Platform;
 
 class SQLServer2008PlatformTest extends AbstractSQLServerPlatformTestCase
 {
-    public function createPlatform() : AbstractPlatform
+    public function createPlatform(): AbstractPlatform
     {
         return new SQLServer2008Platform();
     }
 
-    public function testGeneratesTypeDeclarationForDateTimeTz() : void
+    public function testGeneratesTypeDeclarationForDateTimeTz(): void
     {
         self::assertEquals('DATETIMEOFFSET(6)', $this->platform->getDateTimeTzTypeDeclarationSQL([]));
     }

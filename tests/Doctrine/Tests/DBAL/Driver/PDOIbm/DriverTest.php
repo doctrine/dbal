@@ -8,12 +8,12 @@ use Doctrine\Tests\DBAL\Driver\AbstractDB2DriverTest;
 
 class DriverTest extends AbstractDB2DriverTest
 {
-    public function testReturnsName() : void
+    public function testReturnsName(): void
     {
         self::assertSame('pdo_ibm', $this->driver->getName());
     }
 
-    protected function createDriver() : DriverInterface
+    protected function createDriver(): DriverInterface
     {
         return new Driver();
     }

@@ -10,6 +10,7 @@ use Doctrine\DBAL\ForwardCompatibility\Driver\ResultStatement as ForwardCompatib
 use Doctrine\DBAL\ParameterType;
 use IteratorAggregate;
 use PDO;
+
 use function array_key_exists;
 use function count;
 use function func_get_args;
@@ -30,6 +31,7 @@ use function sqlsrv_prepare;
 use function sqlsrv_rows_affected;
 use function SQLSRV_SQLTYPE_VARBINARY;
 use function stripos;
+
 use const SQLSRV_ENC_BINARY;
 use const SQLSRV_ERR_ERRORS;
 use const SQLSRV_FETCH_ASSOC;
@@ -463,7 +465,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement, ForwardCompatible
     /**
      * {@inheritdoc}
      */
-    public function fetchAllNumeric() : array
+    public function fetchAllNumeric(): array
     {
         return FetchUtils::fetchAllNumeric($this);
     }
@@ -471,7 +473,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement, ForwardCompatible
     /**
      * {@inheritdoc}
      */
-    public function fetchAllAssociative() : array
+    public function fetchAllAssociative(): array
     {
         return FetchUtils::fetchAllAssociative($this);
     }
@@ -479,7 +481,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement, ForwardCompatible
     /**
      * {@inheritdoc}
      */
-    public function fetchFirstColumn() : array
+    public function fetchFirstColumn(): array
     {
         return FetchUtils::fetchFirstColumn($this);
     }

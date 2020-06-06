@@ -8,6 +8,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\BinaryType;
 use InvalidArgumentException;
+
 use function array_merge;
 use function array_unique;
 use function array_values;
@@ -520,7 +521,8 @@ class DrizzlePlatform extends AbstractPlatform
             // Do not generate column alteration clause if type is binary and only fixed property has changed.
             // Drizzle only supports binary type columns with variable length.
             // Avoids unnecessary table alteration statements.
-            if ($columnArray['type'] instanceof BinaryType &&
+            if (
+                $columnArray['type'] instanceof BinaryType &&
                 $columnDiff->hasChanged('fixed') &&
                 count($columnDiff->changedProperties) === 1
             ) {

@@ -3,9 +3,11 @@
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Schema\Sequence;
+
 use function preg_match;
 use function preg_match_all;
 use function substr_count;
+
 use const PREG_OFFSET_CAPTURE;
 
 /**
@@ -108,7 +110,8 @@ class SQLServer2012Platform extends SQLServer2008Platform
             $orderByPos = $matches[0][$matchesCount - 1][1];
         }
 
-        if ($orderByPos === false
+        if (
+            $orderByPos === false
             || substr_count($query, '(', $orderByPos) - substr_count($query, ')', $orderByPos)
         ) {
             if (preg_match('/^SELECT\s+DISTINCT/im', $query)) {

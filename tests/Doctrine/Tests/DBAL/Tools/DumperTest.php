@@ -10,13 +10,14 @@ use DateTimeZone;
 use Doctrine\DBAL\Tools\Dumper;
 use Doctrine\Tests\DbalTestCase;
 use stdClass;
+
 use function print_r;
 use function strpos;
 use function substr;
 
 class DumperTest extends DbalTestCase
 {
-    public function testExportObject() : void
+    public function testExportObject(): void
     {
         $obj      = new stdClass();
         $obj->foo = 'bar';
@@ -26,7 +27,7 @@ class DumperTest extends DbalTestCase
         self::assertEquals('stdClass', $var->__CLASS__);
     }
 
-    public function testExportObjectWithReference() : void
+    public function testExportObjectWithReference(): void
     {
         $foo = 'bar';
         $bar = ['foo' => & $foo];
@@ -39,7 +40,7 @@ class DumperTest extends DbalTestCase
         self::assertEquals('tab', $bar['foo']);
     }
 
-    public function testExportArray() : void
+    public function testExportArray(): void
     {
         $array              = ['a' => 'b', 'b' => ['c', 'd' => ['e', 'f']]];
         $var                = Dumper::export($array, 2);
@@ -48,7 +49,7 @@ class DumperTest extends DbalTestCase
         self::assertEquals($expected, $var);
     }
 
-    public function testExportDateTime() : void
+    public function testExportDateTime(): void
     {
         $obj = new DateTime('2010-10-10 10:10:10', new DateTimeZone('UTC'));
 
@@ -57,7 +58,7 @@ class DumperTest extends DbalTestCase
         self::assertEquals('2010-10-10T10:10:10+00:00', $var->date);
     }
 
-    public function testExportDateTimeImmutable() : void
+    public function testExportDateTimeImmutable(): void
     {
         $obj = new DateTimeImmutable('2010-10-10 10:10:10', new DateTimeZone('UTC'));
 
@@ -66,7 +67,7 @@ class DumperTest extends DbalTestCase
         self::assertEquals('2010-10-10T10:10:10+00:00', $var->date);
     }
 
-    public function testExportDateTimeZone() : void
+    public function testExportDateTimeZone(): void
     {
         $obj = new DateTimeImmutable('2010-10-10 12:34:56', new DateTimeZone('Europe/Rome'));
 
@@ -75,7 +76,7 @@ class DumperTest extends DbalTestCase
         self::assertEquals('2010-10-10T12:34:56+02:00', $var->date);
     }
 
-    public function testExportArrayTraversable() : void
+    public function testExportArrayTraversable(): void
     {
         $obj = new ArrayObject(['foobar']);
 
@@ -93,7 +94,7 @@ class DumperTest extends DbalTestCase
      *
      * @dataProvider provideAttributesCases
      */
-    public function testExportParentAttributes(TestAsset\ParentClass $class, array $expected) : void
+    public function testExportParentAttributes(TestAsset\ParentClass $class, array $expected): void
     {
         $print_r_class    = print_r($class, true);
         $print_r_expected = print_r($expected, true);
@@ -113,7 +114,7 @@ class DumperTest extends DbalTestCase
     /**
      * @return mixed[][]
      */
-    public static function provideAttributesCases() : iterable
+    public static function provideAttributesCases(): iterable
     {
         return [
             'different-attributes' => [

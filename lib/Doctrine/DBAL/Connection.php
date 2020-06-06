@@ -23,6 +23,7 @@ use Doctrine\DBAL\Types\Type;
 use Exception;
 use Throwable;
 use Traversable;
+
 use function array_key_exists;
 use function assert;
 use function func_get_args;
@@ -385,7 +386,7 @@ class Connection implements DriverConnection
      *
      * @throws DBALException If an invalid platform was specified for this connection.
      */
-    private function detectDatabasePlatform() : void
+    private function detectDatabasePlatform(): void
     {
         $version = $this->getDatabasePlatformVersion();
 
@@ -714,7 +715,7 @@ class Connection implements DriverConnection
         array &$columns,
         array &$values,
         array &$conditions
-    ) : void {
+    ): void {
         $platform = $this->getDatabasePlatform();
 
         foreach ($identifier as $columnName => $value) {
@@ -950,7 +951,7 @@ class Connection implements DriverConnection
      *
      * @throws DBALException
      */
-    public function fetchAllNumeric(string $query, array $params = [], array $types = []) : array
+    public function fetchAllNumeric(string $query, array $params = [], array $types = []): array
     {
         try {
             $stmt = $this->executeQuery($query, $params, $types);
@@ -976,7 +977,7 @@ class Connection implements DriverConnection
      *
      * @throws DBALException
      */
-    public function fetchAllAssociative(string $query, array $params = [], array $types = []) : array
+    public function fetchAllAssociative(string $query, array $params = [], array $types = []): array
     {
         try {
             $stmt = $this->executeQuery($query, $params, $types);
@@ -1002,7 +1003,7 @@ class Connection implements DriverConnection
      *
      * @throws DBALException
      */
-    public function fetchFirstColumn(string $query, array $params = [], array $types = []) : array
+    public function fetchFirstColumn(string $query, array $params = [], array $types = []): array
     {
         try {
             $stmt = $this->executeQuery($query, $params, $types);
@@ -1028,7 +1029,7 @@ class Connection implements DriverConnection
      *
      * @throws DBALException
      */
-    public function iterateNumeric(string $query, array $params = [], array $types = []) : Traversable
+    public function iterateNumeric(string $query, array $params = [], array $types = []): Traversable
     {
         try {
             $stmt = $this->executeQuery($query, $params, $types);
@@ -1056,7 +1057,7 @@ class Connection implements DriverConnection
      *
      * @throws DBALException
      */
-    public function iterateAssociative(string $query, array $params = [], array $types = []) : Traversable
+    public function iterateAssociative(string $query, array $params = [], array $types = []): Traversable
     {
         try {
             $stmt = $this->executeQuery($query, $params, $types);
@@ -1084,7 +1085,7 @@ class Connection implements DriverConnection
      *
      * @throws DBALException
      */
-    public function iterateColumn(string $query, array $params = [], array $types = []) : Traversable
+    public function iterateColumn(string $query, array $params = [], array $types = []): Traversable
     {
         try {
             $stmt = $this->executeQuery($query, $params, $types);
@@ -1585,7 +1586,7 @@ class Connection implements DriverConnection
     /**
      * Commits all current nesting transactions.
      */
-    private function commitAll() : void
+    private function commitAll(): void
     {
         while ($this->transactionNestingLevel !== 0) {
             if ($this->autoCommit === false && $this->transactionNestingLevel === 1) {

@@ -10,6 +10,7 @@ use Doctrine\DBAL\ForwardCompatibility\Driver\ResultStatement as ForwardCompatib
 use InvalidArgumentException;
 use IteratorAggregate;
 use PDO;
+
 use function array_merge;
 use function array_values;
 use function count;
@@ -188,7 +189,7 @@ class ArrayStatement implements IteratorAggregate, ResultStatement, ForwardCompa
     /**
      * {@inheritdoc}
      */
-    public function fetchAllNumeric() : array
+    public function fetchAllNumeric(): array
     {
         return FetchUtils::fetchAllNumeric($this);
     }
@@ -196,7 +197,7 @@ class ArrayStatement implements IteratorAggregate, ResultStatement, ForwardCompa
     /**
      * {@inheritdoc}
      */
-    public function fetchAllAssociative() : array
+    public function fetchAllAssociative(): array
     {
         return FetchUtils::fetchAllAssociative($this);
     }
@@ -204,7 +205,7 @@ class ArrayStatement implements IteratorAggregate, ResultStatement, ForwardCompa
     /**
      * {@inheritdoc}
      */
-    public function fetchFirstColumn() : array
+    public function fetchFirstColumn(): array
     {
         return FetchUtils::fetchFirstColumn($this);
     }

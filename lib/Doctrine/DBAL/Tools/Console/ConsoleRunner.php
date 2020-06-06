@@ -12,8 +12,10 @@ use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\HelperSet;
 use TypeError;
+
 use function sprintf;
 use function trigger_error;
+
 use const E_USER_DEPRECATED;
 
 /**

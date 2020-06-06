@@ -15,7 +15,7 @@ class ExpressionBuilderTest extends DbalTestCase
     /** @var ExpressionBuilder */
     protected $expr;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $conn = $this->createMock(Connection::class);
 
@@ -31,7 +31,7 @@ class ExpressionBuilderTest extends DbalTestCase
      *
      * @dataProvider provideDataForAnd
      */
-    public function testAnd(array $parts, string $expected) : void
+    public function testAnd(array $parts, string $expected): void
     {
         $composite = $this->expr->and(...$parts);
 
@@ -43,7 +43,7 @@ class ExpressionBuilderTest extends DbalTestCase
      *
      * @dataProvider provideDataForAnd
      */
-    public function testAndX(array $parts, string $expected) : void
+    public function testAndX(array $parts, string $expected): void
     {
         $composite = $this->expr->andX();
 
@@ -57,7 +57,7 @@ class ExpressionBuilderTest extends DbalTestCase
     /**
      * @return mixed[][]
      */
-    public static function provideDataForAnd() : iterable
+    public static function provideDataForAnd(): iterable
     {
         return [
             [
@@ -104,7 +104,7 @@ class ExpressionBuilderTest extends DbalTestCase
      *
      * @dataProvider provideDataForOr
      */
-    public function testOr(array $parts, string $expected) : void
+    public function testOr(array $parts, string $expected): void
     {
         $composite = $this->expr->or(...$parts);
 
@@ -116,7 +116,7 @@ class ExpressionBuilderTest extends DbalTestCase
      *
      * @dataProvider provideDataForOr
      */
-    public function testOrX(array $parts, string $expected) : void
+    public function testOrX(array $parts, string $expected): void
     {
         $composite = $this->expr->orX();
 
@@ -130,7 +130,7 @@ class ExpressionBuilderTest extends DbalTestCase
     /**
      * @return mixed[][]
      */
-    public static function provideDataForOr() : iterable
+    public static function provideDataForOr(): iterable
     {
         return [
             [
@@ -175,7 +175,7 @@ class ExpressionBuilderTest extends DbalTestCase
     /**
      * @dataProvider provideDataForComparison
      */
-    public function testComparison(string $leftExpr, string $operator, string $rightExpr, string $expected) : void
+    public function testComparison(string $leftExpr, string $operator, string $rightExpr, string $expected): void
     {
         $part = $this->expr->comparison($leftExpr, $operator, $rightExpr);
 
@@ -185,7 +185,7 @@ class ExpressionBuilderTest extends DbalTestCase
     /**
      * @return mixed[][]
      */
-    public static function provideDataForComparison() : iterable
+    public static function provideDataForComparison(): iterable
     {
         return [
             ['u.user_id', ExpressionBuilder::EQ, '1', 'u.user_id = 1'],
@@ -197,72 +197,72 @@ class ExpressionBuilderTest extends DbalTestCase
         ];
     }
 
-    public function testEq() : void
+    public function testEq(): void
     {
         self::assertEquals('u.user_id = 1', $this->expr->eq('u.user_id', '1'));
     }
 
-    public function testNeq() : void
+    public function testNeq(): void
     {
         self::assertEquals('u.user_id <> 1', $this->expr->neq('u.user_id', '1'));
     }
 
-    public function testLt() : void
+    public function testLt(): void
     {
         self::assertEquals('u.salary < 10000', $this->expr->lt('u.salary', '10000'));
     }
 
-    public function testLte() : void
+    public function testLte(): void
     {
         self::assertEquals('u.salary <= 10000', $this->expr->lte('u.salary', '10000'));
     }
 
-    public function testGt() : void
+    public function testGt(): void
     {
         self::assertEquals('u.salary > 10000', $this->expr->gt('u.salary', '10000'));
     }
 
-    public function testGte() : void
+    public function testGte(): void
     {
         self::assertEquals('u.salary >= 10000', $this->expr->gte('u.salary', '10000'));
     }
 
-    public function testIsNull() : void
+    public function testIsNull(): void
     {
         self::assertEquals('u.deleted IS NULL', $this->expr->isNull('u.deleted'));
     }
 
-    public function testIsNotNull() : void
+    public function testIsNotNull(): void
     {
         self::assertEquals('u.updated IS NOT NULL', $this->expr->isNotNull('u.updated'));
     }
 
-    public function testIn() : void
+    public function testIn(): void
     {
         self::assertEquals('u.groups IN (1, 3, 4, 7)', $this->expr->in('u.groups', [1, 3, 4, 7]));
     }
 
-    public function testInWithPlaceholder() : void
+    public function testInWithPlaceholder(): void
     {
         self::assertEquals('u.groups IN (?)', $this->expr->in('u.groups', '?'));
     }
 
-    public function testNotIn() : void
+    public function testNotIn(): void
     {
         self::assertEquals('u.groups NOT IN (1, 3, 4, 7)', $this->expr->notIn('u.groups', [1, 3, 4, 7]));
     }
 
-    public function testNotInWithPlaceholder() : void
+    public function testNotInWithPlaceholder(): void
     {
         self::assertEquals('u.groups NOT IN (:values)', $this->expr->notIn('u.groups', ':values'));
     }
 
-    public function testLikeWithoutEscape() : void
+    public function testLikeWithoutEscape(): void
     {
         self::assertEquals("a.song LIKE 'a virgin'", $this->expr->like('a.song', "'a virgin'"));
     }
 
-    public function testLikeWithEscape() : void
+    public function testLikeWithEscape(): void
     {
         self::assertEquals(
             "a.song LIKE 'a virgin' ESCAPE '💩'",
@@ -270,7 +270,7 @@ class ExpressionBuilderTest extends DbalTestCase
         );
     }
 
-    public function testNotLikeWithoutEscape() : void
+    public function testNotLikeWithoutEscape(): void
     {
         self::assertEquals(
             "s.last_words NOT LIKE 'this'",
@@ -278,7 +278,7 @@ class ExpressionBuilderTest extends DbalTestCase
         );
     }
 
-    public function testNotLikeWithEscape() : void
+    public function testNotLikeWithEscape(): void
     {
         self::assertEquals(
             "p.description NOT LIKE '20💩%' ESCAPE '💩'",
