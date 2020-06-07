@@ -15,6 +15,10 @@ use function array_rand;
 use function assert;
 use function count;
 use function func_get_args;
+use function sprintf;
+use function trigger_error;
+
+use const E_USER_DEPRECATED;
 
 /**
  * Master-Slave Connection
@@ -52,6 +56,8 @@ use function func_get_args;
  *      $conn->connect('master');
  *
  * Instantiation through the DriverManager looks like:
+ *
+ * @deprecated use regular connections instead
  *
  * @example
  *
@@ -93,6 +99,11 @@ class MasterSlaveConnection extends Connection
      */
     public function __construct(array $params, Driver $driver, ?Configuration $config = null, ?EventManager $eventManager = null)
     {
+        @trigger_error(sprintf(
+            'Class "%s" is deprecated since doctrine/dbal 2.11 and will be removed in 3.0',
+            self::class
+        ), E_USER_DEPRECATED);
+
         if (! isset($params['slaves'], $params['master'])) {
             throw new InvalidArgumentException('master or slaves configuration missing');
         }

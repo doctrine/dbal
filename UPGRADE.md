@@ -1,5 +1,10 @@
 # Upgrade to 2.11
 
+## Deprecated `MasterSlaveConnection`
+
+The naming is offensive, the implementation very questionable. Use each
+endpoint connection explicitly.
+
 ## Deprecated `ArrayStatement` and `ResultCacheStatement` classes.
 
 The `ArrayStatement` and `ResultCacheStatement` classes are deprecated. In a future major release they will be renamed and marked internal as implementation details of the caching layer.
