@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Platform;
 
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use function explode;
@@ -16,9 +17,9 @@ class AggregateConcatExpressionTest extends FunctionalTestCase
         $table = new Table('aggregate_concat_test');
         $table->addColumn('value', 'string', ['length' => 10]);
         $this->connection->getSchemaManager()->dropAndCreateTable($table);
-        $this->connection->insert('aggregate_concat_test', ['value' => 'foo']);
-        $this->connection->insert('aggregate_concat_test', ['value' => 'bar']);
-        $this->connection->insert('aggregate_concat_test', ['value' => 'baz']);
+        $this->connection->insert('aggregate_concat_test', ['value' => 'foo'], ['value' => ParameterType::STRING]);
+        $this->connection->insert('aggregate_concat_test', ['value' => 'bar'], ['value' => ParameterType::STRING]);
+        $this->connection->insert('aggregate_concat_test', ['value' => 'baz'], ['value' => ParameterType::STRING]);
 
         $platform = $this->connection->getDatabasePlatform();
 
