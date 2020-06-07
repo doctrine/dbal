@@ -8,12 +8,7 @@ cache:
 
 before_install:
   - phpenv config-rm xdebug.ini || true
-  - |
-    if [ "x$COVERAGE" == "xyes" ]; then
-      pecl install pcov-1.0.0
-      wget https://github.com/php-coveralls/php-coveralls/releases/download/v2.2.0/php-coveralls.phar --output-document="${HOME}/bin/coveralls"
-      chmod +x ${HOME}/bin/coveralls
-    fi
+  - pecl install pcov
 
 before_script:
   - |
@@ -26,25 +21,17 @@ install:
   - travis_retry composer -n install --prefer-dist
 
 script:
-  - |
-    if [ "x$COVERAGE" == "xyes" ]; then
-       ./vendor/bin/phpunit --configuration tests/travis/$DB.travis.xml --coverage-clover clover.xml
-    else
-       ./vendor/bin/phpunit --configuration tests/travis/$DB.travis.xml
-    fi
+  - ./vendor/bin/phpunit --configuration tests/travis/$DB.travis.xml --coverage-clover clover.xml
 
-after_script:
-  - |
-    if [ "x$COVERAGE" == "xyes" ]; then
-      travis_retry coveralls -v
-    fi
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
 
 jobs:
   include:
 
     - stage: Smoke Testing
       php: 7.3
-      env: DB=sqlite COVERAGE=yes
+      env: DB=sqlite
 
     - stage: Test
       php: 7.2
@@ -85,44 +72,44 @@ jobs:
         - bash ./tests/travis/install-mssql.sh
     - stage: Test
       php: 7.3
-      env: DB=mysql.docker IMAGE=mysql:5.7 COVERAGE=yes
+      env: DB=mysql.docker IMAGE=mysql:5.7
     - stage: Test
       php: 7.3
-      env: DB=mysql.docker IMAGE=mysql:8.0 COVERAGE=yes
+      env: DB=mysql.docker IMAGE=mysql:8.0
     - stage: Test
       php: 7.3
-      env: DB=mysqli.docker IMAGE=mysql:5.7 COVERAGE=yes
+      env: DB=mysqli.docker IMAGE=mysql:5.7
     - stage: Test
       php: 7.3
-      env: DB=mysqli.docker IMAGE=mysql:8.0 COVERAGE=yes
+      env: DB=mysqli.docker IMAGE=mysql:8.0
     - stage: Test
       php: 7.3
-      env: DB=mariadb.docker IMAGE=mariadb:10.0 COVERAGE=yes
+      env: DB=mariadb.docker IMAGE=mariadb:10.0
     - stage: Test
       php: 7.3
-      env: DB=mariadb.docker IMAGE=mariadb:10.1 COVERAGE=yes
+      env: DB=mariadb.docker IMAGE=mariadb:10.1
     - stage: Test
       php: 7.3
-      env: DB=mariadb.docker IMAGE=mariadb:10.2 COVERAGE=yes
+      env: DB=mariadb.docker IMAGE=mariadb:10.2
     - stage: Test
       php: 7.3
-      env: DB=mariadb.docker IMAGE=mariadb:10.3 COVERAGE=yes
+      env: DB=mariadb.docker IMAGE=mariadb:10.3
     - stage: Test
       php: 7.3
-      env: DB=mariadb.mysqli.docker IMAGE=mariadb:10.0 COVERAGE=yes
+      env: DB=mariadb.mysqli.docker IMAGE=mariadb:10.0
     - stage: Test
       php: 7.3
-      env: DB=mariadb.mysqli.docker IMAGE=mariadb:10.1 COVERAGE=yes
+      env: DB=mariadb.mysqli.docker IMAGE=mariadb:10.1
     - stage: Test
       php: 7.3
-      env: DB=mariadb.mysqli.docker IMAGE=mariadb:10.2 COVERAGE=yes
+      env: DB=mariadb.mysqli.docker IMAGE=mariadb:10.2
     - stage: Test
       php: 7.3
-      env: DB=mariadb.mysqli.docker IMAGE=mariadb:10.3 COVERAGE=yes
+      env: DB=mariadb.mysqli.docker IMAGE=mariadb:10.3
     - stage: Test
       dist: trusty
       php: 7.3
-      env: DB=pgsql POSTGRESQL_VERSION=9.2 COVERAGE=yes
+      env: DB=pgsql POSTGRESQL_VERSION=9.2
       services:
         - postgresql
       addons:
@@ -130,29 +117,29 @@ jobs:
     - stage: Test
       dist: trusty
       php: 7.3
-      env: DB=pgsql POSTGRESQL_VERSION=9.3 COVERAGE=yes
+      env: DB=pgsql POSTGRESQL_VERSION=9.3
       services:
         - postgresql
       addons:
         postgresql: "9.3"
     - stage: Test
       php: 7.3
-      env: DB=pgsql POSTGRESQL_VERSION=9.4 COVERAGE=yes
+      env: DB=pgsql POSTGRESQL_VERSION=9.4
       addons:
         postgresql: "9.4"
     - stage: Test
       php: 7.3
-      env: DB=pgsql POSTGRESQL_VERSION=9.5 COVERAGE=yes
+      env: DB=pgsql POSTGRESQL_VERSION=9.5
       addons:
         postgresql: "9.5"
     - stage: Test
       php: 7.3
-      env: DB=pgsql POSTGRESQL_VERSION=9.6 COVERAGE=yes
+      env: DB=pgsql POSTGRESQL_VERSION=9.6
       addons:
         postgresql: "9.6"
     - stage: Test
       php: 7.3
-      env: DB=pgsql POSTGRESQL_VERSION=10.0 COVERAGE=yes
+      env: DB=pgsql POSTGRESQL_VERSION=10.0
       sudo: required
       addons:
         postgresql: "10"
@@ -160,13 +147,13 @@ jobs:
         - bash ./tests/travis/install-postgres-10.sh
     - stage: Test
       php: 7.3
-      env: DB=pgsql POSTGRESQL_VERSION=11.0 COVERAGE=yes
+      env: DB=pgsql POSTGRESQL_VERSION=11.0
       sudo: required
       before_script:
         - bash ./tests/travis/install-postgres-11.sh
     - stage: Test
       php: 7.3
-      env: DB=sqlsrv COVERAGE=yes
+      env: DB=sqlsrv
       sudo: required
       before_script:
         - bash ./tests/travis/install-sqlsrv-dependencies.sh
@@ -174,7 +161,7 @@ jobs:
         - bash ./tests/travis/install-mssql.sh
     - stage: Test
       php: 7.3
-      env: DB=pdo_sqlsrv COVERAGE=yes
+      env: DB=pdo_sqlsrv
       sudo: required
       before_script:
         - bash ./tests/travis/install-sqlsrv-dependencies.sh
@@ -182,7 +169,7 @@ jobs:
         - bash ./tests/travis/install-mssql.sh
     - stage: Test
       php: 7.3
-      env: DB=ibm_db2 COVERAGE=yes
+      env: DB=ibm_db2
       sudo: required
       before_script:
         - bash ./tests/travis/install-db2.sh
