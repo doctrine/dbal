@@ -3,10 +3,10 @@
 namespace Doctrine\DBAL\Driver\IBMDB2;
 
 use Doctrine\DBAL\Driver\FetchUtils;
+use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\FetchMode;
-use Doctrine\DBAL\ForwardCompatibility\Driver\ResultStatement as ForwardCompatibleResultStatement;
 use Doctrine\DBAL\ParameterType;
 use IteratorAggregate;
 use PDO;
@@ -50,7 +50,7 @@ use const DB2_LONG;
 use const DB2_PARAM_FILE;
 use const DB2_PARAM_IN;
 
-class DB2Statement implements IteratorAggregate, Statement, ForwardCompatibleResultStatement
+class DB2Statement implements IteratorAggregate, Statement, Result
 {
     /** @var resource */
     private $stmt;
@@ -147,6 +147,8 @@ class DB2Statement implements IteratorAggregate, Statement, ForwardCompatibleRes
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use free() instead.
      */
     public function closeCursor()
     {
@@ -424,6 +426,15 @@ class DB2Statement implements IteratorAggregate, Statement, ForwardCompatibleRes
     public function rowCount()
     {
         return @db2_num_rows($this->stmt) ? : 0;
+    }
+
+    public function free(): void
+    {
+        $this->bindParam = [];
+
+        db2_free_result($this->stmt);
+
+        $this->result = false;
     }
 
     /**

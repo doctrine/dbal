@@ -3,10 +3,10 @@
 namespace Doctrine\DBAL\Driver\OCI8;
 
 use Doctrine\DBAL\Driver\FetchUtils;
+use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\FetchMode;
-use Doctrine\DBAL\ForwardCompatibility\Driver\ResultStatement as ForwardCompatibleResultStatement;
 use Doctrine\DBAL\ParameterType;
 use InvalidArgumentException;
 use IteratorAggregate;
@@ -51,7 +51,7 @@ use const SQLT_CHR;
 /**
  * The OCI8 implementation of the Statement interface.
  */
-class OCI8Statement implements IteratorAggregate, Statement, ForwardCompatibleResultStatement
+class OCI8Statement implements IteratorAggregate, Statement, Result
 {
     /** @var resource */
     protected $_dbh;
@@ -331,17 +331,12 @@ class OCI8Statement implements IteratorAggregate, Statement, ForwardCompatibleRe
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use free() instead.
      */
     public function closeCursor()
     {
-        // not having the result means there's nothing to close
-        if (! $this->result) {
-            return true;
-        }
-
-        oci_cancel($this->_sth);
-
-        $this->result = false;
+        $this->free();
 
         return true;
     }
@@ -599,6 +594,18 @@ class OCI8Statement implements IteratorAggregate, Statement, ForwardCompatibleRe
     public function fetchFirstColumn(): array
     {
         return $this->doFetchAll(OCI_NUM, OCI_FETCHSTATEMENT_BY_COLUMN)[0];
+    }
+
+    public function free(): void
+    {
+        // not having the result means there's nothing to close
+        if (! $this->result) {
+            return;
+        }
+
+        oci_cancel($this->_sth);
+
+        $this->result = false;
     }
 
     /**

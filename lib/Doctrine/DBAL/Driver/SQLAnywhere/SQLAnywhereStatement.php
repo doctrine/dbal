@@ -4,10 +4,10 @@ namespace Doctrine\DBAL\Driver\SQLAnywhere;
 
 use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Driver\FetchUtils;
+use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\FetchMode;
-use Doctrine\DBAL\ForwardCompatibility\Driver\ResultStatement as ForwardCompatibleResultStatement;
 use Doctrine\DBAL\ParameterType;
 use IteratorAggregate;
 use PDO;
@@ -44,7 +44,7 @@ use const SASQL_BOTH;
 /**
  * SAP SQL Anywhere implementation of the Statement interface.
  */
-class SQLAnywhereStatement implements IteratorAggregate, Statement, ForwardCompatibleResultStatement
+class SQLAnywhereStatement implements IteratorAggregate, Statement, Result
 {
     /** @var resource The connection resource. */
     private $conn;
@@ -135,6 +135,8 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement, ForwardCompa
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use free() instead.
      *
      * @throws SQLAnywhereException
      */
@@ -386,6 +388,11 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement, ForwardCompa
     public function rowCount()
     {
         return sasql_stmt_affected_rows($this->stmt);
+    }
+
+    public function free(): void
+    {
+        sasql_stmt_reset($this->stmt);
     }
 
     /**

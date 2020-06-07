@@ -3,10 +3,10 @@
 namespace Doctrine\DBAL\Driver\SQLSrv;
 
 use Doctrine\DBAL\Driver\FetchUtils;
+use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\FetchMode;
-use Doctrine\DBAL\ForwardCompatibility\Driver\ResultStatement as ForwardCompatibleResultStatement;
 use Doctrine\DBAL\ParameterType;
 use IteratorAggregate;
 use PDO;
@@ -42,7 +42,7 @@ use const SQLSRV_PARAM_IN;
 /**
  * SQL Server Statement.
  */
-class SQLSrvStatement implements IteratorAggregate, Statement, ForwardCompatibleResultStatement
+class SQLSrvStatement implements IteratorAggregate, Statement, Result
 {
     /**
      * The SQLSRV Resource.
@@ -186,22 +186,12 @@ class SQLSrvStatement implements IteratorAggregate, Statement, ForwardCompatible
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use free() instead.
      */
     public function closeCursor()
     {
-        // not having the result means there's nothing to close
-        if ($this->stmt === null || ! $this->result) {
-            return true;
-        }
-
-        // emulate it by fetching and discarding rows, similarly to what PDO does in this case
-        // @link http://php.net/manual/en/pdostatement.closecursor.php
-        // @link https://github.com/php/php-src/blob/php-7.0.11/ext/pdo/pdo_stmt.c#L2075
-        // deliberately do not consider multiple result sets, since doctrine/dbal doesn't support them
-        while (sqlsrv_fetch($this->stmt)) {
-        }
-
-        $this->result = false;
+        $this->free();
 
         return true;
     }
@@ -496,6 +486,23 @@ class SQLSrvStatement implements IteratorAggregate, Statement, ForwardCompatible
         }
 
         return sqlsrv_rows_affected($this->stmt) ?: 0;
+    }
+
+    public function free(): void
+    {
+        // not having the result means there's nothing to close
+        if ($this->stmt === null || ! $this->result) {
+            return;
+        }
+
+        // emulate it by fetching and discarding rows, similarly to what PDO does in this case
+        // @link http://php.net/manual/en/pdostatement.closecursor.php
+        // @link https://github.com/php/php-src/blob/php-7.0.11/ext/pdo/pdo_stmt.c#L2075
+        // deliberately do not consider multiple result sets, since doctrine/dbal doesn't support them
+        while (sqlsrv_fetch($this->stmt)) {
+        }
+
+        $this->result = false;
     }
 
     /**

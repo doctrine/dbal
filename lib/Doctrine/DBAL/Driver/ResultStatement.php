@@ -13,6 +13,8 @@ interface ResultStatement extends Traversable
     /**
      * Closes the cursor, enabling the statement to be executed again.
      *
+     * @deprecated Use Result::free() instead.
+     *
      * @return bool TRUE on success or FALSE on failure.
      */
     public function closeCursor();

@@ -4,6 +4,7 @@ namespace Doctrine\DBAL;
 
 use Closure;
 use Doctrine\Common\EventManager;
+use Doctrine\DBAL\Abstraction\Result;
 use Doctrine\DBAL\Cache\ArrayStatement;
 use Doctrine\DBAL\Cache\CacheException;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
@@ -14,7 +15,6 @@ use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
-use Doctrine\DBAL\ForwardCompatibility\ResultStatement as ForwardCompatibleResultStatement;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder;
@@ -616,7 +616,7 @@ class Connection implements DriverConnection
         try {
             $stmt = $this->executeQuery($query, $params, $types);
 
-            if ($stmt instanceof ForwardCompatibleResultStatement) {
+            if ($stmt instanceof Result) {
                 return $stmt->fetchAssociative();
             }
 
@@ -643,7 +643,7 @@ class Connection implements DriverConnection
         try {
             $stmt = $this->executeQuery($query, $params, $types);
 
-            if ($stmt instanceof ForwardCompatibleResultStatement) {
+            if ($stmt instanceof Result) {
                 return $stmt->fetchNumeric();
             }
 
@@ -670,7 +670,7 @@ class Connection implements DriverConnection
         try {
             $stmt = $this->executeQuery($query, $params, $types);
 
-            if ($stmt instanceof ForwardCompatibleResultStatement) {
+            if ($stmt instanceof Result) {
                 return $stmt->fetchOne();
             }
 
@@ -956,7 +956,7 @@ class Connection implements DriverConnection
         try {
             $stmt = $this->executeQuery($query, $params, $types);
 
-            if ($stmt instanceof ForwardCompatibleResultStatement) {
+            if ($stmt instanceof Result) {
                 return $stmt->fetchAllNumeric();
             }
 
@@ -982,7 +982,7 @@ class Connection implements DriverConnection
         try {
             $stmt = $this->executeQuery($query, $params, $types);
 
-            if ($stmt instanceof ForwardCompatibleResultStatement) {
+            if ($stmt instanceof Result) {
                 return $stmt->fetchAllAssociative();
             }
 
@@ -1008,7 +1008,7 @@ class Connection implements DriverConnection
         try {
             $stmt = $this->executeQuery($query, $params, $types);
 
-            if ($stmt instanceof ForwardCompatibleResultStatement) {
+            if ($stmt instanceof Result) {
                 return $stmt->fetchFirstColumn();
             }
 
@@ -1034,7 +1034,7 @@ class Connection implements DriverConnection
         try {
             $stmt = $this->executeQuery($query, $params, $types);
 
-            if ($stmt instanceof ForwardCompatibleResultStatement) {
+            if ($stmt instanceof Result) {
                 yield from $stmt->iterateNumeric();
             } else {
                 while (($row = $stmt->fetch(FetchMode::NUMERIC)) !== false) {
@@ -1062,7 +1062,7 @@ class Connection implements DriverConnection
         try {
             $stmt = $this->executeQuery($query, $params, $types);
 
-            if ($stmt instanceof ForwardCompatibleResultStatement) {
+            if ($stmt instanceof Result) {
                 yield from $stmt->iterateAssociative();
             } else {
                 while (($row = $stmt->fetch(FetchMode::ASSOCIATIVE)) !== false) {
@@ -1090,7 +1090,7 @@ class Connection implements DriverConnection
         try {
             $stmt = $this->executeQuery($query, $params, $types);
 
-            if ($stmt instanceof ForwardCompatibleResultStatement) {
+            if ($stmt instanceof Result) {
                 yield from $stmt->iterateColumn();
             } else {
                 while (($value = $stmt->fetch(FetchMode::COLUMN)) !== false) {

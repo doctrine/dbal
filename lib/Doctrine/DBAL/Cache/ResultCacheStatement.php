@@ -6,10 +6,10 @@ use ArrayIterator;
 use Doctrine\Common\Cache\Cache;
 use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Driver\FetchUtils;
+use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\FetchMode;
-use Doctrine\DBAL\ForwardCompatibility\Driver\ResultStatement as ForwardCompatibleResultStatement;
 use InvalidArgumentException;
 use IteratorAggregate;
 use PDO;
@@ -32,8 +32,10 @@ use function reset;
  *
  * Also you have to realize that the cache will load the whole result into memory at once to ensure 2.
  * This means that the memory usage for cached results might increase by using this feature.
+ *
+ * @deprecated
  */
-class ResultCacheStatement implements IteratorAggregate, ResultStatement, ForwardCompatibleResultStatement
+class ResultCacheStatement implements IteratorAggregate, ResultStatement, Result
 {
     /** @var Cache */
     private $resultCache;
@@ -72,12 +74,12 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Forwar
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use free() instead.
      */
     public function closeCursor()
     {
-        $this->statement->closeCursor();
-
-        $this->data = null;
+        $this->free();
 
         return true;
     }
@@ -234,7 +236,7 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Forwar
      */
     public function fetchAllNumeric(): array
     {
-        if ($this->statement instanceof ForwardCompatibleResultStatement) {
+        if ($this->statement instanceof Result) {
             $data = $this->statement->fetchAllAssociative();
         } else {
             $data = $this->statement->fetchAll(FetchMode::ASSOCIATIVE);
@@ -250,7 +252,7 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Forwar
      */
     public function fetchAllAssociative(): array
     {
-        if ($this->statement instanceof ForwardCompatibleResultStatement) {
+        if ($this->statement instanceof Result) {
             $data = $this->statement->fetchAllAssociative();
         } else {
             $data = $this->statement->fetchAll(FetchMode::ASSOCIATIVE);
@@ -287,6 +289,11 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Forwar
         return $this->statement->rowCount();
     }
 
+    public function free(): void
+    {
+        $this->data = null;
+    }
+
     /**
      * @return array<string,mixed>|false
      *
@@ -298,7 +305,7 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Forwar
             $this->data = [];
         }
 
-        if ($this->statement instanceof ForwardCompatibleResultStatement) {
+        if ($this->statement instanceof Result) {
             $row = $this->statement->fetchAssociative();
         } else {
             $row = $this->statement->fetch(FetchMode::ASSOCIATIVE);
