@@ -15,7 +15,7 @@ class ForeignKeyConstraintTest extends TestCase
      * @group DBAL-1062
      * @dataProvider getIntersectsIndexColumnsData
      */
-    public function testIntersectsIndexColumns(array $indexColumns, bool $expectedResult) : void
+    public function testIntersectsIndexColumns(array $indexColumns, bool $expectedResult): void
     {
         $foreignKey = new ForeignKeyConstraint(['foo', 'bar'], 'foreign_table', ['fk_foo', 'fk_bar']);
 
@@ -32,7 +32,7 @@ class ForeignKeyConstraintTest extends TestCase
     /**
      * @return mixed[][]
      */
-    public static function getIntersectsIndexColumnsData() : iterable
+    public static function getIntersectsIndexColumnsData(): iterable
     {
         return [
             [['baz'], false],
@@ -64,7 +64,7 @@ class ForeignKeyConstraintTest extends TestCase
      * @group DBAL-1062
      * @dataProvider getUnqualifiedForeignTableNameData
      */
-    public function testGetUnqualifiedForeignTableName($foreignTableName, string $expectedUnqualifiedTableName) : void
+    public function testGetUnqualifiedForeignTableName($foreignTableName, string $expectedUnqualifiedTableName): void
     {
         $foreignKey = new ForeignKeyConstraint(['foo', 'bar'], $foreignTableName, ['fk_foo', 'fk_bar']);
 
@@ -74,7 +74,7 @@ class ForeignKeyConstraintTest extends TestCase
     /**
      * @return mixed[][]
      */
-    public static function getUnqualifiedForeignTableNameData() : iterable
+    public static function getUnqualifiedForeignTableNameData(): iterable
     {
         return [
             ['schema.foreign_table', 'foreign_table'],

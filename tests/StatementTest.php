@@ -26,7 +26,7 @@ class StatementTest extends TestCase
     /** @var DriverStatement&MockObject */
     private $driverStatement;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->driverStatement = $this->createMock(DriverStatement::class);
 
@@ -53,7 +53,7 @@ class StatementTest extends TestCase
             ->will(self::returnValue($driver));
     }
 
-    public function testExecuteCallsLoggerStartQueryWithParametersWhenValuesBound() : void
+    public function testExecuteCallsLoggerStartQueryWithParametersWhenValuesBound(): void
     {
         $name   = 'foo';
         $var    = 'bar';
@@ -76,7 +76,7 @@ class StatementTest extends TestCase
         $statement->execute();
     }
 
-    public function testExecuteCallsLoggerStartQueryWithParametersWhenParamsPassedToExecute() : void
+    public function testExecuteCallsLoggerStartQueryWithParametersWhenParamsPassedToExecute(): void
     {
         $name   = 'foo';
         $var    = 'bar';
@@ -97,7 +97,7 @@ class StatementTest extends TestCase
         $statement->execute($values);
     }
 
-    public function testExecuteCallsStartQueryWithTheParametersBoundViaBindParam() : void
+    public function testExecuteCallsStartQueryWithTheParametersBoundViaBindParam(): void
     {
         $name   = 'foo';
         $var    = 'bar';
@@ -119,7 +119,7 @@ class StatementTest extends TestCase
         $statement->execute();
     }
 
-    public function testExecuteCallsLoggerStopQueryOnException() : void
+    public function testExecuteCallsLoggerStopQueryOnException(): void
     {
         $logger = $this->createMock(SQLLogger::class);
 

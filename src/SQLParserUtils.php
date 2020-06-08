@@ -19,6 +19,7 @@ use function sprintf;
 use function strlen;
 use function strpos;
 use function substr;
+
 use const PREG_OFFSET_CAPTURE;
 
 /**
@@ -65,13 +66,13 @@ class SQLParserUtils
      *
      * @return int[]
      */
-    private static function getPositionalPlaceholderPositions(string $statement) : array
+    private static function getPositionalPlaceholderPositions(string $statement): array
     {
         return self::collectPlaceholders(
             $statement,
             '?',
             self::POSITIONAL_TOKEN,
-            static function (string $_, int $placeholderPosition, int $fragmentPosition, array &$carry) : void {
+            static function (string $_, int $placeholderPosition, int $fragmentPosition, array &$carry): void {
                 $carry[] = $placeholderPosition + $fragmentPosition;
             }
         );
@@ -82,13 +83,13 @@ class SQLParserUtils
      *
      * @return string[]
      */
-    private static function getNamedPlaceholderPositions(string $statement) : array
+    private static function getNamedPlaceholderPositions(string $statement): array
     {
         return self::collectPlaceholders(
             $statement,
             ':',
             self::NAMED_TOKEN,
-            static function (string $placeholder, int $placeholderPosition, int $fragmentPosition, array &$carry) : void {
+            static function (string $placeholder, int $placeholderPosition, int $fragmentPosition, array &$carry): void {
                 $carry[$placeholderPosition + $fragmentPosition] = substr($placeholder, 1);
             }
         );
@@ -97,7 +98,7 @@ class SQLParserUtils
     /**
      * @return mixed[]
      */
-    private static function collectPlaceholders(string $statement, string $match, string $token, callable $collector) : array
+    private static function collectPlaceholders(string $statement, string $match, string $token, callable $collector): array
     {
         if (strpos($statement, $match) === false) {
             return [];

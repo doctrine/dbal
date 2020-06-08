@@ -8,6 +8,7 @@ use Doctrine\DBAL\Driver\Mysqli\MysqliException;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
+
 use function extension_loaded;
 use function restore_error_handler;
 use function set_error_handler;
@@ -21,7 +22,7 @@ class MysqliConnectionTest extends FunctionalTestCase
      */
     private $connectionMock;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         if (! extension_loaded('mysqli')) {
             self::markTestSkipped('mysqli is not installed.');
@@ -38,14 +39,14 @@ class MysqliConnectionTest extends FunctionalTestCase
             ->getMockForAbstractClass();
     }
 
-    public function testDoesNotRequireQueryForServerVersion() : void
+    public function testDoesNotRequireQueryForServerVersion(): void
     {
         self::assertFalse($this->connectionMock->requiresQueryForServerVersion());
     }
 
-    public function testRestoresErrorHandlerOnException() : void
+    public function testRestoresErrorHandlerOnException(): void
     {
-        $handler = static function () : bool {
+        $handler = static function (): bool {
             self::fail('Never expected this to be called');
         };
 
@@ -63,7 +64,7 @@ class MysqliConnectionTest extends FunctionalTestCase
         restore_error_handler();
     }
 
-    public function testHostnameIsRequiredForPersistentConnection() : void
+    public function testHostnameIsRequiredForPersistentConnection(): void
     {
         $this->expectException(HostRequired::class);
         new MysqliConnection(['persistent' => 'true'], '', '');

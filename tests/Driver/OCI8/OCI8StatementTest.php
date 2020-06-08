@@ -5,11 +5,12 @@ namespace Doctrine\DBAL\Tests\Driver\OCI8;
 use Doctrine\DBAL\Driver\OCI8\OCI8Exception;
 use Doctrine\DBAL\Driver\OCI8\OCI8Statement;
 use PHPUnit\Framework\TestCase;
+
 use function extension_loaded;
 
 class OCI8StatementTest extends TestCase
 {
-    protected function setUp() : void
+    protected function setUp(): void
     {
         if (! extension_loaded('oci8')) {
             $this->markTestSkipped('oci8 is not installed.');
@@ -21,7 +22,7 @@ class OCI8StatementTest extends TestCase
     /**
      * @dataProvider nonTerminatedLiteralProvider
      */
-    public function testConvertNonTerminatedLiteral(string $sql, string $message) : void
+    public function testConvertNonTerminatedLiteral(string $sql, string $message): void
     {
         $this->expectException(OCI8Exception::class);
         $this->expectExceptionMessageMatches($message);
@@ -31,7 +32,7 @@ class OCI8StatementTest extends TestCase
     /**
      * @return array<string, array<int, mixed>>
      */
-    public static function nonTerminatedLiteralProvider() : iterable
+    public static function nonTerminatedLiteralProvider(): iterable
     {
         return [
             'no-matching-quote' => [

@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Driver\PDOSqlsrv;
 use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\Driver\PDOStatement;
 use Doctrine\DBAL\ParameterType;
+
 use function strpos;
 use function substr;
 
@@ -43,7 +44,7 @@ class Connection extends PDOConnection
         return $val;
     }
 
-    protected function createStatement(\PDOStatement $stmt) : PDOStatement
+    protected function createStatement(\PDOStatement $stmt): PDOStatement
     {
         return new Statement($stmt);
     }

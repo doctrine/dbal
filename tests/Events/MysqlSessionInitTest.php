@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 
 class MysqlSessionInitTest extends TestCase
 {
-    public function testPostConnect() : void
+    public function testPostConnect(): void
     {
         $connectionMock = $this->createMock(Connection::class);
         $connectionMock->expects(self::once())
@@ -23,7 +23,7 @@ class MysqlSessionInitTest extends TestCase
         $listener->postConnect($eventArgs);
     }
 
-    public function testGetSubscribedEvents() : void
+    public function testGetSubscribedEvents(): void
     {
         $listener = new MysqlSessionInit();
         self::assertEquals([Events::postConnect], $listener->getSubscribedEvents());

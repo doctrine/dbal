@@ -12,6 +12,8 @@ interface ResultStatement
     /**
      * Closes the cursor, enabling the statement to be executed again.
      *
+     * @deprecated Use Result::free() instead.
+     *
      * @return bool TRUE on success or FALSE on failure.
      */
     public function closeCursor();
@@ -34,7 +36,7 @@ interface ResultStatement
      * this behaviour is not guaranteed for all databases and should not be
      * relied on for portable applications.
      */
-    public function rowCount() : int;
+    public function rowCount(): int;
 
     /**
      * Returns the next row of a result set as a numeric array or FALSE if there are no more rows.
@@ -70,7 +72,7 @@ interface ResultStatement
      *
      * @throws DriverException
      */
-    public function fetchAllNumeric() : array;
+    public function fetchAllNumeric(): array;
 
     /**
      * Returns an array containing all of the result set rows represented as associative arrays.
@@ -79,7 +81,7 @@ interface ResultStatement
      *
      * @throws DriverException
      */
-    public function fetchAllAssociative() : array;
+    public function fetchAllAssociative(): array;
 
     /**
      * Returns an array containing the values of the first column of the result set.
@@ -88,5 +90,5 @@ interface ResultStatement
      *
      * @throws DriverException
      */
-    public function fetchColumn() : array;
+    public function fetchFirstColumn(): array;
 }

@@ -13,20 +13,21 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use PHPUnit\Framework\TestCase;
 use stdClass;
+
 use function get_class;
 use function in_array;
 use function is_array;
 
 class DriverManagerTest extends TestCase
 {
-    public function testCheckParams() : void
+    public function testCheckParams(): void
     {
         $this->expectException(DBALException::class);
 
         DriverManager::getConnection([]);
     }
 
-    public function testInvalidDriver() : void
+    public function testInvalidDriver(): void
     {
         $this->expectException(DBALException::class);
 
@@ -36,7 +37,7 @@ class DriverManagerTest extends TestCase
     /**
      * @requires extension pdo_sqlite
      */
-    public function testCustomPlatform() : void
+    public function testCustomPlatform(): void
     {
         $platform = $this->createMock(AbstractPlatform::class);
         $options  = [
@@ -51,7 +52,7 @@ class DriverManagerTest extends TestCase
     /**
      * @requires extension pdo_sqlite
      */
-    public function testCustomWrapper() : void
+    public function testCustomWrapper(): void
     {
         $wrapper      = $this->createMock(Connection::class);
         $wrapperClass = get_class($wrapper);
@@ -69,7 +70,7 @@ class DriverManagerTest extends TestCase
      * @requires extension pdo_sqlite
      * @psalm-suppress InvalidArgument
      */
-    public function testInvalidWrapperClass() : void
+    public function testInvalidWrapperClass(): void
     {
         $this->expectException(DBALException::class);
 
@@ -81,7 +82,7 @@ class DriverManagerTest extends TestCase
         DriverManager::getConnection($options);
     }
 
-    public function testInvalidDriverClass() : void
+    public function testInvalidDriverClass(): void
     {
         $this->expectException(DBALException::class);
 
@@ -90,7 +91,7 @@ class DriverManagerTest extends TestCase
         DriverManager::getConnection($options);
     }
 
-    public function testValidDriverClass() : void
+    public function testValidDriverClass(): void
     {
         $options = ['driverClass' => PDOMySQLDriver::class];
 
@@ -98,7 +99,7 @@ class DriverManagerTest extends TestCase
         self::assertInstanceOf(PDOMySQLDriver::class, $conn->getDriver());
     }
 
-    public function testDatabaseUrlMasterSlave() : void
+    public function testDatabaseUrlMasterSlave(): void
     {
         $options = [
             'driver' => 'pdo_mysql',
@@ -136,7 +137,7 @@ class DriverManagerTest extends TestCase
      *
      * @dataProvider databaseUrls
      */
-    public function testDatabaseUrl($url, $expected) : void
+    public function testDatabaseUrl($url, $expected): void
     {
         $options = is_array($url) ? $url : ['url' => $url];
 
@@ -159,7 +160,7 @@ class DriverManagerTest extends TestCase
     /**
      * @return array<string, list<mixed>>
      */
-    public function databaseUrls() : iterable
+    public function databaseUrls(): iterable
     {
         $driver      = $this->createMock(Driver::class);
         $driverClass = get_class($driver);

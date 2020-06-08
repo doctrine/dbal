@@ -43,7 +43,7 @@ class ConnectionTest extends TestCase
         'port' => '1234',
     ];
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->connection = DriverManager::getConnection($this->params);
     }
@@ -69,78 +69,78 @@ class ConnectionTest extends TestCase
             ->getMock();
     }
 
-    public function testIsConnected() : void
+    public function testIsConnected(): void
     {
         self::assertFalse($this->connection->isConnected());
     }
 
-    public function testNoTransactionActiveByDefault() : void
+    public function testNoTransactionActiveByDefault(): void
     {
         self::assertFalse($this->connection->isTransactionActive());
     }
 
-    public function testCommitWithNoActiveTransactionThrowsException() : void
+    public function testCommitWithNoActiveTransactionThrowsException(): void
     {
         $this->expectException(ConnectionException::class);
         $this->connection->commit();
     }
 
-    public function testRollbackWithNoActiveTransactionThrowsException() : void
+    public function testRollbackWithNoActiveTransactionThrowsException(): void
     {
         $this->expectException(ConnectionException::class);
         $this->connection->rollBack();
     }
 
-    public function testSetRollbackOnlyNoActiveTransactionThrowsException() : void
+    public function testSetRollbackOnlyNoActiveTransactionThrowsException(): void
     {
         $this->expectException(ConnectionException::class);
         $this->connection->setRollbackOnly();
     }
 
-    public function testIsRollbackOnlyNoActiveTransactionThrowsException() : void
+    public function testIsRollbackOnlyNoActiveTransactionThrowsException(): void
     {
         $this->expectException(ConnectionException::class);
         $this->connection->isRollbackOnly();
     }
 
-    public function testGetConfiguration() : void
+    public function testGetConfiguration(): void
     {
         $config = $this->connection->getConfiguration();
 
         self::assertInstanceOf(Configuration::class, $config);
     }
 
-    public function testGetHost() : void
+    public function testGetHost(): void
     {
         self::assertEquals('localhost', $this->connection->getHost());
     }
 
-    public function testGetPort() : void
+    public function testGetPort(): void
     {
         self::assertEquals('1234', $this->connection->getPort());
     }
 
-    public function testGetUsername() : void
+    public function testGetUsername(): void
     {
         self::assertEquals('root', $this->connection->getUsername());
     }
 
-    public function testGetPassword() : void
+    public function testGetPassword(): void
     {
         self::assertEquals('password', $this->connection->getPassword());
     }
 
-    public function testGetDriver() : void
+    public function testGetDriver(): void
     {
         self::assertInstanceOf(\Doctrine\DBAL\Driver\PDOMySql\Driver::class, $this->connection->getDriver());
     }
 
-    public function testGetEventManager() : void
+    public function testGetEventManager(): void
     {
         self::assertInstanceOf(EventManager::class, $this->connection->getEventManager());
     }
 
-    public function testConnectDispatchEvent() : void
+    public function testConnectDispatchEvent(): void
     {
         $listenerMock = $this->createMock(ConnectDispatchEventListener::class);
         $listenerMock->expects(self::once())->method('postConnect');
@@ -156,7 +156,7 @@ class ConnectionTest extends TestCase
         $conn->connect();
     }
 
-    public function testEventManagerPassedToPlatform() : void
+    public function testEventManagerPassedToPlatform(): void
     {
         $eventManager = new EventManager();
 
@@ -178,7 +178,7 @@ class ConnectionTest extends TestCase
      * @requires extension pdo_sqlite
      * @dataProvider getQueryMethods
      */
-    public function testDriverExceptionIsWrapped(callable $callback) : void
+    public function testDriverExceptionIsWrapped(callable $callback): void
     {
         $this->expectException(DBALException::class);
         $this->expectExceptionMessage("An exception occurred while executing 'MUUHAAAAHAAAA':\n\nSQLSTATE[HY000]: General error: 1 near \"MUUHAAAAHAAAA\"");
@@ -194,34 +194,34 @@ class ConnectionTest extends TestCase
     /**
      * @return iterable<string, array<int, callable>>
      */
-    public static function getQueryMethods() : iterable
+    public static function getQueryMethods(): iterable
     {
         yield 'exec' => [
-            static function (Connection $connection, string $statement) : void {
+            static function (Connection $connection, string $statement): void {
                 $connection->exec($statement);
             },
         ];
 
         yield 'query' => [
-            static function (Connection $connection, string $statement) : void {
+            static function (Connection $connection, string $statement): void {
                 $connection->query($statement);
             },
         ];
 
         yield 'executeQuery' => [
-            static function (Connection $connection, string $statement) : void {
+            static function (Connection $connection, string $statement): void {
                 $connection->executeQuery($statement);
             },
         ];
 
         yield 'executeUpdate' => [
-            static function (Connection $connection, string $statement) : void {
+            static function (Connection $connection, string $statement): void {
                 $connection->executeUpdate($statement);
             },
         ];
 
         yield 'prepare' => [
-            static function (Connection $connection, string $statement) : void {
+            static function (Connection $connection, string $statement): void {
                 $connection->prepare($statement);
             },
         ];
@@ -232,7 +232,7 @@ class ConnectionTest extends TestCase
      *
      * @group DBAL-11
      */
-    public function testDebugSQLStack() : void
+    public function testDebugSQLStack(): void
     {
         $logger = new DebugStack();
         $this->connection->getConfiguration()->setSQLLogger($logger);
@@ -242,7 +242,7 @@ class ConnectionTest extends TestCase
     /**
      * @group DBAL-81
      */
-    public function testIsAutoCommit() : void
+    public function testIsAutoCommit(): void
     {
         self::assertTrue($this->connection->isAutoCommit());
     }
@@ -250,7 +250,7 @@ class ConnectionTest extends TestCase
     /**
      * @group DBAL-81
      */
-    public function testSetAutoCommit() : void
+    public function testSetAutoCommit(): void
     {
         $this->connection->setAutoCommit(false);
         self::assertFalse($this->connection->isAutoCommit());
@@ -261,7 +261,7 @@ class ConnectionTest extends TestCase
     /**
      * @group DBAL-81
      */
-    public function testConnectStartsTransactionInNoAutoCommitMode() : void
+    public function testConnectStartsTransactionInNoAutoCommitMode(): void
     {
         $driverMock = $this->createMock(Driver::class);
         $driverMock->expects(self::any())
@@ -283,7 +283,7 @@ class ConnectionTest extends TestCase
     /**
      * @group DBAL-81
      */
-    public function testCommitStartsTransactionInNoAutoCommitMode() : void
+    public function testCommitStartsTransactionInNoAutoCommitMode(): void
     {
         $driverMock = $this->createMock(Driver::class);
         $driverMock->expects(self::any())
@@ -303,7 +303,7 @@ class ConnectionTest extends TestCase
     /**
      * @dataProvider resultProvider
      */
-    public function testCommitReturn(bool $expectedResult) : void
+    public function testCommitReturn(bool $expectedResult): void
     {
         $driverConnection = $this->createMock(DriverConnection::class);
         $driverConnection->expects(self::once())
@@ -325,7 +325,7 @@ class ConnectionTest extends TestCase
     /**
      * @return bool[][]
      */
-    public function resultProvider() : array
+    public function resultProvider(): array
     {
         return [[true], [false]];
     }
@@ -333,7 +333,7 @@ class ConnectionTest extends TestCase
     /**
      * @group DBAL-81
      */
-    public function testRollBackStartsTransactionInNoAutoCommitMode() : void
+    public function testRollBackStartsTransactionInNoAutoCommitMode(): void
     {
         $driverMock = $this->createMock(Driver::class);
         $driverMock->expects(self::any())
@@ -353,7 +353,7 @@ class ConnectionTest extends TestCase
     /**
      * @group DBAL-81
      */
-    public function testSwitchingAutoCommitModeCommitsAllCurrentTransactions() : void
+    public function testSwitchingAutoCommitModeCommitsAllCurrentTransactions(): void
     {
         $driverMock = $this->createMock(Driver::class);
         $driverMock->expects(self::any())
@@ -377,7 +377,7 @@ class ConnectionTest extends TestCase
         self::assertFalse($conn->isTransactionActive());
     }
 
-    public function testEmptyInsert() : void
+    public function testEmptyInsert(): void
     {
         $conn = $this->getExecuteUpdateMockConnection();
 
@@ -391,7 +391,7 @@ class ConnectionTest extends TestCase
     /**
      * @group DBAL-2511
      */
-    public function testUpdateWithDifferentColumnsInDataAndIdentifiers() : void
+    public function testUpdateWithDifferentColumnsInDataAndIdentifiers(): void
     {
         $conn = $this->getExecuteUpdateMockConnection();
 
@@ -435,7 +435,7 @@ class ConnectionTest extends TestCase
     /**
      * @group DBAL-2511
      */
-    public function testUpdateWithSameColumnInDataAndIdentifiers() : void
+    public function testUpdateWithSameColumnInDataAndIdentifiers(): void
     {
         $conn = $this->getExecuteUpdateMockConnection();
 
@@ -478,7 +478,7 @@ class ConnectionTest extends TestCase
     /**
      * @group DBAL-2688
      */
-    public function testUpdateWithIsNull() : void
+    public function testUpdateWithIsNull(): void
     {
         $conn = $this->getExecuteUpdateMockConnection();
 
@@ -520,7 +520,7 @@ class ConnectionTest extends TestCase
     /**
      * @group DBAL-2688
      */
-    public function testDeleteWithIsNull() : void
+    public function testDeleteWithIsNull(): void
     {
         $conn = $this->getExecuteUpdateMockConnection();
 
@@ -545,7 +545,7 @@ class ConnectionTest extends TestCase
         );
     }
 
-    public function testFetchAssociative() : void
+    public function testFetchAssociative(): void
     {
         $statement = 'SELECT * FROM foo WHERE bar = ?';
         $params    = [666];
@@ -579,7 +579,7 @@ class ConnectionTest extends TestCase
         self::assertSame($result, $conn->fetchAssociative($statement, $params, $types));
     }
 
-    public function testFetchNumeric() : void
+    public function testFetchNumeric(): void
     {
         $statement = 'SELECT * FROM foo WHERE bar = ?';
         $params    = [666];
@@ -613,7 +613,7 @@ class ConnectionTest extends TestCase
         self::assertSame($result, $conn->fetchNumeric($statement, $params, $types));
     }
 
-    public function testFetchOne() : void
+    public function testFetchOne(): void
     {
         $statement = 'SELECT * FROM foo WHERE bar = ?';
         $params    = [666];
@@ -647,7 +647,7 @@ class ConnectionTest extends TestCase
         self::assertSame($result, $conn->fetchOne($statement, $params, $types));
     }
 
-    public function testFetchAllAssociative() : void
+    public function testFetchAllAssociative(): void
     {
         $statement = 'SELECT * FROM foo WHERE bar = ?';
         $params    = [666];
@@ -681,7 +681,7 @@ class ConnectionTest extends TestCase
         self::assertSame($result, $conn->fetchAllAssociative($statement, $params, $types));
     }
 
-    public function testCallingDeleteWithNoDeletionCriteriaResultsInInvalidArgumentException() : void
+    public function testCallingDeleteWithNoDeletionCriteriaResultsInInvalidArgumentException(): void
     {
         $driver = $this->createMock(Driver::class);
         $conn   = new Connection([], $driver);
@@ -690,7 +690,7 @@ class ConnectionTest extends TestCase
         $conn->delete('kittens', []);
     }
 
-    public function testCallConnectOnce() : void
+    public function testCallConnectOnce(): void
     {
         $driver = $this->createMock(Driver::class);
         $driver->expects(self::once())
@@ -706,7 +706,7 @@ class ConnectionTest extends TestCase
     /**
      * @group DBAL-1127
      */
-    public function testPlatformDetectionIsTriggerOnlyOnceOnRetrievingPlatform() : void
+    public function testPlatformDetectionIsTriggerOnlyOnceOnRetrievingPlatform(): void
     {
         $driverMock = $this->createMock(VersionAwarePlatformDriver::class);
 
@@ -736,7 +736,7 @@ class ConnectionTest extends TestCase
         self::assertSame($platformMock, $connection->getDatabasePlatform());
     }
 
-    public function testConnectionParamsArePassedToTheQueryCacheProfileInExecuteCacheQuery() : void
+    public function testConnectionParamsArePassedToTheQueryCacheProfileInExecuteCacheQuery(): void
     {
         $resultCacheDriverMock = $this->createMock(Cache::class);
 
@@ -775,7 +775,7 @@ class ConnectionTest extends TestCase
     /**
      * @group #2821
      */
-    public function testShouldNotPassPlatformInParamsToTheQueryCacheProfileInExecuteCacheQuery() : void
+    public function testShouldNotPassPlatformInParamsToTheQueryCacheProfileInExecuteCacheQuery(): void
     {
         $resultCacheDriverMock = $this->createMock(Cache::class);
 
@@ -812,7 +812,7 @@ class ConnectionTest extends TestCase
     /**
      * @group #2821
      */
-    public function testThrowsExceptionWhenInValidPlatformSpecified() : void
+    public function testThrowsExceptionWhenInValidPlatformSpecified(): void
     {
         $connectionParams             = $this->params;
         $connectionParams['platform'] = new stdClass();
@@ -827,7 +827,7 @@ class ConnectionTest extends TestCase
     /**
      * @group DBAL-990
      */
-    public function testRethrowsOriginalExceptionOnDeterminingPlatformWhenConnectingToNonExistentDatabase() : void
+    public function testRethrowsOriginalExceptionOnDeterminingPlatformWhenConnectingToNonExistentDatabase(): void
     {
         $driverMock = $this->createMock(VersionAwarePlatformDriver::class);
 
@@ -851,7 +851,7 @@ class ConnectionTest extends TestCase
     /**
      * @group #3194
      */
-    public function testExecuteCacheQueryStripsPlatformFromConnectionParamsBeforeGeneratingCacheKeys() : void
+    public function testExecuteCacheQueryStripsPlatformFromConnectionParamsBeforeGeneratingCacheKeys(): void
     {
         $driver = $this->createMock(Driver::class);
 
@@ -898,5 +898,5 @@ class ConnectionTest extends TestCase
 
 interface ConnectDispatchEventListener
 {
-    public function postConnect() : void;
+    public function postConnect(): void;
 }

@@ -10,7 +10,7 @@ use Doctrine\DBAL\Tests\FunctionalTestCase;
  */
 class DBAL168Test extends FunctionalTestCase
 {
-    public function testDomainsTable() : void
+    public function testDomainsTable(): void
     {
         if ($this->connection->getDatabasePlatform()->getName() !== 'postgresql') {
             self::markTestSkipped('PostgreSQL only test');

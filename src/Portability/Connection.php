@@ -8,6 +8,7 @@ use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use PDO;
+
 use const CASE_LOWER;
 use const CASE_UPPER;
 
@@ -85,17 +86,17 @@ class Connection extends \Doctrine\DBAL\Connection
     /**
      * {@inheritdoc}
      */
-    public function executeQuery(string $query, array $params = [], $types = [], ?QueryCacheProfile $qcp = null) : ResultStatement
+    public function executeQuery(string $query, array $params = [], $types = [], ?QueryCacheProfile $qcp = null): ResultStatement
     {
         return new Statement(parent::executeQuery($query, $params, $types, $qcp), $this->converter);
     }
 
-    public function prepare(string $sql) : DriverStatement
+    public function prepare(string $sql): DriverStatement
     {
         return new Statement(parent::prepare($sql), $this->converter);
     }
 
-    public function query(string $sql) : ResultStatement
+    public function query(string $sql): ResultStatement
     {
         return new Statement(parent::query($sql), $this->converter);
     }

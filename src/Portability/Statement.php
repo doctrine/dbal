@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Portability;
 use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\ParameterType;
+
 use function assert;
 
 /**
@@ -75,7 +76,7 @@ class Statement implements DriverStatement
         return $this->stmt->execute($params);
     }
 
-    public function rowCount() : int
+    public function rowCount(): int
     {
         assert($this->stmt instanceof DriverStatement);
 
@@ -115,7 +116,7 @@ class Statement implements DriverStatement
     /**
      * {@inheritdoc}
      */
-    public function fetchAllNumeric() : array
+    public function fetchAllNumeric(): array
     {
         return $this->converter->convertAllNumeric(
             $this->stmt->fetchAllNumeric()
@@ -125,7 +126,7 @@ class Statement implements DriverStatement
     /**
      * {@inheritdoc}
      */
-    public function fetchAllAssociative() : array
+    public function fetchAllAssociative(): array
     {
         return $this->converter->convertAllAssociative(
             $this->stmt->fetchAllAssociative()
@@ -135,10 +136,10 @@ class Statement implements DriverStatement
     /**
      * {@inheritdoc}
      */
-    public function fetchColumn() : array
+    public function fetchFirstColumn(): array
     {
         return $this->converter->convertFirstColumn(
-            $this->stmt->fetchColumn()
+            $this->stmt->fetchFirstColumn()
         );
     }
 }

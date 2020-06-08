@@ -14,12 +14,14 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Statement;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
+
 use function array_change_key_case;
 use function count;
 use function date;
 use function json_encode;
 use function sprintf;
 use function strtotime;
+
 use const CASE_LOWER;
 
 class DataAccessTest extends FunctionalTestCase
@@ -27,7 +29,7 @@ class DataAccessTest extends FunctionalTestCase
     /** @var bool */
     private static $generated = false;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -48,7 +50,7 @@ class DataAccessTest extends FunctionalTestCase
         self::$generated = true;
     }
 
-    public function testPrepareWithBindValue() : void
+    public function testPrepareWithBindValue(): void
     {
         $sql  = 'SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?';
         $stmt = $this->connection->prepare($sql);
@@ -64,7 +66,7 @@ class DataAccessTest extends FunctionalTestCase
         self::assertEquals(['test_int' => 1, 'test_string' => 'foo'], $row);
     }
 
-    public function testPrepareWithBindParam() : void
+    public function testPrepareWithBindParam(): void
     {
         $paramInt = 1;
         $paramStr = 'foo';
@@ -83,7 +85,7 @@ class DataAccessTest extends FunctionalTestCase
         self::assertEquals(['test_int' => 1, 'test_string' => 'foo'], $row);
     }
 
-    public function testPrepareWithFetchAllAssociative() : void
+    public function testPrepareWithFetchAllAssociative(): void
     {
         $paramInt = 1;
         $paramStr = 'foo';
@@ -101,7 +103,7 @@ class DataAccessTest extends FunctionalTestCase
         self::assertEquals(['test_int' => 1, 'test_string' => 'foo'], $rows[0]);
     }
 
-    public function testPrepareWithFetchOne() : void
+    public function testPrepareWithFetchOne(): void
     {
         $paramInt = 1;
         $paramStr = 'foo';
@@ -118,7 +120,7 @@ class DataAccessTest extends FunctionalTestCase
         self::assertEquals(1, $column);
     }
 
-    public function testPrepareWithIterator() : void
+    public function testPrepareWithIterator(): void
     {
         $paramInt = 1;
         $paramStr = 'foo';
@@ -140,7 +142,7 @@ class DataAccessTest extends FunctionalTestCase
         self::assertEquals(['test_int' => 1, 'test_string' => 'foo'], $rows[0]);
     }
 
-    public function testPrepareWithQuoted() : void
+    public function testPrepareWithQuoted(): void
     {
         $table    = 'fetch_table';
         $paramInt = 1;
@@ -155,7 +157,7 @@ class DataAccessTest extends FunctionalTestCase
         self::assertInstanceOf(Statement::class, $stmt);
     }
 
-    public function testPrepareWithExecuteParams() : void
+    public function testPrepareWithExecuteParams(): void
     {
         $paramInt = 1;
         $paramStr = 'foo';
@@ -171,7 +173,7 @@ class DataAccessTest extends FunctionalTestCase
         self::assertEquals(['test_int' => 1, 'test_string' => 'foo'], $row);
     }
 
-    public function testFetchAllAssociative() : void
+    public function testFetchAllAssociative(): void
     {
         $sql  = 'SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?';
         $data = $this->connection->fetchAllAssociative($sql, [1, 'foo']);
@@ -189,7 +191,7 @@ class DataAccessTest extends FunctionalTestCase
     /**
      * @group DBAL-209
      */
-    public function testFetchAllWithTypes() : void
+    public function testFetchAllWithTypes(): void
     {
         $datetimeString = '2010-01-01 10:10:10';
         $datetime       = new DateTime($datetimeString);
@@ -214,10 +216,12 @@ class DataAccessTest extends FunctionalTestCase
     /**
      * @group DBAL-209
      */
-    public function testFetchAllWithMissingTypes() : void
+    public function testFetchAllWithMissingTypes(): void
     {
-        if ($this->connection->getDriver() instanceof MySQLiDriver ||
-            $this->connection->getDriver() instanceof SQLSrvDriver) {
+        if (
+            $this->connection->getDriver() instanceof MySQLiDriver ||
+            $this->connection->getDriver() instanceof SQLSrvDriver
+        ) {
             self::markTestSkipped('mysqli and sqlsrv actually supports this');
         }
 
@@ -230,14 +234,14 @@ class DataAccessTest extends FunctionalTestCase
         $this->connection->fetchAllAssociative($sql, [1, $datetime]);
     }
 
-    public function testFetchNoResult() : void
+    public function testFetchNoResult(): void
     {
         self::assertFalse(
             $this->connection->executeQuery('SELECT test_int FROM fetch_table WHERE test_int = ?', [-1])->fetchAssociative()
         );
     }
 
-    public function testFetchAssociative() : void
+    public function testFetchAssociative(): void
     {
         $sql = 'SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?';
         $row = $this->connection->fetchAssociative($sql, [1, 'foo']);
@@ -250,7 +254,7 @@ class DataAccessTest extends FunctionalTestCase
         self::assertEquals('foo', $row['test_string']);
     }
 
-    public function testFetchAssocWithTypes() : void
+    public function testFetchAssocWithTypes(): void
     {
         $datetimeString = '2010-01-01 10:10:10';
         $datetime       = new DateTime($datetimeString);
@@ -270,10 +274,12 @@ class DataAccessTest extends FunctionalTestCase
         self::assertStringStartsWith($datetimeString, $row['test_datetime']);
     }
 
-    public function testFetchAssocWithMissingTypes() : void
+    public function testFetchAssocWithMissingTypes(): void
     {
-        if ($this->connection->getDriver() instanceof MySQLiDriver ||
-            $this->connection->getDriver() instanceof SQLSrvDriver) {
+        if (
+            $this->connection->getDriver() instanceof MySQLiDriver ||
+            $this->connection->getDriver() instanceof SQLSrvDriver
+        ) {
             self::markTestSkipped('mysqli and sqlsrv actually supports this');
         }
 
@@ -286,7 +292,7 @@ class DataAccessTest extends FunctionalTestCase
         $this->connection->fetchAssociative($sql, [1, $datetime]);
     }
 
-    public function testFetchArray() : void
+    public function testFetchArray(): void
     {
         $sql = 'SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?';
         $row = $this->connection->fetchNumeric($sql, [1, 'foo']);
@@ -295,7 +301,7 @@ class DataAccessTest extends FunctionalTestCase
         self::assertEquals('foo', $row[1]);
     }
 
-    public function testFetchArrayWithTypes() : void
+    public function testFetchArrayWithTypes(): void
     {
         $datetimeString = '2010-01-01 10:10:10';
         $datetime       = new DateTime($datetimeString);
@@ -315,10 +321,12 @@ class DataAccessTest extends FunctionalTestCase
         self::assertStringStartsWith($datetimeString, $row[1]);
     }
 
-    public function testFetchArrayWithMissingTypes() : void
+    public function testFetchArrayWithMissingTypes(): void
     {
-        if ($this->connection->getDriver() instanceof MySQLiDriver ||
-            $this->connection->getDriver() instanceof SQLSrvDriver) {
+        if (
+            $this->connection->getDriver() instanceof MySQLiDriver ||
+            $this->connection->getDriver() instanceof SQLSrvDriver
+        ) {
             self::markTestSkipped('mysqli and sqlsrv actually supports this');
         }
 
@@ -331,7 +339,7 @@ class DataAccessTest extends FunctionalTestCase
         $this->connection->fetchNumeric($sql, [1, $datetime]);
     }
 
-    public function testFetchOne() : void
+    public function testFetchOne(): void
     {
         $sql     = 'SELECT test_int FROM fetch_table WHERE test_int = ? AND test_string = ?';
         $testInt = $this->connection->fetchOne($sql, [1, 'foo']);
@@ -344,7 +352,7 @@ class DataAccessTest extends FunctionalTestCase
         self::assertEquals('foo', $testString);
     }
 
-    public function testFetchOneWithTypes() : void
+    public function testFetchOneWithTypes(): void
     {
         $datetimeString = '2010-01-01 10:10:10';
         $datetime       = new DateTime($datetimeString);
@@ -361,10 +369,12 @@ class DataAccessTest extends FunctionalTestCase
         self::assertStringStartsWith($datetimeString, $column);
     }
 
-    public function testFetchOneWithMissingTypes() : void
+    public function testFetchOneWithMissingTypes(): void
     {
-        if ($this->connection->getDriver() instanceof MySQLiDriver ||
-            $this->connection->getDriver() instanceof SQLSrvDriver) {
+        if (
+            $this->connection->getDriver() instanceof MySQLiDriver ||
+            $this->connection->getDriver() instanceof SQLSrvDriver
+        ) {
             self::markTestSkipped('mysqli and sqlsrv actually supports this');
         }
 
@@ -380,7 +390,7 @@ class DataAccessTest extends FunctionalTestCase
     /**
      * @group DDC-697
      */
-    public function testExecuteQueryBindDateTimeType() : void
+    public function testExecuteQueryBindDateTimeType(): void
     {
         $sql  = 'SELECT count(*) AS c FROM fetch_table WHERE test_datetime = ?';
         $stmt = $this->connection->executeQuery(
@@ -395,7 +405,7 @@ class DataAccessTest extends FunctionalTestCase
     /**
      * @group DDC-697
      */
-    public function testExecuteUpdateBindDateTimeType() : void
+    public function testExecuteUpdateBindDateTimeType(): void
     {
         $datetime = new DateTime('2010-02-02 20:20:20');
 
@@ -421,7 +431,7 @@ class DataAccessTest extends FunctionalTestCase
     /**
      * @group DDC-697
      */
-    public function testPrepareQueryBindValueDateTimeType() : void
+    public function testPrepareQueryBindValueDateTimeType(): void
     {
         $sql  = 'SELECT count(*) AS c FROM fetch_table WHERE test_datetime = ?';
         $stmt = $this->connection->prepare($sql);
@@ -434,7 +444,7 @@ class DataAccessTest extends FunctionalTestCase
     /**
      * @group DBAL-78
      */
-    public function testNativeArrayListSupport() : void
+    public function testNativeArrayListSupport(): void
     {
         for ($i = 100; $i < 110; $i++) {
             $this->connection->insert('fetch_table', ['test_int' => $i, 'test_string' => 'foo' . $i, 'test_datetime' => '2010-01-01 10:10:10']);
@@ -466,7 +476,7 @@ class DataAccessTest extends FunctionalTestCase
      *
      * @dataProvider getTrimExpressionData
      */
-    public function testTrimExpression(string $value, int $position, $char, string $expectedResult) : void
+    public function testTrimExpression(string $value, int $position, $char, string $expectedResult): void
     {
         $sql = 'SELECT ' .
             $this->connection->getDatabasePlatform()->getTrimExpression($value, $position, $char) . ' AS trimmed ' .
@@ -481,7 +491,7 @@ class DataAccessTest extends FunctionalTestCase
     /**
      * @return array<int, array<int, mixed>>
      */
-    public static function getTrimExpressionData() : iterable
+    public static function getTrimExpressionData(): iterable
     {
         return [
             ['test_string', TrimMode::UNSPECIFIED, false, 'foo'],
@@ -526,7 +536,7 @@ class DataAccessTest extends FunctionalTestCase
     /**
      * @group DDC-1014
      */
-    public function testDateArithmetics() : void
+    public function testDateArithmetics(): void
     {
         $p    = $this->connection->getDatabasePlatform();
         $sql  = 'SELECT ';
@@ -569,7 +579,7 @@ class DataAccessTest extends FunctionalTestCase
         self::assertEquals('2004-01-01', date('Y-m-d', strtotime($row['sub_years'])), 'Subtracting years should end up on 2004-01-01');
     }
 
-    public function testSqliteDateArithmeticWithDynamicInterval() : void
+    public function testSqliteDateArithmeticWithDynamicInterval(): void
     {
         $platform = $this->connection->getDatabasePlatform();
 
@@ -596,7 +606,7 @@ class DataAccessTest extends FunctionalTestCase
         self::assertEquals(1, $rowCount);
     }
 
-    public function testLocateExpression() : void
+    public function testLocateExpression(): void
     {
         $platform = $this->connection->getDatabasePlatform();
 
@@ -626,7 +636,7 @@ class DataAccessTest extends FunctionalTestCase
         self::assertEquals(0, $row['locate9']);
     }
 
-    public function testQuoteSQLInjection() : void
+    public function testQuoteSQLInjection(): void
     {
         $sql  = 'SELECT * FROM fetch_table WHERE test_string = ' . $this->connection->quote("bar' OR '1'='1");
         $rows = $this->connection->fetchAllAssociative($sql);
@@ -637,7 +647,7 @@ class DataAccessTest extends FunctionalTestCase
     /**
      * @group DDC-1213
      */
-    public function testBitComparisonExpressionSupport() : void
+    public function testBitComparisonExpressionSupport(): void
     {
         $this->connection->exec('DELETE FROM fetch_table');
         $platform = $this->connection->getDatabasePlatform();
@@ -686,7 +696,7 @@ class DataAccessTest extends FunctionalTestCase
     /**
      * @group DBAL-241
      */
-    public function testFetchAllStyleColumn() : void
+    public function testFetchAllStyleColumn(): void
     {
         $sql = 'DELETE FROM fetch_table';
         $this->connection->executeUpdate($sql);
@@ -695,7 +705,7 @@ class DataAccessTest extends FunctionalTestCase
         $this->connection->insert('fetch_table', ['test_int' => 10, 'test_string' => 'foo']);
 
         $sql    = 'SELECT test_int FROM fetch_table';
-        $values = $this->connection->query($sql)->fetchColumn();
+        $values = $this->connection->query($sql)->fetchFirstColumn();
 
         self::assertEquals([1, 10], $values);
     }
@@ -703,7 +713,7 @@ class DataAccessTest extends FunctionalTestCase
     /**
      * @group DBAL-257
      */
-    public function testEmptyFetchOneReturnsFalse() : void
+    public function testEmptyFetchOneReturnsFalse(): void
     {
         $this->connection->beginTransaction();
         $this->connection->exec('DELETE FROM fetch_table');
@@ -715,7 +725,7 @@ class DataAccessTest extends FunctionalTestCase
     /**
      * @group DBAL-435
      */
-    public function testEmptyParameters() : void
+    public function testEmptyParameters(): void
     {
         $sql  = 'SELECT * FROM fetch_table WHERE test_int IN (?)';
         $stmt = $this->connection->executeQuery($sql, [[]], [Connection::PARAM_INT_ARRAY]);
@@ -727,7 +737,7 @@ class DataAccessTest extends FunctionalTestCase
     /**
      * @group DBAL-1028
      */
-    public function testFetchOneNoResult() : void
+    public function testFetchOneNoResult(): void
     {
         self::assertFalse(
             $this->connection->fetchOne('SELECT test_int FROM fetch_table WHERE test_int = ?', [-1])

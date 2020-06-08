@@ -2,19 +2,21 @@
 
 namespace Doctrine\DBAL;
 
+use Doctrine\DBAL\Abstraction\Result;
 use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
 use Throwable;
 use Traversable;
+
 use function is_string;
 
 /**
  * A thin wrapper around a Doctrine\DBAL\Driver\Statement that adds support
  * for logging, DBAL mapping types, etc.
  */
-class Statement implements DriverStatement, ResultStatement
+class Statement implements DriverStatement, Result
 {
     /**
      * The SQL statement.
@@ -177,6 +179,8 @@ class Statement implements DriverStatement, ResultStatement
     /**
      * Closes the cursor, freeing the database resources used by this statement.
      *
+     * @deprecated Use Result::free() instead.
+     *
      * @return bool TRUE on success, FALSE on failure.
      */
     public function closeCursor()
@@ -239,7 +243,7 @@ class Statement implements DriverStatement, ResultStatement
      *
      * @throws DBALException
      */
-    public function fetchAllNumeric() : array
+    public function fetchAllNumeric(): array
     {
         try {
             return $this->stmt->fetchAllNumeric();
@@ -253,7 +257,7 @@ class Statement implements DriverStatement, ResultStatement
      *
      * @throws DBALException
      */
-    public function fetchAllAssociative() : array
+    public function fetchAllAssociative(): array
     {
         try {
             return $this->stmt->fetchAllAssociative();
@@ -267,10 +271,10 @@ class Statement implements DriverStatement, ResultStatement
      *
      * @throws DBALException
      */
-    public function fetchColumn() : array
+    public function fetchFirstColumn(): array
     {
         try {
-            return $this->stmt->fetchColumn();
+            return $this->stmt->fetchFirstColumn();
         } catch (DriverException $e) {
             throw DBALException::driverException($this->conn->getDriver(), $e);
         }
@@ -283,7 +287,7 @@ class Statement implements DriverStatement, ResultStatement
      *
      * @throws DBALException
      */
-    public function iterateNumeric() : Traversable
+    public function iterateNumeric(): Traversable
     {
         try {
             while (($row = $this->stmt->fetchNumeric()) !== false) {
@@ -301,7 +305,7 @@ class Statement implements DriverStatement, ResultStatement
      *
      * @throws DBALException
      */
-    public function iterateAssociative() : Traversable
+    public function iterateAssociative(): Traversable
     {
         try {
             while (($row = $this->stmt->fetchAssociative()) !== false) {
@@ -319,7 +323,7 @@ class Statement implements DriverStatement, ResultStatement
      *
      * @throws DBALException
      */
-    public function iterateColumn() : Traversable
+    public function iterateColumn(): Traversable
     {
         try {
             while (($value = $this->stmt->fetchOne()) !== false) {
@@ -335,9 +339,20 @@ class Statement implements DriverStatement, ResultStatement
      *
      * @return int The number of affected rows.
      */
-    public function rowCount() : int
+    public function rowCount(): int
     {
         return $this->stmt->rowCount();
+    }
+
+    public function free(): void
+    {
+        if ($this->stmt instanceof Result) {
+            $this->stmt->free();
+
+            return;
+        }
+
+        $this->stmt->closeCursor();
     }
 
     /**

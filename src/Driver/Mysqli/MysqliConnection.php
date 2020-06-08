@@ -8,6 +8,7 @@ use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\ParameterType;
 use mysqli;
+
 use function defined;
 use function floor;
 use function in_array;
@@ -20,6 +21,7 @@ use function restore_error_handler;
 use function set_error_handler;
 use function sprintf;
 use function stripos;
+
 use const MYSQLI_INIT_COMMAND;
 use const MYSQLI_OPT_CONNECT_TIMEOUT;
 use const MYSQLI_OPT_LOCAL_INFILE;
@@ -68,7 +70,7 @@ class MysqliConnection implements PingableConnection, ServerInfoAwareConnection
         $this->setSecureConnection($params);
         $this->setDriverOptions($driverOptions);
 
-        set_error_handler(static function () : bool {
+        set_error_handler(static function (): bool {
             return true;
         });
 
@@ -129,12 +131,12 @@ class MysqliConnection implements PingableConnection, ServerInfoAwareConnection
         return false;
     }
 
-    public function prepare(string $sql) : DriverStatement
+    public function prepare(string $sql): DriverStatement
     {
         return new MysqliStatement($this->conn, $sql);
     }
 
-    public function query(string $sql) : ResultStatement
+    public function query(string $sql): ResultStatement
     {
         $stmt = $this->prepare($sql);
         $stmt->execute();
@@ -150,7 +152,7 @@ class MysqliConnection implements PingableConnection, ServerInfoAwareConnection
         return "'" . $this->conn->escape_string($input) . "'";
     }
 
-    public function exec(string $statement) : int
+    public function exec(string $statement): int
     {
         if ($this->conn->query($statement) === false) {
             throw new MysqliException($this->conn->error, $this->conn->sqlstate, $this->conn->errno);
@@ -201,7 +203,7 @@ class MysqliConnection implements PingableConnection, ServerInfoAwareConnection
      * @throws MysqliException When one of of the options is not supported.
      * @throws MysqliException When applying doesn't work - e.g. due to incorrect value.
      */
-    private function setDriverOptions(array $driverOptions = []) : void
+    private function setDriverOptions(array $driverOptions = []): void
     {
         $supportedDriverOptions = [
             MYSQLI_OPT_CONNECT_TIMEOUT,
@@ -260,9 +262,10 @@ class MysqliConnection implements PingableConnection, ServerInfoAwareConnection
      *
      * @throws MysqliException
      */
-    private function setSecureConnection(array $params) : void
+    private function setSecureConnection(array $params): void
     {
-        if (! isset($params['ssl_key']) &&
+        if (
+            ! isset($params['ssl_key']) &&
             ! isset($params['ssl_cert']) &&
             ! isset($params['ssl_ca']) &&
             ! isset($params['ssl_capath']) &&

@@ -4,8 +4,9 @@ namespace Doctrine\DBAL\Driver\SQLAnywhere;
 
 use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
-use Doctrine\DBAL\Driver\Statement as DriverStatement;
+use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\ParameterType;
+
 use function assert;
 use function is_float;
 use function is_int;
@@ -86,7 +87,7 @@ class SQLAnywhereConnection implements ServerInfoAwareConnection
         return true;
     }
 
-    public function exec(string $statement) : int
+    public function exec(string $statement): int
     {
         if (sasql_real_query($this->connection, $statement) === false) {
             throw SQLAnywhereException::fromSQLAnywhereError($this->connection);
@@ -118,12 +119,12 @@ class SQLAnywhereConnection implements ServerInfoAwareConnection
         return $this->query('SELECT ' . $name . '.CURRVAL')->fetchOne();
     }
 
-    public function prepare(string $sql) : DriverStatement
+    public function prepare(string $sql): Statement
     {
         return new SQLAnywhereStatement($this->connection, $sql);
     }
 
-    public function query(string $sql) : ResultStatement
+    public function query(string $sql): ResultStatement
     {
         $stmt = $this->prepare($sql);
         $stmt->execute();

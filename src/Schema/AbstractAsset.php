@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+
 use function array_map;
 use function crc32;
 use function dechex;
@@ -203,7 +204,7 @@ abstract class AbstractAsset
      */
     protected function _generateIdentifierName($columnNames, $prefix = '', $maxSize = 30)
     {
-        $hash = implode('', array_map(static function ($column) : string {
+        $hash = implode('', array_map(static function ($column): string {
             return dechex(crc32($column));
         }, $columnNames));
 

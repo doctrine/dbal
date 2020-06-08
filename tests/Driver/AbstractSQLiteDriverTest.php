@@ -12,7 +12,7 @@ use Doctrine\DBAL\Schema\SqliteSchemaManager;
 
 class AbstractSQLiteDriverTest extends AbstractDriverTest
 {
-    public function testReturnsDatabaseName() : void
+    public function testReturnsDatabaseName(): void
     {
         $params = [
             'user'     => 'foo',
@@ -30,17 +30,17 @@ class AbstractSQLiteDriverTest extends AbstractDriverTest
         self::assertSame($params['path'], $this->driver->getDatabase($connection));
     }
 
-    protected function createDriver() : Driver
+    protected function createDriver(): Driver
     {
         return $this->getMockForAbstractClass(AbstractSQLiteDriver::class);
     }
 
-    protected function createPlatform() : AbstractPlatform
+    protected function createPlatform(): AbstractPlatform
     {
         return new SqlitePlatform();
     }
 
-    protected function createSchemaManager(Connection $connection) : AbstractSchemaManager
+    protected function createSchemaManager(Connection $connection): AbstractSchemaManager
     {
         return new SqliteSchemaManager($connection);
     }
@@ -48,7 +48,7 @@ class AbstractSQLiteDriverTest extends AbstractDriverTest
     /**
      * {@inheritDoc}
      */
-    protected static function getExceptionConversionData() : array
+    protected static function getExceptionConversionData(): array
     {
         return [
             self::EXCEPTION_CONNECTION => [

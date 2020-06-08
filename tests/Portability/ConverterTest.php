@@ -4,6 +4,7 @@ namespace Doctrine\DBAL\Tests\Portability;
 
 use Doctrine\DBAL\Portability\Converter;
 use PHPUnit\Framework\TestCase;
+
 use const CASE_LOWER;
 
 class ConverterTest extends TestCase
@@ -14,7 +15,7 @@ class ConverterTest extends TestCase
      *
      * @dataProvider convertNumericProvider
      */
-    public function testConvertNumeric($row, bool $convertEmptyStringToNull, bool $rightTrimString, $expected) : void
+    public function testConvertNumeric($row, bool $convertEmptyStringToNull, bool $rightTrimString, $expected): void
     {
         self::assertSame(
             $expected,
@@ -26,7 +27,7 @@ class ConverterTest extends TestCase
     /**
      * @return iterable<string,array<int,mixed>>
      */
-    public static function convertNumericProvider() : iterable
+    public static function convertNumericProvider(): iterable
     {
         $row = ['X ', ''];
 
@@ -67,7 +68,7 @@ class ConverterTest extends TestCase
      *
      * @dataProvider convertAssociativeProvider
      */
-    public function testConvertAssociative($row, bool $convertEmptyStringToNull, bool $rightTrimString, ?int $case, $expected) : void
+    public function testConvertAssociative($row, bool $convertEmptyStringToNull, bool $rightTrimString, ?int $case, $expected): void
     {
         self::assertSame(
             $expected,
@@ -79,7 +80,7 @@ class ConverterTest extends TestCase
     /**
      * @return iterable<string,array<int,mixed>>
      */
-    public static function convertAssociativeProvider() : iterable
+    public static function convertAssociativeProvider(): iterable
     {
         $row = [
             'FOO' => '',
@@ -183,7 +184,7 @@ class ConverterTest extends TestCase
      *
      * @dataProvider convertOneProvider
      */
-    public function testConvertOne($value, bool $convertEmptyStringToNull, bool $rightTrimString, $expected) : void
+    public function testConvertOne($value, bool $convertEmptyStringToNull, bool $rightTrimString, $expected): void
     {
         self::assertSame(
             $expected,
@@ -195,7 +196,7 @@ class ConverterTest extends TestCase
     /**
      * @return iterable<string,array<int,mixed>>
      */
-    public static function convertOneProvider() : iterable
+    public static function convertOneProvider(): iterable
     {
         yield 'None, trailing space' => ['X ', false, false, 'X '];
         yield 'None, empty string' => ['', false, false, ''];
@@ -220,7 +221,7 @@ class ConverterTest extends TestCase
         bool $convertEmptyStringToNull,
         bool $rightTrimString,
         array $expected
-    ) : void {
+    ): void {
         self::assertSame(
             $expected,
             $this->createConverter($convertEmptyStringToNull, $rightTrimString, null)
@@ -231,7 +232,7 @@ class ConverterTest extends TestCase
     /**
      * @return iterable<string,array<int,mixed>>
      */
-    public static function convertAllNumericProvider() : iterable
+    public static function convertAllNumericProvider(): iterable
     {
         $data = [
             ['X ', ''],
@@ -289,7 +290,7 @@ class ConverterTest extends TestCase
         bool $rightTrimString,
         ?int $case,
         array $expected
-    ) : void {
+    ): void {
         self::assertSame(
             $expected,
             $this->createConverter($convertEmptyStringToNull, $rightTrimString, $case)
@@ -300,7 +301,7 @@ class ConverterTest extends TestCase
     /**
      * @return iterable<string,array<int,mixed>>
      */
-    public static function convertAllAssociativeProvider() : iterable
+    public static function convertAllAssociativeProvider(): iterable
     {
         $data = [
             [
@@ -461,7 +462,7 @@ class ConverterTest extends TestCase
         bool $convertEmptyStringToNull,
         bool $rightTrimString,
         array $expected
-    ) : void {
+    ): void {
         self::assertSame(
             $expected,
             $this->createConverter($convertEmptyStringToNull, $rightTrimString, null)
@@ -472,7 +473,7 @@ class ConverterTest extends TestCase
     /**
      * @return iterable<string,array<int,mixed>>
      */
-    public static function convertFirstColumnProvider() : iterable
+    public static function convertFirstColumnProvider(): iterable
     {
         $column = ['X ', ''];
 
@@ -505,7 +506,7 @@ class ConverterTest extends TestCase
         ];
     }
 
-    private function createConverter(bool $convertEmptyStringToNull, bool $rightTrimString, ?int $case) : Converter
+    private function createConverter(bool $convertEmptyStringToNull, bool $rightTrimString, ?int $case): Converter
     {
         return new Converter($convertEmptyStringToNull, $rightTrimString, $case);
     }

@@ -12,6 +12,7 @@ use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use InvalidArgumentException;
+
 use function array_merge;
 use function array_unique;
 use function array_values;
@@ -32,6 +33,7 @@ use function str_replace;
 use function strpos;
 use function strtoupper;
 use function substr_count;
+
 use const PREG_OFFSET_CAPTURE;
 
 /**
@@ -143,18 +145,18 @@ class SQLServer2012Platform extends AbstractPlatform
         return true;
     }
 
-    public function supportsSequences() : bool
+    public function supportsSequences(): bool
     {
         return true;
     }
 
-    public function getAlterSequenceSQL(Sequence $sequence) : string
+    public function getAlterSequenceSQL(Sequence $sequence): string
     {
         return 'ALTER SEQUENCE ' . $sequence->getQuotedName($this) .
             ' INCREMENT BY ' . $sequence->getAllocationSize();
     }
 
-    public function getCreateSequenceSQL(Sequence $sequence) : string
+    public function getCreateSequenceSQL(Sequence $sequence): string
     {
         return 'CREATE SEQUENCE ' . $sequence->getQuotedName($this) .
             ' START WITH ' . $sequence->getInitialValue() .
@@ -165,7 +167,7 @@ class SQLServer2012Platform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    public function getDropSequenceSQL($sequence) : string
+    public function getDropSequenceSQL($sequence): string
     {
         if ($sequence instanceof Sequence) {
             $sequence = $sequence->getQuotedName($this);
@@ -1346,7 +1348,8 @@ SQL
             $orderByPos = $matches[0][$matchesCount - 1][1];
         }
 
-        if ($orderByPos === false
+        if (
+            $orderByPos === false
             || substr_count($query, '(', $orderByPos) !== substr_count($query, ')', $orderByPos)
         ) {
             if (preg_match('/^SELECT\s+DISTINCT/im', $query) > 0) {
@@ -1624,7 +1627,7 @@ SQL
         return $name . ' ' . $columnDef;
     }
 
-    protected function getLikeWildcardCharacters() : string
+    protected function getLikeWildcardCharacters(): string
     {
         return parent::getLikeWildcardCharacters() . '[]^';
     }
@@ -1657,7 +1660,7 @@ SQL
         return strtoupper(dechex(crc32($identifier->getName())));
     }
 
-    protected function getCommentOnTableSQL(string $tableName, ?string $comment) : string
+    protected function getCommentOnTableSQL(string $tableName, ?string $comment): string
     {
         return sprintf(
             <<<'SQL'
@@ -1671,7 +1674,7 @@ SQL
         );
     }
 
-    public function getListTableMetadataSQL(string $table) : string
+    public function getListTableMetadataSQL(string $table): string
     {
         return sprintf(
             <<<'SQL'

@@ -13,12 +13,14 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+
 use function assert;
 use function is_bool;
 use function is_numeric;
 use function is_string;
 use function stripos;
 use function trigger_error;
+
 use const E_USER_DEPRECATED;
 
 /**
@@ -97,7 +99,7 @@ EOT
         return 0;
     }
 
-    private function getConnection(InputInterface $input) : Connection
+    private function getConnection(InputInterface $input): Connection
     {
         $connectionName = $input->getOption('connection');
         assert(is_string($connectionName) || $connectionName === null);

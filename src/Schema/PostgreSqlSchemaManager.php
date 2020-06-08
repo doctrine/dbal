@@ -6,6 +6,7 @@ use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+
 use function array_change_key_case;
 use function array_filter;
 use function array_keys;
@@ -23,6 +24,7 @@ use function strlen;
 use function strpos;
 use function strtolower;
 use function trim;
+
 use const CASE_LOWER;
 
 /**
@@ -40,7 +42,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
      */
     public function getSchemaNames()
     {
-        return $this->_conn->fetchColumn("SELECT nspname FROM pg_namespace WHERE nspname !~ '^pg_.*' AND nspname != 'information_schema'");
+        return $this->_conn->fetchFirstColumn("SELECT nspname FROM pg_namespace WHERE nspname !~ '^pg_.*' AND nspname != 'information_schema'");
     }
 
     /**
@@ -90,7 +92,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         $names = $this->getSchemaNames();
         $paths = $this->getSchemaSearchPaths();
 
-        $this->existingSchemaPaths = array_filter($paths, static function ($v) use ($names) : bool {
+        $this->existingSchemaPaths = array_filter($paths, static function ($v) use ($names): bool {
             return in_array($v, $names, true);
         });
     }
@@ -135,27 +137,33 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         $foreignColumns = [];
         $foreignTable   = null;
 
-        if (preg_match(
-            '(ON UPDATE ([a-zA-Z0-9]+( (NULL|ACTION|DEFAULT))?))',
-            $tableForeignKey['condef'],
-            $match
-        ) === 1) {
+        if (
+            preg_match(
+                '(ON UPDATE ([a-zA-Z0-9]+( (NULL|ACTION|DEFAULT))?))',
+                $tableForeignKey['condef'],
+                $match
+            ) === 1
+        ) {
             $onUpdate = $match[1];
         }
 
-        if (preg_match(
-            '(ON DELETE ([a-zA-Z0-9]+( (NULL|ACTION|DEFAULT))?))',
-            $tableForeignKey['condef'],
-            $match
-        ) === 1) {
+        if (
+            preg_match(
+                '(ON DELETE ([a-zA-Z0-9]+( (NULL|ACTION|DEFAULT))?))',
+                $tableForeignKey['condef'],
+                $match
+            ) === 1
+        ) {
             $onDelete = $match[1];
         }
 
-        if (preg_match(
-            '/FOREIGN KEY \((.+)\) REFERENCES (.+)\((.+)\)/',
-            $tableForeignKey['condef'],
-            $values
-        ) === 1) {
+        if (
+            preg_match(
+                '/FOREIGN KEY \((.+)\) REFERENCES (.+)\((.+)\)/',
+                $tableForeignKey['condef'],
+                $values
+            ) === 1
+        ) {
             // PostgreSQL returns identifiers that are keywords with quotes, we need them later, don't get
             // the idea to trim them here.
             $localColumns   = array_map('trim', explode(',', $values[1]));
@@ -364,8 +372,10 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         $jsonb     = null;
 
         $dbType = strtolower($tableColumn['type']);
-        if (strlen($tableColumn['domain_type']) > 0
-            && ! $this->_platform->hasDoctrineTypeMappingFor($tableColumn['type'])) {
+        if (
+            strlen($tableColumn['domain_type']) > 0
+            && ! $this->_platform->hasDoctrineTypeMappingFor($tableColumn['type'])
+        ) {
             $dbType                       = strtolower($tableColumn['domain_type']);
             $tableColumn['complete_type'] = $tableColumn['domain_complete_type'];
         }
@@ -433,11 +443,13 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             case 'numeric':
                 $tableColumn['default'] = $this->fixVersion94NegativeNumericDefaultValue($tableColumn['default']);
 
-                if (preg_match(
-                    '([A-Za-z]+\(([0-9]+)\,([0-9]+)\))',
-                    $tableColumn['complete_type'],
-                    $match
-                ) === 1) {
+                if (
+                    preg_match(
+                        '([A-Za-z]+\(([0-9]+)\,([0-9]+)\))',
+                        $tableColumn['complete_type'],
+                        $match
+                    ) === 1
+                ) {
                     $precision = $match[1];
                     $scale     = $match[2];
                     $length    = null;
@@ -455,11 +467,13 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
                 break;
         }
 
-        if ($tableColumn['default'] !== null && preg_match(
-            "('([^']+)'::)",
-            $tableColumn['default'],
-            $match
-        ) === 1) {
+        if (
+            $tableColumn['default'] !== null && preg_match(
+                "('([^']+)'::)",
+                $tableColumn['default'],
+                $match
+            ) === 1
+        ) {
             $tableColumn['default'] = $match[1];
         }
 
@@ -509,7 +523,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     /**
      * Parses a default value expression as given by PostgreSQL
      */
-    private function parseDefaultExpression(?string $default) : ?string
+    private function parseDefaultExpression(?string $default): ?string
     {
         if ($default === null) {
             return $default;
@@ -521,7 +535,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    public function listTableDetails($tableName) : Table
+    public function listTableDetails($tableName): Table
     {
         $table = parent::listTableDetails($tableName);
 

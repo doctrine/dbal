@@ -22,12 +22,14 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+
 use function array_keys;
 use function assert;
 use function count;
 use function implode;
 use function is_string;
 use function trigger_error;
+
 use const E_USER_DEPRECATED;
 
 class ReservedWordsCommand extends Command
@@ -167,7 +169,7 @@ EOT
         return 0;
     }
 
-    private function getConnection(InputInterface $input) : Connection
+    private function getConnection(InputInterface $input): Connection
     {
         $connectionName = $input->getOption('connection');
         assert(is_string($connectionName) || $connectionName === null);

@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Tests\Driver\SQLAnywhere;
 use Doctrine\DBAL\Driver\SQLAnywhere\SQLAnywhereConnection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+
 use function extension_loaded;
 
 class SQLAnywhereConnectionTest extends TestCase
@@ -16,7 +17,7 @@ class SQLAnywhereConnectionTest extends TestCase
      */
     private $connectionMock;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         if (! extension_loaded('sqlanywhere')) {
             $this->markTestSkipped('sqlanywhere is not installed.');
@@ -29,7 +30,7 @@ class SQLAnywhereConnectionTest extends TestCase
             ->getMockForAbstractClass();
     }
 
-    public function testRequiresQueryForServerVersion() : void
+    public function testRequiresQueryForServerVersion(): void
     {
         self::assertTrue($this->connectionMock->requiresQueryForServerVersion());
     }

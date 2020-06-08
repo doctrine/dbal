@@ -7,6 +7,7 @@ use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\ParameterType;
 use stdClass;
+
 use function assert;
 use function db2_autocommit;
 use function db2_commit;
@@ -22,6 +23,7 @@ use function db2_rollback;
 use function db2_server_info;
 use function db2_stmt_errormsg;
 use function is_bool;
+
 use const DB2_AUTOCOMMIT_OFF;
 use const DB2_AUTOCOMMIT_ON;
 
@@ -74,7 +76,7 @@ class DB2Connection implements ServerInfoAwareConnection
         return false;
     }
 
-    public function prepare(string $sql) : DriverStatement
+    public function prepare(string $sql): DriverStatement
     {
         $stmt = @db2_prepare($this->conn, $sql);
         if ($stmt === false) {
@@ -84,7 +86,7 @@ class DB2Connection implements ServerInfoAwareConnection
         return new DB2Statement($stmt);
     }
 
-    public function query(string $sql) : ResultStatement
+    public function query(string $sql): ResultStatement
     {
         $stmt = $this->prepare($sql);
         $stmt->execute();
@@ -106,7 +108,7 @@ class DB2Connection implements ServerInfoAwareConnection
         return "'" . $input . "'";
     }
 
-    public function exec(string $statement) : int
+    public function exec(string $statement): int
     {
         $stmt = @db2_exec($this->conn, $statement);
 

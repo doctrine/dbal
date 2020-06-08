@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Query\Expression;
 
 use Doctrine\DBAL\Connection;
+
 use function func_get_arg;
 use function func_get_args;
 use function func_num_args;
@@ -44,7 +45,7 @@ class ExpressionBuilder
      * @param string|CompositeExpression $expression
      * @param string|CompositeExpression ...$expressions
      */
-    public function and($expression, ...$expressions) : CompositeExpression
+    public function and($expression, ...$expressions): CompositeExpression
     {
         return CompositeExpression::and($expression, ...$expressions);
     }
@@ -55,7 +56,7 @@ class ExpressionBuilder
      * @param string|CompositeExpression $expression
      * @param string|CompositeExpression ...$expressions
      */
-    public function or($expression, ...$expressions) : CompositeExpression
+    public function or($expression, ...$expressions): CompositeExpression
     {
         return CompositeExpression::or($expression, ...$expressions);
     }

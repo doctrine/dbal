@@ -2,15 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Doctrine\DBAL;
+namespace Doctrine\DBAL\Abstraction;
 
-use Doctrine\DBAL\Driver\ResultStatement as DriverResultStatement;
+use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver\Result as DriverResult;
 use Traversable;
 
 /**
- * DBAL-level ResultStatement interface.
+ * Abstraction-level statement execution result. Provides additional methods on top
+ * of the driver-level interface.
  */
-interface ResultStatement extends DriverResultStatement
+interface Result extends DriverResult
 {
     /**
      * Returns an iterator over the result set rows represented as numeric arrays.
@@ -19,7 +21,7 @@ interface ResultStatement extends DriverResultStatement
      *
      * @throws DBALException
      */
-    public function iterateNumeric() : Traversable;
+    public function iterateNumeric(): Traversable;
 
     /**
      * Returns an iterator over the result set rows represented as associative arrays.
@@ -28,7 +30,7 @@ interface ResultStatement extends DriverResultStatement
      *
      * @throws DBALException
      */
-    public function iterateAssociative() : Traversable;
+    public function iterateAssociative(): Traversable;
 
     /**
      * Returns an iterator over the values of the first column of the result set.
@@ -37,5 +39,5 @@ interface ResultStatement extends DriverResultStatement
      *
      * @throws DBALException
      */
-    public function iterateColumn() : Traversable;
+    public function iterateColumn(): Traversable;
 }

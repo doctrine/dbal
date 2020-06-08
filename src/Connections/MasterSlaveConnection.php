@@ -12,6 +12,7 @@ use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Event\ConnectionEventArgs;
 use Doctrine\DBAL\Events;
 use InvalidArgumentException;
+
 use function array_rand;
 use function assert;
 use function count;
@@ -223,7 +224,7 @@ class MasterSlaveConnection extends Connection
     /**
      * {@inheritDoc}
      */
-    public function executeUpdate(string $query, array $params = [], array $types = []) : int
+    public function executeUpdate(string $query, array $params = [], array $types = []): int
     {
         $this->connect('master');
 
@@ -303,7 +304,7 @@ class MasterSlaveConnection extends Connection
         return parent::insert($tableName, $data, $types);
     }
 
-    public function exec(string $statement) : int
+    public function exec(string $statement): int
     {
         $this->connect('master');
 
@@ -340,7 +341,7 @@ class MasterSlaveConnection extends Connection
         parent::rollbackSavepoint($savepoint);
     }
 
-    public function query(string $sql) : ResultStatement
+    public function query(string $sql): ResultStatement
     {
         $this->connect('master');
         assert($this->_conn instanceof DriverConnection);
@@ -359,7 +360,7 @@ class MasterSlaveConnection extends Connection
         return $statement;
     }
 
-    public function prepare(string $sql) : Statement
+    public function prepare(string $sql): Statement
     {
         $this->connect('master');
 

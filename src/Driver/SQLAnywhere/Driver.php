@@ -4,6 +4,7 @@ namespace Doctrine\DBAL\Driver\SQLAnywhere;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\AbstractSQLAnywhereDriver;
+
 use function array_keys;
 use function array_map;
 use function implode;
@@ -79,7 +80,7 @@ class Driver extends AbstractSQLAnywhereDriver
             ';PWD=' . $password .
             ';' . implode(
                 ';',
-                array_map(static function ($key, $value) : string {
+                array_map(static function ($key, $value): string {
                     return $key . '=' . $value;
                 }, array_keys($driverOptions), $driverOptions)
             );

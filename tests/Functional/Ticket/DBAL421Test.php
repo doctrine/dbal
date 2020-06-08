@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Tests\Functional\Ticket;
 
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+
 use function in_array;
 use function preg_match;
 
@@ -11,7 +12,7 @@ use function preg_match;
  */
 class DBAL421Test extends FunctionalTestCase
 {
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -23,7 +24,7 @@ class DBAL421Test extends FunctionalTestCase
         $this->markTestSkipped('Currently restricted to MySQL and SQLite.');
     }
 
-    public function testGuidShouldMatchPattern() : void
+    public function testGuidShouldMatchPattern(): void
     {
         $guid    = $this->connection->query($this->getSelectGuidSql())->fetchOne();
         $pattern = '/[0-9A-F]{8}\-[0-9A-F]{4}\-[0-9A-F]{4}\-[8-9A-B][0-9A-F]{3}\-[0-9A-F]{12}/i';
@@ -34,14 +35,14 @@ class DBAL421Test extends FunctionalTestCase
      * This test does (of course) not proof that all generated GUIDs are
      * random, it should however provide some basic confidence.
      */
-    public function testGuidShouldBeRandom() : void
+    public function testGuidShouldBeRandom(): void
     {
         $statement = $this->connection->prepare($this->getSelectGuidSql());
         $guids     = [];
 
         for ($i = 0; $i < 99; $i++) {
             $statement->execute();
-            $guid = $statement->fetchColumn();
+            $guid = $statement->fetchFirstColumn();
             self::assertNotContains($guid, $guids, 'Duplicate GUID detected');
             $guids[] = $guid;
         }
@@ -49,7 +50,7 @@ class DBAL421Test extends FunctionalTestCase
         $statement->closeCursor();
     }
 
-    private function getSelectGuidSql() : string
+    private function getSelectGuidSql(): string
     {
         return 'SELECT ' . $this->connection->getDatabasePlatform()->getGuidExpression();
     }

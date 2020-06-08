@@ -11,6 +11,7 @@ use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Schema\MySqlSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
+
 use function preg_match;
 use function stripos;
 use function version_compare;
@@ -23,8 +24,8 @@ abstract class AbstractMySQLDriver implements ExceptionConverterDriver, VersionA
     /**
      * {@inheritdoc}
      *
-     * @link http://dev.mysql.com/doc/refman/5.7/en/error-messages-client.html
-     * @link http://dev.mysql.com/doc/refman/5.7/en/error-messages-server.html
+     * @link https://dev.mysql.com/doc/refman/8.0/en/client-error-reference.html
+     * @link https://dev.mysql.com/doc/refman/8.0/en/server-error-reference.html
      */
     public function convertException($message, DriverException $exception)
     {
@@ -141,13 +142,15 @@ abstract class AbstractMySQLDriver implements ExceptionConverterDriver, VersionA
      *
      * @throws DBALException
      */
-    private function getOracleMysqlVersionNumber(string $versionString) : string
+    private function getOracleMysqlVersionNumber(string $versionString): string
     {
-        if (preg_match(
-            '/^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?)?/',
-            $versionString,
-            $versionParts
-        ) === 0) {
+        if (
+            preg_match(
+                '/^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?)?/',
+                $versionString,
+                $versionParts
+            ) === 0
+        ) {
             throw DBALException::invalidPlatformVersionSpecified(
                 $versionString,
                 '<major_version>.<minor_version>.<patch_version>'
@@ -173,13 +176,15 @@ abstract class AbstractMySQLDriver implements ExceptionConverterDriver, VersionA
      *
      * @throws DBALException
      */
-    private function getMariaDbMysqlVersionNumber(string $versionString) : string
+    private function getMariaDbMysqlVersionNumber(string $versionString): string
     {
-        if (preg_match(
-            '/^(?:5\.5\.5-)?(mariadb-)?(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)/i',
-            $versionString,
-            $versionParts
-        ) === 0) {
+        if (
+            preg_match(
+                '/^(?:5\.5\.5-)?(mariadb-)?(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)/i',
+                $versionString,
+                $versionParts
+            ) === 0
+        ) {
             throw DBALException::invalidPlatformVersionSpecified(
                 $versionString,
                 '^(?:5\.5\.5-)?(mariadb-)?<major_version>.<minor_version>.<patch_version>'

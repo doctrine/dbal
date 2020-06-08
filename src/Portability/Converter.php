@@ -90,7 +90,7 @@ final class Converter
      *
      * @return array<int,array<int,mixed>>
      */
-    public function convertAllNumeric(array $data) : array
+    public function convertAllNumeric(array $data): array
     {
         return ($this->convertAllNumeric)($data);
     }
@@ -100,7 +100,7 @@ final class Converter
      *
      * @return array<int,array<string,mixed>>
      */
-    public function convertAllAssociative(array $data) : array
+    public function convertAllAssociative(array $data): array
     {
         return ($this->convertAllAssociative)($data);
     }
@@ -110,7 +110,7 @@ final class Converter
      *
      * @return array<int,mixed>
      */
-    public function convertFirstColumn(array $data) : array
+    public function convertFirstColumn(array $data): array
     {
         return ($this->convertFirstColumn)($data);
     }
@@ -123,7 +123,7 @@ final class Converter
      *
      * @return callable|null The resulting function or NULL if no conversion is needed
      */
-    private function createConvertValue(bool $convertEmptyStringToNull, bool $rightTrimString) : ?callable
+    private function createConvertValue(bool $convertEmptyStringToNull, bool $rightTrimString): ?callable
     {
         $functions = [];
 
@@ -158,7 +158,7 @@ final class Converter
      *
      * @return callable|null The resulting function or NULL if no conversion is needed
      */
-    private function createConvertRow(?callable $function, ?int $case) : ?callable
+    private function createConvertRow(?callable $function, ?int $case): ?callable
     {
         $functions = [];
 
@@ -167,7 +167,7 @@ final class Converter
         }
 
         if ($case !== null) {
-            $functions[] = static function (array $row) use ($case) : array {
+            $functions[] = static function (array $row) use ($case): array {
                 return array_change_key_case($row, $case);
             };
         }
@@ -182,7 +182,7 @@ final class Converter
      * @param callable|null $function The function that will convert each tow
      * @param callable      $id       Identity function
      */
-    private function createConvert(?callable $function, callable $id) : callable
+    private function createConvert(?callable $function, callable $id): callable
     {
         if ($function === null) {
             return $id;
@@ -204,7 +204,7 @@ final class Converter
      * @param callable|null $function The function that will transform each value
      * @param callable      $id       Identity function
      */
-    private function createConvertAll(?callable $function, callable $id) : callable
+    private function createConvertAll(?callable $function, callable $id): callable
     {
         if ($function === null) {
             return $id;
@@ -218,9 +218,9 @@ final class Converter
      *
      * @param callable $function The function that maps each value of the array
      */
-    private function createMapper(callable $function) : callable
+    private function createMapper(callable $function): callable
     {
-        return static function (array $array) use ($function) : array {
+        return static function (array $array) use ($function): array {
             return array_map($function, $array);
         };
     }
@@ -232,9 +232,9 @@ final class Converter
      *
      * @return callable|null The composition or NULL if an empty set is provided
      */
-    private function compose(callable ...$functions) : ?callable
+    private function compose(callable ...$functions): ?callable
     {
-        return array_reduce($functions, static function (?callable $carry, callable $item) : callable {
+        return array_reduce($functions, static function (?callable $carry, callable $item): callable {
             if ($carry === null) {
                 return $item;
             }

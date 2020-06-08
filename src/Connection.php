@@ -22,6 +22,7 @@ use Doctrine\DBAL\Types\Type;
 use Exception;
 use Throwable;
 use Traversable;
+
 use function array_key_exists;
 use function assert;
 use function count;
@@ -375,7 +376,7 @@ class Connection implements DriverConnection
      *
      * @throws DBALException If an invalid platform was specified for this connection.
      */
-    private function detectDatabasePlatform() : void
+    private function detectDatabasePlatform(): void
     {
         $version = $this->getDatabasePlatformVersion();
 
@@ -616,7 +617,7 @@ class Connection implements DriverConnection
         array &$columns,
         array &$values,
         array &$conditions
-    ) : void {
+    ): void {
         $platform = $this->getDatabasePlatform();
 
         foreach ($identifier as $columnName => $value) {
@@ -836,7 +837,7 @@ class Connection implements DriverConnection
      *
      * @throws DBALException
      */
-    public function fetchAllNumeric(string $query, array $params = [], array $types = []) : array
+    public function fetchAllNumeric(string $query, array $params = [], array $types = []): array
     {
         try {
             return $this->executeQuery($query, $params, $types)->fetchAllNumeric();
@@ -856,7 +857,7 @@ class Connection implements DriverConnection
      *
      * @throws DBALException
      */
-    public function fetchAllAssociative(string $query, array $params = [], array $types = []) : array
+    public function fetchAllAssociative(string $query, array $params = [], array $types = []): array
     {
         try {
             return $this->executeQuery($query, $params, $types)->fetchAllAssociative();
@@ -876,10 +877,10 @@ class Connection implements DriverConnection
      *
      * @throws DBALException
      */
-    public function fetchColumn(string $query, array $params = [], array $types = []) : array
+    public function fetchFirstColumn(string $query, array $params = [], array $types = []): array
     {
         try {
-            return $this->executeQuery($query, $params, $types)->fetchColumn();
+            return $this->executeQuery($query, $params, $types)->fetchFirstColumn();
         } catch (Throwable $e) {
             throw DBALException::driverExceptionDuringQuery($this->_driver, $e, $query);
         }
@@ -896,7 +897,7 @@ class Connection implements DriverConnection
      *
      * @throws DBALException
      */
-    public function iterateNumeric(string $query, array $params = [], array $types = []) : Traversable
+    public function iterateNumeric(string $query, array $params = [], array $types = []): Traversable
     {
         try {
             $stmt = $this->executeQuery($query, $params, $types);
@@ -920,7 +921,7 @@ class Connection implements DriverConnection
      *
      * @throws DBALException
      */
-    public function iterateAssociative(string $query, array $params = [], array $types = []) : Traversable
+    public function iterateAssociative(string $query, array $params = [], array $types = []): Traversable
     {
         try {
             $stmt = $this->executeQuery($query, $params, $types);
@@ -944,7 +945,7 @@ class Connection implements DriverConnection
      *
      * @throws DBALException
      */
-    public function iterateColumn(string $query, array $params = [], array $types = []) : Traversable
+    public function iterateColumn(string $query, array $params = [], array $types = []): Traversable
     {
         try {
             $stmt = $this->executeQuery($query, $params, $types);
@@ -964,7 +965,7 @@ class Connection implements DriverConnection
      *
      * @throws DBALException
      */
-    public function prepare(string $sql) : DriverStatement
+    public function prepare(string $sql): DriverStatement
     {
         try {
             return new Statement($sql, $this);
@@ -988,7 +989,7 @@ class Connection implements DriverConnection
      *
      * @throws DBALException
      */
-    public function executeQuery(string $query, array $params = [], $types = [], ?QueryCacheProfile $qcp = null) : ResultStatement
+    public function executeQuery(string $query, array $params = [], $types = [], ?QueryCacheProfile $qcp = null): ResultStatement
     {
         if ($qcp !== null) {
             return $this->executeCacheQuery($query, $params, $types, $qcp);
@@ -1036,7 +1037,7 @@ class Connection implements DriverConnection
      *
      * @throws CacheException
      */
-    public function executeCacheQuery($query, $params, $types, QueryCacheProfile $qcp) : ResultStatement
+    public function executeCacheQuery($query, $params, $types, QueryCacheProfile $qcp): ResultStatement
     {
         $resultCache = $qcp->getResultCacheDriver() ?? $this->_config->getResultCacheImpl();
 
@@ -1068,7 +1069,7 @@ class Connection implements DriverConnection
         return $stmt;
     }
 
-    public function query(string $sql) : ResultStatement
+    public function query(string $sql): ResultStatement
     {
         $connection = $this->getWrappedConnection();
 
@@ -1102,7 +1103,7 @@ class Connection implements DriverConnection
      *
      * @throws DBALException
      */
-    public function executeUpdate(string $query, array $params = [], array $types = []) : int
+    public function executeUpdate(string $query, array $params = [], array $types = []): int
     {
         $connection = $this->getWrappedConnection();
 
@@ -1139,7 +1140,7 @@ class Connection implements DriverConnection
         return $result;
     }
 
-    public function exec(string $statement) : int
+    public function exec(string $statement): int
     {
         $connection = $this->getWrappedConnection();
 
@@ -1357,7 +1358,7 @@ class Connection implements DriverConnection
     /**
      * Commits all current nesting transactions.
      */
-    private function commitAll() : void
+    private function commitAll(): void
     {
         while ($this->transactionNestingLevel !== 0) {
             if ($this->autoCommit === false && $this->transactionNestingLevel === 1) {
@@ -1579,7 +1580,7 @@ class Connection implements DriverConnection
      * @param mixed[]         $params The map/list of named/positional parameters.
      * @param int[]|string[]  $types  The parameter types (PDO binding types or DBAL mapping types).
      */
-    private function _bindTypedValues(DriverStatement $stmt, array $params, array $types) : void
+    private function _bindTypedValues(DriverStatement $stmt, array $params, array $types): void
     {
         // Check whether parameters are positional or named. Mixing is not allowed, just like in PDO.
         if (is_int(key($params))) {

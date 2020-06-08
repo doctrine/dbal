@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Tests\Driver\OCI8;
 use Doctrine\DBAL\Driver\OCI8\OCI8Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+
 use function extension_loaded;
 
 class OCI8ConnectionTest extends TestCase
@@ -16,7 +17,7 @@ class OCI8ConnectionTest extends TestCase
      */
     private $connectionMock;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         if (! extension_loaded('oci8')) {
             $this->markTestSkipped('oci8 is not installed.');
@@ -29,7 +30,7 @@ class OCI8ConnectionTest extends TestCase
             ->getMockForAbstractClass();
     }
 
-    public function testDoesNotRequireQueryForServerVersion() : void
+    public function testDoesNotRequireQueryForServerVersion(): void
     {
         self::assertFalse($this->connectionMock->requiresQueryForServerVersion());
     }

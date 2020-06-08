@@ -4,11 +4,12 @@ namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+
 use function sleep;
 
 class TransactionTest extends FunctionalTestCase
 {
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -19,14 +20,14 @@ class TransactionTest extends FunctionalTestCase
         $this->markTestSkipped('Restricted to MySQL.');
     }
 
-    protected function tearDown() : void
+    protected function tearDown(): void
     {
         $this->resetSharedConn();
 
         parent::tearDown();
     }
 
-    public function testCommitFalse() : void
+    public function testCommitFalse(): void
     {
         $this->connection->query('SET SESSION wait_timeout=1');
 

@@ -9,6 +9,7 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+
 use function array_merge;
 use function count;
 use function current;
@@ -22,7 +23,7 @@ use function strtoupper;
 
 class DB2Platform extends AbstractPlatform
 {
-    public function getCharMaxLength() : int
+    public function getCharMaxLength(): int
     {
         return 254;
     }
@@ -523,7 +524,8 @@ class DB2Platform extends AbstractPlatform
             $queryPart = 'ADD COLUMN ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnDef);
 
             // Adding non-nullable columns to a table requires a default value to be specified.
-            if (! empty($columnDef['notnull']) &&
+            if (
+                ! empty($columnDef['notnull']) &&
                 ! isset($columnDef['default']) &&
                 empty($columnDef['autoincrement'])
             ) {
@@ -626,7 +628,7 @@ class DB2Platform extends AbstractPlatform
      * @param string[]   $sql        The sequence of table alteration statements to fill.
      * @param mixed[]    $queryParts The sequence of column alteration clauses to fill.
      */
-    private function gatherAlterColumnSQL(Identifier $table, ColumnDiff $columnDiff, array &$sql, array &$queryParts) : void
+    private function gatherAlterColumnSQL(Identifier $table, ColumnDiff $columnDiff, array &$sql, array &$queryParts): void
     {
         $alterColumnClauses = $this->getAlterColumnClausesSQL($columnDiff);
 
@@ -668,7 +670,8 @@ class DB2Platform extends AbstractPlatform
 
         $clauses = [];
 
-        if ($columnDiff->hasChanged('type') ||
+        if (
+            $columnDiff->hasChanged('type') ||
             $columnDiff->hasChanged('length') ||
             $columnDiff->hasChanged('precision') ||
             $columnDiff->hasChanged('scale') ||
@@ -901,7 +904,7 @@ class DB2Platform extends AbstractPlatform
         return Keywords\DB2Keywords::class;
     }
 
-    public function getListTableCommentsSQL(string $table) : string
+    public function getListTableCommentsSQL(string $table): string
     {
         return sprintf(
             <<<'SQL'

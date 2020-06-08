@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Driver;
 use Doctrine\DBAL\ParameterType;
 use InvalidArgumentException;
 use PDO;
+
 use function array_slice;
 use function assert;
 use function func_get_args;
@@ -101,7 +102,7 @@ class PDOStatement implements Statement
         }
     }
 
-    public function rowCount() : int
+    public function rowCount(): int
     {
         return $this->stmt->rowCount();
     }
@@ -133,7 +134,7 @@ class PDOStatement implements Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAllNumeric() : array
+    public function fetchAllNumeric(): array
     {
         return $this->fetchAll(PDO::FETCH_NUM);
     }
@@ -141,7 +142,7 @@ class PDOStatement implements Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAllAssociative() : array
+    public function fetchAllAssociative(): array
     {
         return $this->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -149,7 +150,7 @@ class PDOStatement implements Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchColumn() : array
+    public function fetchFirstColumn(): array
     {
         return $this->fetchAll(PDO::FETCH_COLUMN);
     }
@@ -173,7 +174,7 @@ class PDOStatement implements Statement
      *
      * @throws PDOException
      */
-    private function fetchAll(int $mode) : array
+    private function fetchAll(int $mode): array
     {
         try {
             $data = $this->stmt->fetchAll($mode);
@@ -191,7 +192,7 @@ class PDOStatement implements Statement
      *
      * @param int $type Parameter type
      */
-    private function convertParamType(int $type) : int
+    private function convertParamType(int $type): int
     {
         if (! isset(self::PARAM_TYPE_MAP[$type])) {
             throw new InvalidArgumentException('Invalid parameter type: ' . $type);

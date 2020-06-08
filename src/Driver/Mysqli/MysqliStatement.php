@@ -3,11 +3,13 @@
 namespace Doctrine\DBAL\Driver\Mysqli;
 
 use Doctrine\DBAL\Driver\FetchUtils;
+use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\ParameterType;
 use mysqli;
 use mysqli_stmt;
+
 use function array_combine;
 use function array_fill;
 use function assert;
@@ -21,7 +23,7 @@ use function is_resource;
 use function sprintf;
 use function str_repeat;
 
-class MysqliStatement implements Statement
+class MysqliStatement implements Statement, Result
 {
     /** @var string[] */
     protected static $_paramTypeMap = [
@@ -201,7 +203,7 @@ class MysqliStatement implements Statement
     /**
      * Binds parameters with known types previously bound to the statement
      */
-    private function bindTypedParameters() : void
+    private function bindTypedParameters(): void
     {
         $streams = $values = [];
         $types   = $this->types;
@@ -244,7 +246,7 @@ class MysqliStatement implements Statement
      *
      * @throws MysqliException
      */
-    private function sendLongData(array $streams) : void
+    private function sendLongData(array $streams): void
     {
         foreach ($streams as $paramNr => $stream) {
             while (! feof($stream)) {
@@ -352,7 +354,7 @@ class MysqliStatement implements Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAllNumeric() : array
+    public function fetchAllNumeric(): array
     {
         return FetchUtils::fetchAllNumeric($this);
     }
@@ -360,7 +362,7 @@ class MysqliStatement implements Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAllAssociative() : array
+    public function fetchAllAssociative(): array
     {
         return FetchUtils::fetchAllAssociative($this);
     }
@@ -368,23 +370,24 @@ class MysqliStatement implements Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchColumn() : array
+    public function fetchFirstColumn(): array
     {
-        return FetchUtils::fetchColumn($this);
+        return FetchUtils::fetchFirstColumn($this);
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use free() instead.
      */
     public function closeCursor()
     {
-        $this->_stmt->free_result();
-        $this->result = false;
+        $this->free();
 
         return true;
     }
 
-    public function rowCount() : int
+    public function rowCount(): int
     {
         if ($this->_columnNames === false) {
             return $this->_stmt->affected_rows;
@@ -399,5 +402,11 @@ class MysqliStatement implements Statement
     public function columnCount()
     {
         return $this->_stmt->field_count;
+    }
+
+    public function free(): void
+    {
+        $this->_stmt->free_result();
+        $this->result = false;
     }
 }

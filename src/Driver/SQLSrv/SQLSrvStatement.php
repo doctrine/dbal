@@ -3,8 +3,10 @@
 namespace Doctrine\DBAL\Driver\SQLSrv;
 
 use Doctrine\DBAL\Driver\FetchUtils;
+use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\ParameterType;
+
 use function is_int;
 use function is_numeric;
 use function sqlsrv_execute;
@@ -19,6 +21,7 @@ use function sqlsrv_prepare;
 use function sqlsrv_rows_affected;
 use function SQLSRV_SQLTYPE_VARBINARY;
 use function stripos;
+
 use const SQLSRV_ENC_BINARY;
 use const SQLSRV_FETCH_ASSOC;
 use const SQLSRV_FETCH_NUMERIC;
@@ -27,7 +30,7 @@ use const SQLSRV_PARAM_IN;
 /**
  * SQL Server Statement.
  */
-final class SQLSrvStatement implements Statement
+final class SQLSrvStatement implements Statement, Result
 {
     /**
      * The SQLSRV Resource.
@@ -139,22 +142,12 @@ final class SQLSrvStatement implements Statement
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use free() instead.
      */
     public function closeCursor()
     {
-        // not having the result means there's nothing to close
-        if ($this->stmt === null || ! $this->result) {
-            return true;
-        }
-
-        // emulate it by fetching and discarding rows, similarly to what PDO does in this case
-        // @link http://php.net/manual/en/pdostatement.closecursor.php
-        // @link https://github.com/php/php-src/blob/php-7.0.11/ext/pdo/pdo_stmt.c#L2075
-        // deliberately do not consider multiple result sets, since doctrine/dbal doesn't support them
-        while (sqlsrv_fetch($this->stmt)) {
-        }
-
-        $this->result = false;
+        $this->free();
 
         return true;
     }
@@ -283,7 +276,7 @@ final class SQLSrvStatement implements Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAllNumeric() : array
+    public function fetchAllNumeric(): array
     {
         return FetchUtils::fetchAllNumeric($this);
     }
@@ -291,7 +284,7 @@ final class SQLSrvStatement implements Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAllAssociative() : array
+    public function fetchAllAssociative(): array
     {
         return FetchUtils::fetchAllAssociative($this);
     }
@@ -299,12 +292,12 @@ final class SQLSrvStatement implements Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchColumn() : array
+    public function fetchFirstColumn(): array
     {
-        return FetchUtils::fetchColumn($this);
+        return FetchUtils::fetchFirstColumn($this);
     }
 
-    public function rowCount() : int
+    public function rowCount(): int
     {
         if ($this->stmt === null) {
             return 0;
@@ -317,6 +310,23 @@ final class SQLSrvStatement implements Statement
         }
 
         return 0;
+    }
+
+    public function free(): void
+    {
+        // not having the result means there's nothing to close
+        if ($this->stmt === null || ! $this->result) {
+            return;
+        }
+
+        // emulate it by fetching and discarding rows, similarly to what PDO does in this case
+        // @link http://php.net/manual/en/pdostatement.closecursor.php
+        // @link https://github.com/php/php-src/blob/php-7.0.11/ext/pdo/pdo_stmt.c#L2075
+        // deliberately do not consider multiple result sets, since doctrine/dbal doesn't support them
+        while (sqlsrv_fetch($this->stmt)) {
+        }
+
+        $this->result = false;
     }
 
     /**

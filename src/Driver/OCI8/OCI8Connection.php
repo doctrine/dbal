@@ -8,6 +8,7 @@ use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\ParameterType;
 use UnexpectedValueException;
+
 use function addcslashes;
 use function is_float;
 use function is_int;
@@ -20,6 +21,7 @@ use function oci_server_version;
 use function preg_match;
 use function sprintf;
 use function str_replace;
+
 use const OCI_COMMIT_ON_SUCCESS;
 use const OCI_NO_AUTO_COMMIT;
 
@@ -100,12 +102,12 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
         return false;
     }
 
-    public function prepare(string $sql) : DriverStatement
+    public function prepare(string $sql): DriverStatement
     {
         return new OCI8Statement($this->dbh, $sql, $this);
     }
 
-    public function query(string $sql) : ResultStatement
+    public function query(string $sql): ResultStatement
     {
         $stmt = $this->prepare($sql);
         $stmt->execute();
@@ -127,7 +129,7 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
         return "'" . addcslashes($value, "\000\n\r\\\032") . "'";
     }
 
-    public function exec(string $statement) : int
+    public function exec(string $statement): int
     {
         $stmt = $this->prepare($statement);
         $stmt->execute();

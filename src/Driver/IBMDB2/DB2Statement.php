@@ -3,8 +3,10 @@
 namespace Doctrine\DBAL\Driver\IBMDB2;
 
 use Doctrine\DBAL\Driver\FetchUtils;
+use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\ParameterType;
+
 use function assert;
 use function db2_bind_param;
 use function db2_execute;
@@ -23,13 +25,14 @@ use function ksort;
 use function stream_copy_to_stream;
 use function stream_get_meta_data;
 use function tmpfile;
+
 use const DB2_BINARY;
 use const DB2_CHAR;
 use const DB2_LONG;
 use const DB2_PARAM_FILE;
 use const DB2_PARAM_IN;
 
-class DB2Statement implements Statement
+class DB2Statement implements Statement, Result
 {
     /** @var resource */
     private $stmt;
@@ -108,7 +111,7 @@ class DB2Statement implements Statement
      *
      * @throws DB2Exception
      */
-    private function bind($position, &$variable, int $parameterType, int $dataType) : void
+    private function bind($position, &$variable, int $parameterType, int $dataType): void
     {
         $this->bindParam[$position] =& $variable;
 
@@ -119,6 +122,8 @@ class DB2Statement implements Statement
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use free() instead.
      */
     public function closeCursor()
     {
@@ -226,7 +231,7 @@ class DB2Statement implements Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAllNumeric() : array
+    public function fetchAllNumeric(): array
     {
         return FetchUtils::fetchAllNumeric($this);
     }
@@ -234,7 +239,7 @@ class DB2Statement implements Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAllAssociative() : array
+    public function fetchAllAssociative(): array
     {
         return FetchUtils::fetchAllAssociative($this);
     }
@@ -242,14 +247,23 @@ class DB2Statement implements Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchColumn() : array
+    public function fetchFirstColumn(): array
     {
-        return FetchUtils::fetchColumn($this);
+        return FetchUtils::fetchFirstColumn($this);
     }
 
-    public function rowCount() : int
+    public function rowCount(): int
     {
         return @db2_num_rows($this->stmt);
+    }
+
+    public function free(): void
+    {
+        $this->bindParam = [];
+
+        db2_free_result($this->stmt);
+
+        $this->result = false;
     }
 
     /**
@@ -274,7 +288,7 @@ class DB2Statement implements Statement
      *
      * @throws DB2Exception
      */
-    private function copyStreamToStream($source, $target) : void
+    private function copyStreamToStream($source, $target): void
     {
         if (@stream_copy_to_stream($source, $target) === false) {
             throw new DB2Exception('Could not copy source stream to temporary file: ' . error_get_last()['message']);
@@ -286,7 +300,7 @@ class DB2Statement implements Statement
      *
      * @throws DB2Exception
      */
-    private function writeStringToStream(string $string, $target) : void
+    private function writeStringToStream(string $string, $target): void
     {
         if (@fwrite($target, $string) === false) {
             throw new DB2Exception('Could not write string to temporary file: ' . error_get_last()['message']);

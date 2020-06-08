@@ -14,9 +14,9 @@ final class FetchUtils
      *
      * @throws DriverException
      */
-    public static function fetchOne(ResultStatement $stmt)
+    public static function fetchOne(Result $result)
     {
-        $row = $stmt->fetchNumeric();
+        $row = $result->fetchNumeric();
 
         if ($row === false) {
             return false;
@@ -30,11 +30,11 @@ final class FetchUtils
      *
      * @throws DriverException
      */
-    public static function fetchAllNumeric(ResultStatement $stmt) : array
+    public static function fetchAllNumeric(Result $result): array
     {
         $rows = [];
 
-        while (($row = $stmt->fetchNumeric()) !== false) {
+        while (($row = $result->fetchNumeric()) !== false) {
             $rows[] = $row;
         }
 
@@ -46,11 +46,11 @@ final class FetchUtils
      *
      * @throws DriverException
      */
-    public static function fetchAllAssociative(ResultStatement $stmt) : array
+    public static function fetchAllAssociative(Result $result): array
     {
         $rows = [];
 
-        while (($row = $stmt->fetchAssociative()) !== false) {
+        while (($row = $result->fetchAssociative()) !== false) {
             $rows[] = $row;
         }
 
@@ -62,11 +62,11 @@ final class FetchUtils
      *
      * @throws DriverException
      */
-    public static function fetchColumn(ResultStatement $stmt) : array
+    public static function fetchFirstColumn(Result $result): array
     {
         $rows = [];
 
-        while (($row = $stmt->fetchOne()) !== false) {
+        while (($row = $result->fetchOne()) !== false) {
             $rows[] = $row;
         }
 

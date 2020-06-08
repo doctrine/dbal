@@ -4,6 +4,7 @@ namespace Doctrine\DBAL\Driver\PDOSqlsrv;
 
 use Doctrine\DBAL\Driver\AbstractSQLServerDriver;
 use PDO;
+
 use function is_int;
 use function sprintf;
 
@@ -75,7 +76,7 @@ class Driver extends AbstractSQLServerDriver
      *
      * @param string[] $connectionOptions
      */
-    private function getConnectionOptionsDsn(array $connectionOptions) : string
+    private function getConnectionOptionsDsn(array $connectionOptions): string
     {
         $connectionOptionsDsn = '';
 

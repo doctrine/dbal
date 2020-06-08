@@ -16,14 +16,14 @@ interface Connection
     /**
      * Prepares a statement for execution and returns a Statement object.
      */
-    public function prepare(string $sql) : Statement;
+    public function prepare(string $sql): Statement;
 
     /**
      * Executes an SQL statement, returning a result set as a Statement object.
      *
      * @throws DBALException
      */
-    public function query(string $sql) : ResultStatement;
+    public function query(string $sql): ResultStatement;
 
     /**
      * Quotes a string for use in a query.
@@ -40,7 +40,7 @@ interface Connection
      *
      * @throws DBALException
      */
-    public function exec(string $statement) : int;
+    public function exec(string $statement): int;
 
     /**
      * Returns the ID of the last inserted row or sequence value.

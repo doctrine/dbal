@@ -4,8 +4,10 @@ namespace Doctrine\DBAL\Driver\SQLAnywhere;
 
 use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Driver\FetchUtils;
+use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\ParameterType;
+
 use function array_key_exists;
 use function assert;
 use function is_int;
@@ -23,7 +25,7 @@ use function sasql_stmt_result_metadata;
 /**
  * SAP SQL Anywhere implementation of the Statement interface.
  */
-class SQLAnywhereStatement implements Statement
+class SQLAnywhereStatement implements Statement, Result
 {
     /** @var resource The connection resource. */
     private $conn;
@@ -196,7 +198,7 @@ class SQLAnywhereStatement implements Statement
      *
      * @throws DriverException
      */
-    public function fetchAllNumeric() : array
+    public function fetchAllNumeric(): array
     {
         return FetchUtils::fetchAllNumeric($this);
     }
@@ -206,7 +208,7 @@ class SQLAnywhereStatement implements Statement
      *
      * @throws DriverException
      */
-    public function fetchAllAssociative() : array
+    public function fetchAllAssociative(): array
     {
         return FetchUtils::fetchAllAssociative($this);
     }
@@ -216,13 +218,18 @@ class SQLAnywhereStatement implements Statement
      *
      * @throws DriverException
      */
-    public function fetchColumn() : array
+    public function fetchFirstColumn(): array
     {
-        return FetchUtils::fetchColumn($this);
+        return FetchUtils::fetchFirstColumn($this);
     }
 
-    public function rowCount() : int
+    public function rowCount(): int
     {
         return sasql_stmt_affected_rows($this->stmt);
+    }
+
+    public function free(): void
+    {
+        sasql_stmt_reset($this->stmt);
     }
 }

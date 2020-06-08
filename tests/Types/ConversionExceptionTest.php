@@ -6,11 +6,12 @@ use Doctrine\DBAL\Types\ConversionException;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 use Throwable;
+
 use function tmpfile;
 
 class ConversionExceptionTest extends TestCase
 {
-    public function testConversionFailedPreviousException() : void
+    public function testConversionFailedPreviousException(): void
     {
         $previous = $this->createMock(Throwable::class);
 
@@ -25,7 +26,7 @@ class ConversionExceptionTest extends TestCase
      *
      * @dataProvider scalarsProvider
      */
-    public function testConversionFailedInvalidTypeWithScalar($scalarValue) : void
+    public function testConversionFailedInvalidTypeWithScalar($scalarValue): void
     {
         $exception = ConversionException::conversionFailedInvalidType($scalarValue, 'foo', ['bar', 'baz']);
 
@@ -42,7 +43,7 @@ class ConversionExceptionTest extends TestCase
      *
      * @dataProvider nonScalarsProvider
      */
-    public function testConversionFailedInvalidTypeWithNonScalar($nonScalar) : void
+    public function testConversionFailedInvalidTypeWithNonScalar($nonScalar): void
     {
         $exception = ConversionException::conversionFailedInvalidType($nonScalar, 'foo', ['bar', 'baz']);
 
@@ -54,7 +55,7 @@ class ConversionExceptionTest extends TestCase
         );
     }
 
-    public function testConversionFailedInvalidTypePreviousException() : void
+    public function testConversionFailedInvalidTypePreviousException(): void
     {
         $previous = $this->createMock(Throwable::class);
 
@@ -64,7 +65,7 @@ class ConversionExceptionTest extends TestCase
         self::assertSame($previous, $exception->getPrevious());
     }
 
-    public function testConversionFailedFormatPreservesPreviousException() : void
+    public function testConversionFailedFormatPreservesPreviousException(): void
     {
         $previous = $this->createMock(Throwable::class);
 
@@ -77,7 +78,7 @@ class ConversionExceptionTest extends TestCase
     /**
      * @return mixed[][]
      */
-    public static function nonScalarsProvider() : iterable
+    public static function nonScalarsProvider(): iterable
     {
         return [
             [[]],
@@ -91,7 +92,7 @@ class ConversionExceptionTest extends TestCase
     /**
      * @return mixed[][]
      */
-    public static function scalarsProvider() : iterable
+    public static function scalarsProvider(): iterable
     {
         return [
             [''],

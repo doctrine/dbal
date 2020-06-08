@@ -10,7 +10,7 @@ use Doctrine\DBAL\Tests\FunctionalTestCase;
  */
 class DBAL752Test extends FunctionalTestCase
 {
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -21,7 +21,7 @@ class DBAL752Test extends FunctionalTestCase
         self::markTestSkipped('Related to SQLite only');
     }
 
-    public function testUnsignedIntegerDetection() : void
+    public function testUnsignedIntegerDetection(): void
     {
         $this->connection->exec(<<<SQL
 CREATE TABLE dbal752_unsigneds (

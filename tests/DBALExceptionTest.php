@@ -9,27 +9,28 @@ use Doctrine\DBAL\Exception\DriverException;
 use Exception;
 use PHPUnit\Framework\TestCase;
 use stdClass;
+
 use function chr;
 use function fopen;
 use function sprintf;
 
 class DBALExceptionTest extends TestCase
 {
-    public function testDriverExceptionDuringQueryAcceptsBinaryData() : void
+    public function testDriverExceptionDuringQueryAcceptsBinaryData(): void
     {
         $driver = $this->createMock(Driver::class);
         $e      = DBALException::driverExceptionDuringQuery($driver, new Exception(), '', ['ABC', chr(128)]);
         self::assertStringContainsString('with params ["ABC", "\x80"]', $e->getMessage());
     }
 
-    public function testDriverExceptionDuringQueryAcceptsResource() : void
+    public function testDriverExceptionDuringQueryAcceptsResource(): void
     {
         $driver = $this->createMock(Driver::class);
         $e      = DBALException::driverExceptionDuringQuery($driver, new Exception(), 'INSERT INTO file (`content`) VALUES (?)', [1 => fopen(__FILE__, 'r')]);
         self::assertStringContainsString('Resource', $e->getMessage());
     }
 
-    public function testAvoidOverWrappingOnDriverException() : void
+    public function testAvoidOverWrappingOnDriverException(): void
     {
         $driver = $this->createMock(Driver::class);
 
@@ -40,7 +41,7 @@ class DBALExceptionTest extends TestCase
         self::assertSame($ex, $e);
     }
 
-    public function testDriverRequiredWithUrl() : void
+    public function testDriverRequiredWithUrl(): void
     {
         $url       = 'mysql://localhost';
         $exception = DBALException::driverRequired($url);
@@ -59,7 +60,7 @@ class DBALExceptionTest extends TestCase
     /**
      * @group #2821
      */
-    public function testInvalidPlatformTypeObject() : void
+    public function testInvalidPlatformTypeObject(): void
     {
         $exception = DBALException::invalidPlatformType(new stdClass());
 
@@ -72,7 +73,7 @@ class DBALExceptionTest extends TestCase
     /**
      * @group #2821
      */
-    public function testInvalidPlatformTypeScalar() : void
+    public function testInvalidPlatformTypeScalar(): void
     {
         $exception = DBALException::invalidPlatformType('some string');
 

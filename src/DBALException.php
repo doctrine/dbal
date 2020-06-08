@@ -9,6 +9,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
 use Exception;
 use Throwable;
+
 use function array_map;
 use function bin2hex;
 use function count;
@@ -38,7 +39,7 @@ class DBALException extends Exception
         return new self(sprintf("Operation '%s' is not supported by platform.", $method));
     }
 
-    public static function invalidPlatformSpecified() : self
+    public static function invalidPlatformSpecified(): self
     {
         return new self(
             "Invalid 'platform' option specified, need to give an instance of " . AbstractPlatform::class . '.'
@@ -48,7 +49,7 @@ class DBALException extends Exception
     /**
      * @param mixed $invalidPlatform
      */
-    public static function invalidPlatformType($invalidPlatform) : self
+    public static function invalidPlatformType($invalidPlatform): self
     {
         if (is_object($invalidPlatform)) {
             return new self(
@@ -185,7 +186,7 @@ class DBALException extends Exception
      */
     private static function formatParameters(array $params)
     {
-        return '[' . implode(', ', array_map(static function ($param) : string {
+        return '[' . implode(', ', array_map(static function ($param): string {
             if (is_resource($param)) {
                 return (string) $param;
             }
@@ -286,12 +287,12 @@ class DBALException extends Exception
         return new self('Type to be overwritten ' . $name . ' does not exist.');
     }
 
-    public static function typeNotRegistered(Type $type) : self
+    public static function typeNotRegistered(Type $type): self
     {
         return new self(sprintf('Type of the class %s@%s is not registered.', get_class($type), spl_object_hash($type)));
     }
 
-    public static function typeAlreadyRegistered(Type $type) : self
+    public static function typeAlreadyRegistered(Type $type): self
     {
         return new self(
             sprintf('Type of the class %s@%s is already registered.', get_class($type), spl_object_hash($type))

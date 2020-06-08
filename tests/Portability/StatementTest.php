@@ -18,7 +18,7 @@ class StatementTest extends TestCase
     /** @var DriverStatement|MockObject */
     protected $wrappedStmt;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->wrappedStmt = $this->createMock(DriverStatement::class);
         $converter         = new Converter(false, false, null);
@@ -28,7 +28,7 @@ class StatementTest extends TestCase
     /**
      * @group DBAL-726
      */
-    public function testBindParam() : void
+    public function testBindParam(): void
     {
         $column   = 'mycolumn';
         $variable = 'myvalue';
@@ -43,7 +43,7 @@ class StatementTest extends TestCase
         self::assertTrue($this->stmt->bindParam($column, $variable, $type, $length));
     }
 
-    public function testBindValue() : void
+    public function testBindValue(): void
     {
         $param = 'myparam';
         $value = 'myvalue';
@@ -57,7 +57,7 @@ class StatementTest extends TestCase
         self::assertTrue($this->stmt->bindValue($param, $value, $type));
     }
 
-    public function testCloseCursor() : void
+    public function testCloseCursor(): void
     {
         $this->wrappedStmt->expects(self::once())
             ->method('closeCursor')
@@ -66,7 +66,7 @@ class StatementTest extends TestCase
         self::assertTrue($this->stmt->closeCursor());
     }
 
-    public function testColumnCount() : void
+    public function testColumnCount(): void
     {
         $columnCount = 666;
 
@@ -77,7 +77,7 @@ class StatementTest extends TestCase
         self::assertSame($columnCount, $this->stmt->columnCount());
     }
 
-    public function testExecute() : void
+    public function testExecute(): void
     {
         $params = [
             'foo',
@@ -92,7 +92,7 @@ class StatementTest extends TestCase
         self::assertTrue($this->stmt->execute($params));
     }
 
-    public function testRowCount() : void
+    public function testRowCount(): void
     {
         $rowCount = 666;
 

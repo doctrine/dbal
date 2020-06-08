@@ -6,6 +6,7 @@ use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\ParameterType;
+
 use function is_float;
 use function is_int;
 use function sprintf;
@@ -70,12 +71,12 @@ class SQLSrvConnection implements ServerInfoAwareConnection
         return false;
     }
 
-    public function prepare(string $sql) : DriverStatement
+    public function prepare(string $sql): DriverStatement
     {
         return new SQLSrvStatement($this->conn, $sql, $this->lastInsertId);
     }
 
-    public function query(string $sql) : ResultStatement
+    public function query(string $sql): ResultStatement
     {
         $stmt = $this->prepare($sql);
         $stmt->execute();
@@ -99,7 +100,7 @@ class SQLSrvConnection implements ServerInfoAwareConnection
         return "'" . str_replace("'", "''", $value) . "'";
     }
 
-    public function exec(string $statement) : int
+    public function exec(string $statement): int
     {
         $stmt = sqlsrv_query($this->conn, $statement);
 

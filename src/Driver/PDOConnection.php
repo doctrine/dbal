@@ -4,6 +4,7 @@ namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\ParameterType;
 use PDO;
+
 use function assert;
 
 /**
@@ -34,7 +35,7 @@ class PDOConnection implements ServerInfoAwareConnection
         }
     }
 
-    public function exec(string $statement) : int
+    public function exec(string $statement): int
     {
         try {
             return $this->connection->exec($statement);
@@ -51,7 +52,7 @@ class PDOConnection implements ServerInfoAwareConnection
         return $this->connection->getAttribute(PDO::ATTR_SERVER_VERSION);
     }
 
-    public function prepare(string $sql) : Statement
+    public function prepare(string $sql): Statement
     {
         try {
             return $this->createStatement(
@@ -62,7 +63,7 @@ class PDOConnection implements ServerInfoAwareConnection
         }
     }
 
-    public function query(string $sql) : ResultStatement
+    public function query(string $sql): ResultStatement
     {
         try {
             $stmt = $this->connection->query($sql);
@@ -109,7 +110,7 @@ class PDOConnection implements ServerInfoAwareConnection
     /**
      * Creates a wrapped statement
      */
-    protected function createStatement(\PDOStatement $stmt) : PDOStatement
+    protected function createStatement(\PDOStatement $stmt): PDOStatement
     {
         return new PDOStatement($stmt);
     }
@@ -138,7 +139,7 @@ class PDOConnection implements ServerInfoAwareConnection
         return $this->connection->rollBack();
     }
 
-    public function getWrappedConnection() : PDO
+    public function getWrappedConnection(): PDO
     {
         return $this->connection;
     }

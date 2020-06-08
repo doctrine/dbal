@@ -3,12 +3,17 @@
 namespace Doctrine\DBAL\Cache;
 
 use Doctrine\DBAL\Driver\FetchUtils;
+use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\Driver\ResultStatement;
+
 use function array_values;
 use function count;
 use function reset;
 
-class ArrayStatement implements ResultStatement
+/**
+ * @deprecated
+ */
+class ArrayStatement implements ResultStatement, Result
 {
     /** @var mixed[] */
     private $data;
@@ -34,10 +39,12 @@ class ArrayStatement implements ResultStatement
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use free() instead.
      */
     public function closeCursor()
     {
-        unset($this->data);
+        $this->free();
 
         return true;
     }
@@ -50,7 +57,7 @@ class ArrayStatement implements ResultStatement
         return $this->columnCount;
     }
 
-    public function rowCount() : int
+    public function rowCount(): int
     {
         if ($this->data === null) {
             return 0;
@@ -98,7 +105,7 @@ class ArrayStatement implements ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function fetchAllNumeric() : array
+    public function fetchAllNumeric(): array
     {
         return FetchUtils::fetchAllNumeric($this);
     }
@@ -106,7 +113,7 @@ class ArrayStatement implements ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function fetchAllAssociative() : array
+    public function fetchAllAssociative(): array
     {
         return FetchUtils::fetchAllAssociative($this);
     }
@@ -114,9 +121,14 @@ class ArrayStatement implements ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function fetchColumn() : array
+    public function fetchFirstColumn(): array
     {
-        return FetchUtils::fetchColumn($this);
+        return FetchUtils::fetchFirstColumn($this);
+    }
+
+    public function free(): void
+    {
+        $this->data = [];
     }
 
     /**

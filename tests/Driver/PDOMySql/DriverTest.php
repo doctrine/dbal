@@ -8,12 +8,12 @@ use Doctrine\DBAL\Tests\Driver\AbstractMySQLDriverTest;
 
 class DriverTest extends AbstractMySQLDriverTest
 {
-    public function testReturnsName() : void
+    public function testReturnsName(): void
     {
         self::assertSame('pdo_mysql', $this->driver->getName());
     }
 
-    protected function createDriver() : DriverInterface
+    protected function createDriver(): DriverInterface
     {
         return new Driver();
     }

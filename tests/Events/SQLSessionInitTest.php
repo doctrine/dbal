@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
  */
 class SQLSessionInitTest extends TestCase
 {
-    public function testPostConnect() : void
+    public function testPostConnect(): void
     {
         $connectionMock = $this->createMock(Connection::class);
         $connectionMock->expects(self::once())
@@ -26,7 +26,7 @@ class SQLSessionInitTest extends TestCase
         $listener->postConnect($eventArgs);
     }
 
-    public function testGetSubscribedEvents() : void
+    public function testGetSubscribedEvents(): void
     {
         $listener = new SQLSessionInit("SET SEARCH_PATH TO foo, public, TIMEZONE TO 'Europe/Berlin'");
         self::assertEquals([Events::postConnect], $listener->getSubscribedEvents());

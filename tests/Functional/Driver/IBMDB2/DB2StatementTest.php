@@ -6,11 +6,12 @@ namespace Doctrine\DBAL\Tests\Functional\Driver\IBMDB2;
 
 use Doctrine\DBAL\Driver\IBMDB2\DB2Driver;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+
 use function extension_loaded;
 
 class DB2StatementTest extends FunctionalTestCase
 {
-    protected function setUp() : void
+    protected function setUp(): void
     {
         if (! extension_loaded('ibm_db2')) {
             self::markTestSkipped('ibm_db2 is not installed.');
@@ -25,7 +26,7 @@ class DB2StatementTest extends FunctionalTestCase
         self::markTestSkipped('ibm_db2 only test.');
     }
 
-    public function testExecutionErrorsAreNotSuppressed() : void
+    public function testExecutionErrorsAreNotSuppressed(): void
     {
         $stmt = $this->connection->prepare('SELECT * FROM SYSIBM.SYSDUMMY1 WHERE \'foo\' = ?');
 

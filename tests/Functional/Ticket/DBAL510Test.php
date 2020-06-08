@@ -11,7 +11,7 @@ use Doctrine\DBAL\Tests\FunctionalTestCase;
  */
 class DBAL510Test extends FunctionalTestCase
 {
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -22,7 +22,7 @@ class DBAL510Test extends FunctionalTestCase
         self::markTestSkipped('PostgreSQL Only test');
     }
 
-    public function testSearchPathSchemaChanges() : void
+    public function testSearchPathSchemaChanges(): void
     {
         $table = new Table('dbal510tbl');
         $table->addColumn('id', 'integer');

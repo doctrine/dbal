@@ -3,8 +3,10 @@
 namespace Doctrine\DBAL\Driver\OCI8;
 
 use Doctrine\DBAL\Driver\FetchUtils;
+use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\ParameterType;
+
 use function assert;
 use function count;
 use function implode;
@@ -24,6 +26,7 @@ use function preg_match;
 use function preg_quote;
 use function sprintf;
 use function substr;
+
 use const OCI_ASSOC;
 use const OCI_B_BIN;
 use const OCI_B_BLOB;
@@ -40,7 +43,7 @@ use const SQLT_CHR;
 /**
  * The OCI8 implementation of the Statement interface.
  */
-class OCI8Statement implements Statement
+class OCI8Statement implements Statement, Result
 {
     /** @var resource */
     protected $_dbh;
@@ -293,7 +296,7 @@ class OCI8Statement implements Statement
     /**
      * Converts DBAL parameter type to oci8 parameter type
      */
-    private function convertParameterType(int $type) : int
+    private function convertParameterType(int $type): int
     {
         switch ($type) {
             case ParameterType::BINARY:
@@ -309,17 +312,12 @@ class OCI8Statement implements Statement
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use free() instead.
      */
     public function closeCursor()
     {
-        // not having the result means there's nothing to close
-        if (! $this->result) {
-            return true;
-        }
-
-        oci_cancel($this->_sth);
-
-        $this->result = false;
+        $this->free();
 
         return true;
     }
@@ -363,7 +361,7 @@ class OCI8Statement implements Statement
         return $ret;
     }
 
-    public function rowCount() : int
+    public function rowCount(): int
     {
         $count = oci_num_rows($this->_sth);
 
@@ -401,7 +399,7 @@ class OCI8Statement implements Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAllNumeric() : array
+    public function fetchAllNumeric(): array
     {
         return $this->fetchAll(OCI_NUM, OCI_FETCHSTATEMENT_BY_ROW);
     }
@@ -409,7 +407,7 @@ class OCI8Statement implements Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAllAssociative() : array
+    public function fetchAllAssociative(): array
     {
         return $this->fetchAll(OCI_ASSOC, OCI_FETCHSTATEMENT_BY_ROW);
     }
@@ -417,9 +415,21 @@ class OCI8Statement implements Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchColumn() : array
+    public function fetchFirstColumn(): array
     {
         return $this->fetchAll(OCI_NUM, OCI_FETCHSTATEMENT_BY_COLUMN)[0];
+    }
+
+    public function free(): void
+    {
+        // not having the result means there's nothing to close
+        if (! $this->result) {
+            return;
+        }
+
+        oci_cancel($this->_sth);
+
+        $this->result = false;
     }
 
     /**
@@ -442,7 +452,7 @@ class OCI8Statement implements Statement
     /**
      * @return array<mixed>
      */
-    private function fetchAll(int $mode, int $fetchStructure) : array
+    private function fetchAll(int $mode, int $fetchStructure): array
     {
         // do not try fetching from the statement if it's not expected to contain the result
         // in order to prevent exceptional situation

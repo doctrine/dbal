@@ -8,12 +8,12 @@ use Doctrine\DBAL\Tests\Driver\AbstractSQLAnywhereDriverTest;
 
 class DriverTest extends AbstractSQLAnywhereDriverTest
 {
-    public function testReturnsName() : void
+    public function testReturnsName(): void
     {
         self::assertSame('sqlanywhere', $this->driver->getName());
     }
 
-    protected function createDriver() : DriverInterface
+    protected function createDriver(): DriverInterface
     {
         return new Driver();
     }

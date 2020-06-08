@@ -8,6 +8,7 @@ use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Doctrine\DBAL\Types\Type;
 use PDOException;
 use Throwable;
+
 use function assert;
 use function count;
 use function is_string;
@@ -128,7 +129,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
         return $column;
     }
 
-    private function parseDefaultExpression(string $value) : ?string
+    private function parseDefaultExpression(string $value): ?string
     {
         while (preg_match('/^\((.*)\)$/s', $value, $matches)) {
             $value = $matches[1];
@@ -334,7 +335,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     /**
      * @param string $tableName
      */
-    public function listTableDetails($tableName) : Table
+    public function listTableDetails($tableName): Table
     {
         $table = parent::listTableDetails($tableName);
 
