@@ -561,7 +561,10 @@ abstract class AbstractPlatform
      * @param string      $separator SQL expression producing the separator.
      * @param string|null $orderBy   Optional SQL expression (and direction) to order the grouped rows by.
      */
-    abstract public function getAggregateConcatExpression(string $value, string $separator, ?string $orderBy) : string;
+    public function getAggregateConcatExpression(string $value, string $separator, ?string $orderBy) : string
+    {
+        throw NotSupported::new(__METHOD__);
+    }
 
     // scalar functions
 
