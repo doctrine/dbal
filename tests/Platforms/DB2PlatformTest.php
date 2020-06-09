@@ -368,6 +368,7 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         self::assertEquals('SUBSTR(column, 5)', $this->platform->getSubstringExpression('column', '5'));
         self::assertEquals('SUBSTR(column, 5, 2)', $this->platform->getSubstringExpression('column', '5', '2'));
         self::assertEquals('LISTAGG(column1, \',\')', $this->platform->getAggregateConcatExpression('column1', '\',\''), 'Aggregate concatenation function is not correct');
+        self::assertEquals('LISTAGG(column1, \',\') WITHIN GROUP(ORDER BY column1 DESC)', $this->platform->getAggregateConcatExpression('column1', '\',\'', 'column1 DESC'), 'Aggregate concatenation function with order is not correct');
     }
 
     public function testModifiesLimitQuery(): void

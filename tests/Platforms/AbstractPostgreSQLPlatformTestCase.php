@@ -154,6 +154,7 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
         self::assertEquals('SUBSTRING(column FROM 5)', $this->platform->getSubstringExpression('column', '5'), 'Substring expression without length is not correct');
         self::assertEquals('SUBSTRING(column FROM 1 FOR 5)', $this->platform->getSubstringExpression('column', '1', '5'), 'Substring expression with length is not correct');
         self::assertEquals('STRING_AGG(column1, \',\')', $this->platform->getAggregateConcatExpression('column1', '\',\''), 'Aggregate concatenation function is not correct');
+        self::assertEquals('STRING_AGG(column1, \',\' ORDER BY column1 DESC)', $this->platform->getAggregateConcatExpression('column1', '\',\'', 'column1 DESC'), 'Aggregate concatenation function with order is not correct');
     }
 
     public function testGeneratesTransactionCommands(): void

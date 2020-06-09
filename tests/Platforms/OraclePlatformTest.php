@@ -129,7 +129,8 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     {
         self::assertEquals('"', $this->platform->getIdentifierQuoteCharacter(), 'Identifier quote character is not correct');
         self::assertEquals('column1 || column2 || column3', $this->platform->getConcatExpression('column1', 'column2', 'column3'), 'Concatenation expression is not correct');
-        self::assertEquals('LISTAGG(column1, \',\')', $this->platform->getAggregateConcatExpression('column1', '\',\''), 'Aggregate concatenation function is not correct');
+        self::assertEquals('LISTAGG(column1, \',\') WITHIN GROUP(ORDER BY NULL)', $this->platform->getAggregateConcatExpression('column1', '\',\''), 'Aggregate concatenation function is not correct');
+        self::assertEquals('LISTAGG(column1, \',\') WITHIN GROUP(ORDER BY column1 DESC)', $this->platform->getAggregateConcatExpression('column1', '\',\'', 'column1 DESC'), 'Aggregate concatenation function with order is not correct');
     }
 
     public function testGeneratesTransactionsCommands(): void
