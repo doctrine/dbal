@@ -16,7 +16,6 @@ use Doctrine\DBAL\Platforms\Keywords\SQLAnywhereKeywords;
 use Doctrine\DBAL\Platforms\Keywords\SQLiteKeywords;
 use Doctrine\DBAL\Platforms\Keywords\SQLServer2012Keywords;
 use Doctrine\DBAL\Tools\Console\ConnectionProvider;
-use Exception;
 use InvalidArgumentException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -28,9 +27,6 @@ use function assert;
 use function count;
 use function implode;
 use function is_string;
-use function trigger_error;
-
-use const E_USER_DEPRECATED;
 
 class ReservedWordsCommand extends Command
 {
@@ -49,18 +45,13 @@ class ReservedWordsCommand extends Command
         'sqlserver'     => SQLServer2012Keywords::class,
     ];
 
-    /** @var ConnectionProvider|null */
+    /** @var ConnectionProvider */
     private $connectionProvider;
 
-    public function __construct(?ConnectionProvider $connectionProvider = null)
+    public function __construct(ConnectionProvider $connectionProvider)
     {
         parent::__construct();
         $this->connectionProvider = $connectionProvider;
-        if ($connectionProvider !== null) {
-            return;
-        }
-
-        @trigger_error('Not passing a connection provider as the first constructor argument is deprecated', E_USER_DEPRECATED);
     }
 
     /**
@@ -173,14 +164,6 @@ EOT
     {
         $connectionName = $input->getOption('connection');
         assert(is_string($connectionName) || $connectionName === null);
-
-        if ($this->connectionProvider === null) {
-            if ($connectionName !== null) {
-                throw new Exception('Specifying a connection is only supported when a ConnectionProvider is used.');
-            }
-
-            return $this->getHelper('db')->getConnection();
-        }
 
         if ($connectionName !== null) {
             return $this->connectionProvider->getConnection($connectionName);
