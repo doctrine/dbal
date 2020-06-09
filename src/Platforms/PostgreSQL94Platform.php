@@ -73,9 +73,11 @@ class PostgreSQL94Platform extends AbstractPlatform
         $this->useBooleanTrueFalseStrings = $flag;
     }
 
-    public function getAggregateConcatExpression(string $value, string $separator): string
+    public function getAggregateConcatExpression(string $value, string $separator, ?string $orderBy = null): string
     {
-        return 'STRING_AGG(' . $value . ', ' . $separator . ')';
+        $orderByClause = $orderBy !== null ? ' ORDER BY ' . $orderBy : '';
+
+        return 'STRING_AGG(' . $value . ', ' . $separator . $orderByClause . ')';
     }
 
     public function getNowExpression(): string

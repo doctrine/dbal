@@ -557,10 +557,11 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL snippet to get the concatenation of the values in a set with a separator.
      *
-     * @param string $value     SQL expression producing the value.
-     * @param string $separator SQL expression producing the separator.
+     * @param string      $value     SQL expression producing the value.
+     * @param string      $separator SQL expression producing the separator.
+     * @param string|null $orderBy   Optional SQL expression (and direction) to order the grouped rows by.
      */
-    abstract public function getAggregateConcatExpression(string $value, string $separator) : string;
+    abstract public function getAggregateConcatExpression(string $value, string $separator, ?string $orderBy) : string;
 
     // scalar functions
 

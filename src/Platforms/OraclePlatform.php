@@ -46,9 +46,11 @@ class OraclePlatform extends AbstractPlatform
         }
     }
 
-    public function getAggregateConcatExpression(string $value, string $separator): string
+    public function getAggregateConcatExpression(string $value, string $separator, ?string $orderBy = null): string
     {
-        return 'LISTAGG(' . $value . ', ' . $separator . ')';
+        $orderByClause = $orderBy !== null ? ' WITHIN GROUP(ORDER BY ' . $orderBy . ')' : '';
+
+        return 'LISTAGG(' . $value . ', ' . $separator . ')' . $orderByClause;
     }
 
     public function getSubstringExpression(string $string, string $start, ?string $length = null): string

@@ -133,9 +133,11 @@ class DB2Platform extends AbstractPlatform
         return $autoinc;
     }
 
-    public function getAggregateConcatExpression(string $value, string $separator): string
+    public function getAggregateConcatExpression(string $value, string $separator, ?string $orderBy = null): string
     {
-        return 'LISTAGG(' . $value . ', ' . $separator . ')';
+        $orderByClause = $orderBy !== null ? ' WITHIN GROUP(ORDER BY ' . $orderBy . ')' : '';
+
+        return 'LISTAGG(' . $value . ', ' . $separator . ')' . $orderByClause;
     }
 
     public function getBitAndComparisonExpression(string $value1, string $value2): string

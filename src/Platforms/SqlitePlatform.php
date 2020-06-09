@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Schema\Constraint;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Identifier;
@@ -34,8 +35,12 @@ use function trim;
  */
 class SqlitePlatform extends AbstractPlatform
 {
-    public function getAggregateConcatExpression(string $value, string $separator): string
+    public function getAggregateConcatExpression(string $value, string $separator, ?string $orderBy = null): string
     {
+        if ($orderBy !== null) {
+            throw NotSupported::new(__METHOD__ . ' (with an order)');
+        }
+
         return 'GROUP_CONCAT(' . $value . ', ' . $separator . ')';
     }
 

@@ -66,9 +66,11 @@ class MySqlPlatform extends AbstractPlatform
         return '`';
     }
 
-    public function getAggregateConcatExpression(string $value, string $separator): string
+    public function getAggregateConcatExpression(string $value, string $separator, ?string $orderBy = null): string
     {
-        return 'GROUP_CONCAT(' . $value . ' SEPARATOR ' . $separator . ')';
+        $orderByClause = $orderBy !== null ? ' ORDER BY ' . $orderBy : '';
+
+        return 'GROUP_CONCAT(' . $value . $orderByClause . ' SEPARATOR ' . $separator . ')';
     }
 
     public function getRegexpExpression(): string
