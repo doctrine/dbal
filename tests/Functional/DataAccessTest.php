@@ -58,9 +58,9 @@ class DataAccessTest extends FunctionalTestCase
 
         $stmt->bindValue(1, 1);
         $stmt->bindValue(2, 'foo');
-        $stmt->execute();
 
-        $row = $stmt->fetchAssociative();
+        $row = $stmt->execute()->fetchAssociative();
+
         self::assertIsArray($row);
         $row = array_change_key_case($row, CASE_LOWER);
         self::assertEquals(['test_int' => 1, 'test_string' => 'foo'], $row);
@@ -77,9 +77,9 @@ class DataAccessTest extends FunctionalTestCase
 
         $stmt->bindParam(1, $paramInt);
         $stmt->bindParam(2, $paramStr);
-        $stmt->execute();
 
-        $row = $stmt->fetchAssociative();
+        $row = $stmt->execute()->fetchAssociative();
+
         self::assertIsArray($row);
         $row = array_change_key_case($row, CASE_LOWER);
         self::assertEquals(['test_int' => 1, 'test_string' => 'foo'], $row);
@@ -96,9 +96,8 @@ class DataAccessTest extends FunctionalTestCase
 
         $stmt->bindParam(1, $paramInt);
         $stmt->bindParam(2, $paramStr);
-        $stmt->execute();
 
-        $rows    = $stmt->fetchAllAssociative();
+        $rows    = $stmt->execute()->fetchAllAssociative();
         $rows[0] = array_change_key_case($rows[0], CASE_LOWER);
         self::assertEquals(['test_int' => 1, 'test_string' => 'foo'], $rows[0]);
     }
@@ -114,32 +113,9 @@ class DataAccessTest extends FunctionalTestCase
 
         $stmt->bindParam(1, $paramInt);
         $stmt->bindParam(2, $paramStr);
-        $stmt->execute();
 
-        $column = $stmt->fetchOne();
+        $column = $stmt->execute()->fetchOne();
         self::assertEquals(1, $column);
-    }
-
-    public function testPrepareWithIterator(): void
-    {
-        $paramInt = 1;
-        $paramStr = 'foo';
-
-        $sql  = 'SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?';
-        $stmt = $this->connection->prepare($sql);
-        self::assertInstanceOf(Statement::class, $stmt);
-
-        $stmt->bindParam(1, $paramInt);
-        $stmt->bindParam(2, $paramStr);
-        $stmt->execute();
-
-        $rows = [];
-
-        foreach ($stmt->iterateAssociative() as $row) {
-            $rows[] = array_change_key_case($row, CASE_LOWER);
-        }
-
-        self::assertEquals(['test_int' => 1, 'test_string' => 'foo'], $rows[0]);
     }
 
     public function testPrepareWithQuoted(): void
@@ -165,9 +141,9 @@ class DataAccessTest extends FunctionalTestCase
         $sql  = 'SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?';
         $stmt = $this->connection->prepare($sql);
         self::assertInstanceOf(Statement::class, $stmt);
-        $stmt->execute([$paramInt, $paramStr]);
+        $result = $stmt->execute([$paramInt, $paramStr]);
 
-        $row = $stmt->fetchAssociative();
+        $row = $result->fetchAssociative();
         self::assertNotFalse($row);
         $row = array_change_key_case($row, CASE_LOWER);
         self::assertEquals(['test_int' => 1, 'test_string' => 'foo'], $row);
@@ -392,14 +368,13 @@ class DataAccessTest extends FunctionalTestCase
      */
     public function testExecuteQueryBindDateTimeType(): void
     {
-        $sql  = 'SELECT count(*) AS c FROM fetch_table WHERE test_datetime = ?';
-        $stmt = $this->connection->executeQuery(
-            $sql,
+        $value = $this->connection->fetchOne(
+            'SELECT count(*) AS c FROM fetch_table WHERE test_datetime = ?',
             [1 => new DateTime('2010-01-01 10:10:10')],
             [1 => Types::DATETIME_MUTABLE]
         );
 
-        self::assertEquals(1, $stmt->fetchOne());
+        self::assertEquals(1, $value);
     }
 
     /**
@@ -436,9 +411,9 @@ class DataAccessTest extends FunctionalTestCase
         $sql  = 'SELECT count(*) AS c FROM fetch_table WHERE test_datetime = ?';
         $stmt = $this->connection->prepare($sql);
         $stmt->bindValue(1, new DateTime('2010-01-01 10:10:10'), Types::DATETIME_MUTABLE);
-        $stmt->execute();
+        $result = $stmt->execute();
 
-        self::assertEquals(1, $stmt->fetchOne());
+        self::assertEquals(1, $result->fetchOne());
     }
 
     /**
@@ -450,23 +425,23 @@ class DataAccessTest extends FunctionalTestCase
             $this->connection->insert('fetch_table', ['test_int' => $i, 'test_string' => 'foo' . $i, 'test_datetime' => '2010-01-01 10:10:10']);
         }
 
-        $stmt = $this->connection->executeQuery(
+        $result = $this->connection->executeQuery(
             'SELECT test_int FROM fetch_table WHERE test_int IN (?)',
             [[100, 101, 102, 103, 104]],
             [Connection::PARAM_INT_ARRAY]
         );
 
-        $data = $stmt->fetchAllNumeric();
+        $data = $result->fetchAllNumeric();
         self::assertCount(5, $data);
         self::assertEquals([[100], [101], [102], [103], [104]], $data);
 
-        $stmt = $this->connection->executeQuery(
+        $result = $this->connection->executeQuery(
             'SELECT test_int FROM fetch_table WHERE test_string IN (?)',
             [['foo100', 'foo101', 'foo102', 'foo103', 'foo104']],
             [Connection::PARAM_STR_ARRAY]
         );
 
-        $data = $stmt->fetchAllNumeric();
+        $data = $result->fetchAllNumeric();
         self::assertCount(5, $data);
         self::assertEquals([[100], [101], [102], [103], [104]], $data);
     }
@@ -670,8 +645,7 @@ class DataAccessTest extends FunctionalTestCase
             . ', ' . $platform->getBitAndComparisonExpression('test_int', 2) . ' AS bit_and'
             . ' FROM fetch_table';
 
-        $stmt = $this->connection->executeQuery($sql);
-        $data = $stmt->fetchAllAssociative();
+        $data = $this->connection->fetchAllAssociative($sql);
 
         self::assertCount(4, $data);
         self::assertEquals(count($bitmap), count($data));
@@ -728,8 +702,7 @@ class DataAccessTest extends FunctionalTestCase
     public function testEmptyParameters(): void
     {
         $sql  = 'SELECT * FROM fetch_table WHERE test_int IN (?)';
-        $stmt = $this->connection->executeQuery($sql, [[]], [Connection::PARAM_INT_ARRAY]);
-        $rows = $stmt->fetchAllAssociative();
+        $rows = $this->connection->fetchAllAssociative($sql, [[]], [Connection::PARAM_INT_ARRAY]);
 
         self::assertEquals([], $rows);
     }

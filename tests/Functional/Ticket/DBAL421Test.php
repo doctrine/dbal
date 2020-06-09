@@ -41,13 +41,10 @@ class DBAL421Test extends FunctionalTestCase
         $guids     = [];
 
         for ($i = 0; $i < 99; $i++) {
-            $statement->execute();
-            $guid = $statement->fetchFirstColumn();
+            $guid = $statement->execute()->fetchFirstColumn();
             self::assertNotContains($guid, $guids, 'Duplicate GUID detected');
             $guids[] = $guid;
         }
-
-        $statement->closeCursor();
     }
 
     private function getSelectGuidSql(): string

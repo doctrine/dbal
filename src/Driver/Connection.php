@@ -23,7 +23,7 @@ interface Connection
      *
      * @throws DBALException
      */
-    public function query(string $sql): ResultStatement;
+    public function query(string $sql): Result;
 
     /**
      * Quotes a string for use in a query.

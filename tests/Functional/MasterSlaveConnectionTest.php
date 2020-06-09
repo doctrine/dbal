@@ -3,7 +3,6 @@
 namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\Connections\MasterSlaveConnection;
-use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -197,14 +196,12 @@ class MasterSlaveConnectionTest extends FunctionalTestCase
 
         $query = 'SELECT count(*) as num FROM master_slave_table';
 
-        $statement = $conn->query($query);
-
-        self::assertInstanceOf(Statement::class, $statement);
+        $result = $conn->query($query);
 
         //Query must be executed only on Master
         self::assertTrue($conn->isConnectedToMaster());
 
-        $data = $statement->fetchAllAssociative();
+        $data = $result->fetchAllAssociative();
 
         self::assertArrayHasKey(0, $data);
         self::assertArrayHasKey('num', $data[0]);
@@ -221,14 +218,12 @@ class MasterSlaveConnectionTest extends FunctionalTestCase
 
         $query = 'SELECT count(*) as num FROM master_slave_table';
 
-        $statement = $conn->query($query);
-
-        self::assertInstanceOf(Statement::class, $statement);
+        $result = $conn->query($query);
 
         //Query must be executed only on Master, even when we connect to the slave
         self::assertTrue($conn->isConnectedToMaster());
 
-        $data = $statement->fetchAllAssociative();
+        $data = $result->fetchAllAssociative();
 
         self::assertArrayHasKey(0, $data);
         self::assertArrayHasKey('num', $data[0]);

@@ -4,16 +4,15 @@ namespace Doctrine\DBAL\Cache;
 
 use Doctrine\DBAL\Driver\FetchUtils;
 use Doctrine\DBAL\Driver\Result;
-use Doctrine\DBAL\Driver\ResultStatement;
 
 use function array_values;
 use function count;
 use function reset;
 
 /**
- * @deprecated
+ * @internal The class is internal to the caching layer implementation.
  */
-class ArrayStatement implements ResultStatement, Result
+final class ArrayResult implements Result
 {
     /** @var mixed[] */
     private $data;
@@ -35,35 +34,6 @@ class ArrayStatement implements ResultStatement, Result
         }
 
         $this->columnCount = count($data[0]);
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated Use free() instead.
-     */
-    public function closeCursor()
-    {
-        $this->free();
-
-        return true;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function columnCount()
-    {
-        return $this->columnCount;
-    }
-
-    public function rowCount(): int
-    {
-        if ($this->data === null) {
-            return 0;
-        }
-
-        return count($this->data);
     }
 
     /**
@@ -124,6 +94,20 @@ class ArrayStatement implements ResultStatement, Result
     public function fetchFirstColumn(): array
     {
         return FetchUtils::fetchFirstColumn($this);
+    }
+
+    public function rowCount(): int
+    {
+        if ($this->data === null) {
+            return 0;
+        }
+
+        return count($this->data);
+    }
+
+    public function columnCount(): int
+    {
+        return $this->columnCount;
     }
 
     public function free(): void

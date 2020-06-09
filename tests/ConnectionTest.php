@@ -4,7 +4,7 @@ namespace Doctrine\DBAL\Tests;
 
 use Doctrine\Common\Cache\Cache;
 use Doctrine\Common\EventManager;
-use Doctrine\DBAL\Cache\ArrayStatement;
+use Doctrine\DBAL\Abstraction\Result;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
@@ -13,7 +13,6 @@ use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
-use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
@@ -545,140 +544,100 @@ class ConnectionTest extends TestCase
         );
     }
 
-    public function testFetchAssociative(): void
+    /**
+     * @param mixed $expected
+     *
+     * @dataProvider fetchModeProvider
+     */
+    public function testFetch(string $method, callable $invoke, $expected): void
     {
-        $statement = 'SELECT * FROM foo WHERE bar = ?';
-        $params    = [666];
-        $types     = [ParameterType::INTEGER];
-        $result    = [];
+        $query  = 'SELECT * FROM foo WHERE bar = ?';
+        $params = [666];
+        $types  = [ParameterType::INTEGER];
 
-        $driverMock = $this->createMock(Driver::class);
+        $result = $this->createMock(Result::class);
+        $result->expects(self::once())
+            ->method($method)
+            ->willReturn($expected);
 
-        $driverMock->expects(self::any())
-            ->method('connect')
-            ->will(self::returnValue(
-                $this->createMock(DriverConnection::class)
-            ));
-
-        $driverStatementMock = $this->createMock(Statement::class);
-
-        $driverStatementMock->expects(self::once())
-            ->method('fetchAssociative')
-            ->will(self::returnValue($result));
+        $driver = $this->createConfiguredMock(Driver::class, [
+            'connect' => $this->createMock(DriverConnection::class),
+        ]);
 
         $conn = $this->getMockBuilder(Connection::class)
             ->onlyMethods(['executeQuery'])
-            ->setConstructorArgs([[], $driverMock])
+            ->setConstructorArgs([[], $driver])
             ->getMock();
 
         $conn->expects(self::once())
             ->method('executeQuery')
-            ->with($statement, $params, $types)
-            ->will(self::returnValue($driverStatementMock));
+            ->with($query, $params, $types)
+            ->willReturn($result);
 
-        self::assertSame($result, $conn->fetchAssociative($statement, $params, $types));
+        self::assertSame($expected, $invoke($conn, $query, $params, $types));
     }
 
-    public function testFetchNumeric(): void
+    /**
+     * @return iterable<string,array<int,mixed>>
+     */
+    public static function fetchModeProvider(): iterable
     {
-        $statement = 'SELECT * FROM foo WHERE bar = ?';
-        $params    = [666];
-        $types     = [ParameterType::INTEGER];
-        $result    = [];
+        yield 'numeric' => [
+            'fetchNumeric',
+            static function (Connection $connection, string $query, array $params, array $types) {
+                return $connection->fetchNumeric($query, $params, $types);
+            },
+            ['bar'],
+        ];
 
-        $driverMock = $this->createMock(Driver::class);
+        yield 'associative' => [
+            'fetchAssociative',
+            static function (Connection $connection, string $query, array $params, array $types) {
+                return $connection->fetchAssociative($query, $params, $types);
+            },
+            ['foo' => 'bar'],
+        ];
 
-        $driverMock->expects(self::any())
-            ->method('connect')
-            ->will(self::returnValue(
-                $this->createMock(DriverConnection::class)
-            ));
+        yield 'one' => [
+            'fetchOne',
+            static function (Connection $connection, string $query, array $params, array $types) {
+                return $connection->fetchOne($query, $params, $types);
+            },
+            'bar',
+        ];
 
-        $driverStatementMock = $this->createMock(Statement::class);
+        yield 'all-numeric' => [
+            'fetchAllNumeric',
+            static function (Connection $connection, string $query, array $params, array $types) {
+                return $connection->fetchAllNumeric($query, $params, $types);
+            },
+            [
+                ['bar'],
+                ['baz'],
+            ],
+        ];
 
-        $driverStatementMock->expects(self::once())
-            ->method('fetchNumeric')
-            ->will(self::returnValue($result));
+        yield 'all-associative' => [
+            'fetchAllAssociative',
+            static function (Connection $connection, string $query, array $params, array $types) {
+                return $connection->fetchAllAssociative($query, $params, $types);
+            },
+            [
+                ['foo' => 'bar'],
+                ['foo' => 'baz'],
+            ],
+        ];
 
-        $conn = $this->getMockBuilder(Connection::class)
-            ->onlyMethods(['executeQuery'])
-            ->setConstructorArgs([[], $driverMock])
-            ->getMock();
-
-        $conn->expects(self::once())
-            ->method('executeQuery')
-            ->with($statement, $params, $types)
-            ->will(self::returnValue($driverStatementMock));
-
-        self::assertSame($result, $conn->fetchNumeric($statement, $params, $types));
-    }
-
-    public function testFetchOne(): void
-    {
-        $statement = 'SELECT * FROM foo WHERE bar = ?';
-        $params    = [666];
-        $types     = [ParameterType::INTEGER];
-        $result    = [];
-
-        $driverMock = $this->createMock(Driver::class);
-
-        $driverMock->expects(self::any())
-            ->method('connect')
-            ->will(self::returnValue(
-                $this->createMock(DriverConnection::class)
-            ));
-
-        $driverStatementMock = $this->createMock(Statement::class);
-
-        $driverStatementMock->expects(self::once())
-            ->method('fetchOne')
-            ->will(self::returnValue($result));
-
-        $conn = $this->getMockBuilder(Connection::class)
-            ->onlyMethods(['executeQuery'])
-            ->setConstructorArgs([[], $driverMock])
-            ->getMock();
-
-        $conn->expects(self::once())
-            ->method('executeQuery')
-            ->with($statement, $params, $types)
-            ->will(self::returnValue($driverStatementMock));
-
-        self::assertSame($result, $conn->fetchOne($statement, $params, $types));
-    }
-
-    public function testFetchAllAssociative(): void
-    {
-        $statement = 'SELECT * FROM foo WHERE bar = ?';
-        $params    = [666];
-        $types     = [ParameterType::INTEGER];
-        $result    = [];
-
-        $driverMock = $this->createMock(Driver::class);
-
-        $driverMock->expects(self::any())
-            ->method('connect')
-            ->will(self::returnValue(
-                $this->createMock(DriverConnection::class)
-            ));
-
-        $driverStatementMock = $this->createMock(Statement::class);
-
-        $driverStatementMock->expects(self::once())
-            ->method('fetchAllAssociative')
-            ->will(self::returnValue($result));
-
-        $conn = $this->getMockBuilder(Connection::class)
-            ->onlyMethods(['executeQuery'])
-            ->setConstructorArgs([[], $driverMock])
-            ->getMock();
-
-        $conn->expects(self::once())
-            ->method('executeQuery')
-            ->with($statement, $params, $types)
-            ->will(self::returnValue($driverStatementMock));
-
-        self::assertSame($result, $conn->fetchAllAssociative($statement, $params, $types));
+        yield 'first-column' => [
+            'fetchFirstColumn',
+            static function (Connection $connection, string $query, array $params, array $types) {
+                return $connection->fetchFirstColumn($query, $params, $types);
+            },
+            [
+                'bar',
+                'baz',
+            ],
+        ];
     }
 
     public function testCallingDeleteWithNoDeletionCriteriaResultsInInvalidArgumentException(): void
@@ -766,10 +725,7 @@ class ConnectionTest extends TestCase
 
         $driver = $this->createMock(Driver::class);
 
-        self::assertInstanceOf(
-            ArrayStatement::class,
-            (new Connection($this->params, $driver))->executeCacheQuery($query, $params, $types, $queryCacheProfileMock)
-        );
+        (new Connection($this->params, $driver))->executeCacheQuery($query, $params, $types, $queryCacheProfileMock);
     }
 
     /**

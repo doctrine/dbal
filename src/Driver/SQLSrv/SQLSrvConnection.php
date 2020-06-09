@@ -2,7 +2,7 @@
 
 namespace Doctrine\DBAL\Driver\SQLSrv;
 
-use Doctrine\DBAL\Driver\ResultStatement;
+use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\ParameterType;
@@ -76,12 +76,9 @@ class SQLSrvConnection implements ServerInfoAwareConnection
         return new SQLSrvStatement($this->conn, $sql, $this->lastInsertId);
     }
 
-    public function query(string $sql): ResultStatement
+    public function query(string $sql): ResultInterface
     {
-        $stmt = $this->prepare($sql);
-        $stmt->execute();
-
-        return $stmt;
+        return $this->prepare($sql)->execute();
     }
 
     /**
@@ -123,13 +120,13 @@ class SQLSrvConnection implements ServerInfoAwareConnection
     public function lastInsertId($name = null)
     {
         if ($name !== null) {
-            $stmt = $this->prepare('SELECT CONVERT(VARCHAR(MAX), current_value) FROM sys.sequences WHERE name = ?');
-            $stmt->execute([$name]);
+            $result = $this->prepare('SELECT CONVERT(VARCHAR(MAX), current_value) FROM sys.sequences WHERE name = ?')
+                ->execute([$name]);
         } else {
-            $stmt = $this->query('SELECT @@IDENTITY');
+            $result = $this->query('SELECT @@IDENTITY');
         }
 
-        return $stmt->fetchOne();
+        return $result->fetchOne();
     }
 
     /**

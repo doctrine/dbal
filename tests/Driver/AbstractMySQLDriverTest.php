@@ -5,7 +5,7 @@ namespace Doctrine\DBAL\Tests\Driver;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\AbstractMySQLDriver;
-use Doctrine\DBAL\Driver\ResultStatement;
+use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
 use Doctrine\DBAL\Platforms\MySQL57Platform;
@@ -26,9 +26,9 @@ class AbstractMySQLDriverTest extends AbstractDriverTest
             'password' => 'bar',
         ];
 
-        $statement = $this->createMock(ResultStatement::class);
+        $result = $this->createMock(Result::class);
 
-        $statement->expects(self::once())
+        $result->expects(self::once())
             ->method('fetchOne')
             ->will(self::returnValue($database));
 
@@ -40,7 +40,7 @@ class AbstractMySQLDriverTest extends AbstractDriverTest
 
         $connection->expects(self::once())
             ->method('query')
-            ->will(self::returnValue($statement));
+            ->will(self::returnValue($result));
 
         self::assertSame($database, $this->driver->getDatabase($connection));
     }

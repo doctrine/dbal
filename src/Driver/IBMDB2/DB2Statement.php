@@ -2,19 +2,13 @@
 
 namespace Doctrine\DBAL\Driver\IBMDB2;
 
-use Doctrine\DBAL\Driver\FetchUtils;
-use Doctrine\DBAL\Driver\Result;
+use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\ParameterType;
 
 use function assert;
 use function db2_bind_param;
 use function db2_execute;
-use function db2_fetch_array;
-use function db2_fetch_assoc;
-use function db2_free_result;
-use function db2_num_fields;
-use function db2_num_rows;
 use function db2_stmt_errormsg;
 use function error_get_last;
 use function fclose;
@@ -32,7 +26,7 @@ use const DB2_LONG;
 use const DB2_PARAM_FILE;
 use const DB2_PARAM_IN;
 
-class DB2Statement implements Statement, Result
+class DB2Statement implements Statement
 {
     /** @var resource */
     private $stmt;
@@ -47,13 +41,6 @@ class DB2Statement implements Statement, Result
      * @var mixed[][]
      */
     private $lobs = [];
-
-    /**
-     * Indicates whether the statement is in the state when fetching results is possible
-     *
-     * @var bool
-     */
-    private $result = false;
 
     /**
      * @param resource $stmt
@@ -122,40 +109,8 @@ class DB2Statement implements Statement, Result
 
     /**
      * {@inheritdoc}
-     *
-     * @deprecated Use free() instead.
      */
-    public function closeCursor()
-    {
-        $this->bindParam = [];
-
-        if (! db2_free_result($this->stmt)) {
-            return false;
-        }
-
-        $this->result = false;
-
-        return true;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function columnCount()
-    {
-        $count = db2_num_fields($this->stmt);
-
-        if ($count !== false) {
-            return $count;
-        }
-
-        return 0;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function execute($params = null)
+    public function execute($params = null): ResultInterface
     {
         if ($params === null) {
             ksort($this->bindParam);
@@ -177,7 +132,7 @@ class DB2Statement implements Statement, Result
             $this->writeStringToStream($source, $target);
         }
 
-        $retval = db2_execute($this->stmt, $params);
+        $result = db2_execute($this->stmt, $params);
 
         foreach ($this->lobs as [, $handle]) {
             fclose($handle);
@@ -185,85 +140,11 @@ class DB2Statement implements Statement, Result
 
         $this->lobs = [];
 
-        if ($retval === false) {
+        if ($result === false) {
             throw new DB2Exception(db2_stmt_errormsg());
         }
 
-        $this->result = true;
-
-        return $retval;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function fetchNumeric()
-    {
-        if (! $this->result) {
-            return false;
-        }
-
-        return db2_fetch_array($this->stmt);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchAssociative()
-    {
-        // do not try fetching from the statement if it's not expected to contain the result
-        // in order to prevent exceptional situation
-        if (! $this->result) {
-            return false;
-        }
-
-        return db2_fetch_assoc($this->stmt);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchOne()
-    {
-        return FetchUtils::fetchOne($this);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchAllNumeric(): array
-    {
-        return FetchUtils::fetchAllNumeric($this);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchAllAssociative(): array
-    {
-        return FetchUtils::fetchAllAssociative($this);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchFirstColumn(): array
-    {
-        return FetchUtils::fetchFirstColumn($this);
-    }
-
-    public function rowCount(): int
-    {
-        return @db2_num_rows($this->stmt);
-    }
-
-    public function free(): void
-    {
-        $this->bindParam = [];
-
-        db2_free_result($this->stmt);
-
-        $this->result = false;
+        return new Result($this->stmt);
     }
 
     /**

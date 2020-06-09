@@ -2,11 +2,13 @@
 
 namespace Doctrine\DBAL\Portability;
 
+use Doctrine\DBAL\Abstraction\Result as AbstractionResult;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\ColumnCase;
 use Doctrine\DBAL\Driver\PDOConnection;
-use Doctrine\DBAL\Driver\ResultStatement;
+use Doctrine\DBAL\Driver\Result as DriverResult;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
+use Doctrine\DBAL\Result as DBALResult;
 use PDO;
 
 use const CASE_LOWER;
@@ -86,9 +88,11 @@ class Connection extends \Doctrine\DBAL\Connection
     /**
      * {@inheritdoc}
      */
-    public function executeQuery(string $query, array $params = [], $types = [], ?QueryCacheProfile $qcp = null): ResultStatement
+    public function executeQuery(string $query, array $params = [], $types = [], ?QueryCacheProfile $qcp = null): AbstractionResult
     {
-        return new Statement(parent::executeQuery($query, $params, $types, $qcp), $this->converter);
+        return $this->wrapResult(
+            parent::executeQuery($query, $params, $types, $qcp)
+        );
     }
 
     public function prepare(string $sql): DriverStatement
@@ -96,8 +100,18 @@ class Connection extends \Doctrine\DBAL\Connection
         return new Statement(parent::prepare($sql), $this->converter);
     }
 
-    public function query(string $sql): ResultStatement
+    public function query(string $sql): DriverResult
     {
-        return new Statement(parent::query($sql), $this->converter);
+        return $this->wrapResult(
+            parent::query($sql)
+        );
+    }
+
+    private function wrapResult(DriverResult $result): AbstractionResult
+    {
+        return new DBALResult(
+            new Result($result, $this->converter),
+            $this
+        );
     }
 }

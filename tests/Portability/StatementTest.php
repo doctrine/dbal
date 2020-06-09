@@ -57,26 +57,6 @@ class StatementTest extends TestCase
         self::assertTrue($this->stmt->bindValue($param, $value, $type));
     }
 
-    public function testCloseCursor(): void
-    {
-        $this->wrappedStmt->expects(self::once())
-            ->method('closeCursor')
-            ->will(self::returnValue(true));
-
-        self::assertTrue($this->stmt->closeCursor());
-    }
-
-    public function testColumnCount(): void
-    {
-        $columnCount = 666;
-
-        $this->wrappedStmt->expects(self::once())
-            ->method('columnCount')
-            ->will(self::returnValue($columnCount));
-
-        self::assertSame($columnCount, $this->stmt->columnCount());
-    }
-
     public function testExecute(): void
     {
         $params = [
@@ -86,21 +66,9 @@ class StatementTest extends TestCase
 
         $this->wrappedStmt->expects(self::once())
             ->method('execute')
-            ->with($params)
-            ->will(self::returnValue(true));
+            ->with($params);
 
-        self::assertTrue($this->stmt->execute($params));
-    }
-
-    public function testRowCount(): void
-    {
-        $rowCount = 666;
-
-        $this->wrappedStmt->expects(self::once())
-            ->method('rowCount')
-            ->will(self::returnValue($rowCount));
-
-        self::assertSame($rowCount, $this->stmt->rowCount());
+        $this->stmt->execute($params);
     }
 
     /**

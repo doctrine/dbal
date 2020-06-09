@@ -2,14 +2,14 @@
 
 namespace Doctrine\DBAL\Driver;
 
+use Doctrine\DBAL\Driver\PDO\Result;
+use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\ParameterType;
 use InvalidArgumentException;
 use PDO;
 
 use function array_slice;
-use function assert;
 use function func_get_args;
-use function is_array;
 
 /**
  * The PDO implementation of the Statement interface.
@@ -71,120 +71,15 @@ class PDOStatement implements Statement
     /**
      * {@inheritdoc}
      */
-    public function closeCursor()
+    public function execute($params = null): ResultInterface
     {
         try {
-            return $this->stmt->closeCursor();
-        } catch (\PDOException $exception) {
-            // Exceptions not allowed by the interface.
-            // In case driver implementations do not adhere to the interface, silence exceptions here.
-            return true;
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function columnCount()
-    {
-        return $this->stmt->columnCount();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function execute($params = null)
-    {
-        try {
-            return $this->stmt->execute($params);
-        } catch (\PDOException $exception) {
-            throw new PDOException($exception);
-        }
-    }
-
-    public function rowCount(): int
-    {
-        return $this->stmt->rowCount();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchNumeric()
-    {
-        return $this->fetch(PDO::FETCH_NUM);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchAssociative()
-    {
-        return $this->fetch(PDO::FETCH_ASSOC);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchOne()
-    {
-        return $this->fetch(PDO::FETCH_COLUMN);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchAllNumeric(): array
-    {
-        return $this->fetchAll(PDO::FETCH_NUM);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchAllAssociative(): array
-    {
-        return $this->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchFirstColumn(): array
-    {
-        return $this->fetchAll(PDO::FETCH_COLUMN);
-    }
-
-    /**
-     * @return mixed|false
-     *
-     * @throws PDOException
-     */
-    private function fetch(int $mode)
-    {
-        try {
-            return $this->stmt->fetch($mode);
-        } catch (\PDOException $exception) {
-            throw new PDOException($exception);
-        }
-    }
-
-    /**
-     * @return array<int,mixed>
-     *
-     * @throws PDOException
-     */
-    private function fetchAll(int $mode): array
-    {
-        try {
-            $data = $this->stmt->fetchAll($mode);
+            $this->stmt->execute($params);
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
         }
 
-        assert(is_array($data));
-
-        return $data;
+        return new Result($this->stmt);
     }
 
     /**
