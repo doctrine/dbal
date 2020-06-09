@@ -19,7 +19,7 @@ abstract class KeywordList
     /**
      * Checks if the given word is a keyword of this dialect/vendor platform.
      */
-    public function isKeyword(string $word) : bool
+    public function isKeyword(string $word): bool
     {
         if ($this->keywords === null) {
             $this->initializeKeywords();
@@ -28,7 +28,7 @@ abstract class KeywordList
         return isset($this->keywords[strtoupper($word)]);
     }
 
-    protected function initializeKeywords() : void
+    protected function initializeKeywords(): void
     {
         $this->keywords = array_flip(array_map('strtoupper', $this->getKeywords()));
     }
@@ -38,10 +38,10 @@ abstract class KeywordList
      *
      * @return string[]
      */
-    abstract protected function getKeywords() : array;
+    abstract protected function getKeywords(): array;
 
     /**
      * Returns the name of this keyword list.
      */
-    abstract public function getName() : string;
+    abstract public function getName(): string;
 }

@@ -20,7 +20,7 @@ class ConnectionEventArgs extends EventArgs
         $this->connection = $connection;
     }
 
-    public function getConnection() : Connection
+    public function getConnection(): Connection
     {
         return $this->connection;
     }

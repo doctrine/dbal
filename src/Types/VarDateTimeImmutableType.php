@@ -8,6 +8,7 @@ use DateTimeImmutable;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Exception\InvalidType;
 use Doctrine\DBAL\Types\Exception\ValueNotConvertible;
+
 use function date_create_immutable;
 
 /**
@@ -15,7 +16,7 @@ use function date_create_immutable;
  */
 class VarDateTimeImmutableType extends VarDateTimeType
 {
-    public function getName() : string
+    public function getName(): string
     {
         return Types::DATETIME_IMMUTABLE;
     }
@@ -58,7 +59,7 @@ class VarDateTimeImmutableType extends VarDateTimeType
         return $dateTime;
     }
 
-    public function requiresSQLCommentHint(AbstractPlatform $platform) : bool
+    public function requiresSQLCommentHint(AbstractPlatform $platform): bool
     {
         return true;
     }

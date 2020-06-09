@@ -24,7 +24,7 @@ final class Driver extends AbstractMySQLDriver
         string $username = '',
         string $password = '',
         array $driverOptions = []
-    ) : Connection {
+    ): Connection {
         if (! empty($params['persistent'])) {
             $driverOptions[PDO::ATTR_PERSISTENT] = true;
         }
@@ -50,7 +50,7 @@ final class Driver extends AbstractMySQLDriver
      *
      * @return string The DSN.
      */
-    private function constructPdoDsn(array $params) : string
+    private function constructPdoDsn(array $params): string
     {
         $dsn = 'mysql:';
         if (isset($params['host']) && $params['host'] !== '') {

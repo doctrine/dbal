@@ -12,7 +12,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
  */
 class BigIntType extends Type implements PhpIntegerMappingType
 {
-    public function getName() : string
+    public function getName(): string
     {
         return Types::BIGINT;
     }
@@ -20,12 +20,12 @@ class BigIntType extends Type implements PhpIntegerMappingType
     /**
      * {@inheritdoc}
      */
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform) : string
+    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform): string
     {
         return $platform->getBigIntTypeDeclarationSQL($fieldDeclaration);
     }
 
-    public function getBindingType() : int
+    public function getBindingType(): int
     {
         return ParameterType::STRING;
     }

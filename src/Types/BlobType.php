@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Types;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Exception\ValueNotConvertible;
+
 use function assert;
 use function fopen;
 use function fseek;
@@ -22,7 +23,7 @@ class BlobType extends Type
     /**
      * {@inheritdoc}
      */
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform) : string
+    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform): string
     {
         return $platform->getBlobTypeDeclarationSQL($fieldDeclaration);
     }
@@ -51,12 +52,12 @@ class BlobType extends Type
         return $value;
     }
 
-    public function getName() : string
+    public function getName(): string
     {
         return Types::BLOB;
     }
 
-    public function getBindingType() : int
+    public function getBindingType(): int
     {
         return ParameterType::LARGE_OBJECT;
     }

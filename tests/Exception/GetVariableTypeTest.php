@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Tests\Exception;
 use Doctrine\DBAL\Exception\GetVariableType;
 use PHPUnit\Framework\TestCase;
 use stdClass;
+
 use function tmpfile;
 
 class GetVariableTypeTest extends TestCase
@@ -16,7 +17,7 @@ class GetVariableTypeTest extends TestCase
      *
      * @dataProvider provideDataForFormatVariable
      */
-    public function testFormatVariable(string $expected, $value) : void
+    public function testFormatVariable(string $expected, $value): void
     {
         self::assertSame($expected, (new GetVariableType())->__invoke($value));
     }
@@ -24,7 +25,7 @@ class GetVariableTypeTest extends TestCase
     /**
      * @return array<int, array<int, mixed>>
      */
-    public function provideDataForFormatVariable() : array
+    public function provideDataForFormatVariable(): array
     {
         return [
             ['string', ''],

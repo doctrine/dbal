@@ -12,7 +12,7 @@ use PDO;
 
 class DriverTest extends AbstractPostgreSQLDriverTest
 {
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -26,7 +26,7 @@ class DriverTest extends AbstractPostgreSQLDriverTest
     /**
      * @group DBAL-920
      */
-    public function testConnectionDisablesPrepares() : void
+    public function testConnectionDisablesPrepares(): void
     {
         $connection = $this->createDriver()->connect(
             [
@@ -46,7 +46,7 @@ class DriverTest extends AbstractPostgreSQLDriverTest
     /**
      * @group DBAL-920
      */
-    public function testConnectionDoesNotDisablePreparesWhenAttributeDefined() : void
+    public function testConnectionDoesNotDisablePreparesWhenAttributeDefined(): void
     {
         $connection = $this->createDriver()->connect(
             [
@@ -67,7 +67,7 @@ class DriverTest extends AbstractPostgreSQLDriverTest
     /**
      * @group DBAL-920
      */
-    public function testConnectionDisablePreparesWhenDisablePreparesIsExplicitlyDefined() : void
+    public function testConnectionDisablePreparesWhenDisablePreparesIsExplicitlyDefined(): void
     {
         $connection = $this->createDriver()->connect(
             [
@@ -85,7 +85,7 @@ class DriverTest extends AbstractPostgreSQLDriverTest
         );
     }
 
-    protected function createDriver() : DriverInterface
+    protected function createDriver(): DriverInterface
     {
         return new Driver();
     }

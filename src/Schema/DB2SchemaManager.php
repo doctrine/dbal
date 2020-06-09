@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Types\Type;
+
 use function array_change_key_case;
 use function assert;
 use function preg_match;
@@ -13,6 +14,7 @@ use function str_replace;
 use function strpos;
 use function strtolower;
 use function substr;
+
 use const CASE_LOWER;
 
 /**
@@ -26,7 +28,7 @@ class DB2SchemaManager extends AbstractSchemaManager
      * Apparently creator is the schema not the user who created it:
      * {@link http://publib.boulder.ibm.com/infocenter/dzichelp/v2r2/index.jsp?topic=/com.ibm.db29.doc.sqlref/db2z_sysibmsystablestable.htm}
      */
-    public function listTableNames() : array
+    public function listTableNames(): array
     {
         $sql = $this->_platform->getListTablesSQL() . ' AND CREATOR = CURRENT_USER';
 
@@ -38,7 +40,7 @@ class DB2SchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableColumnDefinition(array $tableColumn) : Column
+    protected function _getPortableTableColumnDefinition(array $tableColumn): Column
     {
         $tableColumn = array_change_key_case($tableColumn, CASE_LOWER);
 
@@ -104,7 +106,7 @@ class DB2SchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTablesList(array $tables) : array
+    protected function _getPortableTablesList(array $tables): array
     {
         $tableNames = [];
         foreach ($tables as $tableRow) {
@@ -118,7 +120,7 @@ class DB2SchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableIndexesList(array $tableIndexRows, string $tableName) : array
+    protected function _getPortableTableIndexesList(array $tableIndexRows, string $tableName): array
     {
         foreach ($tableIndexRows as &$tableIndexRow) {
             $tableIndexRow            = array_change_key_case($tableIndexRow, CASE_LOWER);
@@ -131,7 +133,7 @@ class DB2SchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableForeignKeyDefinition(array $tableForeignKey) : ForeignKeyConstraint
+    protected function _getPortableTableForeignKeyDefinition(array $tableForeignKey): ForeignKeyConstraint
     {
         return new ForeignKeyConstraint(
             $tableForeignKey['local_columns'],
@@ -145,7 +147,7 @@ class DB2SchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableForeignKeysList(array $tableForeignKeys) : array
+    protected function _getPortableTableForeignKeysList(array $tableForeignKeys): array
     {
         $foreignKeys = [];
 
@@ -175,7 +177,7 @@ class DB2SchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableViewDefinition(array $view) : View
+    protected function _getPortableViewDefinition(array $view): View
     {
         $view = array_change_key_case($view, CASE_LOWER);
 
@@ -190,7 +192,7 @@ class DB2SchemaManager extends AbstractSchemaManager
         return new View($view['name'], $sql);
     }
 
-    public function listTableDetails(string $tableName) : Table
+    public function listTableDetails(string $tableName): Table
     {
         $table = parent::listTableDetails($tableName);
 

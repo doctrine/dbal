@@ -14,17 +14,17 @@ use Doctrine\DBAL\Schema\SqliteSchemaManager;
 
 class AbstractSQLiteDriverTest extends AbstractDriverTest
 {
-    protected function createDriver() : Driver
+    protected function createDriver(): Driver
     {
         return $this->getMockForAbstractClass(AbstractSQLiteDriver::class);
     }
 
-    protected function createPlatform() : AbstractPlatform
+    protected function createPlatform(): AbstractPlatform
     {
         return new SqlitePlatform();
     }
 
-    protected function createSchemaManager(Connection $connection) : AbstractSchemaManager
+    protected function createSchemaManager(Connection $connection): AbstractSchemaManager
     {
         return new SqliteSchemaManager($connection);
     }
@@ -32,7 +32,7 @@ class AbstractSQLiteDriverTest extends AbstractDriverTest
     /**
      * {@inheritDoc}
      */
-    protected static function getExceptionConversionData() : array
+    protected static function getExceptionConversionData(): array
     {
         return [
             self::EXCEPTION_CONNECTION => [

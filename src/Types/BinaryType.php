@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Types;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Exception\ValueNotConvertible;
+
 use function is_resource;
 use function is_string;
 use function stream_get_contents;
@@ -19,7 +20,7 @@ class BinaryType extends Type
     /**
      * {@inheritdoc}
      */
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform) : string
+    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform): string
     {
         return $platform->getBinaryTypeDeclarationSQL($fieldDeclaration);
     }
@@ -44,12 +45,12 @@ class BinaryType extends Type
         return $value;
     }
 
-    public function getName() : string
+    public function getName(): string
     {
         return Types::BINARY;
     }
 
-    public function getBindingType() : int
+    public function getBindingType(): int
     {
         return ParameterType::BINARY;
     }

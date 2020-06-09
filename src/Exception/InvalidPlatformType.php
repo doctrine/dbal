@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Exception;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+
 use function get_class;
 use function is_object;
 use function sprintf;
@@ -18,7 +19,7 @@ final class InvalidPlatformType extends DBALException
     /**
      * @param mixed $invalidPlatform
      */
-    public static function new($invalidPlatform) : self
+    public static function new($invalidPlatform): self
     {
         if (is_object($invalidPlatform)) {
             return new self(

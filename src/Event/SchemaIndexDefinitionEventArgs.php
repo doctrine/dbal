@@ -43,14 +43,14 @@ class SchemaIndexDefinitionEventArgs extends SchemaEventArgs
      *
      * @return $this
      */
-    public function setIndex(?Index $index) : self
+    public function setIndex(?Index $index): self
     {
         $this->index = $index;
 
         return $this;
     }
 
-    public function getIndex() : ?Index
+    public function getIndex(): ?Index
     {
         return $this->index;
     }
@@ -58,17 +58,17 @@ class SchemaIndexDefinitionEventArgs extends SchemaEventArgs
     /**
      * @return array<string, mixed>
      */
-    public function getTableIndex() : array
+    public function getTableIndex(): array
     {
         return $this->tableIndex;
     }
 
-    public function getTable() : string
+    public function getTable(): string
     {
         return $this->table;
     }
 
-    public function getConnection() : Connection
+    public function getConnection(): Connection
     {
         return $this->connection;
     }

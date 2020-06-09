@@ -23,6 +23,7 @@ use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
 use InvalidArgumentException;
+
 use function mt_rand;
 use function strlen;
 use function substr;
@@ -32,7 +33,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
     /** @var SQLAnywhere16Platform */
     protected $platform;
 
-    public function createPlatform() : AbstractPlatform
+    public function createPlatform(): AbstractPlatform
     {
         return new SQLAnywhere16Platform();
     }
@@ -40,7 +41,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
-    public function getGenerateAlterTableSql() : array
+    public function getGenerateAlterTableSql(): array
     {
         return [
             "ALTER TABLE mytable ADD quota INT DEFAULT NULL, DROP foo, ALTER baz VARCHAR(255) DEFAULT 'def' NOT NULL, ALTER bloo BIT DEFAULT '0' NOT NULL",
@@ -48,17 +49,17 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    public function getGenerateForeignKeySql() : string
+    public function getGenerateForeignKeySql(): string
     {
         return 'ALTER TABLE test ADD FOREIGN KEY (fk_name_id) REFERENCES other_table (id)';
     }
 
-    public function getGenerateIndexSql() : string
+    public function getGenerateIndexSql(): string
     {
         return 'CREATE INDEX my_idx ON mytable (user_name, last_login)';
     }
 
-    public function getGenerateTableSql() : string
+    public function getGenerateTableSql(): string
     {
         return 'CREATE TABLE test (id INT IDENTITY NOT NULL, test VARCHAR(255) DEFAULT NULL, PRIMARY KEY (id))';
     }
@@ -66,7 +67,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
-    public function getGenerateTableWithMultiColumnUniqueIndexSql() : array
+    public function getGenerateTableWithMultiColumnUniqueIndexSql(): array
     {
         return [
             'CREATE TABLE test (foo VARCHAR(255) DEFAULT NULL, bar VARCHAR(255) DEFAULT NULL)',
@@ -74,7 +75,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    public function getGenerateUniqueIndexSql() : string
+    public function getGenerateUniqueIndexSql(): string
     {
         return 'CREATE UNIQUE INDEX index_name ON test (test, test2)';
     }
@@ -82,7 +83,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
-    protected function getQuotedColumnInForeignKeySQL() : array
+    protected function getQuotedColumnInForeignKeySQL(): array
     {
         return ['CREATE TABLE "quoted" ("create" VARCHAR(255) NOT NULL, foo VARCHAR(255) NOT NULL, "bar" VARCHAR(255) NOT NULL, CONSTRAINT FK_WITH_RESERVED_KEYWORD FOREIGN KEY ("create", foo, "bar") REFERENCES "foreign" ("create", bar, "foo-bar"), CONSTRAINT FK_WITH_NON_RESERVED_KEYWORD FOREIGN KEY ("create", foo, "bar") REFERENCES foo ("create", bar, "foo-bar"), CONSTRAINT FK_WITH_INTENDED_QUOTATION FOREIGN KEY ("create", foo, "bar") REFERENCES "foo-bar" ("create", bar, "foo-bar"))'];
     }
@@ -90,7 +91,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
-    protected function getQuotedColumnInIndexSQL() : array
+    protected function getQuotedColumnInIndexSQL(): array
     {
         return [
             'CREATE TABLE "quoted" ("create" VARCHAR(255) NOT NULL)',
@@ -101,7 +102,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
-    protected function getQuotedNameInIndexSQL() : array
+    protected function getQuotedNameInIndexSQL(): array
     {
         return [
             'CREATE TABLE test (column1 VARCHAR(255) NOT NULL)',
@@ -112,7 +113,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
-    protected function getQuotedColumnInPrimaryKeySQL() : array
+    protected function getQuotedColumnInPrimaryKeySQL(): array
     {
         return ['CREATE TABLE "quoted" ("create" VARCHAR(255) NOT NULL, PRIMARY KEY ("create"))'];
     }
@@ -120,7 +121,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
-    public function getCreateTableColumnCommentsSQL() : array
+    public function getCreateTableColumnCommentsSQL(): array
     {
         return [
             'CREATE TABLE test (id INT NOT NULL, PRIMARY KEY (id))',
@@ -131,7 +132,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
-    public function getAlterTableColumnCommentsSQL() : array
+    public function getAlterTableColumnCommentsSQL(): array
     {
         return [
             'ALTER TABLE mytable ADD quota INT NOT NULL',
@@ -144,7 +145,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
-    public function getCreateTableColumnTypeCommentsSQL() : array
+    public function getCreateTableColumnTypeCommentsSQL(): array
     {
         return [
             'CREATE TABLE test (id INT NOT NULL, data TEXT NOT NULL, PRIMARY KEY (id))',
@@ -152,12 +153,12 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    public function testHasCorrectPlatformName() : void
+    public function testHasCorrectPlatformName(): void
     {
         self::assertEquals('sqlanywhere', $this->platform->getName());
     }
 
-    public function testGeneratesCreateTableSQLWithCommonIndexes() : void
+    public function testGeneratesCreateTableSQLWithCommonIndexes(): void
     {
         $table = new Table('test');
         $table->addColumn('id', 'integer');
@@ -176,7 +177,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    public function testGeneratesCreateTableSQLWithForeignKeyConstraints() : void
+    public function testGeneratesCreateTableSQLWithForeignKeyConstraints(): void
     {
         $table = new Table('test');
         $table->addColumn('id', 'integer');
@@ -201,7 +202,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    public function testGeneratesCreateTableSQLWithCheckConstraints() : void
+    public function testGeneratesCreateTableSQLWithCheckConstraints(): void
     {
         $table = new Table('test');
         $table->addColumn('id', 'integer');
@@ -215,7 +216,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    public function testGeneratesTableAlterationWithRemovedColumnCommentSql() : void
+    public function testGeneratesTableAlterationWithRemovedColumnCommentSql(): void
     {
         $table = new Table('mytable');
         $table->addColumn('foo', 'string', ['comment' => 'foo comment']);
@@ -237,7 +238,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
     /**
      * @dataProvider getLockHints
      */
-    public function testAppendsLockHint(?int $lockMode, string $lockHint) : void
+    public function testAppendsLockHint(?int $lockMode, string $lockHint): void
     {
         $fromClause     = 'FROM users';
         $expectedResult = $fromClause . $lockHint;
@@ -248,7 +249,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
     /**
      * @return mixed[][]
      */
-    public static function getLockHints() : iterable
+    public static function getLockHints(): iterable
     {
         return [
             [null, ''],
@@ -259,12 +260,12 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    public function testHasCorrectMaxIdentifierLength() : void
+    public function testHasCorrectMaxIdentifierLength(): void
     {
         self::assertEquals(128, $this->platform->getMaxIdentifierLength());
     }
 
-    public function testFixesSchemaElementNames() : void
+    public function testFixesSchemaElementNames(): void
     {
         $maxIdentifierLength = $this->platform->getMaxIdentifierLength();
         $characters          = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -286,7 +287,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    public function testGeneratesColumnTypesDeclarationSQL() : void
+    public function testGeneratesColumnTypesDeclarationSQL(): void
     {
         $fullColumnDef = [
             'length' => 10,
@@ -313,12 +314,12 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
         self::assertEquals('UNIQUEIDENTIFIER', $this->platform->getGuidTypeDeclarationSQL($fullColumnDef));
     }
 
-    public function testHasNativeGuidType() : void
+    public function testHasNativeGuidType(): void
     {
         self::assertTrue($this->platform->hasNativeGuidType());
     }
 
-    public function testGeneratesDDLSnippets() : void
+    public function testGeneratesDDLSnippets(): void
     {
         self::assertEquals("CREATE DATABASE 'foobar'", $this->platform->getCreateDatabaseSQL('foobar'));
         self::assertEquals("CREATE DATABASE 'foobar'", $this->platform->getCreateDatabaseSQL('"foobar"'));
@@ -340,7 +341,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
         self::assertEquals('DROP VIEW fooview', $this->platform->getDropViewSQL('fooview'));
     }
 
-    public function testGeneratesPrimaryKeyDeclarationSQL() : void
+    public function testGeneratesPrimaryKeyDeclarationSQL(): void
     {
         self::assertEquals(
             'CONSTRAINT pk PRIMARY KEY CLUSTERED (a, b)',
@@ -357,14 +358,14 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    public function testCannotGeneratePrimaryKeyDeclarationSQLWithEmptyColumns() : void
+    public function testCannotGeneratePrimaryKeyDeclarationSQLWithEmptyColumns(): void
     {
         $this->expectException(InvalidArgumentException::class);
 
         $this->platform->getPrimaryKeyDeclarationSQL(new Index('pk', [], true, true));
     }
 
-    public function testGeneratesCreateUnnamedPrimaryKeySQL() : void
+    public function testGeneratesCreateUnnamedPrimaryKeySQL(): void
     {
         self::assertEquals(
             'ALTER TABLE foo ADD PRIMARY KEY CLUSTERED (a, b)',
@@ -382,7 +383,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    public function testGeneratesUniqueConstraintDeclarationSQL() : void
+    public function testGeneratesUniqueConstraintDeclarationSQL(): void
     {
         self::assertEquals(
             'CONSTRAINT unique_constraint UNIQUE CLUSTERED (a, b)',
@@ -397,14 +398,14 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    public function testCannotGenerateUniqueConstraintDeclarationSQLWithEmptyColumns() : void
+    public function testCannotGenerateUniqueConstraintDeclarationSQLWithEmptyColumns(): void
     {
         $this->expectException(InvalidArgumentException::class);
 
         $this->platform->getUniqueConstraintDeclarationSQL('constr', new UniqueConstraint('constr', []));
     }
 
-    public function testGeneratesForeignKeyConstraintsWithAdvancedPlatformOptionsSQL() : void
+    public function testGeneratesForeignKeyConstraintsWithAdvancedPlatformOptionsSQL(): void
     {
         self::assertEquals(
             'CONSTRAINT fk ' .
@@ -431,7 +432,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    public function testGeneratesForeignKeyMatchClausesSQL() : void
+    public function testGeneratesForeignKeyMatchClausesSQL(): void
     {
         self::assertEquals('SIMPLE', $this->platform->getForeignKeyMatchClauseSQL(1));
         self::assertEquals('FULL', $this->platform->getForeignKeyMatchClauseSQL(2));
@@ -439,46 +440,46 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
         self::assertEquals('UNIQUE FULL', $this->platform->getForeignKeyMatchClauseSQL(130));
     }
 
-    public function testCannotGenerateInvalidForeignKeyMatchClauseSQL() : void
+    public function testCannotGenerateInvalidForeignKeyMatchClauseSQL(): void
     {
         $this->expectException(InvalidArgumentException::class);
 
         $this->platform->getForeignKeyMatchClauseSQL(3);
     }
 
-    public function testCannotGenerateForeignKeyConstraintSQLWithEmptyLocalColumns() : void
+    public function testCannotGenerateForeignKeyConstraintSQLWithEmptyLocalColumns(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->platform->getForeignKeyDeclarationSQL(new ForeignKeyConstraint([], 'foreign_tbl', ['c', 'd']));
     }
 
-    public function testCannotGenerateForeignKeyConstraintSQLWithEmptyForeignColumns() : void
+    public function testCannotGenerateForeignKeyConstraintSQLWithEmptyForeignColumns(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->platform->getForeignKeyDeclarationSQL(new ForeignKeyConstraint(['a', 'b'], 'foreign_tbl', []));
     }
 
-    public function testCannotGenerateForeignKeyConstraintSQLWithEmptyForeignTableName() : void
+    public function testCannotGenerateForeignKeyConstraintSQLWithEmptyForeignTableName(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->platform->getForeignKeyDeclarationSQL(new ForeignKeyConstraint(['a', 'b'], '', ['c', 'd']));
     }
 
-    public function testCannotGenerateCommonIndexWithCreateConstraintSQL() : void
+    public function testCannotGenerateCommonIndexWithCreateConstraintSQL(): void
     {
         $this->expectException(InvalidArgumentException::class);
 
         $this->platform->getCreateConstraintSQL(new Index('fooindex', []), new Table('footable'));
     }
 
-    public function testCannotGenerateCustomConstraintWithCreateConstraintSQL() : void
+    public function testCannotGenerateCustomConstraintWithCreateConstraintSQL(): void
     {
         $this->expectException(InvalidArgumentException::class);
 
         $this->platform->getCreateConstraintSQL($this->createMock(Constraint::class), 'footable');
     }
 
-    public function testGeneratesCreateIndexWithAdvancedPlatformOptionsSQL() : void
+    public function testGeneratesCreateIndexWithAdvancedPlatformOptionsSQL(): void
     {
         self::assertEquals(
             'CREATE UNIQUE INDEX fooindex ON footable (a, b) WITH NULLS DISTINCT',
@@ -582,7 +583,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    public function testThrowsExceptionOnInvalidWithNullsNotDistinctIndexOptions() : void
+    public function testThrowsExceptionOnInvalidWithNullsNotDistinctIndexOptions(): void
     {
         $this->expectException('UnexpectedValueException');
 
@@ -598,14 +599,14 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    public function testDoesNotSupportIndexDeclarationInCreateAlterTableStatements() : void
+    public function testDoesNotSupportIndexDeclarationInCreateAlterTableStatements(): void
     {
         $this->expectException(DBALException::class);
 
         $this->platform->getIndexDeclarationSQL('index', new Index('index', []));
     }
 
-    public function testGeneratesDropIndexSQL() : void
+    public function testGeneratesDropIndexSQL(): void
     {
         $index = new Index('fooindex', []);
 
@@ -617,7 +618,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
         ));
     }
 
-    public function testGeneratesSQLSnippets() : void
+    public function testGeneratesSQLSnippets(): void
     {
         self::assertEquals('STRING(column1, "string1", column2, "string2")', $this->platform->getConcatExpression(
             'column1',
@@ -685,12 +686,12 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    public function testHasCorrectDateTimeTzFormatString() : void
+    public function testHasCorrectDateTimeTzFormatString(): void
     {
         self::assertEquals('Y-m-d H:i:s.uP', $this->platform->getDateTimeTzFormatString());
     }
 
-    public function testGeneratesDateTimeTzColumnTypeDeclarationSQL() : void
+    public function testGeneratesDateTimeTzColumnTypeDeclarationSQL(): void
     {
         self::assertEquals(
             'TIMESTAMP WITH TIME ZONE',
@@ -703,13 +704,13 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    public function testInitializesDateTimeTzTypeMapping() : void
+    public function testInitializesDateTimeTzTypeMapping(): void
     {
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('timestamp with time zone'));
         self::assertEquals('datetime', $this->platform->getDoctrineTypeMapping('timestamp with time zone'));
     }
 
-    public function testHasCorrectDefaultTransactionIsolationLevel() : void
+    public function testHasCorrectDefaultTransactionIsolationLevel(): void
     {
         self::assertEquals(
             TransactionIsolationLevel::READ_UNCOMMITTED,
@@ -717,7 +718,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    public function testGeneratesTransactionsCommands() : void
+    public function testGeneratesTransactionsCommands(): void
     {
         self::assertEquals(
             'SET TEMPORARY OPTION isolation_level = 0',
@@ -737,7 +738,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    public function testModifiesLimitQuery() : void
+    public function testModifiesLimitQuery(): void
     {
         self::assertEquals(
             'SELECT TOP 10 * FROM user',
@@ -745,7 +746,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    public function testModifiesLimitQueryWithEmptyOffset() : void
+    public function testModifiesLimitQueryWithEmptyOffset(): void
     {
         self::assertEquals(
             'SELECT TOP 10 * FROM user',
@@ -753,7 +754,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    public function testModifiesLimitQueryWithOffset() : void
+    public function testModifiesLimitQueryWithOffset(): void
     {
         self::assertEquals(
             'SELECT TOP 10 START AT 6 * FROM user',
@@ -765,7 +766,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    public function testModifiesLimitQueryWithSubSelect() : void
+    public function testModifiesLimitQueryWithSubSelect(): void
     {
         self::assertEquals(
             'SELECT TOP 10 * FROM (SELECT u.id as uid, u.name as uname FROM user) AS doctrine_tbl',
@@ -773,7 +774,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    public function testModifiesLimitQueryWithoutLimit() : void
+    public function testModifiesLimitQueryWithoutLimit(): void
     {
         self::assertEquals(
             'SELECT TOP ALL START AT 11 n FROM Foo',
@@ -781,92 +782,92 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    public function testPrefersIdentityColumns() : void
+    public function testPrefersIdentityColumns(): void
     {
         self::assertTrue($this->platform->prefersIdentityColumns());
     }
 
-    public function testDoesNotPreferSequences() : void
+    public function testDoesNotPreferSequences(): void
     {
         self::assertFalse($this->platform->prefersSequences());
     }
 
-    public function testSupportsIdentityColumns() : void
+    public function testSupportsIdentityColumns(): void
     {
         self::assertTrue($this->platform->supportsIdentityColumns());
     }
 
-    public function testSupportsPrimaryConstraints() : void
+    public function testSupportsPrimaryConstraints(): void
     {
         self::assertTrue($this->platform->supportsPrimaryConstraints());
     }
 
-    public function testSupportsForeignKeyConstraints() : void
+    public function testSupportsForeignKeyConstraints(): void
     {
         self::assertTrue($this->platform->supportsForeignKeyConstraints());
     }
 
-    public function testSupportsForeignKeyOnUpdate() : void
+    public function testSupportsForeignKeyOnUpdate(): void
     {
         self::assertTrue($this->platform->supportsForeignKeyOnUpdate());
     }
 
-    public function testSupportsAlterTable() : void
+    public function testSupportsAlterTable(): void
     {
         self::assertTrue($this->platform->supportsAlterTable());
     }
 
-    public function testSupportsTransactions() : void
+    public function testSupportsTransactions(): void
     {
         self::assertTrue($this->platform->supportsTransactions());
     }
 
-    public function testSupportsSchemas() : void
+    public function testSupportsSchemas(): void
     {
         self::assertFalse($this->platform->supportsSchemas());
     }
 
-    public function testSupportsIndexes() : void
+    public function testSupportsIndexes(): void
     {
         self::assertTrue($this->platform->supportsIndexes());
     }
 
-    public function testSupportsCommentOnStatement() : void
+    public function testSupportsCommentOnStatement(): void
     {
         self::assertTrue($this->platform->supportsCommentOnStatement());
     }
 
-    public function testSupportsSavePoints() : void
+    public function testSupportsSavePoints(): void
     {
         self::assertTrue($this->platform->supportsSavepoints());
     }
 
-    public function testSupportsReleasePoints() : void
+    public function testSupportsReleasePoints(): void
     {
         self::assertTrue($this->platform->supportsReleaseSavepoints());
     }
 
-    public function testSupportsCreateDropDatabase() : void
+    public function testSupportsCreateDropDatabase(): void
     {
         self::assertTrue($this->platform->supportsCreateDropDatabase());
     }
 
-    public function testSupportsGettingAffectedRows() : void
+    public function testSupportsGettingAffectedRows(): void
     {
         self::assertTrue($this->platform->supportsGettingAffectedRows());
     }
 
-    public function testDoesNotSupportSequences() : void
+    public function testDoesNotSupportSequences(): void
     {
         self::markTestSkipped('This version of the platform now supports sequences.');
     }
 
-    public function testSupportsSequences() : void
+    public function testSupportsSequences(): void
     {
         self::assertTrue($this->platform->supportsSequences());
     }
 
-    public function testGeneratesSequenceSqlCommands() : void
+    public function testGeneratesSequenceSqlCommands(): void
     {
         $sequence = new Sequence('myseq', 20, 1);
         self::assertEquals(
@@ -891,17 +892,17 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    public function testDoesNotSupportInlineColumnComments() : void
+    public function testDoesNotSupportInlineColumnComments(): void
     {
         self::assertFalse($this->platform->supportsInlineColumnComments());
     }
 
-    public function testCannotEmulateSchemas() : void
+    public function testCannotEmulateSchemas(): void
     {
         self::assertFalse($this->platform->canEmulateSchemas());
     }
 
-    public function testInitializesDoctrineTypeMappings() : void
+    public function testInitializesDoctrineTypeMappings(): void
     {
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('integer'));
         self::assertSame('integer', $this->platform->getDoctrineTypeMapping('integer'));
@@ -913,14 +914,14 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
         self::assertSame('binary', $this->platform->getDoctrineTypeMapping('varbinary'));
     }
 
-    public function testGetVariableLengthStringTypeDeclarationSQLNoLength() : void
+    public function testGetVariableLengthStringTypeDeclarationSQLNoLength(): void
     {
         $this->expectException(ColumnLengthRequired::class);
 
         parent::testGetVariableLengthStringTypeDeclarationSQLNoLength();
     }
 
-    public function testGetVariableLengthBinaryTypeDeclarationSQLNoLength() : void
+    public function testGetVariableLengthBinaryTypeDeclarationSQLNoLength(): void
     {
         $this->expectException(ColumnLengthRequired::class);
 
@@ -932,7 +933,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
      *
      * @group DBAL-234
      */
-    protected function getAlterTableRenameIndexSQL() : array
+    protected function getAlterTableRenameIndexSQL(): array
     {
         return ['ALTER INDEX idx_foo ON mytable RENAME TO idx_bar'];
     }
@@ -942,7 +943,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
      *
      * @group DBAL-234
      */
-    protected function getQuotedAlterTableRenameIndexSQL() : array
+    protected function getQuotedAlterTableRenameIndexSQL(): array
     {
         return [
             'ALTER INDEX "create" ON "table" RENAME TO "select"',
@@ -953,7 +954,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritdoc}
      */
-    protected function getQuotedAlterTableRenameColumnSQL() : array
+    protected function getQuotedAlterTableRenameColumnSQL(): array
     {
         return [
             'ALTER TABLE mytable RENAME unquoted1 TO unquoted',
@@ -971,7 +972,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritdoc}
      */
-    protected function getQuotedAlterTableChangeColumnLengthSQL() : array
+    protected function getQuotedAlterTableChangeColumnLengthSQL(): array
     {
         self::markTestIncomplete('Not implemented yet');
     }
@@ -981,7 +982,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
      *
      * @group DBAL-807
      */
-    protected function getAlterTableRenameIndexInSchemaSQL() : array
+    protected function getAlterTableRenameIndexInSchemaSQL(): array
     {
         return ['ALTER INDEX idx_foo ON myschema.mytable RENAME TO idx_bar'];
     }
@@ -991,7 +992,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
      *
      * @group DBAL-807
      */
-    protected function getQuotedAlterTableRenameIndexInSchemaSQL() : array
+    protected function getQuotedAlterTableRenameIndexInSchemaSQL(): array
     {
         return [
             'ALTER INDEX "create" ON "schema"."table" RENAME TO "select"',
@@ -1002,7 +1003,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
     /**
      * @group DBAL-423
      */
-    public function testReturnsGuidTypeDeclarationSQL() : void
+    public function testReturnsGuidTypeDeclarationSQL(): void
     {
         self::assertSame('UNIQUEIDENTIFIER', $this->platform->getGuidTypeDeclarationSQL([]));
     }
@@ -1010,7 +1011,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritdoc}
      */
-    public function getAlterTableRenameColumnSQL() : array
+    public function getAlterTableRenameColumnSQL(): array
     {
         return ['ALTER TABLE foo RENAME bar TO baz'];
     }
@@ -1018,7 +1019,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritdoc}
      */
-    protected function getQuotesTableIdentifiersInAlterTableSQL() : array
+    protected function getQuotesTableIdentifiersInAlterTableSQL(): array
     {
         return [
             'ALTER TABLE "foo" DROP FOREIGN KEY fk1',
@@ -1034,7 +1035,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritdoc}
      */
-    protected function getCommentOnColumnSQL() : array
+    protected function getCommentOnColumnSQL(): array
     {
         return [
             'COMMENT ON COLUMN foo.bar IS \'comment\'',
@@ -1046,7 +1047,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
     /**
      * @group DBAL-1004
      */
-    public function testAltersTableColumnCommentWithExplicitlyQuotedIdentifiers() : void
+    public function testAltersTableColumnCommentWithExplicitlyQuotedIdentifiers(): void
     {
         $table1 = new Table('"foo"', [new Column('"bar"', Type::getType('integer'))]);
         $table2 = new Table('"foo"', [new Column('"bar"', Type::getType('integer'), ['comment' => 'baz'])]);
@@ -1065,7 +1066,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritdoc}
      */
-    public static function getReturnsForeignKeyReferentialActionSQL() : iterable
+    public static function getReturnsForeignKeyReferentialActionSQL(): iterable
     {
         return [
             ['CASCADE', 'CASCADE'],
@@ -1077,22 +1078,22 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    protected function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL() : string
+    protected function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL(): string
     {
         return 'CONSTRAINT "select" UNIQUE (foo)';
     }
 
-    protected function getQuotesReservedKeywordInIndexDeclarationSQL() : string
+    protected function getQuotesReservedKeywordInIndexDeclarationSQL(): string
     {
         return ''; // not supported by this platform
     }
 
-    protected function getQuotesReservedKeywordInTruncateTableSQL() : string
+    protected function getQuotesReservedKeywordInTruncateTableSQL(): string
     {
         return 'TRUNCATE TABLE "select"';
     }
 
-    protected function supportsInlineIndexDeclaration() : bool
+    protected function supportsInlineIndexDeclaration(): bool
     {
         return false;
     }
@@ -1100,7 +1101,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritdoc}
      */
-    protected function getAlterStringToFixedStringSQL() : array
+    protected function getAlterStringToFixedStringSQL(): array
     {
         return ['ALTER TABLE mytable ALTER name CHAR(2) NOT NULL'];
     }
@@ -1108,7 +1109,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritdoc}
      */
-    protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL() : array
+    protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL(): array
     {
         return ['ALTER INDEX idx_foo ON mytable RENAME TO idx_foo_renamed'];
     }
@@ -1116,7 +1117,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
     /**
      * @group DBAL-2436
      */
-    public function testQuotesSchemaNameInListTableColumnsSQL() : void
+    public function testQuotesSchemaNameInListTableColumnsSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",
@@ -1127,7 +1128,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
     /**
      * @group DBAL-2436
      */
-    public function testQuotesTableNameInListTableConstraintsSQL() : void
+    public function testQuotesTableNameInListTableConstraintsSQL(): void
     {
         self::assertStringContainsStringIgnoringCase("'Foo''Bar\\'", $this->platform->getListTableConstraintsSQL("Foo'Bar\\"), '');
     }
@@ -1135,7 +1136,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
     /**
      * @group DBAL-2436
      */
-    public function testQuotesSchemaNameInListTableConstraintsSQL() : void
+    public function testQuotesSchemaNameInListTableConstraintsSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",
@@ -1146,7 +1147,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
     /**
      * @group DBAL-2436
      */
-    public function testQuotesTableNameInListTableForeignKeysSQL() : void
+    public function testQuotesTableNameInListTableForeignKeysSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",
@@ -1157,7 +1158,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
     /**
      * @group DBAL-2436
      */
-    public function testQuotesSchemaNameInListTableForeignKeysSQL() : void
+    public function testQuotesSchemaNameInListTableForeignKeysSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",
@@ -1168,7 +1169,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
     /**
      * @group DBAL-2436
      */
-    public function testQuotesTableNameInListTableIndexesSQL() : void
+    public function testQuotesTableNameInListTableIndexesSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",
@@ -1179,7 +1180,7 @@ class SQLAnywhere16PlatformTest extends AbstractPlatformTestCase
     /**
      * @group DBAL-2436
      */
-    public function testQuotesSchemaNameInListTableIndexesSQL() : void
+    public function testQuotesSchemaNameInListTableIndexesSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",

@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Exception;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+
 use function sprintf;
 
 /**
@@ -17,7 +18,7 @@ final class ColumnLengthRequired extends DBALException
      * @param AbstractPlatform $platform The target platform
      * @param string           $type     The SQL column type
      */
-    public static function new(AbstractPlatform $platform, string $type) : self
+    public static function new(AbstractPlatform $platform, string $type): self
     {
         return new self(
             sprintf(

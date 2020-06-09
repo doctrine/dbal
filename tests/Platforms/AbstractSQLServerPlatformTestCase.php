@@ -21,7 +21,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     /** @var SQLServer2012Platform */
     protected $platform;
 
-    public function getGenerateTableSql() : string
+    public function getGenerateTableSql(): string
     {
         return 'CREATE TABLE test (id INT IDENTITY NOT NULL, test NVARCHAR(255), PRIMARY KEY (id))';
     }
@@ -29,7 +29,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     /**
      * {@inheritDoc}
      */
-    public function getGenerateTableWithMultiColumnUniqueIndexSql() : array
+    public function getGenerateTableWithMultiColumnUniqueIndexSql(): array
     {
         return [
             'CREATE TABLE test (foo NVARCHAR(255), bar NVARCHAR(255))',
@@ -40,7 +40,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     /**
      * {@inheritDoc}
      */
-    public function getGenerateAlterTableSql() : array
+    public function getGenerateAlterTableSql(): array
     {
         return [
             'ALTER TABLE mytable ADD quota INT',
@@ -60,14 +60,14 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         ];
     }
 
-    public function testDoesNotSupportRegexp() : void
+    public function testDoesNotSupportRegexp(): void
     {
         $this->expectException(DBALException::class);
 
         $this->platform->getRegexpExpression();
     }
 
-    public function testGeneratesSqlSnippets() : void
+    public function testGeneratesSqlSnippets(): void
     {
         self::assertEquals('CONVERT(date, GETDATE())', $this->platform->getCurrentDateSQL());
         self::assertEquals('CONVERT(time, GETDATE())', $this->platform->getCurrentTimeSQL());
@@ -76,7 +76,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         self::assertEquals('(column1 + column2 + column3)', $this->platform->getConcatExpression('column1', 'column2', 'column3'), 'Concatenation expression is not correct');
     }
 
-    public function testGeneratesTransactionsCommands() : void
+    public function testGeneratesTransactionsCommands(): void
     {
         self::assertEquals(
             'SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED',
@@ -96,7 +96,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         );
     }
 
-    public function testGeneratesDDLSnippets() : void
+    public function testGeneratesDDLSnippets(): void
     {
         $dropDatabaseExpectation = 'DROP DATABASE foobar';
 
@@ -106,7 +106,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         self::assertEquals('DROP TABLE foobar', $this->platform->getDropTableSQL('foobar'));
     }
 
-    public function testGeneratesTypeDeclarationForIntegers() : void
+    public function testGeneratesTypeDeclarationForIntegers(): void
     {
         self::assertEquals(
             'INT',
@@ -124,7 +124,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         );
     }
 
-    public function testGeneratesTypeDeclarationsForStrings() : void
+    public function testGeneratesTypeDeclarationsForStrings(): void
     {
         self::assertSame('VARCHAR(MAX)', $this->platform->getClobTypeDeclarationSQL([]));
         self::assertSame(
@@ -133,95 +133,95 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         );
     }
 
-    public function testPrefersIdentityColumns() : void
+    public function testPrefersIdentityColumns(): void
     {
         self::assertTrue($this->platform->prefersIdentityColumns());
     }
 
-    public function testSupportsIdentityColumns() : void
+    public function testSupportsIdentityColumns(): void
     {
         self::assertTrue($this->platform->supportsIdentityColumns());
     }
 
-    public function testSupportsCreateDropDatabase() : void
+    public function testSupportsCreateDropDatabase(): void
     {
         self::assertTrue($this->platform->supportsCreateDropDatabase());
     }
 
-    public function testSupportsSchemas() : void
+    public function testSupportsSchemas(): void
     {
         self::assertTrue($this->platform->supportsSchemas());
     }
 
-    public function testDoesNotSupportSavePoints() : void
+    public function testDoesNotSupportSavePoints(): void
     {
         self::assertTrue($this->platform->supportsSavepoints());
     }
 
-    public function getGenerateIndexSql() : string
+    public function getGenerateIndexSql(): string
     {
         return 'CREATE INDEX my_idx ON mytable (user_name, last_login)';
     }
 
-    public function getGenerateUniqueIndexSql() : string
+    public function getGenerateUniqueIndexSql(): string
     {
         return 'CREATE UNIQUE INDEX index_name ON test (test, test2) WHERE test IS NOT NULL AND test2 IS NOT NULL';
     }
 
-    public function getGenerateForeignKeySql() : string
+    public function getGenerateForeignKeySql(): string
     {
         return 'ALTER TABLE test ADD FOREIGN KEY (fk_name_id) REFERENCES other_table (id)';
     }
 
-    public function testModifyLimitQuery() : void
+    public function testModifyLimitQuery(): void
     {
         $sql = $this->platform->modifyLimitQuery('SELECT * FROM user', 10, 0);
         self::assertEquals('SELECT * FROM user ORDER BY (SELECT 0) OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
     }
 
-    public function testModifyLimitQueryWithEmptyOffset() : void
+    public function testModifyLimitQueryWithEmptyOffset(): void
     {
         $sql = $this->platform->modifyLimitQuery('SELECT * FROM user', 10);
         self::assertEquals('SELECT * FROM user ORDER BY (SELECT 0) OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
     }
 
-    public function testModifyLimitQueryWithOffset() : void
+    public function testModifyLimitQueryWithOffset(): void
     {
         $sql = $this->platform->modifyLimitQuery('SELECT * FROM user ORDER BY username DESC', 10, 5);
         self::assertEquals('SELECT * FROM user ORDER BY username DESC OFFSET 5 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
     }
 
-    public function testModifyLimitQueryWithAscOrderBy() : void
+    public function testModifyLimitQueryWithAscOrderBy(): void
     {
         $sql = $this->platform->modifyLimitQuery('SELECT * FROM user ORDER BY username ASC', 10);
         self::assertEquals('SELECT * FROM user ORDER BY username ASC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
     }
 
-    public function testModifyLimitQueryWithLowercaseOrderBy() : void
+    public function testModifyLimitQueryWithLowercaseOrderBy(): void
     {
         $sql = $this->platform->modifyLimitQuery('SELECT * FROM user order by username', 10);
         self::assertEquals('SELECT * FROM user order by username OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
     }
 
-    public function testModifyLimitQueryWithDescOrderBy() : void
+    public function testModifyLimitQueryWithDescOrderBy(): void
     {
         $sql = $this->platform->modifyLimitQuery('SELECT * FROM user ORDER BY username DESC', 10);
         self::assertEquals('SELECT * FROM user ORDER BY username DESC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
     }
 
-    public function testModifyLimitQueryWithMultipleOrderBy() : void
+    public function testModifyLimitQueryWithMultipleOrderBy(): void
     {
         $sql = $this->platform->modifyLimitQuery('SELECT * FROM user ORDER BY username DESC, usereamil ASC', 10);
         self::assertEquals('SELECT * FROM user ORDER BY username DESC, usereamil ASC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
     }
 
-    public function testModifyLimitQueryWithSubSelect() : void
+    public function testModifyLimitQueryWithSubSelect(): void
     {
         $sql = $this->platform->modifyLimitQuery('SELECT * FROM (SELECT u.id as uid, u.name as uname) dctrn_result', 10);
         self::assertEquals('SELECT * FROM (SELECT u.id as uid, u.name as uname) dctrn_result ORDER BY (SELECT 0) OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
     }
 
-    public function testModifyLimitQueryWithSubSelectAndOrder() : void
+    public function testModifyLimitQueryWithSubSelectAndOrder(): void
     {
         $sql = $this->platform->modifyLimitQuery('SELECT * FROM (SELECT u.id as uid, u.name as uname) dctrn_result ORDER BY uname DESC', 10);
         self::assertEquals('SELECT * FROM (SELECT u.id as uid, u.name as uname) dctrn_result ORDER BY uname DESC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
@@ -230,7 +230,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         self::assertEquals('SELECT * FROM (SELECT u.id, u.name) dctrn_result ORDER BY name DESC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
     }
 
-    public function testModifyLimitQueryWithSubSelectAndMultipleOrder() : void
+    public function testModifyLimitQueryWithSubSelectAndMultipleOrder(): void
     {
         $sql = $this->platform->modifyLimitQuery('SELECT * FROM (SELECT u.id as uid, u.name as uname) dctrn_result ORDER BY uname DESC, uid ASC', 10, 5);
         self::assertEquals('SELECT * FROM (SELECT u.id as uid, u.name as uname) dctrn_result ORDER BY uname DESC, uid ASC OFFSET 5 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
@@ -242,7 +242,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         self::assertEquals('SELECT * FROM (SELECT u.id, u.name) dctrn_result ORDER BY name DESC, id ASC OFFSET 5 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
     }
 
-    public function testModifyLimitQueryWithFromColumnNames() : void
+    public function testModifyLimitQueryWithFromColumnNames(): void
     {
         $sql = $this->platform->modifyLimitQuery('SELECT a.fromFoo, fromBar FROM foo', 10);
         self::assertEquals('SELECT a.fromFoo, fromBar FROM foo ORDER BY (SELECT 0) OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
@@ -251,7 +251,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     /**
      * @group DBAL-927
      */
-    public function testModifyLimitQueryWithExtraLongQuery() : void
+    public function testModifyLimitQueryWithExtraLongQuery(): void
     {
         $query  = 'SELECT table1.column1, table2.column2, table3.column3, table4.column4, table5.column5, table6.column6, table7.column7, table8.column8 FROM table1, table2, table3, table4, table5, table6, table7, table8 ';
         $query .= 'WHERE (table1.column1 = table2.column2) AND (table1.column1 = table3.column3) AND (table1.column1 = table4.column4) AND (table1.column1 = table5.column5) AND (table1.column1 = table6.column6) AND (table1.column1 = table7.column7) AND (table1.column1 = table8.column8) AND (table2.column2 = table3.column3) AND (table2.column2 = table4.column4) AND (table2.column2 = table5.column5) AND (table2.column2 = table6.column6) ';
@@ -272,7 +272,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     /**
      * @group DDC-2470
      */
-    public function testModifyLimitQueryWithOrderByClause() : void
+    public function testModifyLimitQueryWithOrderByClause(): void
     {
         $sql      = 'SELECT m0_.NOMBRE AS NOMBRE0, m0_.FECHAINICIO AS FECHAINICIO1, m0_.FECHAFIN AS FECHAFIN2 FROM MEDICION m0_ WITH (NOLOCK) INNER JOIN ESTUDIO e1_ ON m0_.ESTUDIO_ID = e1_.ID INNER JOIN CLIENTE c2_ ON e1_.CLIENTE_ID = c2_.ID INNER JOIN USUARIO u3_ ON c2_.ID = u3_.CLIENTE_ID WHERE u3_.ID = ? ORDER BY m0_.FECHAINICIO DESC';
         $expected = 'SELECT m0_.NOMBRE AS NOMBRE0, m0_.FECHAINICIO AS FECHAINICIO1, m0_.FECHAFIN AS FECHAFIN2 FROM MEDICION m0_ WITH (NOLOCK) INNER JOIN ESTUDIO e1_ ON m0_.ESTUDIO_ID = e1_.ID INNER JOIN CLIENTE c2_ ON e1_.CLIENTE_ID = c2_.ID INNER JOIN USUARIO u3_ ON c2_.ID = u3_.CLIENTE_ID WHERE u3_.ID = ? ORDER BY m0_.FECHAINICIO DESC OFFSET 5 ROWS FETCH NEXT 10 ROWS ONLY';
@@ -284,7 +284,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     /**
      * @group DBAL-713
      */
-    public function testModifyLimitQueryWithSubSelectInSelectList() : void
+    public function testModifyLimitQueryWithSubSelectInSelectList(): void
     {
         $sql = $this->platform->modifyLimitQuery(
             'SELECT ' .
@@ -313,7 +313,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     /**
      * @group DBAL-713
      */
-    public function testModifyLimitQueryWithSubSelectInSelectListAndOrderByClause() : void
+    public function testModifyLimitQueryWithSubSelectInSelectListAndOrderByClause(): void
     {
         $sql = $this->platform->modifyLimitQuery(
             'SELECT ' .
@@ -345,7 +345,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     /**
      * @group DBAL-834
      */
-    public function testModifyLimitQueryWithAggregateFunctionInOrderByClause() : void
+    public function testModifyLimitQueryWithAggregateFunctionInOrderByClause(): void
     {
         $sql = $this->platform->modifyLimitQuery(
             'SELECT ' .
@@ -373,7 +373,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     /**
      * @throws DBALException
      */
-    public function testModifyLimitSubqueryWithJoinAndSubqueryOrderedByColumnFromBaseTable() : void
+    public function testModifyLimitSubqueryWithJoinAndSubqueryOrderedByColumnFromBaseTable(): void
     {
         $querySql   = 'SELECT DISTINCT id_0, name_1 '
             . 'FROM ('
@@ -396,7 +396,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     /**
      * @throws DBALException
      */
-    public function testModifyLimitSubqueryWithJoinAndSubqueryOrderedByColumnFromJoinTable() : void
+    public function testModifyLimitSubqueryWithJoinAndSubqueryOrderedByColumnFromJoinTable(): void
     {
         $querySql   = 'SELECT DISTINCT id_0, name_1 '
             . 'FROM ('
@@ -419,7 +419,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     /**
      * @throws DBALException
      */
-    public function testModifyLimitSubqueryWithJoinAndSubqueryOrderedByColumnsFromBothTables() : void
+    public function testModifyLimitSubqueryWithJoinAndSubqueryOrderedByColumnsFromBothTables(): void
     {
         $querySql   = 'SELECT DISTINCT id_0, name_1, foo_2 '
             . 'FROM ('
@@ -439,7 +439,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         self::assertEquals($alteredSql, $sql);
     }
 
-    public function testModifyLimitSubquerySimple() : void
+    public function testModifyLimitSubquerySimple(): void
     {
         $querySql   = 'SELECT DISTINCT id_0 FROM '
             . '(SELECT k0_.id AS id_0, k0_.field AS field_1 '
@@ -453,7 +453,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     /**
      * @group DDC-1360
      */
-    public function testQuoteIdentifier() : void
+    public function testQuoteIdentifier(): void
     {
         self::assertEquals('[fo][o]', $this->platform->quoteIdentifier('fo]o'));
         self::assertEquals('[test]', $this->platform->quoteIdentifier('test'));
@@ -463,7 +463,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     /**
      * @group DDC-1360
      */
-    public function testQuoteSingleIdentifier() : void
+    public function testQuoteSingleIdentifier(): void
     {
         self::assertEquals('[fo][o]', $this->platform->quoteSingleIdentifier('fo]o'));
         self::assertEquals('[test]', $this->platform->quoteSingleIdentifier('test'));
@@ -473,7 +473,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     /**
      * @group DBAL-220
      */
-    public function testCreateClusteredIndex() : void
+    public function testCreateClusteredIndex(): void
     {
         $idx = new Index('idx', ['id']);
         $idx->addFlag('clustered');
@@ -483,7 +483,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     /**
      * @group DBAL-220
      */
-    public function testCreateNonClusteredPrimaryKeyInTable() : void
+    public function testCreateNonClusteredPrimaryKeyInTable(): void
     {
         $table = new Table('tbl');
         $table->addColumn('id', 'integer');
@@ -496,14 +496,14 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     /**
      * @group DBAL-220
      */
-    public function testCreateNonClusteredPrimaryKey() : void
+    public function testCreateNonClusteredPrimaryKey(): void
     {
         $idx = new Index('idx', ['id'], false, true);
         $idx->addFlag('nonclustered');
         self::assertEquals('ALTER TABLE tbl ADD PRIMARY KEY NONCLUSTERED (id)', $this->platform->getCreatePrimaryKeySQL($idx, 'tbl'));
     }
 
-    public function testAlterAddPrimaryKey() : void
+    public function testAlterAddPrimaryKey(): void
     {
         $idx = new Index('idx', ['id'], false, true);
         self::assertEquals('ALTER TABLE tbl ADD PRIMARY KEY (id)', $this->platform->getCreateIndexSQL($idx, 'tbl'));
@@ -512,7 +512,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     /**
      * {@inheritDoc}
      */
-    protected function getQuotedColumnInPrimaryKeySQL() : array
+    protected function getQuotedColumnInPrimaryKeySQL(): array
     {
         return ['CREATE TABLE [quoted] ([create] NVARCHAR(255) NOT NULL, PRIMARY KEY ([create]))'];
     }
@@ -520,7 +520,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     /**
      * {@inheritDoc}
      */
-    protected function getQuotedColumnInIndexSQL() : array
+    protected function getQuotedColumnInIndexSQL(): array
     {
         return [
             'CREATE TABLE [quoted] ([create] NVARCHAR(255) NOT NULL)',
@@ -531,7 +531,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     /**
      * {@inheritDoc}
      */
-    protected function getQuotedNameInIndexSQL() : array
+    protected function getQuotedNameInIndexSQL(): array
     {
         return [
             'CREATE TABLE test (column1 NVARCHAR(255) NOT NULL)',
@@ -542,7 +542,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     /**
      * {@inheritDoc}
      */
-    protected function getQuotedColumnInForeignKeySQL() : array
+    protected function getQuotedColumnInForeignKeySQL(): array
     {
         return [
             'CREATE TABLE [quoted] ([create] NVARCHAR(255) NOT NULL, foo NVARCHAR(255) NOT NULL, [bar] NVARCHAR(255) NOT NULL)',
@@ -552,14 +552,14 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         ];
     }
 
-    public function testGetCreateSchemaSQL() : void
+    public function testGetCreateSchemaSQL(): void
     {
         $schemaName = 'schema';
         $sql        = $this->platform->getCreateSchemaSQL($schemaName);
         self::assertEquals('CREATE SCHEMA ' . $schemaName, $sql);
     }
 
-    public function testCreateTableWithSchemaColumnComments() : void
+    public function testCreateTableWithSchemaColumnComments(): void
     {
         $table = new Table('testschema.test');
         $table->addColumn('id', 'integer', ['comment' => 'This is a comment']);
@@ -573,7 +573,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         self::assertEquals($expectedSql, $this->platform->getCreateTableSQL($table));
     }
 
-    public function testAlterTableWithSchemaColumnComments() : void
+    public function testAlterTableWithSchemaColumnComments(): void
     {
         $tableDiff                        = new TableDiff('testschema.mytable');
         $tableDiff->addedColumns['quota'] = new Column('quota', Type::getType('integer'), ['comment' => 'A comment']);
@@ -586,7 +586,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         self::assertEquals($expectedSql, $this->platform->getAlterTableSQL($tableDiff));
     }
 
-    public function testAlterTableWithSchemaDropColumnComments() : void
+    public function testAlterTableWithSchemaDropColumnComments(): void
     {
         $tableDiff                          = new TableDiff('testschema.mytable');
         $tableDiff->changedColumns['quota'] = new ColumnDiff(
@@ -601,7 +601,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         self::assertEquals($expectedSql, $this->platform->getAlterTableSQL($tableDiff));
     }
 
-    public function testAlterTableWithSchemaUpdateColumnComments() : void
+    public function testAlterTableWithSchemaUpdateColumnComments(): void
     {
         $tableDiff                          = new TableDiff('testschema.mytable');
         $tableDiff->changedColumns['quota'] = new ColumnDiff(
@@ -621,7 +621,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      *
      * @group DBAL-543
      */
-    public function getCreateTableColumnCommentsSQL() : array
+    public function getCreateTableColumnCommentsSQL(): array
     {
         return [
             'CREATE TABLE test (id INT NOT NULL, PRIMARY KEY (id))',
@@ -634,7 +634,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      *
      * @group DBAL-543
      */
-    public function getAlterTableColumnCommentsSQL() : array
+    public function getAlterTableColumnCommentsSQL(): array
     {
         return [
             'ALTER TABLE mytable ADD quota INT NOT NULL',
@@ -649,7 +649,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      *
      * @group DBAL-543
      */
-    public function getCreateTableColumnTypeCommentsSQL() : array
+    public function getCreateTableColumnTypeCommentsSQL(): array
     {
         return [
             'CREATE TABLE test (id INT NOT NULL, data VARCHAR(MAX) NOT NULL, PRIMARY KEY (id))',
@@ -660,7 +660,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     /**
      * @group DBAL-543
      */
-    public function testGeneratesCreateTableSQLWithColumnComments() : void
+    public function testGeneratesCreateTableSQLWithColumnComments(): void
     {
         $table = new Table('mytable');
         $table->addColumn('id', 'integer', ['autoincrement' => true]);
@@ -696,7 +696,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      * @group DBAL-543
      * @group DBAL-1011
      */
-    public function testGeneratesAlterTableSQLWithColumnComments() : void
+    public function testGeneratesAlterTableSQLWithColumnComments(): void
     {
         $table = new Table('mytable');
         $table->addColumn('id', 'integer', ['autoincrement' => true]);
@@ -844,7 +844,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     /**
      * @group DBAL-122
      */
-    public function testInitializesDoctrineTypeMappings() : void
+    public function testInitializesDoctrineTypeMappings(): void
     {
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('bigint'));
         self::assertSame('bigint', $this->platform->getDoctrineTypeMapping('bigint'));
@@ -922,29 +922,29 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         self::assertSame('guid', $this->platform->getDoctrineTypeMapping('uniqueidentifier'));
     }
 
-    protected function getExpectedFixedLengthStringTypeDeclarationSQLNoLength() : string
+    protected function getExpectedFixedLengthStringTypeDeclarationSQLNoLength(): string
     {
         return 'NCHAR';
     }
 
-    protected function getExpectedFixedLengthStringTypeDeclarationSQLWithLength() : string
+    protected function getExpectedFixedLengthStringTypeDeclarationSQLWithLength(): string
     {
         return 'NCHAR(16)';
     }
 
-    public function testGetVariableLengthStringTypeDeclarationSQLNoLength() : void
+    public function testGetVariableLengthStringTypeDeclarationSQLNoLength(): void
     {
         $this->expectException(ColumnLengthRequired::class);
 
         parent::testGetVariableLengthStringTypeDeclarationSQLNoLength();
     }
 
-    protected function getExpectedVariableLengthStringTypeDeclarationSQLWithLength() : string
+    protected function getExpectedVariableLengthStringTypeDeclarationSQLWithLength(): string
     {
         return 'NVARCHAR(16)';
     }
 
-    public function testGetVariableLengthBinaryTypeDeclarationSQLNoLength() : void
+    public function testGetVariableLengthBinaryTypeDeclarationSQLNoLength(): void
     {
         $this->expectException(ColumnLengthRequired::class);
 
@@ -956,7 +956,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      *
      * @group DBAL-234
      */
-    protected function getAlterTableRenameIndexSQL() : array
+    protected function getAlterTableRenameIndexSQL(): array
     {
         return ["EXEC sp_RENAME N'mytable.idx_foo', N'idx_bar', N'INDEX'"];
     }
@@ -966,7 +966,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      *
      * @group DBAL-234
      */
-    protected function getQuotedAlterTableRenameIndexSQL() : array
+    protected function getQuotedAlterTableRenameIndexSQL(): array
     {
         return [
             "EXEC sp_RENAME N'[table].[create]', N'[select]', N'INDEX'",
@@ -977,7 +977,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     /**
      * @group DBAL-825
      */
-    public function testChangeColumnsTypeWithDefaultValue() : void
+    public function testChangeColumnsTypeWithDefaultValue(): void
     {
         $tableName = 'column_def_change_type';
         $table     = new Table($tableName);
@@ -1021,7 +1021,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     /**
      * {@inheritdoc}
      */
-    protected function getQuotedAlterTableRenameColumnSQL() : array
+    protected function getQuotedAlterTableRenameColumnSQL(): array
     {
         return [
             "sp_RENAME 'mytable.unquoted1', 'unquoted', 'COLUMN'",
@@ -1039,7 +1039,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     /**
      * {@inheritdoc}
      */
-    protected function getQuotedAlterTableChangeColumnLengthSQL() : array
+    protected function getQuotedAlterTableChangeColumnLengthSQL(): array
     {
         self::markTestIncomplete('Not implemented yet');
     }
@@ -1049,7 +1049,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      *
      * @group DBAL-807
      */
-    protected function getAlterTableRenameIndexInSchemaSQL() : array
+    protected function getAlterTableRenameIndexInSchemaSQL(): array
     {
         return ["EXEC sp_RENAME N'myschema.mytable.idx_foo', N'idx_bar', N'INDEX'"];
     }
@@ -1059,7 +1059,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      *
      * @group DBAL-807
      */
-    protected function getQuotedAlterTableRenameIndexInSchemaSQL() : array
+    protected function getQuotedAlterTableRenameIndexInSchemaSQL(): array
     {
         return [
             "EXEC sp_RENAME N'[schema].[table].[create]', N'[select]', N'INDEX'",
@@ -1067,12 +1067,12 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         ];
     }
 
-    protected function getQuotesDropForeignKeySQL() : string
+    protected function getQuotesDropForeignKeySQL(): string
     {
         return 'ALTER TABLE [table] DROP CONSTRAINT [select]';
     }
 
-    protected function getQuotesDropConstraintSQL() : string
+    protected function getQuotesDropConstraintSQL(): string
     {
         return 'ALTER TABLE [table] DROP CONSTRAINT [select]';
     }
@@ -1083,7 +1083,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      * @dataProvider getGeneratesIdentifierNamesInDefaultConstraintDeclarationSQL
      * @group DBAL-830
      */
-    public function testGeneratesIdentifierNamesInDefaultConstraintDeclarationSQL(string $table, array $column, string $expectedSql) : void
+    public function testGeneratesIdentifierNamesInDefaultConstraintDeclarationSQL(string $table, array $column, string $expectedSql): void
     {
         self::assertSame($expectedSql, $this->platform->getDefaultConstraintDeclarationSQL($table, $column));
     }
@@ -1091,7 +1091,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     /**
      * @return mixed[][]
      */
-    public static function getGeneratesIdentifierNamesInDefaultConstraintDeclarationSQL() : iterable
+    public static function getGeneratesIdentifierNamesInDefaultConstraintDeclarationSQL(): iterable
     {
         return [
             // Unquoted identifiers non-reserved keywords.
@@ -1111,7 +1111,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      * @dataProvider getGeneratesIdentifierNamesInCreateTableSQL
      * @group DBAL-830
      */
-    public function testGeneratesIdentifierNamesInCreateTableSQL(Table $table, array $expectedSql) : void
+    public function testGeneratesIdentifierNamesInCreateTableSQL(Table $table, array $expectedSql): void
     {
         self::assertSame($expectedSql, $this->platform->getCreateTableSQL($table));
     }
@@ -1119,7 +1119,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     /**
      * @return mixed[][]
      */
-    public static function getGeneratesIdentifierNamesInCreateTableSQL() : iterable
+    public static function getGeneratesIdentifierNamesInCreateTableSQL(): iterable
     {
         return [
             // Unquoted identifiers non-reserved keywords.
@@ -1183,7 +1183,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      * @dataProvider getGeneratesIdentifierNamesInAlterTableSQL
      * @group DBAL-830
      */
-    public function testGeneratesIdentifierNamesInAlterTableSQL(TableDiff $tableDiff, array $expectedSql) : void
+    public function testGeneratesIdentifierNamesInAlterTableSQL(TableDiff $tableDiff, array $expectedSql): void
     {
         self::assertSame($expectedSql, $this->platform->getAlterTableSQL($tableDiff));
     }
@@ -1191,7 +1191,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     /**
      * @return mixed[][]
      */
-    public static function getGeneratesIdentifierNamesInAlterTableSQL() : iterable
+    public static function getGeneratesIdentifierNamesInAlterTableSQL(): iterable
     {
         return [
             // Unquoted identifiers non-reserved keywords.
@@ -1360,7 +1360,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     /**
      * @group DBAL-423
      */
-    public function testReturnsGuidTypeDeclarationSQL() : void
+    public function testReturnsGuidTypeDeclarationSQL(): void
     {
         self::assertSame('UNIQUEIDENTIFIER', $this->platform->getGuidTypeDeclarationSQL([]));
     }
@@ -1368,7 +1368,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     /**
      * {@inheritdoc}
      */
-    public function getAlterTableRenameColumnSQL() : array
+    public function getAlterTableRenameColumnSQL(): array
     {
         return [
             "sp_RENAME 'foo.bar', 'baz', 'COLUMN'",
@@ -1380,7 +1380,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     /**
      * {@inheritdoc}
      */
-    protected function getQuotesTableIdentifiersInAlterTableSQL() : array
+    protected function getQuotesTableIdentifiersInAlterTableSQL(): array
     {
         return [
             'ALTER TABLE [foo] DROP CONSTRAINT fk1',
@@ -1402,7 +1402,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     /**
      * {@inheritdoc}
      */
-    protected function getCommentOnColumnSQL() : array
+    protected function getCommentOnColumnSQL(): array
     {
         return [
             "COMMENT ON COLUMN foo.bar IS 'comment'",
@@ -1414,7 +1414,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     /**
      * {@inheritdoc}
      */
-    public static function getReturnsForeignKeyReferentialActionSQL() : iterable
+    public static function getReturnsForeignKeyReferentialActionSQL(): iterable
     {
         return [
             ['CASCADE', 'CASCADE'],
@@ -1426,17 +1426,17 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         ];
     }
 
-    protected function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL() : string
+    protected function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL(): string
     {
         return 'CONSTRAINT [select] UNIQUE (foo)';
     }
 
-    protected function getQuotesReservedKeywordInIndexDeclarationSQL() : string
+    protected function getQuotesReservedKeywordInIndexDeclarationSQL(): string
     {
         return 'INDEX [select] (foo)';
     }
 
-    protected function getQuotesReservedKeywordInTruncateTableSQL() : string
+    protected function getQuotesReservedKeywordInTruncateTableSQL(): string
     {
         return 'TRUNCATE TABLE [select]';
     }
@@ -1444,7 +1444,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     /**
      * {@inheritdoc}
      */
-    protected function getAlterStringToFixedStringSQL() : array
+    protected function getAlterStringToFixedStringSQL(): array
     {
         return ['ALTER TABLE mytable ALTER COLUMN name NCHAR(2) NOT NULL'];
     }
@@ -1452,12 +1452,12 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     /**
      * {@inheritdoc}
      */
-    protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL() : array
+    protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL(): array
     {
         return ["EXEC sp_RENAME N'mytable.idx_foo', N'idx_foo_renamed', N'INDEX'"];
     }
 
-    public function testModifyLimitQueryWithTopNSubQueryWithOrderBy() : void
+    public function testModifyLimitQueryWithTopNSubQueryWithOrderBy(): void
     {
         $querySql    = 'SELECT * FROM test t WHERE t.id = (SELECT TOP 1 t2.id FROM test t2 ORDER BY t2.data DESC)';
         $expectedSql = 'SELECT * FROM test t WHERE t.id = (SELECT TOP 1 t2.id FROM test t2 ORDER BY t2.data DESC) ORDER BY (SELECT 0) OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY';
@@ -1470,7 +1470,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         self::assertEquals($expectedSql, $sql);
     }
 
-    public function testModifyLimitQueryWithFromSubquery() : void
+    public function testModifyLimitQueryWithFromSubquery(): void
     {
         $sql = $this->platform->modifyLimitQuery('SELECT DISTINCT id_0 FROM (SELECT k0_.id AS id_0 FROM key_measure k0_ WHERE (k0_.id_zone in(2))) dctrn_result', 10);
 
@@ -1479,7 +1479,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         self::assertEquals($sql, $expected);
     }
 
-    public function testModifyLimitQueryWithFromSubqueryAndOrder() : void
+    public function testModifyLimitQueryWithFromSubqueryAndOrder(): void
     {
         $sql = $this->platform->modifyLimitQuery('SELECT DISTINCT id_0, value_1 FROM (SELECT k0_.id AS id_0, k0_.value AS value_1 FROM key_measure k0_ WHERE (k0_.id_zone in(2))) dctrn_result ORDER BY value_1 DESC', 10);
 
@@ -1488,7 +1488,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         self::assertEquals($sql, $expected);
     }
 
-    public function testModifyLimitQueryWithComplexOrderByExpression() : void
+    public function testModifyLimitQueryWithComplexOrderByExpression(): void
     {
         $sql = $this->platform->modifyLimitQuery('SELECT * FROM table ORDER BY (table.x * table.y) DESC', 10);
 
@@ -1497,7 +1497,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         self::assertEquals($sql, $expected);
     }
 
-    public function testModifyLimitQueryWithNewlineBeforeOrderBy() : void
+    public function testModifyLimitQueryWithNewlineBeforeOrderBy(): void
     {
         $querySql    = "SELECT * FROM test\nORDER BY col DESC";
         $expectedSql = "SELECT * FROM test\nORDER BY col DESC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY";
@@ -1508,7 +1508,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     /**
      * @group DBAL-2436
      */
-    public function testQuotesTableNameInListTableColumnsSQL() : void
+    public function testQuotesTableNameInListTableColumnsSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",
@@ -1519,7 +1519,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     /**
      * @group DBAL-2436
      */
-    public function testQuotesSchemaNameInListTableColumnsSQL() : void
+    public function testQuotesSchemaNameInListTableColumnsSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",
@@ -1530,7 +1530,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     /**
      * @group DBAL-2436
      */
-    public function testQuotesTableNameInListTableForeignKeysSQL() : void
+    public function testQuotesTableNameInListTableForeignKeysSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",
@@ -1541,7 +1541,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     /**
      * @group DBAL-2436
      */
-    public function testQuotesSchemaNameInListTableForeignKeysSQL() : void
+    public function testQuotesSchemaNameInListTableForeignKeysSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",
@@ -1552,7 +1552,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     /**
      * @group DBAL-2436
      */
-    public function testQuotesTableNameInListTableIndexesSQL() : void
+    public function testQuotesTableNameInListTableIndexesSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",
@@ -1563,7 +1563,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     /**
      * @group DBAL-2436
      */
-    public function testQuotesSchemaNameInListTableIndexesSQL() : void
+    public function testQuotesSchemaNameInListTableIndexesSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",
@@ -1574,7 +1574,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     /**
      * @group 2859
      */
-    public function testGetDefaultValueDeclarationSQLForDateType() : void
+    public function testGetDefaultValueDeclarationSQLForDateType(): void
     {
         $currentDateSql = $this->platform->getCurrentDateSQL();
         foreach (['date', 'date_immutable'] as $type) {
@@ -1590,12 +1590,12 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         }
     }
 
-    public function testSupportsColumnCollation() : void
+    public function testSupportsColumnCollation(): void
     {
         self::assertTrue($this->platform->supportsColumnCollation());
     }
 
-    public function testColumnCollationDeclarationSQL() : void
+    public function testColumnCollationDeclarationSQL(): void
     {
         self::assertSame(
             'COLLATE Latin1_General_CS_AS_KS_WS',
@@ -1603,7 +1603,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         );
     }
 
-    public function testGetCreateTableSQLWithColumnCollation() : void
+    public function testGetCreateTableSQLWithColumnCollation(): void
     {
         $table = new Table('foo');
         $table->addColumn('no_collation', 'string', ['length' => 255]);
@@ -1616,17 +1616,17 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         );
     }
 
-    public function testSupportsSequences() : void
+    public function testSupportsSequences(): void
     {
         self::assertTrue($this->platform->supportsSequences());
     }
 
-    public function testDoesNotPreferSequences() : void
+    public function testDoesNotPreferSequences(): void
     {
         self::assertFalse($this->platform->prefersSequences());
     }
 
-    public function testGeneratesSequenceSqlCommands() : void
+    public function testGeneratesSequenceSqlCommands(): void
     {
         $sequence = new Sequence('myseq', 20, 1);
         self::assertEquals(

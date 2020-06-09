@@ -15,5 +15,5 @@ interface PingableConnection extends Connection
      *
      * @throws DriverException
      */
-    public function ping() : void;
+    public function ping(): void;
 }

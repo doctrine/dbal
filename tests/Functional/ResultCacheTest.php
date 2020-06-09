@@ -6,14 +6,16 @@ namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
-use Doctrine\DBAL\Driver\ResultStatement;
+use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\Logging\DebugStack;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+
 use function array_change_key_case;
 use function array_shift;
 use function array_values;
 use function is_array;
+
 use const CASE_LOWER;
 
 /**
@@ -27,7 +29,7 @@ class ResultCacheTest extends FunctionalTestCase
     /** @var DebugStack */
     private $sqlLogger;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -53,17 +55,17 @@ class ResultCacheTest extends FunctionalTestCase
         $config->setResultCacheImpl($cache);
     }
 
-    public function testCacheFetchAssociative() : void
+    public function testCacheFetchAssociative(): void
     {
         $this->assertCacheNonCacheSelectSameFetchModeAreEqual(
             $this->expectedResult,
-            static function (ResultStatement $stmt) {
-                return $stmt->fetchAssociative();
+            static function (Result $result) {
+                return $result->fetchAssociative();
             }
         );
     }
 
-    public function testFetchNumeric() : void
+    public function testFetchNumeric(): void
     {
         $expectedResult = [];
         foreach ($this->expectedResult as $v) {
@@ -72,13 +74,13 @@ class ResultCacheTest extends FunctionalTestCase
 
         $this->assertCacheNonCacheSelectSameFetchModeAreEqual(
             $expectedResult,
-            static function (ResultStatement $stmt) {
-                return $stmt->fetchNumeric();
+            static function (Result $result) {
+                return $result->fetchNumeric();
             }
         );
     }
 
-    public function testFetchOne() : void
+    public function testFetchOne(): void
     {
         $expectedResult = [];
         foreach ($this->expectedResult as $v) {
@@ -87,13 +89,13 @@ class ResultCacheTest extends FunctionalTestCase
 
         $this->assertCacheNonCacheSelectSameFetchModeAreEqual(
             $expectedResult,
-            static function (ResultStatement $stmt) {
-                return $stmt->fetchOne();
+            static function (Result $result) {
+                return $result->fetchOne();
             }
         );
     }
 
-    public function testMixingFetch() : void
+    public function testMixingFetch(): void
     {
         $numExpectedResult = [];
         foreach ($this->expectedResult as $v) {
@@ -102,16 +104,16 @@ class ResultCacheTest extends FunctionalTestCase
 
         $stmt = $this->connection->executeQuery('SELECT * FROM caching ORDER BY test_int ASC', [], [], new QueryCacheProfile(0, 'testcachekey'));
 
-        $data = $this->hydrateViaFetchAll($stmt, static function (ResultStatement $stmt) : array {
-            return $stmt->fetchAllAssociative();
+        $data = $this->hydrateViaFetchAll($stmt, static function (Result $result): array {
+            return $result->fetchAllAssociative();
         });
 
         self::assertEquals($this->expectedResult, $data);
 
         $stmt = $this->connection->executeQuery('SELECT * FROM caching ORDER BY test_int ASC', [], [], new QueryCacheProfile(0, 'testcachekey'));
 
-        $data = $this->hydrateViaFetchAll($stmt, static function (ResultStatement $stmt) : array {
-            return $stmt->fetchAllNumeric();
+        $data = $this->hydrateViaFetchAll($stmt, static function (Result $result): array {
+            return $result->fetchAllNumeric();
         });
 
         self::assertEquals($numExpectedResult, $data);
@@ -120,7 +122,7 @@ class ResultCacheTest extends FunctionalTestCase
     /**
      * @dataProvider fetchProvider
      */
-    public function testFetchViaIteration(callable $fetch, callable $fetchAll) : void
+    public function testFetchViaIteration(callable $fetch, callable $fetchAll): void
     {
         $stmt = $this->connection->executeQuery('SELECT * FROM caching ORDER BY test_int ASC', [], [], new QueryCacheProfile(0, 'testcachekey'));
         $data = $this->hydrateViaFetchAll($stmt, $fetchAll);
@@ -131,73 +133,69 @@ class ResultCacheTest extends FunctionalTestCase
         self::assertEquals($data, $iterator);
     }
 
-    public function testDontCloseNoCache() : void
+    public function testFetchAndFinishSavesCache(): void
     {
-        $stmt = $this->connection->executeQuery('SELECT * FROM caching ORDER BY test_int ASC', [], [], new QueryCacheProfile(0, 'testcachekey'));
+        $result = $this->connection->executeQuery('SELECT * FROM caching ORDER BY test_int ASC', [], [], new QueryCacheProfile(0, 'testcachekey'));
 
-        $data = [];
-
-        while (($row = $stmt->fetchAssociative()) !== false) {
-            $data[] = $row;
+        while (($row = $result->fetchAssociative()) !== false) {
         }
 
-        $stmt = $this->connection->executeQuery('SELECT * FROM caching ORDER BY test_int ASC', [], [], new QueryCacheProfile(0, 'testcachekey'));
+        $result = $this->connection->executeQuery('SELECT * FROM caching ORDER BY test_int ASC', [], [], new QueryCacheProfile(0, 'testcachekey'));
 
-        $data = [];
-
-        while (($row = $stmt->fetchNumeric()) !== false) {
-            $data[] = $row;
+        while (($row = $result->fetchNumeric()) !== false) {
         }
 
-        self::assertCount(2, $this->sqlLogger->queries);
+        self::assertCount(1, $this->sqlLogger->queries);
     }
 
-    public function testDontFinishNoCache() : void
+    public function testDontFinishNoCache(): void
     {
-        $stmt = $this->connection->executeQuery('SELECT * FROM caching ORDER BY test_int ASC', [], [], new QueryCacheProfile(0, 'testcachekey'));
+        $result = $this->connection->executeQuery('SELECT * FROM caching ORDER BY test_int ASC', [], [], new QueryCacheProfile(0, 'testcachekey'));
 
-        $stmt->fetchAssociative();
-        $stmt->closeCursor();
+        $result->fetchAssociative();
 
-        $stmt = $this->connection->executeQuery('SELECT * FROM caching ORDER BY test_int ASC', [], [], new QueryCacheProfile(0, 'testcachekey'));
+        $result = $this->connection->executeQuery('SELECT * FROM caching ORDER BY test_int ASC', [], [], new QueryCacheProfile(0, 'testcachekey'));
 
-        $this->hydrateViaIteration($stmt, static function (ResultStatement $stmt) {
-            return $stmt->fetchNumeric();
+        $this->hydrateViaIteration($result, static function (Result $result) {
+            return $result->fetchNumeric();
         });
 
         self::assertCount(2, $this->sqlLogger->queries);
     }
 
-    public function testFetchAllAndFinishSavesCache() : void
+    public function testFetchAllSavesCache(): void
     {
         $layerCache = new ArrayCache();
-        $stmt       = $this->connection->executeQuery('SELECT * FROM caching WHERE test_int > 500', [], [], new QueryCacheProfile(0, 'testcachekey', $layerCache));
-        $stmt->fetchAllAssociative();
-        $stmt->closeCursor();
+        $result     = $this->connection->executeQuery(
+            'SELECT * FROM caching WHERE test_int > 500',
+            [],
+            [],
+            new QueryCacheProfile(0, 'testcachekey', $layerCache)
+        );
+        $result->fetchAllAssociative();
 
         self::assertCount(1, $layerCache->fetch('testcachekey'));
     }
 
-    public function testFetchColumn() : void
+    public function testFetchColumn(): void
     {
         $query = $this->connection->getDatabasePlatform()
             ->getDummySelectSQL('1');
 
         $qcp = new QueryCacheProfile(0, null, new ArrayCache());
 
-        $stmt = $this->connection->executeCacheQuery($query, [], [], $qcp);
-        $stmt->fetchColumn();
-        $stmt->closeCursor();
+        $result = $this->connection->executeCacheQuery($query, [], [], $qcp);
+        $result->fetchFirstColumn();
 
-        $stmt = $this->connection->executeCacheQuery($query, [], [], $qcp);
+        $query = $this->connection->executeCacheQuery($query, [], [], $qcp);
 
-        self::assertEquals([1], $stmt->fetchColumn());
+        self::assertEquals([1], $query->fetchFirstColumn());
     }
 
     /**
      * @param array<int, array<int|string, int|string>>|list<int> $expectedResult
      */
-    private function assertCacheNonCacheSelectSameFetchModeAreEqual(array $expectedResult, callable $fetchMode) : void
+    private function assertCacheNonCacheSelectSameFetchModeAreEqual(array $expectedResult, callable $fetchMode): void
     {
         $stmt = $this->connection->executeQuery('SELECT * FROM caching ORDER BY test_int ASC', [], [], new QueryCacheProfile(0, 'testcachekey'));
 
@@ -213,33 +211,33 @@ class ResultCacheTest extends FunctionalTestCase
         self::assertCount(1, $this->sqlLogger->queries, 'just one dbal hit');
     }
 
-    public function testEmptyResultCache() : void
+    public function testEmptyResultCache(): void
     {
         $stmt = $this->connection->executeQuery('SELECT * FROM caching WHERE test_int > 500', [], [], new QueryCacheProfile(0, 'emptycachekey'));
-        $this->hydrateViaIteration($stmt, static function (ResultStatement $stmt) {
-            return $stmt->fetchAssociative();
+        $this->hydrateViaIteration($stmt, static function (Result $result) {
+            return $result->fetchAssociative();
         });
 
         $stmt = $this->connection->executeQuery('SELECT * FROM caching WHERE test_int > 500', [], [], new QueryCacheProfile(0, 'emptycachekey'));
-        $this->hydrateViaIteration($stmt, static function (ResultStatement $stmt) {
-            return $stmt->fetchAssociative();
+        $this->hydrateViaIteration($stmt, static function (Result $result) {
+            return $result->fetchAssociative();
         });
 
         self::assertCount(1, $this->sqlLogger->queries, 'just one dbal hit');
     }
 
-    public function testChangeCacheImpl() : void
+    public function testChangeCacheImpl(): void
     {
         $stmt = $this->connection->executeQuery('SELECT * FROM caching WHERE test_int > 500', [], [], new QueryCacheProfile(0, 'emptycachekey'));
-        $this->hydrateViaIteration($stmt, static function (ResultStatement $stmt) {
-            return $stmt->fetchAssociative();
+        $this->hydrateViaIteration($stmt, static function (Result $result) {
+            return $result->fetchAssociative();
         });
 
         $secondCache = new ArrayCache();
 
         $stmt = $this->connection->executeQuery('SELECT * FROM caching WHERE test_int > 500', [], [], new QueryCacheProfile(0, 'emptycachekey', $secondCache));
-        $this->hydrateViaIteration($stmt, static function (ResultStatement $stmt) {
-            return $stmt->fetchAssociative();
+        $this->hydrateViaIteration($stmt, static function (Result $result) {
+            return $result->fetchAssociative();
         });
 
         self::assertCount(2, $this->sqlLogger->queries, 'two hits');
@@ -249,32 +247,32 @@ class ResultCacheTest extends FunctionalTestCase
     /**
      * @return iterable<string,array<int,mixed>>
      */
-    public static function fetchProvider() : iterable
+    public static function fetchProvider(): iterable
     {
         yield 'associative' => [
-            static function (ResultStatement $stmt) {
-                return $stmt->fetchAssociative();
+            static function (Result $result) {
+                return $result->fetchAssociative();
             },
-            static function (ResultStatement $stmt) : array {
-                return $stmt->fetchAllAssociative();
+            static function (Result $result): array {
+                return $result->fetchAllAssociative();
             },
         ];
 
         yield 'numeric' => [
-            static function (ResultStatement $stmt) {
-                return $stmt->fetchNumeric();
+            static function (Result $result) {
+                return $result->fetchNumeric();
             },
-            static function (ResultStatement $stmt) : array {
-                return $stmt->fetchAllNumeric();
+            static function (Result $result): array {
+                return $result->fetchAllNumeric();
             },
         ];
 
         yield 'column' => [
-            static function (ResultStatement $stmt) {
-                return $stmt->fetchOne();
+            static function (Result $result) {
+                return $result->fetchOne();
             },
-            static function (ResultStatement $stmt) : array {
-                return $stmt->fetchColumn();
+            static function (Result $result): array {
+                return $result->fetchFirstColumn();
             },
         ];
     }
@@ -282,15 +280,13 @@ class ResultCacheTest extends FunctionalTestCase
     /**
      * @return array<int, mixed>
      */
-    private function hydrateViaFetchAll(ResultStatement $stmt, callable $fetchAll) : array
+    private function hydrateViaFetchAll(Result $result, callable $fetchAll): array
     {
         $data = [];
 
-        foreach ($fetchAll($stmt) as $row) {
+        foreach ($fetchAll($result) as $row) {
             $data[] = is_array($row) ? array_change_key_case($row, CASE_LOWER) : $row;
         }
-
-        $stmt->closeCursor();
 
         return $data;
     }
@@ -298,15 +294,13 @@ class ResultCacheTest extends FunctionalTestCase
     /**
      * @return array<int, mixed>
      */
-    private function hydrateViaIteration(ResultStatement $stmt, callable $fetch) : array
+    private function hydrateViaIteration(Result $result, callable $fetch): array
     {
         $data = [];
 
-        while (($row = $fetch($stmt)) !== false) {
+        while (($row = $fetch($result)) !== false) {
             $data[] = is_array($row) ? array_change_key_case($row, CASE_LOWER) : $row;
         }
-
-        $stmt->closeCursor();
 
         return $data;
     }

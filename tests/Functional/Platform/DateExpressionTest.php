@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Tests\Functional\Platform;
 use DateTimeImmutable;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+
 use function sprintf;
 
 class DateExpressionTest extends FunctionalTestCase
@@ -14,7 +15,7 @@ class DateExpressionTest extends FunctionalTestCase
     /**
      * @dataProvider differenceProvider
      */
-    public function testDifference(string $date1, string $date2, int $expected) : void
+    public function testDifference(string $date1, string $date2, int $expected): void
     {
         $table = new Table('date_expr_test');
         $table->addColumn('date1', 'datetime');
@@ -36,7 +37,7 @@ class DateExpressionTest extends FunctionalTestCase
     /**
      * @return  array<string, array<int, int|string|false>>
      */
-    public static function differenceProvider() : iterable
+    public static function differenceProvider(): iterable
     {
         $date1    = new DateTimeImmutable();
         $date2    = new DateTimeImmutable('2018-04-10 10:10:10');

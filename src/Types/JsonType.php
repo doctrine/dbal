@@ -7,12 +7,14 @@ namespace Doctrine\DBAL\Types;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Exception\SerializationFailed;
 use Doctrine\DBAL\Types\Exception\ValueNotConvertible;
+
 use function is_resource;
 use function json_decode;
 use function json_encode;
 use function json_last_error;
 use function json_last_error_msg;
 use function stream_get_contents;
+
 use const JSON_ERROR_NONE;
 
 /**
@@ -23,7 +25,7 @@ class JsonType extends Type
     /**
      * {@inheritdoc}
      */
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform) : string
+    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform): string
     {
         return $platform->getJsonTypeDeclarationSQL($fieldDeclaration);
     }
@@ -68,12 +70,12 @@ class JsonType extends Type
         return $val;
     }
 
-    public function getName() : string
+    public function getName(): string
     {
         return Types::JSON;
     }
 
-    public function requiresSQLCommentHint(AbstractPlatform $platform) : bool
+    public function requiresSQLCommentHint(AbstractPlatform $platform): bool
     {
         return ! $platform->hasNativeJsonType();
     }

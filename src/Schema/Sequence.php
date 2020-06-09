@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Schema\Visitor\Visitor;
+
 use function count;
 use function sprintf;
 
@@ -30,36 +31,36 @@ class Sequence extends AbstractAsset
         $this->cache = $cache;
     }
 
-    public function getAllocationSize() : int
+    public function getAllocationSize(): int
     {
         return $this->allocationSize;
     }
 
-    public function getInitialValue() : int
+    public function getInitialValue(): int
     {
         return $this->initialValue;
     }
 
-    public function getCache() : ?int
+    public function getCache(): ?int
     {
         return $this->cache;
     }
 
-    public function setAllocationSize(int $allocationSize) : self
+    public function setAllocationSize(int $allocationSize): self
     {
         $this->allocationSize = $allocationSize;
 
         return $this;
     }
 
-    public function setInitialValue(int $initialValue) : self
+    public function setInitialValue(int $initialValue): self
     {
         $this->initialValue = $initialValue;
 
         return $this;
     }
 
-    public function setCache(int $cache) : self
+    public function setCache(int $cache): self
     {
         $this->cache = $cache;
 
@@ -72,7 +73,7 @@ class Sequence extends AbstractAsset
      * This is used inside the comparator to not report sequences as missing,
      * when the "from" schema implicitly creates the sequences.
      */
-    public function isAutoIncrementsFor(Table $table) : bool
+    public function isAutoIncrementsFor(Table $table): bool
     {
         $primaryKey = $table->getPrimaryKey();
 
@@ -99,7 +100,7 @@ class Sequence extends AbstractAsset
         return $tableSequenceName === $sequenceName;
     }
 
-    public function visit(Visitor $visitor) : void
+    public function visit(Visitor $visitor): void
     {
         $visitor->acceptSequence($this);
     }

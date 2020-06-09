@@ -16,6 +16,7 @@ use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\IntegerType;
 use Doctrine\DBAL\Types\Type;
 use UnexpectedValueException;
+
 use function array_diff;
 use function array_merge;
 use function array_unique;
@@ -67,22 +68,22 @@ class PostgreSQL94Platform extends AbstractPlatform
      *
      * Enables use of 'true'/'false' or otherwise 1 and 0 instead.
      */
-    public function setUseBooleanTrueFalseStrings(bool $flag) : void
+    public function setUseBooleanTrueFalseStrings(bool $flag): void
     {
         $this->useBooleanTrueFalseStrings = $flag;
     }
 
-    public function getNowExpression() : string
+    public function getNowExpression(): string
     {
         return 'LOCALTIMESTAMP(0)';
     }
 
-    public function getRegexpExpression() : string
+    public function getRegexpExpression(): string
     {
         return 'SIMILAR TO';
     }
 
-    public function getLocateExpression(string $string, string $substring, ?string $start = null) : string
+    public function getLocateExpression(string $string, string $substring, ?string $start = null): string
     {
         if ($start !== null) {
             $string = $this->getSubstringExpression($string, $start);
@@ -93,7 +94,7 @@ class PostgreSQL94Platform extends AbstractPlatform
         return sprintf('POSITION(%s IN %s)', $substring, $string);
     }
 
-    protected function getDateArithmeticIntervalExpression(string $date, string $operator, string $interval, string $unit) : string
+    protected function getDateArithmeticIntervalExpression(string $date, string $operator, string $interval, string $unit): string
     {
         if ($unit === DateIntervalUnit::QUARTER) {
             $interval = $this->multiplyInterval($interval, 3);
@@ -103,72 +104,72 @@ class PostgreSQL94Platform extends AbstractPlatform
         return '(' . $date . ' ' . $operator . ' (' . $interval . " || ' " . $unit . "')::interval)";
     }
 
-    public function getDateDiffExpression(string $date1, string $date2) : string
+    public function getDateDiffExpression(string $date1, string $date2): string
     {
         return '(DATE(' . $date1 . ')-DATE(' . $date2 . '))';
     }
 
-    public function getCurrentDatabaseExpression() : string
+    public function getCurrentDatabaseExpression(): string
     {
         return 'CURRENT_DATABASE()';
     }
 
-    public function supportsSequences() : bool
+    public function supportsSequences(): bool
     {
         return true;
     }
 
-    public function supportsSchemas() : bool
+    public function supportsSchemas(): bool
     {
         return true;
     }
 
-    public function getDefaultSchemaName() : string
+    public function getDefaultSchemaName(): string
     {
         return 'public';
     }
 
-    public function supportsIdentityColumns() : bool
+    public function supportsIdentityColumns(): bool
     {
         return true;
     }
 
-    public function supportsPartialIndexes() : bool
+    public function supportsPartialIndexes(): bool
     {
         return true;
     }
 
-    public function usesSequenceEmulatedIdentityColumns() : bool
+    public function usesSequenceEmulatedIdentityColumns(): bool
     {
         return true;
     }
 
-    public function getIdentitySequenceName(string $tableName, string $columnName) : string
+    public function getIdentitySequenceName(string $tableName, string $columnName): string
     {
         return $tableName . '_' . $columnName . '_seq';
     }
 
-    public function supportsCommentOnStatement() : bool
+    public function supportsCommentOnStatement(): bool
     {
         return true;
     }
 
-    public function prefersSequences() : bool
+    public function prefersSequences(): bool
     {
         return true;
     }
 
-    public function hasNativeGuidType() : bool
+    public function hasNativeGuidType(): bool
     {
         return true;
     }
 
-    public function getListDatabasesSQL() : string
+    public function getListDatabasesSQL(): string
     {
         return 'SELECT datname FROM pg_database';
     }
 
-    public function getListNamespacesSQL() : string
+    public function getListNamespacesSQL(): string
     {
         return "SELECT schema_name AS nspname
                 FROM   information_schema.schemata
@@ -176,7 +177,7 @@ class PostgreSQL94Platform extends AbstractPlatform
                 AND    schema_name != 'information_schema'";
     }
 
-    public function getListSequencesSQL(string $database) : string
+    public function getListSequencesSQL(string $database): string
     {
         return "SELECT sequence_name AS relname,
                        sequence_schema AS schemaname
@@ -185,7 +186,7 @@ class PostgreSQL94Platform extends AbstractPlatform
                 AND    sequence_schema != 'information_schema'";
     }
 
-    public function getListTablesSQL() : string
+    public function getListTablesSQL(): string
     {
         return "SELECT quote_ident(table_name) AS table_name,
                        table_schema AS schema_name
@@ -197,7 +198,7 @@ class PostgreSQL94Platform extends AbstractPlatform
                 AND    table_type != 'VIEW'";
     }
 
-    public function getListViewsSQL(string $database) : string
+    public function getListViewsSQL(string $database): string
     {
         return 'SELECT quote_ident(table_name) AS viewname,
                        table_schema AS schemaname,
@@ -206,7 +207,7 @@ class PostgreSQL94Platform extends AbstractPlatform
                 WHERE  view_definition IS NOT NULL';
     }
 
-    public function getListTableForeignKeysSQL(string $table, ?string $database = null) : string
+    public function getListTableForeignKeysSQL(string $table, ?string $database = null): string
     {
         return 'SELECT quote_ident(r.conname) as conname, pg_catalog.pg_get_constraintdef(r.oid, true) as condef
                   FROM pg_catalog.pg_constraint r
@@ -219,17 +220,17 @@ class PostgreSQL94Platform extends AbstractPlatform
                   AND r.contype = 'f'";
     }
 
-    public function getCreateViewSQL(string $name, string $sql) : string
+    public function getCreateViewSQL(string $name, string $sql): string
     {
         return 'CREATE VIEW ' . $name . ' AS ' . $sql;
     }
 
-    public function getDropViewSQL(string $name) : string
+    public function getDropViewSQL(string $name): string
     {
         return 'DROP VIEW ' . $name;
     }
 
-    public function getListTableConstraintsSQL(string $table) : string
+    public function getListTableConstraintsSQL(string $table): string
     {
         $table = new Identifier($table);
         $table = $this->quoteStringLiteral($table->getName());
@@ -258,7 +259,7 @@ SQL
      *
      * @link http://ezcomponents.org/docs/api/trunk/DatabaseSchema/ezcDbSchemaPgsqlReader.html
      */
-    public function getListTableIndexesSQL(string $table, ?string $currentDatabase = null) : string
+    public function getListTableIndexesSQL(string $table, ?string $currentDatabase = null): string
     {
         return 'SELECT quote_ident(relname) as relname, pg_index.indisunique, pg_index.indisprimary,
                        pg_index.indkey, pg_index.indrelid,
@@ -271,7 +272,7 @@ SQL
                  ) AND pg_index.indexrelid = oid';
     }
 
-    private function getTableWhereClause(string $table, string $classAlias = 'c', string $namespaceAlias = 'n') : string
+    private function getTableWhereClause(string $table, string $classAlias = 'c', string $namespaceAlias = 'n'): string
     {
         $whereClause = $namespaceAlias . ".nspname NOT IN ('pg_catalog', 'information_schema', 'pg_toast') AND ";
         if (strpos($table, '.') !== false) {
@@ -293,7 +294,7 @@ SQL
         );
     }
 
-    public function getListTableColumnsSQL(string $table, ?string $database = null) : string
+    public function getListTableColumnsSQL(string $table, ?string $database = null): string
     {
         return "SELECT
                     a.attnum,
@@ -328,7 +329,7 @@ SQL
                     ORDER BY a.attnum';
     }
 
-    public function getCreateDatabaseSQL(string $database) : string
+    public function getCreateDatabaseSQL(string $database): string
     {
         return 'CREATE DATABASE ' . $database;
     }
@@ -340,7 +341,7 @@ SQL
      *
      * @param string $database The name of the database to disallow new connections for.
      */
-    public function getDisallowDatabaseConnectionsSQL(string $database) : string
+    public function getDisallowDatabaseConnectionsSQL(string $database): string
     {
         return "UPDATE pg_database SET datallowconn = 'false' WHERE datname = " . $this->quoteStringLiteral($database);
     }
@@ -352,13 +353,13 @@ SQL
      *
      * @param string $database The name of the database to close currently active connections for.
      */
-    public function getCloseActiveDatabaseConnectionsSQL(string $database) : string
+    public function getCloseActiveDatabaseConnectionsSQL(string $database): string
     {
         return 'SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '
             . $this->quoteStringLiteral($database);
     }
 
-    public function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey) : string
+    public function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey): string
     {
         $query = '';
 
@@ -374,7 +375,9 @@ SQL
             $query .= ' NOT DEFERRABLE';
         }
 
-        if ($foreignKey->hasOption('deferred') && $foreignKey->getOption('deferred') !== false) {
+        if (
+            $foreignKey->hasOption('deferred') && $foreignKey->getOption('deferred') !== false
+        ) {
             $query .= ' INITIALLY DEFERRED';
         } else {
             $query .= ' INITIALLY IMMEDIATE';
@@ -386,7 +389,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getAlterTableSQL(TableDiff $diff) : array
+    public function getAlterTableSQL(TableDiff $diff): array
     {
         $sql         = [];
         $commentsSQL = [];
@@ -544,7 +547,7 @@ SQL
      *
      * @return bool True if the given column diff is an unchanged binary type column, false otherwise.
      */
-    private function isUnchangedBinaryColumn(ColumnDiff $columnDiff) : bool
+    private function isUnchangedBinaryColumn(ColumnDiff $columnDiff): bool
     {
         $columnType = $columnDiff->column->getType();
 
@@ -574,7 +577,7 @@ SQL
     /**
      * {@inheritdoc}
      */
-    protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName) : array
+    protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName): array
     {
         if (strpos($tableName, '.') !== false) {
             [$schema]     = explode('.', $tableName);
@@ -584,7 +587,7 @@ SQL
         return ['ALTER INDEX ' . $oldIndexName . ' RENAME TO ' . $index->getQuotedName($this)];
     }
 
-    public function getCreateSequenceSQL(Sequence $sequence) : string
+    public function getCreateSequenceSQL(Sequence $sequence): string
     {
         return 'CREATE SEQUENCE ' . $sequence->getQuotedName($this) .
             ' INCREMENT BY ' . $sequence->getAllocationSize() .
@@ -593,7 +596,7 @@ SQL
             $this->getSequenceCacheSQL($sequence);
     }
 
-    public function getAlterSequenceSQL(Sequence $sequence) : string
+    public function getAlterSequenceSQL(Sequence $sequence): string
     {
         return 'ALTER SEQUENCE ' . $sequence->getQuotedName($this) .
             ' INCREMENT BY ' . $sequence->getAllocationSize() .
@@ -603,7 +606,7 @@ SQL
     /**
      * Cache definition for sequences
      */
-    private function getSequenceCacheSQL(Sequence $sequence) : string
+    private function getSequenceCacheSQL(Sequence $sequence): string
     {
         if ($sequence->getCache() > 1) {
             return ' CACHE ' . $sequence->getCache();
@@ -615,7 +618,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getDropSequenceSQL($sequence) : string
+    public function getDropSequenceSQL($sequence): string
     {
         if ($sequence instanceof Sequence) {
             $sequence = $sequence->getQuotedName($this);
@@ -624,7 +627,7 @@ SQL
         return 'DROP SEQUENCE ' . $sequence . ' CASCADE';
     }
 
-    public function getCreateSchemaSQL(string $schemaName) : string
+    public function getCreateSchemaSQL(string $schemaName): string
     {
         return 'CREATE SCHEMA ' . $schemaName;
     }
@@ -632,7 +635,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getDropForeignKeySQL($foreignKey, $table) : string
+    public function getDropForeignKeySQL($foreignKey, $table): string
     {
         return $this->getDropConstraintSQL($foreignKey, $table);
     }
@@ -640,7 +643,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    protected function _getCreateTableSQL(string $tableName, array $columns, array $options = []) : array
+    protected function _getCreateTableSQL(string $tableName, array $columns, array $options = []): array
     {
         $queryFields = $this->getColumnDeclarationListSQL($columns);
 
@@ -751,7 +754,7 @@ SQL
 
         return $this->doConvertBooleans(
             $item,
-            static function ($boolean) : string {
+            static function ($boolean): string {
                 if ($boolean === null) {
                     return 'NULL';
                 }
@@ -772,7 +775,7 @@ SQL
 
         return $this->doConvertBooleans(
             $item,
-            static function ($boolean) : ?int {
+            static function ($boolean): ?int {
                 return $boolean === null ? null : (int) $boolean;
             }
         );
@@ -781,7 +784,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function convertFromBoolean($item) : ?bool
+    public function convertFromBoolean($item): ?bool
     {
         if (in_array($item, $this->booleanLiterals['false'], true)) {
             return false;
@@ -790,12 +793,12 @@ SQL
         return parent::convertFromBoolean($item);
     }
 
-    public function getSequenceNextValSQL(string $sequenceName) : string
+    public function getSequenceNextValSQL(string $sequenceName): string
     {
         return "SELECT NEXTVAL('" . $sequenceName . "')";
     }
 
-    public function getSetTransactionIsolationSQL(int $level) : string
+    public function getSetTransactionIsolationSQL(int $level): string
     {
         return 'SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL '
             . $this->_getTransactionIsolationLevelSQL($level);
@@ -804,7 +807,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getBooleanTypeDeclarationSQL(array $columnDef) : string
+    public function getBooleanTypeDeclarationSQL(array $columnDef): string
     {
         return 'BOOLEAN';
     }
@@ -812,7 +815,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getIntegerTypeDeclarationSQL(array $columnDef) : string
+    public function getIntegerTypeDeclarationSQL(array $columnDef): string
     {
         if (! empty($columnDef['autoincrement'])) {
             return 'SERIAL';
@@ -824,7 +827,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getBigIntTypeDeclarationSQL(array $columnDef) : string
+    public function getBigIntTypeDeclarationSQL(array $columnDef): string
     {
         if (! empty($columnDef['autoincrement'])) {
             return 'BIGSERIAL';
@@ -836,7 +839,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getSmallIntTypeDeclarationSQL(array $columnDef) : string
+    public function getSmallIntTypeDeclarationSQL(array $columnDef): string
     {
         if (! empty($columnDef['autoincrement'])) {
             return 'SMALLSERIAL';
@@ -848,7 +851,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getGuidTypeDeclarationSQL(array $column) : string
+    public function getGuidTypeDeclarationSQL(array $column): string
     {
         return 'UUID';
     }
@@ -856,7 +859,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getDateTimeTypeDeclarationSQL(array $fieldDeclaration) : string
+    public function getDateTimeTypeDeclarationSQL(array $fieldDeclaration): string
     {
         return 'TIMESTAMP(0) WITHOUT TIME ZONE';
     }
@@ -864,7 +867,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getDateTimeTzTypeDeclarationSQL(array $fieldDeclaration) : string
+    public function getDateTimeTzTypeDeclarationSQL(array $fieldDeclaration): string
     {
         return 'TIMESTAMP(0) WITH TIME ZONE';
     }
@@ -872,7 +875,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getDateTypeDeclarationSQL(array $fieldDeclaration) : string
+    public function getDateTypeDeclarationSQL(array $fieldDeclaration): string
     {
         return 'DATE';
     }
@@ -880,7 +883,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getTimeTypeDeclarationSQL(array $fieldDeclaration) : string
+    public function getTimeTypeDeclarationSQL(array $fieldDeclaration): string
     {
         return 'TIME(0) WITHOUT TIME ZONE';
     }
@@ -888,12 +891,12 @@ SQL
     /**
      * {@inheritDoc}
      */
-    protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef) : string
+    protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef): string
     {
         return '';
     }
 
-    protected function getVarcharTypeDeclarationSQLSnippet(?int $length) : string
+    protected function getVarcharTypeDeclarationSQLSnippet(?int $length): string
     {
         $sql = 'VARCHAR';
 
@@ -904,12 +907,12 @@ SQL
         return $sql;
     }
 
-    protected function getBinaryTypeDeclarationSQLSnippet(?int $length) : string
+    protected function getBinaryTypeDeclarationSQLSnippet(?int $length): string
     {
         return 'BYTEA';
     }
 
-    protected function getVarbinaryTypeDeclarationSQLSnippet(?int $length) : string
+    protected function getVarbinaryTypeDeclarationSQLSnippet(?int $length): string
     {
         return 'BYTEA';
     }
@@ -917,12 +920,12 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getClobTypeDeclarationSQL(array $field) : string
+    public function getClobTypeDeclarationSQL(array $field): string
     {
         return 'TEXT';
     }
 
-    public function getName() : string
+    public function getName(): string
     {
         return 'postgresql';
     }
@@ -932,22 +935,22 @@ SQL
      *
      * PostgreSQL returns all column names in SQL result sets in lowercase.
      */
-    public function getSQLResultCasing(string $column) : string
+    public function getSQLResultCasing(string $column): string
     {
         return strtolower($column);
     }
 
-    public function getDateTimeTzFormatString() : string
+    public function getDateTimeTzFormatString(): string
     {
         return 'Y-m-d H:i:sO';
     }
 
-    public function getEmptyIdentityInsertSQL(string $tableName, string $identifierColumnName) : string
+    public function getEmptyIdentityInsertSQL(string $tableName, string $identifierColumnName): string
     {
         return 'INSERT INTO ' . $tableName . ' (' . $identifierColumnName . ') VALUES (DEFAULT)';
     }
 
-    public function getTruncateTableSQL(string $tableName, bool $cascade = false) : string
+    public function getTruncateTableSQL(string $tableName, bool $cascade = false): string
     {
         $tableIdentifier = new Identifier($tableName);
         $sql             = 'TRUNCATE ' . $tableIdentifier->getQuotedName($this);
@@ -959,12 +962,12 @@ SQL
         return $sql;
     }
 
-    public function getReadLockSQL() : string
+    public function getReadLockSQL(): string
     {
         return 'FOR SHARE';
     }
 
-    protected function initializeDoctrineTypeMappings() : void
+    protected function initializeDoctrineTypeMappings(): void
     {
         $this->doctrineTypeMapping = [
             'bigint'           => 'bigint',
@@ -1011,12 +1014,12 @@ SQL
         ];
     }
 
-    public function hasNativeJsonType() : bool
+    public function hasNativeJsonType(): bool
     {
         return true;
     }
 
-    protected function getReservedKeywordsClass() : string
+    protected function getReservedKeywordsClass(): string
     {
         return Keywords\PostgreSQL94Keywords::class;
     }
@@ -1024,7 +1027,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getBlobTypeDeclarationSQL(array $field) : string
+    public function getBlobTypeDeclarationSQL(array $field): string
     {
         return 'BYTEA';
     }
@@ -1032,7 +1035,7 @@ SQL
     /**
      * {@inheritdoc}
      */
-    public function getDefaultValueDeclarationSQL(array $field) : string
+    public function getDefaultValueDeclarationSQL(array $field): string
     {
         if ($this->isSerialField($field)) {
             return '';
@@ -1041,12 +1044,12 @@ SQL
         return parent::getDefaultValueDeclarationSQL($field);
     }
 
-    public function supportsColumnCollation() : bool
+    public function supportsColumnCollation(): bool
     {
         return true;
     }
 
-    public function getColumnCollationDeclarationSQL(string $collation) : string
+    public function getColumnCollationDeclarationSQL(string $collation): string
     {
         return 'COLLATE ' . $this->quoteSingleIdentifier($collation);
     }
@@ -1054,7 +1057,7 @@ SQL
     /**
      * {@inheritdoc}
      */
-    public function getJsonTypeDeclarationSQL(array $field) : string
+    public function getJsonTypeDeclarationSQL(array $field): string
     {
         if (! empty($field['jsonb'])) {
             return 'JSONB';
@@ -1066,7 +1069,7 @@ SQL
     /**
      * @param mixed[] $field
      */
-    private function isSerialField(array $field) : bool
+    private function isSerialField(array $field): bool
     {
         return isset($field['type'], $field['autoincrement'])
             && $field['autoincrement'] === true
@@ -1076,7 +1079,7 @@ SQL
     /**
      * Check whether the type of a column is changed in a way that invalidates the default value for the column
      */
-    private function typeChangeBreaksDefaultValue(ColumnDiff $columnDiff) : bool
+    private function typeChangeBreaksDefaultValue(ColumnDiff $columnDiff): bool
     {
         if ($columnDiff->fromColumn === null) {
             return $columnDiff->hasChanged('type');
@@ -1090,12 +1093,12 @@ SQL
             && ! ($oldTypeIsNumeric && $newTypeIsNumeric && $columnDiff->column->getAutoincrement());
     }
 
-    private function isNumericType(Type $type) : bool
+    private function isNumericType(Type $type): bool
     {
         return $type instanceof IntegerType || $type instanceof BigIntType;
     }
 
-    private function getOldColumnComment(ColumnDiff $columnDiff) : ?string
+    private function getOldColumnComment(ColumnDiff $columnDiff): ?string
     {
         if ($columnDiff->fromColumn === null) {
             return null;
@@ -1104,7 +1107,7 @@ SQL
         return $this->getColumnComment($columnDiff->fromColumn);
     }
 
-    public function getListTableMetadataSQL(string $table, ?string $schema = null) : string
+    public function getListTableMetadataSQL(string $table, ?string $schema = null): string
     {
         if ($schema !== null) {
             $table = $schema . '.' . $table;

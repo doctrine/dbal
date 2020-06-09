@@ -15,7 +15,7 @@ class BooleanType extends Type
     /**
      * {@inheritdoc}
      */
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform) : string
+    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform): string
     {
         return $platform->getBooleanTypeDeclarationSQL($fieldDeclaration);
     }
@@ -36,12 +36,12 @@ class BooleanType extends Type
         return $platform->convertFromBoolean($value);
     }
 
-    public function getName() : string
+    public function getName(): string
     {
         return Types::BOOLEAN;
     }
 
-    public function getBindingType() : int
+    public function getBindingType(): int
     {
         return ParameterType::BOOLEAN;
     }

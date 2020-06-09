@@ -21,7 +21,7 @@ class SQLSessionInit implements EventSubscriber
         $this->sql = $sql;
     }
 
-    public function postConnect(ConnectionEventArgs $args) : void
+    public function postConnect(ConnectionEventArgs $args): void
     {
         $conn = $args->getConnection();
         $conn->exec($this->sql);
@@ -30,7 +30,7 @@ class SQLSessionInit implements EventSubscriber
     /**
      * {@inheritdoc}
      */
-    public function getSubscribedEvents() : array
+    public function getSubscribedEvents(): array
     {
         return [Events::postConnect];
     }

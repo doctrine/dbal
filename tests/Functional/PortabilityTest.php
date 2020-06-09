@@ -10,6 +10,7 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Portability\Connection as ConnectionPortability;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+
 use function strlen;
 
 /**
@@ -20,14 +21,14 @@ class PortabilityTest extends FunctionalTestCase
     /** @var Connection */
     private $portableConnection;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
         $this->portableConnection = $this->getPortableConnection();
     }
 
-    protected function tearDown() : void
+    protected function tearDown(): void
     {
         $this->portableConnection->close();
 
@@ -37,7 +38,7 @@ class PortabilityTest extends FunctionalTestCase
     private function getPortableConnection(
         int $portabilityMode = ConnectionPortability::PORTABILITY_ALL,
         int $case = ColumnCase::LOWER
-    ) : Connection {
+    ): Connection {
         $params = $this->connection->getParams();
 
         $params['wrapperClass'] = ConnectionPortability::class;
@@ -75,40 +76,42 @@ class PortabilityTest extends FunctionalTestCase
         return $portableConnection;
     }
 
-    public function testFullFetchMode() : void
+    public function testFullFetchMode(): void
     {
         $rows = $this->portableConnection->fetchAllAssociative('SELECT * FROM portability_table');
         $this->assertFetchResultRows($rows);
 
-        $stmt = $this->portableConnection->query('SELECT * FROM portability_table');
+        $result = $this->portableConnection->query('SELECT * FROM portability_table');
 
-        while (($row = $stmt->fetchAssociative())) {
+        while (($row = $result->fetchAssociative())) {
             $this->assertFetchResultRow($row);
         }
 
-        $stmt = $this->portableConnection->prepare('SELECT * FROM portability_table');
-        $stmt->execute();
+        $result = $this->portableConnection
+            ->prepare('SELECT * FROM portability_table')
+            ->execute();
 
-        while (($row = $stmt->fetchAssociative())) {
+        while (($row = $result->fetchAssociative())) {
             $this->assertFetchResultRow($row);
         }
     }
 
-    public function testConnFetchMode() : void
+    public function testConnFetchMode(): void
     {
         $conn = $this->getPortableConnection();
 
         $rows = $conn->fetchAllAssociative('SELECT * FROM portability_table');
         $this->assertFetchResultRows($rows);
 
-        $stmt = $conn->query('SELECT * FROM portability_table');
-        while (($row = $stmt->fetchAssociative())) {
+        $result = $conn->query('SELECT * FROM portability_table');
+        while (($row = $result->fetchAssociative())) {
             $this->assertFetchResultRow($row);
         }
 
-        $stmt = $this->portableConnection->prepare('SELECT * FROM portability_table');
-        $stmt->execute();
-        while (($row = $stmt->fetchAssociative())) {
+        $result = $this->portableConnection->prepare('SELECT * FROM portability_table')
+            ->execute();
+
+        while (($row = $result->fetchAssociative())) {
             $this->assertFetchResultRow($row);
         }
     }
@@ -116,7 +119,7 @@ class PortabilityTest extends FunctionalTestCase
     /**
      * @param array<int, array<string, mixed>> $rows
      */
-    private function assertFetchResultRows(array $rows) : void
+    private function assertFetchResultRows(array $rows): void
     {
         self::assertCount(2, $rows);
         foreach ($rows as $row) {
@@ -127,7 +130,7 @@ class PortabilityTest extends FunctionalTestCase
     /**
      * @param array<string, mixed> $row
      */
-    public function assertFetchResultRow(array $row) : void
+    public function assertFetchResultRow(array $row): void
     {
         self::assertThat($row['test_int'], self::logicalOr(
             self::equalTo(1),
@@ -145,18 +148,18 @@ class PortabilityTest extends FunctionalTestCase
      *
      * @dataProvider fetchColumnProvider
      */
-    public function testfetchColumn(string $field, array $expected) : void
+    public function testfetchColumn(string $field, array $expected): void
     {
-        $stmt = $this->portableConnection->query('SELECT ' . $field . ' FROM portability_table');
+        $result = $this->portableConnection->query('SELECT ' . $field . ' FROM portability_table');
+        $column = $result->fetchFirstColumn();
 
-        $column = $stmt->fetchColumn();
         self::assertEquals($expected, $column);
     }
 
     /**
      * @return iterable<string, array<int, mixed>>
      */
-    public static function fetchColumnProvider() : iterable
+    public static function fetchColumnProvider(): iterable
     {
         return [
             'int' => [
@@ -170,11 +173,11 @@ class PortabilityTest extends FunctionalTestCase
         ];
     }
 
-    public function testFetchAllNullColumn() : void
+    public function testFetchAllNullColumn(): void
     {
-        $stmt = $this->portableConnection->query('SELECT Test_Null FROM portability_table');
+        $result = $this->portableConnection->query('SELECT Test_Null FROM portability_table');
+        $column = $result->fetchFirstColumn();
 
-        $column = $stmt->fetchColumn();
         self::assertSame([null, null], $column);
     }
 }

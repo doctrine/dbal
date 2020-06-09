@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Exception;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\DriverException as DriverExceptionInterface;
+
 use function assert;
 
 /**
@@ -24,7 +25,7 @@ class DriverException extends DBALException implements DriverExceptionInterface
         parent::__construct($message, $driverException->getCode(), $driverException);
     }
 
-    public function getSQLState() : ?string
+    public function getSQLState(): ?string
     {
         $previous = $this->getPrevious();
         assert($previous instanceof DriverExceptionInterface);

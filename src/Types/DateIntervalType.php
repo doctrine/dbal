@@ -9,6 +9,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Exception\InvalidFormat;
 use Doctrine\DBAL\Types\Exception\InvalidType;
 use Throwable;
+
 use function substr;
 
 /**
@@ -18,7 +19,7 @@ class DateIntervalType extends Type
 {
     public const FORMAT = '%RP%YY%MM%DDT%HH%IM%SS';
 
-    public function getName() : string
+    public function getName(): string
     {
         return Types::DATEINTERVAL;
     }
@@ -26,7 +27,7 @@ class DateIntervalType extends Type
     /**
      * {@inheritdoc}
      */
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform) : string
+    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform): string
     {
         $fieldDeclaration['length'] = 255;
 
@@ -78,7 +79,7 @@ class DateIntervalType extends Type
         }
     }
 
-    public function requiresSQLCommentHint(AbstractPlatform $platform) : bool
+    public function requiresSQLCommentHint(AbstractPlatform $platform): bool
     {
         return true;
     }

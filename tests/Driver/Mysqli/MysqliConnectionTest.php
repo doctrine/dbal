@@ -9,13 +9,14 @@ use Doctrine\DBAL\Driver\Mysqli\HostRequired;
 use Doctrine\DBAL\Driver\Mysqli\MysqliConnection;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+
 use function extension_loaded;
 use function restore_error_handler;
 use function set_error_handler;
 
 class MysqliConnectionTest extends FunctionalTestCase
 {
-    protected function setUp() : void
+    protected function setUp(): void
     {
         if (! extension_loaded('mysqli')) {
             self::markTestSkipped('mysqli is not installed.');
@@ -30,9 +31,9 @@ class MysqliConnectionTest extends FunctionalTestCase
         self::markTestSkipped('MySQL only test.');
     }
 
-    public function testRestoresErrorHandlerOnException() : void
+    public function testRestoresErrorHandlerOnException(): void
     {
-        $handler = static function () : bool {
+        $handler = static function (): bool {
             self::fail('Never expected this to be called');
         };
         set_error_handler($handler);
@@ -49,7 +50,7 @@ class MysqliConnectionTest extends FunctionalTestCase
         restore_error_handler();
     }
 
-    public function testHostnameIsRequiredForPersistentConnection() : void
+    public function testHostnameIsRequiredForPersistentConnection(): void
     {
         $this->expectException(HostRequired::class);
         new MysqliConnection(['persistent' => 'true'], '', '');

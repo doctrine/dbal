@@ -10,6 +10,7 @@ use DateTimeInterface;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Persistence\Proxy;
 use stdClass;
+
 use function array_keys;
 use function assert;
 use function class_exists;
@@ -54,7 +55,7 @@ final class Dumper
      * @param mixed $var      The variable to dump.
      * @param int   $maxDepth The maximum nesting level for object properties.
      */
-    public static function dump($var, int $maxDepth = 2) : string
+    public static function dump($var, int $maxDepth = 2): string
     {
         $html = ini_set('html_errors', '1');
         assert(is_string($html));
@@ -157,7 +158,7 @@ final class Dumper
         return $return;
     }
 
-    private static function getClass(object $object) : string
+    private static function getClass(object $object): string
     {
         $class = get_class($object);
 

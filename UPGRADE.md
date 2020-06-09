@@ -260,6 +260,17 @@ The Doctrine\DBAL\Version class is no longer available: please refrain from chec
 
 # Upgrade to 3.0
 
+## BC BREAK changes in fetching statement results
+
+1. The `Statement` interface no longer extends `ResultStatement`.
+2. The `ResultStatement` interface has been renamed to `Result`.
+3. Instead of returning `bool`, `Statement::execute()` now returns a `Result` that should be used for fetching the result data and metadata.
+4. The functionality previously available via `Statement::closeCursor()` is now available via `Result::free()`. The behavior of fetching data from a freed result is no longer portable. In this case, some drivers will return `false` while others may throw an exception.
+
+Additional related changes:
+
+1. The `ArrayStatement` and `ResultCacheStatement` classes from the `Cache` package have been renamed to `ArrayResult` and  `CachingResult` respectively and marked `@internal`.
+
 ## BC BREAK `Statement::rowCount()` is moved.
 
 `Statement::rowCount()` has been moved to the `ResultStatement` interface where it belongs by definition.
@@ -424,14 +435,23 @@ Please use other database client applications for import, e.g.:
 
 # Upgrade to 2.11
 
+## Deprecated `ArrayStatement` and `ResultCacheStatement` classes.
+
+The `ArrayStatement` and `ResultCacheStatement` classes are deprecated. In a future major release they will be renamed and marked internal as implementation details of the caching layer.
+
+## Deprecated `ResultStatement` interface
+
+1. The `ResultStatement` interface is deprecated. Use the `Driver\Result` and `Abstraction\Result` interfaces instead.
+2. `ResultStatement::closeCursor()` is deprecated in favor of `Result::free()`.
+
 ## Deprecated `FetchMode` and the corresponding methods
 
 1. The `FetchMode` class and the `setFetchMode()` method of the `Connection` and `Statement` interfaces are deprecated.
-2. The `Statement::fetch()` method is deprecated in favor of `fetchNumeric()`, `fetchAssociative()` and `fetchOne()`.
-3. The `Statement::fetchAll()` method is deprecated in favor of `fetchAllNumeric()` and `fetchAllAssociative()`. There is no currently replacement for `Statement::fetchAll(FETCH_MODE::COLUMN)`. In a future major version, `fetchColumn()` will be used as a replacement.
-4. The `Statement::fetchColumn()` method is deprecated in favor of `fetchOne()`.
+2. The `Statement::fetch()` method is deprecated in favor of `Result::fetchNumeric()`, `::fetchAssociative()` and `::fetchOne()`.
+3. The `Statement::fetchAll()` method is deprecated in favor of `Result::fetchAllNumeric()`, `::fetchAllAssociative()` and `::fetchFirstColumn()`.
+4. The `Statement::fetchColumn()` method is deprecated in favor of `Result::fetchOne()`.
 5. The `Connection::fetchArray()` and `fetchAssoc()` method are deprecated in favor of `fetchNumeric()` and `fetchAssociative()` respectively.
-6. The `StatementIterator` class and the usage of a `Statement` object as `Traversable` is deprecated in favor of `iterateNumeric()`, `iterateAssociative()` and `iterateColumn()`.
+6. The `StatementIterator` class and the usage of a `Statement` object as `Traversable` is deprecated in favor of `Result::iterateNumeric()`, `::iterateAssociative()` and `::iterateColumn()`.
 7. Fetching data in mixed mode (`FetchMode::MIXED`) is deprecated.
 
 ## Deprecated `Connection::project()`

@@ -10,12 +10,12 @@ use Doctrine\DBAL\Types\Types;
 
 class MariaDb1027PlatformTest extends AbstractMySQLPlatformTestCase
 {
-    public function createPlatform() : AbstractPlatform
+    public function createPlatform(): AbstractPlatform
     {
         return new MariaDb1027Platform();
     }
 
-    public function testHasNativeJsonType() : void
+    public function testHasNativeJsonType(): void
     {
         self::assertFalse($this->platform->hasNativeJsonType());
     }
@@ -25,12 +25,12 @@ class MariaDb1027PlatformTest extends AbstractMySQLPlatformTestCase
      *
      * @link https://mariadb.com/kb/en/library/json-data-type/
      */
-    public function testReturnsJsonTypeDeclarationSQL() : void
+    public function testReturnsJsonTypeDeclarationSQL(): void
     {
         self::assertSame('LONGTEXT', $this->platform->getJsonTypeDeclarationSQL([]));
     }
 
-    public function testInitializesJsonTypeMapping() : void
+    public function testInitializesJsonTypeMapping(): void
     {
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('json'));
         self::assertSame(Types::JSON, $this->platform->getDoctrineTypeMapping('json'));
@@ -42,7 +42,7 @@ class MariaDb1027PlatformTest extends AbstractMySQLPlatformTestCase
      *
      * @see AbstractMySQLPlatformTestCase::testDoesNotPropagateDefaultValuesForUnsupportedColumnTypes()
      */
-    public function testDoesNotPropagateDefaultValuesForUnsupportedColumnTypes() : void
+    public function testDoesNotPropagateDefaultValuesForUnsupportedColumnTypes(): void
     {
         self::markTestSkipped('MariaDB102Platform support propagation of default values for BLOB and TEXT columns');
     }

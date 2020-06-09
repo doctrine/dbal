@@ -7,12 +7,9 @@ namespace Doctrine\DBAL\Driver;
 use Doctrine\DBAL\ParameterType;
 
 /**
- * Statement interface.
- * Drivers must implement this interface.
- *
- * This resembles (a subset of) the PDOStatement interface.
+ * Driver-level statement
  */
-interface Statement extends ResultStatement
+interface Statement
 {
     /**
      * Binds a value to a corresponding named (not supported by mysqli driver, see comment below) or positional
@@ -30,7 +27,7 @@ interface Statement extends ResultStatement
      *
      * @throws DriverException
      */
-    public function bindValue($param, $value, int $type = ParameterType::STRING) : void;
+    public function bindValue($param, $value, int $type = ParameterType::STRING): void;
 
     /**
      * Binds a PHP variable to a corresponding named (not supported by mysqli driver, see comment below) or question
@@ -57,7 +54,7 @@ interface Statement extends ResultStatement
      *
      * @throws DriverException
      */
-    public function bindParam($param, &$variable, int $type = ParameterType::STRING, ?int $length = null) : void;
+    public function bindParam($param, &$variable, int $type = ParameterType::STRING, ?int $length = null): void;
 
     /**
      * Executes a prepared statement
@@ -73,5 +70,5 @@ interface Statement extends ResultStatement
      *
      * @throws DriverException
      */
-    public function execute(?array $params = null) : void;
+    public function execute(?array $params = null): Result;
 }

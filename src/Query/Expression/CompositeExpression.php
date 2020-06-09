@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Query\Expression;
 
 use Countable;
+
 use function array_merge;
 use function count;
 use function implode;
@@ -56,7 +57,7 @@ class CompositeExpression implements Countable
      * @param self|string $part
      * @param self|string ...$parts
      */
-    public static function and($part, ...$parts) : self
+    public static function and($part, ...$parts): self
     {
         return new self(self::TYPE_AND, $part, ...$parts);
     }
@@ -65,7 +66,7 @@ class CompositeExpression implements Countable
      * @param self|string $part
      * @param self|string ...$parts
      */
-    public static function or($part, ...$parts) : self
+    public static function or($part, ...$parts): self
     {
         return new self(self::TYPE_OR, $part, ...$parts);
     }
@@ -76,7 +77,7 @@ class CompositeExpression implements Countable
      * @param self|string $part
      * @param self|string ...$parts
      */
-    public function with($part, ...$parts) : self
+    public function with($part, ...$parts): self
     {
         $that = clone $this;
 
@@ -88,7 +89,7 @@ class CompositeExpression implements Countable
     /**
      * Retrieves the amount of expressions on composite expression.
      */
-    public function count() : int
+    public function count(): int
     {
         return count($this->parts);
     }
@@ -96,7 +97,7 @@ class CompositeExpression implements Countable
     /**
      * Retrieves the string representation of this composite expression.
      */
-    public function __toString() : string
+    public function __toString(): string
     {
         if ($this->count() === 1) {
             return (string) $this->parts[0];
@@ -108,7 +109,7 @@ class CompositeExpression implements Countable
     /**
      * Returns the type of this composite expression (AND/OR).
      */
-    public function getType() : string
+    public function getType(): string
     {
         return $this->type;
     }

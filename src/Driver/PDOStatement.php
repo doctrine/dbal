@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\Driver\Exception\UnknownParamType;
+use Doctrine\DBAL\Driver\PDO\Result;
+use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\ParameterType;
 use PDO;
+
 use function array_slice;
-use function assert;
 use function count;
 use function func_get_args;
-use function is_array;
 
 /**
  * The PDO implementation of the Statement interface.
@@ -39,7 +40,7 @@ class PDOStatement implements Statement
     /**
      * {@inheritdoc}
      */
-    public function bindValue($param, $value, int $type = ParameterType::STRING) : void
+    public function bindValue($param, $value, int $type = ParameterType::STRING): void
     {
         $type = $this->convertParamType($type);
 
@@ -55,7 +56,7 @@ class PDOStatement implements Statement
      * @param mixed $variable
      * @param mixed $driverOptions
      */
-    public function bindParam($param, &$variable, int $type = ParameterType::STRING, ?int $length = null, $driverOptions = null) : void
+    public function bindParam($param, &$variable, int $type = ParameterType::STRING, ?int $length = null, $driverOptions = null): void
     {
         $type            = $this->convertParamType($type);
         $extraParameters = array_slice(func_get_args(), 3);
@@ -71,111 +72,18 @@ class PDOStatement implements Statement
         }
     }
 
-    public function closeCursor() : void
-    {
-        $this->stmt->closeCursor();
-    }
-
-    public function columnCount() : int
-    {
-        return $this->stmt->columnCount();
-    }
-
     /**
      * {@inheritdoc}
      */
-    public function execute(?array $params = null) : void
+    public function execute(?array $params = null): ResultInterface
     {
         try {
             $this->stmt->execute($params);
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
         }
-    }
 
-    public function rowCount() : int
-    {
-        return $this->stmt->rowCount();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchNumeric()
-    {
-        return $this->fetch(PDO::FETCH_NUM);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchAssociative()
-    {
-        return $this->fetch(PDO::FETCH_ASSOC);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchOne()
-    {
-        return $this->fetch(PDO::FETCH_COLUMN);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchAllNumeric() : array
-    {
-        return $this->fetchAll(PDO::FETCH_NUM);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchAllAssociative() : array
-    {
-        return $this->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchColumn() : array
-    {
-        return $this->fetchAll(PDO::FETCH_COLUMN);
-    }
-
-    /**
-     * @return mixed|false
-     *
-     * @throws PDOException
-     */
-    private function fetch(int $mode)
-    {
-        try {
-            return $this->stmt->fetch($mode);
-        } catch (\PDOException $exception) {
-            throw new PDOException($exception);
-        }
-    }
-
-    /**
-     * @return array<int,mixed>
-     *
-     * @throws PDOException
-     */
-    private function fetchAll(int $mode) : array
-    {
-        try {
-            $data = $this->stmt->fetchAll($mode);
-        } catch (\PDOException $exception) {
-            throw new PDOException($exception);
-        }
-
-        assert(is_array($data));
-
-        return $data;
+        return new Result($this->stmt);
     }
 
     /**
@@ -183,7 +91,7 @@ class PDOStatement implements Statement
      *
      * @param int $type Parameter type
      */
-    private function convertParamType(int $type) : int
+    private function convertParamType(int $type): int
     {
         if (! isset(self::PARAM_TYPE_MAP[$type])) {
             throw UnknownParamType::new($type);

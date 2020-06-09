@@ -11,6 +11,7 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\Visitor\Visitor;
+
 use function count;
 use function implode;
 use function str_replace;
@@ -34,7 +35,7 @@ class ReservedKeywordsValidator implements Visitor
     /**
      * @return string[]
      */
-    public function getViolations() : array
+    public function getViolations(): array
     {
         return $this->violations;
     }
@@ -42,7 +43,7 @@ class ReservedKeywordsValidator implements Visitor
     /**
      * @return string[]
      */
-    private function isReservedWord(string $word) : array
+    private function isReservedWord(string $word): array
     {
         if ($word[0] === '`') {
             $word = str_replace('`', '', $word);
@@ -63,7 +64,7 @@ class ReservedKeywordsValidator implements Visitor
     /**
      * @param string[] $violatedPlatforms
      */
-    private function addViolation(string $asset, array $violatedPlatforms) : void
+    private function addViolation(string $asset, array $violatedPlatforms): void
     {
         if (count($violatedPlatforms) === 0) {
             return;
@@ -72,7 +73,7 @@ class ReservedKeywordsValidator implements Visitor
         $this->violations[] = $asset . ' keyword violations: ' . implode(', ', $violatedPlatforms);
     }
 
-    public function acceptColumn(Table $table, Column $column) : void
+    public function acceptColumn(Table $table, Column $column): void
     {
         $this->addViolation(
             'Table ' . $table->getName() . ' column ' . $column->getName(),
@@ -80,23 +81,23 @@ class ReservedKeywordsValidator implements Visitor
         );
     }
 
-    public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint) : void
+    public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint): void
     {
     }
 
-    public function acceptIndex(Table $table, Index $index) : void
+    public function acceptIndex(Table $table, Index $index): void
     {
     }
 
-    public function acceptSchema(Schema $schema) : void
+    public function acceptSchema(Schema $schema): void
     {
     }
 
-    public function acceptSequence(Sequence $sequence) : void
+    public function acceptSequence(Sequence $sequence): void
     {
     }
 
-    public function acceptTable(Table $table) : void
+    public function acceptTable(Table $table): void
     {
         $this->addViolation(
             'Table ' . $table->getName(),

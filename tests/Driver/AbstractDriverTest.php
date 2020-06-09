@@ -32,6 +32,7 @@ use Doctrine\DBAL\VersionAwarePlatformDriver;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
+
 use function array_merge;
 use function get_class;
 use function sprintf;
@@ -63,7 +64,7 @@ abstract class AbstractDriverTest extends TestCase
      */
     protected $driver;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -73,7 +74,7 @@ abstract class AbstractDriverTest extends TestCase
     /**
      * @dataProvider exceptionConversionProvider
      */
-    public function testConvertsException(string $expectedClass, int $errorCode, ?string $sqlState = null, string $message = '') : void
+    public function testConvertsException(string $expectedClass, int $errorCode, ?string $sqlState = null, string $message = ''): void
     {
         if (! $this->driver instanceof ExceptionConverterDriver) {
             self::markTestSkipped('This test is only intended for exception converter drivers.');
@@ -96,7 +97,7 @@ abstract class AbstractDriverTest extends TestCase
         self::assertSame($dbalMessage, $dbalException->getMessage());
     }
 
-    public function testCreatesDatabasePlatformForVersion() : void
+    public function testCreatesDatabasePlatformForVersion(): void
     {
         if (! $this->driver instanceof VersionAwarePlatformDriver) {
             self::markTestSkipped('This test is only intended for version aware platform drivers.');
@@ -129,7 +130,7 @@ abstract class AbstractDriverTest extends TestCase
         }
     }
 
-    public function testThrowsExceptionOnCreatingDatabasePlatformsForInvalidVersion() : void
+    public function testThrowsExceptionOnCreatingDatabasePlatformsForInvalidVersion(): void
     {
         if (! $this->driver instanceof VersionAwarePlatformDriver) {
             self::markTestSkipped('This test is only intended for version aware platform drivers.');
@@ -139,12 +140,12 @@ abstract class AbstractDriverTest extends TestCase
         $this->driver->createDatabasePlatformForVersion('foo');
     }
 
-    public function testReturnsDatabasePlatform() : void
+    public function testReturnsDatabasePlatform(): void
     {
         self::assertEquals($this->createPlatform(), $this->driver->getDatabasePlatform());
     }
 
-    public function testReturnsSchemaManager() : void
+    public function testReturnsSchemaManager(): void
     {
         $connection    = $this->getConnectionMock();
         $schemaManager = $this->driver->getSchemaManager($connection);
@@ -160,7 +161,7 @@ abstract class AbstractDriverTest extends TestCase
     /**
      * Factory method for creating the driver instance under test.
      */
-    abstract protected function createDriver() : Driver;
+    abstract protected function createDriver(): Driver;
 
     /**
      * Factory method for creating the the platform instance return by the driver under test.
@@ -168,7 +169,7 @@ abstract class AbstractDriverTest extends TestCase
      * The platform instance returned by this method must be the same as returned by
      * the driver's getDatabasePlatform() method.
      */
-    abstract protected function createPlatform() : AbstractPlatform;
+    abstract protected function createPlatform(): AbstractPlatform;
 
     /**
      * Factory method for creating the the schema manager instance return by the driver under test.
@@ -178,12 +179,12 @@ abstract class AbstractDriverTest extends TestCase
      *
      * @param Connection $connection The underlying connection to use.
      */
-    abstract protected function createSchemaManager(Connection $connection) : AbstractSchemaManager;
+    abstract protected function createSchemaManager(Connection $connection): AbstractSchemaManager;
 
     /**
      * @return Connection&MockObject
      */
-    protected function getConnectionMock() : Connection
+    protected function getConnectionMock(): Connection
     {
         return $this->createMock(Connection::class);
     }
@@ -191,7 +192,7 @@ abstract class AbstractDriverTest extends TestCase
     /**
      * @return array<int, array<int, string>>
      */
-    protected function getDatabasePlatformsForVersions() : array
+    protected function getDatabasePlatformsForVersions(): array
     {
         return [];
     }
@@ -199,7 +200,7 @@ abstract class AbstractDriverTest extends TestCase
     /**
      * @return iterable<mixed[]>
      */
-    public static function exceptionConversionProvider() : iterable
+    public static function exceptionConversionProvider(): iterable
     {
         foreach (static::getExceptionConversionData() as $expectedClass => $items) {
             foreach ($items as $item) {
@@ -213,7 +214,7 @@ abstract class AbstractDriverTest extends TestCase
     /**
      * @return array<string,mixed[][]>
      */
-    protected static function getExceptionConversionData() : array
+    protected static function getExceptionConversionData(): array
     {
         return [];
     }

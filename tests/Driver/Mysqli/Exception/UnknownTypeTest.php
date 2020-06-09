@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 
 final class UnknownTypeTest extends TestCase
 {
-    public function testNew() : void
+    public function testNew(): void
     {
         $exception = UnknownType::new('9999');
 

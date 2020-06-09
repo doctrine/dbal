@@ -10,6 +10,7 @@ use Exception;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\TestCase;
 use Throwable;
+
 use function array_map;
 use function array_reverse;
 use function count;
@@ -19,6 +20,7 @@ use function is_object;
 use function is_scalar;
 use function strpos;
 use function var_export;
+
 use const PHP_EOL;
 
 abstract class FunctionalTestCase extends TestCase
@@ -36,7 +38,7 @@ abstract class FunctionalTestCase extends TestCase
     /** @var DebugStack */
     protected $sqlLoggerStack;
 
-    protected function resetSharedConn() : void
+    protected function resetSharedConn(): void
     {
         if (self::$sharedConnection === null) {
             return;
@@ -46,7 +48,7 @@ abstract class FunctionalTestCase extends TestCase
         self::$sharedConnection = null;
     }
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->sqlLoggerStack = new DebugStack();
 
@@ -59,14 +61,14 @@ abstract class FunctionalTestCase extends TestCase
         $this->connection->getConfiguration()->setSQLLogger($this->sqlLoggerStack);
     }
 
-    protected function tearDown() : void
+    protected function tearDown(): void
     {
         while ($this->connection->isTransactionActive()) {
             $this->connection->rollBack();
         }
     }
 
-    protected function onNotSuccessfulTest(Throwable $t) : void
+    protected function onNotSuccessfulTest(Throwable $t): void
     {
         if ($t instanceof AssertionFailedError) {
             throw $t;
@@ -76,7 +78,7 @@ abstract class FunctionalTestCase extends TestCase
             $queries = '';
             $i       = count($this->sqlLoggerStack->queries);
             foreach (array_reverse($this->sqlLoggerStack->queries) as $query) {
-                $params   = array_map(static function ($p) : string {
+                $params   = array_map(static function ($p): string {
                     if (is_object($p)) {
                         return get_class($p);
                     }

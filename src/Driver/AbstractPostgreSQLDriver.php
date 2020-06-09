@@ -15,6 +15,7 @@ use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\PostgreSqlSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
+
 use function preg_match;
 use function strpos;
 use function version_compare;
@@ -29,7 +30,7 @@ abstract class AbstractPostgreSQLDriver implements ExceptionConverterDriver, Ver
      *
      * @link http://www.postgresql.org/docs/9.4/static/errcodes-appendix.html
      */
-    public function convertException(string $message, DriverExceptionInterface $exception) : DriverException
+    public function convertException(string $message, DriverExceptionInterface $exception): DriverException
     {
         switch ($exception->getSQLState()) {
             case '40001':
@@ -80,7 +81,7 @@ abstract class AbstractPostgreSQLDriver implements ExceptionConverterDriver, Ver
         return new DriverException($message, $exception);
     }
 
-    public function createDatabasePlatformForVersion(string $version) : AbstractPlatform
+    public function createDatabasePlatformForVersion(string $version): AbstractPlatform
     {
         if (preg_match('/^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?)?/', $version, $versionParts) === 0) {
             throw InvalidPlatformVersion::new(
@@ -101,12 +102,12 @@ abstract class AbstractPostgreSQLDriver implements ExceptionConverterDriver, Ver
         return new PostgreSQL94Platform();
     }
 
-    public function getDatabasePlatform() : AbstractPlatform
+    public function getDatabasePlatform(): AbstractPlatform
     {
         return new PostgreSQL94Platform();
     }
 
-    public function getSchemaManager(Connection $conn) : AbstractSchemaManager
+    public function getSchemaManager(Connection $conn): AbstractSchemaManager
     {
         return new PostgreSqlSchemaManager($conn);
     }

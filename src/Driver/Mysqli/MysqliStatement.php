@@ -5,26 +5,23 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver\Mysqli;
 
 use Doctrine\DBAL\Driver\DriverException;
-use Doctrine\DBAL\Driver\FetchUtils;
 use Doctrine\DBAL\Driver\Mysqli\Exception\ConnectionError;
 use Doctrine\DBAL\Driver\Mysqli\Exception\FailedReadingStreamOffset;
 use Doctrine\DBAL\Driver\Mysqli\Exception\StatementError;
 use Doctrine\DBAL\Driver\Mysqli\Exception\UnknownType;
+use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\ParameterType;
 use mysqli;
 use mysqli_stmt;
-use stdClass;
-use function array_combine;
+
 use function array_fill;
-use function array_map;
 use function assert;
 use function count;
 use function feof;
 use function fread;
 use function get_resource_type;
-use function is_array;
 use function is_int;
 use function is_resource;
 use function str_repeat;
@@ -47,32 +44,6 @@ final class MysqliStatement implements Statement
     /** @var mysqli_stmt */
     private $stmt;
 
-    /**
-     * Whether the statement result metadata has been fetched.
-     *
-     * @var bool
-     */
-    private $metadataFetched = false;
-
-    /**
-     * Whether the statement result has columns. The property should be used only after the result metadata
-     * has been fetched ({@see $metadataFetched}). Otherwise, the property value is undetermined.
-     *
-     * @var bool
-     */
-    private $hasColumns = false;
-
-    /**
-     * Mapping of statement result column indexes to their names. The property should be used only
-     * if the statement result has columns ({@see $hasColumns}). Otherwise, the property value is undetermined.
-     *
-     * @var array<int,string>
-     */
-    private $columnNames = [];
-
-    /** @var mixed[] */
-    private $rowBoundValues = [];
-
     /** @var mixed[] */
     private $boundValues = [];
 
@@ -85,13 +56,6 @@ final class MysqliStatement implements Statement
      * @var mixed[]
      */
     private $values = [];
-
-    /**
-     * Indicates whether the statement is in the state when fetching results is possible
-     *
-     * @var bool
-     */
-    private $result = false;
 
     /**
      * @throws MysqliException
@@ -120,7 +84,7 @@ final class MysqliStatement implements Statement
     /**
      * {@inheritdoc}
      */
-    public function bindParam($param, &$variable, int $type = ParameterType::STRING, ?int $length = null) : void
+    public function bindParam($param, &$variable, int $type = ParameterType::STRING, ?int $length = null): void
     {
         assert(is_int($param));
 
@@ -135,7 +99,7 @@ final class MysqliStatement implements Statement
     /**
      * {@inheritdoc}
      */
-    public function bindValue($param, $value, int $type = ParameterType::STRING) : void
+    public function bindValue($param, $value, int $type = ParameterType::STRING): void
     {
         assert(is_int($param));
 
@@ -151,7 +115,7 @@ final class MysqliStatement implements Statement
     /**
      * {@inheritdoc}
      */
-    public function execute(?array $params = null) : void
+    public function execute(?array $params = null): ResultInterface
     {
         if ($params !== null && count($params) > 0) {
             if (! $this->bindUntypedValues($params)) {
@@ -165,56 +129,7 @@ final class MysqliStatement implements Statement
             throw StatementError::new($this->stmt);
         }
 
-        if (! $this->metadataFetched) {
-            $meta = $this->stmt->result_metadata();
-            if ($meta !== false) {
-                $this->hasColumns = true;
-
-                $fields = $meta->fetch_fields();
-                assert(is_array($fields));
-
-                $this->columnNames = array_map(static function (stdClass $field) : string {
-                    return $field->name;
-                }, $fields);
-
-                $meta->free();
-            } else {
-                $this->hasColumns = false;
-            }
-
-            $this->metadataFetched = true;
-        }
-
-        if ($this->hasColumns) {
-            // Store result of every execution which has it. Otherwise it will be impossible
-            // to execute a new statement in case if the previous one has non-fetched rows
-            // @link http://dev.mysql.com/doc/refman/5.7/en/commands-out-of-sync.html
-            $this->stmt->store_result();
-
-            // Bind row values _after_ storing the result. Otherwise, if mysqli is compiled with libmysql,
-            // it will have to allocate as much memory as it may be needed for the given column type
-            // (e.g. for a LONGBLOB field it's 4 gigabytes)
-            // @link https://bugs.php.net/bug.php?id=51386#1270673122
-            //
-            // Make sure that the values are bound after each execution. Otherwise, if closeCursor() has been
-            // previously called on the statement, the values are unbound making the statement unusable.
-            //
-            // It's also important that row values are bound after _each_ call to store_result(). Otherwise,
-            // if mysqli is compiled with libmysql, subsequently fetched string values will get truncated
-            // to the length of the ones fetched during the previous execution.
-            $this->rowBoundValues = array_fill(0, count($this->columnNames), null);
-
-            $refs = [];
-            foreach ($this->rowBoundValues as $key => &$value) {
-                $refs[$key] =& $value;
-            }
-
-            if (! $this->stmt->bind_result(...$refs)) {
-                throw StatementError::new($this->stmt);
-            }
-        }
-
-        $this->result = true;
+        return new Result($this->stmt);
     }
 
     /**
@@ -222,7 +137,7 @@ final class MysqliStatement implements Statement
      *
      * @throws DriverException
      */
-    private function bindTypedParameters() : void
+    private function bindTypedParameters(): void
     {
         $streams = $values = [];
         $types   = $this->types;
@@ -264,7 +179,7 @@ final class MysqliStatement implements Statement
      *
      * @throws MysqliException
      */
-    private function sendLongData(array $streams) : void
+    private function sendLongData(array $streams): void
     {
         foreach ($streams as $paramNr => $stream) {
             while (! feof($stream)) {
@@ -286,7 +201,7 @@ final class MysqliStatement implements Statement
      *
      * @param mixed[] $values
      */
-    private function bindUntypedValues(array $values) : bool
+    private function bindUntypedValues(array $values): bool
     {
         $params = [];
         $types  = str_repeat('s', count($values));
@@ -296,117 +211,5 @@ final class MysqliStatement implements Statement
         }
 
         return $this->stmt->bind_param($types, ...$params);
-    }
-
-    /**
-     * @return mixed[]|false|null
-     */
-    private function fetch()
-    {
-        $ret = $this->stmt->fetch();
-
-        if ($ret === true) {
-            $values = [];
-            foreach ($this->rowBoundValues as $v) {
-                $values[] = $v;
-            }
-
-            return $values;
-        }
-
-        return $ret;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchNumeric()
-    {
-        // do not try fetching from the statement if it's not expected to contain the result
-        // in order to prevent exceptional situation
-        if (! $this->result) {
-            return false;
-        }
-
-        $values = $this->fetch();
-
-        if ($values === null) {
-            return false;
-        }
-
-        if ($values === false) {
-            throw StatementError::new($this->stmt);
-        }
-
-        return $values;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function fetchAssociative()
-    {
-        $values = $this->fetchNumeric();
-
-        if ($values === false) {
-            return false;
-        }
-
-        $row = array_combine($this->columnNames, $values);
-        assert(is_array($row));
-
-        return $row;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchOne()
-    {
-        return FetchUtils::fetchOne($this);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchAllNumeric() : array
-    {
-        return FetchUtils::fetchAllNumeric($this);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchAllAssociative() : array
-    {
-        return FetchUtils::fetchAllAssociative($this);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchColumn() : array
-    {
-        return FetchUtils::fetchColumn($this);
-    }
-
-    public function closeCursor() : void
-    {
-        $this->stmt->free_result();
-        $this->result = false;
-    }
-
-    public function rowCount() : int
-    {
-        if ($this->hasColumns) {
-            return $this->stmt->num_rows;
-        }
-
-        return $this->stmt->affected_rows;
-    }
-
-    public function columnCount() : int
-    {
-        return $this->stmt->field_count;
     }
 }

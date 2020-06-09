@@ -14,12 +14,12 @@ class ReservedKeywordsValidatorTest extends TestCase
     /** @var ReservedKeywordsValidator */
     private $validator;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->validator = new ReservedKeywordsValidator([new MySQLKeywords()]);
     }
 
-    public function testReservedTableName() : void
+    public function testReservedTableName(): void
     {
         $table = new Table('TABLE');
         $this->validator->acceptTable($table);
@@ -30,7 +30,7 @@ class ReservedKeywordsValidatorTest extends TestCase
         );
     }
 
-    public function testReservedColumnName() : void
+    public function testReservedColumnName(): void
     {
         $table  = new Table('TABLE');
         $column = $table->addColumn('table', 'string');

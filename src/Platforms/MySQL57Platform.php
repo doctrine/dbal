@@ -13,7 +13,7 @@ use Doctrine\DBAL\Types\Types;
  */
 class MySQL57Platform extends MySqlPlatform
 {
-    public function hasNativeJsonType() : bool
+    public function hasNativeJsonType(): bool
     {
         return true;
     }
@@ -21,7 +21,7 @@ class MySQL57Platform extends MySqlPlatform
     /**
      * {@inheritdoc}
      */
-    public function getJsonTypeDeclarationSQL(array $field) : string
+    public function getJsonTypeDeclarationSQL(array $field): string
     {
         return 'JSON';
     }
@@ -29,7 +29,7 @@ class MySQL57Platform extends MySqlPlatform
     /**
      * {@inheritdoc}
      */
-    protected function getPreAlterTableRenameIndexForeignKeySQL(TableDiff $diff) : array
+    protected function getPreAlterTableRenameIndexForeignKeySQL(TableDiff $diff): array
     {
         return [];
     }
@@ -37,7 +37,7 @@ class MySQL57Platform extends MySqlPlatform
     /**
      * {@inheritdoc}
      */
-    protected function getPostAlterTableRenameIndexForeignKeySQL(TableDiff $diff) : array
+    protected function getPostAlterTableRenameIndexForeignKeySQL(TableDiff $diff): array
     {
         return [];
     }
@@ -45,17 +45,17 @@ class MySQL57Platform extends MySqlPlatform
     /**
      * {@inheritdoc}
      */
-    protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName) : array
+    protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName): array
     {
         return ['ALTER TABLE ' . $tableName . ' RENAME INDEX ' . $oldIndexName . ' TO ' . $index->getQuotedName($this)];
     }
 
-    protected function getReservedKeywordsClass() : string
+    protected function getReservedKeywordsClass(): string
     {
         return Keywords\MySQL57Keywords::class;
     }
 
-    protected function initializeDoctrineTypeMappings() : void
+    protected function initializeDoctrineTypeMappings(): void
     {
         parent::initializeDoctrineTypeMappings();
 

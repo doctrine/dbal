@@ -7,10 +7,12 @@ namespace Doctrine\DBAL\Event\Listeners;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\DBAL\Event\ConnectionEventArgs;
 use Doctrine\DBAL\Events;
+
 use function array_change_key_case;
 use function array_merge;
 use function count;
 use function implode;
+
 use const CASE_UPPER;
 
 /**
@@ -42,7 +44,7 @@ class OracleSessionInit implements EventSubscriber
         $this->_defaultSessionVars = array_merge($this->_defaultSessionVars, $oracleSessionVars);
     }
 
-    public function postConnect(ConnectionEventArgs $args) : void
+    public function postConnect(ConnectionEventArgs $args): void
     {
         if (count($this->_defaultSessionVars) === 0) {
             return;
@@ -64,7 +66,7 @@ class OracleSessionInit implements EventSubscriber
     /**
      * {@inheritdoc}
      */
-    public function getSubscribedEvents() : array
+    public function getSubscribedEvents(): array
     {
         return [Events::postConnect];
     }

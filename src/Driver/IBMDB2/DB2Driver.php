@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Driver\IBMDB2;
 
 use Doctrine\DBAL\Driver\AbstractDB2Driver;
 use Doctrine\DBAL\Driver\Connection;
+
 use function array_keys;
 use function array_map;
 use function implode;
@@ -24,7 +25,7 @@ final class DB2Driver extends AbstractDB2Driver
         string $username = '',
         string $password = '',
         array $driverOptions = []
-    ) : Connection {
+    ): Connection {
         if ($params['host'] !== 'localhost' && $params['host'] !== '127.0.0.1') {
             // if the host isn't localhost, use extended connection params
             $params['dbname'] = $this->buildConnectionString($params, $username, $password);
@@ -38,7 +39,7 @@ final class DB2Driver extends AbstractDB2Driver
     /**
      * @param string[] $params
      */
-    private function buildConnectionString(array $params, string $username, string $password) : string
+    private function buildConnectionString(array $params, string $username, string $password): string
     {
         $connectionParams = [
             'DRIVER'   => '{IBM DB2 ODBC DRIVER}',
@@ -53,7 +54,7 @@ final class DB2Driver extends AbstractDB2Driver
             $connectionParams['PORT'] = $params['port'];
         }
 
-        return implode(';', array_map(static function (string $key, string $value) : string {
+        return implode(';', array_map(static function (string $key, string $value): string {
             return sprintf('%s=%s', $key, $value);
         }, array_keys($connectionParams), $connectionParams));
     }

@@ -18,6 +18,7 @@ use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\MySqlSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
+
 use function preg_match;
 use function stripos;
 use function version_compare;
@@ -93,7 +94,7 @@ abstract class AbstractMySQLDriver implements ExceptionConverterDriver, VersionA
     private const CR_UNKNOWN_HOST     = 2005;
     /**#@-*/
 
-    public function convertException(string $message, DriverExceptionInterface $exception) : DriverException
+    public function convertException(string $message, DriverExceptionInterface $exception): DriverException
     {
         switch ($exception->getCode()) {
             case self::ER_LOCK_DEADLOCK:
@@ -179,7 +180,7 @@ abstract class AbstractMySQLDriver implements ExceptionConverterDriver, VersionA
      *
      * @throws DBALException
      */
-    public function createDatabasePlatformForVersion(string $version) : AbstractPlatform
+    public function createDatabasePlatformForVersion(string $version): AbstractPlatform
     {
         $mariadb = stripos($version, 'mariadb') !== false;
         if ($mariadb && version_compare($this->getMariaDbMysqlVersionNumber($version), '10.2.7', '>=')) {
@@ -208,13 +209,15 @@ abstract class AbstractMySQLDriver implements ExceptionConverterDriver, VersionA
      *
      * @throws DBALException
      */
-    private function getOracleMysqlVersionNumber(string $versionString) : string
+    private function getOracleMysqlVersionNumber(string $versionString): string
     {
-        if (preg_match(
-            '/^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?)?/',
-            $versionString,
-            $versionParts
-        ) === 0) {
+        if (
+            preg_match(
+                '/^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?)?/',
+                $versionString,
+                $versionParts
+            ) === 0
+        ) {
             throw InvalidPlatformVersion::new(
                 $versionString,
                 '<major_version>.<minor_version>.<patch_version>'
@@ -240,13 +243,15 @@ abstract class AbstractMySQLDriver implements ExceptionConverterDriver, VersionA
      *
      * @throws DBALException
      */
-    private function getMariaDbMysqlVersionNumber(string $versionString) : string
+    private function getMariaDbMysqlVersionNumber(string $versionString): string
     {
-        if (preg_match(
-            '/^(?:5\.5\.5-)?(mariadb-)?(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)/i',
-            $versionString,
-            $versionParts
-        ) === 0) {
+        if (
+            preg_match(
+                '/^(?:5\.5\.5-)?(mariadb-)?(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)/i',
+                $versionString,
+                $versionParts
+            ) === 0
+        ) {
             throw InvalidPlatformVersion::new(
                 $versionString,
                 '^(?:5\.5\.5-)?(mariadb-)?<major_version>.<minor_version>.<patch_version>'
@@ -261,7 +266,7 @@ abstract class AbstractMySQLDriver implements ExceptionConverterDriver, VersionA
      *
      * @return MySqlPlatform
      */
-    public function getDatabasePlatform() : AbstractPlatform
+    public function getDatabasePlatform(): AbstractPlatform
     {
         return new MySqlPlatform();
     }
@@ -271,7 +276,7 @@ abstract class AbstractMySQLDriver implements ExceptionConverterDriver, VersionA
      *
      * @return MySqlSchemaManager
      */
-    public function getSchemaManager(Connection $conn) : AbstractSchemaManager
+    public function getSchemaManager(Connection $conn): AbstractSchemaManager
     {
         return new MySqlSchemaManager($conn);
     }

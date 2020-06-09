@@ -12,7 +12,7 @@ use mysqli;
  */
 final class ConnectionError extends MysqliException
 {
-    public static function new(mysqli $connection) : self
+    public static function new(mysqli $connection): self
     {
         $connectionSQLState = $connection->sqlstate;
 

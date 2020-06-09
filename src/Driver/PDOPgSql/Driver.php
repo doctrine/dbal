@@ -10,6 +10,7 @@ use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\Driver\PDOException;
 use PDO;
+
 use function defined;
 
 /**
@@ -25,7 +26,7 @@ final class Driver extends AbstractPostgreSQLDriver
         string $username = '',
         string $password = '',
         array $driverOptions = []
-    ) : Connection {
+    ): Connection {
         if (! empty($params['persistent'])) {
             $driverOptions[PDO::ATTR_PERSISTENT] = true;
         }
@@ -38,7 +39,8 @@ final class Driver extends AbstractPostgreSQLDriver
                 $driverOptions
             );
 
-            if (defined('PDO::PGSQL_ATTR_DISABLE_PREPARES')
+            if (
+                defined('PDO::PGSQL_ATTR_DISABLE_PREPARES')
                 && (! isset($driverOptions[PDO::PGSQL_ATTR_DISABLE_PREPARES])
                     || $driverOptions[PDO::PGSQL_ATTR_DISABLE_PREPARES] === true
                 )
@@ -67,7 +69,7 @@ final class Driver extends AbstractPostgreSQLDriver
      *
      * @return string The DSN.
      */
-    private function constructPdoDsn(array $params) : string
+    private function constructPdoDsn(array $params): string
     {
         $dsn = 'pgsql:';
 

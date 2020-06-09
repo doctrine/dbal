@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 
 class TypeNotRegisteredTest extends TestCase
 {
-    public function testNew() : void
+    public function testNew(): void
     {
         $exception = TypeNotRegistered::new(Type::getType('string'));
 

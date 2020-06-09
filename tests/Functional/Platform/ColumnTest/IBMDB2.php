@@ -9,19 +9,19 @@ use Doctrine\DBAL\Tests\Functional\Platform\ColumnTest;
 
 final class IBMDB2 extends ColumnTest
 {
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
         $this->requirePlatform(DB2Platform::class);
     }
 
-    public function testVariableLengthStringNoLength() : void
+    public function testVariableLengthStringNoLength(): void
     {
         self::markTestSkipped();
     }
 
-    public function testVariableLengthBinaryNoLength() : void
+    public function testVariableLengthBinaryNoLength(): void
     {
         self::markTestSkipped();
     }

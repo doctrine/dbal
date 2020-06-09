@@ -17,17 +17,17 @@ use Doctrine\DBAL\Schema\MySqlSchemaManager;
 
 class AbstractMySQLDriverTest extends AbstractDriverTest
 {
-    protected function createDriver() : Driver
+    protected function createDriver(): Driver
     {
         return $this->getMockForAbstractClass(AbstractMySQLDriver::class);
     }
 
-    protected function createPlatform() : AbstractPlatform
+    protected function createPlatform(): AbstractPlatform
     {
         return new MySqlPlatform();
     }
 
-    protected function createSchemaManager(Connection $connection) : AbstractSchemaManager
+    protected function createSchemaManager(Connection $connection): AbstractSchemaManager
     {
         return new MySqlSchemaManager($connection);
     }
@@ -35,7 +35,7 @@ class AbstractMySQLDriverTest extends AbstractDriverTest
     /**
      * {@inheritDoc}
      */
-    protected function getDatabasePlatformsForVersions() : array
+    protected function getDatabasePlatformsForVersions(): array
     {
         return [
             ['5.6.9', MySqlPlatform::class],
@@ -61,7 +61,7 @@ class AbstractMySQLDriverTest extends AbstractDriverTest
     /**
      * {@inheritDoc}
      */
-    protected static function getExceptionConversionData() : array
+    protected static function getExceptionConversionData(): array
     {
         return [
             self::EXCEPTION_CONNECTION => [

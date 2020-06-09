@@ -34,7 +34,7 @@ final class DebugStack implements SQLLogger
     /**
      * {@inheritdoc}
      */
-    public function startQuery(string $sql, array $params = [], array $types = []) : void
+    public function startQuery(string $sql, array $params = [], array $types = []): void
     {
         if (! $this->enabled) {
             return;
@@ -44,7 +44,7 @@ final class DebugStack implements SQLLogger
         $this->queries[++$this->currentQuery] = ['sql' => $sql, 'params' => $params, 'types' => $types, 'executionMS' => 0];
     }
 
-    public function stopQuery() : void
+    public function stopQuery(): void
     {
         if (! $this->enabled) {
             return;

@@ -10,6 +10,7 @@ use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\Driver\PDOException;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
+
 use function array_merge;
 
 /**
@@ -32,7 +33,7 @@ final class Driver extends AbstractSQLiteDriver
         string $username = '',
         string $password = '',
         array $driverOptions = []
-    ) : Connection {
+    ): Connection {
         if (isset($driverOptions['userDefinedFunctions'])) {
             $this->userDefinedFunctions = array_merge(
                 $this->userDefinedFunctions,
@@ -68,7 +69,7 @@ final class Driver extends AbstractSQLiteDriver
      *
      * @return string The DSN.
      */
-    private function constructPdoDsn(array $params) : string
+    private function constructPdoDsn(array $params): string
     {
         $dsn = 'sqlite:';
         if (isset($params['path'])) {

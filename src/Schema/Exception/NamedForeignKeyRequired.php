@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Schema\Exception;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\SchemaException;
 use Doctrine\DBAL\Schema\Table;
+
 use function implode;
 use function sprintf;
 
@@ -15,7 +16,7 @@ use function sprintf;
  */
 final class NamedForeignKeyRequired extends SchemaException
 {
-    public static function new(Table $localTable, ForeignKeyConstraint $foreignKey) : self
+    public static function new(Table $localTable, ForeignKeyConstraint $foreignKey): self
     {
         return new self(
             sprintf(

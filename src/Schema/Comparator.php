@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Types;
+
 use function array_intersect_key;
 use function array_key_exists;
 use function array_keys;
@@ -21,7 +22,7 @@ use function strtolower;
  */
 class Comparator
 {
-    public static function compareSchemas(Schema $fromSchema, Schema $toSchema) : SchemaDiff
+    public static function compareSchemas(Schema $fromSchema, Schema $toSchema): SchemaDiff
     {
         $c = new self();
 
@@ -35,7 +36,7 @@ class Comparator
      * operations to change the schema stored in $fromSchema to the schema that is
      * stored in $toSchema.
      */
-    public function compare(Schema $fromSchema, Schema $toSchema) : SchemaDiff
+    public function compare(Schema $fromSchema, Schema $toSchema): SchemaDiff
     {
         $diff             = new SchemaDiff();
         $diff->fromSchema = $fromSchema;
@@ -147,7 +148,7 @@ class Comparator
         return $diff;
     }
 
-    private function isAutoIncrementSequenceInSchema(Schema $schema, Sequence $sequence) : bool
+    private function isAutoIncrementSequenceInSchema(Schema $schema, Sequence $sequence): bool
     {
         foreach ($schema->getTables() as $table) {
             if ($sequence->isAutoIncrementsFor($table)) {
@@ -158,7 +159,7 @@ class Comparator
         return false;
     }
 
-    public function diffSequence(Sequence $sequence1, Sequence $sequence2) : bool
+    public function diffSequence(Sequence $sequence1, Sequence $sequence2): bool
     {
         if ($sequence1->getAllocationSize() !== $sequence2->getAllocationSize()) {
             return true;
@@ -172,7 +173,7 @@ class Comparator
      *
      * If there are no differences this method returns null.
      */
-    public function diffTable(Table $table1, Table $table2) : ?TableDiff
+    public function diffTable(Table $table1, Table $table2): ?TableDiff
     {
         $changes                     = 0;
         $tableDifferences            = new TableDiff($table1->getName());
@@ -231,7 +232,8 @@ class Comparator
         /* See if there are any removed indexes in table 2 */
         foreach ($table1Indexes as $indexName => $index) {
             // See if index is removed in table 2.
-            if (($index->isPrimary() && ! $table2->hasPrimaryKey()) ||
+            if (
+                ($index->isPrimary() && ! $table2->hasPrimaryKey()) ||
                 ! $index->isPrimary() && ! $table2->hasIndex($indexName)
             ) {
                 $tableDifferences->removedIndexes[$indexName] = $index;
@@ -287,7 +289,7 @@ class Comparator
      * Try to find columns that only changed their name, rename operations maybe cheaper than add/drop
      * however ambiguities between different possibilities should not lead to renaming at all.
      */
-    private function detectColumnRenamings(TableDiff $tableDifferences) : void
+    private function detectColumnRenamings(TableDiff $tableDifferences): void
     {
         $renameCandidates = [];
         foreach ($tableDifferences->addedColumns as $addedColumnName => $addedColumn) {
@@ -325,7 +327,7 @@ class Comparator
      * Try to find indexes that only changed their name, rename operations maybe cheaper than add/drop
      * however ambiguities between different possibilities should not lead to renaming at all.
      */
-    private function detectIndexRenamings(TableDiff $tableDifferences) : void
+    private function detectIndexRenamings(TableDiff $tableDifferences): void
     {
         $renameCandidates = [];
 
@@ -366,7 +368,7 @@ class Comparator
         }
     }
 
-    public function diffForeignKey(ForeignKeyConstraint $key1, ForeignKeyConstraint $key2) : bool
+    public function diffForeignKey(ForeignKeyConstraint $key1, ForeignKeyConstraint $key2): bool
     {
         if (array_map('strtolower', $key1->getUnquotedLocalColumns()) !== array_map('strtolower', $key2->getUnquotedLocalColumns())) {
             return true;
@@ -395,7 +397,7 @@ class Comparator
      *
      * @return array<int, string>
      */
-    public function diffColumn(Column $column1, Column $column2) : array
+    public function diffColumn(Column $column1, Column $column2): array
     {
         $properties1 = $column1->toArray();
         $properties2 = $column2->toArray();
@@ -416,15 +418,19 @@ class Comparator
 
         // Null values need to be checked additionally as they tell whether to create or drop a default value.
         // null != 0, null != false, null != '' etc. This affects platform's table alteration SQL generation.
-        if (($properties1['default'] === null) !== ($properties2['default'] === null)
-            || $properties1['default'] != $properties2['default']) {
+        if (
+            ($properties1['default'] === null) !== ($properties2['default'] === null)
+            || $properties1['default'] != $properties2['default']
+        ) {
             $changedProperties[] = 'default';
         }
 
-        if (($properties1['type'] instanceof Types\StringType && ! $properties1['type'] instanceof Types\GuidType) ||
+        if (
+            ($properties1['type'] instanceof Types\StringType && ! $properties1['type'] instanceof Types\GuidType) ||
             $properties1['type'] instanceof Types\BinaryType
         ) {
-            if ((isset($properties1['length']) !== isset($properties2['length']))
+            if (
+                (isset($properties1['length']) !== isset($properties2['length']))
                 || (isset($properties1['length']) && isset($properties2['length'])
                     && $properties1['length'] !== $properties2['length'])
             ) {
@@ -445,7 +451,8 @@ class Comparator
         }
 
         // A null value and an empty string are actually equal for a comment so they should not trigger a change.
-        if ($properties1['comment'] !== $properties2['comment'] &&
+        if (
+            $properties1['comment'] !== $properties2['comment'] &&
             ! ($properties1['comment'] === null && $properties2['comment'] === '') &&
             ! ($properties2['comment'] === null && $properties1['comment'] === '')
         ) {
@@ -483,7 +490,7 @@ class Comparator
      * Compares $index1 with $index2 and returns $index2 if there are any
      * differences or false in case there are no differences.
      */
-    public function diffIndex(Index $index1, Index $index2) : bool
+    public function diffIndex(Index $index1, Index $index2): bool
     {
         return ! ($index1->isFullfilledBy($index2) && $index2->isFullfilledBy($index1));
     }

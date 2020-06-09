@@ -17,13 +17,13 @@ class BooleanTest extends TestCase
     /** @var BooleanType */
     private $type;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->platform = $this->createMock(AbstractPlatform::class);
         $this->type     = new BooleanType();
     }
 
-    public function testBooleanConvertsToDatabaseValue() : void
+    public function testBooleanConvertsToDatabaseValue(): void
     {
         $this->platform->expects(self::once())
             ->method('convertBooleansToDatabaseValue')
@@ -33,7 +33,7 @@ class BooleanTest extends TestCase
         self::assertSame(1, $this->type->convertToDatabaseValue(true, $this->platform));
     }
 
-    public function testBooleanConvertsToPHPValue() : void
+    public function testBooleanConvertsToPHPValue(): void
     {
         $this->platform->expects(self::once())
             ->method('convertFromBoolean')
@@ -43,7 +43,7 @@ class BooleanTest extends TestCase
         self::assertFalse($this->type->convertToPHPValue(0, $this->platform));
     }
 
-    public function testBooleanNullConvertsToPHPValue() : void
+    public function testBooleanNullConvertsToPHPValue(): void
     {
         self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }

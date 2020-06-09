@@ -16,12 +16,12 @@ use Doctrine\DBAL\Schema\DB2SchemaManager;
  */
 abstract class AbstractDB2Driver implements Driver
 {
-    public function getDatabasePlatform() : AbstractPlatform
+    public function getDatabasePlatform(): AbstractPlatform
     {
         return new DB2Platform();
     }
 
-    public function getSchemaManager(Connection $conn) : AbstractSchemaManager
+    public function getSchemaManager(Connection $conn): AbstractSchemaManager
     {
         return new DB2SchemaManager($conn);
     }

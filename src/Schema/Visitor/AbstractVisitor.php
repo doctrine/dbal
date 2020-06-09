@@ -16,31 +16,31 @@ use Doctrine\DBAL\Schema\Table;
  */
 class AbstractVisitor implements Visitor, NamespaceVisitor
 {
-    public function acceptSchema(Schema $schema) : void
+    public function acceptSchema(Schema $schema): void
     {
     }
 
-    public function acceptNamespace(string $namespaceName) : void
+    public function acceptNamespace(string $namespaceName): void
     {
     }
 
-    public function acceptTable(Table $table) : void
+    public function acceptTable(Table $table): void
     {
     }
 
-    public function acceptColumn(Table $table, Column $column) : void
+    public function acceptColumn(Table $table, Column $column): void
     {
     }
 
-    public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint) : void
+    public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint): void
     {
     }
 
-    public function acceptIndex(Table $table, Index $index) : void
+    public function acceptIndex(Table $table, Index $index): void
     {
     }
 
-    public function acceptSequence(Sequence $sequence) : void
+    public function acceptSequence(Sequence $sequence): void
     {
     }
 }

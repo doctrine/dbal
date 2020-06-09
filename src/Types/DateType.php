@@ -15,7 +15,7 @@ use Doctrine\DBAL\Types\Exception\InvalidType;
  */
 class DateType extends Type
 {
-    public function getName() : string
+    public function getName(): string
     {
         return Types::DATE_MUTABLE;
     }
@@ -23,7 +23,7 @@ class DateType extends Type
     /**
      * {@inheritdoc}
      */
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform) : string
+    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform): string
     {
         return $platform->getDateTypeDeclarationSQL($fieldDeclaration);
     }

@@ -34,12 +34,12 @@ class ColumnDiff
         $this->fromColumn        = $fromColumn;
     }
 
-    public function hasChanged(string $propertyName) : bool
+    public function hasChanged(string $propertyName): bool
     {
         return in_array($propertyName, $this->changedProperties, true);
     }
 
-    public function getOldColumnName() : Identifier
+    public function getOldColumnName(): Identifier
     {
         $quote = $this->fromColumn !== null && $this->fromColumn->isQuoted();
 

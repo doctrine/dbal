@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver\SQLSrv;
 
-use Doctrine\DBAL\Driver\ResultStatement;
+use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
+
 use function sqlsrv_begin_transaction;
 use function sqlsrv_commit;
 use function sqlsrv_configure;
@@ -49,32 +50,29 @@ final class SQLSrvConnection implements ServerInfoAwareConnection
         $this->lastInsertId = new LastInsertId();
     }
 
-    public function getServerVersion() : string
+    public function getServerVersion(): string
     {
         $serverInfo = sqlsrv_server_info($this->conn);
 
         return $serverInfo['SQLServerVersion'];
     }
 
-    public function prepare(string $sql) : DriverStatement
+    public function prepare(string $sql): DriverStatement
     {
         return new SQLSrvStatement($this->conn, $sql, $this->lastInsertId);
     }
 
-    public function query(string $sql) : ResultStatement
+    public function query(string $sql): ResultInterface
     {
-        $stmt = $this->prepare($sql);
-        $stmt->execute();
-
-        return $stmt;
+        return $this->prepare($sql)->execute();
     }
 
-    public function quote(string $input) : string
+    public function quote(string $input): string
     {
         return "'" . str_replace("'", "''", $input) . "'";
     }
 
-    public function exec(string $statement) : int
+    public function exec(string $statement): int
     {
         $stmt = sqlsrv_query($this->conn, $statement);
 
@@ -91,33 +89,33 @@ final class SQLSrvConnection implements ServerInfoAwareConnection
         return $rowsAffected;
     }
 
-    public function lastInsertId(?string $name = null) : string
+    public function lastInsertId(?string $name = null): string
     {
         if ($name !== null) {
-            $stmt = $this->prepare('SELECT CONVERT(VARCHAR(MAX), current_value) FROM sys.sequences WHERE name = ?');
-            $stmt->execute([$name]);
+            $result = $this->prepare('SELECT CONVERT(VARCHAR(MAX), current_value) FROM sys.sequences WHERE name = ?')
+                ->execute([$name]);
         } else {
-            $stmt = $this->query('SELECT @@IDENTITY');
+            $result = $this->query('SELECT @@IDENTITY');
         }
 
-        return $stmt->fetchOne();
+        return $result->fetchOne();
     }
 
-    public function beginTransaction() : void
+    public function beginTransaction(): void
     {
         if (! sqlsrv_begin_transaction($this->conn)) {
             throw SQLSrvException::fromSqlSrvErrors();
         }
     }
 
-    public function commit() : void
+    public function commit(): void
     {
         if (! sqlsrv_commit($this->conn)) {
             throw SQLSrvException::fromSqlSrvErrors();
         }
     }
 
-    public function rollBack() : void
+    public function rollBack(): void
     {
         if (! sqlsrv_rollback($this->conn)) {
             throw SQLSrvException::fromSqlSrvErrors();

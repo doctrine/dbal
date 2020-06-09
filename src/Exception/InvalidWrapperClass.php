@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Exception;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
+
 use function sprintf;
 
 /**
@@ -13,7 +14,7 @@ use function sprintf;
  */
 final class InvalidWrapperClass extends DBALException
 {
-    public static function new(string $wrapperClass) : self
+    public static function new(string $wrapperClass): self
     {
         return new self(
             sprintf(

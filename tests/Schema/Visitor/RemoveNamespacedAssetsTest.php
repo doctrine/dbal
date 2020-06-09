@@ -9,6 +9,7 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\SchemaConfig;
 use Doctrine\DBAL\Schema\Visitor\RemoveNamespacedAssets;
 use PHPUnit\Framework\TestCase;
+
 use function array_keys;
 
 class RemoveNamespacedAssetsTest extends TestCase
@@ -16,7 +17,7 @@ class RemoveNamespacedAssetsTest extends TestCase
     /**
      * @group DBAL-204
      */
-    public function testRemoveNamespacedAssets() : void
+    public function testRemoveNamespacedAssets(): void
     {
         $config = new SchemaConfig();
         $config->setName('test');
@@ -35,7 +36,7 @@ class RemoveNamespacedAssetsTest extends TestCase
     /**
      * @group DBAL-204
      */
-    public function testCleanupForeignKeys() : void
+    public function testCleanupForeignKeys(): void
     {
         $config = new SchemaConfig();
         $config->setName('test');
@@ -58,7 +59,7 @@ class RemoveNamespacedAssetsTest extends TestCase
     /**
      * @group DBAL-204
      */
-    public function testCleanupForeignKeysDifferentOrder() : void
+    public function testCleanupForeignKeysDifferentOrder(): void
     {
         $config = new SchemaConfig();
         $config->setName('test');

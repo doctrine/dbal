@@ -14,6 +14,7 @@ use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+
 use function array_merge;
 use function assert;
 use function chmod;
@@ -26,11 +27,12 @@ use function sys_get_temp_dir;
 use function touch;
 use function unlink;
 use function version_compare;
+
 use const PHP_OS;
 
 class ExceptionTest extends FunctionalTestCase
 {
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -41,7 +43,7 @@ class ExceptionTest extends FunctionalTestCase
         self::markTestSkipped('Driver does not support special exception handling.');
     }
 
-    public function testPrimaryConstraintViolationException() : void
+    public function testPrimaryConstraintViolationException(): void
     {
         $table = new Table('duplicatekey_table');
         $table->addColumn('id', 'integer', []);
@@ -55,7 +57,7 @@ class ExceptionTest extends FunctionalTestCase
         $this->connection->insert('duplicatekey_table', ['id' => 1]);
     }
 
-    public function testTableNotFoundException() : void
+    public function testTableNotFoundException(): void
     {
         $sql = 'SELECT * FROM unknown_table';
 
@@ -63,7 +65,7 @@ class ExceptionTest extends FunctionalTestCase
         $this->connection->executeQuery($sql);
     }
 
-    public function testTableExistsException() : void
+    public function testTableExistsException(): void
     {
         $schemaManager = $this->connection->getSchemaManager();
         $table         = new Table('alreadyexist_table');
@@ -75,7 +77,7 @@ class ExceptionTest extends FunctionalTestCase
         $schemaManager->createTable($table);
     }
 
-    public function testNotNullConstraintViolationException() : void
+    public function testNotNullConstraintViolationException(): void
     {
         $schema = new Schema();
 
@@ -92,7 +94,7 @@ class ExceptionTest extends FunctionalTestCase
         $this->connection->insert('notnull_table', ['id' => 1, 'value' => null]);
     }
 
-    public function testInvalidFieldNameException() : void
+    public function testInvalidFieldNameException(): void
     {
         $schema = new Schema();
 
@@ -107,7 +109,7 @@ class ExceptionTest extends FunctionalTestCase
         $this->connection->insert('bad_fieldname_table', ['name' => 5]);
     }
 
-    public function testNonUniqueFieldNameException() : void
+    public function testNonUniqueFieldNameException(): void
     {
         $schema = new Schema();
 
@@ -126,7 +128,7 @@ class ExceptionTest extends FunctionalTestCase
         $this->connection->executeQuery($sql);
     }
 
-    public function testUniqueConstraintViolationException() : void
+    public function testUniqueConstraintViolationException(): void
     {
         $schema = new Schema();
 
@@ -143,7 +145,7 @@ class ExceptionTest extends FunctionalTestCase
         $this->connection->insert('unique_field_table', ['id' => 5]);
     }
 
-    public function testSyntaxErrorException() : void
+    public function testSyntaxErrorException(): void
     {
         $table = new Table('syntax_error_table');
         $table->addColumn('id', 'integer', []);
@@ -156,7 +158,7 @@ class ExceptionTest extends FunctionalTestCase
         $this->connection->executeQuery($sql);
     }
 
-    public function testConnectionExceptionSqLite() : void
+    public function testConnectionExceptionSqLite(): void
     {
         if (! ($this->connection->getDatabasePlatform() instanceof SqlitePlatform)) {
             self::markTestSkipped('Only fails this way on sqlite');
@@ -211,7 +213,7 @@ EOT
      *
      * @dataProvider getConnectionParams
      */
-    public function testConnectionException(array $params) : void
+    public function testConnectionException(array $params): void
     {
         $platform = $this->connection->getDatabasePlatform();
 
@@ -251,7 +253,7 @@ EOT
     /**
      * @return array<int, array<int, mixed>>
      */
-    public static function getConnectionParams() : iterable
+    public static function getConnectionParams(): iterable
     {
         return [
             [['user' => 'not_existing']],
@@ -260,12 +262,12 @@ EOT
         ];
     }
 
-    private function isLinuxRoot() : bool
+    private function isLinuxRoot(): bool
     {
         return PHP_OS === 'Linux' && posix_getpwuid(posix_geteuid())['name'] === 'root';
     }
 
-    private function cleanupReadOnlyFile(string $filename) : void
+    private function cleanupReadOnlyFile(string $filename): void
     {
         if ($this->isLinuxRoot()) {
             exec(sprintf('chattr -i %s', $filename));

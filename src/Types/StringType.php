@@ -14,12 +14,12 @@ class StringType extends Type
     /**
      * {@inheritdoc}
      */
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform) : string
+    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform): string
     {
         return $platform->getStringTypeDeclarationSQL($fieldDeclaration);
     }
 
-    public function getName() : string
+    public function getName(): string
     {
         return Types::STRING;
     }

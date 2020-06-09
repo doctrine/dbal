@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 
 class EmptyCriteriaNotAllowedTest extends TestCase
 {
-    public function testNew() : void
+    public function testNew(): void
     {
         $exception = EmptyCriteriaNotAllowed::new();
 

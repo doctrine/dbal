@@ -29,17 +29,17 @@ final class Join
         $this->condition = $condition;
     }
 
-    public static function inner(string $table, string $alias, ?string $condition) : Join
+    public static function inner(string $table, string $alias, ?string $condition): Join
     {
         return new self('INNER', $table, $alias, $condition);
     }
 
-    public static function left(string $table, string $alias, ?string $condition) : Join
+    public static function left(string $table, string $alias, ?string $condition): Join
     {
         return new self('LEFT', $table, $alias, $condition);
     }
 
-    public static function right(string $table, string $alias, ?string $condition) : Join
+    public static function right(string $table, string $alias, ?string $condition): Join
     {
         return new self('RIGHT', $table, $alias, $condition);
     }

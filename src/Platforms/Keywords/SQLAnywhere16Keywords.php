@@ -9,7 +9,7 @@ namespace Doctrine\DBAL\Platforms\Keywords;
  */
 class SQLAnywhere16Keywords extends KeywordList
 {
-    public function getName() : string
+    public function getName(): string
     {
         return 'SQLAnywhere16';
     }
@@ -19,7 +19,7 @@ class SQLAnywhere16Keywords extends KeywordList
      *
      * @link http://infocenter.sybase.com/help/topic/com.sybase.dbrfen10/pdf/dbrfen10.pdf?noframes=true
      */
-    protected function getKeywords() : array
+    protected function getKeywords(): array
     {
         return [
             'ADD',

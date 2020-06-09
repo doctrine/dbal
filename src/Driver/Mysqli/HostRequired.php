@@ -11,7 +11,7 @@ namespace Doctrine\DBAL\Driver\Mysqli;
  */
 final class HostRequired extends MysqliException
 {
-    public static function forPersistentConnection() : self
+    public static function forPersistentConnection(): self
     {
         return new self('The "host" parameter is required for a persistent connection');
     }

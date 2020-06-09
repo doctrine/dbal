@@ -19,7 +19,7 @@ class VarDateTimeTest extends TestCase
     /** @var VarDateTimeType */
     private $type;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->platform = $this->createMock(AbstractPlatform::class);
         $this->platform->expects(self::any())
@@ -29,7 +29,7 @@ class VarDateTimeTest extends TestCase
         $this->type = new VarDateTimeType();
     }
 
-    public function testDateTimeConvertsToDatabaseValue() : void
+    public function testDateTimeConvertsToDatabaseValue(): void
     {
         $date = new DateTime('1985-09-01 10:10:10');
 
@@ -39,7 +39,7 @@ class VarDateTimeTest extends TestCase
         self::assertEquals($expected, $actual);
     }
 
-    public function testDateTimeConvertsToPHPValue() : void
+    public function testDateTimeConvertsToPHPValue(): void
     {
         // Birthday of jwage and also birthday of Doctrine. Send him a present ;)
         $date = $this->type->convertToPHPValue('1985-09-01 00:00:00', $this->platform);
@@ -48,13 +48,13 @@ class VarDateTimeTest extends TestCase
         self::assertEquals('000000', $date->format('u'));
     }
 
-    public function testInvalidDateTimeFormatConversion() : void
+    public function testInvalidDateTimeFormatConversion(): void
     {
         $this->expectException(ConversionException::class);
         $this->type->convertToPHPValue('abcdefg', $this->platform);
     }
 
-    public function testConversionWithMicroseconds() : void
+    public function testConversionWithMicroseconds(): void
     {
         $date = $this->type->convertToPHPValue('1985-09-01 00:00:00.123456', $this->platform);
         self::assertInstanceOf('DateTime', $date);
@@ -62,12 +62,12 @@ class VarDateTimeTest extends TestCase
         self::assertEquals('123456', $date->format('u'));
     }
 
-    public function testNullConversion() : void
+    public function testNullConversion(): void
     {
         self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }
 
-    public function testConvertDateTimeToPHPValue() : void
+    public function testConvertDateTimeToPHPValue(): void
     {
         $date = new DateTime('now');
         self::assertSame($date, $this->type->convertToPHPValue($date, $this->platform));

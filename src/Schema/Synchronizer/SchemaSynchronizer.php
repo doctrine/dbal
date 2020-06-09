@@ -17,46 +17,46 @@ interface SchemaSynchronizer
      *
      * @return array<int, string>
      */
-    public function getCreateSchema(Schema $createSchema) : array;
+    public function getCreateSchema(Schema $createSchema): array;
 
     /**
      * Gets the SQL Statements to update given schema with the underlying db.
      *
      * @return array<int, string>
      */
-    public function getUpdateSchema(Schema $toSchema, bool $noDrops = false) : array;
+    public function getUpdateSchema(Schema $toSchema, bool $noDrops = false): array;
 
     /**
      * Gets the SQL Statements to drop the given schema from underlying db.
      *
      * @return string[]
      */
-    public function getDropSchema(Schema $dropSchema) : array;
+    public function getDropSchema(Schema $dropSchema): array;
 
     /**
      * Gets the SQL statements to drop all schema assets from underlying db.
      *
      * @return array<int, string>
      */
-    public function getDropAllSchema() : array;
+    public function getDropAllSchema(): array;
 
     /**
      * Creates the Schema.
      */
-    public function createSchema(Schema $createSchema) : void;
+    public function createSchema(Schema $createSchema): void;
 
     /**
      * Updates the Schema to new schema version.
      */
-    public function updateSchema(Schema $toSchema, bool $noDrops = false) : void;
+    public function updateSchema(Schema $toSchema, bool $noDrops = false): void;
 
     /**
      * Drops the given database schema from the underlying db.
      */
-    public function dropSchema(Schema $dropSchema) : void;
+    public function dropSchema(Schema $dropSchema): void;
 
     /**
      * Drops all assets from the underlying db.
      */
-    public function dropAllSchema() : void;
+    public function dropAllSchema(): void;
 }

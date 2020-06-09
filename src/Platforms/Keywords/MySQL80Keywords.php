@@ -11,7 +11,7 @@ use function array_merge;
  */
 class MySQL80Keywords extends MySQL57Keywords
 {
-    public function getName() : string
+    public function getName(): string
     {
         return 'MySQL80';
     }
@@ -21,7 +21,7 @@ class MySQL80Keywords extends MySQL57Keywords
      *
      * @link https://dev.mysql.com/doc/refman/8.0/en/keywords.html
      */
-    protected function getKeywords() : array
+    protected function getKeywords(): array
     {
         $keywords = parent::getKeywords();
 

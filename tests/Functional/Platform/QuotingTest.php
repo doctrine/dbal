@@ -11,7 +11,7 @@ class QuotingTest extends FunctionalTestCase
     /**
      * @dataProvider stringLiteralProvider
      */
-    public function testQuoteStringLiteral(string $string) : void
+    public function testQuoteStringLiteral(string $string): void
     {
         $platform = $this->connection->getDatabasePlatform();
         $query    = $platform->getDummySelectSQL(
@@ -24,7 +24,7 @@ class QuotingTest extends FunctionalTestCase
     /**
      * @return mixed[][]
      */
-    public static function stringLiteralProvider() : iterable
+    public static function stringLiteralProvider(): iterable
     {
         return [
             'backslash' => ['\\'],

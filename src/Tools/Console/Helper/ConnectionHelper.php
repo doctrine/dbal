@@ -32,7 +32,7 @@ class ConnectionHelper extends Helper
     /**
      * Retrieves the Doctrine database Connection.
      */
-    public function getConnection() : Connection
+    public function getConnection(): Connection
     {
         return $this->_connection;
     }

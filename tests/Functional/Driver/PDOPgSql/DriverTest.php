@@ -9,6 +9,7 @@ use Doctrine\DBAL\Driver as DriverInterface;
 use Doctrine\DBAL\Driver\PDOPgSql\Driver;
 use Doctrine\DBAL\Tests\Functional\Driver\AbstractDriverTest;
 use Doctrine\DBAL\Tests\TestUtil;
+
 use function array_key_exists;
 use function extension_loaded;
 use function microtime;
@@ -16,7 +17,7 @@ use function sprintf;
 
 class DriverTest extends AbstractDriverTest
 {
-    protected function setUp() : void
+    protected function setUp(): void
     {
         if (! extension_loaded('pdo_pgsql')) {
             self::markTestSkipped('pdo_pgsql is not installed.');
@@ -34,7 +35,7 @@ class DriverTest extends AbstractDriverTest
     /**
      * @dataProvider getDatabaseParameter
      */
-    public function testDatabaseParameters(?string $databaseName, ?string $defaultDatabaseName, ?string $expectedDatabaseName) : void
+    public function testDatabaseParameters(?string $databaseName, ?string $defaultDatabaseName, ?string $expectedDatabaseName): void
     {
         $params                   = $this->connection->getParams();
         $params['dbname']         = $databaseName;
@@ -56,7 +57,7 @@ class DriverTest extends AbstractDriverTest
     /**
      * @return mixed[][]
      */
-    public static function getDatabaseParameter() : iterable
+    public static function getDatabaseParameter(): iterable
     {
         $params            = TestUtil::getConnectionParams();
         $realDatabaseName  = $params['dbname'] ?? '';
@@ -74,7 +75,7 @@ class DriverTest extends AbstractDriverTest
     /**
      * @group DBAL-1146
      */
-    public function testConnectsWithApplicationNameParameter() : void
+    public function testConnectsWithApplicationNameParameter(): void
     {
         $parameters                     = $this->connection->getParams();
         $parameters['application_name'] = 'doctrine';
@@ -84,10 +85,9 @@ class DriverTest extends AbstractDriverTest
 
         $connection = $this->driver->connect($parameters, $user, $password);
 
-        $hash      = microtime(true); // required to identify the record in the results uniquely
-        $sql       = sprintf('SELECT * FROM pg_stat_activity WHERE %d = %d', $hash, $hash);
-        $statement = $connection->query($sql);
-        $records   = $statement->fetchAllAssociative();
+        $hash    = microtime(true); // required to identify the record in the results uniquely
+        $sql     = sprintf('SELECT * FROM pg_stat_activity WHERE %d = %d', $hash, $hash);
+        $records = $connection->query($sql)->fetchAllAssociative();
 
         foreach ($records as $record) {
             // The query column is named "current_query" on PostgreSQL < 9.2
@@ -103,12 +103,12 @@ class DriverTest extends AbstractDriverTest
         self::fail(sprintf('Query result does not contain a record where column "query" equals "%s".', $sql));
     }
 
-    protected function createDriver() : DriverInterface
+    protected function createDriver(): DriverInterface
     {
         return new Driver();
     }
 
-    protected static function getDatabaseNameForConnectionWithoutDatabaseNameParameter() : ?string
+    protected static function getDatabaseNameForConnectionWithoutDatabaseNameParameter(): ?string
     {
         return 'postgres';
     }

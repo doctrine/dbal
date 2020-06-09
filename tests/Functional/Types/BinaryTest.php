@@ -10,12 +10,13 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Type;
+
 use function random_bytes;
 use function str_replace;
 
 class BinaryTest extends FunctionalTestCase
 {
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -35,7 +36,7 @@ class BinaryTest extends FunctionalTestCase
         $sm->dropAndCreateTable($table);
     }
 
-    public function testInsertAndSelect() : void
+    public function testInsertAndSelect(): void
     {
         $id1 = random_bytes(16);
         $id2 = random_bytes(16);
@@ -56,7 +57,7 @@ class BinaryTest extends FunctionalTestCase
         self::assertSame($value2, $this->select($id2));
     }
 
-    private function insert(string $id, string $value) : void
+    private function insert(string $id, string $value): void
     {
         $result = $this->connection->insert('binary_table', [
             'id'  => $id,

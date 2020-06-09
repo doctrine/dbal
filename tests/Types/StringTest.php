@@ -17,13 +17,13 @@ class StringTest extends TestCase
     /** @var StringType */
     private $type;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->platform = $this->createMock(AbstractPlatform::class);
         $this->type     = new StringType();
     }
 
-    public function testReturnsSQLDeclaration() : void
+    public function testReturnsSQLDeclaration(): void
     {
         $this->platform->expects(self::once())
             ->method('getStringTypeDeclarationSQL')
@@ -32,18 +32,18 @@ class StringTest extends TestCase
         self::assertEquals('TEST_VARCHAR', $this->type->getSQLDeclaration([], $this->platform));
     }
 
-    public function testConvertToPHPValue() : void
+    public function testConvertToPHPValue(): void
     {
         self::assertIsString($this->type->convertToPHPValue('foo', $this->platform));
         self::assertIsString($this->type->convertToPHPValue('', $this->platform));
     }
 
-    public function testNullConversion() : void
+    public function testNullConversion(): void
     {
         self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }
 
-    public function testSQLConversion() : void
+    public function testSQLConversion(): void
     {
         self::assertFalse($this->type->canRequireSQLConversion(), 'String type can never require SQL conversion to work.');
         self::assertEquals('t.foo', $this->type->convertToDatabaseValueSQL('t.foo', $this->platform));

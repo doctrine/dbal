@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Tests\Functional\Schema;
 
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+
 use function sprintf;
 
 class DefaultValueTest extends FunctionalTestCase
@@ -13,7 +14,7 @@ class DefaultValueTest extends FunctionalTestCase
     /** @var bool */
     private static $initialized = false;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -43,7 +44,7 @@ class DefaultValueTest extends FunctionalTestCase
     /**
      * @dataProvider columnProvider
      */
-    public function testEscapedDefaultValueCanBeIntrospected(string $name, ?string $expectedDefault) : void
+    public function testEscapedDefaultValueCanBeIntrospected(string $name, ?string $expectedDefault): void
     {
         self::assertSame(
             $expectedDefault,
@@ -58,7 +59,7 @@ class DefaultValueTest extends FunctionalTestCase
     /**
      * @dataProvider columnProvider
      */
-    public function testEscapedDefaultValueCanBeInserted(string $name, ?string $expectedDefault) : void
+    public function testEscapedDefaultValueCanBeInserted(string $name, ?string $expectedDefault): void
     {
         $value = $this->connection->fetchOne(
             sprintf('SELECT %s FROM default_value', $name)
@@ -76,7 +77,7 @@ class DefaultValueTest extends FunctionalTestCase
      *
      * @return mixed[][]
      */
-    public static function columnProvider() : iterable
+    public static function columnProvider(): iterable
     {
         return [
             'Single quote' => [

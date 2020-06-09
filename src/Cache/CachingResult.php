@@ -7,13 +7,12 @@ namespace Doctrine\DBAL\Cache;
 use Doctrine\Common\Cache\Cache;
 use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Driver\FetchUtils;
-use Doctrine\DBAL\Driver\ResultStatement;
+use Doctrine\DBAL\Driver\Result;
+
 use function array_map;
 use function array_values;
 
 /**
- * Cache statement for SQL results.
- *
  * A result is saved in multiple cache keys, there is the originally specified
  * cache key which is just pointing to result rows by key. The following things
  * have to be ensured:
@@ -23,11 +22,13 @@ use function array_values;
  *
  * Also you have to realize that the cache will load the whole result into memory at once to ensure 2.
  * This means that the memory usage for cached results might increase by using this feature.
+ *
+ * @internal The class is internal to the caching layer implementation.
  */
-final class ResultCacheStatement implements ResultStatement
+final class CachingResult implements Result
 {
     /** @var Cache */
-    private $resultCache;
+    private $cache;
 
     /** @var string */
     private $cacheKey;
@@ -38,55 +39,19 @@ final class ResultCacheStatement implements ResultStatement
     /** @var int */
     private $lifetime;
 
-    /** @var ResultStatement */
-    private $statement;
+    /** @var Result */
+    private $result;
 
-    /**
-     * Did we reach the end of the statement?
-     *
-     * @var bool
-     */
-    private $emptied = false;
-
-    /** @var array<int,array<string,mixed>> */
+    /** @var array<int,array<string,mixed>>|null */
     private $data;
 
-    public function __construct(ResultStatement $stmt, Cache $resultCache, string $cacheKey, string $realKey, int $lifetime)
+    public function __construct(Result $result, Cache $cache, string $cacheKey, string $realKey, int $lifetime)
     {
-        $this->statement   = $stmt;
-        $this->resultCache = $resultCache;
-        $this->cacheKey    = $cacheKey;
-        $this->realKey     = $realKey;
-        $this->lifetime    = $lifetime;
-    }
-
-    public function closeCursor() : void
-    {
-        $this->statement->closeCursor();
-
-        if (! $this->emptied || $this->data === null) {
-            return;
-        }
-
-        $data = $this->resultCache->fetch($this->cacheKey);
-        if ($data === false) {
-            $data = [];
-        }
-
-        $data[$this->realKey] = $this->data;
-
-        $this->resultCache->save($this->cacheKey, $data, $this->lifetime);
-        unset($this->data);
-    }
-
-    public function columnCount() : int
-    {
-        return $this->statement->columnCount();
-    }
-
-    public function rowCount() : int
-    {
-        return $this->statement->rowCount();
+        $this->result   = $result;
+        $this->cache    = $cache;
+        $this->cacheKey = $cacheKey;
+        $this->realKey  = $realKey;
+        $this->lifetime = $lifetime;
     }
 
     /**
@@ -122,10 +87,10 @@ final class ResultCacheStatement implements ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function fetchAllNumeric() : array
+    public function fetchAllNumeric(): array
     {
         $this->store(
-            $this->statement->fetchAllAssociative()
+            $this->result->fetchAllAssociative()
         );
 
         return array_map('array_values', $this->data);
@@ -134,10 +99,10 @@ final class ResultCacheStatement implements ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function fetchAllAssociative() : array
+    public function fetchAllAssociative(): array
     {
         $this->store(
-            $this->statement->fetchAllAssociative()
+            $this->result->fetchAllAssociative()
         );
 
         return $this->data;
@@ -146,9 +111,24 @@ final class ResultCacheStatement implements ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function fetchColumn() : array
+    public function fetchFirstColumn(): array
     {
-        return FetchUtils::fetchColumn($this);
+        return FetchUtils::fetchFirstColumn($this);
+    }
+
+    public function rowCount(): int
+    {
+        return $this->result->rowCount();
+    }
+
+    public function columnCount(): int
+    {
+        return $this->result->columnCount();
+    }
+
+    public function free(): void
+    {
+        $this->data = null;
     }
 
     /**
@@ -162,7 +142,7 @@ final class ResultCacheStatement implements ResultStatement
             $this->data = [];
         }
 
-        $row = $this->statement->fetchAssociative();
+        $row = $this->result->fetchAssociative();
 
         if ($row !== false) {
             $this->data[] = $row;
@@ -170,7 +150,7 @@ final class ResultCacheStatement implements ResultStatement
             return $row;
         }
 
-        $this->emptied = true;
+        $this->saveToCache();
 
         return false;
     }
@@ -178,9 +158,27 @@ final class ResultCacheStatement implements ResultStatement
     /**
      * @param array<int,array<string,mixed>> $data
      */
-    private function store(array $data) : void
+    private function store(array $data): void
     {
-        $this->data    = $data;
-        $this->emptied = true;
+        $this->data = $data;
+
+        $this->saveToCache();
+    }
+
+    private function saveToCache(): void
+    {
+        if ($this->data === null) {
+            return;
+        }
+
+        $data = $this->cache->fetch($this->cacheKey);
+
+        if ($data === false) {
+            $data = [];
+        }
+
+        $data[$this->realKey] = $this->data;
+
+        $this->cache->save($this->cacheKey, $data, $this->lifetime);
     }
 }

@@ -13,12 +13,13 @@ use Doctrine\DBAL\Schema\Visitor\AbstractVisitor;
 use Doctrine\DBAL\Schema\Visitor\Visitor;
 use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
+
 use function current;
 use function strlen;
 
 class SchemaTest extends TestCase
 {
-    public function testAddTable() : void
+    public function testAddTable(): void
     {
         $tableName = 'public.foo';
         $table     = new Table($tableName);
@@ -34,7 +35,7 @@ class SchemaTest extends TestCase
         self::assertTrue($schema->hasTable($tableName));
     }
 
-    public function testTableMatchingCaseInsensitive() : void
+    public function testTableMatchingCaseInsensitive(): void
     {
         $table = new Table('Foo');
 
@@ -47,7 +48,7 @@ class SchemaTest extends TestCase
         self::assertSame($table, $schema->getTable('Foo'));
     }
 
-    public function testGetUnknownTableThrowsException() : void
+    public function testGetUnknownTableThrowsException(): void
     {
         $this->expectException(SchemaException::class);
 
@@ -55,7 +56,7 @@ class SchemaTest extends TestCase
         $schema->getTable('unknown');
     }
 
-    public function testCreateTableTwiceThrowsException() : void
+    public function testCreateTableTwiceThrowsException(): void
     {
         $this->expectException(SchemaException::class);
 
@@ -66,7 +67,7 @@ class SchemaTest extends TestCase
         new Schema($tables);
     }
 
-    public function testRenameTable() : void
+    public function testRenameTable(): void
     {
         $tableName = 'foo';
         $table     = new Table($tableName);
@@ -79,7 +80,7 @@ class SchemaTest extends TestCase
         self::assertSame($table, $schema->getTable('bar'));
     }
 
-    public function testDropTable() : void
+    public function testDropTable(): void
     {
         $tableName = 'foo';
         $table     = new Table($tableName);
@@ -92,7 +93,7 @@ class SchemaTest extends TestCase
         self::assertFalse($schema->hasTable('foo'));
     }
 
-    public function testCreateTable() : void
+    public function testCreateTable(): void
     {
         $schema = new Schema();
 
@@ -104,7 +105,7 @@ class SchemaTest extends TestCase
         self::assertTrue($schema->hasTable('foo'));
     }
 
-    public function testAddSequences() : void
+    public function testAddSequences(): void
     {
         $sequence = new Sequence('a_seq', 1, 1);
 
@@ -117,7 +118,7 @@ class SchemaTest extends TestCase
         self::assertArrayHasKey('public.a_seq', $sequences);
     }
 
-    public function testSequenceAccessCaseInsensitive() : void
+    public function testSequenceAccessCaseInsensitive(): void
     {
         $sequence = new Sequence('a_Seq');
 
@@ -131,7 +132,7 @@ class SchemaTest extends TestCase
         self::assertEquals($sequence, $schema->getSequence('A_SEQ'));
     }
 
-    public function testGetUnknownSequenceThrowsException() : void
+    public function testGetUnknownSequenceThrowsException(): void
     {
         $this->expectException(SchemaException::class);
 
@@ -139,7 +140,7 @@ class SchemaTest extends TestCase
         $schema->getSequence('unknown');
     }
 
-    public function testCreateSequence() : void
+    public function testCreateSequence(): void
     {
         $schema   = new Schema();
         $sequence = $schema->createSequence('a_seq', 10, 20);
@@ -155,7 +156,7 @@ class SchemaTest extends TestCase
         self::assertArrayHasKey('public.a_seq', $sequences);
     }
 
-    public function testDropSequence() : void
+    public function testDropSequence(): void
     {
         $sequence = new Sequence('a_seq', 1, 1);
 
@@ -165,7 +166,7 @@ class SchemaTest extends TestCase
         self::assertFalse($schema->hasSequence('a_seq'));
     }
 
-    public function testAddSequenceTwiceThrowsException() : void
+    public function testAddSequenceTwiceThrowsException(): void
     {
         $this->expectException(SchemaException::class);
 
@@ -174,7 +175,7 @@ class SchemaTest extends TestCase
         new Schema([], [$sequence, $sequence]);
     }
 
-    public function testConfigMaxIdentifierLength() : void
+    public function testConfigMaxIdentifierLength(): void
     {
         $schemaConfig = new SchemaConfig();
         $schemaConfig->setMaxIdentifierLength(5);
@@ -188,7 +189,7 @@ class SchemaTest extends TestCase
         self::assertEquals(5, strlen($index->getName()));
     }
 
-    public function testDeepClone() : void
+    public function testDeepClone(): void
     {
         $schema   = new Schema();
         $sequence = $schema->createSequence('baz');
@@ -223,7 +224,7 @@ class SchemaTest extends TestCase
     /**
      * @group DBAL-219
      */
-    public function testHasTableForQuotedAsset() : void
+    public function testHasTableForQuotedAsset(): void
     {
         $schema = new Schema();
 
@@ -236,7 +237,7 @@ class SchemaTest extends TestCase
     /**
      * @group DBAL-669
      */
-    public function testHasNamespace() : void
+    public function testHasNamespace(): void
     {
         $schema = new Schema();
 
@@ -260,7 +261,7 @@ class SchemaTest extends TestCase
     /**
      * @group DBAL-669
      */
-    public function testCreatesNamespace() : void
+    public function testCreatesNamespace(): void
     {
         $schema = new Schema();
 
@@ -286,7 +287,7 @@ class SchemaTest extends TestCase
     /**
      * @group DBAL-669
      */
-    public function testThrowsExceptionOnCreatingNamespaceTwice() : void
+    public function testThrowsExceptionOnCreatingNamespaceTwice(): void
     {
         $schema = new Schema();
 
@@ -300,7 +301,7 @@ class SchemaTest extends TestCase
     /**
      * @group DBAL-669
      */
-    public function testCreatesNamespaceThroughAddingTableImplicitly() : void
+    public function testCreatesNamespaceThroughAddingTableImplicitly(): void
     {
         $schema = new Schema();
 
@@ -330,7 +331,7 @@ class SchemaTest extends TestCase
     /**
      * @group DBAL-669
      */
-    public function testCreatesNamespaceThroughAddingSequenceImplicitly() : void
+    public function testCreatesNamespaceThroughAddingSequenceImplicitly(): void
     {
         $schema = new Schema();
 
@@ -360,7 +361,7 @@ class SchemaTest extends TestCase
     /**
      * @group DBAL-669
      */
-    public function testVisitsVisitor() : void
+    public function testVisitsVisitor(): void
     {
         $schema  = new Schema();
         $visitor = $this->createMock(Visitor::class);
@@ -406,7 +407,7 @@ class SchemaTest extends TestCase
     /**
      * @group DBAL-669
      */
-    public function testVisitsNamespaceVisitor() : void
+    public function testVisitsNamespaceVisitor(): void
     {
         $schema  = new Schema();
         $visitor = $this->createMock(AbstractVisitor::class);

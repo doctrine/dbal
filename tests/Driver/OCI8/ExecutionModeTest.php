@@ -12,17 +12,17 @@ final class ExecutionModeTest extends TestCase
     /** @var ExecutionMode */
     private $mode;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->mode = new ExecutionMode();
     }
 
-    public function testDefaultAutoCommitStatus() : void
+    public function testDefaultAutoCommitStatus(): void
     {
         self::assertTrue($this->mode->isAutoCommitEnabled());
     }
 
-    public function testChangeAutoCommitStatus() : void
+    public function testChangeAutoCommitStatus(): void
     {
         $this->mode->disableAutoCommit();
         self::assertFalse($this->mode->isAutoCommitEnabled());

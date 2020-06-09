@@ -9,11 +9,12 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+
 use function sprintf;
 
 abstract class ColumnTest extends FunctionalTestCase
 {
-    public function testVariableLengthStringNoLength() : void
+    public function testVariableLengthStringNoLength(): void
     {
         $this->assertColumn(Types::STRING, [], 'Test', ParameterType::STRING);
     }
@@ -21,7 +22,7 @@ abstract class ColumnTest extends FunctionalTestCase
     /**
      * @dataProvider string8Provider
      */
-    public function testVariableLengthStringWithLength(string $value) : void
+    public function testVariableLengthStringWithLength(string $value): void
     {
         $this->assertColumn(Types::STRING, ['length' => 8], $value, ParameterType::STRING);
     }
@@ -29,7 +30,7 @@ abstract class ColumnTest extends FunctionalTestCase
     /**
      * @dataProvider string1Provider
      */
-    public function testFixedLengthStringNoLength(string $value) : void
+    public function testFixedLengthStringNoLength(string $value): void
     {
         $this->assertColumn(Types::STRING, ['fixed' => true], $value, ParameterType::STRING);
     }
@@ -37,7 +38,7 @@ abstract class ColumnTest extends FunctionalTestCase
     /**
      * @dataProvider string8Provider
      */
-    public function testFixedLengthStringWithLength(string $value) : void
+    public function testFixedLengthStringWithLength(string $value): void
     {
         $this->assertColumn(Types::STRING, [
             'fixed' => true,
@@ -48,7 +49,7 @@ abstract class ColumnTest extends FunctionalTestCase
     /**
      * @return iterable<string, array<int, mixed>>
      */
-    public static function string1Provider() : iterable
+    public static function string1Provider(): iterable
     {
         return [
             'ansi' => ['Z'],
@@ -59,7 +60,7 @@ abstract class ColumnTest extends FunctionalTestCase
     /**
      * @return iterable<string, array<int, mixed>>
      */
-    public static function string8Provider() : iterable
+    public static function string8Provider(): iterable
     {
         return [
             'ansi' => ['Doctrine'],
@@ -67,22 +68,22 @@ abstract class ColumnTest extends FunctionalTestCase
         ];
     }
 
-    public function testVariableLengthBinaryNoLength() : void
+    public function testVariableLengthBinaryNoLength(): void
     {
         $this->assertColumn(Types::BINARY, [], "\x00\x01\x02\x03", ParameterType::BINARY);
     }
 
-    public function testVariableLengthBinaryWithLength() : void
+    public function testVariableLengthBinaryWithLength(): void
     {
         $this->assertColumn(Types::BINARY, ['length' => 8], "\xCE\xC6\x6B\xDD\x9F\xD8\x07\xB4", ParameterType::BINARY);
     }
 
-    public function testFixedLengthBinaryNoLength() : void
+    public function testFixedLengthBinaryNoLength(): void
     {
         $this->assertColumn(Types::BINARY, ['fixed' => true], "\xFF", ParameterType::BINARY);
     }
 
-    public function testFixedLengthBinaryWithLength() : void
+    public function testFixedLengthBinaryWithLength(): void
     {
         $this->assertColumn(Types::BINARY, [
             'fixed' => true,
@@ -90,7 +91,7 @@ abstract class ColumnTest extends FunctionalTestCase
         ], "\xA0\x0A\x7B\x0E\xA4\x60\x78\xD8", ParameterType::BINARY);
     }
 
-    protected function requirePlatform(string $class) : void
+    protected function requirePlatform(string $class): void
     {
         if ($this->connection->getDatabasePlatform() instanceof $class) {
             return;
@@ -102,7 +103,7 @@ abstract class ColumnTest extends FunctionalTestCase
     /**
      * @param array<string, mixed> $column
      */
-    protected function assertColumn(string $type, array $column, string $value, int $bindType) : void
+    protected function assertColumn(string $type, array $column, string $value, int $bindType): void
     {
         $table = new Table('column_test');
         $table->addColumn('val', $type, $column);

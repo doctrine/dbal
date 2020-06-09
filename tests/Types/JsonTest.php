@@ -11,6 +11,7 @@ use Doctrine\DBAL\Types\JsonType;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+
 use function base64_encode;
 use function fopen;
 
@@ -22,23 +23,23 @@ class JsonTest extends TestCase
     /** @var JsonType */
     protected $type;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->platform = $this->createMock(AbstractPlatform::class);
         $this->type     = new JsonType();
     }
 
-    public function testReturnsBindingType() : void
+    public function testReturnsBindingType(): void
     {
         self::assertSame(ParameterType::STRING, $this->type->getBindingType());
     }
 
-    public function testReturnsName() : void
+    public function testReturnsName(): void
     {
         self::assertSame(Types::JSON, $this->type->getName());
     }
 
-    public function testReturnsSQLDeclaration() : void
+    public function testReturnsSQLDeclaration(): void
     {
         $this->platform->expects(self::once())
             ->method('getJsonTypeDeclarationSQL')
@@ -47,17 +48,17 @@ class JsonTest extends TestCase
         self::assertSame('TEST_JSON', $this->type->getSQLDeclaration([], $this->platform));
     }
 
-    public function testJsonNullConvertsToPHPValue() : void
+    public function testJsonNullConvertsToPHPValue(): void
     {
         self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }
 
-    public function testJsonEmptyStringConvertsToPHPValue() : void
+    public function testJsonEmptyStringConvertsToPHPValue(): void
     {
         self::assertNull($this->type->convertToPHPValue('', $this->platform));
     }
 
-    public function testJsonStringConvertsToPHPValue() : void
+    public function testJsonStringConvertsToPHPValue(): void
     {
         $value = ['foo' => 'bar', 'bar' => 'foo'];
 
@@ -69,7 +70,7 @@ class JsonTest extends TestCase
     }
 
     /** @dataProvider providerFailure */
-    public function testConversionFailure(string $data) : void
+    public function testConversionFailure(string $data): void
     {
         $this->expectException(ConversionException::class);
         $this->type->convertToPHPValue($data, $this->platform);
@@ -78,12 +79,12 @@ class JsonTest extends TestCase
     /**
      * @return mixed[][]
      */
-    public static function providerFailure() : iterable
+    public static function providerFailure(): iterable
     {
         return [['a'], ['{']];
     }
 
-    public function testJsonResourceConvertsToPHPValue() : void
+    public function testJsonResourceConvertsToPHPValue(): void
     {
         $value = ['foo' => 'bar', 'bar' => 'foo'];
 
@@ -95,7 +96,7 @@ class JsonTest extends TestCase
         self::assertSame($value, $phpValue);
     }
 
-    public function testRequiresSQLCommentHint() : void
+    public function testRequiresSQLCommentHint(): void
     {
         self::assertTrue($this->type->requiresSQLCommentHint($this->platform));
     }

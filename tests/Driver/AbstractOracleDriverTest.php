@@ -14,17 +14,17 @@ use Doctrine\DBAL\Schema\OracleSchemaManager;
 
 class AbstractOracleDriverTest extends AbstractDriverTest
 {
-    protected function createDriver() : Driver
+    protected function createDriver(): Driver
     {
         return $this->getMockForAbstractClass(AbstractOracleDriver::class);
     }
 
-    protected function createPlatform() : AbstractPlatform
+    protected function createPlatform(): AbstractPlatform
     {
         return new OraclePlatform();
     }
 
-    protected function createSchemaManager(Connection $connection) : AbstractSchemaManager
+    protected function createSchemaManager(Connection $connection): AbstractSchemaManager
     {
         return new OracleSchemaManager($connection);
     }
@@ -32,7 +32,7 @@ class AbstractOracleDriverTest extends AbstractDriverTest
     /**
      * {@inheritDoc}
      */
-    protected static function getExceptionConversionData() : array
+    protected static function getExceptionConversionData(): array
     {
         return [
             self::EXCEPTION_CONNECTION => [

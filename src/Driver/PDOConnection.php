@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver;
 
+use Doctrine\DBAL\Driver\PDO\Result;
+use Doctrine\DBAL\Driver\Result as ResultInterface;
 use PDO;
+
 use function assert;
 
 /**
@@ -32,7 +35,7 @@ class PDOConnection implements ServerInfoAwareConnection
         }
     }
 
-    public function exec(string $statement) : int
+    public function exec(string $statement): int
     {
         try {
             return $this->connection->exec($statement);
@@ -41,12 +44,12 @@ class PDOConnection implements ServerInfoAwareConnection
         }
     }
 
-    public function getServerVersion() : string
+    public function getServerVersion(): string
     {
         return $this->connection->getAttribute(PDO::ATTR_SERVER_VERSION);
     }
 
-    public function prepare(string $sql) : Statement
+    public function prepare(string $sql): Statement
     {
         try {
             return $this->createStatement(
@@ -57,24 +60,24 @@ class PDOConnection implements ServerInfoAwareConnection
         }
     }
 
-    public function query(string $sql) : ResultStatement
+    public function query(string $sql): ResultInterface
     {
         try {
             $stmt = $this->connection->query($sql);
             assert($stmt instanceof \PDOStatement);
 
-            return $this->createStatement($stmt);
+            return new Result($stmt);
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
         }
     }
 
-    public function quote(string $input) : string
+    public function quote(string $input): string
     {
         return $this->connection->quote($input);
     }
 
-    public function lastInsertId(?string $name = null) : string
+    public function lastInsertId(?string $name = null): string
     {
         try {
             if ($name === null) {
@@ -90,27 +93,27 @@ class PDOConnection implements ServerInfoAwareConnection
     /**
      * Creates a wrapped statement
      */
-    protected function createStatement(\PDOStatement $stmt) : PDOStatement
+    protected function createStatement(\PDOStatement $stmt): PDOStatement
     {
         return new PDOStatement($stmt);
     }
 
-    public function beginTransaction() : void
+    public function beginTransaction(): void
     {
         $this->connection->beginTransaction();
     }
 
-    public function commit() : void
+    public function commit(): void
     {
         $this->connection->commit();
     }
 
-    public function rollBack() : void
+    public function rollBack(): void
     {
         $this->connection->rollBack();
     }
 
-    public function getWrappedConnection() : PDO
+    public function getWrappedConnection(): PDO
     {
         return $this->connection;
     }

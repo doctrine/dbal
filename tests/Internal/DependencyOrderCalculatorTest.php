@@ -20,12 +20,12 @@ class DependencyOrderCalculatorTest extends TestCase
     /** @var DependencyOrderCalculator */
     private $calculator;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->calculator = new DependencyOrderCalculator();
     }
 
-    public function testCommitOrdering1() : void
+    public function testCommitOrdering1(): void
     {
         $table1 = new Table('table1');
         $table2 = new Table('table2');

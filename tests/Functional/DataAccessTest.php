@@ -18,6 +18,7 @@ use Doctrine\DBAL\Statement;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
 use InvalidArgumentException;
+
 use function array_change_key_case;
 use function assert;
 use function count;
@@ -26,6 +27,7 @@ use function is_array;
 use function json_encode;
 use function sprintf;
 use function strtotime;
+
 use const CASE_LOWER;
 
 class DataAccessTest extends FunctionalTestCase
@@ -33,7 +35,7 @@ class DataAccessTest extends FunctionalTestCase
     /** @var bool */
     private static $generated = false;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -54,7 +56,7 @@ class DataAccessTest extends FunctionalTestCase
         self::$generated = true;
     }
 
-    public function testPrepareWithBindValue() : void
+    public function testPrepareWithBindValue(): void
     {
         $sql  = 'SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?';
         $stmt = $this->connection->prepare($sql);
@@ -62,15 +64,15 @@ class DataAccessTest extends FunctionalTestCase
 
         $stmt->bindValue(1, 1);
         $stmt->bindValue(2, 'foo');
-        $stmt->execute();
 
-        $row = $stmt->fetchAssociative();
+        $row = $stmt->execute()->fetchAssociative();
+
         self::assertIsArray($row);
         $row = array_change_key_case($row, CASE_LOWER);
         self::assertEquals(['test_int' => 1, 'test_string' => 'foo'], $row);
     }
 
-    public function testPrepareWithBindParam() : void
+    public function testPrepareWithBindParam(): void
     {
         $paramInt = 1;
         $paramStr = 'foo';
@@ -81,15 +83,15 @@ class DataAccessTest extends FunctionalTestCase
 
         $stmt->bindParam(1, $paramInt);
         $stmt->bindParam(2, $paramStr);
-        $stmt->execute();
 
-        $row = $stmt->fetchAssociative();
+        $row = $stmt->execute()->fetchAssociative();
+
         self::assertIsArray($row);
         $row = array_change_key_case($row, CASE_LOWER);
         self::assertEquals(['test_int' => 1, 'test_string' => 'foo'], $row);
     }
 
-    public function testPrepareWithFetchAllAssociative() : void
+    public function testPrepareWithFetchAllAssociative(): void
     {
         $paramInt = 1;
         $paramStr = 'foo';
@@ -100,14 +102,13 @@ class DataAccessTest extends FunctionalTestCase
 
         $stmt->bindParam(1, $paramInt);
         $stmt->bindParam(2, $paramStr);
-        $stmt->execute();
 
-        $rows    = $stmt->fetchAllAssociative();
+        $rows    = $stmt->execute()->fetchAllAssociative();
         $rows[0] = array_change_key_case($rows[0], CASE_LOWER);
         self::assertEquals(['test_int' => 1, 'test_string' => 'foo'], $rows[0]);
     }
 
-    public function testPrepareWithFetchOne() : void
+    public function testPrepareWithFetchOne(): void
     {
         $paramInt = 1;
         $paramStr = 'foo';
@@ -118,35 +119,12 @@ class DataAccessTest extends FunctionalTestCase
 
         $stmt->bindParam(1, $paramInt);
         $stmt->bindParam(2, $paramStr);
-        $stmt->execute();
 
-        $column = $stmt->fetchOne();
+        $column = $stmt->execute()->fetchOne();
         self::assertEquals(1, $column);
     }
 
-    public function testPrepareWithIterator() : void
-    {
-        $paramInt = 1;
-        $paramStr = 'foo';
-
-        $sql  = 'SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?';
-        $stmt = $this->connection->prepare($sql);
-        self::assertInstanceOf(Statement::class, $stmt);
-
-        $stmt->bindParam(1, $paramInt);
-        $stmt->bindParam(2, $paramStr);
-        $stmt->execute();
-
-        $rows = [];
-
-        foreach ($stmt->iterateAssociative() as $row) {
-            $rows[] = array_change_key_case($row, CASE_LOWER);
-        }
-
-        self::assertEquals(['test_int' => 1, 'test_string' => 'foo'], $rows[0]);
-    }
-
-    public function testPrepareWithQuoted() : void
+    public function testPrepareWithQuoted(): void
     {
         $table    = 'fetch_table';
         $paramInt = 1;
@@ -161,7 +139,7 @@ class DataAccessTest extends FunctionalTestCase
         self::assertInstanceOf(Statement::class, $stmt);
     }
 
-    public function testPrepareWithExecuteParams() : void
+    public function testPrepareWithExecuteParams(): void
     {
         $paramInt = 1;
         $paramStr = 'foo';
@@ -169,15 +147,15 @@ class DataAccessTest extends FunctionalTestCase
         $sql  = 'SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?';
         $stmt = $this->connection->prepare($sql);
         self::assertInstanceOf(Statement::class, $stmt);
-        $stmt->execute([$paramInt, $paramStr]);
+        $result = $stmt->execute([$paramInt, $paramStr]);
 
-        $row = $stmt->fetchAssociative();
+        $row = $result->fetchAssociative();
         self::assertNotFalse($row);
         $row = array_change_key_case($row, CASE_LOWER);
         self::assertEquals(['test_int' => 1, 'test_string' => 'foo'], $row);
     }
 
-    public function testFetchAllAssociative() : void
+    public function testFetchAllAssociative(): void
     {
         $sql  = 'SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?';
         $data = $this->connection->fetchAllAssociative($sql, [1, 'foo']);
@@ -195,7 +173,7 @@ class DataAccessTest extends FunctionalTestCase
     /**
      * @group DBAL-209
      */
-    public function testFetchAllWithTypes() : void
+    public function testFetchAllWithTypes(): void
     {
         $datetimeString = '2010-01-01 10:10:10';
         $datetime       = new DateTime($datetimeString);
@@ -220,10 +198,12 @@ class DataAccessTest extends FunctionalTestCase
     /**
      * @group DBAL-209
      */
-    public function testFetchAllWithMissingTypes() : void
+    public function testFetchAllWithMissingTypes(): void
     {
-        if ($this->connection->getDriver() instanceof MySQLiDriver ||
-            $this->connection->getDriver() instanceof SQLSrvDriver) {
+        if (
+            $this->connection->getDriver() instanceof MySQLiDriver ||
+            $this->connection->getDriver() instanceof SQLSrvDriver
+        ) {
             self::markTestSkipped('mysqli and sqlsrv actually supports this');
         }
 
@@ -236,14 +216,14 @@ class DataAccessTest extends FunctionalTestCase
         $this->connection->fetchAllAssociative($sql, [1, $datetime]);
     }
 
-    public function testFetchNoResult() : void
+    public function testFetchNoResult(): void
     {
         self::assertFalse(
             $this->connection->executeQuery('SELECT test_int FROM fetch_table WHERE test_int = ?', [-1])->fetchAssociative()
         );
     }
 
-    public function testFetchAssociative() : void
+    public function testFetchAssociative(): void
     {
         $sql = 'SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?';
         $row = $this->connection->fetchAssociative($sql, [1, 'foo']);
@@ -256,7 +236,7 @@ class DataAccessTest extends FunctionalTestCase
         self::assertEquals('foo', $row['test_string']);
     }
 
-    public function testFetchAssocWithTypes() : void
+    public function testFetchAssocWithTypes(): void
     {
         $datetimeString = '2010-01-01 10:10:10';
         $datetime       = new DateTime($datetimeString);
@@ -276,10 +256,12 @@ class DataAccessTest extends FunctionalTestCase
         self::assertStringStartsWith($datetimeString, $row['test_datetime']);
     }
 
-    public function testFetchAssocWithMissingTypes() : void
+    public function testFetchAssocWithMissingTypes(): void
     {
-        if ($this->connection->getDriver() instanceof MySQLiDriver ||
-            $this->connection->getDriver() instanceof SQLSrvDriver) {
+        if (
+            $this->connection->getDriver() instanceof MySQLiDriver ||
+            $this->connection->getDriver() instanceof SQLSrvDriver
+        ) {
             self::markTestSkipped('mysqli and sqlsrv actually supports this');
         }
 
@@ -292,7 +274,7 @@ class DataAccessTest extends FunctionalTestCase
         $this->connection->fetchAssociative($sql, [1, $datetime]);
     }
 
-    public function testFetchArray() : void
+    public function testFetchArray(): void
     {
         $sql = 'SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?';
         $row = $this->connection->fetchNumeric($sql, [1, 'foo']);
@@ -302,7 +284,7 @@ class DataAccessTest extends FunctionalTestCase
         self::assertEquals('foo', $row[1]);
     }
 
-    public function testFetchArrayWithTypes() : void
+    public function testFetchArrayWithTypes(): void
     {
         $datetimeString = '2010-01-01 10:10:10';
         $datetime       = new DateTime($datetimeString);
@@ -322,10 +304,12 @@ class DataAccessTest extends FunctionalTestCase
         self::assertStringStartsWith($datetimeString, $row[1]);
     }
 
-    public function testFetchArrayWithMissingTypes() : void
+    public function testFetchArrayWithMissingTypes(): void
     {
-        if ($this->connection->getDriver() instanceof MySQLiDriver ||
-            $this->connection->getDriver() instanceof SQLSrvDriver) {
+        if (
+            $this->connection->getDriver() instanceof MySQLiDriver ||
+            $this->connection->getDriver() instanceof SQLSrvDriver
+        ) {
             self::markTestSkipped('mysqli and sqlsrv actually supports this');
         }
 
@@ -338,7 +322,7 @@ class DataAccessTest extends FunctionalTestCase
         $this->connection->fetchNumeric($sql, [1, $datetime]);
     }
 
-    public function testFetchOne() : void
+    public function testFetchOne(): void
     {
         $sql     = 'SELECT test_int FROM fetch_table WHERE test_int = ? AND test_string = ?';
         $testInt = $this->connection->fetchOne($sql, [1, 'foo']);
@@ -351,7 +335,7 @@ class DataAccessTest extends FunctionalTestCase
         self::assertEquals('foo', $testString);
     }
 
-    public function testFetchOneWithTypes() : void
+    public function testFetchOneWithTypes(): void
     {
         $datetimeString = '2010-01-01 10:10:10';
         $datetime       = new DateTime($datetimeString);
@@ -368,10 +352,12 @@ class DataAccessTest extends FunctionalTestCase
         self::assertStringStartsWith($datetimeString, $column);
     }
 
-    public function testFetchOneWithMissingTypes() : void
+    public function testFetchOneWithMissingTypes(): void
     {
-        if ($this->connection->getDriver() instanceof MySQLiDriver ||
-            $this->connection->getDriver() instanceof SQLSrvDriver) {
+        if (
+            $this->connection->getDriver() instanceof MySQLiDriver ||
+            $this->connection->getDriver() instanceof SQLSrvDriver
+        ) {
             self::markTestSkipped('mysqli and sqlsrv actually supports this');
         }
 
@@ -387,22 +373,21 @@ class DataAccessTest extends FunctionalTestCase
     /**
      * @group DDC-697
      */
-    public function testExecuteQueryBindDateTimeType() : void
+    public function testExecuteQueryBindDateTimeType(): void
     {
-        $sql  = 'SELECT count(*) AS c FROM fetch_table WHERE test_datetime = ?';
-        $stmt = $this->connection->executeQuery(
-            $sql,
+        $value = $this->connection->fetchOne(
+            'SELECT count(*) AS c FROM fetch_table WHERE test_datetime = ?',
             [1 => new DateTime('2010-01-01 10:10:10')],
             [1 => Types::DATETIME_MUTABLE]
         );
 
-        self::assertEquals(1, $stmt->fetchOne());
+        self::assertEquals(1, $value);
     }
 
     /**
      * @group DDC-697
      */
-    public function testExecuteUpdateBindDateTimeType() : void
+    public function testExecuteUpdateBindDateTimeType(): void
     {
         $datetime = new DateTime('2010-02-02 20:20:20');
 
@@ -428,43 +413,43 @@ class DataAccessTest extends FunctionalTestCase
     /**
      * @group DDC-697
      */
-    public function testPrepareQueryBindValueDateTimeType() : void
+    public function testPrepareQueryBindValueDateTimeType(): void
     {
         $sql  = 'SELECT count(*) AS c FROM fetch_table WHERE test_datetime = ?';
         $stmt = $this->connection->prepare($sql);
         self::assertInstanceOf(Statement::class, $stmt);
         $stmt->bindValue(1, new DateTime('2010-01-01 10:10:10'), Types::DATETIME_MUTABLE);
-        $stmt->execute();
+        $result = $stmt->execute();
 
-        self::assertEquals(1, $stmt->fetchOne());
+        self::assertEquals(1, $result->fetchOne());
     }
 
     /**
      * @group DBAL-78
      */
-    public function testNativeArrayListSupport() : void
+    public function testNativeArrayListSupport(): void
     {
         for ($i = 100; $i < 110; $i++) {
             $this->connection->insert('fetch_table', ['test_int' => $i, 'test_string' => 'foo' . $i, 'test_datetime' => '2010-01-01 10:10:10']);
         }
 
-        $stmt = $this->connection->executeQuery(
+        $result = $this->connection->executeQuery(
             'SELECT test_int FROM fetch_table WHERE test_int IN (?)',
             [[100, 101, 102, 103, 104]],
             [Connection::PARAM_INT_ARRAY]
         );
 
-        $data = $stmt->fetchAllNumeric();
+        $data = $result->fetchAllNumeric();
         self::assertCount(5, $data);
         self::assertEquals([[100], [101], [102], [103], [104]], $data);
 
-        $stmt = $this->connection->executeQuery(
+        $result = $this->connection->executeQuery(
             'SELECT test_int FROM fetch_table WHERE test_string IN (?)',
             [['foo100', 'foo101', 'foo102', 'foo103', 'foo104']],
             [Connection::PARAM_STR_ARRAY]
         );
 
-        $data = $stmt->fetchAllNumeric();
+        $data = $result->fetchAllNumeric();
         self::assertCount(5, $data);
         self::assertEquals([[100], [101], [102], [103], [104]], $data);
     }
@@ -472,7 +457,7 @@ class DataAccessTest extends FunctionalTestCase
     /**
      * @dataProvider getTrimExpressionData
      */
-    public function testTrimExpression(string $value, int $position, ?string $char, string $expectedResult) : void
+    public function testTrimExpression(string $value, int $position, ?string $char, string $expectedResult): void
     {
         $sql = 'SELECT ' .
             $this->connection->getDatabasePlatform()->getTrimExpression($value, $position, $char) . ' AS trimmed ' .
@@ -488,7 +473,7 @@ class DataAccessTest extends FunctionalTestCase
     /**
      * @return array<int, array<int, mixed>>
      */
-    public static function getTrimExpressionData() : iterable
+    public static function getTrimExpressionData(): iterable
     {
         return [
             ['test_string', TrimMode::UNSPECIFIED, null, 'foo'],
@@ -530,7 +515,7 @@ class DataAccessTest extends FunctionalTestCase
         ];
     }
 
-    public function testTrimExpressionInvalidMode() : void
+    public function testTrimExpressionInvalidMode(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->connection->getDatabasePlatform()->getTrimExpression('Trim me!', 0xBEEF);
@@ -539,12 +524,12 @@ class DataAccessTest extends FunctionalTestCase
     /**
      * @dataProvider modeProvider
      */
-    public function testDateAddSeconds(callable $buildQuery, callable $bindParams) : void
+    public function testDateAddSeconds(callable $buildQuery, callable $bindParams): void
     {
         $this->assertDateExpression(
             $buildQuery,
             $bindParams,
-            static function (AbstractPlatform $platform, string $interval) : string {
+            static function (AbstractPlatform $platform, string $interval): string {
                 return $platform->getDateAddSecondsExpression('test_datetime', $interval);
             },
             1,
@@ -555,12 +540,12 @@ class DataAccessTest extends FunctionalTestCase
     /**
      * @dataProvider modeProvider
      */
-    public function testDateSubSeconds(callable $buildQuery, callable $bindParams) : void
+    public function testDateSubSeconds(callable $buildQuery, callable $bindParams): void
     {
         $this->assertDateExpression(
             $buildQuery,
             $bindParams,
-            static function (AbstractPlatform $platform, string $interval) : string {
+            static function (AbstractPlatform $platform, string $interval): string {
                 return $platform->getDateSubSecondsExpression('test_datetime', $interval);
             },
             1,
@@ -571,12 +556,12 @@ class DataAccessTest extends FunctionalTestCase
     /**
      * @dataProvider modeProvider
      */
-    public function testDateAddMinutes(callable $buildQuery, callable $bindParams) : void
+    public function testDateAddMinutes(callable $buildQuery, callable $bindParams): void
     {
         $this->assertDateExpression(
             $buildQuery,
             $bindParams,
-            static function (AbstractPlatform $platform, string $interval) : string {
+            static function (AbstractPlatform $platform, string $interval): string {
                 return $platform->getDateAddMinutesExpression('test_datetime', $interval);
             },
             5,
@@ -587,12 +572,12 @@ class DataAccessTest extends FunctionalTestCase
     /**
      * @dataProvider modeProvider
      */
-    public function testDateSubMinutes(callable $buildQuery, callable $bindParams) : void
+    public function testDateSubMinutes(callable $buildQuery, callable $bindParams): void
     {
         $this->assertDateExpression(
             $buildQuery,
             $bindParams,
-            static function (AbstractPlatform $platform, string $interval) : string {
+            static function (AbstractPlatform $platform, string $interval): string {
                 return $platform->getDateSubMinutesExpression('test_datetime', $interval);
             },
             5,
@@ -603,12 +588,12 @@ class DataAccessTest extends FunctionalTestCase
     /**
      * @dataProvider modeProvider
      */
-    public function testDateAddHours(callable $buildQuery, callable $bindParams) : void
+    public function testDateAddHours(callable $buildQuery, callable $bindParams): void
     {
         $this->assertDateExpression(
             $buildQuery,
             $bindParams,
-            static function (AbstractPlatform $platform, string $interval) : string {
+            static function (AbstractPlatform $platform, string $interval): string {
                 return $platform->getDateAddHourExpression('test_datetime', $interval);
             },
             3,
@@ -619,12 +604,12 @@ class DataAccessTest extends FunctionalTestCase
     /**
      * @dataProvider modeProvider
      */
-    public function testDateSubHours(callable $buildQuery, callable $bindParams) : void
+    public function testDateSubHours(callable $buildQuery, callable $bindParams): void
     {
         $this->assertDateExpression(
             $buildQuery,
             $bindParams,
-            static function (AbstractPlatform $platform, string $interval) : string {
+            static function (AbstractPlatform $platform, string $interval): string {
                 return $platform->getDateSubHourExpression('test_datetime', $interval);
             },
             3,
@@ -635,12 +620,12 @@ class DataAccessTest extends FunctionalTestCase
     /**
      * @dataProvider modeProvider
      */
-    public function testDateAddDays(callable $buildQuery, callable $bindParams) : void
+    public function testDateAddDays(callable $buildQuery, callable $bindParams): void
     {
         $this->assertDateExpression(
             $buildQuery,
             $bindParams,
-            static function (AbstractPlatform $platform, string $interval) : string {
+            static function (AbstractPlatform $platform, string $interval): string {
                 return $platform->getDateAddDaysExpression('test_datetime', $interval);
             },
             10,
@@ -651,12 +636,12 @@ class DataAccessTest extends FunctionalTestCase
     /**
      * @dataProvider modeProvider
      */
-    public function testDateSubDays(callable $buildQuery, callable $bindParams) : void
+    public function testDateSubDays(callable $buildQuery, callable $bindParams): void
     {
         $this->assertDateExpression(
             $buildQuery,
             $bindParams,
-            static function (AbstractPlatform $platform, string $interval) : string {
+            static function (AbstractPlatform $platform, string $interval): string {
                 return $platform->getDateSubDaysExpression('test_datetime', $interval);
             },
             10,
@@ -667,12 +652,12 @@ class DataAccessTest extends FunctionalTestCase
     /**
      * @dataProvider modeProvider
      */
-    public function testDateAddWeeks(callable $buildQuery, callable $bindParams) : void
+    public function testDateAddWeeks(callable $buildQuery, callable $bindParams): void
     {
         $this->assertDateExpression(
             $buildQuery,
             $bindParams,
-            static function (AbstractPlatform $platform, string $interval) : string {
+            static function (AbstractPlatform $platform, string $interval): string {
                 return $platform->getDateAddWeeksExpression('test_datetime', $interval);
             },
             1,
@@ -683,12 +668,12 @@ class DataAccessTest extends FunctionalTestCase
     /**
      * @dataProvider modeProvider
      */
-    public function testDateSubWeeks(callable $buildQuery, callable $bindParams) : void
+    public function testDateSubWeeks(callable $buildQuery, callable $bindParams): void
     {
         $this->assertDateExpression(
             $buildQuery,
             $bindParams,
-            static function (AbstractPlatform $platform, string $interval) : string {
+            static function (AbstractPlatform $platform, string $interval): string {
                 return $platform->getDateSubWeeksExpression('test_datetime', $interval);
             },
             1,
@@ -699,12 +684,12 @@ class DataAccessTest extends FunctionalTestCase
     /**
      * @dataProvider modeProvider
      */
-    public function testDateAddMonths(callable $buildQuery, callable $bindParams) : void
+    public function testDateAddMonths(callable $buildQuery, callable $bindParams): void
     {
         $this->assertDateExpression(
             $buildQuery,
             $bindParams,
-            static function (AbstractPlatform $platform, string $interval) : string {
+            static function (AbstractPlatform $platform, string $interval): string {
                 return $platform->getDateAddMonthExpression('test_datetime', $interval);
             },
             2,
@@ -715,12 +700,12 @@ class DataAccessTest extends FunctionalTestCase
     /**
      * @dataProvider modeProvider
      */
-    public function testDateSubMonths(callable $buildQuery, callable $bindParams) : void
+    public function testDateSubMonths(callable $buildQuery, callable $bindParams): void
     {
         $this->assertDateExpression(
             $buildQuery,
             $bindParams,
-            static function (AbstractPlatform $platform, string $interval) : string {
+            static function (AbstractPlatform $platform, string $interval): string {
                 return $platform->getDateSubMonthExpression('test_datetime', $interval);
             },
             2,
@@ -731,12 +716,12 @@ class DataAccessTest extends FunctionalTestCase
     /**
      * @dataProvider modeProvider
      */
-    public function testDateAddQuarters(callable $buildQuery, callable $bindParams) : void
+    public function testDateAddQuarters(callable $buildQuery, callable $bindParams): void
     {
         $this->assertDateExpression(
             $buildQuery,
             $bindParams,
-            static function (AbstractPlatform $platform, string $interval) : string {
+            static function (AbstractPlatform $platform, string $interval): string {
                 return $platform->getDateAddQuartersExpression('test_datetime', $interval);
             },
             3,
@@ -747,12 +732,12 @@ class DataAccessTest extends FunctionalTestCase
     /**
      * @dataProvider modeProvider
      */
-    public function testDateSubQuarters(callable $buildQuery, callable $bindParams) : void
+    public function testDateSubQuarters(callable $buildQuery, callable $bindParams): void
     {
         $this->assertDateExpression(
             $buildQuery,
             $bindParams,
-            static function (AbstractPlatform $platform, string $interval) : string {
+            static function (AbstractPlatform $platform, string $interval): string {
                 return $platform->getDateSubQuartersExpression('test_datetime', $interval);
             },
             3,
@@ -763,12 +748,12 @@ class DataAccessTest extends FunctionalTestCase
     /**
      * @dataProvider modeProvider
      */
-    public function testDateAddYears(callable $buildQuery, callable $bindParams) : void
+    public function testDateAddYears(callable $buildQuery, callable $bindParams): void
     {
         $this->assertDateExpression(
             $buildQuery,
             $bindParams,
-            static function (AbstractPlatform $platform, string $interval) : string {
+            static function (AbstractPlatform $platform, string $interval): string {
                 return $platform->getDateAddYearsExpression('test_datetime', $interval);
             },
             6,
@@ -779,12 +764,12 @@ class DataAccessTest extends FunctionalTestCase
     /**
      * @dataProvider modeProvider
      */
-    public function testDateSubYears(callable $buildQuery, callable $bindParams) : void
+    public function testDateSubYears(callable $buildQuery, callable $bindParams): void
     {
         $this->assertDateExpression(
             $buildQuery,
             $bindParams,
-            static function (AbstractPlatform $platform, string $interval) : string {
+            static function (AbstractPlatform $platform, string $interval): string {
                 return $platform->getDateSubYearsExpression('test_datetime', $interval);
             },
             6,
@@ -799,7 +784,7 @@ class DataAccessTest extends FunctionalTestCase
      * @param int      $interval   Interval value
      * @param string   $expected   Expected value
      */
-    private function assertDateExpression(callable $buildQuery, callable $bindParams, callable $expression, int $interval, string $expected) : void
+    private function assertDateExpression(callable $buildQuery, callable $bindParams, callable $expression, int $interval, string $expected): void
     {
         $connection = $this->connection;
         $platform   = $connection->getDatabasePlatform();
@@ -808,9 +793,7 @@ class DataAccessTest extends FunctionalTestCase
         $stmt  = $connection->prepare($query);
         $bindParams($stmt, $interval);
 
-        $stmt->execute();
-
-        $date = $stmt->fetchOne();
+        $date = $stmt->execute()->fetchOne();
 
         self::assertEquals($expected, date('Y-m-d H:i:s', strtotime($date)));
     }
@@ -818,35 +801,35 @@ class DataAccessTest extends FunctionalTestCase
     /**
      * @return mixed[][]
      */
-    public static function modeProvider() : array
+    public static function modeProvider(): array
     {
         return [
             'bind' => [
-                static function (int $interval) : string {
+                static function (int $interval): string {
                     return '?';
                 },
-                static function (Statement $stmt, int $interval) : void {
+                static function (Statement $stmt, int $interval): void {
                     $stmt->bindParam(1, $interval, ParameterType::INTEGER);
                 },
             ],
             'literal' => [
-                static function (int $interval) : string {
+                static function (int $interval): string {
                     return sprintf('%d', $interval);
                 },
-                static function (Statement $stmt, int $interval) : void {
+                static function (Statement $stmt, int $interval): void {
                 },
             ],
             'expression' => [
-                static function (int $interval) : string {
+                static function (int $interval): string {
                     return sprintf('(0 + %d)', $interval);
                 },
-                static function (Statement $stmt, int $interval) : void {
+                static function (Statement $stmt, int $interval): void {
                 },
             ],
         ];
     }
 
-    public function testSqliteDateArithmeticWithDynamicInterval() : void
+    public function testSqliteDateArithmeticWithDynamicInterval(): void
     {
         $platform = $this->connection->getDatabasePlatform();
 
@@ -873,7 +856,7 @@ class DataAccessTest extends FunctionalTestCase
         self::assertEquals(1, $rowCount);
     }
 
-    public function testLocateExpression() : void
+    public function testLocateExpression(): void
     {
         $platform = $this->connection->getDatabasePlatform();
 
@@ -908,7 +891,7 @@ class DataAccessTest extends FunctionalTestCase
     /**
      * @dataProvider substringExpressionProvider
      */
-    public function testSubstringExpression(string $string, string $start, ?string $length, string $expected) : void
+    public function testSubstringExpression(string $string, string $start, ?string $length, string $expected): void
     {
         $platform = $this->connection->getDatabasePlatform();
 
@@ -922,7 +905,7 @@ class DataAccessTest extends FunctionalTestCase
     /**
      * @return mixed[][]
      */
-    public static function substringExpressionProvider() : iterable
+    public static function substringExpressionProvider(): iterable
     {
         return [
             'start-no-length' => [
@@ -946,7 +929,7 @@ class DataAccessTest extends FunctionalTestCase
         ];
     }
 
-    public function testQuoteSQLInjection() : void
+    public function testQuoteSQLInjection(): void
     {
         $sql  = 'SELECT * FROM fetch_table WHERE test_string = ' . $this->connection->quote("bar' OR '1'='1");
         $rows = $this->connection->fetchAllAssociative($sql);
@@ -957,7 +940,7 @@ class DataAccessTest extends FunctionalTestCase
     /**
      * @group DDC-1213
      */
-    public function testBitComparisonExpressionSupport() : void
+    public function testBitComparisonExpressionSupport(): void
     {
         $this->connection->exec('DELETE FROM fetch_table');
         $platform = $this->connection->getDatabasePlatform();
@@ -980,8 +963,7 @@ class DataAccessTest extends FunctionalTestCase
             . ', ' . $platform->getBitAndComparisonExpression('test_int', '2') . ' AS bit_and'
             . ' FROM fetch_table';
 
-        $stmt = $this->connection->executeQuery($sql);
-        $data = $stmt->fetchAllAssociative();
+        $data = $this->connection->fetchAllAssociative($sql);
 
         self::assertCount(4, $data);
         self::assertEquals(count($bitmap), count($data));
@@ -1006,7 +988,7 @@ class DataAccessTest extends FunctionalTestCase
     /**
      * @group DBAL-241
      */
-    public function testFetchAllStyleColumn() : void
+    public function testFetchAllStyleColumn(): void
     {
         $sql = 'DELETE FROM fetch_table';
         $this->connection->executeUpdate($sql);
@@ -1015,7 +997,7 @@ class DataAccessTest extends FunctionalTestCase
         $this->connection->insert('fetch_table', ['test_int' => 10, 'test_string' => 'foo']);
 
         $sql    = 'SELECT test_int FROM fetch_table';
-        $values = $this->connection->query($sql)->fetchColumn();
+        $values = $this->connection->query($sql)->fetchFirstColumn();
 
         self::assertEquals([1, 10], $values);
     }
@@ -1023,7 +1005,7 @@ class DataAccessTest extends FunctionalTestCase
     /**
      * @group DBAL-257
      */
-    public function testEmptyFetchOneReturnsFalse() : void
+    public function testEmptyFetchOneReturnsFalse(): void
     {
         $this->connection->beginTransaction();
         $this->connection->exec('DELETE FROM fetch_table');
@@ -1035,11 +1017,10 @@ class DataAccessTest extends FunctionalTestCase
     /**
      * @group DBAL-435
      */
-    public function testEmptyParameters() : void
+    public function testEmptyParameters(): void
     {
         $sql  = 'SELECT * FROM fetch_table WHERE test_int IN (?)';
-        $stmt = $this->connection->executeQuery($sql, [[]], [Connection::PARAM_INT_ARRAY]);
-        $rows = $stmt->fetchAllAssociative();
+        $rows = $this->connection->fetchAllAssociative($sql, [[]], [Connection::PARAM_INT_ARRAY]);
 
         self::assertEquals([], $rows);
     }
@@ -1047,7 +1028,7 @@ class DataAccessTest extends FunctionalTestCase
     /**
      * @group DBAL-1028
      */
-    public function testFetchOneNoResult() : void
+    public function testFetchOneNoResult(): void
     {
         self::assertFalse(
             $this->connection->fetchOne('SELECT test_int FROM fetch_table WHERE test_int = ?', [-1])

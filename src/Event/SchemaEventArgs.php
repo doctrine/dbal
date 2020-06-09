@@ -17,14 +17,14 @@ class SchemaEventArgs extends EventArgs
     /**
      * @return $this
      */
-    public function preventDefault() : self
+    public function preventDefault(): self
     {
         $this->preventDefault = true;
 
         return $this;
     }
 
-    public function isDefaultPrevented() : bool
+    public function isDefaultPrevented(): bool
     {
         return $this->preventDefault;
     }

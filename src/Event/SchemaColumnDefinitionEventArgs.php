@@ -48,14 +48,14 @@ class SchemaColumnDefinitionEventArgs extends SchemaEventArgs
      *
      * @return $this
      */
-    public function setColumn(?Column $column) : self
+    public function setColumn(?Column $column): self
     {
         $this->column = $column;
 
         return $this;
     }
 
-    public function getColumn() : ?Column
+    public function getColumn(): ?Column
     {
         return $this->column;
     }
@@ -63,22 +63,22 @@ class SchemaColumnDefinitionEventArgs extends SchemaEventArgs
     /**
      * @return array<string, mixed>
      */
-    public function getTableColumn() : array
+    public function getTableColumn(): array
     {
         return $this->tableColumn;
     }
 
-    public function getTable() : string
+    public function getTable(): string
     {
         return $this->table;
     }
 
-    public function getDatabase() : string
+    public function getDatabase(): string
     {
         return $this->database;
     }
 
-    public function getConnection() : Connection
+    public function getConnection(): Connection
     {
         return $this->connection;
     }

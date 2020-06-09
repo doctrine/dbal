@@ -5,18 +5,19 @@ declare(strict_types=1);
 namespace Doctrine\DBAL;
 
 use Doctrine\DBAL\Driver\DriverException;
+use Doctrine\DBAL\Driver\Result as DriverResult;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
 use Throwable;
-use Traversable;
+
 use function is_string;
 
 /**
  * A thin wrapper around a Doctrine\DBAL\Driver\Statement that adds support
  * for logging, DBAL mapping types, etc.
  */
-class Statement implements DriverStatement, ResultStatement
+class Statement implements DriverStatement
 {
     /**
      * The SQL statement.
@@ -93,7 +94,7 @@ class Statement implements DriverStatement, ResultStatement
      * @throws DBALException
      * @throws DriverException
      */
-    public function bindValue($param, $value, $type = ParameterType::STRING) : void
+    public function bindValue($param, $value, $type = ParameterType::STRING): void
     {
         $this->params[$param] = $value;
         $this->types[$param]  = $type;
@@ -128,7 +129,7 @@ class Statement implements DriverStatement, ResultStatement
      *
      * @throws DriverException
      */
-    public function bindParam($param, &$variable, int $type = ParameterType::STRING, ?int $length = null) : void
+    public function bindParam($param, &$variable, int $type = ParameterType::STRING, ?int $length = null): void
     {
         $this->params[$param] = $variable;
         $this->types[$param]  = $type;
@@ -141,7 +142,7 @@ class Statement implements DriverStatement, ResultStatement
      *
      * @throws DBALException
      */
-    public function execute(?array $params = null) : void
+    public function execute(?array $params = null): DriverResult
     {
         if ($params !== null) {
             $this->params = $params;
@@ -151,7 +152,10 @@ class Statement implements DriverStatement, ResultStatement
         $logger->startQuery($this->sql, $this->params, $this->types);
 
         try {
-            $this->stmt->execute($params);
+            return new Result(
+                $this->stmt->execute($params),
+                $this->conn
+            );
         } catch (Throwable $ex) {
             throw DBALException::driverExceptionDuringQuery(
                 $this->conn->getDriver(),
@@ -161,175 +165,16 @@ class Statement implements DriverStatement, ResultStatement
             );
         } finally {
             $logger->stopQuery();
+
+            $this->params = [];
+            $this->types  = [];
         }
-
-        $this->params = [];
-        $this->types  = [];
-    }
-
-    public function closeCursor() : void
-    {
-        $this->stmt->closeCursor();
-    }
-
-    /**
-     * Returns the number of columns in the result set.
-     */
-    public function columnCount() : int
-    {
-        return $this->stmt->columnCount();
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @throws DBALException
-     */
-    public function fetchNumeric()
-    {
-        try {
-            return $this->stmt->fetchNumeric();
-        } catch (DriverException $e) {
-            throw DBALException::driverException($this->conn->getDriver(), $e);
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @throws DBALException
-     */
-    public function fetchAssociative()
-    {
-        try {
-            return $this->stmt->fetchAssociative();
-        } catch (DriverException $e) {
-            throw DBALException::driverException($this->conn->getDriver(), $e);
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchOne()
-    {
-        try {
-            return $this->stmt->fetchOne();
-        } catch (DriverException $e) {
-            throw DBALException::driverException($this->conn->getDriver(), $e);
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @throws DBALException
-     */
-    public function fetchAllNumeric() : array
-    {
-        try {
-            return $this->stmt->fetchAllNumeric();
-        } catch (DriverException $e) {
-            throw DBALException::driverException($this->conn->getDriver(), $e);
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @throws DBALException
-     */
-    public function fetchAllAssociative() : array
-    {
-        try {
-            return $this->stmt->fetchAllAssociative();
-        } catch (DriverException $e) {
-            throw DBALException::driverException($this->conn->getDriver(), $e);
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @throws DBALException
-     */
-    public function fetchColumn() : array
-    {
-        try {
-            return $this->stmt->fetchColumn();
-        } catch (DriverException $e) {
-            throw DBALException::driverException($this->conn->getDriver(), $e);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @return Traversable<int,array<int,mixed>>
-     *
-     * @throws DBALException
-     */
-    public function iterateNumeric() : Traversable
-    {
-        try {
-            while (($row = $this->stmt->fetchNumeric()) !== false) {
-                yield $row;
-            }
-        } catch (DriverException $e) {
-            throw DBALException::driverException($this->conn->getDriver(), $e);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @return Traversable<int,array<string,mixed>>
-     *
-     * @throws DBALException
-     */
-    public function iterateAssociative() : Traversable
-    {
-        try {
-            while (($row = $this->stmt->fetchAssociative()) !== false) {
-                yield $row;
-            }
-        } catch (DriverException $e) {
-            throw DBALException::driverException($this->conn->getDriver(), $e);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @return Traversable<int,mixed>
-     *
-     * @throws DBALException
-     */
-    public function iterateColumn() : Traversable
-    {
-        try {
-            while (($value = $this->stmt->fetchOne()) !== false) {
-                yield $value;
-            }
-        } catch (DriverException $e) {
-            throw DBALException::driverException($this->conn->getDriver(), $e);
-        }
-    }
-
-    /**
-     * Returns the number of rows affected by the last execution of this statement.
-     *
-     * @return int The number of affected rows.
-     */
-    public function rowCount() : int
-    {
-        return $this->stmt->rowCount();
     }
 
     /**
      * Gets the wrapped driver statement.
      */
-    public function getWrappedStatement() : DriverStatement
+    public function getWrappedStatement(): DriverStatement
     {
         return $this->stmt;
     }

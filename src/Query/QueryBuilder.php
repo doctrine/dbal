@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Query;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Driver\ResultStatement;
+use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\Exception\NonUniqueAlias;
 use Doctrine\DBAL\Query\Exception\UnknownAlias;
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
+
 use function array_key_exists;
 use function array_keys;
 use function array_merge;
@@ -210,7 +211,7 @@ class QueryBuilder
      * For more complex expression construction, consider storing the expression
      * builder object in a local variable.
      */
-    public function expr() : ExpressionBuilder
+    public function expr(): ExpressionBuilder
     {
         return $this->connection->getExpressionBuilder();
     }
@@ -218,7 +219,7 @@ class QueryBuilder
     /**
      * Gets the type of the currently built query.
      */
-    public function getType() : int
+    public function getType(): int
     {
         return $this->type;
     }
@@ -226,7 +227,7 @@ class QueryBuilder
     /**
      * Gets the associated DBAL Connection for this query builder.
      */
-    public function getConnection() : Connection
+    public function getConnection(): Connection
     {
         return $this->connection;
     }
@@ -236,7 +237,7 @@ class QueryBuilder
      *
      * @return int Either QueryBuilder::STATE_DIRTY or QueryBuilder::STATE_CLEAN.
      */
-    public function getState() : int
+    public function getState(): int
     {
         return $this->state;
     }
@@ -247,7 +248,7 @@ class QueryBuilder
      * Uses {@see Connection::executeQuery} for select statements and {@see Connection::executeUpdate}
      * for insert, update and delete statements.
      *
-     * @return ResultStatement|int
+     * @return Result|int
      */
     public function execute()
     {
@@ -272,7 +273,7 @@ class QueryBuilder
      *
      * @throws QueryException If the object doesn't represent a valid query in its current state.
      */
-    public function getSQL() : string
+    public function getSQL(): string
     {
         if ($this->sql !== null && $this->state === self::STATE_CLEAN) {
             return $this->sql;
@@ -320,7 +321,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function setParameter($key, $value, $type = null) : self
+    public function setParameter($key, $value, $type = null): self
     {
         if ($type !== null) {
             $this->paramTypes[$key] = $type;
@@ -350,7 +351,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function setParameters(array $params, array $types = []) : self
+    public function setParameters(array $params, array $types = []): self
     {
         $this->paramTypes = $types;
         $this->params     = $params;
@@ -363,7 +364,7 @@ class QueryBuilder
      *
      * @return array<string|int, mixed> The currently defined query parameters indexed by parameter index or name.
      */
-    public function getParameters() : array
+    public function getParameters(): array
     {
         return $this->params;
     }
@@ -385,7 +386,7 @@ class QueryBuilder
      *
      * @return array<string|int, mixed> The currently defined query parameter types indexed by parameter index or name.
      */
-    public function getParameterTypes() : array
+    public function getParameterTypes(): array
     {
         return $this->paramTypes;
     }
@@ -409,7 +410,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function setFirstResult(int $firstResult) : self
+    public function setFirstResult(int $firstResult): self
     {
         $this->state       = self::STATE_DIRTY;
         $this->firstResult = $firstResult;
@@ -422,7 +423,7 @@ class QueryBuilder
      *
      * @return int The position of the first result.
      */
-    public function getFirstResult() : int
+    public function getFirstResult(): int
     {
         return $this->firstResult;
     }
@@ -434,7 +435,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function setMaxResults(?int $maxResults) : self
+    public function setMaxResults(?int $maxResults): self
     {
         $this->state      = self::STATE_DIRTY;
         $this->maxResults = $maxResults;
@@ -448,7 +449,7 @@ class QueryBuilder
      *
      * @return int|null The maximum number of results.
      */
-    public function getMaxResults() : ?int
+    public function getMaxResults(): ?int
     {
         return $this->maxResults;
     }
@@ -468,7 +469,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function select(string ...$expressions) : self
+    public function select(string ...$expressions): self
     {
         $this->type = self::SELECT;
 
@@ -495,7 +496,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function distinct() : self
+    public function distinct(): self
     {
         $this->distinct = true;
 
@@ -520,7 +521,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function addSelect(string $expression, string ...$expressions) : self
+    public function addSelect(string $expression, string ...$expressions): self
     {
         $this->type = self::SELECT;
 
@@ -546,7 +547,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function delete(string $table) : self
+    public function delete(string $table): self
     {
         $this->type = self::DELETE;
 
@@ -572,7 +573,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function update(string $table) : self
+    public function update(string $table): self
     {
         $this->type = self::UPDATE;
 
@@ -602,7 +603,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function insert(string $table) : self
+    public function insert(string $table): self
     {
         $this->type = self::INSERT;
 
@@ -628,7 +629,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function from(string $table, ?string $alias = null) : self
+    public function from(string $table, ?string $alias = null): self
     {
         $this->from[] = new From($table, $alias);
 
@@ -654,7 +655,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function join(string $fromAlias, string $join, string $alias, ?string $condition = null) : self
+    public function join(string $fromAlias, string $join, string $alias, ?string $condition = null): self
     {
         return $this->innerJoin($fromAlias, $join, $alias, $condition);
     }
@@ -676,7 +677,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function innerJoin(string $fromAlias, string $join, string $alias, ?string $condition = null) : self
+    public function innerJoin(string $fromAlias, string $join, string $alias, ?string $condition = null): self
     {
         $this->join[$fromAlias][] = Join::inner($join, $alias, $condition);
 
@@ -702,7 +703,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function leftJoin(string $fromAlias, string $join, string $alias, ?string $condition = null) : self
+    public function leftJoin(string $fromAlias, string $join, string $alias, ?string $condition = null): self
     {
         $this->join[$fromAlias][] = Join::left($join, $alias, $condition);
 
@@ -728,7 +729,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function rightJoin(string $fromAlias, string $join, string $alias, ?string $condition = null) : self
+    public function rightJoin(string $fromAlias, string $join, string $alias, ?string $condition = null): self
     {
         $this->join[$fromAlias][] = Join::right($join, $alias, $condition);
 
@@ -752,7 +753,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function set(string $key, string $value) : self
+    public function set(string $key, string $value): self
     {
         $this->set[] = $key . ' = ' . $value;
 
@@ -788,7 +789,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function where($predicate, ...$predicates) : self
+    public function where($predicate, ...$predicates): self
     {
         $this->where = $this->createPredicate($predicate, ...$predicates);
 
@@ -816,7 +817,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function andWhere($predicate, ...$predicates) : self
+    public function andWhere($predicate, ...$predicates): self
     {
         $this->where = $this->appendToPredicate($this->where, CompositeExpression::TYPE_AND, $predicate, ...$predicates);
 
@@ -844,7 +845,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function orWhere($predicate, ...$predicates) : self
+    public function orWhere($predicate, ...$predicates): self
     {
         $this->where = $this->appendToPredicate($this->where, CompositeExpression::TYPE_OR, $predicate, ...$predicates);
 
@@ -869,7 +870,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function groupBy(string $expression, string ...$expressions) : self
+    public function groupBy(string $expression, string ...$expressions): self
     {
         $this->groupBy = array_merge([$expression], $expressions);
 
@@ -894,7 +895,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function addGroupBy(string $expression, string ...$expressions) : self
+    public function addGroupBy(string $expression, string ...$expressions): self
     {
         $this->groupBy = array_merge($this->groupBy, [$expression], $expressions);
 
@@ -922,7 +923,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function setValue(string $column, string $value) : self
+    public function setValue(string $column, string $value): self
     {
         $this->values[$column] = $value;
 
@@ -948,7 +949,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function values(array $values) : self
+    public function values(array $values): self
     {
         $this->values = $values;
 
@@ -966,7 +967,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function having($predicate, ...$predicates) : self
+    public function having($predicate, ...$predicates): self
     {
         $this->having = $this->createPredicate($predicate, ...$predicates);
 
@@ -984,7 +985,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function andHaving($predicate, ...$predicates) : self
+    public function andHaving($predicate, ...$predicates): self
     {
         $this->having = $this->appendToPredicate($this->having, CompositeExpression::TYPE_AND, $predicate, ...$predicates);
 
@@ -1002,7 +1003,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function orHaving($predicate, ...$predicates) : self
+    public function orHaving($predicate, ...$predicates): self
     {
         $this->having = $this->appendToPredicate($this->having, CompositeExpression::TYPE_OR, $predicate, ...$predicates);
 
@@ -1060,7 +1061,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function orderBy(string $sort, ?string $order = null) : self
+    public function orderBy(string $sort, ?string $order = null): self
     {
         $orderBy = $sort;
 
@@ -1083,7 +1084,7 @@ class QueryBuilder
      *
      * @return $this This QueryBuilder instance.
      */
-    public function addOrderBy(string $sort, ?string $order = null) : self
+    public function addOrderBy(string $sort, ?string $order = null): self
     {
         $orderBy = $sort;
 
@@ -1101,7 +1102,7 @@ class QueryBuilder
     /**
      * @throws QueryException
      */
-    private function getSQLForSelect() : string
+    private function getSQLForSelect(): string
     {
         if (count($this->select) === 0) {
             throw new QueryException('No SELECT expressions given. Please use select() or addSelect().');
@@ -1149,7 +1150,7 @@ class QueryBuilder
     /**
      * @return array<string, string>
      */
-    private function getFromClauses() : array
+    private function getFromClauses(): array
     {
         $fromClauses  = [];
         $knownAliases = [];
@@ -1178,7 +1179,7 @@ class QueryBuilder
      *
      * @throws QueryException
      */
-    private function verifyAllAliasesAreKnown(array $knownAliases) : void
+    private function verifyAllAliasesAreKnown(array $knownAliases): void
     {
         foreach ($this->join as $fromAlias => $joins) {
             if (! isset($knownAliases[$fromAlias])) {
@@ -1187,7 +1188,7 @@ class QueryBuilder
         }
     }
 
-    private function isLimitQuery() : bool
+    private function isLimitQuery(): bool
     {
         return $this->maxResults !== null || $this->firstResult !== 0;
     }
@@ -1195,7 +1196,7 @@ class QueryBuilder
     /**
      * Converts this instance into an INSERT string in SQL.
      */
-    private function getSQLForInsert() : string
+    private function getSQLForInsert(): string
     {
         return 'INSERT INTO ' . $this->table .
         ' (' . implode(', ', array_keys($this->values)) . ')' .
@@ -1205,7 +1206,7 @@ class QueryBuilder
     /**
      * Converts this instance into an UPDATE string in SQL.
      */
-    private function getSQLForUpdate() : string
+    private function getSQLForUpdate(): string
     {
         $query = 'UPDATE ' . $this->table . ' SET ' . implode(', ', $this->set);
 
@@ -1219,7 +1220,7 @@ class QueryBuilder
     /**
      * Converts this instance into a DELETE string in SQL.
      */
-    private function getSQLForDelete() : string
+    private function getSQLForDelete(): string
     {
         $query = 'DELETE FROM ' . $this->table;
 
@@ -1236,7 +1237,7 @@ class QueryBuilder
      *
      * @return string The string representation of this QueryBuilder.
      */
-    public function __toString() : string
+    public function __toString(): string
     {
         return $this->getSQL();
     }
@@ -1269,7 +1270,7 @@ class QueryBuilder
      *
      * @return string the placeholder name used.
      */
-    public function createNamedParameter($value, $type = ParameterType::STRING, ?string $placeHolder = null) : string
+    public function createNamedParameter($value, $type = ParameterType::STRING, ?string $placeHolder = null): string
     {
         if ($placeHolder === null) {
             $this->boundCounter++;
@@ -1300,7 +1301,7 @@ class QueryBuilder
      *
      * @param mixed $value
      */
-    public function createPositionalParameter($value, int $type = ParameterType::STRING) : string
+    public function createPositionalParameter($value, int $type = ParameterType::STRING): string
     {
         $this->boundCounter++;
         $this->setParameter($this->boundCounter, $value, $type);
@@ -1313,7 +1314,7 @@ class QueryBuilder
      *
      * @throws QueryException
      */
-    private function getSQLForJoins(string $fromAlias, array &$knownAliases) : string
+    private function getSQLForJoins(string $fromAlias, array &$knownAliases): string
     {
         $sql = '';
 

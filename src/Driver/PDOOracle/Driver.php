@@ -29,7 +29,7 @@ final class Driver extends AbstractOracleDriver
         string $username = '',
         string $password = '',
         array $driverOptions = []
-    ) : Connection {
+    ): Connection {
         if (! empty($params['persistent'])) {
             $driverOptions[PDO::ATTR_PERSISTENT] = true;
         }
@@ -53,7 +53,7 @@ final class Driver extends AbstractOracleDriver
      *
      * @return string The DSN.
      */
-    private function constructPdoDsn(array $params) : string
+    private function constructPdoDsn(array $params): string
     {
         $dsn = 'oci:dbname=' . $this->getEasyConnectString($params);
 

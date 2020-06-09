@@ -20,7 +20,7 @@ class SQLParserUtilsTest extends TestCase
     /**
      * @return mixed[][]
      */
-    public static function dataGetPlaceholderPositionalPositions() : iterable
+    public static function dataGetPlaceholderPositionalPositions(): iterable
     {
         return [
             // none
@@ -56,7 +56,7 @@ class SQLParserUtilsTest extends TestCase
     /**
      * @return iterable<int, array<int, mixed>>
      */
-    public function dataGetPlaceholderNamedPositions() : iterable
+    public function dataGetPlaceholderNamedPositions(): iterable
     {
         return [
             // none
@@ -111,7 +111,7 @@ SQLDATA
      *
      * @dataProvider dataGetPlaceholderPositionalPositions
      */
-    public function testGetPositionalPlaceholderPositions(string $query, array $expectedParamPos) : void
+    public function testGetPositionalPlaceholderPositions(string $query, array $expectedParamPos): void
     {
         $reflection = new ReflectionMethod(SQLParserUtils::class, 'getPositionalPlaceholderPositions');
         $reflection->setAccessible(true);
@@ -124,7 +124,7 @@ SQLDATA
      *
      * @dataProvider dataGetPlaceholderNamedPositions
      */
-    public function testGetNamedPlaceholderPositions(string $query, array $expectedParamPos) : void
+    public function testGetNamedPlaceholderPositions(string $query, array $expectedParamPos): void
     {
         $reflection = new ReflectionMethod(SQLParserUtils::class, 'getNamedPlaceholderPositions');
         $reflection->setAccessible(true);
@@ -135,7 +135,7 @@ SQLDATA
     /**
      * @return mixed[][]
      */
-    public static function dataExpandListParameters() : iterable
+    public static function dataExpandListParameters(): iterable
     {
         return [
             'Positional: Very simple with one needle' => [
@@ -467,7 +467,7 @@ SQLDATA
         string $expectedQuery,
         array $expectedParams,
         array $expectedTypes
-    ) : void {
+    ): void {
         [$query, $params, $types] = SQLParserUtils::expandListParameters($query, $params, $types);
 
         self::assertEquals($expectedQuery, $query, 'Query was not rewritten correctly.');
@@ -478,7 +478,7 @@ SQLDATA
     /**
      * @return mixed[][]
      */
-    public static function dataQueryWithMissingParameters() : iterable
+    public static function dataQueryWithMissingParameters(): iterable
     {
         return [
             [
@@ -520,7 +520,7 @@ SQLDATA
      *
      * @dataProvider dataQueryWithMissingParameters
      */
-    public function testExceptionIsThrownForMissingParam(string $query, array $params, array $types = []) : void
+    public function testExceptionIsThrownForMissingParam(string $query, array $params, array $types = []): void
     {
         $this->expectException(SQLParserUtilsException::class);
         $this->expectExceptionMessage('Parameter "param" is missing.');

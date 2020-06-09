@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver\SQLAnywhere;
 
-use Doctrine\DBAL\Driver\ResultStatement;
+use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
-use Doctrine\DBAL\Driver\Statement as DriverStatement;
+use Doctrine\DBAL\Driver\Statement;
+
 use function assert;
 use function is_resource;
 use function is_string;
@@ -60,7 +61,7 @@ final class SQLAnywhereConnection implements ServerInfoAwareConnection
      *
      * @throws SQLAnywhereException
      */
-    public function beginTransaction() : void
+    public function beginTransaction(): void
     {
         if (! sasql_set_option($this->connection, 'auto_commit', 'off')) {
             throw SQLAnywhereException::fromSQLAnywhereError($this->connection);
@@ -72,7 +73,7 @@ final class SQLAnywhereConnection implements ServerInfoAwareConnection
      *
      * @throws SQLAnywhereException
      */
-    public function commit() : void
+    public function commit(): void
     {
         if (! sasql_commit($this->connection)) {
             throw SQLAnywhereException::fromSQLAnywhereError($this->connection);
@@ -81,7 +82,7 @@ final class SQLAnywhereConnection implements ServerInfoAwareConnection
         $this->endTransaction();
     }
 
-    public function exec(string $statement) : int
+    public function exec(string $statement): int
     {
         if (sasql_real_query($this->connection, $statement) === false) {
             throw SQLAnywhereException::fromSQLAnywhereError($this->connection);
@@ -90,7 +91,7 @@ final class SQLAnywhereConnection implements ServerInfoAwareConnection
         return sasql_affected_rows($this->connection);
     }
 
-    public function getServerVersion() : string
+    public function getServerVersion(): string
     {
         $version = $this->query("SELECT PROPERTY('ProductVersion')")->fetchOne();
         assert(is_string($version));
@@ -98,7 +99,7 @@ final class SQLAnywhereConnection implements ServerInfoAwareConnection
         return $version;
     }
 
-    public function lastInsertId(?string $name = null) : string
+    public function lastInsertId(?string $name = null): string
     {
         if ($name === null) {
             return sasql_insert_id($this->connection);
@@ -107,20 +108,17 @@ final class SQLAnywhereConnection implements ServerInfoAwareConnection
         return $this->query('SELECT ' . $name . '.CURRVAL')->fetchOne();
     }
 
-    public function prepare(string $sql) : DriverStatement
+    public function prepare(string $sql): Statement
     {
         return new SQLAnywhereStatement($this->connection, $sql);
     }
 
-    public function query(string $sql) : ResultStatement
+    public function query(string $sql): ResultInterface
     {
-        $stmt = $this->prepare($sql);
-        $stmt->execute();
-
-        return $stmt;
+        return $this->prepare($sql)->execute();
     }
 
-    public function quote(string $input) : string
+    public function quote(string $input): string
     {
         return "'" . sasql_escape_string($this->connection, $input) . "'";
     }
@@ -130,7 +128,7 @@ final class SQLAnywhereConnection implements ServerInfoAwareConnection
      *
      * @throws SQLAnywhereException
      */
-    public function rollBack() : void
+    public function rollBack(): void
     {
         if (! sasql_rollback($this->connection)) {
             throw SQLAnywhereException::fromSQLAnywhereError($this->connection);
@@ -144,7 +142,7 @@ final class SQLAnywhereConnection implements ServerInfoAwareConnection
      *
      * @throws SQLAnywhereException
      */
-    private function endTransaction() : void
+    private function endTransaction(): void
     {
         if (! sasql_set_option($this->connection, 'auto_commit', 'on')) {
             throw SQLAnywhereException::fromSQLAnywhereError($this->connection);

@@ -20,7 +20,7 @@ use Doctrine\DBAL\Schema\OracleSchemaManager;
  */
 abstract class AbstractOracleDriver implements Driver, ExceptionConverterDriver
 {
-    public function convertException(string $message, DriverExceptionInterface $exception) : DriverException
+    public function convertException(string $message, DriverExceptionInterface $exception): DriverException
     {
         switch ($exception->getCode()) {
             case 1:
@@ -60,12 +60,12 @@ abstract class AbstractOracleDriver implements Driver, ExceptionConverterDriver
         return new DriverException($message, $exception);
     }
 
-    public function getDatabasePlatform() : AbstractPlatform
+    public function getDatabasePlatform(): AbstractPlatform
     {
         return new OraclePlatform();
     }
 
-    public function getSchemaManager(Connection $conn) : AbstractSchemaManager
+    public function getSchemaManager(Connection $conn): AbstractSchemaManager
     {
         return new OracleSchemaManager($conn);
     }
@@ -75,7 +75,7 @@ abstract class AbstractOracleDriver implements Driver, ExceptionConverterDriver
      *
      * @param mixed[] $params The connection parameters to return the Easy Connect String for.
      */
-    protected function getEasyConnectString(array $params) : string
+    protected function getEasyConnectString(array $params): string
     {
         return (string) EasyConnectString::fromConnectionParameters($params);
     }

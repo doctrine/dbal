@@ -11,7 +11,7 @@ use Doctrine\DBAL\Tests\FunctionalTestCase;
 
 final class NewPrimaryKeyWithNewAutoIncrementColumnTest extends FunctionalTestCase
 {
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -30,7 +30,7 @@ final class NewPrimaryKeyWithNewAutoIncrementColumnTest extends FunctionalTestCa
      * SQLSTATE[42000]: Syntax error or access violation: 1075 Incorrect table definition; there can be only one auto
      * column and it must be defined as a key
      */
-    public function testAlterPrimaryKeyToAutoIncrementColumn() : void
+    public function testAlterPrimaryKeyToAutoIncrementColumn(): void
     {
         $schemaManager = $this->connection->getSchemaManager();
         $schema        = $schemaManager->createSchema();
@@ -62,7 +62,7 @@ final class NewPrimaryKeyWithNewAutoIncrementColumnTest extends FunctionalTestCa
         self::assertSame(['new_id'], $validationTable->getPrimaryKeyColumns());
     }
 
-    private function getPlatform() : AbstractPlatform
+    private function getPlatform(): AbstractPlatform
     {
         return $this->connection->getDatabasePlatform();
     }

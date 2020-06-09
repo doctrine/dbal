@@ -17,19 +17,19 @@ class SmallIntTest extends TestCase
     /** @var SmallIntType */
     private $type;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->platform = $this->createMock(AbstractPlatform::class);
         $this->type     = new SmallIntType();
     }
 
-    public function testSmallIntConvertsToPHPValue() : void
+    public function testSmallIntConvertsToPHPValue(): void
     {
         self::assertIsInt($this->type->convertToPHPValue('1', $this->platform));
         self::assertIsInt($this->type->convertToPHPValue('0', $this->platform));
     }
 
-    public function testSmallIntNullConvertsToPHPValue() : void
+    public function testSmallIntNullConvertsToPHPValue(): void
     {
         self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }

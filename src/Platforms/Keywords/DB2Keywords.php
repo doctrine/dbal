@@ -9,7 +9,7 @@ namespace Doctrine\DBAL\Platforms\Keywords;
  */
 class DB2Keywords extends KeywordList
 {
-    public function getName() : string
+    public function getName(): string
     {
         return 'DB2';
     }
@@ -17,7 +17,7 @@ class DB2Keywords extends KeywordList
     /**
      * {@inheritdoc}
      */
-    protected function getKeywords() : array
+    protected function getKeywords(): array
     {
         return [
             'ACTIVATE',

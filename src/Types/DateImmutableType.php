@@ -14,7 +14,7 @@ use Doctrine\DBAL\Types\Exception\InvalidType;
  */
 class DateImmutableType extends DateType
 {
-    public function getName() : string
+    public function getName(): string
     {
         return Types::DATE_IMMUTABLE;
     }
@@ -61,7 +61,7 @@ class DateImmutableType extends DateType
         return $dateTime;
     }
 
-    public function requiresSQLCommentHint(AbstractPlatform $platform) : bool
+    public function requiresSQLCommentHint(AbstractPlatform $platform): bool
     {
         return true;
     }

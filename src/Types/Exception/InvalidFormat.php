@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Types\Exception;
 
 use Doctrine\DBAL\Types\ConversionException;
 use Throwable;
+
 use function sprintf;
 use function strlen;
 use function substr;
@@ -23,7 +24,7 @@ final class InvalidFormat extends ConversionException implements TypesException
         string $toType,
         ?string $expectedFormat,
         ?Throwable $previous = null
-    ) : self {
+    ): self {
         return new self(
             sprintf(
                 'Could not convert database value "%s" to Doctrine Type %s. Expected format "%s".',

@@ -9,7 +9,7 @@ namespace Doctrine\DBAL\Platforms\Keywords;
  */
 class SQLiteKeywords extends KeywordList
 {
-    public function getName() : string
+    public function getName(): string
     {
         return 'SQLite';
     }
@@ -17,7 +17,7 @@ class SQLiteKeywords extends KeywordList
     /**
      * {@inheritdoc}
      */
-    protected function getKeywords() : array
+    protected function getKeywords(): array
     {
         return [
             'ABORT',

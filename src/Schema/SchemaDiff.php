@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Internal\DependencyOrderCalculator;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+
 use function array_merge;
 
 /**
@@ -89,7 +90,7 @@ class SchemaDiff
      *
      * @return array<int, string>
      */
-    public function toSaveSql(AbstractPlatform $platform) : array
+    public function toSaveSql(AbstractPlatform $platform): array
     {
         return $this->_toSql($platform, true);
     }
@@ -97,7 +98,7 @@ class SchemaDiff
     /**
      * @return array<int, string>
      */
-    public function toSql(AbstractPlatform $platform) : array
+    public function toSql(AbstractPlatform $platform): array
     {
         return $this->_toSql($platform, false);
     }
@@ -105,7 +106,7 @@ class SchemaDiff
     /**
      * @return array<int, string>
      */
-    protected function _toSql(AbstractPlatform $platform, bool $saveMode = false) : array
+    protected function _toSql(AbstractPlatform $platform, bool $saveMode = false): array
     {
         $sql = [];
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+
 use function array_keys;
 use function array_map;
 use function strtolower;
@@ -58,7 +59,7 @@ class UniqueConstraint extends AbstractAsset implements Constraint
     /**
      * {@inheritdoc}
      */
-    public function getColumns() : array
+    public function getColumns(): array
     {
         return array_keys($this->columns);
     }
@@ -66,7 +67,7 @@ class UniqueConstraint extends AbstractAsset implements Constraint
     /**
      * {@inheritdoc}
      */
-    public function getQuotedColumns(AbstractPlatform $platform) : array
+    public function getQuotedColumns(AbstractPlatform $platform): array
     {
         $columns = [];
 
@@ -80,7 +81,7 @@ class UniqueConstraint extends AbstractAsset implements Constraint
     /**
      * @return array<int, string>
      */
-    public function getUnquotedColumns() : array
+    public function getUnquotedColumns(): array
     {
         return array_map([$this, 'trimQuotes'], $this->getColumns());
     }
@@ -90,7 +91,7 @@ class UniqueConstraint extends AbstractAsset implements Constraint
      *
      * @return array<int, string>
      */
-    public function getFlags() : array
+    public function getFlags(): array
     {
         return array_keys($this->flags);
     }
@@ -100,7 +101,7 @@ class UniqueConstraint extends AbstractAsset implements Constraint
      *
      * @example $uniqueConstraint->addFlag('CLUSTERED')
      */
-    public function addFlag(string $flag) : self
+    public function addFlag(string $flag): self
     {
         $this->flags[strtolower($flag)] = true;
 
@@ -110,7 +111,7 @@ class UniqueConstraint extends AbstractAsset implements Constraint
     /**
      * Does this unique constraint have a specific flag?
      */
-    public function hasFlag(string $flag) : bool
+    public function hasFlag(string $flag): bool
     {
         return isset($this->flags[strtolower($flag)]);
     }
@@ -118,12 +119,12 @@ class UniqueConstraint extends AbstractAsset implements Constraint
     /**
      * Removes a flag.
      */
-    public function removeFlag(string $flag) : void
+    public function removeFlag(string $flag): void
     {
         unset($this->flags[strtolower($flag)]);
     }
 
-    public function hasOption(string $name) : bool
+    public function hasOption(string $name): bool
     {
         return isset($this->options[strtolower($name)]);
     }
@@ -139,12 +140,12 @@ class UniqueConstraint extends AbstractAsset implements Constraint
     /**
      * @return array<string, mixed>
      */
-    public function getOptions() : array
+    public function getOptions(): array
     {
         return $this->options;
     }
 
-    protected function _addColumn(string $column) : void
+    protected function _addColumn(string $column): void
     {
         $this->columns[$column] = new Identifier($column);
     }

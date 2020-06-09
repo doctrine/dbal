@@ -15,17 +15,17 @@ use Doctrine\DBAL\Schema\PostgreSqlSchemaManager;
 
 class AbstractPostgreSQLDriverTest extends AbstractDriverTest
 {
-    protected function createDriver() : Driver
+    protected function createDriver(): Driver
     {
         return $this->getMockForAbstractClass(AbstractPostgreSQLDriver::class);
     }
 
-    protected function createPlatform() : AbstractPlatform
+    protected function createPlatform(): AbstractPlatform
     {
         return new PostgreSQL94Platform();
     }
 
-    protected function createSchemaManager(Connection $connection) : AbstractSchemaManager
+    protected function createSchemaManager(Connection $connection): AbstractSchemaManager
     {
         return new PostgreSqlSchemaManager($connection);
     }
@@ -33,7 +33,7 @@ class AbstractPostgreSQLDriverTest extends AbstractDriverTest
     /**
      * {@inheritDoc}
      */
-    protected function getDatabasePlatformsForVersions() : array
+    protected function getDatabasePlatformsForVersions(): array
     {
         return [
             ['9.4', PostgreSQL94Platform::class],
@@ -46,7 +46,7 @@ class AbstractPostgreSQLDriverTest extends AbstractDriverTest
     /**
      * {@inheritDoc}
      */
-    protected static function getExceptionConversionData() : array
+    protected static function getExceptionConversionData(): array
     {
         return [
             self::EXCEPTION_CONNECTION => [

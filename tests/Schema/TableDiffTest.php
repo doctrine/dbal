@@ -16,7 +16,7 @@ class TableDiffTest extends TestCase
     /** @var AbstractPlatform|MockObject */
     private $platform;
 
-    public function setUp() : void
+    public function setUp(): void
     {
         $this->platform = $this->createMock(AbstractPlatform::class);
     }
@@ -24,7 +24,7 @@ class TableDiffTest extends TestCase
     /**
      * @group DBAL-1013
      */
-    public function testReturnsName() : void
+    public function testReturnsName(): void
     {
         $tableDiff = new TableDiff('foo');
 
@@ -34,7 +34,7 @@ class TableDiffTest extends TestCase
     /**
      * @group DBAL-1016
      */
-    public function testPrefersNameFromTableObject() : void
+    public function testPrefersNameFromTableObject(): void
     {
         $tableMock = $this->getMockBuilder(Table::class)
             ->disableOriginalConstructor()
@@ -54,7 +54,7 @@ class TableDiffTest extends TestCase
     /**
      * @group DBAL-1013
      */
-    public function testReturnsNewName() : void
+    public function testReturnsNewName(): void
     {
         $tableDiff = new TableDiff('foo');
 

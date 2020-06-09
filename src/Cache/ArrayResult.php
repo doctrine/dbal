@@ -5,12 +5,16 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Cache;
 
 use Doctrine\DBAL\Driver\FetchUtils;
-use Doctrine\DBAL\Driver\ResultStatement;
+use Doctrine\DBAL\Driver\Result;
+
 use function array_values;
 use function count;
 use function reset;
 
-final class ArrayStatement implements ResultStatement
+/**
+ * @internal The class is internal to the caching layer implementation.
+ */
+final class ArrayResult implements Result
 {
     /** @var mixed[] */
     private $data;
@@ -32,21 +36,6 @@ final class ArrayStatement implements ResultStatement
         }
 
         $this->columnCount = count($data[0]);
-    }
-
-    public function closeCursor() : void
-    {
-        $this->data = [];
-    }
-
-    public function columnCount() : int
-    {
-        return $this->columnCount;
-    }
-
-    public function rowCount() : int
-    {
-        return count($this->data);
     }
 
     /**
@@ -88,7 +77,7 @@ final class ArrayStatement implements ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function fetchAllNumeric() : array
+    public function fetchAllNumeric(): array
     {
         return FetchUtils::fetchAllNumeric($this);
     }
@@ -96,7 +85,7 @@ final class ArrayStatement implements ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function fetchAllAssociative() : array
+    public function fetchAllAssociative(): array
     {
         return FetchUtils::fetchAllAssociative($this);
     }
@@ -104,9 +93,28 @@ final class ArrayStatement implements ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function fetchColumn() : array
+    public function fetchFirstColumn(): array
     {
-        return FetchUtils::fetchColumn($this);
+        return FetchUtils::fetchFirstColumn($this);
+    }
+
+    public function rowCount(): int
+    {
+        if ($this->data === null) {
+            return 0;
+        }
+
+        return count($this->data);
+    }
+
+    public function columnCount(): int
+    {
+        return $this->columnCount;
+    }
+
+    public function free(): void
+    {
+        $this->data = [];
     }
 
     /**

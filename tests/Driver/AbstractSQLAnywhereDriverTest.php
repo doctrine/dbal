@@ -14,17 +14,17 @@ use Doctrine\DBAL\Schema\SQLAnywhereSchemaManager;
 
 class AbstractSQLAnywhereDriverTest extends AbstractDriverTest
 {
-    protected function createDriver() : Driver
+    protected function createDriver(): Driver
     {
         return $this->getMockForAbstractClass(AbstractSQLAnywhereDriver::class);
     }
 
-    protected function createPlatform() : AbstractPlatform
+    protected function createPlatform(): AbstractPlatform
     {
         return new SQLAnywhere16Platform();
     }
 
-    protected function createSchemaManager(Connection $connection) : AbstractSchemaManager
+    protected function createSchemaManager(Connection $connection): AbstractSchemaManager
     {
         return new SQLAnywhereSchemaManager($connection);
     }
@@ -32,7 +32,7 @@ class AbstractSQLAnywhereDriverTest extends AbstractDriverTest
     /**
      * {@inheritDoc}
      */
-    protected function getDatabasePlatformsForVersions() : array
+    protected function getDatabasePlatformsForVersions(): array
     {
         return [
             ['16', SQLAnywhere16Platform::class],
@@ -48,7 +48,7 @@ class AbstractSQLAnywhereDriverTest extends AbstractDriverTest
     /**
      * {@inheritDoc}
      */
-    protected static function getExceptionConversionData() : array
+    protected static function getExceptionConversionData(): array
     {
         return [
             self::EXCEPTION_CONNECTION => [

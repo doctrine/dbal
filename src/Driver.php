@@ -29,7 +29,7 @@ interface Driver
         string $username = '',
         string $password = '',
         array $driverOptions = []
-    ) : DriverConnection;
+    ): DriverConnection;
 
     /**
      * Gets the DatabasePlatform instance that provides all the metadata about
@@ -37,11 +37,11 @@ interface Driver
      *
      * @return AbstractPlatform The database platform.
      */
-    public function getDatabasePlatform() : AbstractPlatform;
+    public function getDatabasePlatform(): AbstractPlatform;
 
     /**
      * Gets the SchemaManager that can be used to inspect and change the underlying
      * database schema of the platform this driver connects to.
      */
-    public function getSchemaManager(Connection $conn) : AbstractSchemaManager;
+    public function getSchemaManager(Connection $conn): AbstractSchemaManager;
 }

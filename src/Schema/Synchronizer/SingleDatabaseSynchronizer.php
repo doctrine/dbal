@@ -9,6 +9,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Visitor\DropSchemaSqlCollector;
+
 use function count;
 
 /**
@@ -28,7 +29,7 @@ final class SingleDatabaseSynchronizer extends AbstractSchemaSynchronizer
     /**
      * {@inheritdoc}
      */
-    public function getCreateSchema(Schema $createSchema) : array
+    public function getCreateSchema(Schema $createSchema): array
     {
         return $createSchema->toSql($this->platform);
     }
@@ -36,7 +37,7 @@ final class SingleDatabaseSynchronizer extends AbstractSchemaSynchronizer
     /**
      * {@inheritdoc}
      */
-    public function getUpdateSchema(Schema $toSchema, bool $noDrops = false) : array
+    public function getUpdateSchema(Schema $toSchema, bool $noDrops = false): array
     {
         $comparator = new Comparator();
         $sm         = $this->conn->getSchemaManager();
@@ -54,7 +55,7 @@ final class SingleDatabaseSynchronizer extends AbstractSchemaSynchronizer
     /**
      * {@inheritdoc}
      */
-    public function getDropSchema(Schema $dropSchema) : array
+    public function getDropSchema(Schema $dropSchema): array
     {
         $visitor = new DropSchemaSqlCollector($this->platform);
         $sm      = $this->conn->getSchemaManager();
@@ -114,7 +115,7 @@ final class SingleDatabaseSynchronizer extends AbstractSchemaSynchronizer
     /**
      * {@inheritdoc}
      */
-    public function getDropAllSchema() : array
+    public function getDropAllSchema(): array
     {
         $sm      = $this->conn->getSchemaManager();
         $visitor = new DropSchemaSqlCollector($this->platform);
@@ -125,22 +126,22 @@ final class SingleDatabaseSynchronizer extends AbstractSchemaSynchronizer
         return $visitor->getQueries();
     }
 
-    public function createSchema(Schema $createSchema) : void
+    public function createSchema(Schema $createSchema): void
     {
         $this->processSql($this->getCreateSchema($createSchema));
     }
 
-    public function updateSchema(Schema $toSchema, bool $noDrops = false) : void
+    public function updateSchema(Schema $toSchema, bool $noDrops = false): void
     {
         $this->processSql($this->getUpdateSchema($toSchema, $noDrops));
     }
 
-    public function dropSchema(Schema $dropSchema) : void
+    public function dropSchema(Schema $dropSchema): void
     {
         $this->processSqlSafely($this->getDropSchema($dropSchema));
     }
 
-    public function dropAllSchema() : void
+    public function dropAllSchema(): void
     {
         $this->processSql($this->getDropAllSchema());
     }

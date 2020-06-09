@@ -13,7 +13,7 @@ class InvalidPlatformTypeTest extends TestCase
     /**
      * @group #2821
      */
-    public function testInvalidPlatformTypeObject() : void
+    public function testInvalidPlatformTypeObject(): void
     {
         $exception = InvalidPlatformType::new(new stdClass());
 
@@ -26,7 +26,7 @@ class InvalidPlatformTypeTest extends TestCase
     /**
      * @group #2821
      */
-    public function testInvalidPlatformTypeScalar() : void
+    public function testInvalidPlatformTypeScalar(): void
     {
         $exception = InvalidPlatformType::new('some string');
 

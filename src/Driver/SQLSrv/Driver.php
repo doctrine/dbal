@@ -20,7 +20,7 @@ final class Driver extends AbstractSQLServerDriver
         string $username = '',
         string $password = '',
         array $driverOptions = []
-    ) : Connection {
+    ): Connection {
         if (! isset($params['host'])) {
             throw new SQLSrvException('Missing "host" in configuration for sqlsrv driver.');
         }

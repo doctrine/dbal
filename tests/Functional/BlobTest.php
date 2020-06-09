@@ -10,6 +10,7 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Type;
+
 use function fopen;
 use function str_repeat;
 use function stream_get_contents;
@@ -19,7 +20,7 @@ use function stream_get_contents;
  */
 class BlobTest extends FunctionalTestCase
 {
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -39,7 +40,7 @@ class BlobTest extends FunctionalTestCase
         $sm->dropAndCreateTable($table);
     }
 
-    public function testInsert() : void
+    public function testInsert(): void
     {
         $ret = $this->connection->insert('blob_table', [
             'id'          => 1,
@@ -54,7 +55,7 @@ class BlobTest extends FunctionalTestCase
         self::assertEquals(1, $ret);
     }
 
-    public function testInsertProcessesStream() : void
+    public function testInsertProcessesStream(): void
     {
         // https://github.com/doctrine/dbal/issues/3290
         if ($this->connection->getDriver() instanceof OCI8Driver) {
@@ -75,7 +76,7 @@ class BlobTest extends FunctionalTestCase
         $this->assertBlobContains($longBlob);
     }
 
-    public function testSelect() : void
+    public function testSelect(): void
     {
         $this->connection->insert('blob_table', [
             'id'          => 1,
@@ -90,7 +91,7 @@ class BlobTest extends FunctionalTestCase
         $this->assertBlobContains('test');
     }
 
-    public function testUpdate() : void
+    public function testUpdate(): void
     {
         $this->connection->insert('blob_table', [
             'id' => 1,
@@ -110,7 +111,7 @@ class BlobTest extends FunctionalTestCase
         $this->assertBlobContains('test2');
     }
 
-    public function testUpdateProcessesStream() : void
+    public function testUpdateProcessesStream(): void
     {
         // https://github.com/doctrine/dbal/issues/3290
         if ($this->connection->getDriver() instanceof OCI8Driver) {
@@ -138,7 +139,7 @@ class BlobTest extends FunctionalTestCase
         $this->assertBlobContains('test2');
     }
 
-    public function testBindParamProcessesStream() : void
+    public function testBindParamProcessesStream(): void
     {
         if ($this->connection->getDriver() instanceof OCI8Driver) {
             self::markTestIncomplete('The oci8 driver does not support stream resources as parameters');
@@ -157,9 +158,9 @@ class BlobTest extends FunctionalTestCase
         $this->assertBlobContains('test');
     }
 
-    private function assertBlobContains(string $text) : void
+    private function assertBlobContains(string $text): void
     {
-        $rows = $this->connection->query('SELECT blobfield FROM blob_table')->fetchColumn();
+        $rows = $this->connection->query('SELECT blobfield FROM blob_table')->fetchFirstColumn();
 
         self::assertCount(1, $rows);
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Exception;
 
 use Doctrine\DBAL\DBALException;
+
 use function sprintf;
 
 /**
@@ -15,7 +16,7 @@ final class DriverRequired extends DBALException
     /**
      * @param string|null $url The URL that was provided in the connection parameters (if any).
      */
-    public static function new(?string $url = null) : self
+    public static function new(?string $url = null): self
     {
         if ($url !== null) {
             return new self(

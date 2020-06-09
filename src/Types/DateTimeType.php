@@ -9,6 +9,7 @@ use DateTimeInterface;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Exception\InvalidFormat;
 use Doctrine\DBAL\Types\Exception\InvalidType;
+
 use function date_create;
 
 /**
@@ -16,7 +17,7 @@ use function date_create;
  */
 class DateTimeType extends Type implements PhpDateTimeMappingType
 {
-    public function getName() : string
+    public function getName(): string
     {
         return Types::DATETIME_MUTABLE;
     }
@@ -24,7 +25,7 @@ class DateTimeType extends Type implements PhpDateTimeMappingType
     /**
      * {@inheritdoc}
      */
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform) : string
+    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform): string
     {
         return $platform->getDateTimeTypeDeclarationSQL($fieldDeclaration);
     }

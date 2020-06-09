@@ -9,7 +9,7 @@ use Doctrine\DBAL\Tests\FunctionalTestCase;
 
 class ForeignKeyTest extends FunctionalTestCase
 {
-    public function testCreatingATableWithAForeignKey() : void
+    public function testCreatingATableWithAForeignKey(): void
     {
         $schema = new Schema();
 

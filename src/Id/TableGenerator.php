@@ -9,10 +9,12 @@ use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\LockMode;
 use Throwable;
+
 use function array_change_key_case;
 use function assert;
 use function is_int;
 use function sprintf;
+
 use const CASE_LOWER;
 
 /**
@@ -82,7 +84,7 @@ class TableGenerator
      *
      * @throws DBALException
      */
-    public function nextValue(string $sequenceName) : int
+    public function nextValue(string $sequenceName): int
     {
         if (isset($this->sequences[$sequenceName])) {
             $value = $this->sequences[$sequenceName]['value'];

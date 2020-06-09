@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Exception;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
+
 use function sprintf;
 
 /**
@@ -13,7 +14,7 @@ use function sprintf;
  */
 final class InvalidDriverClass extends DBALException
 {
-    public static function new(string $driverClass) : self
+    public static function new(string $driverClass): self
     {
         return new self(
             sprintf(

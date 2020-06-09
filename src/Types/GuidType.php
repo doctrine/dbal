@@ -14,17 +14,17 @@ class GuidType extends StringType
     /**
      * {@inheritdoc}
      */
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform) : string
+    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform): string
     {
         return $platform->getGuidTypeDeclarationSQL($fieldDeclaration);
     }
 
-    public function getName() : string
+    public function getName(): string
     {
         return Types::GUID;
     }
 
-    public function requiresSQLCommentHint(AbstractPlatform $platform) : bool
+    public function requiresSQLCommentHint(AbstractPlatform $platform): bool
     {
         return ! $platform->hasNativeGuidType();
     }

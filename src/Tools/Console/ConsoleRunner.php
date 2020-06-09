@@ -13,8 +13,10 @@ use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\HelperSet;
 use TypeError;
+
 use function sprintf;
 use function trigger_error;
+
 use const E_USER_DEPRECATED;
 
 /**
@@ -27,7 +29,7 @@ class ConsoleRunner
      *
      * @deprecated use a ConnectionProvider instead.
      */
-    public static function createHelperSet(Connection $connection) : HelperSet
+    public static function createHelperSet(Connection $connection): HelperSet
     {
         return new HelperSet([
             'db' => new ConnectionHelper($connection),
@@ -40,7 +42,7 @@ class ConsoleRunner
      * @param ConnectionProvider|HelperSet $helperSetOrConnectionProvider
      * @param array<int, Command>          $commands
      */
-    public static function run($helperSetOrConnectionProvider, $commands = []) : void
+    public static function run($helperSetOrConnectionProvider, $commands = []): void
     {
         $cli = new Application('Doctrine Command Line Interface', Versions::getVersion('doctrine/dbal'));
 
@@ -63,7 +65,7 @@ class ConsoleRunner
         $cli->run();
     }
 
-    public static function addCommands(Application $cli, ?ConnectionProvider $connectionProvider = null) : void
+    public static function addCommands(Application $cli, ?ConnectionProvider $connectionProvider = null): void
     {
         $cli->addCommands([
             new RunSqlCommand(),
@@ -75,7 +77,7 @@ class ConsoleRunner
     /**
      * Prints the instructions to create a configuration file
      */
-    public static function printCliConfigTemplate() : void
+    public static function printCliConfigTemplate(): void
     {
         echo <<<'HELP'
 You are missing a "cli-config.php" or "config/cli-config.php" file in your

@@ -23,14 +23,14 @@ final class LoggerChain implements SQLLogger
     /**
      * {@inheritdoc}
      */
-    public function startQuery(string $sql, array $params = [], array $types = []) : void
+    public function startQuery(string $sql, array $params = [], array $types = []): void
     {
         foreach ($this->loggers as $logger) {
             $logger->startQuery($sql, $params, $types);
         }
     }
 
-    public function stopQuery() : void
+    public function stopQuery(): void
     {
         foreach ($this->loggers as $logger) {
             $logger->stopQuery();

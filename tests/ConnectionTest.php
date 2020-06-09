@@ -6,7 +6,7 @@ namespace Doctrine\DBAL\Tests;
 
 use Doctrine\Common\Cache\Cache;
 use Doctrine\Common\EventManager;
-use Doctrine\DBAL\Cache\ArrayStatement;
+use Doctrine\DBAL\Abstraction\Result;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
@@ -15,7 +15,6 @@ use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
-use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
@@ -45,7 +44,7 @@ class ConnectionTest extends TestCase
         'port' => 1234,
     ];
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->connection = DriverManager::getConnection($this->params);
     }
@@ -71,46 +70,46 @@ class ConnectionTest extends TestCase
             ->getMock();
     }
 
-    public function testIsConnected() : void
+    public function testIsConnected(): void
     {
         self::assertFalse($this->connection->isConnected());
     }
 
-    public function testNoTransactionActiveByDefault() : void
+    public function testNoTransactionActiveByDefault(): void
     {
         self::assertFalse($this->connection->isTransactionActive());
     }
 
-    public function testCommitWithNoActiveTransactionThrowsException() : void
+    public function testCommitWithNoActiveTransactionThrowsException(): void
     {
         $this->expectException(ConnectionException::class);
         $this->connection->commit();
     }
 
-    public function testRollbackWithNoActiveTransactionThrowsException() : void
+    public function testRollbackWithNoActiveTransactionThrowsException(): void
     {
         $this->expectException(ConnectionException::class);
         $this->connection->rollBack();
     }
 
-    public function testSetRollbackOnlyNoActiveTransactionThrowsException() : void
+    public function testSetRollbackOnlyNoActiveTransactionThrowsException(): void
     {
         $this->expectException(ConnectionException::class);
         $this->connection->setRollbackOnly();
     }
 
-    public function testIsRollbackOnlyNoActiveTransactionThrowsException() : void
+    public function testIsRollbackOnlyNoActiveTransactionThrowsException(): void
     {
         $this->expectException(ConnectionException::class);
         $this->connection->isRollbackOnly();
     }
 
-    public function testGetDriver() : void
+    public function testGetDriver(): void
     {
         self::assertInstanceOf(\Doctrine\DBAL\Driver\PDOMySql\Driver::class, $this->connection->getDriver());
     }
 
-    public function testConnectDispatchEvent() : void
+    public function testConnectDispatchEvent(): void
     {
         $listenerMock = $this->createMock(ConnectDispatchEventListener::class);
         $listenerMock->expects(self::once())->method('postConnect');
@@ -126,7 +125,7 @@ class ConnectionTest extends TestCase
         $conn->connect();
     }
 
-    public function testEventManagerPassedToPlatform() : void
+    public function testEventManagerPassedToPlatform(): void
     {
         $eventManager = new EventManager();
 
@@ -148,7 +147,7 @@ class ConnectionTest extends TestCase
      * @requires extension pdo_sqlite
      * @dataProvider getQueryMethods
      */
-    public function testDriverExceptionIsWrapped(callable $callback) : void
+    public function testDriverExceptionIsWrapped(callable $callback): void
     {
         $this->expectException(DBALException::class);
         $this->expectExceptionMessage("An exception occurred while executing \"MUUHAAAAHAAAA\":\n\nSQLSTATE[HY000]: General error: 1 near \"MUUHAAAAHAAAA\"");
@@ -164,34 +163,34 @@ class ConnectionTest extends TestCase
     /**
      * @return iterable<string, array<int, callable>>
      */
-    public static function getQueryMethods() : iterable
+    public static function getQueryMethods(): iterable
     {
         yield 'exec' => [
-            static function (Connection $connection, string $statement) : void {
+            static function (Connection $connection, string $statement): void {
                 $connection->exec($statement);
             },
         ];
 
         yield 'query' => [
-            static function (Connection $connection, string $statement) : void {
+            static function (Connection $connection, string $statement): void {
                 $connection->query($statement);
             },
         ];
 
         yield 'executeQuery' => [
-            static function (Connection $connection, string $statement) : void {
+            static function (Connection $connection, string $statement): void {
                 $connection->executeQuery($statement);
             },
         ];
 
         yield 'executeUpdate' => [
-            static function (Connection $connection, string $statement) : void {
+            static function (Connection $connection, string $statement): void {
                 $connection->executeUpdate($statement);
             },
         ];
 
         yield 'prepare' => [
-            static function (Connection $connection, string $statement) : void {
+            static function (Connection $connection, string $statement): void {
                 $connection->prepare($statement);
             },
         ];
@@ -202,7 +201,7 @@ class ConnectionTest extends TestCase
      *
      * @group DBAL-11
      */
-    public function testDebugSQLStack() : void
+    public function testDebugSQLStack(): void
     {
         $logger = new DebugStack();
         $this->connection->getConfiguration()->setSQLLogger($logger);
@@ -212,7 +211,7 @@ class ConnectionTest extends TestCase
     /**
      * @group DBAL-81
      */
-    public function testIsAutoCommit() : void
+    public function testIsAutoCommit(): void
     {
         self::assertTrue($this->connection->isAutoCommit());
     }
@@ -220,7 +219,7 @@ class ConnectionTest extends TestCase
     /**
      * @group DBAL-81
      */
-    public function testSetAutoCommit() : void
+    public function testSetAutoCommit(): void
     {
         $this->connection->setAutoCommit(false);
         self::assertFalse($this->connection->isAutoCommit());
@@ -229,7 +228,7 @@ class ConnectionTest extends TestCase
     /**
      * @group DBAL-81
      */
-    public function testConnectStartsTransactionInNoAutoCommitMode() : void
+    public function testConnectStartsTransactionInNoAutoCommitMode(): void
     {
         $driverMock = $this->createMock(Driver::class);
         $driverMock->expects(self::any())
@@ -251,7 +250,7 @@ class ConnectionTest extends TestCase
     /**
      * @group DBAL-81
      */
-    public function testCommitStartsTransactionInNoAutoCommitMode() : void
+    public function testCommitStartsTransactionInNoAutoCommitMode(): void
     {
         $driverMock = $this->createMock(Driver::class);
         $driverMock->expects(self::any())
@@ -271,7 +270,7 @@ class ConnectionTest extends TestCase
     /**
      * @return bool[][]
      */
-    public function resultProvider() : array
+    public function resultProvider(): array
     {
         return [[true], [false]];
     }
@@ -279,7 +278,7 @@ class ConnectionTest extends TestCase
     /**
      * @group DBAL-81
      */
-    public function testRollBackStartsTransactionInNoAutoCommitMode() : void
+    public function testRollBackStartsTransactionInNoAutoCommitMode(): void
     {
         $driverMock = $this->createMock(Driver::class);
         $driverMock->expects(self::any())
@@ -299,7 +298,7 @@ class ConnectionTest extends TestCase
     /**
      * @group DBAL-81
      */
-    public function testSwitchingAutoCommitModeCommitsAllCurrentTransactions() : void
+    public function testSwitchingAutoCommitModeCommitsAllCurrentTransactions(): void
     {
         $driverMock = $this->createMock(Driver::class);
         $driverMock->expects(self::any())
@@ -323,7 +322,7 @@ class ConnectionTest extends TestCase
         self::assertFalse($conn->isTransactionActive());
     }
 
-    public function testEmptyInsert() : void
+    public function testEmptyInsert(): void
     {
         $conn = $this->getExecuteUpdateMockConnection();
 
@@ -337,7 +336,7 @@ class ConnectionTest extends TestCase
     /**
      * @group DBAL-2511
      */
-    public function testUpdateWithDifferentColumnsInDataAndIdentifiers() : void
+    public function testUpdateWithDifferentColumnsInDataAndIdentifiers(): void
     {
         $conn = $this->getExecuteUpdateMockConnection();
 
@@ -381,7 +380,7 @@ class ConnectionTest extends TestCase
     /**
      * @group DBAL-2511
      */
-    public function testUpdateWithSameColumnInDataAndIdentifiers() : void
+    public function testUpdateWithSameColumnInDataAndIdentifiers(): void
     {
         $conn = $this->getExecuteUpdateMockConnection();
 
@@ -424,7 +423,7 @@ class ConnectionTest extends TestCase
     /**
      * @group DBAL-2688
      */
-    public function testUpdateWithIsNull() : void
+    public function testUpdateWithIsNull(): void
     {
         $conn = $this->getExecuteUpdateMockConnection();
 
@@ -466,7 +465,7 @@ class ConnectionTest extends TestCase
     /**
      * @group DBAL-2688
      */
-    public function testDeleteWithIsNull() : void
+    public function testDeleteWithIsNull(): void
     {
         $conn = $this->getExecuteUpdateMockConnection();
 
@@ -491,143 +490,103 @@ class ConnectionTest extends TestCase
         );
     }
 
-    public function testFetchAssociative() : void
+    /**
+     * @param mixed $expected
+     *
+     * @dataProvider fetchModeProvider
+     */
+    public function testFetch(string $method, callable $invoke, $expected): void
     {
-        $statement = 'SELECT * FROM foo WHERE bar = ?';
-        $params    = [666];
-        $types     = [ParameterType::INTEGER];
-        $result    = [];
+        $query  = 'SELECT * FROM foo WHERE bar = ?';
+        $params = [666];
+        $types  = [ParameterType::INTEGER];
 
-        $driverMock = $this->createMock(Driver::class);
+        $result = $this->createMock(Result::class);
+        $result->expects(self::once())
+            ->method($method)
+            ->willReturn($expected);
 
-        $driverMock->expects(self::any())
-            ->method('connect')
-            ->will(self::returnValue(
-                $this->createMock(DriverConnection::class)
-            ));
-
-        $driverStatementMock = $this->createMock(Statement::class);
-
-        $driverStatementMock->expects(self::once())
-            ->method('fetchAssociative')
-            ->will(self::returnValue($result));
+        $driver = $this->createConfiguredMock(Driver::class, [
+            'connect' => $this->createMock(DriverConnection::class),
+        ]);
 
         $conn = $this->getMockBuilder(Connection::class)
             ->onlyMethods(['executeQuery'])
-            ->setConstructorArgs([[], $driverMock])
+            ->setConstructorArgs([[], $driver])
             ->getMock();
 
         $conn->expects(self::once())
             ->method('executeQuery')
-            ->with($statement, $params, $types)
-            ->will(self::returnValue($driverStatementMock));
+            ->with($query, $params, $types)
+            ->willReturn($result);
 
-        self::assertSame($result, $conn->fetchAssociative($statement, $params, $types));
+        self::assertSame($expected, $invoke($conn, $query, $params, $types));
     }
 
-    public function testFetchNumeric() : void
+    /**
+     * @return iterable<string,array<int,mixed>>
+     */
+    public static function fetchModeProvider(): iterable
     {
-        $statement = 'SELECT * FROM foo WHERE bar = ?';
-        $params    = [666];
-        $types     = [ParameterType::INTEGER];
-        $result    = [];
+        yield 'numeric' => [
+            'fetchNumeric',
+            static function (Connection $connection, string $query, array $params, array $types) {
+                return $connection->fetchNumeric($query, $params, $types);
+            },
+            ['bar'],
+        ];
 
-        $driverMock = $this->createMock(Driver::class);
+        yield 'associative' => [
+            'fetchAssociative',
+            static function (Connection $connection, string $query, array $params, array $types) {
+                return $connection->fetchAssociative($query, $params, $types);
+            },
+            ['foo' => 'bar'],
+        ];
 
-        $driverMock->expects(self::any())
-            ->method('connect')
-            ->will(self::returnValue(
-                $this->createMock(DriverConnection::class)
-            ));
+        yield 'one' => [
+            'fetchOne',
+            static function (Connection $connection, string $query, array $params, array $types) {
+                return $connection->fetchOne($query, $params, $types);
+            },
+            'bar',
+        ];
 
-        $driverStatementMock = $this->createMock(Statement::class);
+        yield 'all-numeric' => [
+            'fetchAllNumeric',
+            static function (Connection $connection, string $query, array $params, array $types): array {
+                return $connection->fetchAllNumeric($query, $params, $types);
+            },
+            [
+                ['bar'],
+                ['baz'],
+            ],
+        ];
 
-        $driverStatementMock->expects(self::once())
-            ->method('fetchNumeric')
-            ->will(self::returnValue($result));
+        yield 'all-associative' => [
+            'fetchAllAssociative',
+            static function (Connection $connection, string $query, array $params, array $types): array {
+                return $connection->fetchAllAssociative($query, $params, $types);
+            },
+            [
+                ['foo' => 'bar'],
+                ['foo' => 'baz'],
+            ],
+        ];
 
-        $conn = $this->getMockBuilder(Connection::class)
-            ->onlyMethods(['executeQuery'])
-            ->setConstructorArgs([[], $driverMock])
-            ->getMock();
-
-        $conn->expects(self::once())
-            ->method('executeQuery')
-            ->with($statement, $params, $types)
-            ->will(self::returnValue($driverStatementMock));
-
-        self::assertSame($result, $conn->fetchNumeric($statement, $params, $types));
+        yield 'first-column' => [
+            'fetchFirstColumn',
+            static function (Connection $connection, string $query, array $params, array $types): array {
+                return $connection->fetchFirstColumn($query, $params, $types);
+            },
+            [
+                'bar',
+                'baz',
+            ],
+        ];
     }
 
-    public function testFetchOne() : void
-    {
-        $statement = 'SELECT * FROM foo WHERE bar = ?';
-        $params    = [666];
-        $types     = [ParameterType::INTEGER];
-        $result    = [];
-
-        $driverMock = $this->createMock(Driver::class);
-
-        $driverMock->expects(self::any())
-            ->method('connect')
-            ->will(self::returnValue(
-                $this->createMock(DriverConnection::class)
-            ));
-
-        $driverStatementMock = $this->createMock(Statement::class);
-
-        $driverStatementMock->expects(self::once())
-            ->method('fetchOne')
-            ->will(self::returnValue($result));
-
-        $conn = $this->getMockBuilder(Connection::class)
-            ->onlyMethods(['executeQuery'])
-            ->setConstructorArgs([[], $driverMock])
-            ->getMock();
-
-        $conn->expects(self::once())
-            ->method('executeQuery')
-            ->with($statement, $params, $types)
-            ->will(self::returnValue($driverStatementMock));
-
-        self::assertSame($result, $conn->fetchOne($statement, $params, $types));
-    }
-
-    public function testFetchAllAssociative() : void
-    {
-        $statement = 'SELECT * FROM foo WHERE bar = ?';
-        $params    = [666];
-        $types     = [ParameterType::INTEGER];
-        $result    = [];
-
-        $driverMock = $this->createMock(Driver::class);
-
-        $driverMock->expects(self::any())
-            ->method('connect')
-            ->will(self::returnValue(
-                $this->createMock(DriverConnection::class)
-            ));
-
-        $driverStatementMock = $this->createMock(Statement::class);
-
-        $driverStatementMock->expects(self::once())
-            ->method('fetchAllAssociative')
-            ->will(self::returnValue($result));
-
-        $conn = $this->getMockBuilder(Connection::class)
-            ->onlyMethods(['executeQuery'])
-            ->setConstructorArgs([[], $driverMock])
-            ->getMock();
-
-        $conn->expects(self::once())
-            ->method('executeQuery')
-            ->with($statement, $params, $types)
-            ->will(self::returnValue($driverStatementMock));
-
-        self::assertSame($result, $conn->fetchAllAssociative($statement, $params, $types));
-    }
-
-    public function testCallingDeleteWithNoDeletionCriteriaResultsInInvalidArgumentException() : void
+    public function testCallingDeleteWithNoDeletionCriteriaResultsInInvalidArgumentException(): void
     {
         $driver = $this->createMock(Driver::class);
         $conn   = new Connection([], $driver);
@@ -636,7 +595,7 @@ class ConnectionTest extends TestCase
         $conn->delete('kittens', []);
     }
 
-    public function testCallConnectOnce() : void
+    public function testCallConnectOnce(): void
     {
         $driver = $this->createMock(Driver::class);
         $driver->expects(self::once())
@@ -652,7 +611,7 @@ class ConnectionTest extends TestCase
     /**
      * @group DBAL-1127
      */
-    public function testPlatformDetectionIsTriggerOnlyOnceOnRetrievingPlatform() : void
+    public function testPlatformDetectionIsTriggerOnlyOnceOnRetrievingPlatform(): void
     {
         $driverMock = $this->createMock(VersionAwarePlatformDriver::class);
 
@@ -678,7 +637,7 @@ class ConnectionTest extends TestCase
         self::assertSame($platformMock, $connection->getDatabasePlatform());
     }
 
-    public function testConnectionParamsArePassedToTheQueryCacheProfileInExecuteCacheQuery() : void
+    public function testConnectionParamsArePassedToTheQueryCacheProfileInExecuteCacheQuery(): void
     {
         $resultCacheDriverMock = $this->createMock(Cache::class);
 
@@ -708,16 +667,13 @@ class ConnectionTest extends TestCase
 
         $driver = $this->createMock(Driver::class);
 
-        self::assertInstanceOf(
-            ArrayStatement::class,
-            (new Connection($this->params, $driver))->executeCacheQuery($query, $params, $types, $queryCacheProfileMock)
-        );
+        (new Connection($this->params, $driver))->executeCacheQuery($query, $params, $types, $queryCacheProfileMock);
     }
 
     /**
      * @group #2821
      */
-    public function testShouldNotPassPlatformInParamsToTheQueryCacheProfileInExecuteCacheQuery() : void
+    public function testShouldNotPassPlatformInParamsToTheQueryCacheProfileInExecuteCacheQuery(): void
     {
         $resultCacheDriverMock = $this->createMock(Cache::class);
 
@@ -754,7 +710,7 @@ class ConnectionTest extends TestCase
     /**
      * @group #2821
      */
-    public function testThrowsExceptionWhenInValidPlatformSpecified() : void
+    public function testThrowsExceptionWhenInValidPlatformSpecified(): void
     {
         $connectionParams             = $this->params;
         $connectionParams['platform'] = new stdClass();
@@ -769,7 +725,7 @@ class ConnectionTest extends TestCase
     /**
      * @group DBAL-990
      */
-    public function testRethrowsOriginalExceptionOnDeterminingPlatformWhenConnectingToNonExistentDatabase() : void
+    public function testRethrowsOriginalExceptionOnDeterminingPlatformWhenConnectingToNonExistentDatabase(): void
     {
         $driverMock = $this->createMock(VersionAwarePlatformDriver::class);
 
@@ -793,7 +749,7 @@ class ConnectionTest extends TestCase
     /**
      * @group #3194
      */
-    public function testExecuteCacheQueryStripsPlatformFromConnectionParamsBeforeGeneratingCacheKeys() : void
+    public function testExecuteCacheQueryStripsPlatformFromConnectionParamsBeforeGeneratingCacheKeys(): void
     {
         $driver = $this->createMock(Driver::class);
 
@@ -840,5 +796,5 @@ class ConnectionTest extends TestCase
 
 interface ConnectDispatchEventListener
 {
-    public function postConnect() : void;
+    public function postConnect(): void;
 }

@@ -18,7 +18,7 @@ final class Driver extends AbstractMySQLDriver
         string $username = '',
         string $password = '',
         array $driverOptions = []
-    ) : Connection {
+    ): Connection {
         try {
             return new MysqliConnection($params, $username, $password, $driverOptions);
         } catch (MysqliException $e) {

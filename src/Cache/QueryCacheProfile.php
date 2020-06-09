@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Cache;
 
 use Doctrine\Common\Cache\Cache;
 use Doctrine\DBAL\Cache\Exception\NoCacheKey;
+
 use function hash;
 use function serialize;
 use function sha1;
@@ -33,12 +34,12 @@ class QueryCacheProfile
         $this->resultCacheDriver = $resultCache;
     }
 
-    public function getResultCacheDriver() : ?Cache
+    public function getResultCacheDriver(): ?Cache
     {
         return $this->resultCacheDriver;
     }
 
-    public function getLifetime() : int
+    public function getLifetime(): int
     {
         return $this->lifetime;
     }
@@ -46,7 +47,7 @@ class QueryCacheProfile
     /**
      * @throws CacheException
      */
-    public function getCacheKey() : string
+    public function getCacheKey(): string
     {
         if ($this->cacheKey === null) {
             throw NoCacheKey::new();
@@ -64,7 +65,7 @@ class QueryCacheProfile
      *
      * @return string[]
      */
-    public function generateCacheKeys(string $query, array $params, array $types, array $connectionParams = []) : array
+    public function generateCacheKeys(string $query, array $params, array $types, array $connectionParams = []): array
     {
         $realCacheKey = 'query=' . $query .
             '&params=' . serialize($params) .
@@ -81,17 +82,17 @@ class QueryCacheProfile
         return [$cacheKey, $realCacheKey];
     }
 
-    public function setResultCacheDriver(Cache $cache) : self
+    public function setResultCacheDriver(Cache $cache): self
     {
         return new QueryCacheProfile($this->lifetime, $this->cacheKey, $cache);
     }
 
-    public function setCacheKey(?string $cacheKey) : self
+    public function setCacheKey(?string $cacheKey): self
     {
         return new QueryCacheProfile($this->lifetime, $cacheKey, $this->resultCacheDriver);
     }
 
-    public function setLifetime(int $lifetime) : self
+    public function setLifetime(int $lifetime): self
     {
         return new QueryCacheProfile($lifetime, $this->cacheKey, $this->resultCacheDriver);
     }

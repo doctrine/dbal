@@ -14,7 +14,7 @@ class EasyConnectStringTest extends TestCase
      *
      * @dataProvider connectionParametersProvider
      */
-    public function testFromConnectionParameters(array $params, string $expected) : void
+    public function testFromConnectionParameters(array $params, string $expected): void
     {
         $string = EasyConnectString::fromConnectionParameters($params);
 
@@ -24,7 +24,7 @@ class EasyConnectStringTest extends TestCase
     /**
      * @return iterable<string, array<int, mixed>>
      */
-    public static function connectionParametersProvider() : iterable
+    public static function connectionParametersProvider(): iterable
     {
         return [
             'empty-params' => [[],''],

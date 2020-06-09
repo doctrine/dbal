@@ -23,5 +23,5 @@ interface ExceptionConverterDriver
      *
      * @return DriverException An instance of one of the DriverException subclasses.
      */
-    public function convertException(string $message, DriverExceptionInterface $exception) : DriverException;
+    public function convertException(string $message, DriverExceptionInterface $exception): DriverException;
 }

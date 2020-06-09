@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Platforms\Exception;
 
 use Doctrine\DBAL\DBALException;
+
 use function sprintf;
 
 /**
@@ -18,7 +19,7 @@ final class InvalidPlatformVersion extends DBALException implements PlatformExce
      * @param string $version        The invalid platform version given.
      * @param string $expectedFormat The expected platform version format.
      */
-    public static function new(string $version, string $expectedFormat) : self
+    public static function new(string $version, string $expectedFormat): self
     {
         return new self(
             sprintf(

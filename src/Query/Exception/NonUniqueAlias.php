@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Query\Exception;
 
 use Doctrine\DBAL\Query\QueryException;
+
 use function implode;
 use function sprintf;
 
@@ -16,7 +17,7 @@ final class NonUniqueAlias extends QueryException
     /**
      * @param string[] $registeredAliases
      */
-    public static function new(string $alias, array $registeredAliases) : self
+    public static function new(string $alias, array $registeredAliases): self
     {
         return new self(
             sprintf(

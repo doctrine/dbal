@@ -8,6 +8,7 @@ use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+
 use function array_change_key_case;
 use function array_filter;
 use function array_keys;
@@ -24,6 +25,7 @@ use function str_replace;
 use function strpos;
 use function strtolower;
 use function trim;
+
 use const CASE_LOWER;
 
 /**
@@ -39,9 +41,9 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
      *
      * @return array<int, string>
      */
-    public function getSchemaNames() : array
+    public function getSchemaNames(): array
     {
-        return $this->_conn->fetchColumn("SELECT nspname FROM pg_namespace WHERE nspname !~ '^pg_.*' AND nspname != 'information_schema'");
+        return $this->_conn->fetchFirstColumn("SELECT nspname FROM pg_namespace WHERE nspname !~ '^pg_.*' AND nspname != 'information_schema'");
     }
 
     /**
@@ -51,7 +53,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
      *
      * @return array<int, string>
      */
-    public function getSchemaSearchPaths() : array
+    public function getSchemaSearchPaths(): array
     {
         $params = $this->_conn->getParams();
         $schema = explode(',', $this->_conn->fetchOne('SHOW search_path'));
@@ -70,7 +72,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
      *
      * @return array<int, string>
      */
-    public function getExistingSchemaSearchPaths() : array
+    public function getExistingSchemaSearchPaths(): array
     {
         if ($this->existingSchemaPaths === null) {
             $this->determineExistingSchemaSearchPaths();
@@ -84,17 +86,17 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
      *
      * This is a PostgreSQL only function.
      */
-    public function determineExistingSchemaSearchPaths() : void
+    public function determineExistingSchemaSearchPaths(): void
     {
         $names = $this->getSchemaNames();
         $paths = $this->getSchemaSearchPaths();
 
-        $this->existingSchemaPaths = array_filter($paths, static function ($v) use ($names) : bool {
+        $this->existingSchemaPaths = array_filter($paths, static function ($v) use ($names): bool {
             return in_array($v, $names, true);
         });
     }
 
-    public function dropDatabase(string $database) : void
+    public function dropDatabase(string $database): void
     {
         try {
             parent::dropDatabase($database);
@@ -123,7 +125,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableForeignKeyDefinition(array $tableForeignKey) : ForeignKeyConstraint
+    protected function _getPortableTableForeignKeyDefinition(array $tableForeignKey): ForeignKeyConstraint
     {
         $onUpdate       = null;
         $onDelete       = null;
@@ -131,27 +133,33 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         $foreignColumns = [];
         $foreignTable   = null;
 
-        if (preg_match(
-            '(ON UPDATE ([a-zA-Z0-9]+( (NULL|ACTION|DEFAULT))?))',
-            $tableForeignKey['condef'],
-            $match
-        ) === 1) {
+        if (
+            preg_match(
+                '(ON UPDATE ([a-zA-Z0-9]+( (NULL|ACTION|DEFAULT))?))',
+                $tableForeignKey['condef'],
+                $match
+            ) === 1
+        ) {
             $onUpdate = $match[1];
         }
 
-        if (preg_match(
-            '(ON DELETE ([a-zA-Z0-9]+( (NULL|ACTION|DEFAULT))?))',
-            $tableForeignKey['condef'],
-            $match
-        ) === 1) {
+        if (
+            preg_match(
+                '(ON DELETE ([a-zA-Z0-9]+( (NULL|ACTION|DEFAULT))?))',
+                $tableForeignKey['condef'],
+                $match
+            ) === 1
+        ) {
             $onDelete = $match[1];
         }
 
-        if (preg_match(
-            '/FOREIGN KEY \((.+)\) REFERENCES (.+)\((.+)\)/',
-            $tableForeignKey['condef'],
-            $values
-        ) === 1) {
+        if (
+            preg_match(
+                '/FOREIGN KEY \((.+)\) REFERENCES (.+)\((.+)\)/',
+                $tableForeignKey['condef'],
+                $values
+            ) === 1
+        ) {
             // PostgreSQL returns identifiers that are keywords with quotes, we need them later, don't get
             // the idea to trim them here.
             $localColumns   = array_map('trim', explode(',', $values[1]));
@@ -171,7 +179,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableViewDefinition(array $view) : View
+    protected function _getPortableViewDefinition(array $view): View
     {
         return new View($view['schemaname'] . '.' . $view['viewname'], $view['definition']);
     }
@@ -179,7 +187,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableUserDefinition(array $user) : array
+    protected function _getPortableUserDefinition(array $user): array
     {
         return [
             'user' => $user['usename'],
@@ -190,7 +198,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableDefinition(array $table) : string
+    protected function _getPortableTableDefinition(array $table): string
     {
         $schemas     = $this->getExistingSchemaSearchPaths();
         $firstSchema = array_shift($schemas);
@@ -207,7 +215,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
      *
      * @link http://ezcomponents.org/docs/api/trunk/DatabaseSchema/ezcDbSchemaPgsqlReader.html
      */
-    protected function _getPortableTableIndexesList(array $tableIndexRows, string $tableName) : array
+    protected function _getPortableTableIndexesList(array $tableIndexRows, string $tableName): array
     {
         $buffer = [];
         foreach ($tableIndexRows as $row) {
@@ -244,7 +252,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableDatabaseDefinition(array $database) : string
+    protected function _getPortableDatabaseDefinition(array $database): string
     {
         return $database['datname'];
     }
@@ -252,7 +260,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableSequencesList(array $sequences) : array
+    protected function _getPortableSequencesList(array $sequences): array
     {
         $sequenceDefinitions = [];
 
@@ -278,7 +286,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function getPortableNamespaceDefinition(array $namespace) : string
+    protected function getPortableNamespaceDefinition(array $namespace): string
     {
         return $namespace['nspname'];
     }
@@ -286,7 +294,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableSequenceDefinition(array $sequence) : Sequence
+    protected function _getPortableSequenceDefinition(array $sequence): Sequence
     {
         if ($sequence['schemaname'] !== 'public') {
             $sequenceName = $sequence['schemaname'] . '.' . $sequence['relname'];
@@ -307,14 +315,16 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableColumnDefinition(array $tableColumn) : Column
+    protected function _getPortableTableColumnDefinition(array $tableColumn): Column
     {
         $tableColumn = array_change_key_case($tableColumn, CASE_LOWER);
 
         $length = null;
 
-        if (in_array(strtolower($tableColumn['type']), ['varchar', 'bpchar'], true)
-            && preg_match('/\((\d*)\)/', $tableColumn['complete_type'], $matches) === 1) {
+        if (
+            in_array(strtolower($tableColumn['type']), ['varchar', 'bpchar'], true)
+            && preg_match('/\((\d*)\)/', $tableColumn['complete_type'], $matches) === 1
+        ) {
             $length = (int) $matches[1];
         }
 
@@ -354,7 +364,8 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         $jsonb     = null;
 
         $dbType = strtolower($tableColumn['type']);
-        if ($tableColumn['domain_type'] !== null
+        if (
+            $tableColumn['domain_type'] !== null
             && $tableColumn['domain_type'] !== ''
             && ! $this->_platform->hasDoctrineTypeMappingFor($tableColumn['type'])
         ) {
@@ -420,11 +431,13 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             case 'numeric':
                 $tableColumn['default'] = $this->fixVersion94NegativeNumericDefaultValue($tableColumn['default']);
 
-                if (preg_match(
-                    '([A-Za-z]+\(([0-9]+)\,([0-9]+)\))',
-                    $tableColumn['complete_type'],
-                    $match
-                ) === 1) {
+                if (
+                    preg_match(
+                        '([A-Za-z]+\(([0-9]+)\,([0-9]+)\))',
+                        $tableColumn['complete_type'],
+                        $match
+                    ) === 1
+                ) {
                     $precision = (int) $match[1];
                     $scale     = (int) $match[2];
                     $length    = null;
@@ -442,11 +455,13 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
                 break;
         }
 
-        if (is_string($tableColumn['default']) && preg_match(
-            "('([^']+)'::)",
-            $tableColumn['default'],
-            $match
-        ) === 1) {
+        if (
+            is_string($tableColumn['default']) && preg_match(
+                "('([^']+)'::)",
+                $tableColumn['default'],
+                $match
+            ) === 1
+        ) {
             $tableColumn['default'] = $match[1];
         }
 
@@ -497,7 +512,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     /**
      * Parses a default value expression as given by PostgreSQL
      */
-    private function parseDefaultExpression(?string $default) : ?string
+    private function parseDefaultExpression(?string $default): ?string
     {
         if ($default === null) {
             return $default;
@@ -506,7 +521,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         return str_replace("''", "'", $default);
     }
 
-    public function listTableDetails(string $tableName) : Table
+    public function listTableDetails(string $tableName): Table
     {
         $table = parent::listTableDetails($tableName);
 

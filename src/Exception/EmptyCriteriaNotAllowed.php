@@ -9,7 +9,7 @@ namespace Doctrine\DBAL\Exception;
  */
 final class EmptyCriteriaNotAllowed extends InvalidArgumentException
 {
-    public static function new() : self
+    public static function new(): self
     {
         return new self('Empty criteria was used, expected non-empty criteria.');
     }

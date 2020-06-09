@@ -24,7 +24,7 @@ class RunSqlCommandTest extends TestCase
     /** @var Connection&MockObject */
     private $connectionMock;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->command = new RunSqlCommand();
 
@@ -42,7 +42,7 @@ class RunSqlCommandTest extends TestCase
         $this->command->setHelperSet($helperSet);
     }
 
-    public function testMissingSqlArgument() : void
+    public function testMissingSqlArgument(): void
     {
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Argument "sql" is required in order to execute this command correctly.');
@@ -53,7 +53,7 @@ class RunSqlCommandTest extends TestCase
         ]);
     }
 
-    public function testIncorrectDepthOption() : void
+    public function testIncorrectDepthOption(): void
     {
         $this->expectException(LogicException::class);
         $this->expectExceptionMessage('Option "depth" must contains an integer value.');
@@ -65,7 +65,7 @@ class RunSqlCommandTest extends TestCase
         ]);
     }
 
-    public function testSelectStatementsPrintsResult() : void
+    public function testSelectStatementsPrintsResult(): void
     {
         $this->expectConnectionFetchAllAssociative();
 
@@ -79,7 +79,7 @@ class RunSqlCommandTest extends TestCase
         self::assertMatchesRegularExpression('@array.*1.*@', $this->commandTester->getDisplay());
     }
 
-    public function testUpdateStatementsPrintsAffectedLines() : void
+    public function testUpdateStatementsPrintsAffectedLines(): void
     {
         $this->expectConnectionExecuteUpdate();
 
@@ -92,7 +92,7 @@ class RunSqlCommandTest extends TestCase
         self::assertDoesNotMatchRegularExpression('@array.*1.*@', $this->commandTester->getDisplay());
     }
 
-    private function expectConnectionExecuteUpdate() : void
+    private function expectConnectionExecuteUpdate(): void
     {
         $this->connectionMock
             ->expects(self::exactly(1))
@@ -102,7 +102,7 @@ class RunSqlCommandTest extends TestCase
             ->method('fetchAllAssociative');
     }
 
-    private function expectConnectionFetchAllAssociative() : void
+    private function expectConnectionFetchAllAssociative(): void
     {
         $this->connectionMock
             ->expects(self::exactly(0))
@@ -112,7 +112,7 @@ class RunSqlCommandTest extends TestCase
             ->method('fetchAllAssociative');
     }
 
-    public function testStatementsWithFetchResultPrintsResult() : void
+    public function testStatementsWithFetchResultPrintsResult(): void
     {
         $this->expectConnectionFetchAllAssociative();
 

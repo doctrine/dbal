@@ -41,7 +41,7 @@ class SchemaDropTableEventArgs extends SchemaEventArgs
         return $this->table;
     }
 
-    public function getPlatform() : AbstractPlatform
+    public function getPlatform(): AbstractPlatform
     {
         return $this->platform;
     }
@@ -49,14 +49,14 @@ class SchemaDropTableEventArgs extends SchemaEventArgs
     /**
      * @return $this
      */
-    public function setSql(string $sql) : self
+    public function setSql(string $sql): self
     {
         $this->sql = $sql;
 
         return $this;
     }
 
-    public function getSql() : ?string
+    public function getSql(): ?string
     {
         return $this->sql;
     }

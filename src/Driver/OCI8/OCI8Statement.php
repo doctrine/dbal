@@ -4,34 +4,25 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver\OCI8;
 
-use Doctrine\DBAL\Driver\FetchUtils;
+use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\ParameterType;
+
 use function assert;
 use function is_int;
 use function is_resource;
 use function oci_bind_by_name;
-use function oci_cancel;
 use function oci_error;
 use function oci_execute;
-use function oci_fetch_all;
-use function oci_fetch_array;
 use function oci_new_descriptor;
-use function oci_num_fields;
-use function oci_num_rows;
 use function oci_parse;
 use function sprintf;
-use const OCI_ASSOC;
+
 use const OCI_B_BIN;
 use const OCI_B_BLOB;
 use const OCI_COMMIT_ON_SUCCESS;
 use const OCI_D_LOB;
-use const OCI_FETCHSTATEMENT_BY_COLUMN;
-use const OCI_FETCHSTATEMENT_BY_ROW;
 use const OCI_NO_AUTO_COMMIT;
-use const OCI_NUM;
-use const OCI_RETURN_LOBS;
-use const OCI_RETURN_NULLS;
 use const OCI_TEMP_BLOB;
 use const SQLT_CHR;
 
@@ -62,13 +53,6 @@ final class OCI8Statement implements Statement
     private $boundValues = [];
 
     /**
-     * Indicates whether the statement is in the state when fetching results is possible
-     *
-     * @var bool
-     */
-    private $result = false;
-
-    /**
      * Creates a new OCI8Statement that uses the given connection handle and SQL statement.
      *
      * @param resource $dbh   The connection handle.
@@ -92,7 +76,7 @@ final class OCI8Statement implements Statement
     /**
      * {@inheritdoc}
      */
-    public function bindValue($param, $value, int $type = ParameterType::STRING) : void
+    public function bindValue($param, $value, int $type = ParameterType::STRING): void
     {
         $this->bindParam($param, $value, $type, null);
     }
@@ -100,7 +84,7 @@ final class OCI8Statement implements Statement
     /**
      * {@inheritdoc}
      */
-    public function bindParam($param, &$variable, int $type = ParameterType::STRING, ?int $length = null) : void
+    public function bindParam($param, &$variable, int $type = ParameterType::STRING, ?int $length = null): void
     {
         if (is_int($param)) {
             if (! isset($this->parameterMap[$param])) {
@@ -123,13 +107,15 @@ final class OCI8Statement implements Statement
 
         $this->boundValues[$param] =& $variable;
 
-        if (! oci_bind_by_name(
-            $this->statement,
-            $param,
-            $variable,
-            $length ?? -1,
-            $this->convertParameterType($type)
-        )) {
+        if (
+            ! oci_bind_by_name(
+                $this->statement,
+                $param,
+                $variable,
+                $length ?? -1,
+                $this->convertParameterType($type)
+            )
+        ) {
             throw OCI8Exception::fromErrorInfo(oci_error($this->statement));
         }
     }
@@ -137,7 +123,7 @@ final class OCI8Statement implements Statement
     /**
      * Converts DBAL parameter type to oci8 parameter type
      */
-    private function convertParameterType(int $type) : int
+    private function convertParameterType(int $type): int
     {
         switch ($type) {
             case ParameterType::BINARY:
@@ -151,33 +137,10 @@ final class OCI8Statement implements Statement
         }
     }
 
-    public function closeCursor() : void
-    {
-        // not having the result means there's nothing to close
-        if (! $this->result) {
-            return;
-        }
-
-        oci_cancel($this->statement);
-
-        $this->result = false;
-    }
-
-    public function columnCount() : int
-    {
-        $count = oci_num_fields($this->statement);
-
-        if ($count !== false) {
-            return $count;
-        }
-
-        return 0;
-    }
-
     /**
      * {@inheritdoc}
      */
-    public function execute(?array $params = null) : void
+    public function execute(?array $params = null): ResultInterface
     {
         if ($params !== null) {
             foreach ($params as $key => $val) {
@@ -202,104 +165,6 @@ final class OCI8Statement implements Statement
             throw OCI8Exception::fromErrorInfo(oci_error($this->statement));
         }
 
-        $this->result = true;
-    }
-
-    public function rowCount() : int
-    {
-        $count = oci_num_rows($this->statement);
-
-        if ($count !== false) {
-            return $count;
-        }
-
-        return 0;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchNumeric()
-    {
-        return $this->fetch(OCI_NUM);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchAssociative()
-    {
-        return $this->fetch(OCI_ASSOC);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchOne()
-    {
-        return FetchUtils::fetchOne($this);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchAllNumeric() : array
-    {
-        return $this->fetchAll(OCI_NUM, OCI_FETCHSTATEMENT_BY_ROW);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchAllAssociative() : array
-    {
-        return $this->fetchAll(OCI_ASSOC, OCI_FETCHSTATEMENT_BY_ROW);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchColumn() : array
-    {
-        return $this->fetchAll(OCI_NUM, OCI_FETCHSTATEMENT_BY_COLUMN)[0];
-    }
-
-    /**
-     * @return mixed|false
-     */
-    private function fetch(int $mode)
-    {
-        // do not try fetching from the statement if it's not expected to contain the result
-        // in order to prevent exceptional situation
-        if (! $this->result) {
-            return false;
-        }
-
-        return oci_fetch_array(
-            $this->statement,
-            $mode | OCI_RETURN_NULLS | OCI_RETURN_LOBS
-        );
-    }
-
-    /**
-     * @return array<mixed>
-     */
-    private function fetchAll(int $mode, int $fetchStructure) : array
-    {
-        // do not try fetching from the statement if it's not expected to contain the result
-        // in order to prevent exceptional situation
-        if (! $this->result) {
-            return [];
-        }
-
-        oci_fetch_all(
-            $this->statement,
-            $result,
-            0,
-            -1,
-            $mode | OCI_RETURN_NULLS | $fetchStructure | OCI_RETURN_LOBS
-        );
-
-        return $result;
+        return new Result($this->statement);
     }
 }

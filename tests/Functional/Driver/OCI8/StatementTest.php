@@ -6,11 +6,12 @@ namespace Doctrine\DBAL\Tests\Functional\Driver\OCI8;
 
 use Doctrine\DBAL\Driver\OCI8\Driver;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+
 use function extension_loaded;
 
 class StatementTest extends FunctionalTestCase
 {
-    protected function setUp() : void
+    protected function setUp(): void
     {
         if (! extension_loaded('oci8')) {
             self::markTestSkipped('oci8 is not installed.');
@@ -31,7 +32,7 @@ class StatementTest extends FunctionalTestCase
      *
      * @dataProvider queryConversionProvider
      */
-    public function testQueryConversion(string $query, array $params, array $expected) : void
+    public function testQueryConversion(string $query, array $params, array $expected): void
     {
         self::assertEquals(
             $expected,
@@ -47,21 +48,20 @@ class StatementTest extends FunctionalTestCase
      *
      * @dataProvider queryConversionProvider
      */
-    public function testStatementBindParameters(string $query, array $params, array $expected) : void
+    public function testStatementBindParameters(string $query, array $params, array $expected): void
     {
-        $stmt = $this->connection->prepare($query);
-        $stmt->execute($params);
-
         self::assertEquals(
             $expected,
-            $stmt->fetchAssociative()
+            $this->connection->prepare($query)
+                ->execute($params)
+                ->fetchAssociative()
         );
     }
 
     /**
      * @return array<string, array<int, mixed>>
      */
-    public static function queryConversionProvider() : iterable
+    public static function queryConversionProvider(): iterable
     {
         return [
             'positional' => [

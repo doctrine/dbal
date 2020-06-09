@@ -13,6 +13,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\SqliteSchemaManager;
+
 use function strpos;
 
 /**
@@ -25,13 +26,14 @@ abstract class AbstractSQLiteDriver implements Driver, ExceptionConverterDriver
      *
      * @link http://www.sqlite.org/c3ref/c_abort.html
      */
-    public function convertException(string $message, DriverExceptionInterface $exception) : DriverException
+    public function convertException(string $message, DriverExceptionInterface $exception): DriverException
     {
         if (strpos($exception->getMessage(), 'database is locked') !== false) {
             return new Exception\LockWaitTimeoutException($message, $exception);
         }
 
-        if (strpos($exception->getMessage(), 'must be unique') !== false ||
+        if (
+            strpos($exception->getMessage(), 'must be unique') !== false ||
             strpos($exception->getMessage(), 'is not unique') !== false ||
             strpos($exception->getMessage(), 'are not unique') !== false ||
             strpos($exception->getMessage(), 'UNIQUE constraint failed') !== false
@@ -43,7 +45,8 @@ abstract class AbstractSQLiteDriver implements Driver, ExceptionConverterDriver
             return new Exception\ForeignKeyConstraintViolationException($message, $exception);
         }
 
-        if (strpos($exception->getMessage(), 'may not be NULL') !== false ||
+        if (
+            strpos($exception->getMessage(), 'may not be NULL') !== false ||
             strpos($exception->getMessage(), 'NOT NULL constraint failed') !== false
         ) {
             return new Exception\NotNullConstraintViolationException($message, $exception);
@@ -80,12 +83,12 @@ abstract class AbstractSQLiteDriver implements Driver, ExceptionConverterDriver
         return new DriverException($message, $exception);
     }
 
-    public function getDatabasePlatform() : AbstractPlatform
+    public function getDatabasePlatform(): AbstractPlatform
     {
         return new SqlitePlatform();
     }
 
-    public function getSchemaManager(Connection $conn) : AbstractSchemaManager
+    public function getSchemaManager(Connection $conn): AbstractSchemaManager
     {
         return new SqliteSchemaManager($conn);
     }

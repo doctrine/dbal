@@ -17,13 +17,13 @@ class BlobTest extends TestCase
     /** @var BlobType */
     protected $type;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->platform = $this->createMock(AbstractPlatform::class);
         $this->type     = new BlobType();
     }
 
-    public function testBlobNullConvertsToPHPValue() : void
+    public function testBlobNullConvertsToPHPValue(): void
     {
         self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }

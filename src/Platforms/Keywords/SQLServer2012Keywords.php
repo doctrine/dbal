@@ -9,7 +9,7 @@ namespace Doctrine\DBAL\Platforms\Keywords;
  */
 class SQLServer2012Keywords extends KeywordList
 {
-    public function getName() : string
+    public function getName(): string
     {
         return 'SQLServer2012';
     }
@@ -19,7 +19,7 @@ class SQLServer2012Keywords extends KeywordList
      *
      * @link http://msdn.microsoft.com/en-us/library/aa238507%28v=sql.80%29.aspx
      */
-    protected function getKeywords() : array
+    protected function getKeywords(): array
     {
         return [
             'ADD',

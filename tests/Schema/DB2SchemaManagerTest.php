@@ -12,6 +12,7 @@ use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Schema\DB2SchemaManager;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+
 use function in_array;
 use function preg_match;
 
@@ -26,7 +27,7 @@ final class DB2SchemaManagerTest extends TestCase
     /** @var DB2SchemaManager */
     private $manager;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $eventManager = new EventManager();
         $driverMock   = $this->createMock(Driver::class);
@@ -45,9 +46,9 @@ final class DB2SchemaManagerTest extends TestCase
      *
      * @group DBAL-2701
      */
-    public function testListTableNamesFiltersAssetNamesCorrectly() : void
+    public function testListTableNamesFiltersAssetNamesCorrectly(): void
     {
-        $this->conn->getConfiguration()->setSchemaAssetsFilter(static function (string $name) : bool {
+        $this->conn->getConfiguration()->setSchemaAssetsFilter(static function (string $name): bool {
             return preg_match('/^(?!T_)/', $name) === 1;
         });
         $this->conn->expects(self::once())->method('fetchAllAssociative')->will(self::returnValue([
@@ -66,10 +67,10 @@ final class DB2SchemaManagerTest extends TestCase
         );
     }
 
-    public function testListTableNamesFiltersAssetNamesCorrectlyWithCallable() : void
+    public function testListTableNamesFiltersAssetNamesCorrectlyWithCallable(): void
     {
         $accepted = ['T_FOO', 'T_BAR'];
-        $this->conn->getConfiguration()->setSchemaAssetsFilter(static function ($assetName) use ($accepted) : bool {
+        $this->conn->getConfiguration()->setSchemaAssetsFilter(static function ($assetName) use ($accepted): bool {
             return in_array($assetName, $accepted, true);
         });
 

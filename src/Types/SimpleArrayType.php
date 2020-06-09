@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+
 use function count;
 use function explode;
 use function implode;
@@ -22,7 +23,7 @@ class SimpleArrayType extends Type
     /**
      * {@inheritdoc}
      */
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform) : string
+    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform): string
     {
         return $platform->getClobTypeDeclarationSQL($fieldDeclaration);
     }
@@ -53,12 +54,12 @@ class SimpleArrayType extends Type
         return explode(',', $value);
     }
 
-    public function getName() : string
+    public function getName(): string
     {
         return Types::SIMPLE_ARRAY;
     }
 
-    public function requiresSQLCommentHint(AbstractPlatform $platform) : bool
+    public function requiresSQLCommentHint(AbstractPlatform $platform): bool
     {
         return true;
     }

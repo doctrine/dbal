@@ -4,26 +4,24 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver\SQLSrv;
 
-use Doctrine\DBAL\Driver\FetchUtils;
+use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\ParameterType;
+
 use function assert;
+
 use function is_int;
 use function sqlsrv_execute;
 use function sqlsrv_fetch;
-use function sqlsrv_fetch_array;
 use function sqlsrv_get_field;
 use function sqlsrv_next_result;
-use function sqlsrv_num_fields;
 use function SQLSRV_PHPTYPE_STREAM;
 use function SQLSRV_PHPTYPE_STRING;
 use function sqlsrv_prepare;
-use function sqlsrv_rows_affected;
 use function SQLSRV_SQLTYPE_VARBINARY;
 use function stripos;
+
 use const SQLSRV_ENC_BINARY;
-use const SQLSRV_FETCH_ASSOC;
-use const SQLSRV_FETCH_NUMERIC;
 use const SQLSRV_PARAM_IN;
 
 /**
@@ -74,13 +72,6 @@ final class SQLSrvStatement implements Statement
     private $lastInsertId;
 
     /**
-     * Indicates whether the statement is in the state when fetching results is possible
-     *
-     * @var bool
-     */
-    private $result = false;
-
-    /**
      * Append to any INSERT query to retrieve the last insert id.
      */
     private const LAST_INSERT_ID_SQL = ';SELECT SCOPE_IDENTITY() AS LastInsertId;';
@@ -104,7 +95,7 @@ final class SQLSrvStatement implements Statement
     /**
      * {@inheritdoc}
      */
-    public function bindValue($param, $value, int $type = ParameterType::STRING) : void
+    public function bindValue($param, $value, int $type = ParameterType::STRING): void
     {
         assert(is_int($param));
 
@@ -115,7 +106,7 @@ final class SQLSrvStatement implements Statement
     /**
      * {@inheritdoc}
      */
-    public function bindParam($param, &$variable, int $type = ParameterType::STRING, ?int $length = null) : void
+    public function bindParam($param, &$variable, int $type = ParameterType::STRING, ?int $length = null): void
     {
         assert(is_int($param));
 
@@ -126,42 +117,10 @@ final class SQLSrvStatement implements Statement
         $this->stmt = null;
     }
 
-    public function closeCursor() : void
-    {
-        // not having the result means there's nothing to close
-        if ($this->stmt === null || ! $this->result) {
-            return;
-        }
-
-        // emulate it by fetching and discarding rows, similarly to what PDO does in this case
-        // @link http://php.net/manual/en/pdostatement.closecursor.php
-        // @link https://github.com/php/php-src/blob/php-7.0.11/ext/pdo/pdo_stmt.c#L2075
-        // deliberately do not consider multiple result sets, since doctrine/dbal doesn't support them
-        while (sqlsrv_fetch($this->stmt) !== false) {
-        }
-
-        $this->result = false;
-    }
-
-    public function columnCount() : int
-    {
-        if ($this->stmt === null) {
-            return 0;
-        }
-
-        $count = sqlsrv_num_fields($this->stmt);
-
-        if ($count !== false) {
-            return $count;
-        }
-
-        return 0;
-    }
-
     /**
      * {@inheritdoc}
      */
-    public function execute(?array $params = null) : void
+    public function execute(?array $params = null): ResultInterface
     {
         if ($params !== null) {
             foreach ($params as $key => $val) {
@@ -187,70 +146,7 @@ final class SQLSrvStatement implements Statement
             $this->lastInsertId->setId(sqlsrv_get_field($this->stmt, 0));
         }
 
-        $this->result = true;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchNumeric()
-    {
-        return $this->fetch(SQLSRV_FETCH_NUMERIC);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchAssociative()
-    {
-        return $this->fetch(SQLSRV_FETCH_ASSOC);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchOne()
-    {
-        return FetchUtils::fetchOne($this);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchAllNumeric() : array
-    {
-        return FetchUtils::fetchAllNumeric($this);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchAllAssociative() : array
-    {
-        return FetchUtils::fetchAllAssociative($this);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchColumn() : array
-    {
-        return FetchUtils::fetchColumn($this);
-    }
-
-    public function rowCount() : int
-    {
-        if ($this->stmt === null) {
-            return 0;
-        }
-
-        $count = sqlsrv_rows_affected($this->stmt);
-
-        if ($count !== false) {
-            return $count;
-        }
-
-        return 0;
+        return new Result($this->stmt);
     }
 
     /**
@@ -296,19 +192,5 @@ final class SQLSrvStatement implements Statement
         }
 
         return $stmt;
-    }
-
-    /**
-     * @return mixed|false
-     */
-    private function fetch(int $fetchType)
-    {
-        // do not try fetching from the statement if it's not expected to contain the result
-        // in order to prevent exceptional situation
-        if ($this->stmt === null || ! $this->result) {
-            return false;
-        }
-
-        return sqlsrv_fetch_array($this->stmt, $fetchType) ?? false;
     }
 }

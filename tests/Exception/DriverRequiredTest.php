@@ -6,11 +6,12 @@ namespace Doctrine\DBAL\Tests\Exception;
 
 use Doctrine\DBAL\Exception\DriverRequired;
 use PHPUnit\Framework\TestCase;
+
 use function sprintf;
 
 class DriverRequiredTest extends TestCase
 {
-    public function testDriverRequiredWithUrl() : void
+    public function testDriverRequiredWithUrl(): void
     {
         $url       = 'mysql://localhost';
         $exception = DriverRequired::new($url);

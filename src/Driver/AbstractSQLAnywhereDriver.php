@@ -14,6 +14,7 @@ use Doctrine\DBAL\Platforms\SQLAnywhere16Platform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\SQLAnywhereSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
+
 use function preg_match;
 
 /**
@@ -26,7 +27,7 @@ abstract class AbstractSQLAnywhereDriver implements ExceptionConverterDriver, Ve
      *
      * @link http://dcx.sybase.com/index.html#sa160/en/saerrors/sqlerror.html
      */
-    public function convertException(string $message, DriverExceptionInterface $exception) : DriverException
+    public function convertException(string $message, DriverExceptionInterface $exception): DriverException
     {
         switch ($exception->getCode()) {
             case -306:
@@ -76,13 +77,15 @@ abstract class AbstractSQLAnywhereDriver implements ExceptionConverterDriver, Ve
         return new DriverException($message, $exception);
     }
 
-    public function createDatabasePlatformForVersion(string $version) : AbstractPlatform
+    public function createDatabasePlatformForVersion(string $version): AbstractPlatform
     {
-        if (preg_match(
-            '/^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+)(?:\.(?P<build>\d+))?)?)?/',
-            $version,
-            $versionParts
-        ) === 0) {
+        if (
+            preg_match(
+                '/^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+)(?:\.(?P<build>\d+))?)?)?/',
+                $version,
+                $versionParts
+            ) === 0
+        ) {
             throw InvalidPlatformVersion::new(
                 $version,
                 '<major_version>.<minor_version>.<patch_version>.<build_version>'
@@ -92,12 +95,12 @@ abstract class AbstractSQLAnywhereDriver implements ExceptionConverterDriver, Ve
         return new SQLAnywhere16Platform();
     }
 
-    public function getDatabasePlatform() : AbstractPlatform
+    public function getDatabasePlatform(): AbstractPlatform
     {
         return new SQLAnywhere16Platform();
     }
 
-    public function getSchemaManager(Connection $conn) : AbstractSchemaManager
+    public function getSchemaManager(Connection $conn): AbstractSchemaManager
     {
         return new SQLAnywhereSchemaManager($conn);
     }

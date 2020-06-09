@@ -9,7 +9,7 @@ namespace Doctrine\DBAL\Platforms;
  */
 class MySQL80Platform extends MySQL57Platform
 {
-    protected function getReservedKeywordsClass() : string
+    protected function getReservedKeywordsClass(): string
     {
         return Keywords\MySQL80Keywords::class;
     }

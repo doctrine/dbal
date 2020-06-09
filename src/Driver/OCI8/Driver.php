@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Driver\OCI8;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\AbstractOracleDriver;
 use Doctrine\DBAL\Driver\Connection;
+
 use const OCI_NO_AUTO_COMMIT;
 
 /**
@@ -22,7 +23,7 @@ final class Driver extends AbstractOracleDriver
         string $username = '',
         string $password = '',
         array $driverOptions = []
-    ) : Connection {
+    ): Connection {
         try {
             return new OCI8Connection(
                 $username,
@@ -44,7 +45,7 @@ final class Driver extends AbstractOracleDriver
      *
      * @return string The DSN.
      */
-    private function constructDsn(array $params) : string
+    private function constructDsn(array $params): string
     {
         return $this->getEasyConnectString($params);
     }

@@ -10,6 +10,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use InvalidArgumentException;
 use PHPUnit\Framework\Assert;
+
 use function array_keys;
 use function array_map;
 use function array_values;
@@ -48,7 +49,7 @@ class TestUtil
      *
      * @return Connection The database connection instance.
      */
-    public static function getConnection() : Connection
+    public static function getConnection(): Connection
     {
         if (self::hasRequiredConnectionParams() && ! self::$initialized) {
             self::initializeDatabase();
@@ -65,7 +66,7 @@ class TestUtil
     /**
      * @return mixed[]
      */
-    public static function getConnectionParams() : array
+    public static function getConnectionParams(): array
     {
         if (self::hasRequiredConnectionParams()) {
             return self::getParamsForMainConnection();
@@ -74,7 +75,7 @@ class TestUtil
         return self::getFallbackConnectionParams();
     }
 
-    private static function hasRequiredConnectionParams() : bool
+    private static function hasRequiredConnectionParams(): bool
     {
         return isset(
             $GLOBALS['db_type'],
@@ -93,7 +94,7 @@ class TestUtil
         );
     }
 
-    private static function initializeDatabase() : void
+    private static function initializeDatabase(): void
     {
         $realDbParams = self::getParamsForMainConnection();
         $tmpDbParams  = self::getParamsForTemporaryConnection();
@@ -138,7 +139,7 @@ class TestUtil
     /**
      * @return mixed[]
      */
-    private static function getFallbackConnectionParams() : array
+    private static function getFallbackConnectionParams(): array
     {
         if (! extension_loaded('pdo_sqlite')) {
             Assert::markTestSkipped('PDO SQLite extension is not loaded');
@@ -157,7 +158,7 @@ class TestUtil
         return $params;
     }
 
-    private static function addDbEventSubscribers(Connection $conn) : void
+    private static function addDbEventSubscribers(Connection $conn): void
     {
         if (! isset($GLOBALS['db_event_subscribers'])) {
             return;
@@ -173,7 +174,7 @@ class TestUtil
     /**
      * @return mixed[]
      */
-    private static function getParamsForTemporaryConnection() : array
+    private static function getParamsForTemporaryConnection(): array
     {
         $connectionParams = [
             'driver' => $GLOBALS['tmpdb_type'],
@@ -202,7 +203,7 @@ class TestUtil
     /**
      * @return mixed[]
      */
-    private static function getParamsForMainConnection() : array
+    private static function getParamsForMainConnection(): array
     {
         $connectionParams = [
             'driver' => $GLOBALS['db_type'],
@@ -224,7 +225,7 @@ class TestUtil
         return $connectionParams;
     }
 
-    public static function getTempConnection() : Connection
+    public static function getTempConnection(): Connection
     {
         return DriverManager::getConnection(self::getParamsForTemporaryConnection());
     }
@@ -234,11 +235,11 @@ class TestUtil
      *
      * @param array<int,array<string,mixed>> $rows
      */
-    public static function generateResultSetQuery(array $rows, AbstractPlatform $platform) : string
+    public static function generateResultSetQuery(array $rows, AbstractPlatform $platform): string
     {
-        return implode(' UNION ALL ', array_map(static function (array $row) use ($platform) : string {
+        return implode(' UNION ALL ', array_map(static function (array $row) use ($platform): string {
             return $platform->getDummySelectSQL(
-                implode(', ', array_map(static function (string $column, $value) use ($platform) : string {
+                implode(', ', array_map(static function (string $column, $value) use ($platform): string {
                     if (is_string($value)) {
                         $value = $platform->quoteStringLiteral($value);
                     }

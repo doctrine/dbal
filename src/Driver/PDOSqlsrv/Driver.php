@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Driver\PDOSqlsrv;
 use Doctrine\DBAL\Driver\AbstractSQLServerDriver;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use PDO;
+
 use function is_int;
 use function sprintf;
 
@@ -23,7 +24,7 @@ final class Driver extends AbstractSQLServerDriver
         string $username = '',
         string $password = '',
         array $driverOptions = []
-    ) : DriverConnection {
+    ): DriverConnection {
         $pdoOptions = $dsnOptions = [];
 
         foreach ($driverOptions as $option => $value) {
@@ -54,7 +55,7 @@ final class Driver extends AbstractSQLServerDriver
      *
      * @return string The DSN.
      */
-    private function constructPdoDsn(array $params, array $connectionOptions) : string
+    private function constructPdoDsn(array $params, array $connectionOptions): string
     {
         $dsn = 'sqlsrv:server=';
 
@@ -82,7 +83,7 @@ final class Driver extends AbstractSQLServerDriver
      *
      * @param string[] $connectionOptions
      */
-    private function getConnectionOptionsDsn(array $connectionOptions) : string
+    private function getConnectionOptionsDsn(array $connectionOptions): string
     {
         $connectionOptionsDsn = '';
 

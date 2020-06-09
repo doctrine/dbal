@@ -21,22 +21,22 @@ class SchemaConfig
     /** @var array<string, mixed> */
     protected $defaultTableOptions = [];
 
-    public function hasExplicitForeignKeyIndexes() : bool
+    public function hasExplicitForeignKeyIndexes(): bool
     {
         return $this->hasExplicitForeignKeyIndexes;
     }
 
-    public function setExplicitForeignKeyIndexes(bool $flag) : void
+    public function setExplicitForeignKeyIndexes(bool $flag): void
     {
         $this->hasExplicitForeignKeyIndexes = $flag;
     }
 
-    public function setMaxIdentifierLength(int $length) : void
+    public function setMaxIdentifierLength(int $length): void
     {
         $this->maxIdentifierLength = $length;
     }
 
-    public function getMaxIdentifierLength() : int
+    public function getMaxIdentifierLength(): int
     {
         return $this->maxIdentifierLength;
     }
@@ -44,7 +44,7 @@ class SchemaConfig
     /**
      * Gets the default namespace of schema objects.
      */
-    public function getName() : ?string
+    public function getName(): ?string
     {
         return $this->name;
     }
@@ -52,7 +52,7 @@ class SchemaConfig
     /**
      * Sets the default namespace name of schema objects.
      */
-    public function setName(string $name) : void
+    public function setName(string $name): void
     {
         $this->name = $name;
     }
@@ -63,7 +63,7 @@ class SchemaConfig
      *
      * @return array<string, mixed>
      */
-    public function getDefaultTableOptions() : array
+    public function getDefaultTableOptions(): array
     {
         return $this->defaultTableOptions;
     }
@@ -71,7 +71,7 @@ class SchemaConfig
     /**
      * @param array<string, mixed> $defaultTableOptions
      */
-    public function setDefaultTableOptions(array $defaultTableOptions) : void
+    public function setDefaultTableOptions(array $defaultTableOptions): void
     {
         $this->defaultTableOptions = $defaultTableOptions;
     }

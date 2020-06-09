@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Driver\PDOSqlsrv;
 
 use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\Driver\PDOStatement;
+
 use function strpos;
 use function substr;
 
@@ -14,19 +15,18 @@ use function substr;
  */
 class Connection extends PDOConnection
 {
-    public function lastInsertId(?string $name = null) : string
+    public function lastInsertId(?string $name = null): string
     {
         if ($name === null) {
             return parent::lastInsertId($name);
         }
 
-        $stmt = $this->prepare('SELECT CONVERT(VARCHAR(MAX), current_value) FROM sys.sequences WHERE name = ?');
-        $stmt->execute([$name]);
-
-        return $stmt->fetchOne();
+        return $this->prepare('SELECT CONVERT(VARCHAR(MAX), current_value) FROM sys.sequences WHERE name = ?')
+            ->execute([$name])
+            ->fetchOne();
     }
 
-    public function quote(string $input) : string
+    public function quote(string $input): string
     {
         $val = parent::quote($input);
 
@@ -38,7 +38,7 @@ class Connection extends PDOConnection
         return $val;
     }
 
-    protected function createStatement(\PDOStatement $stmt) : PDOStatement
+    protected function createStatement(\PDOStatement $stmt): PDOStatement
     {
         return new Statement($stmt);
     }

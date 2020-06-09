@@ -21,5 +21,5 @@ interface DriverException extends Throwable
      *
      * Returns null if the driver does not provide a SQLSTATE for the error occurred.
      */
-    public function getSQLState() : ?string;
+    public function getSQLState(): ?string;
 }

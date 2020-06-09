@@ -4,17 +4,13 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver\IBMDB2;
 
-use Doctrine\DBAL\Driver\FetchUtils;
+use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\ParameterType;
+
 use function assert;
 use function db2_bind_param;
 use function db2_execute;
-use function db2_fetch_array;
-use function db2_fetch_assoc;
-use function db2_free_result;
-use function db2_num_fields;
-use function db2_num_rows;
 use function error_get_last;
 use function fclose;
 use function fwrite;
@@ -24,6 +20,7 @@ use function ksort;
 use function stream_copy_to_stream;
 use function stream_get_meta_data;
 use function tmpfile;
+
 use const DB2_BINARY;
 use const DB2_CHAR;
 use const DB2_LONG;
@@ -47,13 +44,6 @@ final class DB2Statement implements Statement
     private $lobs = [];
 
     /**
-     * Indicates whether the statement is in the state when fetching results is possible
-     *
-     * @var bool
-     */
-    private $result = false;
-
-    /**
      * @param resource $stmt
      */
     public function __construct($stmt)
@@ -64,7 +54,7 @@ final class DB2Statement implements Statement
     /**
      * {@inheritdoc}
      */
-    public function bindValue($param, $value, int $type = ParameterType::STRING) : void
+    public function bindValue($param, $value, int $type = ParameterType::STRING): void
     {
         $this->bindParam($param, $value, $type);
     }
@@ -72,7 +62,7 @@ final class DB2Statement implements Statement
     /**
      * {@inheritdoc}
      */
-    public function bindParam($param, &$variable, int $type = ParameterType::STRING, ?int $length = null) : void
+    public function bindParam($param, &$variable, int $type = ParameterType::STRING, ?int $length = null): void
     {
         assert(is_int($param));
 
@@ -101,34 +91,25 @@ final class DB2Statement implements Statement
         }
     }
 
-    public function closeCursor() : void
+    /**
+     * @param int   $position Parameter position
+     * @param mixed $variable
+     *
+     * @throws DB2Exception
+     */
+    private function bind(int $position, &$variable, int $parameterType, int $dataType): void
     {
-        $this->bindParam = [];
+        $this->bindParam[$position] =& $variable;
 
-        if (! $this->result) {
-            return;
+        if (! db2_bind_param($this->stmt, $position, 'variable', $parameterType, $dataType)) {
+            throw DB2Exception::fromStatementError($this->stmt);
         }
-
-        db2_free_result($this->stmt);
-
-        $this->result = false;
-    }
-
-    public function columnCount() : int
-    {
-        $count = db2_num_fields($this->stmt);
-
-        if ($count !== false) {
-            return $count;
-        }
-
-        return 0;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function execute(?array $params = null) : void
+    public function execute(?array $params = null): ResultInterface
     {
         if ($params === null) {
             ksort($this->bindParam);
@@ -150,7 +131,7 @@ final class DB2Statement implements Statement
             $this->writeStringToStream($source, $target);
         }
 
-        $retval = db2_execute($this->stmt, $params);
+        $result = db2_execute($this->stmt, $params);
 
         foreach ($this->lobs as [, $handle]) {
             fclose($handle);
@@ -158,89 +139,11 @@ final class DB2Statement implements Statement
 
         $this->lobs = [];
 
-        if ($retval === false) {
+        if ($result === false) {
             throw DB2Exception::fromStatementError($this->stmt);
         }
 
-        $this->result = true;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function fetchNumeric()
-    {
-        if (! $this->result) {
-            return false;
-        }
-
-        return db2_fetch_array($this->stmt);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchAssociative()
-    {
-        // do not try fetching from the statement if it's not expected to contain the result
-        // in order to prevent exceptional situation
-        if (! $this->result) {
-            return false;
-        }
-
-        return db2_fetch_assoc($this->stmt);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchOne()
-    {
-        return FetchUtils::fetchOne($this);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchAllNumeric() : array
-    {
-        return FetchUtils::fetchAllNumeric($this);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchAllAssociative() : array
-    {
-        return FetchUtils::fetchAllAssociative($this);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fetchColumn() : array
-    {
-        return FetchUtils::fetchColumn($this);
-    }
-
-    public function rowCount() : int
-    {
-        return @db2_num_rows($this->stmt);
-    }
-
-    /**
-     * @param int   $position Parameter position
-     * @param mixed $variable
-     *
-     * @throws DB2Exception
-     */
-    private function bind(int $position, &$variable, int $parameterType, int $dataType) : void
-    {
-        $this->bindParam[$position] =& $variable;
-
-        if (! db2_bind_param($this->stmt, $position, 'variable', $parameterType, $dataType)) {
-            throw DB2Exception::fromStatementError($this->stmt);
-        }
+        return new Result($this->stmt);
     }
 
     /**
@@ -265,7 +168,7 @@ final class DB2Statement implements Statement
      *
      * @throws DB2Exception
      */
-    private function copyStreamToStream($source, $target) : void
+    private function copyStreamToStream($source, $target): void
     {
         if (@stream_copy_to_stream($source, $target) === false) {
             throw new DB2Exception('Could not copy source stream to temporary file: ' . error_get_last()['message']);
@@ -277,7 +180,7 @@ final class DB2Statement implements Statement
      *
      * @throws DB2Exception
      */
-    private function writeStringToStream(string $string, $target) : void
+    private function writeStringToStream(string $string, $target): void
     {
         if (@fwrite($target, $string) === false) {
             throw new DB2Exception('Could not write string to temporary file: ' . error_get_last()['message']);

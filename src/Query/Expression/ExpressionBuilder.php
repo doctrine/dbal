@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Query\Expression;
 
 use Doctrine\DBAL\Connection;
+
 use function implode;
 use function sprintf;
 
@@ -43,7 +44,7 @@ class ExpressionBuilder
      * @param string|CompositeExpression $expression
      * @param string|CompositeExpression ...$expressions
      */
-    public function and($expression, ...$expressions) : CompositeExpression
+    public function and($expression, ...$expressions): CompositeExpression
     {
         return CompositeExpression::and($expression, ...$expressions);
     }
@@ -54,7 +55,7 @@ class ExpressionBuilder
      * @param string|CompositeExpression $expression
      * @param string|CompositeExpression ...$expressions
      */
-    public function or($expression, ...$expressions) : CompositeExpression
+    public function or($expression, ...$expressions): CompositeExpression
     {
         return CompositeExpression::or($expression, ...$expressions);
     }
@@ -66,7 +67,7 @@ class ExpressionBuilder
      * @param string $operator The comparison operator.
      * @param string $y        The right expression.
      */
-    public function comparison(string $x, string $operator, string $y) : string
+    public function comparison(string $x, string $operator, string $y): string
     {
         return $x . ' ' . $operator . ' ' . $y;
     }
@@ -84,7 +85,7 @@ class ExpressionBuilder
      * @param string $x The left expression.
      * @param string $y The right expression.
      */
-    public function eq(string $x, string $y) : string
+    public function eq(string $x, string $y): string
     {
         return $this->comparison($x, self::EQ, $y);
     }
@@ -101,7 +102,7 @@ class ExpressionBuilder
      * @param string $x The left expression.
      * @param string $y The right expression.
      */
-    public function neq(string $x, string $y) : string
+    public function neq(string $x, string $y): string
     {
         return $this->comparison($x, self::NEQ, $y);
     }
@@ -118,7 +119,7 @@ class ExpressionBuilder
      * @param string $x The left expression.
      * @param string $y The right expression.
      */
-    public function lt(string $x, string $y) : string
+    public function lt(string $x, string $y): string
     {
         return $this->comparison($x, self::LT, $y);
     }
@@ -135,7 +136,7 @@ class ExpressionBuilder
      * @param string $x The left expression.
      * @param string $y The right expression.
      */
-    public function lte(string $x, string $y) : string
+    public function lte(string $x, string $y): string
     {
         return $this->comparison($x, self::LTE, $y);
     }
@@ -152,7 +153,7 @@ class ExpressionBuilder
      * @param string $x The left expression.
      * @param string $y The right expression.
      */
-    public function gt(string $x, string $y) : string
+    public function gt(string $x, string $y): string
     {
         return $this->comparison($x, self::GT, $y);
     }
@@ -169,7 +170,7 @@ class ExpressionBuilder
      * @param string $x The left expression.
      * @param string $y The right expression.
      */
-    public function gte(string $x, string $y) : string
+    public function gte(string $x, string $y): string
     {
         return $this->comparison($x, self::GTE, $y);
     }
@@ -179,7 +180,7 @@ class ExpressionBuilder
      *
      * @param string $x The field in string format to be restricted by IS NULL.
      */
-    public function isNull(string $x) : string
+    public function isNull(string $x): string
     {
         return $x . ' IS NULL';
     }
@@ -189,7 +190,7 @@ class ExpressionBuilder
      *
      * @param string $x The field in string format to be restricted by IS NOT NULL.
      */
-    public function isNotNull(string $x) : string
+    public function isNotNull(string $x): string
     {
         return $x . ' IS NOT NULL';
     }
@@ -200,7 +201,7 @@ class ExpressionBuilder
      * @param string $expression The expression to be inspected by the LIKE comparison
      * @param string $pattern    The pattern to compare against
      */
-    public function like(string $expression, string $pattern, ?string $escapeChar = null) : string
+    public function like(string $expression, string $pattern, ?string $escapeChar = null): string
     {
         return $this->comparison($expression, 'LIKE', $pattern) .
             ($escapeChar !== null ? sprintf(' ESCAPE %s', $escapeChar) : '');
@@ -212,7 +213,7 @@ class ExpressionBuilder
      * @param string $expression The expression to be inspected by the NOT LIKE comparison
      * @param string $pattern    The pattern to compare against
      */
-    public function notLike(string $expression, string $pattern, ?string $escapeChar = null) : string
+    public function notLike(string $expression, string $pattern, ?string $escapeChar = null): string
     {
         return $this->comparison($expression, 'NOT LIKE', $pattern) .
             ($escapeChar !== null ? sprintf(' ESCAPE %s', $escapeChar) : '');
@@ -224,7 +225,7 @@ class ExpressionBuilder
      * @param string          $x The field in string format to be inspected by IN() comparison.
      * @param string|string[] $y The placeholder or the array of values to be used by IN() comparison.
      */
-    public function in(string $x, $y) : string
+    public function in(string $x, $y): string
     {
         return $this->comparison($x, 'IN', '(' . implode(', ', (array) $y) . ')');
     }
@@ -235,7 +236,7 @@ class ExpressionBuilder
      * @param string          $x The field in string format to be inspected by NOT IN() comparison.
      * @param string|string[] $y The placeholder or the array of values to be used by NOT IN() comparison.
      */
-    public function notIn(string $x, $y) : string
+    public function notIn(string $x, $y): string
     {
         return $this->comparison($x, 'NOT IN', '(' . implode(', ', (array) $y) . ')');
     }
@@ -243,7 +244,7 @@ class ExpressionBuilder
     /**
      * Creates an SQL literal expression from the string.
      */
-    public function literal(string $input) : string
+    public function literal(string $input): string
     {
         return $this->connection->quote($input);
     }

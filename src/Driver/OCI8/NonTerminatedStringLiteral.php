@@ -11,7 +11,7 @@ use function sprintf;
  */
 final class NonTerminatedStringLiteral extends OCI8Exception
 {
-    public static function new(int $offset) : self
+    public static function new(int $offset): self
     {
         return new self(
             sprintf(

@@ -9,6 +9,7 @@ use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Types\Type;
 use Throwable;
+
 use function array_change_key_case;
 use function array_values;
 use function assert;
@@ -19,6 +20,7 @@ use function strpos;
 use function strtolower;
 use function strtoupper;
 use function trim;
+
 use const CASE_LOWER;
 
 /**
@@ -26,7 +28,7 @@ use const CASE_LOWER;
  */
 class OracleSchemaManager extends AbstractSchemaManager
 {
-    public function dropDatabase(string $database) : void
+    public function dropDatabase(string $database): void
     {
         try {
             parent::dropDatabase($database);
@@ -55,7 +57,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableViewDefinition(array $view) : View
+    protected function _getPortableViewDefinition(array $view): View
     {
         $view = array_change_key_case($view, CASE_LOWER);
 
@@ -65,7 +67,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableUserDefinition(array $user) : array
+    protected function _getPortableUserDefinition(array $user): array
     {
         $user = array_change_key_case($user, CASE_LOWER);
 
@@ -77,7 +79,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableDefinition(array $table) : string
+    protected function _getPortableTableDefinition(array $table): string
     {
         $table = array_change_key_case($table, CASE_LOWER);
 
@@ -89,7 +91,7 @@ class OracleSchemaManager extends AbstractSchemaManager
      *
      * @link http://ezcomponents.org/docs/api/trunk/DatabaseSchema/ezcDbSchemaPgsqlReader.html
      */
-    protected function _getPortableTableIndexesList(array $tableIndexRows, string $tableName) : array
+    protected function _getPortableTableIndexesList(array $tableIndexRows, string $tableName): array
     {
         $indexBuffer = [];
         foreach ($tableIndexRows as $tableIndex) {
@@ -118,7 +120,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableColumnDefinition(array $tableColumn) : Column
+    protected function _getPortableTableColumnDefinition(array $tableColumn): Column
     {
         $tableColumn = array_change_key_case($tableColumn, CASE_LOWER);
 
@@ -212,7 +214,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableForeignKeysList(array $tableForeignKeys) : array
+    protected function _getPortableTableForeignKeysList(array $tableForeignKeys): array
     {
         $list = [];
         foreach ($tableForeignKeys as $value) {
@@ -255,7 +257,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableSequenceDefinition(array $sequence) : Sequence
+    protected function _getPortableSequenceDefinition(array $sequence): Sequence
     {
         $sequence = array_change_key_case($sequence, CASE_LOWER);
 
@@ -269,14 +271,14 @@ class OracleSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableDatabaseDefinition(array $database) : string
+    protected function _getPortableDatabaseDefinition(array $database): string
     {
         $database = array_change_key_case($database, CASE_LOWER);
 
         return $database['username'];
     }
 
-    public function createDatabase(string $database) : void
+    public function createDatabase(string $database): void
     {
         $params   = $this->_conn->getParams();
         $username = $database;
@@ -289,7 +291,7 @@ class OracleSchemaManager extends AbstractSchemaManager
         $this->_conn->executeUpdate($query);
     }
 
-    public function dropAutoincrement(string $table) : bool
+    public function dropAutoincrement(string $table): bool
     {
         assert($this->_platform instanceof OraclePlatform);
 
@@ -301,7 +303,7 @@ class OracleSchemaManager extends AbstractSchemaManager
         return true;
     }
 
-    public function dropTable(string $name) : void
+    public function dropTable(string $name): void
     {
         $this->tryMethod('dropAutoincrement', $name);
 
@@ -314,7 +316,7 @@ class OracleSchemaManager extends AbstractSchemaManager
      * Quotes non-uppercase identifiers explicitly to preserve case
      * and thus make references to the particular identifier work.
      */
-    private function getQuotedIdentifierName(string $identifier) : string
+    private function getQuotedIdentifierName(string $identifier): string
     {
         if (preg_match('/[a-z]/', $identifier) === 1) {
             return $this->_platform->quoteIdentifier($identifier);
@@ -330,7 +332,7 @@ class OracleSchemaManager extends AbstractSchemaManager
      *
      * @param string $user The name of the user to kill sessions for.
      */
-    private function killUserSessions(string $user) : void
+    private function killUserSessions(string $user): void
     {
         $sql = <<<SQL
 SELECT
@@ -359,7 +361,7 @@ SQL;
         }
     }
 
-    public function listTableDetails(string $tableName) : Table
+    public function listTableDetails(string $tableName): Table
     {
         $table = parent::listTableDetails($tableName);
 

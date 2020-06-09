@@ -27,7 +27,7 @@ class Configuration
     /**
      * Sets the SQL logger to use.
      */
-    public function setSQLLogger(?SQLLogger $logger) : void
+    public function setSQLLogger(?SQLLogger $logger): void
     {
         $this->_attributes['sqlLogger'] = $logger;
     }
@@ -35,7 +35,7 @@ class Configuration
     /**
      * Gets the SQL logger that is used.
      */
-    public function getSQLLogger() : SQLLogger
+    public function getSQLLogger(): SQLLogger
     {
         return $this->_attributes['sqlLogger'] ?? $this->_attributes['sqlLogger'] = new NullLogger();
     }
@@ -43,7 +43,7 @@ class Configuration
     /**
      * Gets the cache driver implementation that is used for query result caching.
      */
-    public function getResultCacheImpl() : ?Cache
+    public function getResultCacheImpl(): ?Cache
     {
         return $this->_attributes['resultCacheImpl'] ?? null;
     }
@@ -51,7 +51,7 @@ class Configuration
     /**
      * Sets the cache driver implementation that is used for query result caching.
      */
-    public function setResultCacheImpl(Cache $cacheImpl) : void
+    public function setResultCacheImpl(Cache $cacheImpl): void
     {
         $this->_attributes['resultCacheImpl'] = $cacheImpl;
     }
@@ -59,7 +59,7 @@ class Configuration
     /**
      * Sets the callable to use to filter schema assets.
      */
-    public function setSchemaAssetsFilter(?callable $callable = null) : ?callable
+    public function setSchemaAssetsFilter(?callable $callable = null): ?callable
     {
         $this->_attributes['filterSchemaAssetsExpression'] = null;
 
@@ -69,7 +69,7 @@ class Configuration
     /**
      * Returns the callable to use to filter schema assets.
      */
-    public function getSchemaAssetsFilter() : ?callable
+    public function getSchemaAssetsFilter(): ?callable
     {
         return $this->_attributes['filterSchemaAssetsExpressionCallable'] ?? null;
     }
@@ -85,7 +85,7 @@ class Configuration
      *
      * @param bool $autoCommit True to enable auto-commit mode; false to disable it.
      */
-    public function setAutoCommit(bool $autoCommit) : void
+    public function setAutoCommit(bool $autoCommit): void
     {
         $this->_attributes['autoCommit'] = $autoCommit;
     }
@@ -97,7 +97,7 @@ class Configuration
      *
      * @return bool True if auto-commit mode is enabled by default for connections, false otherwise.
      */
-    public function getAutoCommit() : bool
+    public function getAutoCommit(): bool
     {
         return $this->_attributes['autoCommit'] ?? true;
     }

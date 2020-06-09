@@ -16,7 +16,7 @@ final class GetVariableType
     /**
      * @param mixed $value
      */
-    public function __invoke($value) : string
+    public function __invoke($value): string
     {
         if (is_object($value)) {
             return get_class($value);

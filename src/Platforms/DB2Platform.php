@@ -11,6 +11,7 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+
 use function array_merge;
 use function count;
 use function current;
@@ -25,13 +26,13 @@ class DB2Platform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getBlobTypeDeclarationSQL(array $field) : string
+    public function getBlobTypeDeclarationSQL(array $field): string
     {
         // todo blob(n) with $field['length'];
         return 'BLOB(1M)';
     }
 
-    public function initializeDoctrineTypeMappings() : void
+    public function initializeDoctrineTypeMappings(): void
     {
         $this->doctrineTypeMapping = [
             'bigint'    => 'bigint',
@@ -52,7 +53,7 @@ class DB2Platform extends AbstractPlatform
         ];
     }
 
-    public function isCommentedDoctrineType(Type $doctrineType) : bool
+    public function isCommentedDoctrineType(Type $doctrineType): bool
     {
         if ($doctrineType->getName() === Types::BOOLEAN) {
             // We require a commented boolean type in order to distinguish between boolean and smallint
@@ -63,12 +64,12 @@ class DB2Platform extends AbstractPlatform
         return parent::isCommentedDoctrineType($doctrineType);
     }
 
-    protected function getBinaryTypeDeclarationSQLSnippet(?int $length) : string
+    protected function getBinaryTypeDeclarationSQLSnippet(?int $length): string
     {
         return $this->getCharTypeDeclarationSQLSnippet($length) . ' FOR BIT DATA';
     }
 
-    protected function getVarbinaryTypeDeclarationSQLSnippet(?int $length) : string
+    protected function getVarbinaryTypeDeclarationSQLSnippet(?int $length): string
     {
         return $this->getVarcharTypeDeclarationSQLSnippet($length) . ' FOR BIT DATA';
     }
@@ -76,13 +77,13 @@ class DB2Platform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getClobTypeDeclarationSQL(array $field) : string
+    public function getClobTypeDeclarationSQL(array $field): string
     {
         // todo clob(n) with $field['length'];
         return 'CLOB(1M)';
     }
 
-    public function getName() : string
+    public function getName(): string
     {
         return 'db2';
     }
@@ -90,7 +91,7 @@ class DB2Platform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getBooleanTypeDeclarationSQL(array $columnDef) : string
+    public function getBooleanTypeDeclarationSQL(array $columnDef): string
     {
         return 'SMALLINT';
     }
@@ -98,7 +99,7 @@ class DB2Platform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getIntegerTypeDeclarationSQL(array $columnDef) : string
+    public function getIntegerTypeDeclarationSQL(array $columnDef): string
     {
         return 'INTEGER' . $this->_getCommonIntegerTypeDeclarationSQL($columnDef);
     }
@@ -106,7 +107,7 @@ class DB2Platform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getBigIntTypeDeclarationSQL(array $columnDef) : string
+    public function getBigIntTypeDeclarationSQL(array $columnDef): string
     {
         return 'BIGINT' . $this->_getCommonIntegerTypeDeclarationSQL($columnDef);
     }
@@ -114,7 +115,7 @@ class DB2Platform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getSmallIntTypeDeclarationSQL(array $columnDef) : string
+    public function getSmallIntTypeDeclarationSQL(array $columnDef): string
     {
         return 'SMALLINT' . $this->_getCommonIntegerTypeDeclarationSQL($columnDef);
     }
@@ -122,7 +123,7 @@ class DB2Platform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef) : string
+    protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef): string
     {
         $autoinc = '';
         if (! empty($columnDef['autoincrement'])) {
@@ -132,17 +133,17 @@ class DB2Platform extends AbstractPlatform
         return $autoinc;
     }
 
-    public function getBitAndComparisonExpression(string $value1, string $value2) : string
+    public function getBitAndComparisonExpression(string $value1, string $value2): string
     {
         return 'BITAND(' . $value1 . ', ' . $value2 . ')';
     }
 
-    public function getBitOrComparisonExpression(string $value1, string $value2) : string
+    public function getBitOrComparisonExpression(string $value1, string $value2): string
     {
         return 'BITOR(' . $value1 . ', ' . $value2 . ')';
     }
 
-    protected function getDateArithmeticIntervalExpression(string $date, string $operator, string $interval, string $unit) : string
+    protected function getDateArithmeticIntervalExpression(string $date, string $operator, string $interval, string $unit): string
     {
         switch ($unit) {
             case DateIntervalUnit::WEEK:
@@ -159,7 +160,7 @@ class DB2Platform extends AbstractPlatform
         return $date . ' ' . $operator . ' ' . $interval . ' ' . $unit;
     }
 
-    public function getDateDiffExpression(string $date1, string $date2) : string
+    public function getDateDiffExpression(string $date1, string $date2): string
     {
         return 'DAYS(' . $date1 . ') - DAYS(' . $date2 . ')';
     }
@@ -167,7 +168,7 @@ class DB2Platform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getDateTimeTypeDeclarationSQL(array $fieldDeclaration) : string
+    public function getDateTimeTypeDeclarationSQL(array $fieldDeclaration): string
     {
         if (isset($fieldDeclaration['version']) && $fieldDeclaration['version'] === true) {
             return 'TIMESTAMP(0) WITH DEFAULT';
@@ -179,7 +180,7 @@ class DB2Platform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getDateTypeDeclarationSQL(array $fieldDeclaration) : string
+    public function getDateTypeDeclarationSQL(array $fieldDeclaration): string
     {
         return 'DATE';
     }
@@ -187,12 +188,12 @@ class DB2Platform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getTimeTypeDeclarationSQL(array $fieldDeclaration) : string
+    public function getTimeTypeDeclarationSQL(array $fieldDeclaration): string
     {
         return 'TIME';
     }
 
-    public function getTruncateTableSQL(string $tableName, bool $cascade = false) : string
+    public function getTruncateTableSQL(string $tableName, bool $cascade = false): string
     {
         $tableIdentifier = new Identifier($tableName);
 
@@ -202,7 +203,7 @@ class DB2Platform extends AbstractPlatform
     /**
      * This code fragment is originally from the Zend_Db_Adapter_Db2 class, but has been edited.
      */
-    public function getListTableColumnsSQL(string $table, ?string $database = null) : string
+    public function getListTableColumnsSQL(string $table, ?string $database = null): string
     {
         $table = $this->quoteStringLiteral($table);
 
@@ -250,17 +251,17 @@ class DB2Platform extends AbstractPlatform
         ';
     }
 
-    public function getListTablesSQL() : string
+    public function getListTablesSQL(): string
     {
         return "SELECT NAME FROM SYSIBM.SYSTABLES WHERE TYPE = 'T'";
     }
 
-    public function getListViewsSQL(string $database) : string
+    public function getListViewsSQL(string $database): string
     {
         return 'SELECT NAME, TEXT FROM SYSIBM.SYSVIEWS';
     }
 
-    public function getListTableIndexesSQL(string $table, ?string $currentDatabase = null) : string
+    public function getListTableIndexesSQL(string $table, ?string $currentDatabase = null): string
     {
         $table = $this->quoteStringLiteral($table);
 
@@ -281,7 +282,7 @@ class DB2Platform extends AbstractPlatform
                 ORDER BY idxcol.COLSEQ ASC';
     }
 
-    public function getListTableForeignKeysSQL(string $table, ?string $database = null) : string
+    public function getListTableForeignKeysSQL(string $table, ?string $database = null): string
     {
         $table = $this->quoteStringLiteral($table);
 
@@ -312,57 +313,57 @@ class DB2Platform extends AbstractPlatform
                 ORDER BY fkcol.COLSEQ ASC';
     }
 
-    public function getCreateViewSQL(string $name, string $sql) : string
+    public function getCreateViewSQL(string $name, string $sql): string
     {
         return 'CREATE VIEW ' . $name . ' AS ' . $sql;
     }
 
-    public function getDropViewSQL(string $name) : string
+    public function getDropViewSQL(string $name): string
     {
         return 'DROP VIEW ' . $name;
     }
 
-    public function getCreateDatabaseSQL(string $database) : string
+    public function getCreateDatabaseSQL(string $database): string
     {
         return 'CREATE DATABASE ' . $database;
     }
 
-    public function getDropDatabaseSQL(string $database) : string
+    public function getDropDatabaseSQL(string $database): string
     {
         return 'DROP DATABASE ' . $database;
     }
 
-    public function supportsCreateDropDatabase() : bool
+    public function supportsCreateDropDatabase(): bool
     {
         return false;
     }
 
-    public function supportsReleaseSavepoints() : bool
+    public function supportsReleaseSavepoints(): bool
     {
         return false;
     }
 
-    public function supportsCommentOnStatement() : bool
+    public function supportsCommentOnStatement(): bool
     {
         return true;
     }
 
-    public function getCurrentDateSQL() : string
+    public function getCurrentDateSQL(): string
     {
         return 'CURRENT DATE';
     }
 
-    public function getCurrentTimeSQL() : string
+    public function getCurrentTimeSQL(): string
     {
         return 'CURRENT TIME';
     }
 
-    public function getCurrentTimestampSQL() : string
+    public function getCurrentTimestampSQL(): string
     {
         return 'CURRENT TIMESTAMP';
     }
 
-    public function getIndexDeclarationSQL(string $name, Index $index) : string
+    public function getIndexDeclarationSQL(string $name, Index $index): string
     {
         // Index declaration in statements like CREATE TABLE is not supported.
         throw NotSupported::new(__METHOD__);
@@ -371,7 +372,7 @@ class DB2Platform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function _getCreateTableSQL(string $tableName, array $columns, array $options = []) : array
+    protected function _getCreateTableSQL(string $tableName, array $columns, array $options = []): array
     {
         $indexes = [];
         if (isset($options['indexes'])) {
@@ -392,7 +393,7 @@ class DB2Platform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getAlterTableSQL(TableDiff $diff) : array
+    public function getAlterTableSQL(TableDiff $diff): array
     {
         $sql         = [];
         $columnSql   = [];
@@ -408,7 +409,8 @@ class DB2Platform extends AbstractPlatform
             $queryPart = 'ADD COLUMN ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnDef);
 
             // Adding non-nullable columns to a table requires a default value to be specified.
-            if (! empty($columnDef['notnull']) &&
+            if (
+                ! empty($columnDef['notnull']) &&
                 ! isset($columnDef['default']) &&
                 empty($columnDef['autoincrement'])
             ) {
@@ -511,7 +513,7 @@ class DB2Platform extends AbstractPlatform
      * @param string[]   $sql        The sequence of table alteration statements to fill.
      * @param mixed[]    $queryParts The sequence of column alteration clauses to fill.
      */
-    private function gatherAlterColumnSQL(Identifier $table, ColumnDiff $columnDiff, array &$sql, array &$queryParts) : void
+    private function gatherAlterColumnSQL(Identifier $table, ColumnDiff $columnDiff, array &$sql, array &$queryParts): void
     {
         $alterColumnClauses = $this->getAlterColumnClausesSQL($columnDiff);
 
@@ -541,7 +543,7 @@ class DB2Platform extends AbstractPlatform
      *
      * @return string[]
      */
-    private function getAlterColumnClausesSQL(ColumnDiff $columnDiff) : array
+    private function getAlterColumnClausesSQL(ColumnDiff $columnDiff): array
     {
         $column = $columnDiff->column->toArray();
 
@@ -553,7 +555,8 @@ class DB2Platform extends AbstractPlatform
 
         $clauses = [];
 
-        if ($columnDiff->hasChanged('type') ||
+        if (
+            $columnDiff->hasChanged('type') ||
             $columnDiff->hasChanged('length') ||
             $columnDiff->hasChanged('precision') ||
             $columnDiff->hasChanged('scale') ||
@@ -584,7 +587,7 @@ class DB2Platform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function getPreAlterTableIndexForeignKeySQL(TableDiff $diff) : array
+    protected function getPreAlterTableIndexForeignKeySQL(TableDiff $diff): array
     {
         $sql   = [];
         $table = $diff->getName($this)->getQuotedName($this);
@@ -619,7 +622,7 @@ class DB2Platform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName) : array
+    protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName): array
     {
         if (strpos($tableName, '.') !== false) {
             [$schema]     = explode('.', $tableName);
@@ -632,7 +635,7 @@ class DB2Platform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getDefaultValueDeclarationSQL(array $field) : string
+    public function getDefaultValueDeclarationSQL(array $field): string
     {
         if (! empty($field['autoincrement'])) {
             return '';
@@ -647,22 +650,22 @@ class DB2Platform extends AbstractPlatform
         return parent::getDefaultValueDeclarationSQL($field);
     }
 
-    public function getEmptyIdentityInsertSQL(string $tableName, string $identifierColumnName) : string
+    public function getEmptyIdentityInsertSQL(string $tableName, string $identifierColumnName): string
     {
         return 'INSERT INTO ' . $tableName . ' (' . $identifierColumnName . ') VALUES (DEFAULT)';
     }
 
-    public function getCreateTemporaryTableSnippetSQL() : string
+    public function getCreateTemporaryTableSnippetSQL(): string
     {
         return 'DECLARE GLOBAL TEMPORARY TABLE';
     }
 
-    public function getTemporaryTableName(string $tableName) : string
+    public function getTemporaryTableName(string $tableName): string
     {
         return 'SESSION.' . $tableName;
     }
 
-    protected function doModifyLimitQuery(string $query, ?int $limit, int $offset) : string
+    protected function doModifyLimitQuery(string $query, ?int $limit, int $offset): string
     {
         $where = [];
 
@@ -686,7 +689,7 @@ class DB2Platform extends AbstractPlatform
         );
     }
 
-    public function getLocateExpression(string $string, string $substring, ?string $start = null) : string
+    public function getLocateExpression(string $string, string $substring, ?string $start = null): string
     {
         if ($start === null) {
             return sprintf('LOCATE(%s, %s)', $substring, $string);
@@ -695,7 +698,7 @@ class DB2Platform extends AbstractPlatform
         return sprintf('LOCATE(%s, %s, %s)', $substring, $string, $start);
     }
 
-    public function getSubstringExpression(string $string, string $start, ?string $length = null) : string
+    public function getSubstringExpression(string $string, string $start, ?string $length = null): string
     {
         if ($length === null) {
             return sprintf('SUBSTR(%s, %s)', $string, $start);
@@ -704,17 +707,17 @@ class DB2Platform extends AbstractPlatform
         return sprintf('SUBSTR(%s, %s, %s)', $string, $start, $length);
     }
 
-    public function getCurrentDatabaseExpression() : string
+    public function getCurrentDatabaseExpression(): string
     {
         return 'CURRENT_USER';
     }
 
-    public function supportsIdentityColumns() : bool
+    public function supportsIdentityColumns(): bool
     {
         return true;
     }
 
-    public function prefersIdentityColumns() : bool
+    public function prefersIdentityColumns(): bool
     {
         return true;
     }
@@ -724,17 +727,17 @@ class DB2Platform extends AbstractPlatform
      *
      * DB2 returns all column names in SQL result sets in uppercase.
      */
-    public function getSQLResultCasing(string $column) : string
+    public function getSQLResultCasing(string $column): string
     {
         return strtoupper($column);
     }
 
-    public function getForUpdateSQL() : string
+    public function getForUpdateSQL(): string
     {
         return ' WITH RR USE AND KEEP UPDATE LOCKS';
     }
 
-    public function getDummySelectSQL(string $expression = '1') : string
+    public function getDummySelectSQL(string $expression = '1'): string
     {
         return sprintf('SELECT %s FROM sysibm.sysdummy1', $expression);
     }
@@ -746,17 +749,17 @@ class DB2Platform extends AbstractPlatform
      *
      * TODO: We have to investigate how to get DB2 up and running with savepoints.
      */
-    public function supportsSavepoints() : bool
+    public function supportsSavepoints(): bool
     {
         return false;
     }
 
-    protected function getReservedKeywordsClass() : string
+    protected function getReservedKeywordsClass(): string
     {
         return Keywords\DB2Keywords::class;
     }
 
-    public function getListTableCommentsSQL(string $table) : string
+    public function getListTableCommentsSQL(string $table): string
     {
         return sprintf(
             <<<'SQL'

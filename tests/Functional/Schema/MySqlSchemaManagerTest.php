@@ -20,7 +20,7 @@ use Doctrine\DBAL\Types\Types;
 
 class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -33,7 +33,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         Type::addType('point', PointType::class);
     }
 
-    public function testSwitchPrimaryKeyColumns() : void
+    public function testSwitchPrimaryKeyColumns(): void
     {
         $tableOld = new Table('switch_primary_key_columns');
         $tableOld->addColumn('foo_id', 'integer');
@@ -60,7 +60,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertContains('foo_id', $primaryKey);
     }
 
-    public function testFulltextIndex() : void
+    public function testFulltextIndex(): void
     {
         $table = new Table('fulltext_index');
         $table->addColumn('text', 'text');
@@ -77,7 +77,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertTrue($indexes['f_index']->hasFlag('fulltext'));
     }
 
-    public function testSpatialIndex() : void
+    public function testSpatialIndex(): void
     {
         $table = new Table('spatial_index');
         $table->addColumn('point', 'point');
@@ -94,7 +94,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertTrue($indexes['s_index']->hasFlag('spatial'));
     }
 
-    public function testIndexWithLength() : void
+    public function testIndexWithLength(): void
     {
         $table = new Table('index_length');
         $table->addColumn('text', 'string', ['length' => 255]);
@@ -110,7 +110,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     /**
      * @group DBAL-400
      */
-    public function testAlterTableAddPrimaryKey() : void
+    public function testAlterTableAddPrimaryKey(): void
     {
         $table = new Table('alter_table_add_pk');
         $table->addColumn('id', 'integer');
@@ -140,7 +140,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     /**
      * @group DBAL-464
      */
-    public function testDropPrimaryKeyWithAutoincrementColumn() : void
+    public function testDropPrimaryKeyWithAutoincrementColumn(): void
     {
         $table = new Table('drop_primary_key');
         $table->addColumn('id', 'integer', ['autoincrement' => true]);
@@ -170,7 +170,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     /**
      * @group DBAL-789
      */
-    public function testDoesNotPropagateDefaultValuesForUnsupportedColumnTypes() : void
+    public function testDoesNotPropagateDefaultValuesForUnsupportedColumnTypes(): void
     {
         if ($this->schemaManager->getDatabasePlatform() instanceof MariaDb1027Platform) {
             self::markTestSkipped(
@@ -213,7 +213,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertFalse($onlineTable->getColumn('def_blob_null')->getNotnull());
     }
 
-    public function testColumnCharset() : void
+    public function testColumnCharset(): void
     {
         $table = new Table('test_column_charset');
         $table->addColumn('id', 'integer');
@@ -230,7 +230,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertEquals('latin1', $columns['bar']->getPlatformOption('charset'));
     }
 
-    public function testAlterColumnCharset() : void
+    public function testAlterColumnCharset(): void
     {
         $tableName = 'test_alter_column_charset';
 
@@ -255,7 +255,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertEquals('ascii', $table->getColumn('col_text')->getPlatformOption('charset'));
     }
 
-    public function testColumnCharsetChange() : void
+    public function testColumnCharsetChange(): void
     {
         $table = new Table('test_column_charset_change');
         $table->addColumn('col_string', 'string')->setLength(100)->setNotnull(true)->setPlatformOption('charset', 'utf8');
@@ -270,7 +270,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertContains('ALTER TABLE test_column_charset_change CHANGE col_string col_string VARCHAR(100) CHARACTER SET ascii NOT NULL', $diff);
     }
 
-    public function testColumnCollation() : void
+    public function testColumnCollation(): void
     {
         $table = new Table('test_collation');
         $table->addOption('collate', $collation = 'latin1_swedish_ci');
@@ -294,7 +294,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     /**
      * @group DBAL-843
      */
-    public function testListLobTypeColumns() : void
+    public function testListLobTypeColumns(): void
     {
         $tableName = 'lob_type_columns';
         $table     = new Table($tableName);
@@ -353,7 +353,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     /**
      * @group DBAL-423
      */
-    public function testDiffListGuidTableColumn() : void
+    public function testDiffListGuidTableColumn(): void
     {
         $offlineTable = new Table('list_guid_table_column');
         $offlineTable->addColumn('col_guid', 'guid');
@@ -373,7 +373,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     /**
      * @group DBAL-1082
      */
-    public function testListDecimalTypeColumns() : void
+    public function testListDecimalTypeColumns(): void
     {
         $tableName = 'test_list_decimal_columns';
         $table     = new Table($tableName);
@@ -394,7 +394,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     /**
      * @group DBAL-1082
      */
-    public function testListFloatTypeColumns() : void
+    public function testListFloatTypeColumns(): void
     {
         $tableName = 'test_list_float_columns';
         $table     = new Table($tableName);
@@ -412,7 +412,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertTrue($columns['col_unsigned']->getUnsigned());
     }
 
-    public function testJsonColumnType() : void
+    public function testJsonColumnType(): void
     {
         $table = new Table('test_mysql_json');
         $table->addColumn('col_json', 'json');
@@ -423,7 +423,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertSame(Types::JSON, $columns['col_json']->getType()->getName());
     }
 
-    public function testColumnDefaultCurrentTimestamp() : void
+    public function testColumnDefaultCurrentTimestamp(): void
     {
         $platform = $this->schemaManager->getDatabasePlatform();
 
@@ -446,7 +446,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertNull($diff, 'Tables should be identical with column defaults.');
     }
 
-    public function testColumnDefaultsAreValid() : void
+    public function testColumnDefaultsAreValid(): void
     {
         $table = new Table('test_column_defaults_are_valid');
 
@@ -493,7 +493,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
      * CURRENT_TIME as 'currtime()' and CURRENT_DATE as 'currdate()'.
      * This test also ensure proper aliasing to not trigger a table diff.
      */
-    public function testColumnDefaultValuesCurrentTimeAndDate() : void
+    public function testColumnDefaultValuesCurrentTimeAndDate(): void
     {
         if (! $this->schemaManager->getDatabasePlatform() instanceof MariaDb1027Platform) {
             self::markTestSkipped('Only relevant for MariaDb102Platform.');
@@ -525,7 +525,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertNull($diff, 'Tables should be identical with column defauts time and date.');
     }
 
-    public function testEnsureTableOptionsAreReflectedInMetadata() : void
+    public function testEnsureTableOptionsAreReflectedInMetadata(): void
     {
         $this->connection->query('DROP TABLE IF EXISTS test_table_metadata');
 
@@ -554,7 +554,7 @@ SQL;
         ], $onlineTable->getOption('create_options'));
     }
 
-    public function testEnsureTableWithoutOptionsAreReflectedInMetadata() : void
+    public function testEnsureTableWithoutOptionsAreReflectedInMetadata(): void
     {
         $this->connection->query('DROP TABLE IF EXISTS test_table_empty_metadata');
 
@@ -568,14 +568,14 @@ SQL;
         self::assertEquals([], $onlineTable->getOption('create_options'));
     }
 
-    public function testParseNullCreateOptions() : void
+    public function testParseNullCreateOptions(): void
     {
         $table = $this->schemaManager->listTableDetails('sys.processlist');
 
         self::assertEquals([], $table->getOption('create_options'));
     }
 
-    public function testListTableColumnsThrowsDatabaseRequired() : void
+    public function testListTableColumnsThrowsDatabaseRequired(): void
     {
         $params = TestUtil::getConnectionParams();
         unset($params['dbname']);

@@ -9,11 +9,12 @@ use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
+
 use function current;
 
 class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
-    protected function getPlatformName() : string
+    protected function getPlatformName(): string
     {
         return 'mssql';
     }
@@ -21,7 +22,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
     /**
      * @group DBAL-255
      */
-    public function testDropColumnConstraints() : void
+    public function testDropColumnConstraints(): void
     {
         $table = new Table('sqlsrv_drop_column');
         $table->addColumn('id', 'integer');
@@ -36,7 +37,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertCount(1, $columns);
     }
 
-    public function testColumnCollation() : void
+    public function testColumnCollation(): void
     {
         $table  = new Table($tableName = 'test_collation');
         $column = $table->addColumn('test', 'string', ['length' => 32]);
@@ -54,7 +55,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertEquals($collation, $columns['test']->getPlatformOption('collation'));
     }
 
-    public function testDefaultConstraints() : void
+    public function testDefaultConstraints(): void
     {
         $table = new Table('sqlsrv_default_constraints');
         $table->addColumn('no_default', 'string', ['length' => 32]);
@@ -171,7 +172,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertEquals(666, $columns['df_integer']->getDefault());
     }
 
-    public function testPkOrdering() : void
+    public function testPkOrdering(): void
     {
         // SQL Server stores index column information in a system table with two
         // columns that almost always have the same value: index_column_id and key_ordinal.

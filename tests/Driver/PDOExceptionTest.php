@@ -32,7 +32,7 @@ class PDOExceptionTest extends TestCase
      */
     private $wrappedException;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -43,22 +43,22 @@ class PDOExceptionTest extends TestCase
         $this->exception = new PDOException($this->wrappedException);
     }
 
-    public function testReturnsCode() : void
+    public function testReturnsCode(): void
     {
         self::assertSame(self::ERROR_CODE, $this->exception->getCode());
     }
 
-    public function testReturnsMessage() : void
+    public function testReturnsMessage(): void
     {
         self::assertSame(self::MESSAGE, $this->exception->getMessage());
     }
 
-    public function testReturnsSQLState() : void
+    public function testReturnsSQLState(): void
     {
         self::assertSame(self::SQLSTATE, $this->exception->getSQLState());
     }
 
-    public function testOriginalExceptionIsInChain() : void
+    public function testOriginalExceptionIsInChain(): void
     {
         self::assertSame($this->wrappedException, $this->exception->getPrevious());
     }

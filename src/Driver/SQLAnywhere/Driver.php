@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Driver\SQLAnywhere;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\AbstractSQLAnywhereDriver;
 use Doctrine\DBAL\Driver\Connection;
+
 use function array_keys;
 use function array_map;
 use function array_merge;
@@ -28,7 +29,7 @@ final class Driver extends AbstractSQLAnywhereDriver
         string $username = '',
         string $password = '',
         array $driverOptions = []
-    ) : Connection {
+    ): Connection {
         try {
             return new SQLAnywhereConnection(
                 $this->buildDsn($params, $username, $password, $driverOptions),
@@ -47,7 +48,7 @@ final class Driver extends AbstractSQLAnywhereDriver
      * @param string  $password      Password to use for connection authentication.
      * @param mixed[] $driverOptions Additional parameters to use for the connection.
      */
-    private function buildDsn(array $params, string $username, string $password, array $driverOptions = []) : string
+    private function buildDsn(array $params, string $username, string $password, array $driverOptions = []): string
     {
         $connectionParams = [];
 
@@ -74,7 +75,7 @@ final class Driver extends AbstractSQLAnywhereDriver
 
         $connectionParams = array_merge($connectionParams, $driverOptions);
 
-        return implode(';', array_map(static function (string $key, string $value) : string {
+        return implode(';', array_map(static function (string $key, string $value): string {
             return sprintf('%s=%s', $key, $value);
         }, array_keys($connectionParams), $connectionParams));
     }

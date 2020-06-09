@@ -14,7 +14,7 @@ class OCI8Exception extends AbstractDriverException
     /**
      * @param mixed[]|false $error
      */
-    public static function fromErrorInfo($error) : self
+    public static function fromErrorInfo($error): self
     {
         if ($error === false) {
             return new self('Database error occurred but no error information was retrieved from the driver.');

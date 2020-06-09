@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Types\Type;
+
 use function array_change_key_case;
 use function array_values;
 use function assert;
@@ -17,6 +18,7 @@ use function strpos;
 use function strtok;
 use function strtolower;
 use function strtr;
+
 use const CASE_LOWER;
 
 /**
@@ -47,7 +49,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableViewDefinition(array $view) : View
+    protected function _getPortableViewDefinition(array $view): View
     {
         return new View($view['TABLE_NAME'], $view['VIEW_DEFINITION']);
     }
@@ -55,7 +57,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableUserDefinition(array $user) : array
+    protected function _getPortableUserDefinition(array $user): array
     {
         return [
             'user' => $user['User'],
@@ -66,7 +68,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableIndexesList(array $tableIndexRows, string $tableName) : array
+    protected function _getPortableTableIndexesList(array $tableIndexRows, string $tableName): array
     {
         foreach ($tableIndexRows as $k => $v) {
             $v = array_change_key_case($v, CASE_LOWER);
@@ -93,7 +95,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableDatabaseDefinition(array $database) : string
+    protected function _getPortableDatabaseDefinition(array $database): string
     {
         return $database['Database'];
     }
@@ -101,7 +103,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableColumnDefinition(array $tableColumn) : Column
+    protected function _getPortableTableColumnDefinition(array $tableColumn): Column
     {
         $tableColumn = array_change_key_case($tableColumn, CASE_LOWER);
 
@@ -134,11 +136,13 @@ class MySqlSchemaManager extends AbstractSchemaManager
             case 'real':
             case 'numeric':
             case 'decimal':
-                if (preg_match(
-                    '([A-Za-z]+\(([0-9]+),([0-9]+)\))',
-                    $tableColumn['type'],
-                    $match
-                ) === 1) {
+                if (
+                    preg_match(
+                        '([A-Za-z]+\(([0-9]+),([0-9]+)\))',
+                        $tableColumn['type'],
+                        $match
+                    ) === 1
+                ) {
                     $precision = (int) $match[1];
                     $scale     = (int) $match[2];
                     $length    = null;
@@ -231,7 +235,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
      *
      * @param string|null $columnDefault default value as stored in information_schema for MariaDB >= 10.2.7
      */
-    private function getMariaDb1027ColumnDefault(MariaDb1027Platform $platform, ?string $columnDefault) : ?string
+    private function getMariaDb1027ColumnDefault(MariaDb1027Platform $platform, ?string $columnDefault): ?string
     {
         if ($columnDefault === 'NULL' || $columnDefault === null) {
             return null;
@@ -258,7 +262,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableForeignKeysList(array $tableForeignKeys) : array
+    protected function _getPortableTableForeignKeysList(array $tableForeignKeys): array
     {
         $list = [];
         foreach ($tableForeignKeys as $value) {
@@ -303,7 +307,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
         return $result;
     }
 
-    public function listTableDetails(string $tableName) : Table
+    public function listTableDetails(string $tableName): Table
     {
         $table = parent::listTableDetails($tableName);
 
@@ -336,7 +340,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
     /**
      * @return array<string, string>|array<string, true>
      */
-    private function parseCreateOptions(?string $string) : array
+    private function parseCreateOptions(?string $string): array
     {
         $options = [];
 

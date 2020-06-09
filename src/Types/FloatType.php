@@ -8,7 +8,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 class FloatType extends Type
 {
-    public function getName() : string
+    public function getName(): string
     {
         return Types::FLOAT;
     }
@@ -16,7 +16,7 @@ class FloatType extends Type
     /**
      * {@inheritdoc}
      */
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform) : string
+    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform): string
     {
         return $platform->getFloatDeclarationSQL($fieldDeclaration);
     }

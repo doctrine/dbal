@@ -9,7 +9,7 @@ namespace Doctrine\DBAL\Platforms\Keywords;
  */
 class PostgreSQL94Keywords extends KeywordList
 {
-    public function getName() : string
+    public function getName(): string
     {
         return 'PostgreSQL94';
     }
@@ -17,7 +17,7 @@ class PostgreSQL94Keywords extends KeywordList
     /**
      * {@inheritdoc}
      */
-    protected function getKeywords() : array
+    protected function getKeywords(): array
     {
         return [
             'ALL',

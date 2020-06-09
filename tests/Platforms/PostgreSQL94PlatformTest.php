@@ -11,17 +11,17 @@ use Doctrine\DBAL\Types\Types;
 
 class PostgreSQL94PlatformTest extends AbstractPostgreSQLPlatformTestCase
 {
-    public function createPlatform() : AbstractPlatform
+    public function createPlatform(): AbstractPlatform
     {
         return new PostgreSQL94Platform();
     }
 
-    public function testSupportsPartialIndexes() : void
+    public function testSupportsPartialIndexes(): void
     {
         self::assertTrue($this->platform->supportsPartialIndexes());
     }
 
-    public function testGetCreateTableSQLWithColumnCollation() : void
+    public function testGetCreateTableSQLWithColumnCollation(): void
     {
         $table = new Table('foo');
         $table->addColumn('id', 'string');
@@ -36,7 +36,7 @@ class PostgreSQL94PlatformTest extends AbstractPostgreSQLPlatformTestCase
         );
     }
 
-    public function testColumnCollationDeclarationSQL() : void
+    public function testColumnCollationDeclarationSQL(): void
     {
         self::assertEquals(
             'COLLATE "en_US.UTF-8"',
@@ -47,7 +47,7 @@ class PostgreSQL94PlatformTest extends AbstractPostgreSQLPlatformTestCase
     /**
      * @group DBAL-553
      */
-    public function testHasNativeJsonType() : void
+    public function testHasNativeJsonType(): void
     {
         self::assertTrue($this->platform->hasNativeJsonType());
     }
@@ -55,14 +55,14 @@ class PostgreSQL94PlatformTest extends AbstractPostgreSQLPlatformTestCase
     /**
      * @group DBAL-553
      */
-    public function testReturnsJsonTypeDeclarationSQL() : void
+    public function testReturnsJsonTypeDeclarationSQL(): void
     {
         self::assertSame('JSON', $this->platform->getJsonTypeDeclarationSQL([]));
         self::assertSame('JSON', $this->platform->getJsonTypeDeclarationSQL(['jsonb' => false]));
         self::assertSame('JSONB', $this->platform->getJsonTypeDeclarationSQL(['jsonb' => true]));
     }
 
-    public function testReturnsSmallIntTypeDeclarationSQL() : void
+    public function testReturnsSmallIntTypeDeclarationSQL(): void
     {
         self::assertSame(
             'SMALLSERIAL',
@@ -83,7 +83,7 @@ class PostgreSQL94PlatformTest extends AbstractPostgreSQLPlatformTestCase
     /**
      * @group DBAL-553
      */
-    public function testInitializesJsonTypeMapping() : void
+    public function testInitializesJsonTypeMapping(): void
     {
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('json'));
         self::assertEquals(Types::JSON, $this->platform->getDoctrineTypeMapping('json'));
@@ -94,7 +94,7 @@ class PostgreSQL94PlatformTest extends AbstractPostgreSQLPlatformTestCase
     /**
      * @group DBAL-1220
      */
-    public function testReturnsCloseActiveDatabaseConnectionsSQL() : void
+    public function testReturnsCloseActiveDatabaseConnectionsSQL(): void
     {
         self::assertSame(
             "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'foo'",

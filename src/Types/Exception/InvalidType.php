@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Types\Exception;
 
 use Doctrine\DBAL\Types\ConversionException;
 use Throwable;
+
 use function get_class;
 use function gettype;
 use function implode;
@@ -27,7 +28,7 @@ final class InvalidType extends ConversionException implements TypesException
      * @todo split into two methods
      * @todo sanitize value
      */
-    public static function new($value, string $toType, array $possibleTypes, ?Throwable $previous = null) : self
+    public static function new($value, string $toType, array $possibleTypes, ?Throwable $previous = null): self
     {
         $actualType = is_object($value) ? get_class($value) : gettype($value);
 

@@ -9,6 +9,7 @@ use Doctrine\DBAL\Driver\ExceptionConverterDriver;
 use Doctrine\DBAL\Exception\DriverException;
 use Exception;
 use Throwable;
+
 use function array_map;
 use function bin2hex;
 use function implode;
@@ -26,7 +27,7 @@ class DBALException extends Exception
     /**
      * @param mixed[] $params
      */
-    public static function driverExceptionDuringQuery(Driver $driver, Throwable $driverEx, string $sql, array $params = []) : self
+    public static function driverExceptionDuringQuery(Driver $driver, Throwable $driverEx, string $sql, array $params = []): self
     {
         $messageFormat = <<<'MESSAGE'
 An exception occurred while executing "%s"%s:
@@ -44,12 +45,12 @@ MESSAGE;
         return static::wrapException($driver, $driverEx, $message);
     }
 
-    public static function driverException(Driver $driver, Throwable $driverEx) : self
+    public static function driverException(Driver $driver, Throwable $driverEx): self
     {
         return static::wrapException($driver, $driverEx, sprintf('An exception occurred in driver with message: %s', $driverEx->getMessage()));
     }
 
-    private static function wrapException(Driver $driver, Throwable $driverEx, string $msg) : self
+    private static function wrapException(Driver $driver, Throwable $driverEx, string $msg): self
     {
         if ($driverEx instanceof DriverException) {
             return $driverEx;
@@ -68,9 +69,9 @@ MESSAGE;
      *
      * @param array<mixed, mixed> $params
      */
-    private static function formatParameters(array $params) : string
+    private static function formatParameters(array $params): string
     {
-        return '[' . implode(', ', array_map(static function ($param) : string {
+        return '[' . implode(', ', array_map(static function ($param): string {
             if (is_resource($param)) {
                 return (string) $param;
             }

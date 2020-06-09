@@ -13,7 +13,7 @@ class ConvertPositionalToNamedPlaceholdersTest extends TestCase
     /** @var ConvertPositionalToNamedPlaceholders */
     private $convertPositionalToNamedPlaceholders;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->convertPositionalToNamedPlaceholders = new ConvertPositionalToNamedPlaceholders();
     }
@@ -23,7 +23,7 @@ class ConvertPositionalToNamedPlaceholdersTest extends TestCase
      *
      * @dataProvider positionalToNamedPlaceholdersProvider
      */
-    public function testConvertPositionalToNamedParameters(string $inputSQL, string $expectedOutputSQL, array $expectedOutputParamsMap) : void
+    public function testConvertPositionalToNamedParameters(string $inputSQL, string $expectedOutputSQL, array $expectedOutputParamsMap): void
     {
         [$statement, $params] = ($this->convertPositionalToNamedPlaceholders)($inputSQL);
 
@@ -34,7 +34,7 @@ class ConvertPositionalToNamedPlaceholdersTest extends TestCase
     /**
      * @return mixed[][]
      */
-    public static function positionalToNamedPlaceholdersProvider() : iterable
+    public static function positionalToNamedPlaceholdersProvider(): iterable
     {
         return [
             [
@@ -93,7 +93,7 @@ class ConvertPositionalToNamedPlaceholdersTest extends TestCase
     /**
      * @dataProvider nonTerminatedLiteralProvider
      */
-    public function testConvertNonTerminatedLiteral(string $sql, string $expectedExceptionMessageRegExp) : void
+    public function testConvertNonTerminatedLiteral(string $sql, string $expectedExceptionMessageRegExp): void
     {
         $this->expectException(OCI8Exception::class);
         $this->expectExceptionMessageMatches($expectedExceptionMessageRegExp);
@@ -103,7 +103,7 @@ class ConvertPositionalToNamedPlaceholdersTest extends TestCase
     /**
      * @return array<string, array<int, mixed>>
      */
-    public static function nonTerminatedLiteralProvider() : iterable
+    public static function nonTerminatedLiteralProvider(): iterable
     {
         return [
             'no-matching-quote' => [

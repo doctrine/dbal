@@ -12,7 +12,7 @@ use Doctrine\DBAL\Tests\FunctionalTestCase;
  */
 class DBAL202Test extends FunctionalTestCase
 {
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -31,7 +31,7 @@ class DBAL202Test extends FunctionalTestCase
         }
     }
 
-    public function testStatementRollback() : void
+    public function testStatementRollback(): void
     {
         $stmt = $this->connection->prepare('INSERT INTO DBAL202 VALUES (8)');
         $this->connection->beginTransaction();
@@ -41,7 +41,7 @@ class DBAL202Test extends FunctionalTestCase
         self::assertEquals(0, $this->connection->query('SELECT COUNT(1) FROM DBAL202')->fetchOne());
     }
 
-    public function testStatementCommit() : void
+    public function testStatementCommit(): void
     {
         $stmt = $this->connection->prepare('INSERT INTO DBAL202 VALUES (8)');
         $this->connection->beginTransaction();

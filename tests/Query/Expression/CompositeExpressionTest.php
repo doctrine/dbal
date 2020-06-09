@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
  */
 class CompositeExpressionTest extends TestCase
 {
-    public function testCount() : void
+    public function testCount(): void
     {
         $expr = CompositeExpression::or('u.group_id = 1');
 
@@ -23,7 +23,7 @@ class CompositeExpressionTest extends TestCase
         self::assertCount(2, $expr);
     }
 
-    public function testWith() : void
+    public function testWith(): void
     {
         $expr = CompositeExpression::or('u.group_id = 1');
 
@@ -46,7 +46,7 @@ class CompositeExpressionTest extends TestCase
     /**
      * @dataProvider provideDataForConvertToString
      */
-    public function testCompositeUsageAndGeneration(CompositeExpression $expr, string $expects) : void
+    public function testCompositeUsageAndGeneration(CompositeExpression $expr, string $expects): void
     {
         self::assertEquals($expects, (string) $expr);
     }
@@ -54,7 +54,7 @@ class CompositeExpressionTest extends TestCase
     /**
      * @return mixed[][]
      */
-    public static function provideDataForConvertToString() : iterable
+    public static function provideDataForConvertToString(): iterable
     {
         return [
             [

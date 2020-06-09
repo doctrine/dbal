@@ -10,6 +10,7 @@ use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Doctrine\DBAL\Types\Type;
 use PDOException;
 use Throwable;
+
 use function assert;
 use function count;
 use function is_string;
@@ -24,7 +25,7 @@ use function strtok;
  */
 class SQLServerSchemaManager extends AbstractSchemaManager
 {
-    public function dropDatabase(string $database) : void
+    public function dropDatabase(string $database): void
     {
         try {
             parent::dropDatabase($database);
@@ -53,7 +54,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableSequenceDefinition(array $sequence) : Sequence
+    protected function _getPortableSequenceDefinition(array $sequence): Sequence
     {
         return new Sequence($sequence['name'], (int) $sequence['increment'], (int) $sequence['start_value']);
     }
@@ -61,7 +62,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableColumnDefinition(array $tableColumn) : Column
+    protected function _getPortableTableColumnDefinition(array $tableColumn): Column
     {
         $dbType = strtok($tableColumn['type'], '(), ');
         assert(is_string($dbType));
@@ -139,7 +140,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
         return $column;
     }
 
-    private function parseDefaultExpression(string $value) : ?string
+    private function parseDefaultExpression(string $value): ?string
     {
         while (preg_match('/^\((.*)\)$/s', $value, $matches)) {
             $value = $matches[1];
@@ -163,7 +164,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableForeignKeysList(array $tableForeignKeys) : array
+    protected function _getPortableTableForeignKeysList(array $tableForeignKeys): array
     {
         $foreignKeys = [];
 
@@ -191,7 +192,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableIndexesList(array $tableIndexRows, string $tableName) : array
+    protected function _getPortableTableIndexesList(array $tableIndexRows, string $tableName): array
     {
         foreach ($tableIndexRows as &$tableIndex) {
             $tableIndex['non_unique'] = (bool) $tableIndex['non_unique'];
@@ -205,7 +206,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableForeignKeyDefinition(array $tableForeignKey) : ForeignKeyConstraint
+    protected function _getPortableTableForeignKeyDefinition(array $tableForeignKey): ForeignKeyConstraint
     {
         return new ForeignKeyConstraint(
             $tableForeignKey['local_columns'],
@@ -219,7 +220,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableDefinition(array $table) : string
+    protected function _getPortableTableDefinition(array $table): string
     {
         if (isset($table['schema_name']) && $table['schema_name'] !== 'dbo') {
             return $table['schema_name'] . '.' . $table['name'];
@@ -231,7 +232,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableDatabaseDefinition(array $database) : string
+    protected function _getPortableDatabaseDefinition(array $database): string
     {
         return $database['name'];
     }
@@ -239,7 +240,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function getPortableNamespaceDefinition(array $namespace) : string
+    protected function getPortableNamespaceDefinition(array $namespace): string
     {
         return $namespace['name'];
     }
@@ -247,7 +248,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableViewDefinition(array $view) : View
+    protected function _getPortableViewDefinition(array $view): View
     {
         // @todo
         return new View($view['name'], '');
@@ -256,7 +257,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    public function listTableIndexes(string $table) : array
+    public function listTableIndexes(string $table): array
     {
         $sql = $this->_platform->getListTableIndexesSQL($table, $this->_conn->getDatabase());
 
@@ -279,7 +280,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
         return $this->_getPortableTableIndexesList($tableIndexes, $table);
     }
 
-    public function alterTable(TableDiff $tableDiff) : void
+    public function alterTable(TableDiff $tableDiff): void
     {
         if (count($tableDiff->removedColumns) > 0) {
             foreach ($tableDiff->removedColumns as $col) {
@@ -302,7 +303,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     /**
      * Returns the SQL to retrieve the constraints for a given column.
      */
-    private function getColumnConstraintSQL(string $table, string $column) : string
+    private function getColumnConstraintSQL(string $table, string $column): string
     {
         return "SELECT SysObjects.[Name]
             FROM SysObjects INNER JOIN (SELECT [Name],[ID] FROM SysObjects WHERE XType = 'U') AS Tab
@@ -318,7 +319,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
      *
      * This is useful to force DROP DATABASE operations which could fail because of active connections.
      */
-    private function closeActiveDatabaseConnections(string $database) : void
+    private function closeActiveDatabaseConnections(string $database): void
     {
         $database = new Identifier($database);
 
@@ -330,7 +331,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
         );
     }
 
-    public function listTableDetails(string $tableName) : Table
+    public function listTableDetails(string $tableName): Table
     {
         $table = parent::listTableDetails($tableName);
 

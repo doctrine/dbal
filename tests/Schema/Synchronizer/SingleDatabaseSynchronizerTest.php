@@ -21,7 +21,7 @@ class SingleDatabaseSynchronizerTest extends TestCase
     /** @var SingleDatabaseSynchronizer */
     private $synchronizer;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->conn         = DriverManager::getConnection([
             'driver' => 'pdo_sqlite',
@@ -30,7 +30,7 @@ class SingleDatabaseSynchronizerTest extends TestCase
         $this->synchronizer = new SingleDatabaseSynchronizer($this->conn);
     }
 
-    public function testGetCreateSchema() : void
+    public function testGetCreateSchema(): void
     {
         $schema = new Schema();
         $table  = $schema->createTable('test');
@@ -41,7 +41,7 @@ class SingleDatabaseSynchronizerTest extends TestCase
         self::assertEquals(['CREATE TABLE test (id INTEGER NOT NULL, PRIMARY KEY(id))'], $sql);
     }
 
-    public function testGetUpdateSchema() : void
+    public function testGetUpdateSchema(): void
     {
         $schema = new Schema();
         $table  = $schema->createTable('test');
@@ -52,7 +52,7 @@ class SingleDatabaseSynchronizerTest extends TestCase
         self::assertEquals(['CREATE TABLE test (id INTEGER NOT NULL, PRIMARY KEY(id))'], $sql);
     }
 
-    public function testGetDropSchema() : void
+    public function testGetDropSchema(): void
     {
         $schema = new Schema();
         $table  = $schema->createTable('test');
@@ -65,7 +65,7 @@ class SingleDatabaseSynchronizerTest extends TestCase
         self::assertEquals(['DROP TABLE test'], $sql);
     }
 
-    public function testGetDropAllSchema() : void
+    public function testGetDropAllSchema(): void
     {
         $schema = new Schema();
         $table  = $schema->createTable('test');

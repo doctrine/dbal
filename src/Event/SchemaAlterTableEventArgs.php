@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Event;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\TableDiff;
+
 use function array_merge;
 
 /**
@@ -28,12 +29,12 @@ class SchemaAlterTableEventArgs extends SchemaEventArgs
         $this->platform  = $platform;
     }
 
-    public function getTableDiff() : TableDiff
+    public function getTableDiff(): TableDiff
     {
         return $this->tableDiff;
     }
 
-    public function getPlatform() : AbstractPlatform
+    public function getPlatform(): AbstractPlatform
     {
         return $this->platform;
     }
@@ -41,7 +42,7 @@ class SchemaAlterTableEventArgs extends SchemaEventArgs
     /**
      * @return $this
      */
-    public function addSql(string ...$sql) : self
+    public function addSql(string ...$sql): self
     {
         $this->sql = array_merge($this->sql, $sql);
 
@@ -51,7 +52,7 @@ class SchemaAlterTableEventArgs extends SchemaEventArgs
     /**
      * @return array<int, string>
      */
-    public function getSql() : array
+    public function getSql(): array
     {
         return $this->sql;
     }

@@ -14,17 +14,17 @@ final class ExecutionMode
     /** @var bool */
     private $isAutoCommitEnabled = true;
 
-    public function enableAutoCommit() : void
+    public function enableAutoCommit(): void
     {
         $this->isAutoCommitEnabled = true;
     }
 
-    public function disableAutoCommit() : void
+    public function disableAutoCommit(): void
     {
         $this->isAutoCommitEnabled = false;
     }
 
-    public function isAutoCommitEnabled() : bool
+    public function isAutoCommitEnabled(): bool
     {
         return $this->isAutoCommitEnabled;
     }

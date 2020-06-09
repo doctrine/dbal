@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Types\Exception;
 
 use Doctrine\DBAL\DBALException;
+
 use function sprintf;
 
 /**
@@ -12,7 +13,7 @@ use function sprintf;
  */
 final class UnknownColumnType extends DBALException implements TypesException
 {
-    public static function new(string $name) : self
+    public static function new(string $name): self
     {
         return new self(
             sprintf(

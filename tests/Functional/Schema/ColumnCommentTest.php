@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Tests\Functional\Schema;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+
 use function array_merge;
 use function sprintf;
 
@@ -15,7 +16,7 @@ class ColumnCommentTest extends FunctionalTestCase
     /** @var bool */
     private static $initialized = false;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -41,7 +42,7 @@ class ColumnCommentTest extends FunctionalTestCase
      *
      * @dataProvider columnProvider
      */
-    public function testColumnComment(string $name, string $type, array $options) : void
+    public function testColumnComment(string $name, string $type, array $options): void
     {
         $this->assertColumnComment('column_comments', $name, $options['comment'] ?? '');
     }
@@ -49,25 +50,29 @@ class ColumnCommentTest extends FunctionalTestCase
     /**
      * @return iterable<string,array{0: string, 1: string, 2: mixed[]}>
      */
-    public static function columnProvider() : iterable
+    public static function columnProvider(): iterable
     {
-        foreach ([
-            'commented' => [
-                'string',
-                ['length' => 16],
-            ],
-            'not_commented' => [
-                'array',
-                [],
-            ],
-        ] as $typeName => [$type, $typeOptions]) {
-            foreach ([
-                'no_comment' => [],
-                'with_comment' => ['comment' => 'Some comment'],
-                'zero_comment' => ['comment' => '0'],
-                'empty_comment' => ['comment' => ''],
-                'quoted_comment' => ['comment' => "O'Reilly"],
-            ] as $caseName => $caseOptions) {
+        foreach (
+            [
+                'commented' => [
+                    'string',
+                    ['length' => 16],
+                ],
+                'not_commented' => [
+                    'array',
+                    [],
+                ],
+            ] as $typeName => [$type, $typeOptions]
+        ) {
+            foreach (
+                [
+                    'no_comment' => [],
+                    'with_comment' => ['comment' => 'Some comment'],
+                    'zero_comment' => ['comment' => '0'],
+                    'empty_comment' => ['comment' => ''],
+                    'quoted_comment' => ['comment' => "O'Reilly"],
+                ] as $caseName => $caseOptions
+            ) {
                 $name = sprintf('%s_%s', $typeName, $caseName);
 
                 yield $name => [
@@ -82,7 +87,7 @@ class ColumnCommentTest extends FunctionalTestCase
     /**
      * @dataProvider alterColumnCommentProvider
      */
-    public function testAlterColumnComment(string $comment1, string $comment2) : void
+    public function testAlterColumnComment(string $comment1, string $comment2): void
     {
         $table1 = new Table('column_comments');
         $table1->addColumn('id', 'integer', ['comment' => $comment1]);
@@ -105,7 +110,7 @@ class ColumnCommentTest extends FunctionalTestCase
     /**
      * @return mixed[][]
      */
-    public static function alterColumnCommentProvider() : iterable
+    public static function alterColumnCommentProvider(): iterable
     {
         return [
             'Empty to non-empty' => ['', 'foo'],
@@ -116,7 +121,7 @@ class ColumnCommentTest extends FunctionalTestCase
         ];
     }
 
-    private function assertColumnComment(string $table, string $column, string $expectedComment) : void
+    private function assertColumnComment(string $table, string $column, string $expectedComment): void
     {
         self::assertSame(
             $expectedComment,

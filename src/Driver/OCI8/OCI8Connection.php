@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver\OCI8;
 
 use Doctrine\DBAL\Driver\Connection;
-use Doctrine\DBAL\Driver\ResultStatement;
+use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use UnexpectedValueException;
+
 use function addcslashes;
 use function oci_commit;
 use function oci_connect;
@@ -19,6 +20,7 @@ use function oci_server_version;
 use function preg_match;
 use function sprintf;
 use function str_replace;
+
 use const OCI_NO_AUTO_COMMIT;
 
 /**
@@ -65,7 +67,7 @@ final class OCI8Connection implements Connection, ServerInfoAwareConnection
      * @throws UnexpectedValueException If the version string returned by the database server
      *                                  does not contain a parsable version number.
      */
-    public function getServerVersion() : string
+    public function getServerVersion(): string
     {
         $version = oci_server_version($this->connection);
 
@@ -86,33 +88,27 @@ final class OCI8Connection implements Connection, ServerInfoAwareConnection
         return $matches[1];
     }
 
-    public function prepare(string $sql) : DriverStatement
+    public function prepare(string $sql): DriverStatement
     {
         return new OCI8Statement($this->connection, $sql, $this->executionMode);
     }
 
-    public function query(string $sql) : ResultStatement
+    public function query(string $sql): ResultInterface
     {
-        $stmt = $this->prepare($sql);
-        $stmt->execute();
-
-        return $stmt;
+        return $this->prepare($sql)->execute();
     }
 
-    public function quote(string $input) : string
+    public function quote(string $input): string
     {
         return "'" . addcslashes(str_replace("'", "''", $input), "\000\n\r\\\032") . "'";
     }
 
-    public function exec(string $statement) : int
+    public function exec(string $statement): int
     {
-        $stmt = $this->prepare($statement);
-        $stmt->execute();
-
-        return $stmt->rowCount();
+        return $this->prepare($statement)->execute()->rowCount();
     }
 
-    public function lastInsertId(?string $name = null) : string
+    public function lastInsertId(?string $name = null): string
     {
         if ($name === null) {
             throw new OCI8Exception('The driver does not support identity columns.');
@@ -127,12 +123,12 @@ final class OCI8Connection implements Connection, ServerInfoAwareConnection
         return $result;
     }
 
-    public function beginTransaction() : void
+    public function beginTransaction(): void
     {
         $this->executionMode->disableAutoCommit();
     }
 
-    public function commit() : void
+    public function commit(): void
     {
         if (! oci_commit($this->connection)) {
             throw OCI8Exception::fromErrorInfo(oci_error($this->connection));
@@ -141,7 +137,7 @@ final class OCI8Connection implements Connection, ServerInfoAwareConnection
         $this->executionMode->enableAutoCommit();
     }
 
-    public function rollBack() : void
+    public function rollBack(): void
     {
         if (! oci_rollback($this->connection)) {
             throw OCI8Exception::fromErrorInfo(oci_error($this->connection));

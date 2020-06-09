@@ -12,7 +12,7 @@ use Doctrine\DBAL\Tests\FunctionalTestCase;
 
 class ForeignKeyExceptionTest extends FunctionalTestCase
 {
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -36,7 +36,7 @@ class ForeignKeyExceptionTest extends FunctionalTestCase
         $schemaManager->createTable($owningTable);
     }
 
-    protected function tearDown() : void
+    protected function tearDown(): void
     {
         parent::tearDown();
 
@@ -46,7 +46,7 @@ class ForeignKeyExceptionTest extends FunctionalTestCase
         $schemaManager->dropTable('constraint_error_table');
     }
 
-    public function testForeignKeyConstraintViolationExceptionOnInsert() : void
+    public function testForeignKeyConstraintViolationExceptionOnInsert(): void
     {
         $platform = $this->connection->getDatabasePlatform();
 
@@ -64,7 +64,7 @@ class ForeignKeyExceptionTest extends FunctionalTestCase
         $this->connection->insert('owning_table', ['id' => 2, 'constraint_id' => 2]);
     }
 
-    public function testForeignKeyConstraintViolationExceptionOnUpdate() : void
+    public function testForeignKeyConstraintViolationExceptionOnUpdate(): void
     {
         $platform = $this->connection->getDatabasePlatform();
 
@@ -82,7 +82,7 @@ class ForeignKeyExceptionTest extends FunctionalTestCase
         $this->connection->update('constraint_error_table', ['id' => 2], ['id' => 1]);
     }
 
-    public function testForeignKeyConstraintViolationExceptionOnDelete() : void
+    public function testForeignKeyConstraintViolationExceptionOnDelete(): void
     {
         $platform = $this->connection->getDatabasePlatform();
 
@@ -100,7 +100,7 @@ class ForeignKeyExceptionTest extends FunctionalTestCase
         $this->connection->delete('constraint_error_table', ['id' => 1]);
     }
 
-    public function testForeignKeyConstraintViolationExceptionOnTruncate() : void
+    public function testForeignKeyConstraintViolationExceptionOnTruncate(): void
     {
         $platform = $this->connection->getDatabasePlatform();
 

@@ -9,6 +9,7 @@ use function implode;
 use function preg_match;
 use function preg_quote;
 use function substr;
+
 use const PREG_OFFSET_CAPTURE;
 
 /**
@@ -30,7 +31,7 @@ final class ConvertPositionalToNamedPlaceholders
      *
      * @throws OCI8Exception
      */
-    public function __invoke(string $statement) : array
+    public function __invoke(string $statement): array
     {
         $fragmentOffset          = $tokenOffset = 0;
         $fragments               = $paramMap = [];
@@ -81,7 +82,7 @@ final class ConvertPositionalToNamedPlaceholders
         array &$fragments,
         ?string &$currentLiteralDelimiter,
         array &$paramMap
-    ) : bool {
+    ): bool {
         $token = $this->findToken($statement, $tokenOffset, '/[?\'"]/');
 
         if ($token === null) {
@@ -119,7 +120,7 @@ final class ConvertPositionalToNamedPlaceholders
         string $statement,
         int &$tokenOffset,
         string &$currentLiteralDelimiter
-    ) : bool {
+    ): bool {
         $token = $this->findToken(
             $statement,
             $tokenOffset,
@@ -146,7 +147,7 @@ final class ConvertPositionalToNamedPlaceholders
      *
      * @return string|null Token or NULL if not found
      */
-    private function findToken(string $statement, int &$offset, string $regex) : ?string
+    private function findToken(string $statement, int &$offset, string $regex): ?string
     {
         if (preg_match($regex, $statement, $matches, PREG_OFFSET_CAPTURE, $offset) === 1) {
             $offset = $matches[0][1];

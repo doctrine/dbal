@@ -11,6 +11,7 @@ use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+
 use function array_map;
 use function base64_encode;
 use function fopen;
@@ -25,18 +26,18 @@ class BinaryTest extends TestCase
     /** @var BinaryType */
     protected $type;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->platform = $this->createMock(AbstractPlatform::class);
         $this->type     = new BinaryType();
     }
 
-    public function testReturnsBindingType() : void
+    public function testReturnsBindingType(): void
     {
         self::assertSame(ParameterType::BINARY, $this->type->getBindingType());
     }
 
-    public function testReturnsName() : void
+    public function testReturnsName(): void
     {
         self::assertSame(Types::BINARY, $this->type->getName());
     }
@@ -46,7 +47,7 @@ class BinaryTest extends TestCase
      *
      * @dataProvider definitionProvider()
      */
-    public function testReturnsSQLDeclaration(array $definition, string $expectedDeclaration) : void
+    public function testReturnsSQLDeclaration(array $definition, string $expectedDeclaration): void
     {
         $platform = $this->getMockForAbstractClass(AbstractPlatform::class);
         self::assertSame($expectedDeclaration, $this->type->getSQLDeclaration($definition, $platform));
@@ -55,7 +56,7 @@ class BinaryTest extends TestCase
     /**
      * @return mixed[][]
      */
-    public static function definitionProvider() : iterable
+    public static function definitionProvider(): iterable
     {
         return [
             'fixed-unspecified-length' => [
@@ -76,12 +77,12 @@ class BinaryTest extends TestCase
         ];
     }
 
-    public function testBinaryNullConvertsToPHPValue() : void
+    public function testBinaryNullConvertsToPHPValue(): void
     {
         self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }
 
-    public function testBinaryStringConvertsToPHPValue() : void
+    public function testBinaryStringConvertsToPHPValue(): void
     {
         $databaseValue = $this->getBinaryString();
         $phpValue      = $this->type->convertToPHPValue($databaseValue, $this->platform);
@@ -89,7 +90,7 @@ class BinaryTest extends TestCase
         self::assertSame($databaseValue, $phpValue);
     }
 
-    public function testBinaryResourceConvertsToPHPValue() : void
+    public function testBinaryResourceConvertsToPHPValue(): void
     {
         $databaseValue = fopen('data://text/plain;base64,' . base64_encode('binary string'), 'r');
         $phpValue      = $this->type->convertToPHPValue($databaseValue, $this->platform);
@@ -100,7 +101,7 @@ class BinaryTest extends TestCase
     /**
      * Creates a binary string containing all possible byte values.
      */
-    private function getBinaryString() : string
+    private function getBinaryString(): string
     {
         return implode(array_map('chr', range(0, 255)));
     }
@@ -110,7 +111,7 @@ class BinaryTest extends TestCase
      *
      * @dataProvider getInvalidDatabaseValues
      */
-    public function testThrowsConversionExceptionOnInvalidDatabaseValue($value) : void
+    public function testThrowsConversionExceptionOnInvalidDatabaseValue($value): void
     {
         $this->expectException(ConversionException::class);
 
@@ -120,7 +121,7 @@ class BinaryTest extends TestCase
     /**
      * @return mixed[][]
      */
-    public static function getInvalidDatabaseValues() : iterable
+    public static function getInvalidDatabaseValues(): iterable
     {
         return [
             [false],

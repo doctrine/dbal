@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Event;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\TableDiff;
+
 use function array_merge;
 
 /**
@@ -37,22 +38,22 @@ class SchemaAlterTableRenameColumnEventArgs extends SchemaEventArgs
         $this->platform      = $platform;
     }
 
-    public function getOldColumnName() : string
+    public function getOldColumnName(): string
     {
         return $this->oldColumnName;
     }
 
-    public function getColumn() : Column
+    public function getColumn(): Column
     {
         return $this->column;
     }
 
-    public function getTableDiff() : TableDiff
+    public function getTableDiff(): TableDiff
     {
         return $this->tableDiff;
     }
 
-    public function getPlatform() : AbstractPlatform
+    public function getPlatform(): AbstractPlatform
     {
         return $this->platform;
     }
@@ -60,7 +61,7 @@ class SchemaAlterTableRenameColumnEventArgs extends SchemaEventArgs
     /**
      * @return $this
      */
-    public function addSql(string ...$sql) : self
+    public function addSql(string ...$sql): self
     {
         $this->sql = array_merge($this->sql, $sql);
 
@@ -70,7 +71,7 @@ class SchemaAlterTableRenameColumnEventArgs extends SchemaEventArgs
     /**
      * @return array<int, string>
      */
-    public function getSql() : array
+    public function getSql(): array
     {
         return $this->sql;
     }

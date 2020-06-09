@@ -16,25 +16,26 @@ use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\TestCase;
+
 use function array_keys;
 use function current;
 
 class TableTest extends TestCase
 {
-    public function testCreateWithInvalidTableName() : void
+    public function testCreateWithInvalidTableName(): void
     {
         $this->expectException(DBALException::class);
 
         new Table('');
     }
 
-    public function testGetName() : void
+    public function testGetName(): void
     {
         $table =  new Table('foo', [], [], []);
         self::assertEquals('foo', $table->getName());
     }
 
-    public function testColumns() : void
+    public function testColumns(): void
     {
         $type      = Type::getType('integer');
         $columns   = [];
@@ -52,7 +53,7 @@ class TableTest extends TestCase
         self::assertCount(2, $table->getColumns());
     }
 
-    public function testColumnsCaseInsensitive() : void
+    public function testColumnsCaseInsensitive(): void
     {
         $table  = new Table('foo');
         $column = $table->addColumn('Foo', 'integer');
@@ -66,7 +67,7 @@ class TableTest extends TestCase
         self::assertSame($column, $table->getColumn('FOO'));
     }
 
-    public function testCreateColumn() : void
+    public function testCreateColumn(): void
     {
         $type = Type::getType('integer');
 
@@ -78,7 +79,7 @@ class TableTest extends TestCase
         self::assertSame($type, $table->getColumn('bar')->getType());
     }
 
-    public function testDropColumn() : void
+    public function testDropColumn(): void
     {
         $type      = Type::getType('integer');
         $columns   = [];
@@ -95,7 +96,7 @@ class TableTest extends TestCase
         self::assertFalse($table->hasColumn('bar'));
     }
 
-    public function testGetUnknownColumnThrowsException() : void
+    public function testGetUnknownColumnThrowsException(): void
     {
         $this->expectException(SchemaException::class);
 
@@ -103,7 +104,7 @@ class TableTest extends TestCase
         $table->getColumn('unknown');
     }
 
-    public function testAddColumnTwiceThrowsException() : void
+    public function testAddColumnTwiceThrowsException(): void
     {
         $this->expectException(SchemaException::class);
 
@@ -114,7 +115,7 @@ class TableTest extends TestCase
         new Table('foo', $columns, [], []);
     }
 
-    public function testCreateIndex() : void
+    public function testCreateIndex(): void
     {
         $type    = Type::getType('integer');
         $columns = [new Column('foo', $type), new Column('bar', $type), new Column('baz', $type)];
@@ -127,7 +128,7 @@ class TableTest extends TestCase
         self::assertTrue($table->hasIndex('foo_bar_baz_uniq'));
     }
 
-    public function testIndexCaseInsensitive() : void
+    public function testIndexCaseInsensitive(): void
     {
         $type    = Type::getType('integer');
         $columns = [
@@ -144,7 +145,7 @@ class TableTest extends TestCase
         self::assertTrue($table->hasIndex('FOO_IDX'));
     }
 
-    public function testAddIndexes() : void
+    public function testAddIndexes(): void
     {
         $type    = Type::getType('integer');
         $columns = [
@@ -166,7 +167,7 @@ class TableTest extends TestCase
         self::assertSame('bar_idx', $table->getIndex('bar_idx')->getName());
     }
 
-    public function testGetUnknownIndexThrowsException() : void
+    public function testGetUnknownIndexThrowsException(): void
     {
         $this->expectException(SchemaException::class);
 
@@ -174,7 +175,7 @@ class TableTest extends TestCase
         $table->getIndex('unknownIndex');
     }
 
-    public function testAddTwoPrimaryThrowsException() : void
+    public function testAddTwoPrimaryThrowsException(): void
     {
         $this->expectException(SchemaException::class);
 
@@ -187,7 +188,7 @@ class TableTest extends TestCase
         new Table('foo', $columns, $indexes, []);
     }
 
-    public function testAddTwoIndexesWithSameNameThrowsException() : void
+    public function testAddTwoIndexesWithSameNameThrowsException(): void
     {
         $this->expectException(SchemaException::class);
 
@@ -200,7 +201,7 @@ class TableTest extends TestCase
         new Table('foo', $columns, $indexes, []);
     }
 
-    public function testConstraints() : void
+    public function testConstraints(): void
     {
         $constraint = new ForeignKeyConstraint([], 'foo', []);
 
@@ -215,7 +216,7 @@ class TableTest extends TestCase
         self::assertSame($constraint, $constraints['fk_8c736521']);
     }
 
-    public function testOptions() : void
+    public function testOptions(): void
     {
         $table = new Table('foo', [], [], [], [], ['foo' => 'bar']);
 
@@ -223,7 +224,7 @@ class TableTest extends TestCase
         self::assertEquals('bar', $table->getOption('foo'));
     }
 
-    public function testBuilderSetPrimaryKey() : void
+    public function testBuilderSetPrimaryKey(): void
     {
         $table = new Table('foo');
 
@@ -236,7 +237,7 @@ class TableTest extends TestCase
         self::assertTrue($table->getIndex('primary')->isPrimary());
     }
 
-    public function testBuilderAddUniqueIndex() : void
+    public function testBuilderAddUniqueIndex(): void
     {
         $table = new Table('foo');
 
@@ -248,7 +249,7 @@ class TableTest extends TestCase
         self::assertFalse($table->getIndex('my_idx')->isPrimary());
     }
 
-    public function testBuilderAddIndex() : void
+    public function testBuilderAddIndex(): void
     {
         $table = new Table('foo');
 
@@ -260,7 +261,7 @@ class TableTest extends TestCase
         self::assertFalse($table->getIndex('my_idx')->isPrimary());
     }
 
-    public function testBuilderAddIndexWithInvalidNameThrowsException() : void
+    public function testBuilderAddIndexWithInvalidNameThrowsException(): void
     {
         $this->expectException(SchemaException::class);
 
@@ -269,7 +270,7 @@ class TableTest extends TestCase
         $table->addIndex(['bar'], 'invalid name %&/');
     }
 
-    public function testBuilderAddIndexWithUnknownColumnThrowsException() : void
+    public function testBuilderAddIndexWithUnknownColumnThrowsException(): void
     {
         $this->expectException(SchemaException::class);
 
@@ -277,7 +278,7 @@ class TableTest extends TestCase
         $table->addIndex(['bar'], 'invalidName');
     }
 
-    public function testBuilderOptions() : void
+    public function testBuilderOptions(): void
     {
         $table = new Table('foo');
         $table->addOption('foo', 'bar');
@@ -285,7 +286,7 @@ class TableTest extends TestCase
         self::assertEquals('bar', $table->getOption('foo'));
     }
 
-    public function testAddForeignKeyConstraintUnknownLocalColumnThrowsException() : void
+    public function testAddForeignKeyConstraintUnknownLocalColumnThrowsException(): void
     {
         $this->expectException(SchemaException::class);
 
@@ -298,7 +299,7 @@ class TableTest extends TestCase
         $table->addForeignKeyConstraint($foreignTable, ['foo'], ['id']);
     }
 
-    public function testAddForeignKeyConstraintUnknownForeignColumnThrowsException() : void
+    public function testAddForeignKeyConstraintUnknownForeignColumnThrowsException(): void
     {
         $this->expectException(SchemaException::class);
 
@@ -311,7 +312,7 @@ class TableTest extends TestCase
         $table->addForeignKeyConstraint($foreignTable, ['id'], ['foo']);
     }
 
-    public function testAddForeignKeyConstraint() : void
+    public function testAddForeignKeyConstraint(): void
     {
         $table = new Table('foo');
         $table->addColumn('id', 'integer');
@@ -331,7 +332,7 @@ class TableTest extends TestCase
         self::assertEquals('bar', $constraint->getOption('foo'));
     }
 
-    public function testAddIndexWithCaseSensitiveColumnProblem() : void
+    public function testAddIndexWithCaseSensitiveColumnProblem(): void
     {
         $table = new Table('foo');
         $table->addColumn('id', 'integer');
@@ -343,7 +344,7 @@ class TableTest extends TestCase
         self::assertTrue($table->getIndex('my_idx')->spansColumns(['id']));
     }
 
-    public function testAddPrimaryKeyColumnsAreExplicitlySetToNotNull() : void
+    public function testAddPrimaryKeyColumnsAreExplicitlySetToNotNull(): void
     {
         $table  = new Table('foo');
         $column = $table->addColumn('id', 'integer', ['notnull' => false]);
@@ -358,7 +359,7 @@ class TableTest extends TestCase
     /**
      * @group DDC-133
      */
-    public function testAllowImplicitSchemaTableInAutogeneratedIndexNames() : void
+    public function testAllowImplicitSchemaTableInAutogeneratedIndexNames(): void
     {
         $table = new Table('foo.bar');
         $table->addColumn('baz', 'integer', []);
@@ -370,7 +371,7 @@ class TableTest extends TestCase
     /**
      * @group DBAL-50
      */
-    public function testAddForeignKeyIndexImplicitly() : void
+    public function testAddForeignKeyIndexImplicitly(): void
     {
         $table = new Table('foo');
         $table->addColumn('id', 'integer');
@@ -391,7 +392,7 @@ class TableTest extends TestCase
     /**
      * @group DBAL-1063
      */
-    public function testAddForeignKeyDoesNotCreateDuplicateIndex() : void
+    public function testAddForeignKeyDoesNotCreateDuplicateIndex(): void
     {
         $table = new Table('foo');
         $table->addColumn('bar', 'integer');
@@ -410,7 +411,7 @@ class TableTest extends TestCase
     /**
      * @group DBAL-1063
      */
-    public function testAddForeignKeyAddsImplicitIndexIfIndexColumnsDoNotSpan() : void
+    public function testAddForeignKeyAddsImplicitIndexIfIndexColumnsDoNotSpan(): void
     {
         $table = new Table('foo');
         $table->addColumn('bar', 'integer');
@@ -438,7 +439,7 @@ class TableTest extends TestCase
      * @group DBAL-50
      * @group DBAL-1063
      */
-    public function testOverrulingIndexDoesNotDropOverruledIndex() : void
+    public function testOverrulingIndexDoesNotDropOverruledIndex(): void
     {
         $table = new Table('bar');
         $table->addColumn('baz', 'integer', []);
@@ -456,7 +457,7 @@ class TableTest extends TestCase
     /**
      * @group DBAL-1063
      */
-    public function testAllowsAddingDuplicateIndexesBasedOnColumns() : void
+    public function testAllowsAddingDuplicateIndexesBasedOnColumns(): void
     {
         $table = new Table('foo');
         $table->addColumn('bar', 'integer');
@@ -473,7 +474,7 @@ class TableTest extends TestCase
     /**
      * @group DBAL-1063
      */
-    public function testAllowsAddingFulfillingIndexesBasedOnColumns() : void
+    public function testAllowsAddingFulfillingIndexesBasedOnColumns(): void
     {
         $table = new Table('foo');
         $table->addColumn('bar', 'integer');
@@ -492,7 +493,7 @@ class TableTest extends TestCase
      * @group DBAL-50
      * @group DBAL-1063
      */
-    public function testPrimaryKeyOverrulingUniqueIndexDoesNotDropUniqueIndex() : void
+    public function testPrimaryKeyOverrulingUniqueIndexDoesNotDropUniqueIndex(): void
     {
         $table = new Table('bar');
         $table->addColumn('baz', 'integer', []);
@@ -507,7 +508,7 @@ class TableTest extends TestCase
         self::assertTrue($table->hasIndex('idx_unique'));
     }
 
-    public function testAddingFulfillingRegularIndexOverridesImplicitForeignKeyConstraintIndex() : void
+    public function testAddingFulfillingRegularIndexOverridesImplicitForeignKeyConstraintIndex(): void
     {
         $foreignTable = new Table('foreign');
         $foreignTable->addColumn('id', 'integer');
@@ -524,7 +525,7 @@ class TableTest extends TestCase
         self::assertTrue($localTable->hasIndex('explicit_idx'));
     }
 
-    public function testAddingFulfillingUniqueIndexOverridesImplicitForeignKeyConstraintIndex() : void
+    public function testAddingFulfillingUniqueIndexOverridesImplicitForeignKeyConstraintIndex(): void
     {
         $foreignTable = new Table('foreign');
         $foreignTable->addColumn('id', 'integer');
@@ -541,7 +542,7 @@ class TableTest extends TestCase
         self::assertTrue($localTable->hasIndex('explicit_idx'));
     }
 
-    public function testAddingFulfillingPrimaryKeyOverridesImplicitForeignKeyConstraintIndex() : void
+    public function testAddingFulfillingPrimaryKeyOverridesImplicitForeignKeyConstraintIndex(): void
     {
         $foreignTable = new Table('foreign');
         $foreignTable->addColumn('id', 'integer');
@@ -558,7 +559,7 @@ class TableTest extends TestCase
         self::assertTrue($localTable->hasIndex('explicit_idx'));
     }
 
-    public function testAddingFulfillingExplicitIndexOverridingImplicitForeignKeyConstraintIndexWithSameNameDoesNotThrowException() : void
+    public function testAddingFulfillingExplicitIndexOverridingImplicitForeignKeyConstraintIndexWithSameNameDoesNotThrowException(): void
     {
         $foreignTable = new Table('foreign');
         $foreignTable->addColumn('id', 'integer');
@@ -582,7 +583,7 @@ class TableTest extends TestCase
     /**
      * @group DBAL-64
      */
-    public function testQuotedTableName() : void
+    public function testQuotedTableName(): void
     {
         $table = new Table('`bar`');
 
@@ -597,7 +598,7 @@ class TableTest extends TestCase
     /**
      * @group DBAL-79
      */
-    public function testTableHasPrimaryKey() : void
+    public function testTableHasPrimaryKey(): void
     {
         $table = new Table('test');
 
@@ -612,7 +613,7 @@ class TableTest extends TestCase
     /**
      * @group DBAL-91
      */
-    public function testAddIndexWithQuotedColumns() : void
+    public function testAddIndexWithQuotedColumns(): void
     {
         $table = new Table('test');
         $table->addColumn('"foo"', 'integer');
@@ -625,7 +626,7 @@ class TableTest extends TestCase
     /**
      * @group DBAL-91
      */
-    public function testAddForeignKeyWithQuotedColumnsAndTable() : void
+    public function testAddForeignKeyWithQuotedColumnsAndTable(): void
     {
         $table = new Table('test');
         $table->addColumn('"foo"', 'integer');
@@ -638,7 +639,7 @@ class TableTest extends TestCase
     /**
      * @group DBAL-177
      */
-    public function testQuoteSchemaPrefixed() : void
+    public function testQuoteSchemaPrefixed(): void
     {
         $table = new Table('`test`.`test`');
         self::assertEquals('test.test', $table->getName());
@@ -648,7 +649,7 @@ class TableTest extends TestCase
     /**
      * @group DBAL-204
      */
-    public function testFullQualifiedTableName() : void
+    public function testFullQualifiedTableName(): void
     {
         $table = new Table('`test`.`test`');
         self::assertEquals('test.test', $table->getFullQualifiedName('test'));
@@ -662,7 +663,7 @@ class TableTest extends TestCase
     /**
      * @group DBAL-224
      */
-    public function testDropIndex() : void
+    public function testDropIndex(): void
     {
         $table = new Table('test');
         $table->addColumn('id', 'integer');
@@ -677,7 +678,7 @@ class TableTest extends TestCase
     /**
      * @group DBAL-224
      */
-    public function testDropPrimaryKey() : void
+    public function testDropPrimaryKey(): void
     {
         $table = new Table('test');
         $table->addColumn('id', 'integer');
@@ -692,7 +693,7 @@ class TableTest extends TestCase
     /**
      * @group DBAL-234
      */
-    public function testRenameIndex() : void
+    public function testRenameIndex(): void
     {
         $table = new Table('test');
         $table->addColumn('id', 'integer');
@@ -764,7 +765,7 @@ class TableTest extends TestCase
     /**
      * @group DBAL-2508
      */
-    public function testKeepsIndexOptionsOnRenamingRegularIndex() : void
+    public function testKeepsIndexOptionsOnRenamingRegularIndex(): void
     {
         $table = new Table('foo');
         $table->addColumn('id', 'integer');
@@ -778,7 +779,7 @@ class TableTest extends TestCase
     /**
      * @group DBAL-2508
      */
-    public function testKeepsIndexOptionsOnRenamingUniqueIndex() : void
+    public function testKeepsIndexOptionsOnRenamingUniqueIndex(): void
     {
         $table = new Table('foo');
         $table->addColumn('id', 'integer');
@@ -792,7 +793,7 @@ class TableTest extends TestCase
     /**
      * @group DBAL-234
      */
-    public function testThrowsExceptionOnRenamingNonExistingIndex() : void
+    public function testThrowsExceptionOnRenamingNonExistingIndex(): void
     {
         $table = new Table('test');
         $table->addColumn('id', 'integer');
@@ -806,7 +807,7 @@ class TableTest extends TestCase
     /**
      * @group DBAL-234
      */
-    public function testThrowsExceptionOnRenamingToAlreadyExistingIndex() : void
+    public function testThrowsExceptionOnRenamingToAlreadyExistingIndex(): void
     {
         $table = new Table('test');
         $table->addColumn('id', 'integer');
@@ -823,7 +824,7 @@ class TableTest extends TestCase
      * @dataProvider getNormalizesAssetNames
      * @group DBAL-831
      */
-    public function testNormalizesColumnNames(string $assetName) : void
+    public function testNormalizesColumnNames(string $assetName): void
     {
         $table = new Table('test');
 
@@ -874,7 +875,7 @@ class TableTest extends TestCase
     /**
      * @return mixed[][]
      */
-    public static function getNormalizesAssetNames() : iterable
+    public static function getNormalizesAssetNames(): iterable
     {
         return [
             ['foo'],
@@ -888,7 +889,7 @@ class TableTest extends TestCase
         ];
     }
 
-    public function testTableComment() : void
+    public function testTableComment(): void
     {
         $table = new Table('bar');
         self::assertNull($table->getComment());
@@ -897,7 +898,7 @@ class TableTest extends TestCase
         self::assertEquals('foo', $table->getComment());
     }
 
-    public function testUniqueConstraintWithEmptyName() : void
+    public function testUniqueConstraintWithEmptyName(): void
     {
         $columns = [
             new Column('column1', Type::getType(Types::STRING)),

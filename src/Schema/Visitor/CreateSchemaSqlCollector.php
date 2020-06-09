@@ -8,6 +8,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
+
 use function array_merge;
 
 class CreateSchemaSqlCollector extends AbstractVisitor
@@ -32,7 +33,7 @@ class CreateSchemaSqlCollector extends AbstractVisitor
         $this->platform = $platform;
     }
 
-    public function acceptNamespace(string $namespaceName) : void
+    public function acceptNamespace(string $namespaceName): void
     {
         if (! $this->platform->supportsSchemas()) {
             return;
@@ -41,12 +42,12 @@ class CreateSchemaSqlCollector extends AbstractVisitor
         $this->createNamespaceQueries[] = $this->platform->getCreateSchemaSQL($namespaceName);
     }
 
-    public function acceptTable(Table $table) : void
+    public function acceptTable(Table $table): void
     {
         $this->createTableQueries = array_merge($this->createTableQueries, $this->platform->getCreateTableSQL($table));
     }
 
-    public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint) : void
+    public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint): void
     {
         if (! $this->platform->supportsCreateDropForeignKeyConstraints()) {
             return;
@@ -55,12 +56,12 @@ class CreateSchemaSqlCollector extends AbstractVisitor
         $this->createFkConstraintQueries[] = $this->platform->getCreateForeignKeySQL($fkConstraint, $localTable);
     }
 
-    public function acceptSequence(Sequence $sequence) : void
+    public function acceptSequence(Sequence $sequence): void
     {
         $this->createSequenceQueries[] = $this->platform->getCreateSequenceSQL($sequence);
     }
 
-    public function resetQueries() : void
+    public function resetQueries(): void
     {
         $this->createNamespaceQueries    = [];
         $this->createTableQueries        = [];
@@ -73,7 +74,7 @@ class CreateSchemaSqlCollector extends AbstractVisitor
      *
      * @return array<string>
      */
-    public function getQueries() : array
+    public function getQueries(): array
     {
         return array_merge(
             $this->createNamespaceQueries,

@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Event;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Table;
+
 use function array_merge;
 
 /**
@@ -33,17 +34,17 @@ class SchemaCreateTableColumnEventArgs extends SchemaEventArgs
         $this->platform = $platform;
     }
 
-    public function getColumn() : Column
+    public function getColumn(): Column
     {
         return $this->column;
     }
 
-    public function getTable() : Table
+    public function getTable(): Table
     {
         return $this->table;
     }
 
-    public function getPlatform() : AbstractPlatform
+    public function getPlatform(): AbstractPlatform
     {
         return $this->platform;
     }
@@ -51,7 +52,7 @@ class SchemaCreateTableColumnEventArgs extends SchemaEventArgs
     /**
      * @return $this
      */
-    public function addSql(string ...$sql) : self
+    public function addSql(string ...$sql): self
     {
         $this->sql = array_merge($this->sql, $sql);
 
@@ -61,7 +62,7 @@ class SchemaCreateTableColumnEventArgs extends SchemaEventArgs
     /**
      * @return array<int, string>
      */
-    public function getSql() : array
+    public function getSql(): array
     {
         return $this->sql;
     }

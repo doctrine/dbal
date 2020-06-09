@@ -11,9 +11,9 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
  */
 interface Constraint
 {
-    public function getName() : string;
+    public function getName(): string;
 
-    public function getQuotedName(AbstractPlatform $platform) : string;
+    public function getQuotedName(AbstractPlatform $platform): string;
 
     /**
      * Returns the names of the referencing table columns
@@ -21,7 +21,7 @@ interface Constraint
      *
      * @return array<int, string>
      */
-    public function getColumns() : array;
+    public function getColumns(): array;
 
     /**
      * Returns the quoted representation of the column names
@@ -35,5 +35,5 @@ interface Constraint
      *
      * @return array<int, string>
      */
-    public function getQuotedColumns(AbstractPlatform $platform) : array;
+    public function getQuotedColumns(AbstractPlatform $platform): array;
 }

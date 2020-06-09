@@ -11,7 +11,7 @@ use Doctrine\DBAL\ConnectionException;
  */
 final class NoActiveTransaction extends ConnectionException
 {
-    public static function new() : self
+    public static function new(): self
     {
         return new self('There is no active transaction.');
     }
