@@ -48,7 +48,9 @@ class OraclePlatform extends AbstractPlatform
 
     public function getAggregateConcatExpression(string $value, string $separator, ?string $orderBy = null): string
     {
-        $orderByClause = $orderBy !== null ? ' WITHIN GROUP(ORDER BY ' . $orderBy . ')' : '';
+        // Oracle requires a 'WITHIN GROUP(ORDER BY ...)' clause
+        $orderBy       = $orderBy || 'NULL';
+        $orderByClause = ' WITHIN GROUP(ORDER BY ' . $orderBy . ')';
 
         return 'LISTAGG(' . $value . ', ' . $separator . ')' . $orderByClause;
     }
