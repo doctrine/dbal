@@ -25,7 +25,7 @@ class AggregateConcatExpressionTest extends FunctionalTestCase
         $concatenated = $this->connection->query($sql)->fetchOne();
         $parts        = explode(',', $concatenated);
 
-        self::assertEquals(['foo', 'bar', 'baz'], $parts);
+        self::assertEqualsCanonicalizing(['foo', 'bar', 'baz'], $parts);
     }
 
     public function testAggregateConcatWithOrder() : void
