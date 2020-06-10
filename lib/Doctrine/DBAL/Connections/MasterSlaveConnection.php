@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Connections;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Event\ConnectionEventArgs;
@@ -356,8 +357,11 @@ class MasterSlaveConnection extends Connection
         if ($logger) {
             $logger->startQuery($args[0]);
         }
-
-        $statement = $this->_conn->query(...$args);
+        try {
+            $statement = $this->_conn->query(...$args);
+        } catch (Throwable $ex) {
+            throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $args[0]);
+        }
 
         $statement->setFetchMode($this->defaultFetchMode);
 
