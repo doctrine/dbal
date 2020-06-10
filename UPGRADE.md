@@ -1,5 +1,10 @@
 # Upgrade to 2.11
 
+## Deprecated `Portability\Connection::PORTABILITY_{PLATFORM}` constants`
+
+The platform-specific portability mode flags are meant to be used only by the portability layer internally to optimize
+the user-provided mode for the current database platform. 
+
 ## Deprecated `MasterSlaveConnection` use `PrimaryReadReplicaConnection`
 
 The `Doctrine\DBAL\Connections\MasterSlaveConnection` class is renamed to `Doctrine\DBAL\Connections\PrimaryReadReplicaConnection`.
