@@ -4,8 +4,6 @@ namespace Doctrine\DBAL\Driver\IBMDB2;
 
 use Doctrine\DBAL\Driver\AbstractDB2Driver;
 
-use function strpos;
-
 /**
  * IBM DB2 Driver.
  */
@@ -16,27 +14,16 @@ class DB2Driver extends AbstractDB2Driver
      */
     public function connect(array $params, $username = null, $password = null, array $driverOptions = [])
     {
-        if (! isset($params['protocol'])) {
-            $params['protocol'] = 'TCPIP';
-        }
+        $params['user']     = $username;
+        $params['password'] = $password;
+        $params['dbname']   = DataSourceName::fromConnectionParameters($params)->toString();
 
-        if (strpos($params['dbname'], '=') === false) {
-            // if the host isn't localhost, use extended connection params
-            $params['dbname'] = 'DRIVER={IBM DB2 ODBC DRIVER}' .
-                     ';DATABASE=' . $params['dbname'] .
-                     ';HOSTNAME=' . $params['host'] .
-                     ';PROTOCOL=' . $params['protocol'] .
-                     ';UID=' . $username .
-                     ';PWD=' . $password . ';';
-            if (isset($params['port'])) {
-                $params['dbname'] .= 'PORT=' . $params['port'];
-            }
-
-            $username = null;
-            $password = null;
-        }
-
-        return new DB2Connection($params, (string) $username, (string) $password, $driverOptions);
+        return new DB2Connection(
+            $params,
+            (string) $username,
+            (string) $password,
+            $driverOptions
+        );
     }
 
     /**
