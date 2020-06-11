@@ -175,6 +175,48 @@ Please use other database client applications for import, e.g.:
 
 # Upgrade to 2.11
 
+## Deprecated `Portability\Connection::PORTABILITY_{PLATFORM}` constants`
+
+The platform-specific portability mode flags are meant to be used only by the portability layer internally to optimize
+the user-provided mode for the current database platform. 
+
+## Deprecated `MasterSlaveConnection` use `PrimaryReadReplicaConnection`
+
+The `Doctrine\DBAL\Connections\MasterSlaveConnection` class is renamed to `Doctrine\DBAL\Connections\PrimaryReadReplicaConnection`.
+In addition its configuration parameters `master`, `slaves` and `keepSlave` are renamed to `primary`, `replica` and `keepReplica`.
+
+Before:
+
+    $connection = DriverManager::getConnection(
+        'wrapperClass' => 'Doctrine\DBAL\Connections\MasterSlaveConnection',
+        'driver' => 'pdo_mysql',
+        'master' => array('user' => '', 'password' => '', 'host' => '', 'dbname' => ''),
+        'slaves' => array(
+            array('user' => 'replica1', 'password', 'host' => '', 'dbname' => ''),
+            array('user' => 'replica2', 'password', 'host' => '', 'dbname' => ''),
+        ),
+        'keepSlave' => true,
+    ));
+    $connection->connect('slave');
+    $connection->connect('master');
+    $connection->isConnectedToMaster();
+
+After:
+
+    $connection = DriverManager::getConnection(array(
+        'wrapperClass' => 'Doctrine\DBAL\Connections\PrimaryReadReplicaConnection',
+        'driver' => 'pdo_mysql',
+        'primary' => array('user' => '', 'password' => '', 'host' => '', 'dbname' => ''),
+        'replica' => array(
+            array('user' => 'replica1', 'password', 'host' => '', 'dbname' => ''),
+            array('user' => 'replica2', 'password', 'host' => '', 'dbname' => ''),
+        )
+        'keepReplica' => true,
+    ));
+    $connection->ensureConnectedToReplica();
+    $connection->ensureConnectedToPrimary();
+    $connection->isConnectedToPrimary();
+
 ## Deprecated `ArrayStatement` and `ResultCacheStatement` classes.
 
 The `ArrayStatement` and `ResultCacheStatement` classes are deprecated. In a future major release they will be renamed and marked internal as implementation details of the caching layer.

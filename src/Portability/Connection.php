@@ -25,6 +25,10 @@ class Connection extends \Doctrine\DBAL\Connection
     public const PORTABILITY_EMPTY_TO_NULL = 4;
     public const PORTABILITY_FIX_CASE      = 8;
 
+    /**#@+
+     *
+     * @deprecated Will be removed as internal implementation details.
+     */
     public const PORTABILITY_DB2          = 13;
     public const PORTABILITY_ORACLE       = 9;
     public const PORTABILITY_POSTGRESQL   = 13;
@@ -32,6 +36,7 @@ class Connection extends \Doctrine\DBAL\Connection
     public const PORTABILITY_OTHERVENDORS = 12;
     public const PORTABILITY_SQLANYWHERE  = 13;
     public const PORTABILITY_SQLSRV       = 13;
+    /**#@-*/
 
     /** @var Converter */
     private $converter;
@@ -47,21 +52,10 @@ class Connection extends \Doctrine\DBAL\Connection
             $portability = self::PORTABILITY_NONE;
 
             if (isset($params['portability'])) {
-                if ($this->getDatabasePlatform()->getName() === 'oracle') {
-                    $portability = $params['portability'] & self::PORTABILITY_ORACLE;
-                } elseif ($this->getDatabasePlatform()->getName() === 'postgresql') {
-                    $portability = $params['portability'] & self::PORTABILITY_POSTGRESQL;
-                } elseif ($this->getDatabasePlatform()->getName() === 'sqlite') {
-                    $portability = $params['portability'] & self::PORTABILITY_SQLITE;
-                } elseif ($this->getDatabasePlatform()->getName() === 'sqlanywhere') {
-                    $portability = $params['portability'] & self::PORTABILITY_SQLANYWHERE;
-                } elseif ($this->getDatabasePlatform()->getName() === 'db2') {
-                    $portability = $params['portability'] & self::PORTABILITY_DB2;
-                } elseif ($this->getDatabasePlatform()->getName() === 'mssql') {
-                    $portability = $params['portability'] & self::PORTABILITY_SQLSRV;
-                } else {
-                    $portability = $params['portability'] & self::PORTABILITY_OTHERVENDORS;
-                }
+                $portability = $params['portability'] = (new OptimizeFlags())(
+                    $this->getDatabasePlatform(),
+                    $params['portability']
+                );
             }
 
             $case = null;
