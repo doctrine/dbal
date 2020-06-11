@@ -25,19 +25,6 @@ class Connection extends \Doctrine\DBAL\Connection
     public const PORTABILITY_EMPTY_TO_NULL = 4;
     public const PORTABILITY_FIX_CASE      = 8;
 
-    /**#@+
-     *
-     * @deprecated Will be removed as internal implementation details.
-     */
-    public const PORTABILITY_DB2          = 13;
-    public const PORTABILITY_ORACLE       = 9;
-    public const PORTABILITY_POSTGRESQL   = 13;
-    public const PORTABILITY_SQLITE       = 13;
-    public const PORTABILITY_OTHERVENDORS = 12;
-    public const PORTABILITY_SQLANYWHERE  = 13;
-    public const PORTABILITY_SQLSRV       = 13;
-    /**#@-*/
-
     /** @var Converter */
     private $converter;
 

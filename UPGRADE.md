@@ -1,5 +1,9 @@
 # Upgrade to 3.0
 
+## Removed `Portability\Connection::PORTABILITY_{PLATFORM}` constants`
+
+The platform-specific portability constants were internal implementation details which are longer relevant.
+
 ## BC BREAK changes in fetching statement results
 
 1. The `Statement` interface no longer extends `ResultStatement`.
