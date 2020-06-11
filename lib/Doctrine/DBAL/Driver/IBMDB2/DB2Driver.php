@@ -4,6 +4,8 @@ namespace Doctrine\DBAL\Driver\IBMDB2;
 
 use Doctrine\DBAL\Driver\AbstractDB2Driver;
 
+use function strpos;
+
 /**
  * IBM DB2 Driver.
  */
@@ -18,7 +20,7 @@ class DB2Driver extends AbstractDB2Driver
             $params['protocol'] = 'TCPIP';
         }
 
-        if ($params['host'] !== 'localhost' && $params['host'] !== '127.0.0.1') {
+        if (strpos($params['dbname'], '=') === false) {
             // if the host isn't localhost, use extended connection params
             $params['dbname'] = 'DRIVER={IBM DB2 ODBC DRIVER}' .
                      ';DATABASE=' . $params['dbname'] .

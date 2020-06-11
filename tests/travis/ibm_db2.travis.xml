@@ -14,7 +14,7 @@
         <var name="db_host" value="127.0.0.1"/>
         <var name="db_user" value="db2inst1"/>
         <var name="db_password" value="Doctrine2018"/>
-        <var name="db_dbname" value="HOSTNAME=127.0.0.1;UID=db2inst1;PWD=Doctrine2018;DATABASE=doctrine"/>
+        <var name="db_dbname" value="doctrine"/>
     </php>
 
     <testsuites>
