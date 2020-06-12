@@ -58,6 +58,8 @@ abstract class AbstractSQLServerDriver implements Driver, VersionAwarePlatformDr
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use Connection::getDatabase() instead.
      */
     public function getDatabase(Connection $conn)
     {
