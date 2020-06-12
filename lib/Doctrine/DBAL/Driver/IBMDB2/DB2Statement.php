@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Driver\IBMDB2;
 
 use Doctrine\DBAL\Driver\FetchUtils;
+use Doctrine\DBAL\Driver\IBMDB2\Exception\StatementError;
 use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\StatementIterator;
@@ -141,7 +142,7 @@ class DB2Statement implements IteratorAggregate, Statement, Result
         $this->bindParam[$position] =& $variable;
 
         if (! db2_bind_param($this->stmt, $position, 'variable', $parameterType, $dataType)) {
-            throw new DB2Exception(db2_stmt_errormsg());
+            throw StatementError::new($this->stmt);
         }
     }
 
@@ -228,7 +229,7 @@ class DB2Statement implements IteratorAggregate, Statement, Result
         $this->lobs = [];
 
         if ($retval === false) {
-            throw new DB2Exception(db2_stmt_errormsg());
+            throw StatementError::new($this->stmt);
         }
 
         $this->result = true;
