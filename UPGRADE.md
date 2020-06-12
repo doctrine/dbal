@@ -1,5 +1,10 @@
 # Upgrade to 2.11
 
+## Deprecated `Doctrine\DBAL\Driver::getDatabase()`
+
+- The usage of `Doctrine\DBAL\Driver::getDatabase()` is deprecated. Please use `Doctrine\DBAL\Connection::getDatabase()` instead.
+- The behavior of the SQLite connection returning the database file path as the database is deprecated and shouldn't be relied upon.
+
 ## Deprecated `Portability\Connection::PORTABILITY_{PLATFORM}` constants`
 
 The platform-specific portability mode flags are meant to be used only by the portability layer internally to optimize
