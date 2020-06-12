@@ -14,6 +14,8 @@ abstract class AbstractSQLServerDriver implements Driver
 {
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use Connection::getDatabase() instead.
      */
     public function getDatabase(Connection $conn)
     {

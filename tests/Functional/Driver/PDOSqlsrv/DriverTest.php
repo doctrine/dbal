@@ -7,6 +7,7 @@ use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\Driver\PDOSqlsrv\Driver;
 use Doctrine\DBAL\Tests\Functional\Driver\AbstractDriverTest;
+use Doctrine\DBAL\Tests\TestUtil;
 use PDO;
 
 use function assert;
@@ -45,13 +46,12 @@ class DriverTest extends AbstractDriverTest
      */
     protected function getConnection(array $driverOptions): Connection
     {
+        $params = TestUtil::getConnectionParams();
+
         return $this->connection->getDriver()->connect(
-            [
-                'host' => $GLOBALS['db_host'],
-                'port' => $GLOBALS['db_port'],
-            ],
-            $GLOBALS['db_username'],
-            $GLOBALS['db_password'],
+            $params,
+            $params['user'] ?? '',
+            $params['password'] ?? '',
             $driverOptions
         );
     }

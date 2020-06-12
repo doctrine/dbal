@@ -104,6 +104,8 @@ abstract class AbstractPostgreSQLDriver implements ExceptionConverterDriver, Ver
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use Connection::getDatabase() instead.
      */
     public function getDatabase(Connection $conn)
     {

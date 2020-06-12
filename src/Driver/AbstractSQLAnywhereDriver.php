@@ -103,6 +103,8 @@ abstract class AbstractSQLAnywhereDriver implements ExceptionConverterDriver, Ve
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use Connection::getDatabase() instead.
      */
     public function getDatabase(Connection $conn)
     {

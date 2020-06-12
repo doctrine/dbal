@@ -196,6 +196,8 @@ abstract class AbstractMySQLDriver implements ExceptionConverterDriver, VersionA
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use Connection::getDatabase() instead.
      */
     public function getDatabase(Connection $conn)
     {

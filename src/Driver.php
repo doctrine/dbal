@@ -53,6 +53,8 @@ interface Driver
     /**
      * Gets the name of the database connected to for this driver.
      *
+     * @deprecated Use Connection::getDatabase() instead.
+     *
      * @return string The name of the database.
      */
     public function getDatabase(Connection $conn);
