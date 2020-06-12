@@ -6,6 +6,7 @@ use Doctrine\DBAL\Driver as DriverInterface;
 use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\PDOSqlsrv\Driver;
 use Doctrine\Tests\DBAL\Functional\Driver\AbstractDriverTest;
+use Doctrine\Tests\TestUtil;
 use PDO;
 use function extension_loaded;
 
@@ -41,13 +42,12 @@ class DriverTest extends AbstractDriverTest
      */
     protected function getConnection(array $driverOptions) : Connection
     {
+        $params = TestUtil::getConnectionParams();
+
         return $this->connection->getDriver()->connect(
-            [
-                'host' => $GLOBALS['db_host'],
-                'port' => $GLOBALS['db_port'],
-            ],
-            $GLOBALS['db_username'],
-            $GLOBALS['db_password'],
+            $params,
+            $params['user'] ?? '',
+            $params['password'] ?? '',
             $driverOptions
         );
     }

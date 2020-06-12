@@ -6,6 +6,7 @@ use Doctrine\DBAL\Driver\Mysqli\Driver;
 use Doctrine\DBAL\Driver\Mysqli\MysqliConnection;
 use Doctrine\DBAL\Driver\Mysqli\MysqliException;
 use Doctrine\Tests\DbalFunctionalTestCase;
+use Doctrine\Tests\TestUtil;
 use function extension_loaded;
 use const MYSQLI_OPT_CONNECT_TIMEOUT;
 
@@ -57,14 +58,12 @@ class ConnectionTest extends DbalFunctionalTestCase
      */
     private function getConnection(array $driverOptions) : MysqliConnection
     {
+        $params = TestUtil::getConnectionParams();
+
         return new MysqliConnection(
-            [
-                'host' => $GLOBALS['db_host'],
-                'dbname' => $GLOBALS['db_name'],
-                'port' => $GLOBALS['db_port'],
-            ],
-            $GLOBALS['db_username'],
-            $GLOBALS['db_password'],
+            $params,
+            $params['user'] ?? '',
+            $params['password'] ?? '',
             $driverOptions
         );
     }

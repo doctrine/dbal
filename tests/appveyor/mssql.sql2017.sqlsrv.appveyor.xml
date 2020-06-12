@@ -11,18 +11,11 @@
     <php>
         <ini name="error_reporting" value="-1" />
 
-        <var name="db_type" value="sqlsrv"/>
+        <var name="db_driver" value="sqlsrv"/>
         <var name="db_host" value="(local)\SQL2017" />
-        <var name="db_username" value="sa" />
+        <var name="db_user" value="sa" />
         <var name="db_password" value="Password12!" />
-        <var name="db_name" value="doctrine_tests" />
-        <var name="db_port" value="1433" />
-
-        <var name="tmpdb_type" value="sqlsrv"/>
-        <var name="tmpdb_host" value="(local)\SQL2017" />
-        <var name="tmpdb_username" value="sa" />
-        <var name="tmpdb_password" value="Password12!" />
-        <var name="tmpdb_port" value="1433" />
+        <var name="db_dbname" value="doctrine_tests" />
     </php>
 
     <testsuites>
