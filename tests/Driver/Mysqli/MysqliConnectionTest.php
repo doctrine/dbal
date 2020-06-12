@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Tests\Driver\Mysqli;
 
+use Doctrine\DBAL\Driver\Mysqli\Driver;
 use Doctrine\DBAL\Driver\Mysqli\HostRequired;
 use Doctrine\DBAL\Driver\Mysqli\MysqliConnection;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
@@ -44,6 +45,6 @@ class MysqliConnectionTest extends FunctionalTestCase
     public function testHostnameIsRequiredForPersistentConnection(): void
     {
         $this->expectException(HostRequired::class);
-        new MysqliConnection(['persistent' => 'true'], '', '');
+        (new Driver())->connect(['persistent' => 'true']);
     }
 }

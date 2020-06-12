@@ -19,16 +19,18 @@ class Driver extends AbstractOracleDriver
     /**
      * {@inheritdoc}
      */
-    public function connect(array $params, $username = null, $password = null, array $driverOptions = [])
+    public function connect(array $params)
     {
+        $driverOptions = $params['driver_options'] ?? [];
+
         if (! empty($params['persistent'])) {
             $driverOptions[PDO::ATTR_PERSISTENT] = true;
         }
 
         return new PDOConnection(
             $this->constructPdoDsn($params),
-            $username,
-            $password,
+            $params['user'] ?? '',
+            $params['password'] ?? '',
             $driverOptions
         );
     }

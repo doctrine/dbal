@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL;
 
+use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
@@ -15,18 +16,13 @@ interface Driver
     /**
      * Attempts to create a connection with the database.
      *
-     * The usage of NULL to indicate empty username or password is deprecated. Use an empty string instead.
+     * @param mixed[] $params All connection parameters.
      *
-     * @param mixed[]     $params        All connection parameters passed by the user.
-     * @param string|null $username      The username to use when connecting.
-     * @param string|null $password      The password to use when connecting.
-     * @param mixed[]     $driverOptions The driver options to use when connecting.
-     *
-     * @return \Doctrine\DBAL\Driver\Connection The database connection.
+     * @return DriverConnection The database connection.
      *
      * @throws DriverException
      */
-    public function connect(array $params, $username = null, $password = null, array $driverOptions = []);
+    public function connect(array $params);
 
     /**
      * Gets the DatabasePlatform instance that provides all the metadata about

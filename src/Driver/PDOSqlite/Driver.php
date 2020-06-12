@@ -23,8 +23,10 @@ class Driver extends AbstractSQLiteDriver
     /**
      * {@inheritdoc}
      */
-    public function connect(array $params, $username = null, $password = null, array $driverOptions = [])
+    public function connect(array $params)
     {
+        $driverOptions = $params['driver_options'] ?? [];
+
         if (isset($driverOptions['userDefinedFunctions'])) {
             $this->_userDefinedFunctions = array_merge(
                 $this->_userDefinedFunctions,
@@ -35,8 +37,8 @@ class Driver extends AbstractSQLiteDriver
 
         $connection = new PDOConnection(
             $this->_constructPdoDsn($params),
-            $username,
-            $password,
+            $params['user'] ?? '',
+            $params['password'] ?? '',
             $driverOptions
         );
 

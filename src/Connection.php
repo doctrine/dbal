@@ -352,12 +352,8 @@ class Connection implements DriverConnection
             return false;
         }
 
-        $driverOptions = $this->params['driverOptions'] ?? [];
-        $user          = $this->params['user'] ?? null;
-        $password      = $this->params['password'] ?? null;
-
         try {
-            $this->_conn = $this->_driver->connect($this->params, $user, $password, $driverOptions);
+            $this->_conn = $this->_driver->connect($this->params);
         } catch (DriverException $e) {
             throw DBALException::driverException($this->_driver, $e);
         }

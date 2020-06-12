@@ -225,15 +225,10 @@ class PrimaryReadReplicaConnection extends Connection
     {
         $params = $this->getParams();
 
-        $driverOptions = $params['driverOptions'] ?? [];
-
         $connectionParams = $this->chooseConnectionConfiguration($connectionName, $params);
 
-        $user     = $connectionParams['user'] ?? null;
-        $password = $connectionParams['password'] ?? null;
-
         try {
-            return $this->_driver->connect($connectionParams, $user, $password, $driverOptions);
+            return $this->_driver->connect($connectionParams);
         } catch (DriverException $e) {
             throw DBALException::driverException($this->_driver, $e);
         }

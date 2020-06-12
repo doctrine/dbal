@@ -78,10 +78,7 @@ class DriverTest extends AbstractDriverTest
         $parameters                     = $this->connection->getParams();
         $parameters['application_name'] = 'doctrine';
 
-        $user     = $parameters['user'] ?? null;
-        $password = $parameters['password'] ?? null;
-
-        $connection = $this->driver->connect($parameters, $user, $password);
+        $connection = $this->driver->connect($parameters);
 
         $hash    = microtime(true); // required to identify the record in the results uniquely
         $sql     = sprintf('SELECT * FROM pg_stat_activity WHERE %d = %d', $hash, $hash);

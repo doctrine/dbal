@@ -2,9 +2,6 @@
 
 namespace Doctrine\DBAL\Driver\Mysqli;
 
-use Doctrine\DBAL\Driver\Mysqli\Initializer\Charset;
-use Doctrine\DBAL\Driver\Mysqli\Initializer\Options;
-use Doctrine\DBAL\Driver\Mysqli\Initializer\Secure;
 use Doctrine\DBAL\Driver\PingableConnection;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
@@ -12,9 +9,7 @@ use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\ParameterType;
 use mysqli;
 
-use function count;
 use function floor;
-use function ini_get;
 use function mysqli_init;
 use function stripos;
 
@@ -29,55 +24,41 @@ class MysqliConnection implements PingableConnection, ServerInfoAwareConnection
     private $conn;
 
     /**
-     * @param mixed[] $params
-     * @param string  $username
-     * @param string  $password
-     * @param mixed[] $driverOptions
+     * @param iterable<Initializer> $preInitializers
+     * @param iterable<Initializer> $postInitializers
      *
      * @throws MysqliException
      */
-    public function __construct(array $params, $username, $password, array $driverOptions = [])
-    {
-        $socket = $params['unix_socket'] ?? ini_get('mysqli.default_socket');
-        $dbname = $params['dbname'] ?? null;
-        $port   = $params['port'] ?? null;
-
-        if (! empty($params['persistent'])) {
-            if (! isset($params['host'])) {
-                throw HostRequired::forPersistentConnection();
-            }
-
-            $host = 'p:' . $params['host'];
-        } else {
-            $host = $params['host'] ?? null;
-        }
-
-        $flags = $driverOptions[static::OPTION_FLAGS] ?? null;
-        unset($driverOptions[static::OPTION_FLAGS]);
-
-        $this->conn = mysqli_init();
-
-        $preInitializers = $postInitializers = [];
-
-        $preInitializers  = $this->withOptions($preInitializers, $driverOptions);
-        $preInitializers  = $this->withSecure($preInitializers, $params);
-        $postInitializers = $this->withCharset($postInitializers, $params);
+    public function __construct(
+        ?string $host = null,
+        ?string $username = null,
+        ?string $password = null,
+        ?string $database = null,
+        ?int $port = null,
+        ?string $socket = null,
+        ?int $flags = null,
+        iterable $preInitializers = [],
+        iterable $postInitializers = []
+    ) {
+        $connection = mysqli_init();
 
         foreach ($preInitializers as $initializer) {
-            $initializer->initialize($this->conn);
+            $initializer->initialize($connection);
         }
 
-        if (! @$this->conn->real_connect($host, $username, $password, $dbname, $port, $socket, $flags)) {
+        if (! @$connection->real_connect($host, $username, $password, $database, $port, $socket, $flags)) {
             throw new MysqliException(
-                $this->conn->connect_error,
-                $this->conn->sqlstate ?? 'HY000',
-                $this->conn->connect_errno
+                $connection->connect_error,
+                'HY000',
+                $connection->connect_errno
             );
         }
 
         foreach ($postInitializers as $initializer) {
-            $initializer->initialize($this->conn);
+            $initializer->initialize($connection);
         }
+
+        $this->conn = $connection;
     }
 
     /**
@@ -191,62 +172,5 @@ class MysqliConnection implements PingableConnection, ServerInfoAwareConnection
     public function ping()
     {
         return $this->conn->ping();
-    }
-
-    /**
-     * @param list<Initializer> $initializers
-     * @param array<int,mixed>  $options
-     *
-     * @return list<Initializer>
-     */
-    private function withOptions(array $initializers, array $options): array
-    {
-        if (count($options) !== 0) {
-            $initializers[] = new Options($options);
-        }
-
-        return $initializers;
-    }
-
-    /**
-     * @param list<Initializer>   $initializers
-     * @param array<string,mixed> $params
-     *
-     * @return list<Initializer>
-     */
-    private function withSecure(array $initializers, array $params): array
-    {
-        if (
-            isset($params['ssl_key']) ||
-            isset($params['ssl_cert']) ||
-            isset($params['ssl_ca']) ||
-            isset($params['ssl_capath']) ||
-            isset($params['ssl_cipher'])
-        ) {
-            $initializers[] = new Secure(
-                $params['ssl_key']    ?? null,
-                $params['ssl_cert']   ?? null,
-                $params['ssl_ca']     ?? null,
-                $params['ssl_capath'] ?? null,
-                $params['ssl_cipher'] ?? null
-            );
-        }
-
-        return $initializers;
-    }
-
-    /**
-     * @param list<Initializer>   $initializers
-     * @param array<string,mixed> $params
-     *
-     * @return list<Initializer>
-     */
-    private function withCharset(array $initializers, array $params): array
-    {
-        if (isset($params['charset'])) {
-            $initializers[] = new Charset($params['charset']);
-        }
-
-        return $initializers;
     }
 }

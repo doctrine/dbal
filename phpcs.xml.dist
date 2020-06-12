@@ -83,11 +83,12 @@
     <!-- https://github.com/squizlabs/PHP_CodeSniffer/issues/2837 -->
     <rule ref="Squiz.NamingConventions.ValidVariableName.NotCamelCaps">
         <!--
-            This file uses the return value db2_server_info(), which does not follow conventions
-            phpcs wrongly complains about it, and that has been reported here:
+            These files use the underlying driver APIs that don't comply with the coding standard
+            phpcs wrongly complains about them, and that has been reported here:
             https://github.com/squizlabs/PHP_CodeSniffer/issues/2950
         -->
         <exclude-pattern>src/Driver/IBMDB2/DB2Connection.php</exclude-pattern>
+        <exclude-pattern>src/Driver/Mysqli/MysqliConnection.php</exclude-pattern>
         <!-- See https://github.com/squizlabs/PHP_CodeSniffer/issues/2837 -->
         <exclude-pattern>src/SQLParserUtils.php</exclude-pattern>
         <exclude-pattern>src/Tools/Dumper.php</exclude-pattern>

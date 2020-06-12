@@ -16,15 +16,17 @@ class Driver extends AbstractSQLServerDriver
     /**
      * {@inheritdoc}
      */
-    public function connect(array $params, $username = null, $password = null, array $driverOptions = [])
+    public function connect(array $params)
     {
         $pdoOptions = $dsnOptions = [];
 
-        foreach ($driverOptions as $option => $value) {
-            if (is_int($option)) {
-                $pdoOptions[$option] = $value;
-            } else {
-                $dsnOptions[$option] = $value;
+        if (isset($params['driver_options'])) {
+            foreach ($params['driver_options'] as $option => $value) {
+                if (is_int($option)) {
+                    $pdoOptions[$option] = $value;
+                } else {
+                    $dsnOptions[$option] = $value;
+                }
             }
         }
 
@@ -34,8 +36,8 @@ class Driver extends AbstractSQLServerDriver
 
         return new Connection(
             $this->_constructPdoDsn($params, $dsnOptions),
-            $username,
-            $password,
+            $params['user'] ?? '',
+            $params['password'] ?? '',
             $pdoOptions
         );
     }
