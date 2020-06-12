@@ -6,9 +6,9 @@ use Doctrine\DBAL\Driver as DriverInterface;
 use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\Driver\PDOPgSql\Driver;
 use Doctrine\Tests\DBAL\Driver\AbstractPostgreSQLDriverTest;
+use Doctrine\Tests\TestUtil;
 use PDO;
 use PDOException;
-use function defined;
 
 class DriverTest extends AbstractPostgreSQLDriverTest
 {
@@ -22,18 +22,9 @@ class DriverTest extends AbstractPostgreSQLDriverTest
      */
     public function testConnectionDisablesPreparesOnPhp56() : void
     {
-        $this->skipWhenNotUsingPhp56AndPdoPgsql();
+        $this->skipWhenNotUsingPdoPgsql();
 
-        $connection = $this->createDriver()->connect(
-            [
-                'host' => $GLOBALS['db_host'],
-                'port' => $GLOBALS['db_port'],
-            ],
-            $GLOBALS['db_username'],
-            $GLOBALS['db_password']
-        );
-
-        self::assertInstanceOf(PDOConnection::class, $connection);
+        $connection = $this->connect([]);
 
         try {
             self::assertTrue($connection->getAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES));
@@ -48,19 +39,11 @@ class DriverTest extends AbstractPostgreSQLDriverTest
      */
     public function testConnectionDoesNotDisablePreparesOnPhp56WhenAttributeDefined() : void
     {
-        $this->skipWhenNotUsingPhp56AndPdoPgsql();
+        $this->skipWhenNotUsingPdoPgsql();
 
-        $connection = $this->createDriver()->connect(
-            [
-                'host' => $GLOBALS['db_host'],
-                'port' => $GLOBALS['db_port'],
-            ],
-            $GLOBALS['db_username'],
-            $GLOBALS['db_password'],
+        $connection = $this->connect(
             [PDO::PGSQL_ATTR_DISABLE_PREPARES => false]
         );
-
-        self::assertInstanceOf(PDOConnection::class, $connection);
 
         try {
             self::assertNotSame(true, $connection->getAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES));
@@ -75,19 +58,11 @@ class DriverTest extends AbstractPostgreSQLDriverTest
      */
     public function testConnectionDisablePreparesOnPhp56WhenDisablePreparesIsExplicitlyDefined() : void
     {
-        $this->skipWhenNotUsingPhp56AndPdoPgsql();
+        $this->skipWhenNotUsingPdoPgsql();
 
-        $connection = $this->createDriver()->connect(
-            [
-                'host' => $GLOBALS['db_host'],
-                'port' => $GLOBALS['db_port'],
-            ],
-            $GLOBALS['db_username'],
-            $GLOBALS['db_password'],
+        $connection = $this->connect(
             [PDO::PGSQL_ATTR_DISABLE_PREPARES => true]
         );
-
-        self::assertInstanceOf(PDOConnection::class, $connection);
 
         try {
             self::assertTrue($connection->getAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES));
@@ -102,16 +77,27 @@ class DriverTest extends AbstractPostgreSQLDriverTest
         return new Driver();
     }
 
-    private function skipWhenNotUsingPhp56AndPdoPgsql() : void
+    private function skipWhenNotUsingPdoPgsql() : void
     {
-        if (! defined('PDO::PGSQL_ATTR_DISABLE_PREPARES')) {
-            $this->markTestSkipped('Test requires PHP 5.6+');
-        }
-
-        if (isset($GLOBALS['db_type']) && $GLOBALS['db_type'] === 'pdo_pgsql') {
+        if (isset($GLOBALS['db_driver']) && $GLOBALS['db_driver'] === 'pdo_pgsql') {
             return;
         }
 
         $this->markTestSkipped('Test enabled only when using pdo_pgsql specific phpunit.xml');
+    }
+
+    /**
+     * @param array<int,mixed> $driverOptions
+     */
+    private function connect(array $driverOptions) : PDOConnection
+    {
+        $params = TestUtil::getConnectionParams();
+
+        return $this->createDriver()->connect(
+            $params,
+            $params['user'] ?? '',
+            $params['password'] ?? '',
+            $driverOptions
+        );
     }
 }
