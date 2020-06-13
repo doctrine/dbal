@@ -53,19 +53,9 @@ In order to fetch a column with an index other than `0`, use `FetchMode::NUMERIC
 
 `EchoSQLLogger` is no longer available as part of the package.
 
-## BC BREAK: Removed support for SQL Anywhere 12 and older
+## BC BREAK: Removed support for SQL Anywhere
 
-DBAL now requires SQL Anywhere 16 or newer, support for unmaintained versions has been dropped.
-If you are using any of the legacy versions, you have to upgrade to a newer SQL Anywhere version (16+).
-
-The following classes have been removed:
-
- * `Doctrine\DBAL\Platforms\SQLAnywherePlatform`
- * `Doctrine\DBAL\Platforms\SQLAnywhere11Platform`
- * `Doctrine\DBAL\Platforms\SQLAnywhere12Platform`
- * `Doctrine\DBAL\Platforms\Keywords\SQLAnywhereKeywords`
- * `Doctrine\DBAL\Platforms\Keywords\SQLAnywhere11Keywords`
- * `Doctrine\DBAL\Platforms\Keywords\SQLAnywhere12Keywords`
+The support for the SQL Anywhere database platform and the corresponding driver has been removed.
 
 ## BC BREAK: Removed support for PostgreSQL 9.3 and older
 

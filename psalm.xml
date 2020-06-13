@@ -43,7 +43,6 @@
         </TooFewArguments>
         <UndefinedConstant>
             <errorLevel type="suppress">
-                <directory name="src/Driver/SQLAnywhere"/>
                 <!--
                     Requires a release of
                     https://github.com/JetBrains/phpstorm-stubs/pull/732
@@ -51,11 +50,6 @@
                 <file name="tests/Driver/PDOPgSql/DriverTest.php" />
             </errorLevel>
         </UndefinedConstant>
-        <UndefinedFunction>
-            <errorLevel type="suppress">
-                <directory name="src/Driver/SQLAnywhere"/>
-            </errorLevel>
-        </UndefinedFunction>
         <UndefinedClass>
             <errorLevel type="suppress">
                 <!-- Contains references to optional dependencies -->
