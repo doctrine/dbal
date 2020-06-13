@@ -2,11 +2,9 @@
 
 namespace Doctrine\DBAL\Driver\PDOMySql;
 
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\AbstractMySQLDriver;
 use Doctrine\DBAL\Driver\PDOConnection;
 use PDO;
-use PDOException;
 
 /**
  * PDO MySql driver.
@@ -22,18 +20,12 @@ class Driver extends AbstractMySQLDriver
             $driverOptions[PDO::ATTR_PERSISTENT] = true;
         }
 
-        try {
-            $conn = new PDOConnection(
-                $this->constructPdoDsn($params),
-                $username,
-                $password,
-                $driverOptions
-            );
-        } catch (PDOException $e) {
-            throw DBALException::driverException($this, $e);
-        }
-
-        return $conn;
+        return new PDOConnection(
+            $this->constructPdoDsn($params),
+            $username,
+            $password,
+            $driverOptions
+        );
     }
 
     /**

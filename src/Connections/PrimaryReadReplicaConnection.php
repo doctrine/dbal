@@ -5,8 +5,10 @@ namespace Doctrine\DBAL\Connections;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
+use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Event\ConnectionEventArgs;
@@ -230,7 +232,11 @@ class PrimaryReadReplicaConnection extends Connection
         $user     = $connectionParams['user'] ?? null;
         $password = $connectionParams['password'] ?? null;
 
-        return $this->_driver->connect($connectionParams, $user, $password, $driverOptions);
+        try {
+            return $this->_driver->connect($connectionParams, $user, $password, $driverOptions);
+        } catch (DriverException $e) {
+            throw DBALException::driverException($this->_driver, $e);
+        }
     }
 
     /**
