@@ -11,7 +11,6 @@ use Doctrine\DBAL\Driver\PDOOracle\Driver as PDOOCIDriver;
 use Doctrine\DBAL\Driver\PDOPgSql\Driver as PDOPgSQLDriver;
 use Doctrine\DBAL\Driver\PDOSqlite\Driver as PDOSQLiteDriver;
 use Doctrine\DBAL\Driver\PDOSqlsrv\Driver as PDOSQLSrvDriver;
-use Doctrine\DBAL\Driver\SQLAnywhere\Driver as SQLAnywhereDriver;
 use Doctrine\DBAL\Driver\SQLSrv\Driver as SQLSrvDriver;
 
 use function array_keys;
@@ -51,7 +50,6 @@ final class DriverManager
         'ibm_db2'            => DB2Driver::class,
         'pdo_sqlsrv'         => PDOSQLSrvDriver::class,
         'mysqli'             => MySQLiDriver::class,
-        'sqlanywhere'        => SQLAnywhereDriver::class,
         'sqlsrv'             => SQLSrvDriver::class,
     ];
 

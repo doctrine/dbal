@@ -8,7 +8,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
-use Doctrine\DBAL\Platforms\SQLAnywhere16Platform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 
@@ -24,7 +23,6 @@ final class OptimizeFlags
         DB2Platform::class           => 0,
         OraclePlatform::class        => Connection::PORTABILITY_EMPTY_TO_NULL,
         PostgreSQL94Platform::class  => 0,
-        SQLAnywhere16Platform::class => 0,
         SqlitePlatform::class        => 0,
         SQLServer2012Platform::class => 0,
     ];
