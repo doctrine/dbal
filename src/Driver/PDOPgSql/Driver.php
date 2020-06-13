@@ -2,11 +2,9 @@
 
 namespace Doctrine\DBAL\Driver\PDOPgSql;
 
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\AbstractPostgreSQLDriver;
 use Doctrine\DBAL\Driver\PDOConnection;
 use PDO;
-use PDOException;
 
 use function defined;
 
@@ -24,35 +22,31 @@ class Driver extends AbstractPostgreSQLDriver
             $driverOptions[PDO::ATTR_PERSISTENT] = true;
         }
 
-        try {
-            $connection = new PDOConnection(
-                $this->_constructPdoDsn($params),
-                $username,
-                $password,
-                $driverOptions
-            );
+        $connection = new PDOConnection(
+            $this->_constructPdoDsn($params),
+            $username,
+            $password,
+            $driverOptions
+        );
 
-            if (
-                defined('PDO::PGSQL_ATTR_DISABLE_PREPARES')
-                && (! isset($driverOptions[PDO::PGSQL_ATTR_DISABLE_PREPARES])
-                    || $driverOptions[PDO::PGSQL_ATTR_DISABLE_PREPARES] === true
-                )
-            ) {
-                $connection->getWrappedConnection()->setAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES, true);
-            }
-
-            /* defining client_encoding via SET NAMES to avoid inconsistent DSN support
-             * - the 'client_encoding' connection param only works with postgres >= 9.1
-             * - passing client_encoding via the 'options' param breaks pgbouncer support
-             */
-            if (isset($params['charset'])) {
-                $connection->exec('SET NAMES \'' . $params['charset'] . '\'');
-            }
-
-            return $connection;
-        } catch (PDOException $e) {
-            throw DBALException::driverException($this, $e);
+        if (
+            defined('PDO::PGSQL_ATTR_DISABLE_PREPARES')
+            && (! isset($driverOptions[PDO::PGSQL_ATTR_DISABLE_PREPARES])
+                || $driverOptions[PDO::PGSQL_ATTR_DISABLE_PREPARES] === true
+            )
+        ) {
+            $connection->getWrappedConnection()->setAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES, true);
         }
+
+        /* defining client_encoding via SET NAMES to avoid inconsistent DSN support
+         * - the 'client_encoding' connection param only works with postgres >= 9.1
+         * - passing client_encoding via the 'options' param breaks pgbouncer support
+         */
+        if (isset($params['charset'])) {
+            $connection->exec('SET NAMES \'' . $params['charset'] . '\'');
+        }
+
+        return $connection;
     }
 
     /**

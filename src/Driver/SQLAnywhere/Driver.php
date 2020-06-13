@@ -21,22 +21,18 @@ class Driver extends AbstractSQLAnywhereDriver
      */
     public function connect(array $params, $username = null, $password = null, array $driverOptions = [])
     {
-        try {
-            return new SQLAnywhereConnection(
-                $this->buildDsn(
-                    $params['host'] ?? null,
-                    $params['port'] ?? null,
-                    $params['server'] ?? null,
-                    $params['dbname'] ?? null,
-                    $username,
-                    $password,
-                    $driverOptions
-                ),
-                $params['persistent'] ?? false
-            );
-        } catch (SQLAnywhereException $e) {
-            throw DBALException::driverException($this, $e);
-        }
+        return new SQLAnywhereConnection(
+            $this->buildDsn(
+                $params['host'] ?? null,
+                $params['port'] ?? null,
+                $params['server'] ?? null,
+                $params['dbname'] ?? null,
+                $username,
+                $password,
+                $driverOptions
+            ),
+            $params['persistent'] ?? false
+        );
     }
 
     /**

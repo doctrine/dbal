@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL;
 
+use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 
@@ -22,6 +23,8 @@ interface Driver
      * @param mixed[]     $driverOptions The driver options to use when connecting.
      *
      * @return \Doctrine\DBAL\Driver\Connection The database connection.
+     *
+     * @throws DriverException
      */
     public function connect(array $params, $username = null, $password = null, array $driverOptions = []);
 

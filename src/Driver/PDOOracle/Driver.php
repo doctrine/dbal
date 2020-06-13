@@ -2,11 +2,9 @@
 
 namespace Doctrine\DBAL\Driver\PDOOracle;
 
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\AbstractOracleDriver;
 use Doctrine\DBAL\Driver\PDOConnection;
 use PDO;
-use PDOException;
 
 /**
  * PDO Oracle driver.
@@ -27,16 +25,12 @@ class Driver extends AbstractOracleDriver
             $driverOptions[PDO::ATTR_PERSISTENT] = true;
         }
 
-        try {
-            return new PDOConnection(
-                $this->constructPdoDsn($params),
-                $username,
-                $password,
-                $driverOptions
-            );
-        } catch (PDOException $e) {
-            throw DBALException::driverException($this, $e);
-        }
+        return new PDOConnection(
+            $this->constructPdoDsn($params),
+            $username,
+            $password,
+            $driverOptions
+        );
     }
 
     /**

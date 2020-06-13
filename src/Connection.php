@@ -10,6 +10,7 @@ use Doctrine\DBAL\Cache\CacheException;
 use Doctrine\DBAL\Cache\CachingResult;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
+use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Driver\PingableConnection;
 use Doctrine\DBAL\Driver\Result as DriverResult;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
@@ -342,6 +343,8 @@ class Connection implements DriverConnection
      *
      * @return bool TRUE if the connection was successfully established, FALSE if
      *              the connection is already open.
+     *
+     * @throws DBALException
      */
     public function connect()
     {
@@ -353,7 +356,12 @@ class Connection implements DriverConnection
         $user          = $this->params['user'] ?? null;
         $password      = $this->params['password'] ?? null;
 
-        $this->_conn       = $this->_driver->connect($this->params, $user, $password, $driverOptions);
+        try {
+            $this->_conn = $this->_driver->connect($this->params, $user, $password, $driverOptions);
+        } catch (DriverException $e) {
+            throw DBALException::driverException($this->_driver, $e);
+        }
+
         $this->isConnected = true;
 
         $this->transactionNestingLevel = 0;
@@ -420,7 +428,7 @@ class Connection implements DriverConnection
         if ($this->_conn === null) {
             try {
                 $this->connect();
-            } catch (Throwable $originalException) {
+            } catch (DBALException $originalException) {
                 if (! isset($this->params['dbname'])) {
                     throw $originalException;
                 }
@@ -432,7 +440,7 @@ class Connection implements DriverConnection
 
                 try {
                     $this->connect();
-                } catch (Throwable $fallbackException) {
+                } catch (DBALException $fallbackException) {
                     // Either the platform does not support database-less connections
                     // or something else went wrong.
                     // Reset connection parameters and rethrow the original exception.
