@@ -34,43 +34,6 @@ jobs:
       env: DB=sqlite
 
     - stage: Test
-      php: 7.2
-      env: DB=mysql.docker IMAGE=mysql:8.0
-    - stage: Test
-      php: 7.2
-      env: DB=mysqli.docker IMAGE=mysql:8.0
-    - stage: Test
-      php: 7.2
-      env: DB=mariadb.docker IMAGE=mariadb:10.3
-    - stage: Test
-      php: 7.2
-      env: DB=mariadb.mysqli.docker IMAGE=mariadb:10.3
-    - stage: Test
-      php: 7.2
-      env: DB=pgsql POSTGRESQL_VERSION=11.0
-      sudo: required
-      before_script:
-        - bash ./tests/travis/install-postgres-11.sh
-    - stage: Test
-      php: 7.2
-      env: DB=sqlite
-    - stage: Test
-      php: 7.2
-      env: DB=sqlsrv
-      sudo: required
-      before_script:
-        - bash ./tests/travis/install-sqlsrv-dependencies.sh
-        - bash ./tests/travis/install-mssql-sqlsrv.sh
-        - bash ./tests/travis/install-mssql.sh
-    - stage: Test
-      php: 7.2
-      env: DB=pdo_sqlsrv
-      sudo: required
-      before_script:
-        - bash ./tests/travis/install-sqlsrv-dependencies.sh
-        - bash ./tests/travis/install-mssql-pdo_sqlsrv.sh
-        - bash ./tests/travis/install-mssql.sh
-    - stage: Test
       php: 7.3
       env: DB=mysql.docker IMAGE=mysql:5.7
     - stage: Test
