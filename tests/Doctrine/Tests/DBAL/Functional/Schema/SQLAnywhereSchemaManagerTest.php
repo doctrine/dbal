@@ -24,7 +24,10 @@ class SQLAnywhereSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertCount(1, $views, 'Database has to have one view.');
         self::assertInstanceOf(View::class, $views[$name]);
         self::assertEquals($name, $views[$name]->getName());
-        self::assertRegExp('/^SELECT \* from "?DBA"?\."?view_test_table"?$/', $views[$name]->getSql());
+        self::assertMatchesRegularExpression(
+            '/^SELECT \* from "?DBA"?\."?view_test_table"?$/',
+            $views[$name]->getSql()
+        );
     }
 
     public function testDropAndCreateAdvancedIndex(): void
