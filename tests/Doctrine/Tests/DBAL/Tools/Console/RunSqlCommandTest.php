@@ -73,8 +73,8 @@ class RunSqlCommandTest extends TestCase
         ]);
         $this->assertSame(0, $exitCode);
 
-        self::assertRegExp('@int.*1.*@', $this->commandTester->getDisplay());
-        self::assertRegExp('@array.*1.*@', $this->commandTester->getDisplay());
+        self::assertMatchesRegularExpression('@int.*1.*@', $this->commandTester->getDisplay());
+        self::assertMatchesRegularExpression('@array.*1.*@', $this->commandTester->getDisplay());
     }
 
     public function testUpdateStatementsPrintsAffectedLines(): void
@@ -86,8 +86,8 @@ class RunSqlCommandTest extends TestCase
             'sql' => 'UPDATE foo SET bar = 42',
         ]);
 
-        self::assertRegExp('@int.*42.*@', $this->commandTester->getDisplay());
-        self::assertNotRegExp('@array.*1.*@', $this->commandTester->getDisplay());
+        self::assertMatchesRegularExpression('@int.*42.*@', $this->commandTester->getDisplay());
+        self::assertDoesNotMatchRegularExpression('@array.*1.*@', $this->commandTester->getDisplay());
     }
 
     private function expectConnectionExecuteUpdate(): void
@@ -124,7 +124,7 @@ class RunSqlCommandTest extends TestCase
             '--force-fetch' => true,
         ]);
 
-        self::assertRegExp('@int.*1.*@', $this->commandTester->getDisplay());
-        self::assertRegExp('@array.*1.*@', $this->commandTester->getDisplay());
+        self::assertMatchesRegularExpression('@int.*1.*@', $this->commandTester->getDisplay());
+        self::assertMatchesRegularExpression('@array.*1.*@', $this->commandTester->getDisplay());
     }
 }
