@@ -17,8 +17,6 @@ use function mysqli_errno;
 use function mysqli_error;
 use function mysqli_init;
 use function mysqli_options;
-use function restore_error_handler;
-use function set_error_handler;
 use function sprintf;
 use function stripos;
 
@@ -70,16 +68,12 @@ class MysqliConnection implements PingableConnection, ServerInfoAwareConnection
         $this->setSecureConnection($params);
         $this->setDriverOptions($driverOptions);
 
-        set_error_handler(static function (): bool {
-            return true;
-        });
-
-        try {
-            if (! $this->conn->real_connect($host, $username, $password, $dbname, $port, $socket, $flags)) {
-                throw new MysqliException($this->conn->connect_error, $this->conn->sqlstate ?? 'HY000', $this->conn->connect_errno);
-            }
-        } finally {
-            restore_error_handler();
+        if (! @$this->conn->real_connect($host, $username, $password, $dbname, $port, $socket, $flags)) {
+            throw new MysqliException(
+                $this->conn->connect_error,
+                $this->conn->sqlstate ?? 'HY000',
+                $this->conn->connect_errno
+            );
         }
 
         if (! isset($params['charset'])) {
