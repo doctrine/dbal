@@ -47,6 +47,19 @@ class ConnectionTest extends FunctionalTestCase
         $this->getConnection([12345 => 'world']);
     }
 
+    public function testInvalidCharset(): void
+    {
+        $params = TestUtil::getConnectionParams();
+
+        $this->expectException(MysqliException::class);
+        (new Driver())->connect(
+            array_merge(
+                $params,
+                ['charset' => 'invalid']
+            )
+        );
+    }
+
     public function testPing(): void
     {
         $conn = $this->getConnection([]);
