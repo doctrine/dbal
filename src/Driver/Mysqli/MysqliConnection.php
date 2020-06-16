@@ -2,6 +2,9 @@
 
 namespace Doctrine\DBAL\Driver\Mysqli;
 
+use Doctrine\DBAL\Driver\Mysqli\Initializer\Charset;
+use Doctrine\DBAL\Driver\Mysqli\Initializer\Options;
+use Doctrine\DBAL\Driver\Mysqli\Initializer\Secure;
 use Doctrine\DBAL\Driver\PingableConnection;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
@@ -9,23 +12,11 @@ use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\ParameterType;
 use mysqli;
 
-use function defined;
+use function count;
 use function floor;
-use function in_array;
 use function ini_get;
-use function mysqli_errno;
-use function mysqli_error;
 use function mysqli_init;
-use function mysqli_options;
-use function sprintf;
 use function stripos;
-
-use const MYSQLI_INIT_COMMAND;
-use const MYSQLI_OPT_CONNECT_TIMEOUT;
-use const MYSQLI_OPT_LOCAL_INFILE;
-use const MYSQLI_READ_DEFAULT_FILE;
-use const MYSQLI_READ_DEFAULT_GROUP;
-use const MYSQLI_SERVER_PUBLIC_KEY;
 
 class MysqliConnection implements PingableConnection, ServerInfoAwareConnection
 {
@@ -62,11 +53,19 @@ class MysqliConnection implements PingableConnection, ServerInfoAwareConnection
         }
 
         $flags = $driverOptions[static::OPTION_FLAGS] ?? null;
+        unset($driverOptions[static::OPTION_FLAGS]);
 
         $this->conn = mysqli_init();
 
-        $this->setSecureConnection($params);
-        $this->setDriverOptions($driverOptions);
+        $preInitializers = $postInitializers = [];
+
+        $preInitializers  = $this->withOptions($preInitializers, $driverOptions);
+        $preInitializers  = $this->withSecure($preInitializers, $params);
+        $postInitializers = $this->withCharset($postInitializers, $params);
+
+        foreach ($preInitializers as $initializer) {
+            $initializer->initialize($this->conn);
+        }
 
         if (! @$this->conn->real_connect($host, $username, $password, $dbname, $port, $socket, $flags)) {
             throw new MysqliException(
@@ -76,11 +75,9 @@ class MysqliConnection implements PingableConnection, ServerInfoAwareConnection
             );
         }
 
-        if (! isset($params['charset'])) {
-            return;
+        foreach ($postInitializers as $initializer) {
+            $initializer->initialize($this->conn);
         }
-
-        $this->conn->set_charset($params['charset']);
     }
 
     /**
@@ -187,56 +184,6 @@ class MysqliConnection implements PingableConnection, ServerInfoAwareConnection
     }
 
     /**
-     * Apply the driver options to the connection.
-     *
-     * @param mixed[] $driverOptions
-     *
-     * @throws MysqliException When one of of the options is not supported.
-     * @throws MysqliException When applying doesn't work - e.g. due to incorrect value.
-     */
-    private function setDriverOptions(array $driverOptions = []): void
-    {
-        $supportedDriverOptions = [
-            MYSQLI_OPT_CONNECT_TIMEOUT,
-            MYSQLI_OPT_LOCAL_INFILE,
-            MYSQLI_INIT_COMMAND,
-            MYSQLI_READ_DEFAULT_FILE,
-            MYSQLI_READ_DEFAULT_GROUP,
-        ];
-
-        if (defined('MYSQLI_SERVER_PUBLIC_KEY')) {
-            $supportedDriverOptions[] = MYSQLI_SERVER_PUBLIC_KEY;
-        }
-
-        $exceptionMsg = "%s option '%s' with value '%s'";
-
-        foreach ($driverOptions as $option => $value) {
-            if ($option === static::OPTION_FLAGS) {
-                continue;
-            }
-
-            if (! in_array($option, $supportedDriverOptions, true)) {
-                throw new MysqliException(
-                    sprintf($exceptionMsg, 'Unsupported', $option, $value)
-                );
-            }
-
-            if (@mysqli_options($this->conn, $option, $value)) {
-                continue;
-            }
-
-            $msg  = sprintf($exceptionMsg, 'Failed to set', $option, $value);
-            $msg .= sprintf(', error: %s (%d)', mysqli_error($this->conn), mysqli_errno($this->conn));
-
-            throw new MysqliException(
-                $msg,
-                $this->conn->sqlstate,
-                $this->conn->errno
-            );
-        }
-    }
-
-    /**
      * Pings the server and re-connects when `mysqli.reconnect = 1`
      *
      * @return bool
@@ -247,30 +194,59 @@ class MysqliConnection implements PingableConnection, ServerInfoAwareConnection
     }
 
     /**
-     * Establish a secure connection
+     * @param list<Initializer> $initializers
+     * @param array<int,mixed>  $options
      *
-     * @param mixed[] $params
-     *
-     * @throws MysqliException
+     * @return list<Initializer>
      */
-    private function setSecureConnection(array $params): void
+    private function withOptions(array $initializers, array $options): array
     {
-        if (
-            ! isset($params['ssl_key']) &&
-            ! isset($params['ssl_cert']) &&
-            ! isset($params['ssl_ca']) &&
-            ! isset($params['ssl_capath']) &&
-            ! isset($params['ssl_cipher'])
-        ) {
-            return;
+        if (count($options) !== 0) {
+            $initializers[] = new Options($options);
         }
 
-        $this->conn->ssl_set(
-            $params['ssl_key']    ?? null,
-            $params['ssl_cert']   ?? null,
-            $params['ssl_ca']     ?? null,
-            $params['ssl_capath'] ?? null,
-            $params['ssl_cipher'] ?? null
-        );
+        return $initializers;
+    }
+
+    /**
+     * @param list<Initializer>   $initializers
+     * @param array<string,mixed> $params
+     *
+     * @return list<Initializer>
+     */
+    private function withSecure(array $initializers, array $params): array
+    {
+        if (
+            isset($params['ssl_key']) ||
+            isset($params['ssl_cert']) ||
+            isset($params['ssl_ca']) ||
+            isset($params['ssl_capath']) ||
+            isset($params['ssl_cipher'])
+        ) {
+            $initializers[] = new Secure(
+                $params['ssl_key']    ?? null,
+                $params['ssl_cert']   ?? null,
+                $params['ssl_ca']     ?? null,
+                $params['ssl_capath'] ?? null,
+                $params['ssl_cipher'] ?? null
+            );
+        }
+
+        return $initializers;
+    }
+
+    /**
+     * @param list<Initializer>   $initializers
+     * @param array<string,mixed> $params
+     *
+     * @return list<Initializer>
+     */
+    private function withCharset(array $initializers, array $params): array
+    {
+        if (isset($params['charset'])) {
+            $initializers[] = new Charset($params['charset']);
+        }
+
+        return $initializers;
     }
 }

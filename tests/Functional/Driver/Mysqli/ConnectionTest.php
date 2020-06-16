@@ -44,7 +44,7 @@ class ConnectionTest extends FunctionalTestCase
     {
         $this->expectException(MysqliException::class);
 
-        $this->getConnection(['hello' => 'world']); // use local infile
+        $this->getConnection([12345 => 'world']);
     }
 
     public function testPing(): void
