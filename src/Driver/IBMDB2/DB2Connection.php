@@ -33,21 +33,21 @@ class DB2Connection implements ServerInfoAwareConnection
     private $conn = null;
 
     /**
-     * @param mixed[] $params
-     * @param string  $username
-     * @param string  $password
-     * @param mixed[] $driverOptions
+     * @param array<string,mixed> $driverOptions
      *
      * @throws DB2Exception
      */
-    public function __construct(array $params, $username, $password, $driverOptions = [])
-    {
-        $isPersistent = (isset($params['persistent']) && $params['persistent'] === true);
-
-        if ($isPersistent) {
-            $conn = db2_pconnect($params['dbname'], $username, $password, $driverOptions);
+    public function __construct(
+        string $database,
+        bool $persistent,
+        string $username,
+        string $password,
+        array $driverOptions = []
+    ) {
+        if ($persistent) {
+            $conn = db2_pconnect($database, $username, $password, $driverOptions);
         } else {
-            $conn = db2_connect($params['dbname'], $username, $password, $driverOptions);
+            $conn = db2_connect($database, $username, $password, $driverOptions);
         }
 
         if ($conn === false) {

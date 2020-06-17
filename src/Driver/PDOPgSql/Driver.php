@@ -16,17 +16,19 @@ class Driver extends AbstractPostgreSQLDriver
     /**
      * {@inheritdoc}
      */
-    public function connect(array $params, $username = null, $password = null, array $driverOptions = [])
+    public function connect(array $params)
     {
+        $driverOptions = $params['driver_options'] ?? [];
+
         if (! empty($params['persistent'])) {
             $driverOptions[PDO::ATTR_PERSISTENT] = true;
         }
 
         $connection = new PDOConnection(
             $this->_constructPdoDsn($params),
-            $username,
-            $password,
-            $driverOptions
+            $params['user'] ?? '',
+            $params['password'] ?? '',
+            $driverOptions,
         );
 
         if (

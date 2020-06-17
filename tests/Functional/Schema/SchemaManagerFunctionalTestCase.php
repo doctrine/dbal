@@ -117,10 +117,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             $params['dbname'] = 'test_drop_database';
         }
 
-        $user     = $params['user'] ?? null;
-        $password = $params['password'] ?? null;
-
-        $connection = $this->connection->getDriver()->connect($params, $user, $password);
+        $connection = $this->connection->getDriver()->connect($params);
 
         self::assertInstanceOf(Connection::class, $connection);
 

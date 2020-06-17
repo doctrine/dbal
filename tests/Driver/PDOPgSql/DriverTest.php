@@ -3,12 +3,14 @@
 namespace Doctrine\DBAL\Tests\Driver\PDOPgSql;
 
 use Doctrine\DBAL\Driver as DriverInterface;
-use Doctrine\DBAL\Driver\PDOConnection;
+use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\PDOPgSql\Driver;
 use Doctrine\DBAL\Tests\Driver\AbstractPostgreSQLDriverTest;
 use Doctrine\DBAL\Tests\TestUtil;
 use PDO;
 use PDOException;
+
+use function array_merge;
 
 class DriverTest extends AbstractPostgreSQLDriverTest
 {
@@ -92,15 +94,13 @@ class DriverTest extends AbstractPostgreSQLDriverTest
     /**
      * @param array<int,mixed> $driverOptions
      */
-    private function connect(array $driverOptions): PDOConnection
+    private function connect(array $driverOptions): Connection
     {
-        $params = TestUtil::getConnectionParams();
-
         return $this->createDriver()->connect(
-            $params,
-            $params['user'] ?? '',
-            $params['password'] ?? '',
-            $driverOptions
+            array_merge(
+                TestUtil::getConnectionParams(),
+                ['driver_options' => $driverOptions]
+            )
         );
     }
 }

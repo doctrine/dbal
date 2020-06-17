@@ -10,8 +10,8 @@ use Doctrine\DBAL\Tests\Functional\Driver\AbstractDriverTest;
 use Doctrine\DBAL\Tests\TestUtil;
 use PDO;
 
+use function array_merge;
 use function assert;
-
 use function extension_loaded;
 
 class DriverTest extends AbstractDriverTest
@@ -46,13 +46,11 @@ class DriverTest extends AbstractDriverTest
      */
     protected function getConnection(array $driverOptions): Connection
     {
-        $params = TestUtil::getConnectionParams();
-
         return $this->connection->getDriver()->connect(
-            $params,
-            $params['user'] ?? '',
-            $params['password'] ?? '',
-            $driverOptions
+            array_merge(
+                TestUtil::getConnectionParams(),
+                ['driver_options' => $driverOptions]
+            )
         );
     }
 
