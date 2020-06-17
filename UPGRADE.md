@@ -1,5 +1,9 @@
 # Upgrade to 3.0
 
+## Removed `MasterSlaveConnection`
+
+This class was deprecated in favor of `PrimaryReadReplicaConnection`
+
 ## Removed `Portability\Connection::PORTABILITY_{PLATFORM}` constants`
 
 The platform-specific portability constants were internal implementation details which are longer relevant.
