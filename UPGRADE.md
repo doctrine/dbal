@@ -1,5 +1,9 @@
 # Upgrade to 3.0
 
+## BC BREAK: Changes in the `Doctrine\DBAL\Connection` API
+
+- The following methods have been removed as leaking internal implementation details: `::getHost()`, `::getPort()`, `::getUsername()`, `::getPassword()`.
+
 ## BC BREAK: Changes in the `Doctrine\DBAL\Event` API
 
 - `ConnectionEventArgs::getDriver()`, `::getDatabasePlatform()` and `::getSchemaManager()` methods have been removed. The connection information can be obtained from the connection which is available via `::getConnection()`.

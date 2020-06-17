@@ -108,26 +108,6 @@ class ConnectionTest extends TestCase
         self::assertInstanceOf(Configuration::class, $config);
     }
 
-    public function testGetHost(): void
-    {
-        self::assertEquals('localhost', $this->connection->getHost());
-    }
-
-    public function testGetPort(): void
-    {
-        self::assertEquals('1234', $this->connection->getPort());
-    }
-
-    public function testGetUsername(): void
-    {
-        self::assertEquals('root', $this->connection->getUsername());
-    }
-
-    public function testGetPassword(): void
-    {
-        self::assertEquals('password', $this->connection->getPassword());
-    }
-
     public function testGetDriver(): void
     {
         self::assertInstanceOf(\Doctrine\DBAL\Driver\PDOMySql\Driver::class, $this->connection->getDriver());

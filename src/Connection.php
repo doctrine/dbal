@@ -217,54 +217,6 @@ class Connection implements DriverConnection
     }
 
     /**
-     * Gets the hostname of the currently connected database.
-     *
-     * @deprecated
-     *
-     * @return string|null
-     */
-    public function getHost()
-    {
-        return $this->params['host'] ?? null;
-    }
-
-    /**
-     * Gets the port of the currently connected database.
-     *
-     * @deprecated
-     *
-     * @return mixed
-     */
-    public function getPort()
-    {
-        return $this->params['port'] ?? null;
-    }
-
-    /**
-     * Gets the username used by this connection.
-     *
-     * @deprecated
-     *
-     * @return string|null
-     */
-    public function getUsername()
-    {
-        return $this->params['user'] ?? null;
-    }
-
-    /**
-     * Gets the password used by this connection.
-     *
-     * @deprecated
-     *
-     * @return string|null
-     */
-    public function getPassword()
-    {
-        return $this->params['password'] ?? null;
-    }
-
-    /**
      * Gets the DBAL driver instance.
      *
      * @return Driver
