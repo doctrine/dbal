@@ -137,18 +137,6 @@ final class DriverManager
 
         $params = self::parseDatabaseUrl($params);
 
-        // @todo: deprecated, notice thrown by connection constructor
-        if (isset($params['master'])) {
-            $params['master'] = self::parseDatabaseUrl($params['master']);
-        }
-
-        // @todo: deprecated, notice thrown by connection constructor
-        if (isset($params['slaves'])) {
-            foreach ($params['slaves'] as $key => $slaveParams) {
-                $params['slaves'][$key] = self::parseDatabaseUrl($slaveParams);
-            }
-        }
-
         // URL support for PrimaryReplicaConnection
         if (isset($params['primary'])) {
             $params['primary'] = self::parseDatabaseUrl($params['primary']);
