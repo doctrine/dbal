@@ -269,18 +269,6 @@ class OracleSchemaManager extends AbstractSchemaManager
 
     /**
      * {@inheritdoc}
-     *
-     * @deprecated
-     */
-    protected function _getPortableFunctionDefinition($function)
-    {
-        $function = array_change_key_case($function, CASE_LOWER);
-
-        return $function['name'];
-    }
-
-    /**
-     * {@inheritdoc}
      */
     protected function _getPortableDatabaseDefinition($database)
     {

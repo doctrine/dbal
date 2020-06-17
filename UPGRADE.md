@@ -1,5 +1,56 @@
 # Upgrade to 3.0
 
+## BC BREAK: `Doctrine\DBAL\Types\Type::__toString()` removed
+
+Relying on string representation was discouraged and has been removed.
+
+## BC BREAK: Changes in the `Doctrine\DBAL\Schema` API
+
+- Removed unused method `Doctrine\DBAL\Schema\AbstractSchemaManager::_getPortableFunctionsList()`
+- Removed unused method `Doctrine\DBAL\Schema\AbstractSchemaManager::_getPortableFunctionDefinition()`
+- Removed unused method `Doctrine\DBAL\Schema\OracleSchemaManager::_getPortableFunctionDefinition()`
+- Removed unused method `Doctrine\DBAL\Schema\SqliteSchemaManager::_getPortableTableIndexDefinition()`
+
+## BC BREAK: Removed support for DB-generated UUIDs
+
+The support for DB-generated UUIDs was removed as non-portable.
+Please generate UUIDs on the application side (e.g. using [ramsey/uuid](https://packagist.org/packages/ramsey/uuid)).
+
+## BC BREAK: Changes in the `Doctrine\DBAL\Connection` API
+
+- The following methods have been removed as leaking internal implementation details: `::getHost()`, `::getPort()`, `::getUsername()`, `::getPassword()`.
+
+## BC BREAK: Changes in the `Doctrine\DBAL\Event` API
+
+- `ConnectionEventArgs::getDriver()`, `::getDatabasePlatform()` and `::getSchemaManager()` methods have been removed. The connection information can be obtained from the connection which is available via `::getConnection()`.
+- `SchemaColumnDefinitionEventArgs::getDatabasePlatform()` and `SchemaIndexDefinitionEventArgs::getDatabasePlatform()` have been removed for the same reason as above.
+
+## BC BREAK: Changes in obtaining the currently selected database name
+
+- The `Doctrine\DBAL\Driver::getDatabase()` method has been removed. Please use `Doctrine\DBAL\Connection::getDatabase()` instead.
+- `Doctrine\DBAL\Connection::getDatabase()` will always return the name of the database currently connected to, regardless of the configuration parameters and will initialize a database connection if it's not yet established.
+- A call to `Doctrine\DBAL\Connection::getDatabase()`, when connected to an SQLite database, will no longer return the database file path.
+
+## BC BREAK: `Doctrine\DBAL\Driver::getName()` removed
+
+The `Doctrine\DBAL\Driver::getName()` has been removed.
+
+## BC BREAK Removed previously deprecated features
+
+ * Removed `json_array` type and all associated hacks.
+ * Removed `Connection::TRANSACTION_*` constants.
+ * Removed `AbstractPlatform::DATE_INTERVAL_UNIT_*` and `AbstractPlatform::TRIM_*` constants.
+ * Removed `MysqlSessionInit` listener.
+ * Removed `MysqlPlatform::getCollationFieldDeclaration()`.
+ * Removed `AbstractPlatform::getIdentityColumnNullInsertSQL()`.
+ * Removed `Table::addUnnamedForeignKeyConstraint()` and `Table::addNamedForeignKeyConstraint()`.
+ * Removed `Table::renameColumn()`.
+ * Removed `SQLParserUtils::getPlaceholderPositions()`.
+ * Removed `LoggerChain::addLogger`.
+ * Removed `AbstractSchemaManager::getFilterSchemaAssetsExpression()`, `Configuration::getFilterSchemaAssetsExpression()`
+   and `Configuration::getFilterSchemaAssetsExpression()`.
+ * `SQLParserUtils::*_TOKEN` constants made private.
+
 ## BC BREAK changes the `Driver::connect()` signature
 
 The method no longer accepts the `$username`, `$password` and `$driverOptions` arguments. The corresponding values are expected to be passed as the "user", "password" and "driver_options" keys of the `$params` argument respectively.

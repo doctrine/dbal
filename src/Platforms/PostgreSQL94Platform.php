@@ -139,6 +139,11 @@ class PostgreSQL94Platform extends AbstractPlatform
         return '(DATE(' . $date1 . ')-DATE(' . $date2 . '))';
     }
 
+    public function getCurrentDatabaseExpression(): string
+    {
+        return 'CURRENT_DATABASE()';
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -1027,16 +1032,6 @@ SQL
 
     /**
      * {@inheritDoc}
-     *
-     * @deprecated Use application-generated UUIDs instead
-     */
-    public function getGuidExpression()
-    {
-        return 'UUID_GENERATE_V4()';
-    }
-
-    /**
-     * {@inheritDoc}
      */
     protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef)
     {
@@ -1153,8 +1148,8 @@ SQL
             'int8'             => 'bigint',
             'integer'          => 'integer',
             'interval'         => 'string',
-            'json'             => Type::JSON,
-            'jsonb'            => Type::JSON,
+            'json'             => 'json',
+            'jsonb'            => 'json',
             'money'            => 'decimal',
             'numeric'          => 'decimal',
             'serial'           => 'integer',

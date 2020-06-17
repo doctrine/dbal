@@ -69,14 +69,4 @@ class Driver extends AbstractSQLiteDriver
 
         return $dsn;
     }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated
-     */
-    public function getName()
-    {
-        return 'pdo_sqlite';
-    }
 }

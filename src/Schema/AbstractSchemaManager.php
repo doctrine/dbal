@@ -236,16 +236,6 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * @deprecated Use Configuration::getSchemaAssetsFilter() instead
-     *
-     * @return string|null
-     */
-    protected function getFilterSchemaAssetsExpression()
-    {
-        return $this->_conn->getConfiguration()->getFilterSchemaAssetsExpression();
-    }
-
-    /**
      * Lists the tables for this connection.
      *
      * @return Table[]
@@ -679,41 +669,6 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * @deprecated
-     *
-     * @param mixed[][] $functions
-     *
-     * @return mixed[][]
-     */
-    protected function _getPortableFunctionsList($functions)
-    {
-        $list = [];
-        foreach ($functions as $value) {
-            $value = $this->_getPortableFunctionDefinition($value);
-
-            if (! $value) {
-                continue;
-            }
-
-            $list[] = $value;
-        }
-
-        return $list;
-    }
-
-    /**
-     * @deprecated
-     *
-     * @param mixed[] $function
-     *
-     * @return mixed
-     */
-    protected function _getPortableFunctionDefinition($function)
-    {
-        return $function;
-    }
-
-    /**
      * @param mixed[][] $triggers
      *
      * @return mixed[][]
@@ -1082,7 +1037,13 @@ abstract class AbstractSchemaManager
      */
     public function getSchemaSearchPaths()
     {
-        return [$this->_conn->getDatabase()];
+        $database = $this->_conn->getDatabase();
+
+        if ($database !== null) {
+            return [$database];
+        }
+
+        return [];
     }
 
     /**

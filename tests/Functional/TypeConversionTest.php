@@ -32,7 +32,7 @@ class TypeConversionTest extends FunctionalTestCase
         $table->addColumn('test_time', 'time', ['notnull' => false]);
         $table->addColumn('test_text', 'text', ['notnull' => false]);
         $table->addColumn('test_array', 'array', ['notnull' => false]);
-        $table->addColumn('test_json_array', 'json_array', ['notnull' => false]);
+        $table->addColumn('test_json', 'json', ['notnull' => false]);
         $table->addColumn('test_object', 'object', ['notnull' => false]);
         $table->addColumn('test_float', 'float', ['notnull' => false]);
         $table->addColumn('test_decimal', 'decimal', ['notnull' => false, 'scale' => 2, 'precision' => 10]);
@@ -165,7 +165,7 @@ class TypeConversionTest extends FunctionalTestCase
     {
         return [
             'array' => ['array', ['foo' => 'bar']],
-            'json_array' => ['json_array', ['foo' => 'bar']],
+            'json' => ['json', ['foo' => 'bar']],
         ];
     }
 

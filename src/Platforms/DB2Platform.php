@@ -840,6 +840,11 @@ class DB2Platform extends AbstractPlatform
         return 'SUBSTR(' . $value . ', ' . $from . ', ' . $length . ')';
     }
 
+    public function getCurrentDatabaseExpression(): string
+    {
+        return 'CURRENT_USER';
+    }
+
     /**
      * {@inheritDoc}
      */

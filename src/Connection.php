@@ -41,34 +41,6 @@ use function key;
 class Connection implements DriverConnection
 {
     /**
-     * Constant for transaction isolation level READ UNCOMMITTED.
-     *
-     * @deprecated Use TransactionIsolationLevel::READ_UNCOMMITTED.
-     */
-    public const TRANSACTION_READ_UNCOMMITTED = TransactionIsolationLevel::READ_UNCOMMITTED;
-
-    /**
-     * Constant for transaction isolation level READ COMMITTED.
-     *
-     * @deprecated Use TransactionIsolationLevel::READ_COMMITTED.
-     */
-    public const TRANSACTION_READ_COMMITTED = TransactionIsolationLevel::READ_COMMITTED;
-
-    /**
-     * Constant for transaction isolation level REPEATABLE READ.
-     *
-     * @deprecated Use TransactionIsolationLevel::REPEATABLE_READ.
-     */
-    public const TRANSACTION_REPEATABLE_READ = TransactionIsolationLevel::REPEATABLE_READ;
-
-    /**
-     * Constant for transaction isolation level SERIALIZABLE.
-     *
-     * @deprecated Use TransactionIsolationLevel::SERIALIZABLE.
-     */
-    public const TRANSACTION_SERIALIZABLE = TransactionIsolationLevel::SERIALIZABLE;
-
-    /**
      * Represents an array of ints to be expanded by Doctrine SQL parsing.
      */
     public const PARAM_INT_ARRAY = ParameterType::INTEGER + self::ARRAY_PARAM_OFFSET;
@@ -225,61 +197,23 @@ class Connection implements DriverConnection
     }
 
     /**
-     * Gets the name of the database this Connection is connected to.
+     * Gets the name of the currently selected database.
      *
-     * @return string
+     * @return string|null The name of the database or NULL if a database is not selected.
+     *                     The platforms which don't support the concept of a database (e.g. embedded databases)
+     *                     must always return a string as an indicator of an implicitly selected database.
+     *
+     * @throws DBALException
      */
     public function getDatabase()
     {
-        return $this->_driver->getDatabase($this);
-    }
+        $platform = $this->getDatabasePlatform();
+        $query    = $platform->getDummySelectSQL($platform->getCurrentDatabaseExpression());
+        $database = $this->query($query)->fetchOne();
 
-    /**
-     * Gets the hostname of the currently connected database.
-     *
-     * @deprecated
-     *
-     * @return string|null
-     */
-    public function getHost()
-    {
-        return $this->params['host'] ?? null;
-    }
+        assert(is_string($database) || $database === null);
 
-    /**
-     * Gets the port of the currently connected database.
-     *
-     * @deprecated
-     *
-     * @return mixed
-     */
-    public function getPort()
-    {
-        return $this->params['port'] ?? null;
-    }
-
-    /**
-     * Gets the username used by this connection.
-     *
-     * @deprecated
-     *
-     * @return string|null
-     */
-    public function getUsername()
-    {
-        return $this->params['user'] ?? null;
-    }
-
-    /**
-     * Gets the password used by this connection.
-     *
-     * @deprecated
-     *
-     * @return string|null
-     */
-    public function getPassword()
-    {
-        return $this->params['password'] ?? null;
+        return $database;
     }
 
     /**

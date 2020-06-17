@@ -3,7 +3,6 @@
 namespace Doctrine\DBAL\Event;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Column;
 
 /**
@@ -94,15 +93,5 @@ class SchemaColumnDefinitionEventArgs extends SchemaEventArgs
     public function getConnection()
     {
         return $this->connection;
-    }
-
-    /**
-     * @deprecated Use SchemaColumnDefinitionEventArgs::getConnection() and Connection::getDatabasePlatform() instead.
-     *
-     * @return AbstractPlatform
-     */
-    public function getDatabasePlatform()
-    {
-        return $this->connection->getDatabasePlatform();
     }
 }

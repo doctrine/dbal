@@ -680,11 +680,11 @@ class ComparatorTest extends TestCase
     {
         $tableA = new Table('foo');
         $tableA->addColumn('id', 'integer');
-        $tableA->addNamedForeignKeyConstraint('foo_constraint', 'bar', ['id'], ['id']);
+        $tableA->addForeignKeyConstraint('bar', ['id'], ['id'], [], 'foo_constraint');
 
         $tableB = new Table('foo');
         $tableB->addColumn('ID', 'integer');
-        $tableB->addNamedForeignKeyConstraint('bar_constraint', 'bar', ['id'], ['id']);
+        $tableB->addForeignKeyConstraint('bar', ['id'], ['id'], [], 'bar_constraint');
 
         $c         = new Comparator();
         $tableDiff = $c->diffTable($tableA, $tableB);

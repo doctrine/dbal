@@ -59,18 +59,6 @@ abstract class AbstractOracleDriver implements Driver, ExceptionConverterDriver
 
     /**
      * {@inheritdoc}
-     *
-     * @deprecated Use Connection::getDatabase() instead.
-     */
-    public function getDatabase(Connection $conn)
-    {
-        $params = $conn->getParams();
-
-        return $params['user'];
-    }
-
-    /**
-     * {@inheritdoc}
      */
     public function getDatabasePlatform()
     {

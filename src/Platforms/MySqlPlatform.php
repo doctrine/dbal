@@ -81,16 +81,6 @@ class MySqlPlatform extends AbstractPlatform
 
     /**
      * {@inheritDoc}
-     *
-     * @deprecated Use application-generated UUIDs instead
-     */
-    public function getGuidExpression()
-    {
-        return 'UUID()';
-    }
-
-    /**
-     * {@inheritDoc}
      */
     public function getLocateExpression($str, $substr, $startPos = false)
     {
@@ -125,6 +115,11 @@ class MySqlPlatform extends AbstractPlatform
     public function getDateDiffExpression($date1, $date2)
     {
         return 'DATEDIFF(' . $date1 . ', ' . $date2 . ')';
+    }
+
+    public function getCurrentDatabaseExpression(): string
+    {
+        return 'DATABASE()';
     }
 
     /**
@@ -303,22 +298,6 @@ class MySqlPlatform extends AbstractPlatform
     public function getBooleanTypeDeclarationSQL(array $field)
     {
         return 'TINYINT(1)';
-    }
-
-    /**
-     * Obtain DBMS specific SQL code portion needed to set the COLLATION
-     * of a field declaration to be used in statements like CREATE TABLE.
-     *
-     * @deprecated Deprecated since version 2.5, Use {@link self::getColumnCollationDeclarationSQL()} instead.
-     *
-     * @param string $collation name of the collation
-     *
-     * @return string  DBMS specific SQL code portion needed to set the COLLATION
-     *                 of a field declaration.
-     */
-    public function getCollationFieldDeclaration($collation)
-    {
-        return $this->getColumnCollationDeclarationSQL($collation);
     }
 
     /**

@@ -32,13 +32,10 @@ class LoggerChainTest extends TestCase
      */
     private function createChain(string $method, ...$args): LoggerChain
     {
-        $chain = new LoggerChain([
+        return new LoggerChain([
+            $this->createLogger($method, ...$args),
             $this->createLogger($method, ...$args),
         ]);
-
-        $chain->addLogger($this->createLogger($method, ...$args));
-
-        return $chain;
     }
 
     /**

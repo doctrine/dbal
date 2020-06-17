@@ -71,66 +71,6 @@ abstract class AbstractPlatform
 
     public const CREATE_FOREIGNKEYS = 2;
 
-    /**
-     * @deprecated Use DateIntervalUnit::INTERVAL_UNIT_SECOND.
-     */
-    public const DATE_INTERVAL_UNIT_SECOND = DateIntervalUnit::SECOND;
-
-    /**
-     * @deprecated Use DateIntervalUnit::MINUTE.
-     */
-    public const DATE_INTERVAL_UNIT_MINUTE = DateIntervalUnit::MINUTE;
-
-    /**
-     * @deprecated Use DateIntervalUnit::HOUR.
-     */
-    public const DATE_INTERVAL_UNIT_HOUR = DateIntervalUnit::HOUR;
-
-    /**
-     * @deprecated Use DateIntervalUnit::DAY.
-     */
-    public const DATE_INTERVAL_UNIT_DAY = DateIntervalUnit::DAY;
-
-    /**
-     * @deprecated Use DateIntervalUnit::WEEK.
-     */
-    public const DATE_INTERVAL_UNIT_WEEK = DateIntervalUnit::WEEK;
-
-    /**
-     * @deprecated Use DateIntervalUnit::MONTH.
-     */
-    public const DATE_INTERVAL_UNIT_MONTH = DateIntervalUnit::MONTH;
-
-    /**
-     * @deprecated Use DateIntervalUnit::QUARTER.
-     */
-    public const DATE_INTERVAL_UNIT_QUARTER = DateIntervalUnit::QUARTER;
-
-    /**
-     * @deprecated Use DateIntervalUnit::QUARTER.
-     */
-    public const DATE_INTERVAL_UNIT_YEAR = DateIntervalUnit::YEAR;
-
-    /**
-     * @deprecated Use TrimMode::UNSPECIFIED.
-     */
-    public const TRIM_UNSPECIFIED = TrimMode::UNSPECIFIED;
-
-    /**
-     * @deprecated Use TrimMode::LEADING.
-     */
-    public const TRIM_LEADING = TrimMode::LEADING;
-
-    /**
-     * @deprecated Use TrimMode::TRAILING.
-     */
-    public const TRIM_TRAILING = TrimMode::TRAILING;
-
-    /**
-     * @deprecated Use TrimMode::BOTH.
-     */
-    public const TRIM_BOTH = TrimMode::BOTH;
-
     /** @var string[]|null */
     protected $doctrineTypeMapping = null;
 
@@ -639,20 +579,6 @@ abstract class AbstractPlatform
      * @throws DBALException If not supported on this platform.
      */
     public function getRegexpExpression()
-    {
-        throw DBALException::notSupported(__METHOD__);
-    }
-
-    /**
-     * Returns the global unique identifier expression.
-     *
-     * @deprecated Use application-generated UUIDs instead
-     *
-     * @return string
-     *
-     * @throws DBALException If not supported on this platform.
-     */
-    public function getGuidExpression()
     {
         throw DBALException::notSupported(__METHOD__);
     }
@@ -1343,6 +1269,11 @@ abstract class AbstractPlatform
     {
         return '(' . $value1 . ' | ' . $value2 . ')';
     }
+
+    /**
+     * Returns the SQL expression which represents the currently selected database.
+     */
+    abstract public function getCurrentDatabaseExpression(): string;
 
     /**
      * Returns the FOR UPDATE expression.
@@ -2163,18 +2094,6 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Common code for alter table statement generation that updates the changed Index and Foreign Key definitions.
-     *
-     * @deprecated
-     *
-     * @return string[]
-     */
-    protected function _getAlterTableIndexForeignKeySQL(TableDiff $diff)
-    {
-        return array_merge($this->getPreAlterTableIndexForeignKeySQL($diff), $this->getPostAlterTableIndexForeignKeySQL($diff));
-    }
-
-    /**
      * Gets declaration of a number of fields in bulk.
      *
      * @param mixed[][] $fields A multidimensional associative array.
@@ -2389,7 +2308,7 @@ abstract class AbstractPlatform
         }
 
         return 'CONSTRAINT ' . $name->getQuotedName($this) . ' UNIQUE ('
-            . $this->getIndexFieldDeclarationListSQL($index)
+            . $this->getColumnsFieldDeclarationListSQL($columns)
             . ')' . $this->getPartialIndexSQL($index);
     }
 
@@ -2435,22 +2354,23 @@ abstract class AbstractPlatform
     /**
      * Obtains DBMS specific SQL code portion needed to set an index
      * declaration to be used in statements like CREATE TABLE.
-     *
-     * @param mixed[]|Index $columnsOrIndex array declaration is deprecated, prefer passing Index to this method
      */
-    public function getIndexFieldDeclarationListSQL($columnsOrIndex): string
+    public function getIndexFieldDeclarationListSQL(Index $index): string
     {
-        if ($columnsOrIndex instanceof Index) {
-            return implode(', ', $columnsOrIndex->getQuotedColumns($this));
-        }
+        return implode(', ', $index->getQuotedColumns($this));
+    }
 
-        if (! is_array($columnsOrIndex)) {
-            throw new InvalidArgumentException('Fields argument should be an Index or array.');
-        }
-
+    /**
+     * Obtains DBMS specific SQL code portion needed to set an index
+     * declaration to be used in statements like CREATE TABLE.
+     *
+     * @param mixed[] $columns
+     */
+    public function getColumnsFieldDeclarationListSQL(array $columns): string
+    {
         $ret = [];
 
-        foreach ($columnsOrIndex as $column => $definition) {
+        foreach ($columns as $column => $definition) {
             if (is_array($definition)) {
                 $ret[] = $column;
             } else {
@@ -3315,18 +3235,6 @@ abstract class AbstractPlatform
     public function hasNativeJsonType()
     {
         return false;
-    }
-
-    /**
-     * @deprecated
-     *
-     * @return string
-     *
-     * @todo Remove in 3.0
-     */
-    public function getIdentityColumnNullInsertSQL()
-    {
-        return '';
     }
 
     /**

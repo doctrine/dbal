@@ -90,16 +90,6 @@ class OraclePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @deprecated Use application-generated UUIDs instead
-     */
-    public function getGuidExpression()
-    {
-        return 'SYS_GUID()';
-    }
-
-    /**
      * {@inheritdoc}
      */
     protected function getDateArithmeticIntervalExpression($date, $operator, $interval, $unit)
@@ -159,6 +149,11 @@ class OraclePlatform extends AbstractPlatform
     public function getBitAndComparisonExpression($value1, $value2)
     {
         return 'BITAND(' . $value1 . ', ' . $value2 . ')';
+    }
+
+    public function getCurrentDatabaseExpression(): string
+    {
+        return "SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')";
     }
 
     /**

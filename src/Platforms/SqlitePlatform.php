@@ -42,19 +42,6 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @deprecated Use application-generated UUIDs instead
-     */
-    public function getGuidExpression()
-    {
-        return "HEX(RANDOMBLOB(4)) || '-' || HEX(RANDOMBLOB(2)) || '-4' || "
-            . "SUBSTR(HEX(RANDOMBLOB(2)), 2) || '-' || "
-            . "SUBSTR('89AB', 1 + (ABS(RANDOM()) % 4), 1) || "
-            . "SUBSTR(HEX(RANDOMBLOB(2)), 2) || '-' || HEX(RANDOMBLOB(6))";
-    }
-
-    /**
      * @param string $type
      *
      * @return string
@@ -160,6 +147,19 @@ class SqlitePlatform extends AbstractPlatform
     public function getDateDiffExpression($date1, $date2)
     {
         return sprintf("JULIANDAY(%s, 'start of day') - JULIANDAY(%s, 'start of day')", $date1, $date2);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The SQLite platform doesn't support the concept of a database, therefore, it always returns an empty string
+     * as an indicator of an implicitly selected database.
+     *
+     * @see \Doctrine\DBAL\Connection::getDatabase()
+     */
+    public function getCurrentDatabaseExpression(): string
+    {
+        return "''";
     }
 
     /**

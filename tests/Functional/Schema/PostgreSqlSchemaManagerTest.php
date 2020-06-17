@@ -18,6 +18,7 @@ use Doctrine\DBAL\Types\Types;
 use function array_map;
 use function array_pop;
 use function count;
+use function preg_match;
 use function strtolower;
 
 class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
@@ -164,7 +165,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $column            = $nestedSchemaTable->addColumn('id', 'integer');
         $column->setAutoincrement(true);
         $nestedSchemaTable->setPrimaryKey(['id']);
-        $nestedSchemaTable->addUnnamedForeignKeyConstraint($nestedRelatedTable, ['id'], ['id']);
+        $nestedSchemaTable->addForeignKeyConstraint($nestedRelatedTable, ['id'], ['id']);
 
         $this->schemaManager->createTable($nestedRelatedTable);
         $this->schemaManager->createTable($nestedSchemaTable);
@@ -217,11 +218,15 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $column    = $testTable->addColumn('id', 'integer');
         $this->schemaManager->createTable($testTable);
 
-        $this->connection->getConfiguration()->setFilterSchemaAssetsExpression('#^dbal204_#');
+        $this->connection->getConfiguration()->setSchemaAssetsFilter(static function (string $name): bool {
+            return preg_match('#^dbal204_#', $name) === 1;
+        });
         $names = $this->schemaManager->listTableNames();
         self::assertCount(2, $names);
 
-        $this->connection->getConfiguration()->setFilterSchemaAssetsExpression('#^dbal204_test#');
+        $this->connection->getConfiguration()->setSchemaAssetsFilter(static function (string $name): bool {
+            return preg_match('#^dbal204_test#', $name) === 1;
+        });
         $names = $this->schemaManager->listTableNames();
         self::assertCount(1, $names);
     }
@@ -403,10 +408,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertSame('(id IS NULL)', $onlineTable->getIndex('simple_partial_index')->getOption('where'));
     }
 
-    /**
-     * @dataProvider jsonbColumnTypeProvider
-     */
-    public function testJsonbColumn(string $type): void
+    public function testJsonbColumn(): void
     {
         if (! $this->schemaManager->getDatabasePlatform() instanceof PostgreSQL94Platform) {
             $this->markTestSkipped('Requires PostgresSQL 9.4+');
@@ -415,24 +417,13 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         }
 
         $table = new Schema\Table('test_jsonb');
-        $table->addColumn('foo', $type)->setPlatformOption('jsonb', true);
+        $table->addColumn('foo', Types::JSON)->setPlatformOption('jsonb', true);
         $this->schemaManager->dropAndCreateTable($table);
 
         $columns = $this->schemaManager->listTableColumns('test_jsonb');
 
-        self::assertSame($type, $columns['foo']->getType()->getName());
+        self::assertSame(Types::JSON, $columns['foo']->getType()->getName());
         self::assertTrue(true, $columns['foo']->getPlatformOption('jsonb'));
-    }
-
-    /**
-     * @return mixed[][]
-     */
-    public function jsonbColumnTypeProvider(): array
-    {
-        return [
-            [Types::JSON],
-            [Types::JSON_ARRAY],
-        ];
     }
 
     /**

@@ -6,6 +6,7 @@ use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\Exception\UnknownColumnOption;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\TestCase;
@@ -66,7 +67,8 @@ class ColumnTest extends TestCase
      */
     public function testSettingUnknownOptionIsStillSupported(): void
     {
-        $this->expectNotToPerformAssertions();
+        self::expectException(UnknownColumnOption::class);
+        self::expectExceptionMessage('The "unknown_option" column option is not supported.');
 
         new Column('foo', $this->createMock(Type::class), ['unknown_option' => 'bar']);
     }
@@ -77,6 +79,9 @@ class ColumnTest extends TestCase
      */
     public function testOptionsShouldNotBeIgnored(): void
     {
+        self::expectException(UnknownColumnOption::class);
+        self::expectExceptionMessage('The "unknown_option" column option is not supported.');
+
         $col1 = new Column('bar', Type::getType(Types::INTEGER), ['unknown_option' => 'bar', 'notnull' => true]);
         self::assertTrue($col1->getNotnull());
 

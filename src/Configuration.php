@@ -4,9 +4,6 @@ namespace Doctrine\DBAL;
 
 use Doctrine\Common\Cache\Cache;
 use Doctrine\DBAL\Logging\SQLLogger;
-use Doctrine\DBAL\Schema\AbstractAsset;
-
-use function preg_match;
 
 /**
  * Configuration container for the Doctrine DBAL.
@@ -62,55 +59,6 @@ class Configuration
     public function setResultCacheImpl(Cache $cacheImpl)
     {
         $this->_attributes['resultCacheImpl'] = $cacheImpl;
-    }
-
-    /**
-     * Sets the filter schema assets expression.
-     *
-     * Only include tables/sequences matching the filter expression regexp in
-     * schema instances generated for the active connection when calling
-     * {AbstractSchemaManager#createSchema()}.
-     *
-     * @deprecated Use Configuration::setSchemaAssetsFilter() instead
-     *
-     * @param string|null $filterExpression
-     *
-     * @return void
-     */
-    public function setFilterSchemaAssetsExpression($filterExpression)
-    {
-        $this->_attributes['filterSchemaAssetsExpression'] = $filterExpression;
-        if ($filterExpression !== null) {
-            $this->_attributes['filterSchemaAssetsExpressionCallable'] = $this->buildSchemaAssetsFilterFromExpression($filterExpression);
-        } else {
-            $this->_attributes['filterSchemaAssetsExpressionCallable'] = null;
-        }
-    }
-
-    /**
-     * Returns filter schema assets expression.
-     *
-     * @deprecated Use Configuration::getSchemaAssetsFilter() instead
-     *
-     * @return string|null
-     */
-    public function getFilterSchemaAssetsExpression()
-    {
-        return $this->_attributes['filterSchemaAssetsExpression'] ?? null;
-    }
-
-    /**
-     * @param string $filterExpression
-     */
-    private function buildSchemaAssetsFilterFromExpression($filterExpression): callable
-    {
-        return static function ($assetName) use ($filterExpression) {
-            if ($assetName instanceof AbstractAsset) {
-                $assetName = $assetName->getName();
-            }
-
-            return preg_match($filterExpression, $assetName);
-        };
     }
 
     /**

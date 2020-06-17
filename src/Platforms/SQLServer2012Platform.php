@@ -1085,16 +1085,6 @@ SQL
 
     /**
      * {@inheritDoc}
-     *
-     * @deprecated Use application-generated UUIDs instead
-     */
-    public function getGuidExpression()
-    {
-        return 'NEWID()';
-    }
-
-    /**
-     * {@inheritDoc}
      */
     public function getLocateExpression($str, $substr, $startPos = false)
     {
@@ -1201,6 +1191,11 @@ SQL
     public function getLengthExpression($column)
     {
         return 'LEN(' . $column . ')';
+    }
+
+    public function getCurrentDatabaseExpression(): string
+    {
+        return 'DB_NAME()';
     }
 
     /**

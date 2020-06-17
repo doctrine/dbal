@@ -88,14 +88,4 @@ class Driver extends AbstractSQLServerDriver
 
         return $connectionOptionsDsn;
     }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated
-     */
-    public function getName()
-    {
-        return 'pdo_sqlsrv';
-    }
 }

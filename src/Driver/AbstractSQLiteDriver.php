@@ -79,18 +79,6 @@ abstract class AbstractSQLiteDriver implements Driver, ExceptionConverterDriver
 
     /**
      * {@inheritdoc}
-     *
-     * @deprecated Use Connection::getDatabase() instead.
-     */
-    public function getDatabase(Connection $conn)
-    {
-        $params = $conn->getParams();
-
-        return $params['path'] ?? null;
-    }
-
-    /**
-     * {@inheritdoc}
      */
     public function getDatabasePlatform()
     {

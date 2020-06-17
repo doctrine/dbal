@@ -225,21 +225,6 @@ class SqliteSchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * @deprecated
-     *
-     * @param array<string, mixed> $tableIndex
-     *
-     * @return array<string, bool|string>
-     */
-    protected function _getPortableTableIndexDefinition($tableIndex)
-    {
-        return [
-            'name' => $tableIndex['name'],
-            'unique' => (bool) $tableIndex['unique'],
-        ];
-    }
-
-    /**
      * {@inheritdoc}
      */
     protected function _getPortableTableColumnList($table, $database, $tableColumns)

@@ -2,15 +2,12 @@
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\DBAL\Schema\Exception\UnknownColumnOption;
 use Doctrine\DBAL\Types\Type;
 
 use function array_merge;
 use function is_numeric;
 use function method_exists;
-use function sprintf;
-use function trigger_error;
-
-use const E_USER_DEPRECATED;
 
 /**
  * Object representation of a database column.
@@ -78,15 +75,9 @@ class Column extends AbstractAsset
     {
         foreach ($options as $name => $value) {
             $method = 'set' . $name;
-            if (! method_exists($this, $method)) {
-                // next major: throw an exception
-                @trigger_error(sprintf(
-                    'The "%s" column option is not supported,' .
-                    ' setting it is deprecated and will cause an error in Doctrine DBAL 3.0',
-                    $name
-                ), E_USER_DEPRECATED);
 
-                continue;
+            if (! method_exists($this, $method)) {
+                throw UnknownColumnOption::new($name);
             }
 
             $this->$method($value);
