@@ -1,5 +1,9 @@
 # Upgrade to 3.0
 
+## BC BREAK: Changes in `OracleSchemaManager::createDatabase()`
+
+The `$database` argument is no longer nullable or optional.
+
 ## BC BREAK: `Doctrine\DBAL\Types\Type::__toString()` removed
 
 Relying on string representation was discouraged and has been removed.
