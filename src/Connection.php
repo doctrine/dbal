@@ -189,6 +189,8 @@ class Connection implements DriverConnection
     /**
      * Gets the parameters used during instantiation.
      *
+     * @internal
+     *
      * @return mixed[]
      */
     public function getParams()
@@ -987,7 +989,7 @@ class Connection implements DriverConnection
             throw CacheException::noResultDriverConfigured();
         }
 
-        $connectionParams = $this->getParams();
+        $connectionParams = $this->params;
         unset($connectionParams['platform']);
 
         [$cacheKey, $realKey] = $qcp->generateCacheKeys($query, $params, $types, $connectionParams);

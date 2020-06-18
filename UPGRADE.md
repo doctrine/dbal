@@ -228,6 +228,10 @@ Please use other database client applications for import, e.g.:
 
 # Upgrade to 2.11
 
+## `Connection::getParams()` has been marked internal
+
+Consumers of the Connection class should not rely on connection parameters stored in the connection object. If needed, they should be obtained from a different source, e.g. application configuration.
+
 ## Deprecated `Doctrine\DBAL\Driver::getDatabase()`
 
 - The usage of `Doctrine\DBAL\Driver::getDatabase()` is deprecated. Please use `Doctrine\DBAL\Connection::getDatabase()` instead.

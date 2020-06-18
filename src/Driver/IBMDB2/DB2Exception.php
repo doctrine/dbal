@@ -2,11 +2,11 @@
 
 namespace Doctrine\DBAL\Driver\IBMDB2;
 
-use Exception;
+use Doctrine\DBAL\Driver\AbstractDriverException;
 
 /**
  * @psalm-immutable
  */
-class DB2Exception extends Exception
+class DB2Exception extends AbstractDriverException
 {
 }

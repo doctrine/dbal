@@ -25,10 +25,6 @@ class RunSqlCommandTest extends TestCase
     protected function setUp(): void
     {
         $this->connectionMock = $this->createMock(Connection::class);
-        $this->connectionMock->method('fetchAllAssociative')
-            ->willReturn([[1]]);
-        $this->connectionMock->method('executeUpdate')
-            ->willReturn(42);
 
         $application = new Application();
         $application->add(new RunSqlCommand(new SingleConnectionProvider($this->connectionMock)));
@@ -94,21 +90,25 @@ class RunSqlCommandTest extends TestCase
     private function expectConnectionExecuteUpdate(): void
     {
         $this->connectionMock
-            ->expects(self::exactly(1))
-            ->method('executeUpdate');
+            ->expects(self::once())
+            ->method('executeUpdate')
+            ->willReturn(42);
+
         $this->connectionMock
-            ->expects(self::exactly(0))
+            ->expects(self::never())
             ->method('fetchAllAssociative');
     }
 
     private function expectConnectionFetchAllAssociative(): void
     {
         $this->connectionMock
-            ->expects(self::exactly(0))
-            ->method('executeUpdate');
+            ->expects(self::once())
+            ->method('fetchAllAssociative')
+            ->willReturn([[1]]);
+
         $this->connectionMock
-            ->expects(self::exactly(1))
-            ->method('fetchAllAssociative');
+            ->expects(self::never())
+            ->method('executeUpdate');
     }
 
     public function testStatementsWithFetchResultPrintsResult(): void

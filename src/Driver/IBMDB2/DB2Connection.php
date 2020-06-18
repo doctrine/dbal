@@ -2,6 +2,9 @@
 
 namespace Doctrine\DBAL\Driver\IBMDB2;
 
+use Doctrine\DBAL\Driver\IBMDB2\Exception\ConnectionError;
+use Doctrine\DBAL\Driver\IBMDB2\Exception\ConnectionFailed;
+use Doctrine\DBAL\Driver\IBMDB2\Exception\PrepareFailed;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
@@ -11,7 +14,6 @@ use stdClass;
 use function assert;
 use function db2_autocommit;
 use function db2_commit;
-use function db2_conn_errormsg;
 use function db2_connect;
 use function db2_escape_string;
 use function db2_exec;
@@ -21,7 +23,7 @@ use function db2_pconnect;
 use function db2_prepare;
 use function db2_rollback;
 use function db2_server_info;
-use function db2_stmt_errormsg;
+use function error_get_last;
 use function is_bool;
 
 use const DB2_AUTOCOMMIT_OFF;
@@ -51,7 +53,7 @@ class DB2Connection implements ServerInfoAwareConnection
         }
 
         if ($conn === false) {
-            throw new DB2Exception(db2_conn_errormsg());
+            throw ConnectionFailed::new();
         }
 
         $this->conn = $conn;
@@ -79,8 +81,9 @@ class DB2Connection implements ServerInfoAwareConnection
     public function prepare(string $sql): DriverStatement
     {
         $stmt = @db2_prepare($this->conn, $sql);
+
         if ($stmt === false) {
-            throw new DB2Exception(db2_stmt_errormsg());
+            throw PrepareFailed::new(error_get_last()['message']);
         }
 
         return new DB2Statement($stmt);
@@ -110,7 +113,7 @@ class DB2Connection implements ServerInfoAwareConnection
         $stmt = @db2_exec($this->conn, $statement);
 
         if ($stmt === false) {
-            throw new DB2Exception(db2_stmt_errormsg());
+            throw ConnectionError::new($this->conn);
         }
 
         return db2_num_rows($stmt);
@@ -141,7 +144,7 @@ class DB2Connection implements ServerInfoAwareConnection
     public function commit()
     {
         if (! db2_commit($this->conn)) {
-            throw new DB2Exception(db2_conn_errormsg($this->conn));
+            throw ConnectionError::new($this->conn);
         }
 
         $result = db2_autocommit($this->conn, DB2_AUTOCOMMIT_ON);
@@ -156,7 +159,7 @@ class DB2Connection implements ServerInfoAwareConnection
     public function rollBack()
     {
         if (! db2_rollback($this->conn)) {
-            throw new DB2Exception(db2_conn_errormsg($this->conn));
+            throw ConnectionError::new($this->conn);
         }
 
         $result = db2_autocommit($this->conn, DB2_AUTOCOMMIT_ON);

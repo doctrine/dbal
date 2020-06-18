@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Driver\PDOSqlsrv;
 
 use Doctrine\DBAL\Driver\AbstractSQLServerDriver;
+use Doctrine\DBAL\Driver\AbstractSQLServerDriver\PortWithoutHost;
 use PDO;
 
 use function is_int;
@@ -56,10 +57,12 @@ class Driver extends AbstractSQLServerDriver
 
         if (isset($params['host'])) {
             $dsn .= $params['host'];
-        }
 
-        if (isset($params['port'])) {
-            $dsn .= ',' . $params['port'];
+            if (isset($params['port'])) {
+                $dsn .= ',' . $params['port'];
+            }
+        } elseif (isset($params['port'])) {
+            throw PortWithoutHost::new();
         }
 
         if (isset($params['dbname'])) {

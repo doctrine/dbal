@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Driver\IBMDB2;
 
+use Doctrine\DBAL\Driver\IBMDB2\Exception\StatementError;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\ParameterType;
@@ -9,7 +10,6 @@ use Doctrine\DBAL\ParameterType;
 use function assert;
 use function db2_bind_param;
 use function db2_execute;
-use function db2_stmt_errormsg;
 use function error_get_last;
 use function fclose;
 use function fwrite;
@@ -103,7 +103,7 @@ class DB2Statement implements Statement
         $this->bindParam[$position] =& $variable;
 
         if (! db2_bind_param($this->stmt, $position, 'variable', $parameterType, $dataType)) {
-            throw new DB2Exception(db2_stmt_errormsg());
+            throw StatementError::new($this->stmt);
         }
     }
 
@@ -141,7 +141,7 @@ class DB2Statement implements Statement
         $this->lobs = [];
 
         if ($result === false) {
-            throw new DB2Exception(db2_stmt_errormsg());
+            throw StatementError::new($this->stmt);
         }
 
         return new Result($this->stmt);

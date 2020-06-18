@@ -378,27 +378,19 @@ class SchemaTest extends TestCase
             ->method('acceptSchema')
             ->with($schema);
 
-        $visitor->expects(self::at(1))
+        $visitor->expects(self::exactly(2))
             ->method('acceptTable')
-            ->with($schema->getTable('baz'));
-
-        $visitor->expects(self::at(2))
-            ->method('acceptTable')
-            ->with($schema->getTable('bla.bloo'));
+            ->withConsecutive(
+                [$schema->getTable('baz')],
+                [$schema->getTable('bla.bloo')]
+            );
 
         $visitor->expects(self::exactly(2))
-            ->method('acceptTable');
-
-        $visitor->expects(self::at(3))
             ->method('acceptSequence')
-            ->with($schema->getSequence('moo'));
-
-        $visitor->expects(self::at(4))
-            ->method('acceptSequence')
-            ->with($schema->getSequence('war'));
-
-        $visitor->expects(self::exactly(2))
-            ->method('acceptSequence');
+            ->withConsecutive(
+                [$schema->getSequence('moo')],
+                [$schema->getSequence('war')]
+            );
 
         self::assertNull($schema->visit($visitor));
     }
@@ -436,10 +428,7 @@ class SchemaTest extends TestCase
             ->method('acceptNamespace')
             ->with('bla');
 
-        $visitor->expects(self::exactly(3))
-            ->method('acceptNamespace');
-
-        $visitor->expects(self::at(4))
+        $visitor->expects($this->at(4))
             ->method('acceptTable')
             ->with($schema->getTable('baz'));
 
@@ -447,19 +436,13 @@ class SchemaTest extends TestCase
             ->method('acceptTable')
             ->with($schema->getTable('bla.bloo'));
 
-        $visitor->expects(self::exactly(2))
-            ->method('acceptTable');
-
-        $visitor->expects(self::at(6))
+        $visitor->expects($this->at(6))
             ->method('acceptSequence')
             ->with($schema->getSequence('moo'));
 
         $visitor->expects(self::at(7))
             ->method('acceptSequence')
             ->with($schema->getSequence('war'));
-
-        $visitor->expects(self::exactly(2))
-            ->method('acceptSequence');
 
         self::assertNull($schema->visit($visitor));
     }
