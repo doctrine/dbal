@@ -279,17 +279,9 @@ class OracleSchemaManager extends AbstractSchemaManager
 
     /**
      * {@inheritdoc}
-     *
-     * @param string|null $database
-     *
-     * Calling this method without an argument or by passing NULL is deprecated.
      */
-    public function createDatabase($database = null)
+    public function createDatabase($database)
     {
-        if ($database === null) {
-            $database = $this->_conn->getDatabase();
-        }
-
         $params   = $this->_conn->getParams();
         $username = $database;
         $password = $params['password'];
