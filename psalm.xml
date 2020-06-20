@@ -32,6 +32,15 @@
                 <file name="lib/Doctrine/DBAL/Driver/OCI8/OCI8Statement.php"/>
             </errorLevel>
         </ConflictingReferenceConstraint>
+        <FalsableReturnStatement>
+            <errorLevel type="suppress">
+                <!--
+                    Fixing these issues requires an API change
+                -->
+                <file name="lib/Doctrine/DBAL/Driver/SQLAnywhere/SQLAnywhereConnection.php"/>
+                <file name="lib/Doctrine/DBAL/Driver/SQLSrv/SQLSrvConnection.php"/>
+            </errorLevel>
+        </FalsableReturnStatement>
         <MethodSignatureMismatch>
             <errorLevel type="suppress">
                 <!--
