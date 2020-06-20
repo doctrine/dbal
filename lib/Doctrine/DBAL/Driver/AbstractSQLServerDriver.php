@@ -11,6 +11,7 @@ use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\SQLServerSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
+use function assert;
 use function preg_match;
 use function version_compare;
 
@@ -60,7 +61,15 @@ abstract class AbstractSQLServerDriver implements Driver, VersionAwarePlatformDr
     {
         $params = $conn->getParams();
 
-        return $params['dbname'] ?? $conn->query('SELECT DB_NAME()')->fetchColumn();
+        if (isset($params['dbname'])) {
+            return $params['dbname'];
+        }
+
+        $database = $conn->query('SELECT DB_NAME()')->fetchColumn();
+
+        assert($database !== false);
+
+        return $database;
     }
 
     /**
