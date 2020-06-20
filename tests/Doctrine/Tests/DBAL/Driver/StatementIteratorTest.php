@@ -5,12 +5,14 @@ namespace Doctrine\Tests\DBAL\Driver;
 use Doctrine\DBAL\Driver\IBMDB2\DB2Statement;
 use Doctrine\DBAL\Driver\Mysqli\MysqliStatement;
 use Doctrine\DBAL\Driver\OCI8\OCI8Statement;
+use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\SQLAnywhere\SQLAnywhereStatement;
 use Doctrine\DBAL\Driver\SQLSrv\SQLSrvStatement;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\Portability\Statement as PortabilityStatement;
 use Doctrine\Tests\DbalTestCase;
+use IteratorIterator;
 use PHPUnit\Framework\MockObject\MockObject;
 use Traversable;
 use function extension_loaded;
@@ -18,16 +20,19 @@ use function extension_loaded;
 class StatementIteratorTest extends DbalTestCase
 {
     /**
+     * @param class-string<ResultStatement> $class
+     *
      * @dataProvider statementProvider()
      */
     public function testGettingIteratorDoesNotCallFetch(string $class) : void
     {
         $stmt = $this->createPartialMock($class, ['fetch', 'fetchAll', 'fetchColumn']);
+
         $stmt->expects($this->never())->method('fetch');
         $stmt->expects($this->never())->method('fetchAll');
         $stmt->expects($this->never())->method('fetchColumn');
 
-        $stmt->getIterator();
+        new IteratorIterator($stmt);
     }
 
     public function testIteratorIterationCallsFetchOncePerStep() : void
