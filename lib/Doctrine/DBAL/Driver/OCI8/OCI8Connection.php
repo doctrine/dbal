@@ -222,11 +222,12 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
     public function errorCode()
     {
         $error = oci_error($this->dbh);
+
         if ($error !== false) {
-            $error = $error['code'];
+            return $error['code'];
         }
 
-        return $error;
+        return null;
     }
 
     /**
