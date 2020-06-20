@@ -199,7 +199,7 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
             return $errors[0]['code'];
         }
 
-        return false;
+        return null;
     }
 
     /**

@@ -16,6 +16,7 @@ use ReflectionObject;
 use stdClass;
 
 use function array_key_exists;
+use function assert;
 use function func_get_args;
 use function func_num_args;
 use function gettype;
@@ -96,6 +97,8 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement, Result
      */
     public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null)
     {
+        assert(is_int($column));
+
         switch ($type) {
             case ParameterType::INTEGER:
             case ParameterType::BOOLEAN:
@@ -130,6 +133,8 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement, Result
      */
     public function bindValue($param, $value, $type = ParameterType::STRING)
     {
+        assert(is_int($param));
+
         return $this->bindParam($param, $value, $type);
     }
 

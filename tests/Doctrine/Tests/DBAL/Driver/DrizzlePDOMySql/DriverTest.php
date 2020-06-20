@@ -39,7 +39,7 @@ class DriverTest extends PDOMySQLDriverTest
     }
 
     /**
-     * @return mixed[][]
+     * {@inheritDoc}
      */
     protected function getDatabasePlatformsForVersions(): array
     {

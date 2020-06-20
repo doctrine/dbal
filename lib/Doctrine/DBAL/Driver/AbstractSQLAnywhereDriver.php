@@ -13,6 +13,7 @@ use Doctrine\DBAL\Platforms\SQLAnywherePlatform;
 use Doctrine\DBAL\Schema\SQLAnywhereSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
 
+use function assert;
 use function preg_match;
 use function version_compare;
 
@@ -124,7 +125,15 @@ abstract class AbstractSQLAnywhereDriver implements Driver, ExceptionConverterDr
     {
         $params = $conn->getParams();
 
-        return $params['dbname'] ?? $conn->query('SELECT DB_NAME()')->fetchColumn();
+        if (isset($params['dbname'])) {
+            return $params['dbname'];
+        }
+
+        $database = $conn->query('SELECT DB_NAME()')->fetchColumn();
+
+        assert($database !== false);
+
+        return $database;
     }
 
     /**

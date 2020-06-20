@@ -286,9 +286,9 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         parent::testGeneratesConstraintCreationSql();
     }
 
-    public function getGenerateForeignKeySql(): string
+    protected function getGenerateForeignKeySql(): string
     {
-        return null;
+        return '';
     }
 
     public function testModifyLimitQuery(): void

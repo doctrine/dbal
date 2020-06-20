@@ -14,6 +14,7 @@ use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
 use Doctrine\DBAL\Schema\PostgreSqlSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
 
+use function assert;
 use function preg_match;
 use function strpos;
 use function version_compare;
@@ -122,7 +123,15 @@ abstract class AbstractPostgreSQLDriver implements Driver, ExceptionConverterDri
     {
         $params = $conn->getParams();
 
-        return $params['dbname'] ?? $conn->query('SELECT CURRENT_DATABASE()')->fetchColumn();
+        if (isset($params['dbname'])) {
+            return $params['dbname'];
+        }
+
+        $database = $conn->query('SELECT CURRENT_DATABASE()')->fetchColumn();
+
+        assert($database !== false);
+
+        return $database;
     }
 
     /**
