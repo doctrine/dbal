@@ -181,7 +181,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         return 'CREATE UNIQUE INDEX index_name ON test (test, test2) WHERE test IS NOT NULL AND test2 IS NOT NULL';
     }
 
-    public function getGenerateForeignKeySql() : string
+    protected function getGenerateForeignKeySql() : string
     {
         return 'ALTER TABLE test ADD FOREIGN KEY (fk_name_id) REFERENCES other_table (id)';
     }
