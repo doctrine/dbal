@@ -6,7 +6,7 @@ use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\ParameterType;
-use IteratorAggregate;
+use Doctrine\DBAL\Statement as BaseStatement;
 use PDO;
 
 use function assert;
@@ -14,10 +14,10 @@ use function assert;
 /**
  * A wrapper that does not implement the forward-compatible statement interface.
  */
-class Statement implements IteratorAggregate, DriverStatement
+class Statement extends BaseStatement
 {
     /** @var DriverStatement|ResultStatement */
-    private $stmt;
+    protected $stmt;
 
     /**
      * @param DriverStatement|ResultStatement $stmt
