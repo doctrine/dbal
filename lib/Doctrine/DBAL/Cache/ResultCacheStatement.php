@@ -260,7 +260,7 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Result
 
         $this->store($data);
 
-        return $this->data;
+        return $data;
     }
 
     /**
