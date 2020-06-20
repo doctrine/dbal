@@ -19,12 +19,12 @@ interface Statement extends ResultStatement
      * As mentioned above, the named parameters are not natively supported by the mysqli driver, use executeQuery(),
      * fetchAll(), fetchArray(), fetchColumn(), fetchAssoc() methods to have the named parameter emulated by doctrine.
      *
-     * @param mixed $param Parameter identifier. For a prepared statement using named placeholders,
-     *                     this will be a parameter name of the form :name. For a prepared statement
-     *                     using question mark placeholders, this will be the 1-indexed position of the parameter.
-     * @param mixed $value The value to bind to the parameter.
-     * @param int   $type  Explicit data type for the parameter using the {@link \Doctrine\DBAL\ParameterType}
-     *                     constants.
+     * @param int|string $param Parameter identifier. For a prepared statement using named placeholders,
+     *                          this will be a parameter name of the form :name. For a prepared statement
+     *                          using question mark placeholders, this will be the 1-indexed position of the parameter.
+     * @param mixed      $value The value to bind to the parameter.
+     * @param int        $type  Explicit data type for the parameter using the {@link \Doctrine\DBAL\ParameterType}
+     *                          constants.
      *
      * @return bool TRUE on success or FALSE on failure.
      */
@@ -44,15 +44,15 @@ interface Statement extends ResultStatement
      * of stored procedures that return data as output parameters, and some also as input/output
      * parameters that both send in data and are updated to receive it.
      *
-     * @param mixed    $column   Parameter identifier. For a prepared statement using named placeholders,
-     *                           this will be a parameter name of the form :name. For a prepared statement using
-     *                           question mark placeholders, this will be the 1-indexed position of the parameter.
-     * @param mixed    $variable Name of the PHP variable to bind to the SQL statement parameter.
-     * @param int      $type     Explicit data type for the parameter using the {@link \Doctrine\DBAL\ParameterType}
-     *                           constants. To return an INOUT parameter from a stored procedure, use the bitwise
-     *                           OR operator to set the PDO::PARAM_INPUT_OUTPUT bits for the data_type parameter.
-     * @param int|null $length   You must specify maxlength when using an OUT bind
-     *                           so that PHP allocates enough memory to hold the returned value.
+     * @param int|string $column   Parameter identifier. For a prepared statement using named placeholders,
+     *                             this will be a parameter name of the form :name. For a prepared statement using
+     *                             question mark placeholders, this will be the 1-indexed position of the parameter.
+     * @param mixed      $variable Name of the PHP variable to bind to the SQL statement parameter.
+     * @param int        $type     Explicit data type for the parameter using the {@link \Doctrine\DBAL\ParameterType}
+     *                             constants. To return an INOUT parameter from a stored procedure, use the bitwise
+     *                             OR operator to set the PDO::PARAM_INPUT_OUTPUT bits for the data_type parameter.
+     * @param int|null   $length   You must specify maxlength when using an OUT bind
+     *                             so that PHP allocates enough memory to hold the returned value.
      *
      * @return bool TRUE on success or FALSE on failure.
      */

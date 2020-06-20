@@ -12,7 +12,6 @@ use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Driver\PingableConnection;
 use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
-use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
@@ -851,7 +850,7 @@ class Connection implements DriverConnection
      *
      * @param string $statement The SQL statement to prepare.
      *
-     * @return DriverStatement The prepared statement.
+     * @return Statement The prepared statement.
      *
      * @throws DBALException
      */
@@ -1455,6 +1454,8 @@ class Connection implements DriverConnection
     public function getWrappedConnection()
     {
         $this->connect();
+
+        assert($this->_conn !== null);
 
         return $this->_conn;
     }

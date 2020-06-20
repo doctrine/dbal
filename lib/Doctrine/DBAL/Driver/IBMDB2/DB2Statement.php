@@ -13,6 +13,7 @@ use ReflectionObject;
 use ReflectionProperty;
 use stdClass;
 use function array_change_key_case;
+use function assert;
 use function db2_bind_param;
 use function db2_execute;
 use function db2_fetch_array;
@@ -30,6 +31,7 @@ use function func_get_args;
 use function func_num_args;
 use function fwrite;
 use function gettype;
+use function is_int;
 use function is_object;
 use function is_resource;
 use function is_string;
@@ -91,6 +93,8 @@ class DB2Statement implements IteratorAggregate, Statement
      */
     public function bindValue($param, $value, $type = ParameterType::STRING)
     {
+        assert(is_int($param));
+
         return $this->bindParam($param, $value, $type);
     }
 
@@ -99,6 +103,8 @@ class DB2Statement implements IteratorAggregate, Statement
      */
     public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null)
     {
+        assert(is_int($column));
+
         switch ($type) {
             case ParameterType::INTEGER:
                 $this->bind($column, $variable, DB2_PARAM_IN, DB2_LONG);

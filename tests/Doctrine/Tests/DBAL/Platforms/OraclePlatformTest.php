@@ -93,7 +93,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * @return mixed[]
+     * {@inheritDoc}
      */
     public function getGenerateTableWithMultiColumnUniqueIndexSql() : array
     {
@@ -234,7 +234,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         return 'CREATE UNIQUE INDEX index_name ON test (test, test2)';
     }
 
-    public function getGenerateForeignKeySql() : string
+    protected function getGenerateForeignKeySql() : string
     {
         return 'ALTER TABLE test ADD FOREIGN KEY (fk_name_id) REFERENCES other_table (id)';
     }
@@ -408,7 +408,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * @return mixed[]
+     * {@inheritDoc}
      */
     protected function getQuotedColumnInPrimaryKeySQL() : array
     {
@@ -416,7 +416,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * @return mixed[]
+     * {@inheritDoc}
      */
     protected function getQuotedColumnInIndexSQL() : array
     {
@@ -427,7 +427,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * @return mixed[]
+     * {@inheritDoc}
      */
     protected function getQuotedNameInIndexSQL() : array
     {
@@ -438,7 +438,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * @return mixed[]
+     * {@inheritDoc}
      */
     protected function getQuotedColumnInForeignKeySQL() : array
     {

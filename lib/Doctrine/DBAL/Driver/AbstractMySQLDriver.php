@@ -12,6 +12,7 @@ use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Schema\MySqlSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
+use function assert;
 use function preg_match;
 use function stripos;
 use function version_compare;
@@ -197,7 +198,15 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
     {
         $params = $conn->getParams();
 
-        return $params['dbname'] ?? $conn->query('SELECT DATABASE()')->fetchColumn();
+        if (isset($params['dbname'])) {
+            return $params['dbname'];
+        }
+
+        $database = $conn->query('SELECT DATABASE()')->fetchColumn();
+
+        assert($database !== false);
+
+        return $database;
     }
 
     /**

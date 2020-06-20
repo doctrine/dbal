@@ -395,7 +395,7 @@ class QueryBuilder
      * Gets the maximum number of results the query object was set to retrieve (the "limit").
      * Returns NULL if all results will be returned.
      *
-     * @return int The maximum number of results.
+     * @return int|null The maximum number of results.
      */
     public function getMaxResults()
     {

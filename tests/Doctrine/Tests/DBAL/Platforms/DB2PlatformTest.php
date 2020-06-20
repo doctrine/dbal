@@ -42,7 +42,7 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    public function getGenerateForeignKeySql() : string
+    protected function getGenerateForeignKeySql() : string
     {
         return 'ALTER TABLE test ADD FOREIGN KEY (fk_name_id) REFERENCES other_table (id)';
     }

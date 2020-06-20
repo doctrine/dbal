@@ -95,3 +95,8 @@ parameters:
             message: '~Method Doctrine\\DBAL\\Driver\\PDOSqlsrv\\Connection\:\:lastInsertId\(\) should return string but returns string\|false\|null\.~'
             paths:
                 - %currentWorkingDirectory%/lib/Doctrine/DBAL/Driver/PDOSqlsrv/Connection.php
+
+        -
+            message: '~Method Doctrine\\DBAL\\Portability\\Connection::prepare\(\) should return Doctrine\\DBAL\\Statement but returns Doctrine\\DBAL\\Portability\\Statement\.~'
+            paths:
+                - %currentWorkingDirectory%/lib/Doctrine/DBAL/Portability/Connection.php
