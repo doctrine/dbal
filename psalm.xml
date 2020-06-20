@@ -41,6 +41,14 @@
                 <file name="lib/Doctrine/DBAL/Driver/PDOConnection.php"/>
             </errorLevel>
         </MethodSignatureMismatch>
+        <NullableReturnStatement>
+            <errorLevel type="suppress">
+                <!--
+                    Fixing this issue requires an API change
+                -->
+                <file name="lib/Doctrine/DBAL/Driver/AbstractSQLiteDriver.php"/>
+            </errorLevel>
+        </NullableReturnStatement>
         <TooFewArguments>
             <errorLevel type="suppress">
                 <!--
