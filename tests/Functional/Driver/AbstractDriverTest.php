@@ -32,11 +32,8 @@ abstract class AbstractDriverTest extends FunctionalTestCase
         $params = $this->connection->getParams();
         unset($params['dbname']);
 
-        $user     = $params['user'] ?? '';
-        $password = $params['password'] ?? '';
-
         $this->expectNotToPerformAssertions();
-        $this->driver->connect($params, $user, $password);
+        $this->driver->connect($params);
     }
 
     /**

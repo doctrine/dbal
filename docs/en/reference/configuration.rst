@@ -133,7 +133,6 @@ interfaces to use. It can be configured in one of three ways:
    -  ``pdo_sqlsrv``: A Microsoft SQL Server driver that uses pdo_sqlsrv PDO
    -  ``sqlsrv``: A Microsoft SQL Server driver that uses the sqlsrv PHP extension.
    -  ``oci8``: An Oracle driver that uses the oci8 PHP extension.
-   -  ``sqlanywhere``: A SAP Sybase SQL Anywhere driver that uses the sqlanywhere PHP extension.
 
 -  ``driverClass``: Specifies a custom driver implementation if no
    'driver' is specified. This allows the use of custom drivers that
@@ -292,27 +291,6 @@ pdo_sqlsrv / sqlsrv
 -  ``port`` (integer): Port of the database to connect to.
 -  ``dbname`` (string): Name of the database/schema to connect to.
 
-sqlanywhere
-^^^^^^^^^^^
-
--  ``user`` (string): Username to use when connecting to the
-   database.
--  ``password`` (string): Password to use when connecting to the
-   database.
--  ``server`` (string): Name of a running database server to connect to.
--  ``host`` (string): Hostname of the database to connect to.
--  ``port`` (integer): Port of the database to connect to.
--  ``dbname`` (string): Name of the database/schema to connect to.
--  ``persistent`` (boolean): Whether to establish a persistent connection.
-
-Depending on the used underlying platform version, you can specify
-any other connection parameter that is supported by the particular
-platform version via the ``driverOptions`` option.
-You can find a list of supported connection parameters for the
-currently supported platform here:
-
-- `SAP Sybase SQL Anywhere 16.0 <http://dcx.sybase.com/index.html#sa160/en/dbadmin/da-conparm.html>`_
-
 Automatic platform version detection
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -337,11 +315,7 @@ without any extra configuration required:
 -  ``sqlsrv``
 
 Some drivers cannot provide the version of the underlying database server without
-having to query for it explicitly. For performance reasons (to save one extra query
-on every connect), Doctrine does not enable automatic database platform version
-detection for the following drivers:
-
--  ``sqlanywhere``
+having to query for it explicitly.
 
 If you still want to tell Doctrine which database server version you are using in
 order to choose the appropriate platform implementation, you can pass the

@@ -10,18 +10,11 @@
     <php>
         <ini name="error_reporting" value="-1" />
 
-        <var name="db_type" value="pdo_sqlsrv"/>
+        <var name="db_driver" value="pdo_sqlsrv"/>
         <var name="db_host" value="127.0.0.1" />
-        <var name="db_username" value="sa" />
+        <var name="db_user" value="sa" />
         <var name="db_password" value="Doctrine2018" />
-        <var name="db_name" value="doctrine" />
-        <var name="db_port" value="1433"/>
-
-        <var name="tmpdb_type" value="pdo_sqlsrv"/>
-        <var name="tmpdb_host" value="127.0.0.1" />
-        <var name="tmpdb_username" value="sa" />
-        <var name="tmpdb_password" value="Doctrine2018" />
-        <var name="tmpdb_port" value="1433"/>
+        <var name="db_dbname" value="doctrine" />
     </php>
 
     <testsuites>

@@ -8,7 +8,9 @@ use Doctrine\DBAL\Driver\Mysqli\Driver;
 use Doctrine\DBAL\Driver\Mysqli\MysqliConnection;
 use Doctrine\DBAL\Driver\Mysqli\MysqliException;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use Doctrine\DBAL\Tests\TestUtil;
 
+use function array_merge;
 use function extension_loaded;
 
 use const MYSQLI_OPT_CONNECT_TIMEOUT;
@@ -45,7 +47,20 @@ class ConnectionTest extends FunctionalTestCase
     {
         $this->expectException(MysqliException::class);
 
-        $this->getConnection(['hello' => 'world']); // use local infile
+        $this->getConnection([12345 => 'world']);
+    }
+
+    public function testInvalidCharset(): void
+    {
+        $params = TestUtil::getConnectionParams();
+
+        $this->expectException(MysqliException::class);
+        (new Driver())->connect(
+            array_merge(
+                $params,
+                ['charset' => 'invalid']
+            )
+        );
     }
 
     /**
@@ -53,15 +68,13 @@ class ConnectionTest extends FunctionalTestCase
      */
     private function getConnection(array $driverOptions): MysqliConnection
     {
-        return new MysqliConnection(
-            [
-                'host' => $GLOBALS['db_host'],
-                'dbname' => $GLOBALS['db_name'],
-                'port' => (int) $GLOBALS['db_port'],
-            ],
-            $GLOBALS['db_username'],
-            $GLOBALS['db_password'],
-            $driverOptions
+        $params = TestUtil::getConnectionParams();
+
+        return (new Driver())->connect(
+            array_merge(
+                $params,
+                ['driver_options' => $driverOptions]
+            )
         );
     }
 }

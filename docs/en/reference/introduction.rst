@@ -19,7 +19,6 @@ The following database vendors are currently supported:
 - Oracle
 - Microsoft SQL Server
 - PostgreSQL
-- SAP Sybase SQL Anywhere
 - SQLite
 
 The Doctrine 2 database layer can be used independently of the

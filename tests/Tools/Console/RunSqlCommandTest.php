@@ -6,7 +6,7 @@ namespace Doctrine\DBAL\Tests\Tools\Console;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Tools\Console\Command\RunSqlCommand;
-use Doctrine\DBAL\Tools\Console\ConsoleRunner;
+use Doctrine\DBAL\Tools\Console\ConnectionProvider\SingleConnectionProvider;
 use LogicException;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -26,20 +26,13 @@ class RunSqlCommandTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->command = new RunSqlCommand();
+        $this->connectionMock = $this->createMock(Connection::class);
+
+        $this->command = new RunSqlCommand(new SingleConnectionProvider($this->connectionMock));
 
         (new Application())->add($this->command);
 
         $this->commandTester = new CommandTester($this->command);
-
-        $this->connectionMock = $this->createMock(Connection::class);
-        $this->connectionMock->method('fetchAllAssociative')
-            ->willReturn([[1]]);
-        $this->connectionMock->method('executeUpdate')
-            ->willReturn(42);
-
-        $helperSet = ConsoleRunner::createHelperSet($this->connectionMock);
-        $this->command->setHelperSet($helperSet);
     }
 
     public function testMissingSqlArgument(): void
@@ -95,21 +88,25 @@ class RunSqlCommandTest extends TestCase
     private function expectConnectionExecuteUpdate(): void
     {
         $this->connectionMock
-            ->expects(self::exactly(1))
-            ->method('executeUpdate');
+            ->expects(self::once())
+            ->method('executeUpdate')
+            ->willReturn(42);
+
         $this->connectionMock
-            ->expects(self::exactly(0))
+            ->expects(self::never())
             ->method('fetchAllAssociative');
     }
 
     private function expectConnectionFetchAllAssociative(): void
     {
         $this->connectionMock
-            ->expects(self::exactly(0))
-            ->method('executeUpdate');
+            ->expects(self::once())
+            ->method('fetchAllAssociative')
+            ->willReturn([[1]]);
+
         $this->connectionMock
-            ->expects(self::exactly(1))
-            ->method('fetchAllAssociative');
+            ->expects(self::never())
+            ->method('executeUpdate');
     }
 
     public function testStatementsWithFetchResultPrintsResult(): void

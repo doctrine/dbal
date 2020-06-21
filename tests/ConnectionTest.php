@@ -22,7 +22,6 @@ use Doctrine\DBAL\Logging\DebugStack;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
-use Exception;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use stdClass;
@@ -599,7 +598,10 @@ class ConnectionTest extends TestCase
     {
         $driver = $this->createMock(Driver::class);
         $driver->expects(self::once())
-            ->method('connect');
+            ->method('connect')
+            ->willReturn(
+                $this->createMock(Driver\Connection::class)
+            );
 
         $platform = $this->createMock(AbstractPlatform::class);
 
@@ -730,8 +732,8 @@ class ConnectionTest extends TestCase
         $driverMock = $this->createMock(VersionAwarePlatformDriver::class);
 
         $connection        = new Connection(['dbname' => 'foo'], $driverMock);
-        $originalException = new Exception('Original exception');
-        $fallbackException = new Exception('Fallback exception');
+        $originalException = new DBALException('Original exception');
+        $fallbackException = new DBALException('Fallback exception');
 
         $driverMock->expects(self::at(0))
             ->method('connect')

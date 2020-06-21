@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional\Driver\IBMDB2;
 
 use Doctrine\DBAL\Driver\IBMDB2\DB2Driver;
-use Doctrine\DBAL\Statement;
+use Doctrine\DBAL\Driver\IBMDB2\Exception\StatementError;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 
-use function assert;
-
 use function extension_loaded;
+
+use const E_ALL;
+use const E_NOTICE;
+use const E_WARNING;
 
 class DB2StatementTest extends FunctionalTestCase
 {
@@ -31,13 +33,14 @@ class DB2StatementTest extends FunctionalTestCase
 
     public function testExecutionErrorsAreNotSuppressed(): void
     {
-        $stmt = $this->connection->prepare('SELECT * FROM SYSIBM.SYSDUMMY1 WHERE \'foo\' = ?');
-        assert($stmt instanceof Statement);
+        $driverConnection = $this->connection->getWrappedConnection();
 
-        // unwrap the statement to prevent the wrapper from handling the PHPUnit-originated exception
-        $wrappedStmt = $stmt->getWrappedStatement();
+        $stmt = $driverConnection->prepare('SELECT * FROM SYSIBM.SYSDUMMY1 WHERE \'foo\' = ?');
 
-        $this->expectNotice();
-        $wrappedStmt->execute([[]]);
+        // prevent the PHPUnit error handler from handling the errors that db2_execute() may trigger
+        $this->iniSet('error_reporting', (string) (E_ALL & ~E_WARNING & ~E_NOTICE));
+
+        $this->expectException(StatementError::class);
+        $stmt->execute([[]]);
     }
 }

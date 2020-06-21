@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Id;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\LockMode;
 use Throwable;
@@ -70,12 +71,16 @@ class TableGenerator
      */
     public function __construct(Connection $conn, string $generatorTableName = 'sequences')
     {
-        $params = $conn->getParams();
-        if ($params['driver'] === 'pdo_sqlite') {
+        if ($conn->getDriver() instanceof Driver\PDOSqlite\Driver) {
             throw new DBALException('Cannot use TableGenerator with SQLite.');
         }
 
-        $this->conn               = DriverManager::getConnection($params, $conn->getConfiguration(), $conn->getEventManager());
+        $this->conn = DriverManager::getConnection(
+            $conn->getParams(),
+            $conn->getConfiguration(),
+            $conn->getEventManager()
+        );
+
         $this->generatorTableName = $generatorTableName;
     }
 

@@ -11,8 +11,6 @@ use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use PDO;
 
-use function assert;
-
 /**
  * @group DBAL-630
  */
@@ -41,9 +39,9 @@ class DBAL630Test extends FunctionalTestCase
     protected function tearDown(): void
     {
         if ($this->running) {
-            $pdo = $this->getPDO();
-
-            $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+            $this->getWrappedConnection()
+                ->getWrappedConnection()
+                ->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
         }
 
         parent::tearDown();
@@ -79,8 +77,9 @@ class DBAL630Test extends FunctionalTestCase
 
     public function testBooleanConversionBoolParamEmulatedPrepares(): void
     {
-        $pdo = $this->getPDO();
-        $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
+        $this->getWrappedConnection()
+            ->getWrappedConnection()
+            ->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
 
         $platform = $this->connection->getDatabasePlatform();
 
@@ -105,8 +104,9 @@ class DBAL630Test extends FunctionalTestCase
         ?bool $statementValue,
         ?bool $databaseConvertedValue
     ): void {
-        $pdo = $this->getPDO();
-        $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
+        $this->getWrappedConnection()
+            ->getWrappedConnection()
+            ->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
 
         $platform = $this->connection->getDatabasePlatform();
 
@@ -131,8 +131,9 @@ class DBAL630Test extends FunctionalTestCase
         ?bool $statementValue,
         bool $databaseConvertedValue
     ): void {
-        $pdo = $this->getPDO();
-        $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
+        $this->getWrappedConnection()
+            ->getWrappedConnection()
+            ->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
 
         $platform = $this->connection->getDatabasePlatform();
 
@@ -184,11 +185,11 @@ class DBAL630Test extends FunctionalTestCase
         ];
     }
 
-    private function getPDO(): PDO
+    private function getWrappedConnection(): PDOConnection
     {
-        $wrappedConnection = $this->connection->getWrappedConnection();
-        assert($wrappedConnection instanceof PDOConnection);
+        $connection = $this->connection->getWrappedConnection();
+        self::assertInstanceOf(PDOConnection::class, $connection);
 
-        return $wrappedConnection->getWrappedConnection();
+        return $connection;
     }
 }

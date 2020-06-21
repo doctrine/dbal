@@ -13,7 +13,6 @@ use Doctrine\DBAL\Driver\PDOOracle\Driver as PDOOCIDriver;
 use Doctrine\DBAL\Driver\PDOPgSql\Driver as PDOPgSQLDriver;
 use Doctrine\DBAL\Driver\PDOSqlite\Driver as PDOSQLiteDriver;
 use Doctrine\DBAL\Driver\PDOSqlsrv\Driver as PDOSQLSrvDriver;
-use Doctrine\DBAL\Driver\SQLAnywhere\Driver as SQLAnywhereDriver;
 use Doctrine\DBAL\Driver\SQLSrv\Driver as SQLSrvDriver;
 use Doctrine\DBAL\Exception\DriverRequired;
 use Doctrine\DBAL\Exception\InvalidDriverClass;
@@ -49,16 +48,15 @@ final class DriverManager
      * @var string[]
      */
     private static $_driverMap = [
-        'pdo_mysql'   => PDOMySQLDriver::class,
-        'pdo_sqlite'  => PDOSQLiteDriver::class,
-        'pdo_pgsql'   => PDOPgSQLDriver::class,
-        'pdo_oci'     => PDOOCIDriver::class,
-        'oci8'        => OCI8Driver::class,
-        'ibm_db2'     => DB2Driver::class,
-        'pdo_sqlsrv'  => PDOSQLSrvDriver::class,
-        'mysqli'      => MySQLiDriver::class,
-        'sqlanywhere' => SQLAnywhereDriver::class,
-        'sqlsrv'      => SQLSrvDriver::class,
+        'pdo_mysql'  => PDOMySQLDriver::class,
+        'pdo_sqlite' => PDOSQLiteDriver::class,
+        'pdo_pgsql'  => PDOPgSQLDriver::class,
+        'pdo_oci'    => PDOOCIDriver::class,
+        'oci8'       => OCI8Driver::class,
+        'ibm_db2'    => DB2Driver::class,
+        'pdo_sqlsrv' => PDOSQLSrvDriver::class,
+        'mysqli'     => MySQLiDriver::class,
+        'sqlsrv'     => SQLSrvDriver::class,
     ];
 
     /**
@@ -145,14 +143,14 @@ final class DriverManager
 
         $params = self::parseDatabaseUrl($params);
 
-        // URL support for MasterSlaveConnection
-        if (isset($params['master'])) {
-            $params['master'] = self::parseDatabaseUrl($params['master']);
+        // URL support for PrimaryReplicaConnection
+        if (isset($params['primary'])) {
+            $params['primary'] = self::parseDatabaseUrl($params['primary']);
         }
 
-        if (isset($params['slaves'])) {
-            foreach ($params['slaves'] as $key => $slaveParams) {
-                $params['slaves'][$key] = self::parseDatabaseUrl($slaveParams);
+        if (isset($params['replica'])) {
+            foreach ($params['replica'] as $key => $replicaParams) {
+                $params['replica'][$key] = self::parseDatabaseUrl($replicaParams);
             }
         }
 

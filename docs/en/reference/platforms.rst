@@ -58,11 +58,6 @@ PostgreSQL
 -  ``PostgreSQL94Platform`` for version 9.4 and above.
 -  ``PostgreSQL100Platform`` for version 10.0 and above.
 
-SAP Sybase SQL Anywhere
-^^^^^^^^^^^^^^^^^^^^^^^
-
--  ``SQLAnywhere16Platform`` for version 16 and above.
-
 SQLite
 ^^^^^^
 

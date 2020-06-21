@@ -117,10 +117,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             $params['dbname'] = 'test_drop_database';
         }
 
-        $user     = $params['user'] ?? '';
-        $password = $params['password'] ?? '';
-
-        $this->connection->getDriver()->connect($params, $user, $password);
+        $this->connection->getDriver()->connect($params);
 
         $this->schemaManager->dropDatabase('test_drop_database');
 

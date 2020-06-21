@@ -5,20 +5,14 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Driver;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Driver;
-use Doctrine\DBAL\Driver\AbstractSQLServerDriver;
+use Doctrine\DBAL\Driver\AbstractSQLServerDriver\PortWithoutHost;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\SQLServerSchemaManager;
 
-class AbstractSQLServerDriverTest extends AbstractDriverTest
+abstract class AbstractSQLServerDriverTest extends AbstractDriverTest
 {
-    protected function createDriver(): Driver
-    {
-        return $this->getMockForAbstractClass(AbstractSQLServerDriver::class);
-    }
-
     protected function createPlatform(): AbstractPlatform
     {
         return new SQLServer2012Platform();
@@ -37,5 +31,11 @@ class AbstractSQLServerDriverTest extends AbstractDriverTest
         return [
             ['12', SQLServer2012Platform::class],
         ];
+    }
+
+    public function testPortWithoutHost(): void
+    {
+        $this->expectException(PortWithoutHost::class);
+        $this->driver->connect(['port' => 1433]);
     }
 }

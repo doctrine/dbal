@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver\PDOSqlite;
 
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\AbstractSQLiteDriver;
 use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\PDOConnection;
-use Doctrine\DBAL\Driver\PDOException;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 
 use function array_merge;
@@ -28,12 +26,10 @@ final class Driver extends AbstractSQLiteDriver
     /**
      * {@inheritdoc}
      */
-    public function connect(
-        array $params,
-        string $username = '',
-        string $password = '',
-        array $driverOptions = []
-    ): Connection {
+    public function connect(array $params): Connection
+    {
+        $driverOptions = $params['driver_options'] ?? [];
+
         if (isset($driverOptions['userDefinedFunctions'])) {
             $this->userDefinedFunctions = array_merge(
                 $this->userDefinedFunctions,
@@ -42,16 +38,12 @@ final class Driver extends AbstractSQLiteDriver
             unset($driverOptions['userDefinedFunctions']);
         }
 
-        try {
-            $connection = new PDOConnection(
-                $this->constructPdoDsn($params),
-                $username,
-                $password,
-                $driverOptions
-            );
-        } catch (PDOException $ex) {
-            throw DBALException::driverException($this, $ex);
-        }
+        $connection = new PDOConnection(
+            $this->constructPdoDsn($params),
+            $params['user'] ?? '',
+            $params['password'] ?? '',
+            $driverOptions
+        );
 
         $pdo = $connection->getWrappedConnection();
 

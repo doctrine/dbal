@@ -8,6 +8,7 @@ use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
+use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\MySqlSchemaManager;
@@ -72,11 +73,15 @@ class MySqlInheritCharsetTest extends TestCase
     private function getTableOptionsForOverride(array $overrideOptions = []): array
     {
         $eventManager = new EventManager();
-        $driverMock   = $this->createMock(Driver::class);
-        $platform     = new MySqlPlatform();
-        $connOptions  = array_merge(['platform' => $platform], $overrideOptions);
-        $conn         = new Connection($connOptions, $driverMock, new Configuration(), $eventManager);
-        $manager      = new MySqlSchemaManager($conn, $platform);
+
+        $driverMock = $this->createMock(Driver::class);
+        $driverMock->method('connect')
+            ->willReturn($this->createMock(DriverConnection::class));
+
+        $platform    = new MySqlPlatform();
+        $connOptions = array_merge(['platform' => $platform], $overrideOptions);
+        $conn        = new Connection($connOptions, $driverMock, new Configuration(), $eventManager);
+        $manager     = new MySqlSchemaManager($conn, $platform);
 
         $schemaConfig = $manager->createSchemaConfig();
 

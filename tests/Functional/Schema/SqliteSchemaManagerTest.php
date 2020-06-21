@@ -51,10 +51,7 @@ class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $params           = $this->connection->getParams();
         $params['dbname'] = 'test_drop_database';
 
-        $user     = $params['user'] ?? '';
-        $password = $params['password'] ?? '';
-
-        $connection = $this->connection->getDriver()->connect($params, $user, $password);
+        $connection = $this->connection->getDriver()->connect($params);
 
         $this->schemaManager->dropDatabase('test_drop_database');
 

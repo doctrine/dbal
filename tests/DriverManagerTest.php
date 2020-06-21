@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Connections\MasterSlaveConnection;
+use Doctrine\DBAL\Connections\PrimaryReadReplicaConnection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\PDOMySql\Driver as PDOMySQLDriver;
@@ -101,15 +101,15 @@ class DriverManagerTest extends TestCase
         self::assertInstanceOf(PDOMySQLDriver::class, $conn->getDriver());
     }
 
-    public function testDatabaseUrlMasterSlave(): void
+    public function testDatabaseUrlPrimaryReplica(): void
     {
         $options = [
             'driver' => 'pdo_mysql',
-            'master' => ['url' => 'mysql://foo:bar@localhost:11211/baz'],
-            'slaves' => [
-                'slave1' => ['url' => 'mysql://foo:bar@localhost:11211/baz_slave'],
+            'primary' => ['url' => 'mysql://foo:bar@localhost:11211/baz'],
+            'replica' => [
+                'replica1' => ['url' => 'mysql://foo:bar@localhost:11211/baz_replica'],
             ],
-            'wrapperClass' => MasterSlaveConnection::class,
+            'wrapperClass' => PrimaryReadReplicaConnection::class,
         ];
 
         $conn = DriverManager::getConnection($options);
@@ -125,12 +125,12 @@ class DriverManagerTest extends TestCase
         ];
 
         foreach ($expected as $key => $value) {
-            self::assertEquals($value, $params['master'][$key]);
-            self::assertEquals($value, $params['slaves']['slave1'][$key]);
+            self::assertEquals($value, $params['primary'][$key]);
+            self::assertEquals($value, $params['replica']['replica1'][$key]);
         }
 
-        self::assertEquals('baz', $params['master']['dbname']);
-        self::assertEquals('baz_slave', $params['slaves']['slave1']['dbname']);
+        self::assertEquals('baz', $params['primary']['dbname']);
+        self::assertEquals('baz_replica', $params['replica']['replica1']['dbname']);
     }
 
     /**

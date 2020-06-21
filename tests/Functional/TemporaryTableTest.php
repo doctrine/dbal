@@ -36,11 +36,8 @@ class TemporaryTableTest extends FunctionalTestCase
      */
     public function testDropTemporaryTableNotAutoCommitTransaction(): void
     {
-        if (
-            $this->connection->getDatabasePlatform()->getName() === 'sqlanywhere' ||
-            $this->connection->getDatabasePlatform()->getName() === 'oracle'
-        ) {
-            self::markTestSkipped('Test does not work on Oracle and SQL Anywhere.');
+        if ($this->connection->getDatabasePlatform()->getName() === 'oracle') {
+            self::markTestSkipped('Test does not work on Oracle.');
         }
 
         $platform          = $this->connection->getDatabasePlatform();
@@ -80,11 +77,8 @@ class TemporaryTableTest extends FunctionalTestCase
      */
     public function testCreateTemporaryTableNotAutoCommitTransaction(): void
     {
-        if (
-            $this->connection->getDatabasePlatform()->getName() === 'sqlanywhere' ||
-            $this->connection->getDatabasePlatform()->getName() === 'oracle'
-        ) {
-            self::markTestSkipped('Test does not work on Oracle and SQL Anywhere.');
+        if ($this->connection->getDatabasePlatform()->getName() === 'oracle') {
+            self::markTestSkipped('Test does not work on Oracle.');
         }
 
         $platform          = $this->connection->getDatabasePlatform();

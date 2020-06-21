@@ -260,6 +260,73 @@ The Doctrine\DBAL\Version class is no longer available: please refrain from chec
 
 # Upgrade to 3.0
 
+## BC BREAK: Changes in `OracleSchemaManager::createDatabase()`
+
+The `$database` argument is no longer nullable or optional.
+
+## BC BREAK: `Doctrine\DBAL\Types\Type::__toString()` removed
+
+Relying on string representation was discouraged and has been removed.
+
+## BC BREAK: Changes in the `Doctrine\DBAL\Schema` API
+
+- Removed unused method `Doctrine\DBAL\Schema\AbstractSchemaManager::_getPortableFunctionsList()`
+- Removed unused method `Doctrine\DBAL\Schema\AbstractSchemaManager::_getPortableFunctionDefinition()`
+- Removed unused method `Doctrine\DBAL\Schema\OracleSchemaManager::_getPortableFunctionDefinition()`
+- Removed unused method `Doctrine\DBAL\Schema\SqliteSchemaManager::_getPortableTableIndexDefinition()`
+
+## BC BREAK: Removed support for DB-generated UUIDs
+
+The support for DB-generated UUIDs was removed as non-portable.
+Please generate UUIDs on the application side (e.g. using [ramsey/uuid](https://packagist.org/packages/ramsey/uuid)).
+
+## BC BREAK: Changes in the `Doctrine\DBAL\Connection` API
+
+- The following methods have been removed as leaking internal implementation details: `::getHost()`, `::getPort()`, `::getUsername()`, `::getPassword()`.
+
+## BC BREAK: Changes in the `Doctrine\DBAL\Event` API
+
+- `ConnectionEventArgs::getDriver()`, `::getDatabasePlatform()` and `::getSchemaManager()` methods have been removed. The connection information can be obtained from the connection which is available via `::getConnection()`.
+- `SchemaColumnDefinitionEventArgs::getDatabasePlatform()` and `SchemaIndexDefinitionEventArgs::getDatabasePlatform()` have been removed for the same reason as above.
+
+## BC BREAK: Changes in obtaining the currently selected database name
+
+- The `Doctrine\DBAL\Driver::getDatabase()` method has been removed. Please use `Doctrine\DBAL\Connection::getDatabase()` instead.
+- `Doctrine\DBAL\Connection::getDatabase()` will always return the name of the database currently connected to, regardless of the configuration parameters and will initialize a database connection if it's not yet established.
+- A call to `Doctrine\DBAL\Connection::getDatabase()`, when connected to an SQLite database, will no longer return the database file path.
+
+## BC BREAK: `Doctrine\DBAL\Driver::getName()` removed
+
+The `Doctrine\DBAL\Driver::getName()` has been removed.
+
+## BC BREAK Removed previously deprecated features
+
+ * Removed `json_array` type and all associated hacks.
+ * Removed `Connection::TRANSACTION_*` constants.
+ * Removed `AbstractPlatform::DATE_INTERVAL_UNIT_*` and `AbstractPlatform::TRIM_*` constants.
+ * Removed `MysqlSessionInit` listener.
+ * Removed `MysqlPlatform::getCollationFieldDeclaration()`.
+ * Removed `AbstractPlatform::getIdentityColumnNullInsertSQL()`.
+ * Removed `Table::addUnnamedForeignKeyConstraint()` and `Table::addNamedForeignKeyConstraint()`.
+ * Removed `Table::renameColumn()`.
+ * Removed `SQLParserUtils::getPlaceholderPositions()`.
+ * Removed `LoggerChain::addLogger`.
+ * Removed `AbstractSchemaManager::getFilterSchemaAssetsExpression()`, `Configuration::getFilterSchemaAssetsExpression()`
+   and `Configuration::getFilterSchemaAssetsExpression()`.
+ * `SQLParserUtils::*_TOKEN` constants made private.
+
+## BC BREAK changes the `Driver::connect()` signature
+
+The method no longer accepts the `$username`, `$password` and `$driverOptions` arguments. The corresponding values are expected to be passed as the "user", "password" and "driver_options" keys of the `$params` argument respectively.
+
+## Removed `MasterSlaveConnection`
+
+This class was deprecated in favor of `PrimaryReadReplicaConnection`
+
+## Removed `Portability\Connection::PORTABILITY_{PLATFORM}` constants`
+
+The platform-specific portability constants were internal implementation details which are longer relevant.
+
 ## BC BREAK changes in fetching statement results
 
 1. The `Statement` interface no longer extends `ResultStatement`.
@@ -309,19 +376,9 @@ In order to fetch a column with an index other than `0`, use `FetchMode::NUMERIC
 
 `EchoSQLLogger` is no longer available as part of the package.
 
-## BC BREAK: Removed support for SQL Anywhere 12 and older
+## BC BREAK: Removed support for SQL Anywhere
 
-DBAL now requires SQL Anywhere 16 or newer, support for unmaintained versions has been dropped.
-If you are using any of the legacy versions, you have to upgrade to a newer SQL Anywhere version (16+).
-
-The following classes have been removed:
-
- * `Doctrine\DBAL\Platforms\SQLAnywherePlatform`
- * `Doctrine\DBAL\Platforms\SQLAnywhere11Platform`
- * `Doctrine\DBAL\Platforms\SQLAnywhere12Platform`
- * `Doctrine\DBAL\Platforms\Keywords\SQLAnywhereKeywords`
- * `Doctrine\DBAL\Platforms\Keywords\SQLAnywhere11Keywords`
- * `Doctrine\DBAL\Platforms\Keywords\SQLAnywhere12Keywords`
+The support for the SQL Anywhere database platform and the corresponding driver has been removed.
 
 ## BC BREAK: Removed support for PostgreSQL 9.3 and older
 
@@ -434,6 +491,57 @@ Please use other database client applications for import, e.g.:
  * For SQLite: `sqlite3 /path/to/file.db < data.sql`.
 
 # Upgrade to 2.11
+
+## `Connection::getParams()` has been marked internal
+
+Consumers of the Connection class should not rely on connection parameters stored in the connection object. If needed, they should be obtained from a different source, e.g. application configuration.
+
+## Deprecated `Doctrine\DBAL\Driver::getDatabase()`
+
+- The usage of `Doctrine\DBAL\Driver::getDatabase()` is deprecated. Please use `Doctrine\DBAL\Connection::getDatabase()` instead.
+- The behavior of the SQLite connection returning the database file path as the database is deprecated and shouldn't be relied upon.
+
+## Deprecated `Portability\Connection::PORTABILITY_{PLATFORM}` constants`
+
+The platform-specific portability mode flags are meant to be used only by the portability layer internally to optimize
+the user-provided mode for the current database platform. 
+
+## Deprecated `MasterSlaveConnection` use `PrimaryReadReplicaConnection`
+
+The `Doctrine\DBAL\Connections\MasterSlaveConnection` class is renamed to `Doctrine\DBAL\Connections\PrimaryReadReplicaConnection`.
+In addition its configuration parameters `master`, `slaves` and `keepSlave` are renamed to `primary`, `replica` and `keepReplica`.
+
+Before:
+
+    $connection = DriverManager::getConnection(
+        'wrapperClass' => 'Doctrine\DBAL\Connections\MasterSlaveConnection',
+        'driver' => 'pdo_mysql',
+        'master' => array('user' => '', 'password' => '', 'host' => '', 'dbname' => ''),
+        'slaves' => array(
+            array('user' => 'replica1', 'password', 'host' => '', 'dbname' => ''),
+            array('user' => 'replica2', 'password', 'host' => '', 'dbname' => ''),
+        ),
+        'keepSlave' => true,
+    ));
+    $connection->connect('slave');
+    $connection->connect('master');
+    $connection->isConnectedToMaster();
+
+After:
+
+    $connection = DriverManager::getConnection(array(
+        'wrapperClass' => 'Doctrine\DBAL\Connections\PrimaryReadReplicaConnection',
+        'driver' => 'pdo_mysql',
+        'primary' => array('user' => '', 'password' => '', 'host' => '', 'dbname' => ''),
+        'replica' => array(
+            array('user' => 'replica1', 'password', 'host' => '', 'dbname' => ''),
+            array('user' => 'replica2', 'password', 'host' => '', 'dbname' => ''),
+        )
+        'keepReplica' => true,
+    ));
+    $connection->ensureConnectedToReplica();
+    $connection->ensureConnectedToPrimary();
+    $connection->isConnectedToPrimary();
 
 ## Deprecated `ArrayStatement` and `ResultCacheStatement` classes.
 

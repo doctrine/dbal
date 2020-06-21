@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver\IBMDB2;
 
+use Doctrine\DBAL\Driver\IBMDB2\Exception\StatementError;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\ParameterType;
@@ -56,6 +57,8 @@ final class DB2Statement implements Statement
      */
     public function bindValue($param, $value, int $type = ParameterType::STRING): void
     {
+        assert(is_int($param));
+
         $this->bindParam($param, $value, $type);
     }
 
@@ -102,7 +105,7 @@ final class DB2Statement implements Statement
         $this->bindParam[$position] =& $variable;
 
         if (! db2_bind_param($this->stmt, $position, 'variable', $parameterType, $dataType)) {
-            throw DB2Exception::fromStatementError($this->stmt);
+            throw StatementError::new($this->stmt);
         }
     }
 
@@ -140,7 +143,7 @@ final class DB2Statement implements Statement
         $this->lobs = [];
 
         if ($result === false) {
-            throw DB2Exception::fromStatementError($this->stmt);
+            throw StatementError::new($this->stmt);
         }
 
         return new Result($this->stmt);

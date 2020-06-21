@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Tests\Functional;
 use DateTime;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver\IBMDB2\DB2Driver;
 use Doctrine\DBAL\Driver\Mysqli\Driver as MySQLiDriver;
 use Doctrine\DBAL\Driver\SQLSrv\Driver as SQLSrvDriver;
 use Doctrine\DBAL\ParameterType;
@@ -60,7 +61,6 @@ class DataAccessTest extends FunctionalTestCase
     {
         $sql  = 'SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?';
         $stmt = $this->connection->prepare($sql);
-        self::assertInstanceOf(Statement::class, $stmt);
 
         $stmt->bindValue(1, 1);
         $stmt->bindValue(2, 'foo');
@@ -79,7 +79,6 @@ class DataAccessTest extends FunctionalTestCase
 
         $sql  = 'SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?';
         $stmt = $this->connection->prepare($sql);
-        self::assertInstanceOf(Statement::class, $stmt);
 
         $stmt->bindParam(1, $paramInt);
         $stmt->bindParam(2, $paramStr);
@@ -98,7 +97,6 @@ class DataAccessTest extends FunctionalTestCase
 
         $sql  = 'SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?';
         $stmt = $this->connection->prepare($sql);
-        self::assertInstanceOf(Statement::class, $stmt);
 
         $stmt->bindParam(1, $paramInt);
         $stmt->bindParam(2, $paramStr);
@@ -115,7 +113,6 @@ class DataAccessTest extends FunctionalTestCase
 
         $sql  = 'SELECT test_int FROM fetch_table WHERE test_int = ? AND test_string = ?';
         $stmt = $this->connection->prepare($sql);
-        self::assertInstanceOf(Statement::class, $stmt);
 
         $stmt->bindParam(1, $paramInt);
         $stmt->bindParam(2, $paramStr);
@@ -126,17 +123,13 @@ class DataAccessTest extends FunctionalTestCase
 
     public function testPrepareWithQuoted(): void
     {
-        $table    = 'fetch_table';
-        $paramInt = 1;
-        $paramStr = 'foo';
-
         $stmt = $this->connection->prepare(sprintf(
-            'SELECT test_int, test_string FROM %s WHERE test_int = %d AND test_string = %s',
-            $this->connection->quoteIdentifier($table),
-            $paramInt,
-            $this->connection->quote($paramStr)
+            'SELECT test_int, test_string FROM fetch_table WHERE test_int = %d AND test_string = %s',
+            1,
+            $this->connection->quote('foo')
         ));
-        self::assertInstanceOf(Statement::class, $stmt);
+
+        self::assertEquals([1, 'foo'], $stmt->execute()->fetchNumeric());
     }
 
     public function testPrepareWithExecuteParams(): void
@@ -144,9 +137,8 @@ class DataAccessTest extends FunctionalTestCase
         $paramInt = 1;
         $paramStr = 'foo';
 
-        $sql  = 'SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?';
-        $stmt = $this->connection->prepare($sql);
-        self::assertInstanceOf(Statement::class, $stmt);
+        $sql    = 'SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?';
+        $stmt   = $this->connection->prepare($sql);
         $result = $stmt->execute([$paramInt, $paramStr]);
 
         $row = $result->fetchAssociative();
@@ -197,8 +189,9 @@ class DataAccessTest extends FunctionalTestCase
 
     /**
      * @group DBAL-209
+     * @dataProvider fetchProvider
      */
-    public function testFetchAllWithMissingTypes(): void
+    public function testFetchAllWithMissingTypes(callable $fetch): void
     {
         if (
             $this->connection->getDriver() instanceof MySQLiDriver ||
@@ -207,13 +200,51 @@ class DataAccessTest extends FunctionalTestCase
             self::markTestSkipped('mysqli and sqlsrv actually supports this');
         }
 
+        if (
+            $this->connection->getDriver() instanceof DB2Driver
+        ) {
+            self::markTestSkipped(
+                'ibm_ibm2 may or may not report the error depending on the PHP version and the connection state'
+            );
+        }
+
         $datetimeString = '2010-01-01 10:10:10';
         $datetime       = new DateTime($datetimeString);
         $sql            = 'SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?';
 
         $this->expectException(DBALException::class);
 
-        $this->connection->fetchAllAssociative($sql, [1, $datetime]);
+        $fetch($this->connection, $sql, [1, $datetime]);
+    }
+
+    /**
+     * @return iterable<string,array{0:callable}>
+     */
+    public static function fetchProvider(): iterable
+    {
+        yield 'fetch-all-associative' => [
+            static function (Connection $connection, string $query, array $params): void {
+                $connection->fetchAllAssociative($query, $params);
+            },
+        ];
+
+        yield 'fetch-numeric' => [
+            static function (Connection $connection, string $query, array $params): void {
+                $connection->fetchNumeric($query, $params);
+            },
+        ];
+
+        yield 'fetch-associative' => [
+            static function (Connection $connection, string $query, array $params): void {
+                $connection->fetchAssociative($query, $params);
+            },
+        ];
+
+        yield 'fetch-one' => [
+            static function (Connection $connection, string $query, array $params): void {
+                $connection->fetchOne($query, $params);
+            },
+        ];
     }
 
     public function testFetchNoResult(): void
@@ -256,24 +287,6 @@ class DataAccessTest extends FunctionalTestCase
         self::assertStringStartsWith($datetimeString, $row['test_datetime']);
     }
 
-    public function testFetchAssocWithMissingTypes(): void
-    {
-        if (
-            $this->connection->getDriver() instanceof MySQLiDriver ||
-            $this->connection->getDriver() instanceof SQLSrvDriver
-        ) {
-            self::markTestSkipped('mysqli and sqlsrv actually supports this');
-        }
-
-        $datetimeString = '2010-01-01 10:10:10';
-        $datetime       = new DateTime($datetimeString);
-        $sql            = 'SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?';
-
-        $this->expectException(DBALException::class);
-
-        $this->connection->fetchAssociative($sql, [1, $datetime]);
-    }
-
     public function testFetchArray(): void
     {
         $sql = 'SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?';
@@ -304,25 +317,7 @@ class DataAccessTest extends FunctionalTestCase
         self::assertStringStartsWith($datetimeString, $row[1]);
     }
 
-    public function testFetchArrayWithMissingTypes(): void
-    {
-        if (
-            $this->connection->getDriver() instanceof MySQLiDriver ||
-            $this->connection->getDriver() instanceof SQLSrvDriver
-        ) {
-            self::markTestSkipped('mysqli and sqlsrv actually supports this');
-        }
-
-        $datetimeString = '2010-01-01 10:10:10';
-        $datetime       = new DateTime($datetimeString);
-        $sql            = 'SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?';
-
-        $this->expectException(DBALException::class);
-
-        $this->connection->fetchNumeric($sql, [1, $datetime]);
-    }
-
-    public function testFetchOne(): void
+    public function testFetchColumn(): void
     {
         $sql     = 'SELECT test_int FROM fetch_table WHERE test_int = ? AND test_string = ?';
         $testInt = $this->connection->fetchOne($sql, [1, 'foo']);
@@ -350,24 +345,6 @@ class DataAccessTest extends FunctionalTestCase
         self::assertIsString($column);
 
         self::assertStringStartsWith($datetimeString, $column);
-    }
-
-    public function testFetchOneWithMissingTypes(): void
-    {
-        if (
-            $this->connection->getDriver() instanceof MySQLiDriver ||
-            $this->connection->getDriver() instanceof SQLSrvDriver
-        ) {
-            self::markTestSkipped('mysqli and sqlsrv actually supports this');
-        }
-
-        $datetimeString = '2010-01-01 10:10:10';
-        $datetime       = new DateTime($datetimeString);
-        $sql            = 'SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?';
-
-        $this->expectException(DBALException::class);
-
-        $this->connection->fetchOne($sql, [1, $datetime]);
     }
 
     /**
@@ -417,7 +394,7 @@ class DataAccessTest extends FunctionalTestCase
     {
         $sql  = 'SELECT count(*) AS c FROM fetch_table WHERE test_datetime = ?';
         $stmt = $this->connection->prepare($sql);
-        self::assertInstanceOf(Statement::class, $stmt);
+
         $stmt->bindValue(1, new DateTime('2010-01-01 10:10:10'), Types::DATETIME_MUTABLE);
         $result = $stmt->execute();
 

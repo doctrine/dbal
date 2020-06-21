@@ -5,10 +5,14 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Driver\PDOPgSql;
 
 use Doctrine\DBAL\Driver as DriverInterface;
+use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\Driver\PDOPgSql\Driver;
 use Doctrine\DBAL\Tests\Driver\AbstractPostgreSQLDriverTest;
+use Doctrine\DBAL\Tests\TestUtil;
 use PDO;
+
+use function array_merge;
 
 class DriverTest extends AbstractPostgreSQLDriverTest
 {
@@ -16,7 +20,7 @@ class DriverTest extends AbstractPostgreSQLDriverTest
     {
         parent::setUp();
 
-        if (isset($GLOBALS['db_type']) && $GLOBALS['db_type'] === 'pdo_pgsql') {
+        if (isset($GLOBALS['db_driver']) && $GLOBALS['db_driver'] === 'pdo_pgsql') {
             return;
         }
 
@@ -28,14 +32,7 @@ class DriverTest extends AbstractPostgreSQLDriverTest
      */
     public function testConnectionDisablesPrepares(): void
     {
-        $connection = $this->createDriver()->connect(
-            [
-                'host' => $GLOBALS['db_host'],
-                'port' => $GLOBALS['db_port'],
-            ],
-            $GLOBALS['db_username'],
-            $GLOBALS['db_password']
-        );
+        $connection = $this->connect([]);
 
         self::assertInstanceOf(PDOConnection::class, $connection);
         self::assertTrue(
@@ -48,13 +45,7 @@ class DriverTest extends AbstractPostgreSQLDriverTest
      */
     public function testConnectionDoesNotDisablePreparesWhenAttributeDefined(): void
     {
-        $connection = $this->createDriver()->connect(
-            [
-                'host' => $GLOBALS['db_host'],
-                'port' => $GLOBALS['db_port'],
-            ],
-            $GLOBALS['db_username'],
-            $GLOBALS['db_password'],
+        $connection = $this->connect(
             [PDO::PGSQL_ATTR_DISABLE_PREPARES => false]
         );
 
@@ -69,13 +60,7 @@ class DriverTest extends AbstractPostgreSQLDriverTest
      */
     public function testConnectionDisablePreparesWhenDisablePreparesIsExplicitlyDefined(): void
     {
-        $connection = $this->createDriver()->connect(
-            [
-                'host' => $GLOBALS['db_host'],
-                'port' => $GLOBALS['db_port'],
-            ],
-            $GLOBALS['db_username'],
-            $GLOBALS['db_password'],
+        $connection = $this->connect(
             [PDO::PGSQL_ATTR_DISABLE_PREPARES => true]
         );
 
@@ -88,5 +73,18 @@ class DriverTest extends AbstractPostgreSQLDriverTest
     protected function createDriver(): DriverInterface
     {
         return new Driver();
+    }
+
+    /**
+     * @param array<int,mixed> $driverOptions
+     */
+    private function connect(array $driverOptions): Connection
+    {
+        return $this->createDriver()->connect(
+            array_merge(
+                TestUtil::getConnectionParams(),
+                ['driver_options' => $driverOptions]
+            )
+        );
     }
 }

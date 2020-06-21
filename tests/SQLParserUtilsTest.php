@@ -54,7 +54,7 @@ class SQLParserUtilsTest extends TestCase
     }
 
     /**
-     * @return iterable<int, array<int, mixed>>
+     * @return mixed[][]
      */
     public function dataGetPlaceholderNamedPositions(): iterable
     {
@@ -120,7 +120,7 @@ SQLDATA
     }
 
     /**
-     * @param array<int, string> $expectedParamPos
+     * @param string[] $expectedParamPos
      *
      * @dataProvider dataGetPlaceholderNamedPositions
      */

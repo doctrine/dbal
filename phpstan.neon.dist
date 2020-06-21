@@ -49,6 +49,16 @@ parameters:
             message: '~^Cannot cast array<string>\|bool\|string\|null to int\.$~'
             path: %currentWorkingDirectory%/src/Tools/Console/Command/RunSqlCommand.php
 
+        # Requires a release of https://github.com/JetBrains/phpstorm-stubs/pull/553
+        -
+            message: '~^Call to function assert\(\) with true will always evaluate to true\.$~'
+            path: %currentWorkingDirectory%/src/Driver/PDOConnection.php
+
+        # Requires a release of https://github.com/JetBrains/phpstorm-stubs/pull/553
+        -
+            message: '~^Strict comparison using !== between int and false will always evaluate to true\.$~'
+            path: %currentWorkingDirectory%/src/Driver/PDOConnection.php
+
         # Requires a release of https://github.com/JetBrains/phpstorm-stubs/pull/732
         -
             message: '~^Access to undefined constant PDO::PGSQL_ATTR_DISABLE_PREPARES\.$~'
@@ -112,6 +122,16 @@ parameters:
             message: '~^Call to an undefined method Doctrine\\DBAL\\Driver::createDatabasePlatformForVersion\(\)\.$~'
             path: %currentWorkingDirectory%/tests/Driver/AbstractDriverTest.php
 
+        # This is not reproducible on PHPStan 0.12.30
+        -
+            message: '~^Method Doctrine\\DBAL\\Tests\\Functional\\Driver\\Mysqli\\ConnectionTest::getConnection\(\) should return Doctrine\\DBAL\\Driver\\Mysqli\\MysqliConnection but returns Doctrine\\DBAL\\Driver\\Connection\.$~'
+            path: %currentWorkingDirectory%/tests/Functional/Driver/Mysqli/ConnectionTest.php
+
+        # This is not reproducible on PHPStan 0.12.30
+        -
+            message: '~^Method Doctrine\\DBAL\\Tests\\Functional\\Driver\\PDOSqlsrv\\DriverTest::getConnection\(\) should return Doctrine\\DBAL\\Driver\\PDOConnection but returns Doctrine\\DBAL\\Driver\\Connection\.$~'
+            path: %currentWorkingDirectory%/tests/Functional/Driver/PDOSqlsrv/DriverTest.php
+
         # Caused by phpdoc annotations intended for Psalm
         -
             message: '~Unable to resolve the template type T in call to method static method Doctrine\\DBAL\\DriverManager::getConnection\(\)~'
@@ -125,8 +145,8 @@ parameters:
                 - %currentWorkingDirectory%/tests/Functional/Driver/SQLAnywhere/ConnectionTest.php
                 - %currentWorkingDirectory%/tests/Functional/Driver/SQLAnywhere/StatementTest.php
                 - %currentWorkingDirectory%/tests/Functional/ExceptionTest.php
-                - %currentWorkingDirectory%/tests/Functional/MasterSlaveConnectionTest.php
                 - %currentWorkingDirectory%/tests/Functional/PortabilityTest.php
+                - %currentWorkingDirectory%/tests/Functional/PrimaryReadReplicaConnectionTest.php
                 - %currentWorkingDirectory%/tests/Functional/Schema/MySqlSchemaManagerTest.php
                 - %currentWorkingDirectory%/tests/Schema/Synchronizer/SingleDatabaseSynchronizerTest.php
                 - %currentWorkingDirectory%/tests/TestUtil.php
@@ -136,6 +156,10 @@ parameters:
             paths:
                 - %currentWorkingDirectory%/src/Driver/PDOSqlsrv/Connection.php
 
+        -
+            message: '~Return type \(Doctrine\\DBAL\\Portability\\Statement\) of method Doctrine\\DBAL\\Portability\\Connection::prepare\(\) should be compatible with return type \(Doctrine\\DBAL\\Statement\) of method Doctrine\\DBAL\\Connection::prepare\(\)~'
+            paths:
+                - %currentWorkingDirectory%/src/Portability/Connection.php
 includes:
     - vendor/phpstan/phpstan-phpunit/extension.neon
     - vendor/phpstan/phpstan-phpunit/rules.neon

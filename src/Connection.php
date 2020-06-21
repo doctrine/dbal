@@ -81,13 +81,6 @@ class Connection implements DriverConnection
     protected $_expr;
 
     /**
-     * Whether or not a connection has been established.
-     *
-     * @var bool
-     */
-    private $isConnected = false;
-
-    /**
      * The current auto-commit mode of this connection.
      *
      * @var bool
@@ -198,6 +191,8 @@ class Connection implements DriverConnection
     /**
      * Gets the parameters used during instantiation.
      *
+     * @internal
+     *
      * @return array<string, mixed>
      */
     public function getParams(): array
@@ -278,16 +273,15 @@ class Connection implements DriverConnection
      */
     public function connect(): void
     {
-        if ($this->isConnected) {
+        if ($this->_conn !== null) {
             return;
         }
 
-        $driverOptions = $this->params['driverOptions'] ?? [];
-        $user          = $this->params['user'] ?? '';
-        $password      = $this->params['password'] ?? '';
-
-        $this->_conn       = $this->_driver->connect($this->params, $user, $password, $driverOptions);
-        $this->isConnected = true;
+        try {
+            $this->_conn = $this->_driver->connect($this->params);
+        } catch (DriverException $e) {
+            throw DBALException::driverException($this->_driver, $e);
+        }
 
         $this->transactionNestingLevel = 0;
 
@@ -351,7 +345,7 @@ class Connection implements DriverConnection
         if ($this->_conn === null) {
             try {
                 $this->connect();
-            } catch (Throwable $originalException) {
+            } catch (DBALException $originalException) {
                 if (! isset($this->params['dbname'])) {
                     throw $originalException;
                 }
@@ -363,7 +357,7 @@ class Connection implements DriverConnection
 
                 try {
                     $this->connect();
-                } catch (Throwable $fallbackException) {
+                } catch (DBALException $fallbackException) {
                     // Either the platform does not support database-less connections
                     // or something else went wrong.
                     // Reset connection parameters and rethrow the original exception.
@@ -439,7 +433,7 @@ class Connection implements DriverConnection
         $this->autoCommit = $autoCommit;
 
         // Commit all currently active transactions if any when switching auto-commit mode.
-        if (! $this->isConnected || $this->transactionNestingLevel === 0) {
+        if ($this->_conn === null || $this->transactionNestingLevel === 0) {
             return;
         }
 
@@ -514,7 +508,7 @@ class Connection implements DriverConnection
      */
     public function isConnected(): bool
     {
-        return $this->isConnected;
+        return $this->_conn !== null;
     }
 
     /**
@@ -594,8 +588,6 @@ class Connection implements DriverConnection
     public function close(): void
     {
         $this->_conn = null;
-
-        $this->isConnected = false;
     }
 
     /**
@@ -877,6 +869,8 @@ class Connection implements DriverConnection
      *
      * @param string $sql The SQL statement to prepare.
      *
+     * @return Statement
+     *
      * @throws DBALException
      */
     public function prepare(string $sql): DriverStatement
@@ -958,7 +952,7 @@ class Connection implements DriverConnection
             throw NoResultDriverConfigured::new();
         }
 
-        $connectionParams = $this->getParams();
+        $connectionParams = $this->params;
         unset($connectionParams['platform']);
 
         [$cacheKey, $realKey] = $qcp->generateCacheKeys($query, $params, $types, $connectionParams);

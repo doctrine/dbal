@@ -116,10 +116,10 @@ The following options are not completely portable but are supported by most of t
 vendors:
 
 -  **unsigned** (boolean): Whether a ``smallint``, ``integer`` or ``bigint`` Doctrine
-   type column should allow unsigned values only. Supported by MySQL and SQL Anywhere.
+   type column should allow unsigned values only. Supported only by MySQL.
    Defaults to ``false``.
 -  **comment** (integer|string): The column comment. Supported by MySQL, PostgreSQL,
-   Oracle, SQL Server and SQL Anywhere. Defaults to ``null``.
+   Oracle and SQL Server. Defaults to ``null``.
 
 Vendor specific options
 ^^^^^^^^^^^^^^^^^^^^^^^

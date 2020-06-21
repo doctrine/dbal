@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver\PDOSqlsrv;
 
 use Doctrine\DBAL\Driver\AbstractSQLServerDriver;
+use Doctrine\DBAL\Driver\AbstractSQLServerDriver\PortWithoutHost;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use PDO;
 
@@ -19,19 +20,17 @@ final class Driver extends AbstractSQLServerDriver
     /**
      * {@inheritdoc}
      */
-    public function connect(
-        array $params,
-        string $username = '',
-        string $password = '',
-        array $driverOptions = []
-    ): DriverConnection {
+    public function connect(array $params): DriverConnection
+    {
         $pdoOptions = $dsnOptions = [];
 
-        foreach ($driverOptions as $option => $value) {
-            if (is_int($option)) {
-                $pdoOptions[$option] = $value;
-            } else {
-                $dsnOptions[$option] = $value;
+        if (isset($params['driver_options'])) {
+            foreach ($params['driver_options'] as $option => $value) {
+                if (is_int($option)) {
+                    $pdoOptions[$option] = $value;
+                } else {
+                    $dsnOptions[$option] = $value;
+                }
             }
         }
 
@@ -41,8 +40,8 @@ final class Driver extends AbstractSQLServerDriver
 
         return new Connection(
             $this->constructPdoDsn($params, $dsnOptions),
-            $username,
-            $password,
+            $params['user'] ?? '',
+            $params['password'] ?? '',
             $pdoOptions
         );
     }
@@ -61,10 +60,12 @@ final class Driver extends AbstractSQLServerDriver
 
         if (isset($params['host'])) {
             $dsn .= $params['host'];
-        }
 
-        if (isset($params['port'])) {
-            $dsn .= ',' . $params['port'];
+            if (isset($params['port'])) {
+                $dsn .= ',' . $params['port'];
+            }
+        } elseif (isset($params['port'])) {
+            throw PortWithoutHost::new();
         }
 
         if (isset($params['dbname'])) {

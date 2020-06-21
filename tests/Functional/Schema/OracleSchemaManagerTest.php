@@ -25,12 +25,12 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
             return;
         }
 
-        if (! isset($GLOBALS['db_username'])) {
+        if (! isset($GLOBALS['db_user'])) {
             self::markTestSkipped('Username must be explicitly specified in connection parameters for this test');
         }
 
-        TestUtil::getTempConnection()
-            ->exec('GRANT ALL PRIVILEGES TO ' . $GLOBALS['db_username']);
+        TestUtil::getPrivilegedConnection()
+            ->exec('GRANT ALL PRIVILEGES TO ' . $GLOBALS['db_user']);
 
         self::$privilegesGranted = true;
     }
@@ -114,8 +114,8 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testListDatabases(): void
     {
-        // We need the temp connection that has privileges to create a database.
-        $sm = TestUtil::getTempConnection()->getSchemaManager();
+        // We need a privileged connection to create the database.
+        $sm = TestUtil::getPrivilegedConnection()->getSchemaManager();
 
         $sm->dropAndCreateDatabase('c##test_create_database');
 
@@ -249,7 +249,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $otherTable = new Table($table->getName());
         $otherTable->addColumn('id', Types::STRING, ['length' => 32]);
-        TestUtil::getTempConnection()->getSchemaManager()->dropAndCreateTable($otherTable);
+        TestUtil::getPrivilegedConnection()->getSchemaManager()->dropAndCreateTable($otherTable);
 
         $columns = $this->schemaManager->listTableColumns($table->getName(), $this->connection->getDatabase());
         self::assertCount(7, $columns);

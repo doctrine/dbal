@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <psalm
     totallyTyped="false"
-    errorLevel="6"
+    errorLevel="5"
     resolveFromConfigFile="true"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns="https://getpsalm.org/schema/config"
@@ -32,6 +32,15 @@
                 <file name="src/Driver/OCI8/ConvertPositionalToNamedPlaceholders.php"/>
             </errorLevel>
         </ConflictingReferenceConstraint>
+        <FalsableReturnStatement>
+            <errorLevel type="suppress">
+                <!--
+                    Fixing these issues requires an API change
+                -->
+                <file name="src/Driver/PDOSqlsrv/Connection.php"/>
+                <file name="src/Driver/SQLSrv/SQLSrvConnection.php"/>
+            </errorLevel>
+        </FalsableReturnStatement>
         <ImpureMethodCall>
             <errorLevel type="suppress">
                 <!--
@@ -41,6 +50,14 @@
                 <file name="src/Exception/DriverException.php"/>
             </errorLevel>
         </ImpureMethodCall>
+        <NullableReturnStatement>
+            <errorLevel type="suppress">
+                <!--
+                    Fixing this issue requires an API change
+                -->
+                <file name="src/Driver/AbstractSQLiteDriver.php"/>
+            </errorLevel>
+        </NullableReturnStatement>
         <TooFewArguments>
             <errorLevel type="suppress">
                 <!--
@@ -52,7 +69,6 @@
         </TooFewArguments>
         <UndefinedConstant>
             <errorLevel type="suppress">
-                <directory name="src/Driver/SQLAnywhere"/>
                 <!--
                     Requires a release of
                     https://github.com/JetBrains/phpstorm-stubs/pull/732
@@ -60,11 +76,6 @@
                 <file name="tests/Driver/PDOPgSql/DriverTest.php" />
             </errorLevel>
         </UndefinedConstant>
-        <UndefinedFunction>
-            <errorLevel type="suppress">
-                <directory name="src/Driver/SQLAnywhere"/>
-            </errorLevel>
-        </UndefinedFunction>
         <UndefinedClass>
             <errorLevel type="suppress">
                 <!-- Contains references to optional dependencies -->
