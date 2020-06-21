@@ -35,7 +35,7 @@ class ResultTest extends TestCase
     {
         yield 'numeric' => [
             'fetchNumeric',
-            static function (Result $result): array {
+            static function (Result $result) {
                 return $result->fetchNumeric();
             },
             ['bar'],
@@ -43,7 +43,7 @@ class ResultTest extends TestCase
 
         yield 'associative' => [
             'fetchAssociative',
-            static function (Result $result): array {
+            static function (Result $result) {
                 return $result->fetchAssociative();
             },
             ['foo' => 'bar'],
