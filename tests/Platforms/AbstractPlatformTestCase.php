@@ -246,7 +246,7 @@ abstract class AbstractPlatformTestCase extends TestCase
         self::assertEquals($sql, $this->getGenerateForeignKeySql());
     }
 
-    abstract public function getGenerateForeignKeySql(): string;
+    abstract protected function getGenerateForeignKeySql(): string;
 
     public function testGeneratesConstraintCreationSql(): void
     {

@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Tests\Functional\Ticket;
 
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -36,7 +37,7 @@ class DBAL630Test extends FunctionalTestCase
     protected function tearDown(): void
     {
         if ($this->running) {
-            $this->connection->getWrappedConnection()
+            $this->getWrappedConnection()
                 ->getWrappedConnection()
                 ->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
         }
@@ -72,7 +73,7 @@ class DBAL630Test extends FunctionalTestCase
 
     public function testBooleanConversionBoolParamEmulatedPrepares(): void
     {
-        $this->connection->getWrappedConnection()
+        $this->getWrappedConnection()
             ->getWrappedConnection()
             ->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
 
@@ -98,7 +99,7 @@ class DBAL630Test extends FunctionalTestCase
         ?bool $statementValue,
         ?bool $databaseConvertedValue
     ): void {
-        $this->connection->getWrappedConnection()
+        $this->getWrappedConnection()
             ->getWrappedConnection()
             ->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
 
@@ -124,7 +125,7 @@ class DBAL630Test extends FunctionalTestCase
         ?bool $statementValue,
         bool $databaseConvertedValue
     ): void {
-        $this->connection->getWrappedConnection()
+        $this->getWrappedConnection()
             ->getWrappedConnection()
             ->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
 
@@ -175,5 +176,13 @@ class DBAL630Test extends FunctionalTestCase
             [false, false],
             [null, null],
         ];
+    }
+
+    private function getWrappedConnection(): PDOConnection
+    {
+        $connection = $this->connection->getWrappedConnection();
+        self::assertInstanceOf(PDOConnection::class, $connection);
+
+        return $connection;
     }
 }

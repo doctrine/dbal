@@ -72,13 +72,6 @@ class Connection implements DriverConnection
     protected $_expr;
 
     /**
-     * Whether or not a connection has been established.
-     *
-     * @var bool
-     */
-    private $isConnected = false;
-
-    /**
      * The current auto-commit mode of this connection.
      *
      * @var bool
@@ -284,7 +277,7 @@ class Connection implements DriverConnection
      */
     public function connect()
     {
-        if ($this->isConnected) {
+        if ($this->_conn !== null) {
             return false;
         }
 
@@ -293,8 +286,6 @@ class Connection implements DriverConnection
         } catch (DriverException $e) {
             throw DBALException::driverException($this->_driver, $e);
         }
-
-        $this->isConnected = true;
 
         $this->transactionNestingLevel = 0;
 
@@ -453,7 +444,7 @@ class Connection implements DriverConnection
         $this->autoCommit = $autoCommit;
 
         // Commit all currently active transactions if any when switching auto-commit mode.
-        if ($this->isConnected !== true || $this->transactionNestingLevel === 0) {
+        if ($this->_conn === null || $this->transactionNestingLevel === 0) {
             return;
         }
 
@@ -530,7 +521,7 @@ class Connection implements DriverConnection
      */
     public function isConnected()
     {
-        return $this->isConnected;
+        return $this->_conn !== null;
     }
 
     /**
@@ -612,8 +603,6 @@ class Connection implements DriverConnection
     public function close()
     {
         $this->_conn = null;
-
-        $this->isConnected = false;
     }
 
     /**
@@ -903,6 +892,8 @@ class Connection implements DriverConnection
      * Prepares an SQL statement.
      *
      * @param string $sql The SQL statement to prepare.
+     *
+     * @return Statement
      *
      * @throws DBALException
      */
@@ -1434,6 +1425,8 @@ class Connection implements DriverConnection
     public function getWrappedConnection()
     {
         $this->connect();
+
+        assert($this->_conn !== null);
 
         return $this->_conn;
     }

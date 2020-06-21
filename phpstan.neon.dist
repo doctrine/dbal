@@ -75,6 +75,16 @@ parameters:
             message: '~^Cannot cast array<string>\|bool\|string\|null to int\.$~'
             path: %currentWorkingDirectory%/src/Tools/Console/Command/RunSqlCommand.php
 
+        # Requires a release of https://github.com/JetBrains/phpstorm-stubs/pull/553
+        -
+            message: '~^Call to function assert\(\) with true will always evaluate to true\.$~'
+            path: %currentWorkingDirectory%/src/Driver/PDOConnection.php
+
+        # Requires a release of https://github.com/JetBrains/phpstorm-stubs/pull/553
+        -
+            message: '~^Strict comparison using !== between int and false will always evaluate to true\.$~'
+            path: %currentWorkingDirectory%/src/Driver/PDOConnection.php
+
         # Requires a release of https://github.com/JetBrains/phpstorm-stubs/pull/732
         -
             message: '~^Access to undefined constant PDO::PGSQL_ATTR_DISABLE_PREPARES\.$~'
@@ -135,5 +145,9 @@ parameters:
             paths:
                 - %currentWorkingDirectory%/src/Driver/PDOSqlsrv/Connection.php
 
+        -
+            message: '~Return type \(Doctrine\\DBAL\\Portability\\Statement\) of method Doctrine\\DBAL\\Portability\\Connection::prepare\(\) should be compatible with return type \(Doctrine\\DBAL\\Statement\) of method Doctrine\\DBAL\\Connection::prepare\(\)~'
+            paths:
+                - %currentWorkingDirectory%/src/Portability/Connection.php
 includes:
     - vendor/phpstan/phpstan-strict-rules/rules.neon

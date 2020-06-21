@@ -55,6 +55,8 @@ class DB2Statement implements Statement
      */
     public function bindValue($param, $value, $type = ParameterType::STRING)
     {
+        assert(is_int($param));
+
         return $this->bindParam($param, $value, $type);
     }
 

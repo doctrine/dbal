@@ -3,7 +3,6 @@
 namespace Doctrine\DBAL\Tests\Functional\Driver\PDOSqlsrv;
 
 use Doctrine\DBAL\Driver as DriverInterface;
-use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\Driver\PDOSqlsrv\Driver;
 use Doctrine\DBAL\Tests\Functional\Driver\AbstractDriverTest;
@@ -44,7 +43,7 @@ class DriverTest extends AbstractDriverTest
     /**
      * @param int[]|string[] $driverOptions
      */
-    protected function getConnection(array $driverOptions): Connection
+    private function getConnection(array $driverOptions): PDOConnection
     {
         return $this->connection->getDriver()->connect(
             array_merge(

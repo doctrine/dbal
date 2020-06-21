@@ -92,11 +92,7 @@ class CachingResult implements Result
      */
     public function fetchAllNumeric(): array
     {
-        $this->store(
-            $this->result->fetchAllAssociative()
-        );
-
-        return array_map('array_values', $this->data);
+        return array_map('array_values', $this->result->fetchAllAssociative());
     }
 
     /**
@@ -104,11 +100,11 @@ class CachingResult implements Result
      */
     public function fetchAllAssociative(): array
     {
-        $this->store(
-            $this->result->fetchAllAssociative()
-        );
+        $data = $this->result->fetchAllAssociative();
 
-        return $this->data;
+        $this->store($data);
+
+        return $data;
     }
 
     /**

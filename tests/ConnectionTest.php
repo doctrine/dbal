@@ -632,7 +632,10 @@ class ConnectionTest extends TestCase
     {
         $driver = $this->createMock(Driver::class);
         $driver->expects(self::once())
-            ->method('connect');
+            ->method('connect')
+            ->willReturn(
+                $this->createMock(Driver\Connection::class)
+            );
 
         $platform = $this->createMock(AbstractPlatform::class);
 

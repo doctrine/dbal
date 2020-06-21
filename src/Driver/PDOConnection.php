@@ -40,7 +40,11 @@ class PDOConnection implements ServerInfoAwareConnection
     public function exec(string $statement): int
     {
         try {
-            return $this->connection->exec($statement);
+            $result = $this->connection->exec($statement);
+
+            assert($result !== false);
+
+            return $result;
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
         }

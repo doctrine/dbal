@@ -101,6 +101,9 @@ class Connection extends BaseConnection
         );
     }
 
+    /**
+     * @return Statement
+     */
     public function prepare(string $sql): DriverStatement
     {
         return new Statement(parent::prepare($sql), $this->converter);
