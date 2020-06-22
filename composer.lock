@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0372454a0ee2de4c2051cc13cbb23b72",
+    "content-hash": "f636004536741040e603f9f76802dc11",
     "packages": [
         {
             "name": "doctrine/cache",
@@ -298,6 +298,71 @@
                 "stream"
             ],
             "time": "2020-04-04T16:56:54+00:00"
+        },
+        {
+            "name": "composer/package-versions-deprecated",
+            "version": "1.8.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/composer/package-versions-deprecated.git",
+                "reference": "98df7f1b293c0550bd5b1ce6b60b59bdda23aa47"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/composer/package-versions-deprecated/zipball/98df7f1b293c0550bd5b1ce6b60b59bdda23aa47",
+                "reference": "98df7f1b293c0550bd5b1ce6b60b59bdda23aa47",
+                "shasum": ""
+            },
+            "require": {
+                "composer-plugin-api": "^1.1.0 || ^2.0",
+                "php": "^7"
+            },
+            "replace": {
+                "ocramius/package-versions": "1.2 - 1.8.99"
+            },
+            "require-dev": {
+                "composer/composer": "^1.9.3 || ^2.0@dev",
+                "ext-zip": "^1.13",
+                "phpunit/phpunit": "^6.5 || ^7"
+            },
+            "type": "composer-plugin",
+            "extra": {
+                "class": "PackageVersions\\Installer",
+                "branch-alias": {
+                    "dev-master": "1.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "PackageVersions\\": "src/PackageVersions"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Marco Pivetta",
+                    "email": "ocramius@gmail.com"
+                },
+                {
+                    "name": "Jordi Boggiano",
+                    "email": "j.boggiano@seld.be"
+                }
+            ],
+            "description": "Composer plugin that provides efficient querying for installed package versions (no runtime IO)",
+            "funding": [
+                {
+                    "url": "https://packagist.com",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/composer/composer",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2020-04-23T11:49:37+00:00"
         },
         {
             "name": "composer/semver",
@@ -872,56 +937,6 @@
             "time": "2020-04-10T16:34:50+00:00"
         },
         {
-            "name": "ocramius/package-versions",
-            "version": "1.4.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Ocramius/PackageVersions.git",
-                "reference": "44af6f3a2e2e04f2af46bcb302ad9600cba41c7d"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Ocramius/PackageVersions/zipball/44af6f3a2e2e04f2af46bcb302ad9600cba41c7d",
-                "reference": "44af6f3a2e2e04f2af46bcb302ad9600cba41c7d",
-                "shasum": ""
-            },
-            "require": {
-                "composer-plugin-api": "^1.0.0",
-                "php": "^7.1.0"
-            },
-            "require-dev": {
-                "composer/composer": "^1.6.3",
-                "doctrine/coding-standard": "^5.0.1",
-                "ext-zip": "*",
-                "infection/infection": "^0.7.1",
-                "phpunit/phpunit": "^7.5.17"
-            },
-            "type": "composer-plugin",
-            "extra": {
-                "class": "PackageVersions\\Installer",
-                "branch-alias": {
-                    "dev-master": "2.0.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "PackageVersions\\": "src/PackageVersions"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Marco Pivetta",
-                    "email": "ocramius@gmail.com"
-                }
-            ],
-            "description": "Composer plugin that provides efficient querying for installed package versions (no runtime IO)",
-            "time": "2019-11-15T16:17:10+00:00"
-        },
-        {
             "name": "openlss/lib-array2xml",
             "version": "1.0.0",
             "source": {
@@ -1334,20 +1349,23 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "0.12.18",
+            "version": "0.12.30",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "1ce27fe29c8660a27926127d350d53d80c4d4286"
+                "reference": "1f2c16d3fbb5eec6e55fbe2358e32570cefa20e5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/1ce27fe29c8660a27926127d350d53d80c4d4286",
-                "reference": "1ce27fe29c8660a27926127d350d53d80c4d4286",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/1f2c16d3fbb5eec6e55fbe2358e32570cefa20e5",
+                "reference": "1f2c16d3fbb5eec6e55fbe2358e32570cefa20e5",
                 "shasum": ""
             },
             "require": {
                 "php": "^7.1"
+            },
+            "conflict": {
+                "phpstan/phpstan-shim": "*"
             },
             "bin": [
                 "phpstan",
@@ -1369,7 +1387,21 @@
                 "MIT"
             ],
             "description": "PHPStan - PHP Static Analysis Tool",
-            "time": "2020-03-22T16:51:47+00:00"
+            "funding": [
+                {
+                    "url": "https://github.com/ondrejmirtes",
+                    "type": "github"
+                },
+                {
+                    "url": "https://www.patreon.com/phpstan",
+                    "type": "patreon"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/phpstan/phpstan",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2020-06-21T14:08:19+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -2660,6 +2692,20 @@
             ],
             "description": "Symfony Console Component",
             "homepage": "https://symfony.com",
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
             "time": "2020-03-30T11:41:10+00:00"
         },
         {

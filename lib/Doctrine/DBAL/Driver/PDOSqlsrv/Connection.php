@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Driver\PDOSqlsrv;
 use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\ParameterType;
 use PDO;
+use function is_string;
 use function strpos;
 use function substr;
 
@@ -45,7 +46,7 @@ class Connection extends PDOConnection
         $val = parent::quote($value, $type);
 
         // Fix for a driver version terminating all values with null byte
-        if (strpos($val, "\0") !== false) {
+        if (is_string($val) && strpos($val, "\0") !== false) {
             $val = substr($val, 0, -1);
         }
 
