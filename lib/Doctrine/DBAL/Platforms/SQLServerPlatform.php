@@ -285,11 +285,13 @@ SQL
             if (isset($options['primary_index']) && $options['primary_index']->hasFlag('nonclustered')) {
                 $flags = ' NONCLUSTERED';
             }
+
             if ($options['primary_index']->getName() !== null) {
                 $columnListSql .= ', CONSTRAINT "' . $options['primary_index']->getName() . '" ';
             } else {
                 $columnListSql .= ', ';
             }
+
             $columnListSql .= ', PRIMARY KEY' . $flags . ' (' . implode(', ', array_unique(array_values($options['primary']))) . ')';
         }
 
