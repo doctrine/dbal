@@ -14,31 +14,19 @@ parameters:
         # removing it would be BC break
         - '~^Constructor of class Doctrine\\DBAL\\Schema\\Table has an unused parameter \$idGeneratorType\.\z~'
 
-        # declaring $tableName in AbstractSchemaManager::_getPortableTableIndexesList() non-optional will be a BC break
-        - '~^Parameter #2 \$table of class Doctrine\\DBAL\\Event\\SchemaIndexDefinitionEventArgs constructor expects string, string\|null given\.\z~'
-
         # changing these would be a BC break, to be done in next major
-        - "~^Casting to bool something that's already bool.~"
-        - "~^Casting to int something that's already int.~"
-        - '~^Method Doctrine\\DBAL\\Driver\\IBMDB2\\DB2Connection::exec\(\) should return int but returns bool\.\z~'
         - '~^Property Doctrine\\DBAL\\Schema\\Table::\$_primaryKeyName \(string\) does not accept (default value of type )?false\.\z~'
         - '~^Property Doctrine\\DBAL\\Schema\\Schema::\$_schemaConfig \(Doctrine\\DBAL\\Schema\\SchemaConfig\) does not accept default value of type false\.\z~'
-        - '~^Method Doctrine\\DBAL\\Schema\\ForeignKeyConstraint::onEvent\(\) should return string\|null but returns false\.\z~'
-        - '~^Method Doctrine\\DBAL\\Schema\\(Oracle|PostgreSql|SQLServer)SchemaManager::_getPortableTableDefinition\(\) should return array but returns string\.\z~'
         - '~^Return type \(int\|false\) of method Doctrine\\DBAL\\Driver\\OCI8\\OCI8Connection\:\:lastInsertId\(\) should be compatible with return type \(string\) of method Doctrine\\DBAL\\Driver\\Connection::lastInsertId\(\)~'
-        - '~^Method Doctrine\\DBAL\\Driver\\SQLSrv\\SQLSrvConnection::errorCode\(\) should return string\|null but returns false\.\z~'
 
         # https://github.com/phpstan/phpstan/issues/3527
         -
             message: '~^Call to private method sqliteCreateFunction\(\) of parent class PDO\.$~'
             path: %currentWorkingDirectory%/lib/Doctrine/DBAL/Driver/PDOSqlite/Driver.php
 
-        # https://github.com/phpstan/phpstan/issues/1847
-        - '~^Parameter #2 \$registeredAliases of static method Doctrine\\DBAL\\Query\\QueryException::unknownAlias\(\) expects array<string>, array<int, int\|string> given\.\z~'
+        # https://github.com/phpstan/phpstan/issues/2857
+        # TODO: remove in 4.0.0
         - '~^Parameter #2 \$registeredAliases of static method Doctrine\\DBAL\\Query\\QueryException::nonUniqueAlias\(\) expects array<string>, array<int, int\|string> given\.\z~'
-
-        # PHPStan is too strict about preg_replace(): https://phpstan.org/r/993dc99f-0d43-4b51-868b-d01f982c1463
-        - '~^Method Doctrine\\DBAL\\Platforms\\AbstractPlatform::escapeStringForLike\(\) should return string but returns string\|null\.\z~'
 
         # legacy variadic-like signature
         # TODO: remove in 3.0.0
@@ -50,12 +38,6 @@ parameters:
         # legacy remnants from doctrine/common
         - '~^Class Doctrine\\Common\\(Collections\\Collection|Persistence\\Proxy) not found\.\z~'
         - '~^.+ on an unknown class Doctrine\\Common\\(Collections\\Collection|Persistence\\Proxy)\.\z~'
-
-        # inheritance variance inference issue
-        - '~^Method Doctrine\\DBAL\\Driver\\PDOConnection::\w+\(\) should return Doctrine\\DBAL\\Driver\\Statement but returns PDOStatement\.\z~'
-
-        # may not exist when pdo_sqlsrv is not loaded but PDO is
-        - '~^Access to undefined constant PDO::SQLSRV_ENCODING_BINARY\.\z~'
 
         # weird class name, represented in stubs as OCI_(Lob|Collection)
         - '~unknown class OCI-(Lob|Collection)~'
@@ -75,11 +57,6 @@ parameters:
         -
             message: '~^Cannot cast array<string>\|bool\|string\|null to int\.$~'
             path: %currentWorkingDirectory%/lib/Doctrine/DBAL/Tools/Console/Command/RunSqlCommand.php
-
-        # Requires a release of https://github.com/JetBrains/phpstorm-stubs/pull/732
-        -
-            message: '~^Access to undefined constant PDO::PGSQL_ATTR_DISABLE_PREPARES\.$~'
-            path: %currentWorkingDirectory%/lib/Doctrine/DBAL/Driver/PDOPgSql/Driver.php
 
         # False Positive
         - '~Strict comparison using === between 1 and 2 will always evaluate to false~'
