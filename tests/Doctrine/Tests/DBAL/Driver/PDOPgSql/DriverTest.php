@@ -3,7 +3,7 @@
 namespace Doctrine\Tests\DBAL\Driver\PDOPgSql;
 
 use Doctrine\DBAL\Driver as DriverInterface;
-use Doctrine\DBAL\Driver\PDOConnection;
+use Doctrine\DBAL\Driver\PDO\Connection;
 use Doctrine\DBAL\Driver\PDOPgSql\Driver;
 use Doctrine\Tests\DBAL\Driver\AbstractPostgreSQLDriverTest;
 use Doctrine\Tests\TestUtil;
@@ -89,7 +89,7 @@ class DriverTest extends AbstractPostgreSQLDriverTest
     /**
      * @param array<int,mixed> $driverOptions
      */
-    private function connect(array $driverOptions): PDOConnection
+    private function connect(array $driverOptions): Connection
     {
         $params = TestUtil::getConnectionParams();
 

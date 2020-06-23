@@ -4,7 +4,7 @@ namespace Doctrine\DBAL\Driver\Mysqli;
 
 use Doctrine\DBAL\Driver\FetchUtils;
 use Doctrine\DBAL\Driver\Result;
-use Doctrine\DBAL\Driver\Statement;
+use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\FetchMode;
@@ -27,7 +27,10 @@ use function is_resource;
 use function sprintf;
 use function str_repeat;
 
-class MysqliStatement implements IteratorAggregate, Statement, Result
+/**
+ * @deprecated Use {@link Statement} instead
+ */
+class MysqliStatement implements IteratorAggregate, StatementInterface, Result
 {
     /** @var string[] */
     protected static $_paramTypeMap = [

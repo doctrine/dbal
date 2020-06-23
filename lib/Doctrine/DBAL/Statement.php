@@ -3,7 +3,7 @@
 namespace Doctrine\DBAL;
 
 use Doctrine\DBAL\Abstraction\Result;
-use Doctrine\DBAL\Driver\DriverException;
+use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
@@ -296,7 +296,7 @@ class Statement implements IteratorAggregate, DriverStatement, Result
             }
 
             return $this->stmt->fetch(FetchMode::NUMERIC);
-        } catch (DriverException $e) {
+        } catch (Exception $e) {
             throw DBALException::driverException($this->conn->getDriver(), $e);
         }
     }
@@ -314,7 +314,7 @@ class Statement implements IteratorAggregate, DriverStatement, Result
             }
 
             return $this->stmt->fetch(FetchMode::ASSOCIATIVE);
-        } catch (DriverException $e) {
+        } catch (Exception $e) {
             throw DBALException::driverException($this->conn->getDriver(), $e);
         }
     }
@@ -332,7 +332,7 @@ class Statement implements IteratorAggregate, DriverStatement, Result
             }
 
             return $this->stmt->fetch(FetchMode::COLUMN);
-        } catch (DriverException $e) {
+        } catch (Exception $e) {
             throw DBALException::driverException($this->conn->getDriver(), $e);
         }
     }
@@ -350,7 +350,7 @@ class Statement implements IteratorAggregate, DriverStatement, Result
             }
 
             return $this->stmt->fetchAll(FetchMode::NUMERIC);
-        } catch (DriverException $e) {
+        } catch (Exception $e) {
             throw DBALException::driverException($this->conn->getDriver(), $e);
         }
     }
@@ -368,7 +368,7 @@ class Statement implements IteratorAggregate, DriverStatement, Result
             }
 
             return $this->stmt->fetchAll(FetchMode::ASSOCIATIVE);
-        } catch (DriverException $e) {
+        } catch (Exception $e) {
             throw DBALException::driverException($this->conn->getDriver(), $e);
         }
     }
@@ -386,7 +386,7 @@ class Statement implements IteratorAggregate, DriverStatement, Result
             }
 
             return $this->stmt->fetchAll(FetchMode::COLUMN);
-        } catch (DriverException $e) {
+        } catch (Exception $e) {
             throw DBALException::driverException($this->conn->getDriver(), $e);
         }
     }
@@ -410,7 +410,7 @@ class Statement implements IteratorAggregate, DriverStatement, Result
                     yield $row;
                 }
             }
-        } catch (DriverException $e) {
+        } catch (Exception $e) {
             throw DBALException::driverException($this->conn->getDriver(), $e);
         }
     }
@@ -434,7 +434,7 @@ class Statement implements IteratorAggregate, DriverStatement, Result
                     yield $row;
                 }
             }
-        } catch (DriverException $e) {
+        } catch (Exception $e) {
             throw DBALException::driverException($this->conn->getDriver(), $e);
         }
     }
@@ -458,7 +458,7 @@ class Statement implements IteratorAggregate, DriverStatement, Result
                     yield $value;
                 }
             }
-        } catch (DriverException $e) {
+        } catch (Exception $e) {
             throw DBALException::driverException($this->conn->getDriver(), $e);
         }
     }

@@ -2,14 +2,14 @@
 
 namespace Doctrine\DBAL\Driver\PDOSqlsrv;
 
-use Doctrine\DBAL\Driver\PDOStatement;
+use Doctrine\DBAL\Driver\PDO\Statement as BaseStatement;
 use Doctrine\DBAL\ParameterType;
 use PDO;
 
 /**
  * PDO SQL Server Statement
  */
-class Statement extends PDOStatement
+class Statement extends BaseStatement
 {
     /**
      * {@inheritdoc}

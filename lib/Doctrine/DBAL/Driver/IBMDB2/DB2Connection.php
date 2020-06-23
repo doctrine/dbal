@@ -2,7 +2,7 @@
 
 namespace Doctrine\DBAL\Driver\IBMDB2;
 
-use Doctrine\DBAL\Driver\Connection;
+use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
 use Doctrine\DBAL\Driver\IBMDB2\Exception\ConnectionError;
 use Doctrine\DBAL\Driver\IBMDB2\Exception\ConnectionFailed;
 use Doctrine\DBAL\Driver\IBMDB2\Exception\PrepareFailed;
@@ -31,7 +31,10 @@ use function is_bool;
 use const DB2_AUTOCOMMIT_OFF;
 use const DB2_AUTOCOMMIT_ON;
 
-class DB2Connection implements Connection, ServerInfoAwareConnection
+/**
+ * @deprecated Use {@link Connection} instead
+ */
+class DB2Connection implements ConnectionInterface, ServerInfoAwareConnection
 {
     /** @var resource */
     private $conn = null;
@@ -91,7 +94,7 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
             throw PrepareFailed::new(error_get_last()['message']);
         }
 
-        return new DB2Statement($stmt);
+        return new Statement($stmt);
     }
 
     /**

@@ -5,7 +5,19 @@ namespace Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
-use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Driver\DriverException as DeprecatedDriverException;
+use Doctrine\DBAL\Exception\ConnectionException;
+use Doctrine\DBAL\Exception\DeadlockException;
+use Doctrine\DBAL\Exception\DriverException;
+use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
+use Doctrine\DBAL\Exception\InvalidFieldNameException;
+use Doctrine\DBAL\Exception\LockWaitTimeoutException;
+use Doctrine\DBAL\Exception\NonUniqueFieldNameException;
+use Doctrine\DBAL\Exception\NotNullConstraintViolationException;
+use Doctrine\DBAL\Exception\SyntaxErrorException;
+use Doctrine\DBAL\Exception\TableExistsException;
+use Doctrine\DBAL\Exception\TableNotFoundException;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Platforms\SQLAnywhere11Platform;
 use Doctrine\DBAL\Platforms\SQLAnywhere12Platform;
 use Doctrine\DBAL\Platforms\SQLAnywhere16Platform;
@@ -18,7 +30,7 @@ use function preg_match;
 use function version_compare;
 
 /**
- * Abstract base implementation of the {@link Doctrine\DBAL\Driver} interface for SAP Sybase SQL Anywhere based drivers.
+ * Abstract base implementation of the {@link Driver} interface for SAP Sybase SQL Anywhere based drivers.
  */
 abstract class AbstractSQLAnywhereDriver implements Driver, ExceptionConverterDriver, VersionAwarePlatformDriver
 {
@@ -27,54 +39,54 @@ abstract class AbstractSQLAnywhereDriver implements Driver, ExceptionConverterDr
      *
      * @link http://dcx.sybase.com/index.html#sa160/en/saerrors/sqlerror.html
      */
-    public function convertException($message, DriverException $exception)
+    public function convertException($message, DeprecatedDriverException $exception)
     {
         switch ($exception->getErrorCode()) {
             case '-306':
             case '-307':
             case '-684':
-                return new Exception\DeadlockException($message, $exception);
+                return new DeadlockException($message, $exception);
 
             case '-210':
             case '-1175':
             case '-1281':
-                return new Exception\LockWaitTimeoutException($message, $exception);
+                return new LockWaitTimeoutException($message, $exception);
 
             case '-100':
             case '-103':
             case '-832':
-                return new Exception\ConnectionException($message, $exception);
+                return new ConnectionException($message, $exception);
 
             case '-143':
-                return new Exception\InvalidFieldNameException($message, $exception);
+                return new InvalidFieldNameException($message, $exception);
 
             case '-193':
             case '-196':
-                return new Exception\UniqueConstraintViolationException($message, $exception);
+                return new UniqueConstraintViolationException($message, $exception);
 
             case '-194':
             case '-198':
-                return new Exception\ForeignKeyConstraintViolationException($message, $exception);
+                return new ForeignKeyConstraintViolationException($message, $exception);
 
             case '-144':
-                return new Exception\NonUniqueFieldNameException($message, $exception);
+                return new NonUniqueFieldNameException($message, $exception);
 
             case '-184':
             case '-195':
-                return new Exception\NotNullConstraintViolationException($message, $exception);
+                return new NotNullConstraintViolationException($message, $exception);
 
             case '-131':
-                return new Exception\SyntaxErrorException($message, $exception);
+                return new SyntaxErrorException($message, $exception);
 
             case '-110':
-                return new Exception\TableExistsException($message, $exception);
+                return new TableExistsException($message, $exception);
 
             case '-141':
             case '-1041':
-                return new Exception\TableNotFoundException($message, $exception);
+                return new TableNotFoundException($message, $exception);
         }
 
-        return new Exception\DriverException($message, $exception);
+        return new DriverException($message, $exception);
     }
 
     /**

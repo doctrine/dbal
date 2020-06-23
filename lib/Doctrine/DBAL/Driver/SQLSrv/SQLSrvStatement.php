@@ -4,7 +4,8 @@ namespace Doctrine\DBAL\Driver\SQLSrv;
 
 use Doctrine\DBAL\Driver\FetchUtils;
 use Doctrine\DBAL\Driver\Result;
-use Doctrine\DBAL\Driver\Statement;
+use Doctrine\DBAL\Driver\SQLSrv\Exception\Error;
+use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
@@ -41,8 +42,10 @@ use const SQLSRV_PARAM_IN;
 
 /**
  * SQL Server Statement.
+ *
+ * @deprecated Use {@link Statement} instead
  */
-class SQLSrvStatement implements IteratorAggregate, Statement, Result
+class SQLSrvStatement implements IteratorAggregate, StatementInterface, Result
 {
     /**
      * The SQLSRV Resource.
@@ -255,7 +258,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement, Result
         }
 
         if (! sqlsrv_execute($this->stmt)) {
-            throw SQLSrvException::fromSqlSrvErrors();
+            throw Error::new();
         }
 
         if ($this->lastInsertId) {
@@ -308,7 +311,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement, Result
         $stmt = sqlsrv_prepare($this->conn, $this->sql, $params);
 
         if (! $stmt) {
-            throw SQLSrvException::fromSqlSrvErrors();
+            throw Error::new();
         }
 
         return $stmt;

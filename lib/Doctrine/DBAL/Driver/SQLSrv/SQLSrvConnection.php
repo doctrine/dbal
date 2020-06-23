@@ -2,9 +2,10 @@
 
 namespace Doctrine\DBAL\Driver\SQLSrv;
 
-use Doctrine\DBAL\Driver\Connection;
+use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
 use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
+use Doctrine\DBAL\Driver\SQLSrv\Exception\Error;
 use Doctrine\DBAL\ParameterType;
 
 use function func_get_args;
@@ -26,8 +27,10 @@ use const SQLSRV_ERR_ERRORS;
 
 /**
  * SQL Server implementation for the Connection interface.
+ *
+ * @deprecated Use {@link Connection} instead
  */
-class SQLSrvConnection implements Connection, ServerInfoAwareConnection
+class SQLSrvConnection implements ConnectionInterface, ServerInfoAwareConnection
 {
     /** @var resource */
     protected $conn;
@@ -44,13 +47,13 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
     public function __construct($serverName, $connectionOptions)
     {
         if (! sqlsrv_configure('WarningsReturnAsErrors', 0)) {
-            throw SQLSrvException::fromSqlSrvErrors();
+            throw Error::new();
         }
 
         $conn = sqlsrv_connect($serverName, $connectionOptions);
 
         if ($conn === false) {
-            throw SQLSrvException::fromSqlSrvErrors();
+            throw Error::new();
         }
 
         $this->conn         = $conn;
@@ -80,7 +83,7 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
      */
     public function prepare($sql)
     {
-        return new SQLSrvStatement($this->conn, $sql, $this->lastInsertId);
+        return new Statement($this->conn, $sql, $this->lastInsertId);
     }
 
     /**
@@ -120,13 +123,13 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
         $stmt = sqlsrv_query($this->conn, $statement);
 
         if ($stmt === false) {
-            throw SQLSrvException::fromSqlSrvErrors();
+            throw Error::new();
         }
 
         $rowsAffected = sqlsrv_rows_affected($stmt);
 
         if ($rowsAffected === false) {
-            throw SQLSrvException::fromSqlSrvErrors();
+            throw Error::new();
         }
 
         return $rowsAffected;
@@ -157,7 +160,7 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
     public function beginTransaction()
     {
         if (! sqlsrv_begin_transaction($this->conn)) {
-            throw SQLSrvException::fromSqlSrvErrors();
+            throw Error::new();
         }
 
         return true;
@@ -169,7 +172,7 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
     public function commit()
     {
         if (! sqlsrv_commit($this->conn)) {
-            throw SQLSrvException::fromSqlSrvErrors();
+            throw Error::new();
         }
 
         return true;
@@ -181,7 +184,7 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
     public function rollBack()
     {
         if (! sqlsrv_rollback($this->conn)) {
-            throw SQLSrvException::fromSqlSrvErrors();
+            throw Error::new();
         }
 
         return true;

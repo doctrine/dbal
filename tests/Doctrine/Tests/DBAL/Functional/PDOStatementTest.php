@@ -2,7 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Functional;
 
-use Doctrine\DBAL\Driver\PDOConnection;
+use Doctrine\DBAL\Driver\PDO\Connection;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use PDO;
@@ -19,7 +19,7 @@ class PDOStatementTest extends DbalFunctionalTestCase
 
         parent::setUp();
 
-        if (! $this->connection->getWrappedConnection() instanceof PDOConnection) {
+        if (! $this->connection->getWrappedConnection() instanceof Connection) {
             $this->markTestSkipped('PDO-only test');
         }
 

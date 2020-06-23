@@ -4,7 +4,7 @@ namespace Doctrine\DBAL\Driver\PDOOracle;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\AbstractOracleDriver;
-use Doctrine\DBAL\Driver\PDOConnection;
+use Doctrine\DBAL\Driver\PDO\Connection;
 use PDOException;
 
 /**
@@ -23,7 +23,7 @@ class Driver extends AbstractOracleDriver
     public function connect(array $params, $username = null, $password = null, array $driverOptions = [])
     {
         try {
-            return new PDOConnection(
+            return new Connection(
                 $this->constructPdoDsn($params),
                 $username,
                 $password,

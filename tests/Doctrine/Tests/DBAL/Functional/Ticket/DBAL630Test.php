@@ -3,7 +3,7 @@
 namespace Doctrine\Tests\DBAL\Functional\Ticket;
 
 use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Driver\PDOConnection;
+use Doctrine\DBAL\Driver\PDO\Connection;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use PDO;
@@ -173,10 +173,10 @@ class DBAL630Test extends DbalFunctionalTestCase
         ];
     }
 
-    private function getWrappedConnection(): PDOConnection
+    private function getWrappedConnection(): Connection
     {
         $connection = $this->connection->getWrappedConnection();
-        self::assertInstanceOf(PDOConnection::class, $connection);
+        self::assertInstanceOf(Connection::class, $connection);
 
         return $connection;
     }

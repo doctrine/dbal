@@ -4,7 +4,7 @@ namespace Doctrine\DBAL\Driver\OCI8;
 
 use Doctrine\DBAL\Driver\FetchUtils;
 use Doctrine\DBAL\Driver\Result;
-use Doctrine\DBAL\Driver\Statement;
+use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
@@ -50,8 +50,10 @@ use const SQLT_CHR;
 
 /**
  * The OCI8 implementation of the Statement interface.
+ *
+ * @deprecated Use {@link Statement} instead
  */
-class OCI8Statement implements IteratorAggregate, Statement, Result
+class OCI8Statement implements IteratorAggregate, StatementInterface, Result
 {
     /** @var resource */
     protected $_dbh;

@@ -4,7 +4,7 @@ namespace Doctrine\DBAL;
 
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Driver\DrizzlePDOMySql\Driver as DrizzlePDOMySQLDriver;
-use Doctrine\DBAL\Driver\IBMDB2\DB2Driver;
+use Doctrine\DBAL\Driver\IBMDB2\Driver as IBMDB2Driver;
 use Doctrine\DBAL\Driver\Mysqli\Driver as MySQLiDriver;
 use Doctrine\DBAL\Driver\OCI8\Driver as OCI8Driver;
 use Doctrine\DBAL\Driver\PDOMySql\Driver as PDOMySQLDriver;
@@ -50,7 +50,7 @@ final class DriverManager
         'pdo_pgsql'          => PDOPgSQLDriver::class,
         'pdo_oci'            => PDOOCIDriver::class,
         'oci8'               => OCI8Driver::class,
-        'ibm_db2'            => DB2Driver::class,
+        'ibm_db2'            => IBMDB2Driver::class,
         'pdo_sqlsrv'         => PDOSQLSrvDriver::class,
         'mysqli'             => MySQLiDriver::class,
         'drizzle_pdo_mysql'  => DrizzlePDOMySQLDriver::class,

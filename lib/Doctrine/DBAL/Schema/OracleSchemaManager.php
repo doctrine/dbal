@@ -3,7 +3,7 @@
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Driver\DriverException;
+use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Types\Type;
 use Throwable;
@@ -37,7 +37,7 @@ class OracleSchemaManager extends AbstractSchemaManager
             $exception = $exception->getPrevious();
             assert($exception instanceof Throwable);
 
-            if (! $exception instanceof DriverException) {
+            if (! $exception instanceof Exception) {
                 throw $exception;
             }
 

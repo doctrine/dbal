@@ -2,8 +2,8 @@
 
 namespace Doctrine\Tests\DBAL\Functional\Driver\Mysqli;
 
+use Doctrine\DBAL\Driver\Mysqli\Connection;
 use Doctrine\DBAL\Driver\Mysqli\Driver;
-use Doctrine\DBAL\Driver\Mysqli\MysqliConnection;
 use Doctrine\DBAL\Driver\Mysqli\MysqliException;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use Doctrine\Tests\TestUtil;
@@ -39,7 +39,7 @@ class ConnectionTest extends DbalFunctionalTestCase
         $driverOptions = [MYSQLI_OPT_CONNECT_TIMEOUT => 1];
 
         $connection = $this->getConnection($driverOptions);
-        self::assertInstanceOf(MysqliConnection::class, $connection);
+        self::assertInstanceOf(Connection::class, $connection);
     }
 
     public function testUnsupportedDriverOption(): void
@@ -58,11 +58,11 @@ class ConnectionTest extends DbalFunctionalTestCase
     /**
      * @param mixed[] $driverOptions
      */
-    private function getConnection(array $driverOptions): MysqliConnection
+    private function getConnection(array $driverOptions): Connection
     {
         $params = TestUtil::getConnectionParams();
 
-        return new MysqliConnection(
+        return new Connection(
             $params,
             $params['user'] ?? '',
             $params['password'] ?? '',

@@ -2,7 +2,7 @@
 
 namespace Doctrine\DBAL\Driver\SQLAnywhere;
 
-use Doctrine\DBAL\Driver\DriverException;
+use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\FetchUtils;
 use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\Driver\Statement;
@@ -350,7 +350,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement, Result
     /**
      * {@inheritdoc}
      *
-     * @throws DriverException
+     * @throws Exception
      */
     public function fetchOne()
     {
@@ -360,7 +360,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement, Result
     /**
      * @return array<int,array<int,mixed>>
      *
-     * @throws DriverException
+     * @throws Exception
      */
     public function fetchAllNumeric(): array
     {
@@ -370,7 +370,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement, Result
     /**
      * @return array<int,array<string,mixed>>
      *
-     * @throws DriverException
+     * @throws Exception
      */
     public function fetchAllAssociative(): array
     {
@@ -380,7 +380,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement, Result
     /**
      * @return array<int,mixed>
      *
-     * @throws DriverException
+     * @throws Exception
      */
     public function fetchFirstColumn(): array
     {

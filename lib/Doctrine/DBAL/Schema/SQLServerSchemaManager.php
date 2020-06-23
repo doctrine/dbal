@@ -3,7 +3,7 @@
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Driver\DriverException;
+use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Types\Type;
 use PDOException;
@@ -35,7 +35,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
             $exception = $exception->getPrevious();
             assert($exception instanceof Throwable);
 
-            if (! $exception instanceof DriverException) {
+            if (! $exception instanceof Exception) {
                 throw $exception;
             }
 

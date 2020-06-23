@@ -5,7 +5,7 @@ namespace Doctrine\DBAL\Driver\IBMDB2;
 use Doctrine\DBAL\Driver\FetchUtils;
 use Doctrine\DBAL\Driver\IBMDB2\Exception\StatementError;
 use Doctrine\DBAL\Driver\Result;
-use Doctrine\DBAL\Driver\Statement;
+use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
@@ -53,7 +53,10 @@ use const DB2_LONG;
 use const DB2_PARAM_FILE;
 use const DB2_PARAM_IN;
 
-class DB2Statement implements IteratorAggregate, Statement, Result
+/**
+ * @deprecated Use {@link Statement} instead
+ */
+class DB2Statement implements IteratorAggregate, StatementInterface, Result
 {
     /** @var resource */
     private $stmt;

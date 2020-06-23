@@ -2,7 +2,7 @@
 
 namespace Doctrine\DBAL\Driver\Mysqli;
 
-use Doctrine\DBAL\Driver\Connection;
+use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
 use Doctrine\DBAL\Driver\PingableConnection;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\ParameterType;
@@ -29,7 +29,10 @@ use const MYSQLI_READ_DEFAULT_FILE;
 use const MYSQLI_READ_DEFAULT_GROUP;
 use const MYSQLI_SERVER_PUBLIC_KEY;
 
-class MysqliConnection implements Connection, PingableConnection, ServerInfoAwareConnection
+/**
+ * @deprecated Use {@link Connection} instead
+ */
+class MysqliConnection implements ConnectionInterface, PingableConnection, ServerInfoAwareConnection
 {
     /**
      * Name of the option to set connection flags
@@ -130,7 +133,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
      */
     public function prepare($prepareString)
     {
-        return new MysqliStatement($this->conn, $prepareString);
+        return new Statement($this->conn, $prepareString);
     }
 
     /**

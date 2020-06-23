@@ -1,5 +1,37 @@
 # Upgrade to 2.11
 
+## Inconsistently and ambiguously named driver-level classes are deprecated
+
+The following classes under the `Driver` namespace have been deprecated in favor of their consistently named counterparts:
+
+- `DriverException` → `Exception`
+- `AbstractDriverException` → `AbstractException`
+- `IBMDB2\DB2Driver` → `IBMDB2\Driver`
+- `IBMDB2\DB2Connection` → `IBMDB2\Connection`
+- `IBMDB2\DB2Statement` → `IBMDB2\Statement`
+- `Mysqli\MysqliConnection` → `Mysqli\Connection`
+- `Mysqli\MysqliStatement` → `Mysqli\Statement`
+- `OCI8\OCI8Connection` → `OCI8\Connection`
+- `OCI8\OCI8Statement` → `OCI8\Statement`
+- `SQLSrv\SQLSrvConnection` → `SQLSrv\Connection`
+- `SQLSrv\SQLSrvStatement` → `SQLSrv\Statement`
+- `PDOConnection` → `PDO\Connection`
+- `PDOStatement` → `PDO\Statement`
+
+All driver-specific exception classes have been deprecated:
+
+- `IBMDB2\DB2Exception`
+- `Mysqli\MysqliException`
+- `OCI8\OCI8Exception`
+- `PDOException`
+- `SQLSrv\SQLSrvException`
+
+A driver-level exception should be only identified as a subtype of `Driver\Exception`.
+Internal driver-level exception implementations may use `Driver\AbstractException` as the base class.
+Driver-specific exception handling has to be implemented either in the driver or based on the type of the `Driver` implementation.
+
+The `Driver\AbstractException` class has been marked internal.
+
 ## `Connection::getParams()` has been marked internal
 
 Consumers of the Connection class should not rely on connection parameters stored in the connection object. If needed, they should be obtained from a different source, e.g. application configuration.
