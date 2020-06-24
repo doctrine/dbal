@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Doctrine\Tests;
+namespace Doctrine\Tests\DBAL;
 
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Types\Type;
