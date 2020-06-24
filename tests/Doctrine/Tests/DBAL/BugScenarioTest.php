@@ -40,5 +40,7 @@ final class BugScenarioTest extends DbalFunctionalTestCase
         $tableDiff  = $comparator->diffTable($originalTable, $modifiedTable);
 
         $schemaManager->alterTable($tableDiff);
+
+        $this->assertTrue(true);
     }
 }
