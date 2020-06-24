@@ -7,6 +7,7 @@ namespace Doctrine\Tests\DBAL;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use Doctrine\Tests\DbalFunctionalTestCase;
 
 final class BugScenarioTest extends DbalFunctionalTestCase
 {
