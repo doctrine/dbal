@@ -87,6 +87,7 @@
             https://github.com/squizlabs/PHP_CodeSniffer/issues/2950
         -->
         <exclude-pattern>lib/Doctrine/DBAL/Driver/IBMDB2/DB2Connection.php</exclude-pattern>
+        <exclude-pattern>lib/Doctrine/DBAL/Driver/Mysqli/Exception/ConnectionFailed.php</exclude-pattern>
         <!-- See https://github.com/squizlabs/PHP_CodeSniffer/issues/2837 -->
         <exclude-pattern>lib/Doctrine/DBAL/SQLParserUtils.php</exclude-pattern>
         <exclude-pattern>lib/Doctrine/DBAL/Tools/Dumper.php</exclude-pattern>

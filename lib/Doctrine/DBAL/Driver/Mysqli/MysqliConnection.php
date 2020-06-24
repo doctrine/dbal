@@ -3,6 +3,9 @@
 namespace Doctrine\DBAL\Driver\Mysqli;
 
 use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
+use Doctrine\DBAL\Driver\Mysqli\Exception\ConnectionError;
+use Doctrine\DBAL\Driver\Mysqli\Exception\ConnectionFailed;
+use Doctrine\DBAL\Driver\Mysqli\Exception\InvalidOption;
 use Doctrine\DBAL\Driver\PingableConnection;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\ParameterType;
@@ -73,7 +76,7 @@ class MysqliConnection implements ConnectionInterface, PingableConnection, Serve
         });
         try {
             if (! $this->conn->real_connect($params['host'], $username, $password, $dbname, $port, $socket, $flags)) {
-                throw new MysqliException($this->conn->connect_error, $this->conn->sqlstate ?? 'HY000', $this->conn->connect_errno);
+                throw ConnectionFailed::new($this->conn);
             }
         } finally {
             restore_error_handler();
@@ -163,7 +166,7 @@ class MysqliConnection implements ConnectionInterface, PingableConnection, Serve
     public function exec($statement)
     {
         if ($this->conn->query($statement) === false) {
-            throw new MysqliException($this->conn->error, $this->conn->sqlstate, $this->conn->errno);
+            throw ConnectionError::new($this->conn);
         }
 
         return $this->conn->affected_rows;
@@ -257,9 +260,7 @@ class MysqliConnection implements ConnectionInterface, PingableConnection, Serve
             }
 
             if (! in_array($option, $supportedDriverOptions, true)) {
-                throw new MysqliException(
-                    sprintf($exceptionMsg, 'Unsupported', $option, $value)
-                );
+                throw InvalidOption::fromOption($option, $value);
             }
 
             if (@mysqli_options($this->conn, $option, $value)) {
