@@ -2,7 +2,8 @@
 
 namespace Doctrine\DBAL\Driver\OCI8;
 
-use Doctrine\DBAL\Driver\Connection;
+use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
+use Doctrine\DBAL\Driver\OCI8\Exception\SequenceDoesNotExist;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\ParameterType;
 use UnexpectedValueException;
@@ -26,8 +27,10 @@ use const OCI_NO_AUTO_COMMIT;
 
 /**
  * OCI8 implementation of the Connection interface.
+ *
+ * @deprecated Use {@link Connection} instead
  */
-class OCI8Connection implements Connection, ServerInfoAwareConnection
+class OCI8Connection implements ConnectionInterface, ServerInfoAwareConnection
 {
     /** @var resource */
     protected $dbh;
@@ -106,7 +109,7 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
      */
     public function prepare($prepareString)
     {
-        return new OCI8Statement($this->dbh, $prepareString, $this);
+        return new Statement($this->dbh, $prepareString, $this);
     }
 
     /**
@@ -164,7 +167,7 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
         $result = $stmt->fetchColumn();
 
         if ($result === false) {
-            throw new OCI8Exception('lastInsertId failed: Query was executed but no result was returned.');
+            throw SequenceDoesNotExist::new();
         }
 
         return (int) $result;

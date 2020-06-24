@@ -4,7 +4,8 @@ namespace Doctrine\DBAL\Portability;
 
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\ColumnCase;
-use Doctrine\DBAL\Driver\PDOConnection;
+use Doctrine\DBAL\Connection as BaseConnection;
+use Doctrine\DBAL\Driver\PDO\Connection as PDOConnection;
 use PDO;
 
 use function func_get_args;
@@ -15,7 +16,7 @@ use const CASE_UPPER;
 /**
  * Portability wrapper for a Connection.
  */
-class Connection extends \Doctrine\DBAL\Connection
+class Connection extends BaseConnection
 {
     public const PORTABILITY_ALL           = 255;
     public const PORTABILITY_NONE          = 0;

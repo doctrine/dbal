@@ -4,7 +4,7 @@ namespace Doctrine\DBAL\Driver\PDOSqlite;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\AbstractSQLiteDriver;
-use Doctrine\DBAL\Driver\PDOConnection;
+use Doctrine\DBAL\Driver\PDO\Connection;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use PDOException;
 
@@ -36,7 +36,7 @@ class Driver extends AbstractSQLiteDriver
         }
 
         try {
-            $pdo = new PDOConnection(
+            $pdo = new Connection(
                 $this->_constructPdoDsn($params),
                 $username,
                 $password,

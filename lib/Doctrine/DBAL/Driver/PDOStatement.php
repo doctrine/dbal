@@ -2,9 +2,12 @@
 
 namespace Doctrine\DBAL\Driver;
 
+use Doctrine\DBAL\Driver\PDO\Exception;
+use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use PDO;
+use PDOException;
 
 use function array_slice;
 use function assert;
@@ -18,8 +21,10 @@ use const E_USER_DEPRECATED;
 /**
  * The PDO implementation of the Statement interface.
  * Used by all PDO-based drivers.
+ *
+ * @deprecated Use {@link Statement} instead
  */
-class PDOStatement extends \PDOStatement implements Statement, Result
+class PDOStatement extends \PDOStatement implements StatementInterface, Result
 {
     private const PARAM_TYPE_MAP = [
         ParameterType::NULL         => PDO::PARAM_NULL,
@@ -69,8 +74,8 @@ class PDOStatement extends \PDOStatement implements Statement, Result
             }
 
             return parent::setFetchMode($fetchMode, $arg2, $arg3);
-        } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+        } catch (PDOException $exception) {
+            throw Exception::new($exception);
         }
     }
 
@@ -83,8 +88,8 @@ class PDOStatement extends \PDOStatement implements Statement, Result
 
         try {
             return parent::bindValue($param, $value, $type);
-        } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+        } catch (PDOException $exception) {
+            throw Exception::new($exception);
         }
     }
 
@@ -103,8 +108,8 @@ class PDOStatement extends \PDOStatement implements Statement, Result
 
         try {
             return parent::bindParam($column, $variable, $type, ...array_slice(func_get_args(), 3));
-        } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+        } catch (PDOException $exception) {
+            throw Exception::new($exception);
         }
     }
 
@@ -117,7 +122,7 @@ class PDOStatement extends \PDOStatement implements Statement, Result
     {
         try {
             return parent::closeCursor();
-        } catch (\PDOException $exception) {
+        } catch (PDOException $exception) {
             // Exceptions not allowed by the interface.
             // In case driver implementations do not adhere to the interface, silence exceptions here.
             return true;
@@ -131,8 +136,8 @@ class PDOStatement extends \PDOStatement implements Statement, Result
     {
         try {
             return parent::execute($params);
-        } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+        } catch (PDOException $exception) {
+            throw Exception::new($exception);
         }
     }
 
@@ -151,8 +156,8 @@ class PDOStatement extends \PDOStatement implements Statement, Result
 
         try {
             return parent::fetch(...$args);
-        } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+        } catch (PDOException $exception) {
+            throw Exception::new($exception);
         }
     }
 
@@ -184,8 +189,8 @@ class PDOStatement extends \PDOStatement implements Statement, Result
             assert(is_array($data));
 
             return $data;
-        } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+        } catch (PDOException $exception) {
+            throw Exception::new($exception);
         }
     }
 
@@ -198,8 +203,8 @@ class PDOStatement extends \PDOStatement implements Statement, Result
     {
         try {
             return parent::fetchColumn($columnIndex);
-        } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+        } catch (PDOException $exception) {
+            throw Exception::new($exception);
         }
     }
 

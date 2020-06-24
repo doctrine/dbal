@@ -14,7 +14,7 @@ interface Result
      *
      * @return array<int,mixed>|false
      *
-     * @throws DriverException
+     * @throws Exception
      */
     public function fetchNumeric();
 
@@ -23,7 +23,7 @@ interface Result
      *
      * @return array<string,mixed>|false
      *
-     * @throws DriverException
+     * @throws Exception
      */
     public function fetchAssociative();
 
@@ -32,7 +32,7 @@ interface Result
      *
      * @return mixed|false
      *
-     * @throws DriverException
+     * @throws Exception
      */
     public function fetchOne();
 
@@ -41,7 +41,7 @@ interface Result
      *
      * @return array<int,array<int,mixed>>
      *
-     * @throws DriverException
+     * @throws Exception
      */
     public function fetchAllNumeric(): array;
 
@@ -50,7 +50,7 @@ interface Result
      *
      * @return array<int,array<string,mixed>>
      *
-     * @throws DriverException
+     * @throws Exception
      */
     public function fetchAllAssociative(): array;
 
@@ -59,7 +59,7 @@ interface Result
      *
      * @return array<int,mixed>
      *
-     * @throws DriverException
+     * @throws Exception
      */
     public function fetchFirstColumn(): array;
 

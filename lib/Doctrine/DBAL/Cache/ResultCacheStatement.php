@@ -4,7 +4,7 @@ namespace Doctrine\DBAL\Cache;
 
 use ArrayIterator;
 use Doctrine\Common\Cache\Cache;
-use Doctrine\DBAL\Driver\DriverException;
+use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\FetchUtils;
 use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\Driver\ResultStatement;
@@ -297,7 +297,7 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Result
     /**
      * @return array<string,mixed>|false
      *
-     * @throws DriverException
+     * @throws Exception
      */
     private function doFetch()
     {

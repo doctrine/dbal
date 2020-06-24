@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver\IBMDB2\Exception;
 
-use Doctrine\DBAL\Driver\IBMDB2\DB2Exception;
+use Doctrine\DBAL\Driver\AbstractException;
 
 use function db2_conn_error;
 use function db2_conn_errormsg;
 
 /**
+ * @internal
+ *
  * @psalm-immutable
  */
-final class ConnectionError extends DB2Exception
+final class ConnectionError extends AbstractException
 {
     /**
      * @param resource $connection

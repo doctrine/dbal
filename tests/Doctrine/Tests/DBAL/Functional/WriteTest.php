@@ -3,7 +3,7 @@
 namespace Doctrine\Tests\DBAL\Functional;
 
 use DateTime;
-use Doctrine\DBAL\Driver\DriverException;
+use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
@@ -347,13 +347,13 @@ class WriteTest extends DbalFunctionalTestCase
      *
      * @return string|false
      *
-     * @throws DriverException
+     * @throws Exception
      */
     private function lastInsertId(?string $name = null)
     {
         try {
             return $this->connection->lastInsertId($name);
-        } catch (DriverException $e) {
+        } catch (Exception $e) {
             if ($e->getCode() === 'IM001') {
                 $this->markTestSkipped($e->getMessage());
             }

@@ -2,16 +2,16 @@
 
 namespace Doctrine\Tests\DBAL\Functional\Driver\OCI8;
 
+use Doctrine\DBAL\Driver\OCI8\Connection;
 use Doctrine\DBAL\Driver\OCI8\Driver;
-use Doctrine\DBAL\Driver\OCI8\OCI8Connection;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\Tests\DbalFunctionalTestCase;
 
 use function extension_loaded;
 
-class OCI8ConnectionTest extends DbalFunctionalTestCase
+class ConnectionTest extends DbalFunctionalTestCase
 {
-    /** @var OCI8Connection */
+    /** @var Connection */
     protected $driverConnection;
 
     protected function setUp(): void

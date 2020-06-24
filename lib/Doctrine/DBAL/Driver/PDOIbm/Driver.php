@@ -3,7 +3,7 @@
 namespace Doctrine\DBAL\Driver\PDOIbm;
 
 use Doctrine\DBAL\Driver\AbstractDB2Driver;
-use Doctrine\DBAL\Driver\PDOConnection;
+use Doctrine\DBAL\Driver\PDO\Connection;
 
 /**
  * Driver for the PDO IBM extension.
@@ -17,7 +17,7 @@ class Driver extends AbstractDB2Driver
      */
     public function connect(array $params, $username = null, $password = null, array $driverOptions = [])
     {
-        return new PDOConnection(
+        return new Connection(
             $this->_constructPdoDsn($params),
             $username,
             $password,
