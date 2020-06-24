@@ -3,6 +3,9 @@
 namespace Doctrine\DBAL\Driver\IBMDB2;
 
 use Doctrine\DBAL\Driver\FetchUtils;
+use Doctrine\DBAL\Driver\IBMDB2\Exception\CannotCopyStreamToStream;
+use Doctrine\DBAL\Driver\IBMDB2\Exception\CannotCreateTemporaryFile;
+use Doctrine\DBAL\Driver\IBMDB2\Exception\CannotWriteToTemporaryFile;
 use Doctrine\DBAL\Driver\IBMDB2\Exception\StatementError;
 use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
@@ -522,7 +525,7 @@ class DB2Statement implements IteratorAggregate, StatementInterface, Result
         $handle = @tmpfile();
 
         if ($handle === false) {
-            throw new DB2Exception('Could not create temporary file: ' . error_get_last()['message']);
+            throw CannotCreateTemporaryFile::new(error_get_last()['message']);
         }
 
         return $handle;
@@ -537,7 +540,7 @@ class DB2Statement implements IteratorAggregate, StatementInterface, Result
     private function copyStreamToStream($source, $target): void
     {
         if (@stream_copy_to_stream($source, $target) === false) {
-            throw new DB2Exception('Could not copy source stream to temporary file: ' . error_get_last()['message']);
+            throw CannotCopyStreamToStream::new(error_get_last()['message']);
         }
     }
 
@@ -549,7 +552,7 @@ class DB2Statement implements IteratorAggregate, StatementInterface, Result
     private function writeStringToStream(string $string, $target): void
     {
         if (@fwrite($target, $string) === false) {
-            throw new DB2Exception('Could not write string to temporary file: ' . error_get_last()['message']);
+            throw CannotWriteToTemporaryFile::new(error_get_last()['message']);
         }
     }
 }
