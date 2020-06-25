@@ -4,6 +4,7 @@
 
 The non-interface methods of driver-level classes have been marked internal:
 
+- `OCI8Connection::getExecuteMode()`
 - `OCI8Statement::convertPositionalToNamedPlaceholders()`
 
 ## Inconsistently and ambiguously named driver-level classes are deprecated
