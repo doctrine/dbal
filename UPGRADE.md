@@ -1,5 +1,11 @@
 # Upgrade to 2.11
 
+## Non-interface driver methods have been marked internal
+
+The non-interface methods of driver-level classes have been marked internal:
+
+- `OCI8Statement::convertPositionalToNamedPlaceholders()`
+
 ## Inconsistently and ambiguously named driver-level classes are deprecated
 
 The following classes under the `Driver` namespace have been deprecated in favor of their consistently named counterparts:

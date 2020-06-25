@@ -133,6 +133,8 @@ class OCI8Statement implements IteratorAggregate, StatementInterface, Result
      * Question marks inside literal strings are therefore handled correctly by this method.
      * This comes at a cost, the whole sql statement has to be looped over.
      *
+     * @internal
+     *
      * @param string $statement The SQL statement to convert.
      *
      * @return mixed[] [0] => the statement value (string), [1] => the paramMap value (array).
