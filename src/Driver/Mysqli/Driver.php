@@ -44,7 +44,7 @@ class Driver extends AbstractMySQLDriver
         $preInitializers  = $this->withSecure($preInitializers, $params);
         $postInitializers = $this->withCharset($postInitializers, $params);
 
-        return new MysqliConnection(
+        return new Connection(
             $host,
             $params['user'] ?? null,
             $params['password'] ?? null,

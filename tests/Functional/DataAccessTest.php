@@ -5,7 +5,7 @@ namespace Doctrine\DBAL\Tests\Functional;
 use DateTime;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Driver\IBMDB2\DB2Driver;
+use Doctrine\DBAL\Driver\IBMDB2\Driver as IBMDB2Driver;
 use Doctrine\DBAL\Driver\Mysqli\Driver as MySQLiDriver;
 use Doctrine\DBAL\Driver\SQLSrv\Driver as SQLSrvDriver;
 use Doctrine\DBAL\ParameterType;
@@ -204,7 +204,7 @@ class DataAccessTest extends FunctionalTestCase
         }
 
         if (
-            $this->connection->getDriver() instanceof DB2Driver
+            $this->connection->getDriver() instanceof IBMDB2Driver
         ) {
             $this->markTestSkipped(
                 'ibm_ibm2 may or may not report the error depending on the PHP version and the connection state'

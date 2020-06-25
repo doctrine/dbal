@@ -1,6 +1,6 @@
 <?php
 
-namespace Doctrine\DBAL\Tests\Functional\Driver;
+namespace Doctrine\DBAL\Tests\Functional\Driver\PDOPgSql;
 
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
@@ -8,7 +8,7 @@ use Doctrine\DBAL\Tests\FunctionalTestCase;
 
 use function extension_loaded;
 
-class PDOPgsqlConnectionTest extends FunctionalTestCase
+class ConnectionTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {

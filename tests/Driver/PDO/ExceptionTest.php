@@ -1,15 +1,16 @@
 <?php
 
-namespace Doctrine\DBAL\Tests\Driver;
+namespace Doctrine\DBAL\Tests\Driver\PDO;
 
-use Doctrine\DBAL\Driver\PDOException;
+use Doctrine\DBAL\Driver\PDO\Exception;
+use PDOException;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @requires extension pdo
  */
-class PDOExceptionTest extends TestCase
+class ExceptionTest extends TestCase
 {
     public const ERROR_CODE = 666;
 
@@ -20,14 +21,14 @@ class PDOExceptionTest extends TestCase
     /**
      * The PDO exception wrapper under test.
      *
-     * @var PDOException
+     * @var Exception
      */
     private $exception;
 
     /**
      * The wrapped PDO exception mock.
      *
-     * @var \PDOException|MockObject
+     * @var PDOException|MockObject
      */
     private $wrappedException;
 
@@ -35,11 +36,11 @@ class PDOExceptionTest extends TestCase
     {
         parent::setUp();
 
-        $this->wrappedException = new \PDOException(self::MESSAGE, self::SQLSTATE);
+        $this->wrappedException = new PDOException(self::MESSAGE, self::SQLSTATE);
 
         $this->wrappedException->errorInfo = [self::SQLSTATE, self::ERROR_CODE];
 
-        $this->exception = new PDOException($this->wrappedException);
+        $this->exception = new Exception($this->wrappedException);
     }
 
     public function testReturnsCode(): void

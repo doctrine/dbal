@@ -3,11 +3,12 @@
 namespace Doctrine\DBAL\Driver\SQLSrv;
 
 use Doctrine\DBAL\Driver\Result as ResultInterface;
-use Doctrine\DBAL\Driver\Statement;
+use Doctrine\DBAL\Driver\SQLSrv\Exception\Error;
+use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
 
+use function assert;
 use function is_int;
-use function is_numeric;
 use function sqlsrv_execute;
 use function sqlsrv_fetch;
 use function sqlsrv_get_field;
@@ -23,8 +24,10 @@ use const SQLSRV_PARAM_IN;
 
 /**
  * SQL Server Statement.
+ *
+ * @deprecated Use {@link Statement} instead
  */
-final class SQLSrvStatement implements Statement
+class SQLSrvStatement implements StatementInterface
 {
     /**
      * The SQLSRV Resource.
@@ -95,11 +98,7 @@ final class SQLSrvStatement implements Statement
      */
     public function bindValue($param, $value, $type = ParameterType::STRING)
     {
-        if (! is_numeric($param)) {
-            throw new SQLSrvException(
-                'sqlsrv does not support named parameters to queries, use question mark (?) placeholders instead.'
-            );
-        }
+        assert(is_int($param));
 
         $this->variables[$param] = $value;
         $this->types[$param]     = $type;
@@ -112,9 +111,7 @@ final class SQLSrvStatement implements Statement
      */
     public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null)
     {
-        if (! is_numeric($column)) {
-            throw new SQLSrvException('sqlsrv does not support named parameters to queries, use question mark (?) placeholders instead.');
-        }
+        assert(is_int($column));
 
         $this->variables[$column] =& $variable;
         $this->types[$column]     = $type;
@@ -145,7 +142,7 @@ final class SQLSrvStatement implements Statement
         }
 
         if (! sqlsrv_execute($this->stmt)) {
-            throw SQLSrvException::fromSqlSrvErrors();
+            throw Error::new();
         }
 
         if ($this->lastInsertId !== null) {
@@ -196,7 +193,7 @@ final class SQLSrvStatement implements Statement
         $stmt = sqlsrv_prepare($this->conn, $this->sql, $params);
 
         if ($stmt === false) {
-            throw SQLSrvException::fromSqlSrvErrors();
+            throw Error::new();
         }
 
         return $stmt;

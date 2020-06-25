@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Doctrine\DBAL\Driver\AbstractSQLServerDriver;
+namespace Doctrine\DBAL\Driver\AbstractSQLServerDriver\Exception;
 
-use Doctrine\DBAL\Driver\AbstractDriverException;
+use Doctrine\DBAL\Driver\AbstractException;
 
 /**
  * @internal
  *
  * @psalm-immutable
  */
-final class PortWithoutHost extends AbstractDriverException
+final class PortWithoutHost extends AbstractException
 {
     public static function new(): self
     {

@@ -3,14 +3,13 @@
 namespace Doctrine\DBAL\Tests\Functional\Driver\PDOSqlsrv;
 
 use Doctrine\DBAL\Driver as DriverInterface;
-use Doctrine\DBAL\Driver\PDOConnection;
+use Doctrine\DBAL\Driver\PDO\Connection;
 use Doctrine\DBAL\Driver\PDOSqlsrv\Driver;
 use Doctrine\DBAL\Tests\Functional\Driver\AbstractDriverTest;
 use Doctrine\DBAL\Tests\TestUtil;
 use PDO;
 
 use function array_merge;
-use function assert;
 use function extension_loaded;
 
 class DriverTest extends AbstractDriverTest
@@ -43,7 +42,7 @@ class DriverTest extends AbstractDriverTest
     /**
      * @param int[]|string[] $driverOptions
      */
-    private function getConnection(array $driverOptions): PDOConnection
+    private function getConnection(array $driverOptions): Connection
     {
         return $this->connection->getDriver()->connect(
             array_merge(
@@ -64,8 +63,6 @@ class DriverTest extends AbstractDriverTest
     public function testDriverOptions(): void
     {
         $connection = $this->getConnection([PDO::ATTR_CASE => PDO::CASE_UPPER]);
-
-        assert($connection instanceof PDOConnection);
 
         self::assertSame(
             PDO::CASE_UPPER,

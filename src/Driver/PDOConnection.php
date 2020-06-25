@@ -2,10 +2,15 @@
 
 namespace Doctrine\DBAL\Driver;
 
+use Doctrine\DBAL\Driver\PDO\Exception;
 use Doctrine\DBAL\Driver\PDO\Result;
+use Doctrine\DBAL\Driver\PDO\Statement;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
+use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
 use PDO;
+use PDOException;
+use PDOStatement;
 
 use function assert;
 
@@ -13,6 +18,8 @@ use function assert;
  * PDO implementation of the Connection interface.
  *
  * Used by all PDO-based drivers.
+ *
+ * @deprecated Use {@link Connection} instead
  */
 class PDOConnection implements ServerInfoAwareConnection
 {
@@ -32,8 +39,8 @@ class PDOConnection implements ServerInfoAwareConnection
         try {
             $this->connection = new PDO($dsn, (string) $user, (string) $password, (array) $options);
             $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+        } catch (PDOException $exception) {
+            throw Exception::new($exception);
         }
     }
 
@@ -45,8 +52,8 @@ class PDOConnection implements ServerInfoAwareConnection
             assert($result !== false);
 
             return $result;
-        } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+        } catch (PDOException $exception) {
+            throw Exception::new($exception);
         }
     }
 
@@ -58,14 +65,14 @@ class PDOConnection implements ServerInfoAwareConnection
         return $this->connection->getAttribute(PDO::ATTR_SERVER_VERSION);
     }
 
-    public function prepare(string $sql): Statement
+    public function prepare(string $sql): StatementInterface
     {
         try {
             return $this->createStatement(
                 $this->connection->prepare($sql)
             );
-        } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+        } catch (PDOException $exception) {
+            throw Exception::new($exception);
         }
     }
 
@@ -73,11 +80,11 @@ class PDOConnection implements ServerInfoAwareConnection
     {
         try {
             $stmt = $this->connection->query($sql);
-            assert($stmt instanceof \PDOStatement);
+            assert($stmt instanceof PDOStatement);
 
             return new Result($stmt);
-        } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+        } catch (PDOException $exception) {
+            throw Exception::new($exception);
         }
     }
 
@@ -100,8 +107,8 @@ class PDOConnection implements ServerInfoAwareConnection
             }
 
             return $this->connection->lastInsertId($name);
-        } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+        } catch (PDOException $exception) {
+            throw Exception::new($exception);
         }
     }
 
@@ -116,9 +123,9 @@ class PDOConnection implements ServerInfoAwareConnection
     /**
      * Creates a wrapped statement
      */
-    protected function createStatement(\PDOStatement $stmt): PDOStatement
+    protected function createStatement(PDOStatement $stmt): Statement
     {
-        return new PDOStatement($stmt);
+        return new Statement($stmt);
     }
 
     /**

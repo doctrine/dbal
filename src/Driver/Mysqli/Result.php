@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver\Mysqli;
 
 use Doctrine\DBAL\Driver\FetchUtils;
+use Doctrine\DBAL\Driver\Mysqli\Exception\StatementError;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use mysqli_stmt;
 use stdClass;
@@ -88,7 +89,7 @@ final class Result implements ResultInterface
         }
 
         if (! $this->statement->bind_result(...$refs)) {
-            throw new MysqliException($this->statement->error, $this->statement->sqlstate, $this->statement->errno);
+            throw StatementError::new($this->statement);
         }
     }
 
@@ -100,7 +101,7 @@ final class Result implements ResultInterface
         $ret = $this->statement->fetch();
 
         if ($ret === false) {
-            throw new MysqliException($this->statement->error, $this->statement->sqlstate, $this->statement->errno);
+            throw StatementError::new($this->statement);
         }
 
         if ($ret === null) {

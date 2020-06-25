@@ -6,6 +6,8 @@ use Doctrine\DBAL\Driver\AbstractDB2Driver;
 
 /**
  * IBM DB2 Driver.
+ *
+ * @deprecated Use {@link Driver} instead
  */
 class DB2Driver extends AbstractDB2Driver
 {
@@ -14,7 +16,7 @@ class DB2Driver extends AbstractDB2Driver
      */
     public function connect(array $params)
     {
-        return new DB2Connection(
+        return new Connection(
             DataSourceName::fromConnectionParameters($params)->toString(),
             isset($params['persistent']) && $params['persistent'] === true,
             $params['user'] ?? '',

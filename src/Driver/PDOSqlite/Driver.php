@@ -3,7 +3,7 @@
 namespace Doctrine\DBAL\Driver\PDOSqlite;
 
 use Doctrine\DBAL\Driver\AbstractSQLiteDriver;
-use Doctrine\DBAL\Driver\PDOConnection;
+use Doctrine\DBAL\Driver\PDO\Connection;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 
 use function array_merge;
@@ -35,7 +35,7 @@ class Driver extends AbstractSQLiteDriver
             unset($driverOptions['userDefinedFunctions']);
         }
 
-        $connection = new PDOConnection(
+        $connection = new Connection(
             $this->_constructPdoDsn($params),
             $params['user'] ?? '',
             $params['password'] ?? '',

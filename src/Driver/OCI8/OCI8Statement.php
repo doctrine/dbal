@@ -2,8 +2,10 @@
 
 namespace Doctrine\DBAL\Driver\OCI8;
 
+use Doctrine\DBAL\Driver\OCI8\Exception\NonTerminatedStringLiteral;
+use Doctrine\DBAL\Driver\OCI8\Exception\UnknownParameterIndex;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
-use Doctrine\DBAL\Driver\Statement;
+use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
 
 use function assert;
@@ -18,7 +20,6 @@ use function oci_new_descriptor;
 use function oci_parse;
 use function preg_match;
 use function preg_quote;
-use function sprintf;
 use function substr;
 
 use const OCI_B_BIN;
@@ -30,8 +31,10 @@ use const SQLT_CHR;
 
 /**
  * The OCI8 implementation of the Statement interface.
+ *
+ * @deprecated Use {@link Statement} instead
  */
-class OCI8Statement implements Statement
+class OCI8Statement implements StatementInterface
 {
     /** @var resource */
     protected $_dbh;
@@ -116,10 +119,7 @@ class OCI8Statement implements Statement
         } while ($result);
 
         if ($currentLiteralDelimiter) {
-            throw new OCI8Exception(sprintf(
-                'The statement contains non-terminated string literal starting at offset %d',
-                $tokenOffset - 1
-            ));
+            throw NonTerminatedStringLiteral::new($tokenOffset - 1);
         }
 
         $fragments[] = substr($statement, $fragmentOffset);
@@ -239,7 +239,7 @@ class OCI8Statement implements Statement
     {
         if (is_int($param)) {
             if (! isset($this->_paramMap[$param])) {
-                throw new OCI8Exception(sprintf('Could not find variable mapping with index %d, in the SQL statement', $param));
+                throw UnknownParameterIndex::new($param);
             }
 
             $param = $this->_paramMap[$param];

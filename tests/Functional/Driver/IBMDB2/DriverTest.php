@@ -8,7 +8,7 @@ use Doctrine\DBAL\Tests\Functional\Driver\AbstractDriverTest;
 
 use function extension_loaded;
 
-class DB2DriverTest extends AbstractDriverTest
+class DriverTest extends AbstractDriverTest
 {
     protected function setUp(): void
     {

@@ -29,6 +29,9 @@ use function is_bool;
 use const DB2_AUTOCOMMIT_OFF;
 use const DB2_AUTOCOMMIT_ON;
 
+/**
+ * @deprecated Use {@link Connection} instead
+ */
 class DB2Connection implements ServerInfoAwareConnection
 {
     /** @var resource */
@@ -86,7 +89,7 @@ class DB2Connection implements ServerInfoAwareConnection
             throw PrepareFailed::new(error_get_last()['message']);
         }
 
-        return new DB2Statement($stmt);
+        return new Statement($stmt);
     }
 
     public function query(string $sql): ResultInterface

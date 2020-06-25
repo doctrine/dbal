@@ -4,7 +4,19 @@ namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
-use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Driver\DriverException as DeprecatedDriverException;
+use Doctrine\DBAL\Exception\ConnectionException;
+use Doctrine\DBAL\Exception\DriverException;
+use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
+use Doctrine\DBAL\Exception\InvalidFieldNameException;
+use Doctrine\DBAL\Exception\LockWaitTimeoutException;
+use Doctrine\DBAL\Exception\NonUniqueFieldNameException;
+use Doctrine\DBAL\Exception\NotNullConstraintViolationException;
+use Doctrine\DBAL\Exception\ReadOnlyException;
+use Doctrine\DBAL\Exception\SyntaxErrorException;
+use Doctrine\DBAL\Exception\TableExistsException;
+use Doctrine\DBAL\Exception\TableNotFoundException;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\SqliteSchemaManager;
 
@@ -20,10 +32,10 @@ abstract class AbstractSQLiteDriver implements Driver, ExceptionConverterDriver
      *
      * @link http://www.sqlite.org/c3ref/c_abort.html
      */
-    public function convertException($message, DriverException $exception)
+    public function convertException($message, DeprecatedDriverException $exception)
     {
         if (strpos($exception->getMessage(), 'database is locked') !== false) {
-            return new Exception\LockWaitTimeoutException($message, $exception);
+            return new LockWaitTimeoutException($message, $exception);
         }
 
         if (
@@ -32,49 +44,49 @@ abstract class AbstractSQLiteDriver implements Driver, ExceptionConverterDriver
             strpos($exception->getMessage(), 'are not unique') !== false ||
             strpos($exception->getMessage(), 'UNIQUE constraint failed') !== false
         ) {
-            return new Exception\UniqueConstraintViolationException($message, $exception);
+            return new UniqueConstraintViolationException($message, $exception);
         }
 
         if (
             strpos($exception->getMessage(), 'may not be NULL') !== false ||
             strpos($exception->getMessage(), 'NOT NULL constraint failed') !== false
         ) {
-            return new Exception\NotNullConstraintViolationException($message, $exception);
+            return new NotNullConstraintViolationException($message, $exception);
         }
 
         if (strpos($exception->getMessage(), 'no such table:') !== false) {
-            return new Exception\TableNotFoundException($message, $exception);
+            return new TableNotFoundException($message, $exception);
         }
 
         if (strpos($exception->getMessage(), 'already exists') !== false) {
-            return new Exception\TableExistsException($message, $exception);
+            return new TableExistsException($message, $exception);
         }
 
         if (strpos($exception->getMessage(), 'has no column named') !== false) {
-            return new Exception\InvalidFieldNameException($message, $exception);
+            return new InvalidFieldNameException($message, $exception);
         }
 
         if (strpos($exception->getMessage(), 'ambiguous column name') !== false) {
-            return new Exception\NonUniqueFieldNameException($message, $exception);
+            return new NonUniqueFieldNameException($message, $exception);
         }
 
         if (strpos($exception->getMessage(), 'syntax error') !== false) {
-            return new Exception\SyntaxErrorException($message, $exception);
+            return new SyntaxErrorException($message, $exception);
         }
 
         if (strpos($exception->getMessage(), 'attempt to write a readonly database') !== false) {
-            return new Exception\ReadOnlyException($message, $exception);
+            return new ReadOnlyException($message, $exception);
         }
 
         if (strpos($exception->getMessage(), 'unable to open database file') !== false) {
-            return new Exception\ConnectionException($message, $exception);
+            return new ConnectionException($message, $exception);
         }
 
         if (strpos($exception->getMessage(), 'FOREIGN KEY constraint failed') !== false) {
-            return new Exception\ForeignKeyConstraintViolationException($message, $exception);
+            return new ForeignKeyConstraintViolationException($message, $exception);
         }
 
-        return new Exception\DriverException($message, $exception);
+        return new DriverException($message, $exception);
     }
 
     /**

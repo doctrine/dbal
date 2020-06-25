@@ -14,7 +14,7 @@ use const E_ALL;
 use const E_NOTICE;
 use const E_WARNING;
 
-class DB2StatementTest extends FunctionalTestCase
+class StatementTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {

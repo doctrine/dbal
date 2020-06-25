@@ -2,11 +2,14 @@
 
 namespace Doctrine\DBAL\Driver;
 
+use Doctrine\DBAL\Driver\PDO\Exception;
 use Doctrine\DBAL\Driver\PDO\Result;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
+use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
 use InvalidArgumentException;
 use PDO;
+use PDOException;
 
 use function array_slice;
 use function func_get_args;
@@ -14,8 +17,10 @@ use function func_get_args;
 /**
  * The PDO implementation of the Statement interface.
  * Used by all PDO-based drivers.
+ *
+ * @deprecated Use {@link Statement} instead
  */
-class PDOStatement implements Statement
+class PDOStatement implements StatementInterface
 {
     private const PARAM_TYPE_MAP = [
         ParameterType::NULL         => PDO::PARAM_NULL,
@@ -43,8 +48,8 @@ class PDOStatement implements Statement
 
         try {
             return $this->stmt->bindValue($param, $value, $type);
-        } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+        } catch (PDOException $exception) {
+            throw Exception::new($exception);
         }
     }
 
@@ -63,8 +68,8 @@ class PDOStatement implements Statement
 
         try {
             return $this->stmt->bindParam($column, $variable, $type, ...array_slice(func_get_args(), 3));
-        } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+        } catch (PDOException $exception) {
+            throw Exception::new($exception);
         }
     }
 
@@ -75,8 +80,8 @@ class PDOStatement implements Statement
     {
         try {
             $this->stmt->execute($params);
-        } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+        } catch (PDOException $exception) {
+            throw Exception::new($exception);
         }
 
         return new Result($this->stmt);

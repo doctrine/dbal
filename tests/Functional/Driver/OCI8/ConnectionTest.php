@@ -9,7 +9,7 @@ use Doctrine\DBAL\Tests\FunctionalTestCase;
 
 use function extension_loaded;
 
-class OCI8ConnectionTest extends FunctionalTestCase
+class ConnectionTest extends FunctionalTestCase
 {
     /** @var OCI8Connection */
     protected $driverConnection;

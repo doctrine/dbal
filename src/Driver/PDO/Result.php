@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver\PDO;
 
-use Doctrine\DBAL\Driver\PDOException;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use PDO;
+use PDOException;
 use PDOStatement;
 
 use function assert;
@@ -74,8 +74,8 @@ final class Result implements ResultInterface
     {
         try {
             return $this->statement->rowCount();
-        } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+        } catch (PDOException $exception) {
+            throw Exception::new($exception);
         }
     }
 
@@ -83,8 +83,8 @@ final class Result implements ResultInterface
     {
         try {
             return $this->statement->columnCount();
-        } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+        } catch (PDOException $exception) {
+            throw Exception::new($exception);
         }
     }
 
@@ -92,36 +92,36 @@ final class Result implements ResultInterface
     {
         try {
             $this->statement->closeCursor();
-        } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+        } catch (PDOException $exception) {
+            throw Exception::new($exception);
         }
     }
 
     /**
      * @return mixed|false
      *
-     * @throws PDOException
+     * @throws Exception
      */
     private function fetch(int $mode)
     {
         try {
             return $this->statement->fetch($mode);
-        } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+        } catch (PDOException $exception) {
+            throw Exception::new($exception);
         }
     }
 
     /**
      * @return array<int,mixed>
      *
-     * @throws PDOException
+     * @throws Exception
      */
     private function fetchAll(int $mode): array
     {
         try {
             $data = $this->statement->fetchAll($mode);
-        } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+        } catch (PDOException $exception) {
+            throw Exception::new($exception);
         }
 
         assert(is_array($data));

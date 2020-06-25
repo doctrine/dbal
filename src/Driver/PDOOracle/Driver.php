@@ -3,7 +3,7 @@
 namespace Doctrine\DBAL\Driver\PDOOracle;
 
 use Doctrine\DBAL\Driver\AbstractOracleDriver;
-use Doctrine\DBAL\Driver\PDOConnection;
+use Doctrine\DBAL\Driver\PDO\Connection;
 use PDO;
 
 /**
@@ -27,7 +27,7 @@ class Driver extends AbstractOracleDriver
             $driverOptions[PDO::ATTR_PERSISTENT] = true;
         }
 
-        return new PDOConnection(
+        return new Connection(
             $this->constructPdoDsn($params),
             $params['user'] ?? '',
             $params['password'] ?? '',

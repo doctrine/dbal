@@ -2,8 +2,8 @@
 
 namespace Doctrine\DBAL\Tests\Functional\Driver\IBMDB2;
 
-use Doctrine\DBAL\Driver\IBMDB2\DB2Connection;
-use Doctrine\DBAL\Driver\IBMDB2\DB2Driver;
+use Doctrine\DBAL\Driver\IBMDB2\Connection;
+use Doctrine\DBAL\Driver\IBMDB2\Driver;
 use Doctrine\DBAL\Driver\IBMDB2\Exception\ConnectionFailed;
 use Doctrine\DBAL\Driver\IBMDB2\Exception\PrepareFailed;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -11,6 +11,7 @@ use ReflectionProperty;
 
 use function db2_close;
 use function extension_loaded;
+use function get_parent_class;
 
 class ConnectionTest extends FunctionalTestCase
 {
@@ -22,7 +23,7 @@ class ConnectionTest extends FunctionalTestCase
 
         parent::setUp();
 
-        if ($this->connection->getDriver() instanceof DB2Driver) {
+        if ($this->connection->getDriver() instanceof Driver) {
             return;
         }
 
@@ -37,14 +38,14 @@ class ConnectionTest extends FunctionalTestCase
     public function testConnectionFailure(): void
     {
         $this->expectException(ConnectionFailed::class);
-        new DB2Connection('garbage', false, '', '');
+        new Connection('garbage', false, '', '');
     }
 
     public function testPrepareFailure(): void
     {
         $driverConnection = $this->connection->getWrappedConnection();
 
-        $re = new ReflectionProperty($driverConnection, 'conn');
+        $re = new ReflectionProperty(get_parent_class($driverConnection), 'conn');
         $re->setAccessible(true);
         $conn = $re->getValue($driverConnection);
         db2_close($conn);

@@ -2,6 +2,8 @@
 
 namespace Doctrine\DBAL\Driver\Mysqli;
 
+use Doctrine\DBAL\Driver\Mysqli\Exception\ConnectionError;
+use Doctrine\DBAL\Driver\Mysqli\Exception\ConnectionFailed;
 use Doctrine\DBAL\Driver\PingableConnection;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
@@ -13,6 +15,9 @@ use function floor;
 use function mysqli_init;
 use function stripos;
 
+/**
+ * @deprecated Use {@link Connection} instead
+ */
 class MysqliConnection implements PingableConnection, ServerInfoAwareConnection
 {
     /**
@@ -47,11 +52,7 @@ class MysqliConnection implements PingableConnection, ServerInfoAwareConnection
         }
 
         if (! @$connection->real_connect($host, $username, $password, $database, $port, $socket, $flags)) {
-            throw new MysqliException(
-                $connection->connect_error,
-                'HY000',
-                $connection->connect_errno
-            );
+            throw ConnectionFailed::new($connection);
         }
 
         foreach ($postInitializers as $initializer) {
@@ -105,7 +106,7 @@ class MysqliConnection implements PingableConnection, ServerInfoAwareConnection
 
     public function prepare(string $sql): DriverStatement
     {
-        return new MysqliStatement($this->conn, $sql);
+        return new Statement($this->conn, $sql);
     }
 
     public function query(string $sql): ResultInterface
@@ -124,7 +125,7 @@ class MysqliConnection implements PingableConnection, ServerInfoAwareConnection
     public function exec(string $statement): int
     {
         if ($this->conn->query($statement) === false) {
-            throw new MysqliException($this->conn->error, $this->conn->sqlstate, $this->conn->errno);
+            throw ConnectionError::new($this->conn);
         }
 
         return $this->conn->affected_rows;

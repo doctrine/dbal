@@ -3,7 +3,7 @@
 namespace Doctrine\DBAL\Driver\PDOPgSql;
 
 use Doctrine\DBAL\Driver\AbstractPostgreSQLDriver;
-use Doctrine\DBAL\Driver\PDOConnection;
+use Doctrine\DBAL\Driver\PDO\Connection;
 use PDO;
 
 use function defined;
@@ -24,7 +24,7 @@ class Driver extends AbstractPostgreSQLDriver
             $driverOptions[PDO::ATTR_PERSISTENT] = true;
         }
 
-        $connection = new PDOConnection(
+        $connection = new Connection(
             $this->_constructPdoDsn($params),
             $params['user'] ?? '',
             $params['password'] ?? '',

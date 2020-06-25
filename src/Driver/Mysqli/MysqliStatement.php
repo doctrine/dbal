@@ -2,8 +2,12 @@
 
 namespace Doctrine\DBAL\Driver\Mysqli;
 
+use Doctrine\DBAL\Driver\Mysqli\Exception\ConnectionError;
+use Doctrine\DBAL\Driver\Mysqli\Exception\FailedReadingStreamOffset;
+use Doctrine\DBAL\Driver\Mysqli\Exception\StatementError;
+use Doctrine\DBAL\Driver\Mysqli\Exception\UnknownType;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
-use Doctrine\DBAL\Driver\Statement;
+use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\ParameterType;
 use mysqli;
@@ -17,10 +21,12 @@ use function fread;
 use function get_resource_type;
 use function is_int;
 use function is_resource;
-use function sprintf;
 use function str_repeat;
 
-class MysqliStatement implements Statement
+/**
+ * @deprecated Use {@link Statement} instead
+ */
+class MysqliStatement implements StatementInterface
 {
     /** @var string[] */
     protected static $_paramTypeMap = [
@@ -63,7 +69,7 @@ class MysqliStatement implements Statement
         $stmt = $conn->prepare($prepareString);
 
         if ($stmt === false) {
-            throw new MysqliException($this->_conn->error, $this->_conn->sqlstate, $this->_conn->errno);
+            throw ConnectionError::new($this->_conn);
         }
 
         $this->_stmt = $stmt;
@@ -85,7 +91,7 @@ class MysqliStatement implements Statement
         assert(is_int($column));
 
         if (! isset(self::$_paramTypeMap[$type])) {
-            throw new MysqliException(sprintf("Unknown type: '%s'", $type));
+            throw UnknownType::new($type);
         }
 
         $this->_bindedValues[$column] =& $variable;
@@ -102,7 +108,7 @@ class MysqliStatement implements Statement
         assert(is_int($param));
 
         if (! isset(self::$_paramTypeMap[$type])) {
-            throw new MysqliException(sprintf("Unknown type: '%s'", $type));
+            throw UnknownType::new($type);
         }
 
         $this->_values[$param]       = $value;
@@ -120,7 +126,7 @@ class MysqliStatement implements Statement
         if ($this->_bindedValues !== null) {
             if ($params !== null) {
                 if (! $this->bindUntypedValues($params)) {
-                    throw new MysqliException($this->_stmt->error, $this->_stmt->errno);
+                    throw StatementError::new($this->_stmt);
                 }
             } else {
                 $this->bindTypedParameters();
@@ -128,7 +134,7 @@ class MysqliStatement implements Statement
         }
 
         if (! $this->_stmt->execute()) {
-            throw new MysqliException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
+            throw StatementError::new($this->_stmt);
         }
 
         return new Result($this->_stmt);
@@ -167,7 +173,7 @@ class MysqliStatement implements Statement
         }
 
         if (! $this->_stmt->bind_param($types, ...$values)) {
-            throw new MysqliException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
+            throw StatementError::new($this->_stmt);
         }
 
         $this->sendLongData($streams);
@@ -187,11 +193,11 @@ class MysqliStatement implements Statement
                 $chunk = fread($stream, 8192);
 
                 if ($chunk === false) {
-                    throw new MysqliException("Failed reading the stream resource for parameter offset ${paramNr}.");
+                    throw FailedReadingStreamOffset::new($paramNr);
                 }
 
                 if (! $this->_stmt->send_long_data($paramNr - 1, $chunk)) {
-                    throw new MysqliException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
+                    throw StatementError::new($this->_stmt);
                 }
             }
         }

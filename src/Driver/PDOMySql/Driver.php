@@ -3,7 +3,7 @@
 namespace Doctrine\DBAL\Driver\PDOMySql;
 
 use Doctrine\DBAL\Driver\AbstractMySQLDriver;
-use Doctrine\DBAL\Driver\PDOConnection;
+use Doctrine\DBAL\Driver\PDO\Connection;
 use PDO;
 
 /**
@@ -22,7 +22,7 @@ class Driver extends AbstractMySQLDriver
             $driverOptions[PDO::ATTR_PERSISTENT] = true;
         }
 
-        return new PDOConnection(
+        return new Connection(
             $this->constructPdoDsn($params),
             $params['user'] ?? '',
             $params['password'] ?? '',
