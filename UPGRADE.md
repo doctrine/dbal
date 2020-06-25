@@ -41,7 +41,7 @@ Consumers of the Connection class should not rely on connection parameters store
 - The usage of `Doctrine\DBAL\Driver::getDatabase()` is deprecated. Please use `Doctrine\DBAL\Connection::getDatabase()` instead.
 - The behavior of the SQLite connection returning the database file path as the database is deprecated and shouldn't be relied upon.
 
-## Deprecated `Portability\Connection::PORTABILITY_{PLATFORM}` constants`
+## Deprecated `Portability\Connection::PORTABILITY_{PLATFORM}` constants
 
 The platform-specific portability mode flags are meant to be used only by the portability layer internally to optimize
 the user-provided mode for the current database platform. 
