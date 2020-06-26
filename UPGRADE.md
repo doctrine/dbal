@@ -1,5 +1,10 @@
 # Upgrade to 3.0
 
+## BC BREAK Changes in driver exceptions
+
+1. The `Doctrine\DBAL\Driver\DriverException::getErrorCode()` method is removed. In order to obtain the driver error code, please use `::getCode()` or `::getSQLState()`.
+2. The value returned by `Doctrine\DBAL\Driver\PDOException::getSQLState()` no longer falls back to the driver error code.
+
 ## BC BREAK: Changes in `OracleSchemaManager::createDatabase()`
 
 The `$database` argument is no longer nullable or optional.
