@@ -5,6 +5,7 @@
 - `AbstractDriverException`
 - `DriverException`
 - `PDOException`
+- `IBMDB2\DB2Driver`
 - `IBMDB2\DB2Exception`
 - `Mysqli\MysqliException`
 - `OCI8\OCI8Exception`

@@ -1,9 +1,22 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Doctrine\DBAL\Driver\IBMDB2;
 
-final class Driver extends DB2Driver
+use Doctrine\DBAL\Driver\AbstractDB2Driver;
+
+final class Driver extends AbstractDB2Driver
 {
+    /**
+     * {@inheritdoc}
+     */
+    public function connect(array $params)
+    {
+        return new Connection(
+            DataSourceName::fromConnectionParameters($params)->toString(),
+            isset($params['persistent']) && $params['persistent'] === true,
+            $params['user'] ?? '',
+            $params['password'] ?? '',
+            $params['driver_options'] ?? []
+        );
+    }
 }
