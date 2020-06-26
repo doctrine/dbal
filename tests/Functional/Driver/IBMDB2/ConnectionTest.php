@@ -11,7 +11,6 @@ use ReflectionProperty;
 
 use function db2_close;
 use function extension_loaded;
-use function get_parent_class;
 
 class ConnectionTest extends FunctionalTestCase
 {
@@ -45,7 +44,7 @@ class ConnectionTest extends FunctionalTestCase
     {
         $driverConnection = $this->connection->getWrappedConnection();
 
-        $re = new ReflectionProperty(get_parent_class($driverConnection), 'conn');
+        $re = new ReflectionProperty($driverConnection, 'conn');
         $re->setAccessible(true);
         $conn = $re->getValue($driverConnection);
         db2_close($conn);

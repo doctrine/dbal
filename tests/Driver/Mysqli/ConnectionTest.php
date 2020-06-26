@@ -8,7 +8,7 @@ use Doctrine\DBAL\Tests\FunctionalTestCase;
 
 use function extension_loaded;
 
-class MysqliConnectionTest extends FunctionalTestCase
+class ConnectionTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {

@@ -38,7 +38,7 @@
                     Fixing these issues requires an API change
                 -->
                 <file name="src/Driver/PDOSqlsrv/Connection.php"/>
-                <file name="src/Driver/SQLSrv/SQLSrvConnection.php"/>
+                <file name="src/Driver/SQLSrv/Connection.php"/>
             </errorLevel>
         </FalsableReturnStatement>
         <NullableReturnStatement>

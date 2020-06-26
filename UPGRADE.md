@@ -4,11 +4,16 @@
 
 - `AbstractDriverException`
 - `DriverException`
+- `PDOConnection`
 - `PDOException`
+- `IBMDB2\DB2Connection`
 - `IBMDB2\DB2Driver`
 - `IBMDB2\DB2Exception`
+- `Mysqli\MysqliConnection`
 - `Mysqli\MysqliException`
+- `OCI8\OCI8Connection`
 - `OCI8\OCI8Exception`
+- `SQLSrv\SQLSrvConnection`
 - `SQLSrv\SQLSrvException`
 
 ## BC BREAK: `ServerInfoAwareConnection::requiresQueryForServerVersion()` is removed.

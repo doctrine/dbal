@@ -3,8 +3,8 @@
 namespace Doctrine\DBAL\Tests\Functional\Driver\Mysqli;
 
 use Doctrine\DBAL\Driver\Exception;
+use Doctrine\DBAL\Driver\Mysqli\Connection;
 use Doctrine\DBAL\Driver\Mysqli\Driver;
-use Doctrine\DBAL\Driver\Mysqli\MysqliConnection;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 
@@ -70,7 +70,7 @@ class ConnectionTest extends FunctionalTestCase
     /**
      * @param mixed[] $driverOptions
      */
-    private function getConnection(array $driverOptions): MysqliConnection
+    private function getConnection(array $driverOptions): Connection
     {
         $params = TestUtil::getConnectionParams();
 
