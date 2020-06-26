@@ -34,35 +34,35 @@ class AbstractOracleDriverTest extends AbstractDriverTest
     {
         return [
             self::EXCEPTION_CONNECTION => [
-                ['1017', null, null],
-                ['12545', null, null],
+                [1017],
+                [12545],
             ],
             self::EXCEPTION_FOREIGN_KEY_CONSTRAINT_VIOLATION => [
-                ['2292', null, null],
+                [2292],
             ],
             self::EXCEPTION_INVALID_FIELD_NAME => [
-                ['904', null, null],
+                [904],
             ],
             self::EXCEPTION_NON_UNIQUE_FIELD_NAME => [
-                ['918', null, null],
-                ['960', null, null],
+                [918],
+                [960],
             ],
             self::EXCEPTION_NOT_NULL_CONSTRAINT_VIOLATION => [
-                ['1400', null, null],
+                [1400],
             ],
             self::EXCEPTION_SYNTAX_ERROR => [
-                ['923', null, null],
+                [923],
             ],
             self::EXCEPTION_TABLE_EXISTS => [
-                ['955', null, null],
+                [955],
             ],
             self::EXCEPTION_TABLE_NOT_FOUND => [
-                ['942', null, null],
+                [942],
             ],
             self::EXCEPTION_UNIQUE_CONSTRAINT_VIOLATION => [
-                ['1', null, null],
-                ['2299', null, null],
-                ['38911', null, null],
+                [1],
+                [2299],
+                [38911],
             ],
         ];
     }

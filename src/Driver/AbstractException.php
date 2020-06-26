@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver;
 
 use Exception as BaseException;
+use Throwable;
 
 /**
  * Base implementation of the {@link Exception} interface.
@@ -16,13 +17,6 @@ use Exception as BaseException;
 abstract class AbstractException extends BaseException implements DriverException
 {
     /**
-     * The driver specific error code.
-     *
-     * @var int|string|null
-     */
-    private $errorCode;
-
-    /**
      * The SQLSTATE of the driver.
      *
      * @var string|null
@@ -30,24 +24,16 @@ abstract class AbstractException extends BaseException implements DriverExceptio
     private $sqlState;
 
     /**
-     * @param string          $message   The driver error message.
-     * @param string|null     $sqlState  The SQLSTATE the driver is in at the time the error occurred, if any.
-     * @param int|string|null $errorCode The driver specific error code if any.
+     * @param string         $message  The driver error message.
+     * @param string|null    $sqlState The SQLSTATE the driver is in at the time the error occurred, if any.
+     * @param int            $code     The driver specific error code if any.
+     * @param Throwable|null $previous The previous throwable used for the exception chaining.
      */
-    public function __construct($message, $sqlState = null, $errorCode = null)
+    public function __construct($message, $sqlState = null, $code = 0, ?Throwable $previous = null)
     {
-        parent::__construct($message);
+        parent::__construct($message, $code, $previous);
 
-        $this->errorCode = $errorCode;
-        $this->sqlState  = $sqlState;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getErrorCode()
-    {
-        return $this->errorCode;
+        $this->sqlState = $sqlState;
     }
 
     /**

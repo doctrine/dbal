@@ -74,16 +74,13 @@ abstract class AbstractPostgreSQLDriver implements ExceptionConverterDriver, Ver
 
             case '42P07':
                 return new TableExistsException($message, $exception);
+        }
 
-            case '7':
-                // In some case (mainly connection errors) the PDO exception does not provide a SQLSTATE via its code.
-                // The exception code is always set to 7 here.
-                // We have to match against the SQLSTATE in the error message in these cases.
-                if (strpos($exception->getMessage(), 'SQLSTATE[08006]') !== false) {
-                    return new ConnectionException($message, $exception);
-                }
-
-                break;
+        // In some case (mainly connection errors) the PDO exception does not provide a SQLSTATE via its code.
+        // The exception code is always set to 7 here.
+        // We have to match against the SQLSTATE in the error message in these cases.
+        if ($exception->getCode() === 7 && strpos($exception->getMessage(), 'SQLSTATE[08006]') !== false) {
+            return new ConnectionException($message, $exception);
         }
 
         return new DriverException($message, $exception);

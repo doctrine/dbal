@@ -20,9 +20,9 @@ final class Error extends SQLSrvException
 {
     public static function new(): self
     {
-        $message   = '';
-        $sqlState  = null;
-        $errorCode = null;
+        $message  = '';
+        $sqlState = null;
+        $code     = 0;
 
         foreach ((array) sqlsrv_errors(SQLSRV_ERR_ERRORS) as $error) {
             $message .= 'SQLSTATE [' . $error['SQLSTATE'] . ', ' . $error['code'] . ']: ' . $error['message'] . "\n";
@@ -31,17 +31,17 @@ final class Error extends SQLSrvException
                 $sqlState = $error['SQLSTATE'];
             }
 
-            if ($errorCode !== null) {
+            if ($code !== 0) {
                 continue;
             }
 
-            $errorCode = $error['code'];
+            $code = $error['code'];
         }
 
         if ($message === '') {
             $message = 'SQL Server error occurred but no error message was retrieved from driver.';
         }
 
-        return new self(rtrim($message), $sqlState, $errorCode);
+        return new self(rtrim($message), $sqlState, $code);
     }
 }

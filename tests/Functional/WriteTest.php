@@ -350,7 +350,7 @@ class WriteTest extends FunctionalTestCase
         try {
             return $this->connection->lastInsertId($name);
         } catch (Exception $e) {
-            if ($e->getCode() === 'IM001') {
+            if ($e->getSQLState() === 'IM001') {
                 self::markTestSkipped($e->getMessage());
             }
 

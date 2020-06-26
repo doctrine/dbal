@@ -42,7 +42,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
             // because of active connections on the database.
             // To force dropping the database, we first have to close all active connections
             // on that database and issue the drop database operation again.
-            if ($exception->getErrorCode() !== 3702) {
+            if ($exception->getCode() !== 3702) {
                 throw $exception;
             }
 

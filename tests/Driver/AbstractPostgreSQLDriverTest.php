@@ -48,35 +48,35 @@ class AbstractPostgreSQLDriverTest extends AbstractDriverTest
     {
         return [
             self::EXCEPTION_CONNECTION => [
-                [null, '7', 'SQLSTATE[08006]'],
+                [7, null, 'SQLSTATE[08006]'],
             ],
             self::EXCEPTION_FOREIGN_KEY_CONSTRAINT_VIOLATION => [
-                [null, '23503', null],
+                [0, '23503'],
             ],
             self::EXCEPTION_INVALID_FIELD_NAME => [
-                [null, '42703', null],
+                [0, '42703'],
             ],
             self::EXCEPTION_NON_UNIQUE_FIELD_NAME => [
-                [null, '42702', null],
+                [0, '42702'],
             ],
             self::EXCEPTION_NOT_NULL_CONSTRAINT_VIOLATION => [
-                [null, '23502', null],
+                [0, '23502'],
             ],
             self::EXCEPTION_SYNTAX_ERROR => [
-                [null, '42601', null],
+                [0, '42601'],
             ],
             self::EXCEPTION_TABLE_EXISTS => [
-                [null, '42P07', null],
+                [0, '42P07'],
             ],
             self::EXCEPTION_TABLE_NOT_FOUND => [
-                [null, '42P01', null],
+                [0, '42P01'],
             ],
             self::EXCEPTION_UNIQUE_CONSTRAINT_VIOLATION => [
-                [null, '23505', null],
+                [0, '23505'],
             ],
             self::EXCEPTION_DEADLOCK => [
-                [null, '40001', null],
-                [null, '40P01', null],
+                [0, '40001'],
+                [0, '40P01'],
             ],
         ];
     }
