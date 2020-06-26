@@ -2,15 +2,12 @@
 
 namespace Doctrine\DBAL\Driver\OCI8;
 
-use Doctrine\DBAL\Driver\OCI8\Exception\NonTerminatedStringLiteral;
 use Doctrine\DBAL\Driver\OCI8\Exception\UnknownParameterIndex;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
 
 use function assert;
-use function count;
-use function implode;
 use function is_int;
 use function is_resource;
 use function oci_bind_by_name;
@@ -18,15 +15,13 @@ use function oci_error;
 use function oci_execute;
 use function oci_new_descriptor;
 use function oci_parse;
-use function preg_match;
-use function preg_quote;
-use function substr;
 
 use const OCI_B_BIN;
 use const OCI_B_BLOB;
+use const OCI_COMMIT_ON_SUCCESS;
 use const OCI_D_LOB;
+use const OCI_NO_AUTO_COMMIT;
 use const OCI_TEMP_BLOB;
-use const PREG_OFFSET_CAPTURE;
 use const SQLT_CHR;
 
 /**
@@ -42,8 +37,8 @@ class OCI8Statement implements StatementInterface
     /** @var resource */
     protected $_sth;
 
-    /** @var OCI8Connection */
-    protected $_conn;
+    /** @var ExecutionMode */
+    private $executionMode;
 
     /** @var string[] */
     protected $_paramMap = [];
@@ -63,165 +58,17 @@ class OCI8Statement implements StatementInterface
      * @param resource $dbh   The connection handle.
      * @param string   $query The SQL query.
      */
-    public function __construct($dbh, $query, OCI8Connection $conn)
+    public function __construct($dbh, $query, ExecutionMode $executionMode)
     {
-        [$query, $paramMap] = self::convertPositionalToNamedPlaceholders($query);
+        [$query, $paramMap] = (new ConvertPositionalToNamedPlaceholders())($query);
 
         $stmt = oci_parse($dbh, $query);
         assert(is_resource($stmt));
 
-        $this->_sth      = $stmt;
-        $this->_dbh      = $dbh;
-        $this->_paramMap = $paramMap;
-        $this->_conn     = $conn;
-    }
-
-    /**
-     * Converts positional (?) into named placeholders (:param<num>).
-     *
-     * Oracle does not support positional parameters, hence this method converts all
-     * positional parameters into artificially named parameters. Note that this conversion
-     * is not perfect. All question marks (?) in the original statement are treated as
-     * placeholders and converted to a named parameter.
-     *
-     * The algorithm uses a state machine with two possible states: InLiteral and NotInLiteral.
-     * Question marks inside literal strings are therefore handled correctly by this method.
-     * This comes at a cost, the whole sql statement has to be looped over.
-     *
-     * @param string $statement The SQL statement to convert.
-     *
-     * @return mixed[] [0] => the statement value (string), [1] => the paramMap value (array).
-     *
-     * @throws OCI8Exception
-     *
-     * @todo extract into utility class in Doctrine\DBAL\Util namespace
-     * @todo review and test for lost spaces. we experienced missing spaces with oci8 in some sql statements.
-     */
-    public static function convertPositionalToNamedPlaceholders($statement)
-    {
-        $fragmentOffset          = $tokenOffset = 0;
-        $fragments               = $paramMap = [];
-        $currentLiteralDelimiter = null;
-
-        do {
-            if (! $currentLiteralDelimiter) {
-                $result = self::findPlaceholderOrOpeningQuote(
-                    $statement,
-                    $tokenOffset,
-                    $fragmentOffset,
-                    $fragments,
-                    $currentLiteralDelimiter,
-                    $paramMap
-                );
-            } else {
-                $result = self::findClosingQuote($statement, $tokenOffset, $currentLiteralDelimiter);
-            }
-        } while ($result);
-
-        if ($currentLiteralDelimiter) {
-            throw NonTerminatedStringLiteral::new($tokenOffset - 1);
-        }
-
-        $fragments[] = substr($statement, $fragmentOffset);
-        $statement   = implode('', $fragments);
-
-        return [$statement, $paramMap];
-    }
-
-    /**
-     * Finds next placeholder or opening quote.
-     *
-     * @param string             $statement               The SQL statement to parse
-     * @param string             $tokenOffset             The offset to start searching from
-     * @param int                $fragmentOffset          The offset to build the next fragment from
-     * @param string[]           $fragments               Fragments of the original statement not containing placeholders
-     * @param string|null        $currentLiteralDelimiter The delimiter of the current string literal
-     *                                                    or NULL if not currently in a literal
-     * @param array<int, string> $paramMap                Mapping of the original parameter positions to their named replacements
-     *
-     * @return bool Whether the token was found
-     */
-    private static function findPlaceholderOrOpeningQuote(
-        $statement,
-        &$tokenOffset,
-        &$fragmentOffset,
-        &$fragments,
-        &$currentLiteralDelimiter,
-        &$paramMap
-    ) {
-        $token = self::findToken($statement, $tokenOffset, '/[?\'"]/');
-
-        if ($token === null) {
-            return false;
-        }
-
-        if ($token === '?') {
-            $position            = count($paramMap) + 1;
-            $param               = ':param' . $position;
-            $fragments[]         = substr($statement, $fragmentOffset, $tokenOffset - $fragmentOffset);
-            $fragments[]         = $param;
-            $paramMap[$position] = $param;
-            $tokenOffset        += 1;
-            $fragmentOffset      = $tokenOffset;
-
-            return true;
-        }
-
-        $currentLiteralDelimiter = $token;
-        ++$tokenOffset;
-
-        return true;
-    }
-
-    /**
-     * Finds closing quote
-     *
-     * @param string $statement               The SQL statement to parse
-     * @param string $tokenOffset             The offset to start searching from
-     * @param string $currentLiteralDelimiter The delimiter of the current string literal
-     *
-     * @return bool Whether the token was found
-     */
-    private static function findClosingQuote(
-        $statement,
-        &$tokenOffset,
-        &$currentLiteralDelimiter
-    ) {
-        $token = self::findToken(
-            $statement,
-            $tokenOffset,
-            '/' . preg_quote($currentLiteralDelimiter, '/') . '/'
-        );
-
-        if ($token === null) {
-            return false;
-        }
-
-        $currentLiteralDelimiter = false;
-        ++$tokenOffset;
-
-        return true;
-    }
-
-    /**
-     * Finds the token described by regex starting from the given offset. Updates the offset with the position
-     * where the token was found.
-     *
-     * @param string $statement The SQL statement to parse
-     * @param int    $offset    The offset to start searching from
-     * @param string $regex     The regex containing token pattern
-     *
-     * @return string|null Token or NULL if not found
-     */
-    private static function findToken($statement, &$offset, $regex)
-    {
-        if (preg_match($regex, $statement, $matches, PREG_OFFSET_CAPTURE, $offset) === 1) {
-            $offset = $matches[0][1];
-
-            return $matches[0][0];
-        }
-
-        return null;
+        $this->_sth          = $stmt;
+        $this->_dbh          = $dbh;
+        $this->_paramMap     = $paramMap;
+        $this->executionMode = $executionMode;
     }
 
     /**
@@ -299,7 +146,13 @@ class OCI8Statement implements StatementInterface
             }
         }
 
-        $ret = @oci_execute($this->_sth, $this->_conn->getExecuteMode());
+        if ($this->executionMode->isAutoCommitEnabled()) {
+            $mode = OCI_COMMIT_ON_SUCCESS;
+        } else {
+            $mode = OCI_NO_AUTO_COMMIT;
+        }
+
+        $ret = @oci_execute($this->_sth, $mode);
         if (! $ret) {
             throw OCI8Exception::fromErrorInfo(oci_error($this->_sth));
         }

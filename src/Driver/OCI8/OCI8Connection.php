@@ -23,7 +23,6 @@ use function preg_match;
 use function sprintf;
 use function str_replace;
 
-use const OCI_COMMIT_ON_SUCCESS;
 use const OCI_NO_AUTO_COMMIT;
 
 /**
@@ -36,8 +35,8 @@ class OCI8Connection implements ConnectionInterface, ServerInfoAwareConnection
     /** @var resource */
     protected $dbh;
 
-    /** @var int */
-    protected $executeMode = OCI_COMMIT_ON_SUCCESS;
+    /** @var ExecutionMode */
+    private $executionMode;
 
     /**
      * Creates a Connection to an Oracle Database using oci8 extension.
@@ -67,7 +66,8 @@ class OCI8Connection implements ConnectionInterface, ServerInfoAwareConnection
             throw OCI8Exception::fromErrorInfo(oci_error());
         }
 
-        $this->dbh = $dbh;
+        $this->dbh           = $dbh;
+        $this->executionMode = new ExecutionMode();
     }
 
     /**
@@ -107,7 +107,7 @@ class OCI8Connection implements ConnectionInterface, ServerInfoAwareConnection
 
     public function prepare(string $sql): DriverStatement
     {
-        return new Statement($this->dbh, $sql, $this);
+        return new Statement($this->dbh, $sql, $this->executionMode);
     }
 
     public function query(string $sql): ResultInterface
@@ -155,21 +155,11 @@ class OCI8Connection implements ConnectionInterface, ServerInfoAwareConnection
     }
 
     /**
-     * Returns the current execution mode.
-     *
-     * @return int
-     */
-    public function getExecuteMode()
-    {
-        return $this->executeMode;
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function beginTransaction()
     {
-        $this->executeMode = OCI_NO_AUTO_COMMIT;
+        $this->executionMode->disableAutoCommit();
 
         return true;
     }
@@ -183,7 +173,7 @@ class OCI8Connection implements ConnectionInterface, ServerInfoAwareConnection
             throw OCI8Exception::fromErrorInfo(oci_error($this->dbh));
         }
 
-        $this->executeMode = OCI_COMMIT_ON_SUCCESS;
+        $this->executionMode->enableAutoCommit();
 
         return true;
     }
@@ -197,7 +187,7 @@ class OCI8Connection implements ConnectionInterface, ServerInfoAwareConnection
             throw OCI8Exception::fromErrorInfo(oci_error($this->dbh));
         }
 
-        $this->executeMode = OCI_COMMIT_ON_SUCCESS;
+        $this->executionMode->enableAutoCommit();
 
         return true;
     }
