@@ -176,6 +176,8 @@ class OCI8Connection implements ConnectionInterface, ServerInfoAwareConnection
     /**
      * Returns the current execution mode.
      *
+     * @internal
+     *
      * @return int
      */
     public function getExecuteMode()
