@@ -14,6 +14,8 @@ interface Exception extends Throwable
     /**
      * Returns the driver specific error code if available.
      *
+     * @deprecated Use {@link getCode()} or {@link getSQLState()} instead
+     *
      * Returns null if no driver specific error code is available
      * for the error raised by the driver.
      *

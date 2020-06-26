@@ -1,5 +1,9 @@
 # Upgrade to 2.11
 
+## `DriverException::getErrorCode()` is deprecated
+
+The `DriverException::getErrorCode()` is deprecated as redundant and inconsistently supported by drivers. Use `::getCode()` or `::getSQLState()` instead.
+
 ## Non-interface driver methods have been marked internal
 
 The non-interface methods of driver-level classes have been marked internal:
