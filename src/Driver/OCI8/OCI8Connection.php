@@ -3,6 +3,8 @@
 namespace Doctrine\DBAL\Driver\OCI8;
 
 use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
+use Doctrine\DBAL\Driver\OCI8\Exception\ConnectionFailed;
+use Doctrine\DBAL\Driver\OCI8\Exception\Error;
 use Doctrine\DBAL\Driver\OCI8\Exception\SequenceDoesNotExist;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
@@ -15,7 +17,6 @@ use function is_float;
 use function is_int;
 use function oci_commit;
 use function oci_connect;
-use function oci_error;
 use function oci_pconnect;
 use function oci_rollback;
 use function oci_server_version;
@@ -63,7 +64,7 @@ class OCI8Connection implements ConnectionInterface, ServerInfoAwareConnection
             : @oci_connect($username, $password, $db, $charset, $sessionMode);
 
         if ($dbh === false) {
-            throw OCI8Exception::fromErrorInfo(oci_error());
+            throw ConnectionFailed::new();
         }
 
         $this->dbh           = $dbh;
@@ -81,7 +82,7 @@ class OCI8Connection implements ConnectionInterface, ServerInfoAwareConnection
         $version = oci_server_version($this->dbh);
 
         if ($version === false) {
-            throw OCI8Exception::fromErrorInfo(oci_error($this->dbh));
+            throw Error::new($this->dbh);
         }
 
         if (preg_match('/\s+(\d+\.\d+\.\d+\.\d+\.\d+)\s+/', $version, $matches) === 0) {
@@ -162,7 +163,7 @@ class OCI8Connection implements ConnectionInterface, ServerInfoAwareConnection
     public function commit()
     {
         if (! oci_commit($this->dbh)) {
-            throw OCI8Exception::fromErrorInfo(oci_error($this->dbh));
+            throw Error::new($this->dbh);
         }
 
         $this->executionMode->enableAutoCommit();
@@ -176,7 +177,7 @@ class OCI8Connection implements ConnectionInterface, ServerInfoAwareConnection
     public function rollBack()
     {
         if (! oci_rollback($this->dbh)) {
-            throw OCI8Exception::fromErrorInfo(oci_error($this->dbh));
+            throw Error::new($this->dbh);
         }
 
         $this->executionMode->enableAutoCommit();

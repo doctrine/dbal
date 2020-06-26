@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Driver\OCI8;
 
+use Doctrine\DBAL\Driver\OCI8\Exception\Error;
 use Doctrine\DBAL\Driver\OCI8\Exception\UnknownParameterIndex;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
@@ -11,7 +12,6 @@ use function assert;
 use function is_int;
 use function is_resource;
 use function oci_bind_by_name;
-use function oci_error;
 use function oci_execute;
 use function oci_new_descriptor;
 use function oci_parse;
@@ -156,7 +156,7 @@ class OCI8Statement implements StatementInterface
 
         $ret = @oci_execute($this->_sth, $mode);
         if (! $ret) {
-            throw OCI8Exception::fromErrorInfo(oci_error($this->_sth));
+            throw Error::new($this->_sth);
         }
 
         return new Result($this->_sth);
