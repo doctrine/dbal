@@ -3,7 +3,7 @@
 namespace Doctrine\DBAL\Exception;
 
 use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Driver\DriverException as DeprecatedDriverException;
+use Doctrine\DBAL\Driver\Exception as TheDriverException;
 
 use function assert;
 
@@ -12,13 +12,13 @@ use function assert;
  *
  * @psalm-immutable
  */
-class DriverException extends DBALException implements DeprecatedDriverException
+class DriverException extends DBALException implements TheDriverException
 {
     /**
-     * @param string                    $message         The exception message.
-     * @param DeprecatedDriverException $driverException The DBAL driver exception to chain.
+     * @param string             $message         The exception message.
+     * @param TheDriverException $driverException The DBAL driver exception to chain.
      */
-    public function __construct($message, DeprecatedDriverException $driverException)
+    public function __construct($message, TheDriverException $driverException)
     {
         parent::__construct($message, $driverException->getCode(), $driverException);
     }
@@ -29,7 +29,7 @@ class DriverException extends DBALException implements DeprecatedDriverException
     public function getSQLState()
     {
         $previous = $this->getPrevious();
-        assert($previous instanceof DeprecatedDriverException);
+        assert($previous instanceof TheDriverException);
 
         return $previous->getSQLState();
     }

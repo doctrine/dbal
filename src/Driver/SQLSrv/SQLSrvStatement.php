@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Driver\SQLSrv;
 
+use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\SQLSrv\Exception\Error;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
@@ -161,7 +162,7 @@ class SQLSrvStatement implements StatementInterface
      *
      * @return resource
      *
-     * @throws SQLSrvException
+     * @throws Exception
      */
     private function prepare()
     {

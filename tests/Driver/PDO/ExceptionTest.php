@@ -40,7 +40,7 @@ class ExceptionTest extends TestCase
 
         $this->wrappedException->errorInfo = [self::SQLSTATE, self::ERROR_CODE];
 
-        $this->exception = new Exception($this->wrappedException);
+        $this->exception = Exception::new($this->wrappedException);
     }
 
     public function testReturnsCode(): void

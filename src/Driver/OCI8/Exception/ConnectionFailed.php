@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver\OCI8\Exception;
 
-use Doctrine\DBAL\Driver\OCI8\OCI8Exception;
+use Doctrine\DBAL\Driver\AbstractException;
 
 use function assert;
 use function oci_error;
@@ -14,7 +14,7 @@ use function oci_error;
  *
  * @psalm-immutable
  */
-final class ConnectionFailed extends OCI8Exception
+final class ConnectionFailed extends AbstractException
 {
     public static function new(): self
     {

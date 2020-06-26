@@ -4,7 +4,7 @@ namespace Doctrine\DBAL\Tests;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
-use Doctrine\DBAL\Driver\DriverException as InnerDriverException;
+use Doctrine\DBAL\Driver\Exception as InnerDriverException;
 use Doctrine\DBAL\Exception\DriverException;
 use Exception;
 use PHPUnit\Framework\TestCase;

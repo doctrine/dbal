@@ -3,7 +3,7 @@
 namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\Driver;
-use Doctrine\DBAL\Driver\DriverException as TheDriverException;
+use Doctrine\DBAL\Driver\Exception as TheDriverException;
 use Doctrine\DBAL\Exception\DriverException;
 
 /**

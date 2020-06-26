@@ -4,7 +4,7 @@ namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Driver\DriverException as DeprecatedDriverException;
+use Doctrine\DBAL\Driver\Exception as TheDriverException;
 use Doctrine\DBAL\Exception\ConnectionException;
 use Doctrine\DBAL\Exception\DeadlockException;
 use Doctrine\DBAL\Exception\DriverException;
@@ -35,7 +35,7 @@ abstract class AbstractPostgreSQLDriver implements ExceptionConverterDriver, Ver
      *
      * @link http://www.postgresql.org/docs/9.4/static/errcodes-appendix.html
      */
-    public function convertException($message, DeprecatedDriverException $exception)
+    public function convertException($message, TheDriverException $exception)
     {
         switch ($exception->getSQLState()) {
             case '40001':

@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Driver\Mysqli;
 
+use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\Mysqli\Exception\ConnectionError;
 use Doctrine\DBAL\Driver\Mysqli\Exception\ConnectionFailed;
 use Doctrine\DBAL\Driver\PingableConnection;
@@ -32,7 +33,7 @@ class MysqliConnection implements PingableConnection, ServerInfoAwareConnection
      * @param iterable<Initializer> $preInitializers
      * @param iterable<Initializer> $postInitializers
      *
-     * @throws MysqliException
+     * @throws Exception
      */
     public function __construct(
         ?string $host = null,

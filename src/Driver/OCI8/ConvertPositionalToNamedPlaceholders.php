@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver\OCI8;
 
+use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\OCI8\Exception\NonTerminatedStringLiteral;
 
 use function count;
@@ -31,7 +32,7 @@ final class ConvertPositionalToNamedPlaceholders
      *
      * @return mixed[] [0] => the statement value (string), [1] => the paramMap value (array).
      *
-     * @throws OCI8Exception
+     * @throws Exception
      */
     public function __invoke(string $statement): array
     {

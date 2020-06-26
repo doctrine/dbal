@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Driver\OCI8;
 
 use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
+use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\OCI8\Exception\ConnectionFailed;
 use Doctrine\DBAL\Driver\OCI8\Exception\Error;
 use Doctrine\DBAL\Driver\OCI8\Exception\SequenceDoesNotExist;
@@ -49,7 +50,7 @@ class OCI8Connection implements ConnectionInterface, ServerInfoAwareConnection
      * @param int    $sessionMode
      * @param bool   $persistent
      *
-     * @throws OCI8Exception
+     * @throws Exception
      */
     public function __construct(
         $username,

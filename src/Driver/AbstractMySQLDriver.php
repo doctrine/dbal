@@ -4,7 +4,7 @@ namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Driver\DriverException as DeprecatedDriverException;
+use Doctrine\DBAL\Driver\Exception as TheDriverException;
 use Doctrine\DBAL\Exception\ConnectionException;
 use Doctrine\DBAL\Exception\ConnectionLost;
 use Doctrine\DBAL\Exception\DeadlockException;
@@ -40,7 +40,7 @@ abstract class AbstractMySQLDriver implements ExceptionConverterDriver, VersionA
      * @link https://dev.mysql.com/doc/refman/8.0/en/client-error-reference.html
      * @link https://dev.mysql.com/doc/refman/8.0/en/server-error-reference.html
      */
-    public function convertException($message, DeprecatedDriverException $exception)
+    public function convertException($message, TheDriverException $exception)
     {
         switch ($exception->getCode()) {
             case 1213:

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver\Mysqli\Exception;
 
-use Doctrine\DBAL\Driver\Mysqli\MysqliException;
+use Doctrine\DBAL\Driver\AbstractException;
 use mysqli;
 
 use function sprintf;
@@ -14,7 +14,7 @@ use function sprintf;
  *
  * @psalm-immutable
  */
-final class InvalidCharset extends MysqliException
+final class InvalidCharset extends AbstractException
 {
     public static function fromCharset(mysqli $connection, string $charset): self
     {

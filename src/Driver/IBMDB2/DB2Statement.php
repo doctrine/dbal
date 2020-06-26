@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Driver\IBMDB2;
 
+use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\IBMDB2\Exception\CannotCopyStreamToStream;
 use Doctrine\DBAL\Driver\IBMDB2\Exception\CannotCreateTemporaryFile;
 use Doctrine\DBAL\Driver\IBMDB2\Exception\CannotWriteToTemporaryFile;
@@ -106,7 +107,7 @@ class DB2Statement implements StatementInterface
      * @param int   $position Parameter position
      * @param mixed $variable
      *
-     * @throws DB2Exception
+     * @throws Exception
      */
     private function bind($position, &$variable, int $parameterType, int $dataType): void
     {
@@ -160,7 +161,7 @@ class DB2Statement implements StatementInterface
     /**
      * @return resource
      *
-     * @throws DB2Exception
+     * @throws Exception
      */
     private function createTemporaryFile()
     {
@@ -177,7 +178,7 @@ class DB2Statement implements StatementInterface
      * @param resource $source
      * @param resource $target
      *
-     * @throws DB2Exception
+     * @throws Exception
      */
     private function copyStreamToStream($source, $target): void
     {
@@ -189,7 +190,7 @@ class DB2Statement implements StatementInterface
     /**
      * @param resource $target
      *
-     * @throws DB2Exception
+     * @throws Exception
      */
     private function writeStringToStream(string $string, $target): void
     {

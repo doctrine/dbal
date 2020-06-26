@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\Tests\DBAL\Driver\OCI8;
 
 use Doctrine\DBAL\Driver\OCI8\ConvertPositionalToNamedPlaceholders;
-use Doctrine\DBAL\Driver\OCI8\OCI8Exception;
+use Doctrine\DBAL\Driver\OCI8\Exception\NonTerminatedStringLiteral;
 use PHPUnit\Framework\TestCase;
 
 class ConvertPositionalToNamedPlaceholdersTest extends TestCase
@@ -95,7 +95,7 @@ class ConvertPositionalToNamedPlaceholdersTest extends TestCase
      */
     public function testConvertNonTerminatedLiteral(string $sql, string $expectedExceptionMessageRegExp): void
     {
-        $this->expectException(OCI8Exception::class);
+        $this->expectException(NonTerminatedStringLiteral::class);
         $this->expectExceptionMessageMatches($expectedExceptionMessageRegExp);
         ($this->convertPositionalToNamedPlaceholders)($sql);
     }

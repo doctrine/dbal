@@ -2,9 +2,9 @@
 
 namespace Doctrine\DBAL\Tests\Functional\Driver\Mysqli;
 
+use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\Mysqli\Driver;
 use Doctrine\DBAL\Driver\Mysqli\MysqliConnection;
-use Doctrine\DBAL\Driver\Mysqli\MysqliException;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 
@@ -43,7 +43,7 @@ class ConnectionTest extends FunctionalTestCase
 
     public function testUnsupportedDriverOption(): void
     {
-        $this->expectException(MysqliException::class);
+        $this->expectException(Exception::class);
 
         $this->getConnection([12345 => 'world']);
     }
@@ -52,7 +52,7 @@ class ConnectionTest extends FunctionalTestCase
     {
         $params = TestUtil::getConnectionParams();
 
-        $this->expectException(MysqliException::class);
+        $this->expectException(Exception::class);
         (new Driver())->connect(
             array_merge(
                 $params,

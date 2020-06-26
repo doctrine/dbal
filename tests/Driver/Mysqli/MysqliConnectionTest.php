@@ -3,7 +3,7 @@
 namespace Doctrine\DBAL\Tests\Driver\Mysqli;
 
 use Doctrine\DBAL\Driver\Mysqli\Driver;
-use Doctrine\DBAL\Driver\Mysqli\HostRequired;
+use Doctrine\DBAL\Driver\Mysqli\Exception\HostRequired;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 
 use function extension_loaded;

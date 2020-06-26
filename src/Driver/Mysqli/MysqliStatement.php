@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Driver\Mysqli;
 
+use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\Mysqli\Exception\ConnectionError;
 use Doctrine\DBAL\Driver\Mysqli\Exception\FailedReadingStreamOffset;
 use Doctrine\DBAL\Driver\Mysqli\Exception\StatementError;
@@ -62,7 +63,7 @@ class MysqliStatement implements StatementInterface
      *
      * @param string $prepareString
      *
-     * @throws MysqliException
+     * @throws Exception
      */
     public function __construct(mysqli $conn, $prepareString)
     {
@@ -186,7 +187,7 @@ class MysqliStatement implements StatementInterface
      *
      * @param array<int, resource> $streams
      *
-     * @throws MysqliException
+     * @throws Exception
      */
     private function sendLongData(array $streams): void
     {

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver\OCI8\Exception;
 
-use Doctrine\DBAL\Driver\OCI8\OCI8Exception;
+use Doctrine\DBAL\Driver\AbstractException;
 
 use function sprintf;
 
@@ -13,7 +13,7 @@ use function sprintf;
  *
  * @psalm-immutable
  */
-final class NonTerminatedStringLiteral extends OCI8Exception
+final class NonTerminatedStringLiteral extends AbstractException
 {
     public static function new(int $offset): self
     {

@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Driver;
 
+use Doctrine\DBAL\Driver\Exception as ExceptionInterface;
 use Doctrine\DBAL\Driver\PDO\Exception;
 use Doctrine\DBAL\Driver\PDO\Result;
 use Doctrine\DBAL\Driver\PDO\Statement;
@@ -32,7 +33,7 @@ class PDOConnection implements ServerInfoAwareConnection
      * @param string|null  $password
      * @param mixed[]|null $options
      *
-     * @throws PDOException In case of an error.
+     * @throws ExceptionInterface
      */
     public function __construct($dsn, $user = null, $password = null, ?array $options = null)
     {

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver\Mysqli\Exception;
 
-use Doctrine\DBAL\Driver\Mysqli\MysqliException;
+use Doctrine\DBAL\Driver\AbstractException;
 
 use function sprintf;
 
@@ -13,7 +13,7 @@ use function sprintf;
  *
  * @psalm-immutable
  */
-final class UnknownType extends MysqliException
+final class UnknownType extends AbstractException
 {
     /**
      * @param mixed $type

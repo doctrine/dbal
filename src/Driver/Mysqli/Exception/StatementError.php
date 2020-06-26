@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver\Mysqli\Exception;
 
-use Doctrine\DBAL\Driver\Mysqli\MysqliException;
+use Doctrine\DBAL\Driver\AbstractException;
 use mysqli_stmt;
 
 /**
@@ -12,7 +12,7 @@ use mysqli_stmt;
  *
  * @psalm-immutable
  */
-final class StatementError extends MysqliException
+final class StatementError extends AbstractException
 {
     public static function new(mysqli_stmt $statement): self
     {

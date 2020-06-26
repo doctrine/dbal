@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Driver\IBMDB2;
 
+use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\IBMDB2\Exception\ConnectionError;
 use Doctrine\DBAL\Driver\IBMDB2\Exception\ConnectionFailed;
 use Doctrine\DBAL\Driver\IBMDB2\Exception\PrepareFailed;
@@ -40,7 +41,7 @@ class DB2Connection implements ServerInfoAwareConnection
     /**
      * @param array<string,mixed> $driverOptions
      *
-     * @throws DB2Exception
+     * @throws Exception
      */
     public function __construct(
         string $database,

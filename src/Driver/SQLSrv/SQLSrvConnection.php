@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Driver\SQLSrv;
 
+use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\SQLSrv\Exception\Error;
@@ -38,7 +39,7 @@ class SQLSrvConnection implements ServerInfoAwareConnection
      * @param string  $serverName
      * @param mixed[] $connectionOptions
      *
-     * @throws SQLSrvException
+     * @throws Exception
      */
     public function __construct($serverName, $connectionOptions)
     {
