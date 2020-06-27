@@ -1,5 +1,9 @@
 # Upgrade to 2.11
 
+##`ServerInfoAwareConnection::requiresQueryForServerVersion()` is deprecated.
+
+The `ServerInfoAwareConnection::requiresQueryForServerVersion()` method has been deprecated as an implementation detail which is the same for almost all supported drivers.
+
 ## Statement constructors are marked internal
 
 The driver and wrapper statement objects can be only created by the corresponding connection objects.
