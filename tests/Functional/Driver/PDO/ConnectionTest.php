@@ -45,11 +45,6 @@ class ConnectionTest extends FunctionalTestCase
         parent::tearDown();
     }
 
-    public function testDoesNotRequireQueryForServerVersion(): void
-    {
-        self::assertFalse($this->driverConnection->requiresQueryForServerVersion());
-    }
-
     public function testThrowsWrappedExceptionOnConstruct(): void
     {
         $this->expectException(Exception::class);

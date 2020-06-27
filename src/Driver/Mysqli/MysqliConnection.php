@@ -96,14 +96,6 @@ class MysqliConnection implements PingableConnection, ServerInfoAwareConnection
         return $majorVersion . '.' . $minorVersion . '.' . $patchVersion;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function requiresQueryForServerVersion()
-    {
-        return false;
-    }
-
     public function prepare(string $sql): DriverStatement
     {
         return new Statement($this->conn, $sql);

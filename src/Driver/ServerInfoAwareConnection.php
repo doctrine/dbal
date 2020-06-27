@@ -13,11 +13,4 @@ interface ServerInfoAwareConnection extends Connection
      * @return string
      */
     public function getServerVersion();
-
-    /**
-     * Checks whether a query is required to retrieve the database server version.
-     *
-     * @return bool True if a query is required to retrieve the database server version, false otherwise.
-     */
-    public function requiresQueryForServerVersion();
 }
