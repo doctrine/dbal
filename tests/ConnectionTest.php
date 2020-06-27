@@ -662,10 +662,6 @@ class ConnectionTest extends TestCase
             ->will(self::returnValue($driverConnectionMock));
 
         $driverConnectionMock->expects(self::once())
-            ->method('requiresQueryForServerVersion')
-            ->will(self::returnValue(false));
-
-        $driverConnectionMock->expects(self::once())
             ->method('getServerVersion')
             ->will(self::returnValue('6.6.6'));
 

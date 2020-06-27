@@ -1,5 +1,9 @@
 # Upgrade to 3.0
 
+## BC BREAK: `ServerInfoAwareConnection::requiresQueryForServerVersion()` is removed.
+
+The `ServerInfoAwareConnection::requiresQueryForServerVersion()` method has been removed as an implementation detail which is the same for all supported drivers.
+
 ## BC BREAK Changes in driver exceptions
 
 1. The `Doctrine\DBAL\Driver\DriverException::getErrorCode()` method is removed. In order to obtain the driver error code, please use `::getCode()` or `::getSQLState()`.

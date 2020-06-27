@@ -113,14 +113,6 @@ class PDOConnection implements ServerInfoAwareConnection
     }
 
     /**
-     * {@inheritdoc}
-     */
-    public function requiresQueryForServerVersion()
-    {
-        return false;
-    }
-
-    /**
      * Creates a wrapped statement
      */
     protected function createStatement(PDOStatement $stmt): Statement
