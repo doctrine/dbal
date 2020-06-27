@@ -46,9 +46,6 @@ parameters:
         # weird class name, represented in stubs as OCI_(Lob|Collection)
         - '~unknown class OCI-(Lob|Collection)~'
 
-        # https://github.com/phpstan/phpstan-src/pull/255
-        - '~^Method Doctrine\\DBAL\\Driver\\Mysqli\\MysqliStatement::_fetch\(\) never returns null so it can be removed from the return typehint\.$~'
-
         # The ReflectionException in the case when the class does not exist is acceptable and does not need to be handled
         - '~^Parameter #1 \$argument of class ReflectionClass constructor expects class-string<T of object>\|T of object, string given\.$~'
 
