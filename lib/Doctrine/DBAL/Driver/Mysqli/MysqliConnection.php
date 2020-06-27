@@ -281,6 +281,8 @@ class MysqliConnection implements ConnectionInterface, PingableConnection, Serve
     /**
      * Pings the server and re-connects when `mysqli.reconnect = 1`
      *
+     * @deprecated
+     *
      * @return bool
      */
     public function ping()

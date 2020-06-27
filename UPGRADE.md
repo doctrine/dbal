@@ -1,5 +1,9 @@
 # Upgrade to 2.11
 
+## The `PingableConnection` interface is deprecated
+
+The wrapper connection will automatically handle the lost connection if the driver supports reporting it.
+
 ## The `ExceptionConverterDriver` interface is deprecated
 
 All drivers will have to implement the exception conversion API.

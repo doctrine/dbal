@@ -1925,6 +1925,8 @@ class Connection implements DriverConnection
      * It is responsibility of the developer to handle this case
      * and abort the request or reconnect manually:
      *
+     * @deprecated
+     *
      * @return bool
      *
      * @example
