@@ -2,11 +2,14 @@
 
 namespace Doctrine\DBAL\Driver;
 
+use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\DriverException as TheDriverException;
 use Doctrine\DBAL\Exception\DriverException;
 
 /**
  * Contract for a driver that is capable of converting DBAL driver exceptions into standardized DBAL driver exceptions.
+ *
+ * @deprecated All implementors of the {@link Driver} interface will have to implement this API.
  */
 interface ExceptionConverterDriver
 {
