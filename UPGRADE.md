@@ -1,5 +1,9 @@
 # Upgrade to 2.11
 
+## The `ExceptionConverterDriver` interface is deprecated
+
+All drivers will have to implement the exception conversion API.
+
 ## `DriverException::getErrorCode()` is deprecated
 
 The `DriverException::getErrorCode()` is deprecated as redundant and inconsistently supported by drivers. Use `::getCode()` or `::getSQLState()` instead.
