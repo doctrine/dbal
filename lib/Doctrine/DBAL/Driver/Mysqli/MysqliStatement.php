@@ -82,6 +82,8 @@ class MysqliStatement implements IteratorAggregate, StatementInterface, Result
     private $result = false;
 
     /**
+     * @internal The statement can be only instantiated by its driver connection.
+     *
      * @param string $prepareString
      *
      * @throws MysqliException

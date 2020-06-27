@@ -71,6 +71,8 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement, Result
     /**
      * Prepares given statement for given connection.
      *
+     * @internal The statement can be only instantiated by its driver connection.
+     *
      * @param resource $conn The connection resource to use.
      * @param string   $sql  The SQL statement to prepare.
      *

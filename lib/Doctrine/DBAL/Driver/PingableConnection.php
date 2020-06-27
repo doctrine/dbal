@@ -4,6 +4,8 @@ namespace Doctrine\DBAL\Driver;
 
 /**
  * An interface for connections which support a "native" ping method.
+ *
+ * @deprecated
  */
 interface PingableConnection
 {

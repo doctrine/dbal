@@ -131,10 +131,9 @@ class StatementTest extends DbalTestCase
             ->method('getSQLLogger')
             ->will($this->returnValue($logger));
 
-        // Needed to satisfy construction of DBALException
         $this->conn->expects($this->any())
-            ->method('resolveParams')
-            ->will($this->returnValue([]));
+            ->method('handleExceptionDuringQuery')
+            ->will($this->throwException(new DBALException()));
 
         $logger->expects($this->once())
             ->method('startQuery');

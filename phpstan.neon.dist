@@ -7,6 +7,10 @@ parameters:
     reportUnmatchedIgnoredErrors: false
     checkMissingIterableValueType: false
     checkGenericClassInNonGenericObjectType: false
+    earlyTerminatingMethodCalls:
+        Doctrine\DBAL\Connection:
+            - handleDriverException
+            - handleExceptionDuringQuery
     ignoreErrors:
         # extension not available
         - '~^(Used )?(Function|Constant) sasql_\S+ not found\.\z~i'

@@ -92,6 +92,8 @@ class DB2Statement implements IteratorAggregate, StatementInterface, Result
     private $result = false;
 
     /**
+     * @internal The statement can be only instantiated by its driver connection.
+     *
      * @param resource $stmt
      */
     public function __construct($stmt)
