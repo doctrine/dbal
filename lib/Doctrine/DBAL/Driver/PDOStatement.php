@@ -46,6 +46,8 @@ class PDOStatement extends \PDOStatement implements StatementInterface, Result
 
     /**
      * Protected constructor.
+     *
+     * @internal The statement can be only instantiated by its driver connection.
      */
     protected function __construct()
     {

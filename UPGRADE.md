@@ -1,5 +1,9 @@
 # Upgrade to 2.11
 
+## Statement constructors are marked internal
+
+The driver and wrapper statement objects can be only created by the corresponding connection objects.
+
 ## The `PingableConnection` interface is deprecated
 
 The wrapper connection will automatically handle the lost connection if the driver supports reporting it.
