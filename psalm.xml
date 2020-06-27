@@ -55,7 +55,7 @@
                     Requires a release of
                     https://github.com/JetBrains/phpstorm-stubs/pull/727
                 -->
-                <file name="src/Driver/SQLSrv/SQLSrvStatement.php"/>
+                <file name="src/Driver/SQLSrv/Statement.php"/>
             </errorLevel>
         </TooFewArguments>
         <UndefinedConstant>

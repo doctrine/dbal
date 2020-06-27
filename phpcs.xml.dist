@@ -114,6 +114,6 @@
     <!-- The SQLSRV_* functions are defined in the upper case by the sqlsrv extension and violate the standard
          see https://docs.microsoft.com/en-us/sql/connect/php/constants-microsoft-drivers-for-php-for-sql-server -->
     <rule ref="Squiz.PHP.LowercasePHPFunctions">
-        <exclude-pattern>src/Driver/SQLSrv/SQLSrvStatement.php</exclude-pattern>
+        <exclude-pattern>src/Driver/SQLSrv/Statement.php</exclude-pattern>
     </rule>
 </ruleset>
