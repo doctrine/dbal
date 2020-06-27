@@ -161,12 +161,7 @@ class Statement implements IteratorAggregate, DriverStatement, Result
                 $logger->stopQuery();
             }
 
-            throw DBALException::driverExceptionDuringQuery(
-                $this->conn->getDriver(),
-                $ex,
-                $this->sql,
-                $this->conn->resolveParams($this->params, $this->types)
-            );
+            $this->conn->handleExceptionDuringQuery($ex, $this->sql, $this->params, $this->types);
         }
 
         if ($logger) {
@@ -297,7 +292,7 @@ class Statement implements IteratorAggregate, DriverStatement, Result
 
             return $this->stmt->fetch(FetchMode::NUMERIC);
         } catch (Exception $e) {
-            throw DBALException::driverException($this->conn->getDriver(), $e);
+            $this->conn->handleDriverException($e);
         }
     }
 
@@ -315,7 +310,7 @@ class Statement implements IteratorAggregate, DriverStatement, Result
 
             return $this->stmt->fetch(FetchMode::ASSOCIATIVE);
         } catch (Exception $e) {
-            throw DBALException::driverException($this->conn->getDriver(), $e);
+            $this->conn->handleDriverException($e);
         }
     }
 
@@ -333,7 +328,7 @@ class Statement implements IteratorAggregate, DriverStatement, Result
 
             return $this->stmt->fetch(FetchMode::COLUMN);
         } catch (Exception $e) {
-            throw DBALException::driverException($this->conn->getDriver(), $e);
+            $this->conn->handleDriverException($e);
         }
     }
 
@@ -351,7 +346,7 @@ class Statement implements IteratorAggregate, DriverStatement, Result
 
             return $this->stmt->fetchAll(FetchMode::NUMERIC);
         } catch (Exception $e) {
-            throw DBALException::driverException($this->conn->getDriver(), $e);
+            $this->conn->handleDriverException($e);
         }
     }
 
@@ -369,7 +364,7 @@ class Statement implements IteratorAggregate, DriverStatement, Result
 
             return $this->stmt->fetchAll(FetchMode::ASSOCIATIVE);
         } catch (Exception $e) {
-            throw DBALException::driverException($this->conn->getDriver(), $e);
+            $this->conn->handleDriverException($e);
         }
     }
 
@@ -387,7 +382,7 @@ class Statement implements IteratorAggregate, DriverStatement, Result
 
             return $this->stmt->fetchAll(FetchMode::COLUMN);
         } catch (Exception $e) {
-            throw DBALException::driverException($this->conn->getDriver(), $e);
+            $this->conn->handleDriverException($e);
         }
     }
 
@@ -411,7 +406,7 @@ class Statement implements IteratorAggregate, DriverStatement, Result
                 }
             }
         } catch (Exception $e) {
-            throw DBALException::driverException($this->conn->getDriver(), $e);
+            $this->conn->handleDriverException($e);
         }
     }
 
@@ -435,7 +430,7 @@ class Statement implements IteratorAggregate, DriverStatement, Result
                 }
             }
         } catch (Exception $e) {
-            throw DBALException::driverException($this->conn->getDriver(), $e);
+            $this->conn->handleDriverException($e);
         }
     }
 
@@ -459,7 +454,7 @@ class Statement implements IteratorAggregate, DriverStatement, Result
                 }
             }
         } catch (Exception $e) {
-            throw DBALException::driverException($this->conn->getDriver(), $e);
+            $this->conn->handleDriverException($e);
         }
     }
 
