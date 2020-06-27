@@ -8,12 +8,13 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+
 use function explode;
 use function sprintf;
 
 class AggregateConcatExpressionTest extends FunctionalTestCase
 {
-    public function testAggregateConcat() : void
+    public function testAggregateConcat(): void
     {
         $platform = $this->connection->getDatabasePlatform();
 
@@ -28,7 +29,7 @@ class AggregateConcatExpressionTest extends FunctionalTestCase
         self::assertEqualsCanonicalizing(['foo', 'bar', 'baz'], $parts);
     }
 
-    public function testAggregateConcatWithOrder() : void
+    public function testAggregateConcatWithOrder(): void
     {
         $platform = $this->connection->getDatabasePlatform();
 
@@ -46,7 +47,7 @@ class AggregateConcatExpressionTest extends FunctionalTestCase
         self::assertEquals('foo,baz,bar', $concatenated);
     }
 
-    private function fillTestTable() : void
+    private function fillTestTable(): void
     {
         $table = new Table('aggregate_concat_test');
         $table->addColumn('value', 'string', ['length' => 10]);
