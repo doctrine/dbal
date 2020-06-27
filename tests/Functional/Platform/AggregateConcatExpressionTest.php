@@ -6,6 +6,8 @@ namespace Doctrine\DBAL\Tests\Functional\Platform;
 
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
+use Doctrine\DBAL\Platforms\SQLServer2012Platform;
+use Doctrine\DBAL\Platforms\SQLServer2017Platform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 
@@ -17,6 +19,10 @@ class AggregateConcatExpressionTest extends FunctionalTestCase
     public function testAggregateConcat(): void
     {
         $platform = $this->connection->getDatabasePlatform();
+
+        if ($platform instanceof SQLServer2012Platform && ! $platform instanceof SQLServer2017Platform) {
+            self::markTestSkipped('Not supported on SQL Server versions before 2017');
+        }
 
         $this->fillTestTable();
 
@@ -35,6 +41,10 @@ class AggregateConcatExpressionTest extends FunctionalTestCase
 
         if ($platform instanceof SqlitePlatform) {
             self::markTestSkipped('Not supported on SQLite');
+        }
+
+        if ($platform instanceof SQLServer2012Platform && ! $platform instanceof SQLServer2017Platform) {
+            self::markTestSkipped('Not supported on SQL Server versions before 2017');
         }
 
         $this->fillTestTable();

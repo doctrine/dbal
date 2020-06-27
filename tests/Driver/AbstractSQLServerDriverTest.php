@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\AbstractSQLServerDriver\PortWithoutHost;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
+use Doctrine\DBAL\Platforms\SQLServer2017Platform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\SQLServerSchemaManager;
 
@@ -30,6 +31,7 @@ abstract class AbstractSQLServerDriverTest extends AbstractDriverTest
     {
         return [
             ['12', SQLServer2012Platform::class],
+            ['17', SQLServer2017Platform::class],
         ];
     }
 
