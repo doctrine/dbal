@@ -2,6 +2,6 @@
 
 namespace Doctrine\DBAL\Driver\SQLSrv;
 
-class Statement extends SQLSrvStatement
+final class Statement extends SQLSrvStatement
 {
 }
