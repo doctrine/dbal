@@ -24,6 +24,8 @@ interface Statement
      *                          constants.
      *
      * @return bool TRUE on success or FALSE on failure.
+     *
+     * @throws Exception
      */
     public function bindValue($param, $value, $type = ParameterType::STRING);
 
@@ -51,6 +53,8 @@ interface Statement
      *                             so that PHP allocates enough memory to hold the returned value.
      *
      * @return bool TRUE on success or FALSE on failure.
+     *
+     * @throws Exception
      */
     public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null);
 

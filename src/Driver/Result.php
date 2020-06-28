@@ -71,6 +71,8 @@ interface Result
      * is not guaranteed for all drivers and should not be relied on in portable applications.
      *
      * @return int The number of rows.
+     *
+     * @throws Exception
      */
     public function rowCount(): int;
 
@@ -79,6 +81,8 @@ interface Result
      *
      * @return int The number of columns in the result. If the columns cannot be counted,
      *             this method must return 0.
+     *
+     * @throws Exception
      */
     public function columnCount(): int;
 

@@ -142,6 +142,8 @@ final class Statement implements StatementInterface
 
     /**
      * Binds parameters with known types previously bound to the statement
+     *
+     * @throws Exception
      */
     private function bindTypedParameters(): void
     {

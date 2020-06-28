@@ -15,6 +15,8 @@ interface Connection
 {
     /**
      * Prepares a statement for execution and returns a Statement object.
+     *
+     * @throws Exception
      */
     public function prepare(string $sql): Statement;
 
@@ -48,6 +50,8 @@ interface Connection
      * @param string|null $name
      *
      * @return string
+     *
+     * @throws Exception
      */
     public function lastInsertId($name = null);
 
@@ -55,6 +59,8 @@ interface Connection
      * Initiates a transaction.
      *
      * @return bool TRUE on success or FALSE on failure.
+     *
+     * @throws Exception
      */
     public function beginTransaction();
 
@@ -62,6 +68,8 @@ interface Connection
      * Commits a transaction.
      *
      * @return bool TRUE on success or FALSE on failure.
+     *
+     * @throws Exception
      */
     public function commit();
 
@@ -69,6 +77,8 @@ interface Connection
      * Rolls back the current transaction, as initiated by beginTransaction().
      *
      * @return bool TRUE on success or FALSE on failure.
+     *
+     * @throws Exception
      */
     public function rollBack();
 }

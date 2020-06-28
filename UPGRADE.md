@@ -1,5 +1,20 @@
 # Upgrade to 3.0
 
+## BC BREAK: More driver-level methods are allowed to throw a Driver\Exception.
+
+The following driver-level methods are allowed to throw a Driver\Exception:
+
+- `Connection::prepare()`
+- `Connection::lastInsertId()`
+- `Connection::beginTransaction()`
+- `Connection::commit()`
+- `Connection::rollBack()`
+- `ServerInfoAwareConnection::getServerVersion()`
+- `Statement::bindParam()`
+- `Statement::bindValue()`
+- `Result::rowCount()`
+- `Result::columnCount()`
+
 ## The `ExceptionConverterDriver` interface is removed
 
 All drivers must implement the `convertException()` method which is now part of the `Driver` interface.

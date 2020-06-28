@@ -50,6 +50,8 @@ class Statement implements StatementInterface
     }
 
     /**
+     * {@inheritDoc}
+     *
      * @param mixed    $column
      * @param mixed    $variable
      * @param int      $type
