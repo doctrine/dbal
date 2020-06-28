@@ -55,6 +55,8 @@ class OCI8Statement implements StatementInterface
     /**
      * Creates a new OCI8Statement that uses the given connection handle and SQL statement.
      *
+     * @internal The statement can be only instantiated by its driver connection.
+     *
      * @param resource $dbh   The connection handle.
      * @param string   $query The SQL query.
      */

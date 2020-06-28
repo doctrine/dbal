@@ -102,9 +102,9 @@
         <exclude-pattern>src/Driver/SQLSrv/Result.php</exclude-pattern>
     </rule>
 
-    <!-- See https://github.com/slevomat/coding-standard/issues/1038 -->
+    <!-- See https://github.com/slevomat/coding-standard/issues/770 -->
     <rule ref="SlevomatCodingStandard.Namespaces.UnusedUses">
-        <exclude-pattern>tests/Functional/Driver/IBMDB2/StatementTest.php</exclude-pattern>
+        <exclude-pattern>src/Driver/ExceptionConverterDriver.php</exclude-pattern>
     </rule>
 
     <!-- see https://github.com/doctrine/dbal/issues/3377 -->

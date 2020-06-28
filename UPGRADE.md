@@ -241,6 +241,33 @@ Please use other database client applications for import, e.g.:
 
 # Upgrade to 2.11
 
+##`ServerInfoAwareConnection::requiresQueryForServerVersion()` is deprecated.
+
+The `ServerInfoAwareConnection::requiresQueryForServerVersion()` method has been deprecated as an implementation detail which is the same for almost all supported drivers.
+
+## Statement constructors are marked internal
+
+The driver and wrapper statement objects can be only created by the corresponding connection objects.
+
+## The `PingableConnection` interface is deprecated
+
+The wrapper connection will automatically handle the lost connection if the driver supports reporting it.
+
+## The `ExceptionConverterDriver` interface is deprecated
+
+All drivers will have to implement the exception conversion API.
+
+## `DriverException::getErrorCode()` is deprecated
+
+The `DriverException::getErrorCode()` is deprecated as redundant and inconsistently supported by drivers. Use `::getCode()` or `::getSQLState()` instead.
+
+## Non-interface driver methods have been marked internal
+
+The non-interface methods of driver-level classes have been marked internal:
+
+- `OCI8Connection::getExecuteMode()`
+- `OCI8Statement::convertPositionalToNamedPlaceholders()`
+
 ## Inconsistently and ambiguously named driver-level classes are deprecated
 
 The following classes under the `Driver` namespace have been deprecated in favor of their consistently named counterparts:
@@ -282,7 +309,7 @@ Consumers of the Connection class should not rely on connection parameters store
 - The usage of `Doctrine\DBAL\Driver::getDatabase()` is deprecated. Please use `Doctrine\DBAL\Connection::getDatabase()` instead.
 - The behavior of the SQLite connection returning the database file path as the database is deprecated and shouldn't be relied upon.
 
-## Deprecated `Portability\Connection::PORTABILITY_{PLATFORM}` constants`
+## Deprecated `Portability\Connection::PORTABILITY_{PLATFORM}` constants
 
 The platform-specific portability mode flags are meant to be used only by the portability layer internally to optimize
 the user-provided mode for the current database platform. 

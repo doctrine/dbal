@@ -8,6 +8,10 @@ parameters:
     reportUnmatchedIgnoredErrors: false
     checkMissingIterableValueType: false
     checkGenericClassInNonGenericObjectType: false
+    earlyTerminatingMethodCalls:
+        Doctrine\DBAL\Connection:
+            - handleDriverException
+            - handleExceptionDuringQuery
     ignoreErrors:
         # removing it would be BC break
         - '~^Constructor of class Doctrine\\DBAL\\Schema\\Table has an unused parameter \$idGeneratorType\.\z~'
@@ -30,11 +34,6 @@ parameters:
 
         # weird class name, represented in stubs as OCI_(Lob|Collection)
         - '~unknown class OCI-(Lob|Collection)~'
-
-        # https://github.com/phpstan/phpstan-src/pull/255
-        -
-            message: '~^Strict comparison using === between true and null will always evaluate to false\.$~'
-            path: %currentWorkingDirectory%/src/Driver/Mysqli/Result.php
 
         # https://github.com/phpstan/phpstan/issues/3132
         -

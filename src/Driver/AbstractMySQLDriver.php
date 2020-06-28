@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\DriverException as DeprecatedDriverException;
 use Doctrine\DBAL\Exception\ConnectionException;
+use Doctrine\DBAL\Exception\ConnectionLost;
 use Doctrine\DBAL\Exception\DeadlockException;
 use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
@@ -105,6 +106,9 @@ abstract class AbstractMySQLDriver implements ExceptionConverterDriver, VersionA
             case 2002:
             case 2005:
                 return new ConnectionException($message, $exception);
+
+            case 2006:
+                return new ConnectionLost($message, $exception);
 
             case 1048:
             case 1121:

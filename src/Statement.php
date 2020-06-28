@@ -61,6 +61,8 @@ class Statement implements DriverStatement
     /**
      * Creates a new <tt>Statement</tt> for the given SQL and <tt>Connection</tt>.
      *
+     * @internal The statement can be only instantiated by {@link Connection}.
+     *
      * @param string     $sql  The SQL of the statement.
      * @param Connection $conn The connection on which the statement should be executed.
      */
@@ -153,12 +155,7 @@ class Statement implements DriverStatement
                 $this->conn
             );
         } catch (Throwable $ex) {
-            throw DBALException::driverExceptionDuringQuery(
-                $this->conn->getDriver(),
-                $ex,
-                $this->sql,
-                $this->conn->resolveParams($this->params, $this->types)
-            );
+            $this->conn->handleExceptionDuringQuery($ex, $this->sql, $this->params, $this->types);
         } finally {
             if ($logger !== null) {
                 $logger->stopQuery();

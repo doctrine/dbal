@@ -34,6 +34,9 @@ class PDOStatement implements StatementInterface
     /** @var \PDOStatement */
     private $stmt;
 
+    /**
+     * @internal The statement can be only instantiated by its driver connection.
+     */
     public function __construct(\PDOStatement $stmt)
     {
         $this->stmt = $stmt;

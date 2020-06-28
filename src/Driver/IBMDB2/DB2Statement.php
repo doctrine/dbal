@@ -49,6 +49,8 @@ class DB2Statement implements StatementInterface
     private $lobs = [];
 
     /**
+     * @internal The statement can be only instantiated by its driver connection.
+     *
      * @param resource $stmt
      */
     public function __construct($stmt)

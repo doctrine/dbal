@@ -77,6 +77,8 @@ class SQLSrvStatement implements StatementInterface
     private const LAST_INSERT_ID_SQL = ';SELECT SCOPE_IDENTITY() AS LastInsertId;';
 
     /**
+     * @internal The statement can be only instantiated by its driver connection.
+     *
      * @param resource $conn
      * @param string   $sql
      */

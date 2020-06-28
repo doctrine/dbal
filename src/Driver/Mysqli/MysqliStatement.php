@@ -58,6 +58,8 @@ class MysqliStatement implements StatementInterface
     protected $_values = [];
 
     /**
+     * @internal The statement can be only instantiated by its driver connection.
+     *
      * @param string $prepareString
      *
      * @throws MysqliException

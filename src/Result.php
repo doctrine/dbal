@@ -33,7 +33,7 @@ final class Result implements ResultInterface
         try {
             return $this->result->fetchNumeric();
         } catch (DriverException $e) {
-            throw DBALException::driverException($this->connection->getDriver(), $e);
+            $this->connection->handleDriverException($e);
         }
     }
 
@@ -47,7 +47,7 @@ final class Result implements ResultInterface
         try {
             return $this->result->fetchAssociative();
         } catch (DriverException $e) {
-            throw DBALException::driverException($this->connection->getDriver(), $e);
+            $this->connection->handleDriverException($e);
         }
     }
 
@@ -59,7 +59,7 @@ final class Result implements ResultInterface
         try {
             return $this->result->fetchOne();
         } catch (DriverException $e) {
-            throw DBALException::driverException($this->connection->getDriver(), $e);
+            $this->connection->handleDriverException($e);
         }
     }
 
@@ -73,7 +73,7 @@ final class Result implements ResultInterface
         try {
             return $this->result->fetchAllNumeric();
         } catch (DriverException $e) {
-            throw DBALException::driverException($this->connection->getDriver(), $e);
+            $this->connection->handleDriverException($e);
         }
     }
 
@@ -87,7 +87,7 @@ final class Result implements ResultInterface
         try {
             return $this->result->fetchAllAssociative();
         } catch (DriverException $e) {
-            throw DBALException::driverException($this->connection->getDriver(), $e);
+            $this->connection->handleDriverException($e);
         }
     }
 
@@ -101,7 +101,7 @@ final class Result implements ResultInterface
         try {
             return $this->result->fetchFirstColumn();
         } catch (DriverException $e) {
-            throw DBALException::driverException($this->connection->getDriver(), $e);
+            $this->connection->handleDriverException($e);
         }
     }
 
@@ -117,7 +117,7 @@ final class Result implements ResultInterface
                 yield $row;
             }
         } catch (DriverException $e) {
-            throw DBALException::driverException($this->connection->getDriver(), $e);
+            $this->connection->handleDriverException($e);
         }
     }
 
@@ -133,7 +133,7 @@ final class Result implements ResultInterface
                 yield $row;
             }
         } catch (DriverException $e) {
-            throw DBALException::driverException($this->connection->getDriver(), $e);
+            $this->connection->handleDriverException($e);
         }
     }
 
@@ -149,7 +149,7 @@ final class Result implements ResultInterface
                 yield $value;
             }
         } catch (DriverException $e) {
-            throw DBALException::driverException($this->connection->getDriver(), $e);
+            $this->connection->handleDriverException($e);
         }
     }
 

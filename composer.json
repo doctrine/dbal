@@ -40,7 +40,7 @@
         "doctrine/coding-standard": "^8.0",
         "jetbrains/phpstorm-stubs": "^2019.1",
         "nikic/php-parser": "^4.4",
-        "phpstan/phpstan": "^0.12.30",
+        "phpstan/phpstan": "^0.12.31",
         "phpstan/phpstan-strict-rules": "^0.12.2",
         "phpunit/phpunit": "^9.2",
         "psalm/plugin-phpunit": "^0.10.0",

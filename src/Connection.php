@@ -15,6 +15,7 @@ use Doctrine\DBAL\Driver\PingableConnection;
 use Doctrine\DBAL\Driver\Result as DriverResult;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
+use Doctrine\DBAL\Exception\ConnectionLost;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
@@ -468,7 +469,7 @@ class Connection implements DriverConnection
         try {
             return $this->executeQuery($query, $params, $types)->fetchAssociative();
         } catch (Throwable $e) {
-            throw DBALException::driverExceptionDuringQuery($this->_driver, $e, $query);
+            $this->handleExceptionDuringQuery($e, $query, $params, $types);
         }
     }
 
@@ -489,7 +490,7 @@ class Connection implements DriverConnection
         try {
             return $this->executeQuery($query, $params, $types)->fetchNumeric();
         } catch (Throwable $e) {
-            throw DBALException::driverExceptionDuringQuery($this->_driver, $e, $query);
+            $this->handleExceptionDuringQuery($e, $query, $params, $types);
         }
     }
 
@@ -510,7 +511,7 @@ class Connection implements DriverConnection
         try {
             return $this->executeQuery($query, $params, $types)->fetchOne();
         } catch (Throwable $e) {
-            throw DBALException::driverExceptionDuringQuery($this->_driver, $e, $query);
+            $this->handleExceptionDuringQuery($e, $query, $params, $types);
         }
     }
 
@@ -772,7 +773,7 @@ class Connection implements DriverConnection
         try {
             return $this->executeQuery($query, $params, $types)->fetchAllNumeric();
         } catch (Throwable $e) {
-            throw DBALException::driverExceptionDuringQuery($this->_driver, $e, $query);
+            $this->handleExceptionDuringQuery($e, $query, $params, $types);
         }
     }
 
@@ -792,7 +793,7 @@ class Connection implements DriverConnection
         try {
             return $this->executeQuery($query, $params, $types)->fetchAllAssociative();
         } catch (Throwable $e) {
-            throw DBALException::driverExceptionDuringQuery($this->_driver, $e, $query);
+            $this->handleExceptionDuringQuery($e, $query, $params, $types);
         }
     }
 
@@ -812,7 +813,7 @@ class Connection implements DriverConnection
         try {
             return $this->executeQuery($query, $params, $types)->fetchFirstColumn();
         } catch (Throwable $e) {
-            throw DBALException::driverExceptionDuringQuery($this->_driver, $e, $query);
+            $this->handleExceptionDuringQuery($e, $query, $params, $types);
         }
     }
 
@@ -836,7 +837,7 @@ class Connection implements DriverConnection
                 yield $row;
             }
         } catch (Throwable $e) {
-            throw DBALException::driverExceptionDuringQuery($this->_driver, $e, $query);
+            $this->handleExceptionDuringQuery($e, $query, $params, $types);
         }
     }
 
@@ -860,7 +861,7 @@ class Connection implements DriverConnection
                 yield $row;
             }
         } catch (Throwable $e) {
-            throw DBALException::driverExceptionDuringQuery($this->_driver, $e, $query);
+            $this->handleExceptionDuringQuery($e, $query, $params, $types);
         }
     }
 
@@ -884,7 +885,7 @@ class Connection implements DriverConnection
                 yield $value;
             }
         } catch (Throwable $e) {
-            throw DBALException::driverExceptionDuringQuery($this->_driver, $e, $query);
+            $this->handleExceptionDuringQuery($e, $query, $params, $types);
         }
     }
 
@@ -901,8 +902,8 @@ class Connection implements DriverConnection
     {
         try {
             return new Statement($sql, $this);
-        } catch (Throwable $ex) {
-            throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $sql);
+        } catch (Throwable $e) {
+            $this->handleExceptionDuringQuery($e, $sql);
         }
     }
 
@@ -952,8 +953,8 @@ class Connection implements DriverConnection
             }
 
             return new Result($result, $this);
-        } catch (Throwable $ex) {
-            throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $query, $this->resolveParams($params, $types));
+        } catch (Throwable $e) {
+            $this->handleExceptionDuringQuery($e, $query, $params, $types);
         } finally {
             if ($logger !== null) {
                 $logger->stopQuery();
@@ -1021,8 +1022,8 @@ class Connection implements DriverConnection
 
         try {
             return $connection->query($sql);
-        } catch (Throwable $ex) {
-            throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $sql);
+        } catch (Throwable $e) {
+            $this->handleExceptionDuringQuery($e, $sql);
         } finally {
             if ($logger !== null) {
                 $logger->stopQuery();
@@ -1069,8 +1070,8 @@ class Connection implements DriverConnection
             }
 
             return $connection->exec($query);
-        } catch (Throwable $ex) {
-            throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $query, $this->resolveParams($params, $types));
+        } catch (Throwable $e) {
+            $this->handleExceptionDuringQuery($e, $query, $params, $types);
         } finally {
             if ($logger !== null) {
                 $logger->stopQuery();
@@ -1089,8 +1090,8 @@ class Connection implements DriverConnection
 
         try {
             return $connection->exec($statement);
-        } catch (Throwable $ex) {
-            throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $statement);
+        } catch (Throwable $e) {
+            $this->handleExceptionDuringQuery($e, $statement);
         } finally {
             if ($logger !== null) {
                 $logger->stopQuery();
@@ -1640,6 +1641,8 @@ class Connection implements DriverConnection
      * It is responsibility of the developer to handle this case
      * and abort the request or reconnect manually:
      *
+     * @deprecated
+     *
      * @return bool
      *
      * @example
@@ -1669,5 +1672,60 @@ class Connection implements DriverConnection
         } catch (DBALException $e) {
             return false;
         }
+    }
+
+    /**
+     * @internal
+     *
+     * @param array<mixed>           $params
+     * @param array<int|string|null> $types
+     *
+     * @throws DBALException
+     *
+     * @psalm-return never-return
+     */
+    public function handleExceptionDuringQuery(Throwable $e, string $sql, array $params = [], array $types = []): void
+    {
+        $this->throw(
+            DBALException::driverExceptionDuringQuery(
+                $this->_driver,
+                $e,
+                $sql,
+                $this->resolveParams($params, $types)
+            )
+        );
+    }
+
+    /**
+     * @internal
+     *
+     * @throws DBALException
+     *
+     * @psalm-return never-return
+     */
+    public function handleDriverException(Throwable $e): void
+    {
+        $this->throw(
+            DBALException::driverException(
+                $this->_driver,
+                $e
+            )
+        );
+    }
+
+    /**
+     * @internal
+     *
+     * @throws DBALException
+     *
+     * @psalm-return never-return
+     */
+    private function throw(DBALException $e): void
+    {
+        if ($e instanceof ConnectionLost) {
+            $this->close();
+        }
+
+        throw $e;
     }
 }
