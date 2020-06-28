@@ -6,16 +6,14 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver as DriverInterface;
 use Doctrine\DBAL\Driver\SQLAnywhere\Driver;
 use Doctrine\Tests\DBAL\Functional\Driver\AbstractDriverTest;
-use function extension_loaded;
 
+/**
+ * @requires extension sqlanywhere
+ */
 class DriverTest extends AbstractDriverTest
 {
     protected function setUp() : void
     {
-        if (! extension_loaded('sqlanywhere')) {
-            $this->markTestSkipped('sqlanywhere is not installed.');
-        }
-
         parent::setUp();
 
         if ($this->connection->getDriver() instanceof Driver) {

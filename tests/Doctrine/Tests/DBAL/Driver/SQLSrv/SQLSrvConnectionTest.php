@@ -5,7 +5,6 @@ namespace Doctrine\Tests\DBAL\Driver\SQLSrv;
 use Doctrine\DBAL\Driver\SQLSrv\SQLSrvConnection;
 use Doctrine\Tests\DbalTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
-use function extension_loaded;
 
 class SQLSrvConnectionTest extends DbalTestCase
 {
@@ -16,12 +15,11 @@ class SQLSrvConnectionTest extends DbalTestCase
      */
     private $connectionMock;
 
+    /**
+     * @requires extension sqlsrv
+     */
     protected function setUp() : void
     {
-        if (! extension_loaded('sqlsrv')) {
-            $this->markTestSkipped('sqlsrv is not installed.');
-        }
-
         parent::setUp();
 
         $this->connectionMock = $this->getMockBuilder(SQLSrvConnection::class)

@@ -8,16 +8,14 @@ use Doctrine\DBAL\Driver\PDOSqlsrv\Driver;
 use Doctrine\Tests\DBAL\Functional\Driver\AbstractDriverTest;
 use Doctrine\Tests\TestUtil;
 use PDO;
-use function extension_loaded;
 
+/**
+ * @requires extension pdo_sqlsrv
+ */
 class DriverTest extends AbstractDriverTest
 {
     protected function setUp() : void
     {
-        if (! extension_loaded('pdo_sqlsrv')) {
-            $this->markTestSkipped('pdo_sqlsrv is not installed.');
-        }
-
         parent::setUp();
 
         if ($this->connection->getDriver() instanceof Driver) {
