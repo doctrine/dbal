@@ -3,10 +3,10 @@
 namespace Doctrine\DBAL\Driver\Mysqli;
 
 use Doctrine\DBAL\Driver\Exception;
+use Doctrine\DBAL\Driver\Exception\UnknownParameterType;
 use Doctrine\DBAL\Driver\Mysqli\Exception\ConnectionError;
 use Doctrine\DBAL\Driver\Mysqli\Exception\FailedReadingStreamOffset;
 use Doctrine\DBAL\Driver\Mysqli\Exception\StatementError;
-use Doctrine\DBAL\Driver\Mysqli\Exception\UnknownType;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
@@ -91,7 +91,7 @@ final class Statement implements StatementInterface
         assert(is_int($column));
 
         if (! isset(self::$_paramTypeMap[$type])) {
-            throw UnknownType::new($type);
+            throw UnknownParameterType::new($type);
         }
 
         $this->_bindedValues[$column] =& $variable;
@@ -108,7 +108,7 @@ final class Statement implements StatementInterface
         assert(is_int($param));
 
         if (! isset(self::$_paramTypeMap[$type])) {
-            throw UnknownType::new($type);
+            throw UnknownParameterType::new($type);
         }
 
         $this->_values[$param]       = $value;

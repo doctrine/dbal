@@ -2,10 +2,11 @@
 
 namespace Doctrine\DBAL\Driver\PDO;
 
+use Doctrine\DBAL\Driver\Exception as ExceptionInterface;
+use Doctrine\DBAL\Driver\Exception\UnknownParameterType;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
-use InvalidArgumentException;
 use PDO;
 use PDOException;
 use PDOStatement;
@@ -89,11 +90,13 @@ class Statement implements StatementInterface
      * Converts DBAL parameter type to PDO parameter type
      *
      * @param int $type Parameter type
+     *
+     * @throws ExceptionInterface
      */
     private function convertParamType(int $type): int
     {
         if (! isset(self::PARAM_TYPE_MAP[$type])) {
-            throw new InvalidArgumentException('Invalid parameter type: ' . $type);
+            throw UnknownParameterType::new($type);
         }
 
         return self::PARAM_TYPE_MAP[$type];
