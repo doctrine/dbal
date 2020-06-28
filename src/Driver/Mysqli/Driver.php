@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Driver\Mysqli;
 
 use Doctrine\DBAL\Driver\AbstractMySQLDriver;
+use Doctrine\DBAL\Driver\Mysqli\Exception\HostRequired;
 use Doctrine\DBAL\Driver\Mysqli\Initializer\Charset;
 use Doctrine\DBAL\Driver\Mysqli\Initializer\Options;
 use Doctrine\DBAL\Driver\Mysqli\Initializer\Secure;
@@ -33,9 +34,9 @@ class Driver extends AbstractMySQLDriver
         if (isset($params['driver_options'])) {
             $driverOptions = $params['driver_options'];
 
-            if (isset($driverOptions[MysqliConnection::OPTION_FLAGS])) {
-                $flags = $driverOptions[MysqliConnection::OPTION_FLAGS];
-                unset($driverOptions[MysqliConnection::OPTION_FLAGS]);
+            if (isset($driverOptions[Connection::OPTION_FLAGS])) {
+                $flags = $driverOptions[Connection::OPTION_FLAGS];
+                unset($driverOptions[Connection::OPTION_FLAGS]);
             }
 
             $preInitializers = $this->withOptions($preInitializers, $driverOptions);

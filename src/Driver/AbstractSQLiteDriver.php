@@ -4,7 +4,7 @@ namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
-use Doctrine\DBAL\Driver\DriverException as DeprecatedDriverException;
+use Doctrine\DBAL\Driver\Exception as TheDriverException;
 use Doctrine\DBAL\Exception\ConnectionException;
 use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
@@ -32,7 +32,7 @@ abstract class AbstractSQLiteDriver implements Driver, ExceptionConverterDriver
      *
      * @link http://www.sqlite.org/c3ref/c_abort.html
      */
-    public function convertException($message, DeprecatedDriverException $exception)
+    public function convertException($message, TheDriverException $exception)
     {
         if (strpos($exception->getMessage(), 'database is locked') !== false) {
             return new LockWaitTimeoutException($message, $exception);

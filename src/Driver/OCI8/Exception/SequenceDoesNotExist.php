@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver\OCI8\Exception;
 
-use Doctrine\DBAL\Driver\OCI8\OCI8Exception;
+use Doctrine\DBAL\Driver\AbstractException;
 
 /**
  * @internal
  *
  * @psalm-immutable
  */
-final class SequenceDoesNotExist extends OCI8Exception
+final class SequenceDoesNotExist extends AbstractException
 {
     public static function new(): self
     {

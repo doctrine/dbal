@@ -2,8 +2,8 @@
 
 namespace Doctrine\DBAL\Tests\Functional\Driver\IBMDB2;
 
-use Doctrine\DBAL\Driver;
-use Doctrine\DBAL\Driver\IBMDB2\DB2Driver;
+use Doctrine\DBAL\Driver as DriverInterface;
+use Doctrine\DBAL\Driver\IBMDB2\Driver;
 use Doctrine\DBAL\Tests\Functional\Driver\AbstractDriverTest;
 
 use function extension_loaded;
@@ -18,7 +18,7 @@ class DriverTest extends AbstractDriverTest
 
         parent::setUp();
 
-        if ($this->connection->getDriver() instanceof DB2Driver) {
+        if ($this->connection->getDriver() instanceof Driver) {
             return;
         }
 
@@ -35,8 +35,8 @@ class DriverTest extends AbstractDriverTest
         self::markTestSkipped('IBM DB2 does not support connecting without database name.');
     }
 
-    protected function createDriver(): Driver
+    protected function createDriver(): DriverInterface
     {
-        return new DB2Driver();
+        return new Driver();
     }
 }

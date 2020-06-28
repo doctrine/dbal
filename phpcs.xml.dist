@@ -87,9 +87,8 @@
             phpcs wrongly complains about them, and that has been reported here:
             https://github.com/squizlabs/PHP_CodeSniffer/issues/2950
         -->
-        <exclude-pattern>src/Driver/IBMDB2/DB2Connection.php</exclude-pattern>
+        <exclude-pattern>src/Driver/IBMDB2/Connection.php</exclude-pattern>
         <exclude-pattern>src/Driver/Mysqli/Exception/ConnectionFailed.php</exclude-pattern>
-        <exclude-pattern>src/Driver/Mysqli/MysqliConnection.php</exclude-pattern>
         <!-- See https://github.com/squizlabs/PHP_CodeSniffer/issues/2837 -->
         <exclude-pattern>src/SQLParserUtils.php</exclude-pattern>
         <exclude-pattern>src/Tools/Dumper.php</exclude-pattern>
@@ -112,15 +111,9 @@
         <exclude-pattern>src/Schema/Comparator.php</exclude-pattern>
     </rule>
 
-    <!-- DB2_AUTOCOMMIT_ON/DB2_AUTOCOMMIT_OFF are of int type but db2_autocommit() incorrectly expects bool,
-         see https://bugs.php.net/bug.php?id=77591 -->
-    <rule ref="SlevomatCodingStandard.TypeHints.DeclareStrictTypes.DeclareStrictTypesMissing">
-        <exclude-pattern>src/Driver/IBMDB2/DB2Connection.php</exclude-pattern>
-    </rule>
-
     <!-- The SQLSRV_* functions are defined in the upper case by the sqlsrv extension and violate the standard
          see https://docs.microsoft.com/en-us/sql/connect/php/constants-microsoft-drivers-for-php-for-sql-server -->
     <rule ref="Squiz.PHP.LowercasePHPFunctions">
-        <exclude-pattern>src/Driver/SQLSrv/SQLSrvStatement.php</exclude-pattern>
+        <exclude-pattern>src/Driver/SQLSrv/Statement.php</exclude-pattern>
     </rule>
 </ruleset>

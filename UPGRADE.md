@@ -1,5 +1,26 @@
 # Upgrade to 3.0
 
+## BC BREAK: Deprecated driver-level classes and interfaces are removed.
+
+- `AbstractDriverException`
+- `DriverException`
+- `PDOConnection`
+- `PDOException`
+- `PDOStatement`
+- `IBMDB2\DB2Connection`
+- `IBMDB2\DB2Driver`
+- `IBMDB2\DB2Exception`
+- `IBMDB2\DB2Statement`
+- `Mysqli\MysqliConnection`
+- `Mysqli\MysqliException`
+- `Mysqli\MysqliStatement`
+- `OCI8\OCI8Connection`
+- `OCI8\OCI8Exception`
+- `OCI8\OCI8Statement`
+- `SQLSrv\SQLSrvConnection`
+- `SQLSrv\SQLSrvException`
+- `SQLSrv\SQLSrvStatement`
+
 ## BC BREAK: `ServerInfoAwareConnection::requiresQueryForServerVersion()` is removed.
 
 The `ServerInfoAwareConnection::requiresQueryForServerVersion()` method has been removed as an implementation detail which is the same for all supported drivers.

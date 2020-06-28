@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Driver\IBMDB2;
 
-use Doctrine\DBAL\Driver\IBMDB2\DB2Driver;
+use Doctrine\DBAL\Driver\IBMDB2\Driver;
 use Doctrine\DBAL\Driver\IBMDB2\Exception\StatementError;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 
@@ -24,7 +24,7 @@ class StatementTest extends FunctionalTestCase
 
         parent::setUp();
 
-        if ($this->connection->getDriver() instanceof DB2Driver) {
+        if ($this->connection->getDriver() instanceof Driver) {
             return;
         }
 

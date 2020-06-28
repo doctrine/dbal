@@ -66,7 +66,7 @@ interface Statement
      * @param mixed[]|null $params A numeric array of values with as many elements as there are
      *                             bound parameters in the SQL statement being executed.
      *
-     * @throws DriverException
+     * @throws Exception
      */
     public function execute($params = null): Result;
 }

@@ -14,7 +14,7 @@ use Throwable;
  *
  * @psalm-immutable
  */
-abstract class AbstractException extends BaseException implements DriverException
+abstract class AbstractException extends BaseException implements Exception
 {
     /**
      * The SQLSTATE of the driver.

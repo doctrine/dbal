@@ -4,17 +4,25 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver\PDO;
 
-use Doctrine\DBAL\Driver\PDOException;
+use Doctrine\DBAL\Driver\AbstractException;
+use PDOException;
 
 /**
  * @internal
  *
  * @psalm-immutable
  */
-final class Exception extends PDOException
+final class Exception extends AbstractException
 {
-    public static function new(\PDOException $exception): self
+    public static function new(PDOException $exception): self
     {
-        return new self($exception);
+        if ($exception->errorInfo !== null) {
+            [$sqlState, $code] = $exception->errorInfo;
+        } else {
+            $code     = $exception->getCode();
+            $sqlState = null;
+        }
+
+        return new self($exception->getMessage(), $sqlState, $code, $exception);
     }
 }

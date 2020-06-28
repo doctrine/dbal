@@ -3,7 +3,7 @@
 namespace Doctrine\DBAL;
 
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
-use Doctrine\DBAL\Driver\DriverException;
+use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 
@@ -20,7 +20,7 @@ interface Driver
      *
      * @return DriverConnection The database connection.
      *
-     * @throws DriverException
+     * @throws Exception
      */
     public function connect(array $params);
 

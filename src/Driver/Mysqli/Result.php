@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver\Mysqli;
 
+use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\FetchUtils;
 use Doctrine\DBAL\Driver\Mysqli\Exception\StatementError;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
@@ -42,7 +43,7 @@ final class Result implements ResultInterface
     private $boundValues = [];
 
     /**
-     * @throws MysqliException
+     * @throws Exception
      */
     public function __construct(mysqli_stmt $statement)
     {

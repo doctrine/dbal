@@ -2,7 +2,7 @@
 
 namespace Doctrine\DBAL;
 
-use Doctrine\DBAL\Driver\DriverException as DeprecatedDriverException;
+use Doctrine\DBAL\Driver\Exception as TheDriverException;
 use Doctrine\DBAL\Driver\ExceptionConverterDriver;
 use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -169,7 +169,7 @@ class DBALException extends Exception
             return $driverEx;
         }
 
-        if ($driver instanceof ExceptionConverterDriver && $driverEx instanceof DeprecatedDriverException) {
+        if ($driver instanceof ExceptionConverterDriver && $driverEx instanceof TheDriverException) {
             return $driver->convertException($msg, $driverEx);
         }
 

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver\SQLSrv\Exception;
 
-use Doctrine\DBAL\Driver\SQLSrv\SQLSrvException;
+use Doctrine\DBAL\Driver\AbstractException;
 
 use function rtrim;
 use function sqlsrv_errors;
@@ -16,7 +16,7 @@ use const SQLSRV_ERR_ERRORS;
  *
  * @psalm-immutable
  */
-final class Error extends SQLSrvException
+final class Error extends AbstractException
 {
     public static function new(): self
     {
