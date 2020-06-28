@@ -5,16 +5,14 @@ namespace Doctrine\Tests\DBAL\Functional\Driver\PDOSqlite;
 use Doctrine\DBAL\Driver as DriverInterface;
 use Doctrine\DBAL\Driver\PDOSqlite\Driver;
 use Doctrine\Tests\DBAL\Functional\Driver\AbstractDriverTest;
-use function extension_loaded;
 
+/**
+ * @requires extension pdo_sqlite
+ */
 class DriverTest extends AbstractDriverTest
 {
     protected function setUp() : void
     {
-        if (! extension_loaded('pdo_sqlite')) {
-            $this->markTestSkipped('pdo_sqlite is not installed.');
-        }
-
         parent::setUp();
 
         if ($this->connection->getDriver() instanceof Driver) {
