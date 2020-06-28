@@ -11,9 +11,9 @@ use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\ParameterType;
-use UnexpectedValueException;
 
 use function addcslashes;
+use function assert;
 use function is_float;
 use function is_int;
 use function oci_commit;
@@ -22,7 +22,6 @@ use function oci_pconnect;
 use function oci_rollback;
 use function oci_server_version;
 use function preg_match;
-use function sprintf;
 use function str_replace;
 
 use const OCI_NO_AUTO_COMMIT;
@@ -69,9 +68,6 @@ final class Connection implements ConnectionInterface, ServerInfoAwareConnection
 
     /**
      * {@inheritdoc}
-     *
-     * @throws UnexpectedValueException If the version string returned by the database server
-     *                                  does not contain a parsable version number.
      */
     public function getServerVersion()
     {
@@ -81,15 +77,7 @@ final class Connection implements ConnectionInterface, ServerInfoAwareConnection
             throw Error::new($this->dbh);
         }
 
-        if (preg_match('/\s+(\d+\.\d+\.\d+\.\d+\.\d+)\s+/', $version, $matches) === 0) {
-            throw new UnexpectedValueException(
-                sprintf(
-                    'Unexpected database version string "%s". Cannot parse an appropriate version number from it. ' .
-                    'Please report this database version string to the Doctrine team.',
-                    $version
-                )
-            );
-        }
+        assert(preg_match('/\s+(\d+\.\d+\.\d+\.\d+\.\d+)\s+/', $version, $matches) === 1);
 
         return $matches[1];
     }
