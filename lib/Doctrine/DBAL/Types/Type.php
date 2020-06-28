@@ -277,7 +277,7 @@ abstract class Type
      * Gets the (preferred) binding type for values of this type that
      * can be used when binding parameters to prepared statements.
      *
-     * This method should return one of the {@link \Doctrine\DBAL\ParameterType} constants.
+     * This method should return one of the {@link ParameterType} constants.
      *
      * @return int
      */

@@ -19,7 +19,7 @@ use function strpos;
 use function version_compare;
 
 /**
- * Abstract base implementation of the {@link Doctrine\DBAL\Driver} interface for PostgreSQL based drivers.
+ * Abstract base implementation of the {@link Driver} interface for PostgreSQL based drivers.
  */
 abstract class AbstractPostgreSQLDriver implements Driver, ExceptionConverterDriver, VersionAwarePlatformDriver
 {
