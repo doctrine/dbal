@@ -13,10 +13,12 @@ use function sprintf;
  *
  * @psalm-immutable
  */
-final class FailedReadingStreamOffset extends AbstractException
+final class NonStreamResourceUsedAsLargeObject extends AbstractException
 {
     public static function new(int $parameter): self
     {
-        return new self(sprintf('Failed reading the stream resource for parameter #%d.', $parameter));
+        return new self(
+            sprintf('The resource passed as a LARGE_OBJECT parameter #%d must be of type "stream"', $parameter)
+        );
     }
 }

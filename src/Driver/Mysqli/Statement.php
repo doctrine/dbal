@@ -6,10 +6,10 @@ use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\Exception\UnknownParameterType;
 use Doctrine\DBAL\Driver\Mysqli\Exception\ConnectionError;
 use Doctrine\DBAL\Driver\Mysqli\Exception\FailedReadingStreamOffset;
+use Doctrine\DBAL\Driver\Mysqli\Exception\NonStreamResourceUsedAsLargeObject;
 use Doctrine\DBAL\Driver\Mysqli\Exception\StatementError;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
-use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\ParameterType;
 use mysqli;
 use mysqli_stmt;
@@ -160,7 +160,7 @@ final class Statement implements StatementInterface
             if ($types[$parameter - 1] === static::$_paramTypeMap[ParameterType::LARGE_OBJECT]) {
                 if (is_resource($value)) {
                     if (get_resource_type($value) !== 'stream') {
-                        throw new InvalidArgumentException('Resources passed with the LARGE_OBJECT parameter type must be stream resources.');
+                        throw NonStreamResourceUsedAsLargeObject::new($parameter);
                     }
 
                     $streams[$parameter] = $value;
