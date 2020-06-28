@@ -16,7 +16,7 @@ use function preg_match;
 use function version_compare;
 
 /**
- * Abstract base implementation of the {@link Doctrine\DBAL\Driver} interface for Microsoft SQL Server based drivers.
+ * Abstract base implementation of the {@link Driver} interface for Microsoft SQL Server based drivers.
  */
 abstract class AbstractSQLServerDriver implements Driver, VersionAwarePlatformDriver
 {

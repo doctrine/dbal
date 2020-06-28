@@ -62,7 +62,7 @@ interface ShardManager
      * Queries all shards in undefined order and return the results appended to
      * each other. Restore the previous distribution value after execution.
      *
-     * Using {@link \Doctrine\DBAL\Connection::fetchAll} to retrieve rows internally.
+     * Using {@link Connection::fetchAll()} to retrieve rows internally.
      *
      * @param string         $sql
      * @param mixed[]        $params

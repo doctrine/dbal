@@ -10,7 +10,7 @@ use Doctrine\DBAL\Schema\SqliteSchemaManager;
 use function strpos;
 
 /**
- * Abstract base implementation of the {@link Doctrine\DBAL\Driver} interface for SQLite based drivers.
+ * Abstract base implementation of the {@link Driver} interface for SQLite based drivers.
  */
 abstract class AbstractSQLiteDriver implements Driver, ExceptionConverterDriver
 {

@@ -8,7 +8,7 @@ use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Schema\DB2SchemaManager;
 
 /**
- * Abstract base implementation of the {@link Doctrine\DBAL\Driver} interface for IBM DB2 based drivers.
+ * Abstract base implementation of the {@link Driver} interface for IBM DB2 based drivers.
  */
 abstract class AbstractDB2Driver implements Driver
 {

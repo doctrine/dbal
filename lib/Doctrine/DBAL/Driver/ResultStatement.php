@@ -29,7 +29,7 @@ interface ResultStatement extends Traversable
     /**
      * Sets the fetch mode to use while iterating this statement.
      *
-     * @param int   $fetchMode The fetch mode must be one of the {@link \Doctrine\DBAL\FetchMode} constants.
+     * @param int   $fetchMode The fetch mode must be one of the {@link FetchMode} constants.
      * @param mixed $arg2
      * @param mixed $arg3
      *
@@ -41,8 +41,8 @@ interface ResultStatement extends Traversable
      * Returns the next row of a result set.
      *
      * @param int|null $fetchMode         Controls how the next row will be returned to the caller.
-     *                                    The value must be one of the {@link \Doctrine\DBAL\FetchMode} constants,
-     *                                    defaulting to {@link \Doctrine\DBAL\FetchMode::MIXED}.
+     *                                    The value must be one of the {@link FetchMode} constants,
+     *                                    defaulting to {@link FetchMode::MIXED}.
      * @param int      $cursorOrientation For a ResultStatement object representing a scrollable cursor,
      *                                    this value determines which row will be returned to the caller.
      *                                    This value must be one of the \PDO::FETCH_ORI_* constants,
@@ -68,19 +68,19 @@ interface ResultStatement extends Traversable
      * Returns an array containing all of the result set rows.
      *
      * @param int|null     $fetchMode     Controls how the next row will be returned to the caller.
-     *                                    The value must be one of the {@link \Doctrine\DBAL\FetchMode} constants,
-     *                                    defaulting to {@link \Doctrine\DBAL\FetchMode::MIXED}.
+     *                                    The value must be one of the {@link FetchMode} constants,
+     *                                    defaulting to {@link FetchMode::MIXED}.
      * @param int|null     $fetchArgument This argument has a different meaning depending on the value of the $fetchMode parameter:
-     *                                    * {@link \Doctrine\DBAL\FetchMode::COLUMN}:
+     *                                    * {@link FetchMode::COLUMN}:
      *                                      Returns the indicated 0-indexed column.
-     *                                    * {@link \Doctrine\DBAL\FetchMode::CUSTOM_OBJECT}:
+     *                                    * {@link FetchMode::CUSTOM_OBJECT}:
      *                                      Returns instances of the specified class, mapping the columns of each row
      *                                      to named properties in the class.
-     *                                    * \PDO::FETCH_FUNC: Returns the results of calling the specified function, using each row's
+     *                                    * {@link PDO::FETCH_FUNC}: Returns the results of calling the specified function, using each row's
      *                                      columns as parameters in the call.
      * @param mixed[]|null $ctorArgs      Controls how the next row will be returned to the caller.
-     *                                    The value must be one of the {@link \Doctrine\DBAL\FetchMode} constants,
-     *                                    defaulting to {@link \Doctrine\DBAL\FetchMode::MIXED}.
+     *                                    The value must be one of the {@link FetchMode} constants,
+     *                                    defaulting to {@link FetchMode::MIXED}.
      *
      * @return mixed[]
      */
