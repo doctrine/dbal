@@ -5,7 +5,6 @@ namespace Doctrine\DBAL\Driver\Mysqli;
 use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\Mysqli\Exception\ConnectionError;
 use Doctrine\DBAL\Driver\Mysqli\Exception\ConnectionFailed;
-use Doctrine\DBAL\Driver\PingableConnection;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
@@ -16,7 +15,7 @@ use function floor;
 use function mysqli_init;
 use function stripos;
 
-final class Connection implements PingableConnection, ServerInfoAwareConnection
+final class Connection implements ServerInfoAwareConnection
 {
     /**
      * Name of the option to set connection flags
@@ -153,17 +152,5 @@ final class Connection implements PingableConnection, ServerInfoAwareConnection
     public function rollBack()
     {
         return $this->conn->rollback();
-    }
-
-    /**
-     * Pings the server and re-connects when `mysqli.reconnect = 1`
-     *
-     * @deprecated
-     *
-     * @return bool
-     */
-    public function ping()
-    {
-        return $this->conn->ping();
     }
 }

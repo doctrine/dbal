@@ -311,12 +311,6 @@ class ConnectionTest extends FunctionalTestCase
         );
     }
 
-    public function testPingDoesTriggersConnect(): void
-    {
-        self::assertTrue($this->connection->ping());
-        self::assertTrue($this->connection->isConnected());
-    }
-
     /**
      * @group DBAL-1025
      */
