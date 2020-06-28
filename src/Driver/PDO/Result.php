@@ -90,11 +90,7 @@ final class Result implements ResultInterface
 
     public function free(): void
     {
-        try {
-            $this->statement->closeCursor();
-        } catch (PDOException $exception) {
-            throw Exception::new($exception);
-        }
+        $this->statement->closeCursor();
     }
 
     /**
