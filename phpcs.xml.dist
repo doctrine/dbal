@@ -105,11 +105,6 @@
         <exclude-pattern>lib/Doctrine/DBAL/Driver/ExceptionConverterDriver.php</exclude-pattern>
     </rule>
 
-    <!-- See https://github.com/slevomat/coding-standard/issues/1038 -->
-    <rule ref="SlevomatCodingStandard.Namespaces.UnusedUses">
-        <exclude-pattern>tests/Doctrine/Tests/DBAL/Functional/Driver/IBMDB2/StatementTest.php</exclude-pattern>
-    </rule>
-
     <!-- see https://github.com/doctrine/dbal/issues/3377 -->
     <rule ref="SlevomatCodingStandard.Operators.DisallowEqualOperators.DisallowedNotEqualOperator">
         <exclude-pattern>lib/Doctrine/DBAL/Schema/Comparator.php</exclude-pattern>

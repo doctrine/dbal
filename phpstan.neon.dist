@@ -23,11 +23,6 @@ parameters:
         - '~^Property Doctrine\\DBAL\\Schema\\Schema::\$_schemaConfig \(Doctrine\\DBAL\\Schema\\SchemaConfig\) does not accept default value of type false\.\z~'
         - '~^Return type \(int\|false\) of method Doctrine\\DBAL\\Driver\\OCI8\\OCI8Connection\:\:lastInsertId\(\) should be compatible with return type \(string\) of method Doctrine\\DBAL\\Driver\\Connection::lastInsertId\(\)~'
 
-        # https://github.com/phpstan/phpstan/issues/3527
-        -
-            message: '~^Call to private method sqliteCreateFunction\(\) of parent class PDO\.$~'
-            path: %currentWorkingDirectory%/lib/Doctrine/DBAL/Driver/PDOSqlite/Driver.php
-
         # https://github.com/phpstan/phpstan/issues/2857
         # TODO: remove in 4.0.0
         - '~^Parameter #2 \$registeredAliases of static method Doctrine\\DBAL\\Query\\QueryException::nonUniqueAlias\(\) expects array<string>, array<int, int\|string> given\.\z~'
