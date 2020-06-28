@@ -1,5 +1,9 @@
 # Upgrade to 3.0
 
+## The `PingableConnection` interface is removed
+
+The functionality of pinging the server is no longer supported.
+
 ## BC BREAK: Deprecated driver-level classes and interfaces are removed.
 
 - `AbstractDriverException`
@@ -169,9 +173,9 @@ The following classes have been removed:
 DBAL now requires MariaDB 10.1 or newer, support for unmaintained versions has been dropped.
 If you are using any of the legacy versions, you have to upgrade to a newer MariaDB version (10.1+ is recommended).
 
-## BC BREAK: PingableConnection and ServerInfoAwareConnection interfaces now extend Connection
+## BC BREAK: The ServerInfoAwareConnection interface now extend Connection
 
-All implementations of the `PingableConnection` and `ServerInfoAwareConnection` interfaces have to implement the methods defined in the `Connection` interface as well.
+All implementations of the `ServerInfoAwareConnection` interface have to implement the methods defined in the `Connection` interface as well.
 
 ## BC BREAK: VersionAwarePlatformDriver interface now extends Driver
 
