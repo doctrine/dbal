@@ -2,7 +2,8 @@
 
 namespace Doctrine\DBAL\Tests\Functional;
 
-use Doctrine\DBAL\Driver\ExceptionConverterDriver;
+use Doctrine\DBAL\Driver\AbstractSQLServerDriver;
+use Doctrine\DBAL\Driver\IBMDB2;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
@@ -35,11 +36,17 @@ class ExceptionTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        if ($this->connection->getDriver() instanceof ExceptionConverterDriver) {
+        $driver = $this->connection->getDriver();
+
+        if ($driver instanceof IBMDB2\Driver) {
+            self::markTestSkipped("The IBM DB2 driver currently doesn't instantiate specialized exceptions");
+        }
+
+        if (! $driver instanceof AbstractSQLServerDriver) {
             return;
         }
 
-        self::markTestSkipped('Driver does not support special exception handling.');
+        self::markTestSkipped("The SQL Server drivers currently don't instantiate specialized exceptions");
     }
 
     public function testPrimaryConstraintViolationException(): void

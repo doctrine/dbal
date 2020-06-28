@@ -1,5 +1,9 @@
 # Upgrade to 3.0
 
+## The `ExceptionConverterDriver` interface is removed
+
+All drivers must implement the `convertException()` method which is now part of the `Driver` interface.
+
 ## The `PingableConnection` interface is removed
 
 The functionality of pinging the server is no longer supported.
