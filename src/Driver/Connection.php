@@ -2,7 +2,6 @@
 
 namespace Doctrine\DBAL\Driver;
 
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\ParameterType;
 
 /**
@@ -23,7 +22,7 @@ interface Connection
     /**
      * Executes an SQL statement, returning a result set as a Statement object.
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function query(string $sql): Result;
 
@@ -40,7 +39,7 @@ interface Connection
     /**
      * Executes an SQL statement and return the number of affected rows.
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function exec(string $statement): int;
 

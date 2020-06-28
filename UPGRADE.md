@@ -5,6 +5,8 @@
 The following driver-level methods are allowed to throw a Driver\Exception:
 
 - `Connection::prepare()`
+- `Connection::query()`
+- `Connection::exec()`
 - `Connection::lastInsertId()`
 - `Connection::beginTransaction()`
 - `Connection::commit()`
@@ -14,6 +16,8 @@ The following driver-level methods are allowed to throw a Driver\Exception:
 - `Statement::bindValue()`
 - `Result::rowCount()`
 - `Result::columnCount()`
+
+The driver-level implementations of `Connection::query()` and `Connection::exec()` may no longer throw a `DBALException`.
 
 ## The `ExceptionConverterDriver` interface is removed
 
