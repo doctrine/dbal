@@ -1,5 +1,9 @@
 # Upgrade to 2.11
 
+## `AbstractPlatform::fixSchemaElementName()` is deprecated.
+
+The method is not used anywhere except for tests.
+
 ##`ServerInfoAwareConnection::requiresQueryForServerVersion()` is deprecated.
 
 The `ServerInfoAwareConnection::requiresQueryForServerVersion()` method has been deprecated as an implementation detail which is the same for almost all supported drivers.

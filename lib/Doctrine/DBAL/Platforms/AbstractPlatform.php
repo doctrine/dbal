@@ -3478,6 +3478,8 @@ abstract class AbstractPlatform
      * Makes any fixes to a name of a schema element (table, sequence, ...) that are required
      * by restrictions of the platform, like a maximum length.
      *
+     * @deprecated
+     *
      * @param string $schemaElementName
      *
      * @return string
