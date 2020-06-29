@@ -4,7 +4,6 @@ namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Driver\Exception as TheDriverException;
 use Doctrine\DBAL\Exception\ConnectionException;
 use Doctrine\DBAL\Exception\DeadlockException;
 use Doctrine\DBAL\Exception\DriverException;
@@ -28,14 +27,14 @@ use function version_compare;
 /**
  * Abstract base implementation of the {@link Driver} interface for PostgreSQL based drivers.
  */
-abstract class AbstractPostgreSQLDriver implements ExceptionConverterDriver, VersionAwarePlatformDriver
+abstract class AbstractPostgreSQLDriver implements VersionAwarePlatformDriver
 {
     /**
      * {@inheritdoc}
      *
      * @link http://www.postgresql.org/docs/9.4/static/errcodes-appendix.html
      */
-    public function convertException($message, TheDriverException $exception)
+    public function convertException($message, Exception $exception)
     {
         switch ($exception->getSQLState()) {
             case '40001':

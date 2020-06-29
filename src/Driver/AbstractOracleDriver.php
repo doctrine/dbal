@@ -5,7 +5,6 @@ namespace Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\AbstractOracleDriver\EasyConnectString;
-use Doctrine\DBAL\Driver\Exception as TheDriverException;
 use Doctrine\DBAL\Exception\ConnectionException;
 use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
@@ -22,12 +21,12 @@ use Doctrine\DBAL\Schema\OracleSchemaManager;
 /**
  * Abstract base implementation of the {@link Driver} interface for Oracle based drivers.
  */
-abstract class AbstractOracleDriver implements Driver, ExceptionConverterDriver
+abstract class AbstractOracleDriver implements Driver
 {
     /**
      * {@inheritdoc}
      */
-    public function convertException($message, TheDriverException $exception)
+    public function convertException($message, Exception $exception)
     {
         switch ($exception->getCode()) {
             case 1:

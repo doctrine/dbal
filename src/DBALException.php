@@ -3,7 +3,6 @@
 namespace Doctrine\DBAL;
 
 use Doctrine\DBAL\Driver\Exception as TheDriverException;
-use Doctrine\DBAL\Driver\ExceptionConverterDriver;
 use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
@@ -169,7 +168,7 @@ class DBALException extends Exception
             return $driverEx;
         }
 
-        if ($driver instanceof ExceptionConverterDriver && $driverEx instanceof TheDriverException) {
+        if ($driverEx instanceof TheDriverException) {
             return $driver->convertException($msg, $driverEx);
         }
 

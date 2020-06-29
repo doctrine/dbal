@@ -4,7 +4,6 @@ namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
-use Doctrine\DBAL\Driver\Exception as TheDriverException;
 use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Doctrine\DBAL\Schema\SQLServerSchemaManager;
@@ -35,7 +34,7 @@ abstract class AbstractSQLServerDriver implements Driver
      *
      * @return DriverException
      */
-    public function convertException($message, TheDriverException $exception)
+    public function convertException($message, Exception $exception)
     {
         return new DriverException($message, $exception);
     }

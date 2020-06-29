@@ -4,6 +4,7 @@ namespace Doctrine\DBAL;
 
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Driver\Exception;
+use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 
@@ -39,4 +40,17 @@ interface Driver
      * @return AbstractSchemaManager
      */
     public function getSchemaManager(Connection $conn);
+
+    /**
+     * Converts a given driver-level exception into a DBAL-level driver exception.
+     *
+     * Implementors should use the vendor-specific error code and SQLSTATE of the exception
+     * and instantiate the most appropriate specialized {@link DriverException} subclass.
+     *
+     * @param string    $message   The exception message to use.
+     * @param Exception $exception The driver exception to convert.
+     *
+     * @return DriverException An instance of {@link DriverException} or one of its subclasses.
+     */
+    public function convertException($message, Exception $exception);
 }

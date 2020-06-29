@@ -5,8 +5,9 @@ namespace Doctrine\DBAL\Tests\Driver;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
-use Doctrine\DBAL\Driver\Exception as DriverExceptionInterface;
-use Doctrine\DBAL\Driver\ExceptionConverterDriver;
+use Doctrine\DBAL\Driver\AbstractException;
+use Doctrine\DBAL\Driver\AbstractSQLServerDriver;
+use Doctrine\DBAL\Driver\IBMDB2;
 use Doctrine\DBAL\Exception\ConnectionException;
 use Doctrine\DBAL\Exception\ConstraintViolationException;
 use Doctrine\DBAL\Exception\DatabaseObjectExistsException;
@@ -78,15 +79,18 @@ abstract class AbstractDriverTest extends TestCase
         ?string $sqlState = null,
         string $message = ''
     ): void {
-        if (! $this->driver instanceof ExceptionConverterDriver) {
-            self::markTestSkipped('This test is only intended for exception converter drivers.');
+        if ($this->driver instanceof IBMDB2\Driver) {
+            self::markTestSkipped("The IBM DB2 driver currently doesn't instantiate specialized exceptions");
         }
 
-        $driverException = $this->getMockBuilder(DriverExceptionInterface::class)
-            ->setConstructorArgs([$message, $errorCode])
-            ->getMock();
-        $driverException->method('getSQLState')
-            ->willReturn($sqlState);
+        if ($this->driver instanceof AbstractSQLServerDriver) {
+            self::markTestSkipped("The SQL Server drivers currently don't instantiate specialized exceptions");
+        }
+
+        $driverException = $this->getMockForAbstractClass(
+            AbstractException::class,
+            [$message, $sqlState, $errorCode]
+        );
 
         $dbalMessage   = 'DBAL exception message';
         $dbalException = $this->driver->convertException($dbalMessage, $driverException);
