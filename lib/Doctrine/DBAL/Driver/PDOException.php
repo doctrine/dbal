@@ -2,6 +2,8 @@
 
 namespace Doctrine\DBAL\Driver;
 
+use Doctrine\DBAL\Driver\PDO\Exception;
+
 /**
  * @deprecated Use {@link Exception} instead
  *

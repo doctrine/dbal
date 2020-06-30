@@ -2,7 +2,7 @@
 
 namespace Doctrine\DBAL\Driver\PDOSqlsrv;
 
-use Doctrine\DBAL\Driver\PDO\Connection as BaseStatement;
+use Doctrine\DBAL\Driver\PDO\Connection as BaseConnection;
 use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\ParameterType;
 use PDO;
@@ -14,7 +14,7 @@ use function substr;
 /**
  * Sqlsrv Connection implementation.
  */
-class Connection extends BaseStatement
+class Connection extends BaseConnection
 {
     /**
      * {@inheritdoc}
