@@ -93,7 +93,7 @@ abstract class AbstractDriverTest extends TestCase
         );
 
         $dbalMessage   = 'DBAL exception message';
-        $dbalException = $this->driver->convertException($dbalMessage, $driverException);
+        $dbalException = $this->driver->getExceptionConverter()->convert($dbalMessage, $driverException);
 
         self::assertInstanceOf($expectedClass, $dbalException);
 

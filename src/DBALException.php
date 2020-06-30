@@ -169,7 +169,7 @@ class DBALException extends Exception
         }
 
         if ($driverEx instanceof TheDriverException) {
-            return $driver->convertException($msg, $driverEx);
+            return $driver->getExceptionConverter()->convert($msg, $driverEx);
         }
 
         return new self($msg, 0, $driverEx);
