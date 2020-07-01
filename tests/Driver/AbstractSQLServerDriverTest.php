@@ -4,6 +4,8 @@ namespace Doctrine\DBAL\Tests\Driver;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\AbstractSQLServerDriver\Exception\PortWithoutHost;
+use Doctrine\DBAL\Driver\API\DefaultExceptionConverter;
+use Doctrine\DBAL\Driver\API\ExceptionConverter;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
@@ -19,6 +21,11 @@ abstract class AbstractSQLServerDriverTest extends AbstractDriverTest
     protected function createSchemaManager(Connection $connection): AbstractSchemaManager
     {
         return new SQLServerSchemaManager($connection);
+    }
+
+    protected function createExceptionConverter(): ExceptionConverter
+    {
+        return new DefaultExceptionConverter();
     }
 
     /**
