@@ -4,10 +4,6 @@ namespace Doctrine\DBAL\Tests\Functional;
 
 use DateTime;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Driver\IBMDB2\Driver as IBMDB2Driver;
-use Doctrine\DBAL\Driver\Mysqli\Driver as MySQLiDriver;
-use Doctrine\DBAL\Driver\SQLSrv\Driver as SQLSrvDriver;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Platforms\TrimMode;

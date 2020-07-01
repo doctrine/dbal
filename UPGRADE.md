@@ -4,6 +4,7 @@
 
 1. The `convertException()` method has been removed from the `Driver` interface. The logic of exception conversion has been moved to the `ExceptionConverter` interface. The drivers now must implement the `getExceptionConverter()` method.
 2. The `driverException()` and `driverExceptionDuringQuery()` factory methods have been removed from the `DBALException` class.
+3. Non-driver exceptions (e.g. exceptions of type `Error`) are no longer wrapped in a `DBALException`.
 
 ## BC BREAK: More driver-level methods are allowed to throw a Driver\Exception.
 

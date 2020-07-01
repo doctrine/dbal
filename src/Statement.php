@@ -75,7 +75,7 @@ class Statement implements DriverStatement
         try {
             $stmt = $driverConnection->prepare($sql);
         } catch (Exception $ex) {
-            $conn->handleExceptionDuringQuery($ex, $sql);
+            throw $conn->convertExceptionDuringQuery($ex, $sql);
         }
 
         $this->sql      = $sql;
@@ -165,7 +165,7 @@ class Statement implements DriverStatement
                 $this->conn
             );
         } catch (Exception $ex) {
-            $this->conn->handleExceptionDuringQuery($ex, $this->sql, $this->params, $this->types);
+            throw $this->conn->convertExceptionDuringQuery($ex, $this->sql, $this->params, $this->types);
         } finally {
             if ($logger !== null) {
                 $logger->stopQuery();

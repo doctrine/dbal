@@ -2,24 +2,14 @@
 
 namespace Doctrine\DBAL;
 
-use Doctrine\DBAL\Driver\Exception as TheDriverException;
-use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
 use Exception;
-use Throwable;
 
-use function array_map;
-use function bin2hex;
-use function count;
 use function get_class;
 use function gettype;
 use function implode;
 use function is_object;
-use function is_resource;
-use function is_string;
-use function json_encode;
-use function preg_replace;
 use function spl_object_hash;
 use function sprintf;
 
@@ -131,74 +121,6 @@ class DBALException extends Exception
     {
         return new self("The given 'driver' " . $unknownDriverName . ' is unknown, ' .
             'Doctrine currently supports only the following drivers: ' . implode(', ', $knownDrivers));
-    }
-
-    /**
-     * @param string  $sql
-     * @param mixed[] $params
-     *
-     * @return self
-     */
-    public static function driverExceptionDuringQuery(Driver $driver, Throwable $driverEx, $sql, array $params = [])
-    {
-        $msg = "An exception occurred while executing '" . $sql . "'";
-        if (count($params) > 0) {
-            $msg .= ' with params ' . self::formatParameters($params);
-        }
-
-        $msg .= ":\n\n" . $driverEx->getMessage();
-
-        return static::wrapException($driver, $driverEx, $msg);
-    }
-
-    /**
-     * @return self
-     */
-    public static function driverException(Driver $driver, Throwable $driverEx)
-    {
-        return static::wrapException($driver, $driverEx, 'An exception occurred in driver: ' . $driverEx->getMessage());
-    }
-
-    /**
-     * @return self
-     */
-    private static function wrapException(Driver $driver, Throwable $driverEx, string $msg)
-    {
-        if ($driverEx instanceof DriverException) {
-            return $driverEx;
-        }
-
-        if ($driverEx instanceof TheDriverException) {
-            return $driver->getExceptionConverter()->convert($msg, $driverEx);
-        }
-
-        return new self($msg, 0, $driverEx);
-    }
-
-    /**
-     * Returns a human-readable representation of an array of parameters.
-     * This properly handles binary data by returning a hex representation.
-     *
-     * @param mixed[] $params
-     *
-     * @return string
-     */
-    private static function formatParameters(array $params)
-    {
-        return '[' . implode(', ', array_map(static function ($param): string {
-            if (is_resource($param)) {
-                return (string) $param;
-            }
-
-            $json = @json_encode($param);
-
-            if (! is_string($json) || $json === 'null' && is_string($param)) {
-                // JSON encoding failed, this is not a UTF-8 string.
-                return sprintf('"%s"', preg_replace('/.{2}/', '\\x$0', bin2hex($param)));
-            }
-
-            return $json;
-        }, $params)) . ']';
     }
 
     /**

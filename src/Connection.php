@@ -9,6 +9,7 @@ use Doctrine\DBAL\Cache\ArrayResult;
 use Doctrine\DBAL\Cache\CacheException;
 use Doctrine\DBAL\Cache\CachingResult;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
+use Doctrine\DBAL\Driver\API\ExceptionConverter;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Driver\Exception as DriverException;
 use Doctrine\DBAL\Driver\Result as DriverResult;
@@ -26,12 +27,18 @@ use Throwable;
 use Traversable;
 
 use function array_key_exists;
+use function array_map;
 use function assert;
+use function bin2hex;
 use function count;
 use function implode;
 use function is_int;
+use function is_resource;
 use function is_string;
+use function json_encode;
 use function key;
+use function preg_replace;
+use function sprintf;
 
 /**
  * A wrapper around a Doctrine\DBAL\Driver\Connection that adds features like
@@ -113,6 +120,9 @@ class Connection implements DriverConnection
      * @var AbstractPlatform
      */
     private $platform;
+
+    /** @var ExceptionConverter|null */
+    private $exceptionConverter;
 
     /**
      * The schema manager.
@@ -284,7 +294,7 @@ class Connection implements DriverConnection
         try {
             $this->_conn = $this->_driver->connect($this->params);
         } catch (DriverException $e) {
-            throw DBALException::driverException($this->_driver, $e);
+            throw $this->convertException($e);
         }
 
         $this->transactionNestingLevel = 0;
@@ -468,7 +478,7 @@ class Connection implements DriverConnection
         try {
             return $this->executeQuery($query, $params, $types)->fetchAssociative();
         } catch (DriverException $e) {
-            $this->handleExceptionDuringQuery($e, $query, $params, $types);
+            throw $this->convertExceptionDuringQuery($e, $query, $params, $types);
         }
     }
 
@@ -489,7 +499,7 @@ class Connection implements DriverConnection
         try {
             return $this->executeQuery($query, $params, $types)->fetchNumeric();
         } catch (DriverException $e) {
-            $this->handleExceptionDuringQuery($e, $query, $params, $types);
+            throw $this->convertExceptionDuringQuery($e, $query, $params, $types);
         }
     }
 
@@ -510,7 +520,7 @@ class Connection implements DriverConnection
         try {
             return $this->executeQuery($query, $params, $types)->fetchOne();
         } catch (DriverException $e) {
-            $this->handleExceptionDuringQuery($e, $query, $params, $types);
+            throw $this->convertExceptionDuringQuery($e, $query, $params, $types);
         }
     }
 
@@ -772,7 +782,7 @@ class Connection implements DriverConnection
         try {
             return $this->executeQuery($query, $params, $types)->fetchAllNumeric();
         } catch (DriverException $e) {
-            $this->handleExceptionDuringQuery($e, $query, $params, $types);
+            throw $this->convertExceptionDuringQuery($e, $query, $params, $types);
         }
     }
 
@@ -792,7 +802,7 @@ class Connection implements DriverConnection
         try {
             return $this->executeQuery($query, $params, $types)->fetchAllAssociative();
         } catch (DriverException $e) {
-            $this->handleExceptionDuringQuery($e, $query, $params, $types);
+            throw $this->convertExceptionDuringQuery($e, $query, $params, $types);
         }
     }
 
@@ -812,7 +822,7 @@ class Connection implements DriverConnection
         try {
             return $this->executeQuery($query, $params, $types)->fetchFirstColumn();
         } catch (DriverException $e) {
-            $this->handleExceptionDuringQuery($e, $query, $params, $types);
+            throw $this->convertExceptionDuringQuery($e, $query, $params, $types);
         }
     }
 
@@ -836,7 +846,7 @@ class Connection implements DriverConnection
                 yield $row;
             }
         } catch (DriverException $e) {
-            $this->handleExceptionDuringQuery($e, $query, $params, $types);
+            throw $this->convertExceptionDuringQuery($e, $query, $params, $types);
         }
     }
 
@@ -860,7 +870,7 @@ class Connection implements DriverConnection
                 yield $row;
             }
         } catch (DriverException $e) {
-            $this->handleExceptionDuringQuery($e, $query, $params, $types);
+            throw $this->convertExceptionDuringQuery($e, $query, $params, $types);
         }
     }
 
@@ -884,7 +894,7 @@ class Connection implements DriverConnection
                 yield $value;
             }
         } catch (DriverException $e) {
-            $this->handleExceptionDuringQuery($e, $query, $params, $types);
+            throw $this->convertExceptionDuringQuery($e, $query, $params, $types);
         }
     }
 
@@ -949,7 +959,7 @@ class Connection implements DriverConnection
 
             return new Result($result, $this);
         } catch (DriverException $e) {
-            $this->handleExceptionDuringQuery($e, $query, $params, $types);
+            throw $this->convertExceptionDuringQuery($e, $query, $params, $types);
         } finally {
             if ($logger !== null) {
                 $logger->stopQuery();
@@ -1021,7 +1031,7 @@ class Connection implements DriverConnection
         try {
             return $connection->query($sql);
         } catch (DriverException $e) {
-            $this->handleExceptionDuringQuery($e, $sql);
+            throw $this->convertExceptionDuringQuery($e, $sql);
         } finally {
             if ($logger !== null) {
                 $logger->stopQuery();
@@ -1069,7 +1079,7 @@ class Connection implements DriverConnection
 
             return $connection->exec($query);
         } catch (DriverException $e) {
-            $this->handleExceptionDuringQuery($e, $query, $params, $types);
+            throw $this->convertExceptionDuringQuery($e, $query, $params, $types);
         } finally {
             if ($logger !== null) {
                 $logger->stopQuery();
@@ -1092,7 +1102,7 @@ class Connection implements DriverConnection
         try {
             return $connection->exec($statement);
         } catch (DriverException $e) {
-            $this->handleExceptionDuringQuery($e, $statement);
+            throw $this->convertExceptionDuringQuery($e, $statement);
         } finally {
             if ($logger !== null) {
                 $logger->stopQuery();
@@ -1580,15 +1590,12 @@ class Connection implements DriverConnection
     /**
      * Resolves the parameters to a format which can be displayed.
      *
-     * @internal This is a purely internal method. If you rely on this method, you are advised to
-     *           copy/paste the code as this method may change, or be removed without prior notice.
-     *
      * @param mixed[]                $params
      * @param array<int|string|null> $types
      *
      * @return mixed[]
      */
-    public function resolveParams(array $params, array $types)
+    private function resolveParams(array $params, array $types): array
     {
         $resolvedParams = [];
 
@@ -1640,53 +1647,73 @@ class Connection implements DriverConnection
      *
      * @param array<mixed>           $params
      * @param array<int|string|null> $types
-     *
-     * @throws DBALException
-     *
-     * @psalm-return never-return
      */
-    public function handleExceptionDuringQuery(Throwable $e, string $sql, array $params = [], array $types = []): void
-    {
-        $this->throw(
-            DBALException::driverExceptionDuringQuery(
-                $this->_driver,
-                $e,
-                $sql,
+    final public function convertExceptionDuringQuery(
+        DriverException $e,
+        string $sql,
+        array $params = [],
+        array $types = []
+    ): DBALException {
+        $message = "An exception occurred while executing '" . $sql . "'";
+
+        if (count($params) > 0) {
+            $message .= ' with params ' . $this->formatParameters(
                 $this->resolveParams($params, $types)
-            )
-        );
+            );
+        }
+
+        $message .= ":\n\n" . $e->getMessage();
+
+        return $this->handleDriverException($e, $message);
     }
 
     /**
      * @internal
-     *
-     * @throws DBALException
-     *
-     * @psalm-return never-return
      */
-    public function handleDriverException(Throwable $e): void
+    final public function convertException(DriverException $e): DBALException
     {
-        $this->throw(
-            DBALException::driverException(
-                $this->_driver,
-                $e
-            )
+        return $this->handleDriverException(
+            $e,
+            'An exception occurred in driver: ' . $e->getMessage()
         );
     }
 
     /**
-     * @internal
+     * Returns a human-readable representation of an array of parameters.
+     * This properly handles binary data by returning a hex representation.
      *
-     * @throws DBALException
-     *
-     * @psalm-return never-return
+     * @param mixed[] $params
      */
-    private function throw(DBALException $e): void
+    private function formatParameters(array $params): string
     {
-        if ($e instanceof ConnectionLost) {
+        return '[' . implode(', ', array_map(static function ($param): string {
+            if (is_resource($param)) {
+                return (string) $param;
+            }
+
+            $json = @json_encode($param);
+
+            if (! is_string($json) || $json === 'null' && is_string($param)) {
+                // JSON encoding failed, this is not a UTF-8 string.
+                return sprintf('"%s"', preg_replace('/.{2}/', '\\x$0', bin2hex($param)));
+            }
+
+            return $json;
+        }, $params)) . ']';
+    }
+
+    private function handleDriverException(DriverException $driverException, string $message): DBALException
+    {
+        if ($this->exceptionConverter === null) {
+            $this->exceptionConverter = $this->_driver->getExceptionConverter();
+        }
+
+        $exception = $this->exceptionConverter->convert($message, $driverException);
+
+        if ($exception instanceof ConnectionLost) {
             $this->close();
         }
 
-        throw $e;
+        return $exception;
     }
 }
