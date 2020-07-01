@@ -1075,6 +1075,8 @@ SQL
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated
      */
     public function fixSchemaElementName($schemaElementName)
     {
