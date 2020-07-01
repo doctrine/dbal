@@ -4,6 +4,7 @@ namespace Doctrine\DBAL\Driver\PDOSqlsrv;
 
 use Doctrine\DBAL\Driver\AbstractSQLServerDriver;
 use Doctrine\DBAL\Driver\AbstractSQLServerDriver\Exception\PortWithoutHost;
+use Doctrine\DBAL\Driver\Exception;
 use PDO;
 
 use function is_int;
@@ -50,6 +51,8 @@ class Driver extends AbstractSQLServerDriver
      * @param string[] $connectionOptions
      *
      * @return string The DSN.
+     *
+     * @throws Exception
      */
     private function _constructPdoDsn(array $params, array $connectionOptions)
     {

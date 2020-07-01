@@ -2,7 +2,6 @@
 
 namespace Doctrine\DBAL\Driver;
 
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\ParameterType;
 
 /**
@@ -15,13 +14,15 @@ interface Connection
 {
     /**
      * Prepares a statement for execution and returns a Statement object.
+     *
+     * @throws Exception
      */
     public function prepare(string $sql): Statement;
 
     /**
      * Executes an SQL statement, returning a result set as a Statement object.
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function query(string $sql): Result;
 
@@ -38,7 +39,7 @@ interface Connection
     /**
      * Executes an SQL statement and return the number of affected rows.
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function exec(string $statement): int;
 
@@ -48,6 +49,8 @@ interface Connection
      * @param string|null $name
      *
      * @return string
+     *
+     * @throws Exception
      */
     public function lastInsertId($name = null);
 
@@ -55,6 +58,8 @@ interface Connection
      * Initiates a transaction.
      *
      * @return bool TRUE on success or FALSE on failure.
+     *
+     * @throws Exception
      */
     public function beginTransaction();
 
@@ -62,6 +67,8 @@ interface Connection
      * Commits a transaction.
      *
      * @return bool TRUE on success or FALSE on failure.
+     *
+     * @throws Exception
      */
     public function commit();
 
@@ -69,6 +76,8 @@ interface Connection
      * Rolls back the current transaction, as initiated by beginTransaction().
      *
      * @return bool TRUE on success or FALSE on failure.
+     *
+     * @throws Exception
      */
     public function rollBack();
 }

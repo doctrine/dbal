@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Driver\OCI8;
 
+use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\OCI8\Exception\Error;
 use Doctrine\DBAL\Driver\OCI8\Exception\UnknownParameterIndex;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
@@ -54,6 +55,8 @@ final class Statement implements StatementInterface
      *
      * @param resource $dbh   The connection handle.
      * @param string   $query The SQL query.
+     *
+     * @throws Exception
      */
     public function __construct($dbh, $query, ExecutionMode $executionMode)
     {
