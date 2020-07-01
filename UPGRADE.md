@@ -1,5 +1,9 @@
 # Upgrade to 2.11
 
+## `DBALException` factory method deprecations
+
+1. `DBALException::invalidPlatformType()` is deprecated as unused as of v2.7.0.
+
 ## `AbstractPlatform::fixSchemaElementName()` is deprecated.
 
 The method is not used anywhere except for tests.
