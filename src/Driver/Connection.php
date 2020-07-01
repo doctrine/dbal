@@ -7,8 +7,6 @@ use Doctrine\DBAL\ParameterType;
 /**
  * Connection interface.
  * Driver connections must implement this interface.
- *
- * This resembles (a subset of) the PDO interface.
  */
 interface Connection
 {

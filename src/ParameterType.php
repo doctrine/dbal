@@ -9,15 +9,11 @@ final class ParameterType
 {
     /**
      * Represents the SQL NULL data type.
-     *
-     * @see \PDO::PARAM_NULL
      */
     public const NULL = 0;
 
     /**
      * Represents the SQL INTEGER data type.
-     *
-     * @see \PDO::PARAM_INT
      */
     public const INTEGER = 1;
 
@@ -30,8 +26,6 @@ final class ParameterType
 
     /**
      * Represents the SQL large object data type.
-     *
-     * @see \PDO::PARAM_LOB
      */
     public const LARGE_OBJECT = 3;
 

@@ -77,7 +77,7 @@ class Statement implements DriverStatement
     /**
      * Binds a parameter value to the statement.
      *
-     * The value can optionally be bound with a PDO binding type or a DBAL mapping type.
+     * The value can optionally be bound with a DBAL mapping type.
      * If bound with a DBAL mapping type, the binding type is derived from the mapping
      * type and the value undergoes the conversion routines of the mapping type before
      * being bound.
@@ -117,7 +117,7 @@ class Statement implements DriverStatement
      *
      * @param string|int $name   The name or position of the parameter.
      * @param mixed      $var    The reference to the variable to bind.
-     * @param int        $type   The PDO binding type.
+     * @param int        $type   The binding type.
      * @param int|null   $length Must be specified when using an OUT bind
      *                           so that PHP allocates enough memory to hold the returned value.
      *

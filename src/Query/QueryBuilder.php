@@ -7,6 +7,7 @@ use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
+use Doctrine\DBAL\Statement;
 
 use function array_key_exists;
 use function array_keys;
@@ -1258,15 +1259,13 @@ class QueryBuilder
     /**
      * Creates a new named parameter and bind the value $value to it.
      *
-     * This method provides a shortcut for PDOStatement::bindValue
+     * This method provides a shortcut for {@link Statement::bindValue()}
      * when using prepared statements.
      *
      * The parameter $value specifies the value that you want to bind. If
      * $placeholder is not provided bindValue() will automatically create a
      * placeholder for you. An automatic placeholder will be of the name
      * ':dcValue1', ':dcValue2' etc.
-     *
-     * For more information see {@link http://php.net/pdostatement-bindparam}
      *
      * Example:
      * <code>

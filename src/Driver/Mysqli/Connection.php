@@ -147,7 +147,7 @@ final class Connection implements ServerInfoAwareConnection
     }
 
     /**
-     * {@inheritdoc}non-PHPdoc)
+     * {@inheritdoc}
      */
     public function rollBack()
     {

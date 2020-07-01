@@ -31,7 +31,7 @@ interface Statement
 
     /**
      * Binds a PHP variable to a corresponding named (not supported by mysqli driver, see comment below) or question
-     * mark placeholder in the SQL statement that was use to prepare the statement. Unlike PDOStatement->bindValue(),
+     * mark placeholder in the SQL statement that was use to prepare the statement. Unlike {@link bindValue()},
      * the variable is bound as a reference and will only be evaluated at the time
      * that PDOStatement->execute() is called.
      *
@@ -62,7 +62,7 @@ interface Statement
      * Executes a prepared statement
      *
      * If the prepared statement included parameter markers, you must either:
-     * call PDOStatement->bindParam() to bind PHP variables to the parameter markers:
+     * call {@link bindParam()} to bind PHP variables to the parameter markers:
      * bound variables pass their value as input and receive the output value,
      * if any, of their associated parameter markers or pass an array of input-only
      * parameter values.
