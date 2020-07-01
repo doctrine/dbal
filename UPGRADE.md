@@ -3,6 +3,7 @@
 ## `DBALException` factory method deprecations
 
 1. `DBALException::invalidPlatformType()` is deprecated as unused as of v2.7.0.
+2. `DBALException::invalidPdoInstance()` as passing a PDO instance via configuration is deprecated.
 
 ## `AbstractPlatform::fixSchemaElementName()` is deprecated.
 

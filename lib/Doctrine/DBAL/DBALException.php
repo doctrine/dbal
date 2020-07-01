@@ -93,6 +93,8 @@ class DBALException extends Exception
     }
 
     /**
+     * @deprecated Passing a PDO instance in connection parameters is deprecated.
+     *
      * @return DBALException
      */
     public static function invalidPdoInstance()
