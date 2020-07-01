@@ -467,7 +467,7 @@ class Connection implements DriverConnection
     {
         try {
             return $this->executeQuery($query, $params, $types)->fetchAssociative();
-        } catch (Throwable $e) {
+        } catch (DriverException $e) {
             $this->handleExceptionDuringQuery($e, $query, $params, $types);
         }
     }
@@ -488,7 +488,7 @@ class Connection implements DriverConnection
     {
         try {
             return $this->executeQuery($query, $params, $types)->fetchNumeric();
-        } catch (Throwable $e) {
+        } catch (DriverException $e) {
             $this->handleExceptionDuringQuery($e, $query, $params, $types);
         }
     }
@@ -509,7 +509,7 @@ class Connection implements DriverConnection
     {
         try {
             return $this->executeQuery($query, $params, $types)->fetchOne();
-        } catch (Throwable $e) {
+        } catch (DriverException $e) {
             $this->handleExceptionDuringQuery($e, $query, $params, $types);
         }
     }
@@ -771,7 +771,7 @@ class Connection implements DriverConnection
     {
         try {
             return $this->executeQuery($query, $params, $types)->fetchAllNumeric();
-        } catch (Throwable $e) {
+        } catch (DriverException $e) {
             $this->handleExceptionDuringQuery($e, $query, $params, $types);
         }
     }
@@ -791,7 +791,7 @@ class Connection implements DriverConnection
     {
         try {
             return $this->executeQuery($query, $params, $types)->fetchAllAssociative();
-        } catch (Throwable $e) {
+        } catch (DriverException $e) {
             $this->handleExceptionDuringQuery($e, $query, $params, $types);
         }
     }
@@ -811,7 +811,7 @@ class Connection implements DriverConnection
     {
         try {
             return $this->executeQuery($query, $params, $types)->fetchFirstColumn();
-        } catch (Throwable $e) {
+        } catch (DriverException $e) {
             $this->handleExceptionDuringQuery($e, $query, $params, $types);
         }
     }
@@ -835,7 +835,7 @@ class Connection implements DriverConnection
             while (($row = $result->fetchNumeric()) !== false) {
                 yield $row;
             }
-        } catch (Throwable $e) {
+        } catch (DriverException $e) {
             $this->handleExceptionDuringQuery($e, $query, $params, $types);
         }
     }
@@ -859,7 +859,7 @@ class Connection implements DriverConnection
             while (($row = $result->fetchAssociative()) !== false) {
                 yield $row;
             }
-        } catch (Throwable $e) {
+        } catch (DriverException $e) {
             $this->handleExceptionDuringQuery($e, $query, $params, $types);
         }
     }
@@ -883,7 +883,7 @@ class Connection implements DriverConnection
             while (($value = $result->fetchOne()) !== false) {
                 yield $value;
             }
-        } catch (Throwable $e) {
+        } catch (DriverException $e) {
             $this->handleExceptionDuringQuery($e, $query, $params, $types);
         }
     }
@@ -899,11 +899,7 @@ class Connection implements DriverConnection
      */
     public function prepare(string $sql): DriverStatement
     {
-        try {
-            return new Statement($sql, $this);
-        } catch (Throwable $e) {
-            $this->handleExceptionDuringQuery($e, $sql);
-        }
+        return new Statement($sql, $this);
     }
 
     /**
@@ -952,7 +948,7 @@ class Connection implements DriverConnection
             }
 
             return new Result($result, $this);
-        } catch (Throwable $e) {
+        } catch (DriverException $e) {
             $this->handleExceptionDuringQuery($e, $query, $params, $types);
         } finally {
             if ($logger !== null) {
@@ -1024,7 +1020,7 @@ class Connection implements DriverConnection
 
         try {
             return $connection->query($sql);
-        } catch (Throwable $e) {
+        } catch (DriverException $e) {
             $this->handleExceptionDuringQuery($e, $sql);
         } finally {
             if ($logger !== null) {
@@ -1072,7 +1068,7 @@ class Connection implements DriverConnection
             }
 
             return $connection->exec($query);
-        } catch (Throwable $e) {
+        } catch (DriverException $e) {
             $this->handleExceptionDuringQuery($e, $query, $params, $types);
         } finally {
             if ($logger !== null) {
@@ -1095,7 +1091,7 @@ class Connection implements DriverConnection
 
         try {
             return $connection->exec($statement);
-        } catch (Throwable $e) {
+        } catch (DriverException $e) {
             $this->handleExceptionDuringQuery($e, $statement);
         } finally {
             if ($logger !== null) {

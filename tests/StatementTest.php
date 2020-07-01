@@ -7,11 +7,11 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
+use Doctrine\DBAL\Driver\Exception as DriverException;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Logging\SQLLogger;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Statement;
-use Exception;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -139,7 +139,9 @@ class StatementTest extends TestCase
 
         $this->driverStatement->expects(self::once())
             ->method('execute')
-            ->will(self::throwException(new Exception('Mock test exception')));
+            ->will(self::throwException(
+                $this->createMock(DriverException::class)
+            ));
 
         $statement = new Statement('', $this->conn);
 
