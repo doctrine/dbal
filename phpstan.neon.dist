@@ -8,10 +8,6 @@ parameters:
     reportUnmatchedIgnoredErrors: false
     checkMissingIterableValueType: false
     checkGenericClassInNonGenericObjectType: false
-    earlyTerminatingMethodCalls:
-        Doctrine\DBAL\Connection:
-            - handleDriverException
-            - handleExceptionDuringQuery
     ignoreErrors:
         # removing it would be BC break
         - '~^Constructor of class Doctrine\\DBAL\\Schema\\Table has an unused parameter \$idGeneratorType\.\z~'

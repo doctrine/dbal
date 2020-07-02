@@ -3,44 +3,13 @@
 namespace Doctrine\DBAL\Tests;
 
 use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Driver;
-use Doctrine\DBAL\Driver\Exception as InnerDriverException;
-use Doctrine\DBAL\Exception\DriverException;
-use Exception;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
-use function chr;
-use function fopen;
 use function sprintf;
 
 class DBALExceptionTest extends TestCase
 {
-    public function testDriverExceptionDuringQueryAcceptsBinaryData(): void
-    {
-        $driver = $this->createMock(Driver::class);
-        $e      = DBALException::driverExceptionDuringQuery($driver, new Exception(), '', ['ABC', chr(128)]);
-        self::assertStringContainsString('with params ["ABC", "\x80"]', $e->getMessage());
-    }
-
-    public function testDriverExceptionDuringQueryAcceptsResource(): void
-    {
-        $driver = $this->createMock(Driver::class);
-        $e      = DBALException::driverExceptionDuringQuery($driver, new Exception(), 'INSERT INTO file (`content`) VALUES (?)', [1 => fopen(__FILE__, 'r')]);
-        self::assertStringContainsString('Resource', $e->getMessage());
-    }
-
-    public function testAvoidOverWrappingOnDriverException(): void
-    {
-        $driver = $this->createMock(Driver::class);
-
-        $inner = $this->createMock(InnerDriverException::class);
-
-        $ex = new DriverException('', $inner);
-        $e  = DBALException::driverExceptionDuringQuery($driver, $ex, '');
-        self::assertSame($ex, $e);
-    }
-
     public function testDriverRequiredWithUrl(): void
     {
         $url       = 'mysql://localhost';

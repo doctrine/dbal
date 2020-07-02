@@ -220,6 +220,8 @@ class PrimaryReadReplicaConnection extends Connection
      * @param string $connectionName
      *
      * @return DriverConnection
+     *
+     * @throws DBALException
      */
     protected function connectTo($connectionName)
     {
@@ -230,7 +232,7 @@ class PrimaryReadReplicaConnection extends Connection
         try {
             return $this->_driver->connect($connectionParams);
         } catch (DriverException $e) {
-            throw DBALException::driverException($this->_driver, $e);
+            throw $this->convertException($e);
         }
     }
 

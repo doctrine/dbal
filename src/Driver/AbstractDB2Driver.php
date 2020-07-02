@@ -4,7 +4,8 @@ namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
-use Doctrine\DBAL\Exception\DriverException;
+use Doctrine\DBAL\Driver\API\DefaultExceptionConverter;
+use Doctrine\DBAL\Driver\API\ExceptionConverter;
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Schema\DB2SchemaManager;
 
@@ -29,13 +30,8 @@ abstract class AbstractDB2Driver implements Driver
         return new DB2SchemaManager($conn);
     }
 
-    /**
-     * @param string $message
-     *
-     * @return DriverException
-     */
-    public function convertException($message, Exception $exception)
+    public function getExceptionConverter(): ExceptionConverter
     {
-        return new DriverException($message, $exception);
+        return new DefaultExceptionConverter();
     }
 }

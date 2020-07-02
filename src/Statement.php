@@ -2,11 +2,11 @@
 
 namespace Doctrine\DBAL;
 
+use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\Result as DriverResult;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
-use Throwable;
 
 use function is_string;
 
@@ -65,11 +65,21 @@ class Statement implements DriverStatement
      *
      * @param string     $sql  The SQL of the statement.
      * @param Connection $conn The connection on which the statement should be executed.
+     *
+     * @throws DBALException
      */
     public function __construct($sql, Connection $conn)
     {
+        $driverConnection = $conn->getWrappedConnection();
+
+        try {
+            $stmt = $driverConnection->prepare($sql);
+        } catch (Exception $ex) {
+            throw $conn->convertExceptionDuringQuery($ex, $sql);
+        }
+
         $this->sql      = $sql;
-        $this->stmt     = $conn->getWrappedConnection()->prepare($sql);
+        $this->stmt     = $stmt;
         $this->conn     = $conn;
         $this->platform = $conn->getDatabasePlatform();
     }
@@ -154,8 +164,8 @@ class Statement implements DriverStatement
                 $this->stmt->execute($params),
                 $this->conn
             );
-        } catch (Throwable $ex) {
-            $this->conn->handleExceptionDuringQuery($ex, $this->sql, $this->params, $this->types);
+        } catch (Exception $ex) {
+            throw $this->conn->convertExceptionDuringQuery($ex, $this->sql, $this->params, $this->types);
         } finally {
             if ($logger !== null) {
                 $logger->stopQuery();

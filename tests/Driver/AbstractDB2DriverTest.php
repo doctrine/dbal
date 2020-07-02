@@ -5,6 +5,8 @@ namespace Doctrine\DBAL\Tests\Driver;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\AbstractDB2Driver;
+use Doctrine\DBAL\Driver\API\DefaultExceptionConverter;
+use Doctrine\DBAL\Driver\API\ExceptionConverter;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
@@ -25,5 +27,10 @@ class AbstractDB2DriverTest extends AbstractDriverTest
     protected function createSchemaManager(Connection $connection): AbstractSchemaManager
     {
         return new DB2SchemaManager($connection);
+    }
+
+    protected function createExceptionConverter(): ExceptionConverter
+    {
+        return new DefaultExceptionConverter();
     }
 }
