@@ -2,13 +2,13 @@
 
 namespace Doctrine\DBAL\Tests\Functional;
 
+use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\PDOOracle\Driver as PDOOracleDriver;
 use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Type;
-use Throwable;
 
 use function base64_decode;
 use function stream_get_contents;
@@ -242,8 +242,10 @@ EOF
         $result->free();
 
         try {
-            $value = $fetch($result);
-        } catch (Throwable $e) {
+            // some drivers will trigger a PHP error here which, if not suppressed,
+            // would be converted to a PHPUnit exception prior to DBAL throwing its own one
+            $value = @$fetch($result);
+        } catch (Exception $e) {
             // The drivers that enforce the command sequencing internally will throw an exception
             $this->expectNotToPerformAssertions();
 
