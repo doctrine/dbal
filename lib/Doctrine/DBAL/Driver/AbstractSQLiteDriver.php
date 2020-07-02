@@ -30,6 +30,8 @@ abstract class AbstractSQLiteDriver implements Driver, ExceptionConverterDriver
     /**
      * {@inheritdoc}
      *
+     * @deprecated
+     *
      * @link http://www.sqlite.org/c3ref/c_abort.html
      */
     public function convertException($message, DeprecatedDriverException $exception)

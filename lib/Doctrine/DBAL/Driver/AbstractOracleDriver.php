@@ -26,6 +26,8 @@ abstract class AbstractOracleDriver implements Driver, ExceptionConverterDriver
 {
     /**
      * {@inheritdoc}
+     *
+     * @deprecated
      */
     public function convertException($message, DeprecatedDriverException $exception)
     {
