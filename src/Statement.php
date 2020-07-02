@@ -65,6 +65,8 @@ class Statement implements DriverStatement
      *
      * @param string     $sql  The SQL of the statement.
      * @param Connection $conn The connection on which the statement should be executed.
+     *
+     * @throws DBALException
      */
     public function __construct($sql, Connection $conn)
     {

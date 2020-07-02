@@ -1010,6 +1010,9 @@ class Connection implements DriverConnection
         return new Result($result, $this);
     }
 
+    /**
+     * @throws DBALException
+     */
     public function query(string $sql): DriverResult
     {
         $connection = $this->getWrappedConnection();
@@ -1078,6 +1081,9 @@ class Connection implements DriverConnection
         }
     }
 
+    /**
+     * @throws DBALException
+     */
     public function exec(string $statement): int
     {
         $connection = $this->getWrappedConnection();

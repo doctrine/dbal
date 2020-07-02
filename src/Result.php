@@ -53,6 +53,8 @@ final class Result implements ResultInterface
 
     /**
      * {@inheritDoc}
+     *
+     * @throws DBALException
      */
     public function fetchOne()
     {

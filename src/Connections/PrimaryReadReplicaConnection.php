@@ -220,6 +220,8 @@ class PrimaryReadReplicaConnection extends Connection
      * @param string $connectionName
      *
      * @return DriverConnection
+     *
+     * @throws DBALException
      */
     protected function connectTo($connectionName)
     {
