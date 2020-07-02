@@ -38,6 +38,8 @@ abstract class AbstractPostgreSQLDriver implements Driver, ExceptionConverterDri
     /**
      * {@inheritdoc}
      *
+     * @deprecated
+     *
      * @link http://www.postgresql.org/docs/9.3/static/errcodes-appendix.html
      */
     public function convertException($message, DeprecatedDriverException $exception)

@@ -37,6 +37,8 @@ abstract class AbstractSQLAnywhereDriver implements Driver, ExceptionConverterDr
     /**
      * {@inheritdoc}
      *
+     * @deprecated
+     *
      * @link http://dcx.sybase.com/index.html#sa160/en/saerrors/sqlerror.html
      */
     public function convertException($message, DeprecatedDriverException $exception)

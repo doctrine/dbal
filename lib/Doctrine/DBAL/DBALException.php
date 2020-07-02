@@ -139,6 +139,8 @@ class DBALException extends Exception
     }
 
     /**
+     * @deprecated
+     *
      * @param string  $sql
      * @param mixed[] $params
      *
@@ -157,6 +159,8 @@ class DBALException extends Exception
     }
 
     /**
+     * @deprecated
+     *
      * @return self
      */
     public static function driverException(Driver $driver, Throwable $driverEx)

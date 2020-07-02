@@ -1,5 +1,11 @@
 # Upgrade to 2.11
 
+## Deprecations in driver-level exception handling
+
+1. The `ExceptionConverterDriver` interface and the usage of the `convertException()` method on the `Driver` objects are deprecated.
+2. The `driverException()` and `driverExceptionDuringQuery()` factory methods of the `DBALException` class are deprecated.
+3. Relying on the wrapper layer handling non-driver exceptions is deprecated.
+
 ## `DBALException` factory method deprecations
 
 1. `DBALException::invalidPlatformType()` is deprecated as unused as of v2.7.0.
@@ -20,10 +26,6 @@ The driver and wrapper statement objects can be only created by the correspondin
 ## The `PingableConnection` interface is deprecated
 
 The wrapper connection will automatically handle the lost connection if the driver supports reporting it.
-
-## The `ExceptionConverterDriver` interface is deprecated
-
-All drivers will have to implement the exception conversion API.
 
 ## `DriverException::getErrorCode()` is deprecated
 

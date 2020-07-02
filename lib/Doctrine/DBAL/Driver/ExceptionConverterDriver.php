@@ -2,14 +2,13 @@
 
 namespace Doctrine\DBAL\Driver;
 
-use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\DriverException as TheDriverException;
 use Doctrine\DBAL\Exception\DriverException;
 
 /**
  * Contract for a driver that is capable of converting DBAL driver exceptions into standardized DBAL driver exceptions.
  *
- * @deprecated All implementors of the {@link Driver} interface will have to implement this API.
+ * @deprecated
  */
 interface ExceptionConverterDriver
 {
@@ -18,6 +17,8 @@ interface ExceptionConverterDriver
      *
      * It evaluates the vendor specific error code and SQLSTATE and transforms
      * it into a unified {@link DriverException} subclass.
+     *
+     * @deprecated
      *
      * @param string             $message   The DBAL exception message to use.
      * @param TheDriverException $exception The DBAL driver exception to convert.
