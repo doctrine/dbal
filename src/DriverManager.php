@@ -100,10 +100,6 @@ final class DriverManager
      * Any additional driver-specific options for the driver. These are just passed
      * through to the driver.
      *
-     * <b>pdo</b>:
-     * You can pass an existing PDO instance through this parameter. The PDO
-     * instance will be wrapped in a Doctrine\DBAL\Connection.
-     *
      * <b>wrapperClass</b>:
      * You may specify a custom wrapper class through the 'wrapperClass'
      * parameter but this class MUST inherit from Doctrine\DBAL\Connection.

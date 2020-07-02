@@ -1034,8 +1034,6 @@ class Connection implements DriverConnection
      * Executes an SQL INSERT/UPDATE/DELETE query with the given parameters
      * and returns the number of affected rows.
      *
-     * This method supports PDO binding types as well as DBAL mapping types.
-     *
      * @param string                 $query  The SQL query.
      * @param array<mixed>           $params The query parameters.
      * @param array<int|string|null> $types  The parameter types.
@@ -1511,16 +1509,13 @@ class Connection implements DriverConnection
      * Binds a set of parameters, some or all of which are typed with a PDO binding type
      * or DBAL mapping type, to a given statement.
      *
-     * @internal Duck-typing used on the $stmt parameter to support driver statements as well as
-     *           raw PDOStatement instances.
-     *
      * @param DriverStatement $stmt   The statement to bind the values to.
      * @param mixed[]         $params The map/list of named/positional parameters.
      * @param int[]|string[]  $types  The parameter types (PDO binding types or DBAL mapping types).
      */
     private function _bindTypedValues(DriverStatement $stmt, array $params, array $types): void
     {
-        // Check whether parameters are positional or named. Mixing is not allowed, just like in PDO.
+        // Check whether parameters are positional or named. Mixing is not allowed.
         if (is_int(key($params))) {
             // Positional parameters
             $typeOffset = array_key_exists(0, $types) ? -1 : 0;
@@ -1552,7 +1547,7 @@ class Connection implements DriverConnection
     }
 
     /**
-     * Gets the binding type of a given type. The given type can be a PDO or DBAL mapping type.
+     * Gets the binding type of a given type.
      *
      * @param mixed           $value The value to bind.
      * @param int|string|null $type  The type to bind (PDO or DBAL).
@@ -1590,7 +1585,7 @@ class Connection implements DriverConnection
     {
         $resolvedParams = [];
 
-        // Check whether parameters are positional or named. Mixing is not allowed, just like in PDO.
+        // Check whether parameters are positional or named. Mixing is not allowed.
         if (is_int(key($params))) {
             // Positional parameters
             $typeOffset = array_key_exists(0, $types) ? -1 : 0;

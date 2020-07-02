@@ -104,6 +104,7 @@
     <!-- See https://github.com/slevomat/coding-standard/issues/770 -->
     <rule ref="SlevomatCodingStandard.Namespaces.UnusedUses">
         <exclude-pattern>src/Driver/ExceptionConverterDriver.php</exclude-pattern>
+        <exclude-pattern>src/Query/QueryBuilder.php</exclude-pattern>
     </rule>
 
     <!-- see https://github.com/doctrine/dbal/issues/3377 -->
