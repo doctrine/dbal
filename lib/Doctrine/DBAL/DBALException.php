@@ -38,6 +38,9 @@ class DBALException extends Exception
         return new self(sprintf("Operation '%s' is not supported by platform.", $method));
     }
 
+    /**
+     * @deprecated Use {@link invalidPlatformType()} instead.
+     */
     public static function invalidPlatformSpecified(): self
     {
         return new self(
@@ -90,6 +93,8 @@ class DBALException extends Exception
     }
 
     /**
+     * @deprecated Passing a PDO instance in connection parameters is deprecated.
+     *
      * @return DBALException
      */
     public static function invalidPdoInstance()
