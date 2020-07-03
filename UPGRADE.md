@@ -25,6 +25,8 @@ The `ServerInfoAwareConnection::requiresQueryForServerVersion()` method has been
 2. Wrapper connection objects can be only created by the driver manager.
 3. The driver and wrapper connection objects can be only created by the corresponding connection objects.
 
+Additionally, the `SQLSrv\LastInsertId` class has been marked internal.
+
 ## The `PingableConnection` interface is deprecated
 
 The wrapper connection will automatically handle the lost connection if the driver supports reporting it.

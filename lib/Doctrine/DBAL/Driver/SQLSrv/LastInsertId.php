@@ -4,6 +4,8 @@ namespace Doctrine\DBAL\Driver\SQLSrv;
 
 /**
  * Last Id Data Container.
+ *
+ * @internal
  */
 class LastInsertId
 {
