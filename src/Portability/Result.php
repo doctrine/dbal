@@ -14,6 +14,9 @@ final class Result implements ResultInterface
     /** @var Converter */
     private $converter;
 
+    /**
+     * @internal The result can be only instantiated by the portability connection or statement.
+     */
     public function __construct(ResultInterface $result, Converter $converter)
     {
         $this->result    = $result;

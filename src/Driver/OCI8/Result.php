@@ -26,6 +26,8 @@ final class Result implements ResultInterface
     private $statement;
 
     /**
+     * @internal The result can be only instantiated by its driver connection or statement.
+     *
      * @param resource $statement
      */
     public function __construct($statement)
