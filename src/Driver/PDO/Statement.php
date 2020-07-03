@@ -14,7 +14,7 @@ use PDOStatement;
 use function array_slice;
 use function func_get_args;
 
-class Statement implements StatementInterface
+final class Statement implements StatementInterface
 {
     private const PARAM_TYPE_MAP = [
         ParameterType::NULL => PDO::PARAM_NULL,

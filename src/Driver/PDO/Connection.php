@@ -13,7 +13,7 @@ use PDOStatement;
 
 use function assert;
 
-class Connection implements ServerInfoAwareConnection
+final class Connection implements ServerInfoAwareConnection
 {
     /** @var PDO */
     private $connection;
@@ -57,6 +57,9 @@ class Connection implements ServerInfoAwareConnection
         return $this->connection->getAttribute(PDO::ATTR_SERVER_VERSION);
     }
 
+    /**
+     * @return Statement
+     */
     public function prepare(string $sql): StatementInterface
     {
         try {

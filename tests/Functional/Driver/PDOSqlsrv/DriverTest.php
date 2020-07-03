@@ -3,7 +3,7 @@
 namespace Doctrine\DBAL\Tests\Functional\Driver\PDOSqlsrv;
 
 use Doctrine\DBAL\Driver as DriverInterface;
-use Doctrine\DBAL\Driver\PDO\Connection;
+use Doctrine\DBAL\Driver\PDOSqlsrv\Connection;
 use Doctrine\DBAL\Driver\PDOSqlsrv\Driver;
 use Doctrine\DBAL\Tests\Functional\Driver\AbstractDriverTest;
 use Doctrine\DBAL\Tests\TestUtil;
