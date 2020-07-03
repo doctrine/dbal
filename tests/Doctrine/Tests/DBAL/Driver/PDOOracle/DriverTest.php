@@ -3,7 +3,7 @@
 namespace Doctrine\Tests\DBAL\Driver\PDOOracle;
 
 use Doctrine\DBAL\Driver as DriverInterface;
-use Doctrine\DBAL\Driver\PDOOracle\Driver;
+use Doctrine\DBAL\Driver\PDO\OCI\Driver;
 use Doctrine\Tests\DBAL\Driver\AbstractOracleDriverTest;
 
 class DriverTest extends AbstractOracleDriverTest

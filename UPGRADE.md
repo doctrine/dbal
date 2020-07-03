@@ -1,5 +1,17 @@
 # Upgrade to 2.11
 
+## PDO-related classes outside of the PDO namespace are deprecated
+
+The following outside of the PDO namespace have been deprecated in favor of their counterparts in the PDO namespace:
+
+- `PDOMySql\Driver` → `PDO\MySQL\Driver`
+- `PDOOracle\Driver` → `PDO\OCI\Driver`
+- `PDOPgSql\Driver` → `PDO\PgSQL\Driver`
+- `PDOSqlite\Driver` → `PDO\SQLite\Driver`
+- `PDOSqlsrv\Driver` → `PDO\SQLSrv\Driver`
+- `PDOSqlsrv\Connection` → `PDO\SQLSrv\Connection`
+- `PDOSqlsrv\Statement` → `PDO\SQLSrv\Statement`
+
 ## Deprecations in driver-level exception handling
 
 1. The `ExceptionConverterDriver` interface and the usage of the `convertException()` method on the `Driver` objects are deprecated.

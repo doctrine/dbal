@@ -7,8 +7,8 @@ use Doctrine\DBAL\Connections\PrimaryReadReplicaConnection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\DrizzlePDOMySql\Driver as DrizzlePDOMySqlDriver;
-use Doctrine\DBAL\Driver\PDOMySql\Driver as PDOMySQLDriver;
-use Doctrine\DBAL\Driver\PDOSqlite\Driver as PDOSqliteDriver;
+use Doctrine\DBAL\Driver\PDO\MySQL\Driver as PDOMySQLDriver;
+use Doctrine\DBAL\Driver\PDO\SQLite\Driver as PDOSQLiteDriver;
 use Doctrine\DBAL\Driver\SQLSrv\Driver as SQLSrvDriver;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -277,42 +277,42 @@ class DriverManagerTest extends DbalTestCase
                 'sqlite://localhost/foo/dbname.sqlite',
                 [
                     'path'   => 'foo/dbname.sqlite',
-                    'driver' => PDOSqliteDriver::class,
+                    'driver' => PDOSQLiteDriver::class,
                 ],
             ],
             'sqlite absolute URL with host' => [
                 'sqlite://localhost//tmp/dbname.sqlite',
                 [
                     'path'   => '/tmp/dbname.sqlite',
-                    'driver' => PDOSqliteDriver::class,
+                    'driver' => PDOSQLiteDriver::class,
                 ],
             ],
             'sqlite relative URL without host' => [
                 'sqlite:///foo/dbname.sqlite',
                 [
                     'path'   => 'foo/dbname.sqlite',
-                    'driver' => PDOSqliteDriver::class,
+                    'driver' => PDOSQLiteDriver::class,
                 ],
             ],
             'sqlite absolute URL without host' => [
                 'sqlite:////tmp/dbname.sqlite',
                 [
                     'path'   => '/tmp/dbname.sqlite',
-                    'driver' => PDOSqliteDriver::class,
+                    'driver' => PDOSQLiteDriver::class,
                 ],
             ],
             'sqlite memory' => [
                 'sqlite:///:memory:',
                 [
                     'memory' => true,
-                    'driver' => PDOSqliteDriver::class,
+                    'driver' => PDOSQLiteDriver::class,
                 ],
             ],
             'sqlite memory with host' => [
                 'sqlite://localhost/:memory:',
                 [
                     'memory' => true,
-                    'driver' => PDOSqliteDriver::class,
+                    'driver' => PDOSQLiteDriver::class,
                 ],
             ],
             'params parsed from URL override individual params' => [

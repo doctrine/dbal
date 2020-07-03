@@ -4,11 +4,13 @@ namespace Doctrine\DBAL\Driver\PDOMySql;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\AbstractMySQLDriver;
-use Doctrine\DBAL\Driver\PDO\Connection;
+use Doctrine\DBAL\Driver\PDO;
 use PDOException;
 
 /**
  * PDO MySql driver.
+ *
+ * @deprecated Use {@link PDO\MySQL\Driver} instead.
  */
 class Driver extends AbstractMySQLDriver
 {
@@ -18,7 +20,7 @@ class Driver extends AbstractMySQLDriver
     public function connect(array $params, $username = null, $password = null, array $driverOptions = [])
     {
         try {
-            $conn = new Connection(
+            $conn = new PDO\Connection(
                 $this->constructPdoDsn($params),
                 $username,
                 $password,

@@ -135,7 +135,7 @@ class ConnectionTest extends DbalTestCase
 
     public function testGetDriver(): void
     {
-        self::assertInstanceOf(\Doctrine\DBAL\Driver\PDOMySql\Driver::class, $this->connection->getDriver());
+        self::assertInstanceOf(Driver\PDO\MySQL\Driver::class, $this->connection->getDriver());
     }
 
     public function testGetEventManager(): void

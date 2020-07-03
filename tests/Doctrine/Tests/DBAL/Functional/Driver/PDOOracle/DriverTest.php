@@ -3,7 +3,7 @@
 namespace Doctrine\Tests\DBAL\Functional\Driver\PDOOracle;
 
 use Doctrine\DBAL\Driver as DriverInterface;
-use Doctrine\DBAL\Driver\PDOOracle\Driver;
+use Doctrine\DBAL\Driver\PDO\OCI\Driver;
 use Doctrine\Tests\DBAL\Functional\Driver\AbstractDriverTest;
 
 use function extension_loaded;

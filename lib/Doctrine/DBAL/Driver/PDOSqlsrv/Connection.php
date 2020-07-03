@@ -2,10 +2,9 @@
 
 namespace Doctrine\DBAL\Driver\PDOSqlsrv;
 
-use Doctrine\DBAL\Driver\PDO\Connection as BaseConnection;
+use Doctrine\DBAL\Driver\PDO;
 use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\ParameterType;
-use PDO;
 
 use function is_string;
 use function strpos;
@@ -13,8 +12,10 @@ use function substr;
 
 /**
  * Sqlsrv Connection implementation.
+ *
+ * @deprecated Use {@link PDO\SQLSrv\Connection} instead.
  */
-class Connection extends BaseConnection
+class Connection extends PDO\Connection
 {
     /**
      * @internal The connection can be only instantiated by its driver.
@@ -24,7 +25,7 @@ class Connection extends BaseConnection
     public function __construct($dsn, $user = null, $password = null, ?array $options = null)
     {
         parent::__construct($dsn, $user, $password, $options);
-        $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, [Statement::class, []]);
+        $this->setAttribute(\PDO::ATTR_STATEMENT_CLASS, [PDO\SQLSrv\Statement::class, []]);
     }
 
     /**

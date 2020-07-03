@@ -3,7 +3,7 @@
 namespace Doctrine\Tests\DBAL\Functional;
 
 use DateTime;
-use Doctrine\DBAL\Driver\PDOOracle\Driver as PDOOracleDriver;
+use Doctrine\DBAL\Driver\PDO\OCI\Driver as PDOOCIDriver;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DbalFunctionalTestCase;
@@ -120,7 +120,7 @@ class TypeConversionTest extends DbalFunctionalTestCase
      */
     public function testIdempotentConversionToString(string $type, $originalValue): void
     {
-        if ($type === 'text' && $this->connection->getDriver() instanceof PDOOracleDriver) {
+        if ($type === 'text' && $this->connection->getDriver() instanceof PDOOCIDriver) {
             // inserting BLOBs as streams on Oracle requires Oracle-specific SQL syntax which is currently not supported
             // see http://php.net/manual/en/pdo.lobs.php#example-1035
             $this->markTestSkipped('DBAL doesn\'t support storing LOBs represented as streams using PDO_OCI');

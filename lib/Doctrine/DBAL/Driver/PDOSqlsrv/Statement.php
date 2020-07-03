@@ -2,14 +2,15 @@
 
 namespace Doctrine\DBAL\Driver\PDOSqlsrv;
 
-use Doctrine\DBAL\Driver\PDO\Statement as BaseStatement;
+use Doctrine\DBAL\Driver\PDO;
 use Doctrine\DBAL\ParameterType;
-use PDO;
 
 /**
  * PDO SQL Server Statement
+ *
+ * @deprecated Use {@link PDO\SQLSrv\Statement} instead.
  */
-class Statement extends BaseStatement
+class Statement extends PDO\Statement
 {
     /**
      * {@inheritdoc}
@@ -20,7 +21,7 @@ class Statement extends BaseStatement
             ($type === ParameterType::LARGE_OBJECT || $type === ParameterType::BINARY)
             && $driverOptions === null
         ) {
-            $driverOptions = PDO::SQLSRV_ENCODING_BINARY;
+            $driverOptions = \PDO::SQLSRV_ENCODING_BINARY;
         }
 
         return parent::bindParam($column, $variable, $type, $length, $driverOptions);
