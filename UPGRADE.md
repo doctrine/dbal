@@ -1,5 +1,10 @@
 # Upgrade to 3.0
 
+## BC BREAK: Changes in PDO driver classes
+
+1. The `PDO\Connection` and `PDO\Statement` classes have been made final.
+2. The `PDOSqlsrv\Connection` and `PDOSqlsrv\Statement` classes have been made final and no longer extend the corresponding PDO classes.
+
 ## BC BREAK: Changes in driver-level exception handling
 
 1. The `convertException()` method has been removed from the `Driver` interface. The logic of exception conversion has been moved to the `ExceptionConverter` interface. The drivers now must implement the `getExceptionConverter()` method.
