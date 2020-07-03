@@ -43,6 +43,8 @@ final class Result implements ResultInterface
     private $boundValues = [];
 
     /**
+     * @internal The result can be only instantiated by its driver connection or statement.
+     *
      * @throws Exception
      */
     public function __construct(mysqli_stmt $statement)
