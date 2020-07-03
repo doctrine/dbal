@@ -22,6 +22,8 @@ use function func_get_args;
 class PDOConnection extends PDO implements ConnectionInterface, ServerInfoAwareConnection
 {
     /**
+     * @internal The connection can be only instantiated by its driver.
+     *
      * @param string       $dsn
      * @param string|null  $user
      * @param string|null  $password

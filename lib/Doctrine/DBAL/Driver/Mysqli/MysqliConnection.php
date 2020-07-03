@@ -46,6 +46,8 @@ class MysqliConnection implements ConnectionInterface, PingableConnection, Serve
     private $conn;
 
     /**
+     * @internal The connection can be only instantiated by its driver.
+     *
      * @param mixed[] $params
      * @param string  $username
      * @param string  $password

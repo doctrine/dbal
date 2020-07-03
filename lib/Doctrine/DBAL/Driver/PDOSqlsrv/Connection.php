@@ -17,6 +17,8 @@ use function substr;
 class Connection extends BaseConnection
 {
     /**
+     * @internal The connection can be only instantiated by its driver.
+     *
      * {@inheritdoc}
      */
     public function __construct($dsn, $user = null, $password = null, ?array $options = null)

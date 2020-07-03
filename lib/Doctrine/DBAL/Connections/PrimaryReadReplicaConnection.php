@@ -90,6 +90,8 @@ class PrimaryReadReplicaConnection extends Connection
     /**
      * Creates Primary Replica Connection.
      *
+     * @internal The connection can be only instantiated by the driver manager.
+     *
      * @param mixed[] $params
      *
      * @throws InvalidArgumentException

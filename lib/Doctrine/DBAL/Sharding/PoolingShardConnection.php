@@ -65,6 +65,8 @@ class PoolingShardConnection extends Connection
     /**
      * {@inheritDoc}
      *
+     * @internal The connection can be only instantiated by the driver manager.
+     *
      * @throws InvalidArgumentException
      */
     public function __construct(array $params, Driver $driver, ?Configuration $config = null, ?EventManager $eventManager = null)
