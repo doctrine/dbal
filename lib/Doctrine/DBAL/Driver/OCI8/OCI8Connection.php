@@ -41,6 +41,8 @@ class OCI8Connection implements ConnectionInterface, ServerInfoAwareConnection
     /**
      * Creates a Connection to an Oracle Database using oci8 extension.
      *
+     * @internal The connection can be only instantiated by its driver.
+     *
      * @param string $username
      * @param string $password
      * @param string $db

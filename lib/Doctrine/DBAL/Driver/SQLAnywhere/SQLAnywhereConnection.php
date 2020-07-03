@@ -36,6 +36,8 @@ class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
     /**
      * Connects to database with given connection string.
      *
+     * @internal The connection can be only instantiated by its driver.
+     *
      * @param string $dsn        The connection string.
      * @param bool   $persistent Whether or not to establish a persistent connection.
      *

@@ -40,6 +40,8 @@ class DB2Connection implements ConnectionInterface, ServerInfoAwareConnection
     private $conn = null;
 
     /**
+     * @internal The connection can be only instantiated by its driver.
+     *
      * @param mixed[] $params
      * @param string  $username
      * @param string  $password
