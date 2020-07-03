@@ -11,7 +11,6 @@ use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\ParameterType;
 use mysqli;
 
-use function defined;
 use function floor;
 use function func_get_args;
 use function in_array;
@@ -28,6 +27,7 @@ use function stripos;
 use const MYSQLI_INIT_COMMAND;
 use const MYSQLI_OPT_CONNECT_TIMEOUT;
 use const MYSQLI_OPT_LOCAL_INFILE;
+use const MYSQLI_OPT_READ_TIMEOUT;
 use const MYSQLI_READ_DEFAULT_FILE;
 use const MYSQLI_READ_DEFAULT_GROUP;
 use const MYSQLI_SERVER_PUBLIC_KEY;
@@ -245,14 +245,12 @@ class MysqliConnection implements ConnectionInterface, PingableConnection, Serve
         $supportedDriverOptions = [
             MYSQLI_OPT_CONNECT_TIMEOUT,
             MYSQLI_OPT_LOCAL_INFILE,
+            MYSQLI_OPT_READ_TIMEOUT,
             MYSQLI_INIT_COMMAND,
             MYSQLI_READ_DEFAULT_FILE,
             MYSQLI_READ_DEFAULT_GROUP,
+            MYSQLI_SERVER_PUBLIC_KEY,
         ];
-
-        if (defined('MYSQLI_SERVER_PUBLIC_KEY')) {
-            $supportedDriverOptions[] = MYSQLI_SERVER_PUBLIC_KEY;
-        }
 
         $exceptionMsg = "%s option '%s' with value '%s'";
 
