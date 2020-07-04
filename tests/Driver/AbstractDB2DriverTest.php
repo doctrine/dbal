@@ -26,7 +26,10 @@ class AbstractDB2DriverTest extends AbstractDriverTest
 
     protected function createSchemaManager(Connection $connection): AbstractSchemaManager
     {
-        return new DB2SchemaManager($connection);
+        return new DB2SchemaManager(
+            $connection,
+            $this->createPlatform()
+        );
     }
 
     protected function createExceptionConverter(): ExceptionConverterInterface

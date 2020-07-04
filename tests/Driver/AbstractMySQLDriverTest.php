@@ -29,7 +29,10 @@ class AbstractMySQLDriverTest extends AbstractDriverTest
 
     protected function createSchemaManager(Connection $connection): AbstractSchemaManager
     {
-        return new MySqlSchemaManager($connection);
+        return new MySqlSchemaManager(
+            $connection,
+            $this->createPlatform()
+        );
     }
 
     protected function createExceptionConverter(): ExceptionConverter

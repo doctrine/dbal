@@ -44,13 +44,10 @@ abstract class AbstractSchemaManager
      */
     protected $_platform;
 
-    /**
-     * Constructor. Accepts the Connection instance to manage the schema for.
-     */
-    public function __construct(Connection $conn, ?AbstractPlatform $platform = null)
+    public function __construct(Connection $connection, AbstractPlatform $platform)
     {
-        $this->_conn     = $conn;
-        $this->_platform = $platform ?? $this->_conn->getDatabasePlatform();
+        $this->_conn     = $connection;
+        $this->_platform = $platform;
     }
 
     /**

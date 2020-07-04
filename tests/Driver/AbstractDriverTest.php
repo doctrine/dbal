@@ -83,7 +83,10 @@ abstract class AbstractDriverTest extends TestCase
     public function testReturnsSchemaManager(): void
     {
         $connection    = $this->getConnectionMock();
-        $schemaManager = $this->driver->getSchemaManager($connection);
+        $schemaManager = $this->driver->getSchemaManager(
+            $connection,
+            $this->createPlatform()
+        );
 
         self::assertEquals($this->createSchemaManager($connection), $schemaManager);
 

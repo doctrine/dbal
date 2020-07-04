@@ -34,9 +34,9 @@ class MySqlSchemaManagerTest extends TestCase
 
         $this->conn    = $this->getMockBuilder(Connection::class)
             ->onlyMethods(['fetchAllAssociative'])
-            ->setConstructorArgs([['platform' => $platform], $driverMock, new Configuration(), $eventManager])
+            ->setConstructorArgs([[], $driverMock, new Configuration(), $eventManager])
             ->getMock();
-        $this->manager = new MySqlSchemaManager($this->conn);
+        $this->manager = new MySqlSchemaManager($this->conn, $platform);
     }
 
     public function testCompositeForeignKeys(): void

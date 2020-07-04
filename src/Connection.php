@@ -1446,11 +1446,16 @@ class Connection implements DriverConnection
      * database schema through the connection.
      *
      * @return AbstractSchemaManager
+     *
+     * @throws DBALException
      */
     public function getSchemaManager()
     {
         if ($this->_schemaManager === null) {
-            $this->_schemaManager = $this->_driver->getSchemaManager($this);
+            $this->_schemaManager = $this->_driver->getSchemaManager(
+                $this,
+                $this->getDatabasePlatform()
+            );
         }
 
         return $this->_schemaManager;

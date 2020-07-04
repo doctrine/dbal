@@ -20,7 +20,10 @@ abstract class AbstractSQLServerDriverTest extends AbstractDriverTest
 
     protected function createSchemaManager(Connection $connection): AbstractSchemaManager
     {
-        return new SQLServerSchemaManager($connection);
+        return new SQLServerSchemaManager(
+            $connection,
+            $this->createPlatform()
+        );
     }
 
     protected function createExceptionConverter(): ExceptionConverterInterface

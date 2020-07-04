@@ -26,7 +26,10 @@ class AbstractSQLiteDriverTest extends AbstractDriverTest
 
     protected function createSchemaManager(Connection $connection): AbstractSchemaManager
     {
-        return new SqliteSchemaManager($connection);
+        return new SqliteSchemaManager(
+            $connection,
+            $this->createPlatform()
+        );
     }
 
     protected function createExceptionConverter(): ExceptionConverter

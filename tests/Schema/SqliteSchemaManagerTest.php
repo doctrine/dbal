@@ -17,9 +17,8 @@ class SqliteSchemaManagerTest extends TestCase
     public function testParseColumnCollation(?string $collation, string $column, string $sql): void
     {
         $conn = $this->createMock(Connection::class);
-        $conn->method('getDatabasePlatform')->willReturn(new SqlitePlatform());
 
-        $manager = new SqliteSchemaManager($conn);
+        $manager = new SqliteSchemaManager($conn, new SqlitePlatform());
         $ref     = new ReflectionMethod($manager, 'parseColumnCollationFromSQL');
         $ref->setAccessible(true);
 
@@ -58,9 +57,8 @@ class SqliteSchemaManagerTest extends TestCase
     public function testParseColumnCommentFromSQL(?string $comment, string $column, string $sql): void
     {
         $conn = $this->createMock(Connection::class);
-        $conn->method('getDatabasePlatform')->willReturn(new SqlitePlatform());
 
-        $manager = new SqliteSchemaManager($conn);
+        $manager = new SqliteSchemaManager($conn, new SqlitePlatform());
         $ref     = new ReflectionMethod($manager, 'parseColumnCommentFromSQL');
         $ref->setAccessible(true);
 

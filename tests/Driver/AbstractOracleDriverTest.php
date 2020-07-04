@@ -26,7 +26,10 @@ class AbstractOracleDriverTest extends AbstractDriverTest
 
     protected function createSchemaManager(Connection $connection): AbstractSchemaManager
     {
-        return new OracleSchemaManager($connection);
+        return new OracleSchemaManager(
+            $connection,
+            $this->createPlatform()
+        );
     }
 
     protected function createExceptionConverter(): ExceptionConverter
