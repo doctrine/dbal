@@ -4,8 +4,9 @@ namespace Doctrine\Tests\DBAL\Connection;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
-use Doctrine\DBAL\Driver\API\DefaultExceptionConverter;
+use Doctrine\DBAL\Driver\API\ExceptionConverter;
 use Doctrine\DBAL\Driver\Exception as DriverException;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 use function chr;
@@ -16,34 +17,43 @@ final class ExceptionHandlingTest extends TestCase
     /** @var Connection */
     private $connection;
 
+    /** @var ExceptionConverter&MockObject */
+    private $exceptionConverter;
+
     protected function setUp(): void
     {
+        $this->exceptionConverter = $this->createMock(ExceptionConverter::class);
+
         $this->connection = new Connection([], $this->createConfiguredMock(Driver::class, [
-            'getExceptionConverter' => new DefaultExceptionConverter(),
+            'getExceptionConverter' => $this->exceptionConverter,
         ]));
     }
 
     public function testDriverExceptionDuringQueryAcceptsBinaryData(): void
     {
-        $e = $this->connection->convertExceptionDuringQuery(
+        $this->exceptionConverter->expects(self::once())
+            ->method('convert')
+            ->with(self::stringContains('with params ["ABC", "\x80"]'));
+
+        $this->connection->convertExceptionDuringQuery(
             $this->createMock(DriverException::class),
             '',
             ['ABC', chr(128)]
         );
-
-        self::assertStringContainsString('with params ["ABC", "\x80"]', $e->getMessage());
     }
 
     public function testDriverExceptionDuringQueryAcceptsResource(): void
     {
-        $e = $this->connection->convertExceptionDuringQuery(
+        $this->exceptionConverter->expects(self::once())
+            ->method('convert')
+            ->with(self::stringContains('Resource'));
+
+        $this->connection->convertExceptionDuringQuery(
             $this->createMock(DriverException::class),
             'INSERT INTO file (`content`) VALUES (?)',
             [
                 1 => fopen(__FILE__, 'r'),
             ]
         );
-
-        self::assertStringContainsString('Resource', $e->getMessage());
     }
 }
