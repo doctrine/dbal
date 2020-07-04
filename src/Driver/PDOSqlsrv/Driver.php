@@ -14,7 +14,7 @@ use function sprintf;
 /**
  * The PDO-based Sqlsrv driver.
  */
-class Driver extends AbstractSQLServerDriver
+final class Driver extends AbstractSQLServerDriver
 {
     /**
      * {@inheritdoc}

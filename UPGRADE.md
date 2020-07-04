@@ -1,9 +1,10 @@
 # Upgrade to 3.0
 
-## BC BREAK: Changes in PDO driver classes
+## BC BREAK: Changes in driver classes
 
-1. The `PDO\Connection` and `PDO\Statement` classes have been made final.
-2. The `PDOSqlsrv\Connection` and `PDOSqlsrv\Statement` classes have been made final and no longer extend the corresponding PDO classes.
+1. All implementations of the `Driver` interface have been made final.
+2. The `PDO\Connection` and `PDO\Statement` classes have been made final.
+3. The `PDOSqlsrv\Connection` and `PDOSqlsrv\Statement` classes have been made final and no longer extend the corresponding PDO classes.
 
 ## BC BREAK: Changes in driver-level exception handling
 

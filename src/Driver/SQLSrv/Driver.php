@@ -8,7 +8,7 @@ use Doctrine\DBAL\Driver\AbstractSQLServerDriver\Exception\PortWithoutHost;
 /**
  * Driver for ext/sqlsrv.
  */
-class Driver extends AbstractSQLServerDriver
+final class Driver extends AbstractSQLServerDriver
 {
     /**
      * {@inheritdoc}

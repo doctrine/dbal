@@ -9,7 +9,7 @@ use PDO;
 /**
  * PDO MySql driver.
  */
-class Driver extends AbstractMySQLDriver
+final class Driver extends AbstractMySQLDriver
 {
     /**
      * {@inheritdoc}
