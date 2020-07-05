@@ -9,7 +9,7 @@ use Doctrine\DBAL\Driver\IBMDB2\Driver as IBMDB2Driver;
 use Doctrine\DBAL\Driver\Mysqli\Driver as MySQLiDriver;
 use Doctrine\DBAL\Driver\OCI8\Driver as Oci8Driver;
 use Doctrine\DBAL\Driver\PDO\Connection as PDOConnection;
-use Doctrine\DBAL\Driver\PDOOracle\Driver as PDOOracleDriver;
+use Doctrine\DBAL\Driver\PDO\OCI\Driver as PDOOCIDriver;
 use Doctrine\DBAL\Driver\SQLSrv\Driver as SQLSrvDriver;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
@@ -945,7 +945,7 @@ class DataAccessTest extends DbalFunctionalTestCase
             $this->markTestSkipped('Mysqli driver dont support this feature.');
         }
 
-        if (! $driver instanceof PDOOracleDriver) {
+        if (! $driver instanceof PDOOCIDriver) {
             return;
         }
 

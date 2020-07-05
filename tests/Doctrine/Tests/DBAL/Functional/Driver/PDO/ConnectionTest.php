@@ -4,9 +4,9 @@ namespace Doctrine\Tests\DBAL\Functional\Driver\PDO;
 
 use Doctrine\DBAL\Driver\PDO\Connection;
 use Doctrine\DBAL\Driver\PDO\Exception;
-use Doctrine\DBAL\Driver\PDOOracle\Driver as PDOOracleDriver;
-use Doctrine\DBAL\Driver\PDOPgSql\Driver as PDOPgSQLDriver;
-use Doctrine\DBAL\Driver\PDOSqlsrv\Driver as PDOSQLSRVDriver;
+use Doctrine\DBAL\Driver\PDO\OCI\Driver as PDOOCIDriver;
+use Doctrine\DBAL\Driver\PDO\PgSQL\Driver as PDOPgSQLDriver;
+use Doctrine\DBAL\Driver\PDO\SQLSrv\Driver as PDOSQLSrvDriver;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use PDO;
 
@@ -73,7 +73,7 @@ class ConnectionTest extends DbalFunctionalTestCase
     {
         $driver = $this->connection->getDriver();
 
-        if ($driver instanceof PDOSQLSRVDriver) {
+        if ($driver instanceof PDOSQLSrvDriver) {
             $this->markTestSkipped('pdo_sqlsrv does not allow setting PDO::ATTR_EMULATE_PREPARES at connection level.');
         }
 
@@ -81,7 +81,7 @@ class ConnectionTest extends DbalFunctionalTestCase
         // even though emulated prepared statements are disabled,
         // so an exception is thrown only eventually.
         if (
-            $driver instanceof PDOOracleDriver
+            $driver instanceof PDOOCIDriver
             || $driver instanceof PDOPgSQLDriver
         ) {
             self::markTestSkipped(sprintf(

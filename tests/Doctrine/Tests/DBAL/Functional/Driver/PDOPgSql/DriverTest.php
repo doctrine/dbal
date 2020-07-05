@@ -4,7 +4,7 @@ namespace Doctrine\Tests\DBAL\Functional\Driver\PDOPgSql;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver as DriverInterface;
-use Doctrine\DBAL\Driver\PDOPgSql\Driver;
+use Doctrine\DBAL\Driver\PDO\PgSQL\Driver;
 use Doctrine\Tests\DBAL\Functional\Driver\AbstractDriverTest;
 use Doctrine\Tests\TestUtil;
 

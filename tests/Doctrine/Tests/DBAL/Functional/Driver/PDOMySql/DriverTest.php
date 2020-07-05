@@ -3,7 +3,7 @@
 namespace Doctrine\Tests\DBAL\Functional\Driver\PDOMySql;
 
 use Doctrine\DBAL\Driver as DriverInterface;
-use Doctrine\DBAL\Driver\PDOMySql\Driver;
+use Doctrine\DBAL\Driver\PDO\MySQL\Driver;
 use Doctrine\Tests\DBAL\Functional\Driver\AbstractDriverTest;
 
 use function extension_loaded;

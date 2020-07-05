@@ -3,7 +3,7 @@
 namespace Doctrine\Tests\DBAL\Driver\PDOMySql;
 
 use Doctrine\DBAL\Driver as DriverInterface;
-use Doctrine\DBAL\Driver\PDOMySql\Driver;
+use Doctrine\DBAL\Driver\PDO\MySQL\Driver;
 use Doctrine\Tests\DBAL\Driver\AbstractMySQLDriverTest;
 
 class DriverTest extends AbstractMySQLDriverTest

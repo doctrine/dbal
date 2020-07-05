@@ -3,7 +3,7 @@
 namespace Doctrine\Tests\DBAL\Driver\PDOSqlsrv;
 
 use Doctrine\DBAL\Driver as DriverInterface;
-use Doctrine\DBAL\Driver\PDOSqlsrv\Driver;
+use Doctrine\DBAL\Driver\PDO\SQLSrv\Driver;
 use Doctrine\Tests\DBAL\Driver\AbstractSQLServerDriverTest;
 
 class DriverTest extends AbstractSQLServerDriverTest
