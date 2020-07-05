@@ -208,13 +208,13 @@ abstract class Type
 
     private static function createTypeRegistry(): TypeRegistry
     {
-        $registry = new TypeRegistry();
+        $instances = [];
 
         foreach (self::BUILTIN_TYPES_MAP as $name => $class) {
-            $registry->register($name, new $class());
+            $instances[$name] = new $class();
         }
 
-        return $registry;
+        return new TypeRegistry($instances);
     }
 
     /**
