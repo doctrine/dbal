@@ -10,7 +10,7 @@ use Doctrine\DBAL\Driver\Mysqli\Initializer\Secure;
 
 use function count;
 
-class Driver extends AbstractMySQLDriver
+final class Driver extends AbstractMySQLDriver
 {
     /**
      * {@inheritdoc}

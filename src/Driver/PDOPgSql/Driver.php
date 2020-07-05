@@ -11,7 +11,7 @@ use function defined;
 /**
  * Driver that connects through pdo_pgsql.
  */
-class Driver extends AbstractPostgreSQLDriver
+final class Driver extends AbstractPostgreSQLDriver
 {
     /**
      * {@inheritdoc}

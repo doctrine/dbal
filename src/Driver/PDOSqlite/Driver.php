@@ -11,7 +11,7 @@ use function array_merge;
 /**
  * The PDO Sqlite driver.
  */
-class Driver extends AbstractSQLiteDriver
+final class Driver extends AbstractSQLiteDriver
 {
     /** @var mixed[] */
     protected $_userDefinedFunctions = [

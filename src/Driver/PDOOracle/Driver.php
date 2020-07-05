@@ -14,7 +14,7 @@ use PDO;
  * which leads us to the recommendation to use the "oci8" driver to connect
  * to Oracle instead.
  */
-class Driver extends AbstractOracleDriver
+final class Driver extends AbstractOracleDriver
 {
     /**
      * {@inheritdoc}
