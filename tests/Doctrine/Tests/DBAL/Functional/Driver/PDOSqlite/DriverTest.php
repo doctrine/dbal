@@ -11,7 +11,7 @@ use Doctrine\Tests\DBAL\Functional\Driver\AbstractDriverTest;
  */
 class DriverTest extends AbstractDriverTest
 {
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -22,7 +22,7 @@ class DriverTest extends AbstractDriverTest
         $this->markTestSkipped('pdo_sqlite only test.');
     }
 
-    protected function createDriver() : DriverInterface
+    protected function createDriver(): DriverInterface
     {
         return new Driver();
     }

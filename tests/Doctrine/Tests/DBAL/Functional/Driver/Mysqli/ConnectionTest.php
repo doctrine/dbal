@@ -7,6 +7,7 @@ use Doctrine\DBAL\Driver\Mysqli\MysqliConnection;
 use Doctrine\DBAL\Driver\Mysqli\MysqliException;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use Doctrine\Tests\TestUtil;
+
 use const MYSQLI_OPT_CONNECT_TIMEOUT;
 
 /**
@@ -14,7 +15,7 @@ use const MYSQLI_OPT_CONNECT_TIMEOUT;
  */
 class ConnectionTest extends DbalFunctionalTestCase
 {
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -25,12 +26,12 @@ class ConnectionTest extends DbalFunctionalTestCase
         $this->markTestSkipped('MySQLi only test.');
     }
 
-    protected function tearDown() : void
+    protected function tearDown(): void
     {
         parent::tearDown();
     }
 
-    public function testDriverOptions() : void
+    public function testDriverOptions(): void
     {
         $driverOptions = [MYSQLI_OPT_CONNECT_TIMEOUT => 1];
 
@@ -38,14 +39,14 @@ class ConnectionTest extends DbalFunctionalTestCase
         self::assertInstanceOf(MysqliConnection::class, $connection);
     }
 
-    public function testUnsupportedDriverOption() : void
+    public function testUnsupportedDriverOption(): void
     {
         $this->expectException(MysqliException::class);
 
         $this->getConnection(['hello' => 'world']); // use local infile
     }
 
-    public function testPing() : void
+    public function testPing(): void
     {
         $conn = $this->getConnection([]);
         self::assertTrue($conn->ping());
@@ -54,7 +55,7 @@ class ConnectionTest extends DbalFunctionalTestCase
     /**
      * @param mixed[] $driverOptions
      */
-    private function getConnection(array $driverOptions) : MysqliConnection
+    private function getConnection(array $driverOptions): MysqliConnection
     {
         $params = TestUtil::getConnectionParams();
 

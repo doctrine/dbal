@@ -8,6 +8,7 @@ use Doctrine\DBAL\Types\Type;
 use IteratorAggregate;
 use PDO;
 use Throwable;
+
 use function is_array;
 use function is_string;
 

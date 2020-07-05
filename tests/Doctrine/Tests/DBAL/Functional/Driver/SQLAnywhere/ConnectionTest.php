@@ -11,7 +11,7 @@ use Doctrine\Tests\DbalFunctionalTestCase;
  */
 class ConnectionTest extends DbalFunctionalTestCase
 {
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -22,7 +22,7 @@ class ConnectionTest extends DbalFunctionalTestCase
         $this->markTestSkipped('sqlanywhere only test.');
     }
 
-    public function testNonPersistentConnection() : void
+    public function testNonPersistentConnection(): void
     {
         $params               = $this->connection->getParams();
         $params['persistent'] = false;
@@ -34,7 +34,7 @@ class ConnectionTest extends DbalFunctionalTestCase
         self::assertTrue($conn->isConnected(), 'No SQLAnywhere-nonpersistent connection established');
     }
 
-    public function testPersistentConnection() : void
+    public function testPersistentConnection(): void
     {
         $params               = $this->connection->getParams();
         $params['persistent'] = true;

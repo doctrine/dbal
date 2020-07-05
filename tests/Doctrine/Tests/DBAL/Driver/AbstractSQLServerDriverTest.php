@@ -14,12 +14,12 @@ use Doctrine\DBAL\Schema\SQLServerSchemaManager;
 
 abstract class AbstractSQLServerDriverTest extends AbstractDriverTest
 {
-    protected function createPlatform() : AbstractPlatform
+    protected function createPlatform(): AbstractPlatform
     {
         return new SQLServer2008Platform();
     }
 
-    protected function createSchemaManager(Connection $connection) : AbstractSchemaManager
+    protected function createSchemaManager(Connection $connection): AbstractSchemaManager
     {
         return new SQLServerSchemaManager($connection);
     }
@@ -27,7 +27,7 @@ abstract class AbstractSQLServerDriverTest extends AbstractDriverTest
     /**
      * {@inheritDoc}
      */
-    protected function getDatabasePlatformsForVersions() : array
+    protected function getDatabasePlatformsForVersions(): array
     {
         return [
             ['9', SQLServerPlatform::class],
@@ -59,7 +59,7 @@ abstract class AbstractSQLServerDriverTest extends AbstractDriverTest
         ];
     }
 
-    public function testPortWithoutHost() : void
+    public function testPortWithoutHost(): void
     {
         $this->expectException(PortWithoutHost::class);
         $this->driver->connect(['port' => 1433]);

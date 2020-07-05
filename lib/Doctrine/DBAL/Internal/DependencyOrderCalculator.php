@@ -35,7 +35,7 @@ final class DependencyOrderCalculator
     /**
      * Checks for node (vertex) existence in graph.
      */
-    public function hasNode(string $hash) : bool
+    public function hasNode(string $hash): bool
     {
         return isset($this->nodeList[$hash]);
     }
@@ -45,7 +45,7 @@ final class DependencyOrderCalculator
      *
      * @param object $node
      */
-    public function addNode(string $hash, $node) : void
+    public function addNode(string $hash, $node): void
     {
         $vertex = new DependencyOrderNode();
 
@@ -59,7 +59,7 @@ final class DependencyOrderCalculator
     /**
      * Adds a new dependency (edge) to the graph using their hashes.
      */
-    public function addDependency(string $fromHash, string $toHash) : void
+    public function addDependency(string $fromHash, string $toHash): void
     {
         $vertex = $this->nodeList[$fromHash];
         $edge   = new DependencyOrderEdge();
@@ -78,7 +78,7 @@ final class DependencyOrderCalculator
      *
      * @return array<object>
      */
-    public function sort() : array
+    public function sort(): array
     {
         foreach ($this->nodeList as $vertex) {
             if ($vertex->state !== self::NOT_VISITED) {
@@ -101,7 +101,7 @@ final class DependencyOrderCalculator
      *
      * {@internal Highly performance-sensitive method.}
      */
-    private function visit(DependencyOrderNode $vertex) : void
+    private function visit(DependencyOrderNode $vertex): void
     {
         $vertex->state = self::IN_PROGRESS;
 

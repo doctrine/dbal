@@ -12,7 +12,7 @@ use PDOException;
 
 class DriverTest extends AbstractPostgreSQLDriverTest
 {
-    public function testReturnsName() : void
+    public function testReturnsName(): void
     {
         self::assertSame('pdo_pgsql', $this->driver->getName());
     }
@@ -20,7 +20,7 @@ class DriverTest extends AbstractPostgreSQLDriverTest
     /**
      * @group DBAL-920
      */
-    public function testConnectionDisablesPreparesOnPhp56() : void
+    public function testConnectionDisablesPreparesOnPhp56(): void
     {
         $this->skipWhenNotUsingPdoPgsql();
 
@@ -37,7 +37,7 @@ class DriverTest extends AbstractPostgreSQLDriverTest
     /**
      * @group DBAL-920
      */
-    public function testConnectionDoesNotDisablePreparesOnPhp56WhenAttributeDefined() : void
+    public function testConnectionDoesNotDisablePreparesOnPhp56WhenAttributeDefined(): void
     {
         $this->skipWhenNotUsingPdoPgsql();
 
@@ -56,7 +56,7 @@ class DriverTest extends AbstractPostgreSQLDriverTest
     /**
      * @group DBAL-920
      */
-    public function testConnectionDisablePreparesOnPhp56WhenDisablePreparesIsExplicitlyDefined() : void
+    public function testConnectionDisablePreparesOnPhp56WhenDisablePreparesIsExplicitlyDefined(): void
     {
         $this->skipWhenNotUsingPdoPgsql();
 
@@ -72,12 +72,12 @@ class DriverTest extends AbstractPostgreSQLDriverTest
         }
     }
 
-    protected function createDriver() : DriverInterface
+    protected function createDriver(): DriverInterface
     {
         return new Driver();
     }
 
-    private function skipWhenNotUsingPdoPgsql() : void
+    private function skipWhenNotUsingPdoPgsql(): void
     {
         if (isset($GLOBALS['db_driver']) && $GLOBALS['db_driver'] === 'pdo_pgsql') {
             return;
@@ -89,7 +89,7 @@ class DriverTest extends AbstractPostgreSQLDriverTest
     /**
      * @param array<int,mixed> $driverOptions
      */
-    private function connect(array $driverOptions) : PDOConnection
+    private function connect(array $driverOptions): PDOConnection
     {
         $params = TestUtil::getConnectionParams();
 

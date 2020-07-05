@@ -13,7 +13,7 @@ class TypeTest extends TestCase
     /**
      * @dataProvider defaultTypesProvider()
      */
-    public function testDefaultTypesAreRegistered(string $name) : void
+    public function testDefaultTypesAreRegistered(string $name): void
     {
         self::assertTrue(Type::hasType($name));
     }
@@ -21,7 +21,7 @@ class TypeTest extends TestCase
     /**
      * @return iterable<string[]>
      */
-    public function defaultTypesProvider() : iterable
+    public function defaultTypesProvider(): iterable
     {
         foreach ((new ReflectionClass(Type::class))->getReflectionConstants() as $constant) {
             if (! $constant->isPublic()) {

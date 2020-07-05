@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\DBAL\Functional\Ticket;
 
 use Doctrine\Tests\DbalFunctionalTestCase;
+
 use function in_array;
 
 /**
@@ -10,7 +11,7 @@ use function in_array;
  */
 class DBAL752Test extends DbalFunctionalTestCase
 {
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -23,7 +24,7 @@ class DBAL752Test extends DbalFunctionalTestCase
         $this->markTestSkipped('Related to SQLite only');
     }
 
-    public function testUnsignedIntegerDetection() : void
+    public function testUnsignedIntegerDetection(): void
     {
         $this->connection->exec(<<<SQL
 CREATE TABLE dbal752_unsigneds (

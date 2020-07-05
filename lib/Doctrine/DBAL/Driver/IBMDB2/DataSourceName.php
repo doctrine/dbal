@@ -21,7 +21,7 @@ final class DataSourceName
         $this->string = $string;
     }
 
-    public function toString() : string
+    public function toString(): string
     {
         return $this->string;
     }
@@ -31,7 +31,7 @@ final class DataSourceName
      *
      * @param array<string,mixed> $params
      */
-    public static function fromArray(array $params) : self
+    public static function fromArray(array $params): self
     {
         $chunks = [];
 
@@ -47,7 +47,7 @@ final class DataSourceName
      *
      * @param array<string,mixed> $params
      */
-    public static function fromConnectionParameters(array $params) : self
+    public static function fromConnectionParameters(array $params): self
     {
         if (isset($params['dbname']) && strpos($params['dbname'], '=') !== false) {
             return new self($params['dbname']);
@@ -55,14 +55,16 @@ final class DataSourceName
 
         $dsnParams = [];
 
-        foreach ([
-            'host'     => 'HOSTNAME',
-            'port'     => 'PORT',
-            'protocol' => 'PROTOCOL',
-            'dbname'   => 'DATABASE',
-            'user'     => 'UID',
-            'password' => 'PWD',
-        ] as $dbalParam => $dsnParam) {
+        foreach (
+            [
+                'host'     => 'HOSTNAME',
+                'port'     => 'PORT',
+                'protocol' => 'PROTOCOL',
+                'dbname'   => 'DATABASE',
+                'user'     => 'UID',
+                'password' => 'PWD',
+            ] as $dbalParam => $dsnParam
+        ) {
             if (! isset($params[$dbalParam])) {
                 continue;
             }

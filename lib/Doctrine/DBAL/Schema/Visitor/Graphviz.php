@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Schema\Visitor;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
+
 use function current;
 use function file_put_contents;
 use function in_array;

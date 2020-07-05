@@ -12,7 +12,7 @@ use Doctrine\Tests\DBAL\Functional\Driver\AbstractDriverTest;
  */
 class DriverTest extends AbstractDriverTest
 {
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -23,7 +23,7 @@ class DriverTest extends AbstractDriverTest
         $this->markTestSkipped('sqlanywhere only test.');
     }
 
-    public function testReturnsDatabaseNameWithoutDatabaseNameParameter() : void
+    public function testReturnsDatabaseNameWithoutDatabaseNameParameter(): void
     {
         $params = $this->connection->getParams();
         unset($params['dbname']);
@@ -40,7 +40,7 @@ class DriverTest extends AbstractDriverTest
         self::assertIsString($this->driver->getDatabase($connection));
     }
 
-    protected function createDriver() : DriverInterface
+    protected function createDriver(): DriverInterface
     {
         return new Driver();
     }

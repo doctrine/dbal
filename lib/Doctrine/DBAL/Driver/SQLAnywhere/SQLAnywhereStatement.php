@@ -11,6 +11,7 @@ use PDO;
 use ReflectionClass;
 use ReflectionObject;
 use stdClass;
+
 use function array_key_exists;
 use function assert;
 use function func_get_args;
@@ -35,6 +36,7 @@ use function sasql_stmt_field_count;
 use function sasql_stmt_reset;
 use function sasql_stmt_result_metadata;
 use function sprintf;
+
 use const SASQL_BOTH;
 
 /**

@@ -4,6 +4,7 @@ namespace Doctrine\Tests\DBAL\Functional\Platform;
 
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\Tests\DbalFunctionalTestCase;
+
 use function str_repeat;
 
 /**
@@ -16,7 +17,7 @@ class PlatformRestrictionsTest extends DbalFunctionalTestCase
      * Tests element names that are at the boundary of the identifier length limit.
      * Ensures generated auto-increment identifier name respects to platform restrictions.
      */
-    public function testMaxIdentifierLengthLimitWithAutoIncrement() : void
+    public function testMaxIdentifierLengthLimitWithAutoIncrement(): void
     {
         $platform   = $this->connection->getDatabasePlatform();
         $tableName  = str_repeat('x', $platform->getMaxIdentifierLength());

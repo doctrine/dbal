@@ -9,6 +9,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+
 use function dirname;
 
 class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
@@ -16,14 +17,14 @@ class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
     /**
      * SQLITE does not support databases.
      */
-    public function testListDatabases() : void
+    public function testListDatabases(): void
     {
         $this->expectException(DBALException::class);
 
         $this->schemaManager->listDatabases();
     }
 
-    public function testCreateAndDropDatabase() : void
+    public function testCreateAndDropDatabase(): void
     {
         $path = dirname(__FILE__) . '/test_create_and_drop_sqlite_database.sqlite';
 
@@ -36,7 +37,7 @@ class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
     /**
      * @group DBAL-1220
      */
-    public function testDropsDatabaseWithActiveConnections() : void
+    public function testDropsDatabaseWithActiveConnections(): void
     {
         $this->schemaManager->dropAndCreateDatabase('test_drop_database');
 
@@ -59,7 +60,7 @@ class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
         unset($connection);
     }
 
-    public function testRenameTable() : void
+    public function testRenameTable(): void
     {
         $this->createTestTable('oldname');
         $this->schemaManager->renameTable('oldname', 'newname');
@@ -69,7 +70,7 @@ class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertNotContains('oldname', $tables);
     }
 
-    public function createListTableColumns() : Table
+    public function createListTableColumns(): Table
     {
         $table = parent::createListTableColumns();
         $table->getColumn('id')->setAutoincrement(true);
@@ -77,7 +78,7 @@ class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
         return $table;
     }
 
-    public function testListForeignKeysFromExistingDatabase() : void
+    public function testListForeignKeysFromExistingDatabase(): void
     {
         $this->connection->exec(<<<EOS
 CREATE TABLE user (
@@ -117,7 +118,7 @@ EOS
         self::assertEquals($expected, $this->schemaManager->listTableForeignKeys('user'));
     }
 
-    public function testColumnCollation() : void
+    public function testColumnCollation(): void
     {
         $table = new Schema\Table('test_collation');
         $table->addColumn('id', 'integer');
@@ -134,7 +135,7 @@ EOS
         self::assertEquals('NOCASE', $columns['bar']->getPlatformOption('collation'));
     }
 
-    public function testListTableWithBinary() : void
+    public function testListTableWithBinary(): void
     {
         $tableName = 'test_binary_table';
 
@@ -158,7 +159,7 @@ EOS
     /**
      * @group DBAL-1779
      */
-    public function testListTableColumnsWithWhitespacesInTypeDeclarations() : void
+    public function testListTableColumnsWithWhitespacesInTypeDeclarations(): void
     {
         $sql = <<<SQL
 CREATE TABLE dbal_1779 (
@@ -187,7 +188,7 @@ SQL;
      * @dataProvider getDiffListIntegerAutoincrementTableColumnsData
      * @group DBAL-924
      */
-    public function testDiffListIntegerAutoincrementTableColumns(string $integerType, bool $unsigned, bool $expectedComparatorDiff) : void
+    public function testDiffListIntegerAutoincrementTableColumns(string $integerType, bool $unsigned, bool $expectedComparatorDiff): void
     {
         $tableName = 'test_int_autoincrement_table';
 
@@ -211,7 +212,7 @@ SQL;
     /**
      * @return mixed[][]
      */
-    public static function getDiffListIntegerAutoincrementTableColumnsData() : iterable
+    public static function getDiffListIntegerAutoincrementTableColumnsData(): iterable
     {
         return [
             ['smallint', false, true],
@@ -226,7 +227,7 @@ SQL;
     /**
      * @group DBAL-2921
      */
-    public function testPrimaryKeyNoAutoIncrement() : void
+    public function testPrimaryKeyNoAutoIncrement(): void
     {
         $table = new Schema\Table('test_pk_auto_increment');
         $table->addColumn('id', 'integer');
@@ -248,7 +249,7 @@ SQL;
         $this->assertEquals(1, $lastUsedIdAfterDelete);
     }
 
-    public function testOnlyOwnCommentIsParsed() : void
+    public function testOnlyOwnCommentIsParsed(): void
     {
         $table = new Table('own_column_comment');
         $table->addColumn('col1', 'string', ['length' => 16]);

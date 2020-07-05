@@ -7,6 +7,7 @@ use Doctrine\DBAL\Sharding\ShardingException;
 use Doctrine\DBAL\Sharding\ShardManager;
 use Doctrine\DBAL\Types\Type;
 use RuntimeException;
+
 use function sprintf;
 
 /**

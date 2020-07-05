@@ -5,6 +5,7 @@ namespace Doctrine\DBAL;
 use Doctrine\Common\Cache\Cache;
 use Doctrine\DBAL\Logging\SQLLogger;
 use Doctrine\DBAL\Schema\AbstractAsset;
+
 use function preg_match;
 
 /**
@@ -101,7 +102,7 @@ class Configuration
     /**
      * @param string $filterExpression
      */
-    private function buildSchemaAssetsFilterFromExpression($filterExpression) : callable
+    private function buildSchemaAssetsFilterFromExpression($filterExpression): callable
     {
         return static function ($assetName) use ($filterExpression) {
             if ($assetName instanceof AbstractAsset) {
@@ -115,7 +116,7 @@ class Configuration
     /**
      * Sets the callable to use to filter schema assets.
      */
-    public function setSchemaAssetsFilter(?callable $callable = null) : ?callable
+    public function setSchemaAssetsFilter(?callable $callable = null): ?callable
     {
         $this->_attributes['filterSchemaAssetsExpression'] = null;
 
@@ -125,7 +126,7 @@ class Configuration
     /**
      * Returns the callable to use to filter schema assets.
      */
-    public function getSchemaAssetsFilter() : ?callable
+    public function getSchemaAssetsFilter(): ?callable
     {
         return $this->_attributes['filterSchemaAssetsExpressionCallable'] ?? null;
     }

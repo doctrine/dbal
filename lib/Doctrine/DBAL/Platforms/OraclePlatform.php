@@ -12,6 +12,7 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\BinaryType;
 use InvalidArgumentException;
+
 use function array_merge;
 use function count;
 use function explode;
@@ -394,8 +395,10 @@ class OraclePlatform extends AbstractPlatform
                 $sql[] = $this->getCreateSequenceSQL($column['sequence']);
             }
 
-            if (! isset($column['autoincrement']) || ! $column['autoincrement'] &&
-               (! isset($column['autoinc']) || ! $column['autoinc'])) {
+            if (
+                ! isset($column['autoincrement']) || ! $column['autoincrement'] &&
+                (! isset($column['autoinc']) || ! $column['autoinc'])
+            ) {
                 continue;
             }
 
@@ -592,7 +595,7 @@ END;';
      * if the new string exceeds max identifier length,
      * keeps $suffix, cuts from $identifier as much as the part exceeding.
      */
-    private function addSuffix(string $identifier, string $suffix) : string
+    private function addSuffix(string $identifier, string $suffix): string
     {
         $maxPossibleLengthWithoutSuffix = $this->getMaxIdentifierLength() - strlen($suffix);
         if (strlen($identifier) > $maxPossibleLengthWithoutSuffix) {
@@ -830,7 +833,8 @@ SQL
             // Do not generate column alteration clause if type is binary and only fixed property has changed.
             // Oracle only supports binary type columns with variable length.
             // Avoids unnecessary table alteration statements.
-            if ($column->getType() instanceof BinaryType &&
+            if (
+                $column->getType() instanceof BinaryType &&
                 $columnDiff->hasChanged('fixed') &&
                 count($columnDiff->changedProperties) === 1
             ) {
@@ -1206,7 +1210,7 @@ SQL
         return 'BLOB';
     }
 
-    public function getListTableCommentsSQL(string $table, ?string $database = null) : string
+    public function getListTableCommentsSQL(string $table, ?string $database = null): string
     {
         $tableCommentsName = 'user_tab_comments';
         $ownerCondition    = '';

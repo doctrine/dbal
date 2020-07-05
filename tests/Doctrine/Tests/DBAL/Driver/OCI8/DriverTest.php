@@ -8,12 +8,12 @@ use Doctrine\Tests\DBAL\Driver\AbstractOracleDriverTest;
 
 class DriverTest extends AbstractOracleDriverTest
 {
-    public function testReturnsName() : void
+    public function testReturnsName(): void
     {
         self::assertSame('oci8', $this->driver->getName());
     }
 
-    protected function createDriver() : DriverInterface
+    protected function createDriver(): DriverInterface
     {
         return new Driver();
     }

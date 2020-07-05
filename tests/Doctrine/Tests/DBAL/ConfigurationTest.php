@@ -17,7 +17,7 @@ class ConfigurationTest extends DbalTestCase
      */
     protected $config;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->config = new Configuration();
     }
@@ -27,7 +27,7 @@ class ConfigurationTest extends DbalTestCase
      *
      * @group DBAL-81
      */
-    public function testReturnsDefaultConnectionAutoCommitMode() : void
+    public function testReturnsDefaultConnectionAutoCommitMode(): void
     {
         self::assertTrue($this->config->getAutoCommit());
     }
@@ -37,7 +37,7 @@ class ConfigurationTest extends DbalTestCase
      *
      * @group DBAL-81
      */
-    public function testSetsDefaultConnectionAutoCommitMode() : void
+    public function testSetsDefaultConnectionAutoCommitMode(): void
     {
         $this->config->setAutoCommit(false);
 

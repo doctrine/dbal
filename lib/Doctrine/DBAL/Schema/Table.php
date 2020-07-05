@@ -5,12 +5,14 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Schema\Visitor\Visitor;
 use Doctrine\DBAL\Types\Type;
+
 use function array_filter;
 use function array_merge;
 use function in_array;
 use function preg_match;
 use function strlen;
 use function strtolower;
+
 use const ARRAY_FILTER_USE_KEY;
 
 /**
@@ -475,7 +477,8 @@ class Table extends AbstractAsset
             $replacedImplicitIndexes[] = $name;
         }
 
-        if ((isset($this->_indexes[$indexName]) && ! in_array($indexName, $replacedImplicitIndexes, true)) ||
+        if (
+            (isset($this->_indexes[$indexName]) && ! in_array($indexName, $replacedImplicitIndexes, true)) ||
             ($this->_primaryKeyName !== false && $indexCandidate->isPrimary())
         ) {
             throw SchemaException::indexAlreadyExists($indexName, $this->_name);
@@ -846,7 +849,7 @@ class Table extends AbstractAsset
         return $this->trimQuotes(strtolower($identifier));
     }
 
-    public function setComment(?string $comment) : self
+    public function setComment(?string $comment): self
     {
         // For keeping backward compatibility with MySQL in previous releases, table comments are stored as options.
         $this->addOption('comment', $comment);
@@ -854,7 +857,7 @@ class Table extends AbstractAsset
         return $this;
     }
 
-    public function getComment() : ?string
+    public function getComment(): ?string
     {
         return $this->_options['comment'] ?? null;
     }

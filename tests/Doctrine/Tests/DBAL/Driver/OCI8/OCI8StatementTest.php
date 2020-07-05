@@ -26,7 +26,7 @@ class OCI8StatementTest extends DbalTestCase
      *
      * @dataProvider executeDataProvider
      */
-    public function testExecute(array $params) : void
+    public function testExecute(array $params): void
     {
         $statement = $this->getMockBuilder(OCI8Statement::class)
             ->onlyMethods(['bindValue', 'errorInfo'])
@@ -77,7 +77,7 @@ class OCI8StatementTest extends DbalTestCase
     /**
      * @return array<int, array<int, mixed>>
      */
-    public static function executeDataProvider() : iterable
+    public static function executeDataProvider(): iterable
     {
         return [
             // $hasZeroIndex = isset($params[0]); == true
@@ -94,7 +94,7 @@ class OCI8StatementTest extends DbalTestCase
     /**
      * @dataProvider nonTerminatedLiteralProvider
      */
-    public function testConvertNonTerminatedLiteral(string $sql, string $message) : void
+    public function testConvertNonTerminatedLiteral(string $sql, string $message): void
     {
         $this->expectException(OCI8Exception::class);
         $this->expectExceptionMessageRegExp($message);
@@ -104,7 +104,7 @@ class OCI8StatementTest extends DbalTestCase
     /**
      * @return array<string, array<int, mixed>>
      */
-    public static function nonTerminatedLiteralProvider() : iterable
+    public static function nonTerminatedLiteralProvider(): iterable
     {
         return [
             'no-matching-quote' => [

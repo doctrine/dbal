@@ -11,6 +11,7 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use InvalidArgumentException;
+
 use function array_merge;
 use function array_unique;
 use function array_values;
@@ -1667,7 +1668,7 @@ SQL
         return strtoupper(dechex(crc32($identifier->getName())));
     }
 
-    protected function getCommentOnTableSQL(string $tableName, ?string $comment) : string
+    protected function getCommentOnTableSQL(string $tableName, ?string $comment): string
     {
         return sprintf(
             <<<'SQL'
@@ -1681,7 +1682,7 @@ SQL
         );
     }
 
-    public function getListTableMetadataSQL(string $table) : string
+    public function getListTableMetadataSQL(string $table): string
     {
         return sprintf(
             <<<'SQL'

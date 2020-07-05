@@ -12,6 +12,7 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\MySqlSchemaManager;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+
 use function array_map;
 
 class MySqlSchemaManagerTest extends TestCase
@@ -22,7 +23,7 @@ class MySqlSchemaManagerTest extends TestCase
     /** @var Connection&MockObject */
     private $conn;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $eventManager  = new EventManager();
         $driverMock    = $this->createMock(Driver::class);
@@ -34,7 +35,7 @@ class MySqlSchemaManagerTest extends TestCase
         $this->manager = new MySqlSchemaManager($this->conn);
     }
 
-    public function testCompositeForeignKeys() : void
+    public function testCompositeForeignKeys(): void
     {
         $this->conn->expects($this->once())->method('fetchAll')->will($this->returnValue($this->getFKDefinition()));
         $fkeys = $this->manager->listTableForeignKeys('dummy');
@@ -48,7 +49,7 @@ class MySqlSchemaManagerTest extends TestCase
     /**
      * @return string[][]
      */
-    public function getFKDefinition() : array
+    public function getFKDefinition(): array
     {
         return [
             [

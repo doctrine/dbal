@@ -7,6 +7,7 @@ use Doctrine\DBAL\Logging\DebugStack;
 use Exception;
 use PHPUnit\Framework\AssertionFailedError;
 use Throwable;
+
 use function array_map;
 use function array_reverse;
 use function count;
@@ -16,6 +17,7 @@ use function is_object;
 use function is_scalar;
 use function strpos;
 use function var_export;
+
 use const PHP_EOL;
 
 abstract class DbalFunctionalTestCase extends DbalTestCase
@@ -33,7 +35,7 @@ abstract class DbalFunctionalTestCase extends DbalTestCase
     /** @var DebugStack */
     protected $sqlLoggerStack;
 
-    protected function resetSharedConn() : void
+    protected function resetSharedConn(): void
     {
         if (! self::$sharedConnection) {
             return;
@@ -43,7 +45,7 @@ abstract class DbalFunctionalTestCase extends DbalTestCase
         self::$sharedConnection = null;
     }
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         if (! isset(self::$sharedConnection)) {
             self::$sharedConnection = TestUtil::getConnection();
@@ -55,14 +57,14 @@ abstract class DbalFunctionalTestCase extends DbalTestCase
         $this->connection->getConfiguration()->setSQLLogger($this->sqlLoggerStack);
     }
 
-    protected function tearDown() : void
+    protected function tearDown(): void
     {
         while ($this->connection->isTransactionActive()) {
             $this->connection->rollBack();
         }
     }
 
-    protected function onNotSuccessfulTest(Throwable $t) : void
+    protected function onNotSuccessfulTest(Throwable $t): void
     {
         if ($t instanceof AssertionFailedError) {
             throw $t;

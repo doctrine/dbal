@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Query\Expression;
 
 use Countable;
+
 use function count;
 use function implode;
 

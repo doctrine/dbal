@@ -10,6 +10,7 @@ use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\Visitor\Visitor;
 use RuntimeException;
+
 use function in_array;
 
 /**

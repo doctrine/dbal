@@ -7,6 +7,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Tests\TestUtil;
+
 use function array_map;
 
 class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
@@ -14,7 +15,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
     /** @var bool */
     private static $privilegesGranted = false;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -32,7 +33,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::$privilegesGranted = true;
     }
 
-    public function testRenameTable() : void
+    public function testRenameTable(): void
     {
         $this->schemaManager->tryMethod('DropTable', 'list_tables_test');
         $this->schemaManager->tryMethod('DropTable', 'list_tables_test_new_name');
@@ -45,7 +46,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertHasTable($tables, 'list_tables_test_new_name');
     }
 
-    public function testListTableWithBinary() : void
+    public function testListTableWithBinary(): void
     {
         $tableName = 'test_binary_table';
 
@@ -70,7 +71,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
      * @group DBAL-472
      * @group DBAL-1001
      */
-    public function testAlterTableColumnNotNull() : void
+    public function testAlterTableColumnNotNull(): void
     {
         $comparator = new Schema\Comparator();
         $tableName  = 'list_table_column_notnull';
@@ -102,7 +103,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertTrue($columns['bar']->getNotnull());
     }
 
-    public function testListDatabases() : void
+    public function testListDatabases(): void
     {
         // We need a privileged connection to create the database.
         $sm = TestUtil::getPrivilegedConnection()->getSchemaManager();
@@ -118,7 +119,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
     /**
      * @group DBAL-831
      */
-    public function testListTableDetailsWithDifferentIdentifierQuotingRequirements() : void
+    public function testListTableDetailsWithDifferentIdentifierQuotingRequirements(): void
     {
         $primaryTableName    = '"Primary_Table"';
         $offlinePrimaryTable = new Schema\Table($primaryTableName);
@@ -226,7 +227,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         );
     }
 
-    public function testListTableColumnsSameTableNamesInDifferentSchemas() : void
+    public function testListTableColumnsSameTableNamesInDifferentSchemas(): void
     {
         $table = $this->createListTableColumns();
         $this->schemaManager->dropAndCreateTable($table);
@@ -242,7 +243,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
     /**
      * @group DBAL-1234
      */
-    public function testListTableIndexesPrimaryKeyConstraintNameDiffersFromIndexName() : void
+    public function testListTableIndexesPrimaryKeyConstraintNameDiffersFromIndexName(): void
     {
         $table = new Table('list_table_indexes_pk_id_test');
         $table->setSchemaConfig($this->schemaManager->createSchemaConfig());
@@ -265,7 +266,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
     /**
      * @group DBAL-2555
      */
-    public function testListTableDateTypeColumns() : void
+    public function testListTableDateTypeColumns(): void
     {
         $table = new Table('tbl_date');
         $table->addColumn('col_date', 'date');
@@ -281,7 +282,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertSame('datetimetz', $columns['col_datetimetz']->getType()->getName());
     }
 
-    public function testCreateAndListSequences() : void
+    public function testCreateAndListSequences(): void
     {
         self::markTestSkipped("Skipped for uppercase letters are contained in sequences' names. Fix the schema manager in 3.0.");
     }

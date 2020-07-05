@@ -12,7 +12,7 @@ class DataSourceNameTest extends TestCase
      *
      * @dataProvider connectionParametersProvider
      */
-    public function testFromConnectionParameters(array $params, string $expected) : void
+    public function testFromConnectionParameters(array $params, string $expected): void
     {
         $dsn = DataSourceName::fromConnectionParameters($params);
 
@@ -22,9 +22,9 @@ class DataSourceNameTest extends TestCase
     /**
      * @return iterable<string,array<int,mixed>>
      */
-    public static function connectionParametersProvider() : iterable
+    public static function connectionParametersProvider(): iterable
     {
-        yield 'empty-params' => [[],''];
+        yield 'empty-params' => [[], ''];
 
         yield 'cataloged-database' => [
             [

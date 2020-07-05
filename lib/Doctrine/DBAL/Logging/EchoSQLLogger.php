@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Logging;
 
 use function var_dump;
+
 use const PHP_EOL;
 
 /**

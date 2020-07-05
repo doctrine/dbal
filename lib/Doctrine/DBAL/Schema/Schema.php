@@ -7,6 +7,7 @@ use Doctrine\DBAL\Schema\Visitor\CreateSchemaSqlCollector;
 use Doctrine\DBAL\Schema\Visitor\DropSchemaSqlCollector;
 use Doctrine\DBAL\Schema\Visitor\NamespaceVisitor;
 use Doctrine\DBAL\Schema\Visitor\Visitor;
+
 use function array_keys;
 use function strpos;
 use function strtolower;
@@ -106,9 +107,11 @@ class Schema extends AbstractAsset
             throw SchemaException::tableAlreadyExists($tableName);
         }
 
-        if ($namespaceName !== null
+        if (
+            $namespaceName !== null
             && ! $table->isInDefaultNamespace($this->getName())
-            && ! $this->hasNamespace($namespaceName)) {
+            && ! $this->hasNamespace($namespaceName)
+        ) {
             $this->createNamespace($namespaceName);
         }
 
@@ -130,9 +133,11 @@ class Schema extends AbstractAsset
             throw SchemaException::sequenceAlreadyExists($seqName);
         }
 
-        if ($namespaceName !== null
+        if (
+            $namespaceName !== null
             && ! $sequence->isInDefaultNamespace($this->getName())
-            && ! $this->hasNamespace($namespaceName)) {
+            && ! $this->hasNamespace($namespaceName)
+        ) {
             $this->createNamespace($namespaceName);
         }
 

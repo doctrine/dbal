@@ -27,7 +27,7 @@ abstract class DbalPerformanceTestCase extends DbalFunctionalTestCase
      */
     private $runTime;
 
-    protected function assertPostConditions() : void
+    protected function assertPostConditions(): void
     {
         // If a perf test doesn't start or stop, it fails.
         self::assertNotNull($this->startTime, 'Test timing was started');
@@ -37,7 +37,7 @@ abstract class DbalPerformanceTestCase extends DbalFunctionalTestCase
     /**
      * begin timing
      */
-    protected function startTiming() : void
+    protected function startTiming(): void
     {
         $this->startTime = microtime(true);
     }
@@ -45,7 +45,7 @@ abstract class DbalPerformanceTestCase extends DbalFunctionalTestCase
     /**
      * end timing
      */
-    protected function stopTiming() : void
+    protected function stopTiming(): void
     {
         $this->runTime = microtime(true) - $this->startTime;
     }
@@ -53,7 +53,7 @@ abstract class DbalPerformanceTestCase extends DbalFunctionalTestCase
     /**
      * @return float elapsed test execution time
      */
-    public function getTime() : float
+    public function getTime(): float
     {
         return $this->runTime;
     }

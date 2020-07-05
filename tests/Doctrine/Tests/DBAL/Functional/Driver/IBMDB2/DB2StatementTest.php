@@ -13,7 +13,7 @@ use PHPUnit\Framework\Error\Notice;
  */
 class DB2StatementTest extends DbalFunctionalTestCase
 {
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -24,7 +24,7 @@ class DB2StatementTest extends DbalFunctionalTestCase
         $this->markTestSkipped('ibm_db2 only test.');
     }
 
-    public function testExecutionErrorsAreNotSuppressed() : void
+    public function testExecutionErrorsAreNotSuppressed(): void
     {
         $stmt = $this->connection->prepare('SELECT * FROM SYSIBM.SYSDUMMY1 WHERE \'foo\' = ?');
 

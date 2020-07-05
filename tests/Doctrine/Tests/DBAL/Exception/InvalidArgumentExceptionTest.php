@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
  */
 class InvalidArgumentExceptionTest extends TestCase
 {
-    public function testFromEmptyCriteria() : void
+    public function testFromEmptyCriteria(): void
     {
         $exception = InvalidArgumentException::fromEmptyCriteria();
 
