@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\API\ExceptionConverter;
 use Doctrine\DBAL\Driver\API\PostgreSQL;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQL100Platform;
 use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Schema\PostgreSqlSchemaManager;
@@ -54,9 +55,9 @@ abstract class AbstractPostgreSQLDriver implements VersionAwarePlatformDriver
     /**
      * {@inheritdoc}
      */
-    public function getSchemaManager(Connection $conn)
+    public function getSchemaManager(Connection $conn, AbstractPlatform $platform)
     {
-        return new PostgreSqlSchemaManager($conn);
+        return new PostgreSqlSchemaManager($conn, $platform);
     }
 
     public function getExceptionConverter(): ExceptionConverter

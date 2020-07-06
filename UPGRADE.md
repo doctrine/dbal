@@ -1,5 +1,10 @@
 # Upgrade to 3.0
 
+## BC BREAK: Changes schema manager instantiation.
+
+1. The `$platform` argument of all schema manager constructors is no longer optional.
+2. A new `$platform` argument has been added to the `Driver::getSchemaManager()` method.
+
 ## BC BREAK: Changes in driver classes
 
 1. All implementations of the `Driver` interface have been made final.

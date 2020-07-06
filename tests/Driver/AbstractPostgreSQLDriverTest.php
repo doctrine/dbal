@@ -27,7 +27,10 @@ class AbstractPostgreSQLDriverTest extends AbstractDriverTest
 
     protected function createSchemaManager(Connection $connection): AbstractSchemaManager
     {
-        return new PostgreSqlSchemaManager($connection);
+        return new PostgreSqlSchemaManager(
+            $connection,
+            $this->createPlatform()
+        );
     }
 
     protected function createExceptionConverter(): ExceptionConverter
