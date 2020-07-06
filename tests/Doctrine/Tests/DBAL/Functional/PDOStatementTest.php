@@ -12,7 +12,7 @@ use PDO;
  */
 class PDOStatementTest extends DbalFunctionalTestCase
 {
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -30,7 +30,7 @@ class PDOStatementTest extends DbalFunctionalTestCase
      * @group legacy
      * @expectedDeprecation Using a PDO fetch mode or their combination (%d given) is deprecated and will cause an error in Doctrine DBAL 3.0
      */
-    public function testPDOSpecificModeIsAccepted() : void
+    public function testPDOSpecificModeIsAccepted(): void
     {
         $this->connection->insert('stmt_test', [
             'id' => 1,

@@ -16,7 +16,7 @@ class PostgreSQL92PlatformTest extends AbstractPostgreSqlPlatformTestCase
      *
      * @return PostgreSQL92Platform
      */
-    public function createPlatform() : AbstractPlatform
+    public function createPlatform(): AbstractPlatform
     {
         return new PostgreSQL92Platform();
     }
@@ -24,7 +24,7 @@ class PostgreSQL92PlatformTest extends AbstractPostgreSqlPlatformTestCase
     /**
      * @group DBAL-553
      */
-    public function testHasNativeJsonType() : void
+    public function testHasNativeJsonType(): void
     {
         self::assertTrue($this->platform->hasNativeJsonType());
     }
@@ -32,12 +32,12 @@ class PostgreSQL92PlatformTest extends AbstractPostgreSqlPlatformTestCase
     /**
      * @group DBAL-553
      */
-    public function testReturnsJsonTypeDeclarationSQL() : void
+    public function testReturnsJsonTypeDeclarationSQL(): void
     {
         self::assertSame('JSON', $this->platform->getJsonTypeDeclarationSQL([]));
     }
 
-    public function testReturnsSmallIntTypeDeclarationSQL() : void
+    public function testReturnsSmallIntTypeDeclarationSQL(): void
     {
         self::assertSame(
             'SMALLSERIAL',
@@ -58,7 +58,7 @@ class PostgreSQL92PlatformTest extends AbstractPostgreSqlPlatformTestCase
     /**
      * @group DBAL-553
      */
-    public function testInitializesJsonTypeMapping() : void
+    public function testInitializesJsonTypeMapping(): void
     {
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('json'));
         self::assertEquals(Types::JSON, $this->platform->getDoctrineTypeMapping('json'));
@@ -67,7 +67,7 @@ class PostgreSQL92PlatformTest extends AbstractPostgreSqlPlatformTestCase
     /**
      * @group DBAL-1220
      */
-    public function testReturnsCloseActiveDatabaseConnectionsSQL() : void
+    public function testReturnsCloseActiveDatabaseConnectionsSQL(): void
     {
         self::assertSame(
             "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'foo'",

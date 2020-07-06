@@ -5,12 +5,14 @@ namespace Doctrine\DBAL\Driver;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use PDO;
+
 use function array_slice;
 use function assert;
 use function func_get_args;
 use function is_array;
 use function sprintf;
 use function trigger_error;
+
 use const E_USER_DEPRECATED;
 
 /**
@@ -196,7 +198,7 @@ class PDOStatement extends \PDOStatement implements Statement
      *
      * @param int $type Parameter type
      */
-    private function convertParamType(int $type) : int
+    private function convertParamType(int $type): int
     {
         if (! isset(self::PARAM_TYPE_MAP[$type])) {
             // TODO: next major: throw an exception
@@ -216,7 +218,7 @@ class PDOStatement extends \PDOStatement implements Statement
      *
      * @param int $fetchMode Fetch mode
      */
-    private function convertFetchMode(int $fetchMode) : int
+    private function convertFetchMode(int $fetchMode): int
     {
         if (! isset(self::FETCH_MODE_MAP[$fetchMode])) {
             // TODO: next major: throw an exception

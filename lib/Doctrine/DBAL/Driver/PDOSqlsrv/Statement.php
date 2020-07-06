@@ -16,7 +16,8 @@ class Statement extends PDOStatement
      */
     public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null, $driverOptions = null)
     {
-        if (($type === ParameterType::LARGE_OBJECT || $type === ParameterType::BINARY)
+        if (
+            ($type === ParameterType::LARGE_OBJECT || $type === ParameterType::BINARY)
             && $driverOptions === null
         ) {
             $driverOptions = PDO::SQLSRV_ENCODING_BINARY;

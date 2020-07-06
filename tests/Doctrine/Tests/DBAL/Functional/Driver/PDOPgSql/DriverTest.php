@@ -7,6 +7,7 @@ use Doctrine\DBAL\Driver as DriverInterface;
 use Doctrine\DBAL\Driver\PDOPgSql\Driver;
 use Doctrine\Tests\DBAL\Functional\Driver\AbstractDriverTest;
 use Doctrine\Tests\TestUtil;
+
 use function array_key_exists;
 use function microtime;
 use function sprintf;
@@ -16,7 +17,7 @@ use function sprintf;
  */
 class DriverTest extends AbstractDriverTest
 {
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -30,7 +31,7 @@ class DriverTest extends AbstractDriverTest
     /**
      * @dataProvider getDatabaseParameter
      */
-    public function testDatabaseParameters(?string $databaseName, ?string $defaultDatabaseName, ?string $expectedDatabaseName) : void
+    public function testDatabaseParameters(?string $databaseName, ?string $defaultDatabaseName, ?string $expectedDatabaseName): void
     {
         $params                   = $this->connection->getParams();
         $params['dbname']         = $databaseName;
@@ -52,7 +53,7 @@ class DriverTest extends AbstractDriverTest
     /**
      * @return mixed[][]
      */
-    public static function getDatabaseParameter() : iterable
+    public static function getDatabaseParameter(): iterable
     {
         $params            = TestUtil::getConnectionParams();
         $realDatabaseName  = $params['dbname'] ?? '';
@@ -70,7 +71,7 @@ class DriverTest extends AbstractDriverTest
     /**
      * @group DBAL-1146
      */
-    public function testConnectsWithApplicationNameParameter() : void
+    public function testConnectsWithApplicationNameParameter(): void
     {
         $parameters                     = $this->connection->getParams();
         $parameters['application_name'] = 'doctrine';
@@ -99,12 +100,12 @@ class DriverTest extends AbstractDriverTest
         $this->fail(sprintf('Query result does not contain a record where column "query" equals "%s".', $sql));
     }
 
-    protected function createDriver() : DriverInterface
+    protected function createDriver(): DriverInterface
     {
         return new Driver();
     }
 
-    protected static function getDatabaseNameForConnectionWithoutDatabaseNameParameter() : ?string
+    protected static function getDatabaseNameForConnectionWithoutDatabaseNameParameter(): ?string
     {
         return 'postgres';
     }

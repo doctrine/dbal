@@ -8,12 +8,12 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 
 class MySqlPlatformTest extends AbstractMySQLPlatformTestCase
 {
-    public function createPlatform() : AbstractPlatform
+    public function createPlatform(): AbstractPlatform
     {
         return new MySqlPlatform();
     }
 
-    public function testHasCorrectDefaultTransactionIsolationLevel() : void
+    public function testHasCorrectDefaultTransactionIsolationLevel(): void
     {
         self::assertEquals(
             TransactionIsolationLevel::REPEATABLE_READ,

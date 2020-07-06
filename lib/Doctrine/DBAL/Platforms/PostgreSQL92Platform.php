@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Types\Types;
+
 use function sprintf;
 
 /**

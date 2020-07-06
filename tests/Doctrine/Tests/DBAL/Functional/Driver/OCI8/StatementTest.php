@@ -10,7 +10,7 @@ use Doctrine\Tests\DbalFunctionalTestCase;
  */
 class StatementTest extends DbalFunctionalTestCase
 {
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -27,7 +27,7 @@ class StatementTest extends DbalFunctionalTestCase
      *
      * @dataProvider queryConversionProvider
      */
-    public function testQueryConversion(string $query, array $params, array $expected) : void
+    public function testQueryConversion(string $query, array $params, array $expected): void
     {
         self::assertEquals(
             $expected,
@@ -43,7 +43,7 @@ class StatementTest extends DbalFunctionalTestCase
      *
      * @dataProvider queryConversionProvider
      */
-    public function testStatementBindParameters(string $query, array $params, array $expected) : void
+    public function testStatementBindParameters(string $query, array $params, array $expected): void
     {
         $stmt = $this->connection->prepare($query);
         $stmt->execute($params);
@@ -57,7 +57,7 @@ class StatementTest extends DbalFunctionalTestCase
     /**
      * @return array<string, array<int, mixed>>
      */
-    public static function queryConversionProvider() : iterable
+    public static function queryConversionProvider(): iterable
     {
         return [
             'positional' => [

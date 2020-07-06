@@ -7,6 +7,7 @@ use Doctrine\DBAL\Driver\Mysqli\MysqliException;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
+
 use function restore_error_handler;
 use function set_error_handler;
 
@@ -22,7 +23,7 @@ class MysqliConnectionTest extends DbalFunctionalTestCase
      */
     private $connectionMock;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -35,14 +36,14 @@ class MysqliConnectionTest extends DbalFunctionalTestCase
             ->getMockForAbstractClass();
     }
 
-    public function testDoesNotRequireQueryForServerVersion() : void
+    public function testDoesNotRequireQueryForServerVersion(): void
     {
         self::assertFalse($this->connectionMock->requiresQueryForServerVersion());
     }
 
-    public function testRestoresErrorHandlerOnException() : void
+    public function testRestoresErrorHandlerOnException(): void
     {
-        $handler = static function () : bool {
+        $handler = static function (): bool {
             self::fail('Never expected this to be called');
         };
 

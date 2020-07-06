@@ -11,6 +11,7 @@ use IteratorAggregate;
 use mysqli;
 use mysqli_stmt;
 use PDO;
+
 use function array_combine;
 use function array_fill;
 use function assert;
@@ -207,7 +208,7 @@ class MysqliStatement implements IteratorAggregate, Statement
     /**
      * Binds parameters with known types previously bound to the statement
      */
-    private function bindTypedParameters() : void
+    private function bindTypedParameters(): void
     {
         $streams = $values = [];
         $types   = $this->types;
@@ -250,7 +251,7 @@ class MysqliStatement implements IteratorAggregate, Statement
      *
      * @throws MysqliException
      */
-    private function sendLongData(array $streams) : void
+    private function sendLongData(array $streams): void
     {
         foreach ($streams as $paramNr => $stream) {
             while (! feof($stream)) {

@@ -18,7 +18,7 @@ class SQLAnywhereConnectionTest extends DbalTestCase
      */
     private $connectionMock;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -27,7 +27,7 @@ class SQLAnywhereConnectionTest extends DbalTestCase
             ->getMockForAbstractClass();
     }
 
-    public function testRequiresQueryForServerVersion() : void
+    public function testRequiresQueryForServerVersion(): void
     {
         self::assertTrue($this->connectionMock->requiresQueryForServerVersion());
     }

@@ -8,7 +8,7 @@ use Doctrine\DBAL\Platforms\SQLServerPlatform;
 
 class SQLServerPlatformTest extends AbstractSQLServerPlatformTestCase
 {
-    public function createPlatform() : AbstractPlatform
+    public function createPlatform(): AbstractPlatform
     {
         return new SQLServerPlatform();
     }
@@ -19,7 +19,7 @@ class SQLServerPlatformTest extends AbstractSQLServerPlatformTestCase
      * @group DDC-2310
      * @dataProvider getLockHints
      */
-    public function testAppendsLockHint($lockMode, string $lockHint) : void
+    public function testAppendsLockHint($lockMode, string $lockHint): void
     {
         $fromClause     = 'FROM users';
         $expectedResult = $fromClause . $lockHint;
@@ -31,7 +31,7 @@ class SQLServerPlatformTest extends AbstractSQLServerPlatformTestCase
      * @group DBAL-2408
      * @dataProvider getModifyLimitQueries
      */
-    public function testScrubInnerOrderBy(string $query, int $limit, ?int $offset, string $expectedResult) : void
+    public function testScrubInnerOrderBy(string $query, int $limit, ?int $offset, string $expectedResult): void
     {
         self::assertSame($expectedResult, $this->platform->modifyLimitQuery($query, $limit, $offset));
     }
@@ -39,7 +39,7 @@ class SQLServerPlatformTest extends AbstractSQLServerPlatformTestCase
     /**
      * @return mixed[][]
      */
-    public static function getLockHints() : iterable
+    public static function getLockHints(): iterable
     {
         return [
             [null, ''],
@@ -55,7 +55,7 @@ class SQLServerPlatformTest extends AbstractSQLServerPlatformTestCase
     /**
      * @return mixed[][]
      */
-    public static function getModifyLimitQueries() : iterable
+    public static function getModifyLimitQueries(): iterable
     {
         return [
             // Test re-ordered query with correctly-scrubbed ORDER BY clause

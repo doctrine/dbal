@@ -8,6 +8,7 @@ use Doctrine\DBAL\FetchMode;
 use InvalidArgumentException;
 use IteratorAggregate;
 use PDO;
+
 use function array_merge;
 use function array_values;
 use function count;

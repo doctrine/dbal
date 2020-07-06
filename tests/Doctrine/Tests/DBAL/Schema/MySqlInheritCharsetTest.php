@@ -14,11 +14,12 @@ use Doctrine\DBAL\Schema\MySqlSchemaManager;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
 use PHPUnit\Framework\TestCase;
+
 use function array_merge;
 
 class MySqlInheritCharsetTest extends TestCase
 {
-    public function testInheritTableOptionsFromDatabase() : void
+    public function testInheritTableOptionsFromDatabase(): void
     {
         // default, no overrides
         $options = $this->getTableOptionsForOverride();
@@ -35,7 +36,7 @@ class MySqlInheritCharsetTest extends TestCase
         self::assertSame($options['charset'], 'utf8mb4');
     }
 
-    public function testTableOptions() : void
+    public function testTableOptions(): void
     {
         $eventManager = new EventManager();
         $driverMock   = $this->createMock(Driver::class);
@@ -70,7 +71,7 @@ class MySqlInheritCharsetTest extends TestCase
      *
      * @return string[]
      */
-    private function getTableOptionsForOverride(array $overrideOptions = []) : array
+    private function getTableOptionsForOverride(array $overrideOptions = []): array
     {
         $eventManager = new EventManager();
         $driverMock   = $this->createMock(Driver::class);

@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Types;
+
 use function array_intersect_key;
 use function array_key_exists;
 use function array_keys;
@@ -248,7 +249,8 @@ class Comparator
         /* See if there are any removed indexes in table 2 */
         foreach ($table1Indexes as $indexName => $index) {
             // See if index is removed in table 2.
-            if (($index->isPrimary() && ! $table2->hasPrimaryKey()) ||
+            if (
+                ($index->isPrimary() && ! $table2->hasPrimaryKey()) ||
                 ! $index->isPrimary() && ! $table2->hasIndex($indexName)
             ) {
                 $tableDifferences->removedIndexes[$indexName] = $index;
@@ -447,12 +449,15 @@ class Comparator
 
         // Null values need to be checked additionally as they tell whether to create or drop a default value.
         // null != 0, null != false, null != '' etc. This affects platform's table alteration SQL generation.
-        if (($properties1['default'] === null) !== ($properties2['default'] === null)
-            || $properties1['default'] != $properties2['default']) {
+        if (
+            ($properties1['default'] === null) !== ($properties2['default'] === null)
+            || $properties1['default'] != $properties2['default']
+        ) {
             $changedProperties[] = 'default';
         }
 
-        if (($properties1['type'] instanceof Types\StringType && ! $properties1['type'] instanceof Types\GuidType) ||
+        if (
+            ($properties1['type'] instanceof Types\StringType && ! $properties1['type'] instanceof Types\GuidType) ||
             $properties1['type'] instanceof Types\BinaryType
         ) {
             // check if value of length is set at all, default value assumed otherwise.
@@ -476,7 +481,8 @@ class Comparator
         }
 
         // A null value and an empty string are actually equal for a comment so they should not trigger a change.
-        if ($properties1['comment'] !== $properties2['comment'] &&
+        if (
+            $properties1['comment'] !== $properties2['comment'] &&
             ! ($properties1['comment'] === null && $properties2['comment'] === '') &&
             ! ($properties2['comment'] === null && $properties1['comment'] === '')
         ) {
@@ -513,7 +519,7 @@ class Comparator
      *
      * @deprecated
      */
-    private function isALegacyJsonComparison(Types\Type $one, Types\Type $other) : bool
+    private function isALegacyJsonComparison(Types\Type $one, Types\Type $other): bool
     {
         if (! $one instanceof Types\JsonType || ! $other instanceof Types\JsonType) {
             return false;

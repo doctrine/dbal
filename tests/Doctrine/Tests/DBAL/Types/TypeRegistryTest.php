@@ -26,7 +26,7 @@ class TypeRegistryTest extends TestCase
     /** @var BinaryType */
     private $otherTestType;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->testType      = new BlobType();
         $this->otherTestType = new BinaryType();
@@ -36,7 +36,7 @@ class TypeRegistryTest extends TestCase
         $this->registry->register(self::OTHER_TEST_TYPE_NAME, $this->otherTestType);
     }
 
-    public function testGet() : void
+    public function testGet(): void
     {
         self::assertSame($this->testType, $this->registry->get(self::TEST_TYPE_NAME));
         self::assertSame($this->otherTestType, $this->registry->get(self::OTHER_TEST_TYPE_NAME));
@@ -45,7 +45,7 @@ class TypeRegistryTest extends TestCase
         $this->registry->get('unknown');
     }
 
-    public function testGetReturnsSameInstances() : void
+    public function testGetReturnsSameInstances(): void
     {
         self::assertSame(
             $this->registry->get(self::TEST_TYPE_NAME),
@@ -53,7 +53,7 @@ class TypeRegistryTest extends TestCase
         );
     }
 
-    public function testLookupName() : void
+    public function testLookupName(): void
     {
         self::assertSame(
             self::TEST_TYPE_NAME,
@@ -68,14 +68,14 @@ class TypeRegistryTest extends TestCase
         $this->registry->lookupName(new TextType());
     }
 
-    public function testHas() : void
+    public function testHas(): void
     {
         self::assertTrue($this->registry->has(self::TEST_TYPE_NAME));
         self::assertTrue($this->registry->has(self::OTHER_TEST_TYPE_NAME));
         self::assertFalse($this->registry->has('unknown'));
     }
 
-    public function testRegister() : void
+    public function testRegister(): void
     {
         $newType = new TextType();
 
@@ -85,7 +85,7 @@ class TypeRegistryTest extends TestCase
         self::assertSame($newType, $this->registry->get('some'));
     }
 
-    public function testRegisterWithAlradyRegisteredName() : void
+    public function testRegisterWithAlradyRegisteredName(): void
     {
         $this->registry->register('some', new TextType());
 
@@ -93,7 +93,7 @@ class TypeRegistryTest extends TestCase
         $this->registry->register('some', new TextType());
     }
 
-    public function testRegisterWithAlreadyRegisteredInstance() : void
+    public function testRegisterWithAlreadyRegisteredInstance(): void
     {
         $newType = new TextType();
 
@@ -103,7 +103,7 @@ class TypeRegistryTest extends TestCase
         $this->registry->register('other', $newType);
     }
 
-    public function testOverride() : void
+    public function testOverride(): void
     {
         $baseType     = new TextType();
         $overrideType = new StringType();
@@ -114,7 +114,7 @@ class TypeRegistryTest extends TestCase
         self::assertSame($overrideType, $this->registry->get('some'));
     }
 
-    public function testOverrideAllowsExistingInstance() : void
+    public function testOverrideAllowsExistingInstance(): void
     {
         $type = new TextType();
 
@@ -124,7 +124,7 @@ class TypeRegistryTest extends TestCase
         self::assertSame($type, $this->registry->get('some'));
     }
 
-    public function testOverrideWithAlreadyRegisteredInstance() : void
+    public function testOverrideWithAlreadyRegisteredInstance(): void
     {
         $newType = new TextType();
 
@@ -135,13 +135,13 @@ class TypeRegistryTest extends TestCase
         $this->registry->override('second', $newType);
     }
 
-    public function testOverrideWithUnknownType() : void
+    public function testOverrideWithUnknownType(): void
     {
         $this->expectException(DBALException::class);
         $this->registry->override('unknown', new TextType());
     }
 
-    public function testGetMap() : void
+    public function testGetMap(): void
     {
         $registeredTypes = $this->registry->getMap();
 

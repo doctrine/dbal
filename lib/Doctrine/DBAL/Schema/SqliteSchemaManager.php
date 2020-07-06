@@ -8,6 +8,7 @@ use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
 use Doctrine\DBAL\Types\Type;
+
 use function array_change_key_case;
 use function array_map;
 use function array_reverse;
@@ -26,6 +27,7 @@ use function strtolower;
 use function trim;
 use function unlink;
 use function usort;
+
 use const CASE_LOWER;
 
 /**
@@ -120,8 +122,9 @@ class SqliteSchemaManager extends AbstractSchemaManager
         if (! empty($tableForeignKeys)) {
             $createSql = $this->getCreateTableSQL($table);
 
-            if ($createSql !== null && preg_match_all(
-                '#
+            if (
+                $createSql !== null && preg_match_all(
+                    '#
                     (?:CONSTRAINT\s+([^\s]+)\s+)?
                     (?:FOREIGN\s+KEY[^\)]+\)\s*)?
                     REFERENCES\s+[^\s]+\s+(?:\([^\)]+\))?
@@ -130,9 +133,10 @@ class SqliteSchemaManager extends AbstractSchemaManager
                         (NOT\s+DEFERRABLE|DEFERRABLE)
                         (?:\s+INITIALLY\s+(DEFERRED|IMMEDIATE))?
                     )?#isx',
-                $createSql,
-                $match
-            )) {
+                    $createSql,
+                    $match
+                )
+            ) {
                 $names      = array_reverse($match[1]);
                 $deferrable = array_reverse($match[2]);
                 $deferred   = array_reverse($match[3]);
@@ -415,7 +419,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
                     'onDelete' => $value['on_delete'],
                     'onUpdate' => $value['on_update'],
                     'deferrable' => $value['deferrable'],
-                    'deferred'=> $value['deferred'],
+                    'deferred' => $value['deferred'],
                 ];
             }
 
@@ -434,7 +438,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
                     'onDelete' => $constraint['onDelete'],
                     'onUpdate' => $constraint['onUpdate'],
                     'deferrable' => $constraint['deferrable'],
-                    'deferred'=> $constraint['deferred'],
+                    'deferred' => $constraint['deferred'],
                 ]
             );
         }
@@ -467,7 +471,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
         return $tableDiff;
     }
 
-    private function parseColumnCollationFromSQL(string $column, string $sql) : ?string
+    private function parseColumnCollationFromSQL(string $column, string $sql): ?string
     {
         $pattern = '{(?:\W' . preg_quote($column) . '\W|\W' . preg_quote($this->_platform->quoteSingleIdentifier($column))
             . '\W)[^,(]+(?:\([^()]+\)[^,]*)?(?:(?:DEFAULT|CHECK)\s*(?:\(.*?\))?[^,]*)*COLLATE\s+["\']?([^\s,"\')]+)}is';
@@ -479,7 +483,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
         return $match[1];
     }
 
-    private function parseTableCommentFromSQL(string $table, string $sql) : ?string
+    private function parseTableCommentFromSQL(string $table, string $sql): ?string
     {
         $pattern = '/\s* # Allow whitespace characters at start of line
 CREATE\sTABLE # Match "CREATE TABLE"
@@ -498,7 +502,7 @@ CREATE\sTABLE # Match "CREATE TABLE"
         return $comment === '' ? null : $comment;
     }
 
-    private function parseColumnCommentFromSQL(string $column, string $sql) : ?string
+    private function parseColumnCommentFromSQL(string $column, string $sql): ?string
     {
         $pattern = '{[\s(,](?:\W' . preg_quote($this->_platform->quoteSingleIdentifier($column)) . '\W|\W' . preg_quote($column)
             . '\W)(?:\([^)]*?\)|[^,(])*?,?((?:(?!\n))(?:\s*--[^\n]*\n?)+)}i';
@@ -512,7 +516,7 @@ CREATE\sTABLE # Match "CREATE TABLE"
         return $comment === '' ? null : $comment;
     }
 
-    private function getCreateTableSQL(string $table) : ?string
+    private function getCreateTableSQL(string $table): ?string
     {
         return $this->_conn->fetchColumn(
             <<<'SQL'
@@ -535,7 +539,7 @@ SQL
     /**
      * @param string $tableName
      */
-    public function listTableDetails($tableName) : Table
+    public function listTableDetails($tableName): Table
     {
         $table = parent::listTableDetails($tableName);
 

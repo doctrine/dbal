@@ -4,6 +4,7 @@ namespace Doctrine\DBAL\Driver\SQLAnywhere;
 
 use Doctrine\DBAL\Driver\AbstractDriverException;
 use InvalidArgumentException;
+
 use function sasql_error;
 use function sasql_errorcode;
 use function sasql_sqlstate;

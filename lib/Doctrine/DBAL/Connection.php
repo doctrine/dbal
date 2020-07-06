@@ -20,6 +20,7 @@ use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Types\Type;
 use Exception;
 use Throwable;
+
 use function array_key_exists;
 use function assert;
 use function func_get_args;
@@ -382,7 +383,7 @@ class Connection implements DriverConnection
      *
      * @throws DBALException If an invalid platform was specified for this connection.
      */
-    private function detectDatabasePlatform() : void
+    private function detectDatabasePlatform(): void
     {
         $version = $this->getDatabasePlatformVersion();
 
@@ -622,7 +623,7 @@ class Connection implements DriverConnection
         array &$columns,
         array &$values,
         array &$conditions
-    ) : void {
+    ): void {
         $platform = $this->getDatabasePlatform();
 
         foreach ($identifier as $columnName => $value) {
@@ -1323,7 +1324,7 @@ class Connection implements DriverConnection
     /**
      * Commits all current nesting transactions.
      */
-    private function commitAll() : void
+    private function commitAll(): void
     {
         while ($this->transactionNestingLevel !== 0) {
             if ($this->autoCommit === false && $this->transactionNestingLevel === 1) {

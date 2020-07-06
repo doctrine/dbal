@@ -11,7 +11,7 @@ use Doctrine\Tests\DbalFunctionalTestCase;
  */
 class StatementTest extends DbalFunctionalTestCase
 {
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -22,7 +22,7 @@ class StatementTest extends DbalFunctionalTestCase
         self::markTestSkipped('sqlsrv only test');
     }
 
-    public function testFailureToPrepareResultsInException() : void
+    public function testFailureToPrepareResultsInException(): void
     {
         // use the driver connection directly to avoid having exception wrapped
         $stmt = $this->connection->getWrappedConnection()->prepare('');

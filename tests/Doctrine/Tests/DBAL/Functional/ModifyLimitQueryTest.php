@@ -4,8 +4,10 @@ namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\Tests\DbalFunctionalTestCase;
+
 use function array_change_key_case;
 use function count;
+
 use const CASE_LOWER;
 
 class ModifyLimitQueryTest extends DbalFunctionalTestCase
@@ -13,7 +15,7 @@ class ModifyLimitQueryTest extends DbalFunctionalTestCase
     /** @var bool */
     private static $tableCreated = false;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -37,7 +39,7 @@ class ModifyLimitQueryTest extends DbalFunctionalTestCase
         $this->connection->exec($this->connection->getDatabasePlatform()->getTruncateTableSQL('modify_limit_table2'));
     }
 
-    public function testModifyLimitQuerySimpleQuery() : void
+    public function testModifyLimitQuerySimpleQuery(): void
     {
         $this->connection->insert('modify_limit_table', ['test_int' => 1]);
         $this->connection->insert('modify_limit_table', ['test_int' => 2]);
@@ -52,7 +54,7 @@ class ModifyLimitQueryTest extends DbalFunctionalTestCase
         $this->assertLimitResult([2, 3, 4], $sql, null, 1);
     }
 
-    public function testModifyLimitQueryJoinQuery() : void
+    public function testModifyLimitQueryJoinQuery(): void
     {
         $this->connection->insert('modify_limit_table', ['test_int' => 1]);
         $this->connection->insert('modify_limit_table', ['test_int' => 2]);
@@ -70,7 +72,7 @@ class ModifyLimitQueryTest extends DbalFunctionalTestCase
         $this->assertLimitResult([2, 2], $sql, 2, 0);
     }
 
-    public function testModifyLimitQueryNonDeterministic() : void
+    public function testModifyLimitQueryNonDeterministic(): void
     {
         $this->connection->insert('modify_limit_table', ['test_int' => 1]);
         $this->connection->insert('modify_limit_table', ['test_int' => 2]);
@@ -84,7 +86,7 @@ class ModifyLimitQueryTest extends DbalFunctionalTestCase
         $this->assertLimitResult([2, 1], $sql, 2, 2, false);
     }
 
-    public function testModifyLimitQueryGroupBy() : void
+    public function testModifyLimitQueryGroupBy(): void
     {
         $this->connection->insert('modify_limit_table', ['test_int' => 1]);
         $this->connection->insert('modify_limit_table', ['test_int' => 2]);
@@ -104,7 +106,7 @@ class ModifyLimitQueryTest extends DbalFunctionalTestCase
         $this->assertLimitResult([2], $sql, 1, 1);
     }
 
-    public function testModifyLimitQuerySubSelect() : void
+    public function testModifyLimitQuerySubSelect(): void
     {
         $this->connection->insert('modify_limit_table', ['test_int' => 1]);
         $this->connection->insert('modify_limit_table', ['test_int' => 2]);
@@ -118,7 +120,7 @@ class ModifyLimitQueryTest extends DbalFunctionalTestCase
         $this->assertLimitResult([2, 1], $sql, 2, 2);
     }
 
-    public function testModifyLimitQueryFromSubSelect() : void
+    public function testModifyLimitQueryFromSubSelect(): void
     {
         $this->connection->insert('modify_limit_table', ['test_int' => 1]);
         $this->connection->insert('modify_limit_table', ['test_int' => 2]);
@@ -132,7 +134,7 @@ class ModifyLimitQueryTest extends DbalFunctionalTestCase
         $this->assertLimitResult([2, 1], $sql, 2, 2);
     }
 
-    public function testModifyLimitQueryLineBreaks() : void
+    public function testModifyLimitQueryLineBreaks(): void
     {
         $this->connection->insert('modify_limit_table', ['test_int' => 1]);
         $this->connection->insert('modify_limit_table', ['test_int' => 2]);
@@ -152,7 +154,7 @@ SQL;
         $this->assertLimitResult([2], $sql, 1, 1);
     }
 
-    public function testModifyLimitQueryZeroOffsetNoLimit() : void
+    public function testModifyLimitQueryZeroOffsetNoLimit(): void
     {
         $this->connection->insert('modify_limit_table', ['test_int' => 1]);
         $this->connection->insert('modify_limit_table', ['test_int' => 2]);
@@ -165,7 +167,7 @@ SQL;
     /**
      * @param array<int, int> $expectedResults
      */
-    private function assertLimitResult(array $expectedResults, string $sql, ?int $limit, int $offset, bool $deterministic = true) : void
+    private function assertLimitResult(array $expectedResults, string $sql, ?int $limit, int $offset, bool $deterministic = true): void
     {
         $p    = $this->connection->getDatabasePlatform();
         $data = [];

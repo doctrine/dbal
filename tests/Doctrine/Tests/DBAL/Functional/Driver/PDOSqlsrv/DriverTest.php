@@ -14,7 +14,7 @@ use PDO;
  */
 class DriverTest extends AbstractDriverTest
 {
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -25,12 +25,12 @@ class DriverTest extends AbstractDriverTest
         $this->markTestSkipped('pdo_sqlsrv only test.');
     }
 
-    protected function createDriver() : DriverInterface
+    protected function createDriver(): DriverInterface
     {
         return new Driver();
     }
 
-    protected static function getDatabaseNameForConnectionWithoutDatabaseNameParameter() : ?string
+    protected static function getDatabaseNameForConnectionWithoutDatabaseNameParameter(): ?string
     {
         return 'master';
     }
@@ -38,7 +38,7 @@ class DriverTest extends AbstractDriverTest
     /**
      * @param int[]|string[] $driverOptions
      */
-    private function getConnection(array $driverOptions) : PDOConnection
+    private function getConnection(array $driverOptions): PDOConnection
     {
         $params = TestUtil::getConnectionParams();
 
@@ -50,7 +50,7 @@ class DriverTest extends AbstractDriverTest
         );
     }
 
-    public function testConnectionOptions() : void
+    public function testConnectionOptions(): void
     {
         $connection = $this->getConnection(['APP' => 'APP_NAME']);
         $result     = $connection->query('SELECT APP_NAME()')->fetchColumn();
@@ -58,7 +58,7 @@ class DriverTest extends AbstractDriverTest
         self::assertSame('APP_NAME', $result);
     }
 
-    public function testDriverOptions() : void
+    public function testDriverOptions(): void
     {
         $connection = $this->getConnection([PDO::ATTR_CASE => PDO::CASE_UPPER]);
 

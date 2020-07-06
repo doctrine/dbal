@@ -8,17 +8,17 @@ use Doctrine\DBAL\Schema\Table;
 
 class PostgreSQL91PlatformTest extends PostgreSqlPlatformTest
 {
-    public function createPlatform() : AbstractPlatform
+    public function createPlatform(): AbstractPlatform
     {
         return new PostgreSQL91Platform();
     }
 
-    public function testSupportsColumnCollation() : void
+    public function testSupportsColumnCollation(): void
     {
         self::assertTrue($this->platform->supportsColumnCollation());
     }
 
-    public function testColumnCollationDeclarationSQL() : void
+    public function testColumnCollationDeclarationSQL(): void
     {
         self::assertSame(
             'COLLATE "en_US.UTF-8"',
@@ -26,7 +26,7 @@ class PostgreSQL91PlatformTest extends PostgreSqlPlatformTest
         );
     }
 
-    public function testGetCreateTableSQLWithColumnCollation() : void
+    public function testGetCreateTableSQLWithColumnCollation(): void
     {
         $table = new Table('foo');
         $table->addColumn('no_collation', 'string');

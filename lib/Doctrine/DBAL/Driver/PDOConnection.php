@@ -4,6 +4,7 @@ namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\ParameterType;
 use PDO;
+
 use function assert;
 use function func_get_args;
 

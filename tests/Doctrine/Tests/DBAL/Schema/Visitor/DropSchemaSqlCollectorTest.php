@@ -14,7 +14,7 @@ use PHPUnit\Framework\TestCase;
  */
 class DropSchemaSqlCollectorTest extends TestCase
 {
-    public function testGetQueriesUsesAcceptedForeignKeys() : void
+    public function testGetQueriesUsesAcceptedForeignKeys(): void
     {
         $tableOne = $this->createMock(Table::class);
         $tableTwo = $this->createMock(Table::class);
@@ -45,7 +45,7 @@ class DropSchemaSqlCollectorTest extends TestCase
         $collector->getQueries();
     }
 
-    private function getStubKeyConstraint(string $name) : ForeignKeyConstraint
+    private function getStubKeyConstraint(string $name): ForeignKeyConstraint
     {
         $constraint = $this->createMock(ForeignKeyConstraint::class);
 
@@ -64,7 +64,7 @@ class DropSchemaSqlCollectorTest extends TestCase
         return $constraint;
     }
 
-    public function testGivenForeignKeyWithZeroLengthAcceptForeignKeyThrowsException() : void
+    public function testGivenForeignKeyWithZeroLengthAcceptForeignKeyThrowsException(): void
     {
         $collector = new DropSchemaSqlCollector(
             $this->getMockForAbstractClass(AbstractPlatform::class)

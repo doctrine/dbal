@@ -15,7 +15,7 @@ class OCI8ConnectionTest extends DbalFunctionalTestCase
     /** @var OCI8Connection */
     protected $driverConnection;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -29,7 +29,7 @@ class OCI8ConnectionTest extends DbalFunctionalTestCase
     /**
      * @group DBAL-2595
      */
-    public function testLastInsertIdAcceptsFqn() : void
+    public function testLastInsertIdAcceptsFqn(): void
     {
         $platform      = $this->connection->getDatabasePlatform();
         $schemaManager = $this->connection->getSchemaManager();

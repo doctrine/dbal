@@ -15,6 +15,7 @@ use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\IntegerType;
 use Doctrine\DBAL\Types\Type;
 use UnexpectedValueException;
+
 use function array_diff;
 use function array_merge;
 use function array_unique;
@@ -113,7 +114,7 @@ class PostgreSqlPlatform extends AbstractPlatform
         if ($startPos !== false) {
             $str = $this->getSubstringExpression($str, $startPos);
 
-            return 'CASE WHEN (POSITION(' . $substr . ' IN ' . $str . ') = 0) THEN 0 ELSE (POSITION(' . $substr . ' IN ' . $str . ') + ' . ($startPos-1) . ') END';
+            return 'CASE WHEN (POSITION(' . $substr . ' IN ' . $str . ') = 0) THEN 0 ELSE (POSITION(' . $substr . ' IN ' . $str . ') + ' . ($startPos - 1) . ') END';
         }
 
         return 'POSITION(' . $substr . ' IN ' . $str . ')';
@@ -480,7 +481,8 @@ SQL
             $query .= ' NOT DEFERRABLE';
         }
 
-        if (($foreignKey->hasOption('feferred') && $foreignKey->getOption('feferred') !== false)
+        if (
+            ($foreignKey->hasOption('feferred') && $foreignKey->getOption('feferred') !== false)
             || ($foreignKey->hasOption('deferred') && $foreignKey->getOption('deferred') !== false)
         ) {
             $query .= ' INITIALLY DEFERRED';
@@ -1222,7 +1224,7 @@ SQL
     /**
      * @param mixed[] $field
      */
-    private function isSerialField(array $field) : bool
+    private function isSerialField(array $field): bool
     {
         return isset($field['type'], $field['autoincrement'])
             && $field['autoincrement'] === true
@@ -1232,7 +1234,7 @@ SQL
     /**
      * Check whether the type of a column is changed in a way that invalidates the default value for the column
      */
-    private function typeChangeBreaksDefaultValue(ColumnDiff $columnDiff) : bool
+    private function typeChangeBreaksDefaultValue(ColumnDiff $columnDiff): bool
     {
         if (! $columnDiff->fromColumn) {
             return $columnDiff->hasChanged('type');
@@ -1246,17 +1248,17 @@ SQL
             && ! ($oldTypeIsNumeric && $newTypeIsNumeric && $columnDiff->column->getAutoincrement());
     }
 
-    private function isNumericType(Type $type) : bool
+    private function isNumericType(Type $type): bool
     {
         return $type instanceof IntegerType || $type instanceof BigIntType;
     }
 
-    private function getOldColumnComment(ColumnDiff $columnDiff) : ?string
+    private function getOldColumnComment(ColumnDiff $columnDiff): ?string
     {
         return $columnDiff->fromColumn ? $this->getColumnComment($columnDiff->fromColumn) : null;
     }
 
-    public function getListTableMetadataSQL(string $table, ?string $schema = null) : string
+    public function getListTableMetadataSQL(string $table, ?string $schema = null): string
     {
         if ($schema !== null) {
             $table = $schema . '.' . $table;

@@ -9,6 +9,7 @@ use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Tests\DbalTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
+
 use function base64_encode;
 use function fopen;
 use function json_encode;
@@ -21,23 +22,23 @@ class JsonArrayTest extends DbalTestCase
     /** @var JsonArrayType */
     protected $type;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->platform = $this->createMock(AbstractPlatform::class);
         $this->type     = Type::getType('json_array');
     }
 
-    public function testReturnsBindingType() : void
+    public function testReturnsBindingType(): void
     {
         self::assertSame(ParameterType::STRING, $this->type->getBindingType());
     }
 
-    public function testReturnsName() : void
+    public function testReturnsName(): void
     {
         self::assertSame(Types::JSON_ARRAY, $this->type->getName());
     }
 
-    public function testReturnsSQLDeclaration() : void
+    public function testReturnsSQLDeclaration(): void
     {
         $this->platform->expects($this->once())
             ->method('getJsonTypeDeclarationSQL')
@@ -46,17 +47,17 @@ class JsonArrayTest extends DbalTestCase
         self::assertSame('TEST_JSON', $this->type->getSQLDeclaration([], $this->platform));
     }
 
-    public function testJsonNullConvertsToPHPValue() : void
+    public function testJsonNullConvertsToPHPValue(): void
     {
         self::assertSame([], $this->type->convertToPHPValue(null, $this->platform));
     }
 
-    public function testJsonEmptyStringConvertsToPHPValue() : void
+    public function testJsonEmptyStringConvertsToPHPValue(): void
     {
         self::assertSame([], $this->type->convertToPHPValue('', $this->platform));
     }
 
-    public function testJsonStringConvertsToPHPValue() : void
+    public function testJsonStringConvertsToPHPValue(): void
     {
         $value         = ['foo' => 'bar', 'bar' => 'foo'];
         $databaseValue = json_encode($value);
@@ -65,7 +66,7 @@ class JsonArrayTest extends DbalTestCase
         self::assertEquals($value, $phpValue);
     }
 
-    public function testJsonResourceConvertsToPHPValue() : void
+    public function testJsonResourceConvertsToPHPValue(): void
     {
         $value         = ['foo' => 'bar', 'bar' => 'foo'];
         $databaseValue = fopen('data://text/plain;base64,' . base64_encode(json_encode($value)), 'r');
@@ -74,7 +75,7 @@ class JsonArrayTest extends DbalTestCase
         self::assertSame($value, $phpValue);
     }
 
-    public function testRequiresSQLCommentHint() : void
+    public function testRequiresSQLCommentHint(): void
     {
         self::assertTrue($this->type->requiresSQLCommentHint($this->platform));
     }

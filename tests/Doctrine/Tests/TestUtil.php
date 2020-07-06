@@ -5,6 +5,7 @@ namespace Doctrine\Tests;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use PHPUnit\Framework\Assert;
+
 use function explode;
 use function extension_loaded;
 use function unlink;
@@ -36,7 +37,7 @@ class TestUtil
      *
      * @return Connection The database connection instance.
      */
-    public static function getConnection() : Connection
+    public static function getConnection(): Connection
     {
         if (self::hasRequiredConnectionParams() && ! self::$initialized) {
             self::initializeDatabase();
@@ -53,7 +54,7 @@ class TestUtil
     /**
      * @return mixed[]
      */
-    public static function getConnectionParams() : array
+    public static function getConnectionParams(): array
     {
         if (self::hasRequiredConnectionParams()) {
             return self::getTestConnectionParameters();
@@ -62,12 +63,12 @@ class TestUtil
         return self::getFallbackConnectionParams();
     }
 
-    private static function hasRequiredConnectionParams() : bool
+    private static function hasRequiredConnectionParams(): bool
     {
         return isset($GLOBALS['db_driver']);
     }
 
-    private static function initializeDatabase() : void
+    private static function initializeDatabase(): void
     {
         $testConnParams = self::getTestConnectionParameters();
         $privConnParams = self::getPrivilegedConnectionParameters();
@@ -101,7 +102,7 @@ class TestUtil
     /**
      * @return mixed[]
      */
-    private static function getFallbackConnectionParams() : array
+    private static function getFallbackConnectionParams(): array
     {
         if (! extension_loaded('pdo_sqlite')) {
             Assert::markTestSkipped('PDO SQLite extension is not loaded');
@@ -120,7 +121,7 @@ class TestUtil
         return $params;
     }
 
-    private static function addDbEventSubscribers(Connection $conn) : void
+    private static function addDbEventSubscribers(Connection $conn): void
     {
         if (! isset($GLOBALS['db_event_subscribers'])) {
             return;
@@ -136,7 +137,7 @@ class TestUtil
     /**
      * @return mixed[]
      */
-    private static function getPrivilegedConnectionParameters() : array
+    private static function getPrivilegedConnectionParameters(): array
     {
         if (isset($GLOBALS['tmpdb_driver'])) {
             return self::mapConnectionParameters($GLOBALS, 'tmpdb_');
@@ -151,7 +152,7 @@ class TestUtil
     /**
      * @return mixed[]
      */
-    private static function getTestConnectionParameters() : array
+    private static function getTestConnectionParameters(): array
     {
         return self::mapConnectionParameters($GLOBALS, 'db_');
     }
@@ -161,20 +162,22 @@ class TestUtil
      *
      * @return array<string,mixed>
      */
-    private static function mapConnectionParameters(array $configuration, string $prefix) : array
+    private static function mapConnectionParameters(array $configuration, string $prefix): array
     {
         $parameters = [];
 
-        foreach ([
-            'driver',
-            'user',
-            'password',
-            'host',
-            'dbname',
-            'port',
-            'server',
-            'unix_socket',
-        ] as $parameter) {
+        foreach (
+            [
+                'driver',
+                'user',
+                'password',
+                'host',
+                'dbname',
+                'port',
+                'server',
+                'unix_socket',
+            ] as $parameter
+        ) {
             if (! isset($configuration[$prefix . $parameter])) {
                 continue;
             }
@@ -185,7 +188,7 @@ class TestUtil
         return $parameters;
     }
 
-    public static function getPrivilegedConnection() : Connection
+    public static function getPrivilegedConnection(): Connection
     {
         return DriverManager::getConnection(self::getPrivilegedConnectionParameters());
     }

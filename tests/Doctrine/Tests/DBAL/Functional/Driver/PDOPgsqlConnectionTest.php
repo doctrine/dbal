@@ -12,7 +12,7 @@ use Doctrine\Tests\DbalFunctionalTestCase;
  */
 class PDOPgsqlConnectionTest extends DbalFunctionalTestCase
 {
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -28,7 +28,7 @@ class PDOPgsqlConnectionTest extends DbalFunctionalTestCase
      * @group DBAL-1189
      * @dataProvider getValidCharsets
      */
-    public function testConnectsWithValidCharsetOption(string $charset) : void
+    public function testConnectsWithValidCharsetOption(string $charset): void
     {
         $params            = $this->connection->getParams();
         $params['charset'] = $charset;
@@ -49,7 +49,7 @@ class PDOPgsqlConnectionTest extends DbalFunctionalTestCase
     /**
      * @return mixed[][]
      */
-    public static function getValidCharsets() : iterable
+    public static function getValidCharsets(): iterable
     {
         return [
             ['UTF8'],

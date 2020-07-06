@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 
 class LoggerChainTest extends TestCase
 {
-    public function testStartQuery() : void
+    public function testStartQuery(): void
     {
         $sql    = 'SELECT ?';
         $params = [1];
@@ -21,7 +21,7 @@ class LoggerChainTest extends TestCase
         $listener->startQuery($sql, $params, $types);
     }
 
-    public function testStopQuery() : void
+    public function testStopQuery(): void
     {
         $listener = $this->createChain('stopQuery');
         $listener->stopQuery();
@@ -30,7 +30,7 @@ class LoggerChainTest extends TestCase
     /**
      * @param mixed ...$args
      */
-    private function createChain(string $method, ...$args) : LoggerChain
+    private function createChain(string $method, ...$args): LoggerChain
     {
         $chain = new LoggerChain([
             $this->createLogger($method, ...$args),
@@ -44,7 +44,7 @@ class LoggerChainTest extends TestCase
     /**
      * @param mixed ...$args
      */
-    private function createLogger(string $method, ...$args) : SQLLogger
+    private function createLogger(string $method, ...$args): SQLLogger
     {
         $logger = $this->createMock(SQLLogger::class);
         $logger->expects($this->once())

@@ -14,7 +14,7 @@ use stdClass;
  */
 class PoolingShardConnectionTest extends TestCase
 {
-    public function testConnect() : void
+    public function testConnect(): void
     {
         $conn = DriverManager::getConnection([
             'wrapperClass' => PoolingShardConnection::class,
@@ -48,7 +48,7 @@ class PoolingShardConnectionTest extends TestCase
         self::assertFalse($conn->isConnected(2));
     }
 
-    public function testNoGlobalServerException() : void
+    public function testNoGlobalServerException(): void
     {
         $this->expectException('InvalidArgumentException');
         $this->expectExceptionMessage("Connection Parameters require 'global' and 'shards' configurations.");
@@ -64,7 +64,7 @@ class PoolingShardConnectionTest extends TestCase
         ]);
     }
 
-    public function testNoShardsServersException() : void
+    public function testNoShardsServersException(): void
     {
         $this->expectException('InvalidArgumentException');
         $this->expectExceptionMessage("Connection Parameters require 'global' and 'shards' configurations.");
@@ -77,7 +77,7 @@ class PoolingShardConnectionTest extends TestCase
         ]);
     }
 
-    public function testNoShardsChoserException() : void
+    public function testNoShardsChoserException(): void
     {
         $this->expectException('InvalidArgumentException');
         $this->expectExceptionMessage("Missing Shard Choser configuration 'shardChoser'");
@@ -93,7 +93,7 @@ class PoolingShardConnectionTest extends TestCase
         ]);
     }
 
-    public function testShardChoserWrongInstance() : void
+    public function testShardChoserWrongInstance(): void
     {
         $this->expectException('InvalidArgumentException');
         $this->expectExceptionMessage("The 'shardChoser' configuration is not a valid instance of Doctrine\DBAL\Sharding\ShardChoser\ShardChoser");
@@ -110,7 +110,7 @@ class PoolingShardConnectionTest extends TestCase
         ]);
     }
 
-    public function testShardNonNumericId() : void
+    public function testShardNonNumericId(): void
     {
         $this->expectException('InvalidArgumentException');
         $this->expectExceptionMessage('Shard Id has to be a non-negative number.');
@@ -126,7 +126,7 @@ class PoolingShardConnectionTest extends TestCase
         ]);
     }
 
-    public function testShardMissingId() : void
+    public function testShardMissingId(): void
     {
         $this->expectException('InvalidArgumentException');
         $this->expectExceptionMessage("Missing 'id' for one configured shard. Please specify a unique shard-id.");
@@ -142,7 +142,7 @@ class PoolingShardConnectionTest extends TestCase
         ]);
     }
 
-    public function testDuplicateShardId() : void
+    public function testDuplicateShardId(): void
     {
         $this->expectException('InvalidArgumentException');
         $this->expectExceptionMessage('Shard 1 is duplicated in the configuration.');
@@ -159,7 +159,7 @@ class PoolingShardConnectionTest extends TestCase
         ]);
     }
 
-    public function testSwitchShardWithOpenTransactionException() : void
+    public function testSwitchShardWithOpenTransactionException(): void
     {
         $conn = DriverManager::getConnection([
             'wrapperClass' => PoolingShardConnection::class,
@@ -178,7 +178,7 @@ class PoolingShardConnectionTest extends TestCase
         $conn->connect(1);
     }
 
-    public function testGetActiveShardId() : void
+    public function testGetActiveShardId(): void
     {
         $conn = DriverManager::getConnection([
             'wrapperClass' => PoolingShardConnection::class,
@@ -202,7 +202,7 @@ class PoolingShardConnectionTest extends TestCase
         self::assertNull($conn->getActiveShardId());
     }
 
-    public function testGetParamsOverride() : void
+    public function testGetParamsOverride(): void
     {
         $conn = DriverManager::getConnection([
             'wrapperClass' => PoolingShardConnection::class,
@@ -241,7 +241,7 @@ class PoolingShardConnectionTest extends TestCase
         ], $conn->getParams());
     }
 
-    public function testGetHostOverride() : void
+    public function testGetHostOverride(): void
     {
         $conn = DriverManager::getConnection([
             'wrapperClass' => PoolingShardConnection::class,
@@ -260,7 +260,7 @@ class PoolingShardConnectionTest extends TestCase
         self::assertEquals('foo', $conn->getHost());
     }
 
-    public function testGetPortOverride() : void
+    public function testGetPortOverride(): void
     {
         $conn = DriverManager::getConnection([
             'wrapperClass' => PoolingShardConnection::class,
@@ -279,7 +279,7 @@ class PoolingShardConnectionTest extends TestCase
         self::assertEquals(3307, $conn->getPort());
     }
 
-    public function testGetUsernameOverride() : void
+    public function testGetUsernameOverride(): void
     {
         $conn = DriverManager::getConnection([
             'wrapperClass' => PoolingShardConnection::class,
@@ -298,7 +298,7 @@ class PoolingShardConnectionTest extends TestCase
         self::assertEquals('bar', $conn->getUsername());
     }
 
-    public function testGetPasswordOverride() : void
+    public function testGetPasswordOverride(): void
     {
         $conn = DriverManager::getConnection([
             'wrapperClass' => PoolingShardConnection::class,

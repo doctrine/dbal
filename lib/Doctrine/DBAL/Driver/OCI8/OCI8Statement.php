@@ -9,6 +9,7 @@ use Doctrine\DBAL\ParameterType;
 use InvalidArgumentException;
 use IteratorAggregate;
 use PDO;
+
 use function array_key_exists;
 use function assert;
 use function count;
@@ -30,6 +31,7 @@ use function preg_match;
 use function preg_quote;
 use function sprintf;
 use function substr;
+
 use const OCI_ASSOC;
 use const OCI_B_BIN;
 use const OCI_B_BLOB;
@@ -311,7 +313,7 @@ class OCI8Statement implements IteratorAggregate, Statement
     /**
      * Converts DBAL parameter type to oci8 parameter type
      */
-    private function convertParameterType(int $type) : int
+    private function convertParameterType(int $type): int
     {
         switch ($type) {
             case ParameterType::BINARY:

@@ -19,12 +19,12 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     /**
      * @return SqlitePlatform
      */
-    public function createPlatform() : AbstractPlatform
+    public function createPlatform(): AbstractPlatform
     {
         return new SqlitePlatform();
     }
 
-    public function getGenerateTableSql() : string
+    public function getGenerateTableSql(): string
     {
         return 'CREATE TABLE test (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, test VARCHAR(255) DEFAULT NULL)';
     }
@@ -32,7 +32,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
-    public function getGenerateTableWithMultiColumnUniqueIndexSql() : array
+    public function getGenerateTableWithMultiColumnUniqueIndexSql(): array
     {
         return [
             'CREATE TABLE test (foo VARCHAR(255) DEFAULT NULL, bar VARCHAR(255) DEFAULT NULL)',
@@ -40,14 +40,14 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    public function testGeneratesSqlSnippets() : void
+    public function testGeneratesSqlSnippets(): void
     {
         self::assertEquals('REGEXP', $this->platform->getRegexpExpression(), 'Regular expression operator is not correct');
         self::assertEquals('SUBSTR(column, 5, LENGTH(column))', $this->platform->getSubstringExpression('column', 5), 'Substring expression without length is not correct');
         self::assertEquals('SUBSTR(column, 0, 5)', $this->platform->getSubstringExpression('column', 0, 5), 'Substring expression with length is not correct');
     }
 
-    public function testGeneratesTransactionCommands() : void
+    public function testGeneratesTransactionCommands(): void
     {
         self::assertEquals(
             'PRAGMA read_uncommitted = 0',
@@ -67,12 +67,12 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    public function testPrefersIdentityColumns() : void
+    public function testPrefersIdentityColumns(): void
     {
         self::assertTrue($this->platform->prefersIdentityColumns());
     }
 
-    public function testIgnoresUnsignedIntegerDeclarationForAutoIncrementalIntegers() : void
+    public function testIgnoresUnsignedIntegerDeclarationForAutoIncrementalIntegers(): void
     {
         self::assertSame(
             'INTEGER PRIMARY KEY AUTOINCREMENT',
@@ -84,7 +84,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
      * @group DBAL-752
      * @group DBAL-924
      */
-    public function testGeneratesTypeDeclarationForTinyIntegers() : void
+    public function testGeneratesTypeDeclarationForTinyIntegers(): void
     {
         self::assertEquals(
             'TINYINT',
@@ -114,7 +114,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
      * @group DBAL-752
      * @group DBAL-924
      */
-    public function testGeneratesTypeDeclarationForSmallIntegers() : void
+    public function testGeneratesTypeDeclarationForSmallIntegers(): void
     {
         self::assertEquals(
             'SMALLINT',
@@ -148,7 +148,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
      * @group DBAL-752
      * @group DBAL-924
      */
-    public function testGeneratesTypeDeclarationForMediumIntegers() : void
+    public function testGeneratesTypeDeclarationForMediumIntegers(): void
     {
         self::assertEquals(
             'MEDIUMINT',
@@ -178,7 +178,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    public function testGeneratesTypeDeclarationForIntegers() : void
+    public function testGeneratesTypeDeclarationForIntegers(): void
     {
         self::assertEquals(
             'INTEGER',
@@ -212,7 +212,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
      * @group DBAL-752
      * @group DBAL-924
      */
-    public function testGeneratesTypeDeclarationForBigIntegers() : void
+    public function testGeneratesTypeDeclarationForBigIntegers(): void
     {
         self::assertEquals(
             'BIGINT',
@@ -242,7 +242,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    public function testGeneratesTypeDeclarationForStrings() : void
+    public function testGeneratesTypeDeclarationForStrings(): void
     {
         self::assertEquals(
             'CHAR(10)',
@@ -262,48 +262,48 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    public function getGenerateIndexSql() : string
+    public function getGenerateIndexSql(): string
     {
         return 'CREATE INDEX my_idx ON mytable (user_name, last_login)';
     }
 
-    public function getGenerateUniqueIndexSql() : string
+    public function getGenerateUniqueIndexSql(): string
     {
         return 'CREATE UNIQUE INDEX index_name ON test (test, test2)';
     }
 
-    public function testGeneratesForeignKeyCreationSql() : void
+    public function testGeneratesForeignKeyCreationSql(): void
     {
         $this->expectException(DBALException::class);
 
         parent::testGeneratesForeignKeyCreationSql();
     }
 
-    public function testGeneratesConstraintCreationSql() : void
+    public function testGeneratesConstraintCreationSql(): void
     {
         $this->expectException(DBALException::class);
 
         parent::testGeneratesConstraintCreationSql();
     }
 
-    protected function getGenerateForeignKeySql() : string
+    protected function getGenerateForeignKeySql(): string
     {
         return '';
     }
 
-    public function testModifyLimitQuery() : void
+    public function testModifyLimitQuery(): void
     {
         $sql = $this->platform->modifyLimitQuery('SELECT * FROM user', 10, 0);
         self::assertEquals('SELECT * FROM user LIMIT 10', $sql);
     }
 
-    public function testModifyLimitQueryWithEmptyOffset() : void
+    public function testModifyLimitQueryWithEmptyOffset(): void
     {
         $sql = $this->platform->modifyLimitQuery('SELECT * FROM user', 10);
         self::assertEquals('SELECT * FROM user LIMIT 10', $sql);
     }
 
-    public function testModifyLimitQueryWithOffsetAndEmptyLimit() : void
+    public function testModifyLimitQueryWithOffsetAndEmptyLimit(): void
     {
         $sql = $this->platform->modifyLimitQuery('SELECT * FROM user', null, 10);
         self::assertEquals('SELECT * FROM user LIMIT -1 OFFSET 10', $sql);
@@ -312,7 +312,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
-    public function getGenerateAlterTableSql() : array
+    public function getGenerateAlterTableSql(): array
     {
         return [
             'CREATE TEMPORARY TABLE __temp__mytable AS SELECT id, bar, bloo FROM mytable',
@@ -327,7 +327,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     /**
      * @group DDC-1845
      */
-    public function testGenerateTableSqlShouldNotAutoQuotePrimaryKey() : void
+    public function testGenerateTableSqlShouldNotAutoQuotePrimaryKey(): void
     {
         $table = new Table('test');
         $table->addColumn('"like"', 'integer', ['notnull' => true, 'autoincrement' => true]);
@@ -340,7 +340,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    public function testAlterTableAddColumns() : void
+    public function testAlterTableAddColumns(): void
     {
         $diff                        = new TableDiff('user');
         $diff->addedColumns['foo']   = new Column('foo', Type::getType('string'));
@@ -357,7 +357,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     /**
      * @dataProvider complexDiffProvider
      */
-    public function testAlterTableAddComplexColumns(TableDiff $diff) : void
+    public function testAlterTableAddComplexColumns(TableDiff $diff): void
     {
         $this->expectException(DBALException::class);
 
@@ -367,7 +367,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     /**
      * @return mixed[][]
      */
-    public static function complexDiffProvider() : iterable
+    public static function complexDiffProvider(): iterable
     {
         $date                       = new TableDiff('user');
         $date->addedColumns['time'] = new Column('time', Type::getType('date'), ['default' => 'CURRENT_DATE']);
@@ -381,7 +381,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    public function testCreateTableWithDeferredForeignKeys() : void
+    public function testCreateTableWithDeferredForeignKeys(): void
     {
         $table = new Table('user');
         $table->addColumn('id', 'integer');
@@ -409,7 +409,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         self::assertEquals($sql, $this->platform->getCreateTableSQL($table));
     }
 
-    public function testAlterTable() : void
+    public function testAlterTable(): void
     {
         $table = new Table('user');
         $table->addColumn('id', 'integer');
@@ -456,7 +456,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
-    protected function getQuotedColumnInPrimaryKeySQL() : array
+    protected function getQuotedColumnInPrimaryKeySQL(): array
     {
         return ['CREATE TABLE "quoted" ("create" VARCHAR(255) NOT NULL, PRIMARY KEY("create"))'];
     }
@@ -464,7 +464,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
-    protected function getQuotedColumnInIndexSQL() : array
+    protected function getQuotedColumnInIndexSQL(): array
     {
         return [
             'CREATE TABLE "quoted" ("create" VARCHAR(255) NOT NULL)',
@@ -475,7 +475,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
-    protected function getQuotedNameInIndexSQL() : array
+    protected function getQuotedNameInIndexSQL(): array
     {
         return [
             'CREATE TABLE test (column1 VARCHAR(255) NOT NULL)',
@@ -486,7 +486,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritDoc}
      */
-    protected function getQuotedColumnInForeignKeySQL() : array
+    protected function getQuotedColumnInForeignKeySQL(): array
     {
         return [
             'CREATE TABLE "quoted" (' .
@@ -497,17 +497,17 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    protected function getBinaryDefaultLength() : int
+    protected function getBinaryDefaultLength(): int
     {
         return 0;
     }
 
-    protected function getBinaryMaxLength() : int
+    protected function getBinaryMaxLength(): int
     {
         return 0;
     }
 
-    public function testReturnsBinaryTypeDeclarationSQL() : void
+    public function testReturnsBinaryTypeDeclarationSQL(): void
     {
         self::assertSame('BLOB', $this->platform->getBinaryTypeDeclarationSQL([]));
         self::assertSame('BLOB', $this->platform->getBinaryTypeDeclarationSQL(['length' => 0]));
@@ -523,7 +523,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
      *
      * @group DBAL-234
      */
-    protected function getAlterTableRenameIndexSQL() : array
+    protected function getAlterTableRenameIndexSQL(): array
     {
         return [
             'CREATE TEMPORARY TABLE __temp__mytable AS SELECT id FROM mytable',
@@ -540,7 +540,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
      *
      * @group DBAL-234
      */
-    protected function getQuotedAlterTableRenameIndexSQL() : array
+    protected function getQuotedAlterTableRenameIndexSQL(): array
     {
         return [
             'CREATE TEMPORARY TABLE __temp__table AS SELECT id FROM "table"',
@@ -556,7 +556,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritdoc}
      */
-    protected function getQuotedAlterTableRenameColumnSQL() : array
+    protected function getQuotedAlterTableRenameColumnSQL(): array
     {
         return [
             'CREATE TEMPORARY TABLE __temp__mytable AS SELECT unquoted1, unquoted2, unquoted3, "create", "table", "select", "quoted1", "quoted2", "quoted3" FROM mytable',
@@ -579,7 +579,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritdoc}
      */
-    protected function getQuotedAlterTableChangeColumnLengthSQL() : array
+    protected function getQuotedAlterTableChangeColumnLengthSQL(): array
     {
         return [
             'CREATE TEMPORARY TABLE __temp__mytable AS SELECT unquoted1, unquoted2, unquoted3, "create", "table", "select" FROM mytable',
@@ -599,7 +599,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     /**
      * @group DBAL-807
      */
-    public function testAlterTableRenameIndexInSchema() : void
+    public function testAlterTableRenameIndexInSchema(): void
     {
         $this->markTestIncomplete(
             'Test currently produces broken SQL due to SQLLitePlatform::getAlterTable being broken ' .
@@ -610,7 +610,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     /**
      * @group DBAL-807
      */
-    public function testQuotesAlterTableRenameIndexInSchema() : void
+    public function testQuotesAlterTableRenameIndexInSchema(): void
     {
         $this->markTestIncomplete(
             'Test currently produces broken SQL due to SQLLitePlatform::getAlterTable being broken ' .
@@ -621,7 +621,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     /**
      * @group DBAL-423
      */
-    public function testReturnsGuidTypeDeclarationSQL() : void
+    public function testReturnsGuidTypeDeclarationSQL(): void
     {
         self::assertSame('CHAR(36)', $this->platform->getGuidTypeDeclarationSQL([]));
     }
@@ -629,7 +629,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritdoc}
      */
-    public function getAlterTableRenameColumnSQL() : array
+    public function getAlterTableRenameColumnSQL(): array
     {
         return [
             'CREATE TEMPORARY TABLE __temp__foo AS SELECT bar FROM foo',
@@ -644,7 +644,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritdoc}
      */
-    protected function getQuotesTableIdentifiersInAlterTableSQL() : array
+    protected function getQuotesTableIdentifiersInAlterTableSQL(): array
     {
         return [
             'DROP INDEX IDX_8C736521A81E660E',
@@ -666,7 +666,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritdoc}
      */
-    protected function getCommentOnColumnSQL() : array
+    protected function getCommentOnColumnSQL(): array
     {
         return [
             'COMMENT ON COLUMN foo.bar IS \'comment\'',
@@ -675,37 +675,37 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    protected static function getInlineColumnCommentDelimiter() : string
+    protected static function getInlineColumnCommentDelimiter(): string
     {
         return "\n";
     }
 
-    protected static function getInlineColumnRegularCommentSQL() : string
+    protected static function getInlineColumnRegularCommentSQL(): string
     {
         return "--Regular comment\n";
     }
 
-    protected static function getInlineColumnCommentRequiringEscapingSQL() : string
+    protected static function getInlineColumnCommentRequiringEscapingSQL(): string
     {
         return "--Using inline comment delimiter \n-- works\n";
     }
 
-    protected static function getInlineColumnEmptyCommentSQL() : string
+    protected static function getInlineColumnEmptyCommentSQL(): string
     {
         return "--\n";
     }
 
-    protected function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL() : string
+    protected function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL(): string
     {
         return 'CONSTRAINT "select" UNIQUE (foo)';
     }
 
-    protected function getQuotesReservedKeywordInIndexDeclarationSQL() : string
+    protected function getQuotesReservedKeywordInIndexDeclarationSQL(): string
     {
         return 'INDEX "select" (foo)';
     }
 
-    protected function getQuotesReservedKeywordInTruncateTableSQL() : string
+    protected function getQuotesReservedKeywordInTruncateTableSQL(): string
     {
         return 'DELETE FROM "select"';
     }
@@ -713,7 +713,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritdoc}
      */
-    protected function getAlterStringToFixedStringSQL() : array
+    protected function getAlterStringToFixedStringSQL(): array
     {
         return [
             'CREATE TEMPORARY TABLE __temp__mytable AS SELECT name FROM mytable',
@@ -727,7 +727,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritdoc}
      */
-    protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL() : array
+    protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL(): array
     {
         return [
             'DROP INDEX idx_foo',
@@ -745,7 +745,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     /**
      * @group DBAL-2436
      */
-    public function testQuotesTableNameInListTableConstraintsSQL() : void
+    public function testQuotesTableNameInListTableConstraintsSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",
@@ -756,7 +756,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     /**
      * @group DBAL-2436
      */
-    public function testQuotesTableNameInListTableColumnsSQL() : void
+    public function testQuotesTableNameInListTableColumnsSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",
@@ -767,7 +767,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     /**
      * @group DBAL-2436
      */
-    public function testQuotesTableNameInListTableIndexesSQL() : void
+    public function testQuotesTableNameInListTableIndexesSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",
@@ -778,7 +778,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     /**
      * @group DBAL-2436
      */
-    public function testQuotesTableNameInListTableForeignKeysSQL() : void
+    public function testQuotesTableNameInListTableForeignKeysSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",
@@ -786,22 +786,22 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    public function testDateAddStaticNumberOfDays() : void
+    public function testDateAddStaticNumberOfDays(): void
     {
         self::assertSame("DATE(rentalBeginsOn,'+12 DAY')", $this->platform->getDateAddDaysExpression('rentalBeginsOn', 12));
     }
 
-    public function testDateAddNumberOfDaysFromColumn() : void
+    public function testDateAddNumberOfDaysFromColumn(): void
     {
         self::assertSame("DATE(rentalBeginsOn,'+' || duration || ' DAY')", $this->platform->getDateAddDaysExpression('rentalBeginsOn', 'duration'));
     }
 
-    public function testSupportsColumnCollation() : void
+    public function testSupportsColumnCollation(): void
     {
         self::assertTrue($this->platform->supportsColumnCollation());
     }
 
-    public function testColumnCollationDeclarationSQL() : void
+    public function testColumnCollationDeclarationSQL(): void
     {
         self::assertSame(
             'COLLATE NOCASE',
@@ -809,7 +809,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    public function testGetCreateTableSQLWithColumnCollation() : void
+    public function testGetCreateTableSQLWithColumnCollation(): void
     {
         $table = new Table('foo');
         $table->addColumn('no_collation', 'string');

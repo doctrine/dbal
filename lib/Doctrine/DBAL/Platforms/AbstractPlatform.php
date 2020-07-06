@@ -28,6 +28,7 @@ use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Type;
 use InvalidArgumentException;
 use UnexpectedValueException;
+
 use function addcslashes;
 use function array_map;
 use function array_merge;
@@ -54,6 +55,7 @@ use function strpos;
 use function strtolower;
 use function strtoupper;
 use function trigger_error;
+
 use const E_USER_DEPRECATED;
 
 /**
@@ -574,7 +576,7 @@ abstract class AbstractPlatform
     /**
      * Gets the maximum length of a char field.
      */
-    public function getCharMaxLength() : int
+    public function getCharMaxLength(): int
     {
         return $this->getVarcharMaxLength();
     }
@@ -1550,7 +1552,7 @@ abstract class AbstractPlatform
         $options['indexes']           = [];
         $options['primary']           = [];
 
-        if (($createFlags&self::CREATE_INDEXES) > 0) {
+        if (($createFlags & self::CREATE_INDEXES) > 0) {
             foreach ($table->getIndexes() as $index) {
                 if ($index->isPrimary()) {
                     $options['primary']       = $index->getQuotedColumns($this);
@@ -1592,7 +1594,7 @@ abstract class AbstractPlatform
             $columns[$columnData['name']] = $columnData;
         }
 
-        if (($createFlags&self::CREATE_FOREIGNKEYS) > 0) {
+        if (($createFlags & self::CREATE_FOREIGNKEYS) > 0) {
             $options['foreignKeys'] = [];
             foreach ($table->getForeignKeys() as $fkConstraint) {
                 $options['foreignKeys'][] = $fkConstraint;
@@ -1628,7 +1630,7 @@ abstract class AbstractPlatform
         return array_merge($sql, $columnSql);
     }
 
-    protected function getCommentOnTableSQL(string $tableName, ?string $comment) : string
+    protected function getCommentOnTableSQL(string $tableName, ?string $comment): string
     {
         $tableName = new Identifier($tableName);
 
@@ -2437,7 +2439,7 @@ abstract class AbstractPlatform
      *
      * @param mixed[]|Index $columnsOrIndex array declaration is deprecated, prefer passing Index to this method
      */
-    public function getIndexFieldDeclarationListSQL($columnsOrIndex) : string
+    public function getIndexFieldDeclarationListSQL($columnsOrIndex): string
     {
         if ($columnsOrIndex instanceof Index) {
             return implode(', ', $columnsOrIndex->getQuotedColumns($this));
@@ -2692,7 +2694,7 @@ abstract class AbstractPlatform
      */
     public function convertFromBoolean($item)
     {
-        return $item === null ? null: (bool) $item;
+        return $item === null ? null : (bool) $item;
     }
 
     /**
@@ -3133,7 +3135,7 @@ abstract class AbstractPlatform
     /**
      * Whether the platform supports indexes with column length definitions.
      */
-    public function supportsColumnLengthIndexes() : bool
+    public function supportsColumnLengthIndexes(): bool
     {
         return false;
     }
@@ -3203,7 +3205,7 @@ abstract class AbstractPlatform
      *
      * If false, then getDropForeignKeySQL() throws exception.
      */
-    public function supportsCreateDropForeignKeyConstraints() : bool
+    public function supportsCreateDropForeignKeyConstraints(): bool
     {
         return true;
     }
@@ -3646,7 +3648,7 @@ abstract class AbstractPlatform
      * @param string $escapeChar  should be reused by the caller in the LIKE
      *                            expression.
      */
-    final public function escapeStringForLike(string $inputString, string $escapeChar) : string
+    final public function escapeStringForLike(string $inputString, string $escapeChar): string
     {
         return preg_replace(
             '~([' . preg_quote($this->getLikeWildcardCharacters() . $escapeChar, '~') . '])~u',
@@ -3655,7 +3657,7 @@ abstract class AbstractPlatform
         );
     }
 
-    protected function getLikeWildcardCharacters() : string
+    protected function getLikeWildcardCharacters(): string
     {
         return '%_';
     }

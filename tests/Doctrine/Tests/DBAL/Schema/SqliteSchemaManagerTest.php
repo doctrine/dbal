@@ -14,7 +14,7 @@ class SqliteSchemaManagerTest extends TestCase
      * @dataProvider getDataColumnCollation
      * @group 2865
      */
-    public function testParseColumnCollation(?string $collation, string $column, string $sql) : void
+    public function testParseColumnCollation(?string $collation, string $column, string $sql): void
     {
         $conn = $this->createMock(Connection::class);
         $conn->method('getDatabasePlatform')->willReturn(new SqlitePlatform());
@@ -29,7 +29,7 @@ class SqliteSchemaManagerTest extends TestCase
     /**
      * @return mixed[][]
      */
-    public static function getDataColumnCollation() : iterable
+    public static function getDataColumnCollation(): iterable
     {
         return [
             ['RTRIM', 'a', 'CREATE TABLE "a" ("a" text DEFAULT "aa" COLLATE "RTRIM" NOT NULL)'],
@@ -55,7 +55,7 @@ class SqliteSchemaManagerTest extends TestCase
      * @dataProvider getDataColumnComment
      * @group 2865
      */
-    public function testParseColumnCommentFromSQL(?string $comment, string $column, string $sql) : void
+    public function testParseColumnCommentFromSQL(?string $comment, string $column, string $sql): void
     {
         $conn = $this->createMock(Connection::class);
         $conn->method('getDatabasePlatform')->willReturn(new SqlitePlatform());
@@ -70,7 +70,7 @@ class SqliteSchemaManagerTest extends TestCase
     /**
      * @return mixed[][]
      */
-    public static function getDataColumnComment() : iterable
+    public static function getDataColumnComment(): iterable
     {
         return [
             'Single column with no comment' => [

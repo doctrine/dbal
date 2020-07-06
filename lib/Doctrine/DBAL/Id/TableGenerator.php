@@ -8,9 +8,11 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\LockMode;
 use Throwable;
+
 use function array_change_key_case;
 use function assert;
 use function is_int;
+
 use const CASE_LOWER;
 
 /**

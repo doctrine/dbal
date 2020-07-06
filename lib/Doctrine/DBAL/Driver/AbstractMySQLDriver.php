@@ -12,6 +12,7 @@ use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Schema\MySqlSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
+
 use function assert;
 use function preg_match;
 use function stripos;
@@ -143,13 +144,15 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
      *
      * @throws DBALException
      */
-    private function getOracleMysqlVersionNumber(string $versionString) : string
+    private function getOracleMysqlVersionNumber(string $versionString): string
     {
-        if (! preg_match(
-            '/^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?)?/',
-            $versionString,
-            $versionParts
-        )) {
+        if (
+            ! preg_match(
+                '/^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?)?/',
+                $versionString,
+                $versionParts
+            )
+        ) {
             throw DBALException::invalidPlatformVersionSpecified(
                 $versionString,
                 '<major_version>.<minor_version>.<patch_version>'
@@ -175,13 +178,15 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
      *
      * @throws DBALException
      */
-    private function getMariaDbMysqlVersionNumber(string $versionString) : string
+    private function getMariaDbMysqlVersionNumber(string $versionString): string
     {
-        if (! preg_match(
-            '/^(?:5\.5\.5-)?(mariadb-)?(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)/i',
-            $versionString,
-            $versionParts
-        )) {
+        if (
+            ! preg_match(
+                '/^(?:5\.5\.5-)?(mariadb-)?(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)/i',
+                $versionString,
+                $versionParts
+            )
+        ) {
             throw DBALException::invalidPlatformVersionSpecified(
                 $versionString,
                 '^(?:5\.5\.5-)?(mariadb-)?<major_version>.<minor_version>.<patch_version>'

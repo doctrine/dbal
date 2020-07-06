@@ -11,7 +11,7 @@ use Doctrine\Tests\DBAL\Functional\Driver\AbstractDriverTest;
  */
 class DriverTest extends AbstractDriverTest
 {
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -22,17 +22,17 @@ class DriverTest extends AbstractDriverTest
         $this->markTestSkipped('PDO_OCI only test.');
     }
 
-    public function testConnectsWithoutDatabaseNameParameter() : void
+    public function testConnectsWithoutDatabaseNameParameter(): void
     {
         $this->markTestSkipped('Oracle does not support connecting without database name.');
     }
 
-    public function testReturnsDatabaseNameWithoutDatabaseNameParameter() : void
+    public function testReturnsDatabaseNameWithoutDatabaseNameParameter(): void
     {
         $this->markTestSkipped('Oracle does not support connecting without database name.');
     }
 
-    protected function createDriver() : DriverInterface
+    protected function createDriver(): DriverInterface
     {
         return new Driver();
     }

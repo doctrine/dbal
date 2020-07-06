@@ -9,12 +9,12 @@ use Doctrine\DBAL\Platforms\PostgreSQL100Platform;
 
 class PostgreSQL100PlatformTest extends PostgreSQL94PlatformTest
 {
-    public function createPlatform() : AbstractPlatform
+    public function createPlatform(): AbstractPlatform
     {
         return new PostgreSQL100Platform();
     }
 
-    public function testGetListSequencesSQL() : void
+    public function testGetListSequencesSQL(): void
     {
         self::assertSame(
             "SELECT sequence_name AS relname,

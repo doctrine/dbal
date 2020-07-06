@@ -9,7 +9,7 @@ class QuotingTest extends DbalFunctionalTestCase
     /**
      * @dataProvider stringLiteralProvider
      */
-    public function testQuoteStringLiteral(string $string) : void
+    public function testQuoteStringLiteral(string $string): void
     {
         $platform = $this->connection->getDatabasePlatform();
         $query    = $platform->getDummySelectSQL(
@@ -22,7 +22,7 @@ class QuotingTest extends DbalFunctionalTestCase
     /**
      * @return mixed[][]
      */
-    public static function stringLiteralProvider() : iterable
+    public static function stringLiteralProvider(): iterable
     {
         return [
             'backslash' => ['\\'],

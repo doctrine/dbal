@@ -11,7 +11,7 @@ use Doctrine\Tests\DbalFunctionalTestCase;
  */
 class StatementTest extends DbalFunctionalTestCase
 {
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -22,7 +22,7 @@ class StatementTest extends DbalFunctionalTestCase
         $this->markTestSkipped('sqlanywhere only test.');
     }
 
-    public function testNonPersistentStatement() : void
+    public function testNonPersistentStatement(): void
     {
         $params               = $this->connection->getParams();
         $params['persistent'] = false;
@@ -37,7 +37,7 @@ class StatementTest extends DbalFunctionalTestCase
         self::assertTrue($prepStmt->execute(), ' Statement non-persistent failed');
     }
 
-    public function testPersistentStatement() : void
+    public function testPersistentStatement(): void
     {
         $params               = $this->connection->getParams();
         $params['persistent'] = true;

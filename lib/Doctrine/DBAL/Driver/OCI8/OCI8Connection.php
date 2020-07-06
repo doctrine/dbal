@@ -6,6 +6,7 @@ use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\ParameterType;
 use UnexpectedValueException;
+
 use function addcslashes;
 use function func_get_args;
 use function is_float;
@@ -19,6 +20,7 @@ use function oci_server_version;
 use function preg_match;
 use function sprintf;
 use function str_replace;
+
 use const OCI_COMMIT_ON_SUCCESS;
 use const OCI_NO_AUTO_COMMIT;
 

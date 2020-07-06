@@ -17,7 +17,7 @@ class ComparatorTest extends DbalFunctionalTestCase
     /** @var Comparator */
     private $comparator;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -30,7 +30,7 @@ class ComparatorTest extends DbalFunctionalTestCase
      *
      * @dataProvider defaultValueProvider
      */
-    public function testDefaultValueComparison(string $type, $value) : void
+    public function testDefaultValueComparison(string $type, $value): void
     {
         $table = new Table('default_value');
         $table->addColumn('test', $type, ['default' => $value]);
@@ -45,7 +45,7 @@ class ComparatorTest extends DbalFunctionalTestCase
     /**
      * @return mixed[][]
      */
-    public static function defaultValueProvider() : iterable
+    public static function defaultValueProvider(): iterable
     {
         return [
             ['integer', 1],

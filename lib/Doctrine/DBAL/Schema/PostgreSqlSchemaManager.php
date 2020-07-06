@@ -7,6 +7,7 @@ use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+
 use function array_change_key_case;
 use function array_filter;
 use function array_keys;
@@ -24,6 +25,7 @@ use function strlen;
 use function strpos;
 use function strtolower;
 use function trim;
+
 use const CASE_LOWER;
 
 /**
@@ -492,7 +494,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     /**
      * Parses a default value expression as given by PostgreSQL
      */
-    private function parseDefaultExpression(?string $default) : ?string
+    private function parseDefaultExpression(?string $default): ?string
     {
         if ($default === null) {
             return $default;
@@ -504,7 +506,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    public function listTableDetails($tableName) : Table
+    public function listTableDetails($tableName): Table
     {
         $table = parent::listTableDetails($tableName);
 
