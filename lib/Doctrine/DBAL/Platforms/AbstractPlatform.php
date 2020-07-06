@@ -3234,8 +3234,7 @@ abstract class AbstractPlatform
      * Whether this platform can emulate schemas.
      *
      * Platforms that either support or emulate schemas don't automatically
-     * filter a schema for the namespaced elements in {@link
-     * AbstractManager#createSchema}.
+     * filter a schema for the namespaced elements in {@link AbstractManager::createSchema()}.
      *
      * @return bool
      */

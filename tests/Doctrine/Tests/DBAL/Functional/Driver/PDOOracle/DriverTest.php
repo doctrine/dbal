@@ -6,16 +6,13 @@ use Doctrine\DBAL\Driver as DriverInterface;
 use Doctrine\DBAL\Driver\PDO\OCI\Driver;
 use Doctrine\Tests\DBAL\Functional\Driver\AbstractDriverTest;
 
-use function extension_loaded;
-
+/**
+ * @requires extension pdo_oci
+ */
 class DriverTest extends AbstractDriverTest
 {
     protected function setUp(): void
     {
-        if (! extension_loaded('PDO_OCI')) {
-            $this->markTestSkipped('PDO_OCI is not installed.');
-        }
-
         parent::setUp();
 
         if ($this->connection->getDriver() instanceof Driver) {

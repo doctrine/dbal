@@ -6,16 +6,13 @@ use Doctrine\DBAL\Driver\SQLAnywhere\Driver;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\Tests\DbalFunctionalTestCase;
 
-use function extension_loaded;
-
+/**
+ * @requires extension sqlanywhere
+ */
 class ConnectionTest extends DbalFunctionalTestCase
 {
     protected function setUp(): void
     {
-        if (! extension_loaded('sqlanywhere')) {
-            $this->markTestSkipped('sqlanywhere is not installed.');
-        }
-
         parent::setUp();
 
         if ($this->connection->getDriver() instanceof Driver) {

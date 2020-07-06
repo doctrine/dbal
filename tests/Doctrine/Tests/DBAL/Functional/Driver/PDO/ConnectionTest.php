@@ -10,10 +10,12 @@ use Doctrine\DBAL\Driver\PDO\SQLSrv\Driver as PDOSQLSrvDriver;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use PDO;
 
-use function extension_loaded;
 use function get_class;
 use function sprintf;
 
+/**
+ * @requires extension pdo
+ */
 class ConnectionTest extends DbalFunctionalTestCase
 {
     /**
@@ -25,10 +27,6 @@ class ConnectionTest extends DbalFunctionalTestCase
 
     protected function setUp(): void
     {
-        if (! extension_loaded('PDO')) {
-            $this->markTestSkipped('PDO is not installed.');
-        }
-
         parent::setUp();
 
         $this->driverConnection = $this->connection->getWrappedConnection();

@@ -7,8 +7,9 @@ use Doctrine\Tests\DbalTestCase;
 use PDOException;
 use PHPUnit\Framework\MockObject\MockObject;
 
-use function extension_loaded;
-
+/**
+ * @requires extension pdo
+ */
 class ExceptionTest extends DbalTestCase
 {
     public const ERROR_CODE = 666;
@@ -33,10 +34,6 @@ class ExceptionTest extends DbalTestCase
 
     protected function setUp(): void
     {
-        if (! extension_loaded('PDO')) {
-            $this->markTestSkipped('PDO is not installed.');
-        }
-
         parent::setUp();
 
         $this->wrappedException = new PDOException(self::MESSAGE, self::SQLSTATE);

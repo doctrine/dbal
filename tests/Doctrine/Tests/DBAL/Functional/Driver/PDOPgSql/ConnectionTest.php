@@ -7,16 +7,13 @@ use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
 use Doctrine\Tests\DbalFunctionalTestCase;
 
-use function extension_loaded;
-
+/**
+ * @requires extension pdo_pgsql
+ */
 class ConnectionTest extends DbalFunctionalTestCase
 {
     protected function setUp(): void
     {
-        if (! extension_loaded('pdo_pgsql')) {
-            $this->markTestSkipped('pdo_pgsql is not loaded.');
-        }
-
         parent::setUp();
 
         if ($this->connection->getDatabasePlatform() instanceof PostgreSqlPlatform) {

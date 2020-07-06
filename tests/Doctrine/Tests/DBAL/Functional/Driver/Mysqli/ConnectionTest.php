@@ -8,18 +8,15 @@ use Doctrine\DBAL\Driver\Mysqli\MysqliException;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use Doctrine\Tests\TestUtil;
 
-use function extension_loaded;
-
 use const MYSQLI_OPT_CONNECT_TIMEOUT;
 
+/**
+ * @requires extension mysqli
+ */
 class ConnectionTest extends DbalFunctionalTestCase
 {
     protected function setUp(): void
     {
-        if (! extension_loaded('mysqli')) {
-            $this->markTestSkipped('mysqli is not installed.');
-        }
-
         parent::setUp();
 
         if ($this->connection->getDriver() instanceof Driver) {

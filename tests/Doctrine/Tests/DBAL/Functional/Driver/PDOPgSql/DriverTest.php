@@ -9,18 +9,16 @@ use Doctrine\Tests\DBAL\Functional\Driver\AbstractDriverTest;
 use Doctrine\Tests\TestUtil;
 
 use function array_key_exists;
-use function extension_loaded;
 use function microtime;
 use function sprintf;
 
+/**
+ * @requires extension pdo_pgsql
+ */
 class DriverTest extends AbstractDriverTest
 {
     protected function setUp(): void
     {
-        if (! extension_loaded('pdo_pgsql')) {
-            $this->markTestSkipped('pdo_pgsql is not installed.');
-        }
-
         parent::setUp();
 
         if ($this->connection->getDriver() instanceof Driver) {

@@ -6,8 +6,9 @@ use Doctrine\DBAL\Driver\SQLAnywhere\SQLAnywhereConnection;
 use Doctrine\Tests\DbalTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 
-use function extension_loaded;
-
+/**
+ * @requires extension sqlanywhere
+ */
 class SQLAnywhereConnectionTest extends DbalTestCase
 {
     /**
@@ -19,10 +20,6 @@ class SQLAnywhereConnectionTest extends DbalTestCase
 
     protected function setUp(): void
     {
-        if (! extension_loaded('sqlanywhere')) {
-            $this->markTestSkipped('sqlanywhere is not installed.');
-        }
-
         parent::setUp();
 
         $this->connectionMock = $this->getMockBuilder(SQLAnywhereConnection::class)

@@ -38,7 +38,7 @@
         "doctrine/event-manager": "^1.0"
     },
     "require-dev": {
-        "doctrine/coding-standard": "^8.0",
+        "doctrine/coding-standard": "^8.1",
         "jetbrains/phpstorm-stubs": "^2019.1",
         "nikic/php-parser": "^4.4",
         "phpstan/phpstan": "^0.12.31",

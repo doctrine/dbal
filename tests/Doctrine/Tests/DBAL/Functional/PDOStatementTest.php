@@ -7,16 +7,13 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use PDO;
 
-use function extension_loaded;
-
+/**
+ * @requires extension pdo
+ */
 class PDOStatementTest extends DbalFunctionalTestCase
 {
     protected function setUp(): void
     {
-        if (! extension_loaded('pdo')) {
-            $this->markTestSkipped('PDO is not installed');
-        }
-
         parent::setUp();
 
         if (! $this->connection->getWrappedConnection() instanceof Connection) {

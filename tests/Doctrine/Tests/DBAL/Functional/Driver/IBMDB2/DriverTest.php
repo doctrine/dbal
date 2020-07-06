@@ -6,16 +6,13 @@ use Doctrine\DBAL\Driver as DriverInterface;
 use Doctrine\DBAL\Driver\IBMDB2\Driver;
 use Doctrine\Tests\DBAL\Functional\Driver\AbstractDriverTest;
 
-use function extension_loaded;
-
+/**
+ * @requires extension ibm_db2
+ */
 class DriverTest extends AbstractDriverTest
 {
     protected function setUp(): void
     {
-        if (! extension_loaded('ibm_db2')) {
-            $this->markTestSkipped('ibm_db2 is not installed.');
-        }
-
         parent::setUp();
 
         if ($this->connection->getDriver() instanceof Driver) {

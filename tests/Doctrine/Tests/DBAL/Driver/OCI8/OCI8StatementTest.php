@@ -8,19 +8,11 @@ use Doctrine\DBAL\Driver\OCI8\OCI8Statement;
 use Doctrine\Tests\DbalTestCase;
 use ReflectionProperty;
 
-use function extension_loaded;
-
+/**
+ * @requires extension oci8
+ */
 class OCI8StatementTest extends DbalTestCase
 {
-    protected function setUp(): void
-    {
-        if (! extension_loaded('oci8')) {
-            $this->markTestSkipped('oci8 is not installed.');
-        }
-
-        parent::setUp();
-    }
-
     /**
      * This scenario shows that when the first parameter is not null
      * it properly sets $hasZeroIndex to 1 and calls bindValue starting at 1.
