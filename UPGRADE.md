@@ -141,6 +141,7 @@ The `Doctrine\DBAL\Driver::getName()` has been removed.
  * Removed `MysqlSessionInit` listener.
  * Removed `MysqlPlatform::getCollationFieldDeclaration()`.
  * Removed `AbstractPlatform::getIdentityColumnNullInsertSQL()`.
+ * Removed `AbstractPlatform::fixSchemaElementName()`.
  * Removed `Table::addUnnamedForeignKeyConstraint()` and `Table::addNamedForeignKeyConstraint()`.
  * Removed `Table::renameColumn()`.
  * Removed `SQLParserUtils::getPlaceholderPositions()`.
