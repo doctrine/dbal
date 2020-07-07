@@ -9,12 +9,8 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
-use SQLite3;
 
-use function array_map;
 use function dirname;
-use function extension_loaded;
-use function version_compare;
 
 class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
@@ -155,34 +151,6 @@ EOS
 
         self::assertInstanceOf(BlobType::class, $table->getColumn('column_binary')->getType());
         self::assertFalse($table->getColumn('column_binary')->getFixed());
-    }
-
-    public function testNonDefaultPKOrder(): void
-    {
-        if (! extension_loaded('sqlite3')) {
-            self::markTestSkipped('This test requires the SQLite3 extension.');
-        }
-
-        $version = SQLite3::version();
-        if (version_compare($version['versionString'], '3.7.16', '<')) {
-            self::markTestSkipped('This version of sqlite doesn\'t return the order of the Primary Key.');
-        }
-
-        $this->connection->exec(<<<EOS
-CREATE TABLE non_default_pk_order (
-    id INTEGER,
-    other_id INTEGER,
-    PRIMARY KEY(other_id, id)
-)
-EOS
-        );
-
-        $tableIndexes = $this->schemaManager->listTableIndexes('non_default_pk_order');
-
-         self::assertCount(1, $tableIndexes);
-
-        self::assertArrayHasKey('primary', $tableIndexes, 'listTableIndexes() has to return a "primary" array key.');
-        self::assertEquals(['other_id', 'id'], array_map('strtolower', $tableIndexes['primary']->getColumns()));
     }
 
     /**

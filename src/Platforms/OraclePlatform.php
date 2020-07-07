@@ -585,6 +585,22 @@ END;';
     }
 
     /**
+     * Adds suffix to identifier,
+     *
+     * if the new string exceeds max identifier length,
+     * keeps $suffix, cuts from $identifier as much as the part exceeding.
+     */
+    private function addSuffix(string $identifier, string $suffix): string
+    {
+        $maxPossibleLengthWithoutSuffix = $this->getMaxIdentifierLength() - strlen($suffix);
+        if (strlen($identifier) > $maxPossibleLengthWithoutSuffix) {
+            $identifier = substr($identifier, 0, $maxPossibleLengthWithoutSuffix);
+        }
+
+        return $identifier . $suffix;
+    }
+
+    /**
      * Returns the autoincrement primary key identifier name for the given table identifier.
      *
      * Quotes the autoincrement primary key identifier name
@@ -596,7 +612,7 @@ END;';
      */
     private function getAutoincrementIdentifierName(Identifier $table)
     {
-        $identifierName = $table->getName() . '_AI_PK';
+        $identifierName = $this->addSuffix($table->getName(), '_AI_PK');
 
         return $table->isQuoted()
             ? $this->quoteSingleIdentifier($identifierName)
@@ -969,7 +985,7 @@ SQL
         $table = new Identifier($tableName);
 
         // No usage of column name to preserve BC compatibility with <2.5
-        $identitySequenceName = $table->getName() . '_SEQ';
+        $identitySequenceName = $this->addSuffix($table->getName(), '_SEQ');
 
         if ($table->isQuoted()) {
             $identitySequenceName = '"' . $identitySequenceName . '"';
@@ -1074,6 +1090,8 @@ SQL
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated
      */
     public function fixSchemaElementName($schemaElementName)
     {

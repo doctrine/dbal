@@ -26,6 +26,8 @@ final class Connection implements ServerInfoAwareConnection
     private $conn;
 
     /**
+     * @internal The connection can be only instantiated by its driver.
+     *
      * @param iterable<Initializer> $preInitializers
      * @param iterable<Initializer> $postInitializers
      *

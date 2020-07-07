@@ -36,6 +36,8 @@ final class Connection implements ServerInfoAwareConnection
     private $conn = null;
 
     /**
+     * @internal The connection can be only instantiated by its driver.
+     *
      * @param array<string,mixed> $driverOptions
      *
      * @throws Exception

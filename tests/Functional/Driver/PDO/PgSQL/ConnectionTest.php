@@ -6,16 +6,13 @@ use Doctrine\DBAL\Driver\PDO\PgSQL\Driver;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 
-use function extension_loaded;
-
+/**
+ * @requires extension pdo_pgsql
+ */
 class ConnectionTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        if (! extension_loaded('pdo_pgsql')) {
-            self::markTestSkipped('pdo_pgsql is not loaded.');
-        }
-
         parent::setUp();
 
         if ($this->connection->getDriver() instanceof Driver) {

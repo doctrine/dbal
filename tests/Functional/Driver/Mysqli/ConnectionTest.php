@@ -9,18 +9,16 @@ use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 
 use function array_merge;
-use function extension_loaded;
 
 use const MYSQLI_OPT_CONNECT_TIMEOUT;
 
+/**
+ * @require extension mysqli
+ */
 class ConnectionTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        if (! extension_loaded('mysqli')) {
-            self::markTestSkipped('mysqli is not installed.');
-        }
-
         parent::setUp();
 
         if ($this->connection->getDriver() instanceof Driver) {

@@ -8,20 +8,17 @@ use Doctrine\DBAL\Driver\IBMDB2\Driver;
 use Doctrine\DBAL\Driver\IBMDB2\Exception\StatementError;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 
-use function extension_loaded;
-
 use const E_ALL;
 use const E_NOTICE;
 use const E_WARNING;
 
+/**
+ * @require extension ibm_db2
+ */
 class StatementTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        if (! extension_loaded('ibm_db2')) {
-            self::markTestSkipped('ibm_db2 is not installed.');
-        }
-
         parent::setUp();
 
         if ($this->connection->getDriver() instanceof Driver) {

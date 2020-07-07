@@ -268,7 +268,7 @@ class QueryBuilder
      *
      * @param string|int      $key   The parameter position or name.
      * @param mixed           $value The parameter value.
-     * @param string|int|null $type  One of the {@link \Doctrine\DBAL\ParameterType} constants.
+     * @param string|int|null $type  One of the {@link ParameterType} constants.
      *
      * @return $this This QueryBuilder instance.
      */

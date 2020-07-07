@@ -10,16 +10,14 @@ use Doctrine\DBAL\Tests\FunctionalTestCase;
 use ReflectionProperty;
 
 use function db2_close;
-use function extension_loaded;
 
+/**
+ * @require extension ibm_db2
+ */
 class ConnectionTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        if (! extension_loaded('ibm_db2')) {
-            $this->markTestSkipped('ibm_db2 is not installed.');
-        }
-
         parent::setUp();
 
         if ($this->connection->getDriver() instanceof Driver) {

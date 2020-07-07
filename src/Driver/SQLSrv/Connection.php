@@ -31,6 +31,8 @@ final class Connection implements ServerInfoAwareConnection
     protected $lastInsertId;
 
     /**
+     * @internal The connection can be only instantiated by its driver.
+     *
      * @param string  $serverName
      * @param mixed[] $connectionOptions
      *

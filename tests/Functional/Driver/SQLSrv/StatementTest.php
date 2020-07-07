@@ -6,16 +6,13 @@ use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\SQLSrv\Driver;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 
-use function extension_loaded;
-
+/**
+ * @requires extension sqlsrv
+ */
 class StatementTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        if (! extension_loaded('sqlsrv')) {
-            self::markTestSkipped('sqlsrv is not installed.');
-        }
-
         parent::setUp();
 
         if ($this->connection->getDriver() instanceof Driver) {

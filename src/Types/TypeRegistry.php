@@ -18,7 +18,15 @@ use function in_array;
 final class TypeRegistry
 {
     /** @var array<string, Type> Map of type names and their corresponding flyweight objects. */
-    private $instances = [];
+    private $instances;
+
+    /**
+     * @param array<string, Type> $instances
+     */
+    public function __construct(array $instances = [])
+    {
+        $this->instances = $instances;
+    }
 
     /**
      * Finds a type by the given name.

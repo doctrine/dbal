@@ -10,16 +10,14 @@ use Doctrine\DBAL\Tests\TestUtil;
 use PDO;
 
 use function array_merge;
-use function extension_loaded;
 
+/**
+ * @requires extension pdo_sqlsrv
+ */
 class DriverTest extends AbstractDriverTest
 {
     protected function setUp(): void
     {
-        if (! extension_loaded('pdo_sqlsrv')) {
-            self::markTestSkipped('pdo_sqlsrv is not installed.');
-        }
-
         parent::setUp();
 
         if ($this->connection->getDriver() instanceof Driver) {

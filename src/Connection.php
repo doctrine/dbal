@@ -148,6 +148,8 @@ class Connection implements DriverConnection
     /**
      * Initializes a new instance of the Connection class.
      *
+     * @internal The connection can be only instantiated by the driver manager.
+     *
      * @param mixed[]            $params       The connection parameters.
      * @param Driver             $driver       The driver to use.
      * @param Configuration|null $config       The configuration, optional.

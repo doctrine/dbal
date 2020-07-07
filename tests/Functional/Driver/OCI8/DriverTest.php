@@ -6,16 +6,13 @@ use Doctrine\DBAL\Driver as DriverInterface;
 use Doctrine\DBAL\Driver\OCI8\Driver;
 use Doctrine\DBAL\Tests\Functional\Driver\AbstractDriverTest;
 
-use function extension_loaded;
-
+/**
+ * @requires extension oci8
+ */
 class DriverTest extends AbstractDriverTest
 {
     protected function setUp(): void
     {
-        if (! extension_loaded('oci8')) {
-            self::markTestSkipped('oci8 is not installed.');
-        }
-
         parent::setUp();
 
         if ($this->connection->getDriver() instanceof Driver) {

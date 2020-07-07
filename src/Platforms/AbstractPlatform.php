@@ -3153,8 +3153,7 @@ abstract class AbstractPlatform
      * Whether this platform can emulate schemas.
      *
      * Platforms that either support or emulate schemas don't automatically
-     * filter a schema for the namespaced elements in {@link
-     * AbstractManager#createSchema}.
+     * filter a schema for the namespaced elements in {@link AbstractManager::createSchema()}.
      *
      * @return bool
      */
@@ -3384,6 +3383,8 @@ abstract class AbstractPlatform
     /**
      * Makes any fixes to a name of a schema element (table, sequence, ...) that are required
      * by restrictions of the platform, like a maximum length.
+     *
+     * @deprecated
      *
      * @param string $schemaElementName
      *

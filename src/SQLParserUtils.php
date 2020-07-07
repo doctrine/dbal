@@ -165,7 +165,7 @@ class SQLParserUtils
                     array_slice($types, 0, $needle),
                     $count > 0 ?
                         // array needles are at {@link \Doctrine\DBAL\ParameterType} constants
-                        // + {@link Doctrine\DBAL\Connection::ARRAY_PARAM_OFFSET}
+                        // + {@link \Doctrine\DBAL\Connection::ARRAY_PARAM_OFFSET}
                         array_fill(0, $count, $types[$needle] - Connection::ARRAY_PARAM_OFFSET) :
                         [],
                     array_slice($types, $needle + 1)

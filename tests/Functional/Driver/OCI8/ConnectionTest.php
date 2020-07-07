@@ -7,8 +7,9 @@ use Doctrine\DBAL\Driver\OCI8\Driver;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 
-use function extension_loaded;
-
+/**
+ * @requires extension oci8
+ */
 class ConnectionTest extends FunctionalTestCase
 {
     /** @var Connection */
@@ -16,10 +17,6 @@ class ConnectionTest extends FunctionalTestCase
 
     protected function setUp(): void
     {
-        if (! extension_loaded('oci8')) {
-            self::markTestSkipped('oci8 is not installed.');
-        }
-
         parent::setUp();
 
         if (! $this->connection->getDriver() instanceof Driver) {

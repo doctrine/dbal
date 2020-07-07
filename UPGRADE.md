@@ -319,21 +319,48 @@ Please use other database client applications for import, e.g.:
 
 # Upgrade to 2.11
 
+## PDO-related classes outside of the PDO namespace are deprecated
+
+The following outside of the PDO namespace have been deprecated in favor of their counterparts in the PDO namespace:
+
+- `PDOMySql\Driver` → `PDO\MySQL\Driver`
+- `PDOOracle\Driver` → `PDO\OCI\Driver`
+- `PDOPgSql\Driver` → `PDO\PgSQL\Driver`
+- `PDOSqlite\Driver` → `PDO\SQLite\Driver`
+- `PDOSqlsrv\Driver` → `PDO\SQLSrv\Driver`
+- `PDOSqlsrv\Connection` → `PDO\SQLSrv\Connection`
+- `PDOSqlsrv\Statement` → `PDO\SQLSrv\Statement`
+
+## Deprecations in driver-level exception handling
+
+1. The `ExceptionConverterDriver` interface and the usage of the `convertException()` method on the `Driver` objects are deprecated.
+2. The `driverException()` and `driverExceptionDuringQuery()` factory methods of the `DBALException` class are deprecated.
+3. Relying on the wrapper layer handling non-driver exceptions is deprecated.
+
+## `DBALException` factory method deprecations
+
+1. `DBALException::invalidPlatformType()` is deprecated as unused as of v2.7.0.
+2. `DBALException::invalidPdoInstance()` as passing a PDO instance via configuration is deprecated.
+
+## `AbstractPlatform::fixSchemaElementName()` is deprecated.
+
+The method is not used anywhere except for tests.
+
 ##`ServerInfoAwareConnection::requiresQueryForServerVersion()` is deprecated.
 
 The `ServerInfoAwareConnection::requiresQueryForServerVersion()` method has been deprecated as an implementation detail which is the same for almost all supported drivers.
 
-## Statement constructors are marked internal
+## Connection and Statement constructors are marked internal
 
-The driver and wrapper statement objects can be only created by the corresponding connection objects.
+1. Driver connection objects can be only created by the corresponding drivers.
+2. Wrapper connection objects can be only created by the driver manager.
+3. The driver and wrapper connection objects can be only created by the corresponding connection objects.
+
+Additionally, the `SQLSrv\LastInsertId` class has been marked internal.
 
 ## The `PingableConnection` interface is deprecated
 
 The wrapper connection will automatically handle the lost connection if the driver supports reporting it.
-
-## The `ExceptionConverterDriver` interface is deprecated
-
-All drivers will have to implement the exception conversion API.
 
 ## `DriverException::getErrorCode()` is deprecated
 
