@@ -3381,21 +3381,6 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Makes any fixes to a name of a schema element (table, sequence, ...) that are required
-     * by restrictions of the platform, like a maximum length.
-     *
-     * @deprecated
-     *
-     * @param string $schemaElementName
-     *
-     * @return string
-     */
-    public function fixSchemaElementName($schemaElementName)
-    {
-        return $schemaElementName;
-    }
-
-    /**
      * Maximum length of any given database identifier, like tables or column names.
      *
      * @return int

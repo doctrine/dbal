@@ -1090,21 +1090,6 @@ SQL
 
     /**
      * {@inheritDoc}
-     *
-     * @deprecated
-     */
-    public function fixSchemaElementName($schemaElementName)
-    {
-        if (strlen($schemaElementName) > 30) {
-            // Trim it
-            return substr($schemaElementName, 0, 30);
-        }
-
-        return $schemaElementName;
-    }
-
-    /**
-     * {@inheritDoc}
      */
     public function getMaxIdentifierLength()
     {

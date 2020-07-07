@@ -29,16 +29,6 @@ class DBALException extends Exception
     }
 
     /**
-     * @deprecated Use {@link invalidPlatformType()} instead.
-     */
-    public static function invalidPlatformSpecified(): self
-    {
-        return new self(
-            "Invalid 'platform' option specified, need to give an instance of " . AbstractPlatform::class . '.'
-        );
-    }
-
-    /**
      * @param mixed $invalidPlatform
      */
     public static function invalidPlatformType($invalidPlatform): self
@@ -79,19 +69,6 @@ class DBALException extends Exception
                 $version,
                 $expectedFormat
             )
-        );
-    }
-
-    /**
-     * @deprecated Passing a PDO instance in connection parameters is deprecated.
-     *
-     * @return DBALException
-     */
-    public static function invalidPdoInstance()
-    {
-        return new self(
-            "The 'pdo' option was used in DriverManager::getConnection() but no " .
-            'instance of PDO was given.'
         );
     }
 

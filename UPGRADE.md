@@ -1,5 +1,12 @@
 # Upgrade to 3.0
 
+## BC BREAK: Removed DBALException factory methods
+
+The following factory methods of the DBALException class have been removed:
+
+1. `DBALException::invalidPlatformSpecified()`.
+2. `DBALException::invalidPdoInstance()`.
+
 ## BC BREAK: PDO-based driver classes are moved under the PDO namespace
 
 The following classes have been renamed:
@@ -134,6 +141,7 @@ The `Doctrine\DBAL\Driver::getName()` has been removed.
  * Removed `MysqlSessionInit` listener.
  * Removed `MysqlPlatform::getCollationFieldDeclaration()`.
  * Removed `AbstractPlatform::getIdentityColumnNullInsertSQL()`.
+ * Removed `AbstractPlatform::fixSchemaElementName()`.
  * Removed `Table::addUnnamedForeignKeyConstraint()` and `Table::addNamedForeignKeyConstraint()`.
  * Removed `Table::renameColumn()`.
  * Removed `SQLParserUtils::getPlaceholderPositions()`.
