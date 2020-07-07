@@ -1,5 +1,17 @@
 # Upgrade to 3.0
 
+## BC BREAK: PDO-based driver classes are moved under the PDO namespace
+
+The following classes have been renamed:
+
+- `PDOMySql\Driver` → `PDO\MySQL\Driver`
+- `PDOOracle\Driver` → `PDO\OCI\Driver`
+- `PDOPgSql\Driver` → `PDO\PgSQL\Driver`
+- `PDOSqlite\Driver` → `PDO\SQLite\Driver`
+- `PDOSqlsrv\Driver` → `PDO\SQLSrv\Driver`
+- `PDOSqlsrv\Connection` → `PDO\SQLSrv\Connection`
+- `PDOSqlsrv\Statement` → `PDO\SQLSrv\Statement`
+
 ## BC BREAK: Changes schema manager instantiation.
 
 1. The `$platform` argument of all schema manager constructors is no longer optional.

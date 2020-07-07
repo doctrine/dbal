@@ -6,8 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Connections\PrimaryReadReplicaConnection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
-use Doctrine\DBAL\Driver\PDOMySql\Driver as PDOMySQLDriver;
-use Doctrine\DBAL\Driver\PDOSqlite\Driver as PDOSqliteDriver;
+use Doctrine\DBAL\Driver\PDO;
 use Doctrine\DBAL\Driver\SQLSrv\Driver as SQLSrvDriver;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -93,10 +92,10 @@ class DriverManagerTest extends TestCase
 
     public function testValidDriverClass(): void
     {
-        $options = ['driverClass' => PDOMySQLDriver::class];
+        $options = ['driverClass' => PDO\MySQL\Driver::class];
 
         $conn = DriverManager::getConnection($options);
-        self::assertInstanceOf(PDOMySQLDriver::class, $conn->getDriver());
+        self::assertInstanceOf(PDO\MySQL\Driver::class, $conn->getDriver());
     }
 
     public function testDatabaseUrlPrimaryReplica(): void
@@ -113,7 +112,7 @@ class DriverManagerTest extends TestCase
         $conn = DriverManager::getConnection($options);
 
         $params = $conn->getParams();
-        self::assertInstanceOf(PDOMySQLDriver::class, $conn->getDriver());
+        self::assertInstanceOf(PDO\MySQL\Driver::class, $conn->getDriver());
 
         $expected = [
             'user'     => 'foo',
@@ -173,7 +172,7 @@ class DriverManagerTest extends TestCase
                     'password' => 'bar',
                     'host'     => 'localhost',
                     'dbname'   => 'baz',
-                    'driver'   => PDOMySQLDriver::class,
+                    'driver'   => PDO\MySQL\Driver::class,
                 ],
             ],
             'simple URL with port' => [
@@ -184,49 +183,49 @@ class DriverManagerTest extends TestCase
                     'host'     => 'localhost',
                     'port'     => 11211,
                     'dbname'   => 'baz',
-                    'driver'   => PDOMySQLDriver::class,
+                    'driver'   => PDO\MySQL\Driver::class,
                 ],
             ],
             'sqlite relative URL with host' => [
                 'sqlite://localhost/foo/dbname.sqlite',
                 [
                     'path'   => 'foo/dbname.sqlite',
-                    'driver' => PDOSqliteDriver::class,
+                    'driver' => PDO\SQLite\Driver::class,
                 ],
             ],
             'sqlite absolute URL with host' => [
                 'sqlite://localhost//tmp/dbname.sqlite',
                 [
                     'path'   => '/tmp/dbname.sqlite',
-                    'driver' => PDOSqliteDriver::class,
+                    'driver' => PDO\SQLite\Driver::class,
                 ],
             ],
             'sqlite relative URL without host' => [
                 'sqlite:///foo/dbname.sqlite',
                 [
                     'path'   => 'foo/dbname.sqlite',
-                    'driver' => PDOSqliteDriver::class,
+                    'driver' => PDO\SQLite\Driver::class,
                 ],
             ],
             'sqlite absolute URL without host' => [
                 'sqlite:////tmp/dbname.sqlite',
                 [
                     'path'   => '/tmp/dbname.sqlite',
-                    'driver' => PDOSqliteDriver::class,
+                    'driver' => PDO\SQLite\Driver::class,
                 ],
             ],
             'sqlite memory' => [
                 'sqlite:///:memory:',
                 [
                     'memory' => true,
-                    'driver' => PDOSqliteDriver::class,
+                    'driver' => PDO\SQLite\Driver::class,
                 ],
             ],
             'sqlite memory with host' => [
                 'sqlite://localhost/:memory:',
                 [
                     'memory' => true,
-                    'driver' => PDOSqliteDriver::class,
+                    'driver' => PDO\SQLite\Driver::class,
                 ],
             ],
             'params parsed from URL override individual params' => [
@@ -239,7 +238,7 @@ class DriverManagerTest extends TestCase
                     'password' => 'bar',
                     'host'     => 'localhost',
                     'dbname'   => 'baz',
-                    'driver'   => PDOMySQLDriver::class,
+                    'driver'   => PDO\MySQL\Driver::class,
                 ],
             ],
             'params not parsed from URL but individual params are preserved' => [
@@ -253,7 +252,7 @@ class DriverManagerTest extends TestCase
                     'host'     => 'localhost',
                     'port'     => 1234,
                     'dbname'   => 'baz',
-                    'driver'   => PDOMySQLDriver::class,
+                    'driver'   => PDO\MySQL\Driver::class,
                 ],
             ],
             'query params from URL are used as extra params' => [
@@ -281,7 +280,7 @@ class DriverManagerTest extends TestCase
                     'password' => 'bar',
                     'host'     => 'localhost',
                     'dbname'   => 'baz',
-                    'driver'   => PDOMySQLDriver::class,
+                    'driver'   => PDO\MySQL\Driver::class,
                 ],
             ],
             'simple URL with percent encoding' => [
@@ -291,7 +290,7 @@ class DriverManagerTest extends TestCase
                     'password' => 'bar/',
                     'host'     => 'localhost',
                     'dbname'   => 'baz+baz@',
-                    'driver'   => PDOMySQLDriver::class,
+                    'driver'   => PDO\MySQL\Driver::class,
                 ],
             ],
             'simple URL with percent sign in password' => [
@@ -301,7 +300,7 @@ class DriverManagerTest extends TestCase
                     'password' => 'bar%bar',
                     'host'     => 'localhost',
                     'dbname'   => 'baz',
-                    'driver'   => PDOMySQLDriver::class,
+                    'driver'   => PDO\MySQL\Driver::class,
                 ],
             ],
 
@@ -320,7 +319,7 @@ class DriverManagerTest extends TestCase
                     'password' => 'bar',
                     'host'     => 'localhost',
                     'dbname'   => 'baz',
-                    'driver'   => PDOMySQLDriver::class,
+                    'driver'   => PDO\MySQL\Driver::class,
                 ],
             ],
             'URL without scheme but custom driver' => [
@@ -360,7 +359,7 @@ class DriverManagerTest extends TestCase
                     'password' => 'bar',
                     'host'     => 'localhost',
                     'dbname'   => 'baz',
-                    'driver'   => PDOMySQLDriver::class,
+                    'driver'   => PDO\MySQL\Driver::class,
                 ],
             ],
             'URL with default custom driver' => [
@@ -373,7 +372,7 @@ class DriverManagerTest extends TestCase
                     'password' => 'bar',
                     'host'     => 'localhost',
                     'dbname'   => 'baz',
-                    'driver'   => PDOMySQLDriver::class,
+                    'driver'   => PDO\MySQL\Driver::class,
                 ],
             ],
             'URL with default driver and default custom driver' => [
@@ -387,7 +386,7 @@ class DriverManagerTest extends TestCase
                     'password' => 'bar',
                     'host'     => 'localhost',
                     'dbname'   => 'baz',
-                    'driver'   => PDOMySQLDriver::class,
+                    'driver'   => PDO\MySQL\Driver::class,
                 ],
             ],
         ];

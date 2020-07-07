@@ -70,7 +70,7 @@ class TableGenerator
      */
     public function __construct(Connection $conn, $generatorTableName = 'sequences')
     {
-        if ($conn->getDriver() instanceof Driver\PDOSqlite\Driver) {
+        if ($conn->getDriver() instanceof Driver\PDO\SQLite\Driver) {
             throw new DBALException('Cannot use TableGenerator with SQLite.');
         }
 

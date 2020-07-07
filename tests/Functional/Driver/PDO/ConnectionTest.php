@@ -2,13 +2,10 @@
 
 namespace Doctrine\DBAL\Tests\Functional\Driver\PDO;
 
+use Doctrine\DBAL\Driver\PDO;
 use Doctrine\DBAL\Driver\PDO\Connection;
 use Doctrine\DBAL\Driver\PDO\Exception;
-use Doctrine\DBAL\Driver\PDOOracle\Driver as PDOOracleDriver;
-use Doctrine\DBAL\Driver\PDOPgSql\Driver as PDOPgSQLDriver;
-use Doctrine\DBAL\Driver\PDOSqlsrv\Driver as PDOSQLSRVDriver;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
-use PDO;
 
 use function get_class;
 use function sprintf;
@@ -66,7 +63,7 @@ class ConnectionTest extends FunctionalTestCase
     {
         $driver = $this->connection->getDriver();
 
-        if ($driver instanceof PDOSQLSRVDriver) {
+        if ($driver instanceof PDO\SQLSrv\Driver) {
             self::markTestSkipped('pdo_sqlsrv does not allow setting PDO::ATTR_EMULATE_PREPARES at connection level.');
         }
 
@@ -74,8 +71,8 @@ class ConnectionTest extends FunctionalTestCase
         // even though emulated prepared statements are disabled,
         // so an exception is thrown only eventually.
         if (
-            $driver instanceof PDOOracleDriver
-            || $driver instanceof PDOPgSQLDriver
+            $driver instanceof PDO\OCI\Driver
+            || $driver instanceof PDO\PgSQL\Driver
         ) {
             self::markTestSkipped(sprintf(
                 'The underlying implementation of the %s driver does not check the query to be prepared server-side.',
@@ -87,7 +84,7 @@ class ConnectionTest extends FunctionalTestCase
         // so that PDO actually communicates with the database server to check the query.
         $this->driverConnection
             ->getWrappedConnection()
-            ->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+            ->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
 
         $this->expectException(Exception::class);
 

@@ -3,7 +3,7 @@
 namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\Driver\Exception;
-use Doctrine\DBAL\Driver\PDOOracle\Driver as PDOOracleDriver;
+use Doctrine\DBAL\Driver\PDO;
 use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Table;
@@ -27,7 +27,7 @@ class StatementTest extends FunctionalTestCase
 
     public function testStatementIsReusableAfterFreeingResult(): void
     {
-        if ($this->connection->getDriver() instanceof PDOOracleDriver) {
+        if ($this->connection->getDriver() instanceof PDO\OCI\Driver) {
             self::markTestIncomplete('See https://bugs.php.net/bug.php?id=77181');
         }
 
@@ -50,7 +50,7 @@ class StatementTest extends FunctionalTestCase
 
     public function testReuseStatementWithLongerResults(): void
     {
-        if ($this->connection->getDriver() instanceof PDOOracleDriver) {
+        if ($this->connection->getDriver() instanceof PDO\OCI\Driver) {
             self::markTestIncomplete('PDO_OCI doesn\'t support fetching blobs via PDOStatement::fetchAll()');
         }
 
@@ -87,7 +87,7 @@ class StatementTest extends FunctionalTestCase
 
     public function testFetchLongBlob(): void
     {
-        if ($this->connection->getDriver() instanceof PDOOracleDriver) {
+        if ($this->connection->getDriver() instanceof PDO\OCI\Driver) {
             // inserting BLOBs as streams on Oracle requires Oracle-specific SQL syntax which is currently not supported
             // see http://php.net/manual/en/pdo.lobs.php#example-1035
             self::markTestSkipped('DBAL doesn\'t support storing LOBs represented as streams using PDO_OCI');
@@ -153,7 +153,7 @@ EOF
 
     public function testReuseStatementAfterFreeingResult(): void
     {
-        if ($this->connection->getDriver() instanceof PDOOracleDriver) {
+        if ($this->connection->getDriver() instanceof PDO\OCI\Driver) {
             self::markTestIncomplete('See https://bugs.php.net/bug.php?id=77181');
         }
 

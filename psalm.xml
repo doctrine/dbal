@@ -37,7 +37,7 @@
                 <!--
                     Fixing these issues requires an API change
                 -->
-                <file name="src/Driver/PDOSqlsrv/Connection.php"/>
+                <file name="src/Driver/PDO/SQLSrv/Connection.php"/>
                 <file name="src/Driver/SQLSrv/Connection.php"/>
             </errorLevel>
         </FalsableReturnStatement>
@@ -64,7 +64,7 @@
                     Requires a release of
                     https://github.com/JetBrains/phpstorm-stubs/pull/732
                 -->
-                <file name="tests/Driver/PDOPgSql/DriverTest.php" />
+                <file name="tests/Driver/PDO/PgSQL/DriverTest.php" />
             </errorLevel>
         </UndefinedConstant>
         <UndefinedClass>
