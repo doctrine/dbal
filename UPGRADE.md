@@ -1,5 +1,12 @@
 # Upgrade to 3.0
 
+## BC BREAK: Removed DBALException factory methods
+
+The following factory methods of the DBALException class have been removed:
+
+1. `DBALException::invalidPlatformSpecified()`.
+2. `DBALException::invalidPdoInstance()`.
+
 ## BC BREAK: PDO-based driver classes are moved under the PDO namespace
 
 The following classes have been renamed:
