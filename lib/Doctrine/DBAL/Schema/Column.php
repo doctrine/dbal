@@ -6,6 +6,8 @@ use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
 use Doctrine\DBAL\Types\Type;
 use function array_merge;
+use function array_search;
+use function get_class;
 use function is_numeric;
 use function method_exists;
 use function sprintf;
@@ -71,12 +73,14 @@ class Column extends AbstractAsset
         $this->setOptions($options);
     }
 
-    private function prunePlatformOptions(Type $type): void
+    private function prunePlatformOptions(Type $type) : void
     {
-        if (false === array_search(get_class($type), self::CHARSET_COLLATION_TYPES)) {
-            unset($this->_platformOptions['charset']);
-            unset($this->_platformOptions['collation']);
+        if (array_search(get_class($type), self::CHARSET_COLLATION_TYPES) !== false) {
+            return;
         }
+
+        unset($this->_platformOptions['charset']);
+        unset($this->_platformOptions['collation']);
     }
 
     /**
