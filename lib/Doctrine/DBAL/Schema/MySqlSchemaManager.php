@@ -43,6 +43,16 @@ class MySqlSchemaManager extends AbstractSchemaManager
         "''" => "'",
     ];
 
+    private const CHARSET_AND_COLLATION_TYPES = [
+        'tinytext',
+        'mediumtext',
+        'longtext',
+        'text',
+        'varchar',
+        'string',
+        'char',
+    ];
+
     /**
      * {@inheritdoc}
      */
@@ -216,12 +226,14 @@ class MySqlSchemaManager extends AbstractSchemaManager
 
         $column = new Column($tableColumn['field'], Type::getType($type), $options);
 
-        if (isset($tableColumn['characterset'])) {
-            $column->setPlatformOption('charset', $tableColumn['characterset']);
-        }
+        if (false !== array_search($dbType, self::CHARSET_AND_COLLATION_TYPES)) {
+            if (isset($tableColumn['characterset'])) {
+                $column->setPlatformOption('charset', $tableColumn['characterset']);
+            }
 
-        if (isset($tableColumn['collation'])) {
-            $column->setPlatformOption('collation', $tableColumn['collation']);
+            if (isset($tableColumn['collation'])) {
+                $column->setPlatformOption('collation', $tableColumn['collation']);
+            }
         }
 
         return $column;
