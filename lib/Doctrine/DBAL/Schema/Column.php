@@ -73,7 +73,7 @@ class Column extends AbstractAsset
         $this->setOptions($options);
     }
 
-    private function prunePlatformOptions(Type $type) : void
+    private function prunePlatformOptions(Type $type)
     {
         if (array_search(get_class($type), self::CHARSET_COLLATION_TYPES) !== false) {
             return;
