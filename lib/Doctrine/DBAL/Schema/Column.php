@@ -2,6 +2,8 @@
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\DBAL\Types\StringType;
+use Doctrine\DBAL\Types\TextType;
 use Doctrine\DBAL\Types\Type;
 use function array_merge;
 use function is_numeric;
@@ -15,6 +17,8 @@ use const E_USER_DEPRECATED;
  */
 class Column extends AbstractAsset
 {
+    private const CHARSET_COLLATION_TYPES = [StringType::class, TextType::class];
+
     /** @var Type */
     protected $_type;
 
@@ -67,6 +71,14 @@ class Column extends AbstractAsset
         $this->setOptions($options);
     }
 
+    private function prunePlatformOptions(Type $type): void
+    {
+        if (false === array_search(get_class($type), self::CHARSET_COLLATION_TYPES)) {
+            unset($this->_platformOptions['charset']);
+            unset($this->_platformOptions['collation']);
+        }
+    }
+
     /**
      * @param mixed[] $options
      *
@@ -99,6 +111,8 @@ class Column extends AbstractAsset
     public function setType(Type $type)
     {
         $this->_type = $type;
+
+        $this->prunePlatformOptions($type);
 
         return $this;
     }
