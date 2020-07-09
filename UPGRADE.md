@@ -158,9 +158,11 @@ The method no longer accepts the `$username`, `$password` and `$driverOptions` a
 
 This class was deprecated in favor of `PrimaryReadReplicaConnection`
 
-## Removed `Portability\Connection::PORTABILITY_{PLATFORM}` constants`
+## BC BREAK: Changes in the portability layer
 
-The platform-specific portability constants were internal implementation details which are longer relevant.
+1. The platform-specific portability constants (`Portability\Connection::PORTABILITY_{PLATFORM}`) were internal implementation details which are no longer relevant.
+2. The `Portability\Connection` class no longer extends the DBAL `Connection`.
+3. The `Portability\Class` class has been made final.
 
 ## BC BREAK changes in fetching statement results
 

@@ -3,16 +3,19 @@
 namespace Doctrine\DBAL;
 
 use Doctrine\Common\Cache\Cache;
+use Doctrine\DBAL\Driver\Middleware;
 use Doctrine\DBAL\Logging\SQLLogger;
 
 /**
  * Configuration container for the Doctrine DBAL.
  *
- * @internal When adding a new configuration option just write a getter/setter
- *           pair and add the option to the _attributes array with a proper default value.
+ * @internal
  */
 class Configuration
 {
+    /** @var Middleware[] */
+    private $middlewares = [];
+
     /**
      * The attributes that are contained in the configuration.
      * Values are default values.
@@ -107,5 +110,25 @@ class Configuration
     public function getAutoCommit()
     {
         return $this->_attributes['autoCommit'] ?? true;
+    }
+
+    /**
+     * @param Middleware[] $middlewares
+     *
+     * @return $this
+     */
+    public function setMiddlewares(array $middlewares): self
+    {
+        $this->middlewares = $middlewares;
+
+        return $this;
+    }
+
+    /**
+     * @return Middleware[]
+     */
+    public function getMiddlewares(): array
+    {
+        return $this->middlewares;
     }
 }
