@@ -3,7 +3,6 @@
 namespace Doctrine\DBAL;
 
 use Doctrine\DBAL\Driver\Exception;
-use Doctrine\DBAL\Driver\Result as DriverResult;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
@@ -11,10 +10,9 @@ use Doctrine\DBAL\Types\Type;
 use function is_string;
 
 /**
- * A thin wrapper around a Doctrine\DBAL\Driver\Statement that adds support
- * for logging, DBAL mapping types, etc.
+ * A database abstraction-level statement that implements support for logging, DBAL mapping types, etc.
  */
-class Statement implements DriverStatement
+class Statement
 {
     /**
      * The SQL statement.
@@ -148,7 +146,7 @@ class Statement implements DriverStatement
      *
      * @throws DBALException
      */
-    public function execute($params = null): DriverResult
+    public function execute($params = null): Result
     {
         if ($params !== null) {
             $this->params = $params;

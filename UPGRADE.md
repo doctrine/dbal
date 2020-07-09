@@ -1,5 +1,9 @@
 # Upgrade to 3.0
 
+## BC BREAK: Changes in the wrapper-level API ancestry
+
+The wrapper-level `Connection` and `Statement` classes no longer implement the corresponding driver-level interfaces.
+
 ## BC BREAK: Removed DBALException factory methods
 
 The following factory methods of the DBALException class have been removed:

@@ -16,11 +16,7 @@ interfaces are implemented by concrete drivers. For all PDO based
 drivers, ``PDO`` and ``PDOStatement`` are the implementations of
 these interfaces. Thus, for PDO-based drivers, a
 ``Doctrine\DBAL\Connection`` wraps a ``PDO`` instance and a
-``Doctrine\DBAL\Statement`` wraps a ``PDOStatement`` instance. Even
-more, a ``Doctrine\DBAL\Connection`` *is a*
-``Doctrine\DBAL\Driver\Connection`` and a
-``Doctrine\DBAL\Statement`` *is a*
-``Doctrine\DBAL\Driver\Statement``.
+``Doctrine\DBAL\Statement`` wraps a ``PDOStatement`` instance.
 
 What does a ``Doctrine\DBAL\Connection`` or a
 ``Doctrine\DBAL\Statement`` add to the underlying driver
