@@ -9,7 +9,7 @@ use Doctrine\DBAL\ParameterType;
 /**
  * Portability wrapper for a Statement.
  */
-class Statement implements DriverStatement
+final class Statement implements DriverStatement
 {
     /** @var DriverStatement */
     private $stmt;

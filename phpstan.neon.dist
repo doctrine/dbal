@@ -98,10 +98,5 @@ parameters:
             paths:
                 - %currentWorkingDirectory%/src/Id/TableGenerator.php
                 - %currentWorkingDirectory%/src/Schema/SqliteSchemaManager.php
-
-        -
-            message: '~Return type \(Doctrine\\DBAL\\Portability\\Statement\) of method Doctrine\\DBAL\\Portability\\Connection::prepare\(\) should be compatible with return type \(Doctrine\\DBAL\\Statement\) of method Doctrine\\DBAL\\Connection::prepare\(\)~'
-            paths:
-                - %currentWorkingDirectory%/src/Portability/Connection.php
 includes:
     - vendor/phpstan/phpstan-strict-rules/rules.neon
