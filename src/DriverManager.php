@@ -146,6 +146,10 @@ final class DriverManager
 
         $driver = new $className();
 
+        foreach ($config->getMiddlewares() as $middleware) {
+            $driver = $middleware->wrap($driver);
+        }
+
         $wrapperClass = Connection::class;
         if (isset($params['wrapperClass'])) {
             if (! is_subclass_of($params['wrapperClass'], $wrapperClass)) {
