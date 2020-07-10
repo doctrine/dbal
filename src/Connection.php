@@ -1188,7 +1188,7 @@ class Connection
      *
      * @return void
      *
-     * @throws ConnectionException
+     * @throws DBALException
      */
     public function setNestTransactionsWithSavepoints($nestTransactionsWithSavepoints)
     {
@@ -1262,8 +1262,7 @@ class Connection
     /**
      * @return bool
      *
-     * @throws ConnectionException If the commit failed due to no active transaction or
-     *                                            because the transaction was marked for rollback only.
+     * @throws DBALException
      */
     public function commit()
     {
@@ -1336,7 +1335,7 @@ class Connection
      *
      * @return bool
      *
-     * @throws ConnectionException If the rollback operation failed.
+     * @throws DBALException
      */
     public function rollBack()
     {
@@ -1388,7 +1387,7 @@ class Connection
      *
      * @return void
      *
-     * @throws ConnectionException
+     * @throws DBALException
      */
     public function createSavepoint($savepoint)
     {
@@ -1406,7 +1405,7 @@ class Connection
      *
      * @return void
      *
-     * @throws ConnectionException
+     * @throws DBALException
      */
     public function releaseSavepoint($savepoint)
     {
@@ -1428,7 +1427,7 @@ class Connection
      *
      * @return void
      *
-     * @throws ConnectionException
+     * @throws DBALException
      */
     public function rollbackSavepoint($savepoint)
     {
