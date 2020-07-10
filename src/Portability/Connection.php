@@ -30,9 +30,6 @@ final class Connection implements ConnectionInterface
         $this->converter  = $converter;
     }
 
-    /**
-     * @return Statement
-     */
     public function prepare(string $sql): DriverStatement
     {
         return new Statement(

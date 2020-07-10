@@ -41,11 +41,10 @@ use function preg_replace;
 use function sprintf;
 
 /**
- * A wrapper around a Doctrine\DBAL\Driver\Connection that adds features like
- * events, transaction isolation levels, configuration, emulated transaction nesting,
- * lazy connecting and more.
+ * A database abstraction-level connection that implements features like events, transaction isolation levels,
+ * configuration, emulated transaction nesting, lazy connecting and more.
  */
-class Connection implements DriverConnection
+class Connection
 {
     /**
      * Represents an array of ints to be expanded by Doctrine SQL parsing.
@@ -757,7 +756,10 @@ class Connection implements DriverConnection
     }
 
     /**
-     * {@inheritDoc}
+     * @param mixed      $input
+     * @param int|string $type
+     *
+     * @return mixed
      */
     public function quote($input, $type = ParameterType::STRING)
     {
@@ -905,11 +907,9 @@ class Connection implements DriverConnection
      *
      * @param string $sql The SQL statement to prepare.
      *
-     * @return Statement
-     *
      * @throws DBALException
      */
-    public function prepare(string $sql): DriverStatement
+    public function prepare(string $sql): Statement
     {
         return new Statement($sql, $this);
     }
@@ -1215,7 +1215,7 @@ class Connection implements DriverConnection
     }
 
     /**
-     * {@inheritDoc}
+     * @return bool
      */
     public function beginTransaction()
     {
@@ -1250,7 +1250,7 @@ class Connection implements DriverConnection
     }
 
     /**
-     * {@inheritDoc}
+     * @return bool
      *
      * @throws ConnectionException If the commit failed due to no active transaction or
      *                                            because the transaction was marked for rollback only.
