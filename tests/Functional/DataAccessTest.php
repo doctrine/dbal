@@ -614,7 +614,6 @@ class DataAccessTest extends FunctionalTestCase
         $this->connection->beginTransaction();
         $this->connection->exec('DELETE FROM fetch_table');
         self::assertFalse($this->connection->fetchOne('SELECT test_int FROM fetch_table'));
-        self::assertFalse($this->connection->query('SELECT test_int FROM fetch_table')->fetchOne());
         $this->connection->rollBack();
     }
 

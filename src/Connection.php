@@ -12,7 +12,6 @@ use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Driver\API\ExceptionConverter;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Driver\Exception as DriverException;
-use Doctrine\DBAL\Driver\Result as DriverResult;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Exception\ConnectionLost;
@@ -1026,31 +1025,6 @@ class Connection
         }
 
         return new Result($result, $this);
-    }
-
-    /**
-     * @deprecated Use {@link executeQuery()} instead.
-     *
-     * @throws DBALException
-     */
-    public function query(string $sql): DriverResult
-    {
-        $connection = $this->getWrappedConnection();
-
-        $logger = $this->_config->getSQLLogger();
-        if ($logger !== null) {
-            $logger->startQuery($sql);
-        }
-
-        try {
-            return $connection->query($sql);
-        } catch (DriverException $e) {
-            throw $this->convertExceptionDuringQuery($e, $sql);
-        } finally {
-            if ($logger !== null) {
-                $logger->stopQuery();
-            }
-        }
     }
 
     /**

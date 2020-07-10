@@ -1,5 +1,11 @@
 # Upgrade to 3.0
 
+## BC BREAK: removed wrapper `Connection` methods
+
+The following methods of the `Connection` class have been removed:
+
+1. `query()`.
+
 ## BC BREAK: Changes in the wrapper-level API ancestry
 
 The wrapper-level `Connection` and `Statement` classes no longer implement the corresponding driver-level interfaces.
@@ -50,7 +56,6 @@ The following classes have been renamed:
 The following driver-level methods are allowed to throw a Driver\Exception:
 
 - `Connection::prepare()`
-- `Connection::query()`
 - `Connection::exec()`
 - `Connection::lastInsertId()`
 - `Connection::beginTransaction()`

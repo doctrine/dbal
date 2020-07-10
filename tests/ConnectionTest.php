@@ -180,12 +180,6 @@ class ConnectionTest extends TestCase
             },
         ];
 
-        yield 'query' => [
-            static function (Connection $connection, string $statement): void {
-                $connection->query($statement);
-            },
-        ];
-
         yield 'executeQuery' => [
             static function (Connection $connection, string $statement): void {
                 $connection->executeQuery($statement);

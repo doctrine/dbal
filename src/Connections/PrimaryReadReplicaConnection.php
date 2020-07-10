@@ -9,16 +9,13 @@ use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Driver\Exception as DriverException;
-use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\Event\ConnectionEventArgs;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Statement;
 use InvalidArgumentException;
 
 use function array_rand;
-use function assert;
 use function count;
-use function func_get_args;
 
 /**
  * Primary-Replica Connection
@@ -31,8 +28,7 @@ use function func_get_args;
  * 1. Replica if primary was never picked before and ONLY if 'getWrappedConnection'
  *    or 'executeQuery' is used.
  * 2. Primary picked when 'exec', 'executeUpdate', 'executeStatement', 'insert', 'delete', 'update', 'createSavepoint',
- *    'releaseSavepoint', 'beginTransaction', 'rollback', 'commit', 'query' or
- *    'prepare' is called.
+ *    'releaseSavepoint', 'beginTransaction', 'rollback', 'commit' or 'prepare' is called.
  * 3. If Primary was picked once during the lifetime of the connection it will always get picked afterwards.
  * 4. One replica connection is randomly picked ONCE during a request.
  *
@@ -390,27 +386,6 @@ class PrimaryReadReplicaConnection extends Connection
         $this->ensureConnectedToPrimary();
 
         parent::rollbackSavepoint($savepoint);
-    }
-
-    public function query(string $sql): Result
-    {
-        $this->ensureConnectedToPrimary();
-        assert($this->_conn instanceof DriverConnection);
-
-        $args = func_get_args();
-
-        $logger = $this->getConfiguration()->getSQLLogger();
-        if ($logger !== null) {
-            $logger->startQuery($sql);
-        }
-
-        $statement = $this->_conn->query($sql);
-
-        if ($logger !== null) {
-            $logger->stopQuery();
-        }
-
-        return $statement;
     }
 
     public function prepare(string $sql): Statement
