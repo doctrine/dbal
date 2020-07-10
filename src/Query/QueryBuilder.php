@@ -1162,6 +1162,8 @@ class QueryBuilder
 
     /**
      * @return string[]
+     *
+     * @throws QueryException
      */
     private function getFromClauses()
     {
