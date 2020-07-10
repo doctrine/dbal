@@ -86,7 +86,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         //TODO: SchemaDiff does not drop removed namespaces?
         try {
             //sql server versions below 2016 do not support 'IF EXISTS' so we have to catch the exception here
-            $this->connection->exec('DROP SCHEMA testschema');
+            $this->connection->executeStatement('DROP SCHEMA testschema');
         } catch (DBALException $e) {
             return;
         }
@@ -643,7 +643,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $diff->newNamespaces[] = 'testschema';
 
         foreach ($diff->toSql($this->schemaManager->getDatabasePlatform()) as $sql) {
-            $this->connection->exec($sql);
+            $this->connection->executeStatement($sql);
         }
 
         //test if table is create in namespace
@@ -1505,7 +1505,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $sqls = $diff->toSql($platform);
 
         foreach ($sqls as $sql) {
-            $this->connection->exec($sql);
+            $this->connection->executeStatement($sql);
         }
 
         $schema = new Schema([

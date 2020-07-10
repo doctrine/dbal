@@ -277,7 +277,7 @@ class WriteTest extends FunctionalTestCase
         }
 
         foreach ($platform->getCreateTableSQL($table) as $sql) {
-            $this->connection->exec($sql);
+            $this->connection->executeStatement($sql);
         }
 
         $seqName = $platform->usesSequenceEmulatedIdentityColumns()
@@ -286,11 +286,11 @@ class WriteTest extends FunctionalTestCase
 
         $sql = $platform->getEmptyIdentityInsertSQL('test_empty_identity', 'id');
 
-        $this->connection->exec($sql);
+        $this->connection->executeStatement($sql);
 
         $firstId = $this->lastInsertId($seqName);
 
-        $this->connection->exec($sql);
+        $this->connection->executeStatement($sql);
 
         $secondId = $this->lastInsertId($seqName);
 

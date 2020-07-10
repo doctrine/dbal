@@ -28,7 +28,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         }
 
         TestUtil::getPrivilegedConnection()
-            ->exec('GRANT ALL PRIVILEGES TO ' . $GLOBALS['db_user']);
+            ->executeStatement('GRANT ALL PRIVILEGES TO ' . $GLOBALS['db_user']);
 
         self::$privilegesGranted = true;
     }

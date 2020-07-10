@@ -1028,23 +1028,6 @@ class Connection
     }
 
     /**
-     * Executes an SQL INSERT/UPDATE/DELETE query with the given parameters
-     * and returns the number of affected rows.
-     *
-     * @deprecated Use {@link executeStatement()} instead.
-     *
-     * @param string                 $query  The SQL query.
-     * @param array<mixed>           $params The query parameters.
-     * @param array<int|string|null> $types  The parameter types.
-     *
-     * @throws DBALException
-     */
-    public function executeUpdate(string $query, array $params = [], array $types = []): int
-    {
-        return $this->executeStatement($query, $params, $types);
-    }
-
-    /**
      * Executes an SQL statement with the given parameters and returns the number of affected rows.
      *
      * Could be used for:
@@ -1410,7 +1393,7 @@ class Connection
             throw ConnectionException::savepointsNotSupported();
         }
 
-        $this->executeUpdate($this->platform->createSavePoint($savepoint));
+        $this->executeStatement($this->platform->createSavePoint($savepoint));
     }
 
     /**
@@ -1432,7 +1415,7 @@ class Connection
             return;
         }
 
-        $this->executeUpdate($this->platform->releaseSavePoint($savepoint));
+        $this->executeStatement($this->platform->releaseSavePoint($savepoint));
     }
 
     /**
@@ -1450,7 +1433,7 @@ class Connection
             throw ConnectionException::savepointsNotSupported();
         }
 
-        $this->executeUpdate($this->platform->rollbackSavePoint($savepoint));
+        $this->executeStatement($this->platform->rollbackSavePoint($savepoint));
     }
 
     /**

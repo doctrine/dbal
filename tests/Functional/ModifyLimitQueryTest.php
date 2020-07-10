@@ -35,8 +35,15 @@ class ModifyLimitQueryTest extends FunctionalTestCase
             self::$tableCreated = true;
         }
 
-        $this->connection->exec($this->connection->getDatabasePlatform()->getTruncateTableSQL('modify_limit_table'));
-        $this->connection->exec($this->connection->getDatabasePlatform()->getTruncateTableSQL('modify_limit_table2'));
+        $platform = $this->connection->getDatabasePlatform();
+
+        $this->connection->executeStatement(
+            $platform->getTruncateTableSQL('modify_limit_table')
+        );
+
+        $this->connection->executeStatement(
+            $platform->getTruncateTableSQL('modify_limit_table2')
+        );
     }
 
     public function testModifyLimitQuerySimpleQuery(): void

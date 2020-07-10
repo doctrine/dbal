@@ -31,7 +31,7 @@ class TableGeneratorTest extends FunctionalTestCase
             $schema->visit($visitor);
 
             foreach ($schema->toSql($platform) as $sql) {
-                $this->connection->exec($sql);
+                $this->connection->executeStatement($sql);
             }
         } catch (Throwable $e) {
         }

@@ -86,7 +86,7 @@ class ExceptionTest extends FunctionalTestCase
     public function testForeignKeyConstraintViolationExceptionOnInsert(): void
     {
         if ($this->connection->getDatabasePlatform()->getName() === 'sqlite') {
-            $this->connection->exec('PRAGMA foreign_keys=ON');
+            $this->connection->executeStatement('PRAGMA foreign_keys=ON');
         }
 
         $this->setUpForeignKeyConstraintViolationExceptionTest();
@@ -231,7 +231,7 @@ class ExceptionTest extends FunctionalTestCase
         $table->setPrimaryKey(['id']);
 
         foreach ($schema->toSql($this->connection->getDatabasePlatform()) as $sql) {
-            $this->connection->exec($sql);
+            $this->connection->executeStatement($sql);
         }
 
         $this->expectException(Exception\NotNullConstraintViolationException::class);
@@ -246,7 +246,7 @@ class ExceptionTest extends FunctionalTestCase
         $table->addColumn('id', 'integer', []);
 
         foreach ($schema->toSql($this->connection->getDatabasePlatform()) as $sql) {
-            $this->connection->exec($sql);
+            $this->connection->executeStatement($sql);
         }
 
         $this->expectException(Exception\InvalidFieldNameException::class);
@@ -264,7 +264,7 @@ class ExceptionTest extends FunctionalTestCase
         $table2->addColumn('id', 'integer');
 
         foreach ($schema->toSql($this->connection->getDatabasePlatform()) as $sql) {
-            $this->connection->exec($sql);
+            $this->connection->executeStatement($sql);
         }
 
         $sql = 'SELECT id FROM ambiguous_list_table, ambiguous_list_table_2';
@@ -281,7 +281,7 @@ class ExceptionTest extends FunctionalTestCase
         $table->addUniqueIndex(['id']);
 
         foreach ($schema->toSql($this->connection->getDatabasePlatform()) as $sql) {
-            $this->connection->exec($sql);
+            $this->connection->executeStatement($sql);
         }
 
         $this->connection->insert('unique_field_table', ['id' => 5]);
@@ -345,7 +345,7 @@ EOT
 
         try {
             foreach ($schema->toSql($conn->getDatabasePlatform()) as $sql) {
-                $conn->exec($sql);
+                $conn->executeStatement($sql);
             }
         } finally {
             $this->cleanupReadOnlyFile($filename);
@@ -390,7 +390,7 @@ EOT
         $this->expectException(Exception\ConnectionException::class);
 
         foreach ($schema->toSql($conn->getDatabasePlatform()) as $sql) {
-            $conn->exec($sql);
+            $conn->executeStatement($sql);
         }
     }
 

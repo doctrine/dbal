@@ -77,7 +77,7 @@ class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testListForeignKeysFromExistingDatabase(): void
     {
-        $this->connection->exec(<<<EOS
+        $this->connection->executeStatement(<<<EOS
 CREATE TABLE user (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     page INTEGER CONSTRAINT FK_1 REFERENCES page (key) DEFERRABLE INITIALLY DEFERRED,
@@ -165,7 +165,7 @@ CREATE TABLE dbal_1779 (
 )
 SQL;
 
-        $this->connection->exec($sql);
+        $this->connection->executeStatement($sql);
 
         $columns = $this->schemaManager->listTableColumns('dbal_1779');
 

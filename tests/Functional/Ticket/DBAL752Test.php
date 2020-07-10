@@ -23,7 +23,7 @@ class DBAL752Test extends FunctionalTestCase
 
     public function testUnsignedIntegerDetection(): void
     {
-        $this->connection->exec(<<<SQL
+        $this->connection->executeStatement(<<<SQL
 CREATE TABLE dbal752_unsigneds (
     small SMALLINT,
     small_unsigned SMALLINT UNSIGNED,

@@ -19,7 +19,7 @@ class DBAL202Test extends FunctionalTestCase
         }
 
         if ($this->connection->getSchemaManager()->tablesExist('DBAL202')) {
-            $this->connection->exec('DELETE FROM DBAL202');
+            $this->connection->executeStatement('DELETE FROM DBAL202');
         } else {
             $table = new Table('DBAL202');
             $table->addColumn('id', 'integer');

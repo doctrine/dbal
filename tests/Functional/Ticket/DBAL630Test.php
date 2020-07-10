@@ -26,8 +26,8 @@ class DBAL630Test extends FunctionalTestCase
         }
 
         try {
-            $this->connection->exec('CREATE TABLE dbal630 (id SERIAL, bool_col BOOLEAN NOT NULL);');
-            $this->connection->exec('CREATE TABLE dbal630_allow_nulls (id SERIAL, bool_col BOOLEAN);');
+            $this->connection->executeStatement('CREATE TABLE dbal630 (id SERIAL, bool_col BOOLEAN NOT NULL);');
+            $this->connection->executeStatement('CREATE TABLE dbal630_allow_nulls (id SERIAL, bool_col BOOLEAN);');
         } catch (DBALException $e) {
         }
 
