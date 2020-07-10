@@ -58,6 +58,8 @@ class Column extends AbstractAsset
      *
      * @param string  $columnName
      * @param mixed[] $options
+     *
+     * @throws SchemaException
      */
     public function __construct($columnName, Type $type, array $options = [])
     {
@@ -70,6 +72,8 @@ class Column extends AbstractAsset
      * @param mixed[] $options
      *
      * @return Column
+     *
+     * @throws SchemaException
      */
     public function setOptions(array $options)
     {

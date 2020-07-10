@@ -22,6 +22,8 @@ class Comparator
 {
     /**
      * @return SchemaDiff
+     *
+     * @throws SchemaException
      */
     public static function compareSchemas(Schema $fromSchema, Schema $toSchema)
     {
@@ -38,6 +40,8 @@ class Comparator
      * stored in $toSchema.
      *
      * @return SchemaDiff
+     *
+     * @throws SchemaException
      */
     public function compare(Schema $fromSchema, Schema $toSchema)
     {
@@ -188,6 +192,8 @@ class Comparator
      * If there are no differences this method returns the boolean false.
      *
      * @return TableDiff|false
+     *
+     * @throws SchemaException
      */
     public function diffTable(Table $table1, Table $table2)
     {
