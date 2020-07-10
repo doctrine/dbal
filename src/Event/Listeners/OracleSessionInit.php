@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Event\Listeners;
 
 use Doctrine\Common\EventSubscriber;
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Event\ConnectionEventArgs;
 use Doctrine\DBAL\Events;
 
@@ -44,6 +45,8 @@ class OracleSessionInit implements EventSubscriber
 
     /**
      * @return void
+     *
+     * @throws DBALException
      */
     public function postConnect(ConnectionEventArgs $args)
     {

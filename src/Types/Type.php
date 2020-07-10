@@ -64,6 +64,8 @@ abstract class Type
      * @param AbstractPlatform $platform The currently used database platform.
      *
      * @return mixed The database representation of the value.
+     *
+     * @throws ConversionException
      */
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
@@ -78,6 +80,8 @@ abstract class Type
      * @param AbstractPlatform $platform The currently used database platform.
      *
      * @return mixed The PHP representation of the value.
+     *
+     * @throws ConversionException
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {

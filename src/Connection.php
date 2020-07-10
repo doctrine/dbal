@@ -215,7 +215,7 @@ class Connection
     {
         $platform = $this->getDatabasePlatform();
         $query    = $platform->getDummySelectSQL($platform->getCurrentDatabaseExpression());
-        $database = $this->query($query)->fetchOne();
+        $database = $this->fetchOne($query);
 
         assert(is_string($database) || $database === null);
 
@@ -344,7 +344,7 @@ class Connection
      *
      * @return string|null
      *
-     * @throws Exception
+     * @throws DBALException
      */
     private function getDatabasePlatformVersion()
     {
@@ -401,6 +401,8 @@ class Connection
      * Returns the database server version if the underlying driver supports it.
      *
      * @return string|null
+     *
+     * @throws DBALException
      */
     private function getServerVersion()
     {
@@ -408,7 +410,11 @@ class Connection
 
         // Automatic platform version detection.
         if ($connection instanceof ServerInfoAwareConnection) {
-            return $connection->getServerVersion();
+            try {
+                return $connection->getServerVersion();
+            } catch (DriverException $e) {
+                throw $this->convertException($e);
+            }
         }
 
         // Unable to detect platform version.
@@ -622,6 +628,8 @@ class Connection
      * @param int $level The level to set.
      *
      * @return int
+     *
+     * @throws DBALException
      */
     public function setTransactionIsolation($level)
     {
@@ -634,6 +642,8 @@ class Connection
      * Gets the currently active transaction isolation level.
      *
      * @return int The current transaction isolation level.
+     *
+     * @throws DBALException
      */
     public function getTransactionIsolation()
     {
@@ -1131,10 +1141,16 @@ class Connection
      * @param string|null $seqName Name of the sequence object from which the ID should be returned.
      *
      * @return string A string representation of the last inserted ID.
+     *
+     * @throws DBALException
      */
     public function lastInsertId($seqName = null)
     {
-        return $this->getWrappedConnection()->lastInsertId($seqName);
+        try {
+            return $this->getWrappedConnection()->lastInsertId($seqName);
+        } catch (DriverException $e) {
+            throw $this->convertException($e);
+        }
     }
 
     /**
@@ -1178,7 +1194,7 @@ class Connection
      *
      * @return void
      *
-     * @throws ConnectionException
+     * @throws DBALException
      */
     public function setNestTransactionsWithSavepoints($nestTransactionsWithSavepoints)
     {
@@ -1216,6 +1232,8 @@ class Connection
 
     /**
      * @return bool
+     *
+     * @throws DBALException
      */
     public function beginTransaction()
     {
@@ -1252,8 +1270,7 @@ class Connection
     /**
      * @return bool
      *
-     * @throws ConnectionException If the commit failed due to no active transaction or
-     *                                            because the transaction was marked for rollback only.
+     * @throws DBALException
      */
     public function commit()
     {
@@ -1305,6 +1322,8 @@ class Connection
 
     /**
      * Commits all current nesting transactions.
+     *
+     * @throws DBALException
      */
     private function commitAll(): void
     {
@@ -1326,7 +1345,7 @@ class Connection
      *
      * @return bool
      *
-     * @throws ConnectionException If the rollback operation failed.
+     * @throws DBALException
      */
     public function rollBack()
     {
@@ -1378,7 +1397,7 @@ class Connection
      *
      * @return void
      *
-     * @throws ConnectionException
+     * @throws DBALException
      */
     public function createSavepoint($savepoint)
     {
@@ -1386,7 +1405,7 @@ class Connection
             throw ConnectionException::savepointsNotSupported();
         }
 
-        $this->getWrappedConnection()->exec($this->platform->createSavePoint($savepoint));
+        $this->executeUpdate($this->platform->createSavePoint($savepoint));
     }
 
     /**
@@ -1396,7 +1415,7 @@ class Connection
      *
      * @return void
      *
-     * @throws ConnectionException
+     * @throws DBALException
      */
     public function releaseSavepoint($savepoint)
     {
@@ -1408,7 +1427,7 @@ class Connection
             return;
         }
 
-        $this->getWrappedConnection()->exec($this->platform->releaseSavePoint($savepoint));
+        $this->executeUpdate($this->platform->releaseSavePoint($savepoint));
     }
 
     /**
@@ -1418,7 +1437,7 @@ class Connection
      *
      * @return void
      *
-     * @throws ConnectionException
+     * @throws DBALException
      */
     public function rollbackSavepoint($savepoint)
     {
@@ -1426,13 +1445,15 @@ class Connection
             throw ConnectionException::savepointsNotSupported();
         }
 
-        $this->getWrappedConnection()->exec($this->platform->rollbackSavePoint($savepoint));
+        $this->executeUpdate($this->platform->rollbackSavePoint($savepoint));
     }
 
     /**
      * Gets the wrapped driver connection.
      *
      * @return DriverConnection
+     *
+     * @throws DBALException
      */
     public function getWrappedConnection()
     {
@@ -1504,6 +1525,8 @@ class Connection
      * @param string $type  The name of the DBAL mapping type.
      *
      * @return mixed The converted value.
+     *
+     * @throws DBALException
      */
     public function convertToDatabaseValue($value, $type)
     {
@@ -1518,6 +1541,8 @@ class Connection
      * @param string $type  The name of the DBAL mapping type.
      *
      * @return mixed The converted type.
+     *
+     * @throws DBALException
      */
     public function convertToPHPValue($value, $type)
     {
@@ -1531,6 +1556,8 @@ class Connection
      * @param DriverStatement $stmt   The statement to bind the values to.
      * @param mixed[]         $params The map/list of named/positional parameters.
      * @param int[]|string[]  $types  The parameter types (PDO binding types or DBAL mapping types).
+     *
+     * @throws DBALException
      */
     private function _bindTypedValues(DriverStatement $stmt, array $params, array $types): void
     {
@@ -1572,6 +1599,8 @@ class Connection
      * @param int|string|null $type  The type to bind (PDO or DBAL).
      *
      * @return mixed[] [0] => the (escaped) value, [1] => the binding type.
+     *
+     * @throws DBALException
      */
     private function getBindingInfo($value, $type)
     {

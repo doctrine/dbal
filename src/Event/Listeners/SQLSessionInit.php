@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Event\Listeners;
 
 use Doctrine\Common\EventSubscriber;
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Event\ConnectionEventArgs;
 use Doctrine\DBAL\Events;
 
@@ -24,11 +25,12 @@ class SQLSessionInit implements EventSubscriber
 
     /**
      * @return void
+     *
+     * @throws DBALException
      */
     public function postConnect(ConnectionEventArgs $args)
     {
-        $conn = $args->getConnection();
-        $conn->exec($this->sql);
+        $args->getConnection()->executeUpdate($this->sql);
     }
 
     /**

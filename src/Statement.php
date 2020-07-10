@@ -95,27 +95,34 @@ class Statement
      * @param mixed      $type  Either a PDO binding type or a DBAL mapping type name or instance.
      *
      * @return bool TRUE on success, FALSE on failure.
+     *
+     * @throws DBALException
      */
     public function bindValue($name, $value, $type = ParameterType::STRING)
     {
         $this->params[$name] = $value;
         $this->types[$name]  = $type;
+
+        $bindingType = ParameterType::STRING;
+
         if ($type !== null) {
             if (is_string($type)) {
                 $type = Type::getType($type);
             }
 
+            $bindingType = $type;
+
             if ($type instanceof Type) {
                 $value       = $type->convertToDatabaseValue($value, $this->platform);
                 $bindingType = $type->getBindingType();
-            } else {
-                $bindingType = $type;
             }
-
-            return $this->stmt->bindValue($name, $value, $bindingType);
         }
 
-        return $this->stmt->bindValue($name, $value);
+        try {
+            return $this->stmt->bindValue($name, $value, $bindingType);
+        } catch (Exception $e) {
+            throw $this->conn->convertException($e);
+        }
     }
 
     /**
@@ -130,13 +137,19 @@ class Statement
      *                           so that PHP allocates enough memory to hold the returned value.
      *
      * @return bool TRUE on success, FALSE on failure.
+     *
+     * @throws DBALException
      */
     public function bindParam($name, &$var, $type = ParameterType::STRING, $length = null)
     {
         $this->params[$name] = $var;
         $this->types[$name]  = $type;
 
-        return $this->stmt->bindParam($name, $var, $type, $length);
+        try {
+            return $this->stmt->bindParam($name, $var, $type, $length);
+        } catch (Exception $e) {
+            throw $this->conn->convertException($e);
+        }
     }
 
     /**

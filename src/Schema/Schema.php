@@ -58,6 +58,8 @@ class Schema extends AbstractAsset
      * @param Table[]    $tables
      * @param Sequence[] $sequences
      * @param string[]   $namespaces
+     *
+     * @throws SchemaException
      */
     public function __construct(
         array $tables = [],
@@ -316,6 +318,8 @@ class Schema extends AbstractAsset
      * @param string $tableName
      *
      * @return Table
+     *
+     * @throws SchemaException
      */
     public function createTable($tableName)
     {
@@ -336,6 +340,8 @@ class Schema extends AbstractAsset
      * @param string $newTableName
      *
      * @return Schema
+     *
+     * @throws SchemaException
      */
     public function renameTable($oldTableName, $newTableName)
     {
@@ -354,6 +360,8 @@ class Schema extends AbstractAsset
      * @param string $tableName
      *
      * @return Schema
+     *
+     * @throws SchemaException
      */
     public function dropTable($tableName)
     {
@@ -372,6 +380,8 @@ class Schema extends AbstractAsset
      * @param int    $initialValue
      *
      * @return Sequence
+     *
+     * @throws SchemaException
      */
     public function createSequence($sequenceName, $allocationSize = 1, $initialValue = 1)
     {
@@ -422,6 +432,8 @@ class Schema extends AbstractAsset
 
     /**
      * @return string[]
+     *
+     * @throws SchemaException
      */
     public function getMigrateToSql(Schema $toSchema, AbstractPlatform $platform)
     {
@@ -433,6 +445,8 @@ class Schema extends AbstractAsset
 
     /**
      * @return string[]
+     *
+     * @throws SchemaException
      */
     public function getMigrateFromSql(Schema $fromSchema, AbstractPlatform $platform)
     {

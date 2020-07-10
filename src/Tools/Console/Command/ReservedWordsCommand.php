@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Tools\Console\Command;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Platforms\Keywords\DB2Keywords;
 use Doctrine\DBAL\Platforms\Keywords\MariaDb102Keywords;
 use Doctrine\DBAL\Platforms\Keywords\MySQL57Keywords;
@@ -113,6 +114,8 @@ EOT
 
     /**
      * {@inheritdoc}
+     *
+     * @throws DBALException
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {

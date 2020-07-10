@@ -6,6 +6,7 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\SchemaException;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 
@@ -16,6 +17,8 @@ interface Visitor
 {
     /**
      * @return void
+     *
+     * @throws SchemaException
      */
     public function acceptSchema(Schema $schema);
 
@@ -31,6 +34,8 @@ interface Visitor
 
     /**
      * @return void
+     *
+     * @throws SchemaException
      */
     public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint);
 

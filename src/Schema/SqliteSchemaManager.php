@@ -501,6 +501,9 @@ CREATE\sTABLE # Match "CREATE TABLE"
         return $comment === '' ? null : $comment;
     }
 
+    /**
+     * @throws DBALException
+     */
     private function getCreateTableSQL(string $table): string
     {
         $sql = $this->_conn->fetchOne(
@@ -528,6 +531,8 @@ SQL
     }
 
     /**
+     * {@inheritDoc}
+     *
      * @param string $tableName
      */
     public function listTableDetails($tableName): Table
