@@ -311,16 +311,6 @@ class PrimaryReadReplicaConnection extends Connection
     /**
      * {@inheritDoc}
      */
-    public function delete($tableName, array $identifier, array $types = [])
-    {
-        $this->ensureConnectedToPrimary();
-
-        return parent::delete($tableName, $identifier, $types);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function close()
     {
         unset($this->connections['primary'], $this->connections['replica']);
@@ -329,33 +319,6 @@ class PrimaryReadReplicaConnection extends Connection
 
         $this->_conn       = null;
         $this->connections = ['primary' => null, 'replica' => null];
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function update($tableName, array $data, array $identifier, array $types = [])
-    {
-        $this->ensureConnectedToPrimary();
-
-        return parent::update($tableName, $data, $identifier, $types);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function insert($tableName, array $data, array $types = [])
-    {
-        $this->ensureConnectedToPrimary();
-
-        return parent::insert($tableName, $data, $types);
-    }
-
-    public function exec(string $statement): int
-    {
-        $this->ensureConnectedToPrimary();
-
-        return parent::exec($statement);
     }
 
     /**
