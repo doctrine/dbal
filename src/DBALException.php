@@ -131,16 +131,6 @@ class DBALException extends Exception
      *
      * @return DBALException
      */
-    public static function invalidTableName($tableName)
-    {
-        return new self('Invalid table name specified: ' . $tableName);
-    }
-
-    /**
-     * @param string $tableName
-     *
-     * @return DBALException
-     */
     public static function noColumnsSpecifiedForTable($tableName)
     {
         return new self('No columns specified for table ' . $tableName);

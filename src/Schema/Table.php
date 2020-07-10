@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Schema\Exception\InvalidTableName;
 use Doctrine\DBAL\Schema\Visitor\Visitor;
 use Doctrine\DBAL\Types\Type;
 
@@ -51,12 +52,12 @@ class Table extends AbstractAsset
      * @param int                    $idGeneratorType
      * @param mixed[]                $options
      *
-     * @throws DBALException
+     * @throws SchemaException
      */
     public function __construct($tableName, array $columns = [], array $indexes = [], array $fkConstraints = [], $idGeneratorType = 0, array $options = [])
     {
         if (strlen($tableName) === 0) {
-            throw DBALException::invalidTableName($tableName);
+            throw InvalidTableName::new($tableName);
         }
 
         $this->_setName($tableName);
