@@ -98,6 +98,7 @@ class PrimaryReadReplicaConnection extends Connection
      *
      * @param mixed[] $params
      *
+     * @throws DBALException
      * @throws InvalidArgumentException
      */
     public function __construct(array $params, Driver $driver, ?Configuration $config = null, ?EventManager $eventManager = null)

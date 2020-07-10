@@ -401,6 +401,8 @@ class Connection
      * Returns the database server version if the underlying driver supports it.
      *
      * @return string|null
+     *
+     * @throws DBALException
      */
     private function getServerVersion()
     {
@@ -626,6 +628,8 @@ class Connection
      * @param int $level The level to set.
      *
      * @return int
+     *
+     * @throws DBALException
      */
     public function setTransactionIsolation($level)
     {
@@ -638,6 +642,8 @@ class Connection
      * Gets the currently active transaction isolation level.
      *
      * @return int The current transaction isolation level.
+     *
+     * @throws DBALException
      */
     public function getTransactionIsolation()
     {
@@ -1226,6 +1232,8 @@ class Connection
 
     /**
      * @return bool
+     *
+     * @throws DBALException
      */
     public function beginTransaction()
     {
@@ -1314,6 +1322,8 @@ class Connection
 
     /**
      * Commits all current nesting transactions.
+     *
+     * @throws DBALException
      */
     private function commitAll(): void
     {
@@ -1442,6 +1452,8 @@ class Connection
      * Gets the wrapped driver connection.
      *
      * @return DriverConnection
+     *
+     * @throws DBALException
      */
     public function getWrappedConnection()
     {
@@ -1513,6 +1525,8 @@ class Connection
      * @param string $type  The name of the DBAL mapping type.
      *
      * @return mixed The converted value.
+     *
+     * @throws DBALException
      */
     public function convertToDatabaseValue($value, $type)
     {
@@ -1527,6 +1541,8 @@ class Connection
      * @param string $type  The name of the DBAL mapping type.
      *
      * @return mixed The converted type.
+     *
+     * @throws DBALException
      */
     public function convertToPHPValue($value, $type)
     {
@@ -1540,6 +1556,8 @@ class Connection
      * @param DriverStatement $stmt   The statement to bind the values to.
      * @param mixed[]         $params The map/list of named/positional parameters.
      * @param int[]|string[]  $types  The parameter types (PDO binding types or DBAL mapping types).
+     *
+     * @throws DBALException
      */
     private function _bindTypedValues(DriverStatement $stmt, array $params, array $types): void
     {
@@ -1581,6 +1599,8 @@ class Connection
      * @param int|string|null $type  The type to bind (PDO or DBAL).
      *
      * @return mixed[] [0] => the (escaped) value, [1] => the binding type.
+     *
+     * @throws DBALException
      */
     private function getBindingInfo($value, $type)
     {

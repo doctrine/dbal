@@ -60,6 +60,8 @@ final class Connection implements ServerInfoAwareConnection
     }
 
     /**
+     * {@inheritDoc}
+     *
      * @return Statement
      */
     public function prepare(string $sql): StatementInterface

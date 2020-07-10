@@ -2165,6 +2165,8 @@ abstract class AbstractPlatform
      *          a string that defines the complete column
      *
      * @return string DBMS specific SQL code portion that should be used to declare the column.
+     *
+     * @throws DBALException
      */
     public function getColumnDeclarationSQL($name, array $field)
     {

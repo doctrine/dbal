@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Query;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
@@ -202,6 +203,8 @@ class QueryBuilder
      * for insert, update and delete statements.
      *
      * @return Result|int
+     *
+     * @throws DBALException
      */
     public function execute()
     {

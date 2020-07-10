@@ -963,6 +963,8 @@ class SqlitePlatform extends AbstractPlatform
 
     /**
      * @return string[]|false
+     *
+     * @throws DBALException
      */
     private function getSimpleAlterTableSQL(TableDiff $diff)
     {

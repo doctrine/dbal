@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Platforms;
 
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
@@ -694,6 +695,8 @@ SQL
 
     /**
      * @return string[]
+     *
+     * @throws DBALException
      */
     private function getPreAlterTableAlterPrimaryKeySQL(TableDiff $diff, Index $index)
     {
@@ -733,6 +736,8 @@ SQL
      * @param TableDiff $diff The table diff to gather the SQL for.
      *
      * @return string[]
+     *
+     * @throws DBALException
      */
     private function getPreAlterTableAlterIndexForeignKeySQL(TableDiff $diff)
     {
