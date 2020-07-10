@@ -174,8 +174,9 @@ class WriteTest extends FunctionalTestCase
             return strtolower($sequence->getName()) === 'write_table_id_seq';
         }));
 
-        $result          = $this->connection->query($this->connection->getDatabasePlatform()->getSequenceNextValSQL('write_table_id_seq'));
-        $nextSequenceVal = $result->fetchOne();
+        $nextSequenceVal = $this->connection->fetchOne(
+            $this->connection->getDatabasePlatform()->getSequenceNextValSQL('write_table_id_seq')
+        );
 
         $lastInsertId = $this->lastInsertId('write_table_id_seq');
 

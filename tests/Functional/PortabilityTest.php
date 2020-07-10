@@ -145,9 +145,8 @@ class PortabilityTest extends FunctionalTestCase
 
     public function testFetchAllNullColumn(): void
     {
-        $result = $this->connection->query('SELECT Test_Null FROM portability_table');
+        $column = $this->connection->fetchFirstColumn('SELECT Test_Null FROM portability_table');
 
-        $column = $result->fetchFirstColumn();
         self::assertSame([null, null], $column);
     }
 }

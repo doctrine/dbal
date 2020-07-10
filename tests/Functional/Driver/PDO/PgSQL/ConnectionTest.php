@@ -40,8 +40,7 @@ class ConnectionTest extends FunctionalTestCase
 
         self::assertEquals(
             $charset,
-            $connection->query('SHOW client_encoding')
-                ->fetchOne()
+            $connection->fetchOne('SHOW client_encoding')
         );
     }
 

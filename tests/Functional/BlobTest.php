@@ -158,7 +158,7 @@ class BlobTest extends FunctionalTestCase
 
     private function assertBlobContains(string $text): void
     {
-        $rows = $this->connection->query('SELECT blobfield FROM blob_table')->fetchFirstColumn();
+        $rows = $this->connection->fetchFirstColumn('SELECT blobfield FROM blob_table');
 
         self::assertCount(1, $rows);
 

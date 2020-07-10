@@ -601,7 +601,7 @@ class DataAccessTest extends FunctionalTestCase
         $this->connection->insert('fetch_table', ['test_int' => 10, 'test_string' => 'foo']);
 
         $sql    = 'SELECT test_int FROM fetch_table';
-        $values = $this->connection->query($sql)->fetchFirstColumn();
+        $values = $this->connection->fetchFirstColumn($sql);
 
         self::assertEquals([1, 10], $values);
     }
