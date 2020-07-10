@@ -27,7 +27,7 @@ use function count;
  *
  * 1. Replica if primary was never picked before and ONLY if 'getWrappedConnection'
  *    or 'executeQuery' is used.
- * 2. Primary picked when 'exec', 'executeUpdate', 'executeStatement', 'insert', 'delete', 'update', 'createSavepoint',
+ * 2. Primary picked when 'executeStatement', 'insert', 'delete', 'update', 'createSavepoint',
  *    'releaseSavepoint', 'beginTransaction', 'rollback', 'commit' or 'prepare' is called.
  * 3. If Primary was picked once during the lifetime of the connection it will always get picked afterwards.
  * 4. One replica connection is randomly picked ONCE during a request.
@@ -254,18 +254,6 @@ class PrimaryReadReplicaConnection extends Connection
         }
 
         return $config;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @deprecated Use {@link executeStatement()} instead.
-     */
-    public function executeUpdate(string $query, array $params = [], array $types = []): int
-    {
-        $this->ensureConnectedToPrimary();
-
-        return parent::executeUpdate($query, $params, $types);
     }
 
     /**

@@ -5,6 +5,8 @@
 The following methods of the `Connection` class have been removed:
 
 1. `query()`.
+2. `exec()`.
+3. `executeUpdate()`.
 
 ## BC BREAK: Changes in the wrapper-level API ancestry
 
@@ -56,7 +58,6 @@ The following classes have been renamed:
 The following driver-level methods are allowed to throw a Driver\Exception:
 
 - `Connection::prepare()`
-- `Connection::exec()`
 - `Connection::lastInsertId()`
 - `Connection::beginTransaction()`
 - `Connection::commit()`

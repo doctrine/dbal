@@ -1084,31 +1084,6 @@ class Connection
     }
 
     /**
-     * @deprecated Use {@link executeStatement()} instead.
-     *
-     * @throws DBALException
-     */
-    public function exec(string $statement): int
-    {
-        $connection = $this->getWrappedConnection();
-
-        $logger = $this->_config->getSQLLogger();
-        if ($logger !== null) {
-            $logger->startQuery($statement);
-        }
-
-        try {
-            return $connection->exec($statement);
-        } catch (DriverException $e) {
-            throw $this->convertExceptionDuringQuery($e, $statement);
-        } finally {
-            if ($logger !== null) {
-                $logger->stopQuery();
-            }
-        }
-    }
-
-    /**
      * Returns the current transaction nesting level.
      *
      * @return int The nesting level. A value of 0 means there's no active transaction.

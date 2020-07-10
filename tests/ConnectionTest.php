@@ -174,12 +174,6 @@ class ConnectionTest extends TestCase
      */
     public static function getQueryMethods(): iterable
     {
-        yield 'exec' => [
-            static function (Connection $connection, string $statement): void {
-                $connection->exec($statement);
-            },
-        ];
-
         yield 'executeQuery' => [
             static function (Connection $connection, string $statement): void {
                 $connection->executeQuery($statement);
