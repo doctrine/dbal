@@ -215,7 +215,7 @@ class Connection
     {
         $platform = $this->getDatabasePlatform();
         $query    = $platform->getDummySelectSQL($platform->getCurrentDatabaseExpression());
-        $database = $this->query($query)->fetchOne();
+        $database = $this->fetchOne($query);
 
         assert(is_string($database) || $database === null);
 
@@ -344,7 +344,7 @@ class Connection
      *
      * @return string|null
      *
-     * @throws Exception
+     * @throws DBALException
      */
     private function getDatabasePlatformVersion()
     {
@@ -408,7 +408,11 @@ class Connection
 
         // Automatic platform version detection.
         if ($connection instanceof ServerInfoAwareConnection) {
-            return $connection->getServerVersion();
+            try {
+                return $connection->getServerVersion();
+            } catch (DriverException $e) {
+                throw $this->convertException($e);
+            }
         }
 
         // Unable to detect platform version.
@@ -1131,10 +1135,16 @@ class Connection
      * @param string|null $seqName Name of the sequence object from which the ID should be returned.
      *
      * @return string A string representation of the last inserted ID.
+     *
+     * @throws DBALException
      */
     public function lastInsertId($seqName = null)
     {
-        return $this->getWrappedConnection()->lastInsertId($seqName);
+        try {
+            return $this->getWrappedConnection()->lastInsertId($seqName);
+        } catch (DriverException $e) {
+            throw $this->convertException($e);
+        }
     }
 
     /**
@@ -1386,7 +1396,7 @@ class Connection
             throw ConnectionException::savepointsNotSupported();
         }
 
-        $this->getWrappedConnection()->exec($this->platform->createSavePoint($savepoint));
+        $this->executeUpdate($this->platform->createSavePoint($savepoint));
     }
 
     /**
@@ -1408,7 +1418,7 @@ class Connection
             return;
         }
 
-        $this->getWrappedConnection()->exec($this->platform->releaseSavePoint($savepoint));
+        $this->executeUpdate($this->platform->releaseSavePoint($savepoint));
     }
 
     /**
@@ -1426,7 +1436,7 @@ class Connection
             throw ConnectionException::savepointsNotSupported();
         }
 
-        $this->getWrappedConnection()->exec($this->platform->rollbackSavePoint($savepoint));
+        $this->executeUpdate($this->platform->rollbackSavePoint($savepoint));
     }
 
     /**
