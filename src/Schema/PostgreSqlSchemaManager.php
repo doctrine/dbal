@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Types\Type;
@@ -39,6 +40,8 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
      * Gets all the existing schema names.
      *
      * @return string[]
+     *
+     * @throws DBALException
      */
     public function getSchemaNames()
     {
@@ -46,11 +49,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * Returns an array of schema search paths.
-     *
-     * This is a PostgreSQL only function.
-     *
-     * @return string[]
+     * {@inheritDoc}
      */
     public function getSchemaSearchPaths()
     {

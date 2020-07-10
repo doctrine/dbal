@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Schema\Synchronizer;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DBALException;
 use Throwable;
 
 /**
@@ -37,6 +38,8 @@ abstract class AbstractSchemaSynchronizer implements SchemaSynchronizer
      * @param string[] $sql
      *
      * @return void
+     *
+     * @throws DBALException
      */
     protected function processSql(array $sql)
     {

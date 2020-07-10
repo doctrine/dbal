@@ -297,6 +297,8 @@ class OracleSchemaManager extends AbstractSchemaManager
      * @param string $table
      *
      * @return bool
+     *
+     * @throws DBALException
      */
     public function dropAutoincrement($table)
     {
@@ -347,6 +349,8 @@ class OracleSchemaManager extends AbstractSchemaManager
      * @param string $user The name of the user to kill sessions for.
      *
      * @return void
+     *
+     * @throws DBALException
      */
     private function killUserSessions($user)
     {

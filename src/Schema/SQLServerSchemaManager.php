@@ -319,6 +319,8 @@ class SQLServerSchemaManager extends AbstractSchemaManager
      * @param string $database The name of the database to close currently active connections for.
      *
      * @return void
+     *
+     * @throws DBALException
      */
     private function closeActiveDatabaseConnections($database)
     {
@@ -334,6 +336,8 @@ class SQLServerSchemaManager extends AbstractSchemaManager
 
     /**
      * @param string $tableName
+     *
+     * @throws DBALException
      */
     public function listTableDetails($tableName): Table
     {
