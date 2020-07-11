@@ -12,5 +12,5 @@ use Doctrine\DBAL\DriverManager;
         'user' => 'ORACLE',
         'password' => 'ORACLE',
         'dbname' => 'XE',
-    ])->query('ALTER USER ORACLE IDENTIFIED BY ORACLE');
+    ])->executeStatement('ALTER USER ORACLE IDENTIFIED BY ORACLE');
 })();

@@ -520,7 +520,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testEnsureTableOptionsAreReflectedInMetadata(): void
     {
-        $this->connection->query('DROP TABLE IF EXISTS test_table_metadata');
+        $this->connection->executeStatement('DROP TABLE IF EXISTS test_table_metadata');
 
         $sql = <<<'SQL'
 CREATE TABLE test_table_metadata(
@@ -534,7 +534,7 @@ AUTO_INCREMENT=42
 PARTITION BY HASH (col1)
 SQL;
 
-        $this->connection->query($sql);
+        $this->connection->executeStatement($sql);
         $onlineTable = $this->schemaManager->listTableDetails('test_table_metadata');
 
         self::assertEquals('InnoDB', $onlineTable->getOption('engine'));
@@ -549,9 +549,9 @@ SQL;
 
     public function testEnsureTableWithoutOptionsAreReflectedInMetadata(): void
     {
-        $this->connection->query('DROP TABLE IF EXISTS test_table_empty_metadata');
+        $this->connection->executeStatement('DROP TABLE IF EXISTS test_table_empty_metadata');
 
-        $this->connection->query('CREATE TABLE test_table_empty_metadata(col1 INT NOT NULL)');
+        $this->connection->executeStatement('CREATE TABLE test_table_empty_metadata(col1 INT NOT NULL)');
         $onlineTable = $this->schemaManager->listTableDetails('test_table_empty_metadata');
 
         self::assertNotEmpty($onlineTable->getOption('engine'));

@@ -234,7 +234,7 @@ SQL;
 
         $this->connection->insert('test_pk_auto_increment', ['text' => '1']);
 
-        $this->connection->query('DELETE FROM test_pk_auto_increment');
+        $this->connection->executeStatement('DELETE FROM test_pk_auto_increment');
 
         $this->connection->insert('test_pk_auto_increment', ['text' => '2']);
 

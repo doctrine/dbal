@@ -29,7 +29,7 @@ class TransactionTest extends FunctionalTestCase
 
     public function testCommitFalse(): void
     {
-        $this->connection->query('SET SESSION wait_timeout=1');
+        $this->connection->executeStatement('SET SESSION wait_timeout=1');
 
         self::assertTrue($this->connection->beginTransaction());
 
