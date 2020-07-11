@@ -49,7 +49,7 @@ class TemporaryTableTest extends DbalFunctionalTestCase
 
         $createTempTableSQL = $platform->getCreateTemporaryTableSnippetSQL() . ' ' . $tempTable . ' ('
                 . $platform->getColumnDeclarationListSQL($columnDefinitions) . ')';
-        $this->connection->executeUpdate($createTempTableSQL);
+        $this->connection->executeStatement($createTempTableSQL);
 
         $table = new Table('nontemporary');
         $table->addColumn('id', 'integer');

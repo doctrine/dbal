@@ -43,7 +43,7 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
         } catch (Throwable $e) {
         }
 
-        $this->connection->executeUpdate('DELETE FROM master_slave_table');
+        $this->connection->executeStatement('DELETE FROM master_slave_table');
         $this->connection->insert('master_slave_table', ['test_int' => 1]);
     }
 

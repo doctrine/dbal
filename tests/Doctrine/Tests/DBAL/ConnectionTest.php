@@ -54,7 +54,7 @@ class ConnectionTest extends DbalTestCase
     /**
      * @return Connection|MockObject
      */
-    private function getExecuteUpdateMockConnection()
+    private function getExecuteStatementMockConnection()
     {
         $driverMock = $this->createMock(Driver::class);
 
@@ -67,7 +67,7 @@ class ConnectionTest extends DbalTestCase
         $platform = $this->getMockForAbstractClass(AbstractPlatform::class);
 
         return $this->getMockBuilder(Connection::class)
-            ->onlyMethods(['executeUpdate'])
+            ->onlyMethods(['executeStatement'])
             ->setConstructorArgs([['platform' => $platform], $driverMock])
             ->getMock();
     }
@@ -203,7 +203,7 @@ class ConnectionTest extends DbalTestCase
             ['exec'],
             ['query'],
             ['executeQuery'],
-            ['executeUpdate'],
+            ['executeStatement'],
             ['prepare'],
         ];
     }
@@ -372,10 +372,10 @@ class ConnectionTest extends DbalTestCase
 
     public function testEmptyInsert(): void
     {
-        $conn = $this->getExecuteUpdateMockConnection();
+        $conn = $this->getExecuteStatementMockConnection();
 
         $conn->expects($this->once())
-            ->method('executeUpdate')
+            ->method('executeStatement')
             ->with('INSERT INTO footable () VALUES ()');
 
         $conn->insert('footable', []);
@@ -386,10 +386,10 @@ class ConnectionTest extends DbalTestCase
      */
     public function testUpdateWithDifferentColumnsInDataAndIdentifiers(): void
     {
-        $conn = $this->getExecuteUpdateMockConnection();
+        $conn = $this->getExecuteStatementMockConnection();
 
         $conn->expects($this->once())
-            ->method('executeUpdate')
+            ->method('executeStatement')
             ->with(
                 'UPDATE TestTable SET text = ?, is_edited = ? WHERE id = ? AND name = ?',
                 [
@@ -430,10 +430,10 @@ class ConnectionTest extends DbalTestCase
      */
     public function testUpdateWithSameColumnInDataAndIdentifiers(): void
     {
-        $conn = $this->getExecuteUpdateMockConnection();
+        $conn = $this->getExecuteStatementMockConnection();
 
         $conn->expects($this->once())
-            ->method('executeUpdate')
+            ->method('executeStatement')
             ->with(
                 'UPDATE TestTable SET text = ?, is_edited = ? WHERE id = ? AND is_edited = ?',
                 [
@@ -473,10 +473,10 @@ class ConnectionTest extends DbalTestCase
      */
     public function testUpdateWithIsNull(): void
     {
-        $conn = $this->getExecuteUpdateMockConnection();
+        $conn = $this->getExecuteStatementMockConnection();
 
         $conn->expects($this->once())
-            ->method('executeUpdate')
+            ->method('executeStatement')
             ->with(
                 'UPDATE TestTable SET text = ?, is_edited = ? WHERE id IS NULL AND name = ?',
                 [
@@ -515,10 +515,10 @@ class ConnectionTest extends DbalTestCase
      */
     public function testDeleteWithIsNull(): void
     {
-        $conn = $this->getExecuteUpdateMockConnection();
+        $conn = $this->getExecuteStatementMockConnection();
 
         $conn->expects($this->once())
-            ->method('executeUpdate')
+            ->method('executeStatement')
             ->with(
                 'DELETE FROM TestTable WHERE id IS NULL AND name = ?',
                 ['foo'],
@@ -725,7 +725,7 @@ class ConnectionTest extends DbalTestCase
             ['insert', ['tbl', ['data' => 'foo']]],
             ['update', ['tbl', ['data' => 'bar'], ['id' => 12345]]],
             ['prepare', ['select * from dual']],
-            ['executeUpdate', ['insert into tbl (id) values (?)'], [123]],
+            ['executeStatement', ['insert into tbl (id) values (?)'], [123]],
         ];
     }
 

@@ -131,7 +131,7 @@ class TableGenerator
                 $sql  = 'UPDATE ' . $this->generatorTableName . ' ' .
                        'SET sequence_value = sequence_value + sequence_increment_by ' .
                        'WHERE sequence_name = ? AND sequence_value = ?';
-                $rows = $this->conn->executeUpdate($sql, [$sequenceName, $row['sequence_value']]);
+                $rows = $this->conn->executeStatement($sql, [$sequenceName, $row['sequence_value']]);
 
                 if ($rows !== 1) {
                     throw new DBALException('Race-condition detected while updating sequence. Aborting generation');

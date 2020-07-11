@@ -90,7 +90,7 @@ $conn->insert("Customers", array(
     'LastName' => 'Brehm',
 ));
 
-$conn->executeUpdate("
+$conn->executeStatement("
     DECLARE @orderId INT
 
     DECLARE @customerId INT

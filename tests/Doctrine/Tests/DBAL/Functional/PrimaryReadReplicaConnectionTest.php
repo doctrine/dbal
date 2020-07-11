@@ -43,7 +43,7 @@ class PrimaryReadReplicaConnectionTest extends DbalFunctionalTestCase
         } catch (Throwable $e) {
         }
 
-        $this->connection->executeUpdate('DELETE FROM primary_replica_table');
+        $this->connection->executeStatement('DELETE FROM primary_replica_table');
         $this->connection->insert('primary_replica_table', ['test_int' => 1]);
     }
 

@@ -87,7 +87,7 @@ EOT
         if (stripos($sql, 'select') === 0 || $input->getOption('force-fetch')) {
             $resultSet = $conn->fetchAllAssociative($sql);
         } else {
-            $resultSet = $conn->executeUpdate($sql);
+            $resultSet = $conn->executeStatement($sql);
         }
 
         $output->write(Dumper::dump($resultSet, (int) $depth));

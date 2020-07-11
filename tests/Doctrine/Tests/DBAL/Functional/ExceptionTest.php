@@ -201,7 +201,7 @@ class ExceptionTest extends DbalFunctionalTestCase
         $this->expectException(Exception\ForeignKeyConstraintViolationException::class);
 
         try {
-            $this->connection->executeUpdate($platform->getTruncateTableSQL('constraint_error_table'));
+            $this->connection->executeStatement($platform->getTruncateTableSQL('constraint_error_table'));
         } catch (Exception\ForeignKeyConstraintViolationException $exception) {
             $this->tearDownForeignKeyConstraintViolationExceptionTest();
 

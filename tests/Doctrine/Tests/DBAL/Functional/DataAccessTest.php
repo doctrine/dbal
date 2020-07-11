@@ -437,12 +437,12 @@ class DataAccessTest extends DbalFunctionalTestCase
     /**
      * @group DDC-697
      */
-    public function testExecuteUpdateBindDateTimeType(): void
+    public function testExecuteStatementBindDateTimeType(): void
     {
         $datetime = new DateTime('2010-02-02 20:20:20');
 
         $sql          = 'INSERT INTO fetch_table (test_int, test_string, test_datetime) VALUES (?, ?, ?)';
-        $affectedRows = $this->connection->executeUpdate($sql, [
+        $affectedRows = $this->connection->executeStatement($sql, [
             1 => 50,
             2 => 'foo',
             3 => $datetime,
@@ -800,7 +800,7 @@ class DataAccessTest extends DbalFunctionalTestCase
     public function testFetchAllStyleColumn(): void
     {
         $sql = 'DELETE FROM fetch_table';
-        $this->connection->executeUpdate($sql);
+        $this->connection->executeStatement($sql);
 
         $this->connection->insert('fetch_table', ['test_int' => 1, 'test_string' => 'foo']);
         $this->connection->insert('fetch_table', ['test_int' => 10, 'test_string' => 'foo']);
@@ -903,7 +903,7 @@ class DataAccessTest extends DbalFunctionalTestCase
      */
     public function testFetchColumnNullValue(): void
     {
-        $this->connection->executeUpdate(
+        $this->connection->executeStatement(
             'INSERT INTO fetch_table (test_int, test_string) VALUES (?, ?)',
             [2, 'foo']
         );
