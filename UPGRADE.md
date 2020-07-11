@@ -3,6 +3,8 @@
 ## Deprecations in the wrapper `Connection` class
 
 1. The `executeUpdate()` method has been deprecated in favor of `executeStatement()`. 
+2. The `query()` method has been deprecated in favor of `executeQuery()`. 
+3. The `exec()` method has been deprecated in favor of `executeStatement()`. 
 
 ## PDO-related classes outside of the PDO namespace are deprecated
 

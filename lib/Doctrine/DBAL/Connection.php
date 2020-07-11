@@ -1249,6 +1249,8 @@ class Connection implements DriverConnection
     /**
      * Executes an SQL statement, returning a result set as a Statement object.
      *
+     * @deprecated Use {@link executeQuery()} instead.
+     *
      * @return \Doctrine\DBAL\Driver\Statement
      *
      * @throws DBALException
@@ -1359,6 +1361,8 @@ class Connection implements DriverConnection
 
     /**
      * Executes an SQL statement and return the number of affected rows.
+     *
+     * @deprecated Use {@link executeStatement()} instead.
      *
      * @param string $statement
      *
