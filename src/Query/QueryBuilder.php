@@ -199,9 +199,6 @@ class QueryBuilder
     /**
      * Executes this query using the bound parameters and their types.
      *
-     * Uses {@see Connection::executeQuery} for select statements and {@see Connection::executeUpdate}
-     * for insert, update and delete statements.
-     *
      * @return Result|int
      *
      * @throws DBALException
@@ -212,7 +209,7 @@ class QueryBuilder
             return $this->connection->executeQuery($this->getSQL(), $this->params, $this->paramTypes);
         }
 
-        return $this->connection->executeUpdate($this->getSQL(), $this->params, $this->paramTypes);
+        return $this->connection->executeStatement($this->getSQL(), $this->params, $this->paramTypes);
     }
 
     /**

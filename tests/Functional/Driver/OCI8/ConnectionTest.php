@@ -40,7 +40,7 @@ class ConnectionTest extends FunctionalTestCase
 
         $schemaManager->dropAndCreateTable($table);
 
-        $this->connection->executeUpdate('INSERT INTO DBAL2595 (foo) VALUES (1)');
+        $this->connection->executeStatement('INSERT INTO DBAL2595 (foo) VALUES (1)');
 
         $schema   = $this->connection->getDatabase();
         $sequence = $platform->getIdentitySequenceName($schema . '.DBAL2595', 'id');

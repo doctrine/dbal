@@ -32,39 +32,39 @@ class WriteTest extends FunctionalTestCase
         } catch (Throwable $e) {
         }
 
-        $this->connection->executeUpdate('DELETE FROM write_table');
+        $this->connection->executeStatement('DELETE FROM write_table');
     }
 
     /**
      * @group DBAL-80
      */
-    public function testExecuteUpdateFirstTypeIsNull(): void
+    public function testExecuteStatementFirstTypeIsNull(): void
     {
         $sql = 'INSERT INTO write_table (test_string, test_int) VALUES (?, ?)';
-        $this->connection->executeUpdate($sql, ['text', 1111], [null, ParameterType::INTEGER]);
+        $this->connection->executeStatement($sql, ['text', 1111], [null, ParameterType::INTEGER]);
 
         $sql = 'SELECT * FROM write_table WHERE test_string = ? AND test_int = ?';
         self::assertTrue((bool) $this->connection->fetchFirstColumn($sql, ['text', 1111]));
     }
 
-    public function testExecuteUpdate(): void
+    public function testExecuteStatement(): void
     {
         $sql      = 'INSERT INTO write_table (test_int) VALUES ( ' . $this->connection->quote(1) . ')';
-        $affected = $this->connection->executeUpdate($sql);
+        $affected = $this->connection->executeStatement($sql);
 
-        self::assertEquals(1, $affected, 'executeUpdate() should return the number of affected rows!');
+        self::assertEquals(1, $affected, 'executeStatement() should return the number of affected rows!');
     }
 
-    public function testExecuteUpdateWithTypes(): void
+    public function testExecuteStatementWithTypes(): void
     {
         $sql      = 'INSERT INTO write_table (test_int, test_string) VALUES (?, ?)';
-        $affected = $this->connection->executeUpdate(
+        $affected = $this->connection->executeStatement(
             $sql,
             [1, 'foo'],
             [ParameterType::INTEGER, ParameterType::STRING]
         );
 
-        self::assertEquals(1, $affected, 'executeUpdate() should return the number of affected rows!');
+        self::assertEquals(1, $affected, 'executeStatement() should return the number of affected rows!');
     }
 
     public function testPrepareRowCountReturnsAffectedRows(): void

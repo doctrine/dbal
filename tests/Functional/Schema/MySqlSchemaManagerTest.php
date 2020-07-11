@@ -458,7 +458,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->schemaManager->dropAndCreateTable($table);
 
-        $this->connection->executeUpdate(
+        $this->connection->executeStatement(
             'INSERT INTO test_column_defaults_are_valid () VALUES()'
         );
 

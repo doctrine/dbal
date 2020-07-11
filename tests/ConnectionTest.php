@@ -49,7 +49,7 @@ class ConnectionTest extends TestCase
     /**
      * @return Connection|MockObject
      */
-    private function getExecuteUpdateMockConnection()
+    private function getExecuteStatementMockConnection()
     {
         $driverMock = $this->createMock(Driver::class);
 
@@ -62,7 +62,7 @@ class ConnectionTest extends TestCase
         $platform = $this->getMockForAbstractClass(AbstractPlatform::class);
 
         return $this->getMockBuilder(Connection::class)
-            ->onlyMethods(['executeUpdate'])
+            ->onlyMethods(['executeStatement'])
             ->setConstructorArgs([['platform' => $platform], $driverMock])
             ->getMock();
     }
@@ -192,9 +192,9 @@ class ConnectionTest extends TestCase
             },
         ];
 
-        yield 'executeUpdate' => [
+        yield 'executeStatement' => [
             static function (Connection $connection, string $statement): void {
-                $connection->executeUpdate($statement);
+                $connection->executeStatement($statement);
             },
         ];
 
@@ -357,10 +357,10 @@ class ConnectionTest extends TestCase
 
     public function testEmptyInsert(): void
     {
-        $conn = $this->getExecuteUpdateMockConnection();
+        $conn = $this->getExecuteStatementMockConnection();
 
         $conn->expects(self::once())
-            ->method('executeUpdate')
+            ->method('executeStatement')
             ->with('INSERT INTO footable () VALUES ()');
 
         $conn->insert('footable', []);
@@ -371,10 +371,10 @@ class ConnectionTest extends TestCase
      */
     public function testUpdateWithDifferentColumnsInDataAndIdentifiers(): void
     {
-        $conn = $this->getExecuteUpdateMockConnection();
+        $conn = $this->getExecuteStatementMockConnection();
 
         $conn->expects(self::once())
-            ->method('executeUpdate')
+            ->method('executeStatement')
             ->with(
                 'UPDATE TestTable SET text = ?, is_edited = ? WHERE id = ? AND name = ?',
                 [
@@ -415,10 +415,10 @@ class ConnectionTest extends TestCase
      */
     public function testUpdateWithSameColumnInDataAndIdentifiers(): void
     {
-        $conn = $this->getExecuteUpdateMockConnection();
+        $conn = $this->getExecuteStatementMockConnection();
 
         $conn->expects(self::once())
-            ->method('executeUpdate')
+            ->method('executeStatement')
             ->with(
                 'UPDATE TestTable SET text = ?, is_edited = ? WHERE id = ? AND is_edited = ?',
                 [
@@ -458,10 +458,10 @@ class ConnectionTest extends TestCase
      */
     public function testUpdateWithIsNull(): void
     {
-        $conn = $this->getExecuteUpdateMockConnection();
+        $conn = $this->getExecuteStatementMockConnection();
 
         $conn->expects(self::once())
-            ->method('executeUpdate')
+            ->method('executeStatement')
             ->with(
                 'UPDATE TestTable SET text = ?, is_edited = ? WHERE id IS NULL AND name = ?',
                 [
@@ -500,10 +500,10 @@ class ConnectionTest extends TestCase
      */
     public function testDeleteWithIsNull(): void
     {
-        $conn = $this->getExecuteUpdateMockConnection();
+        $conn = $this->getExecuteStatementMockConnection();
 
         $conn->expects(self::once())
-            ->method('executeUpdate')
+            ->method('executeStatement')
             ->with(
                 'DELETE FROM TestTable WHERE id IS NULL AND name = ?',
                 ['foo'],

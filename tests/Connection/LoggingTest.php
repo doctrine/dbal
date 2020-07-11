@@ -20,13 +20,13 @@ final class LoggingTest extends TestCase
             ->executeQuery('SELECT * FROM table');
     }
 
-    public function testLogExecuteUpdate(): void
+    public function testLogExecuteStatement(): void
     {
         $this->createConnection(
             $this->createStub(DriverConnection::class),
             'UPDATE table SET foo = ?'
         )
-            ->executeUpdate('UPDATE table SET foo = ?');
+            ->executeStatement('UPDATE table SET foo = ?');
     }
 
     public function testLogPrepareExecute(): void

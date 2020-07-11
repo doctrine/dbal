@@ -135,7 +135,7 @@ are using just the DBAL there are also helper methods which simplify the usage q
     $sql = "SELECT * FROM users WHERE username = ?";
     $stmt = $connection->executeQuery($sql, array($_GET['username']));
 
-There is also ``executeUpdate`` which does not return a statement but the number of affected rows.
+There is also ``executeStatement`` which does not return a statement but the number of affected rows.
 
 Besides binding parameters you can also pass the type of the variable. This allows Doctrine or the underlying
 vendor to not only escape but also cast the value to the correct type. See the docs on querying and DQL in the

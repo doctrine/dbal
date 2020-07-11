@@ -605,7 +605,7 @@ class Connection
 
         $this->addIdentifierCondition($identifier, $columns, $values, $conditions);
 
-        return $this->executeUpdate(
+        return $this->executeStatement(
             'DELETE FROM ' . $tableExpression . ' WHERE ' . implode(' AND ', $conditions),
             $values,
             is_string(key($types)) ? $this->extractTypeValues($columns, $types) : $types
@@ -635,7 +635,7 @@ class Connection
     {
         $this->transactionIsolationLevel = $level;
 
-        return $this->executeUpdate($this->getDatabasePlatform()->getSetTransactionIsolationSQL($level));
+        return $this->executeStatement($this->getDatabasePlatform()->getSetTransactionIsolationSQL($level));
     }
 
     /**
@@ -687,7 +687,7 @@ class Connection
         $sql = 'UPDATE ' . $tableExpression . ' SET ' . implode(', ', $set)
                 . ' WHERE ' . implode(' AND ', $conditions);
 
-        return $this->executeUpdate($sql, $values, $types);
+        return $this->executeStatement($sql, $values, $types);
     }
 
     /**
@@ -706,7 +706,7 @@ class Connection
     public function insert($tableExpression, array $data, array $types = [])
     {
         if (count($data) === 0) {
-            return $this->executeUpdate('INSERT INTO ' . $tableExpression . ' () VALUES ()');
+            return $this->executeStatement('INSERT INTO ' . $tableExpression . ' () VALUES ()');
         }
 
         $columns = [];
@@ -719,7 +719,7 @@ class Connection
             $set[]     = '?';
         }
 
-        return $this->executeUpdate(
+        return $this->executeStatement(
             'INSERT INTO ' . $tableExpression . ' (' . implode(', ', $columns) . ')' .
             ' VALUES (' . implode(', ', $set) . ')',
             $values,
@@ -1029,6 +1029,8 @@ class Connection
     }
 
     /**
+     * @deprecated Use {@link executeQuery()} instead.
+     *
      * @throws DBALException
      */
     public function query(string $sql): DriverResult
@@ -1055,6 +1057,8 @@ class Connection
      * Executes an SQL INSERT/UPDATE/DELETE query with the given parameters
      * and returns the number of affected rows.
      *
+     * @deprecated Use {@link executeStatement()} instead.
+     *
      * @param string                 $query  The SQL query.
      * @param array<mixed>           $params The query parameters.
      * @param array<int|string|null> $types  The parameter types.
@@ -1063,18 +1067,43 @@ class Connection
      */
     public function executeUpdate(string $query, array $params = [], array $types = []): int
     {
+        return $this->executeStatement($query, $params, $types);
+    }
+
+    /**
+     * Executes an SQL statement with the given parameters and returns the number of affected rows.
+     *
+     * Could be used for:
+     *  - DML statements: INSERT, UPDATE, DELETE, etc.
+     *  - DDL statements: CREATE, DROP, ALTER, etc.
+     *  - DCL statements: GRANT, REVOKE, etc.
+     *  - Session control statements: ALTER SESSION, SET, DECLARE, etc.
+     *  - Other statements that don't yield a row set.
+     *
+     * This method supports PDO binding types as well as DBAL mapping types.
+     *
+     * @param string                 $sql    The statement SQL
+     * @param array<mixed>           $params The query parameters
+     * @param array<int|string|null> $types  The parameter types
+     *
+     * @return int The number of affected rows.
+     *
+     * @throws DBALException
+     */
+    public function executeStatement($sql, array $params = [], array $types = [])
+    {
         $connection = $this->getWrappedConnection();
 
         $logger = $this->_config->getSQLLogger();
         if ($logger !== null) {
-            $logger->startQuery($query, $params, $types);
+            $logger->startQuery($sql, $params, $types);
         }
 
         try {
             if (count($params) > 0) {
-                [$query, $params, $types] = SQLParserUtils::expandListParameters($query, $params, $types);
+                [$sql, $params, $types] = SQLParserUtils::expandListParameters($sql, $params, $types);
 
-                $stmt = $connection->prepare($query);
+                $stmt = $connection->prepare($sql);
 
                 if (count($types) > 0) {
                     $this->_bindTypedValues($stmt, $params, $types);
@@ -1087,9 +1116,9 @@ class Connection
                 return $result->rowCount();
             }
 
-            return $connection->exec($query);
+            return $connection->exec($sql);
         } catch (DriverException $e) {
-            throw $this->convertExceptionDuringQuery($e, $query, $params, $types);
+            throw $this->convertExceptionDuringQuery($e, $sql, $params, $types);
         } finally {
             if ($logger !== null) {
                 $logger->stopQuery();
@@ -1098,6 +1127,8 @@ class Connection
     }
 
     /**
+     * @deprecated Use {@link executeStatement()} instead.
+     *
      * @throws DBALException
      */
     public function exec(string $statement): int

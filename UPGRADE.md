@@ -337,9 +337,19 @@ Please use other database client applications for import, e.g.:
 
 # Upgrade to 2.11
 
+## Deprecated usage of wrapper-level components as implementations of driver-level interfaces
+
+The usage of the wrapper `Connection` and `Statement` classes as implementations of the `Driver\Connection` and `Driver\Statement` interfaces is deprecated.
+
+## Deprecations in the wrapper `Connection` class
+
+1. The `executeUpdate()` method has been deprecated in favor of `executeStatement()`. 
+2. The `query()` method has been deprecated in favor of `executeQuery()`. 
+3. The `exec()` method has been deprecated in favor of `executeStatement()`. 
+
 ## PDO-related classes outside of the PDO namespace are deprecated
 
-The following outside of the PDO namespace have been deprecated in favor of their counterparts in the PDO namespace:
+The following PDO-related classes outside of the PDO namespace have been deprecated in favor of their counterparts in the PDO namespace:
 
 - `PDOMySql\Driver` → `PDO\MySQL\Driver`
 - `PDOOracle\Driver` → `PDO\OCI\Driver`

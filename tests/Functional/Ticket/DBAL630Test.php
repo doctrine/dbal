@@ -47,7 +47,7 @@ class DBAL630Test extends FunctionalTestCase
 
     public function testBooleanConversionSqlLiteral(): void
     {
-        $this->connection->executeUpdate('INSERT INTO dbal630 (bool_col) VALUES(false)');
+        $this->connection->executeStatement('INSERT INTO dbal630 (bool_col) VALUES(false)');
         $id = $this->connection->lastInsertId('dbal630_id_seq');
         self::assertNotEmpty($id);
 
@@ -58,7 +58,7 @@ class DBAL630Test extends FunctionalTestCase
 
     public function testBooleanConversionBoolParamRealPrepares(): void
     {
-        $this->connection->executeUpdate(
+        $this->connection->executeStatement(
             'INSERT INTO dbal630 (bool_col) VALUES(?)',
             ['false'],
             [ParameterType::BOOLEAN]
