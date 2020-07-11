@@ -749,7 +749,7 @@ class Connection implements DriverConnection
 
         $this->addIdentifierCondition($identifier, $columns, $values, $conditions);
 
-        return $this->executeUpdate(
+        return $this->executeStatement(
             'DELETE FROM ' . $tableExpression . ' WHERE ' . implode(' AND ', $conditions),
             $values,
             is_string(key($types)) ? $this->extractTypeValues($columns, $types) : $types
@@ -777,7 +777,7 @@ class Connection implements DriverConnection
     {
         $this->transactionIsolationLevel = $level;
 
-        return $this->executeUpdate($this->getDatabasePlatform()->getSetTransactionIsolationSQL($level));
+        return $this->executeStatement($this->getDatabasePlatform()->getSetTransactionIsolationSQL($level));
     }
 
     /**
@@ -827,7 +827,7 @@ class Connection implements DriverConnection
         $sql = 'UPDATE ' . $tableExpression . ' SET ' . implode(', ', $set)
                 . ' WHERE ' . implode(' AND ', $conditions);
 
-        return $this->executeUpdate($sql, $values, $types);
+        return $this->executeStatement($sql, $values, $types);
     }
 
     /**
@@ -846,7 +846,7 @@ class Connection implements DriverConnection
     public function insert($tableExpression, array $data, array $types = [])
     {
         if (empty($data)) {
-            return $this->executeUpdate('INSERT INTO ' . $tableExpression . ' () VALUES ()');
+            return $this->executeStatement('INSERT INTO ' . $tableExpression . ' () VALUES ()');
         }
 
         $columns = [];
@@ -859,7 +859,7 @@ class Connection implements DriverConnection
             $set[]     = '?';
         }
 
-        return $this->executeUpdate(
+        return $this->executeStatement(
             'INSERT INTO ' . $tableExpression . ' (' . implode(', ', $columns) . ')' .
             ' VALUES (' . implode(', ', $set) . ')',
             $values,
@@ -1285,6 +1285,8 @@ class Connection implements DriverConnection
      *
      * This method supports PDO binding types as well as DBAL mapping types.
      *
+     * @deprecated Use {@link executeStatement()} instead.
+     *
      * @param string                 $query  The SQL query.
      * @param array<mixed>           $params The query parameters.
      * @param array<int|string|null> $types  The parameter types.
@@ -1295,18 +1297,43 @@ class Connection implements DriverConnection
      */
     public function executeUpdate($query, array $params = [], array $types = [])
     {
+        return $this->executeStatement($query, $params, $types);
+    }
+
+    /**
+     * Executes an SQL statement with the given parameters and returns the number of affected rows.
+     *
+     * Could be used for:
+     *  - DML statements: INSERT, UPDATE, DELETE, etc.
+     *  - DDL statements: CREATE, DROP, ALTER, etc.
+     *  - DCL statements: GRANT, REVOKE, etc.
+     *  - Session control statements: ALTER SESSION, SET, DECLARE, etc.
+     *  - Other statements that don't yield a row set.
+     *
+     * This method supports PDO binding types as well as DBAL mapping types.
+     *
+     * @param string                 $sql    The statement SQL
+     * @param array<mixed>           $params The query parameters
+     * @param array<int|string|null> $types  The parameter types
+     *
+     * @return int The number of affected rows.
+     *
+     * @throws DBALException
+     */
+    public function executeStatement($sql, array $params = [], array $types = [])
+    {
         $connection = $this->getWrappedConnection();
 
         $logger = $this->_config->getSQLLogger();
         if ($logger) {
-            $logger->startQuery($query, $params, $types);
+            $logger->startQuery($sql, $params, $types);
         }
 
         try {
             if ($params) {
-                [$query, $params, $types] = SQLParserUtils::expandListParameters($query, $params, $types);
+                [$sql, $params, $types] = SQLParserUtils::expandListParameters($sql, $params, $types);
 
-                $stmt = $connection->prepare($query);
+                $stmt = $connection->prepare($sql);
 
                 if ($types) {
                     $this->_bindTypedValues($stmt, $params, $types);
@@ -1317,10 +1344,10 @@ class Connection implements DriverConnection
 
                 $result = $stmt->rowCount();
             } else {
-                $result = $connection->exec($query);
+                $result = $connection->exec($sql);
             }
         } catch (Throwable $e) {
-            $this->handleExceptionDuringQuery($e, $query, $params, $types);
+            $this->handleExceptionDuringQuery($e, $sql, $params, $types);
         }
 
         if ($logger) {

@@ -263,7 +263,7 @@ operation for us:
         'LastName' => 'Brehm',
     ));
 
-    $conn->executeUpdate("DECLARE @orderId INT
+    $conn->executeStatement("DECLARE @orderId INT
 
         DECLARE @customerId INT
 

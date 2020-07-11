@@ -26,7 +26,7 @@ use function func_get_args;
  *
  * 1. Replica if primary was never picked before and ONLY if 'getWrappedConnection'
  *    or 'executeQuery' is used.
- * 2. Primary picked when 'exec', 'executeUpdate', 'insert', 'delete', 'update', 'createSavepoint',
+ * 2. Primary picked when 'exec', 'executeUpdate', 'executeStatement', 'insert', 'delete', 'update', 'createSavepoint',
  *    'releaseSavepoint', 'beginTransaction', 'rollback', 'commit', 'query' or
  *    'prepare' is called.
  * 3. If Primary was picked once during the lifetime of the connection it will always get picked afterwards.
@@ -41,7 +41,7 @@ use function func_get_args;
  * Be aware that Connection#executeQuery is a method specifically for READ
  * operations only.
  *
- * Use Connection#executeUpdate for any SQL statement that changes/updates
+ * Use Connection#executeStatement for any SQL statement that changes/updates
  * state in the database (UPDATE, INSERT, DELETE or DDL statements).
  *
  * This connection is limited to replica operations using the
@@ -256,12 +256,24 @@ class PrimaryReadReplicaConnection extends Connection
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated Use {@link executeStatement()} instead.
      */
     public function executeUpdate($query, array $params = [], array $types = [])
     {
         $this->ensureConnectedToPrimary();
 
         return parent::executeUpdate($query, $params, $types);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function executeStatement($query, array $params = [], array $types = [])
+    {
+        $this->ensureConnectedToPrimary();
+
+        return parent::executeStatement($query, $params, $types);
     }
 
     /**

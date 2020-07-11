@@ -16,7 +16,7 @@ class OracleSessionInitTest extends DbalTestCase
     {
         $connectionMock = $this->createMock(Connection::class);
         $connectionMock->expects($this->once())
-                       ->method('executeUpdate')
+                       ->method('executeStatement')
                        ->with($this->isType('string'));
 
         $eventArgs = new ConnectionEventArgs($connectionMock);
@@ -35,7 +35,7 @@ class OracleSessionInitTest extends DbalTestCase
             ->disableOriginalConstructor()
             ->getMock();
         $connectionMock->expects($this->once())
-            ->method('executeUpdate')
+            ->method('executeStatement')
             ->with($this->stringContains(sprintf('%s = %s', $name, $value)));
 
         $eventArgs = new ConnectionEventArgs($connectionMock);

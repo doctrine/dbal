@@ -1,5 +1,9 @@
 # Upgrade to 2.11
 
+## Deprecations in the wrapper `Connection` class
+
+1. The `executeUpdate()` method has been deprecated in favor of `executeStatement()`. 
+
 ## PDO-related classes outside of the PDO namespace are deprecated
 
 The following outside of the PDO namespace have been deprecated in favor of their counterparts in the PDO namespace:
