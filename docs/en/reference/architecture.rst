@@ -1,50 +1,43 @@
 Architecture
 ============
 
-As already said, the DBAL is a thin layer on top of PDO. PDO itself
-is mainly defined in terms of 2 classes: ``PDO`` and
-``PDOStatement``. The equivalent classes in the DBAL are
-``Doctrine\DBAL\Connection`` and ``Doctrine\DBAL\Statement``. A
-``Doctrine\DBAL\Connection`` wraps a
-``Doctrine\DBAL\Driver\Connection`` and a
-``Doctrine\DBAL\Statement`` wraps a
-``Doctrine\DBAL\Driver\Statement``.
+The DBAL consists of two layers: drivers and a wrapper. Each layer
+is mainly defined in terms of 3 components: ``Connection``,
+``Statement`` and ``Result``.
+A ``Doctrine\DBAL\Connection`` wraps a ``Doctrine\DBAL\Driver\Connection``,
+a ``Doctrine\DBAL\Statement`` wraps a ``Doctrine\DBAL\Driver\Statement``
+and a ``Doctrine\DBAL\Result`` wraps a ``Doctrine\DBAL\Driver\Result``.
 
-``Doctrine\DBAL\Driver\Connection`` and
-``Doctrine\DBAL\Driver\Statement`` are just interfaces. These
-interfaces are implemented by concrete drivers. For all PDO based
-drivers, ``PDO`` and ``PDOStatement`` are the implementations of
-these interfaces. Thus, for PDO-based drivers, a
-``Doctrine\DBAL\Connection`` wraps a ``PDO`` instance and a
-``Doctrine\DBAL\Statement`` wraps a ``PDOStatement`` instance.
+``Doctrine\DBAL\Driver\Connection``, ``Doctrine\DBAL\Driver\Statement``
+and ``Doctrine\DBAL\Driver\Result`` are just interfaces.
+These interfaces are implemented by concrete drivers.
 
-What does a ``Doctrine\DBAL\Connection`` or a
-``Doctrine\DBAL\Statement`` add to the underlying driver
+What do the wrapper components add to the underlying driver
 implementations? The enhancements include SQL logging, events and
 control over the transaction isolation level in a portable manner,
 among others.
 
-A DBAL driver is defined to the outside in terms of 3 interfaces:
-``Doctrine\DBAL\Driver``, ``Doctrine\DBAL\Driver\Connection`` and
-``Doctrine\DBAL\Driver\Statement``. The latter two resemble (a
-subset of) the corresponding PDO API.
+Apart from the three main components, a DBAL driver should also provide
+an implementation of the ``Doctrine\DBAL\Driver`` interface that
+has two primary purposes:
 
-A concrete driver implementation must provide implementation
-classes for these 3 interfaces.
+1. Translate the DBAL connection parameters to the ones specific
+   to the driver's connection class.
+2. Act as a factory of other driver-specific components like
+   platform, schema manager and exception converter.
 
 The DBAL is separated into several different packages that
-perfectly separate responsibilities of the different RDBMS layers.
+separate responsibilities of the different RDBMS layers.
 
 Drivers
 -------
 
-The drivers abstract a PHP specific database API by enforcing two
+The drivers abstract a PHP specific database API by enforcing three
 interfaces:
 
 -  ``\Doctrine\DBAL\Driver\Connection``
 -  ``\Doctrine\DBAL\Driver\Statement``
-
-The above two interfaces require exactly the same methods as PDO.
+-  ``\Doctrine\DBAL\Driver\Result``
 
 Platforms
 ---------
@@ -55,8 +48,8 @@ features a platform supports. The
 denominator of what a database platform has to publish to the
 userland, to be fully supportable by Doctrine. This includes the
 SchemaTool, Transaction Isolation and many other features. The
-Database platform for MySQL for example can be used by all 3 MySQL
-extensions, PDO, Mysqli and ext/mysql.
+Database platform for MySQL for example can be used by multiple
+MySQL extensions: pdo_mysql and mysqli.
 
 Logging
 -------
