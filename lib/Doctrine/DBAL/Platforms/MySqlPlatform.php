@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Platforms;
 
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
@@ -9,7 +10,9 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\BlobType;
+use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
+use Doctrine\DBAL\Types\Type;
 use InvalidArgumentException;
 use function array_diff_key;
 use function array_merge;
@@ -592,6 +595,13 @@ SQL
                 ($columnArray['type'] instanceof TextType || $columnArray['type'] instanceof BlobType)
             ) {
                 continue;
+            }
+
+            $type = $column->getType();
+            if ($type !== StringType::class && $type !== TextType::class) {
+                $options = $column->getPlatformOptions();
+                unset($options['charset']);
+                $column->setPlatformOptions($options);
             }
 
             $columnArray['comment'] = $this->getColumnComment($column);
