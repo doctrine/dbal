@@ -2,7 +2,6 @@
 
 namespace Doctrine\DBAL\Platforms;
 
-use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
@@ -12,7 +11,6 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
-use Doctrine\DBAL\Types\Type;
 use InvalidArgumentException;
 use function array_diff_key;
 use function array_merge;
@@ -597,7 +595,7 @@ SQL
                 continue;
             }
 
-            $type = $column->getType();
+            $type = get_class($column->getType());
             if ($type !== StringType::class && $type !== TextType::class) {
                 $options = $column->getPlatformOptions();
                 unset($options['charset']);
