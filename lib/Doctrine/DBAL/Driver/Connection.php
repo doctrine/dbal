@@ -41,11 +41,11 @@ interface Connection
     /**
      * Executes an SQL statement and return the number of affected rows.
      *
-     * @param string $statement
+     * @param string $sql
      *
      * @return int
      */
-    public function exec($statement);
+    public function exec($sql);
 
     /**
      * Returns the ID of the last inserted row or sequence value.

@@ -306,11 +306,11 @@ class MasterSlaveConnection extends Connection
     /**
      * {@inheritDoc}
      */
-    public function exec($statement)
+    public function exec($sql)
     {
         $this->connect('master');
 
-        return parent::exec($statement);
+        return parent::exec($sql);
     }
 
     /**

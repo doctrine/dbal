@@ -36,10 +36,10 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function exec($statement)
+    public function exec($sql)
     {
         try {
-            $result = parent::exec($statement);
+            $result = parent::exec($sql);
             assert($result !== false);
 
             return $result;
