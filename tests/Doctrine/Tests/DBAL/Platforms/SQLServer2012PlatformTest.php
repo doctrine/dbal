@@ -326,10 +326,10 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
     public function testModifyLimitSubquerySimple(): void
     {
         $querySql   = 'SELECT DISTINCT id_0 FROM '
-            . '(SELECT k0_.id AS id_0, k0_.field AS field_1 '
-            . 'FROM key_table k0_ WHERE (k0_.where_field IN (1))) dctrn_result';
-        $alteredSql = 'SELECT DISTINCT id_0 FROM (SELECT k0_.id AS id_0, k0_.field AS field_1 '
-            . 'FROM key_table k0_ WHERE (k0_.where_field IN (1))) dctrn_result ORDER BY 1 OFFSET 0 ROWS FETCH NEXT 20 ROWS ONLY';
+            . '(SELECT k0_.id AS id_0, k0_.column AS column_1 '
+            . 'FROM key_table k0_ WHERE (k0_.where_column IN (1))) dctrn_result';
+        $alteredSql = 'SELECT DISTINCT id_0 FROM (SELECT k0_.id AS id_0, k0_.column AS column_1 '
+            . 'FROM key_table k0_ WHERE (k0_.where_column IN (1))) dctrn_result ORDER BY 1 OFFSET 0 ROWS FETCH NEXT 20 ROWS ONLY';
         $sql        = $this->platform->modifyLimitQuery($querySql, 20);
         self::assertEquals($alteredSql, $sql);
     }

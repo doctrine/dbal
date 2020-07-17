@@ -350,8 +350,10 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
 
     public function testGetCustomColumnDeclarationSql(): void
     {
-        $field = ['columnDefinition' => 'MEDIUMINT(6) UNSIGNED'];
-        self::assertEquals('foo MEDIUMINT(6) UNSIGNED', $this->platform->getColumnDeclarationSQL('foo', $field));
+        self::assertEquals(
+            'foo MEDIUMINT(6) UNSIGNED',
+            $this->platform->getColumnDeclarationSQL('foo', ['columnDefinition' => 'MEDIUMINT(6) UNSIGNED'])
+        );
     }
 
     public function testGetCreateTableSqlDispatchEvent(): void
@@ -516,26 +518,22 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
     public function testGetDefaultValueDeclarationSQL(): void
     {
         // non-timestamp value will get single quotes
-        $field = [
+        self::assertEquals(" DEFAULT 'non_timestamp'", $this->platform->getDefaultValueDeclarationSQL([
             'type' => Type::getType('string'),
             'default' => 'non_timestamp',
-        ];
-
-        self::assertEquals(" DEFAULT 'non_timestamp'", $this->platform->getDefaultValueDeclarationSQL($field));
+        ]));
     }
 
     public function testGetDefaultValueDeclarationSQLDateTime(): void
     {
         // timestamps on datetime types should not be quoted
         foreach (['datetime', 'datetimetz', 'datetime_immutable', 'datetimetz_immutable'] as $type) {
-            $field = [
-                'type'    => Type::getType($type),
-                'default' => $this->platform->getCurrentTimestampSQL(),
-            ];
-
             self::assertSame(
                 ' DEFAULT ' . $this->platform->getCurrentTimestampSQL(),
-                $this->platform->getDefaultValueDeclarationSQL($field)
+                $this->platform->getDefaultValueDeclarationSQL([
+                    'type'    => Type::getType($type),
+                    'default' => $this->platform->getCurrentTimestampSQL(),
+                ])
             );
         }
     }
@@ -543,14 +541,12 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
     public function testGetDefaultValueDeclarationSQLForIntegerTypes(): void
     {
         foreach (['bigint', 'integer', 'smallint'] as $type) {
-            $field = [
-                'type'    => Type::getType($type),
-                'default' => 1,
-            ];
-
             self::assertEquals(
                 ' DEFAULT 1',
-                $this->platform->getDefaultValueDeclarationSQL($field)
+                $this->platform->getDefaultValueDeclarationSQL([
+                    'type'    => Type::getType($type),
+                    'default' => 1,
+                ])
             );
         }
     }
@@ -559,14 +555,12 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
     {
         $currentDateSql = $this->platform->getCurrentDateSQL();
         foreach (['date', 'date_immutable'] as $type) {
-            $field = [
-                'type'    => Type::getType($type),
-                'default' => $currentDateSql,
-            ];
-
             self::assertSame(
                 ' DEFAULT ' . $currentDateSql,
-                $this->platform->getDefaultValueDeclarationSQL($field)
+                $this->platform->getDefaultValueDeclarationSQL([
+                    'type'    => Type::getType($type),
+                    'default' => $currentDateSql,
+                ])
             );
         }
     }

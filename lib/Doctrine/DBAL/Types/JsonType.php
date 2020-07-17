@@ -21,9 +21,9 @@ class JsonType extends Type
     /**
      * {@inheritdoc}
      */
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
+    public function getSQLDeclaration(array $column, AbstractPlatform $platform)
     {
-        return $platform->getJsonTypeDeclarationSQL($fieldDeclaration);
+        return $platform->getJsonTypeDeclarationSQL($column);
     }
 
     /**

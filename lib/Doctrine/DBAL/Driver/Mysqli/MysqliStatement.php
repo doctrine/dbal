@@ -179,7 +179,7 @@ class MysqliStatement implements IteratorAggregate, Statement
 
             // Bind row values _after_ storing the result. Otherwise, if mysqli is compiled with libmysql,
             // it will have to allocate as much memory as it may be needed for the given column type
-            // (e.g. for a LONGBLOB field it's 4 gigabytes)
+            // (e.g. for a LONGBLOB column it's 4 gigabytes)
             // @link https://bugs.php.net/bug.php?id=51386#1270673122
             //
             // Make sure that the values are bound after each execution. Otherwise, if closeCursor() has been

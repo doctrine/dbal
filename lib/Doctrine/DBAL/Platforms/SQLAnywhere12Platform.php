@@ -42,7 +42,7 @@ class SQLAnywhere12Platform extends SQLAnywhere11Platform
     /**
      * {@inheritdoc}
      */
-    public function getDateTimeTzTypeDeclarationSQL(array $fieldDeclaration)
+    public function getDateTimeTzTypeDeclarationSQL(array $column)
     {
         return 'TIMESTAMP WITH TIME ZONE';
     }

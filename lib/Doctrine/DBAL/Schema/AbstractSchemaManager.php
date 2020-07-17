@@ -145,7 +145,7 @@ abstract class AbstractSchemaManager
      * Lists the columns for a given table.
      *
      * In contrast to other libraries and to the old version of Doctrine,
-     * this column definition does try to contain the 'primary' field for
+     * this column definition does try to contain the 'primary' column for
      * the reason that it is not portable across different RDBMS. Use
      * {@see listTableIndexes($tableName)} to retrieve the primary key
      * of a table. Where a RDBMS specifies more details, these are held

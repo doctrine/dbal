@@ -469,10 +469,10 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     public function testModifyLimitSubquerySimple(): void
     {
         $querySql   = 'SELECT DISTINCT id_0 FROM '
-            . '(SELECT k0_.id AS id_0, k0_.field AS field_1 '
-            . 'FROM key_table k0_ WHERE (k0_.where_field IN (1))) dctrn_result';
-        $alteredSql = 'SELECT DISTINCT TOP 20 id_0 FROM (SELECT k0_.id AS id_0, k0_.field AS field_1 '
-            . 'FROM key_table k0_ WHERE (k0_.where_field IN (1))) dctrn_result';
+            . '(SELECT k0_.id AS id_0, k0_.column AS column_1 '
+            . 'FROM key_table k0_ WHERE (k0_.where_column IN (1))) dctrn_result';
+        $alteredSql = 'SELECT DISTINCT TOP 20 id_0 FROM (SELECT k0_.id AS id_0, k0_.column AS column_1 '
+            . 'FROM key_table k0_ WHERE (k0_.where_column IN (1))) dctrn_result';
         $sql        = $this->platform->modifyLimitQuery($querySql, 20);
         $this->expectCteWithMaxRowNum($alteredSql, 20, $sql);
     }
@@ -1445,14 +1445,12 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     {
         $currentDateSql = $this->platform->getCurrentDateSQL();
         foreach (['date', 'date_immutable'] as $type) {
-            $field = [
-                'type' => Type::getType($type),
-                'default' => $currentDateSql,
-            ];
-
             self::assertSame(
                 ' DEFAULT CONVERT(date, GETDATE())',
-                $this->platform->getDefaultValueDeclarationSQL($field)
+                $this->platform->getDefaultValueDeclarationSQL([
+                    'type' => Type::getType($type),
+                    'default' => $currentDateSql,
+                ])
             );
         }
     }

@@ -246,10 +246,10 @@ class MySqlPlatform extends AbstractPlatform
      *
      * {@inheritDoc}
      */
-    public function getClobTypeDeclarationSQL(array $field)
+    public function getClobTypeDeclarationSQL(array $column)
     {
-        if (! empty($field['length']) && is_numeric($field['length'])) {
-            $length = $field['length'];
+        if (! empty($column['length']) && is_numeric($column['length'])) {
+            $length = $column['length'];
 
             if ($length <= static::LENGTH_LIMIT_TINYTEXT) {
                 return 'TINYTEXT';
@@ -270,9 +270,9 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getDateTimeTypeDeclarationSQL(array $fieldDeclaration)
+    public function getDateTimeTypeDeclarationSQL(array $column)
     {
-        if (isset($fieldDeclaration['version']) && $fieldDeclaration['version'] === true) {
+        if (isset($column['version']) && $column['version'] === true) {
             return 'TIMESTAMP';
         }
 
@@ -282,7 +282,7 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getDateTypeDeclarationSQL(array $fieldDeclaration)
+    public function getDateTypeDeclarationSQL(array $column)
     {
         return 'DATE';
     }
@@ -290,7 +290,7 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getTimeTypeDeclarationSQL(array $fieldDeclaration)
+    public function getTimeTypeDeclarationSQL(array $column)
     {
         return 'TIME';
     }
@@ -298,21 +298,21 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getBooleanTypeDeclarationSQL(array $field)
+    public function getBooleanTypeDeclarationSQL(array $column)
     {
         return 'TINYINT(1)';
     }
 
     /**
      * Obtain DBMS specific SQL code portion needed to set the COLLATION
-     * of a field declaration to be used in statements like CREATE TABLE.
+     * of a column declaration to be used in statements like CREATE TABLE.
      *
      * @deprecated Deprecated since version 2.5, Use {@link self::getColumnCollationDeclarationSQL()} instead.
      *
      * @param string $collation name of the collation
      *
      * @return string  DBMS specific SQL code portion needed to set the COLLATION
-     *                 of a field declaration.
+     *                 of a column declaration.
      */
     public function getCollationFieldDeclaration($collation)
     {
@@ -470,14 +470,14 @@ SQL
     /**
      * {@inheritdoc}
      */
-    public function getDefaultValueDeclarationSQL($field)
+    public function getDefaultValueDeclarationSQL($column)
     {
-        // Unset the default value if the given field definition does not allow default values.
-        if ($field['type'] instanceof TextType || $field['type'] instanceof BlobType) {
-            $field['default'] = null;
+        // Unset the default value if the given column definition does not allow default values.
+        if ($column['type'] instanceof TextType || $column['type'] instanceof BlobType) {
+            $column['default'] = null;
         }
 
-        return parent::getDefaultValueDeclarationSQL($field);
+        return parent::getDefaultValueDeclarationSQL($column);
     }
 
     /**
@@ -903,41 +903,41 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getIntegerTypeDeclarationSQL(array $field)
+    public function getIntegerTypeDeclarationSQL(array $column)
     {
-        return 'INT' . $this->_getCommonIntegerTypeDeclarationSQL($field);
+        return 'INT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getBigIntTypeDeclarationSQL(array $field)
+    public function getBigIntTypeDeclarationSQL(array $column)
     {
-        return 'BIGINT' . $this->_getCommonIntegerTypeDeclarationSQL($field);
+        return 'BIGINT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getSmallIntTypeDeclarationSQL(array $field)
+    public function getSmallIntTypeDeclarationSQL(array $column)
     {
-        return 'SMALLINT' . $this->_getCommonIntegerTypeDeclarationSQL($field);
+        return 'SMALLINT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getFloatDeclarationSQL(array $field)
+    public function getFloatDeclarationSQL(array $column)
     {
-        return 'DOUBLE PRECISION' . $this->getUnsignedDeclaration($field);
+        return 'DOUBLE PRECISION' . $this->getUnsignedDeclaration($column);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getDecimalTypeDeclarationSQL(array $columnDef)
+    public function getDecimalTypeDeclarationSQL(array $column)
     {
-        return parent::getDecimalTypeDeclarationSQL($columnDef) . $this->getUnsignedDeclaration($columnDef);
+        return parent::getDecimalTypeDeclarationSQL($column) . $this->getUnsignedDeclaration($column);
     }
 
     /**
@@ -955,14 +955,14 @@ SQL
     /**
      * {@inheritDoc}
      */
-    protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef)
+    protected function _getCommonIntegerTypeDeclarationSQL(array $column)
     {
         $autoinc = '';
-        if (! empty($columnDef['autoincrement'])) {
+        if (! empty($column['autoincrement'])) {
             $autoinc = ' AUTO_INCREMENT';
         }
 
-        return $this->getUnsignedDeclaration($columnDef) . $autoinc;
+        return $this->getUnsignedDeclaration($column) . $autoinc;
     }
 
     /**
@@ -1147,10 +1147,10 @@ SQL
      *
      * {@inheritDoc}
      */
-    public function getBlobTypeDeclarationSQL(array $field)
+    public function getBlobTypeDeclarationSQL(array $column)
     {
-        if (! empty($field['length']) && is_numeric($field['length'])) {
-            $length = $field['length'];
+        if (! empty($column['length']) && is_numeric($column['length'])) {
+            $length = $column['length'];
 
             if ($length <= static::LENGTH_LIMIT_TINYBLOB) {
                 return 'TINYBLOB';

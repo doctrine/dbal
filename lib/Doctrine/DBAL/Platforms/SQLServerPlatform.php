@@ -1161,31 +1161,31 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getIntegerTypeDeclarationSQL(array $field)
+    public function getIntegerTypeDeclarationSQL(array $column)
     {
-        return 'INT' . $this->_getCommonIntegerTypeDeclarationSQL($field);
+        return 'INT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getBigIntTypeDeclarationSQL(array $field)
+    public function getBigIntTypeDeclarationSQL(array $column)
     {
-        return 'BIGINT' . $this->_getCommonIntegerTypeDeclarationSQL($field);
+        return 'BIGINT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getSmallIntTypeDeclarationSQL(array $field)
+    public function getSmallIntTypeDeclarationSQL(array $column)
     {
-        return 'SMALLINT' . $this->_getCommonIntegerTypeDeclarationSQL($field);
+        return 'SMALLINT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getGuidTypeDeclarationSQL(array $field)
+    public function getGuidTypeDeclarationSQL(array $column)
     {
         return 'UNIQUEIDENTIFIER';
     }
@@ -1217,7 +1217,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getClobTypeDeclarationSQL(array $field)
+    public function getClobTypeDeclarationSQL(array $column)
     {
         return 'VARCHAR(MAX)';
     }
@@ -1225,23 +1225,15 @@ SQL
     /**
      * {@inheritDoc}
      */
-    protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef)
+    protected function _getCommonIntegerTypeDeclarationSQL(array $column)
     {
-        return ! empty($columnDef['autoincrement']) ? ' IDENTITY' : '';
+        return ! empty($column['autoincrement']) ? ' IDENTITY' : '';
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getDateTimeTypeDeclarationSQL(array $fieldDeclaration)
-    {
-        return 'DATETIME';
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDateTypeDeclarationSQL(array $fieldDeclaration)
+    public function getDateTimeTypeDeclarationSQL(array $column)
     {
         return 'DATETIME';
     }
@@ -1249,7 +1241,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getTimeTypeDeclarationSQL(array $fieldDeclaration)
+    public function getDateTypeDeclarationSQL(array $column)
     {
         return 'DATETIME';
     }
@@ -1257,7 +1249,15 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getBooleanTypeDeclarationSQL(array $field)
+    public function getTimeTypeDeclarationSQL(array $column)
+    {
+        return 'DATETIME';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getBooleanTypeDeclarationSQL(array $column)
     {
         return 'BIT';
     }
@@ -1607,7 +1607,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getBlobTypeDeclarationSQL(array $field)
+    public function getBlobTypeDeclarationSQL(array $column)
     {
         return 'VARBINARY(MAX)';
     }
@@ -1617,23 +1617,23 @@ SQL
      *
      * Modifies column declaration order as it differs in Microsoft SQL Server.
      */
-    public function getColumnDeclarationSQL($name, array $field)
+    public function getColumnDeclarationSQL($name, array $column)
     {
-        if (isset($field['columnDefinition'])) {
-            $columnDef = $this->getCustomTypeDeclarationSQL($field);
+        if (isset($column['columnDefinition'])) {
+            $columnDef = $this->getCustomTypeDeclarationSQL($column);
         } else {
-            $collation = isset($field['collation']) && $field['collation'] ?
-                ' ' . $this->getColumnCollationDeclarationSQL($field['collation']) : '';
+            $collation = isset($column['collation']) && $column['collation'] ?
+                ' ' . $this->getColumnCollationDeclarationSQL($column['collation']) : '';
 
-            $notnull = isset($field['notnull']) && $field['notnull'] ? ' NOT NULL' : '';
+            $notnull = isset($column['notnull']) && $column['notnull'] ? ' NOT NULL' : '';
 
-            $unique = isset($field['unique']) && $field['unique'] ?
+            $unique = isset($column['unique']) && $column['unique'] ?
                 ' ' . $this->getUniqueFieldDeclarationSQL() : '';
 
-            $check = isset($field['check']) && $field['check'] ?
-                ' ' . $field['check'] : '';
+            $check = isset($column['check']) && $column['check'] ?
+                ' ' . $column['check'] : '';
 
-            $typeDecl  = $field['type']->getSQLDeclaration($field, $this);
+            $typeDecl  = $column['type']->getSQLDeclaration($column, $this);
             $columnDef = $typeDecl . $collation . $notnull . $unique . $check;
         }
 

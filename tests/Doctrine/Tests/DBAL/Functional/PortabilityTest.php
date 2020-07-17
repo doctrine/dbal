@@ -138,13 +138,12 @@ class PortabilityTest extends DbalFunctionalTestCase
      *
      * @dataProvider fetchAllColumnProvider
      */
-    public function testFetchAllColumn(string $field, array $expected): void
+    public function testFetchAllColumn(string $column, array $expected): void
     {
         $conn = $this->getPortableConnection();
-        $stmt = $conn->query('SELECT ' . $field . ' FROM portability_table');
+        $stmt = $conn->query('SELECT ' . $column . ' FROM portability_table');
 
-        $column = $stmt->fetchAll(FetchMode::COLUMN);
-        self::assertEquals($expected, $column);
+        self::assertEquals($expected, $stmt->fetchAll(FetchMode::COLUMN));
     }
 
     /**

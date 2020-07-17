@@ -27,7 +27,7 @@ class ComparatorTest extends TestCase
             'bugdb' => new Table(
                 'bugdb',
                 [
-                    'integerfield1' => new Column('integerfield1', Type::getType('integer')),
+                    'integercolumn1' => new Column('integercolumn1', Type::getType('integer')),
                 ]
             ),
         ]);
@@ -35,7 +35,7 @@ class ComparatorTest extends TestCase
             'bugdb' => new Table(
                 'bugdb',
                 [
-                    'integerfield1' => new Column('integerfield1', Type::getType('integer')),
+                    'integercolumn1' => new Column('integercolumn1', Type::getType('integer')),
                 ]
             ),
         ]);
@@ -51,8 +51,8 @@ class ComparatorTest extends TestCase
             'bugdb' => new Table(
                 'bugdb',
                 [
-                    'integerfield1' => new Column('integerfield1', Type::getType('integer')),
-                    'integerfield2' => new Column('integerfield2', Type::getType('integer')),
+                    'integercolumn1' => new Column('integercolumn1', Type::getType('integer')),
+                    'integercolumn2' => new Column('integercolumn2', Type::getType('integer')),
                 ]
             ),
         ]);
@@ -60,8 +60,8 @@ class ComparatorTest extends TestCase
             'bugdb' => new Table(
                 'bugdb',
                 [
-                    'integerfield2' => new Column('integerfield2', Type::getType('integer')),
-                    'integerfield1' => new Column('integerfield1', Type::getType('integer')),
+                    'integercolumn2' => new Column('integercolumn2', Type::getType('integer')),
+                    'integercolumn1' => new Column('integercolumn1', Type::getType('integer')),
                 ]
             ),
         ]);
@@ -74,7 +74,7 @@ class ComparatorTest extends TestCase
     public function testCompareMissingTable(): void
     {
         $schemaConfig = new SchemaConfig();
-        $table        = new Table('bugdb', ['integerfield1' => new Column('integerfield1', Type::getType('integer'))]);
+        $table        = new Table('bugdb', ['integercolumn1' => new Column('integercolumn1', Type::getType('integer'))]);
         $table->setSchemaConfig($schemaConfig);
 
         $schema1 = new Schema([$table], [], $schemaConfig);
@@ -88,7 +88,7 @@ class ComparatorTest extends TestCase
     public function testCompareNewTable(): void
     {
         $schemaConfig = new SchemaConfig();
-        $table        = new Table('bugdb', ['integerfield1' => new Column('integerfield1', Type::getType('integer'))]);
+        $table        = new Table('bugdb', ['integercolumn1' => new Column('integercolumn1', Type::getType('integer'))]);
         $table->setSchemaConfig($schemaConfig);
 
         $schema1 = new Schema([], [], $schemaConfig);
@@ -112,13 +112,13 @@ class ComparatorTest extends TestCase
 
     public function testCompareMissingField(): void
     {
-        $missingColumn = new Column('integerfield1', Type::getType('integer'));
+        $missingColumn = new Column('integercolumn1', Type::getType('integer'));
         $schema1       = new Schema([
             'bugdb' => new Table(
                 'bugdb',
                 [
-                    'integerfield1' => $missingColumn,
-                    'integerfield2' => new Column('integerfield2', Type::getType('integer')),
+                    'integercolumn1' => $missingColumn,
+                    'integercolumn2' => new Column('integercolumn2', Type::getType('integer')),
                 ]
             ),
         ]);
@@ -126,7 +126,7 @@ class ComparatorTest extends TestCase
             'bugdb' => new Table(
                 'bugdb',
                 [
-                    'integerfield2' => new Column('integerfield2', Type::getType('integer')),
+                    'integercolumn2' => new Column('integercolumn2', Type::getType('integer')),
                 ]
             ),
         ]);
@@ -138,7 +138,7 @@ class ComparatorTest extends TestCase
                     'bugdb',
                     [],
                     [],
-                    ['integerfield1' => $missingColumn]
+                    ['integercolumn1' => $missingColumn]
                 ),
             ]
         );
@@ -154,7 +154,7 @@ class ComparatorTest extends TestCase
             'bugdb' => new Table(
                 'bugdb',
                 [
-                    'integerfield1' => new Column('integerfield1', Type::getType('integer')),
+                    'integercolumn1' => new Column('integercolumn1', Type::getType('integer')),
                 ]
             ),
         ]);
@@ -162,8 +162,8 @@ class ComparatorTest extends TestCase
             'bugdb' => new Table(
                 'bugdb',
                 [
-                    'integerfield1' => new Column('integerfield1', Type::getType('integer')),
-                    'integerfield2' => new Column('integerfield2', Type::getType('integer')),
+                    'integercolumn1' => new Column('integercolumn1', Type::getType('integer')),
+                    'integercolumn2' => new Column('integercolumn2', Type::getType('integer')),
                 ]
             ),
         ]);
@@ -174,7 +174,7 @@ class ComparatorTest extends TestCase
                 'bugdb' => new TableDiff(
                     'bugdb',
                     [
-                        'integerfield2' => new Column('integerfield2', Type::getType('integer')),
+                        'integercolumn2' => new Column('integercolumn2', Type::getType('integer')),
                     ]
                 ),
             ]
@@ -187,8 +187,8 @@ class ComparatorTest extends TestCase
 
     public function testCompareChangedColumnsChangeType(): void
     {
-        $column1 = new Column('charfield1', Type::getType('string'));
-        $column2 = new Column('charfield1', Type::getType('integer'));
+        $column1 = new Column('charcolumn1', Type::getType('string'));
+        $column2 = new Column('charcolumn1', Type::getType('integer'));
 
         $c = new Comparator();
         self::assertEquals(['type'], $c->diffColumn($column1, $column2));
@@ -201,8 +201,8 @@ class ComparatorTest extends TestCase
         Type::overrideType('integer', get_class($integerType1));
         $integerType2 = Type::getType('integer');
 
-        $column1 = new Column('integerfield1', $integerType1);
-        $column2 = new Column('integerfield1', $integerType2);
+        $column1 = new Column('integercolumn1', $integerType1);
+        $column2 = new Column('integercolumn1', $integerType2);
 
         $c = new Comparator();
         self::assertEquals([], $c->diffColumn($column1, $column2));
@@ -218,8 +218,8 @@ class ComparatorTest extends TestCase
 
         Type::overrideType('string', get_class($oldStringInstance));
 
-        $column1 = new Column('integerfield1', $integerType);
-        $column2 = new Column('integerfield1', $overriddenStringType);
+        $column1 = new Column('integercolumn1', $integerType);
+        $column2 = new Column('integercolumn1', $overriddenStringType);
 
         $c = new Comparator();
         self::assertEquals([], $c->diffColumn($column1, $column2));
@@ -227,8 +227,8 @@ class ComparatorTest extends TestCase
 
     public function testCompareChangedColumnsChangeCustomSchemaOption(): void
     {
-        $column1 = new Column('charfield1', Type::getType('string'));
-        $column2 = new Column('charfield1', Type::getType('string'));
+        $column1 = new Column('charcolumn1', Type::getType('string'));
+        $column2 = new Column('charcolumn1', Type::getType('string'));
 
         $column1->setCustomSchemaOption('foo', 'bar');
         $column2->setCustomSchemaOption('foo', 'bar');
@@ -244,21 +244,21 @@ class ComparatorTest extends TestCase
     public function testCompareChangeColumnsMultipleNewColumnsRename(): void
     {
         $tableA = new Table('foo');
-        $tableA->addColumn('datefield1', 'datetime');
+        $tableA->addColumn('datecolumn1', 'datetime');
 
         $tableB = new Table('foo');
-        $tableB->addColumn('new_datefield1', 'datetime');
-        $tableB->addColumn('new_datefield2', 'datetime');
+        $tableB->addColumn('new_datecolumn1', 'datetime');
+        $tableB->addColumn('new_datecolumn2', 'datetime');
 
         $c         = new Comparator();
         $tableDiff = $c->diffTable($tableA, $tableB);
 
-        self::assertCount(1, $tableDiff->renamedColumns, 'we should have one rename datefield1 => new_datefield1.');
-        self::assertArrayHasKey('datefield1', $tableDiff->renamedColumns, "'datefield1' should be set to be renamed to new_datefield1");
-        self::assertCount(1, $tableDiff->addedColumns, "'new_datefield2' should be added");
-        self::assertArrayHasKey('new_datefield2', $tableDiff->addedColumns, "'new_datefield2' should be added, not created through renaming!");
+        self::assertCount(1, $tableDiff->renamedColumns, 'we should have one rename datecolumn1 => new_datecolumn1.');
+        self::assertArrayHasKey('datecolumn1', $tableDiff->renamedColumns, "'datecolumn1' should be set to be renamed to new_datecolumn1");
+        self::assertCount(1, $tableDiff->addedColumns, "'new_datecolumn2' should be added");
+        self::assertArrayHasKey('new_datecolumn2', $tableDiff->addedColumns, "'new_datecolumn2' should be added, not created through renaming!");
         self::assertCount(0, $tableDiff->removedColumns, 'Nothing should be removed.');
-        self::assertCount(0, $tableDiff->changedColumns, 'Nothing should be changed as all fields old & new have diff names.');
+        self::assertCount(0, $tableDiff->changedColumns, 'Nothing should be changed as all columns old & new have diff names.');
     }
 
     public function testCompareRemovedIndex(): void
@@ -267,13 +267,13 @@ class ComparatorTest extends TestCase
             'bugdb' => new Table(
                 'bugdb',
                 [
-                    'integerfield1' => new Column('integerfield1', Type::getType('integer')),
-                    'integerfield2' => new Column('integerfield2', Type::getType('integer')),
+                    'integercolumn1' => new Column('integercolumn1', Type::getType('integer')),
+                    'integercolumn2' => new Column('integercolumn2', Type::getType('integer')),
                 ],
                 [
                     'primary' => new Index(
                         'primary',
-                        ['integerfield1'],
+                        ['integercolumn1'],
                         true
                     ),
                 ]
@@ -283,8 +283,8 @@ class ComparatorTest extends TestCase
             'bugdb' => new Table(
                 'bugdb',
                 [
-                    'integerfield1' => new Column('integerfield1', Type::getType('integer')),
-                    'integerfield2' => new Column('integerfield2', Type::getType('integer')),
+                    'integercolumn1' => new Column('integercolumn1', Type::getType('integer')),
+                    'integercolumn2' => new Column('integercolumn2', Type::getType('integer')),
                 ]
             ),
         ]);
@@ -302,7 +302,7 @@ class ComparatorTest extends TestCase
                     [
                         'primary' => new Index(
                             'primary',
-                            ['integerfield1'],
+                            ['integercolumn1'],
                             true
                         ),
                     ]
@@ -321,8 +321,8 @@ class ComparatorTest extends TestCase
             'bugdb' => new Table(
                 'bugdb',
                 [
-                    'integerfield1' => new Column('integerfield1', Type::getType('integer')),
-                    'integerfield2' => new Column('integerfield2', Type::getType('integer')),
+                    'integercolumn1' => new Column('integercolumn1', Type::getType('integer')),
+                    'integercolumn2' => new Column('integercolumn2', Type::getType('integer')),
                 ]
             ),
         ]);
@@ -330,13 +330,13 @@ class ComparatorTest extends TestCase
             'bugdb' => new Table(
                 'bugdb',
                 [
-                    'integerfield1' => new Column('integerfield1', Type::getType('integer')),
-                    'integerfield2' => new Column('integerfield2', Type::getType('integer')),
+                    'integercolumn1' => new Column('integercolumn1', Type::getType('integer')),
+                    'integercolumn2' => new Column('integercolumn2', Type::getType('integer')),
                 ],
                 [
                     'primary' => new Index(
                         'primary',
-                        ['integerfield1'],
+                        ['integercolumn1'],
                         true
                     ),
                 ]
@@ -354,7 +354,7 @@ class ComparatorTest extends TestCase
                     [
                         'primary' => new Index(
                             'primary',
-                            ['integerfield1'],
+                            ['integercolumn1'],
                             true
                         ),
                     ]
@@ -373,13 +373,13 @@ class ComparatorTest extends TestCase
             'bugdb' => new Table(
                 'bugdb',
                 [
-                    'integerfield1' => new Column('integerfield1', Type::getType('integer')),
-                    'integerfield2' => new Column('integerfield2', Type::getType('integer')),
+                    'integercolumn1' => new Column('integercolumn1', Type::getType('integer')),
+                    'integercolumn2' => new Column('integercolumn2', Type::getType('integer')),
                 ],
                 [
                     'primary' => new Index(
                         'primary',
-                        ['integerfield1'],
+                        ['integercolumn1'],
                         true
                     ),
                 ]
@@ -389,13 +389,13 @@ class ComparatorTest extends TestCase
             'bugdb' => new Table(
                 'bugdb',
                 [
-                    'integerfield1' => new Column('integerfield1', Type::getType('integer')),
-                    'integerfield2' => new Column('integerfield2', Type::getType('integer')),
+                    'integercolumn1' => new Column('integercolumn1', Type::getType('integer')),
+                    'integercolumn2' => new Column('integercolumn2', Type::getType('integer')),
                 ],
                 [
                     'primary' => new Index(
                         'primary',
-                        ['integerfield1', 'integerfield2'],
+                        ['integercolumn1', 'integercolumn2'],
                         true
                     ),
                 ]
@@ -415,8 +415,8 @@ class ComparatorTest extends TestCase
                         'primary' => new Index(
                             'primary',
                             [
-                                'integerfield1',
-                                'integerfield2',
+                                'integercolumn1',
+                                'integercolumn2',
                             ],
                             true
                         ),
@@ -436,11 +436,11 @@ class ComparatorTest extends TestCase
             'bugdb' => new Table(
                 'bugdb',
                 [
-                    'integerfield1' => new Column('integerfield1', Type::getType('integer')),
-                    'integerfield2' => new Column('integerfield2', Type::getType('integer')),
+                    'integercolumn1' => new Column('integercolumn1', Type::getType('integer')),
+                    'integercolumn2' => new Column('integercolumn2', Type::getType('integer')),
                 ],
                 [
-                    'primary' => new Index('primary', ['integerfield1', 'integerfield2'], true),
+                    'primary' => new Index('primary', ['integercolumn1', 'integercolumn2'], true),
                 ]
             ),
         ]);
@@ -448,11 +448,11 @@ class ComparatorTest extends TestCase
             'bugdb' => new Table(
                 'bugdb',
                 [
-                    'integerfield1' => new Column('integerfield1', Type::getType('integer')),
-                    'integerfield2' => new Column('integerfield2', Type::getType('integer')),
+                    'integercolumn1' => new Column('integercolumn1', Type::getType('integer')),
+                    'integercolumn2' => new Column('integercolumn2', Type::getType('integer')),
                 ],
                 [
-                    'primary' => new Index('primary', ['integerfield2', 'integerfield1'], true),
+                    'primary' => new Index('primary', ['integercolumn2', 'integercolumn1'], true),
                 ]
             ),
         ]);
@@ -467,7 +467,7 @@ class ComparatorTest extends TestCase
                     [],
                     [],
                     [
-                        'primary' => new Index('primary', ['integerfield2', 'integerfield1'], true),
+                        'primary' => new Index('primary', ['integercolumn2', 'integercolumn1'], true),
                     ]
                 ),
             ]

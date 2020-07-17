@@ -28,8 +28,8 @@ class BlobTest extends DbalFunctionalTestCase
 
         $table = new Table('blob_table');
         $table->addColumn('id', 'integer');
-        $table->addColumn('clobfield', 'text');
-        $table->addColumn('blobfield', 'blob');
+        $table->addColumn('clobcolumn', 'text');
+        $table->addColumn('blobcolumn', 'blob');
         $table->setPrimaryKey(['id']);
 
         $sm = $this->connection->getSchemaManager();
@@ -40,8 +40,8 @@ class BlobTest extends DbalFunctionalTestCase
     {
         $ret = $this->connection->insert('blob_table', [
             'id'          => 1,
-            'clobfield'   => 'test',
-            'blobfield'   => 'test',
+            'clobcolumn'   => 'test',
+            'blobcolumn'   => 'test',
         ], [
             ParameterType::INTEGER,
             ParameterType::STRING,
@@ -61,8 +61,8 @@ class BlobTest extends DbalFunctionalTestCase
         $longBlob = str_repeat('x', 4 * 8192); // send 4 chunks
         $this->connection->insert('blob_table', [
             'id'        => 1,
-            'clobfield' => 'ignored',
-            'blobfield' => fopen('data://text/plain,' . $longBlob, 'r'),
+            'clobcolumn' => 'ignored',
+            'blobcolumn' => fopen('data://text/plain,' . $longBlob, 'r'),
         ], [
             ParameterType::INTEGER,
             ParameterType::STRING,
@@ -76,8 +76,8 @@ class BlobTest extends DbalFunctionalTestCase
     {
         $this->connection->insert('blob_table', [
             'id'          => 1,
-            'clobfield'   => 'test',
-            'blobfield'   => 'test',
+            'clobcolumn'   => 'test',
+            'blobcolumn'   => 'test',
         ], [
             ParameterType::INTEGER,
             ParameterType::STRING,
@@ -91,15 +91,15 @@ class BlobTest extends DbalFunctionalTestCase
     {
         $this->connection->insert('blob_table', [
             'id' => 1,
-            'clobfield' => 'test',
-            'blobfield' => 'test',
+            'clobcolumn' => 'test',
+            'blobcolumn' => 'test',
         ], [
             ParameterType::INTEGER,
             ParameterType::STRING,
             ParameterType::LARGE_OBJECT,
         ]);
 
-        $this->connection->update('blob_table', ['blobfield' => 'test2'], ['id' => 1], [
+        $this->connection->update('blob_table', ['blobcolumn' => 'test2'], ['id' => 1], [
             ParameterType::LARGE_OBJECT,
             ParameterType::INTEGER,
         ]);
@@ -116,8 +116,8 @@ class BlobTest extends DbalFunctionalTestCase
 
         $this->connection->insert('blob_table', [
             'id'          => 1,
-            'clobfield'   => 'ignored',
-            'blobfield'   => 'test',
+            'clobcolumn'   => 'ignored',
+            'blobcolumn'   => 'test',
         ], [
             ParameterType::INTEGER,
             ParameterType::STRING,
@@ -126,7 +126,7 @@ class BlobTest extends DbalFunctionalTestCase
 
         $this->connection->update('blob_table', [
             'id'          => 1,
-            'blobfield'   => fopen('data://text/plain,test2', 'r'),
+            'blobcolumn'   => fopen('data://text/plain,test2', 'r'),
         ], ['id' => 1], [
             ParameterType::INTEGER,
             ParameterType::LARGE_OBJECT,
@@ -141,7 +141,7 @@ class BlobTest extends DbalFunctionalTestCase
             $this->markTestIncomplete('The oci8 driver does not support stream resources as parameters');
         }
 
-        $stmt = $this->connection->prepare("INSERT INTO blob_table(id, clobfield, blobfield) VALUES (1, 'ignored', ?)");
+        $stmt = $this->connection->prepare("INSERT INTO blob_table(id, clobcolumn, blobcolumn) VALUES (1, 'ignored', ?)");
 
         $stream = null;
         $stmt->bindParam(1, $stream, ParameterType::LARGE_OBJECT);
@@ -156,7 +156,7 @@ class BlobTest extends DbalFunctionalTestCase
 
     private function assertBlobContains(string $text): void
     {
-        $rows = $this->connection->query('SELECT blobfield FROM blob_table')->fetchAll(FetchMode::COLUMN);
+        $rows = $this->connection->query('SELECT blobcolumn FROM blob_table')->fetchAll(FetchMode::COLUMN);
 
         self::assertCount(1, $rows);
 
