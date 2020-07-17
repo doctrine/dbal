@@ -82,16 +82,16 @@ class Statement implements IteratorAggregate, DriverStatement
      * type and the value undergoes the conversion routines of the mapping type before
      * being bound.
      *
-     * @param string|int $name  The name or position of the parameter.
+     * @param string|int $param The name or position of the parameter.
      * @param mixed      $value The value of the parameter.
      * @param mixed      $type  Either a PDO binding type or a DBAL mapping type name or instance.
      *
      * @return bool TRUE on success, FALSE on failure.
      */
-    public function bindValue($name, $value, $type = ParameterType::STRING)
+    public function bindValue($param, $value, $type = ParameterType::STRING)
     {
-        $this->params[$name] = $value;
-        $this->types[$name]  = $type;
+        $this->params[$param] = $value;
+        $this->types[$param]  = $type;
         if ($type !== null) {
             if (is_string($type)) {
                 $type = Type::getType($type);
@@ -104,10 +104,10 @@ class Statement implements IteratorAggregate, DriverStatement
                 $bindingType = $type;
             }
 
-            return $this->stmt->bindValue($name, $value, $bindingType);
+            return $this->stmt->bindValue($param, $value, $bindingType);
         }
 
-        return $this->stmt->bindValue($name, $value);
+        return $this->stmt->bindValue($param, $value);
     }
 
     /**
