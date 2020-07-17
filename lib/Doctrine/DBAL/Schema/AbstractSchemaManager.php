@@ -192,15 +192,15 @@ abstract class AbstractSchemaManager
      *
      * The usage of a string $tableNames is deprecated. Pass a one-element array instead.
      *
-     * @param string|string[] $tableNames
+     * @param string|string[] $names
      *
      * @return bool
      */
-    public function tablesExist($tableNames)
+    public function tablesExist($names)
     {
-        $tableNames = array_map('strtolower', (array) $tableNames);
+        $names = array_map('strtolower', (array) $names);
 
-        return count($tableNames) === count(array_intersect($tableNames, array_map('strtolower', $this->listTableNames())));
+        return count($names) === count(array_intersect($names, array_map('strtolower', $this->listTableNames())));
     }
 
     /**
@@ -264,21 +264,21 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * @param string $tableName
+     * @param string $name
      *
      * @return Table
      */
-    public function listTableDetails($tableName)
+    public function listTableDetails($name)
     {
-        $columns     = $this->listTableColumns($tableName);
+        $columns     = $this->listTableColumns($name);
         $foreignKeys = [];
         if ($this->_platform->supportsForeignKeyConstraints()) {
-            $foreignKeys = $this->listTableForeignKeys($tableName);
+            $foreignKeys = $this->listTableForeignKeys($name);
         }
 
-        $indexes = $this->listTableIndexes($tableName);
+        $indexes = $this->listTableIndexes($name);
 
-        return new Table($tableName, $columns, $indexes, $foreignKeys);
+        return new Table($name, $columns, $indexes, $foreignKeys);
     }
 
     /**
@@ -334,13 +334,13 @@ abstract class AbstractSchemaManager
     /**
      * Drops the given table.
      *
-     * @param string $tableName The name of the table to drop.
+     * @param string $name The name of the table to drop.
      *
      * @return void
      */
-    public function dropTable($tableName)
+    public function dropTable($name)
     {
-        $this->_execSql($this->_platform->getDropTableSQL($tableName));
+        $this->_execSql($this->_platform->getDropTableSQL($name));
     }
 
     /**
