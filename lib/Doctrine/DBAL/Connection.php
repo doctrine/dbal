@@ -1146,13 +1146,13 @@ class Connection implements DriverConnection
      * because the underlying database may not even support the notion of AUTO_INCREMENT/IDENTITY
      * columns or sequences.
      *
-     * @param string|null $seqName Name of the sequence object from which the ID should be returned.
+     * @param string|null $name Name of the sequence object from which the ID should be returned.
      *
      * @return string A string representation of the last inserted ID.
      */
-    public function lastInsertId($seqName = null)
+    public function lastInsertId($name = null)
     {
-        return $this->getWrappedConnection()->lastInsertId($seqName);
+        return $this->getWrappedConnection()->lastInsertId($name);
     }
 
     /**
