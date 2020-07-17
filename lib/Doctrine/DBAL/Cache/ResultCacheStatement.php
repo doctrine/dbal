@@ -52,6 +52,9 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Result
     /** @var ResultStatement */
     private $statement;
 
+    /** @var array<string,mixed>|null */
+    private $fetchedData;
+
     /** @var array<int,array<string,mixed>>|null */
     private $data;
 
@@ -59,17 +62,19 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Result
     private $defaultFetchMode = FetchMode::MIXED;
 
     /**
-     * @param string $cacheKey
-     * @param string $realKey
-     * @param int    $lifetime
+     * @param string                   $cacheKey
+     * @param string                   $realKey
+     * @param int                      $lifetime
+     * @param array<string,mixed>|null $fetchedData
      */
-    public function __construct(ResultStatement $stmt, Cache $resultCache, $cacheKey, $realKey, $lifetime)
+    public function __construct(ResultStatement $stmt, Cache $resultCache, $cacheKey, $realKey, $lifetime, ?array $fetchedData = null)
     {
         $this->statement   = $stmt;
         $this->resultCache = $resultCache;
         $this->cacheKey    = $cacheKey;
         $this->realKey     = $realKey;
         $this->lifetime    = $lifetime;
+        $this->fetchedData = $fetchedData;
     }
 
     /**
@@ -336,13 +341,16 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Result
             return;
         }
 
-        $data = $this->resultCache->fetch($this->cacheKey);
-        if (! $data) {
-            $data = [];
+        if ($this->fetchedData === null) {
+            $this->fetchedData = $this->resultCache->fetch($this->cacheKey);
         }
 
-        $data[$this->realKey] = $this->data;
+        if (! $this->fetchedData) {
+            $this->fetchedData = [];
+        }
 
-        $this->resultCache->save($this->cacheKey, $data, $this->lifetime);
+        $this->fetchedData[$this->realKey] = $this->data;
+
+        $this->resultCache->save($this->cacheKey, $this->fetchedData, $this->lifetime);
     }
 }

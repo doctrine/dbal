@@ -1207,10 +1207,19 @@ class Connection implements DriverConnection
             } elseif (array_key_exists($realKey, $data)) {
                 $stmt = new ArrayStatement([]);
             }
+        } else {
+            $data = [];
         }
 
         if (! isset($stmt)) {
-            $stmt = new ResultCacheStatement($this->executeQuery($sql, $params, $types), $resultCache, $cacheKey, $realKey, $qcp->getLifetime());
+            $stmt = new ResultCacheStatement(
+                $this->executeQuery($sql, $params, $types),
+                $resultCache,
+                $cacheKey,
+                $realKey,
+                $qcp->getLifetime(),
+                $data
+            );
         }
 
         $stmt->setFetchMode($this->defaultFetchMode);
