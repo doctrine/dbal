@@ -446,10 +446,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         self::assertSame('CHAR(254) FOR BIT DATA', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 0]));
     }
 
-    /**
-     * @group legacy
-     * @expectedDeprecation Binary field length 32705 is greater than supported by the platform (32704). Reduce the field length or use a BLOB field instead.
-     */
     public function testReturnsBinaryTypeLongerThanMaxDeclarationSQL(): void
     {
         self::assertSame('BLOB(1M)', $this->platform->getBinaryTypeDeclarationSQL(['length' => 32705]));

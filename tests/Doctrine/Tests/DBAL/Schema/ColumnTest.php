@@ -60,10 +60,6 @@ class ColumnTest extends TestCase
         self::assertEquals($expected, $this->createColumn()->toArray());
     }
 
-    /**
-     * @group legacy
-     * @expectedDeprecation The "unknown_option" column option is not supported, setting it is deprecated and will cause an error in Doctrine DBAL 3.0
-     */
     public function testSettingUnknownOptionIsStillSupported(): void
     {
         $this->expectNotToPerformAssertions();
@@ -71,10 +67,6 @@ class ColumnTest extends TestCase
         new Column('foo', $this->createMock(Type::class), ['unknown_option' => 'bar']);
     }
 
-    /**
-     * @group legacy
-     * @expectedDeprecation The "unknown_option" column option is not supported, setting it is deprecated and will cause an error in Doctrine DBAL 3.0
-     */
     public function testOptionsShouldNotBeIgnored(): void
     {
         $col1 = new Column('bar', Type::getType(Types::INTEGER), ['unknown_option' => 'bar', 'notnull' => true]);
