@@ -643,16 +643,16 @@ class Connection implements DriverConnection
      *
      * Table expression and columns are not escaped and are not safe for user-input.
      *
-     * @param string         $tableExpression The expression of the table on which to delete.
-     * @param mixed[]        $identifier      The deletion criteria. An associative array containing column-value pairs.
-     * @param int[]|string[] $types           The types of identifiers.
+     * @param string         $table      The expression of the table on which to delete.
+     * @param mixed[]        $identifier The deletion criteria. An associative array containing column-value pairs.
+     * @param int[]|string[] $types      The types of identifiers.
      *
      * @return int The number of affected rows.
      *
      * @throws DBALException
      * @throws InvalidArgumentException
      */
-    public function delete($tableExpression, array $identifier, array $types = [])
+    public function delete($table, array $identifier, array $types = [])
     {
         if (empty($identifier)) {
             throw InvalidArgumentException::fromEmptyCriteria();
@@ -663,7 +663,7 @@ class Connection implements DriverConnection
         $this->addIdentifierCondition($identifier, $columns, $values, $conditions);
 
         return $this->executeUpdate(
-            'DELETE FROM ' . $tableExpression . ' WHERE ' . implode(' AND ', $conditions),
+            'DELETE FROM ' . $table . ' WHERE ' . implode(' AND ', $conditions),
             $values,
             is_string(key($types)) ? $this->extractTypeValues($columns, $types) : $types
         );
@@ -714,16 +714,16 @@ class Connection implements DriverConnection
      *
      * Table expression and columns are not escaped and are not safe for user-input.
      *
-     * @param string         $tableExpression The expression of the table to update quoted or unquoted.
-     * @param mixed[]        $data            An associative array containing column-value pairs.
-     * @param mixed[]        $identifier      The update criteria. An associative array containing column-value pairs.
-     * @param int[]|string[] $types           Types of the merged $data and $identifier arrays in that order.
+     * @param string         $table      The expression of the table to update quoted or unquoted.
+     * @param mixed[]        $data       An associative array containing column-value pairs.
+     * @param mixed[]        $identifier The update criteria. An associative array containing column-value pairs.
+     * @param int[]|string[] $types      Types of the merged $data and $identifier arrays in that order.
      *
      * @return int The number of affected rows.
      *
      * @throws DBALException
      */
-    public function update($tableExpression, array $data, array $identifier, array $types = [])
+    public function update($table, array $data, array $identifier, array $types = [])
     {
         $columns = $values = $conditions = $set = [];
 
@@ -739,7 +739,7 @@ class Connection implements DriverConnection
             $types = $this->extractTypeValues($columns, $types);
         }
 
-        $sql = 'UPDATE ' . $tableExpression . ' SET ' . implode(', ', $set)
+        $sql = 'UPDATE ' . $table . ' SET ' . implode(', ', $set)
                 . ' WHERE ' . implode(' AND ', $conditions);
 
         return $this->executeUpdate($sql, $values, $types);
@@ -750,18 +750,18 @@ class Connection implements DriverConnection
      *
      * Table expression and columns are not escaped and are not safe for user-input.
      *
-     * @param string         $tableExpression The expression of the table to insert data into, quoted or unquoted.
-     * @param mixed[]        $data            An associative array containing column-value pairs.
-     * @param int[]|string[] $types           Types of the inserted data.
+     * @param string         $table The expression of the table to insert data into, quoted or unquoted.
+     * @param mixed[]        $data  An associative array containing column-value pairs.
+     * @param int[]|string[] $types Types of the inserted data.
      *
      * @return int The number of affected rows.
      *
      * @throws DBALException
      */
-    public function insert($tableExpression, array $data, array $types = [])
+    public function insert($table, array $data, array $types = [])
     {
         if (empty($data)) {
-            return $this->executeUpdate('INSERT INTO ' . $tableExpression . ' () VALUES ()');
+            return $this->executeUpdate('INSERT INTO ' . $table . ' () VALUES ()');
         }
 
         $columns = [];
@@ -775,7 +775,7 @@ class Connection implements DriverConnection
         }
 
         return $this->executeUpdate(
-            'INSERT INTO ' . $tableExpression . ' (' . implode(', ', $columns) . ')' .
+            'INSERT INTO ' . $table . ' (' . implode(', ', $columns) . ')' .
             ' VALUES (' . implode(', ', $set) . ')',
             $values,
             is_string(key($types)) ? $this->extractTypeValues($columns, $types) : $types
