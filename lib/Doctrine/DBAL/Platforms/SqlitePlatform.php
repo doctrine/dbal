@@ -451,7 +451,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getListTableColumnsSQL($table, $currentDatabase = null)
+    public function getListTableColumnsSQL($table, $database = null)
     {
         $table = str_replace('.', '__', $table);
 
@@ -461,7 +461,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getListTableIndexesSQL($table, $currentDatabase = null)
+    public function getListTableIndexesSQL($table, $database = null)
     {
         $table = str_replace('.', '__', $table);
 

@@ -149,16 +149,16 @@ class MySqlPlatform extends AbstractPlatform
      * Two approaches to listing the table indexes. The information_schema is
      * preferred, because it doesn't cause problems with SQL keywords such as "order" or "table".
      */
-    public function getListTableIndexesSQL($table, $currentDatabase = null)
+    public function getListTableIndexesSQL($table, $database = null)
     {
-        if ($currentDatabase) {
-            $currentDatabase = $this->quoteStringLiteral($currentDatabase);
-            $table           = $this->quoteStringLiteral($table);
+        if ($database) {
+            $database = $this->quoteStringLiteral($database);
+            $table    = $this->quoteStringLiteral($table);
 
             return 'SELECT NON_UNIQUE AS Non_Unique, INDEX_NAME AS Key_name, COLUMN_NAME AS Column_Name,' .
                    ' SUB_PART AS Sub_Part, INDEX_TYPE AS Index_Type' .
                    ' FROM information_schema.STATISTICS WHERE TABLE_NAME = ' . $table .
-                   ' AND TABLE_SCHEMA = ' . $currentDatabase .
+                   ' AND TABLE_SCHEMA = ' . $database .
                    ' ORDER BY SEQ_IN_INDEX ASC';
         }
 

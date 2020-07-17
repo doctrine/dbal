@@ -2875,13 +2875,13 @@ abstract class AbstractPlatform
      * requests may be impossible.
      *
      * @param string $table
-     * @param string $currentDatabase
+     * @param string $database
      *
      * @return string
      *
      * @throws DBALException If not supported on this platform.
      */
-    public function getListTableIndexesSQL($table, $currentDatabase = null)
+    public function getListTableIndexesSQL($table, $database = null)
     {
         throw DBALException::notSupported(__METHOD__);
     }

@@ -963,7 +963,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getListTableIndexesSQL($table, $currentDatabase = null)
+    public function getListTableIndexesSQL($table, $database = null)
     {
         return "SELECT idx.name AS key_name,
                        col.name AS column_name,

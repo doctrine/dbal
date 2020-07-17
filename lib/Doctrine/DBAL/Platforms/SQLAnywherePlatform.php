@@ -874,7 +874,7 @@ SQL
     /**
      * {@inheritdoc}
      */
-    public function getListTableIndexesSQL($table, $currentDatabase = null)
+    public function getListTableIndexesSQL($table, $database = null)
     {
         $user = '';
 
