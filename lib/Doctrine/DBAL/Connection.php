@@ -874,7 +874,7 @@ class Connection implements DriverConnection
      * If the query is parametrized, a prepared statement is used.
      * If an SQLLogger is configured, the execution is logged.
      *
-     * @param string                 $query  The SQL query to execute.
+     * @param string                 $sql    The SQL query to execute.
      * @param mixed[]                $params The parameters to bind to the query, if any.
      * @param int[]|string[]         $types  The types the previous parameters are in.
      * @param QueryCacheProfile|null $qcp    The query cache profile, optional.
@@ -883,24 +883,24 @@ class Connection implements DriverConnection
      *
      * @throws DBALException
      */
-    public function executeQuery($query, array $params = [], $types = [], ?QueryCacheProfile $qcp = null)
+    public function executeQuery($sql, array $params = [], $types = [], ?QueryCacheProfile $qcp = null)
     {
         if ($qcp !== null) {
-            return $this->executeCacheQuery($query, $params, $types, $qcp);
+            return $this->executeCacheQuery($sql, $params, $types, $qcp);
         }
 
         $connection = $this->getWrappedConnection();
 
         $logger = $this->_config->getSQLLogger();
         if ($logger) {
-            $logger->startQuery($query, $params, $types);
+            $logger->startQuery($sql, $params, $types);
         }
 
         try {
             if ($params) {
-                [$query, $params, $types] = SQLParserUtils::expandListParameters($query, $params, $types);
+                [$sql, $params, $types] = SQLParserUtils::expandListParameters($sql, $params, $types);
 
-                $stmt = $connection->prepare($query);
+                $stmt = $connection->prepare($sql);
                 if ($types) {
                     $this->_bindTypedValues($stmt, $params, $types);
                     $stmt->execute();
@@ -908,10 +908,10 @@ class Connection implements DriverConnection
                     $stmt->execute($params);
                 }
             } else {
-                $stmt = $connection->query($query);
+                $stmt = $connection->query($sql);
             }
         } catch (Throwable $ex) {
-            throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $query, $this->resolveParams($params, $types));
+            throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $sql, $this->resolveParams($params, $types));
         }
 
         $stmt->setFetchMode($this->defaultFetchMode);
@@ -926,7 +926,7 @@ class Connection implements DriverConnection
     /**
      * Executes a caching query.
      *
-     * @param string            $query  The SQL query to execute.
+     * @param string            $sql    The SQL query to execute.
      * @param mixed[]           $params The parameters to bind to the query, if any.
      * @param int[]|string[]    $types  The types the previous parameters are in.
      * @param QueryCacheProfile $qcp    The query cache profile.
@@ -935,7 +935,7 @@ class Connection implements DriverConnection
      *
      * @throws CacheException
      */
-    public function executeCacheQuery($query, $params, $types, QueryCacheProfile $qcp)
+    public function executeCacheQuery($sql, $params, $types, QueryCacheProfile $qcp)
     {
         $resultCache = $qcp->getResultCacheDriver() ?? $this->_config->getResultCacheImpl();
 
@@ -946,7 +946,7 @@ class Connection implements DriverConnection
         $connectionParams = $this->getParams();
         unset($connectionParams['platform']);
 
-        [$cacheKey, $realKey] = $qcp->generateCacheKeys($query, $params, $types, $connectionParams);
+        [$cacheKey, $realKey] = $qcp->generateCacheKeys($sql, $params, $types, $connectionParams);
 
         // fetch the row pointers entry
         $data = $resultCache->fetch($cacheKey);
@@ -961,7 +961,7 @@ class Connection implements DriverConnection
         }
 
         if (! isset($stmt)) {
-            $stmt = new ResultCacheStatement($this->executeQuery($query, $params, $types), $resultCache, $cacheKey, $realKey, $qcp->getLifetime());
+            $stmt = new ResultCacheStatement($this->executeQuery($sql, $params, $types), $resultCache, $cacheKey, $realKey, $qcp->getLifetime());
         }
 
         $stmt->setFetchMode($this->defaultFetchMode);
@@ -973,7 +973,7 @@ class Connection implements DriverConnection
      * Executes an, optionally parametrized, SQL query and returns the result,
      * applying a given projection/transformation function on each row of the result.
      *
-     * @param string  $query    The SQL query to execute.
+     * @param string  $sql      The SQL query to execute.
      * @param mixed[] $params   The parameters, if any.
      * @param Closure $function The transformation function that is applied on each row.
      *                           The function receives a single parameter, an array, that
@@ -981,10 +981,10 @@ class Connection implements DriverConnection
      *
      * @return mixed[] The projected result of the query.
      */
-    public function project($query, array $params, Closure $function)
+    public function project($sql, array $params, Closure $function)
     {
         $result = [];
-        $stmt   = $this->executeQuery($query, $params);
+        $stmt   = $this->executeQuery($sql, $params);
 
         while ($row = $stmt->fetch()) {
             $result[] = $function($row);
@@ -1034,7 +1034,7 @@ class Connection implements DriverConnection
      *
      * This method supports PDO binding types as well as DBAL mapping types.
      *
-     * @param string                 $query  The SQL query.
+     * @param string                 $sql    The SQL query.
      * @param array<mixed>           $params The query parameters.
      * @param array<int|string|null> $types  The parameter types.
      *
@@ -1042,20 +1042,20 @@ class Connection implements DriverConnection
      *
      * @throws DBALException
      */
-    public function executeUpdate($query, array $params = [], array $types = [])
+    public function executeUpdate($sql, array $params = [], array $types = [])
     {
         $connection = $this->getWrappedConnection();
 
         $logger = $this->_config->getSQLLogger();
         if ($logger) {
-            $logger->startQuery($query, $params, $types);
+            $logger->startQuery($sql, $params, $types);
         }
 
         try {
             if ($params) {
-                [$query, $params, $types] = SQLParserUtils::expandListParameters($query, $params, $types);
+                [$sql, $params, $types] = SQLParserUtils::expandListParameters($sql, $params, $types);
 
-                $stmt = $connection->prepare($query);
+                $stmt = $connection->prepare($sql);
 
                 if ($types) {
                     $this->_bindTypedValues($stmt, $params, $types);
@@ -1066,10 +1066,10 @@ class Connection implements DriverConnection
 
                 $result = $stmt->rowCount();
             } else {
-                $result = $connection->exec($query);
+                $result = $connection->exec($sql);
             }
         } catch (Throwable $ex) {
-            throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $query, $this->resolveParams($params, $types));
+            throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $sql, $this->resolveParams($params, $types));
         }
 
         if ($logger) {
@@ -1082,25 +1082,25 @@ class Connection implements DriverConnection
     /**
      * Executes an SQL statement and return the number of affected rows.
      *
-     * @param string $statement
+     * @param string $sql
      *
      * @return int The number of affected rows.
      *
      * @throws DBALException
      */
-    public function exec($statement)
+    public function exec($sql)
     {
         $connection = $this->getWrappedConnection();
 
         $logger = $this->_config->getSQLLogger();
         if ($logger) {
-            $logger->startQuery($statement);
+            $logger->startQuery($sql);
         }
 
         try {
-            $result = $connection->exec($statement);
+            $result = $connection->exec($sql);
         } catch (Throwable $ex) {
-            throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $statement);
+            throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $sql);
         }
 
         if ($logger) {

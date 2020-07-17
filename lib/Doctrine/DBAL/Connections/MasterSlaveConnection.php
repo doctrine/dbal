@@ -223,11 +223,11 @@ class MasterSlaveConnection extends Connection
     /**
      * {@inheritDoc}
      */
-    public function executeUpdate($query, array $params = [], array $types = [])
+    public function executeUpdate($sql, array $params = [], array $types = [])
     {
         $this->connect('master');
 
-        return parent::executeUpdate($query, $params, $types);
+        return parent::executeUpdate($sql, $params, $types);
     }
 
     /**

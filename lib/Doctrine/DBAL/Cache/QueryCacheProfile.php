@@ -68,16 +68,16 @@ class QueryCacheProfile
     /**
      * Generates the real cache key from query, params, types and connection parameters.
      *
-     * @param string         $query
+     * @param string         $sql
      * @param mixed[]        $params
      * @param int[]|string[] $types
      * @param mixed[]        $connectionParams
      *
      * @return string[]
      */
-    public function generateCacheKeys($query, $params, $types, array $connectionParams = [])
+    public function generateCacheKeys($sql, $params, $types, array $connectionParams = [])
     {
-        $realCacheKey = 'query=' . $query .
+        $realCacheKey = 'query=' . $sql .
             '&params=' . serialize($params) .
             '&types=' . serialize($types) .
             '&connectionParams=' . hash('sha256', serialize($connectionParams));
