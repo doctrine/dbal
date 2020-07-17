@@ -115,20 +115,20 @@ class Statement implements IteratorAggregate, DriverStatement
      *
      * Binding a parameter by reference does not support DBAL mapping types.
      *
-     * @param string|int $name   The name or position of the parameter.
-     * @param mixed      $var    The reference to the variable to bind.
-     * @param int        $type   The PDO binding type.
-     * @param int|null   $length Must be specified when using an OUT bind
-     *                           so that PHP allocates enough memory to hold the returned value.
+     * @param string|int $param    The name or position of the parameter.
+     * @param mixed      $variable The reference to the variable to bind.
+     * @param int        $type     The PDO binding type.
+     * @param int|null   $length   Must be specified when using an OUT bind
+     *                             so that PHP allocates enough memory to hold the returned value.
      *
      * @return bool TRUE on success, FALSE on failure.
      */
-    public function bindParam($name, &$var, $type = ParameterType::STRING, $length = null)
+    public function bindParam($param, &$variable, $type = ParameterType::STRING, $length = null)
     {
-        $this->params[$name] = $var;
-        $this->types[$name]  = $type;
+        $this->params[$param] = $variable;
+        $this->types[$param]  = $type;
 
-        return $this->stmt->bindParam($name, $var, $type, $length);
+        return $this->stmt->bindParam($param, $variable, $type, $length);
     }
 
     /**
