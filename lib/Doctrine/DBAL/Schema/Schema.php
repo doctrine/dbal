@@ -252,32 +252,32 @@ class Schema extends AbstractAsset
     }
 
     /**
-     * @param string $sequenceName
+     * @param string $name
      *
      * @return bool
      */
-    public function hasSequence($sequenceName)
+    public function hasSequence($name)
     {
-        $sequenceName = $this->getFullQualifiedAssetName($sequenceName);
+        $name = $this->getFullQualifiedAssetName($name);
 
-        return isset($this->_sequences[$sequenceName]);
+        return isset($this->_sequences[$name]);
     }
 
     /**
-     * @param string $sequenceName
+     * @param string $name
      *
      * @return Sequence
      *
      * @throws SchemaException
      */
-    public function getSequence($sequenceName)
+    public function getSequence($name)
     {
-        $sequenceName = $this->getFullQualifiedAssetName($sequenceName);
-        if (! $this->hasSequence($sequenceName)) {
-            throw SchemaException::sequenceDoesNotExist($sequenceName);
+        $name = $this->getFullQualifiedAssetName($name);
+        if (! $this->hasSequence($name)) {
+            throw SchemaException::sequenceDoesNotExist($name);
         }
 
-        return $this->_sequences[$sequenceName];
+        return $this->_sequences[$name];
     }
 
     /**
@@ -367,29 +367,29 @@ class Schema extends AbstractAsset
     /**
      * Creates a new sequence.
      *
-     * @param string $sequenceName
+     * @param string $name
      * @param int    $allocationSize
      * @param int    $initialValue
      *
      * @return Sequence
      */
-    public function createSequence($sequenceName, $allocationSize = 1, $initialValue = 1)
+    public function createSequence($name, $allocationSize = 1, $initialValue = 1)
     {
-        $seq = new Sequence($sequenceName, $allocationSize, $initialValue);
+        $seq = new Sequence($name, $allocationSize, $initialValue);
         $this->_addSequence($seq);
 
         return $seq;
     }
 
     /**
-     * @param string $sequenceName
+     * @param string $name
      *
      * @return Schema
      */
-    public function dropSequence($sequenceName)
+    public function dropSequence($name)
     {
-        $sequenceName = $this->getFullQualifiedAssetName($sequenceName);
-        unset($this->_sequences[$sequenceName]);
+        $name = $this->getFullQualifiedAssetName($name);
+        unset($this->_sequences[$name]);
 
         return $this;
     }

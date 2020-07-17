@@ -70,9 +70,9 @@ class SQLAnywhere12Platform extends SQLAnywhere11Platform
     /**
      * {@inheritdoc}
      */
-    public function getSequenceNextValSQL($sequenceName)
+    public function getSequenceNextValSQL($sequence)
     {
-        return 'SELECT ' . $sequenceName . '.NEXTVAL';
+        return 'SELECT ' . $sequence . '.NEXTVAL';
     }
 
     /**

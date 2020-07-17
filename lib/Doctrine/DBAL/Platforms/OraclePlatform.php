@@ -222,9 +222,9 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getSequenceNextValSQL($sequenceName)
+    public function getSequenceNextValSQL($sequence)
     {
-        return 'SELECT ' . $sequenceName . '.nextval FROM DUAL';
+        return 'SELECT ' . $sequence . '.nextval FROM DUAL';
     }
 
     /**

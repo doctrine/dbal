@@ -2938,13 +2938,13 @@ abstract class AbstractPlatform
     }
 
     /**
-     * @param string $sequenceName
+     * @param string $sequence
      *
      * @return string
      *
      * @throws DBALException If not supported on this platform.
      */
-    public function getSequenceNextValSQL($sequenceName)
+    public function getSequenceNextValSQL($sequence)
     {
         throw DBALException::notSupported(__METHOD__);
     }

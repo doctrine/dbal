@@ -927,9 +927,9 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getSequenceNextValSQL($sequenceName)
+    public function getSequenceNextValSQL($sequence)
     {
-        return "SELECT NEXTVAL('" . $sequenceName . "')";
+        return "SELECT NEXTVAL('" . $sequence . "')";
     }
 
     /**
