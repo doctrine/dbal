@@ -92,9 +92,6 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         }
     }
 
-    /**
-     * @group DBAL-1220
-     */
     public function testDropsDatabaseWithActiveConnections(): void
     {
         if (! $this->schemaManager->getDatabasePlatform()->supportsCreateDropDatabase()) {
@@ -129,9 +126,6 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         self::assertNotContains('test_drop_database', $this->schemaManager->listDatabases());
     }
 
-    /**
-     * @group DBAL-195
-     */
     public function testDropAndCreateSequence(): void
     {
         $platform = $this->connection->getDatabasePlatform();
@@ -210,9 +204,6 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         self::assertContains('test_create_database', $databases);
     }
 
-    /**
-     * @group DBAL-1058
-     */
     public function testListNamespaceNames(): void
     {
         if (! $this->schemaManager->getDatabasePlatform()->supportsSchemas()) {
@@ -344,9 +335,6 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         self::assertIsArray($columns['baz3']->getPlatformOptions());
     }
 
-    /**
-     * @group DBAL-1078
-     */
     public function testListTableColumnsWithFixedStringColumn(): void
     {
         $tableName = 'test_list_table_fixed_string';
@@ -697,9 +685,6 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         self::assertTrue($inferredTable->getColumn('id')->getAutoincrement());
     }
 
-    /**
-     * @group DBAL-792
-     */
     public function testAutoincrementDetectionMulticolumns(): void
     {
         if (! $this->schemaManager->getDatabasePlatform()->supportsIdentityColumns()) {
@@ -719,9 +704,6 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         self::assertFalse($inferredTable->getColumn('id')->getAutoincrement());
     }
 
-    /**
-     * @group DDC-887
-     */
     public function testUpdateSchemaWithForeignKeyRenaming(): void
     {
         if (! $this->schemaManager->getDatabasePlatform()->supportsForeignKeyConstraints()) {
@@ -764,9 +746,6 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         self::assertSame(['rename_fk_id'], array_map('strtolower', current($foreignKeys)->getColumns()));
     }
 
-    /**
-     * @group DBAL-1062
-     */
     public function testRenameIndexUsedInForeignKeyConstraint(): void
     {
         if (! $this->schemaManager->getDatabasePlatform()->supportsForeignKeyConstraints()) {
@@ -805,9 +784,6 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         self::assertTrue($foreignTable->hasForeignKey('fk_constraint'));
     }
 
-    /**
-     * @group DBAL-42
-     */
     public function testGetColumnComment(): void
     {
         if (
@@ -851,9 +827,6 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         self::assertEmpty($columns['id']->getComment());
     }
 
-    /**
-     * @group DBAL-42
-     */
     public function testAutomaticallyAppendCommentOnMarkedColumns(): void
     {
         if (
@@ -881,9 +854,6 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         self::assertInstanceOf(ArrayType::class, $columns['arr']->getType(), 'The Doctrine2 should be detected from comment hint.');
     }
 
-    /**
-     * @group DBAL-1228
-     */
     public function testCommentHintOnDateIntervalTypeColumn(): void
     {
         if (
@@ -908,9 +878,6 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         self::assertInstanceOf(DateIntervalType::class, $columns['date_interval']->getType(), 'The Doctrine2 should be detected from comment hint.');
     }
 
-    /**
-     * @group DBAL-825
-     */
     public function testChangeColumnsTypeWithDefaultValue(): void
     {
         $tableName = 'column_def_change_type';
@@ -948,9 +915,6 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         self::assertEquals('foo', $columns['col_string']->getDefault());
     }
 
-    /**
-     * @group DBAL-197
-     */
     public function testListTableWithBlob(): void
     {
         $table = new Table('test_blob_table');
@@ -1053,9 +1017,6 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         self::assertEquals(['id', 'other_id'], array_map('strtolower', $fkeys[0]->getForeignColumns()));
     }
 
-    /**
-     * @group DBAL-44
-     */
     public function testColumnDefaultLifecycle(): void
     {
         $table = new Table('col_def_lifecycle');
@@ -1211,7 +1172,6 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
     }
 
     /**
-     * @group DBAL-1009
      * @dataProvider getAlterColumnComment
      */
     public function testAlterColumnComment(
@@ -1284,9 +1244,6 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         ];
     }
 
-    /**
-     * @group DBAL-1095
-     */
     public function testDoesNotListIndexesImplicitlyCreatedByForeignKeys(): void
     {
         if (! $this->schemaManager->getDatabasePlatform()->supportsForeignKeyConstraints()) {
@@ -1326,10 +1283,6 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         $this->schemaManager->dropTable('json_array_test');
     }
 
-    /**
-     * @group 2782
-     * @group 6654
-     */
     public function testComparatorShouldReturnFalseWhenLegacyJsonArrayColumnHasComment(): void
     {
         $table = new Table('json_array_test');
@@ -1343,10 +1296,6 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         self::assertFalse($tableDiff);
     }
 
-    /**
-     * @group 2782
-     * @group 6654
-     */
     public function testComparatorShouldModifyOnlyTheCommentWhenUpdatingFromJsonArrayTypeOnLegacyPlatforms(): void
     {
         if ($this->schemaManager->getDatabasePlatform()->hasNativeJsonType()) {
@@ -1371,10 +1320,6 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         self::assertSame(['comment'], $changedColumn->changedProperties);
     }
 
-    /**
-     * @group 2782
-     * @group 6654
-     */
     public function testComparatorShouldAddCommentToLegacyJsonArrayTypeThatDoesNotHaveIt(): void
     {
         if (! $this->schemaManager->getDatabasePlatform()->hasNativeJsonType()) {
@@ -1393,10 +1338,6 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         self::assertSame(['comment'], $tableDiff->changedColumns['parameters']->changedProperties);
     }
 
-    /**
-     * @group 2782
-     * @group 6654
-     */
     public function testComparatorShouldReturnAllChangesWhenUsingLegacyJsonArrayType(): void
     {
         if (! $this->schemaManager->getDatabasePlatform()->hasNativeJsonType()) {
@@ -1415,10 +1356,6 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         self::assertSame(['notnull', 'comment'], $tableDiff->changedColumns['parameters']->changedProperties);
     }
 
-    /**
-     * @group 2782
-     * @group 6654
-     */
     public function testComparatorShouldReturnAllChangesWhenUsingLegacyJsonArrayTypeEvenWhenPlatformHasJsonSupport(): void
     {
         if (! $this->schemaManager->getDatabasePlatform()->hasNativeJsonType()) {
@@ -1437,10 +1374,6 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         self::assertSame(['notnull', 'comment'], $tableDiff->changedColumns['parameters']->changedProperties);
     }
 
-    /**
-     * @group 2782
-     * @group 6654
-     */
     public function testComparatorShouldNotAddCommentToJsonTypeSinceItIsTheDefaultNow(): void
     {
         if (! $this->schemaManager->getDatabasePlatform()->hasNativeJsonType()) {
@@ -1460,7 +1393,6 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
 
     /**
      * @dataProvider commentsProvider
-     * @group 2596
      */
     public function testExtractDoctrineTypeFromComment(string $comment, string $expected, string $currentType): void
     {
@@ -1522,9 +1454,6 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         self::assertEquals($sequence2InitialValue, $actualSequence2->getInitialValue());
     }
 
-    /**
-     * @group #3086
-     */
     public function testComparisonWithAutoDetectedSequenceDefinition(): void
     {
         if (! $this->schemaManager->getDatabasePlatform()->supportsSequences()) {
@@ -1555,9 +1484,6 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
         self::assertFalse($tableDiff);
     }
 
-    /**
-     * @group DBAL-2921
-     */
     public function testPrimaryKeyAutoIncrement(): void
     {
         $table = new Table('test_pk_auto_increment');

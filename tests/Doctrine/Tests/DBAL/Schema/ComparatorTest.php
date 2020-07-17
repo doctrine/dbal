@@ -701,9 +701,6 @@ class ComparatorTest extends TestCase
         self::assertFalse($c->diffForeignKey($fk1, $fk2));
     }
 
-    /**
-     * @group DBAL-492
-     */
     public function testCompareForeignKeyNamesUnqualifiedAsNoSchemaInformationIsAvailable(): void
     {
         $fk1 = new ForeignKeyConstraint(['foo'], 'foo.bar', ['baz'], 'fk1');
@@ -734,8 +731,6 @@ class ComparatorTest extends TestCase
      * You can easily have ambiguities in the column renaming. If these
      * are detected no renaming should take place, instead adding and dropping
      * should be used exclusively.
-     *
-     * @group DBAL-24
      */
     public function testDetectRenameColumnAmbiguous(): void
     {
@@ -757,9 +752,6 @@ class ComparatorTest extends TestCase
         self::assertCount(0, $tableDiff->renamedColumns, 'no renamings should take place.');
     }
 
-    /**
-     * @group DBAL-1063
-     */
     public function testDetectRenameIndex(): void
     {
         $table1 = new Table('foo');
@@ -784,8 +776,6 @@ class ComparatorTest extends TestCase
      * You can easily have ambiguities in the index renaming. If these
      * are detected no renaming should take place, instead adding and dropping
      * should be used exclusively.
-     *
-     * @group DBAL-1063
      */
     public function testDetectRenameIndexAmbiguous(): void
     {
@@ -827,9 +817,6 @@ class ComparatorTest extends TestCase
         self::assertArrayHasKey('id', $tableDiff->changedColumns);
     }
 
-    /**
-     * @group DBAL-105
-     */
     public function testDiff(): void
     {
         $table = new Table('twitter_users');
@@ -854,9 +841,6 @@ class ComparatorTest extends TestCase
         self::assertCount(0, $tableDiff->removedColumns);
     }
 
-    /**
-     * @group DBAL-112
-     */
     public function testChangedSequence(): void
     {
         $schema   = new Schema();
@@ -872,7 +856,6 @@ class ComparatorTest extends TestCase
     }
 
     /**
-     * @group DBAL-106
      * @psalm-suppress NullArgument
      */
     public function testDiffDecimalWithNullPrecision(): void
@@ -886,9 +869,6 @@ class ComparatorTest extends TestCase
         self::assertEquals([], $c->diffColumn($column, $column2));
     }
 
-    /**
-     * @group DBAL-204
-     */
     public function testFqnSchemaComparison(): void
     {
         $config = new SchemaConfig();
@@ -906,9 +886,6 @@ class ComparatorTest extends TestCase
         self::assertEquals($expected, Comparator::compareSchemas($oldSchema, $newSchema));
     }
 
-    /**
-     * @group DBAL-669
-     */
     public function testNamespacesComparison(): void
     {
         $config = new SchemaConfig();
@@ -933,9 +910,6 @@ class ComparatorTest extends TestCase
         self::assertCount(2, $diff->newTables);
     }
 
-    /**
-     * @group DBAL-204
-     */
     public function testFqnSchemaComparisonDifferentSchemaNameButSameTableNoDiff(): void
     {
         $config = new SchemaConfig();
@@ -953,9 +927,6 @@ class ComparatorTest extends TestCase
         self::assertEquals($expected, Comparator::compareSchemas($oldSchema, $newSchema));
     }
 
-    /**
-     * @group DBAL-204
-     */
     public function testFqnSchemaComparisonNoSchemaSame(): void
     {
         $config = new SchemaConfig();
@@ -972,9 +943,6 @@ class ComparatorTest extends TestCase
         self::assertEquals($expected, Comparator::compareSchemas($oldSchema, $newSchema));
     }
 
-    /**
-     * @group DDC-1657
-     */
     public function testAutoIncrementSequences(): void
     {
         $oldSchema = new Schema();
@@ -996,8 +964,6 @@ class ComparatorTest extends TestCase
 
     /**
      * Check that added autoincrement sequence is not populated in newSequences
-     *
-     * @group DBAL-562
      */
     public function testAutoIncrementNoSequences(): void
     {
@@ -1101,9 +1067,6 @@ class ComparatorTest extends TestCase
         self::assertEquals($expected, Comparator::compareSchemas($oldSchema, $newSchema));
     }
 
-    /**
-     * @group DBAL-617
-     */
     public function testCompareQuotedAndUnquotedForeignKeyColumns(): void
     {
         $fk1 = new ForeignKeyConstraint(['foo'], 'bar', ['baz'], 'fk1', ['onDelete' => 'NO ACTION']);
@@ -1167,9 +1130,6 @@ class ComparatorTest extends TestCase
         self::assertEquals([], $comparator->diffColumn($column2, $column1));
     }
 
-    /**
-     * @group DBAL-669
-     */
     public function testComparesNamespaces(): void
     {
         $comparator = new Comparator();
@@ -1232,7 +1192,6 @@ class ComparatorTest extends TestCase
     }
 
     /**
-     * @group DBAL-1009
      * @dataProvider getCompareColumnComments
      */
     public function testCompareColumnComments(?string $comment1, ?string $comment2, bool $equals): void

@@ -9,9 +9,6 @@ use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Query\QueryException;
 use Doctrine\Tests\DbalTestCase;
 
-/**
- * @group DBAL-12
- */
 class QueryBuilderTest extends DbalTestCase
 {
     /** @var Connection */
@@ -28,9 +25,6 @@ class QueryBuilderTest extends DbalTestCase
                    ->will($this->returnValue($expressionBuilder));
     }
 
-    /**
-     * @group DBAL-2291
-     */
     public function testSimpleSelectWithoutFrom(): void
     {
         $qb = new QueryBuilder($this->conn);
@@ -673,9 +667,6 @@ class QueryBuilderTest extends DbalTestCase
         self::assertEquals(ParameterType::INTEGER, $qb->getParameterType(1));
     }
 
-    /**
-     * @group DBAL-172
-     */
     public function testReferenceJoinFromJoin(): void
     {
         $qb = new QueryBuilder($this->conn);
@@ -692,9 +683,6 @@ class QueryBuilderTest extends DbalTestCase
         self::assertEquals('', $qb->getSQL());
     }
 
-    /**
-     * @group DBAL-172
-     */
     public function testSelectFromMasterWithWhereOnJoinedTables(): void
     {
         $qb = new QueryBuilder($this->conn);
@@ -710,9 +698,6 @@ class QueryBuilderTest extends DbalTestCase
         self::assertEquals("SELECT COUNT(DISTINCT news.id) FROM newspages news INNER JOIN nodeversion nv ON nv.refId = news.id AND nv.refEntityname='Entity\\News' INNER JOIN nodetranslation nt ON nv.nodetranslation = nt.id INNER JOIN node n ON nt.node = n.id WHERE (nt.lang = ?) AND (n.deleted = 0)", $qb->getSQL());
     }
 
-    /**
-     * @group DBAL-442
-     */
     public function testSelectWithMultipleFromAndJoins(): void
     {
         $qb = new QueryBuilder($this->conn);
@@ -728,9 +713,6 @@ class QueryBuilderTest extends DbalTestCase
         self::assertEquals('SELECT DISTINCT u.id FROM users u INNER JOIN permissions p ON p.user_id = u.id, articles a INNER JOIN comments c ON c.article_id = a.id WHERE (u.id = a.user_id) AND (p.read = 1)', $qb->getSQL());
     }
 
-    /**
-     * @group DBAL-774
-     */
     public function testSelectWithJoinsWithMultipleOnConditionsParseOrder(): void
     {
         $qb = new QueryBuilder($this->conn);
@@ -753,9 +735,6 @@ class QueryBuilderTest extends DbalTestCase
         );
     }
 
-    /**
-     * @group DBAL-774
-     */
     public function testSelectWithMultipleFromsAndJoinsWithMultipleOnConditionsParseOrder(): void
     {
         $qb = new QueryBuilder($this->conn);
@@ -871,9 +850,6 @@ class QueryBuilderTest extends DbalTestCase
         self::assertEquals('SELECT * FROM users', (string) $qb);
     }
 
-    /**
-     * @group DBAL-959
-     */
     public function testGetParameterType(): void
     {
         $qb = new QueryBuilder($this->conn);
@@ -892,9 +868,6 @@ class QueryBuilderTest extends DbalTestCase
         self::assertSame(ParameterType::STRING, $qb->getParameterType('name'));
     }
 
-    /**
-     * @group DBAL-959
-     */
     public function testGetParameterTypes(): void
     {
         $qb = new QueryBuilder($this->conn);
@@ -919,9 +892,6 @@ class QueryBuilderTest extends DbalTestCase
         ], $qb->getParameterTypes());
     }
 
-    /**
-     * @group DBAL-1137
-     */
     public function testJoinWithNonUniqueAliasThrowsException(): void
     {
         $qb = new QueryBuilder($this->conn);

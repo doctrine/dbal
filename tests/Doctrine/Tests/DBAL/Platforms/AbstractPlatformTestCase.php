@@ -35,9 +35,6 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         $this->platform = $this->createPlatform();
     }
 
-    /**
-     * @group DDC-1360
-     */
     public function testQuoteIdentifier(): void
     {
         if ($this->platform->getName() === 'mssql') {
@@ -50,9 +47,6 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         self::assertEquals(str_repeat($c, 4), $this->platform->quoteIdentifier($c));
     }
 
-    /**
-     * @group DDC-1360
-     */
     public function testQuoteSingleIdentifier(): void
     {
         if ($this->platform->getName() === 'mssql') {
@@ -66,7 +60,6 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
     }
 
     /**
-     * @group DBAL-1029
      * @dataProvider getReturnsForeignKeyReferentialActionSQL
      */
     public function testReturnsForeignKeyReferentialActionSQL(string $action, string $expectedSQL): void
@@ -113,9 +106,6 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         $this->platform->registerDoctrineTypeMapping('foo', 'bar');
     }
 
-    /**
-     * @group DBAL-2594
-     */
     public function testRegistersCommentedDoctrineMappingTypeImplicitly(): void
     {
         if (! Type::hasType('my_commented')) {
@@ -129,7 +119,6 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
     }
 
     /**
-     * @group DBAL-939
      * @dataProvider getIsCommentedDoctrineType
      */
     public function testIsCommentedDoctrineType(Type $type, bool $commented): void
@@ -277,9 +266,6 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         return '(' . $value1 . ' & ' . $value2 . ')';
     }
 
-    /**
-     * @group DDC-1213
-     */
     public function testGeneratesBitAndComparisonExpressionSql(): void
     {
         $sql = $this->platform->getBitAndComparisonExpression(2, 4);
@@ -291,9 +277,6 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         return '(' . $value1 . ' | ' . $value2 . ')';
     }
 
-    /**
-     * @group DDC-1213
-     */
     public function testGeneratesBitOrComparisonExpressionSql(): void
     {
         $sql = $this->platform->getBitOrComparisonExpression(2, 4);
@@ -462,9 +445,6 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         $this->platform->getAlterTableSQL($tableDiff);
     }
 
-    /**
-     * @group DBAL-42
-     */
     public function testCreateTableColumnComments(): void
     {
         $table = new Table('test');
@@ -474,9 +454,6 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         self::assertEquals($this->getCreateTableColumnCommentsSQL(), $this->platform->getCreateTableSQL($table));
     }
 
-    /**
-     * @group DBAL-42
-     */
     public function testAlterTableColumnComments(): void
     {
         $tableDiff                        = new TableDiff('mytable');
@@ -547,9 +524,6 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         self::assertEquals(" DEFAULT 'non_timestamp'", $this->platform->getDefaultValueDeclarationSQL($field));
     }
 
-    /**
-     * @group 2859
-     */
     public function testGetDefaultValueDeclarationSQLDateTime(): void
     {
         // timestamps on datetime types should not be quoted
@@ -581,9 +555,6 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         }
     }
 
-    /**
-     * @group 2859
-     */
     public function testGetDefaultValueDeclarationSQLForDateType(): void
     {
         $currentDateSql = $this->platform->getCurrentDateSQL();
@@ -600,9 +571,6 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         }
     }
 
-    /**
-     * @group DBAL-45
-     */
     public function testKeywordList(): void
     {
         $keywordList = $this->platform->getReservedKeywordsList();
@@ -611,9 +579,6 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         self::assertTrue($keywordList->isKeyword('table'));
     }
 
-    /**
-     * @group DBAL-374
-     */
     public function testQuotedColumnInPrimaryKeyPropagation(): void
     {
         $table = new Table('`quoted`');
@@ -644,9 +609,6 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
      */
     abstract protected function getQuotedColumnInForeignKeySQL(): array;
 
-    /**
-     * @group DBAL-374
-     */
     public function testQuotedColumnInIndexPropagation(): void
     {
         $table = new Table('`quoted`');
@@ -667,9 +629,6 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         self::assertEquals($this->getQuotedNameInIndexSQL(), $sql);
     }
 
-    /**
-     * @group DBAL-374
-     */
     public function testQuotedColumnInForeignKeyPropagation(): void
     {
         $table = new Table('`quoted`');
@@ -705,9 +664,6 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         self::assertEquals($this->getQuotedColumnInForeignKeySQL(), $sql);
     }
 
-    /**
-     * @group DBAL-1051
-     */
     public function testQuotesReservedKeywordInUniqueConstraintDeclarationSQL(): void
     {
         $index = new Index('select', ['foo'], true);
@@ -720,9 +676,6 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
 
     abstract protected function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL(): string;
 
-    /**
-     * @group DBAL-2270
-     */
     public function testQuotesReservedKeywordInTruncateTableSQL(): void
     {
         self::assertSame(
@@ -733,9 +686,6 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
 
     abstract protected function getQuotesReservedKeywordInTruncateTableSQL(): string;
 
-    /**
-     * @group DBAL-1051
-     */
     public function testQuotesReservedKeywordInIndexDeclarationSQL(): void
     {
         $index = new Index('select', ['foo']);
@@ -774,9 +724,6 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         $this->platform->getCreateSchemaSQL('schema');
     }
 
-    /**
-     * @group DBAL-585
-     */
     public function testAlterTableChangeQuotedColumn(): void
     {
         $tableDiff                        = new TableDiff('mytable');
@@ -796,17 +743,11 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         );
     }
 
-    /**
-     * @group DBAL-563
-     */
     public function testUsesSequenceEmulatedIdentityColumns(): void
     {
         self::assertFalse($this->platform->usesSequenceEmulatedIdentityColumns());
     }
 
-    /**
-     * @group DBAL-563
-     */
     public function testReturnsIdentitySequenceName(): void
     {
         $this->expectException(DBALException::class);
@@ -846,17 +787,11 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         $this->markTestSkipped('Not applicable to the platform');
     }
 
-    /**
-     * @group DBAL-553
-     */
     public function hasNativeJsonType(): void
     {
         self::assertFalse($this->platform->hasNativeJsonType());
     }
 
-    /**
-     * @group DBAL-553
-     */
     public function testReturnsJsonTypeDeclarationSQL(): void
     {
         $column = [
@@ -871,9 +806,6 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         );
     }
 
-    /**
-     * @group DBAL-234
-     */
     public function testAlterTableRenameIndex(): void
     {
         $tableDiff            = new TableDiff('mytable');
@@ -892,8 +824,6 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
 
     /**
      * @return string[]
-     *
-     * @group DBAL-234
      */
     protected function getAlterTableRenameIndexSQL(): array
     {
@@ -903,9 +833,6 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         ];
     }
 
-    /**
-     * @group DBAL-234
-     */
     public function testQuotesAlterTableRenameIndex(): void
     {
         $tableDiff            = new TableDiff('table');
@@ -925,8 +852,6 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
 
     /**
      * @return string[]
-     *
-     * @group DBAL-234
      */
     protected function getQuotedAlterTableRenameIndexSQL(): array
     {
@@ -938,9 +863,6 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         ];
     }
 
-    /**
-     * @group DBAL-835
-     */
     public function testQuotesAlterTableRenameColumn(): void
     {
         $fromTable = new Table('mytable');
@@ -983,14 +905,9 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
      * Returns SQL statements for {@link testQuotesAlterTableRenameColumn}.
      *
      * @return string[]
-     *
-     * @group DBAL-835
      */
     abstract protected function getQuotedAlterTableRenameColumnSQL(): array;
 
-    /**
-     * @group DBAL-835
-     */
     public function testQuotesAlterTableChangeColumnLength(): void
     {
         $fromTable = new Table('mytable');
@@ -1025,14 +942,9 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
      * Returns SQL statements for {@link testQuotesAlterTableChangeColumnLength}.
      *
      * @return string[]
-     *
-     * @group DBAL-835
      */
     abstract protected function getQuotedAlterTableChangeColumnLengthSQL(): array;
 
-    /**
-     * @group DBAL-807
-     */
     public function testAlterTableRenameIndexInSchema(): void
     {
         $tableDiff            = new TableDiff('myschema.mytable');
@@ -1051,8 +963,6 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
 
     /**
      * @return string[]
-     *
-     * @group DBAL-807
      */
     protected function getAlterTableRenameIndexInSchemaSQL(): array
     {
@@ -1062,9 +972,6 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         ];
     }
 
-    /**
-     * @group DBAL-807
-     */
     public function testQuotesAlterTableRenameIndexInSchema(): void
     {
         $tableDiff            = new TableDiff('`schema`.table');
@@ -1084,8 +991,6 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
 
     /**
      * @return string[]
-     *
-     * @group DBAL-234
      */
     protected function getQuotedAlterTableRenameIndexInSchemaSQL(): array
     {
@@ -1097,9 +1002,6 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         ];
     }
 
-    /**
-     * @group DBAL-1237
-     */
     public function testQuotesDropForeignKeySQL(): void
     {
         if (! $this->platform->supportsCreateDropForeignKeyConstraints()) {
@@ -1123,9 +1025,6 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         return 'ALTER TABLE "table" DROP FOREIGN KEY "select"';
     }
 
-    /**
-     * @group DBAL-1237
-     */
     public function testQuotesDropConstraintSQL(): void
     {
         $tableName      = 'table';
@@ -1188,9 +1087,6 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
      */
     abstract protected function getCommentOnColumnSQL(): array;
 
-    /**
-     * @group DBAL-1004
-     */
     public function testGetCommentOnColumnSQL(): void
     {
         self::assertSame(
@@ -1204,7 +1100,6 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
     }
 
     /**
-     * @group DBAL-1176
      * @dataProvider getGeneratesInlineColumnCommentSQL
      */
     public function testGeneratesInlineColumnCommentSQL(?string $comment, string $expectedSql): void
@@ -1269,9 +1164,6 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         return "''''";
     }
 
-    /**
-     * @group DBAL-1176
-     */
     public function testThrowsExceptionOnGeneratingInlineColumnCommentSQLIfUnsupported(): void
     {
         if ($this->platform->supportsInlineColumnComments()) {
@@ -1303,9 +1195,6 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         );
     }
 
-    /**
-     * @group DBAL-423
-     */
     public function testReturnsGuidTypeDeclarationSQL(): void
     {
         $this->expectException(DBALException::class);
@@ -1313,9 +1202,6 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         $this->platform->getGuidTypeDeclarationSQL([]);
     }
 
-    /**
-     * @group DBAL-1010
-     */
     public function testGeneratesAlterTableRenameColumnSQL(): void
     {
         $table = new Table('foo');
@@ -1341,9 +1227,6 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
      */
     abstract public function getAlterTableRenameColumnSQL(): array;
 
-    /**
-     * @group DBAL-1016
-     */
     public function testQuotesTableIdentifiersInAlterTableSQL(): void
     {
         $table = new Table('"foo"');
@@ -1383,9 +1266,6 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
      */
     abstract protected function getQuotesTableIdentifiersInAlterTableSQL(): array;
 
-    /**
-     * @group DBAL-1090
-     */
     public function testAlterStringToFixedString(): void
     {
         $table = new Table('mytable');
@@ -1416,9 +1296,6 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
      */
     abstract protected function getAlterStringToFixedStringSQL(): array;
 
-    /**
-     * @group DBAL-1062
-     */
     public function testGeneratesAlterTableRenameIndexUsedByForeignKeySQL(): void
     {
         $foreignTable = new Table('foreign_table');
@@ -1452,7 +1329,6 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
     /**
      * @param mixed[] $column
      *
-     * @group DBAL-1082
      * @dataProvider getGeneratesDecimalTypeDeclarationSQL
      */
     public function testGeneratesDecimalTypeDeclarationSQL(array $column, string $expectedSql): void
@@ -1478,7 +1354,6 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
     /**
      * @param mixed[] $column
      *
-     * @group DBAL-1082
      * @dataProvider getGeneratesFloatDeclarationSQL
      */
     public function testGeneratesFloatDeclarationSQL(array $column, string $expectedSql): void

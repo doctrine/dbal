@@ -8,9 +8,6 @@ use Doctrine\DBAL\Event\Listeners\SQLSessionInit;
 use Doctrine\DBAL\Events;
 use Doctrine\Tests\DbalTestCase;
 
-/**
- * @group DBAL-169
- */
 class SQLSessionInitTest extends DbalTestCase
 {
     public function testPostConnect(): void

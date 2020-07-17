@@ -6,9 +6,6 @@ use Doctrine\Tests\DbalFunctionalTestCase;
 
 use function in_array;
 
-/**
- * @group DBAL-752
- */
 class DBAL752Test extends DbalFunctionalTestCase
 {
     protected function setUp(): void

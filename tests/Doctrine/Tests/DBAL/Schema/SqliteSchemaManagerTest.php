@@ -12,7 +12,6 @@ class SqliteSchemaManagerTest extends TestCase
 {
     /**
      * @dataProvider getDataColumnCollation
-     * @group 2865
      */
     public function testParseColumnCollation(?string $collation, string $column, string $sql): void
     {
@@ -53,7 +52,6 @@ class SqliteSchemaManagerTest extends TestCase
 
     /**
      * @dataProvider getDataColumnComment
-     * @group 2865
      */
     public function testParseColumnCommentFromSQL(?string $comment, string $column, string $sql): void
     {

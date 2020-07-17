@@ -120,9 +120,6 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
         self::assertEquals('SELECT a.fromFoo, fromBar FROM foo ORDER BY (SELECT 0) OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
     }
 
-    /**
-     * @group DBAL-927
-     */
     public function testModifyLimitQueryWithExtraLongQuery(): void
     {
         $query  = 'SELECT table1.column1, table2.column2, table3.column3, table4.column4, table5.column5, table6.column6, table7.column7, table8.column8 FROM table1, table2, table3, table4, table5, table6, table7, table8 ';
@@ -141,9 +138,6 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
         self::assertEquals($expected, $sql);
     }
 
-    /**
-     * @group DDC-2470
-     */
     public function testModifyLimitQueryWithOrderByClause(): void
     {
         $sql      = 'SELECT m0_.NOMBRE AS NOMBRE0, m0_.FECHAINICIO AS FECHAINICIO1, m0_.FECHAFIN AS FECHAFIN2 FROM MEDICION m0_ WITH (NOLOCK) INNER JOIN ESTUDIO e1_ ON m0_.ESTUDIO_ID = e1_.ID INNER JOIN CLIENTE c2_ ON e1_.CLIENTE_ID = c2_.ID INNER JOIN USUARIO u3_ ON c2_.ID = u3_.CLIENTE_ID WHERE u3_.ID = ? ORDER BY m0_.FECHAINICIO DESC';
@@ -153,9 +147,6 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
         self::assertEquals($expected, $actual);
     }
 
-    /**
-     * @group DBAL-713
-     */
     public function testModifyLimitQueryWithSubSelectInSelectList(): void
     {
         $sql = $this->platform->modifyLimitQuery(
@@ -182,9 +173,6 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
         );
     }
 
-    /**
-     * @group DBAL-713
-     */
     public function testModifyLimitQueryWithSubSelectInSelectListAndOrderByClause(): void
     {
         $sql = $this->platform->modifyLimitQuery(
@@ -214,9 +202,6 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
         );
     }
 
-    /**
-     * @group DBAL-834
-     */
     public function testModifyLimitQueryWithAggregateFunctionInOrderByClause(): void
     {
         $sql = $this->platform->modifyLimitQuery(

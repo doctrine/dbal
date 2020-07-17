@@ -8,10 +8,6 @@ use Doctrine\DBAL\SQLParserUtils;
 use Doctrine\DBAL\SQLParserUtilsException;
 use Doctrine\Tests\DbalTestCase;
 
-/**
- * @group DBAL-78
- * @group DDC-1372
- */
 class SQLParserUtilsTest extends DbalTestCase
 {
     /**

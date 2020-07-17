@@ -68,8 +68,6 @@ abstract class BaseDateTypeTestCase extends TestCase
     }
 
     /**
-     * @group #2794
-     *
      * Note that while \@see \DateTimeImmutable is supposed to be handled
      * by @see \Doctrine\DBAL\Types\DateTimeImmutableType, previous DBAL versions handled it just fine.
      * This test is just in place to prevent further regressions, even if the type is being misused
@@ -82,8 +80,6 @@ abstract class BaseDateTypeTestCase extends TestCase
     }
 
     /**
-     * @group #2794
-     *
      * Note that while \@see \DateTimeImmutable is supposed to be handled
      * by @see \Doctrine\DBAL\Types\DateTimeImmutableType, previous DBAL versions handled it just fine.
      * This test is just in place to prevent further regressions, even if the type is being misused

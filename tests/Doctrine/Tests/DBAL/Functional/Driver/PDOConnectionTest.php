@@ -57,9 +57,6 @@ class PDOConnectionTest extends DbalFunctionalTestCase
         new PDOConnection('foo');
     }
 
-    /**
-     * @group DBAL-1022
-     */
     public function testThrowsWrappedExceptionOnExec(): void
     {
         $this->expectException(PDOException::class);

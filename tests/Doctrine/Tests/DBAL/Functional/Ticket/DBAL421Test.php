@@ -7,9 +7,6 @@ use Doctrine\Tests\DbalFunctionalTestCase;
 use function in_array;
 use function preg_match;
 
-/**
- * @group DBAL-421
- */
 class DBAL421Test extends DbalFunctionalTestCase
 {
     protected function setUp(): void

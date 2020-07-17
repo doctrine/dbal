@@ -31,9 +31,6 @@ class TemporaryTableTest extends DbalFunctionalTestCase
         parent::tearDown();
     }
 
-    /**
-     * @group DDC-1337
-     */
     public function testDropTemporaryTableNotAutoCommitTransaction(): void
     {
         if (
@@ -68,9 +65,6 @@ class TemporaryTableTest extends DbalFunctionalTestCase
         self::assertEquals([], $rows, 'In an event of an error this result has one row, because of an implicit commit.');
     }
 
-    /**
-     * @group DDC-1337
-     */
     public function testCreateTemporaryTableNotAutoCommitTransaction(): void
     {
         if (

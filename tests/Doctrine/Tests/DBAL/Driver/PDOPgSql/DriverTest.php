@@ -17,9 +17,6 @@ class DriverTest extends AbstractPostgreSQLDriverTest
         self::assertSame('pdo_pgsql', $this->driver->getName());
     }
 
-    /**
-     * @group DBAL-920
-     */
     public function testConnectionDisablesPreparesOnPhp56(): void
     {
         $this->skipWhenNotUsingPdoPgsql();
@@ -34,9 +31,6 @@ class DriverTest extends AbstractPostgreSQLDriverTest
         }
     }
 
-    /**
-     * @group DBAL-920
-     */
     public function testConnectionDoesNotDisablePreparesOnPhp56WhenAttributeDefined(): void
     {
         $this->skipWhenNotUsingPdoPgsql();
@@ -53,9 +47,6 @@ class DriverTest extends AbstractPostgreSQLDriverTest
         }
     }
 
-    /**
-     * @group DBAL-920
-     */
     public function testConnectionDisablePreparesOnPhp56WhenDisablePreparesIsExplicitlyDefined(): void
     {
         $this->skipWhenNotUsingPdoPgsql();

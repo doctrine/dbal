@@ -12,9 +12,6 @@ use function array_keys;
 
 class RemoveNamespacedAssetsTest extends TestCase
 {
-    /**
-     * @group DBAL-204
-     */
     public function testRemoveNamespacedAssets(): void
     {
         $config = new SchemaConfig();
@@ -31,9 +28,6 @@ class RemoveNamespacedAssetsTest extends TestCase
         self::assertEquals(['test.test', 'test.baz'], array_keys($tables), "Only 2 tables should be present, both in 'test' namespace.");
     }
 
-    /**
-     * @group DBAL-204
-     */
     public function testCleanupForeignKeys(): void
     {
         $config = new SchemaConfig();
@@ -54,9 +48,6 @@ class RemoveNamespacedAssetsTest extends TestCase
         self::assertCount(1, $sql, 'Just one CREATE TABLE statement, no foreign key and table to foo.bar');
     }
 
-    /**
-     * @group DBAL-204
-     */
     public function testCleanupForeignKeysDifferentOrder(): void
     {
         $config = new SchemaConfig();

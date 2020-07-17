@@ -13,9 +13,6 @@ use Throwable;
 
 use function strlen;
 
-/**
- * @group DBAL-56
- */
 class PortabilityTest extends DbalFunctionalTestCase
 {
     /** @var Connection */

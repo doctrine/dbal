@@ -14,9 +14,6 @@ use function fopen;
 use function str_repeat;
 use function stream_get_contents;
 
-/**
- * @group DBAL-6
- */
 class BlobTest extends DbalFunctionalTestCase
 {
     protected function setUp(): void

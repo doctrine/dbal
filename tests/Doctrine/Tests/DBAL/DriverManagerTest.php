@@ -47,7 +47,6 @@ class DriverManagerTest extends DbalTestCase
     }
 
     /**
-     * @group DBAL-32
      * @requires extension pdo_sqlite
      */
     public function testPdoInstanceSetErrorMode(): void
