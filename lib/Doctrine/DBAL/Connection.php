@@ -542,50 +542,50 @@ class Connection implements DriverConnection
      * Prepares and executes an SQL query and returns the first row of the result
      * as an associative array.
      *
-     * @param string         $statement The SQL query.
-     * @param mixed[]        $params    The query parameters.
-     * @param int[]|string[] $types     The query parameter types.
+     * @param string         $sql    The query SQL
+     * @param mixed[]        $params The query parameters
+     * @param int[]|string[] $types  The query parameter types
      *
      * @return mixed[]|false False is returned if no rows are found.
      *
      * @throws DBALException
      */
-    public function fetchAssoc($statement, array $params = [], array $types = [])
+    public function fetchAssoc($sql, array $params = [], array $types = [])
     {
-        return $this->executeQuery($statement, $params, $types)->fetch(FetchMode::ASSOCIATIVE);
+        return $this->executeQuery($sql, $params, $types)->fetch(FetchMode::ASSOCIATIVE);
     }
 
     /**
      * Prepares and executes an SQL query and returns the first row of the result
      * as a numerically indexed array.
      *
-     * @param string         $statement The SQL query to be executed.
-     * @param mixed[]        $params    The prepared statement params.
-     * @param int[]|string[] $types     The query parameter types.
+     * @param string         $sql    The query SQL
+     * @param mixed[]        $params The query parameters
+     * @param int[]|string[] $types  The query parameter types
      *
      * @return mixed[]|false False is returned if no rows are found.
      */
-    public function fetchArray($statement, array $params = [], array $types = [])
+    public function fetchArray($sql, array $params = [], array $types = [])
     {
-        return $this->executeQuery($statement, $params, $types)->fetch(FetchMode::NUMERIC);
+        return $this->executeQuery($sql, $params, $types)->fetch(FetchMode::NUMERIC);
     }
 
     /**
      * Prepares and executes an SQL query and returns the value of a single column
      * of the first row of the result.
      *
-     * @param string         $statement The SQL query to be executed.
-     * @param mixed[]        $params    The prepared statement params.
-     * @param int            $column    The 0-indexed column number to retrieve.
-     * @param int[]|string[] $types     The query parameter types.
+     * @param string         $sql    The query SQL
+     * @param mixed[]        $params The query parameters
+     * @param int            $column The 0-indexed column number to retrieve
+     * @param int[]|string[] $types  The query parameter types
      *
      * @return mixed|false False is returned if no rows are found.
      *
      * @throws DBALException
      */
-    public function fetchColumn($statement, array $params = [], $column = 0, array $types = [])
+    public function fetchColumn($sql, array $params = [], $column = 0, array $types = [])
     {
-        return $this->executeQuery($statement, $params, $types)->fetchColumn($column);
+        return $this->executeQuery($sql, $params, $types)->fetchColumn($column);
     }
 
     /**
