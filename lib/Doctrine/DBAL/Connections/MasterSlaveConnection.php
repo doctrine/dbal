@@ -372,10 +372,10 @@ class MasterSlaveConnection extends Connection
     /**
      * {@inheritDoc}
      */
-    public function prepare($statement)
+    public function prepare($sql)
     {
         $this->connect('master');
 
-        return parent::prepare($statement);
+        return parent::prepare($sql);
     }
 }

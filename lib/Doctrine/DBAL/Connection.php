@@ -849,18 +849,18 @@ class Connection implements DriverConnection
     /**
      * Prepares an SQL statement.
      *
-     * @param string $statement The SQL statement to prepare.
+     * @param string $sql The SQL statement to prepare.
      *
      * @return Statement The prepared statement.
      *
      * @throws DBALException
      */
-    public function prepare($statement)
+    public function prepare($sql)
     {
         try {
-            $stmt = new Statement($statement, $this);
+            $stmt = new Statement($sql, $this);
         } catch (Throwable $ex) {
-            throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $statement);
+            throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $sql);
         }
 
         $stmt->setFetchMode($this->defaultFetchMode);

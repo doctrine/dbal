@@ -113,9 +113,9 @@ class Connection extends \Doctrine\DBAL\Connection
      *
      * @return Statement
      */
-    public function prepare($statement)
+    public function prepare($sql)
     {
-        $stmt = new Statement(parent::prepare($statement), $this);
+        $stmt = new Statement(parent::prepare($sql), $this);
         $stmt->setFetchMode($this->defaultFetchMode);
 
         return $stmt;

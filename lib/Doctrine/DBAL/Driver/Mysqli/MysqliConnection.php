@@ -128,9 +128,9 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
     /**
      * {@inheritdoc}
      */
-    public function prepare($prepareString)
+    public function prepare($sql)
     {
-        return new MysqliStatement($this->conn, $prepareString);
+        return new MysqliStatement($this->conn, $sql);
     }
 
     /**

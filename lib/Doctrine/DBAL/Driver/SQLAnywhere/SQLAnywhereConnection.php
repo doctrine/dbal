@@ -144,9 +144,9 @@ class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function prepare($prepareString)
+    public function prepare($sql)
     {
-        return new SQLAnywhereStatement($this->connection, $prepareString);
+        return new SQLAnywhereStatement($this->connection, $sql);
     }
 
     /**

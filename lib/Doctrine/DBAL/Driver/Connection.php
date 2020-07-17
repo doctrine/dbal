@@ -15,11 +15,11 @@ interface Connection
     /**
      * Prepares a statement for execution and returns a Statement object.
      *
-     * @param string $prepareString
+     * @param string $sql
      *
      * @return Statement
      */
-    public function prepare($prepareString);
+    public function prepare($sql);
 
     /**
      * Executes an SQL statement, returning a result set as a Statement object.
