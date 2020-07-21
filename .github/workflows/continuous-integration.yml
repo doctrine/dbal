@@ -102,3 +102,87 @@ jobs:
 
       - name: "Run squizlabs/php_codesniffer"
         run: "vendor/bin/phpcs -q --no-colors --report=checkstyle | cs2pr"
+
+  phpunit-oci8:
+    name: "PHPUnit on OCI8"
+    runs-on: "ubuntu-latest"
+
+    strategy:
+      matrix:
+        php-version:
+          - "7.4"
+
+    services:
+      oracle:
+        image: "wnameless/oracle-xe-11g-r2"
+        ports:
+          - "1521:1521"
+
+    steps:
+      - name: "Checkout"
+        uses: "actions/checkout@v2"
+
+      - name: "Install PHP"
+        uses: "shivammathur/setup-php@v2"
+        with:
+          php-version: "${{ matrix.php-version }}"
+          extensions: "oci8"
+          coverage: "pcov"
+
+      - name: "Cache dependencies installed with composer"
+        uses: "actions/cache@v1"
+        with:
+          path: "~/.composer/cache"
+          key: "php-${{ matrix.php-version }}-composer-locked-${{ hashFiles('composer.lock') }}"
+          restore-keys: "php-${{ matrix.php-version }}-composer-locked-"
+
+      - name: "Install dependencies with composer"
+        run: "composer install --no-interaction --no-progress --no-suggest"
+
+      - name: "Run PHPUnit"
+        run: "vendor/bin/phpunit -c ci/github/phpunit.oci8.xml --coverage-clover=coverage.xml"
+
+      - name: "Upload Code Coverage"
+        uses: "codecov/codecov-action@v1"
+
+  phpunit-pdo-oci:
+    name: "PHPUnit on PDO_OCI"
+    runs-on: "ubuntu-latest"
+
+    strategy:
+      matrix:
+        php-version:
+          - "7.4"
+
+    services:
+      oracle:
+        image: "wnameless/oracle-xe-11g-r2"
+        ports:
+          - "1521:1521"
+
+    steps:
+      - name: "Checkout"
+        uses: "actions/checkout@v2"
+
+      - name: "Install PHP"
+        uses: "shivammathur/setup-php@v2"
+        with:
+          php-version: "${{ matrix.php-version }}"
+          extensions: "pdo_oci"
+          coverage: "pcov"
+
+      - name: "Cache dependencies installed with composer"
+        uses: "actions/cache@v1"
+        with:
+          path: "~/.composer/cache"
+          key: "php-${{ matrix.php-version }}-composer-locked-${{ hashFiles('composer.lock') }}"
+          restore-keys: "php-${{ matrix.php-version }}-composer-locked-"
+
+      - name: "Install dependencies with composer"
+        run: "composer install --no-interaction --no-progress --no-suggest"
+
+      - name: "Run PHPUnit"
+        run: "vendor/bin/phpunit -c ci/github/phpunit.pdo-oci.xml --coverage-clover=coverage.xml"
+
+      - name: "Upload Code Coverage"
+        uses: "codecov/codecov-action@v1"
