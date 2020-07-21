@@ -300,9 +300,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $this->expectCteWithMaxRowNum($alteredSql, 10, $sql);
     }
 
-    /**
-     * @group DBAL-927
-     */
     public function testModifyLimitQueryWithExtraLongQuery(): void
     {
         $query  = 'SELECT table1.column1, table2.column2, table3.column3, table4.column4, table5.column5, table6.column6, table7.column7, table8.column8 FROM table1, table2, table3, table4, table5, table6, table7, table8 ';
@@ -319,9 +316,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $this->expectCteWithMaxRowNum($alteredSql, 10, $sql);
     }
 
-    /**
-     * @group DDC-2470
-     */
     public function testModifyLimitQueryWithOrderByClause(): void
     {
         if (! $this->platform->supportsLimitOffset()) {
@@ -335,9 +329,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $this->expectCteWithMinAndMaxRowNums($alteredSql, 6, 15, $actual);
     }
 
-    /**
-     * @group DBAL-713
-     */
     public function testModifyLimitQueryWithSubSelectInSelectList(): void
     {
         $querySql   = 'SELECT ' .
@@ -359,9 +350,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $this->expectCteWithMaxRowNum($alteredSql, 10, $sql);
     }
 
-    /**
-     * @group DBAL-713
-     */
     public function testModifyLimitQueryWithSubSelectInSelectListAndOrderByClause(): void
     {
         if (! $this->platform->supportsLimitOffset()) {
@@ -388,9 +376,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $this->expectCteWithMinAndMaxRowNums($alteredSql, 6, 15, $sql);
     }
 
-    /**
-     * @group DBAL-834
-     */
     public function testModifyLimitQueryWithAggregateFunctionInOrderByClause(): void
     {
         $querySql   = 'SELECT ' .
@@ -484,17 +469,14 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     public function testModifyLimitSubquerySimple(): void
     {
         $querySql   = 'SELECT DISTINCT id_0 FROM '
-            . '(SELECT k0_.id AS id_0, k0_.field AS field_1 '
-            . 'FROM key_table k0_ WHERE (k0_.where_field IN (1))) dctrn_result';
-        $alteredSql = 'SELECT DISTINCT TOP 20 id_0 FROM (SELECT k0_.id AS id_0, k0_.field AS field_1 '
-            . 'FROM key_table k0_ WHERE (k0_.where_field IN (1))) dctrn_result';
+            . '(SELECT k0_.id AS id_0, k0_.column AS column_1 '
+            . 'FROM key_table k0_ WHERE (k0_.where_column IN (1))) dctrn_result';
+        $alteredSql = 'SELECT DISTINCT TOP 20 id_0 FROM (SELECT k0_.id AS id_0, k0_.column AS column_1 '
+            . 'FROM key_table k0_ WHERE (k0_.where_column IN (1))) dctrn_result';
         $sql        = $this->platform->modifyLimitQuery($querySql, 20);
         $this->expectCteWithMaxRowNum($alteredSql, 20, $sql);
     }
 
-    /**
-     * @group DDC-1360
-     */
     public function testQuoteIdentifier(): void
     {
         self::assertEquals('[fo][o]', $this->platform->quoteIdentifier('fo]o'));
@@ -502,9 +484,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         self::assertEquals('[test].[test]', $this->platform->quoteIdentifier('test.test'));
     }
 
-    /**
-     * @group DDC-1360
-     */
     public function testQuoteSingleIdentifier(): void
     {
         self::assertEquals('[fo][o]', $this->platform->quoteSingleIdentifier('fo]o'));
@@ -512,9 +491,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         self::assertEquals('[test.test]', $this->platform->quoteSingleIdentifier('test.test'));
     }
 
-    /**
-     * @group DBAL-220
-     */
     public function testCreateClusteredIndex(): void
     {
         $idx = new Index('idx', ['id']);
@@ -522,9 +498,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         self::assertEquals('CREATE CLUSTERED INDEX idx ON tbl (id)', $this->platform->getCreateIndexSQL($idx, 'tbl'));
     }
 
-    /**
-     * @group DBAL-220
-     */
     public function testCreateNonClusteredPrimaryKeyInTable(): void
     {
         $table = new Table('tbl');
@@ -535,9 +508,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         self::assertEquals(['CREATE TABLE tbl (id INT NOT NULL, PRIMARY KEY NONCLUSTERED (id))'], $this->platform->getCreateTableSQL($table));
     }
 
-    /**
-     * @group DBAL-220
-     */
     public function testCreateNonClusteredPrimaryKey(): void
     {
         $idx = new Index('idx', ['id'], false, true);
@@ -660,8 +630,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
 
     /**
      * {@inheritDoc}
-     *
-     * @group DBAL-543
      */
     public function getCreateTableColumnCommentsSQL(): array
     {
@@ -673,8 +641,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
 
     /**
      * {@inheritDoc}
-     *
-     * @group DBAL-543
      */
     public function getAlterTableColumnCommentsSQL(): array
     {
@@ -688,8 +654,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
 
     /**
      * {@inheritDoc}
-     *
-     * @group DBAL-543
      */
     public function getCreateTableColumnTypeCommentsSQL(): array
     {
@@ -699,9 +663,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         ];
     }
 
-    /**
-     * @group DBAL-543
-     */
     public function testGeneratesCreateTableSQLWithColumnComments(): void
     {
         $table = new Table('mytable');
@@ -737,10 +698,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         );
     }
 
-    /**
-     * @group DBAL-543
-     * @group DBAL-1011
-     */
     public function testGeneratesAlterTableSQLWithColumnComments(): void
     {
         $table = new Table('mytable');
@@ -920,9 +877,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         );
     }
 
-    /**
-     * @group DBAL-122
-     */
     public function testInitializesDoctrineTypeMappings(): void
     {
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('bigint'));
@@ -1017,10 +971,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         self::assertSame('BINARY(8000)', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 8000]));
     }
 
-    /**
-     * @group legacy
-     * @expectedDeprecation Binary field length 8001 is greater than supported by the platform (8000). Reduce the field length or use a BLOB field instead.
-     */
     public function testReturnsBinaryTypeLongerThanMaxDeclarationSQL(): void
     {
         self::assertSame('VARBINARY(MAX)', $this->platform->getBinaryTypeDeclarationSQL(['length' => 8001]));
@@ -1029,8 +979,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
 
     /**
      * {@inheritDoc}
-     *
-     * @group DBAL-234
      */
     protected function getAlterTableRenameIndexSQL(): array
     {
@@ -1039,8 +987,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
 
     /**
      * {@inheritDoc}
-     *
-     * @group DBAL-234
      */
     protected function getQuotedAlterTableRenameIndexSQL(): array
     {
@@ -1050,9 +996,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         ];
     }
 
-    /**
-     * @group DBAL-825
-     */
     public function testChangeColumnsTypeWithDefaultValue(): void
     {
         $tableName = 'column_def_change_type';
@@ -1120,8 +1063,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
 
     /**
      * {@inheritDoc}
-     *
-     * @group DBAL-807
      */
     protected function getAlterTableRenameIndexInSchemaSQL(): array
     {
@@ -1130,8 +1071,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
 
     /**
      * {@inheritDoc}
-     *
-     * @group DBAL-807
      */
     protected function getQuotedAlterTableRenameIndexInSchemaSQL(): array
     {
@@ -1155,7 +1094,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      * @param mixed[] $column
      *
      * @dataProvider getGeneratesIdentifierNamesInDefaultConstraintDeclarationSQL
-     * @group DBAL-830
      */
     public function testGeneratesIdentifierNamesInDefaultConstraintDeclarationSQL(string $table, array $column, string $expectedSql): void
     {
@@ -1183,7 +1121,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      * @param string[] $expectedSql
      *
      * @dataProvider getGeneratesIdentifierNamesInCreateTableSQL
-     * @group DBAL-830
      */
     public function testGeneratesIdentifierNamesInCreateTableSQL(Table $table, array $expectedSql): void
     {
@@ -1235,7 +1172,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      * @param string[] $expectedSql
      *
      * @dataProvider getGeneratesIdentifierNamesInAlterTableSQL
-     * @group DBAL-830
      */
     public function testGeneratesIdentifierNamesInAlterTableSQL(TableDiff $tableDiff, array $expectedSql): void
     {
@@ -1347,9 +1283,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         ];
     }
 
-    /**
-     * @group DBAL-423
-     */
     public function testReturnsGuidTypeDeclarationSQL(): void
     {
         self::assertSame('UNIQUEIDENTIFIER', $this->platform->getGuidTypeDeclarationSQL([]));
@@ -1460,9 +1393,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $this->expectCteWithMaxRowNum($alteredSql, 10, $sql);
     }
 
-    /**
-     * @group DBAL-2436
-     */
     public function testQuotesTableNameInListTableColumnsSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
@@ -1471,9 +1401,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         );
     }
 
-    /**
-     * @group DBAL-2436
-     */
     public function testQuotesSchemaNameInListTableColumnsSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
@@ -1482,9 +1409,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         );
     }
 
-    /**
-     * @group DBAL-2436
-     */
     public function testQuotesTableNameInListTableForeignKeysSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
@@ -1493,9 +1417,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         );
     }
 
-    /**
-     * @group DBAL-2436
-     */
     public function testQuotesSchemaNameInListTableForeignKeysSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
@@ -1504,9 +1425,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         );
     }
 
-    /**
-     * @group DBAL-2436
-     */
     public function testQuotesTableNameInListTableIndexesSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
@@ -1515,9 +1433,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         );
     }
 
-    /**
-     * @group DBAL-2436
-     */
     public function testQuotesSchemaNameInListTableIndexesSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
@@ -1526,21 +1441,16 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         );
     }
 
-    /**
-     * @group 2859
-     */
     public function testGetDefaultValueDeclarationSQLForDateType(): void
     {
         $currentDateSql = $this->platform->getCurrentDateSQL();
         foreach (['date', 'date_immutable'] as $type) {
-            $field = [
-                'type' => Type::getType($type),
-                'default' => $currentDateSql,
-            ];
-
             self::assertSame(
                 ' DEFAULT CONVERT(date, GETDATE())',
-                $this->platform->getDefaultValueDeclarationSQL($field)
+                $this->platform->getDefaultValueDeclarationSQL([
+                    'type' => Type::getType($type),
+                    'default' => $currentDateSql,
+                ])
             );
         }
     }

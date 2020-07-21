@@ -13,9 +13,6 @@ use function array_change_key_case;
 
 use const CASE_LOWER;
 
-/**
- * @group DDC-1372
- */
 class NamedParametersTest extends DbalFunctionalTestCase
 {
     /**

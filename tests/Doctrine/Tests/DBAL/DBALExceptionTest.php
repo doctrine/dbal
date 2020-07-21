@@ -57,9 +57,6 @@ class DBALExceptionTest extends DbalTestCase
         );
     }
 
-    /**
-     * @group #2821
-     */
     public function testInvalidPlatformTypeObject(): void
     {
         $exception = DBALException::invalidPlatformType(new stdClass());
@@ -70,9 +67,6 @@ class DBALExceptionTest extends DbalTestCase
         );
     }
 
-    /**
-     * @group #2821
-     */
     public function testInvalidPlatformTypeScalar(): void
     {
         $exception = DBALException::invalidPlatformType('some string');

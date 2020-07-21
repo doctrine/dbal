@@ -39,8 +39,6 @@ final class DB2SchemaManagerTest extends TestCase
 
     /**
      * @see https://github.com/doctrine/dbal/issues/2701
-     *
-     * @group DBAL-2701
      */
     public function testListTableNamesFiltersAssetNamesCorrectly(): void
     {
@@ -61,9 +59,6 @@ final class DB2SchemaManagerTest extends TestCase
         );
     }
 
-    /**
-     * @group DBAL-2701
-     */
     public function testAssetFilteringSetsACallable(): void
     {
         $filterExpression = '/^(?!T_)/';

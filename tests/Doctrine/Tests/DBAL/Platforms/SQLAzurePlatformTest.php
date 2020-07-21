@@ -6,9 +6,6 @@ use Doctrine\DBAL\Platforms\SQLAzurePlatform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\Tests\DbalTestCase;
 
-/**
- * @group DBAL-222
- */
 class SQLAzurePlatformTest extends DbalTestCase
 {
     /** @var SQLAzurePlatform */

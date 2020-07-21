@@ -104,9 +104,9 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function prepare($prepareString)
+    public function prepare($sql)
     {
-        return new OCI8Statement($this->dbh, $prepareString, $this);
+        return new OCI8Statement($this->dbh, $sql, $this);
     }
 
     /**
@@ -140,9 +140,9 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function exec($statement)
+    public function exec($sql)
     {
-        $stmt = $this->prepare($statement);
+        $stmt = $this->prepare($sql);
         $stmt->execute();
 
         return $stmt->rowCount();

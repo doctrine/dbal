@@ -12,9 +12,9 @@ class GuidType extends StringType
     /**
      * {@inheritdoc}
      */
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
+    public function getSQLDeclaration(array $column, AbstractPlatform $platform)
     {
-        return $platform->getGuidTypeDeclarationSQL($fieldDeclaration);
+        return $platform->getGuidTypeDeclarationSQL($column);
     }
 
     /**

@@ -59,12 +59,12 @@ class Column extends AbstractAsset
     /**
      * Creates a new Column.
      *
-     * @param string  $columnName
+     * @param string  $name
      * @param mixed[] $options
      */
-    public function __construct($columnName, Type $type, array $options = [])
+    public function __construct($name, Type $type, array $options = [])
     {
-        $this->_setName($columnName);
+        $this->_setName($name);
         $this->setType($type);
         $this->setOptions($options);
     }

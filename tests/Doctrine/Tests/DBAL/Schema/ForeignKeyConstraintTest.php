@@ -12,7 +12,6 @@ class ForeignKeyConstraintTest extends TestCase
     /**
      * @param string[] $indexColumns
      *
-     * @group DBAL-1062
      * @dataProvider getIntersectsIndexColumnsData
      */
     public function testIntersectsIndexColumns(array $indexColumns, bool $expectedResult): void
@@ -61,7 +60,6 @@ class ForeignKeyConstraintTest extends TestCase
     /**
      * @param string|Table $foreignTableName
      *
-     * @group DBAL-1062
      * @dataProvider getUnqualifiedForeignTableNameData
      */
     public function testGetUnqualifiedForeignTableName($foreignTableName, string $expectedUnqualifiedTableName): void

@@ -42,7 +42,7 @@ class SQLAnywhere12Platform extends SQLAnywhere11Platform
     /**
      * {@inheritdoc}
      */
-    public function getDateTimeTzTypeDeclarationSQL(array $fieldDeclaration)
+    public function getDateTimeTzTypeDeclarationSQL(array $column)
     {
         return 'TIMESTAMP WITH TIME ZONE';
     }
@@ -70,9 +70,9 @@ class SQLAnywhere12Platform extends SQLAnywhere11Platform
     /**
      * {@inheritdoc}
      */
-    public function getSequenceNextValSQL($sequenceName)
+    public function getSequenceNextValSQL($sequence)
     {
-        return 'SELECT ' . $sequenceName . '.NEXTVAL';
+        return 'SELECT ' . $sequence . '.NEXTVAL';
     }
 
     /**

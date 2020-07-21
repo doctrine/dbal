@@ -829,10 +829,6 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         self::assertSame('BINARY(32767)', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 32767]));
     }
 
-    /**
-     * @group legacy
-     * @expectedDeprecation Binary field length 32768 is greater than supported by the platform (32767). Reduce the field length or use a BLOB field instead.
-     */
     public function testReturnsBinaryTypeLongerThanMaxDeclarationSQL(): void
     {
         self::assertSame('LONG BINARY', $this->platform->getBinaryTypeDeclarationSQL(['length' => 32768]));
@@ -841,8 +837,6 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
     /**
      * {@inheritDoc}
-     *
-     * @group DBAL-234
      */
     protected function getAlterTableRenameIndexSQL(): array
     {
@@ -851,8 +845,6 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
     /**
      * {@inheritDoc}
-     *
-     * @group DBAL-234
      */
     protected function getQuotedAlterTableRenameIndexSQL(): array
     {
@@ -890,8 +882,6 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
     /**
      * {@inheritDoc}
-     *
-     * @group DBAL-807
      */
     protected function getAlterTableRenameIndexInSchemaSQL(): array
     {
@@ -900,8 +890,6 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
     /**
      * {@inheritDoc}
-     *
-     * @group DBAL-807
      */
     protected function getQuotedAlterTableRenameIndexInSchemaSQL(): array
     {
@@ -911,9 +899,6 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * @group DBAL-423
-     */
     public function testReturnsGuidTypeDeclarationSQL(): void
     {
         self::assertSame('UNIQUEIDENTIFIER', $this->platform->getGuidTypeDeclarationSQL([]));
@@ -955,9 +940,6 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * @group DBAL-1004
-     */
     public function testAltersTableColumnCommentWithExplicitlyQuotedIdentifiers(): void
     {
         $table1 = new Table('"foo"', [new Column('"bar"', Type::getType('integer'))]);
@@ -1025,9 +1007,6 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         return ['ALTER INDEX idx_foo ON mytable RENAME TO idx_foo_renamed'];
     }
 
-    /**
-     * @group DBAL-2436
-     */
     public function testQuotesSchemaNameInListTableColumnsSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
@@ -1036,17 +1015,11 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    /**
-     * @group DBAL-2436
-     */
     public function testQuotesTableNameInListTableConstraintsSQL(): void
     {
         self::assertStringContainsStringIgnoringCase("'Foo''Bar\\'", $this->platform->getListTableConstraintsSQL("Foo'Bar\\"), '', true);
     }
 
-    /**
-     * @group DBAL-2436
-     */
     public function testQuotesSchemaNameInListTableConstraintsSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
@@ -1055,9 +1028,6 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    /**
-     * @group DBAL-2436
-     */
     public function testQuotesTableNameInListTableForeignKeysSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
@@ -1066,9 +1036,6 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    /**
-     * @group DBAL-2436
-     */
     public function testQuotesSchemaNameInListTableForeignKeysSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
@@ -1077,9 +1044,6 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    /**
-     * @group DBAL-2436
-     */
     public function testQuotesTableNameInListTableIndexesSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
@@ -1088,9 +1052,6 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    /**
-     * @group DBAL-2436
-     */
     public function testQuotesSchemaNameInListTableIndexesSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(

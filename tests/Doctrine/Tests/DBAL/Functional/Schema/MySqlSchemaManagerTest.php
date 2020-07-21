@@ -120,9 +120,6 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertSame([128], $indexes['text_index']->getOption('lengths'));
     }
 
-    /**
-     * @group DBAL-400
-     */
     public function testAlterTableAddPrimaryKey(): void
     {
         $table = new Table('alter_table_add_pk');
@@ -146,9 +143,6 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertTrue($table->hasPrimaryKey());
     }
 
-    /**
-     * @group DBAL-464
-     */
     public function testDropPrimaryKeyWithAutoincrementColumn(): void
     {
         $table = new Table('drop_primary_key');
@@ -172,9 +166,6 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertFalse($table->getColumn('id')->getAutoincrement());
     }
 
-    /**
-     * @group DBAL-789
-     */
     public function testDoesNotPropagateDefaultValuesForUnsupportedColumnTypes(): void
     {
         if ($this->schemaManager->getDatabasePlatform() instanceof MariaDb1027Platform) {
@@ -288,9 +279,6 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertInstanceOf(BlobType::class, $columns['baz']->getType());
     }
 
-    /**
-     * @group DBAL-843
-     */
     public function testListLobTypeColumns(): void
     {
         $tableName = 'lob_type_columns';
@@ -347,9 +335,6 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         );
     }
 
-    /**
-     * @group DBAL-423
-     */
     public function testDiffListGuidTableColumn(): void
     {
         $offlineTable = new Table('list_guid_table_column');
@@ -367,9 +352,6 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         );
     }
 
-    /**
-     * @group DBAL-1082
-     */
     public function testListDecimalTypeColumns(): void
     {
         $tableName = 'test_list_decimal_columns';
@@ -388,9 +370,6 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertTrue($columns['col_unsigned']->getUnsigned());
     }
 
-    /**
-     * @group DBAL-1082
-     */
     public function testListFloatTypeColumns(): void
     {
         $tableName = 'test_list_float_columns';

@@ -29,7 +29,7 @@ class SQLServer2005Platform extends SQLServerPlatform
     /**
      * {@inheritDoc}
      */
-    public function getClobTypeDeclarationSQL(array $field)
+    public function getClobTypeDeclarationSQL(array $column)
     {
         return 'VARCHAR(MAX)';
     }

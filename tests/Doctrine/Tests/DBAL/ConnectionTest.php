@@ -210,8 +210,6 @@ class ConnectionTest extends DbalTestCase
 
     /**
      * Pretty dumb test, however we want to check that the EchoSQLLogger correctly implements the interface.
-     *
-     * @group DBAL-11
      */
     public function testEchoSQLLogger(): void
     {
@@ -222,8 +220,6 @@ class ConnectionTest extends DbalTestCase
 
     /**
      * Pretty dumb test, however we want to check that the DebugStack correctly implements the interface.
-     *
-     * @group DBAL-11
      */
     public function testDebugSQLStack(): void
     {
@@ -232,17 +228,11 @@ class ConnectionTest extends DbalTestCase
         self::assertSame($logger, $this->connection->getConfiguration()->getSQLLogger());
     }
 
-    /**
-     * @group DBAL-81
-     */
     public function testIsAutoCommit(): void
     {
         self::assertTrue($this->connection->isAutoCommit());
     }
 
-    /**
-     * @group DBAL-81
-     */
     public function testSetAutoCommit(): void
     {
         $this->connection->setAutoCommit(false);
@@ -251,9 +241,6 @@ class ConnectionTest extends DbalTestCase
         self::assertFalse($this->connection->isAutoCommit());
     }
 
-    /**
-     * @group DBAL-81
-     */
     public function testConnectStartsTransactionInNoAutoCommitMode(): void
     {
         $driverMock = $this->createMock(Driver::class);
@@ -273,9 +260,6 @@ class ConnectionTest extends DbalTestCase
         self::assertTrue($conn->isTransactionActive());
     }
 
-    /**
-     * @group DBAL-81
-     */
     public function testCommitStartsTransactionInNoAutoCommitMode(): void
     {
         $driverMock = $this->createMock(Driver::class);
@@ -323,9 +307,6 @@ class ConnectionTest extends DbalTestCase
         return [[true], [false]];
     }
 
-    /**
-     * @group DBAL-81
-     */
     public function testRollBackStartsTransactionInNoAutoCommitMode(): void
     {
         $driverMock = $this->createMock(Driver::class);
@@ -343,9 +324,6 @@ class ConnectionTest extends DbalTestCase
         self::assertTrue($conn->isTransactionActive());
     }
 
-    /**
-     * @group DBAL-81
-     */
     public function testSwitchingAutoCommitModeCommitsAllCurrentTransactions(): void
     {
         $driverMock = $this->createMock(Driver::class);
@@ -381,9 +359,6 @@ class ConnectionTest extends DbalTestCase
         $conn->insert('footable', []);
     }
 
-    /**
-     * @group DBAL-2511
-     */
     public function testUpdateWithDifferentColumnsInDataAndIdentifiers(): void
     {
         $conn = $this->getExecuteUpdateMockConnection();
@@ -425,9 +400,6 @@ class ConnectionTest extends DbalTestCase
         );
     }
 
-    /**
-     * @group DBAL-2511
-     */
     public function testUpdateWithSameColumnInDataAndIdentifiers(): void
     {
         $conn = $this->getExecuteUpdateMockConnection();
@@ -468,9 +440,6 @@ class ConnectionTest extends DbalTestCase
         );
     }
 
-    /**
-     * @group DBAL-2688
-     */
     public function testUpdateWithIsNull(): void
     {
         $conn = $this->getExecuteUpdateMockConnection();
@@ -510,9 +479,6 @@ class ConnectionTest extends DbalTestCase
         );
     }
 
-    /**
-     * @group DBAL-2688
-     */
     public function testDeleteWithIsNull(): void
     {
         $conn = $this->getExecuteUpdateMockConnection();
@@ -755,9 +721,6 @@ class ConnectionTest extends DbalTestCase
         call_user_func_array([$conn, $method], $params);
     }
 
-    /**
-     * @group DBAL-1127
-     */
     public function testPlatformDetectionIsTriggerOnlyOnceOnRetrievingPlatform(): void
     {
         $driverMock = $this->createMock(FutureVersionAwarePlatformDriver::class);
@@ -824,9 +787,6 @@ class ConnectionTest extends DbalTestCase
         );
     }
 
-    /**
-     * @group #2821
-     */
     public function testShouldNotPassPlatformInParamsToTheQueryCacheProfileInExecuteCacheQuery(): void
     {
         $resultCacheDriverMock = $this->createMock(Cache::class);
@@ -861,9 +821,6 @@ class ConnectionTest extends DbalTestCase
         (new Connection($connectionParams, $driver))->executeCacheQuery($query, [], [], $queryCacheProfileMock);
     }
 
-    /**
-     * @group #2821
-     */
     public function testThrowsExceptionWhenInValidPlatformSpecified(): void
     {
         $connectionParams             = $this->params;
@@ -876,9 +833,6 @@ class ConnectionTest extends DbalTestCase
         new Connection($connectionParams, $driver);
     }
 
-    /**
-     * @group DBAL-990
-     */
     public function testRethrowsOriginalExceptionOnDeterminingPlatformWhenConnectingToNonExistentDatabase(): void
     {
         $driverMock = $this->createMock(FutureVersionAwarePlatformDriver::class);
@@ -900,9 +854,6 @@ class ConnectionTest extends DbalTestCase
         $connection->getDatabasePlatform();
     }
 
-    /**
-     * @group #3194
-     */
     public function testExecuteCacheQueryStripsPlatformFromConnectionParamsBeforeGeneratingCacheKeys(): void
     {
         $driver = $this->createMock(Driver::class);

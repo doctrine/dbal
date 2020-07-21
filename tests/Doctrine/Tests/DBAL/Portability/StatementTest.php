@@ -31,9 +31,6 @@ class StatementTest extends DbalTestCase
         $this->stmt        = $this->createStatement($this->wrappedStmt, $this->conn);
     }
 
-    /**
-     * @group DBAL-726
-     */
     public function testBindParam(): void
     {
         $column   = 'mycolumn';

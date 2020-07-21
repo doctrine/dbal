@@ -128,9 +128,9 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
     /**
      * {@inheritdoc}
      */
-    public function prepare($prepareString)
+    public function prepare($sql)
     {
-        return new MysqliStatement($this->conn, $prepareString);
+        return new MysqliStatement($this->conn, $sql);
     }
 
     /**
@@ -157,9 +157,9 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
     /**
      * {@inheritdoc}
      */
-    public function exec($statement)
+    public function exec($sql)
     {
-        if ($this->conn->query($statement) === false) {
+        if ($this->conn->query($sql) === false) {
             throw new MysqliException($this->conn->error, $this->conn->sqlstate, $this->conn->errno);
         }
 

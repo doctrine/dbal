@@ -223,11 +223,11 @@ class MasterSlaveConnection extends Connection
     /**
      * {@inheritDoc}
      */
-    public function executeUpdate($query, array $params = [], array $types = [])
+    public function executeUpdate($sql, array $params = [], array $types = [])
     {
         $this->connect('master');
 
-        return parent::executeUpdate($query, $params, $types);
+        return parent::executeUpdate($sql, $params, $types);
     }
 
     /**
@@ -263,11 +263,11 @@ class MasterSlaveConnection extends Connection
     /**
      * {@inheritDoc}
      */
-    public function delete($tableName, array $identifier, array $types = [])
+    public function delete($table, array $identifier, array $types = [])
     {
         $this->connect('master');
 
-        return parent::delete($tableName, $identifier, $types);
+        return parent::delete($table, $identifier, $types);
     }
 
     /**
@@ -286,31 +286,31 @@ class MasterSlaveConnection extends Connection
     /**
      * {@inheritDoc}
      */
-    public function update($tableName, array $data, array $identifier, array $types = [])
+    public function update($table, array $data, array $identifier, array $types = [])
     {
         $this->connect('master');
 
-        return parent::update($tableName, $data, $identifier, $types);
+        return parent::update($table, $data, $identifier, $types);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function insert($tableName, array $data, array $types = [])
+    public function insert($table, array $data, array $types = [])
     {
         $this->connect('master');
 
-        return parent::insert($tableName, $data, $types);
+        return parent::insert($table, $data, $types);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function exec($statement)
+    public function exec($sql)
     {
         $this->connect('master');
 
-        return parent::exec($statement);
+        return parent::exec($sql);
     }
 
     /**
@@ -372,10 +372,10 @@ class MasterSlaveConnection extends Connection
     /**
      * {@inheritDoc}
      */
-    public function prepare($statement)
+    public function prepare($sql)
     {
         $this->connect('master');
 
-        return parent::prepare($statement);
+        return parent::prepare($sql);
     }
 }

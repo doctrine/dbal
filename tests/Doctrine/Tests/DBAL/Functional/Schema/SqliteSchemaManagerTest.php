@@ -34,9 +34,6 @@ class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertFileNotExists($path);
     }
 
-    /**
-     * @group DBAL-1220
-     */
     public function testDropsDatabaseWithActiveConnections(): void
     {
         $this->schemaManager->dropAndCreateDatabase('test_drop_database');
@@ -156,9 +153,6 @@ EOS
         self::assertFalse($table->getColumn('column_binary')->getFixed());
     }
 
-    /**
-     * @group DBAL-1779
-     */
     public function testListTableColumnsWithWhitespacesInTypeDeclarations(): void
     {
         $sql = <<<SQL
@@ -186,7 +180,6 @@ SQL;
 
     /**
      * @dataProvider getDiffListIntegerAutoincrementTableColumnsData
-     * @group DBAL-924
      */
     public function testDiffListIntegerAutoincrementTableColumns(string $integerType, bool $unsigned, bool $expectedComparatorDiff): void
     {
@@ -224,9 +217,6 @@ SQL;
         ];
     }
 
-    /**
-     * @group DBAL-2921
-     */
     public function testPrimaryKeyNoAutoIncrement(): void
     {
         $table = new Schema\Table('test_pk_auto_increment');

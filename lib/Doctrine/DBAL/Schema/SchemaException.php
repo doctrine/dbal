@@ -127,23 +127,23 @@ class SchemaException extends DBALException
     }
 
     /**
-     * @param string $sequenceName
+     * @param string $name
      *
      * @return SchemaException
      */
-    public static function sequenceAlreadyExists($sequenceName)
+    public static function sequenceAlreadyExists($name)
     {
-        return new self("The sequence '" . $sequenceName . "' already exists.", self::SEQUENCE_ALREADY_EXISTS);
+        return new self("The sequence '" . $name . "' already exists.", self::SEQUENCE_ALREADY_EXISTS);
     }
 
     /**
-     * @param string $sequenceName
+     * @param string $name
      *
      * @return SchemaException
      */
-    public static function sequenceDoesNotExist($sequenceName)
+    public static function sequenceDoesNotExist($name)
     {
-        return new self("There exists no sequence with the name '" . $sequenceName . "'.", self::SEQUENCE_DOENST_EXIST);
+        return new self("There exists no sequence with the name '" . $name . "'.", self::SEQUENCE_DOENST_EXIST);
     }
 
     /**

@@ -446,10 +446,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         self::assertSame('CHAR(254) FOR BIT DATA', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 0]));
     }
 
-    /**
-     * @group legacy
-     * @expectedDeprecation Binary field length 32705 is greater than supported by the platform (32704). Reduce the field length or use a BLOB field instead.
-     */
     public function testReturnsBinaryTypeLongerThanMaxDeclarationSQL(): void
     {
         self::assertSame('BLOB(1M)', $this->platform->getBinaryTypeDeclarationSQL(['length' => 32705]));
@@ -458,8 +454,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
 
     /**
      * {@inheritDoc}
-     *
-     * @group DBAL-234
      */
     protected function getAlterTableRenameIndexSQL(): array
     {
@@ -468,8 +462,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
 
     /**
      * {@inheritDoc}
-     *
-     * @group DBAL-234
      */
     protected function getQuotedAlterTableRenameIndexSQL(): array
     {
@@ -507,8 +499,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
 
     /**
      * {@inheritDoc}
-     *
-     * @group DBAL-807
      */
     protected function getAlterTableRenameIndexInSchemaSQL(): array
     {
@@ -517,8 +507,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
 
     /**
      * {@inheritDoc}
-     *
-     * @group DBAL-807
      */
     protected function getQuotedAlterTableRenameIndexInSchemaSQL(): array
     {
@@ -528,9 +516,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * @group DBAL-423
-     */
     public function testReturnsGuidTypeDeclarationSQL(): void
     {
         self::assertSame('CHAR(36)', $this->platform->getGuidTypeDeclarationSQL([]));
@@ -577,7 +562,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * @group DBAL-944
      * @dataProvider getGeneratesAlterColumnSQL
      */
     public function testGeneratesAlterColumnSQL(string $changedProperty, Column $column, ?string $expectedSQLClause = null): void
@@ -705,9 +689,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         return ['RENAME INDEX idx_foo TO idx_foo_renamed'];
     }
 
-    /**
-     * @group DBAL-2436
-     */
     public function testQuotesTableNameInListTableColumnsSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
@@ -716,9 +697,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    /**
-     * @group DBAL-2436
-     */
     public function testQuotesTableNameInListTableIndexesSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
@@ -727,9 +705,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    /**
-     * @group DBAL-2436
-     */
     public function testQuotesTableNameInListTableForeignKeysSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(

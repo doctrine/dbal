@@ -8,9 +8,6 @@ use Doctrine\Tests\DbalTestCase;
 
 class SequenceTest extends DbalTestCase
 {
-    /**
-     * @group DDC-1657
-     */
     public function testIsAutoincrementFor(): void
     {
         $table = new Table('foo');

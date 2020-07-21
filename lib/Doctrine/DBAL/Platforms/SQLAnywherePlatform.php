@@ -298,11 +298,11 @@ class SQLAnywherePlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    public function getBigIntTypeDeclarationSQL(array $columnDef)
+    public function getBigIntTypeDeclarationSQL(array $column)
     {
-        $columnDef['integer_type'] = 'BIGINT';
+        $column['integer_type'] = 'BIGINT';
 
-        return $this->_getCommonIntegerTypeDeclarationSQL($columnDef);
+        return $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
     /**
@@ -324,7 +324,7 @@ class SQLAnywherePlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    public function getBlobTypeDeclarationSQL(array $field)
+    public function getBlobTypeDeclarationSQL(array $column)
     {
         return 'LONG BINARY';
     }
@@ -337,9 +337,9 @@ class SQLAnywherePlatform extends AbstractPlatform
      * Otherwise by just omitting the NOT NULL clause,
      * SQL Anywhere will declare them NOT NULL nonetheless.
      */
-    public function getBooleanTypeDeclarationSQL(array $columnDef)
+    public function getBooleanTypeDeclarationSQL(array $column)
     {
-        $nullClause = isset($columnDef['notnull']) && (bool) $columnDef['notnull'] === false ? ' NULL' : '';
+        $nullClause = isset($column['notnull']) && (bool) $column['notnull'] === false ? ' NULL' : '';
 
         return 'BIT' . $nullClause;
     }
@@ -347,7 +347,7 @@ class SQLAnywherePlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    public function getClobTypeDeclarationSQL(array $field)
+    public function getClobTypeDeclarationSQL(array $column)
     {
         return 'TEXT';
     }
@@ -499,7 +499,7 @@ class SQLAnywherePlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    public function getDateTimeTypeDeclarationSQL(array $fieldDeclaration)
+    public function getDateTimeTypeDeclarationSQL(array $column)
     {
         return 'DATETIME';
     }
@@ -515,7 +515,7 @@ class SQLAnywherePlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    public function getDateTypeDeclarationSQL(array $fieldDeclaration)
+    public function getDateTypeDeclarationSQL(array $column)
     {
         return 'DATE';
     }
@@ -678,7 +678,7 @@ class SQLAnywherePlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    public function getGuidTypeDeclarationSQL(array $field)
+    public function getGuidTypeDeclarationSQL(array $column)
     {
         return 'UNIQUEIDENTIFIER';
     }
@@ -695,11 +695,11 @@ class SQLAnywherePlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    public function getIntegerTypeDeclarationSQL(array $columnDef)
+    public function getIntegerTypeDeclarationSQL(array $column)
     {
-        $columnDef['integer_type'] = 'INT';
+        $column['integer_type'] = 'INT';
 
-        return $this->_getCommonIntegerTypeDeclarationSQL($columnDef);
+        return $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
     /**
@@ -874,7 +874,7 @@ SQL
     /**
      * {@inheritdoc}
      */
-    public function getListTableIndexesSQL($table, $currentDatabase = null)
+    public function getListTableIndexesSQL($table, $database = null)
     {
         $user = '';
 
@@ -1039,11 +1039,11 @@ SQL
     /**
      * {@inheritdoc}
      */
-    public function getSmallIntTypeDeclarationSQL(array $columnDef)
+    public function getSmallIntTypeDeclarationSQL(array $column)
     {
-        $columnDef['integer_type'] = 'SMALLINT';
+        $column['integer_type'] = 'SMALLINT';
 
-        return $this->_getCommonIntegerTypeDeclarationSQL($columnDef);
+        return $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
     /**
@@ -1116,7 +1116,7 @@ SQL
     /**
      * {@inheritdoc}
      */
-    public function getTimeTypeDeclarationSQL(array $fieldDeclaration)
+    public function getTimeTypeDeclarationSQL(array $column)
     {
         return 'TIME';
     }
@@ -1236,12 +1236,12 @@ SQL
     /**
      * {@inheritdoc}
      */
-    protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef)
+    protected function _getCommonIntegerTypeDeclarationSQL(array $column)
     {
-        $unsigned      = ! empty($columnDef['unsigned']) ? 'UNSIGNED ' : '';
-        $autoincrement = ! empty($columnDef['autoincrement']) ? ' IDENTITY' : '';
+        $unsigned      = ! empty($column['unsigned']) ? 'UNSIGNED ' : '';
+        $autoincrement = ! empty($column['autoincrement']) ? ' IDENTITY' : '';
 
-        return $unsigned . $columnDef['integer_type'] . $autoincrement;
+        return $unsigned . $column['integer_type'] . $autoincrement;
     }
 
     /**

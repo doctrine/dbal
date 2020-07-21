@@ -108,9 +108,9 @@ class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function exec($statement)
+    public function exec($sql)
     {
-        if (sasql_real_query($this->connection, $statement) === false) {
+        if (sasql_real_query($this->connection, $sql) === false) {
             throw SQLAnywhereException::fromSQLAnywhereError($this->connection);
         }
 
@@ -144,9 +144,9 @@ class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function prepare($prepareString)
+    public function prepare($sql)
     {
-        return new SQLAnywhereStatement($this->connection, $prepareString);
+        return new SQLAnywhereStatement($this->connection, $sql);
     }
 
     /**

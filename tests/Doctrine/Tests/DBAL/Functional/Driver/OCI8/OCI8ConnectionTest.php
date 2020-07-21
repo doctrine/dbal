@@ -26,9 +26,6 @@ class OCI8ConnectionTest extends DbalFunctionalTestCase
         $this->driverConnection = $this->connection->getWrappedConnection();
     }
 
-    /**
-     * @group DBAL-2595
-     */
     public function testLastInsertIdAcceptsFqn(): void
     {
         $platform      = $this->connection->getDatabasePlatform();
