@@ -10,6 +10,14 @@ The usage of the wrapper `Connection` and `Statement` classes as implementations
 2. The `query()` method has been deprecated in favor of `executeQuery()`. 
 3. The `exec()` method has been deprecated in favor of `executeStatement()`. 
 
+Note that `PrimaryReplicaConnection::query()` ensures connection to the primary instance while `executeQuery()` doesn't.
+
+Depending on the desired behavior:
+
+- If the statement doesn't have to be executed on the primary instance, use `executeQuery()`.
+- If the statement has to be executed on the primary instance and yields rows (e.g. `SELECT`), prepend `executeQuery()` with `ensureConnectedToPrimary()`.
+- Otherwise, use `executeStatement()`.
+
 ## PDO-related classes outside of the PDO namespace are deprecated
 
 The following PDO-related classes outside of the PDO namespace have been deprecated in favor of their counterparts in the PDO namespace:
