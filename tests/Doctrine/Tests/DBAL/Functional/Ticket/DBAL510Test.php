@@ -6,9 +6,6 @@ use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\Tests\DbalFunctionalTestCase;
 
-/**
- * @group DBAL-510
- */
 class DBAL510Test extends DbalFunctionalTestCase
 {
     protected function setUp(): void

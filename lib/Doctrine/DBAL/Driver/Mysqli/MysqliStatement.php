@@ -112,16 +112,16 @@ class MysqliStatement implements IteratorAggregate, StatementInterface, Result
     /**
      * {@inheritdoc}
      */
-    public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null)
+    public function bindParam($param, &$variable, $type = ParameterType::STRING, $length = null)
     {
-        assert(is_int($column));
+        assert(is_int($param));
 
         if (! isset(self::$_paramTypeMap[$type])) {
             throw UnknownType::new($type);
         }
 
-        $this->_bindedValues[$column] =& $variable;
-        $this->types[$column - 1]     = self::$_paramTypeMap[$type];
+        $this->_bindedValues[$param] =& $variable;
+        $this->types[$param - 1]     = self::$_paramTypeMap[$type];
 
         return true;
     }
@@ -190,7 +190,7 @@ class MysqliStatement implements IteratorAggregate, StatementInterface, Result
 
             // Bind row values _after_ storing the result. Otherwise, if mysqli is compiled with libmysql,
             // it will have to allocate as much memory as it may be needed for the given column type
-            // (e.g. for a LONGBLOB field it's 4 gigabytes)
+            // (e.g. for a LONGBLOB column it's 4 gigabytes)
             // @link https://bugs.php.net/bug.php?id=51386#1270673122
             //
             // Make sure that the values are bound after each execution. Otherwise, if closeCursor() has been

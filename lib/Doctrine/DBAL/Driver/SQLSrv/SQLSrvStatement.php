@@ -174,14 +174,14 @@ class SQLSrvStatement implements IteratorAggregate, StatementInterface, Result
     /**
      * {@inheritdoc}
      */
-    public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null)
+    public function bindParam($param, &$variable, $type = ParameterType::STRING, $length = null)
     {
-        if (! is_numeric($column)) {
+        if (! is_numeric($param)) {
             throw new SQLSrvException('sqlsrv does not support named parameters to queries, use question mark (?) placeholders instead.');
         }
 
-        $this->variables[$column] =& $variable;
-        $this->types[$column]     = $type;
+        $this->variables[$param] =& $variable;
+        $this->types[$param]     = $type;
 
         // unset the statement resource if it exists as the new one will need to be bound to the new variable
         $this->stmt = null;

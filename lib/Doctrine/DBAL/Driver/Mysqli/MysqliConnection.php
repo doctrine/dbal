@@ -136,9 +136,9 @@ class MysqliConnection implements ConnectionInterface, PingableConnection, Serve
     /**
      * {@inheritdoc}
      */
-    public function prepare($prepareString)
+    public function prepare($sql)
     {
-        return new Statement($this->conn, $prepareString);
+        return new Statement($this->conn, $sql);
     }
 
     /**
@@ -165,9 +165,9 @@ class MysqliConnection implements ConnectionInterface, PingableConnection, Serve
     /**
      * {@inheritdoc}
      */
-    public function exec($statement)
+    public function exec($sql)
     {
-        if ($this->conn->query($statement) === false) {
+        if ($this->conn->query($sql) === false) {
             throw ConnectionError::new($this->conn);
         }
 

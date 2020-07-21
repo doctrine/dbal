@@ -26,10 +26,6 @@ class PDOStatementTest extends DbalFunctionalTestCase
         $this->connection->getSchemaManager()->dropAndCreateTable($table);
     }
 
-    /**
-     * @group legacy
-     * @expectedDeprecation Using a PDO fetch mode or their combination (%d given) is deprecated and will cause an error in Doctrine DBAL 3.0
-     */
     public function testPDOSpecificModeIsAccepted(): void
     {
         $this->connection->insert('stmt_test', [

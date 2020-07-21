@@ -505,13 +505,13 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    public function listTableDetails($tableName): Table
+    public function listTableDetails($name): Table
     {
-        $table = parent::listTableDetails($tableName);
+        $table = parent::listTableDetails($name);
 
         $platform = $this->_platform;
         assert($platform instanceof PostgreSqlPlatform);
-        $sql = $platform->getListTableMetadataSQL($tableName);
+        $sql = $platform->getListTableMetadataSQL($name);
 
         $tableOptions = $this->_conn->fetchAssoc($sql);
 

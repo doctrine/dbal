@@ -114,31 +114,31 @@ class DB2Statement implements IteratorAggregate, StatementInterface, Result
     /**
      * {@inheritdoc}
      */
-    public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null)
+    public function bindParam($param, &$variable, $type = ParameterType::STRING, $length = null)
     {
-        assert(is_int($column));
+        assert(is_int($param));
 
         switch ($type) {
             case ParameterType::INTEGER:
-                $this->bind($column, $variable, DB2_PARAM_IN, DB2_LONG);
+                $this->bind($param, $variable, DB2_PARAM_IN, DB2_LONG);
                 break;
 
             case ParameterType::LARGE_OBJECT:
-                if (isset($this->lobs[$column])) {
-                    [, $handle] = $this->lobs[$column];
+                if (isset($this->lobs[$param])) {
+                    [, $handle] = $this->lobs[$param];
                     fclose($handle);
                 }
 
                 $handle = $this->createTemporaryFile();
                 $path   = stream_get_meta_data($handle)['uri'];
 
-                $this->bind($column, $path, DB2_PARAM_FILE, DB2_BINARY);
+                $this->bind($param, $path, DB2_PARAM_FILE, DB2_BINARY);
 
-                $this->lobs[$column] = [&$variable, $handle];
+                $this->lobs[$param] = [&$variable, $handle];
                 break;
 
             default:
-                $this->bind($column, $variable, DB2_PARAM_IN, DB2_CHAR);
+                $this->bind($param, $variable, DB2_PARAM_IN, DB2_CHAR);
                 break;
         }
 

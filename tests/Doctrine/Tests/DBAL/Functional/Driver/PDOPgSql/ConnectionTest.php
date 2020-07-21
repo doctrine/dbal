@@ -24,8 +24,6 @@ class ConnectionTest extends DbalFunctionalTestCase
     }
 
     /**
-     * @group DBAL-1183
-     * @group DBAL-1189
      * @dataProvider getValidCharsets
      */
     public function testConnectsWithValidCharsetOption(string $charset): void

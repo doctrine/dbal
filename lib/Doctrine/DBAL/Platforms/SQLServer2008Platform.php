@@ -25,7 +25,7 @@ class SQLServer2008Platform extends SQLServer2005Platform
     /**
      * {@inheritDoc}
      */
-    public function getDateTimeTypeDeclarationSQL(array $fieldDeclaration)
+    public function getDateTimeTypeDeclarationSQL(array $column)
     {
         // 3 - microseconds precision length
         // http://msdn.microsoft.com/en-us/library/ms187819.aspx
@@ -35,7 +35,7 @@ class SQLServer2008Platform extends SQLServer2005Platform
     /**
      * {@inheritDoc}
      */
-    public function getDateTypeDeclarationSQL(array $fieldDeclaration)
+    public function getDateTypeDeclarationSQL(array $column)
     {
         return 'DATE';
     }
@@ -43,7 +43,7 @@ class SQLServer2008Platform extends SQLServer2005Platform
     /**
      * {@inheritDoc}
      */
-    public function getTimeTypeDeclarationSQL(array $fieldDeclaration)
+    public function getTimeTypeDeclarationSQL(array $column)
     {
         return 'TIME(0)';
     }
@@ -51,7 +51,7 @@ class SQLServer2008Platform extends SQLServer2005Platform
     /**
      * {@inheritDoc}
      */
-    public function getDateTimeTzTypeDeclarationSQL(array $fieldDeclaration)
+    public function getDateTimeTzTypeDeclarationSQL(array $column)
     {
         return 'DATETIMEOFFSET(6)';
     }

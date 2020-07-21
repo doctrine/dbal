@@ -7,9 +7,6 @@ use Doctrine\DBAL\Types\BooleanType;
 
 class Db2SchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
-    /**
-     * @group DBAL-939
-     */
     public function testGetBooleanColumn(): void
     {
         $table = new Table('boolean_column_test');

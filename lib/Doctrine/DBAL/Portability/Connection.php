@@ -91,9 +91,9 @@ class Connection extends BaseConnection
     /**
      * {@inheritdoc}
      */
-    public function executeQuery($query, array $params = [], $types = [], ?QueryCacheProfile $qcp = null)
+    public function executeQuery($sql, array $params = [], $types = [], ?QueryCacheProfile $qcp = null)
     {
-        $stmt = new Statement(parent::executeQuery($query, $params, $types, $qcp), $this);
+        $stmt = new Statement(parent::executeQuery($sql, $params, $types, $qcp), $this);
         $stmt->setFetchMode($this->defaultFetchMode);
 
         return $stmt;
@@ -104,9 +104,9 @@ class Connection extends BaseConnection
      *
      * @return Statement
      */
-    public function prepare($statement)
+    public function prepare($sql)
     {
-        $stmt = new Statement(parent::prepare($statement), $this);
+        $stmt = new Statement(parent::prepare($sql), $this);
         $stmt->setFetchMode($this->defaultFetchMode);
 
         return $stmt;

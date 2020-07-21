@@ -222,13 +222,13 @@ class DB2SchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    public function listTableDetails($tableName): Table
+    public function listTableDetails($name): Table
     {
-        $table = parent::listTableDetails($tableName);
+        $table = parent::listTableDetails($name);
 
         $platform = $this->_platform;
         assert($platform instanceof DB2Platform);
-        $sql = $platform->getListTableCommentsSQL($tableName);
+        $sql = $platform->getListTableCommentsSQL($name);
 
         $tableOptions = $this->_conn->fetchAssociative($sql);
 

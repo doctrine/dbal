@@ -74,7 +74,7 @@ class DrizzlePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getBooleanTypeDeclarationSQL(array $field)
+    public function getBooleanTypeDeclarationSQL(array $column)
     {
         return 'BOOLEAN';
     }
@@ -82,18 +82,18 @@ class DrizzlePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getIntegerTypeDeclarationSQL(array $field)
+    public function getIntegerTypeDeclarationSQL(array $column)
     {
-        return 'INT' . $this->_getCommonIntegerTypeDeclarationSQL($field);
+        return 'INT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
     /**
      * {@inheritDoc}
      */
-    protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef)
+    protected function _getCommonIntegerTypeDeclarationSQL(array $column)
     {
         $autoinc = '';
-        if (! empty($columnDef['autoincrement'])) {
+        if (! empty($column['autoincrement'])) {
             $autoinc = ' AUTO_INCREMENT';
         }
 
@@ -103,17 +103,17 @@ class DrizzlePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getBigIntTypeDeclarationSQL(array $field)
+    public function getBigIntTypeDeclarationSQL(array $column)
     {
-        return 'BIGINT' . $this->_getCommonIntegerTypeDeclarationSQL($field);
+        return 'BIGINT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getSmallIntTypeDeclarationSQL(array $field)
+    public function getSmallIntTypeDeclarationSQL(array $column)
     {
-        return 'INT' . $this->_getCommonIntegerTypeDeclarationSQL($field);
+        return 'INT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
     /**
@@ -157,7 +157,7 @@ class DrizzlePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getClobTypeDeclarationSQL(array $field)
+    public function getClobTypeDeclarationSQL(array $column)
     {
         return 'TEXT';
     }
@@ -165,7 +165,7 @@ class DrizzlePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getBlobTypeDeclarationSQL(array $field)
+    public function getBlobTypeDeclarationSQL(array $column)
     {
         return 'BLOB';
     }
@@ -453,9 +453,9 @@ class DrizzlePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getDateTimeTypeDeclarationSQL(array $fieldDeclaration)
+    public function getDateTimeTypeDeclarationSQL(array $column)
     {
-        if (isset($fieldDeclaration['version']) && $fieldDeclaration['version'] === true) {
+        if (isset($column['version']) && $column['version'] === true) {
             return 'TIMESTAMP';
         }
 
@@ -465,7 +465,7 @@ class DrizzlePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getTimeTypeDeclarationSQL(array $fieldDeclaration)
+    public function getTimeTypeDeclarationSQL(array $column)
     {
         return 'TIME';
     }
@@ -473,7 +473,7 @@ class DrizzlePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getDateTypeDeclarationSQL(array $fieldDeclaration)
+    public function getDateTypeDeclarationSQL(array $column)
     {
         return 'DATE';
     }

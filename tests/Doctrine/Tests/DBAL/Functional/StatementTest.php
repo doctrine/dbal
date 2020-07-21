@@ -243,9 +243,6 @@ EOF
         self::assertTrue($stmt->closeCursor());
     }
 
-    /**
-     * @group DBAL-2637
-     */
     public function testCloseCursorAfterCursorEnd(): void
     {
         $stmt = $this->connection->prepare('SELECT name FROM stmt_test');

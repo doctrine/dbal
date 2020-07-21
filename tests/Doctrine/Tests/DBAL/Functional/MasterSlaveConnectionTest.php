@@ -17,9 +17,6 @@ use function substr;
 
 use const CASE_LOWER;
 
-/**
- * @group DBAL-20
- */
 class MasterSlaveConnectionTest extends DbalFunctionalTestCase
 {
     protected function setUp(): void
@@ -138,9 +135,6 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
         self::assertTrue($conn->isConnectedToMaster());
     }
 
-    /**
-     * @group DBAL-335
-     */
     public function testKeepSlaveBeginTransactionStaysOnMaster(): void
     {
         $conn = $this->createMasterSlaveConnection($keepSlave = true);
@@ -159,9 +153,6 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
         self::assertFalse($conn->isConnectedToMaster());
     }
 
-    /**
-     * @group DBAL-335
-     */
     public function testKeepSlaveInsertStaysOnMaster(): void
     {
         $conn = $this->createMasterSlaveConnection($keepSlave = true);

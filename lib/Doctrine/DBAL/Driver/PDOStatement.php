@@ -96,7 +96,7 @@ class PDOStatement extends \PDOStatement implements StatementInterface, Result
     }
 
     /**
-     * @param mixed    $column
+     * @param mixed    $param
      * @param mixed    $variable
      * @param int      $type
      * @param int|null $length
@@ -104,12 +104,12 @@ class PDOStatement extends \PDOStatement implements StatementInterface, Result
      *
      * @return bool
      */
-    public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null, $driverOptions = null)
+    public function bindParam($param, &$variable, $type = ParameterType::STRING, $length = null, $driverOptions = null)
     {
         $type = $this->convertParamType($type);
 
         try {
-            return parent::bindParam($column, $variable, $type, ...array_slice(func_get_args(), 3));
+            return parent::bindParam($param, $variable, $type, ...array_slice(func_get_args(), 3));
         } catch (PDOException $exception) {
             throw Exception::new($exception);
         }

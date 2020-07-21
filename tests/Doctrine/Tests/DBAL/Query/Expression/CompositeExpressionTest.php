@@ -5,9 +5,6 @@ namespace Doctrine\Tests\DBAL\Query\Expression;
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use Doctrine\Tests\DbalTestCase;
 
-/**
- * @group DBAL-12
- */
 class CompositeExpressionTest extends DbalTestCase
 {
     public function testCount(): void

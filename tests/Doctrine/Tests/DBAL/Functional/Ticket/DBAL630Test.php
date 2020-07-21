@@ -10,9 +10,6 @@ use PDO;
 
 use function in_array;
 
-/**
- * @group DBAL-630
- */
 class DBAL630Test extends DbalFunctionalTestCase
 {
     /** @var bool */

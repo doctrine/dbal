@@ -15,7 +15,7 @@ class Statement extends PDO\Statement
     /**
      * {@inheritdoc}
      */
-    public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null, $driverOptions = null)
+    public function bindParam($param, &$variable, $type = ParameterType::STRING, $length = null, $driverOptions = null)
     {
         if (
             ($type === ParameterType::LARGE_OBJECT || $type === ParameterType::BINARY)
@@ -24,7 +24,7 @@ class Statement extends PDO\Statement
             $driverOptions = \PDO::SQLSRV_ENCODING_BINARY;
         }
 
-        return parent::bindParam($column, $variable, $type, $length, $driverOptions);
+        return parent::bindParam($param, $variable, $type, $length, $driverOptions);
     }
 
     /**

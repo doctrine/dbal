@@ -259,21 +259,21 @@ class PrimaryReadReplicaConnection extends Connection
      *
      * @deprecated Use {@link executeStatement()} instead.
      */
-    public function executeUpdate($query, array $params = [], array $types = [])
+    public function executeUpdate($sql, array $params = [], array $types = [])
     {
         $this->ensureConnectedToPrimary();
 
-        return parent::executeUpdate($query, $params, $types);
+        return parent::executeUpdate($sql, $params, $types);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function executeStatement($query, array $params = [], array $types = [])
+    public function executeStatement($sql, array $params = [], array $types = [])
     {
         $this->ensureConnectedToPrimary();
 
-        return parent::executeStatement($query, $params, $types);
+        return parent::executeStatement($sql, $params, $types);
     }
 
     /**

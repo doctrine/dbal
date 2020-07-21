@@ -129,9 +129,9 @@ class DB2Connection implements ConnectionInterface, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function exec($statement)
+    public function exec($sql)
     {
-        $stmt = @db2_exec($this->conn, $statement);
+        $stmt = @db2_exec($this->conn, $sql);
 
         if ($stmt === false) {
             throw ConnectionError::new($this->conn);

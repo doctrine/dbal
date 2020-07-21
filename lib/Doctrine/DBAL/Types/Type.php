@@ -176,14 +176,14 @@ abstract class Type
     }
 
     /**
-     * Gets the SQL declaration snippet for a field of this type.
+     * Gets the SQL declaration snippet for a column of this type.
      *
-     * @param mixed[]          $fieldDeclaration The field declaration.
-     * @param AbstractPlatform $platform         The currently used database platform.
+     * @param mixed[]          $column   The column definition
+     * @param AbstractPlatform $platform The currently used database platform.
      *
      * @return string
      */
-    abstract public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform);
+    abstract public function getSQLDeclaration(array $column, AbstractPlatform $platform);
 
     /**
      * Gets the name of this type.

@@ -57,9 +57,6 @@ class ConnectionTest extends DbalFunctionalTestCase
         new Connection('foo');
     }
 
-    /**
-     * @group DBAL-1022
-     */
     public function testThrowsWrappedExceptionOnExec(): void
     {
         $this->expectException(Exception::class);

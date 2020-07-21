@@ -120,9 +120,9 @@ class SQLSrvConnection implements ConnectionInterface, ServerInfoAwareConnection
     /**
      * {@inheritDoc}
      */
-    public function exec($statement)
+    public function exec($sql)
     {
-        $stmt = sqlsrv_query($this->conn, $statement);
+        $stmt = sqlsrv_query($this->conn, $sql);
 
         if ($stmt === false) {
             throw Error::new();

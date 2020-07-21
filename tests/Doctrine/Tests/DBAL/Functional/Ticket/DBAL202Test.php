@@ -5,9 +5,6 @@ namespace Doctrine\Tests\DBAL\Functional\Ticket;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\Tests\DbalFunctionalTestCase;
 
-/**
- * @group DBAL-202
- */
 class DBAL202Test extends DbalFunctionalTestCase
 {
     protected function setUp(): void
