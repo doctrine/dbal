@@ -66,10 +66,10 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testSupportDomainTypeFallback(): void
     {
         $createDomainTypeSQL = 'CREATE DOMAIN MyMoney AS DECIMAL(18,2)';
-        $this->connection->exec($createDomainTypeSQL);
+        $this->connection->executeStatement($createDomainTypeSQL);
 
         $createTableSQL = 'CREATE TABLE domain_type_test (id INT PRIMARY KEY, value MyMoney)';
-        $this->connection->exec($createTableSQL);
+        $this->connection->executeStatement($createTableSQL);
 
         $table = $this->connection->getSchemaManager()->listTableDetails('domain_type_test');
         self::assertInstanceOf(DecimalType::class, $table->getColumn('value')->getType());
@@ -154,7 +154,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
      */
     public function testTableWithSchema(): void
     {
-        $this->connection->exec('CREATE SCHEMA nested');
+        $this->connection->executeStatement('CREATE SCHEMA nested');
 
         $nestedRelatedTable = new Table('nested.schemarelated');
         $column             = $nestedRelatedTable->addColumn('id', 'integer');
@@ -190,10 +190,10 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testReturnQuotedAssets(): void
     {
         $sql = 'create table dbal91_something ( id integer  CONSTRAINT id_something PRIMARY KEY NOT NULL  ,"table"   integer );';
-        $this->connection->exec($sql);
+        $this->connection->executeStatement($sql);
 
         $sql = 'ALTER TABLE dbal91_something ADD CONSTRAINT something_input FOREIGN KEY( "table" ) REFERENCES dbal91_something ON UPDATE CASCADE;';
-        $this->connection->exec($sql);
+        $this->connection->executeStatement($sql);
 
         $table = $this->schemaManager->listTableDetails('dbal91_something');
 
@@ -349,8 +349,8 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testListTableDetailsWhenCurrentSchemaNameQuoted(): void
     {
-        $this->connection->exec('CREATE SCHEMA "001_test"');
-        $this->connection->exec('SET search_path TO "001_test"');
+        $this->connection->executeStatement('CREATE SCHEMA "001_test"');
+        $this->connection->executeStatement('SET search_path TO "001_test"');
 
         try {
             $this->testListQuotedTable();

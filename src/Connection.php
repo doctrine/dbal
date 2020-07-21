@@ -12,7 +12,6 @@ use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Driver\API\ExceptionConverter;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Driver\Exception as DriverException;
-use Doctrine\DBAL\Driver\Result as DriverResult;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Exception\ConnectionLost;
@@ -1029,48 +1028,6 @@ class Connection
     }
 
     /**
-     * @deprecated Use {@link executeQuery()} instead.
-     *
-     * @throws DBALException
-     */
-    public function query(string $sql): DriverResult
-    {
-        $connection = $this->getWrappedConnection();
-
-        $logger = $this->_config->getSQLLogger();
-        if ($logger !== null) {
-            $logger->startQuery($sql);
-        }
-
-        try {
-            return $connection->query($sql);
-        } catch (DriverException $e) {
-            throw $this->convertExceptionDuringQuery($e, $sql);
-        } finally {
-            if ($logger !== null) {
-                $logger->stopQuery();
-            }
-        }
-    }
-
-    /**
-     * Executes an SQL INSERT/UPDATE/DELETE query with the given parameters
-     * and returns the number of affected rows.
-     *
-     * @deprecated Use {@link executeStatement()} instead.
-     *
-     * @param string                 $query  The SQL query.
-     * @param array<mixed>           $params The query parameters.
-     * @param array<int|string|null> $types  The parameter types.
-     *
-     * @throws DBALException
-     */
-    public function executeUpdate(string $query, array $params = [], array $types = []): int
-    {
-        return $this->executeStatement($query, $params, $types);
-    }
-
-    /**
      * Executes an SQL statement with the given parameters and returns the number of affected rows.
      *
      * Could be used for:
@@ -1119,31 +1076,6 @@ class Connection
             return $connection->exec($sql);
         } catch (DriverException $e) {
             throw $this->convertExceptionDuringQuery($e, $sql, $params, $types);
-        } finally {
-            if ($logger !== null) {
-                $logger->stopQuery();
-            }
-        }
-    }
-
-    /**
-     * @deprecated Use {@link executeStatement()} instead.
-     *
-     * @throws DBALException
-     */
-    public function exec(string $statement): int
-    {
-        $connection = $this->getWrappedConnection();
-
-        $logger = $this->_config->getSQLLogger();
-        if ($logger !== null) {
-            $logger->startQuery($statement);
-        }
-
-        try {
-            return $connection->exec($statement);
-        } catch (DriverException $e) {
-            throw $this->convertExceptionDuringQuery($e, $statement);
         } finally {
             if ($logger !== null) {
                 $logger->stopQuery();
@@ -1436,7 +1368,7 @@ class Connection
             throw ConnectionException::savepointsNotSupported();
         }
 
-        $this->executeUpdate($this->platform->createSavePoint($savepoint));
+        $this->executeStatement($this->platform->createSavePoint($savepoint));
     }
 
     /**
@@ -1458,7 +1390,7 @@ class Connection
             return;
         }
 
-        $this->executeUpdate($this->platform->releaseSavePoint($savepoint));
+        $this->executeStatement($this->platform->releaseSavePoint($savepoint));
     }
 
     /**
@@ -1476,7 +1408,7 @@ class Connection
             throw ConnectionException::savepointsNotSupported();
         }
 
-        $this->executeUpdate($this->platform->rollbackSavePoint($savepoint));
+        $this->executeStatement($this->platform->rollbackSavePoint($savepoint));
     }
 
     /**

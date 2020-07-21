@@ -62,16 +62,16 @@ class DefaultExpressionTest extends FunctionalTestCase
         $table->addColumn('default_value', $type, ['default' => $defaultSql]);
         $this->connection->getSchemaManager()->dropAndCreateTable($table);
 
-        $this->connection->exec(
+        $this->connection->executeStatement(
             sprintf(
                 'INSERT INTO default_expr_test (actual_value) VALUES (%s)',
                 $defaultSql
             )
         );
 
-        [$actualValue, $defaultValue] = $this->connection->query(
+        [$actualValue, $defaultValue] = $this->connection->fetchNumeric(
             'SELECT default_value, actual_value FROM default_expr_test'
-        )->fetchNumeric();
+        );
 
         self::assertEquals($actualValue, $defaultValue);
     }

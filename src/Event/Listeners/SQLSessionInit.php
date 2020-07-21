@@ -30,7 +30,7 @@ class SQLSessionInit implements EventSubscriber
      */
     public function postConnect(ConnectionEventArgs $args)
     {
-        $args->getConnection()->executeUpdate($this->sql);
+        $args->getConnection()->executeStatement($this->sql);
     }
 
     /**

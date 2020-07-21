@@ -17,7 +17,7 @@ class SQLSessionInitTest extends TestCase
     {
         $connectionMock = $this->createMock(Connection::class);
         $connectionMock->expects(self::once())
-                       ->method('executeUpdate')
+                       ->method('executeStatement')
                        ->with(self::equalTo("SET SEARCH_PATH TO foo, public, TIMEZONE TO 'Europe/Berlin'"));
 
         $eventArgs = new ConnectionEventArgs($connectionMock);

@@ -77,7 +77,7 @@ class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testListForeignKeysFromExistingDatabase(): void
     {
-        $this->connection->exec(<<<EOS
+        $this->connection->executeStatement(<<<EOS
 CREATE TABLE user (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     page INTEGER CONSTRAINT FK_1 REFERENCES page (key) DEFERRABLE INITIALLY DEFERRED,
@@ -165,7 +165,7 @@ CREATE TABLE dbal_1779 (
 )
 SQL;
 
-        $this->connection->exec($sql);
+        $this->connection->executeStatement($sql);
 
         $columns = $this->schemaManager->listTableColumns('dbal_1779');
 
@@ -234,13 +234,13 @@ SQL;
 
         $this->connection->insert('test_pk_auto_increment', ['text' => '1']);
 
-        $this->connection->query('DELETE FROM test_pk_auto_increment');
+        $this->connection->executeStatement('DELETE FROM test_pk_auto_increment');
 
         $this->connection->insert('test_pk_auto_increment', ['text' => '2']);
 
-        $result = $this->connection->query('SELECT id FROM test_pk_auto_increment WHERE text = "2"');
-
-        $lastUsedIdAfterDelete = (int) $result->fetchOne();
+        $lastUsedIdAfterDelete = (int) $this->connection->fetchOne(
+            'SELECT id FROM test_pk_auto_increment WHERE text = "2"'
+        );
 
         // with an empty table, non autoincrement rowid is always 1
         self::assertEquals(1, $lastUsedIdAfterDelete);

@@ -53,7 +53,7 @@ class PortabilityTest extends FunctionalTestCase
         $rows = $this->connection->fetchAllAssociative('SELECT * FROM portability_table');
         $this->assertFetchResultRows($rows);
 
-        $result = $this->connection->query('SELECT * FROM portability_table');
+        $result = $this->connection->executeQuery('SELECT * FROM portability_table');
 
         while (($row = $result->fetchAssociative())) {
             $this->assertFetchResultRow($row);
@@ -73,7 +73,7 @@ class PortabilityTest extends FunctionalTestCase
         $rows = $this->connection->fetchAllAssociative('SELECT * FROM portability_table');
         $this->assertFetchResultRows($rows);
 
-        $result = $this->connection->query('SELECT * FROM portability_table');
+        $result = $this->connection->executeQuery('SELECT * FROM portability_table');
         while (($row = $result->fetchAssociative())) {
             $this->assertFetchResultRow($row);
         }
@@ -120,7 +120,7 @@ class PortabilityTest extends FunctionalTestCase
      */
     public function testFetchColumn(string $field, array $expected): void
     {
-        $result = $this->connection->query('SELECT ' . $field . ' FROM portability_table');
+        $result = $this->connection->executeQuery('SELECT ' . $field . ' FROM portability_table');
 
         $column = $result->fetchFirstColumn();
         self::assertEquals($expected, $column);
@@ -145,9 +145,8 @@ class PortabilityTest extends FunctionalTestCase
 
     public function testFetchAllNullColumn(): void
     {
-        $result = $this->connection->query('SELECT Test_Null FROM portability_table');
+        $column = $this->connection->fetchFirstColumn('SELECT Test_Null FROM portability_table');
 
-        $column = $result->fetchFirstColumn();
         self::assertSame([null, null], $column);
     }
 }

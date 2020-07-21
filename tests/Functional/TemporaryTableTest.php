@@ -13,7 +13,9 @@ class TemporaryTableTest extends FunctionalTestCase
     {
         parent::setUp();
         try {
-            $this->connection->exec($this->connection->getDatabasePlatform()->getDropTableSQL('nontemporary'));
+            $this->connection->executeStatement(
+                $this->connection->getDatabasePlatform()->getDropTableSQL('nontemporary')
+            );
         } catch (Throwable $e) {
         }
     }
@@ -23,7 +25,9 @@ class TemporaryTableTest extends FunctionalTestCase
         if ($this->connection) {
             try {
                 $tempTable = $this->connection->getDatabasePlatform()->getTemporaryTableName('my_temporary');
-                $this->connection->exec($this->connection->getDatabasePlatform()->getDropTemporaryTableSQL($tempTable));
+                $this->connection->executeStatement(
+                    $this->connection->getDatabasePlatform()->getDropTemporaryTableSQL($tempTable)
+                );
             } catch (Throwable $e) {
             }
         }
@@ -56,7 +60,9 @@ class TemporaryTableTest extends FunctionalTestCase
 
         $this->connection->beginTransaction();
         $this->connection->insert('nontemporary', ['id' => 1]);
-        $this->connection->exec($platform->getDropTemporaryTableSQL($tempTable));
+        $this->connection->executeStatement(
+            $platform->getDropTemporaryTableSQL($tempTable)
+        );
         $this->connection->insert('nontemporary', ['id' => 2]);
 
         $this->connection->rollBack();
@@ -90,13 +96,15 @@ class TemporaryTableTest extends FunctionalTestCase
         $this->connection->beginTransaction();
         $this->connection->insert('nontemporary', ['id' => 1]);
 
-        $this->connection->exec($createTempTableSQL);
+        $this->connection->executeStatement($createTempTableSQL);
         $this->connection->insert('nontemporary', ['id' => 2]);
 
         $this->connection->rollBack();
 
         try {
-            $this->connection->exec($platform->getDropTemporaryTableSQL($tempTable));
+            $this->connection->executeStatement(
+                $platform->getDropTemporaryTableSQL($tempTable)
+            );
         } catch (Throwable $e) {
         }
 

@@ -28,7 +28,7 @@ abstract class AbstractSchemaSynchronizer implements SchemaSynchronizer
     {
         foreach ($sql as $s) {
             try {
-                $this->conn->exec($s);
+                $this->conn->executeStatement($s);
             } catch (Throwable $e) {
             }
         }
@@ -44,7 +44,7 @@ abstract class AbstractSchemaSynchronizer implements SchemaSynchronizer
     protected function processSql(array $sql)
     {
         foreach ($sql as $s) {
-            $this->conn->exec($s);
+            $this->conn->executeStatement($s);
         }
     }
 }

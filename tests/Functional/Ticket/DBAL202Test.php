@@ -19,7 +19,7 @@ class DBAL202Test extends FunctionalTestCase
         }
 
         if ($this->connection->getSchemaManager()->tablesExist('DBAL202')) {
-            $this->connection->exec('DELETE FROM DBAL202');
+            $this->connection->executeStatement('DELETE FROM DBAL202');
         } else {
             $table = new Table('DBAL202');
             $table->addColumn('id', 'integer');
@@ -36,7 +36,7 @@ class DBAL202Test extends FunctionalTestCase
         $stmt->execute();
         $this->connection->rollBack();
 
-        self::assertEquals(0, $this->connection->query('SELECT COUNT(1) FROM DBAL202')->fetchOne());
+        self::assertEquals(0, $this->connection->fetchOne('SELECT COUNT(1) FROM DBAL202'));
     }
 
     public function testStatementCommit(): void
@@ -46,6 +46,6 @@ class DBAL202Test extends FunctionalTestCase
         $stmt->execute();
         $this->connection->commit();
 
-        self::assertEquals(1, $this->connection->query('SELECT COUNT(1) FROM DBAL202')->fetchOne());
+        self::assertEquals(1, $this->connection->fetchOne('SELECT COUNT(1) FROM DBAL202'));
     }
 }

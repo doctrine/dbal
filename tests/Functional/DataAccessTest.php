@@ -546,7 +546,7 @@ class DataAccessTest extends FunctionalTestCase
      */
     public function testBitComparisonExpressionSupport(): void
     {
-        $this->connection->exec('DELETE FROM fetch_table');
+        $this->connection->executeStatement('DELETE FROM fetch_table');
         $platform = $this->connection->getDatabasePlatform();
         $bitmap   = [];
 
@@ -601,7 +601,7 @@ class DataAccessTest extends FunctionalTestCase
         $this->connection->insert('fetch_table', ['test_int' => 10, 'test_string' => 'foo']);
 
         $sql    = 'SELECT test_int FROM fetch_table';
-        $values = $this->connection->query($sql)->fetchFirstColumn();
+        $values = $this->connection->fetchFirstColumn($sql);
 
         self::assertEquals([1, 10], $values);
     }
@@ -612,9 +612,8 @@ class DataAccessTest extends FunctionalTestCase
     public function testEmptyFetchOneReturnsFalse(): void
     {
         $this->connection->beginTransaction();
-        $this->connection->exec('DELETE FROM fetch_table');
+        $this->connection->executeStatement('DELETE FROM fetch_table');
         self::assertFalse($this->connection->fetchOne('SELECT test_int FROM fetch_table'));
-        self::assertFalse($this->connection->query('SELECT test_int FROM fetch_table')->fetchOne());
         $this->connection->rollBack();
     }
 
