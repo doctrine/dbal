@@ -97,7 +97,7 @@ class OCI8StatementTest extends DbalTestCase
     public function testConvertNonTerminatedLiteral(string $sql, string $message): void
     {
         $this->expectException(OCI8Exception::class);
-        $this->expectExceptionMessageRegExp($message);
+        $this->expectExceptionMessageMatches($message);
         OCI8Statement::convertPositionalToNamedPlaceholders($sql);
     }
 
