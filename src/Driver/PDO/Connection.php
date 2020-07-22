@@ -38,10 +38,10 @@ final class Connection implements ServerInfoAwareConnection
         }
     }
 
-    public function exec(string $statement): int
+    public function exec(string $sql): int
     {
         try {
-            $result = $this->connection->exec($statement);
+            $result = $this->connection->exec($sql);
 
             assert($result !== false);
 

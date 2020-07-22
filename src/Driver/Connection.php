@@ -39,7 +39,7 @@ interface Connection
      *
      * @throws Exception
      */
-    public function exec(string $statement): int;
+    public function exec(string $sql): int;
 
     /**
      * Returns the ID of the last inserted row or sequence value.

@@ -53,7 +53,7 @@ final class Statement implements StatementInterface
     /**
      * {@inheritDoc}
      *
-     * @param mixed    $column
+     * @param mixed    $param
      * @param mixed    $variable
      * @param int      $type
      * @param int|null $length
@@ -61,12 +61,12 @@ final class Statement implements StatementInterface
      *
      * @return bool
      */
-    public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null, $driverOptions = null)
+    public function bindParam($param, &$variable, $type = ParameterType::STRING, $length = null, $driverOptions = null)
     {
         $type = $this->convertParamType($type);
 
         try {
-            return $this->stmt->bindParam($column, $variable, $type, ...array_slice(func_get_args(), 3));
+            return $this->stmt->bindParam($param, $variable, $type, ...array_slice(func_get_args(), 3));
         } catch (PDOException $exception) {
             throw Exception::new($exception);
         }

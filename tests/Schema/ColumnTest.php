@@ -61,10 +61,6 @@ class ColumnTest extends TestCase
         self::assertEquals($expected, $this->createColumn()->toArray());
     }
 
-    /**
-     * @group legacy
-     * @expectedDeprecation The "unknown_option" column option is not supported, setting it is deprecated and will cause an error in Doctrine DBAL 3.0
-     */
     public function testSettingUnknownOptionIsStillSupported(): void
     {
         self::expectException(UnknownColumnOption::class);
@@ -73,10 +69,6 @@ class ColumnTest extends TestCase
         new Column('foo', $this->createMock(Type::class), ['unknown_option' => 'bar']);
     }
 
-    /**
-     * @group legacy
-     * @expectedDeprecation The "unknown_option" column option is not supported, setting it is deprecated and will cause an error in Doctrine DBAL 3.0
-     */
     public function testOptionsShouldNotBeIgnored(): void
     {
         self::expectException(UnknownColumnOption::class);
@@ -108,10 +100,6 @@ class ColumnTest extends TestCase
         return new Column('foo', $string, $options);
     }
 
-    /**
-     * @group DBAL-64
-     * @group DBAL-830
-     */
     public function testQuotedColumnName(): void
     {
         $string = Type::getType('string');
@@ -134,7 +122,6 @@ class ColumnTest extends TestCase
 
     /**
      * @dataProvider getIsQuoted
-     * @group DBAL-830
      */
     public function testIsQuoted(string $columnName, bool $isQuoted): void
     {
@@ -157,9 +144,6 @@ class ColumnTest extends TestCase
         ];
     }
 
-    /**
-     * @group DBAL-42
-     */
     public function testColumnComment(): void
     {
         $column = new Column('bar', Type::getType('string'));

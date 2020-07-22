@@ -26,9 +26,6 @@ class ConnectionTest extends FunctionalTestCase
         $this->driverConnection = $this->connection->getWrappedConnection();
     }
 
-    /**
-     * @group DBAL-2595
-     */
     public function testLastInsertIdAcceptsFqn(): void
     {
         $platform      = $this->connection->getDatabasePlatform();

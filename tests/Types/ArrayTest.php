@@ -47,9 +47,6 @@ class ArrayTest extends TestCase
         self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }
 
-    /**
-     * @group DBAL-73
-     */
     public function testFalseConversion(): void
     {
         self::assertFalse($this->type->convertToPHPValue(serialize(false), $this->platform));

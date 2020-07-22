@@ -5,9 +5,6 @@ namespace Doctrine\DBAL\Tests\Functional\Ticket;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 
-/**
- * @group DBAL-752
- */
 class DBAL752Test extends FunctionalTestCase
 {
     protected function setUp(): void

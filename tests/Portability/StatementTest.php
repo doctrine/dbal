@@ -25,9 +25,6 @@ class StatementTest extends TestCase
         $this->stmt        = new Statement($this->wrappedStmt, $converter);
     }
 
-    /**
-     * @group DBAL-726
-     */
     public function testBindParam(): void
     {
         $column   = 'mycolumn';

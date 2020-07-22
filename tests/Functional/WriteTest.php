@@ -35,9 +35,6 @@ class WriteTest extends FunctionalTestCase
         $this->connection->executeStatement('DELETE FROM write_table');
     }
 
-    /**
-     * @group DBAL-80
-     */
     public function testExecuteStatementFirstTypeIsNull(): void
     {
         $sql = 'INSERT INTO write_table (test_string, test_int) VALUES (?, ?)';
@@ -193,9 +190,6 @@ class WriteTest extends FunctionalTestCase
         self::assertFalse($this->lastInsertId());
     }
 
-    /**
-     * @group DBAL-445
-     */
     public function testInsertWithKeyValueTypes(): void
     {
         $testString = new DateTime('2013-04-14 10:10:10');
@@ -211,9 +205,6 @@ class WriteTest extends FunctionalTestCase
         self::assertEquals($testString->format($this->connection->getDatabasePlatform()->getDateTimeFormatString()), $data);
     }
 
-    /**
-     * @group DBAL-445
-     */
     public function testUpdateWithKeyValueTypes(): void
     {
         $testString = new DateTime('2013-04-14 10:10:10');
@@ -238,9 +229,6 @@ class WriteTest extends FunctionalTestCase
         self::assertEquals($testString->format($this->connection->getDatabasePlatform()->getDateTimeFormatString()), $data);
     }
 
-    /**
-     * @group DBAL-445
-     */
     public function testDeleteWithKeyValueTypes(): void
     {
         $val = new DateTime('2013-04-14 10:10:10');
@@ -297,9 +285,6 @@ class WriteTest extends FunctionalTestCase
         self::assertGreaterThan($firstId, $secondId);
     }
 
-    /**
-     * @group DBAL-2688
-     */
     public function testUpdateWhereIsNull(): void
     {
         $this->connection->insert(

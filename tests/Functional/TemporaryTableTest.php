@@ -35,9 +35,6 @@ class TemporaryTableTest extends FunctionalTestCase
         parent::tearDown();
     }
 
-    /**
-     * @group DDC-1337
-     */
     public function testDropTemporaryTableNotAutoCommitTransaction(): void
     {
         if ($this->connection->getDatabasePlatform()->getName() === 'oracle') {
@@ -71,9 +68,6 @@ class TemporaryTableTest extends FunctionalTestCase
         self::assertEquals([], $rows, 'In an event of an error this result has one row, because of an implicit commit.');
     }
 
-    /**
-     * @group DDC-1337
-     */
     public function testCreateTemporaryTableNotAutoCommitTransaction(): void
     {
         if ($this->connection->getDatabasePlatform()->getName() === 'oracle') {

@@ -8,9 +8,6 @@ use PHPUnit\Framework\TestCase;
 
 class SequenceTest extends TestCase
 {
-    /**
-     * @group DDC-1657
-     */
     public function testIsAutoincrementFor(): void
     {
         $table = new Table('foo');

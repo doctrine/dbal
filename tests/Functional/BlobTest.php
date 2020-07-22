@@ -13,9 +13,6 @@ use function fopen;
 use function str_repeat;
 use function stream_get_contents;
 
-/**
- * @group DBAL-6
- */
 class BlobTest extends FunctionalTestCase
 {
     protected function setUp(): void
@@ -30,8 +27,8 @@ class BlobTest extends FunctionalTestCase
 
         $table = new Table('blob_table');
         $table->addColumn('id', 'integer');
-        $table->addColumn('clobfield', 'text');
-        $table->addColumn('blobfield', 'blob');
+        $table->addColumn('clobcolumn', 'text');
+        $table->addColumn('blobcolumn', 'blob');
         $table->setPrimaryKey(['id']);
 
         $sm = $this->connection->getSchemaManager();
@@ -42,8 +39,8 @@ class BlobTest extends FunctionalTestCase
     {
         $ret = $this->connection->insert('blob_table', [
             'id'          => 1,
-            'clobfield'   => 'test',
-            'blobfield'   => 'test',
+            'clobcolumn'   => 'test',
+            'blobcolumn'   => 'test',
         ], [
             ParameterType::INTEGER,
             ParameterType::STRING,
@@ -63,8 +60,8 @@ class BlobTest extends FunctionalTestCase
         $longBlob = str_repeat('x', 4 * 8192); // send 4 chunks
         $this->connection->insert('blob_table', [
             'id'        => 1,
-            'clobfield' => 'ignored',
-            'blobfield' => fopen('data://text/plain,' . $longBlob, 'r'),
+            'clobcolumn' => 'ignored',
+            'blobcolumn' => fopen('data://text/plain,' . $longBlob, 'r'),
         ], [
             ParameterType::INTEGER,
             ParameterType::STRING,
@@ -78,8 +75,8 @@ class BlobTest extends FunctionalTestCase
     {
         $this->connection->insert('blob_table', [
             'id'          => 1,
-            'clobfield'   => 'test',
-            'blobfield'   => 'test',
+            'clobcolumn'   => 'test',
+            'blobcolumn'   => 'test',
         ], [
             ParameterType::INTEGER,
             ParameterType::STRING,
@@ -93,15 +90,15 @@ class BlobTest extends FunctionalTestCase
     {
         $this->connection->insert('blob_table', [
             'id' => 1,
-            'clobfield' => 'test',
-            'blobfield' => 'test',
+            'clobcolumn' => 'test',
+            'blobcolumn' => 'test',
         ], [
             ParameterType::INTEGER,
             ParameterType::STRING,
             ParameterType::LARGE_OBJECT,
         ]);
 
-        $this->connection->update('blob_table', ['blobfield' => 'test2'], ['id' => 1], [
+        $this->connection->update('blob_table', ['blobcolumn' => 'test2'], ['id' => 1], [
             ParameterType::LARGE_OBJECT,
             ParameterType::INTEGER,
         ]);
@@ -118,8 +115,8 @@ class BlobTest extends FunctionalTestCase
 
         $this->connection->insert('blob_table', [
             'id'          => 1,
-            'clobfield'   => 'ignored',
-            'blobfield'   => 'test',
+            'clobcolumn'   => 'ignored',
+            'blobcolumn'   => 'test',
         ], [
             ParameterType::INTEGER,
             ParameterType::STRING,
@@ -128,7 +125,7 @@ class BlobTest extends FunctionalTestCase
 
         $this->connection->update('blob_table', [
             'id'          => 1,
-            'blobfield'   => fopen('data://text/plain,test2', 'r'),
+            'blobcolumn'   => fopen('data://text/plain,test2', 'r'),
         ], ['id' => 1], [
             ParameterType::INTEGER,
             ParameterType::LARGE_OBJECT,
@@ -143,7 +140,7 @@ class BlobTest extends FunctionalTestCase
             self::markTestIncomplete('The oci8 driver does not support stream resources as parameters');
         }
 
-        $stmt = $this->connection->prepare("INSERT INTO blob_table(id, clobfield, blobfield) VALUES (1, 'ignored', ?)");
+        $stmt = $this->connection->prepare("INSERT INTO blob_table(id, clobcolumn, blobcolumn) VALUES (1, 'ignored', ?)");
 
         $stream = null;
         $stmt->bindParam(1, $stream, ParameterType::LARGE_OBJECT);
@@ -158,7 +155,7 @@ class BlobTest extends FunctionalTestCase
 
     private function assertBlobContains(string $text): void
     {
-        $rows = $this->connection->fetchFirstColumn('SELECT blobfield FROM blob_table');
+        $rows = $this->connection->fetchFirstColumn('SELECT blobcolumn FROM blob_table');
 
         self::assertCount(1, $rows);
 

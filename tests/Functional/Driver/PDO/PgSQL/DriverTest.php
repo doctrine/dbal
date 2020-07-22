@@ -68,9 +68,6 @@ class DriverTest extends AbstractDriverTest
         ];
     }
 
-    /**
-     * @group DBAL-1146
-     */
     public function testConnectsWithApplicationNameParameter(): void
     {
         $parameters                     = $this->connection->getParams();

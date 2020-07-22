@@ -349,7 +349,7 @@ SQL
      *
      * @link http://ezcomponents.org/docs/api/trunk/DatabaseSchema/ezcDbSchemaPgsqlReader.html
      */
-    public function getListTableIndexesSQL($table, $currentDatabase = null)
+    public function getListTableIndexesSQL($table, $database = null)
     {
         return 'SELECT quote_ident(relname) as relname, pg_index.indisunique, pg_index.indisprimary,
                        pg_index.indkey, pg_index.indrelid,
@@ -931,9 +931,9 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getSequenceNextValSQL($sequenceName)
+    public function getSequenceNextValSQL($sequence)
     {
-        return "SELECT NEXTVAL('" . $sequenceName . "')";
+        return "SELECT NEXTVAL('" . $sequence . "')";
     }
 
     /**
@@ -948,7 +948,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getBooleanTypeDeclarationSQL(array $field)
+    public function getBooleanTypeDeclarationSQL(array $column)
     {
         return 'BOOLEAN';
     }
@@ -956,9 +956,9 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getIntegerTypeDeclarationSQL(array $field)
+    public function getIntegerTypeDeclarationSQL(array $column)
     {
-        if (! empty($field['autoincrement'])) {
+        if (! empty($column['autoincrement'])) {
             return 'SERIAL';
         }
 
@@ -968,9 +968,9 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getBigIntTypeDeclarationSQL(array $field)
+    public function getBigIntTypeDeclarationSQL(array $column)
     {
-        if (! empty($field['autoincrement'])) {
+        if (! empty($column['autoincrement'])) {
             return 'BIGSERIAL';
         }
 
@@ -980,9 +980,9 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getSmallIntTypeDeclarationSQL(array $field)
+    public function getSmallIntTypeDeclarationSQL(array $column)
     {
-        if (! empty($field['autoincrement'])) {
+        if (! empty($column['autoincrement'])) {
             return 'SMALLSERIAL';
         }
 
@@ -992,7 +992,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getGuidTypeDeclarationSQL(array $field)
+    public function getGuidTypeDeclarationSQL(array $column)
     {
         return 'UUID';
     }
@@ -1000,7 +1000,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getDateTimeTypeDeclarationSQL(array $fieldDeclaration)
+    public function getDateTimeTypeDeclarationSQL(array $column)
     {
         return 'TIMESTAMP(0) WITHOUT TIME ZONE';
     }
@@ -1008,7 +1008,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getDateTimeTzTypeDeclarationSQL(array $fieldDeclaration)
+    public function getDateTimeTzTypeDeclarationSQL(array $column)
     {
         return 'TIMESTAMP(0) WITH TIME ZONE';
     }
@@ -1016,7 +1016,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getDateTypeDeclarationSQL(array $fieldDeclaration)
+    public function getDateTypeDeclarationSQL(array $column)
     {
         return 'DATE';
     }
@@ -1024,7 +1024,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getTimeTypeDeclarationSQL(array $fieldDeclaration)
+    public function getTimeTypeDeclarationSQL(array $column)
     {
         return 'TIME(0) WITHOUT TIME ZONE';
     }
@@ -1032,7 +1032,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef)
+    protected function _getCommonIntegerTypeDeclarationSQL(array $column)
     {
         return '';
     }
@@ -1057,7 +1057,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getClobTypeDeclarationSQL(array $field)
+    public function getClobTypeDeclarationSQL(array $column)
     {
         return 'TEXT';
     }
@@ -1212,7 +1212,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getBlobTypeDeclarationSQL(array $field)
+    public function getBlobTypeDeclarationSQL(array $column)
     {
         return 'BYTEA';
     }
@@ -1220,13 +1220,13 @@ SQL
     /**
      * {@inheritdoc}
      */
-    public function getDefaultValueDeclarationSQL($field)
+    public function getDefaultValueDeclarationSQL($column)
     {
-        if ($this->isSerialField($field)) {
+        if ($this->isSerialColumn($column)) {
             return '';
         }
 
-        return parent::getDefaultValueDeclarationSQL($field);
+        return parent::getDefaultValueDeclarationSQL($column);
     }
 
     /**
@@ -1248,9 +1248,9 @@ SQL
     /**
      * {@inheritdoc}
      */
-    public function getJsonTypeDeclarationSQL(array $field)
+    public function getJsonTypeDeclarationSQL(array $column)
     {
-        if (! empty($field['jsonb'])) {
+        if (! empty($column['jsonb'])) {
             return 'JSONB';
         }
 
@@ -1258,13 +1258,13 @@ SQL
     }
 
     /**
-     * @param mixed[] $field
+     * @param mixed[] $column
      */
-    private function isSerialField(array $field): bool
+    private function isSerialColumn(array $column): bool
     {
-        return isset($field['type'], $field['autoincrement'])
-            && $field['autoincrement'] === true
-            && $this->isNumericType($field['type']);
+        return isset($column['type'], $column['autoincrement'])
+            && $column['autoincrement'] === true
+            && $this->isNumericType($column['type']);
     }
 
     /**

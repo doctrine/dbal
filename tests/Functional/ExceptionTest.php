@@ -242,7 +242,7 @@ class ExceptionTest extends FunctionalTestCase
     {
         $schema = new Schema();
 
-        $table = $schema->createTable('bad_fieldname_table');
+        $table = $schema->createTable('bad_columnname_table');
         $table->addColumn('id', 'integer', []);
 
         foreach ($schema->toSql($this->connection->getDatabasePlatform()) as $sql) {
@@ -250,7 +250,7 @@ class ExceptionTest extends FunctionalTestCase
         }
 
         $this->expectException(Exception\InvalidFieldNameException::class);
-        $this->connection->insert('bad_fieldname_table', ['name' => 5]);
+        $this->connection->insert('bad_columnname_table', ['name' => 5]);
     }
 
     public function testNonUniqueFieldNameException(): void
@@ -276,7 +276,7 @@ class ExceptionTest extends FunctionalTestCase
     {
         $schema = new Schema();
 
-        $table = $schema->createTable('unique_field_table');
+        $table = $schema->createTable('unique_column_table');
         $table->addColumn('id', 'integer');
         $table->addUniqueIndex(['id']);
 
@@ -284,9 +284,9 @@ class ExceptionTest extends FunctionalTestCase
             $this->connection->executeStatement($sql);
         }
 
-        $this->connection->insert('unique_field_table', ['id' => 5]);
+        $this->connection->insert('unique_column_table', ['id' => 5]);
         $this->expectException(Exception\UniqueConstraintViolationException::class);
-        $this->connection->insert('unique_field_table', ['id' => 5]);
+        $this->connection->insert('unique_column_table', ['id' => 5]);
     }
 
     public function testSyntaxErrorException(): void

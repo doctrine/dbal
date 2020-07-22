@@ -16,9 +16,6 @@ use function substr;
 
 use const CASE_LOWER;
 
-/**
- * @group DBAL-20
- */
 class PrimaryReadReplicaConnectionTest extends FunctionalTestCase
 {
     protected function setUp(): void
@@ -137,9 +134,6 @@ class PrimaryReadReplicaConnectionTest extends FunctionalTestCase
         self::assertTrue($conn->isConnectedToPrimary());
     }
 
-    /**
-     * @group DBAL-335
-     */
     public function testKeepReplicaBeginTransactionStaysOnPrimary(): void
     {
         $conn = $this->createPrimaryReadReplicaConnection($keepReplica = true);
@@ -158,9 +152,6 @@ class PrimaryReadReplicaConnectionTest extends FunctionalTestCase
         self::assertFalse($conn->isConnectedToPrimary());
     }
 
-    /**
-     * @group DBAL-335
-     */
     public function testKeepReplicaInsertStaysOnPrimary(): void
     {
         $conn = $this->createPrimaryReadReplicaConnection($keepReplica = true);

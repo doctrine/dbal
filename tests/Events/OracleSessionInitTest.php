@@ -26,7 +26,6 @@ class OracleSessionInitTest extends TestCase
     }
 
     /**
-     * @group DBAL-1824
      * @dataProvider getPostConnectWithSessionParameterValuesData
      */
     public function testPostConnectQuotesSessionParameterValues(string $name, string $value): void

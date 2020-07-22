@@ -80,10 +80,6 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    /**
-     * @group DBAL-752
-     * @group DBAL-924
-     */
     public function testGeneratesTypeDeclarationForTinyIntegers(): void
     {
         self::assertEquals(
@@ -110,10 +106,6 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    /**
-     * @group DBAL-752
-     * @group DBAL-924
-     */
     public function testGeneratesTypeDeclarationForSmallIntegers(): void
     {
         self::assertEquals(
@@ -144,10 +136,6 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    /**
-     * @group DBAL-752
-     * @group DBAL-924
-     */
     public function testGeneratesTypeDeclarationForMediumIntegers(): void
     {
         self::assertEquals(
@@ -208,10 +196,6 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    /**
-     * @group DBAL-752
-     * @group DBAL-924
-     */
     public function testGeneratesTypeDeclarationForBigIntegers(): void
     {
         self::assertEquals(
@@ -324,9 +308,6 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * @group DDC-1845
-     */
     public function testGenerateTableSqlShouldNotAutoQuotePrimaryKey(): void
     {
         $table = new Table('test');
@@ -520,8 +501,6 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
 
     /**
      * {@inheritDoc}
-     *
-     * @group DBAL-234
      */
     protected function getAlterTableRenameIndexSQL(): array
     {
@@ -537,8 +516,6 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
 
     /**
      * {@inheritDoc}
-     *
-     * @group DBAL-234
      */
     protected function getQuotedAlterTableRenameIndexSQL(): array
     {
@@ -596,9 +573,6 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * @group DBAL-807
-     */
     public function testAlterTableRenameIndexInSchema(): void
     {
         self::markTestIncomplete(
@@ -607,9 +581,6 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    /**
-     * @group DBAL-807
-     */
     public function testQuotesAlterTableRenameIndexInSchema(): void
     {
         self::markTestIncomplete(
@@ -618,9 +589,6 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    /**
-     * @group DBAL-423
-     */
     public function testReturnsGuidTypeDeclarationSQL(): void
     {
         self::assertSame('CHAR(36)', $this->platform->getGuidTypeDeclarationSQL([]));
@@ -742,9 +710,6 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * @group DBAL-2436
-     */
     public function testQuotesTableNameInListTableConstraintsSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
@@ -753,9 +718,6 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    /**
-     * @group DBAL-2436
-     */
     public function testQuotesTableNameInListTableColumnsSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
@@ -764,9 +726,6 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    /**
-     * @group DBAL-2436
-     */
     public function testQuotesTableNameInListTableIndexesSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
@@ -775,9 +734,6 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    /**
-     * @group DBAL-2436
-     */
     public function testQuotesTableNameInListTableForeignKeysSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(

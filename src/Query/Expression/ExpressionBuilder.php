@@ -219,7 +219,7 @@ class ExpressionBuilder
     /**
      * Creates an IS NULL expression with the given arguments.
      *
-     * @param string $x The field in string format to be restricted by IS NULL.
+     * @param string $x The expression to be restricted by IS NULL.
      *
      * @return string
      */
@@ -231,7 +231,7 @@ class ExpressionBuilder
     /**
      * Creates an IS NOT NULL expression with the given arguments.
      *
-     * @param string $x The field in string format to be restricted by IS NOT NULL.
+     * @param string $x The expression to be restricted by IS NOT NULL.
      *
      * @return string
      */
@@ -284,7 +284,7 @@ class ExpressionBuilder
     /**
      * Creates a NOT IN () comparison expression with the given arguments.
      *
-     * @param string          $x The field in string format to be inspected by NOT IN() comparison.
+     * @param string          $x The expression to be inspected by NOT IN() comparison.
      * @param string|string[] $y The placeholder or the array of values to be used by NOT IN() comparison.
      *
      * @return string

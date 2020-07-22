@@ -9,9 +9,6 @@ use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use PDO;
 
-/**
- * @group DBAL-630
- */
 class DBAL630Test extends FunctionalTestCase
 {
     /** @var bool */

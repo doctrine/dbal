@@ -5,9 +5,6 @@ namespace Doctrine\DBAL\Tests\Functional\Ticket;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 
-/**
- * @group DBAL-168
- */
 class DBAL168Test extends FunctionalTestCase
 {
     public function testDomainsTable(): void

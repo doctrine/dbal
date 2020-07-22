@@ -103,9 +103,9 @@ final class Connection implements ServerInfoAwareConnection
         return "'" . $input . "'";
     }
 
-    public function exec(string $statement): int
+    public function exec(string $sql): int
     {
-        $stmt = @db2_exec($this->conn, $statement);
+        $stmt = @db2_exec($this->conn, $sql);
 
         if ($stmt === false) {
             throw ConnectionError::new($this->conn);

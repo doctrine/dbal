@@ -9,9 +9,6 @@ use Doctrine\DBAL\Types\DecimalType;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 
-/**
- * @group DBAL-461
- */
 class DBAL461Test extends TestCase
 {
     public function testIssue(): void

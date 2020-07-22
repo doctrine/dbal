@@ -26,7 +26,7 @@ final class Statement implements StatementInterface
      *
      * @param mixed $driverOptions
      */
-    public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null, $driverOptions = null)
+    public function bindParam($param, &$variable, $type = ParameterType::STRING, $length = null, $driverOptions = null)
     {
         if (
             ($type === ParameterType::LARGE_OBJECT || $type === ParameterType::BINARY)
@@ -35,7 +35,7 @@ final class Statement implements StatementInterface
             $driverOptions = PDO::SQLSRV_ENCODING_BINARY;
         }
 
-        return $this->statement->bindParam($column, $variable, $type, $length, $driverOptions);
+        return $this->statement->bindParam($param, $variable, $type, $length, $driverOptions);
     }
 
     /**

@@ -22,7 +22,7 @@ class MySQL57Platform extends MySqlPlatform
     /**
      * {@inheritdoc}
      */
-    public function getJsonTypeDeclarationSQL(array $field)
+    public function getJsonTypeDeclarationSQL(array $column)
     {
         return 'JSON';
     }

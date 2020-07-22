@@ -29,9 +29,9 @@ final class Statement implements DriverStatement
     /**
      * {@inheritdoc}
      */
-    public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null)
+    public function bindParam($param, &$variable, $type = ParameterType::STRING, $length = null)
     {
-        return $this->stmt->bindParam($column, $variable, $type, $length);
+        return $this->stmt->bindParam($param, $variable, $type, $length);
     }
 
     /**

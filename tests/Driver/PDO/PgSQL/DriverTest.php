@@ -24,9 +24,6 @@ class DriverTest extends AbstractPostgreSQLDriverTest
         $this->markTestSkipped('Test enabled only when using pdo_pgsql specific phpunit.xml');
     }
 
-    /**
-     * @group DBAL-920
-     */
     public function testConnectionDisablesPrepares(): void
     {
         $connection = $this->connect([]);
@@ -37,9 +34,6 @@ class DriverTest extends AbstractPostgreSQLDriverTest
         );
     }
 
-    /**
-     * @group DBAL-920
-     */
     public function testConnectionDoesNotDisablePreparesWhenAttributeDefined(): void
     {
         $connection = $this->connect(
@@ -52,9 +46,6 @@ class DriverTest extends AbstractPostgreSQLDriverTest
         );
     }
 
-    /**
-     * @group DBAL-920
-     */
     public function testConnectionDisablePreparesWhenDisablePreparesIsExplicitlyDefined(): void
     {
         $connection = $this->connect(

@@ -217,9 +217,9 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getSequenceNextValSQL($sequenceName)
+    public function getSequenceNextValSQL($sequence)
     {
-        return 'SELECT ' . $sequenceName . '.nextval FROM DUAL';
+        return 'SELECT ' . $sequence . '.nextval FROM DUAL';
     }
 
     /**
@@ -254,7 +254,7 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getBooleanTypeDeclarationSQL(array $field)
+    public function getBooleanTypeDeclarationSQL(array $column)
     {
         return 'NUMBER(1)';
     }
@@ -262,7 +262,7 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getIntegerTypeDeclarationSQL(array $field)
+    public function getIntegerTypeDeclarationSQL(array $column)
     {
         return 'NUMBER(10)';
     }
@@ -270,7 +270,7 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getBigIntTypeDeclarationSQL(array $field)
+    public function getBigIntTypeDeclarationSQL(array $column)
     {
         return 'NUMBER(20)';
     }
@@ -278,7 +278,7 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getSmallIntTypeDeclarationSQL(array $field)
+    public function getSmallIntTypeDeclarationSQL(array $column)
     {
         return 'NUMBER(5)';
     }
@@ -286,7 +286,7 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getDateTimeTypeDeclarationSQL(array $fieldDeclaration)
+    public function getDateTimeTypeDeclarationSQL(array $column)
     {
         return 'TIMESTAMP(0)';
     }
@@ -294,7 +294,7 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getDateTimeTzTypeDeclarationSQL(array $fieldDeclaration)
+    public function getDateTimeTzTypeDeclarationSQL(array $column)
     {
         return 'TIMESTAMP(0) WITH TIME ZONE';
     }
@@ -302,7 +302,7 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getDateTypeDeclarationSQL(array $fieldDeclaration)
+    public function getDateTypeDeclarationSQL(array $column)
     {
         return 'DATE';
     }
@@ -310,7 +310,7 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getTimeTypeDeclarationSQL(array $fieldDeclaration)
+    public function getTimeTypeDeclarationSQL(array $column)
     {
         return 'DATE';
     }
@@ -318,7 +318,7 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef)
+    protected function _getCommonIntegerTypeDeclarationSQL(array $column)
     {
         return '';
     }
@@ -351,7 +351,7 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getClobTypeDeclarationSQL(array $field)
+    public function getClobTypeDeclarationSQL(array $column)
     {
         return 'CLOB';
     }
@@ -414,7 +414,7 @@ class OraclePlatform extends AbstractPlatform
      *
      * @link http://ezcomponents.org/docs/api/trunk/DatabaseSchema/ezcDbSchemaOracleReader.html
      */
-    public function getListTableIndexesSQL($table, $currentDatabase = null)
+    public function getListTableIndexesSQL($table, $database = null)
     {
         $table = $this->normalizeIdentifier($table);
         $table = $this->quoteStringLiteral($table->getName());
@@ -922,26 +922,26 @@ SQL
     /**
      * {@inheritdoc}
      */
-    public function getColumnDeclarationSQL($name, array $field)
+    public function getColumnDeclarationSQL($name, array $column)
     {
-        if (isset($field['columnDefinition'])) {
-            $columnDef = $this->getCustomTypeDeclarationSQL($field);
+        if (isset($column['columnDefinition'])) {
+            $columnDef = $this->getCustomTypeDeclarationSQL($column);
         } else {
-            $default = $this->getDefaultValueDeclarationSQL($field);
+            $default = $this->getDefaultValueDeclarationSQL($column);
 
             $notnull = '';
 
-            if (isset($field['notnull'])) {
-                $notnull = $field['notnull'] ? ' NOT NULL' : ' NULL';
+            if (isset($column['notnull'])) {
+                $notnull = $column['notnull'] ? ' NOT NULL' : ' NULL';
             }
 
-            $unique = ! empty($field['unique']) ?
+            $unique = ! empty($column['unique']) ?
                 ' ' . $this->getUniqueFieldDeclarationSQL() : '';
 
-            $check = ! empty($field['check']) ?
-                ' ' . $field['check'] : '';
+            $check = ! empty($column['check']) ?
+                ' ' . $column['check'] : '';
 
-            $typeDecl  = $field['type']->getSQLDeclaration($field, $this);
+            $typeDecl  = $column['type']->getSQLDeclaration($column, $this);
             $columnDef = $typeDecl . $default . $notnull . $unique . $check;
         }
 
@@ -1191,7 +1191,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getBlobTypeDeclarationSQL(array $field)
+    public function getBlobTypeDeclarationSQL(array $column)
     {
         return 'BLOB';
     }

@@ -90,9 +90,9 @@ final class Connection implements ServerInfoAwareConnection
         return "'" . str_replace("'", "''", $value) . "'";
     }
 
-    public function exec(string $statement): int
+    public function exec(string $sql): int
     {
-        $stmt = sqlsrv_query($this->conn, $statement);
+        $stmt = sqlsrv_query($this->conn, $sql);
 
         if ($stmt === false) {
             throw Error::new();

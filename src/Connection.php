@@ -585,16 +585,16 @@ class Connection
      *
      * Table expression and columns are not escaped and are not safe for user-input.
      *
-     * @param string         $tableExpression The expression of the table on which to delete.
-     * @param mixed[]        $identifier      The deletion criteria. An associative array containing column-value pairs.
-     * @param int[]|string[] $types           The types of identifiers.
+     * @param string         $table      The expression of the table on which to delete.
+     * @param mixed[]        $identifier The deletion criteria. An associative array containing column-value pairs.
+     * @param int[]|string[] $types      The types of identifiers.
      *
      * @return int The number of affected rows.
      *
      * @throws DBALException
      * @throws InvalidArgumentException
      */
-    public function delete($tableExpression, array $identifier, array $types = [])
+    public function delete($table, array $identifier, array $types = [])
     {
         if (count($identifier) === 0) {
             throw InvalidArgumentException::fromEmptyCriteria();
@@ -605,7 +605,7 @@ class Connection
         $this->addIdentifierCondition($identifier, $columns, $values, $conditions);
 
         return $this->executeStatement(
-            'DELETE FROM ' . $tableExpression . ' WHERE ' . implode(' AND ', $conditions),
+            'DELETE FROM ' . $table . ' WHERE ' . implode(' AND ', $conditions),
             $values,
             is_string(key($types)) ? $this->extractTypeValues($columns, $types) : $types
         );
@@ -658,16 +658,16 @@ class Connection
      *
      * Table expression and columns are not escaped and are not safe for user-input.
      *
-     * @param string         $tableExpression The expression of the table to update quoted or unquoted.
-     * @param mixed[]        $data            An associative array containing column-value pairs.
-     * @param mixed[]        $identifier      The update criteria. An associative array containing column-value pairs.
-     * @param int[]|string[] $types           Types of the merged $data and $identifier arrays in that order.
+     * @param string         $table      The expression of the table to update quoted or unquoted.
+     * @param mixed[]        $data       An associative array containing column-value pairs.
+     * @param mixed[]        $identifier The update criteria. An associative array containing column-value pairs.
+     * @param int[]|string[] $types      Types of the merged $data and $identifier arrays in that order.
      *
      * @return int The number of affected rows.
      *
      * @throws DBALException
      */
-    public function update($tableExpression, array $data, array $identifier, array $types = [])
+    public function update($table, array $data, array $identifier, array $types = [])
     {
         $columns = $values = $conditions = $set = [];
 
@@ -683,7 +683,7 @@ class Connection
             $types = $this->extractTypeValues($columns, $types);
         }
 
-        $sql = 'UPDATE ' . $tableExpression . ' SET ' . implode(', ', $set)
+        $sql = 'UPDATE ' . $table . ' SET ' . implode(', ', $set)
                 . ' WHERE ' . implode(' AND ', $conditions);
 
         return $this->executeStatement($sql, $values, $types);
@@ -694,18 +694,18 @@ class Connection
      *
      * Table expression and columns are not escaped and are not safe for user-input.
      *
-     * @param string         $tableExpression The expression of the table to insert data into, quoted or unquoted.
-     * @param mixed[]        $data            An associative array containing column-value pairs.
-     * @param int[]|string[] $types           Types of the inserted data.
+     * @param string         $table The expression of the table to insert data into, quoted or unquoted.
+     * @param mixed[]        $data  An associative array containing column-value pairs.
+     * @param int[]|string[] $types Types of the inserted data.
      *
      * @return int The number of affected rows.
      *
      * @throws DBALException
      */
-    public function insert($tableExpression, array $data, array $types = [])
+    public function insert($table, array $data, array $types = [])
     {
         if (count($data) === 0) {
-            return $this->executeStatement('INSERT INTO ' . $tableExpression . ' () VALUES ()');
+            return $this->executeStatement('INSERT INTO ' . $table . ' () VALUES ()');
         }
 
         $columns = [];
@@ -719,7 +719,7 @@ class Connection
         }
 
         return $this->executeStatement(
-            'INSERT INTO ' . $tableExpression . ' (' . implode(', ', $columns) . ')' .
+            'INSERT INTO ' . $table . ' (' . implode(', ', $columns) . ')' .
             ' VALUES (' . implode(', ', $set) . ')',
             $values,
             is_string(key($types)) ? $this->extractTypeValues($columns, $types) : $types
@@ -929,7 +929,7 @@ class Connection
      * If the query is parametrized, a prepared statement is used.
      * If an SQLLogger is configured, the execution is logged.
      *
-     * @param string                 $query  The SQL query to execute.
+     * @param string                 $sql    The SQL query to execute.
      * @param mixed[]                $params The parameters to bind to the query, if any.
      * @param int[]|string[]         $types  The types the previous parameters are in.
      * @param QueryCacheProfile|null $qcp    The query cache profile, optional.
@@ -937,27 +937,27 @@ class Connection
      * @throws DBALException
      */
     public function executeQuery(
-        string $query,
+        string $sql,
         array $params = [],
         $types = [],
         ?QueryCacheProfile $qcp = null
     ): AbstractionResult {
         if ($qcp !== null) {
-            return $this->executeCacheQuery($query, $params, $types, $qcp);
+            return $this->executeCacheQuery($sql, $params, $types, $qcp);
         }
 
         $connection = $this->getWrappedConnection();
 
         $logger = $this->_config->getSQLLogger();
         if ($logger !== null) {
-            $logger->startQuery($query, $params, $types);
+            $logger->startQuery($sql, $params, $types);
         }
 
         try {
             if (count($params) > 0) {
-                [$query, $params, $types] = SQLParserUtils::expandListParameters($query, $params, $types);
+                [$sql, $params, $types] = SQLParserUtils::expandListParameters($sql, $params, $types);
 
-                $stmt = $connection->prepare($query);
+                $stmt = $connection->prepare($sql);
                 if (count($types) > 0) {
                     $this->_bindTypedValues($stmt, $params, $types);
                     $result = $stmt->execute();
@@ -965,12 +965,12 @@ class Connection
                     $result = $stmt->execute($params);
                 }
             } else {
-                $result = $connection->query($query);
+                $result = $connection->query($sql);
             }
 
             return new Result($result, $this);
         } catch (DriverException $e) {
-            throw $this->convertExceptionDuringQuery($e, $query, $params, $types);
+            throw $this->convertExceptionDuringQuery($e, $sql, $params, $types);
         } finally {
             if ($logger !== null) {
                 $logger->stopQuery();
@@ -981,7 +981,7 @@ class Connection
     /**
      * Executes a caching query.
      *
-     * @param string            $query  The SQL query to execute.
+     * @param string            $sql    The SQL query to execute.
      * @param mixed[]           $params The parameters to bind to the query, if any.
      * @param int[]|string[]    $types  The types the previous parameters are in.
      * @param QueryCacheProfile $qcp    The query cache profile.
@@ -989,7 +989,7 @@ class Connection
      * @throws CacheException
      * @throws DBALException
      */
-    public function executeCacheQuery($query, $params, $types, QueryCacheProfile $qcp): Result
+    public function executeCacheQuery($sql, $params, $types, QueryCacheProfile $qcp): Result
     {
         $resultCache = $qcp->getResultCacheDriver() ?? $this->_config->getResultCacheImpl();
 
@@ -1000,7 +1000,7 @@ class Connection
         $connectionParams = $this->params;
         unset($connectionParams['platform']);
 
-        [$cacheKey, $realKey] = $qcp->generateCacheKeys($query, $params, $types, $connectionParams);
+        [$cacheKey, $realKey] = $qcp->generateCacheKeys($sql, $params, $types, $connectionParams);
 
         // fetch the row pointers entry
         $data = $resultCache->fetch($cacheKey);
@@ -1016,7 +1016,7 @@ class Connection
 
         if (! isset($result)) {
             $result = new CachingResult(
-                $this->executeQuery($query, $params, $types),
+                $this->executeQuery($sql, $params, $types),
                 $resultCache,
                 $cacheKey,
                 $realKey,
@@ -1101,16 +1101,16 @@ class Connection
      * because the underlying database may not even support the notion of AUTO_INCREMENT/IDENTITY
      * columns or sequences.
      *
-     * @param string|null $seqName Name of the sequence object from which the ID should be returned.
+     * @param string|null $name Name of the sequence object from which the ID should be returned.
      *
      * @return string A string representation of the last inserted ID.
      *
      * @throws DBALException
      */
-    public function lastInsertId($seqName = null)
+    public function lastInsertId($name = null)
     {
         try {
-            return $this->getWrappedConnection()->lastInsertId($seqName);
+            return $this->getWrappedConnection()->lastInsertId($name);
         } catch (DriverException $e) {
             throw $this->convertException($e);
         }

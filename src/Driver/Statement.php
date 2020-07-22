@@ -43,7 +43,7 @@ interface Statement
      * of stored procedures that return data as output parameters, and some also as input/output
      * parameters that both send in data and are updated to receive it.
      *
-     * @param string|int $column   Parameter identifier. For a prepared statement using named placeholders,
+     * @param string|int $param    Parameter identifier. For a prepared statement using named placeholders,
      *                             this will be a parameter name of the form :name. For a prepared statement using
      *                             question mark placeholders, this will be the 1-indexed position of the parameter.
      * @param mixed      $variable Name of the PHP variable to bind to the SQL statement parameter.
@@ -56,7 +56,7 @@ interface Statement
      *
      * @throws Exception
      */
-    public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null);
+    public function bindParam($param, &$variable, $type = ParameterType::STRING, $length = null);
 
     /**
      * Executes a prepared statement

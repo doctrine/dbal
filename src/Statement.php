@@ -90,7 +90,7 @@ class Statement
      * type and the value undergoes the conversion routines of the mapping type before
      * being bound.
      *
-     * @param string|int $name  The name or position of the parameter.
+     * @param string|int $param The name or position of the parameter.
      * @param mixed      $value The value of the parameter.
      * @param mixed      $type  Either a PDO binding type or a DBAL mapping type name or instance.
      *
@@ -98,10 +98,10 @@ class Statement
      *
      * @throws DBALException
      */
-    public function bindValue($name, $value, $type = ParameterType::STRING)
+    public function bindValue($param, $value, $type = ParameterType::STRING)
     {
-        $this->params[$name] = $value;
-        $this->types[$name]  = $type;
+        $this->params[$param] = $value;
+        $this->types[$param]  = $type;
 
         $bindingType = ParameterType::STRING;
 
@@ -119,7 +119,7 @@ class Statement
         }
 
         try {
-            return $this->stmt->bindValue($name, $value, $bindingType);
+            return $this->stmt->bindValue($param, $value, $bindingType);
         } catch (Exception $e) {
             throw $this->conn->convertException($e);
         }
@@ -130,23 +130,23 @@ class Statement
      *
      * Binding a parameter by reference does not support DBAL mapping types.
      *
-     * @param string|int $name   The name or position of the parameter.
-     * @param mixed      $var    The reference to the variable to bind.
-     * @param int        $type   The binding type.
-     * @param int|null   $length Must be specified when using an OUT bind
-     *                           so that PHP allocates enough memory to hold the returned value.
+     * @param string|int $param    The name or position of the parameter.
+     * @param mixed      $variable The reference to the variable to bind.
+     * @param int        $type     The binding type.
+     * @param int|null   $length   Must be specified when using an OUT bind
+     *                             so that PHP allocates enough memory to hold the returned value.
      *
      * @return bool TRUE on success, FALSE on failure.
      *
      * @throws DBALException
      */
-    public function bindParam($name, &$var, $type = ParameterType::STRING, $length = null)
+    public function bindParam($param, &$variable, $type = ParameterType::STRING, $length = null)
     {
-        $this->params[$name] = $var;
-        $this->types[$name]  = $type;
+        $this->params[$param] = $variable;
+        $this->types[$param]  = $type;
 
         try {
-            return $this->stmt->bindParam($name, $var, $type, $length);
+            return $this->stmt->bindParam($param, $variable, $type, $length);
         } catch (Exception $e) {
             throw $this->conn->convertException($e);
         }
@@ -181,9 +181,6 @@ class Statement
             if ($logger !== null) {
                 $logger->stopQuery();
             }
-
-            $this->params = [];
-            $this->types  = [];
         }
     }
 

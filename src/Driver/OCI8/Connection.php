@@ -108,9 +108,9 @@ final class Connection implements ConnectionInterface, ServerInfoAwareConnection
         return "'" . addcslashes($value, "\000\n\r\\\032") . "'";
     }
 
-    public function exec(string $statement): int
+    public function exec(string $sql): int
     {
-        return $this->prepare($statement)->execute()->rowCount();
+        return $this->prepare($sql)->execute()->rowCount();
     }
 
     /**

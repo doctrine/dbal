@@ -161,9 +161,6 @@ class DataAccessTest extends FunctionalTestCase
         self::assertEquals('foo', $row['test_string']);
     }
 
-    /**
-     * @group DBAL-209
-     */
     public function testFetchAllWithTypes(): void
     {
         $datetimeString = '2010-01-01 10:10:10';
@@ -285,9 +282,6 @@ class DataAccessTest extends FunctionalTestCase
         self::assertStringStartsWith($datetimeString, $column);
     }
 
-    /**
-     * @group DDC-697
-     */
     public function testExecuteQueryBindDateTimeType(): void
     {
         $value = $this->connection->fetchOne(
@@ -299,9 +293,6 @@ class DataAccessTest extends FunctionalTestCase
         self::assertEquals(1, $value);
     }
 
-    /**
-     * @group DDC-697
-     */
     public function testExecuteStatementBindDateTimeType(): void
     {
         $datetime = new DateTime('2010-02-02 20:20:20');
@@ -325,9 +316,6 @@ class DataAccessTest extends FunctionalTestCase
         )->fetchOne());
     }
 
-    /**
-     * @group DDC-697
-     */
     public function testPrepareQueryBindValueDateTimeType(): void
     {
         $sql  = 'SELECT count(*) AS c FROM fetch_table WHERE test_datetime = ?';
@@ -338,9 +326,6 @@ class DataAccessTest extends FunctionalTestCase
         self::assertEquals(1, $result->fetchOne());
     }
 
-    /**
-     * @group DBAL-78
-     */
     public function testNativeArrayListSupport(): void
     {
         for ($i = 100; $i < 110; $i++) {
@@ -430,9 +415,6 @@ class DataAccessTest extends FunctionalTestCase
         ];
     }
 
-    /**
-     * @group DDC-1014
-     */
     public function testDateArithmetics(): void
     {
         $p    = $this->connection->getDatabasePlatform();
@@ -541,9 +523,6 @@ class DataAccessTest extends FunctionalTestCase
         self::assertCount(0, $rows, 'no result should be returned, otherwise SQL injection is possible');
     }
 
-    /**
-     * @group DDC-1213
-     */
     public function testBitComparisonExpressionSupport(): void
     {
         $this->connection->executeStatement('DELETE FROM fetch_table');
@@ -589,9 +568,6 @@ class DataAccessTest extends FunctionalTestCase
         }
     }
 
-    /**
-     * @group DBAL-241
-     */
     public function testFetchAllStyleColumn(): void
     {
         $sql = 'DELETE FROM fetch_table';
@@ -606,9 +582,6 @@ class DataAccessTest extends FunctionalTestCase
         self::assertEquals([1, 10], $values);
     }
 
-    /**
-     * @group DBAL-257
-     */
     public function testEmptyFetchOneReturnsFalse(): void
     {
         $this->connection->beginTransaction();
@@ -617,9 +590,6 @@ class DataAccessTest extends FunctionalTestCase
         $this->connection->rollBack();
     }
 
-    /**
-     * @group DBAL-435
-     */
     public function testEmptyParameters(): void
     {
         $sql  = 'SELECT * FROM fetch_table WHERE test_int IN (?)';
@@ -628,9 +598,6 @@ class DataAccessTest extends FunctionalTestCase
         self::assertEquals([], $rows);
     }
 
-    /**
-     * @group DBAL-1028
-     */
     public function testFetchOneNoResult(): void
     {
         self::assertFalse(

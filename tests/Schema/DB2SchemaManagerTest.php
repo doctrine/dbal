@@ -40,8 +40,6 @@ final class DB2SchemaManagerTest extends TestCase
 
     /**
      * @see https://github.com/doctrine/dbal/issues/2701
-     *
-     * @group DBAL-2701
      */
     public function testListTableNamesFiltersAssetNamesCorrectly(): void
     {

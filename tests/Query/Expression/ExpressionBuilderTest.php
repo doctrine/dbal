@@ -7,9 +7,6 @@ use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @group DBAL-12
- */
 class ExpressionBuilderTest extends TestCase
 {
     /** @var ExpressionBuilder */

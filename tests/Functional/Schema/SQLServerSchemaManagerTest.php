@@ -17,9 +17,6 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         return 'mssql';
     }
 
-    /**
-     * @group DBAL-255
-     */
     public function testDropColumnConstraints(): void
     {
         $table = new Table('sqlsrv_drop_column');
@@ -155,9 +152,6 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertEquals(666, $columns['df_integer']->getDefault());
     }
 
-    /**
-     * @group DBAL-543
-     */
     public function testColumnComments(): void
     {
         $table = new Table('sqlsrv_column_comment');

@@ -9,10 +9,6 @@ use Doctrine\DBAL\SQLParserUtilsException;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 
-/**
- * @group DBAL-78
- * @group DDC-1372
- */
 class SQLParserUtilsTest extends TestCase
 {
     /**
@@ -74,10 +70,10 @@ class SQLParserUtilsTest extends TestCase
             ['SELECT [d.ns:col_name] FROM my_table d WHERE [d.date] >= :param1', [57 => 'param1']], // Ticket DBAL-552
             ['SELECT * FROM foo WHERE jsonb_exists_any(foo.bar, ARRAY[:foo])', [56 => 'foo']], // Ticket GH-2295
             ['SELECT * FROM foo WHERE jsonb_exists_any(foo.bar, array[:foo])', [56 => 'foo']],
-            ['SELECT table.field1, ARRAY[\'3\'] FROM schema.table table WHERE table.f1 = :foo AND ARRAY[\'3\']', [73 => 'foo']],
-            ['SELECT table.field1, ARRAY[\'3\']::integer[] FROM schema.table table WHERE table.f1 = :foo AND ARRAY[\'3\']::integer[]', [84 => 'foo']],
-            ['SELECT table.field1, ARRAY[:foo] FROM schema.table table WHERE table.f1 = :bar AND ARRAY[\'3\']', [27 => 'foo', 74 => 'bar']],
-            ['SELECT table.field1, ARRAY[:foo]::integer[] FROM schema.table table WHERE table.f1 = :bar AND ARRAY[\'3\']::integer[]', [27 => 'foo', 85 => 'bar']],
+            ['SELECT table.column1, ARRAY[\'3\'] FROM schema.table table WHERE table.f1 = :foo AND ARRAY[\'3\']', [74 => 'foo']],
+            ['SELECT table.column1, ARRAY[\'3\']::integer[] FROM schema.table table WHERE table.f1 = :foo AND ARRAY[\'3\']::integer[]', [85 => 'foo']],
+            ['SELECT table.column1, ARRAY[:foo] FROM schema.table table WHERE table.f1 = :bar AND ARRAY[\'3\']', [28 => 'foo', 75 => 'bar']],
+            ['SELECT table.column1, ARRAY[:foo]::integer[] FROM schema.table table WHERE table.f1 = :bar AND ARRAY[\'3\']::integer[]', [28 => 'foo', 86 => 'bar']],
             [
                 <<<'SQLDATA'
 SELECT * FROM foo WHERE 

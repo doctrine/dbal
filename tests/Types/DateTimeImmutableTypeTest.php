@@ -97,9 +97,6 @@ class DateTimeImmutableTypeTest extends TestCase
         self::assertSame('2016-01-01 15:58:59', $date->format('Y-m-d H:i:s'));
     }
 
-    /**
-     * @group DBAL-415
-     */
     public function testConvertsDateTimeStringWithMicrosecondsToPHPValue(): void
     {
         $this->platform->expects(self::any())

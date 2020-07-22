@@ -243,7 +243,6 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     /**
      * @param mixed[] $options
      *
-     * @group DBAL-1097
      * @dataProvider getGeneratesAdvancedForeignKeyOptionsSQLData
      */
     public function testGeneratesAdvancedForeignKeyOptionsSQL(array $options, string $expectedSql): void
@@ -451,10 +450,6 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * @group DBAL-472
-     * @group DBAL-1001
-     */
     public function testAlterTableNotNULL(): void
     {
         $tableDiff                          = new TableDiff('mytable');
@@ -490,9 +485,6 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         self::assertEquals($expectedSql, $this->platform->getAlterTableSQL($tableDiff));
     }
 
-    /**
-     * @group DBAL-2555
-     */
     public function testInitializesDoctrineTypeMappings(): void
     {
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('long raw'));
@@ -521,10 +513,6 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         self::assertSame('RAW(2000)', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 2000]));
     }
 
-    /**
-     * @group legacy
-     * @expectedDeprecation Binary field length 2001 is greater than supported by the platform (2000). Reduce the field length or use a BLOB field instead.
-     */
     public function testReturnsBinaryTypeLongerThanMaxDeclarationSQL(): void
     {
         self::assertSame('BLOB', $this->platform->getBinaryTypeDeclarationSQL(['length' => 2001]));
@@ -548,18 +536,11 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         self::assertEmpty($this->platform->getAlterTableSQL($comparator->diffTable($table1, $table2)));
     }
 
-    /**
-     * @group DBAL-563
-     */
     public function testUsesSequenceEmulatedIdentityColumns(): void
     {
         self::assertTrue($this->platform->usesSequenceEmulatedIdentityColumns());
     }
 
-    /**
-     * @group DBAL-563
-     * @group DBAL-831
-     */
     public function testReturnsIdentitySequenceName(): void
     {
         self::assertSame('MYTABLE_SEQ', $this->platform->getIdentitySequenceName('mytable', 'mycolumn'));
@@ -570,7 +551,6 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 
     /**
      * @dataProvider dataCreateSequenceWithCache
-     * @group DBAL-139
      */
     public function testCreateSequenceWithCache(int $cacheSize, string $expectedSql): void
     {
@@ -592,8 +572,6 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 
     /**
      * {@inheritDoc}
-     *
-     * @group DBAL-234
      */
     protected function getAlterTableRenameIndexSQL(): array
     {
@@ -602,8 +580,6 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 
     /**
      * {@inheritDoc}
-     *
-     * @group DBAL-234
      */
     protected function getQuotedAlterTableRenameIndexSQL(): array
     {
@@ -641,8 +617,6 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 
     /**
      * {@inheritDoc}
-     *
-     * @group DBAL-807
      */
     protected function getAlterTableRenameIndexInSchemaSQL(): array
     {
@@ -651,8 +625,6 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 
     /**
      * {@inheritDoc}
-     *
-     * @group DBAL-807
      */
     protected function getQuotedAlterTableRenameIndexInSchemaSQL(): array
     {
@@ -667,9 +639,6 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         return 'ALTER TABLE "table" DROP CONSTRAINT "select"';
     }
 
-    /**
-     * @group DBAL-423
-     */
     public function testReturnsGuidTypeDeclarationSQL(): void
     {
         self::assertSame('CHAR(36)', $this->platform->getGuidTypeDeclarationSQL([]));
@@ -687,7 +656,6 @@ class OraclePlatformTest extends AbstractPlatformTestCase
      * @param string[] $expectedSql
      *
      * @dataProvider getReturnsDropAutoincrementSQL
-     * @group DBAL-831
      */
     public function testReturnsDropAutoincrementSQL(string $table, array $expectedSql): void
     {
@@ -757,9 +725,6 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * @group DBAL-1004
-     */
     public function testAltersTableColumnCommentWithExplicitlyQuotedIdentifiers(): void
     {
         $table1 = new Table('"foo"', [new Column('"bar"', Type::getType('integer'))]);
@@ -818,7 +783,6 @@ EOD;
 
     /**
      * @dataProvider getReturnsGetListTableColumnsSQL
-     * @group DBAL-831
      */
     public function testReturnsGetListTableColumnsSQL(?string $database, string $expectedSql): void
     {
@@ -916,9 +880,6 @@ SQL
         return ['ALTER INDEX idx_foo RENAME TO idx_foo_renamed'];
     }
 
-    /**
-     * @group DBAL-2436
-     */
     public function testQuotesDatabaseNameInListSequencesSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
@@ -927,9 +888,6 @@ SQL
         );
     }
 
-    /**
-     * @group DBAL-2436
-     */
     public function testQuotesTableNameInListTableIndexesSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
@@ -938,9 +896,6 @@ SQL
         );
     }
 
-    /**
-     * @group DBAL-2436
-     */
     public function testQuotesTableNameInListTableForeignKeysSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
@@ -949,9 +904,6 @@ SQL
         );
     }
 
-    /**
-     * @group DBAL-2436
-     */
     public function testQuotesTableNameInListTableConstraintsSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
@@ -960,9 +912,6 @@ SQL
         );
     }
 
-    /**
-     * @group DBAL-2436
-     */
     public function testQuotesTableNameInListTableColumnsSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
@@ -971,9 +920,6 @@ SQL
         );
     }
 
-    /**
-     * @group DBAL-2436
-     */
     public function testQuotesDatabaseNameInListTableColumnsSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(

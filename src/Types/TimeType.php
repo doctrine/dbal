@@ -22,9 +22,9 @@ class TimeType extends Type
     /**
      * {@inheritdoc}
      */
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
+    public function getSQLDeclaration(array $column, AbstractPlatform $platform)
     {
-        return $platform->getTimeTypeDeclarationSQL($fieldDeclaration);
+        return $platform->getTimeTypeDeclarationSQL($column);
     }
 
     /**

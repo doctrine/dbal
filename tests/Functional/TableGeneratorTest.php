@@ -8,9 +8,6 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Throwable;
 
-/**
- * @group DDC-450
- */
 class TableGeneratorTest extends FunctionalTestCase
 {
     /** @var TableGenerator */

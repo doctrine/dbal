@@ -23,9 +23,6 @@ abstract class AbstractDriverTest extends FunctionalTestCase
         $this->driver = $this->createDriver();
     }
 
-    /**
-     * @group DBAL-1215
-     */
     public function testConnectsWithoutDatabaseNameParameter(): void
     {
         $params = $this->connection->getParams();
@@ -36,9 +33,6 @@ abstract class AbstractDriverTest extends FunctionalTestCase
         self::assertInstanceOf(DriverConnection::class, $connection);
     }
 
-    /**
-     * @group DBAL-1215
-     */
     public function testReturnsDatabaseNameWithoutDatabaseNameParameter(): void
     {
         $params = $this->connection->getParams();

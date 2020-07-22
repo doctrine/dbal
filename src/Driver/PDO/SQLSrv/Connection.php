@@ -50,9 +50,9 @@ final class Connection implements ServerInfoAwareConnection
         return $val;
     }
 
-    public function exec(string $statement): int
+    public function exec(string $sql): int
     {
-        return $this->connection->exec($statement);
+        return $this->connection->exec($sql);
     }
 
     /**

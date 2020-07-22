@@ -12,9 +12,6 @@ use Throwable;
 
 use function strlen;
 
-/**
- * @group DBAL-56
- */
 class PortabilityTest extends FunctionalTestCase
 {
     protected function setUp(): void
@@ -118,12 +115,11 @@ class PortabilityTest extends FunctionalTestCase
      *
      * @dataProvider fetchColumnProvider
      */
-    public function testFetchColumn(string $field, array $expected): void
+    public function testFetchColumn(string $column, array $expected): void
     {
-        $result = $this->connection->executeQuery('SELECT ' . $field . ' FROM portability_table');
+        $result = $this->connection->executeQuery('SELECT ' . $column . ' FROM portability_table');
 
-        $column = $result->fetchFirstColumn();
-        self::assertEquals($expected, $column);
+        self::assertEquals($expected, $result->fetchFirstColumn());
     }
 
     /**

@@ -91,9 +91,6 @@ final class DateIntervalTest extends TestCase
         $this->type->convertToPHPValue('', $this->platform);
     }
 
-    /**
-     * @group DBAL-1288
-     */
     public function testRequiresSQLCommentHint(): void
     {
         self::assertTrue($this->type->requiresSQLCommentHint($this->platform));

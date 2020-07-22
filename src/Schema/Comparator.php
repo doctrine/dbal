@@ -204,7 +204,7 @@ class Comparator
         $table1Columns = $table1->getColumns();
         $table2Columns = $table2->getColumns();
 
-        /* See if all the fields in table 1 exist in table 2 */
+        /* See if all the columns in table 1 exist in table 2 */
         foreach ($table2Columns as $columnName => $column) {
             if ($table1->hasColumn($columnName)) {
                 continue;
@@ -214,7 +214,7 @@ class Comparator
             $changes++;
         }
 
-        /* See if there are any removed fields in table 2 */
+        /* See if there are any removed columns in table 2 */
         foreach ($table1Columns as $columnName => $column) {
             // See if column is removed in table 2.
             if (! $table2->hasColumn($columnName)) {
@@ -419,7 +419,7 @@ class Comparator
     }
 
     /**
-     * Returns the difference between the fields $field1 and $field2.
+     * Returns the difference between the columns
      *
      * If there are differences this method returns $field2, otherwise the
      * boolean false.

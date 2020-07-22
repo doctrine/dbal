@@ -533,15 +533,15 @@ SQL
     /**
      * {@inheritDoc}
      *
-     * @param string $tableName
+     * @param string $name
      */
-    public function listTableDetails($tableName): Table
+    public function listTableDetails($name): Table
     {
-        $table = parent::listTableDetails($tableName);
+        $table = parent::listTableDetails($name);
 
-        $tableCreateSql = $this->getCreateTableSQL($tableName);
+        $tableCreateSql = $this->getCreateTableSQL($name);
 
-        $comment = $this->parseTableCommentFromSQL($tableName, $tableCreateSql);
+        $comment = $this->parseTableCommentFromSQL($name, $tableCreateSql);
 
         if ($comment !== null) {
             $table->addOption('comment', $comment);

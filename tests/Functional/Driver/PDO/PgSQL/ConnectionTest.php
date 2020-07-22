@@ -23,8 +23,6 @@ class ConnectionTest extends FunctionalTestCase
     }
 
     /**
-     * @group DBAL-1183
-     * @group DBAL-1189
      * @dataProvider getValidCharsets
      */
     public function testConnectsWithValidCharsetOption(string $charset): void

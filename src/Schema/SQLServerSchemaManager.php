@@ -335,17 +335,17 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * @param string $tableName
+     * @param string $name
      *
      * @throws DBALException
      */
-    public function listTableDetails($tableName): Table
+    public function listTableDetails($name): Table
     {
-        $table = parent::listTableDetails($tableName);
+        $table = parent::listTableDetails($name);
 
         $platform = $this->_platform;
         assert($platform instanceof SQLServer2012Platform);
-        $sql = $platform->getListTableMetadataSQL($tableName);
+        $sql = $platform->getListTableMetadataSQL($name);
 
         $tableOptions = $this->_conn->fetchAssociative($sql);
 

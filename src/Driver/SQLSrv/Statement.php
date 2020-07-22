@@ -107,12 +107,12 @@ final class Statement implements StatementInterface
     /**
      * {@inheritdoc}
      */
-    public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null)
+    public function bindParam($param, &$variable, $type = ParameterType::STRING, $length = null)
     {
-        assert(is_int($column));
+        assert(is_int($param));
 
-        $this->variables[$column] =& $variable;
-        $this->types[$column]     = $type;
+        $this->variables[$param] =& $variable;
+        $this->types[$param]     = $type;
 
         // unset the statement resource if it exists as the new one will need to be bound to the new variable
         $this->stmt = null;

@@ -86,16 +86,16 @@ final class Statement implements StatementInterface
     /**
      * {@inheritdoc}
      */
-    public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null)
+    public function bindParam($param, &$variable, $type = ParameterType::STRING, $length = null)
     {
-        assert(is_int($column));
+        assert(is_int($param));
 
         if (! isset(self::$_paramTypeMap[$type])) {
             throw UnknownParameterType::new($type);
         }
 
-        $this->_bindedValues[$column] =& $variable;
-        $this->types[$column - 1]     = self::$_paramTypeMap[$type];
+        $this->_bindedValues[$param] =& $variable;
+        $this->types[$param - 1]     = self::$_paramTypeMap[$type];
 
         return true;
     }

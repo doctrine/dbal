@@ -113,9 +113,9 @@ final class Connection implements ServerInfoAwareConnection
         return "'" . $this->conn->escape_string($input) . "'";
     }
 
-    public function exec(string $statement): int
+    public function exec(string $sql): int
     {
-        if ($this->conn->query($statement) === false) {
+        if ($this->conn->query($sql) === false) {
             throw ConnectionError::new($this->conn);
         }
 

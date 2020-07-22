@@ -35,9 +35,9 @@ class DateTimeTzType extends Type implements PhpDateTimeMappingType
     /**
      * {@inheritdoc}
      */
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
+    public function getSQLDeclaration(array $column, AbstractPlatform $platform)
     {
-        return $platform->getDateTimeTzTypeDeclarationSQL($fieldDeclaration);
+        return $platform->getDateTimeTzTypeDeclarationSQL($column);
     }
 
     /**

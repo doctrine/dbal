@@ -311,9 +311,6 @@ class ConnectionTest extends FunctionalTestCase
         );
     }
 
-    /**
-     * @group DBAL-1025
-     */
     public function testConnectWithoutExplicitDatabaseName(): void
     {
         if (in_array($this->connection->getDatabasePlatform()->getName(), ['oracle', 'db2'], true)) {
@@ -334,9 +331,6 @@ class ConnectionTest extends FunctionalTestCase
         $connection->close();
     }
 
-    /**
-     * @group DBAL-990
-     */
     public function testDeterminesDatabasePlatformWhenConnectingToNonExistentDatabase(): void
     {
         if (in_array($this->connection->getDatabasePlatform()->getName(), ['oracle', 'db2'], true)) {
