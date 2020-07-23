@@ -4,8 +4,8 @@
 |:----------------:|:----------:|
 | [![Build status][Master image]][Master] | [![Build status][2.10 image]][2.10] |
 | [![GitHub Actions][GA master image]][GA master] | [![GitHub Actions][GA 2.10 image]][GA 2.10] |
-| [![Code Coverage][Coverage image]][CodeCov Master] | [![Code Coverage][Coverage 2.10 image]][CodeCov 2.10] |
 | [![AppVeyor][AppVeyor master image]][AppVeyor master] | [![AppVeyor][AppVeyor 2.10 image]][AppVeyor 2.10] |
+| [![Code Coverage][Coverage image]][CodeCov Master] | [![Code Coverage][Coverage 2.10 image]][CodeCov 2.10] |
 
 Powerful database abstraction layer with many features for database schema introspection, schema management and PDO abstraction.
 
