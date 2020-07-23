@@ -42,6 +42,8 @@ final class Dumper
 {
     /**
      * Private constructor (prevents instantiation).
+     *
+     * @codeCoverageIgnore
      */
     private function __construct()
     {
