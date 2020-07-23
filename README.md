@@ -3,7 +3,6 @@
 | [Master][Master] | [2.10][2.10] |
 |:----------------:|:----------:|
 | [![Build status][Master image]][Master] | [![Build status][2.10 image]][2.10] |
-| [![Build Status][ContinuousPHP image]][ContinuousPHP] | [![Build Status][ContinuousPHP 2.10 image]][ContinuousPHP] |
 | [![Code Coverage][Coverage image]][CodeCov Master] | [![Code Coverage][Coverage 2.10 image]][CodeCov 2.10] |
 | [![AppVeyor][AppVeyor master image]][AppVeyor master] | [![AppVeyor][AppVeyor 2.10 image]][AppVeyor 2.10] |
 
