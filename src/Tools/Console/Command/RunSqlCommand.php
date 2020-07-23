@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tools\Console\Command;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Tools\Console\ConnectionProvider;
 use Doctrine\DBAL\Tools\Dumper;
 use LogicException;
@@ -58,6 +59,8 @@ EOT
 
     /**
      * {@inheritdoc}
+     *
+     * @throws DBALException
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
@@ -83,7 +86,7 @@ EOT
         if (stripos($sql, 'select') === 0 || $forceFetch) {
             $resultSet = $conn->fetchAllAssociative($sql);
         } else {
-            $resultSet = $conn->executeUpdate($sql);
+            $resultSet = $conn->executeStatement($sql);
         }
 
         $output->write(Dumper::dump($resultSet, (int) $depth));

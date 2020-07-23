@@ -10,12 +10,8 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
-use SQLite3;
 
-use function array_map;
 use function dirname;
-use function extension_loaded;
-use function version_compare;
 
 class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
@@ -39,9 +35,6 @@ class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertFileDoesNotExist($path);
     }
 
-    /**
-     * @group DBAL-1220
-     */
     public function testDropsDatabaseWithActiveConnections(): void
     {
         $this->schemaManager->dropAndCreateDatabase('test_drop_database');
@@ -80,7 +73,7 @@ class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testListForeignKeysFromExistingDatabase(): void
     {
-        $this->connection->exec(<<<EOS
+        $this->connection->executeStatement(<<<EOS
 CREATE TABLE user (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     page INTEGER CONSTRAINT FK_1 REFERENCES page (key) DEFERRABLE INITIALLY DEFERRED,
@@ -156,37 +149,6 @@ EOS
         self::assertFalse($table->getColumn('column_binary')->getFixed());
     }
 
-    public function testNonDefaultPKOrder(): void
-    {
-        if (! extension_loaded('sqlite3')) {
-            self::markTestSkipped('This test requires the SQLite3 extension.');
-        }
-
-        $version = SQLite3::version();
-        if (version_compare($version['versionString'], '3.7.16', '<')) {
-            self::markTestSkipped('This version of sqlite doesn\'t return the order of the Primary Key.');
-        }
-
-        $this->connection->exec(<<<EOS
-CREATE TABLE non_default_pk_order (
-    id INTEGER,
-    other_id INTEGER,
-    PRIMARY KEY(other_id, id)
-)
-EOS
-        );
-
-        $tableIndexes = $this->schemaManager->listTableIndexes('non_default_pk_order');
-
-         self::assertCount(1, $tableIndexes);
-
-        self::assertArrayHasKey('primary', $tableIndexes, 'listTableIndexes() has to return a "primary" array key.');
-        self::assertEquals(['other_id', 'id'], array_map('strtolower', $tableIndexes['primary']->getColumns()));
-    }
-
-    /**
-     * @group DBAL-1779
-     */
     public function testListTableColumnsWithWhitespacesInTypeDeclarations(): void
     {
         $sql = <<<SQL
@@ -196,7 +158,7 @@ CREATE TABLE dbal_1779 (
 )
 SQL;
 
-        $this->connection->exec($sql);
+        $this->connection->executeStatement($sql);
 
         $columns = $this->schemaManager->listTableColumns('dbal_1779');
 
@@ -214,7 +176,6 @@ SQL;
 
     /**
      * @dataProvider getDiffListIntegerAutoincrementTableColumnsData
-     * @group DBAL-924
      */
     public function testDiffListIntegerAutoincrementTableColumns(string $integerType, bool $unsigned, bool $expectedComparatorDiff): void
     {
@@ -254,9 +215,6 @@ SQL;
         ];
     }
 
-    /**
-     * @group DBAL-2921
-     */
     public function testPrimaryKeyNoAutoIncrement(): void
     {
         $table = new Schema\Table('test_pk_auto_increment');
@@ -267,13 +225,13 @@ SQL;
 
         $this->connection->insert('test_pk_auto_increment', ['text' => '1']);
 
-        $this->connection->query('DELETE FROM test_pk_auto_increment');
+        $this->connection->executeStatement('DELETE FROM test_pk_auto_increment');
 
         $this->connection->insert('test_pk_auto_increment', ['text' => '2']);
 
-        $result = $this->connection->query('SELECT id FROM test_pk_auto_increment WHERE text = "2"');
-
-        $lastUsedIdAfterDelete = (int) $result->fetchOne();
+        $lastUsedIdAfterDelete = (int) $this->connection->fetchOne(
+            'SELECT id FROM test_pk_auto_increment WHERE text = "2"'
+        );
 
         // with an empty table, non autoincrement rowid is always 1
         self::assertEquals(1, $lastUsedIdAfterDelete);

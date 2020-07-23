@@ -66,6 +66,8 @@ abstract class Type
      * @param AbstractPlatform $platform The currently used database platform.
      *
      * @return mixed The database representation of the value.
+     *
+     * @throws ConversionException
      */
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
@@ -80,6 +82,8 @@ abstract class Type
      * @param AbstractPlatform $platform The currently used database platform.
      *
      * @return mixed The PHP representation of the value.
+     *
+     * @throws ConversionException
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
@@ -87,14 +91,14 @@ abstract class Type
     }
 
     /**
-     * Gets the SQL declaration snippet for a field of this type.
+     * Gets the SQL declaration snippet for a column of this type.
      *
-     * @param array<string, mixed> $fieldDeclaration The field declaration.
-     * @param AbstractPlatform     $platform         The currently used database platform.
+     * @param array<string, mixed> $column   The column definition
+     * @param AbstractPlatform     $platform The currently used database platform.
      *
      * @throws DBALException
      */
-    abstract public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform): string;
+    abstract public function getSQLDeclaration(array $column, AbstractPlatform $platform): string;
 
     /**
      * Gets the name of this type.
@@ -117,13 +121,13 @@ abstract class Type
 
     private static function createTypeRegistry(): TypeRegistry
     {
-        $registry = new TypeRegistry();
+        $instances = [];
 
         foreach (self::BUILTIN_TYPES_MAP as $name => $class) {
-            $registry->register($name, new $class());
+            $instances[$name] = new $class();
         }
 
-        return $registry;
+        return new TypeRegistry($instances);
     }
 
     /**
@@ -178,7 +182,7 @@ abstract class Type
      * Gets the (preferred) binding type for values of this type that
      * can be used when binding parameters to prepared statements.
      *
-     * This method should return one of the {@link \Doctrine\DBAL\ParameterType} constants.
+     * This method should return one of the {@link ParameterType} constants.
      */
     public function getBindingType(): int
     {

@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Tools\Console;
 
 use Doctrine\DBAL\Tools\Console\Command\ReservedWordsCommand;
 use Doctrine\DBAL\Tools\Console\Command\RunSqlCommand;
+use Exception;
 use PackageVersions\Versions;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
@@ -19,6 +20,8 @@ class ConsoleRunner
      * Runs console with the given connection provider or helperset (deprecated).
      *
      * @param array<int, Command> $commands
+     *
+     * @throws Exception
      */
     public static function run(ConnectionProvider $connectionProvider, array $commands = []): void
     {

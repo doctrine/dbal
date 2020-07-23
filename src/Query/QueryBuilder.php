@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Query;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\Exception\NonUniqueAlias;
 use Doctrine\DBAL\Query\Exception\UnknownAlias;
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
+use Doctrine\DBAL\Statement;
 
 use function array_key_exists;
 use function array_keys;
@@ -245,10 +247,9 @@ class QueryBuilder
     /**
      * Executes this query using the bound parameters and their types.
      *
-     * Uses {@see Connection::executeQuery} for select statements and {@see Connection::executeUpdate}
-     * for insert, update and delete statements.
-     *
      * @return Result|int
+     *
+     * @throws DBALException
      */
     public function execute()
     {
@@ -256,7 +257,7 @@ class QueryBuilder
             return $this->connection->executeQuery($this->getSQL(), $this->params, $this->paramTypes);
         }
 
-        return $this->connection->executeUpdate($this->getSQL(), $this->params, $this->paramTypes);
+        return $this->connection->executeStatement($this->getSQL(), $this->params, $this->paramTypes);
     }
 
     /**
@@ -317,7 +318,7 @@ class QueryBuilder
      *
      * @param string|int      $key   The parameter position or name.
      * @param mixed           $value The parameter value.
-     * @param string|int|null $type  One of the {@link \Doctrine\DBAL\ParameterType} constants.
+     * @param string|int|null $type  One of the {@link ParameterType} constants.
      *
      * @return $this This QueryBuilder instance.
      */
@@ -1149,6 +1150,8 @@ class QueryBuilder
 
     /**
      * @return array<string, string>
+     *
+     * @throws QueryException
      */
     private function getFromClauses(): array
     {
@@ -1245,15 +1248,13 @@ class QueryBuilder
     /**
      * Creates a new named parameter and bind the value $value to it.
      *
-     * This method provides a shortcut for PDOStatement::bindValue
+     * This method provides a shortcut for {@link Statement::bindValue()}
      * when using prepared statements.
      *
      * The parameter $value specifies the value that you want to bind. If
      * $placeholder is not provided bindValue() will automatically create a
      * placeholder for you. An automatic placeholder will be of the name
      * ':dcValue1', ':dcValue2' etc.
-     *
-     * For more information see {@link http://php.net/pdostatement-bindparam}
      *
      * Example:
      * <code>

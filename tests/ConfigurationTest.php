@@ -26,8 +26,6 @@ class ConfigurationTest extends TestCase
 
     /**
      * Tests that the default auto-commit mode for connections can be retrieved from the configuration container.
-     *
-     * @group DBAL-81
      */
     public function testReturnsDefaultConnectionAutoCommitMode(): void
     {
@@ -36,8 +34,6 @@ class ConfigurationTest extends TestCase
 
     /**
      * Tests that the default auto-commit mode for connections can be set in the configuration container.
-     *
-     * @group DBAL-81
      */
     public function testSetsDefaultConnectionAutoCommitMode(): void
     {

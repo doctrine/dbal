@@ -19,9 +19,6 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         return 'mssql';
     }
 
-    /**
-     * @group DBAL-255
-     */
     public function testDropColumnConstraints(): void
     {
         $table = new Table('sqlsrv_drop_column');

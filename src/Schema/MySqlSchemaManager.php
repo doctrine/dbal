@@ -307,13 +307,13 @@ class MySqlSchemaManager extends AbstractSchemaManager
         return $result;
     }
 
-    public function listTableDetails(string $tableName): Table
+    public function listTableDetails(string $name): Table
     {
-        $table = parent::listTableDetails($tableName);
+        $table = parent::listTableDetails($name);
 
         $platform = $this->_platform;
         assert($platform instanceof MySqlPlatform);
-        $sql = $platform->getListTableMetadataSQL($tableName);
+        $sql = $platform->getListTableMetadataSQL($name);
 
         $tableOptions = $this->_conn->fetchAssociative($sql);
 

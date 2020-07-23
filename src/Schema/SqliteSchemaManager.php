@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
@@ -480,6 +481,9 @@ CREATE\sTABLE # Match "CREATE TABLE"
         return $comment;
     }
 
+    /**
+     * @throws DBALException
+     */
     private function getCreateTableSQL(string $table): string
     {
         $sql = $this->_conn->fetchOne(
@@ -506,13 +510,13 @@ SQL
         return '';
     }
 
-    public function listTableDetails(string $tableName): Table
+    public function listTableDetails(string $name): Table
     {
-        $table = parent::listTableDetails($tableName);
+        $table = parent::listTableDetails($name);
 
-        $tableCreateSql = $this->getCreateTableSQL($tableName);
+        $tableCreateSql = $this->getCreateTableSQL($name);
 
-        $comment = $this->parseTableCommentFromSQL($tableName, $tableCreateSql);
+        $comment = $this->parseTableCommentFromSQL($name, $tableCreateSql);
 
         if ($comment !== null) {
             $table->addOption('comment', $comment);

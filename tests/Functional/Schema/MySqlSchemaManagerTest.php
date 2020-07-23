@@ -107,9 +107,6 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertSame([128], $indexes['text_index']->getOption('lengths'));
     }
 
-    /**
-     * @group DBAL-400
-     */
     public function testAlterTableAddPrimaryKey(): void
     {
         $table = new Table('alter_table_add_pk');
@@ -137,9 +134,6 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertTrue($table->hasPrimaryKey());
     }
 
-    /**
-     * @group DBAL-464
-     */
     public function testDropPrimaryKeyWithAutoincrementColumn(): void
     {
         $table = new Table('drop_primary_key');
@@ -167,9 +161,6 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertFalse($table->getColumn('id')->getAutoincrement());
     }
 
-    /**
-     * @group DBAL-789
-     */
     public function testDoesNotPropagateDefaultValuesForUnsupportedColumnTypes(): void
     {
         if ($this->schemaManager->getDatabasePlatform() instanceof MariaDb1027Platform) {
@@ -291,9 +282,6 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertInstanceOf(BlobType::class, $columns['baz']->getType());
     }
 
-    /**
-     * @group DBAL-843
-     */
     public function testListLobTypeColumns(): void
     {
         $tableName = 'lob_type_columns';
@@ -350,9 +338,6 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         );
     }
 
-    /**
-     * @group DBAL-423
-     */
     public function testDiffListGuidTableColumn(): void
     {
         $offlineTable = new Table('list_guid_table_column');
@@ -370,9 +355,6 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         );
     }
 
-    /**
-     * @group DBAL-1082
-     */
     public function testListDecimalTypeColumns(): void
     {
         $tableName = 'test_list_decimal_columns';
@@ -391,9 +373,6 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertTrue($columns['col_unsigned']->getUnsigned());
     }
 
-    /**
-     * @group DBAL-1082
-     */
     public function testListFloatTypeColumns(): void
     {
         $tableName = 'test_list_float_columns';
@@ -464,7 +443,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->schemaManager->dropAndCreateTable($table);
 
-        $this->connection->executeUpdate(
+        $this->connection->executeStatement(
             'INSERT INTO test_column_defaults_are_valid () VALUES()'
         );
 
@@ -527,7 +506,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testEnsureTableOptionsAreReflectedInMetadata(): void
     {
-        $this->connection->query('DROP TABLE IF EXISTS test_table_metadata');
+        $this->connection->executeStatement('DROP TABLE IF EXISTS test_table_metadata');
 
         $sql = <<<'SQL'
 CREATE TABLE test_table_metadata(
@@ -541,7 +520,7 @@ AUTO_INCREMENT=42
 PARTITION BY HASH (col1)
 SQL;
 
-        $this->connection->query($sql);
+        $this->connection->executeStatement($sql);
         $onlineTable = $this->schemaManager->listTableDetails('test_table_metadata');
 
         self::assertEquals('InnoDB', $onlineTable->getOption('engine'));
@@ -556,9 +535,9 @@ SQL;
 
     public function testEnsureTableWithoutOptionsAreReflectedInMetadata(): void
     {
-        $this->connection->query('DROP TABLE IF EXISTS test_table_empty_metadata');
+        $this->connection->executeStatement('DROP TABLE IF EXISTS test_table_empty_metadata');
 
-        $this->connection->query('CREATE TABLE test_table_empty_metadata(col1 INT NOT NULL)');
+        $this->connection->executeStatement('CREATE TABLE test_table_empty_metadata(col1 INT NOT NULL)');
         $onlineTable = $this->schemaManager->listTableDetails('test_table_empty_metadata');
 
         self::assertNotEmpty($onlineTable->getOption('engine'));

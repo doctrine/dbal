@@ -4,20 +4,17 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Driver\SQLSrv;
 
+use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\SQLSrv\Driver;
-use Doctrine\DBAL\Driver\SQLSrv\SQLSrvException;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 
-use function extension_loaded;
-
+/**
+ * @requires extension sqlsrv
+ */
 class StatementTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        if (! extension_loaded('sqlsrv')) {
-            self::markTestSkipped('sqlsrv is not installed.');
-        }
-
         parent::setUp();
 
         if ($this->connection->getDriver() instanceof Driver) {
@@ -34,7 +31,7 @@ class StatementTest extends FunctionalTestCase
 
         // it's impossible to prepare the statement without bound variables for SQL Server,
         // so the preparation happens before the first execution when variables are already in place
-        $this->expectException(SQLSrvException::class);
+        $this->expectException(Exception::class);
         $stmt->execute();
     }
 }

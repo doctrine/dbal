@@ -30,7 +30,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         }
 
         TestUtil::getPrivilegedConnection()
-            ->exec('GRANT ALL PRIVILEGES TO ' . $GLOBALS['db_user']);
+            ->executeStatement('GRANT ALL PRIVILEGES TO ' . $GLOBALS['db_user']);
 
         self::$privilegesGranted = true;
     }
@@ -72,10 +72,6 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertFalse($table->getColumn('column_binary')->getFixed());
     }
 
-    /**
-     * @group DBAL-472
-     * @group DBAL-1001
-     */
     public function testAlterTableColumnNotNull(): void
     {
         $comparator = new Schema\Comparator();
@@ -125,9 +121,6 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertContains('c##test_create_database', $databases);
     }
 
-    /**
-     * @group DBAL-831
-     */
     public function testListTableDetailsWithDifferentIdentifierQuotingRequirements(): void
     {
         $primaryTableName    = '"Primary_Table"';
@@ -255,9 +248,6 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertCount(7, $columns);
     }
 
-    /**
-     * @group DBAL-1234
-     */
     public function testListTableIndexesPrimaryKeyConstraintNameDiffersFromIndexName(): void
     {
         $table = new Table('list_table_indexes_pk_id_test');
@@ -278,9 +268,6 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertTrue($tableIndexes['primary']->isPrimary());
     }
 
-    /**
-     * @group DBAL-2555
-     */
     public function testListTableDateTypeColumns(): void
     {
         $table = new Table('tbl_date');

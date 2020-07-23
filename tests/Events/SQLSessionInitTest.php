@@ -10,16 +10,13 @@ use Doctrine\DBAL\Event\Listeners\SQLSessionInit;
 use Doctrine\DBAL\Events;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @group DBAL-169
- */
 class SQLSessionInitTest extends TestCase
 {
     public function testPostConnect(): void
     {
         $connectionMock = $this->createMock(Connection::class);
         $connectionMock->expects(self::once())
-                       ->method('exec')
+                       ->method('executeStatement')
                        ->with(self::equalTo("SET SEARCH_PATH TO foo, public, TIMEZONE TO 'Europe/Berlin'"));
 
         $eventArgs = new ConnectionEventArgs($connectionMock);

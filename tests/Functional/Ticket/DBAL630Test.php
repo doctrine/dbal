@@ -5,15 +5,12 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional\Ticket;
 
 use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Driver\PDOConnection;
+use Doctrine\DBAL\Driver\PDO\Connection;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use PDO;
 
-/**
- * @group DBAL-630
- */
 class DBAL630Test extends FunctionalTestCase
 {
     /** @var bool */
@@ -28,8 +25,8 @@ class DBAL630Test extends FunctionalTestCase
         }
 
         try {
-            $this->connection->exec('CREATE TABLE dbal630 (id SERIAL, bool_col BOOLEAN NOT NULL);');
-            $this->connection->exec('CREATE TABLE dbal630_allow_nulls (id SERIAL, bool_col BOOLEAN);');
+            $this->connection->executeStatement('CREATE TABLE dbal630 (id SERIAL, bool_col BOOLEAN NOT NULL);');
+            $this->connection->executeStatement('CREATE TABLE dbal630_allow_nulls (id SERIAL, bool_col BOOLEAN);');
         } catch (DBALException $e) {
         }
 
@@ -49,7 +46,7 @@ class DBAL630Test extends FunctionalTestCase
 
     public function testBooleanConversionSqlLiteral(): void
     {
-        $this->connection->executeUpdate('INSERT INTO dbal630 (bool_col) VALUES(false)');
+        $this->connection->executeStatement('INSERT INTO dbal630 (bool_col) VALUES(false)');
         $id = $this->connection->lastInsertId('dbal630_id_seq');
         self::assertNotEmpty($id);
 
@@ -61,7 +58,7 @@ class DBAL630Test extends FunctionalTestCase
 
     public function testBooleanConversionBoolParamRealPrepares(): void
     {
-        $this->connection->executeUpdate(
+        $this->connection->executeStatement(
             'INSERT INTO dbal630 (bool_col) VALUES(?)',
             ['false'],
             [ParameterType::BOOLEAN]
@@ -185,10 +182,10 @@ class DBAL630Test extends FunctionalTestCase
         ];
     }
 
-    private function getWrappedConnection(): PDOConnection
+    private function getWrappedConnection(): Connection
     {
         $connection = $this->connection->getWrappedConnection();
-        self::assertInstanceOf(PDOConnection::class, $connection);
+        self::assertInstanceOf(Connection::class, $connection);
 
         return $connection;
     }

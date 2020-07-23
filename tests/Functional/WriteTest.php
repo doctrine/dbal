@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional;
 
 use DateTime;
-use Doctrine\DBAL\Driver\DriverException;
+use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
@@ -32,27 +32,27 @@ class WriteTest extends FunctionalTestCase
 
         $this->connection->getSchemaManager()->dropAndCreateTable($table);
 
-        $this->connection->executeUpdate('DELETE FROM write_table');
+        $this->connection->executeStatement('DELETE FROM write_table');
     }
 
     public function testExecuteUpdate(): void
     {
         $sql      = 'INSERT INTO write_table (test_int) VALUES (1)';
-        $affected = $this->connection->executeUpdate($sql);
+        $affected = $this->connection->executeStatement($sql);
 
-        self::assertEquals(1, $affected, 'executeUpdate() should return the number of affected rows!');
+        self::assertEquals(1, $affected, 'executeStatement() should return the number of affected rows!');
     }
 
-    public function testExecuteUpdateWithTypes(): void
+    public function testExecuteStatementWithTypes(): void
     {
         $sql      = 'INSERT INTO write_table (test_int, test_string) VALUES (?, ?)';
-        $affected = $this->connection->executeUpdate(
+        $affected = $this->connection->executeStatement(
             $sql,
             [1, 'foo'],
             [ParameterType::INTEGER, ParameterType::STRING]
         );
 
-        self::assertEquals(1, $affected, 'executeUpdate() should return the number of affected rows!');
+        self::assertEquals(1, $affected, 'executeStatement() should return the number of affected rows!');
     }
 
     public function testPrepareRowCountReturnsAffectedRows(): void
@@ -159,8 +159,9 @@ class WriteTest extends FunctionalTestCase
             return strtolower($sequence->getName()) === 'write_table_id_seq';
         }));
 
-        $result          = $this->connection->query($this->connection->getDatabasePlatform()->getSequenceNextValSQL('write_table_id_seq'));
-        $nextSequenceVal = $result->fetchOne();
+        $nextSequenceVal = $this->connection->fetchOne(
+            $this->connection->getDatabasePlatform()->getSequenceNextValSQL('write_table_id_seq')
+        );
 
         $lastInsertId = $this->lastInsertId('write_table_id_seq');
 
@@ -178,9 +179,6 @@ class WriteTest extends FunctionalTestCase
         $this->lastInsertId();
     }
 
-    /**
-     * @group DBAL-445
-     */
     public function testInsertWithKeyValueTypes(): void
     {
         $testString = new DateTime('2013-04-14 10:10:10');
@@ -196,9 +194,6 @@ class WriteTest extends FunctionalTestCase
         self::assertEquals($testString->format($this->connection->getDatabasePlatform()->getDateTimeFormatString()), $data);
     }
 
-    /**
-     * @group DBAL-445
-     */
     public function testUpdateWithKeyValueTypes(): void
     {
         $testString = new DateTime('2013-04-14 10:10:10');
@@ -223,9 +218,6 @@ class WriteTest extends FunctionalTestCase
         self::assertEquals($testString->format($this->connection->getDatabasePlatform()->getDateTimeFormatString()), $data);
     }
 
-    /**
-     * @group DBAL-445
-     */
     public function testDeleteWithKeyValueTypes(): void
     {
         $val = new DateTime('2013-04-14 10:10:10');
@@ -262,7 +254,7 @@ class WriteTest extends FunctionalTestCase
         }
 
         foreach ($platform->getCreateTableSQL($table) as $sql) {
-            $this->connection->exec($sql);
+            $this->connection->executeStatement($sql);
         }
 
         $seqName = $platform->usesSequenceEmulatedIdentityColumns()
@@ -271,20 +263,17 @@ class WriteTest extends FunctionalTestCase
 
         $sql = $platform->getEmptyIdentityInsertSQL('test_empty_identity', 'id');
 
-        $this->connection->exec($sql);
+        $this->connection->executeStatement($sql);
 
         $firstId = $this->lastInsertId($seqName);
 
-        $this->connection->exec($sql);
+        $this->connection->executeStatement($sql);
 
         $secondId = $this->lastInsertId($seqName);
 
         self::assertGreaterThan($firstId, $secondId);
     }
 
-    /**
-     * @group DBAL-2688
-     */
     public function testUpdateWhereIsNull(): void
     {
         $this->connection->insert(

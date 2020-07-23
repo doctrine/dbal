@@ -18,21 +18,21 @@ class TableDiff
     public $newName = null;
 
     /**
-     * All added fields.
+     * All added columns
      *
      * @var array<string, Column>
      */
     public $addedColumns;
 
     /**
-     * All changed fields.
+     * All changed columns
      *
      * @var array<string, ColumnDiff>
      */
     public $changedColumns = [];
 
     /**
-     * All removed fields.
+     * All removed columns
      *
      * @var array<string, Column>
      */

@@ -21,9 +21,6 @@ class TableDiffTest extends TestCase
         $this->platform = $this->createMock(AbstractPlatform::class);
     }
 
-    /**
-     * @group DBAL-1013
-     */
     public function testReturnsName(): void
     {
         $tableDiff = new TableDiff('foo');
@@ -31,9 +28,6 @@ class TableDiffTest extends TestCase
         self::assertEquals(new Identifier('foo'), $tableDiff->getName($this->platform));
     }
 
-    /**
-     * @group DBAL-1016
-     */
     public function testPrefersNameFromTableObject(): void
     {
         $tableMock = $this->getMockBuilder(Table::class)
@@ -51,9 +45,6 @@ class TableDiffTest extends TestCase
         self::assertEquals(new Identifier('foo'), $tableDiff->getName($this->platform));
     }
 
-    /**
-     * @group DBAL-1013
-     */
     public function testReturnsNewName(): void
     {
         $tableDiff = new TableDiff('foo');

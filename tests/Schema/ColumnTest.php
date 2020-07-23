@@ -102,10 +102,6 @@ class ColumnTest extends TestCase
         return new Column('foo', $string, $options);
     }
 
-    /**
-     * @group DBAL-64
-     * @group DBAL-830
-     */
     public function testQuotedColumnName(): void
     {
         $string = Type::getType('string');
@@ -128,7 +124,6 @@ class ColumnTest extends TestCase
 
     /**
      * @dataProvider getIsQuoted
-     * @group DBAL-830
      */
     public function testIsQuoted(string $columnName, bool $isQuoted): void
     {
@@ -151,9 +146,6 @@ class ColumnTest extends TestCase
         ];
     }
 
-    /**
-     * @group DBAL-42
-     */
     public function testColumnComment(): void
     {
         $column = new Column('bar', Type::getType('string'));

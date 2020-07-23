@@ -183,9 +183,9 @@ class OraclePlatform extends AbstractPlatform
         return '';
     }
 
-    public function getSequenceNextValSQL(string $sequenceName): string
+    public function getSequenceNextValSQL(string $sequence): string
     {
-        return 'SELECT ' . $sequenceName . '.nextval FROM DUAL';
+        return 'SELECT ' . $sequence . '.nextval FROM DUAL';
     }
 
     public function getSetTransactionIsolationSQL(int $level): string
@@ -214,7 +214,7 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getBooleanTypeDeclarationSQL(array $columnDef): string
+    public function getBooleanTypeDeclarationSQL(array $column): string
     {
         return 'NUMBER(1)';
     }
@@ -222,7 +222,7 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getIntegerTypeDeclarationSQL(array $columnDef): string
+    public function getIntegerTypeDeclarationSQL(array $column): string
     {
         return 'NUMBER(10)';
     }
@@ -230,7 +230,7 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getBigIntTypeDeclarationSQL(array $columnDef): string
+    public function getBigIntTypeDeclarationSQL(array $column): string
     {
         return 'NUMBER(20)';
     }
@@ -238,7 +238,7 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getSmallIntTypeDeclarationSQL(array $columnDef): string
+    public function getSmallIntTypeDeclarationSQL(array $column): string
     {
         return 'NUMBER(5)';
     }
@@ -246,7 +246,7 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getDateTimeTypeDeclarationSQL(array $fieldDeclaration): string
+    public function getDateTimeTypeDeclarationSQL(array $column): string
     {
         return 'TIMESTAMP(0)';
     }
@@ -254,7 +254,7 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getDateTimeTzTypeDeclarationSQL(array $fieldDeclaration): string
+    public function getDateTimeTzTypeDeclarationSQL(array $column): string
     {
         return 'TIMESTAMP(0) WITH TIME ZONE';
     }
@@ -262,7 +262,7 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getDateTypeDeclarationSQL(array $fieldDeclaration): string
+    public function getDateTypeDeclarationSQL(array $column): string
     {
         return 'DATE';
     }
@@ -270,7 +270,7 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getTimeTypeDeclarationSQL(array $fieldDeclaration): string
+    public function getTimeTypeDeclarationSQL(array $column): string
     {
         return 'DATE';
     }
@@ -278,7 +278,7 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef): string
+    protected function _getCommonIntegerTypeDeclarationSQL(array $column): string
     {
         return '';
     }
@@ -309,7 +309,7 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getClobTypeDeclarationSQL(array $field): string
+    public function getClobTypeDeclarationSQL(array $column): string
     {
         return 'CLOB';
     }
@@ -364,7 +364,7 @@ class OraclePlatform extends AbstractPlatform
      *
      * @link http://ezcomponents.org/docs/api/trunk/DatabaseSchema/ezcDbSchemaOracleReader.html
      */
-    public function getListTableIndexesSQL(string $table, ?string $currentDatabase = null): string
+    public function getListTableIndexesSQL(string $table, ?string $database = null): string
     {
         $table = $this->normalizeIdentifier($table);
         $table = $this->quoteStringLiteral($table->getName());
@@ -519,6 +519,22 @@ END;';
     }
 
     /**
+     * Adds suffix to identifier,
+     *
+     * if the new string exceeds max identifier length,
+     * keeps $suffix, cuts from $identifier as much as the part exceeding.
+     */
+    private function addSuffix(string $identifier, string $suffix): string
+    {
+        $maxPossibleLengthWithoutSuffix = $this->getMaxIdentifierLength() - strlen($suffix);
+        if (strlen($identifier) > $maxPossibleLengthWithoutSuffix) {
+            $identifier = substr($identifier, 0, $maxPossibleLengthWithoutSuffix);
+        }
+
+        return $identifier . $suffix;
+    }
+
+    /**
      * Returns the autoincrement primary key identifier name for the given table identifier.
      *
      * Quotes the autoincrement primary key identifier name
@@ -528,7 +544,7 @@ END;';
      */
     private function getAutoincrementIdentifierName(Identifier $table): string
     {
-        $identifierName = $table->getName() . '_AI_PK';
+        $identifierName = $this->addSuffix($table->getName(), '_AI_PK');
 
         return $table->isQuoted()
             ? $this->quoteSingleIdentifier($identifierName)
@@ -820,26 +836,26 @@ SQL
     /**
      * {@inheritdoc}
      */
-    public function getColumnDeclarationSQL(string $name, array $field): string
+    public function getColumnDeclarationSQL(string $name, array $column): string
     {
-        if (isset($field['columnDefinition'])) {
-            $columnDef = $this->getCustomTypeDeclarationSQL($field);
+        if (isset($column['columnDefinition'])) {
+            $columnDef = $this->getCustomTypeDeclarationSQL($column);
         } else {
-            $default = $this->getDefaultValueDeclarationSQL($field);
+            $default = $this->getDefaultValueDeclarationSQL($column);
 
             $notnull = '';
 
-            if (isset($field['notnull'])) {
-                $notnull = $field['notnull'] ? ' NOT NULL' : ' NULL';
+            if (isset($column['notnull'])) {
+                $notnull = $column['notnull'] ? ' NOT NULL' : ' NULL';
             }
 
-            $unique = ! empty($field['unique']) ?
+            $unique = ! empty($column['unique']) ?
                 ' ' . $this->getUniqueFieldDeclarationSQL() : '';
 
-            $check = ! empty($field['check']) ?
-                ' ' . $field['check'] : '';
+            $check = ! empty($column['check']) ?
+                ' ' . $column['check'] : '';
 
-            $typeDecl  = $field['type']->getSQLDeclaration($field, $this);
+            $typeDecl  = $column['type']->getSQLDeclaration($column, $this);
             $columnDef = $typeDecl . $default . $notnull . $unique . $check;
         }
 
@@ -874,7 +890,7 @@ SQL
         $table = new Identifier($tableName);
 
         // No usage of column name to preserve BC compatibility with <2.5
-        $identitySequenceName = $table->getName() . '_SEQ';
+        $identitySequenceName = $this->addSuffix($table->getName(), '_SEQ');
 
         if ($table->isQuoted()) {
             $identitySequenceName = '"' . $identitySequenceName . '"';
@@ -956,16 +972,6 @@ SQL
         return '1900-01-01 H:i:s';
     }
 
-    public function fixSchemaElementName(string $schemaElementName): string
-    {
-        if (strlen($schemaElementName) > 30) {
-            // Trim it
-            return substr($schemaElementName, 0, 30);
-        }
-
-        return $schemaElementName;
-    }
-
     public function getMaxIdentifierLength(): int
     {
         return 30;
@@ -1040,7 +1046,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getBlobTypeDeclarationSQL(array $field): string
+    public function getBlobTypeDeclarationSQL(array $column): string
     {
         return 'BLOB';
     }

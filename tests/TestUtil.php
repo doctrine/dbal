@@ -115,7 +115,7 @@ class TestUtil
             $stmts  = $schema->toDropSql($testConn->getDatabasePlatform());
 
             foreach ($stmts as $stmt) {
-                $testConn->exec($stmt);
+                $testConn->executeStatement($stmt);
             }
         }
     }

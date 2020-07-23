@@ -117,37 +117,37 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL snippet that declares a boolean column.
      *
-     * @param mixed[] $columnDef
+     * @param mixed[] $column
      */
-    abstract public function getBooleanTypeDeclarationSQL(array $columnDef): string;
+    abstract public function getBooleanTypeDeclarationSQL(array $column): string;
 
     /**
      * Returns the SQL snippet that declares a 4 byte integer column.
      *
-     * @param mixed[] $columnDef
+     * @param mixed[] $column
      */
-    abstract public function getIntegerTypeDeclarationSQL(array $columnDef): string;
+    abstract public function getIntegerTypeDeclarationSQL(array $column): string;
 
     /**
      * Returns the SQL snippet that declares an 8 byte integer column.
      *
-     * @param mixed[] $columnDef
+     * @param mixed[] $column
      */
-    abstract public function getBigIntTypeDeclarationSQL(array $columnDef): string;
+    abstract public function getBigIntTypeDeclarationSQL(array $column): string;
 
     /**
      * Returns the SQL snippet that declares a 2 byte integer column.
      *
-     * @param mixed[] $columnDef
+     * @param mixed[] $column
      */
-    abstract public function getSmallIntTypeDeclarationSQL(array $columnDef): string;
+    abstract public function getSmallIntTypeDeclarationSQL(array $column): string;
 
     /**
      * Returns the SQL snippet that declares common properties of an integer column.
      *
-     * @param mixed[] $columnDef
+     * @param mixed[] $column
      */
-    abstract protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef): string;
+    abstract protected function _getCommonIntegerTypeDeclarationSQL(array $column): string;
 
     /**
      * Lazy load Doctrine Type Mappings.
@@ -206,7 +206,7 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Returns the SQL snippet to declare a GUID/UUID field.
+     * Returns the SQL snippet to declare a GUID/UUID column.
      *
      * By default this maps directly to a CHAR(36) and only maps to more
      * special datatypes when the underlying databases support this datatype.
@@ -224,16 +224,16 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Returns the SQL snippet to declare a JSON field.
+     * Returns the SQL snippet to declare a JSON column.
      *
      * By default this maps directly to a CLOB and only maps to more
      * special datatypes when the underlying databases support this datatype.
      *
-     * @param mixed[] $field
+     * @param mixed[] $column
      */
-    public function getJsonTypeDeclarationSQL(array $field): string
+    public function getJsonTypeDeclarationSQL(array $column): string
     {
-        return $this->getClobTypeDeclarationSQL($field);
+        return $this->getClobTypeDeclarationSQL($column);
     }
 
     /**
@@ -307,16 +307,16 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL snippet used to declare a CLOB column type.
      *
-     * @param mixed[] $field
+     * @param mixed[] $column
      */
-    abstract public function getClobTypeDeclarationSQL(array $field): string;
+    abstract public function getClobTypeDeclarationSQL(array $column): string;
 
     /**
      * Returns the SQL Snippet used to declare a BLOB column type.
      *
-     * @param mixed[] $field
+     * @param mixed[] $column
      */
-    abstract public function getBlobTypeDeclarationSQL(array $field): string;
+    abstract public function getBlobTypeDeclarationSQL(array $column): string;
 
     /**
      * Gets the name of the platform.
@@ -569,7 +569,7 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Returns the SQL snippet to get the length of a text field.
+     * Returns the SQL snippet to get the length of a text column.
      *
      * @param string $string SQL expression producing the string.
      */
@@ -1866,67 +1866,67 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Gets declaration of a number of fields in bulk.
+     * Gets declaration of a number of columns in bulk.
      *
-     * @param mixed[][] $fields A multidimensional array.
-     *                          The first dimension determines the ordinal position of the field,
-     *                          while the second dimension is keyed with the name of the properties
-     *                          of the field being declared as array indexes. Currently, the types
-     *                          of supported field properties are as follows:
+     * @param mixed[][] $columns A multidimensional array.
+     *                           The first dimension determines the ordinal position of the column,
+     *                           while the second dimension is keyed with the name of the properties
+     *                           of the column being declared as array indexes. Currently, the types
+     *                           of supported column properties are as follows:
      *
      *      length
      *          Integer value that determines the maximum length of the text
-     *          field. If this argument is missing the field should be
+     *          column. If this argument is missing the column should be
      *          declared to have the longest length allowed by the DBMS.
      *
      *      default
-     *          Text value to be used as default for this field.
+     *          Text value to be used as default for this column.
      *
      *      notnull
-     *          Boolean flag that indicates whether this field is constrained
+     *          Boolean flag that indicates whether this column is constrained
      *          to not be set to null.
      *      charset
-     *          Text value with the default CHARACTER SET for this field.
+     *          Text value with the default CHARACTER SET for this column.
      *      collation
-     *          Text value with the default COLLATION for this field.
+     *          Text value with the default COLLATION for this column.
      *      unique
      *          unique constraint
      */
-    public function getColumnDeclarationListSQL(array $fields): string
+    public function getColumnDeclarationListSQL(array $columns): string
     {
-        $queryFields = [];
+        $declarations = [];
 
-        foreach ($fields as $field) {
-            $queryFields[] = $this->getColumnDeclarationSQL($field['name'], $field);
+        foreach ($columns as $column) {
+            $declarations[] = $this->getColumnDeclarationSQL($column['name'], $column);
         }
 
-        return implode(', ', $queryFields);
+        return implode(', ', $declarations);
     }
 
     /**
      * Obtains DBMS specific SQL code portion needed to declare a generic type
-     * field to be used in statements like CREATE TABLE.
+     * column to be used in statements like CREATE TABLE.
      *
-     * @param string  $name  The name the field to be declared.
-     * @param mixed[] $field An associative array with the name of the properties
-     *                       of the field being declared as array indexes. Currently, the types
-     *                       of supported field properties are as follows:
+     * @param string  $name   The name the column to be declared.
+     * @param mixed[] $column An associative array with the name of the properties
+     *                        of the column being declared as array indexes. Currently, the types
+     *                        of supported column properties are as follows:
      *
      *      length
      *          Integer value that determines the maximum length of the text
-     *          field. If this argument is missing the field should be
+     *          column. If this argument is missing the column should be
      *          declared to have the longest length allowed by the DBMS.
      *
      *      default
-     *          Text value to be used as default for this field.
+     *          Text value to be used as default for this column.
      *
      *      notnull
-     *          Boolean flag that indicates whether this field is constrained
+     *          Boolean flag that indicates whether this column is constrained
      *          to not be set to null.
      *      charset
-     *          Text value with the default CHARACTER SET for this field.
+     *          Text value with the default CHARACTER SET for this column.
      *      collation
-     *          Text value with the default COLLATION for this field.
+     *          Text value with the default COLLATION for this column.
      *      unique
      *          unique constraint
      *      check
@@ -1935,74 +1935,76 @@ abstract class AbstractPlatform
      *          a string that defines the complete column
      *
      * @return string DBMS specific SQL code portion that should be used to declare the column.
+     *
+     * @throws DBALException
      */
-    public function getColumnDeclarationSQL(string $name, array $field): string
+    public function getColumnDeclarationSQL(string $name, array $column): string
     {
-        if (isset($field['columnDefinition'])) {
-            $columnDef = $this->getCustomTypeDeclarationSQL($field);
+        if (isset($column['columnDefinition'])) {
+            $declaration = $this->getCustomTypeDeclarationSQL($column);
         } else {
-            $default = $this->getDefaultValueDeclarationSQL($field);
+            $default = $this->getDefaultValueDeclarationSQL($column);
 
-            $charset = ! empty($field['charset']) ?
-                ' ' . $this->getColumnCharsetDeclarationSQL($field['charset']) : '';
+            $charset = ! empty($column['charset']) ?
+                ' ' . $this->getColumnCharsetDeclarationSQL($column['charset']) : '';
 
-            $collation = ! empty($field['collation']) ?
-                ' ' . $this->getColumnCollationDeclarationSQL($field['collation']) : '';
+            $collation = ! empty($column['collation']) ?
+                ' ' . $this->getColumnCollationDeclarationSQL($column['collation']) : '';
 
-            $notnull = ! empty($field['notnull']) ? ' NOT NULL' : '';
+            $notnull = ! empty($column['notnull']) ? ' NOT NULL' : '';
 
-            $unique = ! empty($field['unique']) ?
+            $unique = ! empty($column['unique']) ?
                 ' ' . $this->getUniqueFieldDeclarationSQL() : '';
 
-            $check = ! empty($field['check']) ? ' ' . $field['check'] : '';
+            $check = ! empty($column['check']) ? ' ' . $column['check'] : '';
 
-            $typeDecl  = $field['type']->getSQLDeclaration($field, $this);
-            $columnDef = $typeDecl . $charset . $default . $notnull . $unique . $check . $collation;
+            $typeDecl    = $column['type']->getSQLDeclaration($column, $this);
+            $declaration = $typeDecl . $charset . $default . $notnull . $unique . $check . $collation;
 
-            if ($this->supportsInlineColumnComments() && isset($field['comment']) && $field['comment'] !== '') {
-                $columnDef .= ' ' . $this->getInlineColumnCommentSQL($field['comment']);
+            if ($this->supportsInlineColumnComments() && isset($column['comment']) && $column['comment'] !== '') {
+                $declaration .= ' ' . $this->getInlineColumnCommentSQL($column['comment']);
             }
         }
 
-        return $name . ' ' . $columnDef;
+        return $name . ' ' . $declaration;
     }
 
     /**
      * Returns the SQL snippet that declares a floating point column of arbitrary precision.
      *
-     * @param mixed[] $columnDef
+     * @param mixed[] $column
      */
-    public function getDecimalTypeDeclarationSQL(array $columnDef): string
+    public function getDecimalTypeDeclarationSQL(array $column): string
     {
-        $columnDef['precision'] = ! isset($columnDef['precision']) || empty($columnDef['precision'])
-            ? 10 : $columnDef['precision'];
-        $columnDef['scale']     = ! isset($columnDef['scale']) || empty($columnDef['scale'])
-            ? 0 : $columnDef['scale'];
+        $column['precision'] = ! isset($column['precision']) || empty($column['precision'])
+            ? 10 : $column['precision'];
+        $column['scale']     = ! isset($column['scale']) || empty($column['scale'])
+            ? 0 : $column['scale'];
 
-        return 'NUMERIC(' . $columnDef['precision'] . ', ' . $columnDef['scale'] . ')';
+        return 'NUMERIC(' . $column['precision'] . ', ' . $column['scale'] . ')';
     }
 
     /**
      * Obtains DBMS specific SQL code portion needed to set a default value
      * declaration to be used in statements like CREATE TABLE.
      *
-     * @param mixed[] $field The field definition array.
+     * @param mixed[] $column The column definition array.
      *
      * @return string DBMS specific SQL code portion needed to set a default value.
      */
-    public function getDefaultValueDeclarationSQL(array $field): string
+    public function getDefaultValueDeclarationSQL(array $column): string
     {
-        if (! isset($field['default'])) {
-            return empty($field['notnull']) ? ' DEFAULT NULL' : '';
+        if (! isset($column['default'])) {
+            return empty($column['notnull']) ? ' DEFAULT NULL' : '';
         }
 
-        $default = $field['default'];
+        $default = $column['default'];
 
-        if (! isset($field['type'])) {
+        if (! isset($column['type'])) {
             return " DEFAULT '" . $default . "'";
         }
 
-        $type = $field['type'];
+        $type = $column['type'];
 
         if ($type instanceof Types\PhpIntegerMappingType) {
             return ' DEFAULT ' . $default;
@@ -2124,14 +2126,14 @@ abstract class AbstractPlatform
 
     /**
      * Obtains SQL code portion needed to create a custom column,
-     * e.g. when a field has the "columnDefinition" keyword.
+     * e.g. when a column has the "columnDefinition" keyword.
      * Only "AUTOINCREMENT" and "PRIMARY KEY" are added if appropriate.
      *
-     * @param mixed[] $columnDef
+     * @param mixed[] $column
      */
-    public function getCustomTypeDeclarationSQL(array $columnDef): string
+    public function getCustomTypeDeclarationSQL(array $column): string
     {
-        return $columnDef['columnDefinition'];
+        return $column['columnDefinition'];
     }
 
     /**
@@ -2193,10 +2195,10 @@ abstract class AbstractPlatform
 
     /**
      * Obtain DBMS specific SQL code portion needed to set the FOREIGN KEY constraint
-     * of a field declaration to be used in statements like CREATE TABLE.
+     * of a column declaration to be used in statements like CREATE TABLE.
      *
      * @return string DBMS specific SQL code portion needed to set the FOREIGN KEY constraint
-     *                of a field declaration.
+     *                of a column declaration.
      */
     public function getForeignKeyDeclarationSQL(ForeignKeyConstraint $foreignKey): string
     {
@@ -2251,7 +2253,7 @@ abstract class AbstractPlatform
 
     /**
      * Obtains DBMS specific SQL code portion needed to set the FOREIGN KEY constraint
-     * of a field declaration to be used in statements like CREATE TABLE.
+     * of a column declaration to be used in statements like CREATE TABLE.
      *
      * @throws InvalidArgumentException
      */
@@ -2284,10 +2286,10 @@ abstract class AbstractPlatform
 
     /**
      * Obtains DBMS specific SQL code portion needed to set the UNIQUE constraint
-     * of a field declaration to be used in statements like CREATE TABLE.
+     * of a column declaration to be used in statements like CREATE TABLE.
      *
      * @return string DBMS specific SQL code portion needed to set the UNIQUE constraint
-     *                of a field declaration.
+     *                of a column declaration.
      */
     public function getUniqueFieldDeclarationSQL(): string
     {
@@ -2296,12 +2298,12 @@ abstract class AbstractPlatform
 
     /**
      * Obtains DBMS specific SQL code portion needed to set the CHARACTER SET
-     * of a field declaration to be used in statements like CREATE TABLE.
+     * of a column declaration to be used in statements like CREATE TABLE.
      *
      * @param string $charset The name of the charset.
      *
      * @return string DBMS specific SQL code portion needed to set the CHARACTER SET
-     *                of a field declaration.
+     *                of a column declaration.
      */
     public function getColumnCharsetDeclarationSQL(string $charset): string
     {
@@ -2310,12 +2312,12 @@ abstract class AbstractPlatform
 
     /**
      * Obtains DBMS specific SQL code portion needed to set the COLLATION
-     * of a field declaration to be used in statements like CREATE TABLE.
+     * of a column declaration to be used in statements like CREATE TABLE.
      *
      * @param string $collation The name of the collation.
      *
      * @return string DBMS specific SQL code portion needed to set the COLLATION
-     *                of a field declaration.
+     *                of a column declaration.
      */
     public function getColumnCollationDeclarationSQL(string $collation): string
     {
@@ -2531,7 +2533,7 @@ abstract class AbstractPlatform
      *
      * @throws DBALException If not supported on this platform.
      */
-    public function getListTableIndexesSQL(string $table, ?string $currentDatabase = null): string
+    public function getListTableIndexesSQL(string $table, ?string $database = null): string
     {
         throw NotSupported::new(__METHOD__);
     }
@@ -2575,7 +2577,7 @@ abstract class AbstractPlatform
     /**
      * @throws DBALException If not supported on this platform.
      */
-    public function getSequenceNextValSQL(string $sequenceName): string
+    public function getSequenceNextValSQL(string $sequence): string
     {
         throw NotSupported::new(__METHOD__);
     }
@@ -2603,58 +2605,58 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Obtains DBMS specific SQL to be used to create datetime fields in
+     * Obtains DBMS specific SQL to be used to create datetime columns in
      * statements like CREATE TABLE.
      *
-     * @param mixed[] $fieldDeclaration
+     * @param mixed[] $column
      *
      * @throws DBALException If not supported on this platform.
      */
-    public function getDateTimeTypeDeclarationSQL(array $fieldDeclaration): string
+    public function getDateTimeTypeDeclarationSQL(array $column): string
     {
         throw NotSupported::new(__METHOD__);
     }
 
     /**
-     * Obtains DBMS specific SQL to be used to create datetime with timezone offset fields.
+     * Obtains DBMS specific SQL to be used to create datetime with timezone offset columns.
      *
-     * @param mixed[] $fieldDeclaration
+     * @param mixed[] $column
      */
-    public function getDateTimeTzTypeDeclarationSQL(array $fieldDeclaration): string
+    public function getDateTimeTzTypeDeclarationSQL(array $column): string
     {
-        return $this->getDateTimeTypeDeclarationSQL($fieldDeclaration);
+        return $this->getDateTimeTypeDeclarationSQL($column);
     }
 
     /**
-     * Obtains DBMS specific SQL to be used to create date fields in statements
+     * Obtains DBMS specific SQL to be used to create date columns in statements
      * like CREATE TABLE.
      *
-     * @param mixed[] $fieldDeclaration
+     * @param mixed[] $column
      *
      * @throws DBALException If not supported on this platform.
      */
-    public function getDateTypeDeclarationSQL(array $fieldDeclaration): string
+    public function getDateTypeDeclarationSQL(array $column): string
     {
         throw NotSupported::new(__METHOD__);
     }
 
     /**
-     * Obtains DBMS specific SQL to be used to create time fields in statements
+     * Obtains DBMS specific SQL to be used to create time columns in statements
      * like CREATE TABLE.
      *
-     * @param mixed[] $fieldDeclaration
+     * @param mixed[] $column
      *
      * @throws DBALException If not supported on this platform.
      */
-    public function getTimeTypeDeclarationSQL(array $fieldDeclaration): string
+    public function getTimeTypeDeclarationSQL(array $column): string
     {
         throw NotSupported::new(__METHOD__);
     }
 
     /**
-     * @param mixed[] $fieldDeclaration
+     * @param mixed[] $column
      */
-    public function getFloatDeclarationSQL(array $fieldDeclaration): string
+    public function getFloatDeclarationSQL(array $column): string
     {
         return 'DOUBLE PRECISION';
     }
@@ -2836,8 +2838,7 @@ abstract class AbstractPlatform
      * Whether this platform can emulate schemas.
      *
      * Platforms that either support or emulate schemas don't automatically
-     * filter a schema for the namespaced elements in {@link
-     * AbstractManager#createSchema}.
+     * filter a schema for the namespaced elements in {@link AbstractManager::createSchema()}.
      */
     public function canEmulateSchemas(): bool
     {
@@ -3022,15 +3023,6 @@ abstract class AbstractPlatform
     public function getSQLResultCasing(string $column): string
     {
         return $column;
-    }
-
-    /**
-     * Makes any fixes to a name of a schema element (table, sequence, ...) that are required
-     * by restrictions of the platform, like a maximum length.
-     */
-    public function fixSchemaElementName(string $schemaElementName): string
-    {
-        return $schemaElementName;
     }
 
     /**

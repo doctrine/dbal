@@ -8,6 +8,7 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\SchemaException;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 
@@ -16,12 +17,18 @@ use Doctrine\DBAL\Schema\Table;
  */
 interface Visitor
 {
+    /**
+     * @throws SchemaException
+     */
     public function acceptSchema(Schema $schema): void;
 
     public function acceptTable(Table $table): void;
 
     public function acceptColumn(Table $table, Column $column): void;
 
+    /**
+     * @throws SchemaException
+     */
     public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint): void;
 
     public function acceptIndex(Table $table, Index $index): void;

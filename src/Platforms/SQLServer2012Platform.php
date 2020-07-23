@@ -165,9 +165,9 @@ class SQLServer2012Platform extends AbstractPlatform
                 FROM   sys.sequences AS seq';
     }
 
-    public function getSequenceNextValSQL(string $sequenceName): string
+    public function getSequenceNextValSQL(string $sequence): string
     {
-        return 'SELECT NEXT VALUE FOR ' . $sequenceName;
+        return 'SELECT NEXT VALUE FOR ' . $sequence;
     }
 
     public function hasNativeGuidType(): bool
@@ -920,7 +920,7 @@ SQL
                 $this->getTableWhereClause($table, 'SCHEMA_NAME (f.schema_id)', 'OBJECT_NAME (f.parent_object_id)');
     }
 
-    public function getListTableIndexesSQL(string $table, ?string $currentDatabase = null): string
+    public function getListTableIndexesSQL(string $table, ?string $database = null): string
     {
         return "SELECT idx.name AS key_name,
                        col.name AS column_name,
@@ -1075,25 +1075,25 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getIntegerTypeDeclarationSQL(array $columnDef): string
+    public function getIntegerTypeDeclarationSQL(array $column): string
     {
-        return 'INT' . $this->_getCommonIntegerTypeDeclarationSQL($columnDef);
+        return 'INT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getBigIntTypeDeclarationSQL(array $columnDef): string
+    public function getBigIntTypeDeclarationSQL(array $column): string
     {
-        return 'BIGINT' . $this->_getCommonIntegerTypeDeclarationSQL($columnDef);
+        return 'BIGINT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getSmallIntTypeDeclarationSQL(array $columnDef): string
+    public function getSmallIntTypeDeclarationSQL(array $column): string
     {
-        return 'SMALLINT' . $this->_getCommonIntegerTypeDeclarationSQL($columnDef);
+        return 'SMALLINT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
     /**
@@ -1107,7 +1107,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getDateTimeTzTypeDeclarationSQL(array $fieldDeclaration): string
+    public function getDateTimeTzTypeDeclarationSQL(array $column): string
     {
         return 'DATETIMEOFFSET(6)';
     }
@@ -1135,7 +1135,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getClobTypeDeclarationSQL(array $field): string
+    public function getClobTypeDeclarationSQL(array $column): string
     {
         return 'VARCHAR(MAX)';
     }
@@ -1143,15 +1143,15 @@ SQL
     /**
      * {@inheritDoc}
      */
-    protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef): string
+    protected function _getCommonIntegerTypeDeclarationSQL(array $column): string
     {
-        return ! empty($columnDef['autoincrement']) ? ' IDENTITY' : '';
+        return ! empty($column['autoincrement']) ? ' IDENTITY' : '';
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getDateTimeTypeDeclarationSQL(array $fieldDeclaration): string
+    public function getDateTimeTypeDeclarationSQL(array $column): string
     {
         // 3 - microseconds precision length
         // http://msdn.microsoft.com/en-us/library/ms187819.aspx
@@ -1161,7 +1161,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getDateTypeDeclarationSQL(array $fieldDeclaration): string
+    public function getDateTypeDeclarationSQL(array $column): string
     {
         return 'DATE';
     }
@@ -1169,7 +1169,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getTimeTypeDeclarationSQL(array $fieldDeclaration): string
+    public function getTimeTypeDeclarationSQL(array $column): string
     {
         return 'TIME(0)';
     }
@@ -1177,7 +1177,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getBooleanTypeDeclarationSQL(array $columnDef): string
+    public function getBooleanTypeDeclarationSQL(array $column): string
     {
         return 'BIT';
     }
@@ -1390,7 +1390,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getBlobTypeDeclarationSQL(array $field): string
+    public function getBlobTypeDeclarationSQL(array $column): string
     {
         return 'VARBINARY(MAX)';
     }
@@ -1400,23 +1400,23 @@ SQL
      *
      * Modifies column declaration order as it differs in Microsoft SQL Server.
      */
-    public function getColumnDeclarationSQL(string $name, array $field): string
+    public function getColumnDeclarationSQL(string $name, array $column): string
     {
-        if (isset($field['columnDefinition'])) {
-            $columnDef = $this->getCustomTypeDeclarationSQL($field);
+        if (isset($column['columnDefinition'])) {
+            $columnDef = $this->getCustomTypeDeclarationSQL($column);
         } else {
-            $collation = ! empty($field['collation']) ?
-                ' ' . $this->getColumnCollationDeclarationSQL($field['collation']) : '';
+            $collation = ! empty($column['collation']) ?
+                ' ' . $this->getColumnCollationDeclarationSQL($column['collation']) : '';
 
-            $notnull = ! empty($field['notnull']) ? ' NOT NULL' : '';
+            $notnull = ! empty($column['notnull']) ? ' NOT NULL' : '';
 
-            $unique = ! empty($field['unique']) ?
+            $unique = ! empty($column['unique']) ?
                 ' ' . $this->getUniqueFieldDeclarationSQL() : '';
 
-            $check = ! empty($field['check']) ?
-                ' ' . $field['check'] : '';
+            $check = ! empty($column['check']) ?
+                ' ' . $column['check'] : '';
 
-            $typeDecl  = $field['type']->getSQLDeclaration($field, $this);
+            $typeDecl  = $column['type']->getSQLDeclaration($column, $this);
             $columnDef = $typeDecl . $collation . $notnull . $unique . $check;
         }
 

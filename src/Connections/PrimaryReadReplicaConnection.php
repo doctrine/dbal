@@ -10,17 +10,14 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
-use Doctrine\DBAL\Driver\DriverException;
-use Doctrine\DBAL\Driver\Result;
-use Doctrine\DBAL\Driver\Statement;
+use Doctrine\DBAL\Driver\Exception as DriverException;
 use Doctrine\DBAL\Event\ConnectionEventArgs;
 use Doctrine\DBAL\Events;
+use Doctrine\DBAL\Statement;
 use InvalidArgumentException;
 
 use function array_rand;
-use function assert;
 use function count;
-use function func_get_args;
 
 /**
  * Primary-Replica Connection
@@ -32,9 +29,8 @@ use function func_get_args;
  *
  * 1. Replica if primary was never picked before and ONLY if 'getWrappedConnection'
  *    or 'executeQuery' is used.
- * 2. Primary picked when 'exec', 'executeUpdate', 'insert', 'delete', 'update', 'createSavepoint',
- *    'releaseSavepoint', 'beginTransaction', 'rollback', 'commit', 'query' or
- *    'prepare' is called.
+ * 2. Primary picked when 'executeStatement', 'insert', 'delete', 'update', 'createSavepoint',
+ *    'releaseSavepoint', 'beginTransaction', 'rollback', 'commit' or 'prepare' is called.
  * 3. If Primary was picked once during the lifetime of the connection it will always get picked afterwards.
  * 4. One replica connection is randomly picked ONCE during a request.
  *
@@ -47,7 +43,7 @@ use function func_get_args;
  * Be aware that Connection#executeQuery is a method specifically for READ
  * operations only.
  *
- * Use Connection#executeUpdate for any SQL statement that changes/updates
+ * Use Connection#executeStatement for any SQL statement that changes/updates
  * state in the database (UPDATE, INSERT, DELETE or DDL statements).
  *
  * This connection is limited to replica operations using the
@@ -97,8 +93,11 @@ class PrimaryReadReplicaConnection extends Connection
     /**
      * Creates Primary Replica Connection.
      *
+     * @internal The connection can be only instantiated by the driver manager.
+     *
      * @param array<string, mixed> $params
      *
+     * @throws DBALException
      * @throws InvalidArgumentException
      */
     public function __construct(
@@ -218,6 +217,8 @@ class PrimaryReadReplicaConnection extends Connection
 
     /**
      * Connects to a specific connection.
+     *
+     * @throws DBALException
      */
     protected function connectTo(string $connectionName): DriverConnection
     {
@@ -228,7 +229,7 @@ class PrimaryReadReplicaConnection extends Connection
         try {
             return $this->_driver->connect($connectionParams);
         } catch (DriverException $e) {
-            throw DBALException::driverException($this->_driver, $e);
+            throw $this->convertException($e);
         }
     }
 
@@ -255,11 +256,11 @@ class PrimaryReadReplicaConnection extends Connection
     /**
      * {@inheritDoc}
      */
-    public function executeUpdate(string $query, array $params = [], array $types = []): int
+    public function executeStatement($sql, array $params = [], array $types = []): int
     {
         $this->ensureConnectedToPrimary();
 
-        return parent::executeUpdate($query, $params, $types);
+        return parent::executeStatement($sql, $params, $types);
     }
 
     public function beginTransaction(): void
@@ -283,16 +284,6 @@ class PrimaryReadReplicaConnection extends Connection
         parent::rollBack();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function delete(string $table, array $identifier, array $types = []): int
-    {
-        $this->ensureConnectedToPrimary();
-
-        return parent::delete($table, $identifier, $types);
-    }
-
     public function close(): void
     {
         unset($this->connections['primary'], $this->connections['replica']);
@@ -301,33 +292,6 @@ class PrimaryReadReplicaConnection extends Connection
 
         $this->_conn       = null;
         $this->connections = ['primary' => null, 'replica' => null];
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function update(string $table, array $data, array $identifier, array $types = []): int
-    {
-        $this->ensureConnectedToPrimary();
-
-        return parent::update($table, $data, $identifier, $types);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function insert(string $table, array $data, array $types = []): int
-    {
-        $this->ensureConnectedToPrimary();
-
-        return parent::insert($table, $data, $types);
-    }
-
-    public function exec(string $statement): int
-    {
-        $this->ensureConnectedToPrimary();
-
-        return parent::exec($statement);
     }
 
     public function createSavepoint(string $savepoint): void
@@ -349,23 +313,6 @@ class PrimaryReadReplicaConnection extends Connection
         $this->ensureConnectedToPrimary();
 
         parent::rollbackSavepoint($savepoint);
-    }
-
-    public function query(string $sql): Result
-    {
-        $this->ensureConnectedToPrimary();
-        assert($this->_conn instanceof DriverConnection);
-
-        $args = func_get_args();
-
-        $logger = $this->getConfiguration()->getSQLLogger();
-        $logger->startQuery($sql);
-
-        $statement = $this->_conn->query($sql);
-
-        $logger->stopQuery();
-
-        return $statement;
     }
 
     public function prepare(string $sql): Statement

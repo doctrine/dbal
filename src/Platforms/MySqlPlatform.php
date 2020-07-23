@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Platforms;
 
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
@@ -118,16 +119,16 @@ class MySqlPlatform extends AbstractPlatform
      * Two approaches to listing the table indexes. The information_schema is
      * preferred, because it doesn't cause problems with SQL keywords such as "order" or "table".
      */
-    public function getListTableIndexesSQL(string $table, ?string $currentDatabase = null): string
+    public function getListTableIndexesSQL(string $table, ?string $database = null): string
     {
-        if ($currentDatabase !== null) {
-            $currentDatabase = $this->quoteStringLiteral($currentDatabase);
-            $table           = $this->quoteStringLiteral($table);
+        if ($database !== null) {
+            $database = $this->quoteStringLiteral($database);
+            $table    = $this->quoteStringLiteral($table);
 
             return 'SELECT NON_UNIQUE AS Non_Unique, INDEX_NAME AS Key_name, COLUMN_NAME AS Column_Name,' .
                    ' SUB_PART AS Sub_Part, INDEX_TYPE AS Index_Type' .
                    ' FROM information_schema.STATISTICS WHERE TABLE_NAME = ' . $table .
-                   ' AND TABLE_SCHEMA = ' . $currentDatabase .
+                   ' AND TABLE_SCHEMA = ' . $database .
                    ' ORDER BY SEQ_IN_INDEX ASC';
         }
 
@@ -177,10 +178,10 @@ class MySqlPlatform extends AbstractPlatform
      *
      * {@inheritDoc}
      */
-    public function getClobTypeDeclarationSQL(array $field): string
+    public function getClobTypeDeclarationSQL(array $column): string
     {
-        if (! empty($field['length']) && is_numeric($field['length'])) {
-            $length = $field['length'];
+        if (! empty($column['length']) && is_numeric($column['length'])) {
+            $length = $column['length'];
 
             if ($length <= static::LENGTH_LIMIT_TINYTEXT) {
                 return 'TINYTEXT';
@@ -201,9 +202,9 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getDateTimeTypeDeclarationSQL(array $fieldDeclaration): string
+    public function getDateTimeTypeDeclarationSQL(array $column): string
     {
-        if (isset($fieldDeclaration['version']) && $fieldDeclaration['version'] === true) {
+        if (isset($column['version']) && $column['version'] === true) {
             return 'TIMESTAMP';
         }
 
@@ -213,7 +214,7 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getDateTypeDeclarationSQL(array $fieldDeclaration): string
+    public function getDateTypeDeclarationSQL(array $column): string
     {
         return 'DATE';
     }
@@ -221,7 +222,7 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getTimeTypeDeclarationSQL(array $fieldDeclaration): string
+    public function getTimeTypeDeclarationSQL(array $column): string
     {
         return 'TIME';
     }
@@ -229,7 +230,7 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getBooleanTypeDeclarationSQL(array $columnDef): string
+    public function getBooleanTypeDeclarationSQL(array $column): string
     {
         return 'TINYINT(1)';
     }
@@ -359,14 +360,14 @@ SQL
     /**
      * {@inheritdoc}
      */
-    public function getDefaultValueDeclarationSQL(array $field): string
+    public function getDefaultValueDeclarationSQL(array $column): string
     {
-        // Unset the default value if the given field definition does not allow default values.
-        if ($field['type'] instanceof TextType || $field['type'] instanceof BlobType) {
-            $field['default'] = null;
+        // Unset the default value if the given column definition does not allow default values.
+        if ($column['type'] instanceof TextType || $column['type'] instanceof BlobType) {
+            $column['default'] = null;
         }
 
-        return parent::getDefaultValueDeclarationSQL($field);
+        return parent::getDefaultValueDeclarationSQL($column);
     }
 
     /**
@@ -598,6 +599,8 @@ SQL
 
     /**
      * @return string[]
+     *
+     * @throws DBALException
      */
     private function getPreAlterTableAlterPrimaryKeySQL(TableDiff $diff, Index $index): array
     {
@@ -637,6 +640,8 @@ SQL
      * @param TableDiff $diff The table diff to gather the SQL for.
      *
      * @return string[]
+     *
+     * @throws DBALException
      */
     private function getPreAlterTableAlterIndexForeignKeySQL(TableDiff $diff): array
     {
@@ -785,41 +790,41 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getIntegerTypeDeclarationSQL(array $columnDef): string
+    public function getIntegerTypeDeclarationSQL(array $column): string
     {
-        return 'INT' . $this->_getCommonIntegerTypeDeclarationSQL($columnDef);
+        return 'INT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getBigIntTypeDeclarationSQL(array $columnDef): string
+    public function getBigIntTypeDeclarationSQL(array $column): string
     {
-        return 'BIGINT' . $this->_getCommonIntegerTypeDeclarationSQL($columnDef);
+        return 'BIGINT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getSmallIntTypeDeclarationSQL(array $columnDef): string
+    public function getSmallIntTypeDeclarationSQL(array $column): string
     {
-        return 'SMALLINT' . $this->_getCommonIntegerTypeDeclarationSQL($columnDef);
+        return 'SMALLINT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getFloatDeclarationSQL(array $fieldDeclaration): string
+    public function getFloatDeclarationSQL(array $column): string
     {
-        return 'DOUBLE PRECISION' . $this->getUnsignedDeclaration($fieldDeclaration);
+        return 'DOUBLE PRECISION' . $this->getUnsignedDeclaration($column);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getDecimalTypeDeclarationSQL(array $columnDef): string
+    public function getDecimalTypeDeclarationSQL(array $column): string
     {
-        return parent::getDecimalTypeDeclarationSQL($columnDef) . $this->getUnsignedDeclaration($columnDef);
+        return parent::getDecimalTypeDeclarationSQL($column) . $this->getUnsignedDeclaration($column);
     }
 
     /**
@@ -835,14 +840,14 @@ SQL
     /**
      * {@inheritDoc}
      */
-    protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef): string
+    protected function _getCommonIntegerTypeDeclarationSQL(array $column): string
     {
         $autoinc = '';
-        if (! empty($columnDef['autoincrement'])) {
+        if (! empty($column['autoincrement'])) {
             $autoinc = ' AUTO_INCREMENT';
         }
 
-        return $this->getUnsignedDeclaration($columnDef) . $autoinc;
+        return $this->getUnsignedDeclaration($column) . $autoinc;
     }
 
     public function getColumnCharsetDeclarationSQL(string $charset): string
@@ -982,10 +987,10 @@ SQL
      *
      * {@inheritDoc}
      */
-    public function getBlobTypeDeclarationSQL(array $field): string
+    public function getBlobTypeDeclarationSQL(array $column): string
     {
-        if (! empty($field['length']) && is_numeric($field['length'])) {
-            $length = $field['length'];
+        if (! empty($column['length']) && is_numeric($column['length'])) {
+            $length = $column['length'];
 
             if ($length <= static::LENGTH_LIMIT_TINYBLOB) {
                 return 'TINYBLOB';

@@ -18,7 +18,7 @@ class OracleSessionInitTest extends TestCase
     {
         $connectionMock = $this->createMock(Connection::class);
         $connectionMock->expects(self::once())
-                       ->method('executeUpdate')
+                       ->method('executeStatement')
                        ->with(self::isType('string'));
 
         $eventArgs = new ConnectionEventArgs($connectionMock);
@@ -28,7 +28,6 @@ class OracleSessionInitTest extends TestCase
     }
 
     /**
-     * @group DBAL-1824
      * @dataProvider getPostConnectWithSessionParameterValuesData
      */
     public function testPostConnectQuotesSessionParameterValues(string $name, string $value): void
@@ -37,7 +36,7 @@ class OracleSessionInitTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
         $connectionMock->expects(self::once())
-            ->method('executeUpdate')
+            ->method('executeStatement')
             ->with(self::stringContains(sprintf('%s = %s', $name, $value)));
 
         $eventArgs = new ConnectionEventArgs($connectionMock);

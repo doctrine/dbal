@@ -50,7 +50,7 @@ final class NewPrimaryKeyWithNewAutoIncrementColumnTest extends FunctionalTestCa
         $diff = (new Comparator())->compare($schema, $newSchema);
 
         foreach ($diff->toSql($this->getPlatform()) as $sql) {
-            $this->connection->exec($sql);
+            $this->connection->executeStatement($sql);
         }
 
         $validationSchema = $schemaManager->createSchema();

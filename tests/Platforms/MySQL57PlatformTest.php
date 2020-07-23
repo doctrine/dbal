@@ -33,8 +33,6 @@ class MySQL57PlatformTest extends AbstractMySQLPlatformTestCase
 
     /**
      * @return string[]
-     *
-     * @group DBAL-234
      */
     protected function getAlterTableRenameIndexSQL(): array
     {
@@ -43,8 +41,6 @@ class MySQL57PlatformTest extends AbstractMySQLPlatformTestCase
 
     /**
      * @return string[]
-     *
-     * @group DBAL-234
      */
     protected function getQuotedAlterTableRenameIndexSQL(): array
     {
@@ -56,8 +52,6 @@ class MySQL57PlatformTest extends AbstractMySQLPlatformTestCase
 
     /**
      * @return string[]
-     *
-     * @group DBAL-807
      */
     protected function getAlterTableRenameIndexInSchemaSQL(): array
     {
@@ -66,8 +60,6 @@ class MySQL57PlatformTest extends AbstractMySQLPlatformTestCase
 
     /**
      * @return string[]
-     *
-     * @group DBAL-807
      */
     protected function getQuotedAlterTableRenameIndexInSchemaSQL(): array
     {

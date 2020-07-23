@@ -174,7 +174,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getBooleanTypeDeclarationSQL(array $columnDef): string
+    public function getBooleanTypeDeclarationSQL(array $column): string
     {
         return 'BOOLEAN';
     }
@@ -182,67 +182,67 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getIntegerTypeDeclarationSQL(array $columnDef): string
+    public function getIntegerTypeDeclarationSQL(array $column): string
     {
-        return 'INTEGER' . $this->_getCommonIntegerTypeDeclarationSQL($columnDef);
+        return 'INTEGER' . $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getBigIntTypeDeclarationSQL(array $columnDef): string
+    public function getBigIntTypeDeclarationSQL(array $column): string
     {
         //  SQLite autoincrement is implicit for INTEGER PKs, but not for BIGINT fields.
-        if (! empty($columnDef['autoincrement'])) {
-            return $this->getIntegerTypeDeclarationSQL($columnDef);
+        if (! empty($column['autoincrement'])) {
+            return $this->getIntegerTypeDeclarationSQL($column);
         }
 
-        return 'BIGINT' . $this->_getCommonIntegerTypeDeclarationSQL($columnDef);
+        return 'BIGINT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
     /**
-     * @param array<string, mixed> $field
+     * @param array<string, mixed> $column
      */
-    public function getTinyIntTypeDeclarationSQL(array $field): string
+    public function getTinyIntTypeDeclarationSQL(array $column): string
     {
-        //  SQLite autoincrement is implicit for INTEGER PKs, but not for TINYINT fields.
-        if (! empty($field['autoincrement'])) {
-            return $this->getIntegerTypeDeclarationSQL($field);
+        // SQLite autoincrement is implicit for INTEGER PKs, but not for TINYINT columns
+        if (! empty($column['autoincrement'])) {
+            return $this->getIntegerTypeDeclarationSQL($column);
         }
 
-        return 'TINYINT' . $this->_getCommonIntegerTypeDeclarationSQL($field);
+        return 'TINYINT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getSmallIntTypeDeclarationSQL(array $columnDef): string
+    public function getSmallIntTypeDeclarationSQL(array $column): string
     {
-        //  SQLite autoincrement is implicit for INTEGER PKs, but not for SMALLINT fields.
-        if (! empty($columnDef['autoincrement'])) {
-            return $this->getIntegerTypeDeclarationSQL($columnDef);
+        // SQLite autoincrement is implicit for INTEGER PKs, but not for SMALLINT fields.
+        if (! empty($column['autoincrement'])) {
+            return $this->getIntegerTypeDeclarationSQL($column);
         }
 
-        return 'SMALLINT' . $this->_getCommonIntegerTypeDeclarationSQL($columnDef);
+        return 'SMALLINT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
     /**
-     * @param array<string, mixed> $field
+     * @param array<string, mixed> $column
      */
-    public function getMediumIntTypeDeclarationSQL(array $field): string
+    public function getMediumIntTypeDeclarationSQL(array $column): string
     {
-        //  SQLite autoincrement is implicit for INTEGER PKs, but not for MEDIUMINT fields.
-        if (! empty($field['autoincrement'])) {
-            return $this->getIntegerTypeDeclarationSQL($field);
+        // SQLite autoincrement is implicit for INTEGER PKs, but not for MEDIUMINT columns
+        if (! empty($column['autoincrement'])) {
+            return $this->getIntegerTypeDeclarationSQL($column);
         }
 
-        return 'MEDIUMINT' . $this->_getCommonIntegerTypeDeclarationSQL($field);
+        return 'MEDIUMINT' . $this->_getCommonIntegerTypeDeclarationSQL($column);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getDateTimeTypeDeclarationSQL(array $fieldDeclaration): string
+    public function getDateTimeTypeDeclarationSQL(array $column): string
     {
         return 'DATETIME';
     }
@@ -250,7 +250,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getDateTypeDeclarationSQL(array $fieldDeclaration): string
+    public function getDateTypeDeclarationSQL(array $column): string
     {
         return 'DATE';
     }
@@ -258,7 +258,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getTimeTypeDeclarationSQL(array $fieldDeclaration): string
+    public function getTimeTypeDeclarationSQL(array $column): string
     {
         return 'TIME';
     }
@@ -266,14 +266,14 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef): string
+    protected function _getCommonIntegerTypeDeclarationSQL(array $column): string
     {
         // sqlite autoincrement is only possible for the primary key
-        if (! empty($columnDef['autoincrement'])) {
+        if (! empty($column['autoincrement'])) {
             return ' PRIMARY KEY AUTOINCREMENT';
         }
 
-        return ! empty($columnDef['unsigned']) ? ' UNSIGNED' : '';
+        return ! empty($column['unsigned']) ? ' UNSIGNED' : '';
     }
 
     public function getForeignKeyDeclarationSQL(ForeignKeyConstraint $foreignKey): string
@@ -386,7 +386,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getClobTypeDeclarationSQL(array $field): string
+    public function getClobTypeDeclarationSQL(array $column): string
     {
         return 'CLOB';
     }
@@ -408,7 +408,7 @@ class SqlitePlatform extends AbstractPlatform
         return sprintf('PRAGMA table_info(%s)', $this->quoteStringLiteral($table));
     }
 
-    public function getListTableIndexesSQL(string $table, ?string $currentDatabase = null): string
+    public function getListTableIndexesSQL(string $table, ?string $database = null): string
     {
         $table = str_replace('.', '__', $table);
 
@@ -633,7 +633,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getBlobTypeDeclarationSQL(array $field): string
+    public function getBlobTypeDeclarationSQL(array $column): string
     {
         return 'BLOB';
     }
@@ -844,6 +844,8 @@ class SqlitePlatform extends AbstractPlatform
 
     /**
      * @return string[]|false
+     *
+     * @throws DBALException
      */
     private function getSimpleAlterTableSQL(TableDiff $diff)
     {
@@ -892,22 +894,23 @@ class SqlitePlatform extends AbstractPlatform
                 continue;
             }
 
-            $field = array_merge(['unique' => null, 'autoincrement' => null, 'default' => null], $column->toArray());
-            $type  = $field['type'];
+            $definition = array_merge(['unique' => null, 'autoincrement' => null, 'default' => null], $column->toArray());
+            $type       = $definition['type'];
+
             switch (true) {
-                case isset($field['columnDefinition']) || $field['autoincrement'] || $field['unique']:
-                case $type instanceof Types\DateTimeType && $field['default'] === $this->getCurrentTimestampSQL():
-                case $type instanceof Types\DateType && $field['default'] === $this->getCurrentDateSQL():
-                case $type instanceof Types\TimeType && $field['default'] === $this->getCurrentTimeSQL():
+                case isset($definition['columnDefinition']) || $definition['autoincrement'] || $definition['unique']:
+                case $type instanceof Types\DateTimeType && $definition['default'] === $this->getCurrentTimestampSQL():
+                case $type instanceof Types\DateType && $definition['default'] === $this->getCurrentDateSQL():
+                case $type instanceof Types\TimeType && $definition['default'] === $this->getCurrentTimeSQL():
                     return false;
             }
 
-            $field['name'] = $column->getQuotedName($this);
-            if ($type instanceof Types\StringType && $field['length'] === null) {
-                $field['length'] = 255;
+            $definition['name'] = $column->getQuotedName($this);
+            if ($type instanceof Types\StringType && $definition['length'] === null) {
+                $definition['length'] = 255;
             }
 
-            $sql[] = 'ALTER TABLE ' . $table->getQuotedName($this) . ' ADD COLUMN ' . $this->getColumnDeclarationSQL($field['name'], $field);
+            $sql[] = 'ALTER TABLE ' . $table->getQuotedName($this) . ' ADD COLUMN ' . $this->getColumnDeclarationSQL($definition['name'], $definition);
         }
 
         if (! $this->onSchemaAlterTable($diff, $tableSql)) {

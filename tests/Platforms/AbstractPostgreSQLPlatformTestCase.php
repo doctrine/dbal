@@ -204,7 +204,6 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
 
     /**
      * @dataProvider serialTypes
-     * @group 2906
      */
     public function testGenerateTableWithAutoincrementDoesNotSetDefault(string $type, string $definition): void
     {
@@ -220,7 +219,6 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
 
     /**
      * @dataProvider serialTypes
-     * @group 2906
      */
     public function testCreateTableWithAutoincrementAndNotNullAddsConstraint(string $type, string $definition): void
     {
@@ -236,7 +234,6 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
 
     /**
      * @dataProvider serialTypes
-     * @group 2906
      */
     public function testGetDefaultValueDeclarationSQLIgnoresTheDefaultKeyWhenTheFieldIsSerial(string $type): void
     {
@@ -412,7 +409,6 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
     }
 
     /**
-     * @group DBAL-457
      * @dataProvider pgBooleanProvider
      */
     public function testConvertBooleanAsLiteralStrings(
@@ -424,9 +420,6 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
         self::assertEquals($preparedStatementValue, $this->platform->convertBooleans($databaseValue));
     }
 
-    /**
-     * @group DBAL-457
-     */
     public function testConvertBooleanAsLiteralIntegers(): void
     {
         $this->platform->setUseBooleanTrueFalseStrings(false);
@@ -439,7 +432,6 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
     }
 
     /**
-     * @group DBAL-630
      * @dataProvider pgBooleanProvider
      */
     public function testConvertBooleanAsDatabaseValueStrings(
@@ -451,9 +443,6 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
         self::assertSame($integerValue, $this->platform->convertBooleansToDatabaseValue($booleanValue));
     }
 
-    /**
-     * @group DBAL-630
-     */
     public function testConvertBooleanAsDatabaseValueIntegers(): void
     {
         $this->platform->setUseBooleanTrueFalseStrings(false);
@@ -544,9 +533,6 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
         self::assertEquals($expectedSql, $sql);
     }
 
-    /**
-     * @group DBAL-365
-     */
     public function testDroppingConstraintsBeforeColumns(): void
     {
         $newTable = new Table('mytable');
@@ -573,17 +559,11 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
         self::assertEquals($expectedSql, $sql);
     }
 
-    /**
-     * @group DBAL-563
-     */
     public function testUsesSequenceEmulatedIdentityColumns(): void
     {
         self::assertTrue($this->platform->usesSequenceEmulatedIdentityColumns());
     }
 
-    /**
-     * @group DBAL-563
-     */
     public function testReturnsIdentitySequenceName(): void
     {
         self::assertSame('mytable_mycolumn_seq', $this->platform->getIdentitySequenceName('mytable', 'mycolumn'));
@@ -591,7 +571,6 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
 
     /**
      * @dataProvider dataCreateSequenceWithCache
-     * @group DBAL-139
      */
     public function testCreateSequenceWithCache(int $cacheSize, string $expectedSql): void
     {
@@ -683,8 +662,6 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
 
     /**
      * {@inheritDoc}
-     *
-     * @group DBAL-234
      */
     protected function getAlterTableRenameIndexSQL(): array
     {
@@ -693,8 +670,6 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
 
     /**
      * {@inheritDoc}
-     *
-     * @group DBAL-234
      */
     protected function getQuotedAlterTableRenameIndexSQL(): array
     {
@@ -764,8 +739,6 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
 
     /**
      * {@inheritDoc}
-     *
-     * @group DBAL-807
      */
     protected function getAlterTableRenameIndexInSchemaSQL(): array
     {
@@ -774,8 +747,6 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
 
     /**
      * {@inheritDoc}
-     *
-     * @group DBAL-807
      */
     protected function getQuotedAlterTableRenameIndexInSchemaSQL(): array
     {
@@ -790,9 +761,6 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
         return 'ALTER TABLE "table" DROP CONSTRAINT "select"';
     }
 
-    /**
-     * @group DBAL-423
-     */
     public function testReturnsGuidTypeDeclarationSQL(): void
     {
         self::assertSame('UUID', $this->platform->getGuidTypeDeclarationSQL([]));
@@ -838,9 +806,6 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
         ];
     }
 
-    /**
-     * @group DBAL-1004
-     */
     public function testAltersTableColumnCommentWithExplicitlyQuotedIdentifiers(): void
     {
         $table1 = new Table('"foo"', [new Column('"bar"', Type::getType('integer'))]);
@@ -857,9 +822,6 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
         );
     }
 
-    /**
-     * @group 3158
-     */
     public function testAltersTableColumnCommentIfRequiredByType(): void
     {
         $table1 = new Table('"foo"', [new Column('"bar"', Type::getType('datetime'))]);
@@ -911,18 +873,12 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
         return ['ALTER INDEX idx_foo RENAME TO idx_foo_renamed'];
     }
 
-    /**
-     * @group DBAL-1142
-     */
     public function testInitializesTsvectorTypeMapping(): void
     {
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('tsvector'));
         self::assertEquals('text', $this->platform->getDoctrineTypeMapping('tsvector'));
     }
 
-    /**
-     * @group DBAL-1220
-     */
     public function testReturnsDisallowDatabaseConnectionsSQL(): void
     {
         self::assertSame(
@@ -931,9 +887,6 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
         );
     }
 
-    /**
-     * @group DBAL-1220
-     */
     public function testReturnsCloseActiveDatabaseConnectionsSQL(): void
     {
         self::assertSame(
@@ -942,9 +895,6 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
         );
     }
 
-    /**
-     * @group DBAL-2436
-     */
     public function testQuotesTableNameInListTableForeignKeysSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
@@ -953,9 +903,6 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
         );
     }
 
-    /**
-     * @group DBAL-2436
-     */
     public function testQuotesSchemaNameInListTableForeignKeysSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
@@ -964,9 +911,6 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
         );
     }
 
-    /**
-     * @group DBAL-2436
-     */
     public function testQuotesTableNameInListTableConstraintsSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
@@ -975,9 +919,6 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
         );
     }
 
-    /**
-     * @group DBAL-2436
-     */
     public function testQuotesTableNameInListTableIndexesSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
@@ -986,9 +927,6 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
         );
     }
 
-    /**
-     * @group DBAL-2436
-     */
     public function testQuotesSchemaNameInListTableIndexesSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
@@ -997,9 +935,6 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
         );
     }
 
-    /**
-     * @group DBAL-2436
-     */
     public function testQuotesTableNameInListTableColumnsSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
@@ -1008,9 +943,6 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
         );
     }
 
-    /**
-     * @group DBAL-2436
-     */
     public function testQuotesSchemaNameInListTableColumnsSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
@@ -1019,9 +951,6 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
         );
     }
 
-    /**
-     * @group DBAL-2436
-     */
     public function testQuotesDatabaseNameInCloseActiveDatabaseConnectionsSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(

@@ -20,9 +20,9 @@ class BigIntType extends Type implements PhpIntegerMappingType
     /**
      * {@inheritdoc}
      */
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform): string
+    public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
-        return $platform->getBigIntTypeDeclarationSQL($fieldDeclaration);
+        return $platform->getBigIntTypeDeclarationSQL($column);
     }
 
     public function getBindingType(): int

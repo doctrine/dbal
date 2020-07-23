@@ -6,7 +6,7 @@ namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
-use Doctrine\DBAL\Driver\PDOConnection;
+use Doctrine\DBAL\Driver\PDO\Connection as PDOConnection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
@@ -287,18 +287,6 @@ class ConnectionTest extends FunctionalTestCase
         self::assertEquals(42, $res);
     }
 
-    public function testPingDoesTriggersConnect(): void
-    {
-        $this->connection->close();
-        self::assertFalse($this->connection->isConnected());
-
-        $this->connection->ping();
-        self::assertTrue($this->connection->isConnected());
-    }
-
-    /**
-     * @group DBAL-1025
-     */
     public function testConnectWithoutExplicitDatabaseName(): void
     {
         if (in_array($this->connection->getDatabasePlatform()->getName(), ['oracle', 'db2'], true)) {
@@ -321,9 +309,6 @@ class ConnectionTest extends FunctionalTestCase
         $connection->close();
     }
 
-    /**
-     * @group DBAL-990
-     */
     public function testDeterminesDatabasePlatformWhenConnectingToNonExistentDatabase(): void
     {
         if (in_array($this->connection->getDatabasePlatform()->getName(), ['oracle', 'db2'], true)) {

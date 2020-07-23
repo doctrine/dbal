@@ -71,7 +71,7 @@ class TableGenerator
      */
     public function __construct(Connection $conn, string $generatorTableName = 'sequences')
     {
-        if ($conn->getDriver() instanceof Driver\PDOSqlite\Driver) {
+        if ($conn->getDriver() instanceof Driver\PDO\SQLite\Driver) {
             throw new DBALException('Cannot use TableGenerator with SQLite.');
         }
 
@@ -89,13 +89,13 @@ class TableGenerator
      *
      * @throws DBALException
      */
-    public function nextValue(string $sequenceName): int
+    public function nextValue(string $sequence): int
     {
-        if (isset($this->sequences[$sequenceName])) {
-            $value = $this->sequences[$sequenceName]['value'];
-            $this->sequences[$sequenceName]['value']++;
-            if ($this->sequences[$sequenceName]['value'] >= $this->sequences[$sequenceName]['max']) {
-                unset($this->sequences[$sequenceName]);
+        if (isset($this->sequences[$sequence])) {
+            $value = $this->sequences[$sequence]['value'];
+            $this->sequences[$sequence]['value']++;
+            if ($this->sequences[$sequence]['value'] >= $this->sequences[$sequence]['max']) {
+                unset($this->sequences[$sequence]);
             }
 
             return $value;
@@ -108,7 +108,7 @@ class TableGenerator
             $sql      = 'SELECT sequence_value, sequence_increment_by'
                 . ' FROM ' . $platform->appendLockHint($this->generatorTableName, LockMode::PESSIMISTIC_WRITE)
                 . ' WHERE sequence_name = ? ' . $platform->getWriteLockSQL();
-            $row      = $this->conn->fetchAssociative($sql, [$sequenceName]);
+            $row      = $this->conn->fetchAssociative($sql, [$sequence]);
 
             if ($row !== false) {
                 $row = array_change_key_case($row, CASE_LOWER);
@@ -119,7 +119,7 @@ class TableGenerator
                 assert(is_int($value));
 
                 if ($row['sequence_increment_by'] > 1) {
-                    $this->sequences[$sequenceName] = [
+                    $this->sequences[$sequence] = [
                         'value' => $value,
                         'max' => $row['sequence_value'] + $row['sequence_increment_by'],
                     ];
@@ -128,7 +128,7 @@ class TableGenerator
                 $sql  = 'UPDATE ' . $this->generatorTableName . ' ' .
                        'SET sequence_value = sequence_value + sequence_increment_by ' .
                        'WHERE sequence_name = ? AND sequence_value = ?';
-                $rows = $this->conn->executeUpdate($sql, [$sequenceName, $row['sequence_value']]);
+                $rows = $this->conn->executeStatement($sql, [$sequence, $row['sequence_value']]);
 
                 if ($rows !== 1) {
                     throw new DBALException('Race condition detected while updating sequence. Aborting generation.');
@@ -136,7 +136,7 @@ class TableGenerator
             } else {
                 $this->conn->insert(
                     $this->generatorTableName,
-                    ['sequence_name' => $sequenceName, 'sequence_value' => 1, 'sequence_increment_by' => 1]
+                    ['sequence_name' => $sequence, 'sequence_value' => 1, 'sequence_increment_by' => 1]
                 );
                 $value = 1;
             }

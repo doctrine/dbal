@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL;
 
 use Doctrine\DBAL\Abstraction\Result as ResultInterface;
-use Doctrine\DBAL\Driver\DriverException;
+use Doctrine\DBAL\Driver\Exception as DriverException;
 use Doctrine\DBAL\Driver\Result as DriverResult;
 use Traversable;
 
@@ -17,6 +17,9 @@ final class Result implements ResultInterface
     /** @var Connection */
     private $connection;
 
+    /**
+     * @internal The result can be only instantiated by {@link Connection} or {@link Statement}.
+     */
     public function __construct(DriverResult $result, Connection $connection)
     {
         $this->result     = $result;
@@ -33,7 +36,7 @@ final class Result implements ResultInterface
         try {
             return $this->result->fetchNumeric();
         } catch (DriverException $e) {
-            throw DBALException::driverException($this->connection->getDriver(), $e);
+            throw $this->connection->convertException($e);
         }
     }
 
@@ -47,19 +50,21 @@ final class Result implements ResultInterface
         try {
             return $this->result->fetchAssociative();
         } catch (DriverException $e) {
-            throw DBALException::driverException($this->connection->getDriver(), $e);
+            throw $this->connection->convertException($e);
         }
     }
 
     /**
      * {@inheritDoc}
+     *
+     * @throws DBALException
      */
     public function fetchOne()
     {
         try {
             return $this->result->fetchOne();
         } catch (DriverException $e) {
-            throw DBALException::driverException($this->connection->getDriver(), $e);
+            throw $this->connection->convertException($e);
         }
     }
 
@@ -73,7 +78,7 @@ final class Result implements ResultInterface
         try {
             return $this->result->fetchAllNumeric();
         } catch (DriverException $e) {
-            throw DBALException::driverException($this->connection->getDriver(), $e);
+            throw $this->connection->convertException($e);
         }
     }
 
@@ -87,7 +92,7 @@ final class Result implements ResultInterface
         try {
             return $this->result->fetchAllAssociative();
         } catch (DriverException $e) {
-            throw DBALException::driverException($this->connection->getDriver(), $e);
+            throw $this->connection->convertException($e);
         }
     }
 
@@ -101,7 +106,7 @@ final class Result implements ResultInterface
         try {
             return $this->result->fetchFirstColumn();
         } catch (DriverException $e) {
-            throw DBALException::driverException($this->connection->getDriver(), $e);
+            throw $this->connection->convertException($e);
         }
     }
 
@@ -117,7 +122,7 @@ final class Result implements ResultInterface
                 yield $row;
             }
         } catch (DriverException $e) {
-            throw DBALException::driverException($this->connection->getDriver(), $e);
+            throw $this->connection->convertException($e);
         }
     }
 
@@ -133,7 +138,7 @@ final class Result implements ResultInterface
                 yield $row;
             }
         } catch (DriverException $e) {
-            throw DBALException::driverException($this->connection->getDriver(), $e);
+            throw $this->connection->convertException($e);
         }
     }
 
@@ -149,7 +154,7 @@ final class Result implements ResultInterface
                 yield $value;
             }
         } catch (DriverException $e) {
-            throw DBALException::driverException($this->connection->getDriver(), $e);
+            throw $this->connection->convertException($e);
         }
     }
 

@@ -7,25 +7,7 @@ namespace Doctrine\DBAL\Tests\Driver;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
-use Doctrine\DBAL\Driver\DriverException as DriverExceptionInterface;
-use Doctrine\DBAL\Driver\ExceptionConverterDriver;
-use Doctrine\DBAL\Exception\ConnectionException;
-use Doctrine\DBAL\Exception\ConstraintViolationException;
-use Doctrine\DBAL\Exception\DatabaseObjectExistsException;
-use Doctrine\DBAL\Exception\DatabaseObjectNotFoundException;
-use Doctrine\DBAL\Exception\DeadlockException;
-use Doctrine\DBAL\Exception\DriverException;
-use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
-use Doctrine\DBAL\Exception\InvalidFieldNameException;
-use Doctrine\DBAL\Exception\LockWaitTimeoutException;
-use Doctrine\DBAL\Exception\NonUniqueFieldNameException;
-use Doctrine\DBAL\Exception\NotNullConstraintViolationException;
-use Doctrine\DBAL\Exception\ReadOnlyException;
-use Doctrine\DBAL\Exception\ServerException;
-use Doctrine\DBAL\Exception\SyntaxErrorException;
-use Doctrine\DBAL\Exception\TableExistsException;
-use Doctrine\DBAL\Exception\TableNotFoundException;
-use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use Doctrine\DBAL\Driver\API\ExceptionConverter;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
@@ -33,30 +15,11 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
 
-use function array_merge;
 use function get_class;
 use function sprintf;
 
 abstract class AbstractDriverTest extends TestCase
 {
-    public const EXCEPTION_CONNECTION                       = ConnectionException::class;
-    public const EXCEPTION_CONSTRAINT_VIOLATION             = ConstraintViolationException::class;
-    public const EXCEPTION_DATABASE_OBJECT_EXISTS           = DatabaseObjectExistsException::class;
-    public const EXCEPTION_DATABASE_OBJECT_NOT_FOUND        = DatabaseObjectNotFoundException::class;
-    public const EXCEPTION_DRIVER                           = DriverException::class;
-    public const EXCEPTION_FOREIGN_KEY_CONSTRAINT_VIOLATION = ForeignKeyConstraintViolationException::class;
-    public const EXCEPTION_INVALID_FIELD_NAME               = InvalidFieldNameException::class;
-    public const EXCEPTION_NON_UNIQUE_FIELD_NAME            = NonUniqueFieldNameException::class;
-    public const EXCEPTION_NOT_NULL_CONSTRAINT_VIOLATION    = NotNullConstraintViolationException::class;
-    public const EXCEPTION_READ_ONLY                        = ReadOnlyException::class;
-    public const EXCEPTION_SERVER                           = ServerException::class;
-    public const EXCEPTION_SYNTAX_ERROR                     = SyntaxErrorException::class;
-    public const EXCEPTION_TABLE_EXISTS                     = TableExistsException::class;
-    public const EXCEPTION_TABLE_NOT_FOUND                  = TableNotFoundException::class;
-    public const EXCEPTION_UNIQUE_CONSTRAINT_VIOLATION      = UniqueConstraintViolationException::class;
-    public const EXCEPTION_DEADLOCK                         = DeadlockException::class;
-    public const EXCEPTION_LOCK_WAIT_TIMEOUT                = LockWaitTimeoutException::class;
-
     /**
      * The driver mock under test.
      *
@@ -69,32 +32,6 @@ abstract class AbstractDriverTest extends TestCase
         parent::setUp();
 
         $this->driver = $this->createDriver();
-    }
-
-    /**
-     * @dataProvider exceptionConversionProvider
-     */
-    public function testConvertsException(string $expectedClass, int $errorCode, ?string $sqlState = null, string $message = ''): void
-    {
-        if (! $this->driver instanceof ExceptionConverterDriver) {
-            self::markTestSkipped('This test is only intended for exception converter drivers.');
-        }
-
-        $driverException = $this->getMockBuilder(DriverExceptionInterface::class)
-            ->setConstructorArgs([$message, $errorCode])
-            ->getMock();
-        $driverException->method('getSQLState')
-            ->willReturn($sqlState);
-
-        $dbalMessage   = 'DBAL exception message';
-        $dbalException = $this->driver->convertException($dbalMessage, $driverException);
-
-        self::assertInstanceOf($expectedClass, $dbalException);
-
-        self::assertSame($driverException->getCode(), $dbalException->getCode());
-        self::assertSame($driverException->getSQLState(), $dbalException->getSQLState());
-        self::assertSame($driverException, $dbalException->getPrevious());
-        self::assertSame($dbalMessage, $dbalException->getMessage());
     }
 
     public function testCreatesDatabasePlatformForVersion(): void
@@ -148,7 +85,10 @@ abstract class AbstractDriverTest extends TestCase
     public function testReturnsSchemaManager(): void
     {
         $connection    = $this->getConnectionMock();
-        $schemaManager = $this->driver->getSchemaManager($connection);
+        $schemaManager = $this->driver->getSchemaManager(
+            $connection,
+            $this->createPlatform()
+        );
 
         self::assertEquals($this->createSchemaManager($connection), $schemaManager);
 
@@ -156,6 +96,11 @@ abstract class AbstractDriverTest extends TestCase
         $re->setAccessible(true);
 
         self::assertSame($connection, $re->getValue($schemaManager));
+    }
+
+    public function testReturnsExceptionConverter(): void
+    {
+        self::assertEquals($this->createExceptionConverter(), $this->driver->getExceptionConverter());
     }
 
     /**
@@ -181,6 +126,8 @@ abstract class AbstractDriverTest extends TestCase
      */
     abstract protected function createSchemaManager(Connection $connection): AbstractSchemaManager;
 
+    abstract protected function createExceptionConverter(): ExceptionConverter;
+
     /**
      * @return Connection&MockObject
      */
@@ -193,28 +140,6 @@ abstract class AbstractDriverTest extends TestCase
      * @return array<int, array<int, string>>
      */
     protected function getDatabasePlatformsForVersions(): array
-    {
-        return [];
-    }
-
-    /**
-     * @return iterable<mixed[]>
-     */
-    public static function exceptionConversionProvider(): iterable
-    {
-        foreach (static::getExceptionConversionData() as $expectedClass => $items) {
-            foreach ($items as $item) {
-                yield array_merge([$expectedClass], $item);
-            }
-        }
-
-        yield [self::EXCEPTION_DRIVER, 1, 'HY000', 'The message'];
-    }
-
-    /**
-     * @return array<string,mixed[][]>
-     */
-    protected static function getExceptionConversionData(): array
     {
         return [];
     }

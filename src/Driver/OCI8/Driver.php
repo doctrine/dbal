@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver\OCI8;
 
 use Doctrine\DBAL\Driver\AbstractOracleDriver;
-use Doctrine\DBAL\Driver\Connection;
+use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
 
 use const OCI_NO_AUTO_COMMIT;
 
@@ -17,9 +17,9 @@ final class Driver extends AbstractOracleDriver
     /**
      * {@inheritdoc}
      */
-    public function connect(array $params): Connection
+    public function connect(array $params): ConnectionInterface
     {
-        return new OCI8Connection(
+        return new Connection(
             $params['user'] ?? '',
             $params['password'] ?? '',
             $this->constructDsn($params),

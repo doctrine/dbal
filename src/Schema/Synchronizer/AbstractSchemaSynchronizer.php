@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema\Synchronizer;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DBALException;
 use Throwable;
 
 /**
@@ -27,7 +28,7 @@ abstract class AbstractSchemaSynchronizer implements SchemaSynchronizer
     {
         foreach ($sql as $s) {
             try {
-                $this->conn->exec($s);
+                $this->conn->executeStatement($s);
             } catch (Throwable $e) {
             }
         }
@@ -35,11 +36,13 @@ abstract class AbstractSchemaSynchronizer implements SchemaSynchronizer
 
     /**
      * @param array<int, string> $sql
+     *
+     * @throws DBALException
      */
     protected function processSql(array $sql): void
     {
         foreach ($sql as $s) {
-            $this->conn->exec($s);
+            $this->conn->executeStatement($s);
         }
     }
 }

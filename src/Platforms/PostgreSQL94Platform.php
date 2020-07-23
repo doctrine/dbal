@@ -259,7 +259,7 @@ SQL
      *
      * @link http://ezcomponents.org/docs/api/trunk/DatabaseSchema/ezcDbSchemaPgsqlReader.html
      */
-    public function getListTableIndexesSQL(string $table, ?string $currentDatabase = null): string
+    public function getListTableIndexesSQL(string $table, ?string $database = null): string
     {
         return 'SELECT quote_ident(relname) as relname, pg_index.indisunique, pg_index.indisprimary,
                        pg_index.indkey, pg_index.indrelid,
@@ -537,9 +537,8 @@ SQL
      * Checks whether a given column diff is a logically unchanged binary type column.
      *
      * Used to determine whether a column alteration for a binary type column can be skipped.
-     * Doctrine's {@link \Doctrine\DBAL\Types\BinaryType} and {@link \Doctrine\DBAL\Types\BlobType}
-     * are mapped to the same database column type on this platform as this platform
-     * does not have a native VARBINARY/BINARY column type. Therefore the {@link \Doctrine\DBAL\Schema\Comparator}
+     * Doctrine's {@link BinaryType} and {@link BlobType} are mapped to the same database column type on this platform
+     * as this platform does not have a native VARBINARY/BINARY column type. Therefore the comparator
      * might detect differences for binary type columns which do not have to be propagated
      * to database as there actually is no difference at database level.
      *
@@ -793,9 +792,9 @@ SQL
         return parent::convertFromBoolean($item);
     }
 
-    public function getSequenceNextValSQL(string $sequenceName): string
+    public function getSequenceNextValSQL(string $sequence): string
     {
-        return "SELECT NEXTVAL('" . $sequenceName . "')";
+        return "SELECT NEXTVAL('" . $sequence . "')";
     }
 
     public function getSetTransactionIsolationSQL(int $level): string
@@ -807,7 +806,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getBooleanTypeDeclarationSQL(array $columnDef): string
+    public function getBooleanTypeDeclarationSQL(array $column): string
     {
         return 'BOOLEAN';
     }
@@ -815,9 +814,9 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getIntegerTypeDeclarationSQL(array $columnDef): string
+    public function getIntegerTypeDeclarationSQL(array $column): string
     {
-        if (! empty($columnDef['autoincrement'])) {
+        if (! empty($column['autoincrement'])) {
             return 'SERIAL';
         }
 
@@ -827,9 +826,9 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getBigIntTypeDeclarationSQL(array $columnDef): string
+    public function getBigIntTypeDeclarationSQL(array $column): string
     {
-        if (! empty($columnDef['autoincrement'])) {
+        if (! empty($column['autoincrement'])) {
             return 'BIGSERIAL';
         }
 
@@ -839,9 +838,9 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getSmallIntTypeDeclarationSQL(array $columnDef): string
+    public function getSmallIntTypeDeclarationSQL(array $column): string
     {
-        if (! empty($columnDef['autoincrement'])) {
+        if (! empty($column['autoincrement'])) {
             return 'SMALLSERIAL';
         }
 
@@ -859,7 +858,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getDateTimeTypeDeclarationSQL(array $fieldDeclaration): string
+    public function getDateTimeTypeDeclarationSQL(array $column): string
     {
         return 'TIMESTAMP(0) WITHOUT TIME ZONE';
     }
@@ -867,7 +866,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getDateTimeTzTypeDeclarationSQL(array $fieldDeclaration): string
+    public function getDateTimeTzTypeDeclarationSQL(array $column): string
     {
         return 'TIMESTAMP(0) WITH TIME ZONE';
     }
@@ -875,7 +874,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getDateTypeDeclarationSQL(array $fieldDeclaration): string
+    public function getDateTypeDeclarationSQL(array $column): string
     {
         return 'DATE';
     }
@@ -883,7 +882,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getTimeTypeDeclarationSQL(array $fieldDeclaration): string
+    public function getTimeTypeDeclarationSQL(array $column): string
     {
         return 'TIME(0) WITHOUT TIME ZONE';
     }
@@ -891,7 +890,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef): string
+    protected function _getCommonIntegerTypeDeclarationSQL(array $column): string
     {
         return '';
     }
@@ -920,7 +919,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getClobTypeDeclarationSQL(array $field): string
+    public function getClobTypeDeclarationSQL(array $column): string
     {
         return 'TEXT';
     }
@@ -1027,7 +1026,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getBlobTypeDeclarationSQL(array $field): string
+    public function getBlobTypeDeclarationSQL(array $column): string
     {
         return 'BYTEA';
     }
@@ -1035,13 +1034,13 @@ SQL
     /**
      * {@inheritdoc}
      */
-    public function getDefaultValueDeclarationSQL(array $field): string
+    public function getDefaultValueDeclarationSQL(array $column): string
     {
-        if ($this->isSerialField($field)) {
+        if ($this->isSerialColumn($column)) {
             return '';
         }
 
-        return parent::getDefaultValueDeclarationSQL($field);
+        return parent::getDefaultValueDeclarationSQL($column);
     }
 
     public function supportsColumnCollation(): bool
@@ -1057,9 +1056,9 @@ SQL
     /**
      * {@inheritdoc}
      */
-    public function getJsonTypeDeclarationSQL(array $field): string
+    public function getJsonTypeDeclarationSQL(array $column): string
     {
-        if (! empty($field['jsonb'])) {
+        if (! empty($column['jsonb'])) {
             return 'JSONB';
         }
 
@@ -1067,13 +1066,13 @@ SQL
     }
 
     /**
-     * @param mixed[] $field
+     * @param mixed[] $column
      */
-    private function isSerialField(array $field): bool
+    private function isSerialColumn(array $column): bool
     {
-        return isset($field['type'], $field['autoincrement'])
-            && $field['autoincrement'] === true
-            && $this->isNumericType($field['type']);
+        return isset($column['type'], $column['autoincrement'])
+            && $column['autoincrement'] === true
+            && $this->isNumericType($column['type']);
     }
 
     /**

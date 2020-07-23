@@ -49,12 +49,12 @@ class Index extends AbstractAsset implements Constraint
      * @param array<int, string>   $flags
      * @param array<string, mixed> $options
      */
-    public function __construct(?string $indexName, array $columns, bool $isUnique = false, bool $isPrimary = false, array $flags = [], array $options = [])
+    public function __construct(?string $name, array $columns, bool $isUnique = false, bool $isPrimary = false, array $flags = [], array $options = [])
     {
         $isUnique = $isUnique || $isPrimary;
 
-        if ($indexName !== null) {
-            $this->_setName($indexName);
+        if ($name !== null) {
+            $this->_setName($name);
         }
 
         $this->_isUnique  = $isUnique;
@@ -134,12 +134,12 @@ class Index extends AbstractAsset implements Constraint
         return $this->_isPrimary;
     }
 
-    public function hasColumnAtPosition(string $columnName, int $pos = 0): bool
+    public function hasColumnAtPosition(string $name, int $pos = 0): bool
     {
-        $columnName   = $this->trimQuotes(strtolower($columnName));
+        $name         = $this->trimQuotes(strtolower($name));
         $indexColumns = array_map('strtolower', $this->getUnquotedColumns());
 
-        return array_search($columnName, $indexColumns, true) === $pos;
+        return array_search($name, $indexColumns, true) === $pos;
     }
 
     /**

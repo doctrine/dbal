@@ -65,9 +65,9 @@ class QueryCacheProfile
      *
      * @return string[]
      */
-    public function generateCacheKeys(string $query, array $params, array $types, array $connectionParams = []): array
+    public function generateCacheKeys(string $sql, array $params, array $types, array $connectionParams = []): array
     {
-        $realCacheKey = 'query=' . $query .
+        $realCacheKey = 'query=' . $sql .
             '&params=' . serialize($params) .
             '&types=' . serialize($types) .
             '&connectionParams=' . hash('sha256', serialize($connectionParams));

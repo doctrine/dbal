@@ -42,9 +42,6 @@ class IndexTest extends TestCase
         self::assertFalse($idx->isPrimary());
     }
 
-    /**
-     * @group DBAL-50
-     */
     public function testFulfilledByUnique(): void
     {
         $idx1 = $this->createIndex(true, false);
@@ -55,9 +52,6 @@ class IndexTest extends TestCase
         self::assertFalse($idx1->isFullfilledBy($idx3));
     }
 
-    /**
-     * @group DBAL-50
-     */
     public function testFulfilledByPrimary(): void
     {
         $idx1 = $this->createIndex(true, true);
@@ -68,9 +62,6 @@ class IndexTest extends TestCase
         self::assertFalse($idx1->isFullfilledBy($idx3));
     }
 
-    /**
-     * @group DBAL-50
-     */
     public function testFulfilledByIndex(): void
     {
         $idx1 = $this->createIndex();
@@ -143,9 +134,6 @@ class IndexTest extends TestCase
         ];
     }
 
-    /**
-     * @group DBAL-220
-     */
     public function testFlags(): void
     {
         $idx1 = $this->createIndex();
@@ -162,9 +150,6 @@ class IndexTest extends TestCase
         self::assertEmpty($idx1->getFlags());
     }
 
-    /**
-     * @group DBAL-285
-     */
     public function testIndexQuotes(): void
     {
         $index = new Index('foo', ['`bar`', '`baz`']);

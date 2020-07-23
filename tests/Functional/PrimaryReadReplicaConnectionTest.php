@@ -18,9 +18,6 @@ use function substr;
 
 use const CASE_LOWER;
 
-/**
- * @group DBAL-20
- */
 class PrimaryReadReplicaConnectionTest extends FunctionalTestCase
 {
     protected function setUp(): void
@@ -44,7 +41,7 @@ class PrimaryReadReplicaConnectionTest extends FunctionalTestCase
         } catch (Throwable $e) {
         }
 
-        $this->connection->executeUpdate('DELETE FROM primary_replica_table');
+        $this->connection->executeStatement('DELETE FROM primary_replica_table');
         $this->connection->insert('primary_replica_table', ['test_int' => 1]);
     }
 
@@ -142,9 +139,6 @@ class PrimaryReadReplicaConnectionTest extends FunctionalTestCase
         self::assertTrue($conn->isConnectedToPrimary());
     }
 
-    /**
-     * @group DBAL-335
-     */
     public function testKeepReplicaBeginTransactionStaysOnPrimary(): void
     {
         $conn = $this->createPrimaryReadReplicaConnection($keepReplica = true);
@@ -163,9 +157,6 @@ class PrimaryReadReplicaConnectionTest extends FunctionalTestCase
         self::assertFalse($conn->isConnectedToPrimary());
     }
 
-    /**
-     * @group DBAL-335
-     */
     public function testKeepReplicaInsertStaysOnPrimary(): void
     {
         $conn = $this->createPrimaryReadReplicaConnection($keepReplica = true);
@@ -193,49 +184,5 @@ class PrimaryReadReplicaConnectionTest extends FunctionalTestCase
 
         $conn->ensureConnectedToPrimary();
         self::assertTrue($conn->isConnectedToPrimary());
-    }
-
-    public function testQueryOnPrimary(): void
-    {
-        $conn = $this->createPrimaryReadReplicaConnection();
-
-        $query = 'SELECT count(*) as num FROM primary_replica_table';
-
-        $result = $conn->query($query);
-
-        //Query must be executed only on Primary
-        self::assertTrue($conn->isConnectedToPrimary());
-
-        $data = $result->fetchAllAssociative();
-
-        self::assertArrayHasKey(0, $data);
-        self::assertArrayHasKey('num', $data[0]);
-
-        //Could be set in other fetchmodes
-        self::assertArrayNotHasKey(0, $data[0]);
-        self::assertEquals(1, $data[0]['num']);
-    }
-
-    public function testQueryOnReplica(): void
-    {
-        $conn = $this->createPrimaryReadReplicaConnection();
-        $conn->ensureConnectedToReplica();
-
-        $query = 'SELECT count(*) as num FROM primary_replica_table';
-
-        $result = $conn->query($query);
-
-        //Query must be executed only on Primary, even when we connect to the replica
-        self::assertTrue($conn->isConnectedToPrimary());
-
-        $data = $result->fetchAllAssociative();
-
-        self::assertArrayHasKey(0, $data);
-        self::assertArrayHasKey('num', $data[0]);
-
-        //Could be set in other fetchmodes
-        self::assertArrayNotHasKey(0, $data[0]);
-
-        self::assertEquals(1, $data[0]['num']);
     }
 }

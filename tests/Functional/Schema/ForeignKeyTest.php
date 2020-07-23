@@ -26,7 +26,7 @@ class ForeignKeyTest extends FunctionalTestCase
         );
 
         foreach ($schema->toSql($this->connection->getDatabasePlatform()) as $sql) {
-            $this->connection->exec($sql);
+            $this->connection->executeStatement($sql);
         }
 
         self::assertCount(

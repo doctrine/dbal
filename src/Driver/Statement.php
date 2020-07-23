@@ -22,16 +22,16 @@ interface Statement
      *                          this will be a parameter name of the form :name. For a prepared statement
      *                          using question mark placeholders, this will be the 1-indexed position of the parameter.
      * @param mixed      $value The value to bind to the parameter.
-     * @param int        $type  Explicit data type for the parameter using the {@link \Doctrine\DBAL\ParameterType}
+     * @param int        $type  Explicit data type for the parameter using the {@link ParameterType}
      *                          constants.
      *
-     * @throws DriverException
+     * @throws Exception
      */
     public function bindValue($param, $value, int $type = ParameterType::STRING): void;
 
     /**
      * Binds a PHP variable to a corresponding named (not supported by mysqli driver, see comment below) or question
-     * mark placeholder in the SQL statement that was use to prepare the statement. Unlike PDOStatement->bindValue(),
+     * mark placeholder in the SQL statement that was use to prepare the statement. Unlike {@link bindValue()},
      * the variable is bound as a reference and will only be evaluated at the time
      * that PDOStatement->execute() is called.
      *
@@ -47,12 +47,12 @@ interface Statement
      *                             this will be a parameter name of the form :name. For a prepared statement using
      *                             question mark placeholders, this will be the 1-indexed position of the parameter.
      * @param mixed      $variable The variable to bind to the parameter.
-     * @param int        $type     Explicit data type for the parameter using the {@link \Doctrine\DBAL\ParameterType}
+     * @param int        $type     Explicit data type for the parameter using the {@link ParameterType}
      *                             constants.
      * @param int|null   $length   You must specify maxlength when using an OUT bind
      *                             so that PHP allocates enough memory to hold the returned value.
      *
-     * @throws DriverException
+     * @throws Exception
      */
     public function bindParam($param, &$variable, int $type = ParameterType::STRING, ?int $length = null): void;
 
@@ -60,7 +60,7 @@ interface Statement
      * Executes a prepared statement
      *
      * If the prepared statement included parameter markers, you must either:
-     * call PDOStatement->bindParam() to bind PHP variables to the parameter markers:
+     * call {@link bindParam()} to bind PHP variables to the parameter markers:
      * bound variables pass their value as input and receive the output value,
      * if any, of their associated parameter markers or pass an array of input-only
      * parameter values.
@@ -68,7 +68,7 @@ interface Statement
      * @param mixed[]|null $params A numeric array of values with as many elements as there are
      *                             bound parameters in the SQL statement being executed.
      *
-     * @throws DriverException
+     * @throws Exception
      */
     public function execute(?array $params = null): Result;
 }

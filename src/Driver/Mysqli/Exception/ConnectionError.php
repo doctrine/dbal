@@ -4,23 +4,18 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver\Mysqli\Exception;
 
-use Doctrine\DBAL\Driver\Mysqli\MysqliException;
+use Doctrine\DBAL\Driver\AbstractException;
 use mysqli;
 
 /**
+ * @internal
+ *
  * @psalm-immutable
  */
-final class ConnectionError extends MysqliException
+final class ConnectionError extends AbstractException
 {
     public static function new(mysqli $connection): self
     {
-        $connectionSQLState = $connection->sqlstate;
-
-        $sqlState = null;
-        if ($connectionSQLState !== false) {
-            $sqlState = $connectionSQLState;
-        }
-
-        return new self($connection->error, $sqlState, $connection->errno);
+        return new self($connection->error, $connection->sqlstate, $connection->errno);
     }
 }

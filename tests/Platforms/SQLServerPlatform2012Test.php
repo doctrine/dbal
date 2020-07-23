@@ -16,7 +16,6 @@ class SQLServerPlatform2012Test extends AbstractSQLServerPlatformTestCase
     }
 
     /**
-     * @group DDC-2310
      * @dataProvider getLockHints
      */
     public function testAppendsLockHint(?int $lockMode, string $lockHint): void

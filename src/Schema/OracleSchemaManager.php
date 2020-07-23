@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Driver\DriverException;
+use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Types\Type;
 use Throwable;
@@ -36,7 +36,7 @@ class OracleSchemaManager extends AbstractSchemaManager
             $exception = $exception->getPrevious();
             assert($exception instanceof Throwable);
 
-            if (! $exception instanceof DriverException) {
+            if (! $exception instanceof Exception) {
                 throw $exception;
             }
 
@@ -285,19 +285,22 @@ class OracleSchemaManager extends AbstractSchemaManager
         $password = $params['password'];
 
         $query = 'CREATE USER ' . $username . ' IDENTIFIED BY ' . $password;
-        $this->_conn->executeUpdate($query);
+        $this->_conn->executeStatement($query);
 
         $query = 'GRANT DBA TO ' . $username;
-        $this->_conn->executeUpdate($query);
+        $this->_conn->executeStatement($query);
     }
 
+    /**
+     * @throws DBALException
+     */
     public function dropAutoincrement(string $table): bool
     {
         assert($this->_platform instanceof OraclePlatform);
 
         $sql = $this->_platform->getDropAutoincrementSql($table);
         foreach ($sql as $query) {
-            $this->_conn->executeUpdate($query);
+            $this->_conn->executeStatement($query);
         }
 
         return true;
@@ -331,6 +334,8 @@ class OracleSchemaManager extends AbstractSchemaManager
      * This is useful to force DROP USER operations which could fail because of active user sessions.
      *
      * @param string $user The name of the user to kill sessions for.
+     *
+     * @throws DBALException
      */
     private function killUserSessions(string $user): void
     {
@@ -361,13 +366,13 @@ SQL;
         }
     }
 
-    public function listTableDetails(string $tableName): Table
+    public function listTableDetails(string $name): Table
     {
-        $table = parent::listTableDetails($tableName);
+        $table = parent::listTableDetails($name);
 
         $platform = $this->_platform;
         assert($platform instanceof OraclePlatform);
-        $sql = $platform->getListTableCommentsSQL($tableName);
+        $sql = $platform->getListTableCommentsSQL($name);
 
         $tableOptions = $this->_conn->fetchAssociative($sql);
 

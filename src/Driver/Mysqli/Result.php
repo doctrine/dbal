@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver\Mysqli;
 
+use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\FetchUtils;
+use Doctrine\DBAL\Driver\Mysqli\Exception\StatementError;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use mysqli_stmt;
 use stdClass;
@@ -41,7 +43,9 @@ final class Result implements ResultInterface
     private $boundValues = [];
 
     /**
-     * @throws MysqliException
+     * @internal The result can be only instantiated by its driver connection or statement.
+     *
+     * @throws Exception
      */
     public function __construct(mysqli_stmt $statement)
     {
@@ -71,7 +75,7 @@ final class Result implements ResultInterface
 
         // Bind row values _after_ storing the result. Otherwise, if mysqli is compiled with libmysql,
         // it will have to allocate as much memory as it may be needed for the given column type
-        // (e.g. for a LONGBLOB field it's 4 gigabytes)
+        // (e.g. for a LONGBLOB column it's 4 gigabytes)
         // @link https://bugs.php.net/bug.php?id=51386#1270673122
         //
         // Make sure that the values are bound after each execution. Otherwise, if free() has been
@@ -88,7 +92,7 @@ final class Result implements ResultInterface
         }
 
         if (! $this->statement->bind_result(...$refs)) {
-            throw new MysqliException($this->statement->error, $this->statement->sqlstate, $this->statement->errno);
+            throw StatementError::new($this->statement);
         }
     }
 
@@ -100,7 +104,7 @@ final class Result implements ResultInterface
         $ret = $this->statement->fetch();
 
         if ($ret === false) {
-            throw new MysqliException($this->statement->error, $this->statement->sqlstate, $this->statement->errno);
+            throw StatementError::new($this->statement);
         }
 
         if ($ret === null) {

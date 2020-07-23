@@ -142,7 +142,7 @@ use prepared statements:
     SQL query, bind the given params with their binding types and execute the query.
     This method returns the executed prepared statement for iteration and is useful
     for SELECT statements.
--   ``executeUpdate($sql, $params, $types)`` - Create a prepared statement for the passed
+-   ``executeStatement($sql, $params, $types)`` - Create a prepared statement for the passed
     SQL query, bind the given params with their binding types and execute the query.
     This method returns the number of affected rows by the executed query and is useful
     for UPDATE, DELETE and INSERT statements.
@@ -170,7 +170,7 @@ of this query using the fetch API of a statement:
 The fetch API of a prepared statement obviously works only for ``SELECT`` queries.
 
 If you find it tedious to write all the prepared statement code you can alternatively use
-the ``Doctrine\DBAL\Connection#executeQuery()`` and ``Doctrine\DBAL\Connection#executeUpdate()``
+the ``Doctrine\DBAL\Connection#executeQuery()`` and ``Doctrine\DBAL\Connection#executeStatement()``
 methods. See the API section below on details how to use them.
 
 Additionally there are lots of convenience methods for data-retrieval and manipulation
@@ -208,7 +208,7 @@ which means this code works independent of the database you are using.
 .. note::
 
     Be aware this type conversion only works with ``Statement#bindValue()``,
-    ``Connection#executeQuery()`` and ``Connection#executeUpdate()``. It
+    ``Connection#executeQuery()`` and ``Connection#executeStatement()``. It
     is not supported to pass a doctrine type name to ``Statement#bindParam()``,
     because this would not work with binding by reference.
 
@@ -286,7 +286,7 @@ This is much more complicated and is ugly to write generically.
 .. note::
 
     The parameter list support only works with ``Doctrine\DBAL\Connection::executeQuery()``
-    and ``Doctrine\DBAL\Connection::executeUpdate()``, NOT with the binding methods of
+    and ``Doctrine\DBAL\Connection::executeStatement()``, NOT with the binding methods of
     a prepared statement.
 
 API
@@ -319,7 +319,7 @@ Prepare a given SQL statement and return the
     )
     */
 
-executeUpdate()
+executeStatement()
 ~~~~~~~~~~~~~~~
 
 Executes a prepared statement with the given SQL and parameters and
@@ -328,7 +328,7 @@ returns the affected rows count:
 .. code-block:: php
 
     <?php
-    $count = $conn->executeUpdate('UPDATE user SET username = ? WHERE id = ?', array('jwage', 1));
+    $count = $conn->executeStatement('UPDATE user SET username = ? WHERE id = ?', array('jwage', 1));
     echo $count; // 1
 
 The ``$types`` variable contains the PDO or Doctrine Type constants

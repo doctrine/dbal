@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Cache;
 
 use Doctrine\Common\Cache\Cache;
-use Doctrine\DBAL\Driver\DriverException;
+use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\FetchUtils;
 use Doctrine\DBAL\Driver\Result;
 
@@ -130,7 +130,7 @@ final class CachingResult implements Result
     /**
      * @return array<string,mixed>|false
      *
-     * @throws DriverException
+     * @throws Exception
      */
     private function fetch()
     {

@@ -16,9 +16,9 @@ class FloatType extends Type
     /**
      * {@inheritdoc}
      */
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform): string
+    public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
-        return $platform->getFloatDeclarationSQL($fieldDeclaration);
+        return $platform->getFloatDeclarationSQL($column);
     }
 
     /**

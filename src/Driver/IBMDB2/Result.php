@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver\IBMDB2;
 
 use Doctrine\DBAL\Driver\FetchUtils;
+use Doctrine\DBAL\Driver\IBMDB2\Exception\StatementError;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 
 use function db2_fetch_array;
@@ -13,7 +14,6 @@ use function db2_free_result;
 use function db2_num_fields;
 use function db2_num_rows;
 use function db2_stmt_error;
-use function db2_stmt_errormsg;
 
 final class Result implements ResultInterface
 {
@@ -21,6 +21,8 @@ final class Result implements ResultInterface
     private $statement;
 
     /**
+     * @internal The result can be only instantiated by its driver connection or statement.
+     *
      * @param resource $statement
      */
     public function __construct($statement)
@@ -36,7 +38,7 @@ final class Result implements ResultInterface
         $row = @db2_fetch_array($this->statement);
 
         if ($row === false && db2_stmt_error($this->statement) !== '02000') {
-            throw new DB2Exception(db2_stmt_errormsg($this->statement));
+            throw StatementError::new($this->statement);
         }
 
         return $row;
@@ -50,7 +52,7 @@ final class Result implements ResultInterface
         $row = @db2_fetch_assoc($this->statement);
 
         if ($row === false && db2_stmt_error($this->statement) !== '02000') {
-            throw new DB2Exception(db2_stmt_errormsg($this->statement));
+            throw StatementError::new($this->statement);
         }
 
         return $row;

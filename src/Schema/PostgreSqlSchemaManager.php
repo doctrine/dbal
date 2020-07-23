@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Types\Type;
@@ -40,6 +41,8 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
      * Gets all the existing schema names.
      *
      * @return array<int, string>
+     *
+     * @throws DBALException
      */
     public function getSchemaNames(): array
     {
@@ -47,11 +50,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * Returns an array of schema search paths.
-     *
-     * This is a PostgreSQL only function.
-     *
-     * @return array<int, string>
+     * {@inheritDoc}
      */
     public function getSchemaSearchPaths(): array
     {
@@ -521,13 +520,13 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         return str_replace("''", "'", $default);
     }
 
-    public function listTableDetails(string $tableName): Table
+    public function listTableDetails(string $name): Table
     {
-        $table = parent::listTableDetails($tableName);
+        $table = parent::listTableDetails($name);
 
         $platform = $this->_platform;
         assert($platform instanceof PostgreSQL94Platform);
-        $sql = $platform->getListTableMetadataSQL($tableName);
+        $sql = $platform->getListTableMetadataSQL($name);
 
         $tableOptions = $this->_conn->fetchAssociative($sql);
 

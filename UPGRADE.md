@@ -149,12 +149,6 @@ The `Doctrine\DBAL\Driver::getName()` has been removed.
 
 `AbstractSchemaManager::extractDoctrineTypeFromComment()` made `protected`. It takes the comment by reference, removes the type annotation from it and returns the extracted Doctrine type.
 
-## BC BREAK Changes in driver exceptions
-
-1. The `Doctrine\DBAL\Driver\DriverException::getErrorCode()` method is removed. In order to obtain the driver error code, please use `::getCode()`.
-2. `Doctrine\DBAL\Driver\PDOException` no longer extends `PDOException`.
-3. The value returned by `Doctrine\DBAL\Driver\PDOException::getSQLState()` no longer falls back to the driver error code.
-
 The method was used internally and is no longer needed.
 
 ## BC BREAK `DB2SchemaManager::_getPortableForeignKeyRuleDef()` removed
@@ -260,6 +254,114 @@ The Doctrine\DBAL\Version class is no longer available: please refrain from chec
 
 # Upgrade to 3.0
 
+## BC BREAK: removed wrapper `Connection` methods
+
+The following methods of the `Connection` class have been removed:
+
+1. `query()`.
+2. `exec()`.
+3. `executeUpdate()`.
+
+## BC BREAK: Changes in the wrapper-level API ancestry
+
+The wrapper-level `Connection` and `Statement` classes no longer implement the corresponding driver-level interfaces.
+
+## BC BREAK: Removed DBALException factory methods
+
+The following factory methods of the DBALException class have been removed:
+
+1. `DBALException::invalidPlatformSpecified()`.
+2. `DBALException::invalidPdoInstance()`.
+
+## BC BREAK: PDO-based driver classes are moved under the PDO namespace
+
+The following classes have been renamed:
+
+- `PDOMySql\Driver` → `PDO\MySQL\Driver`
+- `PDOOracle\Driver` → `PDO\OCI\Driver`
+- `PDOPgSql\Driver` → `PDO\PgSQL\Driver`
+- `PDOSqlite\Driver` → `PDO\SQLite\Driver`
+- `PDOSqlsrv\Driver` → `PDO\SQLSrv\Driver`
+- `PDOSqlsrv\Connection` → `PDO\SQLSrv\Connection`
+- `PDOSqlsrv\Statement` → `PDO\SQLSrv\Statement`
+
+## BC BREAK: Changes schema manager instantiation.
+
+1. The `$platform` argument of all schema manager constructors is no longer optional.
+2. A new `$platform` argument has been added to the `Driver::getSchemaManager()` method.
+
+## BC BREAK: Changes in driver classes
+
+1. All implementations of the `Driver` interface have been made final.
+2. The `PDO\Connection` and `PDO\Statement` classes have been made final.
+3. The `PDOSqlsrv\Connection` and `PDOSqlsrv\Statement` classes have been made final and no longer extend the corresponding PDO classes.
+4. The `SQLSrv\LastInsertId` class has been made final.
+
+## BC BREAK: Changes in wrapper-level exceptions
+
+1. `DBALException::invalidTableName()` has been replaced with the `InvalidTableName` class.
+
+## BC BREAK: Changes in driver-level exception handling
+
+1. The `convertException()` method has been removed from the `Driver` interface. The logic of exception conversion has been moved to the `ExceptionConverter` interface. The drivers now must implement the `getExceptionConverter()` method.
+2. The `driverException()` and `driverExceptionDuringQuery()` factory methods have been removed from the `DBALException` class.
+3. Non-driver exceptions (e.g. exceptions of type `Error`) are no longer wrapped in a `DBALException`.
+
+## BC BREAK: More driver-level methods are allowed to throw a Driver\Exception.
+
+The following driver-level methods are allowed to throw a Driver\Exception:
+
+- `Connection::prepare()`
+- `Connection::lastInsertId()`
+- `Connection::beginTransaction()`
+- `Connection::commit()`
+- `Connection::rollBack()`
+- `ServerInfoAwareConnection::getServerVersion()`
+- `Statement::bindParam()`
+- `Statement::bindValue()`
+- `Result::rowCount()`
+- `Result::columnCount()`
+
+The driver-level implementations of `Connection::query()` and `Connection::exec()` may no longer throw a `DBALException`.
+
+## The `ExceptionConverterDriver` interface is removed
+
+All drivers must implement the `convertException()` method which is now part of the `Driver` interface.
+
+## The `PingableConnection` interface is removed
+
+The functionality of pinging the server is no longer supported.
+
+## BC BREAK: Deprecated driver-level classes and interfaces are removed.
+
+- `AbstractDriverException`
+- `DriverException`
+- `PDOConnection`
+- `PDOException`
+- `PDOStatement`
+- `IBMDB2\DB2Connection`
+- `IBMDB2\DB2Driver`
+- `IBMDB2\DB2Exception`
+- `IBMDB2\DB2Statement`
+- `Mysqli\MysqliConnection`
+- `Mysqli\MysqliException`
+- `Mysqli\MysqliStatement`
+- `OCI8\OCI8Connection`
+- `OCI8\OCI8Exception`
+- `OCI8\OCI8Statement`
+- `SQLSrv\SQLSrvConnection`
+- `SQLSrv\SQLSrvException`
+- `SQLSrv\SQLSrvStatement`
+
+## BC BREAK: `ServerInfoAwareConnection::requiresQueryForServerVersion()` is removed.
+
+The `ServerInfoAwareConnection::requiresQueryForServerVersion()` method has been removed as an implementation detail which is the same for all supported drivers.
+
+## BC BREAK Changes in driver exceptions
+
+1. The `Doctrine\DBAL\Driver\DriverException::getErrorCode()` method is removed. In order to obtain the driver error code, please use `::getCode()` or `::getSQLState()`.
+2. The value returned by `Doctrine\DBAL\Driver\PDOException::getSQLState()` no longer falls back to the driver error code.
+
 ## BC BREAK: Changes in `OracleSchemaManager::createDatabase()`
 
 The `$database` argument is no longer nullable or optional.
@@ -307,6 +409,7 @@ The `Doctrine\DBAL\Driver::getName()` has been removed.
  * Removed `MysqlSessionInit` listener.
  * Removed `MysqlPlatform::getCollationFieldDeclaration()`.
  * Removed `AbstractPlatform::getIdentityColumnNullInsertSQL()`.
+ * Removed `AbstractPlatform::fixSchemaElementName()`.
  * Removed `Table::addUnnamedForeignKeyConstraint()` and `Table::addNamedForeignKeyConstraint()`.
  * Removed `Table::renameColumn()`.
  * Removed `SQLParserUtils::getPlaceholderPositions()`.
@@ -323,9 +426,11 @@ The method no longer accepts the `$username`, `$password` and `$driverOptions` a
 
 This class was deprecated in favor of `PrimaryReadReplicaConnection`
 
-## Removed `Portability\Connection::PORTABILITY_{PLATFORM}` constants`
+## BC BREAK: Changes in the portability layer
 
-The platform-specific portability constants were internal implementation details which are longer relevant.
+1. The platform-specific portability constants (`Portability\Connection::PORTABILITY_{PLATFORM}`) were internal implementation details which are no longer relevant.
+2. The `Portability\Connection` class no longer extends the DBAL `Connection`.
+3. The `Portability\Class` class has been made final.
 
 ## BC BREAK changes in fetching statement results
 
@@ -399,9 +504,9 @@ The following classes have been removed:
 DBAL now requires MariaDB 10.1 or newer, support for unmaintained versions has been dropped.
 If you are using any of the legacy versions, you have to upgrade to a newer MariaDB version (10.1+ is recommended).
 
-## BC BREAK: PingableConnection and ServerInfoAwareConnection interfaces now extend Connection
+## BC BREAK: The ServerInfoAwareConnection interface now extend Connection
 
-All implementations of the `PingableConnection` and `ServerInfoAwareConnection` interfaces have to implement the methods defined in the `Connection` interface as well.
+All implementations of the `ServerInfoAwareConnection` interface have to implement the methods defined in the `Connection` interface as well.
 
 ## BC BREAK: VersionAwarePlatformDriver interface now extends Driver
 
@@ -492,6 +597,110 @@ Please use other database client applications for import, e.g.:
 
 # Upgrade to 2.11
 
+## Deprecated usage of wrapper-level components as implementations of driver-level interfaces
+
+The usage of the wrapper `Connection` and `Statement` classes as implementations of the `Driver\Connection` and `Driver\Statement` interfaces is deprecated.
+
+## Deprecations in the wrapper `Connection` class
+
+1. The `executeUpdate()` method has been deprecated in favor of `executeStatement()`. 
+2. The `query()` method has been deprecated in favor of `executeQuery()`. 
+3. The `exec()` method has been deprecated in favor of `executeStatement()`. 
+
+Note that `PrimaryReplicaConnection::query()` ensures connection to the primary instance while `executeQuery()` doesn't.
+
+Depending on the desired behavior:
+
+- If the statement doesn't have to be executed on the primary instance, use `executeQuery()`.
+- If the statement has to be executed on the primary instance and yields rows (e.g. `SELECT`), prepend `executeQuery()` with `ensureConnectedToPrimary()`.
+- Otherwise, use `executeStatement()`.
+
+## PDO-related classes outside of the PDO namespace are deprecated
+
+The following PDO-related classes outside of the PDO namespace have been deprecated in favor of their counterparts in the PDO namespace:
+
+- `PDOMySql\Driver` → `PDO\MySQL\Driver`
+- `PDOOracle\Driver` → `PDO\OCI\Driver`
+- `PDOPgSql\Driver` → `PDO\PgSQL\Driver`
+- `PDOSqlite\Driver` → `PDO\SQLite\Driver`
+- `PDOSqlsrv\Driver` → `PDO\SQLSrv\Driver`
+- `PDOSqlsrv\Connection` → `PDO\SQLSrv\Connection`
+- `PDOSqlsrv\Statement` → `PDO\SQLSrv\Statement`
+
+## Deprecations in driver-level exception handling
+
+1. The `ExceptionConverterDriver` interface and the usage of the `convertException()` method on the `Driver` objects are deprecated.
+2. The `driverException()` and `driverExceptionDuringQuery()` factory methods of the `DBALException` class are deprecated.
+3. Relying on the wrapper layer handling non-driver exceptions is deprecated.
+
+## `DBALException` factory method deprecations
+
+1. `DBALException::invalidPlatformType()` is deprecated as unused as of v2.7.0.
+2. `DBALException::invalidPdoInstance()` as passing a PDO instance via configuration is deprecated.
+
+## `AbstractPlatform::fixSchemaElementName()` is deprecated.
+
+The method is not used anywhere except for tests.
+
+##`ServerInfoAwareConnection::requiresQueryForServerVersion()` is deprecated.
+
+The `ServerInfoAwareConnection::requiresQueryForServerVersion()` method has been deprecated as an implementation detail which is the same for almost all supported drivers.
+
+## Connection and Statement constructors are marked internal
+
+1. Driver connection objects can be only created by the corresponding drivers.
+2. Wrapper connection objects can be only created by the driver manager.
+3. The driver and wrapper connection objects can be only created by the corresponding connection objects.
+
+Additionally, the `SQLSrv\LastInsertId` class has been marked internal.
+
+## The `PingableConnection` interface is deprecated
+
+The wrapper connection will automatically handle the lost connection if the driver supports reporting it.
+
+## `DriverException::getErrorCode()` is deprecated
+
+The `DriverException::getErrorCode()` is deprecated as redundant and inconsistently supported by drivers. Use `::getCode()` or `::getSQLState()` instead.
+
+## Non-interface driver methods have been marked internal
+
+The non-interface methods of driver-level classes have been marked internal:
+
+- `OCI8Connection::getExecuteMode()`
+- `OCI8Statement::convertPositionalToNamedPlaceholders()`
+
+## Inconsistently and ambiguously named driver-level classes are deprecated
+
+The following classes under the `Driver` namespace have been deprecated in favor of their consistently named counterparts:
+
+- `DriverException` → `Exception`
+- `AbstractDriverException` → `AbstractException`
+- `IBMDB2\DB2Driver` → `IBMDB2\Driver`
+- `IBMDB2\DB2Connection` → `IBMDB2\Connection`
+- `IBMDB2\DB2Statement` → `IBMDB2\Statement`
+- `Mysqli\MysqliConnection` → `Mysqli\Connection`
+- `Mysqli\MysqliStatement` → `Mysqli\Statement`
+- `OCI8\OCI8Connection` → `OCI8\Connection`
+- `OCI8\OCI8Statement` → `OCI8\Statement`
+- `SQLSrv\SQLSrvConnection` → `SQLSrv\Connection`
+- `SQLSrv\SQLSrvStatement` → `SQLSrv\Statement`
+- `PDOConnection` → `PDO\Connection`
+- `PDOStatement` → `PDO\Statement`
+
+All driver-specific exception classes have been deprecated:
+
+- `IBMDB2\DB2Exception`
+- `Mysqli\MysqliException`
+- `OCI8\OCI8Exception`
+- `PDOException`
+- `SQLSrv\SQLSrvException`
+
+A driver-level exception should be only identified as a subtype of `Driver\Exception`.
+Internal driver-level exception implementations may use `Driver\AbstractException` as the base class.
+Driver-specific exception handling has to be implemented either in the driver or based on the type of the `Driver` implementation.
+
+The `Driver\AbstractException` class has been marked internal.
+
 ## `Connection::getParams()` has been marked internal
 
 Consumers of the Connection class should not rely on connection parameters stored in the connection object. If needed, they should be obtained from a different source, e.g. application configuration.
@@ -501,7 +710,7 @@ Consumers of the Connection class should not rely on connection parameters store
 - The usage of `Doctrine\DBAL\Driver::getDatabase()` is deprecated. Please use `Doctrine\DBAL\Connection::getDatabase()` instead.
 - The behavior of the SQLite connection returning the database file path as the database is deprecated and shouldn't be relied upon.
 
-## Deprecated `Portability\Connection::PORTABILITY_{PLATFORM}` constants`
+## Deprecated `Portability\Connection::PORTABILITY_{PLATFORM}` constants
 
 The platform-specific portability mode flags are meant to be used only by the portability layer internally to optimize
 the user-provided mode for the current database platform. 

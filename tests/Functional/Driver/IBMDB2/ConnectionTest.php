@@ -4,27 +4,25 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Driver\IBMDB2;
 
-use Doctrine\DBAL\Driver\IBMDB2\DB2Connection;
-use Doctrine\DBAL\Driver\IBMDB2\DB2Driver;
+use Doctrine\DBAL\Driver\IBMDB2\Connection;
+use Doctrine\DBAL\Driver\IBMDB2\Driver;
 use Doctrine\DBAL\Driver\IBMDB2\Exception\ConnectionFailed;
 use Doctrine\DBAL\Driver\IBMDB2\Exception\PrepareFailed;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use ReflectionProperty;
 
 use function db2_close;
-use function extension_loaded;
 
+/**
+ * @require extension ibm_db2
+ */
 class ConnectionTest extends FunctionalTestCase
 {
     protected function setUp(): void
     {
-        if (! extension_loaded('ibm_db2')) {
-            self::markTestSkipped('ibm_db2 is not installed.');
-        }
-
         parent::setUp();
 
-        if ($this->connection->getDriver() instanceof DB2Driver) {
+        if ($this->connection->getDriver() instanceof Driver) {
             return;
         }
 
@@ -39,7 +37,7 @@ class ConnectionTest extends FunctionalTestCase
     public function testConnectionFailure(): void
     {
         $this->expectException(ConnectionFailed::class);
-        new DB2Connection('garbage', false, '', '');
+        new Connection('garbage', false, '', '');
     }
 
     public function testPrepareFailure(): void

@@ -18,7 +18,7 @@ final class MariaDb1027Platform extends MySqlPlatform
      *
      * @link https://mariadb.com/kb/en/library/json-data-type/
      */
-    public function getJsonTypeDeclarationSQL(array $field): string
+    public function getJsonTypeDeclarationSQL(array $column): string
     {
         return 'LONGTEXT';
     }

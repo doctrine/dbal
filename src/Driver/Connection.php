@@ -4,25 +4,23 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver;
 
-use Doctrine\DBAL\DBALException;
-
 /**
  * Connection interface.
  * Driver connections must implement this interface.
- *
- * This resembles (a subset of) the PDO interface.
  */
 interface Connection
 {
     /**
      * Prepares a statement for execution and returns a Statement object.
+     *
+     * @throws Exception
      */
     public function prepare(string $sql): Statement;
 
     /**
      * Executes an SQL statement, returning a result set as a Statement object.
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function query(string $sql): Result;
 
@@ -34,33 +32,35 @@ interface Connection
     /**
      * Executes an SQL statement and return the number of affected rows.
      *
-     * @throws DBALException
+     * @throws Exception
      */
-    public function exec(string $statement): int;
+    public function exec(string $sql): int;
 
     /**
      * Returns the ID of the last inserted row or sequence value.
+     *
+     * @throws Exception
      */
     public function lastInsertId(?string $name = null): string;
 
     /**
      * Initiates a transaction.
      *
-     * @throws DriverException
+     * @throws Exception
      */
     public function beginTransaction(): void;
 
     /**
      * Commits a transaction.
      *
-     * @throws DriverException
+     * @throws Exception
      */
     public function commit(): void;
 
     /**
      * Rolls back the current transaction, as initiated by beginTransaction().
      *
-     * @throws DriverException
+     * @throws Exception
      */
     public function rollBack(): void;
 }

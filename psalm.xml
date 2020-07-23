@@ -37,8 +37,8 @@
                 <!--
                     Fixing these issues requires an API change
                 -->
-                <file name="src/Driver/PDOSqlsrv/Connection.php"/>
-                <file name="src/Driver/SQLSrv/SQLSrvConnection.php"/>
+                <file name="src/Driver/PDO/SQLSrv/Connection.php"/>
+                <file name="src/Driver/SQLSrv/Connection.php"/>
             </errorLevel>
         </FalsableReturnStatement>
         <ImpureMethodCall>
@@ -64,7 +64,7 @@
                     Requires a release of
                     https://github.com/JetBrains/phpstorm-stubs/pull/727
                 -->
-                <file name="src/Driver/SQLSrv/SQLSrvStatement.php"/>
+                <file name="src/Driver/SQLSrv/Statement.php"/>
             </errorLevel>
         </TooFewArguments>
         <UndefinedConstant>
@@ -73,7 +73,7 @@
                     Requires a release of
                     https://github.com/JetBrains/phpstorm-stubs/pull/732
                 -->
-                <file name="tests/Driver/PDOPgSql/DriverTest.php" />
+                <file name="tests/Driver/PDO/PgSQL/DriverTest.php" />
             </errorLevel>
         </UndefinedConstant>
         <UndefinedClass>

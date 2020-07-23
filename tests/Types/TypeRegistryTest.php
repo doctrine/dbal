@@ -32,9 +32,10 @@ class TypeRegistryTest extends TestCase
         $this->testType      = new BlobType();
         $this->otherTestType = new BinaryType();
 
-        $this->registry = new TypeRegistry();
-        $this->registry->register(self::TEST_TYPE_NAME, $this->testType);
-        $this->registry->register(self::OTHER_TEST_TYPE_NAME, $this->otherTestType);
+        $this->registry = new TypeRegistry([
+            self::TEST_TYPE_NAME       => $this->testType,
+            self::OTHER_TEST_TYPE_NAME => $this->otherTestType,
+        ]);
     }
 
     public function testGet(): void

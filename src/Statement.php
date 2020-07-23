@@ -4,20 +4,17 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL;
 
-use Doctrine\DBAL\Driver\DriverException;
-use Doctrine\DBAL\Driver\Result as DriverResult;
+use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
-use Throwable;
 
 use function is_string;
 
 /**
- * A thin wrapper around a Doctrine\DBAL\Driver\Statement that adds support
- * for logging, DBAL mapping types, etc.
+ * A database abstraction-level statement that implements support for logging, DBAL mapping types, etc.
  */
-class Statement implements DriverStatement
+class Statement
 {
     /**
      * The SQL statement.
@@ -64,13 +61,25 @@ class Statement implements DriverStatement
     /**
      * Creates a new <tt>Statement</tt> for the given SQL and <tt>Connection</tt>.
      *
+     * @internal The statement can be only instantiated by {@link Connection}.
+     *
      * @param string     $sql  The SQL of the statement.
      * @param Connection $conn The connection on which the statement should be executed.
+     *
+     * @throws DBALException
      */
     public function __construct(string $sql, Connection $conn)
     {
+        $driverConnection = $conn->getWrappedConnection();
+
+        try {
+            $stmt = $driverConnection->prepare($sql);
+        } catch (Exception $ex) {
+            throw $conn->convertExceptionDuringQuery($ex, $sql);
+        }
+
         $this->sql      = $sql;
-        $this->stmt     = $conn->getWrappedConnection()->prepare($sql);
+        $this->stmt     = $stmt;
         $this->conn     = $conn;
         $this->platform = $conn->getDatabasePlatform();
     }
@@ -78,7 +87,7 @@ class Statement implements DriverStatement
     /**
      * Binds a parameter value to the statement.
      *
-     * The value can optionally be bound with a PDO binding type or a DBAL mapping type.
+     * The value can optionally be bound with a DBAL mapping type.
      * If bound with a DBAL mapping type, the binding type is derived from the mapping
      * type and the value undergoes the conversion routines of the mapping type before
      * being bound.
@@ -92,7 +101,6 @@ class Statement implements DriverStatement
      *                               or a DBAL mapping type name or instance.
      *
      * @throws DBALException
-     * @throws DriverException
      */
     public function bindValue($param, $value, $type = ParameterType::STRING): void
     {
@@ -110,7 +118,11 @@ class Statement implements DriverStatement
             $bindingType = $type;
         }
 
-        $this->stmt->bindValue($param, $value, $bindingType);
+        try {
+            $this->stmt->bindValue($param, $value, $bindingType);
+        } catch (Exception $e) {
+            throw $this->conn->convertException($e);
+        }
     }
 
     /**
@@ -123,18 +135,22 @@ class Statement implements DriverStatement
      *                             using question mark placeholders, this will be the 1-indexed position
      *                             of the parameter.
      * @param mixed      $variable The variable to bind to the parameter.
-     * @param int        $type     The PDO binding type.
+     * @param int        $type     The binding type.
      * @param int|null   $length   Must be specified when using an OUT bind
      *                             so that PHP allocates enough memory to hold the returned value.
      *
-     * @throws DriverException
+     * @throws DBALException
      */
     public function bindParam($param, &$variable, int $type = ParameterType::STRING, ?int $length = null): void
     {
         $this->params[$param] = $variable;
         $this->types[$param]  = $type;
 
-        $this->stmt->bindParam($param, $variable, $type, $length);
+        try {
+            $this->stmt->bindParam($param, $variable, $type, $length);
+        } catch (Exception $e) {
+            throw $this->conn->convertException($e);
+        }
     }
 
     /**
@@ -142,7 +158,7 @@ class Statement implements DriverStatement
      *
      * @throws DBALException
      */
-    public function execute(?array $params = null): DriverResult
+    public function execute(?array $params = null): Result
     {
         if ($params !== null) {
             $this->params = $params;
@@ -156,18 +172,10 @@ class Statement implements DriverStatement
                 $this->stmt->execute($params),
                 $this->conn
             );
-        } catch (Throwable $ex) {
-            throw DBALException::driverExceptionDuringQuery(
-                $this->conn->getDriver(),
-                $ex,
-                $this->sql,
-                $this->conn->resolveParams($this->params, $this->types)
-            );
+        } catch (Exception $ex) {
+            throw $this->conn->convertExceptionDuringQuery($ex, $this->sql, $this->params, $this->types);
         } finally {
             $logger->stopQuery();
-
-            $this->params = [];
-            $this->types  = [];
         }
     }
 

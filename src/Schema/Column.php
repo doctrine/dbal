@@ -58,6 +58,8 @@ class Column extends AbstractAsset
      * Creates a new Column.
      *
      * @param array<string, mixed> $options
+     *
+     * @throws SchemaException
      */
     public function __construct(string $name, Type $type, array $options = [])
     {
@@ -68,6 +70,8 @@ class Column extends AbstractAsset
 
     /**
      * @param array<string, mixed> $options
+     *
+     * @throws SchemaException
      */
     public function setOptions(array $options): self
     {

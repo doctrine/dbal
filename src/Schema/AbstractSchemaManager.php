@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Event\SchemaColumnDefinitionEventArgs;
 use Doctrine\DBAL\Event\SchemaIndexDefinitionEventArgs;
@@ -45,13 +44,10 @@ abstract class AbstractSchemaManager
      */
     protected $_platform;
 
-    /**
-     * Constructor. Accepts the Connection instance to manage the schema for.
-     */
-    public function __construct(Connection $conn, ?AbstractPlatform $platform = null)
+    public function __construct(Connection $connection, AbstractPlatform $platform)
     {
-        $this->_conn     = $conn;
-        $this->_platform = $platform ?? $this->_conn->getDatabasePlatform();
+        $this->_conn     = $connection;
+        $this->_platform = $platform;
     }
 
     /**
@@ -89,6 +85,8 @@ abstract class AbstractSchemaManager
      * Lists the available databases for this connection.
      *
      * @return array<int, string>
+     *
+     * @throws DBALException
      */
     public function listDatabases(): array
     {
@@ -103,6 +101,8 @@ abstract class AbstractSchemaManager
      * Returns a list of all namespaces in the current database.
      *
      * @return array<int, string>
+     *
+     * @throws DBALException
      */
     public function listNamespaceNames(): array
     {
@@ -117,6 +117,8 @@ abstract class AbstractSchemaManager
      * Lists the available sequences for this connection.
      *
      * @return array<int, Sequence>
+     *
+     * @throws DBALException
      */
     public function listSequences(?string $database = null): array
     {
@@ -136,13 +138,15 @@ abstract class AbstractSchemaManager
      * Lists the columns for a given table.
      *
      * In contrast to other libraries and to the old version of Doctrine,
-     * this column definition does try to contain the 'primary' field for
+     * this column definition does try to contain the 'primary' column for
      * the reason that it is not portable across different RDBMS. Use
      * {@see listTableIndexes($tableName)} to retrieve the primary key
      * of a table. Where a RDBMS specifies more details, these are held
      * in the platformDetails array.
      *
      * @return array<string, Column>
+     *
+     * @throws DBALException
      */
     public function listTableColumns(string $table, ?string $database = null): array
     {
@@ -164,6 +168,8 @@ abstract class AbstractSchemaManager
      * Keys of the portable indexes list are all lower-cased.
      *
      * @return array<string, Index>
+     *
+     * @throws DBALException
      */
     public function listTableIndexes(string $table): array
     {
@@ -177,13 +183,15 @@ abstract class AbstractSchemaManager
     /**
      * Returns true if all the given tables exist.
      *
-     * @param array<int, string> $tableNames
+     * @param array<int, string> $names
+     *
+     * @throws DBALException
      */
-    public function tablesExist(array $tableNames): bool
+    public function tablesExist(array $names): bool
     {
-        $tableNames = array_map('strtolower', $tableNames);
+        $names = array_map('strtolower', $names);
 
-        return count($tableNames) === count(array_intersect($tableNames, array_map('strtolower', $this->listTableNames())));
+        return count($names) === count(array_intersect($names, array_map('strtolower', $this->listTableNames())));
     }
 
     public function tableExists(string $tableName): bool
@@ -195,6 +203,8 @@ abstract class AbstractSchemaManager
      * Returns a list of all tables in the current database.
      *
      * @return array<int, string>
+     *
+     * @throws DBALException
      */
     public function listTableNames(): array
     {
@@ -228,6 +238,8 @@ abstract class AbstractSchemaManager
      * Lists the tables for this connection.
      *
      * @return array<int, Table>
+     *
+     * @throws DBALException
      */
     public function listTables(): array
     {
@@ -241,24 +253,29 @@ abstract class AbstractSchemaManager
         return $tables;
     }
 
-    public function listTableDetails(string $tableName): Table
+    /**
+     * @throws DBALException
+     */
+    public function listTableDetails(string $name): Table
     {
-        $columns     = $this->listTableColumns($tableName);
+        $columns     = $this->listTableColumns($name);
         $foreignKeys = [];
 
         if ($this->_platform->supportsForeignKeyConstraints()) {
-            $foreignKeys = $this->listTableForeignKeys($tableName);
+            $foreignKeys = $this->listTableForeignKeys($name);
         }
 
-        $indexes = $this->listTableIndexes($tableName);
+        $indexes = $this->listTableIndexes($name);
 
-        return new Table($tableName, $columns, $indexes, [], $foreignKeys, []);
+        return new Table($name, $columns, $indexes, [], $foreignKeys, []);
     }
 
     /**
      * Lists the views this connection has.
      *
      * @return array<string, View>
+     *
+     * @throws DBALException
      */
     public function listViews(): array
     {
@@ -277,6 +294,8 @@ abstract class AbstractSchemaManager
      * Lists the foreign keys for the given table.
      *
      * @return array<int|string, ForeignKeyConstraint>
+     *
+     * @throws DBALException
      */
     public function listTableForeignKeys(string $table, ?string $database = null): array
     {
@@ -296,6 +315,8 @@ abstract class AbstractSchemaManager
      * Drops a database.
      *
      * NOTE: You can not drop the database this SchemaManager is currently connected to.
+     *
+     * @throws DBALException
      */
     public function dropDatabase(string $database): void
     {
@@ -304,10 +325,12 @@ abstract class AbstractSchemaManager
 
     /**
      * Drops the given table.
+     *
+     * @throws DBALException
      */
-    public function dropTable(string $tableName): void
+    public function dropTable(string $name): void
     {
-        $this->_execSql($this->_platform->getDropTableSQL($tableName));
+        $this->_execSql($this->_platform->getDropTableSQL($name));
     }
 
     /**
@@ -315,6 +338,8 @@ abstract class AbstractSchemaManager
      *
      * @param Index|string $index The name of the index.
      * @param Table|string $table The name of the table.
+     *
+     * @throws DBALException
      */
     public function dropIndex($index, $table): void
     {
@@ -329,6 +354,8 @@ abstract class AbstractSchemaManager
      * Drops the constraint from the given table.
      *
      * @param Table|string $table The name of the table.
+     *
+     * @throws DBALException
      */
     public function dropConstraint(Constraint $constraint, $table): void
     {
@@ -340,6 +367,8 @@ abstract class AbstractSchemaManager
      *
      * @param ForeignKeyConstraint|string $foreignKey The name of the foreign key.
      * @param Table|string                $table      The name of the table with the foreign key.
+     *
+     * @throws DBALException
      */
     public function dropForeignKey($foreignKey, $table): void
     {
@@ -348,6 +377,8 @@ abstract class AbstractSchemaManager
 
     /**
      * Drops a sequence with a given name.
+     *
+     * @throws DBALException
      */
     public function dropSequence(string $name): void
     {
@@ -356,6 +387,8 @@ abstract class AbstractSchemaManager
 
     /**
      * Drops a view.
+     *
+     * @throws DBALException
      */
     public function dropView(string $name): void
     {
@@ -366,6 +399,8 @@ abstract class AbstractSchemaManager
 
     /**
      * Creates a new database.
+     *
+     * @throws DBALException
      */
     public function createDatabase(string $database): void
     {
@@ -374,6 +409,8 @@ abstract class AbstractSchemaManager
 
     /**
      * Creates a new table.
+     *
+     * @throws DBALException
      */
     public function createTable(Table $table): void
     {
@@ -384,7 +421,7 @@ abstract class AbstractSchemaManager
     /**
      * Creates a new sequence.
      *
-     * @throws ConnectionException If something fails at database level.
+     * @throws DBALException
      */
     public function createSequence(Sequence $sequence): void
     {
@@ -395,6 +432,8 @@ abstract class AbstractSchemaManager
      * Creates a constraint on a table.
      *
      * @param Table|string $table
+     *
+     * @throws DBALException
      */
     public function createConstraint(Constraint $constraint, $table): void
     {
@@ -405,6 +444,8 @@ abstract class AbstractSchemaManager
      * Creates a new index on a table.
      *
      * @param Table|string $table The name of the table on which the index is to be created.
+     *
+     * @throws DBALException
      */
     public function createIndex(Index $index, $table): void
     {
@@ -416,6 +457,8 @@ abstract class AbstractSchemaManager
      *
      * @param ForeignKeyConstraint $foreignKey The ForeignKey instance.
      * @param Table|string         $table      The name of the table on which the foreign key is to be created.
+     *
+     * @throws DBALException
      */
     public function createForeignKey(ForeignKeyConstraint $foreignKey, $table): void
     {
@@ -424,6 +467,8 @@ abstract class AbstractSchemaManager
 
     /**
      * Creates a new view.
+     *
+     * @throws DBALException
      */
     public function createView(View $view): void
     {
@@ -439,6 +484,8 @@ abstract class AbstractSchemaManager
      * @see createConstraint()
      *
      * @param Table|string $table
+     *
+     * @throws DBALException
      */
     public function dropAndCreateConstraint(Constraint $constraint, $table): void
     {
@@ -450,6 +497,8 @@ abstract class AbstractSchemaManager
      * Drops and creates a new index on a table.
      *
      * @param Table|string $table The name of the table on which the index is to be created.
+     *
+     * @throws DBALException
      */
     public function dropAndCreateIndex(Index $index, $table): void
     {
@@ -462,6 +511,8 @@ abstract class AbstractSchemaManager
      *
      * @param ForeignKeyConstraint $foreignKey An associative array that defines properties of the foreign key to be created.
      * @param Table|string         $table      The name of the table on which the foreign key is to be created.
+     *
+     * @throws DBALException
      */
     public function dropAndCreateForeignKey(ForeignKeyConstraint $foreignKey, $table): void
     {
@@ -472,7 +523,7 @@ abstract class AbstractSchemaManager
     /**
      * Drops and create a new sequence.
      *
-     * @throws ConnectionException If something fails at database level.
+     * @throws DBALException
      */
     public function dropAndCreateSequence(Sequence $sequence): void
     {
@@ -482,6 +533,8 @@ abstract class AbstractSchemaManager
 
     /**
      * Drops and creates a new table.
+     *
+     * @throws DBALException
      */
     public function dropAndCreateTable(Table $table): void
     {
@@ -491,6 +544,8 @@ abstract class AbstractSchemaManager
 
     /**
      * Drops and creates a new database.
+     *
+     * @throws DBALException
      */
     public function dropAndCreateDatabase(string $database): void
     {
@@ -500,6 +555,8 @@ abstract class AbstractSchemaManager
 
     /**
      * Drops and creates a new view.
+     *
+     * @throws DBALException
      */
     public function dropAndCreateView(View $view): void
     {
@@ -511,6 +568,8 @@ abstract class AbstractSchemaManager
 
     /**
      * Alters an existing tables schema.
+     *
+     * @throws DBALException
      */
     public function alterTable(TableDiff $tableDiff): void
     {
@@ -523,6 +582,8 @@ abstract class AbstractSchemaManager
 
     /**
      * Renames a given table to another name.
+     *
+     * @throws DBALException
      */
     public function renameTable(string $name, string $newName): void
     {
@@ -593,6 +654,8 @@ abstract class AbstractSchemaManager
      * @param array<int, array<string, mixed>> $sequences
      *
      * @return array<int, Sequence>
+     *
+     * @throws DBALException
      */
     protected function _getPortableSequencesList(array $sequences): array
     {
@@ -623,6 +686,8 @@ abstract class AbstractSchemaManager
      * @param array<int, array<string, mixed>> $tableColumns
      *
      * @return array<string, Column>
+     *
+     * @throws DBALException
      */
     protected function _getPortableTableColumnList(string $table, string $database, array $tableColumns): array
     {
@@ -660,6 +725,8 @@ abstract class AbstractSchemaManager
      * Gets Table Column Definition.
      *
      * @param array<string, mixed> $tableColumn
+     *
+     * @throws DBALException
      */
     abstract protected function _getPortableTableColumnDefinition(array $tableColumn): Column;
 
@@ -669,6 +736,8 @@ abstract class AbstractSchemaManager
      * @param array<int, array<string, mixed>> $tableIndexRows
      *
      * @return array<string, Index>
+     *
+     * @throws DBALException
      */
     protected function _getPortableTableIndexesList(array $tableIndexRows, string $tableName): array
     {
@@ -834,16 +903,20 @@ abstract class AbstractSchemaManager
 
     /**
      * @param array<int, string>|string $sql
+     *
+     * @throws DBALException
      */
     protected function _execSql($sql): void
     {
         foreach ((array) $sql as $query) {
-            $this->_conn->executeUpdate($query);
+            $this->_conn->executeStatement($query);
         }
     }
 
     /**
      * Creates a schema instance for the current database.
+     *
+     * @throws DBALException
      */
     public function createSchema(): Schema
     {
@@ -866,6 +939,8 @@ abstract class AbstractSchemaManager
 
     /**
      * Creates the configuration for this schema.
+     *
+     * @throws DBALException
      */
     public function createSchemaConfig(): SchemaConfig
     {
@@ -902,6 +977,8 @@ abstract class AbstractSchemaManager
      * returns the name of the currently connected database.
      *
      * @return array<int, string>
+     *
+     * @throws DBALException
      */
     public function getSchemaSearchPaths(): array
     {

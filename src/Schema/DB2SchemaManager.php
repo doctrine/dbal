@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Types\Type;
 
@@ -39,6 +40,8 @@ class DB2SchemaManager extends AbstractSchemaManager
 
     /**
      * {@inheritdoc}
+     *
+     * @throws DBALException
      */
     protected function _getPortableTableColumnDefinition(array $tableColumn): Column
     {
@@ -192,13 +195,13 @@ class DB2SchemaManager extends AbstractSchemaManager
         return new View($view['name'], $sql);
     }
 
-    public function listTableDetails(string $tableName): Table
+    public function listTableDetails(string $name): Table
     {
-        $table = parent::listTableDetails($tableName);
+        $table = parent::listTableDetails($name);
 
         $platform = $this->_platform;
         assert($platform instanceof DB2Platform);
-        $sql = $platform->getListTableCommentsSQL($tableName);
+        $sql = $platform->getListTableCommentsSQL($name);
 
         $tableOptions = $this->_conn->fetchAssociative($sql);
 

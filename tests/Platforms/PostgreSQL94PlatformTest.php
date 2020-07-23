@@ -44,17 +44,11 @@ class PostgreSQL94PlatformTest extends AbstractPostgreSQLPlatformTestCase
         );
     }
 
-    /**
-     * @group DBAL-553
-     */
     public function testHasNativeJsonType(): void
     {
         self::assertTrue($this->platform->hasNativeJsonType());
     }
 
-    /**
-     * @group DBAL-553
-     */
     public function testReturnsJsonTypeDeclarationSQL(): void
     {
         self::assertSame('JSON', $this->platform->getJsonTypeDeclarationSQL([]));
@@ -80,9 +74,6 @@ class PostgreSQL94PlatformTest extends AbstractPostgreSQLPlatformTestCase
         );
     }
 
-    /**
-     * @group DBAL-553
-     */
     public function testInitializesJsonTypeMapping(): void
     {
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('json'));
@@ -91,9 +82,6 @@ class PostgreSQL94PlatformTest extends AbstractPostgreSQLPlatformTestCase
         self::assertEquals(Types::JSON, $this->platform->getDoctrineTypeMapping('jsonb'));
     }
 
-    /**
-     * @group DBAL-1220
-     */
     public function testReturnsCloseActiveDatabaseConnectionsSQL(): void
     {
         self::assertSame(

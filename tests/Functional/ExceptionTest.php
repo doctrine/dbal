@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional;
 
-use Doctrine\DBAL\Driver\ExceptionConverterDriver;
+use Doctrine\DBAL\Driver\AbstractSQLServerDriver;
+use Doctrine\DBAL\Driver\IBMDB2;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
@@ -36,11 +37,17 @@ class ExceptionTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        if ($this->connection->getDriver() instanceof ExceptionConverterDriver) {
+        $driver = $this->connection->getDriver();
+
+        if ($driver instanceof IBMDB2\Driver) {
+            self::markTestSkipped("The IBM DB2 driver currently doesn't instantiate specialized exceptions");
+        }
+
+        if (! $driver instanceof AbstractSQLServerDriver) {
             return;
         }
 
-        self::markTestSkipped('Driver does not support special exception handling.');
+        self::markTestSkipped("The SQL Server drivers currently don't instantiate specialized exceptions");
     }
 
     public function testPrimaryConstraintViolationException(): void
@@ -87,7 +94,7 @@ class ExceptionTest extends FunctionalTestCase
         $table->setPrimaryKey(['id']);
 
         foreach ($schema->toSql($this->connection->getDatabasePlatform()) as $sql) {
-            $this->connection->exec($sql);
+            $this->connection->executeStatement($sql);
         }
 
         $this->expectException(Exception\NotNullConstraintViolationException::class);
@@ -98,15 +105,15 @@ class ExceptionTest extends FunctionalTestCase
     {
         $schema = new Schema();
 
-        $table = $schema->createTable('bad_fieldname_table');
+        $table = $schema->createTable('bad_columnname_table');
         $table->addColumn('id', 'integer', []);
 
         foreach ($schema->toSql($this->connection->getDatabasePlatform()) as $sql) {
-            $this->connection->exec($sql);
+            $this->connection->executeStatement($sql);
         }
 
         $this->expectException(Exception\InvalidFieldNameException::class);
-        $this->connection->insert('bad_fieldname_table', ['name' => 5]);
+        $this->connection->insert('bad_columnname_table', ['name' => 5]);
     }
 
     public function testNonUniqueFieldNameException(): void
@@ -120,7 +127,7 @@ class ExceptionTest extends FunctionalTestCase
         $table2->addColumn('id', 'integer');
 
         foreach ($schema->toSql($this->connection->getDatabasePlatform()) as $sql) {
-            $this->connection->exec($sql);
+            $this->connection->executeStatement($sql);
         }
 
         $sql = 'SELECT id FROM ambiguous_list_table, ambiguous_list_table_2';
@@ -132,17 +139,17 @@ class ExceptionTest extends FunctionalTestCase
     {
         $schema = new Schema();
 
-        $table = $schema->createTable('unique_field_table');
+        $table = $schema->createTable('unique_column_table');
         $table->addColumn('id', 'integer');
         $table->addUniqueIndex(['id']);
 
         foreach ($schema->toSql($this->connection->getDatabasePlatform()) as $sql) {
-            $this->connection->exec($sql);
+            $this->connection->executeStatement($sql);
         }
 
-        $this->connection->insert('unique_field_table', ['id' => 5]);
+        $this->connection->insert('unique_column_table', ['id' => 5]);
         $this->expectException(Exception\UniqueConstraintViolationException::class);
-        $this->connection->insert('unique_field_table', ['id' => 5]);
+        $this->connection->insert('unique_column_table', ['id' => 5]);
     }
 
     public function testSyntaxErrorException(): void
@@ -201,7 +208,7 @@ EOT
 
         try {
             foreach ($schema->toSql($conn->getDatabasePlatform()) as $sql) {
-                $conn->exec($sql);
+                $conn->executeStatement($sql);
             }
         } finally {
             $this->cleanupReadOnlyFile($filename);
@@ -246,7 +253,7 @@ EOT
         $this->expectException(Exception\ConnectionException::class);
 
         foreach ($schema->toSql($conn->getDatabasePlatform()) as $sql) {
-            $conn->exec($sql);
+            $conn->executeStatement($sql);
         }
     }
 

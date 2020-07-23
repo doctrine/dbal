@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Driver\DriverException;
+use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Doctrine\DBAL\Types\Type;
 use PDOException;
@@ -33,7 +33,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
             $exception = $exception->getPrevious();
             assert($exception instanceof Throwable);
 
-            if (! $exception instanceof DriverException) {
+            if (! $exception instanceof Exception) {
                 throw $exception;
             }
 
@@ -286,7 +286,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
             foreach ($tableDiff->removedColumns as $col) {
                 $columnConstraintSql = $this->getColumnConstraintSQL($tableDiff->name, $col->getName());
                 foreach ($this->_conn->fetchAllAssociative($columnConstraintSql) as $constraint) {
-                    $this->_conn->exec(
+                    $this->_conn->executeStatement(
                         sprintf(
                             'ALTER TABLE %s DROP CONSTRAINT %s',
                             $tableDiff->name,
@@ -318,6 +318,8 @@ class SQLServerSchemaManager extends AbstractSchemaManager
      * Closes currently active connections on the given database.
      *
      * This is useful to force DROP DATABASE operations which could fail because of active connections.
+     *
+     * @throws DBALException
      */
     private function closeActiveDatabaseConnections(string $database): void
     {
@@ -331,13 +333,16 @@ class SQLServerSchemaManager extends AbstractSchemaManager
         );
     }
 
-    public function listTableDetails(string $tableName): Table
+    /**
+     * @throws DBALException
+     */
+    public function listTableDetails(string $name): Table
     {
-        $table = parent::listTableDetails($tableName);
+        $table = parent::listTableDetails($name);
 
         $platform = $this->_platform;
         assert($platform instanceof SQLServer2012Platform);
-        $sql = $platform->getListTableMetadataSQL($tableName);
+        $sql = $platform->getListTableMetadataSQL($name);
 
         $tableOptions = $this->_conn->fetchAssociative($sql);
 

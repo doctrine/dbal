@@ -5,17 +5,15 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Driver\IBMDB2\DB2Driver;
-use Doctrine\DBAL\Driver\PDOMySql\Driver as PDOMySQLDriver;
-use Doctrine\DBAL\Driver\PDOOracle\Driver as PDOOracleDriver;
-use Doctrine\DBAL\Driver\PDOSqlsrv\Driver as PDOSQLSRVDriver;
+use Doctrine\DBAL\Driver\Exception;
+use Doctrine\DBAL\Driver\IBMDB2;
+use Doctrine\DBAL\Driver\PDO;
 use Doctrine\DBAL\Driver\Result;
-use Doctrine\DBAL\Driver\SQLSrv\Driver as SQLSRVDriver;
+use Doctrine\DBAL\Driver\SQLSrv;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Type;
-use Throwable;
 
 use function base64_decode;
 use function get_class;
@@ -36,7 +34,7 @@ class StatementTest extends FunctionalTestCase
 
     public function testStatementIsReusableAfterFreeingResult(): void
     {
-        if ($this->connection->getDriver() instanceof PDOOracleDriver) {
+        if ($this->connection->getDriver() instanceof PDO\OCI\Driver) {
             self::markTestIncomplete('See https://bugs.php.net/bug.php?id=77181');
         }
 
@@ -59,7 +57,7 @@ class StatementTest extends FunctionalTestCase
 
     public function testReuseStatementWithLongerResults(): void
     {
-        if ($this->connection->getDriver() instanceof PDOOracleDriver) {
+        if ($this->connection->getDriver() instanceof PDO\OCI\Driver) {
             self::markTestIncomplete('PDO_OCI doesn\'t support fetching blobs via PDOStatement::fetchAll()');
         }
 
@@ -96,7 +94,7 @@ class StatementTest extends FunctionalTestCase
 
     public function testFetchLongBlob(): void
     {
-        if ($this->connection->getDriver() instanceof PDOOracleDriver) {
+        if ($this->connection->getDriver() instanceof PDO\OCI\Driver) {
             // inserting BLOBs as streams on Oracle requires Oracle-specific SQL syntax which is currently not supported
             // see http://php.net/manual/en/pdo.lobs.php#example-1035
             self::markTestSkipped('DBAL doesn\'t support storing LOBs represented as streams using PDO_OCI');
@@ -162,7 +160,7 @@ EOF
 
     public function testReuseStatementAfterFreeingResult(): void
     {
-        if ($this->connection->getDriver() instanceof PDOOracleDriver) {
+        if ($this->connection->getDriver() instanceof PDO\OCI\Driver) {
             self::markTestIncomplete('See https://bugs.php.net/bug.php?id=77181');
         }
 
@@ -251,8 +249,10 @@ EOF
         $result->free();
 
         try {
-            $value = $fetch($result);
-        } catch (Throwable $e) {
+            // some drivers will trigger a PHP error here which, if not suppressed,
+            // would be converted to a PHPUnit exception prior to DBAL throwing its own one
+            $value = @$fetch($result);
+        } catch (Exception $e) {
             // The drivers that enforce the command sequencing internally will throw an exception
             $this->expectNotToPerformAssertions();
 
@@ -304,9 +304,9 @@ EOF
         $driver = $this->connection->getDriver();
 
         if (
-            $driver instanceof PDOMySQLDriver
-            || $driver instanceof PDOOracleDriver
-            || $driver instanceof PDOSQLSRVDriver
+            $driver instanceof PDO\MySQL\Driver
+            || $driver instanceof PDO\OCI\Driver
+            || $driver instanceof PDO\SQLSrv\Driver
         ) {
             self::markTestSkipped(sprintf(
                 'The underlying implementation of the "%s" driver does not report redundant parameters',
@@ -314,11 +314,11 @@ EOF
             ));
         }
 
-        if ($driver instanceof DB2Driver) {
+        if ($driver instanceof IBMDB2\Driver) {
             self::markTestSkipped('db2_execute() does not report redundant parameters');
         }
 
-        if ($driver instanceof SQLSRVDriver) {
+        if ($driver instanceof SQLSrv\Driver) {
             self::markTestSkipped('sqlsrv_prepare() does not report redundant parameters');
         }
 

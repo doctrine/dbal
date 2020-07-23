@@ -221,9 +221,6 @@ class SchemaTest extends TestCase
         self::assertSame($schemaNew->getTable('bar'), $re->getValue($fk));
     }
 
-    /**
-     * @group DBAL-219
-     */
     public function testHasTableForQuotedAsset(): void
     {
         $schema = new Schema();
@@ -234,9 +231,6 @@ class SchemaTest extends TestCase
         self::assertTrue($schema->hasTable('`foo`'));
     }
 
-    /**
-     * @group DBAL-669
-     */
     public function testHasNamespace(): void
     {
         $schema = new Schema();
@@ -258,9 +252,6 @@ class SchemaTest extends TestCase
         self::assertTrue($schema->hasNamespace('tab'));
     }
 
-    /**
-     * @group DBAL-669
-     */
     public function testCreatesNamespace(): void
     {
         $schema = new Schema();
@@ -284,9 +275,6 @@ class SchemaTest extends TestCase
         self::assertSame(['foo' => 'foo', 'bar' => '`bar`'], $schema->getNamespaces());
     }
 
-    /**
-     * @group DBAL-669
-     */
     public function testThrowsExceptionOnCreatingNamespaceTwice(): void
     {
         $schema = new Schema();
@@ -298,9 +286,6 @@ class SchemaTest extends TestCase
         $schema->createNamespace('foo');
     }
 
-    /**
-     * @group DBAL-669
-     */
     public function testCreatesNamespaceThroughAddingTableImplicitly(): void
     {
         $schema = new Schema();
@@ -328,9 +313,6 @@ class SchemaTest extends TestCase
         self::assertFalse($schema->hasNamespace('moo'));
     }
 
-    /**
-     * @group DBAL-669
-     */
     public function testCreatesNamespaceThroughAddingSequenceImplicitly(): void
     {
         $schema = new Schema();
@@ -358,9 +340,6 @@ class SchemaTest extends TestCase
         self::assertFalse($schema->hasNamespace('moo'));
     }
 
-    /**
-     * @group DBAL-669
-     */
     public function testVisitsVisitor(): void
     {
         $schema  = new Schema();
@@ -396,9 +375,6 @@ class SchemaTest extends TestCase
         $schema->visit($visitor);
     }
 
-    /**
-     * @group DBAL-669
-     */
     public function testVisitsNamespaceVisitor(): void
     {
         $schema  = new Schema();

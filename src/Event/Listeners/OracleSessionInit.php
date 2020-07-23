@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Event\Listeners;
 
 use Doctrine\Common\EventSubscriber;
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Event\ConnectionEventArgs;
 use Doctrine\DBAL\Events;
 
@@ -44,6 +45,9 @@ class OracleSessionInit implements EventSubscriber
         $this->_defaultSessionVars = array_merge($this->_defaultSessionVars, $oracleSessionVars);
     }
 
+    /**
+     * @throws DBALException
+     */
     public function postConnect(ConnectionEventArgs $args): void
     {
         if (count($this->_defaultSessionVars) === 0) {
@@ -60,7 +64,7 @@ class OracleSessionInit implements EventSubscriber
         }
 
         $sql = 'ALTER SESSION SET ' . implode(' ', $vars);
-        $args->getConnection()->executeUpdate($sql);
+        $args->getConnection()->executeStatement($sql);
     }
 
     /**

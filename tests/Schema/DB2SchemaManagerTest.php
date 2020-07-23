@@ -35,16 +35,14 @@ final class DB2SchemaManagerTest extends TestCase
         $this->conn   = $this
             ->getMockBuilder(Connection::class)
             ->onlyMethods(['fetchAllAssociative'])
-            ->setConstructorArgs([['platform' => $platform], $driverMock, new Configuration(), $eventManager])
+            ->setConstructorArgs([[], $driverMock, new Configuration(), $eventManager])
             ->getMock();
 
-        $this->manager = new DB2SchemaManager($this->conn);
+        $this->manager = new DB2SchemaManager($this->conn, $platform);
     }
 
     /**
      * @see https://github.com/doctrine/dbal/issues/2701
-     *
-     * @group DBAL-2701
      */
     public function testListTableNamesFiltersAssetNamesCorrectly(): void
     {

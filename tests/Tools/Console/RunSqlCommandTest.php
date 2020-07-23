@@ -74,7 +74,7 @@ class RunSqlCommandTest extends TestCase
 
     public function testUpdateStatementsPrintsAffectedLines(): void
     {
-        $this->expectConnectionExecuteUpdate();
+        $this->expectConnectionExecuteStatement();
 
         $this->commandTester->execute([
             'command' => $this->command->getName(),
@@ -85,11 +85,11 @@ class RunSqlCommandTest extends TestCase
         self::assertDoesNotMatchRegularExpression('@array.*1.*@', $this->commandTester->getDisplay());
     }
 
-    private function expectConnectionExecuteUpdate(): void
+    private function expectConnectionExecuteStatement(): void
     {
         $this->connectionMock
             ->expects(self::once())
-            ->method('executeUpdate')
+            ->method('executeStatement')
             ->willReturn(42);
 
         $this->connectionMock
@@ -106,7 +106,7 @@ class RunSqlCommandTest extends TestCase
 
         $this->connectionMock
             ->expects(self::never())
-            ->method('executeUpdate');
+            ->method('executeStatement');
     }
 
     public function testStatementsWithFetchResultPrintsResult(): void

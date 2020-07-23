@@ -462,8 +462,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
 
     /**
      * {@inheritDoc}
-     *
-     * @group DBAL-234
      */
     protected function getAlterTableRenameIndexSQL(): array
     {
@@ -472,8 +470,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
 
     /**
      * {@inheritDoc}
-     *
-     * @group DBAL-234
      */
     protected function getQuotedAlterTableRenameIndexSQL(): array
     {
@@ -511,8 +507,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
 
     /**
      * {@inheritDoc}
-     *
-     * @group DBAL-807
      */
     protected function getAlterTableRenameIndexInSchemaSQL(): array
     {
@@ -521,8 +515,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
 
     /**
      * {@inheritDoc}
-     *
-     * @group DBAL-807
      */
     protected function getQuotedAlterTableRenameIndexInSchemaSQL(): array
     {
@@ -532,9 +524,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         ];
     }
 
-    /**
-     * @group DBAL-423
-     */
     public function testReturnsGuidTypeDeclarationSQL(): void
     {
         self::assertSame('CHAR(36)', $this->platform->getGuidTypeDeclarationSQL([]));
@@ -581,7 +570,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * @group DBAL-944
      * @dataProvider getGeneratesAlterColumnSQL
      */
     public function testGeneratesAlterColumnSQL(string $changedProperty, Column $column, ?string $expectedSQLClause = null): void
@@ -709,9 +697,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         return ['RENAME INDEX idx_foo TO idx_foo_renamed'];
     }
 
-    /**
-     * @group DBAL-2436
-     */
     public function testQuotesTableNameInListTableColumnsSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
@@ -720,9 +705,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    /**
-     * @group DBAL-2436
-     */
     public function testQuotesTableNameInListTableIndexesSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
@@ -731,9 +713,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    /**
-     * @group DBAL-2436
-     */
     public function testQuotesTableNameInListTableForeignKeysSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(

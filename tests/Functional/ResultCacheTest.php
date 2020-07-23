@@ -18,9 +18,6 @@ use function is_array;
 
 use const CASE_LOWER;
 
-/**
- * @group DDC-217
- */
 class ResultCacheTest extends FunctionalTestCase
 {
     /** @var list<array{test_int: int, test_string: string}> */

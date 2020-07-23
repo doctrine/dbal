@@ -29,7 +29,7 @@ class DateExpressionTest extends FunctionalTestCase
         $platform = $this->connection->getDatabasePlatform();
 
         $sql  = sprintf('SELECT %s FROM date_expr_test', $platform->getDateDiffExpression('date1', 'date2'));
-        $diff = $this->connection->query($sql)->fetchOne();
+        $diff = $this->connection->fetchOne($sql);
 
         self::assertEquals($expected, $diff);
     }

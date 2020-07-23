@@ -10,9 +10,6 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Throwable;
 
-/**
- * @group DDC-450
- */
 class TableGeneratorTest extends FunctionalTestCase
 {
     /** @var TableGenerator */
@@ -33,7 +30,7 @@ class TableGeneratorTest extends FunctionalTestCase
             $schema->visit($visitor);
 
             foreach ($schema->toSql($platform) as $sql) {
-                $this->connection->exec($sql);
+                $this->connection->executeStatement($sql);
             }
         } catch (Throwable $e) {
         }
