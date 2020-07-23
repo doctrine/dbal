@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver\OCI8;
 
-use Doctrine\DBAL\Driver\Connection;
+use Doctrine\DBAL\Driver\OCI8\Exception\IdentityColumnsNotSupported;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
@@ -111,7 +111,7 @@ final class OCI8Connection implements Connection, ServerInfoAwareConnection
     public function lastInsertId(?string $name = null): string
     {
         if ($name === null) {
-            throw new OCI8Exception('The driver does not support identity columns.');
+            throw IdentityColumnsNotSupported::new();
         }
 
         $result = $this->query('SELECT ' . $name . '.CURRVAL FROM DUAL')->fetchOne();
