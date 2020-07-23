@@ -72,6 +72,8 @@ final class DriverManager
 
     /**
      * Private constructor. This class cannot be instantiated.
+     *
+     * @codeCoverageIgnore
      */
     private function __construct()
     {

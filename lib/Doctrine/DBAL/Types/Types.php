@@ -37,6 +37,9 @@ final class Types
     /** @deprecated json_array type is deprecated, use {@see self::JSON} instead. */
     public const JSON_ARRAY = 'json_array';
 
+    /**
+     * @codeCoverageIgnore
+     */
     private function __construct()
     {
     }

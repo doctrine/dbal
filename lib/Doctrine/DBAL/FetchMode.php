@@ -66,6 +66,8 @@ final class FetchMode
 
     /**
      * This class cannot be instantiated.
+     *
+     * @codeCoverageIgnore
      */
     private function __construct()
     {
