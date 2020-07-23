@@ -14,6 +14,8 @@ class LockMode
 
     /**
      * Private constructor. This class cannot be instantiated.
+     *
+     * @codeCoverageIgnore
      */
     final private function __construct()
     {

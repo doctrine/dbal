@@ -34,6 +34,9 @@ final class Types
     public const TIME_MUTABLE         = 'time';
     public const TIME_IMMUTABLE       = 'time_immutable';
 
+    /**
+     * @codeCoverageIgnore
+     */
     private function __construct()
     {
     }
