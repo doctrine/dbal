@@ -70,8 +70,8 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         self::assertEquals('CONVERT(date, GETDATE())', $this->platform->getCurrentDateSQL());
         self::assertEquals('CONVERT(time, GETDATE())', $this->platform->getCurrentTimeSQL());
         self::assertEquals('CURRENT_TIMESTAMP', $this->platform->getCurrentTimestampSQL());
-        self::assertEquals('"', $this->platform->getIdentifierQuoteCharacter(), 'Identifier quote character is not correct');
-        self::assertEquals('(column1 + column2 + column3)', $this->platform->getConcatExpression('column1', 'column2', 'column3'), 'Concatenation expression is not correct');
+        self::assertEquals('"', $this->platform->getIdentifierQuoteCharacter());
+        self::assertEquals('(column1 + column2 + column3)', $this->platform->getConcatExpression('column1', 'column2', 'column3'));
     }
 
     public function testGeneratesTransactionsCommands(): void
@@ -132,13 +132,11 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         );
         self::assertEquals(
             'NVARCHAR(50)',
-            $this->platform->getVarcharTypeDeclarationSQL(['length' => 50]),
-            'Variable string declaration is not correct'
+            $this->platform->getVarcharTypeDeclarationSQL(['length' => 50])
         );
         self::assertEquals(
             'NVARCHAR(255)',
-            $this->platform->getVarcharTypeDeclarationSQL([]),
-            'Long string declaration is not correct'
+            $this->platform->getVarcharTypeDeclarationSQL([])
         );
         self::assertSame('VARCHAR(MAX)', $this->platform->getClobTypeDeclarationSQL([]));
         self::assertSame(

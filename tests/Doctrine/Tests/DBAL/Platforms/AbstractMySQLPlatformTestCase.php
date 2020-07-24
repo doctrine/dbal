@@ -56,9 +56,9 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
     public function testGeneratesSqlSnippets(): void
     {
-        self::assertEquals('RLIKE', $this->platform->getRegexpExpression(), 'Regular expression operator is not correct');
-        self::assertEquals('`', $this->platform->getIdentifierQuoteCharacter(), 'Quote character is not correct');
-        self::assertEquals('CONCAT(column1, column2, column3)', $this->platform->getConcatExpression('column1', 'column2', 'column3'), 'Concatenation function is not correct');
+        self::assertEquals('RLIKE', $this->platform->getRegexpExpression());
+        self::assertEquals('`', $this->platform->getIdentifierQuoteCharacter());
+        self::assertEquals('CONCAT(column1, column2, column3)', $this->platform->getConcatExpression('column1', 'column2', 'column3'));
     }
 
     public function testGeneratesTransactionsCommands(): void
@@ -118,13 +118,11 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         );
         self::assertEquals(
             'VARCHAR(50)',
-            $this->platform->getVarcharTypeDeclarationSQL(['length' => 50]),
-            'Variable string declaration is not correct'
+            $this->platform->getVarcharTypeDeclarationSQL(['length' => 50])
         );
         self::assertEquals(
             'VARCHAR(255)',
-            $this->platform->getVarcharTypeDeclarationSQL([]),
-            'Long string declaration is not correct'
+            $this->platform->getVarcharTypeDeclarationSQL([])
         );
     }
 

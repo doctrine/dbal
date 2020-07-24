@@ -148,11 +148,11 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
 
     public function testGeneratesSqlSnippets(): void
     {
-        self::assertEquals('SIMILAR TO', $this->platform->getRegexpExpression(), 'Regular expression operator is not correct');
-        self::assertEquals('"', $this->platform->getIdentifierQuoteCharacter(), 'Identifier quote character is not correct');
-        self::assertEquals('column1 || column2 || column3', $this->platform->getConcatExpression('column1', 'column2', 'column3'), 'Concatenation expression is not correct');
-        self::assertEquals('SUBSTRING(column FROM 5)', $this->platform->getSubstringExpression('column', 5), 'Substring expression without length is not correct');
-        self::assertEquals('SUBSTRING(column FROM 1 FOR 5)', $this->platform->getSubstringExpression('column', 1, 5), 'Substring expression with length is not correct');
+        self::assertEquals('SIMILAR TO', $this->platform->getRegexpExpression());
+        self::assertEquals('"', $this->platform->getIdentifierQuoteCharacter());
+        self::assertEquals('column1 || column2 || column3', $this->platform->getConcatExpression('column1', 'column2', 'column3'));
+        self::assertEquals('SUBSTRING(column FROM 5)', $this->platform->getSubstringExpression('column', 5));
+        self::assertEquals('SUBSTRING(column FROM 1 FOR 5)', $this->platform->getSubstringExpression('column', 1, 5));
     }
 
     public function testGeneratesTransactionCommands(): void
@@ -276,13 +276,11 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         );
         self::assertEquals(
             'VARCHAR(50)',
-            $this->platform->getVarcharTypeDeclarationSQL(['length' => 50]),
-            'Variable string declaration is not correct'
+            $this->platform->getVarcharTypeDeclarationSQL(['length' => 50])
         );
         self::assertEquals(
             'VARCHAR(255)',
-            $this->platform->getVarcharTypeDeclarationSQL([]),
-            'Long string declaration is not correct'
+            $this->platform->getVarcharTypeDeclarationSQL([])
         );
     }
 
