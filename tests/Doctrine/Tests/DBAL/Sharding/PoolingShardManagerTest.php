@@ -62,8 +62,14 @@ class PoolingShardManagerTest extends TestCase
     {
         $shardId = 10;
         $conn    = $this->createConnectionMock();
-        $conn->expects($this->at(0))->method('getParams')->will($this->returnValue(['shardChoser' => $this->createPassthroughShardChoser()]));
-        $conn->expects($this->at(1))->method('connect')->with($this->equalTo($shardId));
+
+        $conn->expects($this->at(0))
+            ->method('getParams')
+            ->willReturn(['shardChoser' => $this->createPassthroughShardChoser()]);
+
+        $conn->expects($this->at(1))
+            ->method('connect')
+            ->with($this->equalTo($shardId));
 
         $shardManager = new PoolingShardManager($conn);
         $shardManager->selectShard($shardId);

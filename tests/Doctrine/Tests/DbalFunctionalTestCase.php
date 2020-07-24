@@ -104,7 +104,8 @@ abstract class DbalFunctionalTestCase extends DbalTestCase
                 $traceMsg .= $part['file'] . ':' . $part['line'] . PHP_EOL;
             }
 
-            $message = '[' . get_class($t) . '] ' . $t->getMessage() . PHP_EOL . PHP_EOL . 'With queries:' . PHP_EOL . $queries . PHP_EOL . 'Trace:' . PHP_EOL . $traceMsg;
+            $message = '[' . get_class($t) . '] ' . $t->getMessage() . PHP_EOL . PHP_EOL
+                . 'With queries:' . PHP_EOL . $queries . PHP_EOL . 'Trace:' . PHP_EOL . $traceMsg;
 
             throw new Exception($message, (int) $t->getCode(), $t);
         }

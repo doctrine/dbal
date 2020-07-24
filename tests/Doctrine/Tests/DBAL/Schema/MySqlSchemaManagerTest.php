@@ -42,8 +42,18 @@ class MySqlSchemaManagerTest extends TestCase
         self::assertCount(1, $fkeys, 'Table has to have one foreign key.');
 
         self::assertInstanceOf(ForeignKeyConstraint::class, $fkeys[0]);
-        self::assertEquals(['column_1', 'column_2', 'column_3'], array_map('strtolower', $fkeys[0]->getLocalColumns()));
-        self::assertEquals(['column_1', 'column_2', 'column_3'], array_map('strtolower', $fkeys[0]->getForeignColumns()));
+
+        self::assertEquals([
+            'column_1',
+            'column_2',
+            'column_3',
+        ], array_map('strtolower', $fkeys[0]->getLocalColumns()));
+
+        self::assertEquals([
+            'column_1',
+            'column_2',
+            'column_3',
+        ], array_map('strtolower', $fkeys[0]->getForeignColumns()));
     }
 
     /**

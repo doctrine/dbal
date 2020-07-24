@@ -141,7 +141,9 @@ class BlobTest extends DbalFunctionalTestCase
             $this->markTestIncomplete('The oci8 driver does not support stream resources as parameters');
         }
 
-        $stmt = $this->connection->prepare("INSERT INTO blob_table(id, clobcolumn, blobcolumn) VALUES (1, 'ignored', ?)");
+        $stmt = $this->connection->prepare(
+            "INSERT INTO blob_table(id, clobcolumn, blobcolumn) VALUES (1, 'ignored', ?)"
+        );
 
         $stream = null;
         $stmt->bindParam(1, $stream, ParameterType::LARGE_OBJECT);

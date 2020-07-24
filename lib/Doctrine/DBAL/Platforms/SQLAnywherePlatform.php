@@ -1150,7 +1150,8 @@ SQL
 
             default:
                 return 'REVERSE(SUBSTR(REVERSE(SUBSTR(' . $str . ', PATINDEX(' . $pattern . ', ' . $str . '))), ' .
-                    'PATINDEX(' . $pattern . ', REVERSE(SUBSTR(' . $str . ', PATINDEX(' . $pattern . ', ' . $str . '))))))';
+                    'PATINDEX(' . $pattern . ', ' .
+                    'REVERSE(SUBSTR(' . $str . ', PATINDEX(' . $pattern . ', ' . $str . '))))))';
         }
     }
 
@@ -1272,7 +1273,8 @@ SQL
                 $flags = ' CLUSTERED ';
             }
 
-            $columnListSql .= ', PRIMARY KEY' . $flags . ' (' . implode(', ', array_unique(array_values((array) $options['primary']))) . ')';
+            $columnListSql .= ', PRIMARY KEY' . $flags
+                . ' (' . implode(', ', array_unique(array_values((array) $options['primary']))) . ')';
         }
 
         if (! empty($options['foreignKeys'])) {
@@ -1394,8 +1396,8 @@ SQL
 
         if (! $constraint->isPrimary() && ! $constraint->isUnique()) {
             throw new InvalidArgumentException(
-                'Can only create primary, unique or foreign key constraint declarations, no common index declarations ' .
-                'with getTableConstraintDeclarationSQL().'
+                'Can only create primary, unique or foreign key constraint declarations, no common index declarations'
+                    . ' with getTableConstraintDeclarationSQL().'
             );
         }
 
@@ -1418,7 +1420,8 @@ SQL
         }
 
         if ($constraint->isPrimary()) {
-            return $sql . 'PRIMARY KEY ' . $flags . '(' . $this->getIndexFieldDeclarationListSQL($constraintColumns) . ')';
+            return $sql . 'PRIMARY KEY ' . $flags
+                . '(' . $this->getIndexFieldDeclarationListSQL($constraintColumns) . ')';
         }
 
         return $sql . 'UNIQUE ' . $flags . '(' . $this->getIndexFieldDeclarationListSQL($constraintColumns) . ')';

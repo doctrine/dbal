@@ -70,13 +70,15 @@ interface ResultStatement extends Traversable
      * @param int|null     $fetchMode     Controls how the next row will be returned to the caller.
      *                                    The value must be one of the {@link FetchMode} constants,
      *                                    defaulting to {@link FetchMode::MIXED}.
-     * @param int|null     $fetchArgument This argument has a different meaning depending on the value of the $fetchMode parameter:
+     * @param int|null     $fetchArgument This argument has a different meaning depending on the value
+     *                                    of the $fetchMode parameter:
      *                                    * {@link FetchMode::COLUMN}:
      *                                      Returns the indicated 0-indexed column.
      *                                    * {@link FetchMode::CUSTOM_OBJECT}:
      *                                      Returns instances of the specified class, mapping the columns of each row
      *                                      to named properties in the class.
-     *                                    * {@link PDO::FETCH_FUNC}: Returns the results of calling the specified function, using each row's
+     *                                    * {@link PDO::FETCH_FUNC}: Returns the results of calling
+     *                                      the specified function, using each row's
      *                                      columns as parameters in the call.
      * @param mixed[]|null $ctorArgs      Controls how the next row will be returned to the caller.
      *                                    The value must be one of the {@link FetchMode} constants,

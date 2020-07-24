@@ -23,6 +23,9 @@ class SQLAzurePlatformTest extends DbalTestCase
         $table->addOption('azure.federatedOnDistributionName', 'TblId');
         $table->addOption('azure.federatedOnColumnName', 'id');
 
-        self::assertEquals(['CREATE TABLE tbl (id INT NOT NULL) FEDERATED ON (TblId = id)'], $this->platform->getCreateTableSQL($table));
+        self::assertEquals(
+            ['CREATE TABLE tbl (id INT NOT NULL) FEDERATED ON (TblId = id)'],
+            $this->platform->getCreateTableSQL($table)
+        );
     }
 }

@@ -41,7 +41,15 @@ class SQLParserUtilsTest extends DbalTestCase
             ['SELECT "Doctrine\DBAL?" FROM foo WHERE bar = ?', true, [45]], // Ticket DBAL-558
             ['SELECT `Doctrine\DBAL?` FROM foo WHERE bar = ?', true, [45]], // Ticket DBAL-558
             ['SELECT [Doctrine\DBAL?] FROM foo WHERE bar = ?', true, [45]], // Ticket DBAL-558
-            ["SELECT * FROM FOO WHERE bar = 'it\\'s a trap? \\\\' OR bar = ?\nAND baz = \"\\\"quote\\\" me on it? \\\\\" OR baz = ?", true, [58, 104]],
+            [
+                <<<'SQL'
+SELECT * FROM FOO WHERE bar = 'it\'s a trap? \\' OR bar = ?
+AND baz = "\"quote\" me on it? \\" OR baz = ?
+SQL
+,
+                true,
+                [58, 104],
+            ],
             ['SELECT * FROM foo WHERE foo = ? AND bar = ?', true, [1 => 42, 0 => 30]], // explicit keys
 
             // named
@@ -52,16 +60,67 @@ class SQLParserUtilsTest extends DbalTestCase
             ['SELECT :foo_id', false, [7 => 'foo_id']], // Ticket DBAL-231
             ['SELECT @rank := 1', false, []], // Ticket DBAL-398
             ['SELECT @rank := 1 AS rank, :foo AS foo FROM :bar', false, [27 => 'foo', 44 => 'bar']], // Ticket DBAL-398
-            ['SELECT * FROM Foo WHERE bar > :start_date AND baz > :start_date', false, [30 => 'start_date', 52 => 'start_date']], // Ticket GH-113
-            ['SELECT foo::date as date FROM Foo WHERE bar > :start_date AND baz > :start_date', false, [46 => 'start_date', 68 => 'start_date']], // Ticket GH-259
-            ['SELECT `d.ns:col_name` FROM my_table d WHERE `d.date` >= :param1', false, [57 => 'param1']], // Ticket DBAL-552
-            ['SELECT [d.ns:col_name] FROM my_table d WHERE [d.date] >= :param1', false, [57 => 'param1']], // Ticket DBAL-552
+
+            // Ticket GH-113
+            [
+                'SELECT * FROM Foo WHERE bar > :start_date AND baz > :start_date',
+                false,
+                [
+                    30 => 'start_date',
+                    52 => 'start_date',
+                ],
+            ],
+
+            // Ticket GH-259
+            [
+                'SELECT foo::date as date FROM Foo WHERE bar > :start_date AND baz > :start_date',
+                false,
+                [
+                    46 => 'start_date',
+                    68 => 'start_date',
+                ],
+            ],
+
+            // Ticket DBAL-552
+            [
+                'SELECT `d.ns:col_name` FROM my_table d WHERE `d.date` >= :param1',
+                false,
+                [57 => 'param1'],
+            ],
+
+            // Ticket DBAL-552
+            ['SELECT [d.ns:col_name] FROM my_table d WHERE [d.date] >= :param1', false, [57 => 'param1']],
+
             ['SELECT * FROM foo WHERE jsonb_exists_any(foo.bar, ARRAY[:foo])', false, [56 => 'foo']], // Ticket GH-2295
             ['SELECT * FROM foo WHERE jsonb_exists_any(foo.bar, array[:foo])', false, [56 => 'foo']],
-            ['SELECT table.column1, ARRAY[\'3\'] FROM schema.table table WHERE table.f1 = :foo AND ARRAY[\'3\']', false, [74 => 'foo']],
-            ['SELECT table.column1, ARRAY[\'3\']::integer[] FROM schema.table table WHERE table.f1 = :foo AND ARRAY[\'3\']::integer[]', false, [85 => 'foo']],
-            ['SELECT table.column1, ARRAY[:foo] FROM schema.table table WHERE table.f1 = :bar AND ARRAY[\'3\']', false, [28 => 'foo', 75 => 'bar']],
-            ['SELECT table.column1, ARRAY[:foo]::integer[] FROM schema.table table WHERE table.f1 = :bar AND ARRAY[\'3\']::integer[]', false, [28 => 'foo', 86 => 'bar']],
+            [
+                'SELECT table.column1, ARRAY[\'3\'] FROM schema.table table WHERE table.f1 = :foo AND ARRAY[\'3\']',
+                false,
+                [74 => 'foo'],
+            ],
+            [
+                'SELECT table.column1, ARRAY[\'3\']::integer[] FROM schema.table table'
+                    . ' WHERE table.f1 = :foo AND ARRAY[\'3\']::integer[]',
+                false,
+                [85 => 'foo'],
+            ],
+            [
+                'SELECT table.column1, ARRAY[:foo] FROM schema.table table WHERE table.f1 = :bar AND ARRAY[\'3\']',
+                false,
+                [
+                    28 => 'foo',
+                    75 => 'bar',
+                ],
+            ],
+            [
+                'SELECT table.column1, ARRAY[:foo]::integer[] FROM schema.table table'
+                    . ' WHERE table.f1 = :bar AND ARRAY[\'3\']::integer[]',
+                false,
+                [
+                    28 => 'foo',
+                    86 => 'bar',
+                ],
+            ],
             [
                 <<<'SQLDATA'
 SELECT * FROM foo WHERE 
@@ -80,12 +139,66 @@ SQLDATA
                     190 => 'a_param3',
                 ],
             ],
-            ["SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE '\\\\') AND (data.description LIKE :condition_1 ESCAPE '\\\\') ORDER BY id ASC", false, [121 => 'condition_0', 174 => 'condition_1']],
-            ['SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE "\\\\") AND (data.description LIKE :condition_1 ESCAPE "\\\\") ORDER BY id ASC', false, [121 => 'condition_0', 174 => 'condition_1']],
-            ['SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE "\\\\") AND (data.description LIKE :condition_1 ESCAPE \'\\\\\') ORDER BY id ASC', false, [121 => 'condition_0', 174 => 'condition_1']],
-            ['SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE `\\\\`) AND (data.description LIKE :condition_1 ESCAPE `\\\\`) ORDER BY id ASC', false, [121 => 'condition_0', 174 => 'condition_1']],
-            ['SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE \'\\\\\') AND (data.description LIKE :condition_1 ESCAPE `\\\\`) ORDER BY id ASC', false, [121 => 'condition_0', 174 => 'condition_1']],
-            ["SELECT * FROM Foo WHERE (foo.bar LIKE :condition_0 ESCAPE '\') AND (foo.baz = :condition_1) AND (foo.bak LIKE :condition_2 ESCAPE '\')", false, [38 => 'condition_0', 78 => 'condition_1', 110 => 'condition_2']],
+            [
+                'SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data'
+                    . " WHERE (data.description LIKE :condition_0 ESCAPE '\\\\')"
+                    . " AND (data.description LIKE :condition_1 ESCAPE '\\\\') ORDER BY id ASC",
+                false,
+                [
+                    121 => 'condition_0',
+                    174 => 'condition_1',
+                ],
+            ],
+            [
+                'SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data'
+                    . ' WHERE (data.description LIKE :condition_0 ESCAPE "\\\\")'
+                    . ' AND (data.description LIKE :condition_1 ESCAPE "\\\\") ORDER BY id ASC',
+                false,
+                [
+                    121 => 'condition_0',
+                    174 => 'condition_1',
+                ],
+            ],
+            [
+                'SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data'
+                    . ' WHERE (data.description LIKE :condition_0 ESCAPE "\\\\")'
+                    . ' AND (data.description LIKE :condition_1 ESCAPE \'\\\\\') ORDER BY id ASC',
+                false,
+                [
+                    121 => 'condition_0',
+                    174 => 'condition_1',
+                ],
+            ],
+            [
+                'SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data'
+                    . ' WHERE (data.description LIKE :condition_0 ESCAPE `\\\\`)'
+                    . ' AND (data.description LIKE :condition_1 ESCAPE `\\\\`) ORDER BY id ASC',
+                false,
+                [
+                    121 => 'condition_0',
+                    174 => 'condition_1',
+                ],
+            ],
+            [
+                'SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data'
+                    . ' WHERE (data.description LIKE :condition_0 ESCAPE \'\\\\\')'
+                    . ' AND (data.description LIKE :condition_1 ESCAPE `\\\\`) ORDER BY id ASC',
+                false,
+                [
+                    121 => 'condition_0',
+                    174 => 'condition_1',
+                ],
+            ],
+            [
+                "SELECT * FROM Foo WHERE (foo.bar LIKE :condition_0 ESCAPE '\')"
+                    . " AND (foo.baz = :condition_1) AND (foo.bak LIKE :condition_2 ESCAPE '\')",
+                false,
+                [
+                    38 => 'condition_0',
+                    78 => 'condition_1',
+                    110 => 'condition_2',
+                ],
+            ],
         ];
     }
 

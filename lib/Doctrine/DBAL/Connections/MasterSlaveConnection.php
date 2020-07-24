@@ -65,7 +65,8 @@ use function func_get_args;
  *    )
  * ));
  *
- * You can also pass 'driverOptions' and any other documented option to each of this drivers to pass additional information.
+ * You can also pass 'driverOptions' and any other documented option to each of this drivers
+ * to pass additional information.
  */
 class MasterSlaveConnection extends Connection
 {
@@ -91,8 +92,12 @@ class MasterSlaveConnection extends Connection
      *
      * @throws InvalidArgumentException
      */
-    public function __construct(array $params, Driver $driver, ?Configuration $config = null, ?EventManager $eventManager = null)
-    {
+    public function __construct(
+        array $params,
+        Driver $driver,
+        ?Configuration $config = null,
+        ?EventManager $eventManager = null
+    ) {
         if (! isset($params['slaves'], $params['master'])) {
             throw new InvalidArgumentException('master or slaves configuration missing');
         }

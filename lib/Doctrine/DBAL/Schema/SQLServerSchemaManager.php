@@ -156,20 +156,22 @@ class SQLServerSchemaManager extends AbstractSchemaManager
         $foreignKeys = [];
 
         foreach ($tableForeignKeys as $tableForeignKey) {
-            if (! isset($foreignKeys[$tableForeignKey['ForeignKey']])) {
-                $foreignKeys[$tableForeignKey['ForeignKey']] = [
+            $name = $tableForeignKey['ForeignKey'];
+
+            if (! isset($foreignKeys[$name])) {
+                $foreignKeys[$name] = [
                     'local_columns' => [$tableForeignKey['ColumnName']],
                     'foreign_table' => $tableForeignKey['ReferenceTableName'],
                     'foreign_columns' => [$tableForeignKey['ReferenceColumnName']],
-                    'name' => $tableForeignKey['ForeignKey'],
+                    'name' => $name,
                     'options' => [
                         'onUpdate' => str_replace('_', ' ', $tableForeignKey['update_referential_action_desc']),
                         'onDelete' => str_replace('_', ' ', $tableForeignKey['delete_referential_action_desc']),
                     ],
                 ];
             } else {
-                $foreignKeys[$tableForeignKey['ForeignKey']]['local_columns'][]   = $tableForeignKey['ColumnName'];
-                $foreignKeys[$tableForeignKey['ForeignKey']]['foreign_columns'][] = $tableForeignKey['ReferenceColumnName'];
+                $foreignKeys[$name]['local_columns'][]   = $tableForeignKey['ColumnName'];
+                $foreignKeys[$name]['foreign_columns'][] = $tableForeignKey['ReferenceColumnName'];
             }
         }
 

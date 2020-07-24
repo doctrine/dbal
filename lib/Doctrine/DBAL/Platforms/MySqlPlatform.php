@@ -198,10 +198,9 @@ class MySqlPlatform extends AbstractPlatform
 
         $databaseNameSql = $database ?? 'DATABASE()';
 
-        $sql .= ' AND k.table_schema = ' . $databaseNameSql . ' /*!50116 AND c.constraint_schema = ' . $databaseNameSql . ' */';
-        $sql .= ' AND k.`REFERENCED_COLUMN_NAME` is not NULL';
-
-        return $sql;
+        return $sql . ' AND k.table_schema = ' . $databaseNameSql
+            . ' /*!50116 AND c.constraint_schema = ' . $databaseNameSql . ' */'
+            . ' AND k.`REFERENCED_COLUMN_NAME` is not NULL';
     }
 
     /**
@@ -566,9 +565,11 @@ SQL
                 continue;
             }
 
-            $columnArray            = $column->toArray();
-            $columnArray['comment'] = $this->getColumnComment($column);
-            $queryParts[]           = 'ADD ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray);
+            $columnArray = array_merge($column->toArray(), [
+                'comment' => $this->getColumnComment($column),
+            ]);
+
+            $queryParts[] = 'ADD ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray);
         }
 
         foreach ($diff->removedColumns as $column) {
@@ -635,7 +636,8 @@ SQL
 
         if (! $this->onSchemaAlterTable($diff, $tableSql)) {
             if (count($queryParts) > 0) {
-                $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . implode(', ', $queryParts);
+                $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' '
+                    . implode(', ', $queryParts);
             }
 
             $sql = array_merge(

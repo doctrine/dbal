@@ -21,7 +21,11 @@ use const CASE_LOWER;
 class ResultCacheTest extends DbalFunctionalTestCase
 {
     /** @var list<array{test_int: int, test_string: string}> */
-    private $expectedResult = [['test_int' => 100, 'test_string' => 'foo'], ['test_int' => 200, 'test_string' => 'bar'], ['test_int' => 300, 'test_string' => 'baz']];
+    private $expectedResult = [
+        ['test_int' => 100, 'test_string' => 'foo'],
+        ['test_int' => 200, 'test_string' => 'bar'],
+        ['test_int' => 300, 'test_string' => 'baz'],
+    ];
 
     /** @var DebugStack */
     private $sqlLogger;
@@ -101,13 +105,23 @@ class ResultCacheTest extends DbalFunctionalTestCase
             $numExpectedResult[] = array_values($v);
         }
 
-        $stmt = $this->connection->executeQuery('SELECT * FROM caching ORDER BY test_int ASC', [], [], new QueryCacheProfile(10, 'testcachekey'));
+        $stmt = $this->connection->executeQuery(
+            'SELECT * FROM caching ORDER BY test_int ASC',
+            [],
+            [],
+            new QueryCacheProfile(10, 'testcachekey')
+        );
 
         $data = $this->hydrateStmt($stmt, FetchMode::ASSOCIATIVE);
 
         self::assertEquals($this->expectedResult, $data);
 
-        $stmt = $this->connection->executeQuery('SELECT * FROM caching ORDER BY test_int ASC', [], [], new QueryCacheProfile(10, 'testcachekey'));
+        $stmt = $this->connection->executeQuery(
+            'SELECT * FROM caching ORDER BY test_int ASC',
+            [],
+            [],
+            new QueryCacheProfile(10, 'testcachekey')
+        );
 
         $data = $this->hydrateStmt($stmt, FetchMode::NUMERIC);
 
@@ -123,10 +137,22 @@ class ResultCacheTest extends DbalFunctionalTestCase
 
     private function assertStandardAndIteratorFetchAreEqual(int $fetchMode): void
     {
-        $stmt = $this->connection->executeQuery('SELECT * FROM caching ORDER BY test_int ASC', [], [], new QueryCacheProfile(10, 'testcachekey'));
+        $stmt = $this->connection->executeQuery(
+            'SELECT * FROM caching ORDER BY test_int ASC',
+            [],
+            [],
+            new QueryCacheProfile(10, 'testcachekey')
+        );
+
         $data = $this->hydrateStmt($stmt, $fetchMode);
 
-        $stmt         = $this->connection->executeQuery('SELECT * FROM caching ORDER BY test_int ASC', [], [], new QueryCacheProfile(10, 'testcachekey'));
+        $stmt = $this->connection->executeQuery(
+            'SELECT * FROM caching ORDER BY test_int ASC',
+            [],
+            [],
+            new QueryCacheProfile(10, 'testcachekey')
+        );
+
         $dataIterator = $this->hydrateStmtIterator($stmt, $fetchMode);
 
         self::assertEquals($data, $dataIterator);
@@ -134,7 +160,12 @@ class ResultCacheTest extends DbalFunctionalTestCase
 
     public function testDontCloseNoCache(): void
     {
-        $stmt = $this->connection->executeQuery('SELECT * FROM caching ORDER BY test_int ASC', [], [], new QueryCacheProfile(10, 'testcachekey'));
+        $stmt = $this->connection->executeQuery(
+            'SELECT * FROM caching ORDER BY test_int ASC',
+            [],
+            [],
+            new QueryCacheProfile(10, 'testcachekey')
+        );
 
         $data = [];
 
@@ -142,7 +173,12 @@ class ResultCacheTest extends DbalFunctionalTestCase
             $data[] = $row;
         }
 
-        $stmt = $this->connection->executeQuery('SELECT * FROM caching ORDER BY test_int ASC', [], [], new QueryCacheProfile(10, 'testcachekey'));
+        $stmt = $this->connection->executeQuery(
+            'SELECT * FROM caching ORDER BY test_int ASC',
+            [],
+            [],
+            new QueryCacheProfile(10, 'testcachekey')
+        );
 
         $data = [];
 
@@ -155,12 +191,22 @@ class ResultCacheTest extends DbalFunctionalTestCase
 
     public function testDontFinishNoCache(): void
     {
-        $stmt = $this->connection->executeQuery('SELECT * FROM caching ORDER BY test_int ASC', [], [], new QueryCacheProfile(10, 'testcachekey'));
+        $stmt = $this->connection->executeQuery(
+            'SELECT * FROM caching ORDER BY test_int ASC',
+            [],
+            [],
+            new QueryCacheProfile(10, 'testcachekey')
+        );
 
         $stmt->fetch(FetchMode::ASSOCIATIVE);
         $stmt->closeCursor();
 
-        $stmt = $this->connection->executeQuery('SELECT * FROM caching ORDER BY test_int ASC', [], [], new QueryCacheProfile(10, 'testcachekey'));
+        $stmt = $this->connection->executeQuery(
+            'SELECT * FROM caching ORDER BY test_int ASC',
+            [],
+            [],
+            new QueryCacheProfile(10, 'testcachekey')
+        );
 
         $this->hydrateStmt($stmt, FetchMode::NUMERIC);
 
@@ -170,7 +216,14 @@ class ResultCacheTest extends DbalFunctionalTestCase
     public function testFetchAllAndFinishSavesCache(): void
     {
         $layerCache = new ArrayCache();
-        $stmt       = $this->connection->executeQuery('SELECT * FROM caching WHERE test_int > 500', [], [], new QueryCacheProfile(10, 'testcachekey', $layerCache));
+
+        $stmt = $this->connection->executeQuery(
+            'SELECT * FROM caching WHERE test_int > 500',
+            [],
+            [],
+            new QueryCacheProfile(10, 'testcachekey', $layerCache)
+        );
+
         $stmt->fetchAll();
         $stmt->closeCursor();
 
@@ -198,13 +251,23 @@ class ResultCacheTest extends DbalFunctionalTestCase
      */
     private function assertCacheNonCacheSelectSameFetchModeAreEqual(array $expectedResult, int $fetchMode): void
     {
-        $stmt = $this->connection->executeQuery('SELECT * FROM caching ORDER BY test_int ASC', [], [], new QueryCacheProfile(10, 'testcachekey'));
+        $stmt = $this->connection->executeQuery(
+            'SELECT * FROM caching ORDER BY test_int ASC',
+            [],
+            [],
+            new QueryCacheProfile(10, 'testcachekey')
+        );
 
         self::assertEquals(2, $stmt->columnCount());
         $data = $this->hydrateStmt($stmt, $fetchMode);
         self::assertEquals($expectedResult, $data);
 
-        $stmt = $this->connection->executeQuery('SELECT * FROM caching ORDER BY test_int ASC', [], [], new QueryCacheProfile(10, 'testcachekey'));
+        $stmt = $this->connection->executeQuery(
+            'SELECT * FROM caching ORDER BY test_int ASC',
+            [],
+            [],
+            new QueryCacheProfile(10, 'testcachekey')
+        );
 
         self::assertEquals(2, $stmt->columnCount());
         $data = $this->hydrateStmt($stmt, $fetchMode);
@@ -214,23 +277,48 @@ class ResultCacheTest extends DbalFunctionalTestCase
 
     public function testEmptyResultCache(): void
     {
-        $stmt = $this->connection->executeQuery('SELECT * FROM caching WHERE test_int > 500', [], [], new QueryCacheProfile(10, 'emptycachekey'));
-        $data = $this->hydrateStmt($stmt);
+        $stmt = $this->connection->executeQuery(
+            'SELECT * FROM caching WHERE test_int > 500',
+            [],
+            [],
+            new QueryCacheProfile(10, 'emptycachekey')
+        );
 
-        $stmt = $this->connection->executeQuery('SELECT * FROM caching WHERE test_int > 500', [], [], new QueryCacheProfile(10, 'emptycachekey'));
-        $data = $this->hydrateStmt($stmt);
+        $this->hydrateStmt($stmt);
+
+        $stmt = $this->connection->executeQuery(
+            'SELECT * FROM caching WHERE test_int > 500',
+            [],
+            [],
+            new QueryCacheProfile(10, 'emptycachekey')
+        );
+
+        $this->hydrateStmt($stmt);
 
         self::assertCount(1, $this->sqlLogger->queries, 'just one dbal hit');
     }
 
     public function testChangeCacheImpl(): void
     {
-        $stmt = $this->connection->executeQuery('SELECT * FROM caching WHERE test_int > 500', [], [], new QueryCacheProfile(10, 'emptycachekey'));
-        $data = $this->hydrateStmt($stmt);
+        $stmt = $this->connection->executeQuery(
+            'SELECT * FROM caching WHERE test_int > 500',
+            [],
+            [],
+            new QueryCacheProfile(10, 'emptycachekey')
+        );
+
+        $this->hydrateStmt($stmt);
 
         $secondCache = new ArrayCache();
-        $stmt        = $this->connection->executeQuery('SELECT * FROM caching WHERE test_int > 500', [], [], new QueryCacheProfile(10, 'emptycachekey', $secondCache));
-        $data        = $this->hydrateStmt($stmt);
+
+        $stmt = $this->connection->executeQuery(
+            'SELECT * FROM caching WHERE test_int > 500',
+            [],
+            [],
+            new QueryCacheProfile(10, 'emptycachekey', $secondCache)
+        );
+
+        $this->hydrateStmt($stmt);
 
         self::assertCount(2, $this->sqlLogger->queries, 'two hits');
         self::assertCount(1, $secondCache->fetch('emptycachekey'));

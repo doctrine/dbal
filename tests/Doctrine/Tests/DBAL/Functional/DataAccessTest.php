@@ -57,7 +57,12 @@ class DataAccessTest extends DbalFunctionalTestCase
         $sm = $this->connection->getSchemaManager();
         $sm->createTable($table);
 
-        $this->connection->insert('fetch_table', ['test_int' => 1, 'test_string' => 'foo', 'test_datetime' => '2010-01-01 10:10:10']);
+        $this->connection->insert('fetch_table', [
+            'test_int' => 1,
+            'test_string' => 'foo',
+            'test_datetime' => '2010-01-01 10:10:10',
+        ]);
+
         self::$generated = true;
     }
 
@@ -472,7 +477,11 @@ class DataAccessTest extends DbalFunctionalTestCase
     public function testNativeArrayListSupport(): void
     {
         for ($i = 100; $i < 110; $i++) {
-            $this->connection->insert('fetch_table', ['test_int' => $i, 'test_string' => 'foo' . $i, 'test_datetime' => '2010-01-01 10:10:10']);
+            $this->connection->insert('fetch_table', [
+                'test_int' => $i,
+                'test_string' => 'foo' . $i,
+                'test_datetime' => '2010-01-01 10:10:10',
+            ]);
         }
 
         $stmt = $this->connection->executeQuery(
@@ -583,22 +592,22 @@ class DataAccessTest extends DbalFunctionalTestCase
         $row = $this->connection->fetchAssoc($sql);
         $row = array_change_key_case($row, CASE_LOWER);
 
-        self::assertEquals('2010-01-01 10:10:11', date('Y-m-d H:i:s', strtotime($row['add_seconds'])), 'Adding second should end up on 2010-01-01 10:10:11');
-        self::assertEquals('2010-01-01 10:10:09', date('Y-m-d H:i:s', strtotime($row['sub_seconds'])), 'Subtracting second should end up on 2010-01-01 10:10:09');
-        self::assertEquals('2010-01-01 10:15:10', date('Y-m-d H:i:s', strtotime($row['add_minutes'])), 'Adding minutes should end up on 2010-01-01 10:15:10');
-        self::assertEquals('2010-01-01 10:05:10', date('Y-m-d H:i:s', strtotime($row['sub_minutes'])), 'Subtracting minutes should end up on 2010-01-01 10:05:10');
-        self::assertEquals('2010-01-01 13:10', date('Y-m-d H:i', strtotime($row['add_hour'])), 'Adding date should end up on 2010-01-01 13:10');
-        self::assertEquals('2010-01-01 07:10', date('Y-m-d H:i', strtotime($row['sub_hour'])), 'Subtracting date should end up on 2010-01-01 07:10');
-        self::assertEquals('2010-01-11', date('Y-m-d', strtotime($row['add_days'])), 'Adding date should end up on 2010-01-11');
-        self::assertEquals('2009-12-22', date('Y-m-d', strtotime($row['sub_days'])), 'Subtracting date should end up on 2009-12-22');
-        self::assertEquals('2010-01-08', date('Y-m-d', strtotime($row['add_weeks'])), 'Adding week should end up on 2010-01-08');
-        self::assertEquals('2009-12-25', date('Y-m-d', strtotime($row['sub_weeks'])), 'Subtracting week should end up on 2009-12-25');
-        self::assertEquals('2010-03-01', date('Y-m-d', strtotime($row['add_month'])), 'Adding month should end up on 2010-03-01');
-        self::assertEquals('2009-11-01', date('Y-m-d', strtotime($row['sub_month'])), 'Subtracting month should end up on 2009-11-01');
-        self::assertEquals('2010-10-01', date('Y-m-d', strtotime($row['add_quarters'])), 'Adding quarters should end up on 2010-04-01');
-        self::assertEquals('2009-04-01', date('Y-m-d', strtotime($row['sub_quarters'])), 'Subtracting quarters should end up on 2009-10-01');
-        self::assertEquals('2016-01-01', date('Y-m-d', strtotime($row['add_years'])), 'Adding years should end up on 2016-01-01');
-        self::assertEquals('2004-01-01', date('Y-m-d', strtotime($row['sub_years'])), 'Subtracting years should end up on 2004-01-01');
+        self::assertEquals('2010-01-01 10:10:11', date('Y-m-d H:i:s', strtotime($row['add_seconds'])));
+        self::assertEquals('2010-01-01 10:10:09', date('Y-m-d H:i:s', strtotime($row['sub_seconds'])));
+        self::assertEquals('2010-01-01 10:15:10', date('Y-m-d H:i:s', strtotime($row['add_minutes'])));
+        self::assertEquals('2010-01-01 10:05:10', date('Y-m-d H:i:s', strtotime($row['sub_minutes'])));
+        self::assertEquals('2010-01-01 13:10', date('Y-m-d H:i', strtotime($row['add_hour'])));
+        self::assertEquals('2010-01-01 07:10', date('Y-m-d H:i', strtotime($row['sub_hour'])));
+        self::assertEquals('2010-01-11', date('Y-m-d', strtotime($row['add_days'])));
+        self::assertEquals('2009-12-22', date('Y-m-d', strtotime($row['sub_days'])));
+        self::assertEquals('2010-01-08', date('Y-m-d', strtotime($row['add_weeks'])));
+        self::assertEquals('2009-12-25', date('Y-m-d', strtotime($row['sub_weeks'])));
+        self::assertEquals('2010-03-01', date('Y-m-d', strtotime($row['add_month'])));
+        self::assertEquals('2009-11-01', date('Y-m-d', strtotime($row['sub_month'])));
+        self::assertEquals('2010-10-01', date('Y-m-d', strtotime($row['add_quarters'])));
+        self::assertEquals('2009-04-01', date('Y-m-d', strtotime($row['sub_quarters'])));
+        self::assertEquals('2016-01-01', date('Y-m-d', strtotime($row['add_years'])));
+        self::assertEquals('2004-01-01', date('Y-m-d', strtotime($row['sub_years'])));
     }
 
     public function testSqliteDateArithmeticWithDynamicInterval(): void

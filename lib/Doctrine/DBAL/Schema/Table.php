@@ -53,8 +53,14 @@ class Table extends AbstractAsset
      *
      * @throws DBALException
      */
-    public function __construct($name, array $columns = [], array $indexes = [], array $fkConstraints = [], $idGeneratorType = 0, array $options = [])
-    {
+    public function __construct(
+        $name,
+        array $columns = [],
+        array $indexes = [],
+        array $fkConstraints = [],
+        $idGeneratorType = 0,
+        array $options = []
+    ) {
         if (strlen($name) === 0) {
             throw DBALException::invalidTableName($name);
         }
@@ -263,8 +269,14 @@ class Table extends AbstractAsset
      *
      * @throws SchemaException
      */
-    private function _createIndex(array $columnNames, $indexName, $isUnique, $isPrimary, array $flags = [], array $options = [])
-    {
+    private function _createIndex(
+        array $columnNames,
+        $indexName,
+        $isUnique,
+        $isPrimary,
+        array $flags = [],
+        array $options = []
+    ) {
         if (preg_match('(([^a-zA-Z0-9_]+))', $this->normalizeIdentifier($indexName))) {
             throw SchemaException::indexNameInvalid($indexName);
         }
@@ -357,11 +369,26 @@ class Table extends AbstractAsset
      *
      * @return self
      */
-    public function addForeignKeyConstraint($foreignTable, array $localColumnNames, array $foreignColumnNames, array $options = [], $constraintName = null)
-    {
-        $constraintName = $constraintName ?: $this->_generateIdentifierName(array_merge((array) $this->getName(), $localColumnNames), 'fk', $this->_getMaxIdentifierLength());
+    public function addForeignKeyConstraint(
+        $foreignTable,
+        array $localColumnNames,
+        array $foreignColumnNames,
+        array $options = [],
+        $constraintName = null
+    ) {
+        $constraintName = $constraintName ?: $this->_generateIdentifierName(
+            array_merge((array) $this->getName(), $localColumnNames),
+            'fk',
+            $this->_getMaxIdentifierLength()
+        );
 
-        return $this->addNamedForeignKeyConstraint($constraintName, $foreignTable, $localColumnNames, $foreignColumnNames, $options);
+        return $this->addNamedForeignKeyConstraint(
+            $constraintName,
+            $foreignTable,
+            $localColumnNames,
+            $foreignColumnNames,
+            $options
+        );
     }
 
     /**
@@ -378,8 +405,12 @@ class Table extends AbstractAsset
      *
      * @return self
      */
-    public function addUnnamedForeignKeyConstraint($foreignTable, array $localColumnNames, array $foreignColumnNames, array $options = [])
-    {
+    public function addUnnamedForeignKeyConstraint(
+        $foreignTable,
+        array $localColumnNames,
+        array $foreignColumnNames,
+        array $options = []
+    ) {
         return $this->addForeignKeyConstraint($foreignTable, $localColumnNames, $foreignColumnNames, $options);
     }
 
@@ -398,8 +429,13 @@ class Table extends AbstractAsset
      *
      * @throws SchemaException
      */
-    public function addNamedForeignKeyConstraint($name, $foreignTable, array $localColumnNames, array $foreignColumnNames, array $options = [])
-    {
+    public function addNamedForeignKeyConstraint(
+        $name,
+        $foreignTable,
+        array $localColumnNames,
+        array $foreignColumnNames,
+        array $options = []
+    ) {
         if ($foreignTable instanceof Table) {
             foreach ($foreignColumnNames as $columnName) {
                 if (! $foreignTable->hasColumn($columnName)) {
@@ -518,14 +554,17 @@ class Table extends AbstractAsset
 
         $this->_fkConstraints[$name] = $constraint;
 
-        // add an explicit index on the foreign key columns. If there is already an index that fulfils this requirements drop the request.
-        // In the case of __construct calling this method during hydration from schema-details all the explicitly added indexes
-        // lead to duplicates. This creates computation overhead in this case, however no duplicate indexes are ever added (based on columns).
-        $indexName      = $this->_generateIdentifierName(
+        // Add an explicit index on the foreign key columns.
+        // If there is already an index that fulfils this requirements drop the request.
+        // In the case of __construct calling this method during hydration from schema-details
+        // all the explicitly added indexes lead to duplicates. This creates computation overhead in this case,
+        // however no duplicate indexes are ever added (based on columns).
+        $indexName = $this->_generateIdentifierName(
             array_merge([$this->getName()], $constraint->getColumns()),
             'idx',
             $this->_getMaxIdentifierLength()
         );
+
         $indexCandidate = $this->_createIndex($constraint->getColumns(), $indexName, false, false);
 
         foreach ($this->_indexes as $existingIndex) {

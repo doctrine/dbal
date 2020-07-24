@@ -81,7 +81,8 @@ class Configuration
     {
         $this->_attributes['filterSchemaAssetsExpression'] = $filterExpression;
         if ($filterExpression) {
-            $this->_attributes['filterSchemaAssetsExpressionCallable'] = $this->buildSchemaAssetsFilterFromExpression($filterExpression);
+            $this->_attributes['filterSchemaAssetsExpressionCallable']
+                = $this->buildSchemaAssetsFilterFromExpression($filterExpression);
         } else {
             $this->_attributes['filterSchemaAssetsExpressionCallable'] = null;
         }

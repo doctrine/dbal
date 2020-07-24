@@ -246,7 +246,10 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testColumnCharsetChange(): void
     {
         $table = new Table('test_column_charset_change');
-        $table->addColumn('col_string', 'string')->setLength(100)->setNotnull(true)->setPlatformOption('charset', 'utf8');
+        $table->addColumn('col_string', 'string')
+            ->setLength(100)
+            ->setNotnull(true)
+            ->setPlatformOption('charset', 'utf8');
 
         $diffTable = clone $table;
         $diffTable->getColumn('col_string')->setPlatformOption('charset', 'ascii');
@@ -255,7 +258,11 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $toSchema   = new Schema([$diffTable]);
 
         $diff = $fromSchema->getMigrateToSql($toSchema, $this->connection->getDatabasePlatform());
-        self::assertContains('ALTER TABLE test_column_charset_change CHANGE col_string col_string VARCHAR(100) CHARACTER SET ascii NOT NULL', $diff);
+        self::assertContains(
+            'ALTER TABLE test_column_charset_change CHANGE col_string'
+                . ' col_string VARCHAR(100) CHARACTER SET ascii NOT NULL',
+            $diff
+        );
     }
 
     public function testColumnCollation(): void
