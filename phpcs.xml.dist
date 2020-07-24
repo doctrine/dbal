@@ -9,8 +9,8 @@
     <arg name="cache" value=".phpcs-cache"/>
     <arg name="colors"/>
 
-    <!-- Ignore warnings, show progress of the run and show sniff names -->
-    <arg value="nps"/>
+    <!-- Show progress of the run and show sniff names -->
+    <arg value="ps"/>
 
     <file>bin</file>
     <file>lib</file>
@@ -36,6 +36,10 @@
         <properties>
             <property name="enableNativeTypeHint" value="false"/>
         </properties>
+    </rule>
+
+    <rule ref="PSR2.Classes.PropertyDeclaration.Underscore">
+        <exclude-pattern>*/lib/*</exclude-pattern>
     </rule>
 
     <rule ref="SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint">
