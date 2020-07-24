@@ -549,7 +549,7 @@ class SQLAnywherePlatform extends AbstractPlatform
 
         if (! is_string($index)) {
             throw new InvalidArgumentException(
-                'SQLAnywherePlatform::getDropIndexSQL() expects $index parameter to be string or ' . Index::class . '.'
+                __METHOD__ . '() expects $index parameter to be string or ' . Index::class . '.'
             );
         }
 
@@ -563,7 +563,7 @@ class SQLAnywherePlatform extends AbstractPlatform
 
         if (! is_string($table)) {
             throw new InvalidArgumentException(
-                'SQLAnywherePlatform::getDropIndexSQL() expects $table parameter to be string or ' . Index::class . '.'
+                __METHOD__ . '() expects $table parameter to be string or ' . Index::class . '.'
             );
         }
 
