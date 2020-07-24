@@ -1013,6 +1013,8 @@ class Connection
             } elseif (array_key_exists($realKey, $data)) {
                 $result = new ArrayResult([]);
             }
+        } else {
+            $data = [];
         }
 
         if (! isset($result)) {
@@ -1021,7 +1023,8 @@ class Connection
                 $resultCache,
                 $cacheKey,
                 $realKey,
-                $qcp->getLifetime()
+                $qcp->getLifetime(),
+                $data
             );
         }
 

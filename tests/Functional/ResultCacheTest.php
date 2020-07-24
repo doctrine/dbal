@@ -225,6 +225,64 @@ class ResultCacheTest extends FunctionalTestCase
         self::assertCount(1, $layerCache->fetch('testcachekey'));
     }
 
+    public function testCacheQueriedOnlyOnceForCacheMiss(): void
+    {
+        $layerCache = $this->createMock(ArrayCache::class);
+        $layerCache->expects(self::once())
+            ->method('fetch')
+            ->willReturn(false);
+
+        $layerCache->expects(self::once())
+            ->method('save');
+
+        $result = $this->connection->executeQuery(
+            'SELECT * FROM caching WHERE test_int > 500',
+            [],
+            [],
+            new QueryCacheProfile(0, 'testcachekey', $layerCache)
+        );
+        $result->fetchAllAssociative();
+    }
+
+    public function testDifferentQueriesMayBeSavedToOneCacheKey(): void
+    {
+        $layerCache = new ArrayCache();
+
+        $this->executeTwoCachedQueries($layerCache);
+        self::assertCount(2, $this->sqlLogger->queries, 'Two queries executed');
+        self::assertCount(2, $layerCache->fetch('testcachekey'), 'Both queries are saved to cache');
+
+        $this->executeTwoCachedQueries($layerCache);
+        self::assertCount(2, $this->sqlLogger->queries, 'Consecutive queries are fetched from cache');
+
+        $layerCache->delete('testcachekey');
+        $this->executeTwoCachedQueries($layerCache);
+        self::assertCount(
+            4,
+            $this->sqlLogger->queries,
+            'Deleting one cache key leads to deleting cache for both queris'
+        );
+    }
+
+    private function executeTwoCachedQueries(ArrayCache $cache): void
+    {
+        $result = $this->connection->executeQuery(
+            'SELECT * FROM caching WHERE test_int > 500',
+            [],
+            [],
+            new QueryCacheProfile(0, 'testcachekey', $cache)
+        );
+        $result->fetchAllAssociative();
+
+        $result = $this->connection->executeQuery(
+            'SELECT * FROM caching WHERE test_int > 400',
+            [],
+            [],
+            new QueryCacheProfile(0, 'testcachekey', $cache)
+        );
+        $result->fetchAllAssociative();
+    }
+
     public function testFetchColumn(): void
     {
         $query = $this->connection->getDatabasePlatform()

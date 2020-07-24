@@ -43,18 +43,23 @@ class CachingResult implements Result
     /** @var array<int,array<string,mixed>>|null */
     private $data;
 
+    /** @var array<string, mixed> */
+    private $fetchedData;
+
     /**
-     * @param string $cacheKey
-     * @param string $realKey
-     * @param int    $lifetime
+     * @param string               $cacheKey
+     * @param string               $realKey
+     * @param int                  $lifetime
+     * @param array<string, mixed> $fetchedData
      */
-    public function __construct(Result $result, Cache $cache, $cacheKey, $realKey, $lifetime)
+    public function __construct(Result $result, Cache $cache, $cacheKey, $realKey, $lifetime, array $fetchedData)
     {
-        $this->result   = $result;
-        $this->cache    = $cache;
-        $this->cacheKey = $cacheKey;
-        $this->realKey  = $realKey;
-        $this->lifetime = $lifetime;
+        $this->result      = $result;
+        $this->cache       = $cache;
+        $this->cacheKey    = $cacheKey;
+        $this->realKey     = $realKey;
+        $this->lifetime    = $lifetime;
+        $this->fetchedData = $fetchedData;
     }
 
     /**
@@ -170,14 +175,8 @@ class CachingResult implements Result
             return;
         }
 
-        $data = $this->cache->fetch($this->cacheKey);
+        $this->fetchedData[$this->realKey] = $this->data;
 
-        if ($data === false) {
-            $data = [];
-        }
-
-        $data[$this->realKey] = $this->data;
-
-        $this->cache->save($this->cacheKey, $data, $this->lifetime);
+        $this->cache->save($this->cacheKey, $this->fetchedData, $this->lifetime);
     }
 }
