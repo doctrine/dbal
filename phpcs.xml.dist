@@ -39,7 +39,13 @@
     </rule>
 
     <rule ref="PSR2.Classes.PropertyDeclaration.Underscore">
-        <exclude-pattern>*/lib/*</exclude-pattern>
+        <exclude-pattern>*/lib/Doctrine/DBAL/Configuration.php</exclude-pattern>
+        <exclude-pattern>*/lib/Doctrine/DBAL/Connection.php</exclude-pattern>
+        <exclude-pattern>*/lib/Doctrine/DBAL/Driver</exclude-pattern>
+        <exclude-pattern>*/lib/Doctrine/DBAL/Event/Listeners</exclude-pattern>
+        <exclude-pattern>*/lib/Doctrine/DBAL/Platforms</exclude-pattern>
+        <exclude-pattern>*/lib/Doctrine/DBAL/Schema</exclude-pattern>
+        <exclude-pattern>*/lib/Doctrine/DBAL/Tools/Console/Helper/ConnectionHelper.php</exclude-pattern>
     </rule>
 
     <rule ref="SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint">
