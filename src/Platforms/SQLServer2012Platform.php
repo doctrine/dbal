@@ -266,7 +266,9 @@ class SQLServer2012Platform extends AbstractPlatform
         if ($index instanceof Index) {
             $index = $index->getQuotedName($this);
         } elseif (! is_string($index)) {
-            throw new InvalidArgumentException('AbstractPlatform::getDropIndexSQL() expects $index parameter to be string or \Doctrine\DBAL\Schema\Index.');
+            throw new InvalidArgumentException(
+                __METHOD__ . '() expects $index parameter to be string or ' . Index::class . '.'
+            );
         }
 
         if (! isset($table)) {
@@ -340,7 +342,8 @@ SQL
                 $flags = ' NONCLUSTERED';
             }
 
-            $columnListSql .= ', PRIMARY KEY' . $flags . ' (' . implode(', ', array_unique(array_values($options['primary']))) . ')';
+            $columnListSql .= ', PRIMARY KEY' . $flags
+                . ' (' . implode(', ', array_unique(array_values($options['primary']))) . ')';
         }
 
         $query = 'CREATE TABLE ' . $tableName . ' (' . $columnListSql;
@@ -608,7 +611,10 @@ SQL
             $queryParts[] = 'ALTER COLUMN ' .
                     $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnDef);
 
-            if (! isset($columnDef['default']) || (! $requireDropDefaultConstraint && ! $columnDiff->hasChanged('default'))) {
+            if (
+                ! isset($columnDef['default'])
+                || (! $requireDropDefaultConstraint && ! $columnDiff->hasChanged('default'))
+            ) {
                 continue;
             }
 
@@ -952,7 +958,8 @@ SQL
     {
         // "sysdiagrams" table must be ignored as it's internal SQL Server table for Database Diagrams
         // Category 2 must be ignored as it is "MS SQL Server 'pseudo-system' object[s]" for replication
-        return "SELECT name, SCHEMA_NAME (uid) AS schema_name FROM sysobjects WHERE type = 'U' AND name != 'sysdiagrams' AND category != 2 ORDER BY name";
+        return 'SELECT name, SCHEMA_NAME (uid) AS schema_name FROM sysobjects'
+            . " WHERE type = 'U' AND name != 'sysdiagrams' AND category != 2 ORDER BY name";
     }
 
     /**
@@ -1125,15 +1132,6 @@ SQL
             return $trimFn . '(' . $str . ')';
         }
 
-        /** Original query used to get those expressions
-          declare @c varchar(100) = 'xxxBarxxx', @trim_char char(1) = 'x';
-          declare @pat varchar(10) = '%[^' + @trim_char + ']%';
-          select @c as string
-          , @trim_char as trim_char
-          , stuff(@c, 1, patindex(@pat, @c) - 1, null) as trim_leading
-          , reverse(stuff(reverse(@c), 1, patindex(@pat, reverse(@c)) - 1, null)) as trim_trailing
-          , reverse(stuff(reverse(stuff(@c, 1, patindex(@pat, @c) - 1, null)), 1, patindex(@pat, reverse(stuff(@c, 1, patindex(@pat, @c) - 1, null))) - 1, null)) as trim_both;
-         */
         $pattern = "'%[^' + " . $char . " + ']%'";
 
         if ($pos === TrimMode::LEADING) {
@@ -1141,10 +1139,13 @@ SQL
         }
 
         if ($pos === TrimMode::TRAILING) {
-            return 'reverse(stuff(reverse(' . $str . '), 1, patindex(' . $pattern . ', reverse(' . $str . ')) - 1, null))';
+            return 'reverse(stuff(reverse(' . $str . '), 1, '
+                . 'patindex(' . $pattern . ', reverse(' . $str . ')) - 1, null))';
         }
 
-        return 'reverse(stuff(reverse(stuff(' . $str . ', 1, patindex(' . $pattern . ', ' . $str . ') - 1, null)), 1, patindex(' . $pattern . ', reverse(stuff(' . $str . ', 1, patindex(' . $pattern . ', ' . $str . ') - 1, null))) - 1, null))';
+        return 'reverse(stuff(reverse(stuff(' . $str . ', 1, patindex(' . $pattern . ', ' . $str . ') - 1, null)), 1, '
+            . 'patindex(' . $pattern . ', reverse(stuff(' . $str . ', 1, patindex(' . $pattern . ', ' . $str
+            . ') - 1, null))) - 1, null))';
     }
 
     /**

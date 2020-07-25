@@ -238,7 +238,10 @@ class TypeConversionTest extends FunctionalTestCase
     {
         $columnName     = 'test_' . $type;
         $typeInstance   = Type::getType($type);
-        $insertionValue = $typeInstance->convertToDatabaseValue($originalValue, $this->connection->getDatabasePlatform());
+        $insertionValue = $typeInstance->convertToDatabaseValue(
+            $originalValue,
+            $this->connection->getDatabasePlatform()
+        );
 
         $this->connection->insert('type_conversion', ['id' => ++self::$typeCounter, $columnName => $insertionValue]);
 

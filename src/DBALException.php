@@ -123,7 +123,9 @@ class DBALException extends Exception
      */
     public static function invalidDriverClass($driverClass)
     {
-        return new self("The given 'driverClass' " . $driverClass . ' has to implement the ' . Driver::class . ' interface.');
+        return new self(
+            "The given 'driverClass' " . $driverClass . ' has to implement the ' . Driver::class . ' interface.'
+        );
     }
 
     /**
@@ -182,7 +184,9 @@ class DBALException extends Exception
 
     public static function typeNotRegistered(Type $type): self
     {
-        return new self(sprintf('Type of the class %s@%s is not registered.', get_class($type), spl_object_hash($type)));
+        return new self(
+            sprintf('Type of the class %s@%s is not registered.', get_class($type), spl_object_hash($type))
+        );
     }
 
     public static function typeAlreadyRegistered(Type $type): self

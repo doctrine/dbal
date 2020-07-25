@@ -178,8 +178,11 @@ SQL;
     /**
      * @dataProvider getDiffListIntegerAutoincrementTableColumnsData
      */
-    public function testDiffListIntegerAutoincrementTableColumns(string $integerType, bool $unsigned, bool $expectedComparatorDiff): void
-    {
+    public function testDiffListIntegerAutoincrementTableColumns(
+        string $integerType,
+        bool $unsigned,
+        bool $expectedComparatorDiff
+    ): void {
         $tableName = 'test_int_autoincrement_table';
 
         $offlineTable = new Table($tableName);

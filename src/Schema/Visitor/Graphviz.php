@@ -71,17 +71,23 @@ class Graphviz extends AbstractVisitor
         $label = '<<TABLE CELLSPACING="0" BORDER="1" ALIGN="LEFT">';
 
         // The title
-        $label .= '<TR><TD BORDER="1" COLSPAN="3" ALIGN="CENTER" BGCOLOR="#fcaf3e"><FONT COLOR="#2e3436" FACE="Helvetica" POINT-SIZE="12">' . $table->getName() . '</FONT></TD></TR>';
+        $label .= '<TR><TD BORDER="1" COLSPAN="3" ALIGN="CENTER" BGCOLOR="#fcaf3e">'
+            . '<FONT COLOR="#2e3436" FACE="Helvetica" POINT-SIZE="12">' . $table->getName() . '</FONT></TD></TR>';
 
         // The attributes block
         foreach ($table->getColumns() as $column) {
             $columnLabel = $column->getName();
 
-            $label .= '<TR>';
-            $label .= '<TD BORDER="0" ALIGN="LEFT" BGCOLOR="#eeeeec">';
-            $label .= '<FONT COLOR="#2e3436" FACE="Helvetica" POINT-SIZE="12">' . $columnLabel . '</FONT>';
-            $label .= '</TD><TD BORDER="0" ALIGN="LEFT" BGCOLOR="#eeeeec"><FONT COLOR="#2e3436" FACE="Helvetica" POINT-SIZE="10">' . strtolower($column->getType()->getName()) . '</FONT></TD>';
-            $label .= '<TD BORDER="0" ALIGN="RIGHT" BGCOLOR="#eeeeec" PORT="col' . $column->getName() . '">';
+            $label .= '<TR>'
+                . '<TD BORDER="0" ALIGN="LEFT" BGCOLOR="#eeeeec">'
+                . '<FONT COLOR="#2e3436" FACE="Helvetica" POINT-SIZE="12">' . $columnLabel . '</FONT>'
+                . '</TD>'
+                . '<TD BORDER="0" ALIGN="LEFT" BGCOLOR="#eeeeec">'
+                . '<FONT COLOR="#2e3436" FACE="Helvetica" POINT-SIZE="10">'
+                . strtolower($column->getType()->getName())
+                . '</FONT>'
+                . '</TD>'
+                . '<TD BORDER="0" ALIGN="RIGHT" BGCOLOR="#eeeeec" PORT="col' . $column->getName() . '">';
 
             $primaryKey = $table->getPrimaryKey();
 

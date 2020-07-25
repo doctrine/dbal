@@ -468,7 +468,9 @@ class TableTest extends TestCase
         $table->setPrimaryKey(['baz']);
 
         $indexes = $table->getIndexes();
-        self::assertCount(2, $indexes, 'Table should only contain both the primary key table index and the unique one, even though it was overruled.');
+
+        // Table should only contain both the primary key table index and the unique one, even though it was overruled
+        self::assertCount(2, $indexes);
 
         self::assertTrue($table->hasPrimaryKey());
         self::assertTrue($table->hasIndex('idx_unique'));
@@ -525,7 +527,7 @@ class TableTest extends TestCase
         self::assertTrue($localTable->hasIndex('explicit_idx'));
     }
 
-    public function testAddingFulfillingExplicitIndexOverridingImplicitForeignKeyConstraintIndexWithSameNameDoesNotThrowException(): void
+    public function testAddingFulfillingExplicitIndexOverridingImplicitForeignKeyConstraintIndexWithSameName(): void
     {
         $foreignTable = new Table('foreign');
         $foreignTable->addColumn('id', 'integer');

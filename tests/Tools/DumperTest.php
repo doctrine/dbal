@@ -7,6 +7,9 @@ use ArrayObject;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeZone;
+use Doctrine\DBAL\Tests\Tools\TestAsset\ChildClass;
+use Doctrine\DBAL\Tests\Tools\TestAsset\ChildWithSameAttributesClass;
+use Doctrine\DBAL\Tests\Tools\TestAsset\ParentClass;
 use Doctrine\DBAL\Tools\Dumper;
 use PHPUnit\Framework\TestCase;
 use stdClass;
@@ -118,23 +121,23 @@ class DumperTest extends TestCase
     {
         return [
             'different-attributes' => [
-                new TestAsset\ChildClass(),
+                new ChildClass(),
                 [
                     'childPublicAttribute' => 4,
                     'childProtectedAttribute:protected' => 5,
-                    'childPrivateAttribute:Doctrine\DBAL\Tests\Tools\TestAsset\ChildClass:private' => 6,
+                    'childPrivateAttribute:' . ChildClass::class . ':private' => 6,
                     'parentPublicAttribute' => 1,
                     'parentProtectedAttribute:protected' => 2,
-                    'parentPrivateAttribute:Doctrine\DBAL\Tests\Tools\TestAsset\ParentClass:private' => 3,
+                    'parentPrivateAttribute:' . ParentClass::class . ':private' => 3,
                 ],
             ],
             'same-attributes' => [
-                new TestAsset\ChildWithSameAttributesClass(),
+                new ChildWithSameAttributesClass(),
                 [
                     'parentPublicAttribute' => 4,
                     'parentProtectedAttribute:protected' => 5,
-                    'parentPrivateAttribute:Doctrine\DBAL\Tests\Tools\TestAsset\ChildWithSameAttributesClass:private' => 6,
-                    'parentPrivateAttribute:Doctrine\DBAL\Tests\Tools\TestAsset\ParentClass:private' => 3,
+                    'parentPrivateAttribute:' . ChildWithSameAttributesClass::class . ':private' => 6,
+                    'parentPrivateAttribute:' . ParentClass::class . ':private' => 3,
                 ],
             ],
         ];

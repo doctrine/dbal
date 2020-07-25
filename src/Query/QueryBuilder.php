@@ -429,7 +429,12 @@ class QueryBuilder
         $this->state = self::STATE_DIRTY;
 
         if ($append) {
-            if ($sqlPartName === 'orderBy' || $sqlPartName === 'groupBy' || $sqlPartName === 'select' || $sqlPartName === 'set') {
+            if (
+                $sqlPartName === 'orderBy'
+                || $sqlPartName === 'groupBy'
+                || $sqlPartName === 'select'
+                || $sqlPartName === 'set'
+            ) {
                 foreach ($sqlPart as $part) {
                     $this->sqlParts[$sqlPartName][] = $part;
                 }
@@ -1228,7 +1233,8 @@ class QueryBuilder
      */
     private function getSQLForUpdate()
     {
-        $table = $this->sqlParts['from']['table'] . ($this->sqlParts['from']['alias'] ? ' ' . $this->sqlParts['from']['alias'] : '');
+        $table = $this->sqlParts['from']['table']
+            . ($this->sqlParts['from']['alias'] ? ' ' . $this->sqlParts['from']['alias'] : '');
 
         return 'UPDATE ' . $table
             . ' SET ' . implode(', ', $this->sqlParts['set'])
@@ -1242,9 +1248,11 @@ class QueryBuilder
      */
     private function getSQLForDelete()
     {
-        $table = $this->sqlParts['from']['table'] . ($this->sqlParts['from']['alias'] ? ' ' . $this->sqlParts['from']['alias'] : '');
+        $table = $this->sqlParts['from']['table']
+            . ($this->sqlParts['from']['alias'] ? ' ' . $this->sqlParts['from']['alias'] : '');
 
-        return 'DELETE FROM ' . $table . ($this->sqlParts['where'] !== null ? ' WHERE ' . ((string) $this->sqlParts['where']) : '');
+        return 'DELETE FROM ' . $table
+            . ($this->sqlParts['where'] !== null ? ' WHERE ' . ((string) $this->sqlParts['where']) : '');
     }
 
     /**

@@ -210,7 +210,9 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $namespaces = array_map('strtolower', $namespaces);
 
         if (! in_array('test_create_schema', $namespaces, true)) {
-            $this->connection->executeStatement($this->schemaManager->getDatabasePlatform()->getCreateSchemaSQL('test_create_schema'));
+            $this->connection->executeStatement(
+                $this->schemaManager->getDatabasePlatform()->getCreateSchemaSQL('test_create_schema')
+            );
 
             $namespaces = $this->schemaManager->listNamespaceNames();
             $namespaces = array_map('strtolower', $namespaces);
@@ -398,7 +400,9 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     public function testDiffListTableColumns(): void
     {
         if ($this->schemaManager->getDatabasePlatform()->getName() === 'oracle') {
-            self::markTestSkipped('Does not work with Oracle, since it cannot detect DateTime, Date and Time differenecs (at the moment).');
+            self::markTestSkipped(
+                'Does not work with Oracle, since it cannot detect DateTime, Date and Time differenecs (at the moment).'
+            );
         }
 
         $offlineTable = $this->createListTableColumns();
@@ -480,7 +484,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertEquals(['foreign_key_test'], array_map('strtolower', $fkConstraint->getColumns()));
         self::assertEquals(['id'], array_map('strtolower', $fkConstraint->getForeignColumns()));
 
-        self::assertTrue($fkTable->columnsAreIndexed($fkConstraint->getColumns()), 'The columns of a foreign key constraint should always be indexed.');
+        self::assertTrue($fkTable->columnsAreIndexed($fkConstraint->getColumns()));
     }
 
     public function testListForeignKeys(): void
@@ -580,7 +584,10 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $table = $this->schemaManager->listTableDetails('alter_table');
         self::assertEquals(2, count($table->getIndexes()));
         self::assertTrue($table->hasIndex('foo_idx'));
-        self::assertEquals(['foo', 'foreign_key_test'], array_map('strtolower', $table->getIndex('foo_idx')->getColumns()));
+        self::assertEquals(
+            ['foo', 'foreign_key_test'],
+            array_map('strtolower', $table->getIndex('foo_idx')->getColumns())
+        );
 
         $tableDiff                            = new TableDiff('alter_table');
         $tableDiff->fromTable                 = $table;
@@ -592,7 +599,10 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertEquals(2, count($table->getIndexes()));
         self::assertTrue($table->hasIndex('bar_idx'));
         self::assertFalse($table->hasIndex('foo_idx'));
-        self::assertEquals(['foo', 'foreign_key_test'], array_map('strtolower', $table->getIndex('bar_idx')->getColumns()));
+        self::assertEquals(
+            ['foo', 'foreign_key_test'],
+            array_map('strtolower', $table->getIndex('bar_idx')->getColumns())
+        );
         self::assertFalse($table->getIndex('bar_idx')->isPrimary());
         self::assertFalse($table->getIndex('bar_idx')->isUnique());
 
@@ -843,10 +853,10 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $columns = $this->schemaManager->listTableColumns('column_comment_test2');
         self::assertEquals(3, count($columns));
         self::assertEquals('This is a comment', $columns['id']->getComment());
-        self::assertEquals('This is a comment', $columns['obj']->getComment(), 'The Doctrine2 Typehint should be stripped from comment.');
-        self::assertInstanceOf(ObjectType::class, $columns['obj']->getType(), 'The Doctrine2 should be detected from comment hint.');
-        self::assertEquals('This is a comment', $columns['arr']->getComment(), 'The Doctrine2 Typehint should be stripped from comment.');
-        self::assertInstanceOf(ArrayType::class, $columns['arr']->getType(), 'The Doctrine2 should be detected from comment hint.');
+        self::assertEquals('This is a comment', $columns['obj']->getComment());
+        self::assertInstanceOf(ObjectType::class, $columns['obj']->getType());
+        self::assertEquals('This is a comment', $columns['arr']->getComment());
+        self::assertInstanceOf(ArrayType::class, $columns['arr']->getType());
     }
 
     public function testCommentHintOnDateIntervalTypeColumn(): void
@@ -869,8 +879,8 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $columns = $this->schemaManager->listTableColumns('column_dateinterval_comment');
         self::assertEquals(2, count($columns));
         self::assertEquals('This is a comment', $columns['id']->getComment());
-        self::assertEquals('This is a comment', $columns['date_interval']->getComment(), 'The Doctrine2 Typehint should be stripped from comment.');
-        self::assertInstanceOf(DateIntervalType::class, $columns['date_interval']->getType(), 'The Doctrine2 should be detected from comment hint.');
+        self::assertEquals('This is a comment', $columns['date_interval']->getComment());
+        self::assertInstanceOf(DateIntervalType::class, $columns['date_interval']->getType());
     }
 
     public function testChangeColumnsTypeWithDefaultValue(): void
@@ -1150,16 +1160,24 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             self::markTestSkipped('Database does not support column comments.');
         }
 
-        $options          = [
+        $options = [
             'type' => Type::getType('integer'),
             'default' => 0,
             'notnull' => true,
             'comment' => 'expected+column+comment',
         ];
-        $columnDefinition = substr($this->connection->getDatabasePlatform()->getColumnDeclarationSQL('id', $options), strlen('id') + 1);
+
+        $columnDefinition = substr(
+            $this->connection->getDatabasePlatform()->getColumnDeclarationSQL('id', $options),
+            strlen('id') + 1
+        );
 
         $table = new Table('my_table');
-        $table->addColumn('id', 'integer', ['columnDefinition' => $columnDefinition, 'comment' => 'unexpected_column_comment']);
+        $table->addColumn('id', 'integer', [
+            'columnDefinition' => $columnDefinition,
+            'comment' => 'unexpected_column_comment',
+        ]);
+
         $sql = $this->connection->getDatabasePlatform()->getCreateTableSQL($table);
 
         self::assertStringContainsString('expected+column+comment', $sql[0]);
@@ -1404,7 +1422,9 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     public function testGenerateAnIndexWithPartialColumnLength(): void
     {
         if (! $this->schemaManager->getDatabasePlatform()->supportsColumnLengthIndexes()) {
-            self::markTestSkipped('This test is only supported on platforms that support indexes with column length definitions.');
+            self::markTestSkipped(
+                'This test is only supported on platforms that support indexes with column length definitions.'
+            );
         }
 
         $table = new Table('test_partial_column_index');
@@ -1466,7 +1486,11 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $diff = Comparator::compareSchemas($offlineSchema, $schema);
 
         foreach ($diff->changedTables as $table) {
-            if (count($table->changedForeignKeys) <= 0 && count($table->addedForeignKeys) <= 0 && count($table->removedForeignKeys) <= 0) {
+            if (
+                count($table->changedForeignKeys) <= 0
+                && count($table->addedForeignKeys) <= 0
+                && count($table->removedForeignKeys) <= 0
+            ) {
                 continue;
             }
 

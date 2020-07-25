@@ -119,12 +119,15 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertTrue($tableFrom->getColumn('id')->getAutoincrement());
 
         $tableTo = new Table('autoinc_table_drop');
-        $column  = $tableTo->addColumn('id', 'integer');
+        $tableTo->addColumn('id', 'integer');
 
         $c    = new Comparator();
         $diff = $c->diffTable($tableFrom, $tableTo);
-        self::assertInstanceOf(TableDiff::class, $diff, 'There should be a difference and not false being returned from the table comparison');
-        self::assertEquals(['ALTER TABLE autoinc_table_drop ALTER id DROP DEFAULT'], $this->connection->getDatabasePlatform()->getAlterTableSQL($diff));
+        self::assertInstanceOf(TableDiff::class, $diff);
+        self::assertEquals(
+            ['ALTER TABLE autoinc_table_drop ALTER id DROP DEFAULT'],
+            $this->connection->getDatabasePlatform()->getAlterTableSQL($diff)
+        );
 
         $this->schemaManager->alterTable($diff);
         $tableFinal = $this->schemaManager->listTableDetails('autoinc_table_drop');
@@ -164,10 +167,12 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testReturnQuotedAssets(): void
     {
-        $sql = 'create table dbal91_something ( id integer  CONSTRAINT id_something PRIMARY KEY NOT NULL  ,"table"   integer );';
+        $sql = 'create table dbal91_something'
+            . ' (id integer CONSTRAINT id_something PRIMARY KEY NOT NULL, "table" integer)';
         $this->connection->executeStatement($sql);
 
-        $sql = 'ALTER TABLE dbal91_something ADD CONSTRAINT something_input FOREIGN KEY( "table" ) REFERENCES dbal91_something ON UPDATE CASCADE;';
+        $sql = 'ALTER TABLE dbal91_something ADD CONSTRAINT something_input'
+            . ' FOREIGN KEY( "table" ) REFERENCES dbal91_something ON UPDATE CASCADE;';
         $this->connection->executeStatement($sql);
 
         $table = $this->schemaManager->listTableDetails('dbal91_something');
@@ -231,13 +236,14 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         }
 
         $fkeys = $this->schemaManager->listTableForeignKeys('test_create_fk1');
-        self::assertEquals(count($foreignKeys), count($fkeys), "Table 'test_create_fk1' has to have " . count($foreignKeys) . ' foreign keys.');
+        self::assertEquals(count($foreignKeys), count($fkeys));
+
         for ($i = 0; $i < count($fkeys); $i++) {
             self::assertEquals(['foreign_key_test' . $i], array_map('strtolower', $fkeys[$i]->getLocalColumns()));
             self::assertEquals(['id'], array_map('strtolower', $fkeys[$i]->getForeignColumns()));
             self::assertEquals('test_create_fk2', strtolower($fkeys[0]->getForeignTableName()));
             if ($foreignKeys[$i]->getOption('onDelete') === 'NO ACTION') {
-                self::assertFalse($fkeys[$i]->hasOption('onDelete'), 'Unexpected option: ' . $fkeys[$i]->getOption('onDelete'));
+                self::assertFalse($fkeys[$i]->hasOption('onDelete'));
             } else {
                 self::assertEquals($foreignKeys[$i]->getOption('onDelete'), $fkeys[$i]->getOption('onDelete'));
             }
@@ -474,8 +480,11 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $c    = new Comparator();
         $diff = $c->diffTable($tableFrom, $tableTo);
-        self::assertInstanceOf(TableDiff::class, $diff, 'There should be a difference and not false being returned from the table comparison');
-        self::assertSame(['ALTER TABLE autoinc_type_modification ALTER id TYPE ' . $expected], $this->connection->getDatabasePlatform()->getAlterTableSQL($diff));
+        self::assertInstanceOf(TableDiff::class, $diff);
+        self::assertSame(
+            ['ALTER TABLE autoinc_type_modification ALTER id TYPE ' . $expected],
+            $this->connection->getDatabasePlatform()->getAlterTableSQL($diff)
+        );
 
         $this->schemaManager->alterTable($diff);
         $tableFinal = $this->schemaManager->listTableDetails('autoinc_type_modification');

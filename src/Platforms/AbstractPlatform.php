@@ -231,7 +231,8 @@ abstract class AbstractPlatform
         if ($column['length'] > $maxLength) {
             if ($maxLength > 0) {
                 @trigger_error(sprintf(
-                    'Binary column length %d is greater than supported by the platform (%d). Reduce the column length or use a BLOB column instead.',
+                    'Binary column length %d is greater than supported by the platform (%d).'
+                        . ' Reduce the column length or use a BLOB column instead.',
                     $column['length'],
                     $maxLength
                 ), E_USER_DEPRECATED);
@@ -379,7 +380,9 @@ abstract class AbstractPlatform
         $dbType = strtolower($dbType);
 
         if (! isset($this->doctrineTypeMapping[$dbType])) {
-            throw new DBALException('Unknown database type ' . $dbType . ' requested, ' . static::class . ' may not support it.');
+            throw new DBALException(
+                'Unknown database type ' . $dbType . ' requested, ' . static::class . ' may not support it.'
+            );
         }
 
         return $this->doctrineTypeMapping[$dbType];
@@ -1286,7 +1289,8 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Honors that some SQL vendors such as MsSql use table hints for locking instead of the ANSI SQL FOR UPDATE specification.
+     * Honors that some SQL vendors such as MsSql use table hints for locking instead of the
+     * ANSI SQL FOR UPDATE specification.
      *
      * @param string   $fromClause The FROM clause to append the hint for the given lock mode to.
      * @param int|null $lockMode   One of the Doctrine\DBAL\LockMode::* constants. If null is given, nothing will
@@ -1354,7 +1358,9 @@ abstract class AbstractPlatform
         }
 
         if (! is_string($table)) {
-            throw new InvalidArgumentException('getDropTableSQL() expects $table parameter to be string or \Doctrine\DBAL\Schema\Table.');
+            throw new InvalidArgumentException(
+                __METHOD__ . '() expects $table parameter to be string or ' . Table::class . '.'
+            );
         }
 
         if ($this->_eventManager !== null && $this->_eventManager->hasListeners(Events::onSchemaDropTable)) {
@@ -1402,7 +1408,9 @@ abstract class AbstractPlatform
         if ($index instanceof Index) {
             $index = $index->getQuotedName($this);
         } elseif (! is_string($index)) {
-            throw new InvalidArgumentException('AbstractPlatform::getDropIndexSQL() expects $index parameter to be string or \Doctrine\DBAL\Schema\Index.');
+            throw new InvalidArgumentException(
+                __METHOD__ . '() expects $index parameter to be string or ' . Index::class . '.'
+            );
         }
 
         return 'DROP INDEX ' . $index;
@@ -1470,7 +1478,9 @@ abstract class AbstractPlatform
     public function getCreateTableSQL(Table $table, $createFlags = self::CREATE_INDEXES)
     {
         if (! is_int($createFlags)) {
-            throw new InvalidArgumentException('Second argument of AbstractPlatform::getCreateTableSQL() has to be integer.');
+            throw new InvalidArgumentException(
+                'Second argument of AbstractPlatform::getCreateTableSQL() has to be integer.'
+            );
         }
 
         if (count($table->getColumns()) === 0) {
@@ -1498,7 +1508,10 @@ abstract class AbstractPlatform
         $columns   = [];
 
         foreach ($table->getColumns() as $column) {
-            if ($this->_eventManager !== null && $this->_eventManager->hasListeners(Events::onSchemaCreateTableColumn)) {
+            if (
+                $this->_eventManager !== null
+                && $this->_eventManager->hasListeners(Events::onSchemaCreateTableColumn)
+            ) {
                 $eventArgs = new SchemaCreateTableColumnEventArgs($column, $table, $this);
                 $this->_eventManager->dispatchEvent(Events::onSchemaCreateTableColumn, $eventArgs);
 
@@ -1509,10 +1522,11 @@ abstract class AbstractPlatform
                 }
             }
 
-            $columnData            = $column->toArray();
-            $columnData['name']    = $column->getQuotedName($this);
-            $columnData['version'] = $column->hasPlatformOption('version') ? $column->getPlatformOption('version') : false;
-            $columnData['comment'] = $this->getColumnComment($column);
+            $columnData = array_merge($column->toArray(), [
+                'name' => $column->getQuotedName($this),
+                'version' => $column->hasPlatformOption('version') ? $column->getPlatformOption('version') : false,
+                'comment' => $this->getColumnComment($column),
+            ]);
 
             if ($columnData['type'] instanceof Types\StringType && $columnData['length'] === null) {
                 $columnData['length'] = 255;

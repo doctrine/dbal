@@ -362,7 +362,10 @@ abstract class AbstractPlatformTestCase extends TestCase
             ->method('onSchemaCreateTableColumn');
 
         $eventManager = new EventManager();
-        $eventManager->addEventListener([Events::onSchemaCreateTable, Events::onSchemaCreateTableColumn], $listenerMock);
+        $eventManager->addEventListener([
+            Events::onSchemaCreateTable,
+            Events::onSchemaCreateTableColumn,
+        ], $listenerMock);
 
         $this->platform->setEventManager($eventManager);
 
@@ -627,27 +630,63 @@ abstract class AbstractPlatformTestCase extends TestCase
 
         // Foreign table with reserved keyword as name (needs quotation).
         $foreignTable = new Table('foreign');
-        $foreignTable->addColumn('create', 'string');    // Foreign column with reserved keyword as name (needs quotation).
-        $foreignTable->addColumn('bar', 'string');       // Foreign column with non-reserved keyword as name (does not need quotation).
-        $foreignTable->addColumn('`foo-bar`', 'string'); // Foreign table with special character in name (needs quotation on some platforms, e.g. Sqlite).
 
-        $table->addForeignKeyConstraint($foreignTable, ['create', 'foo', '`bar`'], ['create', 'bar', '`foo-bar`'], [], 'FK_WITH_RESERVED_KEYWORD');
+        // Foreign column with reserved keyword as name (needs quotation).
+        $foreignTable->addColumn('create', 'string');
+
+        // Foreign column with non-reserved keyword as name (does not need quotation).
+        $foreignTable->addColumn('bar', 'string');
+
+        // Foreign table with special character in name (needs quotation on some platforms, e.g. Sqlite).
+        $foreignTable->addColumn('`foo-bar`', 'string');
+
+        $table->addForeignKeyConstraint(
+            $foreignTable,
+            ['create', 'foo', '`bar`'],
+            ['create', 'bar', '`foo-bar`'],
+            [],
+            'FK_WITH_RESERVED_KEYWORD'
+        );
 
         // Foreign table with non-reserved keyword as name (does not need quotation).
         $foreignTable = new Table('foo');
-        $foreignTable->addColumn('create', 'string');    // Foreign column with reserved keyword as name (needs quotation).
-        $foreignTable->addColumn('bar', 'string');       // Foreign column with non-reserved keyword as name (does not need quotation).
-        $foreignTable->addColumn('`foo-bar`', 'string'); // Foreign table with special character in name (needs quotation on some platforms, e.g. Sqlite).
 
-        $table->addForeignKeyConstraint($foreignTable, ['create', 'foo', '`bar`'], ['create', 'bar', '`foo-bar`'], [], 'FK_WITH_NON_RESERVED_KEYWORD');
+        // Foreign column with reserved keyword as name (needs quotation).
+        $foreignTable->addColumn('create', 'string');
+
+        // Foreign column with non-reserved keyword as name (does not need quotation).
+        $foreignTable->addColumn('bar', 'string');
+
+        // Foreign table with special character in name (needs quotation on some platforms, e.g. Sqlite).
+        $foreignTable->addColumn('`foo-bar`', 'string');
+
+        $table->addForeignKeyConstraint(
+            $foreignTable,
+            ['create', 'foo', '`bar`'],
+            ['create', 'bar', '`foo-bar`'],
+            [],
+            'FK_WITH_NON_RESERVED_KEYWORD'
+        );
 
         // Foreign table with special character in name (needs quotation on some platforms, e.g. Sqlite).
         $foreignTable = new Table('`foo-bar`');
-        $foreignTable->addColumn('create', 'string');    // Foreign column with reserved keyword as name (needs quotation).
-        $foreignTable->addColumn('bar', 'string');       // Foreign column with non-reserved keyword as name (does not need quotation).
-        $foreignTable->addColumn('`foo-bar`', 'string'); // Foreign table with special character in name (needs quotation on some platforms, e.g. Sqlite).
 
-        $table->addForeignKeyConstraint($foreignTable, ['create', 'foo', '`bar`'], ['create', 'bar', '`foo-bar`'], [], 'FK_WITH_INTENDED_QUOTATION');
+        // Foreign column with reserved keyword as name (needs quotation).
+        $foreignTable->addColumn('create', 'string');
+
+        // Foreign column with non-reserved keyword as name (does not need quotation).
+        $foreignTable->addColumn('bar', 'string');
+
+        // Foreign table with special character in name (needs quotation on some platforms, e.g. Sqlite).
+        $foreignTable->addColumn('`foo-bar`', 'string');
+
+        $table->addForeignKeyConstraint(
+            $foreignTable,
+            ['create', 'foo', '`bar`'],
+            ['create', 'bar', '`foo-bar`'],
+            [],
+            'FK_WITH_INTENDED_QUOTATION'
+        );
 
         $sql = $this->platform->getCreateTableSQL($table, AbstractPlatform::CREATE_FOREIGNKEYS);
         self::assertEquals($this->getQuotedColumnInForeignKeySQL(), $sql);
@@ -870,17 +909,32 @@ abstract class AbstractPlatformTestCase extends TestCase
 
         $toTable = new Table('mytable');
 
-        $toTable->addColumn('unquoted', 'integer', ['comment' => 'Unquoted 1']); // unquoted -> unquoted
-        $toTable->addColumn('where', 'integer', ['comment' => 'Unquoted 2']); // unquoted -> reserved keyword
-        $toTable->addColumn('`foo`', 'integer', ['comment' => 'Unquoted 3']); // unquoted -> quoted
+        // unquoted -> unquoted
+        $toTable->addColumn('unquoted', 'integer', ['comment' => 'Unquoted 1']);
 
-        $toTable->addColumn('reserved_keyword', 'integer', ['comment' => 'Reserved keyword 1']); // reserved keyword -> unquoted
-        $toTable->addColumn('from', 'integer', ['comment' => 'Reserved keyword 2']); // reserved keyword -> reserved keyword
-        $toTable->addColumn('`bar`', 'integer', ['comment' => 'Reserved keyword 3']); // reserved keyword -> quoted
+        // unquoted -> reserved keyword
+        $toTable->addColumn('where', 'integer', ['comment' => 'Unquoted 2']);
 
-        $toTable->addColumn('quoted', 'integer', ['comment' => 'Quoted 1']); // quoted -> unquoted
-        $toTable->addColumn('and', 'integer', ['comment' => 'Quoted 2']); // quoted -> reserved keyword
-        $toTable->addColumn('`baz`', 'integer', ['comment' => 'Quoted 3']); // quoted -> quoted
+        // unquoted -> quoted
+        $toTable->addColumn('`foo`', 'integer', ['comment' => 'Unquoted 3']);
+
+        // reserved keyword -> unquoted
+        $toTable->addColumn('reserved_keyword', 'integer', ['comment' => 'Reserved keyword 1']);
+
+        // reserved keyword -> reserved keyword
+        $toTable->addColumn('from', 'integer', ['comment' => 'Reserved keyword 2']);
+
+        // reserved keyword -> quoted
+        $toTable->addColumn('`bar`', 'integer', ['comment' => 'Reserved keyword 3']);
+
+        // quoted -> unquoted
+        $toTable->addColumn('quoted', 'integer', ['comment' => 'Quoted 1']);
+
+        // quoted -> reserved keyword
+        $toTable->addColumn('and', 'integer', ['comment' => 'Quoted 2']);
+
+        // quoted -> quoted
+        $toTable->addColumn('`baz`', 'integer', ['comment' => 'Quoted 3']);
 
         $comparator = new Comparator();
 
@@ -1160,7 +1214,9 @@ abstract class AbstractPlatformTestCase extends TestCase
         }
 
         $this->expectException(DBALException::class);
-        $this->expectExceptionMessage("Operation 'Doctrine\\DBAL\\Platforms\\AbstractPlatform::getInlineColumnCommentSQL' is not supported by platform.");
+        $this->expectExceptionMessage(
+            "Operation '" . AbstractPlatform::class . "::getInlineColumnCommentSQL' is not supported by platform."
+        );
         $this->expectExceptionCode(0);
 
         $this->platform->getInlineColumnCommentSQL('unsupported');

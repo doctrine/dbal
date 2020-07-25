@@ -68,8 +68,13 @@ class ConverterTest extends TestCase
      *
      * @dataProvider convertAssociativeProvider
      */
-    public function testConvertAssociative($row, bool $convertEmptyStringToNull, bool $rightTrimString, ?int $case, $expected): void
-    {
+    public function testConvertAssociative(
+        $row,
+        bool $convertEmptyStringToNull,
+        bool $rightTrimString,
+        ?int $case,
+        $expected
+    ): void {
         self::assertSame(
             $expected,
             $this->createConverter($convertEmptyStringToNull, $rightTrimString, $case)

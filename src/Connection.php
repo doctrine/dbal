@@ -864,7 +864,8 @@ class Connection
     }
 
     /**
-     * Prepares and executes an SQL query and returns the result as an iterator over rows represented as associative arrays.
+     * Prepares and executes an SQL query and returns the result as an iterator over rows represented
+     * as associative arrays.
      *
      * @param string                                           $query  The SQL query.
      * @param array<int, mixed>|array<string, mixed>           $params The query parameters.

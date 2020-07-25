@@ -628,8 +628,12 @@ class DB2Platform extends AbstractPlatform
      * @param string[]   $sql        The sequence of table alteration statements to fill.
      * @param mixed[]    $queryParts The sequence of column alteration clauses to fill.
      */
-    private function gatherAlterColumnSQL(Identifier $table, ColumnDiff $columnDiff, array &$sql, array &$queryParts): void
-    {
+    private function gatherAlterColumnSQL(
+        Identifier $table,
+        ColumnDiff $columnDiff,
+        array &$sql,
+        array &$queryParts
+    ): void {
         $alterColumnClauses = $this->getAlterColumnClausesSQL($columnDiff);
 
         if (empty($alterColumnClauses)) {

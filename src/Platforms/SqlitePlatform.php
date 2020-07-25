@@ -472,9 +472,13 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getListTablesSQL()
     {
-        return "SELECT name FROM sqlite_master WHERE type = 'table' AND name != 'sqlite_sequence' AND name != 'geometry_columns' AND name != 'spatial_ref_sys' "
-             . 'UNION ALL SELECT name FROM sqlite_temp_master '
-             . "WHERE type = 'table' ORDER BY name";
+        return 'SELECT name FROM sqlite_master'
+            . " WHERE type = 'table'"
+            . " AND name != 'sqlite_sequence'"
+            . " AND name != 'geometry_columns'"
+            . " AND name != 'spatial_ref_sys'"
+            . ' UNION ALL SELECT name FROM sqlite_temp_master'
+            . " WHERE type = 'table' ORDER BY name";
     }
 
     /**
@@ -508,8 +512,18 @@ class SqlitePlatform extends AbstractPlatform
     {
         $query = parent::getAdvancedForeignKeyOptionsSQL($foreignKey);
 
-        $query .= ($foreignKey->hasOption('deferrable') && $foreignKey->getOption('deferrable') !== false ? ' ' : ' NOT ') . 'DEFERRABLE';
-        $query .= ' INITIALLY ' . ($foreignKey->hasOption('deferred') && $foreignKey->getOption('deferred') !== false ? 'DEFERRED' : 'IMMEDIATE');
+        if (! $foreignKey->hasOption('deferrable') || $foreignKey->getOption('deferrable') === false) {
+            $query .= ' NOT';
+        }
+
+        $query .= ' DEFERRABLE';
+        $query .= ' INITIALLY';
+
+        if ($foreignKey->hasOption('deferred') && $foreignKey->getOption('deferred') !== false) {
+            $query .= ' DEFERRED';
+        } else {
+            $query .= ' IMMEDIATE';
+        }
 
         return $query;
     }
@@ -682,7 +696,9 @@ class SqlitePlatform extends AbstractPlatform
     protected function getPreAlterTableIndexForeignKeySQL(TableDiff $diff)
     {
         if (! $diff->fromTable instanceof Table) {
-            throw new DBALException('Sqlite platform requires for alter table the table diff with reference to original table schema');
+            throw new DBALException(
+                'Sqlite platform requires for alter table the table diff with reference to original table schema'
+            );
         }
 
         $sql = [];
@@ -703,7 +719,9 @@ class SqlitePlatform extends AbstractPlatform
     protected function getPostAlterTableIndexForeignKeySQL(TableDiff $diff)
     {
         if (! $diff->fromTable instanceof Table) {
-            throw new DBALException('Sqlite platform requires for alter table the table diff with reference to original table schema');
+            throw new DBALException(
+                'Sqlite platform requires for alter table the table diff with reference to original table schema'
+            );
         }
 
         $sql       = [];
@@ -794,7 +812,10 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getCreateForeignKeySQL(ForeignKeyConstraint $foreignKey, $table)
     {
-        throw new DBALException('Sqlite platform does not support alter foreign key, the table must be fully recreated using getAlterTableSQL.');
+        throw new DBALException(
+            'Sqlite platform does not support alter foreign key, '
+            . 'the table must be fully recreated using getAlterTableSQL.'
+        );
     }
 
     /**
@@ -802,7 +823,10 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getDropForeignKeySQL($foreignKey, $table)
     {
-        throw new DBALException('Sqlite platform does not support alter foreign key, the table must be fully recreated using getAlterTableSQL.');
+        throw new DBALException(
+            'Sqlite platform does not support alter foreign key, '
+            . 'the table must be fully recreated using getAlterTableSQL.'
+        );
     }
 
     /**
@@ -850,7 +874,9 @@ class SqlitePlatform extends AbstractPlatform
 
         $fromTable = $diff->fromTable;
         if (! $fromTable instanceof Table) {
-            throw new DBALException('Sqlite platform requires for alter table the table diff with reference to original table schema');
+            throw new DBALException(
+                'Sqlite platform requires for alter table the table diff with reference to original table schema'
+            );
         }
 
         $table = clone $fromTable;
@@ -933,16 +959,34 @@ class SqlitePlatform extends AbstractPlatform
         if (! $this->onSchemaAlterTable($diff, $tableSql)) {
             $dataTable = new Table('__temp__' . $table->getName());
 
-            $newTable = new Table($table->getQuotedName($this), $columns, $this->getPrimaryIndexInAlteredTable($diff), $this->getForeignKeysInAlteredTable($diff), 0, $table->getOptions());
+            $newTable = new Table(
+                $table->getQuotedName($this),
+                $columns,
+                $this->getPrimaryIndexInAlteredTable($diff),
+                $this->getForeignKeysInAlteredTable($diff),
+                0,
+                $table->getOptions()
+            );
             $newTable->addOption('alter', true);
 
             $sql = $this->getPreAlterTableIndexForeignKeySQL($diff);
-            //$sql = array_merge($sql, $this->getCreateTableSQL($dataTable, 0));
-            $sql[] = sprintf('CREATE TEMPORARY TABLE %s AS SELECT %s FROM %s', $dataTable->getQuotedName($this), implode(', ', $oldColumnNames), $table->getQuotedName($this));
+
+            $sql[] = sprintf(
+                'CREATE TEMPORARY TABLE %s AS SELECT %s FROM %s',
+                $dataTable->getQuotedName($this),
+                implode(', ', $oldColumnNames),
+                $table->getQuotedName($this)
+            );
             $sql[] = $this->getDropTableSQL($fromTable);
 
             $sql   = array_merge($sql, $this->getCreateTableSQL($newTable));
-            $sql[] = sprintf('INSERT INTO %s (%s) SELECT %s FROM %s', $newTable->getQuotedName($this), implode(', ', $newColumnNames), implode(', ', $oldColumnNames), $dataTable->getQuotedName($this));
+            $sql[] = sprintf(
+                'INSERT INTO %s (%s) SELECT %s FROM %s',
+                $newTable->getQuotedName($this),
+                implode(', ', $newColumnNames),
+                implode(', ', $oldColumnNames),
+                $dataTable->getQuotedName($this)
+            );
             $sql[] = $this->getDropTableSQL($dataTable);
 
             $newName = $diff->getNewName();
@@ -994,10 +1038,16 @@ class SqlitePlatform extends AbstractPlatform
         }
 
         if (
-            ! empty($diff->renamedColumns) || ! empty($diff->addedForeignKeys) || ! empty($diff->addedIndexes)
-                || ! empty($diff->changedColumns) || ! empty($diff->changedForeignKeys) || ! empty($diff->changedIndexes)
-                || ! empty($diff->removedColumns) || ! empty($diff->removedForeignKeys) || ! empty($diff->removedIndexes)
-                || ! empty($diff->renamedIndexes)
+            ! empty($diff->renamedColumns)
+            || ! empty($diff->addedForeignKeys)
+            || ! empty($diff->addedIndexes)
+            || ! empty($diff->changedColumns)
+            || ! empty($diff->changedForeignKeys)
+            || ! empty($diff->changedIndexes)
+            || ! empty($diff->removedColumns)
+            || ! empty($diff->removedForeignKeys)
+            || ! empty($diff->removedIndexes)
+            || ! empty($diff->renamedIndexes)
         ) {
             return false;
         }
@@ -1013,8 +1063,13 @@ class SqlitePlatform extends AbstractPlatform
                 continue;
             }
 
-            $definition = array_merge(['unique' => null, 'autoincrement' => null, 'default' => null], $column->toArray());
-            $type       = $definition['type'];
+            $definition = array_merge([
+                'unique' => null,
+                'autoincrement' => null,
+                'default' => null,
+            ], $column->toArray());
+
+            $type = $definition['type'];
 
             switch (true) {
                 case isset($definition['columnDefinition']) || $definition['autoincrement'] || $definition['unique']:
@@ -1029,13 +1084,16 @@ class SqlitePlatform extends AbstractPlatform
                 $definition['length'] = 255;
             }
 
-            $sql[] = 'ALTER TABLE ' . $table->getQuotedName($this) . ' ADD COLUMN ' . $this->getColumnDeclarationSQL($definition['name'], $definition);
+            $sql[] = 'ALTER TABLE ' . $table->getQuotedName($this) . ' ADD COLUMN '
+                . $this->getColumnDeclarationSQL($definition['name'], $definition);
         }
 
         if (! $this->onSchemaAlterTable($diff, $tableSql)) {
             if ($diff->newName !== false) {
                 $newTable = new Identifier($diff->newName);
-                $sql[]    = 'ALTER TABLE ' . $table->getQuotedName($this) . ' RENAME TO ' . $newTable->getQuotedName($this);
+
+                $sql[] = 'ALTER TABLE ' . $table->getQuotedName($this) . ' RENAME TO '
+                    . $newTable->getQuotedName($this);
             }
         }
 
@@ -1120,7 +1178,13 @@ class SqlitePlatform extends AbstractPlatform
                 continue;
             }
 
-            $indexes[$key] = new Index($index->getName(), $indexColumns, $index->isUnique(), $index->isPrimary(), $index->getFlags());
+            $indexes[$key] = new Index(
+                $index->getName(),
+                $indexColumns,
+                $index->isUnique(),
+                $index->isPrimary(),
+                $index->getFlags()
+            );
         }
 
         foreach ($diff->removedIndexes as $index) {
@@ -1174,7 +1238,13 @@ class SqlitePlatform extends AbstractPlatform
                 continue;
             }
 
-            $foreignKeys[$key] = new ForeignKeyConstraint($localColumns, $constraint->getForeignTableName(), $constraint->getForeignColumns(), $constraint->getName(), $constraint->getOptions());
+            $foreignKeys[$key] = new ForeignKeyConstraint(
+                $localColumns,
+                $constraint->getForeignTableName(),
+                $constraint->getForeignColumns(),
+                $constraint->getName(),
+                $constraint->getOptions()
+            );
         }
 
         foreach ($diff->removedForeignKeys as $constraint) {

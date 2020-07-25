@@ -2,8 +2,6 @@ parameters:
     level: 7
     paths:
         - %currentWorkingDirectory%/src
-    scanFiles:
-        - %currentWorkingDirectory%/tests/phpstan-polyfill.php
     treatPhpDocTypesAsCertain: false
     reportUnmatchedIgnoredErrors: false
     checkMissingIterableValueType: false

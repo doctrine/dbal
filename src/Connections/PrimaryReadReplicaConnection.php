@@ -68,7 +68,8 @@ use function count;
  *    )
  * ));
  *
- * You can also pass 'driverOptions' and any other documented option to each of this drivers to pass additional information.
+ * You can also pass 'driverOptions' and any other documented option to each of this drivers
+ * to pass additional information.
  */
 class PrimaryReadReplicaConnection extends Connection
 {
@@ -97,8 +98,12 @@ class PrimaryReadReplicaConnection extends Connection
      * @throws DBALException
      * @throws InvalidArgumentException
      */
-    public function __construct(array $params, Driver $driver, ?Configuration $config = null, ?EventManager $eventManager = null)
-    {
+    public function __construct(
+        array $params,
+        Driver $driver,
+        ?Configuration $config = null,
+        ?EventManager $eventManager = null
+    ) {
         if (! isset($params['replica'], $params['primary'])) {
             throw new InvalidArgumentException('primary or replica configuration missing');
         }
@@ -133,7 +138,10 @@ class PrimaryReadReplicaConnection extends Connection
     public function connect($connectionName = null)
     {
         if ($connectionName !== null) {
-            throw new InvalidArgumentException('Passing a connection name as first argument is not supported anymore. Use ensureConnectedToPrimary()/ensureConnectedToReplica() instead.');
+            throw new InvalidArgumentException(
+                'Passing a connection name as first argument is not supported anymore.'
+                    . ' Use ensureConnectedToPrimary()/ensureConnectedToReplica() instead.'
+            );
         }
 
         return $this->performConnect();

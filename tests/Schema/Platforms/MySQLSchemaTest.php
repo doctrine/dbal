@@ -55,7 +55,13 @@ class MySQLSchemaTest extends TestCase
             $sqls[] = $this->platform->getCreateForeignKeySQL($fk, $tableOld);
         }
 
-        self::assertEquals(['ALTER TABLE test ADD CONSTRAINT FK_D87F7E0C8E48560F FOREIGN KEY (foo_id) REFERENCES test_foreign (foo_id)'], $sqls);
+        self::assertEquals(
+            [
+                'ALTER TABLE test ADD CONSTRAINT FK_D87F7E0C8E48560F FOREIGN KEY (foo_id)'
+                    . ' REFERENCES test_foreign (foo_id)',
+            ],
+            $sqls
+        );
     }
 
     public function testClobNoAlterTable(): void

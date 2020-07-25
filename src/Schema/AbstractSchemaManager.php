@@ -566,7 +566,8 @@ abstract class AbstractSchemaManager
     /**
      * Drops and creates a new foreign key.
      *
-     * @param ForeignKeyConstraint $foreignKey An associative array that defines properties of the foreign key to be created.
+     * @param ForeignKeyConstraint $foreignKey An associative array that defines properties
+     *                                         of the foreign key to be created.
      * @param Table|string         $table      The name of the table on which the foreign key is to be created.
      *
      * @return void
@@ -691,7 +692,8 @@ abstract class AbstractSchemaManager
     /**
      * Converts a list of namespace names from the native DBMS data definition to a portable Doctrine definition.
      *
-     * @param array<int, array<string, mixed>> $namespaces The list of namespace names in the native DBMS data definition.
+     * @param array<int, array<string, mixed>> $namespaces The list of namespace names
+     *                                                     in the native DBMS data definition.
      *
      * @return string[]
      */
@@ -905,7 +907,14 @@ abstract class AbstractSchemaManager
             }
 
             if (! $defaultPrevented) {
-                $index = new Index($data['name'], $data['columns'], $data['unique'], $data['primary'], $data['flags'], $data['options']);
+                $index = new Index(
+                    $data['name'],
+                    $data['columns'],
+                    $data['unique'],
+                    $data['primary'],
+                    $data['flags'],
+                    $data['options']
+                );
             }
 
             if ($index === null) {

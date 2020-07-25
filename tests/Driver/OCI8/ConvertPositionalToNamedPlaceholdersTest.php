@@ -23,8 +23,11 @@ class ConvertPositionalToNamedPlaceholdersTest extends TestCase
      *
      * @dataProvider positionalToNamedPlaceholdersProvider
      */
-    public function testConvertPositionalToNamedParameters(string $inputSQL, string $expectedOutputSQL, array $expectedOutputParamsMap): void
-    {
+    public function testConvertPositionalToNamedParameters(
+        string $inputSQL,
+        string $expectedOutputSQL,
+        array $expectedOutputParamsMap
+    ): void {
         [$statement, $params] = ($this->convertPositionalToNamedPlaceholders)($inputSQL);
 
         self::assertEquals($expectedOutputSQL, $statement);
