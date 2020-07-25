@@ -86,8 +86,12 @@ class MySqlPlatform extends AbstractPlatform
         return sprintf('CONCAT(%s)', implode(', ', $string));
     }
 
-    protected function getDateArithmeticIntervalExpression(string $date, string $operator, string $interval, string $unit): string
-    {
+    protected function getDateArithmeticIntervalExpression(
+        string $date,
+        string $operator,
+        string $interval,
+        string $unit
+    ): string {
         $function = $operator === '+' ? 'DATE_ADD' : 'DATE_SUB';
 
         return $function . '(' . $date . ', INTERVAL ' . $interval . ' ' . $unit . ')';
@@ -153,10 +157,9 @@ class MySqlPlatform extends AbstractPlatform
 
         $databaseNameSql = $this->getDatabaseNameSql($database);
 
-        $sql .= ' AND k.table_schema = ' . $databaseNameSql . ' /*!50116 AND c.constraint_schema = ' . $databaseNameSql . ' */';
-        $sql .= ' AND k.`REFERENCED_COLUMN_NAME` is not NULL';
-
-        return $sql;
+        return $sql . ' AND k.table_schema = ' . $databaseNameSql
+            . ' /*!50116 AND c.constraint_schema = ' . $databaseNameSql . ' */'
+            . ' AND k.`REFERENCED_COLUMN_NAME` is not NULL';
     }
 
     public function getCreateViewSQL(string $name, string $sql): string
@@ -452,9 +455,11 @@ SQL
                 continue;
             }
 
-            $columnArray            = $column->toArray();
-            $columnArray['comment'] = $this->getColumnComment($column);
-            $queryParts[]           = 'ADD ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray);
+            $columnArray = array_merge($column->toArray(), [
+                'comment' => $this->getColumnComment($column),
+            ]);
+
+            $queryParts[] = 'ADD ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray);
         }
 
         foreach ($diff->removedColumns as $column) {
@@ -521,7 +526,8 @@ SQL
 
         if (! $this->onSchemaAlterTable($diff, $tableSql)) {
             if (count($queryParts) > 0) {
-                $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . implode(', ', $queryParts);
+                $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' '
+                    . implode(', ', $queryParts);
             }
 
             $sql = array_merge(
@@ -882,13 +888,17 @@ SQL
         } elseif (is_string($index)) {
             $indexName = $index;
         } else {
-            throw new InvalidArgumentException('MysqlPlatform::getDropIndexSQL() expects $index parameter to be string or \Doctrine\DBAL\Schema\Index.');
+            throw new InvalidArgumentException(
+                __METHOD__ . '() expects $index parameter to be string or ' . Index::class . '.'
+            );
         }
 
         if ($table instanceof Table) {
             $table = $table->getQuotedName($this);
         } elseif (! is_string($table)) {
-            throw new InvalidArgumentException('MysqlPlatform::getDropIndexSQL() expects $table parameter to be string or \Doctrine\DBAL\Schema\Table.');
+            throw new InvalidArgumentException(
+                __METHOD__ . '() expects $table parameter to be string or ' . Table::class . '.'
+            );
         }
 
         if ($index instanceof Index && $index->isPrimary()) {
@@ -972,7 +982,9 @@ SQL
         if ($table instanceof Table) {
             $table = $table->getQuotedName($this);
         } elseif (! is_string($table)) {
-            throw new InvalidArgumentException('getDropTemporaryTableSQL() expects $table parameter to be string or \Doctrine\DBAL\Schema\Table.');
+            throw new InvalidArgumentException(
+                __METHOD__ . '() expects $table parameter to be string or ' . Table::class . '.'
+            );
         }
 
         return 'DROP TEMPORARY TABLE ' . $table;

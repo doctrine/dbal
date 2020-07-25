@@ -125,9 +125,23 @@ class WriteTest extends FunctionalTestCase
     {
         $this->insertRows();
 
-        self::assertEquals(1, $this->connection->update('write_table', ['test_string' => 'bar'], ['test_string' => 'foo']));
-        self::assertEquals(2, $this->connection->update('write_table', ['test_string' => 'baz'], ['test_string' => 'bar']));
-        self::assertEquals(0, $this->connection->update('write_table', ['test_string' => 'baz'], ['test_string' => 'bar']));
+        self::assertEquals(1, $this->connection->update(
+            'write_table',
+            ['test_string' => 'bar'],
+            ['test_string' => 'foo']
+        ));
+
+        self::assertEquals(2, $this->connection->update(
+            'write_table',
+            ['test_string' => 'baz'],
+            ['test_string' => 'bar']
+        ));
+
+        self::assertEquals(0, $this->connection->update(
+            'write_table',
+            ['test_string' => 'baz'],
+            ['test_string' => 'bar']
+        ));
     }
 
     public function testLastInsertId(): void
@@ -171,8 +185,13 @@ class WriteTest extends FunctionalTestCase
 
     public function testLastInsertIdNoSequenceGiven(): void
     {
-        if (! $this->connection->getDatabasePlatform()->supportsSequences() || $this->connection->getDatabasePlatform()->supportsIdentityColumns()) {
-            self::markTestSkipped("Test only works consistently on platforms that support sequences and don't support identity columns.");
+        if (
+            ! $this->connection->getDatabasePlatform()->supportsSequences()
+            || $this->connection->getDatabasePlatform()->supportsIdentityColumns()
+        ) {
+            self::markTestSkipped(
+                "Test only works consistently on platforms that support sequences and don't support identity columns."
+            );
         }
 
         $this->expectException(DriverException::class);
@@ -191,7 +210,10 @@ class WriteTest extends FunctionalTestCase
 
         $data = $this->connection->fetchOne('SELECT test_string FROM write_table WHERE test_int = 30');
 
-        self::assertEquals($testString->format($this->connection->getDatabasePlatform()->getDateTimeFormatString()), $data);
+        self::assertEquals(
+            $testString->format($this->connection->getDatabasePlatform()->getDateTimeFormatString()),
+            $data
+        );
     }
 
     public function testUpdateWithKeyValueTypes(): void
@@ -215,7 +237,10 @@ class WriteTest extends FunctionalTestCase
 
         $data = $this->connection->fetchOne('SELECT test_string FROM write_table WHERE test_int = 30');
 
-        self::assertEquals($testString->format($this->connection->getDatabasePlatform()->getDateTimeFormatString()), $data);
+        self::assertEquals(
+            $testString->format($this->connection->getDatabasePlatform()->getDateTimeFormatString()),
+            $data
+        );
     }
 
     public function testDeleteWithKeyValueTypes(): void
@@ -227,7 +252,13 @@ class WriteTest extends FunctionalTestCase
             ['test_string' => 'datetime', 'test_int' => 'integer']
         );
 
-        $this->connection->delete('write_table', ['test_int' => 30, 'test_string' => $val], ['test_string' => 'datetime', 'test_int' => 'integer']);
+        $this->connection->delete('write_table', [
+            'test_int' => 30,
+            'test_string' => $val,
+        ], [
+            'test_string' => 'datetime',
+            'test_int' => 'integer',
+        ]);
 
         $data = $this->connection->fetchOne('SELECT test_string FROM write_table WHERE test_int = 30');
 
@@ -286,7 +317,10 @@ class WriteTest extends FunctionalTestCase
 
         self::assertCount(1, $data);
 
-        $this->connection->update('write_table', ['test_int' => 10], ['test_string' => null], ['test_string' => 'string', 'test_int' => 'integer']);
+        $this->connection->update('write_table', ['test_int' => 10], ['test_string' => null], [
+            'test_string' => 'string',
+            'test_int' => 'integer',
+        ]);
 
         $data = $this->connection->fetchAllAssociative('SELECT * FROM write_table WHERE test_int = 30');
 

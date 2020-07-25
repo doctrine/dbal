@@ -33,12 +33,16 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $table->addColumn('Bar', 'integer');
 
         $sql = $this->platform->getCreateTableSQL($table);
-        self::assertEquals('CREATE TABLE Foo (Bar INT NOT NULL) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB', array_shift($sql));
+        self::assertEquals(
+            'CREATE TABLE Foo (Bar INT NOT NULL) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB',
+            array_shift($sql)
+        );
     }
 
     public function getGenerateTableSql(): string
     {
-        return 'CREATE TABLE test (id INT AUTO_INCREMENT NOT NULL, test VARCHAR(255) DEFAULT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB';
+        return 'CREATE TABLE test (id INT AUTO_INCREMENT NOT NULL, test VARCHAR(255) DEFAULT NULL, '
+            . 'PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB';
     }
 
     /**
@@ -46,7 +50,11 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
      */
     public function getGenerateTableWithMultiColumnUniqueIndexSql(): array
     {
-        return ['CREATE TABLE test (foo VARCHAR(255) DEFAULT NULL, bar VARCHAR(255) DEFAULT NULL, UNIQUE INDEX UNIQ_D87F7E0C8C73652176FF8CAA (foo, bar)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB'];
+        return [
+            'CREATE TABLE test (foo VARCHAR(255) DEFAULT NULL, bar VARCHAR(255) DEFAULT NULL, '
+                . 'UNIQUE INDEX UNIQ_D87F7E0C8C73652176FF8CAA (foo, bar))'
+                . ' DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB',
+        ];
     }
 
     /**
@@ -54,14 +62,22 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
      */
     public function getGenerateAlterTableSql(): array
     {
-        return ["ALTER TABLE mytable RENAME TO userlist, ADD quota INT DEFAULT NULL, DROP foo, CHANGE bar baz VARCHAR(255) DEFAULT 'def' NOT NULL, CHANGE bloo bloo TINYINT(1) DEFAULT '0' NOT NULL"];
+        return [
+            'ALTER TABLE mytable RENAME TO userlist, ADD quota INT DEFAULT NULL, DROP foo, '
+                . "CHANGE bar baz VARCHAR(255) DEFAULT 'def' NOT NULL, "
+                . "CHANGE bloo bloo TINYINT(1) DEFAULT '0' NOT NULL",
+        ];
     }
 
     public function testGeneratesSqlSnippets(): void
     {
-        self::assertEquals('RLIKE', $this->platform->getRegexpExpression(), 'Regular expression operator is not correct');
-        self::assertEquals('`', $this->platform->getIdentifierQuoteCharacter(), 'Quote character is not correct');
-        self::assertEquals('CONCAT(column1, column2, column3)', $this->platform->getConcatExpression('column1', 'column2', 'column3'), 'Concatenation function is not correct');
+        self::assertEquals('RLIKE', $this->platform->getRegexpExpression());
+        self::assertEquals('`', $this->platform->getIdentifierQuoteCharacter());
+
+        self::assertEquals(
+            'CONCAT(column1, column2, column3)',
+            $this->platform->getConcatExpression('column1', 'column2', 'column3')
+        );
     }
 
     public function testGeneratesTransactionsCommands(): void
@@ -190,7 +206,10 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
      */
     public function getCreateTableColumnCommentsSQL(): array
     {
-        return ["CREATE TABLE test (id INT NOT NULL COMMENT 'This is a comment', PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB"];
+        return [
+            "CREATE TABLE test (id INT NOT NULL COMMENT 'This is a comment', "
+                . 'PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB',
+        ];
     }
 
     /**
@@ -198,7 +217,11 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
      */
     public function getAlterTableColumnCommentsSQL(): array
     {
-        return ["ALTER TABLE mytable ADD quota INT NOT NULL COMMENT 'A comment', CHANGE foo foo VARCHAR(255) NOT NULL, CHANGE bar baz VARCHAR(255) NOT NULL COMMENT 'B comment'"];
+        return [
+            "ALTER TABLE mytable ADD quota INT NOT NULL COMMENT 'A comment', "
+                . 'CHANGE foo foo VARCHAR(255) NOT NULL, '
+                . "CHANGE bar baz VARCHAR(255) NOT NULL COMMENT 'B comment'",
+        ];
     }
 
     /**
@@ -206,7 +229,10 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
      */
     public function getCreateTableColumnTypeCommentsSQL(): array
     {
-        return ["CREATE TABLE test (id INT NOT NULL, data LONGTEXT NOT NULL COMMENT '(DC2Type:array)', PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB"];
+        return [
+            "CREATE TABLE test (id INT NOT NULL, data LONGTEXT NOT NULL COMMENT '(DC2Type:array)', "
+                . 'PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB',
+        ];
     }
 
     public function testChangeIndexWithForeignKeys(): void
@@ -228,7 +254,9 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
      */
     protected function getQuotedColumnInPrimaryKeySQL(): array
     {
-        return ['CREATE TABLE `quoted` (`create` VARCHAR(255) NOT NULL, PRIMARY KEY(`create`)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB'];
+        return ['CREATE TABLE `quoted` (`create` VARCHAR(255) NOT NULL, '
+                . 'PRIMARY KEY(`create`)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB',
+        ];
     }
 
     /**
@@ -236,7 +264,11 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
      */
     protected function getQuotedColumnInIndexSQL(): array
     {
-        return ['CREATE TABLE `quoted` (`create` VARCHAR(255) NOT NULL, INDEX IDX_22660D028FD6E0FB (`create`)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB'];
+        return [
+            'CREATE TABLE `quoted` (`create` VARCHAR(255) NOT NULL, '
+                . 'INDEX IDX_22660D028FD6E0FB (`create`)) '
+                . 'DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB',
+        ];
     }
 
     /**
@@ -244,7 +276,10 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
      */
     protected function getQuotedNameInIndexSQL(): array
     {
-        return ['CREATE TABLE test (column1 VARCHAR(255) NOT NULL, INDEX `key` (column1)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB'];
+        return [
+            'CREATE TABLE test (column1 VARCHAR(255) NOT NULL, '
+                . 'INDEX `key` (column1)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB',
+        ];
     }
 
     /**
@@ -253,10 +288,14 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     protected function getQuotedColumnInForeignKeySQL(): array
     {
         return [
-            'CREATE TABLE `quoted` (`create` VARCHAR(255) NOT NULL, foo VARCHAR(255) NOT NULL, `bar` VARCHAR(255) NOT NULL) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB',
-            'ALTER TABLE `quoted` ADD CONSTRAINT FK_WITH_RESERVED_KEYWORD FOREIGN KEY (`create`, foo, `bar`) REFERENCES `foreign` (`create`, bar, `foo-bar`)',
-            'ALTER TABLE `quoted` ADD CONSTRAINT FK_WITH_NON_RESERVED_KEYWORD FOREIGN KEY (`create`, foo, `bar`) REFERENCES foo (`create`, bar, `foo-bar`)',
-            'ALTER TABLE `quoted` ADD CONSTRAINT FK_WITH_INTENDED_QUOTATION FOREIGN KEY (`create`, foo, `bar`) REFERENCES `foo-bar` (`create`, bar, `foo-bar`)',
+            'CREATE TABLE `quoted` (`create` VARCHAR(255) NOT NULL, foo VARCHAR(255) NOT NULL, '
+                . '`bar` VARCHAR(255) NOT NULL) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB',
+            'ALTER TABLE `quoted` ADD CONSTRAINT FK_WITH_RESERVED_KEYWORD FOREIGN KEY (`create`, foo, `bar`)'
+                . ' REFERENCES `foreign` (`create`, bar, `foo-bar`)',
+            'ALTER TABLE `quoted` ADD CONSTRAINT FK_WITH_NON_RESERVED_KEYWORD FOREIGN KEY (`create`, foo, `bar`)'
+                . ' REFERENCES foo (`create`, bar, `foo-bar`)',
+            'ALTER TABLE `quoted` ADD CONSTRAINT FK_WITH_INTENDED_QUOTATION FOREIGN KEY (`create`, foo, `bar`)'
+                . ' REFERENCES `foo-bar` (`create`, bar, `foo-bar`)',
         ];
     }
 
@@ -271,7 +310,14 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $index->addFlag('fulltext');
 
         $sql = $this->platform->getCreateTableSQL($table);
-        self::assertEquals(['CREATE TABLE fulltext_table (text LONGTEXT NOT NULL, FULLTEXT INDEX fulltext_text (text)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = MyISAM'], $sql);
+        self::assertEquals(
+            [
+                'CREATE TABLE fulltext_table (text LONGTEXT NOT NULL, '
+                . 'FULLTEXT INDEX fulltext_text (text)) '
+                . 'DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = MyISAM',
+            ],
+            $sql
+        );
     }
 
     public function testCreateTableWithSpatialIndex(): void
@@ -285,7 +331,13 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $index->addFlag('spatial');
 
         $sql = $this->platform->getCreateTableSQL($table);
-        self::assertEquals(['CREATE TABLE spatial_table (point LONGTEXT NOT NULL, SPATIAL INDEX spatial_text (point)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = MyISAM'], $sql);
+        self::assertEquals(
+            [
+                'CREATE TABLE spatial_table (point LONGTEXT NOT NULL, SPATIAL INDEX spatial_text (point)) '
+                . 'DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = MyISAM',
+            ],
+            $sql
+        );
     }
 
     public function testClobTypeDeclarationSQL(): void
@@ -538,7 +590,11 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $table->addOption('engine', 'MyISAM');
 
         self::assertSame(
-            ['CREATE TABLE foreign_table (id INT NOT NULL, fk_id INT NOT NULL, INDEX IDX_5690FFE2A57719D0 (fk_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = MyISAM'],
+            [
+                'CREATE TABLE foreign_table (id INT NOT NULL, fk_id INT NOT NULL, '
+                    . 'INDEX IDX_5690FFE2A57719D0 (fk_id), PRIMARY KEY(id)) '
+                    . 'DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = MyISAM',
+            ],
             $this->platform->getCreateTableSQL(
                 $table,
                 AbstractPlatform::CREATE_INDEXES | AbstractPlatform::CREATE_FOREIGNKEYS
@@ -550,8 +606,11 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
         self::assertSame(
             [
-                'CREATE TABLE foreign_table (id INT NOT NULL, fk_id INT NOT NULL, INDEX IDX_5690FFE2A57719D0 (fk_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB',
-                'ALTER TABLE foreign_table ADD CONSTRAINT FK_5690FFE2A57719D0 FOREIGN KEY (fk_id) REFERENCES foreign_table (id)',
+                'CREATE TABLE foreign_table (id INT NOT NULL, fk_id INT NOT NULL, '
+                    . 'INDEX IDX_5690FFE2A57719D0 (fk_id), PRIMARY KEY(id)) '
+                    . 'DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB',
+                'ALTER TABLE foreign_table ADD CONSTRAINT FK_5690FFE2A57719D0 FOREIGN KEY (fk_id)'
+                    . ' REFERENCES foreign_table (id)',
             ],
             $this->platform->getCreateTableSQL(
                 $table,
@@ -667,7 +726,13 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $table->addColumn('def_blob_null', 'blob', ['notnull' => false, 'default' => 'def']);
 
         self::assertSame(
-            ['CREATE TABLE text_blob_default_value (def_text LONGTEXT NOT NULL, def_text_null LONGTEXT DEFAULT NULL, def_blob LONGBLOB NOT NULL, def_blob_null LONGBLOB DEFAULT NULL) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB'],
+            [
+                'CREATE TABLE text_blob_default_value (def_text LONGTEXT NOT NULL, '
+                    . 'def_text_null LONGTEXT DEFAULT NULL, '
+                    . 'def_blob LONGBLOB NOT NULL, '
+                    . 'def_blob_null LONGBLOB DEFAULT NULL'
+                    . ') DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB',
+            ],
             $this->platform->getCreateTableSQL($table)
         );
 
@@ -918,12 +983,16 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     {
         $table = new Table('foo');
         $table->addColumn('no_collation', 'string', ['length' => 255]);
-        $table->addColumn('column_collation', 'string', ['length' => 255])->setPlatformOption('collation', 'ascii_general_ci');
+        $table->addColumn('column_collation', 'string', ['length' => 255])
+            ->setPlatformOption('collation', 'ascii_general_ci');
 
         self::assertSame(
-            ['CREATE TABLE foo (no_collation VARCHAR(255) NOT NULL, column_collation VARCHAR(255) NOT NULL COLLATE `ascii_general_ci`) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB'],
-            $this->platform->getCreateTableSQL($table),
-            'Column "no_collation" will use the default collation from the table/database and "column_collation" overwrites the collation on this column'
+            [
+                'CREATE TABLE foo (no_collation VARCHAR(255) NOT NULL, '
+                    . 'column_collation VARCHAR(255) NOT NULL COLLATE `ascii_general_ci`) '
+                    . 'DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB',
+            ],
+            $this->platform->getCreateTableSQL($table)
         );
     }
 }

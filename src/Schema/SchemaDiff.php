@@ -71,8 +71,12 @@ class SchemaDiff
      * @param array<string, TableDiff> $changedTables
      * @param array<string, Table>     $removedTables
      */
-    public function __construct(array $newTables = [], array $changedTables = [], array $removedTables = [], ?Schema $fromSchema = null)
-    {
+    public function __construct(
+        array $newTables = [],
+        array $changedTables = [],
+        array $removedTables = [],
+        ?Schema $fromSchema = null
+    ) {
         $this->newTables     = $newTables;
         $this->changedTables = $changedTables;
         $this->removedTables = $removedTables;

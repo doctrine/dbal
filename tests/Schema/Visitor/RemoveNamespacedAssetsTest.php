@@ -27,7 +27,7 @@ class RemoveNamespacedAssetsTest extends TestCase
         $schema->visit(new RemoveNamespacedAssets());
 
         $tables = $schema->getTables();
-        self::assertEquals(['test.test', 'test.baz'], array_keys($tables), "Only 2 tables should be present, both in 'test' namespace.");
+        self::assertEquals(['test.test', 'test.baz'], array_keys($tables));
     }
 
     public function testCleanupForeignKeys(): void

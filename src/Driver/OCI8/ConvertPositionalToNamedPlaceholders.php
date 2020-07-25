@@ -74,7 +74,8 @@ final class ConvertPositionalToNamedPlaceholders
      * @param string[]    $fragments               Fragments of the original statement not containing placeholders
      * @param string|null $currentLiteralDelimiter The delimiter of the current string literal
      *                                             or NULL if not currently in a literal
-     * @param string[]    $paramMap                Mapping of the original parameter positions to their named replacements
+     * @param string[]    $paramMap                Mapping of the original parameter positions
+     *                                             to their named replacements
      *
      * @return bool Whether the token was found
      */

@@ -41,7 +41,8 @@ class ConversionExceptionTest extends TestCase
 
         self::assertSame(
             sprintf(
-                'Could not convert PHP value "%s" of type "%s" to type "foo". Expected one of the following types: bar, baz.',
+                'Could not convert PHP value "%s" of type "%s" to type "foo". '
+                    . 'Expected one of the following types: bar, baz.',
                 $scalarValue,
                 $type
             ),
@@ -61,7 +62,11 @@ class ConversionExceptionTest extends TestCase
         $type = is_object($nonScalar) ? get_class($nonScalar) : gettype($nonScalar);
 
         self::assertSame(
-            sprintf('Could not convert PHP value of type "%s" to type "foo". Expected one of the following types: bar, baz.', $type),
+            sprintf(
+                'Could not convert PHP value of type "%s" to type "foo".'
+                    . ' Expected one of the following types: bar, baz.',
+                $type
+            ),
             $exception->getMessage()
         );
     }

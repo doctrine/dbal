@@ -572,7 +572,8 @@ class Connection
      * Table expression and columns are not escaped and are not safe for user-input.
      *
      * @param string                        $table      The SQL expression of the table on which to delete.
-     * @param array<string, mixed>          $identifier The deletion criteria. An associative array containing column-value pairs.
+     * @param array<string, mixed>          $identifier The deletion criteria. An associative array
+     *                                                  containing column-value pairs.
      * @param array<int|string, int|string> $types      The query parameter types.
      *
      * @return int The number of affected rows.
@@ -640,9 +641,12 @@ class Connection
      *
      * Table expression and columns are not escaped and are not safe for user-input.
      *
-     * @param string                                           $table      The SQL expression of the table to update quoted or unquoted.
-     * @param array<string, mixed>                             $data       An associative array containing column-value pairs.
-     * @param array<string, mixed>                             $identifier The update criteria. An associative array containing column-value pairs.
+     * @param string                                           $table      The SQL expression of the table
+     *                                                                     to update quoted or unquoted.
+     * @param array<string, mixed>                             $data       An associative array
+     *                                                                     containing column-value pairs.
+     * @param array<string, mixed>                             $identifier The update criteria. An associative array
+     *                                                                     containing column-value pairs.
      * @param array<int, int|string>|array<string, int|string> $types      The query parameter types.
      *
      * @return int The number of affected rows.
@@ -676,8 +680,10 @@ class Connection
      *
      * Table expression and columns are not escaped and are not safe for user-input.
      *
-     * @param string                                           $table The SQL expression of the table to insert data into, quoted or unquoted.
-     * @param array<string, mixed>                             $data  An associative array containing column-value pairs.
+     * @param string                                           $table The SQL expression of the table
+     *                                                                to insert data into, quoted or unquoted.
+     * @param array<string, mixed>                             $data  An associative array
+     *                                                                containing column-value pairs.
      * @param array<int, int|string>|array<string, int|string> $types The query parameter types.
      *
      * @return int The number of affected rows.
@@ -836,7 +842,8 @@ class Connection
     }
 
     /**
-     * Prepares and executes an SQL query and returns the result as an iterator over rows represented as associative arrays.
+     * Prepares and executes an SQL query and returns the result as an iterator over rows represented
+     * as associative arrays.
      *
      * @param string                                           $query  The SQL query.
      * @param array<int, mixed>|array<string, mixed>           $params The query parameters.

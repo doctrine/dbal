@@ -10,9 +10,6 @@ use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use PDO;
 
-use function strpos;
-use function substr;
-
 final class Connection implements ServerInfoAwareConnection
 {
     /** @var PDOConnection */
@@ -37,14 +34,7 @@ final class Connection implements ServerInfoAwareConnection
 
     public function quote(string $value): string
     {
-        $val = $this->connection->quote($value);
-
-        // Fix for a driver version terminating all values with null byte
-        if (strpos($val, "\0") !== false) {
-            $val = substr($val, 0, -1);
-        }
-
-        return $val;
+        return $this->connection->quote($value);
     }
 
     public function exec(string $sql): int

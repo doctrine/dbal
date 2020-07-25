@@ -60,8 +60,13 @@ final class Statement implements StatementInterface
      * @param mixed $variable
      * @param mixed $driverOptions
      */
-    public function bindParam($param, &$variable, int $type = ParameterType::STRING, ?int $length = null, $driverOptions = null): void
-    {
+    public function bindParam(
+        $param,
+        &$variable,
+        int $type = ParameterType::STRING,
+        ?int $length = null,
+        $driverOptions = null
+    ): void {
         $type            = $this->convertParamType($type);
         $extraParameters = array_slice(func_get_args(), 3);
 

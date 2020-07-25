@@ -32,22 +32,99 @@ class SqliteSchemaManagerTest extends TestCase
     public static function getDataColumnCollation(): iterable
     {
         return [
-            ['RTRIM', 'a', 'CREATE TABLE "a" ("a" text DEFAULT "aa" COLLATE "RTRIM" NOT NULL)'],
-            ['utf-8', 'a', 'CREATE TABLE "a" ("b" text UNIQUE NOT NULL COLLATE NOCASE, "a" text DEFAULT "aa" COLLATE "utf-8" NOT NULL)'],
-            ['NOCASE', 'a', 'CREATE TABLE "a" ("a" text DEFAULT (lower(ltrim(" a") || rtrim("a "))) CHECK ("a") NOT NULL COLLATE NOCASE UNIQUE, "b" text COLLATE RTRIM)'],
-            [null, 'a', 'CREATE TABLE "a" ("a" text CHECK ("a") NOT NULL, "b" text COLLATE RTRIM)'],
-            ['RTRIM', 'a"b', 'CREATE TABLE "a" ("a""b" text COLLATE RTRIM)'],
-            ['BINARY', 'b', 'CREATE TABLE "a" (bb TEXT COLLATE RTRIM, b VARCHAR(42) NOT NULL COLLATE BINARY)'],
-            ['BINARY', 'b', 'CREATE TABLE "a" (bbb TEXT COLLATE NOCASE, bb TEXT COLLATE RTRIM, b VARCHAR(42) NOT NULL COLLATE BINARY)'],
-            ['BINARY', 'b', 'CREATE TABLE "a" (b VARCHAR(42) NOT NULL COLLATE BINARY, bb TEXT COLLATE RTRIM)'],
-            ['utf-8', 'bar#', 'CREATE TABLE dummy_table (id INTEGER NOT NULL, foo VARCHAR(255) COLLATE "utf-8" NOT NULL, "bar#" VARCHAR(255) COLLATE "utf-8" NOT NULL, baz VARCHAR(255) COLLATE "utf-8" NOT NULL, PRIMARY KEY(id))'],
-            [null,    'bar#', 'CREATE TABLE dummy_table (id INTEGER NOT NULL, foo VARCHAR(255) NOT NULL, "bar#" VARCHAR(255) NOT NULL, baz VARCHAR(255) NOT NULL, PRIMARY KEY(id))'],
-            ['utf-8', 'baz',  'CREATE TABLE dummy_table (id INTEGER NOT NULL, foo VARCHAR(255) COLLATE "utf-8" NOT NULL, "bar#" INTEGER NOT NULL, baz VARCHAR(255) COLLATE "utf-8" NOT NULL, PRIMARY KEY(id))'],
-            [null,    'baz',  'CREATE TABLE dummy_table (id INTEGER NOT NULL, foo VARCHAR(255) NOT NULL, "bar#" INTEGER NOT NULL, baz VARCHAR(255) NOT NULL, PRIMARY KEY(id))'],
-            ['utf-8', 'bar/', 'CREATE TABLE dummy_table (id INTEGER NOT NULL, foo VARCHAR(255) COLLATE "utf-8" NOT NULL, "bar/" VARCHAR(255) COLLATE "utf-8" NOT NULL, baz VARCHAR(255) COLLATE "utf-8" NOT NULL, PRIMARY KEY(id))'],
-            [null,    'bar/', 'CREATE TABLE dummy_table (id INTEGER NOT NULL, foo VARCHAR(255) NOT NULL, "bar/" VARCHAR(255) NOT NULL, baz VARCHAR(255) NOT NULL, PRIMARY KEY(id))'],
-            ['utf-8', 'baz',  'CREATE TABLE dummy_table (id INTEGER NOT NULL, foo VARCHAR(255) COLLATE "utf-8" NOT NULL, "bar/" INTEGER NOT NULL, baz VARCHAR(255) COLLATE "utf-8" NOT NULL, PRIMARY KEY(id))'],
-            [null,    'baz',  'CREATE TABLE dummy_table (id INTEGER NOT NULL, foo VARCHAR(255) NOT NULL, "bar/" INTEGER NOT NULL, baz VARCHAR(255) NOT NULL, PRIMARY KEY(id))'],
+            [
+                'RTRIM',
+                'a',
+                'CREATE TABLE "a" ("a" text DEFAULT "aa" COLLATE "RTRIM" NOT NULL)',
+            ],
+            [
+                'utf-8',
+                'a',
+                'CREATE TABLE "a" ("b" text UNIQUE NOT NULL COLLATE NOCASE, '
+                    . '"a" text DEFAULT "aa" COLLATE "utf-8" NOT NULL)',
+            ],
+            [
+                'NOCASE',
+                'a',
+                'CREATE TABLE "a" ("a" text DEFAULT (lower(ltrim(" a") || rtrim("a ")))'
+                    . ' CHECK ("a") NOT NULL COLLATE NOCASE UNIQUE, "b" text COLLATE RTRIM)',
+            ],
+            [
+                null,
+                'a',
+                'CREATE TABLE "a" ("a" text CHECK ("a") NOT NULL, "b" text COLLATE RTRIM)',
+            ],
+            [
+                'RTRIM',
+                'a"b',
+                'CREATE TABLE "a" ("a""b" text COLLATE RTRIM)',
+            ],
+            [
+                'BINARY',
+                'b',
+                'CREATE TABLE "a" (bb TEXT COLLATE RTRIM, b VARCHAR(42) NOT NULL COLLATE BINARY)',
+            ],
+            [
+                'BINARY',
+                'b',
+                'CREATE TABLE "a" (bbb TEXT COLLATE NOCASE, bb TEXT COLLATE RTRIM, '
+                    . 'b VARCHAR(42) NOT NULL COLLATE BINARY)',
+            ],
+            [
+                'BINARY',
+                'b',
+                'CREATE TABLE "a" (b VARCHAR(42) NOT NULL COLLATE BINARY, bb TEXT COLLATE RTRIM)',
+            ],
+            [
+                'utf-8',
+                'bar#',
+                'CREATE TABLE dummy_table (id INTEGER NOT NULL, foo VARCHAR(255) COLLATE "utf-8" NOT NULL, '
+                    . '"bar#" VARCHAR(255) COLLATE "utf-8" NOT NULL, baz VARCHAR(255) COLLATE "utf-8" NOT NULL, '
+                    . 'PRIMARY KEY(id))',
+            ],
+            [
+                null,
+                'bar#',
+                'CREATE TABLE dummy_table (id INTEGER NOT NULL, foo VARCHAR(255) NOT NULL,'
+                    . ' "bar#" VARCHAR(255) NOT NULL, baz VARCHAR(255) NOT NULL, PRIMARY KEY(id))',
+            ],
+            [
+                'utf-8',
+                'baz',
+                'CREATE TABLE dummy_table (id INTEGER NOT NULL, foo VARCHAR(255) COLLATE "utf-8" NOT NULL,'
+                    . ' "bar#" INTEGER NOT NULL, baz VARCHAR(255) COLLATE "utf-8" NOT NULL, PRIMARY KEY(id))',
+            ],
+            [
+                null,
+                'baz',
+                'CREATE TABLE dummy_table (id INTEGER NOT NULL, foo VARCHAR(255) NOT NULL, "bar#" INTEGER NOT NULL, '
+                    . 'baz VARCHAR(255) NOT NULL, PRIMARY KEY(id))',
+            ],
+            [
+                'utf-8',
+                'bar/',
+                'CREATE TABLE dummy_table (id INTEGER NOT NULL, foo VARCHAR(255) COLLATE "utf-8" NOT NULL, '
+                    . '"bar/" VARCHAR(255) COLLATE "utf-8" NOT NULL, baz VARCHAR(255) COLLATE "utf-8" NOT NULL,'
+                    . ' PRIMARY KEY(id))',
+            ],
+            [
+                null,
+                'bar/',
+                'CREATE TABLE dummy_table (id INTEGER NOT NULL, foo VARCHAR(255) NOT NULL, '
+                    . '"bar/" VARCHAR(255) NOT NULL, baz VARCHAR(255) NOT NULL, PRIMARY KEY(id))',
+            ],
+            [
+                'utf-8',
+                'baz',
+                'CREATE TABLE dummy_table (id INTEGER NOT NULL, foo VARCHAR(255) COLLATE "utf-8" NOT NULL, '
+                    . '"bar/" INTEGER NOT NULL, baz VARCHAR(255) COLLATE "utf-8" NOT NULL, PRIMARY KEY(id))',
+            ],
+            [
+                null,
+                'baz',
+                'CREATE TABLE dummy_table (id INTEGER NOT NULL, foo VARCHAR(255) NOT NULL,'
+                    . ' "bar/" INTEGER NOT NULL, baz VARCHAR(255) NOT NULL, PRIMARY KEY(id))',
+            ],
         ];
     }
 
@@ -85,13 +162,15 @@ class SqliteSchemaManagerTest extends TestCase
             'Multiple similar columns with type comment 1' => [
                 '',
                 'b',
-                'CREATE TABLE "a" (a TEXT COLLATE RTRIM, "b" TEXT DEFAULT "a" COLLATE RTRIM, "bb" CLOB DEFAULT NULL COLLATE BINARY --(DC2Type:x)
+                'CREATE TABLE "a" (a TEXT COLLATE RTRIM, "b" TEXT DEFAULT "a" COLLATE RTRIM, '
+                    . '"bb" CLOB DEFAULT NULL COLLATE BINARY --(DC2Type:x)
 )',
             ],
             'Multiple similar columns with type comment 2' => [
                 '(DC2Type:x)',
                 'b',
-                'CREATE TABLE "a" (a TEXT COLLATE RTRIM, "bb" TEXT DEFAULT "a" COLLATE RTRIM, "b" CLOB DEFAULT NULL COLLATE BINARY --(DC2Type:x)
+                'CREATE TABLE "a" (a TEXT COLLATE RTRIM, "bb" TEXT DEFAULT "a" COLLATE RTRIM, '
+                    . '"b" CLOB DEFAULT NULL COLLATE BINARY --(DC2Type:x)
 )',
             ],
             'Multiple similar columns on different lines, with type comment 1' => [

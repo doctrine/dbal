@@ -27,7 +27,13 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->schemaManager->createTable($table);
 
-        $diff = new TableDiff('sqlsrv_drop_column', [], [], ['todrop' => new Column('todrop', Type::getType('decimal'))]);
+        $diff = new TableDiff(
+            'sqlsrv_drop_column',
+            [],
+            [],
+            ['todrop' => new Column('todrop', Type::getType('decimal'))]
+        );
+
         $this->schemaManager->alterTable($diff);
 
         $columns = $this->schemaManager->listTableColumns('sqlsrv_drop_column');
@@ -42,7 +48,8 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->schemaManager->dropAndCreateTable($table);
         $columns = $this->schemaManager->listTableColumns($tableName);
 
-        self::assertTrue($columns['test']->hasPlatformOption('collation')); // SQL Server should report a default collation on the column
+        // SQL Server should report a default collation on the column
+        self::assertTrue($columns['test']->hasPlatformOption('collation'));
 
         $column->setPlatformOption('collation', $collation = 'Icelandic_CS_AS');
 
@@ -106,9 +113,15 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
                 ),
                 'df_string_3' => new ColumnDiff(
                     'df_string_3',
-                    new Column('df_string_3', Type::getType('string'), ['length' => 50, 'default' => 'another default value']),
+                    new Column('df_string_3', Type::getType('string'), [
+                        'length' => 50,
+                        'default' => 'another default value',
+                    ]),
                     ['length'],
-                    new Column('df_string_3', Type::getType('string'), ['length' => 50, 'default' => 'another default value'])
+                    new Column('df_string_3', Type::getType('string'), [
+                        'length' => 50,
+                        'default' => 'another default value',
+                    ])
                 ),
                 'df_boolean' => new ColumnDiff(
                     'df_boolean',

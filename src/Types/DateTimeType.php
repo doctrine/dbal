@@ -62,7 +62,11 @@ class DateTimeType extends Type implements PhpDateTimeMappingType
         }
 
         if ($val === false) {
-            throw InvalidFormat::new($value, $this->getName(), $platform->getDateTimeFormatString());
+            throw InvalidFormat::new(
+                $value,
+                $this->getName(),
+                $platform->getDateTimeFormatString()
+            );
         }
 
         return $val;

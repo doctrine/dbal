@@ -21,12 +21,10 @@ final class InvalidPlatformVersion extends DBALException implements PlatformExce
      */
     public static function new(string $version, string $expectedFormat): self
     {
-        return new self(
-            sprintf(
-                'Invalid platform version "%s" specified. The platform version has to be specified in the format: "%s".',
-                $version,
-                $expectedFormat
-            )
-        );
+        return new self(sprintf(
+            'Invalid platform version "%s" specified. The platform version has to be specified in the format: "%s".',
+            $version,
+            $expectedFormat
+        ));
     }
 }

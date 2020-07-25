@@ -69,7 +69,11 @@ class Comparator
             if (! $fromSchema->hasTable($tableName)) {
                 $diff->newTables[$tableName] = $toSchema->getTable($tableName);
             } else {
-                $tableDifferences = $this->diffTable($fromSchema->getTable($tableName), $toSchema->getTable($tableName));
+                $tableDifferences = $this->diffTable(
+                    $fromSchema->getTable($tableName),
+                    $toSchema->getTable($tableName)
+                );
+
                 if ($tableDifferences !== null) {
                     $diff->changedTables[$tableName] = $tableDifferences;
                 }
@@ -215,7 +219,8 @@ class Comparator
                 continue;
             }
 
-            $columnDiff                                           = new ColumnDiff($column->getName(), $table2->getColumn($columnName), $changedProperties);
+            $columnDiff = new ColumnDiff($column->getName(), $table2->getColumn($columnName), $changedProperties);
+
             $columnDiff->fromColumn                               = $column;
             $tableDifferences->changedColumns[$column->getName()] = $columnDiff;
             $changes++;
@@ -377,11 +382,17 @@ class Comparator
 
     public function diffForeignKey(ForeignKeyConstraint $key1, ForeignKeyConstraint $key2): bool
     {
-        if (array_map('strtolower', $key1->getUnquotedLocalColumns()) !== array_map('strtolower', $key2->getUnquotedLocalColumns())) {
+        if (
+            array_map('strtolower', $key1->getUnquotedLocalColumns())
+            !== array_map('strtolower', $key2->getUnquotedLocalColumns())
+        ) {
             return true;
         }
 
-        if (array_map('strtolower', $key1->getUnquotedForeignColumns()) !== array_map('strtolower', $key2->getUnquotedForeignColumns())) {
+        if (
+            array_map('strtolower', $key1->getUnquotedForeignColumns())
+            !== array_map('strtolower', $key2->getUnquotedForeignColumns())
+        ) {
             return true;
         }
 

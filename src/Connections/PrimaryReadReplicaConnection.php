@@ -135,7 +135,10 @@ class PrimaryReadReplicaConnection extends Connection
     public function connect(?string $connectionName = null): void
     {
         if ($connectionName !== null) {
-            throw new InvalidArgumentException('Passing a connection name as first argument is not supported anymore. Use ensureConnectedToPrimary()/ensureConnectedToReplica() instead.');
+            throw new InvalidArgumentException(
+                'Passing a connection name as first argument is not supported anymore.'
+                    . ' Use ensureConnectedToPrimary()/ensureConnectedToReplica() instead.'
+            );
         }
 
         $this->performConnect();

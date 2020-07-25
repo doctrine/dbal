@@ -54,7 +54,11 @@ class DateTimeTzType extends Type implements PhpDateTimeMappingType
             return $value->format($platform->getDateTimeTzFormatString());
         }
 
-        throw InvalidType::new($value, $this->getName(), ['null', 'DateTime']);
+        throw InvalidType::new(
+            $value,
+            $this->getName(),
+            ['null', 'DateTime']
+        );
     }
 
     /**
@@ -68,7 +72,11 @@ class DateTimeTzType extends Type implements PhpDateTimeMappingType
 
         $val = DateTime::createFromFormat($platform->getDateTimeTzFormatString(), $value);
         if ($val === false) {
-            throw InvalidFormat::new($value, $this->getName(), $platform->getDateTimeTzFormatString());
+            throw InvalidFormat::new(
+                $value,
+                $this->getName(),
+                $platform->getDateTimeTzFormatString()
+            );
         }
 
         return $val;

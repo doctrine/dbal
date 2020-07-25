@@ -18,6 +18,10 @@ final class TypeNotRegistered extends DBALException implements TypesException
 {
     public static function new(Type $type): self
     {
-        return new self(sprintf('Type of the class %s@%s is not registered.', get_class($type), spl_object_hash($type)));
+        return new self(sprintf(
+            'Type of the class %s@%s is not registered.',
+            get_class($type),
+            spl_object_hash($type)
+        ));
     }
 }

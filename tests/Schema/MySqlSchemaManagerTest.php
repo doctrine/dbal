@@ -42,12 +42,24 @@ class MySqlSchemaManagerTest extends TestCase
 
     public function testCompositeForeignKeys(): void
     {
-        $this->conn->expects(self::once())->method('fetchAllAssociative')->will(self::returnValue($this->getFKDefinition()));
+        $this->conn->expects(self::once())
+            ->method('fetchAllAssociative')
+            ->willReturn($this->getFKDefinition());
+
         $fkeys = $this->manager->listTableForeignKeys('dummy', 'dummy');
         self::assertCount(1, $fkeys, 'Table has to have one foreign key.');
 
-        self::assertEquals(['column_1', 'column_2', 'column_3'], array_map('strtolower', $fkeys[0]->getLocalColumns()));
-        self::assertEquals(['column_1', 'column_2', 'column_3'], array_map('strtolower', $fkeys[0]->getForeignColumns()));
+        self::assertEquals([
+            'column_1',
+            'column_2',
+            'column_3',
+        ], array_map('strtolower', $fkeys[0]->getLocalColumns()));
+
+        self::assertEquals([
+            'column_1',
+            'column_2',
+            'column_3',
+        ], array_map('strtolower', $fkeys[0]->getForeignColumns()));
     }
 
     /**

@@ -112,7 +112,8 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     {
         return [
             'ALTER TABLE mytable ADD (quota NUMBER(10) DEFAULT NULL NULL)',
-            "ALTER TABLE mytable MODIFY (baz VARCHAR2(255) DEFAULT 'def' NOT NULL, bloo NUMBER(1) DEFAULT '0' NOT NULL)",
+            "ALTER TABLE mytable MODIFY (baz VARCHAR2(255) DEFAULT 'def' NOT NULL, "
+                . "bloo NUMBER(1) DEFAULT '0' NOT NULL)",
             'ALTER TABLE mytable DROP (foo)',
             'ALTER TABLE mytable RENAME TO userlist',
         ];
@@ -122,13 +123,16 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     {
         $this->expectException(DBALException::class);
 
-        self::assertEquals('RLIKE', $this->platform->getRegexpExpression(), 'Regular expression operator is not correct');
+        self::assertEquals('RLIKE', $this->platform->getRegexpExpression());
     }
 
     public function testGeneratesSqlSnippets(): void
     {
-        self::assertEquals('"', $this->platform->getIdentifierQuoteCharacter(), 'Identifier quote character is not correct');
-        self::assertEquals('column1 || column2 || column3', $this->platform->getConcatExpression('column1', 'column2', 'column3'), 'Concatenation expression is not correct');
+        self::assertEquals('"', $this->platform->getIdentifierQuoteCharacter());
+        self::assertEquals(
+            'column1 || column2 || column3',
+            $this->platform->getConcatExpression('column1', 'column2', 'column3')
+        );
     }
 
     public function testGeneratesTransactionsCommands(): void
@@ -277,13 +281,25 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     public function testModifyLimitQueryWithNonEmptyOffset(): void
     {
         $sql = $this->platform->modifyLimitQuery('SELECT * FROM user', 10, 10);
-        self::assertEquals('SELECT * FROM (SELECT a.*, ROWNUM AS doctrine_rownum FROM (SELECT * FROM user) a WHERE ROWNUM <= 20) WHERE doctrine_rownum >= 11', $sql);
+
+        self::assertEquals(
+            'SELECT * FROM ('
+                . 'SELECT a.*, ROWNUM AS doctrine_rownum FROM (SELECT * FROM user) a WHERE ROWNUM <= 20'
+                . ') WHERE doctrine_rownum >= 11',
+            $sql
+        );
     }
 
     public function testModifyLimitQueryWithEmptyLimit(): void
     {
         $sql = $this->platform->modifyLimitQuery('SELECT * FROM user', null, 10);
-        self::assertEquals('SELECT * FROM (SELECT a.*, ROWNUM AS doctrine_rownum FROM (SELECT * FROM user) a) WHERE doctrine_rownum >= 11', $sql);
+
+        self::assertEquals(
+            'SELECT * FROM ('
+                . 'SELECT a.*, ROWNUM AS doctrine_rownum FROM (SELECT * FROM user) a'
+                . ') WHERE doctrine_rownum >= 11',
+            $sql
+        );
     }
 
     public function testModifyLimitQueryWithAscOrderBy(): void
@@ -309,7 +325,17 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         $targets    = [
             sprintf('CREATE TABLE %s (%s NUMBER(10) NOT NULL)', $tableName, $columnName),
             sprintf(
-                "DECLARE constraints_Count NUMBER; BEGIN SELECT COUNT(CONSTRAINT_NAME) INTO constraints_Count FROM USER_CONSTRAINTS WHERE TABLE_NAME = '%s' AND CONSTRAINT_TYPE = 'P'; IF constraints_Count = 0 OR constraints_Count = '' THEN EXECUTE IMMEDIATE 'ALTER TABLE %s ADD CONSTRAINT %s_AI_PK PRIMARY KEY (%s)'; END IF; END;",
+                'DECLARE constraints_Count NUMBER;'
+                    . ' BEGIN'
+                    . ' SELECT COUNT(CONSTRAINT_NAME)'
+                    . ' INTO constraints_Count'
+                    . ' FROM USER_CONSTRAINTS'
+                    . " WHERE TABLE_NAME = '%s' AND CONSTRAINT_TYPE = 'P';"
+                    . " IF constraints_Count = 0 OR constraints_Count = ''"
+                    . ' THEN EXECUTE IMMEDIATE'
+                    . " 'ALTER TABLE %s ADD CONSTRAINT %s_AI_PK PRIMARY KEY (%s)';"
+                    . ' END IF;'
+                    . ' END;',
                 $tableName,
                 $tableName,
                 $tableName,
@@ -317,7 +343,20 @@ class OraclePlatformTest extends AbstractPlatformTestCase
             ),
             sprintf('CREATE SEQUENCE %s_SEQ START WITH 1 MINVALUE 1 INCREMENT BY 1', $tableName),
             sprintf(
-                "CREATE TRIGGER %s_AI_PK BEFORE INSERT ON %s FOR EACH ROW DECLARE last_Sequence NUMBER; last_InsertID NUMBER; BEGIN SELECT %s_SEQ.NEXTVAL INTO :NEW.%s FROM DUAL; IF (:NEW.%s IS NULL OR :NEW.%s = 0) THEN SELECT %s_SEQ.NEXTVAL INTO :NEW.%s FROM DUAL; ELSE SELECT NVL(Last_Number, 0) INTO last_Sequence FROM User_Sequences WHERE Sequence_Name = '%s_SEQ'; SELECT :NEW.%s INTO last_InsertID FROM DUAL; WHILE (last_InsertID > last_Sequence) LOOP SELECT %s_SEQ.NEXTVAL INTO last_Sequence FROM DUAL; END LOOP; END IF; END;",
+                'CREATE TRIGGER %s_AI_PK BEFORE INSERT ON %s FOR EACH ROW DECLARE last_Sequence NUMBER;'
+                . ' last_InsertID NUMBER;'
+                . ' BEGIN SELECT %s_SEQ.NEXTVAL'
+                . ' INTO :NEW.%s FROM DUAL;'
+                . ' IF (:NEW.%s IS NULL OR :NEW.%s = 0)'
+                . ' THEN SELECT %s_SEQ.NEXTVAL INTO :NEW.%s FROM DUAL;'
+                . ' ELSE SELECT NVL(Last_Number, 0) INTO last_Sequence'
+                . " FROM User_Sequences WHERE Sequence_Name = '%s_SEQ';"
+                . ' SELECT :NEW.%s INTO last_InsertID FROM DUAL;'
+                . ' WHILE (last_InsertID > last_Sequence) LOOP'
+                . ' SELECT %s_SEQ.NEXTVAL INTO last_Sequence FROM DUAL;'
+                . ' END LOOP;'
+                . ' END IF;'
+                . ' END;',
                 $tableName,
                 $tableName,
                 $tableName,
@@ -425,10 +464,14 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     protected function getQuotedColumnInForeignKeySQL(): array
     {
         return [
-            'CREATE TABLE "quoted" ("create" VARCHAR2(255) NOT NULL, foo VARCHAR2(255) NOT NULL, "bar" VARCHAR2(255) NOT NULL)',
-            'ALTER TABLE "quoted" ADD CONSTRAINT FK_WITH_RESERVED_KEYWORD FOREIGN KEY ("create", foo, "bar") REFERENCES foreign ("create", bar, "foo-bar")',
-            'ALTER TABLE "quoted" ADD CONSTRAINT FK_WITH_NON_RESERVED_KEYWORD FOREIGN KEY ("create", foo, "bar") REFERENCES foo ("create", bar, "foo-bar")',
-            'ALTER TABLE "quoted" ADD CONSTRAINT FK_WITH_INTENDED_QUOTATION FOREIGN KEY ("create", foo, "bar") REFERENCES "foo-bar" ("create", bar, "foo-bar")',
+            'CREATE TABLE "quoted" ("create" VARCHAR2(255) NOT NULL, foo VARCHAR2(255) NOT NULL, '
+                . '"bar" VARCHAR2(255) NOT NULL)',
+            'ALTER TABLE "quoted" ADD CONSTRAINT FK_WITH_RESERVED_KEYWORD FOREIGN KEY ("create", foo, "bar")'
+                . ' REFERENCES foreign ("create", bar, "foo-bar")',
+            'ALTER TABLE "quoted" ADD CONSTRAINT FK_WITH_NON_RESERVED_KEYWORD FOREIGN KEY ("create", foo, "bar")'
+                . ' REFERENCES foo ("create", bar, "foo-bar")',
+            'ALTER TABLE "quoted" ADD CONSTRAINT FK_WITH_INTENDED_QUOTATION FOREIGN KEY ("create", foo, "bar")'
+                . ' REFERENCES "foo-bar" ("create", bar, "foo-bar")',
         ];
     }
 
@@ -477,7 +520,11 @@ class OraclePlatformTest extends AbstractPlatformTestCase
             ['notnull']
         );
 
-        $expectedSql = ["ALTER TABLE mytable MODIFY (foo VARCHAR2(255) DEFAULT 'bla', baz VARCHAR2(255) DEFAULT 'bla' NOT NULL, metar VARCHAR2(2000) DEFAULT NULL NULL)"];
+        $expectedSql = [
+            "ALTER TABLE mytable MODIFY (foo VARCHAR2(255) DEFAULT 'bla', baz VARCHAR2(255) DEFAULT 'bla' NOT NULL, "
+                . 'metar VARCHAR2(2000) DEFAULT NULL NULL)',
+        ];
+
         self::assertEquals($expectedSql, $this->platform->getAlterTableSQL($tableDiff));
     }
 

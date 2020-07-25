@@ -11,7 +11,7 @@ use Doctrine\DBAL\Schema\TableDiff;
 use function array_merge;
 
 /**
- * Event Arguments used when SQL queries for renaming table columns are generated inside Doctrine\DBAL\Platform\*Platform.
+ * Event Arguments used when SQL queries for renaming table columns are generated inside {@link AbstractPlatform}.
  */
 class SchemaAlterTableRenameColumnEventArgs extends SchemaEventArgs
 {

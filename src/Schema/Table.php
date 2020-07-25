@@ -136,8 +136,12 @@ class Table extends AbstractAsset
      *
      * @throws SchemaException
      */
-    public function addUniqueConstraint(array $columnNames, ?string $indexName = null, array $flags = [], array $options = []): self
-    {
+    public function addUniqueConstraint(
+        array $columnNames,
+        ?string $indexName = null,
+        array $flags = [],
+        array $options = []
+    ): self {
         if ($indexName === null) {
             $indexName = $this->_generateIdentifierName(
                 array_merge([$this->getName()], $columnNames),
@@ -154,8 +158,12 @@ class Table extends AbstractAsset
      * @param array<int, string>   $flags
      * @param array<string, mixed> $options
      */
-    public function addIndex(array $columnNames, ?string $indexName = null, array $flags = [], array $options = []): self
-    {
+    public function addIndex(
+        array $columnNames,
+        ?string $indexName = null,
+        array $flags = [],
+        array $options = []
+    ): self {
         if ($indexName === null) {
             $indexName = $this->_generateIdentifierName(
                 array_merge([$this->getName()], $columnNames),
@@ -330,8 +338,13 @@ class Table extends AbstractAsset
      *
      * @throws SchemaException
      */
-    public function addForeignKeyConstraint($foreignTable, array $localColumnNames, array $foreignColumnNames, array $options = [], ?string $name = null): self
-    {
+    public function addForeignKeyConstraint(
+        $foreignTable,
+        array $localColumnNames,
+        array $foreignColumnNames,
+        array $options = [],
+        ?string $name = null
+    ): self {
         if ($name === null) {
             $name = $this->_generateIdentifierName(
                 array_merge((array) $this->getName(), $localColumnNames),
@@ -839,8 +852,12 @@ class Table extends AbstractAsset
      *
      * @throws SchemaException
      */
-    private function _createUniqueConstraint(array $columns, string $indexName, array $flags = [], array $options = []): UniqueConstraint
-    {
+    private function _createUniqueConstraint(
+        array $columns,
+        string $indexName,
+        array $flags = [],
+        array $options = []
+    ): UniqueConstraint {
         if (preg_match('(([^a-zA-Z0-9_]+))', $this->normalizeIdentifier($indexName)) === 1) {
             throw IndexNameInvalid::new($indexName);
         }
@@ -867,8 +884,14 @@ class Table extends AbstractAsset
      *
      * @throws SchemaException
      */
-    private function _createIndex(array $columns, string $indexName, bool $isUnique, bool $isPrimary, array $flags = [], array $options = []): Index
-    {
+    private function _createIndex(
+        array $columns,
+        string $indexName,
+        bool $isUnique,
+        bool $isPrimary,
+        array $flags = [],
+        array $options = []
+    ): Index {
         if (preg_match('(([^a-zA-Z0-9_]+))', $this->normalizeIdentifier($indexName)) === 1) {
             throw IndexNameInvalid::new($indexName);
         }

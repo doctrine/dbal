@@ -72,7 +72,12 @@ class SQLParserUtils
             $statement,
             ':',
             self::NAMED_TOKEN,
-            static function (string $placeholder, int $placeholderPosition, int $fragmentPosition, array &$carry): void {
+            static function (
+                string $placeholder,
+                int $placeholderPosition,
+                int $fragmentPosition,
+                array &$carry
+            ): void {
                 $carry[$placeholderPosition + $fragmentPosition] = substr($placeholder, 1);
             }
         );
@@ -81,8 +86,12 @@ class SQLParserUtils
     /**
      * @return mixed[]
      */
-    private static function collectPlaceholders(string $statement, string $match, string $token, callable $collector): array
-    {
+    private static function collectPlaceholders(
+        string $statement,
+        string $match,
+        string $token,
+        callable $collector
+    ): array {
         if (strpos($statement, $match) === false) {
             return [];
         }

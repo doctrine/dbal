@@ -9,6 +9,7 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception\DatabaseRequired;
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
+use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
@@ -249,7 +250,10 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testColumnCharsetChange(): void
     {
         $table = new Table('test_column_charset_change');
-        $table->addColumn('col_string', 'string')->setLength(100)->setNotnull(true)->setPlatformOption('charset', 'utf8');
+        $table->addColumn('col_string', 'string')
+            ->setLength(100)
+            ->setNotnull(true)
+            ->setPlatformOption('charset', 'utf8');
 
         $diffTable = clone $table;
         $diffTable->getColumn('col_string')->setPlatformOption('charset', 'ascii');
@@ -258,7 +262,11 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $toSchema   = new Schema([$diffTable]);
 
         $diff = $fromSchema->getMigrateToSql($toSchema, $this->connection->getDatabasePlatform());
-        self::assertContains('ALTER TABLE test_column_charset_change CHANGE col_string col_string VARCHAR(100) CHARACTER SET ascii NOT NULL', $diff);
+        self::assertContains(
+            'ALTER TABLE test_column_charset_change CHANGE col_string'
+                . ' col_string VARCHAR(100) CHARACTER SET ascii NOT NULL',
+            $diff
+        );
     }
 
     public function testColumnCollation(): void
@@ -563,7 +571,9 @@ SQL;
         $schemaManager = $connection->getSchemaManager();
 
         $this->expectException(DatabaseRequired::class);
-        $this->expectExceptionMessage('A database is required for the method: Doctrine\DBAL\Schema\AbstractSchemaManager::listTableColumns');
+        $this->expectExceptionMessage(
+            'A database is required for the method: ' . AbstractSchemaManager::class . '::listTableColumns'
+        );
 
         $schemaManager->listTableColumns('users');
     }

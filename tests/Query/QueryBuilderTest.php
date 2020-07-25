@@ -175,7 +175,11 @@ class QueryBuilderTest extends TestCase
            ->orWhere('u.name = ?')
            ->andWhere('u.name = ?');
 
-        self::assertEquals('SELECT u.*, p.* FROM users u WHERE (((u.username = ?) AND (u.username = ?)) OR (u.name = ?)) AND (u.name = ?)', (string) $qb);
+        self::assertEquals(
+            'SELECT u.*, p.* FROM users u'
+                . ' WHERE (((u.username = ?) AND (u.username = ?)) OR (u.name = ?)) AND (u.name = ?)',
+            (string) $qb
+        );
     }
 
     public function testSelectGroupBy(): void
@@ -247,7 +251,10 @@ class QueryBuilderTest extends TestCase
            ->having('u.name = ?')
            ->andHaving('u.username = ?');
 
-        self::assertEquals('SELECT u.*, p.* FROM users u GROUP BY u.id HAVING (u.name = ?) AND (u.username = ?)', (string) $qb);
+        self::assertEquals(
+            'SELECT u.*, p.* FROM users u GROUP BY u.id HAVING (u.name = ?) AND (u.username = ?)',
+            (string) $qb
+        );
     }
 
     public function testSelectHavingOrHaving(): void
@@ -260,7 +267,10 @@ class QueryBuilderTest extends TestCase
            ->having('u.name = ?')
            ->orHaving('u.username = ?');
 
-        self::assertEquals('SELECT u.*, p.* FROM users u GROUP BY u.id HAVING (u.name = ?) OR (u.username = ?)', (string) $qb);
+        self::assertEquals(
+            'SELECT u.*, p.* FROM users u GROUP BY u.id HAVING (u.name = ?) OR (u.username = ?)',
+            (string) $qb
+        );
     }
 
     public function testSelectOrHavingOrHaving(): void
@@ -273,7 +283,10 @@ class QueryBuilderTest extends TestCase
            ->orHaving('u.name = ?')
            ->orHaving('u.username = ?');
 
-        self::assertEquals('SELECT u.*, p.* FROM users u GROUP BY u.id HAVING (u.name = ?) OR (u.username = ?)', (string) $qb);
+        self::assertEquals(
+            'SELECT u.*, p.* FROM users u GROUP BY u.id HAVING (u.name = ?) OR (u.username = ?)',
+            (string) $qb
+        );
     }
 
     public function testSelectHavingAndOrHaving(): void
@@ -287,7 +300,10 @@ class QueryBuilderTest extends TestCase
            ->orHaving('u.username = ?')
            ->andHaving('u.username = ?');
 
-        self::assertEquals('SELECT u.*, p.* FROM users u GROUP BY u.id HAVING ((u.name = ?) OR (u.username = ?)) AND (u.username = ?)', (string) $qb);
+        self::assertEquals(
+            'SELECT u.*, p.* FROM users u GROUP BY u.id HAVING ((u.name = ?) OR (u.username = ?)) AND (u.username = ?)',
+            (string) $qb
+        );
     }
 
     public function testSelectOrderBy(): void
@@ -565,7 +581,10 @@ class QueryBuilderTest extends TestCase
             ->where('nt.lang = :lang AND n.deleted != 1');
 
         $this->expectException(QueryException::class);
-        $this->expectExceptionMessage('The given alias "invalid" is not part of any FROM or JOIN clause table. The currently registered aliases are: news, nv.');
+        $this->expectExceptionMessage(
+            'The given alias "invalid" is not part of any FROM or JOIN clause table. '
+                . 'The currently registered aliases are: news, nv.'
+        );
         self::assertEquals('', $qb->getSQL());
     }
 
@@ -581,7 +600,13 @@ class QueryBuilderTest extends TestCase
             ->where('nt.lang = ?')
             ->andWhere('n.deleted = 0');
 
-        self::assertEquals("SELECT COUNT(DISTINCT news.id) FROM newspages news INNER JOIN nodeversion nv ON nv.refId = news.id AND nv.refEntityname='Entity\\News' INNER JOIN nodetranslation nt ON nv.nodetranslation = nt.id INNER JOIN node n ON nt.node = n.id WHERE (nt.lang = ?) AND (n.deleted = 0)", $qb->getSQL());
+        self::assertEquals(
+            'SELECT COUNT(DISTINCT news.id) FROM newspages news'
+                . " INNER JOIN nodeversion nv ON nv.refId = news.id AND nv.refEntityname='Entity\\News'"
+                . ' INNER JOIN nodetranslation nt ON nv.nodetranslation = nt.id'
+                . ' INNER JOIN node n ON nt.node = n.id WHERE (nt.lang = ?) AND (n.deleted = 0)',
+            $qb->getSQL()
+        );
     }
 
     public function testSelectWithMultipleFromAndJoins(): void
@@ -596,7 +621,13 @@ class QueryBuilderTest extends TestCase
             ->where('u.id = a.user_id')
             ->andWhere('p.read = 1');
 
-        self::assertEquals('SELECT DISTINCT u.id FROM users u INNER JOIN permissions p ON p.user_id = u.id, articles a INNER JOIN comments c ON c.article_id = a.id WHERE (u.id = a.user_id) AND (p.read = 1)', $qb->getSQL());
+        self::assertEquals(
+            'SELECT DISTINCT u.id FROM users u'
+            . ' INNER JOIN permissions p ON p.user_id = u.id, articles a'
+            . ' INNER JOIN comments c ON c.article_id = a.id'
+            . ' WHERE (u.id = a.user_id) AND (p.read = 1)',
+            $qb->getSQL()
+        );
     }
 
     public function testSelectWithJoinsWithMultipleOnConditionsParseOrder(): void
@@ -709,7 +740,13 @@ class QueryBuilderTest extends TestCase
             ->where('users.id = articles.user_id')
             ->andWhere('p.read = 1');
 
-        self::assertEquals('SELECT DISTINCT users.id FROM users INNER JOIN permissions p ON p.user_id = users.id, articles INNER JOIN comments c ON c.article_id = articles.id WHERE (users.id = articles.user_id) AND (p.read = 1)', $qb->getSQL());
+        self::assertEquals(
+            'SELECT DISTINCT users.id FROM users'
+                . ' INNER JOIN permissions p ON p.user_id = users.id, articles'
+                . ' INNER JOIN comments c ON c.article_id = articles.id'
+                . ' WHERE (users.id = articles.user_id) AND (p.read = 1)',
+            $qb->getSQL()
+        );
     }
 
     public function testComplexSelectWithSomeTableAliases(): void
@@ -722,7 +759,12 @@ class QueryBuilderTest extends TestCase
             ->innerJoin('u', 'permissions', 'p', 'p.user_id = u.id')
             ->innerJoin('articles', 'comments', 'c', 'c.article_id = articles.id');
 
-        self::assertEquals('SELECT u.id FROM users u INNER JOIN permissions p ON p.user_id = u.id, articles INNER JOIN comments c ON c.article_id = articles.id', $qb->getSQL());
+        self::assertEquals(
+            'SELECT u.id FROM users u'
+                . ' INNER JOIN permissions p ON p.user_id = u.id, articles'
+                . ' INNER JOIN comments c ON c.article_id = articles.id',
+            $qb->getSQL()
+        );
     }
 
     public function testSelectAllFromTableWithoutTableAlias(): void
@@ -796,7 +838,9 @@ class QueryBuilderTest extends TestCase
             ->join('a', 'table_b', 'a', 'a.fk_b = a.id');
 
         $this->expectException(QueryException::class);
-        $this->expectExceptionMessage('The given alias "a" is not unique in FROM and JOIN clause table. The currently registered aliases are: a.');
+        $this->expectExceptionMessage(
+            'The given alias "a" is not unique in FROM and JOIN clause table. The currently registered aliases are: a.'
+        );
 
         $qb->getSQL();
     }

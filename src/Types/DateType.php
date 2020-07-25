@@ -55,7 +55,11 @@ class DateType extends Type
 
         $val = DateTime::createFromFormat('!' . $platform->getDateFormatString(), $value);
         if ($val === false) {
-            throw InvalidFormat::new($value, $this->getName(), $platform->getDateFormatString());
+            throw InvalidFormat::new(
+                $value,
+                $this->getName(),
+                $platform->getDateFormatString()
+            );
         }
 
         return $val;

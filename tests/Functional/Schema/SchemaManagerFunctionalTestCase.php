@@ -204,7 +204,9 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $namespaces = array_map('strtolower', $namespaces);
 
         if (! in_array('test_create_schema', $namespaces, true)) {
-            $this->connection->executeStatement($this->schemaManager->getDatabasePlatform()->getCreateSchemaSQL('test_create_schema'));
+            $this->connection->executeStatement(
+                $this->schemaManager->getDatabasePlatform()->getCreateSchemaSQL('test_create_schema')
+            );
 
             $namespaces = $this->schemaManager->listNamespaceNames();
             $namespaces = array_map('strtolower', $namespaces);
@@ -385,7 +387,9 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     public function testDiffListTableColumns(): void
     {
         if ($this->schemaManager->getDatabasePlatform()->getName() === 'oracle') {
-            self::markTestSkipped('Does not work with Oracle, since it cannot detect DateTime, Date and Time differenecs (at the moment).');
+            self::markTestSkipped(
+                'Does not work with Oracle, since it cannot detect DateTime, Date and Time differenecs (at the moment).'
+            );
         }
 
         $offlineTable = $this->createListTableColumns();
@@ -466,7 +470,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertEquals(['foreign_key_test'], array_map('strtolower', $fkConstraint->getColumns()));
         self::assertEquals(['id'], array_map('strtolower', $fkConstraint->getForeignColumns()));
 
-        self::assertTrue($fkTable->columnsAreIndexed($fkConstraint->getColumns()), 'The columns of a foreign key constraint should always be indexed.');
+        self::assertTrue($fkTable->columnsAreIndexed($fkConstraint->getColumns()));
     }
 
     public function testListForeignKeys(): void
@@ -565,7 +569,10 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $table = $this->schemaManager->listTableDetails('alter_table');
         self::assertEquals(2, count($table->getIndexes()));
         self::assertTrue($table->hasIndex('foo_idx'));
-        self::assertEquals(['foo', 'foreign_key_test'], array_map('strtolower', $table->getIndex('foo_idx')->getColumns()));
+        self::assertEquals(
+            ['foo', 'foreign_key_test'],
+            array_map('strtolower', $table->getIndex('foo_idx')->getColumns())
+        );
 
         $tableDiff                            = new TableDiff('alter_table');
         $tableDiff->fromTable                 = $table;
@@ -577,15 +584,22 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         self::assertEquals(2, count($table->getIndexes()));
         self::assertTrue($table->hasIndex('bar_idx'));
         self::assertFalse($table->hasIndex('foo_idx'));
-        self::assertEquals(['foo', 'foreign_key_test'], array_map('strtolower', $table->getIndex('bar_idx')->getColumns()));
+        self::assertEquals(
+            ['foo', 'foreign_key_test'],
+            array_map('strtolower', $table->getIndex('bar_idx')->getColumns())
+        );
         self::assertFalse($table->getIndex('bar_idx')->isPrimary());
         self::assertFalse($table->getIndex('bar_idx')->isUnique());
 
         $tableDiff                            = new TableDiff('alter_table');
         $tableDiff->fromTable                 = $table;
         $tableDiff->removedIndexes['bar_idx'] = new Index('bar_idx', ['foo', 'foreign_key_test']);
-        $fk                                   = new ForeignKeyConstraint(['foreign_key_test'], 'alter_table_foreign', ['id']);
-        $tableDiff->addedForeignKeys[]        = $fk;
+
+        $tableDiff->addedForeignKeys[] = new ForeignKeyConstraint(
+            ['foreign_key_test'],
+            'alter_table_foreign',
+            ['id']
+        );
 
         $this->schemaManager->alterTable($tableDiff);
         $table = $this->schemaManager->listTableDetails('alter_table');
@@ -1198,7 +1212,9 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     public function testGenerateAnIndexWithPartialColumnLength(): void
     {
         if (! $this->schemaManager->getDatabasePlatform()->supportsColumnLengthIndexes()) {
-            self::markTestSkipped('This test is only supported on platforms that support indexes with column length definitions.');
+            self::markTestSkipped(
+                'This test is only supported on platforms that support indexes with column length definitions.'
+            );
         }
 
         $table = new Table('test_partial_column_index');
@@ -1260,7 +1276,11 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $diff = Comparator::compareSchemas($offlineSchema, $schema);
 
         foreach ($diff->changedTables as $table) {
-            if (count($table->changedForeignKeys) <= 0 && count($table->addedForeignKeys) <= 0 && count($table->removedForeignKeys) <= 0) {
+            if (
+                count($table->changedForeignKeys) <= 0
+                && count($table->addedForeignKeys) <= 0
+                && count($table->removedForeignKeys) <= 0
+            ) {
                 continue;
             }
 

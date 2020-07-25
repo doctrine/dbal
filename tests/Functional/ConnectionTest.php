@@ -140,7 +140,7 @@ class ConnectionTest extends FunctionalTestCase
             self::assertFalse($this->connection->isRollbackOnly());
             try {
                 $this->connection->setNestTransactionsWithSavepoints(false);
-                self::fail('Should not be able to disable savepoints in usage for nested transactions inside an open transaction.');
+                self::fail('Should not be able to disable savepoints in usage inside a nested open transaction.');
             } catch (ConnectionException $e) {
                 self::assertTrue($this->connection->getNestTransactionsWithSavepoints());
             }

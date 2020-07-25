@@ -11,7 +11,7 @@ use Doctrine\DBAL\Schema\Table;
 use function array_merge;
 
 /**
- * Event Arguments used when SQL queries for creating table columns are generated inside Doctrine\DBAL\Platform\AbstractPlatform.
+ * Event Arguments used when SQL queries for creating table columns are generated inside {@link AbstractPlatform}.
  */
 class SchemaCreateTableColumnEventArgs extends SchemaEventArgs
 {

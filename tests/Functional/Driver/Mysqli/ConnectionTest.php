@@ -30,11 +30,6 @@ class ConnectionTest extends FunctionalTestCase
         self::markTestSkipped('MySQLi only test.');
     }
 
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-    }
-
     public function testSupportedDriverOptions(): void
     {
         $this->expectNotToPerformAssertions();

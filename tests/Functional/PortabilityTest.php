@@ -42,8 +42,17 @@ class PortabilityTest extends FunctionalTestCase
             $sm = $this->connection->getSchemaManager();
             $sm->createTable($table);
 
-            $this->connection->insert('portability_table', ['Test_Int' => 1, 'Test_String' => 'foo', 'Test_Null' => '']);
-            $this->connection->insert('portability_table', ['Test_Int' => 2, 'Test_String' => 'foo  ', 'Test_Null' => null]);
+            $this->connection->insert('portability_table', [
+                'Test_Int' => 1,
+                'Test_String' => 'foo',
+                'Test_Null' => '',
+            ]);
+
+            $this->connection->insert('portability_table', [
+                'Test_Int' => 2,
+                'Test_String' => 'foo  ',
+                'Test_Null' => null,
+            ]);
         } catch (Throwable $e) {
         }
     }
@@ -113,7 +122,7 @@ class PortabilityTest extends FunctionalTestCase
         ));
 
         self::assertArrayHasKey('test_string', $row, 'Case should be lowered.');
-        self::assertEquals(3, strlen($row['test_string']), 'test_string should be rtrimed to length of three for CHAR(32) column.');
+        self::assertEquals(3, strlen($row['test_string']));
         self::assertNull($row['test_null']);
         self::assertArrayNotHasKey(0, $row, 'The row should not contain numerical keys.');
     }

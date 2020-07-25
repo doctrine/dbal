@@ -258,7 +258,10 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         // Adding a primary key on already indexed columns
         // Oracle will reuse the unique index, which cause a constraint name differing from the index name
-        $this->schemaManager->createConstraint(new Schema\Index('id_pk_id_index', ['id'], true, true), 'list_table_indexes_pk_id_test');
+        $this->schemaManager->createConstraint(
+            new Schema\Index('id_pk_id_index', ['id'], true, true),
+            'list_table_indexes_pk_id_test'
+        );
 
         $tableIndexes = $this->schemaManager->listTableIndexes('list_table_indexes_pk_id_test');
 
@@ -286,6 +289,8 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testCreateAndListSequences(): void
     {
-        self::markTestSkipped("Skipped for uppercase letters are contained in sequences' names. Fix the schema manager in 3.0.");
+        self::markTestSkipped(
+            "Skipped for uppercase letters are contained in sequences' names. Fix the schema manager in 3.0."
+        );
     }
 }

@@ -46,7 +46,9 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
      */
     public function getSchemaNames(): array
     {
-        return $this->_conn->fetchFirstColumn("SELECT nspname FROM pg_namespace WHERE nspname !~ '^pg_.*' AND nspname != 'information_schema'");
+        return $this->_conn->fetchFirstColumn(
+            "SELECT nspname FROM pg_namespace WHERE nspname !~ '^pg_.*' AND nspname != 'information_schema'"
+        );
     }
 
     /**
@@ -303,7 +305,9 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
 
         if (! isset($sequence['increment_by'], $sequence['min_value'])) {
             /** @var string[] $data */
-            $data = $this->_conn->fetchAssociative('SELECT min_value, increment_by FROM ' . $this->_platform->quoteIdentifier($sequenceName));
+            $data = $this->_conn->fetchAssociative(
+                'SELECT min_value, increment_by FROM ' . $this->_platform->quoteIdentifier($sequenceName)
+            );
 
             $sequence += $data;
         }
@@ -330,7 +334,11 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         $matches = [];
 
         $autoincrement = false;
-        if ($tableColumn['default'] !== null && preg_match("/^nextval\('(.*)'(::.*)?\)$/", $tableColumn['default'], $matches) === 1) {
+
+        if (
+            $tableColumn['default'] !== null
+            && preg_match("/^nextval\('(.*)'(::.*)?\)$/", $tableColumn['default'], $matches) === 1
+        ) {
             $tableColumn['sequence'] = $matches[1];
             $tableColumn['default']  = null;
             $autoincrement           = true;

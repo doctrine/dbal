@@ -9,8 +9,8 @@
     <arg name="cache" value=".phpcs-cache"/>
     <arg name="colors"/>
 
-    <!-- Ignore warnings, show progress of the run and show sniff names -->
-    <arg value="nps"/>
+    <!-- Show progress of the run and show sniff names -->
+    <arg value="ps"/>
 
     <file>bin</file>
     <file>src</file>
@@ -36,6 +36,16 @@
         <properties>
             <property name="enableNativeTypeHint" value="false"/>
         </properties>
+    </rule>
+
+    <rule ref="PSR2.Classes.PropertyDeclaration.Underscore">
+        <exclude-pattern>*/src/Configuration.php</exclude-pattern>
+        <exclude-pattern>*/src/Connection.php</exclude-pattern>
+        <exclude-pattern>*/src/Driver</exclude-pattern>
+        <exclude-pattern>*/src/Event/Listeners</exclude-pattern>
+        <exclude-pattern>*/src/Platforms</exclude-pattern>
+        <exclude-pattern>*/src/Schema</exclude-pattern>
+        <exclude-pattern>*/src/Tools/Console/Helper/ConnectionHelper.php</exclude-pattern>
     </rule>
 
     <rule ref="SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint">
@@ -119,5 +129,11 @@
          see https://docs.microsoft.com/en-us/sql/connect/php/constants-microsoft-drivers-for-php-for-sql-server -->
     <rule ref="Squiz.PHP.LowercasePHPFunctions">
         <exclude-pattern>src/Driver/SQLSrv/Statement.php</exclude-pattern>
+    </rule>
+
+    <!-- This could be considered a bug in the sniff or the shortcoming of the Platform API design
+         see https://github.com/squizlabs/PHP_CodeSniffer/issues/3035 -->
+    <rule ref="Generic.CodeAnalysis.UselessOverridingMethod.Found">
+        <exclude-pattern>src/Platforms/SqlitePlatform.php</exclude-pattern>
     </rule>
 </ruleset>

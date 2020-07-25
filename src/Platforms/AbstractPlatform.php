@@ -1071,8 +1071,12 @@ abstract class AbstractPlatform
      *
      * @throws DBALException If not supported on this platform.
      */
-    protected function getDateArithmeticIntervalExpression(string $date, string $operator, string $interval, string $unit): string
-    {
+    protected function getDateArithmeticIntervalExpression(
+        string $date,
+        string $operator,
+        string $interval,
+        string $unit
+    ): string {
         throw NotSupported::new(__METHOD__);
     }
 
@@ -1125,7 +1129,8 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Honors that some SQL vendors such as MsSql use table hints for locking instead of the ANSI SQL FOR UPDATE specification.
+     * Honors that some SQL vendors such as MsSql use table hints for locking instead of the
+     * ANSI SQL FOR UPDATE specification.
      *
      * @param string   $fromClause The FROM clause to append the hint for the given lock mode to.
      * @param int|null $lockMode   One of the Doctrine\DBAL\LockMode::* constants. If null is given, nothing will
@@ -1183,7 +1188,9 @@ abstract class AbstractPlatform
         }
 
         if (! is_string($table)) {
-            throw new InvalidArgumentException('getDropTableSQL() expects $table parameter to be string or \Doctrine\DBAL\Schema\Table.');
+            throw new InvalidArgumentException(
+                __METHOD__ . '() expects $table parameter to be string or ' . Table::class . '.'
+            );
         }
 
         if ($this->_eventManager !== null && $this->_eventManager->hasListeners(Events::onSchemaDropTable)) {
@@ -1194,7 +1201,9 @@ abstract class AbstractPlatform
                 $sql = $eventArgs->getSql();
 
                 if ($sql === null) {
-                    throw new UnexpectedValueException('Default implementation of DROP TABLE was overridden with NULL.');
+                    throw new UnexpectedValueException(
+                        'Default implementation of DROP TABLE was overridden with NULL.'
+                    );
                 }
 
                 return $sql;
@@ -1227,7 +1236,9 @@ abstract class AbstractPlatform
         if ($index instanceof Index) {
             $index = $index->getQuotedName($this);
         } elseif (! is_string($index)) {
-            throw new InvalidArgumentException('AbstractPlatform::getDropIndexSQL() expects $index parameter to be string or \Doctrine\DBAL\Schema\Index.');
+            throw new InvalidArgumentException(
+                __METHOD__ . '() expects $index parameter to be string or ' . Index::class . '.'
+            );
         }
 
         return 'DROP INDEX ' . $index;
@@ -1327,7 +1338,10 @@ abstract class AbstractPlatform
         $columns   = [];
 
         foreach ($table->getColumns() as $column) {
-            if ($this->_eventManager !== null && $this->_eventManager->hasListeners(Events::onSchemaCreateTableColumn)) {
+            if (
+                $this->_eventManager !== null
+                && $this->_eventManager->hasListeners(Events::onSchemaCreateTableColumn)
+            ) {
                 $eventArgs = new SchemaCreateTableColumnEventArgs($column, $table, $this);
                 $this->_eventManager->dispatchEvent(Events::onSchemaCreateTableColumn, $eventArgs);
 
@@ -1338,10 +1352,11 @@ abstract class AbstractPlatform
                 }
             }
 
-            $columnData            = $column->toArray();
-            $columnData['name']    = $column->getQuotedName($this);
-            $columnData['version'] = $column->hasPlatformOption('version') ? $column->getPlatformOption('version') : false;
-            $columnData['comment'] = $this->getColumnComment($column);
+            $columnData = array_merge($column->toArray(), [
+                'name' => $column->getQuotedName($this),
+                'version' => $column->hasPlatformOption('version') ? $column->getPlatformOption('version') : false,
+                'comment' => $this->getColumnComment($column),
+            ]);
 
             if (in_array($column->getName(), $options['primary'], true)) {
                 $columnData['primary'] = true;
@@ -1737,8 +1752,12 @@ abstract class AbstractPlatform
     /**
      * @param string[] $columnSql
      */
-    protected function onSchemaAlterTableRenameColumn(string $oldColumnName, Column $column, TableDiff $diff, array &$columnSql): bool
-    {
+    protected function onSchemaAlterTableRenameColumn(
+        string $oldColumnName,
+        Column $column,
+        TableDiff $diff,
+        array &$columnSql
+    ): bool {
         if ($this->_eventManager === null) {
             return false;
         }

@@ -11,6 +11,7 @@ use Doctrine\DBAL\Types\TextType;
 use Doctrine\DBAL\Types\Type;
 
 use function array_change_key_case;
+use function array_merge;
 use function array_reverse;
 use function array_values;
 use function assert;
@@ -151,10 +152,13 @@ class SqliteSchemaManager extends AbstractSchemaManager
             }
 
             foreach ($tableForeignKeys as $key => $value) {
-                $id                                        = $value['id'];
-                $tableForeignKeys[$key]['constraint_name'] = isset($names[$id]) && $names[$id] !== '' ? $names[$id] : $id;
-                $tableForeignKeys[$key]['deferrable']      = isset($deferrable[$id]) && strtolower($deferrable[$id]) === 'deferrable';
-                $tableForeignKeys[$key]['deferred']        = isset($deferred[$id]) && strtolower($deferred[$id]) === 'deferred';
+                $id = $value['id'];
+
+                $tableForeignKeys[$key] = array_merge($tableForeignKeys[$key], [
+                    'constraint_name' => isset($names[$id]) && $names[$id] !== '' ? $names[$id] : $id,
+                    'deferrable'      => isset($deferrable[$id]) && strtolower($deferrable[$id]) === 'deferrable',
+                    'deferred'        => isset($deferred[$id]) && strtolower($deferred[$id]) === 'deferred',
+                ]);
             }
         }
 
@@ -437,7 +441,8 @@ class SqliteSchemaManager extends AbstractSchemaManager
 
     private function parseColumnCollationFromSQL(string $column, string $sql): ?string
     {
-        $pattern = '{(?:\W' . preg_quote($column) . '\W|\W' . preg_quote($this->_platform->quoteSingleIdentifier($column))
+        $pattern = '{(?:\W' . preg_quote($column) . '\W|\W'
+            . preg_quote($this->_platform->quoteSingleIdentifier($column))
             . '\W)[^,(]+(?:\([^()]+\)[^,]*)?(?:(?:DEFAULT|CHECK)\s*(?:\(.*?\))?[^,]*)*COLLATE\s+["\']?([^\s,"\')]+)}is';
 
         if (preg_match($pattern, $sql, $match) !== 1) {
@@ -468,8 +473,8 @@ CREATE\sTABLE # Match "CREATE TABLE"
 
     private function parseColumnCommentFromSQL(string $column, string $sql): string
     {
-        $pattern = '{[\s(,](?:\W' . preg_quote($this->_platform->quoteSingleIdentifier($column)) . '\W|\W' . preg_quote($column)
-            . '\W)(?:\([^)]*?\)|[^,(])*?,?((?:(?!\n))(?:\s*--[^\n]*\n?)+)}i';
+        $pattern = '{[\s(,](?:\W' . preg_quote($this->_platform->quoteSingleIdentifier($column))
+            . '\W|\W' . preg_quote($column) . '\W)(?:\([^)]*?\)|[^,(])*?,?((?:(?!\n))(?:\s*--[^\n]*\n?)+)}i';
 
         if (preg_match($pattern, $sql, $match) !== 1) {
             return '';

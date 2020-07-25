@@ -820,7 +820,12 @@ class QueryBuilder
      */
     public function andWhere($predicate, ...$predicates): self
     {
-        $this->where = $this->appendToPredicate($this->where, CompositeExpression::TYPE_AND, $predicate, ...$predicates);
+        $this->where = $this->appendToPredicate(
+            $this->where,
+            CompositeExpression::TYPE_AND,
+            $predicate,
+            ...$predicates
+        );
 
         $this->state = self::STATE_DIRTY;
 
@@ -988,7 +993,12 @@ class QueryBuilder
      */
     public function andHaving($predicate, ...$predicates): self
     {
-        $this->having = $this->appendToPredicate($this->having, CompositeExpression::TYPE_AND, $predicate, ...$predicates);
+        $this->having = $this->appendToPredicate(
+            $this->having,
+            CompositeExpression::TYPE_AND,
+            $predicate,
+            ...$predicates
+        );
 
         $this->state = self::STATE_DIRTY;
 
@@ -1006,7 +1016,12 @@ class QueryBuilder
      */
     public function orHaving($predicate, ...$predicates): self
     {
-        $this->having = $this->appendToPredicate($this->having, CompositeExpression::TYPE_OR, $predicate, ...$predicates);
+        $this->having = $this->appendToPredicate(
+            $this->having,
+            CompositeExpression::TYPE_OR,
+            $predicate,
+            ...$predicates
+        );
 
         $this->state = self::STATE_DIRTY;
 
@@ -1211,7 +1226,8 @@ class QueryBuilder
      */
     private function getSQLForUpdate(): string
     {
-        $query = 'UPDATE ' . $this->table . ' SET ' . implode(', ', $this->set);
+        $query = 'UPDATE ' . $this->table
+            . ' SET ' . implode(', ', $this->set);
 
         if ($this->where !== null) {
             $query .= ' WHERE ' . $this->where;

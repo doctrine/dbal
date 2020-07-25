@@ -75,8 +75,12 @@ class OraclePlatform extends AbstractPlatform
         return sprintf('INSTR(%s, %s, %s)', $string, $substring, $start);
     }
 
-    protected function getDateArithmeticIntervalExpression(string $date, string $operator, string $interval, string $unit): string
-    {
+    protected function getDateArithmeticIntervalExpression(
+        string $date,
+        string $operator,
+        string $interval,
+        string $unit
+    ): string {
         switch ($unit) {
             case DateIntervalUnit::MONTH:
             case DateIntervalUnit::QUARTER:
@@ -437,14 +441,15 @@ class OraclePlatform extends AbstractPlatform
 
         $idx = new Index($autoincrementIdentifierName, [$quotedName], true, true);
 
-        $sql[] = 'DECLARE
+        $sql[] = "DECLARE
   constraints_Count NUMBER;
 BEGIN
-  SELECT COUNT(CONSTRAINT_NAME) INTO constraints_Count FROM USER_CONSTRAINTS WHERE TABLE_NAME = \'' . $unquotedTableName . '\' AND CONSTRAINT_TYPE = \'P\';
-  IF constraints_Count = 0 OR constraints_Count = \'\' THEN
-    EXECUTE IMMEDIATE \'' . $this->getCreateConstraintSQL($idx, $quotedTableName) . '\';
+  SELECT COUNT(CONSTRAINT_NAME) INTO constraints_Count FROM USER_CONSTRAINTS WHERE TABLE_NAME = '" . $unquotedTableName
+            . "' AND CONSTRAINT_TYPE = 'P';
+  IF constraints_Count = 0 OR constraints_Count = '' THEN
+    EXECUTE IMMEDIATE '" . $this->getCreateConstraintSQL($idx, $quotedTableName) . "';
   END IF;
-END;';
+END;";
 
         $sequenceName = $this->getIdentitySequenceName(
             $tableIdentifier->isQuoted() ? $quotedTableName : $unquotedTableName,
@@ -732,7 +737,8 @@ SQL
         }
 
         if (count($fields) > 0) {
-            $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ADD (' . implode(', ', $fields) . ')';
+            $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this)
+                . ' ADD (' . implode(', ', $fields) . ')';
         }
 
         $fields = [];
@@ -781,7 +787,8 @@ SQL
         }
 
         if (count($fields) > 0) {
-            $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' MODIFY (' . implode(', ', $fields) . ')';
+            $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this)
+                . ' MODIFY (' . implode(', ', $fields) . ')';
         }
 
         foreach ($diff->renamedColumns as $oldColumnName => $column) {
@@ -805,7 +812,8 @@ SQL
         }
 
         if (count($fields) > 0) {
-            $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' DROP (' . implode(', ', $fields) . ')';
+            $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this)
+                . ' DROP (' . implode(', ', $fields) . ')';
         }
 
         $tableSql = [];
@@ -1058,7 +1066,9 @@ SQL
 
         if ($database !== null && $database !== '/') {
             $tableCommentsName = 'all_tab_comments';
-            $ownerCondition    = ' AND owner = ' . $this->quoteStringLiteral($this->normalizeIdentifier($database)->getName());
+            $ownerCondition    = ' AND owner = ' . $this->quoteStringLiteral(
+                $this->normalizeIdentifier($database)->getName()
+            );
         }
 
         return sprintf(

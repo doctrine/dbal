@@ -49,7 +49,12 @@ class DataAccessTest extends FunctionalTestCase
         $sm = $this->connection->getSchemaManager();
         $sm->createTable($table);
 
-        $this->connection->insert('fetch_table', ['test_int' => 1, 'test_string' => 'foo', 'test_datetime' => '2010-01-01 10:10:10']);
+        $this->connection->insert('fetch_table', [
+            'test_int' => 1,
+            'test_string' => 'foo',
+            'test_datetime' => '2010-01-01 10:10:10',
+        ]);
+
         self::$generated = true;
     }
 
@@ -183,7 +188,7 @@ class DataAccessTest extends FunctionalTestCase
     public function testFetchNoResult(): void
     {
         self::assertFalse(
-            $this->connection->executeQuery('SELECT test_int FROM fetch_table WHERE test_int = ?', [-1])->fetchAssociative()
+            $this->connection->fetchAssociative('SELECT test_int FROM fetch_table WHERE test_int = ?', [-1])
         );
     }
 
@@ -328,7 +333,11 @@ class DataAccessTest extends FunctionalTestCase
     public function testNativeArrayListSupport(): void
     {
         for ($i = 100; $i < 110; $i++) {
-            $this->connection->insert('fetch_table', ['test_int' => $i, 'test_string' => 'foo' . $i, 'test_datetime' => '2010-01-01 10:10:10']);
+            $this->connection->insert('fetch_table', [
+                'test_int' => $i,
+                'test_string' => 'foo' . $i,
+                'test_datetime' => '2010-01-01 10:10:10',
+            ]);
         }
 
         $result = $this->connection->executeQuery(
@@ -682,8 +691,13 @@ class DataAccessTest extends FunctionalTestCase
      * @param int      $interval   Interval value
      * @param string   $expected   Expected value
      */
-    private function assertDateExpression(callable $buildQuery, callable $bindParams, callable $expression, int $interval, string $expected): void
-    {
+    private function assertDateExpression(
+        callable $buildQuery,
+        callable $bindParams,
+        callable $expression,
+        int $interval,
+        string $expected
+    ): void {
         $connection = $this->connection;
         $platform   = $connection->getDatabasePlatform();
 

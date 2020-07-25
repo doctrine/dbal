@@ -49,8 +49,14 @@ class Index extends AbstractAsset implements Constraint
      * @param array<int, string>   $flags
      * @param array<string, mixed> $options
      */
-    public function __construct(?string $name, array $columns, bool $isUnique = false, bool $isPrimary = false, array $flags = [], array $options = [])
-    {
+    public function __construct(
+        ?string $name,
+        array $columns,
+        bool $isUnique = false,
+        bool $isPrimary = false,
+        array $flags = [],
+        array $options = []
+    ) {
         $isUnique = $isUnique || $isPrimary;
 
         if ($name !== null) {
@@ -154,7 +160,10 @@ class Index extends AbstractAsset implements Constraint
         $sameColumns     = true;
 
         for ($i = 0; $i < $numberOfColumns; $i++) {
-            if (isset($columnNames[$i]) && $this->trimQuotes(strtolower($columns[$i])) === $this->trimQuotes(strtolower($columnNames[$i]))) {
+            if (
+                isset($columnNames[$i])
+                && $this->trimQuotes(strtolower($columns[$i])) === $this->trimQuotes(strtolower($columnNames[$i]))
+            ) {
                 continue;
             }
 
@@ -218,7 +227,9 @@ class Index extends AbstractAsset implements Constraint
             return false;
         }
 
-        return $this->spansColumns($other->getColumns()) && ($this->isPrimary() || $this->isUnique()) && $this->samePartialIndex($other);
+        return $this->spansColumns($other->getColumns())
+            && ($this->isPrimary() || $this->isUnique())
+            && $this->samePartialIndex($other);
     }
 
     /**
@@ -285,7 +296,11 @@ class Index extends AbstractAsset implements Constraint
      */
     private function samePartialIndex(Index $other): bool
     {
-        if ($this->hasOption('where') && $other->hasOption('where') && $this->getOption('where') === $other->getOption('where')) {
+        if (
+            $this->hasOption('where')
+            && $other->hasOption('where')
+            && $this->getOption('where') === $other->getOption('where')
+        ) {
             return true;
         }
 
