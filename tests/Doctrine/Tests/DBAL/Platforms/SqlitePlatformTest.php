@@ -42,9 +42,9 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
 
     public function testGeneratesSqlSnippets(): void
     {
-        self::assertEquals('REGEXP', $this->platform->getRegexpExpression(), 'Regular expression operator is not correct');
-        self::assertEquals('SUBSTR(column, 5, LENGTH(column))', $this->platform->getSubstringExpression('column', 5), 'Substring expression without length is not correct');
-        self::assertEquals('SUBSTR(column, 0, 5)', $this->platform->getSubstringExpression('column', 0, 5), 'Substring expression with length is not correct');
+        self::assertEquals('REGEXP', $this->platform->getRegexpExpression());
+        self::assertEquals('SUBSTR(column, 5, LENGTH(column))', $this->platform->getSubstringExpression('column', 5));
+        self::assertEquals('SUBSTR(column, 0, 5)', $this->platform->getSubstringExpression('column', 0, 5));
     }
 
     public function testGeneratesTransactionCommands(): void
@@ -236,13 +236,11 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         );
         self::assertEquals(
             'VARCHAR(50)',
-            $this->platform->getVarcharTypeDeclarationSQL(['length' => 50]),
-            'Variable string declaration is not correct'
+            $this->platform->getVarcharTypeDeclarationSQL(['length' => 50])
         );
         self::assertEquals(
             'VARCHAR(255)',
-            $this->platform->getVarcharTypeDeclarationSQL([]),
-            'Long string declaration is not correct'
+            $this->platform->getVarcharTypeDeclarationSQL([])
         );
     }
 
@@ -301,7 +299,10 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         return [
             'CREATE TEMPORARY TABLE __temp__mytable AS SELECT id, bar, bloo FROM mytable',
             'DROP TABLE mytable',
-            "CREATE TABLE mytable (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, baz VARCHAR(255) DEFAULT 'def' NOT NULL, bloo BOOLEAN DEFAULT '0' NOT NULL, quota INTEGER DEFAULT NULL)",
+            'CREATE TABLE mytable (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, '
+                . "baz VARCHAR(255) DEFAULT 'def' NOT NULL, "
+                . "bloo BOOLEAN DEFAULT '0' NOT NULL, "
+                . 'quota INTEGER DEFAULT NULL)',
             'INSERT INTO mytable (id, baz, bloo) SELECT id, bar, bloo FROM __temp__mytable',
             'DROP TABLE __temp__mytable',
             'ALTER TABLE mytable RENAME TO userlist',
@@ -323,9 +324,13 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
 
     public function testAlterTableAddColumns(): void
     {
-        $diff                        = new TableDiff('user');
+        $diff = new TableDiff('user');
+
         $diff->addedColumns['foo']   = new Column('foo', Type::getType('string'));
-        $diff->addedColumns['count'] = new Column('count', Type::getType('integer'), ['notnull' => false, 'default' => 1]);
+        $diff->addedColumns['count'] = new Column('count', Type::getType('integer'), [
+            'notnull' => false,
+            'default' => 1,
+        ]);
 
         $expected = [
             'ALTER TABLE user ADD COLUMN foo VARCHAR(255) NOT NULL',
@@ -378,9 +383,12 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
             'CREATE TABLE user ('
                 . 'id INTEGER NOT NULL, article INTEGER NOT NULL, post INTEGER NOT NULL, parent INTEGER NOT NULL'
                 . ', PRIMARY KEY(id)'
-                . ', CONSTRAINT FK_8D93D64923A0E66 FOREIGN KEY (article) REFERENCES article (id) DEFERRABLE INITIALLY IMMEDIATE'
-                . ', CONSTRAINT FK_8D93D6495A8A6C8D FOREIGN KEY (post) REFERENCES post (id) NOT DEFERRABLE INITIALLY DEFERRED'
-                . ', CONSTRAINT FK_8D93D6493D8E604F FOREIGN KEY (parent) REFERENCES user (id) DEFERRABLE INITIALLY DEFERRED'
+                . ', CONSTRAINT FK_8D93D64923A0E66 FOREIGN KEY (article)'
+                . ' REFERENCES article (id) DEFERRABLE INITIALLY IMMEDIATE'
+                . ', CONSTRAINT FK_8D93D6495A8A6C8D FOREIGN KEY (post)'
+                . ' REFERENCES post (id) NOT DEFERRABLE INITIALLY DEFERRED'
+                . ', CONSTRAINT FK_8D93D6493D8E604F FOREIGN KEY (parent)'
+                . ' REFERENCES user (id) DEFERRABLE INITIALLY DEFERRED'
                 . ')',
             'CREATE INDEX IDX_8D93D64923A0E66 ON user (article)',
             'CREATE INDEX IDX_8D93D6495A8A6C8D ON user (post)',
@@ -421,8 +429,10 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
             'CREATE TABLE user ('
                 . '"key" INTEGER NOT NULL, article INTEGER NOT NULL, comment INTEGER NOT NULL'
                 . ', PRIMARY KEY("key")'
-                . ', CONSTRAINT FK_8D93D64923A0E66 FOREIGN KEY (article) REFERENCES article (id) DEFERRABLE INITIALLY IMMEDIATE'
-                . ', CONSTRAINT FK_8D93D6495A8A6C8D FOREIGN KEY (comment) REFERENCES post (id) NOT DEFERRABLE INITIALLY DEFERRED'
+                . ', CONSTRAINT FK_8D93D64923A0E66 FOREIGN KEY (article)'
+                . ' REFERENCES article (id) DEFERRABLE INITIALLY IMMEDIATE'
+                . ', CONSTRAINT FK_8D93D6495A8A6C8D FOREIGN KEY (comment)'
+                . ' REFERENCES post (id) NOT DEFERRABLE INITIALLY DEFERRED'
                 . ')',
             'INSERT INTO user ("key", article, comment) SELECT id, article, post FROM __temp__user',
             'DROP TABLE __temp__user',
@@ -472,9 +482,12 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         return [
             'CREATE TABLE "quoted" (' .
             '"create" VARCHAR(255) NOT NULL, foo VARCHAR(255) NOT NULL, "bar" VARCHAR(255) NOT NULL, ' .
-            'CONSTRAINT FK_WITH_RESERVED_KEYWORD FOREIGN KEY ("create", foo, "bar") REFERENCES "foreign" ("create", bar, "foo-bar") NOT DEFERRABLE INITIALLY IMMEDIATE, ' .
-            'CONSTRAINT FK_WITH_NON_RESERVED_KEYWORD FOREIGN KEY ("create", foo, "bar") REFERENCES foo ("create", bar, "foo-bar") NOT DEFERRABLE INITIALLY IMMEDIATE, ' .
-            'CONSTRAINT FK_WITH_INTENDED_QUOTATION FOREIGN KEY ("create", foo, "bar") REFERENCES "foo-bar" ("create", bar, "foo-bar") NOT DEFERRABLE INITIALLY IMMEDIATE)',
+            'CONSTRAINT FK_WITH_RESERVED_KEYWORD FOREIGN KEY ("create", foo, "bar") ' .
+            'REFERENCES "foreign" ("create", bar, "foo-bar") NOT DEFERRABLE INITIALLY IMMEDIATE, ' .
+            'CONSTRAINT FK_WITH_NON_RESERVED_KEYWORD FOREIGN KEY ("create", foo, "bar") ' .
+            'REFERENCES foo ("create", bar, "foo-bar") NOT DEFERRABLE INITIALLY IMMEDIATE, ' .
+            'CONSTRAINT FK_WITH_INTENDED_QUOTATION FOREIGN KEY ("create", foo, "bar") ' .
+            'REFERENCES "foo-bar" ("create", bar, "foo-bar") NOT DEFERRABLE INITIALLY IMMEDIATE)',
         ];
     }
 
@@ -536,7 +549,8 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     protected function getQuotedAlterTableRenameColumnSQL(): array
     {
         return [
-            'CREATE TEMPORARY TABLE __temp__mytable AS SELECT unquoted1, unquoted2, unquoted3, "create", "table", "select", "quoted1", "quoted2", "quoted3" FROM mytable',
+            'CREATE TEMPORARY TABLE __temp__mytable AS SELECT unquoted1, unquoted2, unquoted3, '
+                . '"create", "table", "select", "quoted1", "quoted2", "quoted3" FROM mytable',
             'DROP TABLE mytable',
             'CREATE TABLE mytable (unquoted INTEGER NOT NULL --Unquoted 1
 , "where" INTEGER NOT NULL --Unquoted 2
@@ -548,7 +562,9 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
 , "and" INTEGER NOT NULL --Quoted 2
 , "baz" INTEGER NOT NULL --Quoted 3
 )',
-            'INSERT INTO mytable (unquoted, "where", "foo", reserved_keyword, "from", "bar", quoted, "and", "baz") SELECT unquoted1, unquoted2, unquoted3, "create", "table", "select", "quoted1", "quoted2", "quoted3" FROM __temp__mytable',
+            'INSERT INTO mytable (unquoted, "where", "foo", reserved_keyword, "from", "bar", quoted, "and", "baz") '
+                . 'SELECT unquoted1, unquoted2, unquoted3, "create", "table", "select", '
+                . '"quoted1", "quoted2", "quoted3" FROM __temp__mytable',
             'DROP TABLE __temp__mytable',
         ];
     }
@@ -559,7 +575,8 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     protected function getQuotedAlterTableChangeColumnLengthSQL(): array
     {
         return [
-            'CREATE TEMPORARY TABLE __temp__mytable AS SELECT unquoted1, unquoted2, unquoted3, "create", "table", "select" FROM mytable',
+            'CREATE TEMPORARY TABLE __temp__mytable AS SELECT unquoted1, unquoted2, unquoted3, '
+                . '"create", "table", "select" FROM mytable',
             'DROP TABLE mytable',
             'CREATE TABLE mytable (unquoted1 VARCHAR(255) NOT NULL --Unquoted 1
 , unquoted2 VARCHAR(255) NOT NULL --Unquoted 2
@@ -568,7 +585,8 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
 , "table" VARCHAR(255) NOT NULL --Reserved keyword 2
 , "select" VARCHAR(255) NOT NULL --Reserved keyword 3
 )',
-            'INSERT INTO mytable (unquoted1, unquoted2, unquoted3, "create", "table", "select") SELECT unquoted1, unquoted2, unquoted3, "create", "table", "select" FROM __temp__mytable',
+            'INSERT INTO mytable (unquoted1, unquoted2, unquoted3, "create", "table", "select") '
+                . 'SELECT unquoted1, unquoted2, unquoted3, "create", "table", "select" FROM __temp__mytable',
             'DROP TABLE __temp__mytable',
         ];
     }
@@ -619,8 +637,8 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
             'DROP INDEX IDX_8C736521FDC58D6C',
             'CREATE TEMPORARY TABLE __temp__foo AS SELECT fk, fk2, id, fk3, bar FROM "foo"',
             'DROP TABLE "foo"',
-            'CREATE TABLE "foo" (fk2 INTEGER NOT NULL, fk3 INTEGER NOT NULL, fk INTEGER NOT NULL, war INTEGER NOT NULL, ' .
-            'bar INTEGER DEFAULT NULL, bloo INTEGER NOT NULL, ' .
+            'CREATE TABLE "foo" (fk2 INTEGER NOT NULL, fk3 INTEGER NOT NULL, fk INTEGER NOT NULL, ' .
+            'war INTEGER NOT NULL, bar INTEGER DEFAULT NULL, bloo INTEGER NOT NULL, ' .
             'CONSTRAINT fk2 FOREIGN KEY (fk2) REFERENCES fk_table2 (id) NOT DEFERRABLE INITIALLY IMMEDIATE, ' .
             'CONSTRAINT fk_add FOREIGN KEY (fk3) REFERENCES fk_table (id) NOT DEFERRABLE INITIALLY IMMEDIATE)',
             'INSERT INTO "foo" (fk, fk2, war, fk3, bar) SELECT fk, fk2, id, fk3, bar FROM __temp__foo',
@@ -702,7 +720,11 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
             'DROP INDEX idx_bar',
             'CREATE TEMPORARY TABLE __temp__mytable AS SELECT foo, bar, baz FROM mytable',
             'DROP TABLE mytable',
-            'CREATE TABLE mytable (foo INTEGER NOT NULL, bar INTEGER NOT NULL, baz INTEGER NOT NULL, CONSTRAINT fk_foo FOREIGN KEY (foo) REFERENCES foreign_table (id) NOT DEFERRABLE INITIALLY IMMEDIATE, CONSTRAINT fk_bar FOREIGN KEY (bar) REFERENCES foreign_table (id) NOT DEFERRABLE INITIALLY IMMEDIATE)',
+            'CREATE TABLE mytable (foo INTEGER NOT NULL, bar INTEGER NOT NULL, baz INTEGER NOT NULL, '
+                . 'CONSTRAINT fk_foo FOREIGN KEY (foo) REFERENCES foreign_table (id)'
+                . ' NOT DEFERRABLE INITIALLY IMMEDIATE, '
+                . 'CONSTRAINT fk_bar FOREIGN KEY (bar) REFERENCES foreign_table (id)'
+                . ' NOT DEFERRABLE INITIALLY IMMEDIATE)',
             'INSERT INTO mytable (foo, bar, baz) SELECT foo, bar, baz FROM __temp__mytable',
             'DROP TABLE __temp__mytable',
             'CREATE INDEX idx_bar ON mytable (bar)',
@@ -744,12 +766,18 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
 
     public function testDateAddStaticNumberOfDays(): void
     {
-        self::assertSame("DATE(rentalBeginsOn,'+12 DAY')", $this->platform->getDateAddDaysExpression('rentalBeginsOn', 12));
+        self::assertSame(
+            "DATE(rentalBeginsOn,'+12 DAY')",
+            $this->platform->getDateAddDaysExpression('rentalBeginsOn', 12)
+        );
     }
 
     public function testDateAddNumberOfDaysFromColumn(): void
     {
-        self::assertSame("DATE(rentalBeginsOn,'+' || duration || ' DAY')", $this->platform->getDateAddDaysExpression('rentalBeginsOn', 'duration'));
+        self::assertSame(
+            "DATE(rentalBeginsOn,'+' || duration || ' DAY')",
+            $this->platform->getDateAddDaysExpression('rentalBeginsOn', 'duration')
+        );
     }
 
     public function testSupportsColumnCollation(): void
@@ -772,9 +800,11 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         $table->addColumn('column_collation', 'string')->setPlatformOption('collation', 'NOCASE');
 
         self::assertSame(
-            ['CREATE TABLE foo (no_collation VARCHAR(255) NOT NULL, column_collation VARCHAR(255) NOT NULL COLLATE NOCASE)'],
-            $this->platform->getCreateTableSQL($table),
-            'Column "no_collation" will use the default collation (BINARY) and "column_collation" overwrites the collation on this column'
+            [
+                'CREATE TABLE foo (no_collation VARCHAR(255) NOT NULL, '
+                    . 'column_collation VARCHAR(255) NOT NULL COLLATE NOCASE)',
+            ],
+            $this->platform->getCreateTableSQL($table)
         );
     }
 }

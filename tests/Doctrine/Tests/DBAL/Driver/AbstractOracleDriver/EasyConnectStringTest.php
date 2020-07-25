@@ -45,7 +45,8 @@ class EasyConnectStringTest extends TestCase
                     'service' => true,
                     'servicename' => 'BILLING',
                 ],
-                '(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=BILLING)))',
+                '(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=1521))'
+                    . '(CONNECT_DATA=(SERVICE_NAME=BILLING)))',
             ],
             'advanced-params' => [
                 [
@@ -55,7 +56,8 @@ class EasyConnectStringTest extends TestCase
                     'instancename' => 'SALES',
                     'pooled' => true,
                 ],
-                '(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=41521))(CONNECT_DATA=(SID=XE)(INSTANCE_NAME=SALES)(SERVER=POOLED)))',
+                '(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=41521))'
+                    . '(CONNECT_DATA=(SID=XE)(INSTANCE_NAME=SALES)(SERVER=POOLED)))',
             ],
         ];
     }

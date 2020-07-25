@@ -170,7 +170,9 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     public function bindParam($param, &$variable, $type = ParameterType::STRING, $length = null)
     {
         if (! is_numeric($param)) {
-            throw new SQLSrvException('sqlsrv does not support named parameters to queries, use question mark (?) placeholders instead.');
+            throw new SQLSrvException(
+                'sqlsrv does not support named parameters to queries, use question mark (?) placeholders instead.'
+            );
         }
 
         $this->variables[$param] =& $variable;

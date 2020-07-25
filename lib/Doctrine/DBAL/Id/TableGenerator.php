@@ -75,7 +75,8 @@ class TableGenerator
             throw new DBALException('Cannot use TableGenerator with SQLite.');
         }
 
-        $this->conn               = DriverManager::getConnection($params, $conn->getConfiguration(), $conn->getEventManager());
+        $this->conn = DriverManager::getConnection($params, $conn->getConfiguration(), $conn->getEventManager());
+
         $this->generatorTableName = $generatorTableName;
     }
 
@@ -145,7 +146,11 @@ class TableGenerator
         } catch (Throwable $e) {
             $this->conn->rollBack();
 
-            throw new DBALException('Error occurred while generating ID with TableGenerator, aborted generation: ' . $e->getMessage(), 0, $e);
+            throw new DBALException(
+                'Error occurred while generating ID with TableGenerator, aborted generation: ' . $e->getMessage(),
+                0,
+                $e
+            );
         }
 
         return $value;

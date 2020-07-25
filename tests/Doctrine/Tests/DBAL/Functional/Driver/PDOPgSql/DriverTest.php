@@ -31,8 +31,11 @@ class DriverTest extends AbstractDriverTest
     /**
      * @dataProvider getDatabaseParameter
      */
-    public function testDatabaseParameters(?string $databaseName, ?string $defaultDatabaseName, ?string $expectedDatabaseName): void
-    {
+    public function testDatabaseParameters(
+        ?string $databaseName,
+        ?string $defaultDatabaseName,
+        ?string $expectedDatabaseName
+    ): void {
         $params                   = $this->connection->getParams();
         $params['dbname']         = $databaseName;
         $params['default_dbname'] = $defaultDatabaseName;

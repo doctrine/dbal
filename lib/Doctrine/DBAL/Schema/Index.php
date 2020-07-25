@@ -54,8 +54,14 @@ class Index extends AbstractAsset implements Constraint
      * @param string[] $flags
      * @param mixed[]  $options
      */
-    public function __construct($name, array $columns, $isUnique = false, $isPrimary = false, array $flags = [], array $options = [])
-    {
+    public function __construct(
+        $name,
+        array $columns,
+        $isUnique = false,
+        $isPrimary = false,
+        array $flags = [],
+        array $options = []
+    ) {
         $isUnique = $isUnique || $isPrimary;
 
         $this->_setName($name);
@@ -183,7 +189,10 @@ class Index extends AbstractAsset implements Constraint
         $sameColumns     = true;
 
         for ($i = 0; $i < $numberOfColumns; $i++) {
-            if (isset($columnNames[$i]) && $this->trimQuotes(strtolower($columns[$i])) === $this->trimQuotes(strtolower($columnNames[$i]))) {
+            if (
+                isset($columnNames[$i])
+                && $this->trimQuotes(strtolower($columns[$i])) === $this->trimQuotes(strtolower($columnNames[$i]))
+            ) {
                 continue;
             }
 
@@ -251,7 +260,9 @@ class Index extends AbstractAsset implements Constraint
             return false;
         }
 
-        return $this->spansColumns($other->getColumns()) && ($this->isPrimary() || $this->isUnique()) && $this->samePartialIndex($other);
+        return $this->spansColumns($other->getColumns())
+            && ($this->isPrimary() || $this->isUnique())
+            && $this->samePartialIndex($other);
     }
 
     /**
@@ -339,7 +350,11 @@ class Index extends AbstractAsset implements Constraint
      */
     private function samePartialIndex(Index $other)
     {
-        if ($this->hasOption('where') && $other->hasOption('where') && $this->getOption('where') === $other->getOption('where')) {
+        if (
+            $this->hasOption('where')
+            && $other->hasOption('where')
+            && $this->getOption('where') === $other->getOption('where')
+        ) {
             return true;
         }
 

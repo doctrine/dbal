@@ -39,7 +39,8 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
     public function getGenerateAlterTableSql(): array
     {
         return [
-            "ALTER TABLE mytable ADD quota INT DEFAULT NULL, DROP foo, ALTER baz VARCHAR(1) DEFAULT 'def' NOT NULL, ALTER bloo BIT DEFAULT '0' NOT NULL",
+            "ALTER TABLE mytable ADD quota INT DEFAULT NULL, DROP foo, ALTER baz VARCHAR(1) DEFAULT 'def' NOT NULL, "
+                . "ALTER bloo BIT DEFAULT '0' NOT NULL",
             'ALTER TABLE mytable RENAME userlist',
         ];
     }
@@ -80,7 +81,15 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
      */
     protected function getQuotedColumnInForeignKeySQL(): array
     {
-        return ['CREATE TABLE "quoted" ("create" VARCHAR(255) NOT NULL, foo VARCHAR(255) NOT NULL, "bar" VARCHAR(255) NOT NULL, CONSTRAINT FK_WITH_RESERVED_KEYWORD FOREIGN KEY ("create", foo, "bar") REFERENCES "foreign" ("create", bar, "foo-bar"), CONSTRAINT FK_WITH_NON_RESERVED_KEYWORD FOREIGN KEY ("create", foo, "bar") REFERENCES foo ("create", bar, "foo-bar"), CONSTRAINT FK_WITH_INTENDED_QUOTATION FOREIGN KEY ("create", foo, "bar") REFERENCES "foo-bar" ("create", bar, "foo-bar"))'];
+        return ['CREATE TABLE "quoted" ("create" VARCHAR(255) NOT NULL, foo VARCHAR(255) NOT NULL, '
+                . '"bar" VARCHAR(255) NOT NULL, '
+                . 'CONSTRAINT FK_WITH_RESERVED_KEYWORD FOREIGN KEY ("create", foo, "bar") '
+                . 'REFERENCES "foreign" ("create", bar, "foo-bar"), '
+                . 'CONSTRAINT FK_WITH_NON_RESERVED_KEYWORD FOREIGN KEY ("create", foo, "bar") '
+                . 'REFERENCES foo ("create", bar, "foo-bar"), '
+                . 'CONSTRAINT FK_WITH_INTENDED_QUOTATION FOREIGN KEY ("create", foo, "bar") '
+                . 'REFERENCES "foo-bar" ("create", bar, "foo-bar"))',
+        ];
     }
 
     /**
@@ -189,9 +198,11 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         );
 
         self::assertEquals(
-            ['CREATE TABLE test (id INT NOT NULL, fk_1 INT NOT NULL, fk_2 INT NOT NULL, ' .
-                'CONSTRAINT FK_D87F7E0C177612A38E7F4319 FOREIGN KEY (fk_1, fk_2) REFERENCES foreign_table (pk_1, pk_2), ' .
-                'CONSTRAINT named_fk FOREIGN KEY (fk_1, fk_2) REFERENCES foreign_table2 (pk_1, pk_2))',
+            [
+                'CREATE TABLE test (id INT NOT NULL, fk_1 INT NOT NULL, fk_2 INT NOT NULL, '
+                . 'CONSTRAINT FK_D87F7E0C177612A38E7F4319 FOREIGN KEY (fk_1, fk_2) '
+                . 'REFERENCES foreign_table (pk_1, pk_2), '
+                . 'CONSTRAINT named_fk FOREIGN KEY (fk_1, fk_2) REFERENCES foreign_table2 (pk_1, pk_2))',
             ],
             $this->platform->getCreateTableSQL($table, AbstractPlatform::CREATE_FOREIGNKEYS)
         );
@@ -206,7 +217,10 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         $table->setPrimaryKey(['id']);
 
         self::assertEquals(
-            ['CREATE TABLE test (id INT NOT NULL, check_max INT NOT NULL, check_min INT NOT NULL, PRIMARY KEY (id), CHECK (check_max <= 10), CHECK (check_min >= 10))'],
+            [
+                'CREATE TABLE test (id INT NOT NULL, check_max INT NOT NULL, check_min INT NOT NULL, '
+                    . 'PRIMARY KEY (id), CHECK (check_max <= 10), CHECK (check_min >= 10))',
+            ],
             $this->platform->getCreateTableSQL($table)
         );
     }
@@ -297,7 +311,11 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
         self::assertEquals('SMALLINT', $this->platform->getSmallIntTypeDeclarationSQL([]));
         self::assertEquals('UNSIGNED SMALLINT', $this->platform->getSmallIntTypeDeclarationSQL(['unsigned' => true]));
-        self::assertEquals('UNSIGNED SMALLINT IDENTITY', $this->platform->getSmallIntTypeDeclarationSQL($fullColumnDef));
+        self::assertEquals(
+            'UNSIGNED SMALLINT IDENTITY',
+            $this->platform->getSmallIntTypeDeclarationSQL($fullColumnDef)
+        );
+
         self::assertEquals('INT', $this->platform->getIntegerTypeDeclarationSQL([]));
         self::assertEquals('UNSIGNED INT', $this->platform->getIntegerTypeDeclarationSQL(['unsigned' => true]));
         self::assertEquals('UNSIGNED INT IDENTITY', $this->platform->getIntegerTypeDeclarationSQL($fullColumnDef));
@@ -340,7 +358,10 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         self::assertEquals('TRUNCATE TABLE foobar', $this->platform->getTruncateTableSQL('foobar'), true);
 
         $viewSql = 'SELECT * FROM footable';
-        self::assertEquals('CREATE VIEW fooview AS ' . $viewSql, $this->platform->getCreateViewSQL('fooview', $viewSql));
+        self::assertEquals(
+            'CREATE VIEW fooview AS ' . $viewSql,
+            $this->platform->getCreateViewSQL('fooview', $viewSql)
+        );
         self::assertEquals('DROP VIEW fooview', $this->platform->getDropViewSQL('fooview'));
     }
 
@@ -549,29 +570,106 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         self::assertEquals('CURRENT DATE', $this->platform->getCurrentDateSQL());
         self::assertEquals('CURRENT TIME', $this->platform->getCurrentTimeSQL());
         self::assertEquals('CURRENT TIMESTAMP', $this->platform->getCurrentTimestampSQL());
-        self::assertEquals("DATEADD(DAY, 4, '1987/05/02')", $this->platform->getDateAddDaysExpression("'1987/05/02'", 4));
-        self::assertEquals("DATEADD(HOUR, 12, '1987/05/02')", $this->platform->getDateAddHourExpression("'1987/05/02'", 12));
-        self::assertEquals("DATEADD(MINUTE, 2, '1987/05/02')", $this->platform->getDateAddMinutesExpression("'1987/05/02'", 2));
-        self::assertEquals("DATEADD(MONTH, 102, '1987/05/02')", $this->platform->getDateAddMonthExpression("'1987/05/02'", 102));
-        self::assertEquals("DATEADD(QUARTER, 5, '1987/05/02')", $this->platform->getDateAddQuartersExpression("'1987/05/02'", 5));
-        self::assertEquals("DATEADD(SECOND, 1, '1987/05/02')", $this->platform->getDateAddSecondsExpression("'1987/05/02'", 1));
-        self::assertEquals("DATEADD(WEEK, 3, '1987/05/02')", $this->platform->getDateAddWeeksExpression("'1987/05/02'", 3));
-        self::assertEquals("DATEADD(YEAR, 10, '1987/05/02')", $this->platform->getDateAddYearsExpression("'1987/05/02'", 10));
-        self::assertEquals("DATEDIFF(day, '1987/04/01', '1987/05/02')", $this->platform->getDateDiffExpression("'1987/05/02'", "'1987/04/01'"));
-        self::assertEquals("DATEADD(DAY, -1 * 4, '1987/05/02')", $this->platform->getDateSubDaysExpression("'1987/05/02'", 4));
-        self::assertEquals("DATEADD(HOUR, -1 * 12, '1987/05/02')", $this->platform->getDateSubHourExpression("'1987/05/02'", 12));
-        self::assertEquals("DATEADD(MINUTE, -1 * 2, '1987/05/02')", $this->platform->getDateSubMinutesExpression("'1987/05/02'", 2));
-        self::assertEquals("DATEADD(MONTH, -1 * 102, '1987/05/02')", $this->platform->getDateSubMonthExpression("'1987/05/02'", 102));
-        self::assertEquals("DATEADD(QUARTER, -1 * 5, '1987/05/02')", $this->platform->getDateSubQuartersExpression("'1987/05/02'", 5));
-        self::assertEquals("DATEADD(SECOND, -1 * 1, '1987/05/02')", $this->platform->getDateSubSecondsExpression("'1987/05/02'", 1));
-        self::assertEquals("DATEADD(WEEK, -1 * 3, '1987/05/02')", $this->platform->getDateSubWeeksExpression("'1987/05/02'", 3));
-        self::assertEquals("DATEADD(YEAR, -1 * 10, '1987/05/02')", $this->platform->getDateSubYearsExpression("'1987/05/02'", 10));
+        self::assertEquals(
+            "DATEADD(DAY, 4, '1987/05/02')",
+            $this->platform->getDateAddDaysExpression("'1987/05/02'", 4)
+        );
+
+        self::assertEquals(
+            "DATEADD(HOUR, 12, '1987/05/02')",
+            $this->platform->getDateAddHourExpression("'1987/05/02'", 12)
+        );
+
+        self::assertEquals(
+            "DATEADD(MINUTE, 2, '1987/05/02')",
+            $this->platform->getDateAddMinutesExpression("'1987/05/02'", 2)
+        );
+
+        self::assertEquals(
+            "DATEADD(MONTH, 102, '1987/05/02')",
+            $this->platform->getDateAddMonthExpression("'1987/05/02'", 102)
+        );
+
+        self::assertEquals(
+            "DATEADD(QUARTER, 5, '1987/05/02')",
+            $this->platform->getDateAddQuartersExpression("'1987/05/02'", 5)
+        );
+
+        self::assertEquals(
+            "DATEADD(SECOND, 1, '1987/05/02')",
+            $this->platform->getDateAddSecondsExpression("'1987/05/02'", 1)
+        );
+
+        self::assertEquals(
+            "DATEADD(WEEK, 3, '1987/05/02')",
+            $this->platform->getDateAddWeeksExpression("'1987/05/02'", 3)
+        );
+
+        self::assertEquals(
+            "DATEADD(YEAR, 10, '1987/05/02')",
+            $this->platform->getDateAddYearsExpression("'1987/05/02'", 10)
+        );
+
+        self::assertEquals(
+            "DATEDIFF(day, '1987/04/01', '1987/05/02')",
+            $this->platform->getDateDiffExpression("'1987/05/02'", "'1987/04/01'")
+        );
+
+        self::assertEquals(
+            "DATEADD(DAY, -1 * 4, '1987/05/02')",
+            $this->platform->getDateSubDaysExpression("'1987/05/02'", 4)
+        );
+
+        self::assertEquals(
+            "DATEADD(HOUR, -1 * 12, '1987/05/02')",
+            $this->platform->getDateSubHourExpression("'1987/05/02'", 12)
+        );
+
+        self::assertEquals(
+            "DATEADD(MINUTE, -1 * 2, '1987/05/02')",
+            $this->platform->getDateSubMinutesExpression("'1987/05/02'", 2)
+        );
+
+        self::assertEquals(
+            "DATEADD(MONTH, -1 * 102, '1987/05/02')",
+            $this->platform->getDateSubMonthExpression("'1987/05/02'", 102)
+        );
+
+        self::assertEquals(
+            "DATEADD(QUARTER, -1 * 5, '1987/05/02')",
+            $this->platform->getDateSubQuartersExpression("'1987/05/02'", 5)
+        );
+
+        self::assertEquals(
+            "DATEADD(SECOND, -1 * 1, '1987/05/02')",
+            $this->platform->getDateSubSecondsExpression("'1987/05/02'", 1)
+        );
+
+        self::assertEquals(
+            "DATEADD(WEEK, -1 * 3, '1987/05/02')",
+            $this->platform->getDateSubWeeksExpression("'1987/05/02'", 3)
+        );
+
+        self::assertEquals(
+            "DATEADD(YEAR, -1 * 10, '1987/05/02')",
+            $this->platform->getDateSubYearsExpression("'1987/05/02'", 10)
+        );
+
         self::assertEquals('Y-m-d H:i:s.u', $this->platform->getDateTimeFormatString());
         self::assertEquals('H:i:s.u', $this->platform->getTimeFormatString());
         self::assertEquals('', $this->platform->getForUpdateSQL());
         self::assertEquals('NEWID()', $this->platform->getGuidExpression());
-        self::assertEquals('LOCATE(string_column, substring_column)', $this->platform->getLocateExpression('string_column', 'substring_column'));
-        self::assertEquals('LOCATE(string_column, substring_column, 1)', $this->platform->getLocateExpression('string_column', 'substring_column', 1));
+
+        self::assertEquals(
+            'LOCATE(string_column, substring_column)',
+            $this->platform->getLocateExpression('string_column', 'substring_column')
+        );
+
+        self::assertEquals(
+            'LOCATE(string_column, substring_column, 1)',
+            $this->platform->getLocateExpression('string_column', 'substring_column', 1)
+        );
+
         self::assertEquals("HASH(column, 'MD5')", $this->platform->getMd5Expression('column'));
         self::assertEquals('SUBSTRING(column, 5)', $this->platform->getSubstringExpression('column', 5));
         self::assertEquals('SUBSTRING(column, 5, 2)', $this->platform->getSubstringExpression('column', 5, 2));
@@ -623,7 +721,8 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
     {
         // Date time type with timezone is not supported before version 12.
         // For versions before we have to ensure that the date time with timezone format
-        // equals the normal date time format so that it corresponds to the declaration SQL equality (datetimetz -> datetime).
+        // equals the normal date time format so that it corresponds to the declaration SQL equality
+        // (datetimetz -> datetime).
         self::assertEquals($this->platform->getDateTimeFormatString(), $this->platform->getDateTimeTzFormatString());
     }
 
@@ -694,7 +793,10 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
     {
         self::assertEquals(
             'SELECT TOP 10 * FROM (SELECT u.id as uid, u.name as uname FROM user) AS doctrine_tbl',
-            $this->platform->modifyLimitQuery('SELECT * FROM (SELECT u.id as uid, u.name as uname FROM user) AS doctrine_tbl', 10)
+            $this->platform->modifyLimitQuery(
+                'SELECT * FROM (SELECT u.id as uid, u.name as uname FROM user) AS doctrine_tbl',
+                10
+            )
         );
     }
 
@@ -826,13 +928,21 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
         self::assertSame('BINARY(1)', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true]));
         self::assertSame('BINARY(1)', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 0]));
-        self::assertSame('BINARY(32767)', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 32767]));
+
+        self::assertSame(
+            'BINARY(32767)',
+            $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 32767])
+        );
     }
 
     public function testReturnsBinaryTypeLongerThanMaxDeclarationSQL(): void
     {
         self::assertSame('LONG BINARY', $this->platform->getBinaryTypeDeclarationSQL(['length' => 32768]));
-        self::assertSame('LONG BINARY', $this->platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 32768]));
+
+        self::assertSame('LONG BINARY', $this->platform->getBinaryTypeDeclarationSQL([
+            'fixed' => true,
+            'length' => 32768,
+        ]));
     }
 
     /**
@@ -1017,7 +1127,10 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
     public function testQuotesTableNameInListTableConstraintsSQL(): void
     {
-        self::assertStringContainsStringIgnoringCase("'Foo''Bar\\'", $this->platform->getListTableConstraintsSQL("Foo'Bar\\"), '', true);
+        self::assertStringContainsStringIgnoringCase(
+            "'Foo''Bar\\'",
+            $this->platform->getListTableConstraintsSQL("Foo'Bar\\")
+        );
     }
 
     public function testQuotesSchemaNameInListTableConstraintsSQL(): void

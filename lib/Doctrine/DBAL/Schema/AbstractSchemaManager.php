@@ -529,7 +529,8 @@ abstract class AbstractSchemaManager
     /**
      * Drops and creates a new foreign key.
      *
-     * @param ForeignKeyConstraint $foreignKey An associative array that defines properties of the foreign key to be created.
+     * @param ForeignKeyConstraint $foreignKey An associative array that defines properties
+     *                                         of the foreign key to be created.
      * @param Table|string         $table      The name of the table on which the foreign key is to be created.
      *
      * @return void
@@ -892,7 +893,14 @@ abstract class AbstractSchemaManager
             }
 
             if (! $defaultPrevented) {
-                $index = new Index($data['name'], $data['columns'], $data['unique'], $data['primary'], $data['flags'], $data['options']);
+                $index = new Index(
+                    $data['name'],
+                    $data['columns'],
+                    $data['unique'],
+                    $data['primary'],
+                    $data['flags'],
+                    $data['options']
+                );
             }
 
             if (! $index) {

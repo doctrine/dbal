@@ -68,7 +68,8 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
 
     protected function getGenerateForeignKeySql(): string
     {
-        return 'ALTER TABLE test ADD FOREIGN KEY (fk_name_id) REFERENCES other_table (id) NOT DEFERRABLE INITIALLY IMMEDIATE';
+        return 'ALTER TABLE test ADD FOREIGN KEY (fk_name_id)'
+            . ' REFERENCES other_table (id) NOT DEFERRABLE INITIALLY IMMEDIATE';
     }
 
     public function testGeneratesForeignKeySqlForNonStandardOptions(): void
@@ -81,7 +82,8 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
             ['onDelete' => 'CASCADE']
         );
         self::assertEquals(
-            'CONSTRAINT my_fk FOREIGN KEY (foreign_id) REFERENCES my_table (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE',
+            'CONSTRAINT my_fk FOREIGN KEY (foreign_id)'
+                . ' REFERENCES my_table (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE',
             $this->platform->getForeignKeyDeclarationSQL($foreignKey)
         );
 
@@ -93,7 +95,8 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
             ['match' => 'full']
         );
         self::assertEquals(
-            'CONSTRAINT my_fk FOREIGN KEY (foreign_id) REFERENCES my_table (id) MATCH full NOT DEFERRABLE INITIALLY IMMEDIATE',
+            'CONSTRAINT my_fk FOREIGN KEY (foreign_id)'
+                . ' REFERENCES my_table (id) MATCH full NOT DEFERRABLE INITIALLY IMMEDIATE',
             $this->platform->getForeignKeyDeclarationSQL($foreignKey)
         );
 
@@ -105,7 +108,8 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
             ['deferrable' => true]
         );
         self::assertEquals(
-            'CONSTRAINT my_fk FOREIGN KEY (foreign_id) REFERENCES my_table (id) DEFERRABLE INITIALLY IMMEDIATE',
+            'CONSTRAINT my_fk FOREIGN KEY (foreign_id)'
+                . ' REFERENCES my_table (id) DEFERRABLE INITIALLY IMMEDIATE',
             $this->platform->getForeignKeyDeclarationSQL($foreignKey)
         );
 
@@ -117,7 +121,8 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
             ['deferred' => true]
         );
         self::assertEquals(
-            'CONSTRAINT my_fk FOREIGN KEY (foreign_id) REFERENCES my_table (id) NOT DEFERRABLE INITIALLY DEFERRED',
+            'CONSTRAINT my_fk FOREIGN KEY (foreign_id)'
+                . ' REFERENCES my_table (id) NOT DEFERRABLE INITIALLY DEFERRED',
             $this->platform->getForeignKeyDeclarationSQL($foreignKey)
         );
 
@@ -129,7 +134,8 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
             ['feferred' => true]
         );
         self::assertEquals(
-            'CONSTRAINT my_fk FOREIGN KEY (foreign_id) REFERENCES my_table (id) NOT DEFERRABLE INITIALLY DEFERRED',
+            'CONSTRAINT my_fk FOREIGN KEY (foreign_id)'
+                . ' REFERENCES my_table (id) NOT DEFERRABLE INITIALLY DEFERRED',
             $this->platform->getForeignKeyDeclarationSQL($foreignKey)
         );
 
@@ -141,18 +147,24 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
             ['deferrable' => true, 'deferred' => true, 'match' => 'full']
         );
         self::assertEquals(
-            'CONSTRAINT my_fk FOREIGN KEY (foreign_id) REFERENCES my_table (id) MATCH full DEFERRABLE INITIALLY DEFERRED',
+            'CONSTRAINT my_fk FOREIGN KEY (foreign_id)'
+                . ' REFERENCES my_table (id) MATCH full DEFERRABLE INITIALLY DEFERRED',
             $this->platform->getForeignKeyDeclarationSQL($foreignKey)
         );
     }
 
     public function testGeneratesSqlSnippets(): void
     {
-        self::assertEquals('SIMILAR TO', $this->platform->getRegexpExpression(), 'Regular expression operator is not correct');
-        self::assertEquals('"', $this->platform->getIdentifierQuoteCharacter(), 'Identifier quote character is not correct');
-        self::assertEquals('column1 || column2 || column3', $this->platform->getConcatExpression('column1', 'column2', 'column3'), 'Concatenation expression is not correct');
-        self::assertEquals('SUBSTRING(column FROM 5)', $this->platform->getSubstringExpression('column', 5), 'Substring expression without length is not correct');
-        self::assertEquals('SUBSTRING(column FROM 1 FOR 5)', $this->platform->getSubstringExpression('column', 1, 5), 'Substring expression with length is not correct');
+        self::assertEquals('SIMILAR TO', $this->platform->getRegexpExpression());
+        self::assertEquals('"', $this->platform->getIdentifierQuoteCharacter());
+
+        self::assertEquals(
+            'column1 || column2 || column3',
+            $this->platform->getConcatExpression('column1', 'column2', 'column3')
+        );
+
+        self::assertEquals('SUBSTRING(column FROM 5)', $this->platform->getSubstringExpression('column', 5));
+        self::assertEquals('SUBSTRING(column FROM 1 FOR 5)', $this->platform->getSubstringExpression('column', 1, 5));
     }
 
     public function testGeneratesTransactionCommands(): void
@@ -188,7 +200,10 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         $column = $table->addColumn('id', 'integer');
         $column->setAutoincrement(true);
 
-        self::assertEquals(['CREATE TABLE autoinc_table (id SERIAL NOT NULL)'], $this->platform->getCreateTableSQL($table));
+        self::assertEquals(
+            ['CREATE TABLE autoinc_table (id SERIAL NOT NULL)'],
+            $this->platform->getCreateTableSQL($table)
+        );
     }
 
     /**
@@ -276,13 +291,11 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         );
         self::assertEquals(
             'VARCHAR(50)',
-            $this->platform->getVarcharTypeDeclarationSQL(['length' => 50]),
-            'Variable string declaration is not correct'
+            $this->platform->getVarcharTypeDeclarationSQL(['length' => 50])
         );
         self::assertEquals(
             'VARCHAR(255)',
-            $this->platform->getVarcharTypeDeclarationSQL([]),
-            'Long string declaration is not correct'
+            $this->platform->getVarcharTypeDeclarationSQL([])
         );
     }
 
@@ -421,10 +434,14 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     protected function getQuotedColumnInForeignKeySQL(): array
     {
         return [
-            'CREATE TABLE "quoted" ("create" VARCHAR(255) NOT NULL, foo VARCHAR(255) NOT NULL, "bar" VARCHAR(255) NOT NULL)',
-            'ALTER TABLE "quoted" ADD CONSTRAINT FK_WITH_RESERVED_KEYWORD FOREIGN KEY ("create", foo, "bar") REFERENCES "foreign" ("create", bar, "foo-bar") NOT DEFERRABLE INITIALLY IMMEDIATE',
-            'ALTER TABLE "quoted" ADD CONSTRAINT FK_WITH_NON_RESERVED_KEYWORD FOREIGN KEY ("create", foo, "bar") REFERENCES foo ("create", bar, "foo-bar") NOT DEFERRABLE INITIALLY IMMEDIATE',
-            'ALTER TABLE "quoted" ADD CONSTRAINT FK_WITH_INTENDED_QUOTATION FOREIGN KEY ("create", foo, "bar") REFERENCES "foo-bar" ("create", bar, "foo-bar") NOT DEFERRABLE INITIALLY IMMEDIATE',
+            'CREATE TABLE "quoted" ("create" VARCHAR(255) NOT NULL, '
+            . 'foo VARCHAR(255) NOT NULL, "bar" VARCHAR(255) NOT NULL)',
+            'ALTER TABLE "quoted" ADD CONSTRAINT FK_WITH_RESERVED_KEYWORD FOREIGN KEY ("create", foo, "bar")'
+                . ' REFERENCES "foreign" ("create", bar, "foo-bar") NOT DEFERRABLE INITIALLY IMMEDIATE',
+            'ALTER TABLE "quoted" ADD CONSTRAINT FK_WITH_NON_RESERVED_KEYWORD FOREIGN KEY ("create", foo, "bar")'
+                . ' REFERENCES foo ("create", bar, "foo-bar") NOT DEFERRABLE INITIALLY IMMEDIATE',
+            'ALTER TABLE "quoted" ADD CONSTRAINT FK_WITH_INTENDED_QUOTATION FOREIGN KEY ("create", foo, "bar")'
+                . ' REFERENCES "foo-bar" ("create", bar, "foo-bar") NOT DEFERRABLE INITIALLY IMMEDIATE',
         ];
     }
 
@@ -486,8 +503,12 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
      *
      * @dataProvider pgBooleanProvider
      */
-    public function testConvertFromBoolean($databaseValue, string $prepareStatementValue, ?int $integerValue, ?bool $booleanValue): void
-    {
+    public function testConvertFromBoolean(
+        $databaseValue,
+        string $prepareStatementValue,
+        ?int $integerValue,
+        ?bool $booleanValue
+    ): void {
         $platform = $this->createPlatform();
 
         self::assertSame($booleanValue, $platform->convertFromBoolean($databaseValue));

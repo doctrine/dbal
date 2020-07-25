@@ -911,7 +911,12 @@ class Connection implements DriverConnection
                 $stmt = $connection->query($sql);
             }
         } catch (Throwable $ex) {
-            throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $sql, $this->resolveParams($params, $types));
+            throw DBALException::driverExceptionDuringQuery(
+                $this->_driver,
+                $ex,
+                $sql,
+                $this->resolveParams($params, $types)
+            );
         }
 
         $stmt->setFetchMode($this->defaultFetchMode);
@@ -961,7 +966,13 @@ class Connection implements DriverConnection
         }
 
         if (! isset($stmt)) {
-            $stmt = new ResultCacheStatement($this->executeQuery($sql, $params, $types), $resultCache, $cacheKey, $realKey, $qcp->getLifetime());
+            $stmt = new ResultCacheStatement(
+                $this->executeQuery($sql, $params, $types),
+                $resultCache,
+                $cacheKey,
+                $realKey,
+                $qcp->getLifetime()
+            );
         }
 
         $stmt->setFetchMode($this->defaultFetchMode);
@@ -1069,7 +1080,12 @@ class Connection implements DriverConnection
                 $result = $connection->exec($sql);
             }
         } catch (Throwable $ex) {
-            throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $sql, $this->resolveParams($params, $types));
+            throw DBALException::driverExceptionDuringQuery(
+                $this->_driver,
+                $ex,
+                $sql,
+                $this->resolveParams($params, $types)
+            );
         }
 
         if ($logger) {

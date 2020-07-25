@@ -140,9 +140,23 @@ class WriteTest extends DbalFunctionalTestCase
     {
         $this->insertRows();
 
-        self::assertEquals(1, $this->connection->update('write_table', ['test_string' => 'bar'], ['test_string' => 'foo']));
-        self::assertEquals(2, $this->connection->update('write_table', ['test_string' => 'baz'], ['test_string' => 'bar']));
-        self::assertEquals(0, $this->connection->update('write_table', ['test_string' => 'baz'], ['test_string' => 'bar']));
+        self::assertEquals(1, $this->connection->update(
+            'write_table',
+            ['test_string' => 'bar'],
+            ['test_string' => 'foo']
+        ));
+
+        self::assertEquals(2, $this->connection->update(
+            'write_table',
+            ['test_string' => 'baz'],
+            ['test_string' => 'bar']
+        ));
+
+        self::assertEquals(0, $this->connection->update(
+            'write_table',
+            ['test_string' => 'baz'],
+            ['test_string' => 'bar']
+        ));
     }
 
     public function testLastInsertId(): void
@@ -175,7 +189,10 @@ class WriteTest extends DbalFunctionalTestCase
             return strtolower($sequence->getName()) === 'write_table_id_seq';
         }));
 
-        $stmt            = $this->connection->query($this->connection->getDatabasePlatform()->getSequenceNextValSQL('write_table_id_seq'));
+        $stmt = $this->connection->query(
+            $this->connection->getDatabasePlatform()->getSequenceNextValSQL('write_table_id_seq')
+        );
+
         $nextSequenceVal = $stmt->fetchColumn();
 
         $lastInsertId = $this->lastInsertId('write_table_id_seq');
@@ -186,8 +203,13 @@ class WriteTest extends DbalFunctionalTestCase
 
     public function testLastInsertIdNoSequenceGiven(): void
     {
-        if (! $this->connection->getDatabasePlatform()->supportsSequences() || $this->connection->getDatabasePlatform()->supportsIdentityColumns()) {
-            $this->markTestSkipped("Test only works consistently on platforms that support sequences and don't support identity columns.");
+        if (
+            ! $this->connection->getDatabasePlatform()->supportsSequences()
+            || $this->connection->getDatabasePlatform()->supportsIdentityColumns()
+        ) {
+            $this->markTestSkipped(
+                "Test only works consistently on platforms that support sequences and don't support identity columns."
+            );
         }
 
         self::assertFalse($this->lastInsertId());
@@ -205,7 +227,10 @@ class WriteTest extends DbalFunctionalTestCase
 
         $data = $this->connection->fetchColumn('SELECT test_string FROM write_table WHERE test_int = 30');
 
-        self::assertEquals($testString->format($this->connection->getDatabasePlatform()->getDateTimeFormatString()), $data);
+        self::assertEquals(
+            $testString->format($this->connection->getDatabasePlatform()->getDateTimeFormatString()),
+            $data
+        );
     }
 
     public function testUpdateWithKeyValueTypes(): void
@@ -229,7 +254,10 @@ class WriteTest extends DbalFunctionalTestCase
 
         $data = $this->connection->fetchColumn('SELECT test_string FROM write_table WHERE test_int = 30');
 
-        self::assertEquals($testString->format($this->connection->getDatabasePlatform()->getDateTimeFormatString()), $data);
+        self::assertEquals(
+            $testString->format($this->connection->getDatabasePlatform()->getDateTimeFormatString()),
+            $data
+        );
     }
 
     public function testDeleteWithKeyValueTypes(): void
@@ -241,7 +269,13 @@ class WriteTest extends DbalFunctionalTestCase
             ['test_string' => 'datetime', 'test_int' => 'integer']
         );
 
-        $this->connection->delete('write_table', ['test_int' => 30, 'test_string' => $val], ['test_string' => 'datetime', 'test_int' => 'integer']);
+        $this->connection->delete('write_table', [
+            'test_int' => 30,
+            'test_string' => $val,
+        ], [
+            'test_string' => 'datetime',
+            'test_int' => 'integer',
+        ]);
 
         $data = $this->connection->fetchColumn('SELECT test_string FROM write_table WHERE test_int = 30');
 
@@ -300,7 +334,10 @@ class WriteTest extends DbalFunctionalTestCase
 
         self::assertCount(1, $data);
 
-        $this->connection->update('write_table', ['test_int' => 10], ['test_string' => null], ['test_string' => 'string', 'test_int' => 'integer']);
+        $this->connection->update('write_table', ['test_int' => 10], ['test_string' => null], [
+            'test_string' => 'string',
+            'test_int' => 'integer',
+        ]);
 
         $data = $this->connection->fetchAll('SELECT * FROM write_table WHERE test_int = 30');
 

@@ -223,7 +223,9 @@ class MysqliStatement implements IteratorAggregate, Statement
             if ($types[$parameter - 1] === static::$_paramTypeMap[ParameterType::LARGE_OBJECT]) {
                 if (is_resource($value)) {
                     if (get_resource_type($value) !== 'stream') {
-                        throw new InvalidArgumentException('Resources passed with the LARGE_OBJECT parameter type must be stream resources.');
+                        throw new InvalidArgumentException(
+                            'Resources passed with the LARGE_OBJECT parameter type must be stream resources.'
+                        );
                     }
 
                     $streams[$parameter] = $value;

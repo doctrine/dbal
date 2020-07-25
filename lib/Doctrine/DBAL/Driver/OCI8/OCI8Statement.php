@@ -177,10 +177,12 @@ class OCI8Statement implements IteratorAggregate, Statement
      * @param string             $statement               The SQL statement to parse
      * @param string             $tokenOffset             The offset to start searching from
      * @param int                $fragmentOffset          The offset to build the next fragment from
-     * @param string[]           $fragments               Fragments of the original statement not containing placeholders
+     * @param string[]           $fragments               Fragments of the original statement
+     *                                                    not containing placeholders
      * @param string|null        $currentLiteralDelimiter The delimiter of the current string literal
      *                                                    or NULL if not currently in a literal
-     * @param array<int, string> $paramMap                Mapping of the original parameter positions to their named replacements
+     * @param array<int, string> $paramMap                Mapping of the original parameter positions
+     *                                                    to their named replacements
      *
      * @return bool Whether the token was found
      */
@@ -282,7 +284,9 @@ class OCI8Statement implements IteratorAggregate, Statement
     {
         if (is_int($param)) {
             if (! isset($this->_paramMap[$param])) {
-                throw new OCI8Exception(sprintf('Could not find variable mapping with index %d, in the SQL statement', $param));
+                throw new OCI8Exception(
+                    sprintf('Could not find variable mapping with index %d, in the SQL statement', $param)
+                );
             }
 
             $param = $this->_paramMap[$param];

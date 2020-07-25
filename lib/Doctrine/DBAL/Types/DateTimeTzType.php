@@ -67,7 +67,11 @@ class DateTimeTzType extends Type implements PhpDateTimeMappingType
 
         $val = DateTime::createFromFormat($platform->getDateTimeTzFormatString(), $value);
         if (! $val) {
-            throw ConversionException::conversionFailedFormat($value, $this->getName(), $platform->getDateTimeTzFormatString());
+            throw ConversionException::conversionFailedFormat(
+                $value,
+                $this->getName(),
+                $platform->getDateTimeTzFormatString()
+            );
         }
 
         return $val;

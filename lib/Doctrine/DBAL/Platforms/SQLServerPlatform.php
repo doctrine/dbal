@@ -213,7 +213,9 @@ class SQLServerPlatform extends AbstractPlatform
         if ($index instanceof Index) {
             $index = $index->getQuotedName($this);
         } elseif (! is_string($index)) {
-            throw new InvalidArgumentException('AbstractPlatform::getDropIndexSQL() expects $index parameter to be string or \Doctrine\DBAL\Schema\Index.');
+            throw new InvalidArgumentException(
+                __METHOD__ . '() expects $index parameter to be string or ' . Index::class . '.'
+            );
         }
 
         if (! isset($table)) {
@@ -287,7 +289,8 @@ SQL
                 $flags = ' NONCLUSTERED';
             }
 
-            $columnListSql .= ', PRIMARY KEY' . $flags . ' (' . implode(', ', array_unique(array_values($options['primary']))) . ')';
+            $columnListSql .= ', PRIMARY KEY' . $flags
+                . ' (' . implode(', ', array_unique(array_values($options['primary']))) . ')';
         }
 
         $query = 'CREATE TABLE ' . $tableName . ' (' . $columnListSql;
@@ -552,10 +555,12 @@ SQL
 
             $columnDef = $column->toArray();
 
-            $queryParts[] = 'ALTER COLUMN ' .
-                    $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnDef);
+            $queryParts[] = 'ALTER COLUMN ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnDef);
 
-            if (! isset($columnDef['default']) || (! $requireDropDefaultConstraint && ! $columnDiff->hasChanged('default'))) {
+            if (
+                ! isset($columnDef['default'])
+                || (! $requireDropDefaultConstraint && ! $columnDiff->hasChanged('default'))
+            ) {
                 continue;
             }
 
@@ -1082,15 +1087,6 @@ SQL
             return $trimFn . '(' . $str . ')';
         }
 
-        /** Original query used to get those expressions
-          declare @c varchar(100) = 'xxxBarxxx', @trim_char char(1) = 'x';
-          declare @pat varchar(10) = '%[^' + @trim_char + ']%';
-          select @c as string
-          , @trim_char as trim_char
-          , stuff(@c, 1, patindex(@pat, @c) - 1, null) as trim_leading
-          , reverse(stuff(reverse(@c), 1, patindex(@pat, reverse(@c)) - 1, null)) as trim_trailing
-          , reverse(stuff(reverse(stuff(@c, 1, patindex(@pat, @c) - 1, null)), 1, patindex(@pat, reverse(stuff(@c, 1, patindex(@pat, @c) - 1, null))) - 1, null)) as trim_both;
-         */
         $pattern = "'%[^' + " . $char . " + ']%'";
 
         if ($pos === TrimMode::LEADING) {
@@ -1098,10 +1094,13 @@ SQL
         }
 
         if ($pos === TrimMode::TRAILING) {
-            return 'reverse(stuff(reverse(' . $str . '), 1, patindex(' . $pattern . ', reverse(' . $str . ')) - 1, null))';
+            return 'reverse(stuff(reverse(' . $str . '), 1, '
+                . 'patindex(' . $pattern . ', reverse(' . $str . ')) - 1, null))';
         }
 
-        return 'reverse(stuff(reverse(stuff(' . $str . ', 1, patindex(' . $pattern . ', ' . $str . ') - 1, null)), 1, patindex(' . $pattern . ', reverse(stuff(' . $str . ', 1, patindex(' . $pattern . ', ' . $str . ') - 1, null))) - 1, null))';
+        return 'reverse(stuff(reverse(stuff(' . $str . ', 1, patindex(' . $pattern . ', ' . $str . ') - 1, null)), 1, '
+            . 'patindex(' . $pattern . ', reverse(stuff(' . $str . ', 1, patindex(' . $pattern . ', ' . $str
+            . ') - 1, null))) - 1, null))';
     }
 
     /**
@@ -1195,7 +1194,9 @@ SQL
      */
     protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)
     {
-        return $fixed ? ($length ? 'NCHAR(' . $length . ')' : 'CHAR(255)') : ($length ? 'NVARCHAR(' . $length . ')' : 'NVARCHAR(255)');
+        return $fixed
+            ? ($length ? 'NCHAR(' . $length . ')' : 'CHAR(255)')
+            : ($length ? 'NVARCHAR(' . $length . ')' : 'NVARCHAR(255)');
     }
 
     /**

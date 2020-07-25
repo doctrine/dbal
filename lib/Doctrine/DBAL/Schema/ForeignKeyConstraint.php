@@ -63,8 +63,13 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
      * @param string|null  $name               Name of the foreign key constraint.
      * @param mixed[]      $options            Options associated with the foreign key constraint.
      */
-    public function __construct(array $localColumnNames, $foreignTableName, array $foreignColumnNames, $name = null, array $options = [])
-    {
+    public function __construct(
+        array $localColumnNames,
+        $foreignTableName,
+        array $foreignColumnNames,
+        $name = null,
+        array $options = []
+    ) {
         if ($name !== null) {
             $this->_setName($name);
         }

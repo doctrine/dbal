@@ -38,8 +38,14 @@ class DebugStack implements SQLLogger
             return;
         }
 
-        $this->start                          = microtime(true);
-        $this->queries[++$this->currentQuery] = ['sql' => $sql, 'params' => $params, 'types' => $types, 'executionMS' => 0];
+        $this->start = microtime(true);
+
+        $this->queries[++$this->currentQuery] = [
+            'sql' => $sql,
+            'params' => $params,
+            'types' => $types,
+            'executionMS' => 0,
+        ];
     }
 
     /**

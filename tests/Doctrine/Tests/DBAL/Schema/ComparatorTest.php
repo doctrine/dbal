@@ -74,7 +74,8 @@ class ComparatorTest extends TestCase
     public function testCompareMissingTable(): void
     {
         $schemaConfig = new SchemaConfig();
-        $table        = new Table('bugdb', ['integercolumn1' => new Column('integercolumn1', Type::getType('integer'))]);
+
+        $table = new Table('bugdb', ['integercolumn1' => new Column('integercolumn1', Type::getType('integer'))]);
         $table->setSchemaConfig($schemaConfig);
 
         $schema1 = new Schema([$table], [], $schemaConfig);
@@ -88,7 +89,8 @@ class ComparatorTest extends TestCase
     public function testCompareNewTable(): void
     {
         $schemaConfig = new SchemaConfig();
-        $table        = new Table('bugdb', ['integercolumn1' => new Column('integercolumn1', Type::getType('integer'))]);
+
+        $table = new Table('bugdb', ['integercolumn1' => new Column('integercolumn1', Type::getType('integer'))]);
         $table->setSchemaConfig($schemaConfig);
 
         $schema1 = new Schema([], [], $schemaConfig);
@@ -253,12 +255,12 @@ class ComparatorTest extends TestCase
         $c         = new Comparator();
         $tableDiff = $c->diffTable($tableA, $tableB);
 
-        self::assertCount(1, $tableDiff->renamedColumns, 'we should have one rename datecolumn1 => new_datecolumn1.');
-        self::assertArrayHasKey('datecolumn1', $tableDiff->renamedColumns, "'datecolumn1' should be set to be renamed to new_datecolumn1");
-        self::assertCount(1, $tableDiff->addedColumns, "'new_datecolumn2' should be added");
-        self::assertArrayHasKey('new_datecolumn2', $tableDiff->addedColumns, "'new_datecolumn2' should be added, not created through renaming!");
-        self::assertCount(0, $tableDiff->removedColumns, 'Nothing should be removed.');
-        self::assertCount(0, $tableDiff->changedColumns, 'Nothing should be changed as all columns old & new have diff names.');
+        self::assertCount(1, $tableDiff->renamedColumns);
+        self::assertArrayHasKey('datecolumn1', $tableDiff->renamedColumns);
+        self::assertCount(1, $tableDiff->addedColumns);
+        self::assertArrayHasKey('new_datecolumn2', $tableDiff->addedColumns);
+        self::assertCount(0, $tableDiff->removedColumns);
+        self::assertCount(0, $tableDiff->changedColumns);
     }
 
     public function testCompareRemovedIndex(): void
@@ -744,12 +746,12 @@ class ComparatorTest extends TestCase
         $c         = new Comparator();
         $tableDiff = $c->diffTable($tableA, $tableB);
 
-        self::assertCount(1, $tableDiff->addedColumns, "'baz' should be added, not created through renaming!");
-        self::assertArrayHasKey('baz', $tableDiff->addedColumns, "'baz' should be added, not created through renaming!");
-        self::assertCount(2, $tableDiff->removedColumns, "'foo' and 'bar' should both be dropped, an ambiguity exists which one could be renamed to 'baz'.");
-        self::assertArrayHasKey('foo', $tableDiff->removedColumns, "'foo' should be removed.");
-        self::assertArrayHasKey('bar', $tableDiff->removedColumns, "'bar' should be removed.");
-        self::assertCount(0, $tableDiff->renamedColumns, 'no renamings should take place.');
+        self::assertCount(1, $tableDiff->addedColumns);
+        self::assertArrayHasKey('baz', $tableDiff->addedColumns);
+        self::assertCount(2, $tableDiff->removedColumns);
+        self::assertArrayHasKey('foo', $tableDiff->removedColumns);
+        self::assertArrayHasKey('bar', $tableDiff->removedColumns);
+        self::assertCount(0, $tableDiff->renamedColumns);
     }
 
     public function testDetectRenameIndex(): void
@@ -1034,11 +1036,14 @@ class ComparatorTest extends TestCase
         $table     = $newSchema->createTable('foo');
         $table->addColumn('id', 'string');
 
-        $expected                      = new SchemaDiff();
-        $expected->fromSchema          = $oldSchema;
-        $tableDiff                     = $expected->changedTables['foo'] = new TableDiff('foo');
-        $tableDiff->fromTable          = $tableFoo;
-        $columnDiff                    = $tableDiff->changedColumns['id'] = new ColumnDiff('id', $table->getColumn('id'));
+        $expected             = new SchemaDiff();
+        $expected->fromSchema = $oldSchema;
+
+        $tableDiff            = $expected->changedTables['foo'] = new TableDiff('foo');
+        $tableDiff->fromTable = $tableFoo;
+
+        $columnDiff = $tableDiff->changedColumns['id'] = new ColumnDiff('id', $table->getColumn('id'));
+
         $columnDiff->fromColumn        = $tableFoo->getColumn('id');
         $columnDiff->changedProperties = ['type'];
 
@@ -1056,11 +1061,14 @@ class ComparatorTest extends TestCase
         $table     = $newSchema->createTable('foo');
         $table->addColumn('id', 'binary', ['length' => 42, 'fixed' => true]);
 
-        $expected                      = new SchemaDiff();
-        $expected->fromSchema          = $oldSchema;
-        $tableDiff                     = $expected->changedTables['foo'] = new TableDiff('foo');
-        $tableDiff->fromTable          = $tableFoo;
-        $columnDiff                    = $tableDiff->changedColumns['id'] = new ColumnDiff('id', $table->getColumn('id'));
+        $expected             = new SchemaDiff();
+        $expected->fromSchema = $oldSchema;
+
+        $tableDiff            = $expected->changedTables['foo'] = new TableDiff('foo');
+        $tableDiff->fromTable = $tableFoo;
+
+        $columnDiff = $tableDiff->changedColumns['id'] = new ColumnDiff('id', $table->getColumn('id'));
+
         $columnDiff->fromColumn        = $tableFoo->getColumn('id');
         $columnDiff->changedProperties = ['length', 'fixed'];
 
@@ -1078,8 +1086,12 @@ class ComparatorTest extends TestCase
         self::assertFalse($diff);
     }
 
-    public function assertSchemaTableChangeCount(SchemaDiff $diff, int $newTableCount = 0, int $changeTableCount = 0, int $removeTableCount = 0): void
-    {
+    public function assertSchemaTableChangeCount(
+        SchemaDiff $diff,
+        int $newTableCount = 0,
+        int $changeTableCount = 0,
+        int $removeTableCount = 0
+    ): void {
         self::assertCount($newTableCount, $diff->newTables);
         self::assertCount($changeTableCount, $diff->changedTables);
         self::assertCount($removeTableCount, $diff->removedTables);
@@ -1091,16 +1103,34 @@ class ComparatorTest extends TestCase
         int $changeSequenceCount = 0,
         int $removeSequenceCount = 0
     ): void {
-        self::assertCount($newSequenceCount, $diff->newSequences, 'Expected number of new sequences is wrong.');
-        self::assertCount($changeSequenceCount, $diff->changedSequences, 'Expected number of changed sequences is wrong.');
-        self::assertCount($removeSequenceCount, $diff->removedSequences, 'Expected number of removed sequences is wrong.');
+        self::assertCount($newSequenceCount, $diff->newSequences);
+        self::assertCount($changeSequenceCount, $diff->changedSequences);
+        self::assertCount($removeSequenceCount, $diff->removedSequences);
     }
 
     public function testDiffColumnPlatformOptions(): void
     {
-        $column1 = new Column('foo', Type::getType('string'), ['platformOptions' => ['foo' => 'foo', 'bar' => 'bar']]);
-        $column2 = new Column('foo', Type::getType('string'), ['platformOptions' => ['foo' => 'foo', 'foobar' => 'foobar']]);
-        $column3 = new Column('foo', Type::getType('string'), ['platformOptions' => ['foo' => 'foo', 'bar' => 'rab']]);
+        $column1 = new Column('foo', Type::getType('string'), [
+            'platformOptions' => [
+                'foo' => 'foo',
+                'bar' => 'bar',
+            ],
+        ]);
+
+        $column2 = new Column('foo', Type::getType('string'), [
+            'platformOptions' => [
+                'foo' => 'foo',
+                'foobar' => 'foobar',
+            ],
+        ]);
+
+        $column3 = new Column('foo', Type::getType('string'), [
+            'platformOptions' => [
+                'foo' => 'foo',
+                'bar' => 'rab',
+            ],
+        ]);
+
         $column4 = new Column('foo', Type::getType('string'));
 
         $comparator = new Comparator();

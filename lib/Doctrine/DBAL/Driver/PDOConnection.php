@@ -2,7 +2,6 @@
 
 namespace Doctrine\DBAL\Driver;
 
-use Doctrine\DBAL\ParameterType;
 use PDO;
 
 use function assert;
@@ -91,14 +90,6 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
         }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function quote($input, $type = ParameterType::STRING)
-    {
-        return parent::quote($input, $type);
     }
 
     /**

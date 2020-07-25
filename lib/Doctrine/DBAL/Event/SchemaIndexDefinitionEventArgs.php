@@ -7,7 +7,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Index;
 
 /**
- * Event Arguments used when the portable index definition is generated inside Doctrine\DBAL\Schema\AbstractSchemaManager.
+ * Event Arguments used when the portable index definition is generated inside {@link AbstractSchemaManager}.
  */
 class SchemaIndexDefinitionEventArgs extends SchemaEventArgs
 {
