@@ -9,10 +9,6 @@ use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
 use PDO;
 
-use function is_string;
-use function strpos;
-use function substr;
-
 final class Connection implements ServerInfoAwareConnection
 {
     /** @var PDOConnection */
@@ -40,14 +36,7 @@ final class Connection implements ServerInfoAwareConnection
      */
     public function quote($value, $type = ParameterType::STRING)
     {
-        $val = $this->connection->quote($value, $type);
-
-        // Fix for a driver version terminating all values with null byte
-        if (is_string($val) && strpos($val, "\0") !== false) {
-            $val = substr($val, 0, -1);
-        }
-
-        return $val;
+        return $this->connection->quote($value, $type);
     }
 
     public function exec(string $sql): int
