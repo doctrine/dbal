@@ -39,7 +39,10 @@ class RunSqlCommand extends Command
             return;
         }
 
-        @trigger_error('Not passing a connection provider as the first constructor argument is deprecated', E_USER_DEPRECATED);
+        @trigger_error(
+            'Not passing a connection provider as the first constructor argument is deprecated',
+            E_USER_DEPRECATED
+        );
     }
 
     /** @return void */

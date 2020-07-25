@@ -168,8 +168,8 @@ class SchemaException extends DBALException
         return new self(
             'The performed schema operation on ' . $localTable->getName() . ' requires a named foreign key, ' .
             'but the given foreign key from (' . implode(', ', $foreignKey->getColumns()) . ') onto foreign table ' .
-            "'" . $foreignKey->getForeignTableName() . "' (" . implode(', ', $foreignKey->getForeignColumns()) . ') is currently ' .
-            'unnamed.'
+            "'" . $foreignKey->getForeignTableName() . "' (" . implode(', ', $foreignKey->getForeignColumns()) . ')' .
+            ' is currently unnamed.'
         );
     }
 

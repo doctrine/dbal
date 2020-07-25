@@ -11,7 +11,7 @@ use function func_get_args;
 use function is_array;
 
 /**
- * Event Arguments used when SQL queries for adding table columns are generated inside Doctrine\DBAL\Platform\*Platform.
+ * Event Arguments used when SQL queries for adding table columns are generated inside {@link AbstractPlatform}.
  */
 class SchemaAlterTableAddColumnEventArgs extends SchemaEventArgs
 {

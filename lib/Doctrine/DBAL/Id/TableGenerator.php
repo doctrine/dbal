@@ -148,7 +148,11 @@ class TableGenerator
         } catch (Throwable $e) {
             $this->conn->rollBack();
 
-            throw new DBALException('Error occurred while generating ID with TableGenerator, aborted generation: ' . $e->getMessage(), 0, $e);
+            throw new DBALException(
+                'Error occurred while generating ID with TableGenerator, aborted generation: ' . $e->getMessage(),
+                0,
+                $e
+            );
         }
 
         return $value;

@@ -184,7 +184,12 @@ class ConnectionTest extends DbalTestCase
     public function testDriverExceptionIsWrapped(string $method): void
     {
         $this->expectException(DBALException::class);
-        $this->expectExceptionMessage("An exception occurred while executing 'MUUHAAAAHAAAA':\n\nSQLSTATE[HY000]: General error: 1 near \"MUUHAAAAHAAAA\"");
+        $this->expectExceptionMessage(<<<EOF
+An exception occurred while executing 'MUUHAAAAHAAAA':
+
+SQLSTATE[HY000]: General error: 1 near "MUUHAAAAHAAAA"
+EOF
+        );
 
         $connection = DriverManager::getConnection([
             'driver' => 'pdo_sqlite',
@@ -652,7 +657,7 @@ class ConnectionTest extends DbalTestCase
 
         $conn = new Connection($params, $driverMock);
 
-        self::assertArrayNotHasKey('pdo', $conn->getParams(), 'Connection is maintaining additional reference to the PDO connection');
+        self::assertArrayNotHasKey('pdo', $conn->getParams());
     }
 
     public function testPassingExternalPDOMeansConnectionIsConnected(): void

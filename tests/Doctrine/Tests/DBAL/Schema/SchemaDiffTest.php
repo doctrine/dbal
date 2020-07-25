@@ -20,9 +20,17 @@ class SchemaDiffTest extends TestCase
 
         $sql = $diff->toSql($platform);
 
-        $expected = ['create_schema', 'drop_orphan_fk', 'alter_seq', 'drop_seq', 'create_seq', 'create_table', 'create_foreign_key', 'drop_table', 'alter_table'];
-
-        self::assertEquals($expected, $sql);
+        self::assertEquals([
+            'create_schema',
+            'drop_orphan_fk',
+            'alter_seq',
+            'drop_seq',
+            'create_seq',
+            'create_table',
+            'create_foreign_key',
+            'drop_table',
+            'alter_table',
+        ], $sql);
     }
 
     public function testSchemaDiffToSaveSql(): void

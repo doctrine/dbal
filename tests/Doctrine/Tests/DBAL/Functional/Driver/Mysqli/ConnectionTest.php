@@ -26,11 +26,6 @@ class ConnectionTest extends DbalFunctionalTestCase
         $this->markTestSkipped('MySQLi only test.');
     }
 
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-    }
-
     public function testDriverOptions(): void
     {
         $driverOptions = [MYSQLI_OPT_CONNECT_TIMEOUT => 1];

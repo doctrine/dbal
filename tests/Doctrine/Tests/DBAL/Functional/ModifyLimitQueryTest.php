@@ -65,7 +65,11 @@ class ModifyLimitQueryTest extends DbalFunctionalTestCase
         $this->connection->insert('modify_limit_table2', ['test_int' => 2]);
         $this->connection->insert('modify_limit_table2', ['test_int' => 2]);
 
-        $sql = 'SELECT modify_limit_table.test_int FROM modify_limit_table INNER JOIN modify_limit_table2 ON modify_limit_table.test_int = modify_limit_table2.test_int ORDER BY modify_limit_table.test_int DESC';
+        $sql = 'SELECT modify_limit_table.test_int'
+            . ' FROM modify_limit_table'
+            . ' INNER JOIN modify_limit_table2'
+            . ' ON modify_limit_table.test_int = modify_limit_table2.test_int'
+            . ' ORDER BY modify_limit_table.test_int DESC';
 
         $this->assertLimitResult([2, 2, 1, 1, 1], $sql, 10, 0);
         $this->assertLimitResult([1, 1, 1], $sql, 3, 2);
@@ -113,7 +117,8 @@ class ModifyLimitQueryTest extends DbalFunctionalTestCase
         $this->connection->insert('modify_limit_table', ['test_int' => 3]);
         $this->connection->insert('modify_limit_table', ['test_int' => 4]);
 
-        $sql = 'SELECT modify_limit_table.*, (SELECT COUNT(*) FROM modify_limit_table) AS cnt FROM modify_limit_table ORDER BY test_int DESC';
+        $sql = 'SELECT modify_limit_table.*, (SELECT COUNT(*) FROM modify_limit_table) AS cnt'
+            . ' FROM modify_limit_table ORDER BY test_int DESC';
 
         $this->assertLimitResult([4, 3, 2, 1], $sql, 10, 0);
         $this->assertLimitResult([4, 3], $sql, 2, 0);
@@ -167,8 +172,13 @@ SQL;
     /**
      * @param array<int, int> $expectedResults
      */
-    private function assertLimitResult(array $expectedResults, string $sql, ?int $limit, int $offset, bool $deterministic = true): void
-    {
+    private function assertLimitResult(
+        array $expectedResults,
+        string $sql,
+        ?int $limit,
+        int $offset,
+        bool $deterministic = true
+    ): void {
         $p    = $this->connection->getDatabasePlatform();
         $data = [];
         foreach ($this->connection->fetchAll($p->modifyLimitQuery($sql, $limit, $offset)) as $row) {

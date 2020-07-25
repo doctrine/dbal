@@ -38,7 +38,11 @@ class PortabilityTest extends DbalFunctionalTestCase
             $params['portability']  = $portabilityMode;
             $params['fetch_case']   = $case;
 
-            $this->portableConnection = DriverManager::getConnection($params, $this->connection->getConfiguration(), $this->connection->getEventManager());
+            $this->portableConnection = DriverManager::getConnection(
+                $params,
+                $this->connection->getConfiguration(),
+                $this->connection->getEventManager()
+            );
 
             try {
                 $table = new Table('portability_table');
@@ -50,8 +54,17 @@ class PortabilityTest extends DbalFunctionalTestCase
                 $sm = $this->portableConnection->getSchemaManager();
                 $sm->createTable($table);
 
-                $this->portableConnection->insert('portability_table', ['Test_Int' => 1, 'Test_String' => 'foo', 'Test_Null' => '']);
-                $this->portableConnection->insert('portability_table', ['Test_Int' => 2, 'Test_String' => 'foo  ', 'Test_Null' => null]);
+                $this->portableConnection->insert('portability_table', [
+                    'Test_Int' => 1,
+                    'Test_String' => 'foo',
+                    'Test_Null' => '',
+                ]);
+
+                $this->portableConnection->insert('portability_table', [
+                    'Test_Int' => 2,
+                    'Test_String' => 'foo  ',
+                    'Test_Null' => null,
+                ]);
             } catch (Throwable $e) {
             }
         }
@@ -132,7 +145,7 @@ class PortabilityTest extends DbalFunctionalTestCase
         ));
 
         self::assertArrayHasKey('test_string', $row, 'Case should be lowered.');
-        self::assertEquals(3, strlen($row['test_string']), 'test_string should be rtrimed to length of three for CHAR(32) column.');
+        self::assertEquals(3, strlen($row['test_string']));
         self::assertNull($row['test_null']);
         self::assertArrayNotHasKey(0, $row, 'The row should not contain numerical keys.');
     }

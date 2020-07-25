@@ -43,7 +43,9 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
      */
     public function getSchemaNames()
     {
-        $statement = $this->_conn->executeQuery("SELECT nspname FROM pg_namespace WHERE nspname !~ '^pg_.*' AND nspname != 'information_schema'");
+        $statement = $this->_conn->executeQuery(
+            "SELECT nspname FROM pg_namespace WHERE nspname !~ '^pg_.*' AND nspname != 'information_schema'"
+        );
 
         return $statement->fetchAll(FetchMode::COLUMN);
     }
@@ -301,7 +303,9 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
 
         if (! isset($sequence['increment_by'], $sequence['min_value'])) {
             /** @var string[] $data */
-            $data = $this->_conn->fetchAssoc('SELECT min_value, increment_by FROM ' . $this->_platform->quoteIdentifier($sequenceName));
+            $data = $this->_conn->fetchAssoc(
+                'SELECT min_value, increment_by FROM ' . $this->_platform->quoteIdentifier($sequenceName)
+            );
 
             $sequence += $data;
         }
@@ -357,7 +361,10 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         $jsonb     = null;
 
         $dbType = strtolower($tableColumn['type']);
-        if (strlen($tableColumn['domain_type']) && ! $this->_platform->hasDoctrineTypeMappingFor($tableColumn['type'])) {
+        if (
+            strlen($tableColumn['domain_type'])
+            && ! $this->_platform->hasDoctrineTypeMappingFor($tableColumn['type'])
+        ) {
             $dbType                       = strtolower($tableColumn['domain_type']);
             $tableColumn['complete_type'] = $tableColumn['domain_complete_type'];
         }

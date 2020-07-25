@@ -26,8 +26,12 @@ class MasterSlaveConnection extends PrimaryReadReplicaConnection
      *
      * @throws InvalidArgumentException
      */
-    public function __construct(array $params, Driver $driver, ?Configuration $config = null, ?EventManager $eventManager = null)
-    {
+    public function __construct(
+        array $params,
+        Driver $driver,
+        ?Configuration $config = null,
+        ?EventManager $eventManager = null
+    ) {
         $this->deprecated(self::class, PrimaryReadReplicaConnection::class);
 
         if (isset($params['master'])) {

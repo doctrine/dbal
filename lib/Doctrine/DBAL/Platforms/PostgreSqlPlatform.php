@@ -116,7 +116,8 @@ class PostgreSqlPlatform extends AbstractPlatform
         if ($startPos !== false) {
             $str = $this->getSubstringExpression($str, $startPos);
 
-            return 'CASE WHEN (POSITION(' . $substr . ' IN ' . $str . ') = 0) THEN 0 ELSE (POSITION(' . $substr . ' IN ' . $str . ') + ' . ($startPos - 1) . ') END';
+            return 'CASE WHEN (POSITION(' . $substr . ' IN ' . $str . ') = 0) THEN 0'
+                . ' ELSE (POSITION(' . $substr . ' IN ' . $str . ') + ' . ($startPos - 1) . ') END';
         }
 
         return 'POSITION(' . $substr . ' IN ' . $str . ')';
@@ -357,7 +358,8 @@ SQL
                  WHERE oid IN (
                     SELECT indexrelid
                     FROM pg_index si, pg_class sc, pg_namespace sn
-                    WHERE ' . $this->getTableWhereClause($table, 'sc', 'sn') . ' AND sc.oid=si.indrelid AND sc.relnamespace = sn.oid
+                    WHERE ' . $this->getTableWhereClause($table, 'sc', 'sn') . '
+                    AND sc.oid=si.indrelid AND sc.relnamespace = sn.oid
                  ) AND pg_index.indexrelid = oid';
     }
 
@@ -546,7 +548,12 @@ SQL
             $oldColumnName = $columnDiff->getOldColumnName()->getQuotedName($this);
             $column        = $columnDiff->column;
 
-            if ($columnDiff->hasChanged('type') || $columnDiff->hasChanged('precision') || $columnDiff->hasChanged('scale') || $columnDiff->hasChanged('fixed')) {
+            if (
+                $columnDiff->hasChanged('type')
+                || $columnDiff->hasChanged('precision')
+                || $columnDiff->hasChanged('scale')
+                || $columnDiff->hasChanged('fixed')
+            ) {
                 $type = $column->getType();
 
                 // SERIAL/BIGSERIAL are not "real" types and we can't alter a column to that type
@@ -577,7 +584,8 @@ SQL
                     $seqName = $this->getIdentitySequenceName($diff->name, $oldColumnName);
 
                     $sql[] = 'CREATE SEQUENCE ' . $seqName;
-                    $sql[] = "SELECT setval('" . $seqName . "', (SELECT MAX(" . $oldColumnName . ') FROM ' . $diff->getName($this)->getQuotedName($this) . '))';
+                    $sql[] = "SELECT setval('" . $seqName . "', (SELECT MAX(" . $oldColumnName . ') FROM '
+                        . $diff->getName($this)->getQuotedName($this) . '))';
                     $query = 'ALTER ' . $oldColumnName . " SET DEFAULT nextval('" . $seqName . "')";
                     $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
                 } else {
@@ -590,7 +598,10 @@ SQL
             $newComment = $this->getColumnComment($column);
             $oldComment = $this->getOldColumnComment($columnDiff);
 
-            if ($columnDiff->hasChanged('comment') || ($columnDiff->fromColumn !== null && $oldComment !== $newComment)) {
+            if (
+                $columnDiff->hasChanged('comment')
+                || ($columnDiff->fromColumn !== null && $oldComment !== $newComment)
+            ) {
                 $commentsSQL[] = $this->getCommentOnColumnSQL(
                     $diff->getName($this)->getQuotedName($this),
                     $column->getQuotedName($this),
@@ -602,7 +613,8 @@ SQL
                 continue;
             }
 
-            $query = 'ALTER ' . $oldColumnName . ' TYPE ' . $column->getType()->getSQLDeclaration($column->toArray(), $this);
+            $query = 'ALTER ' . $oldColumnName . ' TYPE '
+                . $column->getType()->getSQLDeclaration($column->toArray(), $this);
             $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
         }
 

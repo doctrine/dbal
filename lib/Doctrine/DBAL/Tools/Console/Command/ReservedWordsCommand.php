@@ -72,7 +72,10 @@ class ReservedWordsCommand extends Command
             return;
         }
 
-        @trigger_error('Not passing a connection provider as the first constructor argument is deprecated', E_USER_DEPRECATED);
+        @trigger_error(
+            'Not passing a connection provider as the first constructor argument is deprecated',
+            E_USER_DEPRECATED
+        );
     }
 
     /**
@@ -180,7 +183,10 @@ EOT
             $keywords[] = new $class();
         }
 
-        $output->write('Checking keyword violations for <comment>' . implode(', ', $keywordLists) . '</comment>...', true);
+        $output->write(
+            'Checking keyword violations for <comment>' . implode(', ', $keywordLists) . '</comment>...',
+            true
+        );
 
         $schema  = $conn->getSchemaManager()->createSchema();
         $visitor = new ReservedKeywordsValidator($keywords);
@@ -188,7 +194,12 @@ EOT
 
         $violations = $visitor->getViolations();
         if (count($violations) !== 0) {
-            $output->write('There are <error>' . count($violations) . '</error> reserved keyword violations in your database schema:', true);
+            $output->write(
+                'There are <error>' . count($violations) . '</error> reserved keyword violations'
+                    . ' in your database schema:',
+                true
+            );
+
             foreach ($violations as $violation) {
                 $output->write('  - ' . $violation, true);
             }

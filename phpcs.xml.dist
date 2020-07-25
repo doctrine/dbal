@@ -9,8 +9,8 @@
     <arg name="cache" value=".phpcs-cache"/>
     <arg name="colors"/>
 
-    <!-- Ignore warnings, show progress of the run and show sniff names -->
-    <arg value="nps"/>
+    <!-- Show progress of the run and show sniff names -->
+    <arg value="ps"/>
 
     <file>bin</file>
     <file>lib</file>
@@ -36,6 +36,16 @@
         <properties>
             <property name="enableNativeTypeHint" value="false"/>
         </properties>
+    </rule>
+
+    <rule ref="PSR2.Classes.PropertyDeclaration.Underscore">
+        <exclude-pattern>*/lib/Doctrine/DBAL/Configuration.php</exclude-pattern>
+        <exclude-pattern>*/lib/Doctrine/DBAL/Connection.php</exclude-pattern>
+        <exclude-pattern>*/lib/Doctrine/DBAL/Driver</exclude-pattern>
+        <exclude-pattern>*/lib/Doctrine/DBAL/Event/Listeners</exclude-pattern>
+        <exclude-pattern>*/lib/Doctrine/DBAL/Platforms</exclude-pattern>
+        <exclude-pattern>*/lib/Doctrine/DBAL/Schema</exclude-pattern>
+        <exclude-pattern>*/lib/Doctrine/DBAL/Tools/Console/Helper/ConnectionHelper.php</exclude-pattern>
     </rule>
 
     <rule ref="SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint">

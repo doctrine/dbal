@@ -83,7 +83,8 @@ class SQLAnywhere12PlatformTest extends SQLAnywhere11PlatformTest
     public function testGeneratesCreateIndexWithAdvancedPlatformOptionsSQL(): void
     {
         self::assertEquals(
-            'CREATE VIRTUAL UNIQUE CLUSTERED INDEX fooindex ON footable (a, b) WITH NULLS NOT DISTINCT FOR OLAP WORKLOAD',
+            'CREATE VIRTUAL UNIQUE CLUSTERED INDEX fooindex ON footable (a, b)'
+                . ' WITH NULLS NOT DISTINCT FOR OLAP WORKLOAD',
             $this->platform->getCreateIndexSQL(
                 new Index(
                     'fooindex',

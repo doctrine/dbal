@@ -96,7 +96,9 @@ class PoolingShardConnectionTest extends TestCase
     public function testShardChoserWrongInstance(): void
     {
         $this->expectException('InvalidArgumentException');
-        $this->expectExceptionMessage("The 'shardChoser' configuration is not a valid instance of Doctrine\DBAL\Sharding\ShardChoser\ShardChoser");
+        $this->expectExceptionMessage(
+            "The 'shardChoser' configuration is not a valid instance of Doctrine\DBAL\Sharding\ShardChoser\ShardChoser"
+        );
 
         DriverManager::getConnection([
             'wrapperClass' => PoolingShardConnection::class,

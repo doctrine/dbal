@@ -9,7 +9,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 
 /**
- * Event Arguments used when a Driver connection is established inside Doctrine\DBAL\Connection.
+ * Event Arguments used when a Driver connection is established inside {@link Connection}.
  */
 class ConnectionEventArgs extends EventArgs
 {

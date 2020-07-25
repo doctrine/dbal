@@ -71,8 +71,11 @@ class UtilTest extends DbalTestCase
      *
      * @dataProvider dataConvertPositionalToNamedParameters
      */
-    public function testConvertPositionalToNamedParameters(string $inputSQL, string $expectedOutputSQL, array $expectedOutputParamsMap): void
-    {
+    public function testConvertPositionalToNamedParameters(
+        string $inputSQL,
+        string $expectedOutputSQL,
+        array $expectedOutputParamsMap
+    ): void {
         [$statement, $params] = Statement::convertPositionalToNamedPlaceholders($inputSQL);
 
         self::assertEquals($expectedOutputSQL, $statement);

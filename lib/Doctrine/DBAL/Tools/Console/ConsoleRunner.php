@@ -53,13 +53,21 @@ class ConsoleRunner
 
         $connectionProvider = null;
         if ($helperSetOrConnectionProvider instanceof HelperSet) {
-            @trigger_error(sprintf('Passing an instance of "%s" as the first argument is deprecated. Pass an instance of "%s" instead.', HelperSet::class, ConnectionProvider::class), E_USER_DEPRECATED);
+            @trigger_error(sprintf(
+                'Passing an instance of "%s" as the first argument is deprecated. Pass an instance of "%s" instead.',
+                HelperSet::class,
+                ConnectionProvider::class
+            ), E_USER_DEPRECATED);
             $connectionProvider = null;
             $cli->setHelperSet($helperSetOrConnectionProvider);
         } elseif ($helperSetOrConnectionProvider instanceof ConnectionProvider) {
             $connectionProvider = $helperSetOrConnectionProvider;
         } else {
-            throw new TypeError(sprintf('First argument must be an instance of "%s" or "%s"', HelperSet::class, ConnectionProvider::class));
+            throw new TypeError(sprintf(
+                'First argument must be an instance of "%s" or "%s"',
+                HelperSet::class,
+                ConnectionProvider::class
+            ));
         }
 
         self::addCommands($cli, $connectionProvider);

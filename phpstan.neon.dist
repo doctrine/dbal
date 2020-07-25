@@ -2,8 +2,6 @@ parameters:
     level: 7
     paths:
         - %currentWorkingDirectory%/lib
-    scanFiles:
-        - %currentWorkingDirectory%/tests/phpstan-polyfill.php
     reportUnmatchedIgnoredErrors: false
     checkMissingIterableValueType: false
     checkGenericClassInNonGenericObjectType: false

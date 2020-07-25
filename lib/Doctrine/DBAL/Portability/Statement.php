@@ -150,8 +150,11 @@ class Statement implements IteratorAggregate, DriverStatement, Result
 
         $row = $this->stmt->fetch($fetchMode);
 
-        $iterateRow = ($this->portability & (Connection::PORTABILITY_EMPTY_TO_NULL | Connection::PORTABILITY_RTRIM)) !== 0;
-        $fixCase    = $this->case !== null
+        $iterateRow = (
+            $this->portability & (Connection::PORTABILITY_EMPTY_TO_NULL | Connection::PORTABILITY_RTRIM)
+        ) !== 0;
+
+        $fixCase = $this->case !== null
             && ($fetchMode === FetchMode::ASSOCIATIVE || $fetchMode === FetchMode::MIXED)
             && ($this->portability & Connection::PORTABILITY_FIX_CASE);
 
@@ -290,8 +293,11 @@ class Statement implements IteratorAggregate, DriverStatement, Result
      */
     private function fixResult($result, bool $fixCase)
     {
-        $iterateRow = ($this->portability & (Connection::PORTABILITY_EMPTY_TO_NULL | Connection::PORTABILITY_RTRIM)) !== 0;
-        $fixCase    = $fixCase && $this->case !== null && ($this->portability & Connection::PORTABILITY_FIX_CASE) !== 0;
+        $iterateRow = (
+            $this->portability & (Connection::PORTABILITY_EMPTY_TO_NULL | Connection::PORTABILITY_RTRIM)
+        ) !== 0;
+
+        $fixCase = $fixCase && $this->case !== null && ($this->portability & Connection::PORTABILITY_FIX_CASE) !== 0;
 
         return $this->fixRow($result, $iterateRow, $fixCase);
     }
@@ -303,8 +309,11 @@ class Statement implements IteratorAggregate, DriverStatement, Result
      */
     private function fixResultSet(array $resultSet, bool $fixCase, bool $isArray): array
     {
-        $iterateRow = ($this->portability & (Connection::PORTABILITY_EMPTY_TO_NULL | Connection::PORTABILITY_RTRIM)) !== 0;
-        $fixCase    = $fixCase && $this->case !== null && ($this->portability & Connection::PORTABILITY_FIX_CASE) !== 0;
+        $iterateRow = (
+            $this->portability & (Connection::PORTABILITY_EMPTY_TO_NULL | Connection::PORTABILITY_RTRIM)
+        ) !== 0;
+
+        $fixCase = $fixCase && $this->case !== null && ($this->portability & Connection::PORTABILITY_FIX_CASE) !== 0;
 
         if (! $iterateRow && ! $fixCase) {
             return $resultSet;

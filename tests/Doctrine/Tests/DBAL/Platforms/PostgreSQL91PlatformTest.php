@@ -30,12 +30,15 @@ class PostgreSQL91PlatformTest extends PostgreSqlPlatformTest
     {
         $table = new Table('foo');
         $table->addColumn('no_collation', 'string');
-        $table->addColumn('column_collation', 'string')->setPlatformOption('collation', 'en_US.UTF-8');
+        $table->addColumn('column_collation', 'string')
+            ->setPlatformOption('collation', 'en_US.UTF-8');
 
         self::assertSame(
-            ['CREATE TABLE foo (no_collation VARCHAR(255) NOT NULL, column_collation VARCHAR(255) NOT NULL COLLATE "en_US.UTF-8")'],
-            $this->platform->getCreateTableSQL($table),
-            'Column "no_collation" will use the default collation from the table/database and "column_collation" overwrites the collation on this column'
+            [
+                'CREATE TABLE foo (no_collation VARCHAR(255) NOT NULL, '
+                    . 'column_collation VARCHAR(255) NOT NULL COLLATE "en_US.UTF-8")',
+            ],
+            $this->platform->getCreateTableSQL($table)
         );
     }
 }

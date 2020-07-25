@@ -26,7 +26,14 @@ class DBALExceptionTest extends DbalTestCase
     public function testDriverExceptionDuringQueryAcceptsResource(): void
     {
         $driver = $this->createMock(Driver::class);
-        $e      = DBALException::driverExceptionDuringQuery($driver, new Exception(), 'INSERT INTO file (`content`) VALUES (?)', [1 => fopen(__FILE__, 'r')]);
+
+        $e = DBALException::driverExceptionDuringQuery(
+            $driver,
+            new Exception(),
+            'INSERT INTO file (`content`) VALUES (?)',
+            [1 => fopen(__FILE__, 'r')]
+        );
+
         self::assertStringContainsString('Resource', $e->getMessage());
     }
 
@@ -62,7 +69,8 @@ class DBALExceptionTest extends DbalTestCase
         $exception = DBALException::invalidPlatformType(new stdClass());
 
         self::assertSame(
-            "Option 'platform' must be a subtype of 'Doctrine\DBAL\Platforms\AbstractPlatform', instance of 'stdClass' given",
+            "Option 'platform' must be a subtype of 'Doctrine\DBAL\Platforms\AbstractPlatform', "
+                . "instance of 'stdClass' given",
             $exception->getMessage()
         );
     }
@@ -72,7 +80,8 @@ class DBALExceptionTest extends DbalTestCase
         $exception = DBALException::invalidPlatformType('some string');
 
         self::assertSame(
-            "Option 'platform' must be an object and subtype of 'Doctrine\DBAL\Platforms\AbstractPlatform'. Got 'string'",
+            "Option 'platform' must be an object and subtype of 'Doctrine\DBAL\Platforms\AbstractPlatform'. "
+                . "Got 'string'",
             $exception->getMessage()
         );
     }

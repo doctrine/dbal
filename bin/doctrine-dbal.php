@@ -45,7 +45,10 @@ if (! is_readable($configFile)) {
 $commands                      = [];
 $helperSetOrConnectionProvider = require $configFile;
 
-if (! $helperSetOrConnectionProvider instanceof HelperSet && ! $helperSetOrConnectionProvider instanceof ConnectionProvider) {
+if (
+    ! $helperSetOrConnectionProvider instanceof HelperSet
+    && ! $helperSetOrConnectionProvider instanceof ConnectionProvider
+) {
     foreach ($GLOBALS as $candidate) {
         if ($candidate instanceof HelperSet) {
             $helperSetOrConnectionProvider = $candidate;

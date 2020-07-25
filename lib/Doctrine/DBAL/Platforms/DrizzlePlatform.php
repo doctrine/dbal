@@ -331,8 +331,8 @@ class DrizzlePlatform extends AbstractPlatform
             $databaseSQL = 'DATABASE()';
         }
 
-        return 'SELECT COLUMN_NAME, DATA_TYPE, COLUMN_COMMENT, IS_NULLABLE, IS_AUTO_INCREMENT, CHARACTER_MAXIMUM_LENGTH, COLUMN_DEFAULT,' .
-               ' NUMERIC_PRECISION, NUMERIC_SCALE, COLLATION_NAME' .
+        return 'SELECT COLUMN_NAME, DATA_TYPE, COLUMN_COMMENT, IS_NULLABLE, IS_AUTO_INCREMENT,' .
+               ' CHARACTER_MAXIMUM_LENGTH, COLUMN_DEFAULT, NUMERIC_PRECISION, NUMERIC_SCALE, COLLATION_NAME' .
                ' FROM DATA_DICTIONARY.COLUMNS' .
                ' WHERE TABLE_SCHEMA=' . $databaseSQL . ' AND TABLE_NAME = ' . $this->quoteStringLiteral($table);
     }
@@ -351,9 +351,11 @@ class DrizzlePlatform extends AbstractPlatform
             $databaseSQL = 'DATABASE()';
         }
 
-        return 'SELECT CONSTRAINT_NAME, CONSTRAINT_COLUMNS, REFERENCED_TABLE_NAME, REFERENCED_TABLE_COLUMNS, UPDATE_RULE, DELETE_RULE' .
-               ' FROM DATA_DICTIONARY.FOREIGN_KEYS' .
-               ' WHERE CONSTRAINT_SCHEMA=' . $databaseSQL . ' AND CONSTRAINT_TABLE=' . $this->quoteStringLiteral($table);
+        return 'SELECT CONSTRAINT_NAME, CONSTRAINT_COLUMNS, REFERENCED_TABLE_NAME, REFERENCED_TABLE_COLUMNS,'
+            . ' UPDATE_RULE, DELETE_RULE'
+            . ' FROM DATA_DICTIONARY.FOREIGN_KEYS'
+            . ' WHERE CONSTRAINT_SCHEMA=' . $databaseSQL
+            . ' AND CONSTRAINT_TABLE=' . $this->quoteStringLiteral($table);
     }
 
     /**
@@ -367,9 +369,12 @@ class DrizzlePlatform extends AbstractPlatform
             $databaseSQL = 'DATABASE()';
         }
 
-        return "SELECT INDEX_NAME AS 'key_name', COLUMN_NAME AS 'column_name', IS_USED_IN_PRIMARY AS 'primary', IS_UNIQUE=0 AS 'non_unique'" .
-               ' FROM DATA_DICTIONARY.INDEX_PARTS' .
-               ' WHERE TABLE_SCHEMA=' . $databaseSQL . ' AND TABLE_NAME=' . $this->quoteStringLiteral($table);
+        return "SELECT INDEX_NAME AS 'key_name',"
+            . " COLUMN_NAME AS 'column_name',"
+            . " IS_USED_IN_PRIMARY AS 'primary',"
+            . " IS_UNIQUE=0 AS 'non_unique'"
+            . ' FROM DATA_DICTIONARY.INDEX_PARTS'
+            . ' WHERE TABLE_SCHEMA=' . $databaseSQL . ' AND TABLE_NAME=' . $this->quoteStringLiteral($table);
     }
 
     /**
@@ -422,13 +427,17 @@ class DrizzlePlatform extends AbstractPlatform
         } elseif (is_string($index)) {
             $indexName = $index;
         } else {
-            throw new InvalidArgumentException('DrizzlePlatform::getDropIndexSQL() expects $index parameter to be string or \Doctrine\DBAL\Schema\Index.');
+            throw new InvalidArgumentException(
+                __METHOD__ . '() expects $index parameter to be string or ' . Index::class . '.'
+            );
         }
 
         if ($table instanceof Table) {
             $table = $table->getQuotedName($this);
         } elseif (! is_string($table)) {
-            throw new InvalidArgumentException('DrizzlePlatform::getDropIndexSQL() expects $table parameter to be string or \Doctrine\DBAL\Schema\Table.');
+            throw new InvalidArgumentException(
+                __METHOD__ . '() expects $table parameter to be string or ' . Table::class . '.'
+            );
         }
 
         if ($index instanceof Index && $index->isPrimary()) {
@@ -497,9 +506,11 @@ class DrizzlePlatform extends AbstractPlatform
                 continue;
             }
 
-            $columnArray            = $column->toArray();
-            $columnArray['comment'] = $this->getColumnComment($column);
-            $queryParts[]           = 'ADD ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray);
+            $columnArray = array_merge($column->toArray(), [
+                'comment' => $this->getColumnComment($column),
+            ]);
+
+            $queryParts[] = 'ADD ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray);
         }
 
         foreach ($diff->removedColumns as $column) {
@@ -552,7 +563,8 @@ class DrizzlePlatform extends AbstractPlatform
 
         if (! $this->onSchemaAlterTable($diff, $tableSql)) {
             if (count($queryParts) > 0) {
-                $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . implode(', ', $queryParts);
+                $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this)
+                    . ' ' . implode(', ', $queryParts);
             }
 
             $sql = array_merge(
@@ -573,7 +585,9 @@ class DrizzlePlatform extends AbstractPlatform
         if ($table instanceof Table) {
             $table = $table->getQuotedName($this);
         } elseif (! is_string($table)) {
-            throw new InvalidArgumentException('getDropTableSQL() expects $table parameter to be string or \Doctrine\DBAL\Schema\Table.');
+            throw new InvalidArgumentException(
+                __METHOD__ . '() expects $table parameter to be string or ' . Table::class . '.'
+            );
         }
 
         return 'DROP TEMPORARY TABLE ' . $table;

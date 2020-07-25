@@ -1040,7 +1040,8 @@ class Connection implements DriverConnection
     }
 
     /**
-     * Prepares and executes an SQL query and returns the result as an iterator over rows represented as associative arrays.
+     * Prepares and executes an SQL query and returns the result as an iterator over rows represented
+     * as associative arrays.
      *
      * @param string                                           $query  The SQL query.
      * @param array<int, mixed>|array<string, mixed>           $params The query parameters.
@@ -1160,7 +1161,12 @@ class Connection implements DriverConnection
                 $stmt = $connection->query($sql);
             }
         } catch (Throwable $e) {
-            $this->handleExceptionDuringQuery($e, $sql, $params, $types);
+            $this->handleExceptionDuringQuery(
+                $e,
+                $sql,
+                $params,
+                $types
+            );
         }
 
         $stmt->setFetchMode($this->defaultFetchMode);
@@ -1210,7 +1216,13 @@ class Connection implements DriverConnection
         }
 
         if (! isset($stmt)) {
-            $stmt = new ResultCacheStatement($this->executeQuery($sql, $params, $types), $resultCache, $cacheKey, $realKey, $qcp->getLifetime());
+            $stmt = new ResultCacheStatement(
+                $this->executeQuery($sql, $params, $types),
+                $resultCache,
+                $cacheKey,
+                $realKey,
+                $qcp->getLifetime()
+            );
         }
 
         $stmt->setFetchMode($this->defaultFetchMode);
@@ -1349,7 +1361,12 @@ class Connection implements DriverConnection
                 $result = $connection->exec($sql);
             }
         } catch (Throwable $e) {
-            $this->handleExceptionDuringQuery($e, $sql, $params, $types);
+            $this->handleExceptionDuringQuery(
+                $e,
+                $sql,
+                $params,
+                $types
+            );
         }
 
         if ($logger) {

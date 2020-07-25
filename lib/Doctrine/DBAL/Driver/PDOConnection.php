@@ -5,7 +5,6 @@ namespace Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
 use Doctrine\DBAL\Driver\PDO\Exception;
 use Doctrine\DBAL\Driver\PDO\Statement;
-use Doctrine\DBAL\ParameterType;
 use PDO;
 use PDOException;
 use PDOStatement;
@@ -100,14 +99,6 @@ class PDOConnection extends PDO implements ConnectionInterface, ServerInfoAwareC
         } catch (PDOException $exception) {
             throw Exception::new($exception);
         }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function quote($input, $type = ParameterType::STRING)
-    {
-        return parent::quote($input, $type);
     }
 
     /**
