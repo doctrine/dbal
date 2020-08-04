@@ -9,6 +9,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use function count;
 
 class MySqlPlatformTest extends AbstractMySQLPlatformTestCase
 {
@@ -25,22 +26,22 @@ class MySqlPlatformTest extends AbstractMySQLPlatformTestCase
         );
     }
 
-    public function testGetAlterTableSqlRemovesCharsetPlatformOptionWhenAlteringTypeFromStringTextToInteger() : void
+    public function testGetAlterTableSqlRemovesCharsetPlatformOptionWhenAlteringTypeFromStringTextToInteger(): void
     {
-        $tableA = new Table('tableA');
+        $tableA     = new Table('tableA');
         $textColumn = $tableA->addColumn('abc', Types::TEXT);
         $textColumn->setPlatformOption('charset', 'UTF-8');
         $stringColumn = $tableA->addColumn('def', Types::STRING);
         $stringColumn->setPlatformOption('charset', 'SJIS');
 
-        $tableB = clone $tableA;
+        $tableB      = clone $tableA;
         $firstColumn = $tableB->getColumn('abc');
         $firstColumn->setType(Type::getType(Types::INTEGER));
         $secondColumn = $tableB->getColumn('def');
         $secondColumn->setType(Type::getType(Types::INTEGER));
 
         $comparator = new Comparator();
-        $tableDiff = $comparator->diffTable($tableA, $tableB);
+        $tableDiff  = $comparator->diffTable($tableA, $tableB);
 
         $this->platform->getAlterTableSQL($tableDiff);
 
