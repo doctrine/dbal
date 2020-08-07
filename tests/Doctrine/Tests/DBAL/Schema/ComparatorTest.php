@@ -1174,29 +1174,17 @@ class ComparatorTest extends TestCase
             ->method('getNamespaces')
             ->will($this->returnValue(['foo', 'bar']));
 
-        $fromSchema->expects($this->at(0))
-            ->method('hasNamespace')
-            ->with('bar')
-            ->will($this->returnValue(true));
-
-        $fromSchema->expects($this->at(1))
-            ->method('hasNamespace')
-            ->with('baz')
-            ->will($this->returnValue(false));
+        $fromSchema->method('hasNamespace')
+            ->withConsecutive(['bar'], ['baz'])
+            ->willReturnOnConsecutiveCalls(true, false);
 
         $toSchema->expects($this->once())
             ->method('getNamespaces')
             ->will($this->returnValue(['bar', 'baz']));
 
-        $toSchema->expects($this->at(1))
-            ->method('hasNamespace')
-            ->with('foo')
-            ->will($this->returnValue(false));
-
-        $toSchema->expects($this->at(2))
-            ->method('hasNamespace')
-            ->with('bar')
-            ->will($this->returnValue(true));
+        $toSchema->method('hasNamespace')
+            ->withConsecutive(['foo'], ['bar'])
+            ->willReturnOnConsecutiveCalls(false, true);
 
         $expected                    = new SchemaDiff();
         $expected->fromSchema        = $fromSchema;

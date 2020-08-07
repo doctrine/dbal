@@ -152,7 +152,7 @@ class ConnectionTest extends DbalTestCase
         $eventManager->addEventListener([Events::postConnect], $listenerMock);
 
         $driverMock = $this->createMock(Driver::class);
-        $driverMock->expects($this->at(0))
+        $driverMock->expects($this->once())
                    ->method('connect');
 
         $conn = new Connection([], $driverMock, new Configuration(), $eventManager);
@@ -846,13 +846,11 @@ EOF
         $originalException = new Exception('Original exception');
         $fallbackException = new Exception('Fallback exception');
 
-        $driverMock->expects($this->at(0))
-            ->method('connect')
-            ->willThrowException($originalException);
-
-        $driverMock->expects($this->at(1))
-            ->method('connect')
-            ->willThrowException($fallbackException);
+        $driverMock->method('connect')
+            ->will(self::onConsecutiveCalls(
+                self::throwException($originalException),
+                self::throwException($fallbackException)
+            ));
 
         $this->expectExceptionMessage($originalException->getMessage());
 

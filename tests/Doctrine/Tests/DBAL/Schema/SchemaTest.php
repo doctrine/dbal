@@ -371,7 +371,7 @@ class SchemaTest extends TestCase
                 [$schema->getSequence('war')]
             );
 
-        self::assertNull($schema->visit($visitor));
+        $schema->visit($visitor);
     }
 
     public function testVisitsNamespaceVisitor(): void
@@ -392,34 +392,24 @@ class SchemaTest extends TestCase
             ->method('acceptSchema')
             ->with($schema);
 
-        $visitor->expects($this->at(1))
+        $visitor->expects($this->exactly(3))
             ->method('acceptNamespace')
-            ->with('foo');
+            ->withConsecutive(['foo'], ['bar'], ['bla']);
 
-        $visitor->expects($this->at(2))
-            ->method('acceptNamespace')
-            ->with('bar');
-
-        $visitor->expects($this->at(3))
-            ->method('acceptNamespace')
-            ->with('bla');
-
-        $visitor->expects($this->at(4))
+        $visitor->expects($this->exactly(2))
             ->method('acceptTable')
-            ->with($schema->getTable('baz'));
+            ->withConsecutive(
+                [$schema->getTable('baz')],
+                [$schema->getTable('bla.bloo')]
+            );
 
-        $visitor->expects($this->at(5))
-            ->method('acceptTable')
-            ->with($schema->getTable('bla.bloo'));
-
-        $visitor->expects($this->at(6))
+        $visitor->expects($this->exactly(2))
             ->method('acceptSequence')
-            ->with($schema->getSequence('moo'));
+            ->withConsecutive(
+                [$schema->getSequence('moo')],
+                [$schema->getSequence('war')]
+            );
 
-        $visitor->expects($this->at(7))
-            ->method('acceptSequence')
-            ->with($schema->getSequence('war'));
-
-        self::assertNull($schema->visit($visitor));
+        $schema->visit($visitor);
     }
 }
