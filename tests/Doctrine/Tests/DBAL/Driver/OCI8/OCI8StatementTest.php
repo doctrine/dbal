@@ -33,23 +33,12 @@ class OCI8StatementTest extends DbalTestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $statement->expects($this->at(0))
+        $statement->expects($this->exactly(3))
             ->method('bindValue')
-            ->with(
-                $this->equalTo(1),
-                $this->equalTo($params[0])
-            );
-        $statement->expects($this->at(1))
-            ->method('bindValue')
-            ->with(
-                $this->equalTo(2),
-                $this->equalTo($params[1])
-            );
-        $statement->expects($this->at(2))
-            ->method('bindValue')
-            ->with(
-                $this->equalTo(3),
-                $this->equalTo($params[2])
+            ->withConsecutive(
+                [1, $params[0]],
+                [2, $params[1]],
+                [3, $params[2]],
             );
 
         // the return value is irrelevant to the test

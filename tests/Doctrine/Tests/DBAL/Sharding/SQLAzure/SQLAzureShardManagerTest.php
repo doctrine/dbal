@@ -60,7 +60,8 @@ class SQLAzureShardManagerTest extends TestCase
             ],
         ]);
 
-        $conn->expects($this->at(1))->method('isTransactionActive')->will($this->returnValue(true));
+        $conn->method('isTransactionActive')
+            ->willReturn(true);
 
         $this->expectException(ShardingException::class);
         $this->expectExceptionMessage('Cannot switch shard during an active transaction.');
@@ -79,8 +80,12 @@ class SQLAzureShardManagerTest extends TestCase
             ],
         ]);
 
-        $conn->expects($this->at(1))->method('isTransactionActive')->will($this->returnValue(false));
-        $conn->expects($this->at(2))->method('exec')->with($this->equalTo('USE FEDERATION ROOT WITH RESET'));
+        $conn->method('isTransactionActive')
+            ->willReturn(false);
+
+        $conn->expects($this->once())
+            ->method('exec')
+            ->with('USE FEDERATION ROOT WITH RESET');
 
         $sm = new SQLAzureShardManager($conn);
         $sm->selectGlobal();
@@ -96,7 +101,8 @@ class SQLAzureShardManagerTest extends TestCase
             ],
         ]);
 
-        $conn->expects($this->at(1))->method('isTransactionActive')->will($this->returnValue(true));
+        $conn->method('isTransactionActive')
+            ->willReturn(true);
 
         $this->expectException(ShardingException::class);
         $this->expectExceptionMessage('Cannot switch shard during an active transaction.');
@@ -118,7 +124,9 @@ class SQLAzureShardManagerTest extends TestCase
             ->onlyMethods(['getParams', 'exec', 'isTransactionActive'])
             ->disableOriginalConstructor()
             ->getMock();
-        $conn->expects($this->at(0))->method('getParams')->will($this->returnValue($params));
+
+        $conn->method('getParams')
+            ->willReturn($params);
 
         return $conn;
     }
