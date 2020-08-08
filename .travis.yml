@@ -18,11 +18,7 @@ before_script:
     fi
 
 install:
-  - |
-    if [[ $TRAVIS_PHP_VERSION = "nightly" ]]; then
-      export COMPOSER_FLAGS="--ignore-platform-reqs"
-    fi
-  - travis_retry composer -n install --prefer-dist $COMPOSER_FLAGS
+  - travis_retry composer -n install --prefer-dist
 
 script:
   - ./vendor/bin/phpunit --configuration ci/travis/$DB.travis.xml --coverage-clover clover.xml
