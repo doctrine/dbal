@@ -50,7 +50,7 @@ constants:
 
 The default transaction isolation level of a
 ``Doctrine\DBAL\Connection`` is chosen by the underlying platform
-but it is always at least READ\_COMMITTED.
+but it is always at least ``READ_COMMITTED``.
 
 Transaction Nesting
 -------------------
