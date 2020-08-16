@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="../../vendor/phpunit/phpunit/phpunit.xsd"
+         xsi:noNamespaceSchemaLocation="../../vendor/phpunit/phpunit/schema/9.3.xsd"
          colors="true"
-         bootstrap="../../vendor/autoload.php"
          beStrictAboutOutputDuringTests="true"
          beStrictAboutTodoAnnotatedTests="true"
          failOnRisky="true"
@@ -24,11 +23,11 @@
         </testsuite>
     </testsuites>
 
-    <filter>
-        <whitelist>
+    <coverage>
+        <include>
             <directory suffix=".php">../../src</directory>
-        </whitelist>
-    </filter>
+        </include>
+    </coverage>
 
     <groups>
         <exclude>

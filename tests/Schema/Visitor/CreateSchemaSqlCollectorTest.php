@@ -47,19 +47,20 @@ class CreateSchemaSqlCollectorTest extends TestCase
             ->willReturn(['foo']);
     }
 
-    public function testAcceptsNamespace(): void
+    public function testAcceptsNamespaceDoesNotSupportSchemas(): void
     {
-        $this->platformMock->expects(self::at(0))
-            ->method('supportsSchemas')
-            ->will(self::returnValue(false));
-
-        $this->platformMock->expects(self::at(1))
-            ->method('supportsSchemas')
-            ->will(self::returnValue(true));
+        $this->platformMock->method('supportsSchemas')
+            ->willReturn(false);
 
         $this->visitor->acceptNamespace('foo');
 
         self::assertEmpty($this->visitor->getQueries());
+    }
+
+    public function testAcceptsNamespaceSupportsSchemas(): void
+    {
+        $this->platformMock->method('supportsSchemas')
+            ->willReturn(true);
 
         $this->visitor->acceptNamespace('foo');
 
@@ -75,15 +76,10 @@ class CreateSchemaSqlCollectorTest extends TestCase
         self::assertSame(['foo'], $this->visitor->getQueries());
     }
 
-    public function testAcceptsForeignKey(): void
+    public function testAcceptsForeignKeyDoesNotSupportCreateDropForeignKeyConstraints(): void
     {
-        $this->platformMock->expects(self::at(0))
-            ->method('supportsCreateDropForeignKeyConstraints')
-            ->will(self::returnValue(false));
-
-        $this->platformMock->expects(self::at(1))
-            ->method('supportsCreateDropForeignKeyConstraints')
-            ->will(self::returnValue(true));
+        $this->platformMock->method('supportsCreateDropForeignKeyConstraints')
+            ->willReturn(false);
 
         $table      = $this->createTableMock();
         $foreignKey = $this->createForeignKeyConstraintMock();
@@ -91,6 +87,15 @@ class CreateSchemaSqlCollectorTest extends TestCase
         $this->visitor->acceptForeignKey($table, $foreignKey);
 
         self::assertEmpty($this->visitor->getQueries());
+    }
+
+    public function testAcceptsForeignKeySupportsCreateDropForeignKeyConstraints(): void
+    {
+        $this->platformMock->method('supportsCreateDropForeignKeyConstraints')
+            ->willReturn(true);
+
+        $table      = $this->createTableMock();
+        $foreignKey = $this->createForeignKeyConstraintMock();
 
         $this->visitor->acceptForeignKey($table, $foreignKey);
 

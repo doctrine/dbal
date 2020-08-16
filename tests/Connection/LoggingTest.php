@@ -54,7 +54,7 @@ final class LoggingTest extends TestCase
         $logger->expects(self::once())
             ->method('startQuery')
             ->with(self::equalTo($expectedSQL), self::equalTo([]));
-        $logger->expects(self::at(1))
+        $logger->expects(self::once())
             ->method('stopQuery');
 
         $connection = new Connection([], $driver);

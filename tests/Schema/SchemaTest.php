@@ -393,36 +393,24 @@ class SchemaTest extends TestCase
             ->method('acceptSchema')
             ->with($schema);
 
-        $visitor->expects(self::at(1))
+        $visitor->expects(self::exactly(3))
             ->method('acceptNamespace')
-            ->with('foo');
+            ->withConsecutive(['foo'], ['bar'], ['bla']);
 
-        $visitor->expects(self::at(2))
-            ->method('acceptNamespace')
-            ->with('bar');
-
-        $visitor->expects(self::at(3))
-            ->method('acceptNamespace')
-            ->with('bla');
-
-        $visitor->expects(self::at(4))
+        $visitor->expects(self::exactly(2))
             ->method('acceptTable')
-            ->with($schema->getTable('baz'));
+            ->withConsecutive(
+                [$schema->getTable('baz')],
+                [$schema->getTable('bla.bloo')]
+            );
 
-        $visitor->expects(self::at(5))
-            ->method('acceptTable')
-            ->with($schema->getTable('bla.bloo'));
-
-        $visitor->expects(self::at(6))
+        $visitor->expects(self::exactly(2))
             ->method('acceptSequence')
-            ->with($schema->getSequence('moo'));
-
-        $visitor->expects(self::at(7))
-            ->method('acceptSequence')
-            ->with($schema->getSequence('war'));
+            ->withConsecutive(
+                [$schema->getSequence('moo')],
+                [$schema->getSequence('war')]
+            );
 
         $schema->visit($visitor);
-
-        self::doesNotPerformAssertions(); // FIXME
     }
 }
