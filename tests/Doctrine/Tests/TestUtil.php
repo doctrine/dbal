@@ -175,6 +175,11 @@ class TestUtil
                 'dbname',
                 'port',
                 'server',
+                'ssl_key',
+                'ssl_cert',
+                'ssl_ca',
+                'ssl_capath',
+                'ssl_cipher',
                 'unix_socket',
             ] as $parameter
         ) {
