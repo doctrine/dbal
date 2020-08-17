@@ -28,10 +28,11 @@ abstract class AbstractDriverTest extends DbalFunctionalTestCase
         $params = $this->connection->getParams();
         unset($params['dbname']);
 
-        $user     = $params['user'] ?? null;
-        $password = $params['password'] ?? null;
+        $user          = $params['user'] ?? null;
+        $password      = $params['password'] ?? null;
+        $driverOptions = $params['driverOptions'] ?? [];
 
-        $connection = $this->driver->connect($params, $user, $password);
+        $connection = $this->driver->connect($params, $user, $password, $driverOptions);
 
         self::assertInstanceOf(DriverConnection::class, $connection);
     }

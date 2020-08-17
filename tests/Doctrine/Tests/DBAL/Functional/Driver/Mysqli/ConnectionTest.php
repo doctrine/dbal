@@ -8,6 +8,8 @@ use Doctrine\DBAL\Driver\Mysqli\MysqliException;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use Doctrine\Tests\TestUtil;
 
+use function array_merge;
+
 use const MYSQLI_OPT_CONNECT_TIMEOUT;
 
 /**
@@ -53,6 +55,10 @@ class ConnectionTest extends DbalFunctionalTestCase
     private function getConnection(array $driverOptions): MysqliConnection
     {
         $params = TestUtil::getConnectionParams();
+
+        if (isset($params['driverOptions'])) {
+            $driverOptions = array_merge($params['driverOptions'], $driverOptions);
+        }
 
         return new MysqliConnection(
             $params,

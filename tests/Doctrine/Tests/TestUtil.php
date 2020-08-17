@@ -8,6 +8,9 @@ use PHPUnit\Framework\Assert;
 
 use function explode;
 use function extension_loaded;
+use function strlen;
+use function strpos;
+use function substr;
 use function unlink;
 
 /**
@@ -188,6 +191,14 @@ class TestUtil
             }
 
             $parameters[$parameter] = $configuration[$prefix . $parameter];
+        }
+
+        foreach ($configuration as $param => $value) {
+            if (strpos($param, $prefix . 'driver_option_') !== 0) {
+                continue;
+            }
+
+            $parameters['driverOptions'][substr($param, strlen($prefix . 'driver_option_'))] = $value;
         }
 
         return $parameters;
