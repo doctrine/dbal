@@ -4,7 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="05276461-b31f-4535-a4be-8598fdcd0b52" name="Default Changelist" comment="Documentation on `DBAL\Driver\Statement::bindValue` is incorrect&#10;&#10;This change fixes the documentation on the `bindValue` function. Per the implementation this function can take a string, int, or type instance." />
+    <list default="true" id="05276461-b31f-4535-a4be-8598fdcd0b52" name="Default Changelist" comment="Documentation on `DBAL\Driver\Statement::bindValue` is incorrect&#10;&#10;This change fixes the documentation on the `bindValue` function. Per the implementation this function can take a string, int, or type instance.">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Functional/Driver/PDO/SQLSrv/DriverTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Functional/Driver/PDO/SQLSrv/DriverTest.php" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -166,7 +169,7 @@
       <updated>1597708246016</updated>
       <workItem from="1597708247994" duration="3109000" />
       <workItem from="1597787755785" duration="151000" />
-      <workItem from="1599847090232" duration="5508000" />
+      <workItem from="1599847090232" duration="5670000" />
     </task>
     <task id="LOCAL-00001" summary="Documentation on `DBAL\Driver\Statement::bindValue` is incorrect&#10;&#10;This change fixes the documentation on the `bindValue` function. Per the implementation this function can take a string, int, or type instance.">
       <created>1597709424228</created>
@@ -234,10 +237,14 @@
       <screen x="0" y="0" width="1600" height="860" />
     </state>
     <state width="1557" height="392" key="GridCell.Tab.1.right/0.0.1600.860@0.0.1600.860" timestamp="1599852188226" />
-    <state x="438" y="191" key="MultipleFileMergeDialog" timestamp="1599852601062">
+    <state x="152" y="68" key="MergeDialog" timestamp="1599852653077">
       <screen x="0" y="0" width="1600" height="860" />
     </state>
-    <state x="438" y="191" key="MultipleFileMergeDialog/0.0.1600.860@0.0.1600.860" timestamp="1599852601062" />
+    <state x="152" y="68" key="MergeDialog/0.0.1600.860@0.0.1600.860" timestamp="1599852653077" />
+    <state x="438" y="191" key="MultipleFileMergeDialog" timestamp="1599852658401">
+      <screen x="0" y="0" width="1600" height="860" />
+    </state>
+    <state x="438" y="191" key="MultipleFileMergeDialog/0.0.1600.860@0.0.1600.860" timestamp="1599852658401" />
     <state x="631" y="152" key="NewPhpClassDialog" timestamp="1599850636532">
       <screen x="0" y="0" width="1600" height="860" />
     </state>
@@ -254,10 +261,10 @@
       <screen x="0" y="0" width="1600" height="860" />
     </state>
     <state x="506" y="163" width="587" height="534" key="find.popup/0.0.1600.860@0.0.1600.860" timestamp="1599851387916" />
-    <state x="463" y="180" width="672" height="678" key="search.everywhere.popup" timestamp="1599852598093">
+    <state x="463" y="180" width="672" height="678" key="search.everywhere.popup" timestamp="1599852759282">
       <screen x="0" y="0" width="1600" height="860" />
     </state>
-    <state x="463" y="180" width="672" height="678" key="search.everywhere.popup/0.0.1600.860@0.0.1600.860" timestamp="1599852598093" />
+    <state x="463" y="180" width="672" height="678" key="search.everywhere.popup/0.0.1600.860@0.0.1600.860" timestamp="1599852759282" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
