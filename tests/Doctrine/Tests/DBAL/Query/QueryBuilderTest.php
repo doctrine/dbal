@@ -489,6 +489,15 @@ class QueryBuilderTest extends DbalTestCase
         self::assertEquals('DELETE FROM users u WHERE u.foo = ?', (string) $qb);
     }
 
+    public function testDeleteFrom(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+        $qb->delete()
+            ->from('users');
+
+        self::assertEquals('DELETE FROM users', (string) $qb);
+    }
+
     public function testEmptyDelete(): void
     {
         $qb  = new QueryBuilder($this->conn);
