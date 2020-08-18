@@ -14,6 +14,8 @@ use function count;
 
 /**
  * Schema Synchronizer for Default DBAL Connection.
+ *
+ * @deprecated
  */
 final class SingleDatabaseSynchronizer extends AbstractSchemaSynchronizer
 {

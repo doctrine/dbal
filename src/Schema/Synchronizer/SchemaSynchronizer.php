@@ -9,6 +9,8 @@ use Doctrine\DBAL\Schema\Schema;
 /**
  * The synchronizer knows how to synchronize a schema with the configured
  * database.
+ *
+ * @deprecated
  */
 interface SchemaSynchronizer
 {
