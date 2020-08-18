@@ -187,6 +187,9 @@ jobs:
       env: DB=mysqli.docker IMAGE=mysql:8.0
     - stage: Test
       php: 7.4
+      env: DB=mysqli-tls.docker IMAGE=mysql:8.0 TLS=yes
+    - stage: Test
+      php: 7.4
       env: DB=mariadb.docker IMAGE=mariadb:10.3
     - stage: Test
       php: 7.4
