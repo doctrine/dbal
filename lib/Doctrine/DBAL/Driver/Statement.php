@@ -3,7 +3,6 @@
 namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\ParameterType;
-use Doctrine\DBAL\Types\Type;
 
 /**
  * Statement interface.
