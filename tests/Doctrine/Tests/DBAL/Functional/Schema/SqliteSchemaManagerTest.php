@@ -43,10 +43,11 @@ class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $params           = $this->connection->getParams();
         $params['dbname'] = 'test_drop_database';
 
-        $user     = $params['user'] ?? null;
-        $password = $params['password'] ?? null;
+        $user          = $params['user'] ?? null;
+        $password      = $params['password'] ?? null;
+        $driverOptions = $params['driverOptions'] ?? [];
 
-        $connection = $this->connection->getDriver()->connect($params, $user, $password);
+        $connection = $this->connection->getDriver()->connect($params, $user, $password, $driverOptions);
 
         self::assertInstanceOf(Connection::class, $connection);
 
