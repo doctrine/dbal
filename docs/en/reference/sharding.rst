@@ -269,8 +269,8 @@ you have to sort the data in the application.
     $sql = "SELECT * FROM customers";
     $rows = $shardManager->queryAll($sql, $params);
 
-Schema Operations: SchemaSynchronizer Interface
------------------------------------------------
+Schema Operations: SchemaSynchronizer Interface (deprecated)
+------------------------------------------------------------
 
 Schema Operations in a sharding architecture are tricky. You have to perform
 them on all databases instances (shards) at the same time. Also Doctrine
