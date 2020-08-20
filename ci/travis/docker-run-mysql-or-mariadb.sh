@@ -40,3 +40,11 @@ while true; do
       ;;
   esac
 done
+
+if [[ "$TLS" == "yes" ]]
+then
+  for file in "ca.pem" "client-cert.pem" "client-key.pem"
+  do
+    docker cp "rdbms:/var/lib/mysql/$file" .
+  done
+fi

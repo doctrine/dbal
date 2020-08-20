@@ -61,6 +61,14 @@ class ConnectionTest extends FunctionalTestCase
     {
         $params = TestUtil::getConnectionParams();
 
+        if (isset($params['driverOptions'])) {
+            // Currently, MySQLi driver options may be either numeric MYSQLI_* keys
+            // or the {@link Connection::OPTION_FLAGS} string key.
+            // The options should be merged using array union instead of array_merge()
+            // to preserve the numeric keys.
+            $driverOptions += $params['driverOptions'];
+        }
+
         return (new Driver())->connect(
             array_merge(
                 $params,

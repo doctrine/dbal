@@ -8,13 +8,19 @@
          failOnWarning="true"
 >
     <php>
-        <ini name="error_reporting" value="-1" />
+        <var name="db_driver" value="mysqli"/>
+        <var name="db_host" value="127.0.0.1"/>
+        <var name="db_port" value="33306"/>
+        <var name="db_ssl_ca" value="ca.pem"/>
+        <var name="db_ssl_cert" value="client-cert.pem"/>
+        <var name="db_ssl_key" value="client-key.pem"/>
 
-        <var name="db_driver" value="sqlsrv"/>
-        <var name="db_host" value="(local)\SQL2017" />
-        <var name="db_user" value="sa" />
-        <var name="db_password" value="Password12!" />
-        <var name="db_dbname" value="doctrine_tests" />
+        <!-- Use MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT since there's no way to generate a certificate
+        with a proper common name (CN) on Travis. This flag must be not used in production settings. -->
+        <var name="db_driver_option_flags" value="64"/>
+
+        <var name="db_user" value="root"/>
+        <var name="db_dbname" value="doctrine_tests"/>
     </php>
 
     <testsuites>

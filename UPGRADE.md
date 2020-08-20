@@ -343,6 +343,10 @@ Please use other database client applications for import, e.g.:
 
 # Upgrade to 2.11
 
+## Deprecated `Synchronizer` package
+
+The `Doctrine\DBAL\Schema\Synchronizer\SchemaSynchronizer` interface and all its implementations are deprecated.
+
 ## Deprecated usage of wrapper-level components as implementations of driver-level interfaces
 
 The usage of the wrapper `Connection` and `Statement` classes as implementations of the `Driver\Connection` and `Driver\Statement` interfaces is deprecated.

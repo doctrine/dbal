@@ -15,6 +15,9 @@ use function explode;
 use function extension_loaded;
 use function implode;
 use function is_string;
+use function strlen;
+use function strpos;
+use function substr;
 use function unlink;
 
 /**
@@ -187,6 +190,11 @@ class TestUtil
                 'dbname',
                 'port',
                 'server',
+                'ssl_key',
+                'ssl_cert',
+                'ssl_ca',
+                'ssl_capath',
+                'ssl_cipher',
                 'unix_socket',
             ] as $parameter
         ) {
@@ -195,6 +203,14 @@ class TestUtil
             }
 
             $parameters[$parameter] = $configuration[$prefix . $parameter];
+        }
+
+        foreach ($configuration as $param => $value) {
+            if (strpos($param, $prefix . 'driver_option_') !== 0) {
+                continue;
+            }
+
+            $parameters['driverOptions'][substr($param, strlen($prefix . 'driver_option_'))] = $value;
         }
 
         return $parameters;
