@@ -71,7 +71,7 @@ class DriverTest extends AbstractPostgreSQLDriverTest
         return $this->createDriver()->connect(
             array_merge(
                 TestUtil::getConnectionParams(),
-                ['driver_options' => $driverOptions]
+                ['driverOptions' => $driverOptions]
             )
         );
     }

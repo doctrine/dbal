@@ -20,8 +20,8 @@ final class Driver extends AbstractSQLServerDriver
     {
         $pdoOptions = $dsnOptions = [];
 
-        if (isset($params['driver_options'])) {
-            foreach ($params['driver_options'] as $option => $value) {
+        if (isset($params['driverOptions'])) {
+            foreach ($params['driverOptions'] as $option => $value) {
                 if (is_int($option)) {
                     $pdoOptions[$option] = $value;
                 } else {

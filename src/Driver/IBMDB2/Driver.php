@@ -16,7 +16,7 @@ final class Driver extends AbstractDB2Driver
             isset($params['persistent']) && $params['persistent'] === true,
             $params['user'] ?? '',
             $params['password'] ?? '',
-            $params['driver_options'] ?? []
+            $params['driverOptions'] ?? []
         );
     }
 }

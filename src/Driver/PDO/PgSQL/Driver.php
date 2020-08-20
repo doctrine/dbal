@@ -15,7 +15,7 @@ final class Driver extends AbstractPostgreSQLDriver
      */
     public function connect(array $params)
     {
-        $driverOptions = $params['driver_options'] ?? [];
+        $driverOptions = $params['driverOptions'] ?? [];
 
         if (! empty($params['persistent'])) {
             $driverOptions[PDO::ATTR_PERSISTENT] = true;

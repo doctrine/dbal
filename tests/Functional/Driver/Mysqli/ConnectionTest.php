@@ -64,7 +64,7 @@ class ConnectionTest extends FunctionalTestCase
         return (new Driver())->connect(
             array_merge(
                 $params,
-                ['driver_options' => $driverOptions]
+                ['driverOptions' => $driverOptions]
             )
         );
     }
