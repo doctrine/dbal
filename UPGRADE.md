@@ -254,6 +254,10 @@ The Doctrine\DBAL\Version class is no longer available: please refrain from chec
 
 # Upgrade to 3.0
 
+## BC BREAK: removed `Synchronizer` package
+
+The `Doctrine\DBAL\Schema\Synchronizer\SchemaSynchronizer` interface and all its implementations have been removed.
+
 ## BC BREAK: removed wrapper `Connection` methods
 
 The following methods of the `Connection` class have been removed:
