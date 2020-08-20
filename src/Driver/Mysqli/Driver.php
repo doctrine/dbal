@@ -36,8 +36,8 @@ final class Driver extends AbstractMySQLDriver
 
         $preInitializers = $postInitializers = [];
 
-        if (isset($params['driver_options'])) {
-            $driverOptions = $params['driver_options'];
+        if (isset($params['driverOptions'])) {
+            $driverOptions = $params['driverOptions'];
 
             if (isset($driverOptions[Connection::OPTION_FLAGS])) {
                 $flags = $driverOptions[Connection::OPTION_FLAGS];

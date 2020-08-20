@@ -25,7 +25,7 @@ final class Driver extends AbstractSQLiteDriver
      */
     public function connect(array $params): ConnectionInterface
     {
-        $driverOptions = $params['driver_options'] ?? [];
+        $driverOptions = $params['driverOptions'] ?? [];
 
         if (isset($driverOptions['userDefinedFunctions'])) {
             $this->userDefinedFunctions = array_merge(

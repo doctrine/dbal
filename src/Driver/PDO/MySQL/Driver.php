@@ -16,7 +16,7 @@ final class Driver extends AbstractMySQLDriver
      */
     public function connect(array $params): ConnectionInterface
     {
-        $driverOptions = $params['driver_options'] ?? [];
+        $driverOptions = $params['driverOptions'] ?? [];
 
         if (! empty($params['persistent'])) {
             $driverOptions[PDO::ATTR_PERSISTENT] = true;

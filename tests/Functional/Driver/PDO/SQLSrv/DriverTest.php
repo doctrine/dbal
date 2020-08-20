@@ -47,7 +47,7 @@ class DriverTest extends AbstractDriverTest
         return (new Driver())->connect(
             array_merge(
                 TestUtil::getConnectionParams(),
-                ['driver_options' => $driverOptions]
+                ['driverOptions' => $driverOptions]
             )
         );
     }

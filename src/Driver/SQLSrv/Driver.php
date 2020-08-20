@@ -30,7 +30,7 @@ final class Driver extends AbstractSQLServerDriver
             throw PortWithoutHost::new();
         }
 
-        $driverOptions = $params['driver_options'] ?? [];
+        $driverOptions = $params['driverOptions'] ?? [];
 
         if (isset($params['dbname'])) {
             $driverOptions['Database'] = $params['dbname'];
