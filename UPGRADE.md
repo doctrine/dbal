@@ -254,6 +254,10 @@ The Doctrine\DBAL\Version class is no longer available: please refrain from chec
 
 # Upgrade to 3.0
 
+## BC BREAK: removed `Synchronizer` package
+
+The `Doctrine\DBAL\Schema\Synchronizer\SchemaSynchronizer` interface and all its implementations have been removed.
+
 ## BC BREAK: removed wrapper `Connection` methods
 
 The following methods of the `Connection` class have been removed:
@@ -596,6 +600,10 @@ Please use other database client applications for import, e.g.:
  * For SQLite: `sqlite3 /path/to/file.db < data.sql`.
 
 # Upgrade to 2.11
+
+## Deprecated `Synchronizer` package
+
+The `Doctrine\DBAL\Schema\Synchronizer\SchemaSynchronizer` interface and all its implementations are deprecated.
 
 ## Deprecated usage of wrapper-level components as implementations of driver-level interfaces
 

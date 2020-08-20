@@ -27,11 +27,4 @@
             <directory suffix=".php">../../src</directory>
         </include>
     </coverage>
-
-    <groups>
-        <exclude>
-            <group>performance</group>
-            <group>locking_functional</group>
-        </exclude>
-    </groups>
 </phpunit>

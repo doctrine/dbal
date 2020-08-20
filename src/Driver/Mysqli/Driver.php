@@ -36,8 +36,8 @@ final class Driver extends AbstractMySQLDriver
 
         $preInitializers = $postInitializers = [];
 
-        if (isset($params['driver_options'])) {
-            $driverOptions = $params['driver_options'];
+        if (isset($params['driverOptions'])) {
+            $driverOptions = $params['driverOptions'];
 
             if (isset($driverOptions[Connection::OPTION_FLAGS])) {
                 $flags = $driverOptions[Connection::OPTION_FLAGS];
@@ -94,11 +94,11 @@ final class Driver extends AbstractMySQLDriver
             isset($params['ssl_cipher'])
         ) {
             $initializers[] = new Secure(
-                $params['ssl_key']    ?? null,
-                $params['ssl_cert']   ?? null,
-                $params['ssl_ca']     ?? null,
-                $params['ssl_capath'] ?? null,
-                $params['ssl_cipher'] ?? null
+                $params['ssl_key']    ?? '',
+                $params['ssl_cert']   ?? '',
+                $params['ssl_ca']     ?? '',
+                $params['ssl_capath'] ?? '',
+                $params['ssl_cipher'] ?? ''
             );
         }
 
