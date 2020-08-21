@@ -462,6 +462,18 @@ class QueryBuilderTest extends DbalTestCase
         self::assertSame($qb2, $qb);
     }
 
+    public function testUpdateImproperFromThrowsException(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+        $qb->update()
+            ->from('users');
+        $this->expectException(QueryException::class);
+        $this->expectExceptionMessage(
+            'There is no currently registered table name.'
+        );
+        self::assertEquals('', $qb->getSQL());
+    }
+
     public function testDelete(): void
     {
         $qb = new QueryBuilder($this->conn);
@@ -487,6 +499,18 @@ class QueryBuilderTest extends DbalTestCase
            ->where('u.foo = ?');
 
         self::assertEquals('DELETE FROM users u WHERE u.foo = ?', (string) $qb);
+    }
+
+    public function testDeleteImproperFromThrowsException(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+        $qb->delete()
+            ->from('users');
+        $this->expectException(QueryException::class);
+        $this->expectExceptionMessage(
+            'There is no currently registered table name.'
+        );
+        self::assertEquals('', $qb->getSQL());
     }
 
     public function testEmptyDelete(): void
@@ -566,6 +590,18 @@ class QueryBuilderTest extends DbalTestCase
 
         self::assertEquals(QueryBuilder::INSERT, $qb->getType());
         self::assertSame($qb2, $qb);
+    }
+
+    public function testInsertImproperFromThrowsException(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+        $qb->insert()
+            ->from('users');
+        $this->expectException(QueryException::class);
+        $this->expectExceptionMessage(
+            'There is no currently registered table name.'
+        );
+        self::assertEquals('', $qb->getSQL());
     }
 
     public function testGetConnection(): void

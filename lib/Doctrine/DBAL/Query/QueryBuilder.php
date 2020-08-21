@@ -1186,6 +1186,16 @@ class QueryBuilder
     }
 
     /**
+     * @throws QueryException
+     */
+    private function assertHasSingleFromClause(): void
+    {
+        if (! array_key_exists('table', $this->sqlParts['from'])) {
+            throw QueryException::uninitializedTableName();
+        }
+    }
+
+    /**
      * @param string[] $knownAliases
      *
      * @throws QueryException
@@ -1211,9 +1221,13 @@ class QueryBuilder
      * Converts this instance into an INSERT string in SQL.
      *
      * @return string
+     *
+     * @throws QueryException
      */
     private function getSQLForInsert()
     {
+        $this->assertHasSingleFromClause();
+
         return 'INSERT INTO ' . $this->sqlParts['from']['table'] .
         ' (' . implode(', ', array_keys($this->sqlParts['values'])) . ')' .
         ' VALUES(' . implode(', ', $this->sqlParts['values']) . ')';
@@ -1223,9 +1237,13 @@ class QueryBuilder
      * Converts this instance into an UPDATE string in SQL.
      *
      * @return string
+     *
+     * @throws QueryException
      */
     private function getSQLForUpdate()
     {
+        $this->assertHasSingleFromClause();
+
         $table = $this->sqlParts['from']['table']
             . ($this->sqlParts['from']['alias'] ? ' ' . $this->sqlParts['from']['alias'] : '');
 
@@ -1238,9 +1256,13 @@ class QueryBuilder
      * Converts this instance into a DELETE string in SQL.
      *
      * @return string
+     *
+     * @throws QueryException
      */
     private function getSQLForDelete()
     {
+        $this->assertHasSingleFromClause();
+
         $table = $this->sqlParts['from']['table']
             . ($this->sqlParts['from']['alias'] ? ' ' . $this->sqlParts['from']['alias'] : '');
 

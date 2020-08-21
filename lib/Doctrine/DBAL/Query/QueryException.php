@@ -36,4 +36,9 @@ class QueryException extends Exception
             'in FROM and JOIN clause table. The currently registered ' .
             'aliases are: ' . implode(', ', $registeredAliases) . '.');
     }
+
+    public static function uninitializedTableName(): self
+    {
+        return new self('There is no currently registered table name.');
+    }
 }
