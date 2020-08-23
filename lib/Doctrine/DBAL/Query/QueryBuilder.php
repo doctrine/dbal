@@ -7,6 +7,7 @@ use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
+use Doctrine\DBAL\Types\Type;
 
 use function array_key_exists;
 use function array_keys;
@@ -73,6 +74,18 @@ class QueryBuilder
      * The array of SQL parts collected.
      *
      * @var mixed[]
+     * @psalm-var array{
+     *     select: mixed[],
+     *     distinct: bool,
+     *     from: mixed[],
+     *     join: mixed[],
+     *     set: mixed[],
+     *     where: mixed,
+     *     groupBy: mixed[],
+     *     having: mixed,
+     *     orderBy: mixed[],
+     *     values: mixed[]
+     * }
      */
     private $sqlParts = self::SQL_PARTS_DEFAULTS;
 
@@ -101,6 +114,7 @@ class QueryBuilder
      * The type of query this is. Can be select, update or delete.
      *
      * @var int
+     * @psalm-var self::SELECT|self::DELETE|self::UPDATE|self::INSERT
      */
     private $type = self::SELECT;
 
@@ -108,6 +122,7 @@ class QueryBuilder
      * The state of the query object. Can be dirty or clean.
      *
      * @var int
+     * @psalm-var self::STATE_*
      */
     private $state = self::STATE_CLEAN;
 
@@ -187,6 +202,8 @@ class QueryBuilder
      * Gets the state of this query builder instance.
      *
      * @return int Either QueryBuilder::STATE_DIRTY or QueryBuilder::STATE_CLEAN.
+     *
+     * @psalm-return self::STATE_*
      */
     public function getState()
     {
@@ -321,7 +338,7 @@ class QueryBuilder
     /**
      * Gets a (previously set) query parameter of the query being constructed.
      *
-     * @param mixed $key The key (index or name) of the bound parameter.
+     * @param int|string $key The key (index or name) of the bound parameter.
      *
      * @return mixed The value of the bound parameter.
      */
@@ -343,7 +360,7 @@ class QueryBuilder
     /**
      * Gets a (previously set) query parameter type of the query being constructed.
      *
-     * @param mixed $key The key (index or name) of the bound parameter type.
+     * @param int|string $key The key (index or name) of the bound parameter type.
      *
      * @return mixed The value of the bound parameter type.
      */
@@ -414,6 +431,8 @@ class QueryBuilder
      * @param bool   $append
      *
      * @return $this This QueryBuilder instance.
+     *
+     * @psalm-param 'select'|'from'|'set'|'where'|'groupBy'|'having'|'orderBy'|'join'|'values' $sqlPartName
      */
     public function add($sqlPartName, $sqlPart, $append = false)
     {
@@ -464,7 +483,7 @@ class QueryBuilder
      *         ->leftJoin('u', 'phonenumbers', 'p', 'u.id = p.user_id');
      * </code>
      *
-     * @param mixed $select The selection expressions.
+     * @param string|string[] $select The selection expressions.
      *
      * @return $this This QueryBuilder instance.
      */
@@ -511,7 +530,7 @@ class QueryBuilder
      *         ->leftJoin('u', 'phonenumbers', 'u.id = p.user_id');
      * </code>
      *
-     * @param mixed $select The selection expression.
+     * @param string|string[] $select The selection expression.
      *
      * @return $this This QueryBuilder instance.
      */
@@ -792,7 +811,7 @@ class QueryBuilder
      *         ->where($or);
      * </code>
      *
-     * @param mixed $predicates The restriction predicates.
+     * @param string|CompositeExpression $predicates The restriction predicates.
      *
      * @return $this This QueryBuilder instance.
      */
@@ -819,7 +838,7 @@ class QueryBuilder
      *
      * @see where()
      *
-     * @param mixed $where The query restrictions.
+     * @param string|CompositeExpression $where The query restrictions.
      *
      * @return $this This QueryBuilder instance.
      */
@@ -852,7 +871,7 @@ class QueryBuilder
      *
      * @see where()
      *
-     * @param mixed $where The WHERE statement.
+     * @param string|CompositeExpression $where The WHERE statement.
      *
      * @return $this This QueryBuilder instance.
      */
@@ -882,7 +901,7 @@ class QueryBuilder
      *         ->groupBy('u.id');
      * </code>
      *
-     * @param mixed $groupBy The grouping expression.
+     * @param string|string[] $groupBy The grouping expression.
      *
      * @return $this This QueryBuilder instance.
      */
@@ -908,7 +927,7 @@ class QueryBuilder
      *         ->addGroupBy('u.createdAt');
      * </code>
      *
-     * @param mixed $groupBy The grouping expression.
+     * @param string|string[] $groupBy The grouping expression.
      *
      * @return $this This QueryBuilder instance.
      */
@@ -1272,9 +1291,9 @@ class QueryBuilder
      *
      * @link http://www.zetacomponents.org
      *
-     * @param mixed  $value
-     * @param mixed  $type
-     * @param string $placeHolder The name to bind with. The string must start with a colon ':'.
+     * @param mixed                $value
+     * @param string|int|Type|null $type
+     * @param string|null          $placeHolder The name to bind with. The string must start with a colon ':'.
      *
      * @return string the placeholder name used.
      */

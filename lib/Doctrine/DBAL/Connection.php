@@ -1629,8 +1629,8 @@ class Connection implements DriverConnection
      * @internal This is a purely internal method. If you rely on this method, you are advised to
      *           copy/paste the code as this method may change, or be removed without prior notice.
      *
-     * @param mixed[]        $params
-     * @param int[]|string[] $types
+     * @param mixed[]                      $params
+     * @param int[]|string[]|Type[]|null[] $types
      *
      * @return mixed[]
      */
