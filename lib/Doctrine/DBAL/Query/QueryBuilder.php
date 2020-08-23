@@ -1363,8 +1363,8 @@ class QueryBuilder
     public function __clone()
     {
         foreach ($this->sqlParts as $part => $elements) {
-            if (is_array($this->sqlParts[$part])) {
-                foreach ($this->sqlParts[$part] as $idx => $element) {
+            if (is_array($elements)) {
+                foreach ($elements as $idx => $element) {
                     if (! is_object($element)) {
                         continue;
                     }
