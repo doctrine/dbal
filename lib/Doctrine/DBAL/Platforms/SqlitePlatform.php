@@ -78,11 +78,11 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getTrimExpression($str, $pos = TrimMode::UNSPECIFIED, $char = false)
+    public function getTrimExpression($str, $mode = TrimMode::UNSPECIFIED, $char = false)
     {
         $trimChar = $char !== false ? ', ' . $char : '';
 
-        switch ($pos) {
+        switch ($mode) {
             case TrimMode::LEADING:
                 $trimFn = 'LTRIM';
                 break;
@@ -103,13 +103,13 @@ class SqlitePlatform extends AbstractPlatform
      *
      * SQLite only supports the 2 parameter variant of this function
      */
-    public function getSubstringExpression($value, $position, $length = null)
+    public function getSubstringExpression($string, $start, $length = null)
     {
         if ($length !== null) {
-            return 'SUBSTR(' . $value . ', ' . $position . ', ' . $length . ')';
+            return 'SUBSTR(' . $string . ', ' . $start . ', ' . $length . ')';
         }
 
-        return 'SUBSTR(' . $value . ', ' . $position . ', LENGTH(' . $value . '))';
+        return 'SUBSTR(' . $string . ', ' . $start . ', LENGTH(' . $string . '))';
     }
 
     /**

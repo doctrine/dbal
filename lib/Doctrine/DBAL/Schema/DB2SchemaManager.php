@@ -129,14 +129,14 @@ class DB2SchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableIndexesList($tableIndexRows, $tableName = null)
+    protected function _getPortableTableIndexesList($tableIndexes, $tableName = null)
     {
-        foreach ($tableIndexRows as &$tableIndexRow) {
+        foreach ($tableIndexes as &$tableIndexRow) {
             $tableIndexRow            = array_change_key_case($tableIndexRow, CASE_LOWER);
             $tableIndexRow['primary'] = (bool) $tableIndexRow['primary'];
         }
 
-        return parent::_getPortableTableIndexesList($tableIndexRows, $tableName);
+        return parent::_getPortableTableIndexesList($tableIndexes, $tableName);
     }
 
     /**

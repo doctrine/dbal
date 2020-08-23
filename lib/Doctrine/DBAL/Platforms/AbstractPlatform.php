@@ -909,19 +909,19 @@ abstract class AbstractPlatform
      *
      * SQLite only supports the 2 parameter variant of this function.
      *
-     * @param string   $value  An sql string literal or column name/alias.
-     * @param int      $from   Where to start the substring portion.
+     * @param string   $string An sql string literal or column name/alias.
+     * @param int      $start  Where to start the substring portion.
      * @param int|null $length The substring portion length.
      *
      * @return string
      */
-    public function getSubstringExpression($value, $from, $length = null)
+    public function getSubstringExpression($string, $start, $length = null)
     {
         if ($length === null) {
-            return 'SUBSTRING(' . $value . ' FROM ' . $from . ')';
+            return 'SUBSTRING(' . $string . ' FROM ' . $start . ')';
         }
 
-        return 'SUBSTRING(' . $value . ' FROM ' . $from . ' FOR ' . $length . ')';
+        return 'SUBSTRING(' . $string . ' FROM ' . $start . ' FOR ' . $length . ')';
     }
 
     /**
@@ -1696,19 +1696,19 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL used to create a table.
      *
-     * @param string    $tableName
+     * @param string    $name
      * @param mixed[][] $columns
      * @param mixed[]   $options
      *
      * @return string[]
      */
-    protected function _getCreateTableSQL($tableName, array $columns, array $options = [])
+    protected function _getCreateTableSQL($name, array $columns, array $options = [])
     {
         $columnListSql = $this->getColumnDeclarationListSQL($columns);
 
         if (isset($options['uniqueConstraints']) && ! empty($options['uniqueConstraints'])) {
-            foreach ($options['uniqueConstraints'] as $name => $definition) {
-                $columnListSql .= ', ' . $this->getUniqueConstraintDeclarationSQL($name, $definition);
+            foreach ($options['uniqueConstraints'] as $index => $definition) {
+                $columnListSql .= ', ' . $this->getUniqueConstraintDeclarationSQL($index, $definition);
             }
         }
 
@@ -1722,7 +1722,7 @@ abstract class AbstractPlatform
             }
         }
 
-        $query = 'CREATE TABLE ' . $tableName . ' (' . $columnListSql;
+        $query = 'CREATE TABLE ' . $name . ' (' . $columnListSql;
 
         $check = $this->getCheckDeclarationSQL($columns);
         if (! empty($check)) {
@@ -1735,7 +1735,7 @@ abstract class AbstractPlatform
 
         if (isset($options['foreignKeys'])) {
             foreach ((array) $options['foreignKeys'] as $definition) {
-                $sql[] = $this->getCreateForeignKeySQL($definition, $tableName);
+                $sql[] = $this->getCreateForeignKeySQL($definition, $name);
             }
         }
 
@@ -3516,14 +3516,14 @@ abstract class AbstractPlatform
     /**
      * Returns the insert SQL for an empty insert statement.
      *
-     * @param string $tableName
-     * @param string $identifierColumnName
+     * @param string $quotedTableName
+     * @param string $quotedIdentifierColumnName
      *
      * @return string
      */
-    public function getEmptyIdentityInsertSQL($tableName, $identifierColumnName)
+    public function getEmptyIdentityInsertSQL($quotedTableName, $quotedIdentifierColumnName)
     {
-        return 'INSERT INTO ' . $tableName . ' (' . $identifierColumnName . ') VALUES (null)';
+        return 'INSERT INTO ' . $quotedTableName . ' (' . $quotedIdentifierColumnName . ') VALUES (null)';
     }
 
     /**

@@ -823,11 +823,11 @@ class Connection implements DriverConnection
     /**
      * {@inheritDoc}
      */
-    public function quote($input, $type = ParameterType::STRING)
+    public function quote($value, $type = ParameterType::STRING)
     {
         $connection = $this->getWrappedConnection();
 
-        [$value, $bindingType] = $this->getBindingInfo($input, $type);
+        [$value, $bindingType] = $this->getBindingInfo($value, $type);
 
         return $connection->quote($value, $bindingType);
     }

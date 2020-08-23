@@ -201,9 +201,9 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableIndexesList($tableIndexRows, $tableName = null)
+    protected function _getPortableTableIndexesList($tableIndexes, $tableName = null)
     {
-        foreach ($tableIndexRows as &$tableIndex) {
+        foreach ($tableIndexes as &$tableIndex) {
             $tableIndex['primary'] = (bool) $tableIndex['primary'];
             $tableIndex['flags']   = [];
 
@@ -222,7 +222,7 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
             $tableIndex['flags'][] = 'for_olap_workload';
         }
 
-        return parent::_getPortableTableIndexesList($tableIndexRows, $tableName);
+        return parent::_getPortableTableIndexesList($tableIndexes, $tableName);
     }
 
     /**
