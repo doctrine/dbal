@@ -30,11 +30,11 @@ class Statement extends BaseStatement
     /**
      * {@inheritdoc}
      */
-    public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null)
+    public function bindParam($param, &$variable, $type = ParameterType::STRING, $length = null)
     {
         assert($this->stmt instanceof DriverStatement);
 
-        return $this->stmt->bindParam($column, $variable, $type, $length);
+        return $this->stmt->bindParam($param, $variable, $type, $length);
     }
 
     /**
@@ -102,9 +102,9 @@ class Statement extends BaseStatement
      *
      * @deprecated Use one of the fetch- or iterate-related methods.
      */
-    public function setFetchMode($fetchMode, $arg1 = null, $arg2 = null)
+    public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
     {
-        return $this->stmt->setFetchMode($fetchMode, $arg1, $arg2);
+        return $this->stmt->setFetchMode($fetchMode, $arg2, $arg3);
     }
 
     /**

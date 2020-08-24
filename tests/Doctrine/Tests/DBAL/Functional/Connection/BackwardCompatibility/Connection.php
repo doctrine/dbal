@@ -15,9 +15,9 @@ class Connection extends BaseConnection
     /**
      * {@inheritdoc}
      */
-    public function executeQuery($query, array $params = [], $types = [], ?QueryCacheProfile $qcp = null)
+    public function executeQuery($sql, array $params = [], $types = [], ?QueryCacheProfile $qcp = null)
     {
-        return new Statement(parent::executeQuery($query, $params, $types, $qcp));
+        return new Statement(parent::executeQuery($sql, $params, $types, $qcp));
     }
 
     /**
