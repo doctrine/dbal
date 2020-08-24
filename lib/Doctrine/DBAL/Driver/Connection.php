@@ -31,12 +31,12 @@ interface Connection
     /**
      * Quotes a string for use in a query.
      *
-     * @param mixed $input
+     * @param mixed $value
      * @param int   $type
      *
      * @return mixed
      */
-    public function quote($input, $type = ParameterType::STRING);
+    public function quote($value, $type = ParameterType::STRING);
 
     /**
      * Executes an SQL statement and return the number of affected rows.

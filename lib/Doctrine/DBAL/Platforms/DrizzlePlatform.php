@@ -189,7 +189,7 @@ class DrizzlePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function _getCreateTableSQL($tableName, array $columns, array $options = [])
+    protected function _getCreateTableSQL($name, array $columns, array $options = [])
     {
         $queryFields = $this->getColumnDeclarationListSQL($columns);
 
@@ -218,7 +218,7 @@ class DrizzlePlatform extends AbstractPlatform
             $query .= 'TEMPORARY ';
         }
 
-        $query .= 'TABLE ' . $tableName . ' (' . $queryFields . ') ';
+        $query .= 'TABLE ' . $name . ' (' . $queryFields . ') ';
         $query .= $this->buildTableOptions($options);
         $query .= $this->buildPartitionOptions($options);
 
@@ -226,7 +226,7 @@ class DrizzlePlatform extends AbstractPlatform
 
         if (isset($options['foreignKeys'])) {
             foreach ((array) $options['foreignKeys'] as $definition) {
-                $sql[] = $this->getCreateForeignKeySQL($definition, $tableName);
+                $sql[] = $this->getCreateForeignKeySQL($definition, $name);
             }
         }
 

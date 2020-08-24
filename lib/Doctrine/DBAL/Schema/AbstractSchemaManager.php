@@ -838,15 +838,15 @@ abstract class AbstractSchemaManager
     /**
      * Aggregates and groups the index results according to the required data result.
      *
-     * @param mixed[][]   $tableIndexRows
+     * @param mixed[][]   $tableIndexes
      * @param string|null $tableName
      *
      * @return Index[]
      */
-    protected function _getPortableTableIndexesList($tableIndexRows, $tableName = null)
+    protected function _getPortableTableIndexesList($tableIndexes, $tableName = null)
     {
         $result = [];
-        foreach ($tableIndexRows as $tableIndex) {
+        foreach ($tableIndexes as $tableIndex) {
             $indexName = $keyName = $tableIndex['key_name'];
             if ($tableIndex['primary']) {
                 $keyName = 'primary';

@@ -1090,13 +1090,13 @@ SQL
     /**
      * {@inheritdoc}
      */
-    public function getSubstringExpression($value, $from, $length = null)
+    public function getSubstringExpression($string, $start, $length = null)
     {
         if ($length === null) {
-            return 'SUBSTRING(' . $value . ', ' . $from . ')';
+            return 'SUBSTRING(' . $string . ', ' . $start . ')';
         }
 
-        return 'SUBSTRING(' . $value . ', ' . $from . ', ' . $length . ')';
+        return 'SUBSTRING(' . $string . ', ' . $start . ', ' . $length . ')';
     }
 
     /**
@@ -1126,10 +1126,10 @@ SQL
     /**
      * {@inheritdoc}
      */
-    public function getTrimExpression($str, $pos = TrimMode::UNSPECIFIED, $char = false)
+    public function getTrimExpression($str, $mode = TrimMode::UNSPECIFIED, $char = false)
     {
         if (! $char) {
-            switch ($pos) {
+            switch ($mode) {
                 case TrimMode::LEADING:
                     return $this->getLtrimExpression($str);
 
@@ -1143,7 +1143,7 @@ SQL
 
         $pattern = "'%[^' + " . $char . " + ']%'";
 
-        switch ($pos) {
+        switch ($mode) {
             case TrimMode::LEADING:
                 return 'SUBSTR(' . $str . ', PATINDEX(' . $pattern . ', ' . $str . '))';
 
@@ -1250,7 +1250,7 @@ SQL
     /**
      * {@inheritdoc}
      */
-    protected function _getCreateTableSQL($tableName, array $columns, array $options = [])
+    protected function _getCreateTableSQL($name, array $columns, array $options = [])
     {
         $columnListSql = $this->getColumnDeclarationListSQL($columns);
         $indexSql      = [];
@@ -1264,7 +1264,7 @@ SQL
         if (! empty($options['indexes'])) {
             foreach ((array) $options['indexes'] as $index) {
                 assert($index instanceof Index);
-                $indexSql[] = $this->getCreateIndexSQL($index, $tableName);
+                $indexSql[] = $this->getCreateIndexSQL($index, $name);
             }
         }
 
@@ -1285,7 +1285,7 @@ SQL
             }
         }
 
-        $query = 'CREATE TABLE ' . $tableName . ' (' . $columnListSql;
+        $query = 'CREATE TABLE ' . $name . ' (' . $columnListSql;
         $check = $this->getCheckDeclarationSQL($columns);
 
         if (! empty($check)) {

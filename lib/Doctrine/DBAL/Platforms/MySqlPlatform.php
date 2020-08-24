@@ -416,7 +416,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    protected function _getCreateTableSQL($tableName, array $columns, array $options = [])
+    protected function _getCreateTableSQL($name, array $columns, array $options = [])
     {
         $queryFields = $this->getColumnDeclarationListSQL($columns);
 
@@ -445,7 +445,7 @@ SQL
             $query .= 'TEMPORARY ';
         }
 
-        $query .= 'TABLE ' . $tableName . ' (' . $queryFields . ') ';
+        $query .= 'TABLE ' . $name . ' (' . $queryFields . ') ';
         $query .= $this->buildTableOptions($options);
         $query .= $this->buildPartitionOptions($options);
 
@@ -459,7 +459,7 @@ SQL
         // Propagate foreign key constraints only for InnoDB.
         if (isset($options['foreignKeys']) && $engine === 'INNODB') {
             foreach ((array) $options['foreignKeys'] as $definition) {
-                $sql[] = $this->getCreateForeignKeySQL($definition, $tableName);
+                $sql[] = $this->getCreateForeignKeySQL($definition, $name);
             }
         }
 
