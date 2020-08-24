@@ -487,7 +487,7 @@ class DB2Platform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function _getCreateTableSQL($tableName, array $columns, array $options = [])
+    protected function _getCreateTableSQL($name, array $columns, array $options = [])
     {
         $indexes = [];
         if (isset($options['indexes'])) {
@@ -496,10 +496,10 @@ class DB2Platform extends AbstractPlatform
 
         $options['indexes'] = [];
 
-        $sqls = parent::_getCreateTableSQL($tableName, $columns, $options);
+        $sqls = parent::_getCreateTableSQL($name, $columns, $options);
 
         foreach ($indexes as $definition) {
-            $sqls[] = $this->getCreateIndexSQL($definition, $tableName);
+            $sqls[] = $this->getCreateIndexSQL($definition, $name);
         }
 
         return $sqls;
@@ -772,9 +772,9 @@ class DB2Platform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getEmptyIdentityInsertSQL($tableName, $identifierColumnName)
+    public function getEmptyIdentityInsertSQL($quotedTableName, $quotedIdentifierColumnName)
     {
-        return 'INSERT INTO ' . $tableName . ' (' . $identifierColumnName . ') VALUES (DEFAULT)';
+        return 'INSERT INTO ' . $quotedTableName . ' (' . $quotedIdentifierColumnName . ') VALUES (DEFAULT)';
     }
 
     /**
@@ -835,13 +835,13 @@ class DB2Platform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getSubstringExpression($value, $from, $length = null)
+    public function getSubstringExpression($string, $start, $length = null)
     {
         if ($length === null) {
-            return 'SUBSTR(' . $value . ', ' . $from . ')';
+            return 'SUBSTR(' . $string . ', ' . $start . ')';
         }
 
-        return 'SUBSTR(' . $value . ', ' . $from . ', ' . $length . ')';
+        return 'SUBSTR(' . $string . ', ' . $start . ', ' . $length . ')';
     }
 
     public function getCurrentDatabaseExpression(): string

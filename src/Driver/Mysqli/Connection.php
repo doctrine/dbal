@@ -108,9 +108,9 @@ final class Connection implements ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function quote($input, $type = ParameterType::STRING)
+    public function quote($value, $type = ParameterType::STRING)
     {
-        return "'" . $this->conn->escape_string($input) . "'";
+        return "'" . $this->conn->escape_string($value) . "'";
     }
 
     public function exec(string $sql): int

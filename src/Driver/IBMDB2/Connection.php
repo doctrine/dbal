@@ -92,15 +92,15 @@ final class Connection implements ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function quote($input, $type = ParameterType::STRING)
+    public function quote($value, $type = ParameterType::STRING)
     {
-        $input = db2_escape_string($input);
+        $value = db2_escape_string($value);
 
         if ($type === ParameterType::INTEGER) {
-            return $input;
+            return $value;
         }
 
-        return "'" . $input . "'";
+        return "'" . $value . "'";
     }
 
     public function exec(string $sql): int

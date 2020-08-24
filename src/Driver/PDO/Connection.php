@@ -90,9 +90,9 @@ final class Connection implements ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function quote($input, $type = ParameterType::STRING)
+    public function quote($value, $type = ParameterType::STRING)
     {
-        return $this->connection->quote($input, $type);
+        return $this->connection->quote($value, $type);
     }
 
     /**

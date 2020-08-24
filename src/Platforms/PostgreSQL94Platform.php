@@ -79,13 +79,13 @@ class PostgreSQL94Platform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getSubstringExpression($value, $from, $length = null)
+    public function getSubstringExpression($string, $start, $length = null)
     {
         if ($length === null) {
-            return 'SUBSTRING(' . $value . ' FROM ' . $from . ')';
+            return 'SUBSTRING(' . $string . ' FROM ' . $start . ')';
         }
 
-        return 'SUBSTRING(' . $value . ' FROM ' . $from . ' FOR ' . $length . ')';
+        return 'SUBSTRING(' . $string . ' FROM ' . $start . ' FOR ' . $length . ')';
     }
 
     /**
@@ -793,7 +793,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    protected function _getCreateTableSQL($tableName, array $columns, array $options = [])
+    protected function _getCreateTableSQL($name, array $columns, array $options = [])
     {
         $queryFields = $this->getColumnDeclarationListSQL($columns);
 
@@ -802,19 +802,19 @@ SQL
             $queryFields .= ', PRIMARY KEY(' . implode(', ', $keyColumns) . ')';
         }
 
-        $query = 'CREATE TABLE ' . $tableName . ' (' . $queryFields . ')';
+        $query = 'CREATE TABLE ' . $name . ' (' . $queryFields . ')';
 
         $sql = [$query];
 
         if (isset($options['indexes']) && ! empty($options['indexes'])) {
             foreach ($options['indexes'] as $index) {
-                $sql[] = $this->getCreateIndexSQL($index, $tableName);
+                $sql[] = $this->getCreateIndexSQL($index, $name);
             }
         }
 
         if (isset($options['foreignKeys'])) {
             foreach ((array) $options['foreignKeys'] as $definition) {
-                $sql[] = $this->getCreateForeignKeySQL($definition, $tableName);
+                $sql[] = $this->getCreateForeignKeySQL($definition, $name);
             }
         }
 
