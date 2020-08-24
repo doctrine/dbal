@@ -26,7 +26,6 @@ class DriverTest extends AbstractDriverTest
             return;
         }
 
-
         self::markTestSkipped('pdo_sqlsrv only test.');
     }
 
