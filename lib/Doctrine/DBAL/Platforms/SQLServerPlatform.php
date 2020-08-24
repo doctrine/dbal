@@ -245,14 +245,14 @@ SQL
     /**
      * {@inheritDoc}
      */
-    protected function _getCreateTableSQL($tableName, array $columns, array $options = [])
+    protected function _getCreateTableSQL($name, array $columns, array $options = [])
     {
         $defaultConstraintsSql = [];
         $commentsSql           = [];
 
         $tableComment = $options['comment'] ?? null;
         if ($tableComment !== null) {
-            $commentsSql[] = $this->getCommentOnTableSQL($tableName, $tableComment);
+            $commentsSql[] = $this->getCommentOnTableSQL($name, $tableComment);
         }
 
         // @todo does other code breaks because of this?
@@ -264,15 +264,15 @@ SQL
 
             // Build default constraints SQL statements.
             if (isset($column['default'])) {
-                $defaultConstraintsSql[] = 'ALTER TABLE ' . $tableName .
-                    ' ADD' . $this->getDefaultConstraintDeclarationSQL($tableName, $column);
+                $defaultConstraintsSql[] = 'ALTER TABLE ' . $name .
+                    ' ADD' . $this->getDefaultConstraintDeclarationSQL($name, $column);
             }
 
             if (empty($column['comment']) && ! is_numeric($column['comment'])) {
                 continue;
             }
 
-            $commentsSql[] = $this->getCreateColumnCommentSQL($tableName, $column['name'], $column['comment']);
+            $commentsSql[] = $this->getCreateColumnCommentSQL($name, $column['name'], $column['comment']);
         }
 
         $columnListSql = $this->getColumnDeclarationListSQL($columns);
@@ -293,7 +293,7 @@ SQL
                 . ' (' . implode(', ', array_unique(array_values($options['primary']))) . ')';
         }
 
-        $query = 'CREATE TABLE ' . $tableName . ' (' . $columnListSql;
+        $query = 'CREATE TABLE ' . $name . ' (' . $columnListSql;
 
         $check = $this->getCheckDeclarationSQL($columns);
         if (! empty($check)) {
@@ -306,13 +306,13 @@ SQL
 
         if (isset($options['indexes']) && ! empty($options['indexes'])) {
             foreach ($options['indexes'] as $index) {
-                $sql[] = $this->getCreateIndexSQL($index, $tableName);
+                $sql[] = $this->getCreateIndexSQL($index, $name);
             }
         }
 
         if (isset($options['foreignKeys'])) {
             foreach ((array) $options['foreignKeys'] as $definition) {
-                $sql[] = $this->getCreateForeignKeySQL($definition, $tableName);
+                $sql[] = $this->getCreateForeignKeySQL($definition, $name);
             }
         }
 
@@ -1068,10 +1068,10 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getTrimExpression($str, $pos = TrimMode::UNSPECIFIED, $char = false)
+    public function getTrimExpression($str, $mode = TrimMode::UNSPECIFIED, $char = false)
     {
         if (! $char) {
-            switch ($pos) {
+            switch ($mode) {
                 case TrimMode::LEADING:
                     $trimFn = 'LTRIM';
                     break;
@@ -1089,11 +1089,11 @@ SQL
 
         $pattern = "'%[^' + " . $char . " + ']%'";
 
-        if ($pos === TrimMode::LEADING) {
+        if ($mode === TrimMode::LEADING) {
             return 'stuff(' . $str . ', 1, patindex(' . $pattern . ', ' . $str . ') - 1, null)';
         }
 
-        if ($pos === TrimMode::TRAILING) {
+        if ($mode === TrimMode::TRAILING) {
             return 'reverse(stuff(reverse(' . $str . '), 1, '
                 . 'patindex(' . $pattern . ', reverse(' . $str . ')) - 1, null))';
         }
@@ -1132,13 +1132,13 @@ SQL
     /**
      * {@inheritDoc}
      */
-    public function getSubstringExpression($value, $from, $length = null)
+    public function getSubstringExpression($string, $start, $length = null)
     {
         if ($length !== null) {
-            return 'SUBSTRING(' . $value . ', ' . $from . ', ' . $length . ')';
+            return 'SUBSTRING(' . $string . ', ' . $start . ', ' . $length . ')';
         }
 
-        return 'SUBSTRING(' . $value . ', ' . $from . ', LEN(' . $value . ') - ' . $from . ' + 1)';
+        return 'SUBSTRING(' . $string . ', ' . $start . ', LEN(' . $string . ') - ' . $start . ' + 1)';
     }
 
     /**

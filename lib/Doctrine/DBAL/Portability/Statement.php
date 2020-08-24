@@ -113,11 +113,11 @@ class Statement implements IteratorAggregate, DriverStatement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, $arg1 = null, $arg2 = null)
+    public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
     {
         $this->defaultFetchMode = $fetchMode;
 
-        return $this->stmt->setFetchMode($fetchMode, $arg1, $arg2);
+        return $this->stmt->setFetchMode($fetchMode, $arg2, $arg3);
     }
 
     /**
