@@ -389,7 +389,7 @@ SQL;
 
             $this->_execSql(
                 sprintf(
-                    "ALTER SYSTEM KILL SESSION '%s, %s' IMMEDIATE",
+                    "ALTER SYSTEM DISCONNECT SESSION '%s, %s' POST_TRANSACTION",
                     $activeUserSession['sid'],
                     $activeUserSession['serial#']
                 )
