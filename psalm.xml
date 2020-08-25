@@ -82,5 +82,17 @@
                 <file name="src/Tools/Dumper.php"/>
             </errorLevel>
         </UndefinedClass>
+        <InvalidReturnType>
+            <errorLevel type="suppress">
+                <!-- lastInsertId has a return type that does not match the one defined in the interface-->
+                <file name="src/Driver/Mysqli/Connection.php"/>
+            </errorLevel>
+        </InvalidReturnType>
+        <InvalidReturnStatement>
+            <errorLevel type="suppress">
+                <!-- lastInsertId has a return type that does not match the one defined in the interface-->
+                <file name="src/Driver/Mysqli/Connection.php"/>
+            </errorLevel>
+        </InvalidReturnStatement>
     </issueHandlers>
 </psalm>

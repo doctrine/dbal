@@ -68,9 +68,9 @@ class MySqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableIndexesList(array $tableIndexRows, string $tableName): array
+    protected function _getPortableTableIndexesList(array $tableIndexes, string $tableName): array
     {
-        foreach ($tableIndexRows as $k => $v) {
+        foreach ($tableIndexes as $k => $v) {
             $v = array_change_key_case($v, CASE_LOWER);
             if ($v['key_name'] === 'PRIMARY') {
                 $v['primary'] = true;
@@ -86,10 +86,10 @@ class MySqlSchemaManager extends AbstractSchemaManager
 
             $v['length'] = isset($v['sub_part']) ? (int) $v['sub_part'] : null;
 
-            $tableIndexRows[$k] = $v;
+            $tableIndexes[$k] = $v;
         }
 
-        return parent::_getPortableTableIndexesList($tableIndexRows, $tableName);
+        return parent::_getPortableTableIndexesList($tableIndexes, $tableName);
     }
 
     /**

@@ -294,9 +294,9 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function _getCreateTableSQL(string $tableName, array $columns, array $options = []): array
+    protected function _getCreateTableSQL(string $name, array $columns, array $options = []): array
     {
-        $tableName   = str_replace('.', '__', $tableName);
+        $name        = str_replace('.', '__', $name);
         $queryFields = $this->getColumnDeclarationListSQL($columns);
 
         if (isset($options['uniqueConstraints']) && ! empty($options['uniqueConstraints'])) {
@@ -320,7 +320,7 @@ class SqlitePlatform extends AbstractPlatform
             $tableComment = $this->getInlineTableCommentSQL($comment);
         }
 
-        $query = ['CREATE TABLE ' . $tableName . ' ' . $tableComment . '(' . $queryFields . ')'];
+        $query = ['CREATE TABLE ' . $name . ' ' . $tableComment . '(' . $queryFields . ')'];
 
         if (isset($options['alter']) && $options['alter'] === true) {
             return $query;
@@ -328,13 +328,13 @@ class SqlitePlatform extends AbstractPlatform
 
         if (isset($options['indexes']) && ! empty($options['indexes'])) {
             foreach ($options['indexes'] as $indexDef) {
-                $query[] = $this->getCreateIndexSQL($indexDef, $tableName);
+                $query[] = $this->getCreateIndexSQL($indexDef, $name);
             }
         }
 
         if (isset($options['unique']) && ! empty($options['unique'])) {
             foreach ($options['unique'] as $indexDef) {
-                $query[] = $this->getCreateIndexSQL($indexDef, $tableName);
+                $query[] = $this->getCreateIndexSQL($indexDef, $name);
             }
         }
 
