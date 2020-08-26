@@ -1130,6 +1130,8 @@ SQL
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated
      */
     public function supportsForeignKeyOnUpdate()
     {
