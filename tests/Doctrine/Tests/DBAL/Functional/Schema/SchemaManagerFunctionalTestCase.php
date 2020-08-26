@@ -94,8 +94,14 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
 
     public function testDropsDatabaseWithActiveConnections(): void
     {
-        if (! $this->schemaManager->getDatabasePlatform()->supportsCreateDropDatabase()) {
+        $platform = $this->schemaManager->getDatabasePlatform();
+
+        if (! $platform->supportsCreateDropDatabase()) {
             $this->markTestSkipped('Cannot drop Database client side with this Driver.');
+        }
+
+        if ($platform instanceof OraclePlatform) {
+            $this->markTestIncomplete('This functionality is not properly implemented in the Oracle platform.');
         }
 
         $this->schemaManager->dropAndCreateDatabase('test_drop_database');
