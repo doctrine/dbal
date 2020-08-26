@@ -967,6 +967,8 @@ SQL
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated
      */
     public function prefersSequences()
     {
@@ -1054,6 +1056,8 @@ SQL
      * {@inheritDoc}
      *
      * Oracle returns all column names in SQL result sets in uppercase.
+     *
+     * @deprecated
      */
     public function getSQLResultCasing($column)
     {
@@ -1110,6 +1114,8 @@ SQL
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated
      */
     public function supportsForeignKeyOnUpdate()
     {

@@ -869,6 +869,8 @@ class DB2Platform extends AbstractPlatform
      * {@inheritDoc}
      *
      * DB2 returns all column names in SQL result sets in uppercase.
+     *
+     * @deprecated
      */
     public function getSQLResultCasing($column)
     {

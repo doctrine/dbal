@@ -347,6 +347,11 @@ Please use other database client applications for import, e.g.:
 
 # Upgrade to 2.11
 
+## Deprecated the functionality of dropping client connections when dropping a database
+
+The corresponding `getDisallowDatabaseConnectionsSQL()` and `getCloseActiveDatabaseConnectionsSQL` methods
+of the `PostgreSqlPlatform` class have been deprecated.
+
 ## Deprecated `Synchronizer` package
 
 The `Doctrine\DBAL\Schema\Synchronizer\SchemaSynchronizer` interface and all its implementations are deprecated.
@@ -392,9 +397,12 @@ The following PDO-related classes outside of the PDO namespace have been depreca
 1. `DBALException::invalidPlatformType()` is deprecated as unused as of v2.7.0.
 2. `DBALException::invalidPdoInstance()` as passing a PDO instance via configuration is deprecated.
 
-## `AbstractPlatform::fixSchemaElementName()` is deprecated.
+## Deprecated `AbstractPlatform` methods.
 
-The method is not used anywhere except for tests.
+1. `fixSchemaElementName()`.
+2. `getSQLResultCasing()`.
+3. `prefersSequences()`.
+4. `supportsForeignKeyOnUpdate()`.
 
 ##`ServerInfoAwareConnection::requiresQueryForServerVersion()` is deprecated.
 

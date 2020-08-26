@@ -2569,6 +2569,8 @@ abstract class AbstractPlatform
      * Whether the platform prefers sequences for ID generation.
      * Subclasses should override this method to return TRUE if they prefer sequences.
      *
+     * @deprecated
+     *
      * @return bool
      */
     public function prefersSequences()
@@ -3148,6 +3150,8 @@ abstract class AbstractPlatform
     /**
      * Whether this platform supports onUpdate in foreign key constraints.
      *
+     * @deprecated
+     *
      * @return bool
      */
     public function supportsForeignKeyOnUpdate()
@@ -3386,6 +3390,8 @@ abstract class AbstractPlatform
 
     /**
      * Gets the character casing of a column in an SQL result set of this platform.
+     *
+     * @deprecated
      *
      * @param string $column The column name for which to get the correct character casing.
      *
