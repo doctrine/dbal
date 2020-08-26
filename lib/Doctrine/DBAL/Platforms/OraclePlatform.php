@@ -1055,6 +1055,8 @@ SQL
      * {@inheritDoc}
      *
      * Oracle returns all column names in SQL result sets in uppercase.
+     *
+     * @deprecated
      */
     public function getSQLResultCasing($column)
     {

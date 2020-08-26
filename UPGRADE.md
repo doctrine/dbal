@@ -45,9 +45,10 @@ The following PDO-related classes outside of the PDO namespace have been depreca
 1. `DBALException::invalidPlatformType()` is deprecated as unused as of v2.7.0.
 2. `DBALException::invalidPdoInstance()` as passing a PDO instance via configuration is deprecated.
 
-## `AbstractPlatform::fixSchemaElementName()` is deprecated.
+## Deprecated `AbstractPlatform` methods.
 
-The method is not used anywhere except for tests.
+1. `fixSchemaElementName()`.
+2. `getSQLResultCasing()`.
 
 ##`ServerInfoAwareConnection::requiresQueryForServerVersion()` is deprecated.
 

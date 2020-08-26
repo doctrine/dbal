@@ -3481,6 +3481,8 @@ abstract class AbstractPlatform
     /**
      * Gets the character casing of a column in an SQL result set of this platform.
      *
+     * @deprecated
+     *
      * @param string $column The column name for which to get the correct character casing.
      *
      * @return string The column name in the character casing used in SQL result sets.
