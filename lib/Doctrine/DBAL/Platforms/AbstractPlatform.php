@@ -2651,6 +2651,8 @@ abstract class AbstractPlatform
      * Whether the platform prefers sequences for ID generation.
      * Subclasses should override this method to return TRUE if they prefer sequences.
      *
+     * @deprecated
+     *
      * @return bool
      */
     public function prefersSequences()

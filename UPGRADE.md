@@ -49,6 +49,7 @@ The following PDO-related classes outside of the PDO namespace have been depreca
 
 1. `fixSchemaElementName()`.
 2. `getSQLResultCasing()`.
+3. `prefersSequences()`.
 
 ##`ServerInfoAwareConnection::requiresQueryForServerVersion()` is deprecated.
 

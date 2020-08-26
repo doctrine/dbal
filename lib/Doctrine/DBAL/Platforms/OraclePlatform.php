@@ -968,6 +968,8 @@ SQL
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated
      */
     public function prefersSequences()
     {
