@@ -1,5 +1,10 @@
 # Upgrade to 2.11
 
+## Deprecated the functionality of dropping client connections when dropping a database
+
+The corresponding `getDisallowDatabaseConnectionsSQL()` and `getCloseActiveDatabaseConnectionsSQL` methods
+of the `PostgreSqlPlatform` class have been deprecated.
+
 ## Deprecated `Synchronizer` package
 
 The `Doctrine\DBAL\Schema\Synchronizer\SchemaSynchronizer` interface and all its implementations are deprecated.
