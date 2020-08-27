@@ -1092,16 +1092,6 @@ SQL
 
     /**
      * {@inheritDoc}
-     *
-     * @deprecated
-     */
-    public function supportsForeignKeyOnUpdate()
-    {
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
      */
     public function supportsReleaseSavepoints()
     {

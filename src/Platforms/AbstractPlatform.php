@@ -2454,7 +2454,7 @@ abstract class AbstractPlatform
     public function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey)
     {
         $query = '';
-        if ($this->supportsForeignKeyOnUpdate() && $foreignKey->hasOption('onUpdate')) {
+        if ($foreignKey->hasOption('onUpdate')) {
             $query .= ' ON UPDATE ' . $this->getForeignKeyReferentialActionSQL($foreignKey->getOption('onUpdate'));
         }
 
@@ -3132,18 +3132,6 @@ abstract class AbstractPlatform
     public function supportsCreateDropForeignKeyConstraints(): bool
     {
         return true;
-    }
-
-    /**
-     * Whether this platform supports onUpdate in foreign key constraints.
-     *
-     * @deprecated
-     *
-     * @return bool
-     */
-    public function supportsForeignKeyOnUpdate()
-    {
-        return $this->supportsForeignKeyConstraints();
     }
 
     /**
