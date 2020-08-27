@@ -966,16 +966,6 @@ SQL
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @deprecated
-     */
-    public function prefersSequences()
-    {
-        return true;
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function usesSequenceEmulatedIdentityColumns()
@@ -1054,18 +1044,6 @@ SQL
 
     /**
      * {@inheritDoc}
-     *
-     * Oracle returns all column names in SQL result sets in uppercase.
-     *
-     * @deprecated
-     */
-    public function getSQLResultCasing($column)
-    {
-        return strtoupper($column);
-    }
-
-    /**
-     * {@inheritDoc}
      */
     public function getCreateTemporaryTableSnippetSQL()
     {
@@ -1110,16 +1088,6 @@ SQL
     public function supportsSequences()
     {
         return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @deprecated
-     */
-    public function supportsForeignKeyOnUpdate()
-    {
-        return false;
     }
 
     /**

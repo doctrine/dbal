@@ -1785,11 +1785,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         self::assertTrue($this->platform->supportsSequences());
     }
 
-    public function testDoesNotPreferSequences(): void
-    {
-        self::assertFalse($this->platform->prefersSequences());
-    }
-
     public function testGeneratesSequenceSqlCommands(): void
     {
         $sequence = new Sequence('myseq', 20, 1);

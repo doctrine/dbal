@@ -3,7 +3,6 @@
 namespace Doctrine\DBAL\Tests\Functional\Schema;
 
 use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\BlobType;
@@ -32,26 +31,6 @@ class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertFileExists($path);
         $this->schemaManager->dropDatabase($path);
         self::assertFileDoesNotExist($path);
-    }
-
-    public function testDropsDatabaseWithActiveConnections(): void
-    {
-        $this->schemaManager->dropAndCreateDatabase('test_drop_database');
-
-        self::assertFileExists('test_drop_database');
-
-        $params           = $this->connection->getParams();
-        $params['dbname'] = 'test_drop_database';
-
-        $connection = $this->connection->getDriver()->connect($params);
-
-        self::assertInstanceOf(Connection::class, $connection);
-
-        $this->schemaManager->dropDatabase('test_drop_database');
-
-        self::assertFileDoesNotExist('test_drop_database');
-
-        unset($connection);
     }
 
     public function testRenameTable(): void

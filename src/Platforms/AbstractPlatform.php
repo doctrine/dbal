@@ -2454,7 +2454,7 @@ abstract class AbstractPlatform
     public function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey)
     {
         $query = '';
-        if ($this->supportsForeignKeyOnUpdate() && $foreignKey->hasOption('onUpdate')) {
+        if ($foreignKey->hasOption('onUpdate')) {
             $query .= ' ON UPDATE ' . $this->getForeignKeyReferentialActionSQL($foreignKey->getOption('onUpdate'));
         }
 
@@ -2563,19 +2563,6 @@ abstract class AbstractPlatform
     public function getColumnCollationDeclarationSQL($collation)
     {
         return $this->supportsColumnCollation() ? 'COLLATE ' . $collation : '';
-    }
-
-    /**
-     * Whether the platform prefers sequences for ID generation.
-     * Subclasses should override this method to return TRUE if they prefer sequences.
-     *
-     * @deprecated
-     *
-     * @return bool
-     */
-    public function prefersSequences()
-    {
-        return false;
     }
 
     /**
@@ -3148,18 +3135,6 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Whether this platform supports onUpdate in foreign key constraints.
-     *
-     * @deprecated
-     *
-     * @return bool
-     */
-    public function supportsForeignKeyOnUpdate()
-    {
-        return $this->supportsForeignKeyConstraints();
-    }
-
-    /**
      * Whether the platform supports database schemas.
      *
      * @return bool
@@ -3386,20 +3361,6 @@ abstract class AbstractPlatform
     public function supportsLimitOffset()
     {
         return true;
-    }
-
-    /**
-     * Gets the character casing of a column in an SQL result set of this platform.
-     *
-     * @deprecated
-     *
-     * @param string $column The column name for which to get the correct character casing.
-     *
-     * @return string The column name in the character casing used in SQL result sets.
-     */
-    public function getSQLResultCasing($column)
-    {
-        return $column;
     }
 
     /**

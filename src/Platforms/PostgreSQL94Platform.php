@@ -211,16 +211,6 @@ class PostgreSQL94Platform extends AbstractPlatform
 
     /**
      * {@inheritDoc}
-     *
-     * @deprecated
-     */
-    public function prefersSequences()
-    {
-        return true;
-    }
-
-    /**
-     * {@inheritDoc}
      */
     public function hasNativeGuidType()
     {
@@ -439,39 +429,6 @@ SQL
     public function getCreateDatabaseSQL($name)
     {
         return 'CREATE DATABASE ' . $name;
-    }
-
-    /**
-     * Returns the SQL statement for disallowing new connections on the given database.
-     *
-     * This is useful to force DROP DATABASE operations which could fail because of active connections.
-     *
-     * @deprecated
-     *
-     * @param string $database The name of the database to disallow new connections for.
-     *
-     * @return string
-     */
-    public function getDisallowDatabaseConnectionsSQL($database)
-    {
-        return "UPDATE pg_database SET datallowconn = 'false' WHERE datname = " . $this->quoteStringLiteral($database);
-    }
-
-    /**
-     * Returns the SQL statement for closing currently active connections on the given database.
-     *
-     * This is useful to force DROP DATABASE operations which could fail because of active connections.
-     *
-     * @deprecated
-     *
-     * @param string $database The name of the database to close currently active connections for.
-     *
-     * @return string
-     */
-    public function getCloseActiveDatabaseConnectionsSQL($database)
-    {
-        return 'SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '
-            . $this->quoteStringLiteral($database);
     }
 
     /**
@@ -1086,18 +1043,6 @@ SQL
     public function getName()
     {
         return 'postgresql';
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * PostgreSQL returns all column names in SQL result sets in lowercase.
-     *
-     * @deprecated
-     */
-    public function getSQLResultCasing($column)
-    {
-        return strtolower($column);
     }
 
     /**

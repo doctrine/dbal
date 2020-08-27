@@ -4,9 +4,7 @@ namespace Doctrine\DBAL\Tests\Functional\Schema;
 
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Events;
-use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\AbstractAsset;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column;
@@ -90,43 +88,6 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         } catch (DBALException $e) {
             return;
         }
-    }
-
-    public function testDropsDatabaseWithActiveConnections(): void
-    {
-        $platform = $this->schemaManager->getDatabasePlatform();
-
-        if (! $platform->supportsCreateDropDatabase()) {
-            self::markTestSkipped('Cannot drop Database client side with this Driver.');
-        }
-
-        if ($platform instanceof OraclePlatform) {
-            $this->markTestIncomplete('This functionality is not properly implemented in the Oracle platform.');
-        }
-
-        $this->schemaManager->dropAndCreateDatabase('test_drop_database');
-
-        $knownDatabases = $this->schemaManager->listDatabases();
-        if ($this->connection->getDatabasePlatform() instanceof OraclePlatform) {
-            self::assertContains('TEST_DROP_DATABASE', $knownDatabases);
-        } else {
-            self::assertContains('test_drop_database', $knownDatabases);
-        }
-
-        $params = $this->connection->getParams();
-        if ($this->connection->getDatabasePlatform() instanceof OraclePlatform) {
-            $params['user'] = 'test_drop_database';
-        } else {
-            $params['dbname'] = 'test_drop_database';
-        }
-
-        $connection = $this->connection->getDriver()->connect($params);
-
-        self::assertInstanceOf(Connection::class, $connection);
-
-        $this->schemaManager->dropDatabase('test_drop_database');
-
-        self::assertNotContains('test_drop_database', $this->schemaManager->listDatabases());
     }
 
     public function testDropAndCreateSequence(): void
