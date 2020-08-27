@@ -19,7 +19,6 @@ use function func_num_args;
 use function implode;
 use function sprintf;
 use function strpos;
-use function strtoupper;
 
 class DB2Platform extends AbstractPlatform
 {
@@ -863,18 +862,6 @@ class DB2Platform extends AbstractPlatform
     public function prefersIdentityColumns()
     {
         return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * DB2 returns all column names in SQL result sets in uppercase.
-     *
-     * @deprecated
-     */
-    public function getSQLResultCasing($column)
-    {
-        return strtoupper($column);
     }
 
     /**

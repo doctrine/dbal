@@ -3389,20 +3389,6 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Gets the character casing of a column in an SQL result set of this platform.
-     *
-     * @deprecated
-     *
-     * @param string $column The column name for which to get the correct character casing.
-     *
-     * @return string The column name in the character casing used in SQL result sets.
-     */
-    public function getSQLResultCasing($column)
-    {
-        return $column;
-    }
-
-    /**
      * Maximum length of any given database identifier, like tables or column names.
      *
      * @return int

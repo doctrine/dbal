@@ -482,11 +482,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         self::assertFalse($this->platform->supportsCreateDropDatabase());
     }
 
-    public function testReturnsSQLResultCasing(): void
-    {
-        self::assertSame('COL', $this->platform->getSQLResultCasing('cOl'));
-    }
-
     protected function getBinaryDefaultLength(): int
     {
         return 1;

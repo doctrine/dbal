@@ -1090,18 +1090,6 @@ SQL
 
     /**
      * {@inheritDoc}
-     *
-     * PostgreSQL returns all column names in SQL result sets in lowercase.
-     *
-     * @deprecated
-     */
-    public function getSQLResultCasing($column)
-    {
-        return strtolower($column);
-    }
-
-    /**
-     * {@inheritDoc}
      */
     public function getDateTimeTzFormatString()
     {
