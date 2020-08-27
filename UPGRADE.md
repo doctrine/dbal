@@ -156,7 +156,7 @@ The `Doctrine\DBAL\Driver::getName()` has been removed.
  * Removed `json_array` type and all associated hacks.
  * Removed `Connection::TRANSACTION_*` constants.
  * Removed `AbstractPlatform::DATE_INTERVAL_UNIT_*` and `AbstractPlatform::TRIM_*` constants.
- * Removed `AbstractPlatform::getSQLResultCasing()` method.
+ * Removed `AbstractPlatform::getSQLResultCasing()` and `::prefersSequences()` methods.
  * Removed `MysqlSessionInit` listener.
  * Removed `MysqlPlatform::getCollationFieldDeclaration()`.
  * Removed `AbstractPlatform::getIdentityColumnNullInsertSQL()`.

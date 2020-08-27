@@ -966,16 +966,6 @@ SQL
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @deprecated
-     */
-    public function prefersSequences()
-    {
-        return true;
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function usesSequenceEmulatedIdentityColumns()

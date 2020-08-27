@@ -211,16 +211,6 @@ class PostgreSQL94Platform extends AbstractPlatform
 
     /**
      * {@inheritDoc}
-     *
-     * @deprecated
-     */
-    public function prefersSequences()
-    {
-        return true;
-    }
-
-    /**
-     * {@inheritDoc}
      */
     public function hasNativeGuidType()
     {

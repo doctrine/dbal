@@ -324,11 +324,6 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
         self::assertFalse($this->platform->prefersIdentityColumns());
     }
 
-    public function testPrefersSequences(): void
-    {
-        self::assertTrue($this->platform->prefersSequences());
-    }
-
     public function testSupportsIdentityColumns(): void
     {
         self::assertTrue($this->platform->supportsIdentityColumns());
