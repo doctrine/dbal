@@ -928,22 +928,6 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
         self::assertEquals('text', $this->platform->getDoctrineTypeMapping('tsvector'));
     }
 
-    public function testReturnsDisallowDatabaseConnectionsSQL(): void
-    {
-        self::assertSame(
-            "UPDATE pg_database SET datallowconn = 'false' WHERE datname = 'foo'",
-            $this->platform->getDisallowDatabaseConnectionsSQL('foo')
-        );
-    }
-
-    public function testReturnsCloseActiveDatabaseConnectionsSQL(): void
-    {
-        self::assertSame(
-            "SELECT pg_terminate_backend(procpid) FROM pg_stat_activity WHERE datname = 'foo'",
-            $this->platform->getCloseActiveDatabaseConnectionsSQL('foo')
-        );
-    }
-
     public function testQuotesTableNameInListTableForeignKeysSQL(): void
     {
         self::assertStringContainsStringIgnoringCase(
@@ -997,14 +981,6 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
         self::assertStringContainsStringIgnoringCase(
             "'Foo''Bar\\'",
             $this->platform->getListTableColumnsSQL("Foo'Bar\\.baz_table")
-        );
-    }
-
-    public function testQuotesDatabaseNameInCloseActiveDatabaseConnectionsSQL(): void
-    {
-        self::assertStringContainsStringIgnoringCase(
-            "'Foo''Bar\\'",
-            $this->platform->getCloseActiveDatabaseConnectionsSQL("Foo'Bar\\")
         );
     }
 }

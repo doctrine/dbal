@@ -1,5 +1,10 @@
 # Upgrade to 3.0
 
+## BC BREAK: change in the behavior of `SchemaManager::dropDatabase()`
+
+When dropping a database, the DBAL no longer attempts to kill the client sessions that use the database.
+It's the responsibility of the operator to make sure that the database is not being used.  
+
 ## BC BREAK: removed `Synchronizer` package
 
 The `Doctrine\DBAL\Schema\Synchronizer\SchemaSynchronizer` interface and all its implementations have been removed.
@@ -157,6 +162,7 @@ The `Doctrine\DBAL\Driver::getName()` has been removed.
  * Removed `Connection::TRANSACTION_*` constants.
  * Removed `AbstractPlatform::DATE_INTERVAL_UNIT_*` and `AbstractPlatform::TRIM_*` constants.
  * Removed `AbstractPlatform::getSQLResultCasing()`, `::prefersSequences()` and `::supportsForeignKeyOnUpdate()` methods.
+ * Removed `PostgreSqlPlatform::getDisallowDatabaseConnectionsSQL()` and `::getCloseActiveDatabaseConnectionsSQL()` methods.
  * Removed `MysqlSessionInit` listener.
  * Removed `MysqlPlatform::getCollationFieldDeclaration()`.
  * Removed `AbstractPlatform::getIdentityColumnNullInsertSQL()`.
