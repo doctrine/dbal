@@ -8,6 +8,7 @@ sudo docker pull microsoft/mssql-server-linux:2017-latest
 sudo docker run \
     -e 'ACCEPT_EULA=Y' \
     -e 'SA_PASSWORD=Doctrine2018' \
+    -e "MSSQL_COLLATION=${MSSQL_COLLATION:-Latin1_General_100_CI_AS}" \
     -p 127.0.0.1:1433:1433 \
     --name mssql \
     -d \
