@@ -463,7 +463,17 @@ SQL
             $fields[] = $field . ' IS NOT NULL';
         }
 
-        return $sql . ' WHERE ' . implode(' AND ', $fields);
+        if (count($fields) > 0) {
+            if ($this->supportsPartialIndexes() && $index->hasOption('where')) {
+                $sql .= ' AND ';
+            } else {
+                $sql .= ' WHERE ';
+            }
+
+            $sql .= implode(' AND ', $fields);
+        }
+
+        return $sql;
     }
 
     /**

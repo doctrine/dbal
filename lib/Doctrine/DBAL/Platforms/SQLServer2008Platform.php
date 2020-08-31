@@ -11,6 +11,15 @@ namespace Doctrine\DBAL\Platforms;
 class SQLServer2008Platform extends SQLServer2005Platform
 {
     /**
+     * {@inheritdoc}
+     */
+    public function supportsPartialIndexes()
+    {
+        // Partial indexes are supported as "filtered indexes" since version 2008.
+        return true;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function getListTablesSQL()

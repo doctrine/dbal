@@ -807,4 +807,9 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
             $this->platform->getCreateTableSQL($table)
         );
     }
+
+    public function testSupportsPartialIndexes(): void
+    {
+        self::assertTrue($this->platform->supportsPartialIndexes());
+    }
 }

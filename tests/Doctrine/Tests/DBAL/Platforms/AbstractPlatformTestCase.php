@@ -212,8 +212,6 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         $indexDef    = new Index('name', ['test', 'test2'], false, false, [], ['where' => $where]);
         $uniqueIndex = new Index('name', ['test', 'test2'], true, false, [], ['where' => $where]);
 
-        $expected = ' WHERE ' . $where;
-
         $actuals = [];
 
         if ($this->supportsInlineIndexDeclaration()) {
@@ -224,10 +222,14 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         $actuals[] = $this->platform->getCreateIndexSQL($indexDef, 'table');
 
         foreach ($actuals as $actual) {
+            // Note: In most cases, the SQL ends with ' WHERE ' + the condition defined above, but depending
+            // on the platform other conditions may be added (i.e. in case of unique constraints for SQL Server),
+            // so that it's not guaranteed that the condition directly follows the 'WHERE' keyword nor that the
+            // SQL ends with the condition.
             if ($this->platform->supportsPartialIndexes()) {
-                self::assertStringEndsWith($expected, $actual, 'WHERE clause should be present');
+                self::assertStringContainsString($where, $actual, 'WHERE clause should be present');
             } else {
-                self::assertStringEndsNotWith($expected, $actual, 'WHERE clause should NOT be present');
+                self::assertStringNotContainsString($where, $actual, 'WHERE clause should NOT be present');
             }
         }
     }

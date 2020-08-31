@@ -554,6 +554,16 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function supportsPartialIndexes()
+    {
+        // Partial indexes are supported since version 3.8.0 (2013-08-26),
+        // see https://www.sqlite.org/partialindex.html
+        return true;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function getName()
