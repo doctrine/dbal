@@ -46,8 +46,8 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $primaryKey = $table->getPrimaryKeyColumns();
 
         self::assertCount(2, $primaryKey);
-        self::assertContains('bar_id', $primaryKey);
-        self::assertContains('foo_id', $primaryKey);
+        self::assertArrayHasKey('bar_id', $primaryKey);
+        self::assertArrayHasKey('foo_id', $primaryKey);
     }
 
     public function testDiffTableBug(): void

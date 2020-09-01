@@ -11,7 +11,6 @@ use function array_map;
 use function array_search;
 use function array_shift;
 use function count;
-use function is_string;
 use function strtolower;
 
 class Index extends AbstractAsset implements Constraint
@@ -79,18 +78,10 @@ class Index extends AbstractAsset implements Constraint
     }
 
     /**
-     * @param string $column
-     *
-     * @return void
-     *
      * @throws InvalidArgumentException
      */
-    protected function _addColumn($column)
+    protected function _addColumn(string $column): void
     {
-        if (! is_string($column)) {
-            throw new InvalidArgumentException('Expecting a string as Index Column');
-        }
-
         $this->_columns[$column] = new Identifier($column);
     }
 

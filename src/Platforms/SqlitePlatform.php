@@ -963,8 +963,8 @@ class SqlitePlatform extends AbstractPlatform
                 $table->getQuotedName($this),
                 $columns,
                 $this->getPrimaryIndexInAlteredTable($diff),
+                [],
                 $this->getForeignKeysInAlteredTable($diff),
-                0,
                 $table->getOptions()
             );
             $newTable->addOption('alter', true);

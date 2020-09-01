@@ -922,7 +922,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
      */
     protected function getTestTable(string $name, array $options = []): Table
     {
-        $table = new Table($name, [], [], [], false, $options);
+        $table = new Table($name, [], [], [], [], $options);
         $table->setSchemaConfig($this->schemaManager->createSchemaConfig());
         $table->addColumn('id', 'integer', ['notnull' => true]);
         $table->setPrimaryKey(['id']);
@@ -934,7 +934,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
     protected function getTestCompositeTable(string $name): Table
     {
-        $table = new Table($name, [], [], [], false, []);
+        $table = new Table($name, [], [], [], [], []);
         $table->setSchemaConfig($this->schemaManager->createSchemaConfig());
         $table->addColumn('id', 'integer', ['notnull' => true]);
         $table->addColumn('other_id', 'integer', ['notnull' => true]);
