@@ -1198,4 +1198,9 @@ SQL
     {
         return true;
     }
+
+    public function supportsUpdateColumnOrder(): bool
+    {
+        return true;
+    }
 }

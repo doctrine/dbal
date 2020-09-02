@@ -4,13 +4,18 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Types;
 
+use function array_diff_key;
+use function array_flip;
+use function array_intersect;
 use function array_intersect_key;
 use function array_key_exists;
 use function array_keys;
 use function array_map;
 use function array_merge;
 use function array_shift;
+use function array_slice;
 use function array_unique;
+use function array_values;
 use function assert;
 use function count;
 use function get_class;
@@ -214,6 +219,12 @@ class Comparator
         }
 
         /* See if there are any removed columns in table 2 */
+        $table1ColumnsPosByName = array_flip(array_values(
+            array_intersect(array_keys($table1Columns), array_keys($table2Columns))
+        ));
+        $table2ColumnsPosByName = array_flip(array_values(
+            array_intersect(array_keys($table2Columns), array_keys($table1Columns))
+        ));
         foreach ($table1Columns as $columnName => $column) {
             // See if column is removed in table 2.
             if (! $table2->hasColumn($columnName)) {
@@ -225,7 +236,15 @@ class Comparator
             // See if column has changed properties in table 2.
             $changedProperties = $this->diffColumn($column, $table2->getColumn($columnName));
 
-            if (empty($changedProperties)) {
+            // See if column is at the right position
+            $table1ColumnPos    = $table1ColumnsPosByName[$columnName];
+            $table2ColumnPos    = $table2ColumnsPosByName[$columnName];
+            $needPositionUpdate = count(array_diff_key(
+                array_slice($table1ColumnsPosByName, 0, $table1ColumnPos, true),
+                array_slice($table2ColumnsPosByName, 0, $table2ColumnPos, true)
+            )) > 0;
+
+            if (empty($changedProperties) && ! $needPositionUpdate) {
                 continue;
             }
 

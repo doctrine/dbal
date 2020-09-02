@@ -3367,6 +3367,14 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Does this platform support column reordering in alter table?
+     */
+    public function supportsUpdateColumnOrder(): bool
+    {
+        return false;
+    }
+
+    /**
      * Gets the format string, as accepted by the date() function, that describes
      * the format of a stored datetime value of this platform.
      *
