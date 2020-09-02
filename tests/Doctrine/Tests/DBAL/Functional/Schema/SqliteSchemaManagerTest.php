@@ -101,7 +101,7 @@ EOS
                 ['parent'],
                 'user',
                 ['id'],
-                '1',
+                null,
                 ['onUpdate' => 'NO ACTION', 'onDelete' => 'CASCADE', 'deferrable' => false, 'deferred' => false]
             ),
             new Schema\ForeignKeyConstraint(

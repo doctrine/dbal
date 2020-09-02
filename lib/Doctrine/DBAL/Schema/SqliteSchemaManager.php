@@ -149,7 +149,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
                 $id = $value['id'];
 
                 $tableForeignKeys[$key] = array_merge($tableForeignKeys[$key], [
-                    'constraint_name' => isset($names[$id]) && $names[$id] !== '' ? $names[$id] : $id,
+                    'constraint_name' => isset($names[$id]) && $names[$id] !== '' ? $names[$id] : null,
                     'deferrable'      => isset($deferrable[$id]) && strtolower($deferrable[$id]) === 'deferrable',
                     'deferred'        => isset($deferred[$id]) && strtolower($deferred[$id]) === 'deferred',
                 ]);
