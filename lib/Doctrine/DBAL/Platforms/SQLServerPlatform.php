@@ -576,7 +576,7 @@ SQL
 
             $oldColumnName = new Identifier($oldColumnName);
 
-            $sql[] = "sp_RENAME '" .
+            $sql[] = "sp_rename '" .
                 $diff->getName($this)->getQuotedName($this) . '.' . $oldColumnName->getQuotedName($this) .
                 "', '" . $column->getQuotedName($this) . "', 'COLUMN'";
 
@@ -607,7 +607,7 @@ SQL
         $newName = $diff->getNewName();
 
         if ($newName !== false) {
-            $sql[] = "sp_RENAME '" . $diff->getName($this)->getQuotedName($this) . "', '" . $newName->getName() . "'";
+            $sql[] = "sp_rename '" . $diff->getName($this)->getQuotedName($this) . "', '" . $newName->getName() . "'";
 
             /**
              * Rename table's default constraints names
@@ -786,7 +786,7 @@ SQL
     protected function getRenameIndexSQL($oldIndexName, Index $index, $tableName)
     {
         return [sprintf(
-            "EXEC sp_RENAME N'%s.%s', N'%s', N'INDEX'",
+            "EXEC sp_rename N'%s.%s', N'%s', N'INDEX'",
             $tableName,
             $oldIndexName,
             $index->getQuotedName($this)

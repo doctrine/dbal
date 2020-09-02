@@ -147,9 +147,6 @@ jobs:
       env: DB=mysql.docker IMAGE=mysql:8.0
     - stage: Test
       php: 7.4
-      env: DB=mysqli.docker IMAGE=mysql:8.0
-    - stage: Test
-      php: 7.4
       env: DB=mysqli-tls.docker IMAGE=mysql:8.0 TLS=yes
     - stage: Test
       php: 7.4
@@ -168,7 +165,7 @@ jobs:
       env: DB=sqlite
     - stage: Test
       php: 7.4
-      env: DB=sqlsrv
+      env: DB=sqlsrv MSSQL_COLLATION=Latin1_General_100_CS_AS
       sudo: required
       before_script:
         - bash ./tests/travis/install-sqlsrv-dependencies.sh
@@ -176,13 +173,12 @@ jobs:
         - bash ./tests/travis/install-mssql.sh
     - stage: Test
       php: 7.4
-      env: DB=pdo_sqlsrv
+      env: DB=pdo_sqlsrv MSSQL_COLLATION=Latin1_General_100_CS_AS
       sudo: required
       before_script:
         - bash ./tests/travis/install-sqlsrv-dependencies.sh
         - bash ./tests/travis/install-mssql-pdo_sqlsrv.sh
         - bash ./tests/travis/install-mssql.sh
-
     - stage: Test
       if: type = cron
       php: 7.2
