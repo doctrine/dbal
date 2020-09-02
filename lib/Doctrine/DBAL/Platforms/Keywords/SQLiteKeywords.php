@@ -2,6 +2,8 @@
 
 namespace Doctrine\DBAL\Platforms\Keywords;
 
+use function is_numeric;
+
 /**
  * SQLite Keywordlist.
  */
@@ -13,6 +15,14 @@ class SQLiteKeywords extends KeywordList
     public function getName()
     {
         return 'SQLite';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isKeyword($word)
+    {
+        return parent::isKeyword($word) || is_numeric($word);
     }
 
     /**
