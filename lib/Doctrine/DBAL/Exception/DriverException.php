@@ -4,7 +4,6 @@ namespace Doctrine\DBAL\Exception;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\DriverException as DeprecatedDriverException;
-use Exception;
 
 /**
  * Base class for all errors detected in the driver.
@@ -26,13 +25,7 @@ class DriverException extends DBALException
      */
     public function __construct($message, DeprecatedDriverException $driverException)
     {
-        $exception = null;
-
-        if ($driverException instanceof Exception) {
-            $exception = $driverException;
-        }
-
-        parent::__construct($message, 0, $exception);
+        parent::__construct($message, 0, $driverException);
 
         $this->driverException = $driverException;
     }
