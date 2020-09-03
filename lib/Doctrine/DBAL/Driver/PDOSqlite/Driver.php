@@ -2,9 +2,9 @@
 
 namespace Doctrine\DBAL\Driver\PDOSqlite;
 
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\AbstractSQLiteDriver;
 use Doctrine\DBAL\Driver\PDO;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use PDOException;
 
@@ -45,7 +45,7 @@ class Driver extends AbstractSQLiteDriver
                 $driverOptions
             );
         } catch (PDOException $ex) {
-            throw DBALException::driverException($this, $ex);
+            throw Exception::driverException($this, $ex);
         }
 
         foreach ($this->_userDefinedFunctions as $fn => $data) {

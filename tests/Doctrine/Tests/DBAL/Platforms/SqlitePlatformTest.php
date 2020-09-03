@@ -2,7 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Platforms;
 
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\Column;
@@ -256,14 +256,14 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
 
     public function testGeneratesForeignKeyCreationSql(): void
     {
-        $this->expectException(DBALException::class);
+        $this->expectException(Exception::class);
 
         parent::testGeneratesForeignKeyCreationSql();
     }
 
     public function testGeneratesConstraintCreationSql(): void
     {
-        $this->expectException(DBALException::class);
+        $this->expectException(Exception::class);
 
         parent::testGeneratesConstraintCreationSql();
     }
@@ -345,7 +345,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
      */
     public function testAlterTableAddComplexColumns(TableDiff $diff): void
     {
-        $this->expectException(DBALException::class);
+        $this->expectException(Exception::class);
 
         $this->platform->getAlterTableSQL($diff);
     }

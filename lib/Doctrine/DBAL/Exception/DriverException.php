@@ -2,15 +2,15 @@
 
 namespace Doctrine\DBAL\Exception;
 
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\DriverException as DeprecatedDriverException;
+use Doctrine\DBAL\Exception;
 
 /**
  * Base class for all errors detected in the driver.
  *
  * @psalm-immutable
  */
-class DriverException extends DBALException
+class DriverException extends Exception
 {
     /**
      * The previous DBAL driver exception.

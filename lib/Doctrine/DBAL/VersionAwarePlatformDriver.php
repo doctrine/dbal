@@ -22,7 +22,7 @@ interface VersionAwarePlatformDriver
      *
      * @return AbstractPlatform
      *
-     * @throws DBALException If the given version string could not be evaluated.
+     * @throws Exception If the given version string could not be evaluated.
      */
     public function createDatabasePlatformForVersion($version);
 }

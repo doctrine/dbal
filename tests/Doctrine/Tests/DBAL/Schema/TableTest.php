@@ -2,7 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Schema;
 
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\Column;
@@ -20,7 +20,7 @@ class TableTest extends DbalTestCase
 {
     public function testCreateWithInvalidTableName(): void
     {
-        $this->expectException(DBALException::class);
+        $this->expectException(Exception::class);
 
         new Table('');
     }

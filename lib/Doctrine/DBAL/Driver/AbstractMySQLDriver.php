@@ -3,9 +3,9 @@
 namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\DriverException as DeprecatedDriverException;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\ConnectionException;
 use Doctrine\DBAL\Exception\ConnectionLost;
 use Doctrine\DBAL\Exception\DeadlockException;
@@ -131,7 +131,7 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
     /**
      * {@inheritdoc}
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function createDatabasePlatformForVersion($version)
     {
@@ -160,7 +160,7 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
      *
      * @param string $versionString Version string returned by the driver, i.e. '5.7.10'
      *
-     * @throws DBALException
+     * @throws Exception
      */
     private function getOracleMysqlVersionNumber(string $versionString): string
     {
@@ -171,7 +171,7 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
                 $versionParts
             )
         ) {
-            throw DBALException::invalidPlatformVersionSpecified(
+            throw Exception::invalidPlatformVersionSpecified(
                 $versionString,
                 '<major_version>.<minor_version>.<patch_version>'
             );
@@ -194,7 +194,7 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
      *
      * @param string $versionString Version string as returned by mariadb server, i.e. '5.5.5-Mariadb-10.0.8-xenial'
      *
-     * @throws DBALException
+     * @throws Exception
      */
     private function getMariaDbMysqlVersionNumber(string $versionString): string
     {
@@ -205,7 +205,7 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
                 $versionParts
             )
         ) {
-            throw DBALException::invalidPlatformVersionSpecified(
+            throw Exception::invalidPlatformVersionSpecified(
                 $versionString,
                 '^(?:5\.5\.5-)?(mariadb-)?<major_version>.<minor_version>.<patch_version>'
             );
