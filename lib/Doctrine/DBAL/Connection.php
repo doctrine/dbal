@@ -20,7 +20,6 @@ use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Types\Type;
-use Exception;
 use Throwable;
 use Traversable;
 
@@ -406,7 +405,7 @@ class Connection implements DriverConnection
      *
      * @return string|null
      *
-     * @throws Exception
+     * @throws Throwable
      */
     private function getDatabasePlatformVersion()
     {
@@ -1470,7 +1469,6 @@ class Connection implements DriverConnection
      *
      * @return mixed The value returned by $func
      *
-     * @throws Exception
      * @throws Throwable
      */
     public function transactional(Closure $func)
@@ -1481,10 +1479,6 @@ class Connection implements DriverConnection
             $this->commit();
 
             return $res;
-        } catch (Exception $e) {
-            $this->rollBack();
-
-            throw $e;
         } catch (Throwable $e) {
             $this->rollBack();
 
