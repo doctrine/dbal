@@ -469,9 +469,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $this->expectCteWithMaxRowNum($alteredSql, 1, $sql);
     }
 
-    /**
-     * @throws DBALException
-     */
     public function testModifyLimitSubqueryWithJoinAndSubqueryOrderedByColumnFromBaseTable(): void
     {
         $querySql   = 'SELECT DISTINCT id_0, name_1 '
@@ -493,9 +490,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $this->expectCteWithMaxRowNum($alteredSql, 5, $sql);
     }
 
-    /**
-     * @throws DBALException
-     */
     public function testModifyLimitSubqueryWithJoinAndSubqueryOrderedByColumnFromJoinTable(): void
     {
         $querySql   = 'SELECT DISTINCT id_0, name_1 '
@@ -517,9 +511,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $this->expectCteWithMaxRowNum($alteredSql, 5, $sql);
     }
 
-    /**
-     * @throws DBALException
-     */
     public function testModifyLimitSubqueryWithJoinAndSubqueryOrderedByColumnsFromBothTables(): void
     {
         $querySql   = 'SELECT DISTINCT id_0, name_1, foo_2 '
