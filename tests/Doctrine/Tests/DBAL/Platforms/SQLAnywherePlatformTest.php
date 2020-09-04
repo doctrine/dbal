@@ -2,7 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Platforms;
 
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLAnywherePlatform;
@@ -522,7 +522,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
     public function testDoesNotSupportIndexDeclarationInCreateAlterTableStatements(): void
     {
-        $this->expectException(DBALException::class);
+        $this->expectException(Exception::class);
 
         $this->platform->getIndexDeclarationSQL('index', new Index('index', []));
     }
@@ -712,7 +712,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
     public function testDoesNotSupportRegexp(): void
     {
-        $this->expectException(DBALException::class);
+        $this->expectException(Exception::class);
 
         $this->platform->getRegexpExpression();
     }

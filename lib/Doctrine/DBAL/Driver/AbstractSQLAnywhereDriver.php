@@ -3,9 +3,9 @@
 namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\DriverException as DeprecatedDriverException;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\ConnectionException;
 use Doctrine\DBAL\Exception\DeadlockException;
 use Doctrine\DBAL\Exception\DriverException;
@@ -103,7 +103,7 @@ abstract class AbstractSQLAnywhereDriver implements Driver, ExceptionConverterDr
                 $versionParts
             )
         ) {
-            throw DBALException::invalidPlatformVersionSpecified(
+            throw Exception::invalidPlatformVersionSpecified(
                 $version,
                 '<major_version>.<minor_version>.<patch_version>.<build_version>'
             );

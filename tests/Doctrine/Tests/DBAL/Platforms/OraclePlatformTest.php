@@ -2,7 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Platforms;
 
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\Column;
@@ -74,7 +74,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
      */
     public function testInvalidIdentifiers(string $identifier): void
     {
-        $this->expectException(DBALException::class);
+        $this->expectException(Exception::class);
 
         $platform = $this->createPlatform();
         $platform->assertValidIdentifier($identifier);
@@ -120,7 +120,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 
     public function testRLike(): void
     {
-        $this->expectException(DBALException::class);
+        $this->expectException(Exception::class);
 
         self::assertEquals('RLIKE', $this->platform->getRegexpExpression());
     }
@@ -156,7 +156,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 
     public function testCreateDatabaseThrowsException(): void
     {
-        $this->expectException(DBALException::class);
+        $this->expectException(Exception::class);
 
         self::assertEquals('CREATE DATABASE foobar', $this->platform->getCreateDatabaseSQL('foobar'));
     }

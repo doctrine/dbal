@@ -2,9 +2,9 @@
 
 namespace Doctrine\DBAL\Driver\PDOOracle;
 
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\AbstractOracleDriver;
 use Doctrine\DBAL\Driver\PDO;
+use Doctrine\DBAL\Exception;
 use PDOException;
 
 /**
@@ -32,7 +32,7 @@ class Driver extends AbstractOracleDriver
                 $driverOptions
             );
         } catch (PDOException $e) {
-            throw DBALException::driverException($this, $e);
+            throw Exception::driverException($this, $e);
         }
     }
 

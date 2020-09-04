@@ -2,9 +2,9 @@
 
 namespace Doctrine\DBAL\Driver\PDOMySql;
 
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\AbstractMySQLDriver;
 use Doctrine\DBAL\Driver\PDO;
+use Doctrine\DBAL\Exception;
 use PDOException;
 
 /**
@@ -27,7 +27,7 @@ class Driver extends AbstractMySQLDriver
                 $driverOptions
             );
         } catch (PDOException $e) {
-            throw DBALException::driverException($this, $e);
+            throw Exception::driverException($this, $e);
         }
 
         return $conn;

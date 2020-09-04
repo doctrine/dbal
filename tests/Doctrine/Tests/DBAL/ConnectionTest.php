@@ -9,13 +9,13 @@ use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Events;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Logging\DebugStack;
@@ -23,7 +23,6 @@ use Doctrine\DBAL\Logging\EchoSQLLogger;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\Tests\DbalTestCase;
-use Exception;
 use PHPUnit\Framework\MockObject\MockObject;
 use stdClass;
 
@@ -183,7 +182,7 @@ class ConnectionTest extends DbalTestCase
      */
     public function testDriverExceptionIsWrapped(string $method): void
     {
-        $this->expectException(DBALException::class);
+        $this->expectException(Exception::class);
         $this->expectExceptionMessage(<<<EOF
 An exception occurred while executing 'MUUHAAAAHAAAA':
 
@@ -833,7 +832,7 @@ EOF
 
         $driver = $this->createMock(Driver::class);
 
-        $this->expectException(DBALException::class);
+        $this->expectException(Exception::class);
 
         new Connection($connectionParams, $driver);
     }
@@ -843,8 +842,8 @@ EOF
         $driverMock = $this->createMock(FutureVersionAwarePlatformDriver::class);
 
         $connection        = new Connection(['dbname' => 'foo'], $driverMock);
-        $originalException = new Exception('Original exception');
-        $fallbackException = new Exception('Fallback exception');
+        $originalException = new \Exception('Original exception');
+        $fallbackException = new \Exception('Fallback exception');
 
         $driverMock->method('connect')
             ->will(self::onConsecutiveCalls(

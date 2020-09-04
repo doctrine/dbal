@@ -3,10 +3,10 @@
 namespace Doctrine\Tests\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\DriverException as DriverExceptionInterface;
 use Doctrine\DBAL\Driver\ExceptionConverterDriver;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\ConnectionException;
 use Doctrine\DBAL\Exception\ConstraintViolationException;
 use Doctrine\DBAL\Exception\DatabaseObjectExistsException;
@@ -138,7 +138,7 @@ abstract class AbstractDriverTest extends DbalTestCase
             $this->markTestSkipped('This test is only intended for version aware platform drivers.');
         }
 
-        $this->expectException(DBALException::class);
+        $this->expectException(Exception::class);
         $this->driver->createDatabasePlatformForVersion('foo');
     }
 
