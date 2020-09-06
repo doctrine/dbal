@@ -1317,4 +1317,36 @@ class ComparatorTest extends TestCase
         self::assertCount(1, $actual->changedTables['table2']->addedForeignKeys, 'FK to table3 should be added.');
         self::assertEquals('table3', $actual->changedTables['table2']->addedForeignKeys[0]->getForeignTableName());
     }
+
+    public function testCompareForeignKeysOfTable(): void
+    {
+        $fromTable = new Table('table');
+        $fromTable->addColumn('id', 'integer');
+        $fromTable->addColumn('reference1_id1', 'integer');
+        $fromTable->addColumn('reference1_id2', 'integer');
+        $fromTable->addColumn('reference2_id', 'integer');
+        $fromTable->addColumn('reference3_id1', 'integer');
+        $fromTable->addColumn('reference3_id2', 'integer');
+        $fromTable->addColumn('reference4_id', 'integer');
+
+        $fromTable->addForeignKeyConstraint('table_ref1', ['reference1_id1'], ['id1'], [], 'fk1');
+        $fromTable->addForeignKeyConstraint('table_ref2', ['reference2_id'], ['id']);
+
+        $toTable = clone $fromTable;
+        $toTable->removeForeignKey('fk1');
+        $toTable->addForeignKeyConstraint(
+            'table_ref1',
+            ['reference1_id1', 'reference1_id2'],
+            ['id1', 'id2'],
+            [],
+            'fk1'
+        );
+        $toTable->addForeignKeyConstraint('table_ref3', ['reference3_id1', 'reference3_id2'], ['id1', 'id2']);
+        $toTable->addForeignKeyConstraint('table_ref4', ['reference4_id'], ['id']);
+
+        $tableDiff = (new Comparator())->diffTable($fromTable, $toTable);
+
+        self::assertCount(2, $tableDiff->addedForeignKeys);
+        self::assertCount(1, $tableDiff->changedForeignKeys);
+    }
 }

@@ -261,6 +261,9 @@ SQL;
     public function testUnnamedForeignKeyConstraintHandling(): void
     {
         $sql = <<<SQL
+DROP TABLE IF EXISTS "unnamedfk_referenced1";
+DROP TABLE IF EXISTS "unnamedfk_referenced2";
+DROP TABLE IF EXISTS "unnamedfk_referencing";
 CREATE TABLE "unnamedfk_referenced1" (
 "id1" integer not null,
 "id2" integer not null,
