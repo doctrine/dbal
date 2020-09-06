@@ -284,12 +284,19 @@ class Comparator
             foreach ($toFkeys as $key2 => $constraint2) {
                 if ($this->diffForeignKey($constraint1, $constraint2) === false) {
                     unset($fromFkeys[$key1], $toFkeys[$key2]);
-                } else {
-                    if (strtolower($constraint1->getName()) === strtolower($constraint2->getName())) {
-                        $tableDifferences->changedForeignKeys[] = $constraint2;
-                        $changes++;
-                        unset($fromFkeys[$key1], $toFkeys[$key2]);
-                    }
+                    continue 2;
+                }
+
+                // only named foreign key constraints can change, otherwise it appears as removed+added.
+                if (
+                    $constraint1->getName() &&
+                    $constraint2->getName() &&
+                    strtolower($constraint1->getName()) === strtolower($constraint2->getName())
+                ) {
+                    $tableDifferences->changedForeignKeys[] = $constraint2;
+                    $changes++;
+                    unset($fromFkeys[$key1], $toFkeys[$key2]);
+                    continue 2;
                 }
             }
         }

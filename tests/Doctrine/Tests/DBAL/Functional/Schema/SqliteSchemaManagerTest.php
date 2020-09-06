@@ -261,24 +261,34 @@ SQL;
     public function testUnnamedForeignKeyConstraintHandling(): void
     {
         $sql = <<<SQL
-create table "bug4243_users" (
+CREATE TABLE "bug4243_types" (
 "id" integer not null primary key autoincrement
 );
-create table "bug4243_posts"
-("id" integer not null primary key autoincrement,
-"user_id" integer not null,
-"body" varchar not null,
-"created_at" datetime null,
-"updated_at" datetime null,
-foreign key("user_id") references "bug4243_users"("id"));
+CREATE TABLE "bug4243_groups" (
+"id" integer not null primary key autoincrement
+);
+CREATE TABLE "bug4243_documents" (
+    "hash" varchar not null,
+    "id" integer not null primary key autoincrement,
+    "created_at" datetime null,
+    "updated_at" datetime null,
+    "title" varchar not null,
+    "ek" varchar not null,
+    "iv" varchar not null,
+    "deleted_at" datetime null,
+    "type_id" integer not null,
+    "group_id" integer null,
+    foreign key("type_id") references "bug4243_types"("id") on delete cascade,
+    foreign key("group_id") references "bug4243_groups"("id") on delete cascade
+)
 SQL;
 
         $this->connection->exec($sql);
 
         $sm          = $this->connection->getSchemaManager();
-        $onlineTable = $sm->listTableDetails('bug4243_posts');
+        $onlineTable = $sm->listTableDetails('bug4243_documents');
 
-        $offlineTable = new Table('bug4243_posts');
+        $offlineTable = new Table('bug4243_documents');
         $offlineTable->addColumn('id', 'integer');
 
         $comparator = new Schema\Comparator();
@@ -290,7 +300,7 @@ SQL;
             $this->connection->exec($sql);
         }
 
-        $onlineTableAfter = $sm->listTableDetails('bug4243_posts');
+        $onlineTableAfter = $sm->listTableDetails('bug4243_documents');
         $diff             = $comparator->diffTable($onlineTable, $onlineTableAfter);
 
         $this->assertFalse($diff);
