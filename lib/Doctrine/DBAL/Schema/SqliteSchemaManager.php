@@ -406,10 +406,9 @@ class SqliteSchemaManager extends AbstractSchemaManager
     protected function _getPortableTableForeignKeysList($tableForeignKeys)
     {
         $list = [];
-        $i    = 0;
         foreach ($tableForeignKeys as $value) {
             $value = array_change_key_case($value, CASE_LOWER);
-            $index = $value['constraint_name'] ?: $i++;
+            $index = $value['constraint_name'] ?? $value['id'];
             if (! isset($list[$index])) {
                 if (! isset($value['on_delete']) || $value['on_delete'] === 'RESTRICT') {
                     $value['on_delete'] = null;

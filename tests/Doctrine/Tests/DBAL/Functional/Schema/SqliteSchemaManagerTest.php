@@ -261,35 +261,34 @@ SQL;
     public function testUnnamedForeignKeyConstraintHandling(): void
     {
         $sql = <<<SQL
-CREATE TABLE "bug4243_types" (
+CREATE TABLE "unnamedfk_referenced1" (
+"id1" integer not null,
+"id2" integer not null,
+primary key("id1", "id2")
+);
+CREATE TABLE "unnamedfk_referenced2" (
 "id" integer not null primary key autoincrement
 );
-CREATE TABLE "bug4243_groups" (
-"id" integer not null primary key autoincrement
-);
-CREATE TABLE "bug4243_documents" (
-    "hash" varchar not null,
+CREATE TABLE "unnamedfk_referencing" (
     "id" integer not null primary key autoincrement,
-    "created_at" datetime null,
-    "updated_at" datetime null,
-    "title" varchar not null,
-    "ek" varchar not null,
-    "iv" varchar not null,
-    "deleted_at" datetime null,
-    "type_id" integer not null,
-    "group_id" integer null,
-    foreign key("type_id") references "bug4243_types"("id") on delete cascade,
-    foreign key("group_id") references "bug4243_groups"("id") on delete cascade
+    "reference1_id1" integer not null,
+    "reference1_id2" integer not null,
+    "reference2_id" integer not null,
+    foreign key("reference1_id1", "reference1_id2") references "unnamedfk_referenced1"("id1", "id2") on delete cascade,
+    foreign key("reference2_id") references "unnamedfk_referenced2"("id") on delete cascade
 )
 SQL;
 
         $this->connection->exec($sql);
 
         $sm          = $this->connection->getSchemaManager();
-        $onlineTable = $sm->listTableDetails('bug4243_documents');
+        $onlineTable = $sm->listTableDetails('unnamedfk_referencing');
 
-        $offlineTable = new Table('bug4243_documents');
+        $offlineTable = new Table('unnamedfk_referencing');
         $offlineTable->addColumn('id', 'integer');
+        $offlineTable->addColumn('reference1_id1', 'integer');
+        $offlineTable->addColumn('reference1_id2', 'integer');
+        $offlineTable->addColumn('reference2_id', 'integer');
 
         $comparator = new Schema\Comparator();
         $diff       = $comparator->diffTable($offlineTable, $onlineTable);
@@ -300,7 +299,7 @@ SQL;
             $this->connection->exec($sql);
         }
 
-        $onlineTableAfter = $sm->listTableDetails('bug4243_documents');
+        $onlineTableAfter = $sm->listTableDetails('unnamedfk_referencing');
         $diff             = $comparator->diffTable($onlineTable, $onlineTableAfter);
 
         $this->assertFalse($diff);

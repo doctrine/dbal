@@ -14,6 +14,7 @@ use function array_unique;
 use function assert;
 use function count;
 use function get_class;
+use function strlen;
 use function strtolower;
 
 /**
@@ -289,8 +290,8 @@ class Comparator
 
                 // only named foreign key constraints can change, otherwise it appears as removed+added.
                 if (
-                    $constraint1->getName() &&
-                    $constraint2->getName() &&
+                    strlen($constraint1->getName()) > 0 &&
+                    strlen($constraint2->getName()) > 0 &&
                     strtolower($constraint1->getName()) === strtolower($constraint2->getName())
                 ) {
                     $tableDifferences->changedForeignKeys[] = $constraint2;
