@@ -406,10 +406,11 @@ class SqliteSchemaManager extends AbstractSchemaManager
     protected function _getPortableTableForeignKeysList($tableForeignKeys)
     {
         $list = [];
+        $i    = 0;
         foreach ($tableForeignKeys as $value) {
             $value = array_change_key_case($value, CASE_LOWER);
-            $name  = $value['constraint_name'];
-            if (! isset($list[$name])) {
+            $index = $value['constraint_name'] ?: $i++;
+            if (! isset($list[$index])) {
                 if (! isset($value['on_delete']) || $value['on_delete'] === 'RESTRICT') {
                     $value['on_delete'] = null;
                 }
@@ -418,8 +419,8 @@ class SqliteSchemaManager extends AbstractSchemaManager
                     $value['on_update'] = null;
                 }
 
-                $list[$name] = [
-                    'name' => $name,
+                $list[$index] = [
+                    'name' => $value['constraint_name'],
                     'local' => [],
                     'foreign' => [],
                     'foreignTable' => $value['table'],
@@ -430,8 +431,8 @@ class SqliteSchemaManager extends AbstractSchemaManager
                 ];
             }
 
-            $list[$name]['local'][]   = $value['from'];
-            $list[$name]['foreign'][] = $value['to'];
+            $list[$index]['local'][]   = $value['from'];
+            $list[$index]['foreign'][] = $value['to'];
         }
 
         $result = [];

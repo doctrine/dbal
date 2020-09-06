@@ -257,4 +257,42 @@ SQL;
             ->getColumn('col1')
             ->getComment());
     }
+
+    public function testUnnamedForeignKeyConstraintHandling(): void
+    {
+        $sql = <<<SQL
+create table "bug4243_users" (
+"id" integer not null primary key autoincrement
+);
+create table "bug4243_posts"
+("id" integer not null primary key autoincrement,
+"user_id" integer not null,
+"body" varchar not null,
+"created_at" datetime null,
+"updated_at" datetime null,
+foreign key("user_id") references "bug4243_users"("id"));
+SQL;
+
+        $this->connection->exec($sql);
+
+        $sm          = $this->connection->getSchemaManager();
+        $onlineTable = $sm->listTableDetails('bug4243_posts');
+
+        $offlineTable = new Table('bug4243_posts');
+        $offlineTable->addColumn('id', 'integer');
+
+        $comparator = new Schema\Comparator();
+        $diff       = $comparator->diffTable($offlineTable, $onlineTable);
+
+        $sqls = $this->connection->getDatabasePlatform()->getAlterTableSQL($diff);
+
+        foreach ($sqls as $sql) {
+            $this->connection->exec($sql);
+        }
+
+        $onlineTableAfter = $sm->listTableDetails('bug4243_posts');
+        $diff             = $comparator->diffTable($onlineTable, $onlineTableAfter);
+
+        $this->assertFalse($diff);
+    }
 }
