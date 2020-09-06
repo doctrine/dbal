@@ -257,4 +257,62 @@ SQL;
             ->getColumn('col1')
             ->getComment());
     }
+
+    /**
+     * This test requires specific SQLite code to trigger the error and could
+     * not be added in a more general way to the base SchemaManagerFunctionalTestCase
+     * to make sure the regression does not happpen on other databases that
+     * do not have support for creating and dropping foreign keys. We do not have
+     * another database at the moment other than SQLite without this support at
+     * the moment however.
+     */
+    public function testUnnamedForeignKeyConstraintHandlingRegression(): void
+    {
+        $sql = <<<SQL
+DROP TABLE IF EXISTS "unnamedfk_referenced1";
+DROP TABLE IF EXISTS "unnamedfk_referenced2";
+DROP TABLE IF EXISTS "unnamedfk_referencing";
+CREATE TABLE "unnamedfk_referenced1" (
+"id1" integer not null,
+"id2" integer not null,
+primary key("id1", "id2")
+);
+CREATE TABLE "unnamedfk_referenced2" (
+"id" integer not null primary key autoincrement
+);
+CREATE TABLE "unnamedfk_referencing" (
+    "id" integer not null primary key autoincrement,
+    "reference1_id1" integer not null,
+    "reference1_id2" integer not null,
+    "reference2_id" integer not null,
+    foreign key("reference1_id1", "reference1_id2") references "unnamedfk_referenced1"("id1", "id2") on delete cascade,
+    foreign key("reference2_id") references "unnamedfk_referenced2"("id") on delete cascade
+)
+SQL;
+
+        $this->connection->exec($sql);
+
+        $sm          = $this->connection->getSchemaManager();
+        $onlineTable = $sm->listTableDetails('unnamedfk_referencing');
+
+        $offlineTable = new Table('unnamedfk_referencing');
+        $offlineTable->addColumn('id', 'integer');
+        $offlineTable->addColumn('reference1_id1', 'integer');
+        $offlineTable->addColumn('reference1_id2', 'integer');
+        $offlineTable->addColumn('reference2_id', 'integer');
+
+        $comparator = new Schema\Comparator();
+        $diff       = $comparator->diffTable($offlineTable, $onlineTable);
+
+        $sqls = $this->connection->getDatabasePlatform()->getAlterTableSQL($diff);
+
+        foreach ($sqls as $sql) {
+            $this->connection->exec($sql);
+        }
+
+        $onlineTableAfter = $sm->listTableDetails('unnamedfk_referencing');
+        $diff             = $comparator->diffTable($onlineTable, $onlineTableAfter);
+
+        $this->assertFalse($diff);
+    }
 }

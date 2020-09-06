@@ -14,6 +14,7 @@ use function array_unique;
 use function assert;
 use function count;
 use function get_class;
+use function strlen;
 use function strtolower;
 
 /**
@@ -284,12 +285,19 @@ class Comparator
             foreach ($toFkeys as $key2 => $constraint2) {
                 if ($this->diffForeignKey($constraint1, $constraint2) === false) {
                     unset($fromFkeys[$key1], $toFkeys[$key2]);
-                } else {
-                    if (strtolower($constraint1->getName()) === strtolower($constraint2->getName())) {
-                        $tableDifferences->changedForeignKeys[] = $constraint2;
-                        $changes++;
-                        unset($fromFkeys[$key1], $toFkeys[$key2]);
-                    }
+                    continue 2;
+                }
+
+                // only named foreign key constraints can change, otherwise it appears as removed+added.
+                if (
+                    strlen($constraint1->getName()) > 0 &&
+                    strlen($constraint2->getName()) > 0 &&
+                    strtolower($constraint1->getName()) === strtolower($constraint2->getName())
+                ) {
+                    $tableDifferences->changedForeignKeys[] = $constraint2;
+                    $changes++;
+                    unset($fromFkeys[$key1], $toFkeys[$key2]);
+                    continue 2;
                 }
             }
         }

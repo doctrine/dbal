@@ -408,8 +408,8 @@ class SqliteSchemaManager extends AbstractSchemaManager
         $list = [];
         foreach ($tableForeignKeys as $value) {
             $value = array_change_key_case($value, CASE_LOWER);
-            $name  = $value['constraint_name'];
-            if (! isset($list[$name])) {
+            $id    = $value['id'];
+            if (! isset($list[$id])) {
                 if (! isset($value['on_delete']) || $value['on_delete'] === 'RESTRICT') {
                     $value['on_delete'] = null;
                 }
@@ -418,8 +418,8 @@ class SqliteSchemaManager extends AbstractSchemaManager
                     $value['on_update'] = null;
                 }
 
-                $list[$name] = [
-                    'name' => $name,
+                $list[$id] = [
+                    'name' => $value['constraint_name'],
                     'local' => [],
                     'foreign' => [],
                     'foreignTable' => $value['table'],
@@ -430,8 +430,8 @@ class SqliteSchemaManager extends AbstractSchemaManager
                 ];
             }
 
-            $list[$name]['local'][]   = $value['from'];
-            $list[$name]['foreign'][] = $value['to'];
+            $list[$id]['local'][]   = $value['from'];
+            $list[$id]['foreign'][] = $value['to'];
         }
 
         $result = [];
