@@ -1616,6 +1616,37 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
             );
         }
     }
+
+    public function testRemovingOrphanedForeignKeys(): void
+    {
+        $platform = $this->schemaManager->getDatabasePlatform();
+
+        if ($platform->supportsCreateDropForeignKeyConstraints()) {
+            $this->markTestSkipped();
+        }
+
+        $schema = new Schema();
+        $table  = $schema->createTable('orphanedfk_referencing');
+
+        $table->addColumn('id', 'integer');
+        $table->addColumn('ref_id', 'integer');
+
+        $refTable = $schema->createTable('orphanedfk_referenced');
+        $refTable->addColumn('id', 'integer');
+
+        $table->addForeignKeyConstraint('orphanedfk_referenced', ['ref_id'], ['id']);
+
+        $this->schemaManager->createTable($table);
+        $this->schemaManager->createTable($refTable);
+
+        $sqls = (new Schema())->getMigrateFromSql($schema, $platform);
+
+        foreach ($sqls as $sql) {
+            $this->connection->exec($sql);
+        }
+
+        $this->assertFalse($this->schemaManager->tablesExist(['orphanedfk_referenced', 'orphanedfk_referencing']));
+    }
 }
 
 interface ListTableColumnsDispatchEventListener
