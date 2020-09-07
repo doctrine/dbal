@@ -126,7 +126,7 @@ Vendor specific options
 
 The following options are completely vendor specific and absolutely not portable:
 
--  **columnDefinition**: The custom column declaration SQL snippet to use instead
+-  **columnDefinition** (string): The custom column declaration SQL snippet to use instead
    of the generated SQL by Doctrine. Defaults to ``null``. This can useful to add
    vendor specific declaration information that is not evaluated by Doctrine
    (such as the ``ZEROFILL`` attribute on MySQL).

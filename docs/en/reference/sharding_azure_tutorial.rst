@@ -26,10 +26,12 @@ Install Doctrine
 
 For this tutorial we will install Doctrine and the Sharding Extension through
 `Composer <http://getcomposer.org>`_ which is the easiest way to install
-Doctrine. Composer is a new package manager for PHP. Download the
+Doctrine. Composer is a package manager for PHP. Download the
 ``composer.phar`` from their website and put it into a newly created folder for
 this tutorial. Now create a ``composer.json`` file in this project root with
 the following content:
+
+.. code-block:: json
 
     {
         "require": {
@@ -38,7 +40,7 @@ the following content:
         }
     }
 
-Open up the commandline and switch to your tutorial root directory, then call
+Open up the command line and switch to your tutorial root directory, then call
 ``php composer.phar install``. It will grab the code and install it into the
 ``vendor`` subdirectory of your project. It also creates an autoloader, so that
 we don't have to care about this.
@@ -324,10 +326,10 @@ executed this command.
     $shardManager->splitFederation(60);
 
 This little script uses the shard manager with a special method only existing
-on the SQL AZure implementation ``splitFederation``. It accepts a value at
+on the SQL Azure implementation ``splitFederation``. It accepts a value at
 at which the split is executed.
 
-If you reexecute the ``view_federation_members.php`` script you can now see
+If you re-execute the ``view_federation_members.php`` script you can now see
 that there are two federation members instead of just one as before. You can
 see with the ``rangeLow`` and ``rangeHigh`` parameters what customers and
 related entries are now served by which federation.
@@ -403,7 +405,7 @@ Querying data with filtering on
 
 One special feature of SQL Azure is the possibility to database level filtering
 based on the sharding distribution values. This means that SQL Azure will add
-WHERE clauses with distributionkey=current distribution value conditions to
+``WHERE`` clauses with ``distributionkey=current`` distribution value conditions to
 each distribution key.
 
 .. code-block:: php
