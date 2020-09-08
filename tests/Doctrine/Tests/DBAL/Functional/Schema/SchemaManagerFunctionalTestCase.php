@@ -1616,6 +1616,64 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
             );
         }
     }
+
+    public function testUnnamedForeignKeyConstraintHandling(): void
+    {
+        $sm                   = $this->connection->getSchemaManager();
+        $unnamedFkReferenced1 = new Table('unnamedfk_referenced1');
+        $unnamedFkReferenced1->addColumn('id1', 'integer', ['not null' => true]);
+        $unnamedFkReferenced1->addColumn('id2', 'integer', ['not null' => true]);
+        $unnamedFkReferenced1->setPrimaryKey(['id1', 'id2']);
+
+        $unnamedFkReferenced2 = new Table('unnamedfk_referenced2');
+        $unnamedFkReferenced2->addColumn('id', 'integer', ['not null' => true]);
+        $unnamedFkReferenced2->setPrimaryKey(['id']);
+
+        $unnamedFkReferencing = new Table('unnamedfk_referencing');
+        $unnamedFkReferencing->addColumn('id', 'integer', ['not null' => true]);
+        $unnamedFkReferencing->setPrimaryKey(['id']);
+        $unnamedFkReferencing->addColumn('reference1_id1', 'integer', ['not null' => true]);
+        $unnamedFkReferencing->addColumn('reference1_id2', 'integer', ['not null' => true]);
+        $unnamedFkReferencing->addColumn('reference2_id', 'integer', ['not null' => true]);
+        $unnamedFkReferencing->addForeignKeyConstraint(
+            $unnamedFkReferenced1,
+            ['reference1_id1', 'reference1_id2'],
+            ['id1', 'id2'],
+            ['onDelete' => 'CASCADE']
+        );
+        $unnamedFkReferencing->addForeignKeyConstraint(
+            $unnamedFkReferenced2,
+            ['reference2_id'],
+            ['id'],
+            ['onDelete' => 'CASCADE']
+        );
+
+        $sm->dropAndCreateTable($unnamedFkReferenced1);
+        $sm->dropAndCreateTable($unnamedFkReferenced2);
+        $sm->dropAndCreateTable($unnamedFkReferencing);
+
+        $onlineTable = $sm->listTableDetails('unnamedfk_referencing');
+
+        $offlineTable = new Table('unnamedfk_referencing');
+        $offlineTable->addColumn('id', 'integer');
+        $offlineTable->addColumn('reference1_id1', 'integer');
+        $offlineTable->addColumn('reference1_id2', 'integer');
+        $offlineTable->addColumn('reference2_id', 'integer');
+
+        $comparator = new Comparator();
+        $diff       = $comparator->diffTable($offlineTable, $onlineTable);
+
+        $sqls = $this->connection->getDatabasePlatform()->getAlterTableSQL($diff);
+
+        foreach ($sqls as $sql) {
+            $this->connection->exec($sql);
+        }
+
+        $onlineTableAfter = $sm->listTableDetails('unnamedfk_referencing');
+        $diff             = $comparator->diffTable($onlineTable, $onlineTableAfter);
+
+        $this->assertFalse($diff);
+    }
 }
 
 interface ListTableColumnsDispatchEventListener
