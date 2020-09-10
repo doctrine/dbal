@@ -116,7 +116,7 @@ class SchemaDiff
             }
         }
 
-        if ($platform->supportsForeignKeyConstraints() && $saveMode === false) {
+        if ($platform->supportsCreateDropForeignKeyConstraints() && $saveMode === false) {
             foreach ($this->orphanedForeignKeys as $orphanedForeignKey) {
                 $sql[] = $platform->getDropForeignKeySQL($orphanedForeignKey, $orphanedForeignKey->getLocalTable());
             }
