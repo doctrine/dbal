@@ -30,9 +30,24 @@ class VarCharTest extends TestCase
         self::assertEquals($this->type->getBindingType(), ParameterType::STRING | Encodings::ASCII);
     }
 
-    public function testReturnsSQLDeclaration(): void
+    /**
+     * @param array $column<string, mixed>
+     * @dataProvider sqlDeclarationDataProvider
+     */
+    public function testReturnsSQLDeclaration(string $expectedSql, array $column): void
     {
-        self::assertEquals('VARCHAR(12)', $this->type->getSQLDeclaration(['length' => 12], $this->platform));
-        self::assertEquals('CHAR(12)', $this->type->getSQLDeclaration(['length' => 12, 'fixed' => true], $this->platform));
+        $declarationSql = $this->type->getSQLDeclaration($column, $this->platform);
+        self::assertEquals($expectedSql, $declarationSql);
+    }
+
+    /**
+     * @return array<int, array<int, string|array<string, mixed>>>
+     */
+    public static function sqlDeclarationDataProvider(): array
+    {
+        return [
+            ['VARCHAR(12)', ['length' => 12]],
+            ['CHAR(12)', ['length' => 12, 'fixed' => true]],
+        ];
     }
 }

@@ -5,8 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="05276461-b31f-4535-a4be-8598fdcd0b52" name="Default Changelist" comment="Documentation on `DBAL\Driver\Statement::bindValue` is incorrect&#10;&#10;This change fixes the documentation on the `bindValue` function. Per the implementation this function can take a string, int, or type instance.">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/Functional/Driver/PDO/SQLSrv/DriverTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Functional/Driver/PDO/SQLSrv/DriverTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Types/VarCharTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Types/VarCharTest.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -121,7 +121,7 @@
       <recent name="D:\codebase\dbal\src\Driver" />
     </key>
   </component>
-  <component name="RunManager" selected="PHPUnit.DriverTest">
+  <component name="RunManager" selected="PHPUnit.VarCharTest">
     <configuration name="DriverTest" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true">
       <TestRunner class="Doctrine\DBAL\Tests\Functional\Driver\PDO\SQLSrv\DriverTest" configuration_file="$PROJECT_DIR$/phpunit.xml.dist" file="$PROJECT_DIR$/tests/Functional/Driver/PDO/SQLSrv/DriverTest.php" scope="Class" />
       <method v="2" />
@@ -149,8 +149,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="PHPUnit.DriverTest" />
         <item itemvalue="PHPUnit.VarCharTest" />
+        <item itemvalue="PHPUnit.DriverTest" />
         <item itemvalue="PHPUnit.VarCharTest.testReturnsSQLDeclaration" />
         <item itemvalue="PHPUnit.VarCharTest.testReturnsBindingType" />
       </list>
@@ -169,7 +169,7 @@
       <updated>1597708246016</updated>
       <workItem from="1597708247994" duration="3109000" />
       <workItem from="1597787755785" duration="151000" />
-      <workItem from="1599847090232" duration="5670000" />
+      <workItem from="1599847090232" duration="6100000" />
     </task>
     <task id="LOCAL-00001" summary="Documentation on `DBAL\Driver\Statement::bindValue` is incorrect&#10;&#10;This change fixes the documentation on the `bindValue` function. Per the implementation this function can take a string, int, or type instance.">
       <created>1597709424228</created>
@@ -205,22 +205,22 @@
       <screen x="0" y="0" width="1600" height="860" />
     </state>
     <state x="587" y="184" key="FileChooserDialogImpl/0.0.1600.860@0.0.1600.860" timestamp="1599849338001" />
-    <state width="1557" height="392" key="GridCell.Tab.0.bottom" timestamp="1599852188226">
+    <state width="1557" height="327" key="GridCell.Tab.0.bottom" timestamp="1599853171667">
       <screen x="0" y="0" width="1600" height="860" />
     </state>
-    <state width="1557" height="392" key="GridCell.Tab.0.bottom/0.0.1600.860@0.0.1600.860" timestamp="1599852188226" />
-    <state width="1557" height="392" key="GridCell.Tab.0.center" timestamp="1599852188226">
+    <state width="1557" height="327" key="GridCell.Tab.0.bottom/0.0.1600.860@0.0.1600.860" timestamp="1599853171667" />
+    <state width="1557" height="327" key="GridCell.Tab.0.center" timestamp="1599853171667">
       <screen x="0" y="0" width="1600" height="860" />
     </state>
-    <state width="1557" height="392" key="GridCell.Tab.0.center/0.0.1600.860@0.0.1600.860" timestamp="1599852188226" />
-    <state width="1557" height="392" key="GridCell.Tab.0.left" timestamp="1599852188226">
+    <state width="1557" height="327" key="GridCell.Tab.0.center/0.0.1600.860@0.0.1600.860" timestamp="1599853171667" />
+    <state width="1557" height="327" key="GridCell.Tab.0.left" timestamp="1599853171667">
       <screen x="0" y="0" width="1600" height="860" />
     </state>
-    <state width="1557" height="392" key="GridCell.Tab.0.left/0.0.1600.860@0.0.1600.860" timestamp="1599852188226" />
-    <state width="1557" height="392" key="GridCell.Tab.0.right" timestamp="1599852188226">
+    <state width="1557" height="327" key="GridCell.Tab.0.left/0.0.1600.860@0.0.1600.860" timestamp="1599853171667" />
+    <state width="1557" height="327" key="GridCell.Tab.0.right" timestamp="1599853171667">
       <screen x="0" y="0" width="1600" height="860" />
     </state>
-    <state width="1557" height="392" key="GridCell.Tab.0.right/0.0.1600.860@0.0.1600.860" timestamp="1599852188226" />
+    <state width="1557" height="327" key="GridCell.Tab.0.right/0.0.1600.860@0.0.1600.860" timestamp="1599853171667" />
     <state width="1557" height="392" key="GridCell.Tab.1.bottom" timestamp="1599852188226">
       <screen x="0" y="0" width="1600" height="860" />
     </state>
@@ -241,10 +241,10 @@
       <screen x="0" y="0" width="1600" height="860" />
     </state>
     <state x="152" y="68" key="MergeDialog/0.0.1600.860@0.0.1600.860" timestamp="1599852653077" />
-    <state x="438" y="191" key="MultipleFileMergeDialog" timestamp="1599852658401">
+    <state x="438" y="191" key="MultipleFileMergeDialog" timestamp="1599852901833">
       <screen x="0" y="0" width="1600" height="860" />
     </state>
-    <state x="438" y="191" key="MultipleFileMergeDialog/0.0.1600.860@0.0.1600.860" timestamp="1599852658401" />
+    <state x="438" y="191" key="MultipleFileMergeDialog/0.0.1600.860@0.0.1600.860" timestamp="1599852901833" />
     <state x="631" y="152" key="NewPhpClassDialog" timestamp="1599850636532">
       <screen x="0" y="0" width="1600" height="860" />
     </state>
@@ -261,10 +261,10 @@
       <screen x="0" y="0" width="1600" height="860" />
     </state>
     <state x="506" y="163" width="587" height="534" key="find.popup/0.0.1600.860@0.0.1600.860" timestamp="1599851387916" />
-    <state x="463" y="180" width="672" height="678" key="search.everywhere.popup" timestamp="1599852759282">
+    <state x="463" y="180" width="672" height="678" key="search.everywhere.popup" timestamp="1599853143195">
       <screen x="0" y="0" width="1600" height="860" />
     </state>
-    <state x="463" y="180" width="672" height="678" key="search.everywhere.popup/0.0.1600.860@0.0.1600.860" timestamp="1599852759282" />
+    <state x="463" y="180" width="672" height="678" key="search.everywhere.popup/0.0.1600.860@0.0.1600.860" timestamp="1599853143195" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -273,11 +273,6 @@
           <url>file://$PROJECT_DIR$/lib/Doctrine/DBAL/Driver/Mysqli/MysqliStatement.php</url>
           <line>120</line>
           <option name="timeStamp" value="1" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="php">
-          <url>file://$PROJECT_DIR$/tests/Functional/Driver/PDO/SQLSrv/DriverTest.php</url>
-          <line>22</line>
-          <option name="timeStamp" value="4" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
