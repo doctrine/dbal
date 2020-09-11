@@ -3,9 +3,9 @@
 namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\DriverException as DeprecatedDriverException;
-use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\ConnectionException;
 use Doctrine\DBAL\Exception\DeadlockException;
 use Doctrine\DBAL\Exception\DriverException;
@@ -85,7 +85,7 @@ abstract class AbstractPostgreSQLDriver implements Driver, ExceptionConverterDri
                 return new TableExistsException($message, $exception);
 
             case '08006':
-                return new Exception\ConnectionException($message, $exception);
+                return new ConnectionException($message, $exception);
 
             case '7':
                 // Prior to fixing https://bugs.php.net/bug.php?id=64705 (PHP 7.3.22 and PHP 7.4.10),
@@ -108,7 +108,7 @@ abstract class AbstractPostgreSQLDriver implements Driver, ExceptionConverterDri
     public function createDatabasePlatformForVersion($version)
     {
         if (! preg_match('/^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?)?/', $version, $versionParts)) {
-            throw Exception::invalidPlatformVersionSpecified(
+            throw DBALException::invalidPlatformVersionSpecified(
                 $version,
                 '<major_version>.<minor_version>.<patch_version>'
             );

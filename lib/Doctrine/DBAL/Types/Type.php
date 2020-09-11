@@ -2,7 +2,7 @@
 
 namespace Doctrine\DBAL\Types;
 
-use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 
@@ -226,7 +226,7 @@ abstract class Type
      *
      * @return Type
      *
-     * @throws Exception
+     * @throws DBALException
      */
     public static function getType($name)
     {
@@ -241,7 +241,7 @@ abstract class Type
      *
      * @return void
      *
-     * @throws Exception
+     * @throws DBALException
      */
     public static function addType($name, $className)
     {
@@ -268,7 +268,7 @@ abstract class Type
      *
      * @return void
      *
-     * @throws Exception
+     * @throws DBALException
      */
     public static function overrideType($name, $className)
     {

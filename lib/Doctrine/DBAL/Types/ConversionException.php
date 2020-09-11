@@ -2,7 +2,7 @@
 
 namespace Doctrine\DBAL\Types;
 
-use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\DBALException;
 use Throwable;
 
 use function get_class;
@@ -19,7 +19,7 @@ use function substr;
  *
  * @psalm-immutable
  */
-class ConversionException extends Exception
+class ConversionException extends DBALException
 {
     /**
      * Thrown when a Database to Doctrine Type Conversion fails.

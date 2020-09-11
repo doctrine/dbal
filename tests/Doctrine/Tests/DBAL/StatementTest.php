@@ -4,14 +4,15 @@ namespace Doctrine\Tests\DBAL;
 
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
-use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Logging\SQLLogger;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Statement;
 use Doctrine\Tests\DbalTestCase;
+use Exception;
 use PDOStatement;
 use PHPUnit\Framework\MockObject\MockObject;
 
@@ -132,7 +133,7 @@ class StatementTest extends DbalTestCase
 
         $this->conn->expects($this->any())
             ->method('handleExceptionDuringQuery')
-            ->will($this->throwException(new Exception()));
+            ->will($this->throwException(new DBALException()));
 
         $logger->expects($this->once())
             ->method('startQuery');
@@ -142,11 +143,11 @@ class StatementTest extends DbalTestCase
 
         $this->pdoStatement->expects($this->once())
             ->method('execute')
-            ->will($this->throwException(new \Exception('Mock test exception')));
+            ->will($this->throwException(new Exception('Mock test exception')));
 
         $statement = new Statement('', $this->conn);
 
-        $this->expectException(Exception::class);
+        $this->expectException(DBALException::class);
 
         $statement->execute();
     }

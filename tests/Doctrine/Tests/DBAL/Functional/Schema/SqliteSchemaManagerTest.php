@@ -2,8 +2,8 @@
 
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\Connection;
-use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema;
@@ -27,7 +27,7 @@ class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
      */
     public function testListDatabases(): void
     {
-        $this->expectException(Exception::class);
+        $this->expectException(DBALException::class);
 
         $this->schemaManager->listDatabases();
     }

@@ -2,7 +2,7 @@
 
 namespace Doctrine\DBAL\Schema;
 
-use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Schema\Visitor\Visitor;
 use Doctrine\DBAL\Types\Type;
 
@@ -51,7 +51,7 @@ class Table extends AbstractAsset
      * @param int                    $idGeneratorType
      * @param mixed[]                $options
      *
-     * @throws Exception
+     * @throws DBALException
      */
     public function __construct(
         $name,
@@ -62,7 +62,7 @@ class Table extends AbstractAsset
         array $options = []
     ) {
         if (strlen($name) === 0) {
-            throw Exception::invalidTableName($name);
+            throw DBALException::invalidTableName($name);
         }
 
         $this->_setName($name);
@@ -320,11 +320,11 @@ class Table extends AbstractAsset
      *
      * @return void
      *
-     * @throws Exception
+     * @throws DBALException
      */
     public function renameColumn($oldName, $name)
     {
-        throw new Exception('Table#renameColumn() was removed, because it drops and recreates ' .
+        throw new DBALException('Table#renameColumn() was removed, because it drops and recreates ' .
             'the column instead. There is no fix available, because a schema diff cannot reliably detect if a ' .
             'column was renamed or one column was created and another one dropped.');
     }
@@ -733,14 +733,14 @@ class Table extends AbstractAsset
      *
      * @return string[]
      *
-     * @throws Exception
+     * @throws DBALException
      */
     public function getPrimaryKeyColumns()
     {
         $primaryKey = $this->getPrimaryKey();
 
         if ($primaryKey === null) {
-            throw new Exception('Table ' . $this->getName() . ' has no primary key.');
+            throw new DBALException('Table ' . $this->getName() . ' has no primary key.');
         }
 
         return $primaryKey->getColumns();

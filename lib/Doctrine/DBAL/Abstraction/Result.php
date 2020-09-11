@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Abstraction;
 
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\Result as DriverResult;
-use Doctrine\DBAL\Exception;
 use Traversable;
 
 /**
@@ -21,7 +21,7 @@ interface Result extends DriverResult
      *
      * @return Traversable<int,array<int,mixed>>
      *
-     * @throws Exception
+     * @throws DBALException
      */
     public function iterateNumeric(): Traversable;
 
@@ -30,7 +30,7 @@ interface Result extends DriverResult
      *
      * @return Traversable<int,array<string,mixed>>
      *
-     * @throws Exception
+     * @throws DBALException
      */
     public function iterateAssociative(): Traversable;
 
@@ -39,7 +39,7 @@ interface Result extends DriverResult
      *
      * @return Traversable<int,mixed>
      *
-     * @throws Exception
+     * @throws DBALException
      */
     public function iterateColumn(): Traversable;
 }

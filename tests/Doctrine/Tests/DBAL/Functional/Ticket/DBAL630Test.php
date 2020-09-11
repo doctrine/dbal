@@ -2,8 +2,8 @@
 
 namespace Doctrine\Tests\DBAL\Functional\Ticket;
 
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\PDO\Connection;
-use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use PDO;
@@ -28,7 +28,7 @@ class DBAL630Test extends DbalFunctionalTestCase
         try {
             $this->connection->exec('CREATE TABLE dbal630 (id SERIAL, bool_col BOOLEAN NOT NULL);');
             $this->connection->exec('CREATE TABLE dbal630_allow_nulls (id SERIAL, bool_col BOOLEAN);');
-        } catch (Exception $e) {
+        } catch (DBALException $e) {
         }
 
         $this->running = true;

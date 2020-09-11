@@ -2,9 +2,9 @@
 
 namespace Doctrine\DBAL\Driver\PDOPgSql;
 
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\AbstractPostgreSQLDriver;
 use Doctrine\DBAL\Driver\PDO;
-use Doctrine\DBAL\Exception;
 use PDOException;
 
 use function defined;
@@ -48,7 +48,7 @@ class Driver extends AbstractPostgreSQLDriver
 
             return $pdo;
         } catch (PDOException $e) {
-            throw Exception::driverException($this, $e);
+            throw DBALException::driverException($this, $e);
         }
     }
 

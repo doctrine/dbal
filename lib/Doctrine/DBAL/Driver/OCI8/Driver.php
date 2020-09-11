@@ -2,8 +2,8 @@
 
 namespace Doctrine\DBAL\Driver\OCI8;
 
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\AbstractOracleDriver;
-use Doctrine\DBAL\Exception;
 
 use const OCI_NO_AUTO_COMMIT;
 
@@ -27,7 +27,7 @@ class Driver extends AbstractOracleDriver
                 $params['persistent'] ?? false
             );
         } catch (OCI8Exception $e) {
-            throw Exception::driverException($this, $e);
+            throw DBALException::driverException($this, $e);
         }
     }
 

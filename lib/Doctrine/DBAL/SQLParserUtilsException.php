@@ -9,7 +9,7 @@ use function sprintf;
  *
  * @psalm-immutable
  */
-class SQLParserUtilsException extends Exception
+class SQLParserUtilsException extends DBALException
 {
     /**
      * @param string $paramName

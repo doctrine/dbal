@@ -145,7 +145,7 @@ class Statement implements IteratorAggregate, DriverStatement, Result
      *
      * @return bool TRUE on success, FALSE on failure.
      *
-     * @throws Exception
+     * @throws DBALException
      */
     public function execute($params = null)
     {
@@ -290,7 +290,7 @@ class Statement implements IteratorAggregate, DriverStatement, Result
     /**
      * {@inheritdoc}
      *
-     * @throws Exception
+     * @throws DBALException
      */
     public function fetchNumeric()
     {
@@ -308,7 +308,7 @@ class Statement implements IteratorAggregate, DriverStatement, Result
     /**
      * {@inheritdoc}
      *
-     * @throws Exception
+     * @throws DBALException
      */
     public function fetchAssociative()
     {
@@ -326,7 +326,7 @@ class Statement implements IteratorAggregate, DriverStatement, Result
     /**
      * {@inheritDoc}
      *
-     * @throws Exception
+     * @throws DBALException
      */
     public function fetchOne()
     {
@@ -344,7 +344,7 @@ class Statement implements IteratorAggregate, DriverStatement, Result
     /**
      * {@inheritdoc}
      *
-     * @throws Exception
+     * @throws DBALException
      */
     public function fetchAllNumeric(): array
     {
@@ -362,7 +362,7 @@ class Statement implements IteratorAggregate, DriverStatement, Result
     /**
      * {@inheritdoc}
      *
-     * @throws Exception
+     * @throws DBALException
      */
     public function fetchAllAssociative(): array
     {
@@ -421,7 +421,7 @@ class Statement implements IteratorAggregate, DriverStatement, Result
     /**
      * {@inheritdoc}
      *
-     * @throws Exception
+     * @throws DBALException
      */
     public function fetchFirstColumn(): array
     {
@@ -441,7 +441,7 @@ class Statement implements IteratorAggregate, DriverStatement, Result
      *
      * @return Traversable<int,array<int,mixed>>
      *
-     * @throws Exception
+     * @throws DBALException
      */
     public function iterateNumeric(): Traversable
     {
@@ -465,7 +465,7 @@ class Statement implements IteratorAggregate, DriverStatement, Result
      *
      * @return Traversable<int,array<string,mixed>>
      *
-     * @throws Exception
+     * @throws DBALException
      */
     public function iterateAssociative(): Traversable
     {
@@ -523,7 +523,7 @@ class Statement implements IteratorAggregate, DriverStatement, Result
      *
      * @return Traversable<int,mixed>
      *
-     * @throws Exception
+     * @throws DBALException
      */
     public function iterateColumn(): Traversable
     {

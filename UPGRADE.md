@@ -88,10 +88,6 @@ The non-interface methods of driver-level classes have been marked internal:
 - `OCI8Connection::getExecuteMode()`
 - `OCI8Statement::convertPositionalToNamedPlaceholders()`
 
-## Deprecated `DBALException`
-
-The `Doctrine\DBAL\DBALException` class has been deprecated in favor of `Doctrine\DBAL\Exception`.
-
 ## Inconsistently and ambiguously named driver-level classes are deprecated
 
 The following classes under the `Driver` namespace have been deprecated in favor of their consistently named counterparts:

@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Platforms;
 
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Doctrine\DBAL\Schema\Sequence;
@@ -369,6 +370,9 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
         self::assertEquals($sql, $expected);
     }
 
+    /**
+     * @throws DBALException
+     */
     public function testModifyLimitSubqueryWithJoinAndSubqueryOrderedByColumnFromBaseTable(): void
     {
         $querySql   = 'SELECT DISTINCT id_0, name_1 '
@@ -389,6 +393,9 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
         self::assertEquals($alteredSql, $sql);
     }
 
+    /**
+     * @throws DBALException
+     */
     public function testModifyLimitSubqueryWithJoinAndSubqueryOrderedByColumnFromJoinTable(): void
     {
         $querySql   = 'SELECT DISTINCT id_0, name_1 '
@@ -409,6 +416,9 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
         self::assertEquals($alteredSql, $sql);
     }
 
+    /**
+     * @throws DBALException
+     */
     public function testModifyLimitSubqueryWithJoinAndSubqueryOrderedByColumnsFromBothTables(): void
     {
         $querySql   = 'SELECT DISTINCT id_0, name_1, foo_2 '

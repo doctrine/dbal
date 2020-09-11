@@ -2,8 +2,8 @@
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\DriverManager;
-use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
 use Doctrine\DBAL\Types\Type;
@@ -455,7 +455,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
      *
      * @return TableDiff
      *
-     * @throws Exception
+     * @throws DBALException
      */
     private function getTableDiffForAlterForeignKey($table)
     {
@@ -463,7 +463,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
             $tableDetails = $this->tryMethod('listTableDetails', $table);
 
             if ($tableDetails === false) {
-                throw new Exception(
+                throw new DBALException(
                     sprintf('Sqlite schema manager requires to modify foreign keys table definition "%s".', $table)
                 );
             }

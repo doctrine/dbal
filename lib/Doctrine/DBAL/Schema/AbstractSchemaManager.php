@@ -4,10 +4,10 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Event\SchemaColumnDefinitionEventArgs;
 use Doctrine\DBAL\Event\SchemaIndexDefinitionEventArgs;
 use Doctrine\DBAL\Events;
-use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Throwable;
 
@@ -776,11 +776,11 @@ abstract class AbstractSchemaManager
      *
      * @return Sequence
      *
-     * @throws Exception
+     * @throws DBALException
      */
     protected function _getPortableSequenceDefinition($sequence)
     {
-        throw Exception::notSupported('Sequences');
+        throw DBALException::notSupported('Sequences');
     }
 
     /**

@@ -21,6 +21,7 @@ use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Types\Type;
+use Exception;
 use Throwable;
 use Traversable;
 
@@ -176,7 +177,7 @@ class Connection implements DriverConnection
      * @param Configuration|null $config       The configuration, optional.
      * @param EventManager|null  $eventManager The event manager, optional.
      *
-     * @throws Exception
+     * @throws DBALException
      */
     public function __construct(
         array $params,
@@ -194,7 +195,7 @@ class Connection implements DriverConnection
 
         if (isset($params['platform'])) {
             if (! $params['platform'] instanceof Platforms\AbstractPlatform) {
-                throw Exception::invalidPlatformType($params['platform']);
+                throw DBALException::invalidPlatformType($params['platform']);
             }
 
             $this->platform = $params['platform'];
@@ -322,7 +323,7 @@ class Connection implements DriverConnection
      *
      * @return AbstractPlatform
      *
-     * @throws Exception
+     * @throws DBALException
      */
     public function getDatabasePlatform()
     {
@@ -380,7 +381,7 @@ class Connection implements DriverConnection
      *
      * Evaluates custom platform class and version in order to set the correct platform.
      *
-     * @throws Exception If an invalid platform was specified for this connection.
+     * @throws DBALException If an invalid platform was specified for this connection.
      */
     private function detectDatabasePlatform(): void
     {
@@ -407,7 +408,7 @@ class Connection implements DriverConnection
      *
      * @return string|null
      *
-     * @throws Throwable
+     * @throws Exception
      */
     private function getDatabasePlatformVersion()
     {
@@ -551,7 +552,7 @@ class Connection implements DriverConnection
      *
      * @return array<string, mixed>|false False is returned if no rows are found.
      *
-     * @throws Exception
+     * @throws DBALException
      */
     public function fetchAssoc($sql, array $params = [], array $types = [])
     {
@@ -588,7 +589,7 @@ class Connection implements DriverConnection
      *
      * @return mixed|false False is returned if no rows are found.
      *
-     * @throws Exception
+     * @throws DBALException
      */
     public function fetchColumn($sql, array $params = [], $column = 0, array $types = [])
     {
@@ -605,7 +606,7 @@ class Connection implements DriverConnection
      *
      * @return array<string, mixed>|false False is returned if no rows are found.
      *
-     * @throws Exception
+     * @throws DBALException
      */
     public function fetchAssociative(string $query, array $params = [], array $types = [])
     {
@@ -632,7 +633,7 @@ class Connection implements DriverConnection
      *
      * @return array<int, mixed>|false False is returned if no rows are found.
      *
-     * @throws Exception
+     * @throws DBALException
      */
     public function fetchNumeric(string $query, array $params = [], array $types = [])
     {
@@ -659,7 +660,7 @@ class Connection implements DriverConnection
      *
      * @return mixed|false False is returned if no rows are found.
      *
-     * @throws Exception
+     * @throws DBALException
      */
     public function fetchOne(string $query, array $params = [], array $types = [])
     {
@@ -704,7 +705,7 @@ class Connection implements DriverConnection
      * @param mixed[]  $values     Column values
      * @param string[] $conditions Key conditions
      *
-     * @throws Exception
+     * @throws DBALException
      */
     private function addCriteriaCondition(
         array $criteria,
@@ -737,7 +738,8 @@ class Connection implements DriverConnection
      *
      * @return int The number of affected rows.
      *
-     * @throws Exception
+     * @throws DBALException
+     * @throws InvalidArgumentException
      */
     public function delete($table, array $criteria, array $types = [])
     {
@@ -806,7 +808,7 @@ class Connection implements DriverConnection
      *
      * @return int The number of affected rows.
      *
-     * @throws Exception
+     * @throws DBALException
      */
     public function update($table, array $data, array $criteria, array $types = [])
     {
@@ -841,7 +843,7 @@ class Connection implements DriverConnection
      *
      * @return int The number of affected rows.
      *
-     * @throws Exception
+     * @throws DBALException
      */
     public function insert($table, array $data, array $types = [])
     {
@@ -944,7 +946,7 @@ class Connection implements DriverConnection
      *
      * @return array<int,array<int,mixed>>
      *
-     * @throws Exception
+     * @throws DBALException
      */
     public function fetchAllNumeric(string $query, array $params = [], array $types = []): array
     {
@@ -970,7 +972,7 @@ class Connection implements DriverConnection
      *
      * @return array<int,array<string,mixed>>
      *
-     * @throws Exception
+     * @throws DBALException
      */
     public function fetchAllAssociative(string $query, array $params = [], array $types = []): array
     {
@@ -1049,7 +1051,7 @@ class Connection implements DriverConnection
      *
      * @return array<int,mixed>
      *
-     * @throws Exception
+     * @throws DBALException
      */
     public function fetchFirstColumn(string $query, array $params = [], array $types = []): array
     {
@@ -1075,7 +1077,7 @@ class Connection implements DriverConnection
      *
      * @return Traversable<int,array<int,mixed>>
      *
-     * @throws Exception
+     * @throws DBALException
      */
     public function iterateNumeric(string $query, array $params = [], array $types = []): Traversable
     {
@@ -1104,7 +1106,7 @@ class Connection implements DriverConnection
      *
      * @return Traversable<int,array<string,mixed>>
      *
-     * @throws Exception
+     * @throws DBALException
      */
     public function iterateAssociative(string $query, array $params = [], array $types = []): Traversable
     {
@@ -1177,7 +1179,7 @@ class Connection implements DriverConnection
      *
      * @return Traversable<int,mixed>
      *
-     * @throws Exception
+     * @throws DBALException
      */
     public function iterateColumn(string $query, array $params = [], array $types = []): Traversable
     {
@@ -1203,7 +1205,7 @@ class Connection implements DriverConnection
      *
      * @return Statement The prepared statement.
      *
-     * @throws Exception
+     * @throws DBALException
      */
     public function prepare($sql)
     {
@@ -1230,7 +1232,7 @@ class Connection implements DriverConnection
      *
      * @return ResultStatement The executed statement.
      *
-     * @throws Exception
+     * @throws DBALException
      */
     public function executeQuery($sql, array $params = [], $types = [], ?QueryCacheProfile $qcp = null)
     {
@@ -1363,7 +1365,7 @@ class Connection implements DriverConnection
      *
      * @return \Doctrine\DBAL\Driver\Statement
      *
-     * @throws Exception
+     * @throws DBALException
      */
     public function query()
     {
@@ -1405,7 +1407,7 @@ class Connection implements DriverConnection
      *
      * @return int The number of affected rows.
      *
-     * @throws Exception
+     * @throws DBALException
      */
     public function executeUpdate($sql, array $params = [], array $types = [])
     {
@@ -1430,7 +1432,7 @@ class Connection implements DriverConnection
      *
      * @return int The number of affected rows.
      *
-     * @throws Exception
+     * @throws DBALException
      */
     public function executeStatement($sql, array $params = [], array $types = [])
     {
@@ -1483,7 +1485,7 @@ class Connection implements DriverConnection
      *
      * @return int The number of affected rows.
      *
-     * @throws Exception
+     * @throws DBALException
      */
     public function exec($sql)
     {
@@ -1568,6 +1570,7 @@ class Connection implements DriverConnection
      *
      * @return mixed The value returned by $func
      *
+     * @throws Exception
      * @throws Throwable
      */
     public function transactional(Closure $func)
@@ -1578,6 +1581,10 @@ class Connection implements DriverConnection
             $this->commit();
 
             return $res;
+        } catch (Exception $e) {
+            $this->rollBack();
+
+            throw $e;
         } catch (Throwable $e) {
             $this->rollBack();
 
@@ -2107,14 +2114,14 @@ class Connection implements DriverConnection
      * @param array<int, mixed>|array<string, mixed>                               $params
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types
      *
-     * @throws Exception
+     * @throws DBALException
      *
      * @psalm-return never-return
      */
     public function handleExceptionDuringQuery(Throwable $e, string $sql, array $params = [], array $types = []): void
     {
         $this->throw(
-            Exception::driverExceptionDuringQuery(
+            DBALException::driverExceptionDuringQuery(
                 $this->_driver,
                 $e,
                 $sql,
@@ -2126,14 +2133,14 @@ class Connection implements DriverConnection
     /**
      * @internal
      *
-     * @throws Exception
+     * @throws DBALException
      *
      * @psalm-return never-return
      */
     public function handleDriverException(Throwable $e): void
     {
         $this->throw(
-            Exception::driverException(
+            DBALException::driverException(
                 $this->_driver,
                 $e
             )
@@ -2143,11 +2150,11 @@ class Connection implements DriverConnection
     /**
      * @internal
      *
-     * @throws Exception
+     * @throws DBALException
      *
      * @psalm-return never-return
      */
-    private function throw(Exception $e): void
+    private function throw(DBALException $e): void
     {
         if ($e instanceof ConnectionLost) {
             $this->close();
