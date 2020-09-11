@@ -89,9 +89,10 @@ class DriverTest extends AbstractDriverTest
         );
 
         $statement->bindValue(':parameter', 'TEST', $bindingType);
-        $result = $statement->execute();
+        $results = $statement->execute()->fetchAssociative();
 
-        self::assertEquals($expectedSqlType, $result->fetchAssociative()['type']);
+        self::assertNotFalse($results);
+        self::assertEquals($expectedSqlType, $results['type']);
     }
 
     /**
