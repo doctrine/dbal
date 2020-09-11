@@ -47,9 +47,9 @@ final class Connection implements ConnectionInterface
         );
     }
 
-    public function quote(string $input): string
+    public function quote(string $value): string
     {
-        return $this->connection->quote($input);
+        return $this->connection->quote($value);
     }
 
     public function exec(string $sql): int

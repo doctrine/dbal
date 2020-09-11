@@ -258,14 +258,14 @@ SQL
     /**
      * {@inheritDoc}
      */
-    protected function _getCreateTableSQL(string $tableName, array $columns, array $options = []): array
+    protected function _getCreateTableSQL(string $name, array $columns, array $options = []): array
     {
         $defaultConstraintsSql = [];
         $commentsSql           = [];
 
         $tableComment = $options['comment'] ?? null;
         if ($tableComment !== null) {
-            $commentsSql[] = $this->getCommentOnTableSQL($tableName, $tableComment);
+            $commentsSql[] = $this->getCommentOnTableSQL($name, $tableComment);
         }
 
         // @todo does other code breaks because of this?
@@ -277,22 +277,22 @@ SQL
 
             // Build default constraints SQL statements.
             if (isset($column['default'])) {
-                $defaultConstraintsSql[] = 'ALTER TABLE ' . $tableName .
-                    ' ADD' . $this->getDefaultConstraintDeclarationSQL($tableName, $column);
+                $defaultConstraintsSql[] = 'ALTER TABLE ' . $name .
+                    ' ADD' . $this->getDefaultConstraintDeclarationSQL($name, $column);
             }
 
             if (empty($column['comment']) && ! is_numeric($column['comment'])) {
                 continue;
             }
 
-            $commentsSql[] = $this->getCreateColumnCommentSQL($tableName, $column['name'], $column['comment']);
+            $commentsSql[] = $this->getCreateColumnCommentSQL($name, $column['name'], $column['comment']);
         }
 
         $columnListSql = $this->getColumnDeclarationListSQL($columns);
 
         if (isset($options['uniqueConstraints']) && ! empty($options['uniqueConstraints'])) {
-            foreach ($options['uniqueConstraints'] as $name => $definition) {
-                $columnListSql .= ', ' . $this->getUniqueConstraintDeclarationSQL($name, $definition);
+            foreach ($options['uniqueConstraints'] as $indexName => $definition) {
+                $columnListSql .= ', ' . $this->getUniqueConstraintDeclarationSQL($indexName, $definition);
             }
         }
 
@@ -306,7 +306,7 @@ SQL
                 . ' (' . implode(', ', array_unique(array_values($options['primary']))) . ')';
         }
 
-        $query = 'CREATE TABLE ' . $tableName . ' (' . $columnListSql;
+        $query = 'CREATE TABLE ' . $name . ' (' . $columnListSql;
 
         $check = $this->getCheckDeclarationSQL($columns);
         if (! empty($check)) {
@@ -319,13 +319,13 @@ SQL
 
         if (isset($options['indexes']) && ! empty($options['indexes'])) {
             foreach ($options['indexes'] as $index) {
-                $sql[] = $this->getCreateIndexSQL($index, $tableName);
+                $sql[] = $this->getCreateIndexSQL($index, $name);
             }
         }
 
         if (isset($options['foreignKeys'])) {
             foreach ((array) $options['foreignKeys'] as $definition) {
-                $sql[] = $this->getCreateForeignKeySQL($definition, $tableName);
+                $sql[] = $this->getCreateForeignKeySQL($definition, $name);
             }
         }
 
@@ -866,9 +866,9 @@ SQL
             'N' . $this->quoteStringLiteral((string) $level2Type) . ', ' . $level2Name;
     }
 
-    public function getEmptyIdentityInsertSQL(string $tableName, string $identifierColumnName): string
+    public function getEmptyIdentityInsertSQL(string $quotedTableName, string $quotedIdentifierColumnName): string
     {
-        return 'INSERT INTO ' . $tableName . ' DEFAULT VALUES';
+        return 'INSERT INTO ' . $quotedTableName . ' DEFAULT VALUES';
     }
 
     public function getListTablesSQL(): string

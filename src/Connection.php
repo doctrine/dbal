@@ -752,9 +752,9 @@ class Connection
         return $this->getDatabasePlatform()->quoteIdentifier($identifier);
     }
 
-    public function quote(string $input): string
+    public function quote(string $value): string
     {
-        return $this->getWrappedConnection()->quote($input);
+        return $this->getWrappedConnection()->quote($value);
     }
 
     /**

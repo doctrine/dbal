@@ -334,11 +334,11 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function _getCreateTableSQL(string $tableName, array $columns, array $options = []): array
+    protected function _getCreateTableSQL(string $name, array $columns, array $options = []): array
     {
         $indexes            = $options['indexes'] ?? [];
         $options['indexes'] = [];
-        $sql                = parent::_getCreateTableSQL($tableName, $columns, $options);
+        $sql                = parent::_getCreateTableSQL($name, $columns, $options);
 
         foreach ($columns as $column) {
             if (isset($column['sequence'])) {
@@ -351,12 +351,12 @@ class OraclePlatform extends AbstractPlatform
                 continue;
             }
 
-            $sql = array_merge($sql, $this->getCreateAutoincrementSql($column['name'], $tableName));
+            $sql = array_merge($sql, $this->getCreateAutoincrementSql($column['name'], $name));
         }
 
         if (isset($indexes) && ! empty($indexes)) {
             foreach ($indexes as $index) {
-                $sql[] = $this->getCreateIndexSQL($index, $tableName);
+                $sql[] = $this->getCreateIndexSQL($index, $name);
             }
         }
 

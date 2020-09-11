@@ -27,7 +27,7 @@ interface Connection
     /**
      * Quotes a string for use in a query.
      */
-    public function quote(string $input): string;
+    public function quote(string $value): string;
 
     /**
      * Executes an SQL statement and return the number of affected rows.

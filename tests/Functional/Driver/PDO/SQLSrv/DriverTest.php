@@ -45,9 +45,15 @@ class DriverTest extends AbstractDriverTest
      */
     private function getConnection(array $driverOptions): Connection
     {
+        $params = TestUtil::getConnectionParams();
+
+        if (isset($params['driverOptions'])) {
+            $driverOptions = array_merge($params['driverOptions'], $driverOptions);
+        }
+
         return (new Driver())->connect(
             array_merge(
-                TestUtil::getConnectionParams(),
+                $params,
                 ['driverOptions' => $driverOptions]
             )
         );
@@ -56,7 +62,7 @@ class DriverTest extends AbstractDriverTest
     public function testConnectionOptions(): void
     {
         $connection = $this->getConnection(['APP' => 'APP_NAME']);
-        $result = $connection->query('SELECT APP_NAME()')->fetchOne();
+        $result     = $connection->query('SELECT APP_NAME()')->fetchOne();
 
         self::assertSame('APP_NAME', $result);
     }

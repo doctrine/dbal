@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\Mysqli;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
@@ -18,6 +19,9 @@ use function explode;
 use function extension_loaded;
 use function implode;
 use function is_string;
+use function strlen;
+use function strpos;
+use function substr;
 use function unlink;
 
 /**
@@ -213,6 +217,20 @@ class TestUtil
 
         if (isset($parameters['port'])) {
             $parameters['port'] = (int) $parameters['port'];
+        }
+
+        foreach ($configuration as $param => $value) {
+            if (strpos($param, $prefix . 'driver_option_') !== 0) {
+                continue;
+            }
+
+            $option = substr($param, strlen($prefix . 'driver_option_'));
+
+            if ($option === Mysqli\Connection::OPTION_FLAGS) {
+                $value = (int) $value;
+            }
+
+            $parameters['driverOptions'][$option] = $value;
         }
 
         return $parameters;

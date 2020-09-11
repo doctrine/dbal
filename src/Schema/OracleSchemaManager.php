@@ -91,10 +91,10 @@ class OracleSchemaManager extends AbstractSchemaManager
      *
      * @link http://ezcomponents.org/docs/api/trunk/DatabaseSchema/ezcDbSchemaPgsqlReader.html
      */
-    protected function _getPortableTableIndexesList(array $tableIndexRows, string $tableName): array
+    protected function _getPortableTableIndexesList(array $tableIndexes, string $tableName): array
     {
         $indexBuffer = [];
-        foreach ($tableIndexRows as $tableIndex) {
+        foreach ($tableIndexes as $tableIndex) {
             $tableIndex = array_change_key_case($tableIndex, CASE_LOWER);
 
             $keyName = strtolower($tableIndex['name']);

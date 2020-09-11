@@ -82,9 +82,9 @@ final class Connection implements ServerInfoAwareConnection
         }
     }
 
-    public function quote(string $input): string
+    public function quote(string $value): string
     {
-        return $this->connection->quote($input);
+        return $this->connection->quote($value);
     }
 
     public function lastInsertId(?string $name = null): string

@@ -194,15 +194,15 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableIndexesList(array $tableIndexRows, string $tableName): array
+    protected function _getPortableTableIndexesList(array $tableIndexes, string $tableName): array
     {
-        foreach ($tableIndexRows as &$tableIndex) {
+        foreach ($tableIndexes as &$tableIndex) {
             $tableIndex['non_unique'] = (bool) $tableIndex['non_unique'];
             $tableIndex['primary']    = (bool) $tableIndex['primary'];
             $tableIndex['flags']      = $tableIndex['flags'] ? [$tableIndex['flags']] : null;
         }
 
-        return parent::_getPortableTableIndexesList($tableIndexRows, $tableName);
+        return parent::_getPortableTableIndexesList($tableIndexes, $tableName);
     }
 
     /**

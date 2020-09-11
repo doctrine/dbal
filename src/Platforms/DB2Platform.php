@@ -376,7 +376,7 @@ class DB2Platform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function _getCreateTableSQL(string $tableName, array $columns, array $options = []): array
+    protected function _getCreateTableSQL(string $name, array $columns, array $options = []): array
     {
         $indexes = [];
         if (isset($options['indexes'])) {
@@ -385,10 +385,10 @@ class DB2Platform extends AbstractPlatform
 
         $options['indexes'] = [];
 
-        $sqls = parent::_getCreateTableSQL($tableName, $columns, $options);
+        $sqls = parent::_getCreateTableSQL($name, $columns, $options);
 
         foreach ($indexes as $definition) {
-            $sqls[] = $this->getCreateIndexSQL($definition, $tableName);
+            $sqls[] = $this->getCreateIndexSQL($definition, $name);
         }
 
         return $sqls;
@@ -658,9 +658,9 @@ class DB2Platform extends AbstractPlatform
         return parent::getDefaultValueDeclarationSQL($column);
     }
 
-    public function getEmptyIdentityInsertSQL(string $tableName, string $identifierColumnName): string
+    public function getEmptyIdentityInsertSQL(string $quotedTableName, string $quotedIdentifierColumnName): string
     {
-        return 'INSERT INTO ' . $tableName . ' (' . $identifierColumnName . ') VALUES (DEFAULT)';
+        return 'INSERT INTO ' . $quotedTableName . ' (' . $quotedIdentifierColumnName . ') VALUES (DEFAULT)';
     }
 
     public function getCreateTemporaryTableSnippetSQL(): string
