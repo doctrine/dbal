@@ -20,3 +20,5 @@
     reference/caching
     reference/known-vendor-issues
     reference/upgrading
+
+    explanation/implicit-indexes
