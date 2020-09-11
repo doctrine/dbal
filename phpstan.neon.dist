@@ -44,9 +44,6 @@ parameters:
             message: '~^Call to function in_array\(\) with arguments Doctrine\\DBAL\\Schema\\Column, array<string> and true will always evaluate to false\.$~'
             path: %currentWorkingDirectory%/lib/Doctrine/DBAL/Schema/Table.php
 
-        # False Positive
-        - '~Strict comparison using === between 1 and 2 will always evaluate to false~'
-
         # Needs Generics
         - '~Method Doctrine\\DBAL\\Schema\\SchemaDiff::getNewTablesSortedByDependencies\(\) should return array<Doctrine\\DBAL\\Schema\\Table> but returns array<object>.~'
 

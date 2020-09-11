@@ -29,7 +29,7 @@ class CreateSchemaSqlCollectorTest extends TestCase
                     'getCreateSchemaSQL',
                     'getCreateSequenceSQL',
                     'getCreateTableSQL',
-                    'supportsCreateDropForeignKeyConstraints',
+                    'supportsForeignKeyConstraints',
                     'supportsSchemas',
                 ]
             )
@@ -76,11 +76,11 @@ class CreateSchemaSqlCollectorTest extends TestCase
     public function testAcceptsForeignKey(): void
     {
         $this->platformMock->expects($this->at(0))
-            ->method('supportsCreateDropForeignKeyConstraints')
+            ->method('supportsForeignKeyConstraints')
             ->will($this->returnValue(false));
 
         $this->platformMock->expects($this->at(1))
-            ->method('supportsCreateDropForeignKeyConstraints')
+            ->method('supportsForeignKeyConstraints')
             ->will($this->returnValue(true));
 
         $table      = $this->createTableMock();
@@ -106,7 +106,7 @@ class CreateSchemaSqlCollectorTest extends TestCase
 
     public function testResetsQueries(): void
     {
-        foreach (['supportsSchemas', 'supportsCreateDropForeignKeyConstraints'] as $method) {
+        foreach (['supportsSchemas', 'supportsForeignKeyConstraints'] as $method) {
             $this->platformMock->expects($this->any())
                 ->method($method)
                 ->will($this->returnValue(true));
