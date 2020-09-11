@@ -33,6 +33,7 @@ final class Types
     public const TEXT                 = 'text';
     public const TIME_MUTABLE         = 'time';
     public const TIME_IMMUTABLE       = 'time_immutable';
+    public const VARCHAR              = 'varchar';
 
     /**
      * @codeCoverageIgnore

@@ -9,6 +9,7 @@ use Doctrine\DBAL\Driver\PDO\SQLSrv\Connection;
 use Doctrine\DBAL\Driver\PDO\SQLSrv\Driver;
 use Doctrine\DBAL\Tests\Functional\Driver\AbstractDriverTest;
 use Doctrine\DBAL\Tests\TestUtil;
+use Doctrine\DBAL\Types\Types;
 use PDO;
 
 use function array_merge;
@@ -56,7 +57,7 @@ class DriverTest extends AbstractDriverTest
     public function testConnectionOptions(): void
     {
         $connection = $this->getConnection(['APP' => 'APP_NAME']);
-        $result     = $connection->query('SELECT APP_NAME()')->fetchOne();
+        $result = $connection->query('SELECT APP_NAME()')->fetchOne();
 
         self::assertSame('APP_NAME', $result);
     }
@@ -71,5 +72,31 @@ class DriverTest extends AbstractDriverTest
                 ->getWrappedConnection()
                 ->getAttribute(PDO::ATTR_CASE)
         );
+    }
+
+    /**
+     * @dataProvider stringDataProvider
+     */
+    public function testDriverStringBinding(string $bindingType, string $expectedSqlType): void
+    {
+        $statement = $this->connection->prepare(
+            'SELECT sql_variant_property(:parameter, \'BaseType\') AS type'
+        );
+
+        $statement->bindValue(':parameter', 'TEST', $bindingType);
+        $result = $statement->execute();
+
+        self::assertEquals($expectedSqlType, $result->fetchAssociative()['type']);
+    }
+
+    /**
+     * @return array<int, array<int, string>>
+     */
+    public static function stringDataProvider(): array
+    {
+        return [
+            [Types::VARCHAR, 'varchar'],
+            [Types::STRING, 'nvarchar']
+        ];
     }
 }

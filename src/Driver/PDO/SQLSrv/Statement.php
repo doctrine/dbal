@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver\PDO\SQLSrv;
 
+use Doctrine\DBAL\Driver\Encodings;
 use Doctrine\DBAL\Driver\PDO\Statement as PDOStatement;
 use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
@@ -50,7 +51,11 @@ final class Statement implements StatementInterface
      */
     public function bindValue($param, $value, int $type = ParameterType::STRING): void
     {
-        $this->bindParam($param, $value, $type);
+        if (($type & Encodings::ASCII) !== 0) {
+            $this->bindParam($param, $value, PDO::PARAM_STR, 0, PDO::SQLSRV_ENCODING_SYSTEM);
+        } else {
+            $this->bindParam($param, $value, $type);
+        }
     }
 
     /**
