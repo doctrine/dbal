@@ -8,13 +8,18 @@ use Doctrine\DBAL\Driver\Encodings;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 
+use function sprintf;
+
 class VarCharType extends StringType
 {
-    public function getSQLDeclaration(array $field, AbstractPlatform $platform): string
+    /**
+     * {@inheritdoc}
+     */
+    public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
-        $length = $field['length'] ?? null;
+        $length = $column['length'] ?? null;
 
-        if (empty($field['fixed'])) {
+        if (! isset($column['fixed'])) {
             return sprintf('VARCHAR(%d)', $length);
         }
 

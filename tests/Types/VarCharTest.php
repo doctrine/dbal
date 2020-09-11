@@ -22,7 +22,7 @@ class VarCharTest extends TestCase
     protected function setUp(): void
     {
         $this->platform = $this->createMock(AbstractPlatform::class);
-        $this->type = new VarCharType();
+        $this->type     = new VarCharType();
     }
 
     public function testReturnsBindingType(): void
@@ -31,7 +31,8 @@ class VarCharTest extends TestCase
     }
 
     /**
-     * @param array $column<string, mixed>
+     * @param array<string, int|bool> $column
+     *
      * @dataProvider sqlDeclarationDataProvider
      */
     public function testReturnsSQLDeclaration(string $expectedSql, array $column): void
@@ -41,7 +42,7 @@ class VarCharTest extends TestCase
     }
 
     /**
-     * @return array<int, array<int, string|array<string, mixed>>>
+     * @return array<int, array<int, string|array<string, int|bool>>>
      */
     public static function sqlDeclarationDataProvider(): array
     {

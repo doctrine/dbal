@@ -101,7 +101,7 @@ class DriverTest extends AbstractDriverTest
     {
         return [
             [Types::VARCHAR, 'varchar'],
-            [Types::STRING, 'nvarchar']
+            [Types::STRING, 'nvarchar'],
         ];
     }
 }

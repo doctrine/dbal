@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="690c112c-678d-4c53-8762-ef76505d0f70" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/src/Types/VarCharType.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Types/VarCharType.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Functional/Driver/PDO/SQLSrv/DriverTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Functional/Driver/PDO/SQLSrv/DriverTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Types/VarCharTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Types/VarCharTest.php" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ComposerSettings">
+    <execution />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="RunManager">
+    <configuration default="true" type="ComposerRunConfigurationType" factoryName="Composer Script">
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="TaskManager">
+    <servers />
+  </component>
+  <component name="WindowStateProjectService">
+    <state width="1557" height="141" key="GridCell.Tab.0.bottom" timestamp="1599854634393">
+      <screen x="0" y="0" width="1600" height="860" />
+    </state>
+    <state width="1557" height="141" key="GridCell.Tab.0.bottom/0.0.1600.860@0.0.1600.860" timestamp="1599854634393" />
+    <state width="1557" height="141" key="GridCell.Tab.0.center" timestamp="1599854634393">
+      <screen x="0" y="0" width="1600" height="860" />
+    </state>
+    <state width="1557" height="141" key="GridCell.Tab.0.center/0.0.1600.860@0.0.1600.860" timestamp="1599854634393" />
+    <state width="1557" height="141" key="GridCell.Tab.0.left" timestamp="1599854634392">
+      <screen x="0" y="0" width="1600" height="860" />
+    </state>
+    <state width="1557" height="141" key="GridCell.Tab.0.left/0.0.1600.860@0.0.1600.860" timestamp="1599854634392" />
+    <state width="1557" height="141" key="GridCell.Tab.0.right" timestamp="1599854634393">
+      <screen x="0" y="0" width="1600" height="860" />
+    </state>
+    <state width="1557" height="141" key="GridCell.Tab.0.right/0.0.1600.860@0.0.1600.860" timestamp="1599854634393" />
+    <state x="506" y="163" width="587" height="534" key="find.popup" timestamp="1599854824398">
+      <screen x="0" y="0" width="1600" height="860" />
+    </state>
+    <state x="506" y="163" width="587" height="534" key="find.popup/0.0.1600.860@0.0.1600.860" timestamp="1599854824398" />
+    <state x="463" y="180" width="672" height="678" key="search.everywhere.popup" timestamp="1599854726337">
+      <screen x="0" y="0" width="1600" height="860" />
+    </state>
+    <state x="463" y="180" width="672" height="678" key="search.everywhere.popup/0.0.1600.860@0.0.1600.860" timestamp="1599854726337" />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/dbal@VarCharTest.xml" NAME="VarCharTest Coverage Results" MODIFIED="1599850418694" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="PhpCoverage" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />
+  </component>
+</project>
