@@ -244,10 +244,6 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
 
     public function testGeneratesConstraintCreationSql(): void
     {
-        if (! $this->platform->supportsCreateDropForeignKeyConstraints()) {
-            $this->markTestSkipped('Platform does not support creating or dropping foreign key constraints.');
-        }
-
         $idx = new Index('constraint_name', ['test'], true, false);
         $sql = $this->platform->getCreateConstraintSQL($idx, 'test');
         self::assertEquals($this->getGenerateConstraintUniqueIndexSql(), $sql);
@@ -259,6 +255,18 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
         $fk  = new ForeignKeyConstraint(['fk_name'], 'foreign', ['id'], 'constraint_fk');
         $sql = $this->platform->getCreateConstraintSQL($fk, 'test');
         self::assertEquals($this->getGenerateConstraintForeignKeySql($fk), $sql);
+    }
+
+    public function testGeneratesForeignKeySqlOnlyWhenSupportingForeignKeys(): void
+    {
+        $fk = new ForeignKeyConstraint(['fk_name'], 'foreign', ['id'], 'constraint_fk');
+
+        if ($this->platform->supportsForeignKeyConstraints()) {
+            self::assertIsString($this->platform->getCreateForeignKeySQL($fk, 'test'));
+        } else {
+            $this->expectException(Exception::class);
+            $this->platform->getCreateForeignKeySQL($fk, 'test');
+        }
     }
 
     protected function getBitAndComparisonExpressionSql(string $value1, string $value2): string
@@ -1052,9 +1060,9 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
 
     public function testQuotesDropForeignKeySQL(): void
     {
-        if (! $this->platform->supportsCreateDropForeignKeyConstraints()) {
+        if (! $this->platform->supportsForeignKeyConstraints()) {
             $this->markTestSkipped(
-                sprintf('%s does not support modifying foreign key constraints.', get_class($this->platform))
+                sprintf('%s does not support foreign key constraints.', get_class($this->platform))
             );
         }
 

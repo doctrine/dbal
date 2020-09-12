@@ -7,7 +7,6 @@ use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\DriverException as DeprecatedDriverException;
 use Doctrine\DBAL\Exception\ConnectionException;
 use Doctrine\DBAL\Exception\DriverException;
-use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
 use Doctrine\DBAL\Exception\InvalidFieldNameException;
 use Doctrine\DBAL\Exception\LockWaitTimeoutException;
 use Doctrine\DBAL\Exception\NonUniqueFieldNameException;
@@ -82,10 +81,6 @@ abstract class AbstractSQLiteDriver implements Driver, ExceptionConverterDriver
 
         if (strpos($exception->getMessage(), 'unable to open database file') !== false) {
             return new ConnectionException($message, $exception);
-        }
-
-        if (strpos($exception->getMessage(), 'FOREIGN KEY constraint failed') !== false) {
-            return new ForeignKeyConstraintViolationException($message, $exception);
         }
 
         return new DriverException($message, $exception);

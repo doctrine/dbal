@@ -55,10 +55,6 @@ class SchemaDiffTest extends TestCase
             ->method('getCreateSchemaSQL')
             ->with('foo_ns')
             ->will($this->returnValue('create_schema'));
-
-        $platform->method('supportsCreateDropForeignKeyConstraints')
-            ->will($this->returnValue(true));
-
         if ($unsafe) {
             $platform->expects($this->exactly(1))
                  ->method('getDropSequenceSql')
@@ -109,7 +105,7 @@ class SchemaDiffTest extends TestCase
         $platform->expects($this->exactly(1))
                 ->method('supportsSequences')
                 ->will($this->returnValue(true));
-        $platform->expects($this->any())
+        $platform->expects($this->exactly(2))
                 ->method('supportsForeignKeyConstraints')
                 ->will($this->returnValue(true));
 
