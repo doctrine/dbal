@@ -157,6 +157,13 @@ or ``null`` if no data is present.
     This can lead to type inconsistencies when reverse engineering the
     type from the database.
 
+ascii_string
+++++++++++++
+
+Similar to the ``string`` type but for binding non-unicode data. This type
+should be used with database vendors where a binding type mismatch
+can trigger an implicit cast and lead to performance problems.
+
 text
 ++++
 
@@ -606,6 +613,9 @@ Please also notice the mapping specific footnotes for additional information.
 |                   |               | **SQL Server**           | *all*   | ``NVARCHAR(n)`` [3]_                                     |
 |                   |               |                          |         +----------------------------------------------------------+
 |                   |               |                          |         | ``NCHAR(n)`` [4]_                                        |
++-------------------+---------------+--------------------------+---------+----------------------------------------------------------+
+| **ascii_string**  | ``string``    | **SQL Server**           |         | ``VARCHAR(n)``                                           |
+|                   |               |                          |         | ``CHAR(n)``                                              |
 +-------------------+---------------+--------------------------+---------+----------------------------------------------------------+
 | **text**          | ``string``    | **MySQL**                | *all*   | ``TINYTEXT`` [17]_                                       |
 |                   |               |                          |         +----------------------------------------------------------+

@@ -976,4 +976,15 @@ SQL
             $this->platform->getListTableColumnsSQL('foo_table', "Foo'Bar\\")
         );
     }
+
+    /**
+     * @return array<int, array{string, array<string, mixed>}>
+     */
+    public function asciiStringSqlDeclarationDataProvider(): array
+    {
+        return [
+            ['VARCHAR2(12)', ['length' => 12]],
+            ['CHAR(12)', ['length' => 12, 'fixed' => true]],
+        ];
+    }
 }

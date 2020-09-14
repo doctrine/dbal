@@ -38,6 +38,7 @@ class MysqliStatement implements IteratorAggregate, StatementInterface, Result
 {
     /** @var string[] */
     protected static $_paramTypeMap = [
+        ParameterType::ASCII        => 's',
         ParameterType::STRING       => 's',
         ParameterType::BINARY       => 's',
         ParameterType::BOOLEAN      => 'i',
