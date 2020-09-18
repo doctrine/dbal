@@ -99,6 +99,7 @@ abstract class Type
      */
     private const BUILTIN_TYPES_MAP = [
         Types::ARRAY                => ArrayType::class,
+        Types::ASCII_STRING         => AsciiStringType::class,
         Types::BIGINT               => BigIntType::class,
         Types::BINARY               => BinaryType::class,
         Types::BLOB                 => BlobType::class,

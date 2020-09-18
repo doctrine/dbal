@@ -34,6 +34,7 @@ use function SQLSRV_SQLTYPE_VARBINARY;
 use function stripos;
 
 use const SQLSRV_ENC_BINARY;
+use const SQLSRV_ENC_CHAR;
 use const SQLSRV_ERR_ERRORS;
 use const SQLSRV_FETCH_ASSOC;
 use const SQLSRV_FETCH_BOTH;
@@ -303,6 +304,14 @@ class SQLSrvStatement implements IteratorAggregate, StatementInterface, Result
                         &$variable,
                         SQLSRV_PARAM_IN,
                         SQLSRV_PHPTYPE_STRING(SQLSRV_ENC_BINARY),
+                    ];
+                    break;
+
+                case ParameterType::ASCII:
+                    $params[$column - 1] = [
+                        &$variable,
+                        SQLSRV_PARAM_IN,
+                        SQLSRV_PHPTYPE_STRING(SQLSRV_ENC_CHAR),
                     ];
                     break;
 

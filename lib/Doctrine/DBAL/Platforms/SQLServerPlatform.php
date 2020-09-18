@@ -1194,6 +1194,20 @@ SQL
     /**
      * {@inheritDoc}
      */
+    public function getAsciiStringTypeDeclarationSQL(array $column): string
+    {
+        $length = $column['length'] ?? null;
+
+        if (! isset($column['fixed'])) {
+            return sprintf('VARCHAR(%d)', $length);
+        }
+
+        return sprintf('CHAR(%d)', $length);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)
     {
         return $fixed

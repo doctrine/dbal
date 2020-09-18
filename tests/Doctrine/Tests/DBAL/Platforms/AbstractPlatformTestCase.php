@@ -1451,6 +1451,28 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
             $this->platform->modifyLimitQuery($query, null, 0)
         );
     }
+
+    /**
+     * @param array<string, mixed> $column
+     *
+     * @dataProvider asciiStringSqlDeclarationDataProvider
+     */
+    public function testAsciiSQLDeclaration(string $expectedSql, array $column): void
+    {
+        $declarationSql = $this->platform->getAsciiStringTypeDeclarationSQL($column);
+        self::assertEquals($expectedSql, $declarationSql);
+    }
+
+    /**
+     * @return array<int, array{string, array<string, mixed>}>
+     */
+    public function asciiStringSqlDeclarationDataProvider(): array
+    {
+        return [
+            ['VARCHAR(12)', ['length' => 12]],
+            ['CHAR(12)', ['length' => 12, 'fixed' => true]],
+        ];
+    }
 }
 
 interface GetCreateTableSqlDispatchEventListener

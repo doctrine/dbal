@@ -246,6 +246,17 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Returns the SQL snippet used to declare a column that can
+     * store characters in the ASCII character set
+     *
+     * @param mixed[] $column
+     */
+    public function getAsciiStringTypeDeclarationSQL(array $column): string
+    {
+        return $this->getVarcharTypeDeclarationSQL($column);
+    }
+
+    /**
      * Returns the SQL snippet used to declare a VARCHAR column type.
      *
      * @param mixed[] $column
