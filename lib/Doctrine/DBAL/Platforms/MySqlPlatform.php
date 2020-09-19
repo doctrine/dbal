@@ -672,7 +672,7 @@ SQL
         }
 
         if (! $columnFound) {
-            throw new InvalidArgumentException('Column name not found');
+            throw new InvalidArgumentException('Column name "' . $columnName . '" not found');
         }
 
         return $prevColumn === null ? ' FIRST' : ' AFTER ' . $prevColumn->getQuotedName($this);
