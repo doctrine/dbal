@@ -569,7 +569,8 @@ SQL
                 'comment' => $this->getColumnComment($column),
             ]);
 
-            $queryParts[] = 'ADD ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray);
+            $queryParts[] = 'ADD ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray)
+                    . $this->getColumnDeclarationPositionSQL($columnArray['name'], $diff->toTable);
         }
 
         foreach ($diff->removedColumns as $column) {
@@ -599,7 +600,8 @@ SQL
 
             $columnArray['comment'] = $this->getColumnComment($column);
             $queryParts[]           =  'CHANGE ' . ($columnDiff->getOldColumnName()->getQuotedName($this)) . ' '
-                    . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray);
+                    . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray)
+                    . $this->getColumnDeclarationPositionSQL($columnArray['name'], $diff->toTable);
         }
 
         foreach ($diff->renamedColumns as $oldColumnName => $column) {
@@ -611,7 +613,8 @@ SQL
             $columnArray            = $column->toArray();
             $columnArray['comment'] = $this->getColumnComment($column);
             $queryParts[]           =  'CHANGE ' . $oldColumnName->getQuotedName($this) . ' '
-                    . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray);
+                    . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray)
+                    . $this->getColumnDeclarationPositionSQL($columnArray['name'], $diff->toTable);
         }
 
         if (isset($diff->addedIndexes['primary'])) {
@@ -648,6 +651,31 @@ SQL
         }
 
         return array_merge($sql, $tableSql, $columnSql);
+    }
+
+    protected function getColumnDeclarationPositionSQL(string $columnName, ?Table $toTable): ?string
+    {
+        if ($toTable === null) {
+            return null;
+        }
+
+        $columnFound = false;
+        $prevColumn  = null;
+        foreach ($toTable->getColumns() as $k => $column) {
+            if ($k === $columnName) {
+                $columnFound = true;
+
+                break;
+            }
+
+            $prevColumn = $column;
+        }
+
+        if (! $columnFound) {
+            throw new InvalidArgumentException('Column name not found');
+        }
+
+        return $prevColumn === null ? ' FIRST' : ' AFTER ' . $prevColumn->getQuotedName($this);
     }
 
     /**
@@ -740,8 +768,11 @@ SQL
 
             $column->setAutoincrement(false);
 
-            $sql[] = 'ALTER TABLE ' . $tableName . ' MODIFY ' .
-                $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
+            $columnArray = $column->toArray();
+
+            $sql[] = 'ALTER TABLE ' . $tableName . ' MODIFY '
+                . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray)
+                . $this->getColumnDeclarationPositionSQL($columnArray['name'], $diff->toTable);
 
             // original autoincrement information might be needed later on by other parts of the table alteration
             $column->setAutoincrement(true);
@@ -778,8 +809,11 @@ SQL
                 // before we can drop and recreate the primary key.
                 $column->setAutoincrement(false);
 
-                $sql[] = 'ALTER TABLE ' . $table . ' MODIFY ' .
-                    $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
+                $columnArray = $column->toArray();
+
+                $sql[] = 'ALTER TABLE ' . $table . ' MODIFY '
+                    . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray)
+                    . $this->getColumnDeclarationPositionSQL($columnArray['name'], $diff->toTable);
 
                 // Restore the autoincrement attribute as it might be needed later on
                 // by other parts of the table alteration.

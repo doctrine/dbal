@@ -95,6 +95,9 @@ class TableDiff
     /** @var Table|null */
     public $fromTable;
 
+    /** @var Table|null */
+    public $toTable;
+
     /**
      * Constructs an TableDiff object.
      *
@@ -114,7 +117,8 @@ class TableDiff
         $addedIndexes = [],
         $changedIndexes = [],
         $removedIndexes = [],
-        ?Table $fromTable = null
+        ?Table $fromTable = null,
+        ?Table $toTable = null
     ) {
         $this->name           = $tableName;
         $this->addedColumns   = $addedColumns;
@@ -124,6 +128,7 @@ class TableDiff
         $this->changedIndexes = $changedIndexes;
         $this->removedIndexes = $removedIndexes;
         $this->fromTable      = $fromTable;
+        $this->toTable        = $toTable;
     }
 
     /**
