@@ -415,7 +415,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
         self::assertEquals(
             [
-                'ALTER TABLE alter_primary_key MODIFY id INT NOT NULL',
+                'ALTER TABLE alter_primary_key MODIFY id INT NOT NULL AFTER foo',
                 'ALTER TABLE alter_primary_key DROP PRIMARY KEY',
                 'ALTER TABLE alter_primary_key ADD PRIMARY KEY (foo)',
             ],
@@ -440,7 +440,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
         self::assertEquals(
             [
-                'ALTER TABLE drop_primary_key MODIFY id INT NOT NULL',
+                'ALTER TABLE drop_primary_key MODIFY id INT NOT NULL FIRST',
                 'ALTER TABLE drop_primary_key DROP PRIMARY KEY',
             ],
             $this->platform->getAlterTableSQL($diff)
@@ -465,7 +465,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
         self::assertSame(
             [
-                'ALTER TABLE tbl MODIFY id INT NOT NULL',
+                'ALTER TABLE tbl MODIFY id INT NOT NULL FIRST',
                 'ALTER TABLE tbl DROP PRIMARY KEY',
                 'ALTER TABLE tbl ADD PRIMARY KEY (id)',
             ],
@@ -491,7 +491,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
         self::assertSame(
             [
-                'ALTER TABLE tbl MODIFY id INT NOT NULL',
+                'ALTER TABLE tbl MODIFY id INT NOT NULL FIRST',
                 'ALTER TABLE tbl DROP PRIMARY KEY',
                 'ALTER TABLE tbl ADD PRIMARY KEY (id, foo)',
             ],
@@ -514,7 +514,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
         $sql = $this->platform->getAlterTableSQL($diff);
 
-        self::assertEquals(['ALTER TABLE foo ADD id INT AUTO_INCREMENT NOT NULL, ADD PRIMARY KEY (id)'], $sql);
+        self::assertEquals(['ALTER TABLE foo ADD id INT AUTO_INCREMENT NOT NULL FIRST, ADD PRIMARY KEY (id)'], $sql);
     }
 
     public function testNamedPrimaryKey(): void
@@ -549,7 +549,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         self::assertSame(
             [
                 'ALTER TABLE yolo DROP PRIMARY KEY',
-                'ALTER TABLE yolo ADD pkc2 INT NOT NULL',
+                'ALTER TABLE yolo ADD pkc2 INT NOT NULL AFTER pkc1',
                 'ALTER TABLE yolo ADD PRIMARY KEY (pkc1, pkc2)',
             ],
             $this->platform->getAlterTableSQL($diff)
@@ -781,15 +781,15 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     protected function getQuotedAlterTableRenameColumnSQL(): array
     {
         return ['ALTER TABLE mytable ' .
-            "CHANGE unquoted1 unquoted INT NOT NULL COMMENT 'Unquoted 1', " .
-            "CHANGE unquoted2 `where` INT NOT NULL COMMENT 'Unquoted 2', " .
-            "CHANGE unquoted3 `foo` INT NOT NULL COMMENT 'Unquoted 3', " .
-            "CHANGE `create` reserved_keyword INT NOT NULL COMMENT 'Reserved keyword 1', " .
-            "CHANGE `table` `from` INT NOT NULL COMMENT 'Reserved keyword 2', " .
-            "CHANGE `select` `bar` INT NOT NULL COMMENT 'Reserved keyword 3', " .
-            "CHANGE quoted1 quoted INT NOT NULL COMMENT 'Quoted 1', " .
-            "CHANGE quoted2 `and` INT NOT NULL COMMENT 'Quoted 2', " .
-            "CHANGE quoted3 `baz` INT NOT NULL COMMENT 'Quoted 3'",
+            "CHANGE unquoted1 unquoted INT NOT NULL COMMENT 'Unquoted 1' FIRST, " .
+            "CHANGE unquoted2 `where` INT NOT NULL COMMENT 'Unquoted 2' AFTER unquoted, " .
+            "CHANGE unquoted3 `foo` INT NOT NULL COMMENT 'Unquoted 3' AFTER `where`, " .
+            "CHANGE `create` reserved_keyword INT NOT NULL COMMENT 'Reserved keyword 1' AFTER `foo`, " .
+            "CHANGE `table` `from` INT NOT NULL COMMENT 'Reserved keyword 2' AFTER reserved_keyword, " .
+            "CHANGE `select` `bar` INT NOT NULL COMMENT 'Reserved keyword 3' AFTER `from`, " .
+            "CHANGE quoted1 quoted INT NOT NULL COMMENT 'Quoted 1' AFTER `bar`, " .
+            "CHANGE quoted2 `and` INT NOT NULL COMMENT 'Quoted 2' AFTER quoted, " .
+            "CHANGE quoted3 `baz` INT NOT NULL COMMENT 'Quoted 3' AFTER `and`",
         ];
     }
 
@@ -799,12 +799,12 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     protected function getQuotedAlterTableChangeColumnLengthSQL(): array
     {
         return ['ALTER TABLE mytable ' .
-            "CHANGE unquoted1 unquoted1 VARCHAR(255) NOT NULL COMMENT 'Unquoted 1', " .
-            "CHANGE unquoted2 unquoted2 VARCHAR(255) NOT NULL COMMENT 'Unquoted 2', " .
-            "CHANGE unquoted3 unquoted3 VARCHAR(255) NOT NULL COMMENT 'Unquoted 3', " .
-            "CHANGE `create` `create` VARCHAR(255) NOT NULL COMMENT 'Reserved keyword 1', " .
-            "CHANGE `table` `table` VARCHAR(255) NOT NULL COMMENT 'Reserved keyword 2', " .
-            "CHANGE `select` `select` VARCHAR(255) NOT NULL COMMENT 'Reserved keyword 3'",
+            "CHANGE unquoted1 unquoted1 VARCHAR(255) NOT NULL COMMENT 'Unquoted 1' FIRST, " .
+            "CHANGE unquoted2 unquoted2 VARCHAR(255) NOT NULL COMMENT 'Unquoted 2' AFTER unquoted1, " .
+            "CHANGE unquoted3 unquoted3 VARCHAR(255) NOT NULL COMMENT 'Unquoted 3' AFTER unquoted2, " .
+            "CHANGE `create` `create` VARCHAR(255) NOT NULL COMMENT 'Reserved keyword 1' AFTER unquoted3, " .
+            "CHANGE `table` `table` VARCHAR(255) NOT NULL COMMENT 'Reserved keyword 2' AFTER `create`, " .
+            "CHANGE `select` `select` VARCHAR(255) NOT NULL COMMENT 'Reserved keyword 3' AFTER `table`",
         ];
     }
 

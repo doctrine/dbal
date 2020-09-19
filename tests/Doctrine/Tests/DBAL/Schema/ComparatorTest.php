@@ -146,6 +146,7 @@ class ComparatorTest extends TestCase
         );
         $expected->fromSchema                        = $schema1;
         $expected->changedTables['bugdb']->fromTable = $schema1->getTable('bugdb');
+        $expected->changedTables['bugdb']->toTable   = $schema2->getTable('bugdb');
 
         self::assertEquals($expected, Comparator::compareSchemas($schema1, $schema2));
     }
@@ -183,6 +184,7 @@ class ComparatorTest extends TestCase
         );
         $expected->fromSchema                        = $schema1;
         $expected->changedTables['bugdb']->fromTable = $schema1->getTable('bugdb');
+        $expected->changedTables['bugdb']->toTable   = $schema2->getTable('bugdb');
 
         self::assertEquals($expected, Comparator::compareSchemas($schema1, $schema2));
     }
@@ -313,6 +315,7 @@ class ComparatorTest extends TestCase
         );
         $expected->fromSchema                        = $schema1;
         $expected->changedTables['bugdb']->fromTable = $schema1->getTable('bugdb');
+        $expected->changedTables['bugdb']->toTable   = $schema2->getTable('bugdb');
 
         self::assertEquals($expected, Comparator::compareSchemas($schema1, $schema2));
     }
@@ -365,6 +368,7 @@ class ComparatorTest extends TestCase
         );
         $expected->fromSchema                        = $schema1;
         $expected->changedTables['bugdb']->fromTable = $schema1->getTable('bugdb');
+        $expected->changedTables['bugdb']->toTable   = $schema2->getTable('bugdb');
 
         self::assertEquals($expected, Comparator::compareSchemas($schema1, $schema2));
     }
@@ -428,6 +432,7 @@ class ComparatorTest extends TestCase
         );
         $expected->fromSchema                        = $schema1;
         $expected->changedTables['bugdb']->fromTable = $schema1->getTable('bugdb');
+        $expected->changedTables['bugdb']->toTable   = $schema2->getTable('bugdb');
 
         self::assertEquals($expected, Comparator::compareSchemas($schema1, $schema2));
     }
@@ -476,6 +481,7 @@ class ComparatorTest extends TestCase
         );
         $expected->fromSchema                        = $schema1;
         $expected->changedTables['bugdb']->fromTable = $schema1->getTable('bugdb');
+        $expected->changedTables['bugdb']->toTable   = $schema2->getTable('bugdb');
 
         self::assertEquals($expected, Comparator::compareSchemas($schema1, $schema2));
     }
@@ -670,6 +676,7 @@ class ComparatorTest extends TestCase
         $c                                        = new Comparator();
         $tableDiff                                = new TableDiff('foo');
         $tableDiff->fromTable                     = $tableA;
+        $tableDiff->toTable                       = $tableB;
         $tableDiff->renamedIndexes['foo_bar_idx'] = new Index('bar_foo_idx', ['id']);
 
         self::assertEquals(
@@ -1041,6 +1048,7 @@ class ComparatorTest extends TestCase
 
         $tableDiff            = $expected->changedTables['foo'] = new TableDiff('foo');
         $tableDiff->fromTable = $tableFoo;
+        $tableDiff->toTable   = $table;
 
         $columnDiff = $tableDiff->changedColumns['id'] = new ColumnDiff('id', $table->getColumn('id'));
 
@@ -1066,6 +1074,7 @@ class ComparatorTest extends TestCase
 
         $tableDiff            = $expected->changedTables['foo'] = new TableDiff('foo');
         $tableDiff->fromTable = $tableFoo;
+        $tableDiff->toTable   = $table;
 
         $columnDiff = $tableDiff->changedColumns['id'] = new ColumnDiff('id', $table->getColumn('id'));
 
