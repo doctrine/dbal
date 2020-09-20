@@ -2,7 +2,7 @@
 
 namespace Doctrine\DBAL\Platforms;
 
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
@@ -480,7 +480,7 @@ class DB2Platform extends AbstractPlatform
     public function getIndexDeclarationSQL($name, Index $index)
     {
         // Index declaration in statements like CREATE TABLE is not supported.
-        throw DBALException::notSupported(__METHOD__);
+        throw Exception::notSupported(__METHOD__);
     }
 
     /**

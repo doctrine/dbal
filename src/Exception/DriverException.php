@@ -2,8 +2,8 @@
 
 namespace Doctrine\DBAL\Exception;
 
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\Exception as TheDriverException;
+use Doctrine\DBAL\Exception;
 
 use function assert;
 
@@ -12,7 +12,7 @@ use function assert;
  *
  * @psalm-immutable
  */
-class DriverException extends DBALException implements TheDriverException
+class DriverException extends Exception implements TheDriverException
 {
     /**
      * @param string             $message         The exception message.

@@ -5,12 +5,12 @@ namespace Doctrine\DBAL\Connections;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Driver\Exception as DriverException;
 use Doctrine\DBAL\Event\ConnectionEventArgs;
 use Doctrine\DBAL\Events;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Statement;
 use InvalidArgumentException;
 
@@ -95,7 +95,7 @@ class PrimaryReadReplicaConnection extends Connection
      *
      * @param mixed[] $params
      *
-     * @throws DBALException
+     * @throws Exception
      * @throws InvalidArgumentException
      */
     public function __construct(
@@ -228,7 +228,7 @@ class PrimaryReadReplicaConnection extends Connection
      *
      * @return DriverConnection
      *
-     * @throws DBALException
+     * @throws Exception
      */
     protected function connectTo($connectionName)
     {

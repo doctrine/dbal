@@ -10,6 +10,7 @@ namespace Doctrine\DBAL\Types;
 final class Types
 {
     public const ARRAY                = 'array';
+    public const ASCII_STRING         = 'ascii_string';
     public const BIGINT               = 'bigint';
     public const BINARY               = 'binary';
     public const BLOB                 = 'blob';

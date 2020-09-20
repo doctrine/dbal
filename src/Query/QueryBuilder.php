@@ -3,8 +3,8 @@
 namespace Doctrine\DBAL\Query;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\Result;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
@@ -201,7 +201,7 @@ class QueryBuilder
      *
      * @return Result|int
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function execute()
     {

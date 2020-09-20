@@ -4,11 +4,11 @@ namespace Doctrine\DBAL\Tests;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Connections\PrimaryReadReplicaConnection;
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\PDO;
 use Doctrine\DBAL\Driver\SQLSrv\Driver as SQLSrvDriver;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use PHPUnit\Framework\TestCase;
 use stdClass;
@@ -21,14 +21,14 @@ class DriverManagerTest extends TestCase
 {
     public function testCheckParams(): void
     {
-        $this->expectException(DBALException::class);
+        $this->expectException(Exception::class);
 
         DriverManager::getConnection([]);
     }
 
     public function testInvalidDriver(): void
     {
-        $this->expectException(DBALException::class);
+        $this->expectException(Exception::class);
 
         DriverManager::getConnection(['driver' => 'invalid_driver']);
     }
@@ -71,7 +71,7 @@ class DriverManagerTest extends TestCase
      */
     public function testInvalidWrapperClass(): void
     {
-        $this->expectException(DBALException::class);
+        $this->expectException(Exception::class);
 
         $options = [
             'url' => 'sqlite::memory:',
@@ -83,7 +83,7 @@ class DriverManagerTest extends TestCase
 
     public function testInvalidDriverClass(): void
     {
-        $this->expectException(DBALException::class);
+        $this->expectException(Exception::class);
 
         $options = ['driverClass' => stdClass::class];
 
@@ -141,7 +141,7 @@ class DriverManagerTest extends TestCase
         $options = is_array($url) ? $url : ['url' => $url];
 
         if ($expected === false) {
-            $this->expectException(DBALException::class);
+            $this->expectException(Exception::class);
         }
 
         $conn = DriverManager::getConnection($options);

@@ -85,8 +85,8 @@ class ExceptionTest extends FunctionalTestCase
 
     public function testForeignKeyConstraintViolationExceptionOnInsert(): void
     {
-        if ($this->connection->getDatabasePlatform()->getName() === 'sqlite') {
-            $this->connection->executeStatement('PRAGMA foreign_keys=ON');
+        if (! $this->connection->getDatabasePlatform()->supportsForeignKeyConstraints()) {
+            $this->markTestSkipped('Only fails on platforms with foreign key constraints.');
         }
 
         $this->setUpForeignKeyConstraintViolationExceptionTest();

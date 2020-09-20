@@ -56,7 +56,7 @@ class CreateSchemaSqlCollector extends AbstractVisitor
      */
     public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint)
     {
-        if (! $this->platform->supportsCreateDropForeignKeyConstraints()) {
+        if (! $this->platform->supportsForeignKeyConstraints()) {
             return;
         }
 

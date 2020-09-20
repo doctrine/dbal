@@ -3,10 +3,10 @@
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Event\SchemaColumnDefinitionEventArgs;
 use Doctrine\DBAL\Event\SchemaIndexDefinitionEventArgs;
 use Doctrine\DBAL\Events;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Throwable;
 
@@ -93,7 +93,7 @@ abstract class AbstractSchemaManager
      *
      * @return string[]
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function listDatabases()
     {
@@ -109,7 +109,7 @@ abstract class AbstractSchemaManager
      *
      * @return string[]
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function listNamespaceNames()
     {
@@ -127,7 +127,7 @@ abstract class AbstractSchemaManager
      *
      * @return Sequence[]
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function listSequences($database = null)
     {
@@ -157,7 +157,7 @@ abstract class AbstractSchemaManager
      *
      * @return Column[]
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function listTableColumns($table, $database = null)
     {
@@ -181,7 +181,7 @@ abstract class AbstractSchemaManager
      *
      * @return Index[]
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function listTableIndexes($table)
     {
@@ -201,7 +201,7 @@ abstract class AbstractSchemaManager
      *
      * @return bool
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function tablesExist($names)
     {
@@ -215,7 +215,7 @@ abstract class AbstractSchemaManager
      *
      * @return string[]
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function listTableNames()
     {
@@ -250,7 +250,7 @@ abstract class AbstractSchemaManager
      *
      * @return Table[]
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function listTables()
     {
@@ -269,7 +269,7 @@ abstract class AbstractSchemaManager
      *
      * @return Table
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function listTableDetails($name)
     {
@@ -290,7 +290,7 @@ abstract class AbstractSchemaManager
      *
      * @return View[]
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function listViews()
     {
@@ -309,7 +309,7 @@ abstract class AbstractSchemaManager
      *
      * @return ForeignKeyConstraint[]
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function listTableForeignKeys($table, $database = null)
     {
@@ -334,7 +334,7 @@ abstract class AbstractSchemaManager
      *
      * @return void
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function dropDatabase($database)
     {
@@ -348,7 +348,7 @@ abstract class AbstractSchemaManager
      *
      * @return void
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function dropTable($name)
     {
@@ -363,7 +363,7 @@ abstract class AbstractSchemaManager
      *
      * @return void
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function dropIndex($index, $table)
     {
@@ -381,7 +381,7 @@ abstract class AbstractSchemaManager
      *
      * @return void
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function dropConstraint(Constraint $constraint, $table)
     {
@@ -396,7 +396,7 @@ abstract class AbstractSchemaManager
      *
      * @return void
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function dropForeignKey($foreignKey, $table)
     {
@@ -410,7 +410,7 @@ abstract class AbstractSchemaManager
      *
      * @return void
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function dropSequence($name)
     {
@@ -424,7 +424,7 @@ abstract class AbstractSchemaManager
      *
      * @return void
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function dropView($name)
     {
@@ -440,7 +440,7 @@ abstract class AbstractSchemaManager
      *
      * @return void
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function createDatabase($database)
     {
@@ -452,7 +452,7 @@ abstract class AbstractSchemaManager
      *
      * @return void
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function createTable(Table $table)
     {
@@ -467,7 +467,7 @@ abstract class AbstractSchemaManager
      *
      * @return void
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function createSequence($sequence)
     {
@@ -481,7 +481,7 @@ abstract class AbstractSchemaManager
      *
      * @return void
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function createConstraint(Constraint $constraint, $table)
     {
@@ -495,7 +495,7 @@ abstract class AbstractSchemaManager
      *
      * @return void
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function createIndex(Index $index, $table)
     {
@@ -510,7 +510,7 @@ abstract class AbstractSchemaManager
      *
      * @return void
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function createForeignKey(ForeignKeyConstraint $foreignKey, $table)
     {
@@ -522,7 +522,7 @@ abstract class AbstractSchemaManager
      *
      * @return void
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function createView(View $view)
     {
@@ -541,7 +541,7 @@ abstract class AbstractSchemaManager
      *
      * @return void
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function dropAndCreateConstraint(Constraint $constraint, $table)
     {
@@ -556,7 +556,7 @@ abstract class AbstractSchemaManager
      *
      * @return void
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function dropAndCreateIndex(Index $index, $table)
     {
@@ -573,7 +573,7 @@ abstract class AbstractSchemaManager
      *
      * @return void
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function dropAndCreateForeignKey(ForeignKeyConstraint $foreignKey, $table)
     {
@@ -586,7 +586,7 @@ abstract class AbstractSchemaManager
      *
      * @return void
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function dropAndCreateSequence(Sequence $sequence)
     {
@@ -599,7 +599,7 @@ abstract class AbstractSchemaManager
      *
      * @return void
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function dropAndCreateTable(Table $table)
     {
@@ -614,7 +614,7 @@ abstract class AbstractSchemaManager
      *
      * @return void
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function dropAndCreateDatabase($database)
     {
@@ -627,7 +627,7 @@ abstract class AbstractSchemaManager
      *
      * @return void
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function dropAndCreateView(View $view)
     {
@@ -642,7 +642,7 @@ abstract class AbstractSchemaManager
      *
      * @return void
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function alterTable(TableDiff $tableDiff)
     {
@@ -661,7 +661,7 @@ abstract class AbstractSchemaManager
      *
      * @return void
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function renameTable($name, $newName)
     {
@@ -767,7 +767,7 @@ abstract class AbstractSchemaManager
      *
      * @return Sequence[]
      *
-     * @throws DBALException
+     * @throws Exception
      */
     protected function _getPortableSequencesList($sequences)
     {
@@ -785,11 +785,11 @@ abstract class AbstractSchemaManager
      *
      * @return Sequence
      *
-     * @throws DBALException
+     * @throws Exception
      */
     protected function _getPortableSequenceDefinition($sequence)
     {
-        throw DBALException::notSupported('Sequences');
+        throw Exception::notSupported('Sequences');
     }
 
     /**
@@ -803,7 +803,7 @@ abstract class AbstractSchemaManager
      *
      * @return Column[]
      *
-     * @throws DBALException
+     * @throws Exception
      */
     protected function _getPortableTableColumnList($table, $database, $tableColumns)
     {
@@ -844,7 +844,7 @@ abstract class AbstractSchemaManager
      *
      * @return Column
      *
-     * @throws DBALException
+     * @throws Exception
      */
     abstract protected function _getPortableTableColumnDefinition($tableColumn);
 
@@ -856,7 +856,7 @@ abstract class AbstractSchemaManager
      *
      * @return Index[]
      *
-     * @throws DBALException
+     * @throws Exception
      */
     protected function _getPortableTableIndexesList($tableIndexes, $tableName = null)
     {
@@ -1041,7 +1041,7 @@ abstract class AbstractSchemaManager
      *
      * @return void
      *
-     * @throws DBALException
+     * @throws Exception
      */
     protected function _execSql($sql)
     {
@@ -1055,7 +1055,7 @@ abstract class AbstractSchemaManager
      *
      * @return Schema
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function createSchema()
     {
@@ -1081,7 +1081,7 @@ abstract class AbstractSchemaManager
      *
      * @return SchemaConfig
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function createSchemaConfig()
     {
@@ -1119,7 +1119,7 @@ abstract class AbstractSchemaManager
      *
      * @return string[]
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function getSchemaSearchPaths()
     {

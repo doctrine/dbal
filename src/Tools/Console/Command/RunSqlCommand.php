@@ -3,7 +3,7 @@
 namespace Doctrine\DBAL\Tools\Console\Command;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Tools\Console\ConnectionProvider;
 use Doctrine\DBAL\Tools\Dumper;
 use LogicException;
@@ -59,7 +59,7 @@ EOT
     /**
      * {@inheritdoc}
      *
-     * @throws DBALException
+     * @throws Exception
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {

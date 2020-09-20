@@ -3,9 +3,9 @@
 namespace Doctrine\DBAL\Event\Listeners;
 
 use Doctrine\Common\EventSubscriber;
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Event\ConnectionEventArgs;
 use Doctrine\DBAL\Events;
+use Doctrine\DBAL\Exception;
 
 /**
  * Session init listener for executing a single SQL statement right after a connection is opened.
@@ -26,7 +26,7 @@ class SQLSessionInit implements EventSubscriber
     /**
      * @return void
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function postConnect(ConnectionEventArgs $args)
     {

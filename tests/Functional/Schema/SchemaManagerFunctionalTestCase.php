@@ -3,8 +3,8 @@
 namespace Doctrine\DBAL\Tests\Functional\Schema;
 
 use Doctrine\Common\EventManager;
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Events;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Schema\AbstractAsset;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column;
@@ -12,7 +12,6 @@ use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
-use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\SchemaDiff;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
@@ -39,7 +38,6 @@ use function count;
 use function current;
 use function end;
 use function explode;
-use function implode;
 use function in_array;
 use function sprintf;
 use function str_replace;
@@ -85,7 +83,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         try {
             //sql server versions below 2016 do not support 'IF EXISTS' so we have to catch the exception here
             $this->connection->executeStatement('DROP SCHEMA testschema');
-        } catch (DBALException $e) {
+        } catch (Exception $e) {
             return;
         }
     }
@@ -1417,55 +1415,6 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
 
         $table = $this->schemaManager->listTableDetails('table_with_comment');
         self::assertSame('Foo with control characters \'\\', $table->getComment());
-    }
-
-    public function testSchemaDiffForeignKeys(): void
-    {
-        $schemaManager = $this->connection->getSchemaManager();
-        $platform      = $this->connection->getDatabasePlatform();
-
-        $table1 = new Table('child');
-        $table1->addColumn('id', 'integer', ['autoincrement' => true]);
-        $table1->addColumn('parent_id', 'integer');
-        $table1->setPrimaryKey(['id']);
-        $table1->addForeignKeyConstraint('parent', ['parent_id'], ['id']);
-
-        $table2 = new Table('parent');
-        $table2->addColumn('id', 'integer', ['autoincrement' => true]);
-        $table2->setPrimaryKey(['id']);
-
-        $diff = new SchemaDiff([$table1, $table2]);
-        $sqls = $diff->toSql($platform);
-
-        foreach ($sqls as $sql) {
-            $this->connection->executeStatement($sql);
-        }
-
-        $schema = new Schema([
-            $schemaManager->listTableDetails('child'),
-            $schemaManager->listTableDetails('parent'),
-        ]);
-
-        $this->assertCount(1, $schema->getTable('child')->getForeignKeys());
-
-        $offlineSchema = new Schema([$table1, $table2]);
-
-        $diff = Comparator::compareSchemas($offlineSchema, $schema);
-
-        foreach ($diff->changedTables as $table) {
-            if (
-                count($table->changedForeignKeys) <= 0
-                && count($table->addedForeignKeys) <= 0
-                && count($table->removedForeignKeys) <= 0
-            ) {
-                continue;
-            }
-
-            $this->fail(
-                'No changes on foreigh keys should be detected, but we have: ' .
-                implode(', ', $diff->toSql($platform))
-            );
-        }
     }
 }
 

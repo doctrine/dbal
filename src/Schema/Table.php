@@ -2,7 +2,7 @@
 
 namespace Doctrine\DBAL\Schema;
 
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Schema\Exception\InvalidTableName;
 use Doctrine\DBAL\Schema\Visitor\Visitor;
 use Doctrine\DBAL\Types\Type;
@@ -58,6 +58,7 @@ class Table extends AbstractAsset
      * @param mixed[]                $options
      *
      * @throws SchemaException
+     * @throws Exception
      */
     public function __construct(
         string $name,
@@ -790,14 +791,14 @@ class Table extends AbstractAsset
      *
      * @return Column[]
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function getPrimaryKeyColumns()
     {
         $primaryKey = $this->getPrimaryKey();
 
         if ($primaryKey === null) {
-            throw new DBALException('Table ' . $this->getName() . ' has no primary key.');
+            throw new Exception('Table ' . $this->getName() . ' has no primary key.');
         }
 
         return $this->filterColumns($primaryKey->getColumns());

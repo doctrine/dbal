@@ -29,7 +29,7 @@ final class Result implements ResultInterface
     /**
      * {@inheritDoc}
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function fetchNumeric()
     {
@@ -43,7 +43,7 @@ final class Result implements ResultInterface
     /**
      * {@inheritDoc}
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function fetchAssociative()
     {
@@ -57,7 +57,7 @@ final class Result implements ResultInterface
     /**
      * {@inheritDoc}
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function fetchOne()
     {
@@ -71,7 +71,7 @@ final class Result implements ResultInterface
     /**
      * {@inheritDoc}
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function fetchAllNumeric(): array
     {
@@ -85,7 +85,7 @@ final class Result implements ResultInterface
     /**
      * {@inheritDoc}
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function fetchAllAssociative(): array
     {
@@ -99,7 +99,7 @@ final class Result implements ResultInterface
     /**
      * {@inheritDoc}
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function fetchFirstColumn(): array
     {
@@ -113,7 +113,7 @@ final class Result implements ResultInterface
     /**
      * @return Traversable<int,array<int,mixed>>
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function iterateNumeric(): Traversable
     {
@@ -129,7 +129,7 @@ final class Result implements ResultInterface
     /**
      * @return Traversable<int,array<string,mixed>>
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function iterateAssociative(): Traversable
     {
@@ -145,7 +145,7 @@ final class Result implements ResultInterface
     /**
      * @return Traversable<int,mixed>
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function iterateColumn(): Traversable
     {

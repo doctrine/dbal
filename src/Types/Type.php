@@ -2,7 +2,7 @@
 
 namespace Doctrine\DBAL\Types;
 
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 
@@ -21,6 +21,7 @@ abstract class Type
      */
     private const BUILTIN_TYPES_MAP = [
         Types::ARRAY                => ArrayType::class,
+        Types::ASCII_STRING         => AsciiStringType::class,
         Types::BIGINT               => BigIntType::class,
         Types::BINARY               => BinaryType::class,
         Types::BLOB                 => BlobType::class,
@@ -150,7 +151,7 @@ abstract class Type
      *
      * @return Type
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public static function getType($name)
     {
@@ -165,7 +166,7 @@ abstract class Type
      *
      * @return void
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public static function addType($name, $className)
     {
@@ -192,7 +193,7 @@ abstract class Type
      *
      * @return void
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public static function overrideType($name, $className)
     {

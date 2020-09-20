@@ -64,7 +64,7 @@ class Statement
      * @param string     $sql  The SQL of the statement.
      * @param Connection $conn The connection on which the statement should be executed.
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function __construct($sql, Connection $conn)
     {
@@ -96,7 +96,7 @@ class Statement
      *
      * @return bool TRUE on success, FALSE on failure.
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function bindValue($param, $value, $type = ParameterType::STRING)
     {
@@ -138,7 +138,7 @@ class Statement
      *
      * @return bool TRUE on success, FALSE on failure.
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function bindParam($param, &$variable, $type = ParameterType::STRING, $length = null)
     {
@@ -157,7 +157,7 @@ class Statement
      *
      * @param mixed[]|null $params
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function execute($params = null): Result
     {

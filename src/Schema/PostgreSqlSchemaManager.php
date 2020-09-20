@@ -2,7 +2,7 @@
 
 namespace Doctrine\DBAL\Schema;
 
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
@@ -40,7 +40,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
      *
      * @return string[]
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function getSchemaNames()
     {

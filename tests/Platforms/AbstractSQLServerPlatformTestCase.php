@@ -2,7 +2,7 @@
 
 namespace Doctrine\DBAL\Tests\Platforms;
 
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
@@ -47,7 +47,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             "ALTER TABLE mytable ADD CONSTRAINT DF_6B2BD609_78240498 DEFAULT 'def' FOR baz",
             'ALTER TABLE mytable ALTER COLUMN bloo BIT NOT NULL',
             "ALTER TABLE mytable ADD CONSTRAINT DF_6B2BD609_CECED971 DEFAULT '0' FOR bloo",
-            "sp_RENAME 'mytable', 'userlist'",
+            "sp_rename 'mytable', 'userlist'",
             "DECLARE @sql NVARCHAR(MAX) = N''; " .
             "SELECT @sql += N'EXEC sp_rename N''' + dc.name + ''', N''' " .
             "+ REPLACE(dc.name, '6B2BD609', 'E2B58069') + ''', ''OBJECT'';' " .
@@ -60,7 +60,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
 
     public function testDoesNotSupportRegexp(): void
     {
-        $this->expectException(DBALException::class);
+        $this->expectException(Exception::class);
 
         $this->platform->getRegexpExpression();
     }
@@ -488,9 +488,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         );
     }
 
-    /**
-     * @throws DBALException
-     */
     public function testModifyLimitSubqueryWithJoinAndSubqueryOrderedByColumnFromBaseTable(): void
     {
         $querySql   = 'SELECT DISTINCT id_0, name_1 '
@@ -511,9 +508,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         self::assertEquals($alteredSql, $sql);
     }
 
-    /**
-     * @throws DBALException
-     */
     public function testModifyLimitSubqueryWithJoinAndSubqueryOrderedByColumnFromJoinTable(): void
     {
         $querySql   = 'SELECT DISTINCT id_0, name_1 '
@@ -534,9 +528,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         self::assertEquals($alteredSql, $sql);
     }
 
-    /**
-     * @throws DBALException
-     */
     public function testModifyLimitSubqueryWithJoinAndSubqueryOrderedByColumnsFromBothTables(): void
     {
         $querySql   = 'SELECT DISTINCT id_0, name_1, foo_2 '
@@ -1005,7 +996,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         self::assertEquals(
             [
                 // Renamed columns.
-                "sp_RENAME 'mytable.comment_float_0', 'comment_double_0', 'COLUMN'",
+                "sp_rename 'mytable.comment_float_0', 'comment_double_0', 'COLUMN'",
 
                 // Added columns.
                 'ALTER TABLE mytable ADD added_comment_none INT NOT NULL',
@@ -1185,7 +1176,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     protected function getAlterTableRenameIndexSQL(): array
     {
-        return ["EXEC sp_RENAME N'mytable.idx_foo', N'idx_bar', N'INDEX'"];
+        return ["EXEC sp_rename N'mytable.idx_foo', N'idx_bar', N'INDEX'"];
     }
 
     /**
@@ -1194,8 +1185,8 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     protected function getQuotedAlterTableRenameIndexSQL(): array
     {
         return [
-            "EXEC sp_RENAME N'[table].[create]', N'[select]', N'INDEX'",
-            "EXEC sp_RENAME N'[table].[foo]', N'[bar]', N'INDEX'",
+            "EXEC sp_rename N'[table].[create]', N'[select]', N'INDEX'",
+            "EXEC sp_rename N'[table].[foo]', N'[bar]', N'INDEX'",
         ];
     }
 
@@ -1244,15 +1235,15 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     protected function getQuotedAlterTableRenameColumnSQL(): array
     {
         return [
-            "sp_RENAME 'mytable.unquoted1', 'unquoted', 'COLUMN'",
-            "sp_RENAME 'mytable.unquoted2', '[where]', 'COLUMN'",
-            "sp_RENAME 'mytable.unquoted3', '[foo]', 'COLUMN'",
-            "sp_RENAME 'mytable.[create]', 'reserved_keyword', 'COLUMN'",
-            "sp_RENAME 'mytable.[table]', '[from]', 'COLUMN'",
-            "sp_RENAME 'mytable.[select]', '[bar]', 'COLUMN'",
-            "sp_RENAME 'mytable.quoted1', 'quoted', 'COLUMN'",
-            "sp_RENAME 'mytable.quoted2', '[and]', 'COLUMN'",
-            "sp_RENAME 'mytable.quoted3', '[baz]', 'COLUMN'",
+            "sp_rename 'mytable.unquoted1', 'unquoted', 'COLUMN'",
+            "sp_rename 'mytable.unquoted2', '[where]', 'COLUMN'",
+            "sp_rename 'mytable.unquoted3', '[foo]', 'COLUMN'",
+            "sp_rename 'mytable.[create]', 'reserved_keyword', 'COLUMN'",
+            "sp_rename 'mytable.[table]', '[from]', 'COLUMN'",
+            "sp_rename 'mytable.[select]', '[bar]', 'COLUMN'",
+            "sp_rename 'mytable.quoted1', 'quoted', 'COLUMN'",
+            "sp_rename 'mytable.quoted2', '[and]', 'COLUMN'",
+            "sp_rename 'mytable.quoted3', '[baz]', 'COLUMN'",
         ];
     }
 
@@ -1269,7 +1260,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     protected function getAlterTableRenameIndexInSchemaSQL(): array
     {
-        return ["EXEC sp_RENAME N'myschema.mytable.idx_foo', N'idx_bar', N'INDEX'"];
+        return ["EXEC sp_rename N'myschema.mytable.idx_foo', N'idx_bar', N'INDEX'"];
     }
 
     /**
@@ -1278,8 +1269,8 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     protected function getQuotedAlterTableRenameIndexInSchemaSQL(): array
     {
         return [
-            "EXEC sp_RENAME N'[schema].[table].[create]', N'[select]', N'INDEX'",
-            "EXEC sp_RENAME N'[schema].[table].[foo]', N'[bar]', N'INDEX'",
+            "EXEC sp_rename N'[schema].[table].[create]', N'[select]', N'INDEX'",
+            "EXEC sp_rename N'[schema].[table].[foo]', N'[bar]', N'INDEX'",
         ];
     }
 
@@ -1528,7 +1519,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     public function getAlterTableRenameColumnSQL(): array
     {
         return [
-            "sp_RENAME 'foo.bar', 'baz', 'COLUMN'",
+            "sp_rename 'foo.bar', 'baz', 'COLUMN'",
             'ALTER TABLE foo DROP CONSTRAINT DF_8C736521_76FF8CAA',
             'ALTER TABLE foo ADD CONSTRAINT DF_8C736521_78240498 DEFAULT 666 FOR baz',
         ];
@@ -1542,11 +1533,11 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         return [
             'ALTER TABLE [foo] DROP CONSTRAINT fk1',
             'ALTER TABLE [foo] DROP CONSTRAINT fk2',
-            "sp_RENAME '[foo].id', 'war', 'COLUMN'",
+            "sp_rename '[foo].id', 'war', 'COLUMN'",
             'ALTER TABLE [foo] ADD bloo INT NOT NULL',
             'ALTER TABLE [foo] DROP COLUMN baz',
             'ALTER TABLE [foo] ALTER COLUMN bar INT',
-            "sp_RENAME '[foo]', 'table'",
+            "sp_rename '[foo]', 'table'",
             "DECLARE @sql NVARCHAR(MAX) = N''; " .
             "SELECT @sql += N'EXEC sp_rename N''' + dc.name + ''', " .
             "N''' + REPLACE(dc.name, '8C736521', 'F6298F46') + ''', ''OBJECT'';' " .
@@ -1612,7 +1603,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL(): array
     {
-        return ["EXEC sp_RENAME N'mytable.idx_foo', N'idx_foo_renamed', N'INDEX'"];
+        return ["EXEC sp_rename N'mytable.idx_foo', N'idx_foo_renamed', N'INDEX'"];
     }
 
     public function testModifyLimitQueryWithTopNSubQueryWithOrderBy(): void

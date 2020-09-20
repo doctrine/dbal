@@ -4,11 +4,11 @@ namespace Doctrine\DBAL\Tests;
 
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Driver\Exception as DriverException;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Logging\SQLLogger;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Statement;
@@ -141,7 +141,7 @@ class StatementTest extends TestCase
 
         $statement = new Statement('', $this->conn);
 
-        $this->expectException(DBALException::class);
+        $this->expectException(Exception::class);
 
         $statement->execute();
     }

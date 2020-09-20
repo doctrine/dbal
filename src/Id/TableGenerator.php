@@ -3,9 +3,9 @@
 namespace Doctrine\DBAL\Id;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\LockMode;
 use Throwable;
 
@@ -66,12 +66,12 @@ class TableGenerator
     /**
      * @param string $generatorTableName
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function __construct(Connection $conn, $generatorTableName = 'sequences')
     {
         if ($conn->getDriver() instanceof Driver\PDO\SQLite\Driver) {
-            throw new DBALException('Cannot use TableGenerator with SQLite.');
+            throw new Exception('Cannot use TableGenerator with SQLite.');
         }
 
         $this->conn = DriverManager::getConnection(
@@ -90,7 +90,7 @@ class TableGenerator
      *
      * @return int
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function nextValue($sequence)
     {
@@ -134,7 +134,7 @@ class TableGenerator
                 $rows = $this->conn->executeStatement($sql, [$sequence, $row['sequence_value']]);
 
                 if ($rows !== 1) {
-                    throw new DBALException('Race-condition detected while updating sequence. Aborting generation');
+                    throw new Exception('Race-condition detected while updating sequence. Aborting generation');
                 }
             } else {
                 $this->conn->insert(
@@ -148,7 +148,7 @@ class TableGenerator
         } catch (Throwable $e) {
             $this->conn->rollBack();
 
-            throw new DBALException(
+            throw new Exception(
                 'Error occurred while generating ID with TableGenerator, aborted generation: ' . $e->getMessage(),
                 0,
                 $e

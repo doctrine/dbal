@@ -2,7 +2,7 @@
 
 namespace Doctrine\DBAL\Schema;
 
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Types\Type;
 
@@ -265,7 +265,7 @@ class OracleSchemaManager extends AbstractSchemaManager
      *
      * @return bool
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function dropAutoincrement($table)
     {
