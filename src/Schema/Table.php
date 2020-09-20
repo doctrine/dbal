@@ -572,17 +572,19 @@ class Table extends AbstractAsset
 
         $this->_fkConstraints[$name] = $constraint;
 
-        // Add an explicit index on the foreign key columns.
-        // If there is already an index that fulfils this requirements drop the request.
-        // In the case of __construct calling this method during hydration from schema-details
-        // all the explicitly added indexes lead to duplicates.
-        // This creates computation overhead in this case,
-        // however no duplicate indexes are ever added (based on columns).
-        $indexName      = $this->_generateIdentifierName(
+        /* Add an implicit index (defined by the DBAL) on the foreign key
+           columns. If there is already a user-defined index that fulfills these
+           requirements drop the request. In the case of __construct() calling
+           this method during hydration from schema-details, all the explicitly
+           added indexes lead to duplicates. This creates computation overhead in
+           this case, however no duplicate indexes are ever added (based on
+           columns). */
+        $indexName = $this->_generateIdentifierName(
             array_merge([$this->getName()], $constraint->getColumns()),
             'idx',
             $this->_getMaxIdentifierLength()
         );
+
         $indexCandidate = $this->_createIndex($constraint->getColumns(), $indexName, false, false);
 
         foreach ($this->_indexes as $existingIndex) {
