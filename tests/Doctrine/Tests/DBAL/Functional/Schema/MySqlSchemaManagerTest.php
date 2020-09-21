@@ -14,6 +14,8 @@ use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Tests\Types\MySqlPointType;
 
+use function array_keys;
+
 class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
     protected function supportsPlatform(AbstractPlatform $platform): bool
@@ -214,6 +216,32 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertNull($onlineTable->getColumn('def_blob')->getDefault());
         self::assertNull($onlineTable->getColumn('def_blob_null')->getDefault());
         self::assertFalse($onlineTable->getColumn('def_blob_null')->getNotnull());
+    }
+
+    public function testAlterTableExplicitColumnPosition(): void
+    {
+        $tableName = 'test_column_position';
+        $table     = new Table($tableName);
+        $table->addColumn('id', 'integer');
+        $table->addColumn('a', 'integer');
+        $table->addColumn('b', 'integer');
+
+        $this->schemaManager->createTable($table);
+
+        self::assertSame(['id', 'a', 'b'], array_keys($this->schemaManager->listTableColumns($tableName)));
+
+        $table2 = new Table($tableName);
+        $table2->addColumn('id', 'float');
+        $table2->addColumn('new', 'float');
+        $table2->addColumn('b', 'float');
+        $table2->addColumn('a', 'float');
+
+        $comparator = new Comparator();
+        $diff       = $comparator->diffTable($table, $table2);
+        self::assertNotFalse($diff);
+        $this->schemaManager->alterTable($diff);
+
+        self::assertSame(['id', 'new', 'b', 'a'], array_keys($this->schemaManager->listTableColumns($tableName)));
     }
 
     public function testColumnCharset(): void
