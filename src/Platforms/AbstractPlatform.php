@@ -3148,18 +3148,6 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Whether this platform supports onUpdate in foreign key constraints.
-     *
-     * @deprecated
-     *
-     * @return bool
-     */
-    public function supportsForeignKeyOnUpdate()
-    {
-        return $this->supportsForeignKeyConstraints();
-    }
-
-    /**
      * Whether the platform supports database schemas.
      *
      * @return bool
