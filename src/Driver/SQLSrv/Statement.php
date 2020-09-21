@@ -21,6 +21,7 @@ use function SQLSRV_SQLTYPE_VARBINARY;
 use function stripos;
 
 use const SQLSRV_ENC_BINARY;
+use const SQLSRV_ENC_CHAR;
 use const SQLSRV_PARAM_IN;
 
 final class Statement implements StatementInterface
