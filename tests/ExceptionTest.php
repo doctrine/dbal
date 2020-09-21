@@ -2,20 +2,20 @@
 
 namespace Doctrine\DBAL\Tests;
 
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
 use function sprintf;
 
-class DBALExceptionTest extends TestCase
+class ExceptionTest extends TestCase
 {
     public function testDriverRequiredWithUrl(): void
     {
         $url       = 'mysql://localhost';
-        $exception = DBALException::driverRequired($url);
+        $exception = Exception::driverRequired($url);
 
-        self::assertInstanceOf(DBALException::class, $exception);
+        self::assertInstanceOf(Exception::class, $exception);
         self::assertSame(
             sprintf(
                 "The options 'driver' or 'driverClass' are mandatory if a connection URL without scheme " .
@@ -28,7 +28,7 @@ class DBALExceptionTest extends TestCase
 
     public function testInvalidPlatformTypeObject(): void
     {
-        $exception = DBALException::invalidPlatformType(new stdClass());
+        $exception = Exception::invalidPlatformType(new stdClass());
 
         self::assertSame(
             "Option 'platform' must be a subtype of 'Doctrine\DBAL\Platforms\AbstractPlatform', "
@@ -39,7 +39,7 @@ class DBALExceptionTest extends TestCase
 
     public function testInvalidPlatformTypeScalar(): void
     {
-        $exception = DBALException::invalidPlatformType('some string');
+        $exception = Exception::invalidPlatformType('some string');
 
         self::assertSame(
             "Option 'platform' must be an object and subtype of 'Doctrine\DBAL\Platforms\AbstractPlatform'. "

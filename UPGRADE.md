@@ -1,5 +1,9 @@
 # Upgrade to 3.0
 
+## BC BREAK: `Doctrine\DBAL\DBALException` class renamed
+
+The `Doctrine\DBAL\DBALException` class has been renamed to `Doctrine\DBAL\Exception`. 
+
 ## BC BREAK: Doctrine\DBAL\Schema\Table constructor new parameter
 
 Deprecated parameter `$idGeneratorType` removed and added a new parameter `$uniqueConstraints`.
