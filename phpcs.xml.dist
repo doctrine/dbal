@@ -110,6 +110,11 @@
         <exclude-pattern>lib/Doctrine/DBAL/Driver/SQLSrv/SQLSrvStatement.php</exclude-pattern>
     </rule>
 
+    <!-- The override opts out the caller from the strict mode for backward compatibility -->
+    <rule ref="Generic.CodeAnalysis.UselessOverridingMethod.Found">
+        <exclude-pattern>lib/Doctrine/DBAL/Driver/PDOConnection.php</exclude-pattern>
+    </rule>
+
     <!-- See https://github.com/slevomat/coding-standard/issues/770 -->
     <rule ref="SlevomatCodingStandard.Namespaces.UnusedUses">
         <exclude-pattern>lib/Doctrine/DBAL/Driver/ExceptionConverterDriver.php</exclude-pattern>
