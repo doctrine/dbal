@@ -949,4 +949,104 @@ class QueryBuilderTest extends DbalTestCase
 
         $qb->getSQL();
     }
+
+    public function testAndWhereEmptyStringStartingWithEmptyExpression(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('id')
+            ->from('foo');
+
+        $qb->andWhere('', 'a = b');
+
+        self::assertSame('SELECT id FROM foo WHERE a = b', $qb->getSQL());
+    }
+
+    public function testAndWhereEmptyStringStartingWithNonEmptyExpression(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('id')
+            ->from('foo')
+            ->where('a = b');
+
+        $qb->andWhere('', 'c = d');
+
+        self::assertSame('SELECT id FROM foo WHERE (a = b) AND (c = d)', $qb->getSQL());
+    }
+
+    public function testOrWhereEmptyStringStartingWithEmptyExpression(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('id')
+            ->from('foo');
+
+        $qb->orWhere('', 'a = b');
+
+        self::assertSame('SELECT id FROM foo WHERE a = b', $qb->getSQL());
+    }
+
+    public function testOrWhereEmptyStringStartingWithNonEmptyExpression(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('id')
+            ->from('foo')
+            ->where('a = b');
+
+        $qb->orWhere('', 'c = d');
+
+        self::assertSame('SELECT id FROM foo WHERE (a = b) OR (c = d)', $qb->getSQL());
+    }
+
+    public function testAndHavingEmptyStringStartingWithEmptyExpression(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('id')
+            ->from('foo');
+
+        $qb->andHaving('', 'a = b');
+
+        self::assertSame('SELECT id FROM foo HAVING a = b', $qb->getSQL());
+    }
+
+    public function testAndHavingEmptyStringStartingWithNonEmptyExpression(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('id')
+            ->from('foo')
+            ->having('a = b');
+
+        $qb->andHaving('', 'c = d');
+
+        self::assertSame('SELECT id FROM foo HAVING (a = b) AND (c = d)', $qb->getSQL());
+    }
+
+    public function testOrHavingEmptyStringStartingWithEmptyExpression(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('id')
+            ->from('foo');
+
+        $qb->orHaving('', 'a = b');
+
+        self::assertSame('SELECT id FROM foo HAVING a = b', $qb->getSQL());
+    }
+
+    public function testOrHavingEmptyStringStartingWithNonEmptyExpression(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('id')
+            ->from('foo')
+            ->having('a = b');
+
+        $qb->orHaving('', 'c = d');
+
+        self::assertSame('SELECT id FROM foo HAVING (a = b) OR (c = d)', $qb->getSQL());
+    }
 }
