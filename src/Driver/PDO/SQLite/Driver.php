@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Driver\PDO\SQLite;
 use Doctrine\DBAL\Driver\AbstractSQLiteDriver;
 use Doctrine\DBAL\Driver\PDO\Connection;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
+use PDO;
 
 use function array_merge;
 
@@ -30,6 +31,14 @@ final class Driver extends AbstractSQLiteDriver
                 $driverOptions['userDefinedFunctions']
             );
             unset($driverOptions['userDefinedFunctions']);
+        }
+
+        if (isset($driverOptions['readOnly'])) {
+            if ($driverOptions['readOnly']) {
+                $driverOptions[PDO::SQLITE_ATTR_OPEN_FLAGS] = PDO::SQLITE_OPEN_READONLY;
+            }
+
+            unset($driverOptions['readOnly']);
         }
 
         $connection = new Connection(

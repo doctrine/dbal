@@ -172,6 +172,10 @@ pdo_sqlite
 -  ``memory`` (boolean): True if the SQLite database should be
    in-memory (non-persistent). Mutually exclusive with ``path``.
    ``path`` takes precedence.
+-  ``driverOptions`` (array): Arbitrary options that are directly
+   passed to ``PDO`` including some custom DBAL options:
+      - ``readOnly`` (boolean): Whether to open the database in
+        read-only mode.
 
 pdo_mysql
 ^^^^^^^^^
