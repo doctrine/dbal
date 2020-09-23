@@ -158,14 +158,28 @@ final class Result implements ResultInterface
         }
     }
 
+    /**
+     * @throws Exception
+     */
     public function rowCount(): int
     {
-        return $this->result->rowCount();
+        try {
+            return $this->result->rowCount();
+        } catch (DriverException $e) {
+            throw $this->connection->convertException($e);
+        }
     }
 
+    /**
+     * @throws Exception
+     */
     public function columnCount(): int
     {
-        return $this->result->columnCount();
+        try {
+            return $this->result->columnCount();
+        } catch (DriverException $e) {
+            throw $this->connection->convertException($e);
+        }
     }
 
     public function free(): void
