@@ -818,6 +818,23 @@ class Connection
     }
 
     /**
+     * Prepares and executes an SQL query and returns the result as an associative array with the keys
+     * mapped to the first column and the values mapped to the second column.
+     *
+     * @param string                                           $query  The SQL query.
+     * @param array<int, mixed>|array<string, mixed>           $params The query parameters.
+     * @param array<int, int|string>|array<string, int|string> $types  The query parameter types.
+     *
+     * @return array<mixed,mixed>
+     *
+     * @throws Exception
+     */
+    public function fetchAllKeyValue(string $query, array $params = [], array $types = []): array
+    {
+        return $this->executeQuery($query, $params, $types)->fetchAllKeyValue();
+    }
+
+    /**
      * Prepares and executes an SQL query and returns the result as an array of the first column values.
      *
      * @param string                                           $query  The SQL query.
@@ -884,6 +901,23 @@ class Connection
         } catch (DriverException $e) {
             throw $this->convertExceptionDuringQuery($e, $query, $params, $types);
         }
+    }
+
+    /**
+     * Prepares and executes an SQL query and returns the result as an iterator with the keys
+     * mapped to the first column and the values mapped to the second column.
+     *
+     * @param string                                           $query  The SQL query.
+     * @param array<int, mixed>|array<string, mixed>           $params The query parameters.
+     * @param array<int, int|string>|array<string, int|string> $types  The query parameter types.
+     *
+     * @return Traversable<mixed,mixed>
+     *
+     * @throws Exception
+     */
+    public function iterateKeyValue(string $query, array $params = [], array $types = []): Traversable
+    {
+        return $this->executeQuery($query, $params, $types)->iterateKeyValue();
     }
 
     /**

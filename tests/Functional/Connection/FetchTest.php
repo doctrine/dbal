@@ -2,6 +2,8 @@
 
 namespace Doctrine\DBAL\Tests\Functional\Connection;
 
+use Doctrine\DBAL\Exception\NoKeyValue;
+use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Tests\TestUtil;
 
@@ -77,6 +79,41 @@ class FetchTest extends FunctionalTestCase
         ], $this->connection->fetchAllAssociative($this->query));
     }
 
+    public function testFetchAllKeyValue(): void
+    {
+        self::assertEquals([
+            'foo' => 1,
+            'bar' => 2,
+            'baz' => 3,
+        ], $this->connection->fetchAllKeyValue($this->query));
+    }
+
+    /**
+     * This test covers the requirement for the statement result to have at least two columns,
+     * not exactly two as PDO requires.
+     */
+    public function testFetchAllKeyValueWithLimit(): void
+    {
+        $platform = $this->connection->getDatabasePlatform();
+
+        if ($platform instanceof SQLServer2012Platform) {
+            self::markTestSkipped('See https://github.com/doctrine/dbal/issues/2374');
+        }
+
+        $query = $platform->modifyLimitQuery($this->query, 1, 1);
+
+        self::assertEquals(['bar' => 2], $this->connection->fetchAllKeyValue($query));
+    }
+
+    public function testFetchAllKeyValueOneColumn(): void
+    {
+        $sql = $this->connection->getDatabasePlatform()
+            ->getDummySelectSQL();
+
+        $this->expectException(NoKeyValue::class);
+        $this->connection->fetchAllKeyValue($sql);
+    }
+
     public function testFetchFirstColumn(): void
     {
         self::assertEquals([
@@ -111,6 +148,24 @@ class FetchTest extends FunctionalTestCase
                 'b' => 3,
             ],
         ], iterator_to_array($this->connection->iterateAssociative($this->query)));
+    }
+
+    public function testIterateKeyValue(): void
+    {
+        self::assertEquals([
+            'foo' => 1,
+            'bar' => 2,
+            'baz' => 3,
+        ], iterator_to_array($this->connection->iterateKeyValue($this->query)));
+    }
+
+    public function testIterateKeyValueOneColumn(): void
+    {
+        $sql = $this->connection->getDatabasePlatform()
+            ->getDummySelectSQL();
+
+        $this->expectException(NoKeyValue::class);
+        iterator_to_array($this->connection->iterateKeyValue($sql));
     }
 
     public function testIterateColumn(): void
