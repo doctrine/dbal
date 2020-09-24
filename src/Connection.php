@@ -4,7 +4,6 @@ namespace Doctrine\DBAL;
 
 use Closure;
 use Doctrine\Common\EventManager;
-use Doctrine\DBAL\Abstraction\Result as AbstractionResult;
 use Doctrine\DBAL\Cache\ArrayResult;
 use Doctrine\DBAL\Cache\CacheException;
 use Doctrine\DBAL\Cache\CachingResult;
@@ -974,7 +973,7 @@ class Connection
         array $params = [],
         $types = [],
         ?QueryCacheProfile $qcp = null
-    ): AbstractionResult {
+    ): Result {
         if ($qcp !== null) {
             return $this->executeCacheQuery($sql, $params, $types, $qcp);
         }

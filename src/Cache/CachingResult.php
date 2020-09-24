@@ -5,7 +5,8 @@ namespace Doctrine\DBAL\Cache;
 use Doctrine\Common\Cache\Cache;
 use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\FetchUtils;
-use Doctrine\DBAL\Driver\Result;
+use Doctrine\DBAL\Driver\Result as DriverResult;
+use Doctrine\DBAL\Result;
 
 use function array_map;
 use function array_values;
@@ -23,7 +24,7 @@ use function array_values;
  *
  * @internal The class is internal to the caching layer implementation.
  */
-class CachingResult implements Result
+class CachingResult implements DriverResult
 {
     /** @var Cache */
     private $cache;

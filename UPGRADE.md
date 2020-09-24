@@ -1,5 +1,9 @@
 # Upgrade to 3.0
 
+## BC BREAK `Doctrine\DBAL\Abstraction\Result` removed
+
+The `Doctrine\DBAL\Abstraction\Result` interface is removed. Use the `Doctrine\DBAL\Result` class instead.
+
 ## BC BREAK: `Doctrine\DBAL\Types\Type::getDefaultLength()` removed
 
 The `Doctrine\DBAL\Types\Type::getDefaultLength()` method has been removed as it served no purpose.

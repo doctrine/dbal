@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL;
 
-use Doctrine\DBAL\Abstraction\Result as ResultInterface;
 use Doctrine\DBAL\Driver\Exception as DriverException;
 use Doctrine\DBAL\Driver\Result as DriverResult;
 use Doctrine\DBAL\Exception\NoKeyValue;
 use Traversable;
 
-final class Result implements ResultInterface
+class Result
 {
     /** @var DriverResult */
     private $result;
@@ -28,7 +27,9 @@ final class Result implements ResultInterface
     }
 
     /**
-     * {@inheritDoc}
+     * Returns the next row of the result as a numeric array or FALSE if there are no more rows.
+     *
+     * @return array<int,mixed>|false
      *
      * @throws Exception
      */
@@ -42,7 +43,9 @@ final class Result implements ResultInterface
     }
 
     /**
-     * {@inheritDoc}
+     * Returns the next row of the result as an associative array or FALSE if there are no more rows.
+     *
+     * @return array<string,mixed>|false
      *
      * @throws Exception
      */
@@ -56,7 +59,9 @@ final class Result implements ResultInterface
     }
 
     /**
-     * {@inheritDoc}
+     * Returns the first value of the next row of the result or FALSE if there are no more rows.
+     *
+     * @return mixed|false
      *
      * @throws Exception
      */
@@ -70,7 +75,9 @@ final class Result implements ResultInterface
     }
 
     /**
-     * {@inheritDoc}
+     * Returns an array containing all of the result rows represented as numeric arrays.
+     *
+     * @return array<int,array<int,mixed>>
      *
      * @throws Exception
      */
@@ -84,7 +91,9 @@ final class Result implements ResultInterface
     }
 
     /**
-     * {@inheritDoc}
+     * Returns an array containing all of the result rows represented as associative arrays.
+     *
+     * @return array<int,array<string,mixed>>
      *
      * @throws Exception
      */
@@ -98,7 +107,9 @@ final class Result implements ResultInterface
     }
 
     /**
-     * {@inheritDoc}
+     * Returns an array containing the values of the first column of the result.
+     *
+     * @return array<mixed,mixed>
      *
      * @throws Exception
      */

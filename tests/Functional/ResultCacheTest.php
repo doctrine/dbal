@@ -4,8 +4,8 @@ namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
-use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\Logging\DebugStack;
+use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 
