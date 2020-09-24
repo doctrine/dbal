@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\Tests\DBAL\Functional\Driver\PDO;
 
 use Doctrine\DBAL\Driver\PDO\Connection;
@@ -99,5 +101,13 @@ class ConnectionTest extends DbalFunctionalTestCase
         $this->expectException(Exception::class);
 
         $this->driverConnection->query('foo');
+    }
+
+    /**
+     * This test ensures backward compatibility with DBAL 2.x and should be removed in 3.0.
+     */
+    public function testQuoteInteger(): void
+    {
+        self::assertSame("'1'", $this->connection->getWrappedConnection()->quote(1));
     }
 }
