@@ -1,5 +1,9 @@
 # Upgrade to 2.11
 
+## Deprecated `Abstraction\Result` 
+
+The usage of the `Doctrine\DBAL\Abstraction\Result` interface is deprecated. In DBAL 3.0, the statement result at the wrapper level will be represented by the `Doctrine\DBAL\Result` class.
+
 ## Deprecated the functionality of dropping client connections when dropping a database
 
 The corresponding `getDisallowDatabaseConnectionsSQL()` and `getCloseActiveDatabaseConnectionsSQL` methods
