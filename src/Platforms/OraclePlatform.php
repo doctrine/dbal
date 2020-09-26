@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Platforms;
 
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\ColumnLengthRequired;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Identifier;
@@ -37,12 +37,12 @@ class OraclePlatform extends AbstractPlatform
      *
      * @link http://docs.oracle.com/cd/B19306_01/server.102/b14200/sql_elements008.htm
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public static function assertValidIdentifier(string $identifier): void
     {
         if (preg_match('(^(([a-zA-Z]{1}[a-zA-Z0-9_$#]{0,})|("[^"]+"))$)', $identifier) === 0) {
-            throw new DBALException('Invalid Oracle identifier.');
+            throw new Exception('Invalid Oracle identifier.');
         }
     }
 
@@ -883,11 +883,6 @@ SQL
         return ['ALTER INDEX ' . $oldIndexName . ' RENAME TO ' . $index->getQuotedName($this)];
     }
 
-    public function prefersSequences(): bool
-    {
-        return true;
-    }
-
     public function usesSequenceEmulatedIdentityColumns(): bool
     {
         return true;
@@ -950,16 +945,6 @@ SQL
         return $query;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * Oracle returns all column names in SQL result sets in uppercase.
-     */
-    public function getSQLResultCasing(string $column): string
-    {
-        return strtoupper($column);
-    }
-
     public function getCreateTemporaryTableSnippetSQL(): string
     {
         return 'CREATE GLOBAL TEMPORARY TABLE';
@@ -988,11 +973,6 @@ SQL
     public function supportsSequences(): bool
     {
         return true;
-    }
-
-    public function supportsForeignKeyOnUpdate(): bool
-    {
-        return false;
     }
 
     public function supportsReleaseSavepoints(): bool

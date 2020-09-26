@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Exception;
 
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
+use Doctrine\DBAL\Exception;
 
 use function sprintf;
 
 /**
  * @psalm-immutable
  */
-final class InvalidDriverClass extends DBALException
+final class InvalidDriverClass extends Exception
 {
     public static function new(string $driverClass): self
     {

@@ -254,6 +254,34 @@ The Doctrine\DBAL\Version class is no longer available: please refrain from chec
 
 # Upgrade to 3.0
 
+## BC BREAK `Doctrine\DBAL\Abstraction\Result` removed
+
+The `Doctrine\DBAL\Abstraction\Result` interface is removed. Use the `Doctrine\DBAL\Result` class instead.
+
+## BC BREAK: `Doctrine\DBAL\Types\Type::getDefaultLength()` removed
+
+The `Doctrine\DBAL\Types\Type::getDefaultLength()` method has been removed as it served no purpose.
+
+## BC BREAK: `Doctrine\DBAL\DBALException` class renamed
+
+The `Doctrine\DBAL\DBALException` class has been renamed to `Doctrine\DBAL\Exception`. 
+
+## BC BREAK: Doctrine\DBAL\Schema\Table constructor new parameter
+
+Deprecated parameter `$idGeneratorType` removed and added a new parameter `$uniqueConstraints`.
+Constructor changed from:
+
+`__construct($name, array $columns = [], array $indexes = [], array $fkConstraints = [], $idGeneratorType = 0, array $options = [])`
+
+To the new constructor:
+
+`__construct($name, array $columns = [], array $indexes = [], array $uniqueConstraints = [], array $fkConstraints = [], array $options = [])`
+
+## BC BREAK: change in the behavior of `SchemaManager::dropDatabase()`
+
+When dropping a database, the DBAL no longer attempts to kill the client sessions that use the database.
+It's the responsibility of the operator to make sure that the database is not being used.  
+
 ## BC BREAK: removed `Synchronizer` package
 
 The `Doctrine\DBAL\Schema\Synchronizer\SchemaSynchronizer` interface and all its implementations have been removed.
@@ -410,6 +438,8 @@ The `Doctrine\DBAL\Driver::getName()` has been removed.
  * Removed `json_array` type and all associated hacks.
  * Removed `Connection::TRANSACTION_*` constants.
  * Removed `AbstractPlatform::DATE_INTERVAL_UNIT_*` and `AbstractPlatform::TRIM_*` constants.
+ * Removed `AbstractPlatform::getSQLResultCasing()`, `::prefersSequences()` and `::supportsForeignKeyOnUpdate()` methods.
+ * Removed `PostgreSqlPlatform::getDisallowDatabaseConnectionsSQL()` and `::getCloseActiveDatabaseConnectionsSQL()` methods.
  * Removed `MysqlSessionInit` listener.
  * Removed `MysqlPlatform::getCollationFieldDeclaration()`.
  * Removed `AbstractPlatform::getIdentityColumnNullInsertSQL()`.
@@ -601,6 +631,15 @@ Please use other database client applications for import, e.g.:
 
 # Upgrade to 2.11
 
+## Deprecated `Abstraction\Result` 
+
+The usage of the `Doctrine\DBAL\Abstraction\Result` interface is deprecated. In DBAL 3.0, the statement result at the wrapper level will be represented by the `Doctrine\DBAL\Result` class.
+
+## Deprecated the functionality of dropping client connections when dropping a database
+
+The corresponding `getDisallowDatabaseConnectionsSQL()` and `getCloseActiveDatabaseConnectionsSQL` methods
+of the `PostgreSqlPlatform` class have been deprecated.
+
 ## Deprecated `Synchronizer` package
 
 The `Doctrine\DBAL\Schema\Synchronizer\SchemaSynchronizer` interface and all its implementations are deprecated.
@@ -646,9 +685,12 @@ The following PDO-related classes outside of the PDO namespace have been depreca
 1. `DBALException::invalidPlatformType()` is deprecated as unused as of v2.7.0.
 2. `DBALException::invalidPdoInstance()` as passing a PDO instance via configuration is deprecated.
 
-## `AbstractPlatform::fixSchemaElementName()` is deprecated.
+## Deprecated `AbstractPlatform` methods.
 
-The method is not used anywhere except for tests.
+1. `fixSchemaElementName()`.
+2. `getSQLResultCasing()`.
+3. `prefersSequences()`.
+4. `supportsForeignKeyOnUpdate()`.
 
 ##`ServerInfoAwareConnection::requiresQueryForServerVersion()` is deprecated.
 
@@ -676,6 +718,10 @@ The non-interface methods of driver-level classes have been marked internal:
 
 - `OCI8Connection::getExecuteMode()`
 - `OCI8Statement::convertPositionalToNamedPlaceholders()`
+
+## Deprecated `DBALException`
+
+The `Doctrine\DBAL\DBALException` class has been deprecated in favor of `Doctrine\DBAL\Exception`.
 
 ## Inconsistently and ambiguously named driver-level classes are deprecated
 

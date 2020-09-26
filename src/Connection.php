@@ -6,7 +6,6 @@ namespace Doctrine\DBAL;
 
 use Closure;
 use Doctrine\Common\EventManager;
-use Doctrine\DBAL\Abstraction\Result as AbstractionResult;
 use Doctrine\DBAL\Cache\ArrayResult;
 use Doctrine\DBAL\Cache\CacheException;
 use Doctrine\DBAL\Cache\CachingResult;
@@ -20,7 +19,6 @@ use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Exception\CommitFailedRollbackOnly;
 use Doctrine\DBAL\Exception\ConnectionLost;
 use Doctrine\DBAL\Exception\EmptyCriteriaNotAllowed;
-use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\Exception\InvalidPlatformType;
 use Doctrine\DBAL\Exception\MayNotAlterNestedTransactionWithSavepointsInTransaction;
 use Doctrine\DBAL\Exception\NoActiveTransaction;
@@ -161,7 +159,7 @@ class Connection
      * @param Configuration|null   $config       The configuration, optional.
      * @param EventManager|null    $eventManager The event manager, optional.
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function __construct(
         array $params,
@@ -216,7 +214,7 @@ class Connection
      *                     The platforms which don't support the concept of a database (e.g. embedded databases)
      *                     must always return a string as an indicator of an implicitly selected database.
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function getDatabase(): ?string
     {
@@ -256,7 +254,7 @@ class Connection
     /**
      * Gets the DatabasePlatform for the connection.
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function getDatabasePlatform(): AbstractPlatform
     {
@@ -278,7 +276,7 @@ class Connection
     /**
      * Establishes the connection with the database.
      *
-     * @throws DriverException
+     * @throws Exception
      */
     public function connect(): void
     {
@@ -311,7 +309,7 @@ class Connection
      *
      * Evaluates custom platform class and version in order to set the correct platform.
      *
-     * @throws DBALException If an invalid platform was specified for this connection.
+     * @throws Exception If an invalid platform was specified for this connection.
      */
     private function detectDatabasePlatform(): void
     {
@@ -336,7 +334,7 @@ class Connection
      * or the underlying driver connection cannot determine the platform
      * version without having to query it (performance reasons).
      *
-     * @throws DBALException
+     * @throws Throwable
      */
     private function getDatabasePlatformVersion(): ?string
     {
@@ -354,7 +352,7 @@ class Connection
         if ($this->_conn === null) {
             try {
                 $this->connect();
-            } catch (DBALException $originalException) {
+            } catch (Exception $originalException) {
                 if (! isset($this->params['dbname'])) {
                     throw $originalException;
                 }
@@ -366,7 +364,7 @@ class Connection
 
                 try {
                     $this->connect();
-                } catch (DBALException $fallbackException) {
+                } catch (Exception $fallbackException) {
                     // Either the platform does not support database-less connections
                     // or something else went wrong.
                     // Reset connection parameters and rethrow the original exception.
@@ -392,7 +390,7 @@ class Connection
     /**
      * Returns the database server version if the underlying driver supports it.
      *
-     * @throws DBALException
+     * @throws Exception
      */
     private function getServerVersion(): ?string
     {
@@ -465,7 +463,7 @@ class Connection
      *
      * @return array<string, mixed>|false False is returned if no rows are found.
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function fetchAssociative(string $query, array $params = [], array $types = [])
     {
@@ -486,7 +484,7 @@ class Connection
      *
      * @return array<int, mixed>|false False is returned if no rows are found.
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function fetchNumeric(string $query, array $params = [], array $types = [])
     {
@@ -507,7 +505,7 @@ class Connection
      *
      * @return mixed|false False is returned if no rows are found.
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function fetchOne(string $query, array $params = [], array $types = [])
     {
@@ -544,7 +542,7 @@ class Connection
      * @param array<int, mixed>    $values     Column values
      * @param array<int, string>   $conditions Key conditions
      *
-     * @throws DBALException
+     * @throws Exception
      */
     private function addIdentifierCondition(
         array $identifier,
@@ -578,8 +576,7 @@ class Connection
      *
      * @return int The number of affected rows.
      *
-     * @throws DBALException
-     * @throws InvalidArgumentException
+     * @throws Exception
      */
     public function delete(string $table, array $identifier, array $types = []): int
     {
@@ -611,7 +608,7 @@ class Connection
      *
      * @param int $level The level to set.
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function setTransactionIsolation(int $level): void
     {
@@ -625,7 +622,7 @@ class Connection
      *
      * @return int The current transaction isolation level.
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function getTransactionIsolation(): int
     {
@@ -651,7 +648,7 @@ class Connection
      *
      * @return int The number of affected rows.
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function update(string $table, array $data, array $identifier, array $types = []): int
     {
@@ -688,7 +685,7 @@ class Connection
      *
      * @return int The number of affected rows.
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function insert(string $table, array $data, array $types = []): int
     {
@@ -766,7 +763,7 @@ class Connection
      *
      * @return array<int,array<int,mixed>>
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function fetchAllNumeric(string $query, array $params = [], array $types = []): array
     {
@@ -786,7 +783,7 @@ class Connection
      *
      * @return array<int,array<string,mixed>>
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function fetchAllAssociative(string $query, array $params = [], array $types = []): array
     {
@@ -798,6 +795,23 @@ class Connection
     }
 
     /**
+     * Prepares and executes an SQL query and returns the result as an associative array with the keys
+     * mapped to the first column and the values mapped to the second column.
+     *
+     * @param string                                           $query  The SQL query.
+     * @param array<int, mixed>|array<string, mixed>           $params The query parameters.
+     * @param array<int, int|string>|array<string, int|string> $types  The query parameter types.
+     *
+     * @return array<mixed,mixed>
+     *
+     * @throws Exception
+     */
+    public function fetchAllKeyValue(string $query, array $params = [], array $types = []): array
+    {
+        return $this->executeQuery($query, $params, $types)->fetchAllKeyValue();
+    }
+
+    /**
      * Prepares and executes an SQL query and returns the result as an array of the first column values.
      *
      * @param string                                           $query  The SQL query.
@@ -806,7 +820,7 @@ class Connection
      *
      * @return array<int,mixed>
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function fetchFirstColumn(string $query, array $params = [], array $types = []): array
     {
@@ -826,7 +840,7 @@ class Connection
      *
      * @return Traversable<int,array<int,mixed>>
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function iterateNumeric(string $query, array $params = [], array $types = []): Traversable
     {
@@ -851,7 +865,7 @@ class Connection
      *
      * @return Traversable<int,array<string,mixed>>
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function iterateAssociative(string $query, array $params = [], array $types = []): Traversable
     {
@@ -867,6 +881,23 @@ class Connection
     }
 
     /**
+     * Prepares and executes an SQL query and returns the result as an iterator with the keys
+     * mapped to the first column and the values mapped to the second column.
+     *
+     * @param string                                           $query  The SQL query.
+     * @param array<int, mixed>|array<string, mixed>           $params The query parameters.
+     * @param array<int, int|string>|array<string, int|string> $types  The query parameter types.
+     *
+     * @return Traversable<mixed,mixed>
+     *
+     * @throws Exception
+     */
+    public function iterateKeyValue(string $query, array $params = [], array $types = []): Traversable
+    {
+        return $this->executeQuery($query, $params, $types)->iterateKeyValue();
+    }
+
+    /**
      * Prepares and executes an SQL query and returns the result as an iterator over the first column values.
      *
      * @param string                                           $query  The SQL query.
@@ -875,7 +906,7 @@ class Connection
      *
      * @return Traversable<int,mixed>
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function iterateColumn(string $query, array $params = [], array $types = []): Traversable
     {
@@ -895,7 +926,7 @@ class Connection
      *
      * @param string $sql The SQL statement to prepare.
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function prepare(string $sql): Statement
     {
@@ -913,14 +944,14 @@ class Connection
      * @param array<int, int|string>|array<string, int|string> $types  The query parameter types.
      * @param QueryCacheProfile|null                           $qcp    The query cache profile, optional.
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function executeQuery(
         string $sql,
         array $params = [],
         array $types = [],
         ?QueryCacheProfile $qcp = null
-    ): AbstractionResult {
+    ): Result {
         if ($qcp !== null) {
             return $this->executeCacheQuery($sql, $params, $types, $qcp);
         }
@@ -962,7 +993,7 @@ class Connection
      * @param QueryCacheProfile                                $qcp    The query cache profile.
      *
      * @throws CacheException
-     * @throws DBALException
+     * @throws Exception
      */
     public function executeCacheQuery(string $sql, array $params, array $types, QueryCacheProfile $qcp): Result
     {
@@ -1018,7 +1049,7 @@ class Connection
      * @param array<int, mixed>|array<string, mixed>           $params The query parameters
      * @param array<int, int|string>|array<string, int|string> $types  The query parameter types
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function executeStatement($sql, array $params = [], array $types = []): int
     {
@@ -1074,7 +1105,7 @@ class Connection
      *
      * @return string A string representation of the last inserted ID.
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function lastInsertId(?string $name = null): string
     {
@@ -1117,7 +1148,7 @@ class Connection
     /**
      * Sets if nested transactions should use savepoints.
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function setNestTransactionsWithSavepoints(bool $nestTransactionsWithSavepoints): void
     {
@@ -1152,7 +1183,7 @@ class Connection
     }
 
     /**
-     * @throws DBALException
+     * @throws Exception
      */
     public function beginTransaction(): void
     {
@@ -1178,7 +1209,7 @@ class Connection
     }
 
     /**
-     * @throws DBALException
+     * @throws Exception
      */
     public function commit(): void
     {
@@ -1220,7 +1251,7 @@ class Connection
     /**
      * Commits all current nesting transactions.
      *
-     * @throws DBALException
+     * @throws Exception
      */
     private function commitAll(): void
     {
@@ -1240,7 +1271,7 @@ class Connection
     /**
      * {@inheritDoc}
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function rollBack(): void
     {
@@ -1282,7 +1313,7 @@ class Connection
      *
      * @param string $savepoint The name of the savepoint to create.
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function createSavepoint(string $savepoint): void
     {
@@ -1298,7 +1329,7 @@ class Connection
      *
      * @param string $savepoint The name of the savepoint to release.
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function releaseSavepoint(string $savepoint): void
     {
@@ -1318,7 +1349,7 @@ class Connection
      *
      * @param string $savepoint The name of the savepoint to rollback to.
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function rollbackSavepoint(string $savepoint): void
     {
@@ -1332,7 +1363,7 @@ class Connection
     /**
      * Gets the wrapped driver connection.
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function getWrappedConnection(): DriverConnection
     {
@@ -1347,7 +1378,7 @@ class Connection
      * Gets the SchemaManager that can be used to inspect or change the
      * database schema through the connection.
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function getSchemaManager(): AbstractSchemaManager
     {
@@ -1399,7 +1430,7 @@ class Connection
      *
      * @return mixed The converted value.
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function convertToDatabaseValue($value, string $type)
     {
@@ -1415,7 +1446,7 @@ class Connection
      *
      * @return mixed The converted type.
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function convertToPHPValue($value, string $type)
     {
@@ -1430,7 +1461,7 @@ class Connection
      * @param array<int, mixed>|array<string, mixed>           $params The map/list of named/positional parameters.
      * @param array<int, int|string>|array<string, int|string> $types  The query parameter types.
      *
-     * @throws DBALException
+     * @throws Exception
      */
     private function _bindTypedValues(DriverStatement $stmt, array $params, array $types): void
     {
@@ -1473,7 +1504,7 @@ class Connection
      *
      * @return array<int, mixed> [0] => the (escaped) value, [1] => the binding type.
      *
-     * @throws DBALException
+     * @throws Exception
      */
     private function getBindingInfo($value, $type): array
     {
@@ -1555,7 +1586,7 @@ class Connection
         string $sql,
         array $params = [],
         array $types = []
-    ): DBALException {
+    ): Exception {
         $messageFormat = <<<'MESSAGE'
 An exception occurred while executing "%s"%s:
 
@@ -1577,7 +1608,7 @@ MESSAGE;
     /**
      * @internal
      */
-    final public function convertException(DriverException $e): DBALException
+    final public function convertException(DriverException $e): Exception
     {
         return $this->handleDriverException(
             $e,
@@ -1609,7 +1640,7 @@ MESSAGE;
         }, $params)) . ']';
     }
 
-    private function handleDriverException(DriverException $driverException, string $message): DBALException
+    private function handleDriverException(DriverException $driverException, string $message): Exception
     {
         if ($this->exceptionConverter === null) {
             $this->exceptionConverter = $this->_driver->getExceptionConverter();

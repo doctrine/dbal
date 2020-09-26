@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
 use Doctrine\DBAL\Types\Type;
@@ -487,7 +487,7 @@ CREATE\sTABLE # Match "CREATE TABLE"
     }
 
     /**
-     * @throws DBALException
+     * @throws Exception
      */
     private function getCreateTableSQL(string $table): string
     {

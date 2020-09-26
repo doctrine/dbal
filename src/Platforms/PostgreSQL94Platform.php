@@ -159,11 +159,6 @@ class PostgreSQL94Platform extends AbstractPlatform
         return true;
     }
 
-    public function prefersSequences(): bool
-    {
-        return true;
-    }
-
     public function hasNativeGuidType(): bool
     {
         return true;
@@ -338,31 +333,6 @@ SQL
     public function getCreateDatabaseSQL(string $database): string
     {
         return 'CREATE DATABASE ' . $database;
-    }
-
-    /**
-     * Returns the SQL statement for disallowing new connections on the given database.
-     *
-     * This is useful to force DROP DATABASE operations which could fail because of active connections.
-     *
-     * @param string $database The name of the database to disallow new connections for.
-     */
-    public function getDisallowDatabaseConnectionsSQL(string $database): string
-    {
-        return "UPDATE pg_database SET datallowconn = 'false' WHERE datname = " . $this->quoteStringLiteral($database);
-    }
-
-    /**
-     * Returns the SQL statement for closing currently active connections on the given database.
-     *
-     * This is useful to force DROP DATABASE operations which could fail because of active connections.
-     *
-     * @param string $database The name of the database to close currently active connections for.
-     */
-    public function getCloseActiveDatabaseConnectionsSQL(string $database): string
-    {
-        return 'SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '
-            . $this->quoteStringLiteral($database);
     }
 
     public function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey): string
@@ -943,16 +913,6 @@ SQL
     public function getName(): string
     {
         return 'postgresql';
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * PostgreSQL returns all column names in SQL result sets in lowercase.
-     */
-    public function getSQLResultCasing(string $column): string
-    {
-        return strtolower($column);
     }
 
     public function getDateTimeTzFormatString(): string

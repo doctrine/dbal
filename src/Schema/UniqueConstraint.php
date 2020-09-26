@@ -41,14 +41,14 @@ class UniqueConstraint extends AbstractAsset implements Constraint
      * @param array<string>        $flags
      * @param array<string, mixed> $options
      */
-    public function __construct(string $indexName, array $columns, array $flags = [], array $options = [])
+    public function __construct(string $name, array $columns, array $flags = [], array $options = [])
     {
-        $this->_setName($indexName);
+        $this->_setName($name);
 
         $this->options = $options;
 
         foreach ($columns as $column) {
-            $this->_addColumn($column);
+            $this->addColumn($column);
         }
 
         foreach ($flags as $flag) {
@@ -99,6 +99,8 @@ class UniqueConstraint extends AbstractAsset implements Constraint
     /**
      * Adds flag for a unique constraint that translates to platform specific handling.
      *
+     * @return $this
+     *
      * @example $uniqueConstraint->addFlag('CLUSTERED')
      */
     public function addFlag(string $flag): self
@@ -145,7 +147,7 @@ class UniqueConstraint extends AbstractAsset implements Constraint
         return $this->options;
     }
 
-    protected function _addColumn(string $column): void
+    protected function addColumn(string $column): void
     {
         $this->columns[$column] = new Identifier($column);
     }

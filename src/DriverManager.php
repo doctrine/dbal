@@ -115,7 +115,7 @@ final class DriverManager
      * @param Configuration|null                    $config       The configuration to use.
      * @param EventManager|null                     $eventManager The event manager to use.
      *
-     * @throws DBALException
+     * @throws Exception
      *
      * @phpstan-param mixed[] $params
      * @psalm-return ($params is array{wrapperClass:mixed} ? T : Connection)
@@ -185,7 +185,7 @@ final class DriverManager
      *
      * @param mixed[] $params The list of parameters.
      *
-     * @throws DBALException
+     * @throws Exception
      */
     private static function _checkParams(array $params): void
     {
@@ -231,7 +231,7 @@ final class DriverManager
      * @return mixed[] A modified list of parameters with info from a database
      *                 URL extracted into indidivual parameter parts.
      *
-     * @throws DBALException
+     * @throws Exception
      */
     private static function parseDatabaseUrl(array $params): array
     {
@@ -246,7 +246,7 @@ final class DriverManager
         $url = parse_url($url);
 
         if ($url === false) {
-            throw new DBALException('Malformed parameter "url".');
+            throw new Exception('Malformed parameter "url".');
         }
 
         $url = array_map('rawurldecode', $url);
@@ -382,7 +382,7 @@ final class DriverManager
      *
      * @return mixed[] The resolved connection parameters.
      *
-     * @throws DBALException If parsing failed or resolution is not possible.
+     * @throws Exception If parsing failed or resolution is not possible.
      */
     private static function parseDatabaseUrlScheme(array $url, array $params): array
     {

@@ -23,6 +23,7 @@ final class Statement implements StatementInterface
         ParameterType::NULL         => PDO::PARAM_NULL,
         ParameterType::INTEGER      => PDO::PARAM_INT,
         ParameterType::STRING       => PDO::PARAM_STR,
+        ParameterType::ASCII        => PDO::PARAM_STR,
         ParameterType::BINARY       => PDO::PARAM_LOB,
         ParameterType::LARGE_OBJECT => PDO::PARAM_LOB,
         ParameterType::BOOLEAN      => PDO::PARAM_BOOL,

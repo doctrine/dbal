@@ -379,6 +379,25 @@ Execute the query and fetch all results into an array:
     )
     */
 
+fetchAllKeyValue()
+~~~~~~~~~~~~~~~~~~
+
+Execute the query and fetch the first two columns into an associative array as keys and values respectively:
+
+.. code-block:: php
+
+    <?php
+    $users = $conn->fetchAllKeyValue('SELECT username, password FROM user');
+
+    /*
+    array(
+      'jwage' => 'changeme',
+    )
+    */
+
+.. note::
+   All additional columns will be ignored and are only allowed to be selected by DBAL for its internal purposes.
+
 fetchNumeric()
 ~~~~~~~~~~~~~~
 
@@ -424,6 +443,21 @@ Retrieve associative array of the first result row.
     */
 
 There are also convenience methods for data manipulation queries:
+
+iterateKeyValue()
+~~~~~~~~~~~~~~~~~
+
+Execute the query and iterate over the first two columns as keys and values respectively:
+
+.. code-block:: php
+
+    <?php
+    foreach ($conn->iterateKeyValue('SELECT username, password FROM user') as $username => $password) {
+        // ...
+    }
+
+.. note::
+   All additional columns will be ignored and are only allowed to be selected by DBAL for its internal purposes.
 
 delete()
 ~~~~~~~~~

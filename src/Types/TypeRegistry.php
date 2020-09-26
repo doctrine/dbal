@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Types;
 
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Types\Exception\TypeAlreadyRegistered;
 use Doctrine\DBAL\Types\Exception\TypeNotFound;
 use Doctrine\DBAL\Types\Exception\TypeNotRegistered;
@@ -40,7 +40,7 @@ final class TypeRegistry
     /**
      * Finds a type by the given name.
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function get(string $name): Type
     {
@@ -54,7 +54,7 @@ final class TypeRegistry
     /**
      * Finds a name for the given type.
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function lookupName(Type $type): string
     {
@@ -78,7 +78,7 @@ final class TypeRegistry
     /**
      * Registers a custom type to the type map.
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function register(string $name, Type $type): void
     {
@@ -96,7 +96,7 @@ final class TypeRegistry
     /**
      * Overrides an already defined type to use a different implementation.
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function override(string $name, Type $type): void
     {

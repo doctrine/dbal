@@ -1298,6 +1298,7 @@ class ComparatorTest extends TestCase
             ),
         ]);
         $actual     = Comparator::compareSchemas($fromSchema, $toSchema);
+
         self::assertArrayHasKey('table2', $actual->changedTables);
         self::assertCount(1, $actual->orphanedForeignKeys);
         self::assertEquals('fk_table2_table1', $actual->orphanedForeignKeys[0]->getName());

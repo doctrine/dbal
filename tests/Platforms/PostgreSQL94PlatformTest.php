@@ -81,12 +81,4 @@ class PostgreSQL94PlatformTest extends AbstractPostgreSQLPlatformTestCase
         self::assertTrue($this->platform->hasDoctrineTypeMappingFor('jsonb'));
         self::assertEquals(Types::JSON, $this->platform->getDoctrineTypeMapping('jsonb'));
     }
-
-    public function testReturnsCloseActiveDatabaseConnectionsSQL(): void
-    {
-        self::assertSame(
-            "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'foo'",
-            $this->platform->getCloseActiveDatabaseConnectionsSQL('foo')
-        );
-    }
 }

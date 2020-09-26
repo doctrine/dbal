@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Event\Listeners;
 
 use Doctrine\Common\EventSubscriber;
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Event\ConnectionEventArgs;
 use Doctrine\DBAL\Events;
+use Doctrine\DBAL\Exception;
 
 use function array_change_key_case;
 use function array_merge;
@@ -46,7 +46,7 @@ class OracleSessionInit implements EventSubscriber
     }
 
     /**
-     * @throws DBALException
+     * @throws Exception
      */
     public function postConnect(ConnectionEventArgs $args): void
     {

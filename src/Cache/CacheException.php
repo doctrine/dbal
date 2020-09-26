@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Cache;
 
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 
 /**
  * @psalm-immutable
  */
-class CacheException extends DBALException
+class CacheException extends Exception
 {
 }

@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Exception;
 
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 
 use function sprintf;
 
 /**
  * @psalm-immutable
  */
-class DatabaseRequired extends DBALException
+class DatabaseRequired extends Exception
 {
     public static function new(string $methodName): self
     {

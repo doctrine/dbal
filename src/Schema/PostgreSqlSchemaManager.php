@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
-use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Exception\DriverException;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
@@ -42,7 +41,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
      *
      * @return array<int, string>
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function getSchemaNames(): array
     {
@@ -95,32 +94,6 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         $this->existingSchemaPaths = array_filter($paths, static function ($v) use ($names): bool {
             return in_array($v, $names, true);
         });
-    }
-
-    public function dropDatabase(string $database): void
-    {
-        try {
-            parent::dropDatabase($database);
-        } catch (DriverException $exception) {
-            // If we have a SQLSTATE 55006, the drop database operation failed
-            // because of active connections on the database.
-            // To force dropping the database, we first have to close all active connections
-            // on that database and issue the drop database operation again.
-            if ($exception->getSQLState() !== '55006') {
-                throw $exception;
-            }
-
-            assert($this->_platform instanceof PostgreSQL94Platform);
-
-            $this->_execSql(
-                [
-                    $this->_platform->getDisallowDatabaseConnectionsSQL($database),
-                    $this->_platform->getCloseActiveDatabaseConnectionsSQL($database),
-                ]
-            );
-
-            parent::dropDatabase($database);
-        }
     }
 
     /**

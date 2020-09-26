@@ -291,8 +291,8 @@ SQL
         $columnListSql = $this->getColumnDeclarationListSQL($columns);
 
         if (isset($options['uniqueConstraints']) && ! empty($options['uniqueConstraints'])) {
-            foreach ($options['uniqueConstraints'] as $indexName => $definition) {
-                $columnListSql .= ', ' . $this->getUniqueConstraintDeclarationSQL($indexName, $definition);
+            foreach ($options['uniqueConstraints'] as $constraintName => $definition) {
+                $columnListSql .= ', ' . $this->getUniqueConstraintDeclarationSQL($constraintName, $definition);
             }
         }
 
@@ -565,7 +565,7 @@ SQL
 
             $oldColumnName = new Identifier($oldColumnName);
 
-            $sql[] = "sp_RENAME '" .
+            $sql[] = "sp_rename '" .
                 $diff->getName($this)->getQuotedName($this) . '.' . $oldColumnName->getQuotedName($this) .
                 "', '" . $column->getQuotedName($this) . "', 'COLUMN'";
 
@@ -596,7 +596,7 @@ SQL
         $newName = $diff->getNewName();
 
         if ($newName !== null) {
-            $sql[] = "sp_RENAME '" . $diff->getName($this)->getQuotedName($this) . "', '" . $newName->getName() . "'";
+            $sql[] = "sp_rename '" . $diff->getName($this)->getQuotedName($this) . "', '" . $newName->getName() . "'";
 
             /**
              * Rename table's default constraints names
@@ -767,7 +767,7 @@ SQL
     protected function getRenameIndexSQL(string $oldIndexName, Index $index, string $tableName): array
     {
         return [sprintf(
-            "EXEC sp_RENAME N'%s.%s', N'%s', N'INDEX'",
+            "EXEC sp_rename N'%s.%s', N'%s', N'INDEX'",
             $tableName,
             $oldIndexName,
             $index->getQuotedName($this)
@@ -1132,6 +1132,20 @@ SQL
         }
 
         return sprintf('NVARCHAR(%d)', $length);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getAsciiStringTypeDeclarationSQL(array $column): string
+    {
+        $length = $column['length'] ?? null;
+
+        if (empty($column['fixed'])) {
+            return parent::getVarcharTypeDeclarationSQLSnippet($length);
+        }
+
+        return parent::getCharTypeDeclarationSQLSnippet($length);
     }
 
     /**

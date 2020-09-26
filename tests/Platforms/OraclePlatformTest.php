@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Platforms;
 
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\ColumnLengthRequired;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
@@ -76,7 +76,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
      */
     public function testInvalidIdentifiers(string $identifier): void
     {
-        $this->expectException(DBALException::class);
+        $this->expectException(Exception::class);
 
         OraclePlatform::assertValidIdentifier($identifier);
     }
@@ -121,7 +121,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 
     public function testRLike(): void
     {
-        $this->expectException(DBALException::class);
+        $this->expectException(Exception::class);
 
         self::assertEquals('RLIKE', $this->platform->getRegexpExpression());
     }
@@ -157,7 +157,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 
     public function testCreateDatabaseThrowsException(): void
     {
-        $this->expectException(DBALException::class);
+        $this->expectException(Exception::class);
 
         self::assertEquals('CREATE DATABASE foobar', $this->platform->getCreateDatabaseSQL('foobar'));
     }
@@ -987,5 +987,16 @@ SQL
             "'Foo''Bar\\'",
             $this->platform->getListTableColumnsSQL('foo_table', "Foo'Bar\\")
         );
+    }
+
+    /**
+     * @return array<int, array{string, array<string, mixed>}>
+     */
+    public function asciiStringSqlDeclarationDataProvider(): array
+    {
+        return [
+            ['VARCHAR2(12)', ['length' => 12]],
+            ['CHAR(12)', ['length' => 12, 'fixed' => true]],
+        ];
     }
 }

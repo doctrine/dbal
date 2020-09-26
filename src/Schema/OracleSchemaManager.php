@@ -4,21 +4,17 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
-use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Driver\Exception;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Types\Type;
-use Throwable;
 
 use function array_change_key_case;
 use function array_values;
 use function assert;
 use function preg_match;
-use function sprintf;
 use function str_replace;
 use function strpos;
 use function strtolower;
-use function strtoupper;
 use function trim;
 
 use const CASE_LOWER;
@@ -28,32 +24,6 @@ use const CASE_LOWER;
  */
 class OracleSchemaManager extends AbstractSchemaManager
 {
-    public function dropDatabase(string $database): void
-    {
-        try {
-            parent::dropDatabase($database);
-        } catch (DBALException $exception) {
-            $exception = $exception->getPrevious();
-            assert($exception instanceof Throwable);
-
-            if (! $exception instanceof Exception) {
-                throw $exception;
-            }
-
-            // If we have a error code 1940 (ORA-01940), the drop database operation failed
-            // because of active connections on the database.
-            // To force dropping the database, we first have to close all active connections
-            // on that database and issue the drop database operation again.
-            if ($exception->getCode() !== 1940) {
-                throw $exception;
-            }
-
-            $this->killUserSessions($database);
-
-            parent::dropDatabase($database);
-        }
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -292,7 +262,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * @throws DBALException
+     * @throws Exception
      */
     public function dropAutoincrement(string $table): bool
     {
@@ -326,44 +296,6 @@ class OracleSchemaManager extends AbstractSchemaManager
         }
 
         return $identifier;
-    }
-
-    /**
-     * Kills sessions connected with the given user.
-     *
-     * This is useful to force DROP USER operations which could fail because of active user sessions.
-     *
-     * @param string $user The name of the user to kill sessions for.
-     *
-     * @throws DBALException
-     */
-    private function killUserSessions(string $user): void
-    {
-        $sql = <<<SQL
-SELECT
-    s.sid,
-    s.serial#
-FROM
-    gv\$session s,
-    gv\$process p
-WHERE
-    s.username = ?
-    AND p.addr(+) = s.paddr
-SQL;
-
-        $activeUserSessions = $this->_conn->fetchAllAssociative($sql, [strtoupper($user)]);
-
-        foreach ($activeUserSessions as $activeUserSession) {
-            $activeUserSession = array_change_key_case($activeUserSession, CASE_LOWER);
-
-            $this->_execSql(
-                sprintf(
-                    "ALTER SYSTEM KILL SESSION '%s, %s' IMMEDIATE",
-                    $activeUserSession['sid'],
-                    $activeUserSession['serial#']
-                )
-            );
-        }
     }
 
     public function listTableDetails(string $name): Table

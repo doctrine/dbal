@@ -520,11 +520,6 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         self::assertFalse($this->platform->supportsCreateDropDatabase());
     }
 
-    public function testReturnsSQLResultCasing(): void
-    {
-        self::assertSame('COL', $this->platform->getSQLResultCasing('cOl'));
-    }
-
     public function testGetVariableLengthStringTypeDeclarationSQLNoLength(): void
     {
         $this->expectException(ColumnLengthRequired::class);

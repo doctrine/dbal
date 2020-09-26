@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Query;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Driver\Result;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\Exception\NonUniqueAlias;
 use Doctrine\DBAL\Query\Exception\UnknownAlias;
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
+use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Statement;
 
 use function array_key_exists;
@@ -249,7 +249,7 @@ class QueryBuilder
      *
      * @return Result|int
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function execute()
     {

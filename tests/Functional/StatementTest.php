@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional;
 
-use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Driver\Exception;
+use Doctrine\DBAL\Driver\Exception as DriverException;
 use Doctrine\DBAL\Driver\IBMDB2;
 use Doctrine\DBAL\Driver\PDO;
-use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\Driver\SQLSrv;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\ParameterType;
+use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Type;
@@ -252,7 +252,7 @@ EOF
             // some drivers will trigger a PHP error here which, if not suppressed,
             // would be converted to a PHPUnit exception prior to DBAL throwing its own one
             $value = @$fetch($result);
-        } catch (Exception $e) {
+        } catch (DriverException $e) {
             // The drivers that enforce the command sequencing internally will throw an exception
             $this->expectNotToPerformAssertions();
 
@@ -330,7 +330,7 @@ EOF
         // but the wrapper connection wraps everything in a DBAL exception
         $this->iniSet('error_reporting', '0');
 
-        $this->expectException(DBALException::class);
+        $this->expectException(Exception::class);
         $stmt->execute([null]);
     }
 }

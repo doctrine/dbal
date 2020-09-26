@@ -9,6 +9,6 @@ namespace Doctrine\DBAL;
  *
  * @psalm-immutable
  */
-class SQLParserUtilsException extends DBALException
+class SQLParserUtilsException extends Exception
 {
 }

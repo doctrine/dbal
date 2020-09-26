@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Exception;
 
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 
 use function implode;
 use function sprintf;
@@ -12,7 +12,7 @@ use function sprintf;
 /**
  * @psalm-immutable
  */
-final class UnknownDriver extends DBALException
+final class UnknownDriver extends Exception
 {
     /**
      * @param string[] $knownDrivers

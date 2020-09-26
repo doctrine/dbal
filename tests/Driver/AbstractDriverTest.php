@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Driver;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\API\ExceptionConverter;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
@@ -73,7 +73,7 @@ abstract class AbstractDriverTest extends TestCase
             self::markTestSkipped('This test is only intended for version aware platform drivers.');
         }
 
-        $this->expectException(DBALException::class);
+        $this->expectException(Exception::class);
         $this->driver->createDatabasePlatformForVersion('foo');
     }
 

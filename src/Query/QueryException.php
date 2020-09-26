@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Query;
 
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 
 /**
  * @psalm-immutable
  */
-class QueryException extends DBALException
+class QueryException extends Exception
 {
 }

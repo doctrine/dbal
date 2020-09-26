@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Platforms\Exception;
 
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 
 use function sprintf;
 
 /**
  * @psalm-immutable
  */
-final class InvalidPlatformVersion extends DBALException implements PlatformException
+final class InvalidPlatformVersion extends Exception implements PlatformException
 {
     /**
      * Returns a new instance for an invalid specified platform version.

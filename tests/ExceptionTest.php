@@ -12,7 +12,7 @@ use stdClass;
 
 use function sprintf;
 
-class DBALExceptionTest extends TestCase
+class ExceptionTest extends TestCase
 {
     public function testDriverRequiredWithUrl(): void
     {

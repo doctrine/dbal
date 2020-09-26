@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
-use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Driver\Exception;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Doctrine\DBAL\Types\Type;
 use PDOException;
-use Throwable;
 
 use function assert;
 use function count;
@@ -25,32 +23,6 @@ use function strtok;
  */
 class SQLServerSchemaManager extends AbstractSchemaManager
 {
-    public function dropDatabase(string $database): void
-    {
-        try {
-            parent::dropDatabase($database);
-        } catch (DBALException $exception) {
-            $exception = $exception->getPrevious();
-            assert($exception instanceof Throwable);
-
-            if (! $exception instanceof Exception) {
-                throw $exception;
-            }
-
-            // If we have a error code 3702, the drop database operation failed
-            // because of active connections on the database.
-            // To force dropping the database, we first have to close all active connections
-            // on that database and issue the drop database operation again.
-            if ($exception->getCode() !== 3702) {
-                throw $exception;
-            }
-
-            $this->closeActiveDatabaseConnections($database);
-
-            parent::dropDatabase($database);
-        }
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -271,7 +243,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
             }
 
             throw $e;
-        } catch (DBALException $e) {
+        } catch (Exception $e) {
             if (strpos($e->getMessage(), 'SQLSTATE [01000, 15472]') === 0) {
                 return [];
             }
@@ -307,36 +279,17 @@ class SQLServerSchemaManager extends AbstractSchemaManager
      */
     private function getColumnConstraintSQL(string $table, string $column): string
     {
-        return "SELECT SysObjects.[Name]
-            FROM SysObjects INNER JOIN (SELECT [Name],[ID] FROM SysObjects WHERE XType = 'U') AS Tab
-            ON Tab.[ID] = Sysobjects.[Parent_Obj]
-            INNER JOIN sys.default_constraints DefCons ON DefCons.[object_id] = Sysobjects.[ID]
-            INNER JOIN SysColumns Col ON Col.[ColID] = DefCons.[parent_column_id] AND Col.[ID] = Tab.[ID]
+        return "SELECT sysobjects.[Name]
+            FROM sysobjects INNER JOIN (SELECT [Name],[ID] FROM sysobjects WHERE XType = 'U') AS Tab
+            ON Tab.[ID] = sysobjects.[Parent_Obj]
+            INNER JOIN sys.default_constraints DefCons ON DefCons.[object_id] = sysobjects.[ID]
+            INNER JOIN syscolumns Col ON Col.[ColID] = DefCons.[parent_column_id] AND Col.[ID] = Tab.[ID]
             WHERE Col.[Name] = " . $this->_conn->quote($column) . ' AND Tab.[Name] = ' . $this->_conn->quote($table) . '
             ORDER BY Col.[Name]';
     }
 
     /**
-     * Closes currently active connections on the given database.
-     *
-     * This is useful to force DROP DATABASE operations which could fail because of active connections.
-     *
-     * @throws DBALException
-     */
-    private function closeActiveDatabaseConnections(string $database): void
-    {
-        $database = new Identifier($database);
-
-        $this->_execSql(
-            sprintf(
-                'ALTER DATABASE %s SET SINGLE_USER WITH ROLLBACK IMMEDIATE',
-                $database->getQuotedName($this->_platform)
-            )
-        );
-    }
-
-    /**
-     * @throws DBALException
+     * @throws Exception
      */
     public function listTableDetails(string $name): Table
     {

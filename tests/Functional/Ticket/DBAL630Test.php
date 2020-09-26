@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Ticket;
 
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\PDO\Connection;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -27,7 +27,7 @@ class DBAL630Test extends FunctionalTestCase
         try {
             $this->connection->executeStatement('CREATE TABLE dbal630 (id SERIAL, bool_col BOOLEAN NOT NULL);');
             $this->connection->executeStatement('CREATE TABLE dbal630_allow_nulls (id SERIAL, bool_col BOOLEAN);');
-        } catch (DBALException $e) {
+        } catch (Exception $e) {
         }
 
         $this->running = true;

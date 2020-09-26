@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Schema;
 
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\Column;
@@ -24,14 +24,14 @@ class TableTest extends TestCase
 {
     public function testCreateWithInvalidTableName(): void
     {
-        $this->expectException(DBALException::class);
+        $this->expectException(Exception::class);
 
         new Table('');
     }
 
     public function testGetName(): void
     {
-        $table =  new Table('foo', [], [], []);
+        $table =  new Table('foo', [], [], [], []);
         self::assertEquals('foo', $table->getName());
     }
 
@@ -171,7 +171,7 @@ class TableTest extends TestCase
     {
         $this->expectException(SchemaException::class);
 
-        $table = new Table('foo', [], [], []);
+        $table = new Table('foo', [], [], [], []);
         $table->getIndex('unknownIndex');
     }
 
@@ -185,7 +185,7 @@ class TableTest extends TestCase
             new Index('the_primary', ['foo'], true, true),
             new Index('other_primary', ['bar'], true, true),
         ];
-        new Table('foo', $columns, $indexes, []);
+        new Table('foo', $columns, $indexes, [], []);
     }
 
     public function testAddTwoIndexesWithSameNameThrowsException(): void
@@ -198,7 +198,7 @@ class TableTest extends TestCase
             new Index('an_idx', ['foo'], false, false),
             new Index('an_idx', ['bar'], false, false),
         ];
-        new Table('foo', $columns, $indexes, []);
+        new Table('foo', $columns, $indexes, [], []);
     }
 
     public function testConstraints(): void

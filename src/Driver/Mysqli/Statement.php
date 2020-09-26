@@ -30,6 +30,7 @@ final class Statement implements StatementInterface
 {
     /** @var string[] */
     private static $paramTypeMap = [
+        ParameterType::ASCII        => 's',
         ParameterType::STRING       => 's',
         ParameterType::BINARY       => 's',
         ParameterType::BOOLEAN      => 'i',

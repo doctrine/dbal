@@ -35,11 +35,20 @@ final class Statement implements StatementInterface
         ?int $length = null,
         $driverOptions = null
     ): void {
-        if (
-            ($type === ParameterType::LARGE_OBJECT || $type === ParameterType::BINARY)
-            && $driverOptions === null
-        ) {
-            $driverOptions = PDO::SQLSRV_ENCODING_BINARY;
+        switch ($type) {
+            case ParameterType::LARGE_OBJECT:
+            case ParameterType::BINARY:
+                if ($driverOptions === null) {
+                    $driverOptions = PDO::SQLSRV_ENCODING_BINARY;
+                }
+
+                break;
+
+            case ParameterType::ASCII:
+                $type          = ParameterType::STRING;
+                $length        = 0;
+                $driverOptions = PDO::SQLSRV_ENCODING_SYSTEM;
+                break;
         }
 
         $this->statement->bindParam($param, $variable, $type, $length, $driverOptions);

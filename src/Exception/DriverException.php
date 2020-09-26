@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Exception;
 
-use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Driver\Exception;
+use Doctrine\DBAL\Driver;
+use Doctrine\DBAL\Exception;
 
 use function assert;
 
@@ -14,13 +14,13 @@ use function assert;
  *
  * @psalm-immutable
  */
-class DriverException extends DBALException implements Exception
+class DriverException extends Exception implements Driver\Exception
 {
     /**
-     * @param string    $message         The exception message.
-     * @param Exception $driverException The DBAL driver exception to chain.
+     * @param string           $message         The exception message.
+     * @param Driver\Exception $driverException The DBAL driver exception to chain.
      */
-    public function __construct(string $message, Exception $driverException)
+    public function __construct(string $message, Driver\Exception $driverException)
     {
         parent::__construct($message, $driverException->getCode(), $driverException);
     }
@@ -28,7 +28,7 @@ class DriverException extends DBALException implements Exception
     public function getSQLState(): ?string
     {
         $previous = $this->getPrevious();
-        assert($previous instanceof Exception);
+        assert($previous instanceof Driver\Exception);
 
         return $previous->getSQLState();
     }

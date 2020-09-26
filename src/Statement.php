@@ -66,7 +66,7 @@ class Statement
      * @param string     $sql  The SQL of the statement.
      * @param Connection $conn The connection on which the statement should be executed.
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function __construct(string $sql, Connection $conn)
     {
@@ -100,7 +100,7 @@ class Statement
      * @param string|int|Type $type  Either one of the constants defined in {@link \Doctrine\DBAL\ParameterType}
      *                               or a DBAL mapping type name or instance.
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function bindValue($param, $value, $type = ParameterType::STRING): void
     {
@@ -139,7 +139,7 @@ class Statement
      * @param int|null   $length   Must be specified when using an OUT bind
      *                             so that PHP allocates enough memory to hold the returned value.
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function bindParam($param, &$variable, int $type = ParameterType::STRING, ?int $length = null): void
     {
@@ -156,7 +156,7 @@ class Statement
     /**
      * {@inheritDoc}
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function execute(?array $params = null): Result
     {

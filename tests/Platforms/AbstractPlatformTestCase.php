@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Platforms;
 
 use Doctrine\Common\EventManager;
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Events;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
@@ -91,7 +91,7 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testGetUnknownDoctrineMappingType(): void
     {
-        $this->expectException(DBALException::class);
+        $this->expectException(Exception::class);
         $this->platform->getDoctrineTypeMapping('foobar');
     }
 
@@ -103,7 +103,7 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testRegisterUnknownDoctrineMappingType(): void
     {
-        $this->expectException(DBALException::class);
+        $this->expectException(Exception::class);
         $this->platform->registerDoctrineTypeMapping('foo', 'bar');
     }
 
@@ -148,7 +148,7 @@ abstract class AbstractPlatformTestCase extends TestCase
     {
         $table = new Table('test');
 
-        $this->expectException(DBALException::class);
+        $this->expectException(Exception::class);
         $this->platform->getCreateTableSQL($table);
     }
 
@@ -240,10 +240,6 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testGeneratesConstraintCreationSql(): void
     {
-        if (! $this->platform->supportsCreateDropForeignKeyConstraints()) {
-            self::markTestSkipped('Platform does not support creating or dropping foreign key constraints.');
-        }
-
         $idx = new Index('constraint_name', ['test'], true, false);
         $sql = $this->platform->getCreateConstraintSQL($idx, 'test');
         self::assertEquals($this->getGenerateConstraintUniqueIndexSql(), $sql);
@@ -263,7 +259,7 @@ abstract class AbstractPlatformTestCase extends TestCase
             self::markTestSkipped('The platform supports foreign key constraints');
         }
 
-        $this->expectException(DBALException::class);
+        $this->expectException(Exception::class);
         $this->platform->getCreateForeignKeySQL(
             new ForeignKeyConstraint(['fk_name'], 'foreign', ['id'], 'constraint_fk'),
             'test'
@@ -727,7 +723,7 @@ abstract class AbstractPlatformTestCase extends TestCase
         $index = new Index('select', ['foo']);
 
         if (! $this->supportsInlineIndexDeclaration()) {
-            $this->expectException(DBALException::class);
+            $this->expectException(Exception::class);
         }
 
         self::assertSame(
@@ -755,7 +751,7 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testGetCreateSchemaSQL(): void
     {
-        $this->expectException(DBALException::class);
+        $this->expectException(Exception::class);
 
         $this->platform->getCreateSchemaSQL('schema');
     }
@@ -785,9 +781,12 @@ abstract class AbstractPlatformTestCase extends TestCase
         self::assertFalse($this->platform->usesSequenceEmulatedIdentityColumns());
     }
 
+    /**
+     * @group DBAL-563
+     */
     public function testReturnsIdentitySequenceName(): void
     {
-        $this->expectException(DBALException::class);
+        $this->expectException(Exception::class);
 
         $this->platform->getIdentitySequenceName('mytable', 'mycolumn');
     }
@@ -1142,9 +1141,9 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testQuotesDropForeignKeySQL(): void
     {
-        if (! $this->platform->supportsCreateDropForeignKeyConstraints()) {
+        if (! $this->platform->supportsForeignKeyConstraints()) {
             self::markTestSkipped(
-                sprintf('%s does not support modifying foreign key constraints.', get_class($this->platform))
+                sprintf('%s does not support foreign key constraints.', get_class($this->platform))
             );
         }
 
@@ -1308,7 +1307,7 @@ abstract class AbstractPlatformTestCase extends TestCase
             self::markTestSkipped(sprintf('%s supports inline column comments.', get_class($this->platform)));
         }
 
-        $this->expectException(DBALException::class);
+        $this->expectException(Exception::class);
         $this->expectExceptionMessage(
             'Operation "' . AbstractPlatform::class . '::getInlineColumnCommentSQL" is not supported by platform.'
         );
@@ -1337,7 +1336,7 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testReturnsGuidTypeDeclarationSQL(): void
     {
-        $this->expectException(DBALException::class);
+        $this->expectException(Exception::class);
 
         $this->platform->getGuidTypeDeclarationSQL([]);
     }
@@ -1532,6 +1531,28 @@ abstract class AbstractPlatformTestCase extends TestCase
             $query,
             $this->platform->modifyLimitQuery($query, null, 0)
         );
+    }
+
+    /**
+     * @param array<string, mixed> $column
+     *
+     * @dataProvider asciiStringSqlDeclarationDataProvider
+     */
+    public function testAsciiSQLDeclaration(string $expectedSql, array $column): void
+    {
+        $declarationSql = $this->platform->getAsciiStringTypeDeclarationSQL($column);
+        self::assertEquals($expectedSql, $declarationSql);
+    }
+
+    /**
+     * @return array<int, array{string, array<string, mixed>}>
+     */
+    public function asciiStringSqlDeclarationDataProvider(): array
+    {
+        return [
+            ['VARCHAR(12)', ['length' => 12]],
+            ['CHAR(12)', ['length' => 12, 'fixed' => true]],
+        ];
     }
 }
 

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Types;
 
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\Exception\TypeNotRegistered;
@@ -43,7 +43,7 @@ class TypeRegistryTest extends TestCase
         self::assertSame($this->testType, $this->registry->get(self::TEST_TYPE_NAME));
         self::assertSame($this->otherTestType, $this->registry->get(self::OTHER_TEST_TYPE_NAME));
 
-        $this->expectException(DBALException::class);
+        $this->expectException(Exception::class);
         $this->registry->get('unknown');
     }
 
@@ -91,7 +91,7 @@ class TypeRegistryTest extends TestCase
     {
         $this->registry->register('some', new TextType());
 
-        $this->expectException(DBALException::class);
+        $this->expectException(Exception::class);
         $this->registry->register('some', new TextType());
     }
 
@@ -101,7 +101,7 @@ class TypeRegistryTest extends TestCase
 
         $this->registry->register('some', $newType);
 
-        $this->expectException(DBALException::class);
+        $this->expectException(Exception::class);
         $this->registry->register('other', $newType);
     }
 
@@ -133,13 +133,13 @@ class TypeRegistryTest extends TestCase
         $this->registry->register('first', $newType);
         $this->registry->register('second', new StringType());
 
-        $this->expectException(DBALException::class);
+        $this->expectException(Exception::class);
         $this->registry->override('second', $newType);
     }
 
     public function testOverrideWithUnknownType(): void
     {
-        $this->expectException(DBALException::class);
+        $this->expectException(Exception::class);
         $this->registry->override('unknown', new TextType());
     }
 

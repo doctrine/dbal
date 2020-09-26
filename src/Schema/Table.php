@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Schema;
 
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Schema\Exception\ColumnAlreadyExists;
 use Doctrine\DBAL\Schema\Exception\ColumnDoesNotExist;
 use Doctrine\DBAL\Schema\Exception\ForeignKeyDoesNotExist;
@@ -16,6 +16,7 @@ use Doctrine\DBAL\Schema\Exception\UniqueConstraintDoesNotExist;
 use Doctrine\DBAL\Schema\Visitor\Visitor;
 use Doctrine\DBAL\Types\Type;
 
+use function array_filter;
 use function array_keys;
 use function array_merge;
 use function array_search;
@@ -24,9 +25,10 @@ use function in_array;
 use function is_string;
 use function preg_match;
 use function sprintf;
-use function strlen;
 use function strtolower;
 use function uksort;
+
+use const ARRAY_FILTER_USE_KEY;
 
 /**
  * Object Representation of a table.
@@ -46,7 +48,7 @@ class Table extends AbstractAsset
     protected $_primaryKeyName;
 
     /** @var UniqueConstraint[] */
-    protected $_uniqueConstraints = [];
+    protected $uniqueConstraints = [];
 
     /** @var ForeignKeyConstraint[] */
     protected $_fkConstraints = [];
@@ -67,6 +69,7 @@ class Table extends AbstractAsset
      * @param array<string, mixed>        $options
      *
      * @throws SchemaException
+     * @throws Exception
      */
     public function __construct(
         string $name,
@@ -76,7 +79,7 @@ class Table extends AbstractAsset
         array $fkConstraints = [],
         array $options = []
     ) {
-        if (strlen($name) === 0) {
+        if ($name === '') {
             throw InvalidTableName::new($name);
         }
 
@@ -433,43 +436,43 @@ class Table extends AbstractAsset
     /**
      * Returns whether this table has a unique constraint with the given name.
      */
-    public function hasUniqueConstraint(string $constraintName): bool
+    public function hasUniqueConstraint(string $name): bool
     {
-        $constraintName = $this->normalizeIdentifier($constraintName);
+        $name = $this->normalizeIdentifier($name);
 
-        return isset($this->_uniqueConstraints[$constraintName]);
+        return isset($this->uniqueConstraints[$name]);
     }
 
     /**
      * Returns the unique constraint with the given name.
      *
-     * @throws SchemaException If the foreign key does not exist.
+     * @throws SchemaException If the unique constraint does not exist.
      */
-    public function getUniqueConstraint(string $constraintName): UniqueConstraint
+    public function getUniqueConstraint(string $name): UniqueConstraint
     {
-        $constraintName = $this->normalizeIdentifier($constraintName);
+        $name = $this->normalizeIdentifier($name);
 
-        if (! $this->hasUniqueConstraint($constraintName)) {
-            throw UniqueConstraintDoesNotExist::new($constraintName, $this->_name);
+        if (! $this->hasUniqueConstraint($name)) {
+            throw UniqueConstraintDoesNotExist::new($name, $this->_name);
         }
 
-        return $this->_uniqueConstraints[$constraintName];
+        return $this->uniqueConstraints[$name];
     }
 
     /**
      * Removes the unique constraint with the given name.
      *
-     * @throws SchemaException
+     * @throws SchemaException If the unique constraint does not exist.
      */
-    public function removeUniqueConstraint(string $constraintName): void
+    public function removeUniqueConstraint(string $name): void
     {
-        $constraintName = $this->normalizeIdentifier($constraintName);
+        $name = $this->normalizeIdentifier($name);
 
-        if (! $this->hasUniqueConstraint($constraintName)) {
-            throw UniqueConstraintDoesNotExist::new($constraintName, $this->_name);
+        if (! $this->hasForeignKey($name)) {
+            throw UniqueConstraintDoesNotExist::new($name, $this->_name);
         }
 
-        unset($this->_uniqueConstraints[$constraintName]);
+        unset($this->uniqueConstraints[$name]);
     }
 
     /**
@@ -501,6 +504,20 @@ class Table extends AbstractAsset
         });
 
         return $columns;
+    }
+
+    /**
+     * Returns only columns that have specified names
+     *
+     * @param string[] $columnNames
+     *
+     * @return Column[]
+     */
+    private function filterColumns(array $columnNames, bool $reverse = false): array
+    {
+        return array_filter($this->_columns, static function ($columnName) use ($columnNames, $reverse): bool {
+            return in_array($columnName, $columnNames, true) !== $reverse;
+        }, ARRAY_FILTER_USE_KEY);
     }
 
     /**
@@ -544,19 +561,19 @@ class Table extends AbstractAsset
     /**
      * Returns the primary key columns.
      *
-     * @return array<int, string>
+     * @return array<string, Column>
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function getPrimaryKeyColumns(): array
     {
         $primaryKey = $this->getPrimaryKey();
 
         if ($primaryKey === null) {
-            throw new DBALException(sprintf('Table "%s" has no primary key.', $this->getName()));
+            throw new Exception(sprintf('Table "%s" has no primary key.', $this->getName()));
         }
 
-        return $primaryKey->getColumns();
+        return $this->filterColumns($primaryKey->getColumns());
     }
 
     /**
@@ -608,7 +625,7 @@ class Table extends AbstractAsset
      */
     public function getUniqueConstraints(): array
     {
-        return $this->_uniqueConstraints;
+        return $this->uniqueConstraints;
     }
 
     /**
@@ -754,7 +771,7 @@ class Table extends AbstractAsset
 
         $name = $this->normalizeIdentifier($name);
 
-        $this->_uniqueConstraints[$name] = $constraint;
+        $this->uniqueConstraints[$name] = $constraint;
 
         // If there is already an index that fulfills this requirements drop the request. In the case of __construct
         // calling this method during hydration from schema-details all the explicitly added indexes lead to duplicates.

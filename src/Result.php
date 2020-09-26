@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL;
 
-use Doctrine\DBAL\Abstraction\Result as ResultInterface;
 use Doctrine\DBAL\Driver\Exception as DriverException;
 use Doctrine\DBAL\Driver\Result as DriverResult;
+use Doctrine\DBAL\Exception\NoKeyValue;
 use Traversable;
 
-final class Result implements ResultInterface
+class Result
 {
     /** @var DriverResult */
     private $result;
@@ -27,9 +27,11 @@ final class Result implements ResultInterface
     }
 
     /**
-     * {@inheritDoc}
+     * Returns the next row of the result as a numeric array or FALSE if there are no more rows.
      *
-     * @throws DBALException
+     * @return array<int,mixed>|false
+     *
+     * @throws Exception
      */
     public function fetchNumeric()
     {
@@ -41,9 +43,11 @@ final class Result implements ResultInterface
     }
 
     /**
-     * {@inheritDoc}
+     * Returns the next row of the result as an associative array or FALSE if there are no more rows.
      *
-     * @throws DBALException
+     * @return array<string,mixed>|false
+     *
+     * @throws Exception
      */
     public function fetchAssociative()
     {
@@ -55,9 +59,11 @@ final class Result implements ResultInterface
     }
 
     /**
-     * {@inheritDoc}
+     * Returns the first value of the next row of the result or FALSE if there are no more rows.
      *
-     * @throws DBALException
+     * @return mixed|false
+     *
+     * @throws Exception
      */
     public function fetchOne()
     {
@@ -69,9 +75,11 @@ final class Result implements ResultInterface
     }
 
     /**
-     * {@inheritDoc}
+     * Returns an array containing all of the result rows represented as numeric arrays.
      *
-     * @throws DBALException
+     * @return array<int,array<int,mixed>>
+     *
+     * @throws Exception
      */
     public function fetchAllNumeric(): array
     {
@@ -83,9 +91,11 @@ final class Result implements ResultInterface
     }
 
     /**
-     * {@inheritDoc}
+     * Returns an array containing all of the result rows represented as associative arrays.
      *
-     * @throws DBALException
+     * @return array<int,array<string,mixed>>
+     *
+     * @throws Exception
      */
     public function fetchAllAssociative(): array
     {
@@ -97,9 +107,29 @@ final class Result implements ResultInterface
     }
 
     /**
+     * Returns an array containing the values of the first column of the result.
+     *
+     * @return array<mixed,mixed>
+     *
+     * @throws Exception
+     */
+    public function fetchAllKeyValue(): array
+    {
+        $this->ensureHasKeyValue();
+
+        $data = [];
+
+        foreach ($this->fetchAllNumeric() as [$key, $value]) {
+            $data[$key] = $value;
+        }
+
+        return $data;
+    }
+
+    /**
      * {@inheritDoc}
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function fetchFirstColumn(): array
     {
@@ -113,7 +143,7 @@ final class Result implements ResultInterface
     /**
      * @return Traversable<int,array<int,mixed>>
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function iterateNumeric(): Traversable
     {
@@ -129,7 +159,7 @@ final class Result implements ResultInterface
     /**
      * @return Traversable<int,array<string,mixed>>
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function iterateAssociative(): Traversable
     {
@@ -143,9 +173,23 @@ final class Result implements ResultInterface
     }
 
     /**
+     * {@inheritDoc}
+     *
+     * @throws Exception
+     */
+    public function iterateKeyValue(): Traversable
+    {
+        $this->ensureHasKeyValue();
+
+        foreach ($this->iterateNumeric() as [$key, $value]) {
+            yield $key => $value;
+        }
+    }
+
+    /**
      * @return Traversable<int,mixed>
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function iterateColumn(): Traversable
     {
@@ -158,18 +202,44 @@ final class Result implements ResultInterface
         }
     }
 
+    /**
+     * @throws Exception
+     */
     public function rowCount(): int
     {
-        return $this->result->rowCount();
+        try {
+            return $this->result->rowCount();
+        } catch (DriverException $e) {
+            throw $this->connection->convertException($e);
+        }
     }
 
+    /**
+     * @throws Exception
+     */
     public function columnCount(): int
     {
-        return $this->result->columnCount();
+        try {
+            return $this->result->columnCount();
+        } catch (DriverException $e) {
+            throw $this->connection->convertException($e);
+        }
     }
 
     public function free(): void
     {
         $this->result->free();
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function ensureHasKeyValue(): void
+    {
+        $columnCount = $this->columnCount();
+
+        if ($columnCount < 2) {
+            throw NoKeyValue::fromColumnCount($columnCount);
+        }
     }
 }

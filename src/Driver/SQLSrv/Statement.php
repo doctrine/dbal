@@ -23,6 +23,7 @@ use function SQLSRV_SQLTYPE_VARBINARY;
 use function stripos;
 
 use const SQLSRV_ENC_BINARY;
+use const SQLSRV_ENC_CHAR;
 use const SQLSRV_PARAM_IN;
 
 final class Statement implements StatementInterface
@@ -176,6 +177,14 @@ final class Statement implements StatementInterface
                         &$variable,
                         SQLSRV_PARAM_IN,
                         SQLSRV_PHPTYPE_STRING(SQLSRV_ENC_BINARY),
+                    ];
+                    break;
+
+                case ParameterType::ASCII:
+                    $params[$column - 1] = [
+                        &$variable,
+                        SQLSRV_PARAM_IN,
+                        SQLSRV_PHPTYPE_STRING(SQLSRV_ENC_CHAR),
                     ];
                     break;
 

@@ -18,23 +18,15 @@ parameters:
         # weird class name, represented in stubs as OCI_(Lob|Collection)
         - '~unknown class OCI-(Lob|Collection)~'
 
-        # https://github.com/phpstan/phpstan/issues/3133
+        # https://github.com/phpstan/phpstan/issues/3132
         -
-            message: '~^Cannot cast array<string>\|bool\|string\|null to int\.$~'
-            path: %currentWorkingDirectory%/src/Tools/Console/Command/RunSqlCommand.php
+            message: '~^Call to function in_array\(\) with arguments Doctrine\\DBAL\\Schema\\Column, array<string> and true will always evaluate to false\.$~'
+            path: %currentWorkingDirectory%/src/Schema/Table.php
 
         # Requires a release of https://github.com/JetBrains/phpstorm-stubs/pull/553
         -
             message: '~^Call to function assert\(\) with true will always evaluate to true\.$~'
             path: %currentWorkingDirectory%/src/Driver/PDO/Connection.php
-
-        # Requires a release of https://github.com/JetBrains/phpstorm-stubs/pull/553
-        -
-            message: '~^Strict comparison using !== between int and false will always evaluate to true\.$~'
-            path: %currentWorkingDirectory%/src/Driver/PDO/Connection.php
-
-        # False Positive
-        - '~Strict comparison using === between 1 and 2 will always evaluate to false~'
 
         # Needs Generics
         - '~Method Doctrine\\DBAL\\Schema\\SchemaDiff::getNewTablesSortedByDependencies\(\) should return array<Doctrine\\DBAL\\Schema\\Table> but returns array<object>.~'

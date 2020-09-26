@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Types\Exception;
 
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Types\Type;
 
 use function get_class;
@@ -14,7 +14,7 @@ use function sprintf;
 /**
  * @psalm-immutable
  */
-final class TypeNotRegistered extends DBALException implements TypesException
+final class TypeNotRegistered extends Exception implements TypesException
 {
     public static function new(Type $type): self
     {

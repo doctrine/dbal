@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Types;
 
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 
 /**
  * Conversion Exception is thrown when the database to PHP conversion fails.
  *
  * @psalm-immutable
  */
-class ConversionException extends DBALException
+class ConversionException extends Exception
 {
 }

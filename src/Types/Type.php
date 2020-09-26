@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Types;
 
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 
@@ -23,6 +23,7 @@ abstract class Type
      */
     private const BUILTIN_TYPES_MAP = [
         Types::ARRAY                => ArrayType::class,
+        Types::ASCII_STRING         => AsciiStringType::class,
         Types::BIGINT               => BigIntType::class,
         Types::BINARY               => BinaryType::class,
         Types::BLOB                 => BlobType::class,
@@ -96,7 +97,7 @@ abstract class Type
      * @param array<string, mixed> $column   The column definition
      * @param AbstractPlatform     $platform The currently used database platform.
      *
-     * @throws DBALException
+     * @throws Exception
      */
     abstract public function getSQLDeclaration(array $column, AbstractPlatform $platform): string;
 
@@ -136,7 +137,7 @@ abstract class Type
      *
      * @param string $name The name of the type (as returned by getName()).
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public static function getType(string $name): self
     {
@@ -149,7 +150,7 @@ abstract class Type
      * @param string $name      The name of the type. This should correspond to what getName() returns.
      * @param string $className The class name of the custom type.
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public static function addType(string $name, string $className): void
     {
@@ -171,7 +172,7 @@ abstract class Type
     /**
      * Overrides an already defined type to use a different implementation.
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public static function overrideType(string $name, string $className): void
     {

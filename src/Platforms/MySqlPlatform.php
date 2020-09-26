@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Platforms;
 
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
@@ -315,15 +315,15 @@ SQL
         $queryFields = $this->getColumnDeclarationListSQL($columns);
 
         if (isset($options['uniqueConstraints']) && ! empty($options['uniqueConstraints'])) {
-            foreach ($options['uniqueConstraints'] as $indexName => $definition) {
-                $queryFields .= ', ' . $this->getUniqueConstraintDeclarationSQL($indexName, $definition);
+            foreach ($options['uniqueConstraints'] as $constraintName => $definition) {
+                $queryFields .= ', ' . $this->getUniqueConstraintDeclarationSQL($constraintName, $definition);
             }
         }
 
         // add all indexes
         if (isset($options['indexes']) && ! empty($options['indexes'])) {
-            foreach ($options['indexes'] as $index => $definition) {
-                $queryFields .= ', ' . $this->getIndexDeclarationSQL($index, $definition);
+            foreach ($options['indexes'] as $indexName => $definition) {
+                $queryFields .= ', ' . $this->getIndexDeclarationSQL($indexName, $definition);
             }
         }
 
@@ -606,7 +606,7 @@ SQL
     /**
      * @return string[]
      *
-     * @throws DBALException
+     * @throws Exception
      */
     private function getPreAlterTableAlterPrimaryKeySQL(TableDiff $diff, Index $index): array
     {
@@ -647,7 +647,7 @@ SQL
      *
      * @return string[]
      *
-     * @throws DBALException
+     * @throws Exception
      */
     private function getPreAlterTableAlterIndexForeignKeySQL(TableDiff $diff): array
     {
@@ -660,7 +660,7 @@ SQL
                 continue;
             }
 
-            foreach ($diff->fromTable->getPrimaryKeyColumns() as $columnName) {
+            foreach ($diff->fromTable->getPrimaryKeyColumns() as $columnName => $column) {
                 $column = $diff->fromTable->getColumn($columnName);
 
                 // Check if an autoincrement column was dropped from the primary key.

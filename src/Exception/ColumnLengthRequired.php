@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Exception;
 
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 use function sprintf;
@@ -12,7 +12,7 @@ use function sprintf;
 /**
  * @psalm-immutable
  */
-final class ColumnLengthRequired extends DBALException
+final class ColumnLengthRequired extends Exception
 {
     /**
      * @param AbstractPlatform $platform The target platform
