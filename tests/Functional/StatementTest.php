@@ -4,8 +4,8 @@ namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\PDO;
-use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\ParameterType;
+use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Type;

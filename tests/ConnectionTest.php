@@ -4,7 +4,6 @@ namespace Doctrine\DBAL\Tests;
 
 use Doctrine\Common\Cache\Cache;
 use Doctrine\Common\EventManager;
-use Doctrine\DBAL\Abstraction\Result;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
@@ -19,6 +18,7 @@ use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\Logging\DebugStack;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Result;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
