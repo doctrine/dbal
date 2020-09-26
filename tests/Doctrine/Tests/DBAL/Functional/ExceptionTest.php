@@ -29,6 +29,7 @@ use function unlink;
 use function version_compare;
 
 use const PHP_OS;
+use const PHP_OS_FAMILY;
 
 class ExceptionTest extends DbalFunctionalTestCase
 {
@@ -303,7 +304,7 @@ class ExceptionTest extends DbalFunctionalTestCase
         }
 
         // mode 0 is considered read-only on Windows
-        $mode = PHP_OS === 'Linux' ? 0444 : 0000;
+        $mode = PHP_OS_FAMILY === 'Windows' ? 0000 : 0444;
 
         $filename = sprintf('%s/%s', sys_get_temp_dir(), 'doctrine_failed_connection_' . $mode . '.db');
 
