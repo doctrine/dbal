@@ -173,4 +173,44 @@ class IndexTest extends TestCase
         self::assertSame('name IS NULL', $idx2->getOption('WHERE'));
         self::assertSame(['where' => 'name IS NULL'], $idx2->getOptions());
     }
+
+    /**
+     * @param string[] $flags1
+     * @param string[] $flags2
+     * @param int[]    $lengths1
+     * @param int[]    $lengths2
+     *
+     * @dataProvider spatialIndexProvider
+     */
+    public function testFulfilledSpatialIndex(
+        array $flags1,
+        array $flags2,
+        array $lengths1,
+        array $lengths2,
+        bool $expected
+    ): void {
+        $index1 = new Index('index1', ['geo_location'], false, false, $flags1, ['lengths' => $lengths1]);
+        $index2 = new Index('index2', ['geo_location'], false, false, $flags2, ['lengths' => $lengths2]);
+
+        self::assertSame($expected, $index1->isFullfilledBy($index2));
+        self::assertSame($expected, $index2->isFullfilledBy($index1));
+    }
+
+    /**
+     * @return mixed[][]
+     */
+    public static function spatialIndexProvider(): iterable
+    {
+        return [
+            'spatial-indexes-without-length' => [['spatial'], ['spatial'], [], [], true],
+            'spatial-indexes-with-2nd-length' => [['spatial'], ['spatial'], [], [32], true],
+            'spatial-indexes-with-length' => [['spatial'], ['spatial'], [32], [32], true],
+            'spatial-indexes-with-different-lengths' => [['spatial'], ['spatial'], [32], [24], true],
+            'spatial-indexes-with-1st-length' => [['spatial'], ['spatial'], [24], [], true],
+            'index-with-length-compare-to-spatial-index' => [[], ['spatial'], [24], [], false],
+            'spatial-with-length-index-compare-to-index' => [['spatial'], [], [24], [], false],
+            'index-compare-to-spatial-with-length-index' => [[], ['spatial'], [], [24], false],
+            'spatial-index-compare-to-index-with-length' => [['spatial'], [], [], [24], false],
+        ];
+    }
 }
