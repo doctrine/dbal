@@ -15,7 +15,7 @@ use Symfony\Component\Console\Command\Command;
 class ConsoleRunner
 {
     /**
-     * Runs console with the given connection provider or helperset (deprecated).
+     * Runs console with the given connection provider.
      *
      * @param Command[] $commands
      *
