@@ -17,6 +17,17 @@ use Traversable;
 interface Result extends DriverResult
 {
     /**
+     * Returns an associative array with the keys mapped to the first column and the values mapped to the second column.
+     *
+     * The result must contain at least two columns.
+     *
+     * @return array<mixed,mixed>
+     *
+     * @throws Exception
+     */
+    public function fetchAllKeyValue(): array;
+
+    /**
      * Returns an iterator over the result set rows represented as numeric arrays.
      *
      * @return Traversable<int,array<int,mixed>>
@@ -33,6 +44,18 @@ interface Result extends DriverResult
      * @throws Exception
      */
     public function iterateAssociative(): Traversable;
+
+    /**
+     * Returns an iterator over the result set with the keys mapped to the first column
+     * and the values mapped to the second column.
+     *
+     * The result must contain at least two columns.
+     *
+     * @return Traversable<mixed,mixed>
+     *
+     * @throws Exception
+     */
+    public function iterateKeyValue(): Traversable;
 
     /**
      * Returns an iterator over the values of the first column of the result set.

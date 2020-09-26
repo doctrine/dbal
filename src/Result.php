@@ -7,6 +7,7 @@ namespace Doctrine\DBAL;
 use Doctrine\DBAL\Abstraction\Result as ResultInterface;
 use Doctrine\DBAL\Driver\Exception as DriverException;
 use Doctrine\DBAL\Driver\Result as DriverResult;
+use Doctrine\DBAL\Exception\NoKeyValue;
 use Traversable;
 
 final class Result implements ResultInterface
@@ -101,6 +102,24 @@ final class Result implements ResultInterface
      *
      * @throws Exception
      */
+    public function fetchAllKeyValue(): array
+    {
+        $this->ensureHasKeyValue();
+
+        $data = [];
+
+        foreach ($this->fetchAllNumeric() as [$key, $value]) {
+            $data[$key] = $value;
+        }
+
+        return $data;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws Exception
+     */
     public function fetchFirstColumn(): array
     {
         try {
@@ -143,6 +162,20 @@ final class Result implements ResultInterface
     }
 
     /**
+     * {@inheritDoc}
+     *
+     * @throws Exception
+     */
+    public function iterateKeyValue(): Traversable
+    {
+        $this->ensureHasKeyValue();
+
+        foreach ($this->iterateNumeric() as [$key, $value]) {
+            yield $key => $value;
+        }
+    }
+
+    /**
      * @return Traversable<int,mixed>
      *
      * @throws Exception
@@ -158,18 +191,44 @@ final class Result implements ResultInterface
         }
     }
 
+    /**
+     * @throws Exception
+     */
     public function rowCount(): int
     {
-        return $this->result->rowCount();
+        try {
+            return $this->result->rowCount();
+        } catch (DriverException $e) {
+            throw $this->connection->convertException($e);
+        }
     }
 
+    /**
+     * @throws Exception
+     */
     public function columnCount(): int
     {
-        return $this->result->columnCount();
+        try {
+            return $this->result->columnCount();
+        } catch (DriverException $e) {
+            throw $this->connection->convertException($e);
+        }
     }
 
     public function free(): void
     {
         $this->result->free();
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function ensureHasKeyValue(): void
+    {
+        $columnCount = $this->columnCount();
+
+        if ($columnCount < 2) {
+            throw NoKeyValue::fromColumnCount($columnCount);
+        }
     }
 }
