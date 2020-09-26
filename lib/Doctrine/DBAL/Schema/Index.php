@@ -223,7 +223,7 @@ class Index extends AbstractAsset implements Constraint
                 return false;
             }
 
-            if (! $this->hasSameColumnLengths($other)) {
+            if (! $this->sameFlag('spatial', $other) && ! $this->hasSameColumnLengths($other)) {
                 return false;
             }
 
@@ -372,5 +372,13 @@ class Index extends AbstractAsset implements Constraint
 
         return array_filter($this->options['lengths'] ?? [], $filter)
             === array_filter($other->options['lengths'] ?? [], $filter);
+    }
+
+    /**
+     * Returns whether the index has the same flag as the other
+     */
+    private function sameFlag(string $flag, Index $other): bool
+    {
+        return $this->hasFlag($flag) && $other->hasFlag($flag);
     }
 }
