@@ -11,6 +11,8 @@ use Traversable;
 /**
  * Abstraction-level statement execution result. Provides additional methods on top
  * of the driver-level interface.
+ *
+ * @deprecated
  */
 interface Result extends DriverResult
 {
