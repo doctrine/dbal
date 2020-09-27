@@ -184,7 +184,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->schemaManager->createTable($table);
 
         $columns = $this->schemaManager->listTableColumns('sqlsrv_column_comment');
-        self::assertCount(12, $columns);
+        self::assertCount(13, $columns);
         self::assertNull($columns['id']->getComment());
         self::assertNull($columns['comment_null']->getComment());
         self::assertNull($columns['comment_false']->getComment());
@@ -331,6 +331,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $tableDiff->removedColumns['comment_integer_0']
             = new Column('comment_integer_0', Type::getType('integer'), ['comment' => 0]);
 
+        // Change column requirements without changing comment
         $tableDiff->changedColumns['commented_not_null_column'] = new ColumnDiff(
             'commented_not_null_column',
             new Column(
@@ -349,7 +350,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->schemaManager->alterTable($tableDiff);
 
         $columns = $this->schemaManager->listTableColumns('sqlsrv_column_comment');
-        self::assertCount(23, $columns);
+        self::assertCount(24, $columns);
         self::assertEquals('primary', $columns['id']->getComment());
         self::assertNull($columns['comment_null']->getComment());
         self::assertEquals('false', $columns['comment_false']->getComment());
