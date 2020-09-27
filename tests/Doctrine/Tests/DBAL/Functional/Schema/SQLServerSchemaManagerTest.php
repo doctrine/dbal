@@ -178,7 +178,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('create', 'integer', ['comment' => 'Doctrine 0wnz comments for reserved keyword columns!']);
         $table->addColumn('commented_type', 'object');
         $table->addColumn('commented_type_with_comment', 'array', ['comment' => 'Doctrine array type.']);
-        $table->addColumn('commented_not_null_column', 'integer', ['comment' => 'Funky comment','notnull' => true]);
+        $table->addColumn('commented_not_null_column', 'integer', ['comment' => 'Funky comment', 'notnull' => true]);
         $table->setPrimaryKey(['id']);
 
         $this->schemaManager->createTable($table);
@@ -333,9 +333,9 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $tableDiff->changedColumns['commented_not_null_column'] = new ColumnDiff(
             'commented_not_null_column',
-            new Column('commented_not_null_column', Type::getType('integer'), ['comment' => 'Funky comment','notnull' => true]),
+            new Column('commented_not_null_column', Type::getType('integer'), ['comment' => 'Funky comment', 'notnull' => true]),
             ['comment', 'notnull'],
-            new Column('commented_null_column', Type::getType('integer'), ['comment' => 'Funky comment','notnull' => false]),
+            new Column('commented_null_column', Type::getType('integer'), ['comment' => 'Funky comment', 'notnull' => false]),
         );
 
         $this->schemaManager->alterTable($tableDiff);
