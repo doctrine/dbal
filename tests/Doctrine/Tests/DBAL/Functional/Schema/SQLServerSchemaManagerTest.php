@@ -200,7 +200,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertEquals('Doctrine 0wnz comments for reserved keyword columns!', $columns['[create]']->getComment());
         self::assertNull($columns['commented_type']->getComment());
         self::assertEquals('Doctrine array type.', $columns['commented_type_with_comment']->getComment());
-        self::assertEquals('Funky comment.', $columns['commented_not_null_column']->getComment());
+        self::assertEquals('Funky comment', $columns['commented_not_null_column']->getComment());
 
         $tableDiff            = new TableDiff('sqlsrv_column_comment');
         $tableDiff->fromTable = $table;
