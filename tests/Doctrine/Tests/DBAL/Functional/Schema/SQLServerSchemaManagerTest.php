@@ -341,7 +341,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
             ),
             ['comment', 'notnull'],
             new Column(
-                'commented_null_column',
+                'commented_not_null_column',
                 Type::getType('integer'),
                 ['comment' => 'Funky comment', 'notnull' => false]
             ),
@@ -374,7 +374,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertEquals('666', $columns['[select]']->getComment());
         self::assertNull($columns['added_commented_type']->getComment());
         self::assertEquals('666', $columns['added_commented_type_with_comment']->getComment());
-        self::assertEquals('Funky comment', $columns['commented_null_column']->getComment());
+        self::assertEquals('Funky comment', $columns['commented_not_null_column']->getComment());
     }
 
     public function testPkOrdering(): void
