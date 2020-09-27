@@ -333,9 +333,17 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $tableDiff->changedColumns['commented_not_null_column'] = new ColumnDiff(
             'commented_not_null_column',
-            new Column('commented_not_null_column', Type::getType('integer'), ['comment' => 'Funky comment', 'notnull' => true]),
+            new Column(
+                'commented_not_null_column',
+                Type::getType('integer'),
+                ['comment' => 'Funky comment', 'notnull' => true]
+            ),
             ['comment', 'notnull'],
-            new Column('commented_null_column', Type::getType('integer'), ['comment' => 'Funky comment', 'notnull' => false]),
+            new Column(
+                'commented_null_column',
+                Type::getType('integer'),
+                ['comment' => 'Funky comment', 'notnull' => false]
+            ),
         );
 
         $this->schemaManager->alterTable($tableDiff);
