@@ -178,6 +178,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('create', 'integer', ['comment' => 'Doctrine 0wnz comments for reserved keyword columns!']);
         $table->addColumn('commented_type', 'object');
         $table->addColumn('commented_type_with_comment', 'array', ['comment' => 'Doctrine array type.']);
+        $table->addColumn('commented_not_null_column', 'integer', ['comment' => 'Funky comment','notnull' => true]);
         $table->setPrimaryKey(['id']);
 
         $this->schemaManager->createTable($table);
@@ -199,6 +200,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertEquals('Doctrine 0wnz comments for reserved keyword columns!', $columns['[create]']->getComment());
         self::assertNull($columns['commented_type']->getComment());
         self::assertEquals('Doctrine array type.', $columns['commented_type_with_comment']->getComment());
+        self::assertEquals('Funky comment.', $columns['commented_not_null_column']->getComment());
 
         $tableDiff            = new TableDiff('sqlsrv_column_comment');
         $tableDiff->fromTable = $table;
@@ -329,6 +331,13 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $tableDiff->removedColumns['comment_integer_0']
             = new Column('comment_integer_0', Type::getType('integer'), ['comment' => 0]);
 
+        $tableDiff->changedColumns['commented_not_null_column'] = new ColumnDiff(
+            'commented_not_null_column',
+            new Column('commented_not_null_column', Type::getType('integer'), ['comment' => 'Funky comment','notnull' => true]),
+            ['comment', 'notnull'],
+            new Column('commented_null_column', Type::getType('integer'), ['comment' => 'Funky comment','notnull' => false]),
+        );
+
         $this->schemaManager->alterTable($tableDiff);
 
         $columns = $this->schemaManager->listTableColumns('sqlsrv_column_comment');
@@ -356,6 +365,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertEquals('666', $columns['[select]']->getComment());
         self::assertNull($columns['added_commented_type']->getComment());
         self::assertEquals('666', $columns['added_commented_type_with_comment']->getComment());
+        self::assertEquals('Funky comment', $columns['commented_null_column']->getComment());
     }
 
     public function testPkOrdering(): void
