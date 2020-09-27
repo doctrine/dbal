@@ -532,7 +532,7 @@ SQL
                     );
                 } elseif ($hasFromComment && ! $hasComment) {
                     $commentsSql[] = $this->getDropColumnCommentSQL($diff->name, $column->getQuotedName($this));
-                } elseif ($hasComment) {
+                } elseif ($hasComment && ! $hasFromComment) {
                     $commentsSql[] = $this->getCreateColumnCommentSQL(
                         $diff->name,
                         $column->getQuotedName($this),

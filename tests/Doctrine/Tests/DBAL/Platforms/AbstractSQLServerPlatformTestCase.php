@@ -1719,7 +1719,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         self::assertEquals(sprintf($pattern, $expectedSql, $expectedMin, $expectedMax), $sql);
     }
 
-    public function testAlterTableWithSchemaSameColumnComments()
+    public function testAlterTableWithSchemaSameColumnComments(): void
     {
         $tableDiff                          = new TableDiff('testschema.mytable');
         $tableDiff->changedColumns['quota'] = new ColumnDiff(
