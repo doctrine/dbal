@@ -121,9 +121,7 @@ final class Statement implements StatementInterface
     public function execute(?array $params = null): ResultInterface
     {
         if ($params !== null && count($params) > 0) {
-            if (! $this->bindUntypedValues($params)) {
-                throw StatementError::new($this->stmt);
-            }
+            $this->bindUntypedValues($params);
         } else {
             $this->bindTypedParameters();
         }
@@ -168,8 +166,8 @@ final class Statement implements StatementInterface
             $values[$parameter] = $value;
         }
 
-        if (count($values) > 0 && ! $this->stmt->bind_param($types, ...$values)) {
-            throw StatementError::new($this->stmt);
+        if (count($values) > 0) {
+            $this->bindParams($types, ...$values);
         }
 
         $this->sendLongData($streams);
@@ -203,8 +201,10 @@ final class Statement implements StatementInterface
      * Binds a array of values to bound parameters.
      *
      * @param mixed[] $values
+     *
+     * @throws Exception
      */
-    private function bindUntypedValues(array $values): bool
+    private function bindUntypedValues(array $values): void
     {
         $params = [];
         $types  = str_repeat('s', count($values));
@@ -213,6 +213,18 @@ final class Statement implements StatementInterface
             $params[] =& $v;
         }
 
-        return $this->stmt->bind_param($types, ...$params);
+        $this->bindParams($types, ...$params);
+    }
+
+    /**
+     * @param mixed ...$params
+     *
+     * @throws Exception
+     */
+    private function bindParams(string $types, &...$params): void
+    {
+        if (! $this->stmt->bind_param($types, ...$params)) {
+            throw StatementError::new($this->stmt);
+        }
     }
 }
