@@ -6,13 +6,13 @@ with names such as ``IDX_885DBAFAA76ED395``? In this document, we will
 distinguish three types of indexes:
 
 user-defined indexes
-  indexes you did ask for
+    indexes you did ask for
 
 DBAL-defined indexes
-  indexes you did not ask for, created on your behalf by the DBAL
+    indexes you did not ask for, created on your behalf by the DBAL
 
 RDBMS-defined indexes
-  indexes you did not ask for, created on your behalf by the RDBMS
+    indexes you did not ask for, created on your behalf by the RDBMS
 
 RDBMS-defined indexes can be created by some database platforms when you
 create a foreign key: they will create an index on the referencing
