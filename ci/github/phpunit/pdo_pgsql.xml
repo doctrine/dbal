@@ -8,22 +8,22 @@
          failOnWarning="true"
 >
     <php>
-        <var name="db_driver" value="mysqli"/>
-        <var name="db_host" value="127.0.0.1" />
-        <var name="db_port" value="33306"/>
-        <var name="db_user" value="root" />
+        <var name="db_driver" value="pdo_pgsql"/>
+        <var name="db_host" value="localhost" />
+        <var name="db_user" value="postgres" />
+        <var name="db_password" value="postgres" />
         <var name="db_dbname" value="doctrine_tests" />
     </php>
 
     <testsuites>
         <testsuite name="Doctrine DBAL Test Suite">
-            <directory>../Doctrine/Tests/DBAL</directory>
+            <directory>../../../tests</directory>
         </testsuite>
     </testsuites>
 
     <coverage>
         <include>
-            <directory suffix=".php">../../lib/Doctrine</directory>
+            <directory suffix=".php">../../../lib/Doctrine</directory>
         </include>
     </coverage>
 </phpunit>

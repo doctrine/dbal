@@ -8,14 +8,14 @@
          failOnWarning="true"
 >
     <php>
-        <var name="db_driver" value="pdo_oci"/>
+        <var name="db_driver" value="oci8"/>
         <var name="db_host" value="localhost"/>
         <var name="db_user" value="doctrine"/>
         <var name="db_password" value="oracle"/>
         <var name="db_dbname" value="XE"/>
         <var name="db_event_subscribers" value="Doctrine\DBAL\Event\Listeners\OracleSessionInit"/>
 
-        <var name="tmpdb_driver" value="pdo_oci"/>
+        <var name="tmpdb_driver" value="oci8"/>
         <var name="tmpdb_host" value="localhost"/>
         <var name="tmpdb_user" value="system"/>
         <var name="tmpdb_password" value="oracle"/>
@@ -24,13 +24,13 @@
 
     <testsuites>
         <testsuite name="Doctrine DBAL Test Suite">
-            <directory>../../tests</directory>
+            <directory>../../../tests</directory>
         </testsuite>
     </testsuites>
 
     <coverage>
         <include>
-            <directory suffix=".php">../../lib/Doctrine</directory>
+            <directory suffix=".php">../../../lib/Doctrine</directory>
         </include>
     </coverage>
 </phpunit>
