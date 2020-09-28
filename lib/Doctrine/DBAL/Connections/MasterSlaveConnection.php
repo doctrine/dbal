@@ -38,21 +38,18 @@ class MasterSlaveConnection extends PrimaryReadReplicaConnection
             $this->deprecated('Params key "master"', '"primary"');
 
             $params['primary'] = $params['master'];
-            unset($params['master']);
         }
 
         if (isset($params['slaves'])) {
             $this->deprecated('Params key "slaves"', '"replica"');
 
             $params['replica'] = $params['slaves'];
-            unset($params['slaves']);
         }
 
         if (isset($params['keepSlave'])) {
             $this->deprecated('Params key "keepSlave"', '"keepReplica"');
 
             $params['keepReplica'] = $params['keepSlave'];
-            unset($params['keepSlave']);
         }
 
         parent::__construct($params, $driver, $config, $eventManager);
