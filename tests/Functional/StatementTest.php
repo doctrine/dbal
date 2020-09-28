@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\Driver\Exception as DriverException;
 use Doctrine\DBAL\Driver\IBMDB2;
+use Doctrine\DBAL\Driver\Mysqli;
 use Doctrine\DBAL\Driver\PDO;
 use Doctrine\DBAL\Driver\SQLSrv;
 use Doctrine\DBAL\Exception;
@@ -14,11 +15,14 @@ use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Type;
+use Error;
 
 use function base64_decode;
 use function get_class;
 use function sprintf;
 use function stream_get_contents;
+
+use const PHP_VERSION_ID;
 
 class StatementTest extends FunctionalTestCase
 {
@@ -299,6 +303,16 @@ EOF
         self::assertEquals(1, $result);
     }
 
+    /**
+     * The purpose of this test is to ensure that the DBAL doesn't implicitly omit the prepared statement parameters,
+     * if they are passed by the caller.
+     *
+     * If the number of passed parameters does not match the number expected by the statement,
+     * the DBAL deliberately does not handle this case in a unified way for the following reasons:
+     *
+     * 1. Not all underlying drivers report this as an error.
+     * 2. It is a logical error which requires a code change and should not be handled at runtime.
+     */
     public function testExecWithRedundantParameters(): void
     {
         $driver = $this->connection->getDriver();
@@ -326,11 +340,16 @@ EOF
         $query    = $platform->getDummySelectSQL();
         $stmt     = $this->connection->prepare($query);
 
-        // we want to make sure the exception is thrown by the DBAL code, not by PHPUnit due to a PHP-level error,
-        // but the wrapper connection wraps everything in a DBAL exception
-        $this->iniSet('error_reporting', '0');
+        if (PHP_VERSION_ID >= 80000 && $driver instanceof Mysqli\Driver) {
+            $this->expectException(Error::class);
+        } else {
+            // we want to make sure the exception is thrown by the DBAL code, not by PHPUnit due to a PHP-level error,
+            // but the wrapper connection wraps everything in a DBAL exception
+            $this->iniSet('error_reporting', '0');
 
-        $this->expectException(Exception::class);
+            $this->expectException(Exception::class);
+        }
+
         $stmt->execute([null]);
     }
 }
