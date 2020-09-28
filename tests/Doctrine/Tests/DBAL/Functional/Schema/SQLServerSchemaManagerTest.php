@@ -331,7 +331,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $tableDiff->removedColumns['comment_integer_0']
             = new Column('comment_integer_0', Type::getType('integer'), ['comment' => 0]);
 
-        // Change column requirements without changing comment
+        // Change column requirements without changing comment.
         $tableDiff->changedColumns['commented_not_null_column'] = new ColumnDiff(
             'commented_not_null_column',
             new Column(
