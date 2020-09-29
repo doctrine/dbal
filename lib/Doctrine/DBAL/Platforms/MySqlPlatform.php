@@ -1084,6 +1084,7 @@ SQL
             'string'        => 'string',
             'char'          => 'string',
             'date'          => 'date',
+            'enum'          => 'string',
             'datetime'      => 'datetime',
             'timestamp'     => 'datetime',
             'time'          => 'time',
@@ -1100,7 +1101,6 @@ SQL
             'binary'        => 'binary',
             'varbinary'     => 'binary',
             'set'           => 'simple_array',
-            'enum'          => 'string'
         ];
     }
 
