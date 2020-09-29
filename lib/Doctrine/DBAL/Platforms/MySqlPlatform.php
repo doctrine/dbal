@@ -1100,6 +1100,7 @@ SQL
             'binary'        => 'binary',
             'varbinary'     => 'binary',
             'set'           => 'simple_array',
+            'enum'          => 'string'
         ];
     }
 
