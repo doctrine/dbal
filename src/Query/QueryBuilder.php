@@ -4,12 +4,14 @@ namespace Doctrine\DBAL\Query;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Statement;
 
+use function array_filter;
 use function array_key_exists;
 use function array_keys;
 use function array_unshift;
@@ -134,6 +136,13 @@ class QueryBuilder
      * @var int
      */
     private $boundCounter = 0;
+
+    /**
+     * Lock mode to apply to SELECT queries, use one of the constants from LockMode::class
+     *
+     * @var int
+     */
+    private $lockMode = null;
 
     /**
      * Initializes a new <tt>QueryBuilder</tt>.
@@ -403,6 +412,30 @@ class QueryBuilder
     public function getMaxResults()
     {
         return $this->maxResults;
+    }
+
+    /**
+     * Gets the current lock mode  for this query
+     *
+     * @return int|null
+     */
+    public function getLockMode()
+    {
+        return $this->lockMode;
+    }
+
+    /**
+     * Set lock mode use one of the constants from LockMode::class locks are only added to SELECT queries
+     *
+     * Optimistic locking *is not* supported by DBAL.
+     *
+     * @param int $lockMode
+     */
+    public function setLockMode(int $lockMode)
+    {
+        $this->lockMode = $lockMode;
+
+        return $this;
     }
 
     /**
@@ -1142,24 +1175,39 @@ class QueryBuilder
      */
     private function getSQLForSelect()
     {
+        $databasePlatform = $this->connection->getDatabasePlatform();
+
+        $lockSql = '';
+        switch ($this->lockMode) {
+            case LockMode::PESSIMISTIC_READ:
+                $lockSql = ' ' . $databasePlatform->getReadLockSQL();
+                break;
+
+            case LockMode::PESSIMISTIC_WRITE:
+                $lockSql = ' ' . $databasePlatform->getWriteLockSQL();
+                break;
+        }
+
         $query = 'SELECT ' . ($this->sqlParts['distinct'] ? 'DISTINCT ' : '') .
                   implode(', ', $this->sqlParts['select']);
 
-        $query .= ($this->sqlParts['from'] ? ' FROM ' . implode(', ', $this->getFromClauses()) : '')
+        $from = $this->sqlParts['from'] ? ' FROM ' . implode(', ', $this->getFromClauses()) : '';
+
+        $query .= $databasePlatform->appendLockHint($from, $this->lockMode)
             . ($this->sqlParts['where'] !== null ? ' WHERE ' . ((string) $this->sqlParts['where']) : '')
             . ($this->sqlParts['groupBy'] ? ' GROUP BY ' . implode(', ', $this->sqlParts['groupBy']) : '')
             . ($this->sqlParts['having'] !== null ? ' HAVING ' . ((string) $this->sqlParts['having']) : '')
             . ($this->sqlParts['orderBy'] ? ' ORDER BY ' . implode(', ', $this->sqlParts['orderBy']) : '');
 
         if ($this->isLimitQuery()) {
-            return $this->connection->getDatabasePlatform()->modifyLimitQuery(
+            return $databasePlatform->modifyLimitQuery(
                 $query,
                 $this->maxResults,
                 $this->firstResult
-            );
+            ) . $lockSql;
         }
 
-        return $query;
+        return $query . $lockSql;
     }
 
     /**
