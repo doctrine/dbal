@@ -111,3 +111,9 @@ parameters:
             message: '~Return type \(Doctrine\\DBAL\\Portability\\Statement\) of method Doctrine\\DBAL\\Portability\\Connection::prepare\(\) should be compatible with return type \(Doctrine\\DBAL\\Statement\) of method Doctrine\\DBAL\\Connection::prepare\(\)~'
             paths:
                 - %currentWorkingDirectory%/lib/Doctrine/DBAL/Portability/Connection.php
+
+        # Unlike Psalm, PHPStan doesn't understand the shape of the parse_str() return value
+        -
+            message: '~^Parameter #1 \$scheme of static method Doctrine\\DBAL\\DriverManager::parseDatabaseUrlScheme\(\) expects string\|null, int\|string\|null given\.$~'
+            paths:
+                - %currentWorkingDirectory%/lib/Doctrine/DBAL/DriverManager.php
