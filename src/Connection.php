@@ -1737,4 +1737,37 @@ class Connection
 
         return $exception;
     }
+
+    /**
+     * BC layer for a wide-spread use-case of old DBAL APIs
+     *
+     * @deprecated This API is deprecated and will be removed after 2022
+     *
+     * @param array<mixed>           $params The query parameters
+     * @param array<int|string|null> $types  The parameter types
+     */
+    public function executeUpdate(string $sql, array $params = [], array $types = []): int
+    {
+        return $this->executeStatement($sql, $params, $types);
+    }
+
+    /**
+     * BC layer for a wide-spread use-case of old DBAL APIs
+     *
+     * @deprecated This API is deprecated and will be removed after 2022
+     */
+    public function query(string $sql): Result
+    {
+        return $this->executeQuery($sql);
+    }
+
+    /**
+     * BC layer for a wide-spread use-case of old DBAL APIs
+     *
+     * @deprecated This API is deprecated and will be removed after 2022
+     */
+    public function exec(string $sql): int
+    {
+        return $this->executeStatement($sql);
+    }
 }
