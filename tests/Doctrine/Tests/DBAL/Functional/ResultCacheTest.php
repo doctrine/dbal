@@ -243,7 +243,7 @@ class ResultCacheTest extends DbalFunctionalTestCase
     }
 
     /**
-     * @param array<int, array<int, int|string>>|list<int> $expectedResult
+     * @param list<mixed> $expectedResult
      */
     private function assertCacheNonCacheSelectSameFetchModeAreEqual(array $expectedResult, int $fetchMode): void
     {
