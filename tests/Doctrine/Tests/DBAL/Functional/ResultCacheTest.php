@@ -232,7 +232,7 @@ class ResultCacheTest extends DbalFunctionalTestCase
         $query = $this->connection->getDatabasePlatform()
             ->getDummySelectSQL('1');
 
-        $qcp = new QueryCacheProfile(0, 0, new ArrayCache());
+        $qcp = new QueryCacheProfile(0, null, new ArrayCache());
 
         $stmt = $this->connection->executeCacheQuery($query, [], [], $qcp);
         $stmt->fetchAll(FetchMode::COLUMN);

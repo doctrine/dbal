@@ -38,9 +38,5 @@ class ConfigurationTest extends DbalTestCase
         $this->config->setAutoCommit(false);
 
         self::assertFalse($this->config->getAutoCommit());
-
-        $this->config->setAutoCommit(0);
-
-        self::assertFalse($this->config->getAutoCommit());
     }
 }

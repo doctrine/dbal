@@ -14,11 +14,9 @@ class SQLServerPlatformTest extends AbstractSQLServerPlatformTestCase
     }
 
     /**
-     * @param int|bool|null $lockMode
-     *
      * @dataProvider getLockHints
      */
-    public function testAppendsLockHint($lockMode, string $lockHint): void
+    public function testAppendsLockHint(?int $lockMode, string $lockHint): void
     {
         $fromClause     = 'FROM users';
         $expectedResult = $fromClause . $lockHint;
@@ -41,8 +39,6 @@ class SQLServerPlatformTest extends AbstractSQLServerPlatformTestCase
     {
         return [
             [null, ''],
-            [false, ''],
-            [true, ''],
             [LockMode::NONE, ' WITH (NOLOCK)'],
             [LockMode::OPTIMISTIC, ''],
             [LockMode::PESSIMISTIC_READ, ' WITH (HOLDLOCK, ROWLOCK)'],
