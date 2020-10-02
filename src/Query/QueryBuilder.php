@@ -416,10 +416,8 @@ class QueryBuilder
 
     /**
      * Gets the current lock mode  for this query
-     *
-     * @return int|null
      */
-    public function getLockMode()
+    public function getLockMode(): ?int
     {
         return $this->lockMode;
     }
@@ -428,10 +426,8 @@ class QueryBuilder
      * Set lock mode use one of the constants from LockMode::class locks are only added to SELECT queries
      *
      * Optimistic locking *is not* supported by DBAL.
-     *
-     * @param int $lockMode
      */
-    public function setLockMode(int $lockMode)
+    public function setLockMode(int $lockMode): self
     {
         $this->lockMode = $lockMode;
 

@@ -4,6 +4,7 @@ namespace Doctrine\DBAL\Tests\Query;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
+use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Query\QueryException;
@@ -23,6 +24,12 @@ class QueryBuilderTest extends TestCase
         $this->conn->expects(self::any())
                    ->method('getExpressionBuilder')
                    ->will(self::returnValue($expressionBuilder));
+
+        $platform = new SqlitePlatform();
+
+        $this->conn->expects(self::any())
+                   ->method('getDatabasePlatform')
+                   ->will(self::returnValue($platform));
     }
 
     public function testSimpleSelectWithoutFrom(): void
