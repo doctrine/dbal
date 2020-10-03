@@ -3,8 +3,14 @@
 namespace Doctrine\DBAL\Tests\Query;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\ParameterType;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\MySQL57Platform;
+use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
+use Doctrine\DBAL\Platforms\SQLAnywhere16Platform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
+use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Query\QueryException;
@@ -17,19 +23,7 @@ class QueryBuilderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->conn = $this->createMock(Connection::class);
-
-        $expressionBuilder = new ExpressionBuilder($this->conn);
-
-        $this->conn->expects(self::any())
-                   ->method('getExpressionBuilder')
-                   ->will(self::returnValue($expressionBuilder));
-
-        $platform = new SqlitePlatform();
-
-        $this->conn->expects(self::any())
-                   ->method('getDatabasePlatform')
-                   ->will(self::returnValue($platform));
+        $this->conn = $this->createMockConnection(new SqlitePlatform());
     }
 
     public function testSimpleSelectWithoutFrom(): void
@@ -72,6 +66,66 @@ class QueryBuilderTest extends TestCase
            ->where($expr->and($expr->eq('u.nickname', '?')));
 
         self::assertEquals('SELECT u.id FROM users u WHERE u.nickname = ?', (string) $qb);
+    }
+
+    public function testSelectWithReadLockAppended(): void
+    {
+        $platform = new MySQL57Platform();
+
+        $qb   = new QueryBuilder($this->createMockConnection($platform));
+        $expr = $qb->expr();
+
+        $qb->select('u.id')
+            ->from('users', 'u')
+            ->setLockMode(LockMode::PESSIMISTIC_READ)
+            ->where($expr->and($expr->eq('u.nickname', '?')));
+
+        self::assertEquals('SELECT u.id FROM users u WHERE u.nickname = ? LOCK IN SHARE MODE', (string) $qb);
+    }
+
+    public function testSelectWithWriteLockAppended(): void
+    {
+        $platform = new PostgreSQL94Platform();
+
+        $qb   = new QueryBuilder($this->createMockConnection($platform));
+        $expr = $qb->expr();
+
+        $qb->select('u.id')
+            ->from('users', 'u')
+            ->setLockMode(LockMode::PESSIMISTIC_WRITE)
+            ->where($expr->and($expr->eq('u.nickname', '?')));
+
+        self::assertEquals('SELECT u.id FROM users u WHERE u.nickname = ? FOR UPDATE', (string) $qb);
+    }
+
+    public function testSelectWithReadLockTableHint(): void
+    {
+        $platform = new SQLServer2012Platform();
+
+        $qb   = new QueryBuilder($this->createMockConnection($platform));
+        $expr = $qb->expr();
+
+        $qb->select('u.id')
+            ->from('users', 'u')
+            ->setLockMode(LockMode::PESSIMISTIC_READ)
+            ->where($expr->and($expr->eq('u.nickname', '?')));
+
+        self::assertEquals('SELECT u.id FROM users u WITH (HOLDLOCK, ROWLOCK) WHERE u.nickname = ?', (string) $qb);
+    }
+
+    public function testSelectWithWriteLockTableHint(): void
+    {
+        $platform = new SQLAnywhere16Platform();
+
+        $qb   = new QueryBuilder($this->createMockConnection($platform));
+        $expr = $qb->expr();
+
+        $qb->select('u.id')
+            ->from('users', 'u')
+            ->setLockMode(LockMode::PESSIMISTIC_WRITE)
+            ->where($expr->and($expr->eq('u.nickname', '?')));
+
+        self::assertEquals('SELECT u.id FROM users u WITH (XLOCK) WHERE u.nickname = ?', (string) $qb);
     }
 
     public function testSelectWithLeftJoin(): void
@@ -955,5 +1009,22 @@ class QueryBuilderTest extends TestCase
         );
 
         $qb->getSQL();
+    }
+
+    private function createMockConnection(AbstractPlatform $platform): Connection
+    {
+        $conn = $this->createMock(Connection::class);
+
+        $expressionBuilder = new ExpressionBuilder($conn);
+
+        $conn->expects(self::any())
+            ->method('getExpressionBuilder')
+            ->will(self::returnValue($expressionBuilder));
+
+        $conn->expects(self::any())
+            ->method('getDatabasePlatform')
+            ->will(self::returnValue($platform));
+
+        return $conn;
     }
 }

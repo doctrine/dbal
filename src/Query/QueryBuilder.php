@@ -1184,6 +1184,8 @@ class QueryBuilder
                 break;
         }
 
+        $lockSql = rtrim($lockSql, ' ');
+
         $query = 'SELECT ' . ($this->sqlParts['distinct'] ? 'DISTINCT ' : '') .
                   implode(', ', $this->sqlParts['select']);
 
