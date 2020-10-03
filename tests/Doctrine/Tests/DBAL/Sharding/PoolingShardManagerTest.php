@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 class PoolingShardManagerTest extends TestCase
 {
     /**
-     * @return PoolingShardConnection|MockObject
+     * @return PoolingShardConnection&MockObject
      */
     private function createConnectionMock(): PoolingShardConnection
     {
