@@ -13,6 +13,7 @@ use function is_scalar;
 use function sprintf;
 use function strlen;
 use function substr;
+use function var_export;
 
 /**
  * Conversion Exception is thrown when the database to PHP conversion fails.
@@ -73,21 +74,18 @@ class ConversionException extends Exception
         array $possibleTypes,
         ?Throwable $previous = null
     ) {
-        $actualType = is_object($value) ? get_class($value) : gettype($value);
-
-        if (is_scalar($value)) {
+        if (is_scalar($value) || $value === null) {
             return new self(sprintf(
-                "Could not convert PHP value '%s' of type '%s' to type '%s'. Expected one of the following types: %s",
-                $value,
-                $actualType,
+                'Could not convert PHP value %s to type %s. Expected one of the following types: %s',
+                var_export($value, true),
                 $toType,
                 implode(', ', $possibleTypes)
             ), 0, $previous);
         }
 
         return new self(sprintf(
-            "Could not convert PHP value of type '%s' to type '%s'. Expected one of the following types: %s",
-            $actualType,
+            'Could not convert PHP value of type %s to type %s. Expected one of the following types: %s',
+            is_object($value) ? get_class($value) : gettype($value),
             $toType,
             implode(', ', $possibleTypes)
         ), 0, $previous);

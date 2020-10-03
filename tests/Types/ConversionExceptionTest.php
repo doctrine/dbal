@@ -26,14 +26,13 @@ class ConversionExceptionTest extends TestCase
      *
      * @dataProvider scalarsProvider
      */
-    public function testConversionFailedInvalidTypeWithScalar($scalarValue): void
+    public function testConversionFailedInvalidTypeWithScalar($scalarValue, string $expected): void
     {
         $exception = ConversionException::conversionFailedInvalidType($scalarValue, 'foo', ['bar', 'baz']);
 
         self::assertInstanceOf(ConversionException::class, $exception);
-        self::assertMatchesRegularExpression(
-            '/^Could not convert PHP value \'.*\' of type \'(string|boolean|float|double|integer)\' to type \'foo\'. '
-            . 'Expected one of the following types: bar, baz$/',
+        self::assertStringContainsString(
+            $expected,
             $exception->getMessage()
         );
     }
@@ -49,7 +48,7 @@ class ConversionExceptionTest extends TestCase
 
         self::assertInstanceOf(ConversionException::class, $exception);
         self::assertMatchesRegularExpression(
-            '/^Could not convert PHP value of type \'(.*)\' to type \'foo\'. '
+            '/^Could not convert PHP value of type (.*) to type foo. '
             . 'Expected one of the following types: bar, baz$/',
             $exception->getMessage()
         );
@@ -82,8 +81,6 @@ class ConversionExceptionTest extends TestCase
     {
         return [
             [[]],
-            [['foo']],
-            [null],
             [new stdClass()],
             [tmpfile()],
         ];
@@ -95,13 +92,13 @@ class ConversionExceptionTest extends TestCase
     public static function scalarsProvider(): iterable
     {
         return [
-            [''],
-            ['foo'],
-            [123],
-            [-123],
-            [12.34],
-            [true],
-            [false],
+            ['foo', "PHP value 'foo'"],
+            [123, 'PHP value 123'],
+            [-123, 'PHP value -123'],
+            [12.34, 'PHP value 12.34'],
+            [true, 'PHP value true'],
+            [false, 'PHP value false'],
+            [null, 'PHP value NULL'],
         ];
     }
 }
