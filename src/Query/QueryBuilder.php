@@ -22,6 +22,7 @@ use function implode;
 use function is_array;
 use function is_object;
 use function key;
+use function rtrim;
 use function strtoupper;
 use function substr;
 

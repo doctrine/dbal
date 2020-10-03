@@ -68,6 +68,22 @@ class QueryBuilderTest extends TestCase
         self::assertEquals('SELECT u.id FROM users u WHERE u.nickname = ?', (string) $qb);
     }
 
+    public function testSelectWithOptimisticLockIgnored(): void
+    {
+        $platform = new MySQL57Platform();
+
+        $qb   = new QueryBuilder($this->createMockConnection($platform));
+        $expr = $qb->expr();
+
+        $qb->select('u.id')
+            ->from('users', 'u')
+            ->setLockMode(LockMode::OPTIMISTIC)
+            ->where($expr->and($expr->eq('u.nickname', '?')));
+
+        self::assertEquals(LockMode::OPTIMISTIC, $qb->getLockMode());
+        self::assertEquals('SELECT u.id FROM users u WHERE u.nickname = ?', (string) $qb);
+    }
+
     public function testSelectWithReadLockAppended(): void
     {
         $platform = new MySQL57Platform();
@@ -96,6 +112,23 @@ class QueryBuilderTest extends TestCase
             ->where($expr->and($expr->eq('u.nickname', '?')));
 
         self::assertEquals('SELECT u.id FROM users u WHERE u.nickname = ? FOR UPDATE', (string) $qb);
+    }
+
+    public function testSelectWithWriteLockAppendedAfterLimit(): void
+    {
+        $platform = new PostgreSQL94Platform();
+
+        $qb   = new QueryBuilder($this->createMockConnection($platform));
+        $expr = $qb->expr();
+
+        $qb->select('u.id')
+            ->from('users', 'u')
+            ->setLockMode(LockMode::PESSIMISTIC_WRITE)
+            ->where($expr->and($expr->eq('u.nickname', '?')))
+            ->setFirstResult(50)
+            ->setMaxResults(10);
+
+        self::assertEquals('SELECT u.id FROM users u WHERE u.nickname = ? LIMIT 10 OFFSET 50 FOR UPDATE', (string) $qb);
     }
 
     public function testSelectWithReadLockTableHint(): void
