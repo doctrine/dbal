@@ -1718,4 +1718,19 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             . ') AS doctrine_tbl WHERE doctrine_rownum >= %d AND doctrine_rownum <= %d ORDER BY doctrine_rownum ASC';
         self::assertEquals(sprintf($pattern, $expectedSql, $expectedMin, $expectedMax), $sql);
     }
+
+    public function testAlterTableWithSchemaSameColumnComments(): void
+    {
+        $tableDiff                          = new TableDiff('testschema.mytable');
+        $tableDiff->changedColumns['quota'] = new ColumnDiff(
+            'quota',
+            new Column('quota', Type::getType('integer'), ['comment' => 'A comment', 'notnull' => true]),
+            ['notnull'],
+            new Column('quota', Type::getType('integer'), ['comment' => 'A comment', 'notnull' => false])
+        );
+
+        $expectedSql = ['ALTER TABLE testschema.mytable ALTER COLUMN quota INT NOT NULL'];
+
+        self::assertEquals($expectedSql, $this->platform->getAlterTableSQL($tableDiff));
+    }
 }
