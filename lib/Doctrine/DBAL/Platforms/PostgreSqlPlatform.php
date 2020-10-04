@@ -262,7 +262,7 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getListTablesSQL()
     {
-        return "SELECT quote_ident(table_name) AS table_name,
+        return "SELECT table_name AS table_name,
                        table_schema AS schema_name
                 FROM   information_schema.tables
                 WHERE  table_schema NOT LIKE 'pg\_%'
