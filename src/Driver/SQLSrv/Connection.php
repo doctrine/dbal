@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver\SQLSrv;
 
 use Doctrine\DBAL\Driver\Exception;
+use Doctrine\DBAL\Driver\Exception\NoIdentityValue;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\SQLSrv\Exception\Error;
@@ -86,9 +87,20 @@ final class Connection implements ServerInfoAwareConnection
         return $rowsAffected;
     }
 
-    public function lastInsertId(): string
+    /**
+     * {@inheritDoc}
+     */
+    public function lastInsertId()
     {
-        return $this->query('SELECT @@IDENTITY')->fetchOne();
+        $result = $this->query('SELECT @@IDENTITY');
+
+        $lastInsertId = $result->fetchOne();
+
+        if ($lastInsertId === null) {
+            throw NoIdentityValue::new();
+        }
+
+        return $lastInsertId;
     }
 
     public function beginTransaction(): void

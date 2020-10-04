@@ -42,7 +42,10 @@ final class Connection implements ServerInfoAwareConnection
         return $this->connection->exec($sql);
     }
 
-    public function lastInsertId(): string
+    /**
+     * {@inheritDoc}
+     */
+    public function lastInsertId()
     {
         return $this->connection->lastInsertId();
     }

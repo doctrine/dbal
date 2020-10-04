@@ -1104,15 +1104,13 @@ class Connection
     /**
      * Returns the ID of the last inserted row.
      *
-     * Note: This method may not return a meaningful or consistent result across different drivers,
-     * because the underlying database may not even support the notion of AUTO_INCREMENT/IDENTITY
-     * columns.
+     * If the underlying driver does not support identity columns, an exception is thrown.
      *
-     * @return string A string representation of the last inserted ID.
+     * @return int|string The last insert ID, as an integer or a numeric string.
      *
      * @throws Exception
      */
-    public function lastInsertId(): string
+    public function lastInsertId()
     {
         try {
             return $this->getWrappedConnection()->lastInsertId();

@@ -8,6 +8,10 @@ awareness about deprecated code.
 
 # Upgrade to 4.0
 
+## `Connection::lastInsertId()` throws an exception when there's no identity value.
+
+Instead of returning an empty value, `Connection::lastInsertId()` throws an exception when there's no identity value.
+
 ## Removed static keyword from `Comparator::compareSchemas()` signature
 
 The method `Comparator::compareSchemas()` cannot be called statically anymore.

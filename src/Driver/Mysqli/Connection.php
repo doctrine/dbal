@@ -125,9 +125,18 @@ final class Connection implements ServerInfoAwareConnection
         return $this->conn->affected_rows;
     }
 
-    public function lastInsertId(): string
+    /**
+     * {@inheritDoc}
+     */
+    public function lastInsertId()
     {
-        return (string) $this->conn->insert_id;
+        $lastInsertId = $this->conn->insert_id;
+
+        if ($lastInsertId === 0) {
+            throw Exception\NoIdentityValue::new();
+        }
+
+        return $lastInsertId;
     }
 
     public function beginTransaction(): void

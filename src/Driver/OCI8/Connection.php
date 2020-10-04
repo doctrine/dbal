@@ -95,7 +95,7 @@ final class Connection implements ServerInfoAwareConnection
         return $this->prepare($sql)->execute()->rowCount();
     }
 
-    public function lastInsertId(): string
+    public function lastInsertId()
     {
         throw IdentityColumnsNotSupported::new();
     }

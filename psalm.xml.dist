@@ -65,6 +65,10 @@
         <DocblockTypeContradiction>
             <errorLevel type="suppress">
                 <!--
+                    Requires a release of https://github.com/JetBrains/phpstorm-stubs/pull/1158
+                -->
+                <file name="src/Driver/IBMDB2/Connection.php"/>
+                <!--
                     Requires a release of https://github.com/JetBrains/phpstorm-stubs/pull/766
                 -->
                 <file name="src/Driver/Mysqli/Result.php"/>
