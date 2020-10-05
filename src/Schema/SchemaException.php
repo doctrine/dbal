@@ -17,7 +17,7 @@ class SchemaException extends Exception
     public const COLUMN_ALREADY_EXISTS    = 40;
     public const INDEX_DOESNT_EXIST       = 50;
     public const INDEX_ALREADY_EXISTS     = 60;
-    public const SEQUENCE_DOENST_EXIST    = 70;
+    public const SEQUENCE_DOESNT_EXIST    = 70;
     public const SEQUENCE_ALREADY_EXISTS  = 80;
     public const INDEX_INVALID_NAME       = 90;
     public const FOREIGNKEY_DOESNT_EXIST  = 100;

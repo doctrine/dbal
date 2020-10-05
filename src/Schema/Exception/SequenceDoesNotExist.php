@@ -17,7 +17,7 @@ final class SequenceDoesNotExist extends SchemaException
     {
         return new self(
             sprintf('There exists no sequence with the name "%s".', $sequenceName),
-            self::SEQUENCE_DOENST_EXIST
+            self::SEQUENCE_DOESNT_EXIST
         );
     }
 }
