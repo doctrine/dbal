@@ -35,7 +35,7 @@ final class ExceptionHandlingTest extends TestCase
     {
         $this->exceptionConverter->expects(self::once())
             ->method('convert')
-            ->with(self::stringContains('with params ["ABC", "\x80"]'));
+            ->with(self::stringContains('with params [\'ABC\', "\x80"]'));
 
         $this->connection->convertExceptionDuringQuery(
             $this->createMock(DriverException::class),

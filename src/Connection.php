@@ -36,14 +36,21 @@ use function array_map;
 use function assert;
 use function bin2hex;
 use function count;
+use function extension_loaded;
+use function gettype;
 use function implode;
+use function is_array;
 use function is_int;
-use function is_resource;
+use function is_scalar;
 use function is_string;
-use function json_encode;
 use function key;
+use function mb_check_encoding;
+use function ord;
+use function preg_match;
 use function preg_replace;
 use function sprintf;
+use function strlen;
+use function var_export;
 
 /**
  * A database abstraction-level connection that implements features like events, transaction isolation levels,
@@ -1597,7 +1604,7 @@ MESSAGE;
             $messageFormat,
             $sql,
             $params !== []
-                ? sprintf(' with params %s', $this->formatParameters($this->resolveParams($params, $types)))
+                ? sprintf(' with params %s', $this->formatParameter($this->resolveParams($params, $types)))
                 : '',
             $e->getMessage()
         );
@@ -1617,27 +1624,71 @@ MESSAGE;
     }
 
     /**
-     * Returns a human-readable representation of an array of parameters.
+     * Returns a human-readable representation of a parameter or array of parameters.
      * This properly handles binary data by returning a hex representation.
      *
-     * @param mixed[] $params
+     * @param mixed $param
      */
-    private function formatParameters(array $params): string
+    private function formatParameter($param): string
     {
-        return '[' . implode(', ', array_map(static function ($param): string {
-            if (is_resource($param)) {
-                return (string) $param;
-            }
+        if ($param === null) {
+            return 'null';
+        }
 
-            $json = @json_encode($param);
-
-            if (! is_string($json) || $json === 'null' && is_string($param)) {
-                // JSON encoding failed, this is not a UTF-8 string.
+        if (is_scalar($param)) {
+            if (is_string($param) && (! $this->isValidUTF8($param) || $this->containsNonPrintableASCIIChars($param))) {
                 return sprintf('"%s"', preg_replace('/.{2}/', '\\x$0', bin2hex($param)));
             }
 
-            return $json;
-        }, $params)) . ']';
+            return var_export($param, true);
+        }
+
+        if (is_array($param)) {
+            return '[' . implode(', ', array_map([$this, 'formatParameter'], $param)) . ']';
+        }
+
+        return gettype($param);
+    }
+
+    private function containsNonPrintableASCIIChars(string $string): bool
+    {
+        return preg_match('/[\x00-\x1f\x7f]/', $string) === 1;
+    }
+
+    private function isValidUTF8(string $string): bool
+    {
+        if (extension_loaded('mbstring')) {
+            return mb_check_encoding($string, 'UTF-8');
+        }
+
+        $length = strlen($string);
+
+        for ($i = 0; $i < $length; $i++) {
+            $c = ord($string[$i]);
+            if ($c < 0x80) {
+                $n = 0; // 0bbbbbbb
+            } elseif (($c & 0xE0) === 0xC0) {
+                $n = 1; // 110bbbbb
+            } elseif (($c & 0xF0) === 0xE0) {
+                $n = 2; // 1110bbbb
+            } elseif (($c & 0xF8) === 0xF0) {
+                $n = 3; // 11110bbb
+            } elseif (($c & 0xFC) === 0xF8) {
+                $n = 4; // 111110bb
+            } elseif (($c & 0xFE) === 0xFC) {
+                $n = 5; // 1111110b
+            } else {
+                return false; // does not match any model
+            }
+
+            for ($j = 0; $j < $n; $j++) { // n bytes matching 10bbbbbb follow?
+                if ((++$i === $length) || ((ord($string[$i]) & 0xC0) !== 0x80)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     private function handleDriverException(DriverException $driverException, string $message): Exception
