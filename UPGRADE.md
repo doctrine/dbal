@@ -378,6 +378,24 @@ Please use other database client applications for import, e.g.:
  * For PostgreSQL: `psql [dbname] < data.sql`.
  * For SQLite: `sqlite3 /path/to/file.db < data.sql`.
 
+## BC BREAK: Changed signature of `ExceptionConverter::convert()`
+
+Before:
+
+```php
+public function convert(string $message, Doctrine\DBAL\Driver\Exception $exception): DriverException
+```
+
+After:
+
+```php
+public function convert(Doctrine\DBAL\Driver\Exception $exception, ?Doctrine\DBAL\Query $query): DriverException
+```
+
+## BC Break: The `DriverException` constructor is now internal
+
+The constructor of `Doctrine\DBAL\Exception\DriverException` is now `@internal`.
+
 # Upgrade to 2.12
 
 ## PDO signature changes with php 8
