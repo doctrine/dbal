@@ -905,6 +905,8 @@ class Connection implements DriverConnection
 
     /**
      * {@inheritDoc}
+     *
+     * @param int|string|Type|null $type
      */
     public function quote($value, $type = ParameterType::STRING)
     {
@@ -1882,8 +1884,8 @@ class Connection implements DriverConnection
     /**
      * Gets the binding type of a given type. The given type can be a PDO or DBAL mapping type.
      *
-     * @param mixed           $value The value to bind.
-     * @param int|string|null $type  The type to bind (PDO or DBAL).
+     * @param mixed                $value The value to bind.
+     * @param int|string|Type|null $type  The type to bind (PDO or DBAL).
      *
      * @return mixed[] [0] => the (escaped) value, [1] => the binding type.
      */

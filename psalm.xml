@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <psalm
     totallyTyped="false"
-    errorLevel="5"
+    errorLevel="4"
     resolveFromConfigFile="true"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns="https://getpsalm.org/schema/config"
@@ -42,6 +42,40 @@
                 <file name="lib/Doctrine/DBAL/Driver/SQLSrv/SQLSrvConnection.php"/>
             </errorLevel>
         </FalsableReturnStatement>
+        <ForbiddenCode>
+            <errorLevel type="suppress">
+                <!-- See https://github.com/doctrine/dbal/pull/3934 -->
+                <file name="lib/Doctrine/DBAL/Logging/EchoSQLLogger.php"/>
+
+                <!-- The call to var_dump() here is by design -->
+                <file name="lib/Doctrine/DBAL/Tools/Dumper.php"/>
+            </errorLevel>
+        </ForbiddenCode>
+        <ImplicitToStringCast>
+            <errorLevel type="suppress">
+                <!-- See https://github.com/doctrine/dbal/pull/4082 -->
+                <file name="lib/Doctrine/DBAL/Schema/Visitor/Graphviz.php"/>
+            </errorLevel>
+        </ImplicitToStringCast>
+        <ImplementedReturnTypeMismatch>
+            <errorLevel type="suppress">
+                <!-- See https://github.com/doctrine/dbal/pull/3906 -->
+                <file name="lib/Doctrine/DBAL/Driver/DrizzlePDOMySql/Driver.php"/>
+
+                <!-- See https://github.com/doctrine/dbal/pull/4030 -->
+                <file name="lib/Doctrine/DBAL/Driver/Mysqli/MysqliConnection.php"/>
+                <file name="lib/Doctrine/DBAL/Driver/Mysqli/MysqliStatement.php"/>
+
+                <!-- See https://github.com/doctrine/dbal/pull/3080 -->
+                <file name="lib/Doctrine/DBAL/Driver/PDOConnection.php"/>
+
+                <!-- See https://github.com/doctrine/dbal/issues/4156 -->
+                <file name="lib/Doctrine/DBAL/Portability/Connection.php"/>
+
+                <!-- Fixing this issue requires an API change -->
+                <file name="lib/Doctrine/DBAL/Driver/OCI8/OCI8Connection.php"/>
+            </errorLevel>
+        </ImplementedReturnTypeMismatch>
         <MethodSignatureMismatch>
             <errorLevel type="suppress">
                 <!--
@@ -68,6 +102,23 @@
                 <file name="lib/Doctrine/DBAL/Driver/SQLSrv/SQLSrvStatement.php"/>
             </errorLevel>
         </TooFewArguments>
+        <TooManyArguments>
+            <errorLevel type="suppress">
+                <!-- See https://github.com/doctrine/dbal/pull/3080 -->
+                <file name="lib/Doctrine/DBAL/Connection.php"/>
+                <file name="tests/Doctrine/Tests/DBAL/Functional/Driver/PDOPgSql/DriverTest.php"/>
+
+                <!-- See https://github.com/doctrine/dbal/pull/3562 -->
+                <file name="lib/Doctrine/DBAL/Schema/AbstractSchemaManager.php"/>
+                <file name="lib/Doctrine/DBAL/Schema/SqliteSchemaManager.php"/>
+            </errorLevel>
+        </TooManyArguments>
+        <TypeDoesNotContainType>
+            <errorLevel type="suppress">
+                <!-- See https://github.com/vimeo/psalm/issues/4274 -->
+                <file name="lib/Doctrine/DBAL/Schema/Index.php"/>
+            </errorLevel>
+        </TypeDoesNotContainType>
         <UndefinedConstant>
             <errorLevel type="suppress">
                 <directory name="lib/Doctrine/DBAL/Driver/SQLAnywhere"/>
@@ -95,6 +146,34 @@
                 <file name="lib/Doctrine/DBAL/Driver/Mysqli/MysqliConnection.php"/>
             </errorLevel>
         </InvalidReturnType>
+        <InvalidScalarArgument>
+            <errorLevel type="suppress">
+                <!-- See https://github.com/doctrine/dbal/pull/3498 -->
+                <file name="tests/Doctrine/Tests/DBAL/Functional/DataAccessTest.php"/>
+                <file name="tests/Doctrine/Tests/DBAL/Platforms/AbstractPlatformTestCase.php"/>
+                <file name="tests/Doctrine/Tests/DBAL/Platforms/DB2PlatformTest.php"/>
+                <file name="tests/Doctrine/Tests/DBAL/Platforms/OraclePlatformTest.php"/>
+                <file name="tests/Doctrine/Tests/DBAL/Platforms/SQLAnywherePlatformTest.php"/>
+                <file name="tests/Doctrine/Tests/DBAL/Platforms/SqlitePlatformTest.php"/>
+
+                <!-- See https://github.com/doctrine/dbal/pull/3574 -->
+                <file name="tests/Doctrine/Tests/DBAL/Query/Expression/ExpressionBuilderTest.php"/>
+
+                <!-- See https://github.com/doctrine/dbal/pull/4007 -->
+                <file name="lib/Doctrine/DBAL/Driver/PDOStatement.php"/>
+
+                <!-- See https://github.com/doctrine/dbal/pull/3906 -->
+                <file name="tests/Doctrine/Tests/DBAL/Sharding/PoolingShardManagerTest.php"/>
+                <file name="tests/Doctrine/Tests/DBAL/Sharding/SQLAzure/FunctionalTest.php"/>
+                <file name="tests/Doctrine/Tests/DBAL/Sharding/SQLAzure/SQLAzureShardManagerTest.php"/>
+
+                <!-- See https://github.com/doctrine/dbal/pull/3241 -->
+                <file name="lib/Doctrine/DBAL/Tools/Console/Command/ImportCommand.php"/>
+
+                <!-- See https://github.com/doctrine/dbal/issues/4318 -->
+                <file name="lib/Doctrine/DBAL/Types/ConversionException.php"/>
+            </errorLevel>
+        </InvalidScalarArgument>
         <InvalidReturnStatement>
             <errorLevel type="suppress">
                 <!-- lastInsertId has a return type that does not match the one defined in the interface-->

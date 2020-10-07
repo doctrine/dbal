@@ -32,8 +32,8 @@ class ConnectionTest extends DbalFunctionalTestCase
     {
         $driverOptions = [MYSQLI_OPT_CONNECT_TIMEOUT => 1];
 
-        $connection = $this->getConnection($driverOptions);
-        self::assertInstanceOf(Connection::class, $connection);
+        $this->getConnection($driverOptions);
+        $this->expectNotToPerformAssertions();
     }
 
     public function testUnsupportedDriverOption(): void
