@@ -52,7 +52,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         $platform = $this->createPlatform();
         $platform->assertValidIdentifier($identifier);
 
-        $this->addToAssertionCount(1);
+        $this->expectNotToPerformAssertions();
     }
 
     /**

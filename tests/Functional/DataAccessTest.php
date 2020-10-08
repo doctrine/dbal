@@ -8,7 +8,6 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Platforms\TrimMode;
 use Doctrine\DBAL\Schema\Table;
-use Doctrine\DBAL\Statement;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 use Doctrine\DBAL\Types\Types;
 
@@ -16,7 +15,6 @@ use function array_change_key_case;
 use function count;
 use function date;
 use function json_encode;
-use function sprintf;
 use function strtotime;
 
 use const CASE_LOWER;
@@ -56,7 +54,6 @@ class DataAccessTest extends FunctionalTestCase
     {
         $sql  = 'SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?';
         $stmt = $this->connection->prepare($sql);
-        self::assertInstanceOf(Statement::class, $stmt);
 
         $stmt->bindValue(1, 1);
         $stmt->bindValue(2, 'foo');
@@ -75,7 +72,6 @@ class DataAccessTest extends FunctionalTestCase
 
         $sql  = 'SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?';
         $stmt = $this->connection->prepare($sql);
-        self::assertInstanceOf(Statement::class, $stmt);
 
         $stmt->bindParam(1, $paramInt);
         $stmt->bindParam(2, $paramStr);
@@ -94,7 +90,6 @@ class DataAccessTest extends FunctionalTestCase
 
         $sql  = 'SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?';
         $stmt = $this->connection->prepare($sql);
-        self::assertInstanceOf(Statement::class, $stmt);
 
         $stmt->bindParam(1, $paramInt);
         $stmt->bindParam(2, $paramStr);
@@ -111,7 +106,6 @@ class DataAccessTest extends FunctionalTestCase
 
         $sql  = 'SELECT test_int FROM fetch_table WHERE test_int = ? AND test_string = ?';
         $stmt = $this->connection->prepare($sql);
-        self::assertInstanceOf(Statement::class, $stmt);
 
         $stmt->bindParam(1, $paramInt);
         $stmt->bindParam(2, $paramStr);
@@ -120,29 +114,13 @@ class DataAccessTest extends FunctionalTestCase
         self::assertEquals(1, $column);
     }
 
-    public function testPrepareWithQuoted(): void
-    {
-        $table    = 'fetch_table';
-        $paramInt = 1;
-        $paramStr = 'foo';
-
-        $stmt = $this->connection->prepare(sprintf(
-            'SELECT test_int, test_string FROM %s WHERE test_int = %s AND test_string = %s',
-            $this->connection->quoteIdentifier($table),
-            $this->connection->quote($paramInt),
-            $this->connection->quote($paramStr)
-        ));
-        self::assertInstanceOf(Statement::class, $stmt);
-    }
-
     public function testPrepareWithExecuteParams(): void
     {
         $paramInt = 1;
         $paramStr = 'foo';
 
-        $sql  = 'SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?';
-        $stmt = $this->connection->prepare($sql);
-        self::assertInstanceOf(Statement::class, $stmt);
+        $sql    = 'SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?';
+        $stmt   = $this->connection->prepare($sql);
         $result = $stmt->execute([$paramInt, $paramStr]);
 
         $row = $result->fetchAssociative();

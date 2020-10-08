@@ -178,12 +178,13 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('create', 'integer', ['comment' => 'Doctrine 0wnz comments for reserved keyword columns!']);
         $table->addColumn('commented_type', 'object');
         $table->addColumn('commented_type_with_comment', 'array', ['comment' => 'Doctrine array type.']);
+        $table->addColumn('commented_req_change_column', 'integer', ['comment' => 'Some comment', 'notnull' => true]);
         $table->setPrimaryKey(['id']);
 
         $this->schemaManager->createTable($table);
 
         $columns = $this->schemaManager->listTableColumns('sqlsrv_column_comment');
-        self::assertCount(12, $columns);
+        self::assertCount(13, $columns);
         self::assertNull($columns['id']->getComment());
         self::assertNull($columns['comment_null']->getComment());
         self::assertNull($columns['comment_false']->getComment());
@@ -199,6 +200,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertEquals('Doctrine 0wnz comments for reserved keyword columns!', $columns['[create]']->getComment());
         self::assertNull($columns['commented_type']->getComment());
         self::assertEquals('Doctrine array type.', $columns['commented_type_with_comment']->getComment());
+        self::assertEquals('Some comment', $columns['commented_req_change_column']->getComment());
 
         $tableDiff            = new TableDiff('sqlsrv_column_comment');
         $tableDiff->fromTable = $table;
@@ -326,13 +328,29 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
             new Column('commented_type_with_comment', Type::getType('array'), ['comment' => 'Doctrine array type.'])
         );
 
+        // Change column requirements without changing comment.
+        $tableDiff->changedColumns['commented_req_change_column'] = new ColumnDiff(
+            'commented_req_change_column',
+            new Column(
+                'commented_req_change_column',
+                Type::getType('integer'),
+                ['comment' => 'Some comment', 'notnull' => true]
+            ),
+            ['notnull'],
+            new Column(
+                'commented_req_change_column',
+                Type::getType('integer'),
+                ['comment' => 'Some comment', 'notnull' => false]
+            ),
+        );
+
         $tableDiff->removedColumns['comment_integer_0']
             = new Column('comment_integer_0', Type::getType('integer'), ['comment' => 0]);
 
         $this->schemaManager->alterTable($tableDiff);
 
         $columns = $this->schemaManager->listTableColumns('sqlsrv_column_comment');
-        self::assertCount(23, $columns);
+        self::assertCount(24, $columns);
         self::assertEquals('primary', $columns['id']->getComment());
         self::assertNull($columns['comment_null']->getComment());
         self::assertEquals('false', $columns['comment_false']->getComment());
@@ -356,6 +374,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertEquals('666', $columns['[select]']->getComment());
         self::assertNull($columns['added_commented_type']->getComment());
         self::assertEquals('666', $columns['added_commented_type_with_comment']->getComment());
+        self::assertEquals('Some comment', $columns['commented_req_change_column']->getComment());
     }
 
     public function testPkOrdering(): void

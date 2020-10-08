@@ -762,8 +762,8 @@ class Connection
     }
 
     /**
-     * @param mixed      $value
-     * @param int|string $type
+     * @param mixed                $value
+     * @param int|string|Type|null $type
      *
      * @return mixed
      */
@@ -1585,8 +1585,8 @@ class Connection
     /**
      * Gets the binding type of a given type.
      *
-     * @param mixed           $value The value to bind.
-     * @param int|string|null $type  The type to bind (PDO or DBAL).
+     * @param mixed                $value The value to bind.
+     * @param int|string|Type|null $type  The type to bind (PDO or DBAL).
      *
      * @return mixed[] [0] => the (escaped) value, [1] => the binding type.
      *

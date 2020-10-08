@@ -43,7 +43,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $tables = $this->schemaManager->listTables();
 
-        self::assertHasTable($tables, 'list_tables_test_new_name');
+        self::assertHasTable($tables);
     }
 
     public function testListTableWithBinary(): void

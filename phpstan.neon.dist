@@ -83,5 +83,11 @@ parameters:
             paths:
                 - %currentWorkingDirectory%/src/Id/TableGenerator.php
                 - %currentWorkingDirectory%/src/Schema/SqliteSchemaManager.php
+
+        # Unlike Psalm, PHPStan doesn't understand the shape of the parse_str() return value
+        -
+            message: '~^Parameter #1 \$scheme of static method Doctrine\\DBAL\\DriverManager::parseDatabaseUrlScheme\(\) expects string\|null, int\|string\|null given\.$~'
+            paths:
+                - %currentWorkingDirectory%/src/DriverManager.php
 includes:
     - vendor/phpstan/phpstan-strict-rules/rules.neon

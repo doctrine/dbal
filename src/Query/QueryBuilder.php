@@ -1193,7 +1193,7 @@ class QueryBuilder
     }
 
     /**
-     * @param string[] $knownAliases
+     * @param array<string,true> $knownAliases
      *
      * @throws QueryException
      */
@@ -1335,8 +1335,8 @@ class QueryBuilder
     }
 
     /**
-     * @param string   $fromAlias
-     * @param string[] $knownAliases
+     * @param string             $fromAlias
+     * @param array<string,true> $knownAliases
      *
      * @return string
      *

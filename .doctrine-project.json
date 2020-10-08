@@ -7,7 +7,7 @@
     "versions": [
         {
             "name": "3.0",
-            "branchName": "develop",
+            "branchName": "3.0.x",
             "slug": "latest",
             "upcoming": true
         },

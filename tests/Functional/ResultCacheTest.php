@@ -230,7 +230,7 @@ class ResultCacheTest extends FunctionalTestCase
         $query = $this->connection->getDatabasePlatform()
             ->getDummySelectSQL('1');
 
-        $qcp = new QueryCacheProfile(0, 0, new ArrayCache());
+        $qcp = new QueryCacheProfile(0, null, new ArrayCache());
 
         $result = $this->connection->executeCacheQuery($query, [], [], $qcp);
         $result->fetchFirstColumn();
@@ -241,7 +241,7 @@ class ResultCacheTest extends FunctionalTestCase
     }
 
     /**
-     * @param array<int, array<int, int|string>>|list<int> $expectedResult
+     * @param list<mixed> $expectedResult
      */
     private function assertCacheNonCacheSelectSameFetchModeAreEqual(array $expectedResult, callable $fetchMode): void
     {

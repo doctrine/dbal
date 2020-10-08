@@ -10,7 +10,6 @@ use Doctrine\DBAL\Driver\PDO;
 use Doctrine\DBAL\Driver\SQLSrv;
 
 use function array_keys;
-use function array_map;
 use function array_merge;
 use function assert;
 use function class_implements;
@@ -20,6 +19,7 @@ use function is_subclass_of;
 use function parse_str;
 use function parse_url;
 use function preg_replace;
+use function rawurldecode;
 use function str_replace;
 use function strpos;
 use function substr;
@@ -243,9 +243,15 @@ final class DriverManager
             throw new Exception('Malformed parameter "url".');
         }
 
-        $url = array_map('rawurldecode', $url);
+        foreach ($url as $param => $value) {
+            if (! is_string($value)) {
+                continue;
+            }
 
-        $params = self::parseDatabaseUrlScheme($url, $params);
+            $url[$param] = rawurldecode($value);
+        }
+
+        $params = self::parseDatabaseUrlScheme($url['scheme'] ?? null, $params);
 
         if (isset($url['host'])) {
             $params['host'] = $url['host'];
@@ -371,23 +377,22 @@ final class DriverManager
     /**
      * Parses the scheme part from given connection URL and resolves the given connection parameters.
      *
-     * @param mixed[] $url    The connection URL parts to evaluate.
-     * @param mixed[] $params The connection parameters to resolve.
+     * @param string|null $scheme The connection URL scheme, if available
+     * @param mixed[]     $params The connection parameters to resolve.
      *
      * @return mixed[] The resolved connection parameters.
      *
      * @throws Exception If parsing failed or resolution is not possible.
      */
-    private static function parseDatabaseUrlScheme(array $url, array $params): array
+    private static function parseDatabaseUrlScheme(?string $scheme, array $params): array
     {
-        if (isset($url['scheme'])) {
+        if ($scheme !== null) {
             // The requested driver from the URL scheme takes precedence
             // over the default custom driver from the connection parameters (if any).
             unset($params['driverClass']);
 
             // URL schemes must not contain underscores, but dashes are ok
-            $driver = str_replace('-', '_', $url['scheme']);
-            assert(is_string($driver));
+            $driver = str_replace('-', '_', $scheme);
 
             // The requested driver from the URL scheme takes precedence over the
             // default driver from the connection parameters. If the driver is

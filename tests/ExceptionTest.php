@@ -15,7 +15,6 @@ class ExceptionTest extends TestCase
         $url       = 'mysql://localhost';
         $exception = Exception::driverRequired($url);
 
-        self::assertInstanceOf(Exception::class, $exception);
         self::assertSame(
             sprintf(
                 "The options 'driver' or 'driverClass' are mandatory if a connection URL without scheme " .

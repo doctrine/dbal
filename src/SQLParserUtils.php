@@ -42,7 +42,7 @@ class SQLParserUtils
     /**
      * Returns a zero-indexed list of placeholder position.
      *
-     * @return int[]
+     * @return list<int>
      */
     private static function getPositionalPlaceholderPositions(string $statement): array
     {
@@ -59,7 +59,7 @@ class SQLParserUtils
     /**
      * Returns a map of placeholder positions to their parameter names.
      *
-     * @return string[]
+     * @return array<int,string>
      */
     private static function getNamedPlaceholderPositions(string $statement): array
     {
