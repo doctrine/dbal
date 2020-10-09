@@ -7,7 +7,10 @@ namespace Doctrine\DBAL;
 use Doctrine\DBAL\Driver\Exception as DriverException;
 use Doctrine\DBAL\Driver\Result as DriverResult;
 use Doctrine\DBAL\Exception\NoKeyValue;
+use LogicException;
 use Traversable;
+
+use function func_num_args;
 
 class Result
 {
@@ -241,5 +244,61 @@ class Result
         if ($columnCount < 2) {
             throw NoKeyValue::fromColumnCount($columnCount);
         }
+    }
+
+    /**
+     * BC layer for a wide-spread use-case of old DBAL APIs
+     *
+     * @deprecated This API is deprecated and will be removed after 2022
+     *
+     * @return mixed
+     */
+    public function fetch(int $mode = FetchMode::ASSOCIATIVE)
+    {
+        if (func_num_args() > 1) {
+            throw new LogicException('Only invocations with one argument are still supported by this legecy API.');
+        }
+
+        if ($mode === FetchMode::ASSOCIATIVE) {
+            return $this->fetchAssociative();
+        }
+
+        if ($mode === FetchMode::NUMERIC) {
+            return $this->fetchNumeric();
+        }
+
+        if ($mode === FetchMode::COLUMN) {
+            return $this->fetchOne();
+        }
+
+        throw new LogicException('Only fetch modes declared on Doctrine\DBAL\FetchMode are supported by legacy API.');
+    }
+
+    /**
+     * BC layer for a wide-spread use-case of old DBAL APIs
+     *
+     * @deprecated This API is deprecated and will be removed after 2022
+     *
+     * @return list<mixed>
+     */
+    public function fetchAll(int $mode = FetchMode::ASSOCIATIVE): array
+    {
+        if (func_num_args() > 1) {
+            throw new LogicException('Only invocations with one argument are still supported by this legecy API.');
+        }
+
+        if ($mode === FetchMode::ASSOCIATIVE) {
+            return $this->fetchAllAssociative();
+        }
+
+        if ($mode === FetchMode::NUMERIC) {
+            return $this->fetchAllNumeric();
+        }
+
+        if ($mode === FetchMode::COLUMN) {
+            return $this->fetchFirstColumn();
+        }
+
+        throw new LogicException('Only fetch modes declared on Doctrine\DBAL\FetchMode are supported by legacy API.');
     }
 }
