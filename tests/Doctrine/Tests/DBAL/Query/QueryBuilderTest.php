@@ -950,6 +950,19 @@ class QueryBuilderTest extends DbalTestCase
         $qb->getSQL();
     }
 
+    public function testWhereExpressionAndWhereEmptyString(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('id')
+            ->from('foo')
+            ->where('a = b');
+
+        $qb->andWhere('');
+
+        self::assertSame('SELECT id FROM foo WHERE a = b', $qb->getSQL());
+    }
+
     public function testAndWhereEmptyStringStartingWithEmptyExpression(): void
     {
         $qb = new QueryBuilder($this->conn);
@@ -973,6 +986,19 @@ class QueryBuilderTest extends DbalTestCase
         $qb->andWhere('', 'c = d');
 
         self::assertSame('SELECT id FROM foo WHERE (a = b) AND (c = d)', $qb->getSQL());
+    }
+
+    public function testWhereExpressionOrWhereEmptyString(): void
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('id')
+            ->from('foo')
+            ->orWhere('a = b');
+
+        $qb->orWhere('');
+
+        self::assertSame('SELECT id FROM foo WHERE a = b', $qb->getSQL());
     }
 
     public function testOrWhereEmptyStringStartingWithEmptyExpression(): void

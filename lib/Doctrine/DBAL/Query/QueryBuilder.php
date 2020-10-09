@@ -12,6 +12,7 @@ use function array_filter;
 use function array_key_exists;
 use function array_keys;
 use function array_unshift;
+use function count;
 use function func_get_args;
 use function func_num_args;
 use function implode;
@@ -834,7 +835,9 @@ class QueryBuilder
         $where = $this->getQueryPart('where');
 
         if ($where instanceof CompositeExpression && $where->getType() === CompositeExpression::TYPE_AND) {
-            $where = $where->with(...$args);
+            if (count($args) > 0) {
+                $where = $where->with(...$args);
+            }
         } else {
             array_unshift($args, $where);
             $where = CompositeExpression::and(...$args);
@@ -868,7 +871,9 @@ class QueryBuilder
         $where = $this->getQueryPart('where');
 
         if ($where instanceof CompositeExpression && $where->getType() === CompositeExpression::TYPE_OR) {
-            $where = $where->with(...$args);
+            if (count($args) > 0) {
+                $where = $where->with(...$args);
+            }
         } else {
             array_unshift($args, $where);
             $where = CompositeExpression::or(...$args);
