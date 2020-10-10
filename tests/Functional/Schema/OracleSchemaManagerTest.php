@@ -2,6 +2,8 @@
 
 namespace Doctrine\DBAL\Tests\Functional\Schema;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\TestUtil;
@@ -14,6 +16,11 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
     /** @var bool */
     private static $privilegesGranted = false;
+
+    protected function supportsPlatform(AbstractPlatform $platform): bool
+    {
+        return $platform instanceof OraclePlatform;
+    }
 
     protected function setUp(): void
     {

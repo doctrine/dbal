@@ -2,6 +2,8 @@
 
 namespace Doctrine\DBAL\Tests\Functional\Schema;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Table;
@@ -12,9 +14,9 @@ use function current;
 
 class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
-    protected function getPlatformName(): string
+    protected function supportsPlatform(AbstractPlatform $platform): bool
     {
-        return 'mssql';
+        return $platform instanceof SQLServer2012Platform;
     }
 
     public function testDropColumnConstraints(): void

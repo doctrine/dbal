@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Tests\Functional\Schema;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\AbstractAsset;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column;
@@ -36,11 +37,9 @@ use function array_search;
 use function array_values;
 use function count;
 use function current;
-use function end;
-use function explode;
+use function get_class;
 use function in_array;
 use function sprintf;
-use function str_replace;
 use function strcasecmp;
 use function strlen;
 use function strtolower;
@@ -51,23 +50,16 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
     /** @var AbstractSchemaManager */
     protected $schemaManager;
 
-    protected function getPlatformName(): string
-    {
-        $class     = static::class;
-        $e         = explode('\\', $class);
-        $testClass = end($e);
-
-        return strtolower(str_replace('SchemaManagerTest', '', $testClass));
-    }
+    abstract protected function supportsPlatform(AbstractPlatform $platform): bool;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $dbms = $this->getPlatformName();
+        $platform = $this->connection->getDatabasePlatform();
 
-        if ($this->connection->getDatabasePlatform()->getName() !== $dbms) {
-            self::markTestSkipped(static::class . ' requires the use of ' . $dbms);
+        if (! $this->supportsPlatform($platform)) {
+            self::markTestSkipped(sprintf('Skipping since connected to %s', get_class($platform)));
         }
 
         $this->schemaManager = $this->connection->getSchemaManager();
