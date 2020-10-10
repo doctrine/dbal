@@ -5,9 +5,9 @@ namespace Doctrine\Tests\DBAL\Functional\Query;
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Table;
-use Doctrine\Tests\DbalFunctionalTestCase;
+use Doctrine\DBAL\Tests\FunctionalTestCase;
 
-class QueryBuilderTest extends DbalFunctionalTestCase
+class QueryBuilderTest extends FunctionalTestCase
 {
     /** @var bool */
     private static $generated = false;
