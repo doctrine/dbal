@@ -2,11 +2,18 @@
 
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\DrizzlePlatform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\BinaryType;
 
 class DrizzleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
+    protected function supportsPlatform(AbstractPlatform $platform): bool
+    {
+        return $platform instanceof DrizzlePlatform;
+    }
+
     public function testListTableWithBinary(): void
     {
         $tableName = 'test_binary_table';

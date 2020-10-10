@@ -2,11 +2,18 @@
 
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\BooleanType;
 
 class Db2SchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
+    protected function supportsPlatform(AbstractPlatform $platform): bool
+    {
+        return $platform instanceof DB2Platform;
+    }
+
     public function testGetBooleanColumn(): void
     {
         $table = new Table('boolean_column_test');

@@ -2,12 +2,19 @@
 
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\SQLAnywherePlatform;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\View;
 
 class SQLAnywhereSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
+    protected function supportsPlatform(AbstractPlatform $platform): bool
+    {
+        return $platform instanceof SQLAnywherePlatform;
+    }
+
     public function testCreateAndListViews(): void
     {
         $this->createTestTable('view_test_table');

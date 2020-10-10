@@ -317,11 +317,11 @@ class PrimaryReadReplicaConnection extends Connection
     /**
      * {@inheritDoc}
      */
-    public function delete($table, array $identifier, array $types = [])
+    public function delete($table, array $criteria, array $types = [])
     {
         $this->ensureConnectedToPrimary();
 
-        return parent::delete($table, $identifier, $types);
+        return parent::delete($table, $criteria, $types);
     }
 
     /**
@@ -340,11 +340,11 @@ class PrimaryReadReplicaConnection extends Connection
     /**
      * {@inheritDoc}
      */
-    public function update($table, array $data, array $identifier, array $types = [])
+    public function update($table, array $data, array $criteria, array $types = [])
     {
         $this->ensureConnectedToPrimary();
 
-        return parent::update($table, $data, $identifier, $types);
+        return parent::update($table, $data, $criteria, $types);
     }
 
     /**
