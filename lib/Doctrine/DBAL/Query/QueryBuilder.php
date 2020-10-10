@@ -7,6 +7,7 @@ use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
+use Doctrine\DBAL\Types\Type;
 
 use function array_filter;
 use function array_key_exists;
@@ -88,14 +89,14 @@ class QueryBuilder
     /**
      * The query parameters.
      *
-     * @var mixed[]
+     * @var array<int, mixed>|array<string, mixed>
      */
     private $params = [];
 
     /**
      * The parameter type map of this query.
      *
-     * @var int[]|string[]
+     * @var array<int, int|string|Type|null>|array<string, int|string|Type|null>
      */
     private $paramTypes = [];
 
@@ -263,9 +264,9 @@ class QueryBuilder
      *         ->setParameter(':user_id', 1);
      * </code>
      *
-     * @param string|int      $key   The parameter position or name.
-     * @param mixed           $value The parameter value.
-     * @param string|int|null $type  One of the {@link ParameterType} constants.
+     * @param int|string           $key   Parameter position or name
+     * @param mixed                $value Parameter value
+     * @param int|string|Type|null $type  One of the {@link ParameterType} constants or DBAL type
      *
      * @return $this This QueryBuilder instance.
      */
@@ -294,8 +295,8 @@ class QueryBuilder
      *         ));
      * </code>
      *
-     * @param mixed[]        $params The query parameters to set.
-     * @param int[]|string[] $types  The query parameters types to set.
+     * @param array<int, mixed>|array<string, mixed>                               $params Parameters to set
+     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
      *
      * @return $this This QueryBuilder instance.
      */
@@ -310,7 +311,7 @@ class QueryBuilder
     /**
      * Gets all defined query parameters for the query being constructed indexed by parameter index or name.
      *
-     * @return mixed[] The currently defined query parameters indexed by parameter index or name.
+     * @return array<int, mixed>|array<string, mixed> The currently defined query parameters
      */
     public function getParameters()
     {
@@ -332,7 +333,8 @@ class QueryBuilder
     /**
      * Gets all defined query parameter types for the query being constructed indexed by parameter index or name.
      *
-     * @return int[]|string[] The currently defined query parameter types indexed by parameter index or name.
+     * @return array<int, int|string|Type|null>|array<string, int|string|Type|null> The currently defined
+     *                                                                              query parameter types
      */
     public function getParameterTypes()
     {
@@ -342,9 +344,9 @@ class QueryBuilder
     /**
      * Gets a (previously set) query parameter type of the query being constructed.
      *
-     * @param mixed $key The key (index or name) of the bound parameter type.
+     * @param int|string $key The key of the bound parameter type
      *
-     * @return mixed The value of the bound parameter type.
+     * @return int|string|Type|null The value of the bound parameter type
      */
     public function getParameterType($key)
     {
@@ -1291,9 +1293,9 @@ class QueryBuilder
      *
      * @link http://www.zetacomponents.org
      *
-     * @param mixed  $value
-     * @param mixed  $type
-     * @param string $placeHolder The name to bind with. The string must start with a colon ':'.
+     * @param mixed                $value
+     * @param int|string|Type|null $type
+     * @param string               $placeHolder The name to bind with. The string must start with a colon ':'.
      *
      * @return string the placeholder name used.
      */
@@ -1326,8 +1328,8 @@ class QueryBuilder
      *     ->orWhere('u.username = ' . $qb->createPositionalParameter('Bar', ParameterType::STRING))
      * </code>
      *
-     * @param mixed $value
-     * @param int   $type
+     * @param mixed                $value
+     * @param int|string|Type|null $type
      *
      * @return string
      */
