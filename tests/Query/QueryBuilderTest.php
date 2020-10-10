@@ -157,7 +157,7 @@ class QueryBuilderTest extends TestCase
             ->setLockMode(LockMode::PESSIMISTIC_WRITE)
             ->where($expr->and($expr->eq('u.nickname', '?')));
 
-        self::assertEquals('SELECT u.id FROM users u WITH (XLOCK) WHERE u.nickname = ?', (string) $qb);
+        self::assertEquals('SELECT u.id FROM users u WITH (UPDLOCK, ROWLOCK) WHERE u.nickname = ?', (string) $qb);
     }
 
     public function testSelectWithLeftJoin(): void
