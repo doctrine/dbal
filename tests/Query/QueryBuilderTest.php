@@ -8,7 +8,6 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MySQL57Platform;
 use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
-use Doctrine\DBAL\Platforms\SQLAnywhere16Platform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
@@ -148,7 +147,7 @@ class QueryBuilderTest extends TestCase
 
     public function testSelectWithWriteLockTableHint(): void
     {
-        $platform = new SQLAnywhere16Platform();
+        $platform = new SQLServer2012Platform();
 
         $qb   = new QueryBuilder($this->createMockConnection($platform));
         $expr = $qb->expr();
