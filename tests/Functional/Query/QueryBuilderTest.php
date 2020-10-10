@@ -55,9 +55,13 @@ class QueryBuilderTest extends DbalFunctionalTestCase
             ->where($sut->expr()->eq('lt.data', '?'))
             ->setParameter(0, 'foo', ParameterType::STRING);
 
+        $this->connection->beginTransaction();
+
         $result = $query->execute();
         $record = $result->fetchAllAssociative();
         self::assertEquals(1, $record[0]['primary_key']);
+
+        $this->connection->rollBack();
     }
 
     public function testWriteLock(): void
@@ -69,8 +73,12 @@ class QueryBuilderTest extends DbalFunctionalTestCase
             ->where($sut->expr()->eq('lt.data', '?'))
             ->setParameter(0, 'bar', ParameterType::STRING);
 
+        $this->connection->beginTransaction();
+
         $result = $query->execute();
         $record = $result->fetchAllAssociative();
         self::assertEquals(2, $record[0]['primary_key']);
+
+        $this->connection->rollBack();
     }
 }
