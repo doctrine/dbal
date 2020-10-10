@@ -695,24 +695,24 @@ class Connection implements DriverConnection
     }
 
     /**
-     * Adds identifier condition to the query components
+     * Adds condition based on the criteria to the query components
      *
-     * @param mixed[]  $identifier Map of key columns to their values
+     * @param mixed[]  $criteria   Map of key columns to their values
      * @param string[] $columns    Column names
      * @param mixed[]  $values     Column values
      * @param string[] $conditions Key conditions
      *
      * @throws Exception
      */
-    private function addIdentifierCondition(
-        array $identifier,
+    private function addCriteriaCondition(
+        array $criteria,
         array &$columns,
         array &$values,
         array &$conditions
     ): void {
         $platform = $this->getDatabasePlatform();
 
-        foreach ($identifier as $columnName => $value) {
+        foreach ($criteria as $columnName => $value) {
             if ($value === null) {
                 $conditions[] = $platform->getIsNullExpression($columnName);
                 continue;
@@ -729,23 +729,23 @@ class Connection implements DriverConnection
      *
      * Table expression and columns are not escaped and are not safe for user-input.
      *
-     * @param string                                                               $table      Table name
-     * @param array<string, mixed>                                                 $identifier Deletion criteria
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types      Parameter types
+     * @param string                                                               $table    Table name
+     * @param array<string, mixed>                                                 $criteria Deletion criteria
+     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types    Parameter types
      *
      * @return int The number of affected rows.
      *
      * @throws Exception
      */
-    public function delete($table, array $identifier, array $types = [])
+    public function delete($table, array $criteria, array $types = [])
     {
-        if (empty($identifier)) {
+        if (empty($criteria)) {
             throw InvalidArgumentException::fromEmptyCriteria();
         }
 
         $columns = $values = $conditions = [];
 
-        $this->addIdentifierCondition($identifier, $columns, $values, $conditions);
+        $this->addCriteriaCondition($criteria, $columns, $values, $conditions);
 
         return $this->executeStatement(
             'DELETE FROM ' . $table . ' WHERE ' . implode(' AND ', $conditions),
@@ -797,16 +797,16 @@ class Connection implements DriverConnection
      *
      * Table expression and columns are not escaped and are not safe for user-input.
      *
-     * @param string                                                               $table      Table name
-     * @param array<string, mixed>                                                 $data       Column-value pairs
-     * @param array<string, mixed>                                                 $identifier Update criteria
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types      Parameter types
+     * @param string                                                               $table    Table name
+     * @param array<string, mixed>                                                 $data     Column-value pairs
+     * @param array<string, mixed>                                                 $criteria Update criteria
+     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types    Parameter types
      *
      * @return int The number of affected rows.
      *
      * @throws Exception
      */
-    public function update($table, array $data, array $identifier, array $types = [])
+    public function update($table, array $data, array $criteria, array $types = [])
     {
         $columns = $values = $conditions = $set = [];
 
@@ -816,7 +816,7 @@ class Connection implements DriverConnection
             $set[]     = $columnName . ' = ?';
         }
 
-        $this->addIdentifierCondition($identifier, $columns, $values, $conditions);
+        $this->addCriteriaCondition($criteria, $columns, $values, $conditions);
 
         if (is_string(key($types))) {
             $types = $this->extractTypeValues($columns, $types);
