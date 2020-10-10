@@ -50,7 +50,7 @@ class QueryBuilderTest extends DbalFunctionalTestCase
     {
         $sut = $this->connection->createQueryBuilder();
         $query = $sut->select('lt.*')
-            ->from('lock_test_table')
+            ->from('lock_test_table', 'lt')
             ->setLockMode(LockMode::PESSIMISTIC_READ)
             ->where($sut->expr()->eq('lt.data', '?'))
             ->setParameter(0, 'foo', ParameterType::STRING);
