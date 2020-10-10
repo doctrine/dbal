@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
 use DateTime;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Schema\Comparator;
@@ -15,6 +16,11 @@ use Doctrine\Tests\Types\MySqlPointType;
 
 class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
+    protected function supportsPlatform(AbstractPlatform $platform): bool
+    {
+        return $platform instanceof MySqlPlatform;
+    }
+
     protected function setUp(): void
     {
         parent::setUp();

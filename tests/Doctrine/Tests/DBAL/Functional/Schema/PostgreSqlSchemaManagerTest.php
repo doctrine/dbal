@@ -25,6 +25,11 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     /** @var PostgreSqlSchemaManager */
     protected $schemaManager;
 
+    protected function supportsPlatform(AbstractPlatform $platform): bool
+    {
+        return $platform instanceof PostgreSQL94Platform;
+    }
+
     protected function tearDown(): void
     {
         parent::tearDown();

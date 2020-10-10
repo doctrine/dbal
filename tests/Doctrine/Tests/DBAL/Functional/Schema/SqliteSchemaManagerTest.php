@@ -4,6 +4,8 @@ namespace Doctrine\Tests\DBAL\Functional\Schema;
 
 use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\BlobType;
@@ -14,6 +16,11 @@ use function dirname;
 
 class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
+    protected function supportsPlatform(AbstractPlatform $platform): bool
+    {
+        return $platform instanceof SqlitePlatform;
+    }
+
     /**
      * SQLITE does not support databases.
      */
