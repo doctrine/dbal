@@ -46,9 +46,9 @@ class QueryBuilderTest extends DbalFunctionalTestCase
         self::$generated = true;
     }
 
-    public function testReadLock()
+    public function testReadLock(): void
     {
-        $sut = $this->connection->createQueryBuilder();
+        $sut   = $this->connection->createQueryBuilder();
         $query = $sut->select('lt.*')
             ->from('lock_test_table', 'lt')
             ->setLockMode(LockMode::PESSIMISTIC_READ)
@@ -60,11 +60,11 @@ class QueryBuilderTest extends DbalFunctionalTestCase
         self::assertEquals(1, $record[0]['primary_key']);
     }
 
-    public function testWriteLock()
+    public function testWriteLock(): void
     {
-        $sut = $this->connection->createQueryBuilder();
+        $sut   = $this->connection->createQueryBuilder();
         $query = $sut->select('lt.*')
-            ->from('lock_test_table')
+            ->from('lock_test_table', 'lt')
             ->setLockMode(LockMode::PESSIMISTIC_WRITE)
             ->where($sut->expr()->eq('lt.data', '?'))
             ->setParameter(0, 'bar', ParameterType::STRING);
