@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <psalm
     totallyTyped="false"
-    errorLevel="5"
+    errorLevel="4"
     resolveFromConfigFile="true"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns="https://getpsalm.org/schema/config"
@@ -50,6 +50,18 @@
                 <file name="src/Exception/DriverException.php"/>
             </errorLevel>
         </ImpureMethodCall>
+        <ForbiddenCode>
+            <errorLevel type="suppress">
+                <!-- The call to var_dump() here is by design -->
+                <file name="src/Tools/Dumper.php"/>
+            </errorLevel>
+        </ForbiddenCode>
+        <ImplementedReturnTypeMismatch>
+            <errorLevel type="suppress">
+                <!-- Fixing this issue requires an API change -->
+                <file name="src/Driver/OCI8/Connection.php"/>
+            </errorLevel>
+        </ImplementedReturnTypeMismatch>
         <NullableReturnStatement>
             <errorLevel type="suppress">
                 <!--
@@ -67,6 +79,12 @@
                 <file name="src/Driver/SQLSrv/Statement.php"/>
             </errorLevel>
         </TooFewArguments>
+        <TypeDoesNotContainType>
+            <errorLevel type="suppress">
+                <!-- See https://github.com/vimeo/psalm/issues/4274 -->
+                <file name="src/Schema/Index.php"/>
+            </errorLevel>
+        </TypeDoesNotContainType>
         <UndefinedConstant>
             <errorLevel type="suppress">
                 <!--
@@ -88,6 +106,12 @@
                 <file name="src/Driver/Mysqli/Connection.php"/>
             </errorLevel>
         </InvalidReturnType>
+        <InvalidScalarArgument>
+            <errorLevel type="suppress">
+                <!-- See https://github.com/vimeo/psalm/issues/4295 -->
+                <file name="src/Exception/DriverException.php"/>
+            </errorLevel>
+        </InvalidScalarArgument>
         <InvalidReturnStatement>
             <errorLevel type="suppress">
                 <!-- lastInsertId has a return type that does not match the one defined in the interface-->

@@ -28,6 +28,7 @@ use function array_keys;
 use function assert;
 use function count;
 use function implode;
+use function is_array;
 use function is_string;
 use function sprintf;
 
@@ -118,7 +119,14 @@ EOT
     {
         $conn = $this->getConnection($input);
 
-        $keywordLists = (array) $input->getOption('list');
+        $keywordLists = $input->getOption('list');
+
+        if (is_string($keywordLists)) {
+            $keywordLists = [$keywordLists];
+        } elseif (! is_array($keywordLists)) {
+            $keywordLists = [];
+        }
+
         if (count($keywordLists) === 0) {
             $keywordLists = array_keys($this->keywordListClasses);
         }

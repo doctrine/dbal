@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver\OCI8;
 
-use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
 use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\Exception\IdentityColumnsNotSupported;
 use Doctrine\DBAL\Driver\OCI8\Exception\ConnectionFailed;
@@ -26,7 +25,7 @@ use function str_replace;
 
 use const OCI_NO_AUTO_COMMIT;
 
-final class Connection implements ConnectionInterface, ServerInfoAwareConnection
+final class Connection implements ServerInfoAwareConnection
 {
     /** @var resource */
     private $connection;

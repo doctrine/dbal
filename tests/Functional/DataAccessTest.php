@@ -122,17 +122,6 @@ class DataAccessTest extends FunctionalTestCase
         self::assertEquals(1, $column);
     }
 
-    public function testPrepareWithQuoted(): void
-    {
-        $stmt = $this->connection->prepare(sprintf(
-            'SELECT test_int, test_string FROM fetch_table WHERE test_int = %d AND test_string = %s',
-            1,
-            $this->connection->quote('foo')
-        ));
-
-        self::assertEquals([1, 'foo'], $stmt->execute()->fetchNumeric());
-    }
-
     public function testPrepareWithExecuteParams(): void
     {
         $paramInt = 1;

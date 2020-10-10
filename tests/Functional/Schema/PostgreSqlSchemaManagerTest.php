@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
@@ -26,6 +27,11 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
     /** @var PostgreSqlSchemaManager */
     protected $schemaManager;
+
+    protected function supportsPlatform(AbstractPlatform $platform): bool
+    {
+        return $platform instanceof PostgreSQL94Platform;
+    }
 
     protected function tearDown(): void
     {

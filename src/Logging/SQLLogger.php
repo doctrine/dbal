@@ -14,9 +14,9 @@ interface SQLLogger
     /**
      * Logs a SQL statement somewhere.
      *
-     * @param string                $sql    The SQL to be executed.
-     * @param mixed[]               $params The SQL parameters.
-     * @param int[]|string[]|Type[] $types  The SQL parameter types.
+     * @param string                                                               $sql    The SQL to be executed.
+     * @param array<int, mixed>|array<string, mixed>                               $params Statement parameters
+     * @param array<int, Type|int|string|null>|array<string, Type|int|string|null> $types  Parameter types
      */
     public function startQuery(string $sql, array $params = [], array $types = []): void;
 

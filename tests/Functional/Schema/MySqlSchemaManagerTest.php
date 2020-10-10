@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Tests\Functional\Schema;
 use DateTime;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception\DatabaseRequired;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
@@ -21,6 +22,11 @@ use Doctrine\DBAL\Types\Types;
 
 class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
+    protected function supportsPlatform(AbstractPlatform $platform): bool
+    {
+        return $platform instanceof MySqlPlatform;
+    }
+
     protected function setUp(): void
     {
         parent::setUp();

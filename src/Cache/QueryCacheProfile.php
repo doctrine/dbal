@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Cache;
 
 use Doctrine\Common\Cache\Cache;
 use Doctrine\DBAL\Cache\Exception\NoCacheKey;
+use Doctrine\DBAL\Types\Type;
 
 use function hash;
 use function serialize;
@@ -59,9 +60,9 @@ class QueryCacheProfile
     /**
      * Generates the real cache key from query, params, types and connection parameters.
      *
-     * @param mixed[]        $params
-     * @param int[]|string[] $types
-     * @param mixed[]        $connectionParams
+     * @param array<int, mixed>|array<string, mixed>                               $params
+     * @param array<int, Type|int|string|null>|array<string, Type|int|string|null> $types
+     * @param array<string, mixed>                                                 $connectionParams
      *
      * @return string[]
      */
