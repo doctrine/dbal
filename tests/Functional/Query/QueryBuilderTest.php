@@ -57,9 +57,11 @@ class QueryBuilderTest extends FunctionalTestCase
 
         $this->connection->beginTransaction();
 
-        $result = $query->execute();
-        $record = $result->fetchAllAssociative();
-        self::assertEquals(1, $record[0]['primary_key']);
+        $row = $query->execute()->fetchAssociative();
+
+        self::assertIsArray($row);
+        $row = array_change_key_case($row, CASE_LOWER);
+        self::assertEquals(['primary_key' => 1, 'data' => 'foo'], $row);
 
         $this->connection->rollBack();
     }
@@ -75,9 +77,11 @@ class QueryBuilderTest extends FunctionalTestCase
 
         $this->connection->beginTransaction();
 
-        $result = $query->execute();
-        $record = $result->fetchAllAssociative();
-        self::assertEquals(2, $record[0]['primary_key']);
+        $row = $query->execute()->fetchAssociative();
+
+        self::assertIsArray($row);
+        $row = array_change_key_case($row, CASE_LOWER);
+        self::assertEquals(['primary_key' => 2, 'data' => 'bar'], $row);
 
         $this->connection->rollBack();
     }
