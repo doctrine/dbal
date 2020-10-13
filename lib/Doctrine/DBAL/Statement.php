@@ -5,6 +5,7 @@ namespace Doctrine\DBAL;
 use Doctrine\DBAL\Abstraction\Result;
 use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
+use Doctrine\DBAL\Exception\NoKeyValue;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
 use IteratorAggregate;
@@ -376,6 +377,28 @@ class Statement implements IteratorAggregate, DriverStatement, Result
     }
 
     /**
+     * Returns an associative array with the keys mapped to the first column and the values mapped to the second column.
+     *
+     * The result must contain at least two columns.
+     *
+     * @return array<mixed,mixed>
+     *
+     * @throws Exception
+     */
+    public function fetchAllKeyValue(): array
+    {
+        $this->ensureHasKeyValue();
+
+        $data = [];
+
+        foreach ($this->fetchAllNumeric() as [$key, $value]) {
+            $data[$key] = $value;
+        }
+
+        return $data;
+    }
+
+    /**
      * {@inheritdoc}
      *
      * @throws Exception
@@ -442,6 +465,25 @@ class Statement implements IteratorAggregate, DriverStatement, Result
     }
 
     /**
+     * Returns an iterator over the result set with the keys mapped to the first column
+     * and the values mapped to the second column.
+     *
+     * The result must contain at least two columns.
+     *
+     * @return Traversable<mixed,mixed>
+     *
+     * @throws Exception
+     */
+    public function iterateKeyValue(): Traversable
+    {
+        $this->ensureHasKeyValue();
+
+        foreach ($this->iterateNumeric() as [$key, $value]) {
+            yield $key => $value;
+        }
+    }
+
+    /**
      * {@inheritDoc}
      *
      * @return Traversable<int,mixed>
@@ -494,5 +536,14 @@ class Statement implements IteratorAggregate, DriverStatement, Result
     public function getWrappedStatement()
     {
         return $this->stmt;
+    }
+
+    private function ensureHasKeyValue(): void
+    {
+        $columnCount = $this->columnCount();
+
+        if ($columnCount < 2) {
+            throw NoKeyValue::fromColumnCount($columnCount);
+        }
     }
 }

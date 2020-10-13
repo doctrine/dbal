@@ -15,6 +15,7 @@ use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Exception\ConnectionLost;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
+use Doctrine\DBAL\Exception\NoKeyValue;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder;
@@ -986,6 +987,33 @@ class Connection implements DriverConnection
     }
 
     /**
+     * Prepares and executes an SQL query and returns the result as an associative array with the keys
+     * mapped to the first column and the values mapped to the second column.
+     *
+     * @param string                                           $query  The SQL query.
+     * @param array<int, mixed>|array<string, mixed>           $params The query parameters.
+     * @param array<int, int|string>|array<string, int|string> $types  The query parameter types.
+     *
+     * @return array<mixed,mixed>
+     *
+     * @throws Exception
+     */
+    public function fetchAllKeyValue(string $query, array $params = [], array $types = []): array
+    {
+        $stmt = $this->executeQuery($query, $params, $types);
+
+        $this->ensureHasKeyValue($stmt);
+
+        $data = [];
+
+        foreach ($stmt->fetchAll(FetchMode::NUMERIC) as [$key, $value]) {
+            $data[$key] = $value;
+        }
+
+        return $data;
+    }
+
+    /**
      * Prepares and executes an SQL query and returns the result as an array of the first column values.
      *
      * @param string                                                               $query  SQL query
@@ -1065,6 +1093,29 @@ class Connection implements DriverConnection
             }
         } catch (Throwable $e) {
             $this->handleExceptionDuringQuery($e, $query, $params, $types);
+        }
+    }
+
+    /**
+     * Prepares and executes an SQL query and returns the result as an iterator with the keys
+     * mapped to the first column and the values mapped to the second column.
+     *
+     * @param string                                           $query  The SQL query.
+     * @param array<int, mixed>|array<string, mixed>           $params The query parameters.
+     * @param array<int, int|string>|array<string, int|string> $types  The query parameter types.
+     *
+     * @return Traversable<mixed,mixed>
+     *
+     * @throws Exception
+     */
+    public function iterateKeyValue(string $query, array $params = [], array $types = []): Traversable
+    {
+        $stmt = $this->executeQuery($query, $params, $types);
+
+        $this->ensureHasKeyValue($stmt);
+
+        while (($row = $stmt->fetch(FetchMode::NUMERIC)) !== false) {
+            yield $row[0] => $row[1];
         }
     }
 
@@ -2054,5 +2105,14 @@ class Connection implements DriverConnection
         }
 
         throw $e;
+    }
+
+    private function ensureHasKeyValue(ResultStatement $stmt): void
+    {
+        $columnCount = $stmt->columnCount();
+
+        if ($columnCount < 2) {
+            throw NoKeyValue::fromColumnCount($columnCount);
+        }
     }
 }
