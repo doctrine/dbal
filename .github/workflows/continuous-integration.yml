@@ -6,7 +6,7 @@ on: ["pull_request", "push"]
 jobs:
   static-analysis-phpstan:
     name: "Static Analysis with PHPStan"
-    runs-on: "ubuntu-latest"
+    runs-on: "ubuntu-20.04"
 
     strategy:
       matrix:
@@ -39,7 +39,7 @@ jobs:
 
   static-analysis-psalm:
     name: "Static Analysis with Psalm"
-    runs-on: "ubuntu-latest"
+    runs-on: "ubuntu-20.04"
 
     strategy:
       matrix:
@@ -71,7 +71,7 @@ jobs:
 
   phpunit-oci8:
     name: "PHPUnit on OCI8"
-    runs-on: "ubuntu-latest"
+    runs-on: "ubuntu-20.04"
 
     strategy:
       matrix:
@@ -115,7 +115,7 @@ jobs:
 
   phpunit-pdo-oci:
     name: "PHPUnit on PDO_OCI"
-    runs-on: "ubuntu-latest"
+    runs-on: "ubuntu-20.04"
 
     strategy:
       matrix:
