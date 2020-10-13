@@ -465,7 +465,17 @@ SQL
             $fields[] = $field . ' IS NOT NULL';
         }
 
-        return $sql . ' WHERE ' . implode(' AND ', $fields);
+        if (count($fields) > 0) {
+            if ($this->supportsPartialIndexes() && $index->hasOption('where')) {
+                $sql .= ' AND ';
+            } else {
+                $sql .= ' WHERE ';
+            }
+
+            $sql .= implode(' AND ', $fields);
+        }
+
+        return $sql;
     }
 
     /**
@@ -1015,7 +1025,7 @@ SQL
      *
      * @return string
      */
-    private function getTableWhereClause($table, $schemaColumn, $tableColumn)
+    protected function getTableWhereClause($table, $schemaColumn, $tableColumn)
     {
         if (strpos($table, '.') !== false) {
             [$schema, $table] = explode('.', $table);

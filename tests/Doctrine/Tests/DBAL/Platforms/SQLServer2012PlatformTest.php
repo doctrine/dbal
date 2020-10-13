@@ -4,7 +4,10 @@ namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
+use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Sequence;
+
+use function substr_count;
 
 class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
 {
@@ -478,5 +481,24 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
         $expectedSql = "SELECT * FROM test\nORDER BY col DESC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY";
         $sql         = $this->platform->modifyLimitQuery($querySql, 10);
         self::assertEquals($expectedSql, $sql);
+    }
+
+    public function testSupportsPartialIndexes(): void
+    {
+        self::assertTrue($this->platform->supportsPartialIndexes());
+    }
+
+    /**
+     * Tests if automatically added conditions for the unique constraint are correctly merged
+     * with optional where conditions.
+     */
+    public function testGeneratesPartialUniqueConstraintSqlWithSingleWherePart(): void
+    {
+        $where       = 'test IS NULL AND test2 IS NOT NULL';
+        $uniqueIndex = new Index('name', ['test', 'test2'], true, false, [], ['where' => $where]);
+
+        $sql = $this->platform->getUniqueConstraintDeclarationSQL('name', $uniqueIndex);
+
+        self::assertEquals(1, substr_count($sql, 'WHERE '));
     }
 }

@@ -6,6 +6,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
+use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
@@ -403,5 +404,31 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertCount(2, $columns);
         self::assertEquals('colB', $columns[0]);
         self::assertEquals('colA', $columns[1]);
+    }
+
+    public function testPartialIndexes(): void
+    {
+        if (! $this->schemaManager->getDatabasePlatform()->supportsPartialIndexes()) {
+            $this->markTestSkipped('Platform does not support partial indexes.');
+
+            return;
+        }
+
+        $offlineTable = new Table('person');
+        $offlineTable->addColumn('id', 'integer');
+        $offlineTable->addColumn('name', 'string');
+        $offlineTable->addColumn('email', 'string');
+        $offlineTable->addIndex(['id', 'name'], 'simple_partial_index', [], ['where' => '([id] IS NULL)']);
+
+        $this->schemaManager->dropAndCreateTable($offlineTable);
+
+        $onlineTable = $this->schemaManager->listTableDetails('person');
+
+        $comparator = new Comparator();
+
+        self::assertFalse($comparator->diffTable($offlineTable, $onlineTable));
+        self::assertTrue($onlineTable->hasIndex('simple_partial_index'));
+        self::assertTrue($onlineTable->getIndex('simple_partial_index')->hasOption('where'));
+        self::assertSame('([id] IS NULL)', $onlineTable->getIndex('simple_partial_index')->getOption('where'));
     }
 }

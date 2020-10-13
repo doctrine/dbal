@@ -13,6 +13,15 @@ namespace Doctrine\DBAL\Platforms;
 class SQLServer2008Platform extends SQLServer2005Platform
 {
     /**
+     * {@inheritdoc}
+     */
+    public function supportsPartialIndexes()
+    {
+        // Partial indexes are supported as "filtered indexes" since version 2008.
+        return true;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function getListTablesSQL()
@@ -116,5 +125,29 @@ class SQLServer2008Platform extends SQLServer2005Platform
     protected function getLikeWildcardCharacters(): string
     {
         return parent::getLikeWildcardCharacters() . '[]^';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getListTableIndexesSQL($table, $database = null)
+    {
+        return "SELECT idx.name AS key_name,
+                       col.name AS column_name,
+                       ~idx.is_unique AS non_unique,
+                       idx.is_primary_key AS [primary],
+                       CASE idx.type
+                           WHEN '1' THEN 'clustered'
+                           WHEN '2' THEN 'nonclustered'
+                           ELSE NULL
+                       END AS flags,
+                       idx.filter_definition AS [where]
+                FROM sys.tables AS tbl
+                JOIN sys.schemas AS scm ON tbl.schema_id = scm.schema_id
+                JOIN sys.indexes AS idx ON tbl.object_id = idx.object_id
+                JOIN sys.index_columns AS idxcol ON idx.object_id = idxcol.object_id AND idx.index_id = idxcol.index_id
+                JOIN sys.columns AS col ON idxcol.object_id = col.object_id AND idxcol.column_id = col.column_id
+                WHERE " . $this->getTableWhereClause($table, 'scm.name', 'tbl.name') . '
+                ORDER BY idx.index_id ASC, idxcol.key_ordinal ASC';
     }
 }
