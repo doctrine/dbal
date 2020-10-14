@@ -398,6 +398,26 @@ Execute the query and fetch the first two columns into an associative array as k
 .. note::
    All additional columns will be ignored and are only allowed to be selected by DBAL for its internal purposes.
 
+fetchAllAssociativeIndexed()
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Execute the query and fetch the data as an associative array where the key represents the first column and the value is
+an associative array of the rest of the columns and their values:
+
+.. code-block:: php
+
+    <?php
+    $users = $conn->fetchAllAssociativeIndexed('SELECT id, username, password FROM user');
+
+    /*
+    array(
+        1 => array(
+          'username' => 'jwage',
+          'password' => 'changeme',
+        )
+    )
+    */
+
 fetchNumeric()
 ~~~~~~~~~~~~~~
 
@@ -458,6 +478,19 @@ Execute the query and iterate over the first two columns as keys and values resp
 
 .. note::
    All additional columns will be ignored and are only allowed to be selected by DBAL for its internal purposes.
+
+iterateAssociativeIndexed()
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Execute the query and iterate over the result with the key representing the first column and the value being
+an associative array of the rest of the columns and their values:
+
+.. code-block:: php
+
+    <?php
+    foreach ($conn->iterateAssociativeIndexed('SELECT id, username, password FROM user') as $id => $data) {
+        // ...
+    }
 
 delete()
 ~~~~~~~~~

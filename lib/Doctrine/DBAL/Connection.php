@@ -25,6 +25,7 @@ use Throwable;
 use Traversable;
 
 use function array_key_exists;
+use function array_shift;
 use function assert;
 use function func_get_args;
 use function implode;
@@ -990,9 +991,9 @@ class Connection implements DriverConnection
      * Prepares and executes an SQL query and returns the result as an associative array with the keys
      * mapped to the first column and the values mapped to the second column.
      *
-     * @param string                                           $query  The SQL query.
-     * @param array<int, mixed>|array<string, mixed>           $params The query parameters.
-     * @param array<int, int|string>|array<string, int|string> $types  The query parameter types.
+     * @param string                                           $query  SQL query
+     * @param array<int, mixed>|array<string, mixed>           $params Query parameters
+     * @param array<int, int|string>|array<string, int|string> $types  Parameter types
      *
      * @return array<mixed,mixed>
      *
@@ -1008,6 +1009,32 @@ class Connection implements DriverConnection
 
         foreach ($stmt->fetchAll(FetchMode::NUMERIC) as [$key, $value]) {
             $data[$key] = $value;
+        }
+
+        return $data;
+    }
+
+    /**
+     * Prepares and executes an SQL query and returns the result as an associative array with the keys mapped
+     * to the first column and the values being an associative array representing the rest of the columns
+     * and their values.
+     *
+     * @param string                                           $query  SQL query
+     * @param array<int, mixed>|array<string, mixed>           $params Query parameters
+     * @param array<int, int|string>|array<string, int|string> $types  Parameter types
+     *
+     * @return array<mixed,array<string,mixed>>
+     *
+     * @throws Exception
+     */
+    public function fetchAllAssociativeIndexed(string $query, array $params = [], array $types = []): array
+    {
+        $stmt = $this->executeQuery($query, $params, $types);
+
+        $data = [];
+
+        foreach ($stmt->fetchAll(FetchMode::ASSOCIATIVE) as $row) {
+            $data[array_shift($row)] = $row;
         }
 
         return $data;
@@ -1100,9 +1127,9 @@ class Connection implements DriverConnection
      * Prepares and executes an SQL query and returns the result as an iterator with the keys
      * mapped to the first column and the values mapped to the second column.
      *
-     * @param string                                           $query  The SQL query.
-     * @param array<int, mixed>|array<string, mixed>           $params The query parameters.
-     * @param array<int, int|string>|array<string, int|string> $types  The query parameter types.
+     * @param string                                           $query  SQL query
+     * @param array<int, mixed>|array<string, mixed>           $params Query parameters
+     * @param array<int, int|string>|array<string, int|string> $types  Parameter types
      *
      * @return Traversable<mixed,mixed>
      *
@@ -1116,6 +1143,28 @@ class Connection implements DriverConnection
 
         while (($row = $stmt->fetch(FetchMode::NUMERIC)) !== false) {
             yield $row[0] => $row[1];
+        }
+    }
+
+    /**
+     * Prepares and executes an SQL query and returns the result as an iterator with the keys mapped
+     * to the first column and the values being an associative array representing the rest of the columns
+     * and their values.
+     *
+     * @param string                                           $query  SQL query
+     * @param array<int, mixed>|array<string, mixed>           $params Query parameters
+     * @param array<int, int|string>|array<string, int|string> $types  Parameter types
+     *
+     * @return Traversable<mixed,array<string,mixed>>
+     *
+     * @throws Exception
+     */
+    public function iterateAssociativeIndexed(string $query, array $params = [], array $types = []): Traversable
+    {
+        $stmt = $this->executeQuery($query, $params, $types);
+
+        while (($row = $stmt->fetch(FetchMode::ASSOCIATIVE)) !== false) {
+            yield array_shift($row) => $row;
         }
     }
 

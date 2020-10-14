@@ -126,6 +126,27 @@ class FetchTest extends DbalFunctionalTestCase
         $this->connection->fetchAllKeyValue($sql);
     }
 
+    public function testFetchAllAssociativeIndexed(): void
+    {
+        self::assertEquals([
+            'foo' => ['b' => 1],
+            'bar' => ['b' => 2],
+            'baz' => ['b' => 3],
+        ], $this->connection->fetchAllAssociativeIndexed($this->query));
+    }
+
+    public function testStatementFetchAllAssociativeIndexed(): void
+    {
+        $stmt = $this->connection->prepare($this->query);
+        $stmt->execute();
+
+        self::assertEquals([
+            'foo' => ['b' => 1],
+            'bar' => ['b' => 2],
+            'baz' => ['b' => 3],
+        ], $stmt->fetchAllAssociativeIndexed());
+    }
+
     public function testFetchFirstColumn(): void
     {
         self::assertEquals([
@@ -171,7 +192,7 @@ class FetchTest extends DbalFunctionalTestCase
         ], iterator_to_array($this->connection->iterateKeyValue($this->query)));
     }
 
-    public function testStatementKeyValue(): void
+    public function testStatementIterateKeyValue(): void
     {
         $stmt = $this->connection->prepare($this->query);
         $stmt->execute();
@@ -190,6 +211,27 @@ class FetchTest extends DbalFunctionalTestCase
 
         $this->expectException(NoKeyValue::class);
         iterator_to_array($this->connection->iterateKeyValue($sql));
+    }
+
+    public function testIterateAssociativeIndexed(): void
+    {
+        self::assertEquals([
+            'foo' => ['b' => 1],
+            'bar' => ['b' => 2],
+            'baz' => ['b' => 3],
+        ], iterator_to_array($this->connection->iterateAssociativeIndexed($this->query)));
+    }
+
+    public function testStatementIterateAssociativeIndexed(): void
+    {
+        $stmt = $this->connection->prepare($this->query);
+        $stmt->execute();
+
+        self::assertEquals([
+            'foo' => ['b' => 1],
+            'bar' => ['b' => 2],
+            'baz' => ['b' => 3],
+        ], iterator_to_array($stmt->iterateAssociativeIndexed()));
     }
 
     public function testIterateColumn(): void
