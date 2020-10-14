@@ -236,8 +236,8 @@ abstract class Type
     /**
      * Adds a custom type to the type map.
      *
-     * @param string $name      The name of the type. This should correspond to what getName() returns.
-     * @param string $className The class name of the custom type.
+     * @param string             $name      The name of the type. This should correspond to what getName() returns.
+     * @param class-string<Type> $className The class name of the custom type.
      *
      * @return void
      *
@@ -263,8 +263,8 @@ abstract class Type
     /**
      * Overrides an already defined type to use a different implementation.
      *
-     * @param string $name
-     * @param string $className
+     * @param string             $name
+     * @param class-string<Type> $className
      *
      * @return void
      *
