@@ -20,6 +20,7 @@ use Doctrine\DBAL\Statement;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use PDO;
+use stdClass;
 
 use function array_change_key_case;
 use function array_filter;
@@ -734,7 +735,7 @@ class DataAccessTest extends DbalFunctionalTestCase
         $results = $stmt->fetchAll(FetchMode::STANDARD_OBJECT);
 
         self::assertCount(1, $results);
-        self::assertInstanceOf('stdClass', $results[0]);
+        self::assertInstanceOf(stdClass::class, $results[0]);
 
         self::assertEquals(
             1,

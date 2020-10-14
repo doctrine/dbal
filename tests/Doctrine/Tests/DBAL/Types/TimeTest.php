@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Types;
 
+use DateTime;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\Type;
 
@@ -16,7 +17,7 @@ class TimeTest extends BaseDateTypeTestCase
 
     public function testTimeConvertsToPHPValue(): void
     {
-        self::assertInstanceOf('DateTime', $this->type->convertToPHPValue('5:30:55', $this->platform));
+        self::assertInstanceOf(DateTime::class, $this->type->convertToPHPValue('5:30:55', $this->platform));
     }
 
     public function testDateFieldResetInPHPValue(): void
