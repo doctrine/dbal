@@ -1,6 +1,14 @@
 name: "Coding Standards"
 
-on: ["pull_request", "push"]
+on:
+  pull_request:
+    branches:
+      - "*.x"
+      - "master"
+  push:
+    branches:
+      - "*.x"
+      - "master"
 
 jobs:
   coding-standards:
