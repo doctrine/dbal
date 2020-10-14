@@ -11,7 +11,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQL100Platform;
 use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
-use Doctrine\DBAL\Schema\PostgreSqlSchemaManager;
+use Doctrine\DBAL\Schema\PostgreSQLSchemaManager;
 
 class AbstractPostgreSQLDriverTest extends AbstractDriverTest
 {
@@ -27,7 +27,7 @@ class AbstractPostgreSQLDriverTest extends AbstractDriverTest
 
     protected function createSchemaManager(Connection $connection): AbstractSchemaManager
     {
-        return new PostgreSqlSchemaManager(
+        return new PostgreSQLSchemaManager(
             $connection,
             $this->createPlatform()
         );
