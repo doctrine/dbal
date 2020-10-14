@@ -13,6 +13,7 @@ use PDO;
 use Throwable;
 use Traversable;
 
+use function array_shift;
 use function is_array;
 use function is_string;
 
@@ -399,6 +400,25 @@ class Statement implements IteratorAggregate, DriverStatement, Result
     }
 
     /**
+     * Returns an associative array with the keys mapped to the first column and the values being
+     * an associative array representing the rest of the columns and their values.
+     *
+     * @return array<mixed,array<string,mixed>>
+     *
+     * @throws Exception
+     */
+    public function fetchAllAssociativeIndexed(): array
+    {
+        $data = [];
+
+        foreach ($this->fetchAll(FetchMode::ASSOCIATIVE) as $row) {
+            $data[array_shift($row)] = $row;
+        }
+
+        return $data;
+    }
+
+    /**
      * {@inheritdoc}
      *
      * @throws Exception
@@ -480,6 +500,21 @@ class Statement implements IteratorAggregate, DriverStatement, Result
 
         foreach ($this->iterateNumeric() as [$key, $value]) {
             yield $key => $value;
+        }
+    }
+
+    /**
+     * Returns an iterator over the result set with the keys mapped to the first column and the values being
+     * an associative array representing the rest of the columns and their values.
+     *
+     * @return Traversable<mixed,array<string,mixed>>
+     *
+     * @throws Exception
+     */
+    public function iterateAssociativeIndexed(): Traversable
+    {
+        while (($row = $this->stmt->fetch(FetchMode::ASSOCIATIVE)) !== false) {
+            yield array_shift($row) => $row;
         }
     }
 
