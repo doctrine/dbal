@@ -10,7 +10,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 
 class DecimalTest extends DbalTestCase
 {
-    /** @var AbstractPlatform|MockObject */
+    /** @var AbstractPlatform&MockObject */
     private $platform;
 
     /** @var DecimalType */

@@ -13,7 +13,7 @@ use function serialize;
 
 class ArrayTest extends DbalTestCase
 {
-    /** @var AbstractPlatform|MockObject */
+    /** @var AbstractPlatform&MockObject */
     private $platform;
 
     /** @var ArrayType */

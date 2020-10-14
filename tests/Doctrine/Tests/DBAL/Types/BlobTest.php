@@ -15,7 +15,7 @@ use function stream_get_contents;
 
 class BlobTest extends DbalTestCase
 {
-    /** @var AbstractPlatform|MockObject */
+    /** @var AbstractPlatform&MockObject */
     protected $platform;
 
     /** @var BlobType */

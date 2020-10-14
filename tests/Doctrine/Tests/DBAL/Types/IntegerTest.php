@@ -10,7 +10,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 
 class IntegerTest extends DbalTestCase
 {
-    /** @var AbstractPlatform|MockObject */
+    /** @var AbstractPlatform&MockObject */
     private $platform;
 
     /** @var IntegerType */

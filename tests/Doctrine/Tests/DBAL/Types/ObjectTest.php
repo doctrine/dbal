@@ -14,7 +14,7 @@ use function serialize;
 
 class ObjectTest extends DbalTestCase
 {
-    /** @var AbstractPlatform|MockObject */
+    /** @var AbstractPlatform&MockObject */
     private $platform;
 
     /** @var ObjectType */

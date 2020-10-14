@@ -16,7 +16,7 @@ use function json_encode;
 
 class JsonArrayTest extends DbalTestCase
 {
-    /** @var AbstractPlatform|MockObject */
+    /** @var AbstractPlatform&MockObject */
     protected $platform;
 
     /** @var JsonArrayType */

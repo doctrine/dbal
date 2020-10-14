@@ -14,7 +14,7 @@ class SQLAnywhereConnectionTest extends DbalTestCase
     /**
      * The sqlanywhere driver connection mock under test.
      *
-     * @var SQLAnywhereConnection|MockObject
+     * @var SQLAnywhereConnection&MockObject
      */
     private $connectionMock;
 

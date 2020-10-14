@@ -17,7 +17,7 @@ use function stream_get_contents;
 
 class BinaryTest extends DbalTestCase
 {
-    /** @var AbstractPlatform|MockObject */
+    /** @var AbstractPlatform&MockObject */
     protected $platform;
 
     /** @var BinaryType */

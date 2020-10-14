@@ -16,7 +16,7 @@ use function get_class;
 
 class DateTimeImmutableTypeTest extends TestCase
 {
-    /** @var AbstractPlatform|MockObject */
+    /** @var AbstractPlatform&MockObject */
     private $platform;
 
     /** @var DateTimeImmutableType */

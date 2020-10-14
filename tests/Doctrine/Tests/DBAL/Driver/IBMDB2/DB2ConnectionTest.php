@@ -14,7 +14,7 @@ class DB2ConnectionTest extends DbalTestCase
     /**
      * The ibm_db2 driver connection mock under test.
      *
-     * @var DB2Connection|MockObject
+     * @var DB2Connection&MockObject
      */
     private $connectionMock;
 

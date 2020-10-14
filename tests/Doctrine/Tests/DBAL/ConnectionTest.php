@@ -51,7 +51,7 @@ class ConnectionTest extends DbalTestCase
     }
 
     /**
-     * @return Connection|MockObject
+     * @return Connection&MockObject
      */
     private function getExecuteStatementMockConnection()
     {
