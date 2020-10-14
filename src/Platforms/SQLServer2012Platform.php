@@ -44,6 +44,15 @@ class SQLServer2012Platform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
+    public function supportsPartialIndexes()
+    {
+        // Partial indexes are supported as "filtered indexes" since version 2008.
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getCurrentDateSQL()
     {
         return $this->getConvertExpression('date', 'GETDATE()');
@@ -498,13 +507,14 @@ SQL
      */
     private function _appendUniqueConstraintDefinition($sql, Index $index)
     {
-        $fields = [];
+        $concat = $index->hasOption('where') ? ' AND ' : ' WHERE ';
 
         foreach ($index->getQuotedColumns($this) as $field) {
-            $fields[] = $field . ' IS NOT NULL';
+            $sql   .= $concat . $field . ' IS NOT NULL';
+            $concat = ' AND ';
         }
 
-        return $sql . ' WHERE ' . implode(' AND ', $fields);
+        return $sql;
     }
 
     /**
@@ -1021,7 +1031,8 @@ SQL
                            WHEN '1' THEN 'clustered'
                            WHEN '2' THEN 'nonclustered'
                            ELSE NULL
-                       END AS flags
+                       END AS flags,
+                       idx.filter_definition AS [where]
                 FROM sys.tables AS tbl
                 JOIN sys.schemas AS scm ON tbl.schema_id = scm.schema_id
                 JOIN sys.indexes AS idx ON tbl.object_id = idx.object_id
