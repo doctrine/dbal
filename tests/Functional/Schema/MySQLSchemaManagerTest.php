@@ -5,7 +5,7 @@ namespace Doctrine\DBAL\Tests\Functional\Schema;
 use DateTime;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
-use Doctrine\DBAL\Platforms\MySqlPlatform;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
@@ -14,11 +14,11 @@ use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 
-class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
+class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
     protected function supportsPlatform(AbstractPlatform $platform): bool
     {
-        return $platform instanceof MySqlPlatform;
+        return $platform instanceof MySQLPlatform;
     }
 
     protected function setUp(): void
@@ -297,14 +297,14 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $tableName = 'lob_type_columns';
         $table     = new Table($tableName);
 
-        $table->addColumn('col_tinytext', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_TINYTEXT]);
-        $table->addColumn('col_text', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_TEXT]);
-        $table->addColumn('col_mediumtext', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMTEXT]);
+        $table->addColumn('col_tinytext', 'text', ['length' => MySQLPlatform::LENGTH_LIMIT_TINYTEXT]);
+        $table->addColumn('col_text', 'text', ['length' => MySQLPlatform::LENGTH_LIMIT_TEXT]);
+        $table->addColumn('col_mediumtext', 'text', ['length' => MySQLPlatform::LENGTH_LIMIT_MEDIUMTEXT]);
         $table->addColumn('col_longtext', 'text');
 
-        $table->addColumn('col_tinyblob', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_TINYBLOB]);
-        $table->addColumn('col_blob', 'blob', ['length' => MySqlPlatform::LENGTH_LIMIT_BLOB]);
-        $table->addColumn('col_mediumblob', 'blob', ['length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMBLOB]);
+        $table->addColumn('col_tinyblob', 'text', ['length' => MySQLPlatform::LENGTH_LIMIT_TINYBLOB]);
+        $table->addColumn('col_blob', 'blob', ['length' => MySQLPlatform::LENGTH_LIMIT_BLOB]);
+        $table->addColumn('col_mediumblob', 'blob', ['length' => MySQLPlatform::LENGTH_LIMIT_MEDIUMBLOB]);
         $table->addColumn('col_longblob', 'blob');
 
         $this->schemaManager->dropAndCreateTable($table);

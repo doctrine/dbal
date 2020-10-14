@@ -3,7 +3,7 @@
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
-use Doctrine\DBAL\Platforms\MySqlPlatform;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Types\Type;
 
 use function array_change_key_case;
@@ -21,9 +21,9 @@ use function strtr;
 use const CASE_LOWER;
 
 /**
- * Schema manager for the MySql RDBMS.
+ * Schema manager for the MySQL RDBMS.
  */
-class MySqlSchemaManager extends AbstractSchemaManager
+class MySQLSchemaManager extends AbstractSchemaManager
 {
     /**
      * @see https://mariadb.com/kb/en/library/string-literals/#escape-sequences
@@ -163,27 +163,27 @@ class MySqlSchemaManager extends AbstractSchemaManager
                 break;
 
             case 'tinytext':
-                $length = MySqlPlatform::LENGTH_LIMIT_TINYTEXT;
+                $length = MySQLPlatform::LENGTH_LIMIT_TINYTEXT;
                 break;
 
             case 'text':
-                $length = MySqlPlatform::LENGTH_LIMIT_TEXT;
+                $length = MySQLPlatform::LENGTH_LIMIT_TEXT;
                 break;
 
             case 'mediumtext':
-                $length = MySqlPlatform::LENGTH_LIMIT_MEDIUMTEXT;
+                $length = MySQLPlatform::LENGTH_LIMIT_MEDIUMTEXT;
                 break;
 
             case 'tinyblob':
-                $length = MySqlPlatform::LENGTH_LIMIT_TINYBLOB;
+                $length = MySQLPlatform::LENGTH_LIMIT_TINYBLOB;
                 break;
 
             case 'blob':
-                $length = MySqlPlatform::LENGTH_LIMIT_BLOB;
+                $length = MySQLPlatform::LENGTH_LIMIT_BLOB;
                 break;
 
             case 'mediumblob':
-                $length = MySqlPlatform::LENGTH_LIMIT_MEDIUMBLOB;
+                $length = MySQLPlatform::LENGTH_LIMIT_MEDIUMBLOB;
                 break;
 
             case 'tinyint':
@@ -331,7 +331,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
         $table = parent::listTableDetails($name);
 
         $platform = $this->_platform;
-        assert($platform instanceof MySqlPlatform);
+        assert($platform instanceof MySQLPlatform);
         $sql = $platform->getListTableMetadataSQL($name);
 
         $tableOptions = $this->_conn->fetchAssociative($sql);

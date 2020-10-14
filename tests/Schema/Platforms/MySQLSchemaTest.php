@@ -3,7 +3,7 @@
 namespace Doctrine\DBAL\Tests\Schema\Platforms;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\MySqlPlatform;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Table;
 use PHPUnit\Framework\TestCase;
@@ -19,7 +19,7 @@ class MySQLSchemaTest extends TestCase
     protected function setUp(): void
     {
         $this->comparator = new Comparator();
-        $this->platform   = new MySqlPlatform();
+        $this->platform   = new MySQLPlatform();
     }
 
     public function testSwitchPrimaryKeyOrder(): void

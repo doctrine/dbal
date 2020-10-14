@@ -2,7 +2,7 @@
 
 namespace Doctrine\DBAL\Tests\Schema\Visitor;
 
-use Doctrine\DBAL\Platforms\MySqlPlatform;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\Schema;
 use PHPUnit\Framework\TestCase;
 
@@ -10,7 +10,7 @@ class SchemaSqlCollectorTest extends TestCase
 {
     public function testCreateSchema(): void
     {
-        $platformMock = $this->getMockBuilder(MySqlPlatform::class)
+        $platformMock = $this->getMockBuilder(MySQLPlatform::class)
             ->onlyMethods(['getCreateTableSql', 'getCreateSequenceSql', 'getCreateForeignKeySql'])
             ->getMock();
         $platformMock->expects(self::exactly(2))
@@ -32,7 +32,7 @@ class SchemaSqlCollectorTest extends TestCase
 
     public function testDropSchema(): void
     {
-        $platformMock = $this->getMockBuilder(MySqlPlatform::class)
+        $platformMock = $this->getMockBuilder(MySQLPlatform::class)
             ->onlyMethods(['getDropTableSql', 'getDropSequenceSql', 'getDropForeignKeySql'])
             ->getMock();
         $platformMock->expects(self::exactly(2))

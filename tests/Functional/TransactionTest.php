@@ -2,7 +2,7 @@
 
 namespace Doctrine\DBAL\Tests\Functional;
 
-use Doctrine\DBAL\Platforms\MySqlPlatform;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 
 use function sleep;
@@ -13,7 +13,7 @@ class TransactionTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        if ($this->connection->getDatabasePlatform() instanceof MySqlPlatform) {
+        if ($this->connection->getDatabasePlatform() instanceof MySQLPlatform) {
             return;
         }
 
