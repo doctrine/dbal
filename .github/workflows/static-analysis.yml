@@ -1,5 +1,5 @@
 
-name: "Continuous Integration"
+name: "Static Analysis"
 
 on:
   pull_request:
@@ -12,8 +12,8 @@ on:
       - "master"
 
 jobs:
-  phpunit-oci8:
-    name: "PHPUnit on OCI8"
+  static-analysis-phpstan:
+    name: "Static Analysis with PHPStan"
     runs-on: "ubuntu-20.04"
 
     strategy:
@@ -21,24 +21,16 @@ jobs:
         php-version:
           - "7.4"
 
-    services:
-      oracle:
-        image: "wnameless/oracle-xe-11g-r2"
-        ports:
-          - "1521:1521"
-
     steps:
-      - name: "Checkout"
+      - name: "Checkout code"
         uses: "actions/checkout@v2"
-        with:
-          fetch-depth: 2
 
       - name: "Install PHP"
         uses: "shivammathur/setup-php@v2"
         with:
+          coverage: "none"
           php-version: "${{ matrix.php-version }}"
-          extensions: "oci8"
-          coverage: "pcov"
+          tools: "cs2pr"
 
       - name: "Cache dependencies installed with composer"
         uses: "actions/cache@v2"
@@ -50,14 +42,11 @@ jobs:
       - name: "Install dependencies with composer"
         run: "composer install --no-interaction --no-progress --no-suggest"
 
-      - name: "Run PHPUnit"
-        run: "vendor/bin/phpunit -c ci/github/phpunit.oci8.xml --coverage-clover=coverage.xml"
+      - name: "Run a static analysis with phpstan/phpstan"
+        run: "vendor/bin/phpstan analyse --error-format=checkstyle | cs2pr"
 
-      - name: "Upload Code Coverage"
-        uses: "codecov/codecov-action@v1"
-
-  phpunit-pdo-oci:
-    name: "PHPUnit on PDO_OCI"
+  static-analysis-psalm:
+    name: "Static Analysis with Psalm"
     runs-on: "ubuntu-20.04"
 
     strategy:
@@ -65,24 +54,15 @@ jobs:
         php-version:
           - "7.4"
 
-    services:
-      oracle:
-        image: "wnameless/oracle-xe-11g-r2"
-        ports:
-          - "1521:1521"
-
     steps:
-      - name: "Checkout"
+      - name: "Checkout code"
         uses: "actions/checkout@v2"
-        with:
-          fetch-depth: 2
 
       - name: "Install PHP"
         uses: "shivammathur/setup-php@v2"
         with:
+          coverage: "none"
           php-version: "${{ matrix.php-version }}"
-          extensions: "pdo_oci"
-          coverage: "pcov"
 
       - name: "Cache dependencies installed with composer"
         uses: "actions/cache@v2"
@@ -94,8 +74,5 @@ jobs:
       - name: "Install dependencies with composer"
         run: "composer install --no-interaction --no-progress --no-suggest"
 
-      - name: "Run PHPUnit"
-        run: "vendor/bin/phpunit -c ci/github/phpunit.pdo-oci.xml --coverage-clover=coverage.xml"
-
-      - name: "Upload Code Coverage"
-        uses: "codecov/codecov-action@v1"
+      - name: "Run a static analysis with vimeo/psalm"
+        run: "vendor/bin/psalm --show-info=false --stats --output-format=github --threads=4"
