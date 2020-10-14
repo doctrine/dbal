@@ -4,13 +4,13 @@ namespace Doctrine\Tests\DBAL\Types;
 
 use DateTime;
 use Doctrine\DBAL\Types\ConversionException;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\TimeType;
 
 class TimeTest extends BaseDateTypeTestCase
 {
     protected function setUp(): void
     {
-        $this->type = Type::getType('time');
+        $this->type = new TimeType();
 
         parent::setUp();
     }

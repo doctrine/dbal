@@ -4,13 +4,13 @@ namespace Doctrine\Tests\DBAL\Types;
 
 use DateTime;
 use Doctrine\DBAL\Types\ConversionException;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\DateTimeTzType;
 
 class DateTimeTzTest extends BaseDateTypeTestCase
 {
     protected function setUp(): void
     {
-        $this->type = Type::getType('datetimetz');
+        $this->type = new DateTimeTzType();
 
         parent::setUp();
     }

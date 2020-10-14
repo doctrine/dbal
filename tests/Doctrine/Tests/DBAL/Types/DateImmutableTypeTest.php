@@ -8,7 +8,6 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\DateImmutableType;
-use Doctrine\DBAL\Types\Type;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -24,8 +23,8 @@ class DateImmutableTypeTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->type     = Type::getType('date_immutable');
         $this->platform = $this->createMock(AbstractPlatform::class);
+        $this->type     = new DateImmutableType();
     }
 
     public function testFactoryCreatesCorrectType(): void

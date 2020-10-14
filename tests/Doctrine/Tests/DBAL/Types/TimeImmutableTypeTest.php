@@ -8,7 +8,6 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\TimeImmutableType;
-use Doctrine\DBAL\Types\Type;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -24,8 +23,8 @@ class TimeImmutableTypeTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->type     = Type::getType('time_immutable');
         $this->platform = $this->getMockBuilder(AbstractPlatform::class)->getMock();
+        $this->type     = new TimeImmutableType();
     }
 
     public function testFactoryCreatesCorrectType(): void
