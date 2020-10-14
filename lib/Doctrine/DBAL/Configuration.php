@@ -73,7 +73,7 @@ class Configuration
      *
      * @deprecated Use Configuration::setSchemaAssetsFilter() instead
      *
-     * @param string $filterExpression
+     * @param string|null $filterExpression
      *
      * @return void
      */
