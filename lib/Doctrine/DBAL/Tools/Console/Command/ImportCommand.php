@@ -85,9 +85,14 @@ EOT
             $sql = @file_get_contents($filePath);
 
             if ($sql === false) {
-                throw new RuntimeException(
-                    sprintf("Unable to read SQL file '<info>%s</info>': %s", $filePath, error_get_last()['message'])
-                );
+                $message = sprintf("Unable to read SQL file '<info>%s</info>'", $filePath);
+                $error   = error_get_last();
+
+                if ($error !== null) {
+                    $message .= ': ' . $error['message'];
+                }
+
+                throw new RuntimeException($message);
             }
 
             if ($conn instanceof PDOConnection) {

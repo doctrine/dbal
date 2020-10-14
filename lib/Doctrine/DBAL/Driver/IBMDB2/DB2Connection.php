@@ -93,7 +93,7 @@ class DB2Connection implements ConnectionInterface, ServerInfoAwareConnection
         $stmt = @db2_prepare($this->conn, $sql);
 
         if ($stmt === false) {
-            throw PrepareFailed::new(error_get_last()['message']);
+            throw PrepareFailed::new(error_get_last());
         }
 
         return new Statement($stmt);
