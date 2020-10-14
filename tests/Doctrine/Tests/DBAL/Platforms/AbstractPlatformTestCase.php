@@ -17,6 +17,7 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DbalTestCase;
 use Doctrine\Tests\Types\CommentedType;
+use InvalidArgumentException;
 
 use function get_class;
 use function implode;
@@ -84,7 +85,7 @@ abstract class AbstractPlatformTestCase extends DbalTestCase
 
     public function testGetInvalidForeignKeyReferentialActionSQL(): void
     {
-        $this->expectException('InvalidArgumentException');
+        $this->expectException(InvalidArgumentException::class);
         $this->platform->getForeignKeyReferentialActionSQL('unknown');
     }
 
