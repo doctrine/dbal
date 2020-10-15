@@ -3,7 +3,7 @@
 namespace Doctrine\DBAL\Tests\Platforms;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\MySqlPlatform;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
@@ -15,7 +15,7 @@ use function array_shift;
 
 abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 {
-    /** @var MySqlPlatform */
+    /** @var MySQLPlatform */
     protected $platform;
 
     public function testModifyLimitQueryWitoutLimit(): void

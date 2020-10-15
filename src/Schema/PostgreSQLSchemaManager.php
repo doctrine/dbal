@@ -30,7 +30,7 @@ use const CASE_LOWER;
 /**
  * PostgreSQL Schema Manager.
  */
-class PostgreSqlSchemaManager extends AbstractSchemaManager
+class PostgreSQLSchemaManager extends AbstractSchemaManager
 {
     /** @var string[] */
     private $existingSchemaPaths;

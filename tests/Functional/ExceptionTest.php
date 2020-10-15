@@ -7,7 +7,7 @@ use Doctrine\DBAL\Driver\IBMDB2;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\Platforms\MySqlPlatform;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\Schema;
@@ -369,7 +369,7 @@ EOT
             self::markTestSkipped('Does not work on Travis');
         }
 
-        if ($platform instanceof MySqlPlatform && isset($params['user'])) {
+        if ($platform instanceof MySQLPlatform && isset($params['user'])) {
             $wrappedConnection = $this->connection->getWrappedConnection();
             assert($wrappedConnection instanceof ServerInfoAwareConnection);
 

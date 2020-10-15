@@ -29,13 +29,13 @@ use function strtoupper;
 use function trim;
 
 /**
- * The MySqlPlatform provides the behavior, features and SQL dialect of the
+ * The MySQLPlatform provides the behavior, features and SQL dialect of the
  * MySQL database platform. This platform represents a MySQL 5.0 or greater platform that
  * uses the InnoDB storage engine.
  *
  * @todo   Rename: MySQLPlatform
  */
-class MySqlPlatform extends AbstractPlatform
+class MySQLPlatform extends AbstractPlatform
 {
     public const LENGTH_LIMIT_TINYTEXT   = 255;
     public const LENGTH_LIMIT_TEXT       = 65535;
@@ -303,7 +303,7 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      *
-     * MySql prefers "autoincrement" identity columns since sequences can only
+     * MySQL prefers "autoincrement" identity columns since sequences can only
      * be emulated with a table.
      */
     public function prefersIdentityColumns()
@@ -314,7 +314,7 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      *
-     * MySql supports this through AUTO_INCREMENT columns.
+     * MySQL supports this through AUTO_INCREMENT columns.
      */
     public function supportsIdentityColumns()
     {
@@ -1006,7 +1006,7 @@ SQL
         }
 
         if ($index instanceof Index && $index->isPrimary()) {
-            // mysql primary keys are always named "PRIMARY",
+            // MySQL primary keys are always named "PRIMARY",
             // so we cannot use them in statements because of them being keyword.
             return $this->getDropPrimaryKeySQL($table);
         }

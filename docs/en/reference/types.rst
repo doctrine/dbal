@@ -807,7 +807,7 @@ method to add new database types or overwrite existing ones.
 .. note::
 
     You can only map a database type to exactly one Doctrine type.
-    Database vendors that allow to define custom types like PostgreSql
+    Database vendors that allow to define custom types like PostgreSQL
     can help to overcome this issue.
 
 Custom Mapping Types

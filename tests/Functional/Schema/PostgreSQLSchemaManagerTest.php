@@ -7,7 +7,7 @@ use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
-use Doctrine\DBAL\Schema\PostgreSqlSchemaManager;
+use Doctrine\DBAL\Schema\PostgreSQLSchemaManager;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\BlobType;
@@ -21,9 +21,9 @@ use function count;
 use function preg_match;
 use function strtolower;
 
-class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
+class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
-    /** @var PostgreSqlSchemaManager */
+    /** @var PostgreSQLSchemaManager */
     protected $schemaManager;
 
     protected function supportsPlatform(AbstractPlatform $platform): bool

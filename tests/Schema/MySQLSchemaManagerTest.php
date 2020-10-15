@@ -6,16 +6,16 @@ use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
-use Doctrine\DBAL\Platforms\MySqlPlatform;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
-use Doctrine\DBAL\Schema\MySqlSchemaManager;
+use Doctrine\DBAL\Schema\MySQLSchemaManager;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 use function array_map;
 
-class MySqlSchemaManagerTest extends TestCase
+class MySQLSchemaManagerTest extends TestCase
 {
     /** @var AbstractSchemaManager */
     private $manager;
@@ -28,7 +28,7 @@ class MySqlSchemaManagerTest extends TestCase
         $eventManager = new EventManager();
         $driverMock   = $this->createMock(Driver::class);
 
-        $platform = $this->createMock(MySqlPlatform::class);
+        $platform = $this->createMock(MySQLPlatform::class);
         $platform->method('getListTableForeignKeysSQL')
             ->willReturn('');
 
@@ -36,7 +36,7 @@ class MySqlSchemaManagerTest extends TestCase
             ->onlyMethods(['fetchAllAssociative'])
             ->setConstructorArgs([[], $driverMock, new Configuration(), $eventManager])
             ->getMock();
-        $this->manager = new MySqlSchemaManager($this->conn, $platform);
+        $this->manager = new MySQLSchemaManager($this->conn, $platform);
     }
 
     public function testCompositeForeignKeys(): void

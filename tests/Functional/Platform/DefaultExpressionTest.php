@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Functional\Platform;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\MySqlPlatform;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
@@ -19,7 +19,7 @@ class DefaultExpressionTest extends FunctionalTestCase
     {
         $platform = $this->connection->getDatabasePlatform();
 
-        if ($platform instanceof MySqlPlatform) {
+        if ($platform instanceof MySQLPlatform) {
             self::markTestSkipped('Not supported on MySQL');
         }
 
@@ -32,7 +32,7 @@ class DefaultExpressionTest extends FunctionalTestCase
     {
         $platform = $this->connection->getDatabasePlatform();
 
-        if ($platform instanceof MySqlPlatform) {
+        if ($platform instanceof MySQLPlatform) {
             self::markTestSkipped('Not supported on MySQL');
         }
 

@@ -3,7 +3,7 @@
 namespace Doctrine\DBAL\Tests\Functional\Platform;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\MySqlPlatform;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 
@@ -15,7 +15,7 @@ final class NewPrimaryKeyWithNewAutoIncrementColumnTest extends FunctionalTestCa
     {
         parent::setUp();
 
-        if ($this->getPlatform() instanceof MySqlPlatform) {
+        if ($this->getPlatform() instanceof MySQLPlatform) {
             return;
         }
 

@@ -3,7 +3,7 @@
 namespace Doctrine\DBAL\Tests\Functional\Connection;
 
 use Doctrine\DBAL\Exception\ConnectionLost;
-use Doctrine\DBAL\Platforms\MySqlPlatform;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
 
 use function sleep;
@@ -14,7 +14,7 @@ class ConnectionLostTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        if ($this->connection->getDatabasePlatform() instanceof MySqlPlatform) {
+        if ($this->connection->getDatabasePlatform() instanceof MySQLPlatform) {
             return;
         }
 
