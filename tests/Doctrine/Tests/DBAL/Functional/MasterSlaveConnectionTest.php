@@ -46,7 +46,11 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
 
     private function createMasterSlaveConnection(bool $keepSlave = false): MasterSlaveConnection
     {
-        return DriverManager::getConnection($this->createMasterSlaveConnectionParams($keepSlave));
+        $connection = DriverManager::getConnection($this->createMasterSlaveConnectionParams($keepSlave));
+
+        self::assertInstanceOf(MasterSlaveConnection::class, $connection);
+
+        return $connection;
     }
 
     /**

@@ -49,7 +49,11 @@ class PrimaryReadReplicaConnectionTest extends DbalFunctionalTestCase
 
     private function createPrimaryReadReplicaConnection(bool $keepReplica = false): PrimaryReadReplicaConnection
     {
-        return DriverManager::getConnection($this->createPrimaryReadReplicaConnectionParams($keepReplica));
+        $connection = DriverManager::getConnection($this->createPrimaryReadReplicaConnectionParams($keepReplica));
+
+        self::assertInstanceOf(PrimaryReadReplicaConnection::class, $connection);
+
+        return $connection;
     }
 
     /**

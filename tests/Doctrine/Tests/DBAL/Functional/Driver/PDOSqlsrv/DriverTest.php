@@ -48,12 +48,16 @@ class DriverTest extends AbstractDriverTest
             $driverOptions = array_merge($params['driverOptions'], $driverOptions);
         }
 
-        return $this->connection->getDriver()->connect(
+        $connection = $this->connection->getDriver()->connect(
             $params,
             $params['user'] ?? '',
             $params['password'] ?? '',
             $driverOptions
         );
+
+        self::assertInstanceOf(Connection::class, $connection);
+
+        return $connection;
     }
 
     public function testConnectionOptions(): void
