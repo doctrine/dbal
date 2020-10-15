@@ -169,7 +169,11 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertTrue($onlinePrimaryTable->hasColumn('"Id"'));
         self::assertSame('"Id"', $onlinePrimaryTable->getColumn('"Id"')->getQuotedName($platform));
         self::assertTrue($onlinePrimaryTable->hasPrimaryKey());
-        self::assertSame(['"Id"'], $onlinePrimaryTable->getPrimaryKey()->getQuotedColumns($platform));
+
+        $primaryKey = $onlinePrimaryTable->getPrimaryKey();
+
+        self::assertNotNull($primaryKey);
+        self::assertSame(['"Id"'], $primaryKey->getQuotedColumns($platform));
 
         self::assertTrue($onlinePrimaryTable->hasColumn('select'));
         self::assertSame('"select"', $onlinePrimaryTable->getColumn('select')->getQuotedName($platform));
@@ -203,7 +207,11 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertTrue($onlineForeignTable->hasColumn('id'));
         self::assertSame('ID', $onlineForeignTable->getColumn('id')->getQuotedName($platform));
         self::assertTrue($onlineForeignTable->hasPrimaryKey());
-        self::assertSame(['ID'], $onlineForeignTable->getPrimaryKey()->getQuotedColumns($platform));
+
+        $primaryKey = $onlineForeignTable->getPrimaryKey();
+
+        self::assertNotNull($primaryKey);
+        self::assertSame(['ID'], $primaryKey->getQuotedColumns($platform));
 
         self::assertTrue($onlineForeignTable->hasColumn('"Fk"'));
         self::assertSame('"Fk"', $onlineForeignTable->getColumn('"Fk"')->getQuotedName($platform));
