@@ -299,8 +299,7 @@ class OCI8Statement implements IteratorAggregate, StatementInterface, Result
         if ($type === ParameterType::LARGE_OBJECT) {
             $lob = oci_new_descriptor($this->_dbh, OCI_D_LOB);
 
-            $class = 'OCI-Lob';
-            assert($lob instanceof $class);
+            assert($lob !== false);
 
             $lob->writeTemporary($variable, OCI_TEMP_BLOB);
 
