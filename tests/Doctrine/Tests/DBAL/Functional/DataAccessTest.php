@@ -27,7 +27,6 @@ use function array_filter;
 use function array_keys;
 use function count;
 use function date;
-use function implode;
 use function is_numeric;
 use function json_encode;
 use function property_exists;
@@ -35,7 +34,6 @@ use function sprintf;
 use function strtotime;
 
 use const CASE_LOWER;
-use const PHP_EOL;
 
 class DataAccessTest extends DbalFunctionalTestCase
 {
@@ -682,14 +680,20 @@ class DataAccessTest extends DbalFunctionalTestCase
             ]);
         }
 
-        $sql[] = 'SELECT ';
-        $sql[] = 'test_int, ';
-        $sql[] = 'test_string, ';
-        $sql[] = $platform->getBitOrComparisonExpression('test_int', 2) . ' AS bit_or, ';
-        $sql[] = $platform->getBitAndComparisonExpression('test_int', 2) . ' AS bit_and ';
-        $sql[] = 'FROM fetch_table';
+        $sql = sprintf(
+            <<<'SQL'
+SELECT test_int,
+       test_string,
+       %s AS bit_or,
+       %s AS bit_and
+FROM   fetch_table
+SQL
+            ,
+            $platform->getBitOrComparisonExpression('test_int', 2),
+            $platform->getBitAndComparisonExpression('test_int', 2)
+        );
 
-        $stmt = $this->connection->executeQuery(implode(PHP_EOL, $sql));
+        $stmt = $this->connection->executeQuery($sql);
         $data = $stmt->fetchAll(FetchMode::ASSOCIATIVE);
 
         self::assertCount(4, $data);
