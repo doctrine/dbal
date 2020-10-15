@@ -1,3 +1,18 @@
+# Upgrade to 2.12
+
+## PDO signature changes with php 8
+
+In php 8.0, the method signatures of two PDO classes which are extended by DBAL have changed. This affects the following classes:
+
+* `Doctrine\DBAL\Driver\PDOConnection`
+* `Doctrine\DBAL\Driver\PDOStatement`
+
+Code that extends either of the classes needs to be adjusted in order to function properly on php 8. The updated method signatures are:
+
+* `PDOConnection::query(?string $query = null, ?int $fetchMode = null, mixed ...$fetchModeArgs)`
+* `PDOStatement::setFetchMode($mode, ...$args)`
+* `PDOStatement::fetchAll($mode = null, ...$args)`
+
 # Upgrade to 2.11
 
 ## Deprecated `Abstraction\Result` 

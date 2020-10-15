@@ -10,6 +10,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
 use IteratorAggregate;
 use PDO;
+use PDOStatement;
 use Throwable;
 use Traversable;
 
@@ -134,6 +135,10 @@ class Statement implements IteratorAggregate, DriverStatement, Result
     {
         $this->params[$param] = $variable;
         $this->types[$param]  = $type;
+
+        if ($this->stmt instanceof PDOStatement) {
+            $length = $length ?? 0;
+        }
 
         return $this->stmt->bindParam($param, $variable, $type, $length);
     }
