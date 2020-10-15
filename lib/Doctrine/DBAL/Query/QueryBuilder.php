@@ -119,14 +119,14 @@ class QueryBuilder
      *
      * @var int
      */
-    private $firstResult = null;
+    private $firstResult;
 
     /**
      * The maximum number of results to retrieve or NULL to retrieve all results.
      *
      * @var int|null
      */
-    private $maxResults = null;
+    private $maxResults;
 
     /**
      * The counter of bound parameters used with {@see bindValue).

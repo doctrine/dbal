@@ -12,7 +12,7 @@ use Doctrine\DBAL\Schema\Column;
 class SchemaColumnDefinitionEventArgs extends SchemaEventArgs
 {
     /** @var Column|null */
-    private $column = null;
+    private $column;
 
     /**
      * Raw column data as fetched from the database.

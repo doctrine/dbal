@@ -31,7 +31,7 @@ abstract class AbstractAsset
      *
      * @var string|null
      */
-    protected $_namespace = null;
+    protected $_namespace;
 
     /** @var bool */
     protected $_quoted = false;

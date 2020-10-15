@@ -41,7 +41,7 @@ class Table extends AbstractAsset
     ];
 
     /** @var SchemaConfig|null */
-    protected $_schemaConfig = null;
+    protected $_schemaConfig;
 
     /**
      * @param string                 $name

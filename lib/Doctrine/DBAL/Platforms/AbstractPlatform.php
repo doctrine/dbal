@@ -132,7 +132,7 @@ abstract class AbstractPlatform
     public const TRIM_BOTH = TrimMode::BOTH;
 
     /** @var string[]|null */
-    protected $doctrineTypeMapping = null;
+    protected $doctrineTypeMapping;
 
     /**
      * Contains a list of all columns that should generate parseable column comments for type-detection
@@ -140,7 +140,7 @@ abstract class AbstractPlatform
      *
      * @var string[]|null
      */
-    protected $doctrineTypeComments = null;
+    protected $doctrineTypeComments;
 
     /** @var EventManager */
     protected $_eventManager;

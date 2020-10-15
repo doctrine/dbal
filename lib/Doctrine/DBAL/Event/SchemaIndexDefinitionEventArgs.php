@@ -12,7 +12,7 @@ use Doctrine\DBAL\Schema\Index;
 class SchemaIndexDefinitionEventArgs extends SchemaEventArgs
 {
     /** @var Index|null */
-    private $index = null;
+    private $index;
 
     /**
      * Raw index data as fetched from the database.

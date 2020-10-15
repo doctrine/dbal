@@ -37,7 +37,7 @@ use const DB2_AUTOCOMMIT_ON;
 class DB2Connection implements ConnectionInterface, ServerInfoAwareConnection
 {
     /** @var resource */
-    private $conn = null;
+    private $conn;
 
     /**
      * @internal The connection can be only instantiated by its driver.

@@ -21,7 +21,7 @@ class Column extends AbstractAsset
     protected $_type;
 
     /** @var int|null */
-    protected $_length = null;
+    protected $_length;
 
     /** @var int */
     protected $_precision = 10;
@@ -39,7 +39,7 @@ class Column extends AbstractAsset
     protected $_notnull = true;
 
     /** @var string|null */
-    protected $_default = null;
+    protected $_default;
 
     /** @var bool */
     protected $_autoincrement = false;
@@ -48,10 +48,10 @@ class Column extends AbstractAsset
     protected $_platformOptions = [];
 
     /** @var string|null */
-    protected $_columnDefinition = null;
+    protected $_columnDefinition;
 
     /** @var string|null */
-    protected $_comment = null;
+    protected $_comment;
 
     /** @var mixed[] */
     protected $_customSchemaOptions = [];
