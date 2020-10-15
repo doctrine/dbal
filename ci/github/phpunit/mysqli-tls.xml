@@ -10,7 +10,7 @@
     <php>
         <var name="db_driver" value="mysqli"/>
         <var name="db_host" value="127.0.0.1"/>
-        <var name="db_port" value="33306"/>
+        <var name="db_port" value="3306"/>
         <var name="db_ssl_ca" value="ca.pem"/>
         <var name="db_ssl_cert" value="client-cert.pem"/>
         <var name="db_ssl_key" value="client-key.pem"/>
@@ -25,13 +25,13 @@
 
     <testsuites>
         <testsuite name="Doctrine DBAL Test Suite">
-            <directory>../Doctrine/Tests/DBAL</directory>
+            <directory>../../../tests</directory>
         </testsuite>
     </testsuites>
 
     <coverage>
         <include>
-            <directory suffix=".php">../../lib/Doctrine</directory>
+            <directory suffix=".php">../../../lib/Doctrine</directory>
         </include>
     </coverage>
 </phpunit>
