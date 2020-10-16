@@ -32,7 +32,7 @@
     ],
     "require": {
         "php": "^7.3 || ^8.0",
-        "composer/package-versions-deprecated": "^1.8",
+        "composer/package-versions-deprecated": "^1.11.99",
         "doctrine/cache": "^1.0",
         "doctrine/event-manager": "^1.0"
     },

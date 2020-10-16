@@ -25,7 +25,9 @@ class ConsoleRunner
      */
     public static function run(ConnectionProvider $connectionProvider, $commands = [])
     {
-        $cli = new Application('Doctrine Command Line Interface', Versions::getVersion('doctrine/dbal'));
+        $cli = new Application('Doctrine Command Line Interface', Versions::getVersion(
+            Versions::rootPackageName()
+        ));
 
         $cli->setCatchExceptions(true);
         self::addCommands($cli, $connectionProvider);
