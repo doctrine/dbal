@@ -41,6 +41,7 @@ abstract class AbstractTestCase extends TestCase
         $this->conn = DriverManager::getConnection($params);
 
         $serverEdition = $this->conn->fetchColumn("SELECT CONVERT(NVARCHAR(128), SERVERPROPERTY('Edition'))");
+        self::assertNotFalse($serverEdition);
 
         if (strpos($serverEdition, 'SQL Azure') !== 0) {
             $this->markTestSkipped('SQL Azure only test.');

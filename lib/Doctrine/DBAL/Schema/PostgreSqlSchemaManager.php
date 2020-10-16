@@ -60,7 +60,11 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     public function getSchemaSearchPaths()
     {
         $params = $this->_conn->getParams();
-        $schema = explode(',', $this->_conn->fetchColumn('SHOW search_path'));
+
+        $searchPaths = $this->_conn->fetchColumn('SHOW search_path');
+        assert($searchPaths !== false);
+
+        $schema = explode(',', $searchPaths);
 
         if (isset($params['user'])) {
             $schema = str_replace('"$user"', $params['user'], $schema);

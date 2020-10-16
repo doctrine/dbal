@@ -5,6 +5,7 @@ namespace Doctrine\Tests\DBAL\Functional\Schema;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema;
+use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\Types;
@@ -76,9 +77,8 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testAlterTableColumnNotNull(): void
     {
-        $comparator = new Schema\Comparator();
-        $tableName  = 'list_table_column_notnull';
-        $table      = new Schema\Table($tableName);
+        $tableName = 'list_table_column_notnull';
+        $table     = new Table($tableName);
 
         $table->addColumn('id', 'integer');
         $table->addColumn('foo', 'integer');
@@ -97,7 +97,10 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $diffTable->changeColumn('foo', ['notnull' => false]);
         $diffTable->changeColumn('bar', ['length' => 1024]);
 
-        $this->schemaManager->alterTable($comparator->diffTable($table, $diffTable));
+        $diff = (new Comparator())->diffTable($table, $diffTable);
+        self::assertNotFalse($diff);
+
+        $this->schemaManager->alterTable($diff);
 
         $columns = $this->schemaManager->listTableColumns($tableName);
 
@@ -122,7 +125,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testListTableDetailsWithDifferentIdentifierQuotingRequirements(): void
     {
         $primaryTableName    = '"Primary_Table"';
-        $offlinePrimaryTable = new Schema\Table($primaryTableName);
+        $offlinePrimaryTable = new Table($primaryTableName);
         $offlinePrimaryTable->addColumn(
             '"Id"',
             'integer',
@@ -139,7 +142,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $offlinePrimaryTable->setPrimaryKey(['"Id"']);
 
         $foreignTableName    = 'foreign';
-        $offlineForeignTable = new Schema\Table($foreignTableName);
+        $offlineForeignTable = new Table($foreignTableName);
         $offlineForeignTable->addColumn('id', 'integer', ['autoincrement' => true]);
         $offlineForeignTable->addColumn('"Fk"', 'integer');
         $offlineForeignTable->addIndex(['"Fk"'], '"Fk_index"');

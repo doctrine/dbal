@@ -14,10 +14,6 @@ use Doctrine\Tests\DBAL\Tools\TestAsset\ParentClass;
 use Doctrine\Tests\DbalTestCase;
 use stdClass;
 
-use function print_r;
-use function strpos;
-use function substr;
-
 class DumperTest extends DbalTestCase
 {
     public function testExportObject(): void
@@ -99,14 +95,6 @@ class DumperTest extends DbalTestCase
      */
     public function testExportParentAttributes(TestAsset\ParentClass $class, array $expected): void
     {
-        $print_r_class    = print_r($class, true);
-        $print_r_expected = print_r($expected, true);
-
-        $print_r_class    = substr($print_r_class, strpos($print_r_class, '('));
-        $print_r_expected = substr($print_r_expected, strpos($print_r_expected, '('));
-
-        self::assertSame($print_r_class, $print_r_expected);
-
         $var = Dumper::export($class, 3);
         $var = (array) $var;
         unset($var['__CLASS__']);

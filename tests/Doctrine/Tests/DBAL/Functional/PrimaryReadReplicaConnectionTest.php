@@ -11,9 +11,6 @@ use Throwable;
 
 use function array_change_key_case;
 use function sprintf;
-use function strlen;
-use function strtolower;
-use function substr;
 
 use const CASE_LOWER;
 
@@ -97,10 +94,7 @@ class PrimaryReadReplicaConnectionTest extends DbalFunctionalTestCase
 
             $clientCharset = $conn->fetchColumn('select @@character_set_client as c');
 
-            self::assertSame(
-                $charset,
-                substr(strtolower($clientCharset), 0, strlen($charset))
-            );
+            self::assertSame($charset, $clientCharset);
         }
     }
 

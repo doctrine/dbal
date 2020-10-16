@@ -45,8 +45,10 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $tableNew     = clone $tableFetched;
         $tableNew->setPrimaryKey(['bar_id', 'foo_id']);
 
-        $comparator = new Comparator();
-        $this->schemaManager->alterTable($comparator->diffTable($tableFetched, $tableNew));
+        $diff = (new Comparator())->diffTable($tableFetched, $tableNew);
+        self::assertNotFalse($diff);
+
+        $this->schemaManager->alterTable($diff);
 
         $table      = $this->schemaManager->listTableDetails('switch_primary_key_columns');
         $primaryKey = $table->getPrimaryKeyColumns();
@@ -73,8 +75,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->schemaManager->createTable($table);
         $tableFetched = $this->schemaManager->listTableDetails('diffbug_routing_translations');
 
-        $comparator = new Comparator();
-        $diff       = $comparator->diffTable($tableFetched, $table);
+        $diff = (new Comparator())->diffTable($tableFetched, $table);
 
         self::assertFalse($diff, 'no changes expected.');
     }
@@ -135,13 +136,15 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->schemaManager->createTable($table);
 
-        $comparator = new Comparator();
-        $diffTable  = clone $table;
+        $diffTable = clone $table;
 
         $diffTable->dropIndex('idx_id');
         $diffTable->setPrimaryKey(['id']);
 
-        $this->schemaManager->alterTable($comparator->diffTable($table, $diffTable));
+        $diff = (new Comparator())->diffTable($table, $diffTable);
+        self::assertNotFalse($diff);
+
+        $this->schemaManager->alterTable($diff);
 
         $table = $this->schemaManager->listTableDetails('alter_table_add_pk');
 
@@ -162,9 +165,10 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $diffTable->dropPrimaryKey();
 
-        $comparator = new Comparator();
+        $diff = (new Comparator())->diffTable($table, $diffTable);
+        self::assertNotFalse($diff);
 
-        $this->schemaManager->alterTable($comparator->diffTable($table, $diffTable));
+        $this->schemaManager->alterTable($diff);
 
         $table = $this->schemaManager->listTableDetails('drop_primary_key');
 
@@ -197,9 +201,10 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertNull($onlineTable->getColumn('def_blob_null')->getDefault());
         self::assertFalse($onlineTable->getColumn('def_blob_null')->getNotnull());
 
-        $comparator = new Comparator();
+        $diff = (new Comparator())->diffTable($table, $onlineTable);
+        self::assertNotFalse($diff);
 
-        $this->schemaManager->alterTable($comparator->diffTable($table, $onlineTable));
+        $this->schemaManager->alterTable($diff);
 
         $onlineTable = $this->schemaManager->listTableDetails('text_blob_default_value');
 
@@ -240,9 +245,10 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $diffTable = clone $table;
         $diffTable->getColumn('col_text')->setPlatformOption('charset', 'ascii');
 
-        $comparator = new Comparator();
+        $diff = (new Comparator())->diffTable($table, $diffTable);
+        self::assertNotFalse($diff);
 
-        $this->schemaManager->alterTable($comparator->diffTable($table, $diffTable));
+        $this->schemaManager->alterTable($diff);
 
         $table = $this->schemaManager->listTableDetails($tableName);
 

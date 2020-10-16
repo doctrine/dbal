@@ -23,7 +23,9 @@ class DBAL421Test extends DbalFunctionalTestCase
 
     public function testGuidShouldMatchPattern(): void
     {
-        $guid    = $this->connection->query($this->getSelectGuidSql())->fetchColumn();
+        $guid = $this->connection->query($this->getSelectGuidSql())->fetchColumn();
+        self::assertNotFalse($guid);
+
         $pattern = '/[0-9A-F]{8}\-[0-9A-F]{4}\-[0-9A-F]{4}\-[8-9A-B][0-9A-F]{3}\-[0-9A-F]{12}/i';
         self::assertEquals(1, preg_match($pattern, $guid), 'GUID does not match pattern');
     }

@@ -504,6 +504,8 @@ class DataAccessTest extends DbalFunctionalTestCase
             'FROM fetch_table';
 
         $row = $this->connection->fetchAssoc($sql);
+        self::assertNotFalse($row);
+
         $row = array_change_key_case($row, CASE_LOWER);
 
         self::assertEquals($expectedResult, $row['trimmed']);
@@ -577,6 +579,8 @@ class DataAccessTest extends DbalFunctionalTestCase
         $sql .= 'FROM fetch_table';
 
         $row = $this->connection->fetchAssoc($sql);
+        self::assertNotFalse($row);
+
         $row = array_change_key_case($row, CASE_LOWER);
 
         self::assertEquals('2010-01-01 10:10:11', date('Y-m-d H:i:s', strtotime($row['add_seconds'])));
@@ -641,6 +645,8 @@ class DataAccessTest extends DbalFunctionalTestCase
         $sql .= 'FROM fetch_table';
 
         $row = $this->connection->fetchAssoc($sql);
+        self::assertNotFalse($row);
+
         $row = array_change_key_case($row, CASE_LOWER);
 
         self::assertEquals(2, $row['locate1']);
