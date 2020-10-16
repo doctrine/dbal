@@ -5,8 +5,8 @@ set -ex
 echo "Installing extension"
 (
     # updating APT packages as per support recommendation
-    sudo apt -y -q update
-    sudo apt install ksh
+    sudo apt-get -y -q update
+    sudo apt-get install ksh php-pear
 
     cd /tmp
 
@@ -21,7 +21,6 @@ echo "Installing extension"
     cd ibm_db2-*
     phpize
     ./configure --with-IBM_DB2=/tmp/dsdriver
-    make -j `nproc`
-    make install
-    echo -e 'extension=ibm_db2.so\nibm_db2.instance_name=db2inst1' > ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/ibm_db2.ini
+    make -j "$(nproc)"
+    sudo make install
 )
