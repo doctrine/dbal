@@ -10,6 +10,7 @@ use Doctrine\DBAL\Exception\NoKeyValue;
 use LogicException;
 use Traversable;
 
+use function array_shift;
 use function func_num_args;
 
 class Result
@@ -130,6 +131,25 @@ class Result
     }
 
     /**
+     * Returns an associative array with the keys mapped to the first column and the values being
+     * an associative array representing the rest of the columns and their values.
+     *
+     * @return array<mixed,array<string,mixed>>
+     *
+     * @throws Exception
+     */
+    public function fetchAllAssociativeIndexed(): array
+    {
+        $data = [];
+
+        foreach ($this->fetchAllAssociative() as $row) {
+            $data[array_shift($row)] = $row;
+        }
+
+        return $data;
+    }
+
+    /**
      * {@inheritDoc}
      *
      * @throws Exception
@@ -186,6 +206,21 @@ class Result
 
         foreach ($this->iterateNumeric() as [$key, $value]) {
             yield $key => $value;
+        }
+    }
+
+    /**
+     * Returns an iterator over the result set with the keys mapped to the first column and the values being
+     * an associative array representing the rest of the columns and their values.
+     *
+     * @return Traversable<mixed,array<string,mixed>>
+     *
+     * @throws Exception
+     */
+    public function iterateAssociativeIndexed(): Traversable
+    {
+        foreach ($this->iterateAssociative() as $row) {
+            yield array_shift($row) => $row;
         }
     }
 

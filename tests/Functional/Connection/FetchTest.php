@@ -114,6 +114,15 @@ class FetchTest extends FunctionalTestCase
         $this->connection->fetchAllKeyValue($sql);
     }
 
+    public function testFetchAllAssociativeIndexed(): void
+    {
+        self::assertEquals([
+            'foo' => ['b' => 1],
+            'bar' => ['b' => 2],
+            'baz' => ['b' => 3],
+        ], $this->connection->fetchAllAssociativeIndexed($this->query));
+    }
+
     public function testFetchFirstColumn(): void
     {
         self::assertEquals([
@@ -166,6 +175,15 @@ class FetchTest extends FunctionalTestCase
 
         $this->expectException(NoKeyValue::class);
         iterator_to_array($this->connection->iterateKeyValue($sql));
+    }
+
+    public function testIterateAssociativeIndexed(): void
+    {
+        self::assertEquals([
+            'foo' => ['b' => 1],
+            'bar' => ['b' => 2],
+            'baz' => ['b' => 3],
+        ], iterator_to_array($this->connection->iterateAssociativeIndexed($this->query)));
     }
 
     public function testIterateColumn(): void

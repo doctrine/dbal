@@ -834,6 +834,24 @@ class Connection
     }
 
     /**
+     * Prepares and executes an SQL query and returns the result as an associative array with the keys mapped
+     * to the first column and the values being an associative array representing the rest of the columns
+     * and their values.
+     *
+     * @param string                                           $query  SQL query
+     * @param array<int, mixed>|array<string, mixed>           $params Query parameters
+     * @param array<int, int|string>|array<string, int|string> $types  Parameter types
+     *
+     * @return array<mixed,array<string,mixed>>
+     *
+     * @throws Exception
+     */
+    public function fetchAllAssociativeIndexed(string $query, array $params = [], array $types = []): array
+    {
+        return $this->executeQuery($query, $params, $types)->fetchAllAssociativeIndexed();
+    }
+
+    /**
      * Prepares and executes an SQL query and returns the result as an array of the first column values.
      *
      * @param string                                                               $query  SQL query
@@ -917,6 +935,24 @@ class Connection
     public function iterateKeyValue(string $query, array $params = [], array $types = []): Traversable
     {
         return $this->executeQuery($query, $params, $types)->iterateKeyValue();
+    }
+
+    /**
+     * Prepares and executes an SQL query and returns the result as an iterator with the keys mapped
+     * to the first column and the values being an associative array representing the rest of the columns
+     * and their values.
+     *
+     * @param string                                           $query  SQL query
+     * @param array<int, mixed>|array<string, mixed>           $params Query parameters
+     * @param array<int, int|string>|array<string, int|string> $types  Parameter types
+     *
+     * @return Traversable<mixed,array<string,mixed>>
+     *
+     * @throws Exception
+     */
+    public function iterateAssociativeIndexed(string $query, array $params = [], array $types = []): Traversable
+    {
+        return $this->executeQuery($query, $params, $types)->iterateAssociativeIndexed();
     }
 
     /**

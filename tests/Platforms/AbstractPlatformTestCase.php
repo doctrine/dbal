@@ -16,6 +16,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\Types\Type;
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
 use function get_class;
@@ -84,7 +85,7 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testGetInvalidForeignKeyReferentialActionSQL(): void
     {
-        $this->expectException('InvalidArgumentException');
+        $this->expectException(InvalidArgumentException::class);
         $this->platform->getForeignKeyReferentialActionSQL('unknown');
     }
 
