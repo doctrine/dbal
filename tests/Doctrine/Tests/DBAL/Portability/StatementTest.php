@@ -15,13 +15,13 @@ use function iterator_to_array;
 
 class StatementTest extends DbalTestCase
 {
-    /** @var Connection|MockObject */
+    /** @var Connection&MockObject */
     protected $conn;
 
     /** @var Statement */
     protected $stmt;
 
-    /** @var DriverStatement|MockObject */
+    /** @var DriverStatement&MockObject */
     protected $wrappedStmt;
 
     protected function setUp(): void
@@ -157,7 +157,7 @@ class StatementTest extends DbalTestCase
     }
 
     /**
-     * @return Connection|MockObject
+     * @return Connection&MockObject
      */
     protected function createConnection()
     {

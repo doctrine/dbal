@@ -4,13 +4,12 @@ namespace Doctrine\Tests\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\StringType;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DbalTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 
 class StringTest extends DbalTestCase
 {
-    /** @var AbstractPlatform|MockObject */
+    /** @var AbstractPlatform&MockObject */
     private $platform;
 
     /** @var StringType */
@@ -19,7 +18,7 @@ class StringTest extends DbalTestCase
     protected function setUp(): void
     {
         $this->platform = $this->createMock(AbstractPlatform::class);
-        $this->type     = Type::getType('string');
+        $this->type     = new StringType();
     }
 
     public function testReturnsSqlDeclarationFromPlatformVarchar(): void

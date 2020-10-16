@@ -13,8 +13,17 @@ use Doctrine\DBAL\Driver\IBMDB2\DB2Exception;
  */
 final class CannotCopyStreamToStream extends DB2Exception
 {
-    public static function new(string $message): self
+    /**
+     * @psalm-param array{message: string}|null $error
+     */
+    public static function new(?array $error): self
     {
-        return new self('Could not copy source stream to temporary file: ' . $message);
+        $message = 'Could not copy source stream to temporary file';
+
+        if ($error !== null) {
+            $message .= ': ' . $error['message'];
+        }
+
+        return new self($message);
     }
 }

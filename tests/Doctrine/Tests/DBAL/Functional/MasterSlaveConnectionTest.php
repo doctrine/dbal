@@ -11,9 +11,6 @@ use Throwable;
 
 use function array_change_key_case;
 use function sprintf;
-use function strlen;
-use function strtolower;
-use function substr;
 
 use const CASE_LOWER;
 
@@ -46,7 +43,11 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
 
     private function createMasterSlaveConnection(bool $keepSlave = false): MasterSlaveConnection
     {
-        return DriverManager::getConnection($this->createMasterSlaveConnectionParams($keepSlave));
+        $connection = DriverManager::getConnection($this->createMasterSlaveConnectionParams($keepSlave));
+
+        self::assertInstanceOf(MasterSlaveConnection::class, $connection);
+
+        return $connection;
     }
 
     /**
@@ -88,12 +89,9 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
 
             self::assertFalse($conn->isConnectedToMaster());
 
-            $clientCharset = $conn->fetchColumn('select @@character_set_client as c');
+            $clientCharset = $conn->fetchColumn('select @@character_set_client');
 
-            self::assertSame(
-                $charset,
-                substr(strtolower($clientCharset), 0, strlen($charset))
-            );
+            self::assertSame($charset, $clientCharset);
         }
     }
 

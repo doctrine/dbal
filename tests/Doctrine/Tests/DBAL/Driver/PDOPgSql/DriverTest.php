@@ -84,11 +84,15 @@ class DriverTest extends AbstractPostgreSQLDriverTest
     {
         $params = TestUtil::getConnectionParams();
 
-        return $this->createDriver()->connect(
+        $connection = $this->createDriver()->connect(
             $params,
             $params['user'] ?? '',
             $params['password'] ?? '',
             $driverOptions
         );
+
+        self::assertInstanceOf(Connection::class, $connection);
+
+        return $connection;
     }
 }

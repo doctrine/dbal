@@ -70,7 +70,8 @@ abstract class AbstractDriverTest extends DbalTestCase
     }
 
     /**
-     * @param int|string $errorCode
+     * @param int|string                    $errorCode
+     * @param class-string<DriverException> $expectedClass
      *
      * @dataProvider exceptionConversionProvider
      */

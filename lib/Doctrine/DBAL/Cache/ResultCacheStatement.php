@@ -244,7 +244,7 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Result
 
         $this->store($data);
 
-        return array_map('array_values', $this->data);
+        return array_map('array_values', $data);
     }
 
     /**

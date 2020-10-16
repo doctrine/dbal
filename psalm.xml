@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <psalm
     totallyTyped="false"
-    errorLevel="4"
+    errorLevel="3"
     resolveFromConfigFile="true"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns="https://getpsalm.org/schema/config"
@@ -76,6 +76,12 @@
                 <file name="lib/Doctrine/DBAL/Driver/OCI8/OCI8Connection.php"/>
             </errorLevel>
         </ImplementedReturnTypeMismatch>
+        <InvalidPropertyAssignmentValue>
+            <errorLevel type="suppress">
+                <!-- Fixing this issue requires an API change -->
+                <file name="lib/Doctrine/DBAL/Driver/PDOException.php"/>
+            </errorLevel>
+        </InvalidPropertyAssignmentValue>
         <MethodSignatureMismatch>
             <errorLevel type="suppress">
                 <!--
@@ -93,6 +99,20 @@
                 <file name="lib/Doctrine/DBAL/Driver/AbstractSQLiteDriver.php"/>
             </errorLevel>
         </NullableReturnStatement>
+        <PossiblyInvalidOperand>
+            <errorLevel type="suppress">
+                <!--
+                    This code relies on certain elements of a mixed-type array to be of a certain type.
+                -->
+                <file name="lib/Doctrine/DBAL/SQLParserUtils.php"/>
+            </errorLevel>
+        </PossiblyInvalidOperand>
+        <PossiblyNullArgument>
+            <errorLevel type="suppress">
+                <!-- See https://github.com/doctrine/dbal/pull/3488 -->
+                <file name="lib/Doctrine/DBAL/Schema/AbstractSchemaManager.php"/>
+            </errorLevel>
+        </PossiblyNullArgument>
         <TooFewArguments>
             <errorLevel type="suppress">
                 <!--

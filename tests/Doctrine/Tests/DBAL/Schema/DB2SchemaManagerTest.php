@@ -18,7 +18,7 @@ use function in_array;
  */
 final class DB2SchemaManagerTest extends TestCase
 {
-    /** @var Connection|MockObject */
+    /** @var Connection&MockObject */
     private $conn;
 
     /** @var DB2SchemaManager */

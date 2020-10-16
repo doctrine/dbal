@@ -19,7 +19,7 @@ class MysqliConnectionTest extends DbalFunctionalTestCase
     /**
      * The mysqli driver connection mock under test.
      *
-     * @var MysqliConnection|MockObject
+     * @var MysqliConnection&MockObject
      */
     private $connectionMock;
 

@@ -4,13 +4,13 @@ namespace Doctrine\Tests\DBAL\Types;
 
 use DateTime;
 use Doctrine\DBAL\Types\ConversionException;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\DateTimeType;
 
 class DateTimeTest extends BaseDateTypeTestCase
 {
     protected function setUp(): void
     {
-        $this->type = Type::getType('datetime');
+        $this->type = new DateTimeType();
 
         parent::setUp();
     }
@@ -29,7 +29,7 @@ class DateTimeTest extends BaseDateTypeTestCase
     {
         // Birthday of jwage and also birthday of Doctrine. Send him a present ;)
         $date = $this->type->convertToPHPValue('1985-09-01 00:00:00', $this->platform);
-        self::assertInstanceOf('DateTime', $date);
+        self::assertInstanceOf(DateTime::class, $date);
         self::assertEquals('1985-09-01 00:00:00', $date->format('Y-m-d H:i:s'));
     }
 

@@ -52,15 +52,15 @@ class Driver extends AbstractSQLAnywhereDriver
     /**
      * Build the connection string for given connection parameters and driver options.
      *
-     * @param string  $host          Host address to connect to.
-     * @param int     $port          Port to use for the connection (default to SQL Anywhere standard port 2638).
-     * @param string  $server        Database server name on the host to connect to.
-     *                               SQL Anywhere allows multiple database server instances on the same host,
-     *                               therefore specifying the server instance name to use is mandatory.
-     * @param string  $dbname        Name of the database on the server instance to connect to.
-     * @param string  $username      User name to use for connection authentication.
-     * @param string  $password      Password to use for connection authentication.
-     * @param mixed[] $driverOptions Additional parameters to use for the connection.
+     * @param string|null $host          Host address to connect to.
+     * @param int|null    $port          Port to use for the connection (default to SQL Anywhere standard port 2638).
+     * @param string|null $server        Database server name on the host to connect to.
+     *                              SQL Anywhere allows multiple database server instances on the same host,
+     *                              therefore specifying the server instance name to use is mandatory.
+     * @param string|null $dbname        Name of the database on the server instance to connect to.
+     * @param string      $username      User name to use for connection authentication.
+     * @param string      $password      Password to use for connection authentication.
+     * @param mixed[]     $driverOptions Additional parameters to use for the connection.
      *
      * @return string
      */

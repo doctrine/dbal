@@ -20,13 +20,13 @@ use Doctrine\DBAL\Statement;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Tests\DbalFunctionalTestCase;
 use PDO;
+use stdClass;
 
 use function array_change_key_case;
 use function array_filter;
 use function array_keys;
 use function count;
 use function date;
-use function implode;
 use function is_numeric;
 use function json_encode;
 use function property_exists;
@@ -34,7 +34,6 @@ use function sprintf;
 use function strtotime;
 
 use const CASE_LOWER;
-use const PHP_EOL;
 
 class DataAccessTest extends DbalFunctionalTestCase
 {
@@ -361,6 +360,7 @@ class DataAccessTest extends DbalFunctionalTestCase
     {
         $sql = 'SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?';
         $row = $this->connection->fetchArray($sql, [1, 'foo']);
+        self::assertNotFalse($row);
 
         self::assertEquals(1, $row[0]);
         self::assertEquals('foo', $row[1]);
@@ -505,6 +505,8 @@ class DataAccessTest extends DbalFunctionalTestCase
             'FROM fetch_table';
 
         $row = $this->connection->fetchAssoc($sql);
+        self::assertNotFalse($row);
+
         $row = array_change_key_case($row, CASE_LOWER);
 
         self::assertEquals($expectedResult, $row['trimmed']);
@@ -578,6 +580,8 @@ class DataAccessTest extends DbalFunctionalTestCase
         $sql .= 'FROM fetch_table';
 
         $row = $this->connection->fetchAssoc($sql);
+        self::assertNotFalse($row);
+
         $row = array_change_key_case($row, CASE_LOWER);
 
         self::assertEquals('2010-01-01 10:10:11', date('Y-m-d H:i:s', strtotime($row['add_seconds'])));
@@ -642,6 +646,8 @@ class DataAccessTest extends DbalFunctionalTestCase
         $sql .= 'FROM fetch_table';
 
         $row = $this->connection->fetchAssoc($sql);
+        self::assertNotFalse($row);
+
         $row = array_change_key_case($row, CASE_LOWER);
 
         self::assertEquals(2, $row['locate1']);
@@ -681,14 +687,20 @@ class DataAccessTest extends DbalFunctionalTestCase
             ]);
         }
 
-        $sql[] = 'SELECT ';
-        $sql[] = 'test_int, ';
-        $sql[] = 'test_string, ';
-        $sql[] = $platform->getBitOrComparisonExpression('test_int', 2) . ' AS bit_or, ';
-        $sql[] = $platform->getBitAndComparisonExpression('test_int', 2) . ' AS bit_and ';
-        $sql[] = 'FROM fetch_table';
+        $sql = sprintf(
+            <<<'SQL'
+SELECT test_int,
+       test_string,
+       %s AS bit_or,
+       %s AS bit_and
+FROM   fetch_table
+SQL
+            ,
+            $platform->getBitOrComparisonExpression('test_int', 2),
+            $platform->getBitAndComparisonExpression('test_int', 2)
+        );
 
-        $stmt = $this->connection->executeQuery(implode(PHP_EOL, $sql));
+        $stmt = $this->connection->executeQuery($sql);
         $data = $stmt->fetchAll(FetchMode::ASSOCIATIVE);
 
         self::assertCount(4, $data);
@@ -734,7 +746,7 @@ class DataAccessTest extends DbalFunctionalTestCase
         $results = $stmt->fetchAll(FetchMode::STANDARD_OBJECT);
 
         self::assertCount(1, $results);
-        self::assertInstanceOf('stdClass', $results[0]);
+        self::assertInstanceOf(stdClass::class, $results[0]);
 
         self::assertEquals(
             1,

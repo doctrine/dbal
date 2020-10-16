@@ -51,7 +51,7 @@ class ConnectionTest extends DbalTestCase
     }
 
     /**
-     * @return Connection|MockObject
+     * @return Connection&MockObject
      */
     private function getExecuteStatementMockConnection()
     {
@@ -648,22 +648,18 @@ EOF
 
     public function testConnectionDoesNotMaintainTwoReferencesToExternalPDO(): void
     {
-        $params['pdo'] = new stdClass();
-
         $driverMock = $this->createMock(Driver::class);
 
-        $conn = new Connection($params, $driverMock);
+        $conn = new Connection(['pdo' => new stdClass()], $driverMock);
 
         self::assertArrayNotHasKey('pdo', $conn->getParams());
     }
 
     public function testPassingExternalPDOMeansConnectionIsConnected(): void
     {
-        $params['pdo'] = new stdClass();
-
         $driverMock = $this->createMock(Driver::class);
 
-        $conn = new Connection($params, $driverMock);
+        $conn = new Connection(['pdo' => new stdClass()], $driverMock);
 
         self::assertTrue($conn->isConnected(), 'Connection is not connected after passing external PDO');
     }

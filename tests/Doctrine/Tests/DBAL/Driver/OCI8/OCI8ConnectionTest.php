@@ -14,7 +14,7 @@ class OCI8ConnectionTest extends DbalTestCase
     /**
      * The oci8 driver connection mock under test.
      *
-     * @var OCI8Connection|MockObject
+     * @var OCI8Connection&MockObject
      */
     private $connectionMock;
 

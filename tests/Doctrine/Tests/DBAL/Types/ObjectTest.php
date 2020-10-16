@@ -5,7 +5,6 @@ namespace Doctrine\Tests\DBAL\Types;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\ObjectType;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DbalTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 use stdClass;
@@ -14,7 +13,7 @@ use function serialize;
 
 class ObjectTest extends DbalTestCase
 {
-    /** @var AbstractPlatform|MockObject */
+    /** @var AbstractPlatform&MockObject */
     private $platform;
 
     /** @var ObjectType */
@@ -23,7 +22,7 @@ class ObjectTest extends DbalTestCase
     protected function setUp(): void
     {
         $this->platform = $this->createMock(AbstractPlatform::class);
-        $this->type     = Type::getType('object');
+        $this->type     = new ObjectType();
     }
 
     public function testObjectConvertsToDatabaseValue(): void

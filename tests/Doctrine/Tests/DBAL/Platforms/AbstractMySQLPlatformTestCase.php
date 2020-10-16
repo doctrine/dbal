@@ -184,8 +184,8 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $oldTable->addColumn('bar', 'integer');
         $oldTable->addColumn('baz', 'string');
 
-        $c    = new Comparator();
-        $diff = $c->diffTable($oldTable, $keyTable);
+        $diff = (new Comparator())->diffTable($oldTable, $keyTable);
+        self::assertNotFalse($diff);
 
         $sql = $this->platform->getAlterTableSQL($diff);
 
@@ -384,15 +384,17 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $table->addColumn('foo', 'integer');
         $table->addIndex(['id'], 'idx_id');
 
-        $comparator = new Comparator();
-        $diffTable  = clone $table;
+        $diffTable = clone $table;
 
         $diffTable->dropIndex('idx_id');
         $diffTable->setPrimaryKey(['id']);
 
+        $diff = (new Comparator())->diffTable($table, $diffTable);
+        self::assertNotFalse($diff);
+
         self::assertEquals(
             ['DROP INDEX idx_id ON alter_table_add_pk', 'ALTER TABLE alter_table_add_pk ADD PRIMARY KEY (id)'],
-            $this->platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
+            $this->platform->getAlterTableSQL($diff)
         );
     }
 
@@ -403,11 +405,13 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $table->addColumn('foo', 'integer');
         $table->setPrimaryKey(['id']);
 
-        $comparator = new Comparator();
-        $diffTable  = clone $table;
+        $diffTable = clone $table;
 
         $diffTable->dropPrimaryKey();
         $diffTable->setPrimaryKey(['foo']);
+
+        $diff = (new Comparator())->diffTable($table, $diffTable);
+        self::assertNotFalse($diff);
 
         self::assertEquals(
             [
@@ -415,7 +419,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
                 'ALTER TABLE alter_primary_key DROP PRIMARY KEY',
                 'ALTER TABLE alter_primary_key ADD PRIMARY KEY (foo)',
             ],
-            $this->platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
+            $this->platform->getAlterTableSQL($diff)
         );
     }
 
@@ -427,17 +431,19 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $table->addColumn('bar', 'integer');
         $table->setPrimaryKey(['id', 'foo']);
 
-        $comparator = new Comparator();
-        $diffTable  = clone $table;
+        $diffTable = clone $table;
 
         $diffTable->dropPrimaryKey();
+
+        $diff = (new Comparator())->diffTable($table, $diffTable);
+        self::assertNotFalse($diff);
 
         self::assertEquals(
             [
                 'ALTER TABLE drop_primary_key MODIFY id INT NOT NULL',
                 'ALTER TABLE drop_primary_key DROP PRIMARY KEY',
             ],
-            $this->platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
+            $this->platform->getAlterTableSQL($diff)
         );
     }
 
@@ -449,11 +455,13 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $table->addColumn('bar', 'integer');
         $table->setPrimaryKey(['id', 'foo']);
 
-        $comparator = new Comparator();
-        $diffTable  = clone $table;
+        $diffTable = clone $table;
 
         $diffTable->dropPrimaryKey();
         $diffTable->setPrimaryKey(['id']);
+
+        $diff = (new Comparator())->diffTable($table, $diffTable);
+        self::assertNotFalse($diff);
 
         self::assertSame(
             [
@@ -461,7 +469,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
                 'ALTER TABLE tbl DROP PRIMARY KEY',
                 'ALTER TABLE tbl ADD PRIMARY KEY (id)',
             ],
-            $this->platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
+            $this->platform->getAlterTableSQL($diff)
         );
     }
 
@@ -473,11 +481,13 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $table->addColumn('bar', 'integer');
         $table->setPrimaryKey(['id']);
 
-        $comparator = new Comparator();
-        $diffTable  = clone $table;
+        $diffTable = clone $table;
 
         $diffTable->dropPrimaryKey();
         $diffTable->setPrimaryKey(['id', 'foo']);
+
+        $diff = (new Comparator())->diffTable($table, $diffTable);
+        self::assertNotFalse($diff);
 
         self::assertSame(
             [
@@ -485,7 +495,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
                 'ALTER TABLE tbl DROP PRIMARY KEY',
                 'ALTER TABLE tbl ADD PRIMARY KEY (id, foo)',
             ],
-            $this->platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
+            $this->platform->getAlterTableSQL($diff)
         );
     }
 
@@ -499,8 +509,8 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $oldTable = new Table('foo');
         $oldTable->addColumn('baz', 'string');
 
-        $c    = new Comparator();
-        $diff = $c->diffTable($oldTable, $keyTable);
+        $diff = (new Comparator())->diffTable($oldTable, $keyTable);
+        self::assertNotFalse($diff);
 
         $sql = $this->platform->getAlterTableSQL($diff);
 
@@ -527,12 +537,14 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $table->addColumn('col_a', 'integer');
         $table->setPrimaryKey(['pkc1']);
 
-        $comparator = new Comparator();
-        $diffTable  = clone $table;
+        $diffTable = clone $table;
 
         $diffTable->addColumn('pkc2', 'integer');
         $diffTable->dropPrimaryKey();
         $diffTable->setPrimaryKey(['pkc1', 'pkc2']);
+
+        $diff = (new Comparator())->diffTable($table, $diffTable);
+        self::assertNotFalse($diff);
 
         self::assertSame(
             [
@@ -540,7 +552,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
                 'ALTER TABLE yolo ADD pkc2 INT NOT NULL',
                 'ALTER TABLE yolo ADD PRIMARY KEY (pkc1, pkc2)',
             ],
-            $this->platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
+            $this->platform->getAlterTableSQL($diff)
         );
     }
 
@@ -757,9 +769,10 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $diffTable->changeColumn('def_blob', ['default' => null]);
         $diffTable->changeColumn('def_blob_null', ['default' => null]);
 
-        $comparator = new Comparator();
+        $diff = (new Comparator())->diffTable($table, $diffTable);
+        self::assertNotFalse($diff);
 
-        self::assertEmpty($this->platform->getAlterTableSQL($comparator->diffTable($table, $diffTable)));
+        self::assertEmpty($this->platform->getAlterTableSQL($diff));
     }
 
     /**

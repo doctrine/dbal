@@ -4,7 +4,6 @@ namespace Doctrine\Tests\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\BlobType;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DbalTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 
@@ -15,7 +14,7 @@ use function stream_get_contents;
 
 class BlobTest extends DbalTestCase
 {
-    /** @var AbstractPlatform|MockObject */
+    /** @var AbstractPlatform&MockObject */
     protected $platform;
 
     /** @var BlobType */
@@ -24,7 +23,7 @@ class BlobTest extends DbalTestCase
     protected function setUp(): void
     {
         $this->platform = $this->createMock(AbstractPlatform::class);
-        $this->type     = Type::getType('blob');
+        $this->type     = new BlobType();
     }
 
     public function testBlobNullConvertsToPHPValue(): void

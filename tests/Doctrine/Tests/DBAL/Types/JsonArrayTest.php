@@ -5,7 +5,6 @@ namespace Doctrine\Tests\DBAL\Types;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\JsonArrayType;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Tests\DbalTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -16,7 +15,7 @@ use function json_encode;
 
 class JsonArrayTest extends DbalTestCase
 {
-    /** @var AbstractPlatform|MockObject */
+    /** @var AbstractPlatform&MockObject */
     protected $platform;
 
     /** @var JsonArrayType */
@@ -25,7 +24,7 @@ class JsonArrayTest extends DbalTestCase
     protected function setUp(): void
     {
         $this->platform = $this->createMock(AbstractPlatform::class);
-        $this->type     = Type::getType('json_array');
+        $this->type     = new JsonArrayType();
     }
 
     public function testReturnsBindingType(): void

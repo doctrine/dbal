@@ -11,7 +11,7 @@ class SQLSrvConnectionTest extends DbalTestCase
     /**
      * The sqlsrv driver connection mock under test.
      *
-     * @var SQLSrvConnection|MockObject
+     * @var SQLSrvConnection&MockObject
      */
     private $connectionMock;
 
