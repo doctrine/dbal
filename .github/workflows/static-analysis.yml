@@ -1,15 +1,10 @@
-
 name: "Static Analysis"
 
 on:
   pull_request:
-    branches:
-      - "*.x"
-      - "master"
   push:
-    branches:
-      - "*.x"
-      - "master"
+  schedule:
+    - cron: "42 * * * *"
 
 jobs:
   static-analysis-phpstan:
