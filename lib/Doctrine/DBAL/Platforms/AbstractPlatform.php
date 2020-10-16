@@ -1602,8 +1602,10 @@ abstract class AbstractPlatform
                 }
             }
 
+            $name = $column->getQuotedName($this);
+
             $columnData = array_merge($column->toArray(), [
-                'name' => $column->getQuotedName($this),
+                'name' => $name,
                 'version' => $column->hasPlatformOption('version') ? $column->getPlatformOption('version') : false,
                 'comment' => $this->getColumnComment($column),
             ]);
@@ -1616,7 +1618,7 @@ abstract class AbstractPlatform
                 $columnData['primary'] = true;
             }
 
-            $columns[$columnData['name']] = $columnData;
+            $columns[$name] = $columnData;
         }
 
         if (($createFlags & self::CREATE_FOREIGNKEYS) > 0) {
