@@ -463,6 +463,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $row = $this->connection->fetchAssoc(
             'SELECT *, DATEDIFF(CURRENT_TIMESTAMP(), col_datetime) as diff_seconds FROM test_column_defaults_are_valid'
         );
+        self::assertNotFalse($row);
 
         self::assertInstanceOf(DateTime::class, DateTime::createFromFormat('Y-m-d H:i:s', $row['col_datetime']));
         self::assertNull($row['col_datetime_null']);
