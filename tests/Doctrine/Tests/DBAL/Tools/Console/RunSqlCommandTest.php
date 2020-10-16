@@ -24,16 +24,17 @@ class RunSqlCommandTest extends TestCase
 
     protected function setUp(): void
     {
-        $application = new Application();
-        $application->add(new RunSqlCommand());
+        $this->command = new RunSqlCommand();
 
-        $this->command       = $application->find('dbal:run-sql');
-        $this->commandTester = new CommandTester($this->command);
+        (new Application())->add($this->command);
 
         $this->connectionMock = $this->createMock(Connection::class);
 
         $helperSet = ConsoleRunner::createHelperSet($this->connectionMock);
+
         $this->command->setHelperSet($helperSet);
+
+        $this->commandTester = new CommandTester($this->command);
     }
 
     public function testMissingSqlArgument(): void
