@@ -42,8 +42,6 @@ abstract class ExceptionConverterTest extends TestCase
         $dbalMessage   = 'DBAL exception message';
         $dbalException = $this->converter->convert($dbalMessage, $driverException);
 
-        self::assertInstanceOf($expectedClass, $dbalException);
-
         self::assertSame($driverException->getCode(), $dbalException->getCode());
         self::assertSame($driverException->getSQLState(), $dbalException->getSQLState());
         self::assertSame($driverException, $dbalException->getPrevious());
