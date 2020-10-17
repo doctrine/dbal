@@ -168,7 +168,6 @@ class ResultCacheTest extends FunctionalTestCase
         );
 
         while (($row = $result->fetchAssociative()) !== false) {
-            $data[] = $row;
         }
 
         $result = $this->connection->executeQuery(
@@ -179,7 +178,6 @@ class ResultCacheTest extends FunctionalTestCase
         );
 
         while (($row = $result->fetchNumeric()) !== false) {
-            $data[] = $row;
         }
 
         self::assertCount(1, $this->sqlLogger->queries);

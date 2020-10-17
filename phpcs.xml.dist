@@ -109,6 +109,7 @@
     <!-- some statement classes close cursor using an empty while-loop -->
     <rule ref="Generic.CodeAnalysis.EmptyStatement.DetectedWhile">
         <exclude-pattern>src/Driver/SQLSrv/Result.php</exclude-pattern>
+        <exclude-pattern>tests/Functional/ResultCacheTest.php</exclude-pattern>
     </rule>
 
     <!-- See https://github.com/slevomat/coding-standard/issues/770 -->
