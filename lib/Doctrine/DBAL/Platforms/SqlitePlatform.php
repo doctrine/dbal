@@ -722,7 +722,7 @@ class SqlitePlatform extends AbstractPlatform
         $fromTable = $diff->fromTable;
 
         if (! $fromTable instanceof Table) {
-            throw new Exception(
+            throw new DBALException(
                 'Sqlite platform requires for alter table the table diff with reference to original table schema'
             );
         }

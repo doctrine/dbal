@@ -2,7 +2,7 @@
 
 namespace Doctrine\DBAL\Exception;
 
-use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\DBALException;
 
 use function sprintf;
 
@@ -11,7 +11,7 @@ use function sprintf;
  *
  * @psalm-immutable
  */
-final class NoKeyValue extends Exception
+final class NoKeyValue extends DBALException
 {
     public static function fromColumnCount(int $columnCount): self
     {
