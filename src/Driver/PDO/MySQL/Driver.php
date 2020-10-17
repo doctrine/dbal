@@ -10,6 +10,8 @@ final class Driver extends AbstractMySQLDriver
 {
     /**
      * {@inheritdoc}
+     *
+     * @return Connection
      */
     public function connect(array $params)
     {

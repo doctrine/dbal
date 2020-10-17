@@ -19,6 +19,8 @@ final class Driver extends AbstractSQLiteDriver
 
     /**
      * {@inheritdoc}
+     *
+     * @return Connection
      */
     public function connect(array $params)
     {

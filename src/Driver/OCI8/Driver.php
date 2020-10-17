@@ -13,6 +13,8 @@ final class Driver extends AbstractOracleDriver
 {
     /**
      * {@inheritdoc}
+     *
+     * @return Connection
      */
     public function connect(array $params)
     {

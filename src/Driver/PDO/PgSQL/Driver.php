@@ -12,6 +12,8 @@ final class Driver extends AbstractPostgreSQLDriver
 {
     /**
      * {@inheritdoc}
+     *
+     * @return Connection
      */
     public function connect(array $params)
     {

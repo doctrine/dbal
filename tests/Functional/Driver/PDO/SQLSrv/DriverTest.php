@@ -48,7 +48,7 @@ class DriverTest extends AbstractDriverTest
             $driverOptions = array_merge($params['driverOptions'], $driverOptions);
         }
 
-        return $this->connection->getDriver()->connect(
+        return (new Driver())->connect(
             array_merge(
                 $params,
                 ['driverOptions' => $driverOptions]
