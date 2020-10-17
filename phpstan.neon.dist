@@ -39,6 +39,11 @@ parameters:
             message: '~^Call to function assert\(\) with true will always evaluate to true\.$~'
             path: %currentWorkingDirectory%/src/Driver/PDO/Connection.php
 
+        # Requires a release of https://github.com/JetBrains/phpstorm-stubs/pull/923
+        -
+            message: '~^Instanceof between PDOStatement and PDOStatement will always evaluate to true\.$~'
+            path: %currentWorkingDirectory%/src/Driver/PDO/Connection.php
+
         # Needs Generics
         - '~Method Doctrine\\DBAL\\Schema\\SchemaDiff::getNewTablesSortedByDependencies\(\) should return array<Doctrine\\DBAL\\Schema\\Table> but returns array<object>.~'
 
