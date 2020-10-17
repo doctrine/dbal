@@ -238,6 +238,10 @@ class PrimaryReadReplicaConnection extends Connection
         $user     = $connectionParams['user'] ?? null;
         $password = $connectionParams['password'] ?? null;
 
+        unset($connectionParams['driverOptions']);
+        unset($connectionParams['user']);
+        unset($connectionParams['password']);
+
         return $this->_driver->connect($connectionParams, $user, $password, $driverOptions);
     }
 

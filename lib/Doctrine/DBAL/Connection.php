@@ -359,6 +359,10 @@ class Connection implements DriverConnection
         $user          = $this->params['user'] ?? null;
         $password      = $this->params['password'] ?? null;
 
+        unset($this->params['driverOptions']);
+        unset($this->params['user']);
+        unset($this->params['password']);
+
         $this->_conn = $this->_driver->connect($this->params, $user, $password, $driverOptions);
 
         $this->transactionNestingLevel = 0;
