@@ -69,10 +69,9 @@ class DefaultExpressionTest extends FunctionalTestCase
             )
         );
 
-        [$actualValue, $defaultValue] = $this->connection->fetchNumeric(
-            'SELECT default_value, actual_value FROM default_expr_test'
-        );
+        $row = $this->connection->fetchNumeric('SELECT default_value, actual_value FROM default_expr_test');
+        self::assertNotFalse($row);
 
-        self::assertEquals($actualValue, $defaultValue);
+        self::assertEquals(...$row);
     }
 }
