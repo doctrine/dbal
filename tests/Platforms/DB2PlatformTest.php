@@ -426,14 +426,7 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     {
         self::assertEquals(
             'SELECT * FROM user',
-            $this->platform->modifyLimitQuery('SELECT * FROM user', null, null)
-        );
-
-        self::assertEquals(
-            'SELECT db22.* FROM ('
-                . 'SELECT db21.*, ROW_NUMBER() OVER() AS DC_ROWNUM FROM (SELECT * FROM user) db21'
-                . ') db22 WHERE db22.DC_ROWNUM <= 10',
-            $this->platform->modifyLimitQuery('SELECT * FROM user', 10, 0)
+            $this->platform->modifyLimitQuery('SELECT * FROM user', null, 0)
         );
 
         self::assertEquals(

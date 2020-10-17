@@ -1330,7 +1330,7 @@ SQL
     /**
      * {@inheritDoc}
      */
-    protected function doModifyLimitQuery($query, $limit, $offset = null)
+    protected function doModifyLimitQuery($query, $limit, $offset)
     {
         if ($limit === null && $offset <= 0) {
             return $query;

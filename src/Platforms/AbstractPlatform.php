@@ -3313,20 +3313,14 @@ abstract class AbstractPlatform
      *
      * @param string   $query
      * @param int|null $limit
-     * @param int|null $offset
+     * @param int      $offset
      *
      * @return string
      *
      * @throws Exception
      */
-    final public function modifyLimitQuery($query, $limit, $offset = null)
+    final public function modifyLimitQuery($query, $limit, $offset = 0)
     {
-        if ($limit !== null) {
-            $limit = (int) $limit;
-        }
-
-        $offset = (int) $offset;
-
         if ($offset < 0) {
             throw new Exception(sprintf(
                 'Offset must be a positive integer or zero, %d given',
@@ -3349,7 +3343,7 @@ abstract class AbstractPlatform
      *
      * @param string   $query
      * @param int|null $limit
-     * @param int|null $offset
+     * @param int      $offset
      *
      * @return string
      */
