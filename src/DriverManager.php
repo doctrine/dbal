@@ -34,10 +34,8 @@ final class DriverManager
      *
      * To add your own driver use the 'driverClass' parameter to
      * {@link DriverManager::getConnection()}.
-     *
-     * @var string[]
      */
-    private static $_driverMap = [
+    private const DRIVER_MAP = [
         'pdo_mysql'          => PDO\MySQL\Driver::class,
         'pdo_sqlite'         => PDO\SQLite\Driver::class,
         'pdo_pgsql'          => PDO\PgSQL\Driver::class,
@@ -82,7 +80,7 @@ final class DriverManager
      *
      * $params must contain at least one of the following.
      *
-     * Either 'driver' with one of the array keys of {@link $_driverMap},
+     * Either 'driver' with one of the array keys of {@link DRIVER_MAP},
      * OR 'driverClass' that contains the full class name (with namespace) of the
      * driver class to instantiate.
      *
@@ -142,11 +140,24 @@ final class DriverManager
             }
         }
 
-        self::_checkParams($params);
+        if (isset($params['driverClass'])) {
+            if (! in_array(Driver::class, class_implements($params['driverClass']), true)) {
+                throw Exception::invalidDriverClass($params['driverClass']);
+            }
 
-        $className = $params['driverClass'] ?? self::$_driverMap[$params['driver']];
+            /** @var class-string<Driver> $driverClass */
+            $driverClass = $params['driverClass'];
+        } elseif (isset($params['driver'])) {
+            if (! isset(self::DRIVER_MAP[$params['driver']])) {
+                throw Exception::unknownDriver($params['driver'], array_keys(self::DRIVER_MAP));
+            }
 
-        $driver = new $className();
+            $driverClass = self::DRIVER_MAP[$params['driver']];
+        } else {
+            throw Exception::driverRequired();
+        }
+
+        $driver = new $driverClass();
 
         foreach ($config->getMiddlewares() as $middleware) {
             $driver = $middleware->wrap($driver);
@@ -171,38 +182,7 @@ final class DriverManager
      */
     public static function getAvailableDrivers(): array
     {
-        return array_keys(self::$_driverMap);
-    }
-
-    /**
-     * Checks the list of parameters.
-     *
-     * @param mixed[] $params The list of parameters.
-     *
-     * @throws Exception
-     */
-    private static function _checkParams(array $params): void
-    {
-        // check existence of mandatory parameters
-
-        // driver
-        if (! isset($params['driver']) && ! isset($params['driverClass'])) {
-            throw Exception::driverRequired();
-        }
-
-        // check validity of parameters
-
-        // driver
-        if (isset($params['driver']) && ! isset(self::$_driverMap[$params['driver']])) {
-            throw Exception::unknownDriver($params['driver'], array_keys(self::$_driverMap));
-        }
-
-        if (
-            isset($params['driverClass'])
-            && ! in_array(Driver::class, class_implements($params['driverClass']), true)
-        ) {
-            throw Exception::invalidDriverClass($params['driverClass']);
-        }
+        return array_keys(self::DRIVER_MAP);
     }
 
     /**
