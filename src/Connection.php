@@ -494,7 +494,7 @@ class Connection
      * @param array<int, mixed>|array<string, mixed>                               $params Query parameters
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
      *
-     * @return array<int, mixed>|false False is returned if no rows are found.
+     * @return list< mixed>|false False is returned if no rows are found.
      *
      * @throws Exception
      */
@@ -783,7 +783,7 @@ class Connection
      * @param array<int, mixed>|array<string, mixed>                               $params Query parameters
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
      *
-     * @return array<int,array<int,mixed>>
+     * @return list<list<mixed>>
      *
      * @throws Exception
      */
@@ -803,7 +803,7 @@ class Connection
      * @param array<int, mixed>|array<string, mixed>                               $params Query parameters
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
      *
-     * @return array<int,array<string,mixed>>
+     * @return list<array<string,mixed>>
      *
      * @throws Exception
      */
@@ -858,7 +858,7 @@ class Connection
      * @param array<int, mixed>|array<string, mixed>                               $params Query parameters
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
      *
-     * @return array<int,mixed>
+     * @return list<mixed>
      *
      * @throws Exception
      */
@@ -878,7 +878,7 @@ class Connection
      * @param array<int, mixed>|array<string, mixed>                               $params Query parameters
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
      *
-     * @return Traversable<int,array<int,mixed>>
+     * @return Traversable<int,list<mixed>>
      *
      * @throws Exception
      */

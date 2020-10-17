@@ -111,7 +111,7 @@ final class Result implements ResultInterface
     }
 
     /**
-     * @return array<int,mixed>
+     * @return list<mixed>
      *
      * @throws Exception
      */
