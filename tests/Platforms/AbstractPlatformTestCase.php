@@ -951,11 +951,12 @@ abstract class AbstractPlatformTestCase extends TestCase
         // quoted -> quoted
         $toTable->addColumn('`baz`', 'integer', ['comment' => 'Quoted 3']);
 
-        $comparator = new Comparator();
+        $diff = (new Comparator())->diffTable($fromTable, $toTable);
+        self::assertNotFalse($diff);
 
         self::assertEquals(
             $this->getQuotedAlterTableRenameColumnSQL(),
-            $this->platform->getAlterTableSQL($comparator->diffTable($fromTable, $toTable))
+            $this->platform->getAlterTableSQL($diff)
         );
     }
 
@@ -988,11 +989,12 @@ abstract class AbstractPlatformTestCase extends TestCase
         $toTable->addColumn('table', 'string', ['comment' => 'Reserved keyword 2', 'length' => 255]);
         $toTable->addColumn('select', 'string', ['comment' => 'Reserved keyword 3', 'length' => 255]);
 
-        $comparator = new Comparator();
+        $diff = (new Comparator())->diffTable($fromTable, $toTable);
+        self::assertNotFalse($diff);
 
         self::assertEquals(
             $this->getQuotedAlterTableChangeColumnLengthSQL(),
-            $this->platform->getAlterTableSQL($comparator->diffTable($fromTable, $toTable))
+            $this->platform->getAlterTableSQL($diff)
         );
     }
 
@@ -1160,7 +1162,7 @@ abstract class AbstractPlatformTestCase extends TestCase
     /**
      * @dataProvider getGeneratesInlineColumnCommentSQL
      */
-    public function testGeneratesInlineColumnCommentSQL(?string $comment, string $expectedSql): void
+    public function testGeneratesInlineColumnCommentSQL(string $comment, string $expectedSql): void
     {
         if (! $this->platform->supportsInlineColumnComments()) {
             self::markTestSkipped(sprintf('%s does not support inline column comments.', get_class($this->platform)));

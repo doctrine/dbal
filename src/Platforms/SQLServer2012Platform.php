@@ -1243,10 +1243,10 @@ SQL
         $length = $column['length'] ?? null;
 
         if (! isset($column['fixed'])) {
-            return sprintf('VARCHAR(%d)', $length);
+            return sprintf('VARCHAR(%d)', $length ?? 255);
         }
 
-        return sprintf('CHAR(%d)', $length);
+        return sprintf('CHAR(%d)', $length ?? 255);
     }
 
     /**

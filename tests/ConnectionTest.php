@@ -47,7 +47,7 @@ class ConnectionTest extends TestCase
     }
 
     /**
-     * @return Connection|MockObject
+     * @return Connection&MockObject
      */
     private function getExecuteStatementMockConnection()
     {

@@ -6,7 +6,6 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\ConversionException;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -17,7 +16,7 @@ use function stream_get_contents;
 
 class BinaryTest extends TestCase
 {
-    /** @var AbstractPlatform|MockObject */
+    /** @var AbstractPlatform&MockObject */
     protected $platform;
 
     /** @var BinaryType */
@@ -26,7 +25,7 @@ class BinaryTest extends TestCase
     protected function setUp(): void
     {
         $this->platform = $this->createMock(AbstractPlatform::class);
-        $this->type     = Type::getType('binary');
+        $this->type     = new BinaryType();
     }
 
     public function testReturnsBindingType(): void

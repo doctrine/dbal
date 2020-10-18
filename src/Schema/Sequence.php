@@ -19,7 +19,7 @@ class Sequence extends AbstractAsset
     protected $initialValue = 1;
 
     /** @var int|null */
-    protected $cache = null;
+    protected $cache;
 
     /**
      * @param string   $name

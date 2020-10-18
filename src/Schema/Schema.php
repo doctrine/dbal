@@ -52,7 +52,7 @@ class Schema extends AbstractAsset
     protected $_sequences = [];
 
     /** @var SchemaConfig */
-    protected $_schemaConfig = false;
+    protected $_schemaConfig;
 
     /**
      * @param Table[]    $tables

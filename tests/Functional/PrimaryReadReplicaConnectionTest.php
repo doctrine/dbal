@@ -10,9 +10,6 @@ use Throwable;
 
 use function array_change_key_case;
 use function sprintf;
-use function strlen;
-use function strtolower;
-use function substr;
 
 use const CASE_LOWER;
 
@@ -45,7 +42,11 @@ class PrimaryReadReplicaConnectionTest extends FunctionalTestCase
 
     private function createPrimaryReadReplicaConnection(bool $keepReplica = false): PrimaryReadReplicaConnection
     {
-        return DriverManager::getConnection($this->createPrimaryReadReplicaConnectionParams($keepReplica));
+        $connection = DriverManager::getConnection($this->createPrimaryReadReplicaConnectionParams($keepReplica));
+
+        self::assertInstanceOf(PrimaryReadReplicaConnection::class, $connection);
+
+        return $connection;
     }
 
     /**
@@ -89,10 +90,7 @@ class PrimaryReadReplicaConnectionTest extends FunctionalTestCase
 
             $clientCharset = $conn->fetchOne('select @@character_set_client as c');
 
-            self::assertSame(
-                $charset,
-                substr(strtolower($clientCharset), 0, strlen($charset))
-            );
+            self::assertSame($charset, $clientCharset);
         }
     }
 

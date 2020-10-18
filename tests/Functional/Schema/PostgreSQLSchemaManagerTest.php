@@ -100,9 +100,10 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $column  = $tableTo->addColumn('id', 'integer');
         $column->setAutoincrement(true);
 
-        $c    = new Comparator();
-        $diff = $c->diffTable($tableFrom, $tableTo);
-        $sql  = $this->connection->getDatabasePlatform()->getAlterTableSQL($diff);
+        $diff = (new Comparator())->diffTable($tableFrom, $tableTo);
+        self::assertNotFalse($diff);
+
+        $sql = $this->connection->getDatabasePlatform()->getAlterTableSQL($diff);
         self::assertEquals([
             'CREATE SEQUENCE autoinc_table_add_id_seq',
             "SELECT setval('autoinc_table_add_id_seq', (SELECT MAX(id) FROM autoinc_table_add))",
@@ -126,9 +127,9 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $tableTo = new Table('autoinc_table_drop');
         $tableTo->addColumn('id', 'integer');
 
-        $c    = new Comparator();
-        $diff = $c->diffTable($tableFrom, $tableTo);
-        self::assertInstanceOf(TableDiff::class, $diff);
+        $diff = (new Comparator())->diffTable($tableFrom, $tableTo);
+        self::assertNotFalse($diff);
+
         self::assertEquals(
             ['ALTER TABLE autoinc_table_drop ALTER id DROP DEFAULT'],
             $this->connection->getDatabasePlatform()->getAlterTableSQL($diff)
@@ -162,7 +163,11 @@ class PostgreSQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $nestedSchemaTable = $this->schemaManager->listTableDetails('nested.schematable');
         self::assertTrue($nestedSchemaTable->hasColumn('id'));
-        self::assertEquals(['id'], $nestedSchemaTable->getPrimaryKey()->getColumns());
+
+        $primaryKey = $nestedSchemaTable->getPrimaryKey();
+
+        self::assertNotNull($primaryKey);
+        self::assertEquals(['id'], $primaryKey->getColumns());
 
         $relatedFks = $nestedSchemaTable->getForeignKeys();
         self::assertCount(1, $relatedFks);

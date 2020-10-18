@@ -15,7 +15,7 @@ class StatementTest extends TestCase
     /** @var Statement */
     protected $stmt;
 
-    /** @var DriverStatement|MockObject */
+    /** @var DriverStatement&MockObject */
     protected $wrappedStmt;
 
     protected function setUp(): void
@@ -69,7 +69,7 @@ class StatementTest extends TestCase
     }
 
     /**
-     * @return Connection|MockObject
+     * @return Connection&MockObject
      */
     protected function createConnection()
     {

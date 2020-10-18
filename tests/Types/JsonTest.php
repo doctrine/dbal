@@ -6,7 +6,6 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\JsonType;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -17,7 +16,7 @@ use function json_encode;
 
 class JsonTest extends TestCase
 {
-    /** @var AbstractPlatform|MockObject */
+    /** @var AbstractPlatform&MockObject */
     protected $platform;
 
     /** @var JsonType */
@@ -26,7 +25,7 @@ class JsonTest extends TestCase
     protected function setUp(): void
     {
         $this->platform = $this->createMock(AbstractPlatform::class);
-        $this->type     = Type::getType('json');
+        $this->type     = new JsonType();
     }
 
     public function testReturnsBindingType(): void

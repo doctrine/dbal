@@ -25,11 +25,10 @@ class RunSqlCommandTest extends TestCase
     protected function setUp(): void
     {
         $this->connectionMock = $this->createMock(Connection::class);
+        $this->command        = new RunSqlCommand(new SingleConnectionProvider($this->connectionMock));
 
-        $application = new Application();
-        $application->add(new RunSqlCommand(new SingleConnectionProvider($this->connectionMock)));
+        (new Application())->add($this->command);
 
-        $this->command       = $application->find('dbal:run-sql');
         $this->commandTester = new CommandTester($this->command);
     }
 

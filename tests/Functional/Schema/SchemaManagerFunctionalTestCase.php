@@ -687,10 +687,10 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $tableFKNew->addIndex(['rename_fk_id'], 'fk_idx');
         $tableFKNew->addForeignKeyConstraint('test_fk_base', ['rename_fk_id'], ['id']);
 
-        $c         = new Comparator();
-        $tableDiff = $c->diffTable($tableFK, $tableFKNew);
+        $diff = (new Comparator())->diffTable($tableFK, $tableFKNew);
+        self::assertNotFalse($diff);
 
-        $this->schemaManager->alterTable($tableDiff);
+        $this->schemaManager->alterTable($diff);
 
         $table       = $this->schemaManager->listTableDetails('test_fk_rename');
         $foreignKeys = $table->getForeignKeys();
@@ -727,9 +727,10 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $foreignTable2 = clone $foreignTable;
         $foreignTable2->renameIndex('rename_index_fk_idx', 'renamed_index_fk_idx');
 
-        $comparator = new Comparator();
+        $diff = (new Comparator())->diffTable($foreignTable, $foreignTable2);
+        self::assertNotFalse($diff);
 
-        $this->schemaManager->alterTable($comparator->diffTable($foreignTable, $foreignTable2));
+        $this->schemaManager->alterTable($diff);
 
         $foreignTable = $this->schemaManager->listTableDetails('test_rename_index_foreign');
 
@@ -1007,9 +1008,10 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $diffTable->changeColumn('column6', ['default' => 666]);
         $diffTable->changeColumn('column7', ['default' => null]);
 
-        $comparator = new Comparator();
+        $diff = (new Comparator())->diffTable($table, $diffTable);
+        self::assertNotFalse($diff);
 
-        $this->schemaManager->alterTable($comparator->diffTable($table, $diffTable));
+        $this->schemaManager->alterTable($diff);
 
         $columns = $this->schemaManager->listTableColumns('col_def_lifecycle');
 

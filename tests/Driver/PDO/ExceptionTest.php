@@ -4,7 +4,6 @@ namespace Doctrine\DBAL\Tests\Driver\PDO;
 
 use Doctrine\DBAL\Driver\PDO\Exception;
 use PDOException;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -28,7 +27,7 @@ class ExceptionTest extends TestCase
     /**
      * The wrapped PDO exception mock.
      *
-     * @var PDOException|MockObject
+     * @var PDOException
      */
     private $wrappedException;
 

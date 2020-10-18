@@ -165,7 +165,7 @@ final class Statement implements StatementInterface
         $handle = @tmpfile();
 
         if ($handle === false) {
-            throw CannotCreateTemporaryFile::new(error_get_last()['message']);
+            throw CannotCreateTemporaryFile::new(error_get_last());
         }
 
         return $handle;
@@ -180,7 +180,7 @@ final class Statement implements StatementInterface
     private function copyStreamToStream($source, $target): void
     {
         if (@stream_copy_to_stream($source, $target) === false) {
-            throw CannotCopyStreamToStream::new(error_get_last()['message']);
+            throw CannotCopyStreamToStream::new(error_get_last());
         }
     }
 
@@ -192,7 +192,7 @@ final class Statement implements StatementInterface
     private function writeStringToStream(string $string, $target): void
     {
         if (@fwrite($target, $string) === false) {
-            throw CannotWriteToTemporaryFile::new(error_get_last()['message']);
+            throw CannotWriteToTemporaryFile::new(error_get_last());
         }
     }
 }

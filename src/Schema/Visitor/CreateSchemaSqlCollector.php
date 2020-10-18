@@ -24,7 +24,7 @@ class CreateSchemaSqlCollector extends AbstractVisitor
     private $createFkConstraintQueries = [];
 
     /** @var AbstractPlatform */
-    private $platform = null;
+    private $platform;
 
     public function __construct(AbstractPlatform $platform)
     {

@@ -46,7 +46,7 @@ class SchemaDiffTest extends TestCase
     }
 
     /**
-     * @return AbstractPlatform|MockObject
+     * @return AbstractPlatform&MockObject
      */
     private function createPlatform(bool $unsafe)
     {

@@ -16,7 +16,7 @@ use function date_default_timezone_set;
 
 abstract class BaseDateTypeTestCase extends TestCase
 {
-    /** @var AbstractPlatform|MockObject */
+    /** @var AbstractPlatform&MockObject */
     protected $platform;
 
     /** @var Type */

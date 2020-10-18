@@ -6,6 +6,7 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema;
+use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\Type;
@@ -178,10 +179,11 @@ SQL;
         $this->schemaManager->dropAndCreateTable($offlineTable);
 
         $onlineTable = $this->schemaManager->listTableDetails($tableName);
-        $comparator  = new Schema\Comparator();
-        $diff        = $comparator->diffTable($offlineTable, $onlineTable);
+
+        $diff = (new Comparator())->diffTable($offlineTable, $onlineTable);
 
         if ($expectedComparatorDiff) {
+            self::assertNotFalse($diff);
             self::assertEmpty($this->schemaManager->getDatabasePlatform()->getAlterTableSQL($diff));
         } else {
             self::assertFalse($diff);

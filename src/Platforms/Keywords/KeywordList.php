@@ -12,7 +12,7 @@ use function strtoupper;
 abstract class KeywordList
 {
     /** @var string[]|null */
-    private $keywords = null;
+    private $keywords;
 
     /**
      * Checks if the given word is a keyword of this dialect/vendor platform.

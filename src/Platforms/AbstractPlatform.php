@@ -73,7 +73,7 @@ abstract class AbstractPlatform
     public const CREATE_FOREIGNKEYS = 2;
 
     /** @var string[]|null */
-    protected $doctrineTypeMapping = null;
+    protected $doctrineTypeMapping;
 
     /**
      * Contains a list of all columns that should generate parseable column comments for type-detection
@@ -81,7 +81,7 @@ abstract class AbstractPlatform
      *
      * @var string[]|null
      */
-    protected $doctrineTypeComments = null;
+    protected $doctrineTypeComments;
 
     /** @var EventManager|null */
     protected $_eventManager;
@@ -1549,8 +1549,10 @@ abstract class AbstractPlatform
                 }
             }
 
+            $name = $column->getQuotedName($this);
+
             $columnData = array_merge($column->toArray(), [
-                'name' => $column->getQuotedName($this),
+                'name' => $name,
                 'version' => $column->hasPlatformOption('version') ? $column->getPlatformOption('version') : false,
                 'comment' => $this->getColumnComment($column),
             ]);
@@ -1563,7 +1565,7 @@ abstract class AbstractPlatform
                 $columnData['primary'] = true;
             }
 
-            $columns[$columnData['name']] = $columnData;
+            $columns[$name] = $columnData;
         }
 
         if ($this->_eventManager !== null && $this->_eventManager->hasListeners(Events::onSchemaCreateTable)) {

@@ -31,7 +31,7 @@ class Table extends AbstractAsset
     protected $_indexes = [];
 
     /** @var string|null */
-    protected $_primaryKeyName = null;
+    protected $_primaryKeyName;
 
     /** @var UniqueConstraint[] */
     protected $uniqueConstraints = [];
@@ -45,7 +45,7 @@ class Table extends AbstractAsset
     ];
 
     /** @var SchemaConfig|null */
-    protected $_schemaConfig = null;
+    protected $_schemaConfig;
 
     /** @var Index[] */
     private $implicitIndexes = [];
@@ -783,9 +783,11 @@ class Table extends AbstractAsset
      */
     public function getPrimaryKey()
     {
-        return $this->_primaryKeyName !== null
-            ? $this->getIndex($this->_primaryKeyName)
-            : null;
+        if ($this->_primaryKeyName !== null) {
+            return $this->getIndex($this->_primaryKeyName);
+        }
+
+        return null;
     }
 
     /**

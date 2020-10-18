@@ -209,12 +209,11 @@ class DB2SchemaManager extends AbstractSchemaManager
     {
         $view = array_change_key_case($view, CASE_LOWER);
 
-        $position = strpos($view['text'], ' AS ');
+        $sql = '';
+        $pos = strpos($view['text'], ' AS ');
 
-        if ($position !== false) {
-            $sql = substr($view['text'], $position + 4);
-        } else {
-            $sql = '';
+        if ($pos !== false) {
+            $sql = substr($view['text'], $pos + 4);
         }
 
         return new View($view['name'], $sql);

@@ -5,7 +5,6 @@ namespace Doctrine\DBAL\Tests\Types;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ArrayType;
 use Doctrine\DBAL\Types\ConversionException;
-use Doctrine\DBAL\Types\Type;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -13,7 +12,7 @@ use function serialize;
 
 class ArrayTest extends TestCase
 {
-    /** @var AbstractPlatform|MockObject */
+    /** @var AbstractPlatform&MockObject */
     private $platform;
 
     /** @var ArrayType */
@@ -22,7 +21,7 @@ class ArrayTest extends TestCase
     protected function setUp(): void
     {
         $this->platform = $this->createMock(AbstractPlatform::class);
-        $this->type     = Type::getType('array');
+        $this->type     = new ArrayType();
     }
 
     public function testArrayConvertsToDatabaseValue(): void

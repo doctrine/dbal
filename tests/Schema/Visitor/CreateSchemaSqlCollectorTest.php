@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
 
 class CreateSchemaSqlCollectorTest extends TestCase
 {
-    /** @var AbstractPlatform|MockObject */
+    /** @var AbstractPlatform&MockObject */
     private $platformMock;
 
     /** @var CreateSchemaSqlCollector */
@@ -134,7 +134,7 @@ class CreateSchemaSqlCollectorTest extends TestCase
     }
 
     /**
-     * @return ForeignKeyConstraint|MockObject
+     * @return ForeignKeyConstraint&MockObject
      */
     private function createForeignKeyConstraintMock()
     {
@@ -144,7 +144,7 @@ class CreateSchemaSqlCollectorTest extends TestCase
     }
 
     /**
-     * @return Sequence|MockObject
+     * @return Sequence&MockObject
      */
     private function createSequenceMock()
     {
@@ -154,7 +154,7 @@ class CreateSchemaSqlCollectorTest extends TestCase
     }
 
     /**
-     * @return Table|MockObject
+     * @return Table&MockObject
      */
     private function createTableMock()
     {

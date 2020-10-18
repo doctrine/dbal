@@ -13,8 +13,17 @@ use Doctrine\DBAL\Driver\AbstractException;
  */
 final class CannotWriteToTemporaryFile extends AbstractException
 {
-    public static function new(string $message): self
+    /**
+     * @psalm-param array{message: string}|null $error
+     */
+    public static function new(?array $error): self
     {
-        return new self('Could not write string to temporary file: ' . $message);
+        $message = 'Could not write string to temporary file';
+
+        if ($error !== null) {
+            $message .= ': ' . $error['message'];
+        }
+
+        return new self($message);
     }
 }

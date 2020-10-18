@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <psalm
     totallyTyped="false"
-    errorLevel="4"
+    errorLevel="3"
     resolveFromConfigFile="true"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns="https://getpsalm.org/schema/config"
@@ -23,6 +23,14 @@
         <file name="vendor/jetbrains/phpstorm-stubs/sqlsrv/sqlsrv.php" />
     </stubs>
     <issueHandlers>
+        <ArgumentTypeCoercion>
+            <errorLevel type="suppress">
+                <!--
+                    See https://github.com/composer/package-versions-deprecated/pull/12
+                -->
+                <file name="src/Tools/Console/ConsoleRunner.php"/>
+            </errorLevel>
+        </ArgumentTypeCoercion>
         <ConflictingReferenceConstraint>
             <errorLevel type="suppress">
                 <!--
@@ -53,6 +61,12 @@
                 <file name="src/Driver/OCI8/Connection.php"/>
             </errorLevel>
         </ImplementedReturnTypeMismatch>
+        <InvalidPropertyAssignmentValue>
+            <errorLevel type="suppress">
+                <!-- Fixing this issue requires an API change -->
+                <file name="src/Driver/PDO/Exception.php"/>
+            </errorLevel>
+        </InvalidPropertyAssignmentValue>
         <NullableReturnStatement>
             <errorLevel type="suppress">
                 <!--
@@ -61,6 +75,20 @@
                 <file name="src/Driver/AbstractSQLiteDriver.php"/>
             </errorLevel>
         </NullableReturnStatement>
+        <PossiblyInvalidOperand>
+            <errorLevel type="suppress">
+                <!--
+                    This code relies on certain elements of a mixed-type array to be of a certain type.
+                -->
+                <file name="src/SQLParserUtils.php"/>
+            </errorLevel>
+        </PossiblyInvalidOperand>
+        <PossiblyNullArgument>
+            <errorLevel type="suppress">
+                <!-- See https://github.com/doctrine/dbal/pull/3488 -->
+                <file name="src/Schema/AbstractSchemaManager.php"/>
+            </errorLevel>
+        </PossiblyNullArgument>
         <TooFewArguments>
             <errorLevel type="suppress">
                 <!--

@@ -103,7 +103,7 @@ final class DriverManager
      * <b>driverClass</b>:
      * The driver class to use.
      *
-     * @param  array{wrapperClass?: class-string<T>} $params
+     * @param array{wrapperClass?: class-string<T>} $params
      * @param Configuration|null                    $config       The configuration to use.
      * @param EventManager|null                     $eventManager The event manager to use.
      *
@@ -169,6 +169,7 @@ final class DriverManager
                 throw Exception::invalidWrapperClass($params['wrapperClass']);
             }
 
+            /** @var class-string<Connection> $wrapperClass */
             $wrapperClass = $params['wrapperClass'];
         }
 

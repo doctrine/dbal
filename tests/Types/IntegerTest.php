@@ -4,13 +4,12 @@ namespace Doctrine\DBAL\Tests\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\IntegerType;
-use Doctrine\DBAL\Types\Type;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class IntegerTest extends TestCase
 {
-    /** @var AbstractPlatform|MockObject */
+    /** @var AbstractPlatform&MockObject */
     private $platform;
 
     /** @var IntegerType */
@@ -19,7 +18,7 @@ class IntegerTest extends TestCase
     protected function setUp(): void
     {
         $this->platform = $this->createMock(AbstractPlatform::class);
-        $this->type     = Type::getType('integer');
+        $this->type     = new IntegerType();
     }
 
     public function testIntegerConvertsToPHPValue(): void

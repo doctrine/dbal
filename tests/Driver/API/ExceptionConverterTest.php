@@ -26,6 +26,8 @@ abstract class ExceptionConverterTest extends TestCase
     abstract protected function createConverter(): ExceptionConverter;
 
     /**
+     * @param class-string<DriverException> $expectedClass
+     *
      * @dataProvider exceptionConversionProvider
      */
     public function testConvertsException(

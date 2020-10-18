@@ -4,13 +4,12 @@ namespace Doctrine\DBAL\Tests\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\FloatType;
-use Doctrine\DBAL\Types\Type;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class FloatTest extends TestCase
 {
-    /** @var AbstractPlatform|MockObject */
+    /** @var AbstractPlatform&MockObject */
     private $platform;
 
     /** @var FloatType */
@@ -19,7 +18,7 @@ class FloatTest extends TestCase
     protected function setUp(): void
     {
         $this->platform = $this->createMock(AbstractPlatform::class);
-        $this->type     = Type::getType('float');
+        $this->type     = new FloatType();
     }
 
     public function testFloatConvertsToPHPValue(): void
