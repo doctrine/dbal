@@ -9,16 +9,16 @@ use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
-use Doctrine\DBAL\Platforms\MySqlPlatform;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\Column;
-use Doctrine\DBAL\Schema\MySqlSchemaManager;
+use Doctrine\DBAL\Schema\MySQLSchemaManager;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
 use PHPUnit\Framework\TestCase;
 
 use function array_merge;
 
-class MySqlInheritCharsetTest extends TestCase
+class MySQLInheritCharsetTest extends TestCase
 {
     public function testInheritTableOptionsFromDatabase(): void
     {
@@ -39,7 +39,7 @@ class MySqlInheritCharsetTest extends TestCase
 
     public function testTableOptions(): void
     {
-        $platform = new MySqlPlatform();
+        $platform = new MySQLPlatform();
 
         // default, no overrides
         $table = new Table('foobar', [new Column('aa', Type::getType('integer'))]);
@@ -86,10 +86,10 @@ class MySqlInheritCharsetTest extends TestCase
         $driverMock->method('connect')
             ->willReturn($this->createMock(DriverConnection::class));
 
-        $platform    = new MySqlPlatform();
+        $platform    = new MySQLPlatform();
         $connOptions = array_merge(['platform' => $platform], $overrideOptions);
         $conn        = new Connection($connOptions, $driverMock, new Configuration(), $eventManager);
-        $manager     = new MySqlSchemaManager($conn, $platform);
+        $manager     = new MySQLSchemaManager($conn, $platform);
 
         $schemaConfig = $manager->createSchemaConfig();
 

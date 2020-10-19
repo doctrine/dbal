@@ -15,6 +15,8 @@ final class Driver extends AbstractSQLServerDriver
 {
     /**
      * {@inheritdoc}
+     *
+     * @return Connection
      */
     public function connect(array $params): ConnectionInterface
     {

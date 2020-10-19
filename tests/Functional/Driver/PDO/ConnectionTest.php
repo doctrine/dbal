@@ -28,13 +28,13 @@ class ConnectionTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $wrappedConnection = $this->connection->getWrappedConnection();
+        $driverConnection = $this->connection->getWrappedConnection();
 
-        if (! $wrappedConnection instanceof Connection) {
+        if (! $driverConnection instanceof Connection) {
             self::markTestSkipped('PDO connection only test.');
         }
 
-        $this->driverConnection = $wrappedConnection;
+        $this->driverConnection = $driverConnection;
     }
 
     protected function tearDown(): void

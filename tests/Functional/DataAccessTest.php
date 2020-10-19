@@ -17,10 +17,8 @@ use Doctrine\DBAL\Types\Types;
 use InvalidArgumentException;
 
 use function array_change_key_case;
-use function assert;
 use function count;
 use function date;
-use function is_array;
 use function json_encode;
 use function sprintf;
 use function strtotime;
@@ -218,8 +216,8 @@ class DataAccessTest extends FunctionalTestCase
     {
         $sql = 'SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?';
         $row = $this->connection->fetchNumeric($sql, [1, 'foo']);
+        self::assertNotFalse($row);
 
-        self::assertIsArray($row);
         self::assertEquals(1, $row[0]);
         self::assertEquals('foo', $row[1]);
     }
@@ -360,7 +358,7 @@ class DataAccessTest extends FunctionalTestCase
             'FROM fetch_table';
 
         $row = $this->connection->fetchAssociative($sql);
-        self::assertIsArray($row);
+        self::assertNotFalse($row);
         $row = array_change_key_case($row, CASE_LOWER);
 
         self::assertEquals($expectedResult, $row['trimmed']);
@@ -695,6 +693,7 @@ class DataAccessTest extends FunctionalTestCase
         $bindParams($stmt, $interval);
 
         $date = $stmt->execute()->fetchOne();
+        self::assertNotFalse($date);
 
         self::assertEquals($expected, date('Y-m-d H:i:s', strtotime($date)));
     }
@@ -774,8 +773,7 @@ class DataAccessTest extends FunctionalTestCase
         $sql .= 'FROM fetch_table';
 
         $row = $this->connection->fetchAssociative($sql);
-        assert(is_array($row));
-
+        self::assertNotFalse($row);
         $row = array_change_key_case($row, CASE_LOWER);
 
         self::assertEquals(2, $row['locate1']);
@@ -856,10 +854,18 @@ class DataAccessTest extends FunctionalTestCase
             ]);
         }
 
-        $sql = 'SELECT test_int, test_string'
-            . ', ' . $platform->getBitOrComparisonExpression('test_int', '2') . ' AS bit_or'
-            . ', ' . $platform->getBitAndComparisonExpression('test_int', '2') . ' AS bit_and'
-            . ' FROM fetch_table';
+        $sql = sprintf(
+            <<<'SQL'
+SELECT test_int,
+       test_string,
+       %s AS bit_or,
+       %s AS bit_and
+FROM   fetch_table
+SQL
+            ,
+            $platform->getBitOrComparisonExpression('test_int', '2'),
+            $platform->getBitAndComparisonExpression('test_int', '2')
+        );
 
         $data = $this->connection->fetchAllAssociative($sql);
 

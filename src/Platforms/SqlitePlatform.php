@@ -619,7 +619,9 @@ class SqlitePlatform extends AbstractPlatform
      */
     protected function getPostAlterTableIndexForeignKeySQL(TableDiff $diff): array
     {
-        if ($diff->fromTable === null) {
+        $fromTable = $diff->fromTable;
+
+        if ($fromTable === null) {
             throw new Exception(
                 'Sqlite platform requires for alter table the table diff with reference to original table schema.'
             );
@@ -632,7 +634,7 @@ class SqlitePlatform extends AbstractPlatform
             $tableName = $diff->getName($this);
         }
 
-        foreach ($this->getIndexesInAlteredTable($diff, $diff->fromTable) as $index) {
+        foreach ($this->getIndexesInAlteredTable($diff, $fromTable) as $index) {
             if ($index->isPrimary()) {
                 continue;
             }

@@ -16,10 +16,6 @@ use Doctrine\DBAL\Tools\Dumper;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
-use function print_r;
-use function strpos;
-use function substr;
-
 class DumperTest extends TestCase
 {
     public function testExportObject(): void
@@ -101,14 +97,6 @@ class DumperTest extends TestCase
      */
     public function testExportParentAttributes(TestAsset\ParentClass $class, array $expected): void
     {
-        $printedClass    = print_r($class, true);
-        $printedExpected = print_r($expected, true);
-
-        $printedClass    = substr($printedClass, (int) strpos($printedClass, '('));
-        $printedExpected = substr($printedExpected, (int) strpos($printedExpected, '('));
-
-        self::assertSame($printedClass, $printedExpected);
-
         $var = Dumper::export($class, 3);
         $var = (array) $var;
         unset($var['__CLASS__']);

@@ -480,7 +480,7 @@ class Connection
      * @param array<int, mixed>|array<string, mixed>                               $params Query parameters
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
      *
-     * @return array<int, mixed>|false False is returned if no rows are found.
+     * @return list<mixed>|false False is returned if no rows are found.
      *
      * @throws Exception
      */
@@ -748,7 +748,7 @@ class Connection
      * @param array<int, mixed>|array<string, mixed>                               $params Query parameters
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
      *
-     * @return array<int,array<int,mixed>>
+     * @return list<list<mixed>>
      *
      * @throws Exception
      */
@@ -767,7 +767,7 @@ class Connection
      * @param array<int, mixed>|array<string, mixed>                               $params Query parameters
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
      *
-     * @return array<int,array<string,mixed>>
+     * @return list<array<string,mixed>>
      *
      * @throws Exception
      */
@@ -797,12 +797,30 @@ class Connection
     }
 
     /**
+     * Prepares and executes an SQL query and returns the result as an associative array with the keys mapped
+     * to the first column and the values being an associative array representing the rest of the columns
+     * and their values.
+     *
+     * @param string                                           $query  SQL query
+     * @param array<int, mixed>|array<string, mixed>           $params Query parameters
+     * @param array<int, int|string>|array<string, int|string> $types  Parameter types
+     *
+     * @return array<mixed,array<string,mixed>>
+     *
+     * @throws Exception
+     */
+    public function fetchAllAssociativeIndexed(string $query, array $params = [], array $types = []): array
+    {
+        return $this->executeQuery($query, $params, $types)->fetchAllAssociativeIndexed();
+    }
+
+    /**
      * Prepares and executes an SQL query and returns the result as an array of the first column values.
      *
      * @param array<int, mixed>|array<string, mixed>                               $params Query parameters
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
      *
-     * @return array<int,mixed>
+     * @return list<mixed>
      *
      * @throws Exception
      */
@@ -821,7 +839,7 @@ class Connection
      * @param array<int, mixed>|array<string, mixed>                               $params Query parameters
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
      *
-     * @return Traversable<int,array<int,mixed>>
+     * @return Traversable<int,list<mixed>>
      *
      * @throws Exception
      */
@@ -876,6 +894,24 @@ class Connection
     public function iterateKeyValue(string $query, array $params = [], array $types = []): Traversable
     {
         return $this->executeQuery($query, $params, $types)->iterateKeyValue();
+    }
+
+    /**
+     * Prepares and executes an SQL query and returns the result as an iterator with the keys mapped
+     * to the first column and the values being an associative array representing the rest of the columns
+     * and their values.
+     *
+     * @param string                                           $query  SQL query
+     * @param array<int, mixed>|array<string, mixed>           $params Query parameters
+     * @param array<int, int|string>|array<string, int|string> $types  Parameter types
+     *
+     * @return Traversable<mixed,array<string,mixed>>
+     *
+     * @throws Exception
+     */
+    public function iterateAssociativeIndexed(string $query, array $params = [], array $types = []): Traversable
+    {
+        return $this->executeQuery($query, $params, $types)->iterateAssociativeIndexed();
     }
 
     /**

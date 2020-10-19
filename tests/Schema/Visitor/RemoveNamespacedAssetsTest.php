@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Schema\Visitor;
 
-use Doctrine\DBAL\Platforms\MySqlPlatform;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\SchemaConfig;
 use Doctrine\DBAL\Schema\Visitor\RemoveNamespacedAssets;
@@ -46,7 +46,7 @@ class RemoveNamespacedAssetsTest extends TestCase
 
         $schema->visit(new RemoveNamespacedAssets());
 
-        $sql = $schema->toSql(new MySqlPlatform());
+        $sql = $schema->toSql(new MySQLPlatform());
         self::assertCount(1, $sql, 'Just one CREATE TABLE statement, no foreign key and table to foo.bar');
     }
 
@@ -66,7 +66,7 @@ class RemoveNamespacedAssetsTest extends TestCase
 
         $schema->visit(new RemoveNamespacedAssets());
 
-        $sql = $schema->toSql(new MySqlPlatform());
+        $sql = $schema->toSql(new MySQLPlatform());
         self::assertCount(1, $sql, 'Just one CREATE TABLE statement, no foreign key and table to foo.bar');
     }
 }

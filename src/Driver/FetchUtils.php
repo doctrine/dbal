@@ -26,7 +26,7 @@ final class FetchUtils
     }
 
     /**
-     * @return array<int,array<int,mixed>>
+     * @return list<list<mixed>>
      *
      * @throws Exception
      */
@@ -42,7 +42,7 @@ final class FetchUtils
     }
 
     /**
-     * @return array<int,array<string,mixed>>
+     * @return list<array<string,mixed>>
      *
      * @throws Exception
      */
@@ -58,7 +58,7 @@ final class FetchUtils
     }
 
     /**
-     * @return array<int,mixed>
+     * @return list<mixed>
      *
      * @throws Exception
      */

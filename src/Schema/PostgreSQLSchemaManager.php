@@ -31,7 +31,7 @@ use const CASE_LOWER;
 /**
  * PostgreSQL Schema Manager.
  */
-class PostgreSqlSchemaManager extends AbstractSchemaManager
+class PostgreSQLSchemaManager extends AbstractSchemaManager
 {
     /** @var array<int, string> */
     private $existingSchemaPaths;
@@ -56,7 +56,11 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     public function getSchemaSearchPaths(): array
     {
         $params = $this->_conn->getParams();
-        $schema = explode(',', $this->_conn->fetchOne('SHOW search_path'));
+
+        $searchPaths = $this->_conn->fetchOne('SHOW search_path');
+        assert($searchPaths !== false);
+
+        $schema = explode(',', $searchPaths);
 
         if (isset($params['user'])) {
             $schema = str_replace('"$user"', $params['user'], $schema);
@@ -127,19 +131,17 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             $onDelete = $match[1];
         }
 
-        if (
-            preg_match(
-                '/FOREIGN KEY \((.+)\) REFERENCES (.+)\((.+)\)/',
-                $tableForeignKey['condef'],
-                $values
-            ) === 1
-        ) {
-            // PostgreSQL returns identifiers that are keywords with quotes, we need them later, don't get
-            // the idea to trim them here.
-            $localColumns   = array_map('trim', explode(',', $values[1]));
-            $foreignColumns = array_map('trim', explode(',', $values[3]));
-            $foreignTable   = $values[2];
-        }
+        assert(preg_match(
+            '/FOREIGN KEY \((.+)\) REFERENCES (.+)\((.+)\)/',
+            $tableForeignKey['condef'],
+            $values
+        ) !== 0);
+
+        // PostgreSQL returns identifiers that are keywords with quotes, we need them later, don't get
+        // the idea to trim them here.
+        $localColumns   = array_map('trim', explode(',', $values[1]));
+        $foreignColumns = array_map('trim', explode(',', $values[3]));
+        $foreignTable   = $values[2];
 
         return new ForeignKeyConstraint(
             $localColumns,

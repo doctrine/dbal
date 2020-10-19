@@ -17,7 +17,7 @@ use function get_class;
 
 class DateTimeTzImmutableTypeTest extends TestCase
 {
-    /** @var AbstractPlatform|MockObject */
+    /** @var AbstractPlatform&MockObject */
     private $platform;
 
     /** @var DateTimeTzImmutableType */

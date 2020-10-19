@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Schema;
 
-use Doctrine\DBAL\Platforms\MySqlPlatform;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Doctrine\DBAL\Schema\Column;
@@ -107,7 +107,7 @@ class ColumnTest extends TestCase
         $string = Type::getType('string');
         $column = new Column('`bar`', $string, []);
 
-        $mysqlPlatform  = new MySqlPlatform();
+        $mysqlPlatform  = new MySQLPlatform();
         $sqlitePlatform = new SqlitePlatform();
 
         self::assertEquals('bar', $column->getName());

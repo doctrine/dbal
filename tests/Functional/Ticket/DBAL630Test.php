@@ -51,8 +51,8 @@ class DBAL630Test extends FunctionalTestCase
         self::assertNotEmpty($id);
 
         $row = $this->connection->fetchAssociative('SELECT bool_col FROM dbal630 WHERE id = ?', [$id]);
+        self::assertNotFalse($row);
 
-        self::assertIsArray($row);
         self::assertFalse($row['bool_col']);
     }
 
@@ -67,8 +67,8 @@ class DBAL630Test extends FunctionalTestCase
         self::assertNotEmpty($id);
 
         $row = $this->connection->fetchAssociative('SELECT bool_col FROM dbal630 WHERE id = ?', [$id]);
+        self::assertNotFalse($row);
 
-        self::assertIsArray($row);
         self::assertFalse($row['bool_col']);
     }
 
@@ -89,8 +89,8 @@ class DBAL630Test extends FunctionalTestCase
         self::assertNotEmpty($id);
 
         $row = $this->connection->fetchAssociative('SELECT bool_col FROM dbal630 WHERE id = ?', [$id]);
+        self::assertNotFalse($row);
 
-        self::assertIsArray($row);
         self::assertFalse($row['bool_col']);
     }
 
@@ -116,8 +116,8 @@ class DBAL630Test extends FunctionalTestCase
         self::assertNotEmpty($id);
 
         $row = $this->connection->fetchAssociative('SELECT bool_col FROM dbal630_allow_nulls WHERE id = ?', [$id]);
+        self::assertNotFalse($row);
 
-        self::assertIsArray($row);
         self::assertSame($databaseConvertedValue, $row['bool_col']);
     }
 
@@ -147,8 +147,8 @@ class DBAL630Test extends FunctionalTestCase
         self::assertNotEmpty($id);
 
         $row = $this->connection->fetchAssociative('SELECT bool_col FROM dbal630_allow_nulls WHERE id = ?', [$id]);
+        self::assertNotFalse($row);
 
-        self::assertIsArray($row);
         self::assertSame($databaseConvertedValue, $row['bool_col']);
     }
 

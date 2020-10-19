@@ -565,12 +565,10 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
         $oldTable->addColumn('parent_id', 'integer');
         $oldTable->addForeignKeyConstraint('mytable', ['parent_id'], ['id']);
 
-        $comparator = new Comparator();
-        $tableDiff  = $comparator->diffTable($oldTable, $newTable);
+        $diff = (new Comparator())->diffTable($oldTable, $newTable);
+        self::assertNotNull($diff);
 
-        self::assertNotNull($tableDiff);
-
-        $sql = $this->platform->getAlterTableSQL($tableDiff);
+        $sql = $this->platform->getAlterTableSQL($diff);
 
         $expectedSql = [
             'ALTER TABLE mytable DROP CONSTRAINT FK_6B2BD609727ACA70',
@@ -644,13 +642,11 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
 
         $comparator = new Comparator();
 
-        $diff = $comparator->diffTable($table1, $table2);
-
-        self::assertNotNull($diff);
-
         // VARBINARY -> BINARY
         // BINARY    -> VARBINARY
         // BLOB      -> VARBINARY
+        $diff = $comparator->diffTable($table1, $table2);
+        self::assertNotNull($diff);
         self::assertEmpty($this->platform->getAlterTableSQL($diff));
 
         $table2 = new Table('mytable');
@@ -658,13 +654,11 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
         $table2->addColumn('column_binary', 'blob');
         $table2->addColumn('column_blob', 'binary', ['length' => 11, 'fixed' => true]);
 
-        $diff = $comparator->diffTable($table1, $table2);
-
-        self::assertNotNull($diff);
-
         // VARBINARY -> VARBINARY with changed length
         // BINARY    -> BLOB
         // BLOB      -> BINARY
+        $diff = $comparator->diffTable($table1, $table2);
+        self::assertNotNull($diff);
         self::assertEmpty($this->platform->getAlterTableSQL($diff));
 
         $table2 = new Table('mytable');
@@ -672,13 +666,11 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
         $table2->addColumn('column_binary', 'binary', ['length' => 42, 'fixed' => true]);
         $table2->addColumn('column_blob', 'blob');
 
-        $diff = $comparator->diffTable($table1, $table2);
-
-        self::assertNotNull($diff);
-
         // VARBINARY -> BLOB
         // BINARY    -> BINARY with changed length
         // BLOB      -> BLOB
+        $diff = $comparator->diffTable($table1, $table2);
+        self::assertNotNull($diff);
         self::assertEmpty($this->platform->getAlterTableSQL($diff));
     }
 
@@ -853,7 +845,7 @@ abstract class AbstractPostgreSQLPlatformTestCase extends AbstractPlatformTestCa
 
         $tableDiff = $comparator->diffTable($table1, $table2);
 
-        self::assertInstanceOf('Doctrine\DBAL\Schema\TableDiff', $tableDiff);
+        self::assertNotNull($tableDiff);
         self::assertSame(
             [
                 'ALTER TABLE "foo" ALTER "bar" TYPE TIMESTAMP(0) WITHOUT TIME ZONE',

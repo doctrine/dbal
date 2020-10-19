@@ -254,10 +254,9 @@ class ComparatorTest extends TestCase
         $tableB->addColumn('new_datecolumn1', 'datetime');
         $tableB->addColumn('new_datecolumn2', 'datetime');
 
-        $c         = new Comparator();
-        $tableDiff = $c->diffTable($tableA, $tableB);
-
+        $tableDiff = (new Comparator())->diffTable($tableA, $tableB);
         self::assertNotNull($tableDiff);
+
         self::assertCount(1, $tableDiff->renamedColumns);
         self::assertArrayHasKey('datecolumn1', $tableDiff->renamedColumns);
         self::assertCount(1, $tableDiff->addedColumns);
@@ -721,10 +720,9 @@ class ComparatorTest extends TestCase
         $tableB = new Table('foo');
         $tableB->addColumn('bar', 'integer');
 
-        $c         = new Comparator();
-        $tableDiff = $c->diffTable($tableA, $tableB);
-
+        $tableDiff = (new Comparator())->diffTable($tableA, $tableB);
         self::assertNotNull($tableDiff);
+
         self::assertCount(0, $tableDiff->addedColumns);
         self::assertCount(0, $tableDiff->removedColumns);
         self::assertArrayHasKey('foo', $tableDiff->renamedColumns);
@@ -745,10 +743,9 @@ class ComparatorTest extends TestCase
         $tableB = new Table('foo');
         $tableB->addColumn('baz', 'integer');
 
-        $c         = new Comparator();
-        $tableDiff = $c->diffTable($tableA, $tableB);
-
+        $tableDiff = (new Comparator())->diffTable($tableA, $tableB);
         self::assertNotNull($tableDiff);
+
         self::assertCount(1, $tableDiff->addedColumns);
         self::assertArrayHasKey('baz', $tableDiff->addedColumns);
         self::assertCount(2, $tableDiff->removedColumns);
@@ -768,10 +765,9 @@ class ComparatorTest extends TestCase
 
         $table2->addIndex(['foo'], 'idx_bar');
 
-        $comparator = new Comparator();
-        $tableDiff  = $comparator->diffTable($table1, $table2);
-
+        $tableDiff = (new Comparator())->diffTable($table1, $table2);
         self::assertNotNull($tableDiff);
+
         self::assertCount(0, $tableDiff->addedIndexes);
         self::assertCount(0, $tableDiff->removedIndexes);
         self::assertArrayHasKey('idx_foo', $tableDiff->renamedIndexes);
@@ -795,10 +791,9 @@ class ComparatorTest extends TestCase
 
         $table2->addIndex(['foo'], 'idx_baz');
 
-        $comparator = new Comparator();
-        $tableDiff  = $comparator->diffTable($table1, $table2);
-
+        $tableDiff = (new Comparator())->diffTable($table1, $table2);
         self::assertNotNull($tableDiff);
+
         self::assertCount(1, $tableDiff->addedIndexes);
         self::assertArrayHasKey('idx_baz', $tableDiff->addedIndexes);
         self::assertCount(2, $tableDiff->removedIndexes);

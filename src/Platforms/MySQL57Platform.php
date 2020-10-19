@@ -11,7 +11,7 @@ use Doctrine\DBAL\Types\Types;
 /**
  * Provides the behavior, features and SQL dialect of the MySQL 5.7 (5.7.9 GA) database platform.
  */
-class MySQL57Platform extends MySqlPlatform
+class MySQL57Platform extends MySQLPlatform
 {
     public function hasNativeJsonType(): bool
     {

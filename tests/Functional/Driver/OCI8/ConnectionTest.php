@@ -4,33 +4,24 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Tests\Functional\Driver\OCI8;
 
-use Doctrine\DBAL\Driver\OCI8\Connection;
 use Doctrine\DBAL\Driver\OCI8\Driver;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
-
-use function assert;
 
 /**
  * @requires extension oci8
  */
 class ConnectionTest extends FunctionalTestCase
 {
-    /** @var Connection */
-    protected $driverConnection;
-
     protected function setUp(): void
     {
         parent::setUp();
 
-        if (! $this->connection->getDriver() instanceof Driver) {
-            self::markTestSkipped('oci8 only test.');
+        if ($this->connection->getDriver() instanceof Driver) {
+            return;
         }
 
-        $wrappedConnection = $this->connection->getWrappedConnection();
-        assert($wrappedConnection instanceof Connection);
-
-        $this->driverConnection = $wrappedConnection;
+        self::markTestSkipped('oci8 only test.');
     }
 
     public function testLastInsertIdAcceptsFqn(): void
@@ -49,6 +40,6 @@ class ConnectionTest extends FunctionalTestCase
         $schema   = $this->connection->getDatabase();
         $sequence = $platform->getIdentitySequenceName($schema . '.DBAL2595', 'id');
 
-        self::assertEquals(1, $this->driverConnection->lastInsertId($sequence));
+        self::assertEquals(1, $this->connection->lastInsertId($sequence));
     }
 }

@@ -62,9 +62,10 @@ final class Connection implements ServerInfoAwareConnection
     public function prepare(string $sql): StatementInterface
     {
         try {
-            return $this->createStatement(
-                $this->connection->prepare($sql)
-            );
+            $stmt = $this->connection->prepare($sql);
+            assert($stmt instanceof PDOStatement);
+
+            return $this->createStatement($stmt);
         } catch (PDOException $exception) {
             throw Exception::new($exception);
         }

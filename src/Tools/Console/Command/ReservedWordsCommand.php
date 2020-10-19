@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Tools\Console\Command;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\Keywords\DB2Keywords;
+use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Platforms\Keywords\MariaDb102Keywords;
 use Doctrine\DBAL\Platforms\Keywords\MySQL57Keywords;
 use Doctrine\DBAL\Platforms\Keywords\MySQL80Keywords;
@@ -34,7 +35,7 @@ use function sprintf;
 
 class ReservedWordsCommand extends Command
 {
-    /** @var array<string, string> */
+    /** @var array<string,class-string<KeywordList>> */
     private $keywordListClasses = [
         'db2'           => DB2Keywords::class,
         'mysql'         => MySQLKeywords::class,
@@ -59,6 +60,8 @@ class ReservedWordsCommand extends Command
 
     /**
      * If you want to add or replace a keywords list use this command.
+     *
+     * @param class-string<KeywordList> $class
      */
     public function setKeywordListClass(string $name, string $class): void
     {

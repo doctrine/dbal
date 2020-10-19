@@ -441,7 +441,7 @@ The `Doctrine\DBAL\Driver::getName()` has been removed.
  * Removed `AbstractPlatform::getSQLResultCasing()`, `::prefersSequences()` and `::supportsForeignKeyOnUpdate()` methods.
  * Removed `PostgreSqlPlatform::getDisallowDatabaseConnectionsSQL()` and `::getCloseActiveDatabaseConnectionsSQL()` methods.
  * Removed `MysqlSessionInit` listener.
- * Removed `MysqlPlatform::getCollationFieldDeclaration()`.
+ * Removed `MySQLPlatform::getCollationFieldDeclaration()`.
  * Removed `AbstractPlatform::getIdentityColumnNullInsertSQL()`.
  * Removed `AbstractPlatform::fixSchemaElementName()`.
  * Removed `Table::addUnnamedForeignKeyConstraint()` and `Table::addNamedForeignKeyConstraint()`.

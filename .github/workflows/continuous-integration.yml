@@ -1,60 +1,47 @@
 
 name: "Continuous Integration"
 
-on: ["pull_request", "push"]
+on:
+  pull_request:
+    branches:
+      - "*.x"
+      - "master"
+  push:
+    branches:
+      - "*.x"
+      - "master"
+  schedule:
+    - cron: "42 3 * * *"
 
 jobs:
-  static-analysis-phpstan:
-    name: "Static Analysis with PHPStan"
-    runs-on: "ubuntu-latest"
+  phpunit-smoke-check:
+    name: "PHPUnit with SQLite"
+    runs-on: "ubuntu-20.04"
 
     strategy:
       matrix:
         php-version:
+          - "7.3"
           - "7.4"
+          - "8.0"
+        deps:
+          - "fixed"
+        include:
+          - deps: "low"
+            php-version: "7.3"
 
     steps:
-      - name: "Checkout code"
+      - name: "Checkout"
         uses: "actions/checkout@v2"
+        with:
+          fetch-depth: 2
 
       - name: "Install PHP"
         uses: "shivammathur/setup-php@v2"
         with:
-          coverage: "none"
           php-version: "${{ matrix.php-version }}"
-          tools: "cs2pr"
-
-      - name: "Cache dependencies installed with composer"
-        uses: "actions/cache@v1"
-        with:
-          path: "~/.composer/cache"
-          key: "php-${{ matrix.php-version }}-composer-locked-${{ hashFiles('composer.lock') }}"
-          restore-keys: "php-${{ matrix.php-version }}-composer-locked-"
-
-      - name: "Install dependencies with composer"
-        run: "composer install --no-interaction --no-progress --no-suggest"
-
-      - name: "Run a static analysis with phpstan/phpstan"
-        run: "vendor/bin/phpstan analyse --error-format=checkstyle | cs2pr"
-
-  static-analysis-psalm:
-    name: "Static Analysis with Psalm"
-    runs-on: "ubuntu-latest"
-
-    strategy:
-      matrix:
-        php-version:
-          - "7.4"
-
-    steps:
-      - name: "Checkout code"
-        uses: "actions/checkout@v2"
-
-      - name: "Install PHP"
-        uses: "shivammathur/setup-php@v2"
-        with:
-          coverage: "none"
-          php-version: "${{ matrix.php-version }}"
+          coverage: "pcov"
+          ini-values: "zend.assertions=1"
 
       - name: "Cache dependencies installed with composer"
         uses: "actions/cache@v2"
@@ -65,13 +52,25 @@ jobs:
 
       - name: "Install dependencies with composer"
         run: "composer install --no-interaction --no-progress --no-suggest"
+        if: "${{ matrix.deps == 'fixed' }}"
 
-      - name: "Run a static analysis with vimeo/psalm"
-        run: "vendor/bin/psalm --show-info=false --stats --output-format=github --threads=4"
+      - name: "Install lowest possible dependencies with composer"
+        run: "composer update --no-interaction --no-progress --no-suggest --prefer-dist --prefer-lowest"
+        if: "${{ matrix.deps == 'low' }}"
+
+      - name: "Run PHPUnit"
+        run: "vendor/bin/phpunit -c ci/github/phpunit/sqlite.xml --coverage-clover=coverage.xml"
+
+      - name: "Upload coverage file"
+        uses: "actions/upload-artifact@v2"
+        with:
+          name: "phpunit-sqlite-${{ matrix.deps }}-${{ matrix.php-version }}.coverage"
+          path: "coverage.xml"
 
   phpunit-oci8:
     name: "PHPUnit on OCI8"
-    runs-on: "ubuntu-latest"
+    runs-on: "ubuntu-20.04"
+    needs: "phpunit-smoke-check"
 
     strategy:
       matrix:
@@ -96,6 +95,7 @@ jobs:
           php-version: "${{ matrix.php-version }}"
           extensions: "oci8"
           coverage: "pcov"
+          ini-values: "zend.assertions=1"
 
       - name: "Cache dependencies installed with composer"
         uses: "actions/cache@v2"
@@ -108,14 +108,18 @@ jobs:
         run: "composer install --no-interaction --no-progress --no-suggest"
 
       - name: "Run PHPUnit"
-        run: "vendor/bin/phpunit -c ci/github/phpunit.oci8.xml --coverage-clover=coverage.xml"
+        run: "vendor/bin/phpunit -c ci/github/phpunit/oci8.xml --coverage-clover=coverage.xml"
 
-      - name: "Upload Code Coverage"
-        uses: "codecov/codecov-action@v1"
+      - name: "Upload coverage file"
+        uses: "actions/upload-artifact@v2"
+        with:
+          name: "${{ github.job }}-${{ matrix.php-version }}.coverage"
+          path: "coverage.xml"
 
   phpunit-pdo-oci:
     name: "PHPUnit on PDO_OCI"
-    runs-on: "ubuntu-latest"
+    runs-on: "ubuntu-20.04"
+    needs: "phpunit-smoke-check"
 
     strategy:
       matrix:
@@ -140,9 +144,10 @@ jobs:
           php-version: "${{ matrix.php-version }}"
           extensions: "pdo_oci"
           coverage: "pcov"
+          ini-values: "zend.assertions=1"
 
       - name: "Cache dependencies installed with composer"
-        uses: "actions/cache@v1"
+        uses: "actions/cache@v2"
         with:
           path: "~/.composer/cache"
           key: "php-${{ matrix.php-version }}-composer-locked-${{ hashFiles('composer.lock') }}"
@@ -152,7 +157,442 @@ jobs:
         run: "composer install --no-interaction --no-progress --no-suggest"
 
       - name: "Run PHPUnit"
-        run: "vendor/bin/phpunit -c ci/github/phpunit.pdo-oci.xml --coverage-clover=coverage.xml"
+        run: "vendor/bin/phpunit -c ci/github/phpunit/pdo_oci.xml --coverage-clover=coverage.xml"
 
-      - name: "Upload Code Coverage"
+      - name: "Upload coverage file"
+        uses: "actions/upload-artifact@v2"
+        with:
+          name: "${{ github.job }}-${{ matrix.php-version }}.coverage"
+          path: "coverage.xml"
+
+  phpunit-postgres:
+    name: "PHPUnit with PostgreSQL"
+    runs-on: "ubuntu-20.04"
+    needs: "phpunit-smoke-check"
+
+    strategy:
+      matrix:
+        php-version:
+          - "7.4"
+        postgres-version:
+          - "9.4"
+          - "9.5"
+          - "9.6"
+          - "10"
+          - "11"
+          - "12"
+          - "13"
+        include:
+          - php-version: "8.0"
+            postgres-version: "13"
+
+    services:
+      postgres:
+        image: "postgres:${{ matrix.postgres-version }}"
+        env:
+          POSTGRES_PASSWORD: "postgres"
+
+        options: >-
+          --health-cmd "pg_isready"
+
+        ports:
+          - "5432:5432"
+
+    steps:
+      - name: "Checkout"
+        uses: "actions/checkout@v2"
+        with:
+          fetch-depth: 2
+
+      - name: "Install PHP"
+        uses: "shivammathur/setup-php@v2"
+        with:
+          php-version: "${{ matrix.php-version }}"
+          coverage: "pcov"
+          ini-values: "zend.assertions=1"
+
+      - name: "Cache dependencies installed with composer"
+        uses: "actions/cache@v2"
+        with:
+          path: "~/.composer/cache"
+          key: "php-${{ matrix.php-version }}-composer-locked-${{ hashFiles('composer.lock') }}"
+          restore-keys: "php-${{ matrix.php-version }}-composer-locked-"
+
+      - name: "Install dependencies with composer"
+        run: "composer install --no-interaction --no-progress --no-suggest"
+
+      - name: "Run PHPUnit"
+        run: "vendor/bin/phpunit -c ci/github/phpunit/pdo_pgsql.xml --coverage-clover=coverage.xml"
+
+      - name: "Upload coverage file"
+        uses: "actions/upload-artifact@v2"
+        with:
+          name: "${{ github.job }}-${{ matrix.postgres-version }}-${{ matrix.php-version }}.coverage"
+          path: "coverage.xml"
+
+  phpunit-mariadb:
+    name: "PHPUnit with MariaDB"
+    runs-on: "ubuntu-20.04"
+    needs: "phpunit-smoke-check"
+
+    strategy:
+      matrix:
+        php-version:
+          - "7.4"
+        mariadb-version:
+          - "10.0"
+          - "10.1"
+          - "10.2"
+          - "10.3"
+          - "10.4"
+          - "10.5"
+        extension:
+          - "mysqli"
+          - "pdo_mysql"
+        include:
+          - php-version: "8.0"
+            mariadb-version: "10.5"
+            extension: "mysqli"
+          - php-version: "8.0"
+            mariadb-version: "10.5"
+            extension: "pdo_mysql"
+
+    services:
+      mariadb:
+        image: "mariadb:${{ matrix.mariadb-version }}"
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          MYSQL_DATABASE: "doctrine_tests"
+
+        options: >-
+          --health-cmd "mysqladmin ping --silent"
+
+        ports:
+          - "3306:3306"
+
+    steps:
+      - name: "Checkout"
+        uses: "actions/checkout@v2"
+        with:
+          fetch-depth: 2
+
+      - name: "Install PHP"
+        uses: "shivammathur/setup-php@v2"
+        with:
+          php-version: "${{ matrix.php-version }}"
+          coverage: "pcov"
+          ini-values: "zend.assertions=1"
+          extensions: "${{ matrix.extension }}"
+
+      - name: "Cache dependencies installed with composer"
+        uses: "actions/cache@v2"
+        with:
+          path: "~/.composer/cache"
+          key: "php-${{ matrix.php-version }}-composer-locked-${{ hashFiles('composer.lock') }}"
+          restore-keys: "php-${{ matrix.php-version }}-composer-locked-"
+
+      - name: "Install dependencies with composer"
+        run: "composer install --no-interaction --no-progress --no-suggest"
+
+      - name: "Run PHPUnit"
+        run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml --coverage-clover=coverage.xml"
+
+      - name: "Upload coverage file"
+        uses: "actions/upload-artifact@v2"
+        with:
+          name: "${{ github.job }}-${{ matrix.mariadb-version }}-${{ matrix.extension }}-${{ matrix.php-version }}.coverage"
+          path: "coverage.xml"
+
+
+  phpunit-mysql:
+    name: "PHPUnit with MySQL"
+    runs-on: "ubuntu-20.04"
+    needs: "phpunit-smoke-check"
+
+    strategy:
+      matrix:
+        php-version:
+          - "7.4"
+          - "8.0"
+        mysql-version:
+          - "5.7"
+          - "8.0"
+        extension:
+          - "mysqli"
+          - "pdo_mysql"
+        config-file-suffix:
+          - ""
+        include:
+          - php-version: "7.3"
+            mysql-version: "8.0"
+            extension: "mysqli"
+            custom-entrypoint: >-
+              --entrypoint sh mysql:8 -c "exec docker-entrypoint.sh mysqld --default-authentication-plugin=mysql_native_password"
+          - php-version: "7.3"
+            mysql-version: "8.0"
+            extension: "pdo_mysql"
+            custom-entrypoint: >-
+              --entrypoint sh mysql:8 -c "exec docker-entrypoint.sh mysqld --default-authentication-plugin=mysql_native_password"
+          - mysql-version: "5.7"
+          - mysql-version: "8.0"
+            # https://stackoverflow.com/questions/60902904/how-to-pass-mysql-native-password-to-mysql-service-in-github-actions
+            custom-entrypoint: >-
+              --entrypoint sh mysql:8 -c "exec docker-entrypoint.sh mysqld --default-authentication-plugin=mysql_native_password"
+          - config-file-suffix: "-tls"
+            php-version: "7.4"
+            mysql-version: "8.0"
+            extension: "mysqli"
+
+    services:
+      mysql:
+        image: "mysql:${{ matrix.mysql-version }}"
+
+        options: >-
+          --health-cmd "mysqladmin ping --silent"
+          -e MYSQL_ALLOW_EMPTY_PASSWORD=yes
+          -e MYSQL_DATABASE=doctrine_tests
+          ${{ matrix.custom-entrypoint }}
+
+        ports:
+          - "3306:3306"
+
+    steps:
+      - name: "Checkout"
+        uses: "actions/checkout@v2"
+        with:
+          fetch-depth: 2
+
+      - name: "Install PHP"
+        uses: "shivammathur/setup-php@v2"
+        with:
+          php-version: "${{ matrix.php-version }}"
+          coverage: "pcov"
+          ini-values: "zend.assertions=1"
+          extensions: "${{ matrix.extension }}"
+
+      - name: "Cache dependencies installed with composer"
+        uses: "actions/cache@v2"
+        with:
+          path: "~/.composer/cache"
+          key: "php-${{ matrix.php-version }}-composer-locked-${{ hashFiles('composer.lock') }}"
+          restore-keys: "php-${{ matrix.php-version }}-composer-locked-"
+
+      - name: "Install dependencies with composer"
+        run: "composer install --no-interaction --no-progress --no-suggest"
+
+      - name: "Copy TLS-related files"
+        run: 'docker cp "${{ job.services.mysql.id }}:/var/lib/mysql/ca.pem" . && docker cp "${{ job.services.mysql.id }}:/var/lib/mysql/client-cert.pem" . && docker cp "${{ job.services.mysql.id }}:/var/lib/mysql/client-key.pem" .'
+        if: "${{ endsWith(matrix.config-file-suffix, 'tls') }}"
+
+      - name: "Run PHPUnit"
+        run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}${{ matrix.config-file-suffix }}.xml --coverage-clover=coverage.xml"
+
+      - name: "Upload coverage file"
+        uses: "actions/upload-artifact@v2"
+        with:
+          name: "${{ github.job }}-${{ matrix.mysql-version }}-${{ matrix.extension }}-${{ matrix.config-file-suffix }}-${{ matrix.php-version }}.coverage"
+          path: "coverage.xml"
+
+  phpunit-mssql:
+    name: "PHPUnit with SQL Server"
+    runs-on: "ubuntu-20.04"
+    needs: "phpunit-smoke-check"
+
+    strategy:
+      matrix:
+        php-version:
+          - "7.3"
+          - "7.4"
+        extension:
+          - "sqlsrv"
+          - "pdo_sqlsrv"
+        collation:
+          - "Latin1_General_100_CI_AS"
+        include:
+          - collation: "Latin1_General_100_CS_AS"
+            php-version: "7.4"
+            extension: "sqlsrv"
+          - collation: "Latin1_General_100_CS_AS"
+            php-version: "7.4"
+            extension: "pdo_sqlsrv"
+
+    services:
+      mssql:
+        image: "microsoft/mssql-server-linux:2017-latest"
+        env:
+          ACCEPT_EULA: "Y"
+          SA_PASSWORD: "Doctrine2018"
+          MSSQL_COLLATION: "${{ matrix.collation }}"
+
+        options: >-
+          --health-cmd "echo quit | /opt/mssql-tools/bin/sqlcmd -S 127.0.0.1 -l 1 -U sa -P Doctrine2018"
+
+        ports:
+          - "1433:1433"
+
+    steps:
+      - name: "Checkout"
+        uses: "actions/checkout@v2"
+        with:
+          fetch-depth: 2
+
+      - name: "Install PHP"
+        uses: "shivammathur/setup-php@v2"
+        with:
+          php-version: "${{ matrix.php-version }}"
+          coverage: "pcov"
+          ini-values: "zend.assertions=1"
+          tools: "pecl"
+          extensions: "${{ matrix.extension }}-5.7.0preview"
+
+      - name: "Cache dependencies installed with composer"
+        uses: "actions/cache@v2"
+        with:
+          path: "~/.composer/cache"
+          key: "php-${{ matrix.php-version }}-composer-locked-${{ hashFiles('composer.lock') }}"
+          restore-keys: "php-${{ matrix.php-version }}-composer-locked-"
+
+      - name: "Install dependencies with composer"
+        run: "composer install --no-interaction --no-progress --no-suggest"
+
+      - name: "Run PHPUnit"
+        run: "vendor/bin/phpunit -c ci/github/phpunit/${{ matrix.extension }}.xml --coverage-clover=coverage.xml"
+
+      - name: "Upload coverage file"
+        uses: "actions/upload-artifact@v2"
+        with:
+          name: "${{ github.job }}-${{ matrix.extension }}-${{ matrix.php-version }}-${{ matrix.collation }}.coverage"
+          path: "coverage.xml"
+
+  phpunit-ibm-db2:
+    name: "PHPUnit with IBM DB2"
+    runs-on: "ubuntu-18.04"
+    needs: "phpunit-smoke-check"
+
+    strategy:
+      matrix:
+        php-version:
+          - "7.3"
+          - "7.4"
+
+    services:
+      ibm_db2:
+        image: "ibmcom/db2:11.5.0.0"
+        env:
+          DB2INST1_PASSWORD: "Doctrine2018"
+          LICENSE: "accept"
+          DBNAME: "doctrine"
+
+        options: "--privileged=true"
+
+        ports:
+          - "50000:50000"
+
+    steps:
+      - name: "Perform healthcheck from the outside"
+        run: "docker logs -f ${{ job.services.ibm_db2.id }} | sed '/(*) Setup has completed./ q'"
+
+      - name: "Create temporary tablespace"
+        run: "docker exec ${{ job.services.ibm_db2.id }} su - db2inst1 -c 'db2 CONNECT TO doctrine && db2 CREATE USER TEMPORARY TABLESPACE doctrine_tbsp PAGESIZE 4 K'"
+
+      - name: "Checkout"
+        uses: "actions/checkout@v2"
+        with:
+          fetch-depth: 2
+
+      - name: "Install PHP"
+        uses: "shivammathur/setup-php@v2"
+        with:
+          php-version: "${{ matrix.php-version }}"
+          coverage: "pcov"
+          ini-values: "zend.assertions=1,extension=ibm_db2.so, ibm_db2.instance_name=db2inst1"
+
+      - name: "Install ibm_db2 extension"
+        run: "ci/github/ext/install-ibm_db2.sh ${{ matrix.php-version }}"
+
+      - name: "Cache dependencies installed with composer"
+        uses: "actions/cache@v2"
+        with:
+          path: "~/.composer/cache"
+          key: "php-${{ matrix.php-version }}-composer-locked-${{ hashFiles('composer.lock') }}"
+          restore-keys: "php-${{ matrix.php-version }}-composer-locked-"
+
+      - name: "Install dependencies with composer"
+        run: "composer install --no-interaction --no-progress --no-suggest"
+
+      - name: "Run PHPUnit"
+        run: "vendor/bin/phpunit -c ci/github/phpunit/ibm_db2.xml --coverage-clover=coverage.xml"
+
+      - name: "Upload coverage file"
+        uses: "actions/upload-artifact@v2"
+        with:
+          name: "${{ github.job }}-${{ matrix.php-version }}.coverage"
+          path: "coverage.xml"
+
+
+  development-deps:
+    name: "PHPUnit with SQLite and development dependencies"
+    runs-on: "ubuntu-20.04"
+
+    strategy:
+      matrix:
+        php-version:
+          - "7.4"
+
+    steps:
+      - name: "Checkout"
+        uses: "actions/checkout@v2"
+
+      - name: "Install PHP"
+        uses: "shivammathur/setup-php@v2"
+        with:
+          php-version: "${{ matrix.php-version }}"
+
+      - name: "Cache dependencies installed with composer"
+        uses: "actions/cache@v2"
+        with:
+          path: "~/.composer/cache"
+          key: "php-${{ matrix.php-version }}-composer-locked-${{ hashFiles('composer.lock') }}"
+          restore-keys: "php-${{ matrix.php-version }}-composer-locked-"
+
+      - name: "Lower minimum stability"
+        run: "composer config minimum-stability dev"
+
+      - name: "Install development dependencies with composer"
+        run: "composer update --no-interaction --no-progress --no-suggest --prefer-dist"
+
+      - name: "Run PHPUnit"
+        run: "vendor/bin/phpunit -c ci/github/phpunit/sqlite.xml"
+
+  upload_coverage:
+    name: "Upload coverage to Codecov"
+    runs-on: "ubuntu-20.04"
+    needs:
+      - "phpunit-smoke-check"
+      - "phpunit-oci8"
+      - "phpunit-pdo-oci"
+      - "phpunit-postgres"
+      - "phpunit-mariadb"
+      - "phpunit-mysql"
+      - "phpunit-mssql"
+      - "phpunit-ibm-db2"
+
+    steps:
+      - name: "Checkout"
+        uses: "actions/checkout@v2"
+        with:
+          fetch-depth: 2
+
+      - name: "Download coverage files"
+        uses: "actions/download-artifact@v2"
+        with:
+          path: "reports"
+
+      - name: "Display structure of downloaded files"
+        run: ls -R
+        working-directory: reports
+
+      - name: "Upload to Codecov"
         uses: "codecov/codecov-action@v1"
+        with:
+          directory: reports

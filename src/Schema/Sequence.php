@@ -21,7 +21,7 @@ class Sequence extends AbstractAsset
     protected $initialValue = 1;
 
     /** @var int|null */
-    protected $cache = null;
+    protected $cache;
 
     public function __construct(string $name, int $allocationSize = 1, int $initialValue = 1, ?int $cache = null)
     {

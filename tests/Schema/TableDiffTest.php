@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
 
 class TableDiffTest extends TestCase
 {
-    /** @var AbstractPlatform|MockObject */
+    /** @var AbstractPlatform&MockObject */
     private $platform;
 
     public function setUp(): void

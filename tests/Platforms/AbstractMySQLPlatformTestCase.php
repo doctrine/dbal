@@ -6,7 +6,7 @@ namespace Doctrine\DBAL\Tests\Platforms;
 
 use Doctrine\DBAL\Exception\ColumnLengthRequired;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\MySqlPlatform;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
@@ -18,7 +18,7 @@ use function array_shift;
 
 abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 {
-    /** @var MySqlPlatform */
+    /** @var MySQLPlatform */
     protected $platform;
 
     public function testModifyLimitQueryWitoutLimit(): void
@@ -169,9 +169,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $oldTable->addColumn('bar', 'integer');
         $oldTable->addColumn('baz', 'string');
 
-        $c    = new Comparator();
-        $diff = $c->diffTable($oldTable, $keyTable);
-
+        $diff = (new Comparator())->diffTable($oldTable, $keyTable);
         self::assertNotNull($diff);
 
         $sql = $this->platform->getAlterTableSQL($diff);
@@ -371,14 +369,12 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $table->addColumn('foo', 'integer');
         $table->addIndex(['id'], 'idx_id');
 
-        $comparator = new Comparator();
-        $diffTable  = clone $table;
+        $diffTable = clone $table;
 
         $diffTable->dropIndex('idx_id');
         $diffTable->setPrimaryKey(['id']);
 
-        $diff = $comparator->diffTable($table, $diffTable);
-
+        $diff = (new Comparator())->diffTable($table, $diffTable);
         self::assertNotNull($diff);
 
         self::assertEquals(
@@ -394,14 +390,12 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $table->addColumn('foo', 'integer');
         $table->setPrimaryKey(['id']);
 
-        $comparator = new Comparator();
-        $diffTable  = clone $table;
+        $diffTable = clone $table;
 
         $diffTable->dropPrimaryKey();
         $diffTable->setPrimaryKey(['foo']);
 
-        $diff = $comparator->diffTable($table, $diffTable);
-
+        $diff = (new Comparator())->diffTable($table, $diffTable);
         self::assertNotNull($diff);
 
         self::assertEquals(
@@ -422,13 +416,11 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $table->addColumn('bar', 'integer');
         $table->setPrimaryKey(['id', 'foo']);
 
-        $comparator = new Comparator();
-        $diffTable  = clone $table;
+        $diffTable = clone $table;
 
         $diffTable->dropPrimaryKey();
 
-        $diff = $comparator->diffTable($table, $diffTable);
-
+        $diff = (new Comparator())->diffTable($table, $diffTable);
         self::assertNotNull($diff);
 
         self::assertEquals(
@@ -448,14 +440,12 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $table->addColumn('bar', 'integer');
         $table->setPrimaryKey(['id', 'foo']);
 
-        $comparator = new Comparator();
-        $diffTable  = clone $table;
+        $diffTable = clone $table;
 
         $diffTable->dropPrimaryKey();
         $diffTable->setPrimaryKey(['id']);
 
-        $diff = $comparator->diffTable($table, $diffTable);
-
+        $diff = (new Comparator())->diffTable($table, $diffTable);
         self::assertNotNull($diff);
 
         self::assertSame(
@@ -476,14 +466,12 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $table->addColumn('bar', 'integer');
         $table->setPrimaryKey(['id']);
 
-        $comparator = new Comparator();
-        $diffTable  = clone $table;
+        $diffTable = clone $table;
 
         $diffTable->dropPrimaryKey();
         $diffTable->setPrimaryKey(['id', 'foo']);
 
-        $diff = $comparator->diffTable($table, $diffTable);
-
+        $diff = (new Comparator())->diffTable($table, $diffTable);
         self::assertNotNull($diff);
 
         self::assertSame(
@@ -506,9 +494,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $oldTable = new Table('foo');
         $oldTable->addColumn('baz', 'string');
 
-        $c    = new Comparator();
-        $diff = $c->diffTable($oldTable, $keyTable);
-
+        $diff = (new Comparator())->diffTable($oldTable, $keyTable);
         self::assertNotNull($diff);
 
         $sql = $this->platform->getAlterTableSQL($diff);
@@ -536,15 +522,13 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $table->addColumn('col_a', 'integer');
         $table->setPrimaryKey(['pkc1']);
 
-        $comparator = new Comparator();
-        $diffTable  = clone $table;
+        $diffTable = clone $table;
 
         $diffTable->addColumn('pkc2', 'integer');
         $diffTable->dropPrimaryKey();
         $diffTable->setPrimaryKey(['pkc1', 'pkc2']);
 
-        $diff = $comparator->diffTable($table, $diffTable);
-
+        $diff = (new Comparator())->diffTable($table, $diffTable);
         self::assertNotNull($diff);
 
         self::assertSame(
@@ -742,10 +726,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $diffTable->changeColumn('def_blob', ['default' => null]);
         $diffTable->changeColumn('def_blob_null', ['default' => null]);
 
-        $comparator = new Comparator();
-
-        $diff = $comparator->diffTable($table, $diffTable);
-
+        $diff = (new Comparator())->diffTable($table, $diffTable);
         self::assertNotNull($diff);
 
         self::assertEmpty($this->platform->getAlterTableSQL($diff));

@@ -13,9 +13,9 @@ use Doctrine\DBAL\Platforms\Exception\InvalidPlatformVersion;
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
 use Doctrine\DBAL\Platforms\MySQL57Platform;
 use Doctrine\DBAL\Platforms\MySQL80Platform;
-use Doctrine\DBAL\Platforms\MySqlPlatform;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
-use Doctrine\DBAL\Schema\MySqlSchemaManager;
+use Doctrine\DBAL\Schema\MySQLSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
 
 use function preg_match;
@@ -116,21 +116,21 @@ abstract class AbstractMySQLDriver implements VersionAwarePlatformDriver
     /**
      * {@inheritdoc}
      *
-     * @return MySqlPlatform
+     * @return MySQLPlatform
      */
     public function getDatabasePlatform(): AbstractPlatform
     {
-        return new MySqlPlatform();
+        return new MySQLPlatform();
     }
 
     /**
      * {@inheritdoc}
      *
-     * @return MySqlSchemaManager
+     * @return MySQLSchemaManager
      */
     public function getSchemaManager(Connection $conn, AbstractPlatform $platform): AbstractSchemaManager
     {
-        return new MySqlSchemaManager($conn, $platform);
+        return new MySQLSchemaManager($conn, $platform);
     }
 
     public function getExceptionConverter(): ExceptionConverter

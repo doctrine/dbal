@@ -13,8 +13,15 @@ use Doctrine\DBAL\Driver\AbstractException;
  */
 final class PrepareFailed extends AbstractException
 {
-    public static function new(string $message): self
+    /**
+     * @psalm-param array{message: string}|null $error
+     */
+    public static function new(?array $error): self
     {
-        return new self($message);
+        if ($error === null) {
+            return new self('Unknown error');
+        }
+
+        return new self($error['message']);
     }
 }

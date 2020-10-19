@@ -6,7 +6,6 @@ namespace Doctrine\DBAL\Tests\Portability;
 
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\ParameterType;
-use Doctrine\DBAL\Portability\Connection;
 use Doctrine\DBAL\Portability\Converter;
 use Doctrine\DBAL\Portability\Statement;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -17,7 +16,7 @@ class StatementTest extends TestCase
     /** @var Statement */
     protected $stmt;
 
-    /** @var DriverStatement|MockObject */
+    /** @var DriverStatement&MockObject */
     protected $wrappedStmt;
 
     protected function setUp(): void
@@ -66,15 +65,5 @@ class StatementTest extends TestCase
             ->with($params);
 
         $this->stmt->execute($params);
-    }
-
-    /**
-     * @return Connection|MockObject
-     */
-    protected function createConnection()
-    {
-        return $this->getMockBuilder(Connection::class)
-            ->disableOriginalConstructor()
-            ->getMock();
     }
 }

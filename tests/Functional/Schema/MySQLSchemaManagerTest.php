@@ -9,7 +9,7 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception\DatabaseRequired;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
-use Doctrine\DBAL\Platforms\MySqlPlatform;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Schema;
@@ -20,11 +20,11 @@ use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 
-class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
+class MySQLSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
     protected function supportsPlatform(AbstractPlatform $platform): bool
     {
-        return $platform instanceof MySqlPlatform;
+        return $platform instanceof MySQLPlatform;
     }
 
     protected function setUp(): void
@@ -51,10 +51,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $tableNew     = clone $tableFetched;
         $tableNew->setPrimaryKey(['bar_id', 'foo_id']);
 
-        $comparator = new Comparator();
-
-        $diff = $comparator->diffTable($tableFetched, $tableNew);
-
+        $diff = (new Comparator())->diffTable($tableFetched, $tableNew);
         self::assertNotNull($diff);
 
         $this->schemaManager->alterTable($diff);
@@ -123,14 +120,12 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->schemaManager->createTable($table);
 
-        $comparator = new Comparator();
-        $diffTable  = clone $table;
+        $diffTable = clone $table;
 
         $diffTable->dropIndex('idx_id');
         $diffTable->setPrimaryKey(['id']);
 
-        $diff = $comparator->diffTable($table, $diffTable);
-
+        $diff = (new Comparator())->diffTable($table, $diffTable);
         self::assertNotNull($diff);
 
         $this->schemaManager->alterTable($diff);
@@ -154,10 +149,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $diffTable->dropPrimaryKey();
 
-        $comparator = new Comparator();
-
-        $diff = $comparator->diffTable($table, $diffTable);
-
+        $diff = (new Comparator())->diffTable($table, $diffTable);
         self::assertNotNull($diff);
 
         $this->schemaManager->alterTable($diff);
@@ -193,10 +185,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertNull($onlineTable->getColumn('def_blob_null')->getDefault());
         self::assertFalse($onlineTable->getColumn('def_blob_null')->getNotnull());
 
-        $comparator = new Comparator();
-
-        $diff = $comparator->diffTable($table, $onlineTable);
-
+        $diff = (new Comparator())->diffTable($table, $onlineTable);
         self::assertNotNull($diff);
 
         $this->schemaManager->alterTable($diff);
@@ -240,10 +229,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $diffTable = clone $table;
         $diffTable->getColumn('col_text')->setPlatformOption('charset', 'ascii');
 
-        $comparator = new Comparator();
-
-        $diff = $comparator->diffTable($table, $diffTable);
-
+        $diff = (new Comparator())->diffTable($table, $diffTable);
         self::assertNotNull($diff);
 
         $this->schemaManager->alterTable($diff);
@@ -301,14 +287,14 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $tableName = 'lob_type_columns';
         $table     = new Table($tableName);
 
-        $table->addColumn('col_tinytext', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_TINYTEXT]);
-        $table->addColumn('col_text', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_TEXT]);
-        $table->addColumn('col_mediumtext', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMTEXT]);
+        $table->addColumn('col_tinytext', 'text', ['length' => MySQLPlatform::LENGTH_LIMIT_TINYTEXT]);
+        $table->addColumn('col_text', 'text', ['length' => MySQLPlatform::LENGTH_LIMIT_TEXT]);
+        $table->addColumn('col_mediumtext', 'text', ['length' => MySQLPlatform::LENGTH_LIMIT_MEDIUMTEXT]);
         $table->addColumn('col_longtext', 'text');
 
-        $table->addColumn('col_tinyblob', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_TINYBLOB]);
-        $table->addColumn('col_blob', 'blob', ['length' => MySqlPlatform::LENGTH_LIMIT_BLOB]);
-        $table->addColumn('col_mediumblob', 'blob', ['length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMBLOB]);
+        $table->addColumn('col_tinyblob', 'text', ['length' => MySQLPlatform::LENGTH_LIMIT_TINYBLOB]);
+        $table->addColumn('col_blob', 'blob', ['length' => MySQLPlatform::LENGTH_LIMIT_BLOB]);
+        $table->addColumn('col_mediumblob', 'blob', ['length' => MySQLPlatform::LENGTH_LIMIT_MEDIUMBLOB]);
         $table->addColumn('col_longblob', 'blob');
 
         $this->schemaManager->dropAndCreateTable($table);
@@ -464,8 +450,8 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $row = $this->connection->fetchAssociative(
             'SELECT *, DATEDIFF(CURRENT_TIMESTAMP(), col_datetime) as diff_seconds FROM test_column_defaults_are_valid'
         );
+        self::assertNotFalse($row);
 
-        self::assertIsArray($row);
         self::assertInstanceOf(DateTime::class, DateTime::createFromFormat('Y-m-d H:i:s', $row['col_datetime']));
         self::assertNull($row['col_datetime_null']);
         self::assertSame('2012-12-12', $row['col_date']);

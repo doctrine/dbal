@@ -17,6 +17,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\Types\Type;
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
 use function get_class;
@@ -85,7 +86,7 @@ abstract class AbstractPlatformTestCase extends TestCase
 
     public function testGetInvalidForeignKeyReferentialActionSQL(): void
     {
-        $this->expectException('InvalidArgumentException');
+        $this->expectException(InvalidArgumentException::class);
         $this->platform->getForeignKeyReferentialActionSQL('unknown');
     }
 
@@ -1022,10 +1023,7 @@ abstract class AbstractPlatformTestCase extends TestCase
         // quoted -> quoted
         $toTable->addColumn('`baz`', 'integer', ['comment' => 'Quoted 3']);
 
-        $comparator = new Comparator();
-
-        $diff = $comparator->diffTable($fromTable, $toTable);
-
+        $diff = (new Comparator())->diffTable($fromTable, $toTable);
         self::assertNotNull($diff);
 
         self::assertEquals(
@@ -1063,10 +1061,7 @@ abstract class AbstractPlatformTestCase extends TestCase
         $toTable->addColumn('table', 'string', ['comment' => 'Reserved keyword 2', 'length' => 255]);
         $toTable->addColumn('select', 'string', ['comment' => 'Reserved keyword 3', 'length' => 255]);
 
-        $comparator = new Comparator();
-
-        $diff = $comparator->diffTable($fromTable, $toTable);
-
+        $diff = (new Comparator())->diffTable($fromTable, $toTable);
         self::assertNotNull($diff);
 
         self::assertEquals(

@@ -58,7 +58,7 @@ final class Converter
     /**
      * @param array<int,mixed>|false $row
      *
-     * @return array<int,mixed>|false
+     * @return list<mixed>|false
      */
     public function convertNumeric($row)
     {
@@ -86,9 +86,9 @@ final class Converter
     }
 
     /**
-     * @param array<int,array<int,mixed>> $data
+     * @param list<list<mixed>> $data
      *
-     * @return array<int,array<int,mixed>>
+     * @return list<list<mixed>>
      */
     public function convertAllNumeric(array $data): array
     {
@@ -96,9 +96,9 @@ final class Converter
     }
 
     /**
-     * @param array<int,array<string,mixed>> $data
+     * @param list<array<string,mixed>> $data
      *
-     * @return array<int,array<string,mixed>>
+     * @return list<array<string,mixed>>
      */
     public function convertAllAssociative(array $data): array
     {
@@ -106,9 +106,9 @@ final class Converter
     }
 
     /**
-     * @param array<int,mixed> $data
+     * @param list<mixed> $data
      *
-     * @return array<int,mixed>
+     * @return list<mixed>
      */
     public function convertFirstColumn(array $data): array
     {

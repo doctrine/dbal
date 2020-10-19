@@ -13,6 +13,8 @@ final class Driver extends AbstractMySQLDriver
 {
     /**
      * {@inheritdoc}
+     *
+     * @return Connection
      */
     public function connect(array $params): ConnectionInterface
     {
@@ -31,7 +33,7 @@ final class Driver extends AbstractMySQLDriver
     }
 
     /**
-     * Constructs the MySql PDO DSN.
+     * Constructs the MySQL PDO DSN.
      *
      * @param mixed[] $params
      *

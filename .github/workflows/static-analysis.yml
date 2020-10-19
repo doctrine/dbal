@@ -1,4 +1,5 @@
-name: "Coding Standards"
+
+name: "Static Analysis"
 
 on:
   pull_request:
@@ -11,8 +12,8 @@ on:
       - "master"
 
 jobs:
-  coding-standards:
-    name: "Coding Standards"
+  static-analysis-phpstan:
+    name: "Static Analysis with PHPStan"
     runs-on: "ubuntu-20.04"
 
     strategy:
@@ -21,7 +22,7 @@ jobs:
           - "7.4"
 
     steps:
-      - name: "Checkout"
+      - name: "Checkout code"
         uses: "actions/checkout@v2"
 
       - name: "Install PHP"
@@ -31,16 +32,31 @@ jobs:
           php-version: "${{ matrix.php-version }}"
           tools: "cs2pr"
 
-      - name: "Cache dependencies installed with Composer"
+      - name: "Cache dependencies installed with composer"
         uses: "actions/cache@v2"
         with:
           path: "~/.composer/cache"
           key: "php-${{ matrix.php-version }}-composer-locked-${{ hashFiles('composer.lock') }}"
           restore-keys: "php-${{ matrix.php-version }}-composer-locked-"
 
-      - name: "Install dependencies with Composer"
+      - name: "Install dependencies with composer"
         run: "composer install --no-interaction --no-progress --no-suggest"
 
-      # https://github.com/doctrine/.github/issues/3
-      - name: "Run PHP_CodeSniffer"
-        run: "vendor/bin/phpcs -q --no-colors --report=checkstyle | cs2pr"
+      - name: "Run a static analysis with phpstan/phpstan"
+        run: "vendor/bin/phpstan analyse --error-format=checkstyle | cs2pr"
+
+  static-analysis-psalm:
+    name: "Static Analysis with Psalm"
+    runs-on: "ubuntu-20.04"
+
+    strategy:
+      matrix:
+        php-version:
+          - "7.4"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Psalm
+        uses: docker://vimeo/psalm-github-actions:3.17.2

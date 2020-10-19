@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Schema\Platforms;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\MySqlPlatform;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Table;
 use PHPUnit\Framework\TestCase;
@@ -21,7 +21,7 @@ class MySQLSchemaTest extends TestCase
     protected function setUp(): void
     {
         $this->comparator = new Comparator();
-        $this->platform   = new MySqlPlatform();
+        $this->platform   = new MySQLPlatform();
     }
 
     public function testSwitchPrimaryKeyOrder(): void
@@ -35,7 +35,6 @@ class MySQLSchemaTest extends TestCase
         $tableNew->setPrimaryKey(['bar_id', 'foo_id']);
 
         $diff = $this->comparator->diffTable($tableOld, $tableNew);
-
         self::assertNotNull($diff);
 
         $sql = $this->platform->getAlterTableSQL($diff);
@@ -79,7 +78,6 @@ class MySQLSchemaTest extends TestCase
         $tableNew->setPrimaryKey(['id']);
 
         $diff = $this->comparator->diffTable($tableOld, $tableNew);
-
         self::assertNotNull($diff);
 
         $sql = $this->platform->getAlterTableSQL($diff);

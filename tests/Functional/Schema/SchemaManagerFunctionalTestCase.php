@@ -35,7 +35,6 @@ use function array_keys;
 use function array_map;
 use function array_search;
 use function array_values;
-use function assert;
 use function count;
 use function current;
 use function get_class;
@@ -303,17 +302,12 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             ->expects(self::exactly(7))
             ->method('onSchemaColumnDefinition');
 
-        $oldEventManager = $this->schemaManager->getDatabasePlatform()->getEventManager();
-        assert($oldEventManager instanceof EventManager);
-
         $eventManager = new EventManager();
         $eventManager->addEventListener([Events::onSchemaColumnDefinition], $listenerMock);
 
         $this->schemaManager->getDatabasePlatform()->setEventManager($eventManager);
 
         $this->schemaManager->listTableColumns('list_table_columns');
-
-        $this->schemaManager->getDatabasePlatform()->setEventManager($oldEventManager);
     }
 
     public function testListTableIndexesDispatchEvent(): void
@@ -329,17 +323,12 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
             ->expects(self::exactly(3))
             ->method('onSchemaIndexDefinition');
 
-        $oldEventManager = $this->schemaManager->getDatabasePlatform()->getEventManager();
-        assert($oldEventManager instanceof EventManager);
-
         $eventManager = new EventManager();
         $eventManager->addEventListener([Events::onSchemaIndexDefinition], $listenerMock);
 
         $this->schemaManager->getDatabasePlatform()->setEventManager($eventManager);
 
         $this->schemaManager->listTableIndexes('list_table_indexes_test');
-
-        $this->schemaManager->getDatabasePlatform()->setEventManager($oldEventManager);
     }
 
     public function testDiffListTableColumns(): void
@@ -685,12 +674,10 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $tableFKNew->addIndex(['rename_fk_id'], 'fk_idx');
         $tableFKNew->addForeignKeyConstraint('test_fk_base', ['rename_fk_id'], ['id']);
 
-        $c         = new Comparator();
-        $tableDiff = $c->diffTable($tableFK, $tableFKNew);
+        $diff = (new Comparator())->diffTable($tableFK, $tableFKNew);
+        self::assertNotNull($diff);
 
-        self::assertNotNull($tableDiff);
-
-        $this->schemaManager->alterTable($tableDiff);
+        $this->schemaManager->alterTable($diff);
 
         $table       = $this->schemaManager->listTableDetails('test_fk_rename');
         $foreignKeys = $table->getForeignKeys();
@@ -727,10 +714,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $foreignTable2 = clone $foreignTable;
         $foreignTable2->renameIndex('rename_index_fk_idx', 'renamed_index_fk_idx');
 
-        $comparator = new Comparator();
-
-        $diff = $comparator->diffTable($foreignTable, $foreignTable2);
-
+        $diff = (new Comparator())->diffTable($foreignTable, $foreignTable2);
         self::assertNotNull($diff);
 
         $this->schemaManager->alterTable($diff);
@@ -929,10 +913,7 @@ abstract class SchemaManagerFunctionalTestCase extends FunctionalTestCase
         $diffTable->changeColumn('column3', ['default' => 'default2']);
         $diffTable->changeColumn('column4', ['default' => null]);
 
-        $comparator = new Comparator();
-
-        $diff = $comparator->diffTable($table, $diffTable);
-
+        $diff = (new Comparator())->diffTable($table, $diffTable);
         self::assertNotNull($diff);
 
         $this->schemaManager->alterTable($diff);

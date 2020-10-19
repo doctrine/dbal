@@ -10,6 +10,7 @@ use Doctrine\DBAL\Exception\NoKeyValue;
 use LogicException;
 use Traversable;
 
+use function array_shift;
 use function func_num_args;
 
 class Result
@@ -32,7 +33,7 @@ class Result
     /**
      * Returns the next row of the result as a numeric array or FALSE if there are no more rows.
      *
-     * @return array<int,mixed>|false
+     * @return list<mixed>|false
      *
      * @throws Exception
      */
@@ -80,7 +81,7 @@ class Result
     /**
      * Returns an array containing all of the result rows represented as numeric arrays.
      *
-     * @return array<int,array<int,mixed>>
+     * @return list<list<mixed>>
      *
      * @throws Exception
      */
@@ -96,7 +97,7 @@ class Result
     /**
      * Returns an array containing all of the result rows represented as associative arrays.
      *
-     * @return array<int,array<string,mixed>>
+     * @return list<array<string,mixed>>
      *
      * @throws Exception
      */
@@ -130,7 +131,26 @@ class Result
     }
 
     /**
-     * {@inheritDoc}
+     * Returns an associative array with the keys mapped to the first column and the values being
+     * an associative array representing the rest of the columns and their values.
+     *
+     * @return array<mixed,array<string,mixed>>
+     *
+     * @throws Exception
+     */
+    public function fetchAllAssociativeIndexed(): array
+    {
+        $data = [];
+
+        foreach ($this->fetchAllAssociative() as $row) {
+            $data[array_shift($row)] = $row;
+        }
+
+        return $data;
+    }
+
+    /**
+     * @return list<mixed>
      *
      * @throws Exception
      */
@@ -144,7 +164,7 @@ class Result
     }
 
     /**
-     * @return Traversable<int,array<int,mixed>>
+     * @return Traversable<int,list<mixed>>
      *
      * @throws Exception
      */
@@ -186,6 +206,21 @@ class Result
 
         foreach ($this->iterateNumeric() as [$key, $value]) {
             yield $key => $value;
+        }
+    }
+
+    /**
+     * Returns an iterator over the result set with the keys mapped to the first column and the values being
+     * an associative array representing the rest of the columns and their values.
+     *
+     * @return Traversable<mixed,array<string,mixed>>
+     *
+     * @throws Exception
+     */
+    public function iterateAssociativeIndexed(): Traversable
+    {
+        foreach ($this->iterateAssociative() as $row) {
+            yield array_shift($row) => $row;
         }
     }
 

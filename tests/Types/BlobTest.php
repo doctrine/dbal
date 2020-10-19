@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 
 class BlobTest extends TestCase
 {
-    /** @var AbstractPlatform|MockObject */
+    /** @var AbstractPlatform&MockObject */
     protected $platform;
 
     /** @var BlobType */

@@ -586,14 +586,10 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         $table2->addColumn('column_varbinary', 'binary', ['fixed' => true]);
         $table2->addColumn('column_binary', 'binary');
 
-        $comparator = new Comparator();
-
-        $diff = $comparator->diffTable($table1, $table2);
-
-        self::assertNotNull($diff);
-
         // VARBINARY -> BINARY
         // BINARY    -> VARBINARY
+        $diff = (new Comparator())->diffTable($table1, $table2);
+        self::assertNotNull($diff);
         self::assertEmpty($this->platform->getAlterTableSQL($diff));
     }
 

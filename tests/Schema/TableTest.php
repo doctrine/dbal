@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Tests\Schema;
 
 use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\Platforms\MySqlPlatform;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
@@ -560,7 +560,7 @@ class TableTest extends TestCase
     {
         $table = new Table('`bar`');
 
-        $mysqlPlatform  = new MySqlPlatform();
+        $mysqlPlatform  = new MySQLPlatform();
         $sqlitePlatform = new SqlitePlatform();
 
         self::assertEquals('bar', $table->getName());
@@ -604,7 +604,7 @@ class TableTest extends TestCase
     {
         $table = new Table('`test`.`test`');
         self::assertEquals('test.test', $table->getName());
-        self::assertEquals('`test`.`test`', $table->getQuotedName(new MySqlPlatform()));
+        self::assertEquals('`test`.`test`', $table->getQuotedName(new MySQLPlatform()));
     }
 
     public function testFullQualifiedTableName(): void

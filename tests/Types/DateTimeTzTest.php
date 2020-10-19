@@ -31,7 +31,7 @@ class DateTimeTzTest extends BaseDateTypeTestCase
     {
         // Birthday of jwage and also birthday of Doctrine. Send him a present ;)
         $date = $this->type->convertToPHPValue('1985-09-01 00:00:00', $this->platform);
-        self::assertInstanceOf('DateTime', $date);
+        self::assertInstanceOf(DateTime::class, $date);
         self::assertEquals('1985-09-01 00:00:00', $date->format('Y-m-d H:i:s'));
     }
 

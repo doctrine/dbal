@@ -12,8 +12,8 @@ use const CASE_LOWER;
 class ConverterTest extends TestCase
 {
     /**
-     * @param array<int,mixed>|false $row
-     * @param array<int,mixed>|false $expected
+     * @param list<mixed>|false $row
+     * @param list<mixed>|false $expected
      *
      * @dataProvider convertNumericProvider
      */
@@ -218,8 +218,8 @@ class ConverterTest extends TestCase
     }
 
     /**
-     * @param array<int,array<int,mixed>> $data
-     * @param array<int,array<int,mixed>> $expected
+     * @param list<list<mixed>> $data
+     * @param list<list<mixed>> $expected
      *
      * @dataProvider convertAllNumericProvider
      */
@@ -286,8 +286,8 @@ class ConverterTest extends TestCase
     }
 
     /**
-     * @param array<int,array<string,mixed>> $row
-     * @param array<int,array<string,mixed>> $expected
+     * @param list<array<string,mixed>> $row
+     * @param list<array<string,mixed>> $expected
      *
      * @dataProvider convertAllAssociativeProvider
      */
@@ -459,8 +459,8 @@ class ConverterTest extends TestCase
     }
 
     /**
-     * @param array<int,mixed> $column
-     * @param array<int,mixed> $expected
+     * @param list<mixed> $column
+     * @param list<mixed> $expected
      *
      * @dataProvider convertFirstColumnProvider
      */

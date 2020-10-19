@@ -26,10 +26,9 @@ abstract class ExceptionConverterTest extends TestCase
     abstract protected function createConverter(): ExceptionConverter;
 
     /**
-     * @param class-string<T> $expectedClass
+     * @param class-string<DriverException> $expectedClass
      *
      * @dataProvider exceptionConversionProvider
-     * @template T of ExceptionConverter
      */
     public function testConvertsException(
         string $expectedClass,
@@ -44,8 +43,6 @@ abstract class ExceptionConverterTest extends TestCase
 
         $dbalMessage   = 'DBAL exception message';
         $dbalException = $this->converter->convert($dbalMessage, $driverException);
-
-        self::assertInstanceOf($expectedClass, $dbalException);
 
         self::assertSame($driverException->getCode(), $dbalException->getCode());
         self::assertSame($driverException->getSQLState(), $dbalException->getSQLState());

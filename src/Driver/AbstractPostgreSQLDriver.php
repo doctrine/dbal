@@ -12,7 +12,7 @@ use Doctrine\DBAL\Platforms\Exception\InvalidPlatformVersion;
 use Doctrine\DBAL\Platforms\PostgreSQL100Platform;
 use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
-use Doctrine\DBAL\Schema\PostgreSqlSchemaManager;
+use Doctrine\DBAL\Schema\PostgreSQLSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
 
 use function preg_match;
@@ -51,7 +51,7 @@ abstract class AbstractPostgreSQLDriver implements VersionAwarePlatformDriver
 
     public function getSchemaManager(Connection $conn, AbstractPlatform $platform): AbstractSchemaManager
     {
-        return new PostgreSqlSchemaManager($conn, $platform);
+        return new PostgreSQLSchemaManager($conn, $platform);
     }
 
     public function getExceptionConverter(): ExceptionConverter
