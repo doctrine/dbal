@@ -445,7 +445,7 @@ jobs:
           coverage: "pcov"
           ini-values: "zend.assertions=1"
           tools: "pecl"
-          extensions: "${{ matrix.extension }}-5.7.0preview"
+          extensions: "${{ matrix.extension }}-5.9.0preview1"
 
       - name: "Cache dependencies installed with composer"
         uses: "actions/cache@v2"
