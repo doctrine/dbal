@@ -22,6 +22,7 @@
         <exclude name="SlevomatCodingStandard.Classes.SuperfluousExceptionNaming"/>
         <exclude name="SlevomatCodingStandard.Classes.DisallowLateStaticBindingForConstants.DisallowedLateStaticBindingForConstant"/>
         <exclude name="SlevomatCodingStandard.ControlStructures.ControlStructureSpacing.IncorrectLinesCountAfterLastControlStructure"/>
+        <exclude name="SlevomatCodingStandard.ControlStructures.RequireNullCoalesceEqualOperator.RequiredNullCoalesceEqualOperator"/>
 
         <exclude name="PSR2.Methods.MethodDeclaration.Underscore"/>
         <!-- https://github.com/slevomat/coding-standard/issues/867 -->
@@ -29,6 +30,11 @@
         <!-- See https://github.com/squizlabs/PHP_CodeSniffer/issues/2937 -->
         <exclude name="Squiz.Arrays.ArrayDeclaration.ValueNoNewline"/>
         <exclude name="Squiz.NamingConventions.ValidVariableName.PublicHasUnderscore"/>
+    </rule>
+
+    <rule ref="Generic.Classes.DuplicateClassName.Found">
+        <exclude-pattern>*/lib/Doctrine/DBAL/Driver/PDOQueryImplementation.php</exclude-pattern>
+        <exclude-pattern>*/lib/Doctrine/DBAL/Driver/PDOStatementImplementations.php</exclude-pattern>
     </rule>
 
     <!-- Disable the rules that will require PHP 7.4 -->
@@ -57,6 +63,8 @@
     </rule>
 
     <rule ref="PSR1.Classes.ClassDeclaration.MultipleClasses">
+        <exclude-pattern>*/lib/Doctrine/DBAL/Driver/PDOQueryImplementation.php</exclude-pattern>
+        <exclude-pattern>*/lib/Doctrine/DBAL/Driver/PDOStatementImplementations.php</exclude-pattern>
         <exclude-pattern>*/tests/*</exclude-pattern>
     </rule>
 
@@ -113,6 +121,11 @@
     <!-- The override opts out the caller from the strict mode for backward compatibility -->
     <rule ref="Generic.CodeAnalysis.UselessOverridingMethod.Found">
         <exclude-pattern>lib/Doctrine/DBAL/Driver/PDOConnection.php</exclude-pattern>
+    </rule>
+
+    <rule ref="SlevomatCodingStandard.Classes.UnusedPrivateElements.UnusedMethod">
+        <exclude-pattern>*/lib/Doctrine/DBAL/Driver/PDOConnection.php</exclude-pattern>
+        <exclude-pattern>*/lib/Doctrine/DBAL/Driver/PDOStatement.php</exclude-pattern>
     </rule>
 
     <!-- See https://github.com/slevomat/coding-standard/issues/770 -->

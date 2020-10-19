@@ -26,6 +26,8 @@ use const E_USER_DEPRECATED;
  */
 class PDOStatement extends \PDOStatement implements StatementInterface, Result
 {
+    use PDOStatementImplementations;
+
     private const PARAM_TYPE_MAP = [
         ParameterType::NULL         => PDO::PARAM_NULL,
         ParameterType::INTEGER      => PDO::PARAM_INT,
@@ -52,34 +54,6 @@ class PDOStatement extends \PDOStatement implements StatementInterface, Result
      */
     protected function __construct()
     {
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated Use one of the fetch- or iterate-related methods.
-     */
-    public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
-    {
-        $fetchMode = $this->convertFetchMode($fetchMode);
-
-        // This thin wrapper is necessary to shield against the weird signature
-        // of PDOStatement::setFetchMode(): even if the second and third
-        // parameters are optional, PHP will not let us remove it from this
-        // declaration.
-        try {
-            if ($arg2 === null && $arg3 === null) {
-                return parent::setFetchMode($fetchMode);
-            }
-
-            if ($arg3 === null) {
-                return parent::setFetchMode($fetchMode, $arg2);
-            }
-
-            return parent::setFetchMode($fetchMode, $arg2, $arg3);
-        } catch (PDOException $exception) {
-            throw Exception::new($exception);
-        }
     }
 
     /**
@@ -167,39 +141,6 @@ class PDOStatement extends \PDOStatement implements StatementInterface, Result
     /**
      * {@inheritdoc}
      *
-     * @deprecated Use fetchAllNumeric(), fetchAllAssociative() or fetchFirstColumn() instead.
-     */
-    public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
-    {
-        $args = func_get_args();
-
-        if (isset($args[0])) {
-            $args[0] = $this->convertFetchMode($args[0]);
-        }
-
-        if ($fetchMode === null && $fetchArgument === null && $ctorArgs === null) {
-            $args = [];
-        } elseif ($fetchArgument === null && $ctorArgs === null) {
-            $args = [$fetchMode];
-        } elseif ($ctorArgs === null) {
-            $args = [$fetchMode, $fetchArgument];
-        } else {
-            $args = [$fetchMode, $fetchArgument, $ctorArgs];
-        }
-
-        try {
-            $data = parent::fetchAll(...$args);
-            assert(is_array($data));
-
-            return $data;
-        } catch (PDOException $exception) {
-            throw Exception::new($exception);
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     *
      * @deprecated Use fetchOne() instead.
      */
     public function fetchColumn($columnIndex = 0)
@@ -262,6 +203,66 @@ class PDOStatement extends \PDOStatement implements StatementInterface, Result
     public function free(): void
     {
         parent::closeCursor();
+    }
+
+    /**
+     * @param mixed ...$args
+     */
+    private function doSetFetchMode(int $fetchMode, ...$args): bool
+    {
+        $fetchMode = $this->convertFetchMode($fetchMode);
+
+        // This thin wrapper is necessary to shield against the weird signature
+        // of PDOStatement::setFetchMode(): even if the second and third
+        // parameters are optional, PHP will not let us remove it from this
+        // declaration.
+        $slice = [];
+
+        foreach ($args as $arg) {
+            if ($arg === null) {
+                break;
+            }
+
+            $slice[] = $arg;
+        }
+
+        try {
+            return parent::setFetchMode($fetchMode, ...$slice);
+        } catch (PDOException $exception) {
+            throw Exception::new($exception);
+        }
+    }
+
+    /**
+     * @param mixed ...$args
+     *
+     * @return mixed[]
+     */
+    private function doFetchAll(...$args): array
+    {
+        if (isset($args[0])) {
+            $args[0] = $this->convertFetchMode($args[0]);
+        }
+
+        $slice = [];
+
+        foreach ($args as $arg) {
+            if ($arg === null) {
+                break;
+            }
+
+            $slice[] = $arg;
+        }
+
+        try {
+            $data = parent::fetchAll(...$slice);
+        } catch (PDOException $exception) {
+            throw Exception::new($exception);
+        }
+
+        assert(is_array($data));
+
+        return $data;
     }
 
     /**

@@ -32,6 +32,13 @@
                 <file name="lib/Doctrine/DBAL/Driver/OCI8/OCI8Statement.php"/>
             </errorLevel>
         </ConflictingReferenceConstraint>
+        <DuplicateClass>
+            <errorLevel type="suppress">
+                <!-- These files contain a php 7 and a php 8 version of the same trait -->
+                <file name="lib/Doctrine/DBAL/Driver/PDOQueryImplementation.php"/>
+                <file name="lib/Doctrine/DBAL/Driver/PDOStatementImplementations.php"/>
+            </errorLevel>
+        </DuplicateClass>
         <FalsableReturnStatement>
             <errorLevel type="suppress">
                 <!--
@@ -68,6 +75,8 @@
 
                 <!-- See https://github.com/doctrine/dbal/pull/3080 -->
                 <file name="lib/Doctrine/DBAL/Driver/PDOConnection.php"/>
+                <file name="lib/Doctrine/DBAL/Driver/PDOQueryImplementation.php"/>
+                <file name="lib/Doctrine/DBAL/Driver/PDOStatementImplementations.php"/>
 
                 <!-- See https://github.com/doctrine/dbal/issues/4156 -->
                 <file name="lib/Doctrine/DBAL/Portability/Connection.php"/>
@@ -89,6 +98,8 @@
                     Doctrine\DBAL\Driver\Connection
                 -->
                 <file name="lib/Doctrine/DBAL/Driver/PDOConnection.php"/>
+                <file name="lib/Doctrine/DBAL/Driver/PDOQueryImplementation.php"/>
+                <file name="lib/Doctrine/DBAL/Driver/PDOStatementImplementations.php"/>
             </errorLevel>
         </MethodSignatureMismatch>
         <NullableReturnStatement>
@@ -99,6 +110,16 @@
                 <file name="lib/Doctrine/DBAL/Driver/AbstractSQLiteDriver.php"/>
             </errorLevel>
         </NullableReturnStatement>
+        <ParamNameMismatch>
+            <errorLevel type="suppress">
+                <!--
+                    These traits contain implementations for different PHP versions in order to handle a signature
+                    change. At least one of the implementations won't match the signature expected by Psalm.
+                -->
+                <file name="lib/Doctrine/DBAL/Driver/PDOQueryImplementation.php"/>
+                <file name="lib/Doctrine/DBAL/Driver/PDOStatementImplementations.php"/>
+            </errorLevel>
+        </ParamNameMismatch>
         <PossiblyInvalidOperand>
             <errorLevel type="suppress">
                 <!--
@@ -113,6 +134,12 @@
                 <file name="lib/Doctrine/DBAL/Schema/AbstractSchemaManager.php"/>
             </errorLevel>
         </PossiblyNullArgument>
+        <ReservedWord>
+            <errorLevel type="suppress">
+                <!-- This file uses the mixed type in a PHP 8 forward compatibility layer. -->
+                <file name="lib/Doctrine/DBAL/Driver/PDOQueryImplementation.php"/>
+            </errorLevel>
+        </ReservedWord>
         <TooFewArguments>
             <errorLevel type="suppress">
                 <!--
