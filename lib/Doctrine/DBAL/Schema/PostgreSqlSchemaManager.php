@@ -154,11 +154,8 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             $onDelete = $match[1];
         }
 
-        assert(preg_match(
-            '/FOREIGN KEY \((.+)\) REFERENCES (.+)\((.+)\)/',
-            $tableForeignKey['condef'],
-            $values
-        ) !== 0);
+        $result = preg_match('/FOREIGN KEY \((.+)\) REFERENCES (.+)\((.+)\)/', $tableForeignKey['condef'], $values);
+        assert($result === 1);
 
         // PostgreSQL returns identifiers that are keywords with quotes, we need them later, don't get
         // the idea to trim them here.
