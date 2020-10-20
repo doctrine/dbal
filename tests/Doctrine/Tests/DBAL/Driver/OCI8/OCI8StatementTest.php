@@ -25,6 +25,7 @@ class OCI8StatementTest extends DbalTestCase
      * @param mixed[] $params
      *
      * @dataProvider executeDataProvider
+     * @requires PHP < 8.0
      */
     public function testExecute(array $params): void
     {
