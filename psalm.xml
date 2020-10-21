@@ -134,6 +134,15 @@
                 <file name="lib/Doctrine/DBAL/Schema/AbstractSchemaManager.php"/>
             </errorLevel>
         </PossiblyNullArgument>
+        <RedundantCondition>
+            <errorLevel type="suppress">
+                <!--
+                    This suppression should be removed in 3.0.x
+                    See https://github.com/doctrine/dbal/pull/3860
+                -->
+                <file name="lib/Doctrine/DBAL/Version.php"/>
+            </errorLevel>
+        </RedundantCondition>
         <ReservedWord>
             <errorLevel type="suppress">
                 <!-- This file uses the mixed type in a PHP 8 forward compatibility layer. -->
