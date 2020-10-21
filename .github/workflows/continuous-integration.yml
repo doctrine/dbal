@@ -13,6 +13,9 @@ on:
   schedule:
     - cron: "42 3 * * *"
 
+env:
+  fail-fast: true
+
 jobs:
   phpunit-smoke-check:
     name: "PHPUnit with SQLite"
