@@ -8,8 +8,6 @@ use Doctrine\DBAL\Logging\SQLLogger;
 
 /**
  * Configuration container for the Doctrine DBAL.
- *
- * @internal
  */
 class Configuration
 {

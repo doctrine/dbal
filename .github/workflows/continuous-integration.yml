@@ -13,6 +13,9 @@ on:
   schedule:
     - cron: "42 3 * * *"
 
+env:
+  fail-fast: true
+
 jobs:
   phpunit-smoke-check:
     name: "PHPUnit with SQLite"
@@ -76,6 +79,7 @@ jobs:
       matrix:
         php-version:
           - "7.4"
+          - "8.0"
 
     services:
       oracle:
@@ -125,6 +129,7 @@ jobs:
       matrix:
         php-version:
           - "7.4"
+          - "8.0"
 
     services:
       oracle:
@@ -176,11 +181,6 @@ jobs:
           - "7.4"
         postgres-version:
           - "9.4"
-          - "9.5"
-          - "9.6"
-          - "10"
-          - "11"
-          - "12"
           - "13"
         include:
           - php-version: "8.0"
@@ -241,10 +241,7 @@ jobs:
           - "7.4"
         mariadb-version:
           - "10.0"
-          - "10.1"
           - "10.2"
-          - "10.3"
-          - "10.4"
           - "10.5"
         extension:
           - "mysqli"
@@ -342,6 +339,16 @@ jobs:
             php-version: "7.4"
             mysql-version: "8.0"
             extension: "mysqli"
+          - php-version: "8.0"
+            mysql-version: "8.0"
+            extension: "mysqli"
+            custom-entrypoint: >-
+              --entrypoint sh mysql:8 -c "exec docker-entrypoint.sh mysqld --default-authentication-plugin=mysql_native_password"
+          - php-version: "8.0"
+            mysql-version: "8.0"
+            extension: "pdo_mysql"
+            custom-entrypoint: >-
+              --entrypoint sh mysql:8 -c "exec docker-entrypoint.sh mysqld --default-authentication-plugin=mysql_native_password"
 
     services:
       mysql:
@@ -403,6 +410,7 @@ jobs:
         php-version:
           - "7.3"
           - "7.4"
+          - "8.0"
         extension:
           - "sqlsrv"
           - "pdo_sqlsrv"
@@ -443,7 +451,7 @@ jobs:
           coverage: "pcov"
           ini-values: "zend.assertions=1"
           tools: "pecl"
-          extensions: "${{ matrix.extension }}-5.7.0preview"
+          extensions: "${{ matrix.extension }}-5.9.0preview1"
 
       - name: "Cache dependencies installed with composer"
         uses: "actions/cache@v2"
