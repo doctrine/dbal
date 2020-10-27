@@ -13,6 +13,7 @@ use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Tests\Types\MySqlPointType;
+use InvalidArgumentException;
 
 use function array_keys;
 
@@ -242,6 +243,29 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->schemaManager->alterTable($diff);
 
         self::assertSame(['id', 'new', 'b', 'a'], array_keys($this->schemaManager->listTableColumns($tableName)));
+    }
+
+    public function testAlterTableExplicitColumnPositionColumnNotFoundException(): void
+    {
+        $tableName = 'test_column_position_exception';
+        $table     = new Table($tableName);
+        $table->addColumn('id', 'integer');
+
+        $this->schemaManager->createTable($table);
+
+        $table2 = new Table($tableName);
+        $table2->addColumn('id', 'float');
+        $table2WithoutAColumn = clone $table2;
+        $table2->addColumn('a', 'float');
+
+        $comparator = new Comparator();
+        $diff       = $comparator->diffTable($table, $table2);
+        self::assertNotFalse($diff);
+        $diff->toTable = $table2WithoutAColumn;
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Column name "a" not found');
+        $this->schemaManager->alterTable($diff);
     }
 
     public function testColumnCharset(): void
