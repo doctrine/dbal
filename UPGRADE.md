@@ -76,7 +76,7 @@ The following PDO-related classes outside of the PDO namespace have been depreca
 3. `prefersSequences()`.
 4. `supportsForeignKeyOnUpdate()`.
 
-##`ServerInfoAwareConnection::requiresQueryForServerVersion()` is deprecated.
+## `ServerInfoAwareConnection::requiresQueryForServerVersion()` is deprecated.
 
 The `ServerInfoAwareConnection::requiresQueryForServerVersion()` method has been deprecated as an implementation detail which is the same for almost all supported drivers.
 
