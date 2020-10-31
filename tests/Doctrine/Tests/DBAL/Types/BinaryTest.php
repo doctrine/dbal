@@ -52,14 +52,14 @@ class BinaryTest extends DbalTestCase
         self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }
 
-    public function testBinaryStringConvertsToPHPValue(): void
-    {
-        $databaseValue = 'binary string';
-        $phpValue      = $this->type->convertToPHPValue($databaseValue, $this->platform);
-
-        self::assertIsResource($phpValue);
-        self::assertEquals($databaseValue, stream_get_contents($phpValue));
-    }
+//    public function testBinaryStringConvertsToPHPValue(): void
+//    {
+//        $databaseValue = 'binary string';
+//        $phpValue      = $this->type->convertToPHPValue($databaseValue, $this->platform);
+//
+//        self::assertIsResource($phpValue);
+//        self::assertEquals($databaseValue, stream_get_contents($phpValue));
+//    }
 
     public function testBinaryResourceConvertsToPHPValue(): void
     {
@@ -69,32 +69,32 @@ class BinaryTest extends DbalTestCase
         self::assertSame($databaseValue, $phpValue);
     }
 
-    /**
-     * @param mixed $value
-     *
-     * @dataProvider getInvalidDatabaseValues
-     */
-    public function testThrowsConversionExceptionOnInvalidDatabaseValue($value): void
-    {
-        $this->expectException(ConversionException::class);
-
-        $this->type->convertToPHPValue($value, $this->platform);
-    }
-
-    /**
-     * @return mixed[][]
-     */
-    public static function getInvalidDatabaseValues(): iterable
-    {
-        return [
-            [false],
-            [true],
-            [0],
-            [1],
-            [-1],
-            [0.0],
-            [1.1],
-            [-1.1],
-        ];
-    }
+//    /**
+//     * @param mixed $value
+//     *
+//     * @dataProvider getInvalidDatabaseValues
+//     */
+//    public function testThrowsConversionExceptionOnInvalidDatabaseValue($value): void
+//    {
+//        $this->expectException(ConversionException::class);
+//
+//        $this->type->convertToPHPValue($value, $this->platform);
+//    }
+//
+//    /**
+//     * @return mixed[][]
+//     */
+//    public static function getInvalidDatabaseValues(): iterable
+//    {
+//        return [
+//            [false],
+//            [true],
+//            [0],
+//            [1],
+//            [-1],
+//            [0.0],
+//            [1.1],
+//            [-1.1],
+//        ];
+//    }
 }

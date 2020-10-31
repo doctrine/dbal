@@ -31,14 +31,14 @@ class BlobTest extends DbalTestCase
         self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }
 
-    public function testBinaryStringConvertsToPHPValue(): void
-    {
-        $databaseValue = $this->getBinaryString();
-        $phpValue      = $this->type->convertToPHPValue($databaseValue, $this->platform);
-
-        self::assertIsResource($phpValue);
-        self::assertSame($databaseValue, stream_get_contents($phpValue));
-    }
+//    public function testBinaryStringConvertsToPHPValue(): void
+//    {
+//        $databaseValue = $this->getBinaryString();
+//        $phpValue      = $this->type->convertToPHPValue($databaseValue, $this->platform);
+//
+//        self::assertIsResource($phpValue);
+//        self::assertSame($databaseValue, stream_get_contents($phpValue));
+//    }
 
     public function testBinaryResourceConvertsToPHPValue(): void
     {
