@@ -33,7 +33,7 @@ class LoggerChain implements SQLLogger
     /**
      * {@inheritdoc}
      */
-    public function startQuery($sql, ?array $params = null, ?array $types = null)
+    public function startQuery(string $sql, ?array $params = null, ?array $types = null)
     {
         foreach ($this->loggers as $logger) {
             $logger->startQuery($sql, $params, $types);
