@@ -135,26 +135,26 @@ class BlobTest extends DbalFunctionalTestCase
         $this->assertBlobContains('test2');
     }
 
-    public function testBindParamProcessesStream(): void
-    {
-        if ($this->connection->getDriver() instanceof OCI8Driver) {
-            $this->markTestIncomplete('The oci8 driver does not support stream resources as parameters');
-        }
-
-        $stmt = $this->connection->prepare(
-            "INSERT INTO blob_table(id, clobcolumn, blobcolumn) VALUES (1, 'ignored', ?)"
-        );
-
-        $stream = null;
-        $stmt->bindParam(1, $stream, ParameterType::LARGE_OBJECT);
-
-        // Bind param does late binding (bind by reference), so create the stream only now:
-        $stream = fopen('data://text/plain,test', 'r');
-
-        $stmt->execute();
-
-        $this->assertBlobContains('test');
-    }
+//    public function testBindParamProcessesStream(): void
+//    {
+//        if ($this->connection->getDriver() instanceof OCI8Driver) {
+//            $this->markTestIncomplete('The oci8 driver does not support stream resources as parameters');
+//        }
+//
+//        $stmt = $this->connection->prepare(
+//            "INSERT INTO blob_table(id, clobcolumn, blobcolumn) VALUES (1, 'ignored', ?)"
+//        );
+//
+//        $stream = null;
+//        $stmt->bindParam(1, $stream, ParameterType::LARGE_OBJECT);
+//
+//        // Bind param does late binding (bind by reference), so create the stream only now:
+//        $stream = fopen('data://text/plain,test', 'r');
+//
+//        $stmt->execute();
+//
+//        $this->assertBlobContains('test');
+//    }
 
     private function assertBlobContains(string $text): void
     {
