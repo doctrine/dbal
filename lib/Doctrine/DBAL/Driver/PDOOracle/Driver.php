@@ -10,11 +10,6 @@ use PDOException;
 /**
  * PDO Oracle driver.
  *
- * WARNING: This driver gives us segfaults in our testsuites on CLOB and other
- * stuff. PDO Oracle is not maintained by Oracle or anyone in the PHP community,
- * which leads us to the recommendation to use the "oci8" driver to connect
- * to Oracle instead.
- *
  * @deprecated Use {@link PDO\OCI\Driver} instead.
  */
 class Driver extends AbstractOracleDriver
