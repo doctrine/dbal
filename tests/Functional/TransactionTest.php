@@ -4,6 +4,7 @@ namespace Doctrine\DBAL\Tests\Functional;
 
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Tests\FunctionalTestCase;
+use PDOException;
 
 use function sleep;
 
@@ -35,6 +36,12 @@ class TransactionTest extends FunctionalTestCase
 
         sleep(2); // during the sleep mysql will close the connection
 
-        self::assertFalse(@$this->connection->commit()); // we will ignore `MySQL server has gone away` warnings
+        try {
+            self::assertFalse(@$this->connection->commit()); // we will ignore `MySQL server has gone away` warnings
+        } catch (PDOException $e) {
+            /* For PDO, we are using ERRMODE EXCEPTION, so this catch should be
+             * necessary as the equivalent of the error control operator above.
+             * This seems to be the case only since PHP 8 */
+        }
     }
 }
