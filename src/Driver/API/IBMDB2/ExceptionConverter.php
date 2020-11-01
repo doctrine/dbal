@@ -7,11 +7,15 @@ namespace Doctrine\DBAL\Driver\API\IBMDB2;
 use Doctrine\DBAL\Driver\API\ExceptionConverter as ExceptionConverterInterface;
 use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Exception\DriverException;
+use Doctrine\DBAL\Query;
 
+/**
+ * @internal
+ */
 final class ExceptionConverter implements ExceptionConverterInterface
 {
-    public function convert(string $message, Exception $exception): DriverException
+    public function convert(Exception $exception, ?Query $query): DriverException
     {
-        return new DriverException($message, $exception);
+        return new DriverException($exception, $query);
     }
 }

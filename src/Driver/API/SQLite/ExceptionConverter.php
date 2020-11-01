@@ -17,18 +17,22 @@ use Doctrine\DBAL\Exception\SyntaxErrorException;
 use Doctrine\DBAL\Exception\TableExistsException;
 use Doctrine\DBAL\Exception\TableNotFoundException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use Doctrine\DBAL\Query;
 
 use function strpos;
 
+/**
+ * @internal
+ */
 final class ExceptionConverter implements ExceptionConverterInterface
 {
     /**
      * @link http://www.sqlite.org/c3ref/c_abort.html
      */
-    public function convert(string $message, Exception $exception): DriverException
+    public function convert(Exception $exception, ?Query $query): DriverException
     {
         if (strpos($exception->getMessage(), 'database is locked') !== false) {
-            return new LockWaitTimeoutException($message, $exception);
+            return new LockWaitTimeoutException($exception, $query);
         }
 
         if (
@@ -37,44 +41,44 @@ final class ExceptionConverter implements ExceptionConverterInterface
             strpos($exception->getMessage(), 'are not unique') !== false ||
             strpos($exception->getMessage(), 'UNIQUE constraint failed') !== false
         ) {
-            return new UniqueConstraintViolationException($message, $exception);
+            return new UniqueConstraintViolationException($exception, $query);
         }
 
         if (
             strpos($exception->getMessage(), 'may not be NULL') !== false ||
             strpos($exception->getMessage(), 'NOT NULL constraint failed') !== false
         ) {
-            return new NotNullConstraintViolationException($message, $exception);
+            return new NotNullConstraintViolationException($exception, $query);
         }
 
         if (strpos($exception->getMessage(), 'no such table:') !== false) {
-            return new TableNotFoundException($message, $exception);
+            return new TableNotFoundException($exception, $query);
         }
 
         if (strpos($exception->getMessage(), 'already exists') !== false) {
-            return new TableExistsException($message, $exception);
+            return new TableExistsException($exception, $query);
         }
 
         if (strpos($exception->getMessage(), 'has no column named') !== false) {
-            return new InvalidFieldNameException($message, $exception);
+            return new InvalidFieldNameException($exception, $query);
         }
 
         if (strpos($exception->getMessage(), 'ambiguous column name') !== false) {
-            return new NonUniqueFieldNameException($message, $exception);
+            return new NonUniqueFieldNameException($exception, $query);
         }
 
         if (strpos($exception->getMessage(), 'syntax error') !== false) {
-            return new SyntaxErrorException($message, $exception);
+            return new SyntaxErrorException($exception, $query);
         }
 
         if (strpos($exception->getMessage(), 'attempt to write a readonly database') !== false) {
-            return new ReadOnlyException($message, $exception);
+            return new ReadOnlyException($exception, $query);
         }
 
         if (strpos($exception->getMessage(), 'unable to open database file') !== false) {
-            return new ConnectionException($message, $exception);
+            return new ConnectionException($exception, $query);
         }
 
-        return new DriverException($message, $exception);
+        return new DriverException($exception, $query);
     }
 }

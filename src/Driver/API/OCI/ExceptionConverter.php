@@ -16,49 +16,53 @@ use Doctrine\DBAL\Exception\SyntaxErrorException;
 use Doctrine\DBAL\Exception\TableExistsException;
 use Doctrine\DBAL\Exception\TableNotFoundException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use Doctrine\DBAL\Query;
 
+/**
+ * @internal
+ */
 final class ExceptionConverter implements ExceptionConverterInterface
 {
     /**
      * @link http://www.dba-oracle.com/t_error_code_list.htm
      */
-    public function convert(string $message, Exception $exception): DriverException
+    public function convert(Exception $exception, ?Query $query): DriverException
     {
         switch ($exception->getCode()) {
             case 1:
             case 2299:
             case 38911:
-                return new UniqueConstraintViolationException($message, $exception);
+                return new UniqueConstraintViolationException($exception, $query);
 
             case 904:
-                return new InvalidFieldNameException($message, $exception);
+                return new InvalidFieldNameException($exception, $query);
 
             case 918:
             case 960:
-                return new NonUniqueFieldNameException($message, $exception);
+                return new NonUniqueFieldNameException($exception, $query);
 
             case 923:
-                return new SyntaxErrorException($message, $exception);
+                return new SyntaxErrorException($exception, $query);
 
             case 942:
-                return new TableNotFoundException($message, $exception);
+                return new TableNotFoundException($exception, $query);
 
             case 955:
-                return new TableExistsException($message, $exception);
+                return new TableExistsException($exception, $query);
 
             case 1017:
             case 12545:
-                return new ConnectionException($message, $exception);
+                return new ConnectionException($exception, $query);
 
             case 1400:
-                return new NotNullConstraintViolationException($message, $exception);
+                return new NotNullConstraintViolationException($exception, $query);
 
             case 2266:
             case 2291:
             case 2292:
-                return new ForeignKeyConstraintViolationException($message, $exception);
+                return new ForeignKeyConstraintViolationException($exception, $query);
         }
 
-        return new DriverException($message, $exception);
+        return new DriverException($exception, $query);
     }
 }
