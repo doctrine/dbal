@@ -89,6 +89,15 @@
                 <file name="src/Schema/AbstractSchemaManager.php"/>
             </errorLevel>
         </PossiblyNullArgument>
+        <RedundantCondition>
+            <errorLevel type="suppress">
+                <!--
+                    Requires a release of
+                    https://github.com/sebastianbergmann/phpunit/commit/9c60d7d9fd3bfa80fa4aeab7090e1bbe0830dbcd
+                -->
+                <file name="tests/Driver/API/ExceptionConverterTest.php"/>
+            </errorLevel>
+        </RedundantCondition>
         <TooFewArguments>
             <errorLevel type="suppress">
                 <!--
