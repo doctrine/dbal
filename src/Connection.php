@@ -19,6 +19,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
+use Doctrine\DBAL\SQL\Parser;
 use Doctrine\DBAL\Types\Type;
 use Throwable;
 use Traversable;
@@ -113,6 +114,9 @@ class Connection
 
     /** @var ExceptionConverter|null */
     private $exceptionConverter;
+
+    /** @var Parser|null */
+    private $parser;
 
     /**
      * The schema manager.
@@ -1016,7 +1020,9 @@ class Connection
 
         try {
             if (count($params) > 0) {
-                [$sql, $params, $types] = SQLParserUtils::expandListParameters($sql, $params, $types);
+                if ($this->needsArrayParameterConversion($params, $types)) {
+                    [$sql, $params, $types] = $this->expandArrayParameters($sql, $params, $types);
+                }
 
                 $stmt = $connection->prepare($sql);
                 if (count($types) > 0) {
@@ -1118,7 +1124,9 @@ class Connection
 
         try {
             if (count($params) > 0) {
-                [$sql, $params, $types] = SQLParserUtils::expandListParameters($sql, $params, $types);
+                if ($this->needsArrayParameterConversion($params, $types)) {
+                    [$sql, $params, $types] = $this->expandArrayParameters($sql, $params, $types);
+                }
 
                 $stmt = $connection->prepare($sql);
 
@@ -1581,13 +1589,11 @@ class Connection
     {
         // Check whether parameters are positional or named. Mixing is not allowed.
         if (is_int(key($params))) {
-            // Positional parameters
-            $typeOffset = array_key_exists(0, $types) ? -1 : 0;
-            $bindIndex  = 1;
-            foreach ($params as $value) {
-                $typeIndex = $bindIndex + $typeOffset;
-                if (isset($types[$typeIndex])) {
-                    $type                  = $types[$typeIndex];
+            $bindIndex = 1;
+
+            foreach ($params as $key => $value) {
+                if (isset($types[$key])) {
+                    $type                  = $types[$key];
                     [$value, $bindingType] = $this->getBindingInfo($value, $type);
                     $stmt->bindValue($bindIndex, $value, $bindingType);
                 } else {
@@ -1667,6 +1673,48 @@ class Connection
     final public function convertException(Driver\Exception $e): DriverException
     {
         return $this->handleDriverException($e, null);
+    }
+
+    /**
+     * @param array<int, mixed>|array<string, mixed>                               $params
+     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types
+     *
+     * @return array{string, list<mixed>, array<int,Type|int|string|null>}
+     */
+    private function expandArrayParameters(string $sql, array $params, array $types): array
+    {
+        if ($this->parser === null) {
+            $this->parser = $this->getDatabasePlatform()->createSQLParser();
+        }
+
+        $visitor = new ExpandArrayParameters($params, $types);
+
+        $this->parser->parse($sql, $visitor);
+
+        return [
+            $visitor->getSQL(),
+            $visitor->getParameters(),
+            $visitor->getTypes(),
+        ];
+    }
+
+    /**
+     * @param array<int, mixed>|array<string, mixed>                               $params
+     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types
+     */
+    private function needsArrayParameterConversion(array $params, array $types): bool
+    {
+        if (is_string(key($params))) {
+            return true;
+        }
+
+        foreach ($types as $type) {
+            if ($type === self::PARAM_INT_ARRAY || $type === self::PARAM_STR_ARRAY) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function handleDriverException(

@@ -4,6 +4,7 @@ namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\SQL\Parser;
 use Doctrine\DBAL\Types\Types;
 
 /**
@@ -25,6 +26,11 @@ class MySQL57Platform extends MySQLPlatform
     public function getJsonTypeDeclarationSQL(array $column)
     {
         return 'JSON';
+    }
+
+    public function createSQLParser(): Parser
+    {
+        return new Parser(true);
     }
 
     /**

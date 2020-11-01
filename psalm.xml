@@ -75,14 +75,6 @@
                 <file name="src/Driver/AbstractSQLiteDriver.php"/>
             </errorLevel>
         </NullableReturnStatement>
-        <PossiblyInvalidOperand>
-            <errorLevel type="suppress">
-                <!--
-                    This code relies on certain elements of a mixed-type array to be of a certain type.
-                -->
-                <file name="src/SQLParserUtils.php"/>
-            </errorLevel>
-        </PossiblyInvalidOperand>
         <PossiblyNullArgument>
             <errorLevel type="suppress">
                 <!-- See https://github.com/doctrine/dbal/pull/3488 -->
