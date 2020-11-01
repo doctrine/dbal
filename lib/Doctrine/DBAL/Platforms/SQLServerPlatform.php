@@ -1574,7 +1574,7 @@ SQL
     {
         switch (true) {
             case $lockMode === LockMode::NONE:
-                return $fromClause . ' WITH (NOLOCK)';
+                return $fromClause;
 
             case $lockMode === LockMode::PESSIMISTIC_READ:
                 return $fromClause . ' WITH (HOLDLOCK, ROWLOCK)';
