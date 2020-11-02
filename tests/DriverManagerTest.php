@@ -75,6 +75,7 @@ class DriverManagerTest extends TestCase
     {
         $this->expectException(Exception::class);
 
+        /** @var array{wrapperClass?: class-string<Connection>} $options */
         $options = [
             'url' => 'sqlite::memory:',
             'wrapperClass' => stdClass::class,

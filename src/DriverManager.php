@@ -115,7 +115,6 @@ final class DriverManager
      *
      * @throws Exception
      *
-     * @phpstan-param mixed[] $params
      * @psalm-return ($params is array{wrapperClass:mixed} ? T : Connection)
      * @template T of Connection
      */
