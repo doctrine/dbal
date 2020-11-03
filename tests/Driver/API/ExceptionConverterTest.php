@@ -51,6 +51,7 @@ abstract class ExceptionConverterTest extends TestCase
 
         $dbalException = $this->converter->convert($driverException, $query);
 
+        self::assertInstanceOf($expectedClass, $dbalException);
         self::assertSame($driverException->getCode(), $dbalException->getCode());
         self::assertSame($driverException->getSQLState(), $dbalException->getSQLState());
         self::assertSame($driverException, $dbalException->getPrevious());
