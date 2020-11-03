@@ -269,11 +269,6 @@ class SQLParserUtils
             return $paramsOrTypes[$paramName];
         }
 
-        // Hash keys can be prefixed with a colon for compatibility
-        if (array_key_exists(':' . $paramName, $paramsOrTypes)) {
-            return $paramsOrTypes[':' . $paramName];
-        }
-
         if ($defaultValue !== null) {
             return $defaultValue;
         }
