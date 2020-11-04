@@ -1443,9 +1443,9 @@ abstract class AbstractPlatform
             );
         }
 
-        if ($this->_eventManager !== null && $this->_eventManager->hasListeners(Events::onSchemaDropTable)) {
+        if ($this->getEventManager() !== null && $this->getEventManager()->hasListeners(Events::onSchemaDropTable)) {
             $eventArgs = new SchemaDropTableEventArgs($tableArg, $this);
-            $this->_eventManager->dispatchEvent(Events::onSchemaDropTable, $eventArgs);
+            $this->getEventManager()->dispatchEvent(Events::onSchemaDropTable, $eventArgs);
 
             if ($eventArgs->isDefaultPrevented()) {
                 $sql = $eventArgs->getSql();
@@ -1589,11 +1589,11 @@ abstract class AbstractPlatform
 
         foreach ($table->getColumns() as $column) {
             if (
-                $this->_eventManager !== null
-                && $this->_eventManager->hasListeners(Events::onSchemaCreateTableColumn)
+                $this->getEventManager() !== null
+                && $this->getEventManager()->hasListeners(Events::onSchemaCreateTableColumn)
             ) {
                 $eventArgs = new SchemaCreateTableColumnEventArgs($column, $table, $this);
-                $this->_eventManager->dispatchEvent(Events::onSchemaCreateTableColumn, $eventArgs);
+                $this->getEventManager()->dispatchEvent(Events::onSchemaCreateTableColumn, $eventArgs);
 
                 $columnSql = array_merge($columnSql, $eventArgs->getSql());
 
@@ -1628,9 +1628,9 @@ abstract class AbstractPlatform
             }
         }
 
-        if ($this->_eventManager !== null && $this->_eventManager->hasListeners(Events::onSchemaCreateTable)) {
+        if ($this->getEventManager() !== null && $this->getEventManager()->hasListeners(Events::onSchemaCreateTable)) {
             $eventArgs = new SchemaCreateTableEventArgs($table, $columns, $options, $this);
-            $this->_eventManager->dispatchEvent(Events::onSchemaCreateTable, $eventArgs);
+            $this->getEventManager()->dispatchEvent(Events::onSchemaCreateTable, $eventArgs);
 
             if ($eventArgs->isDefaultPrevented()) {
                 return array_merge($eventArgs->getSql(), $columnSql);
@@ -1991,16 +1991,16 @@ abstract class AbstractPlatform
      */
     protected function onSchemaAlterTableAddColumn(Column $column, TableDiff $diff, &$columnSql)
     {
-        if ($this->_eventManager === null) {
+        if ($this->getEventManager() === null) {
             return false;
         }
 
-        if (! $this->_eventManager->hasListeners(Events::onSchemaAlterTableAddColumn)) {
+        if (! $this->getEventManager()->hasListeners(Events::onSchemaAlterTableAddColumn)) {
             return false;
         }
 
         $eventArgs = new SchemaAlterTableAddColumnEventArgs($column, $diff, $this);
-        $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableAddColumn, $eventArgs);
+        $this->getEventManager()->dispatchEvent(Events::onSchemaAlterTableAddColumn, $eventArgs);
 
         $columnSql = array_merge($columnSql, $eventArgs->getSql());
 
@@ -2014,16 +2014,16 @@ abstract class AbstractPlatform
      */
     protected function onSchemaAlterTableRemoveColumn(Column $column, TableDiff $diff, &$columnSql)
     {
-        if ($this->_eventManager === null) {
+        if ($this->getEventManager() === null) {
             return false;
         }
 
-        if (! $this->_eventManager->hasListeners(Events::onSchemaAlterTableRemoveColumn)) {
+        if (! $this->getEventManager()->hasListeners(Events::onSchemaAlterTableRemoveColumn)) {
             return false;
         }
 
         $eventArgs = new SchemaAlterTableRemoveColumnEventArgs($column, $diff, $this);
-        $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableRemoveColumn, $eventArgs);
+        $this->getEventManager()->dispatchEvent(Events::onSchemaAlterTableRemoveColumn, $eventArgs);
 
         $columnSql = array_merge($columnSql, $eventArgs->getSql());
 
@@ -2037,16 +2037,16 @@ abstract class AbstractPlatform
      */
     protected function onSchemaAlterTableChangeColumn(ColumnDiff $columnDiff, TableDiff $diff, &$columnSql)
     {
-        if ($this->_eventManager === null) {
+        if ($this->getEventManager() === null) {
             return false;
         }
 
-        if (! $this->_eventManager->hasListeners(Events::onSchemaAlterTableChangeColumn)) {
+        if (! $this->getEventManager()->hasListeners(Events::onSchemaAlterTableChangeColumn)) {
             return false;
         }
 
         $eventArgs = new SchemaAlterTableChangeColumnEventArgs($columnDiff, $diff, $this);
-        $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableChangeColumn, $eventArgs);
+        $this->getEventManager()->dispatchEvent(Events::onSchemaAlterTableChangeColumn, $eventArgs);
 
         $columnSql = array_merge($columnSql, $eventArgs->getSql());
 
@@ -2061,16 +2061,16 @@ abstract class AbstractPlatform
      */
     protected function onSchemaAlterTableRenameColumn($oldColumnName, Column $column, TableDiff $diff, &$columnSql)
     {
-        if ($this->_eventManager === null) {
+        if ($this->getEventManager() === null) {
             return false;
         }
 
-        if (! $this->_eventManager->hasListeners(Events::onSchemaAlterTableRenameColumn)) {
+        if (! $this->getEventManager()->hasListeners(Events::onSchemaAlterTableRenameColumn)) {
             return false;
         }
 
         $eventArgs = new SchemaAlterTableRenameColumnEventArgs($oldColumnName, $column, $diff, $this);
-        $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableRenameColumn, $eventArgs);
+        $this->getEventManager()->dispatchEvent(Events::onSchemaAlterTableRenameColumn, $eventArgs);
 
         $columnSql = array_merge($columnSql, $eventArgs->getSql());
 
@@ -2084,16 +2084,16 @@ abstract class AbstractPlatform
      */
     protected function onSchemaAlterTable(TableDiff $diff, &$sql)
     {
-        if ($this->_eventManager === null) {
+        if ($this->getEventManager() === null) {
             return false;
         }
 
-        if (! $this->_eventManager->hasListeners(Events::onSchemaAlterTable)) {
+        if (! $this->getEventManager()->hasListeners(Events::onSchemaAlterTable)) {
             return false;
         }
 
         $eventArgs = new SchemaAlterTableEventArgs($diff, $this);
-        $this->_eventManager->dispatchEvent(Events::onSchemaAlterTable, $eventArgs);
+        $this->getEventManager()->dispatchEvent(Events::onSchemaAlterTable, $eventArgs);
 
         $sql = array_merge($sql, $eventArgs->getSql());
 
