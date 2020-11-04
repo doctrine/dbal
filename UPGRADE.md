@@ -1,5 +1,22 @@
 # Upgrade to 2.12
 
+## Deprecated colon prefix for prepared statement parameters
+
+The usage of the colon prefix when binding named parameters is deprecated.
+
+```php
+$sql  = 'SELECT * FROM users WHERE name = :name OR username = :username';
+$stmt = $conn->prepare($sql);
+
+// The usage of the leading colon is deprecated
+$stmt->bindValue(':name', $name);
+
+// Only the parameter name should be passed
+$stmt->bindValue('username', $username);
+
+$stmt->execute();
+```
+
 ## PDO signature changes with php 8
 
 In php 8.0, the method signatures of two PDO classes which are extended by DBAL have changed. This affects the following classes:
