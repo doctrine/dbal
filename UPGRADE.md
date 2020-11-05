@@ -1,5 +1,9 @@
 # Upgrade to 3.0
 
+## BC BREAK: leading in named parameter names not supported
+
+The usage of the colon prefix when binding named parameters is no longer supported.
+
 ## BC BREAK `Doctrine\DBAL\Abstraction\Result` removed
 
 The `Doctrine\DBAL\Abstraction\Result` interface is removed. Use the `Doctrine\DBAL\Result` class instead.
