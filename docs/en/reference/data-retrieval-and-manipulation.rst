@@ -91,9 +91,11 @@ are then replaced by their actual values in a second step (execute).
     $stmt->bindValue(1, $id);
     $stmt->execute();
 
-Placeholders in prepared statements are either simple positional question marks (?) or named labels starting with
-a double-colon (:name1). You cannot mix the positional and the named approach. The approach
-using question marks is called positional, because the values are bound in order from left to right
+Placeholders in prepared statements are either simple positional question marks (``?``) or named labels starting with
+a colon (e.g. ``:name1``). You cannot mix the positional and the named approach. You have to bind a parameter
+to each placeholder.
+
+The approach using question marks is called positional, because the values are bound in order from left to right
 to any question mark found in the previously prepared SQL query. That is why you specify the
 position of the variable to bind into the ``bindValue()`` method:
 
