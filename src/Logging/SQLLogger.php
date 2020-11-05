@@ -13,7 +13,7 @@ interface SQLLogger
      * Logs a SQL statement somewhere.
      *
      * @param string                                                                    $sql    SQL statement
-     * @param array<int, mixed>|array<string, mixed>|null                               $params Statement parameters
+     * @param list<mixed>|array<string, mixed>|null                                     $params Statement parameters
      * @param array<int, Type|int|string|null>|array<string, Type|int|string|null>|null $types  Parameter types
      *
      * @return void
