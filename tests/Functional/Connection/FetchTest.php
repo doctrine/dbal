@@ -176,7 +176,7 @@ class FetchTest extends FunctionalTestCase
             ->getDummySelectSQL();
 
         $this->expectException(NoKeyValue::class);
-        iterator_to_array($this->connection->iterateKeyValue($sql));
+        $assign = iterator_to_array($this->connection->iterateKeyValue($sql));
     }
 
     public function testIterateAssociativeIndexed(): void
