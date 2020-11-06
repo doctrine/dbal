@@ -78,6 +78,12 @@ parameters:
                 - %currentWorkingDirectory%/lib/Doctrine/DBAL/Driver/Mysqli/MysqliConnection.php
 
         # Fixing the issue may cause a BC break.
+        -
+            message: '~^Method Doctrine\\DBAL\\Driver\\Mysqli\\MysqliConnection::lastInsertId\(\) should return string but returns int\|string\.$~'
+            paths:
+                - %currentWorkingDirectory%/lib/Doctrine/DBAL/Driver/Mysqli/MysqliConnection.php
+
+        # Fixing the issue may cause a BC break.
         # TODO: fix in 3.0.0
         -
             message: '~^Parameter \#2 \$sqlState of class Doctrine\\DBAL\\Driver\\Mysqli\\MysqliException constructor expects string\|null, int given\.$~'
