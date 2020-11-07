@@ -217,12 +217,9 @@ class DB2SchemaManager extends AbstractSchemaManager
         return new View($view['name'], $sql);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function listTableDetails($name): Table
+    public function listTableDetails(string $name, ?string $database = null): Table
     {
-        $table = parent::listTableDetails($name);
+        $table = parent::listTableDetails($name, $database);
 
         $platform = $this->_platform;
         assert($platform instanceof DB2Platform);

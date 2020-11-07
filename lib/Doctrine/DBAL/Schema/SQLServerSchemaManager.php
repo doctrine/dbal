@@ -246,9 +246,13 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    public function listTableIndexes($table)
+    public function listTableIndexes(string $table, ?string $database = null)
     {
-        $sql = $this->_platform->getListTableIndexesSQL($table, $this->_conn->getDatabase());
+        if (! $database) {
+            $database = $this->_conn->getDatabase();
+        }
+
+        $sql = $this->_platform->getListTableIndexesSQL($table, $database);
 
         try {
             $tableIndexes = $this->_conn->fetchAllAssociative($sql);
@@ -332,12 +336,9 @@ class SQLServerSchemaManager extends AbstractSchemaManager
         );
     }
 
-    /**
-     * @param string $name
-     */
-    public function listTableDetails($name): Table
+    public function listTableDetails(string $name, ?string $database = null): Table
     {
-        $table = parent::listTableDetails($name);
+        $table = parent::listTableDetails($name, $database);
 
         $platform = $this->_platform;
         assert($platform instanceof SQLServerPlatform);

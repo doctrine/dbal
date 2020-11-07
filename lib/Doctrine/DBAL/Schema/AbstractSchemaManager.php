@@ -174,13 +174,18 @@ abstract class AbstractSchemaManager
      *
      * Keys of the portable indexes list are all lower-cased.
      *
-     * @param string $table The name of the table.
+     * @param string      $table    The name of the table.
+     * @param string|null $database The name of the database
      *
      * @return Index[]
      */
-    public function listTableIndexes($table)
+    public function listTableIndexes(string $table, ?string $database = null)
     {
-        $sql = $this->_platform->getListTableIndexesSQL($table, $this->_conn->getDatabase());
+        if (! $database) {
+            $database = $this->_conn->getDatabase();
+        }
+
+        $sql = $this->_platform->getListTableIndexesSQL($table, $database);
 
         $tableIndexes = $this->_conn->fetchAllAssociative($sql);
 
@@ -264,19 +269,24 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * @param string $name
+     * @param string      $name     The name of the table
+     * @param string|null $database The name of the database
      *
      * @return Table
      */
-    public function listTableDetails($name)
+    public function listTableDetails(string $name, ?string $database = null)
     {
-        $columns     = $this->listTableColumns($name);
-        $foreignKeys = [];
-        if ($this->_platform->supportsForeignKeyConstraints()) {
-            $foreignKeys = $this->listTableForeignKeys($name);
+        if (! $database) {
+            $database = $this->_conn->getDatabase();
         }
 
-        $indexes = $this->listTableIndexes($name);
+        $columns     = $this->listTableColumns($name, $database);
+        $foreignKeys = [];
+        if ($this->_platform->supportsForeignKeyConstraints()) {
+            $foreignKeys = $this->listTableForeignKeys($name, $database);
+        }
+
+        $indexes = $this->listTableIndexes($name, $database);
 
         return new Table($name, $columns, $indexes, $foreignKeys);
     }

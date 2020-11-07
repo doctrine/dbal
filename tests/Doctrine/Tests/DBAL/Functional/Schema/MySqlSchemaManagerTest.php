@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
 use DateTime;
+use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
@@ -12,7 +13,11 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
+use Doctrine\Tests\TestUtil;
 use Doctrine\Tests\Types\MySqlPointType;
+
+use function array_diff;
+use function array_keys;
 
 class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
@@ -565,5 +570,137 @@ SQL;
         $table = $this->schemaManager->listTableDetails('sys.processlist');
 
         self::assertEquals([], $table->getOption('create_options'));
+    }
+
+    public function testListTableIndexes2Db(): void
+    {
+        $conn = TestUtil::getPrivilegedConnection();
+        $sm   = $conn->getSchemaManager();
+
+        $db1 = 'test_database_1';
+        $db2 = 'test_database_2';
+
+        $sm->dropAndCreateDatabase($db1);
+        $sm->dropAndCreateDatabase($db2);
+
+        $params           = $this->connection->getParams();
+        $params['dbname'] = $db1;
+
+        $conn1 = DriverManager::getConnection(
+            $params,
+            $this->connection->getConfiguration(),
+            $this->connection->getEventManager()
+        );
+        $sm1   = $conn1->getSchemaManager();
+
+        $table1 = new Table('test_list_table_indexes_2db_1');
+        $table1->addColumn('id', 'integer');
+        $table1->addColumn('name', 'string');
+        $table1->addColumn('param1', 'integer');
+        $table1->addColumn('created', 'datetime');
+        $table1->setPrimaryKey(['id']);
+        $table1->addUniqueIndex(['name']);
+        $table1->addIndex(['param1']);
+        $indexes1 = $table1->getIndexes();
+        $sm1->dropAndCreateTable($table1);
+
+        $params           = $this->connection->getParams();
+        $params['dbname'] = $db2;
+
+        $conn2 = DriverManager::getConnection(
+            $params,
+            $this->connection->getConfiguration(),
+            $this->connection->getEventManager()
+        );
+        $sm2   = $conn2->getSchemaManager();
+
+        $table2 = new Table('test_list_table_indexes_2db_2');
+        $table2->addColumn('id', 'integer');
+        $table2->addColumn('name', 'string');
+        $table2->addColumn('param2', 'integer');
+        $table2->addColumn('created', 'datetime');
+        $table2->setPrimaryKey(['id']);
+        $table2->addUniqueIndex(['name']);
+        $table2->addIndex(['param2']);
+        $indexes2 = $table2->getIndexes();
+        $sm2->dropAndCreateTable($table2);
+
+        $indexesFetched = $sm1->listTableIndexes($table1->getName());
+        $diff           = array_diff(array_keys($indexes1), array_keys($indexesFetched));
+        self::assertEmpty($diff, 'indexes: no changes expected: 11');
+
+        $indexesFetched = $sm1->listTableIndexes($table1->getName(), $db1);
+        $diff           = array_diff(array_keys($indexes1), array_keys($indexesFetched));
+        self::assertEmpty($diff, 'indexes: no changes expected: 12');
+
+        $indexesFetched = $sm1->listTableIndexes($table2->getName(), $db2);
+        $diff           = array_diff(array_keys($indexes2), array_keys($indexesFetched));
+        self::assertEmpty($diff, 'indexes: no changes expected: 13');
+    }
+
+    public function testListTableDetails2Db(): void
+    {
+        $conn = TestUtil::getPrivilegedConnection();
+        $sm   = $conn->getSchemaManager();
+
+        $db1 = 'test_database_1';
+        $db2 = 'test_database_2';
+
+        $sm->dropAndCreateDatabase($db1);
+        $sm->dropAndCreateDatabase($db2);
+
+        $params           = $this->connection->getParams();
+        $params['dbname'] = $db1;
+
+        $conn1 = DriverManager::getConnection(
+            $params,
+            $this->connection->getConfiguration(),
+            $this->connection->getEventManager()
+        );
+        $sm1   = $conn1->getSchemaManager();
+
+        $table1 = new Table('test_list_table_details_2db_1');
+        $table1->addColumn('id', 'integer');
+        $table1->addColumn('name', 'string');
+        $table1->addColumn('param1', 'integer');
+        $table1->addColumn('created', 'datetime');
+        $table1->setPrimaryKey(['id']);
+        $table1->addUniqueIndex(['name']);
+        $table1->addIndex(['param1']);
+        $sm1->dropAndCreateTable($table1);
+
+        $params           = $this->connection->getParams();
+        $params['dbname'] = $db2;
+
+        $conn2 = DriverManager::getConnection(
+            $params,
+            $this->connection->getConfiguration(),
+            $this->connection->getEventManager()
+        );
+        $sm2   = $conn2->getSchemaManager();
+
+        $table2 = new Table('test_list_table_details_2db_2');
+        $table2->addColumn('id', 'integer');
+        $table2->addColumn('name', 'string');
+        $table2->addColumn('param2', 'integer');
+        $table2->addColumn('created', 'datetime');
+        $table2->setPrimaryKey(['id']);
+        $table2->addUniqueIndex(['name']);
+        $table2->addIndex(['param2']);
+        $sm2->dropAndCreateTable($table2);
+
+        $comparator = new Comparator();
+
+        $tableFetched = $sm1->listTableDetails($table1->getName());
+        $diff         = $comparator->diffTable($tableFetched, $table1);
+        self::assertFalse($diff, 'tables: no changes expected: 11');
+
+        $tableFetched = $sm1->listTableDetails($table1->getName(), $db1);
+        $diff         = $comparator->diffTable($tableFetched, $table1);
+        self::assertFalse($diff, 'tables: no changes expected: 12');
+
+        $tableFetched = $sm1->listTableDetails($table2->getName(), $db2);
+        $diff         = $comparator->diffTable($tableFetched, $table2);
+        self::assertFalse($diff, 'tables: no changes expected: 13');
     }
 }

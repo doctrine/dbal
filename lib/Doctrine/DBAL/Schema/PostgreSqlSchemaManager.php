@@ -514,12 +514,9 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         return str_replace("''", "'", $default);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function listTableDetails($name): Table
+    public function listTableDetails(string $name, ?string $database = null): Table
     {
-        $table = parent::listTableDetails($name);
+        $table = parent::listTableDetails($name, $database);
 
         $platform = $this->_platform;
         assert($platform instanceof PostgreSqlPlatform);

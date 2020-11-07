@@ -320,9 +320,9 @@ class MySqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    public function listTableDetails($name)
+    public function listTableDetails(string $name, ?string $database = null)
     {
-        $table = parent::listTableDetails($name);
+        $table = parent::listTableDetails($name, $database);
 
         $platform = $this->_platform;
         assert($platform instanceof MySqlPlatform);

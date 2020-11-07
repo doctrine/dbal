@@ -543,12 +543,9 @@ SQL
         ) ?: null;
     }
 
-    /**
-     * @param string $name
-     */
-    public function listTableDetails($name): Table
+    public function listTableDetails(string $name, ?string $database = null): Table
     {
-        $table = parent::listTableDetails($name);
+        $table = parent::listTableDetails($name, $database);
 
         $tableCreateSql = $this->getCreateTableSQL($name) ?? '';
 
