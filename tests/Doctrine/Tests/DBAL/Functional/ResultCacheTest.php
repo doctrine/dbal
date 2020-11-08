@@ -4,6 +4,7 @@ namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
+use Doctrine\DBAL\Cache\ResultCacheStatement;
 use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Logging\DebugStack;
@@ -212,7 +213,10 @@ class ResultCacheTest extends DbalFunctionalTestCase
         self::assertCount(2, $this->sqlLogger->queries);
     }
 
-    public function testFetchAllSavesCache(): void
+    /**
+     * @dataProvider fetchAllProvider
+     */
+    public function testFetchingAllRowsSavesCache(callable $fetchAll): void
     {
         $layerCache = new ArrayCache();
 
@@ -222,9 +226,40 @@ class ResultCacheTest extends DbalFunctionalTestCase
             [],
             new QueryCacheProfile(0, 'testcachekey', $layerCache)
         );
-        $stmt->fetchAll();
+
+        $fetchAll($stmt);
 
         self::assertCount(1, $layerCache->fetch('testcachekey'));
+    }
+
+    /**
+     * @return iterable<string,list<mixed>>
+     */
+    public static function fetchAllProvider(): iterable
+    {
+        yield 'fetchAll' => [
+            static function (ResultCacheStatement $statement): void {
+                $statement->fetchAll();
+            },
+        ];
+
+        yield 'fetchAllAssociative' => [
+            static function (ResultCacheStatement $statement): void {
+                $statement->fetchAllAssociative();
+            },
+        ];
+
+        yield 'fetchAllNumeric' => [
+            static function (ResultCacheStatement $statement): void {
+                $statement->fetchAllNumeric();
+            },
+        ];
+
+        yield 'fetchFirstColumn' => [
+            static function (ResultCacheStatement $result): void {
+                $result->fetchFirstColumn();
+            },
+        ];
     }
 
     public function testFetchAllColumn(): void

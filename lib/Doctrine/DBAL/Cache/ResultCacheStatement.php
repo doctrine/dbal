@@ -242,7 +242,9 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Result
             $data = $this->statement->fetchAll(FetchMode::ASSOCIATIVE);
         }
 
-        $this->store($data);
+        $this->data = $data;
+
+        $this->saveToCache();
 
         return array_map('array_values', $data);
     }
@@ -258,7 +260,9 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Result
             $data = $this->statement->fetchAll(FetchMode::ASSOCIATIVE);
         }
 
-        $this->store($data);
+        $this->data = $data;
+
+        $this->saveToCache();
 
         return $data;
     }
@@ -320,14 +324,6 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement, Result
         $this->saveToCache();
 
         return false;
-    }
-
-    /**
-     * @param array<int,array<string,mixed>> $data
-     */
-    private function store(array $data): void
-    {
-        $this->data = $data;
     }
 
     private function saveToCache(): void
