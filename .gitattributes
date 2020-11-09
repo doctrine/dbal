@@ -1,4 +1,5 @@
 /.appveyor.yml export-ignore
+/ci export-ignore
 /composer.lock export-ignore
 /docs export-ignore
 /.doctrine-project.json export-ignore
