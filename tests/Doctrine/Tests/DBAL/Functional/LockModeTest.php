@@ -13,9 +13,6 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\Tests\DbalTestCase;
 use Doctrine\Tests\TestUtil;
 
-use function array_merge;
-use function usort;
-
 class LockModeTest extends DbalTestCase
 {
     /** @var Connection */
@@ -24,19 +21,10 @@ class LockModeTest extends DbalTestCase
     /** @var Connection */
     private $c2;
 
-    /** @var LockModeSQLLogger */
-    private $c1Logger;
-
-    /** @var LockModeSQLLogger */
-    private $c2Logger;
-
     public function setUp(): void
     {
         $this->c1 = TestUtil::getConnection();
         $this->c2 = TestUtil::getConnection();
-
-        $this->c1->getConfiguration()->setSQLLogger($this->c1Logger = new LockModeSQLLogger(1));
-        $this->c2->getConfiguration()->setSQLLogger($this->c2Logger = new LockModeSQLLogger(2));
 
         $table = new Table('users');
         $table->addColumn('id', 'integer');
@@ -60,21 +48,6 @@ class LockModeTest extends DbalTestCase
 
         $this->c1->close();
         $this->c2->close();
-
-        $queries = array_merge(
-            $this->c1Logger->getQueries(),
-            $this->c2Logger->getQueries()
-        );
-
-        usort($queries, static function (array $a, array $b) {
-            return (int) (1000000 * ($a['time'] - $b['time']));
-        });
-
-        echo "\n";
-
-        foreach ($queries as $query) {
-            echo 'C' . $query['cid'] . ': ' . $query['sql'] . "\n";
-        }
     }
 
     public function testLockModeNoneDoesNotBreakTransactionIsolation(): void
