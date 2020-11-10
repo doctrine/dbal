@@ -27,6 +27,11 @@ class LockModeTest extends DbalTestCase
         $this->c1 = TestUtil::getConnection();
         $this->c2 = TestUtil::getConnection();
 
+        if ($this->c1->getDriver() instanceof OCI8\Driver) {
+            // https://github.com/doctrine/dbal/issues/4417
+            self::markTestSkipped('This test fails on OCI8 for a currently unknown reason');
+        }
+
         $table = new Table('users');
         $table->addColumn('id', 'integer');
 
@@ -38,11 +43,6 @@ class LockModeTest extends DbalTestCase
 
         if ($this->c2->getDatabasePlatform() instanceof SqlitePlatform) {
             self::markTestSkipped('This test cannot run on SQLite using an in-memory database');
-        }
-
-        if ($this->c2->getDriver() instanceof OCI8\Driver) {
-            // https://github.com/doctrine/dbal/issues/4417
-            self::markTestSkipped('This test fails on OCI8 for a currently unknown reason');
         }
 
         self::fail('Separate connections do not seem to talk to the same database');
