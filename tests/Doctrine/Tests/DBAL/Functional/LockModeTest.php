@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\OCI8;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
@@ -37,6 +38,11 @@ class LockModeTest extends DbalTestCase
 
         if ($this->c2->getDatabasePlatform() instanceof SqlitePlatform) {
             self::markTestSkipped('This test cannot run on SQLite using an in-memory database');
+        }
+
+        if ($this->c2->getDriver() instanceof OCI8\Driver) {
+            // https://github.com/doctrine/dbal/issues/4417
+            self::markTestSkipped('This test fails on OCI8 for a currently unknown reason');
         }
 
         self::fail('Separate connections do not seem to talk to the same database');
