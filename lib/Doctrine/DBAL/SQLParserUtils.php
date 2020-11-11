@@ -26,6 +26,8 @@ use const PREG_OFFSET_CAPTURE;
 
 /**
  * Utility class that parses sql statements with regard to types and parameters.
+ *
+ * @internal
  */
 class SQLParserUtils
 {
