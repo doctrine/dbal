@@ -1,6 +1,6 @@
 # Upgrade to 3.0
 
-## BC BREAK: leading in named parameter names not supported
+## BC BREAK: leading colon in named parameter names not supported
 
 The usage of the colon prefix when binding named parameters is no longer supported.
 
