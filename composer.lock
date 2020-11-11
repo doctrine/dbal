@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "460f5786b56442efb5575eab9b3a33b5",
+    "content-hash": "0c650dfc8d28786909cae881d59272fd",
     "packages": [
         {
             "name": "composer/package-versions-deprecated",
@@ -1469,16 +1469,16 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "0.12.44",
+            "version": "0.12.54",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "330b45776ea77f167b150e24787412414a8fa469"
+                "reference": "45c7b999a4b7dd9ac5558bdaaf23dcebbef88223"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/330b45776ea77f167b150e24787412414a8fa469",
-                "reference": "330b45776ea77f167b150e24787412414a8fa469",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/45c7b999a4b7dd9ac5558bdaaf23dcebbef88223",
+                "reference": "45c7b999a4b7dd9ac5558bdaaf23dcebbef88223",
                 "shasum": ""
             },
             "require": {
@@ -1509,7 +1509,7 @@
             "description": "PHPStan - PHP Static Analysis Tool",
             "support": {
                 "issues": "https://github.com/phpstan/phpstan/issues",
-                "source": "https://github.com/phpstan/phpstan/tree/0.12.44"
+                "source": "https://github.com/phpstan/phpstan/tree/0.12.54"
             },
             "funding": [
                 {
@@ -1525,37 +1525,37 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2020-09-24T15:28:47+00:00"
+            "time": "2020-11-05T13:36:26+00:00"
         },
         {
             "name": "phpstan/phpstan-phpunit",
-            "version": "0.12.8",
+            "version": "0.12.16",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan-phpunit.git",
-                "reference": "7232c17e2493dc598173da784477ce0afb2c4e0e"
+                "reference": "1dd916d181b0539dea5cd37e91546afb8b107e17"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan-phpunit/zipball/7232c17e2493dc598173da784477ce0afb2c4e0e",
-                "reference": "7232c17e2493dc598173da784477ce0afb2c4e0e",
+                "url": "https://api.github.com/repos/phpstan/phpstan-phpunit/zipball/1dd916d181b0539dea5cd37e91546afb8b107e17",
+                "reference": "1dd916d181b0539dea5cd37e91546afb8b107e17",
                 "shasum": ""
             },
             "require": {
-                "php": "~7.1",
-                "phpstan/phpstan": "^0.12.6"
+                "php": "^7.1 || ^8.0",
+                "phpstan/phpstan": "^0.12.33"
             },
             "conflict": {
                 "phpunit/phpunit": "<7.0"
             },
             "require-dev": {
                 "consistence/coding-standard": "^3.5",
-                "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4",
+                "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
                 "ergebnis/composer-normalize": "^2.0.2",
                 "jakub-onderka/php-parallel-lint": "^1.0",
                 "phing/phing": "^2.16.0",
                 "phpstan/phpstan-strict-rules": "^0.12",
-                "phpunit/phpunit": "^7.0",
+                "phpunit/phpunit": "^7.0 || ^8.0 || ^9.0",
                 "satooshi/php-coveralls": "^1.0",
                 "slevomat/coding-standard": "^4.7.2"
             },
@@ -1581,29 +1581,33 @@
                 "MIT"
             ],
             "description": "PHPUnit extensions and rules for PHPStan",
-            "time": "2020-04-17T08:04:10+00:00"
+            "support": {
+                "issues": "https://github.com/phpstan/phpstan-phpunit/issues",
+                "source": "https://github.com/phpstan/phpstan-phpunit/tree/0.12.16"
+            },
+            "time": "2020-08-05T13:28:50+00:00"
         },
         {
             "name": "phpstan/phpstan-strict-rules",
-            "version": "0.12.2",
+            "version": "0.12.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan-strict-rules.git",
-                "reference": "a670a59aff7cf96f75d21b974860ada10e25b2ee"
+                "reference": "334898a32217e4605e0f9cfa3d3fc3101bda26be"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan-strict-rules/zipball/a670a59aff7cf96f75d21b974860ada10e25b2ee",
-                "reference": "a670a59aff7cf96f75d21b974860ada10e25b2ee",
+                "url": "https://api.github.com/repos/phpstan/phpstan-strict-rules/zipball/334898a32217e4605e0f9cfa3d3fc3101bda26be",
+                "reference": "334898a32217e4605e0f9cfa3d3fc3101bda26be",
                 "shasum": ""
             },
             "require": {
-                "php": "~7.1",
-                "phpstan/phpstan": "^0.12.6"
+                "php": "^7.1 || ^8.0",
+                "phpstan/phpstan": "^0.12.33"
             },
             "require-dev": {
                 "consistence/coding-standard": "^3.0.1",
-                "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4",
+                "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
                 "ergebnis/composer-normalize": "^2.0.2",
                 "jakub-onderka/php-parallel-lint": "^1.0",
                 "phing/phing": "^2.16.0",
@@ -1632,7 +1636,11 @@
                 "MIT"
             ],
             "description": "Extra strict and opinionated rules for PHPStan",
-            "time": "2020-01-20T13:08:52+00:00"
+            "support": {
+                "issues": "https://github.com/phpstan/phpstan-strict-rules/issues",
+                "source": "https://github.com/phpstan/phpstan-strict-rules/tree/master"
+            },
+            "time": "2020-08-30T15:42:06+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -2057,30 +2065,31 @@
         },
         {
             "name": "psalm/plugin-phpunit",
-            "version": "0.10.1",
+            "version": "0.13.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/psalm/psalm-plugin-phpunit.git",
-                "reference": "138998ffd32b76a2e69eb1ff94ef2bf110967273"
+                "reference": "e006914489f3e445f5cb786ea6f3df89ea30129b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/psalm/psalm-plugin-phpunit/zipball/138998ffd32b76a2e69eb1ff94ef2bf110967273",
-                "reference": "138998ffd32b76a2e69eb1ff94ef2bf110967273",
+                "url": "https://api.github.com/repos/psalm/psalm-plugin-phpunit/zipball/e006914489f3e445f5cb786ea6f3df89ea30129b",
+                "reference": "e006914489f3e445f5cb786ea6f3df89ea30129b",
                 "shasum": ""
             },
             "require": {
-                "composer/semver": "^1.4",
+                "composer/package-versions-deprecated": "^1.10",
+                "composer/semver": "^1.4 || ^2.0 || ^3.0",
                 "ext-simplexml": "*",
-                "ocramius/package-versions": "^1.3",
-                "php": "^7.1.3",
+                "php": "^7.3 || ^8.0",
                 "phpunit/phpunit": "^7.5 || ^8.0 || ^9.0",
-                "vimeo/psalm": "^3.6.2 || dev-master"
+                "vimeo/psalm": "dev-master || dev-4.x || ^4.0"
             },
             "require-dev": {
                 "codeception/codeception": "^4.0.3",
                 "squizlabs/php_codesniffer": "^3.3.1",
-                "weirdan/codeception-psalm-module": "^0.7.1"
+                "weirdan/codeception-psalm-module": "^0.7.1",
+                "weirdan/prophecy-shim": "^1.0 || ^2.0"
             },
             "type": "psalm-plugin",
             "extra": {
@@ -2104,7 +2113,11 @@
                 }
             ],
             "description": "Psalm plugin for PHPUnit",
-            "time": "2020-05-24T20:30:10+00:00"
+            "support": {
+                "issues": "https://github.com/psalm/psalm-plugin-phpunit/issues",
+                "source": "https://github.com/psalm/psalm-plugin-phpunit/tree/0.13.0"
+            },
+            "time": "2020-10-19T12:43:17+00:00"
         },
         {
             "name": "psr/log",
@@ -3552,16 +3565,16 @@
         },
         {
             "name": "vimeo/psalm",
-            "version": "3.17.2",
+            "version": "4.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/vimeo/psalm.git",
-                "reference": "9e526d9cb569fe4631e6a737bbb7948d05596e3f"
+                "reference": "16bfbd9224698bd738c665f33039fade2a1a3977"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/vimeo/psalm/zipball/9e526d9cb569fe4631e6a737bbb7948d05596e3f",
-                "reference": "9e526d9cb569fe4631e6a737bbb7948d05596e3f",
+                "url": "https://api.github.com/repos/vimeo/psalm/zipball/16bfbd9224698bd738c665f33039fade2a1a3977",
+                "reference": "16bfbd9224698bd738c665f33039fade2a1a3977",
                 "shasum": ""
             },
             "require": {
@@ -3580,12 +3593,11 @@
                 "felixfbecker/advanced-json-rpc": "^3.0.3",
                 "felixfbecker/language-server-protocol": "^1.4",
                 "netresearch/jsonmapper": "^1.0 || ^2.0 || ^3.0",
-                "nikic/php-parser": "4.3.* || 4.4.* || 4.5.* || 4.6.* || ^4.8",
+                "nikic/php-parser": "^4.10.1",
                 "openlss/lib-array2xml": "^1.0",
-                "php": "^7.1.3|^8",
+                "php": "^7.1|^8",
                 "sebastian/diff": "^3.0 || ^4.0",
                 "symfony/console": "^3.4.17 || ^4.1.6 || ^5.0",
-                "webmozart/glob": "^4.1",
                 "webmozart/path-util": "^2.3"
             },
             "provide": {
@@ -3596,11 +3608,12 @@
                 "bamarni/composer-bin-plugin": "^1.2",
                 "brianium/paratest": "^4.0.0",
                 "ext-curl": "*",
-                "phpdocumentor/reflection-docblock": "^4.3.4 || ^5",
+                "php": "^7.3|^8",
+                "phpdocumentor/reflection-docblock": "^5",
                 "phpmyadmin/sql-parser": "5.1.0",
                 "phpspec/prophecy": ">=1.9.0",
-                "phpunit/phpunit": "^7.5.16 || ^8.5 || ^9.0",
-                "psalm/plugin-phpunit": "^0.11",
+                "phpunit/phpunit": "^9.0",
+                "psalm/plugin-phpunit": "^0.13",
                 "slevomat/coding-standard": "^5.0",
                 "squizlabs/php_codesniffer": "^3.5",
                 "symfony/process": "^4.3",
@@ -3619,7 +3632,8 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "3.x-dev",
+                    "dev-master": "4.x-dev",
+                    "dev-3.x": "3.x-dev",
                     "dev-2.x": "2.x-dev",
                     "dev-1.x": "1.x-dev"
                 }
@@ -3648,7 +3662,11 @@
                 "inspection",
                 "php"
             ],
-            "time": "2020-10-15T00:23:17+00:00"
+            "support": {
+                "issues": "https://github.com/vimeo/psalm/issues",
+                "source": "https://github.com/vimeo/psalm/tree/4.1.1"
+            },
+            "time": "2020-11-02T05:54:12+00:00"
         },
         {
             "name": "webmozart/assert",
@@ -3698,53 +3716,6 @@
                 "validate"
             ],
             "time": "2020-07-08T17:02:28+00:00"
-        },
-        {
-            "name": "webmozart/glob",
-            "version": "4.1.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/webmozart/glob.git",
-                "reference": "3cbf63d4973cf9d780b93d2da8eec7e4a9e63bbe"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/webmozart/glob/zipball/3cbf63d4973cf9d780b93d2da8eec7e4a9e63bbe",
-                "reference": "3cbf63d4973cf9d780b93d2da8eec7e4a9e63bbe",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^5.3.3|^7.0",
-                "webmozart/path-util": "^2.2"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^4.6",
-                "sebastian/version": "^1.0.1",
-                "symfony/filesystem": "^2.5"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "4.1-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Webmozart\\Glob\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Bernhard Schussek",
-                    "email": "bschussek@gmail.com"
-                }
-            ],
-            "description": "A PHP implementation of Ant's glob.",
-            "time": "2015-12-29T11:14:33+00:00"
         },
         {
             "name": "webmozart/path-util",
@@ -3805,5 +3776,5 @@
     "platform-overrides": {
         "php": "7.3.0"
     },
-    "plugin-api-version": "1.1.0"
+    "plugin-api-version": "2.0.0"
 }

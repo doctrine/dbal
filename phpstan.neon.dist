@@ -84,6 +84,10 @@ parameters:
             message: '~^Parameter #1 \$expected of static method PHPUnit\\Framework\\Assert::assertInstanceOf\(\) expects class-string<Doctrine\\DBAL\\Connection&PHPUnit\\Framework\\MockObject\\MockObject>, class-string<Doctrine\\DBAL\\Connection>&class-string<PHPUnit\\Framework\\MockObject\\MockObject> given\.$~'
             path: %currentWorkingDirectory%/tests/DriverManagerTest.php
 
+        -
+            message: '~^Call to function iterator_to_array\(\) on a separate line has no effect\.$~'
+            path: %currentWorkingDirectory%/tests/Functional/Connection/FetchTest.php
+
         # Caused by phpdoc annotations intended for Psalm
         -
             message: '~Unable to resolve the template type T in call to method static method Doctrine\\DBAL\\DriverManager::getConnection\(\)~'
