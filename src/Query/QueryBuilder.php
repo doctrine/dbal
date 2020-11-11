@@ -1330,8 +1330,8 @@ class QueryBuilder
      */
     public function createPositionalParameter($value, $type = ParameterType::STRING)
     {
-        $this->boundCounter++;
         $this->setParameter($this->boundCounter, $value, $type);
+        $this->boundCounter++;
 
         return '?';
     }
