@@ -93,7 +93,7 @@ class CachingResult implements DriverResult
      */
     public function fetchAllNumeric(): array
     {
-        return array_map('array_values', $this->result->fetchAllAssociative());
+        return array_map('array_values', $this->fetchAllAssociative());
     }
 
     /**

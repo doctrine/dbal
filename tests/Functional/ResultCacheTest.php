@@ -208,7 +208,10 @@ class ResultCacheTest extends FunctionalTestCase
         self::assertCount(2, $this->sqlLogger->queries);
     }
 
-    public function testFetchAllSavesCache(): void
+    /**
+     * @dataProvider fetchAllProvider
+     */
+    public function testFetchingAllRowsSavesCache(callable $fetchAll): void
     {
         $layerCache = new ArrayCache();
 
@@ -218,9 +221,34 @@ class ResultCacheTest extends FunctionalTestCase
             [],
             new QueryCacheProfile(0, 'testcachekey', $layerCache)
         );
-        $result->fetchAllAssociative();
+
+        $fetchAll($result);
 
         self::assertCount(1, $layerCache->fetch('testcachekey'));
+    }
+
+    /**
+     * @return iterable<string,list<mixed>>
+     */
+    public static function fetchAllProvider(): iterable
+    {
+        yield 'fetchAllAssociative' => [
+            static function (Result $result): void {
+                $result->fetchAllAssociative();
+            },
+        ];
+
+        yield 'fetchAllNumeric' => [
+            static function (Result $result): void {
+                $result->fetchAllNumeric();
+            },
+        ];
+
+        yield 'fetchFirstColumn' => [
+            static function (Result $result): void {
+                $result->fetchFirstColumn();
+            },
+        ];
     }
 
     public function testFetchColumn(): void
