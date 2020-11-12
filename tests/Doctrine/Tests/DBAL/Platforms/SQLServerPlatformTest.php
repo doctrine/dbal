@@ -39,7 +39,7 @@ class SQLServerPlatformTest extends AbstractSQLServerPlatformTestCase
     {
         return [
             [null, ''],
-            [LockMode::NONE, ' WITH (NOLOCK)'],
+            [LockMode::NONE, ''],
             [LockMode::OPTIMISTIC, ''],
             [LockMode::PESSIMISTIC_READ, ' WITH (HOLDLOCK, ROWLOCK)'],
             [LockMode::PESSIMISTIC_WRITE, ' WITH (UPDLOCK, ROWLOCK)'],

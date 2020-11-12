@@ -374,14 +374,14 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         }
 
         $sql = 'SELECT m0_.NOMBRE AS NOMBRE0, m0_.FECHAINICIO AS FECHAINICIO1, m0_.FECHAFIN AS FECHAFIN2'
-            . ' FROM MEDICION m0_ WITH (NOLOCK)'
+            . ' FROM MEDICION m0_'
             . ' INNER JOIN ESTUDIO e1_ ON m0_.ESTUDIO_ID = e1_.ID'
             . ' INNER JOIN CLIENTE c2_ ON e1_.CLIENTE_ID = c2_.ID'
             . ' INNER JOIN USUARIO u3_ ON c2_.ID = u3_.CLIENTE_ID'
             . ' WHERE u3_.ID = ? ORDER BY m0_.FECHAINICIO DESC';
 
         $alteredSql = 'SELECT TOP 15 m0_.NOMBRE AS NOMBRE0, m0_.FECHAINICIO AS FECHAINICIO1, m0_.FECHAFIN AS FECHAFIN2'
-            . ' FROM MEDICION m0_ WITH (NOLOCK)'
+            . ' FROM MEDICION m0_'
             . ' INNER JOIN ESTUDIO e1_ ON m0_.ESTUDIO_ID = e1_.ID'
             . ' INNER JOIN CLIENTE c2_ ON e1_.CLIENTE_ID = c2_.ID'
             . ' INNER JOIN USUARIO u3_ ON c2_.ID = u3_.CLIENTE_ID'

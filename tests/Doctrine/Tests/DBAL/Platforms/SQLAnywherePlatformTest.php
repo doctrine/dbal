@@ -266,7 +266,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
             [null, ''],
             [false, ''],
             [true, ''],
-            [LockMode::NONE, ' WITH (NOLOCK)'],
+            [LockMode::NONE, ''],
             [LockMode::OPTIMISTIC, ''],
             [LockMode::PESSIMISTIC_READ, ' WITH (UPDLOCK)'],
             [LockMode::PESSIMISTIC_WRITE, ' WITH (XLOCK)'],
