@@ -13,6 +13,8 @@ use Doctrine\DBAL\Event\SchemaCreateTableEventArgs;
 use Doctrine\DBAL\Event\SchemaDropTableEventArgs;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Exception\InvalidLockMode;
+use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
@@ -1304,15 +1306,21 @@ abstract class AbstractPlatform
      * Honors that some SQL vendors such as MsSql use table hints for locking instead of the
      * ANSI SQL FOR UPDATE specification.
      *
-     * @param string   $fromClause The FROM clause to append the hint for the given lock mode to.
-     * @param int|null $lockMode   One of the Doctrine\DBAL\LockMode::* constants. If null is given, nothing will
-     *                             be appended to the FROM clause.
-     *
-     * @return string
+     * @param string $fromClause The FROM clause to append the hint for the given lock mode to
+     * @param int    $lockMode   One of the Doctrine\DBAL\LockMode::* constants
      */
-    public function appendLockHint($fromClause, $lockMode)
+    public function appendLockHint(string $fromClause, int $lockMode): string
     {
-        return $fromClause;
+        switch ($lockMode) {
+            case LockMode::NONE:
+            case LockMode::OPTIMISTIC:
+            case LockMode::PESSIMISTIC_READ:
+            case LockMode::PESSIMISTIC_WRITE:
+                return $fromClause;
+
+            default:
+                throw InvalidLockMode::fromLockMode($lockMode);
+        }
     }
 
     /**
