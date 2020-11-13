@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Platforms;
 
+use Doctrine\DBAL\Exception\InvalidLockMode;
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
@@ -1535,23 +1536,23 @@ SQL
         return parent::getForeignKeyReferentialActionSQL($action);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function appendLockHint($fromClause, $lockMode)
+    public function appendLockHint(string $fromClause, int $lockMode): string
     {
-        switch (true) {
-            case $lockMode === LockMode::NONE:
+        switch ($lockMode) {
+            case LockMode::NONE:
                 return $fromClause . ' WITH (NOLOCK)';
 
-            case $lockMode === LockMode::PESSIMISTIC_READ:
+            case LockMode::OPTIMISTIC:
+                return $fromClause;
+
+            case LockMode::PESSIMISTIC_READ:
                 return $fromClause . ' WITH (HOLDLOCK, ROWLOCK)';
 
-            case $lockMode === LockMode::PESSIMISTIC_WRITE:
+            case LockMode::PESSIMISTIC_WRITE:
                 return $fromClause . ' WITH (UPDLOCK, ROWLOCK)';
 
             default:
-                return $fromClause;
+                throw InvalidLockMode::fromLockMode($lockMode);
         }
     }
 

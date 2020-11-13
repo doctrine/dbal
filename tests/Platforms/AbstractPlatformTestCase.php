@@ -5,6 +5,7 @@ namespace Doctrine\DBAL\Tests\Platforms;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Exception\InvalidLockMode;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Schema\Column;
@@ -1476,6 +1477,12 @@ abstract class AbstractPlatformTestCase extends TestCase
             ['VARCHAR(12)', ['length' => 12]],
             ['CHAR(12)', ['length' => 12, 'fixed' => true]],
         ];
+    }
+
+    public function testInvalidLockMode(): void
+    {
+        $this->expectException(InvalidLockMode::class);
+        $this->platform->appendLockHint('TABLE', 128);
     }
 }
 
