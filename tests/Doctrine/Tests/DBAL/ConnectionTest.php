@@ -36,7 +36,7 @@ class ConnectionTest extends DbalTestCase
     /** @var Connection */
     private $connection;
 
-    /** @var string[] */
+    /** @var array{wrapperClass?: class-string<Connection>} */
     protected $params = [
         'driver' => 'pdo_mysql',
         'host' => 'localhost',
