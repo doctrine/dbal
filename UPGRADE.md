@@ -400,6 +400,12 @@ public function convert(Doctrine\DBAL\Driver\Exception $exception, ?Doctrine\DBA
 
 The constructor of `Doctrine\DBAL\Exception\DriverException` is now `@internal`.
 
+## BC Break: `Configuration`
+
+- all `Configuration` methods are now typed
+- `Configuration::setSchemaAssetsFilter()` now returns `void`
+- `Configuration::$_attributes` has been removed; use individual properties in subclasses instead
+
 # Upgrade to 2.12
 
 ## Deprecated non-zero based positional parameter keys
