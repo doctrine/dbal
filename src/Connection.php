@@ -13,11 +13,11 @@ use Doctrine\DBAL\Cache\Exception\NoResultDriverConfigured;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Driver\API\ExceptionConverter;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
-use Doctrine\DBAL\Driver\Exception as DriverException;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Exception\CommitFailedRollbackOnly;
 use Doctrine\DBAL\Exception\ConnectionLost;
+use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Exception\EmptyCriteriaNotAllowed;
 use Doctrine\DBAL\Exception\InvalidPlatformType;
 use Doctrine\DBAL\Exception\MayNotAlterNestedTransactionWithSavepointsInTransaction;
@@ -27,23 +27,18 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
+use Doctrine\DBAL\SQL\Parser;
 use Doctrine\DBAL\Types\Type;
 use Throwable;
 use Traversable;
 
 use function array_key_exists;
-use function array_map;
 use function assert;
-use function bin2hex;
 use function count;
 use function implode;
 use function is_int;
-use function is_resource;
 use function is_string;
-use function json_encode;
 use function key;
-use function preg_replace;
-use function sprintf;
 
 /**
  * A database abstraction-level connection that implements features like events, transaction isolation levels,
@@ -127,6 +122,9 @@ class Connection
 
     /** @var ExceptionConverter|null */
     private $exceptionConverter;
+
+    /** @var Parser|null */
+    private $parser;
 
     /**
      * The schema manager.
@@ -286,7 +284,7 @@ class Connection
 
         try {
             $this->_conn = $this->_driver->connect($this->params);
-        } catch (DriverException $e) {
+        } catch (Driver\Exception $e) {
             throw $this->convertException($e);
         }
 
@@ -400,7 +398,7 @@ class Connection
         if ($connection instanceof ServerInfoAwareConnection) {
             try {
                 return $connection->getServerVersion();
-            } catch (DriverException $e) {
+            } catch (Driver\Exception $e) {
                 throw $this->convertException($e);
             }
         }
@@ -468,7 +466,7 @@ class Connection
     {
         try {
             return $this->executeQuery($query, $params, $types)->fetchAssociative();
-        } catch (DriverException $e) {
+        } catch (Driver\Exception $e) {
             throw $this->convertExceptionDuringQuery($e, $query, $params, $types);
         }
     }
@@ -488,7 +486,7 @@ class Connection
     {
         try {
             return $this->executeQuery($query, $params, $types)->fetchNumeric();
-        } catch (DriverException $e) {
+        } catch (Driver\Exception $e) {
             throw $this->convertExceptionDuringQuery($e, $query, $params, $types);
         }
     }
@@ -508,7 +506,7 @@ class Connection
     {
         try {
             return $this->executeQuery($query, $params, $types)->fetchOne();
-        } catch (DriverException $e) {
+        } catch (Driver\Exception $e) {
             throw $this->convertExceptionDuringQuery($e, $query, $params, $types);
         }
     }
@@ -756,7 +754,7 @@ class Connection
     {
         try {
             return $this->executeQuery($query, $params, $types)->fetchAllNumeric();
-        } catch (DriverException $e) {
+        } catch (Driver\Exception $e) {
             throw $this->convertExceptionDuringQuery($e, $query, $params, $types);
         }
     }
@@ -775,7 +773,7 @@ class Connection
     {
         try {
             return $this->executeQuery($query, $params, $types)->fetchAllAssociative();
-        } catch (DriverException $e) {
+        } catch (Driver\Exception $e) {
             throw $this->convertExceptionDuringQuery($e, $query, $params, $types);
         }
     }
@@ -828,7 +826,7 @@ class Connection
     {
         try {
             return $this->executeQuery($query, $params, $types)->fetchFirstColumn();
-        } catch (DriverException $e) {
+        } catch (Driver\Exception $e) {
             throw $this->convertExceptionDuringQuery($e, $query, $params, $types);
         }
     }
@@ -851,7 +849,7 @@ class Connection
             while (($row = $result->fetchNumeric()) !== false) {
                 yield $row;
             }
-        } catch (DriverException $e) {
+        } catch (Driver\Exception $e) {
             throw $this->convertExceptionDuringQuery($e, $query, $params, $types);
         }
     }
@@ -875,7 +873,7 @@ class Connection
             while (($row = $result->fetchAssociative()) !== false) {
                 yield $row;
             }
-        } catch (DriverException $e) {
+        } catch (Driver\Exception $e) {
             throw $this->convertExceptionDuringQuery($e, $query, $params, $types);
         }
     }
@@ -932,7 +930,7 @@ class Connection
             while (($value = $result->fetchOne()) !== false) {
                 yield $value;
             }
-        } catch (DriverException $e) {
+        } catch (Driver\Exception $e) {
             throw $this->convertExceptionDuringQuery($e, $query, $params, $types);
         }
     }
@@ -977,7 +975,9 @@ class Connection
 
         try {
             if (count($params) > 0) {
-                [$sql, $params, $types] = SQLParserUtils::expandListParameters($sql, $params, $types);
+                if ($this->needsArrayParameterConversion($params, $types)) {
+                    [$sql, $params, $types] = $this->expandArrayParameters($sql, $params, $types);
+                }
 
                 $stmt = $connection->prepare($sql);
                 if (count($types) > 0) {
@@ -991,7 +991,7 @@ class Connection
             }
 
             return new Result($result, $this);
-        } catch (DriverException $e) {
+        } catch (Driver\Exception $e) {
             throw $this->convertExceptionDuringQuery($e, $sql, $params, $types);
         } finally {
             $logger->stopQuery();
@@ -1071,7 +1071,9 @@ class Connection
 
         try {
             if (count($params) > 0) {
-                [$sql, $params, $types] = SQLParserUtils::expandListParameters($sql, $params, $types);
+                if ($this->needsArrayParameterConversion($params, $types)) {
+                    [$sql, $params, $types] = $this->expandArrayParameters($sql, $params, $types);
+                }
 
                 $stmt = $connection->prepare($sql);
 
@@ -1087,7 +1089,7 @@ class Connection
             }
 
             return $connection->exec($sql);
-        } catch (DriverException $e) {
+        } catch (Driver\Exception $e) {
             throw $this->convertExceptionDuringQuery($e, $sql, $params, $types);
         } finally {
             $logger->stopQuery();
@@ -1122,7 +1124,7 @@ class Connection
     {
         try {
             return $this->getWrappedConnection()->lastInsertId($name);
-        } catch (DriverException $e) {
+        } catch (Driver\Exception $e) {
             throw $this->convertException($e);
         }
     }
@@ -1478,13 +1480,11 @@ class Connection
     {
         // Check whether parameters are positional or named. Mixing is not allowed.
         if (is_int(key($params))) {
-            // Positional parameters
-            $typeOffset = array_key_exists(0, $types) ? -1 : 0;
-            $bindIndex  = 1;
-            foreach ($params as $value) {
-                $typeIndex = $bindIndex + $typeOffset;
-                if (isset($types[$typeIndex])) {
-                    $type                  = $types[$typeIndex];
+            $bindIndex = 1;
+
+            foreach ($params as $key => $value) {
+                if (isset($types[$key])) {
+                    $type                  = $types[$key];
                     [$value, $bindingType] = $this->getBindingInfo($value, $type);
                     $stmt->bindValue($bindIndex, $value, $bindingType);
                 } else {
@@ -1534,51 +1534,6 @@ class Connection
     }
 
     /**
-     * Resolves the parameters to a format which can be displayed.
-     *
-     * @param array<int, mixed>|array<string, mixed>                               $params Query parameters
-     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
-     *
-     * @return array<int, int|string|Type|null>|array<string, int|string|Type|null>
-     */
-    private function resolveParams(array $params, array $types): array
-    {
-        $resolvedParams = [];
-
-        // Check whether parameters are positional or named. Mixing is not allowed.
-        if (is_int(key($params))) {
-            // Positional parameters
-            $typeOffset = array_key_exists(0, $types) ? -1 : 0;
-            $bindIndex  = 1;
-            foreach ($params as $value) {
-                $typeIndex = $bindIndex + $typeOffset;
-                if (isset($types[$typeIndex])) {
-                    $type                       = $types[$typeIndex];
-                    [$value]                    = $this->getBindingInfo($value, $type);
-                    $resolvedParams[$bindIndex] = $value;
-                } else {
-                    $resolvedParams[$bindIndex] = $value;
-                }
-
-                ++$bindIndex;
-            }
-        } else {
-            // Named parameters
-            foreach ($params as $name => $value) {
-                if (isset($types[$name])) {
-                    $type                  = $types[$name];
-                    [$value]               = $this->getBindingInfo($value, $type);
-                    $resolvedParams[$name] = $value;
-                } else {
-                    $resolvedParams[$name] = $value;
-                }
-            }
-        }
-
-        return $resolvedParams;
-    }
-
-    /**
      * Creates a new instance of a SQL query builder.
      */
     public function createQueryBuilder(): QueryBuilder
@@ -1593,71 +1548,73 @@ class Connection
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types
      */
     final public function convertExceptionDuringQuery(
-        DriverException $e,
+        Driver\Exception $e,
         string $sql,
         array $params = [],
         array $types = []
-    ): Exception {
-        $messageFormat = <<<'MESSAGE'
-An exception occurred while executing "%s"%s:
-
-%s
-MESSAGE;
-
-        $message = sprintf(
-            $messageFormat,
-            $sql,
-            $params !== []
-                ? sprintf(' with params %s', $this->formatParameters($this->resolveParams($params, $types)))
-                : '',
-            $e->getMessage()
-        );
-
-        return $this->handleDriverException($e, $message);
+    ): DriverException {
+        return $this->handleDriverException($e, new Query($sql, $params, $types));
     }
 
     /**
      * @internal
      */
-    final public function convertException(DriverException $e): Exception
+    final public function convertException(Driver\Exception $e): DriverException
     {
-        return $this->handleDriverException(
-            $e,
-            'An exception occurred in driver: ' . $e->getMessage()
-        );
+        return $this->handleDriverException($e, null);
     }
 
     /**
-     * Returns a human-readable representation of an array of parameters.
-     * This properly handles binary data by returning a hex representation.
+     * @param array<int, mixed>|array<string, mixed>                               $params
+     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types
      *
-     * @param mixed[] $params
+     * @return array{string, list<mixed>, array<int,Type|int|string|null>}
      */
-    private function formatParameters(array $params): string
+    private function expandArrayParameters(string $sql, array $params, array $types): array
     {
-        return '[' . implode(', ', array_map(static function ($param): string {
-            if (is_resource($param)) {
-                return (string) $param;
-            }
+        if ($this->parser === null) {
+            $this->parser = $this->getDatabasePlatform()->createSQLParser();
+        }
 
-            $json = @json_encode($param);
+        $visitor = new ExpandArrayParameters($params, $types);
 
-            if (! is_string($json) || $json === 'null' && is_string($param)) {
-                // JSON encoding failed, this is not a UTF-8 string.
-                return sprintf('"%s"', preg_replace('/.{2}/', '\\x$0', bin2hex($param)));
-            }
+        $this->parser->parse($sql, $visitor);
 
-            return $json;
-        }, $params)) . ']';
+        return [
+            $visitor->getSQL(),
+            $visitor->getParameters(),
+            $visitor->getTypes(),
+        ];
     }
 
-    private function handleDriverException(DriverException $driverException, string $message): Exception
+    /**
+     * @param array<int, mixed>|array<string, mixed>                               $params
+     * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types
+     */
+    private function needsArrayParameterConversion(array $params, array $types): bool
     {
+        if (is_string(key($params))) {
+            return true;
+        }
+
+        foreach ($types as $type) {
+            if ($type === self::PARAM_INT_ARRAY || $type === self::PARAM_STR_ARRAY) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function handleDriverException(
+        Driver\Exception $driverException,
+        ?Query $query
+    ): DriverException {
         if ($this->exceptionConverter === null) {
             $this->exceptionConverter = $this->_driver->getExceptionConverter();
         }
 
-        $exception = $this->exceptionConverter->convert($message, $driverException);
+        $exception = $this->exceptionConverter->convert($driverException, $query);
 
         if ($exception instanceof ConnectionLost) {
             $this->close();

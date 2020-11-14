@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Tests\Driver\API;
 use Doctrine\DBAL\Driver\AbstractException;
 use Doctrine\DBAL\Driver\API\ExceptionConverter;
 use Doctrine\DBAL\Exception\DriverException;
+use Doctrine\DBAL\Query;
 use PHPUnit\Framework\TestCase;
 
 use function array_merge;
@@ -34,20 +35,28 @@ abstract class ExceptionConverterTest extends TestCase
         string $expectedClass,
         int $errorCode,
         ?string $sqlState = null,
-        string $message = ''
+        string $message = '',
+        ?Query $query = null
     ): void {
         $driverException = $this->getMockForAbstractClass(
             AbstractException::class,
             [$message, $sqlState, $errorCode]
         );
 
-        $dbalMessage   = 'DBAL exception message';
-        $dbalException = $this->converter->convert($dbalMessage, $driverException);
+        if ($query !== null) {
+            $expectedMessage = 'An exception occurred while executing a query: ' . $message;
+        } else {
+            $expectedMessage = 'An exception occurred in the driver: ' . $message;
+        }
 
+        $dbalException = $this->converter->convert($driverException, $query);
+
+        self::assertInstanceOf($expectedClass, $dbalException);
         self::assertSame($driverException->getCode(), $dbalException->getCode());
         self::assertSame($driverException->getSQLState(), $dbalException->getSQLState());
         self::assertSame($driverException, $dbalException->getPrevious());
-        self::assertSame($dbalMessage, $dbalException->getMessage());
+        self::assertSame($expectedMessage, $dbalException->getMessage());
+        self::assertSame($query, $dbalException->getQuery());
     }
 
     /**
@@ -62,6 +71,7 @@ abstract class ExceptionConverterTest extends TestCase
         }
 
         yield [DriverException::class, 1, 'HY000', 'The message'];
+        yield [DriverException::class, 1, 'HY000', 'The message', new Query('SELECT x', [], [])];
     }
 
     /**

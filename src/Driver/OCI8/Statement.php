@@ -10,6 +10,7 @@ use Doctrine\DBAL\Driver\OCI8\Exception\UnknownParameterIndex;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
+use Doctrine\DBAL\SQL\Parser;
 
 use function assert;
 use function is_int;
@@ -62,14 +63,17 @@ final class Statement implements StatementInterface
      */
     public function __construct($dbh, string $query, ExecutionMode $executionMode)
     {
-        [$query, $parameterMap] = (new ConvertPositionalToNamedPlaceholders())($query);
+        $parser  = new Parser(false);
+        $visitor = new ConvertPositionalToNamedPlaceholders();
 
-        $statement = oci_parse($dbh, $query);
-        assert(is_resource($statement));
+        $parser->parse($query, $visitor);
 
-        $this->statement     = $statement;
+        $stmt = oci_parse($dbh, $visitor->getSQL());
+        assert(is_resource($stmt));
+
+        $this->statement     = $stmt;
         $this->connection    = $dbh;
-        $this->parameterMap  = $parameterMap;
+        $this->parameterMap  = $visitor->getParameterMap();
         $this->executionMode = $executionMode;
     }
 

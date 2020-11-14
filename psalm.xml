@@ -84,14 +84,6 @@
                 <file name="src/Driver/AbstractSQLiteDriver.php"/>
             </errorLevel>
         </NullableReturnStatement>
-        <PossiblyInvalidOperand>
-            <errorLevel type="suppress">
-                <!--
-                    This code relies on certain elements of a mixed-type array to be of a certain type.
-                -->
-                <file name="src/SQLParserUtils.php"/>
-            </errorLevel>
-        </PossiblyInvalidOperand>
         <PossiblyNullArgument>
             <errorLevel type="suppress">
                 <!--
@@ -108,6 +100,15 @@
                 <file name="src/Schema/AbstractSchemaManager.php"/>
             </errorLevel>
         </PossiblyUndefinedVariable>
+        <RedundantCondition>
+            <errorLevel type="suppress">
+                <!--
+                    Requires a release of
+                    https://github.com/sebastianbergmann/phpunit/commit/9c60d7d9fd3bfa80fa4aeab7090e1bbe0830dbcd
+                -->
+                <file name="tests/Driver/API/ExceptionConverterTest.php"/>
+            </errorLevel>
+        </RedundantCondition>
         <TooFewArguments>
             <errorLevel type="suppress">
                 <!--

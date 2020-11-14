@@ -16,6 +16,8 @@ use Doctrine\DBAL\Event\SchemaDropTableEventArgs;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\ColumnLengthRequired;
+use Doctrine\DBAL\Exception\InvalidLockMode;
+use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Platforms\Exception\NoColumnsSpecifiedForTable;
 use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use Doctrine\DBAL\Platforms\Keywords\KeywordList;
@@ -29,6 +31,7 @@ use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\UniqueConstraint;
+use Doctrine\DBAL\SQL\Parser;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Exception\TypeNotFound;
@@ -1145,13 +1148,21 @@ abstract class AbstractPlatform
      * Honors that some SQL vendors such as MsSql use table hints for locking instead of the
      * ANSI SQL FOR UPDATE specification.
      *
-     * @param string   $fromClause The FROM clause to append the hint for the given lock mode to.
-     * @param int|null $lockMode   One of the Doctrine\DBAL\LockMode::* constants. If null is given, nothing will
-     *                             be appended to the FROM clause.
+     * @param string $fromClause The FROM clause to append the hint for the given lock mode to
+     * @param int    $lockMode   One of the Doctrine\DBAL\LockMode::* constants
      */
-    public function appendLockHint(string $fromClause, ?int $lockMode): string
+    public function appendLockHint(string $fromClause, int $lockMode): string
     {
-        return $fromClause;
+        switch ($lockMode) {
+            case LockMode::NONE:
+            case LockMode::OPTIMISTIC:
+            case LockMode::PESSIMISTIC_READ:
+            case LockMode::PESSIMISTIC_WRITE:
+                return $fromClause;
+
+            default:
+                throw InvalidLockMode::fromLockMode($lockMode);
+        }
     }
 
     /**
@@ -3158,6 +3169,14 @@ abstract class AbstractPlatform
         assert(is_string($sql));
 
         return $sql;
+    }
+
+    /**
+     * @internal
+     */
+    public function createSQLParser(): Parser
+    {
+        return new Parser(false);
     }
 
     protected function getLikeWildcardCharacters(): string

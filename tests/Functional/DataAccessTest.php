@@ -276,8 +276,8 @@ class DataAccessTest extends FunctionalTestCase
     {
         $value = $this->connection->fetchOne(
             'SELECT count(*) AS c FROM fetch_table WHERE test_datetime = ?',
-            [1 => new DateTime('2010-01-01 10:10:10')],
-            [1 => Types::DATETIME_MUTABLE]
+            [new DateTime('2010-01-01 10:10:10')],
+            [Types::DATETIME_MUTABLE]
         );
 
         self::assertEquals(1, $value);
@@ -289,20 +289,20 @@ class DataAccessTest extends FunctionalTestCase
 
         $sql          = 'INSERT INTO fetch_table (test_int, test_string, test_datetime) VALUES (?, ?, ?)';
         $affectedRows = $this->connection->executeStatement($sql, [
-            1 => 50,
-            2 => 'foo',
-            3 => $datetime,
+            50,
+            'foo',
+            $datetime,
         ], [
-            1 => ParameterType::INTEGER,
-            2 => ParameterType::STRING,
-            3 => Types::DATETIME_MUTABLE,
+            ParameterType::INTEGER,
+            ParameterType::STRING,
+            Types::DATETIME_MUTABLE,
         ]);
 
         self::assertEquals(1, $affectedRows);
         self::assertEquals(1, $this->connection->executeQuery(
             'SELECT count(*) AS c FROM fetch_table WHERE test_datetime = ?',
-            [1 => $datetime],
-            [1 => Types::DATETIME_MUTABLE]
+            [$datetime],
+            [Types::DATETIME_MUTABLE]
         )->fetchOne());
     }
 

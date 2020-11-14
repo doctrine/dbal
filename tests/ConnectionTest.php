@@ -34,7 +34,7 @@ class ConnectionTest extends TestCase
     /** @var Connection */
     private $connection;
 
-    /** @var array<string, mixed> */
+    /** @var array<string,mixed> */
     protected $params = [
         'driver' => 'pdo_mysql',
         'host' => 'localhost',
@@ -149,11 +149,8 @@ class ConnectionTest extends TestCase
     public function testDriverExceptionIsWrapped(callable $callback): void
     {
         $this->expectException(Exception::class);
-        $this->expectExceptionMessage(<<<EOF
-An exception occurred while executing "MUUHAAAAHAAAA":
-
-SQLSTATE[HY000]: General error: 1 near "MUUHAAAAHAAAA"
-EOF
+        $this->expectExceptionMessage(
+            'An exception occurred while executing a query: SQLSTATE[HY000]: General error: 1 near "MUUHAAAAHAAAA"'
         );
 
         $connection = DriverManager::getConnection([

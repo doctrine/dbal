@@ -565,8 +565,8 @@ class QueryBuilderTest extends TestCase
         );
 
         self::assertEquals('SELECT u.* FROM users u WHERE u.name = ?', (string) $qb);
-        self::assertEquals(10, $qb->getParameter(1));
-        self::assertEquals(ParameterType::INTEGER, $qb->getParameterType(1));
+        self::assertEquals(10, $qb->getParameter(0));
+        self::assertEquals(ParameterType::INTEGER, $qb->getParameterType(0));
     }
 
     public function testReferenceJoinFromJoin(): void

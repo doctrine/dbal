@@ -254,6 +254,10 @@ The Doctrine\DBAL\Version class is no longer available: please refrain from chec
 
 # Upgrade to 3.0
 
+## BC BREAK: leading colon in named parameter names not supported
+
+The usage of the colon prefix when binding named parameters is no longer supported.
+
 ## BC BREAK `Doctrine\DBAL\Abstraction\Result` removed
 
 The `Doctrine\DBAL\Abstraction\Result` interface is removed. Use the `Doctrine\DBAL\Result` class instead.
@@ -264,23 +268,22 @@ The `Doctrine\DBAL\Types\Type::getDefaultLength()` method has been removed as it
 
 ## BC BREAK: `Doctrine\DBAL\DBALException` class renamed
 
-The `Doctrine\DBAL\DBALException` class has been renamed to `Doctrine\DBAL\Exception`. 
+The `Doctrine\DBAL\DBALException` class has been renamed to `Doctrine\DBAL\Exception`.
 
-## BC BREAK: Doctrine\DBAL\Schema\Table constructor new parameter
+## BC BREAK: `Doctrine\DBAL\Schema\Table` constructor new parameter
 
 Deprecated parameter `$idGeneratorType` removed and added a new parameter `$uniqueConstraints`.
-Constructor changed from:
+Constructor changed like so:
 
-`__construct($name, array $columns = [], array $indexes = [], array $fkConstraints = [], $idGeneratorType = 0, array $options = [])`
-
-To the new constructor:
-
-`__construct($name, array $columns = [], array $indexes = [], array $uniqueConstraints = [], array $fkConstraints = [], array $options = [])`
+```diff
+- __construct($name, array $columns = [], array $indexes = [], array $fkConstraints = [], $idGeneratorType = 0, array $options = [])
++ __construct($name, array $columns = [], array $indexes = [], array $uniqueConstraints = [], array $fkConstraints = [], array $options = [])
+```
 
 ## BC BREAK: change in the behavior of `SchemaManager::dropDatabase()`
 
 When dropping a database, the DBAL no longer attempts to kill the client sessions that use the database.
-It's the responsibility of the operator to make sure that the database is not being used.  
+It's the responsibility of the operator to make sure that the database is not being used.
 
 ## BC BREAK: removed `Synchronizer` package
 
@@ -298,14 +301,14 @@ The following methods of the `Connection` class have been removed:
 
 The wrapper-level `Connection` and `Statement` classes no longer implement the corresponding driver-level interfaces.
 
-## BC BREAK: Removed DBALException factory methods
+## BC BREAK: Removed `DBALException` factory methods
 
-The following factory methods of the DBALException class have been removed:
+The following factory methods of the `DBALException` class have been removed:
 
 1. `DBALException::invalidPlatformSpecified()`.
 2. `DBALException::invalidPdoInstance()`.
 
-## BC BREAK: PDO-based driver classes are moved under the PDO namespace
+## BC BREAK: PDO-based driver classes are moved under the `PDO` namespace
 
 The following classes have been renamed:
 
@@ -331,7 +334,7 @@ The following classes have been renamed:
 
 ## BC BREAK: Changes in wrapper-level exceptions
 
-1. `DBALException::invalidTableName()` has been replaced with the `InvalidTableName` class.
+`DBALException::invalidTableName()` has been replaced with the `InvalidTableName` class.
 
 ## BC BREAK: Changes in driver-level exception handling
 
@@ -339,9 +342,9 @@ The following classes have been renamed:
 2. The `driverException()` and `driverExceptionDuringQuery()` factory methods have been removed from the `DBALException` class.
 3. Non-driver exceptions (e.g. exceptions of type `Error`) are no longer wrapped in a `DBALException`.
 
-## BC BREAK: More driver-level methods are allowed to throw a Driver\Exception.
+## BC BREAK: More driver-level methods are allowed to throw a `Driver\Exception`.
 
-The following driver-level methods are allowed to throw a Driver\Exception:
+The following driver-level methods are allowed to throw a `Driver\Exception`:
 
 - `Connection::prepare()`
 - `Connection::lastInsertId()`
@@ -454,7 +457,7 @@ The `Doctrine\DBAL\Driver::getName()` has been removed.
 
 ## BC BREAK changes the `Driver::connect()` signature
 
-The method no longer accepts the `$username`, `$password` and `$driverOptions` arguments. The corresponding values are expected to be passed as the "user", "password" and "driver_options" keys of the `$params` argument respectively.
+The method no longer accepts the `$username`, `$password` and `$driverOptions` arguments. The corresponding values are expected to be passed as the `"user"`, `"password"` and `"driver_options"` keys of the `$params` argument respectively.
 
 ## Removed `MasterSlaveConnection`
 
@@ -538,15 +541,15 @@ The following classes have been removed:
 DBAL now requires MariaDB 10.1 or newer, support for unmaintained versions has been dropped.
 If you are using any of the legacy versions, you have to upgrade to a newer MariaDB version (10.1+ is recommended).
 
-## BC BREAK: The ServerInfoAwareConnection interface now extend Connection
+## BC BREAK: The `ServerInfoAwareConnection` interface now extends `Connection`
 
 All implementations of the `ServerInfoAwareConnection` interface have to implement the methods defined in the `Connection` interface as well.
 
-## BC BREAK: VersionAwarePlatformDriver interface now extends Driver
+## BC BREAK: `VersionAwarePlatformDriver` interface now extends `Driver`
 
 All implementations of the `VersionAwarePlatformDriver` interface have to implement the methods defined in the `Driver` interface as well.
 
-## BC BREAK: Removed MsSQLKeywords class
+## BC BREAK: Removed `MsSQLKeywords` class
 
 The `Doctrine\DBAL\Platforms\MsSQLKeywords` class has been removed.
 Please use `Doctrine\DBAL\Platforms\SQLServerPlatform `instead.
@@ -575,7 +578,7 @@ The following classes have been removed:
 
 The `AbstractSQLServerDriver` class and its subclasses no longer implement the `VersionAwarePlatformDriver` interface.
 
-## BC BREAK: Removed Doctrine\DBAL\Version
+## BC BREAK: Removed `Doctrine\DBAL\Version`
 
 The `Doctrine\DBAL\Version` class is no longer available: please refrain from checking the DBAL version at runtime.
 
@@ -591,36 +594,40 @@ In order to share the same `PDO` instances between DBAL and other components, in
 
 Before:
 
-    use Doctrine\DBAL\Portability\Connection;
+```php
+use Doctrine\DBAL\Portability\Connection;
 
-    $params = array(
-        'wrapperClass' => Connection::class,
-        'fetch_case' => PDO::CASE_LOWER,
-    );
+$params = array(
+    'wrapperClass' => Connection::class,
+    'fetch_case' => PDO::CASE_LOWER,
+);
 
-    $stmt->bindValue(1, 1, PDO::PARAM_INT);
-    $stmt->fetchAll(PDO::FETCH_COLUMN);
+$stmt->bindValue(1, 1, PDO::PARAM_INT);
+$stmt->fetchAll(PDO::FETCH_COLUMN);
+```
 
 After:
 
-    use Doctrine\DBAL\ColumnCase;
-    use Doctrine\DBAL\FetchMode;
-    use Doctrine\DBAL\ParameterType;
-    use Doctrine\DBAL\Portability\Connection;
+```php
+use Doctrine\DBAL\ColumnCase;
+use Doctrine\DBAL\FetchMode;
+use Doctrine\DBAL\ParameterType;
+use Doctrine\DBAL\Portability\Connection;
 
-    $params = array(
-        'wrapperClass' => Connection::class,
-        'fetch_case' => ColumnCase::LOWER,
-    );
+$params = array(
+    'wrapperClass' => Connection::class,
+    'fetch_case' => ColumnCase::LOWER,
+);
 
-    $stmt->bindValue(1, 1, ParameterType::INTEGER);
-    $stmt->fetchAll(FetchMode::COLUMN);
+$stmt->bindValue(1, 1, ParameterType::INTEGER);
+$stmt->fetchAll(FetchMode::COLUMN);
+```
 
 ## BC BREAK: Removed Drizzle support
 
 The Drizzle project is abandoned and is therefore not supported by Doctrine DBAL anymore.
 
-## BC BREAK: Removed dbal:import CLI command
+## BC BREAK: Removed `dbal:import` CLI command
 
 The `dbal:import` CLI command has been removed since it only worked with PDO-based drivers by relying on a non-documented behavior of the extension, and it was impossible to make it work with other drivers.
 Please use other database client applications for import, e.g.:
@@ -629,7 +636,73 @@ Please use other database client applications for import, e.g.:
  * For PostgreSQL: `psql [dbname] < data.sql`.
  * For SQLite: `sqlite3 /path/to/file.db < data.sql`.
 
+## BC BREAK: Changed signature of `ExceptionConverter::convert()`
+
+Before:
+
+```php
+public function convert(string $message, Doctrine\DBAL\Driver\Exception $exception): DriverException
+```
+
+After:
+
+```php
+public function convert(Doctrine\DBAL\Driver\Exception $exception, ?Doctrine\DBAL\Query $query): DriverException
+```
+
+## BC Break: The `DriverException` constructor is now internal
+
+The constructor of `Doctrine\DBAL\Exception\DriverException` is now `@internal`.
+
 # Upgrade to 2.12
+
+## Deprecated non-zero based positional parameter keys
+
+The usage of one-based and other non-zero-based keys when binding positional parameters is deprecated.
+
+It is recommended to not use any array keys so that the value of the parameter array complies with the [`list<>`](https://psalm.dev/docs/annotating_code/type_syntax/array_types/) type constraint.
+
+```php
+// This is valid (implicit zero-based parameter indexes)
+$conn->fetchNumeric('SELECT ?, ?', [1, 2]);
+
+// This is invalid (one-based parameter indexes)
+$conn->fetchNumeric('SELECT ?, ?', [1 => 1, 2 => 2]);
+
+// This is invalid (arbitrary parameter indexes)
+$conn->fetchNumeric('SELECT ?, ?', [-31 => 1, 5 => 2]);
+
+// This is invalid (non-sequential parameter indexes)
+$conn->fetchNumeric('SELECT ?, ?', [0 => 1, 3 => 2]);
+```
+
+## Deprecated skipping prepared statement parameters
+
+Some underlying drivers currently allow skipping prepared statement parameters. For instance:
+
+```php
+$conn->fetchOne('SELECT ?');
+// NULL
+```
+
+This behavior should not be relied upon and may change in future versions.
+
+## Deprecated colon prefix for prepared statement parameters
+
+The usage of the colon prefix when binding named parameters is deprecated.
+
+```php
+$sql  = 'SELECT * FROM users WHERE name = :name OR username = :username';
+$stmt = $conn->prepare($sql);
+
+// The usage of the leading colon is deprecated
+$stmt->bindValue(':name', $name);
+
+// Only the parameter name should be passed
+$stmt->bindValue('username', $username);
+
+$stmt->execute();
+```
 
 ## PDO signature changes with php 8
 
@@ -707,7 +780,7 @@ The following PDO-related classes outside of the PDO namespace have been depreca
 3. `prefersSequences()`.
 4. `supportsForeignKeyOnUpdate()`.
 
-##`ServerInfoAwareConnection::requiresQueryForServerVersion()` is deprecated.
+## `ServerInfoAwareConnection::requiresQueryForServerVersion()` is deprecated.
 
 The `ServerInfoAwareConnection::requiresQueryForServerVersion()` method has been deprecated as an implementation detail which is the same for almost all supported drivers.
 
