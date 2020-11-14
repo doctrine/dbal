@@ -5,19 +5,11 @@ declare(strict_types=1);
 namespace Doctrine\Tests\DBAL\Driver\OCI8;
 
 use Doctrine\DBAL\Driver\OCI8\ConvertPositionalToNamedPlaceholders;
-use Doctrine\DBAL\Driver\OCI8\Exception\NonTerminatedStringLiteral;
+use Doctrine\DBAL\SQL\Parser;
 use PHPUnit\Framework\TestCase;
 
 class ConvertPositionalToNamedPlaceholdersTest extends TestCase
 {
-    /** @var ConvertPositionalToNamedPlaceholders */
-    private $convertPositionalToNamedPlaceholders;
-
-    protected function setUp(): void
-    {
-        $this->convertPositionalToNamedPlaceholders = new ConvertPositionalToNamedPlaceholders();
-    }
-
     /**
      * @param mixed[] $expectedOutputParamsMap
      *
@@ -28,10 +20,13 @@ class ConvertPositionalToNamedPlaceholdersTest extends TestCase
         string $expectedOutputSQL,
         array $expectedOutputParamsMap
     ): void {
-        [$statement, $params] = ($this->convertPositionalToNamedPlaceholders)($inputSQL);
+        $parser  = new Parser(false);
+        $visitor = new ConvertPositionalToNamedPlaceholders();
 
-        self::assertEquals($expectedOutputSQL, $statement);
-        self::assertEquals($expectedOutputParamsMap, $params);
+        $parser->parse($inputSQL, $visitor);
+
+        self::assertEquals($expectedOutputSQL, $visitor->getSQL());
+        self::assertEquals($expectedOutputParamsMap, $visitor->getParameterMap());
     }
 
     /**
@@ -89,37 +84,6 @@ class ConvertPositionalToNamedPlaceholdersTest extends TestCase
                 "SELECT * FROM users WHERE id = ? AND name = '' AND status = ?",
                 "SELECT * FROM users WHERE id = :param1 AND name = '' AND status = :param2",
                 [1 => ':param1', 2 => ':param2'],
-            ],
-        ];
-    }
-
-    /**
-     * @dataProvider nonTerminatedLiteralProvider
-     */
-    public function testConvertNonTerminatedLiteral(string $sql, string $expectedExceptionMessageRegExp): void
-    {
-        $this->expectException(NonTerminatedStringLiteral::class);
-        $this->expectExceptionMessageMatches($expectedExceptionMessageRegExp);
-        ($this->convertPositionalToNamedPlaceholders)($sql);
-    }
-
-    /**
-     * @return array<string, array<int, mixed>>
-     */
-    public static function nonTerminatedLiteralProvider(): iterable
-    {
-        return [
-            'no-matching-quote' => [
-                "SELECT 'literal FROM DUAL",
-                '/offset 7./',
-            ],
-            'no-matching-double-quote' => [
-                'SELECT 1 "COL1 FROM DUAL',
-                '/offset 9./',
-            ],
-            'incorrect-escaping-syntax' => [
-                "SELECT 'quoted \\'string' FROM DUAL",
-                '/offset 23./',
             ],
         ];
     }
