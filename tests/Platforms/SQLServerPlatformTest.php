@@ -30,7 +30,7 @@ class SQLServerPlatformTest extends AbstractSQLServerPlatformTestCase
     public static function getLockHints(): iterable
     {
         return [
-            [LockMode::NONE, ' WITH (NOLOCK)'],
+            [LockMode::NONE, ''],
             [LockMode::OPTIMISTIC, ''],
             [LockMode::PESSIMISTIC_READ, ' WITH (HOLDLOCK, ROWLOCK)'],
             [LockMode::PESSIMISTIC_WRITE, ' WITH (UPDLOCK, ROWLOCK)'],

@@ -1540,8 +1540,6 @@ SQL
     {
         switch ($lockMode) {
             case LockMode::NONE:
-                return $fromClause . ' WITH (NOLOCK)';
-
             case LockMode::OPTIMISTIC:
                 return $fromClause;
 
