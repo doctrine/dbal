@@ -468,7 +468,7 @@ class Connection
      * as an associative array.
      *
      * @param string                                                               $query  SQL query
-     * @param array<int, mixed>|array<string, mixed>                               $params Query parameters
+     * @param list<mixed>|array<string, mixed>                                     $params Query parameters
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
      *
      * @return array<string, mixed>|false False is returned if no rows are found.
@@ -489,7 +489,7 @@ class Connection
      * as a numerically indexed array.
      *
      * @param string                                                               $query  SQL query
-     * @param array<int, mixed>|array<string, mixed>                               $params Query parameters
+     * @param list<mixed>|array<string, mixed>                                     $params Query parameters
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
      *
      * @return list< mixed>|false False is returned if no rows are found.
@@ -510,7 +510,7 @@ class Connection
      * of the first row of the result.
      *
      * @param string                                                               $query  SQL query
-     * @param array<int, mixed>|array<string, mixed>                               $params Query parameters
+     * @param list<mixed>|array<string, mixed>                                     $params Query parameters
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
      *
      * @return mixed|false False is returned if no rows are found.
@@ -778,7 +778,7 @@ class Connection
      * Prepares and executes an SQL query and returns the result as an array of numeric arrays.
      *
      * @param string                                                               $query  SQL query
-     * @param array<int, mixed>|array<string, mixed>                               $params Query parameters
+     * @param list<mixed>|array<string, mixed>                                     $params Query parameters
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
      *
      * @return list<list<mixed>>
@@ -798,7 +798,7 @@ class Connection
      * Prepares and executes an SQL query and returns the result as an array of associative arrays.
      *
      * @param string                                                               $query  SQL query
-     * @param array<int, mixed>|array<string, mixed>                               $params Query parameters
+     * @param list<mixed>|array<string, mixed>                                     $params Query parameters
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
      *
      * @return list<array<string,mixed>>
@@ -819,7 +819,7 @@ class Connection
      * mapped to the first column and the values mapped to the second column.
      *
      * @param string                                                               $query  SQL query
-     * @param array<int, mixed>|array<string, mixed>                               $params Query parameters
+     * @param list<mixed>|array<string, mixed>                                     $params Query parameters
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
      *
      * @return array<mixed,mixed>
@@ -837,7 +837,7 @@ class Connection
      * and their values.
      *
      * @param string                                           $query  SQL query
-     * @param array<int, mixed>|array<string, mixed>           $params Query parameters
+     * @param list<mixed>|array<string, mixed>                 $params Query parameters
      * @param array<int, int|string>|array<string, int|string> $types  Parameter types
      *
      * @return array<mixed,array<string,mixed>>
@@ -853,7 +853,7 @@ class Connection
      * Prepares and executes an SQL query and returns the result as an array of the first column values.
      *
      * @param string                                                               $query  SQL query
-     * @param array<int, mixed>|array<string, mixed>                               $params Query parameters
+     * @param list<mixed>|array<string, mixed>                                     $params Query parameters
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
      *
      * @return list<mixed>
@@ -873,7 +873,7 @@ class Connection
      * Prepares and executes an SQL query and returns the result as an iterator over rows represented as numeric arrays.
      *
      * @param string                                                               $query  SQL query
-     * @param array<int, mixed>|array<string, mixed>                               $params Query parameters
+     * @param list<mixed>|array<string, mixed>                                     $params Query parameters
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
      *
      * @return Traversable<int,list<mixed>>
@@ -898,7 +898,7 @@ class Connection
      * as associative arrays.
      *
      * @param string                                                               $query  SQL query
-     * @param array<int, mixed>|array<string, mixed>                               $params Query parameters
+     * @param list<mixed>|array<string, mixed>                                     $params Query parameters
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
      *
      * @return Traversable<int,array<string,mixed>>
@@ -923,7 +923,7 @@ class Connection
      * mapped to the first column and the values mapped to the second column.
      *
      * @param string                                                               $query  SQL query
-     * @param array<int, mixed>|array<string, mixed>                               $params Query parameters
+     * @param list<mixed>|array<string, mixed>                                     $params Query parameters
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
      *
      * @return Traversable<mixed,mixed>
@@ -941,7 +941,7 @@ class Connection
      * and their values.
      *
      * @param string                                           $query  SQL query
-     * @param array<int, mixed>|array<string, mixed>           $params Query parameters
+     * @param list<mixed>|array<string, mixed>                 $params Query parameters
      * @param array<int, int|string>|array<string, int|string> $types  Parameter types
      *
      * @return Traversable<mixed,array<string,mixed>>
@@ -957,7 +957,7 @@ class Connection
      * Prepares and executes an SQL query and returns the result as an iterator over the first column values.
      *
      * @param string                                                               $query  SQL query
-     * @param array<int, mixed>|array<string, mixed>                               $params Query parameters
+     * @param list<mixed>|array<string, mixed>                                     $params Query parameters
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
      *
      * @return Traversable<int,mixed>
@@ -996,7 +996,7 @@ class Connection
      * If an SQLLogger is configured, the execution is logged.
      *
      * @param string                                                               $sql    SQL query
-     * @param array<int, mixed>|array<string, mixed>                               $params Query parameters
+     * @param list<mixed>|array<string, mixed>                                     $params Query parameters
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
      *
      * @throws Exception
@@ -1049,7 +1049,7 @@ class Connection
      * Executes a caching query.
      *
      * @param string                                                               $sql    SQL query
-     * @param array<int, mixed>|array<string, mixed>                               $params Query parameters
+     * @param list<mixed>|array<string, mixed>                                     $params Query parameters
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
      *
      * @throws CacheException
@@ -1106,7 +1106,7 @@ class Connection
      * This method supports PDO binding types as well as DBAL mapping types.
      *
      * @param string                                                               $sql    SQL statement
-     * @param array<int, mixed>|array<string, mixed>                               $params Statement parameters
+     * @param list<mixed>|array<string, mixed>                                     $params Statement parameters
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
      *
      * @return int The number of affected rows.
@@ -1580,7 +1580,7 @@ class Connection
      * or DBAL mapping type, to a given statement.
      *
      * @param DriverStatement                                                      $stmt   Prepared statement
-     * @param array<int, mixed>|array<string, mixed>                               $params Statement parameters
+     * @param list<mixed>|array<string, mixed>                                     $params Statement parameters
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
      *
      * @throws Exception
@@ -1655,7 +1655,7 @@ class Connection
     /**
      * @internal
      *
-     * @param array<int, mixed>|array<string, mixed>                               $params
+     * @param list<mixed>|array<string, mixed>                                     $params
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types
      */
     final public function convertExceptionDuringQuery(

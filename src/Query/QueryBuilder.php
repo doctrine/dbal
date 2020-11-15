@@ -90,7 +90,7 @@ class QueryBuilder
     /**
      * The query parameters.
      *
-     * @var array<int, mixed>|array<string, mixed>
+     * @var list<mixed>|array<string, mixed>
      */
     private $params = [];
 
@@ -298,7 +298,7 @@ class QueryBuilder
      *         ));
      * </code>
      *
-     * @param array<int, mixed>|array<string, mixed>                               $params Parameters to set
+     * @param list<mixed>|array<string, mixed>                                     $params Parameters to set
      * @param array<int, int|string|Type|null>|array<string, int|string|Type|null> $types  Parameter types
      *
      * @return $this This QueryBuilder instance.
@@ -314,7 +314,7 @@ class QueryBuilder
     /**
      * Gets all defined query parameters for the query being constructed indexed by parameter index or name.
      *
-     * @return array<int, mixed>|array<string, mixed> The currently defined query parameters
+     * @return list<mixed>|array<string, mixed> The currently defined query parameters
      */
     public function getParameters()
     {
