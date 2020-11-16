@@ -9,6 +9,7 @@
 /phpcs.xml.dist export-ignore
 /phpstan.neon.dist export-ignore
 /phpunit.xml.dist export-ignore
+/psalm.xml.dist export-ignore
 /run-all.sh export-ignore
 /SECURITY.md export-ignore
 /tests export-ignore
