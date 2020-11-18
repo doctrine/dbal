@@ -3,7 +3,6 @@
 namespace Doctrine\Tests\DBAL\Functional\Platform;
 
 use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\Table;
@@ -43,20 +42,10 @@ class CharLengthExpressionTest extends DbalFunctionalTestCase
 
         $table = new Table('char_length_expression_test');
         $table->addColumn('testColumn1', Types::STRING);
-        $table->addColumn('testColumn2', Types::STRING);
         $this->connection->getSchemaManager()->dropAndCreateTable($table);
-        $this->connection->insert('char_length_expression_test', [
-            'testColumn1' => '€',
-            'testColumn2' => 'str',
-        ]);
+        $this->connection->insert('char_length_expression_test', ['testColumn1' => '€']);
 
-        $sql  = sprintf(
-            'SELECT %s as c1, %s as c2 FROM char_length_expression_test',
-            $platform->getCharLengthExpression('testColumn1'),
-            $platform->getCharLengthExpression('testColumn2')
-        );
-        $stmt = $this->connection->executeQuery($sql)->fetch(FetchMode::ASSOCIATIVE);
-        self::assertSame(1, (int) $stmt['c1']);
-        self::assertSame(3, (int) $stmt['c2']);
+        $sql = sprintf('SELECT %s FROM char_length_expression_test', $platform->getCharLengthExpression('testColumn1'));
+        self::assertSame(1, $this->connection->query($sql)->fetchColumn());
     }
 }
