@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\DBAL\Functional\Platform;
 
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\Table;
@@ -49,12 +50,12 @@ class CharLengthExpressionTest extends DbalFunctionalTestCase
             'testColumn2' => 'str',
         ]);
 
-        $sql = sprintf(
+        $sql  = sprintf(
             'SELECT %s as c1, %s as c2 FROM char_length_expression_test',
             $platform->getCharLengthExpression('testColumn1'),
             $platform->getCharLengthExpression('testColumn2')
         );
-        $stmt = $this->connection->executeQuery($sql)->fetchAssociative();
+        $stmt = $this->connection->executeQuery($sql)->fetch(FetchMode::ASSOCIATIVE);
         self::assertSame(1, $stmt['c1']);
         self::assertSame(3, $stmt['c2']);
     }
