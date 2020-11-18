@@ -19,8 +19,8 @@ class CharLengthExpressionTest extends DbalFunctionalTestCase
     public function testCharLengthExpressionNotSupport(): void
     {
         $platform = $this->connection->getDatabasePlatform();
-        if (! $platform instanceof SqlitePlatform) {
-            self::markTestSkipped('Test is for sqlite only');
+        if ($platform instanceof MySqlPlatform) {
+            self::markTestSkipped('Test is not for mysql');
         }
 
         $this->expectException(Exception::class);
