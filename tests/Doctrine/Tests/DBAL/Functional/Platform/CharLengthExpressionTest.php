@@ -25,7 +25,7 @@ class CharLengthExpressionTest extends DbalFunctionalTestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            'Operation \'Doctrine\DBAL\Platforms\AbstractPlatform::getCharLengthExpression\' is not supported by platform'
+            "Operation 'Doctrine\DBAL\Platforms\AbstractPlatform::getCharLengthExpression' is not supported by platform"
         );
         $platform->getCharLengthExpression('testColumn');
     }
@@ -49,9 +49,13 @@ class CharLengthExpressionTest extends DbalFunctionalTestCase
             'testColumn2' => 'str',
         ]);
 
-        $sql = sprintf('SELECT %s FROM char_length_expression_test', $platform->getCharLengthExpression('testColumn1'));
-        self::assertSame(1, $this->connection->executeQuery($sql)->fetchColumn());
-        $sql = sprintf('SELECT %s FROM char_length_expression_test', $platform->getCharLengthExpression('testColumn2'));
-        self::assertSame(3, $this->connection->executeQuery($sql)->fetchColumn());
+        $sql = sprintf(
+            'SELECT %s as c1, %s as c2 FROM char_length_expression_test',
+            $platform->getCharLengthExpression('testColumn1'),
+            $platform->getCharLengthExpression('testColumn2')
+        );
+        $stmt = $this->connection->executeQuery($sql)->fetchAssociative();
+        self::assertSame(1, $stmt['c1']);
+        self::assertSame(3, $stmt['c2']);
     }
 }
