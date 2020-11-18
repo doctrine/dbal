@@ -130,7 +130,7 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getCharLengthExpression(string $column): string
+    public function getCharLengthExpression($column)
     {
         return 'CHAR_LENGTH(' . $column . ')';
     }

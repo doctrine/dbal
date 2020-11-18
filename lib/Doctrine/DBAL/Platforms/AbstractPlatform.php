@@ -770,7 +770,7 @@ abstract class AbstractPlatform
      *
      * @throws Exception If not supported on this platform.
      */
-    public function getCharLengthExpression(string $column): string
+    public function getCharLengthExpression($column)
     {
         throw Exception::notSupported(__METHOD__);
     }
