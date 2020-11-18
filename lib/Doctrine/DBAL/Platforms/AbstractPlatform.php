@@ -762,6 +762,20 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Returns the SQL snippet to get the length of a string (in characters).
+     *
+     * @param string $column
+     *
+     * @return string
+     *
+     * @throws Exception If not supported on this platform.
+     */
+    public function getCharLengthExpression(string $column): string
+    {
+        throw Exception::notSupported(__METHOD__);
+    }
+
+    /**
      * Returns the SQL snippet to get the squared value of a column.
      *
      * @param string $column The column to use.
