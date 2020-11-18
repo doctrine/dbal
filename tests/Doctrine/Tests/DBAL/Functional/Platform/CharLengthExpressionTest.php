@@ -36,7 +36,7 @@ class CharLengthExpressionTest extends DbalFunctionalTestCase
     {
         $platform = $this->connection->getDatabasePlatform();
         if (!$platform instanceof MySqlPlatform) {
-            self::markTestSkipped('Test is for sqlite only');
+            self::markTestSkipped('Test is for mysql only');
         }
 
         $table = new Table('char_length_expression_test');
