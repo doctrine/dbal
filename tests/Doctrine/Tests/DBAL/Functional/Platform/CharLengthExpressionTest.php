@@ -4,7 +4,6 @@ namespace Doctrine\Tests\DBAL\Functional\Platform;
 
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
-use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Tests\DbalFunctionalTestCase;
