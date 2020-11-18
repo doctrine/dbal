@@ -2,7 +2,6 @@
 
 namespace Doctrine\Tests\DBAL\Functional\Platform;
 
-use Doctrine\DBAL\Driver\Exception as DriverException;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
@@ -26,15 +25,13 @@ class CharLengthExpressionTest extends DbalFunctionalTestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            'Operation \'Doctrine\DBAL\Platforms\AbstractPlatform::getCharLengthExpression\' 
-            is not supported by platform'
+            'Operation \'Doctrine\DBAL\Platforms\AbstractPlatform::getCharLengthExpression\' is not supported by platform'
         );
         $platform->getCharLengthExpression('testColumn');
     }
 
     /**
      * @throws Exception
-     * @throws DriverException
      */
     public function testCharLengthExpression(): void
     {
