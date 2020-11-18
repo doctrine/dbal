@@ -36,6 +36,7 @@ class CharLengthExpressionTest extends DbalFunctionalTestCase
     public function testCharLengthExpression(): void
     {
         $platform = $this->connection->getDatabasePlatform();
+
         if (! $platform instanceof MySqlPlatform) {
             self::markTestSkipped('Test is for mysql only');
         }
@@ -46,6 +47,6 @@ class CharLengthExpressionTest extends DbalFunctionalTestCase
         $this->connection->insert('char_length_expression_test', ['testColumn1' => '€']);
 
         $sql = sprintf('SELECT %s FROM char_length_expression_test', $platform->getCharLengthExpression('testColumn1'));
-        self::assertSame(1, $this->connection->query($sql)->fetchColumn());
+        self::assertSame('1', $this->connection->query($sql)->fetchColumn());
     }
 }
