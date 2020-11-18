@@ -56,7 +56,7 @@ class CharLengthExpressionTest extends DbalFunctionalTestCase
             $platform->getCharLengthExpression('testColumn2')
         );
         $stmt = $this->connection->executeQuery($sql)->fetch(FetchMode::ASSOCIATIVE);
-        self::assertSame(1, $stmt['c1']);
-        self::assertSame(3, $stmt['c2']);
+        self::assertSame('1', $stmt['c1']);
+        self::assertSame('3', $stmt['c2']);
     }
 }
