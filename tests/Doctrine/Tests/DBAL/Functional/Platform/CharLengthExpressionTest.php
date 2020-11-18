@@ -44,9 +44,10 @@ class CharLengthExpressionTest extends DbalFunctionalTestCase
         $table = new Table('char_length_expression_test');
         $table->addColumn('testColumn1', Types::STRING);
         $this->connection->getSchemaManager()->dropAndCreateTable($table);
+        $this->connection->executeQuery('SET CHARACTER SET utf8');
         $this->connection->insert('char_length_expression_test', ['testColumn1' => '€']);
 
         $sql = sprintf('SELECT %s FROM char_length_expression_test', $platform->getCharLengthExpression('testColumn1'));
-        self::assertSame('1', $this->connection->query($sql)->fetchColumn());
+        self::assertSame(1, (int) $this->connection->query($sql)->fetchColumn());
     }
 }
