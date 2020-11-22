@@ -107,7 +107,7 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
+    public function setFetchMode($fetchMode, ...$args)
     {
         $this->defaultFetchMode = $fetchMode;
 
@@ -167,8 +167,11 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
+    public function fetchAll($fetchMode = null, ...$args)
     {
+        $fetchArgument = $args[0] ?? null;
+        $ctorArgs      = $args[1] ?? null;
+
         $data = $this->statement->fetchAll($fetchMode, $fetchArgument, $ctorArgs);
 
         if ($fetchMode === FetchMode::COLUMN) {

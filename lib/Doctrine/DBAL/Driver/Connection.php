@@ -26,17 +26,14 @@ interface Connection
      *
      * @return Statement
      */
-    public function query();
+    public function query(string $query, ?int $fetchMode = null, ...$fetchModeArgs);
 
     /**
      * Quotes a string for use in a query.
      *
-     * @param mixed $value
-     * @param int   $type
-     *
      * @return mixed
      */
-    public function quote($value, $type = ParameterType::STRING);
+    public function quote(string $value, int $type = ParameterType::STRING);
 
     /**
      * Executes an SQL statement and return the number of affected rows.

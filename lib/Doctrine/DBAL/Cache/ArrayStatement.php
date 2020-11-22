@@ -62,8 +62,11 @@ class ArrayStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
+    public function setFetchMode($fetchMode, ...$args)
     {
+        $arg2 = $args[0] ?? null;
+        $arg3 = $args[1] ?? null;
+
         if ($arg2 !== null || $arg3 !== null) {
             throw new InvalidArgumentException('Caching layer does not support 2nd/3rd argument to setFetchMode()');
         }
@@ -117,7 +120,7 @@ class ArrayStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
+    public function fetchAll($fetchMode = null, ...$args)
     {
         $rows = [];
         while ($row = $this->fetch($fetchMode)) {

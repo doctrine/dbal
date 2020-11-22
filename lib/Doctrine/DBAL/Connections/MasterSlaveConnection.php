@@ -351,7 +351,7 @@ class MasterSlaveConnection extends Connection
     /**
      * {@inheritDoc}
      */
-    public function query()
+    public function query(string $query, ?int $fetchMode = null, ...$fetchModeArgs)
     {
         $this->connect('master');
         assert($this->_conn instanceof DriverConnection);

@@ -49,8 +49,11 @@ class PDOStatement extends \PDOStatement implements Statement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
+    public function setFetchMode(int $fetchMode, ...$args)
     {
+        $arg2 = $args[0] ?? null;
+        $arg3 = $args[1] ?? null;
+
         $fetchMode = $this->convertFetchMode($fetchMode);
 
         // This thin wrapper is necessary to shield against the weird signature
@@ -153,12 +156,13 @@ class PDOStatement extends \PDOStatement implements Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
+    public function fetchAll(?int $fetchMode = null, ...$args)
     {
-        $args = func_get_args();
+        $fetchArgument = $args[0] ?? null;
+        $ctorArgs      = $args[1] ?? null;
 
-        if (isset($args[0])) {
-            $args[0] = $this->convertFetchMode($args[0]);
+        if ($fetchMode) {
+            $fetchMode = $this->convertFetchMode($fetchMode);
         }
 
         if ($fetchMode === null && $fetchArgument === null && $ctorArgs === null) {

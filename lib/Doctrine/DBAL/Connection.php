@@ -1013,7 +1013,7 @@ class Connection implements DriverConnection
      *
      * @throws DBALException
      */
-    public function query()
+    public function query(string $query, ?int $fetchMode = null, ...$fetchModeArgs)
     {
         $connection = $this->getWrappedConnection();
 
