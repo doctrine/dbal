@@ -36,10 +36,8 @@ final class DriverManager
      *
      * To add your own driver use the 'driverClass' parameter to
      * {@link DriverManager::getConnection()}.
-     *
-     * @var string[]
      */
-    private static $_driverMap = [
+    private const DRIVER_MAP = [
         'pdo_mysql'          => PDO\MySQL\Driver::class,
         'pdo_sqlite'         => PDO\SQLite\Driver::class,
         'pdo_pgsql'          => PDO\PgSQL\Driver::class,
@@ -86,7 +84,7 @@ final class DriverManager
      *
      * $params must contain at least one of the following.
      *
-     * Either 'driver' with one of the array keys of {@link $_driverMap},
+     * Either 'driver' with one of the array keys of {@link DRIVER_MAP},
      * OR 'driverClass' that contains the full class name (with namespace) of the
      * driver class to instantiate.
      *
@@ -184,7 +182,7 @@ final class DriverManager
             self::_checkParams($params);
         }
 
-        $className = $params['driverClass'] ?? self::$_driverMap[$params['driver']];
+        $className = $params['driverClass'] ?? self::DRIVER_MAP[$params['driver']];
 
         $driver = new $className();
 
@@ -208,7 +206,7 @@ final class DriverManager
      */
     public static function getAvailableDrivers(): array
     {
-        return array_keys(self::$_driverMap);
+        return array_keys(self::DRIVER_MAP);
     }
 
     /**
@@ -230,8 +228,8 @@ final class DriverManager
         // check validity of parameters
 
         // driver
-        if (isset($params['driver']) && ! isset(self::$_driverMap[$params['driver']])) {
-            throw Exception::unknownDriver($params['driver'], array_keys(self::$_driverMap));
+        if (isset($params['driver']) && ! isset(self::DRIVER_MAP[$params['driver']])) {
+            throw Exception::unknownDriver($params['driver'], array_keys(self::DRIVER_MAP));
         }
 
         if (
