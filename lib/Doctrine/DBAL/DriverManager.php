@@ -178,13 +178,9 @@ final class DriverManager
         if (isset($params['pdo'])) {
             $params['pdo']->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
             $params['driver'] = 'pdo_' . $params['pdo']->getAttribute(\PDO::ATTR_DRIVER_NAME);
-        } else {
-            self::_checkParams($params);
         }
 
-        $className = $params['driverClass'] ?? self::DRIVER_MAP[$params['driver']];
-
-        $driver = new $className();
+        $driver = self::createDriver($params);
 
         $wrapperClass = Connection::class;
         if (isset($params['wrapperClass'])) {
@@ -210,34 +206,31 @@ final class DriverManager
     }
 
     /**
-     * Checks the list of parameters.
-     *
-     * @param mixed[] $params The list of parameters.
+     * @param array<string,mixed> $params
      *
      * @throws Exception
      */
-    private static function _checkParams(array $params): void
+    private static function createDriver(array $params): Driver
     {
-        // check existence of mandatory parameters
+        if (isset($params['driverClass'])) {
+            if (! in_array(Driver::class, class_implements($params['driverClass'], true))) {
+                throw Exception::invalidDriverClass($params['driverClass']);
+            }
 
-        // driver
-        if (! isset($params['driver']) && ! isset($params['driverClass'])) {
-            throw Exception::driverRequired();
+            return new $params['driverClass']();
         }
 
-        // check validity of parameters
+        if (isset($params['driver'])) {
+            if (! isset(self::DRIVER_MAP[$params['driver']])) {
+                throw Exception::unknownDriver($params['driver'], array_keys(self::DRIVER_MAP));
+            }
 
-        // driver
-        if (isset($params['driver']) && ! isset(self::DRIVER_MAP[$params['driver']])) {
-            throw Exception::unknownDriver($params['driver'], array_keys(self::DRIVER_MAP));
+            $class = self::DRIVER_MAP[$params['driver']];
+
+            return new $class();
         }
 
-        if (
-            isset($params['driverClass'])
-            && ! in_array(Driver::class, class_implements($params['driverClass'], true))
-        ) {
-            throw Exception::invalidDriverClass($params['driverClass']);
-        }
+        throw Exception::driverRequired();
     }
 
     /**
